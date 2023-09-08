@@ -167,6 +167,11 @@ namespace Gem::Geneva {
     int GMPISubClientOptimizer::clientRun_() {
         if (m_isSubClient) {
             GMPISubClientIndividual::setClientMode(ClientMode::SUB_CLIENT);
+            // TODO: make sure the request is always freed -> free here if not done by individual
+            // TODO: make sure multiple calls to GMPISubClientIndividual::getClientStatus() will always be valid
+            // even after the operation is done and the request is freed
+            // -> store state once completed and only return completed state from that point on
+            // TODO: relocate and debug the issue with incorrectly set communicators (#27
             GMPISubClientIndividual::setClientStatusRequest(startAsyncBarrier());
             // start the asynchronous request waiting for the client to finish its job
             // execute the sub-client job
@@ -175,6 +180,7 @@ namespace Gem::Geneva {
             GMPISubClientIndividual::setClientMode(ClientMode::CLIENT);
             // run the client until optimization finished
             int returnValue{Go2::clientRun_()};
+            std::cout << "clientRun_ finished" << std::endl;
             // tell sub-clients that the optimization has finished and wait for them to stop
             MPI_Request request = startAsyncBarrier();
 
