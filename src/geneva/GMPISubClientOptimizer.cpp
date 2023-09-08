@@ -167,24 +167,33 @@ namespace Gem::Geneva {
     int GMPISubClientOptimizer::clientRun_() {
         if (m_isSubClient) {
             GMPISubClientIndividual::setClientMode(ClientMode::SUB_CLIENT);
-            // TODO: make sure the request is always freed -> free here if not done by individual
-            // TODO: make sure multiple calls to GMPISubClientIndividual::getClientStatus() will always be valid
-            // even after the operation is done and the request is freed
-            // -> store state once completed and only return completed state from that point on
             // TODO: relocate and debug the issue with incorrectly set communicators (#27
             GMPISubClientIndividual::setClientStatusRequest(startAsyncBarrier());
             // start the asynchronous request waiting for the client to finish its job
             // execute the sub-client job
-            return m_subClientJob(m_subClientComm);
+            const int returnValue = m_subClientJob(m_subClientComm);
+
+            // in case the user has not waited until the client has finished, we must do so.
+            // If the user has done so, waitForClient will return the previous result
+            if (GMPISubClientIndividual::waitForClient() != ClientStatus::FINISHED) {
+                throw gemfony_exception(
+                        g_error_streamer(DO_LOG, time_and_place)
+                                << "GMPISubClientOptimizer::clientRun_() Error!" << std::endl
+                                << "Subclient got an error when trying to wait for the client");
+            }
+
+            std::cout << "subclient finished " << std::endl;
+
+            return returnValue;
+
         } else {
             GMPISubClientIndividual::setClientMode(ClientMode::CLIENT);
             // run the client until optimization finished
-            int returnValue{Go2::clientRun_()};
-            std::cout << "clientRun_ finished" << std::endl;
+            const int returnValue{Go2::clientRun_()};
             // tell sub-clients that the optimization has finished and wait for them to stop
-            MPI_Request request = startAsyncBarrier();
+            MPI_Request request = startAsyncBarrier(); 
 
-            int errCode = MPI_Wait(&request, MPI_STATUS_IGNORE);
+            const int errCode = MPI_Wait(&request, MPI_STATUS_IGNORE);
 
             if (errCode != MPI_SUCCESS) {
                 std::cout << "MPI ERROR: " << errCode << std::endl;
@@ -196,7 +205,7 @@ namespace Gem::Geneva {
                 );
             }
 
-            glogger << "client finished " << std::endl << GLOGGING;
+            std::cout << "client finished " << std::endl;
 
             // return value
             return returnValue;

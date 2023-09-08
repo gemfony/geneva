@@ -113,13 +113,13 @@ namespace Gem::Geneva {
         const double M_PAR_MAX;
 
         /** the number of parameters to optimize */
-        inline const static std::uint32_t m_nParameters{64};
+        inline const static std::uint32_t m_nParameters{8};
 
         /** Simulated time required to calculate one parameter in this parameter set */
-        inline const static std::uint32_t m_delayPerParameterMSec{5};
+        inline const static std::uint32_t m_delayPerParameterMSec{1};
 
         /** Interval for checking the result of mpi communication requests */
-        inline const static std::uint32_t m_pollIntervalMSec{5};
+        inline const static std::uint32_t m_pollIntervalMSec{1};
     };
 
 /******************************************************************/

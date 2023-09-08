@@ -113,9 +113,16 @@ namespace Gem::Geneva {
 
     protected:
         /**
-         * @return status of the associated client in the communication group
+         * @return status of the associated client in the communication group 
+         * updates the m_clientStatus field and returns it
          */
         static ClientStatus getClientStatus();
+
+        /**
+         * Alternative to getClientStatus.
+         * Waits until the client in this subgroup has finished and returns the error code
+         */
+        static ClientStatus waitForClient();
 
         /**
          * @return mode of the current process, either client or sub client
@@ -148,6 +155,11 @@ namespace Gem::Geneva {
          * Request which can be used to check the client status
          */
         inline static MPI_Request m_clientStatusRequest{};
+
+        /**
+         * stores the current value of the client status. Updated every time the getClientStatus() method is invoked
+         */
+        inline static ClientStatus m_clientStatus{ClientStatus::RUNNING};
 
         inline static ClientMode m_clientMode{ClientMode::CLIENT};
 

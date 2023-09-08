@@ -45,8 +45,8 @@
         "value": "0"
     },
     "subClientGroupSize": {
-        "comment": "The amount of processes in each sub-group. Each sub group works together on one individual.",
+        "comment": "The number of processes in each sub-group. Each sub group works together on one individual.",
         "default": "4",
-        "value": "4"
+        "value": "2"
     }
 }

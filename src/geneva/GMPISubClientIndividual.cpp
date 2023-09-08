@@ -67,20 +67,46 @@ namespace Gem::Geneva {
             return ClientStatus::RUNNING;
         }
 
+        // querying an already completed MPI request is not valid. Therefore, return the previously queried state
+        if (m_clientStatus != ClientStatus::RUNNING) {
+            return m_clientStatus;
+        }
+
+        // if still running, update the client status by using MPI_Test and return it
         MPI_Status status{};
         int isCompleted{};
 
         MPI_Test(&m_clientStatusRequest, &isCompleted, &status);
 
-        if (!isCompleted) {
+        if (isCompleted) {
+            if (status.MPI_ERROR == MPI_SUCCESS) {
+                m_clientStatus = ClientStatus::FINISHED;
+            } else {
+                m_clientStatus = ClientStatus::ERROR;
+            }
+        }
+
+        // otherwise it is still running and member does not have to be updated
+
+        // return the updated status member
+        return m_clientStatus;
+    }
+
+    ClientStatus GMPISubClientIndividual::waitForClient() {
+        // If the optimization is finished this means that no Individual is being processed.
+        // Therefore, clients can only call this method if they are running
+        if (m_clientMode == CLIENT) {
             return ClientStatus::RUNNING;
         }
 
-        if (status.MPI_ERROR != MPI_SUCCESS) {
-            return ClientStatus::ERROR;
+        // querying an already completed MPI request is not valid. Therefore, return the previously queried state
+        if (m_clientStatus != ClientStatus::RUNNING) {
+            return m_clientStatus;
         }
+    
+        const int errCode = MPI_Wait(&m_clientStatusRequest, MPI_STATUS_IGNORE);
 
-        return ClientStatus::FINISHED;
+        return errCode == MPI_SUCCESS ? ClientStatus::FINISHED : ClientStatus::ERROR;
     }
 
     ClientMode GMPISubClientIndividual::getClientMode() {
