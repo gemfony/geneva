@@ -55,6 +55,10 @@ namespace Gem::Geneva {
             );
         }
 
+        // TODO: Go2 expects MPIConsumer to be already fully configured in its parseCommandLine private method.
+        // Then Go2 usually starts the consumer by enrolling it. Since we are adding extra options from a config file and splitting the communicator here in GMPISubclientOptimiizer (strictly after the parent class (Go2) constructor), we have to do some ugly deferring of the consumer enrollment, reparse the command line and recall setPositionInCluster (which is already called at the unconfigured MPIConsumer in Go2 by calling init on the abstract consumer base class).
+        // We should considering moving all functionality that is required for configuring the consumer including subclients correctly to the GMPIConsumerT class, thereby enabling Go2 to configure it on its own. The challenge here is to still keep all functionality that is specific to GMPISubClientIndividual and parametric optimization outside of GMPIConsumerT to not "pollute" the courtier library with par. optimization-specific code.
+
         // Go2 already parses the config file but does not know the options needed by this class.
         // Therefore, we parse it again here and override the results of parsing the first time
         // When parsing here, the addConfigurationOptions_ of this class is used and options of this class are added.
