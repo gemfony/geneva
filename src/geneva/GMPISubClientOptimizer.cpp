@@ -136,7 +136,7 @@ namespace Gem::Geneva {
         
             // overwrite cluster position that has already been set by the Go2 constructor, since we have changed the communicator
             dynamic_cast<GIndividualMPIConsumer *>(
-                    GConsumerStore->get(Go2::getConsumerName()).get())->setPositionInCluster();
+                    GConsumerStore->get(m_consumer_name).get())->setPositionInCluster();
         }
 
 
@@ -184,7 +184,6 @@ namespace Gem::Geneva {
     }
 
     int GMPISubClientOptimizer::clientRun_() {
-        std::cout << "clientRun_()" << std::endl;
         if (m_isSubClient) {
             GMPISubClientIndividual::setClientMode(ClientMode::SUB_CLIENT);
             GMPISubClientIndividual::setClientStatusRequest(startAsyncBarrier());
@@ -201,8 +200,6 @@ namespace Gem::Geneva {
                                 << "Subclient got an error when trying to wait for the client");
             }
 
-            std::cout << "subclient finished " << std::endl;
-
             return returnValue;
 
         } else {
@@ -215,7 +212,6 @@ namespace Gem::Geneva {
             const int errCode = MPI_Wait(&request, MPI_STATUS_IGNORE);
 
             if (errCode != MPI_SUCCESS) {
-                std::cout << "MPI ERROR: " << errCode << std::endl;
                 throw gemfony_exception(
                         g_error_streamer(DO_LOG, time_and_place)
                                 << "GMPISubClientOptimizer::clientRun_() Error!" << std::endl
@@ -223,8 +219,6 @@ namespace Gem::Geneva {
                                 << mpiErrorString(errCode) << "`" << std::endl
                 );
             }
-
-            std::cout << "client finished " << std::endl;
 
             // return value
             return returnValue;

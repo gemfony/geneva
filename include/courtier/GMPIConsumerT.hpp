@@ -1455,7 +1455,6 @@ namespace Gem::Courtier {
          * configuration (members) before constructing the contained node with the adjusted configuration.
          */
         void instantiateNode() {
-            std::cout << "instantiateNode()" << std::endl;
             // instantiate the correct class according to the position in the cluster
             if (isMasterNode()) {
                 m_masterNodePtr = std::make_shared<GMPIConsumerMasterNodeT<processable_type>>(
