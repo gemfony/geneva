@@ -43,7 +43,8 @@ namespace Gem::Geneva {
                                                    boost::program_options::options_description const &userDescriptions,
                                                    MPI_Comm baseCommunicator)
             : Go2{argc, argv, configFilePath, userDescriptions, true} {
-        if (Go2::getConsumerName() != "mpi") { // only allow using MPI
+        // only allow using GMPIConsumerT
+        if (Go2::getConsumerName() != "mpi") {
             throw gemfony_exception(
                     g_error_streamer(DO_LOG, time_and_place)
                             << "GMPISubClientOptimizer constructor Error!" << std::endl
@@ -69,6 +70,15 @@ namespace Gem::Geneva {
         // initialize position in MPI world e.g. in the outermost communicator
         MPI_Comm_rank(baseCommunicator, &m_baseCommRank);
         MPI_Comm_size(baseCommunicator, &m_baseCommSize);
+
+        // expect n sub groups plus one server
+        if (m_baseCommSize % m_subClientGroupSize != 1) {
+            throw gemfony_exception(
+                    g_error_streamer(DO_LOG, time_and_place)
+                            << "GMPISubClientOptimizer constructor Error!" << std::endl
+                            << "GMPISubClientOptimizer must be started with (n * subClientGroupSize + 1) MPI base processes for some n, but subClientGroupSize=" << m_subClientGroupSize << " and number of processes is " << m_baseCommSize << std::endl
+            );
+        }
 
         // server has rank 0
         const bool isServer = m_baseCommRank == 0;
