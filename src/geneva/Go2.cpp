@@ -984,7 +984,6 @@ void Go2::parseCommandLine(
 			if (not GBROKER(Gem::Geneva::GParameterSet)->hasConsumers()) {
 				if (!deferConsumerStart) {
 					// async call to start consumer
-					std::cout << "enroling consumer in Go2.cpp" << std::endl;
 					GBROKER(Gem::Geneva::GParameterSet)->enrol_consumer(GConsumerStore->get(m_consumer_name));
 				}
 			} else {
