@@ -42,7 +42,7 @@ namespace Gem::Geneva {
                                                    std::string const &configFilePath,
                                                    boost::program_options::options_description const &userDescriptions,
                                                    MPI_Comm baseCommunicator)
-            : Go2{argc, argv, configFilePath, userDescriptions} {
+            : Go2{argc, argv, configFilePath, userDescriptions, true} {
         if (Go2::getConsumerName() != "mpi") { // only allow using MPI
             throw gemfony_exception(
                     g_error_streamer(DO_LOG, time_and_place)
@@ -86,7 +86,7 @@ namespace Gem::Geneva {
                     << (isSubClient() ? "`sub-client`" : "`client`") << " is in subgroup " << subCommColor
                     << std::endl << GLOGGING;
         } else {
-            glogger << "baseRank=" << m_baseCommRank << " is the server and in no sub-group" << std::endl << GLOGGING;
+            glogger << "baseRank=" << m_baseCommRank << " is the server and in no subgroup" << std::endl << GLOGGING;
         }
 
 
@@ -119,20 +119,29 @@ namespace Gem::Geneva {
             }
         }
 
-        // Notify the GMPIConsumerT to use this inter-communicator
-        Gem::Courtier::GMPIConsumerT<GParameterSet>::setMPICommunicator(m_genevaComm);
+        // things to do by all processes that are inside the GMPIConsumerT communication group
+        if (!m_isSubClient) {
+            // Notify the GMPIConsumerT to use this inter-communicator
+            GIndividualMPIConsumer::setMPICommunicator(m_genevaComm);
+        
+            // overwrite cluster position that has already been set by the Go2 constructor, since we have changed the communicator
+            dynamic_cast<GIndividualMPIConsumer *>(
+                    GConsumerStore->get(Go2::getConsumerName()).get())->setPositionInCluster();
+        }
 
-        // Notify the individual to use this inter-communicator
-        GMPISubClientIndividual::setCommunicator(m_subClientComm);
-
-        // overwrite cluster position that has already been set by the Go2 constructor, since we have changed the communicator
-        dynamic_cast<GIndividualMPIConsumer *>(
-                GConsumerStore->get(Go2::getConsumerName()).get())->setPositionInCluster();
 
         // set sub-client group status communicator
         if (!isServer) {
+            // Notify the individual to use this inter-communicator
+            GMPISubClientIndividual::setCommunicator(m_subClientComm);
+
             // create the status communicator as a copy of the local group communicator
             MPI_Comm_dup(m_subClientComm, &m_subClientStatusComm);
+        }
+
+        // enrol and start the consumer once everything is set up properly
+        if (isServer) {
+            GBROKER(Gem::Geneva::GParameterSet)->enrol_consumer(GConsumerStore->get(m_consumer_name));
         }
 
     }
@@ -165,9 +174,9 @@ namespace Gem::Geneva {
     }
 
     int GMPISubClientOptimizer::clientRun_() {
+        std::cout << "clientRun_()" << std::endl;
         if (m_isSubClient) {
             GMPISubClientIndividual::setClientMode(ClientMode::SUB_CLIENT);
-            // TODO: relocate and debug the issue with incorrectly set communicators (#27
             GMPISubClientIndividual::setClientStatusRequest(startAsyncBarrier());
             // start the asynchronous request waiting for the client to finish its job
             // execute the sub-client job

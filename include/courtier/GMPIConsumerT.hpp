@@ -90,7 +90,8 @@ namespace Gem::Courtier {
     constexpr int TAG_REQUEST_WORK_ITEM = 42;
     constexpr int TAG_SEND_WORK_ITEM = 43;
     constexpr int RANK_MASTER_NODE = 0;
-    static MPI_Comm MPI_COMMUNICATOR = MPI_COMM_WORLD;
+    // inline gives each translation unit access to the SAME variable at the SAME address (which is what we want)
+    inline MPI_Comm MPI_COMMUNICATOR = MPI_COMM_WORLD;
 
     /**
      * Stores configuration options which are used by master node and worker nodes
@@ -1196,9 +1197,6 @@ namespace Gem::Courtier {
             MPI_Comm_rank(MPI_COMMUNICATOR, &m_commRank);
             isClusterPositionDefined = true;
 
-            // TODO: remove print
-            std::cout << "setting position on object " << &MPI_COMMUNICATOR << " rank " << m_commRank << " size" << m_commSize << std::endl;
-
             return *this;
         }
 
@@ -1211,8 +1209,6 @@ namespace Gem::Courtier {
          * @param communicator the new communicator for communication between master node and worker nodes
          */
         static void setMPICommunicator(MPI_Comm communicator) {
-            // TODO: remove print
-            std::cout << "setting comm on address " << &MPI_COMMUNICATOR << std::endl;
             MPI_COMMUNICATOR = communicator;
         }
 
@@ -1459,6 +1455,7 @@ namespace Gem::Courtier {
          * configuration (members) before constructing the contained node with the adjusted configuration.
          */
         void instantiateNode() {
+            std::cout << "instantiateNode()" << std::endl;
             // instantiate the correct class according to the position in the cluster
             if (isMasterNode()) {
                 m_masterNodePtr = std::make_shared<GMPIConsumerMasterNodeT<processable_type>>(

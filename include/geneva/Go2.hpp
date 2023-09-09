@@ -116,6 +116,7 @@ public:
 		 , char **
 		 , std::string const &
 		 , boost::program_options::options_description const & = boost::program_options::options_description()
+		 , bool deferConsumerStart = false
 	 );
 	 /** @brief Deleted copy constructor */
 	 G_API_GENEVA Go2(Go2 const &) = delete;
@@ -165,6 +166,7 @@ public:
 		 int
 		 , char **
 		 , boost::program_options::options_description const & = boost::program_options::options_description()
+		 , bool deferConsumerStart = false
 	 );
 	 /** @brief Loads some configuration data from a configuration file */
 	 G_API_GENEVA void parseConfigFile(std::filesystem::path const &);
@@ -213,6 +215,7 @@ protected:
 	 /** @brief Retrieves a list of the best individuals found */
 	 G_API_GENEVA std::vector<std::shared_ptr<GParameterSet>> getBestIterationIndividuals_() const final;
 
+	std::string m_consumer_name = GO2_DEF_NOCONSUMER; ///< The name of a consumer requested by the user on the command line
 
 private:
 	 /***************************************************************************/
@@ -243,7 +246,6 @@ private:
 	 // These parameters can enter the object through the constructor
 	 bool m_client_mode = GO2_DEF_CLIENTMODE; ///< Specifies whether this object represents a network client
 	 std::string m_config_filename = GO2_DEF_DEFAULTCONFIGFILE; ///< Indicates where the configuration file is stored
-	 std::string m_consumer_name = GO2_DEF_NOCONSUMER; ///< The name of a consumer requested by the user on the command line
 
 	 //---------------------------------------------------------------------------
 	 // Parameters for the random number generator

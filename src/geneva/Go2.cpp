@@ -75,6 +75,7 @@ Go2::Go2(
 	int argc, char **argv
 	, std::string const & configFilename
 	, boost::program_options::options_description const & userDescriptions
+	, bool deferConsumerStart
 )
 	: G_Interface_OptimizerT<Go2>()
     , Gem::Common::GPtrVectorT<GParameterSet, GObject>()
@@ -105,7 +106,7 @@ Go2::Go2(
 
 	//--------------------------------------------
 	// Load configuration options from the command line
-	parseCommandLine(argc, argv, userDescriptions);
+	parseCommandLine(argc, argv, userDescriptions, deferConsumerStart);
 
 	//--------------------------------------------
 	// Random numbers are our most valuable good.
@@ -811,6 +812,7 @@ void Go2::parseCommandLine(
 	int argc
 	, char **argv
 	, boost::program_options::options_description const & userOptions
+	, bool deferConsumerStart
 ) {
 	namespace po = boost::program_options;
 
@@ -980,7 +982,11 @@ void Go2::parseCommandLine(
 		// Register the consumer with the broker, unless other consumers have already been registered or we are running in client mode
 		if (not m_client_mode) {
 			if (not GBROKER(Gem::Geneva::GParameterSet)->hasConsumers()) {
-				GBROKER(Gem::Geneva::GParameterSet)->enrol_consumer(GConsumerStore->get(m_consumer_name));
+				if (!deferConsumerStart) {
+					// async call to start consumer
+					std::cout << "enroling consumer in Go2.cpp" << std::endl;
+					GBROKER(Gem::Geneva::GParameterSet)->enrol_consumer(GConsumerStore->get(m_consumer_name));
+				}
 			} else {
 				glogger
 					<< "In Go2::parseCommandLine(): Note!" << std::endl
