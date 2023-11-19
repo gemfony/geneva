@@ -385,6 +385,7 @@ std::vector<double> GImageOpenCLWorker::openCLCalc(std::shared_ptr<GImageIndivid
 	}
 
 	results.push_back((double)result);
+    std::cout << "Result =" << result << std::endl;
 	return results;
 }
 

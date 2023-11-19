@@ -47,6 +47,7 @@
 #include <istream>
 #include <ostream>
 #include <cstdio>
+#include <cstdint>
 #include <cstdlib>
 #include <csignal>
 #include <cmath>
