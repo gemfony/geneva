@@ -75,8 +75,8 @@ namespace Gem::Geneva {
         MPI_Comm_rank(baseCommunicator, &m_baseCommRank);
         MPI_Comm_size(baseCommunicator, &m_baseCommSize);
 
-        // expect n sub groups plus one server
-        if (m_baseCommSize % m_subClientGroupSize != 1) {
+        // expect n sub groups plus one server 
+        if ((m_baseCommSize - 1) % m_subClientGroupSize != 0) {
             throw gemfony_exception(
                     g_error_streamer(DO_LOG, time_and_place)
                             << "GMPISubClientOptimizer constructor Error!" << std::endl
