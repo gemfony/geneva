@@ -432,13 +432,13 @@ void GImageOpenCLWorker::process_(std::shared_ptr<GParameterSet> p) {
 
 	std::function<std::vector<double>()> f;
 	if(useGPU_) {
-        auto openCLResults = this->openCLCalc(p_conv);
-        std::size_t pos = 0;
-        for(auto result: openCLResults) p_conv->setResult(pos++, result);
+          auto openCLResults = this->openCLCalc(p_conv);
+          std::size_t pos = 0;
+          for(auto result: openCLResults) p_conv->setResult(pos++, result);
 	} else {
-        auto cpuResults = this->cpuCalc(p_conv);
-        std::size_t pos = 0;
-        for(auto result: cpuResults) p_conv->setResult(pos++, result);
+          auto cpuResults = this->cpuCalc(p_conv);
+          std::size_t pos = 0;
+          for(auto result: cpuResults) p_conv->setResult(pos++, result);
 	}
 }
 

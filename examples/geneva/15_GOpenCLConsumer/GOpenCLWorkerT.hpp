@@ -53,14 +53,12 @@
 
 // Boost headers go here
 #include <boost/cast.hpp>
-#include <boost/cstdint.hpp>
-#include <boost/filesystem.hpp>
 #include <boost/lexical_cast.hpp>
 
 // OpenCL includes
 #define CL_HPP_ENABLE_EXCEPTIONS // This will force OpenCL C++ classes to raise exceptions rather than to use an error code
-#define CL_HPP_TARGET_OPENCL_VERSION 300
-#define CL_HPP_MINIMUM_OPENCL_VERSION 300
+#define CL_HPP_TARGET_OPENCL_VERSION 110
+#define CL_HPP_MINIMUM_OPENCL_VERSION 110
 #if defined(__APPLE__) || defined(__MACOSX)
 #include "cl.hpp" // Use the file in our local directory -- cl.hpp is not delivered by default on MacOS X
 #else
@@ -202,7 +200,7 @@ protected:
 	 [[nodiscard]] virtual std::string getCompilerOptions() const
 	 {
 		 std::string compilerOptions =
-			 " -DWORKGROUPSIZE=" + Gem::Common::to_string(m_workGroupSize) + " -cl-fast-relaxed-math";
+			 " -DWORKGROUPSIZE=" + Gem::Common::to_string(m_workGroupSize) + " -cl-fast-relaxed-math -cl-std=CL1.1";
 		 return compilerOptions;
 	 }
 
@@ -285,21 +283,26 @@ private:
 	  */
 	 void initOpenCLProgram()
 	 {
+                 std::cout << "got Codefile " << m_codeFile << std::endl;
+
 		 try {
 			 // Initialize the program object
-             m_source = Gem::Common::loadTextLinesFromFile(m_codeFile);
-			 m_program = cl::Program(
-				 m_context
-				 , m_source
-			 );
-			 m_program.build(
+                         m_source = Gem::Common::loadTextLinesFromFile(m_codeFile);
+                         m_program = cl::Program(
+                                 m_context
+                                 , m_source
+                         );
+
+                         m_program.build(
 				 m_device
 				 , (this->getCompilerOptions()).c_str());
-		 } catch (cl::Error &err) {
-			 std::cerr << "Error! " << err.what() << std::endl;
+
+                         std::cout << "Done building" << std::endl;
+ 		 } catch (cl::Error &err) {
+			 std::cerr << "OpenCL-Error! " << err.what() << std::endl;
 			 exit(1);
 		 } catch (gemfony_exception &err) {
-			 std::cerr << "Error! " << err.what() << std::endl;
+			 std::cerr << "General Error! " << err.what() << std::endl;
 			 exit(1);
 		 }
 	 }

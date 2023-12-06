@@ -64,9 +64,9 @@
 #include "GImagePOM.hpp"
 
 // OpenCL includes
-#define __CL_ENABLE_EXCEPTIONS // This will force OpenCL C++ classes to raise exceptions rather than to use an error code
-#define CL_HPP_TARGET_OPENCL_VERSION 120
-#define CL_HPP_MINIMUM_OPENCL_VERSION 120
+// #define __CL_ENABLE_EXCEPTIONS // This will force OpenCL C++ classes to raise exceptions rather than to use an error code
+// #define CL_HPP_TARGET_OPENCL_VERSION 120
+// #define CL_HPP_MINIMUM_OPENCL_VERSION 120
 #if defined(__APPLE__) || defined(__MACOSX)
 #include "cl.hpp" // Use the file in our local directory -- cl.hpp is not delivered by default on MacOS X
 #else
@@ -377,7 +377,17 @@ int main(int argc, char **argv) {
 		, emitBestOnly
 	);
 
-	// Create the optimizer
+        // Retrieve workers
+        std::vector<std::shared_ptr<GImageOpenCLWorker>> workers;
+        std::tuple<std::size_t, std::size_t> imageDimensions;
+        // workers = getWorkers(deviceDescription, imageDimensions);
+        workers = getWorkers("(0,0)", imageDimensions); // Hack ...
+
+        // Set up the consumer -- this call will register it with the broker
+        // TODO: This is a hack (only first worker)
+        GStdThreadConsumerT<GParameterSet>::setup("./config/GStdThreadConsumerT.json", workers[0]);
+
+        // Create the optimizer
 	Go2 go(argc, argv, "./config/Go2.json", user_options);
 
 	//---------------------------------------------------------------------------
@@ -391,15 +401,6 @@ int main(int argc, char **argv) {
 		printDeviceInfo();
 		exit(0);
 	}
-
-	// Retrieve workers
-	std::vector<std::shared_ptr<GImageOpenCLWorker>> workers;
-	std::tuple<std::size_t, std::size_t> imageDimensions;
-	workers = getWorkers(deviceDescription, imageDimensions);
-
-	// Set up the consumer -- this call will register it with the broker
-    // TODO: This is a hack (only first worker)
-	GStdThreadConsumerT<GParameterSet>::setup("./config/GStdThreadConsumerT.json", workers[0]);
 
 	// Register pluggable optimization monitors, if requested by the user
 	std::shared_ptr<GCollectiveMonitor> collectiveMonitor_ptr = getPOM(
