@@ -102,6 +102,9 @@ BUILDMPICONSUMER="1"
 # Whether to build OpenCL examples. Note that this is an experimental feature
 BUILDOPENCLEXAMPLES="0"
 
+# Whether to build CUDA examples. Note that this is an experimental feature
+BUILDCUDAEXAMPLES="0"
+
 # Further CMake parameters you might want to provide; these
 # will be passed 'verbatim' to CMake's command line
 CMAKEEXTRAFLAGS=""

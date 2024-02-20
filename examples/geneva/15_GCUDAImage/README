@@ -1,0 +1,3 @@
+This example uses CUDA to speed up the calculation of a complicated optimization problem,
+where Geneva is asked to find suitable parameters for a number of triangles, so that their
+amalgamation resembles a given picture.

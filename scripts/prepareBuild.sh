@@ -63,6 +63,7 @@ if [ $# -eq 0 ]; then
 	MPIROOT=""                     # Root directory of the MPI installation, empty for automatic find through Cmake
 	BUILDMPICONSUMER="1"           # Whether to build the MPI-consumer of the courtier library
 	BUILDOPENCLEXAMPLES="0"        # Whether to build OpenCL examples (note: this is an experimental feature)
+	BUILDCUDAEXAMPLES="0"          # Whether to build the CUDA examples (note: this is an experimental feature)
 elif [ $# -eq 1 ]; then
 	# Check that the command file has the expected form (ends with .gcfg)
 	testfile=`basename $1 .gcfg`.gcfg
@@ -137,6 +138,11 @@ elif [ $# -eq 1 ]; then
 		BUILDOPENCLEXAMPLES="0"
 		echo "Variable BUILDOPENCLEXAMPLES wasn't set. Setting to default value '${BUILDOPENCLEXAMPLES}'"
 	fi
+
+	if [ -z "${BUILDOPENCLEXAMPLES}" ]; then
+    BUILDCUDAEXAMPLES="0"
+    echo "Variable BUILDCUDAEXAMPLES wasn't set. Setting to default value '${BUILDCUDAEXAMPLES}'"
+  fi
 else
 	echo -e "\nReceived $# command line arguments, which is an invalid number."
 	echo -e "You can either call this script without arguments, in which case"
@@ -290,7 +296,8 @@ CONFIGURE="${CMAKE} $BOOSTLOCATIONPATHS $BOOSTSYSTEMFLAG \
 -DCMAKE_VERBOSE_MAKEFILE=${VERBOSEMAKEFILE} \
 -DCMAKE_INSTALL_PREFIX=${INSTALLDIR} \
 -DGENEVA_BUILD_WITH_MPI_CONSUMER=${BUILDMPICONSUMER} \
--DGENEVA_BUILD_WITH_OPENCL_EXAMPLES=${BUILDOPENCLEXAMPLES}"
+-DGENEVA_BUILD_WITH_OPENCL_EXAMPLES=${BUILDOPENCLEXAMPLES} \
+-DGENEVA_BUILD_WITH_CUDA_EXAMPLES=${BUILDCUDAEXAMPLES}"
 
 if [ "x$MPIROOT" != "x" ]; then
 	CONFIGURE="${CONFIGURE} -DMPI_HOME='${MPIROOT}'"
