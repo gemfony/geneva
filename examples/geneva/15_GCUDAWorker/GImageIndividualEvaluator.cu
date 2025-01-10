@@ -1,0 +1,650 @@
+/**
+* @file GImageIndividualEvaluator.cu
+ */
+
+/********************************************************************************
+ *
+ * This file is part of the Geneva library collection. The following license
+ * applies to this file:
+ *
+ * ------------------------------------------------------------------------------
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * ------------------------------------------------------------------------------
+ *
+ * Note that other files in the Geneva library collection may use a different
+ * license. Please see the licensing information in each file.
+ *
+ ********************************************************************************
+ *
+ * Geneva was started by Dr. Rüdiger Berlich and was later maintained together
+ * with Dr. Ariel Garcia under the auspices of Gemfony scientific. For further
+ * information on Gemfony scientific, see http://www.gemfomy.eu .
+ *
+ * The majority of files in Geneva was released under the Apache license v2.0
+ * in February 2020.
+ *
+ * See the NOTICE file in the top-level directory of the Geneva library
+ * collection for a list of contributors and copyright information.
+ *
+ ********************************************************************************/
+
+#include "GImageIndividualEvaluator.hpp"
+
+#include <boost/phoenix/stl/container/container.hpp>
+
+namespace Gem::Geneva
+{
+    /**
+     * Initialization with the constant data of the evaluation process
+     *
+     * @param targetImageFileName The name of the image to which similarity should be created
+     * @param useGPU Whether evaluation shall use the GPU
+     * @param blockSize_x The CUDA block-size in x-direction
+     * @param blockSize_y The CUDA block-size in y-direction
+     * @param gridSize_x The CUDA grid-size in x-direction
+     * @param gridSize_y The CUDA grid-size in y-direction
+     */
+    GImageIndividualEvaluator::GImageIndividualEvaluator(const std::string& targetImageFileName,
+                                                         bool useGPU,
+                                                         bool getGPUCandidateImage,
+                                                         int blockSize_x, int blockSize_y,
+                                                         int gridSize_x, int gridSize_y)
+        : targetImageFileName_(targetImageFileName),
+          useGPU_(useGPU),
+          getGPUCandidateImage_(getGPUCandidateImage),
+          blockSize_x_(blockSize_x), blockSize_y_(blockSize_y),
+          gridSize_x_(gridSize_x), gridSize_y_(gridSize_y)
+    {
+        /* nothing */
+    }
+
+    /**
+     * Initialization either for CUDA or for local evaluation
+     */
+    void GImageIndividualEvaluator::init(const std::shared_ptr<GImageIndividual>& individual_ptr)
+    {
+        // Retrieve the ID of the current thread for reporting purposes
+        std::thread::id this_id = std::this_thread::get_id();
+
+
+        // First load the target image into our local data structure,
+        // identifying the image dimensions along the way
+        if (not Common::loadImageToRGB(targetImageFileName_, targetImageData_vec_, width_, height_))
+        {
+            throw gemfony_exception(
+                g_error_streamer(DO_LOG, time_and_place)
+                << "In GImageIndividualEvaluator::init(): Error!" << std::endl
+                << "Target image " << targetImageFileName_ << " could not be loaded!" << std::endl
+            );
+        }
+
+        // Retrieve some further information from the GImageIndividual
+        nTriangles_ = individual_ptr->getNTriangles();
+        bgColor_ = individual_ptr->getBackGroundColor();
+        std::vector<unsigned char> bgColor_vec;
+        bgColor_vec.push_back(std::get<0>(bgColor_));
+        bgColor_vec.push_back(std::get<1>(bgColor_));
+        bgColor_vec.push_back(std::get<2>(bgColor_));
+
+        // Fill the candidate image vector with our background color
+        clearCandidateDataToBG();
+
+        /*
+        std::lock_guard<std::mutex> lock(testMutex_);
+        transformToRGB(individual_ptr);
+        Common::saveRGBImageToFile("./results/candidate.png", candidateImageData_vec_, width_, height_);
+        exit(1);
+        */
+
+        // Allocate memory and transfer data to the GPU
+        if (useGPU_)
+        {
+            //----------------------------------------------------------------------------------
+            // Check that block size is not 0
+            if (blockSize_x_ == 0 || blockSize_y_ == 0)
+            {
+                throw gemfony_exception(
+                    g_error_streamer(DO_LOG, time_and_place)
+                    << "In GImageCUDAWorker::init(): Error!" << std::endl
+                    << "Invalid block dimensions read: " << blockSize_x_ << " / " << blockSize_y_ << std::endl
+                );
+            }
+
+            // Calculate grid size automatically if grid is set to 0
+            if (gridSize_x_ == 0 && gridSize_y_ == 0)
+            {
+                gridSize_x_ = (width_ + blockSize_x_ - 1) / blockSize_x_;
+                gridSize_y_ = (height_ + blockSize_y_ - 1) / blockSize_y_;
+            }
+
+            //----------------------------------------------------------------------------------
+            // Target image
+            // Calculate the number of bytes to be allocated on the GPU
+            const auto imageSizeBytes = static_cast<int>(width_ * height_ * 3 * sizeof(unsigned char));
+
+            // Some error checking
+#ifdef DEBUG
+            if (imageSizeBytes != targetImageData_vec_.size())
+            {
+                throw gemfony_exception(
+                                g_error_streamer(DO_LOG, time_and_place)
+                                << "In GImageCUDAWorker::init(): Error!" << std::endl
+                                << "Invalid RGB image: " << width_ << " / " << height_ << " / " << targetImageData_vec_.size() << std::endl
+                            );
+                );
+            }
+#endif
+
+            //----------------------------------------------------------------------------------
+            // Initialize a CUDA stream
+            checkCuda(cudaStreamCreate(&cuda_stream_), "cudaStreamCreate");
+
+            //----------------------------------------------------------------------------------
+            // Necessary memory allocations
+
+            // Allocate the appropriate amount of space on the GPU
+            checkCuda(cudaMalloc(&d_target_, imageSizeBytes), "cudaMalloc d_target");
+            // Allocate the space for the candidate image
+            checkCuda(cudaMalloc(&d_candidate_, imageSizeBytes), "cudaMalloc d_candidate_");
+            // Allocate the space for the triangle data
+            checkCuda(cudaMalloc(&d_triangles_, static_cast<int>(nTriangles_ * sizeof(Geneva::CircleTriangle))),
+                      "cudaMalloc d_triangles_");
+            // Allocate the space for the background color
+            checkCuda(cudaMalloc(&d_bgcolor_, 3 * sizeof(unsigned char)), "cudaMalloc d_bgcolor_");
+            // Result data
+            checkCuda(cudaMalloc(&d_result_, sizeof(double)), "cudaMalloc d_results");
+
+            //----------------------------------------------------------------------------------
+            // Copy and set data
+
+            // Copy the target image data over
+            checkCuda(cudaMemcpyAsync((void*)(d_target_),
+                                      (void*)(targetImageData_vec_.data()),
+                                      imageSizeBytes,
+                                      cudaMemcpyHostToDevice, cuda_stream_), "Memcpy target");
+            // Copy the current background color over
+            checkCuda(cudaMemcpyAsync((void*)(d_bgcolor_),
+                                      (void*)(bgColor_vec.data()),
+                                      3 * sizeof(unsigned char),
+                                      cudaMemcpyHostToDevice, cuda_stream_), "Memcpy bgcolor");
+
+            //----------------------------------------------------------------------------------
+            // Wait for operations to finish
+            checkCuda(cudaStreamSynchronize(cuda_stream_), "cudaStreamSynchronize");
+
+            //----------------------------------------------------------------------------------
+        }
+    }
+
+    /**
+     * Converts an individual to an RGB format by creating an array with the background color, then
+     * looping over all triangles and, where necessary, modifying the associating pixels. The result
+     * is stored in the candidateImageData_vec_ vector
+     *
+     * @param individual_ptr The GImageIndividual to be evaluated
+     */
+    void GImageIndividualEvaluator::transformToRGB(const std::shared_ptr<GImageIndividual>& individual_ptr)
+    {
+        // Clear the candidate image to the background color
+        clearCandidateDataToBG();
+
+        // Retrieve our triangles
+        const auto triangleData = individual_ptr->getTriangleData();
+
+        // Loop over all triangles, then check which pixels are contained in them.
+        // If contained, blend the current color with the pixel-color.
+        for (const auto& t : triangleData)
+        {
+            // Retrieve the triangle corners
+            auto [x1,y1,x2,y2,x3,y3] = cpu_getCorners(t, width_, height_);
+
+            // Loop over all pixels
+            for (int x = 0; x < width_; x++)
+            {
+                // columns
+                for (int y = 0; y < height_; y++)
+                {
+                    // rows --> y
+                    // Check if the current pixel is contained in the triangle
+                    if (cpu_pointInTriangle(static_cast<float>(x) + 0.5f, static_cast<float>(y) + 0.5f, x1, y1, x2, y2,
+                                            x3,
+                                            y3))
+                    {
+                        // Calculate index of the red channel of the current pixel
+                        const auto index_r = static_cast<std::size_t>(3 * (y * width_ + x) + 0);
+                        const auto index_g = static_cast<std::size_t>(3 * (y * width_ + x) + 1);
+                        const auto index_b = static_cast<std::size_t>(3 * (y * width_ + x) + 2);
+
+                        // Perform the actual alpha-blending
+                        cpu_alphaBlend(
+#ifdef DEBUG
+                            candidateImageData_vec_.at(index_r),
+                            candidateImageData_vec_.at(index_g),
+                            candidateImageData_vec_.at(index_b),
+#else
+                            candidateImageData_vec_[index_r],
+                            candidateImageData_vec_[index_g],
+                            candidateImageData_vec_[index_b],
+#endif
+                            t.r, t.g, t.b, t.a
+                        );
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Calculates the deviation of an individual from the target image
+     */
+    double GImageIndividualEvaluator::cpu_deviation(const std::shared_ptr<GImageIndividual>& individual_ptr)
+    {
+        // Extract our own image data. The result will
+        // be in our local candidate image vector
+        transformToRGB(individual_ptr);
+
+        // Check that the target-image has the right dimension
+        if (not targetImageData_vec_.size() == candidateImageData_vec_.size())
+        {
+            std::cout
+                << "In GImageIndividual::deviation(): Error! Invalid image dimensions"
+                << width_ << " " << height_ << " " << targetImageData_vec_.size()
+                << " " << candidateImageData_vec_.size() << std::endl;
+            exit(1);
+        }
+
+        // Loop over both images and calculate the deviation
+        double dev = 0.0;
+        for (std::size_t pos = 0; pos < targetImageData_vec_.size(); pos++)
+        {
+            dev += pow(static_cast<double>(targetImageData_vec_[pos] - candidateImageData_vec_[pos]), 2.);
+        }
+
+        return sqrt(dev);
+    }
+
+    /**
+     * @param tri A triangle whose corners shall be calculated
+     * @param angle The angle between two axes
+     * @param outX The resulting x-coordinate
+     * @param outY The resulting y-coordinate
+     */
+    __device__ void
+    gpu_getCorner(const CircleTriangle& tri,
+                  float angle,
+                  float& outX,
+                  float& outY,
+                  int width,
+                  int height)
+    {
+        outX = (tri.cx + tri.radius * cosf(angle)) * static_cast<float>(width);
+        outY = (tri.cy + tri.radius * sinf(angle)) * static_cast<float>(height);
+    }
+
+    /**
+     * Check whether a given point is contained in a triangle
+     */
+    __device__ bool
+    gpu_pointInTriangle(float px, float py,
+                        float x1, float y1,
+                        float x2, float y2,
+                        float x3, float y3)
+    {
+        // Cross product-Signum
+        auto sign = [] __device__ (float xA, float yA, float xB, float yB, float xC, float yC)
+        {
+            return (xA - xC) * (yB - yC) - (yA - yC) * (xB - xC);
+        };
+
+        float d1 = sign(px, py, x1, y1, x2, y2);
+        float d2 = sign(px, py, x2, y2, x3, y3);
+        float d3 = sign(px, py, x3, y3, x1, y1);
+
+        bool hasNeg = (d1 < 0) || (d2 < 0) || (d3 < 0);
+        bool hasPos = (d1 > 0) || (d2 > 0) || (d3 > 0);
+        // Point is contained in triangle if both booleans are the same
+        return !(hasNeg && hasPos);
+    }
+
+    /**
+     * Simple alpha blending
+     */
+    __device__ void
+    gpu_alphaBlend(unsigned char& bgR, unsigned char& bgG, unsigned char& bgB,
+                   unsigned char fgR, unsigned char fgG, unsigned char fgB,
+                   unsigned char alpha)
+    {
+        auto blendChannel = [] __device__ (unsigned char bg,
+                                           unsigned char fg,
+                                           unsigned char alpha)
+        {
+            // Casting needed to avoid overflows
+            return static_cast<unsigned char>(((255 - alpha) * bg + alpha * fg) / 255);
+        };
+
+        bgR = blendChannel(bgR, fgR, alpha);
+        bgG = blendChannel(bgG, fgG, alpha);
+        bgB = blendChannel(bgB, fgB, alpha);
+    }
+
+    /**
+     * The actual rendering and evaluation kernel
+     */
+    __global__ void
+    gpu_renderAndCompareKernel(const CircleTriangle* d_triangles,
+                               const unsigned char* d_target,
+                               unsigned char* d_candidate,
+                               const unsigned char* d_bgcolors,
+                               double* d_result,
+                               int width, int height,
+                               int NTriangles)
+    {
+        int x = blockIdx.x * blockDim.x + threadIdx.x;
+        int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+        if (x >= width || y >= height) return;
+
+        // Transfer the background color
+        unsigned char rOut = d_bgcolors[0], gOut = d_bgcolors[1], bOut = d_bgcolors[2];
+
+        // Loop over all triangles
+        for (int idx = 0; idx < NTriangles; idx++)
+        {
+            // Get the next triangle
+            CircleTriangle tri = d_triangles[idx];
+
+            // Calculate its corners
+            float x1, y1, x2, y2, x3, y3;
+            gpu_getCorner(tri, tri.angle1, x1, y1, width, height);
+            gpu_getCorner(tri, tri.angle2, x2, y2, width, height);
+            gpu_getCorner(tri, tri.angle3, x3, y3, width, height);
+
+            // Check whether the current pixel is located inside of a triangle
+            if (gpu_pointInTriangle((float)x + 0.5f, (float)y + 0.5f, x1, y1, x2, y2, x3, y3))
+            {
+                // Alpha-Blending
+                gpu_alphaBlend(rOut, gOut, bOut,
+                               tri.r, tri.g, tri.b,
+                               tri.a);
+            }
+        }
+
+        // Write the blended color into the candidate image
+        size_t pixelIndex = (size_t)(y * width + x);
+        size_t outPos = pixelIndex * 3;
+
+        d_candidate[outPos + 0] = rOut;
+        d_candidate[outPos + 1] = gOut;
+        d_candidate[outPos + 2] = bOut;
+
+        // Calculate the distance to the target image
+        unsigned char rT = d_target[outPos + 0];
+        unsigned char gT = d_target[outPos + 1];
+        unsigned char bT = d_target[outPos + 2];
+
+        float dr = float(rT) - float(rOut);
+        float dg = float(gT) - float(gOut);
+        float db = float(bT) - float(bOut);
+
+        // Sum up the result
+        atomicAdd(d_result, sqrt(double(dr * dr + dg * dg + db * db)));
+    }
+
+    /**
+     * Evaluation of individuals
+     */
+    double GImageIndividualEvaluator::evaluate(std::shared_ptr<GImageIndividual>& individual_ptr)
+    {
+        double fitness{0.};
+
+        // Perform the evaluation on the GPU
+        if (useGPU_)
+        {
+            const auto imageSizeBytes = static_cast<std::size_t>(width_ * height_ * 3 * sizeof(unsigned char));
+
+            // Reset the fitness-counter
+            checkCuda(cudaMemsetAsync(d_result_, 0, sizeof(double), cuda_stream_), "Memset fitness");
+
+            // Retrieve and transfer the current background color
+            bgColor_ = individual_ptr->getBackGroundColor();
+            std::vector<unsigned char> bgColor_vec;
+            bgColor_vec.push_back(std::get<0>(bgColor_));
+            bgColor_vec.push_back(std::get<1>(bgColor_));
+            bgColor_vec.push_back(std::get<2>(bgColor_));
+
+            checkCuda(cudaMemcpyAsync(d_bgcolor_, bgColor_vec.data(), 3 * sizeof(unsigned char), cudaMemcpyHostToDevice,
+                                      cuda_stream_), "Memcpy bgcolor");
+
+            // Retrieve and transfer the current triangle set
+            auto CircleTriangleVec = individual_ptr->getTriangleData();
+            checkCuda(cudaMemcpyAsync(d_triangles_, CircleTriangleVec.data(), nTriangles_ * sizeof(CircleTriangle),
+                                      cudaMemcpyHostToDevice, cuda_stream_), "Memcpy triangles");
+
+            // Set up the block- and grid-sizes
+            dim3 dimBlock(blockSize_x_, blockSize_y_);
+            dim3 dimGrid(gridSize_x_, gridSize_y_);
+
+            // Start the actual kernel
+            gpu_renderAndCompareKernel<<<dimGrid, dimBlock, 0, cuda_stream_>>>(d_triangles_,
+                                                                               d_target_,
+                                                                               d_candidate_,
+                                                                               d_bgcolor_,
+                                                                               d_result_,
+                                                                               width_, height_,
+                                                                               static_cast<int>(nTriangles_)
+            );
+
+            // Retrieve the fitness of the individual
+            checkCuda(cudaMemcpyAsync(&fitness, d_result_, sizeof(double), cudaMemcpyDeviceToHost, cuda_stream_),
+                      "Mmcpy result");
+
+            // Store the result in the individual
+            std::vector<parameterset_processing_result> result;
+            parameterset_processing_result p_fitness{fitness, fitness};
+            result.push_back(p_fitness);
+            individual_ptr->markAsProcessedWith(result);
+
+            // Copying the images back is an expensive operation.
+            // We only want to perform this in selected cases, e.g.
+            // for the pluggable optimization monitor.
+            if (getGPUCandidateImage_)
+            {
+                checkCuda(cudaMemcpyAsync(candidateImageData_vec_.data(),
+                                          d_candidate_,
+                                          imageSizeBytes,
+                                          cudaMemcpyDeviceToHost,
+                                          cuda_stream_), "Mmcpy candidate image");
+            }
+
+            // Wait for all work to finish in this stream
+            checkCuda(cudaStreamSynchronize(cuda_stream_), "cudaStreamSynchronize");
+        }
+        // Run solely on the CPU
+        else
+        {
+            // This is not a multi-criterion optimization
+            fitness = cpu_deviation(individual_ptr);
+            individual_ptr->setResult(0, fitness);
+        }
+
+        // Let the audience know
+        return fitness;
+    }
+
+    /**
+     * Finalization code
+     */
+    void GImageIndividualEvaluator::finalize()
+    {
+        // Get rid of memory allocated for the target image on the GPU, as well as streams
+        if (useGPU_)
+        {
+            cudaFree(d_target_);
+            cudaFree(d_triangles_);
+            cudaFree(d_candidate_);
+            cudaFree(d_bgcolor_);
+            cudaFree(d_result_);
+
+            checkCuda(cudaStreamSynchronize(cuda_stream_), "cudaStreamSynchronize");
+            checkCuda(cudaStreamDestroy(cuda_stream_), "cudaStreamDestroy");
+        }
+    }
+
+    /**
+     * Retrieval of the candidate image
+     *
+     * @param width The width of the target image
+     * @param height The height of the target image
+     * @return The candidate image in RGB format
+     */
+    std::vector<unsigned char>
+    GImageIndividualEvaluator::getCandidateImage(int& width, int& height) const
+    {
+        // Complain if no valid candidate image exists
+        if (useGPU_ and not getGPUCandidateImage_)
+        {
+            throw gemfony_exception(
+                g_error_streamer(DO_LOG, time_and_place)
+                << "In GImageIndividualEvaluator::getCandidateImage(): Error!" << std::endl
+                << "Asked for candidate image even though image was not meant to " << std::endl
+                << "be transferred from the device back to the host" << std::endl
+            );
+        }
+
+        width = width_;
+        height = height_;
+
+        return candidateImageData_vec_;
+    }
+
+    /**
+     * Saves current the current candidate image to disc
+     *
+     * @param candidateFile The path and name of the file to which the candidate image shall be saved
+     */
+    void
+    GImageIndividualEvaluator::saveCandidateImageToDisc(const std::string& candidateFile) const
+    {
+        Common::saveRGBImageToFile(candidateFile, candidateImageData_vec_, width_, height_);
+    }
+
+    /**
+     * Calculate the cartesian coordinates of the image from its circle definition
+     *
+     * @param tri The circle definition of the triangle
+     * @param width The image width
+     * @param height The image height
+     * @return A tuple holding the cartesian coordinates
+     */
+    std::tuple<float, float, float, float, float, float>
+    GImageIndividualEvaluator::cpu_getCorners(const CircleTriangle& tri, int width, int height)
+    {
+        return {
+            (tri.cx + tri.radius * cosf(tri.angle1)) * static_cast<float>(width), // x1
+            (tri.cy + tri.radius * sinf(tri.angle1)) * static_cast<float>(height), // y1
+            (tri.cx + tri.radius * cosf(tri.angle2)) * static_cast<float>(width), // x2
+            (tri.cy + tri.radius * sinf(tri.angle2)) * static_cast<float>(height), // y2
+            (tri.cx + tri.radius * cosf(tri.angle3)) * static_cast<float>(width), // x3
+            (tri.cy + tri.radius * sinf(tri.angle3)) * static_cast<float>(height) // y3
+        };
+    }
+
+    /**
+     * Checks with a cross product whether a given point is contained in
+     * a triangle defined by its corner coordinates
+     */
+    bool
+    GImageIndividualEvaluator::cpu_pointInTriangle(float px, float py,
+                                                   float x1, float y1,
+                                                   float x2, float y2,
+                                                   float x3, float y3)
+    {
+        auto sign = [](float xA, float yA, float xB, float yB, float xC, float yC)
+        {
+            return (xA - xC) * (yB - yC) - (yA - yC) * (xB - xC);
+        };
+
+        const float d1 = sign(px, py, x1, y1, x2, y2);
+        const float d2 = sign(px, py, x2, y2, x3, y3);
+        const float d3 = sign(px, py, x3, y3, x1, y1);
+
+        const bool hasNeg = (d1 < 0) || (d2 < 0) || (d3 < 0);
+        const bool hasPos = (d1 > 0) || (d2 > 0) || (d3 > 0);
+
+        // The point is only inside of the triangle if the signs are the same
+        return !(hasNeg && hasPos);
+    }
+
+    /**
+     * Simple alpha blending in 8 bits
+     *
+     * @param bgR The red channel of the background color
+     * @param bgG The green channel of the background color
+     * @param bgB The blue channel of the background color
+     * @param fgR The red channel of the foreground color to be created
+     * @param fgG The green channel of the foreground color to be created
+     * @param fgB The blue channel of the foreground color to be created
+     * @param alpha The transparency level of the triangle
+     */
+    void
+    GImageIndividualEvaluator::cpu_alphaBlend(unsigned char& bgR, unsigned char& bgG, unsigned char& bgB,
+                                              unsigned char fgR, unsigned char fgG, unsigned char fgB,
+                                              unsigned char alpha)
+    {
+        auto blendChannel = [](unsigned char bg,
+                               unsigned char fg,
+                               unsigned char alpha)
+        {
+            // Casting needed to avoid overflows
+            return static_cast<unsigned char>(((255 - alpha) * bg + alpha * fg) / 255);
+        };
+
+        bgR = blendChannel(bgR, fgR, alpha);
+        bgG = blendChannel(bgG, fgG, alpha);
+        bgB = blendChannel(bgB, fgB, alpha);
+    }
+
+
+    /**
+     * This function resets the candidateImageData_vec_ to the stored background colors
+     */
+    void GImageIndividualEvaluator::clearCandidateDataToBG()
+    {
+        std::size_t candidateImageData_vec_size = 3 * width_ * height_ * sizeof(unsigned char);
+        std::vector<unsigned char> bgColor = {
+            std::get<0>(bgColor_),
+            std::get<1>(bgColor_),
+            std::get<2>(bgColor_)
+        };
+
+        // Resize candidateImageData_vec_ by the bgColor for the required number of times
+        if (candidateImageData_vec_.size() != (candidateImageData_vec_size))
+        {
+            candidateImageData_vec_.clear();
+            candidateImageData_vec_.reserve(candidateImageData_vec_size);
+            for (std::size_t i = 0; i < candidateImageData_vec_size; i++)
+            {
+                candidateImageData_vec_.insert(candidateImageData_vec_.end(), bgColor.begin(), bgColor.end());
+            }
+        }
+        // Consecutively copy bgColor values into the candidateImageData_vec_ vector
+        else
+        {
+            for (std::size_t i = 0; i < candidateImageData_vec_size; i++)
+            {
+                std::size_t startIndex = i * bgColor.size();
+                std::copy(bgColor.begin(), bgColor.end(), candidateImageData_vec_.begin() + startIndex);
+            }
+        }
+    }
+} /* namespace Gem::Geneva */

@@ -34,12 +34,7 @@
 #
 ################################################################################
 
-SET ( FIGUREDATA
-        ml.ppm
-        ml_small192.ppm
-        ml_small256.ppm
-        squareTriangle.ppm
-        )
+SET ( FIGUREDATA ml.png )
 
 # Copy the config files to the build tree for easier testing
 FILE ( COPY ${FIGUREDATA} DESTINATION . )

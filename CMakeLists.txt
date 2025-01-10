@@ -38,7 +38,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 3.13 FATAL_ERROR)
 
 MESSAGE ("")
 
-PROJECT (Geneva_Library_Collection)
+PROJECT (Geneva_Library_Collection LANGUAGES CXX CUDA)
 
 ################################################################################
 # We create some examples and test programs as part of the build process.

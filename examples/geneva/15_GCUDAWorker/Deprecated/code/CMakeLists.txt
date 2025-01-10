@@ -34,15 +34,11 @@
 #
 ################################################################################
 
-SET ( CONFIGFILES
-	GEvolutionaryAlgorithm.json
-	GImageIndividual.json
-	GImageOpenCLWorker.json
-	Go2.json
-    GStdThreadConsumerT.json
+SET ( OCLFILES
+        monalisa.cl
 )
 
 # Copy the config files to the build tree for easier testing
-FILE ( COPY ${CONFIGFILES} DESTINATION . )
+FILE ( COPY ${OCLFILES} DESTINATION .)
 
-INSTALL ( FILES ${CONFIGFILES} DESTINATION ${INSTALL_PREFIX_DATA}/examples/${EXECUTABLENAME}/config )
+INSTALL ( FILES ${OCLFILES} DESTINATION ${INSTALL_PREFIX_DATA}/examples/${EXECUTABLENAME}/code )

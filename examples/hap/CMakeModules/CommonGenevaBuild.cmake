@@ -255,24 +255,6 @@ MESSAGE("")
 
 INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
 
-# Optionally search for OpenCL
-IF(GENEVA_BUILD_WITH_OPENCL_EXAMPLES)
-    FIND_PACKAGE(OpenCL REQUIRED)
-    MESSAGE("")
-    IF(OpenCL_FOUND)
-        INCLUDE_DIRECTORIES(${OpenCL_INCLUDE_DIRS})
-    ENDIF()
-ENDIF()
-
-# Optionally search for CUDA
-IF(GENEVA_BUILD_WITH_CUDA_EXAMPLES)
-	FIND_PACKAGE(CUDA REQUIRED)
-	MESSAGE("")
-	IF(CUDA_FOUND)
-		INCLUDE_DIRECTORIES(${CUDA_INCLUDE_DIRS})
-	ENDIF()
-ENDIF()
-
 # Add compile-time debug information about Boost's linked libraries
 IF(WIN32 AND CMAKE_VERBOSE_MAKEFILE)
 	ADD_DEFINITIONS(${Boost_LIB_DIAGNOSTIC_DEFINITIONS})
@@ -454,12 +436,6 @@ IF (NOT GENEVA_FULL_TREE_BUILD)
 	MESSAGE ("\twith Geneva include location:\t ${GENEVA_INCLUDE_DIR}")
 	MESSAGE ("\twith Geneva library location:\t ${GENEVA_LIBRARY_DIR}")
 ENDIF ()
-
-IF(GENEVA_BUILD_WITH_OPENCL_EXAMPLES)
-    MESSAGE ("\twith OpenCL include location:\t ${OpenCL_INCLUDE_DIRS}")
-    MESSAGE ("\twith OpenCL library location:\t ${OpenCL_LIBRARIES}")
-    MESSAGE ("\twith with highest supported OpenCL version ${OpenCL_VERSION_STRING}")
-ENDIF()
 
 MESSAGE ("\tusing compiler:\t\t\t ${CMAKE_CXX_COMPILER_ID} v${CMAKE_CXX_COMPILER_VERSION}")
 # Don't try to access the build type on multi-config generators

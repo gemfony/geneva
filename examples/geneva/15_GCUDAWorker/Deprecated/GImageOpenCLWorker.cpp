@@ -391,7 +391,7 @@ std::vector<double> GImageOpenCLWorker::openCLCalc(std::shared_ptr<GImageIndivid
 
 /******************************************************************************/
 /**
- * Perform the OpenCL-based evaluation
+ * Perform the CPU-based evaluation
  */
 std::vector<double> GImageOpenCLWorker::cpuCalc(std::shared_ptr<GImageIndividual> p_conv) {
 	std::vector<double> results;

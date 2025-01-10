@@ -36,7 +36,7 @@
 
 IF (NOT GENEVA_FULL_TREE_BUILD)
 
-	PROJECT(GOpenCLConsumer)
+	PROJECT(GCUDAWorker LANGUAGES CXX CUDA)
 
 	# For building the examples independently, we still assume that the
 	# 'CMakeModules' folder can be found at the same place as the current
@@ -46,20 +46,39 @@ IF (NOT GENEVA_FULL_TREE_BUILD)
 
 	MESSAGE("\nPerforming an independent build of ${PROJECT_NAME}")
 	INCLUDE(CommonGenevaBuild)
-
 ENDIF ()
 
-SET ( EXECUTABLENAME GOpenCLConsumer )
+enable_language(CUDA)
 
+# Setting the CUDA-Standard
+set(CMAKE_CUDA_STANDARD 17)
+set(CMAKE_CUDA_STANDARD_REQUIRED ON)
+
+# Search for libpng
+FIND_PACKAGE(PNG REQUIRED)
+IF(NOT PNG_FOUND)
+	message(FATAL_ERROR "libpng could not be found")
+ENDIF()
+
+SET ( EXECUTABLENAME GCUDAWorker )
 SET ( ${EXECUTABLENAME}_SRCS
 	GImageBuilder.cpp
+	GImageCUDAWorker.cpp
     GImageIndividual.cpp
-    GImageOpenCLWorker.cpp
-    GOpenCLCanvas.cpp
+	GImageHelperFunctions.cpp
+	GImageIndividualEvaluator.cu
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}
 	${${EXECUTABLENAME}_SRCS}
+)
+
+set_target_properties(${EXECUTABLENAME} PROPERTIES
+		CUDA_ARCHITECTURES 89
+)
+
+target_compile_options(${EXECUTABLENAME} PRIVATE
+		$<$<COMPILE_LANGUAGE:CUDA>:--extended-lambda>
 )
 
 SET(LIBRARIES_TO_LINK
@@ -75,14 +94,16 @@ IF(GENEVA_BUILD_WITH_MPI_CONSUMER)
 ENDIF()
 
 TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
-		${LIBRARIES_TO_LINK})
+		${LIBRARIES_TO_LINK}
+		PNG::PNG
+)
 
 SET ( MONALISAINCLUDES
     GImageIndividual.hpp
-    GImageOpenCLWorker.hpp
     GImagePOM.hpp
-    GOpenCLCanvas.hpp
-    GOpenCLWorkerT.hpp
+	GImageCUDAWorker.hpp
+	GImageHelperFunctions.hpp
+	GImageIndividualEvaluator.hpp
 )
 
 # This is a workaround for a CLion-problem -- see CPP270 in the JetBrains issue tracker
@@ -97,7 +118,6 @@ SET_TARGET_PROPERTIES(
 )
 
 ADD_SUBDIRECTORY(pictures)
-ADD_SUBDIRECTORY(code)
 ADD_SUBDIRECTORY(config)
 
 IF (GENEVA_RUN_EXAMPLES_AS_TESTS)
