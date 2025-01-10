@@ -164,6 +164,10 @@ namespace Gem::Geneva
             // Result data
             checkCuda(cudaMalloc(&d_result_, sizeof(double)), "cudaMalloc d_results");
 
+            // Temporary storage for triangle data
+            checkCuda(cudaMalloc(&d_triangle_data_, 8 * nTriangles_ * sizeof(float)), "cudaMalloc d_triangle_data");
+            h_triangle_data_.resize(nTriangles_ * 8);
+
             //----------------------------------------------------------------------------------
             // Copy and set data
 
@@ -280,12 +284,12 @@ namespace Gem::Geneva
      * @param outY The resulting y-coordinate
      */
     __device__ void
-    gpu_getCorner(const CircleTriangle& tri,
-                  float angle,
-                  float& outX,
-                  float& outY,
-                  int width,
-                  int height)
+    cuda_getCorner(const CircleTriangle& tri,
+                   float angle,
+                   float& outX,
+                   float& outY,
+                   int width,
+                   int height)
     {
         outX = (tri.cx + tri.radius * cosf(angle)) * static_cast<float>(width);
         outY = (tri.cy + tri.radius * sinf(angle)) * static_cast<float>(height);
@@ -295,10 +299,10 @@ namespace Gem::Geneva
      * Check whether a given point is contained in a triangle
      */
     __device__ bool
-    gpu_pointInTriangle(float px, float py,
-                        float x1, float y1,
-                        float x2, float y2,
-                        float x3, float y3)
+    cuda_pointInTriangle(float px, float py,
+                         float x1, float y1,
+                         float x2, float y2,
+                         float x3, float y3)
     {
         // Cross product-Signum
         auto sign = [] __device__ (float xA, float yA, float xB, float yB, float xC, float yC)
@@ -320,9 +324,9 @@ namespace Gem::Geneva
      * Simple alpha blending
      */
     __device__ void
-    gpu_alphaBlend(unsigned char& bgR, unsigned char& bgG, unsigned char& bgB,
-                   unsigned char fgR, unsigned char fgG, unsigned char fgB,
-                   unsigned char alpha)
+    cuda_alphaBlend(unsigned char& bgR, unsigned char& bgG, unsigned char& bgB,
+                    unsigned char fgR, unsigned char fgG, unsigned char fgB,
+                    unsigned char alpha)
     {
         auto blendChannel = [] __device__ (unsigned char bg,
                                            unsigned char fg,
@@ -341,13 +345,14 @@ namespace Gem::Geneva
      * The actual rendering and evaluation kernel
      */
     __global__ void
-    gpu_renderAndCompareKernel(const CircleTriangle* d_triangles,
-                               const unsigned char* d_target,
-                               unsigned char* d_candidate,
-                               const unsigned char* d_bgcolors,
-                               double* d_result,
-                               int width, int height,
-                               int NTriangles)
+    cuda_renderAndCompareKernel(const CircleTriangle* d_triangles,
+                                const unsigned char* d_target,
+                                unsigned char* d_candidate,
+                                const unsigned char* d_bgcolors,
+                                double* d_result,
+                                float* d_triangle_data,
+                                int width, int height,
+                                int NTriangles)
     {
         int x = blockIdx.x * blockDim.x + threadIdx.x;
         int y = blockIdx.y * blockDim.y + threadIdx.y;
@@ -365,22 +370,33 @@ namespace Gem::Geneva
 
             // Calculate its corners
             float x1, y1, x2, y2, x3, y3;
-            gpu_getCorner(tri, tri.angle1, x1, y1, width, height);
-            gpu_getCorner(tri, tri.angle2, x2, y2, width, height);
-            gpu_getCorner(tri, tri.angle3, x3, y3, width, height);
+            cuda_getCorner(tri, tri.angle1, x1, y1, width, height);
+            cuda_getCorner(tri, tri.angle2, x2, y2, width, height);
+            cuda_getCorner(tri, tri.angle3, x3, y3, width, height);
+
+            d_triangle_data[8 * idx + 0] = x1;
+            d_triangle_data[8 * idx + 1] = y1;
+            d_triangle_data[8 * idx + 2] = x2;
+            d_triangle_data[8 * idx + 3] = y2;
+            d_triangle_data[8 * idx + 4] = x3;
+            d_triangle_data[8 * idx + 5] = y3;
+            d_triangle_data[8 * idx + 6] = static_cast<float>(x) + 0.5f;
+            d_triangle_data[8 * idx + 7] = static_cast<float>(y) + 0.5f;
+
 
             // Check whether the current pixel is located inside of a triangle
-            if (gpu_pointInTriangle((float)x + 0.5f, (float)y + 0.5f, x1, y1, x2, y2, x3, y3))
+            if (cuda_pointInTriangle(static_cast<float>(x) + 0.5f, static_cast<float>(y) + 0.5f, x1, y1, x2, y2, x3,
+                                     y3))
             {
                 // Alpha-Blending
-                gpu_alphaBlend(rOut, gOut, bOut,
-                               tri.r, tri.g, tri.b,
-                               tri.a);
+                cuda_alphaBlend(rOut, gOut, bOut,
+                                tri.r, tri.g, tri.b,
+                                tri.a);
             }
         }
 
         // Write the blended color into the candidate image
-        size_t pixelIndex = (size_t)(y * width + x);
+        size_t pixelIndex = static_cast<size_t>(y * width + x);
         size_t outPos = pixelIndex * 3;
 
         d_candidate[outPos + 0] = rOut;
@@ -392,12 +408,12 @@ namespace Gem::Geneva
         unsigned char gT = d_target[outPos + 1];
         unsigned char bT = d_target[outPos + 2];
 
-        float dr = float(rT) - float(rOut);
-        float dg = float(gT) - float(gOut);
-        float db = float(bT) - float(bOut);
+        float dr = static_cast<float>(rT) - static_cast<float>(rOut);
+        float dg = static_cast<float>(gT) - static_cast<float>(gOut);
+        float db = static_cast<float>(bT) - static_cast<float>(bOut);
 
         // Sum up the result
-        atomicAdd(d_result, sqrt(double(dr * dr + dg * dg + db * db)));
+        atomicAdd(d_result, sqrt(static_cast<double>(dr * dr + dg * dg + db * db)));
     }
 
     /**
@@ -435,13 +451,14 @@ namespace Gem::Geneva
             dim3 dimGrid(gridSize_x_, gridSize_y_);
 
             // Start the actual kernel
-            gpu_renderAndCompareKernel<<<dimGrid, dimBlock, 0, cuda_stream_>>>(d_triangles_,
-                                                                               d_target_,
-                                                                               d_candidate_,
-                                                                               d_bgcolor_,
-                                                                               d_result_,
-                                                                               width_, height_,
-                                                                               static_cast<int>(nTriangles_)
+            cuda_renderAndCompareKernel<<<dimGrid, dimBlock, 0, cuda_stream_>>>(d_triangles_,
+                d_target_,
+                d_candidate_,
+                d_bgcolor_,
+                d_result_,
+                d_triangle_data_,
+                width_, height_,
+                static_cast<int>(nTriangles_)
             );
 
             // Retrieve the fitness of the individual
@@ -449,10 +466,27 @@ namespace Gem::Geneva
                       "Mmcpy result");
 
             // Store the result in the individual
-            std::vector<parameterset_processing_result> result;
-            parameterset_processing_result p_fitness{fitness, fitness};
-            result.push_back(p_fitness);
-            individual_ptr->markAsProcessedWith(result);
+            std::vector<double> result_vec;
+            result_vec.push_back(fitness);
+
+            checkCuda(cudaMemcpyAsync(h_triangle_data_.data(), d_triangle_data_, 8 * nTriangles_ * sizeof(float),
+                                      cudaMemcpyDeviceToHost, cuda_stream_), "Mmcpy triangle data");
+
+            /*
+            for (std::size_t t = 0; t < nTriangles_; t++)
+            {
+                std::cout
+                    << "triangle: " << t << " / " << nTriangles_ << std::endl
+                    << "width: " << width_ << " height: " << height_ << std::endl
+                    << "x1: " << h_triangle_data_[t * 8 + 0] << " y1: " << h_triangle_data_[t * 8 + 1] << std::endl
+                    << "x2: " << h_triangle_data_[t * 8 + 2] << " y2: " << h_triangle_data_[t * 8 + 3] << std::endl
+                    << "x3: " << h_triangle_data_[t * 8 + 4] << " y3: " << h_triangle_data_[t * 8 + 5] << std::endl
+                    << "x : " << h_triangle_data_[t * 8 + 6] << " y : " << h_triangle_data_[t * 8 + 7] << std::endl
+                    << std::endl;
+            }
+            sleep(1);
+            exit(0);
+            */
 
             // Copying the images back is an expensive operation.
             // We only want to perform this in selected cases, e.g.
@@ -474,8 +508,9 @@ namespace Gem::Geneva
         {
             // This is not a multi-criterion optimization
             fitness = cpu_deviation(individual_ptr);
-            individual_ptr->setResult(0, fitness);
         }
+
+        individual_ptr->setFitness(std::vector<double>(1,fitness));
 
         // Let the audience know
         return fitness;
@@ -494,6 +529,7 @@ namespace Gem::Geneva
             cudaFree(d_candidate_);
             cudaFree(d_bgcolor_);
             cudaFree(d_result_);
+            cudaFree(d_triangle_data_);
 
             checkCuda(cudaStreamSynchronize(cuda_stream_), "cudaStreamSynchronize");
             checkCuda(cudaStreamDestroy(cuda_stream_), "cudaStreamDestroy");

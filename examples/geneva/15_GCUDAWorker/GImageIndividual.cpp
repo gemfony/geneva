@@ -370,6 +370,12 @@ namespace Gem::Geneva
 		this->push_back(bg_color_b_ptr);
 	}
 
+	/** @brief Allows an external entity to set our fitness */
+	void GImageIndividual::setFitness(std::vector<double> const& result_vec)
+	{
+		this->setFitness_(result_vec);
+	}
+
 	/***************************************************************************/
 	/**
 	 * Searches for compliance with expectations with respect to another object

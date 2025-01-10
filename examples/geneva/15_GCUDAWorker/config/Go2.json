@@ -42,6 +42,6 @@
     "nProducerThreads": {
         "comment": "The number of threads simultaneously producing random numbers",
         "default": "0",
-        "value": "0"
+        "value": "8"
     }
 }

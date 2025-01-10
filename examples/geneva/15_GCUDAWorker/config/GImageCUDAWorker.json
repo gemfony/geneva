@@ -30,7 +30,7 @@
     "imageFile": {
         "comment": "The name of the file holding the target image",
         "default": ".\/pictures\/ml.png",
-        "value": ".\/pictures\/ml.png"
+        "value": ".\/pictures\/ml-small.png"
     },
     "useGPU": {
         "comment": "Indicates whether evaluation should run on the GPU (1)",

@@ -8,6 +8,6 @@
         "comment": "Setting threadsPerWorker to 0 will result in an attempt to",
         "comment": "automatically determine the number of hardware threads.",
         "default": "0",
-        "value": "0"
+        "value": "16"
     }
 }

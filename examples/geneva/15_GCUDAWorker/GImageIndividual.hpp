@@ -195,6 +195,9 @@ namespace Gem::Geneva
             , const double& loc_maxAdProb
         );
 
+        /** @brief Allows an external entity to set our fitness */
+        void setFitness(std::vector<double> const&);
+
         /** @brief Retrieves the number of triangles */
         std::size_t getNTriangles() const;
         /** @brief Retrieves an array with the triangle data, using the circular triangle definition */

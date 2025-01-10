@@ -69,7 +69,7 @@ namespace Gem::Geneva
 
     /** @brief Calculation of a single triangle corner in cartesian coordinates */
     __device__ void
-    gpu_getCorner(const CircleTriangle& tri,
+    cuda_getCorner(const CircleTriangle& tri,
                   float angle,
                   float& outX,
                   float& outY,
@@ -78,22 +78,23 @@ namespace Gem::Geneva
 
     /** @brief Check whether a given point is contained in a triangle */
     __device__ bool
-    gpu_pointInTriangle(float px, float py,
+    cuda_pointInTriangle(float px, float py,
                         float x1, float y1,
                         float x2, float y2,
                         float x3, float y3);
 
     /** @brief Simple alpha blending */
     __device__ void
-    gpu_alphaBlend(unsigned char& bgR, unsigned char& bgG, unsigned char& bgB,
+    cuda_alphaBlend(unsigned char& bgR, unsigned char& bgG, unsigned char& bgB,
                    unsigned char fgR, unsigned char fgG, unsigned char fgB,
                    unsigned char alpha);
 
     __global__ void
-    gpu_renderAndCompareKernel(const CircleTriangle*,
+    cuda_renderAndCompareKernel(const CircleTriangle*,
                                const unsigned char*,
                                unsigned char*,
-                               unsigned char*,
+                               const unsigned char*,
+                               double*,
                                float*,
                                int, int,
                                int);
@@ -197,6 +198,8 @@ namespace Gem::Geneva
         unsigned char* d_candidate_{nullptr}; ///< Holds the candidate image assembled from the triangles
         unsigned char* d_bgcolor_{nullptr}; ///< Holds the current background color, to be transferred to the device
         double* d_result_{nullptr}; ///< Holds the result of the current evaluation
+        float* d_triangle_data_{nullptr};
+        std::vector<float> h_triangle_data_{};
 
         cudaStream_t cuda_stream_{};
 
