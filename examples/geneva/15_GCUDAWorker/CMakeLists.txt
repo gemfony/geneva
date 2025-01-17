@@ -67,6 +67,7 @@ SET ( ${EXECUTABLENAME}_SRCS
     GImageIndividual.cpp
 	GImageHelperFunctions.cpp
 	GImageIndividualEvaluator.cu
+	GCUDAFitnessIndividual.cu
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}
@@ -74,7 +75,7 @@ ADD_EXECUTABLE(${EXECUTABLENAME}
 )
 
 set_target_properties(${EXECUTABLENAME} PROPERTIES
-		CUDA_ARCHITECTURES 89
+		CUDA_ARCHITECTURES 80 86 89
 )
 
 target_compile_options(${EXECUTABLENAME} PRIVATE
@@ -104,6 +105,7 @@ SET ( MONALISAINCLUDES
 	GImageCUDAWorker.hpp
 	GImageHelperFunctions.hpp
 	GImageIndividualEvaluator.hpp
+	GCUDAFitnessIndividual.hpp
 )
 
 # This is a workaround for a CLion-problem -- see CPP270 in the JetBrains issue tracker

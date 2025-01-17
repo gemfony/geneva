@@ -454,6 +454,15 @@ GFunctionIndividual::GFunctionIndividual(const solverFunction &dF)
 
 /******************************************************************************/
 /**
+ * Allows external entities to set the fitness
+ */
+void GFunctionIndividual::setFitness(std::vector<double> const& result_vec)
+{
+	this->setFitness_(result_vec);
+}
+
+/******************************************************************************/
+/**
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *

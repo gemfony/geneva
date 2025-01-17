@@ -71,12 +71,8 @@ namespace Gem::Geneva
     /**
      * Initialization either for CUDA or for local evaluation
      */
-    void GImageIndividualEvaluator::init(const std::shared_ptr<GImageIndividual>& individual_ptr)
+    void GImageIndividualEvaluator::init(std::shared_ptr<GImageIndividual> individual_ptr)
     {
-        // Retrieve the ID of the current thread for reporting purposes
-        std::thread::id this_id = std::this_thread::get_id();
-
-
         // First load the target image into our local data structure,
         // identifying the image dimensions along the way
         if (not Common::loadImageToRGB(targetImageFileName_, targetImageData_vec_, width_, height_))
@@ -269,12 +265,19 @@ namespace Gem::Geneva
 
         // Loop over both images and calculate the deviation
         double dev = 0.0;
-        for (std::size_t pos = 0; pos < targetImageData_vec_.size(); pos++)
+        for (std::size_t t = 0; t < nTriangles_; t++)
         {
-            dev += pow(static_cast<double>(targetImageData_vec_[pos] - candidateImageData_vec_[pos]), 2.);
+            dev += sqrt(
+                pow(static_cast<double>(targetImageData_vec_[t + 0]) - static_cast<double>(candidateImageData_vec_[t +
+                        0]), 2.) +
+                pow(static_cast<double>(targetImageData_vec_[t + 1]) - static_cast<double>(candidateImageData_vec_[t +
+                        1]), 2.) +
+                pow(static_cast<double>(targetImageData_vec_[t + 2]) - static_cast<double>(candidateImageData_vec_[t +
+                        2]), 2.)
+            );
         }
 
-        return sqrt(dev);
+        return dev;
     }
 
     /**
@@ -414,12 +417,13 @@ namespace Gem::Geneva
 
         // Sum up the result
         atomicAdd(d_result, sqrt(static_cast<double>(dr * dr + dg * dg + db * db)));
+        // atomicAdd(d_result, sqrt(static_cast<double>(1.)));
     }
 
     /**
      * Evaluation of individuals
      */
-    double GImageIndividualEvaluator::evaluate(std::shared_ptr<GImageIndividual>& individual_ptr)
+    double GImageIndividualEvaluator::evaluate(std::shared_ptr<GImageIndividual> individual_ptr)
     {
         double fitness{0.};
 
@@ -510,7 +514,7 @@ namespace Gem::Geneva
             fitness = cpu_deviation(individual_ptr);
         }
 
-        individual_ptr->setFitness(std::vector<double>(1,fitness));
+        individual_ptr->setFitness(std::vector<double>(1, fitness));
 
         // Let the audience know
         return fitness;

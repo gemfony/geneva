@@ -274,7 +274,7 @@ namespace Gem::Courtier
 #endif /* DEBUG */
 
         // Do the actual processing. This will also set the fitness of the individual.
-        double fitness = evaluator_ptr_->evaluate(p_conv);
+        evaluator_ptr_->evaluate(p_conv);
     }
 
     /******************************************************************************/

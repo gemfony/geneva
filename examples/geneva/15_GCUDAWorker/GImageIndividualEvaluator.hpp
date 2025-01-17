@@ -128,8 +128,8 @@ namespace Gem::Geneva
 
         //------------------------------------------------------------------
 
-        void init(const std::shared_ptr<GImageIndividual>&);
-        double evaluate(std::shared_ptr<GImageIndividual>&);
+        void init(std::shared_ptr<GImageIndividual>);
+        double evaluate(std::shared_ptr<GImageIndividual>);
         void finalize();
 
         /** @brief Retrieval of the candidate image */
