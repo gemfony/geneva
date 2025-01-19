@@ -36,14 +36,16 @@
 
 #include "geneva/G_OptimizationAlgorithm_EvolutionaryAlgorithm.hpp"
 
+#include <memory>
+
 /******************************************************************************/
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GEvolutionaryAlgorithm) // NOLINT
 
 /******************************************************************************/
 
-namespace Gem {
-namespace Geneva {
+
+namespace Gem::Geneva {
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -87,7 +89,7 @@ void GEvolutionaryAlgorithm::compare_(
 
 // ... and then the local data
 	compare_t(IDENTITY(m_sorting_mode, p_load->m_sorting_mode), token);
-	compare_t(IDENTITY(m_n_threads, p_load->m_n_threads), token);
+	compare_t(IDENTITY(m_n_threads,    p_load->m_n_threads), token);
 
 // React on deviations from the expectation
 	token.evaluate();
@@ -111,7 +113,7 @@ void GEvolutionaryAlgorithm::resetToOptimizationStart_() {
  * @return The type of optimization algorithm
  */
 std::string GEvolutionaryAlgorithm::getAlgorithmPersonalityType_() const {
-	return std::string("PERSONALITY_EA");
+	return {"PERSONALITY_EA"};
 }
 
 /******************************************************************************/
@@ -121,7 +123,7 @@ std::string GEvolutionaryAlgorithm::getAlgorithmPersonalityType_() const {
   * @return The name assigned to this optimization algorithm
   */
 std::string GEvolutionaryAlgorithm::getAlgorithmName_() const {
-	return std::string("Evolutionary Algorithm");
+	return {"Evolutionary Algorithm"};
 }
 
 /******************************************************************************/
@@ -306,7 +308,7 @@ void GEvolutionaryAlgorithm::addConfigurationOptions_ (
   * Emits a name for this class / object
   */
 std::string GEvolutionaryAlgorithm::name_() const {
-	return std::string("GEvolutionaryAlgorithm");
+	return {"GEvolutionaryAlgorithm"};
 }
 
 /******************************************************************************/
@@ -353,12 +355,12 @@ void GEvolutionaryAlgorithm::load_(const GObject *cp) {
 	// of this object and convert the pointer
 	const GEvolutionaryAlgorithm *p_load = Gem::Common::g_convert_and_compare<GObject, GEvolutionaryAlgorithm>(cp, this);
 
-	// First load the parent class'es data ...
+	// First load the parent class's data ...
 	G_OptimizationAlgorithm_ParChild::load_(cp);
 
 	// ... and then our own data
 	m_sorting_mode = p_load->m_sorting_mode;
-	m_n_threads = p_load->m_n_threads;
+	m_n_threads    = p_load->m_n_threads;
 }
 
 /******************************************************************************/
@@ -485,7 +487,7 @@ void GEvolutionaryAlgorithm::runFitnessCalculation_() {
 	// Start by marking the work to be done in the individuals.
 	// "range" will hold the start- and end-points of the range
 	// to be worked on
-	std::tuple<std::size_t, std::size_t> range = getEvaluationRange_();
+	const std::tuple<std::size_t, std::size_t> range = getEvaluationRange_();
 
 #ifdef DEBUG
 	// There should be no situation in which a "clean" child is submitted
@@ -547,7 +549,7 @@ void GEvolutionaryAlgorithm::runFitnessCalculation_() {
 	if(status.has_errors) {
 		std::size_t n_erased = Gem::Common::erase_if(
 			this->m_data_cnt
-			, [this](std::shared_ptr<GParameterSet> p) -> bool {
+			, [this](const std::shared_ptr<GParameterSet>& p) -> bool {
 				return p->has_errors();
 			}
 		);
@@ -568,8 +570,6 @@ void GEvolutionaryAlgorithm::runFitnessCalculation_() {
 /******************************************************************************/
 /**
  * Fixes the population after a job submission
- *
- * TODO: Make this a plugin for the executor?
  */
 void GEvolutionaryAlgorithm::fixAfterJobSubmission() {
 	std::size_t np = this->getNParents();
@@ -586,7 +586,7 @@ void GEvolutionaryAlgorithm::fixAfterJobSubmission() {
 		std::remove_if(
 			old_work_items.begin()
 			, old_work_items.end()
-			, [iteration](std::shared_ptr<GParameterSet> x) -> bool {
+			, [iteration](const std::shared_ptr<GParameterSet>& x) -> bool {
 				return x->getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>()->isParent() && x->getAssignedIteration() != iteration;
 			}
 		)
@@ -604,7 +604,7 @@ void GEvolutionaryAlgorithm::fixAfterJobSubmission() {
 	sort(
 		this->begin()
 		, this->end()
-		, [](std::shared_ptr<GParameterSet> x, std::shared_ptr<GParameterSet> y) -> bool {
+		, [](const std::shared_ptr<GParameterSet>& x, const std::shared_ptr<GParameterSet>& y) -> bool {
 			return (x->getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>()->isParent() > y->getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>()->isParent());
 		}
 	);
@@ -647,7 +647,7 @@ void GEvolutionaryAlgorithm::fixAfterJobSubmission() {
 
 	// Add missing individuals, as clones of the last item
 	if (this->size() < this->getDefaultPopulationSize()) {
-		std::size_t fixSize = this->getDefaultPopulationSize() - this->size();
+		const std::size_t fixSize = this->getDefaultPopulationSize() - this->size();
 		for (std::size_t i = 0; i < fixSize; i++) {
 			// This function will create a clone of its argument
 			this->push_back_clone(this->back());
@@ -735,6 +735,8 @@ void GEvolutionaryAlgorithm::selectBest_() {
 	// Let parents know they are parents
 	this->markParents();
 
+	std::cout << *this << std::endl;
+
 #ifdef DEBUG
 	// Make sure our population is not smaller than its nominal size -- this
 	// should have been taken care of in fixAfterJobSubmission() .
@@ -781,7 +783,7 @@ void GEvolutionaryAlgorithm::init() {
 	G_OptimizationAlgorithm_ParChild::init();
 
 	// Initialize our thread pool
-	m_tp_ptr.reset(new Gem::Common::GThreadPool(m_n_threads));
+	m_tp_ptr = std::make_shared<Gem::Common::GThreadPool>(m_n_threads);
 }
 
 /******************************************************************************/
@@ -801,7 +803,7 @@ void GEvolutionaryAlgorithm::finalize() {
   * Retrieve a GPersonalityTraits object belonging to this algorithm
   */
 std::shared_ptr<GPersonalityTraits> GEvolutionaryAlgorithm::getPersonalityTraits_() const {
-	return std::shared_ptr<GEvolutionaryAlgorithm_PersonalityTraits>(new GEvolutionaryAlgorithm_PersonalityTraits());
+	return std::make_shared<GEvolutionaryAlgorithm_PersonalityTraits>();
 }
 
 /******************************************************************************/
@@ -832,7 +834,7 @@ void GEvolutionaryAlgorithm::sortMuPlusNuMode() {
 		G_OptimizationAlgorithm_Base::m_data_cnt.begin()
 		, G_OptimizationAlgorithm_Base::m_data_cnt.begin() + m_n_parents
 		, G_OptimizationAlgorithm_Base::m_data_cnt.end()
-		, [](std::shared_ptr<GParameterSet> x_ptr, std::shared_ptr<GParameterSet> y_ptr) -> bool {
+		, [](const std::shared_ptr<GParameterSet>& x_ptr, const std::shared_ptr<GParameterSet>& y_ptr) -> bool {
 			return minOnly_transformed_fitness(x_ptr) < minOnly_transformed_fitness(y_ptr);
 		}
 	);
@@ -886,7 +888,7 @@ void GEvolutionaryAlgorithm::sortMuCommaNuMode() {
 		G_OptimizationAlgorithm_Base::m_data_cnt.begin() + m_n_parents
 		, G_OptimizationAlgorithm_Base::m_data_cnt.begin() + 2 * m_n_parents
 		, G_OptimizationAlgorithm_Base::m_data_cnt.end()
-		, [](std::shared_ptr<GParameterSet> x_ptr, std::shared_ptr<GParameterSet> y_ptr) -> bool {
+		, [](const std::shared_ptr<GParameterSet>& x_ptr, const std::shared_ptr<GParameterSet>& y_ptr) -> bool {
 			return minOnly_transformed_fitness(x_ptr) < minOnly_transformed_fitness(y_ptr);
 		}
 	);
@@ -929,7 +931,7 @@ void GEvolutionaryAlgorithm::sortMunu1pretainMode() {
 		G_OptimizationAlgorithm_Base::m_data_cnt.begin() + m_n_parents
 		, G_OptimizationAlgorithm_Base::m_data_cnt.begin() + 2*m_n_parents
 		, G_OptimizationAlgorithm_Base::m_data_cnt.end()
-		, [](std::shared_ptr<GParameterSet> x_ptr, std::shared_ptr<GParameterSet> y_ptr) -> bool {
+		, [](const std::shared_ptr<GParameterSet>& x_ptr, const std::shared_ptr<GParameterSet>& y_ptr) -> bool {
 			return minOnly_transformed_fitness(x_ptr) < minOnly_transformed_fitness(y_ptr);
 		}
 	);
@@ -1003,7 +1005,7 @@ void GEvolutionaryAlgorithm::sortMuPlusNuParetoMode() {
 	sort(
 		this->begin()
 		, this->end()
-		, [](std::shared_ptr<GParameterSet> x, std::shared_ptr<GParameterSet> y) {
+		, [](const std::shared_ptr<GParameterSet>& x, const std::shared_ptr<GParameterSet>& y) {
 			return x->getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>()->isOnParetoFront() > y->getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>()->isOnParetoFront();
 		}
 	);
@@ -1029,7 +1031,7 @@ void GEvolutionaryAlgorithm::sortMuPlusNuParetoMode() {
 		// Sort the non-pareto-front individuals according to their master fitness
 		std::partial_sort(
 			this->begin() + nIndividualsOnParetoFront, this->begin() + this->m_n_parents, this->end(),
-			[](std::shared_ptr <GParameterSet> x_ptr, std::shared_ptr <GParameterSet> y_ptr) -> bool {
+			[](const std::shared_ptr <GParameterSet>& x_ptr, const std::shared_ptr <GParameterSet>& y_ptr) -> bool {
 				return minOnly_transformed_fitness(x_ptr) < minOnly_transformed_fitness(y_ptr);
 			}
 		);
@@ -1040,7 +1042,7 @@ void GEvolutionaryAlgorithm::sortMuPlusNuParetoMode() {
 	// random recombination scheme.
 	std::sort(
 		this->begin(), this->begin() + this->m_n_parents,
-		[](std::shared_ptr <GParameterSet> x_ptr, std::shared_ptr <GParameterSet> y_ptr) -> bool {
+		[](const std::shared_ptr <GParameterSet>& x_ptr, const std::shared_ptr <GParameterSet>& y_ptr) -> bool {
 			return minOnly_transformed_fitness(x_ptr) < minOnly_transformed_fitness(y_ptr);
 		}
 	);
@@ -1101,7 +1103,7 @@ void GEvolutionaryAlgorithm::sortMuCommaNuParetoMode() {
 	sort(
 		this->begin()
 		, this->end()
-		, [](std::shared_ptr<GParameterSet> x, std::shared_ptr<GParameterSet> y) {
+		, [](const std::shared_ptr<GParameterSet>& x, const std::shared_ptr<GParameterSet>& y) {
 			return x->getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>()->isOnParetoFront() > y->getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>()->isOnParetoFront();
 		}
 	);
@@ -1129,7 +1131,7 @@ void GEvolutionaryAlgorithm::sortMuCommaNuParetoMode() {
 		// Sort the non-pareto-front individuals according to their master fitness
 		std::partial_sort(
 			this->begin() + nIndividualsOnParetoFront, this->begin() + this->m_n_parents, this->end(),
-			[](std::shared_ptr <GParameterSet> x_ptr, std::shared_ptr <GParameterSet> y_ptr) -> bool {
+			[](const std::shared_ptr <GParameterSet>& x_ptr, const std::shared_ptr <GParameterSet>& y_ptr) -> bool {
 				return minOnly_transformed_fitness(x_ptr) < minOnly_transformed_fitness(y_ptr);
 			}
 		);
@@ -1140,7 +1142,7 @@ void GEvolutionaryAlgorithm::sortMuCommaNuParetoMode() {
 	// random recombination scheme.
 	std::sort(
 		this->begin(), this->begin() + this->m_n_parents,
-		[](std::shared_ptr <GParameterSet> x_ptr, std::shared_ptr <GParameterSet> y_ptr) -> bool {
+		[](const std::shared_ptr <GParameterSet>& x_ptr, const std::shared_ptr <GParameterSet>& y_ptr) -> bool {
 			return minOnly_transformed_fitness(x_ptr) < minOnly_transformed_fitness(y_ptr);
 		}
 	);
@@ -1155,8 +1157,8 @@ void GEvolutionaryAlgorithm::sortMuCommaNuParetoMode() {
   * @return A boolean indicating whether the first individual dominates the second
   */
 bool GEvolutionaryAlgorithm::aDominatesB(
-	std::shared_ptr<GParameterSet> x_ptr
-	, std::shared_ptr<GParameterSet> y_ptr
+	const std::shared_ptr<GParameterSet>& x_ptr
+	, const std::shared_ptr<GParameterSet>& y_ptr
 ) const {
 	std::size_t nCriteriaX = x_ptr->getNStoredResults();
 
@@ -1222,7 +1224,7 @@ void GEvolutionaryAlgorithm::fillWithObjects(const std::size_t &nIndividuals) {
 
 	// Add some some
 	for (std::size_t i = 0; i < nIndividuals; i++) {
-		this->push_back(std::shared_ptr<Gem::Tests::GTestIndividual1>(new Gem::Tests::GTestIndividual1()));
+		this->push_back(std::make_shared<Gem::Tests::GTestIndividual1>());
 	}
 
 	// Make sure we have unique data items
@@ -1311,6 +1313,22 @@ void GEvolutionaryAlgorithm::specificTestsFailuresExpected_GUnitTests_() {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+	std::ostream& operator<<(std::ostream& os, const GEvolutionaryAlgorithm& pop) {
+
+	os << std::endl << std::endl;
+	for (auto it = pop.begin(); it != pop.begin() + pop.getNParents(); ++it)
+	{
+		os << (*it)->raw_fitness() << " " << (*it)->transformed_fitness() << std::endl;
+	}
+	os << "***************************************" << std::endl;
+
+	return os;
+}
+
+	/******************************************************************************/
+	////////////////////////////////////////////////////////////////////////////////
+	/******************************************************************************/
+
+} // namespace Gem::Geneva
+
 

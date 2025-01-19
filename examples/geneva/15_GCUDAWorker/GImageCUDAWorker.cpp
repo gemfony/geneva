@@ -47,7 +47,7 @@ namespace Gem::Courtier
      * The constructor
      */
     GImageCUDAWorker::GImageCUDAWorker(const std::string& configFile)
-        : GLocalConsumerWorkerT<Geneva::GParameterSet>()
+        : GWorkerWithRegisterBrokerFerryT<Geneva::GParameterSet>()
     {
         // Load configuration options specific to this class
         this->parseConfigFile(configFile);
@@ -61,9 +61,9 @@ namespace Gem::Courtier
      * @param cp A copy of another GImageCUDAWorker
      */
     GImageCUDAWorker::GImageCUDAWorker(const GImageCUDAWorker& cp)
-        : GLocalConsumerWorkerT<Geneva::GParameterSet>(cp)
+        : GWorkerWithRegisterBrokerFerryT<Geneva::GParameterSet>(cp)
     {
-        // We want to create a seperate evaluator
+        // We want to create a separate evaluator
         evaluator_ptr_.reset();
 
         // Copy all other data verbatim
@@ -134,7 +134,7 @@ namespace Gem::Courtier
     void GImageCUDAWorker::addConfigurationOptions_(Common::GParserBuilder& gpb)
     {
         // Call our parent class'es function
-        GLocalConsumerWorkerT<Geneva::GParameterSet>::addConfigurationOptions_(gpb);
+        GWorkerWithRegisterBrokerFerryT<Geneva::GParameterSet>::addConfigurationOptions_(gpb);
 
         std::string comment;
         std::string comment1;
@@ -300,4 +300,5 @@ namespace Gem::Courtier
     }
 
     /******************************************************************************/
+
 } /* namespace Gem::Courtier */

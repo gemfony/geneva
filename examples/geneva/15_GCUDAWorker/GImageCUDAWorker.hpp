@@ -83,7 +83,7 @@ namespace Gem::Courtier
      * A GWorkerT-derivative for the GStdThreadConsumerT, targeted at CUDA work.
      */
     class GImageCUDAWorker final
-        : public GLocalConsumerWorkerT<Geneva::GParameterSet>
+        : public GWorkerWithRegisterBrokerFerryT<Geneva::GParameterSet>
     {
     public:
         /** @brief Initialization with the name of a configuration file. */

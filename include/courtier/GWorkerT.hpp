@@ -42,6 +42,7 @@
 // Standard headers go here
 #include <chrono>
 #include <functional>
+#include <type_traits>
 
 // Boost headers go here
 #include <boost/numeric/conversion/cast.hpp>
@@ -557,35 +558,17 @@ namespace Gem::Courtier
     /******************************************************************************/
     ////////////////////////////////////////////////////////////////////////////////
     /******************************************************************************/
-    /**
-     * Unifies the processing of work items inside of consumers that do not
-     * submit work for processing to a remote location.
-     */
-    template <class processable_type>
-    class GLocalConsumerWorkerT : public GWorkerT<processable_type>
+    // An abstract class that provides the registerBrokerFerry function. It
+    // allows to register derived classes in "local" consumers
+    template <typename processable_type>
+    class GWorkerWithRegisterBrokerFerryT
+        : public GWorkerT<processable_type>
     {
     public:
-        /************************************************************************/
-        /** @brief The default constructor */
-        GLocalConsumerWorkerT() = default;
-
-    protected:
-        /************************************************************************/
-        /**
-         * The copy constructor.
-         */
-        GLocalConsumerWorkerT(const GLocalConsumerWorkerT<processable_type>& cp)
-            : GWorkerT<processable_type>(cp)
-        {
-            /* nothing */
-        }
-
-    public:
-        /************************************************************************/
-        /**
-         * The destructor
-         */
-        ~GLocalConsumerWorkerT() override = default;
+        // Take over all constructors of the parent class
+        using GWorkerT<processable_type>::GWorkerT;
+        // Default destructor
+        ~GWorkerWithRegisterBrokerFerryT() override = default;
 
         /************************************************************************/
         /**
@@ -593,7 +576,7 @@ namespace Gem::Courtier
          * needed by this class
          */
         void registerBrokerFerry(
-            std::shared_ptr<GBrokerFerryT<processable_type>> broker_ferry_ptr)
+            const std::shared_ptr<GBrokerFerryT<processable_type>>& broker_ferry_ptr)
         {
             if (not broker_ferry_ptr)
             {
@@ -613,68 +596,7 @@ namespace Gem::Courtier
             this->setWorkerId(m_broker_ferry_ptr->getWorkerId());
         }
 
-    protected:
-        /************************************************************************/
-        /**
-         * The actual implementation of adding configuration options. "protected",
-         * so it may be called by derived classes.
-         *
-         * @param gpb The GParserBuilder object, to which configuration options will be added
-         */
-        void addConfigurationOptions_(Gem::Common::GParserBuilder& gpb) override
-        {
-            // Make sure any options from our parent class are processed
-            GWorkerT<processable_type>::addConfigurationOptions_(gpb);
-        }
-
-        /************************************************************************/
-        /**
-         * Initialization code for processing.
-         */
-        void processInit_(std::shared_ptr<processable_type> p) override
-        {
-            // The parent class'es processInit_ function is purely virtual, so we do not
-            // need to call it here GWorkerT<processable_type>::processInit_(p);
-
-            if (not m_broker_ferry_ptr)
-            {
-                throw gemfony_exception(
-                    g_error_streamer(DO_LOG, time_and_place)
-                    << "In GLocalConsumerWorkerT<processable_type>::processInit_(): "
-                    "Error!"
-                    << std::endl
-                    << "Empty broker ferry object found!" << std::endl);
-            }
-        }
-
-        /************************************************************************/
-        /**
-         * Only actual per-item work is done here -- Error-detection instrumentation
-         * is done in the protected "process()" function of our parent class.
-         */
-        void process_(std::shared_ptr<processable_type> p) override { p->process(); }
-
-        /************************************************************************/
-        /**
-         * Finalization code for processing.
-         */
-        void processFinalize_() override
-        {
-            /* nothing */
-        }
-
     private:
-        /************************************************************************/
-        /**
-         * Creation of deep clones of this object. Note that a new broker ferry
-         * needs to be registered with this object.
-         */
-        std::shared_ptr<GWorkerT<processable_type>> clone_() const override
-        {
-            return std::shared_ptr<GWorkerT<processable_type>>(
-                new GLocalConsumerWorkerT<processable_type>(*this));
-        }
-
         /************************************************************************/
         /** @brief Retrieval of work items */
         std::shared_ptr<processable_type>
@@ -701,9 +623,93 @@ namespace Gem::Courtier
         /************************************************************************/
         // Data
 
-        std::shared_ptr<GBrokerFerryT<processable_type>>
-        m_broker_ferry_ptr;
-        ///< A pointer to a container object holding information needed by this class
+        /** @brief A pointer to a container object holding information needed by this class */
+        std::shared_ptr<GBrokerFerryT<processable_type>> m_broker_ferry_ptr;
+    };
+
+    /******************************************************************************/
+    ////////////////////////////////////////////////////////////////////////////////
+    /******************************************************************************/
+    /**
+     * Unifies the processing of work items inside of consumers that do not
+     * submit work for processing to a remote location.
+     */
+    template <class processable_type>
+    class GLocalConsumerWorkerT : public GWorkerWithRegisterBrokerFerryT<processable_type>
+    {
+    public:
+        /************************************************************************/
+        /** @brief The default constructor */
+        GLocalConsumerWorkerT() = default;
+
+    protected:
+        /************************************************************************/
+        /**
+         * The copy constructor.
+         */
+        GLocalConsumerWorkerT(const GLocalConsumerWorkerT<processable_type>& cp)
+            : GWorkerWithRegisterBrokerFerryT<processable_type>(cp)
+        {
+            /* nothing */
+        }
+
+    public:
+        /************************************************************************/
+        /**
+         * The destructor
+         */
+        ~GLocalConsumerWorkerT() override = default;
+
+    protected:
+        /************************************************************************/
+        /**
+         * The actual implementation of adding configuration options. "protected",
+         * so it may be called by derived classes.
+         *
+         * @param gpb The GParserBuilder object, to which configuration options will be added
+         */
+        void addConfigurationOptions_(Gem::Common::GParserBuilder& gpb) override
+        {
+            // Make sure any options from our parent class are processed
+            GWorkerWithRegisterBrokerFerryT<processable_type>::addConfigurationOptions_(gpb);
+        }
+
+        /************************************************************************/
+        /**
+         * Initialization code for processing.
+         */
+        void processInit_(std::shared_ptr<processable_type> p) override
+        { /* nothing */ }
+
+        /************************************************************************/
+        /**
+         * Only actual per-item work is done here -- Error-detection instrumentation
+         * is done in the protected "process()" function of our parent class.
+         */
+        void process_(std::shared_ptr<processable_type> p) override { p->process(); }
+
+        /************************************************************************/
+        /**
+         * Finalization code for processing.
+         */
+        void processFinalize_() override
+        {
+            /* nothing */
+        }
+
+    private:
+        /************************************************************************/
+        /**
+         * Creation of deep clones of this object. Note that a new broker ferry
+         * needs to be registered with this object.
+         */
+        std::shared_ptr<GWorkerT<processable_type>> clone_() const override
+        {
+            return std::shared_ptr<GWorkerWithRegisterBrokerFerryT<processable_type>>(
+                new GLocalConsumerWorkerT<processable_type>(*this));
+        }
+
+        /************************************************************************/
     };
 
     /******************************************************************************/

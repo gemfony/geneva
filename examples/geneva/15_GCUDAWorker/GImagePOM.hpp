@@ -89,7 +89,12 @@ namespace Gem::Geneva
             ar
                 & make_nvp("GBasePluggableOM", boost::serialization::base_object<GBasePluggableOM>(*this))
                 & BOOST_SERIALIZATION_NVP(resultImageDirectory_)
-                & BOOST_SERIALIZATION_NVP(emitBestOnly_);
+                & BOOST_SERIALIZATION_NVP(targetFileName_)
+                & BOOST_SERIALIZATION_NVP(emitBestOnly_)
+                & BOOST_SERIALIZATION_NVP(useGPU_)
+                & BOOST_SERIALIZATION_NVP(blockSize_)
+                & BOOST_SERIALIZATION_NVP(gridSize_)
+            ;
 
             // TODO Add new variables
         }

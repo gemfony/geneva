@@ -218,8 +218,8 @@ private:
     G_API_GENEVA void sortMuCommaNuParetoMode();
     /** @brief Determines whether the first individual dominates the second */
     G_API_GENEVA bool aDominatesB(
-        std::shared_ptr<GParameterSet> a
-        , std::shared_ptr<GParameterSet> b
+        const std::shared_ptr<GParameterSet>& a
+        , const std::shared_ptr<GParameterSet>& b
     ) const;
 
     /** @brief Fills the collection with individuals */
@@ -234,6 +234,15 @@ private:
 
     /***************************************************************************/
 };
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * Allows to output this population. The function only outputs the parent individuals' fitness.
+ */
+std::ostream& operator<<(std::ostream& os, const GEvolutionaryAlgorithm& pop);
+
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
