@@ -71,7 +71,7 @@ namespace Gem::Geneva
     /**
      * Initialization either for CUDA or for local evaluation
      */
-    void GImageIndividualEvaluator::init(std::shared_ptr<GImageIndividual> individual_ptr)
+    void GImageIndividualEvaluator::init(const std::shared_ptr<GImageIndividual>& individual_ptr)
     {
         // First load the target image into our local data structure,
         // identifying the image dimensions along the way
@@ -160,9 +160,13 @@ namespace Gem::Geneva
             // Result data
             checkCuda(cudaMalloc(&d_result_, sizeof(double)), "cudaMalloc d_results");
 
-            // Temporary storage for triangle data
-            checkCuda(cudaMalloc(&d_triangle_data_, 8 * nTriangles_ * sizeof(float)), "cudaMalloc d_triangle_data");
-            h_triangle_data_.resize(nTriangles_ * 8);
+            // Temporary storage for triangle data for debugging purposes
+            checkCuda(cudaMalloc(&d_triangle_data_, 6 * nTriangles_ * sizeof(float)), "cudaMalloc d_triangle_data");
+            h_triangle_data_.resize(nTriangles_ * 6);
+
+            // Device-side storage of triangle coordinates so they do not need to be re-caclulated
+            // for every pixel
+            checkCuda(cudaMalloc(&d_triangle_coordinates_, 6 * nTriangles_ * sizeof(float)), "cudaMalloc d_triangle_coordinates_");
 
             //----------------------------------------------------------------------------------
             // Copy and set data
@@ -190,6 +194,8 @@ namespace Gem::Geneva
      * Converts an individual to an RGB format by creating an array with the background color, then
      * looping over all triangles and, where necessary, modifying the associating pixels. The result
      * is stored in the candidateImageData_vec_ vector
+     *
+     * TODO: Does this use the individual's bg color?
      *
      * @param individual_ptr The GImageIndividual to be evaluated
      */
@@ -220,21 +226,18 @@ namespace Gem::Geneva
                                             x3,
                                             y3))
                     {
-                        // Calculate index of the red channel of the current pixel
-                        const auto index_r = static_cast<std::size_t>(3 * (y * width_ + x) + 0);
-                        const auto index_g = static_cast<std::size_t>(3 * (y * width_ + x) + 1);
-                        const auto index_b = static_cast<std::size_t>(3 * (y * width_ + x) + 2);
+                        auto base_index = static_cast<std::size_t>(3 * (y * width_ + x));
 
                         // Perform the actual alpha-blending
                         cpu_alphaBlend(
 #ifdef DEBUG
-                            candidateImageData_vec_.at(index_r),
-                            candidateImageData_vec_.at(index_g),
-                            candidateImageData_vec_.at(index_b),
+                            candidateImageData_vec_.at(static_cast<std::size_t>(base_index + 0)),
+                            candidateImageData_vec_.at(static_cast<std::size_t>(base_index + 1)),
+                            candidateImageData_vec_.at(static_cast<std::size_t>(base_index + 2)),
 #else
-                            candidateImageData_vec_[index_r],
-                            candidateImageData_vec_[index_g],
-                            candidateImageData_vec_[index_b],
+                            candidateImageData_vec_[static_cast<std::size_t>(base_index + 0)],
+                            candidateImageData_vec_[static_cast<std::size_t>(base_index + 1)],
+                            candidateImageData_vec_[static_cast<std::size_t>(base_index + 2)],
 #endif
                             t.r, t.g, t.b, t.a
                         );
@@ -254,7 +257,7 @@ namespace Gem::Geneva
         transformToRGB(individual_ptr);
 
         // Check that the target-image has the right dimension
-        if (not targetImageData_vec_.size() == candidateImageData_vec_.size())
+        if (targetImageData_vec_.size() != candidateImageData_vec_.size())
         {
             std::cout
                 << "In GImageIndividual::deviation(): Error! Invalid image dimensions"
@@ -281,21 +284,30 @@ namespace Gem::Geneva
     }
 
     /**
-     * @param tri A triangle whose corners shall be calculated
-     * @param angle The angle between two axes
-     * @param outX The resulting x-coordinate
-     * @param outY The resulting y-coordinate
+     * Retrieval of all corner coordinates of a triangle
      */
     __device__ void
-    cuda_getCorner(const CircleTriangle& tri,
-                   float angle,
-                   float& outX,
-                   float& outY,
-                   int width,
-                   int height)
+    cuda_getCorners(const CircleTriangle& tri,
+                    const int& width,
+                    const int& height,
+                    float& outX1,
+                    float& outY1,
+                    float& outX2,
+                    float& outY2,
+                    float& outX3,
+                    float& outY3)
     {
-        outX = (tri.cx + tri.radius * cosf(angle)) * static_cast<float>(width);
-        outY = (tri.cy + tri.radius * sinf(angle)) * static_cast<float>(height);
+        const auto center_x = tri.cx * static_cast<float>(width);
+        const auto center_y = tri.cy * static_cast<float>(height);
+
+        const auto scale = static_cast<float>(width<height?width:height);
+
+        outX1 = center_x + tri.radius * cosf(tri.angle1) * scale;
+        outY1 = center_y + tri.radius * sinf(tri.angle1) * scale;
+        outX2 = center_x + tri.radius * cosf(tri.angle2) * scale;
+        outY2 = center_y + tri.radius * sinf(tri.angle2) * scale;
+        outX3 = center_x + tri.radius * cosf(tri.angle3) * scale;
+        outY3 = center_y + tri.radius * sinf(tri.angle3) * scale;
     }
 
     /**
@@ -345,6 +357,32 @@ namespace Gem::Geneva
     }
 
     /**
+     * Determines the coordinates of the triangle
+     */
+    __global__ void
+    cuda_calculateTriangleCoordinates(const CircleTriangle* d_triangles,
+                                      float* d_triangle_coordinates_,
+                                      const int width, const int height,
+                                      const int NTriangles)
+    {
+        // Loop over all triangles
+        for (int idx = 0; idx < NTriangles; idx++)
+        {
+            auto baseIndex = 6 * idx;
+
+            // Calculate its corners
+            cuda_getCorners(d_triangles[idx],
+                            width, height,
+                            d_triangle_coordinates_[baseIndex + 0],
+                            d_triangle_coordinates_[baseIndex + 1],
+                            d_triangle_coordinates_[baseIndex + 2],
+                            d_triangle_coordinates_[baseIndex + 3],
+                            d_triangle_coordinates_[baseIndex + 4],
+                            d_triangle_coordinates_[baseIndex + 5]);
+        }
+    }
+
+    /**
      * The actual rendering and evaluation kernel
      */
     __global__ void
@@ -354,8 +392,8 @@ namespace Gem::Geneva
                                 const unsigned char* d_bgcolors,
                                 double* d_result,
                                 float* d_triangle_data,
-                                int width, int height,
-                                int NTriangles)
+                                const int width, const int height,
+                                const int NTriangles)
     {
         int x = blockIdx.x * blockDim.x + threadIdx.x;
         int y = blockIdx.y * blockDim.y + threadIdx.y;
@@ -373,19 +411,14 @@ namespace Gem::Geneva
 
             // Calculate its corners
             float x1, y1, x2, y2, x3, y3;
-            cuda_getCorner(tri, tri.angle1, x1, y1, width, height);
-            cuda_getCorner(tri, tri.angle2, x2, y2, width, height);
-            cuda_getCorner(tri, tri.angle3, x3, y3, width, height);
+            cuda_getCorners(tri, width, height, x1, y1, x2, y2, x3, y3);
 
-            d_triangle_data[8 * idx + 0] = x1;
-            d_triangle_data[8 * idx + 1] = y1;
-            d_triangle_data[8 * idx + 2] = x2;
-            d_triangle_data[8 * idx + 3] = y2;
-            d_triangle_data[8 * idx + 4] = x3;
-            d_triangle_data[8 * idx + 5] = y3;
-            d_triangle_data[8 * idx + 6] = static_cast<float>(x) + 0.5f;
-            d_triangle_data[8 * idx + 7] = static_cast<float>(y) + 0.5f;
-
+            d_triangle_data[6 * idx + 0] = x1;
+            d_triangle_data[6 * idx + 1] = y1;
+            d_triangle_data[6 * idx + 2] = x2;
+            d_triangle_data[6 * idx + 3] = y2;
+            d_triangle_data[6 * idx + 4] = x3;
+            d_triangle_data[6 * idx + 5] = y3;
 
             // Check whether the current pixel is located inside of a triangle
             if (cuda_pointInTriangle(static_cast<float>(x) + 0.5f, static_cast<float>(y) + 0.5f, x1, y1, x2, y2, x3,
@@ -417,13 +450,12 @@ namespace Gem::Geneva
 
         // Sum up the result
         atomicAdd(d_result, sqrt(static_cast<double>(dr * dr + dg * dg + db * db)));
-        // atomicAdd(d_result, sqrt(static_cast<double>(1.)));
     }
 
     /**
      * Evaluation of individuals
      */
-    double GImageIndividualEvaluator::evaluate(std::shared_ptr<GImageIndividual> individual_ptr)
+    double GImageIndividualEvaluator::evaluate(const std::shared_ptr<GImageIndividual>& individual_ptr)
     {
         double fitness{0.};
 
@@ -451,11 +483,11 @@ namespace Gem::Geneva
                                       cudaMemcpyHostToDevice, cuda_stream_), "Memcpy triangles");
 
             // Set up the block- and grid-sizes
-            dim3 dimBlock(blockSize_x_, blockSize_y_);
-            dim3 dimGrid(gridSize_x_, gridSize_y_);
+            dim3 dimRenderBlock(blockSize_x_, blockSize_y_);
+            dim3 dimRenderGrid(gridSize_x_, gridSize_y_);
 
             // Start the actual kernel
-            cuda_renderAndCompareKernel<<<dimGrid, dimBlock, 0, cuda_stream_>>>(d_triangles_,
+            cuda_renderAndCompareKernel<<<dimRenderGrid, dimRenderBlock, 0, cuda_stream_>>>(d_triangles_,
                 d_target_,
                 d_candidate_,
                 d_bgcolor_,
@@ -473,7 +505,7 @@ namespace Gem::Geneva
             std::vector<double> result_vec;
             result_vec.push_back(fitness);
 
-            checkCuda(cudaMemcpyAsync(h_triangle_data_.data(), d_triangle_data_, 8 * nTriangles_ * sizeof(float),
+            checkCuda(cudaMemcpyAsync(h_triangle_data_.data(), d_triangle_data_, 6 * nTriangles_ * sizeof(float),
                                       cudaMemcpyDeviceToHost, cuda_stream_), "Mmcpy triangle data");
 
             /*
@@ -482,10 +514,9 @@ namespace Gem::Geneva
                 std::cout
                     << "triangle: " << t << " / " << nTriangles_ << std::endl
                     << "width: " << width_ << " height: " << height_ << std::endl
-                    << "x1: " << h_triangle_data_[t * 8 + 0] << " y1: " << h_triangle_data_[t * 8 + 1] << std::endl
-                    << "x2: " << h_triangle_data_[t * 8 + 2] << " y2: " << h_triangle_data_[t * 8 + 3] << std::endl
-                    << "x3: " << h_triangle_data_[t * 8 + 4] << " y3: " << h_triangle_data_[t * 8 + 5] << std::endl
-                    << "x : " << h_triangle_data_[t * 8 + 6] << " y : " << h_triangle_data_[t * 8 + 7] << std::endl
+                    << "x1: " << h_triangle_data_[t * 6 + 0] << " y1: " << h_triangle_data_[t * 6 + 1] << std::endl
+                    << "x2: " << h_triangle_data_[t * 6 + 2] << " y2: " << h_triangle_data_[t * 6 + 3] << std::endl
+                    << "x3: " << h_triangle_data_[t * 6 + 4] << " y3: " << h_triangle_data_[t * 6 + 5] << std::endl
                     << std::endl;
             }
             sleep(1);
@@ -534,6 +565,7 @@ namespace Gem::Geneva
             cudaFree(d_bgcolor_);
             cudaFree(d_result_);
             cudaFree(d_triangle_data_);
+            cudaFree(d_triangle_coordinates_);
 
             checkCuda(cudaStreamSynchronize(cuda_stream_), "cudaStreamSynchronize");
             checkCuda(cudaStreamDestroy(cuda_stream_), "cudaStreamDestroy");
@@ -589,13 +621,14 @@ namespace Gem::Geneva
     std::tuple<float, float, float, float, float, float>
     GImageIndividualEvaluator::cpu_getCorners(const CircleTriangle& tri, int width, int height)
     {
+        const auto scale = width<=height?width:height;
         return {
-            (tri.cx + tri.radius * cosf(tri.angle1)) * static_cast<float>(width), // x1
-            (tri.cy + tri.radius * sinf(tri.angle1)) * static_cast<float>(height), // y1
-            (tri.cx + tri.radius * cosf(tri.angle2)) * static_cast<float>(width), // x2
-            (tri.cy + tri.radius * sinf(tri.angle2)) * static_cast<float>(height), // y2
-            (tri.cx + tri.radius * cosf(tri.angle3)) * static_cast<float>(width), // x3
-            (tri.cy + tri.radius * sinf(tri.angle3)) * static_cast<float>(height) // y3
+            tri.cx * static_cast<float>(width)  + tri.radius * cosf(tri.angle1) * static_cast<float>(scale), // x1
+            tri.cy * static_cast<float>(height) + tri.radius * sinf(tri.angle1) * static_cast<float>(scale), // y1
+            tri.cx * static_cast<float>(width)  + tri.radius * cosf(tri.angle2) * static_cast<float>(scale), // x2
+            tri.cy * static_cast<float>(height) + tri.radius * sinf(tri.angle2) * static_cast<float>(scale), // y2
+            tri.cx * static_cast<float>(width)  + tri.radius * cosf(tri.angle3) * static_cast<float>(scale), // x3
+            tri.cy * static_cast<float>(height) + tri.radius * sinf(tri.angle3) * static_cast<float>(scale)  // y3
         };
     }
 

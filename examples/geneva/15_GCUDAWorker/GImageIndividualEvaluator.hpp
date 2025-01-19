@@ -67,37 +67,46 @@ namespace Gem::Geneva
     //--------------------------------------------------------------------
     // For GPU-based calculation
 
-    /** @brief Calculation of a single triangle corner in cartesian coordinates */
+    /** @brief Retrieval of all corner coordinates of a triangle */
     __device__ void
-    cuda_getCorner(const CircleTriangle& tri,
-                  float angle,
-                  float& outX,
-                  float& outY,
-                  int width,
-                  int height);
+    cuda_getCorners(const CircleTriangle& tri,
+                    const int& width,
+                    const int& height,
+                    float& outX1,
+                    float& outY1,
+                    float& outX2,
+                    float& outY2,
+                    float& outX3,
+                    float& outY3);
 
     /** @brief Check whether a given point is contained in a triangle */
     __device__ bool
     cuda_pointInTriangle(float px, float py,
-                        float x1, float y1,
-                        float x2, float y2,
-                        float x3, float y3);
+                         float x1, float y1,
+                         float x2, float y2,
+                         float x3, float y3);
 
     /** @brief Simple alpha blending */
     __device__ void
     cuda_alphaBlend(unsigned char& bgR, unsigned char& bgG, unsigned char& bgB,
-                   unsigned char fgR, unsigned char fgG, unsigned char fgB,
-                   unsigned char alpha);
+                    unsigned char fgR, unsigned char fgG, unsigned char fgB,
+                    unsigned char alpha);
+
+    __global__ void
+    cuda_calculateTriangleCoordinates(const CircleTriangle*,
+                                      float*,
+                                      const int, const int,
+                                      const int);
 
     __global__ void
     cuda_renderAndCompareKernel(const CircleTriangle*,
-                               const unsigned char*,
-                               unsigned char*,
-                               const unsigned char*,
-                               double*,
-                               float*,
-                               int, int,
-                               int);
+                                const unsigned char*,
+                                unsigned char*,
+                                const unsigned char*,
+                                double*,
+                                float*,
+                                const int, const int,
+                                const int);
 
     /******************************************************************************/
     /**
@@ -128,8 +137,8 @@ namespace Gem::Geneva
 
         //------------------------------------------------------------------
 
-        void init(std::shared_ptr<GImageIndividual>);
-        double evaluate(std::shared_ptr<GImageIndividual>);
+        void init(const std::shared_ptr<GImageIndividual>&);
+        double evaluate(const std::shared_ptr<GImageIndividual>&);
         void finalize();
 
         /** @brief Retrieval of the candidate image */
@@ -161,17 +170,18 @@ namespace Gem::Geneva
         // For CPU-based calculation
 
         /** @brief Calculate the cartesian coordinates of the image from its circle definition */
-        std::tuple<float, float, float, float, float, float>
+        static std::tuple<float, float, float, float, float, float>
         cpu_getCorners(const CircleTriangle&, int, int);
 
         /** @brief Checks with a cross product whether a given point is contained in a triangle */
-        bool cpu_pointInTriangle(float px, float py,
-                                 float x1, float y1,
-                                 float x2, float y2,
-                                 float x3, float y3);
+        static bool
+        cpu_pointInTriangle(float px, float py,
+                            float x1, float y1,
+                            float x2, float y2,
+                            float x3, float y3);
 
         /** @brief Simple alpha blending in 8 bits */
-        void
+        static void
         cpu_alphaBlend(unsigned char&, unsigned char&, unsigned char&,
                        unsigned char, unsigned char, unsigned char,
                        unsigned char);
@@ -198,7 +208,9 @@ namespace Gem::Geneva
         unsigned char* d_candidate_{nullptr}; ///< Holds the candidate image assembled from the triangles
         unsigned char* d_bgcolor_{nullptr}; ///< Holds the current background color, to be transferred to the device
         double* d_result_{nullptr}; ///< Holds the result of the current evaluation
-        float* d_triangle_data_{nullptr};
+        float* d_triangle_data_{nullptr}; ///< For debugging purposes
+        float* d_triangle_coordinates_{nullptr}; ///< Allows to store triangle coordinates on the device side
+
         std::vector<float> h_triangle_data_{};
 
         cudaStream_t cuda_stream_{};

@@ -52,16 +52,13 @@
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
-#include <boost/archive/binary_oarchive.hpp>
 #include <boost/archive/binary_iarchive.hpp>
 #include <boost/serialization/nvp.hpp>
 #include <boost/serialization/map.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/base_object.hpp>
-#include <boost/serialization/utility.hpp>
 #include <boost/serialization/tracking.hpp>
-#include <boost/serialization/split_member.hpp>
 #include <boost/serialization/export.hpp>
 
 // Geneva headers go here
@@ -69,8 +66,7 @@
 #include "courtier/GProcessingContainerT.hpp"
 #include "hap/GRandomT.hpp"
 
-namespace Gem {
-namespace Courtier {
+namespace Gem::Courtier {
 
 /**********************************************************************************************/
 /**
@@ -166,8 +162,7 @@ private:
 
 /**********************************************************************************************/
 
-} /* namespace Courtier */
-} /* namespace Gem */
+} /* namespace Gem::Courtier */
 
 BOOST_CLASS_EXPORT_KEY(Gem::Courtier::GSimpleContainer)
 BOOST_CLASS_EXPORT_KEY(Gem::Courtier::GRandomNumberContainer)
