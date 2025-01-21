@@ -119,7 +119,7 @@ namespace Gem::Geneva
     // Circle-based triangle model
     struct CircleTriangle
     {
-        unsigned char r, g, b, a; // Colors & transparency (0..255)
+        float r, g, b, a; // Colors & transparency (0..255)
         float cx, cy; // Middle-coordinates of the circle
         float radius; // Radius
         float angle1, angle2, angle3; // Angles in Radians (0..2*pi)
@@ -202,40 +202,10 @@ namespace Gem::Geneva
         std::size_t getNTriangles() const;
         /** @brief Retrieves an array with the triangle data, using the circular triangle definition */
         std::vector<CircleTriangle> getTriangleData() const;
-
-        /**
-         * Retrieves the background colors
-         *
-         * @return The background color used for the candidate image
-         */
-        std::tuple<unsigned char, unsigned char, unsigned char>
-        getBackGroundColor() const
-        {
-            std::size_t offset = 10 * nTriangles_;
-
-            double local_bg_red
-                = std::clamp(255. * this->at<GConstrainedDoubleObject>(offset + 0)->value(), 0., 255.);
-            double local_bg_green
-                = std::clamp(255. * this->at<GConstrainedDoubleObject>(offset + 1)->value(), 0., 255.);
-            double local_bg_blue
-                = std::clamp(255. * this->at<GConstrainedDoubleObject>(offset + 2)->value(), 0., 255.);
-
-            // We want colors to be specified as an 8 bit integer
-            return {
-                static_cast<unsigned char>(std::round(local_bg_red)),
-                static_cast<unsigned char>(std::round(local_bg_green)),
-                static_cast<unsigned char>(std::round(local_bg_blue)),
-            };
-        }
-
-        /**
-         * Checks whether background colors shall be changed
-         */
-        bool
-        getChangeBGColor() const
-        {
-            return changeBGColor_;
-        }
+        /** @brief Retrieves the background colors */
+        std::tuple<float, float, float> getBackGroundColor() const;
+        /** @brief Checks whether background colors shall be changed */
+        bool getChangeBGColor() const;
 
     protected:
         /******************************************************************************/

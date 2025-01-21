@@ -47,8 +47,8 @@ namespace Gem::Common
 {
     /******************************************************************************/
     /**
-      * Loads a PNG file from disk and outputs an RGB array (8 bits/channel),
-      * storing it in a std::vector<unsigned char>. Also outputs the image dimensions.
+      * Loads a PNG file from disk and outputs an RGB array (float, based on 8 bits/channel),
+      * storing it in a std::vector<float>. Also outputs the image dimensions.
       *
       * @param filename  The name of the PNG file to be loaded (as a std::string)
       * @param outData   A reference to a std::vector<unsigned char> to hold the raw RGB data
@@ -170,7 +170,7 @@ namespace Gem::Common
 
         // We want pure 3-channel RGB data (24 bits total).
         // If rowbytes included an alpha channel, it was removed above.
-        unsigned char* finalData = static_cast<unsigned char*>(malloc(width * height * 3));
+        unsigned char* finalData = static_cast<unsigned char*>(malloc(width * height * 3 *sizeof(unsigned char)));
         if (!finalData)
         {
             free(image_data);
@@ -378,21 +378,65 @@ namespace Gem::Common
     }
 
     /**
+     * Transfers an image to a local data structure in float format. This
+     * function also extracts the image dimensions. It may be called concurrently from
+     * different threads. Calling it with a different name from previous calls will not have
+     * an effect.
+     *
+     * @param fileName The name of the image on disc from where the image shall be loaded
+     * @param imageData_f_vec The vector into which the RGB data shall be stored in float format
+     * @param width The width of the disc image
+     * @param height The height of the disc image
+     * @return A boolean indicating whether loading of the image was successful
+     */
+    bool loadImageToFloat(const std::string& fileName,
+        std::vector<float>& imageData_f_vec,
+        int& width,
+        int& height)
+    {
+        // Load the image in RGB format
+        std::vector<unsigned char> imageData_vec;
+        if (not loadImageToRGB(fileName, imageData_vec, width, height))
+        {
+            return false;
+        }
+
+        const std::size_t channel_size = imageData_vec.size();
+        if (channel_size != width * height * 3)
+        {
+            throw gemfony_exception(
+                g_error_streamer(DO_LOG, time_and_place)
+                << "In loadImageToFloat: Error!" << std::endl
+                << "Invalid dimensions " << width << " / " << height << std::endl
+            );
+        }
+
+        // Transfer the channels to floats in the range 0..1
+        imageData_f_vec.clear();
+        for (const auto c : imageData_vec)
+        {
+            imageData_f_vec.push_back(static_cast<float>(c) / 255.0f);
+        }
+
+        return true;
+    }
+
+    /**
      * Writes an image in RGB format to disc. Note that this function will
      * become more useful when further graphics formats are supported.
      *
      * @param fileName The name of the file to which data should be written
+     * @param imageData_vec The RGB-data to be copied to disc
      * @param width The width of the target image
      * @param height The height of the target image
-     * @param imageData_vec The RGB-data to be copied to disc
      * @return A boolean indicating whether saving was successful
      */
     bool saveRGBImageToFile(const std::string& fileName,
                             const std::vector<unsigned char>& imageData_vec,
-                            int width, int height)
+                            const int width, const int height)
     {
         // Identify the suffix of the filename (trailing characters after the last dot
-        const char delimiter = '.';
+        constexpr char delimiter = '.';
         std::string suffix{};
         std::size_t pos = fileName.find_last_of(delimiter);
         if (pos == std::string::npos || pos == fileName.length() - 1)
@@ -411,5 +455,45 @@ namespace Gem::Common
         }
 
         return false;
+    }
+
+
+    /**
+     * Writes an image in float format to disc. Note that this function will
+     * become more useful when further graphics formats are supported.
+     *
+     * @param fileName The name of the file to which data should be written
+     * @param imageData_f_vec The RGB-data to be copied to disc
+     * @param width The width of the target image
+     * @param height The height of the target image
+     * @return A boolean indicating whether saving was successful
+     */
+    bool saveFloatImageToFile(const std::string& fileName,
+                              const std::vector<float>& imageData_f_vec,
+                              const int width,
+                              const int height)
+    {
+        // Check the dimensions
+        if (imageData_f_vec.size() != width * height * 3)
+        {
+            throw gemfony_exception(
+                g_error_streamer(DO_LOG, time_and_place)
+                << "In saveFloatImageToFile: Error!" << std::endl
+                << "Invalid dimensions " << width << " / " << height << " / " << imageData_f_vec.size() << std::endl
+            );
+
+            return false;
+        }
+
+        // Convert the float-vector to RGB
+        std::vector<unsigned char> imageData_vec;
+        for (const auto channel_value : imageData_f_vec)
+        {
+            // Clamp value to [0, 1] to avoid out-of-range issues
+            imageData_vec.push_back(
+                static_cast<unsigned char>(std::round(std::clamp(channel_value, 0.0f, 1.0f) * 255.0f)));
+        }
+
+        return saveRGBImageToFile(fileName, imageData_vec, width, height);
     }
 } /* namespace Gem::Common */

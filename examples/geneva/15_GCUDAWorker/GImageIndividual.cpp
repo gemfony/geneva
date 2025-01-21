@@ -239,7 +239,7 @@ namespace Gem::Geneva
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Set up a hierarchical data structure holding the triangle information (compare the description of this function)
 
-		// Create one GParameterObjectCollection for each triangle
+		// Create one set of GConstrainedDoubleObjects for each triangle
 		for (std::size_t t_cnt = 0; t_cnt < nTriangles_; t_cnt++)
 		{
 			//--------------------------------------------------------------------------------------------
@@ -304,7 +304,7 @@ namespace Gem::Geneva
 			color_b_ptr->addAdaptor(gdga_ptr_tmpl);
 			color_a_ptr->addAdaptor(gdga_ptr_tmpl);
 
-			// ... and add them to the GParameterObjectCollection representing the triangle
+			// ... and add them to the individual
 			this->push_back(color_r_ptr);
 			this->push_back(color_g_ptr);
 			this->push_back(color_b_ptr);
@@ -421,6 +421,38 @@ namespace Gem::Geneva
 
 	/*******************************************************************************************/
 	/**
+	 * Retrieves the background colors
+	 *
+	 * @return The background color used for the candidate image
+	 */
+	std::tuple<float, float, float>
+	GImageIndividual::getBackGroundColor() const
+	{
+		// Background colors are located at the end of the array
+		std::size_t offset = 10 * nTriangles_;
+
+		// We want colors to be specified as floats
+		return {
+			static_cast<float>(std::clamp(this->at<GConstrainedDoubleObject>(offset + 0)->value(), 0., 1.)), // r
+			static_cast<float>(std::clamp(this->at<GConstrainedDoubleObject>(offset + 1)->value(), 0., 1.)), // g
+			static_cast<float>(std::clamp(this->at<GConstrainedDoubleObject>(offset + 2)->value(), 0., 1.))  // b
+		};
+	}
+
+	/*******************************************************************************************/
+	/**
+	 * Checks whether background colors shall be changed
+	 *
+	 * @return A boolean indicating whether background colors shall be changed
+	 */
+	bool
+	GImageIndividual::getChangeBGColor() const
+	{
+		return changeBGColor_;
+	}
+
+	/*******************************************************************************************/
+	/**
 	 * Retrieve an array with the triangles' data, using the circular triangle definition.
 	 * Note that this array might be sorted in ascending order of opacity and might thus not be
 	 * identical to the order in which triangles are sorted in this individual.
@@ -437,13 +469,12 @@ namespace Gem::Geneva
 			throw gemfony_exception(
 				g_error_streamer(DO_LOG, time_and_place)
 				<< "In GImageIndividual::getTriangleData(): Error!" << std::endl
-				<< "Invalid number of entries in this class " << this->size() << " / " << nTriangles_ << std::endl
+				<< "Invalid number of entries in this class " << this->size() << " / " << nTriangles_ + 3 << std::endl
 			);
 		}
 #endif /* DEBUG */
 
 		std::size_t offset = 0;
-		double angle1 = 0., angle2 = 0., angle3 = 0.;
 		std::vector<CircleTriangle> circle_cnt(nTriangles_);
 		for (std::size_t i = 0; i < nTriangles_; i++)
 		{
@@ -453,42 +484,20 @@ namespace Gem::Geneva
 			circle_cnt[i].cy = static_cast<float>(this->at<GConstrainedDoubleObject>(offset + 1)->value());
 			circle_cnt[i].radius = static_cast<float>(this->at<GConstrainedDoubleObject>(offset + 2)->value());
 
-			angle1 = this->at<GConstrainedDoubleObject>(offset + 3)->value();
-			angle2 = this->at<GConstrainedDoubleObject>(offset + 4)->value();
-			angle3 = this->at<GConstrainedDoubleObject>(offset + 5)->value();
+			circle_cnt[i].angle1 = this->at<GConstrainedDoubleObject>(offset + 3)->value();
+			circle_cnt[i].angle2 = this->at<GConstrainedDoubleObject>(offset + 4)->value();
+			circle_cnt[i].angle3 = this->at<GConstrainedDoubleObject>(offset + 5)->value();
 
-			std::array<float, 3> angles = {
-				static_cast<float>(angle1 * 2*M_PI), static_cast<float>(angle2 * 2*M_PI), static_cast<float>(angle3 * 2*M_PI)
-			};
-			std::sort(angles.begin(), angles.end(), std::less<float>());
-
-			circle_cnt[i].angle1 = angles[0];
-			circle_cnt[i].angle2 = angles[1];
-			circle_cnt[i].angle3 = angles[2];
-
-			circle_cnt[i].r =
-				std::clamp(static_cast<unsigned char>(this->at<GConstrainedDoubleObject>(offset + 6)->value() * 255.),
-				           static_cast<unsigned char>(0.),
-				           static_cast<unsigned char>(255.f));
-			circle_cnt[i].g =
-				std::clamp(static_cast<unsigned char>(this->at<GConstrainedDoubleObject>(offset + 7)->value() * 255.),
-				           static_cast<unsigned char>(0.),
-				           static_cast<unsigned char>(255.f));
-
-			circle_cnt[i].b =
-				std::clamp(static_cast<unsigned char>(this->at<GConstrainedDoubleObject>(offset + 8)->value() * 255.),
-				           static_cast<unsigned char>(0.),
-				           static_cast<unsigned char>(255.f));
-
-			circle_cnt[i].a =
-				std::clamp(static_cast<unsigned char>(this->at<GConstrainedDoubleObject>(offset + 9)->value() * 255.),
-				           static_cast<unsigned char>(0.),
-				           static_cast<unsigned char>(255.f));
+			circle_cnt[i].r = this->at<GConstrainedDoubleObject>(offset + 6)->value();
+			circle_cnt[i].g = this->at<GConstrainedDoubleObject>(offset + 7)->value();
+			circle_cnt[i].b = this->at<GConstrainedDoubleObject>(offset + 8)->value();
+			circle_cnt[i].a = this->at<GConstrainedDoubleObject>(offset + 9)->value();
 		}
 
 		if (alphaSort_)
 		{
 			// Sort circle_cnt so that items with higher opacity are in the front position
+			// As a result, they will be drawn first
 			std::sort(
 				circle_cnt.begin()
 				, circle_cnt.end()

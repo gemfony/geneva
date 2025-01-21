@@ -75,7 +75,12 @@ namespace Gem::Common
     /** @brief Transfers an image to a local data structure in RGB format */
     bool loadImageToRGB(const std::string&, std::vector<unsigned char>&, int&, int&);
 
-    /** @brief Writes an image in RGB format to disc */
-    bool saveRGBImageToFile(const std::string&, const std::vector<unsigned char>&, int, int);
+    /** @brief Transfers an image to a local data structure with color channels encoded as floats */
+    bool loadImageToFloat(const std::string&, std::vector<float>&, int&, int&);
 
+    /** @brief Writes an image in RGB format to disc */
+    bool saveRGBImageToFile(const std::string&, const std::vector<unsigned char>&, const int, const int);
+
+    /** @brief Writes an image in RGB format to disc */
+    bool saveFloatImageToFile(const std::string&, const std::vector<float>&, const int, const int);
 } /* namespace Gem::Common */

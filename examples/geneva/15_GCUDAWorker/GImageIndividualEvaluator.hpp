@@ -67,17 +67,25 @@ namespace Gem::Geneva
     //--------------------------------------------------------------------
     // For GPU-based calculation
 
+    /** @nrief Utility-function to clamp a value to a given range (int variant) */
+    __host__ __device__
+    int clamp_i(const int, const int, const int);
+
+    /** @brief Utility-function to clamp a value to a given range (float variant) */
+    __host__ __device__
+    float clamp_f(const float, const float, const float);
+
     /** @brief Retrieval of all corner coordinates of a triangle */
     __device__ void
-    cuda_getCorners(const CircleTriangle& tri,
-                    const int& width,
-                    const int& height,
-                    float& outX1,
-                    float& outY1,
-                    float& outX2,
-                    float& outY2,
-                    float& outX3,
-                    float& outY3);
+    cuda_calculateCorners(const CircleTriangle& tri,
+                          const int& width,
+                          const int& height,
+                          float& outX1,
+                          float& outY1,
+                          float& outX2,
+                          float& outY2,
+                          float& outX3,
+                          float& outY3);
 
     /** @brief Check whether a given point is contained in a triangle */
     __device__ bool
@@ -93,17 +101,16 @@ namespace Gem::Geneva
                     unsigned char alpha);
 
     __global__ void
-    cuda_calculateTriangleCoordinates(const CircleTriangle*,
-                                      float*,
-                                      const int, const int,
-                                      const int);
+    cuda_transformTriangleData(const CircleTriangle*,
+                               float*,
+                               const int, const int,
+                               const int);
 
     __global__ void
-    cuda_renderAndCompareKernel(const CircleTriangle*,
-                                const unsigned char*,
-                                unsigned char*,
-                                const unsigned char*,
-                                double*,
+    cuda_renderAndCompareKernel(const float*,
+                                float*,
+                                const float*,
+                                float*,
                                 float*,
                                 const int, const int,
                                 const int);
@@ -139,10 +146,10 @@ namespace Gem::Geneva
 
         void init(const std::shared_ptr<GImageIndividual>&);
         double evaluate(const std::shared_ptr<GImageIndividual>&);
-        void finalize();
+        void finalize() const;
 
         /** @brief Retrieval of the candidate image */
-        std::vector<unsigned char> getCandidateImage(int&, int&) const;
+        std::vector<float> getCandidateImage(int&, int&) const;
         /** @brief Saves the candidate image to disc */
         void saveCandidateImageToDisc(const std::string&) const;
 
@@ -182,9 +189,9 @@ namespace Gem::Geneva
 
         /** @brief Simple alpha blending in 8 bits */
         static void
-        cpu_alphaBlend(unsigned char&, unsigned char&, unsigned char&,
-                       unsigned char, unsigned char, unsigned char,
-                       unsigned char);
+        cpu_alphaBlend(float&, float&, float&,
+                       const float, const float, const float,
+                       const float);
 
         //--------------------------------------------------------------------
         // Variables
@@ -193,31 +200,30 @@ namespace Gem::Geneva
         int width_{0}; ///< The width of the target image
         int height_{0}; ///< The height of the target image
         std::size_t nTriangles_{0}; ///< The number of triangles constituting an image
-        std::tuple<unsigned char, unsigned char, unsigned char> bgColor_{255, 255, 255};
+        std::tuple<float, float, float> bgColor_{0.f, 0.f, 0.f};
         ///< The canvas background color
 
         // For CUDA evaluation
         const bool useGPU_; ///< Whether the GPU shall be used for the evaluation of the individuals
         const bool getGPUCandidateImage_; ///< Whether to retrieve candidate images back from the GPU
 
-        unsigned int blockSize_x_{0}, blockSize_y_{0}; ///< CUDA block-sizes
-        unsigned int gridSize_x_{0}, gridSize_y_{0}; /// CUDA grid-sizes
+        unsigned int blockSize_x_, blockSize_y_; ///< CUDA block-sizes
+        unsigned int gridSize_x_, gridSize_y_; /// CUDA grid-sizes
 
-        unsigned char* d_target_{nullptr}; ///< Holds a copy of the target image
-        Geneva::CircleTriangle* d_triangles_{nullptr}; ///< Holds the triangles described by the individual
-        unsigned char* d_candidate_{nullptr}; ///< Holds the candidate image assembled from the triangles
-        unsigned char* d_bgcolor_{nullptr}; ///< Holds the current background color, to be transferred to the device
-        double* d_result_{nullptr}; ///< Holds the result of the current evaluation
-        float* d_triangle_data_{nullptr}; ///< For debugging purposes
-        float* d_triangle_coordinates_{nullptr}; ///< Allows to store triangle coordinates on the device side
+        float* d_target_{nullptr}; ///< Holds a copy of the target image
+        float* d_candidate_{nullptr}; ///< Holds the candidate image assembled from the triangles
+        float* d_bgcolor_{nullptr}; ///< Holds the current background color, to be transferred to the device
+        Geneva::CircleTriangle* d_triangles_{nullptr}; ///< Holds the "raw" triangles described by the individual
+        float* d_transformed_triangle_data_{nullptr}; ///< Holds transformed triangle coordinates relative to the image dimensions
+        float* d_result_{nullptr}; ///< Holds the result of the current evaluation
 
         std::vector<float> h_triangle_data_{};
 
         cudaStream_t cuda_stream_{};
 
         // Image data structures
-        std::vector<unsigned char> targetImageData_vec_{}; ///< Holds the target image data
-        std::vector<unsigned char> candidateImageData_vec_{}; ///< Holds temporary image data
+        std::vector<float> targetImageData_vec_{}; ///< Holds the target image data
+        std::vector<float> candidateImageData_vec_{}; ///< Holds temporary image data
 
         // For testing purposes
         std::mutex testMutex_;
