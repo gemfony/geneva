@@ -67,14 +67,6 @@ namespace Gem::Geneva
     //--------------------------------------------------------------------
     // For GPU-based calculation
 
-    /** @nrief Utility-function to clamp a value to a given range (int variant) */
-    __host__ __device__
-    int clamp_i(const int, const int, const int);
-
-    /** @brief Utility-function to clamp a value to a given range (float variant) */
-    __host__ __device__
-    float clamp_f(const float, const float, const float);
-
     /** @brief Retrieval of all corner coordinates of a triangle */
     __device__ void
     cuda_calculateCorners(const CircleTriangle& tri,
@@ -89,10 +81,10 @@ namespace Gem::Geneva
 
     /** @brief Check whether a given point is contained in a triangle */
     __device__ bool
-    cuda_pointInTriangle(float px, float py,
-                         float x1, float y1,
-                         float x2, float y2,
-                         float x3, float y3);
+    cuda_pointInTriangle(const float px, const float py,
+                         const float x1, const float y1,
+                         const float x2, const float y2,
+                         const float x3, const float y3);
 
     /** @brief Simple alpha blending */
     __device__ void
@@ -124,8 +116,8 @@ namespace Gem::Geneva
     public:
         GImageIndividualEvaluator(const std::string&,
                                   bool, bool,
-                                  int, int,
-                                  int, int);
+                                  const int, const int,
+                                  const int, const int);
         virtual ~GImageIndividualEvaluator() = default;
 
         //------------------------------------------------------------------
@@ -135,7 +127,7 @@ namespace Gem::Geneva
         GImageIndividualEvaluator() = delete;
         /** @brief Disabled copy constructor */
         GImageIndividualEvaluator(const GImageIndividualEvaluator&) = delete;
-        /** @brief Disabled move constructor */
+        /** @brief Disabled move constructor getGPUCandidateImage*/
         GImageIndividualEvaluator(GImageIndividualEvaluator&&) = delete;
         /** @brief Disabled assignment operator */
         GImageIndividualEvaluator& operator=(const GImageIndividualEvaluator&) = delete;
@@ -216,8 +208,6 @@ namespace Gem::Geneva
         Geneva::CircleTriangle* d_triangles_{nullptr}; ///< Holds the "raw" triangles described by the individual
         float* d_transformed_triangle_data_{nullptr}; ///< Holds transformed triangle coordinates relative to the image dimensions
         float* d_result_{nullptr}; ///< Holds the result of the current evaluation
-
-        std::vector<float> h_triangle_data_{};
 
         cudaStream_t cuda_stream_{};
 

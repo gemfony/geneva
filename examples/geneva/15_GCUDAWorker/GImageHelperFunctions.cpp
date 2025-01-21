@@ -463,7 +463,7 @@ namespace Gem::Common
      * become more useful when further graphics formats are supported.
      *
      * @param fileName The name of the file to which data should be written
-     * @param imageData_f_vec The RGB-data to be copied to disc
+     * @param imageData_f_vec The float-data to be copied to disc
      * @param width The width of the target image
      * @param height The height of the target image
      * @return A boolean indicating whether saving was successful
@@ -487,7 +487,7 @@ namespace Gem::Common
 
         // Convert the float-vector to RGB
         std::vector<unsigned char> imageData_vec;
-        for (const auto channel_value : imageData_f_vec)
+        for (const auto& channel_value : imageData_f_vec)
         {
             // Clamp value to [0, 1] to avoid out-of-range issues
             imageData_vec.push_back(

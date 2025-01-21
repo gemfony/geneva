@@ -166,6 +166,11 @@
       "default": "false",
       "value": "false"
     },
+    "mutateAlphaChannel": {
+      "comment": "Whether the alpha channel shall be mutated",
+      "default": "false",
+      "value": "false"
+    },
     "evalPolicy": {
         "comment": "Specifies which strategy should be used to calculate the evaluation:",
         "comment": "0 (a.k.a. USESIMPLEEVALUATION): Always call the evaluation function, even for invalid solutions",

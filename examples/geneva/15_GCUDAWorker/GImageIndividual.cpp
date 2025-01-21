@@ -117,8 +117,9 @@ namespace Gem::Geneva
 		, const double& maxSize
 		, const double& minOpaqueness
 		, const double& maxOpaqueness
-		, const bool& alphaSort
-		, const bool& changeBGColor
+		, const bool&   alphaSort
+		, const bool&   changeBGColor
+		, const bool&   mutateAlphaChannel
 		, const double& sigma
 		, const double& sigmaSigma
 		, const double& minSigma
@@ -206,6 +207,7 @@ namespace Gem::Geneva
 
 		nTriangles_ = nTriangles;
 		alphaSort_ = alphaSort;
+		mutateAlphaChannel_ = mutateAlphaChannel;
 
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Create suitable adaptors
@@ -296,7 +298,14 @@ namespace Gem::Geneva
 			std::shared_ptr<GConstrainedDoubleObject> color_g_ptr(new GConstrainedDoubleObject(0., 1.));
 			std::shared_ptr<GConstrainedDoubleObject> color_b_ptr(new GConstrainedDoubleObject(0., 1.));
 			std::shared_ptr<GConstrainedDoubleObject> color_a_ptr(
-				new GConstrainedDoubleObject(minOpaqueness, maxOpaqueness));
+				new GConstrainedDoubleObject(
+					minOpaqueness
+					, maxOpaqueness)
+			);
+
+			// Disable changes to the alpha channel if requested
+			if (not mutateAlphaChannel) color_a_ptr->setAdaptionsInactive();
+			else color_a_ptr->setAdaptionsActive();
 
 			// ... equip them with an adaptor
 			color_r_ptr->addAdaptor(gdga_ptr_tmpl);
@@ -319,29 +328,29 @@ namespace Gem::Geneva
 
 		if (bgRed < 0)
 		{
-			bg_color_r_ptr = std::shared_ptr<GConstrainedDoubleObject>(new GConstrainedDoubleObject(0., 1.));
+			bg_color_r_ptr = std::make_shared<GConstrainedDoubleObject>(0., 1.);
 		}
 		else
 		{
-			bg_color_r_ptr = std::shared_ptr<GConstrainedDoubleObject>(new GConstrainedDoubleObject(bgRed, 0., 1.));
+			bg_color_r_ptr = std::make_shared<GConstrainedDoubleObject>(bgRed, 0., 1.);
 		}
 
 		if (bgGreen < 0)
 		{
-			bg_color_g_ptr = std::shared_ptr<GConstrainedDoubleObject>(new GConstrainedDoubleObject(0., 1.));
+			bg_color_g_ptr = std::make_shared<GConstrainedDoubleObject>(0., 1.);
 		}
 		else
 		{
-			bg_color_g_ptr = std::shared_ptr<GConstrainedDoubleObject>(new GConstrainedDoubleObject(bgGreen, 0., 1.));
+			bg_color_g_ptr = std::make_shared<GConstrainedDoubleObject>(bgGreen, 0., 1.);
 		}
 
 		if (bgBlue < 0)
 		{
-			bg_color_b_ptr = std::shared_ptr<GConstrainedDoubleObject>(new GConstrainedDoubleObject(0., 1.));
+			bg_color_b_ptr = std::make_shared<GConstrainedDoubleObject>(0., 1.);
 		}
 		else
 		{
-			bg_color_b_ptr = std::shared_ptr<GConstrainedDoubleObject>(new GConstrainedDoubleObject(bgBlue, 0., 1.));
+			bg_color_b_ptr = std::make_shared<GConstrainedDoubleObject>(bgBlue, 0., 1.);
 		}
 
 		// ... equip them with an adaptor,
@@ -402,9 +411,12 @@ namespace Gem::Geneva
 		Gem::Common::compare_base_t<Gem::Geneva::GParameterSet>(*this, *p_load, token);
 
 		// ... and then the local data
+		Gem::Common::compare_t(IDENTITY(width_, p_load->width_), token);
+		Gem::Common::compare_t(IDENTITY(height_, p_load->height_), token);
 		Gem::Common::compare_t(IDENTITY(nTriangles_, p_load->nTriangles_), token);
 		Gem::Common::compare_t(IDENTITY(alphaSort_, p_load->alphaSort_), token);
 		Gem::Common::compare_t(IDENTITY(changeBGColor_, p_load->changeBGColor_), token);
+		Gem::Common::compare_t(IDENTITY(mutateAlphaChannel_, p_load->mutateAlphaChannel_), token);
 
 		// React on deviations from the expectation
 		token.evaluate();
@@ -421,26 +433,6 @@ namespace Gem::Geneva
 
 	/*******************************************************************************************/
 	/**
-	 * Retrieves the background colors
-	 *
-	 * @return The background color used for the candidate image
-	 */
-	std::tuple<float, float, float>
-	GImageIndividual::getBackGroundColor() const
-	{
-		// Background colors are located at the end of the array
-		std::size_t offset = 10 * nTriangles_;
-
-		// We want colors to be specified as floats
-		return {
-			static_cast<float>(std::clamp(this->at<GConstrainedDoubleObject>(offset + 0)->value(), 0., 1.)), // r
-			static_cast<float>(std::clamp(this->at<GConstrainedDoubleObject>(offset + 1)->value(), 0., 1.)), // g
-			static_cast<float>(std::clamp(this->at<GConstrainedDoubleObject>(offset + 2)->value(), 0., 1.))  // b
-		};
-	}
-
-	/*******************************************************************************************/
-	/**
 	 * Checks whether background colors shall be changed
 	 *
 	 * @return A boolean indicating whether background colors shall be changed
@@ -453,11 +445,22 @@ namespace Gem::Geneva
 
 	/*******************************************************************************************/
 	/**
+	 * Checks whether the alpha channel of triangles shall be mutated
+	 *
+	 * @return A boolean indicating whether the alpha-channel of triangles shall be mutated
+	 */
+	bool
+	GImageIndividual::getMutateAlphaChannel() const
+	{
+		return mutateAlphaChannel_;
+	}
+
+	/*******************************************************************************************/
+	/**
 	 * Retrieve an array with the triangles' data, using the circular triangle definition.
 	 * Note that this array might be sorted in ascending order of opacity and might thus not be
 	 * identical to the order in which triangles are sorted in this individual.
 	 *
-	 * @param nT The number of triangles (return parameter)
 	 * @return An array with the triangle data
 	 */
 	std::vector<CircleTriangle> GImageIndividual::getTriangleData() const
@@ -484,14 +487,14 @@ namespace Gem::Geneva
 			circle_cnt[i].cy = static_cast<float>(this->at<GConstrainedDoubleObject>(offset + 1)->value());
 			circle_cnt[i].radius = static_cast<float>(this->at<GConstrainedDoubleObject>(offset + 2)->value());
 
-			circle_cnt[i].angle1 = this->at<GConstrainedDoubleObject>(offset + 3)->value();
-			circle_cnt[i].angle2 = this->at<GConstrainedDoubleObject>(offset + 4)->value();
-			circle_cnt[i].angle3 = this->at<GConstrainedDoubleObject>(offset + 5)->value();
+			circle_cnt[i].angle1 = static_cast<float>(this->at<GConstrainedDoubleObject>(offset + 3)->value());
+			circle_cnt[i].angle2 = static_cast<float>(this->at<GConstrainedDoubleObject>(offset + 4)->value());
+			circle_cnt[i].angle3 = static_cast<float>(this->at<GConstrainedDoubleObject>(offset + 5)->value());
 
-			circle_cnt[i].r = this->at<GConstrainedDoubleObject>(offset + 6)->value();
-			circle_cnt[i].g = this->at<GConstrainedDoubleObject>(offset + 7)->value();
-			circle_cnt[i].b = this->at<GConstrainedDoubleObject>(offset + 8)->value();
-			circle_cnt[i].a = this->at<GConstrainedDoubleObject>(offset + 9)->value();
+			circle_cnt[i].r = static_cast<float>(this->at<GConstrainedDoubleObject>(offset + 6)->value());
+			circle_cnt[i].g = static_cast<float>(this->at<GConstrainedDoubleObject>(offset + 7)->value());
+			circle_cnt[i].b = static_cast<float>(this->at<GConstrainedDoubleObject>(offset + 8)->value());
+			circle_cnt[i].a = static_cast<float>(this->at<GConstrainedDoubleObject>(offset + 9)->value());
 		}
 
 		if (alphaSort_)
@@ -501,7 +504,7 @@ namespace Gem::Geneva
 			std::sort(
 				circle_cnt.begin()
 				, circle_cnt.end()
-				, [](CircleTriangle& x, CircleTriangle& y)
+				, [](const CircleTriangle& x, const CircleTriangle& y)
 				{
 					return x.a > y.a;
 				}
@@ -529,6 +532,9 @@ namespace Gem::Geneva
 		nTriangles_ = p_load->nTriangles_;
 		alphaSort_ = p_load->alphaSort_;
 		changeBGColor_ = p_load->changeBGColor_;
+		mutateAlphaChannel_ = p_load->mutateAlphaChannel_;
+		width_ = p_load->width_;
+		height_ = p_load->height_;
 	}
 
 	/******************************************************************************/
@@ -683,7 +689,7 @@ namespace Gem::Geneva
 
 	/******************************************************************************/
 	/**
-	 * Allows to describe local configuration options for gradient descents
+	 * Allows to describe local configuration options for the image individual
 	 */
 	void GImageIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder& gpb)
 	{
@@ -1012,6 +1018,16 @@ namespace Gem::Geneva
 		);
 
 		comment = "";
+		comment += "Whether the alpha channel shall be mutated;";
+		gpb.registerFileParameter<bool>(
+			"mutateAlphaChannel"
+			, mutateAlphaChannel_.reference()
+			, GII_DEF_MUTATE_ALPHA_CHANNEL
+			, Gem::Common::VAR_IS_ESSENTIAL
+			, comment
+		);
+
+		comment = "";
 		comment += "Whether the background color shall be mutated;";
 		gpb.registerFileParameter<bool>(
 			"changeBGColor"
@@ -1048,6 +1064,7 @@ namespace Gem::Geneva
 			, maxOpaqueness_
 			, alphaSort_
 			, changeBGColor_
+			, mutateAlphaChannel_
 			, sigma_
 			, sigmaSigma_
 			, minSigma_

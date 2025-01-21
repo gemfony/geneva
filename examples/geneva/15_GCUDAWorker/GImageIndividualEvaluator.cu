@@ -40,8 +40,6 @@
 
 #include "GImageIndividualEvaluator.hpp"
 
-#include <boost/phoenix/stl/container/container.hpp>
-
 namespace Gem::Geneva
 {
     /**
@@ -49,6 +47,7 @@ namespace Gem::Geneva
      *
      * @param targetImageFileName The name of the image to which similarity should be created
      * @param useGPU Whether evaluation shall use the GPU
+     * @param getGPUCandidateImage Allows to specify whether candidate images shall be returned from the GPU
      * @param blockSize_x The CUDA block-size in x-direction
      * @param blockSize_y The CUDA block-size in y-direction
      * @param gridSize_x The CUDA grid-size in x-direction
@@ -57,8 +56,8 @@ namespace Gem::Geneva
     GImageIndividualEvaluator::GImageIndividualEvaluator(const std::string& targetImageFileName,
                                                          bool useGPU,
                                                          bool getGPUCandidateImage,
-                                                         int blockSize_x, int blockSize_y,
-                                                         int gridSize_x, int gridSize_y)
+                                                         const int blockSize_x, const int blockSize_y,
+                                                         const int gridSize_x,  const int gridSize_y)
         : targetImageFileName_(targetImageFileName),
           useGPU_(useGPU),
           getGPUCandidateImage_(getGPUCandidateImage),
@@ -87,6 +86,7 @@ namespace Gem::Geneva
         // Retrieve some further information from the GImageIndividual
         nTriangles_ = individual_ptr->getNTriangles();
         bgColor_ = individual_ptr->getBackGroundColor();
+
         std::vector<float> bgColor_vec;
         bgColor_vec.push_back(std::get<0>(bgColor_));
         bgColor_vec.push_back(std::get<1>(bgColor_));
@@ -150,9 +150,8 @@ namespace Gem::Geneva
             // Allocate the space for the triangle data
             checkCuda(cudaMalloc(&d_triangles_, static_cast<int>(nTriangles_ * sizeof(Geneva::CircleTriangle))),
                       "cudaMalloc d_triangles_");
-            // Storage for triangle data on the device --> TODO: What is the differenc here?
+            // Storage for transformed triangle data on the device
             checkCuda(cudaMalloc(&d_transformed_triangle_data_, 10 * nTriangles_ * sizeof(float)), "cudaMalloc d_triangle_data");
-            h_triangle_data_.resize(nTriangles_ * 10);
             // Result data
             checkCuda(cudaMalloc(&d_result_, sizeof(float)), "cudaMalloc d_results");
 
@@ -160,13 +159,13 @@ namespace Gem::Geneva
             // Copy and set data
 
             // Copy the target image data over
-            checkCuda(cudaMemcpyAsync((void*)(d_target_),
-                                      (void*)(targetImageData_vec_.data()),
+            checkCuda(cudaMemcpyAsync(d_target_,
+                                      targetImageData_vec_.data(),
                                       imageSizeBytes,
                                       cudaMemcpyHostToDevice, cuda_stream_), "Memcpy target");
             // Copy the current background color over
-            checkCuda(cudaMemcpyAsync((void*)(d_bgcolor_),
-                                      (void*)(bgColor_vec.data()),
+            checkCuda(cudaMemcpyAsync(d_bgcolor_,
+                                      bgColor_vec.data(),
                                       3 * sizeof(unsigned char),
                                       cudaMemcpyHostToDevice, cuda_stream_), "Memcpy bgcolor");
 
@@ -272,22 +271,6 @@ namespace Gem::Geneva
     }
 
     /**
-     * Utility-function to clamp a value to a given range (int variant)
-     */
-    __host__ __device__
-    int clamp_i(const int value, const int min, const int max) {
-        return (value < min) ? min : (value > max ? max : value);
-    }
-
-    /**
-     * Utility-function to clamp a value to a given range (float variant)
-     */
-    __host__ __device__
-    float clamp_f(const float value, const float min, const float max) {
-        return (value < min) ? min : (value > max ? max : value);
-    }
-
-    /**
      * Retrieval of all corner coordinates of a triangle
      */
     __device__ void
@@ -321,23 +304,24 @@ namespace Gem::Geneva
      * acts relative to the image dimensions, i.e. with transformed triangle data
      */
     __device__ bool
-    cuda_pointInTriangle(float px, float py,
-                         float x1, float y1,
-                         float x2, float y2,
-                         float x3, float y3)
+    cuda_pointInTriangle(const float px, const float py,
+                         const float x1, const float y1,
+                         const float x2, const float y2,
+                         const float x3, const float y3)
     {
         // Cross product-Signum
-        auto sign = [] __device__ (float xA, float yA, float xB, float yB, float xC, float yC)
+        auto sign = [] __device__ (const float xA, const float yA, const float xB,
+                                   const float yB, const float xC, const float yC)
         {
             return (xA - xC) * (yB - yC) - (yA - yC) * (xB - xC);
         };
 
-        float d1 = sign(px, py, x1, y1, x2, y2);
-        float d2 = sign(px, py, x2, y2, x3, y3);
-        float d3 = sign(px, py, x3, y3, x1, y1);
+        const float d1 = sign(px, py, x1, y1, x2, y2);
+        const float d2 = sign(px, py, x2, y2, x3, y3);
+        const float d3 = sign(px, py, x3, y3, x1, y1);
 
-        bool hasNeg = (d1 < 0) || (d2 < 0) || (d3 < 0);
-        bool hasPos = (d1 > 0) || (d2 > 0) || (d3 > 0);
+        const bool hasNeg = (d1 < 0) || (d2 < 0) || (d3 < 0);
+        const bool hasPos = (d1 > 0) || (d2 > 0) || (d3 > 0);
         // Point is contained in triangle if both booleans are the same
         return !(hasNeg && hasPos);
     }
@@ -466,7 +450,7 @@ namespace Gem::Geneva
         const float db = bT - bOut;
 
         // Sum up the result
-        atomicAdd(d_result, sqrtf(dr * dr + dg * dg + db * db));
+        atomicAdd(d_result, dr * dr + dg * dg + db * db);
     }
 
     /**
@@ -474,7 +458,7 @@ namespace Gem::Geneva
      */
     double GImageIndividualEvaluator::evaluate(const std::shared_ptr<GImageIndividual>& individual_ptr)
     {
-        double fitness{0.};
+        float fitness{0.};
 
         // Perform the evaluation on the GPU
         if (useGPU_)
@@ -482,7 +466,7 @@ namespace Gem::Geneva
             const auto imageSizeBytes = static_cast<std::size_t>(width_ * height_ * 3 * sizeof(float));
 
             // Reset the fitness-counter
-            checkCuda(cudaMemsetAsync(d_result_, 0, sizeof(double), cuda_stream_), "Memset fitness");
+            checkCuda(cudaMemsetAsync(d_result_, 0, sizeof(float), cuda_stream_), "Memset fitness");
 
             // Retrieve and transfer the current background color
             bgColor_ = individual_ptr->getBackGroundColor();
@@ -531,10 +515,7 @@ namespace Gem::Geneva
 
             // Store the result in the individual
             std::vector<double> result_vec;
-            result_vec.push_back(fitness);
-
-            checkCuda(cudaMemcpyAsync(h_triangle_data_.data(), d_transformed_triangle_data_, 6 * nTriangles_ * sizeof(float),
-                                      cudaMemcpyDeviceToHost, cuda_stream_), "Mmcpy triangle data");
+            result_vec.push_back(static_cast<double>(fitness));
 
             // Copying the images back is an expensive operation.
             // We only want to perform this in selected cases, e.g.
@@ -558,7 +539,7 @@ namespace Gem::Geneva
             fitness = cpu_deviation(individual_ptr);
         }
 
-        individual_ptr->setFitness(std::vector<double>(1, fitness));
+        individual_ptr->setFitness(std::vector<double>(1, static_cast<double>(fitness)));
 
         // Let the audience know
         return fitness;

@@ -110,6 +110,7 @@ namespace Gem::Geneva
     constexpr double GII_DEF_BGBLUE = 0.9;
     constexpr bool GII_DEF_ALPHASORT = true;
     constexpr bool GII_DEF_CHBGCOLOR = false;
+    constexpr bool GII_DEF_MUTATE_ALPHA_CHANNEL = false;
 
     constexpr int GII_DEF_IMAGE_WIDTH = 1024;
     constexpr int GII_DEF_IMAGE_HEIGHT = 768;
@@ -175,8 +176,9 @@ namespace Gem::Geneva
             , const double& maxSize
             , const double& minOpaqueness
             , const double& maxOpaqueness
-            , const bool& alphaSort
-            , const bool& changeBGColor
+            , const bool&   alphaSort
+            , const bool&   changeBGColor
+            , const bool&   mutateAlphaChannel
             , const double& sigma
             , const double& sigmaSigma
             , const double& minSigma
@@ -202,10 +204,53 @@ namespace Gem::Geneva
         std::size_t getNTriangles() const;
         /** @brief Retrieves an array with the triangle data, using the circular triangle definition */
         std::vector<CircleTriangle> getTriangleData() const;
-        /** @brief Retrieves the background colors */
-        std::tuple<float, float, float> getBackGroundColor() const;
         /** @brief Checks whether background colors shall be changed */
         bool getChangeBGColor() const;
+        /** @brief Checks whether the alpha channel of triangles shall be mutated */
+        bool getMutateAlphaChannel() const;
+
+        /*******************************************************************************************/
+        /**
+         * Retrieves the background colors
+         *
+         * @return The background color used for the candidate image
+         */
+        template <typename fp_type = float>
+        std::tuple<fp_type, fp_type, fp_type> getBackGroundColor() const
+        {
+            static_assert(std::is_same_v<fp_type, float> || std::is_same_v<fp_type, double>,
+                              "GImageIndividual::getBackGroundColor(): Error! Template argument must be either float or double");
+
+            // Background colors are located at the end of the array
+            const std::size_t offset = 10 * nTriangles_;
+
+            if constexpr (std::is_same_v<fp_type, float>)
+            {
+                // We want colors to be specified as floats
+                return {
+                    static_cast<float>(std::clamp(this->at<GConstrainedDoubleObject>(offset + 0)->value(), 0., 1.)), // r
+                    static_cast<float>(std::clamp(this->at<GConstrainedDoubleObject>(offset + 1)->value(), 0., 1.)), // g
+                    static_cast<float>(std::clamp(this->at<GConstrainedDoubleObject>(offset + 2)->value(), 0., 1.))  // b
+                };
+            }
+            else if constexpr (std::is_same_v<fp_type, double>)
+            {
+                return {
+                    std::clamp(this->at<GConstrainedDoubleObject>(offset + 0)->value(), 0., 1.), // r
+                    std::clamp(this->at<GConstrainedDoubleObject>(offset + 1)->value(), 0., 1.), // g
+                    std::clamp(this->at<GConstrainedDoubleObject>(offset + 2)->value(), 0., 1.)  // b
+                };
+            }
+            else
+            {
+                // This should not happen
+                throw gemfony_exception(
+                    g_error_streamer(DO_LOG, time_and_place)
+                    << "In GImageIndividual::getBackGroundColor(): Error!" << std::endl
+                    << "Invalid type requested" << std::endl
+                );
+            }
+        }
 
     protected:
         /******************************************************************************/
@@ -239,6 +284,8 @@ namespace Gem::Geneva
         bool alphaSort_{GII_DEF_ALPHASORT};
         ///< Indicates whether triangles should be sorted according to their alpha channel
         bool changeBGColor_{GII_DEF_CHBGCOLOR}; ///< Whether the background color should be mutated
+        ///< Indicates whether the alpha-channel of triangle colors shall be mutated
+        bool mutateAlphaChannel_{GII_DEF_MUTATE_ALPHA_CHANNEL};
 
     protected:
         /** @brief Applies modifications to this object. */
@@ -342,8 +389,9 @@ namespace Gem::Geneva
         Gem::Common::GOneTimeRefParameterT<double> loc_maxSigma_{GII_DEF_LOC_MAXSIGMA};
         Gem::Common::GOneTimeRefParameterT<double> minOpaqueness_{GII_DEF_MINOPAQUENESS};
         Gem::Common::GOneTimeRefParameterT<double> maxOpaqueness_{GII_DEF_MAXOPAQUENESS};
-        Gem::Common::GOneTimeRefParameterT<bool> alphaSort_{GII_DEF_ALPHASORT};
-        Gem::Common::GOneTimeRefParameterT<bool> changeBGColor_{GII_DEF_CHBGCOLOR};
+        Gem::Common::GOneTimeRefParameterT<bool>   alphaSort_{GII_DEF_ALPHASORT};
+        Gem::Common::GOneTimeRefParameterT<bool>   changeBGColor_{GII_DEF_CHBGCOLOR};
+        Gem::Common::GOneTimeRefParameterT<bool>   mutateAlphaChannel_{GII_DEF_MUTATE_ALPHA_CHANNEL};
         Gem::Common::GOneTimeRefParameterT<double> startSize_{GII_DEF_STARTSIZE};
         Gem::Common::GOneTimeRefParameterT<double> minSize_{GII_DEF_MINSIZE};
         Gem::Common::GOneTimeRefParameterT<double> maxSize_{GII_DEF_MAXSIZE};
@@ -351,9 +399,6 @@ namespace Gem::Geneva
         Gem::Common::GOneTimeRefParameterT<double> bgGreen_{GII_DEF_BGGREEN};
         Gem::Common::GOneTimeRefParameterT<double> bgBlue_{GII_DEF_BGBLUE};
         Gem::Common::GOneTimeRefParameterT<std::size_t> nTriangles_{GII_DEF_NTRIANGLES};
-
-        //--------- For CUDA ----------
-        unsigned char* d_target_{nullptr};
     };
 
     /******************************************************************************/
