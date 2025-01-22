@@ -92,7 +92,7 @@ namespace Gem::Geneva
         bgColor_vec.push_back(std::get<1>(bgColor_));
         bgColor_vec.push_back(std::get<2>(bgColor_));
 
-        // Fill the candidate image vector with our background color
+        // Fill the candidate image vector with our background color and resize
         clearCandidateDataToBG();
 
         // Allocate memory and transfer data to the GPU
@@ -291,12 +291,12 @@ namespace Gem::Geneva
         // The triangle scale is measured in fractions of the _smaller_ value of width and height
         const auto scale = static_cast<float>(width<height?width:height);
 
-        outX1 = center_x + tri.radius * cosf(tri.angle1) * scale;
-        outY1 = center_y + tri.radius * sinf(tri.angle1) * scale;
-        outX2 = center_x + tri.radius * cosf(tri.angle2) * scale;
-        outY2 = center_y + tri.radius * sinf(tri.angle2) * scale;
-        outX3 = center_x + tri.radius * cosf(tri.angle3) * scale;
-        outY3 = center_y + tri.radius * sinf(tri.angle3) * scale;
+        outX1 = center_x + tri.radius * cosf(tri.angle1 * 2.f * static_cast<float>(M_PI)) * scale;
+        outY1 = center_y + tri.radius * sinf(tri.angle1 * 2.f * static_cast<float>(M_PI)) * scale;
+        outX2 = center_x + tri.radius * cosf(tri.angle2 * 2.f * static_cast<float>(M_PI)) * scale;
+        outY2 = center_y + tri.radius * sinf(tri.angle2 * 2.f * static_cast<float>(M_PI)) * scale;
+        outX3 = center_x + tri.radius * cosf(tri.angle3 * 2.f * static_cast<float>(M_PI)) * scale;
+        outY3 = center_y + tri.radius * sinf(tri.angle3 * 2.f * static_cast<float>(M_PI)) * scale;
     }
 
     /**
@@ -682,35 +682,25 @@ namespace Gem::Geneva
 
 
     /**
-     * This function resets the candidateImageData_vec_ to the stored background colors
+     * This function resets the candidateImageData_vec_ to the stored background colors and resize if necessary
      */
     void GImageIndividualEvaluator::clearCandidateDataToBG()
     {
-        std::size_t candidateImageData_vec_size = 3 * width_ * height_ * sizeof(float);
-        std::vector<float> bgColor = {
-            std::get<0>(bgColor_),
-            std::get<1>(bgColor_),
-            std::get<2>(bgColor_)
-        };
+        const std::size_t pixel_size = width_ * height_;
+        const std::size_t candidateImageData_vec_size = 3 * pixel_size;
 
-        // Resize candidateImageData_vec_ by the bgColor for the required number of times
+        // Resize candidateImageData_vec_ tp the target size if required
         if (candidateImageData_vec_.size() != (candidateImageData_vec_size))
         {
-            candidateImageData_vec_.clear();
-            candidateImageData_vec_.reserve(candidateImageData_vec_size);
-            for (std::size_t i = 0; i < candidateImageData_vec_size; i++)
-            {
-                candidateImageData_vec_.insert(candidateImageData_vec_.end(), bgColor.begin(), bgColor.end());
-            }
+            candidateImageData_vec_.resize(candidateImageData_vec_size);
         }
+
         // Consecutively copy bgColor values into the candidateImageData_vec_ vector
-        else
+        for (std::size_t p = 0; p < pixel_size; p++)
         {
-            for (std::size_t i = 0; i < candidateImageData_vec_size; i++)
-            {
-                std::size_t startIndex = i * bgColor.size();
-                std::copy(bgColor.begin(), bgColor.end(), candidateImageData_vec_.begin() + startIndex);
-            }
+            candidateImageData_vec_.at(3*p + 0) = std::get<0>(bgColor_);
+            candidateImageData_vec_.at(3*p + 1) = std::get<1>(bgColor_);
+            candidateImageData_vec_.at(3*p + 2) = std::get<2>(bgColor_);
         }
     }
 } /* namespace Gem::Geneva */

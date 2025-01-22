@@ -41,7 +41,6 @@
 #include "GImageHelperFunctions.hpp"
 
 #include <boost/xpressive/detail/static/placeholders.hpp>
-#include <boost/xpressive/detail/utility/width.hpp>
 
 namespace Gem::Common
 {
@@ -479,10 +478,10 @@ namespace Gem::Common
             throw gemfony_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In saveFloatImageToFile: Error!" << std::endl
-                << "Invalid dimensions " << width << " / " << height << " / " << imageData_f_vec.size() << std::endl
+                << "Invalid dimensions: " << "width = " << width << " / " << "height = " << height
+                << " / width * height * 3 = " << width * height * 3
+                << " / imageData_f_vec.size() = " << imageData_f_vec.size() << std::endl
             );
-
-            return false;
         }
 
         // Convert the float-vector to RGB

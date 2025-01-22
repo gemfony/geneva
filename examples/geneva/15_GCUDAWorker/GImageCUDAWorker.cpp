@@ -40,6 +40,8 @@
 
 #include "GImageCUDAWorker.hpp"
 
+#include <memory>
+
 namespace Gem::Courtier
 {
     /******************************************************************************/
@@ -226,14 +228,14 @@ namespace Gem::Courtier
 #endif /* DEBUG */
 
         // Create an evaluator for GImageIndividuals ...
-        evaluator_ptr_.reset(new Geneva::GImageIndividualEvaluator(targetImageFileName_.value(),
-                                                                   useGPU_.value(),
-                                                                   false, // getGPUCandidateImage
-                                                                   blockSize_x_.value(),
-                                                                   blockSize_y_.value(),
-                                                                   gridSize_x_.value(),
-                                                                   gridSize_y_.value()
-        ));
+        evaluator_ptr_ = std::make_shared<Geneva::GImageIndividualEvaluator>(targetImageFileName_.value(),
+                                                                             useGPU_.value(),
+                                                                             false, // getGPUCandidateImage
+                                                                             blockSize_x_.value(),
+                                                                             blockSize_y_.value(),
+                                                                             gridSize_x_.value(),
+                                                                             gridSize_y_.value()
+        );
 
         // ... and initialize the evaluation process
         evaluator_ptr_->init(p_conv);

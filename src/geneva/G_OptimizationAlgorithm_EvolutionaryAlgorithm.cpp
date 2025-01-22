@@ -735,8 +735,6 @@ void GEvolutionaryAlgorithm::selectBest_() {
 	// Let parents know they are parents
 	this->markParents();
 
-	std::cout << *this << std::endl;
-
 #ifdef DEBUG
 	// Make sure our population is not smaller than its nominal size -- this
 	// should have been taken care of in fixAfterJobSubmission() .
