@@ -95,7 +95,8 @@ void GParameterSetFixedSizePriorityQueue::compare_(
  */
 void GParameterSetFixedSizePriorityQueue::load_(const Gem::Common::GFixedSizePriorityQueueT<GParameterSet> *cp) {
 	// Check that we are dealing with a GBasePlotter reference independent of this object and convert the pointer
-	const GParameterSetFixedSizePriorityQueue *p_load = Gem::Common::g_convert_and_compare(cp, this);
+	// *** currently not needed ***
+	// const GParameterSetFixedSizePriorityQueue *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
 	// Load our parent class'es data ...
 	Gem::Common::GFixedSizePriorityQueueT<GParameterSet>::load_(cp);
@@ -117,7 +118,7 @@ Gem::Common::GFixedSizePriorityQueueT<GParameterSet> * GParameterSetFixedSizePri
  */
 bool GParameterSetFixedSizePriorityQueue::allClean(std::size_t &pos) const {
 	pos = 0;
-	for(const auto& item_ptr: m_data_deq) {
+	for(const auto& item_ptr: m_data_deq_) {
 		if (not item_ptr->is_processed()) { return false; }
 		pos++;
 	}
@@ -132,11 +133,25 @@ bool GParameterSetFixedSizePriorityQueue::allClean(std::size_t &pos) const {
 std::string GParameterSetFixedSizePriorityQueue::getCleanStatus() const {
 	std::size_t pos = 0;
 	std::ostringstream oss;
-	for(const auto& item_ptr: m_data_deq) {
+	for(const auto& item_ptr: m_data_deq_) {
 		oss << "(" << pos++ << ", " << (not item_ptr->is_processed() ? "d" : "c") << ") ";
 	}
 
 	return oss.str();
+}
+
+/******************************************************************************/
+/**
+ * Checks whether an Item is valid, i.e. holds a GParameterSet item and has
+ * already been evaluated.
+ */
+bool GParameterSetFixedSizePriorityQueue::isValid(const std::shared_ptr<GParameterSet>& item_ptr) const
+{
+	if (not item_ptr) return false; // Empty
+	if (not item_ptr->is_processed()) { return false; } // The item has not been worked on
+
+	// Everything ok
+	return true;
 }
 
 /******************************************************************************/
@@ -170,8 +185,8 @@ std::string GParameterSetFixedSizePriorityQueue::id(
  */
 void GParameterSetFixedSizePriorityQueue::add(
     std::vector<std::shared_ptr<GParameterSet>> const & items_cnt
-	, bool do_clone
-	, bool do_replace
+	, const bool do_clone
+	, const bool do_replace
 ) {
 	// Create a std::vector containing only processed items. We only want
 	// to add "clean" (i.e. processed) individuals to the queue.
@@ -196,7 +211,16 @@ void GParameterSetFixedSizePriorityQueue::add(
 			);
 	}
 
+	std::cout << "******************************" << std::endl;
+	for (const auto& ind_ptr: processed_cnt)
+	{
+		std::cout << "Adding " << ind_ptr->raw_fitness() << std::endl;
+	}
+
 	Gem::Common::GFixedSizePriorityQueueT<GParameterSet>::add(processed_cnt, do_clone, do_replace);
+
+	this->printEvaluations();
+	std::cout << "The size of the PQ is " << this->size() << std::endl;
 }
 
 /******************************************************************************/
@@ -207,9 +231,9 @@ void GParameterSetFixedSizePriorityQueue::add(
  */
 void GParameterSetFixedSizePriorityQueue::add(
 	std::shared_ptr<GParameterSet> const & item_ptr
-	, bool do_clone
+	, const bool do_clone
 ) {
-	if(item_ptr->is_processed()) {
+	if(item_ptr && item_ptr->is_processed()) {
 		Gem::Common::GFixedSizePriorityQueueT<GParameterSet>::add(
 			item_ptr
 			, do_clone

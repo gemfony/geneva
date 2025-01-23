@@ -1686,7 +1686,9 @@ namespace Gem
         /**
          * Performs all necessary (remote-)processing steps for this object.
          */
-        void GParameterSet::process_()
+        void GParameterSet::process_(
+            std::function<parameterset_processing_result(GParameterSet&)> ext_evaluator
+        )
         {
 #ifdef DEBUG
             //---------------------------------------------
@@ -1720,7 +1722,14 @@ namespace Gem
 
                 try
                 {
-                    main_raw_result = this->fitnessCalculation();
+                    if (ext_evaluator)
+                    {
+                        main_raw_result = (ext_evaluator(*this)).rawFitness();
+                    }
+                    else
+                    {
+                        main_raw_result = this->fitnessCalculation();
+                    }
                 }
                 catch (...)
                 {
@@ -1815,9 +1824,7 @@ namespace Gem
         /******************************************************************************/
         /**
          * Loads the data of another GParameterSet object, camouflaged as a GObject.
-         *
-         * TODO: Load GProcessingContainerT data
-         *
+         *         *
          * @param cp A copy of another GParameterSet object, camouflaged as a GObject
          */
         void GParameterSet::load_(const GObject* cp)

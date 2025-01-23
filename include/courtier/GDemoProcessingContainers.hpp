@@ -91,7 +91,7 @@ class GSimpleContainer
 
 public:
     /** @brief The standard constructor -- Initialization with an amount of random numbers */
-    G_API_COURTIER GSimpleContainer(const std::size_t&);
+    G_API_COURTIER explicit GSimpleContainer(const std::size_t&);
     /** @brief The copy constructor */
     G_API_COURTIER GSimpleContainer(const GSimpleContainer&) = default;
     /** @brief The destructor */
@@ -104,7 +104,7 @@ private:
     /** @brief The default constructor -- only needed for de-serialization purposes */
     G_API_COURTIER GSimpleContainer() = default;
     /** @brief Allows to specify the tasks to be performed for this object */
-    G_API_COURTIER void process_() override;
+    G_API_COURTIER void process_(std::function<bool(GSimpleContainer&)> ext_evaluator = std::function<bool(GSimpleContainer&)>()) final;
 
     std::size_t m_stored_number = 0; ///< Holds the pay-load of this object
 };
@@ -155,7 +155,7 @@ private:
     /** @brief The default constructor -- only needed for de-serialization purposes */
     G_API_COURTIER GRandomNumberContainer() = default;
     /** @brief Allows to specify the tasks to be performed for this object */
-    G_API_COURTIER void process_() override;
+    G_API_COURTIER void process_(std::function<bool(GRandomNumberContainer&)> ext_evaluator = std::function<bool(GRandomNumberContainer&)>()) final;
 
     std::vector<double> randomNumbers_; ///< Holds the pay-load of this object
 };

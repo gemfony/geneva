@@ -539,7 +539,13 @@ namespace Gem::Geneva
             fitness = cpu_deviation(individual_ptr);
         }
 
-        individual_ptr->setFitness(std::vector<double>(1, static_cast<double>(fitness)));
+        // individual_ptr->setFitness(std::vector<double>(1, static_cast<double>(fitness)));
+        individual_ptr->process(
+            [fitness](GImageIndividual&) -> parameterset_processing_result
+                {
+                    return parameterset_processing_result(fitness);
+                }
+        );
 
         // Let the audience know
         return fitness;

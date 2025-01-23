@@ -108,14 +108,14 @@ public:
     /** @brief Adds the items in the items_cnt container to the queue */
     void add(
         std::vector<std::shared_ptr<GParameterSet>> const &items_cnt
-        , bool do_clone
-        , bool replace
+        , const bool do_clone
+        , const bool replace
     ) override;
 
     /** @brief Adds a single item to the queue */
     void add(
         std::shared_ptr<GParameterSet> const& item
-        , bool do_clone
+        , const bool do_clone
     ) override;
 
 protected:
@@ -137,6 +137,8 @@ protected:
         , const double & // the limit for allowed deviations of floating point types
     ) const override;
 
+    /** @brief Checks whether an Item is valid */
+    G_API_GENEVA bool isValid(const std::shared_ptr<GParameterSet>&) const override;
     /** @brief Evaluates a single work item, so that it can be sorted */
     G_API_GENEVA double evaluation(const std::shared_ptr<GParameterSet> &) const override;
     /** @brief Returns a unique id for a work item */

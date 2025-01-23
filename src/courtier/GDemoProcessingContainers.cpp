@@ -43,8 +43,8 @@
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Courtier::GSimpleContainer)
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Courtier::GRandomNumberContainer)
 
-namespace Gem {
-namespace Courtier {
+
+namespace Gem::Courtier {
 
 /********************************************************************************************/
 /**
@@ -62,7 +62,7 @@ GSimpleContainer::GSimpleContainer(const std::size_t& snr)
 * Allows to specify the tasks to be performed for this object. We simply do nothing,
 * as this class is for debugging and benchmarking purposes only.
 */
-void GSimpleContainer::process_() { /* nothing */ }
+void GSimpleContainer::process_(std::function<bool(GSimpleContainer&)> ext_evaluator) { /* nothing */ }
 
 /********************************************************************************************/
 /**
@@ -93,7 +93,7 @@ GRandomNumberContainer::GRandomNumberContainer(const std::size_t& nrnr)
  * Allows to specify the tasks to be performed for this object. We simply sort the array of
  * random numbers.
  */
-void GRandomNumberContainer::process_() {
+void GRandomNumberContainer::process_(std::function<bool(GRandomNumberContainer&)> ext_evaluator) {
     std::sort(randomNumbers_.begin(), randomNumbers_.end());
 }
 
@@ -109,5 +109,5 @@ void GRandomNumberContainer::print() {
 
 /********************************************************************************************/
 
-} /* namespace Courtier */
-} /* namespace Gem */
+} // namespace Gem::Courtier
+
