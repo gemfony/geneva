@@ -206,7 +206,7 @@ std::shared_ptr<GCollectiveMonitor> getPOM(
     }
     else
     {
-        return std::shared_ptr<GCollectiveMonitor>(); // empty pointer indicates that no monitor was requested
+        return {}; // empty pointer indicates that no monitor was requested
     }
 }
 
