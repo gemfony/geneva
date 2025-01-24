@@ -691,7 +691,7 @@ private:
 
     std::size_t m_nRecordbestGlobalIndividuals = DEFNRECORDBESTINDIVIDUALS; ///< Indicates the number of best individuals to be recorded/updated in each iteration
     GParameterSetFixedSizePriorityQueue m_bestGlobalIndividuals_pq{m_nRecordbestGlobalIndividuals}; ///< A priority queue with the best individuals found so far
-    GParameterSetFixedSizePriorityQueue m_bestIterationIndividuals_pq{0}; ///< A priority queue with the best individuals of a given iteration; unlimited size so all individuals of an iteration fit in
+    GParameterSetFixedSizePriorityQueue m_bestIterationIndividuals_pq{10}; ///< A priority queue with the best individuals of a given iteration; unlimited size so all individuals of an iteration fit in
 
     std::size_t m_defaultPopulationSize = DEFAULTPOPULATIONSIZE; ///< The nominal size of the population
     std::tuple<double, double> m_bestKnownPrimaryFitness = std::tuple<double, double>(

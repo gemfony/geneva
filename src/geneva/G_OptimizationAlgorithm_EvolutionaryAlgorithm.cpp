@@ -180,6 +180,7 @@ void GEvolutionaryAlgorithm::updateGlobalBestsPQ_(
 	GParameterSetFixedSizePriorityQueue & bestIndividuals
 ) {
 	const bool REPLACE = true;
+	const bool DONOTREPLACE = false;
 	const bool CLONE = true;
 
 #ifdef DEBUG
@@ -197,21 +198,27 @@ void GEvolutionaryAlgorithm::updateGlobalBestsPQ_(
 		case sortingMode::MUPLUSNU_SINGLEEVAL:
 		case sortingMode::MUNU1PRETAIN_SINGLEEVAL:
 		case sortingMode::MUCOMMANU_SINGLEEVAL:
-			G_OptimizationAlgorithm_Base::updateGlobalBestsPQ_(bestIndividuals);
+			bestIndividuals.add(
+				this->m_data_cnt.begin(),
+				this->m_data_cnt.begin() + this->getNParents(),
+				CLONE, DONOTREPLACE
+			);
+			// G_OptimizationAlgorithm_Base::updateGlobalBestsPQ_(bestIndividuals);
 			break;
 
 			//----------------------------------------------------------------------------
 		case sortingMode::MUPLUSNU_PARETO:
-		case sortingMode::MUCOMMANU_PARETO: {
-			// Retrieve all individuals on the pareto front
-			std::vector<std::shared_ptr < Gem::Geneva::GParameterSet>> paretoInds;
-			this->extractCurrentParetoIndividuals(paretoInds);
+		case sortingMode::MUCOMMANU_PARETO:
+			{
+				// Retrieve all individuals on the pareto front
+				std::vector<std::shared_ptr < Gem::Geneva::GParameterSet>> paretoInds;
+				this->extractCurrentParetoIndividuals(paretoInds);
 
-			// We simply add all parent individuals to the queue. As we only want
-			// the individuals on the current pareto front, we replace all members
-			// of the current priority queue
-			bestIndividuals.add(paretoInds, CLONE, REPLACE);
-		}
+				// We simply add all parent individuals to the queue. As we only want
+				// the individuals on the current pareto front, we replace all members
+				// of the current priority queue
+				bestIndividuals.add(paretoInds, CLONE, REPLACE);
+			}
 			break;
 
 			//----------------------------------------------------------------------------
@@ -229,6 +236,7 @@ void GEvolutionaryAlgorithm::updateIterationBestsPQ_(
 	GParameterSetFixedSizePriorityQueue& bestIndividuals
 ) {
 	const bool CLONE = true;
+	const bool DONOTREPLACE = false;
 	const bool REPLACE = true;
 
 #ifdef DEBUG
@@ -246,7 +254,12 @@ void GEvolutionaryAlgorithm::updateIterationBestsPQ_(
 		case sortingMode::MUPLUSNU_SINGLEEVAL:
 		case sortingMode::MUNU1PRETAIN_SINGLEEVAL:
 		case sortingMode::MUCOMMANU_SINGLEEVAL: {
-			G_OptimizationAlgorithm_Base::updateIterationBestsPQ_(bestIndividuals);
+			bestIndividuals.add(
+				this->m_data_cnt.begin(),
+				this->m_data_cnt.begin() + this->getNParents(),
+				CLONE, DONOTREPLACE
+			);
+			// G_OptimizationAlgorithm_Base::updateIterationBestsPQ_(bestIndividuals);
 		} break;
 
 			//----------------------------------------------------------------------------

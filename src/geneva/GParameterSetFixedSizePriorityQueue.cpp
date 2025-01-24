@@ -168,13 +168,40 @@ namespace Gem::Geneva
 
 	/******************************************************************************/
 	/**
-	 * Returns a unique id for a work item. This is used to uniquely identify duplicates
-	 * in the priority queue.
+	 * Adds items in a range to the priority queue
 	 */
-	std::string GParameterSetFixedSizePriorityQueue::id(
-		const std::shared_ptr<GParameterSet> &item
-	) const {
-		return item->getCurrentEvaluationID();
+	void GParameterSetFixedSizePriorityQueue::GParameterSetFixedSizePriorityQueue::add(
+		std::vector<std::shared_ptr<GParameterSet>>::const_iterator begin,
+		std::vector<std::shared_ptr<GParameterSet>>::const_iterator end,
+		bool do_clone,
+		bool do_replace
+	)
+	{
+		// Create a std::vector containing only processed items. We only want
+		// to add "clean" (i.e. processed) individuals to the queue.
+		std::vector<std::shared_ptr<GParameterSet>> processed_cnt(std::distance(begin,end));
+		auto it = std::copy_if(
+			begin, end
+			, processed_cnt.begin()
+			, [](const std::shared_ptr<GParameterSet>& item_ptr){
+				return item_ptr->is_processed();
+			}
+		);
+		processed_cnt.resize(std::distance(processed_cnt.begin(), it));
+
+		// Some error checking -- it should not happen that no processed items are found
+		if (processed_cnt.empty())
+		{
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG, time_and_place)
+				<< "In GParameterSetFixedSizePriorityQueue::add(range): Error!" << std::endl
+				<< "Container is empty when it should not be!" << std::endl
+			);
+		}
+
+		Gem::Common::GFixedSizePriorityQueueT<GParameterSet>::add(processed_cnt.begin(), processed_cnt.end(), do_clone, do_replace);
+
+		std::cout << "The size of the PQ is " << this->size() << std::endl;
 	}
 
 	/******************************************************************************/
@@ -212,9 +239,6 @@ namespace Gem::Geneva
 		}
 
 		Gem::Common::GFixedSizePriorityQueueT<GParameterSet>::add(processed_cnt, do_clone, do_replace);
-
-		// this->printEvaluations();
-		std::cout << "The size of the PQ is " << this->size() << std::endl;
 	}
 
 	/******************************************************************************/

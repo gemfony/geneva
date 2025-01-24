@@ -392,7 +392,6 @@ namespace Gem::Geneva
         double rawFitness = 0., transformedFitness = 0.;
 
         ptr.put(baseName + ".iteration", this->getAssignedIteration());
-        ptr.put(baseName + ".id", this->getCurrentEvaluationID());
         ptr.put(baseName + ".isDirty", dirtyFlag);
         ptr.put(baseName + ".hasErrors", hasErrors);
         ptr.put(baseName + ".isValid", hasErrors || dirtyFlag ? false : this->isValid());
@@ -575,7 +574,7 @@ namespace Gem::Geneva
         {
             if (withNameAndType)
             {
-                varNames.emplace_back(std::string("validity"));
+                varNames.emplace_back("validity");
                 varTypes.emplace_back("bool");
             }
 

@@ -357,16 +357,6 @@ namespace Gem::Geneva
 				);
 			}
 
-			// Check that the evaluation id matches our local id
-			std::string externalEvaluationID = ptr_in.get<std::string>("batch.individuals.individual0.id");
-			if (externalEvaluationID != this->getCurrentEvaluationID()) {
-				throw gemfony_exception(
-					g_error_streamer(DO_LOG,  time_and_place)
-					<< "In GExternalEvaluatorIndividual::fitnessCalculation(): Error!" << std::endl
-					<< "Local evaluation id " << this->getCurrentEvaluationID() << " does not match external id " << externalEvaluationID << std::endl
-				);
-			}
-
 			// Check whether the results represent useful values
 			bool isValid = ptr_in.get<bool>("batch.individuals.individual0.isValid");
 			if (not isValid) { // Assign worst-case values to all result
@@ -1190,7 +1180,6 @@ namespace Gem::Geneva
 			(*cit)->
 				toPropertyTree(ptr_out, basename
 				);
-			std::cout << "Current evaluation id = " << (*cit)->getCurrentEvaluationID() << std::endl;
 		}
 
 		// Create a suitable extension and exchange file names for this object

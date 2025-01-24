@@ -128,8 +128,8 @@ namespace Gem::Courtier
 				& BOOST_SERIALIZATION_NVP(m_bufferport_proc_submission_time)
 				& BOOST_SERIALIZATION_NVP(m_stored_results_cnt)
 				& BOOST_SERIALIZATION_NVP(m_stored_error_descriptions)
-				& BOOST_SERIALIZATION_NVP(m_processing_status)
-				& BOOST_SERIALIZATION_NVP(m_evaluation_id);
+				& BOOST_SERIALIZATION_NVP(m_processing_status);
+				//& BOOST_SERIALIZATION_NVP(m_evaluation_id);
 		}
 
 		///////////////////////////////////////////////////////////////////////
@@ -169,7 +169,7 @@ namespace Gem::Courtier
 			  , m_stored_results_cnt(cp.m_stored_results_cnt) // Note: processing_result_type must be copyable (e.g. it should not contain pointers)
 			  , m_stored_error_descriptions(cp.m_stored_error_descriptions)
 			  , m_processing_status(cp.m_processing_status)
-			  , m_evaluation_id(cp.m_evaluation_id)
+			  // , m_evaluation_id(cp.m_evaluation_id)
 		{
 			Gem::Common::copyCloneableSmartPointer(cp.m_pre_processor_ptr, m_pre_processor_ptr);
 			Gem::Common::copyCloneableSmartPointer(cp.m_post_processor_ptr, m_post_processor_ptr);
@@ -197,7 +197,7 @@ namespace Gem::Courtier
 			m_stored_results_cnt = cp.m_stored_results_cnt; // Note: processing_result_type must be copyable (e.g. it should not contain pointers)
 			m_stored_error_descriptions = cp.m_stored_error_descriptions;
 			m_processing_status = cp.m_processing_status;
-			m_evaluation_id = cp.m_evaluation_id;
+			// m_evaluation_id = cp.m_evaluation_id;
 
 			Gem::Common::copyCloneableSmartPointer(cp.m_pre_processor_ptr, m_pre_processor_ptr);
 			Gem::Common::copyCloneableSmartPointer(cp.m_post_processor_ptr, m_post_processor_ptr);
@@ -280,7 +280,7 @@ namespace Gem::Courtier
 			}
 
 			// Assign a new evaluation id
-			m_evaluation_id = std::string("eval_") + Gem::Common::to_string(boost::uuids::random_generator()());
+			// m_evaluation_id = std::string("eval_") + Gem::Common::to_string(boost::uuids::random_generator()());
 
 			// Clear the error descriptions
 			m_stored_error_descriptions.clear();
@@ -386,9 +386,10 @@ namespace Gem::Courtier
 	  * guaranty that the item has indeed been processed. This is id simply represents
 	  * the processing id assigned at the beginning of the last process()-call.
 	  */
+		/*
 		std::string getCurrentEvaluationID() const {
 			return m_evaluation_id;
-		}
+		}*/
 
 		/***************************************************************************/
 		/**
@@ -861,7 +862,7 @@ namespace Gem::Courtier
 			m_stored_results_cnt = p_load->m_stored_results_cnt; // note that this implies that processing_result_type is copyable --> e.g. it should not contain pointers
 			m_stored_error_descriptions = p_load->m_stored_error_descriptions;
 			m_processing_status = p_load->m_processing_status;
-			m_evaluation_id = p_load->m_evaluation_id;
+			// m_evaluation_id = p_load->m_evaluation_id;
 
 			Gem::Common::copyCloneableSmartPointer(p_load->m_pre_processor_ptr, m_pre_processor_ptr);
 			Gem::Common::copyCloneableSmartPointer(p_load->m_post_processor_ptr, m_post_processor_ptr);
@@ -1036,7 +1037,7 @@ namespace Gem::Courtier
 		std::string m_stored_error_descriptions = ""; ///< Stores exceptions that may have occurred during processing
 		processingStatus m_processing_status = processingStatus::DO_IGNORE; ///< By default no processing is initiated
 
-		std::string m_evaluation_id = "empty"; ///< A unique id that is assigned to an evaluation
+		// std::string m_evaluation_id = "empty"; ///< A unique id that is assigned to an evaluation
 	};
 
 	/******************************************************************************/

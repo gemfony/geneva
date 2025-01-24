@@ -1338,11 +1338,10 @@ namespace Gem::Geneva
 
 	/******************************************************************************/
 	/**
- * Adds the individuals of this iteration to a priority queue. The
-  * queue will be sorted by the first evaluation criterion of the individuals
-  * and may either have a limited or unlimited size, depending on user-
-  * settings
- */
+	 * Adds the individuals of this iteration to a priority queue. The
+	 * queue will be sorted by the first evaluation criterion of the individuals
+	 * and may either have a limited or unlimited size, depending on user-settings
+	 */
 	void G_OptimizationAlgorithm_Base::updateGlobalBestsPQ_(GParameterSetFixedSizePriorityQueue & bestIndividuals) {
 		const bool CLONE = true;
 		const bool DONOTREPLACE = false;
@@ -1360,17 +1359,16 @@ namespace Gem::Geneva
 		// We simply add all individuals to the queue -- only the best ones will actually be added (and cloned)
 		// Unless we have asked for the queue to have an unlimited size, the queue will be resized as required
 		// by its maximum allowed size.
-		std::cout << "Adding to global best PO" << std::endl;
 		bestIndividuals.add(this->m_data_cnt, CLONE, DONOTREPLACE);
 	}
 
 	/******************************************************************************/
 	/**
- * Adds the individuals of this iteration to a priority queue. The
- * queue will be sorted by the first evaluation criterion of the individuals
- * and may either have a limited or unlimited size, depending on user-
- * settings
- */
+	 * Adds the individuals of this iteration to a priority queue. The
+	 * queue will be sorted by the first evaluation criterion of the individuals
+	 * and may either have a limited or unlimited size, depending on user-
+	 * settings
+	 */
 	void G_OptimizationAlgorithm_Base::updateIterationBestsPQ_(GParameterSetFixedSizePriorityQueue & bestIndividuals) {
 		const bool CLONE = true;
 		const bool REPLACE = true;
@@ -1385,19 +1383,18 @@ namespace Gem::Geneva
 		}
 #endif /* DEBUG */
 
-		std::cout << "Adding to iteration best PO" << std::endl;
 		// We simply add all individuals to the queue. They will automatically be sorted.
 		bestIndividuals.add(this->m_data_cnt, CLONE, REPLACE);
 	}
 
 	/******************************************************************************/
 	/**
- * If individuals have been stored in this population, they are added to the
- * priority queue. This happens before the optimization cycle starts, so that
- * best individuals from a previous "chained" optimization run aren't lost.
- * Only those individuals are stored in the priority queue that do not have the
- * "dirty flag" set.
- */
+	 * If individuals have been stored in this population, they are added to the
+	 * priority queue. This happens before the optimization cycle starts, so that
+	 * best individuals from a previous "chained" optimization run aren't lost.
+	 * Only those individuals are stored in the priority queue that do not have the
+	 * "dirty flag" set.
+	 */
 	void G_OptimizationAlgorithm_Base::addCleanStoredBests(GParameterSetFixedSizePriorityQueue& bestIndividuals) {
 		const bool CLONE = true;
 

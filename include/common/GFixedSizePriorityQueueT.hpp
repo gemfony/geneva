@@ -41,6 +41,7 @@
 
 // Standard headers go here
 #include <deque>
+#include <unordered_set>
 #include <algorithm>
 
 // Boost headers go here
@@ -283,27 +284,8 @@ namespace Gem::Common
                 }
             }
 
-            // Sort the data according to their ids, so we may remove duplicates
-            std::sort(
-                m_data_deq_.begin()
-                , m_data_deq_.end()
-                , [this](std::shared_ptr<T> const& x_ptr, std::shared_ptr<T> const& y_ptr) -> bool
-                {
-                    return (this->id(x_ptr) < this->id(y_ptr));
-                }
-            );
-
             // Remove duplicate items
-            m_data_deq_.erase(
-                std::unique(
-                    m_data_deq_.begin()
-                    , m_data_deq_.end()
-                    , [this](std::shared_ptr<T> const& x_ptr, std::shared_ptr<T> const& y_ptr) -> bool
-                    {
-                        return (this->id(x_ptr) == this->id(y_ptr));
-                    }
-                ), m_data_deq_.end()
-            );
+            removeDuplicates(m_data_deq_);
 
             // Sort the data according to the evaluation
             std::sort(
@@ -335,22 +317,14 @@ namespace Gem::Common
 
         /***************************************************************************/
         /**
-             * Add a set of items to the queue. Note that the comparator used in this
-             * function should sort the data in descending order (assuming that higher
-             * values are better) or ascending order (if lower values are better),
-             * so that the worst items are always at the end of the queue.
-             *
-             * @param item_ptr_vec The items to be added to the queue
-             * @param do_clone If set to true, work items will be cloned. Otherwise only the smart pointer will be added
-             * @param replace If set to true, the queue will be emptied before adding new work items
-             */
+         * Adds a range of items to the priority queue.
+         */
         virtual void add(
-            std::vector<std::shared_ptr<T>> const& item_ptr_vec
-            , bool do_clone
-            , bool replace
+            typename std::vector<std::shared_ptr<T>>::const_iterator begin,
+            typename std::vector<std::shared_ptr<T>>::const_iterator end,
+            bool do_clone,
+            bool replace
         ) BASE {
-            std::cout <<"GFixedSizePriorityQueueT::add(vec) called" << std::endl;
-
             double worstKnownEvaluation = Gem::Common::getWorstCase<double>(m_sortOrder_);
             if (replace || m_data_deq_.empty())
             {
@@ -365,10 +339,13 @@ namespace Gem::Common
             // At this point, worstKnownEvaluation will be
             // - the worst case, if the queue is empty or all entries in the queue will be replaced
             // - the evaluation of the worst entry in the queue if we only add items (regardless of whether they will be cloned or not)
-            for (auto const& item_ptr : item_ptr_vec)
+            for (auto it = begin; it != end; ++it)
             {
+                // Dereference the iterator
+                auto item_ptr = *it;
+
                 // Only act on "filled" item_ptr
-                if (not item_ptr) continue;
+                if (not (item_ptr)) continue;
 
                 // Add the work item to the queue
                 // - If the queue is unlimited
@@ -388,28 +365,10 @@ namespace Gem::Common
                 }
             }
 
-            // Sort the data according to their ids, so we may remove duplicates
-            std::sort(
-                m_data_deq_.begin()
-                , m_data_deq_.end()
-                , [this](std::shared_ptr<T> const& x_ptr, std::shared_ptr<T> const& y_ptr) -> bool
-                {
-                    return (this->id(x_ptr) < this->id(y_ptr));
-                }
-            );
-
             // Remove duplicate items
-            m_data_deq_.erase(
-                std::unique(
-                    m_data_deq_.begin()
-                    , m_data_deq_.end()
-                    , [this](std::shared_ptr<T> const& x_ptr, std::shared_ptr<T> const& y_ptr) -> bool
-                    {
-                        return (this->id(x_ptr) == this->id(y_ptr));
-                    }
-                ), m_data_deq_.end()
-            );
+            removeDuplicates(m_data_deq_);
 
+            // Sort according to the evaluation in ascending or descending order
             std::sort(
                 m_data_deq_.begin()
                 , m_data_deq_.end()
@@ -432,6 +391,25 @@ namespace Gem::Common
             {
                 m_data_deq_.resize(m_maxSize_);
             }
+        }
+
+        /***************************************************************************/
+        /**
+         * Add a set of items to the queue. Note that the comparator used in this
+         * function should sort the data in descending order (assuming that higher
+         * values are better) or ascending order (if lower values are better),
+         * so that the worst items are always at the end of the queue.
+         *
+         * @param item_ptr_vec The items to be added to the queue
+         * @param do_clone If set to true, work items will be cloned. Otherwise only the smart pointer will be added
+         * @param replace If set to true, the queue will be emptied before adding new work items
+         */
+        virtual void add(
+            std::vector<std::shared_ptr<T>> const& item_ptr_vec
+            , bool do_clone
+            , bool replace
+        ) BASE {
+            this->add(item_ptr_vec.begin(), item_ptr_vec.end(), do_clone, replace);
         }
 
         /***************************************************************************/
@@ -655,8 +633,6 @@ namespace Gem::Common
         virtual G_API_COMMON bool isValid(const std::shared_ptr<T>&) const BASE = 0;
         /** @brief Evaluates a single work item, so that it can be sorted */
         virtual G_API_COMMON double evaluation(const std::shared_ptr<T>&) const BASE = 0;
-        /** @brief Returns a unique id for a work item */
-        virtual G_API_COMMON std::string id(const std::shared_ptr<T>&) const BASE = 0;
 
         /***************************************************************************/
         /**
@@ -696,42 +672,25 @@ namespace Gem::Common
     private:
         /***************************************************************************/
         /**
-         * Makes sure the class is sorted and has the correct maximum size.
+         * Uses the storage addresses of individuals to remove duplicates
          */
-        void rectify()
-        {
-            if (this->empty()) return; // Nothing to do
-            else
-            {
-#ifdef DEBUG
-                // Rectifying should never happen for an empty queue
-                if (0==this->size())
-                {
-                    throw gemfony_exception(
-                        g_error_streamer(DO_LOG,  time_and_place)
-                            << "In GFixedSizePriorityQueueT<T>::rectify():" << std::endl
-                            << "Rectification should not happen on an empty queue." << std::endl
-                    );
-                }
+        void removeDuplicates(std::deque<std::shared_ptr<T>>& items) {
+            // Stores addresses we have already encountered
+            std::unordered_set<T*> knownAddresses;
 
-                // Make sure we only have valid entries
-                for (auto const& item_ptr : m_data_deq_)
-                {
-                    if (not isValid(item_ptr))
-                    {
-                        throw gemfony_exception(
-                            g_error_streamer(DO_LOG,  time_and_place)
-                                << "In GFixedSizePriorityQueueT<T>::rectify():" << std::endl
-                                << "Got invalid work item" << std::endl
-                        );
-                    }
+            // Iterator for removing elements efficiently
+            auto it = items.begin();
+            while (it != items.end()) {
+                // Check if storage address is already known
+                if (T* raw_ptr = it->get(); knownAddresses.find(raw_ptr) != knownAddresses.end()) {
+                    // Found a duplicate -- remove it. "it" will then point to
+                    // the next element.
+                    it = items.erase(it);
+                } else {
+                    // Add the storage address to our set and move to the next item
+                    knownAddresses.insert(raw_ptr);
+                    ++it;
                 }
-#endif
-                // We now assume that we only have valid work items and that the queue
-                // has at least one entry. In the next step we sort the queue according
-                // to our sorting policy. We will then make sure that it does not exceed
-                // the maximum allowed size.
-
             }
         }
 
