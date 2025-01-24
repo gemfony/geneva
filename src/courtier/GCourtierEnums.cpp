@@ -187,11 +187,27 @@ std::istream &operator>>(std::istream &i, Gem::Courtier::submissionReturnMode &s
  * @param srm the item to be added to the stream
  * @return The std::ostream object used to add the item to
  */
-std::ostream &operator<<(std::ostream &o, const Gem::Courtier::processingStatus &srm) {
-	Gem::Common::ENUMBASETYPE tmp = static_cast<Gem::Common::ENUMBASETYPE>(srm);
-	o << tmp;
+std::ostream& operator<<(std::ostream& o, const Gem::Courtier::processingStatus& srm)
+{
+	switch (srm)
+	{
+	case processingStatus::DO_IGNORE: o << "processingStatus::DO_IGNORE";
+		break;
+	case processingStatus::DO_PROCESS: o << "processingStatus::DO_PROCESS";
+		break;
+	case processingStatus::PROCESSED: o << "processingStatus::PROCESSED";
+		break;
+	case processingStatus::EXCEPTION_CAUGHT: o << "processingStatus::EXCEPTION_CAUGHT";
+		break;
+	case processingStatus::ERROR_FLAGGED: o << "processingStatus::ERROR_FLAGGED";
+		break;
+	default: o << "UNKNOWN processing status";
+		break;
+	}
+
 	return o;
 }
+
 
 /******************************************************************************/
 /**

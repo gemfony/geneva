@@ -1687,7 +1687,7 @@ namespace Gem
          * Performs all necessary (remote-)processing steps for this object.
          */
         void GParameterSet::process_(
-            std::function<parameterset_processing_result(GParameterSet&)> ext_evaluator
+            const std::vector<parameterset_processing_result> &res_vec
         )
         {
 #ifdef DEBUG
@@ -1722,12 +1722,37 @@ namespace Gem
 
                 try
                 {
-                    if (ext_evaluator)
+                    if (not res_vec.empty())
                     {
-                        main_raw_result = (ext_evaluator(*this)).rawFitness();
+                        // Check that sizes match
+                        if (res_vec.size() != this->getNStoredResults())
+                        {
+                            throw gemfony_exception(
+                                g_error_streamer(DO_LOG, time_and_place)
+                                << "In GParameterSet::process_ : Error!" << std::endl
+                                << "res_vec has invalid size. Got " << res_vec.size() << std::endl
+                                << "Expected " << this->getNStoredResults() << std::endl
+                            );
+                        }
+
+                        // Just assign the main *raw* result
+                        main_raw_result = res_vec.begin()->rawFitness();
+
+                        // Extract all additional *raw* results. Then we are on par with fitnessCalculation()
+                        std::size_t pos=0;
+                        for (const auto &res : res_vec)
+                        {
+                            if (pos == 0) continue; // Skip the main raw result
+
+                            this->setResult(pos, res_vec.at(pos).rawFitness());
+
+                            pos++;
+                        }
                     }
                     else
                     {
+                        // If we are dealing with multiple fitness criteria,
+                        // then fitnessCalculation() will set additional raw values
                         main_raw_result = this->fitnessCalculation();
                     }
                 }
@@ -1741,7 +1766,9 @@ namespace Gem
                 }
 
                 // Make sure the main result is stored
+                // TODO: result setting should be done in the parent class'es process()-function, not in process_()
                 this->setResult(0, main_raw_result);
+                // TODO: When using multiple criteria: Are we setting the other transformed results also to raw?
                 this->modifyStoredResult(0).setTransformedFitnessToRaw();
 
                 // Take care of erroneous calculations, flagged by the user. It is assumed here that marking

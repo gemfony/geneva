@@ -98,13 +98,13 @@ public:
     G_API_COURTIER ~GSimpleContainer() override = default;
 
     /** @brief Prints out this objects random number container */
-    G_API_COURTIER void print();
+    G_API_COURTIER void print() const;
 
 private:
     /** @brief The default constructor -- only needed for de-serialization purposes */
     G_API_COURTIER GSimpleContainer() = default;
     /** @brief Allows to specify the tasks to be performed for this object */
-    G_API_COURTIER void process_(std::function<bool(GSimpleContainer&)> ext_evaluator = std::function<bool(GSimpleContainer&)>()) final;
+    G_API_COURTIER void process_(const std::vector<bool> &res_vec = std::vector<bool>()) final;
 
     std::size_t m_stored_number = 0; ///< Holds the pay-load of this object
 };
@@ -149,13 +149,13 @@ public:
     /******************************************************************************************/
 
     /** @brief Prints out this objects random number container */
-    G_API_COURTIER void print();
+    G_API_COURTIER void print() const;
 
 private:
     /** @brief The default constructor -- only needed for de-serialization purposes */
     G_API_COURTIER GRandomNumberContainer() = default;
     /** @brief Allows to specify the tasks to be performed for this object */
-    G_API_COURTIER void process_(std::function<bool(GRandomNumberContainer&)> ext_evaluator = std::function<bool(GRandomNumberContainer&)>()) final;
+    G_API_COURTIER void process_(const std::vector<bool> &res_vec = std::vector<bool>()) final;
 
     std::vector<double> randomNumbers_; ///< Holds the pay-load of this object
 };

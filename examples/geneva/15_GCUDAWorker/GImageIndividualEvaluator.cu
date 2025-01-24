@@ -541,10 +541,7 @@ namespace Gem::Geneva
 
         // individual_ptr->setFitness(std::vector<double>(1, static_cast<double>(fitness)));
         individual_ptr->process(
-            [fitness](GImageIndividual&) -> parameterset_processing_result
-                {
-                    return parameterset_processing_result(fitness);
-                }
+            std::vector<parameterset_processing_result>(1, parameterset_processing_result(static_cast<double>(fitness)))
         );
 
         // Let the audience know

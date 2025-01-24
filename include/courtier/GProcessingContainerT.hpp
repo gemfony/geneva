@@ -257,19 +257,18 @@ namespace Gem::Courtier
 	  * to make sure to set the results (be it main- or secondary results) of the
 	  * process()-call. This function has no way to ensure that this is the case.
 	  *
-	  * @param ext_evaluator Injects an external function for the evaluation step
+	  * @param res_vec Allows to inject an external evaluation
 	  * @return The first result of the processing calls
 	  */
 		processing_result_type process(
-			std::function<processing_result_type(processable_type&)> ext_evaluator
-				= std::function<processing_result_type(processable_type&)>()
+			const std::vector<processing_result_type> &res_vec = std::vector<processing_result_type>()
 		) {
 			// This function should never be called if the processing status is not set to "DO_PROCESS"
 			if(processingStatus::DO_PROCESS != m_processing_status) {
 				throw gemfony_exception(
 					g_error_streamer(DO_LOG, time_and_place)
 					<< "In GProcessingContainerT::process(): Function called while m_processing_status was set to " << m_processing_status << std::endl
-					<< "Expected " << processingStatus::DO_PROCESS << "(processingStatus::DO_PROCESS)" << std::endl
+					<< "Expected " << processingStatus::DO_PROCESS << std::endl
 				);
 			}
 
@@ -292,7 +291,7 @@ namespace Gem::Courtier
 				const auto afterPreProcessing = std::chrono::high_resolution_clock::now();
 
 				// Do the actual processing
-				this->process_(ext_evaluator);
+				this->process_(res_vec);
 
 				const auto afterProcessing = std::chrono::high_resolution_clock::now();
 				this->postProcess_();
@@ -975,8 +974,7 @@ namespace Gem::Courtier
 
 		/** @brief Allows derived classes to specify the tasks to be performed for this object */
 		virtual G_API_COURTIER void process_(
-			std::function<processing_result_type(processable_type&)> ext_evaluator
-				= std::function<processing_result_type(processable_type&)>()
+			const std::vector<processing_result_type> &res_vec = std::vector<processing_result_type>()
 		) BASE = 0;
 
 		/***************************************************************************/

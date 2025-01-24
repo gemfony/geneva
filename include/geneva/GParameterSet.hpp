@@ -916,8 +916,7 @@ protected:
     /***************************************************************************/
     /** @brief Do the required processing for this object */
     G_API_GENEVA void process_(
-        std::function<parameterset_processing_result(GParameterSet&)> ext_evaluator
-            = std::function<parameterset_processing_result(GParameterSet&)>()
+        const std::vector<parameterset_processing_result> &res_vec = std::vector<parameterset_processing_result>()
     ) final;
 
     /** @brief Adds local configuration options to a GParserBuilder object */
