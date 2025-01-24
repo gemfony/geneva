@@ -40,219 +40,219 @@
 
 #include "common/GLogger.hpp"
 
-namespace Gem {
-namespace Common {
+namespace Gem::Common
+{
 
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	////////////////////////////////////////////////////////////////////////////////
+	/******************************************************************************/
+	/**
  * Logs a message to the console.
  *
  * @param msg The log message
  */
-void GConsoleLogger::log(std::string const& msg) const {
-	std::clog << msg;
-}
+	void GConsoleLogger::log(std::string const& msg) const {
+		std::clog << msg;
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Logs a message to the console, adding information about the source
  *
  * @param msg The log message
  */
-void GConsoleLogger::logWithSource(
-	std::string const& msg, std::string const& extension
-) const {
-	this->log(std::string("Message from source \"") + extension + "\":\n" + msg);
-}
+	void GConsoleLogger::logWithSource(
+		std::string const& msg, std::string const& extension
+	) const {
+		this->log(std::string("Message from source \"") + extension + "\":\n" + msg);
+	}
 
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/*******************************************************************************/
-/**
+	/******************************************************************************/
+	////////////////////////////////////////////////////////////////////////////////
+	/*******************************************************************************/
+	/**
  * This constructor accepts a boost path to a file name as argument
  */
-GFileLogger::GFileLogger(std::filesystem::path const& p)
-	: m_fname(p.string())
-{ /* nothing */ }
+	GFileLogger::GFileLogger(std::filesystem::path const& p)
+		: m_fname(p.string())
+	{ /* nothing */ }
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * This function logs a message to a file, whose name it takes from the private
  * variable fname_. The file is reopened in append mode for every log message.
  */
-void GFileLogger::log(std::string const& msg) const {
-	std::ofstream ofstr(std::filesystem::path(m_fname), std::ios_base::app);
-	if (ofstr) {
-		ofstr << msg;
-		ofstr.close();
+	void GFileLogger::log(std::string const& msg) const {
+		std::ofstream ofstr(std::filesystem::path(m_fname), std::ios_base::app);
+		if (ofstr) {
+			ofstr << msg;
+			ofstr.close();
+		}
+		else {
+			std::cerr
+				<< "In GFileLogger::log() : Error" << std::endl
+				<< "std::ofstring is in a bad state" << std::endl;
+			exit(1);
+		}
 	}
-	else {
-		std::cerr
-		<< "In GFileLogger::log() : Error" << std::endl
-		<< "std::ofstring is in a bad state" << std::endl;
-		exit(1);
-	}
-}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * This function logs a message to a file, whose name it takes from the private
  * variable m_fname_. The file is reopened in append mode for every log message.
  * In addition to the standard log() function, this function appends the logging
  * source to the file name
  */
-void GFileLogger::logWithSource(
-	std::string const& msg, std::string const& extension
-) const {
-	std::ofstream ofstr(std::filesystem::path(m_fname + "_" + extension), std::ios_base::app);
-	if (ofstr) {
-		if (m_first) {
-			ofstr
-			<< "Logging data from source " + extension << std::endl
-			<< msg;
-			ofstr.close();
-			m_first = false;
-		} else {
-			ofstr << msg;
-			ofstr.close();
+	void GFileLogger::logWithSource(
+		std::string const& msg, std::string const& extension
+	) const {
+		std::ofstream ofstr(std::filesystem::path(m_fname + "_" + extension), std::ios_base::app);
+		if (ofstr) {
+			if (m_first) {
+				ofstr
+					<< "Logging data from source " + extension << std::endl
+					<< msg;
+				ofstr.close();
+				m_first = false;
+			} else {
+				ofstr << msg;
+				ofstr.close();
+			}
+		}
+		else {
+			std::cerr
+				<< "In GFileLogger::logWithSource() : Error" << std::endl
+				<< "std::ofstring is in a bad state" << std::endl;
+			exit(1);
 		}
 	}
-	else {
-		std::cerr
-		<< "In GFileLogger::logWithSource() : Error" << std::endl
-		<< "std::ofstring is in a bad state" << std::endl;
-		exit(1);
-	}
-}
 
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	////////////////////////////////////////////////////////////////////////////////
+	/******************************************************************************/
+	/**
  * A constructor that takes both accompanying information and the
  * desired log type as an argument and stores the information for
  * later perusal.
  */
-GManipulator::GManipulator(
-	std::string const& accompInfo
-	, logType lt
-)
-   : m_accomp_info(accompInfo)
-   , m_log_type(lt)
-{ /* nothing */ }
+	GManipulator::GManipulator(
+		std::string const& accompInfo
+		, logType lt
+	)
+		: m_accomp_info(accompInfo)
+		  , m_log_type(lt)
+	{ /* nothing */ }
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * A constructor that stores the logging type only
  */
-GManipulator::GManipulator(logType lt)
-   : m_accomp_info()
-   , m_log_type(lt)
-{ /* nothing */ }
+	GManipulator::GManipulator(logType lt)
+		: m_accomp_info()
+		  , m_log_type(lt)
+	{ /* nothing */ }
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Retrieves the stored logging type
  */
-logType GManipulator::getLogType() const {
-	return m_log_type;
-}
+	logType GManipulator::getLogType() const {
+		return m_log_type;
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Retrieves stored accompanying information (if any)
  */
-std::string GManipulator::getAccompInfo() const {
-	return m_accomp_info;
-}
+	std::string GManipulator::getAccompInfo() const {
+		return m_accomp_info;
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Checks whether any accompanying information is available
  */
-bool GManipulator::hasAccompInfo() const {
-	return not m_accomp_info.empty();
-}
+	bool GManipulator::hasAccompInfo() const {
+		return not m_accomp_info.empty();
+	}
 
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	////////////////////////////////////////////////////////////////////////////////
+	/******************************************************************************/
+	/**
  * Initialization with an optional string source extension for log files
  * or as additional information in std-output logs
  */
-GLogStreamer::GLogStreamer(std::string const& extension)
-	: m_extension(extension)
-{ /* nothing */ }
+	GLogStreamer::GLogStreamer(std::string const& extension)
+		: m_extension(extension)
+	{ /* nothing */ }
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Initialization with the name and path of a file used for
  * one-time logging
  */
-GLogStreamer::GLogStreamer(std::filesystem::path logFile)
-	: m_log_file(std::move(logFile))
-{ /* nothing */ }
+	GLogStreamer::GLogStreamer(std::filesystem::path logFile)
+		: m_log_file(std::move(logFile))
+	{ /* nothing */ }
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Needed for ostringstream
  */
-GLogStreamer &GLogStreamer::operator<<(std::ostream &( *val )(std::ostream &)) {
-	m_oss << val;
-	return *this;
-}
+	GLogStreamer &GLogStreamer::operator<<(std::ostream &( *val )(std::ostream &)) {
+		m_oss << val;
+		return *this;
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Needed for ostringstream
  */
-GLogStreamer &GLogStreamer::operator<<(std::ios &( *val )(std::ios &)) {
-	m_oss << val;
-	return *this;
-}
+	GLogStreamer &GLogStreamer::operator<<(std::ios &( *val )(std::ios &)) {
+		m_oss << val;
+		return *this;
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  *  Needed for ostringstream
  */
-GLogStreamer &GLogStreamer::operator<<(std::ios_base &( *val )(std::ios_base &)) {
-	m_oss << val;
-	return *this;
-}
+	GLogStreamer &GLogStreamer::operator<<(std::ios_base &( *val )(std::ios_base &)) {
+		m_oss << val;
+		return *this;
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Interface to the actual logging mechanism. Note that this function does
  * not return a reference to self, as it is meant to be called as the last
  * element of a streaming-chain.
  *
  * @param gm A GManipulator object, usually emitted by the logLevel() function.
  */
-void GLogStreamer::operator<<(GManipulator const& gm) {
-	switch (gm.getLogType()) {
+	void GLogStreamer::operator<<(GManipulator const& gm) {
+		switch (gm.getLogType()) {
 		//------------------------------------------------------------------------
 		case Gem::Common::logType::EXCEPTION: {
 			// Assemble the output string
 			std::ostringstream error;
 			error
-			<< std::endl
-			<< "================================================" << std::endl
-			<< "ERROR ( recorded on " << GLogStreamer::currentTimeAsString() << " )" << std::endl
-			<< gm.getAccompInfo() << std::endl
-			<< std::endl
-			<< m_oss.str()
-			<< std::endl
-			<< "If you suspect that this error is due to Geneva," << std::endl
-			<< "then please consider filing a bug via" << std::endl
-			<< "http://www.gemfony.eu (link \"Bug Reports\") or" << std::endl
-			<< "through http://www.launchpad.net/geneva" << std::endl
-			<< std::endl
-			<< "We appreciate your help!" << std::endl
-			<< "The Geneva team" << std::endl
-			<< "================================================" << std::endl;
+				<< std::endl
+				<< "================================================" << std::endl
+				<< "ERROR ( recorded on " << GLogStreamer::currentTimeAsString() << " )" << std::endl
+				<< gm.getAccompInfo() << std::endl
+				<< std::endl
+				<< m_oss.str()
+				<< std::endl
+				<< "If you suspect that this error is due to Geneva," << std::endl
+				<< "then please consider filing a bug via" << std::endl
+				<< "http://www.gemfony.eu (link \"Bug Reports\") or" << std::endl
+				<< "through http://www.launchpad.net/geneva" << std::endl
+				<< std::endl
+				<< "We appreciate your help!" << std::endl
+				<< "The Geneva team" << std::endl
+				<< "================================================" << std::endl;
 
 			// Do all necessary logging. We use a central exception file for this purpose.
 			// The logger's routines will in addition try to print on the console. Note
@@ -266,26 +266,26 @@ void GLogStreamer::operator<<(GManipulator const& gm) {
 			glogger_ptr->throwException(error.str());
 		} break;
 
-			//------------------------------------------------------------------------
+		//------------------------------------------------------------------------
 		case Gem::Common::logType::TERMINATION: {
 			// Assemble the output string
 			std::ostringstream error;
 			error
-			<< std::endl
-			<< "================================================" << std::endl
-			<< "ERROR ( recorded on " << GLogStreamer::currentTimeAsString() << " )" << std::endl
-			<< gm.getAccompInfo() << std::endl
-			<< std::endl
-			<< m_oss.str()
-			<< std::endl
-			<< "If you suspect that this error is due to Geneva," << std::endl
-			<< "then please consider filing a bug via" << std::endl
-			<< "http://www.gemfony.eu (link \"Bug Reports\") or" << std::endl
-			<< "through http://www.launchpad.net/geneva" << std::endl
-			<< std::endl
-			<< "We appreciate your help!" << std::endl
-			<< "The Geneva team" << std::endl
-			<< "================================================" << std::endl;
+				<< std::endl
+				<< "================================================" << std::endl
+				<< "ERROR ( recorded on " << GLogStreamer::currentTimeAsString() << " )" << std::endl
+				<< gm.getAccompInfo() << std::endl
+				<< std::endl
+				<< m_oss.str()
+				<< std::endl
+				<< "If you suspect that this error is due to Geneva," << std::endl
+				<< "then please consider filing a bug via" << std::endl
+				<< "http://www.gemfony.eu (link \"Bug Reports\") or" << std::endl
+				<< "through http://www.launchpad.net/geneva" << std::endl
+				<< std::endl
+				<< "We appreciate your help!" << std::endl
+				<< "The Geneva team" << std::endl
+				<< "================================================" << std::endl;
 
 			// Do all necessary logging. We use a central exception file for this purpose.
 			// The logger's routines will in addition try to print on the console. Note
@@ -298,26 +298,26 @@ void GLogStreamer::operator<<(GManipulator const& gm) {
 			glogger_ptr->terminateApplication(error.str());
 		} break;
 
-			//------------------------------------------------------------------------
+		//------------------------------------------------------------------------
 		case Gem::Common::logType::WARNING: {
 			// Assemble warning output
 			std::ostringstream warning;
 			warning
-			<< std::endl
-			<< "================================================" << std::endl
-			<< "WARNING ( recorded on " << GLogStreamer::currentTimeAsString() << " )" << std::endl
-			<< gm.getAccompInfo() << std::endl
-			<< std::endl
-			<< m_oss.str()
-			<< std::endl
-			<< "If you suspect that there is an underlying problem with Geneva," << std::endl
-			<< "then please consider filing a bug via" << std::endl
-			<< "http://www.gemfony.eu (link \"Bug Reports\") or" << std::endl
-			<< "through http://www.launchpad.net/geneva" << std::endl
-			<< std::endl
-			<< "We appreciate your help!" << std::endl
-			<< "The Geneva team" << std::endl
-			<< "================================================" << std::endl;
+				<< std::endl
+				<< "================================================" << std::endl
+				<< "WARNING ( recorded on " << GLogStreamer::currentTimeAsString() << " )" << std::endl
+				<< gm.getAccompInfo() << std::endl
+				<< std::endl
+				<< m_oss.str()
+				<< std::endl
+				<< "If you suspect that there is an underlying problem with Geneva," << std::endl
+				<< "then please consider filing a bug via" << std::endl
+				<< "http://www.gemfony.eu (link \"Bug Reports\") or" << std::endl
+				<< "through http://www.launchpad.net/geneva" << std::endl
+				<< std::endl
+				<< "We appreciate your help!" << std::endl
+				<< "The Geneva team" << std::endl
+				<< "================================================" << std::endl;
 
 			// Do all necessary logging.
 			if (this->hasExtension()) {
@@ -327,7 +327,7 @@ void GLogStreamer::operator<<(GManipulator const& gm) {
 			}
 		} break;
 
-			//------------------------------------------------------------------------
+		//------------------------------------------------------------------------
 		case Gem::Common::logType::LOGGING: {
 			// Do all necessary logging.
 			if (this->hasExtension()) {
@@ -337,7 +337,7 @@ void GLogStreamer::operator<<(GManipulator const& gm) {
 			}
 		} break;
 
-			//------------------------------------------------------------------------
+		//------------------------------------------------------------------------
 		case Gem::Common::logType::FILE: {
 			if (this->hasOneTimeLogFile()) {
 				GFileLogger gfl(this->getOneTimeLogFile());
@@ -352,71 +352,70 @@ void GLogStreamer::operator<<(GManipulator const& gm) {
 			}
 		} break;
 
-			//------------------------------------------------------------------------
+		//------------------------------------------------------------------------
 		case Gem::Common::logType::STDOUT: {
 			glogger_ptr->toStdOut(m_oss.str());
 		} break;
 
-			//------------------------------------------------------------------------
+		//------------------------------------------------------------------------
 		case Gem::Common::logType::STDERR: {
 			glogger_ptr->toStdErr(m_oss.str());
 		} break;
 
-			//------------------------------------------------------------------------
-	};
-}
+		//------------------------------------------------------------------------
+		};
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Returns the content of the ostringstream object.
  *
  * @return The content of the ostringstream object
  */
-std::string GLogStreamer::content() const {
-	return m_oss.str();
-}
+	std::string GLogStreamer::content() const {
+		return m_oss.str();
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Stores an empty string in the ostringstream object.
  */
-void GLogStreamer::reset() {
-	m_oss.str("");
-}
+	void GLogStreamer::reset() {
+		m_oss.str("");
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Checks whether an extension string has been registered
  */
-bool GLogStreamer::hasExtension() const {
-	return not m_extension.empty();
-}
+	bool GLogStreamer::hasExtension() const {
+		return not m_extension.empty();
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * The content of the extension_ string
  */
-std::string GLogStreamer::getExtension() const {
-	return m_extension;
-}
+	std::string GLogStreamer::getExtension() const {
+		return m_extension;
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Checks whether a log file name has been registered
  */
-bool GLogStreamer::hasOneTimeLogFile() const {
-	return not m_log_file.empty();
-}
+	bool GLogStreamer::hasOneTimeLogFile() const {
+		return not m_log_file.empty();
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * The name of the manually specified file
  */
-std::filesystem::path GLogStreamer::getOneTimeLogFile() const {
-	return m_log_file;
+	std::filesystem::path GLogStreamer::getOneTimeLogFile() const {
+		return m_log_file;
+	}
+
+	/******************************************************************************/
+
 }
-
-/******************************************************************************/
-
-} /* namespace Common */
-} /* namespace Gem */

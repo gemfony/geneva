@@ -38,15 +38,15 @@
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GSimulatedAnnealing_PersonalityTraits)
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva
+{
 
-/******************************************************************************/
-/** A short identifier suitable for storage in a std::map */
-G_API_GENEVA const std::string GSimulatedAnnealing_PersonalityTraits::nickname = "sa";
+	/******************************************************************************/
+	/** A short identifier suitable for storage in a std::map */
+	G_API_GENEVA const std::string GSimulatedAnnealing_PersonalityTraits::nickname = "sa";
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *
@@ -54,129 +54,128 @@ G_API_GENEVA const std::string GSimulatedAnnealing_PersonalityTraits::nickname =
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
-void GSimulatedAnnealing_PersonalityTraits::compare_(
-	const GObject &cp, const Gem::Common::expectation &e, const double &limit
-) const {
-	using namespace Gem::Common;
+	void GSimulatedAnnealing_PersonalityTraits::compare_(
+		const GObject &cp, const Gem::Common::expectation &e, const double &limit
+	) const {
+		using namespace Gem::Common;
 
-	// Check that we are dealing with a GSimulatedAnnealing_PersonalityTraits reference independent of this object and convert the pointer
-	const GSimulatedAnnealing_PersonalityTraits *p_load = Gem::Common::g_convert_and_compare<GObject, GSimulatedAnnealing_PersonalityTraits>(cp, this);
+		// Check that we are dealing with a GSimulatedAnnealing_PersonalityTraits reference independent of this object and convert the pointer
+		const GSimulatedAnnealing_PersonalityTraits *p_load = Gem::Common::g_convert_and_compare<GObject, GSimulatedAnnealing_PersonalityTraits>(cp, this);
 
-	GToken token("GSimulatedAnnealing_PersonalityTraits", e);
+		GToken token("GSimulatedAnnealing_PersonalityTraits", e);
 
-	// Compare our parent data ...
-	Gem::Common::compare_base_t<GBaseParChildPersonalityTraits>(*this, *p_load, token);
+		// Compare our parent data ...
+		Gem::Common::compare_base_t<GBaseParChildPersonalityTraits>(*this, *p_load, token);
 
-	// ... no local data
+		// ... no local data
 
-	// React on deviations from the expectation
-	token.evaluate();
-}
+		// React on deviations from the expectation
+		token.evaluate();
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Emits a name for this class / object
  */
-std::string GSimulatedAnnealing_PersonalityTraits::name_() const {
-	return std::string("GSimulatedAnnealing_PersonalityTraits");
-}
+	std::string GSimulatedAnnealing_PersonalityTraits::name_() const {
+		return std::string("GSimulatedAnnealing_PersonalityTraits");
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Retrieves the mnemonic of the optimization algorithm
  */
-std::string GSimulatedAnnealing_PersonalityTraits::getMnemonic() const {
-	return GSimulatedAnnealing_PersonalityTraits::nickname;
-}
+	std::string GSimulatedAnnealing_PersonalityTraits::getMnemonic() const {
+		return GSimulatedAnnealing_PersonalityTraits::nickname;
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Creates a deep clone of this object
  *
  * @return A clone of this object, camouflaged as a GObject
  */
-GObject *GSimulatedAnnealing_PersonalityTraits::clone_() const {
-	return new GSimulatedAnnealing_PersonalityTraits(*this);
-}
+	GObject *GSimulatedAnnealing_PersonalityTraits::clone_() const {
+		return new GSimulatedAnnealing_PersonalityTraits(*this);
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Loads the data of another GSAPersonalityTraits object
  *
  * @param cp A copy of another GSAPersonalityTraits object, camouflaged as a GObject
  */
-void GSimulatedAnnealing_PersonalityTraits::load_(const GObject *cp) {
-	// Check that we are dealing with a GSimulatedAnnealing_PersonalityTraits reference independent of this object and convert the pointer
-	const GSimulatedAnnealing_PersonalityTraits *p_load = Gem::Common::g_convert_and_compare<GObject, GSimulatedAnnealing_PersonalityTraits>(cp, this);
+	void GSimulatedAnnealing_PersonalityTraits::load_(const GObject *cp) {
+		// Check that we are dealing with a GSimulatedAnnealing_PersonalityTraits reference independent of this object and convert the pointer
+		const GSimulatedAnnealing_PersonalityTraits *p_load = Gem::Common::g_convert_and_compare<GObject, GSimulatedAnnealing_PersonalityTraits>(cp, this);
 
-	// Load the parent class'es data
-	GBaseParChildPersonalityTraits::load_(cp);
+		// Load the parent class'es data
+		GBaseParChildPersonalityTraits::load_(cp);
 
-	// Then load our local data
-	// no local data ...
-}
+		// Then load our local data
+		// no local data ...
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Applies modifications to this object. This is needed for testing purposes
  *
  * @return A boolean which indicates whether modifications were made
  */
-bool GSimulatedAnnealing_PersonalityTraits::modify_GUnitTests_() {
+	bool GSimulatedAnnealing_PersonalityTraits::modify_GUnitTests_() {
 #ifdef GEM_TESTING
-	bool result = false;
+		bool result = false;
 
-	// Call the parent class'es function
-	if (GBaseParChildPersonalityTraits::modify_GUnitTests_()) result = true;
+		// Call the parent class'es function
+		if (GBaseParChildPersonalityTraits::modify_GUnitTests_()) result = true;
 
-	return result;
+		return result;
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
 	Gem::Common::condnotset("GSimulatedAnnealing_PersonalityTraits::modify_GUnitTests", "GEM_TESTING");
    return false;
 #endif /* GEM_TESTING */
-}
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
-void GSimulatedAnnealing_PersonalityTraits::specificTestsNoFailureExpected_GUnitTests_() {
+	void GSimulatedAnnealing_PersonalityTraits::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
-	using boost::unit_test_framework::test_suite;
-	using boost::unit_test_framework::test_case;
+		using boost::unit_test_framework::test_suite;
+		using boost::unit_test_framework::test_case;
 
-	// Call the parent class'es function
-	GBaseParChildPersonalityTraits::specificTestsNoFailureExpected_GUnitTests_();
+		// Call the parent class'es function
+		GBaseParChildPersonalityTraits::specificTestsNoFailureExpected_GUnitTests_();
 
-	// --------------------------------------------------------------------------
-	// --------------------------------------------------------------------------
+		// --------------------------------------------------------------------------
+		// --------------------------------------------------------------------------
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
 	Gem::Common::condnotset("GSimulatedAnnealing_PersonalityTraits::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
-}
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
-void GSimulatedAnnealing_PersonalityTraits::specificTestsFailuresExpected_GUnitTests_() {
+	void GSimulatedAnnealing_PersonalityTraits::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
-	using boost::unit_test_framework::test_suite;
-	using boost::unit_test_framework::test_case;
+		using boost::unit_test_framework::test_suite;
+		using boost::unit_test_framework::test_case;
 
-	// Call the parent class'es function
-	GBaseParChildPersonalityTraits::specificTestsFailuresExpected_GUnitTests_();
+		// Call the parent class'es function
+		GBaseParChildPersonalityTraits::specificTestsFailuresExpected_GUnitTests_();
 
-	// --------------------------------------------------------------------------
-	// --------------------------------------------------------------------------
+		// --------------------------------------------------------------------------
+		// --------------------------------------------------------------------------
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
 	Gem::Common::condnotset("GSimulatedAnnealing_PersonalityTraits::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
+	}
+
+	/******************************************************************************/
+
 }
-
-/******************************************************************************/
-
-} /* namespace Geneva */
-} /* namespace Gem */

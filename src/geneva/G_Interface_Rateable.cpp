@@ -36,42 +36,41 @@
 
 #include "geneva/G_Interface_Rateable.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva
+{
 
-/******************************************************************************/
-/**
+    /******************************************************************************/
+    /**
  * Retrieves the stored raw fitness with a given id
  */
-double G_Interface_Rateable::raw_fitness(std::size_t pos) const {
-    return raw_fitness_(pos);
-}
+    double G_Interface_Rateable::raw_fitness(std::size_t pos) const {
+        return raw_fitness_(pos);
+    }
 
-/******************************************************************************/
-/**
+    /******************************************************************************/
+    /**
  * Retrieves the stored transformed fitness with a given id
  */
-double G_Interface_Rateable::transformed_fitness(std::size_t pos) const {
-    return transformed_fitness_(pos);
-}
+    double G_Interface_Rateable::transformed_fitness(std::size_t pos) const {
+        return transformed_fitness_(pos);
+    }
 
-/******************************************************************************/
-/**
+    /******************************************************************************/
+    /**
  * Returns all raw fitness results in a std::vector
  */
-std::vector<double> G_Interface_Rateable::raw_fitness_vec() const {
-    return raw_fitness_vec_();
-}
+    std::vector<double> G_Interface_Rateable::raw_fitness_vec() const {
+        return raw_fitness_vec_();
+    }
 
-/******************************************************************************/
-/**
+    /******************************************************************************/
+    /**
  * Returns all transformed fitness results in a std::vector
  */
-std::vector<double> G_Interface_Rateable::transformed_fitness_vec() const {
-    return transformed_fitness_vec_();
+    std::vector<double> G_Interface_Rateable::transformed_fitness_vec() const {
+        return transformed_fitness_vec_();
+    }
+
+    /******************************************************************************/
+
 }
-
-/******************************************************************************/
-
-} /* namespace Geneva */
-} /* namespace Gem */

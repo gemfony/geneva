@@ -36,45 +36,44 @@
 
 #include "hap/GHapEnums.hpp"
 
-namespace Gem {
-namespace Hap {
+namespace Gem::Hap
+{
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Puts a Gem::Hap::RANDFLAVOURS item into a stream
  *
  * @param o The ostream the item should be added to
  * @param grts the item to be added to the stream
  * @return The std::ostream object used to add the item to
  */
-std::ostream &operator<<(std::ostream &o, const Gem::Hap::RANDFLAVOURS &grts) {
-	Gem::Common::ENUMBASETYPE tmp = static_cast<Gem::Common::ENUMBASETYPE>(grts);
-	o << tmp;
-	return o;
-}
+	std::ostream &operator<<(std::ostream &o, const Gem::Hap::RANDFLAVOURS &grts) {
+		Gem::Common::ENUMBASETYPE tmp = static_cast<Gem::Common::ENUMBASETYPE>(grts);
+		o << tmp;
+		return o;
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Reads a Gem::Hap::RANDFLAVOURS item from a stream
  *
  * @param i The stream the item should be read from
  * @param grts The item read from the stream
  * @return The std::istream object used to read the item from
  */
-std::istream &operator>>(std::istream &i, Gem::Hap::RANDFLAVOURS &grts) {
-	Gem::Common::ENUMBASETYPE tmp;
-	i >> tmp;
+	std::istream &operator>>(std::istream &i, Gem::Hap::RANDFLAVOURS &grts) {
+		Gem::Common::ENUMBASETYPE tmp;
+		i >> tmp;
 
 #ifdef DEBUG
-	grts = boost::numeric_cast<Gem::Hap::RANDFLAVOURS>(tmp);
+		grts = boost::numeric_cast<Gem::Hap::RANDFLAVOURS>(tmp);
 #else
 	grts = static_cast<Gem::Hap::RANDFLAVOURS>(tmp);
 #endif /* DEBUG */
 
-	return i;
+		return i;
+	}
+
+	/******************************************************************************/
+
 }
-
-/******************************************************************************/
-
-} /* namespace Hap */
-} /* namespace Gem */

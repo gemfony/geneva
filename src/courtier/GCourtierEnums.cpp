@@ -36,228 +36,227 @@
 
 #include "courtier/GCourtierEnums.hpp"
 
-namespace Gem {
-namespace Courtier {
+namespace Gem::Courtier
+{
 
-/******************************************************************************************/
-/**
+	/******************************************************************************************/
+	/**
  * Puts a Gem::Courtier::run_state item into a stream
  *
  * @param o The ostream the item should be added to
  * @param rs the item to be added to the stream
  * @return The std::ostream object used to add the item to
  */
-std::ostream &operator<<(std::ostream &o, const Gem::Courtier::run_state &rs) {
-	auto tmp = static_cast<Gem::Common::ENUMBASETYPE>(rs);
-	o << tmp;
-	return o;
-}
+	std::ostream &operator<<(std::ostream &o, const Gem::Courtier::run_state &rs) {
+		auto tmp = static_cast<Gem::Common::ENUMBASETYPE>(rs);
+		o << tmp;
+		return o;
+	}
 
-/******************************************************************************************/
-/**
+	/******************************************************************************************/
+	/**
  * Reads a Gem::Courtier::run_state item from a stream
  *
  * @param i The stream the item should be read from
  * @param rs The item read from the stream
  * @return The std::istream object used to read the item from
  */
-std::istream &operator>>(std::istream &i, Gem::Courtier::run_state &rs) {
-	Gem::Common::ENUMBASETYPE tmp;
-	i >> tmp;
+	std::istream &operator>>(std::istream &i, Gem::Courtier::run_state &rs) {
+		Gem::Common::ENUMBASETYPE tmp;
+		i >> tmp;
 
 #ifdef DEBUG
-	rs = boost::numeric_cast<Gem::Courtier::run_state>(tmp);
+		rs = boost::numeric_cast<Gem::Courtier::run_state>(tmp);
 #else
 	rs = static_cast<Gem::Courtier::run_state>(tmp);
 #endif /* DEBUG */
 
-	return i;
-}
+		return i;
+	}
 
-/******************************************************************************************/
-/**
+	/******************************************************************************************/
+	/**
  * Puts a Gem::Courtier::beast_payload_command item into a stream
  *
  * @param o The ostream the item should be added to
  * @param ps the item to be added to the stream
  * @return The std::ostream object used to add the item to
  */
-std::ostream &operator<<(std::ostream &o, const Gem::Courtier::networked_consumer_payload_command &ps) {
-	auto tmp = static_cast<Gem::Common::ENUMBASETYPE>(ps);
-	o << tmp;
-	return o;
-}
+	std::ostream &operator<<(std::ostream &o, const Gem::Courtier::networked_consumer_payload_command &ps) {
+		auto tmp = static_cast<Gem::Common::ENUMBASETYPE>(ps);
+		o << tmp;
+		return o;
+	}
 
-/******************************************************************************************/
-/**
+	/******************************************************************************************/
+	/**
  * Reads a Gem::Courtier::beast_payload_command item from a stream
  *
  * @param i The stream the item should be read from
  * @param ps The item read from the stream
  * @return The std::istream object used to read the item from
  */
-std::istream &operator>>(std::istream &i, Gem::Courtier::networked_consumer_payload_command &ps) {
-	Gem::Common::ENUMBASETYPE tmp;
-	i >> tmp;
+	std::istream &operator>>(std::istream &i, Gem::Courtier::networked_consumer_payload_command &ps) {
+		Gem::Common::ENUMBASETYPE tmp;
+		i >> tmp;
 
 #ifdef DEBUG
-	ps = boost::numeric_cast<Gem::Courtier::networked_consumer_payload_command>(tmp);
+		ps = boost::numeric_cast<Gem::Courtier::networked_consumer_payload_command>(tmp);
 #else
 	ps = static_cast<Gem::Courtier::networked_consumer_payload_command>(tmp);
 #endif /* DEBUG */
 
-	return i;
-}
+		return i;
+	}
 
-/******************************************************************************************/
-/**
+	/******************************************************************************************/
+	/**
  * Puts a Gem::Courtier::beast_ping_state item into a stream
  *
  * @param o The ostream the item should be added to
  * @param srm the item to be added to the stream
  * @return The std::ostream object used to add the item to
  */
-std::ostream &operator<<(std::ostream &o, const Gem::Courtier::beast_ping_state &ps) {
-	auto tmp = static_cast<Gem::Common::ENUMBASETYPE>(ps);
-	o << tmp;
-	return o;
-}
+	std::ostream &operator<<(std::ostream &o, const Gem::Courtier::beast_ping_state &ps) {
+		auto tmp = static_cast<Gem::Common::ENUMBASETYPE>(ps);
+		o << tmp;
+		return o;
+	}
 
-/******************************************************************************************/
-/**
+	/******************************************************************************************/
+	/**
  * Reads a Gem::Courtier::beast_ping_state item from a stream
  *
  * @param i The stream the item should be read from
  * @param srm The item read from the stream
  * @return The std::istream object used to read the item from
  */
-std::istream &operator>>(std::istream &i, Gem::Courtier::beast_ping_state &ps) {
-	Gem::Common::ENUMBASETYPE tmp;
-	i >> tmp;
+	std::istream &operator>>(std::istream &i, Gem::Courtier::beast_ping_state &ps) {
+		Gem::Common::ENUMBASETYPE tmp;
+		i >> tmp;
 
 #ifdef DEBUG
-	ps = boost::numeric_cast<Gem::Courtier::beast_ping_state>(tmp);
+		ps = boost::numeric_cast<Gem::Courtier::beast_ping_state>(tmp);
 #else
 	ps = static_cast<Gem::Courtier::beast_ping_state>(tmp);
 #endif /* DEBUG */
 
-	return i;
-}
+		return i;
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Puts a Gem::Courtier::submissionReturnMode item into a stream
  *
  * @param o The ostream the item should be added to
  * @param srm the item to be added to the stream
  * @return The std::ostream object used to add the item to
  */
-std::ostream &operator<<(std::ostream &o, const Gem::Courtier::submissionReturnMode &srm) {
-	Gem::Common::ENUMBASETYPE tmp = static_cast<Gem::Common::ENUMBASETYPE>(srm);
-	o << tmp;
-	return o;
-}
+	std::ostream &operator<<(std::ostream &o, const Gem::Courtier::submissionReturnMode &srm) {
+		Gem::Common::ENUMBASETYPE tmp = static_cast<Gem::Common::ENUMBASETYPE>(srm);
+		o << tmp;
+		return o;
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Reads a Gem::Courtier::submissionReturnMode item from a stream
  *
  * @param i The stream the item should be read from
  * @param srm The item read from the stream
  * @return The std::istream object used to read the item from
  */
-std::istream &operator>>(std::istream &i, Gem::Courtier::submissionReturnMode &srm) {
-	Gem::Common::ENUMBASETYPE tmp;
-	i >> tmp;
+	std::istream &operator>>(std::istream &i, Gem::Courtier::submissionReturnMode &srm) {
+		Gem::Common::ENUMBASETYPE tmp;
+		i >> tmp;
 
 #ifdef DEBUG
-	srm = boost::numeric_cast<Gem::Courtier::submissionReturnMode>(tmp);
+		srm = boost::numeric_cast<Gem::Courtier::submissionReturnMode>(tmp);
 #else
 	srm = static_cast<Gem::Courtier::submissionReturnMode>(tmp);
 #endif /* DEBUG */
 
-	return i;
-}
+		return i;
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Puts a Gem::Courtier::processingStatus item into a stream
  *
  * @param o The ostream the item should be added to
  * @param srm the item to be added to the stream
  * @return The std::ostream object used to add the item to
  */
-std::ostream& operator<<(std::ostream& o, const Gem::Courtier::processingStatus& srm)
-{
-	switch (srm)
+	std::ostream& operator<<(std::ostream& o, const Gem::Courtier::processingStatus& srm)
 	{
-	case processingStatus::DO_IGNORE: o << "processingStatus::DO_IGNORE";
-		break;
-	case processingStatus::DO_PROCESS: o << "processingStatus::DO_PROCESS";
-		break;
-	case processingStatus::PROCESSED: o << "processingStatus::PROCESSED";
-		break;
-	case processingStatus::EXCEPTION_CAUGHT: o << "processingStatus::EXCEPTION_CAUGHT";
-		break;
-	case processingStatus::ERROR_FLAGGED: o << "processingStatus::ERROR_FLAGGED";
-		break;
-	default: o << "UNKNOWN processing status";
-		break;
+		switch (srm)
+		{
+		case processingStatus::DO_IGNORE: o << "processingStatus::DO_IGNORE";
+			break;
+		case processingStatus::DO_PROCESS: o << "processingStatus::DO_PROCESS";
+			break;
+		case processingStatus::PROCESSED: o << "processingStatus::PROCESSED";
+			break;
+		case processingStatus::EXCEPTION_CAUGHT: o << "processingStatus::EXCEPTION_CAUGHT";
+			break;
+		case processingStatus::ERROR_FLAGGED: o << "processingStatus::ERROR_FLAGGED";
+			break;
+		default: o << "UNKNOWN processing status";
+			break;
+		}
+
+		return o;
 	}
 
-	return o;
-}
 
-
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Reads a Gem::Courtier::processingStatus item from a stream
  *
  * @param i The stream the item should be read from
  * @param srm The item read from the stream
  * @return The std::istream object used to read the item from
  */
-std::istream &operator>>(std::istream &i, Gem::Courtier::processingStatus &srm) {
-	Gem::Common::ENUMBASETYPE tmp;
-	i >> tmp;
+	std::istream &operator>>(std::istream &i, Gem::Courtier::processingStatus &srm) {
+		Gem::Common::ENUMBASETYPE tmp;
+		i >> tmp;
 
 #ifdef DEBUG
-	srm = boost::numeric_cast<Gem::Courtier::processingStatus>(tmp);
+		srm = boost::numeric_cast<Gem::Courtier::processingStatus>(tmp);
 #else
 	srm = static_cast<Gem::Courtier::processingStatus>(tmp);
 #endif /* DEBUG */
 
-	return i;
-}
+		return i;
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Puts a Gem::Courtier::brokerMode into a stream. Needed also for boost::lexical_cast<>
  */
-std::ostream& operator<<(std::ostream& o, const Gem::Courtier::consumerType& bm) {
-	Gem::Common::ENUMBASETYPE tmp = static_cast<Gem::Common::ENUMBASETYPE>(bm);
-	o << tmp;
-	return o;
-}
+	std::ostream& operator<<(std::ostream& o, const Gem::Courtier::consumerType& bm) {
+		Gem::Common::ENUMBASETYPE tmp = static_cast<Gem::Common::ENUMBASETYPE>(bm);
+		o << tmp;
+		return o;
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Reads a Gem::Courtier::brokerMode item from a stream. Needed also for boost::lexical_cast<>
  */
-std::istream& operator>>(std::istream& i, Gem::Courtier::consumerType& bm) {
-	Gem::Common::ENUMBASETYPE tmp;
-	i >> tmp;
+	std::istream& operator>>(std::istream& i, Gem::Courtier::consumerType& bm) {
+		Gem::Common::ENUMBASETYPE tmp;
+		i >> tmp;
 
 #ifdef DEBUG
-	bm = boost::numeric_cast<Gem::Courtier::consumerType>(tmp);
+		bm = boost::numeric_cast<Gem::Courtier::consumerType>(tmp);
 #else
 	bm = static_cast<Gem::Courtier::consumerType>(tmp);
 #endif /* DEBUG */
 
-	return i;
+		return i;
+	}
+
+	/******************************************************************************/
+
 }
-
-/******************************************************************************/
-
-} /* namespace Courtier */
-} /* namespace Gem */

@@ -349,6 +349,8 @@ namespace Gem::Common
             , bool do_clone
             , bool replace
         ) BASE {
+            std::cout <<"GFixedSizePriorityQueueT::add(vec) called" << std::endl;
+
             double worstKnownEvaluation = Gem::Common::getWorstCase<double>(m_sortOrder_);
             if (replace || m_data_deq_.empty())
             {

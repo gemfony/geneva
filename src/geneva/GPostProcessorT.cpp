@@ -39,54 +39,54 @@
 // Export of GEvolutionaryAlgorithmPostOptimizer
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GEvolutionaryAlgorithmPostOptimizer) // NOLINT
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva
+{
 
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	////////////////////////////////////////////////////////////////////////////////
+	/******************************************************************************/
+	/**
  * Initialization with the execution mode and configuration file
  */
-GEvolutionaryAlgorithmPostOptimizer::GEvolutionaryAlgorithmPostOptimizer(
-	execMode executionMode
-	, const std::string& oa_configFile
-	, const std::string& executor_configFile
-)
-	: GPostProcessorBaseT<GParameterSet>()
-	, m_oa_configFile(oa_configFile)
-	, m_executor_configFile(executor_configFile)
-	, m_executionMode((executionMode == execMode::SERIAL || executionMode == execMode::MULTITHREADED) ? executionMode : execMode::SERIAL)
-{
-	switch (executionMode) {
+	GEvolutionaryAlgorithmPostOptimizer::GEvolutionaryAlgorithmPostOptimizer(
+		execMode executionMode
+		, const std::string& oa_configFile
+		, const std::string& executor_configFile
+	)
+		: GPostProcessorBaseT<GParameterSet>()
+		  , m_oa_configFile(oa_configFile)
+		  , m_executor_configFile(executor_configFile)
+		  , m_executionMode((executionMode == execMode::SERIAL || executionMode == execMode::MULTITHREADED) ? executionMode : execMode::SERIAL)
+	{
+		switch (executionMode) {
 		case execMode::SERIAL:
 		case execMode::MULTITHREADED:
 			/* nothing */
 			break;
 
 		case execMode::BROKER:
-		{
-			glogger
-				<< "In GEvolutionaryAlgorithmPostOptimizer::GEvolutionaryAlgorithmPostOptimizer(execMode): Error!"
-				<< std::endl
-				<< "Got invalid execution mode " << executionMode << std::endl
-				<< "The mode was reset to execMode::SERIAL" << std::endl
-				<< GWARNING;
-		}
+			{
+				glogger
+					<< "In GEvolutionaryAlgorithmPostOptimizer::GEvolutionaryAlgorithmPostOptimizer(execMode): Error!"
+					<< std::endl
+					<< "Got invalid execution mode " << executionMode << std::endl
+					<< "The mode was reset to execMode::SERIAL" << std::endl
+					<< GWARNING;
+			}
 			break;
+		}
 	}
-}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Returns the name of this class
  */
-std::string GEvolutionaryAlgorithmPostOptimizer::name_() const {
-	return std::string("GEvolutionaryAlgorithmPostOptimizer");
-}
+	std::string GEvolutionaryAlgorithmPostOptimizer::name_() const {
+		return std::string("GEvolutionaryAlgorithmPostOptimizer");
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Checks for compliance with expectations with respect to another object
  * of the same type
  *
@@ -94,38 +94,38 @@ std::string GEvolutionaryAlgorithmPostOptimizer::name_() const {
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
-void GEvolutionaryAlgorithmPostOptimizer::compare_(
-	const Gem::Common::GSerializableFunctionObjectT<GParameterSet> &cp
-	, const Gem::Common::expectation &e
-	, const double &limit
-) const  {
-	using namespace Gem::Common;
+	void GEvolutionaryAlgorithmPostOptimizer::compare_(
+		const Gem::Common::GSerializableFunctionObjectT<GParameterSet> &cp
+		, const Gem::Common::expectation &e
+		, const double &limit
+	) const  {
+		using namespace Gem::Common;
 
-	// Check that we are dealing with a Gem::Common::GSerializableFunctionObjectT<processable_type> reference independent of this object and convert the pointer
-	const GEvolutionaryAlgorithmPostOptimizer *p_load
-		= Gem::Common::g_convert_and_compare<Gem::Common::GSerializableFunctionObjectT<GParameterSet>, GEvolutionaryAlgorithmPostOptimizer>(cp, this);
+		// Check that we are dealing with a Gem::Common::GSerializableFunctionObjectT<processable_type> reference independent of this object and convert the pointer
+		const GEvolutionaryAlgorithmPostOptimizer *p_load
+			= Gem::Common::g_convert_and_compare<Gem::Common::GSerializableFunctionObjectT<GParameterSet>, GEvolutionaryAlgorithmPostOptimizer>(cp, this);
 
-	GToken token("GEvolutionaryAlgorithmPostOptimizer", e);
+		GToken token("GEvolutionaryAlgorithmPostOptimizer", e);
 
-	// Compare our parent data ...
-	Gem::Common::compare_base_t<GPostProcessorBaseT<GParameterSet>>(*this, *p_load, token);
+		// Compare our parent data ...
+		Gem::Common::compare_base_t<GPostProcessorBaseT<GParameterSet>>(*this, *p_load, token);
 
-	// ... and then our local data
-	compare_t(IDENTITY(m_oa_configFile, p_load->m_oa_configFile), token);
-	compare_t(IDENTITY(m_executor_configFile, p_load->m_executor_configFile), token);
-	compare_t(IDENTITY(m_executionMode, p_load->m_executionMode), token);
+		// ... and then our local data
+		compare_t(IDENTITY(m_oa_configFile, p_load->m_oa_configFile), token);
+		compare_t(IDENTITY(m_executor_configFile, p_load->m_executor_configFile), token);
+		compare_t(IDENTITY(m_executionMode, p_load->m_executionMode), token);
 
-	// React on deviations from the expectation
-	token.evaluate();
-}
+		// React on deviations from the expectation
+		token.evaluate();
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Allows to set the execution mode for this post-processor (serial vs. multi-threaded)
  */
-void GEvolutionaryAlgorithmPostOptimizer::setExecMode(execMode executionMode)
-{
-	switch (executionMode) {
+	void GEvolutionaryAlgorithmPostOptimizer::setExecMode(execMode executionMode)
+	{
+		switch (executionMode) {
 		case execMode::SERIAL:
 		case execMode::MULTITHREADED: {
 			m_executionMode = executionMode;
@@ -133,202 +133,201 @@ void GEvolutionaryAlgorithmPostOptimizer::setExecMode(execMode executionMode)
 			break;
 
 		case execMode::BROKER:
-		{
-			throw gemfony_exception(
-				g_error_streamer(DO_LOG,  time_and_place)
+			{
+				throw gemfony_exception(
+					g_error_streamer(DO_LOG,  time_and_place)
 					<< "In GEvolutionaryAlgorithmPostOptimizer::setExecMode(): Error!" << std::endl
 					<< "Got invalid execution mode " << executionMode << std::endl
-			);
-		}
+				);
+			}
 			break;
+		}
 	}
-}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Allows to retrieve the current execution mode
  */
-execMode GEvolutionaryAlgorithmPostOptimizer::getExecMode() const {
-	return m_executionMode;
-}
+	execMode GEvolutionaryAlgorithmPostOptimizer::getExecMode() const {
+		return m_executionMode;
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Allows to specify the name of a configuration file
  */
-void GEvolutionaryAlgorithmPostOptimizer::setOAConfigFile(const std::string& oa_configFile) {
-	m_oa_configFile = oa_configFile;
-}
+	void GEvolutionaryAlgorithmPostOptimizer::setOAConfigFile(const std::string& oa_configFile) {
+		m_oa_configFile = oa_configFile;
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Allows to retrieve the configuration file
  */
-std::string GEvolutionaryAlgorithmPostOptimizer::getOAConfigFile() const {
-	return m_oa_configFile;
-}
+	std::string GEvolutionaryAlgorithmPostOptimizer::getOAConfigFile() const {
+		return m_oa_configFile;
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Allows to specify the name of a configuration file for the executor
  */
-void GEvolutionaryAlgorithmPostOptimizer::setExecutorConfigFile(const std::string& executorConfigFile) {
-	m_executor_configFile = executorConfigFile;
-}
+	void GEvolutionaryAlgorithmPostOptimizer::setExecutorConfigFile(const std::string& executorConfigFile) {
+		m_executor_configFile = executorConfigFile;
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Allows to retrieve the configuration file for the executor
  */
-std::string GEvolutionaryAlgorithmPostOptimizer::getExecutorConfigFile() const {
-	return m_executor_configFile;
-}
+	std::string GEvolutionaryAlgorithmPostOptimizer::getExecutorConfigFile() const {
+		return m_executor_configFile;
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Loads the data of another GEvolutionaryAlgorithmPostOptimizer object
  */
-void GEvolutionaryAlgorithmPostOptimizer::load_(const Gem::Common::GSerializableFunctionObjectT<GParameterSet> *cp)
-{
-	// Check that we are dealing with a GEvolutionaryAlgorithmPostOptimizer reference independent of this object and convert the pointer
-	const GEvolutionaryAlgorithmPostOptimizer *p_load
-		= Gem::Common::g_convert_and_compare<Gem::Common::GSerializableFunctionObjectT<GParameterSet>, GEvolutionaryAlgorithmPostOptimizer>(cp, this);
+	void GEvolutionaryAlgorithmPostOptimizer::load_(const Gem::Common::GSerializableFunctionObjectT<GParameterSet> *cp)
+	{
+		// Check that we are dealing with a GEvolutionaryAlgorithmPostOptimizer reference independent of this object and convert the pointer
+		const GEvolutionaryAlgorithmPostOptimizer *p_load
+			= Gem::Common::g_convert_and_compare<Gem::Common::GSerializableFunctionObjectT<GParameterSet>, GEvolutionaryAlgorithmPostOptimizer>(cp, this);
 
-	// Load our parent class'es data ...
-	GPostProcessorBaseT<GParameterSet>::load_(cp);
+		// Load our parent class'es data ...
+		GPostProcessorBaseT<GParameterSet>::load_(cp);
 
-	// ... and then our local data
-	m_oa_configFile = p_load->m_oa_configFile;
-	m_executor_configFile = p_load->m_executor_configFile;
-	m_executionMode = p_load->m_executionMode;
-}
+		// ... and then our local data
+		m_oa_configFile = p_load->m_oa_configFile;
+		m_executor_configFile = p_load->m_executor_configFile;
+		m_executionMode = p_load->m_executionMode;
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Creates a deep clone of this object
  */
-Gem::Common::GSerializableFunctionObjectT<GParameterSet> *GEvolutionaryAlgorithmPostOptimizer::clone_() const {
-	return new GEvolutionaryAlgorithmPostOptimizer(*this);
-}
+	Gem::Common::GSerializableFunctionObjectT<GParameterSet> *GEvolutionaryAlgorithmPostOptimizer::clone_() const {
+		return new GEvolutionaryAlgorithmPostOptimizer(*this);
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * The actual post-processing takes place here (no further checks)
  */
-bool GEvolutionaryAlgorithmPostOptimizer::raw_processing_(GParameterSet &p) {
-	// Make sure p is processed
-	if (not p.is_processed()) {
-		throw gemfony_exception(
-			g_error_streamer(DO_LOG,  time_and_place)
+	bool GEvolutionaryAlgorithmPostOptimizer::raw_processing_(GParameterSet &p) {
+		// Make sure p is processed
+		if (not p.is_processed()) {
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GEvolutionaryAlgorithmPostOptimizer::raw_processing_: Error!" << std::endl
 				<< "Provided base_type has dirty flag set." << std::endl
-		);
-	}
+			);
+		}
 
-	if(m_executionMode == execMode::BROKER) {
-		throw gemfony_exception(
-			g_error_streamer(DO_LOG,  time_and_place)
+		if(m_executionMode == execMode::BROKER) {
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GEvolutionaryAlgorithmPostOptimizer::raw_processing_: Error!" << std::endl
 				<< "Got invalid execution mode " << m_executionMode << std::endl
-		);
+			);
+		}
+
+		// Clone the individual for post-processing
+		std::shared_ptr<GParameterSet> p_unopt_ptr = p.template clone<GParameterSet>();
+
+		// Make sure the post-optimization does not trigger post-optimization recursively ...
+		p_unopt_ptr->vetoPostProcessing(true);
+
+		// Retrieve an evolutionary algorithm
+		GEvolutionaryAlgorithmFactory eaFactory(m_oa_configFile);
+		auto ea_ptr = eaFactory.get<GEvolutionaryAlgorithm>();
+
+		// Add an executor to the algorithm
+		ea_ptr->registerExecutor(m_executionMode, m_executor_configFile);
+
+		// Add our individual to the algorithm
+		ea_ptr->push_back(p_unopt_ptr);
+
+		// Perform the actual (sub-)optimization
+		ea_ptr->optimize();
+
+		// Retrieve the best individual
+		std::shared_ptr<GParameterSet> p_opt_ptr = ea_ptr->getBestGlobalIndividual<GParameterSet>();
+
+		// Make sure subsequent optimization cycles may generally perform post-optimization again.
+		// This needs to be done on the optimized individual, as it will be loaded into the
+		// original individual.
+		p_opt_ptr->vetoPostProcessing(false);
+
+		// Load the parameter data into the argument base_type (will also clear the dirty flag)
+		p.cannibalize(*p_opt_ptr);
+
+		return true;
 	}
 
-	// Clone the individual for post-processing
-	std::shared_ptr<GParameterSet> p_unopt_ptr = p.template clone<GParameterSet>();
-
-	// Make sure the post-optimization does not trigger post-optimization recursively ...
-	p_unopt_ptr->vetoPostProcessing(true);
-
-	// Retrieve an evolutionary algorithm
-	GEvolutionaryAlgorithmFactory eaFactory(m_oa_configFile);
-	auto ea_ptr = eaFactory.get<GEvolutionaryAlgorithm>();
-
-	// Add an executor to the algorithm
-	ea_ptr->registerExecutor(m_executionMode, m_executor_configFile);
-
-	// Add our individual to the algorithm
-	ea_ptr->push_back(p_unopt_ptr);
-
-	// Perform the actual (sub-)optimization
-	ea_ptr->optimize();
-
-	// Retrieve the best individual
-	std::shared_ptr<GParameterSet> p_opt_ptr = ea_ptr->getBestGlobalIndividual<GParameterSet>();
-
-	// Make sure subsequent optimization cycles may generally perform post-optimization again.
-	// This needs to be done on the optimized individual, as it will be loaded into the
-	// original individual.
-	p_opt_ptr->vetoPostProcessing(false);
-
-	// Load the parameter data into the argument base_type (will also clear the dirty flag)
-	p.cannibalize(*p_opt_ptr);
-
-	return true;
-}
-
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * The standard constructor. Intentionally private, as it is only needed
  * for de-serialization purposes.
  */
-GEvolutionaryAlgorithmPostOptimizer::GEvolutionaryAlgorithmPostOptimizer()
-{ /* nothing */ }
+	GEvolutionaryAlgorithmPostOptimizer::GEvolutionaryAlgorithmPostOptimizer()
+	{ /* nothing */ }
 
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Applies modifications to this object. This is needed for testing purposes
  */
-bool GEvolutionaryAlgorithmPostOptimizer::modify_GUnitTests_() {
+	bool GEvolutionaryAlgorithmPostOptimizer::modify_GUnitTests_() {
 #ifdef GEM_TESTING
-	bool result = false;
+		bool result = false;
 
-	// Call the parent class'es function
-	if (GPostProcessorBaseT<GParameterSet>::modify_GUnitTests_()) result = true;
+		// Call the parent class'es function
+		if (GPostProcessorBaseT<GParameterSet>::modify_GUnitTests_()) result = true;
 
-	return result;
+		return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
 	Gem::Common::condnotset("GEvolutionaryAlgorithmPostOptimizer::modify_GUnitTests", "GEM_TESTING");
     return false;
 #endif /* GEM_TESTING */
-}
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
-void GEvolutionaryAlgorithmPostOptimizer::specificTestsNoFailureExpected_GUnitTests_() {
+	void GEvolutionaryAlgorithmPostOptimizer::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
-	// Call the parent class'es function
-	GPostProcessorBaseT<GParameterSet>::specificTestsNoFailureExpected_GUnitTests_();
+		// Call the parent class'es function
+		GPostProcessorBaseT<GParameterSet>::specificTestsNoFailureExpected_GUnitTests_();
 
-	//---------------------------------------------------------------------------
+		//---------------------------------------------------------------------------
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
 	Gem::Common::condnotset("GEvolutionaryAlgorithmPostOptimizer::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
-}
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
-void GEvolutionaryAlgorithmPostOptimizer::specificTestsFailuresExpected_GUnitTests_() {
+	void GEvolutionaryAlgorithmPostOptimizer::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
-	// Call the parent class'es function
-	GPostProcessorBaseT<GParameterSet>::specificTestsFailuresExpected_GUnitTests_();
+		// Call the parent class'es function
+		GPostProcessorBaseT<GParameterSet>::specificTestsFailuresExpected_GUnitTests_();
 
-	//---------------------------------------------------------------------------
+		//---------------------------------------------------------------------------
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
 	Gem::Common::condnotset("GEvolutionaryAlgorithmPostOptimizer::specificTestsFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
+	}
+
+	/******************************************************************************/
+	////////////////////////////////////////////////////////////////////////////////
+	/******************************************************************************/
+
 }
-
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-
-} /* namespace Geneva */
-} /* namespace Gem */
