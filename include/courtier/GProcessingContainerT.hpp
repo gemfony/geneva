@@ -263,14 +263,7 @@ namespace Gem::Courtier
 		processing_result_type process(
 			const std::vector<processing_result_type> &res_vec = std::vector<processing_result_type>()
 		) {
-			// We may receive "clean" items here, e.g. from a MUCOMMANU strategy. Do nothing in this case
-			if(processingStatus::PROCESSED == m_processing_status)
-			{
-				std::cout <<"processed item encountered" << std::endl;
-				return this->m_stored_results_cnt.at(0);
-			}
-
-			// From this point on, we only accept items that are due for processing
+			// We only accept items that are due for processing
 			if(processingStatus::DO_PROCESS != m_processing_status) {
 				throw gemfony_exception(
 					g_error_streamer(DO_LOG, time_and_place)

@@ -200,8 +200,6 @@ namespace Gem::Geneva
 		}
 
 		Gem::Common::GFixedSizePriorityQueueT<GParameterSet>::add(processed_cnt.begin(), processed_cnt.end(), do_clone, do_replace);
-
-		std::cout << "The size of the PQ is " << this->size() << std::endl;
 	}
 
 	/******************************************************************************/

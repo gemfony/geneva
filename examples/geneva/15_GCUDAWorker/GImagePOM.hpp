@@ -58,18 +58,6 @@
 namespace Gem::Geneva
 {
     /******************************************************************************/
-    /**
-     * The default dimension of the canvas in x-direction
-     */
-    const boost::uint16_t DEFAULTXDIMPROGRESS = 166;
-
-    /******************************************************************************/
-    /**
-     * The default dimension of the canvas in y-direction
-     */
-    const boost::uint16_t DEFAULTYDIMPROGRESS = 192;
-
-    /******************************************************************************/
     ////////////////////////////////////////////////////////////////////////////////
     /******************************************************************************/
     /**
@@ -95,8 +83,6 @@ namespace Gem::Geneva
                 & BOOST_SERIALIZATION_NVP(blockSize_)
                 & BOOST_SERIALIZATION_NVP(gridSize_)
             ;
-
-            // TODO Add new variables
         }
 
         ///////////////////////////////////////////////////////////////////////
@@ -109,12 +95,12 @@ namespace Gem::Geneva
          * @param emitBestOnly Whether only the best individuals should be emitted
          */
         GImagePOM(
-            const std::string& resultDirectory
-            , const std::string& targetFileName
-            , bool emitBestOnly
-            , bool useGPU
-            , std::tuple<int, int> blockSize
-            , std::tuple<int, int> gridSize
+            const std::string& resultDirectory,
+            const std::string& targetFileName,
+            bool emitBestOnly,
+            bool useGPU,
+            const std::tuple<int, int>& blockSize,
+            const std::tuple<int, int>& gridSize
         )
             : resultImageDirectory_(GImagePOM::trailingSlash(resultDirectory)),
               targetFileName_(targetFileName),
@@ -132,7 +118,18 @@ namespace Gem::Geneva
          *
          * @param cp A copy of another GImagePOM object
          */
-        GImagePOM(const GImagePOM& cp) = default;
+        GImagePOM(const GImagePOM& cp)
+            : resultImageDirectory_(cp.resultImageDirectory_),
+              targetFileName_(cp.targetFileName_),
+              emitBestOnly_(cp.emitBestOnly_),
+              useGPU_(cp.useGPU_),
+              blockSize_(cp.blockSize_),
+              gridSize_(cp.gridSize_),
+              first_(true), // will result in a seperate evaluatpr
+              evaluator_ptr_{}
+        {
+            /* nothing */
+        }
 
         /***************************************************************************/
         /**
@@ -281,8 +278,6 @@ namespace Gem::Geneva
 #endif /* GEM_TESTING */
         }
 
-        /***************************************************************************/
-
     private:
         /***************************************************************************/
         /**
@@ -358,6 +353,10 @@ namespace Gem::Geneva
                     auto bestIndividual_ptr
                         = goa->G_Interface_OptimizerT::getBestIterationIndividual<GImageIndividual>();
 
+                    // Enforce processing. Together with getGPUCandidateImage_= true this will result
+                    // in a retrieval of the image from the GPU, which is not normally the case.
+                    bestIndividual_ptr->set_processing_status(Courtier::processingStatus::DO_PROCESS);
+
                     // -----------------------------------------------------------------------------------------
                     // We need an individual to initialize the evaluator, so we have to
                     // do this here instead of inside of the INFOINIT-section
@@ -381,11 +380,11 @@ namespace Gem::Geneva
 
                     // -----------------------------------------------------------------------------------------
                     // Perform the actual evaluation
-                    double fitness = evaluator_ptr_->evaluate(bestIndividual_ptr);
+                    const double fitness = evaluator_ptr_->evaluate(bestIndividual_ptr);
 
                     // -----------------------------------------------------------------------------------------
                     // Trigger output of a result picture
-                    if (!emitBestOnly_ || (emitBestOnly_ && goa->progress()))
+                    if (not emitBestOnly_ || goa->progress())
                     {
                         const std::string resultFileName
                             = resultImageDirectory_
@@ -400,8 +399,10 @@ namespace Gem::Geneva
                 break;
 
             case Gem::Geneva::infoMode::INFOEND:
-                // Terminate the evaluator
-                evaluator_ptr_->finalize();
+                {
+                    // Terminate the evaluator
+                    evaluator_ptr_->finalize();
+                }
                 break;
             };
         }
