@@ -48,7 +48,7 @@ IF (NOT GENEVA_FULL_TREE_BUILD)
 	INCLUDE(CommonGenevaBuild)
 ENDIF ()
 
-enable_language(CUDA)
+ENABLE_LANGUAGE(CUDA)
 
 # Setting the CUDA-Standard
 set(CMAKE_CUDA_STANDARD 17)

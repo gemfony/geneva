@@ -61,7 +61,7 @@ using lagged_fibonacci = std::subtract_with_carry_engine<uint_fast64_t, 48, 5, 1
 #ifdef GENEVA_HAP_RANDOM_FACTORY_DEFAULT_ARRAY_SIZE
 	const std::size_t   DEFAULTARRAYSIZE = GENEVA_HAP_RANDOM_FACTORY_DEFAULT_ARRAY_SIZE; ///< Default size of the random number array
 #else
-	const std::size_t   DEFAULTARRAYSIZE = 1000; ///< Default size of the random number array
+	const std::size_t   DEFAULTARRAYSIZE = 10000; ///< Default size of the random number array
 #endif /* GHAP_DEFAULT_ARRAY_SIZE */
 
 #ifdef GENEVA_HAP_RANDOM_FACTORY_DEFAULT_BUFFER_SIZE

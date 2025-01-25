@@ -14,6 +14,8 @@ Recommended versions:
 
 ************************* Misc *************************************************
 
+- Where CUDA is available, random numbers will now be calculated on the GPU
+- A new CUDA example has been added
 - boost::optional, boost::any, boost::filesystem, boost::variant have been replaced
   by their C++17 counterparts
 - Benchmarks for courtier and geneva have been moved to their own benchmarks top-level

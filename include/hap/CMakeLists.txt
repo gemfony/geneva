@@ -34,6 +34,10 @@
 #
 ################################################################################
 
+IF(GENEVA_BUILD_WITH_CUDA_EXAMPLES)
+	ENABLE_LANGUAGE(CUDA)
+ENDIF()
+
 SET ( HAPINCLUDES
 	GHapEnums.hpp
 	GRandomBase.hpp

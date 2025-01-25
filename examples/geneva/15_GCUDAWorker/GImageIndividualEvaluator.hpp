@@ -56,6 +56,9 @@
 // CUDA-Headers go here
 #include <cuda_runtime.h>
 
+// #include <thrust/device_vector.h>
+// #include <thrust/random.h>
+
 // Boost headers go here
 
 // Geneva headers go here

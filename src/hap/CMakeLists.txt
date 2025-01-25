@@ -34,6 +34,10 @@
 #
 ################################################################################
 
+IF(GENEVA_BUILD_WITH_CUDA_EXAMPLES)
+	ENABLE_LANGUAGE(CUDA)
+ENDIF()
+
 SET ( HAPSOURCES
 	GHapEnums.cpp
 	GRandomBase.cpp
@@ -41,11 +45,11 @@ SET ( HAPSOURCES
 	GRandomT.cpp
 )
 
-set_source_files_properties(
-        ${HAPSOURCES}
-        PROPERTIES
-        LANGUAGE CXX
-        CXX_STANDARD 17
+SET_SOURCE_FILES_PROPERTIES(
+	${HAPSOURCES}
+	PROPERTIES
+	LANGUAGE CXX
+	CXX_STANDARD 17
 )
 
 # BUILD_SHARED_LIBS controls the behavior of ADD_LIBRARY if STATIC/SHARED omitted
