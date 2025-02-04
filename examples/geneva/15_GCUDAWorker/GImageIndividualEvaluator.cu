@@ -449,8 +449,18 @@ namespace Gem::Geneva
         const float dg = gT - gOut;
         const float db = bT - bOut;
 
+        const float dr_squared = dr * dr;
+        const float dg_squared = dg * dg;
+        const float db_squared = db * db;
+
+        const float factor = 0.04;
+        const float rsf_dr = dr_squared / (dr_squared + factor); // rsf == rational saturation function
+        const float rsf_dg = dg_squared / (dg_squared + factor);
+        const float rsf_db = db_squared / (db_squared + factor);
+
         // Sum up the result
-        atomicAdd(d_result, dr * dr + dg * dg + db * db);
+        // atomicAdd(d_result, dr * dr + dg * dg + db * db);
+        atomicAdd(d_result, rsf_dr + rsf_dg + rsf_db);
     }
 
     /**

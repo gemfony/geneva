@@ -34,8 +34,12 @@
 #
 ################################################################################
 
-IF(GENEVA_BUILD_WITH_CUDA_EXAMPLES)
+IF(GENEVA_USE_CUDA_RNG)
 	ENABLE_LANGUAGE(CUDA)
+
+	# Setting the CUDA-Standard
+	set(CMAKE_CUDA_STANDARD 17)
+	set(CMAKE_CUDA_STANDARD_REQUIRED ON)
 ENDIF()
 
 SET ( HAPINCLUDES
@@ -46,6 +50,15 @@ SET ( HAPINCLUDES
 	GRandomFactory.hpp
 	GRandomT.hpp
 )
+
+# If we compile with CUDA support,
+# add the appropriate file
+IF(GENEVA_USE_CUDA_RNG)
+	SET(HAPINCLUDES
+		${HAPINCLUDES}
+		GCUDARng.hpp
+	)
+ENDIF ()
 
 # This is a workaround for a CLion-problem -- see CPP270 in the JetBrains issue tracker
 ADD_CUSTOM_TARGET(CLION_ALL_HAP_HEADERS SOURCES ${HAPINCLUDES})

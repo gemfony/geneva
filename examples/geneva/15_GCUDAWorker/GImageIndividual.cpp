@@ -365,12 +365,14 @@ namespace Gem::Geneva
 			bg_color_r_ptr->setAdaptionsInactive();
 			bg_color_g_ptr->setAdaptionsInactive();
 			bg_color_b_ptr->setAdaptionsInactive();
+			std::cout << "Background colors will not be adapted" << std::endl;
 		}
 		else
 		{
 			bg_color_r_ptr->setAdaptionsActive();
 			bg_color_g_ptr->setAdaptionsActive();
 			bg_color_b_ptr->setAdaptionsActive();
+			std::cout << "Background colors will be adapted" << std::endl;
 		}
 
 		// ... and add them to the object

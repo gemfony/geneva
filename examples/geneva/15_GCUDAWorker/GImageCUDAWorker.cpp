@@ -40,8 +40,6 @@
 
 #include "GImageCUDAWorker.hpp"
 
-#include <memory>
-
 namespace Gem::Courtier
 {
     /******************************************************************************/

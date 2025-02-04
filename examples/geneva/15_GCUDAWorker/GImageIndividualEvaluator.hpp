@@ -1,5 +1,5 @@
 /**
-* @file GImageIndividualEvaluator.hpp
+ * @file GImageIndividualEvaluator.hpp
  */
 
 /********************************************************************************
