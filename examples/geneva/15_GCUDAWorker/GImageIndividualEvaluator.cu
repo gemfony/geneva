@@ -38,6 +38,7 @@
  *
  ********************************************************************************/
 
+#include <cub/cub.cuh>
 #include "GImageIndividualEvaluator.hpp"
 
 namespace Gem::Geneva
@@ -112,7 +113,7 @@ namespace Gem::Geneva
             // Calculate grid size automatically if grid is set to 0
             if (gridSize_x_ == 0 && gridSize_y_ == 0)
             {
-                gridSize_x_ = (width_ + blockSize_x_ - 1) / blockSize_x_;
+                gridSize_x_ = (width_ + blockSize_x_ - 1)  / blockSize_x_;
                 gridSize_y_ = (height_ + blockSize_y_ - 1) / blockSize_y_;
             }
 
@@ -145,6 +146,8 @@ namespace Gem::Geneva
             checkCuda(cudaMalloc(&d_target_, imageSizeBytes), "cudaMalloc d_target");
             // Allocate the space for the candidate image
             checkCuda(cudaMalloc(&d_candidate_, imageSizeBytes), "cudaMalloc d_candidate_");
+            // Allocate space for the evaluations
+            checkCuda(cudaMalloc(&d_perPixel_evaluation_, imageSizeBytes), "cudaMalloc d_perpixel_evaluation_");
             // Allocate the space for the background color
             checkCuda(cudaMalloc(&d_bgcolor_, 3 * sizeof(float)), "cudaMalloc d_bgcolor_");
             // Allocate the space for the triangle data
@@ -154,6 +157,11 @@ namespace Gem::Geneva
             checkCuda(cudaMalloc(&d_transformed_triangle_data_, 10 * nTriangles_ * sizeof(float)), "cudaMalloc d_triangle_data");
             // Result data
             checkCuda(cudaMalloc(&d_result_, sizeof(float)), "cudaMalloc d_results");
+
+            // Allocate CUB space for summing up the results
+            checkCuda(cub::DeviceReduce::Sum(d_temp_storage_, temp_storage_bytes_, d_perPixel_evaluation_, d_result_,
+                                             width_ * height_ * 3), "cub::DeviceReduce::Sum initialization");
+            checkCuda(cudaMalloc(&d_temp_storage_, temp_storage_bytes_), "d_temp_storage_");
 
             //----------------------------------------------------------------------------------
             // Copy and set data
@@ -299,55 +307,7 @@ namespace Gem::Geneva
         outY3 = center_y + tri.radius * sinf(tri.angle3 * 2.f * static_cast<float>(M_PI)) * scale;
     }
 
-    /**
-     * Check whether a given point is contained in a triangle. This function
-     * acts relative to the image dimensions, i.e. with transformed triangle data
-     */
-    __device__ bool
-    cuda_pointInTriangle(const float px, const float py,
-                         const float x1, const float y1,
-                         const float x2, const float y2,
-                         const float x3, const float y3)
-    {
-        // Cross product-Signum
-        auto sign = [] __device__ (const float xA, const float yA, const float xB,
-                                   const float yB, const float xC, const float yC)
-        {
-            return (xA - xC) * (yB - yC) - (yA - yC) * (xB - xC);
-        };
-
-        const float d1 = sign(px, py, x1, y1, x2, y2);
-        const float d2 = sign(px, py, x2, y2, x3, y3);
-        const float d3 = sign(px, py, x3, y3, x1, y1);
-
-        const bool hasNeg = (d1 < 0) || (d2 < 0) || (d3 < 0);
-        const bool hasPos = (d1 > 0) || (d2 > 0) || (d3 > 0);
-        // Point is contained in triangle if both booleans are the same
-        return !(hasNeg && hasPos);
-    }
-
-    /**
-     * Simple alpha blending
-     */
-    __device__ void
-    cuda_alphaBlend(float& bgR, float& bgG, float& bgB,
-                    const float fgR, const float fgG, const float fgB,
-                    const float alpha)
-    {
-        auto blendChannel = [] __device__ (const float bg,
-                                           const float fg,
-                                           const float a)
-        {
-            // Casting needed to avoid overflows
-            return static_cast<float>((1. - a) * bg + a * fg);
-        };
-
-        bgR = blendChannel(bgR, fgR, alpha);
-        bgG = blendChannel(bgG, fgG, alpha);
-        bgB = blendChannel(bgB, fgB, alpha);
-    }
-
-    /**
+        /**
      * Determines the coordinates of the triangle and fills background-color
      * data and alpha channel into a new array, so that it may be later used without
      * modification for each color channel. Calculation is meant to be done in
@@ -390,19 +350,98 @@ namespace Gem::Geneva
     }
 
     /**
+     * Check whether a given point is contained in a triangle. This function
+     * acts relative to the image dimensions, i.e. with transformed triangle data
+     *
+     * @param px The x-coordinate of the point to be checked for its location
+     * @param py The y-coordinate of the point to be checked for its location
+     * @param x1 The x-coordinate of the first corner of the triangle
+     * @param y1 The y-coordinate of the first corner of the triangle * @param x1 The x-coordinate of the first corner of the triangle
+     * @param x2 The x-coordinate of the second corner of the triangle
+     * @param x2 The y-coordinate of the second corner of the triangle
+     * @param x3 The x-coordinate of the third corner of the triangle
+     * @param y3 The y-coordinate of the third corner of the triangle
+     * @return bool A boolean indicating whether the point is contained in the triangle or not
+     */
+    __device__ bool
+    cuda_pointInTriangle(const float px, const float py,
+                         const float x1, const float y1,
+                         const float x2, const float y2,
+                         const float x3, const float y3)
+    {
+        // Cross product-Signum
+        auto sign = [] __device__ (const float xA, const float yA, const float xB,
+                                   const float yB, const float xC, const float yC) -> float
+        {
+            return (xA - xC) * (yB - yC) - (yA - yC) * (xB - xC);
+        };
+
+        const float d1 = sign(px, py, x1, y1, x2, y2);
+        const float d2 = sign(px, py, x2, y2, x3, y3);
+        const float d3 = sign(px, py, x3, y3, x1, y1);
+
+        const bool hasNeg = (d1 < 0) || (d2 < 0) || (d3 < 0);
+        const bool hasPos = (d1 > 0) || (d2 > 0) || (d3 > 0);
+        // Point is contained in triangle if both booleans are the same
+        return !(hasNeg && hasPos);
+    }
+
+    /**
+     * Simple alpha blending
+     *
+     * @param bgR The red channel of the background color
+     * @param bgG The green channel of the background color
+     * @param bgB The blue channel of the background color
+     * @param fgR The red channel of the resulting foreground color
+     * @param fgG The green channel of the resulting foreground color
+     * @param fgB The blue channel of the resulting foreground color
+     * @param alpha The transparency of the passed color
+     */
+    __device__ void
+    cuda_alphaBlend(float& bgR, float& bgG, float& bgB,
+                    const float fgR, const float fgG, const float fgB,
+                    const float alpha)
+    {
+        auto blendChannel = [] __device__ (const float bg,
+                                           const float fg,
+                                           const float a)
+        {
+            // Casting needed to avoid overflows
+            return static_cast<float>((1. - a) * bg + a * fg);
+        };
+
+        bgR = blendChannel(bgR, fgR, alpha);
+        bgG = blendChannel(bgG, fgG, alpha);
+        bgB = blendChannel(bgB, fgB, alpha);
+    }
+
+    /**
      * The actual rendering and evaluation kernel
+     *
+     * @param d_target The target image, for which each RGB channel is encoded as a 0..1 float
+     * @param d_candidate A memory area on the GPU to which a candidate image may be written
+     * @param d_perPixel_error The error per pixel, as calculated by this function
+     * @param d_bgcolors The background colors of the candidate image
+     * @param d_result A memory area to which the deviation of candidate and target image pixel may be added
+     * @param d_transformed_triangle_data The data of the nTriangles triangles to be assembled to the candidate image
+     * @param width The width of the target (and candidate) image
+     * @param height The height of the target (and candidate) image
+     * @param nTriangles The number of triangles forming the candidate image
      */
     __global__ void
-    cuda_renderAndCompareKernel(const float* d_target,
-                                float* d_candidate,
-                                const float* d_bgcolors,
-                                float* d_result,
-                                float* d_transformed_triangle_data,
+    cuda_renderAndCompareKernel(const float* __restrict__ d_target,
+                                float* __restrict__ d_candidate,
+                                float* __restrict__ d_perPixel_error,
+                                const float* __restrict__ d_bgcolors,
+                                const float* __restrict__ d_transformed_triangle_data,
                                 const int width, const int height,
                                 const int nTriangles)
     {
-        int x = blockIdx.x * blockDim.x + threadIdx.x;
-        int y = blockIdx.y * blockDim.y + threadIdx.y;
+        const int x = static_cast<int>(blockIdx.x * blockDim.x + threadIdx.x);
+        const int y = static_cast<int>(blockIdx.y * blockDim.y + threadIdx.y);
+
+        const auto x_f = static_cast<float>(x) + 0.5f;
+        const auto y_f = static_cast<float>(y) + 0.5f;
 
         if (x >= width || y >= height) return;
 
@@ -412,28 +451,30 @@ namespace Gem::Geneva
         // Loop over all triangles
         for (int idx = 0; idx < nTriangles; idx++)
         {
-            // Extract the data of the current triangle
-            const auto x1 = d_transformed_triangle_data[idx * 10 + 0];
-            const auto y1 = d_transformed_triangle_data[idx * 10 + 1];
-            const auto x2 = d_transformed_triangle_data[idx * 10 + 2];
-            const auto y2 = d_transformed_triangle_data[idx * 10 + 3];
-            const auto x3 = d_transformed_triangle_data[idx * 10 + 4];
-            const auto y3 = d_transformed_triangle_data[idx * 10 + 5];
-            const auto  r = d_transformed_triangle_data[idx * 10 + 6];
-            const auto  g = d_transformed_triangle_data[idx * 10 + 7];
-            const auto  b = d_transformed_triangle_data[idx * 10 + 8];
-            const auto  a = d_transformed_triangle_data[idx * 10 + 9];
+            const auto offset = idx*10;
 
-            // Check whether the current pixel is located inside of a triangle
-            if (cuda_pointInTriangle(static_cast<float>(x) + 0.5f, static_cast<float>(y) + 0.5f, x1, y1, x2, y2, x3, y3))
+            // Extract the data of the current triangle
+            const auto x1 = d_transformed_triangle_data[offset + 0];
+            const auto y1 = d_transformed_triangle_data[offset + 1];
+            const auto x2 = d_transformed_triangle_data[offset + 2];
+            const auto y2 = d_transformed_triangle_data[offset + 3];
+            const auto x3 = d_transformed_triangle_data[offset + 4];
+            const auto y3 = d_transformed_triangle_data[offset + 5];
+            const auto  r = d_transformed_triangle_data[offset + 6];
+            const auto  g = d_transformed_triangle_data[offset + 7];
+            const auto  b = d_transformed_triangle_data[offset + 8];
+            const auto  a = d_transformed_triangle_data[offset + 9];
+
+            // Check whether the current pixel is located inside
+            if (cuda_pointInTriangle(x_f, y_f, x1, y1, x2, y2, x3, y3))
             {
                 // Alpha-Blending
                 cuda_alphaBlend(rOut, gOut, bOut, r, g, b, a);
             }
         }
 
-        // Write the blended color into the candidate image
-        const size_t pixelIndex = static_cast<size_t>(y * width + x);
+        // Write the blended color into the pixel of the candidate image
+        const auto pixelIndex = y * width + x;
         const size_t outPos = pixelIndex * 3;
 
         d_candidate[outPos + 0] = rOut;
@@ -453,14 +494,184 @@ namespace Gem::Geneva
         const float dg_squared = dg * dg;
         const float db_squared = db * db;
 
-        const float factor = 0.04;
+        constexpr float factor = 0.04;
         const float rsf_dr = dr_squared / (dr_squared + factor); // rsf == rational saturation function
         const float rsf_dg = dg_squared / (dg_squared + factor);
         const float rsf_db = db_squared / (db_squared + factor);
 
-        // Sum up the result
-        // atomicAdd(d_result, dr * dr + dg * dg + db * db);
-        atomicAdd(d_result, rsf_dr + rsf_dg + rsf_db);
+        // Store the data in the result array
+        d_perPixel_error[outPos + 0] = rsf_dr;
+        d_perPixel_error[outPos + 1] = rsf_dg;
+        d_perPixel_error[outPos + 2] = rsf_db;
+    }
+
+    /**
+     * The actual rendering and evaluation kernel -- ChatGPT o3-mini-high-style
+     *
+     * @param d_target The target image, for which each RGB channel is encoded as a 0..1 float
+     * @param d_candidate A memory area on the GPU to which a candidate image may be written
+     * @param d_bgcolors The background colors of the candidate image
+     * @param d_result A memory area to which the deviation of candidate and target image pixel may be added
+     * @param d_transformed_triangle_data The data of the nTriangles triangles to be assembled to the candidate image
+     * @param width The width of the target (and candidate) image
+     * @param height The height of the target (and candidate) image
+     * @param nTriangles The number of triangles forming the candidate image
+     */
+    __global__ void
+    cuda_renderAndCompareKernelO3MiniHigh(const float* __restrict__ d_target,
+                                          float* __restrict__ d_candidate,
+                                          const float* __restrict__ d_bgcolors,
+                                          float* d_result,
+                                          const float* __restrict__ d_transformed_triangle_data,
+                                          const int width, const int height,
+                                          const int nTriangles)
+    {
+        // Compute pixel coordinates.
+        int x = blockIdx.x * blockDim.x + threadIdx.x;
+        int y = blockIdx.y * blockDim.y + threadIdx.y;
+        // The color channel for this thread (0: red, 1: green, 2: blue)
+        int channel = threadIdx.z;
+
+        if (x >= width || y >= height) return;
+
+        // Each thread starts with the background color for its channel.
+        float colorVal = d_bgcolors[channel];
+
+        // Compute the pixel center coordinates.
+        float px = static_cast<float>(x) + 0.5f;
+        float py = static_cast<float>(y) + 0.5f;
+
+        // Loop over all triangles.
+        for (int idx = 0; idx < nTriangles; idx++)
+        {
+            // Each triangle is stored as 10 floats:
+            // [x1, y1, x2, y2, x3, y3, r, g, b, a]
+            const int base = idx * 10;
+            const float x1 = d_transformed_triangle_data[base + 0];
+            const float y1 = d_transformed_triangle_data[base + 1];
+            const float x2 = d_transformed_triangle_data[base + 2];
+            const float y2 = d_transformed_triangle_data[base + 3];
+            const float x3 = d_transformed_triangle_data[base + 4];
+            const float y3 = d_transformed_triangle_data[base + 5];
+            const float r = d_transformed_triangle_data[base + 6];
+            const float g = d_transformed_triangle_data[base + 7];
+            const float b = d_transformed_triangle_data[base + 8];
+            const float a = d_transformed_triangle_data[base + 9];
+
+            // Check if the pixel lies inside this triangle.
+            if (cuda_pointInTriangle(px, py, x1, y1, x2, y2, x3, y3))
+            {
+                // Select the triangle’s color for the current channel.
+                float fgColor = (channel == 0) ? r : (channel == 1) ? g : b;
+                // Simple alpha blend for this channel.
+                colorVal = (1.0f - a) * colorVal + a * fgColor;
+            }
+        }
+
+        // Compute the linear index for the pixel.
+        const int pixelIndex = y * width + x;
+        // Each pixel has three channels stored consecutively.
+        const int outPos = pixelIndex * 3 + channel;
+
+        // Write the computed candidate color for this channel.
+        d_candidate[outPos] = colorVal;
+
+        // Compare with the target image.
+        float targetVal = d_target[outPos];
+        float diff = targetVal - colorVal;
+        float diff_sq = diff * diff;
+        const float factor = 0.04f;
+        // Apply the rational saturation function (rsf).
+        float rsf = diff_sq / (diff_sq + factor);
+
+        // Atomically add this channel’s error contribution.
+        atomicAdd(d_result, rsf);
+    }
+
+    // Helper function for single-channel alpha blending
+    __device__ float
+    cuda_alphaBlendChannel(const float bg, const float fg, const float alpha) {
+        return (1.0f - alpha) * bg + alpha * fg;
+    }
+
+    /**
+     * The actual rendering and evaluation kernel -- DeepThink R1-style
+     *
+     * @param d_target The target image, for which each RGB channel is encoded as a 0..1 float
+     * @param d_candidate A memory area on the GPU to which a candidate image may be written
+     * @param d_bgcolors The background colors of the candidate image
+     * @param d_result A memory area to which the deviation of candidate and target image pixel may be added
+     * @param d_transformed_triangle_data The data of the nTriangles triangles to be assembled to the candidate image
+     * @param width The width of the target (and candidate) image
+     * @param height The height of the target (and candidate) image
+     * @param nTriangles The number of triangles forming the candidate image
+     */
+    __global__ void
+    cuda_renderAndCompareKernelR1(const float* d_target,
+                                  float* d_candidate,
+                                  const float* d_bgcolors,
+                                  float* d_result,
+                                  float* d_transformed_triangle_data, // RB: this could be constant
+                                  const int width, const int height,
+                                  const int nTriangles)
+    {
+        // 3D thread indexing: x, y, color (0=R, 1=G, 2=B)
+        int x = blockIdx.x * blockDim.x + threadIdx.x;
+        int y = blockIdx.y * blockDim.y + threadIdx.y;
+        int colorIdx = threadIdx.z; // Color channel (0, 1, 2)
+
+        if (x >= width || y >= height) return;
+
+        // Initialize background color for this channel
+        float colorOut = d_bgcolors[colorIdx];
+
+        // Loop over all triangles
+        for (int idx = 0; idx < nTriangles; idx++)
+        {
+            // Extract triangle data (shared across all threads)
+            const auto x1 = d_transformed_triangle_data[idx * 10 + 0]; // RB: Repeated calculation
+            const auto y1 = d_transformed_triangle_data[idx * 10 + 1];
+            const auto x2 = d_transformed_triangle_data[idx * 10 + 2];
+            const auto y2 = d_transformed_triangle_data[idx * 10 + 3];
+            const auto x3 = d_transformed_triangle_data[idx * 10 + 4];
+            const auto y3 = d_transformed_triangle_data[idx * 10 + 5];
+            const auto r = d_transformed_triangle_data[idx * 10 + 6];
+            const auto g = d_transformed_triangle_data[idx * 10 + 7];
+            const auto b = d_transformed_triangle_data[idx * 10 + 8];
+            const auto a = d_transformed_triangle_data[idx * 10 + 9];
+
+            // Check if pixel is inside the triangle (redundant but necessary)
+            if (cuda_pointInTriangle(static_cast<float>(x) + 0.5f, // RB: This calculation could be in front
+                                     static_cast<float>(y) + 0.5f,
+                                     x1, y1, x2, y2, x3, y3))
+            {
+                // Get the triangle's color for this channel
+                float fgColor;
+                switch (colorIdx)
+                {
+                case 0: fgColor = r;
+                    break;
+                case 1: fgColor = g;
+                    break;
+                case 2: fgColor = b;
+                    break;
+                }
+                colorOut = cuda_alphaBlendChannel(colorOut, fgColor, a); // RB: Could be inline
+            }
+        }
+
+        // Write to candidate image
+        const size_t pixelIndex = static_cast<size_t>(y * width + x);
+        d_candidate[pixelIndex * 3 + colorIdx] = colorOut;
+
+        // Calculate deviation for this channel
+        const float targetVal = d_target[pixelIndex * 3 + colorIdx]; // RB: Repeated index calculation
+        const float diff = targetVal - colorOut;
+        const float diffSq = diff * diff;
+        const float rsf = diffSq / (diffSq + 0.04f);
+
+        // Atomic add to result
+        atomicAdd(d_result, rsf);
     }
 
     /**
@@ -513,15 +724,39 @@ namespace Gem::Geneva
             cuda_renderAndCompareKernel<<<dimRenderGrid, dimRenderBlock, 0, cuda_stream_>>>(
                 d_target_,
                 d_candidate_,
+                d_perPixel_evaluation_,
+                d_bgcolor_,
+                d_transformed_triangle_data_,
+                width_, height_,
+                static_cast<int>(nTriangles_)
+            );
+
+            /*
+            // Set up the block- and grid-sizes for the rendering
+            dim3 dimRenderBlock(16, 16, 3);
+            dim3 dimRenderGrid((width_ + dimRenderBlock.x - 1) / dimRenderBlock.x,
+                               (height_ + dimRenderBlock.y - 1) / dimRenderBlock.y);
+
+            // Start the actual kernel
+            // cuda_renderAndCompareKernelO3MiniHigh<<<dimRenderGrid, dimRenderBlock, 0, cuda_stream_>>>(
+            cuda_renderAndCompareKernelR1<<<dimRenderGrid, dimRenderBlock, 0, cuda_stream_>>>(
+                d_target_,
+                d_candidate_,
                 d_bgcolor_,
                 d_result_,
                 d_transformed_triangle_data_,
                 width_, height_,
                 static_cast<int>(nTriangles_)
             );
+            */
+
+            // Sum up the result
+            checkCuda(cub::DeviceReduce::Sum(d_temp_storage_, temp_storage_bytes_, d_perPixel_evaluation_, d_result_,
+                                             width_ * height_ * 3), "cub::DeviceReduce::Sum");
 
             // Retrieve the fitness of the individual
-            checkCuda(cudaMemcpyAsync(&fitness, d_result_, sizeof(float), cudaMemcpyDeviceToHost, cuda_stream_), "Mmcpy result");
+            checkCuda(cudaMemcpyAsync(&fitness, d_result_, sizeof(float), cudaMemcpyDeviceToHost, cuda_stream_),
+                      "Mmcpy result");
 
             // Store the result in the individual
             std::vector<double> result_vec;
@@ -569,9 +804,11 @@ namespace Gem::Geneva
             cudaFree(d_target_);
             cudaFree(d_triangles_);
             cudaFree(d_candidate_);
+            cudaFree(d_perPixel_evaluation_);
             cudaFree(d_bgcolor_);
             cudaFree(d_result_);
             cudaFree(d_transformed_triangle_data_);
+            cudaFree(d_temp_storage_);
 
             checkCuda(cudaStreamSynchronize(cuda_stream_), "cudaStreamSynchronize");
             checkCuda(cudaStreamDestroy(cuda_stream_), "cudaStreamDestroy");

@@ -1,3 +1,7 @@
+/**
+ * @file GBoundedBufferT.hpp
+ */
+
 /*
  * This file is part of the Geneva library collection.
  *
@@ -80,689 +84,712 @@
 #include "common/GLogger.hpp"
 #include "common/GCommonEnums.hpp"
 
-namespace Gem {
-namespace Common {
-
-/******************************************************************************/
-/**
- * This class implements a bounded buffer. Items can be added to one
- * end by multiple threads and retrieved from the other, also by
- * multiple threads. When the buffer is full, attempts to add items
- * will block until there is again enough space. When the buffer is
- * empty, retrieval of items will block until new items have become
- * available. The class contains a "get" function that times out
- * when no item could be retrieved from the buffer. This allows
- * timeouts for data sinks. This can be important in situations
- * where sources might permanently or temporarily go away (e.g. due
- * to network failure). The underlying data structure is a
- * std::deque. The class works with condition variables.  Note that
- * this class assumes that an operator= is available for the items
- * stored in the buffer. Setting the template argument t_capacity to 0
- * results in an unbounded buffer, possibly useful for returning items,
- * if there may never be an "inflation".
- *
- * Modify the behaviour of this class using the following defines:
- * - DEFAULTBUFFERSIZE: The maximum size of the buffer. "0" means "unlimited"
- * You can also pass the size as a template parameter.
- *
- */
-template<typename T, std::size_t t_capacity = DEFAULTBUFFERSIZE>
-class GBoundedBufferT {
-public:
-	 using container_type = std::deque<T>;
-
-	 /*************************************************************************/
-	 // Defaulted or deleted constructors, destructor and assignment operators
-
-	 GBoundedBufferT() = default;
-
-	 // Prevent assignment
-	 GBoundedBufferT(GBoundedBufferT<T, t_capacity> const &) = delete; ///< Disabled copy constructor
-	 GBoundedBufferT &operator=(GBoundedBufferT<T, t_capacity> const &) = delete; ///< Disabled assign operator
-	 GBoundedBufferT(GBoundedBufferT<T, t_capacity> &&) = delete; ///< Disabled move constructor
-	 GBoundedBufferT &operator=(GBoundedBufferT<T, t_capacity> &&) = delete; ///< Disabled move-assignment operator
-
-	 /***************************************************************************/
-	 /**
-	  * A standard destructor. Virtual, as classes such as a producer-type
-	  * class might get derived from this one. We do not want the destructor
-	  * to throw, hence we try to catch all errors locally. Any error here
-	  * means termination of the program. No logging takes place, as we want
-	  * this class to be independent of the Geneva framework
-	  */
-	 virtual ~GBoundedBufferT() BASE {
-		 // Any error here is deadly ...
-		 try {
-			 std::unique_lock<std::mutex> lock(m_mutex);
-			 m_container.clear();
-		 }
-		 // This is a standard error raised by the lock/mutex
-		 catch (std::system_error& e) {
-			 glogger
-				 << "In GRandomFactory::producer(): Error!" << std::endl
-				 << "Caught std::system_error exception with message" << std::endl
-				 << e.what()
-				 << "which might indicate that a mutex could not be locked." << std::endl
-				 << GTERMINATION;
-		 }
-		 // We do not know whether any of the destructors of the items in the buffer throw anything
-		 catch (...) {
-			 glogger
-				 << "Caught unknown exception in GBoundedBufferT::~GBoundedBufferT(). Terminating ..." << std::endl
-				 << GTERMINATION;
-		 }
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Adds a single item to the front of the buffer. The function will always
-	  * return "true", as this is the specialization for an unlimited buffer.
-	  * Items are copied, not moved.
-	  *
-	  * Note that we have to use an explicit template parameter u_capacity as
-	  * std::envable_if will only work for template parameters of the member function.
-	  *
-	  * @param item An item to be added to the front of the buffer
-	  * @param timeout duration until a timeout occurs
-	  * @return A boolean indicating whether an item has been successfully submitted
-	  */
-	 template <typename std::size_t u_capacity = t_capacity>
-	 bool
-	 try_push_copy (
-	 	 T const &item
-		 , std::enable_if_t<(u_capacity==0 && t_capacity==u_capacity)> * = nullptr
-	 ) {
-		 {
-			 std::unique_lock<std::mutex> lock(m_mutex);
-			 m_container.push_front(item); // This will copy the item
-		 } // Release the lock
-
-		 m_not_empty.notify_one();
-
-		 return true;
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Adds a single item to the front of the buffer. The function will return
-	  * "false" immediately, if no space is available in the bufffer (true if space
-	  * was available and the item could be added). This is the specialization
-	  * for the case "t_capacity > 0" (i.e. limited buffer size). Items are copied,
-	  * not moved.
-	  *
-	  * @param item An item to be added to the front of the buffer
-	  * @param timeout duration until a timeout occurs
-	  * @return A boolean indicating whether an item has been successfully submitted
-	  */
-	 template <typename std::size_t u_capacity = t_capacity>
-	 bool
-	 try_push_copy (
-	 	 T const & item
-		 , std::enable_if_t<(u_capacity > 0 && t_capacity==u_capacity)> * = nullptr
-	 ) {
-		 {
-			 std::unique_lock<std::mutex> lock(m_mutex);
-
-			 // Check if the size fits our requirements. Return
-			 // if this is note the case.
-			 if (m_container.size() >= u_capacity) {
-				 return false;
-			 }
-
-			 m_container.push_front(item);
-		 } // Release the lock
-
-		 m_not_empty.notify_one();
-
-		 return true;
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Adds a single item to the front of the buffer. The function will always
-	  * return "true", as this is the specialization for an unlimited buffer. It
-	  * will try to move the object into the queue
-	  *
-	  * @param item An item to be added to the front of the buffer
-	  * @param timeout duration until a timeout occurs
-	  * @return A boolean indicating whether an item has been successfully submitted
-	  */
-	 template <typename std::size_t u_capacity = t_capacity>
-	 bool
-	 try_push_move (
-		 T &&item
-		 , std::enable_if_t<(u_capacity==0 && t_capacity==u_capacity)> * = nullptr
-	 ) {
-		 {
-			 std::unique_lock<std::mutex> lock(m_mutex);
-			 m_container.emplace_front(std::move(item));
-		 } // Release the lock
-
-		 m_not_empty.notify_one();
-
-		 return true;
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Adds a single item to the front of the buffer. The function will return
-	  * "false" immediately, if no space is available in the bufffer (true if space
-	  * was available and the item could be added). This is the specialization
-	  * for the case "t_capacity > 0" (i.e. limited buffer size).
-	  *
-	  * @param item An item to be added to the front of the buffer
-	  * @param timeout duration until a timeout occurs
-	  * @return A boolean indicating whether an item has been successfully submitted
-	  */
-	 template <typename std::size_t u_capacity = t_capacity>
-	 bool
-	 try_push_move (
-		 T &&item
-		 , std::enable_if_t<(u_capacity > 0 && t_capacity==u_capacity)> * = nullptr
-	 ) {
-		 {
-			 std::unique_lock<std::mutex> lock(m_mutex);
-
-			 // Check if the size fits our requirements. Return
-			 // if this is note the case.
-			 if (m_container.size() >= u_capacity) {
-				 return false;
-			 }
-
-			 m_container.emplace_front(std::move(item));
-		 } // Release the lock
-
-		 m_not_empty.notify_one();
-
-		 return true;
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Adds a single item to the buffer. Specialization for the case t_capacity==0
-	  * (unlimited buffer size), so the function will not block. This function will
-	  * copy its argument.
-	  *
-	  * @param item An item to be added to the front of the buffer
-	  */
-	 template <typename std::size_t u_capacity = t_capacity>
-	 void
-	 push_and_block_copy(
-	 	 T const &item
-		 , std::enable_if_t<(u_capacity==0 && t_capacity==u_capacity)> * = nullptr
-	 ) {
-		 {
-			 std::unique_lock<std::mutex> lock(m_mutex);
-			 m_container.push_front(item);
-		 } // Release the lock
-
-		 m_not_empty.notify_one();
-	 }
-
-
-	 /***************************************************************************/
-	 /**
-	  * Adds a single item to the buffer. The function will block if there is no
-	  * space in the buffer and continue once space is available. Specialization
-	  * for the case t_capacity>0. This function will copy its argument.
-	  *
-	  * @param item An item to be added to the front of the buffer
-	  */
-	 template <typename std::size_t u_capacity = t_capacity>
-	 void
-	 push_and_block_copy(
-	 	 T const & item
-		 , std::enable_if_t<(u_capacity > 0 && t_capacity==u_capacity)> * = nullptr
-	 ) {
-		 {
-			 std::unique_lock<std::mutex> lock(m_mutex);
-			 // Note that this overload of wait() internally runs a loop on its predicate to
-			 // deal with spurious wakeups
-			 m_not_full.wait(
-				 lock
-				 , [&]() -> bool { return m_container.size() < u_capacity; }
-			 );
-			 m_container.push_front(item);
-		 } // Release the lock
-
-		 m_not_empty.notify_one();
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Adds a single item to the buffer. Specialization for the case t_capacity==0
-	  * (unlimited buffer size), so the function will not block. This function will
-	  * move its argument.
-	  *
-	  * @param item An item to be added to the front of the buffer
-	  */
-	 template <typename std::size_t u_capacity = t_capacity>
-	 void
-	 push_and_block_move(
-	 	T &&item
-		, std::enable_if_t<(u_capacity==0 && t_capacity==u_capacity)> * = nullptr
-	 ) {
-		 {
-			 std::unique_lock<std::mutex> lock(m_mutex);
-			 m_container.emplace_front(std::move(item));
-		 } // Release the lock
-
-		 m_not_empty.notify_one();
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Adds a single item to the buffer. The function will block if there is no
-	  * space in the buffer and continue once space is available. Specialization
-	  * for the case t_capacity>0. This function will move its argument.
-	  *
-	  * @param item An item to be added to the front of the buffer
-	  */
-	 template <typename std::size_t u_capacity = t_capacity>
-	 void
-	 push_and_block_move(
-		 T &&item
-		 , std::enable_if_t<(u_capacity > 0 && t_capacity==u_capacity)> * = nullptr
-	 ) {
-		 {
-			 std::unique_lock<std::mutex> lock(m_mutex);
-			 // Note that this overload of wait() internally runs a loop on its predicate to
-			 // deal with spurious wakeups
-			 m_not_full.wait(
-				 lock
-				 , [&]() -> bool { return m_container.size() < u_capacity; }
-			 );
-			 m_container.emplace_front(std::move(item));
-		 } // Release the lock
-
-		 m_not_empty.notify_one();
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Adds a single item to the buffer. The function will always
-	  * return "true", as the buffer is unlimited, and will not wait (despite the
-	  * name), as it is meant for unlimited buffer sizes. This function will
-	  * copy its argument.
-	  *
-	  * @param item An item to be added to the front of the buffer
-	  * @param timeout duration until a timeout occurs
-	  * @return A boolean indicating whether an item has been successfully submitted
-	  */
-	 template <typename std::size_t u_capacity = t_capacity>
-	 bool
-	 push_and_wait_copy(
-	 	 T const &item
-		 , std::chrono::duration<double> const & timeout
-		 , std::enable_if_t<(u_capacity==0 && t_capacity==u_capacity)> * = nullptr
-	 ) {
-		 {
-			 std::unique_lock<std::mutex> lock(m_mutex);
-			 m_container.push_front(item);
-		 } // Release the lock
-
-		 m_not_empty.notify_one();
-
-		 return true;
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Adds a single item to the buffer. The function
-	  * will time out after a given amount of time and return "false"
-	  * in this case ("true" in the case of success. Specialization
-	  * for the case t_capacity>0 (i.e. limited capacity). This function will
-	  * copy its argument.
-	  *
-	  * @param item An item to be added to the front of the buffer
-	  * @param timeout duration until a timeout occurs
-	  * @return A boolean indicating whether an item has been successfully submitted
-	  */
-	 template <typename std::size_t u_capacity = t_capacity>
-	 bool
-	 push_and_wait_copy(
-	 	 T const & item
-		 , std::chrono::duration<double> const & timeout
-		 , std::enable_if_t<(u_capacity > 0 && t_capacity==u_capacity)> * = nullptr
-	 ) {
-		 {
-			 std::unique_lock<std::mutex> lock(m_mutex);
-			 if (not m_not_full.wait_for(
-				 lock
-				 , std::chrono::duration_cast<std::chrono::milliseconds>(timeout)
-				 , [&]() -> bool { return m_container.size() < u_capacity; }
-			 )) {
-				 return false;
-			 }
-			 m_container.push_front(item);
-		 } // Release the lock
-
-		 m_not_empty.notify_one();
-
-		 return true;
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Adds a single item to the buffer. The function will always
-	  * return "true", as the buffer is unlimited, and will not wait (despite the
-	  * name). This function will move its argument.
-	  *
-	  * @param item An item to be added to the front of the buffer
-	  * @param timeout duration until a timeout occurs
-	  * @return A boolean indicating whether an item has been successfully submitted
-	  */
-	 template <typename std::size_t u_capacity = t_capacity>
-	 bool
-	 push_and_wait_move(
-		 T &&item
-		 , std::chrono::duration<double> const & timeout
-		 , std::enable_if_t<(u_capacity==0 && t_capacity==u_capacity)> * = nullptr
-	 ) {
-		 {
-			 std::unique_lock<std::mutex> lock(m_mutex);
-			 m_container.emplace_front(std::move(item));
-		 } // Release the lock
-
-		 m_not_empty.notify_one();
-
-		 return true;
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Adds a single item to the buffer. The function
-	  * will time out after a given amount of time and return "false"
-	  * in this case ("true" in the case of success. Specialization
-	  * for the case t_capacity>0 (i.e. limited capacity). This function will
-	  * move its argument.
-	  *
-	  * @param item An item to be added to the front of the buffer
-	  * @param timeout duration until a timeout occurs
-	  * @return A boolean indicating whether an item has been successfully submitted
-	  */
-	 template <typename std::size_t u_capacity = t_capacity>
-	 bool
-	 push_and_wait_move(
-		 T &&item
-		 , std::chrono::duration<double> const & timeout
-		 , std::enable_if_t<(u_capacity > 0 && t_capacity==u_capacity)> * = nullptr
-	 ) {
-		 {
-			 std::unique_lock<std::mutex> lock(m_mutex);
-			 if (not m_not_full.wait_for(
-				 lock
-				 , std::chrono::duration_cast<std::chrono::milliseconds>(timeout)
-				 , [&]() -> bool { return m_container.size() < u_capacity; }
-			 )) {
-				 return false;
-			 }
-			 m_container.emplace_front(std::move(item));
-		 } // Release the lock
-
-		 m_not_empty.notify_one();
-
-		 return true;
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Tries to retrieve a single item from the buffer. The function
-	  * will return false immediately if this cannot be achieved. This
-	  * function will copy the result into the item.
-	  *
-	  * @param item Reference to a single item that was removed from the end of the buffer
-	  * @return A boolean indicating whether retrieval was successful
-	  */
-	 bool
-	 try_pop_copy(T &item) {
-		 bool success = false;
-
-		 {
-			 std::unique_lock<std::mutex> lock(m_mutex);
-			 if (not m_container.empty()) {
-				 item = m_container.back();
-				 m_container.pop_back();
-				 success = true;
-			 }
-		 } // Release the lock
-
-		 if(success) m_not_empty.notify_one();
-
-		 return success;
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Tries to retrieve a single item from the buffer. The function
-	  * will return false immediately if this cannot be achieved. This
-	  * function will move the result into the item.
-	  *
-	  * @param item Reference to a single item that was removed from the end of the buffer
-	  * @return A boolean indicating whether retrieval was successful
-	  */
-	 bool
-	 try_pop_move(T &item) {
-		 bool success = false;
-
-		 {
-			 std::unique_lock<std::mutex> lock(m_mutex);
-			 if (not m_container.empty()) {
-				 item = std::move(m_container.back());
-				 m_container.pop_back();
-				 success = true;
-			 }
-		 } // Release the lock
-
-		 if(success) m_not_empty.notify_one();
-
-		 return success;
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Retrieves a single item from the buffer. The function will block if no
-	  * items are available and will continue once items become available again.
-	  * This function will copy the result into the item.
-	  *
-	  * @param item Reference to a single item that was removed from the end of the buffer
-	  */
-	 void
-	 pop_and_block_copy(T &item) {
-		 {
-			 std::unique_lock<std::mutex> lock(m_mutex);
-			 m_not_empty.wait(
-				 lock
-				 , [&]() -> bool { return not m_container.empty(); }
-			 );
-
-			 item = m_container.back();
-			 m_container.pop_back();
-		 } // Release the lock
-
-		 m_not_full.notify_one();
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Retrieves a single item from the buffer. The function will block if no
-	  * items are available and will continue once items become available again. This
-	  * function will move the result into the item.
-	  *
-	  * @param item Reference to a single item that was removed from the end of the buffer
-	  */
-	 void
-	 pop_and_block_move(T &item) {
-		 {
-			 std::unique_lock<std::mutex> lock(m_mutex);
-			 m_not_empty.wait(
-				 lock
-				 , [&]() -> bool { return not m_container.empty(); }
-			 );
-
-			 item = std::move(m_container.back());
-			 m_container.pop_back();
-		 } // Release the lock
-
-		 m_not_full.notify_one();
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Retrieves a single item from the buffer. The function
-	  * will time out after a given amount of time. It will return false
-	  * in this case. "true" will be returned if an item could be retrieved
-	  * successfully. This function will copy the result into the item.
-	  *
-	  * @param item Reference to a single item that was removed from the end of the buffer
-	  * @param timeout duration until a timeout occurs
-	  * @return A boolean indicating whether an item has been successfully retrieved
-	  */
-	 bool
-	 pop_and_wait_copy(
-		 T &item
-		 , std::chrono::duration<double> const & timeout
-	 ) {
-		 {
-			 std::unique_lock<std::mutex> lock(m_mutex);
-			 if (not m_not_empty.wait_for(
-				 lock
-				 , std::chrono::duration_cast<std::chrono::milliseconds>(timeout)
-				 , [&]() -> bool { return not m_container.empty(); }
-			 )) {
-				 return false;
-			 }
-
-			 item = m_container.back(); // Assign the item at the back of the container
-			 m_container.pop_back(); // Remove it from the container
-		 } // Release the lock
-
-		 m_not_full.notify_one();
-
-		 return true;
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Retrieves a single item from the buffer. The function
-	  * will time out after a given amount of time. It will return false
-	  * in this case. "true" will be returned if an item could be retrieved
-	  * successfully. This function will move the result into the item.
-	  *
-	  * @param item Reference to a single item that was removed from the end of the buffer
-	  * @param timeout duration until a timeout occurs
-	  * @return A boolean indicating whether an item has been successfully retrieved
-	  */
-	 bool
-	 pop_and_wait_move(
-		 T &item
-		 , std::chrono::duration<double> const & timeout
-	 ) {
-		 {
-			 std::unique_lock<std::mutex> lock(m_mutex);
-			 if (not m_not_empty.wait_for(
-				 lock
-				 , std::chrono::duration_cast<std::chrono::milliseconds>(timeout)
-				 , [&]() -> bool { return not m_container.empty(); }
-			 )) {
-				 return false;
-			 }
-
-			 item = std::move(m_container.back()); // Assign the item at the back of the container
-			 m_container.pop_back(); // Remove it from the container
-		 } // Release the lock
-
-		 m_not_full.notify_one();
-
-		 return true;
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Retrieves the maximum allowed size of the buffer. No need for
-	  * synchronization, as reading the value should be an atomic
-	  * operation.
-	  *
-	  * @return The maximum allowed capacity
-	  */
-	 constexpr std::size_t
-	 getCapacity() noexcept {
-		 return t_capacity;
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Retrieves the remaining space in the buffer. Note that the capacity
-	  * may change once this function has completed. The information taken
-	  * from this function can thus only serve as an indication.
-	  *
-	  * @return The currently remaining space in the buffer
-	  */
-	 std::size_t
-	 getRemainingSpace() {
-		 std::unique_lock<std::mutex> lock(m_mutex);
-		 return t_capacity - m_container.size();
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Retrieves the current size of the buffer. Note that the buffer
-	  * (and its size) may change immediately after this function has
-	  * completed, this value should therefore only be taken as an
-	  * indication.
-	  *
-	  * @return The current size of the buffer
-	  */
-	 std::size_t
-	 size() {
-		 std::unique_lock<std::mutex> lock(m_mutex);
-		 return m_container.size();
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Checks whether the queue is empty
-	  */
-	 bool
-	 empty() const {
-		 std::unique_lock<std::mutex> lock(m_mutex);
-	 	 return m_container.empty();
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Returns whether the buffer is empty or not. Note that the buffer
-	  * contents may change immediately after this function has
-	  * completed, this value should therefore only be taken as an
-	  * indication.
-	  *
-	  * @return True if the buffer is not empty
-	  */
-	 bool
-	 isNotEmpty() {
-		 std::unique_lock<std::mutex> lock(m_mutex);
-		 return not m_container.empty();
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Checks whether this is a bounded queue
-	  */
-	 constexpr bool
-	 isBounded() noexcept {
-	 	 return (t_capacity > 0);
-	 }
-
-protected:
-	 /***************************************************************************/
-
-	 container_type m_container; ///< The actual data store
-	 mutable std::mutex m_mutex{}; ///< Used for synchronization of access to the container
-	 std::condition_variable m_not_empty{}; ///< Used for synchronization of access to the container
-	 std::condition_variable m_not_full{}; ///< Used for synchronization of access to the container
-};
-
-/******************************************************************************/
-
-} /* namespace Common */
-} /* namespace Gem */
+namespace Gem::Common
+{
+    /******************************************************************************/
+    /**
+     * This class implements a bounded buffer. Items can be added to one
+     * end by multiple threads and retrieved from the other, also by
+     * multiple threads. When the buffer is full, attempts to add items
+     * will block until there is again enough space. The buffer may also be
+     * unbounded, which is specified by a template parameter. When the buffer is
+     * empty, retrieval of items will block until new items have become
+     * available. The class also contains "push"- and "pop"-functions that time out
+     * when no item could be retrieved from the buffer. This allows
+     * timeouts for data sinks. This can be important in situations
+     * where sources might permanently or temporarily go away. The class works
+     * with condition variables.  Note that this class assumes that an
+     * operator= is available for the items stored in the buffer. Setting the
+     * template argument t_capacity to 0 results in an unbounded buffer. The class
+     * is fit for holding std::shared_ptr-objects, which should not be empty.
+     * You can modify the behaviour of this class using the following defines:
+     * - DEFAULTBUFFERSIZE: The maximum size of the buffer. "0" means "unlimited"
+     * You can also pass the size as a template parameter.
+     */
+    template <typename T, std::size_t t_capacity = DEFAULTBUFFERSIZE>
+    class GBoundedBufferT
+    {
+    public:
+        using container_type = std::deque<T>;
+
+        /*************************************************************************/
+        // Defaulted or deleted constructors, destructor and assignment operators
+
+        GBoundedBufferT() = default;
+
+        // Prevent assignment
+        GBoundedBufferT(GBoundedBufferT<T, t_capacity> const&) = delete; ///< Disabled copy constructor
+        GBoundedBufferT& operator=(GBoundedBufferT<T, t_capacity> const&) = delete; ///< Disabled assign operator
+        GBoundedBufferT(GBoundedBufferT<T, t_capacity>&&) = delete; ///< Disabled move constructor
+        GBoundedBufferT& operator=(GBoundedBufferT<T, t_capacity>&&) = delete; ///< Disabled move-assignment operator
+
+        /***************************************************************************/
+        /**
+         * The destructor
+         */
+        virtual ~GBoundedBufferT() BASE {
+            // Any error here is deadly ...
+            try
+            {
+                std::unique_lock<std::mutex> lock(m_mutex);
+                m_container.clear();
+            }
+            // This is a standard error raised by the lock/mutex
+            catch (std::system_error& e)
+            {
+                glogger
+                    << "In GRandomFactory::producer(): Error!" << std::endl
+                    << "Caught std::system_error exception with message" << std::endl
+                    << e.what()
+                    << "which might indicate that a mutex could not be locked." << std::endl
+                    << GTERMINATION;
+            }
+            // We do not know whether any of the destructors of the items in the buffer throw anything
+            catch (...)
+            {
+                glogger
+                    << "Caught unknown exception in GBoundedBufferT::~GBoundedBufferT(). Terminating ..." << std::endl
+                    << GTERMINATION;
+            }
+        }
+
+        /***************************************************************************/
+        /**
+          * Adds a single item to the front of the buffer. The function will always
+          * return "true", as this is the specialization for an unlimited buffer.
+          * Items are copied, not moved.
+          *
+          * Note that we have to use an explicit template parameter u_capacity as
+          * std::enable_if will only work for template parameters of the member function.
+          *
+          * @param item An item to be added to the front of the buffer
+          * @return A boolean indicating whether an item has been successfully submitted
+          */
+        template <typename std::size_t u_capacity = t_capacity>
+        bool
+        try_push_copy(
+            T const& item
+            , std::enable_if_t<(u_capacity == 0 && t_capacity == u_capacity)>* = nullptr
+        )
+        {
+            {
+                std::unique_lock<std::mutex> lock(m_mutex);
+                m_container.push_front(item); // This will copy the item
+            } // Release the lock
+
+            m_not_empty.notify_one();
+
+            return true;
+        }
+
+        /***************************************************************************/
+        /**
+          * Adds a single item to the front of the buffer. The function will return
+          * "false" immediately, if no space is available in the buffer (true if space
+          * was available and the item could be added). This is the specialization
+          * for the case "t_capacity > 0" (i.e. limited buffer size). Items are copied,
+          * not moved.
+          *
+          * @param item An item to be added to the front of the buffer
+          * @return A boolean indicating whether an item has been successfully submitted
+          */
+        template <typename std::size_t u_capacity = t_capacity>
+        bool
+        try_push_copy(
+            T const& item
+            , std::enable_if_t<(u_capacity > 0 && t_capacity == u_capacity)>* = nullptr
+        )
+        {
+            {
+                std::unique_lock<std::mutex> lock(m_mutex);
+
+                // Check if the size fits our requirements. Return
+                // if this is note the case.
+                if (m_container.size() >= u_capacity)
+                {
+                    return false;
+                }
+
+                m_container.push_front(item);
+            } // Release the lock
+
+            m_not_empty.notify_one();
+
+            return true;
+        }
+
+        /***************************************************************************/
+        /**
+          * Adds a single item to the front of the buffer. The function will always
+          * return "true", as this is the specialization for an unlimited buffer. It
+          * will try to move the object into the queue
+          *
+          * @param item An item to be added to the front of the buffer
+          * @return A boolean indicating whether an item has been successfully submitted
+          */
+        template <typename std::size_t u_capacity = t_capacity>
+        bool
+        try_push_move(
+            T&& item
+            , std::enable_if_t<(u_capacity == 0 && t_capacity == u_capacity)>* = nullptr
+        )
+        {
+            {
+                std::unique_lock<std::mutex> lock(m_mutex);
+                m_container.emplace_front(std::move(item));
+            } // Release the lock
+
+            m_not_empty.notify_one();
+
+            return true;
+        }
+
+        /***************************************************************************/
+        /**
+          * Adds a single item to the front of the buffer. The function will return
+          * "false" immediately, if no space is available in the bufffer (true if space
+          * was available and the item could be added). This is the specialization
+          * for the case "t_capacity > 0" (i.e. limited buffer size).
+          *
+          * @param item An item to be added to the front of the buffer
+          * @return A boolean indicating whether an item has been successfully submitted
+          */
+        template <typename std::size_t u_capacity = t_capacity>
+        bool
+        try_push_move(
+            T&& item
+            , std::enable_if_t<(u_capacity > 0 && t_capacity == u_capacity)>* = nullptr
+        )
+        {
+            {
+                std::unique_lock<std::mutex> lock(m_mutex);
+
+                // Check if the size fits our requirements. Return
+                // if this is note the case.
+                if (m_container.size() >= u_capacity)
+                {
+                    return false;
+                }
+
+                m_container.emplace_front(std::move(item));
+            } // Release the lock
+
+            m_not_empty.notify_one();
+
+            return true;
+        }
+
+        /***************************************************************************/
+        /**
+          * Adds a single item to the buffer. Specialization for the case t_capacity==0
+          * (unlimited buffer size), so the function will not block. This function will
+          * copy its argument.
+          *
+          * @param item An item to be added to the front of the buffer
+          */
+        template <typename std::size_t u_capacity = t_capacity>
+        void
+        push_and_block_copy(
+            T const& item
+            , std::enable_if_t<(u_capacity == 0 && t_capacity == u_capacity)>* = nullptr
+        )
+        {
+            {
+                std::unique_lock<std::mutex> lock(m_mutex);
+                m_container.push_front(item);
+            } // Release the lock
+
+            m_not_empty.notify_one();
+        }
+
+
+        /***************************************************************************/
+        /**
+          * Adds a single item to the buffer. The function will block if there is no
+          * space in the buffer and continue once space is available. Specialization
+          * for the case t_capacity>0. This function will copy its argument.
+          *
+          * @param item An item to be added to the front of the buffer
+          */
+        template <typename std::size_t u_capacity = t_capacity>
+        void
+        push_and_block_copy(
+            T const& item
+            , std::enable_if_t<(u_capacity > 0 && t_capacity == u_capacity)>* = nullptr
+        )
+        {
+            {
+                std::unique_lock<std::mutex> lock(m_mutex);
+                // Note that this overload of wait() internally runs a loop on its predicate to
+                // deal with spurious wake-ups
+                m_not_full.wait(
+                    lock
+                    , [&]() -> bool { return m_container.size() < u_capacity; }
+                );
+                m_container.push_front(item);
+            } // Release the lock
+
+            m_not_empty.notify_one();
+        }
+
+        /***************************************************************************/
+        /**
+          * Adds a single item to the buffer. Specialization for the case t_capacity==0
+          * (unlimited buffer size), so the function will not block. This function will
+          * move its argument.
+          *
+          * @param item An item to be added to the front of the buffer
+          */
+        template <typename std::size_t u_capacity = t_capacity>
+        void
+        push_and_block_move(
+            T&& item
+            , std::enable_if_t<(u_capacity == 0 && t_capacity == u_capacity)>* = nullptr
+        )
+        {
+            {
+                std::unique_lock<std::mutex> lock(m_mutex);
+                m_container.emplace_front(std::move(item));
+            } // Release the lock
+
+            m_not_empty.notify_one();
+        }
+
+        /***************************************************************************/
+        /**
+          * Adds a single item to the buffer. The function will block if there is no
+          * space in the buffer and continue once space is available. Specialization
+          * for the case t_capacity>0. This function will move its argument.
+          *
+          * @param item An item to be added to the front of the buffer
+          */
+        template <typename std::size_t u_capacity = t_capacity>
+        void
+        push_and_block_move(
+            T&& item
+            , std::enable_if_t<(u_capacity > 0 && t_capacity == u_capacity)>* = nullptr
+        )
+        {
+            {
+                std::unique_lock<std::mutex> lock(m_mutex);
+                // Note that this overload of wait() internally runs a loop on its predicate to
+                // deal with spurious wakeups
+                m_not_full.wait(
+                    lock
+                    , [&]() -> bool { return m_container.size() < u_capacity; }
+                );
+                m_container.emplace_front(std::move(item));
+            } // Release the lock
+
+            m_not_empty.notify_one();
+        }
+
+        /***************************************************************************/
+        /**
+          * Adds a single item to the buffer. The function will always
+          * return "true", as the buffer is unlimited, and will not wait (despite the
+          * name), as it is meant for unlimited buffer sizes. This function will
+          * copy its argument. The timeout is ignored, but added to ensure API compatibility
+          * also for the cases of an unlimited buffer size.
+          *
+          * @param item An item to be added to the front of the buffer
+          * @param timeout duration until a timeout occurs
+          * @return A boolean indicating whether an item has been successfully submitted
+          */
+        template <typename std::size_t u_capacity = t_capacity>
+        bool
+        push_and_wait_copy(
+            T const& item
+            , std::chrono::duration<double> const& timeout
+            , std::enable_if_t<(u_capacity == 0 && t_capacity == u_capacity)>* = nullptr
+        )
+        {
+            {
+                std::unique_lock<std::mutex> lock(m_mutex);
+                m_container.push_front(item);
+            } // Release the lock
+
+            m_not_empty.notify_one();
+
+            return true;
+        }
+
+        /***************************************************************************/
+        /**
+          * Adds a single item to the buffer. The function
+          * will time out after a given amount of time and return "false"
+          * in this case ("true" in the case of success. Specialization
+          * for the case t_capacity>0 (i.e. limited capacity). This function will
+          * copy its argument.
+          *
+          * @param item An item to be added to the front of the buffer
+          * @param timeout duration until a timeout occurs
+          * @return A boolean indicating whether an item has been successfully submitted
+          */
+        template <typename std::size_t u_capacity = t_capacity>
+        bool
+        push_and_wait_copy(
+            T const& item
+            , std::chrono::duration<double> const& timeout
+            , std::enable_if_t<(u_capacity > 0 && t_capacity == u_capacity)>* = nullptr
+        )
+        {
+            {
+                std::unique_lock<std::mutex> lock(m_mutex);
+                if (not m_not_full.wait_for(
+                    lock
+                    , std::chrono::duration_cast<std::chrono::milliseconds>(timeout)
+                    , [&]() -> bool { return m_container.size() < u_capacity; }
+                ))
+                {
+                    return false;
+                }
+                m_container.push_front(item);
+            } // Release the lock
+
+            m_not_empty.notify_one();
+
+            return true;
+        }
+
+        /***************************************************************************/
+        /**
+          * Adds a single item to the buffer. The function will always
+          * return "true", as the buffer is unlimited, and will not wait (despite the
+          * name). This function will move its argument.
+          *
+          * @param item An item to be added to the front of the buffer
+          * @param timeout duration until a timeout occurs
+          * @return A boolean indicating whether an item has been successfully submitted
+          */
+        template <typename std::size_t u_capacity = t_capacity>
+        bool
+        push_and_wait_move(
+            T&& item
+            , std::chrono::duration<double> const& timeout
+            , std::enable_if_t<(u_capacity == 0 && t_capacity == u_capacity)>* = nullptr
+        )
+        {
+            {
+                std::unique_lock<std::mutex> lock(m_mutex);
+                m_container.emplace_front(std::move(item));
+            } // Release the lock
+
+            m_not_empty.notify_one();
+
+            return true;
+        }
+
+        /***************************************************************************/
+        /**
+          * Adds a single item to the buffer. The function
+          * will time out after a given amount of time and return "false"
+          * in this case ("true" in the case of success. Specialization
+          * for the case t_capacity>0 (i.e. limited capacity). This function will
+          * move its argument.
+          *
+          * @param item An item to be added to the front of the buffer
+          * @param timeout duration until a timeout occurs
+          * @return A boolean indicating whether an item has been successfully submitted
+          */
+        template <typename std::size_t u_capacity = t_capacity>
+        bool
+        push_and_wait_move(
+            T&& item
+            , std::chrono::duration<double> const& timeout
+            , std::enable_if_t<(u_capacity > 0 && t_capacity == u_capacity)>* = nullptr
+        )
+        {
+            {
+                std::unique_lock<std::mutex> lock(m_mutex);
+                if (not m_not_full.wait_for(
+                    lock
+                    , std::chrono::duration_cast<std::chrono::milliseconds>(timeout)
+                    , [&]() -> bool { return m_container.size() < u_capacity; }
+                ))
+                {
+                    return false;
+                }
+                m_container.emplace_front(std::move(item));
+            } // Release the lock
+
+            m_not_empty.notify_one();
+
+            return true;
+        }
+
+        /***************************************************************************/
+        /**
+          * Tries to retrieve a single item from the buffer. The function
+          * will return false immediately if this cannot be achieved. This
+          * function will copy the result into the item.
+          *
+          * @param item Reference to a single item that was removed from the end of the buffer
+          * @return A boolean indicating whether retrieval was successful
+          */
+        bool
+        try_pop_copy(T& item)
+        {
+            bool success = false;
+
+            {
+                std::unique_lock<std::mutex> lock(m_mutex);
+                if (not m_container.empty())
+                {
+                    item = m_container.back();
+                    m_container.pop_back();
+                    success = true;
+                }
+            } // Release the lock
+
+            if (success) m_not_empty.notify_one();
+
+            return success;
+        }
+
+        /***************************************************************************/
+        /**
+          * Tries to retrieve a single item from the buffer. The function
+          * will return false immediately if this cannot be achieved. This
+          * function will move the result into the item.
+          *
+          * @param item Reference to a single item that was removed from the end of the buffer
+          * @return A boolean indicating whether retrieval was successful
+          */
+        bool
+        try_pop_move(T& item)
+        {
+            bool success = false;
+
+            {
+                std::unique_lock<std::mutex> lock(m_mutex);
+                if (not m_container.empty())
+                {
+                    item = std::move(m_container.back());
+                    m_container.pop_back();
+                    success = true;
+                }
+            } // Release the lock
+
+            if (success) m_not_empty.notify_one();
+
+            return success;
+        }
+
+        /***************************************************************************/
+        /**
+          * Retrieves a single item from the buffer. The function will block if no
+          * items are available and will continue once items become available again.
+          * This function will copy the result into the item.
+          *
+          * @param item Reference to a single item that was removed from the end of the buffer
+          */
+        void
+        pop_and_block_copy(T& item)
+        {
+            {
+                std::unique_lock<std::mutex> lock(m_mutex);
+                m_not_empty.wait(
+                    lock
+                    , [&]() -> bool { return not m_container.empty(); }
+                );
+
+                item = m_container.back();
+                m_container.pop_back();
+            } // Release the lock
+
+            m_not_full.notify_one();
+        }
+
+        /***************************************************************************/
+        /**
+          * Retrieves a single item from the buffer. The function will block if no
+          * items are available and will continue once items become available again. This
+          * function will move the result into the item.
+          *
+          * @param item Reference to a single item that was removed from the end of the buffer
+          */
+        void
+        pop_and_block_move(T& item)
+        {
+            {
+                std::unique_lock<std::mutex> lock(m_mutex);
+                m_not_empty.wait(
+                    lock
+                    , [&]() -> bool { return not m_container.empty(); }
+                );
+
+                item = std::move(m_container.back());
+                m_container.pop_back();
+            } // Release the lock
+
+            m_not_full.notify_one();
+        }
+
+        /***************************************************************************/
+        /**
+          * Retrieves a single item from the buffer. The function
+          * will time out after a given amount of time. It will return false
+          * in this case. "true" will be returned if an item could be retrieved
+          * successfully. This function will copy the result into the item.
+          *
+          * @param item Reference to a single item that was removed from the end of the buffer
+          * @param timeout duration until a timeout occurs
+          * @return A boolean indicating whether an item has been successfully retrieved
+          */
+        bool
+        pop_and_wait_copy(
+            T& item
+            , std::chrono::duration<double> const& timeout
+        )
+        {
+            {
+                std::unique_lock<std::mutex> lock(m_mutex);
+                if (not m_not_empty.wait_for(
+                    lock
+                    , std::chrono::duration_cast<std::chrono::milliseconds>(timeout)
+                    , [&]() -> bool { return not m_container.empty(); }
+                ))
+                {
+                    return false;
+                }
+
+                item = m_container.back(); // Assign the item at the back of the container
+                m_container.pop_back(); // Remove it from the container
+            } // Release the lock
+
+            m_not_full.notify_one();
+
+            return true;
+        }
+
+        /***************************************************************************/
+        /**
+          * Retrieves a single item from the buffer. The function
+          * will time out after a given amount of time. It will return false
+          * in this case. "true" will be returned if an item could be retrieved
+          * successfully. This function will move the result into the item.
+          *
+          * @param item Reference to a single item that was removed from the end of the buffer
+          * @param timeout duration until a timeout occurs
+          * @return A boolean indicating whether an item has been successfully retrieved
+          */
+        bool
+        pop_and_wait_move(
+            T& item
+            , std::chrono::duration<double> const& timeout
+        )
+        {
+            {
+                std::unique_lock<std::mutex> lock(m_mutex);
+                if (not m_not_empty.wait_for(
+                    lock
+                    , std::chrono::duration_cast<std::chrono::milliseconds>(timeout)
+                    , [&]() -> bool { return not m_container.empty(); }
+                ))
+                {
+                    return false;
+                }
+
+                item = std::move(m_container.back()); // Assign the item at the back of the container
+                m_container.pop_back(); // Remove it from the container
+            } // Release the lock
+
+            m_not_full.notify_one();
+
+            return true;
+        }
+
+        /***************************************************************************/
+        /**
+          * Retrieves the maximum allowed size of the buffer. No need for
+          * synchronization, as reading the value should be an atomic
+          * operation.
+          *
+          * @return The maximum allowed capacity
+          */
+        constexpr std::size_t
+        getCapacity() noexcept
+        {
+            return t_capacity;
+        }
+
+        /***************************************************************************/
+        /**
+          * Retrieves the remaining space in the buffer. Note that the capacity
+          * may change once this function has completed. The information taken
+          * from this function can thus only serve as an indication.
+          *
+          * @return The currently remaining space in the buffer
+          */
+        std::size_t
+        getRemainingSpace()
+        {
+            std::unique_lock<std::mutex> lock(m_mutex);
+            return t_capacity - m_container.size();
+        }
+
+        /***************************************************************************/
+        /**
+          * Retrieves the current size of the buffer. Note that the buffer
+          * (and its size) may change immediately after this function has
+          * completed, this value should therefore only be taken as an
+          * indication.
+          *
+          * @return The current size of the buffer
+          */
+        std::size_t
+        size()
+        {
+            std::unique_lock<std::mutex> lock(m_mutex);
+            return m_container.size();
+        }
+
+        /***************************************************************************/
+        /**
+          * Checks whether the queue is empty
+          */
+        bool
+        empty() const
+        {
+            std::unique_lock<std::mutex> lock(m_mutex);
+            return m_container.empty();
+        }
+
+        /***************************************************************************/
+        /**
+          * Returns whether the buffer is empty or not. Note that the buffer
+          * contents may change immediately after this function has
+          * completed, this value should therefore only be taken as an
+          * indication.
+          *
+          * @return True if the buffer is not empty
+          */
+        bool
+        isNotEmpty()
+        {
+            std::unique_lock<std::mutex> lock(m_mutex);
+            return not m_container.empty();
+        }
+
+        /***************************************************************************/
+        /**
+          * Checks whether this is a bounded queue
+          */
+        constexpr bool
+        isBounded() noexcept
+        {
+            return (t_capacity > 0);
+        }
+
+    protected:
+        /***************************************************************************/
+
+        container_type m_container; ///< The actual data store
+        mutable std::mutex m_mutex{}; ///< Used for synchronization of access to the container
+        std::condition_variable m_not_empty{}; ///< Used for synchronization of access to the container
+        std::condition_variable m_not_full{}; ///< Used for synchronization of access to the container
+    };
+
+    /******************************************************************************/
+} /* namespace Gem::Common */

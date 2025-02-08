@@ -102,13 +102,34 @@ namespace Gem::Geneva
                                const int);
 
     __global__ void
-    cuda_renderAndCompareKernel(const float*,
-                                float*,
-                                const float*,
-                                float*,
-                                float*,
+    cuda_renderAndCompareKernel(const float* __restrict__,
+                                float* __restrict__,
+                                const float* __restrict__,
+                                const float* __restrict__,
                                 const int, const int,
                                 const int);
+
+    __device__ float
+    cuda_alphaBlendChannel(const float bg, const float fg, const float alpha);
+
+    __global__ void
+    cuda_renderAndCompareKernelR1(const float*,
+                                  float*,
+                                  const float*,
+                                  float*,
+                                  float*,
+                                  const int, const int,
+                                  const int);
+
+
+    __global__ void
+    cuda_renderAndCompareKernelO3MiniHigh(const float* __restrict__,
+                                          float* __restrict__,
+                                          const float* __restrict__,
+                                          float*,
+                                          const float* __restrict__,
+                                          const int, const int,
+                                          const int);
 
     /******************************************************************************/
     /**
@@ -207,10 +228,13 @@ namespace Gem::Geneva
 
         float* d_target_{nullptr}; ///< Holds a copy of the target image
         float* d_candidate_{nullptr}; ///< Holds the candidate image assembled from the triangles
+        float* d_perPixel_evaluation_{nullptr}; ///< Holds the evaluations for each color channel of each pixel
         float* d_bgcolor_{nullptr}; ///< Holds the current background color, to be transferred to the device
         Geneva::CircleTriangle* d_triangles_{nullptr}; ///< Holds the "raw" triangles described by the individual
         float* d_transformed_triangle_data_{nullptr}; ///< Holds transformed triangle coordinates relative to the image dimensions
         float* d_result_{nullptr}; ///< Holds the result of the current evaluation
+        void* d_temp_storage_{nullptr}; ///< Temporary storage for CUB.
+        std::size_t temp_storage_bytes_{0}; ///< Needed for CUB
 
         cudaStream_t cuda_stream_{};
 
