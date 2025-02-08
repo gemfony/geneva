@@ -101,12 +101,15 @@ namespace Gem::Geneva
                                const int, const int,
                                const int);
 
+    template <int ExtractionMode>
     __global__ void
     cuda_renderAndCompareKernel(const float* __restrict__,
                                 float* __restrict__,
+                                float* __restrict__,
                                 const float* __restrict__,
                                 const float* __restrict__,
-                                const int, const int,
+                                const int,
+                                const int,
                                 const int);
 
     __device__ float

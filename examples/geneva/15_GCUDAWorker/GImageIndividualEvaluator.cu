@@ -418,32 +418,34 @@ namespace Gem::Geneva
     /**
      * The actual rendering and evaluation kernel
      *
+     * @tparam ExtractionMode Defines whether the candidate image shall be extractable
      * @param d_target The target image, for which each RGB channel is encoded as a 0..1 float
      * @param d_candidate A memory area on the GPU to which a candidate image may be written
      * @param d_perPixel_error The error per pixel, as calculated by this function
      * @param d_bgcolors The background colors of the candidate image
-     * @param d_result A memory area to which the deviation of candidate and target image pixel may be added
      * @param d_transformed_triangle_data The data of the nTriangles triangles to be assembled to the candidate image
      * @param width The width of the target (and candidate) image
      * @param height The height of the target (and candidate) image
      * @param nTriangles The number of triangles forming the candidate image
      */
+    template <int ExtractionMode>
     __global__ void
     cuda_renderAndCompareKernel(const float* __restrict__ d_target,
                                 float* __restrict__ d_candidate,
                                 float* __restrict__ d_perPixel_error,
                                 const float* __restrict__ d_bgcolors,
                                 const float* __restrict__ d_transformed_triangle_data,
-                                const int width, const int height,
+                                const int width,
+                                const int height,
                                 const int nTriangles)
     {
         const int x = static_cast<int>(blockIdx.x * blockDim.x + threadIdx.x);
         const int y = static_cast<int>(blockIdx.y * blockDim.y + threadIdx.y);
 
+        if (x >= width || y >= height) return;
+
         const auto x_f = static_cast<float>(x) + 0.5f;
         const auto y_f = static_cast<float>(y) + 0.5f;
-
-        if (x >= width || y >= height) return;
 
         // Transfer the background color
         float rOut = d_bgcolors[0], gOut = d_bgcolors[1], bOut = d_bgcolors[2];
@@ -451,25 +453,29 @@ namespace Gem::Geneva
         // Loop over all triangles
         for (int idx = 0; idx < nTriangles; idx++)
         {
-            const auto offset = idx*10;
-
-            // Extract the data of the current triangle
-            const auto x1 = d_transformed_triangle_data[offset + 0];
-            const auto y1 = d_transformed_triangle_data[offset + 1];
-            const auto x2 = d_transformed_triangle_data[offset + 2];
-            const auto y2 = d_transformed_triangle_data[offset + 3];
-            const auto x3 = d_transformed_triangle_data[offset + 4];
-            const auto y3 = d_transformed_triangle_data[offset + 5];
-            const auto  r = d_transformed_triangle_data[offset + 6];
-            const auto  g = d_transformed_triangle_data[offset + 7];
-            const auto  b = d_transformed_triangle_data[offset + 8];
-            const auto  a = d_transformed_triangle_data[offset + 9];
-
             // Check whether the current pixel is located inside
-            if (cuda_pointInTriangle(x_f, y_f, x1, y1, x2, y2, x3, y3))
+            if (const auto offset = idx * 10; cuda_pointInTriangle(
+                    x_f,
+                    y_f,
+                    d_transformed_triangle_data[offset + 0], // x1
+                    d_transformed_triangle_data[offset + 1], // y1
+                    d_transformed_triangle_data[offset + 2], // x2
+                    d_transformed_triangle_data[offset + 3], // y2
+                    d_transformed_triangle_data[offset + 4], // x3
+                    d_transformed_triangle_data[offset + 5] // y3
+                )
+            )
             {
                 // Alpha-Blending
-                cuda_alphaBlend(rOut, gOut, bOut, r, g, b, a);
+                cuda_alphaBlend(
+                    rOut,
+                    gOut,
+                    bOut,
+                    d_transformed_triangle_data[offset + 6], // r
+                    d_transformed_triangle_data[offset + 7], // g
+                    d_transformed_triangle_data[offset + 8], // b
+                    d_transformed_triangle_data[offset + 9] // a
+                );
             }
         }
 
@@ -477,18 +483,18 @@ namespace Gem::Geneva
         const auto pixelIndex = y * width + x;
         const size_t outPos = pixelIndex * 3;
 
-        d_candidate[outPos + 0] = rOut;
-        d_candidate[outPos + 1] = gOut;
-        d_candidate[outPos + 2] = bOut;
+        // We only fill the candidate image if the image will be extracted
+        if constexpr (ExtractionMode == 1)
+        {
+            d_candidate[outPos + 0] = rOut;
+            d_candidate[outPos + 1] = gOut;
+            d_candidate[outPos + 2] = bOut;
+        }
 
         // Calculate the distance to the target image
-        const float rT = d_target[outPos + 0];
-        const float gT = d_target[outPos + 1];
-        const float bT = d_target[outPos + 2];
-
-        const float dr = rT - rOut;
-        const float dg = gT - gOut;
-        const float db = bT - bOut;
+        const float dr = d_target[outPos + 0] - rOut;
+        const float dg = d_target[outPos + 1] - gOut;
+        const float db = d_target[outPos + 2] - bOut;
 
         const float dr_squared = dr * dr;
         const float dg_squared = dg * dg;
@@ -721,15 +727,32 @@ namespace Gem::Geneva
             dim3 dimRenderGrid(gridSize_x_, gridSize_y_);
 
             // Start the actual kernel
-            cuda_renderAndCompareKernel<<<dimRenderGrid, dimRenderBlock, 0, cuda_stream_>>>(
-                d_target_,
-                d_candidate_,
-                d_perPixel_evaluation_,
-                d_bgcolor_,
-                d_transformed_triangle_data_,
-                width_, height_,
-                static_cast<int>(nTriangles_)
-            );
+            if (getGPUCandidateImage_)
+            {
+                // The candidate image will be filled
+                cuda_renderAndCompareKernel<1><<<dimRenderGrid, dimRenderBlock, 0, cuda_stream_>>>(
+                    d_target_,
+                    d_candidate_,
+                    d_perPixel_evaluation_,
+                    d_bgcolor_,
+                    d_transformed_triangle_data_,
+                    width_, height_,
+                    static_cast<int>(nTriangles_)
+                );
+            }
+            else
+            {
+                // The candidate image is not filled
+                cuda_renderAndCompareKernel<0><<<dimRenderGrid, dimRenderBlock, 0, cuda_stream_>>>(
+                    d_target_,
+                    d_candidate_,
+                    d_perPixel_evaluation_,
+                    d_bgcolor_,
+                    d_transformed_triangle_data_,
+                    width_, height_,
+                    static_cast<int>(nTriangles_)
+                );
+            }
 
             /*
             // Set up the block- and grid-sizes for the rendering
