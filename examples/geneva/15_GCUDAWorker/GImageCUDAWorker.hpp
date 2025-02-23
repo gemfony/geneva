@@ -1,5 +1,5 @@
 /**
-* @file GImageCUDAWorker.hpp
+ * @file GImageCUDAWorker.hpp
  */
 
 /********************************************************************************
@@ -108,9 +108,9 @@ namespace Gem::Courtier
         /** @brief Check whether the GPU should be used for calculations */
         bool useGPU() const;
         /** @brief Retrieval of the block size (x/y) */
-        std::tuple<int,int> getBlockSize() const;
+        std::tuple<int, int> getBlockSize() const;
         /** @brief  Retrieval of the grid size (x/y) */
-        std::tuple<int,int> getGridSize() const;
+        std::tuple<int, int> getGridSize() const;
 
         //------------------------------------------------------------------
 

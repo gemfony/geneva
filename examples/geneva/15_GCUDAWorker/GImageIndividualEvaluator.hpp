@@ -234,7 +234,8 @@ namespace Gem::Geneva
         float* d_perPixel_evaluation_{nullptr}; ///< Holds the evaluations for each color channel of each pixel
         float* d_bgcolor_{nullptr}; ///< Holds the current background color, to be transferred to the device
         Geneva::CircleTriangle* d_triangles_{nullptr}; ///< Holds the "raw" triangles described by the individual
-        float* d_transformed_triangle_data_{nullptr}; ///< Holds transformed triangle coordinates relative to the image dimensions
+        float* d_transformed_triangle_data_{nullptr};
+        ///< Holds transformed triangle coordinates relative to the image dimensions
         float* d_result_{nullptr}; ///< Holds the result of the current evaluation
         void* d_temp_storage_{nullptr}; ///< Temporary storage for CUB.
         std::size_t temp_storage_bytes_{0}; ///< Needed for CUB

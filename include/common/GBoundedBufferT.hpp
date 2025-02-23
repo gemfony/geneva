@@ -64,7 +64,6 @@
 #include <iostream>
 #include <fstream>
 #include <deque>
-#include <list>
 #include <algorithm>
 #include <stdexcept>
 #include <tuple>
@@ -75,7 +74,6 @@
 
 // Boost headers go here
 
-#include <boost/lexical_cast.hpp>
 #include <boost/utility.hpp>
 
 // Geneva headers go here
@@ -107,7 +105,7 @@ namespace Gem::Common
      * You can also pass the size as a template parameter.
      */
     template <typename T, std::size_t t_capacity = DEFAULTBUFFERSIZE>
-    class GBoundedBufferT
+    class GBoundedBufferT final
     {
     public:
         using container_type = std::deque<T>;
@@ -127,7 +125,7 @@ namespace Gem::Common
         /**
          * The destructor
          */
-        virtual ~GBoundedBufferT() BASE {
+        ~GBoundedBufferT() BASE {
             // Any error here is deadly ...
             try
             {
@@ -165,7 +163,7 @@ namespace Gem::Common
           * @param item An item to be added to the front of the buffer
           * @return A boolean indicating whether an item has been successfully submitted
           */
-        template <typename std::size_t u_capacity = t_capacity>
+        template <std::size_t u_capacity = t_capacity>
         bool
         try_push_copy(
             T const& item
@@ -193,7 +191,7 @@ namespace Gem::Common
           * @param item An item to be added to the front of the buffer
           * @return A boolean indicating whether an item has been successfully submitted
           */
-        template <typename std::size_t u_capacity = t_capacity>
+        template <std::size_t u_capacity = t_capacity>
         bool
         try_push_copy(
             T const& item
@@ -227,7 +225,7 @@ namespace Gem::Common
           * @param item An item to be added to the front of the buffer
           * @return A boolean indicating whether an item has been successfully submitted
           */
-        template <typename std::size_t u_capacity = t_capacity>
+        template <std::size_t u_capacity = t_capacity>
         bool
         try_push_move(
             T&& item
@@ -254,7 +252,7 @@ namespace Gem::Common
           * @param item An item to be added to the front of the buffer
           * @return A boolean indicating whether an item has been successfully submitted
           */
-        template <typename std::size_t u_capacity = t_capacity>
+        template <std::size_t u_capacity = t_capacity>
         bool
         try_push_move(
             T&& item
@@ -287,7 +285,7 @@ namespace Gem::Common
           *
           * @param item An item to be added to the front of the buffer
           */
-        template <typename std::size_t u_capacity = t_capacity>
+        template <std::size_t u_capacity = t_capacity>
         void
         push_and_block_copy(
             T const& item
@@ -311,7 +309,7 @@ namespace Gem::Common
           *
           * @param item An item to be added to the front of the buffer
           */
-        template <typename std::size_t u_capacity = t_capacity>
+        template <std::size_t u_capacity = t_capacity>
         void
         push_and_block_copy(
             T const& item
@@ -340,7 +338,7 @@ namespace Gem::Common
           *
           * @param item An item to be added to the front of the buffer
           */
-        template <typename std::size_t u_capacity = t_capacity>
+        template <std::size_t u_capacity = t_capacity>
         void
         push_and_block_move(
             T&& item
@@ -363,7 +361,7 @@ namespace Gem::Common
           *
           * @param item An item to be added to the front of the buffer
           */
-        template <typename std::size_t u_capacity = t_capacity>
+        template <std::size_t u_capacity = t_capacity>
         void
         push_and_block_move(
             T&& item
@@ -396,7 +394,7 @@ namespace Gem::Common
           * @param timeout duration until a timeout occurs
           * @return A boolean indicating whether an item has been successfully submitted
           */
-        template <typename std::size_t u_capacity = t_capacity>
+        template <std::size_t u_capacity = t_capacity>
         bool
         push_and_wait_copy(
             T const& item
@@ -426,7 +424,7 @@ namespace Gem::Common
           * @param timeout duration until a timeout occurs
           * @return A boolean indicating whether an item has been successfully submitted
           */
-        template <typename std::size_t u_capacity = t_capacity>
+        template <std::size_t u_capacity = t_capacity>
         bool
         push_and_wait_copy(
             T const& item
@@ -462,7 +460,7 @@ namespace Gem::Common
           * @param timeout duration until a timeout occurs
           * @return A boolean indicating whether an item has been successfully submitted
           */
-        template <typename std::size_t u_capacity = t_capacity>
+        template <std::size_t u_capacity = t_capacity>
         bool
         push_and_wait_move(
             T&& item
@@ -492,7 +490,7 @@ namespace Gem::Common
           * @param timeout duration until a timeout occurs
           * @return A boolean indicating whether an item has been successfully submitted
           */
-        template <typename std::size_t u_capacity = t_capacity>
+        template <std::size_t u_capacity = t_capacity>
         bool
         push_and_wait_move(
             T&& item
@@ -708,7 +706,7 @@ namespace Gem::Common
           *
           * @return The maximum allowed capacity
           */
-        constexpr std::size_t
+        static constexpr std::size_t
         getCapacity() noexcept
         {
             return t_capacity;
@@ -776,7 +774,7 @@ namespace Gem::Common
         /**
           * Checks whether this is a bounded queue
           */
-        constexpr bool
+        static constexpr bool
         isBounded() noexcept
         {
             return (t_capacity > 0);
