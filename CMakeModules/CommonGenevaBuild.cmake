@@ -41,7 +41,7 @@
 
 ################################################################################
 
-CMAKE_MINIMUM_REQUIRED(VERSION 3.10 FATAL_ERROR)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.27 FATAL_ERROR)
 
 # Include guard
 IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
@@ -99,10 +99,10 @@ FLAG_UNSUPPORTED_SETUPS(
 ################################################################################
 # Set the C++ standard to be used
 
-# Geneva requires at least the C++17 Standard. The user may force another
-# value at its own risk by setting the variable CMAKE_CXX_STANDARD.
+# Geneva requires at least the C++20 Standard. The user may force another
+# value at his own risk by setting the variable CMAKE_CXX_STANDARD.
 IF( NOT DEFINED CMAKE_CXX_STANDARD )
-	SET( CMAKE_CXX_STANDARD "17" )
+	SET( CMAKE_CXX_STANDARD "20" )
 ENDIF()
 
 SET(CMAKE_CXX_STANDARD_REQUIRED ON)

@@ -34,7 +34,7 @@
 #
 ################################################################################
 
-CMAKE_MINIMUM_REQUIRED(VERSION 3.13 FATAL_ERROR)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.27 FATAL_ERROR)
 
 MESSAGE ("")
 
@@ -97,7 +97,7 @@ INCLUDE(CommonGenevaBuild)
 # versions while even minor numbers stand for production releases.
 
 SET(VERSION_MAJOR "1")
-SET(VERSION_MINOR "10")
+SET(VERSION_MINOR "11")
 SET(VERSION_PATCH "0")
 
 SET(GENEVA_VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})

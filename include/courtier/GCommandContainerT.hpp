@@ -133,16 +133,16 @@ public:
 	 // Defaulted constructors, destructor and move assigment operator
 
 	 GCommandContainerT() = default;
-	 GCommandContainerT(GCommandContainerT<processable_type, command_type>&& cp) noexcept = default;
+	 GCommandContainerT(GCommandContainerT&& cp) noexcept = default;
 	 ~GCommandContainerT() = default;
 
-	 GCommandContainerT<processable_type, command_type>& operator=(GCommandContainerT<processable_type, command_type>&& cp) noexcept = default;
+	 GCommandContainerT& operator=(GCommandContainerT&& cp) noexcept = default;
 
 	 //-------------------------------------------------------------------------
 	 // Deleted copy-constructors and assignment operator -- the class is non-copyable
 
-	 GCommandContainerT<processable_type, command_type>(const GCommandContainerT<processable_type, command_type>&) = delete;
-	 GCommandContainerT<processable_type, command_type>& operator=(const GCommandContainerT<processable_type, command_type>&) = delete;
+	 GCommandContainerT(const GCommandContainerT&) = delete;
+	 GCommandContainerT& operator=(const GCommandContainerT&) = delete;
 
 	 //-------------------------------------------------------------------------
 	 /**
@@ -150,7 +150,7 @@ public:
 	  *
 	  * @return A reference to this object, so we can serialize it in one go
 	  */
-	 const GCommandContainerT<processable_type, command_type>& reset(
+	 const GCommandContainerT& reset(
 		 command_type command = command_type(0)
 		 , std::shared_ptr<processable_type> payload_ptr = std::shared_ptr<processable_type>()
 	 ) {
