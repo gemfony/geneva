@@ -147,7 +147,8 @@ namespace Gem::Geneva
 			);
 		}
 
-		if (startSize < minSize)
+        // A startSize < 0 means random initialization in the range [minSize, maxSize]
+		if (startSize >= 0. && startSize < minSize)
 		{
 			// Cannot be < 0 as minSize may not be <= 0
 			throw gemfony_exception(
@@ -262,13 +263,12 @@ namespace Gem::Geneva
 			if (startSize < 0.)
 			{
 				// Random initialization of radius
-				radius_ptr = std::shared_ptr<GConstrainedDoubleObject>(new GConstrainedDoubleObject(minSize, maxSize));
+				radius_ptr = std::make_shared<GConstrainedDoubleObject>(minSize, maxSize);
 			}
 			else
 			{
 				// Radius will be set to startSize
-				radius_ptr = std::shared_ptr<GConstrainedDoubleObject>(
-					new GConstrainedDoubleObject(startSize, minSize, maxSize));
+				radius_ptr = std::make_shared<GConstrainedDoubleObject>(startSize, minSize, maxSize);
 			}
 
 			// ... equip it with an adaptor ...
@@ -358,7 +358,7 @@ namespace Gem::Geneva
 		bg_color_g_ptr->addAdaptor(gdga_ptr_tmpl);
 		bg_color_b_ptr->addAdaptor(gdga_ptr_tmpl);
 
-		// ... chech whether they shall be modifiable
+		// ... check whether they shall be modifiable
 		changeBGColor_ = changeBGColor;
 		if (not changeBGColor)
 		{
@@ -503,14 +503,13 @@ namespace Gem::Geneva
 		{
 			// Sort circle_cnt so that items with higher opacity are in the front position
 			// As a result, they will be drawn first
-			std::sort(
-				circle_cnt.begin()
-				, circle_cnt.end()
-				, [](const CircleTriangle& x, const CircleTriangle& y)
-				{
-					return x.a > y.a;
-				}
-			);
+            std::ranges::sort(
+                circle_cnt,
+                [](const CircleTriangle &x, const CircleTriangle &y)
+                {
+                    return x.a > y.a;
+                }
+            );
 		}
 
 		return circle_cnt;
@@ -728,6 +727,7 @@ namespace Gem::Geneva
 		comment = "";
 		comment += "The start size of the triangle in percent of the canvas;";
 		comment += "The allowed value range is [minSize,maxSize];";
+		comment += "A value < 0 means random in the range [minSize,maxSize];";
 		gpb.registerFileParameter<double>(
 			"startSize"
 			, startSize_.reference()
@@ -735,8 +735,13 @@ namespace Gem::Geneva
 			, Gem::Common::VAR_IS_ESSENTIAL
 			, comment
 		);
-		checkValueRange(startSize_.value(), minSize_.value(), maxSize_.value(), GFPLOWERCLOSED, GFPUPPEROPEN,
-		                GFNOWARNING, "startSize");
+
+		// A value < 0 means random in the range [minSize,maxSize]
+		if (startSize_.value() >= 0.)
+		{
+		    checkValueRange(startSize_.value(), minSize_.value(), maxSize_.value(), GFPLOWERCLOSED, GFPUPPEROPEN,
+                            GFNOWARNING, "startSize");
+		}
 
 		comment = "";
 		comment += "The minimum allowed opaqueness of triangles;";

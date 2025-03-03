@@ -388,10 +388,12 @@ namespace Gem::Common
      * @param height The height of the disc image
      * @return A boolean indicating whether loading of the image was successful
      */
-    bool loadImageToFloat(const std::string& fileName,
+    bool loadImageToFloat(
+        const std::string& fileName,
         std::vector<float>& imageData_f_vec,
         int& width,
-        int& height)
+        int& height
+    )
     {
         // Load the image in RGB format
         std::vector<unsigned char> imageData_vec;

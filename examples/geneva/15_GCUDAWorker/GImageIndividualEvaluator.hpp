@@ -56,9 +56,6 @@
 // CUDA-Headers go here
 #include <cuda_runtime.h>
 
-// #include <thrust/device_vector.h>
-// #include <thrust/random.h>
-
 // Boost headers go here
 
 // Geneva headers go here
@@ -70,8 +67,24 @@ namespace Gem::Geneva
     //--------------------------------------------------------------------
     // For GPU-based calculation
 
+    /**
+     * Calculates the minimum of three values
+     */
+    __device__ inline float
+    min3(float a, float b, float c) {
+        return fminf(a, fminf(b, c));
+    }
+
+    /**
+     * Calculates the maximum of three values
+     */
+    __device__ inline float
+    max3(float a, float b, float c) {
+        return fmaxf(a, fmaxf(b, c));
+    }
+
     /** @brief Retrieval of all corner coordinates of a triangle */
-    __device__ void
+    __device__ inline void
     cuda_calculateCorners(const CircleTriangle& tri,
                           const int& width,
                           const int& height,
@@ -90,10 +103,10 @@ namespace Gem::Geneva
                          const float x3, const float y3);
 
     /** @brief Simple alpha blending */
-    __device__ void
-    cuda_alphaBlend(unsigned char& bgR, unsigned char& bgG, unsigned char& bgB,
-                    unsigned char fgR, unsigned char fgG, unsigned char fgB,
-                    unsigned char alpha);
+    __device__ inline void
+    cuda_alphaBlend(float& bgR, float& bgG, float& bgB,
+                    const float fgR, const float fgG, const float fgB,
+                    const float alpha);
 
     __global__ void
     cuda_transformTriangleData(const CircleTriangle*,
@@ -111,28 +124,6 @@ namespace Gem::Geneva
                                 const int,
                                 const int,
                                 const int);
-
-    __device__ float
-    cuda_alphaBlendChannel(const float bg, const float fg, const float alpha);
-
-    __global__ void
-    cuda_renderAndCompareKernelR1(const float*,
-                                  float*,
-                                  const float*,
-                                  float*,
-                                  float*,
-                                  const int, const int,
-                                  const int);
-
-
-    __global__ void
-    cuda_renderAndCompareKernelO3MiniHigh(const float* __restrict__,
-                                          float* __restrict__,
-                                          const float* __restrict__,
-                                          float*,
-                                          const float* __restrict__,
-                                          const int, const int,
-                                          const int);
 
     /******************************************************************************/
     /**
