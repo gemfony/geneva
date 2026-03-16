@@ -1,0 +1,129 @@
+################################################################################
+#
+# This file is part of the Geneva library collection. The following license
+# applies to this file:
+#
+# ------------------------------------------------------------------------------
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ------------------------------------------------------------------------------
+#
+# Note that other files in the Geneva library collection may use a different
+# license. Please see the licensing information in each file.
+#
+################################################################################
+#
+# Geneva was started by Dr. Rüdiger Berlich and was later maintained together
+# with Dr. Ariel Garcia under the auspices of Gemfony scientific. For further
+# information on Gemfony scientific, see http://www.gemfomy.eu .
+#
+# The majority of files in Geneva was released under the Apache license v2.0
+# in February 2020.
+#
+# See the NOTICE file in the top-level directory of the Geneva library
+# collection for a list of contributors and copyright information.
+#
+################################################################################
+
+IF (NOT GENEVA_FULL_TREE_BUILD)
+
+	PROJECT(GCUDAWorker LANGUAGES CXX CUDA)
+
+	# For building the examples independently, we still assume that the
+	# 'CMakeModules' folder can be found at the same place as the current
+	# source folder... This avoids having to copy the same content over
+	# and over again in all the examples.
+	SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/../CMakeModules")
+
+	MESSAGE("\nPerforming an independent build of ${PROJECT_NAME}")
+	INCLUDE(CommonGenevaBuild)
+ENDIF ()
+
+ENABLE_LANGUAGE(CUDA)
+
+# Setting the CUDA-Standard
+set(CMAKE_CUDA_STANDARD 17)
+set(CMAKE_CUDA_STANDARD_REQUIRED ON)
+
+# Search for libpng
+FIND_PACKAGE(PNG REQUIRED)
+IF(NOT PNG_FOUND)
+	message(FATAL_ERROR "libpng could not be found")
+ENDIF()
+
+SET ( EXECUTABLENAME GCUDAWorker )
+SET ( ${EXECUTABLENAME}_SRCS
+	GImageBuilder.cpp
+	GImageCUDAWorker.cpp
+    GImageIndividual.cpp
+	GImageHelperFunctions.cpp
+	GImageIndividualEvaluator.cu
+	GCUDAFitnessIndividual.cu
+)
+
+ADD_EXECUTABLE(${EXECUTABLENAME}
+	${${EXECUTABLENAME}_SRCS}
+)
+
+set_target_properties(${EXECUTABLENAME} PROPERTIES
+		CUDA_ARCHITECTURES 80 86 89
+)
+
+target_compile_options(${EXECUTABLENAME} PRIVATE
+		$<$<COMPILE_LANGUAGE:CUDA>:--extended-lambda>
+)
+
+SET(LIBRARIES_TO_LINK
+		${GENEVA_LIBRARIES}
+		${Boost_LIBRARIES}
+		${OpenCL_LIBRARIES})
+
+# Add MPI Libraries in case building with MPI-consumer
+IF(GENEVA_BUILD_WITH_MPI_CONSUMER)
+	SET(LIBRARIES_TO_LINK
+			${LIBRARIES_TO_LINK}
+			${MPI_LIBRARIES})
+ENDIF()
+
+TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
+		${LIBRARIES_TO_LINK}
+		PNG::PNG
+)
+
+SET ( MONALISAINCLUDES
+    GImageIndividual.hpp
+    GImagePOM.hpp
+	GImageCUDAWorker.hpp
+	GImageHelperFunctions.hpp
+	GImageIndividualEvaluator.hpp
+	GCUDAFitnessIndividual.hpp
+)
+
+# This is a workaround for a CLion-problem -- see CPP270 in the JetBrains issue tracker
+ADD_CUSTOM_TARGET(CLION_MONALISA_HEADERS SOURCES ${MONALISAINCLUDES})
+
+SET_TARGET_PROPERTIES(
+    CLION_MONALISA_HEADERS
+    PROPERTIES
+	CXX_STANDARD 20
+	CXX_STANDARD_REQUIRED ON
+	CXX_EXTENSIONS OFF
+)
+
+ADD_SUBDIRECTORY(pictures)
+ADD_SUBDIRECTORY(config)
+
+IF (GENEVA_RUN_EXAMPLES_AS_TESTS)
+	ADD_TEST(${EXECUTABLENAME} ${EXECUTABLENAME})
+ENDIF ()
+
+INSTALL ( TARGETS ${EXECUTABLENAME} DESTINATION ${INSTALL_PREFIX_DATA}/examples/${EXECUTABLENAME} )

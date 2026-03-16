@@ -227,7 +227,7 @@ private:
 		 	 *m_socket_ptr
 			 , results.begin()
 			 , results.end()
-			 , [self](boost::system::error_code ec, boost::asio::ip::tcp::resolver::iterator /* unused */) {
+			 , [self](boost::system::error_code ec, auto /* unused */) {
 				 self->when_connected(ec);
 			 }
 		 );

@@ -35,7 +35,6 @@
 ################################################################################
 
 IF (NOT GENEVA_FULL_TREE_BUILD)
-
 	PROJECT(Geneva_Examples_Geneva)
 
 	# For building the examples independently, we still assume that the
@@ -73,18 +72,11 @@ IF(GENEVA_BUILD_WITH_MPI_CONSUMER)
 			GMPISubClients)
 ENDIF()
 
-IF(GENEVA_BUILD_WITH_OPENCL_EXAMPLES AND OpenCL_FOUND)
+IF(GENEVA_BUILD_WITH_CUDA_EXAMPLES)
 	SET(DEPENDENCIES
 		${DEPENDENCIES}
-		GOpenCLConsumer)
+		GCUDAWorker)
 ENDIF()
-
-IF(GENEVA_BUILD_WITH_CUDA_EXAMPLES AND CUDA_FOUND)
-	SET(DEPENDENCIES
-			${DEPENDENCIES}
-			GCUDAImage)
-ENDIF()
-
 
 ADD_CUSTOM_TARGET( "examples-geneva"
 	# Add all the available example's targets (EXECUTABLENAMEs) here
@@ -109,12 +101,8 @@ ADD_SUBDIRECTORY( 12_GExternalEvaluator )
 ADD_SUBDIRECTORY( 13_GPluggableOptimizationMonitors )
 ADD_SUBDIRECTORY( 14_GDependentConstraints )
 
-IF(GENEVA_BUILD_WITH_OPENCL_EXAMPLES AND OpenCL_FOUND)
-    ADD_SUBDIRECTORY( 15_GOpenCLConsumer )
-ENDIF()
-
-IF(GENEVA_BUILD_WITH_CUDA_EXAMPLES AND CUDA_FOUND)
-	ADD_SUBDIRECTORY( 15_GCUDAImage )
+IF(GENEVA_BUILD_WITH_CUDA_EXAMPLES)
+    ADD_SUBDIRECTORY(15_GCUDAWorker)
 ENDIF()
 
 IF(GENEVA_BUILD_WITH_MPI_CONSUMER)

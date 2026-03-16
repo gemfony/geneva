@@ -52,16 +52,13 @@
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
-#include <boost/archive/binary_oarchive.hpp>
 #include <boost/archive/binary_iarchive.hpp>
 #include <boost/serialization/nvp.hpp>
 #include <boost/serialization/map.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/base_object.hpp>
-#include <boost/serialization/utility.hpp>
 #include <boost/serialization/tracking.hpp>
-#include <boost/serialization/split_member.hpp>
 #include <boost/serialization/export.hpp>
 
 // Geneva headers go here
@@ -69,8 +66,7 @@
 #include "courtier/GProcessingContainerT.hpp"
 #include "hap/GRandomT.hpp"
 
-namespace Gem {
-namespace Courtier {
+namespace Gem::Courtier {
 
 /**********************************************************************************************/
 /**
@@ -95,20 +91,20 @@ class GSimpleContainer
 
 public:
     /** @brief The standard constructor -- Initialization with an amount of random numbers */
-    G_API_COURTIER GSimpleContainer(const std::size_t&);
+    G_API_COURTIER explicit GSimpleContainer(const std::size_t&);
     /** @brief The copy constructor */
     G_API_COURTIER GSimpleContainer(const GSimpleContainer&) = default;
     /** @brief The destructor */
     G_API_COURTIER ~GSimpleContainer() override = default;
 
     /** @brief Prints out this objects random number container */
-    G_API_COURTIER void print();
+    G_API_COURTIER void print() const;
 
 private:
     /** @brief The default constructor -- only needed for de-serialization purposes */
     G_API_COURTIER GSimpleContainer() = default;
     /** @brief Allows to specify the tasks to be performed for this object */
-    G_API_COURTIER void process_() override;
+    G_API_COURTIER void process_(const std::vector<bool> &res_vec = std::vector<bool>()) final;
 
     std::size_t m_stored_number = 0; ///< Holds the pay-load of this object
 };
@@ -127,7 +123,8 @@ class GRandomNumberContainer
     void serialize(Archive & ar, const unsigned int){
         using boost::serialization::make_nvp;
 
-        ar & make_nvp("GProcessingContainerT_GRandomNumberContainer", boost::serialization::base_object<Gem::Courtier::GProcessingContainerT<GRandomNumberContainer, bool>>(*this))
+        ar
+        & make_nvp("GProcessingContainerT_GRandomNumberContainer", boost::serialization::base_object<Gem::Courtier::GProcessingContainerT<GRandomNumberContainer, bool>>(*this))
         & BOOST_SERIALIZATION_NVP(randomNumbers_);
     }
     ///////////////////////////////////////////////////////////////////////
@@ -153,21 +150,20 @@ public:
     /******************************************************************************************/
 
     /** @brief Prints out this objects random number container */
-    G_API_COURTIER void print();
+    G_API_COURTIER void print() const;
 
 private:
     /** @brief The default constructor -- only needed for de-serialization purposes */
     G_API_COURTIER GRandomNumberContainer() = default;
     /** @brief Allows to specify the tasks to be performed for this object */
-    G_API_COURTIER void process_() override;
+    G_API_COURTIER void process_(const std::vector<bool> &res_vec = std::vector<bool>()) final;
 
     std::vector<double> randomNumbers_; ///< Holds the pay-load of this object
 };
 
 /**********************************************************************************************/
 
-} /* namespace Courtier */
-} /* namespace Gem */
+} /* namespace Gem::Courtier */
 
 BOOST_CLASS_EXPORT_KEY(Gem::Courtier::GSimpleContainer)
 BOOST_CLASS_EXPORT_KEY(Gem::Courtier::GRandomNumberContainer)

@@ -69,15 +69,15 @@ G_API_GENEVA double minOnly_transformed_fitness(const std::shared_ptr<GParameter
 /******************************************************************************/
 /** @brief Checks whether the first individual is better than the second */
 G_API_GENEVA bool isBetter(
-	const std::shared_ptr<GParameterSet> x_ptr
-	, const std::shared_ptr<GParameterSet> y_ptr
+	const std::shared_ptr<GParameterSet>& x_ptr
+	, const std::shared_ptr<GParameterSet>& y_ptr
 );
 
 /******************************************************************************/
 /** @brief Checks whether the first individual is worse than the second */
 G_API_GENEVA bool isWorse(
-	const std::shared_ptr<GParameterSet> x_ptr
-	, const std::shared_ptr<GParameterSet> y_ptr
+	const std::shared_ptr<GParameterSet>& x_ptr
+	, const std::shared_ptr<GParameterSet>& y_ptr
 );
 
 /******************************************************************************/

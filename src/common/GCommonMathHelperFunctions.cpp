@@ -40,543 +40,543 @@
 
 #include "common/GCommonMathHelperFunctions.hpp"
 
-namespace Gem {
-namespace Common {
+namespace Gem::Common
+{
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Calculates the acos value of a float value
  *
  * @param x The value for which acos should be calculated
  * @return The acos value of x
  */
-float gacos(const float &x) {
-	return acosf(x);
-}
+	float gacos(const float &x) {
+		return acosf(x);
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Calculates the acos value of a double value
  *
  * @param x The value for which acos should be calculated
  * @return The acos value of x
  */
-double gacos(const double &x) {
-	return std::acos(x);
-}
+	double gacos(const double &x) {
+		return std::acos(x);
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Calculates the asin value of a float value
  *
  * @param x The value for which asin should be calculated
  * @return The asin value of x
  */
-float gasin(const float &x) {
-	return asinf(x);
-}
+	float gasin(const float &x) {
+		return asinf(x);
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Calculates the asin value of a double value
  *
  * @param x The value for which asin should be calculated
  * @return The asin value of x
  */
-double gasin(const double &x) {
-	return asin(x);
-}
+	double gasin(const double &x) {
+		return asin(x);
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Calculates the atan value of a float value
  *
  * @param x The value for which atan should be calculated
  * @return The atan value of x
  */
-float gatan(const float &x) {
-	return atanf(x);
-}
+	float gatan(const float &x) {
+		return atanf(x);
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Calculates the atan value of a double value
  *
  * @param x The value for which atan should be calculated
  * @return The atan value of x
  */
-double gatan(const double &x) {
-	return atan(x);
-}
+	double gatan(const double &x) {
+		return atan(x);
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Calculates the tan value of a float value
  *
  * @param x The value for which tan should be calculated
  * @return The tan value of x
  */
-float gtan(const float &x) {
-	return tanf(x);
-}
+	float gtan(const float &x) {
+		return tanf(x);
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Calculates the tan value of a double value
  *
  * @param x The value for which tan should be calculated
  * @return The tan value of x
  */
-double gtan(const double &x) {
-	return tan(x);
-}
+	double gtan(const double &x) {
+		return tan(x);
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Calculates the tanh value of a float value
  *
  * @param x The value for which tanh should be calculated
  * @return The tanh value of x
  */
-float gtanh(const float &x) {
-	return tanhf(x);
-}
+	float gtanh(const float &x) {
+		return tanhf(x);
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Calculates the tanh value of a double value
  *
  * @param x The value for which tanh should be calculated
  * @return The tanh value of x
  */
-double gtanh(const double &x) {
-	return tanh(x);
-}
+	double gtanh(const double &x) {
+		return tanh(x);
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Calculates the sinh value of a float value
  *
  * @param x The value for which sinh should be calculated
  * @return The sinh value of x
  */
-float gsinh(const float &x) {
-	return sinhf(x);
-}
+	float gsinh(const float &x) {
+		return sinhf(x);
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Calculates the sinh value of a double value
  *
  * @param x The value for which sinh should be calculated
  * @return The sinh value of x
  */
-double gsinh(const double &x) {
-	return sinh(x);
-}
+	double gsinh(const double &x) {
+		return sinh(x);
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Calculates the cosh value of a float value
  *
  * @param x The value for which cosh should be calculated
  * @return The cosh value of x
  */
-float gcosh(const float &x) {
-	return coshf(x);
-}
+	float gcosh(const float &x) {
+		return coshf(x);
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Calculates the cosh value of a double value
  *
  * @param x The value for which cosh should be calculated
  * @return The cosh value of x
  */
-double gcosh(const double &x) {
-	return cosh(x);
-}
+	double gcosh(const double &x) {
+		return cosh(x);
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Calculates the ceil value of a float value
  *
  * @param x The value for which ceil should be calculated
  * @return The ceil value of x
  */
-float gceil(const float &x) {
-	return ceilf(x);
-}
+	float gceil(const float &x) {
+		return ceilf(x);
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Calculates the ceil value of a double value
  *
  * @param x The value for which ceil should be calculated
  * @return The ceil value of x
  */
-double gceil(const double &x) {
-	return ceil(x);
-}
+	double gceil(const double &x) {
+		return ceil(x);
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Calculates the maximum value of two float values
  */
-float gmax(const float &x, const float &y) {
-	return fmaxf(x, y);
-}
+	float gmax(const float &x, const float &y) {
+		return fmaxf(x, y);
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Calculates the maximum value of two double values
  */
-double gmax(const double &x, const double &y) {
-	return fmax(x, y);
-}
+	double gmax(const double &x, const double &y) {
+		return fmax(x, y);
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Calculates the minimum value of two float values
  */
-float gmin(const float &x, const float &y) {
-	return fminf(x, y);
-}
+	float gmin(const float &x, const float &y) {
+		return fminf(x, y);
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Calculates the minimum value of two double values
  */
-double gmin(const double &x, const double &y) {
-	return fmin(x, y);
-}
+	double gmin(const double &x, const double &y) {
+		return fmin(x, y);
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Calculates the floor value of a float value
  *
  * @param x The value for which floor should be calculated
  * @return The floor value of x
  */
-float gfloor(const float &x) {
-	return floorf(x);
-}
+	float gfloor(const float &x) {
+		return floorf(x);
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Calculates the floor value of a double value
  *
  * @param x The value for which floor should be calculated
  * @return The floor value of x
  */
-double gfloor(const double &x) {
-	return floor(x);
-}
+	double gfloor(const double &x) {
+		return floor(x);
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Calculates the floor value of a long double value
  *
  * @param x The value for which floor should be calculated
  * @return The floor value of x
  */
-long double gfloor(const long double &x) {
+	long double gfloor(const long double &x) {
 #ifdef __CYGWIN__
 	// This needs to go away if and when Cygwin supports long double appropriately
 	return floor(boost::numeric_cast<double>(x));
 #else
-	return floorl(x);
+		return floorl(x);
 #endif
-}
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Calculates the fabsf value of a float value
  *
  * @param x The value for which fabs should be calculated
  * @return The fabs value of x
  */
-float gfabs(const float &x) {
-	return fabsf(x);
-}
+	float gfabs(const float &x) {
+		return fabsf(x);
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Calculates the fabs value of a double value
  *
  * @param x The value for which fabs should be calculated
  * @return The fabs value of x
  */
-double gfabs(const double &x) {
-	return fabs(x);
-}
+	double gfabs(const double &x) {
+		return fabs(x);
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Calculates the fabsl value of a long double value
  *
  * @param x The value for which fabs should be calculated
  * @return The fabs value of x
  */
-long double gfabs(const long double &x) {
+	long double gfabs(const long double &x) {
 #ifdef __CYGWIN__
 	// This needs to go away if and when Cygwin supports long double appropriately
    return fabs(boost::numeric_cast<double>(x));
 #else
-	return fabsl(x);
+		return fabsl(x);
 #endif
-}
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Calculates the abs value of an int value
  *
  * @param i The value of which the absolute value should be calculated
  * @return The absolute value of i
  */
-int giabs(const int &i) {
-	return abs(i);
-}
+	int giabs(const int &i) {
+		return abs(i);
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Calculates the abs value of a long int value
  *
  * @param i The value of which the absolute value should be calculated
  * @return The absolute value of i
  */
-long giabs(const long &i) {
-	return labs(i);
-}
+	long giabs(const long &i) {
+		return labs(i);
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Calculates the sqrt value of a float value
  *
  * @param x The value for which sqrt should be calculated
  * @return The sqrt value of x
  */
-float gsqrt(const float &x) {
-	return sqrtf(x);
-}
+	float gsqrt(const float &x) {
+		return sqrtf(x);
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Calculates the sqrt value of a double value
  *
  * @param x The value for which sqrt should be calculated
  * @return The sqrt value of x
  */
-double gsqrt(const double &x) {
-	return sqrt(x);
-}
+	double gsqrt(const double &x) {
+		return sqrt(x);
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Calculates the sin value of a float value
  *
  * @param x The value for which sin should be calculated
  * @return The sin value of x
  */
-float gsin(const float &x) {
-	return sinf(x);
-}
+	float gsin(const float &x) {
+		return sinf(x);
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Calculates the sin value of a double value
  *
  * @param x The value for which sin should be calculated
  * @return The sin value of x
  */
-double gsin(const double &x) {
-	return sin(x);
-}
+	double gsin(const double &x) {
+		return sin(x);
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Calculates the cos value of a float value
  *
  * @param x The value for which cos should be calculated
  * @return The cos value of x
  */
-float gcos(const float &x) {
-	return cosf(x);
-}
+	float gcos(const float &x) {
+		return cosf(x);
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Calculates the cos value of a double value
  *
  * @param x The value for which cos should be calculated
  * @return The cos value of x
  */
-double gcos(const double &x) {
-	return cos(x);
-}
+	double gcos(const double &x) {
+		return cos(x);
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Calculates the log value of a float value
  *
  * @param x The value for which log should be calculated
  * @return The log value of x
  */
-float glog(const float &x) {
-	return logf(x);
-}
+	float glog(const float &x) {
+		return logf(x);
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Calculates the log value of a double value
  *
  * @param x The value for which log should be calculated
  * @return The log value of x
  */
-double glog(const double &x) {
-	return log(x);
-}
+	double glog(const double &x) {
+		return log(x);
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Calculates the log10 value of a float value
  *
  * @param x The value for which log10 should be calculated
  * @return The log10 value of x
  */
-float glog10(const float &x) {
-	return log10f(x);
-}
+	float glog10(const float &x) {
+		return log10f(x);
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Calculates the log10 value of a double value
  *
  * @param x The value for which log10 should be calculated
  * @return The log10 value of x
  */
-double glog10(const double &x) {
-	return log10(x);
-}
+	double glog10(const double &x) {
+		return log10(x);
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Calculates the exp value of a float value
  *
  * @param x The value for which exp should be calculated
  * @return The exp value of x
  */
-float gexp(const float &x) {
-	return expf(x);
-}
+	float gexp(const float &x) {
+		return expf(x);
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Calculates the exp value of a double value
  *
  * @param x The value for which exp should be calculated
  * @return The exp value of x
  */
-double gexp(const double &x) {
-	return exp(x);
-}
+	double gexp(const double &x) {
+		return exp(x);
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Calculates the sign value of a float value
  *
  * @param x The value for which sign should be calculated
  * @return The sign value of x
  */
-float gsign(const float &x) {
-	return copysignf(1.f, x);
-}
+	float gsign(const float &x) {
+		return copysignf(1.f, x);
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Calculates the sign value of a double value
  *
  * @param x The value for which sign should be calculated
  * @return The sign value of x
  */
-double gsign(const double &x) {
-	return copysign(1., x);
-}
+	double gsign(const double &x) {
+		return copysign(1., x);
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Calculates the pow value of a float value
  */
-float gpow(const float &x, const float &y) {
-	return powf(x, y);
-}
+	float gpow(const float &x, const float &y) {
+		return powf(x, y);
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Calculates the pow value of a double value
  */
-double gpow(const double &x, const double &y) {
-	return pow(x, y);
-}
+	double gpow(const double &x, const double &y) {
+		return pow(x, y);
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Calculates the hypot value of a float value
  */
-float ghypot(const float &x, const float &y) {
-	return boost::math::hypot<float, float>(x, y);
-}
+	float ghypot(const float &x, const float &y) {
+		return boost::math::hypot<float, float>(x, y);
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Calculates the hypot value of a double value
  */
-double ghypot(const double &x, const double &y) {
-	return boost::math::hypot(x, y);
-}
+	double ghypot(const double &x, const double &y) {
+		return boost::math::hypot(x, y);
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Performs alpha blending for floats
  */
-float gmix(
-	const float &bottom, const float &top, const float &alpha
-) {
+	float gmix(
+		const float &bottom, const float &top, const float &alpha
+	) {
 #ifdef DEBUG
-	if(alpha < 0.f || alpha > 1.f) {
-		throw gemfony_exception(
-			g_error_streamer(DO_LOG,  time_and_place)
+		if(alpha < 0.f || alpha > 1.f) {
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GMix<float>(): Error!" << std::endl
 				<< "alpha should be in the range [0.f,1.f], but has value " << alpha << std::endl
-		);
-	}
+			);
+		}
 #endif
 
-	return bottom * (1.f - alpha) + top * alpha;
-}
+		return bottom * (1.f - alpha) + top * alpha;
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Performs alpha blending for doubles
  */
-double gmix(
-	const double &bottom, const double &top, const double &alpha
-) {
+	double gmix(
+		const double &bottom, const double &top, const double &alpha
+	) {
 #ifdef DEBUG
-	if(alpha < 0. || alpha > 1.) {
-		throw gemfony_exception(
-			g_error_streamer(DO_LOG,  time_and_place)
+		if(alpha < 0. || alpha > 1.) {
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GMix<double>(): Error!" << std::endl
 				<< "alpha should be in the range [0.,1.], but has value " << alpha << std::endl
-		);
-	}
+			);
+		}
 #endif
 
-	return bottom * (1. - alpha) + top * alpha;
-}
+		return bottom * (1. - alpha) + top * alpha;
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * A sigmoid function with user-defined minimum / maximum values (float version) .
  * Vgl. http://en.wikipedia.org/wiki/File:Gjl-t%28x%29.svg .
  *
@@ -585,22 +585,22 @@ double gmix(
  * @param steepness Determines how quickly the function converges to the barrier
  * @return The function value
  */
-float gsigmoid(
-	const float &var
-	, const float &barrier
-	, const float &steepness
-) {
-	long double local_var       = boost::numeric_cast<long double>(var);
-	long double local_barrier   = boost::numeric_cast<long double>(barrier);
-	long double local_steepness = boost::numeric_cast<long double>(steepness);
+	float gsigmoid(
+		const float &var
+		, const float &barrier
+		, const float &steepness
+	) {
+		long double local_var       = boost::numeric_cast<long double>(var);
+		long double local_barrier   = boost::numeric_cast<long double>(barrier);
+		long double local_steepness = boost::numeric_cast<long double>(steepness);
 
-	return boost::numeric_cast<float>(
-		local_barrier * local_var / (local_steepness + gfabs(local_var))
-	);
-}
+		return boost::numeric_cast<float>(
+			local_barrier * local_var / (local_steepness + gfabs(local_var))
+		);
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * A sigmoid function with user-defined minimum / maximum values (double version)
  * Vgl. http://en.wikipedia.org/wiki/File:Gjl-t%28x%29.svg . Note that the lower
  * limit of this function is negative. The function uses long double values internally
@@ -611,21 +611,20 @@ float gsigmoid(
  * @param steepness Determines how quickly the function converges to the barrier
  * @return The function value
  */
-double gsigmoid(
-	const double &var
-	, const double &barrier
-	, const double &steepness
-) {
-	long double local_var       = boost::numeric_cast<long double>(var);
-	long double local_barrier   = boost::numeric_cast<long double>(barrier);
-	long double local_steepness = boost::numeric_cast<long double>(steepness);
+	double gsigmoid(
+		const double &var
+		, const double &barrier
+		, const double &steepness
+	) {
+		long double local_var       = boost::numeric_cast<long double>(var);
+		long double local_barrier   = boost::numeric_cast<long double>(barrier);
+		long double local_steepness = boost::numeric_cast<long double>(steepness);
 
-	return boost::numeric_cast<double>(
-		local_barrier * local_var / (local_steepness + gfabs(local_var))
-	);
+		return boost::numeric_cast<double>(
+			local_barrier * local_var / (local_steepness + gfabs(local_var))
+		);
+	}
+
+	/******************************************************************************/
+
 }
-
-/******************************************************************************/
-
-} /* namespace Common */
-} /* namespace Gem */

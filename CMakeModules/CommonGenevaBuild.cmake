@@ -41,7 +41,7 @@
 
 ################################################################################
 
-CMAKE_MINIMUM_REQUIRED(VERSION 3.10 FATAL_ERROR)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.27 FATAL_ERROR)
 
 # Include guard
 IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
@@ -99,10 +99,10 @@ FLAG_UNSUPPORTED_SETUPS(
 ################################################################################
 # Set the C++ standard to be used
 
-# Geneva requires at least the C++17 Standard. The user may force another
-# value at its own risk by setting the variable CMAKE_CXX_STANDARD.
+# Geneva requires at least the C++20 Standard. The user may force another
+# value at his own risk by setting the variable CMAKE_CXX_STANDARD.
 IF( NOT DEFINED CMAKE_CXX_STANDARD )
-	SET( CMAKE_CXX_STANDARD "17" )
+	SET( CMAKE_CXX_STANDARD "20" )
 ENDIF()
 
 SET(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -262,24 +262,6 @@ IF(GENEVA_BUILD_WITH_MPI_CONSUMER)
 	MESSAGE("")
 	IF(MPI_FOUND)
 		INCLUDE_DIRECTORIES(${MPI_INCLUDE_PATH})
-	ENDIF()
-ENDIF()
-
-# Optionally search for OpenCL
-IF(GENEVA_BUILD_WITH_OPENCL_EXAMPLES)
-    FIND_PACKAGE(OpenCL REQUIRED)
-    MESSAGE("")
-    IF(OpenCL_FOUND)
-        INCLUDE_DIRECTORIES(${OpenCL_INCLUDE_DIRS})
-    ENDIF()
-ENDIF()
-
-# Optionally search for CUDA
-IF(GENEVA_BUILD_WITH_CUDA_EXAMPLES)
-	FIND_PACKAGE(CUDA REQUIRED)
-	MESSAGE("")
-	IF(CUDA_FOUND)
-		INCLUDE_DIRECTORIES(${CUDA_INCLUDE_DIRS})
 	ENDIF()
 ENDIF()
 

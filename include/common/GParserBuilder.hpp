@@ -282,6 +282,8 @@ public:
 	 /**
 	  * Returns a reference to the parameter, if it hasn't been set. Otherwise
 	  * it will return a reference to the dummy parameter.
+	  *
+	  * TODO: This function should throw if the parameter is set more than once
 	  */
 	 parameter_type &reference() {
 		 if (m_parm_set) {

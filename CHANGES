@@ -1,25 +1,31 @@
 //------------------------------------------------------------------------------------------------------
-* Version 1.11, under development
+* Version 1.11, "Hendaye", under development
 
 Recommended versions:
-- Boost version 1.70 or higher is required, 1.72 is recommended
-- CMake version 3.20 or higher is required
-- GCC is recommended to be at least version 8. Earlier versions
-  might work if C++17 is sufficiently supported
+- Boost version 1.87 or higher is required
+- CMake version 3.27 or higher is required
+- GCC is recommended to be at least version 13, clang should be at least version 18.
+  Earlier versions might work if C++20 is sufficiently supported
 
 ********************** INCOMPATIBILITIES / PLEASE NOTE *************************
 
-- Geneva now uses C++17 constructs, hence you need a compiler that supports this.
-  It is thus also recommended to compile Boost with C++17 support, to be consistent
+- Geneva now uses C++20 constructs, hence you need a compiler that supports this.
+  It is thus also recommended to compile Boost with C++20 support, to be consistent
 
 ************************* Misc *************************************************
 
+- Where CUDA is available, random numbers will now be calculated on the GPU
+- A new CUDA example has been added
 - boost::optional, boost::any, boost::filesystem, boost::variant have been replaced
   by their C++17 counterparts
 - Benchmarks for courtier and geneva have been moved to their own benchmarks top-level
   directory and are no longer considered to be tests
 
 ********************************************************************************
+
+Current issues with this development release:
+- The C++ standard is not set centrally, but individually for each library
+- Current Boost releases do not work
 
 //------------------------------------------------------------------------------------------------------
 * Version 1.10, "Genova" - March 10, 2020
