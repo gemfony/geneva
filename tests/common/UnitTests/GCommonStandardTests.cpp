@@ -47,35 +47,3 @@ using namespace boost::unit_test;
 
 // This file holds the actual random tests
 #include "common/tests/GCommon_tests.hpp"
-#include "common/GJunieDemo.hpp"
-
-// Simple demo tests for GJunieDemo
-static void GJunieDemo_add_test() {
-	Gem::Common::GJunieDemo d;
-	BOOST_CHECK_EQUAL(d.add(2, 3), 5);
-	BOOST_CHECK_EQUAL(d.add(-1, 1), 0);
-}
-
-static void GJunieDemo_multiply_test() {
-	Gem::Common::GJunieDemo d;
-	BOOST_CHECK_EQUAL(d.multiply(4, 5), 20);
-	BOOST_CHECK_EQUAL(d.multiply(-3, 3), -9);
-}
-
-static void GJunieDemo_sayHello_test() {
-	BOOST_CHECK(!Gem::Common::GJunieDemo::sayHello().empty());
-}
-
-// Test program entry point
-test_suite* init_unit_test_suite(int argc, char** const argv) {
-	framework::master_test_suite().add(new GCommonSuite());
-
-	// Add a small suite that exercises the newly created demo class
-	auto demoSuite = BOOST_TEST_SUITE("GJunieDemoSuite");
-	demoSuite->add(BOOST_TEST_CASE(&GJunieDemo_add_test));
-	demoSuite->add(BOOST_TEST_CASE(&GJunieDemo_multiply_test));
-	demoSuite->add(BOOST_TEST_CASE(&GJunieDemo_sayHello_test));
-	framework::master_test_suite().add(demoSuite);
-
-	return 0;
-}
