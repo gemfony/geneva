@@ -47,7 +47,6 @@ SET ( COMMONSOURCES
 	GPlotDesigner.cpp
 	GThreadGroup.cpp
 	GThreadPool.cpp
-	GJunieDemo.cpp
 )
 
 
