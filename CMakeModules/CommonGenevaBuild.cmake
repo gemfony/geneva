@@ -41,7 +41,7 @@
 
 ################################################################################
 
-CMAKE_MINIMUM_REQUIRED(VERSION 3.1 FATAL_ERROR)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.27 FATAL_ERROR)
 
 # Include guard
 IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
@@ -99,13 +99,14 @@ FLAG_UNSUPPORTED_SETUPS(
 ################################################################################
 # Set the C++ standard to be used
 
-# Geneva requires at least the C++14 Standard. The user may force another
-# value at its own risk by setting the variable CMAKE_CXX_STANDARD.
+# Geneva requires at least the C++20 Standard. The user may force another
+# value at his own risk by setting the variable CMAKE_CXX_STANDARD.
 IF( NOT DEFINED CMAKE_CXX_STANDARD )
-	SET( CMAKE_CXX_STANDARD "14" )
+	SET( CMAKE_CXX_STANDARD "20" )
 ENDIF()
 
-SET_CXX_STANDARD_FLAG()
+SET(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 ################################################################################
 # Set the compiler and linker flags
@@ -159,16 +160,8 @@ ENDIF ()
 
 SET (Boost_USE_MULTITHREAD ON)
 SET (Boost_ADDITIONAL_VERSIONS
-        "1.70"
-        "1.70.0"
-        "1.71"
-        "1.71.0"
-        "1.72"
-        "1.72.0"
-        "1.73"
-        "1.73.0"
-        "1.74"
-        "1.74.0"
+		"1.90.0"
+		"1.90"
 )
 
 IF ( GENEVA_STATIC )
@@ -192,7 +185,7 @@ ELSE () # Dynamic libraries
 ENDIF ()
 
 # The minimum Boost version required for building Geneva and Geneva applications
-SET (GENEVA_MIN_BOOST_VERSION 1.70)
+SET (GENEVA_MIN_BOOST_VERSION 1.90)
 
 # These are the libraries required for any Geneva build
 SET (
@@ -201,7 +194,6 @@ SET (
 	filesystem
 	regex
 	serialization
-	system
 	program_options
 )
 
@@ -238,13 +230,14 @@ MESSAGE("")
 
 INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
 
-# Optionally search for OpenCL
-IF(GENEVA_BUILD_WITH_OPENCL_EXAMPLES)
-    FIND_PACKAGE(OpenCL REQUIRED)
-    MESSAGE("")
-    IF(OpenCL_FOUND)
-        INCLUDE_DIRECTORIES(${OpenCL_INCLUDE_DIRS})
-    ENDIF()
+# Optionally Search for MPI
+IF(GENEVA_BUILD_WITH_MPI_CONSUMER)
+	MESSAGE("Searching for MPI...\n")
+	FIND_PACKAGE(MPI REQUIRED)
+	MESSAGE("")
+	IF(MPI_FOUND)
+		INCLUDE_DIRECTORIES(${MPI_INCLUDE_PATH})
+	ENDIF()
 ENDIF()
 
 # Add compile-time debug information about Boost's linked libraries
@@ -444,6 +437,9 @@ IF(NOT CMAKE_CONFIGURATION_TYPES)
 	STRING (REGEX REPLACE "[ \t]+" "\n\t\t\t\t\t " CMAKE_CXX_FLAGS_SEP ${CMAKE_CXX_FLAGS_STRIPPED})
 	MESSAGE ("\twith C++ compiler flags:\t ${CMAKE_CXX_FLAGS_SEP}")
 ENDIF ()
+
+MESSAGE("\tUsing C++ standard ${CMAKE_CXX_STANDARD}")
+
 # Don't print linker options if empty
 STRING (STRIP "${CMAKE_EXE_LINKER_FLAGS}" CMAKE_L_FLAGS_STRIPPED)
 IF(NOT "${CMAKE_L_FLAGS_STRIPPED}" STREQUAL "")

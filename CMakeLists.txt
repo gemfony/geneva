@@ -34,11 +34,11 @@
 #
 ################################################################################
 
-CMAKE_MINIMUM_REQUIRED(VERSION 3.1)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.27 FATAL_ERROR)
 
 MESSAGE ("")
 
-PROJECT (Geneva_Library_Collection)
+PROJECT (Geneva_Library_Collection LANGUAGES CXX CUDA)
 
 ################################################################################
 # We create some examples and test programs as part of the build process.
@@ -50,9 +50,13 @@ PROJECT (Geneva_Library_Collection)
 SET(GENEVA_FULL_TREE_BUILD TRUE)
 
 ################################################################################
-# Set this variable to make all examples run as part of the testing with CTest.
+# Set these variables to make all examples and/or benchmarks run as part of the
+# testing with CTest.
 
-#SET(GENEVA_RUN_EXAMPLES_AS_TESTS TRUE)
+# NOTE: Not yet functional
+
+SET(GENEVA_RUN_EXAMPLES_AS_TESTS FALSE)
+SET(GENEVA_RUN_BENCHMARKS_AS_TESTS FALSE)
 
 ################################################################################
 # Different subcomponents of the Geneva binary tree can be installed in
@@ -77,6 +81,12 @@ ENDIF()
 
 SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/CMakeModules")
 
+################################################################################
+# Set preprocessor define to use in source code if building with MPI consumer
+IF (GENEVA_BUILD_WITH_MPI_CONSUMER)
+	ADD_COMPILE_DEFINITIONS(GENEVA_BUILD_WITH_MPI_CONSUMER)
+ENDIF ()
+
 ###############################################################################
 # Include the shared functionality module for any Geneva build
 
@@ -87,7 +97,7 @@ INCLUDE(CommonGenevaBuild)
 # versions while even minor numbers stand for production releases.
 
 SET(VERSION_MAJOR "1")
-SET(VERSION_MINOR "10")
+SET(VERSION_MINOR "11")
 SET(VERSION_PATCH "0")
 
 SET(GENEVA_VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
@@ -128,9 +138,16 @@ IF( GENEVA_BUILD_TESTS )
 ENDIF()
 
 # Examples are also run as tests if enabled with 'GENEVA_RUN_EXAMPLES_AS_TESTS'
-ADD_SUBDIRECTORY (examples)
+IF( GENEVA_BUILD_EXAMPLES )
+	ADD_SUBDIRECTORY (examples)
+ENDIF()
 
-# Holds an incubator facility for new optimization algorihms
+# Benchmarks are also run as tests if enabled with GENEVA_RUN_BENCHMARKS_AS_TESTS
+IF( GENEVA_BUILD_BENCHMARKS )
+	ADD_SUBDIRECTORY (benchmarks)
+ENDIF()
+
+# Holds an incubator facility for new optimization algorithms
 # ADD_SUBDIRECTORY (incubator)
 
 ################################################################################
@@ -138,6 +155,7 @@ ADD_SUBDIRECTORY (examples)
 ADD_CUSTOM_TARGET(
 	"gemfony-build-all" DEPENDS
 	core
+	benchmarks
 	examples
 	tests
 	# incubator
@@ -240,7 +258,7 @@ SET(CPACK_RPM_PACKAGE_LICENSE "Apache License 2.0")
 SET(CPACK_RPM_PACKAGE_GROUP "Sciences/Libraries")
 SET(CPACK_RPM_PACKAGE_REQUIRES "boost-devel >= ${GENEVA_MIN_BOOST_VERSION}")
 
-# Detect the distribution to autoselect the package generator...
+# Detect the distribution to autos-elect the package generator...
 EXECUTE_PROCESS(COMMAND lsb_release -is
 	OUTPUT_VARIABLE CPACK_AUX_DISTRO
 )

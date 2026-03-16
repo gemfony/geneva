@@ -33,7 +33,6 @@
 # collection for a list of contributors and copyright information.
 #
 ################################################################################
-CMAKE_MINIMUM_REQUIRED(VERSION 3.1)
 
 IF (NOT GENEVA_FULL_TREE_BUILD)
 
@@ -56,17 +55,27 @@ SET ( EXECUTABLENAME GStarter )
 ADD_CUSTOM_TARGET(CLION_ALL_GSTARTER_HEADERS SOURCES)
 
 SET ( ${EXECUTABLENAME}_SRCS
-	GStarter
-	GStarterIndividual
+	GStarter.cpp
+	GStarterIndividual.cpp
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}
 	${${EXECUTABLENAME}_SRCS}
 )
 
+SET(LIBRARIES_TO_LINK
+		${GENEVA_LIBRARIES}
+		${Boost_LIBRARIES})
+
+# Add MPI Libraries in case building with MPI-consumer
+IF(GENEVA_BUILD_WITH_MPI_CONSUMER)
+	SET(LIBRARIES_TO_LINK
+			${LIBRARIES_TO_LINK}
+			${MPI_LIBRARIES})
+ENDIF()
+
 TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
-    ${GENEVA_LIBRARIES}
-    ${Boost_LIBRARIES}
+    ${LIBRARIES_TO_LINK}
 )
 
 

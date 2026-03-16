@@ -289,7 +289,7 @@ class GStarterIndividualFactory
 {
 public:
 	 /** @brief The standard constructor */
-	 explicit GStarterIndividualFactory(boost::filesystem::path const&);
+	 explicit GStarterIndividualFactory(std::filesystem::path const&);
 	 /** @brief The destructor */
 	 ~GStarterIndividualFactory() override = default;
 

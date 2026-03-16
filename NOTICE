@@ -59,5 +59,8 @@ GSI Darmstadt on scalability issues and optimization efficiency
 of a particular use case from particle physics has helped to make
 Geneva a more mature and versatile solution.
 
-
+Jonas Wessner has contributed a new MPI consumer that greatly improves
+efficiency in a cluster environment, and has analysed many aspects
+of Geneva for his Bachelor thesis. His work significantly contributes
+to the further development of Geneva.
 

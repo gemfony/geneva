@@ -79,7 +79,7 @@ public:
 	  *
 	  * @param configFile path object of a configuration file holding information about objects of type T
 	  */
-	 explicit GParameterSetFactory(boost::filesystem::path const &configFile)
+	 explicit GParameterSetFactory(std::filesystem::path const &configFile)
 		 : Gem::Common::GFactoryT<GParameterSet>(configFile)
 	 { /* nothing */ }
 

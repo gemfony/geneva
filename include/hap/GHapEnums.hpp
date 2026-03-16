@@ -41,44 +41,40 @@
 
 // Standard headers go here
 #include <string>
-#include <istream>
-#include <ostream>
+#include <iostream>
 
 // Boost headers go here
-#include <boost/cast.hpp>
 
 // Geneva headers go here
 #include "common/GCommonEnums.hpp"
 
-namespace Gem {
-namespace Hap {
+namespace Gem::Hap
+{
+    /******************************************************************************/
+    // For bi_normal_distribution
 
-/******************************************************************************/
-// For bi_normal_distribution
+    constexpr double DEF_BINORM_MEAN = 0.;
+    constexpr double DEF_BINORM_SIGMA1 = 0.1;
+    constexpr double DEF_BINORM_SIGMA2 = 0.1;
+    constexpr double DEF_BINORM_DISTANCE = 0.5;
 
-const double DEF_BINORM_MEAN=0.;
-const double DEF_BINORM_SIGMA1=0.1;
-const double DEF_BINORM_SIGMA2=0.1;
-const double DEF_BINORM_DISTANCE=0.5;
+    /******************************************************************************/
+    /**
+     * Allowed specializations of Gem::Hap::GRandomT<T>
+     */
+    enum class RANDFLAVOURS : Gem::Common::ENUMBASETYPE
+    {
+        RANDOMPROXY = 0 // random numbers are taken from the factory
+        , RANDOMLOCAL = 1
+        // random numbers are produced locally, using a seed taken from the seed manager or provided to the constructor
+    };
 
-/******************************************************************************/
-/**
- * Allowed specializations of Gem::Hap::GRandomT<T>
- */
-enum class RANDFLAVOURS : Gem::Common::ENUMBASETYPE {
-	RANDOMPROXY = 0 // random numbers are taken from the factory
-	, RANDOMLOCAL = 1 // random numbers are produced locally, using a seed taken from the seed manager or provided to the constructor
-};
+    /******************************************************************************/
 
-/******************************************************************************/
+    /** @brief Puts a Gem::Hap::RANDFLAVOURS into a stream. Needed also for boost::lexical_cast<> */
+    G_API_HAP std::ostream& operator<<(std::ostream&, const Gem::Hap::RANDFLAVOURS&);
+    /** @brief Reads a Gem::Hap::RANDFLAVOURS item from a stream. Needed also for boost::lexical_cast<> */
+    G_API_HAP std::istream& operator>>(std::istream&, Gem::Hap::RANDFLAVOURS&);
 
-/** @brief Puts a Gem::Hap::RANDFLAVOURS into a stream. Needed also for boost::lexical_cast<> */
-G_API_HAP std::ostream &operator<<(std::ostream &, const Gem::Hap::RANDFLAVOURS &);
-/** @brief Reads a Gem::Hap::RANDFLAVOURS item from a stream. Needed also for boost::lexical_cast<> */
-G_API_HAP std::istream &operator>>(std::istream &, Gem::Hap::RANDFLAVOURS &);
-
-/******************************************************************************/
-
-} /* namespace Hap */
-} /* namespace Gem */
-
+    /******************************************************************************/
+} /* namespace Gem::Hap */

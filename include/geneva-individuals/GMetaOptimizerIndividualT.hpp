@@ -45,6 +45,7 @@
 #include <sstream>
 #include <vector>
 #include <tuple>
+#include <filesystem>
 
 // Boost header files go here
 
@@ -1225,7 +1226,7 @@ public:
      *
      * @param configFile The name of the configuration file
      */
-    GMetaOptimizerIndividualFactoryT(boost::filesystem::path const &configFile)
+    GMetaOptimizerIndividualFactoryT(std::filesystem::path const &configFile)
         :
         Gem::Common::GFactoryT<GParameterSet>(configFile) { /* nothing */ }
 

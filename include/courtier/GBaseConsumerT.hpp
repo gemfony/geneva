@@ -41,6 +41,7 @@
 
 // Standard headers go here
 #include <string>
+#include <filesystem>
 #include <sstream>
 #include <functional>
 #include <memory>
@@ -141,7 +142,7 @@ public:
 	  *
 	  * @param configFile The name of a configuration file
 	  */
-	 void parseConfigFile(boost::filesystem::path const &configFile) {
+	 void parseConfigFile(std::filesystem::path const &configFile) {
 		 // Create a parser builder object -- local options will be added to it
 		 Gem::Common::GParserBuilder gpb;
 
@@ -217,6 +218,14 @@ public:
 	 std::string getMnemonic() const {
 		 return this->getMnemonic_();
 	 }
+
+    //-------------------------------------------------------------------------
+    /**
+     * Allows the consumer to perform necessary initialization before startup
+     */
+    void init() {
+         this->init_();
+     }
 
 	 //-------------------------------------------------------------------------
 	 /**
@@ -307,6 +316,10 @@ private:
 	  * By default we assume that a full return is not possible.
 	  */
 	 virtual bool capableOfFullReturn_() const BASE = 0;
+
+    //-------------------------------------------------------------------------
+
+    virtual void init_() { /* not necessary to override. Default is empty implementation */ }
 
 	 //-------------------------------------------------------------------------
 

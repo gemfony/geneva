@@ -78,7 +78,7 @@ class GRandomBase
 {
 public:
 	 /** @brief Helps to use this object as a generator for C++11 std::distributions */
-	 using result_type = G_BASE_GENERATOR::result_type;
+	 using result_type = G_CPU_BASE_GENERATOR::result_type;
 
 	 /***************************************************************************/
 	 /** @brief The standard constructor */
@@ -103,7 +103,7 @@ public:
 	  * as a factory, we simply return the base generators min()-Value.
 	  */
 	 static constexpr G_API_HAP result_type (min)() {
-		 return (G_BASE_GENERATOR::min)();
+		 return (G_CPU_BASE_GENERATOR::min)();
 	 }
 
 	 /***************************************************************************/
@@ -114,7 +114,7 @@ public:
 	  * as a factory, we simply return the base generators max()-Value.
 	  */
 	 static constexpr G_API_HAP result_type (max)() {
-		 return (G_BASE_GENERATOR::max)();
+		 return (G_CPU_BASE_GENERATOR::max)();
 	 }
 
 private:

@@ -41,15 +41,12 @@
 
 // Standard header files go here
 #include <string>
+#include <filesystem>
 #include <fstream>
 #include <type_traits>
 #include <chrono>
 
 // Boost header files go here
-#include <boost/filesystem.hpp>
-#include <boost/filesystem/fstream.hpp>
-#include <boost/filesystem/operations.hpp>
-#include <boost/filesystem/convenience.hpp>
 
 // Geneva headers go here
 #include "courtier/GExecutorT.hpp"
@@ -1815,7 +1812,7 @@ private:
 			case Gem::Geneva::infoMode::INFOINIT:
 			{
 				// If the file pointed to by m_fileName already exists, make a back-up
-				if(bf::exists(m_fileName)) {
+				if(std::filesystem::exists(m_fileName)) {
 					std::string newFileName = m_fileName + ".bak_" + Gem::Common::getMSSince1970();
 
 					glogger
@@ -1825,7 +1822,7 @@ private:
 							<< newFileName << std::endl
 							<< GWARNING;
 
-					bf::rename(m_fileName, newFileName);
+					std::filesystem::rename(m_fileName, newFileName);
 				}
 
 				// Make sure the progress plotter has the desired size

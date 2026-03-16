@@ -50,12 +50,10 @@
 #include <tuple>
 
 // Boost header files go here
-#include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/cast.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/optional.hpp>
 
 // Geneva header files go here
 #include "geneva/GParameterSet.hpp"

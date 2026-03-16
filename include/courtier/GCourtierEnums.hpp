@@ -69,6 +69,7 @@ enum class networked_consumer_payload_command : Gem::Common::ENUMBASETYPE {
 	 , NODATA = 2
 	 , COMPUTE = 3
 	 , RESULT = 4
+     , STOP = 5
 };
 
 /******************************************************************************/
@@ -110,6 +111,28 @@ const std::int32_t GASIOMAXOPENPINGS = 100; // The maximum number of pings witho
 const std::chrono::milliseconds GASIOPINGINTERVAL = std::chrono::milliseconds(1000); // NOLINT
 const std::size_t GBEASTCONSUMERPINGINTERVAL = 15;
 const std::size_t GBEASTMSTIMEOUT = 50;
+
+/******************************************************************************
+ * Constants specifically for the GMPIConsumerT:
+ */
+/**
+ * The timer to use for retrieving new work items from the broker and putting processed work items into the broker
+ */
+const std::size_t GMPICONSUMERBROKERACCESSBROKERTIMEOUT = 50;
+/**
+ * The size of the allocated buffer for receiving and sending messages between GMPIConsumerMasterNodeT and
+ * GMPIConsumerWorkerNodeT. If messages exceed this size they can not be fully delivered and runtime errors will occur.
+ */
+const boost::uint32_t GMPICONSUMERMAXMESSAGESIZE = 1024 * 20;
+/**
+ * When GMPIConsumerWorkerNodeT does retrieve a NODATA response from GMPIConsumerMasterNodeT it waits for a random number
+ * of milliseconds which is distributed between GMPICONSUMERWORKERNODERETRYINTERVALLOWERBOUNDARYMSEC and
+ * GMPICONSUMERWORKERNODERETRYINTERVALUPPERBOUNDARYMSEC.
+ */
+const boost::uint32_t GMPICONSUMERWORKERNODERETRYINTERVALLOWERBOUNDARYMSEC = 50;
+const boost::uint32_t GMPICONSUMERWORKERNODERETRYINTERVALUPPERBOUNDARYMSEC = 200;
+
+
 
 /******************************************************************************/
 /** @brief The default number of threads for parallelization with threads */

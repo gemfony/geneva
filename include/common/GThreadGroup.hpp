@@ -56,6 +56,7 @@
 #include <vector>
 #include <mutex>
 #include <thread>
+#include <memory>
 
 // Boost headers go here
 #include <boost/utility.hpp>

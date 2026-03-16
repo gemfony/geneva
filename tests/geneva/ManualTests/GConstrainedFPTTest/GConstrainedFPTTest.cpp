@@ -54,12 +54,11 @@
 // Standard header files go here
 #include <vector>
 #include <iostream>
+#include <filesystem>
 #include <fstream>
 #include <string>
 
 // Boost header files go here
-#include <boost/filesystem.hpp>
-#include <boost/filesystem/fstream.hpp>
 
 // Geneva header files go here
 #include "hap/GRandomT.hpp"
@@ -105,7 +104,7 @@ int main(int argc, char **argv){
 	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
 	GConstrainedDoubleObject gbd_distortion(-1.,1.);
 
-	boost::filesystem::ofstream distortion("distortion.C");
+	std::ofstream distortion("distortion.C");
 
 	distortion << "{" << std::endl
 	<< "  gROOT->SetStyle(\"Plain\");" << std::endl

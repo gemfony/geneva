@@ -70,12 +70,8 @@
 #include <boost/spirit/include/phoenix_object.hpp>
 #include <boost/spirit/include/phoenix_bind.hpp>
 #include <boost/math/constants/constants.hpp>
-#include <boost/optional.hpp>
 #include <boost/xpressive/xpressive.hpp>
-#include <boost/variant.hpp>
 #include <boost/utility.hpp>
-#include <boost/variant/recursive_variant.hpp>
-#include <boost/variant/apply_visitor.hpp>
 #include <boost/fusion/include/adapt_struct.hpp>
 #include <boost/fusion/adapted/std_tuple.hpp> // Compare http://stackoverflow.com/questions/18158376/getting-boostspiritqi-to-use-stl-containers
 

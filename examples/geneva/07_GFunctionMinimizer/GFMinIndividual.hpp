@@ -177,7 +177,7 @@ class GFMinIndividualFactory
 {
 public:
 	 /** @brief The standard constructor */
-	 explicit GFMinIndividualFactory(boost::filesystem::path const&);
+	 explicit GFMinIndividualFactory(std::filesystem::path const&);
 	 /** @brief The destructor */
 	 virtual ~GFMinIndividualFactory();
 

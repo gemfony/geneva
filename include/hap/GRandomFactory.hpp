@@ -60,7 +60,6 @@
 // Boost headers go here
 #include <boost/utility.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/filesystem.hpp>
 #include <boost/cast.hpp>
 
 // Geneva headers go here
@@ -79,7 +78,7 @@
 namespace Gem {
 namespace Hap {
 
-using G_BASE_GENERATOR = std::mt19937;
+using G_CPU_BASE_GENERATOR = std::mt19937;
 
 class GRandomFactory; // Forward declaration, so we can make random_container constructor private
 
@@ -134,7 +133,7 @@ public:
 	 /**
 	  * Returns the next random number from the package
 	  */
-	 G_BASE_GENERATOR::result_type next() {
+	 G_CPU_BASE_GENERATOR::result_type next() {
 #ifdef DEBUG
 		 if(empty()) {
 			 throw gemfony_exception(
@@ -156,7 +155,7 @@ private:
 	  * @param rng A reference to an external random number generator
 	  */
 	 explicit random_container(
-		 G_BASE_GENERATOR &rng
+		 G_CPU_BASE_GENERATOR &rng
 	 ) {
 		 try {
 			 std::generate(m_r.begin(), m_r.end(), [&](){ return rng(); });
@@ -181,14 +180,14 @@ private:
 	  * Replaces "used" random numbers by new numbers and resets the current_pos_
 	  * pointer. T_RNG must be one of the standard C++1x-generators
 	  */
-	 void refresh(G_BASE_GENERATOR &rng) {
+	 void refresh(G_CPU_BASE_GENERATOR &rng) {
 		 std::generate(m_r.begin(), m_r.begin() + m_current_pos, [&](){ return rng(); });
 		 m_current_pos = 0;
 	 }
 	 /***************************************************************************/
 
 	 std::size_t m_current_pos = 0; ///< The current position in the array
-	 std::array<G_BASE_GENERATOR::result_type, DEFAULTARRAYSIZE> m_r{}; ///< Holds the actual random numbers
+	 std::array<G_CPU_BASE_GENERATOR::result_type, DEFAULTARRAYSIZE> m_r{}; ///< Holds the actual random numbers
 };
 
 /******************************************************************************/

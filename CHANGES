@@ -1,4 +1,39 @@
 //------------------------------------------------------------------------------------------------------
+* Version 1.11, "Hendaye" - March 16, 2026
+
+We have restarted development of the Geneva library!
+
+Recommended versions:
+- Boost version 1.90 or higher is required. You may try with Boost 1.89 (untested). Note that the
+  Boost.System library linkage has been removed from the build-system, as that library is now header-only. So
+  in order to get Geneva to compiler with older Boost versions you may have to modify the build-system (see
+  the various instances of CommonGenevaBuild.cmake).
+- CMake version 3.27 or higher is required
+- GCC is recommended to be at least version 13, clang should be at least version 18.
+  Earlier versions might work if C++20 is sufficiently supported
+- We suggest to use Ubuntu 24.04 LTS as the host platform if you plan to use the CUDA example.
+
+********************** INCOMPATIBILITIES / PLEASE NOTE *************************
+
+- Geneva now uses C++20 constructs, hence you need a compiler that supports this.
+  It is thus also recommended to compile Boost with C++20 support, to be consistent
+
+************************* Misc *************************************************
+
+- Where CUDA is available, random numbers will now be calculated on the GPU
+- A new CUDA example has been added
+- boost::optional, boost::any, boost::filesystem, boost::variant have been replaced
+  by their C++17 counterparts
+- Benchmarks for courtier and geneva have been moved to their own benchmarks top-level
+  directory and are no longer considered to be tests
+- An extensive CUDA example has been implemented
+
+********************************************************************************
+
+Current issues with this development release:
+- The C++ standard is not set centrally, but individually for each library
+
+//------------------------------------------------------------------------------------------------------
 * Version 1.10, "Genova" - March 10, 2020
 
 Recommended versions:

@@ -51,12 +51,11 @@
 // Standard header files
 #include <vector>
 #include <iostream>
+#include <filesystem>
 #include <fstream>
 #include <random>
 
 // Boost header files
-#include <boost/filesystem.hpp>
-#include <boost/filesystem/fstream.hpp>
 
 // Geneva header files
 #include "common/GLogger.hpp"
@@ -346,7 +345,7 @@ int main(int argc, char **argv) {
 	gpd.setCanvasDimensions(1200,1200);
 
 
-	boost::filesystem::ofstream ofs("randomResult.C");
+	std::ofstream ofs("randomResult.C");
 	if (!ofs) {
 		glogger
 			<< "Error: Could not write file" << std::endl

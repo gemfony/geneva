@@ -41,6 +41,7 @@
 
 // Standard header files go here
 #include <iostream>
+#include <filesystem>
 #include <cmath>
 #include <cstdlib>
 #include <sstream>
@@ -50,7 +51,6 @@
 #include <tuple>
 
 // Boost header files go here
-#include <boost/filesystem/operations.hpp>
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/cast.hpp>
 
@@ -154,7 +154,7 @@ public:
 	 /** @brief The standard constructor */
 	 G_API_INDIVIDUALS GLineFitIndividualFactory(
 		 const std::vector<std::tuple<double, double>> &
-		 , boost::filesystem::path const &
+		 , std::filesystem::path const &
 	 );
 
 	 /** @brief The destructor */

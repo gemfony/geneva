@@ -94,6 +94,15 @@ public:
 		 GIndividualStandardConsumerInitializerT<c_type> GConsumerStoreRegistrant;
 	 }
 
+     /**
+      * Allows to register an existing consumer. This is important when working with singleton consumers such as the
+      * GMPIConsumerT.
+      */
+     void registerConsumer(const std::shared_ptr<Gem::Courtier::GBaseConsumerT<Gem::Geneva::GParameterSet>>& consumer){
+         std::string mnemonic = consumer->getMnemonic();
+         GConsumerStore->setOnce(mnemonic, consumer);
+     }
+
 	 /***************************************************************************/
 };
 

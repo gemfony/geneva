@@ -36,90 +36,89 @@
 
 #include "geneva/G_OptimizationAlgorithm_GradientDescent_Factory.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva
+{
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * The default constructor
  */
-GGradientDescentFactory::GGradientDescentFactory()
-	: G_OptimizationAlgorithm_FactoryT<G_OptimizationAlgorithm_Base>("./config/GGradientDescent.json")
-{ /* nothing */ }
+	GGradientDescentFactory::GGradientDescentFactory()
+		: G_OptimizationAlgorithm_FactoryT<G_OptimizationAlgorithm_Base>("./config/GGradientDescent.json")
+	{ /* nothing */ }
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Initialization with the name of the config file
  */
-GGradientDescentFactory::GGradientDescentFactory(
-	boost::filesystem::path const& configFile
-)
-	: G_OptimizationAlgorithm_FactoryT<G_OptimizationAlgorithm_Base>(configFile)
-{ /* nothing */ }
+	GGradientDescentFactory::GGradientDescentFactory(
+		std::filesystem::path const& configFile
+	)
+		: G_OptimizationAlgorithm_FactoryT<G_OptimizationAlgorithm_Base>(configFile)
+	{ /* nothing */ }
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * A constructor with the ability to switch the parallelization mode and
  * to add a content creator. It initializes a target item as needed.
  */
-GGradientDescentFactory::GGradientDescentFactory(
-	const std::string &configFile
-	, std::shared_ptr <Gem::Common::GFactoryT<GParameterSet>> contentCreatorPtr
-)
-	: G_OptimizationAlgorithm_FactoryT<G_OptimizationAlgorithm_Base>(configFile, contentCreatorPtr)
-{ /* nothing */ }
+	GGradientDescentFactory::GGradientDescentFactory(
+		const std::string &configFile
+		, std::shared_ptr <Gem::Common::GFactoryT<GParameterSet>> contentCreatorPtr
+	)
+		: G_OptimizationAlgorithm_FactoryT<G_OptimizationAlgorithm_Base>(configFile, contentCreatorPtr)
+	{ /* nothing */ }
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Gives access to the mnemonics / nickname describing an algorithm
  */
-std::string GGradientDescentFactory::getMnemonic() const {
-	return GGradientDescent_PersonalityTraits::nickname;
-}
+	std::string GGradientDescentFactory::getMnemonic() const {
+		return GGradientDescent_PersonalityTraits::nickname;
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Gives access to a clear-text description of the algorithm
  */
-std::string GGradientDescentFactory::getAlgorithmName() const {
-	return std::string("Gradient Descent");
-}
+	std::string GGradientDescentFactory::getAlgorithmName() const {
+		return std::string("Gradient Descent");
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Creates items of this type
  *
  * @return Items of the desired type
  */
-std::shared_ptr<G_OptimizationAlgorithm_Base> GGradientDescentFactory::getObject_(
-	Gem::Common::GParserBuilder &gpb
-	, const std::size_t &id
-) {
-	std::shared_ptr<GGradientDescent> target(
-		new GGradientDescent()
-	);
+	std::shared_ptr<G_OptimizationAlgorithm_Base> GGradientDescentFactory::getObject_(
+		Gem::Common::GParserBuilder &gpb
+		, const std::size_t &id
+	) {
+		std::shared_ptr<GGradientDescent> target(
+			new GGradientDescent()
+		);
 
-	// Make the local configuration options known (up to the level of GGradientDescent)
-	target->GGradientDescent::addConfigurationOptions(gpb);
+		// Make the local configuration options known (up to the level of GGradientDescent)
+		target->GGradientDescent::addConfigurationOptions(gpb);
 
-	return target;
-}
+		return target;
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Allows to act on the configuration options received from the configuration file. Here
  * we can add the options described in describeLocalOptions to the object.
  *
  * @param p A smart-pointer to be acted on during post-processing
  */
-void GGradientDescentFactory::postProcess_(
-	std::shared_ptr<G_OptimizationAlgorithm_Base>& p_base
-) {
-	// Call our parent class'es function
-	G_OptimizationAlgorithm_FactoryT<G_OptimizationAlgorithm_Base>::postProcess_(p_base);
+	void GGradientDescentFactory::postProcess_(
+		std::shared_ptr<G_OptimizationAlgorithm_Base>& p_base
+	) {
+		// Call our parent class'es function
+		G_OptimizationAlgorithm_FactoryT<G_OptimizationAlgorithm_Base>::postProcess_(p_base);
+	}
+
+	/******************************************************************************/
+
 }
-
-/******************************************************************************/
-
-} /* namespace Geneva */
-} /* namespace Gem */

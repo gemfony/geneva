@@ -33,7 +33,6 @@
 # collection for a list of contributors and copyright information.
 #
 ################################################################################
-CMAKE_MINIMUM_REQUIRED(VERSION 3.1)
 
 IF (NOT GENEVA_FULL_TREE_BUILD)
 

@@ -50,7 +50,6 @@
 #include <boost/archive/binary_iarchive.hpp>
 #include <boost/serialization/nvp.hpp>
 #include <boost/serialization/map.hpp>
-#include <boost/serialization/variant.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/base_object.hpp>
@@ -106,17 +105,25 @@ public:
     /** @brief Emits information about the "dirty flag" of all items */
     G_API_GENEVA std::string getCleanStatus() const;
 
+    /** @brief Adds items in a range to the priority queue */
+    void add(
+        std::vector<std::shared_ptr<GParameterSet>>::const_iterator begin,
+        std::vector<std::shared_ptr<GParameterSet>>::const_iterator end,
+        bool do_clone,
+        bool replace
+    ) override;
+
     /** @brief Adds the items in the items_cnt container to the queue */
     void add(
         std::vector<std::shared_ptr<GParameterSet>> const &items_cnt
-        , bool do_clone
-        , bool replace
+        , const bool do_clone
+        , const bool replace
     ) override;
 
     /** @brief Adds a single item to the queue */
     void add(
         std::shared_ptr<GParameterSet> const& item
-        , bool do_clone
+        , const bool do_clone
     ) override;
 
 protected:
@@ -138,10 +145,10 @@ protected:
         , const double & // the limit for allowed deviations of floating point types
     ) const override;
 
+    /** @brief Checks whether an Item is valid */
+    G_API_GENEVA bool isValid(const std::shared_ptr<GParameterSet>&) const override;
     /** @brief Evaluates a single work item, so that it can be sorted */
     G_API_GENEVA double evaluation(const std::shared_ptr<GParameterSet> &) const override;
-    /** @brief Returns a unique id for a work item */
-    G_API_GENEVA std::string id(const std::shared_ptr<GParameterSet> &) const override;
 
     /** @brief Applies modifications to this object. This is needed for testing purposes */
     G_API_GENEVA bool modify_GUnitTests_() override;

@@ -33,7 +33,6 @@
 # collection for a list of contributors and copyright information.
 #
 ################################################################################
-CMAKE_MINIMUM_REQUIRED(VERSION 3.1)
 
 IF (NOT GENEVA_FULL_TREE_BUILD)
 
@@ -53,18 +52,28 @@ ENDIF ()
 SET ( EXECUTABLENAME GMultiCriterionParabola )
 
 SET ( ${EXECUTABLENAME}_SRCS
-	GMultiCriterionParabola
-	GMultiCriterionParabolaIndividual
+	GMultiCriterionParabola.cpp
+	GMultiCriterionParabolaIndividual.cpp
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}
 	${${EXECUTABLENAME}_SRCS}
 )
 
+SET(LIBRARIES_TO_LINK
+		${GENEVA_LIBRARIES}
+		${Boost_LIBRARIES})
+
+# Add MPI Libraries in case building with MPI-consumer
+IF(GENEVA_BUILD_WITH_MPI_CONSUMER)
+	SET(LIBRARIES_TO_LINK
+			${LIBRARIES_TO_LINK}
+			${MPI_LIBRARIES})
+ENDIF()
+
 TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
-    ${GENEVA_LIBRARIES}
-    ${Boost_LIBRARIES}
-)
+		${LIBRARIES_TO_LINK}
+		)
 
 ADD_SUBDIRECTORY (config)
 

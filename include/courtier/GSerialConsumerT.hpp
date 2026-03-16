@@ -108,7 +108,7 @@ public:
 	  * Allows to register a single worker template with this class.
 	  */
 	 void registerWorkerTemplate(
-		 std::shared_ptr<GLocalConsumerWorkerT<processable_type>> workerTemplate
+		 std::shared_ptr<GWorkerWithRegisterBrokerFerryT<processable_type>> workerTemplate
 	 ) {
 #ifdef DEBUG
 		 if(not workerTemplate) { // Does the template point somewhere ?
@@ -130,7 +130,7 @@ public:
 	  */
 	 static void setup(
 		 const std::string &configFile,
-		 std::shared_ptr<GLocalConsumerWorkerT<processable_type>> worker_ptr
+		 std::shared_ptr<GWorkerWithRegisterBrokerFerryT<processable_type>> worker_ptr
 	 ) {
 		 std::shared_ptr <GSerialConsumerT<processable_type>> consumer_ptr(
 			 new GSerialConsumerT<processable_type>()
@@ -231,8 +231,8 @@ private:
 			 << GLOGGING;
 
 		 // The actual worker
-		 std::shared_ptr<GLocalConsumerWorkerT<processable_type>> p_worker
-			 = std::dynamic_pointer_cast<GLocalConsumerWorkerT<processable_type>>(m_workerTemplate->clone());
+		 std::shared_ptr<GWorkerWithRegisterBrokerFerryT<processable_type>> p_worker
+			 = std::dynamic_pointer_cast<GWorkerWithRegisterBrokerFerryT<processable_type>>(m_workerTemplate->clone());
 
 		 // The "broker ferry" holding the connection to the broker
 		 std::shared_ptr<GBrokerFerryT<processable_type>> broker_ferry_ptr(
@@ -301,8 +301,8 @@ private:
 
 	 bool m_capableOfFullReturn = true; ///< Indicates whether this consumer is capable of full return
 
-	 std::shared_ptr<GLocalConsumerWorkerT<processable_type>> m_worker; ///< Holds the worker assigned to this consumer
-	 std::shared_ptr<GLocalConsumerWorkerT<processable_type>> m_workerTemplate; ///< Holds an external worker assigned to this consumer
+	 std::shared_ptr<GWorkerWithRegisterBrokerFerryT<processable_type>> m_worker; ///< Holds the worker assigned to this consumer
+	 std::shared_ptr<GWorkerWithRegisterBrokerFerryT<processable_type>> m_workerTemplate; ///< Holds an external worker assigned to this consumer
 
 	 std::shared_ptr<GBrokerT<processable_type>> m_broker_ptr = GBROKER(processable_type); ///< A shortcut to the broker so we do not have to go through the singleton
 };

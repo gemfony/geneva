@@ -41,13 +41,13 @@
 
 // Standard headers go here
 #include <string>
+#include <cstdint>
 
 // Boost headers go here
 
 // Geneva headers go here
 
-namespace Gem {
-namespace Common {
+namespace Gem::Common {
 
 /******************************************************************************/
 /**
@@ -57,7 +57,7 @@ namespace Common {
 template<typename T>
 struct GTypeToStringT {
 	static std::string value() {
-		return std::string("unknown");
+		return {"unknown"};
 	}
 };
 
@@ -68,7 +68,7 @@ struct GTypeToStringT {
 template<>
 struct GTypeToStringT<double> {
 	static std::string value() {
-		return std::string("double");
+		return {"double"};
 	}
 };
 
@@ -79,7 +79,7 @@ struct GTypeToStringT<double> {
 template<>
 struct GTypeToStringT<float> {
 	static std::string value() {
-		return std::string("float");
+		return {"float"};
 	}
 };
 
@@ -90,7 +90,7 @@ struct GTypeToStringT<float> {
 template<>
 struct GTypeToStringT<std::int32_t> {
 	static std::string value() {
-		return std::string("int32_t");
+		return {"int32_t"};
 	}
 };
 
@@ -101,7 +101,7 @@ struct GTypeToStringT<std::int32_t> {
 template<>
 struct GTypeToStringT<bool> {
 	static std::string value() {
-		return std::string("bool");
+		return {"bool"};
 	}
 };
 
@@ -112,11 +112,11 @@ struct GTypeToStringT<bool> {
 template<>
 struct GTypeToStringT<std::string> {
 	static std::string value() {
-		return std::string("string");
+		return {"string"};
 	}
 };
 
 /******************************************************************************/
 
-} /* namespace Common */
-} /* namespace Gem */
+} // namespace Gem::Common
+

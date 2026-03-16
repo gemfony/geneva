@@ -60,75 +60,78 @@
 #include "common/GCommonEnums.hpp"
 #include "common/GLogger.hpp"
 
-namespace Gem {
-namespace Common {
+namespace Gem::Common
+{
+    /******************************************************************************/
+    ////////////////////////////////////////////////////////////////////////////////
+    /******************************************************************************/
+    /**
+     * A simple barrier for threads. Execution will be blocked until the required
+     * number of threads has called the wait() function.
+     */
+    class GBarrier
+    {
+    public:
+        explicit GBarrier(std::uint32_t count) noexcept(false) : m_count(count)
+        {
+            if (0 == count)
+            {
+                throw gemfony_exception(
+                    g_error_streamer(DO_LOG, time_and_place)
+                    << "In GBarrier::GBarrier(): Error!" << std::endl
+                    << "count cannot be 0" << std::endl
+                );
+            }
+        }
 
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-/**
- * A simple barrier for threads. Execution wlll be blocked until the required
- * number of threads has called the wait() function.
- */
-class GBarrier {
-public:
-	 explicit GBarrier(std::uint32_t count) noexcept(false) : m_count(count) {
-	 	if(0==count) {
-			throw gemfony_exception(
-				g_error_streamer(DO_LOG, time_and_place)
-					<< "In GBarrier::GBarrier(): Error!" << std::endl
-					<< "count cannot be 0" << std::endl
-			);
-	 	}
-	 }
+        /*************************************************************************/
+        // Defaulted or deleted constructors, destructor and assignment operators
 
-	 /*************************************************************************/
-	 // Defaulted or deleted constructors, destructor and assignment operators
+        ~GBarrier() = default;
 
-	 ~GBarrier() = default;
+        GBarrier() = delete;
+        GBarrier(GBarrier const&) = delete;
+        GBarrier(GBarrier&&) = delete;
+        GBarrier& operator=(GBarrier const&) = delete;
+        GBarrier& operator=(GBarrier&&) = delete;
 
-	 GBarrier() = delete;
-	 GBarrier(GBarrier const&) = delete;
-	 GBarrier(GBarrier&&) = delete;
-	 GBarrier& operator=(GBarrier const&) = delete;
-	 GBarrier& operator=(GBarrier&&) = delete;
+        /*************************************************************************/
 
-	/*************************************************************************/
+        bool
+        wait()
+        {
+            std::unique_lock<std::mutex> lock(m_mutex);
+            std::uint32_t gen = m_generation;
 
-	bool
-	 wait() {
-		 std::unique_lock<std::mutex> lock(m_mutex);
-		 std::uint32_t gen = m_generation;
+            if (--m_count == 0)
+            {
+                m_generation++;
+                m_count = m_count_start;
+                lock.unlock();
+                m_cond.notify_all();
+                return true;
+            }
 
-		 if (--m_count == 0) {
-			 m_generation++;
-			 m_count = m_count_start;
-			 lock.unlock();
-			 m_cond.notify_all();
-			 return true;
-		 }
+            m_cond.wait(
+                lock
+                , [&]()
+                {
+                    return gen == m_generation;
+                }
+            );
+            return false;
+        }
 
-		 m_cond.wait(
-		 	lock
-		 	, [&]() {
-		 		return gen == m_generation;
-		 	}
-	 	 );
-		 return false;
-	 }
-
-private:
-	 std::mutex m_mutex;
-	 std::condition_variable m_cond;
-	 std::uint32_t m_count;
-	 std::uint32_t m_count_start = m_count;
-	 std::uint32_t m_generation = 0;
-};
+    private:
+        std::mutex m_mutex;
+        std::condition_variable m_cond;
+        std::uint32_t m_count;
+        std::uint32_t m_count_start = m_count;
+        std::uint32_t m_generation = 0;
+    };
 
 
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-
-} /* namespace Common */
-} /* namespace Gem */
+    /******************************************************************************/
+    ////////////////////////////////////////////////////////////////////////////////
+    /******************************************************************************/
+} /* namespace Gem::Common */

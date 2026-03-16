@@ -39,46 +39,43 @@
 #include "geneva/GInt32FlipAdaptor.hpp"
 #include "geneva/GBooleanAdaptor.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva
+{
 
-// Specializations for double, std::int32_t and bool
-/******************************************************************************/
-/**
+	// Specializations for double, std::int32_t and bool
+	/******************************************************************************/
+	/**
  * A factory function that returns the default adaptor for the base type "double"
  *
  * @return The default adaptor for the base type "double"
  */
-template<>
-std::shared_ptr <GAdaptorT<double>> getDefaultAdaptor<double>() {
-	return std::shared_ptr<GDoubleGaussAdaptor>(new GDoubleGaussAdaptor());
-}
+	template<>
+	std::shared_ptr <GAdaptorT<double>> getDefaultAdaptor<double>() {
+		return std::shared_ptr<GDoubleGaussAdaptor>(new GDoubleGaussAdaptor());
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * A factory function that returns the default adaptor for the base type "std::int32_t"
  *
  * @return The default adaptor for the base type "std::int32_t"
  */
-template<>
-std::shared_ptr <GAdaptorT<std::int32_t>> getDefaultAdaptor<std::int32_t>() {
-	return std::shared_ptr<GInt32FlipAdaptor>(new GInt32FlipAdaptor());
-}
+	template<>
+	std::shared_ptr <GAdaptorT<std::int32_t>> getDefaultAdaptor<std::int32_t>() {
+		return std::shared_ptr<GInt32FlipAdaptor>(new GInt32FlipAdaptor());
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * A factory function that returns the default adaptor for the base type "bool"
  *
  * @return The default adaptor for the base type "bool"
  */
-template<>
-std::shared_ptr <GAdaptorT<bool>> getDefaultAdaptor<bool>() {
-	return std::shared_ptr<GBooleanAdaptor>(new GBooleanAdaptor());
+	template<>
+	std::shared_ptr <GAdaptorT<bool>> getDefaultAdaptor<bool>() {
+		return std::shared_ptr<GBooleanAdaptor>(new GBooleanAdaptor());
+	}
+
+	/******************************************************************************/
+
 }
-
-/******************************************************************************/
-
-} /* namespace Geneva */
-} /* namespace Gem */
-
-

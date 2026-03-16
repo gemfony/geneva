@@ -33,7 +33,6 @@
 # collection for a list of contributors and copyright information.
 #
 ################################################################################
-CMAKE_MINIMUM_REQUIRED(VERSION 3.1)
 
 IF (NOT GENEVA_FULL_TREE_BUILD)
 
@@ -52,9 +51,7 @@ ENDIF ()
 
 ADD_CUSTOM_TARGET( "tests-courtier"
 	DEPENDS #"tests-courtier-unit"
-		"tests-courtier-performance"
 	COMMENT "Building all the tests for the Courtier library."
 )
 
 #ADD_SUBDIRECTORY ( UnitTests )
-ADD_SUBDIRECTORY ( PerformanceTests )

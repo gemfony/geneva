@@ -41,6 +41,7 @@
 
 // Standard headers go here
 #include <cstdlib>
+#include <filesystem>
 #include <fstream>
 #include <sstream>
 #include <iostream>
@@ -53,15 +54,12 @@
 
 // Boost headers go here
 #include <boost/algorithm/string.hpp>
-#include <boost/filesystem.hpp>
-#include <boost/filesystem/fstream.hpp>
 #include <boost/utility.hpp>
 #include <boost/program_options.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/tokenizer.hpp>
-#include <boost/optional.hpp>
 #include <boost/archive/xml_oarchive.hpp>
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/text_oarchive.hpp>
@@ -70,7 +68,6 @@
 #include <boost/archive/binary_iarchive.hpp>
 #include <boost/serialization/nvp.hpp>
 #include <boost/serialization/map.hpp>
-#include <boost/serialization/variant.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/base_object.hpp>
@@ -285,6 +282,8 @@ public:
 	 /**
 	  * Returns a reference to the parameter, if it hasn't been set. Otherwise
 	  * it will return a reference to the dummy parameter.
+	  *
+	  * TODO: This function should throw if the parameter is set more than once
 	  */
 	 parameter_type &reference() {
 		 if (m_parm_set) {
@@ -2129,9 +2128,9 @@ public:
 	 GParserBuilder& operator=(GParserBuilder&&) = delete;
 
 	 /** @brief Tries to parse a given configuration file for a set of options */
-	 G_API_COMMON bool parseConfigFile(boost::filesystem::path const &);
+	 G_API_COMMON bool parseConfigFile(std::filesystem::path const &);
 	 /** @brief Writes out a configuration file */
-	 G_API_COMMON void writeConfigFile(boost::filesystem::path const &, std::string const & = "", bool = true) const;
+	 G_API_COMMON void writeConfigFile(std::filesystem::path const &, std::string const & = "", bool = true) const;
 	 /** @brief Provides information on the number of file configuration options stored in this class */
 	 G_API_COMMON std::size_t numberOfFileOptions() const;
 
@@ -2756,7 +2755,7 @@ private:
 	 std::vector<std::shared_ptr<GFileParsableI>> m_file_parameter_proxies; ///< Holds file parameter proxies
 	 std::vector<std::shared_ptr<GCLParsableI>> m_cl_parameter_proxies;   ///< Holds command line parameter proxies
 
-	 boost::filesystem::path m_config_base_dir{};
+	 std::filesystem::path m_config_base_dir{};
 
 	 static std::mutex m_configfile_parser_mutex; ///< Synchronization of access to configuration files (may only happen serially)
 };
@@ -2773,7 +2772,7 @@ private:
 template <typename conf_object_type>
 void configureFromFile(
 	conf_object_type& target_object
-	, boost::filesystem::path const & conf_file
+	, std::filesystem::path const & conf_file
 ) {
 	// Create a parser builder object. It will be destroyed at
 	// the end of this scope and thus cannot cause trouble
@@ -2788,7 +2787,7 @@ void configureFromFile(
 
 	// Check whether path is a directory name rather than
 	// a file. It is a severe error if this is the case.
-	if(boost::filesystem::is_directory(conf_file)) {
+	if(std::filesystem::is_directory(conf_file)) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG, time_and_place)
 				<< "In configureFromFile(" << conf_file.string() << "): Error!" << std::endl
@@ -2798,7 +2797,7 @@ void configureFromFile(
 
 	// Check whether the target directory exists. It is a
 	// severe error if this is not the case.
-	if(not boost::filesystem::exists(conf_file.parent_path())) {
+	if(not std::filesystem::exists(conf_file.parent_path())) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG, time_and_place)
 				<< "In configureFromFile(" << conf_file << "): Error!" << std::endl

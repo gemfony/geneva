@@ -46,7 +46,6 @@
 
 // Boost header files go here
 #include <boost/utility.hpp>
-#include <boost/filesystem.hpp>
 #include <boost/archive/xml_oarchive.hpp>
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/text_oarchive.hpp>
@@ -55,7 +54,6 @@
 #include <boost/archive/binary_iarchive.hpp>
 #include <boost/serialization/nvp.hpp>
 #include <boost/serialization/map.hpp>
-#include <boost/serialization/variant.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/base_object.hpp>
@@ -102,7 +100,7 @@ class GFactoryT {
 		 & BOOST_SERIALIZATION_NVP(m_initialized);
 
 		 // Transfer the string to the path
-		 m_config_path = boost::filesystem::path(configFile);
+		 m_config_path = std::filesystem::path(configFile);
 	 }
 
 	 template<typename Archive>
@@ -129,7 +127,7 @@ public:
 	  *
 	  * @param configFile The name of a configuration file holding information about objects of type T
 	  */
-	 explicit GFactoryT(boost::filesystem::path configFile)
+	 explicit GFactoryT(std::filesystem::path configFile)
 		 : m_config_path(std::move(configFile))
 	 { /* nothing */ }
 
@@ -165,11 +163,11 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Allows to retrieve the boost::filesystem::path object referring to the config file
+	  * Allows to retrieve the std::filesystem::path object referring to the config file
 	  *
-	  * @return The boost::filesystem::path object referring to the config file
+	  * @return The std::filesystem::path object referring to the config file
 	  */
-	 boost::filesystem::path getConfigFilePath() const {
+	 std::filesystem::path getConfigFilePath() const {
 	 	return m_config_path;
 	 }
 
@@ -179,7 +177,7 @@ public:
 	  * the next individual
 	  */
 	 void setConfigFile(std::string configFile) {
-		 m_config_path = boost::filesystem::path(configFile);
+		 m_config_path = std::filesystem::path(configFile);
 	 }
 
 	 /***************************************************************************/
@@ -356,7 +354,7 @@ private:
 
 	 /***************************************************************************/
 
-	 boost::filesystem::path m_config_path; ///< The name and path of the configuration file
+	 std::filesystem::path m_config_path; ///< The name and path of the configuration file
 	 std::size_t m_id = GFACTTORYFIRSTID; ///< The id/number of the individual currently being created
 	 bool m_initialized = false; ///< Indicates whether the initialization work has already been done
  };

@@ -33,7 +33,6 @@
 # collection for a list of contributors and copyright information.
 #
 ################################################################################
-CMAKE_MINIMUM_REQUIRED(VERSION 3.1)
 
 IF (NOT GENEVA_FULL_TREE_BUILD)
 
@@ -53,10 +52,8 @@ ENDIF ()
 ADD_CUSTOM_TARGET( "tests-geneva"
 	DEPENDS "tests-geneva-unit"
 		"tests-geneva-manual"
-		"tests-geneva-performance"
 	COMMENT "Building all the tests for the Optimization library."
 )
 
 ADD_SUBDIRECTORY ( UnitTests )
-ADD_SUBDIRECTORY ( PerformanceTests )
 ADD_SUBDIRECTORY ( ManualTests )

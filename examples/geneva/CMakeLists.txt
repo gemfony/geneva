@@ -33,10 +33,8 @@
 # collection for a list of contributors and copyright information.
 #
 ################################################################################
-CMAKE_MINIMUM_REQUIRED(VERSION 3.1)
 
 IF (NOT GENEVA_FULL_TREE_BUILD)
-
 	PROJECT(Geneva_Examples_Geneva)
 
 	# For building the examples independently, we still assume that the
@@ -50,23 +48,40 @@ IF (NOT GENEVA_FULL_TREE_BUILD)
 
 ENDIF ()
 
-ADD_CUSTOM_TARGET( "examples-geneva"
-	# Add all the available example's targets (EXECUTABLENAMEs) here
-	DEPENDS GSimpleOptimizer
+SET(DEPENDENCIES
+		GSimpleOptimizer
 		GParaboloid2D
 		GParameterObjectUsagePatterns
 		GMultiCriterionParabola
 		GDirectEA
-        GDirectSA
+		GDirectSA
 		GDirectSwarm
 		GFunctionMinimizer
-        GPostProcessing
+		GPostProcessing
 		GNeuralNetwork
 		GStarter
 		GMetaOptimizer
 		GExternalEvaluator
 		GPluggableOptimizationMonitors
-		GDependentConstraints
+		GDependentConstraints)
+
+IF(GENEVA_BUILD_WITH_MPI_CONSUMER)
+	SET(DEPENDENCIES
+			${DEPENDENCIES}
+			GMPIConsumer
+			GMPISubClients)
+ENDIF()
+
+IF(GENEVA_BUILD_WITH_CUDA_EXAMPLES)
+	SET(DEPENDENCIES
+		${DEPENDENCIES}
+		GCUDAWorker)
+ENDIF()
+
+ADD_CUSTOM_TARGET( "examples-geneva"
+	# Add all the available example's targets (EXECUTABLENAMEs) here
+	DEPENDS
+		${DEPENDENCIES}
 	COMMENT "Building all the examples for the Optimization library."
 )
 
@@ -86,6 +101,11 @@ ADD_SUBDIRECTORY( 12_GExternalEvaluator )
 ADD_SUBDIRECTORY( 13_GPluggableOptimizationMonitors )
 ADD_SUBDIRECTORY( 14_GDependentConstraints )
 
-IF(GENEVA_BUILD_WITH_OPENCL_EXAMPLES AND OpenCL_FOUND)
-    ADD_SUBDIRECTORY( 15_GOpenCLConsumer )
+IF(GENEVA_BUILD_WITH_CUDA_EXAMPLES)
+    ADD_SUBDIRECTORY(15_GCUDAWorker)
+ENDIF()
+
+IF(GENEVA_BUILD_WITH_MPI_CONSUMER)
+	ADD_SUBDIRECTORY( 16_GMPIConsumer )
+	ADD_SUBDIRECTORY( 17_GMPISubClients )
 ENDIF()

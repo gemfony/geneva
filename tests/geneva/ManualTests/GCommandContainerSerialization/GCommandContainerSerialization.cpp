@@ -58,8 +58,6 @@
 #include <string>
 
 // Boost header files go here
-#include <boost/filesystem.hpp>
-#include <boost/filesystem/fstream.hpp>
 
 // Geneva header files go here
 #include "hap/GRandomT.hpp"

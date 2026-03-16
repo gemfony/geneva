@@ -41,6 +41,7 @@
 
 // Standard header files go here
 #include <iostream>
+#include <filesystem>
 #include <cmath>
 #include <sstream>
 #include <vector>
@@ -65,8 +66,7 @@
 #include "geneva/GParameterSetMultiConstraint.hpp"
 #include "geneva/GParameterSetFactory.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -157,7 +157,7 @@ const solverFunction GO_DEF_EVALFUNCTION = solverFunction::PARABOLA;
 const double GFI_DEF_CROSSOVERPROB = 0.5;
 
 /******************************************************************************/
-// Forward declaraion
+// Forward declaration
 class GFunctionIndividualFactory;
 
 /******************************************************************************/
@@ -191,6 +191,9 @@ public:
 
 	 /** @brief The standard destructor */
 	 G_API_INDIVIDUALS ~GFunctionIndividual() override = default;
+
+	 /** @brief Allows external entities to set the fitness */
+	 G_API_INDIVIDUALS void setFitness(std::vector<double> const&);
 
 	 /** @brief Allows to set the demo function */
 	 G_API_INDIVIDUALS void setDemoFunction(solverFunction);
@@ -465,7 +468,7 @@ class GFunctionIndividualFactory
 
 public:
 	 /** @brief The standard constructor */
-	 explicit G_API_INDIVIDUALS GFunctionIndividualFactory(boost::filesystem::path const&);
+	 explicit G_API_INDIVIDUALS GFunctionIndividualFactory(std::filesystem::path const&);
 	 /** @brief The copy constructor */
 	 G_API_INDIVIDUALS GFunctionIndividualFactory(const GFunctionIndividualFactory &cp) = default;
 
@@ -836,8 +839,7 @@ private:
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GFunctionIndividual)
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GFunctionIndividualFactory)
