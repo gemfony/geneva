@@ -26,10 +26,10 @@ from the Downloads section of our web page http://www.gemfony.eu .
 Prerequisites
 =============
 
-The build system uses CMake in version 3.1 or later.
+The build system uses CMake in version 3.27 or later.
 
 You will also need the Boost libraries (see http://www.boost.org) in version
-1.70 or newer. Relying on the libraries provided by your system (if available)
+1.90 or newer. Relying on the libraries provided by your system (if available)
 is the recommended way to install Boost. Alternatively, you may want to
 compile and install a custom Boost from source, see the section "Compiling
 Boost" below for more details. We currently recommend Boost version 1.70 or higher.
@@ -176,24 +176,23 @@ Compiling Boost on Linux
 ========================
 
 Download Boost from http://www.boost.org and extract the compressed file.
-This will create a folder "boost_1_70_0", for instance. Change to that
-folder and, assuming that Boost should be installed in /opt/boost170 (which
+This will create a folder "boost_1_90_0", for instance. Change to that
+folder and, assuming that Boost should be installed in /opt/boost (which
 should be writable), execute
 
-./bootstrap.sh --prefix=/opt/boost170
-sudo ./b2 cxxflags="-std=c++14" threading=multi install
+./bootstrap.sh --prefix=/opt/boost
 
-This will compile Boost using the C++14 standard, which is the recommended
+./b2 -j$(nproc) \
+   toolset=gcc \
+   cxxflags="-std=c++20" \
+   variant=release \
+   link=shared \
+   threading=multi \
+   install
+
+This will compile Boost using the C++20 standard, which is the recommended
 version for Geneva.
 
-You can add a "-j 4" to the second command if your system has four cores.
-This will speed up the otherwise quite long compilation time.
-
-Once done you can use the Boost include path as explained above, with
-BOOST_ROOT="/opt/boost170".
-
-If FindBoost.cmake has trouble finding the Boost libraries in the specified
-location, it might help to compile the library with the flag
-"--layout=versioned" or "--layout=tagged".
+Make sure to point genevaConfig.gcfg to the correct location.
 
 Do not forget to add an entry for Boost to ldconfig, as discussed above.

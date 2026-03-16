@@ -2,7 +2,10 @@
 * Version 1.11, "Hendaye", under development
 
 Recommended versions:
-- Boost version 1.87 or higher is required
+- Boost version 1.90 or higher is required. You may try with Boost 1.89 (untested). Note that the
+  Boost.System library linkage has been removed from the build-system, as that library is now header-only. So
+  in order to get Geneva to compiler with older Boost versions you may have to modify the build-system (see
+  the various instances of CommonGenevaBuild.cmake).
 - CMake version 3.27 or higher is required
 - GCC is recommended to be at least version 13, clang should be at least version 18.
   Earlier versions might work if C++20 is sufficiently supported
