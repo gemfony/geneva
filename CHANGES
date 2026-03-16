@@ -32,7 +32,6 @@ Recommended versions:
 
 Current issues with this development release:
 - The C++ standard is not set centrally, but individually for each library
-- Current Boost releases do not work
 
 //------------------------------------------------------------------------------------------------------
 * Version 1.10, "Genova" - March 10, 2020
