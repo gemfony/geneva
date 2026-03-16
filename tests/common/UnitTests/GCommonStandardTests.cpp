@@ -47,3 +47,17 @@ using namespace boost::unit_test;
 
 // This file holds the actual random tests
 #include "common/tests/GCommon_tests.hpp"
+
+// Test program entry point
+test_suite* init_unit_test_suite(int argc, char** const argv) {
+	framework::master_test_suite().add(new GCommonSuite());
+
+	// Add a small suite that exercises the newly created demo class
+	auto demoSuite = BOOST_TEST_SUITE("GJunieDemoSuite");
+	demoSuite->add(BOOST_TEST_CASE(&GJunieDemo_add_test));
+	demoSuite->add(BOOST_TEST_CASE(&GJunieDemo_multiply_test));
+	demoSuite->add(BOOST_TEST_CASE(&GJunieDemo_sayHello_test));
+	framework::master_test_suite().add(demoSuite);
+
+	return 0;
+}

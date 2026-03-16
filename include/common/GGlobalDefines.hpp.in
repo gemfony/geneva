@@ -47,8 +47,6 @@
 
 //-----------------------------------------------------------
 // Some standard headers needed everywhere
-// #include <ciso646>
-
 #include <boost/version.hpp>
 
 //-----------------------------------------------------------

@@ -20,6 +20,7 @@ Recommended versions:
   by their C++17 counterparts
 - Benchmarks for courtier and geneva have been moved to their own benchmarks top-level
   directory and are no longer considered to be tests
+- An extensive CUDA example has been implemented
 
 ********************************************************************************
 
