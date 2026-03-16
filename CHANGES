@@ -1,5 +1,7 @@
 //------------------------------------------------------------------------------------------------------
-* Version 1.11, "Hendaye", under development
+* Version 1.11, "Hendaye" - March 16, 2026
+
+We have restarted development of the Geneva library!
 
 Recommended versions:
 - Boost version 1.90 or higher is required. You may try with Boost 1.89 (untested). Note that the
@@ -9,6 +11,7 @@ Recommended versions:
 - CMake version 3.27 or higher is required
 - GCC is recommended to be at least version 13, clang should be at least version 18.
   Earlier versions might work if C++20 is sufficiently supported
+- We suggest to use Ubuntu 24.04 LTS as the host platform if you plan to use the CUDA example.
 
 ********************** INCOMPATIBILITIES / PLEASE NOTE *************************
 
