@@ -38,15 +38,15 @@
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GParameterScan_PersonalityTraits)
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva
+{
 
-/******************************************************************************/
-/** A short identifier suitable for storage in a std::map */
-G_API_GENEVA const std::string GParameterScan_PersonalityTraits::nickname = "ps";
+	/******************************************************************************/
+	/** A short identifier suitable for storage in a std::map */
+	G_API_GENEVA const std::string GParameterScan_PersonalityTraits::nickname = "ps";
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *
@@ -54,167 +54,166 @@ G_API_GENEVA const std::string GParameterScan_PersonalityTraits::nickname = "ps"
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
-void GParameterScan_PersonalityTraits::compare_(
-	const GObject &cp, const Gem::Common::expectation &e, const double &limit
-) const {
-	using namespace Gem::Common;
+	void GParameterScan_PersonalityTraits::compare_(
+		const GObject &cp, const Gem::Common::expectation &e, const double &limit
+	) const {
+		using namespace Gem::Common;
 
-	// Check that we are dealing with a GParameterScan_PersonalityTraits reference independent of this object and convert the pointer
-	const GParameterScan_PersonalityTraits *p_load = Gem::Common::g_convert_and_compare<GObject, GParameterScan_PersonalityTraits>(cp, this);
+		// Check that we are dealing with a GParameterScan_PersonalityTraits reference independent of this object and convert the pointer
+		const GParameterScan_PersonalityTraits *p_load = Gem::Common::g_convert_and_compare<GObject, GParameterScan_PersonalityTraits>(cp, this);
 
-	GToken token("GParameterScan_PersonalityTraits", e);
+		GToken token("GParameterScan_PersonalityTraits", e);
 
-	// Compare our parent data ...
-	Gem::Common::compare_base_t<GPersonalityTraits>(*this, *p_load, token);
+		// Compare our parent data ...
+		Gem::Common::compare_base_t<GPersonalityTraits>(*this, *p_load, token);
 
-	// ... and then the local data
-	compare_t(IDENTITY(m_popPos, p_load->m_popPos), token);
+		// ... and then the local data
+		compare_t(IDENTITY(m_popPos, p_load->m_popPos), token);
 
-	// React on deviations from the expectation
-	token.evaluate();
-}
+		// React on deviations from the expectation
+		token.evaluate();
+	}
 
-/***********************************************************************************/
-/**
+	/***********************************************************************************/
+	/**
  * Emits a name for this class / object
  */
-std::string GParameterScan_PersonalityTraits::name_() const {
-	return std::string("GParameterScan_PersonalityTraits");
-}
+	std::string GParameterScan_PersonalityTraits::name_() const {
+		return std::string("GParameterScan_PersonalityTraits");
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Retrieves the mnemonic of the optimization algorithm
  */
-std::string GParameterScan_PersonalityTraits::getMnemonic() const {
-	return GParameterScan_PersonalityTraits::nickname;
-}
+	std::string GParameterScan_PersonalityTraits::getMnemonic() const {
+		return GParameterScan_PersonalityTraits::nickname;
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Creates a deep clone of this object
  *
  * @return A clone of this object, camouflaged as a GObject
  */
-GObject *GParameterScan_PersonalityTraits::clone_() const {
-	return new GParameterScan_PersonalityTraits(*this);
-}
+	GObject *GParameterScan_PersonalityTraits::clone_() const {
+		return new GParameterScan_PersonalityTraits(*this);
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Loads the data of another GPSPersonalityTraits object
  *
  * @param cp A copy of another GPSPersonalityTraits object, camouflaged as a GObject
  */
-void GParameterScan_PersonalityTraits::load_(const GObject *cp) {
-	// Check that we are dealing with a GParameterScan_PersonalityTraits reference independent of this object and convert the pointer
-	const GParameterScan_PersonalityTraits *p_load = Gem::Common::g_convert_and_compare<GObject, GParameterScan_PersonalityTraits>(cp, this);
+	void GParameterScan_PersonalityTraits::load_(const GObject *cp) {
+		// Check that we are dealing with a GParameterScan_PersonalityTraits reference independent of this object and convert the pointer
+		const GParameterScan_PersonalityTraits *p_load = Gem::Common::g_convert_and_compare<GObject, GParameterScan_PersonalityTraits>(cp, this);
 
-	// Load the parent class'es data
-	GPersonalityTraits::load_(cp);
+		// Load the parent class'es data
+		GPersonalityTraits::load_(cp);
 
-	// and then the local data
-	m_popPos = p_load->m_popPos;
-}
+		// and then the local data
+		m_popPos = p_load->m_popPos;
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Sets the position of the individual in the population
  *
  * @param popPos The new position of this individual in the population
  */
-void GParameterScan_PersonalityTraits::setPopulationPosition(const std::size_t &popPos) {
-	m_popPos = popPos;
-}
+	void GParameterScan_PersonalityTraits::setPopulationPosition(const std::size_t &popPos) {
+		m_popPos = popPos;
+	}
 
-/* ----------------------------------------------------------------------------------
+	/* ----------------------------------------------------------------------------------
  * So far untested
  * ----------------------------------------------------------------------------------
  */
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Retrieves the position of the individual in the population
  *
  * @return The current position of this individual in the population
  */
-std::size_t GParameterScan_PersonalityTraits::getPopulationPosition(void) const {
-	return m_popPos;
-}
+	std::size_t GParameterScan_PersonalityTraits::getPopulationPosition(void) const {
+		return m_popPos;
+	}
 
-/* ----------------------------------------------------------------------------------
+	/* ----------------------------------------------------------------------------------
  * So far untested
  * ----------------------------------------------------------------------------------
  */
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Applies modifications to this object. This is needed for testing purposes
  *
  * @return A boolean which indicates whether modifications were made
  */
-bool GParameterScan_PersonalityTraits::modify_GUnitTests_() {
+	bool GParameterScan_PersonalityTraits::modify_GUnitTests_() {
 #ifdef GEM_TESTING
-	bool result = false;
+		bool result = false;
 
-	// Call the parent class'es function
-	if (GPersonalityTraits::modify_GUnitTests_()) result = true;
+		// Call the parent class'es function
+		if (GPersonalityTraits::modify_GUnitTests_()) result = true;
 
-	this->setPopulationPosition(this->getPopulationPosition() + 1);
-	result = true;
+		this->setPopulationPosition(this->getPopulationPosition() + 1);
+		result = true;
 
-	return result;
+		return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
    Gem::Common::condnotset("GParameterScan_PersonalityTraits::modify_GUnitTests", "GEM_TESTING");
    return false;
 #endif /* GEM_TESTING */
-}
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
-void GParameterScan_PersonalityTraits::specificTestsNoFailureExpected_GUnitTests_() {
+	void GParameterScan_PersonalityTraits::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
-	using boost::unit_test_framework::test_suite;
-	using boost::unit_test_framework::test_case;
+		using boost::unit_test_framework::test_suite;
+		using boost::unit_test_framework::test_case;
 
-	// Call the parent class'es function
-	GPersonalityTraits::specificTestsNoFailureExpected_GUnitTests_();
+		// Call the parent class'es function
+		GPersonalityTraits::specificTestsNoFailureExpected_GUnitTests_();
 
 
-	// --------------------------------------------------------------------------
+		// --------------------------------------------------------------------------
 
-	// --------------------------------------------------------------------------
+		// --------------------------------------------------------------------------
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
    Gem::Common::condnotset("GParameterScan_PersonalityTraits::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
-}
+	}
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
-void GParameterScan_PersonalityTraits::specificTestsFailuresExpected_GUnitTests_() {
+	void GParameterScan_PersonalityTraits::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
-	using boost::unit_test_framework::test_suite;
-	using boost::unit_test_framework::test_case;
+		using boost::unit_test_framework::test_suite;
+		using boost::unit_test_framework::test_case;
 
-	// Call the parent class'es function
-	GPersonalityTraits::specificTestsFailuresExpected_GUnitTests_();
+		// Call the parent class'es function
+		GPersonalityTraits::specificTestsFailuresExpected_GUnitTests_();
 
-	// --------------------------------------------------------------------------
+		// --------------------------------------------------------------------------
 
-	// --------------------------------------------------------------------------
+		// --------------------------------------------------------------------------
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
    Gem::Common::condnotset("GParameterScan_PersonalityTraits::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
+	}
+
+	/******************************************************************************/
+
 }
-
-/******************************************************************************/
-
-} /* namespace Geneva */
-} /* namespace Gem */

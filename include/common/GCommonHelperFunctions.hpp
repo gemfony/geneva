@@ -111,6 +111,11 @@ G_API_COMMON
 std::string loadTextDataFromFile(std::filesystem::path const &);
 
 /******************************************************************************/
+/** @brief This function loads textual (ASCII) data from an external file, putting it line by line into a std::vector */
+G_API_COMMON
+std::vector<std::string> loadTextLinesFromFile(std::filesystem::path const &);
+
+/******************************************************************************/
 /** @brief This function executes an external command on the operating system */
 G_API_COMMON
 int runExternalCommand(

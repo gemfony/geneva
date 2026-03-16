@@ -61,8 +61,9 @@ if [ $# -eq 0 ]; then
 	VERBOSEMAKEFILE="1"            # Whether compilation information should be emitted
 	INSTALLDIR="/opt/geneva"       # Where the Geneva library shall go
 	MPIROOT=""                     # Root directory of the MPI installation, empty for automatic find through Cmake
-	BUILDMPICONSUMER="1"           # Whether to build the MPI-consumer of the courtier library
-	BUILDOPENCLEXAMPLES="0"        # Whether to build OpenCL examples (note: this is an experimental feature)
+	BUILDMPICONSUMER="0"           # Whether to build the MPI-consumer of the courtier library
+	BUILDCUDAEXAMPLES="0"          # Whether to build CUDA examples (note: this is an experimental feature)
+	USECUDARNG="0"                 # Whether CUDA shall be used to create random numbers in the Hap-library
 elif [ $# -eq 1 ]; then
 	# Check that the command file has the expected form (ends with .gcfg)
 	testfile=`basename $1 .gcfg`.gcfg
@@ -103,7 +104,7 @@ elif [ $# -eq 1 ]; then
 		echo "Variable BUILDEXAMPLES wasn't set. Setting to default value '${BUILDEXAMPLES}'"
 	fi
 
-  if [ -z "${BUILDBENCHMARKS}" ]; then
+    if [ -z "${BUILDBENCHMARKS}" ]; then
 		BUILDBENCHMARKS="1"
 		echo "Variable BUILDBENCHMARKS wasn't set. Setting to default value '${BUILDBENCHMARKS}'"
 	fi
@@ -124,19 +125,24 @@ elif [ $# -eq 1 ]; then
 	fi
 
 	if [ -z "${BUILDMPICONSUMER}" ]; then
-  	BUILDMPICONSUMER="1"
-  	echo "Variable BUILDMPICONSUMER wasn't set. Setting to default value '${BUILDMPICONSUMER}'"
-  fi
+      BUILDMPICONSUMER="1"
+      echo "Variable BUILDMPICONSUMER wasn't set. Setting to default value '${BUILDMPICONSUMER}'"
+    fi
 
     if [ -z "${MPIROOT}" ]; then
       	MPIROOT=""
       	echo "Variable MPIROOT not specified, setting MPIROOT to empty string, indicating automatic find through CMake."
     fi
 
-	if [ -z "${BUILDOPENCLEXAMPLES}" ]; then
-		BUILDOPENCLEXAMPLES="0"
-		echo "Variable BUILDOPENCLEXAMPLES wasn't set. Setting to default value '${BUILDOPENCLEXAMPLES}'"
+	if [ -z "${BUILDCUDAEXAMPLES}" ]; then
+		BUILDCUDAEXAMPLES="0"
+		echo "Variable BUILDCUDAEXAMPLES wasn't set. Setting to default value '${BUILDCUDAEXAMPLES}'"
 	fi
+
+  if [ -z "${USECUDARNG}" ]; then
+    USECUDARNG="0"
+    echo "Variable USECUDARNG wasn't set. Setting to default value '${USECUDARNG}'"
+  fi
 else
 	echo -e "\nReceived $# command line arguments, which is an invalid number."
 	echo -e "You can either call this script without arguments, in which case"
@@ -290,7 +296,8 @@ CONFIGURE="${CMAKE} $BOOSTLOCATIONPATHS $BOOSTSYSTEMFLAG \
 -DCMAKE_VERBOSE_MAKEFILE=${VERBOSEMAKEFILE} \
 -DCMAKE_INSTALL_PREFIX=${INSTALLDIR} \
 -DGENEVA_BUILD_WITH_MPI_CONSUMER=${BUILDMPICONSUMER} \
--DGENEVA_BUILD_WITH_OPENCL_EXAMPLES=${BUILDOPENCLEXAMPLES}"
+-DGENEVA_BUILD_WITH_CUDA_EXAMPLES=${BUILDCUDAEXAMPLES} \
+-DGENEVA_USE_CUDA_RNG=${USECUDARNG}"
 
 if [ "x$MPIROOT" != "x" ]; then
 	CONFIGURE="${CONFIGURE} -DMPI_HOME='${MPIROOT}'"

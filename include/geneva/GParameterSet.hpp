@@ -915,7 +915,9 @@ protected:
 
     /***************************************************************************/
     /** @brief Do the required processing for this object */
-    G_API_GENEVA void process_() override;
+    G_API_GENEVA void process_(
+        const std::vector<parameterset_processing_result> &res_vec = std::vector<parameterset_processing_result>()
+    ) final;
 
     /** @brief Adds local configuration options to a GParserBuilder object */
     G_API_GENEVA void addConfigurationOptions_(

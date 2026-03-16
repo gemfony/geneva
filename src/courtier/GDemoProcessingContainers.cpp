@@ -1,5 +1,5 @@
 /**
- * @file GDemoProcesiingContainers.cpp
+ * @file GDemoProcessingContainers.cpp
  */
 
 /********************************************************************************
@@ -43,8 +43,8 @@
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Courtier::GSimpleContainer)
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Courtier::GRandomNumberContainer)
 
-namespace Gem {
-namespace Courtier {
+
+namespace Gem::Courtier {
 
 /********************************************************************************************/
 /**
@@ -62,13 +62,14 @@ GSimpleContainer::GSimpleContainer(const std::size_t& snr)
 * Allows to specify the tasks to be performed for this object. We simply do nothing,
 * as this class is for debugging and benchmarking purposes only.
 */
-void GSimpleContainer::process_() { /* nothing */ }
+void GSimpleContainer::process_(const std::vector<bool> &) { /* nothing */ }
 
 /********************************************************************************************/
 /**
 * Prints out this functions stored number
 */
-void GSimpleContainer::print() {
+void GSimpleContainer::print() const
+{
     std::cout << "storedNumber_ = " << m_stored_number << std::endl;
 }
 
@@ -93,7 +94,7 @@ GRandomNumberContainer::GRandomNumberContainer(const std::size_t& nrnr)
  * Allows to specify the tasks to be performed for this object. We simply sort the array of
  * random numbers.
  */
-void GRandomNumberContainer::process_() {
+void GRandomNumberContainer::process_(const std::vector<bool> &) {
     std::sort(randomNumbers_.begin(), randomNumbers_.end());
 }
 
@@ -101,7 +102,8 @@ void GRandomNumberContainer::process_() {
 /**
  * Prints out this functions random number container
  */
-void GRandomNumberContainer::print() {
+void GRandomNumberContainer::print() const
+{
     for(std::size_t i=0; i<randomNumbers_.size(); i++) {
         std::cout << i << ": " << randomNumbers_[i] << std::endl;
     }
@@ -109,5 +111,5 @@ void GRandomNumberContainer::print() {
 
 /********************************************************************************************/
 
-} /* namespace Courtier */
-} /* namespace Gem */
+} // namespace Gem::Courtier
+

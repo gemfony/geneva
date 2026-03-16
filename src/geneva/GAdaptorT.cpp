@@ -37,11 +37,11 @@
 #include "geneva/GAdaptorT.hpp"
 
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva
+{
 
-/******************************************************************************/
-/**
+	/******************************************************************************/
+	/**
  * Common interface for all adaptors to the adaption functionality. Specialization
  * for the T==bool case . Note that
  *
@@ -49,59 +49,58 @@ namespace Geneva {
  * @param range A typical value range for type T
  * @return The number of adaptions that were carried out
  */
-template <>
-std::size_t GAdaptorT<bool,double>::adapt(
-	std::vector<bool>& valVec
-	, const bool& range
-	, Gem::Hap::GRandomBase& gr
-) {
-	using namespace Gem::Common;
-	using namespace Gem::Hap;
+	template <>
+	std::size_t GAdaptorT<bool,double>::adapt(
+		std::vector<bool>& valVec
+		, const bool& range
+		, Gem::Hap::GRandomBase& gr
+	) {
+		using namespace Gem::Common;
+		using namespace Gem::Hap;
 
-	std::size_t nAdapted = 0;
+		std::size_t nAdapted = 0;
 
-	// Update the adaption probability, if requested by the user
-	if(m_adaptAdProb > double(0.)) {
-		m_adProb *= gexp(
-			m_normal_distribution(gr, typename std::normal_distribution<double>::param_type(0.,m_adaptAdProb))
-		);
-		Gem::Common::enforceRangeConstraint<double>(
-			m_adProb
-			, m_minAdProb
-			, m_maxAdProb
-			, "GAdaptorT<bool,double>::adapt()"
-		);
-	}
+		// Update the adaption probability, if requested by the user
+		if(m_adaptAdProb > double(0.)) {
+			m_adProb *= gexp(
+				m_normal_distribution(gr, typename std::normal_distribution<double>::param_type(0.,m_adaptAdProb))
+			);
+			Gem::Common::enforceRangeConstraint<double>(
+				m_adProb
+				, m_minAdProb
+				, m_maxAdProb
+				, "GAdaptorT<bool,double>::adapt()"
+			);
+		}
 
-	bool dummy_val;
+		bool dummy_val;
 
-	if(adaptionMode::WITHPROBABILITY == m_adaptionMode) { // The most likely case is indeterminate (means: "depends")
-		for (auto && val: valVec) {
-			// A likelihood of m_adProb for adaption
-			if(m_weighted_bool(gr, std::bernoulli_distribution::param_type(gfabs(m_adProb)))) {
+		if(adaptionMode::WITHPROBABILITY == m_adaptionMode) { // The most likely case is indeterminate (means: "depends")
+			for (auto && val: valVec) {
+				// A likelihood of m_adProb for adaption
+				if(m_weighted_bool(gr, std::bernoulli_distribution::param_type(gfabs(m_adProb)))) {
+					dummy_val = val;
+					adaptAdaption(range, gr);
+					customAdaptions(dummy_val, range, gr); // does not know about the bool-proxy of std::vector<bool>
+					val=dummy_val;
+					nAdapted += 1;
+				}
+			}
+		} else if(adaptionMode::ALWAYS == m_adaptionMode) { // always adapt
+			for (auto && val: valVec) {
 				dummy_val = val;
 				adaptAdaption(range, gr);
-				customAdaptions(dummy_val, range, gr); // does not know about the bool-proxy of std::vector<bool>
+				customAdaptions(dummy_val, range, gr);
 				val=dummy_val;
 				nAdapted += 1;
 			}
 		}
-	} else if(adaptionMode::ALWAYS == m_adaptionMode) { // always adapt
-		for (auto && val: valVec) {
-			dummy_val = val;
-			adaptAdaption(range, gr);
-			customAdaptions(dummy_val, range, gr);
-			val=dummy_val;
-			nAdapted += 1;
-		}
+
+		// No need to test for "m_adaptionMode == adaptionMode::NEVER" as no action is needed in this case
+
+		return nAdapted;
 	}
 
-	// No need to test for "m_adaptionMode == adaptionMode::NEVER" as no action is needed in this case
+	/******************************************************************************/
 
-	return nAdapted;
 }
-
-/******************************************************************************/
-
-} /* namespace Geneva */
-} /* namespace Gem */

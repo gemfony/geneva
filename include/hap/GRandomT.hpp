@@ -328,7 +328,7 @@ private:
 
 	/***************************************************************************/
 	/** @brief The actual generator for local random number creation */
-	G_BASE_GENERATOR m_rng;
+	G_CPU_BASE_GENERATOR m_rng;
 };
 
 /******************************************************************************/

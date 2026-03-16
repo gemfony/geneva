@@ -41,7 +41,7 @@
 
 ################################################################################
 
-CMAKE_MINIMUM_REQUIRED(VERSION 3.10 FATAL_ERROR)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.27 FATAL_ERROR)
 
 # Include guard
 IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
@@ -99,10 +99,10 @@ FLAG_UNSUPPORTED_SETUPS(
 ################################################################################
 # Set the C++ standard to be used
 
-# Geneva requires at least the C++17 Standard. The user may force another
-# value at its own risk by setting the variable CMAKE_CXX_STANDARD.
+# Geneva requires at least the C++20 Standard. The user may force another
+# value at his own risk by setting the variable CMAKE_CXX_STANDARD.
 IF( NOT DEFINED CMAKE_CXX_STANDARD )
-	SET( CMAKE_CXX_STANDARD "17" )
+	SET( CMAKE_CXX_STANDARD "20" )
 ENDIF()
 
 SET(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -160,32 +160,8 @@ ENDIF ()
 
 SET (Boost_USE_MULTITHREAD ON)
 SET (Boost_ADDITIONAL_VERSIONS
-        "1.70"
-        "1.70.0"
-        "1.71"
-        "1.71.0"
-        "1.72"
-        "1.72.0"
-        "1.73"
-        "1.73.0"
-        "1.74"
-        "1.74.0"
-		"1.75"
-		"1.75.0"
-		"1.76"
-		"1.76.0"
-		"1.77"
-		"1.77.0"
-		"1.78"
-		"1.78.0"
-		"1.79"
-		"1.79.0"
-		"1.80"
-		"1.80.0"
-		"1.81"
-		"1.81.0"
-		"1.82"
-		"1.82.0"
+		"1.90.0"
+		"1.90"
 )
 
 IF ( GENEVA_STATIC )
@@ -209,7 +185,7 @@ ELSE () # Dynamic libraries
 ENDIF ()
 
 # The minimum Boost version required for building Geneva and Geneva applications
-SET (GENEVA_MIN_BOOST_VERSION 1.70)
+SET (GENEVA_MIN_BOOST_VERSION 1.90)
 
 # These are the libraries required for any Geneva build
 SET (
@@ -218,7 +194,6 @@ SET (
 	filesystem
 	regex
 	serialization
-	system
 	program_options
 )
 
@@ -263,16 +238,6 @@ IF(GENEVA_BUILD_WITH_MPI_CONSUMER)
 	IF(MPI_FOUND)
 		INCLUDE_DIRECTORIES(${MPI_INCLUDE_PATH})
 	ENDIF()
-ENDIF()
-
-
-# Optionally search for OpenCL
-IF(GENEVA_BUILD_WITH_OPENCL_EXAMPLES)
-    FIND_PACKAGE(OpenCL REQUIRED)
-    MESSAGE("")
-    IF(OpenCL_FOUND)
-        INCLUDE_DIRECTORIES(${OpenCL_INCLUDE_DIRS})
-    ENDIF()
 ENDIF()
 
 # Add compile-time debug information about Boost's linked libraries

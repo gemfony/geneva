@@ -126,7 +126,7 @@ public:
 	 *
 	 * @return The maximum number of allowed threads
 	 */
-	 std::size_t getNThreadsPerWorker(void) const {
+	 std::size_t getNThreadsPerWorker() const {
 		 return m_nThreads;
 	 }
 
@@ -156,7 +156,7 @@ public:
 	  * Allows to register a single worker template with this class.
 	  */
 	 void registerWorkerTemplate(
-		 std::shared_ptr<GLocalConsumerWorkerT<processable_type>> workerTemplate
+		 std::shared_ptr<GWorkerWithRegisterBrokerFerryT<processable_type>> workerTemplate
 	 ) {
 #ifdef DEBUG
 		 if(not workerTemplate) { // Does the template point somewhere ?
@@ -175,22 +175,20 @@ public:
 	 /**
 	  * Sets up a consumer and registers it with the broker. This function accepts
 	  * a worker as argument.
-	  *
-	  * @TODO Check if this is needed
 	  */
-//	 static void setup(
-//		 const std::string &configFile,
-//		 std::shared_ptr<GLocalConsumerWorkerT<processable_type>> worker_ptr
-//	 ) {
-//		 std::shared_ptr <GStdThreadConsumerT<processable_type>> consumer_ptr(
-//			 new GStdThreadConsumerT<processable_type>()
-//		 );
-//
-//		 consumer_ptr->registerWorkerTemplate(worker_ptr);
-//		 consumer_ptr->parseConfigFile(configFile);
-//
-//		 GBROKER(processable_type)->enrol_consumer(consumer_ptr);
-//	 }
+	 static void setup(
+		 const std::string &configFile,
+		 std::shared_ptr<GWorkerWithRegisterBrokerFerryT<processable_type>> worker_ptr
+	 ) {
+		 std::shared_ptr <GStdThreadConsumerT<processable_type>> consumer_ptr(
+			 new GStdThreadConsumerT<processable_type>()
+		 );
+
+		 consumer_ptr->registerWorkerTemplate(worker_ptr);
+		 consumer_ptr->parseConfigFile(configFile);
+
+		 GBROKER(processable_type)->enrol_consumer(consumer_ptr);
+	 }
 
 protected:
 	 /***************************************************************************/
@@ -292,7 +290,7 @@ private:
 	  * @return A unique identifier for a given consumer
 	  */
 	 std::string getConsumerName_() const override {
-		 return std::string("GStdThreadConsumerT");
+		 return {"GStdThreadConsumerT"};
 	 }
 
 	 /***************************************************************************/
@@ -300,7 +298,7 @@ private:
 	  * Returns a short identifier for this consumer
 	  */
 	 std::string getMnemonic_() const override {
-		 return std::string("stc");
+		 return {"stc"};
 	 }
 
 	 /***************************************************************************/
@@ -311,7 +309,7 @@ private:
 	 void async_startProcessing_() override {
 		 // Add a default worker if no worker was registered
 		 if(not m_workerTemplate) {
-			 std::shared_ptr<GLocalConsumerWorkerT<processable_type>> default_worker(new GLocalConsumerWorkerT<processable_type>());
+			 std::shared_ptr<GWorkerWithRegisterBrokerFerryT<processable_type>> default_worker(new GLocalConsumerWorkerT<processable_type>());
 			 this->registerWorkerTemplate(default_worker);
 		 }
 
@@ -321,8 +319,8 @@ private:
 			 << GLOGGING;
 		 for (std::size_t worker_id = 0; worker_id < m_nThreads; worker_id++) {
 			 // The actual worker
-			 std::shared_ptr<GLocalConsumerWorkerT<processable_type>> p_worker
-				 = std::dynamic_pointer_cast<GLocalConsumerWorkerT<processable_type>>(m_workerTemplate->clone());
+			 std::shared_ptr<GWorkerWithRegisterBrokerFerryT<processable_type>> p_worker
+				 = std::dynamic_pointer_cast<GWorkerWithRegisterBrokerFerryT<processable_type>>(m_workerTemplate->clone());
 
 			 // The "broker ferry" holding the connection to the broker
 			 std::shared_ptr<GBrokerFerryT<processable_type>> broker_ferry_ptr(
@@ -396,8 +394,8 @@ private:
 	 std::size_t m_nThreads = DEFAULTTHREADSPERWORKER; ///< The maximum number of allowed threads in the pool
 	 Gem::Common::GThreadGroup m_gtg; ///< Holds the processing threads
 
-	 std::vector<std::shared_ptr<GLocalConsumerWorkerT<processable_type>>> m_workers; ///< Holds the current worker objects
-	 std::shared_ptr<GLocalConsumerWorkerT<processable_type>> m_workerTemplate; ///< All workers will be created as a clone of this worker
+	 std::vector<std::shared_ptr<GWorkerWithRegisterBrokerFerryT<processable_type>>> m_workers; ///< Holds the current worker objects
+	 std::shared_ptr<GWorkerWithRegisterBrokerFerryT<processable_type>> m_workerTemplate; ///< All workers will be created as a clone of this worker
 
 	 std::shared_ptr<GBrokerT<processable_type>> m_broker_ptr = GBROKER(processable_type); ///< A shortcut to the broker so we do not have to go through the singleton
 };
