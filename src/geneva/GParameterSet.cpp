@@ -31,6 +31,10 @@
 
 #include <memory>
 
+#ifdef GEM_TESTING
+#include <catch2/catch_test_macros.hpp>
+#endif /* GEM_TESTING */
+
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GParameterSet) // NOLINT
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::parameterset_processing_result) // NOLINT
 namespace Gem::Geneva

@@ -29,6 +29,10 @@
 
 #include "geneva/GBooleanCollection.hpp"
 
+#ifdef GEM_TESTING
+#include <catch2/catch_test_macros.hpp>
+#endif /* GEM_TESTING */
+
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GBooleanCollection) // NOLINT
 namespace Gem::Geneva
 {

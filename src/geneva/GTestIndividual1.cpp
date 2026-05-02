@@ -29,6 +29,10 @@
 
 #include "geneva/GTestIndividual1.hpp"
 
+#ifdef GEM_TESTING
+#include <catch2/catch_test_macros.hpp>
+#endif /* GEM_TESTING */
+
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Tests::GTestIndividual1) // NOLINT
 
 namespace Gem::Tests

@@ -67,14 +67,6 @@
 #include <boost/utility.hpp>
 #include <boost/property_tree/ptree_serialization.hpp>
 
-#ifdef GEM_TESTING
-
-#include <catch2/catch_test_macros.hpp>
-#include <catch2/matchers/catch_matchers.hpp>
-#include <catch2/matchers/catch_matchers_floating_point.hpp>
-
-#endif /* GEM_TESTING */
-
 // Geneva header files go here
 #include "common/GDefaultValueT.hpp"
 #include "common/GErrorStreamer.hpp"

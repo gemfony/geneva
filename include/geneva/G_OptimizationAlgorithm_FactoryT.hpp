@@ -45,6 +45,10 @@
 #include "courtier/GCourtierEnums.hpp"
 #include "geneva/GPluggableOptimizationMonitors.hpp"
 
+#ifdef GEM_TESTING
+#include <catch2/catch_test_macros.hpp>
+#endif /* GEM_TESTING */
+
 namespace Gem {
 namespace Geneva {
 

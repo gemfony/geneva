@@ -29,6 +29,10 @@
 
 #include "geneva/GInt32FlipAdaptor.hpp"
 
+#ifdef GEM_TESTING
+#include <catch2/catch_test_macros.hpp>
+#endif /* GEM_TESTING */
+
 // Make sure the class gets instantiated at least once
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GInt32FlipAdaptor) // NOLINT
 namespace Gem::Geneva

@@ -45,6 +45,10 @@
 #include "geneva/GParameterT.hpp"
 #include "geneva/GConstrainedValueLimitT.hpp"
 
+#ifdef GEM_TESTING
+#include <catch2/catch_test_macros.hpp>
+#endif /* GEM_TESTING */
+
 namespace Gem {
 namespace Geneva {
 
