@@ -59,7 +59,7 @@ Boost dependencies set up:
 
 sudo apt-get install --no-install-recommends libboost-dev libboost-atomic-dev \
         libboost-filesystem-dev libboost-program-options-dev libboost-regex-dev \
-        libboost-serialization-dev libboost-system-dev libboost-test-dev
+        libboost-serialization-dev libboost-system-dev libcatch2-dev
 
 Building and installing Geneva
 ==============================

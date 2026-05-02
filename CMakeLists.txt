@@ -261,7 +261,7 @@ SET(
 	libboost-regex-dev (>= ${GENEVA_MIN_BOOST_VERSION}.0),
 	libboost-serialization-dev (>= ${GENEVA_MIN_BOOST_VERSION}.0),
 	libboost-system-dev (>= ${GENEVA_MIN_BOOST_VERSION}.0),
-	libboost-test-dev (>= ${GENEVA_MIN_BOOST_VERSION}.0)"
+	libcatch2-dev (>= 3.0)"
 )
 
 # RPM specific variables

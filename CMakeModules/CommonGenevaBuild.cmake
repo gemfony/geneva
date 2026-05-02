@@ -165,9 +165,8 @@ IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
 			# Disable auto-linking
 			ADD_DEFINITIONS("-DBOOST_ALL_DYN_LINK")
 
-			# Boost::test_exec_monitor cannot be built as shared libraries,
-			# which leads to problems with FindBoost under Windows when trying
-			# to build the other libraries as dynamic. That case is unsupported.
+			# Catch2 is a header-only / static library. Building shared Geneva
+			# libraries with testing code under Windows is currently unsupported.
 			IF (GENEVA_BUILD_TESTS)
 				MESSAGE (FATAL_ERROR "Building shared libraries with testing"
 						" code under Windows is currently not suported."
@@ -197,14 +196,6 @@ IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
 				${GENEVA_BOOST_LIBS}
 				chrono
 				date_time
-		)
-	ENDIF()
-
-	IF(GENEVA_BUILD_TESTS)
-		SET (
-				GENEVA_BOOST_LIBS
-				${GENEVA_BOOST_LIBS}
-				unit_test_framework
 		)
 	ENDIF()
 
@@ -320,9 +311,9 @@ IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
 		ENDIF ()
 
 		IF (GENEVA_TESTING AND NOT GENEVA_BUILD_TESTS)
-			# If Geneva was built with testing, the application could be built
-			# without, but we would still need to add Boost's test_exec_monitor
-			# library for avoiding linking errors... that case is unsupported for now.
+			# If Geneva was built with testing, the application must also be built
+			# with testing enabled (Catch2 RTTI symbols are referenced by the shared
+			# library). That case is unsupported for now.
 			MESSAGE (FATAL_ERROR "Geneva was built with testing support,"
 					" building a Geneva application without testing"
 					" is not suported. Please set GENEVA_BUILD_TESTS=TRUE .")

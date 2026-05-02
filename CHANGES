@@ -39,6 +39,13 @@ Recommended Versions:
   removing test_exec_monitor from the Boost components list. The common test
   executable was renamed from CommonStandardTests to GCommonStandardTests.
 
+- The test framework has been migrated from Boost.Test to Catch2 v3. Boost.Test
+  is no longer a build dependency. libcatch2-dev (>= 3.0) is now required when
+  building with GENEVA_BUILD_TESTS=TRUE. The header
+  include/geneva/tests/Geneva_tests.hpp is no longer part of the installed public
+  API; it remains in the source tree for internal use by Geneva's own test drivers.
+  Users writing tests against Geneva classes should use Catch2 directly.
+
 - Fixed compilation issues for CUDA example, related to mismatch of compiler- and CUDA-versions.
 
 //------------------------------------------------------------------------------------------------------
