@@ -117,7 +117,7 @@ namespace Gem::Geneva
 				, maxSigma
 				, adProb
 			);
-		} catch (const gemfony_exception& e) {
+		} catch (const geneva_exception& e) {
 			glogger
 				<< e.what()
 				<< GTERMINATION;

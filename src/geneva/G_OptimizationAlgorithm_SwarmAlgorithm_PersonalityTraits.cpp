@@ -166,7 +166,7 @@ namespace Gem::Geneva
 #ifdef DEBUG
 		// Does it point anywhere ?
 		if(not p) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GSwarmAlgorithm_PersonalityTraits::registerPersonalBest():" << std::endl
 				<< "Got empty smart pointer." << std::endl
@@ -175,7 +175,7 @@ namespace Gem::Geneva
 
 		// Is the dirty flag set ?
 		if(not p->is_processed()) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GSwarmAlgorithm_PersonalityTraits::registerPersonalBest():" << std::endl
 				<< "Got individual which isn't processed." << std::endl
@@ -206,7 +206,7 @@ namespace Gem::Geneva
 	std::shared_ptr <GParameterSet> GSwarmAlgorithm_PersonalityTraits::getPersonalBest() const {
 #ifdef DEBUG
 		if(not personal_best_) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GSwarmAlgorithm_PersonalityTraits::getPersonalBest(): Error!" << std::endl
 				<< "Tried to retrieve personal_best_ while pointer is empty" << std::endl

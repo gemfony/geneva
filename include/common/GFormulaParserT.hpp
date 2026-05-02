@@ -95,7 +95,7 @@ namespace Common {
  * An exception to be thrown in case of mathematical errors,
  * such as division by 0
  */
-class math_logic_error : public gemfony_exception {
+class math_logic_error : public geneva_exception {
 public:
 	/** @brief The default constructor: Intentionally deleted */
 	G_API_COMMON math_logic_error() = delete;
@@ -619,7 +619,7 @@ public:
 		} else {
 			std::string rest(iter, end);
 
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG, time_and_place)
 					<< "In GFormulaParserT<>::evaluate(): Error!" << std::endl
 					<< "Parsing of formula " << formula << " failed at " << rest << std::endl
@@ -743,7 +743,7 @@ private:
 					formula = boost::xpressive::regex_replace(formula, re, value);
 				}
 			} else { // The vector is empty
-				throw gemfony_exception(
+				throw geneva_exception(
 					g_error_streamer(DO_LOG, time_and_place)
 						<< "In GFormulaParserT::replacePlaceHolders(): Error!" << std::endl
 						<< "Vector is empty!" << std::endl
@@ -778,7 +778,7 @@ private:
 			// Note: *code_ptr is a boost::variabt, boost::get has nothing to do with a boost::tuple here
 			switch (boost::get<byte_code>(*code_ptr++)) { // Read out code_ptr, then switch it to the next position
 				case byte_code::op_trap: {
-					throw gemfony_exception(
+					throw geneva_exception(
 						g_error_streamer(DO_LOG, time_and_place)
 							<< "In GFormulaParserT<fp_type>::execute(): Error!" << std::endl
 							<< "byte_code::op_trap encountered" << std::endl
@@ -929,7 +929,7 @@ private:
 					break;
 
 				default: {
-					throw gemfony_exception(
+					throw geneva_exception(
 						g_error_streamer(DO_LOG, time_and_place)
 							<< "In GFormulaParserT<fp_type>::execute(): Error!" << std::endl
 							<< "Invalid instruction " << static_cast<std::size_t>(boost::get<byte_code>(*code_ptr--)) << std::endl

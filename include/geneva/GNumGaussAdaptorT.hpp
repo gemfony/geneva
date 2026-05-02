@@ -167,7 +167,7 @@ public:
 		 // Sigma must be in the allowed value range.
 		 if(not Gem::Common::checkRangeCompliance<fp_type>(sigma, minSigma_, maxSigma_, "GNumGaussAdaptorT<>::setSigma(" + Gem::Common::to_string(sigma) + ")"))
 		 {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GNumGaussAdaptorT::setSigma(const fp_type&):" << std::endl
 					 << "sigma is not in the allowed range: " << std::endl
@@ -202,7 +202,7 @@ public:
 		 // Sigma must be in the allowed value range.
 		 if(not Gem::Common::checkRangeCompliance<fp_type>(sigma_reset, minSigma_, maxSigma_, "GNumGaussAdaptorT<>::setResetSigma(" + Gem::Common::to_string(sigma_reset) + ")"))
 		 {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GNumGaussAdaptorT::setResetSigma(const fp_type&):" << std::endl
 					 << "sigma_reset is not in the allowed range: " << std::endl
@@ -244,7 +244,7 @@ public:
 		 using namespace Gem::Common;
 
 		 if(minSigma < fp_type(0.) || minSigma > maxSigma || maxSigma > fp_type(1.)) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GNumGaussAdaptorT::setSigmaRange(const fp_type&, const fp_type&):" << std::endl
 					 << "Invalid values for minSigma and maxSigma given: " << minSigma << " / " << maxSigma << std::endl
@@ -735,7 +735,7 @@ protected:
 		{ // Test that setting a minimal sigma < 0. throws
 			std::shared_ptr<GNumGaussAdaptorT<num_type, fp_type>> p_test = this->template clone<GNumGaussAdaptorT<num_type, fp_type>>();
 
-			BOOST_CHECK_THROW(p_test->setSigmaRange(fp_type(-1.), fp_type(2.)), gemfony_exception);
+			BOOST_CHECK_THROW(p_test->setSigmaRange(fp_type(-1.), fp_type(2.)), geneva_exception);
 		}
 
 		//------------------------------------------------------------------------------
@@ -743,7 +743,7 @@ protected:
 		{ // Test that setting a minimal sigma > the maximum sigma throws
 			std::shared_ptr<GNumGaussAdaptorT<num_type, fp_type>> p_test = this->template clone<GNumGaussAdaptorT<num_type, fp_type>>();
 
-			BOOST_CHECK_THROW(p_test->setSigmaRange(fp_type(2.), fp_type(1.)), gemfony_exception);
+			BOOST_CHECK_THROW(p_test->setSigmaRange(fp_type(2.), fp_type(1.)), geneva_exception);
 		}
 
 		//------------------------------------------------------------------------------
@@ -751,7 +751,7 @@ protected:
 		{ // Test that setting a negative sigma throws
 			std::shared_ptr<GNumGaussAdaptorT<num_type, fp_type>> p_test = this->template clone<GNumGaussAdaptorT<num_type, fp_type>>();
 
-			BOOST_CHECK_THROW(p_test->setSigma(fp_type(-1.)), gemfony_exception);
+			BOOST_CHECK_THROW(p_test->setSigma(fp_type(-1.)), geneva_exception);
 		}
 
 		//------------------------------------------------------------------------------
@@ -760,7 +760,7 @@ protected:
 			std::shared_ptr<GNumGaussAdaptorT<num_type, fp_type>> p_test = this->template clone<GNumGaussAdaptorT<num_type, fp_type>>();
 
 			BOOST_CHECK_NO_THROW(p_test->setSigmaRange(fp_type(0.5), fp_type(1.)));
-			BOOST_CHECK_THROW(p_test->setSigma(fp_type(0.1)), gemfony_exception);
+			BOOST_CHECK_THROW(p_test->setSigma(fp_type(0.1)), geneva_exception);
 		}
 
 		//------------------------------------------------------------------------------
@@ -769,7 +769,7 @@ protected:
 			std::shared_ptr<GNumGaussAdaptorT<num_type, fp_type>> p_test = this->template clone<GNumGaussAdaptorT<num_type, fp_type>>();
 
 			BOOST_CHECK_NO_THROW(p_test->setSigmaRange(fp_type(0.5), fp_type(1.)));
-			BOOST_CHECK_THROW(p_test->setSigma(fp_type(3.)), gemfony_exception);
+			BOOST_CHECK_THROW(p_test->setSigma(fp_type(3.)), geneva_exception);
 		}
 
 		//------------------------------------------------------------------------------

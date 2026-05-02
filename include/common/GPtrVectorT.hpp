@@ -260,7 +260,7 @@ public:
         typename std::enable_if<std::is_base_of<T, item_type>::value>::type *dummy = nullptr
     ) const {
         if (not item) { // Check that item actually contains something useful
-            throw gemfony_exception(
+            throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                     << "In GParameterTCollectionT<T>::count(item):"
                     << "Tried to count an empty smart pointer." << std::endl
@@ -276,7 +276,7 @@ public:
                     return (*item == *(std::dynamic_pointer_cast<item_type>(cont_item)));
                 }
                 catch(...) {
-                    throw gemfony_exception(
+                    throw geneva_exception(
                         g_error_streamer(DO_LOG, time_and_place)
                             << "Conversion error in GPtrVectorT::count()" << std::endl
                     );
@@ -306,7 +306,7 @@ public:
 		typename std::enable_if<std::is_base_of<T, item_type>::value>::type *dummy = nullptr
 	) const {
 		if (not item) { // Check that item actually contains something useful
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG, time_and_place)
 					<< "In GParameterTCollectionT<T>::find(item):"
 					<< "Tried to find an empty smart pointer." << std::endl
@@ -319,7 +319,7 @@ public:
             try {
                return (*item == *(std::dynamic_pointer_cast<item_type>(cont_item)));
             } catch(...) {
-					throw gemfony_exception(
+					throw geneva_exception(
 						g_error_streamer(DO_LOG, time_and_place)
 							<< "Conversion error in GPtrVectorT::find()" << std::endl
 					);
@@ -409,7 +409,7 @@ public:
 	 */
 	iterator insert_noclone(iterator pos, std::shared_ptr<T> item_ptr) {
 		if (not item_ptr) { // Check that item actually contains something useful
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG, time_and_place)
 					<< "In GParameterTCollectionT<T>::insert_noclone(pos, item_ptr):"
 					<< "Tried to insert an empty smart pointer." << std::endl
@@ -436,7 +436,7 @@ public:
 	 */
 	iterator insert_clone(iterator pos, std::shared_ptr<T> const & item_ptr) {
 		if (not item_ptr) { // Check that item actually contains something useful
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG, time_and_place)
 					<< "In GParameterTCollectionT<T>::insert_clone(pos, item_ptr):"
 					<< "Tried to insert an empty smart pointer." << std::endl
@@ -480,7 +480,7 @@ public:
 	 */
 	void insert_clone(iterator pos, size_type amount, std::shared_ptr<T> const & item_ptr) {
 		if (not item_ptr) { // Check that item actually contains something useful
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG, time_and_place)
 					<< "In GParameterTCollectionT<T>::insert_clone(pos, amount, item):" << std::endl
 					<< "Tried to insert an empty smart pointer." << std::endl
@@ -512,7 +512,7 @@ public:
 	 */
 	void insert_noclone(iterator pos, size_type amount, std::shared_ptr<T> item_ptr) {
 		if (not item_ptr) { // Check that item actually contains something useful
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG, time_and_place)
 					<< "In GParameterTCollectionT<T>::insert_noclone(pos, amount, item):" << std::endl
 					<< "Tried to insert an empty smart pointer." << std::endl
@@ -561,7 +561,7 @@ public:
 	 */
 	void push_back_noclone(std::shared_ptr<T> item_ptr) {
 		if (not item_ptr) { // Check that item actually contains something useful
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG, time_and_place)
 					<< "In GParameterTCollectionT<T>::push_back(item):" << std::endl
 					<< "Tried to insert an empty smart pointer." << std::endl
@@ -587,7 +587,7 @@ public:
 	 */
 	void push_back_clone(std::shared_ptr<T> const & item_ptr) {
 		if (not item_ptr) { // Check that item actually contains something useful
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG, time_and_place)
 					<< "In GStdPtrVectorInterface<T>::push_back_clone(item):" << std::endl
 					<< "Tried to insert an empty smart pointer." << std::endl
@@ -617,7 +617,7 @@ public:
 	 */
 	void resize(size_type amount) {
 		if (this->empty() && amount != 0) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG, time_and_place)
 					<< "In GStdPtrVectorInterface<T>::resize(size_type):" << std::endl
 					<< "Tried to increase the size even though the vector is empty." << std::endl
@@ -671,7 +671,7 @@ public:
 		else if (amount > dataSize) {
 			// Check that item is not empty
 			if (not item_ptr) { // Check that item actually contains something useful
-				throw gemfony_exception(
+				throw geneva_exception(
 					g_error_streamer(DO_LOG, time_and_place)
 						<< "In GParameterTCollectionT<T>::resize(amount, item):" << std::endl
 						<< "Tried to insert an empty smart pointer." << std::endl
@@ -711,7 +711,7 @@ public:
 		else if (amount > dataSize) {
 			// Check that item is not empty
 			if (not item_ptr) { // Check that item actually contains something useful
-				throw gemfony_exception(
+				throw geneva_exception(
 					g_error_streamer(DO_LOG, time_and_place)
 						<< "In GParameterTCollectionT<T>::resize(amount, item):" << std::endl
 						<< "Tried to insert an empty smart pointer." << std::endl
@@ -780,7 +780,7 @@ public:
 #ifdef DEBUG
 		// Do some error checking
 		if(pos >= minSize) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG, time_and_place)
 					<< "In GPtrVectorT::crossOver(cp,pos): Error!" << std::endl
 					<< "Invalid position " << pos << " / " << this->size() << " / " << cp.size() << std::endl
@@ -911,7 +911,7 @@ public:
 		std::shared_ptr<derivedType> dereference() const {
 #ifdef DEBUG
 			if(m_current_pos == m_end) {
-				throw gemfony_exception(
+				throw geneva_exception(
 					g_error_streamer(DO_LOG, time_and_place)
 						<< "In conversion_iterator::dereference(): Error:" << std::endl
 						<< "current position at end of sequence" << std::endl
@@ -922,7 +922,7 @@ public:
 				return m_valid_ptr;
 			}
 			else {
-				throw gemfony_exception(
+				throw geneva_exception(
 					g_error_streamer(DO_LOG, time_and_place)
 						<< "In conversion_iterator::dereference(): Error: empty pointer" << std::endl
 				);

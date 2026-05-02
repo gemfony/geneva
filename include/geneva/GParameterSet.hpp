@@ -377,7 +377,7 @@ public:
                         , target
                     )));
         } else {
-            throw gemfony_exception(
+            throw geneva_exception(
                 g_error_streamer(
                     DO_LOG
                     , time_and_place
@@ -409,7 +409,7 @@ public:
 #ifdef DEBUG
         // Check that m_pt_ptr actually points somewhere
         if (not m_pt_ptr) {
-            throw gemfony_exception(
+            throw geneva_exception(
                 g_error_streamer(
                     DO_LOG
                     , time_and_place
@@ -544,7 +544,7 @@ public:
 
                 //---------------------------------------------------------------------
             default: {
-                throw gemfony_exception(
+                throw geneva_exception(
                     g_error_streamer(
                         DO_LOG
                         , time_and_place
@@ -666,7 +666,7 @@ public:
     ) {
 #ifdef DEBUG
         if (countParameters<par_type>() != parVec.size()) {
-            throw gemfony_exception(
+            throw geneva_exception(
                 g_error_streamer(
                     DO_LOG
                     , time_and_place

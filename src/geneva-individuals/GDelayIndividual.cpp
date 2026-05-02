@@ -241,7 +241,7 @@ namespace Gem::Geneva
 
 		// Enforce that the sanity of the lower and upper boundaries
 		if(std::get<0>(randSleepBoundaries) < 0. || std::get<0>(randSleepBoundaries) >= std::get<1>(randSleepBoundaries)) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GDelayIndividual::setRandomSleep(): Error!" << std::endl
 				<< "Got invalid boundaries for the sleep time: " << std::get<0>(randSleepBoundaries) << " / " << std::get<1>(randSleepBoundaries) << std::endl

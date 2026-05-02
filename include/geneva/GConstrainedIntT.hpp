@@ -528,7 +528,7 @@ protected:
                     0
                     , 0
                     , boost::numeric::bounds<int_type>::highest())
-            , gemfony_exception);
+            , geneva_exception);
         }
 
         //------------------------------------------------------------------------------
@@ -549,7 +549,7 @@ protected:
                     , boost::numeric::bounds<int_type>::lowest()
                     , 100
             )
-            , gemfony_exception);
+            , geneva_exception);
         }
 
         //------------------------------------------------------------------------------
@@ -568,7 +568,7 @@ protected:
             BOOST_CHECK_THROW(p_test->setBoundaries(
                     0
                     , boost::numeric::bounds<int_type>::highest())
-            , gemfony_exception);
+            , geneva_exception);
         }
 
         //------------------------------------------------------------------------------
@@ -588,7 +588,7 @@ protected:
                     boost::numeric::bounds<int_type>::lowest()
                     , 100
             )
-            , gemfony_exception);
+            , geneva_exception);
         }
 
         //------------------------------------------------------------------------------

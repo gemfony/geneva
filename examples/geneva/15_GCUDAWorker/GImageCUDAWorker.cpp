@@ -197,7 +197,7 @@ namespace Gem::Courtier
         // Check that p actually points somewhere
         if (not p)
         {
-            throw gemfony_exception(
+            throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GImageCUDAWorker::processInit_ : Error!" << std::endl
                 << "p is empty" << std::endl
@@ -207,7 +207,7 @@ namespace Gem::Courtier
         auto p_conv = std::dynamic_pointer_cast<Geneva::GImageIndividual>(p);
         if (not p_conv)
         {
-            throw gemfony_exception(
+            throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GImageCUDAWorker::processInit_(): Error!" << std::endl
                 << "Conversion failed" << std::endl
@@ -245,7 +245,7 @@ namespace Gem::Courtier
         // Check that p actually points somewhere
         if (not p)
         {
-            throw gemfony_exception(
+            throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GImageCUDAWorker::process_ : Error!" << std::endl
                 << "p is empty" << std::endl
@@ -255,7 +255,7 @@ namespace Gem::Courtier
         auto p_conv = std::dynamic_pointer_cast<Geneva::GImageIndividual>(p);
         if (not p_conv)
         {
-            throw gemfony_exception(
+            throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GImageCUDAWorker::process_(): Error!" << std::endl
                 << "Conversion failed" << std::endl

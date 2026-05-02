@@ -1597,7 +1597,7 @@ public:
             x = boost::numeric_cast<x_type>(x_undet);
         }
         catch (bad_numeric_cast &e) {
-            throw gemfony_exception(
+            throw geneva_exception(
                 g_error_streamer(
                     DO_LOG
                     , time_and_place
@@ -1644,7 +1644,7 @@ public:
                 x = boost::numeric_cast<x_type>(*cit);
             }
             catch (bad_numeric_cast &e) {
-                throw gemfony_exception(
+                throw geneva_exception(
                     g_error_streamer(
                         DO_LOG
                         , time_and_place
@@ -2048,7 +2048,7 @@ public:
         std::size_t
         , std::tuple<x_type, x_type>
     ) const {
-        throw gemfony_exception(
+        throw geneva_exception(
             g_error_streamer(
                 DO_LOG
                 , time_and_place
@@ -2071,7 +2071,7 @@ public:
         std::size_t
         , std::tuple<y_type, y_type>
     ) const {
-        throw gemfony_exception(
+        throw geneva_exception(
             g_error_streamer(
                 DO_LOG
                 , time_and_place
@@ -2119,7 +2119,7 @@ public:
             y = boost::numeric_cast<y_type>(std::get<1>(point_undet));
         }
         catch (bad_numeric_cast &e) {
-            throw gemfony_exception(
+            throw geneva_exception(
                 g_error_streamer(
                     DO_LOG
                     , time_and_place
@@ -2173,7 +2173,7 @@ public:
                 y = boost::numeric_cast<y_type>(std::get<1>(*cit));
             }
             catch (bad_numeric_cast &e) {
-                throw gemfony_exception(
+                throw geneva_exception(
                     g_error_streamer(
                         DO_LOG
                         , time_and_place
@@ -2495,7 +2495,7 @@ public:
             ey = boost::numeric_cast<y_type>(std::get<3>(point_undet));
         }
         catch (bad_numeric_cast &e) {
-            throw gemfony_exception(
+            throw geneva_exception(
                 g_error_streamer(
                     DO_LOG
                     , time_and_place
@@ -2557,7 +2557,7 @@ public:
                 ey = boost::numeric_cast<y_type>(std::get<3>(*cit));
             }
             catch (bad_numeric_cast &e) {
-                throw gemfony_exception(
+                throw geneva_exception(
                     g_error_streamer(
                         DO_LOG
                         , time_and_place
@@ -3068,7 +3068,7 @@ public:
     std::shared_ptr<GDataCollector1T<x_type>> projectX(
         std::size_t, std::tuple<x_type, x_type>
     ) const {
-        throw gemfony_exception(
+        throw geneva_exception(
             g_error_streamer(
                 DO_LOG
                 , time_and_place
@@ -3090,7 +3090,7 @@ public:
     std::shared_ptr<GDataCollector1T<y_type>> projectY(
         std::size_t, std::tuple<y_type, y_type>
     ) const {
-        throw gemfony_exception(
+        throw geneva_exception(
             g_error_streamer(
                 DO_LOG
                 , time_and_place
@@ -3112,7 +3112,7 @@ public:
     std::shared_ptr<GDataCollector1T<z_type>> projectZ(
         std::size_t, std::tuple<z_type, z_type>
     ) const {
-        throw gemfony_exception(
+        throw geneva_exception(
             g_error_streamer(
                 DO_LOG
                 , time_and_place
@@ -3159,7 +3159,7 @@ public:
             z = boost::numeric_cast<z_type>(std::get<2>(point_undet));
         }
         catch (bad_numeric_cast &e) {
-            throw gemfony_exception(
+            throw geneva_exception(
                 g_error_streamer(
                     DO_LOG
                     , time_and_place
@@ -3216,7 +3216,7 @@ public:
                 z = boost::numeric_cast<z_type>(std::get<2>(*cit));
             }
             catch (bad_numeric_cast &e) {
-                throw gemfony_exception(
+                throw geneva_exception(
                     g_error_streamer(
                         DO_LOG
                         , time_and_place
@@ -3606,7 +3606,7 @@ public:
     std::shared_ptr<GDataCollector1T<x_type>> projectX(
         std::size_t, std::tuple<x_type, x_type>
     ) const {
-        throw gemfony_exception(
+        throw geneva_exception(
             g_error_streamer(
                 DO_LOG
                 , time_and_place
@@ -3628,7 +3628,7 @@ public:
     std::shared_ptr<GDataCollector1T<y_type>> projectY(
         std::size_t, std::tuple<y_type, y_type>
     ) const {
-        throw gemfony_exception(
+        throw geneva_exception(
             g_error_streamer(
                 DO_LOG
                 , time_and_place
@@ -3650,7 +3650,7 @@ public:
     std::shared_ptr<GDataCollector1T<z_type>> projectZ(
         std::size_t, std::tuple<z_type, z_type>
     ) const {
-        throw gemfony_exception(
+        throw geneva_exception(
             g_error_streamer(
                 DO_LOG
                 , time_and_place
@@ -3672,7 +3672,7 @@ public:
     std::shared_ptr<GDataCollector1T<w_type>> projectW(
         std::size_t, std::tuple<w_type, w_type>
     ) const {
-        throw gemfony_exception(
+        throw geneva_exception(
             g_error_streamer(
                 DO_LOG
                 , time_and_place
@@ -3723,7 +3723,7 @@ public:
             w = boost::numeric_cast<w_type>(std::get<3>(point_undet));
         }
         catch (bad_numeric_cast &e) {
-            throw gemfony_exception(
+            throw geneva_exception(
                 g_error_streamer(
                     DO_LOG
                     , time_and_place
@@ -3787,7 +3787,7 @@ public:
                 w = boost::numeric_cast<w_type>(std::get<3>(*cit));
             }
             catch (bad_numeric_cast &e) {
-                throw gemfony_exception(
+                throw geneva_exception(
                     g_error_streamer(
                         DO_LOG
                         , time_and_place

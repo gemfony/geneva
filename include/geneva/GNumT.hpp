@@ -137,7 +137,7 @@ public:
 	 void setInitBoundaries(const num_type& lowerInitBoundary, const num_type& upperInitBoundary) {
 		 // Do some error checking
 		 if(lowerInitBoundary >= upperInitBoundary) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GNumT<T>::setInitBoundaries():" << std::endl
 					 << "Invalid boundaries provided: " << std::endl
@@ -367,7 +367,7 @@ protected:
 		{ // Check that assignement of initialization boundaries throws for invalid boundaries
 			std::shared_ptr<GNumT<num_type>> p_test = this->template clone<GNumT<num_type>>();
 
-			BOOST_CHECK_THROW(p_test->setInitBoundaries(UPPERTESTINITVAL, LOWERTESTINITVAL), gemfony_exception);
+			BOOST_CHECK_THROW(p_test->setInitBoundaries(UPPERTESTINITVAL, LOWERTESTINITVAL), geneva_exception);
 		}
 
 		//------------------------------------------------------------------------------

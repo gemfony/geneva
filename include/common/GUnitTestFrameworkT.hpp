@@ -61,11 +61,11 @@ std::shared_ptr <T> TFactory_GUnitTests() {
 
 	try {
 		p = std::shared_ptr<T>(new T());
-	} catch (const gemfony_exception &g) {
+	} catch (const geneva_exception &g) {
 		// Re-throw
 		throw g;
 	} catch (...) {
-		throw gemfony_exception(
+		throw geneva_exception(
 			g_error_streamer(DO_LOG, time_and_place)
 				<< "In std::shared_ptr<T> TFactory_GUnitTests(): Error!" << std::endl
 				<< "Caught unknown exception" << std::endl

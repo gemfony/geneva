@@ -125,7 +125,7 @@ namespace Gem::Common
 	loadTextDataFromFile(std::filesystem::path const &p) {
 		// Check that the file exists
 		if (not std::filesystem::exists(p)) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In loadTextDataFromFile(): Error!" << std::endl
 				<< "Tried to load data from file " << p.string() << std::endl
@@ -136,7 +136,7 @@ namespace Gem::Common
 		std::ifstream sourceFileStream(p);
 
 		if (not sourceFileStream) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In loadTextDataFromFile(): Error!" << std::endl
 				<< "Stream from file " << p.string() << std::endl
@@ -162,7 +162,7 @@ namespace Gem::Common
 	loadTextLinesFromFile(std::filesystem::path const &p) {
 		// Check that the file exists
 		if (not std::filesystem::exists(p)) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In loadTextLinesFromFile(): Error!" << std::endl
 				<< "Tried to load data from file " << p.string() << std::endl
@@ -173,7 +173,7 @@ namespace Gem::Common
 		std::ifstream sourceFileStream(p);
 
 		if (not sourceFileStream) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In loadTextLinesFromFile(): Error!" << std::endl
 				<< "Stream from file " << p.string() << std::endl
@@ -286,7 +286,7 @@ namespace Gem::Common
 
 #ifdef DEBUG
 		if(1 != std::string(sep).size()) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In splitString(): Error!" << std::endl
 				<< "Supplied separator \"" << sep << "\" has invalid size " << std::string(sep).size() << std::endl
@@ -332,7 +332,7 @@ namespace Gem::Common
 
 		if (from != to || not success) {
 			std::string rest(from, to);
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In stringToUIntVec(const std::string& raw): Error!" << std::endl
 				<< "Parsing failed." << std::endl
@@ -365,7 +365,7 @@ namespace Gem::Common
 
 		if (from != to || not success) {
 			std::string rest(from, to);
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In stringToDoubleVec(const std::string& raw): Error!" << std::endl
 				<< "Parsing failed." << std::endl
@@ -405,7 +405,7 @@ namespace Gem::Common
 
 		if (from != to || not success) {
 			std::string rest(from, to);
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In stringToUIntTupleVec(const std::string& raw): Error!" << std::endl
 				<< "Parsing failed." << std::endl
@@ -444,7 +444,7 @@ namespace Gem::Common
 			break;
 
 		default:
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In Gem::Common::duration_from_string(\"" << duration_string << "\"): Error!" << std::endl
 				<< "Invalid number of fields present: " << timings.size() << std::endl
@@ -521,7 +521,7 @@ namespace Gem::Common
 			<< "In function " << F << " Error!" << std::endl
 			<< "Function was called even though " << D << " hasn't been set." << std::endl
 			<< "================================================" << std::endl;                               \
-		throw(gemfony_exception(error.str()));
+		throw(geneva_exception(error.str()));
 	}
 
 	/******************************************************************************/

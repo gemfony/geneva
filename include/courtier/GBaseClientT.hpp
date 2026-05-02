@@ -213,7 +213,7 @@ public:
 			 r = run_state::INIT;
 
 			 if (not this->init()) { // Initialize the client
-				 throw gemfony_exception(
+				 throw geneva_exception(
 					 g_error_streamer(DO_LOG, time_and_place)
 						 << "In GBaseClientT<T>::run(): Initialization failed. Leaving ..." << std::endl
 				 );
@@ -224,33 +224,33 @@ public:
 
 			 r = run_state::FINALLY;
 			 if (not this->finally()) {
-				 throw gemfony_exception(
+				 throw geneva_exception(
 					 g_error_streamer(DO_LOG, time_and_place)
 						 << "In GBaseClientT<T>::run(): Finalization failed." << std::endl
 				 );
 			 }
-		 } catch (gemfony_exception &e) {
-			 throw gemfony_exception(
+		 } catch (geneva_exception &e) {
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG,  time_and_place)
 					 << "In GBaseClientT<T>::run() / " << rs_to_str(r) << ":" << std::endl
-					 << "Caught gemfony_exception" << std::endl
+					 << "Caught geneva_exception" << std::endl
 					 << "with message" << std::endl
 					 << e.what()
 			 );
 		 } catch (boost::exception& e) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GBaseClientT<T>::run() / " << rs_to_str(r) << ": Caught boost::exception with message" << std::endl
 					 << boost::diagnostic_information(e) << std::endl
 			 );
 		 } catch (std::exception &e) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GBaseClientT<T>::run() / " << rs_to_str(r) << ": Caught std::exception with message" << std::endl
 					 << e.what() << std::endl
 			 );
 		 } catch (...) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GBaseClientT<T>::run() / " << rs_to_str(r) << ": Caught unknown exception." << std::endl
 			 );

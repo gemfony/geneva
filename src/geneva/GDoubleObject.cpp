@@ -158,7 +158,7 @@ namespace Gem::Geneva
 	) const {
 #ifdef DEBUG
 		if((this->getParameterName()).empty()) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GDoubleObject::doubleStreamline(std::map<std::string, std::vector<double>>& parVec) const: Error!" << std::endl
 				<< "No name was assigned to the object" << std::endl
@@ -211,7 +211,7 @@ namespace Gem::Geneva
 #ifdef DEBUG
 		// Do we have a valid position ?
 		if(pos >= parVec.size()) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GDoubleObject::assignDoubleValueVector(const std::vector<double>&, std::size_t&):" << std::endl
 				<< "Tried to access position beyond end of vector: " << parVec.size() << "/" << pos << std::endl
@@ -544,7 +544,7 @@ namespace Gem::Geneva
 
 			// Add an empty std::shared_ptr<GDoubleGaussAdaptor>. This should throw
 			BOOST_CHECK_THROW(p_test->addAdaptor(std::shared_ptr<GDoubleGaussAdaptor>()),
-			                  gemfony_exception);
+			                  geneva_exception);
 		}
 
 		// --------------------------------------------------------------------------

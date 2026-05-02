@@ -186,7 +186,7 @@ void producer(
 				, putTimeout
 			)) {
 				if(++putTimeouts >= maxPutTimeouts) {
-					throw gemfony_exception(
+					throw geneva_exception(
 						g_error_streamer(DO_LOG,  time_and_place)
 							<< "In producer: Exceeded allowed number \"" << maxPutTimeouts << "\" of put timeouts in iteration " << cycleCounter << std::endl
 					);
@@ -213,7 +213,7 @@ void producer(
 				, getTimeout
 			)) {
 				if(++getTimeouts >= maxGetTimeouts) {
-					throw gemfony_exception(
+					throw geneva_exception(
 						g_error_streamer(DO_LOG,  time_and_place)
 							<< "In producer: Exceeded allowed number \"" << maxGetTimeouts << "\" of get timeouts in iteration " << cycleCounter << std::endl
 					);
@@ -230,7 +230,7 @@ void producer(
 		if(p_receive) {
 			nReceived++;
 		} else {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 					<< "In producer: Received invalid pointer" << std::endl
 			);
@@ -286,7 +286,7 @@ void processor (
 				, getTimeout
 			)){
 				if(++getTimeouts >= maxGetTimeouts) {
-					throw gemfony_exception(
+					throw geneva_exception(
 						g_error_streamer(DO_LOG,  time_and_place)
 							<< "In processor: Exceeded allowed number \"" << maxGetTimeouts << "\" of get timeouts in cycle " << cycleCounter << std::endl
 					);
@@ -303,7 +303,7 @@ void processor (
 		if(p) {
 			p->process();
 		} else {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 					<< "In processor: Received invalid pointer" << std::endl
 			);
@@ -316,7 +316,7 @@ void processor (
 				, putTimeout
 			)) {
 				if(++putTimeouts >= maxPutTimeouts) {
-					throw gemfony_exception(
+					throw geneva_exception(
 						g_error_streamer(DO_LOG,  time_and_place)
 							<< "In processor: Exceeded allowed number \"" << maxPutTimeouts << "\" of put timeouts in cycle " << cycleCounter << std::endl
 					);

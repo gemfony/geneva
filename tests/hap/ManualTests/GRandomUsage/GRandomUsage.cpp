@@ -275,7 +275,7 @@ void createRandomVector(
 
 		default:
 		{
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 					<< "In createRandomVector(): Error!" << std::endl
 					<< "Received invalid distType " << dType << std::endl
@@ -323,7 +323,7 @@ int main(int argc, char **argv) {
 
 		default:
 		{
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 					<< "In main(): Error!" << std::endl
 					<< "Received invalid rnrProductionMode " << rnrProductionMode << std::endl

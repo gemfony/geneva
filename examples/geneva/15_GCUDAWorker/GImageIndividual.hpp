@@ -237,7 +237,7 @@ namespace Gem::Geneva
             else
             {
                 // This should not happen
-                throw gemfony_exception(
+                throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
                     << "In GImageIndividual::getBackGroundColor(): Error!" << std::endl
                     << "Invalid type requested" << std::endl

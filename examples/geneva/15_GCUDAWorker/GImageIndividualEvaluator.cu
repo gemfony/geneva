@@ -70,7 +70,7 @@ namespace Gem::Geneva
         // identifying the image dimensions along the way
         if (not Common::loadImageToFloat(targetImageFileName_, targetImageData_vec_, width_, height_))
         {
-            throw gemfony_exception(
+            throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GImageIndividualEvaluator::init(): Error!" << std::endl
                 << "Target image " << targetImageFileName_ << " could not be loaded!" << std::endl
@@ -96,7 +96,7 @@ namespace Gem::Geneva
             // Check that block size is not 0
             if (blockSize_x_ == 0 || blockSize_y_ == 0)
             {
-                throw gemfony_exception(
+                throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
                     << "In GImageCUDAWorker::init(): Error!" << std::endl
                     << "Invalid block dimensions read: " << blockSize_x_ << " / " << blockSize_y_ << std::endl
@@ -119,7 +119,7 @@ namespace Gem::Geneva
 #ifdef DEBUG
             if (imageSizeBytes != targetImageData_vec_.size() * sizeof(float))
             {
-                throw gemfony_exception(
+                throw geneva_exception(
                                 g_error_streamer(DO_LOG, time_and_place)
                                 << "In GImageCUDAWorker::init(): Error!" << std::endl
                                 << "Invalid image sizes: " << width_ << " / " << height_ << " / " << (targetImageData_vec_.size() * sizeof(float)) << std::endl
@@ -694,7 +694,7 @@ namespace Gem::Geneva
         // Complain if no valid candidate image exists
         if (useGPU_ and not getGPUCandidateImage_)
         {
-            throw gemfony_exception(
+            throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GImageIndividualEvaluator::getCandidateImage(): Error!" << std::endl
                 << "Asked for candidate image even though image was not meant to " << std::endl

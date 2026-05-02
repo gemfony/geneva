@@ -429,7 +429,7 @@ public:
 	 void setProfileSpec(std::string const& parStr) {
 		 // Check that the parameter string isn't empty
 		 if(parStr.empty()) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GPluggableOptimizationMonitors<>::setProfileSpec(std::string): Error!" << std::endl
 					 << "Parameter string " << parStr << " is empty" << std::endl
@@ -632,7 +632,7 @@ public:
 				 //--------------------------------------------------------------------
 			 default:
 			 {
-				 throw gemfony_exception(
+				 throw geneva_exception(
 					 g_error_streamer(DO_LOG, time_and_place)
 						 << "In GProgressPlotterT<fp_type>::getLabel(): Error" << std::endl
 						 << "Invalid mode " << var_mode << " requested" << std::endl
@@ -1923,7 +1923,7 @@ private:
 
 			default:
 			{
-				throw gemfony_exception(
+				throw geneva_exception(
 						g_error_streamer(DO_LOG, time_and_place)
 								<< "In GAdaptorPropertyLoggerT: Received invalid infoMode " << im << std::endl
 				);

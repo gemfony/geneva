@@ -106,7 +106,7 @@ public:
 
 		 // Cross check that we indeed got a valid set of individuals
 		 if(bestBaseIndividuals.empty()) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In G_Interface_OptimizerT<optimizer_type>::getBestGlobalIndividuals(): Error!" << std::endl
 					 << "Received empty collection of best individuals." << std::endl
@@ -157,7 +157,7 @@ public:
 
 		 // Cross check that we indeed got a valid set of individuals
 		 if(bestBaseIndividuals.empty()) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In G_Interface_OptimizerT<optimizer_type>::getBestIterationIndividuals(): Error!" << std::endl
 					 << "Received empty collection of best individuals." << std::endl

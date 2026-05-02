@@ -169,7 +169,7 @@ public:
     ) {
         // Do some error checking
         if (lowerInitBoundary >= upperInitBoundary) {
-            throw gemfony_exception(
+            throw geneva_exception(
                 g_error_streamer(
                     DO_LOG
                     , time_and_place
@@ -238,7 +238,7 @@ public:
 #ifdef DEBUG
         // Check that the object isn't empty
         if (this->empty()) {
-            throw gemfony_exception(
+            throw geneva_exception(
                 g_error_streamer(
                     DO_LOG
                     , time_and_place
@@ -471,7 +471,7 @@ protected:
                     UPPERTESTINITVAL
                     , LOWERTESTINITVAL
             )
-            , gemfony_exception);
+            , geneva_exception);
         }
 
         //------------------------------------------------------------------------------

@@ -78,7 +78,7 @@ namespace Gem::Courtier
 
 	/******************************************************************************/
 	// An exception to be thrown if an exception was thrown during processing
-	class g_processing_exception : public gemfony_exception { using gemfony_exception::gemfony_exception; };
+	class g_processing_exception : public geneva_exception { using geneva_exception::geneva_exception; };
 
 	/******************************************************************************/
 	/**
@@ -218,7 +218,7 @@ namespace Gem::Courtier
 #ifdef DEBUG
 			// Check that we have been given a suitable new results vector
 			if(result_cnt.size() != m_stored_results_cnt.size()) {
-				throw gemfony_exception(
+				throw geneva_exception(
 					g_error_streamer(DO_LOG, time_and_place)
 					<< "In GProcessingContainerT::markAsProcessedWith(): Vector dimensions" << std::endl
 					<< "do not fit: " << result_cnt.size() << " / " << m_stored_results_cnt.size() << std::endl
@@ -258,7 +258,7 @@ namespace Gem::Courtier
 		) {
 			// We only accept items that are due for processing
 			if(processingStatus::DO_PROCESS != m_processing_status) {
-				throw gemfony_exception(
+				throw geneva_exception(
 					g_error_streamer(DO_LOG, time_and_place)
 					<< "In GProcessingContainerT::process(): Function called while m_processing_status was set to " << m_processing_status << std::endl
 					<< "Expected " << processingStatus::DO_PROCESS << std::endl
@@ -355,7 +355,7 @@ namespace Gem::Courtier
 	  */
 		processing_result_type getStoredResult(std::size_t id = 0) const {
 			if(not this->is_processed()) {
-				throw gemfony_exception(
+				throw geneva_exception(
 					g_error_streamer(DO_LOG, time_and_place)
 					<< "In GProcessingContainerT::getStoredResult(): Tried to" << std::endl
 					<< "retrieve stored result while the PROCESSED flag was not set" << std::endl
@@ -481,7 +481,7 @@ namespace Gem::Courtier
 
 			// We do not accept setting a target state of PROCESSED via this function
 			if(target_ps == processingStatus::PROCESSED) {
-				throw gemfony_exception(
+				throw geneva_exception(
 					g_error_streamer(DO_LOG, time_and_place)
 					<< "In GProcessingContainerT<>::set_processing_status():" << std::endl
 					<< "An attempt was made to set the processing state to PROCESSED" << std::endl
@@ -502,7 +502,7 @@ namespace Gem::Courtier
 					// "Nullify" the result list.
 					this->clear_stored_results_vec();
 				} else {
-					throw gemfony_exception(
+					throw geneva_exception(
 						g_error_streamer(DO_LOG, time_and_place)
 						<< "In GProcessingContainerT<>::set_processing_status():" << std::endl
 						<< "Got invalid target processing status " << psToStr(target_ps) << std::endl
@@ -523,7 +523,7 @@ namespace Gem::Courtier
 					// "Nullify" the result list.
 					this->clear_stored_results_vec();
 				} else {
-					throw gemfony_exception(
+					throw geneva_exception(
 						g_error_streamer(DO_LOG, time_and_place)
 						<< "In GProcessingContainerT<>::set_processing_status():" << std::endl
 						<< "Got invalid target processing status " << psToStr(target_ps) << std::endl
@@ -544,7 +544,7 @@ namespace Gem::Courtier
 					// "Nullify" the result list.
 					this->clear_stored_results_vec();
 				} else {
-					throw gemfony_exception(
+					throw geneva_exception(
 						g_error_streamer(DO_LOG, time_and_place)
 						<< "In GProcessingContainerT<>::set_processing_status():" << std::endl
 						<< "Got invalid target processing status " << psToStr(target_ps) << std::endl
@@ -566,7 +566,7 @@ namespace Gem::Courtier
 					// "Nullify" the result list.
 					this->clear_stored_results_vec();
 				} else {
-					throw gemfony_exception(
+					throw geneva_exception(
 						g_error_streamer(DO_LOG, time_and_place)
 						<< "In GProcessingContainerT<>::set_processing_status():" << std::endl
 						<< "Got invalid target processing status " << psToStr(target_ps) << std::endl
@@ -918,7 +918,7 @@ namespace Gem::Courtier
 			const std::string& error_info
 		) {
 			if(error_info.empty()) {
-				throw gemfony_exception( // Note: this is a specific exception to flag errors during processing
+				throw geneva_exception( // Note: this is a specific exception to flag errors during processing
 					g_error_streamer(DO_LOG, time_and_place)
 					<< "In GProcessingContainerT::force_set_error(): Error info is empty" << std::endl
 				);

@@ -696,7 +696,7 @@ public:
 	  */
 	 void registerCallBackFunction(std::function<void(parameter_type)> callBack) {
 		 if (not callBack) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GSingleParsableParameter::registerCallBackFunction(): Error" << std::endl
 					 << "Tried to register an empty call-back function" << std::endl
@@ -728,7 +728,7 @@ private:
 		 // Check that we have the right number of comments
 		 if (this->hasComments()) {
 			 if (this->numberOfComments() != 1) {
-				 throw gemfony_exception(
+				 throw geneva_exception(
 					 g_error_streamer(DO_LOG, time_and_place)
 						 << "In GFileSingleParsableParameterT<>::save_to(): Error!" << std::endl
 						 << "Expected 0 or 1 comment but got " << this->numberOfComments() << std::endl
@@ -755,7 +755,7 @@ private:
 	  */
 	 void executeCallBackFunction_() override {
 		 if (not m_call_back_func) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GSingleParsableParameter::executeCallBackFunction_(): Error" << std::endl
 					 << "Tried to execute call-back function without a stored function" << std::endl
@@ -861,7 +861,7 @@ private:
 		 // Check that we have the right number of comments
 		 if (this->hasComments()) {
 			 if (this->numberOfComments() != 1) {
-				 throw gemfony_exception(
+				 throw geneva_exception(
 					 g_error_streamer(DO_LOG, time_and_place)
 						 << "In GFileReferenceParsableParameterT<>::save_to(): Error!" << std::endl
 						 << "Expected 0 or 1 comment but got " << this->numberOfComments() << std::endl
@@ -1068,7 +1068,7 @@ public:
 	  */
 	 void registerCallBackFunction(std::function<void(par_type0, par_type1)> callBack) {
 		 if (not callBack) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GFileCombinedParsableParameterT::registerCallBackFunction(): Error" << std::endl
 					 << "Tried to register an empty call-back function" << std::endl
@@ -1104,7 +1104,7 @@ private:
 		 // Check that we have the right number of comments
 		 if (this->hasComments()) {
 			 if (this->numberOfComments() != 2) {
-				 throw gemfony_exception(
+				 throw geneva_exception(
 					 g_error_streamer(DO_LOG, time_and_place)
 						 << "In GFileCombinedParsableParameterT<>::save_to(): Error!" << std::endl
 						 << "Expected 0 or 2 comments but got " << this->numberOfComments() << std::endl
@@ -1152,7 +1152,7 @@ private:
 	  */
 	 void executeCallBackFunction_() override {
 		 if (not m_call_back_func) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GFileCombinedParsableParameterT::executeCallBackFunction_(): Error" << std::endl
 					 << "Tried to execute call-back function without a stored function" << std::endl
@@ -1307,7 +1307,7 @@ public:
 	  */
 	 void registerCallBackFunction(std::function<void(std::vector<parameter_type>)> callBack) {
 		 if (not callBack) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GFileVectorParsableParameterT::registerCallBackFunction(): Error" << std::endl
 					 << "Tried to register an empty call-back function" << std::endl
@@ -1348,7 +1348,7 @@ private:
 		 // Check that we have the right number of comments
 		 if (this->hasComments()) {
 			 if (this->numberOfComments() != 1) {
-				 throw gemfony_exception(
+				 throw geneva_exception(
 					 g_error_streamer(DO_LOG, time_and_place)
 						 << "In GFileVectorParsableParameterT<>::save_to(): Error!" << std::endl
 						 << "Expected 0 or 1 comment but got " << this->numberOfComments() << std::endl
@@ -1366,7 +1366,7 @@ private:
 
 		 // Do some error checking
 		 if (GVectorParT<parameter_type>::m_def_val_cnt.empty()) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GVectorParsableParameter::save_to(): Error!" << std::endl
 					 << "You need to provide at least one default value" << std::endl
@@ -1390,7 +1390,7 @@ private:
 	  */
 	 void executeCallBackFunction_() override {
 		 if (not m_call_back_func) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GFileVectorParsableParameterT::executeCallBackFunction_(): Error" << std::endl
 					 << "Tried to execute call-back function without a stored function" << std::endl
@@ -1507,7 +1507,7 @@ private:
 		 // Check that we have the right number of comments
 		 if (this->hasComments()) {
 			 if (this->numberOfComments() != 1) {
-				 throw gemfony_exception(
+				 throw geneva_exception(
 					 g_error_streamer(DO_LOG, time_and_place)
 						 << "In GFileVectorReferenceParsableParameterT<>::save_to(): Error!" << std::endl
 						 << "Expected 0 or 1 comment but got " << this->numberOfComments() << std::endl
@@ -1525,7 +1525,7 @@ private:
 
 		 // Do some error checking
 		 if (GVectorParT<parameter_type>::m_def_val_cnt.empty()) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GFileVectorReferenceParsableParameterT::save_to(): Error!" << std::endl
 					 << "You need to provide at least one default value" << std::endl
@@ -1697,7 +1697,7 @@ public:
 	  */
 	 void registerCallBackFunction(std::function<void(std::array<parameter_type, N>)> callBack) {
 		 if (not callBack) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GFileArrayParsableParameterT::registerCallBackFunction(): Error" << std::endl
 					 << "Tried to register an empty call-back function" << std::endl
@@ -1738,7 +1738,7 @@ private:
 		 // Check that we have the right number of comments
 		 if (this->hasComments()) {
 			 if (this->numberOfComments() != 1) {
-				 throw gemfony_exception(
+				 throw geneva_exception(
 					 g_error_streamer(DO_LOG, time_and_place)
 						 << "In GFileArrayParsableParameterT<>::save_to(): Error!" << std::endl
 						 << "Expected 0 or 1 comment but got " << this->numberOfComments() << std::endl
@@ -1756,7 +1756,7 @@ private:
 
 		 // Do some error checking
 		 if (GArrayParT<parameter_type, N>::m_def_val_arr.empty()) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GFileArrayParsableParameterT::save_to(): Error!" << std::endl
 					 << "You need to provide at least one default value" << std::endl
@@ -1778,7 +1778,7 @@ private:
 	  */
 	 void executeCallBackFunction_() override {
 		 if (not m_call_back_func) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GFileArrayParsableParameterT::executeCallBackFunction_(): Error" << std::endl
 					 << "Tried to execute call-back function without a stored function" << std::endl
@@ -1889,7 +1889,7 @@ private:
 		 // Check that we have the right number of comments
 		 if (this->hasComments()) {
 			 if (this->numberOfComments() != 1) {
-				 throw gemfony_exception(
+				 throw geneva_exception(
 					 g_error_streamer(DO_LOG, time_and_place)
 						 << "In GFileArrayReferenceParsableParameterT<>::save_to(): Error!" << std::endl
 						 << "Expected 0 or 1 comment but got " << this->numberOfComments() << std::endl
@@ -1908,7 +1908,7 @@ private:
 
 		 // Do some error checking
 		 if (GArrayParT<parameter_type, N>::m_def_val_arr.empty()) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GFileArrayReferenceParsableParameterT::save_to(): Error!" << std::endl
 					 << "You need to provide at least one default value" << std::endl
@@ -2200,7 +2200,7 @@ public:
 			 }
 		 );
 		 if(it != m_file_parameter_proxies.end()) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GParserBuilder::registerFileParameter(singleParm_ptr): Error!" << std::endl
 					 << "Parameter " << optionName << " has already been registered" << std::endl
@@ -2258,7 +2258,7 @@ public:
 			 }
 		 );
 		 if(it != m_file_parameter_proxies.end()) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GParserBuilder::registerFileParameter(refParm_ptr): Error!" << std::endl
 					 << "Parameter " << optionName << " has already been registered" << std::endl
@@ -2305,7 +2305,7 @@ public:
 
 		 // Check that we have indeed received an item
 		 if (not parmObject) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GParameterObject::resetFileParameterDefaults(GSingleParmT): Error!" << std::endl
 					 << "Parameter object couldn't be found" << std::endl
@@ -2345,7 +2345,7 @@ public:
 			 }
 		 );
 		 if(it != m_file_parameter_proxies.end()) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GParserBuilder::registerFileParameter(combParm_ptr): Error!" << std::endl
 					 << "Parameter " << optionName1 << " has already been registered" << std::endl
@@ -2396,7 +2396,7 @@ public:
 
 		 // Check that we have indeed received an item
 		 if (not parmObject) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GParameterObject::resetFileParameterDefaults(GCombinedParT): Error!" << std::endl
 					 << "Parameter object couldn't be found" << std::endl
@@ -2431,7 +2431,7 @@ public:
 			 }
 		 );
 		 if(it != m_file_parameter_proxies.end()) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GParserBuilder::registerFileParameter(vecParm_ptr): Error!" << std::endl
 					 << "Parameter " << optionName << " has already been registered" << std::endl
@@ -2484,7 +2484,7 @@ public:
 			 }
 	 	 );
 		 if(it != m_file_parameter_proxies.end()) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GParserBuilder::registerFileParameter(vecRefParm_ptr): Error!" << std::endl
 					 << "Parameter " << optionName << " has already been registered" << std::endl
@@ -2533,7 +2533,7 @@ public:
 
 		 // Check that we have indeed received an item
 		 if (not parmObject) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GParameterObject::resetFileParameterDefaults(GVectorParT): Error!" << std::endl
 					 << "Parameter object couldn't be found" << std::endl
@@ -2569,7 +2569,7 @@ public:
 			 }
 		 );
 		 if(it != m_file_parameter_proxies.end()) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GParserBuilder::registerFileParameter(arrayParm_ptr): Error!" << std::endl
 					 << "Parameter " << optionName << " has already been registered" << std::endl
@@ -2624,7 +2624,7 @@ public:
 			 }
 		 );
 		 if(it != m_file_parameter_proxies.end()) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GParserBuilder::registerFileParameter(arrayRefParm_ptr): Error!" << std::endl
 					 << "Parameter " << optionName << " has already been registered" << std::endl
@@ -2672,7 +2672,7 @@ public:
 
 		 // Check that we have indeed received an item
 		 if (not parmObject) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GParameterObject::resetFileParameterDefaults(GArrayParT): Error!" << std::endl
 					 << "Parameter object couldn't be found" << std::endl
@@ -2713,7 +2713,7 @@ public:
 		 );
 
 		 if(it != m_cl_parameter_proxies.end()) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GParserBuilder::registerCLParameter(refParm_ptr): Error!" << std::endl
 					 << "Parameter " << optionName << " has already been registered" << std::endl
@@ -2781,7 +2781,7 @@ void configureFromFile(
 	// Check whether path is a directory name rather than
 	// a file. It is a severe error if this is the case.
 	if(std::filesystem::is_directory(conf_file)) {
-		throw gemfony_exception(
+		throw geneva_exception(
 			g_error_streamer(DO_LOG, time_and_place)
 				<< "In configureFromFile(" << conf_file.string() << "): Error!" << std::endl
 				<< "Target is a directory rather than a file." << std::endl
@@ -2791,7 +2791,7 @@ void configureFromFile(
 	// Check whether the target directory exists. It is a
 	// severe error if this is not the case.
 	if(not std::filesystem::exists(conf_file.parent_path())) {
-		throw gemfony_exception(
+		throw geneva_exception(
 			g_error_streamer(DO_LOG, time_and_place)
 				<< "In configureFromFile(" << conf_file << "): Error!" << std::endl
 				<< "Target has invalid parent path" << std::endl

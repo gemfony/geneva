@@ -108,7 +108,7 @@ public:
 		);
 
 		if(true==simulateCrash) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 					<< "In testTask::process(): Error!" << std::endl
 					<< "SHF-Exception (Some Horrible Failure)" << std::endl

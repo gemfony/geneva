@@ -150,7 +150,7 @@ public:
     void setSigma1(const fp_type &sigma1) {
         // Sigma1 must be in the allowed value range
         if (sigma1 < minSigma1_ || sigma1 > maxSigma1_ || sigma1 < fp_type(0)) {
-            throw gemfony_exception(
+            throw geneva_exception(
                 g_error_streamer(
                     DO_LOG
                     , time_and_place
@@ -196,7 +196,7 @@ public:
 
         if (minSigma1 < fp_type(0.) || minSigma1 > maxSigma1 ||
             maxSigma1 < boost::numeric_cast<fp_type>(DEFAULTMINSIGMA)) {
-            throw gemfony_exception(
+            throw geneva_exception(
                 g_error_streamer(
                     DO_LOG
                     , time_and_place
@@ -299,7 +299,7 @@ public:
     void setSigma2(const fp_type &sigma2) {
         // Sigma2 must be in the allowed value range
         if (sigma2 < minSigma2_ || sigma2 > maxSigma2_ || sigma2 < fp_type(0)) {
-            throw gemfony_exception(
+            throw geneva_exception(
                 g_error_streamer(
                     DO_LOG
                     , time_and_place
@@ -342,7 +342,7 @@ public:
 
         if (minSigma2 < fp_type(0.) || minSigma2 > maxSigma2 ||
             maxSigma2 < boost::numeric_cast<fp_type>(DEFAULTMINSIGMA)) {
-            throw gemfony_exception(
+            throw geneva_exception(
                 g_error_streamer(
                     DO_LOG
                     , time_and_place
@@ -442,7 +442,7 @@ public:
     void setDelta(const fp_type &delta) {
         // Delta must be in the allowed value range
         if (delta < minDelta_ || delta > maxDelta_ || delta_ < fp_type(0)) {
-            throw gemfony_exception(
+            throw geneva_exception(
                 g_error_streamer(
                     DO_LOG
                     , time_and_place
@@ -484,7 +484,7 @@ public:
         , const fp_type &maxDelta
     ) {
         if (minDelta < fp_type(0.) || minDelta > maxDelta || maxDelta < boost::numeric_cast<fp_type>(DEFAULTMINDELTA)) {
-            throw gemfony_exception(
+            throw geneva_exception(
                 g_error_streamer(
                     DO_LOG
                     , time_and_place

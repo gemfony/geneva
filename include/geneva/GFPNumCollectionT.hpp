@@ -614,7 +614,7 @@ protected:
                     p_test2
                     , activityMode::ALLPARAMETERS
             )
-            , gemfony_exception);
+            , geneva_exception);
         }
 
         //------------------------------------------------------------------------------
@@ -632,7 +632,7 @@ protected:
                     p_test2
                     , activityMode::ALLPARAMETERS
             )
-            , gemfony_exception);
+            , geneva_exception);
         }
 
         //------------------------------------------------------------------------------

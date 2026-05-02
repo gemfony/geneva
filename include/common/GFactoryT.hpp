@@ -243,7 +243,7 @@ public:
 	  * Others don't have to due to this "pseudo-implementation".
 	  */
 	 virtual std::shared_ptr <GFactoryT<prod_type>> clone() const BASE {
-		 throw gemfony_exception(
+		 throw geneva_exception(
 			 g_error_streamer(DO_LOG, time_and_place)
 				 << "In GFactoryT<prod_type>::clone(): Error!" << std::endl
 				 << "Function was called when it shouldn't be." << std::endl
@@ -307,7 +307,7 @@ protected:
 
 		// Read the configuration parameters from file
 		if (not gpb.parseConfigFile(m_config_path)) {
-			throw gemfony_exception(
+			throw geneva_exception(
 					g_error_streamer(DO_LOG, time_and_place)
 							<< "In GFactoryT<prod_type>::operator(): Error!" << std::endl
 							<< "Could not parse configuration file " << m_config_path.string() << std::endl

@@ -89,7 +89,7 @@ minOnly_transformed_fitness(
 #ifdef DEBUG
     if (not item_ptr)
     {
-        throw gemfony_exception(
+        throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In minOnly_transformed_fitness():" << std::endl
             << "Got empty work item" << std::endl
@@ -138,7 +138,7 @@ isBetter(
     if (x_mode != y_mode)
     {
         // Throw an exception
-        throw gemfony_exception(
+        throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In isBetterThan(x_ptr, y_ptr):" << std::endl
             << "Got different maxMode-settings: " << x_mode << " / " << y_mode << std::endl

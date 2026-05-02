@@ -346,20 +346,13 @@ fi
 
 ####################################################################
 # Do the actual call to cmake.
-#
-# The 'FindBoost' module uses either the BOOST_ROOT or the
-# BOOST_LIBRARYDIR and BOOST_INCLUDEDIR variables, not both.
 if [ -n "${BOOSTROOT}" ]; then
 	BOOSTLOCATIONPATHS="-DBOOST_ROOT=${BOOSTROOT}"
 elif [ -n "${BOOSTLIBS}" ]; then
 	BOOSTLOCATIONPATHS="-DBOOST_LIBRARYDIR=${BOOSTLIBS} -DBOOST_INCLUDEDIR=${BOOSTINCL}"
 fi
 
-if [ "${_BOOST_SYSTEM}" = "false" ]; then
-	BOOSTSYSTEMFLAG="-DBoost_NO_SYSTEM_PATHS=1"
-fi
-
-CONFIGURE="${CMAKE} $BOOSTLOCATIONPATHS $BOOSTSYSTEMFLAG \
+CONFIGURE="${CMAKE} $BOOSTLOCATIONPATHS \
 -DGENEVA_BUILD_TYPE=${BUILDMODE} \
 -DGENEVA_BUILD_TESTS=${BUILDTESTCODE} \
 -DGENEVA_BUILD_EXAMPLES=${BUILDEXAMPLES} \
@@ -409,12 +402,10 @@ if [ "${GENERATE_PRESET}" = "1" ]; then
 	_preset_add "GENEVA_USE_CUDA_RNG"             "BOOL"   "${USECUDARNG}"
 
 	if [ -n "${BOOSTROOT}" ]; then
-		_preset_add "BOOST_ROOT"            "PATH" "${BOOSTROOT}"
-		_preset_add "Boost_NO_SYSTEM_PATHS" "BOOL" "1"
+		_preset_add "BOOST_ROOT"       "PATH" "${BOOSTROOT}"
 	elif [ -n "${BOOSTLIBS}" ]; then
-		_preset_add "BOOST_LIBRARYDIR"      "PATH" "${BOOSTLIBS}"
-		_preset_add "BOOST_INCLUDEDIR"      "PATH" "${BOOSTINCL}"
-		_preset_add "Boost_NO_SYSTEM_PATHS" "BOOL" "1"
+		_preset_add "BOOST_LIBRARYDIR" "PATH" "${BOOSTLIBS}"
+		_preset_add "BOOST_INCLUDEDIR" "PATH" "${BOOSTINCL}"
 	fi
 
 	[ "$MPIROOT" != "" ]          && _preset_add "MPI_HOME"               "PATH"   "${MPIROOT}"

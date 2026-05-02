@@ -403,7 +403,7 @@ public:
 #ifdef DEBUG
         // Do some error checking
         if (pos >= minSize) {
-            throw gemfony_exception(
+            throw geneva_exception(
                 g_error_streamer(
                     DO_LOG
                     , time_and_place

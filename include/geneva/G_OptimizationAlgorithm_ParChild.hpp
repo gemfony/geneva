@@ -153,7 +153,7 @@ public:
 #ifdef DEBUG
         // Check that the parent id is in a valid range
         if (parentId >= this->getNParents()) {
-            throw gemfony_exception(
+            throw geneva_exception(
                 g_error_streamer(
                     DO_LOG
                     , time_and_place

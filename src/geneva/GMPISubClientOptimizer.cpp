@@ -37,7 +37,7 @@ namespace Gem::Geneva {
                                                    MPI_Comm baseCommunicator)
             : Go2{argc, argv, configFilePath, userDescriptions} {
         if (Go2::getConsumerName() != "mpi") { // only allow using MPI
-            throw gemfony_exception(
+            throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
                             << "GMPISubClientOptimizer constructor Error!" << std::endl
                             << "GMPISubClientOptimizer may only be used with the GMPIConsumerT, but the consumer is `"

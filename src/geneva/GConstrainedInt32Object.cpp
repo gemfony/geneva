@@ -197,7 +197,7 @@ namespace Gem::Geneva
 #ifdef DEBUG
 		// Do we have a valid position ?
 		if(pos >= parVec.size()) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GConstrainedInt32Object::assignInt32ValueVector(const std::vector<std::int32_t>&, std::size_t&):" << std::endl
 				<< "Tried to access position beyond end of vector: " << parVec.size() << "/" << pos << std::endl

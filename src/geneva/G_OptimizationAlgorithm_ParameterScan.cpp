@@ -88,7 +88,7 @@ namespace Gem::Geneva
 
 		// We require at least 2 steps, unless we are are in random mode
 		if (nSteps < 2) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In std::vector<float> fillWithData<float>(): Error!" << std::endl
 				<< "Number of requested steps is too low: " << nSteps << std::endl
@@ -116,7 +116,7 @@ namespace Gem::Geneva
 
 		// We require at least 2 steps, unless we are are in random mode
 		if (nSteps < 2) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In std::vector<float> fillWithData<double>(): Error!" << std::endl
 				<< "Number of requested steps is too low: " << nSteps << std::endl
@@ -537,7 +537,7 @@ namespace Gem::Geneva
 		for (it = this->begin(); it != this->end(); ++it) {
 #ifdef DEBUG
 			if(not (*it)->is_processed()) {
-				throw gemfony_exception(
+				throw geneva_exception(
 					g_error_streamer(DO_LOG,  time_and_place)
 					<< "In GParameterScan::cycleLogic(): Error!" << std::endl
 					<< "Individual in position " << (it-this->begin()) << " is not processed" << std::endl
@@ -675,7 +675,7 @@ namespace Gem::Geneva
 
 			//---------------------------------------------------------------------
 			default: {
-				throw gemfony_exception(
+				throw geneva_exception(
 					g_error_streamer(DO_LOG,  time_and_place)
 					<< "In GParameterScan::updateSelectedParameters(): Error!" << std::endl
 					<< "Encountered invalid mode " << mode << std::endl
@@ -804,7 +804,7 @@ namespace Gem::Geneva
 
 			if (modeSet) {
 				if (std::get<0>(var) != mode) {
-					throw gemfony_exception(
+					throw geneva_exception(
 						g_error_streamer(DO_LOG,  time_and_place)
 						<< "In GParameterScan::getParameterSet(): Error!" << std::endl
 						<< "Expected mode " << mode << " but got " << std::get<0>(var) << std::endl
@@ -825,7 +825,7 @@ namespace Gem::Geneva
 
 			if (modeSet) {
 				if (std::get<0>(var) != mode) {
-					throw gemfony_exception(
+					throw geneva_exception(
 						g_error_streamer(DO_LOG,  time_and_place)
 						<< "In GParameterScan::getParameterSet(): Error!" << std::endl
 						<< "Expected mode " << mode << " but got " << std::get<0>(var) << std::endl
@@ -846,7 +846,7 @@ namespace Gem::Geneva
 
 			if (modeSet) {
 				if (std::get<0>(var) != mode) {
-					throw gemfony_exception(
+					throw geneva_exception(
 						g_error_streamer(DO_LOG,  time_and_place)
 						<< "In GParameterScan::getParameterSet(): Error!" << std::endl
 						<< "Expected mode " << mode << " but got " << std::get<0>(var) << std::endl
@@ -867,7 +867,7 @@ namespace Gem::Geneva
 
 			if (modeSet) {
 				if (std::get<0>(var) != mode) {
-					throw gemfony_exception(
+					throw geneva_exception(
 						g_error_streamer(DO_LOG,  time_and_place)
 						<< "In GParameterScan::getParameterSet(): Error!" << std::endl
 						<< "Expected mode " << mode << " but got " << std::get<0>(var) << std::endl
@@ -1008,7 +1008,7 @@ namespace Gem::Geneva
 		for(it=this->begin(); it!=this->end(); ++it) {
 			// Make sure the evaluated individuals have the dirty flag set
 			if(not (*it)->is_due_for_processing()) {
-				throw gemfony_exception(
+				throw geneva_exception(
 					g_error_streamer(DO_LOG,  time_and_place)
 					<< "In GParameterScan::runFitnessCalculation():" << std::endl
 					<< "Found individual in position " << std::distance(this->begin(), it)
@@ -1034,7 +1034,7 @@ namespace Gem::Geneva
 		// Check if all work items have returned or whether there were errors. Both cannot
 		// be accepted in a parameter scan.
 		if (not status.is_complete || status.has_errors) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GParameterScan::runFitnessCalculation(): Error!" << std::endl
 				<< "No complete set of items received or erroneous items found" << std::endl
@@ -1053,7 +1053,7 @@ namespace Gem::Geneva
 	void GParameterScan::setParameterSpecs(std::string parStr) {
 		// Check that the parameter string isn't empty
 		if (parStr.empty()) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GParameterScan::addParameterSpecs(): Error!" << std::endl
 				<< "Parameter string " << parStr << " is empty" << std::endl
@@ -1225,7 +1225,7 @@ namespace Gem::Geneva
 
 		// An empty population is an error
 		if (nStart == 0) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GParameterScan::adjustPopulation(): Error!" << std::endl
 				<< "You didn't add any individuals to the collection. We need at least one." << std::endl
@@ -1241,7 +1241,7 @@ namespace Gem::Geneva
 
 		// Check that we have a valid default population size
 		if (0 == this->getDefaultPopulationSize()) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GParameterScan::adjustPopulation(): Error!" << std::endl
 				<< "Default-size of the population is 0" << std::endl

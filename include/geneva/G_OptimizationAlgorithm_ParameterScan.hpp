@@ -79,7 +79,7 @@ std::vector<T> fillWithData(
     , T /* lower */
     , T /* upper */
 ) {
-    throw gemfony_exception(
+    throw geneva_exception(
         g_error_streamer(
             DO_LOG
             , time_and_place
@@ -336,7 +336,7 @@ protected:
         Gem::Hap::GRandomBase &gr
     ) const {
         // A trap. This function needs to be re-implemented for each supported type
-        throw gemfony_exception(
+        throw geneva_exception(
             g_error_streamer(
                 DO_LOG
                 , time_and_place
@@ -782,7 +782,7 @@ private:
     ) {
 #ifdef DEBUG
         if (0 != std::get<1>(dataPoint)) {
-            throw gemfony_exception(
+            throw geneva_exception(
                 g_error_streamer(
                     DO_LOG
                     , time_and_place
@@ -798,7 +798,7 @@ private:
 
         // Check that we haven't exceeded the size of the boolean data vector
         if (lPos >= dataVec.size()) {
-            throw gemfony_exception(
+            throw geneva_exception(
                 g_error_streamer(
                     DO_LOG
                     , time_and_place

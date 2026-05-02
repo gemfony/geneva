@@ -319,7 +319,7 @@ namespace Gem::Geneva
                     {
                         if (!std::filesystem::create_directory(std::filesystem::path(resultImageDirectory_)))
                         {
-                            throw gemfony_exception(
+                            throw geneva_exception(
                                 g_error_streamer(DO_LOG, time_and_place)
                                 << "Error: could not create directory " << resultImageDirectory_ << std::endl
                             );
@@ -330,7 +330,7 @@ namespace Gem::Geneva
                         // Check that resultImageDirectory_ is indeed a directory and not a file
                         if (!std::filesystem::is_directory(std::filesystem::path(resultImageDirectory_)))
                         {
-                            throw gemfony_exception(
+                            throw geneva_exception(
                                 g_error_streamer(DO_LOG, time_and_place)
                                 << "Error: " << resultImageDirectory_ << " is not a directory" << std::endl
                             );

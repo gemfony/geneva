@@ -100,7 +100,7 @@ public:
 #ifdef DEBUG
         local = dynamic_cast<const g_class_type *>(this);
         if (not local) {
-            throw gemfony_exception(
+            throw geneva_exception(
                 g_error_streamer(
                     DO_LOG
                     , time_and_place
@@ -277,7 +277,7 @@ public:
         ); // Note: will overwrite existing files
 
         if (not ofstr) {
-            throw gemfony_exception(
+            throw geneva_exception(
                 g_error_streamer(
                     DO_LOG
                     , time_and_place
@@ -295,7 +295,7 @@ public:
 
 #ifdef DEBUG
         if (not std::filesystem::exists(std::filesystem::path(p))) {
-            throw gemfony_exception(
+            throw geneva_exception(
                 g_error_streamer(
                     DO_LOG
                     , time_and_place
@@ -327,7 +327,7 @@ public:
     ) {
         // Check that the file exists
         if (not std::filesystem::exists(std::filesystem::path(p))) {
-            throw gemfony_exception(
+            throw geneva_exception(
                 g_error_streamer(
                     DO_LOG
                     , time_and_place
@@ -341,7 +341,7 @@ public:
         std::ifstream ifstr(p);
 
         if (not ifstr) {
-            throw gemfony_exception(
+            throw geneva_exception(
                 g_error_streamer(
                     DO_LOG
                     , time_and_place

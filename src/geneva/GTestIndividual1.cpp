@@ -786,7 +786,7 @@ namespace Gem::Tests
 			BOOST_CHECK_NO_THROW(p_test->mark_as_due_for_processing());
 			BOOST_CHECK_THROW(
 				p_test->transformed_fitness(0)
-				, gemfony_exception
+				, geneva_exception
 			);
 		}
 #endif /* DEBUG */
@@ -800,7 +800,7 @@ namespace Gem::Tests
 			BOOST_CHECK_NO_THROW(p_test->addGDoubleObjects_(nItems));
 
 			// Try to count the number of occurrences of an empty smart pointer. Should throw
-			BOOST_CHECK_THROW(p_test->count(std::shared_ptr<GDoubleObject>()), gemfony_exception);
+			BOOST_CHECK_THROW(p_test->count(std::shared_ptr<GDoubleObject>()), geneva_exception);
 		}
 
 		//------------------------------------------------------------------------------
@@ -812,7 +812,7 @@ namespace Gem::Tests
 			BOOST_CHECK_NO_THROW(p_test->addGDoubleObjects_(nItems));
 
 			// Try to find an empty smart pointer. Should throw
-			BOOST_CHECK_THROW(p_test->find(std::shared_ptr<GDoubleObject>()), gemfony_exception);
+			BOOST_CHECK_THROW(p_test->find(std::shared_ptr<GDoubleObject>()), geneva_exception);
 		}
 
 		//------------------------------------------------------------------------------
@@ -825,7 +825,7 @@ namespace Gem::Tests
 
 			// Try to insert an empty smart pointers. Should throw
 			BOOST_CHECK_THROW(p_test->insert_noclone(p_test->begin(), std::shared_ptr<GDoubleObject>()),
-			                  gemfony_exception);
+			                  geneva_exception);
 		}
 
 		//------------------------------------------------------------------------------
@@ -838,7 +838,7 @@ namespace Gem::Tests
 
 			// Try to insert a number of empty smart pointers. Should throw
 			BOOST_CHECK_THROW(p_test->insert_noclone(p_test->begin(), 10, std::shared_ptr<GDoubleObject>()),
-			                  gemfony_exception);
+			                  geneva_exception);
 		}
 
 		//------------------------------------------------------------------------------
@@ -851,7 +851,7 @@ namespace Gem::Tests
 
 			// Try to insert a number of empty smart pointers. Should throw
 			BOOST_CHECK_THROW(p_test->insert_clone(p_test->begin(), std::shared_ptr<GDoubleObject>()),
-			                  gemfony_exception);
+			                  geneva_exception);
 		}
 
 		//------------------------------------------------------------------------------
@@ -864,7 +864,7 @@ namespace Gem::Tests
 
 			// Try to insert a number of empty smart pointers. Should throw
 			BOOST_CHECK_THROW(p_test->insert_clone(p_test->begin(), 10, std::shared_ptr<GDoubleObject>()),
-			                  gemfony_exception);
+			                  geneva_exception);
 		}
 
 		//------------------------------------------------------------------------------
@@ -877,7 +877,7 @@ namespace Gem::Tests
 
 			// Try to attach an empty smart pointer Should throw
 			BOOST_CHECK_THROW(p_test->push_back_clone(std::shared_ptr<GDoubleObject>()),
-			                  gemfony_exception);
+			                  geneva_exception);
 		}
 
 		//------------------------------------------------------------------------------
@@ -890,7 +890,7 @@ namespace Gem::Tests
 
 			// Try to attach an empty smart pointer Should throw
 			BOOST_CHECK_THROW(p_test->push_back_noclone(std::shared_ptr<GDoubleObject>()),
-			                  gemfony_exception);
+			                  geneva_exception);
 		}
 
 		//------------------------------------------------------------------------------
@@ -903,7 +903,7 @@ namespace Gem::Tests
 			BOOST_CHECK(p_test->empty());
 
 			// Try to resize an empty collection
-			BOOST_CHECK_THROW(p_test->resize(10), gemfony_exception);
+			BOOST_CHECK_THROW(p_test->resize(10), geneva_exception);
 		}
 
 		//------------------------------------------------------------------------------
@@ -917,7 +917,7 @@ namespace Gem::Tests
 
 			// Try to resize an empty collection
 			BOOST_CHECK_THROW(p_test->resize_noclone(10, std::shared_ptr<GDoubleObject>()),
-			                  gemfony_exception);
+			                  geneva_exception);
 		}
 
 		//------------------------------------------------------------------------------
@@ -931,7 +931,7 @@ namespace Gem::Tests
 
 			// Try to resize an empty collection
 			BOOST_CHECK_THROW(p_test->resize_clone(10, std::shared_ptr<GDoubleObject>()),
-			                  gemfony_exception);
+			                  geneva_exception);
 		}
 
 		//------------------------------------------------------------------------------
@@ -945,7 +945,7 @@ namespace Gem::Tests
 
 			// Trying to retrieve an EA personality object should throw
 			std::shared_ptr<GEvolutionaryAlgorithm_PersonalityTraits> p_pt_ea;
-			BOOST_CHECK_THROW(p_pt_ea = p_test->getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>(), gemfony_exception);
+			BOOST_CHECK_THROW(p_pt_ea = p_test->getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>(), geneva_exception);
 		}
 #endif /* DEBUG */
 
@@ -959,7 +959,7 @@ namespace Gem::Tests
 			BOOST_CHECK_NO_THROW(p_test->setPersonality(std::shared_ptr<GSwarmAlgorithm_PersonalityTraits>(new GSwarmAlgorithm_PersonalityTraits())));
 
 			// Trying to retrieve an EA personality object should throw
-			BOOST_CHECK_THROW(p_test->getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>(), gemfony_exception);
+			BOOST_CHECK_THROW(p_test->getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>(), geneva_exception);
 		}
 #endif /* DEBUG */
 
@@ -974,7 +974,7 @@ namespace Gem::Tests
 
 			// Trying to retrieve an EA personality object should throw
 			std::shared_ptr<GPersonalityTraits> p_pt;
-			BOOST_CHECK_THROW(p_pt = p_test->getPersonalityTraits(), gemfony_exception);
+			BOOST_CHECK_THROW(p_pt = p_test->getPersonalityTraits(), geneva_exception);
 		}
 #endif /* DEBUG */
 

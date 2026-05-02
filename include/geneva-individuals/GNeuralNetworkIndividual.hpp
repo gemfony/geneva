@@ -431,7 +431,7 @@ public:
 
 		 // Check the number of supplied layers
 		 if (architecture.size() < 2) { // We need at least an input- and an output-layer
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GNeuralNetworkIndividual::createHyperCubeNetworkData(): Error!" << std::endl
 					 << "Got invalid number of layers: " << architecture.size() << std::endl
@@ -440,7 +440,7 @@ public:
 
 		 // Check that the output layer has exactly one node
 		 if (architecture.back() != 1) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GNeuralNetworkIndividual::createHyperCubeNetworkData(): Error!" << std::endl
 					 << "The output layer must have exactly one node for this training data." << std::endl
@@ -466,7 +466,7 @@ public:
 		 std::size_t layerCounter = 0;
 		 for (it = architecture.begin(); it != architecture.end(); ++it, ++layerCounter) {
 			 if (*it == 0) {
-				 throw gemfony_exception(
+				 throw geneva_exception(
 					 g_error_streamer(DO_LOG, time_and_place)
 						 << "In GNeuralNetworkIndividual::createHyperCubeNetworkData(): Error!" << std::endl
 						 << "Layer " << layerCounter << "has invalid size " << *it << std::endl
@@ -529,7 +529,7 @@ public:
 
 		 // Check the number of supplied layers
 		 if (architecture.size() < 2) { // We need at least an input- and an output-layer
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GNeuralNetworkIndividual::createHyperSphereNetworkData(): Error!" << std::endl
 					 << "Got invalid number of layers: " << architecture.size() << std::endl
@@ -538,7 +538,7 @@ public:
 
 		 // Check that the output layer has exactly one node
 		 if (architecture.back() != 1) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GNeuralNetworkIndividual::createHyperSphereNetworkData(): Error!" << std::endl
 					 << "The output layer must have exactly one node for this training data." << std::endl
@@ -564,7 +564,7 @@ public:
 		 std::size_t layerCounter = 0;
 		 for (it = architecture.begin(); it != architecture.end(); ++it, ++layerCounter) {
 			 if (*it == 0) {
-				 throw gemfony_exception(
+				 throw geneva_exception(
 					 g_error_streamer(DO_LOG, time_and_place)
 						 << "In GNeuralNetworkIndividual::createHyperSphereNetworkData(): Error!" << std::endl
 						 << "Layer " << layerCounter << "has invalid size " << *it << std::endl
@@ -680,7 +680,7 @@ public:
 
 		 // Check the number of supplied layers
 		 if (architecture.size() < 2) { // We need at least an input- and an output-layer
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GNeuralNetworkIndividual::createAxisCentricNetworkData(): Error!" << std::endl
 					 << "Got invalid number of layers: " << architecture.size() << std::endl
@@ -689,7 +689,7 @@ public:
 
 		 // Check that the output layer has exactly one node
 		 if (architecture.back() != 1) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GNeuralNetworkIndividual::createAxisCentricNetworkData(): Error!" << std::endl
 					 << "The output layer must have exactly one node for this training data." << std::endl
@@ -715,7 +715,7 @@ public:
 		 std::size_t layerCounter = 0;
 		 for (it = architecture.begin(); it != architecture.end(); ++it, ++layerCounter) {
 			 if (*it == 0) {
-				 throw gemfony_exception(
+				 throw geneva_exception(
 					 g_error_streamer(DO_LOG, time_and_place)
 						 << "In GNeuralNetworkIndividual::createAxisCentricNetworkData(): Error!" << std::endl
 						 << "Layer " << layerCounter << "has invalid size " << *it << std::endl
@@ -792,7 +792,7 @@ public:
 
 		 // Check the number of supplied layers
 		 if (architecture.size() < 2) { // We need at least an input- and an output-layer
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GNeuralNetworkIndividual::createSinNetworkData(): Error!" << std::endl
 					 << "Got invalid number of layers: " << architecture.size() << std::endl
@@ -801,7 +801,7 @@ public:
 
 		 // Check that the output layer has exactly one node
 		 if (architecture.back() != 1) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GNeuralNetworkIndividual::createSinNetworkData(): Error!" << std::endl
 					 << "The output layer must have exactly one node for this training data." << std::endl
@@ -811,7 +811,7 @@ public:
 
 		 // We require the input dimension to be 2
 		 if (architecture.front() != 2) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GNeuralNetworkIndividual::createSinNetworkData(): Error!" << std::endl
 					 << "The input layer must have exactly two node for this example." << std::endl
@@ -834,7 +834,7 @@ public:
 		 std::size_t layerCounter = 0;
 		 for (it = architecture.begin(); it != architecture.end(); ++it, ++layerCounter) {
 			 if (*it == 0) {
-				 throw gemfony_exception(
+				 throw geneva_exception(
 					 g_error_streamer(DO_LOG, time_and_place)
 						 << "In GNeuralNetworkIndividual::createSinNetworkData(): Error!" << std::endl
 						 << "Layer " << layerCounter << "has invalid size " << *it << std::endl
@@ -933,7 +933,7 @@ public:
 				 std::ostringstream error;
 				 error << "In createDataset(): Error!" << std::endl
 						 << "Received invalid data type " << t << std::endl;
-				 throw(gemfony_exception(error.str()));
+				 throw(geneva_exception(error.str()));
 			 }
 				 break;
 		 }

@@ -398,7 +398,7 @@ namespace Gem::Common
         const std::size_t channel_size = imageData_vec.size();
         if (channel_size != width * height * 3)
         {
-            throw gemfony_exception(
+            throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In loadImageToFloat: Error!" << std::endl
                 << "Invalid dimensions " << width << " / " << height << std::endl
@@ -470,7 +470,7 @@ namespace Gem::Common
         // Check the dimensions
         if (imageData_f_vec.size() != width * height * 3)
         {
-            throw gemfony_exception(
+            throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In saveFloatImageToFile: Error!" << std::endl
                 << "Invalid dimensions: " << "width = " << width << " / " << "height = " << height

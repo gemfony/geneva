@@ -208,7 +208,7 @@ private:
 
 #ifdef DEBUG
 		if(not m_grf) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG, time_and_place)
 					<< "In GRandomT<RANDOMPROXY>::getNewRandomContainer(): Error!" << std::endl
 					<< "No connection to GRandomFactory object." << std::endl

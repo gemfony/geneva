@@ -80,7 +80,7 @@ namespace Gem::Geneva
 	void GGradientDescent::setNStartingPoints(std::size_t nStartingPoints) {
 		// Do some error checking
 		if (nStartingPoints == 0) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GGradientDescent::setNStartingPoints(const std::size_t&):" << std::endl
 				<< "Got invalid number of starting points." << std::endl
@@ -99,7 +99,7 @@ namespace Gem::Geneva
 	void GGradientDescent::setFiniteStep(double finiteStep) {
 		// Check that finiteStep_ has an appropriate value
 		if (finiteStep_ <= 0. || finiteStep_ > 1000.) { // Specified in per mill of the allowed or preferred value range
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GGradientDescent::setFiniteStep(double): Error!" << std::endl
 				<< "Invalid values of finiteStep_: " << finiteStep_ << std::endl
@@ -129,7 +129,7 @@ namespace Gem::Geneva
 	void GGradientDescent::setStepSize(double stepSize) {
 		// Check that stepSize_ has an appropriate value
 		if (stepSize_ <= 0. || stepSize_ > 1000.) { // Specified in per mill of the allowed or preferred value range
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GGradientDescent::setStepSize(double): Error!" << std::endl
 				<< "Invalid values of stepSize_: " << stepSize_ << std::endl
@@ -366,7 +366,7 @@ namespace Gem::Geneva
 #ifdef DEBUG
 			// Make sure the parents are clean
 			if(this->at(i)->is_due_for_processing() || (this->at(i)->has_errors())) {
-				throw gemfony_exception(
+				throw geneva_exception(
 					g_error_streamer(DO_LOG,  time_and_place)
 					<< "In GGradientDescent::updateParentIndividuals():" << std::endl
 					<< "Found individual in position " << i << " which is unprocessed or has errors" << std::endl
@@ -392,7 +392,7 @@ namespace Gem::Geneva
 							minOnly_transformed_fitness(this->at(childPos)) - boost::numeric_cast<long double>(parentFitness)))
 					);
 				} catch (boost::bad_numeric_cast &e) {
-					throw gemfony_exception(
+					throw geneva_exception(
 						g_error_streamer(DO_LOG,  time_and_place)
 						<< "In GGradientDescent::updateParentIndividuals(): Error!" << std::endl
 						<< "Bad conversion with message " << e.what() << std::endl
@@ -459,7 +459,7 @@ namespace Gem::Geneva
 		for(const auto& item_ptr: *this) {
 			// Make sure the evaluated individuals are marked to be processed
 			if(this->afterFirstIteration() && !item_ptr->is_due_for_processing()) {
-				throw gemfony_exception(
+				throw geneva_exception(
 					g_error_streamer(DO_LOG,  time_and_place)
 					<< "In GGradientDescent::runFitnessCalculation():" << std::endl
 					<< "Found individual om position " << pos << " which is not due for processing" << std::endl
@@ -486,7 +486,7 @@ namespace Gem::Geneva
 		// Check if all work items have returned or whether there were errors. Both
 		// cannot be tolerated, as a gradient method needs a complete set of evaluated solutions.
 		if (not status.is_complete || status.has_errors) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GGradientDescent::runFitnessCalculation(): Error!" << std::endl
 				<< "No complete set of items received or errors found in some individuals" << std::endl
@@ -510,7 +510,7 @@ namespace Gem::Geneva
 #ifdef DEBUG
 		// Size matters!
 		if(dblLowerParameterBoundaries_.size() != dblUpperParameterBoundaries_.size()) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GGradientDescent::init(): Error!" << std::endl
 				<< "Found invalid sizes: "
@@ -520,7 +520,7 @@ namespace Gem::Geneva
 
 		// Check that stepSize_ has an appropriate value
 		if(stepSize_ <= 0. || stepSize_ > 1000.) { // Specified in per mill of the allowed or preferred value range
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GGradientDescent::init(): Error!" << std::endl
 				<< "Invalid values of stepSize_: " << stepSize_ << std::endl
@@ -530,7 +530,7 @@ namespace Gem::Geneva
 
 		// Check that finiteStep_ has an appropriate value
 		if(finiteStep_ <= 0. || finiteStep_ > 1000.) { // Specified in per mill of the allowed or preferred value range
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GGradientDescent::init(): Error!" << std::endl
 				<< "Invalid values of finiteStep_: " << finiteStep_ << std::endl
@@ -552,7 +552,7 @@ namespace Gem::Geneva
 				adjustedFiniteStep_.push_back(boost::numeric_cast<double>(finiteStepRatio * parameterRange));
 			}
 		} catch (boost::bad_numeric_cast &e) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GGradientDescent::init(): Error!" << std::endl
 				<< "Bad conversion with message " << e.what() << std::endl
@@ -603,7 +603,7 @@ namespace Gem::Geneva
 
 		// We need at least one individual
 		if (nStart == 0) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GGradientDescent::adjustPopulation():" << std::endl
 				<< "You didn't add any individuals to the collection. We need at least one." << std::endl
@@ -615,7 +615,7 @@ namespace Gem::Geneva
 
 		// Check that the first individual has floating point parameters (double for the moment)
 		if (nFPParmsFirst_ == 0) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GGradientDescent::adjustPopulation():" << std::endl
 				<< "No floating point parameters in individual." << std::endl
@@ -626,7 +626,7 @@ namespace Gem::Geneva
 #ifdef DEBUG
 		for(std::size_t i=1; i<this->size(); i++) {
 			if(this->at(i)->countParameters<double>(activityMode::ACTIVEONLY) != nFPParmsFirst_) {
-				throw gemfony_exception(
+				throw geneva_exception(
 					g_error_streamer(DO_LOG,  time_and_place)
 					<< "In GGradientDescent::adjustPopulation():" << std::endl
 					<< "Found individual in position " <<  i << " with different" << std::endl
@@ -664,7 +664,7 @@ namespace Gem::Geneva
 		// each of size nFPParmsFirst_.
 #ifdef DEBUG
 		if(this->size() != nStartingPoints_*(nFPParmsFirst_ + 1)) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GGradientDescent::adjustPopulation():" << std::endl
 				<< "Population size is " << this->size() << std::endl

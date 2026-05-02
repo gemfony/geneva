@@ -228,7 +228,7 @@ void GImageOpenCLWorker::initOpenCL(std::shared_ptr<GParameterSet> p) {
 #ifdef DEBUG
 	// Check that p actually points somewhere
 	if(!p) {
-		throw gemfony_exception(
+		throw geneva_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GImageOpenCLWorker::initOpenCL() : Error!" << std::endl
 				<< "p is empty" << std::endl
@@ -237,7 +237,7 @@ void GImageOpenCLWorker::initOpenCL(std::shared_ptr<GParameterSet> p) {
 
 	p_conv = std::dynamic_pointer_cast<GImageIndividual>(p);
 	if(!p_conv) {
-		throw gemfony_exception(
+		throw geneva_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GImageOpenCLWorker::initOpenCL(): Error!" << std::endl
 				<< "Conversion failed" << std::endl
@@ -403,7 +403,7 @@ void GImageOpenCLWorker::process_(std::shared_ptr<GParameterSet> p) {
 #ifdef DEBUG
 	// Check that p actually points somewhere
 	if(!p) {
-		throw gemfony_exception(
+		throw geneva_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GImageConsumer::GOpenCLWorker : Error!" << std::endl
 				<< "p is empty" << std::endl
@@ -412,7 +412,7 @@ void GImageOpenCLWorker::process_(std::shared_ptr<GParameterSet> p) {
 
 	p_conv = std::dynamic_pointer_cast<GImageIndividual>(p);
 	if(!p_conv) {
-		throw gemfony_exception(
+		throw geneva_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GImageConsumer::process(): Error!" << std::endl
 				<< "Conversion failed" << std::endl
@@ -499,7 +499,7 @@ void GImageOpenCLWorker::loadTargetFromFile() {
 	targetSize_ = targetCanvas_.getNPixels();
 
 	if(targetSize_ % Gem::Courtier::GOpenCLWorkerT<GParameterSet>::m_workGroupSize != 0) {
-		throw gemfony_exception(
+		throw geneva_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GImageOpenCLWorker::loadTargetFromFile(): Error!" << std::endl
 				<< "Image has invalid dimensions " << dimX_ << "/" << dimY_ << std::endl

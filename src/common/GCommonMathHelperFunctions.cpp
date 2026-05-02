@@ -544,7 +544,7 @@ namespace Gem::Common
 	) {
 #ifdef DEBUG
 		if(alpha < 0.f || alpha > 1.f) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GMix<float>(): Error!" << std::endl
 				<< "alpha should be in the range [0.f,1.f], but has value " << alpha << std::endl
@@ -564,7 +564,7 @@ namespace Gem::Common
 	) {
 #ifdef DEBUG
 		if(alpha < 0. || alpha > 1.) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GMix<double>(): Error!" << std::endl
 				<< "alpha should be in the range [0.,1.], but has value " << alpha << std::endl

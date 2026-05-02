@@ -209,7 +209,7 @@ namespace Gem::Tests
 
 #ifdef DEBUG
 		if(this->size() != GTI_DEF_NITEMS) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GTestIndividual3::getPlainData(): Error!" << std::endl
 				<< "Invalid number of entries in this class " << this->size() << " / " << GTI_DEF_NITEMS << std::endl

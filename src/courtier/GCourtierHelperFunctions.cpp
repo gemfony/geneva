@@ -60,7 +60,7 @@ namespace Gem::Courtier
 		std::istringstream is(std::string(ds, sz));
 		std::size_t inboundDataSize = 0;
 		if (!(is >> std::hex >> inboundDataSize)) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In extractDataSize: Got invalid header!" << std::endl
 			);

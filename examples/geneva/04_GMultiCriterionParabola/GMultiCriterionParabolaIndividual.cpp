@@ -98,7 +98,7 @@ namespace Gem::Geneva
 #ifdef DEBUG
         if (minima.size() != this->getNStoredResults())
         {
-            throw gemfony_exception(
+            throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GMultiCriterionParabolaIndividual::setMinima(...): Error!" << std::endl
                 << "Invalid size of minima vector. Expected " << this->getNStoredResults() << std::endl
@@ -128,7 +128,7 @@ namespace Gem::Geneva
 #ifdef DEBUG
         if ((p_load->minima_).size() != minima_.size() || (p_load->minima_).size() != this->getNStoredResults())
         {
-            throw gemfony_exception(
+            throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GMultiCriterionParabolaIndividual::setMinima(...): Error!" << std::endl
                 << "Invalid size of minima vector. Expected " << minima_.size() << "/" << this->getNStoredResults() <<

@@ -133,7 +133,7 @@ namespace Gem::Geneva
 	{
 		if (minSize < 0. || maxSize > 1. || minSize >= maxSize)
 		{
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG, time_and_place)
 				<< "In GImageIndividual::init() : Error!" << std::endl
 				<< "Invalid values for minSize and maxSize provided: " << minSize << " / " << maxSize << std::endl
@@ -144,7 +144,7 @@ namespace Gem::Geneva
 		if (startSize >= 0. && startSize < minSize)
 		{
 			// Cannot be < 0 as minSize may not be <= 0
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG, time_and_place)
 				<< "In GImageIndividual::init() : Error!" << std::endl
 				<< "Invalid values for minSize and startSize provided: " << minSize << " / " << startSize << std::endl
@@ -153,7 +153,7 @@ namespace Gem::Geneva
 
 		if (startSize > maxSize)
 		{
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG, time_and_place)
 				<< "In GImageIndividual::init() : Error!" << std::endl
 				<< "Invalid values for maxSize and startSize provided: " << maxSize << " / " << startSize << std::endl
@@ -162,7 +162,7 @@ namespace Gem::Geneva
 
 		if (adaptAdProb < 0. || adaptAdProb > 1.)
 		{
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG, time_and_place)
 				<< "In GImageIndividual::init() : Error!" << std::endl
 				<< "Invalid value for adaptAdProb provided: " << adaptAdProb << std::endl
@@ -171,7 +171,7 @@ namespace Gem::Geneva
 
 		if (loc_adaptAdProb < 0. || loc_adaptAdProb > 1.)
 		{
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG, time_and_place)
 				<< "In GImageIndividual::init() : Error!" << std::endl
 				<< "Invalid value for loc_adaptAdProb provided: " << loc_adaptAdProb << std::endl
@@ -180,7 +180,7 @@ namespace Gem::Geneva
 
 		if (minAdProb >= maxAdProb || minAdProb < 0. || maxAdProb > 1. || adProb < minAdProb || adProb > maxAdProb)
 		{
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG, time_and_place)
 				<< "In GImageIndividual::init() : Error!" << std::endl
 				<< "Invalid values for minAdprob, maxAdProb or adProb provided: " << minAdProb << " / " << maxAdProb <<
@@ -191,7 +191,7 @@ namespace Gem::Geneva
 		if (loc_minAdProb >= loc_maxAdProb || loc_minAdProb < 0. || loc_maxAdProb > 1. || loc_adProb < loc_minAdProb ||
 			loc_adProb > loc_maxAdProb)
 		{
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG, time_and_place)
 				<< "In GImageIndividual::init() : Error!" << std::endl
 				<< "Invalid values for loc_minAdprob, loc_maxAdProb or loc_adProb provided: " << loc_minAdProb << " / "
@@ -464,7 +464,7 @@ namespace Gem::Geneva
 		if (this->size() != 10 * nTriangles_ + 3)
 		{
 			// including background color
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG, time_and_place)
 				<< "In GImageIndividual::getTriangleData(): Error!" << std::endl
 				<< "Invalid number of entries in this class " << this->size() << " / " << nTriangles_ + 3 << std::endl
@@ -550,7 +550,7 @@ namespace Gem::Geneva
 	 */
 	double GImageIndividual::fitnessCalculation()
 	{
-		throw gemfony_exception(
+		throw geneva_exception(
 			g_error_streamer(DO_LOG, time_and_place)
 			<< "In GImageIndividual::fitnessCalculation(): Error!" << std::endl
 			<< "This function is not meant to be called for this individual" << std::endl
@@ -1138,7 +1138,7 @@ namespace Gem::Geneva
 #ifdef DEBUG
 		if (adaptAdProb < 0. || adaptAdProb > 1.)
 		{
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG, time_and_place)
 				<< "In GImageIndividualFactory::setAdaptAdProb(): Error!" << std::endl
 				<< "Invalid value for adaptAdProb given: " << adaptAdProb << std::endl
@@ -1159,7 +1159,7 @@ namespace Gem::Geneva
 #ifdef DEBUG
 		if (loc_adaptAdProb < 0. || loc_adaptAdProb > 1.)
 		{
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG, time_and_place)
 				<< "In GImageIndividualFactory::setLocAdaptAdProb(): Error!" << std::endl
 				<< "Invalid value for loc_adaptAdProb given: " << loc_adaptAdProb << std::endl
@@ -1201,7 +1201,7 @@ namespace Gem::Geneva
 #ifdef DEBUG
 		if (minAdProb < 0.)
 		{
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG, time_and_place)
 				<< "In GImageIndividualFactory::setAdProbRange(): Error!" << std::endl
 				<< "minAdProb < 0: " << minAdProb << std::endl
@@ -1210,7 +1210,7 @@ namespace Gem::Geneva
 
 		if (minAdProb > maxAdProb)
 		{
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG, time_and_place)
 				<< "In GImageIndividualFactory::setAdProbRange(): Error!" << std::endl
 				<< "Invalid minAdProb and/or maxAdProb: " << minAdProb << " / " << maxAdProb << std::endl
@@ -1219,7 +1219,7 @@ namespace Gem::Geneva
 
 		if (maxAdProb > 1.)
 		{
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG, time_and_place)
 				<< "In GImageIndividualFactory::setAdProbRange(): Error!" << std::endl
 				<< "maxAdProb > 1: " << maxAdProb << std::endl
@@ -1243,7 +1243,7 @@ namespace Gem::Geneva
 #ifdef DEBUG
 		if (minLocAdProb < 0.)
 		{
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG, time_and_place)
 				<< "In GImageIndividualFactory::setLocAdProbRange(): Error!" << std::endl
 				<< "minLocAdProb < 0: " << minLocAdProb << std::endl
@@ -1252,7 +1252,7 @@ namespace Gem::Geneva
 
 		if (minLocAdProb > maxLocAdProb)
 		{
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG, time_and_place)
 				<< "In GImageIndividualFactory::setLocAdProbRange(): Error!" << std::endl
 				<< "Invalid minLocAdProb and/or maxLocAdProb: " << minLocAdProb << " / " << maxLocAdProb << std::endl
@@ -1261,7 +1261,7 @@ namespace Gem::Geneva
 
 		if (maxLocAdProb > 1.)
 		{
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG, time_and_place)
 				<< "In GImageIndividualFactory::setLocAdProbRange(): Error!" << std::endl
 				<< "maxLocAdProb > 1: " << maxLocAdProb << std::endl

@@ -194,7 +194,7 @@ public:
 	 {
 		 // Check the supplied probability value
 		 if (adProb < fp_type(0.) || adProb > fp_type(1.)) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GAdaptorT<T, fp_type>::setAdaptionProbability(const fp_type&):" << std::endl
 					 << "Bad probability value given: " << adProb << std::endl
@@ -208,7 +208,7 @@ public:
 			 , m_maxAdProb
 			 , "GAdaptorT<>::setAdaptionProbability(" + Gem::Common::to_string(adProb) + ")"
 		 )) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GAdaptorT<T, fp_type>::setAdaptionProbability(const fp_type& adProb):" << std::endl
 					 << "adProb value " << adProb << " is outside of allowed value range [" << m_minAdProb << ", " << m_maxAdProb
@@ -260,7 +260,7 @@ public:
 			 , m_maxAdProb
 			 , "GAdaptorT<>::setResetAdaptionProbability(" + Gem::Common::to_string(adProb_reset) + ")"
 		 )) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GAdaptorT<T, fp_type>::setResetAdaptionProbability(const fp_type&):" << std::endl
 					 << "adProb_reset value " << adProb_reset << " is outside of allowed value range [" << m_minAdProb << ", "
@@ -298,7 +298,7 @@ public:
 			 , 1.
 			 , "GAdaptorT<>::setAdaptAdaptionProbability(" + Gem::Common::to_string(probability) + ")"
 		 )) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GAdaptorT<T, fp_type>::setAdaptAdaptionProbability(const fp_type&) :" << std::endl
 					 << "Probability " << probability << " not in allowed range [0.,1.]" << std::endl
@@ -339,7 +339,7 @@ public:
 	 {
 #ifdef DEBUG
 		 if (adaptAdProb < fp_type(0.)) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GAdaptorT<>::setAdaptAdProb(): Error!" << std::endl
 					 << "adaptAdProb < 0: " << adaptAdProb << std::endl
@@ -452,7 +452,7 @@ public:
 	 {
 #ifdef DEBUG
 		 if (minAdProb < 0.) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GAdaptorT<T, fp_type>::setAdProbRange(): Error!" << std::endl
 					 << "minAdProb < 0: " << minAdProb << std::endl
@@ -460,7 +460,7 @@ public:
 		 }
 
 		 if (maxAdProb > 1.) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GAdaptorT<T, fp_type>::setAdProbRange(): Error!" << std::endl
 					 << "maxAdProb > 1: " << maxAdProb << std::endl
@@ -468,7 +468,7 @@ public:
 		 }
 
 		 if (minAdProb > maxAdProb) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GAdaptorT<T, fp_type>::setAdProbRange(): Error!" << std::endl
 					 << "Invalid minAdProb and/or maxAdProb: " << minAdProb << " / " << maxAdProb << std::endl
@@ -681,7 +681,7 @@ public:
 	 ) BASE {
 #ifdef DEBUG
 		 if (0 == nStalls) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GAdaptorT<>::updateOnStall(" << nStalls << "): Error!" << std::endl
 					 << "Function called for zero nStalls" << std::endl
@@ -739,7 +739,7 @@ public:
 					 property
 					 , data
 				 )) {
-					 throw gemfony_exception(
+					 throw geneva_exception(
 						 g_error_streamer(DO_LOG, time_and_place)
 							 << "In GAdaptorT<T, fp_type>::queryPropertyFrom(): Error!" << std::endl
 							 << "Function was called for unimplemented property " << property << std::endl
@@ -1317,7 +1317,7 @@ protected:
             // Setting a probability < 0 should throw
             BOOST_CHECK_THROW(
                     p_test->setAdaptionProbability(-1.);
-            , gemfony_exception
+            , geneva_exception
             );
         }
 
@@ -1329,7 +1329,7 @@ protected:
             // Setting a probability > 1 should throw
             BOOST_CHECK_THROW(
                     p_test->setAdaptionProbability(2.);
-            , gemfony_exception
+            , geneva_exception
             );
         }
 
@@ -1341,7 +1341,7 @@ protected:
             // Setting a probability < 0 should throw
             BOOST_CHECK_THROW(
                     p_test->setAdaptAdaptionProbability(-1.);
-            , gemfony_exception
+            , geneva_exception
             );
         }
 
@@ -1353,7 +1353,7 @@ protected:
             // Setting a probability > 1 should throw
             BOOST_CHECK_THROW(
                     p_test->setAdaptAdaptionProbability(2.);
-            , gemfony_exception
+            , geneva_exception
             );
         }
 

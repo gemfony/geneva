@@ -230,7 +230,7 @@ public:
 
 #ifdef DEBUG
 	    if(nErasedProc != nErasedRaw) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GBrokerT<>::enrol_buffer_port(buffer-port-ptr):" << std::endl
 				    << "nErasedProc (" << nErasedProc << ") != nErasedRaw (" << nErasedRaw << ")" << std::endl
@@ -247,7 +247,7 @@ public:
 		 // Update the number of registered buffer ports
 #ifdef DEBUG
 		 if(BUFFERPORT_ID_TYPE(nErasedRaw) > m_n_registered_buffer_ports) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GBrokerT<>::enrol_buffer_port(buffer-port-ptr):" << std::endl
 					 << "nErasedRaw (" << nErasedRaw << ") > m_n_registered_buffer_ports (" << m_n_registered_buffer_ports << ")" << std::endl
@@ -268,7 +268,7 @@ public:
 
 	    // Increment the number of registered buffer ports and check if we have exceeded the allowed amound
 		 if(++m_n_registered_buffer_ports > MAXREGISTEREDBUFFERPORTS) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GBrokerT<>::enrol_buffer_port(buffer-port-ptr):" << std::endl
 					 << "Maximum number " << MAXREGISTEREDBUFFERPORTS << " of registered buffer ports exceeded" << std::endl
@@ -614,7 +614,7 @@ private:
 	  */
 	 bool checkConsumersCapableOfFullReturn() {
 		 if (m_consumer_collection_cnt.empty()) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GBrokerT<processable_type>::checkConsumersCapableOfFullReturn(): Error!" << std::endl
 					 << "No consumers registered" << std::endl

@@ -162,7 +162,7 @@ namespace Gem::Common
 		if (not m.empty()) {
 			m_error_messages.push_back(m);
 		} else {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GToken::registerErrorMessage(): Error" << std::endl
 				<< "Tried to register empty error message" << std::endl

@@ -157,7 +157,7 @@ namespace Gem::Geneva
 	) const {
 #ifdef DEBUG
 		if((this->getParameterName()).empty()) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GInt32Object::int32Streamline(std::map<std::string, std::vector<std::int32_t>>& parVec) const: Error!" << std::endl
 				<< "No name was assigned to the object" << std::endl
@@ -208,7 +208,7 @@ namespace Gem::Geneva
 #ifdef DEBUG
 		// Do we have a valid position ?
 		if(pos >= parVec.size()) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GBooleanObject::assignInt32ValueVector(const std::vector<std::int32_t>&, std::size_t&):" << std::endl
 				<< "Tried to access position beyond end of vector: " << parVec.size() << "/" << pos << std::endl
@@ -480,7 +480,7 @@ namespace Gem::Geneva
 			BOOST_CHECK(p_test->getAdaptor()->getAdaptorId() == adaptorId::GINT32GAUSSADAPTOR);
 
 			// Attempted conversion to an invalid target type should throw
-			BOOST_CHECK_THROW(p_test->getAdaptor<GInt32FlipAdaptor>(), gemfony_exception);
+			BOOST_CHECK_THROW(p_test->getAdaptor<GInt32FlipAdaptor>(), geneva_exception);
 		}
 #endif /* DEBUG */
 

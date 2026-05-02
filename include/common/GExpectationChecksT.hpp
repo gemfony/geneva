@@ -1294,7 +1294,7 @@ void compare_t(
     } catch (const g_expectation_violation &g) {
         token.registerErrorMessage(g);
     } catch (const std::exception &e) {
-        throw gemfony_exception(
+        throw geneva_exception(
             g_error_streamer(
                 DO_LOG
                 , time_and_place
@@ -1303,7 +1303,7 @@ void compare_t(
                 << e.what() << std::endl
         );
     } catch (...) {
-        throw gemfony_exception(
+        throw geneva_exception(
             g_error_streamer(
                 DO_LOG
                 , time_and_place
@@ -1337,7 +1337,7 @@ void compare_base_t(
     } catch (const g_expectation_violation &g) {
         token.registerErrorMessage(g);
     } catch (const std::exception &e) {
-        throw gemfony_exception(
+        throw geneva_exception(
             g_error_streamer(
                 DO_LOG
                 , time_and_place
@@ -1346,7 +1346,7 @@ void compare_base_t(
                 << e.what() << std::endl
         );
     } catch (...) {
-        throw gemfony_exception(
+        throw geneva_exception(
             g_error_streamer(
                 DO_LOG
                 , time_and_place

@@ -99,7 +99,7 @@ public:
 		 if(p) {
 			 m_preProcessor = p;
 		 } else {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GParameterSetFactory::registerPreProcessor(): Error!" << std::endl
 					 << "Got empty pre-processor" << std::endl
@@ -115,7 +115,7 @@ public:
 		 if(p) {
 			 m_postProcessor = p;
 		 } else {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GParameterSetFactory::registerPostProcessor(): Error!" << std::endl
 					 << "Got empty post-processor" << std::endl

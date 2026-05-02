@@ -252,7 +252,7 @@ public:
 
             // Check that the value is inside the allowed range
             if (currentValues[pos] < lower || currentValues[pos] > upper) {
-                throw gemfony_exception(
+                throw geneva_exception(
                     g_error_streamer(
                         DO_LOG
                         , time_and_place
@@ -268,7 +268,7 @@ public:
 
         // Check that the boundaries make sense
         if (lower > upper) {
-            throw gemfony_exception(
+            throw geneva_exception(
                 g_error_streamer(
                     DO_LOG
                     , time_and_place
@@ -304,7 +304,7 @@ public:
     void setValue(const std::size_t &pos, const num_type &val) override {
         // Do some error checking
         if (val < m_lowerBoundary || val > m_upperBoundary) {
-            throw gemfony_exception(
+            throw geneva_exception(
                 g_error_streamer(
                     DO_LOG
                     , time_and_place
@@ -364,7 +364,7 @@ public:
 #ifdef DEBUG
         // Check that the object isn't empty
         if (this->empty()) {
-            throw gemfony_exception(
+            throw geneva_exception(
                 g_error_streamer(
                     DO_LOG
                     , time_and_place

@@ -598,7 +598,7 @@ namespace Gem::Courtier {
                     }
                 }
             }
-            catch (const gemfony_exception &ex) {
+            catch (const geneva_exception &ex) {
                 auto ePtr = std::current_exception();
                 glogger
                         << "GMPIConsumerSessionT<processable_type>::processRequest() connected to rank="
@@ -661,7 +661,7 @@ namespace Gem::Courtier {
                     m_commandContainer, m_serializationMode);
 
             if (m_outgoingMessage.size() > GMPICONSUMERMAXMESSAGESIZE) {
-                throw gemfony_exception(
+                throw geneva_exception(
                         g_error_streamer(DO_LOG, time_and_place)
                                 << "GMPIConsumerSessionT<processable_type>::serializeOutgoingMsg():" << std::endl
                                 << "Size of individual to send after serialization greater than maximum configured message size."
@@ -1001,7 +1001,7 @@ namespace Gem::Courtier {
          */
         void putPayloadItem(std::shared_ptr<processable_type> p) {
             if (not p) {
-                throw gemfony_exception(
+                throw geneva_exception(
                         g_error_streamer(DO_LOG, time_and_place)
                                 << "GMPIConsumerMasterNodeT<>::putPayloadItem():" << std::endl
                                 << "Function called with empty work item" << std::endl);
@@ -1137,7 +1137,7 @@ namespace Gem::Courtier {
                 MPI_Init_thread(argc, argv, MPI_THREAD_MULTIPLE, &providedThreadingLevel);
 
                 if (providedThreadingLevel != MPI_THREAD_MULTIPLE) {
-                    throw gemfony_exception(
+                    throw geneva_exception(
                             g_error_streamer(DO_LOG, time_and_place)
                                     << "GMPIConsumerT<> constructor" << std::endl
                                     << "Geneva requires MPI implementation with level MPI_THREAD_MULTIPLE (a.k.a. "
@@ -1243,7 +1243,7 @@ namespace Gem::Courtier {
          */
         [[nodiscard]] inline bool isMasterNode() const {
             if (!isClusterPositionDefined) {
-                throw gemfony_exception(
+                throw geneva_exception(
                         g_error_streamer(DO_LOG, time_and_place)
                                 << "GMPIConsumerT<>::isMasterNode():" << std::endl
                                 << "The position of the process in the cluster is undefined." << std::endl
@@ -1394,7 +1394,7 @@ namespace Gem::Courtier {
          */
         std::shared_ptr<typename Gem::Courtier::GBaseClientT<processable_type>> getClient_() const override {
             if (isMasterNode()) {
-                throw gemfony_exception(
+                throw geneva_exception(
                         g_error_streamer(DO_LOG, time_and_place)
                                 << "GMPIConsumerT<>::getClient_():" << std::endl
                                 << "The current node is the master node in the MPI cluster." << std::endl

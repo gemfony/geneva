@@ -168,7 +168,7 @@ void ptrDifferenceCheck (
 #ifdef DEBUG
 	// Check that the two pointers point to different objects
 	if (nullptr!=p1 && p1==p2) {
-		throw gemfony_exception(
+		throw geneva_exception(
 			g_error_streamer(DO_LOG, time_and_place)
 				<< "In Gem::Common::ptrEqualityCheck<T>() :" << std::endl
 				<< "p1 and p2 point to the same object!" << std::endl
@@ -196,7 +196,7 @@ void ptrDifferenceCheck (
 #ifdef DEBUG
 	// Check that the two pointers point to different objects
 	if (p1 && p1.get()==p2.get()) {
-		throw gemfony_exception(
+		throw geneva_exception(
 			g_error_streamer(DO_LOG, time_and_place)
 				<< "In Gem::Common::ptrEqualityCheck<T>() :" << std::endl
 				<< "Smart pointers p1 and p2 point to the same object!" << std::endl
@@ -224,7 +224,7 @@ const target_type * g_ptr_conversion (
 	if(nullptr==convert_ptr || p) {
 		return p;
 	} else {
-		throw gemfony_exception(
+		throw geneva_exception(
 			g_error_streamer(DO_LOG, time_and_place)
 				<< "In const target_type* g_ptr_conversion<target_type, base_type>() :" << std::endl
 				<< "Invalid conversion from type with name " << typeid(base_type).name() << std::endl
@@ -257,7 +257,7 @@ std::shared_ptr<target_type> g_ptr_conversion (
 	if(nullptr==convert_ptr.get() || p) {
 		return p;
 	} else {
-		throw gemfony_exception(
+		throw geneva_exception(
 			g_error_streamer(DO_LOG, time_and_place)
 				<< "In std::shared_ptr<target_type> g_ptr_conversion<target_type, base_type>() :" << std::endl
 				<< "Invalid conversion from type with name " << typeid(base_type).name() << std::endl
@@ -581,28 +581,28 @@ void copyArrays(
 	//--------------------------------------------------------------------------
 	// Do some error checks
 	if (nullptr == from && 0 != nFrom) {
-		throw gemfony_exception(
+		throw geneva_exception(
 			g_error_streamer(DO_LOG, time_and_place)
 				<< "In copyArrays(): Error: from-array is empty, but nFrom isn\'t:" << nFrom << std::endl
 		);
 	}
 
 	if (nullptr != from && 0 == nFrom) {
-		throw gemfony_exception(
+		throw geneva_exception(
 			g_error_streamer(DO_LOG, time_and_place)
 				<< "In copyArrays(): Error: from-array isn't empty, but nFrom is:" << std::endl
 		);
 	}
 
 	if (nullptr == to && 0 != nTo) {
-		throw gemfony_exception(
+		throw geneva_exception(
 			g_error_streamer(DO_LOG, time_and_place)
 				<< "In copyArrays(): Error: to-array is empty, but nTo isn\'t:" << nTo << std::endl
 		);
 	}
 
 	if (nullptr != to && 0 == nTo) {
-		throw gemfony_exception(
+		throw geneva_exception(
 			g_error_streamer(DO_LOG, time_and_place)
 				<< "In copyArrays(): Error: to-array isn't empty, but nTo is" << std::endl
 		);
@@ -658,28 +658,28 @@ void copySmartPointerArrays(
 	//--------------------------------------------------------------------------
 	// Do some error checks
 	if (nullptr == from && 0 != size_from) {
-		throw gemfony_exception(
+		throw geneva_exception(
 			g_error_streamer(DO_LOG, time_and_place)
 				<< "In copySmartPointerArrays(): Error: from-array is empty, but size_from isn\'t:" << size_from << std::endl
 		);
 	}
 
 	if (nullptr != from && 0 == size_from) {
-		throw gemfony_exception(
+		throw geneva_exception(
 			g_error_streamer(DO_LOG, time_and_place)
 				<< "In copySmartPointerArrays(): Error: from-array isn't empty, but size_from is:" << std::endl
 		);
 	}
 
 	if (nullptr == to && 0 != size_to) {
-		throw gemfony_exception(
+		throw geneva_exception(
 			g_error_streamer(DO_LOG, time_and_place)
 				<< "In copySmartPointerArrays(): Error: to-array is empty, but size_to isn\'t:" << size_to << std::endl
 		);
 	}
 
 	if (nullptr != to && 0 == size_to) {
-		throw gemfony_exception(
+		throw geneva_exception(
 			g_error_streamer(DO_LOG, time_and_place)
 				<< "In copySmartPointerArrays(): Error: to-array isn't empty, but size_to is" << std::endl
 		);
@@ -712,7 +712,7 @@ std::shared_ptr <target_type> convertSmartPointer(std::shared_ptr <source_type> 
 #ifdef DEBUG
 	// Check that we have indeed been given an item and that the pointer isn't empty
 	if(not p_raw) {
-		throw gemfony_exception(
+		throw geneva_exception(
 			g_error_streamer(DO_LOG, time_and_place)
 				<< "In std::shared_ptr<target_type> convertSmartPointer(std::shared_ptr<source_type> p_raw) :" << std::endl
 				<< "Error: Pointer is empty." << std::endl
@@ -726,7 +726,7 @@ std::shared_ptr <target_type> convertSmartPointer(std::shared_ptr <source_type> 
 	std::shared_ptr<target_type> p = std::dynamic_pointer_cast<target_type>(p_raw);
 	if(p) return p;
 	else {
-		throw gemfony_exception(
+		throw geneva_exception(
 			g_error_streamer(DO_LOG, time_and_place)
 				<< "In std::shared_ptr<target_type> convertSmartPointer(std::shared_ptr<source_type> p_raw) :" << std::endl
 				<< "Error: Invalid conversion to type " << typeid(target_type).name() << std::endl
@@ -750,7 +750,7 @@ target_type *convertSimplePointer(source_type *p_raw) {
 #ifdef DEBUG
 	// Check that we have indeed been given an item and that the pointer isn't empty
 	if(not p_raw) {
-		throw gemfony_exception(
+		throw geneva_exception(
 			g_error_streamer(DO_LOG, time_and_place)
 				<< "In target_type * convertSimplePointer(source_type *p_raw) :" << std::endl
 				<< "Error: Pointer is empty." << std::endl
@@ -764,7 +764,7 @@ target_type *convertSimplePointer(source_type *p_raw) {
 	target_type  *p = dynamic_cast<target_type>(p_raw);
 	if(p) return p;
 	else {
-		throw gemfony_exception(
+		throw geneva_exception(
 			g_error_streamer(DO_LOG, time_and_place)
 				<< "In target_type * convertSimplePointer(source_type * p_raw) :" << std::endl
 				<< "Error: Invalid conversion to type " << typeid(target_type).name() << std::endl
@@ -788,7 +788,7 @@ const target_type *convertSimplePointer(const source_type *p_raw) {
 #ifdef DEBUG
 	// Check that we have indeed been given an item and that the pointer isn't empty
 	if(not p_raw) {
-		throw gemfony_exception(
+		throw geneva_exception(
 			g_error_streamer(DO_LOG, time_and_place)
 				<< "In const target_type * convertSimplePointer(const source_type *p_raw) :" << std::endl
 				<< "Error: Pointer is empty." << std::endl
@@ -802,7 +802,7 @@ const target_type *convertSimplePointer(const source_type *p_raw) {
 	auto *p = dynamic_cast<const target_type *>(p_raw);
 	if(p) return p;
 	else {
-		throw gemfony_exception(
+		throw geneva_exception(
 			g_error_streamer(DO_LOG, time_and_place)
 				<< "In target_type * convertSimplePointer(source_type * p_raw) :" << std::endl
 				<< "Error: Invalid conversion to type " << typeid(target_type).name() << std::endl
@@ -846,7 +846,7 @@ std::vector<std::tuple<split_type1, split_type2>> splitStringT(
 ) {
 	// Check that sep1 and sep2 differ
 	if (std::string(sep1) == std::string(sep2)) {
-		throw gemfony_exception(
+		throw geneva_exception(
 			g_error_streamer(DO_LOG, time_and_place)
 				<< "In splitStringT(std::string, const char*, const char*): Error!" << std::endl
 				<< "sep1 and sep2 are identical: \"" << sep1 << "\" / \"" << sep2 << "\"" << std::endl
@@ -861,7 +861,7 @@ std::vector<std::tuple<split_type1, split_type2>> splitStringT(
 
 #ifdef DEBUG
 		if(2 != sub_fragments.size()) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG, time_and_place)
 					<< "In splitStringT(std::string, const char*, const char*): Error!" << std::endl
 					<< "Incorrect number of sub-fragments: " << sub_fragments.size()
@@ -887,7 +887,7 @@ std::vector<std::tuple<split_type1, split_type2>> splitStringT(
 template<typename item_type>
 item_type &getMapItem(std::map<std::string, item_type> &m, const std::string &key) {
 	if (m.empty()) {
-		throw gemfony_exception(
+		throw geneva_exception(
 			g_error_streamer(DO_LOG, time_and_place)
 				<< "In item_type& getMapItem(std::map<std::string, item_type>& m, const std::string& key): Error!" << std::endl
 				<< "Map is empty" << std::endl
@@ -898,7 +898,7 @@ item_type &getMapItem(std::map<std::string, item_type> &m, const std::string &ke
 	if (it != m.end()) {
 		return it->second;
 	} else {
-		throw gemfony_exception(
+		throw geneva_exception(
 			g_error_streamer(DO_LOG, time_and_place)
 				<< "In \"item_type& getMapItem(std::map<std::string, item_type>& m, const std::string& key)\": Error!" << std::endl
 				<< "key " << key << " is not in the map." << std::endl
@@ -914,7 +914,7 @@ item_type &getMapItem(std::map<std::string, item_type> &m, const std::string &ke
 template<typename item_type>
 const item_type &getMapItem(const std::map<std::string, item_type> &m, const std::string &key) {
 	if (m.empty()) {
-		throw gemfony_exception(
+		throw geneva_exception(
 			g_error_streamer(DO_LOG, time_and_place)
 				<< "In const item_type& getMapItem(const std::map<std::string, item_type>& m, const std::string& key): Error!" << std::endl
 				<< "Map is empty" << std::endl
@@ -925,7 +925,7 @@ const item_type &getMapItem(const std::map<std::string, item_type> &m, const std
 	if (cit != m.end()) {
 		return cit->second;
 	} else {
-		throw gemfony_exception(
+		throw geneva_exception(
 			g_error_streamer(DO_LOG, time_and_place)
 				<<
 				"In \"const item_type& getMapItem(const std::map<std::string, item_type>& m, const std::string& key)\": Error!" << std::endl
@@ -948,7 +948,7 @@ void assert_sizes_match_container(
 	, const std::string& caller
 ){
 	if (end <= start) {
-		throw gemfony_exception(
+		throw geneva_exception(
 			g_error_streamer(DO_LOG, time_and_place)
 				<< "In assert_sizes_match_container() (caller " << caller << "): Error!" << std::endl
 				<< "Invalid start or end-values: " << start << " / " << end << std::endl
@@ -956,7 +956,7 @@ void assert_sizes_match_container(
 	}
 
 	if (end > container.size()) {
-		throw gemfony_exception(
+		throw geneva_exception(
 			g_error_streamer(DO_LOG, time_and_place)
 				<< "In assert_sizes_match_container() (caller " << caller << "): Error!" << std::endl
 				<< "Last id " << end << " exceeds size of vector " << container.size() << std::endl
@@ -975,7 +975,7 @@ void assert_container_sizes_match(
 	, const std::string& caller
 ) {
 	if(container1.size() != container2.size()) {
-		throw gemfony_exception(
+		throw geneva_exception(
 			g_error_streamer(DO_LOG, time_and_place)
 				<< "In assert_container_sizes_match() (caller " << caller << "): Error!" << std::endl
 				<< "Invalid container sizes: " << container1.size() << " / " << container2.size() << std::endl

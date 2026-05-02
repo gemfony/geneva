@@ -141,7 +141,7 @@ public:
     ) const override {
         // Check that the object isn't empty
         if (this->empty()) {
-            throw gemfony_exception(
+            throw geneva_exception(
                 g_error_streamer(
                     DO_LOG
                     , time_and_place
@@ -1085,7 +1085,7 @@ protected:
 
         // Check that both collections have the same size
         if (this->size() != p->size()) {
-            throw gemfony_exception(
+            throw geneva_exception(
                 g_error_streamer(
                     DO_LOG
                     , time_and_place
@@ -1119,7 +1119,7 @@ protected:
 
         // Check that both collections have the same size
         if (this->size() != p->size()) {
-            throw gemfony_exception(
+            throw geneva_exception(
                 g_error_streamer(
                     DO_LOG
                     , time_and_place
@@ -1153,7 +1153,7 @@ protected:
 
         // Check that both collections have the same size
         if (this->size() != p->size()) {
-            throw gemfony_exception(
+            throw geneva_exception(
                 g_error_streamer(
                     DO_LOG
                     , time_and_place
@@ -1187,7 +1187,7 @@ protected:
 
         // Check that both collections have the same size
         if (this->size() != p->size()) {
-            throw gemfony_exception(
+            throw geneva_exception(
                 g_error_streamer(
                     DO_LOG
                     , time_and_place
@@ -1221,7 +1221,7 @@ protected:
 
         // Check that both collections have the same size
         if (this->size() != p->size()) {
-            throw gemfony_exception(
+            throw geneva_exception(
                 g_error_streamer(
                     DO_LOG
                     , time_and_place
@@ -1255,7 +1255,7 @@ protected:
 
         // Check that both collections have the same size
         if (this->size() != p->size()) {
-            throw gemfony_exception(
+            throw geneva_exception(
                 g_error_streamer(
                     DO_LOG
                     , time_and_place

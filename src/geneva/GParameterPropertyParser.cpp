@@ -101,7 +101,7 @@ namespace Gem::Geneva
 
 		try {
 			this->parse();
-		} catch (const gemfony_exception &e) {
+		} catch (const geneva_exception &e) {
 			glogger
 				<< "In GParameterPropertyParser::GParameterPropertyParser(const std::string& raw): Error!" << std::endl
 				<< "Caught Geneva exception with message " << std::endl
@@ -183,7 +183,7 @@ namespace Gem::Geneva
 
 		if (not success || from != to) {
 			std::string rest(from, to);
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GParameterPropertyParser::parse(): Error[1]!" << std::endl
 				<< "Parsing of variable descriptions failed. Unparsed fragement: " << rest << std::endl
@@ -219,7 +219,7 @@ namespace Gem::Geneva
 					from, to, simpleScanParser[push_back(boost::phoenix::ref(sSpecVec), _1)], space
 				);
 			} else {
-				throw gemfony_exception(
+				throw geneva_exception(
 					g_error_streamer(DO_LOG,  time_and_place)
 					<< "In GParameterPropertyParser::parse(): Error!" << std::endl
 					<< "Invalid type specifier: " << std::get<0>(*it) << std::endl
@@ -228,7 +228,7 @@ namespace Gem::Geneva
 
 			if (not success || from != to) {
 				std::string rest(from, to);
-				throw gemfony_exception(
+				throw geneva_exception(
 					g_error_streamer(DO_LOG,  time_and_place)
 					<< "In GParameterPropertyParser::parse(): Error[2]!" << std::endl
 					<< "Parsing of variable descriptions failed. Unparsed fragment: " << rest << std::endl
@@ -237,7 +237,7 @@ namespace Gem::Geneva
 
 			// We only accept a single "simple-scan" entry. Complain, if more than one was found
 			if (sSpecVec.size() > 1) {
-				throw gemfony_exception(
+				throw geneva_exception(
 					g_error_streamer(DO_LOG,  time_and_place)
 					<< "In GParameterPropertyParser::parse(): Error!" << std::endl
 					<< "Found " << sSpecVec.size() << "simple scan entries where a" << std::endl
@@ -304,7 +304,7 @@ namespace Gem::Geneva
 		} else { // Return the data of the first item
 #ifdef DEBUG
 			if(sSpecVec.size() > 1) {
-				throw gemfony_exception(
+				throw geneva_exception(
 					g_error_streamer(DO_LOG,  time_and_place)
 					<< "In GParameterPropertyParser::getNSimpleScanItems() const: Error!" << std::endl
 					<< "Found " << sSpecVec.size() << "simple scan entries where a" << std::endl

@@ -310,7 +310,7 @@ namespace Gem::Hap
 					// First do some error-checking
 #ifdef DEBUG
 					if(not p) {
-						throw gemfony_exception(
+						throw geneva_exception(
 							g_error_streamer(DO_LOG,  time_and_place)
 							<< "In RandomFactory::producer(): Error!" << std::endl
 							<< "Got empty recycling pointer" << std::endl
@@ -331,7 +331,7 @@ namespace Gem::Hap
 #ifdef DEBUG
 						// p should never be empty here
 						if(not p) {
-							throw gemfony_exception(
+							throw geneva_exception(
 								g_error_streamer(DO_LOG,  time_and_place)
 								<< "In RandomFactory::producer(): Error!" << std::endl
 								<< "Got empty pointer after unsuccesfull submission" << std::endl
@@ -346,21 +346,21 @@ namespace Gem::Hap
 				}
 			}
 		} catch (std::bad_alloc &e) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GRandomFactory::producer(): Error!" << std::endl
 				<< "Caught std::bad_alloc exception with message" << std::endl
 				<< e.what() << std::endl
 			);
 		} catch (std::invalid_argument &e) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GRandomFactory::producer(): Error!" << std::endl
 				<< "Caught std::invalid_argument exception with message" << std::endl
 				<< e.what() << std::endl
 			);
 		} catch (std::system_error& e) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GRandomFactory::producer(): Error!" << std::endl
 				<< "Caught std::system_error exception with message" << std::endl
@@ -368,7 +368,7 @@ namespace Gem::Hap
 				<< "which might indicate that a mutex could not be locked." << std::endl
 			);
 		} catch (...) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GRandomFactory::producer(): Error!" << std::endl
 				<< "Caught unkown exception." << std::endl

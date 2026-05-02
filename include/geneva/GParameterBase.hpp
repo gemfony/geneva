@@ -152,7 +152,7 @@ public:
     std::size_t countParameters(
         activityMode am
     ) const {
-        throw gemfony_exception(
+        throw geneva_exception(
             g_error_streamer(
                 DO_LOG
                 , time_and_place
@@ -180,7 +180,7 @@ public:
         , std::vector<par_type> &uBndVec
         , activityMode am
     ) const {
-        throw gemfony_exception(
+        throw geneva_exception(
             g_error_streamer(
                 DO_LOG
                 , time_and_place
@@ -203,7 +203,7 @@ public:
         std::vector<par_type> &parVec
         , activityMode am
     ) const {
-        throw gemfony_exception(
+        throw geneva_exception(
             g_error_streamer(
                 DO_LOG
                 , time_and_place
@@ -226,7 +226,7 @@ public:
         std::map<std::string, std::vector<par_type>> &parVec
         , activityMode am
     ) const {
-        throw gemfony_exception(
+        throw geneva_exception(
             g_error_streamer(
                 DO_LOG
                 , time_and_place
@@ -251,7 +251,7 @@ public:
         , std::size_t &pos
         , activityMode am
     ) {
-        throw gemfony_exception(
+        throw geneva_exception(
             g_error_streamer(
                 DO_LOG
                 , time_and_place
@@ -272,7 +272,7 @@ public:
         const std::map<std::string, std::vector<par_type>> &parMap
         , activityMode am
     ) {
-        throw gemfony_exception(
+        throw geneva_exception(
             g_error_streamer(
                 DO_LOG
                 , time_and_place
@@ -293,7 +293,7 @@ public:
         , activityMode am
         , Gem::Hap::GRandomBase &
     ) {
-        throw gemfony_exception(
+        throw geneva_exception(
             g_error_streamer(
                 DO_LOG
                 , time_and_place
@@ -312,7 +312,7 @@ public:
         activityMode am
         , Gem::Hap::GRandomBase &
     ) {
-        throw gemfony_exception(
+        throw geneva_exception(
             g_error_streamer(
                 DO_LOG
                 , time_and_place
@@ -331,7 +331,7 @@ public:
         par_type val
         , activityMode am
     ) {
-        throw gemfony_exception(
+        throw geneva_exception(
             g_error_streamer(
                 DO_LOG
                 , time_and_place
@@ -350,7 +350,7 @@ public:
         par_type val
         , activityMode am
     ) {
-        throw gemfony_exception(
+        throw geneva_exception(
             g_error_streamer(
                 DO_LOG
                 , time_and_place
@@ -369,7 +369,7 @@ public:
         const std::shared_ptr<GParameterBase> &p
         , activityMode am
     ) {
-        throw gemfony_exception(
+        throw geneva_exception(
             g_error_streamer(
                 DO_LOG
                 , time_and_place
@@ -388,7 +388,7 @@ public:
         const std::shared_ptr<GParameterBase> &p
         , activityMode am
     ) {
-        throw gemfony_exception(
+        throw geneva_exception(
             g_error_streamer(
                 DO_LOG
                 , time_and_place
@@ -434,7 +434,7 @@ public:
         std::shared_ptr<load_type> p = std::dynamic_pointer_cast<load_type>(load_ptr);
         if (p) { return p; }
         else {
-            throw gemfony_exception(
+            throw geneva_exception(
                 g_error_streamer(
                     DO_LOG
                     , time_and_place

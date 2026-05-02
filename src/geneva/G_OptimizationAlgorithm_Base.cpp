@@ -279,7 +279,7 @@ namespace Gem::Geneva
 
 		// Make sure it fits our own algorithm
 		if(opt_desc != this->getAlgorithmPersonalityType()) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In G_OptimizationAlgorithm_Base<>::loadCheckpoint(): Error!" << std::endl
 				<< "Checkpoint file " << cpFile << std::endl
@@ -338,7 +338,7 @@ namespace Gem::Geneva
 	) {
 		// Do some basic checks
 		if(cpBaseName == "empty" || cpBaseName.empty()) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In G_OptimizationAlgorithm_Base::setCheckpointBaseName(const std::string&, const std::string&):" << std::endl
 				<< "Error: Invalid cpBaseName: " << cpBaseName << std::endl
@@ -346,7 +346,7 @@ namespace Gem::Geneva
 		}
 
 		if(cpDirectory == "empty" || cpDirectory.empty()) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In G_OptimizationAlgorithm_Base::setCheckpointBaseName(const std::string&, const std::string&):" << std::endl
 				<< "Error: Invalid cpDirectory: " << cpDirectory << std::endl
@@ -366,14 +366,14 @@ namespace Gem::Geneva
 				<< GWARNING;
 
 			if(not std::filesystem::create_directory(m_cp_directory_path)) {
-				throw gemfony_exception(
+				throw geneva_exception(
 					g_error_streamer(DO_LOG,  time_and_place)
 					<< "In G_OptimizationAlgorithm_Base::setCheckpointBaseName(): Error!" << std::endl
 					<< "Could not create directory " << m_cp_directory_path.string() << std::endl
 				);
 			}
 		} else if(not std::filesystem::is_directory(m_cp_directory_path)) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In G_OptimizationAlgorithm_Base::setCheckpointBaseName(): Error!" << std::endl
 				<< m_cp_directory_path.string() << " exists but is no directory." << std::endl
@@ -592,7 +592,7 @@ namespace Gem::Geneva
 		Gem::Common::GParserBuilder gpb;
 		m_executor_ptr->addConfigurationOptions(gpb);
 		if (not gpb.parseConfigFile(executorConfigFile)) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In G_OptimizationAlgorithm_Base::registerExecutor(): Error!" << std::endl
 				<< "Could not parse configuration file " << executorConfigFile.string() << std::endl
@@ -784,7 +784,7 @@ namespace Gem::Geneva
 		if(pluggableOM) {
 			m_pluggable_monitors_cnt.push_back(pluggableOM);
 		} else {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GoptimizationMonitorT<>::registerPluggableOM(): Tried to register empty pluggable optimization monitor" << std::endl
 			);
@@ -838,7 +838,7 @@ namespace Gem::Geneva
 		// Check that the maximum number of iterations is > the minimum number
 		// The check is only valid if a maximum number of iterations has been set (i.e. is != 0)
 		if(m_maxIteration > 0 && m_maxIteration <= m_minIteration) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In G_OptimizationAlgorithm_Base<>::setMaxIteration(): Error!" << std::endl
 				<< "Maximum number of iterations " << 	m_maxIteration << " is <= the minimum number " << m_minIteration << std::endl
@@ -871,7 +871,7 @@ namespace Gem::Geneva
 		// Check that the maximum number of iterations is > the minimum number
 		// The check is only valid if a maximum number of iterations has been set (i.e. is != 0)
 		if(m_maxIteration > 0 && m_maxIteration <= m_minIteration) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In G_OptimizationAlgorithm_Base<>::setMinIteration(): Error!" << std::endl
 				<< "Maximum number of iterations " << 	m_maxIteration << " is <= the minimum number " << m_minIteration << std::endl
@@ -919,7 +919,7 @@ namespace Gem::Geneva
  */
 	void G_OptimizationAlgorithm_Base::setMaxTime(std::chrono::duration<double> maxDuration) {
 		if(not Gem::Common::isClose<double>(maxDuration.count(), 0.) && maxDuration < m_minDuration) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In G_OptimizationAlgorithm_Base<>::setMaxTime(): Error!" << std::endl
 				<< "Desired maxDuration (" << maxDuration.count() << " is smaller than m_minDuration(" << m_minDuration.count() << ")" << std::endl
@@ -948,7 +948,7 @@ namespace Gem::Geneva
 */
 	void G_OptimizationAlgorithm_Base::setMinTime(std::chrono::duration<double> minDuration) {
 		if(not Gem::Common::isClose<double>(m_maxDuration.count(),0.) && m_maxDuration < minDuration) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In G_OptimizationAlgorithm_Base<>::setMinTime(): Error!" << std::endl
 				<< "Desired maxDuration (" << m_maxDuration.count() << " is smaller than m_minDuration(" << minDuration.count() << ")" << std::endl
@@ -1341,7 +1341,7 @@ namespace Gem::Geneva
 
 #ifdef DEBUG
 		if(this->empty()) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In G_OptimizationAlgorithm_Base::updateGlobalBestsPQ() :" << std::endl
 				<< "Tried to retrieve the best individuals even though the population is empty." << std::endl
@@ -1368,7 +1368,7 @@ namespace Gem::Geneva
 
 #ifdef DEBUG
 		if(this->empty()) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In G_OptimizationAlgorithm_Base::updateIterationBestsPQ() :" << std::endl
 				<< "Tried to retrieve the best individuals even though the population is empty." << std::endl
@@ -1547,7 +1547,7 @@ namespace Gem::Geneva
 
 		// Check that the size is at least 2 (i.e. the PERSONALITY_X-part may exist)
 		if(tokens.size() < 2) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In G_OptimizationAlgorithm_Base<>::extractOptAlgFromPath(): Error!" << std::endl
 				<< "Found file name " << filename << " that does not comply to rules." << std::endl
@@ -1569,7 +1569,7 @@ namespace Gem::Geneva
 		std::shared_ptr<GParameterSet> p = m_bestGlobalIndividuals_pq.best();
 		if(p) return p;
 		else {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In G_OptimizationAlgorithm_Base<T>::getBestGlobalIndividual_(): Error!" << std::endl
 				<< "Best individual seems to be empty" << std::endl
@@ -1605,7 +1605,7 @@ namespace Gem::Geneva
 		std::shared_ptr<GParameterSet> p = m_bestIterationIndividuals_pq.best();
 		if(p) return p;
 		else {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In G_OptimizationAlgorithm_Base<T>::getBestIterationIndividual_(): Error!" << std::endl
 				<< "Best individual seems to be empty" << std::endl
@@ -1659,7 +1659,7 @@ namespace Gem::Geneva
  */
 	void G_OptimizationAlgorithm_Base::setNRecordBestIndividuals(std::size_t nRecordBestIndividuals) {
 		if(0 == nRecordBestIndividuals) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In G_OptimizationAlgorithm_Base<>::setNRecordBestIndividuals(): Error!" << std::endl
 				<< "Invalid number of individuals to be recorded: " << nRecordBestIndividuals << std::endl
@@ -1701,7 +1701,7 @@ namespace Gem::Geneva
 
 #ifdef DEBUG
 			if(not executor_ptr) {
-				throw gemfony_exception(
+				throw geneva_exception(
 					g_error_streamer(DO_LOG,  time_and_place)
 					<< "In G_OptimizationAlgorithm_Base<>::init(): Error!" << std::endl
 					<< "Did not receive a valid executor" << std::endl

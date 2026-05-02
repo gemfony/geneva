@@ -359,7 +359,7 @@ namespace Gem::Common
 	void GBasePlotter::registerSecondaryPlotter(std::shared_ptr<GBasePlotter> sp) {
 		// Check that the secondary plot isn't empty
 		if (not sp) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GBasePlotter::registerSecondaryPlot(): Error!" << std::endl
 				<< "Got empty secondary plot" << std::endl
@@ -368,7 +368,7 @@ namespace Gem::Common
 
 		// Check that the secondary plotter is compatible with us
 		if (not this->isCompatible(sp)) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GBasePlotter::registerSecondaryPlot(): Error!" << std::endl
 				<< "Received incompatible secondary plotter" << std::endl
@@ -1363,7 +1363,7 @@ namespace Gem::Common
  */
 	void GGraph4D::setMinMarkerSize(const double &minMarkerSize) {
 		if (minMarkerSize < 0.) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GGraph4D::setMinMarkerSize(): Error!" << std::endl
 				<< "Received invalid minimum marker size: " << minMarkerSize << std::endl
@@ -1379,7 +1379,7 @@ namespace Gem::Common
  */
 	void GGraph4D::setMaxMarkerSize(const double &maxMarkerSize) {
 		if (maxMarkerSize < 0. || maxMarkerSize < minMarkerSize_) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GGraph4D::setMinMarkerSize(): Error!" << std::endl
 				<< "Received invalid minimum marker size: " << minMarkerSize_ << " " << maxMarkerSize << "." << std::endl
@@ -2706,7 +2706,7 @@ namespace Gem::Common
 	) const {
 		// Check the extreme values for consistency
 		if (std::get<0>(xExtremes_) >= std::get<1>(xExtremes_)) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GFunctionPlotter1D::headerData_(): Error!" << std::endl
 				<< "lower boundary >= upper boundary: " << std::get<0>(xExtremes_) << " / " << std::get<1>(xExtremes_) <<
@@ -2929,7 +2929,7 @@ namespace Gem::Common
 	) const {
 		// Check the extreme values for consistency
 		if (std::get<0>(xExtremes_) >= std::get<1>(xExtremes_)) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GFunctionPlotter2D::headerData_(): Error!" << std::endl
 				<< "lower boundary(x) >= upper boundary(x): " << std::get<0>(xExtremes_) << " / " <<
@@ -2938,7 +2938,7 @@ namespace Gem::Common
 		}
 
 		if (std::get<0>(yExtremes_) >= std::get<1>(yExtremes_)) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GFunctionPlotter2D::headerData_(): Error!" << std::endl
 				<< "lower boundary(y) >= upper boundary(y): " << std::get<0>(yExtremes_) << " / " <<
@@ -3270,7 +3270,7 @@ namespace Gem::Common
 			plotter_ptr->setId(m_plotters_cnt.size());
 			m_plotters_cnt.push_back(plotter_ptr);
 		} else {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "GPlotDesigner::registerPlotter(): Error!" << std::endl
 				<< "Got empty plotter" << std::endl

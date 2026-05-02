@@ -80,7 +80,7 @@ namespace Gem::Geneva
  * Retrieves the mnemonic of the optimization algorithm
  */
 	std::string GBaseParChildPersonalityTraits::getMnemonic() const {
-		throw gemfony_exception(
+		throw geneva_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 			<< "In GBaseParChildPersonalityTraits::getMnemonic(): Error!" << std::endl
 			<< "This function should never have been called" << std::endl
@@ -237,7 +237,7 @@ namespace Gem::Geneva
 	std::size_t GBaseParChildPersonalityTraits::getParentId() const {
 		if (parentId_ >= 0) return parentId_;
 		else {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GBaseParChildPersonalityTraits::getParentId():" << std::endl
 				<< "parentId_ is unset" << std::endl
@@ -412,7 +412,7 @@ namespace Gem::Geneva
 			std::shared_ptr <GBaseParChildPersonalityTraits> p_test = this->clone<GBaseParChildPersonalityTraits>();
 
 			BOOST_CHECK_NO_THROW(p_test->unsetParentId());
-			BOOST_CHECK_THROW(p_test->getParentId(), gemfony_exception);
+			BOOST_CHECK_THROW(p_test->getParentId(), geneva_exception);
 		}
 
 		// --------------------------------------------------------------------------

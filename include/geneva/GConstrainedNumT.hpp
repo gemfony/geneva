@@ -117,7 +117,7 @@ public:
 	 {
 		 // Naturally the upper boundary should be > the lower boundary.
 		 if(lowerBoundary_ >= upperBoundary_) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GConstrainedNumT<T>::GConstrainedNumT(lower,upper):" << std::endl
 					 << "lowerBoundary_ = " << lowerBoundary_ << " is > upperBoundary_ = " << upperBoundary_ << std::endl
@@ -126,7 +126,7 @@ public:
 
 		 // We might have constraints regarding the allowed boundaries. Cross-check
 		 if(lowerBoundary < GConstrainedValueLimitT<T>::lowest() || upperBoundary > GConstrainedValueLimitT<T>::highest()) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GConstrainedNumT<T>::GConstrainedNumT(lower,upper):" << std::endl
 					 << "lower and/or upper limit outside of allowed value range:" << std::endl
@@ -153,7 +153,7 @@ public:
 	 {
 		 // Do some error checking
 		 if(lowerBoundary_ >= upperBoundary_) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GConstrainedNumT<T>::GConstrainedNumT(val,lower,upper):" << std::endl
 					 << "lowerBoundary_ = " << lowerBoundary_ << "is >= than" << std::endl
@@ -163,7 +163,7 @@ public:
 
 		 // We might have constraints regarding the allowed boundaries. Cross-check
 		 if(lowerBoundary < GConstrainedValueLimitT<T>::lowest() || upperBoundary > GConstrainedValueLimitT<T>::highest()) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GConstrainedNumT<T>::GConstrainedNumT(val, lower,upper):" << std::endl
 					 << "lower and/or upper limit outside of allowed value range:" << std::endl
@@ -176,7 +176,7 @@ public:
 
 		 // Check that the value is inside of the allowed value range
 		 if(val < lowerBoundary_ || val > upperBoundary_) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GConstrainedNumT<T>::GConstrainedNumT(val,lower,upper):" << std::endl
 					 << "Assigned value " << val << " is outside of its allowed boundaries: " << std::endl
@@ -259,7 +259,7 @@ public:
 
 		 // Check that the boundaries make sense
 		 if(lowerBoundary > upperBoundary) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GConstrainedNumT<T>::setBoundaries(const T&, const T&)" << std::endl
 					 << "with typeid(T).name() = " << typeid(T).name() << " :" << std::endl
@@ -269,7 +269,7 @@ public:
 
 		 // We might have constraints regarding the allowed boundaries. Cross-check
 		 if(lowerBoundary < GConstrainedValueLimitT<T>::lowest() || upperBoundary > GConstrainedValueLimitT<T>::highest()) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GConstrainedNumT<T>::setBoundaries(const T&, const T&):" << std::endl
 					 << "lower and/or upper limit outside of allowed value range:" << std::endl
@@ -282,7 +282,7 @@ public:
 
 		 // Check that the value is inside the allowed range
 		 if(currentValue < lowerBoundary || currentValue > upperBoundary){
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GConstrainedNumT<T>::setBoundaries(const T&, const T&) :" << std::endl
 					 << "with typeid(T).name() = " << typeid(T).name() << std::endl
@@ -309,7 +309,7 @@ public:
 	 void setValue(const T& val) override {
 		 // Do some error checking
 		 if(val < lowerBoundary_ || val > upperBoundary_) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GConstrainedNumT<T>::setValue(val):" << std::endl
 					 << std::setprecision(20)
@@ -340,7 +340,7 @@ public:
 
 		 // Do the boundaries make sense ?
 		 if(lowerBoundary > upperBoundary) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GConstrainedNumT<T>::setValue(val,lower,upper):" << std::endl
 					 << "lowerBoundary_ = " << lowerBoundary_ << "is larger than" << std::endl
@@ -350,7 +350,7 @@ public:
 
 		 // We might have constraints regarding the allowed boundaries. Cross-check
 		 if(lowerBoundary < GConstrainedValueLimitT<T>::lowest() || upperBoundary > GConstrainedValueLimitT<T>::highest()) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GConstrainedNumT<T>::setValue(val,lower,upper):" << std::endl
 					 << "lower and/or upper limit outside of allowed value range:" << std::endl
@@ -363,7 +363,7 @@ public:
 
 		 // Check that the value is inside of the allowed value range
 		 if(val < lowerBoundary || val > upperBoundary) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GConstrainedNumT<T>::setValue(val,lower,upper):" << std::endl
 					 << "Assigned value = " << val << " is outside of its allowed boundaries: " << std::endl
@@ -705,7 +705,7 @@ protected:
 			std::shared_ptr<GConstrainedNumT<T>> p_test = this->template clone<GConstrainedNumT<T>>();
 
 			// Setting an upper boundary < lower boundary should throw
-			BOOST_CHECK_THROW(p_test->setBoundaries(T(1), T(0)), gemfony_exception);
+			BOOST_CHECK_THROW(p_test->setBoundaries(T(1), T(0)), geneva_exception);
 		}
 
 		//------------------------------------------------------------------------------
@@ -720,7 +720,7 @@ protected:
 			BOOST_CHECK_NO_THROW(p_test->setValue(T(2)));
 
 			// Setting of boundaries incompatible with T(2) should throw
-			BOOST_CHECK_THROW(p_test->setBoundaries(T(0), T(1)), gemfony_exception);
+			BOOST_CHECK_THROW(p_test->setBoundaries(T(0), T(1)), geneva_exception);
 		}
 
 		//------------------------------------------------------------------------------
@@ -729,7 +729,7 @@ protected:
 			std::shared_ptr<GConstrainedNumT<T>> p_test = this->template clone<GConstrainedNumT<T>>();
 
 			// Setting an upper boundary < lower boundary should throw
-			BOOST_CHECK_THROW(p_test->setValue(T(0), T(2), T(0)), gemfony_exception);
+			BOOST_CHECK_THROW(p_test->setValue(T(0), T(2), T(0)), geneva_exception);
 		}
 
 		//------------------------------------------------------------------------------
@@ -738,7 +738,7 @@ protected:
 			std::shared_ptr<GConstrainedNumT<T>> p_test = this->template clone<GConstrainedNumT<T>>();
 
 			// Try to assign a value outside of the allowed boundaries should throw
-			BOOST_CHECK_THROW(p_test->setValue(T(2), T(0), T(1)), gemfony_exception);
+			BOOST_CHECK_THROW(p_test->setValue(T(2), T(0), T(1)), geneva_exception);
 		}
 
 		//------------------------------------------------------------------------------
@@ -750,7 +750,7 @@ protected:
 			BOOST_CHECK_NO_THROW(p_test->setValue(T(0), T(0), T(1)));
 
 			// Try to assign 2 as a value - should throw
-			BOOST_CHECK_THROW(p_test->setValue(T(2)), gemfony_exception);
+			BOOST_CHECK_THROW(p_test->setValue(T(2)), geneva_exception);
 		}
 
 		//------------------------------------------------------------------------------
@@ -763,7 +763,7 @@ protected:
 
 			// Try to assign 2 as a value - should throw
 			if(typeid(T) != typeid(bool)) {
-				BOOST_CHECK_THROW(*p_test = T(2), gemfony_exception);
+				BOOST_CHECK_THROW(*p_test = T(2), geneva_exception);
 			}
 		}
 

@@ -171,7 +171,7 @@ public:
 #ifdef DEBUG
 		 // Check that the neighborhood is in a valid range
 		 if(neighborhood >= m_n_neighborhoods) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GSwarmAlgorithm::getBestNeighborhoodIndividual<>() : Error" << std::endl
 					 << "Requested neighborhood which does not exist: " << neighborhood << " / " << m_n_neighborhoods << std::endl

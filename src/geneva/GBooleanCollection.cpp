@@ -95,7 +95,7 @@ namespace Gem::Geneva
 	void GBooleanCollection::flip(const std::size_t& pos) {
 #ifdef DEBUG
 		if(this->size() <= pos) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GBooleanCollection::flip(const std::size_t& " << pos << "): Error!" << std::endl
 				<< "Tried to exist position beyond end of vector of size " << this->size() << std::endl
@@ -173,7 +173,7 @@ namespace Gem::Geneva
 
 		// Do some error checks
 		if(not Gem::Common::checkRangeCompliance(probability, 0., 1., "GBooleanCollection::randomInit_(probability)")) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GBooleanCollection::randomInit_(probability): Error!" << std::endl
 				<< "Probability " << probability << " not in allowed value range [0,1]" << std::endl
@@ -296,7 +296,7 @@ namespace Gem::Geneva
 	) const {
 #ifdef DEBUG
 		if((this->getParameterName()).empty()) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GBooleanCollection::booleanStreamline(std::map<std::string, std::vector<bool>>& parVec) const: Error!" << std::endl
 				<< "No name was assigned to the object" << std::endl
@@ -352,7 +352,7 @@ namespace Gem::Geneva
 #ifdef DEBUG
 			// Do we have a valid position ?
 			if(pos >= parVec.size()) {
-				throw gemfony_exception(
+				throw geneva_exception(
 					g_error_streamer(DO_LOG,  time_and_place)
 					<< "In GBooleanCollection::assignBooleanValueVector(const std::vector<bool>&, std::size_t&):" << std::endl
 					<< "Tried to access position beyond end of vector: " << parVec.size() << "/" << pos << std::endl
@@ -849,7 +849,7 @@ namespace Gem::Geneva
 			}
 
 			// Randomly initialize, using the internal function
-			BOOST_CHECK_THROW(p_test->randomInit_(-1., activityMode::ALLPARAMETERS, gr), gemfony_exception);
+			BOOST_CHECK_THROW(p_test->randomInit_(-1., activityMode::ALLPARAMETERS, gr), geneva_exception);
 		}
 
 		// --------------------------------------------------------------------------
@@ -866,7 +866,7 @@ namespace Gem::Geneva
 			}
 
 			// Randomly initialize, using the internal function
-			BOOST_CHECK_THROW(p_test->randomInit_(2., activityMode::ALLPARAMETERS, gr), gemfony_exception);
+			BOOST_CHECK_THROW(p_test->randomInit_(2., activityMode::ALLPARAMETERS, gr), geneva_exception);
 		}
 
 		// --------------------------------------------------------------------------

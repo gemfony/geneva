@@ -122,7 +122,7 @@ namespace Gem::Common
                     // Some error checks
                     if (0 == m_nThreads.load())
                     {
-                        throw gemfony_exception(
+                        throw geneva_exception(
                             g_error_streamer(DO_LOG, time_and_place)
                             << "In GThreadPool::async_schedule(F f): Error!" << std::endl
                             << "The number of threads is set to 0" << std::endl
@@ -130,7 +130,7 @@ namespace Gem::Common
                     }
                     if (m_gtg.size() > 0)
                     {
-                        throw gemfony_exception(
+                        throw geneva_exception(
                             g_error_streamer(DO_LOG, time_and_place)
                             << "In GThreadPool::async_schedule(F f): Error!" << std::endl
                             << "The thread group already has entries, although" << std::endl
@@ -273,7 +273,7 @@ namespace Gem::Common
                     // Some error checks
                     if (0 == m_nThreads.load())
                     {
-                        throw gemfony_exception(
+                        throw geneva_exception(
                             g_error_streamer(DO_LOG, time_and_place)
                             << "In GThreadPool::async_schedule(F f): Error!" << std::endl
                             << "The number of threads is set to 0" << std::endl
@@ -281,7 +281,7 @@ namespace Gem::Common
                     }
                     if (m_gtg.size() > 0)
                     {
-                        throw gemfony_exception(
+                        throw geneva_exception(
                             g_error_streamer(DO_LOG, time_and_place)
                             << "In GThreadPool::async_schedule(F f): Error!" << std::endl
                             << "The thread group already has entries, although" << std::endl

@@ -294,7 +294,7 @@ private:
  		 } catch (cl::Error &err) {
 			 std::cerr << "OpenCL-Error! " << err.what() << std::endl;
 			 exit(1);
-		 } catch (gemfony_exception &err) {
+		 } catch (geneva_exception &err) {
 			 std::cerr << "General Error! " << err.what() << std::endl;
 			 exit(1);
 		 }

@@ -227,7 +227,7 @@ namespace Gem::Geneva
 			break;
 		}
 
-		throw gemfony_exception(
+		throw geneva_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 			<< "In GParameterBase::amMatch(const activityMode& am): Error!" << std::endl
 			<< "This line should never be reached" << std::endl
@@ -756,7 +756,7 @@ namespace Gem::Geneva
 		, Gem::Hap::GRandomBase& gr
 	) {
 		// Complain: This function should not be called for boolean values
-		throw gemfony_exception(
+		throw geneva_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 			<< "In GParameterBase::booleanMultiplyByRandom(min,max): Error!" << std::endl
 			<< "This function should not be called for boolean parameters" << std::endl
@@ -805,7 +805,7 @@ namespace Gem::Geneva
 		, Gem::Hap::GRandomBase& gr
 	) {
 		// Complain: This function should not be called for boolean values
-		throw gemfony_exception(
+		throw geneva_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 			<< "In GParameterBase::booleanMultiplyByRandom(): Error!" << std::endl
 			<< "This function should not be called for boolean parameters" << std::endl
@@ -854,7 +854,7 @@ namespace Gem::Geneva
 		, const activityMode &am
 	) {
 		// Complain: This function should not be called for boolean values
-		throw gemfony_exception(
+		throw geneva_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 			<< "In GParameterBase::booleanMultiplyBy(): Error!" << std::endl
 			<< "This function should not be called for boolean parameters" << std::endl
@@ -946,7 +946,7 @@ namespace Gem::Geneva
 		, const activityMode &am
 	) {
 		// Complain: This function should not be called for boolean values
-		throw gemfony_exception(
+		throw geneva_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 			<< "In GParameterBase::booleanAdd(): Error!" << std::endl
 			<< "This function should not be called for boolean parameters" << std::endl
@@ -995,7 +995,7 @@ namespace Gem::Geneva
 		, const activityMode &am
 	) {
 		// Complain: This function should not be called for boolean values
-		throw gemfony_exception(
+		throw geneva_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 			<< "In GParameterBase::booleanSubtract(): Error!" << std::endl
 			<< "This function should not be called for boolean parameters" << std::endl

@@ -76,7 +76,7 @@ namespace Gem::Common
         {
             if (0 == count)
             {
-                throw gemfony_exception(
+                throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
                     << "In GBarrier::GBarrier(): Error!" << std::endl
                     << "count cannot be 0" << std::endl

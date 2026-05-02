@@ -193,7 +193,7 @@ namespace Gem::Common
             if (m_data_deq_.empty())
             {
                 // Throw an exception
-                throw gemfony_exception(
+                throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
                     << "In GFixedSizePriorityQueueT<T>::best(): Error!" << std::endl
                     << "Priority queue is empty." << std::endl
@@ -214,7 +214,7 @@ namespace Gem::Common
             if (m_data_deq_.empty())
             {
                 // Throw an exception
-                throw gemfony_exception(
+                throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
                     << "In GFixedSizePriorityQueueT<T>::best(): Error!" << std::endl
                     << "Priority queue is empty." << std::endl
@@ -414,7 +414,7 @@ namespace Gem::Common
             if (m_data_deq_.empty())
             {
                 // Throw an exception
-                throw gemfony_exception(
+                throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
                     << "In GFixedSizePriorityQueueT<T>::pop(): Error!" << std::endl
                     << "Priority queue is empty." << std::endl
