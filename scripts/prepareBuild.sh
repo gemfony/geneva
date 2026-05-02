@@ -332,15 +332,30 @@ fi
 
 ####################################################################
 # Guard against reconfiguring an already-configured build directory.
+
+_do_clean() {
+	echo -en "Cleaning build directory '${GENEVA_BUILDROOT}' ..."
+	find "${GENEVA_BUILDROOT}" -mindepth 1 -maxdepth 1 ! -name "*.gcfg" -exec rm -rf {} +
+	echo -e " done\n"
+}
+
+_confirm_and_clean() {
+	echo -e "\nBuild directory '${GENEVA_BUILDROOT}' is already configured and will be cleaned."
+	echo -e "Warning: ALL files (except *.gcfg) will be permanently deleted."
+	printf "Proceed? [y/N] "
+	read -r _confirm
+	case "${_confirm}" in
+		[yY]|[yY][eE][sS]) _do_clean ;;
+		*)
+			echo -e "Aborted. Leaving...\n"
+			exit 1
+			;;
+	esac
+}
+
 if [ -e "${GENEVA_BUILDROOT}/CMakeCache.txt" ]; then
-	if [ "${CLEAN}" = "1" ]; then
-		echo -en "Cleaning build directory '${GENEVA_BUILDROOT}' ..."
-		find "${GENEVA_BUILDROOT}" -mindepth 1 -maxdepth 1 ! -name "*.gcfg" -exec rm -rf {} +
-		echo -e " done\n"
-	elif [ "${DRYRUN}" = "0" ]; then
-		echo -e "\nError: '${GENEVA_BUILDROOT}' is already configured (CMakeCache.txt exists)."
-		echo -e "Call with --clean to remove the existing build and reconfigure. Leaving...\n"
-		exit 1
+	if [ "${CLEAN}" = "1" ] || [ "${DRYRUN}" = "0" ]; then
+		_confirm_and_clean
 	fi
 fi
 
