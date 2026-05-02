@@ -106,5 +106,4 @@ private:
 
 } /* namespace Gem */
 
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GMPIEvaluatedIndividual)
-
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GMPIEvaluatedIndividual) // NOLINT

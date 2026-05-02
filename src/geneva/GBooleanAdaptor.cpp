@@ -28,8 +28,7 @@
  ********************************************************************************/
 #include "geneva/GBooleanAdaptor.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GBooleanAdaptor)
-
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GBooleanAdaptor) // NOLINT
 namespace Gem::Geneva
 {
 

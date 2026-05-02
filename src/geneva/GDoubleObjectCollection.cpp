@@ -28,8 +28,7 @@
  ********************************************************************************/
 #include "geneva/GDoubleObjectCollection.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GDoubleObjectCollection)
-
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GDoubleObjectCollection) // NOLINT
 namespace Gem::Geneva
 {
 

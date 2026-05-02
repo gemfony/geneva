@@ -29,8 +29,7 @@
 
 #include "geneva-individuals/GTestIndividual3.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Tests::GTestIndividual3)
-
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Tests::GTestIndividual3) // NOLINT
 namespace Gem::Tests
 {
 

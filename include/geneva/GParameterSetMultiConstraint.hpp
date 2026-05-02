@@ -176,6 +176,5 @@ private:
 } /* namespace Geneva */
 } /* namespace Gem */
 
-BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::GParameterSetConstraint)
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GParameterSetFormulaConstraint)
-
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::GParameterSetConstraint) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GParameterSetFormulaConstraint) // NOLINT

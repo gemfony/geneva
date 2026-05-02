@@ -33,8 +33,7 @@
 
 #include "geneva/GMPISubClientIndividual.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GMPISubClientIndividual)
-
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GMPISubClientIndividual) // NOLINT
 namespace Gem::Geneva {
 
     MPI_Comm GMPISubClientIndividual::getCommunicator() {

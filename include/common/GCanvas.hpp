@@ -1133,8 +1133,8 @@ G_API_COMMON float operator-(
 } /* namespace Common */
 } /* namespace Gem */
 
-BOOST_CLASS_EXPORT_KEY(Gem::Common::GRgb)
-BOOST_CLASS_EXPORT_KEY(Gem::Common::GColumn)
-BOOST_CLASS_EXPORT_KEY(Gem::Common::GCanvas8)
-BOOST_CLASS_EXPORT_KEY(Gem::Common::GCanvas16)
-BOOST_CLASS_EXPORT_KEY(Gem::Common::GCanvas24)
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GRgb) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GColumn) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GCanvas8) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GCanvas16) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GCanvas24) // NOLINT

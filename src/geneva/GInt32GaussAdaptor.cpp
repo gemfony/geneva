@@ -29,8 +29,7 @@
 
 #include "geneva/GInt32GaussAdaptor.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GInt32GaussAdaptor)
-
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GInt32GaussAdaptor) // NOLINT
 namespace Gem::Geneva
 {
 

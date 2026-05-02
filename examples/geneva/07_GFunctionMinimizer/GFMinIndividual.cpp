@@ -33,8 +33,7 @@
 
 #include "GFMinIndividual.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GFMinIndividual)
-
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GFMinIndividual) // NOLINT
 namespace Gem::Geneva
 {
 

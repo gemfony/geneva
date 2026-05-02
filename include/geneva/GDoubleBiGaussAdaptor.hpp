@@ -117,5 +117,4 @@ private:
 } /* namespace Geneva */
 } /* namespace Gem */
 
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GDoubleBiGaussAdaptor)
-
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GDoubleBiGaussAdaptor) // NOLINT

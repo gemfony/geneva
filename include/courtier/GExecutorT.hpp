@@ -2690,8 +2690,7 @@ private:
 // Some code for Boost.Serialization
 
 /******************************************************************************/
-// Mark GBaseExecutorT<> as abstract. This is the content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T)
-
+// Mark GBaseExecutorT<> as abstract. This is the content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T) // NOLINT
 namespace boost {
 namespace serialization {
 template<typename processable_type>

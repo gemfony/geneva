@@ -152,5 +152,4 @@ private:
 } /* namespace Tests */
 } /* namespace Gem */
 
-BOOST_CLASS_EXPORT_KEY(Gem::Tests::GTestIndividual2)
-
+BOOST_CLASS_EXPORT_KEY(Gem::Tests::GTestIndividual2) // NOLINT

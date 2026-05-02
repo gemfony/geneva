@@ -115,5 +115,4 @@ private:
 } /* namespace Geneva */
 } /* namespace Gem */
 
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GInt32FlipAdaptor)
-
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GInt32FlipAdaptor) // NOLINT

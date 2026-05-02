@@ -33,8 +33,7 @@
 
 #include "GMPIEvaluatedIndividual.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GMPIEvaluatedIndividual)
-
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GMPIEvaluatedIndividual) // NOLINT
 namespace Gem::Geneva {
 
     MPI_Comm GMPIEvaluatedIndividual::communicator{MPI_COMM_NULL};

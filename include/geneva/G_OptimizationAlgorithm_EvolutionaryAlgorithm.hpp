@@ -243,4 +243,4 @@ namespace Gem::Geneva
     /******************************************************************************/
 } /* namespace Gem::Geneva */
 
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GEvolutionaryAlgorithm)
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GEvolutionaryAlgorithm) // NOLINT

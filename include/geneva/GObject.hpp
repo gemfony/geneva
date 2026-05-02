@@ -202,5 +202,4 @@ private:
 /**
  * @brief Needed for Boost.Serialization
  */
-BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::GObject)
-
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::GObject) // NOLINT

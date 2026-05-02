@@ -366,8 +366,7 @@ private:
 } /* namespace Gem */
 
 /******************************************************************************/
-// The content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T)
-
+// The content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T) // NOLINT
 namespace boost {
 namespace serialization {
 template<typename T>

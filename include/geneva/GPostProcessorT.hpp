@@ -377,11 +377,9 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 // Mark this class as abstract.
-BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::GPostProcessorBaseT<GParameterSet>)
-
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::GPostProcessorBaseT<GParameterSet>) // NOLINT
 // Export of GEvolutionaryAlgorithmPostOptimizer
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GEvolutionaryAlgorithmPostOptimizer)
-
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GEvolutionaryAlgorithmPostOptimizer) // NOLINT
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/

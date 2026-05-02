@@ -2212,5 +2212,4 @@ private:
 } /* namespace Geneva */
 } /* namespace Gem */
 
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GMetaOptimizerIndividualT<Gem::Geneva::GFunctionIndividual>);
-
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GMetaOptimizerIndividualT<Gem::Geneva::GFunctionIndividual>) // NOLINT

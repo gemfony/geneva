@@ -47,7 +47,7 @@
 
 // Boost header files go here
 #include <boost/test/unit_test.hpp>
-#include <boost/shared_ptr.hpp>
+#include <boost/smart_ptr/shared_ptr.hpp>
 
 // Geneva header files go here
 #include "common/GExceptions.hpp"

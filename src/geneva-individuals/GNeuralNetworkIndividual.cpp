@@ -29,10 +29,9 @@
 
 #include <geneva-individuals/GNeuralNetworkIndividual.hpp>
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::trainingSet)
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::networkData)
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GNeuralNetworkIndividual)
-
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::trainingSet) // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::networkData) // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GNeuralNetworkIndividual) // NOLINT
 namespace Gem::Geneva
 {
 

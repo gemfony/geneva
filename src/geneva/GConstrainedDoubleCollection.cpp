@@ -29,8 +29,7 @@
 
 #include "geneva/GConstrainedDoubleCollection.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GConstrainedDoubleCollection)
-
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GConstrainedDoubleCollection) // NOLINT
 namespace Gem::Geneva
 {
 

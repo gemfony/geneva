@@ -171,5 +171,4 @@ private:
 } /* namespace Geneva */
 } /* namespace Gem */
 
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GBooleanObject)
-
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GBooleanObject) // NOLINT

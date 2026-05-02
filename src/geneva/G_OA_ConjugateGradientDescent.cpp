@@ -29,8 +29,7 @@
 
 #include "geneva/G_OA_ConjugateGradientDescent.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GConjugateGradientDescent)
-
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GConjugateGradientDescent) // NOLINT
 namespace Gem::Geneva
 {
 

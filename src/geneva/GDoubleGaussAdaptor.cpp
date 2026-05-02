@@ -29,8 +29,7 @@
 
 #include "geneva/GDoubleGaussAdaptor.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GDoubleGaussAdaptor)
-
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GDoubleGaussAdaptor) // NOLINT
 namespace Gem::Geneva
 {
 

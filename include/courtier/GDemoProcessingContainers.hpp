@@ -158,5 +158,5 @@ private:
 
 } /* namespace Gem::Courtier */
 
-BOOST_CLASS_EXPORT_KEY(Gem::Courtier::GSimpleContainer)
-BOOST_CLASS_EXPORT_KEY(Gem::Courtier::GRandomNumberContainer)
+BOOST_CLASS_EXPORT_KEY(Gem::Courtier::GSimpleContainer) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Courtier::GRandomNumberContainer) // NOLINT

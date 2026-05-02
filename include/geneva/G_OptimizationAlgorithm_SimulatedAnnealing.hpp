@@ -209,5 +209,4 @@ private:
 } /* namespace Geneva */
 } /* namespace Gem */
 
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GSimulatedAnnealing)
-
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GSimulatedAnnealing) // NOLINT

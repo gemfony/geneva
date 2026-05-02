@@ -33,9 +33,8 @@
 
 #include "courtier/GDemoProcessingContainers.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Courtier::GSimpleContainer)
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Courtier::GRandomNumberContainer)
-
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Courtier::GSimpleContainer) // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Courtier::GRandomNumberContainer) // NOLINT
 
 namespace Gem::Courtier {
 

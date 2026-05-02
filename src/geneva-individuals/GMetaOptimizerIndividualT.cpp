@@ -29,8 +29,7 @@
 
 #include "geneva-individuals/GMetaOptimizerIndividualT.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GMetaOptimizerIndividualT<Gem::Geneva::GFunctionIndividual>)
-
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GMetaOptimizerIndividualT<Gem::Geneva::GFunctionIndividual>) // NOLINT
 namespace Gem::Geneva
 {
 

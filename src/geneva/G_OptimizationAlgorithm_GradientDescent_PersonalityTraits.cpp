@@ -28,8 +28,7 @@
  ********************************************************************************/
 #include "geneva/G_OptimizationAlgorithm_GradientDescent_PersonalityTraits.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GGradientDescent_PersonalityTraits)
-
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GGradientDescent_PersonalityTraits) // NOLINT
 namespace Gem::Geneva
 {
 

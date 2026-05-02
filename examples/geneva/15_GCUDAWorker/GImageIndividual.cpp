@@ -33,8 +33,7 @@
 
 #include "GImageIndividual.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GImageIndividual)
-
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GImageIndividual) // NOLINT
 namespace Gem::Geneva
 {
 	/******************************************************************************/

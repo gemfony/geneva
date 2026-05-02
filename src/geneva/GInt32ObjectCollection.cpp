@@ -30,8 +30,7 @@
 
 #include "geneva/GInt32ObjectCollection.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GInt32ObjectCollection)
-
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GInt32ObjectCollection) // NOLINT
 
 namespace Gem::Geneva
 {

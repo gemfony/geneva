@@ -29,8 +29,7 @@
 
 #include "geneva-individuals/GDelayIndividual.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GDelayIndividual)
-
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GDelayIndividual) // NOLINT
 namespace Gem::Geneva
 {
 

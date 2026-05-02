@@ -1053,8 +1053,7 @@ private:
 /**
  * @brief Needed for Boost.Serialization
  */
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GParameterSet)
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::parameterset_processing_result)
-
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GParameterSet) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::parameterset_processing_result) // NOLINT
 /******************************************************************************/
 

@@ -163,5 +163,4 @@ private:
 } /* namespace Geneva */
 } /* namespace Gem */
 
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GInt32Collection)
-
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GInt32Collection) // NOLINT

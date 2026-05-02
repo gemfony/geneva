@@ -100,5 +100,4 @@ private:
 } /* namespace Geneva */
 } /* namespace Gem */
 
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GParaboloidIndividual2D)
-
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GParaboloidIndividual2D) // NOLINT

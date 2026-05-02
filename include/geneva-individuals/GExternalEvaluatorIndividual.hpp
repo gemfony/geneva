@@ -483,9 +483,8 @@ private:
 } /* namespace Geneva */
 } /* namespace Gem */
 
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GExternalEvaluatorIndividual)
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GExternalEvaluatorIndividualFactory)
-
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GExternalEvaluatorIndividual) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GExternalEvaluatorIndividualFactory) // NOLINT
 /*************************************************************************************************/
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /*************************************************************************************************/

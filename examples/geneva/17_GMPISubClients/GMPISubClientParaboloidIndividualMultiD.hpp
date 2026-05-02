@@ -122,5 +122,4 @@ namespace Gem::Geneva {
 
 } // namespace Gem::Geneva
 
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GMPISubClientParaboloidIndividualMultiD)
-
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GMPISubClientParaboloidIndividualMultiD) // NOLINT

@@ -1612,7 +1612,6 @@ inline void GParameterBase::subtract<bool>(
 /**
  * @brief Needed for Boost.Serialization
  */
-BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::GParameterBase)
-
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::GParameterBase) // NOLINT
 /******************************************************************************/
 

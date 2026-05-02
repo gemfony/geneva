@@ -33,8 +33,7 @@
 
 #include "GParaboloidIndividual2D.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GParaboloidIndividual2D)
-
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GParaboloidIndividual2D) // NOLINT
 namespace Gem::Geneva
 {
 

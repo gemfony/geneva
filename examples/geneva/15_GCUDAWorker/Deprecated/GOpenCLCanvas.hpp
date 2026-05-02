@@ -125,5 +125,4 @@ float operator-(const GOpenCLCanvas&, const GOpenCLCanvas&);
 
 } /* namespace Gem::Geneva */
 
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GOpenCLCanvas);
-
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GOpenCLCanvas) // NOLINT

@@ -28,8 +28,7 @@
  ********************************************************************************/
 #include "geneva/GInt32Collection.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GInt32Collection)
-
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GInt32Collection) // NOLINT
 
 namespace Gem::Geneva
 {

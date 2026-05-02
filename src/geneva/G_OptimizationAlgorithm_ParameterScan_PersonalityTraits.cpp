@@ -29,8 +29,7 @@
 
 #include "geneva/G_OptimizationAlgorithm_ParameterScan_PersonalityTraits.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GParameterScan_PersonalityTraits)
-
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GParameterScan_PersonalityTraits) // NOLINT
 namespace Gem::Geneva
 {
 

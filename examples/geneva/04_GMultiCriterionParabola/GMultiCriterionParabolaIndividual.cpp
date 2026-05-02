@@ -33,8 +33,7 @@
 
 #include "GMultiCriterionParabolaIndividual.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GMultiCriterionParabolaIndividual)
-
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GMultiCriterionParabolaIndividual) // NOLINT
 namespace Gem::Geneva
 {
     /******************************************************************************/

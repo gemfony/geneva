@@ -29,8 +29,7 @@
 
 #include "geneva/GConstrainedDoubleObject.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GConstrainedDoubleObject)
-
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GConstrainedDoubleObject) // NOLINT
 namespace Gem::Geneva
 {
 

@@ -29,8 +29,7 @@
 
 #include "geneva/GConstrainedInt32Object.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GConstrainedInt32Object)
-
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GConstrainedInt32Object) // NOLINT
 namespace Gem::Geneva
 {
 

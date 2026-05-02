@@ -133,6 +133,5 @@ private:
 } /* namespace Geneva */
 } /* namespace Gem */
 
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GEvolutionaryAlgorithm_PersonalityTraits)
-
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GEvolutionaryAlgorithm_PersonalityTraits) // NOLINT
 

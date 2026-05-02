@@ -32,8 +32,7 @@
 #include <memory>
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GParameterSet) // NOLINT
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::parameterset_processing_result)
-
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::parameterset_processing_result) // NOLINT
 namespace Gem::Geneva
 {
 /******************************************************************************/

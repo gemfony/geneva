@@ -29,8 +29,7 @@
 
 #include "geneva/GBooleanObjectCollection.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GBooleanObjectCollection)
-
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GBooleanObjectCollection) // NOLINT
 namespace Gem::Geneva
 {
 

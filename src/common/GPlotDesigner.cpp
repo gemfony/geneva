@@ -29,39 +29,31 @@
 
 #include "common/GPlotDesigner.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GMarker<short>)
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GMarker<std::int32_t>)
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GMarker<std::uint32_t>)
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GMarker<float>)
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GMarker<double>)
-
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GDecoratorContainer_2D<short>);
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GDecoratorContainer_2D<std::int32_t>);
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GDecoratorContainer_2D<std::uint32_t>);
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GDecoratorContainer_2D<float>);
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GDecoratorContainer_2D<double>);
-
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GDecoratorContainer_3D<short>);
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GDecoratorContainer_3D<std::int32_t>);
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GDecoratorContainer_3D<std::uint32_t>);
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GDecoratorContainer_3D<float>);
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GDecoratorContainer_3D<double>);
-
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GHistogram1D);
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GHistogram1I);
-
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GHistogram2D);
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GGraph2D);
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GGraph2ED);
-
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GGraph3D);
-
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GGraph4D);
-
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GFunctionPlotter1D);
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GFunctionPlotter2D);
-
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GPlotDesigner);
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GMarker<short>) // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GMarker<std::int32_t>) // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GMarker<std::uint32_t>) // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GMarker<float>) // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GMarker<double>) // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GDecoratorContainer_2D<short>) // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GDecoratorContainer_2D<std::int32_t>) // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GDecoratorContainer_2D<std::uint32_t>) // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GDecoratorContainer_2D<float>) // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GDecoratorContainer_2D<double>) // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GDecoratorContainer_3D<short>) // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GDecoratorContainer_3D<std::int32_t>) // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GDecoratorContainer_3D<std::uint32_t>) // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GDecoratorContainer_3D<float>) // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GDecoratorContainer_3D<double>) // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GHistogram1D) // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GHistogram1I) // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GHistogram2D) // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GGraph2D) // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GGraph2ED) // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GGraph3D) // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GGraph4D) // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GFunctionPlotter1D) // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GFunctionPlotter2D) // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GPlotDesigner) // NOLINT
 
 namespace Gem::Common
 {

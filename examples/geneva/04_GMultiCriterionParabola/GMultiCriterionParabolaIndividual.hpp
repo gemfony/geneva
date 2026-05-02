@@ -154,5 +154,4 @@ namespace Gem::Geneva
 
 }
 
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GMultiCriterionParabolaIndividual)
-
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GMultiCriterionParabolaIndividual) // NOLINT

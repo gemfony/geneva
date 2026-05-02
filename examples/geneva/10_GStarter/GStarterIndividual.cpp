@@ -33,8 +33,7 @@
 
 #include "GStarterIndividual.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GStarterIndividual)
-
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GStarterIndividual) // NOLINT
 namespace Gem::Geneva
 {
 

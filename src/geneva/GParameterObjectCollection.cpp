@@ -28,8 +28,7 @@
  ********************************************************************************/
 #include "geneva/GParameterObjectCollection.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GParameterObjectCollection)
-
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GParameterObjectCollection) // NOLINT
 namespace Gem::Geneva
 {
 

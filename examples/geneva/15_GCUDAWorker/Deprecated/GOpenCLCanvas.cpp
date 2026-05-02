@@ -33,8 +33,7 @@
 
 #include "GOpenCLCanvas.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GOpenCLCanvas);
-
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GOpenCLCanvas) // NOLINT
 namespace Gem {
 namespace Geneva {
 

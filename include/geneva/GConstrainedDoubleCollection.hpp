@@ -184,7 +184,6 @@ inline std::shared_ptr<Gem::Geneva::GConstrainedDoubleCollection> TFactory_GUnit
 
 #endif /* GEM_TESTING */
 
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GConstrainedDoubleCollection)
-
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GConstrainedDoubleCollection) // NOLINT
 /******************************************************************************/
 

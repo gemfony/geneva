@@ -45,7 +45,7 @@ ENDIF ()
 SET ( EXECUTABLENAME GConsumerPerformance )
 
 SET ( ${EXECUTABLENAME}_SRCS
-	GConsumerPerformance
+	GConsumerPerformance.cpp
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}

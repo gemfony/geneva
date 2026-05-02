@@ -116,5 +116,4 @@ private:
 } /* namespace Geneva */
 } /* namespace Gem */
 
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GDoubleObjectCollection)
-
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GDoubleObjectCollection) // NOLINT

@@ -30,8 +30,7 @@
 #include "geneva/GInt32FlipAdaptor.hpp"
 
 // Make sure the class gets instantiated at least once
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GInt32FlipAdaptor)
-
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GInt32FlipAdaptor) // NOLINT
 namespace Gem::Geneva
 {
 

@@ -168,5 +168,4 @@ private:
 } /* namespace Gem */
 
 
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GConjugateGradientDescent)
-
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GConjugateGradientDescent) // NOLINT

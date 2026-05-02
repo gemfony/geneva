@@ -126,5 +126,4 @@ private:
 } /* namespace Geneva */
 } /* namespace Gem */
 
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GSimulatedAnnealing_PersonalityTraits)
-
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GSimulatedAnnealing_PersonalityTraits) // NOLINT

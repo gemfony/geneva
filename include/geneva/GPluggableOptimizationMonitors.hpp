@@ -2134,17 +2134,16 @@ template <typename num_type> using GAdaptorPropertyLogger = GAdaptorPropertyLogg
 /******************************************************************************/
 // Exports of classes
 
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GStandardMonitor)
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GFitnessMonitor)
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GCollectiveMonitor)
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GProgressPlotter)
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GAllSolutionFileLogger)
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GIterationResultsFileLogger)
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GNAdpationsLogger)
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GAdaptorPropertyLogger<double>)
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GAdaptorPropertyLogger<std::int32_t>)
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GAdaptorPropertyLogger<bool>)
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GProcessingTimesLogger)
-
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GStandardMonitor) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GFitnessMonitor) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GCollectiveMonitor) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GProgressPlotter) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GAllSolutionFileLogger) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GIterationResultsFileLogger) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GNAdpationsLogger) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GAdaptorPropertyLogger<double>) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GAdaptorPropertyLogger<std::int32_t>) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GAdaptorPropertyLogger<bool>) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GProcessingTimesLogger) // NOLINT
 /******************************************************************************/
 

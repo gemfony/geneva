@@ -875,10 +875,8 @@ private:
 } /* namespace Geneva */
 } /* namespace Gem */
 
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::bScanPar)
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::int32ScanPar)
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::dScanPar)
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::fScanPar)
-
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GParameterScan)
-
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::bScanPar) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::int32ScanPar) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::dScanPar) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::fScanPar) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GParameterScan) // NOLINT

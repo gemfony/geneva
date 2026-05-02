@@ -29,8 +29,7 @@
 
 #include "geneva/GParameterSetMultiConstraint.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GParameterSetFormulaConstraint)
-
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GParameterSetFormulaConstraint) // NOLINT
 namespace Gem::Geneva
 {
 

@@ -834,9 +834,8 @@ private:
 /******************************************************************************/
 } /* namespace Gem::Geneva */
 
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GFunctionIndividual)
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GFunctionIndividualFactory)
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GDoubleSumConstraint)
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GDoubleSumGapConstraint)
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GSphereConstraint)
-
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GFunctionIndividual) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GFunctionIndividualFactory) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GDoubleSumConstraint) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GDoubleSumGapConstraint) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GSphereConstraint) // NOLINT
