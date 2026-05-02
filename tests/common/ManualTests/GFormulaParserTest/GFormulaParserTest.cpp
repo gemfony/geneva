@@ -39,6 +39,9 @@
 #include <map>
 
 // Boost headers go here
+#define BOOST_TEST_DYN_LINK
+#define BOOST_TEST_MAIN
+#define BOOST_TEST_ALTERNATIVE_INIT_API
 #include <boost/test/unit_test.hpp>
 #include <boost/test/tools/floating_point_comparison.hpp>
 #include <boost/math/constants/constants.hpp>
@@ -68,7 +71,7 @@ using namespace std;
 	BOOST_CHECK_THROW(f(), EXCEPTION );\
 }\
 
-int test_main(int argc, char** const argv) {
+BOOST_AUTO_TEST_CASE(formula_parser_tests) {
 	{ // Test replacement of variables and constants (1)
 		std::map<std::string, std::vector<double>> parameterValues;
 
@@ -244,6 +247,4 @@ int test_main(int argc, char** const argv) {
 	testFormulaFailure(sqrt(-1), geneva_exception);
 	testFormulaFailure(sqrt(-1), Gem::Common::math_logic_error);
 	testFormulaFailure(sqrt(-1), Gem::Common::sqrt_negative_value<double>);
-
-	return 0;
 }

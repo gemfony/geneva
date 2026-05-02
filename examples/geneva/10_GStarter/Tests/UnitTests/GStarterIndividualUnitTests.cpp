@@ -32,9 +32,10 @@
  ********************************************************************************/
 
 
+#define BOOST_TEST_DYN_LINK
+#define BOOST_TEST_ALTERNATIVE_INIT_API
 #include <boost/test/unit_test.hpp>
 
-using boost::unit_test_framework::test_suite;
 using namespace boost::unit_test;
 
 // The class to be tested
@@ -72,9 +73,13 @@ public:
 /**
  * The test program entry point
  */
-test_suite* init_unit_test_suite(int argc, char** const argv) {
+bool init_unit_test() {
 	framework::master_test_suite().add(new GenevaStandardTestSuite());
-	return 0;
+	return true;
+}
+
+int main(int argc, char* argv[]) {
+	return ::boost::unit_test::unit_test_main(&init_unit_test, argc, argv);
 }
 
 /************************************************************************************************/

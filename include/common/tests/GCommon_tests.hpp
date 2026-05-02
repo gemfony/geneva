@@ -54,30 +54,5 @@
 using namespace Gem::Common;
 using namespace Gem::Common::Tests;
 
-using boost::unit_test_framework::test_suite;
-using boost::unit_test_framework::test_case;
-
-/********************************************************************************************/
-/**
- * This test suite checks as much as possible of the functionality provided
- + by the GCommon library.
- */
-class GCommonSuite: public test_suite
-{
-public:
-	 GCommonSuite() :test_suite("GCommonSuite") {
-		 // create an instance of the test cases class
-		 boost::shared_ptr<GBoundedBufferT_tests> instance(new GBoundedBufferT_tests());
-
-		 test_case* GBoundedBufferT_no_failure_expected_test_case
-			 = BOOST_CLASS_TEST_CASE(&GBoundedBufferT_tests::no_failure_expected, instance);
-		 test_case* GBoundedBufferT_failures_expected_test_case
-			 = BOOST_CLASS_TEST_CASE(&GBoundedBufferT_tests::failures_expected, instance);
-
-		 add(GBoundedBufferT_no_failure_expected_test_case);
-		 add(GBoundedBufferT_failures_expected_test_case);
-	 }
-};
-
 /********************************************************************************************/
 

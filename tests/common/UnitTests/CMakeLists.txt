@@ -42,7 +42,7 @@ IF (NOT GENEVA_FULL_TREE_BUILD)
 
 ENDIF ()
 
-SET ( EXECUTABLENAME CommonStandardTests )
+SET ( EXECUTABLENAME GCommonStandardTests )
 
 SET ( ${EXECUTABLENAME}_SRCS
         GCommonStandardTests.cpp

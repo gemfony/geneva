@@ -204,7 +204,6 @@ IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
 		SET (
 				GENEVA_BOOST_LIBS
 				${GENEVA_BOOST_LIBS}
-				test_exec_monitor
 				unit_test_framework
 		)
 	ENDIF()
