@@ -627,7 +627,7 @@ namespace Gem::Geneva
  * @param offset Specifies the iteration number to start with (e.g. useful when starting from a checkpoint file)
  * @return A constant pointer to this object
  */
-	G_OptimizationAlgorithm_Base const * const G_OptimizationAlgorithm_Base::optimize_(
+	G_OptimizationAlgorithm_Base const * G_OptimizationAlgorithm_Base::optimize_(
 		std::uint32_t offset
 	) {
 		// Reset the generation counter

@@ -67,7 +67,7 @@ public:
 	 /**
 	  * Triggers the optimization cycle, starting to count iterations at a given offset
 	  */
-	 optimizer_type const * const optimize(std::uint32_t offset = 0) {
+	 optimizer_type const * optimize(std::uint32_t offset = 0) {
 	 	return this->optimize_(offset);
 	 }
 
@@ -214,7 +214,7 @@ protected:
 
 private:
 	 /** @brief Perform the actual optimization cycle, starting to count iterations at a given offset */
-	 virtual G_API_GENEVA optimizer_type const * const optimize_(std::uint32_t offset) BASE = 0;
+	 virtual G_API_GENEVA optimizer_type const * optimize_(std::uint32_t offset) BASE = 0;
 
 	 /** @brief Calculates the fitness of all required individuals; to be re-implemented in derived classes */
 	 virtual G_API_GENEVA void runFitnessCalculation_() BASE = 0;

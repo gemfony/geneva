@@ -39,6 +39,8 @@ Recommended Versions:
   removing test_exec_monitor from the Boost components list. The common test
   executable was renamed from CommonStandardTests to GCommonStandardTests.
 
+- Fixed compilation issues for CUDA example, related to mismatch of compiler- and CUDA-versions.
+
 //------------------------------------------------------------------------------------------------------
 * Version 1.11, "Hendaye" - March 16, 2026
 

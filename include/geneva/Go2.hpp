@@ -226,7 +226,7 @@ private:
 	 void setNProducerThreads(std::uint16_t);
 
 	 /** @brief Perform the actual optimization cycle */
-	 G_API_GENEVA Go2 const * const optimize_(std::uint32_t) final;
+	 G_API_GENEVA Go2 const * optimize_(std::uint32_t) final;
 
 	 /***************************************************************************/
 	 // Initialization code for the Geneva library

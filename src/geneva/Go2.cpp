@@ -424,7 +424,7 @@ namespace Gem::Geneva
  *
  * @param offset An offset at which the first algorithm should start
  */
-	Go2 const * const Go2::optimize_(std::uint32_t) {
+	Go2 const * Go2::optimize_(std::uint32_t) {
 		// Check that algorithms have indeed been registered. If not, try to add a default algorithm
 		if (m_algorithms_cnt.empty()) {
 			if (not m_default_algorithm) {

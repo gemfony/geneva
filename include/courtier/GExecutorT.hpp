@@ -1103,7 +1103,7 @@ protected:
 	  * @param cp A constant pointer to another GSerialExecutorT object
 	  */
 	 void load_(const GBaseExecutorT<processable_type> *cp) override {
-		 const auto p_load_ptr = dynamic_cast<GSerialExecutorT<processable_type> const *const>(cp);
+		 const auto p_load_ptr = dynamic_cast<GSerialExecutorT<processable_type> const *>(cp);
 
 		 if (not cp) { // nullptr
 			 throw geneva_exception(

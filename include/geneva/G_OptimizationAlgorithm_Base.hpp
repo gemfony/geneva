@@ -582,7 +582,7 @@ private:
     // Overloaded or virtual base functions
 
     /** @brief This function encapsulates some common functionality of iteration-based optimization algorithms. */
-    G_API_GENEVA G_OptimizationAlgorithm_Base const * const optimize_(std::uint32_t offset) final;
+    G_API_GENEVA G_OptimizationAlgorithm_Base const * optimize_(std::uint32_t offset) final;
     /** @brief Emits a name for this class / object; this can be a long name with spaces */
     G_API_GENEVA std::string name_() const override = 0;
     /** @brief Creates a deep clone of this object */
