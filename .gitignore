@@ -8,3 +8,4 @@
 build/
 cmake-build-*/
 .vscode
+CMakeUserPresets.json

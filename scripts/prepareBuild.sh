@@ -50,24 +50,38 @@ GENEVA_BUILDROOT="${PWD}"
 ####################################################################
 # Parse command line arguments
 DRYRUN=0
+CLEAN=0
+GENERATE_PRESET=0
 CONFIGFILE=""
 
 for arg in "$@"; do
 	case "$arg" in
 		--help|-h)
-			echo -e "\nUsage: $(basename "$0") [<config.gcfg>] [--dryrun] [--help|-h]"
+			echo -e "\nUsage: $(basename "$0") [<config.gcfg>] [--clean] [--dryrun] [--generate-preset] [--help|-h]"
 			echo -e "\nOptions:"
-			echo -e "  <config.gcfg>  Optional Geneva configuration file (must end in .gcfg)."
-			echo -e "                 If omitted, built-in defaults are used."
-			echo -e "  --dryrun       Print the full cmake command that would be executed,"
-			echo -e "                 including all -D options derived from the config file,"
-			echo -e "                 without actually running cmake. Useful for copying the"
-			echo -e "                 command into an IDE such as JetBrains CLion."
-			echo -e "  --help, -h     Show this help message.\n"
+			echo -e "  <config.gcfg>       Optional Geneva configuration file (must end in .gcfg)."
+			echo -e "                      If omitted, built-in defaults are used."
+			echo -e "  --clean             Remove all files from the build directory except .gcfg"
+			echo -e "                      files, then reconfigure. Required when calling the script"
+			echo -e "                      a second time in the same directory."
+			echo -e "  --dryrun            Print the full cmake command that would be executed,"
+			echo -e "                      including all -D options derived from the config file,"
+			echo -e "                      without actually running cmake. Useful for copying the"
+			echo -e "                      command into an IDE such as JetBrains CLion."
+			echo -e "  --generate-preset   Write a CMakeUserPresets.json to the project root so"
+			echo -e "                      that JetBrains CLion (including via Gateway) picks up"
+			echo -e "                      the same CMake configuration automatically."
+			echo -e "  --help, -h          Show this help message.\n"
 			exit 0
+			;;
+		--clean)
+			CLEAN=1
 			;;
 		--dryrun)
 			DRYRUN=1
+			;;
+		--generate-preset)
+			GENERATE_PRESET=1
 			;;
 		-*)
 			echo -e "\nUnknown option: '$arg'. Use --help for usage information.\nLeaving...\n"
@@ -82,6 +96,28 @@ for arg in "$@"; do
 			;;
 	esac
 done
+
+if [ "${CLEAN}" = "1" ] && [ "${DRYRUN}" = "1" ]; then
+	echo -e "\nError: --clean and --dryrun are mutually exclusive."
+	echo -e "--clean deletes files; --dryrun must not change anything. Leaving...\n"
+	exit 1
+fi
+
+####################################################################
+# Auto-detect a .gcfg file in the call directory if none was given
+if [ -z "${CONFIGFILE}" ]; then
+	gcfg_files=( "${GENEVA_BUILDROOT}"/*.gcfg )
+	if [ -e "${gcfg_files[0]}" ]; then
+		if [ "${#gcfg_files[@]}" -eq 1 ]; then
+			CONFIGFILE="${gcfg_files[0]}"
+			echo -e "\nAuto-detected configuration file '${CONFIGFILE}'.\n"
+		else
+			echo -e "\nError: multiple .gcfg files found in '${GENEVA_BUILDROOT}'."
+			echo -e "Please specify the configuration file explicitly. Leaving...\n"
+			exit 1
+		fi
+	fi
+fi
 
 ####################################################################
 # Check variables, set variable defaults if no config file was given
@@ -302,23 +338,17 @@ if [ ! -e "${PROJECTROOT}/CMakeLists.txt" ]; then
 fi
 
 ####################################################################
-# If there is a Makefile in the directory, reset the CMake build
-# system, as we are about to launch a new configuration run
-# clean-all is a build-target defined by the Geneva-build-system.
-# If a Makefile exists, we assume that the build environment has been
-# set up before
-if [ -e "${GENEVA_BUILDROOT}/Makefile" ]; then
-	cd "${GENEVA_BUILDROOT}" || exit 1
-	echo -en "Cleaning old build-environment ..."
-	make clean-cmake > /dev/null 2>&1
-	echo -e " done"
-fi
-# CMake variables get cached and old ones may be used if currently
-# missing, which is very misleading if the user tries changing values.
-# Force removing the cache, because 'make clean-cmake' may fail if
-# a previous cmake run failed.
+# Guard against reconfiguring an already-configured build directory.
 if [ -e "${GENEVA_BUILDROOT}/CMakeCache.txt" ]; then
-	rm -f "${GENEVA_BUILDROOT}/CMakeCache.txt"
+	if [ "${CLEAN}" = "1" ]; then
+		echo -en "Cleaning build directory '${GENEVA_BUILDROOT}' ..."
+		find "${GENEVA_BUILDROOT}" -mindepth 1 -maxdepth 1 ! -name "*.gcfg" -exec rm -rf {} +
+		echo -e " done\n"
+	elif [ "${DRYRUN}" = "0" ]; then
+		echo -e "\nError: '${GENEVA_BUILDROOT}' is already configured (CMakeCache.txt exists)."
+		echo -e "Call with --clean to remove the existing build and reconfigure. Leaving...\n"
+		exit 1
+	fi
 fi
 
 ####################################################################
@@ -364,6 +394,67 @@ if [ "$CMAKEEXTRAFLAGS" != "" ]; then
 	CONFIGURE="${CONFIGURE} ${CMAKEEXTRAFLAGS}"
 fi
 
+####################################################################
+# Optionally generate CMakeUserPresets.json for CLion integration.
+if [ "${GENERATE_PRESET}" = "1" ]; then
+	_preset_add() {
+		[ -n "${_PRESET_VARS}" ] && _PRESET_VARS="${_PRESET_VARS},"
+		_PRESET_VARS="${_PRESET_VARS}
+        \"${1}\": { \"type\": \"${2}\", \"value\": \"${3}\" }"
+	}
+
+	_PRESET_VARS=""
+	_preset_add "CMAKE_INSTALL_PREFIX"            "PATH"   "${INSTALLDIR}"
+	_preset_add "CMAKE_VERBOSE_MAKEFILE"          "BOOL"   "${VERBOSEMAKEFILE}"
+	_preset_add "GENEVA_BUILD_TYPE"               "STRING" "${BUILDMODE}"
+	_preset_add "GENEVA_BUILD_TESTS"              "BOOL"   "${BUILDTESTCODE}"
+	_preset_add "GENEVA_BUILD_EXAMPLES"           "BOOL"   "${BUILDEXAMPLES}"
+	_preset_add "GENEVA_BUILD_BENCHMARKS"         "BOOL"   "${BUILDBENCHMARKS}"
+	_preset_add "GENEVA_STATIC"                   "BOOL"   "${BUILDSTATIC}"
+	_preset_add "GENEVA_BUILD_WITH_MPI_CONSUMER"  "BOOL"   "${BUILDMPICONSUMER}"
+	_preset_add "GENEVA_BUILD_WITH_CUDA_EXAMPLES" "BOOL"   "${BUILDCUDAEXAMPLES}"
+	_preset_add "GENEVA_USE_CUDA_RNG"             "BOOL"   "${USECUDARNG}"
+
+	if [ -n "${BOOSTROOT}" ]; then
+		_preset_add "BOOST_ROOT"            "PATH" "${BOOSTROOT}"
+		_preset_add "Boost_NO_SYSTEM_PATHS" "BOOL" "1"
+	elif [ -n "${BOOSTLIBS}" ]; then
+		_preset_add "BOOST_LIBRARYDIR"      "PATH" "${BOOSTLIBS}"
+		_preset_add "BOOST_INCLUDEDIR"      "PATH" "${BOOSTINCL}"
+		_preset_add "Boost_NO_SYSTEM_PATHS" "BOOL" "1"
+	fi
+
+	[ "$MPIROOT" != "" ]          && _preset_add "MPI_HOME"               "PATH"   "${MPIROOT}"
+	[ "$CXXEXTRAFLAGS" != "" ]    && _preset_add "CMAKE_CXX_FLAGS"        "STRING" "${CXXEXTRAFLAGS}"
+	[ "$LINKEREXTRAFLAGS" != "" ] && _preset_add "CMAKE_EXE_LINKER_FLAGS" "STRING" "${LINKEREXTRAFLAGS}"
+
+	PRESET_FILE="${PROJECTROOT}/CMakeUserPresets.json"
+	cat > "${PRESET_FILE}" <<ENDOFPRESET
+{
+  "version": 3,
+  "cmakeMinimumRequired": { "major": 3, "minor": 27, "patch": 0 },
+  "configurePresets": [
+    {
+      "name": "geneva-from-script",
+      "displayName": "Geneva (prepareBuild config)",
+      "description": "Auto-generated by prepareBuild.sh -- do not edit manually",
+      "generator": "Unix Makefiles",
+      "binaryDir": "${GENEVA_BUILDROOT}",
+      "cacheVariables": {${_PRESET_VARS}
+      }
+    }
+  ]
+}
+ENDOFPRESET
+
+	if [ "$CMAKEEXTRAFLAGS" != "" ]; then
+		echo -e "Note: CMAKEEXTRAFLAGS='${CMAKEEXTRAFLAGS}' was not written to ${PRESET_FILE}."
+		echo -e "      Add these flags manually to the preset's 'cacheVariables' if needed.\n"
+	fi
+	echo -e "Generated '${PRESET_FILE}' for CLion integration.\n"
+fi
+
+####################################################################
 echo -e "\nConfiguring with command: \"${CONFIGURE} ${PROJECTROOT}\"\n"
 echo -e "---------------------------------------------------------------------\n\n"
 

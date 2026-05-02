@@ -216,8 +216,14 @@ IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
 		)
 	ENDIF()
 
-	# Make sure we use the old CMake behaviour (cmp. Boost 1.70)
-	SET(Boost_NO_BOOST_CMAKE ON)
+	# Use Boost's own BoostConfig.cmake (available since Boost 1.70) rather than
+	# CMake's legacy FindBoost module, which was removed in CMake 4.x (CMP0167).
+	if(POLICY CMP0167)
+		cmake_policy(SET CMP0167 NEW)
+	endif()
+	if(POLICY CMP0153)
+		cmake_policy(SET CMP0153 NEW)
+	endif()
 
 	# Search for the required libraries
 	MESSAGE("Searching for Boost...\n")
