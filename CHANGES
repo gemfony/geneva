@@ -1,13 +1,21 @@
 //------------------------------------------------------------------------------------------------------
-* Version 1.11.1 "Puente de Santiago" - May 02, 2026
+* Version 1.12.0 "Puente de Santiago" - May 02, 2026
 
 Recommended Versions:
-- Unchanged
+- Make sure Catch 2 v3 is installed in your system
+- Boost version 1.90 or higher is required
+- CMake version 3.27 or higher is required
+- GCC is recommended to be at least version 13, clang should be at least version 18.
+  Earlier versions might work if C++20 is sufficiently supported
+- We suggest to use Ubuntu 24.04 LTS or 26.04 LTS as the host platform if you plan
+  to use the CUDA example.
 
 ********************** INCOMPATIBILITIES / PLEASE NOTE *************************
 
 - gemfony_exception was renamed to geneva_exception (~128 files). Any user code that
   catches or explicitly names this exception type must be updated accordingly.
+- The Boost.Test library linkage has been removed from the build-system, instead Geneva now
+  uses Catch2 v3.
 
 ************************* Noteworthy Changes ***********************************
 
@@ -32,12 +40,7 @@ Recommended Versions:
 
 - Gemfony branding removed from file headers.
 
-- Boost.Test infrastructure fixed and modernized. The test drivers now use the
-  modern BOOST_TEST_DYN_LINK / BOOST_TEST_ALTERNATIVE_INIT_API API. A runtime
-  crash (free(): invalid size on exit) caused by simultaneously linking
-  libboost_test_exec_monitor.a and libboost_unit_test_framework.so is fixed by
-  removing test_exec_monitor from the Boost components list. The common test
-  executable was renamed from CommonStandardTests to GCommonStandardTests.
+- The common test executable was renamed from CommonStandardTests to GCommonStandardTests.
 
 - The test framework has been migrated from Boost.Test to Catch2 v3. Boost.Test
   is no longer a build dependency. libcatch2-dev (>= 3.0) is now required when
