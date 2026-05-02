@@ -568,8 +568,6 @@ namespace Gem::Geneva
 	bool GImageIndividual::modify_GUnitTests_()
 	{
 #ifdef GEM_TESTING
-		using boost::unit_test_framework::test_suite;
-		using boost::unit_test_framework::test_case;
 
 		// Call the parent classes' functions
 		Gem::Geneva::GParameterSet::modify_GUnitTests();
@@ -593,8 +591,6 @@ namespace Gem::Geneva
 #ifdef GEM_TESTING
 		using namespace Gem::Geneva;
 
-		using boost::unit_test_framework::test_suite;
-		using boost::unit_test_framework::test_case;
 
 		// Call the parent classes' functions
 		Gem::Geneva::GParameterSet::specificTestsNoFailureExpected_GUnitTests();
@@ -612,7 +608,7 @@ namespace Gem::Geneva
 			for (std::size_t i = 0; i < NTESTS; i++)
 			{
 				auto circles_new = p_test->getTriangleData();
-				BOOST_REQUIRE(circles_new == circles);
+				REQUIRE(circles_new == circles);
 			}
 		}
 
@@ -631,8 +627,6 @@ namespace Gem::Geneva
 #ifdef GEM_TESTING
 		using namespace Gem::Geneva;
 
-		using boost::unit_test_framework::test_suite;
-		using boost::unit_test_framework::test_case;
 
 		// Call the parent classes' functions
 		Gem::Geneva::GParameterSet::specificTestsFailuresExpected_GUnitTests();

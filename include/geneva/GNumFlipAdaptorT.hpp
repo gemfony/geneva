@@ -229,8 +229,6 @@ protected:
      */
     bool modify_GUnitTests_() override {
 #ifdef GEM_TESTING
-        using boost::unit_test_framework::test_suite;
-        using boost::unit_test_framework::test_case;
 
         bool result = false;
 
@@ -253,8 +251,6 @@ protected:
      */
     void specificTestsNoFailureExpected_GUnitTests_() override {
 #ifdef GEM_TESTING
-        using boost::unit_test_framework::test_suite;
-        using boost::unit_test_framework::test_case;
 
         // Call the parent classes' functions
         GAdaptorT<num_type>::specificTestsNoFailureExpected_GUnitTests_();
@@ -270,8 +266,6 @@ protected:
      */
     void specificTestsFailuresExpected_GUnitTests_() override {
 #ifdef GEM_TESTING
-        using boost::unit_test_framework::test_suite;
-        using boost::unit_test_framework::test_case;
 
         // Call the parent classes' functions
         GAdaptorT<num_type>::specificTestsFailuresExpected_GUnitTests_();

@@ -410,12 +410,12 @@ protected:
 			std::shared_ptr<GParameterBaseWithAdaptorsT<T>> p_test = this->clone<GParameterBaseWithAdaptorsT<T>>();
 
 			// Make sure no adaptor is present
-			BOOST_CHECK_NO_THROW(p_test->resetAdaptor());
-			BOOST_CHECK(p_test->hasAdaptor() == true);
+			CHECK_NOTHROW(p_test->resetAdaptor());
+			CHECK(p_test->hasAdaptor() == true);
 
 			T testVal = T(0);
 			// We have a local adaptor, so trying to call the applyAdaptor() function should not throw
-			BOOST_CHECK_NO_THROW(p_test->applyAdaptor(testVal, T(1), gr));
+			CHECK_NOTHROW(p_test->applyAdaptor(testVal, T(1), gr));
 		}
 
 		//------------------------------------------------------------------------------
@@ -424,13 +424,13 @@ protected:
 			std::shared_ptr<GParameterBaseWithAdaptorsT<T>> p_test = this->clone<GParameterBaseWithAdaptorsT<T>>();
 
 			// Make sure no adaptor is present
-			BOOST_CHECK_NO_THROW(p_test->resetAdaptor());
-			BOOST_CHECK(p_test->hasAdaptor() == true);
+			CHECK_NOTHROW(p_test->resetAdaptor());
+			CHECK(p_test->hasAdaptor() == true);
 
 			std::vector<T> testVec;
 			for(std::size_t i=0; i<10; i++) testVec.push_back(T(0));
 			// We have a local adaptor, so trying to call the applyAdaptor(collection) function should not throw
-			BOOST_CHECK_NO_THROW(p_test->applyAdaptor(testVec, T(1), gr));
+			CHECK_NOTHROW(p_test->applyAdaptor(testVec, T(1), gr));
 		}
 
 		//------------------------------------------------------------------------------

@@ -168,8 +168,6 @@ namespace Gem::Geneva
  */
 	void GGradientDescent_PersonalityTraits::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
-		using boost::unit_test_framework::test_suite;
-		using boost::unit_test_framework::test_case;
 
 		// Call the parent class'es function
 		GPersonalityTraits::specificTestsNoFailureExpected_GUnitTests_();
@@ -190,8 +188,6 @@ namespace Gem::Geneva
  */
 	void GGradientDescent_PersonalityTraits::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
-		using boost::unit_test_framework::test_suite;
-		using boost::unit_test_framework::test_case;
 
 		// Call the parent class'es function
 		GPersonalityTraits::specificTestsFailuresExpected_GUnitTests_();

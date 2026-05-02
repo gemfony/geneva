@@ -382,12 +382,12 @@ namespace Gem::Geneva
 			std::shared_ptr <GDoubleObject> p_test = this->clone<GDoubleObject>();
 
 			for (double d = 0.; d < 10; d += 0.01) {
-				BOOST_CHECK_NO_THROW((*p_test) = d); // Setting using operator=()
-				BOOST_CHECK(p_test->value() == d); // Retrieval through the value() function
-				BOOST_CHECK_NO_THROW(p_test->setValue(d)); // Setting using the setValue() function
-				BOOST_CHECK(p_test->value() == d); // Retrieval through the value() function
-				BOOST_CHECK_NO_THROW(p_test->setValue_(d)); // Setting using the protected constant setValue_() function
-				BOOST_CHECK(p_test->value() == d); // Retrieval through the value() function
+				CHECK_NOTHROW((*p_test) = d); // Setting using operator=()
+				CHECK(p_test->value() == d); // Retrieval through the value() function
+				CHECK_NOTHROW(p_test->setValue(d)); // Setting using the setValue() function
+				CHECK(p_test->value() == d); // Retrieval through the value() function
+				CHECK_NOTHROW(p_test->setValue_(d)); // Setting using the protected constant setValue_() function
+				CHECK(p_test->value() == d); // Retrieval through the value() function
 			}
 		}
 
@@ -398,9 +398,9 @@ namespace Gem::Geneva
 
 			double target = -1.;
 			for (double d = 0.; d < 10; d += 0.01) {
-				BOOST_CHECK_NO_THROW(p_test->setValue(d)); // Setting using the setValue() function
-				BOOST_CHECK_NO_THROW(target = *p_test); // Automatic conversion
-				BOOST_CHECK(target == d); // Cross-check
+				CHECK_NOTHROW(p_test->setValue(d)); // Setting using the setValue() function
+				CHECK_NOTHROW(target = *p_test); // Automatic conversion
+				CHECK(target == d); // Cross-check
 			}
 		}
 
@@ -410,15 +410,15 @@ namespace Gem::Geneva
 			std::shared_ptr <GDoubleObject> p_test = this->clone<GDoubleObject>();
 
 			if (p_test->hasAdaptor()) {
-				BOOST_CHECK_NO_THROW(*p_test = 1.);
+				CHECK_NOTHROW(*p_test = 1.);
 				double origVal = *p_test;
-				BOOST_CHECK(*p_test == 1.);
-				BOOST_CHECK(origVal == 1.);
+				CHECK(*p_test == 1.);
+				CHECK(origVal == 1.);
 
 				for (std::size_t i = 0; i < nTests; i++) {
-					BOOST_CHECK_NO_THROW(p_test->adapt(gr));
-					BOOST_CHECK(origVal != *p_test); // Should be different
-					BOOST_CHECK_NO_THROW(origVal = *p_test);
+					CHECK_NOTHROW(p_test->adapt(gr));
+					CHECK(origVal != *p_test); // Should be different
+					CHECK_NOTHROW(origVal = *p_test);
 				}
 			}
 		}
@@ -429,35 +429,35 @@ namespace Gem::Geneva
 			std::shared_ptr <GDoubleObject> p_test = this->clone<GDoubleObject>();
 
 			// Reset the local adaptor to its pristine condition
-			BOOST_CHECK_NO_THROW(p_test->resetAdaptor());
+			CHECK_NOTHROW(p_test->resetAdaptor());
 
 			// Add a new adaptor. This should clone the adaptor
-			BOOST_CHECK_NO_THROW(p_test->addAdaptor(gdga_ptr));
+			CHECK_NOTHROW(p_test->addAdaptor(gdga_ptr));
 
 			// Check that we indeed have an adaptor (should always be the case)
-			BOOST_CHECK(p_test->hasAdaptor() == true);
+			CHECK(p_test->hasAdaptor() == true);
 
 			// Retrieve a pointer to the adaptor
 			std::shared_ptr <GAdaptorT<double>> p_adaptor_base;
-			BOOST_CHECK(not p_adaptor_base);
-			BOOST_CHECK_NO_THROW(p_adaptor_base = p_test->getAdaptor());
+			CHECK(not p_adaptor_base);
+			CHECK_NOTHROW(p_adaptor_base = p_test->getAdaptor());
 
 			// Check that we have indeed received an adaptor
-			BOOST_CHECK(p_adaptor_base);
+			CHECK(p_adaptor_base);
 
 			// Retrieve another, converted pointer to the adaptor
 			std::shared_ptr <GDoubleGaussAdaptor> gdga_clone_ptr;
-			BOOST_CHECK(not gdga_clone_ptr);
-			BOOST_CHECK_NO_THROW(gdga_clone_ptr = p_test->getAdaptor<GDoubleGaussAdaptor>());
+			CHECK(not gdga_clone_ptr);
+			CHECK_NOTHROW(gdga_clone_ptr = p_test->getAdaptor<GDoubleGaussAdaptor>());
 
 			// Check that we have indeed received an adaptor
-			BOOST_CHECK(gdga_clone_ptr);
+			CHECK(gdga_clone_ptr);
 
 			// The address of the original adaptor and of this one should differ
-			BOOST_CHECK(gdga_clone_ptr.get() != gdga_ptr.get());
+			CHECK(gdga_clone_ptr.get() != gdga_ptr.get());
 
 			// The adaptors should otherwise be identical
-			BOOST_CHECK(*gdga_clone_ptr == *gdga_ptr);
+			CHECK(*gdga_clone_ptr == *gdga_ptr);
 		}
 
 		// --------------------------------------------------------------------------
@@ -466,9 +466,9 @@ namespace Gem::Geneva
 			std::shared_ptr <GDoubleObject> p_test = this->clone<GDoubleObject>();
 
 			// Make sure the adaptor is in pristine condition
-			BOOST_CHECK_NO_THROW(p_test->resetAdaptor());
-			BOOST_CHECK(p_test->hasAdaptor() == true);
-			BOOST_CHECK_NO_THROW(p_test->getAdaptor());
+			CHECK_NOTHROW(p_test->resetAdaptor());
+			CHECK(p_test->hasAdaptor() == true);
+			CHECK_NOTHROW(p_test->getAdaptor());
 		}
 
 		// --------------------------------------------------------------------------
@@ -477,9 +477,9 @@ namespace Gem::Geneva
 			std::shared_ptr <GDoubleObject> p_test = this->clone<GDoubleObject>();
 
 			// Make sure no adaptor is present
-			BOOST_CHECK_NO_THROW(p_test->resetAdaptor());
-			BOOST_CHECK(p_test->hasAdaptor() == true);
-			BOOST_CHECK_NO_THROW(p_test->getAdaptor<GDoubleGaussAdaptor>());
+			CHECK_NOTHROW(p_test->resetAdaptor());
+			CHECK(p_test->hasAdaptor() == true);
+			CHECK_NOTHROW(p_test->getAdaptor<GDoubleGaussAdaptor>());
 		}
 
 		// Remove the test adaptor
@@ -498,7 +498,7 @@ namespace Gem::Geneva
 			double previous = -1.;
 			for (std::size_t i = 0; i < 10; i++) {
 				GDoubleObject p(0., 10000000.);
-				BOOST_CHECK(p.value() != previous);
+				CHECK(p.value() != previous);
 				previous = p.value();
 			}
 		}
@@ -539,10 +539,10 @@ namespace Gem::Geneva
 			std::shared_ptr <GDoubleObject> p_test = this->clone<GDoubleObject>();
 
 			// Make sure the object is in pristine condition
-			BOOST_CHECK_NO_THROW(p_test->resetAdaptor());
+			CHECK_NOTHROW(p_test->resetAdaptor());
 
 			// Add an empty std::shared_ptr<GDoubleGaussAdaptor>. This should throw
-			BOOST_CHECK_THROW(p_test->addAdaptor(std::shared_ptr<GDoubleGaussAdaptor>()),
+			CHECK_THROWS_AS(p_test->addAdaptor(std::shared_ptr<GDoubleGaussAdaptor>()),
 			                  geneva_exception);
 		}
 

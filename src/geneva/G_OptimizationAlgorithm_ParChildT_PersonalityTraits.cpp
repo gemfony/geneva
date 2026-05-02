@@ -314,8 +314,6 @@ namespace Gem::Geneva
  */
 	void GBaseParChildPersonalityTraits::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
-		using boost::unit_test_framework::test_suite;
-		using boost::unit_test_framework::test_case;
 
 		// Call the parent class'es function
 		GPersonalityTraits::specificTestsNoFailureExpected_GUnitTests_();
@@ -326,12 +324,12 @@ namespace Gem::Geneva
 			std::shared_ptr <GBaseParChildPersonalityTraits> p_test = this->clone<GBaseParChildPersonalityTraits>();
 
 			// Mark this object as belonging to a parent and check the correct setting
-			BOOST_CHECK_NO_THROW(p_test->setIsParent());
-			BOOST_CHECK(p_test->isParent() == true);
+			CHECK_NOTHROW(p_test->setIsParent());
+			CHECK(p_test->isParent() == true);
 
 			// Mark this object as belonging to a child and check the correct setting
-			BOOST_CHECK_NO_THROW(p_test->setIsChild());
-			BOOST_CHECK(p_test->isParent() == false);
+			CHECK_NOTHROW(p_test->setIsChild());
+			CHECK(p_test->isParent() == false);
 		}
 
 		// --------------------------------------------------------------------------
@@ -341,24 +339,24 @@ namespace Gem::Geneva
 			std::shared_ptr <GBaseParChildPersonalityTraits> p_test = this->clone<GBaseParChildPersonalityTraits>();
 
 			// Mark this object as belonging to a child and check the correct setting
-			BOOST_CHECK_NO_THROW(p_test->setIsChild());
-			BOOST_CHECK(p_test->isParent() == false);
+			CHECK_NOTHROW(p_test->setIsChild());
+			CHECK(p_test->isParent() == false);
 
 			// Check that the parent counter is now 0
-			BOOST_CHECK(p_test->getParentCounter() == 0);
+			CHECK(p_test->getParentCounter() == 0);
 
 			// Mark the individual as a parent a number of times and check the parent counter
 			for (std::uint32_t i = 1; i <= 10; i++) {
-				BOOST_CHECK_NO_THROW(p_test->setIsParent());
-				BOOST_CHECK(p_test->getParentCounter() == i);
+				CHECK_NOTHROW(p_test->setIsParent());
+				CHECK(p_test->getParentCounter() == i);
 			}
 
 			// Mark the individual as a child and check the parent counter again
-			BOOST_CHECK_NO_THROW(p_test->setIsChild());
-			BOOST_CHECK(p_test->isParent() == false);
+			CHECK_NOTHROW(p_test->setIsChild());
+			CHECK(p_test->isParent() == false);
 
 			// Check that the parent counter is now 0
-			BOOST_CHECK(p_test->getParentCounter() == 0);
+			CHECK(p_test->getParentCounter() == 0);
 		}
 
 		// --------------------------------------------------------------------------
@@ -367,8 +365,8 @@ namespace Gem::Geneva
 			std::shared_ptr <GBaseParChildPersonalityTraits> p_test = this->clone<GBaseParChildPersonalityTraits>();
 
 			for (std::size_t i = 0; i < 10; i++) {
-				BOOST_CHECK_NO_THROW(p_test->setPopulationPosition(i));
-				BOOST_CHECK(p_test->getPopulationPosition() == i);
+				CHECK_NOTHROW(p_test->setPopulationPosition(i));
+				CHECK(p_test->getPopulationPosition() == i);
 			}
 		}
 
@@ -378,11 +376,11 @@ namespace Gem::Geneva
 			std::shared_ptr <GBaseParChildPersonalityTraits> p_test = this->clone<GBaseParChildPersonalityTraits>();
 
 			for (std::size_t i = 0; i < 10; i++) {
-				BOOST_CHECK_NO_THROW(p_test->setParentId(i));
-				BOOST_CHECK(p_test->getParentId() == i);
-				BOOST_CHECK(p_test->parentIdSet() == true);
-				BOOST_CHECK_NO_THROW(p_test->unsetParentId());
-				BOOST_CHECK(p_test->parentIdSet() == false);
+				CHECK_NOTHROW(p_test->setParentId(i));
+				CHECK(p_test->getParentId() == i);
+				CHECK(p_test->parentIdSet() == true);
+				CHECK_NOTHROW(p_test->unsetParentId());
+				CHECK(p_test->parentIdSet() == false);
 			}
 		}
 
@@ -399,8 +397,6 @@ namespace Gem::Geneva
  */
 	void GBaseParChildPersonalityTraits::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
-		using boost::unit_test_framework::test_suite;
-		using boost::unit_test_framework::test_case;
 
 		// Call the parent class'es function
 		GPersonalityTraits::specificTestsFailuresExpected_GUnitTests_();
@@ -410,8 +406,8 @@ namespace Gem::Geneva
 		{ // Test that retrieval of the parent id throws, if the id isn't set
 			std::shared_ptr <GBaseParChildPersonalityTraits> p_test = this->clone<GBaseParChildPersonalityTraits>();
 
-			BOOST_CHECK_NO_THROW(p_test->unsetParentId());
-			BOOST_CHECK_THROW(p_test->getParentId(), geneva_exception);
+			CHECK_NOTHROW(p_test->unsetParentId());
+			CHECK_THROWS_AS((p_test->getParentId()), geneva_exception);
 		}
 
 		// --------------------------------------------------------------------------

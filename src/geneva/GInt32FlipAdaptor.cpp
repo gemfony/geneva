@@ -129,8 +129,6 @@ namespace Gem::Geneva
 	bool GInt32FlipAdaptor::modify_GUnitTests_() {
 #ifdef GEM_TESTING
 
-		using boost::unit_test_framework::test_suite;
-		using boost::unit_test_framework::test_case;
 
 		bool result = false;
 
@@ -152,8 +150,6 @@ namespace Gem::Geneva
 	void GInt32FlipAdaptor::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 
-		using boost::unit_test_framework::test_suite;
-		using boost::unit_test_framework::test_case;
 
 		// Call the parent class'es function
 		GIntFlipAdaptorT<std::int32_t>::specificTestsNoFailureExpected_GUnitTests_();
@@ -163,11 +159,10 @@ namespace Gem::Geneva
 		{ // Check that the adaptor returns the correct adaptor id
 			std::shared_ptr <GInt32FlipAdaptor> p_test = this->clone<GInt32FlipAdaptor>();
 
-			BOOST_CHECK_MESSAGE(
-				p_test->getAdaptorId() == adaptorId::GINT32FLIPADAPTOR, "\n"
+			INFO("\n"
 				<< "p_test->getAdaptorId() = " << p_test->getAdaptorId()
-				<< "GINT32FLIPADAPTOR      = " << adaptorId::GINT32FLIPADAPTOR << "\n"
-			);
+				<< "GINT32FLIPADAPTOR      = " << adaptorId::GINT32FLIPADAPTOR << "\n");
+			CHECK(p_test->getAdaptorId() == adaptorId::GINT32FLIPADAPTOR);
 		}
 
 		// --------------------------------------------------------------------------
@@ -184,8 +179,6 @@ namespace Gem::Geneva
 	void GInt32FlipAdaptor::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 
-		using boost::unit_test_framework::test_suite;
-		using boost::unit_test_framework::test_case;
 
 		// Call the parent class'es function
 		GIntFlipAdaptorT<std::int32_t>::specificTestsFailuresExpected_GUnitTests_();

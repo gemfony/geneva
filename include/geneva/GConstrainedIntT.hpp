@@ -362,12 +362,12 @@ protected:
             std::shared_ptr<GConstrainedIntT<int_type>> p_test = this->template clone<GConstrainedIntT<int_type>>();
 
             // Reset the boundaries
-            BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
+            CHECK_NOTHROW(p_test->resetBoundaries());
 
             // Try to assign values
             for (int_type i = -nTests; i < nTests; i++) {
-                BOOST_CHECK_NO_THROW(*p_test = i);
-                BOOST_CHECK(p_test->value() == i);
+                CHECK_NOTHROW(*p_test = i);
+                CHECK(p_test->value() == i);
             }
         }
 
@@ -378,7 +378,7 @@ protected:
 
             for (int_type i = -nTests; i < nTests; i++) {
                 // Make sure we start with the maximum range
-                BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
+                CHECK_NOTHROW(p_test->resetBoundaries());
 
                 int_type lowerBoundary = uniform_int(
                         gr
@@ -395,7 +395,7 @@ protected:
                                                , maxUpper
                                        ))) <= lowerBoundary) {}
 
-                BOOST_CHECK_NO_THROW(p_test->setValue(
+                CHECK_NOTHROW(p_test->setValue(
                         lowerBoundary
                         , lowerBoundary
                         , upperBoundary
@@ -408,8 +408,8 @@ protected:
                                 lowerBoundary
                                 , upperBoundary
                         ));
-                BOOST_CHECK_NO_THROW(*p_test = probe);
-                BOOST_CHECK(p_test->value() == probe);
+                CHECK_NOTHROW(*p_test = probe);
+                CHECK(p_test->value() == probe);
             }
         }
 
@@ -420,7 +420,7 @@ protected:
 
             for (int_type i = 0; i < nTests; i++) {
                 // Make sure we start with the maximum range
-                BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
+                CHECK_NOTHROW(p_test->resetBoundaries());
 
                 int_type lowerBoundary = uniform_int(
                         gr
@@ -437,7 +437,7 @@ protected:
                                                , maxUpper
                                        ))) <= lowerBoundary) {}
 
-                BOOST_CHECK_NO_THROW(p_test->setValue(
+                CHECK_NOTHROW(p_test->setValue(
                         lowerBoundary
                         , lowerBoundary
                         , upperBoundary
@@ -452,8 +452,8 @@ protected:
                                     , 10000
                             ));
                     int_type mapping = int_type(0);
-                    BOOST_CHECK_NO_THROW(mapping = p_test->transfer(probe));
-                    BOOST_CHECK(mapping >= lowerBoundary && mapping <= upperBoundary);
+                    CHECK_NOTHROW(mapping = p_test->transfer(probe));
+                    CHECK((mapping >= lowerBoundary && mapping <= upperBoundary));
                 }
             }
         }
@@ -464,10 +464,10 @@ protected:
             std::shared_ptr<GConstrainedIntT<int_type>> p_test = this->template clone<GConstrainedIntT<int_type>>();
 
             // Reset the boundaries
-            BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
+            CHECK_NOTHROW(p_test->resetBoundaries());
 
             // Randomly initialize using our internal function -- will use the most extreme boundaries available
-            BOOST_CHECK_NO_THROW(p_test->randomInit_(
+            CHECK_NOTHROW(p_test->randomInit_(
                     activityMode::ALLPARAMETERS
                     , gr
             ));
@@ -480,7 +480,7 @@ protected:
 
             for (int_type i = -nTests; i < nTests; i++) {
                 // Make sure we start with the maximum range
-                BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
+                CHECK_NOTHROW(p_test->resetBoundaries());
 
                 int_type lowerBoundary = uniform_int(
                         gr
@@ -497,14 +497,14 @@ protected:
                                                , maxUpper
                                        ))) <= lowerBoundary) {}
 
-                BOOST_CHECK_NO_THROW(p_test->setValue(
+                CHECK_NOTHROW(p_test->setValue(
                         lowerBoundary
                         , lowerBoundary
                         , upperBoundary
                 ));
 
                 // Randomly initialize, using our internal value
-                BOOST_CHECK_NO_THROW(p_test->randomInit_(
+                CHECK_NOTHROW(p_test->randomInit_(
                         activityMode::ALLPARAMETERS
                         , gr
                 ));
@@ -517,14 +517,14 @@ protected:
             std::shared_ptr<GConstrainedIntT<int_type>> p_test = this->template clone<GConstrainedIntT<int_type>>();
 
             // Reset the boundaries so we are free to do what we want
-            BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
+            CHECK_NOTHROW(p_test->resetBoundaries());
 
             // Check that the boundaries have the expected values
-            BOOST_CHECK(p_test->getLowerBoundary() == GConstrainedValueLimitT<int_type>::lowest());
-            BOOST_CHECK(p_test->getUpperBoundary() == GConstrainedValueLimitT<int_type>::highest());
+            CHECK(p_test->getLowerBoundary() == GConstrainedValueLimitT<int_type>::lowest());
+            CHECK(p_test->getUpperBoundary() == GConstrainedValueLimitT<int_type>::highest());
 
             // Try to set a boundary to a bad value
-            BOOST_CHECK_THROW(p_test->setValue(
+            CHECK_THROWS_AS(p_test->setValue(
                     0
                     , 0
                     , boost::numeric::bounds<int_type>::highest())
@@ -537,14 +537,14 @@ protected:
             std::shared_ptr<GConstrainedIntT<int_type>> p_test = this->template clone<GConstrainedIntT<int_type>>();
 
             // Reset the boundaries so we are free to do what we want
-            BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
+            CHECK_NOTHROW(p_test->resetBoundaries());
 
             // Check that the boundaries have the expected values
-            BOOST_CHECK(p_test->getLowerBoundary() == GConstrainedValueLimitT<int_type>::lowest());
-            BOOST_CHECK(p_test->getUpperBoundary() == GConstrainedValueLimitT<int_type>::highest());
+            CHECK(p_test->getLowerBoundary() == GConstrainedValueLimitT<int_type>::lowest());
+            CHECK(p_test->getUpperBoundary() == GConstrainedValueLimitT<int_type>::highest());
 
             // Try to set a boundary to a bad value
-            BOOST_CHECK_THROW(p_test->setValue(
+            CHECK_THROWS_AS(p_test->setValue(
                     0
                     , boost::numeric::bounds<int_type>::lowest()
                     , 100
@@ -558,14 +558,14 @@ protected:
             std::shared_ptr<GConstrainedIntT<int_type>> p_test = this->template clone<GConstrainedIntT<int_type>>();
 
             // Reset the boundaries so we are free to do what we want
-            BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
+            CHECK_NOTHROW(p_test->resetBoundaries());
 
             // Check that the boundaries have the expected values
-            BOOST_CHECK(p_test->getLowerBoundary() == GConstrainedValueLimitT<int_type>::lowest());
-            BOOST_CHECK(p_test->getUpperBoundary() == GConstrainedValueLimitT<int_type>::highest());
+            CHECK(p_test->getLowerBoundary() == GConstrainedValueLimitT<int_type>::lowest());
+            CHECK(p_test->getUpperBoundary() == GConstrainedValueLimitT<int_type>::highest());
 
             // Try to set a boundary to a bad value
-            BOOST_CHECK_THROW(p_test->setBoundaries(
+            CHECK_THROWS_AS(p_test->setBoundaries(
                     0
                     , boost::numeric::bounds<int_type>::highest())
             , geneva_exception);
@@ -577,14 +577,14 @@ protected:
             std::shared_ptr<GConstrainedIntT<int_type>> p_test = this->template clone<GConstrainedIntT<int_type>>();
 
             // Reset the boundaries so we are free to do what we want
-            BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
+            CHECK_NOTHROW(p_test->resetBoundaries());
 
             // Check that the boundaries have the expected values
-            BOOST_CHECK(p_test->getLowerBoundary() == GConstrainedValueLimitT<int_type>::lowest());
-            BOOST_CHECK(p_test->getUpperBoundary() == GConstrainedValueLimitT<int_type>::highest());
+            CHECK(p_test->getLowerBoundary() == GConstrainedValueLimitT<int_type>::lowest());
+            CHECK(p_test->getUpperBoundary() == GConstrainedValueLimitT<int_type>::highest());
 
             // Try to set a boundary to a bad value
-            BOOST_CHECK_THROW(p_test->setBoundaries(
+            CHECK_THROWS_AS(p_test->setBoundaries(
                     boost::numeric::bounds<int_type>::lowest()
                     , 100
             )
@@ -597,7 +597,7 @@ protected:
             std::shared_ptr<GConstrainedIntT<int_type>> p_test = this->template clone<GConstrainedIntT<int_type>>();
 
             // Reset the boundaries so we are free to do what we want
-            BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
+            CHECK_NOTHROW(p_test->resetBoundaries());
 
             for (int_type i = 1; i < 100; i++) {
                 int_type probe = uniform_int(
@@ -606,12 +606,12 @@ protected:
                                 i
                                 , 2 * i
                         ));
-                BOOST_CHECK_NO_THROW(p_test->setValue(
+                CHECK_NOTHROW(p_test->setValue(
                         probe
                         , i
                         , 2 * i
                 ));
-                BOOST_CHECK(p_test->revert(probe) == p_test->getUpperBoundary() - (probe - p_test->getLowerBoundary()));
+                CHECK(p_test->revert(probe) == p_test->getUpperBoundary() - (probe - p_test->getLowerBoundary()));
             }
         }
 

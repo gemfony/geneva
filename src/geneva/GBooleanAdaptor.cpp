@@ -162,8 +162,6 @@ namespace Gem::Geneva
  */
 	bool GBooleanAdaptor::modify_GUnitTests_() {
 #ifdef GEM_TESTING
-		using boost::unit_test_framework::test_suite;
-		using boost::unit_test_framework::test_case;
 
 		bool result = false;
 
@@ -183,8 +181,6 @@ namespace Gem::Geneva
  */
 	void GBooleanAdaptor::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
-		using boost::unit_test_framework::test_suite;
-		using boost::unit_test_framework::test_case;
 
 		// Call the parent class'es function
 		GAdaptorT<bool>::specificTestsNoFailureExpected_GUnitTests_();
@@ -193,12 +189,11 @@ namespace Gem::Geneva
 
 		{ // Check default construction
 			GBooleanAdaptor gba;
-			BOOST_CHECK_MESSAGE(
-				gba.getAdaptionProbability() == DEFAULTBITADPROB, "\n"
+			INFO("\n"
 				<< "gba.getAdaptionProbability() = " <<
 				gba.getAdaptionProbability() << "\n"
-				<< "DEFAULTADPROB = " << DEFAULTBITADPROB
-			);
+				<< "DEFAULTADPROB = " << DEFAULTBITADPROB);
+			CHECK(gba.getAdaptionProbability() == DEFAULTBITADPROB);
 		}
 
 		// --------------------------------------------------------------------------
@@ -206,12 +201,11 @@ namespace Gem::Geneva
 		{ // Check construction with a given adaption probability
 			const double TRIALADPROB = 0.1;
 			GBooleanAdaptor gba(TRIALADPROB);
-			BOOST_CHECK_MESSAGE(
-				gba.getAdaptionProbability() == TRIALADPROB, "\n"
+			INFO("\n"
 				<< "gba.getAdaptionProbability() = " <<
 				gba.getAdaptionProbability()
-				<< "TRIALADPROB = " << TRIALADPROB
-			);
+				<< "TRIALADPROB = " << TRIALADPROB);
+			CHECK(gba.getAdaptionProbability() == TRIALADPROB);
 		}
 
 		// --------------------------------------------------------------------------
@@ -220,12 +214,11 @@ namespace Gem::Geneva
 			const double TRIALADPROB = 0.1;
 			GBooleanAdaptor gba1(TRIALADPROB);
 			GBooleanAdaptor gba2(gba1);
-			BOOST_CHECK_MESSAGE(
-				gba2.getAdaptionProbability() == TRIALADPROB, "\n"
+			INFO("\n"
 				<< "gba2.getAdaptionProbability() = " <<
 				gba2.getAdaptionProbability()
-				<< "TRIALADPROB = " << TRIALADPROB
-			);
+				<< "TRIALADPROB = " << TRIALADPROB);
+			CHECK(gba2.getAdaptionProbability() == TRIALADPROB);
 		}
 
 		// --------------------------------------------------------------------------
@@ -233,11 +226,10 @@ namespace Gem::Geneva
 		{ // Check that the adaptor returns the correct adaptor id
 			std::shared_ptr <GBooleanAdaptor> p_test = this->clone<GBooleanAdaptor>();
 
-			BOOST_CHECK_MESSAGE(
-				p_test->getAdaptorId() == adaptorId::GBOOLEANADAPTOR, "\n"
+			INFO("\n"
 				<< "p_test->getAdaptorId() = " << p_test->getAdaptorId()
-				<< "GBOOLEANADAPTOR        = " << adaptorId::GBOOLEANADAPTOR << "\n"
-			);
+				<< "GBOOLEANADAPTOR        = " << adaptorId::GBOOLEANADAPTOR << "\n");
+			CHECK(p_test->getAdaptorId() == adaptorId::GBOOLEANADAPTOR);
 		}
 
 		// --------------------------------------------------------------------------
@@ -253,8 +245,6 @@ namespace Gem::Geneva
  */
 	void GBooleanAdaptor::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
-		using boost::unit_test_framework::test_suite;
-		using boost::unit_test_framework::test_case;
 
 		// Call the parent class'es function
 		GAdaptorT<bool>::specificTestsFailuresExpected_GUnitTests_();

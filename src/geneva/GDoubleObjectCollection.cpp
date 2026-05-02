@@ -150,14 +150,14 @@ namespace Gem::Geneva
         Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
 
         // Clear the collection, so we can start fresh
-        BOOST_CHECK_NO_THROW(this->clear());
+        CHECK_NOTHROW(this->clear());
 
         // Add GDoubleObject items with adaptors to p_test1
         for (std::size_t i = 0; i < nAddedObjects; i++) {
             // Create a suitable adaptor
             std::shared_ptr<GDoubleGaussAdaptor> gdga_ptr;
 
-            BOOST_CHECK_NO_THROW(
+            CHECK_NOTHROW(
                 gdga_ptr = std::shared_ptr<GDoubleGaussAdaptor>(
                     new GDoubleGaussAdaptor(
                         0.025
@@ -166,31 +166,31 @@ namespace Gem::Geneva
                         , 1.
                         , 1.0
                     )));
-            BOOST_CHECK_NO_THROW(gdga_ptr->setAdaptionThreshold(
+            CHECK_NOTHROW(gdga_ptr->setAdaptionThreshold(
                 0
             )); // Make sure the adaptor's internal parameters don't change through the adaption
-            BOOST_CHECK_NO_THROW(gdga_ptr->setAdaptionMode(adaptionMode::ALWAYS)); // Always adapt
+            CHECK_NOTHROW(gdga_ptr->setAdaptionMode(adaptionMode::ALWAYS)); // Always adapt
 
             // Create a suitable GDoubleObject object
             std::shared_ptr<GDoubleObject> gdo_ptr;
 
-            BOOST_CHECK_NO_THROW(gdo_ptr = std::shared_ptr<GDoubleObject>(
+            CHECK_NOTHROW(gdo_ptr = std::shared_ptr<GDoubleObject>(
                 new GDoubleObject(
                     -100.
                     , 100.
                 ))); // Initialization in the range -100, 100
 
             // Add the adaptor
-            BOOST_CHECK_NO_THROW(gdo_ptr->addAdaptor(gdga_ptr));
+            CHECK_NOTHROW(gdo_ptr->addAdaptor(gdga_ptr));
 
             // Randomly initialize the GDoubleObject object, so it is unique
-            BOOST_CHECK_NO_THROW(gdo_ptr->randomInit(
+            CHECK_NOTHROW(gdo_ptr->randomInit(
                 activityMode::ALLPARAMETERS
                 , gr
             ));
 
             // Add the object to the collection
-            BOOST_CHECK_NO_THROW(this->push_back(gdo_ptr));
+            CHECK_NOTHROW(this->push_back(gdo_ptr));
         }
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
@@ -236,24 +236,24 @@ namespace Gem::Geneva
             std::shared_ptr<GDoubleObjectCollection> p_test2 = this->clone<GDoubleObjectCollection>();
 
             // Fill p_test1 with objects
-            BOOST_CHECK_NO_THROW(p_test1->fillWithObjects_(nAddedObjects));
+            CHECK_NOTHROW(p_test1->fillWithObjects_(nAddedObjects));
 
             // Load the p_test1 data into p_test2
-            BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
+            CHECK_NOTHROW(p_test2->load(p_test1));
 
             // Check that both objects are identical
-            BOOST_CHECK(*p_test1 == *p_test2);
+            CHECK(*p_test1 == *p_test2);
 
             // Modify p_test2 using its adapt-function
-            BOOST_CHECK_NO_THROW(p_test2->adapt(gr));
+            CHECK_NOTHROW(p_test2->adapt(gr));
 
             // Check that both objects differ
             // Check that both objects are identical
-            BOOST_CHECK(*p_test1 != *p_test2);
+            CHECK(*p_test1 != *p_test2);
 
             // All items in the collection must have been modified individually
             for (std::size_t i = 0; i < nAddedObjects; i++) {
-                BOOST_CHECK(*(p_test1->at(i)) != *(p_test2->at(i)));
+                CHECK(*(p_test1->at(i)) != *(p_test2->at(i)));
             }
         }
 
@@ -263,20 +263,20 @@ namespace Gem::Geneva
             std::shared_ptr<GDoubleObjectCollection> p_test1 = this->clone<GDoubleObjectCollection>();
 
             // Fill p_test1 with objects
-            BOOST_CHECK_NO_THROW(p_test1->fillWithObjects_(nAddedObjects));
+            CHECK_NOTHROW(p_test1->fillWithObjects_(nAddedObjects));
 
             // Cross check the amount of items in the collection
-            BOOST_CHECK(p_test1->size() == nAddedObjects);
+            CHECK(p_test1->size() == nAddedObjects);
 
             // Initialize with a fixed value
-            BOOST_CHECK_NO_THROW(p_test1->fixedValueInit<double>(
+            CHECK_NOTHROW(p_test1->fixedValueInit<double>(
                 FIXEDVALUEINIT
                 , activityMode::ALLPARAMETERS
             ));
 
             // Check that all items have the expected value
             for (std::size_t i = 0; i < nAddedObjects; i++) {
-                BOOST_CHECK(p_test1->at(i)->value() == FIXEDVALUEINIT);
+                CHECK(p_test1->at(i)->value() == FIXEDVALUEINIT);
             }
         }
 
@@ -286,26 +286,26 @@ namespace Gem::Geneva
             std::shared_ptr<GDoubleObjectCollection> p_test1 = this->clone<GDoubleObjectCollection>();
 
             // Fill p_test1 with objects
-            BOOST_CHECK_NO_THROW(p_test1->fillWithObjects_(nAddedObjects));
+            CHECK_NOTHROW(p_test1->fillWithObjects_(nAddedObjects));
 
             // Cross check the amount of items in the collection
-            BOOST_CHECK(p_test1->size() == nAddedObjects);
+            CHECK(p_test1->size() == nAddedObjects);
 
             // Initialize with a fixed value (1), so we have a defined start value for the multiplication
-            BOOST_CHECK_NO_THROW(p_test1->fixedValueInit<double>(
+            CHECK_NOTHROW(p_test1->fixedValueInit<double>(
                 FIXEDVALUEINIT
                 , activityMode::ALLPARAMETERS
             ));
 
             // Multiply all items with a defined value
-            BOOST_CHECK_NO_THROW(p_test1->multiplyBy<double>(
+            CHECK_NOTHROW(p_test1->multiplyBy<double>(
                 MULTVALUE
                 , activityMode::ALLPARAMETERS
             ));
 
             // Check the values of all items
             for (std::size_t i = 0; i < nAddedObjects; i++) {
-                BOOST_CHECK(p_test1->at(i)->value() == MULTVALUE);
+                CHECK(p_test1->at(i)->value() == MULTVALUE);
             }
         }
 
@@ -316,28 +316,28 @@ namespace Gem::Geneva
             std::shared_ptr<GDoubleObjectCollection> p_test2 = this->clone<GDoubleObjectCollection>();
 
             // Fill p_test1 with objects
-            BOOST_CHECK_NO_THROW(p_test1->fillWithObjects_(nAddedObjects));
+            CHECK_NOTHROW(p_test1->fillWithObjects_(nAddedObjects));
 
             // Make sure p_test2 is empty
-            BOOST_CHECK_NO_THROW(p_test2->clear());
+            CHECK_NOTHROW(p_test2->clear());
 
             // Cross check the amount of items in the collection
-            BOOST_CHECK(p_test1->size() == nAddedObjects);
+            CHECK(p_test1->size() == nAddedObjects);
 
             // Initialize with a fixed value (1), so we have a defined start value for the multiplication
-            BOOST_CHECK_NO_THROW(p_test1->fixedValueInit<double>(
+            CHECK_NOTHROW(p_test1->fixedValueInit<double>(
                 FIXEDVALUEINIT
                 , activityMode::ALLPARAMETERS
             ));
 
             // Load p_test1 into p_test2
-            BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
+            CHECK_NOTHROW(p_test2->load(p_test1));
 
             // Make sure both objects are the same
-            BOOST_CHECK(*p_test1 == *p_test2);
+            CHECK(*p_test1 == *p_test2);
 
             // Multiply p_test1 with a random value
-            BOOST_CHECK_NO_THROW(p_test1->multiplyByRandom<double>(
+            CHECK_NOTHROW(p_test1->multiplyByRandom<double>(
                 LOWERINITBOUNDARY
                 , UPPERINITBOUNDARY
                 , activityMode::ALLPARAMETERS
@@ -345,11 +345,11 @@ namespace Gem::Geneva
             ));
 
             // Check that p_test1 and p_test2 differ
-            BOOST_CHECK(*p_test1 != *p_test2);
+            CHECK(*p_test1 != *p_test2);
 
             // Check that each item individually differs
             for (std::size_t i = 0; i < nAddedObjects; i++) {
-                BOOST_CHECK(p_test1->at(i)->value() != p_test2->at(i)->value());
+                CHECK(p_test1->at(i)->value() != p_test2->at(i)->value());
             }
         }
 
@@ -360,38 +360,38 @@ namespace Gem::Geneva
             std::shared_ptr<GDoubleObjectCollection> p_test2 = this->clone<GDoubleObjectCollection>();
 
             // Fill p_test1 with objects
-            BOOST_CHECK_NO_THROW(p_test1->fillWithObjects_(nAddedObjects));
+            CHECK_NOTHROW(p_test1->fillWithObjects_(nAddedObjects));
 
             // Make sure p_test2 is empty
-            BOOST_CHECK_NO_THROW(p_test2->clear());
+            CHECK_NOTHROW(p_test2->clear());
 
             // Cross check the amount of items in the collection
-            BOOST_CHECK(p_test1->size() == nAddedObjects);
+            CHECK(p_test1->size() == nAddedObjects);
 
             // Initialize with a fixed value (1), so we have a defined start value for the multiplication
-            BOOST_CHECK_NO_THROW(p_test1->fixedValueInit<double>(
+            CHECK_NOTHROW(p_test1->fixedValueInit<double>(
                 FIXEDVALUEINIT
                 , activityMode::ALLPARAMETERS
             ));
 
             // Load p_test1 into p_test2
-            BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
+            CHECK_NOTHROW(p_test2->load(p_test1));
 
             // Make sure both objects are the same
-            BOOST_CHECK(*p_test1 == *p_test2);
+            CHECK(*p_test1 == *p_test2);
 
             // Multiply p_test1 with a random value
-            BOOST_CHECK_NO_THROW(p_test1->multiplyByRandom<double>(
+            CHECK_NOTHROW(p_test1->multiplyByRandom<double>(
                 activityMode::ALLPARAMETERS
                 , gr
             ));
 
             // Check that p_test1 and p_test2 differ
-            BOOST_CHECK(*p_test1 != *p_test2);
+            CHECK(*p_test1 != *p_test2);
 
             // Check that each item individually differs
             for (std::size_t i = 0; i < nAddedObjects; i++) {
-                BOOST_CHECK(p_test1->at(i)->value() != p_test2->at(i)->value());
+                CHECK(p_test1->at(i)->value() != p_test2->at(i)->value());
             }
         }
 
@@ -402,34 +402,34 @@ namespace Gem::Geneva
             std::shared_ptr<GDoubleObjectCollection> p_test2 = this->clone<GDoubleObjectCollection>();
 
             // Fill p_test1 with objects
-            BOOST_CHECK_NO_THROW(p_test1->fillWithObjects_(nAddedObjects));
+            CHECK_NOTHROW(p_test1->fillWithObjects_(nAddedObjects));
 
             // Make sure p_test2 is empty
-            BOOST_CHECK_NO_THROW(p_test2->clear());
+            CHECK_NOTHROW(p_test2->clear());
 
             // Load p_test1 into p_test2
-            BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
+            CHECK_NOTHROW(p_test2->load(p_test1));
 
             // Initialize p_test1 with a fixed value (1)
-            BOOST_CHECK_NO_THROW(p_test1->fixedValueInit<double>(
+            CHECK_NOTHROW(p_test1->fixedValueInit<double>(
                 double(1.)
                 , activityMode::ALLPARAMETERS
             ));
             // Initialize p_test2 with a fixed value (2)
-            BOOST_CHECK_NO_THROW(p_test2->fixedValueInit<double>(
+            CHECK_NOTHROW(p_test2->fixedValueInit<double>(
                 double(2.)
                 , activityMode::ALLPARAMETERS
             ));
 
             // Add p_test1 to p_test2
-            BOOST_CHECK_NO_THROW(p_test2->add<double>(
+            CHECK_NOTHROW(p_test2->add<double>(
                 p_test1
                 , activityMode::ALLPARAMETERS
             ));
 
             // Check each position of p_test2 individually
             for (std::size_t i = 0; i < nAddedObjects; i++) {
-                BOOST_CHECK(p_test2->at(i)->value() == double(2.) + double(1.));
+                CHECK(p_test2->at(i)->value() == double(2.) + double(1.));
             }
         }
 
@@ -440,34 +440,34 @@ namespace Gem::Geneva
             std::shared_ptr<GDoubleObjectCollection> p_test2 = this->clone<GDoubleObjectCollection>();
 
             // Fill p_test1 with objects
-            BOOST_CHECK_NO_THROW(p_test1->fillWithObjects_(nAddedObjects));
+            CHECK_NOTHROW(p_test1->fillWithObjects_(nAddedObjects));
 
             // Make sure p_test2 is empty
-            BOOST_CHECK_NO_THROW(p_test2->clear());
+            CHECK_NOTHROW(p_test2->clear());
 
             // Load p_test1 into p_test2
-            BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
+            CHECK_NOTHROW(p_test2->load(p_test1));
 
             // Initialize p_test1 with a fixed value (1)
-            BOOST_CHECK_NO_THROW(p_test1->fixedValueInit<double>(
+            CHECK_NOTHROW(p_test1->fixedValueInit<double>(
                 double(1.)
                 , activityMode::ALLPARAMETERS
             ));
             // Initialize p_test2 with a fixed value (2)
-            BOOST_CHECK_NO_THROW(p_test2->fixedValueInit<double>(
+            CHECK_NOTHROW(p_test2->fixedValueInit<double>(
                 double(2.)
                 , activityMode::ALLPARAMETERS
             ));
 
             // Subtract p_test1 from p_test2
-            BOOST_CHECK_NO_THROW(p_test2->subtract<double>(
+            CHECK_NOTHROW(p_test2->subtract<double>(
                 p_test1
                 , activityMode::ALLPARAMETERS
             ));
 
             // Check each position of p_test2 individually
             for (std::size_t i = 0; i < nAddedObjects; i++) {
-                BOOST_CHECK(p_test2->at(i)->value() == double(2.) - double(1.));
+                CHECK(p_test2->at(i)->value() == double(2.) - double(1.));
             }
         }
 
@@ -497,19 +497,19 @@ namespace Gem::Geneva
             std::shared_ptr<GDoubleObjectCollection> p_test2 = this->clone<GDoubleObjectCollection>();
 
             // Fill p_test1 with objects
-            BOOST_CHECK_NO_THROW(p_test1->fillWithObjects_(nAddedObjects));
+            CHECK_NOTHROW(p_test1->fillWithObjects_(nAddedObjects));
 
             // Clear p_test2, so we are sure it is empty
-            BOOST_CHECK_NO_THROW(p_test2->clear());
+            CHECK_NOTHROW(p_test2->clear());
 
             // Check that both objects are in-equal
-            BOOST_CHECK(*p_test1 != *p_test2);
+            CHECK(*p_test1 != *p_test2);
 
             // Check that the sizes differ
-            BOOST_CHECK(p_test1->size() != p_test2->size() && p_test2->size() == 0);
+            CHECK((p_test1->size() != p_test2->size() && p_test2->size() == 0));
 
             // Adding p_test2 to p_test1 should throw
-            BOOST_CHECK_THROW(p_test1->add<double>(
+            CHECK_THROWS_AS(p_test1->add<double>(
                                   p_test2
                                   , activityMode::ALLPARAMETERS
                               )
@@ -523,19 +523,19 @@ namespace Gem::Geneva
             std::shared_ptr<GDoubleObjectCollection> p_test2 = this->clone<GDoubleObjectCollection>();
 
             // Fill p_test1 with objects
-            BOOST_CHECK_NO_THROW(p_test1->fillWithObjects_(nAddedObjects));
+            CHECK_NOTHROW(p_test1->fillWithObjects_(nAddedObjects));
 
             // Clear p_test2, so we are sure it is empty
-            BOOST_CHECK_NO_THROW(p_test2->clear());
+            CHECK_NOTHROW(p_test2->clear());
 
             // Check that both objects are in-equal
-            BOOST_CHECK(*p_test1 != *p_test2);
+            CHECK(*p_test1 != *p_test2);
 
             // Check that the sizes differ
-            BOOST_CHECK(p_test1->size() != p_test2->size() && p_test2->size() == 0);
+            CHECK((p_test1->size() != p_test2->size() && p_test2->size() == 0));
 
             // Subtracting p_test2 from p_test1 should throw
-            BOOST_CHECK_THROW(p_test1->subtract<double>(
+            CHECK_THROWS_AS(p_test1->subtract<double>(
                                   p_test2
                                   , activityMode::ALLPARAMETERS
                               )

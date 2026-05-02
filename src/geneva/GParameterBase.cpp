@@ -1083,20 +1083,20 @@ namespace Gem::Geneva
 			std::shared_ptr <GParameterBase> p_test1 = this->clone<GParameterBase>();
 			std::shared_ptr <GParameterBase> p_test2 = this->clone<GParameterBase>();
 
-			BOOST_CHECK_NO_THROW(p_test1->blockRandomInitialization());
-			BOOST_CHECK_NO_THROW(p_test2->blockRandomInitialization());
-			BOOST_CHECK(p_test1->randomInitializationBlocked() == true);
-			BOOST_CHECK(p_test2->randomInitializationBlocked() == true);
+			CHECK_NOTHROW(p_test1->blockRandomInitialization());
+			CHECK_NOTHROW(p_test2->blockRandomInitialization());
+			CHECK(p_test1->randomInitializationBlocked() == true);
+			CHECK(p_test2->randomInitializationBlocked() == true);
 
 			// Random initialization should leave the object unchanged
-			BOOST_CHECK_NO_THROW(p_test1->randomInit(activityMode::ALLPARAMETERS, gr));
-			BOOST_CHECK(*p_test1 == *p_test2);
+			CHECK_NOTHROW(p_test1->randomInit(activityMode::ALLPARAMETERS, gr));
+			CHECK(*p_test1 == *p_test2);
 
 			// Unblock random initialization
-			BOOST_CHECK_NO_THROW(p_test1->allowRandomInitialization());
-			BOOST_CHECK_NO_THROW(p_test2->allowRandomInitialization());
-			BOOST_CHECK(p_test1->randomInitializationBlocked() == false);
-			BOOST_CHECK(p_test2->randomInitializationBlocked() == false);
+			CHECK_NOTHROW(p_test1->allowRandomInitialization());
+			CHECK_NOTHROW(p_test2->allowRandomInitialization());
+			CHECK(p_test1->randomInitializationBlocked() == false);
+			CHECK(p_test2->randomInitializationBlocked() == false);
 
 			// Random initialization should change p_test1. We run the test
 			// multiple times, as random initialization particularly of
@@ -1112,7 +1112,7 @@ namespace Gem::Geneva
 						}
 					}
 				}
-				BOOST_CHECK(valueChanged);
+				CHECK(valueChanged);
 			}
 		}
 
@@ -1129,25 +1129,25 @@ namespace Gem::Geneva
 			std::shared_ptr <GParameterBase> p_test_2 = this->clone<GParameterBase>();
 
 			// activate adaptions
-			BOOST_CHECK_NO_THROW(p_test_1->setAdaptionsActive());
-			BOOST_CHECK(p_test_1->adaptionsActive() == true);
+			CHECK_NOTHROW(p_test_1->setAdaptionsActive());
+			CHECK(p_test_1->adaptionsActive() == true);
 
 			// de-activate adaptions
-			BOOST_CHECK_NO_THROW(p_test_2->setAdaptionsInactive());
-			BOOST_CHECK(p_test_2->adaptionsActive() == false);
+			CHECK_NOTHROW(p_test_2->setAdaptionsInactive());
+			CHECK(p_test_2->adaptionsActive() == false);
 
 			if (p_test_1->hasAdaptor() && p_test_2->hasAdaptor()) {
 				bool adapted = false;
-				BOOST_CHECK_NO_THROW(
+				CHECK_NOTHROW(
 					adapted = p_test_1->adapt(gr)); // Should change, unless we are dealing with an "empty" container type
-				BOOST_CHECK_NO_THROW(p_test->setAdaptionsActive()); // Make sure differences do not stem from this flag
+				CHECK_NOTHROW(p_test->setAdaptionsActive()); // Make sure differences do not stem from this flag
 				if (adapted) {
-					BOOST_CHECK(*p_test_1 != *p_test);
+					CHECK(*p_test_1 != *p_test);
 				}
 
-				BOOST_CHECK_NO_THROW(p_test_2->adapt(gr)); // Should stay unchanged
-				BOOST_CHECK_NO_THROW(p_test->setAdaptionsInactive()); // Make sure differences do not stem from this flag
-				BOOST_CHECK(*p_test_2 == *p_test);
+				CHECK_NOTHROW(p_test_2->adapt(gr)); // Should stay unchanged
+				CHECK_NOTHROW(p_test->setAdaptionsInactive()); // Make sure differences do not stem from this flag
+				CHECK(*p_test_2 == *p_test);
 			}
 		}
 
@@ -1159,39 +1159,39 @@ namespace Gem::Geneva
 			std::shared_ptr <GParameterBase> p_test2 = this->clone<GParameterBase>();
 
 			// Always adapt
-			BOOST_CHECK_NO_THROW(p_test1->setAdaptionsActive());
-			BOOST_CHECK_NO_THROW(p_test2->setAdaptionsActive());
+			CHECK_NOTHROW(p_test1->setAdaptionsActive());
+			CHECK_NOTHROW(p_test2->setAdaptionsActive());
 
 			// Check that adaptions are indeed active in both objects
-			BOOST_CHECK(p_test1->adaptionsActive() == true);
-			BOOST_CHECK(p_test2->adaptionsActive() == true);
+			CHECK(p_test1->adaptionsActive() == true);
+			CHECK(p_test2->adaptionsActive() == true);
 
 			// Check that we have adaption powers when using the random number generator
 			if (p_test1->hasAdaptor()) {
 				for (std::size_t i = 0; i < 100; i++) {
 					bool adapted = false;
-					BOOST_CHECK_NO_THROW(adapted = p_test1->adapt(gr));
+					CHECK_NOTHROW(adapted = p_test1->adapt(gr));
 					if (adapted) {
-						BOOST_CHECK(*p_test1 != *p_test2);
+						CHECK(*p_test1 != *p_test2);
 					}
-					BOOST_CHECK_NO_THROW(p_test1->load(p_test2));
-					BOOST_CHECK(*p_test1 == *p_test2);
+					CHECK_NOTHROW(p_test1->load(p_test2));
+					CHECK(*p_test1 == *p_test2);
 				}
 			}
 
 			// De-activate adaptions in both objects
-			BOOST_CHECK_NO_THROW(p_test1->setAdaptionsInactive());
-			BOOST_CHECK_NO_THROW(p_test2->setAdaptionsInactive());
+			CHECK_NOTHROW(p_test1->setAdaptionsInactive());
+			CHECK_NOTHROW(p_test2->setAdaptionsInactive());
 
 			// Check that adaptions are indeed inactive in both objects
-			BOOST_CHECK(p_test1->adaptionsActive() == false);
-			BOOST_CHECK(p_test2->adaptionsActive() == false);
+			CHECK(p_test1->adaptionsActive() == false);
+			CHECK(p_test2->adaptionsActive() == false);
 
 			// Check that adaptions do not occur anymore in p_test1
 			if (p_test1->hasAdaptor()) {
 				for (std::size_t i = 0; i < 100; i++) {
-					BOOST_CHECK_NO_THROW(p_test1->adapt(gr));
-					BOOST_CHECK(*p_test1 == *p_test2);
+					CHECK_NOTHROW(p_test1->adapt(gr));
+					CHECK(*p_test1 == *p_test2);
 				}
 			}
 		}

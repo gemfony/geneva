@@ -553,14 +553,14 @@ protected:
 			std::shared_ptr<GConstrainedNumT<T>> p_test = this->template clone<GConstrainedNumT<T>>();
 
 			// Make sure we can freely assign values
-			BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
-			BOOST_CHECK(p_test->getLowerBoundary() == GConstrainedValueLimitT<T>::lowest());
+			CHECK_NOTHROW(p_test->resetBoundaries());
+			CHECK(p_test->getLowerBoundary() == GConstrainedValueLimitT<T>::lowest());
 
 			// GConstrainedDoubleObject assigns the float prior to the specified boundary
 			if(typeid(T) == typeid(double)) {
-				BOOST_CHECK(double(p_test->getUpperBoundary()) ==  boost::math::float_prior<double>(double(GConstrainedValueLimitT<T>::highest())));
+				CHECK(double(p_test->getUpperBoundary()) ==  boost::math::float_prior<double>(double(GConstrainedValueLimitT<T>::highest())));
 			} else {
-				BOOST_CHECK(p_test->getUpperBoundary() ==  GConstrainedValueLimitT<T>::highest());
+				CHECK(p_test->getUpperBoundary() ==  GConstrainedValueLimitT<T>::highest());
 			}
 		}
 
@@ -570,22 +570,22 @@ protected:
 			std::shared_ptr<GConstrainedNumT<T>> p_test = this->template clone<GConstrainedNumT<T>>();
 
 			// Make sure we can freely assign values
-			BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
+			CHECK_NOTHROW(p_test->resetBoundaries());
 
 			// Assign a valid value
-			BOOST_CHECK_NO_THROW(p_test->setValue(testVal));
+			CHECK_NOTHROW(p_test->setValue(testVal));
 
 			if(typeid(T) == typeid(bool)) {
-				BOOST_CHECK_NO_THROW(p_test->setValue(true, false, true));
+				CHECK_NOTHROW(p_test->setValue(true, false, true));
 			} else {
-				BOOST_CHECK_NO_THROW(p_test->setValue(testVal, T(30), T(50)));
+				CHECK_NOTHROW(p_test->setValue(testVal, T(30), T(50)));
 			}
 
 			// Check with the local value() function that the value has been set
-			BOOST_CHECK(p_test->value() == testVal);
+			CHECK(p_test->value() == testVal);
 
 			// Check that getInternalValue() behaves as expected
-			BOOST_CHECK(p_test->value() == p_test->getInternalValue());
+			CHECK(p_test->value() == p_test->getInternalValue());
 		}
 
 		//------------------------------------------------------------------------------
@@ -594,29 +594,29 @@ protected:
 			std::shared_ptr<GConstrainedNumT<T>> p_test = this->template clone<GConstrainedNumT<T>>();
 
 			// Make sure we can freely assign values
-			BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
+			CHECK_NOTHROW(p_test->resetBoundaries());
 
 			// Set the desired value
-			BOOST_CHECK_NO_THROW(p_test->setValue(testVal));
+			CHECK_NOTHROW(p_test->setValue(testVal));
 
 			// Check that the value has indeed been set
-			BOOST_CHECK(p_test->value() == testVal);
+			CHECK(p_test->value() == testVal);
 
 			// Set the boundaries
-			BOOST_CHECK_NO_THROW(p_test->setBoundaries(lowerBoundary, upperBoundary));
+			CHECK_NOTHROW(p_test->setBoundaries(lowerBoundary, upperBoundary));
 
 			// Check the values of these boundaries
-			BOOST_CHECK(p_test->getLowerBoundary() == lowerBoundary);
+			CHECK(p_test->getLowerBoundary() == lowerBoundary);
 
 			// GConstrainedDoubleObject assigns the float prior to the specified boundary
 			if(typeid(T) == typeid(double)) {
-				BOOST_CHECK(double(p_test->getUpperBoundary()) == boost::math::float_prior<double>(double(upperBoundary)));
+				CHECK(double(p_test->getUpperBoundary()) == boost::math::float_prior<double>(double(upperBoundary)));
 			} else {
-				BOOST_CHECK(p_test->getUpperBoundary() == upperBoundary);
+				CHECK(p_test->getUpperBoundary() == upperBoundary);
 			}
 
 			// Check that the value is still the same
-			BOOST_CHECK(p_test->value() == testVal);
+			CHECK(p_test->value() == testVal);
 		}
 
 		//------------------------------------------------------------------------------
@@ -625,44 +625,36 @@ protected:
 			std::shared_ptr<GConstrainedNumT<T>> p_test = this->template clone<GConstrainedNumT<T>>();
 
 			// Make sure we can freely assign values
-			BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
+			CHECK_NOTHROW(p_test->resetBoundaries());
 
 			// Set the desired value
-			BOOST_CHECK_NO_THROW(p_test->setValue(testVal, lowerBoundary, upperBoundary));
+			CHECK_NOTHROW(p_test->setValue(testVal, lowerBoundary, upperBoundary));
 
 			// Check the values of these boundaries
-			BOOST_CHECK_MESSAGE(
-					p_test->getLowerBoundary() == lowerBoundary
-			,  "\n"
+			INFO("\n"
 							<< "p_test->getLowerBoundary() = " << p_test->getLowerBoundary() << "\n"
-							<< "lowerBoundary = " << lowerBoundary << "\n"
-			);
+							<< "lowerBoundary = " << lowerBoundary << "\n");
+			CHECK(p_test->getLowerBoundary() == lowerBoundary);
 
 			if(typeid(T) == typeid(double)) {
-				BOOST_CHECK_MESSAGE(
-						double(p_test->getUpperBoundary()) == boost::math::float_prior<double>(double(upperBoundary))
-				,  "\n"
+				INFO("\n"
 								<< "p_test->getUpperBoundary() = " << p_test->getUpperBoundary() << "\n"
-								<< "upperBoundary = " << upperBoundary << "\n"
-				);
+								<< "upperBoundary = " << upperBoundary << "\n");
+				CHECK(double(p_test->getUpperBoundary()) == boost::math::float_prior<double>(double(upperBoundary)));
 			} else if(typeid(T) == typeid(float)) {
-				BOOST_CHECK_MESSAGE(
-						float(p_test->getUpperBoundary()) == boost::math::float_prior<float>(float(upperBoundary))
-				,  "\n"
+				INFO("\n"
 								<< "p_test->getUpperBoundary() = " << p_test->getUpperBoundary() << "\n"
-								<< "upperBoundary = " << upperBoundary << "\n"
-				);
+								<< "upperBoundary = " << upperBoundary << "\n");
+				CHECK(float(p_test->getUpperBoundary()) == boost::math::float_prior<float>(float(upperBoundary)));
 			} else {
-				BOOST_CHECK_MESSAGE(
-						p_test->getUpperBoundary() == upperBoundary
-				,  "\n"
+				INFO("\n"
 								<< "p_test->getUpperBoundary() = " << p_test->getUpperBoundary() << "\n"
-								<< "upperBoundary = " << upperBoundary << "\n"
-				);
+								<< "upperBoundary = " << upperBoundary << "\n");
+				CHECK(p_test->getUpperBoundary() == upperBoundary);
 			}
 
 			// Check that the value is still the same
-			BOOST_CHECK(p_test->value() == testVal);
+			CHECK(p_test->value() == testVal);
 		}
 
 		//------------------------------------------------------------------------------
@@ -671,16 +663,16 @@ protected:
 			std::shared_ptr<GConstrainedNumT<T>> p_test = this->template clone<GConstrainedNumT<T>>();
 
 			// Make sure we can freely assign values
-			BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
+			CHECK_NOTHROW(p_test->resetBoundaries());
 
 			// Set the desired value
-			BOOST_CHECK_NO_THROW(p_test->setValue(testVal, lowerBoundary, upperBoundary));
+			CHECK_NOTHROW(p_test->setValue(testVal, lowerBoundary, upperBoundary));
 
 			// Assign a value
-			BOOST_CHECK_NO_THROW(*p_test = (testVal - T(1)));
+			CHECK_NOTHROW(*p_test = (testVal - T(1)));
 
 			// Check that is was set correctly
-			BOOST_CHECK(p_test->value() == (testVal - T(1)));
+			CHECK(p_test->value() == (testVal - T(1)));
 		}
 
 		//------------------------------------------------------------------------------
@@ -705,7 +697,7 @@ protected:
 			std::shared_ptr<GConstrainedNumT<T>> p_test = this->template clone<GConstrainedNumT<T>>();
 
 			// Setting an upper boundary < lower boundary should throw
-			BOOST_CHECK_THROW(p_test->setBoundaries(T(1), T(0)), geneva_exception);
+			CHECK_THROWS_AS((p_test->setBoundaries(T(1), T(0))), geneva_exception);
 		}
 
 		//------------------------------------------------------------------------------
@@ -714,13 +706,13 @@ protected:
 			std::shared_ptr<GConstrainedNumT<T>> p_test = this->template clone<GConstrainedNumT<T>>();
 
 			// First make sure we have the widest possible boundaries
-			BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
+			CHECK_NOTHROW(p_test->resetBoundaries());
 
 			// Now assign a value
-			BOOST_CHECK_NO_THROW(p_test->setValue(T(2)));
+			CHECK_NOTHROW(p_test->setValue(T(2)));
 
 			// Setting of boundaries incompatible with T(2) should throw
-			BOOST_CHECK_THROW(p_test->setBoundaries(T(0), T(1)), geneva_exception);
+			CHECK_THROWS_AS((p_test->setBoundaries(T(0), T(1))), geneva_exception);
 		}
 
 		//------------------------------------------------------------------------------
@@ -729,7 +721,7 @@ protected:
 			std::shared_ptr<GConstrainedNumT<T>> p_test = this->template clone<GConstrainedNumT<T>>();
 
 			// Setting an upper boundary < lower boundary should throw
-			BOOST_CHECK_THROW(p_test->setValue(T(0), T(2), T(0)), geneva_exception);
+			CHECK_THROWS_AS((p_test->setValue(T(0), T(2), T(0))), geneva_exception);
 		}
 
 		//------------------------------------------------------------------------------
@@ -738,7 +730,7 @@ protected:
 			std::shared_ptr<GConstrainedNumT<T>> p_test = this->template clone<GConstrainedNumT<T>>();
 
 			// Try to assign a value outside of the allowed boundaries should throw
-			BOOST_CHECK_THROW(p_test->setValue(T(2), T(0), T(1)), geneva_exception);
+			CHECK_THROWS_AS((p_test->setValue(T(2), T(0), T(1))), geneva_exception);
 		}
 
 		//------------------------------------------------------------------------------
@@ -747,10 +739,10 @@ protected:
 			std::shared_ptr<GConstrainedNumT<T>> p_test = this->template clone<GConstrainedNumT<T>>();
 
 			// Assign a compatible value and boundaries
-			BOOST_CHECK_NO_THROW(p_test->setValue(T(0), T(0), T(1)));
+			CHECK_NOTHROW(p_test->setValue(T(0), T(0), T(1)));
 
 			// Try to assign 2 as a value - should throw
-			BOOST_CHECK_THROW(p_test->setValue(T(2)), geneva_exception);
+			CHECK_THROWS_AS((p_test->setValue(T(2))), geneva_exception);
 		}
 
 		//------------------------------------------------------------------------------
@@ -759,11 +751,11 @@ protected:
 			std::shared_ptr<GConstrainedNumT<T>> p_test = this->template clone<GConstrainedNumT<T>>();
 
 			// Assign a compatible value and boundaries
-			BOOST_CHECK_NO_THROW(p_test->setValue(T(0), T(0), T(1)));
+			CHECK_NOTHROW(p_test->setValue(T(0), T(0), T(1)));
 
 			// Try to assign 2 as a value - should throw
 			if(typeid(T) != typeid(bool)) {
-				BOOST_CHECK_THROW(*p_test = T(2), geneva_exception);
+				CHECK_THROWS_AS((*p_test = T(2)), geneva_exception);
 			}
 		}
 

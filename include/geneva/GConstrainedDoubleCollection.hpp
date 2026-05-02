@@ -170,7 +170,7 @@ inline std::shared_ptr<Gem::Geneva::GConstrainedDoubleCollection> TFactory_GUnit
 	double LOWERBOUNDARY = -10.;
 	double UPPERBOUNDARY =  10.;
 	std::shared_ptr<Gem::Geneva::GConstrainedDoubleCollection> p;
-	BOOST_CHECK_NO_THROW(
+	CHECK_NOTHROW(
 		p= std::shared_ptr<Gem::Geneva::GConstrainedDoubleCollection>(
 			new Gem::Geneva::GConstrainedDoubleCollection(NPARAMETERS, LOWERBOUNDARY, UPPERBOUNDARY)
 		)

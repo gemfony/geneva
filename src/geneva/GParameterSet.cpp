@@ -2408,8 +2408,6 @@ bool
 GParameterSet::modify_GUnitTests_()
 {
 #ifdef GEM_TESTING
-    using boost::unit_test_framework::test_suite;
-    using boost::unit_test_framework::test_case;
 
     bool result = false;
 
@@ -2467,10 +2465,10 @@ GParameterSet::specificTestsNoFailureExpected_GUnitTests_()
         // Test setting and retrieval of the maximization mode flag
         std::shared_ptr<GParameterSet> p_test = this->clone<GParameterSet>();
 
-        BOOST_CHECK_NO_THROW(p_test->setMaxMode(maxMode::MAXIMIZE));
-        BOOST_CHECK(p_test->getMaxMode() == maxMode::MAXIMIZE);
-        BOOST_CHECK_NO_THROW(p_test->setMaxMode(maxMode::MINIMIZE));
-        BOOST_CHECK(p_test->getMaxMode() == maxMode::MINIMIZE);
+        CHECK_NOTHROW(p_test->setMaxMode(maxMode::MAXIMIZE));
+        CHECK(p_test->getMaxMode() == maxMode::MAXIMIZE);
+        CHECK_NOTHROW(p_test->setMaxMode(maxMode::MINIMIZE));
+        CHECK(p_test->getMaxMode() == maxMode::MINIMIZE);
     }
 
     // --------------------------------------------------------------------------
@@ -2481,13 +2479,12 @@ GParameterSet::specificTestsNoFailureExpected_GUnitTests_()
 
         for (std::uint32_t i = 1; i < 10; i++)
         {
-            BOOST_CHECK_NO_THROW(p_test->setAssignedIteration(i));
-            BOOST_CHECK_MESSAGE(
-                p_test->getAssignedIteration() == i, "\n"
+            CHECK_NOTHROW(p_test->setAssignedIteration(i));
+            INFO("\n"
                 << "p_test->getAssignedIteration() = " <<
                 p_test->getAssignedIteration() << "\n"
-                << "i = " << i << "\n"
-            );
+                << "i = " << i << "\n");
+            CHECK(p_test->getAssignedIteration() == i);
         }
     }
 
@@ -2500,16 +2497,14 @@ GParameterSet::specificTestsNoFailureExpected_GUnitTests_()
         double d = 0.;
         while (true)
         {
-            BOOST_CHECK_NO_THROW(
+            CHECK_NOTHROW(
                 p_test->setBestKnownPrimaryFitness(std::make_tuple(d, d)));
-            BOOST_CHECK_MESSAGE(
-                p_test->getBestKnownPrimaryFitness() == std::make_tuple(d, d),
-                "\n"
+            INFO("\n"
                 << "p_test->getBestKnownPrimaryFitness() = " << Gem::Common::
                 g_to_string(p_test->
                     getBestKnownPrimaryFitness()) << "\n"
-                << "d = " << d << "\n"
-            );
+                << "d = " << d << "\n");
+            CHECK(p_test->getBestKnownPrimaryFitness() == std::make_tuple(d, d));
 
             if ((d += 0.1) >= 1.)
                 break;
@@ -2524,12 +2519,11 @@ GParameterSet::specificTestsNoFailureExpected_GUnitTests_()
 
         for (std::uint32_t i = 1; i < 10; i++)
         {
-            BOOST_CHECK_NO_THROW(p_test->setNStalls(i));
-            BOOST_CHECK_MESSAGE(
-                p_test->getNStalls() == i, "\n"
+            CHECK_NOTHROW(p_test->setNStalls(i));
+            INFO("\n"
                 << "p_test->getNStalls() = " << p_test->getNStalls() << "\n"
-                << "i = " << i << "\n"
-            );
+                << "i = " << i << "\n");
+            CHECK(p_test->getNStalls() == i);
         }
     }
 
@@ -2557,7 +2551,7 @@ GParameterSet::specificTestsNoFailureExpected_GUnitTests_()
         // Clear the collection
         p_test_0->clear();
         // Make sure it is really empty
-        BOOST_CHECK(p_test_0->empty());
+        CHECK(p_test_0->empty());
         // Add some floating pount parameters
         for (std::size_t i = 0; i < FPLOOPCOUNT; i++)
         {
@@ -2598,7 +2592,7 @@ GParameterSet::specificTestsNoFailureExpected_GUnitTests_()
             std::shared_ptr<GParameterSet> p_test = p_test_0->clone<
                 GParameterSet>();
 
-            BOOST_CHECK_NO_THROW(
+            CHECK_NOTHROW(
                 p_test->randomInit(activityMode::ALLPARAMETERS));
 
             bool objects_equal = false;
@@ -2615,7 +2609,7 @@ GParameterSet::specificTestsNoFailureExpected_GUnitTests_()
                 objects_equal = true;
             }
 
-            BOOST_CHECK(false==objects_equal);
+            CHECK(false==objects_equal);
         }
 
         //-----------------------------------------------------------------
@@ -2632,32 +2626,31 @@ GParameterSet::specificTestsNoFailureExpected_GUnitTests_()
                 p_test->fixedValueInit<double>(d, activityMode::ALLPARAMETERS);
 
                 // Make sure the dirty flag is set
-                BOOST_CHECK(p_test->is_due_for_processing() == true);
+                CHECK(p_test->is_due_for_processing() == true);
 
                 // Cross-check
                 std::size_t counter = 0;
                 for (std::size_t i = 0; i < FPLOOPCOUNT; i++)
                 {
-                    BOOST_CHECK(
+                    CHECK(
                         p_test->at<GConstrainedDoubleObject>(counter)->value()
                         == d);
                     counter++;
-                    BOOST_CHECK(
+                    CHECK(
                         p_test->at<GDoubleObject>(counter)->value() == d);
                     counter++;
                     std::shared_ptr<GDoubleCollection> p_gdc;
-                    BOOST_CHECK_NO_THROW(
+                    CHECK_NOTHROW(
                         p_gdc = p_test->at<GDoubleCollection>(counter));
                     for (std::size_t gdc_cnt = 0; gdc_cnt < NGDOUBLECOLL;
                          gdc_cnt++)
                     {
-                        BOOST_CHECK_MESSAGE(
-                            p_gdc->at(gdc_cnt) == d, "\n"
+                        INFO("\n"
                             << "p_gdc->at(gdc_cnt) = " << p_gdc->at(gdc_cnt) <<
                             "\n"
                             << "expected " << d << "\n"
-                            << "iteration = " << gdc_cnt << "\n"
-                        );
+                            << "iteration = " << gdc_cnt << "\n");
+                        CHECK(p_gdc->at(gdc_cnt) == d);
                     }
                     counter++;
                 }
@@ -2665,21 +2658,21 @@ GParameterSet::specificTestsNoFailureExpected_GUnitTests_()
                 // The int32 parameter should have stayed the same
                 std::shared_ptr<GConstrainedInt32Object> p_int32_0;
                 std::shared_ptr<GConstrainedInt32Object> p_int32;
-                BOOST_CHECK_NO_THROW(
+                CHECK_NOTHROW(
                     p_int32_0 = p_test_0->at<GConstrainedInt32Object>(counter));
-                BOOST_CHECK_NO_THROW(
+                CHECK_NOTHROW(
                     p_int32 = p_test->at<GConstrainedInt32Object>(counter));
-                BOOST_CHECK(*p_int32_0 == *p_int32);
+                CHECK(*p_int32_0 == *p_int32);
                 counter++;
 
                 // Likewise, the boolean parameter should have stayed the same
                 std::shared_ptr<GBooleanObject> p_boolean_orig;
                 std::shared_ptr<GBooleanObject> p_boolean_cloned;
-                BOOST_CHECK_NO_THROW(
+                CHECK_NOTHROW(
                     p_boolean_orig = p_test_0->at<GBooleanObject>(counter));
-                BOOST_CHECK_NO_THROW(
+                CHECK_NOTHROW(
                     p_boolean_cloned = p_test->at<GBooleanObject>(counter));
-                BOOST_CHECK(*p_boolean_orig == *p_boolean_cloned);
+                CHECK(*p_boolean_orig == *p_boolean_cloned);
                 counter++;
 
                 if ((d += 1.) >= FPFIXEDVALINITMAX)
@@ -2699,16 +2692,16 @@ GParameterSet::specificTestsNoFailureExpected_GUnitTests_()
                     GParameterSet>();
 
                 // Initialize all fp-values with FPFIXEDVALINITMAX
-                BOOST_CHECK_NO_THROW(
+                CHECK_NOTHROW(
                     p_test->fixedValueInit<double>(FPFIXEDVALINITMAX,
                         activityMode::ALLPARAMETERS));
 
                 // Multiply this fixed value by d
-                BOOST_CHECK_NO_THROW(
+                CHECK_NOTHROW(
                     p_test->multiplyBy<double>(d, activityMode::ALLPARAMETERS));
 
                 // Make sure the dirty flag is set
-                BOOST_CHECK(p_test->is_due_for_processing() == true);
+                CHECK(p_test->is_due_for_processing() == true);
 
                 // Cross-check
                 std::size_t counter = 0;
@@ -2716,30 +2709,29 @@ GParameterSet::specificTestsNoFailureExpected_GUnitTests_()
                 {
                     // A constrained value does not have to assume the value d*FPFIXEDVALINITMAX,
                     // but needs to stay within its boundaries
-                    BOOST_CHECK(
+                    CHECK(
                         p_test->at<GConstrainedDoubleObject>(counter)->value()
                         >= MINGCONSTRDOUBLE);
-                    BOOST_CHECK(
+                    CHECK(
                         p_test->at<GConstrainedDoubleObject>(counter)->value()
                         <= MAXGCONSTRDOUBLE);
                     counter++;
-                    BOOST_CHECK(
+                    CHECK(
                         p_test->at<GDoubleObject>(counter)->value() == d *
                         FPFIXEDVALINITMAX);
                     counter++;
                     std::shared_ptr<GDoubleCollection> p_gdc;
-                    BOOST_CHECK_NO_THROW(
+                    CHECK_NOTHROW(
                         p_gdc = p_test->at<GDoubleCollection>(counter));
                     for (std::size_t gdc_cnt = 0; gdc_cnt < NGDOUBLECOLL;
                          gdc_cnt++)
                     {
-                        BOOST_CHECK_MESSAGE(
-                            p_gdc->at(gdc_cnt) == d * FPFIXEDVALINITMAX, "\n"
+                        INFO("\n"
                             << "p_gdc->at(gdc_cnt) = " << p_gdc->at(gdc_cnt) <<
                             "\n"
                             << "expected " << d * FPFIXEDVALINITMAX << "\n"
-                            << "iteration = " << gdc_cnt << "\n"
-                        );
+                            << "iteration = " << gdc_cnt << "\n");
+                        CHECK(p_gdc->at(gdc_cnt) == d * FPFIXEDVALINITMAX);
                     }
                     counter++;
                 }
@@ -2747,21 +2739,21 @@ GParameterSet::specificTestsNoFailureExpected_GUnitTests_()
                 // The int32 parameter should have stayed the same
                 std::shared_ptr<GConstrainedInt32Object> p_int32_0;
                 std::shared_ptr<GConstrainedInt32Object> p_int32;
-                BOOST_CHECK_NO_THROW(
+                CHECK_NOTHROW(
                     p_int32_0 = p_test_0->at<GConstrainedInt32Object>(counter));
-                BOOST_CHECK_NO_THROW(
+                CHECK_NOTHROW(
                     p_int32 = p_test->at<GConstrainedInt32Object>(counter));
-                BOOST_CHECK(*p_int32_0 == *p_int32);
+                CHECK(*p_int32_0 == *p_int32);
                 counter++;
 
                 // Likewise, the boolean parameter should have stayed the same
                 std::shared_ptr<GBooleanObject> p_boolean_orig;
                 std::shared_ptr<GBooleanObject> p_boolean_cloned;
-                BOOST_CHECK_NO_THROW(
+                CHECK_NOTHROW(
                     p_boolean_orig = p_test_0->at<GBooleanObject>(counter));
-                BOOST_CHECK_NO_THROW(
+                CHECK_NOTHROW(
                     p_boolean_cloned = p_test->at<GBooleanObject>(counter));
-                BOOST_CHECK(*p_boolean_orig == *p_boolean_cloned);
+                CHECK(*p_boolean_orig == *p_boolean_cloned);
                 counter++;
 
                 if ((d += 1.) >= 3.)
@@ -2778,43 +2770,42 @@ GParameterSet::specificTestsNoFailureExpected_GUnitTests_()
                 GParameterSet>();
 
             // Multiply each floating point value with a constrained random value
-            BOOST_CHECK_NO_THROW(
+            CHECK_NOTHROW(
                 p_test->multiplyByRandom<double>(FPMULTIPLYBYRANDMIN,
                     FPMULTIPLYBYRANDMAX, activityMode::
                     ALLPARAMETERS));
 
             // Make sure the dirty flag is set
-            BOOST_CHECK(p_test->is_due_for_processing() == true);
+            CHECK(p_test->is_due_for_processing() == true);
 
             // Cross-check
             std::size_t counter = 0;
             for (std::size_t i = 0; i < FPLOOPCOUNT; i++)
             {
-                BOOST_CHECK(
+                CHECK(
                     p_test->at<GConstrainedDoubleObject>(counter)->value() !=
                     p_test_0->at<GConstrainedDoubleObject>(counter)->value());
                 counter++;
-                BOOST_CHECK(
+                CHECK(
                     p_test->at<GDoubleObject>(counter)->value() != p_test_0->at<
                     GDoubleObject>(counter)->value(
                     ));
                 counter++;
                 std::shared_ptr<GDoubleCollection> p_gdc;
                 std::shared_ptr<GDoubleCollection> p_gdc_0;
-                BOOST_CHECK_NO_THROW(
+                CHECK_NOTHROW(
                     p_gdc = p_test->at<GDoubleCollection>(counter));
-                BOOST_CHECK_NO_THROW(
+                CHECK_NOTHROW(
                     p_gdc_0 = p_test_0->at<GDoubleCollection>(counter));
                 for (std::size_t gdc_cnt = 0; gdc_cnt < NGDOUBLECOLL; gdc_cnt
                      ++)
                 {
-                    BOOST_CHECK_MESSAGE(
-                        p_gdc->at(gdc_cnt) != p_gdc_0->at(gdc_cnt), "\n"
+                    INFO("\n"
                         << "p_gdc->at(gdc_cnt) = " << p_gdc->at(gdc_cnt) << "\n"
                         << "p_gdc_0->at(gdc_cnt) = " << p_gdc_0->at(gdc_cnt) <<
                         "\n"
-                        << "iteration = " << gdc_cnt << "\n"
-                    );
+                        << "iteration = " << gdc_cnt << "\n");
+                    CHECK(p_gdc->at(gdc_cnt) != p_gdc_0->at(gdc_cnt));
                 }
                 counter++;
             }
@@ -2822,21 +2813,21 @@ GParameterSet::specificTestsNoFailureExpected_GUnitTests_()
             // The int32 parameter should have stayed the same
             std::shared_ptr<GConstrainedInt32Object> p_int32_0;
             std::shared_ptr<GConstrainedInt32Object> p_int32;
-            BOOST_CHECK_NO_THROW(
+            CHECK_NOTHROW(
                 p_int32_0 = p_test_0->at<GConstrainedInt32Object>(counter));
-            BOOST_CHECK_NO_THROW(
+            CHECK_NOTHROW(
                 p_int32 = p_test->at<GConstrainedInt32Object>(counter));
-            BOOST_CHECK(*p_int32_0 == *p_int32);
+            CHECK(*p_int32_0 == *p_int32);
             counter++;
 
             // Likewise, the boolean parameter should have stayed the same
             std::shared_ptr<GBooleanObject> p_boolean_orig;
             std::shared_ptr<GBooleanObject> p_boolean_cloned;
-            BOOST_CHECK_NO_THROW(
+            CHECK_NOTHROW(
                 p_boolean_orig = p_test_0->at<GBooleanObject>(counter));
-            BOOST_CHECK_NO_THROW(
+            CHECK_NOTHROW(
                 p_boolean_cloned = p_test->at<GBooleanObject>(counter));
-            BOOST_CHECK(*p_boolean_orig == *p_boolean_cloned);
+            CHECK(*p_boolean_orig == *p_boolean_cloned);
             counter++;
         }
 
@@ -2849,41 +2840,40 @@ GParameterSet::specificTestsNoFailureExpected_GUnitTests_()
                 GParameterSet>();
 
             // Multiply each floating point value with a constrained random value
-            BOOST_CHECK_NO_THROW(
+            CHECK_NOTHROW(
                 p_test->multiplyByRandom<double>(activityMode::ALLPARAMETERS));
 
             // Make sure the dirty flag is set
-            BOOST_CHECK(p_test->is_due_for_processing() == true);
+            CHECK(p_test->is_due_for_processing() == true);
 
             // Cross-check
             std::size_t counter = 0;
             for (std::size_t i = 0; i < FPLOOPCOUNT; i++)
             {
-                BOOST_CHECK(
+                CHECK(
                     p_test->at<GConstrainedDoubleObject>(counter)->value() !=
                     p_test_0->at<GConstrainedDoubleObject>(counter)->value());
                 counter++;
-                BOOST_CHECK(
+                CHECK(
                     p_test->at<GDoubleObject>(counter)->value() != p_test_0->at<
                     GDoubleObject>(counter)->value(
                     ));
                 counter++;
                 std::shared_ptr<GDoubleCollection> p_gdc;
                 std::shared_ptr<GDoubleCollection> p_gdc_0;
-                BOOST_CHECK_NO_THROW(
+                CHECK_NOTHROW(
                     p_gdc = p_test->at<GDoubleCollection>(counter));
-                BOOST_CHECK_NO_THROW(
+                CHECK_NOTHROW(
                     p_gdc_0 = p_test_0->at<GDoubleCollection>(counter));
                 for (std::size_t gdc_cnt = 0; gdc_cnt < NGDOUBLECOLL; gdc_cnt
                      ++)
                 {
-                    BOOST_CHECK_MESSAGE(
-                        p_gdc->at(gdc_cnt) != p_gdc_0->at(gdc_cnt), "\n"
+                    INFO("\n"
                         << "p_gdc->at(gdc_cnt) = " << p_gdc->at(gdc_cnt) << "\n"
                         << "p_gdc_0->at(gdc_cnt) = " << p_gdc_0->at(gdc_cnt) <<
                         "\n"
-                        << "iteration = " << gdc_cnt << "\n"
-                    );
+                        << "iteration = " << gdc_cnt << "\n");
+                    CHECK(p_gdc->at(gdc_cnt) != p_gdc_0->at(gdc_cnt));
                 }
                 counter++;
             }
@@ -2891,21 +2881,21 @@ GParameterSet::specificTestsNoFailureExpected_GUnitTests_()
             // The int32 parameter should have stayed the same
             std::shared_ptr<GConstrainedInt32Object> p_int32_0;
             std::shared_ptr<GConstrainedInt32Object> p_int32;
-            BOOST_CHECK_NO_THROW(
+            CHECK_NOTHROW(
                 p_int32_0 = p_test_0->at<GConstrainedInt32Object>(counter));
-            BOOST_CHECK_NO_THROW(
+            CHECK_NOTHROW(
                 p_int32 = p_test->at<GConstrainedInt32Object>(counter));
-            BOOST_CHECK(*p_int32_0 == *p_int32);
+            CHECK(*p_int32_0 == *p_int32);
             counter++;
 
             // Likewise, the boolean parameter should have stayed the same
             std::shared_ptr<GBooleanObject> p_boolean_orig;
             std::shared_ptr<GBooleanObject> p_boolean_cloned;
-            BOOST_CHECK_NO_THROW(
+            CHECK_NOTHROW(
                 p_boolean_orig = p_test_0->at<GBooleanObject>(counter));
-            BOOST_CHECK_NO_THROW(
+            CHECK_NOTHROW(
                 p_boolean_cloned = p_test->at<GBooleanObject>(counter));
-            BOOST_CHECK(*p_boolean_orig == *p_boolean_cloned);
+            CHECK(*p_boolean_orig == *p_boolean_cloned);
             counter++;
         }
 
@@ -2920,12 +2910,12 @@ GParameterSet::specificTestsNoFailureExpected_GUnitTests_()
                 GParameterSet>();
 
             // Initialize all fp-values of the "add" individual with a fixed value
-            BOOST_CHECK_NO_THROW(
+            CHECK_NOTHROW(
                 p_test_fixed->fixedValueInit<double>(FPADD, activityMode::
                     ALLPARAMETERS));
 
             // Add p_test_fixed to p_test
-            BOOST_CHECK_NO_THROW(
+            CHECK_NOTHROW(
                 p_test->add<double>(p_test_fixed, activityMode::ALLPARAMETERS));
 
             // Check the results
@@ -2934,29 +2924,28 @@ GParameterSet::specificTestsNoFailureExpected_GUnitTests_()
             {
                 // A constrained value does not have to assume the value value()+FPADD
                 // but needs to stay within its boundaries
-                BOOST_CHECK(
+                CHECK(
                     p_test->at<GConstrainedDoubleObject>(counter)->value() >=
                     MINGCONSTRDOUBLE);
-                BOOST_CHECK(
+                CHECK(
                     p_test->at<GConstrainedDoubleObject>(counter)->value() <=
                     MAXGCONSTRDOUBLE);
                 counter++;
-                BOOST_CHECK(
+                CHECK(
                     p_test->at<GDoubleObject>(counter)->value() == p_test_0->at<
                     GDoubleObject>(counter)->value()
                     + FPADD);
                 counter++;
                 std::shared_ptr<GDoubleCollection> p_gdc;
                 std::shared_ptr<GDoubleCollection> p_gdc_0;
-                BOOST_CHECK_NO_THROW(
+                CHECK_NOTHROW(
                     p_gdc = p_test->at<GDoubleCollection>(counter));
-                BOOST_CHECK_NO_THROW(
+                CHECK_NOTHROW(
                     p_gdc_0 = p_test_0->at<GDoubleCollection>(counter));
                 for (std::size_t gdc_cnt = 0; gdc_cnt < NGDOUBLECOLL; gdc_cnt
                      ++)
                 {
-                    BOOST_CHECK_MESSAGE(
-                        p_gdc->at(gdc_cnt) == p_gdc_0->at(gdc_cnt) + FPADD, "\n"
+                    INFO("\n"
                         << "p_gdc->at(gdc_cnt) = " <<
                         p_gdc->at(gdc_cnt) << "\n"
                         << "p_gdc_0->at(gdc_cnt) = " <<
@@ -2964,8 +2953,8 @@ GParameterSet::specificTestsNoFailureExpected_GUnitTests_()
                         << "FPADD = " << FPADD
                         << "p_gdc_0->at(gdc_cnt) + FPADD = " <<
                         p_gdc_0->at(gdc_cnt) + FPADD << "\n"
-                        << "iteration = " << gdc_cnt << "\n"
-                    );
+                        << "iteration = " << gdc_cnt << "\n");
+                    CHECK(p_gdc->at(gdc_cnt) == p_gdc_0->at(gdc_cnt) + FPADD);
                 }
                 counter++;
             }
@@ -2973,21 +2962,21 @@ GParameterSet::specificTestsNoFailureExpected_GUnitTests_()
             // The int32 parameter should have stayed the same
             std::shared_ptr<GConstrainedInt32Object> p_int32_0;
             std::shared_ptr<GConstrainedInt32Object> p_int32;
-            BOOST_CHECK_NO_THROW(
+            CHECK_NOTHROW(
                 p_int32_0 = p_test_0->at<GConstrainedInt32Object>(counter));
-            BOOST_CHECK_NO_THROW(
+            CHECK_NOTHROW(
                 p_int32 = p_test->at<GConstrainedInt32Object>(counter));
-            BOOST_CHECK(*p_int32_0 == *p_int32);
+            CHECK(*p_int32_0 == *p_int32);
             counter++;
 
             // Likewise, the boolean parameter should have stayed the same
             std::shared_ptr<GBooleanObject> p_boolean_orig;
             std::shared_ptr<GBooleanObject> p_boolean_cloned;
-            BOOST_CHECK_NO_THROW(
+            CHECK_NOTHROW(
                 p_boolean_orig = p_test_0->at<GBooleanObject>(counter));
-            BOOST_CHECK_NO_THROW(
+            CHECK_NOTHROW(
                 p_boolean_cloned = p_test->at<GBooleanObject>(counter));
-            BOOST_CHECK(*p_boolean_orig == *p_boolean_cloned);
+            CHECK(*p_boolean_orig == *p_boolean_cloned);
             counter++;
         }
 
@@ -3004,12 +2993,12 @@ GParameterSet::specificTestsNoFailureExpected_GUnitTests_()
                 GParameterSet>();
 
             // Initialize all fp-values of the "add" individual with a fixed valie
-            BOOST_CHECK_NO_THROW(
+            CHECK_NOTHROW(
                 p_test_fixed->fixedValueInit<double>(FPSUBTRACT, activityMode::
                     ALLPARAMETERS));
 
             // Add p_test_fixed to p_test
-            BOOST_CHECK_NO_THROW(
+            CHECK_NOTHROW(
                 p_test->subtract<double>(p_test_fixed, activityMode::
                     ALLPARAMETERS));
 
@@ -3019,28 +3008,26 @@ GParameterSet::specificTestsNoFailureExpected_GUnitTests_()
             {
                 // A constrained value does not have to assume the value value()-FPSUBTRACT
                 // but needs to stay within its boundaries
-                BOOST_CHECK(
+                CHECK(
                     p_test->at<GConstrainedDoubleObject>(counter)->value() >=
                     MINGCONSTRDOUBLE);
-                BOOST_CHECK(
+                CHECK(
                     p_test->at<GConstrainedDoubleObject>(counter)->value() <=
                     MAXGCONSTRDOUBLE);
                 counter++;
-                BOOST_CHECK(p_test->at<GDoubleObject>(counter)->value() ==
+                CHECK(p_test->at<GDoubleObject>(counter)->value() ==
                     p_test_0->at<GDoubleObject>(counter)->value() - FPSUBTRACT);
                 counter++;
                 std::shared_ptr<GDoubleCollection> p_gdc;
                 std::shared_ptr<GDoubleCollection> p_gdc_0;
-                BOOST_CHECK_NO_THROW(
+                CHECK_NOTHROW(
                     p_gdc = p_test->at<GDoubleCollection>(counter));
-                BOOST_CHECK_NO_THROW(
+                CHECK_NOTHROW(
                     p_gdc_0 = p_test_0->at<GDoubleCollection>(counter));
                 for (std::size_t gdc_cnt = 0; gdc_cnt < NGDOUBLECOLL; gdc_cnt
                      ++)
                 {
-                    BOOST_CHECK_MESSAGE(
-                        p_gdc->at(gdc_cnt) == p_gdc_0->at(gdc_cnt) - FPSUBTRACT,
-                        "\n"
+                    INFO("\n"
                         << "p_gdc->at(gdc_cnt) = " <<
                         p_gdc->at(gdc_cnt) << "\n"
                         << "p_gdc_0->at(gdc_cnt) = " <<
@@ -3048,8 +3035,8 @@ GParameterSet::specificTestsNoFailureExpected_GUnitTests_()
                         << "FPSUBTRACT = " << FPSUBTRACT
                         << "p_gdc_0->at(gdc_cnt) - FPSUBTRACT = " <<
                         p_gdc_0->at(gdc_cnt) - FPSUBTRACT << "\n"
-                        << "iteration = " << gdc_cnt << "\n"
-                    );
+                        << "iteration = " << gdc_cnt << "\n");
+                    CHECK(p_gdc->at(gdc_cnt) == p_gdc_0->at(gdc_cnt) - FPSUBTRACT);
                 }
                 counter++;
             }
@@ -3057,21 +3044,21 @@ GParameterSet::specificTestsNoFailureExpected_GUnitTests_()
             // The int32 parameter should have stayed the same
             std::shared_ptr<GConstrainedInt32Object> p_int32_0;
             std::shared_ptr<GConstrainedInt32Object> p_int32;
-            BOOST_CHECK_NO_THROW(
+            CHECK_NOTHROW(
                 p_int32_0 = p_test_0->at<GConstrainedInt32Object>(counter));
-            BOOST_CHECK_NO_THROW(
+            CHECK_NOTHROW(
                 p_int32 = p_test->at<GConstrainedInt32Object>(counter));
-            BOOST_CHECK(*p_int32_0 == *p_int32);
+            CHECK(*p_int32_0 == *p_int32);
             counter++;
 
             // Likewise, the boolean parameter should have stayed the same
             std::shared_ptr<GBooleanObject> p_boolean_orig;
             std::shared_ptr<GBooleanObject> p_boolean_cloned;
-            BOOST_CHECK_NO_THROW(
+            CHECK_NOTHROW(
                 p_boolean_orig = p_test_0->at<GBooleanObject>(counter));
-            BOOST_CHECK_NO_THROW(
+            CHECK_NOTHROW(
                 p_boolean_cloned = p_test->at<GBooleanObject>(counter));
-            BOOST_CHECK(*p_boolean_orig == *p_boolean_cloned);
+            CHECK(*p_boolean_orig == *p_boolean_cloned);
             counter++;
         }
 
@@ -3107,7 +3094,7 @@ GParameterSet::specificTestsNoFailureExpected_GUnitTests_()
         // Clear the collection
         p_test_0->clear();
         // Make sure it is really empty
-        BOOST_CHECK(p_test_0->empty());
+        CHECK(p_test_0->empty());
 
         // Add some floating point parameters
         for (std::size_t i = 0; i < FPLOOPCOUNT; i++)
@@ -3241,31 +3228,31 @@ GParameterSet::specificTestsNoFailureExpected_GUnitTests_()
                 GParameterSet>();
 
             // Count the number of parameters and compare with the expected number
-            BOOST_CHECK(
+            CHECK(
                 p_test->countParameters<double>(activityMode::ACTIVEONLY) ==
                 NDOUBLEACTIVE);
-            BOOST_CHECK(
+            CHECK(
                 p_test->countParameters<double>(activityMode::INACTIVEONLY) ==
                 NDOUBLEINACTIVE);
-            BOOST_CHECK(
+            CHECK(
                 p_test->countParameters<double>(activityMode::ALLPARAMETERS) ==
                 NDOUBLEALL);
-            BOOST_CHECK(
+            CHECK(
                 p_test->countParameters<std::int32_t>(activityMode::ACTIVEONLY)
                 == NINTACTIVE);
-            BOOST_CHECK(
+            CHECK(
                 p_test->countParameters<std::int32_t>(activityMode::INACTIVEONLY
                 ) == NINTINACTIVE);
-            BOOST_CHECK(
+            CHECK(
                 p_test->countParameters<std::int32_t>(activityMode::
                     ALLPARAMETERS) == NINTALL);
-            BOOST_CHECK(
+            CHECK(
                 p_test->countParameters<bool>(activityMode::ACTIVEONLY) ==
                 NBOOLACTIVE);
-            BOOST_CHECK(
+            CHECK(
                 p_test->countParameters<bool>(activityMode::INACTIVEONLY) ==
                 NBOOLINACTIVE);
-            BOOST_CHECK(
+            CHECK(
                 p_test->countParameters<bool>(activityMode::ALLPARAMETERS) ==
                 NBOOLALL);
         }
@@ -3281,7 +3268,7 @@ GParameterSet::specificTestsNoFailureExpected_GUnitTests_()
                 GParameterSet>();
 
             // Randomly initialize active components of p_test2
-            BOOST_CHECK_NO_THROW(
+            CHECK_NOTHROW(
                 p_test_rand->randomInit(activityMode::ACTIVEONLY));
 
             std::vector<double> orig_d_inactive;
@@ -3294,32 +3281,32 @@ GParameterSet::specificTestsNoFailureExpected_GUnitTests_()
             std::vector<bool> rand_b_inactive;
 
             // Extract the parameters
-            BOOST_CHECK_NO_THROW(
+            CHECK_NOTHROW(
                 p_test_orig->streamline<double>(orig_d_inactive, activityMode::
                     INACTIVEONLY));
-            BOOST_CHECK_NO_THROW(
+            CHECK_NOTHROW(
                 p_test_rand->streamline<double>(rand_d_inactive, activityMode::
                     INACTIVEONLY));
-            BOOST_CHECK_NO_THROW(
+            CHECK_NOTHROW(
                 p_test_orig->streamline<std::int32_t>(orig_i_inactive,
                     activityMode::INACTIVEONLY));
-            BOOST_CHECK_NO_THROW(
+            CHECK_NOTHROW(
                 p_test_rand->streamline<std::int32_t>(rand_i_inactive,
                     activityMode::INACTIVEONLY));
-            BOOST_CHECK_NO_THROW(
+            CHECK_NOTHROW(
                 p_test_orig->streamline<bool>(orig_b_inactive, activityMode::
                     INACTIVEONLY));
-            BOOST_CHECK_NO_THROW(
+            CHECK_NOTHROW(
                 p_test_rand->streamline<bool>(rand_b_inactive, activityMode::
                     INACTIVEONLY));
 
             // Check that the "inactive" vectors have the expected characteristics
-            BOOST_CHECK(orig_d_inactive.size() == NDOUBLEINACTIVE);
-            BOOST_CHECK(orig_d_inactive == rand_d_inactive);
-            BOOST_CHECK(orig_i_inactive.size() == NINTINACTIVE);
-            BOOST_CHECK(orig_i_inactive == rand_i_inactive);
-            BOOST_CHECK(orig_b_inactive.size() == NBOOLINACTIVE);
-            BOOST_CHECK(orig_b_inactive == rand_b_inactive);
+            CHECK(orig_d_inactive.size() == NDOUBLEINACTIVE);
+            CHECK(orig_d_inactive == rand_d_inactive);
+            CHECK(orig_i_inactive.size() == NINTINACTIVE);
+            CHECK(orig_i_inactive == rand_i_inactive);
+            CHECK(orig_b_inactive.size() == NBOOLINACTIVE);
+            CHECK(orig_b_inactive == rand_b_inactive);
         }
 
         //-----------------------------------------------------------------
@@ -3334,7 +3321,7 @@ GParameterSet::specificTestsNoFailureExpected_GUnitTests_()
                 GParameterSet>();
 
             // Randomly initialize active components of p_test2
-            BOOST_CHECK_NO_THROW(
+            CHECK_NOTHROW(
                 p_test_rand->randomInit(activityMode::ACTIVEONLY));
 
             std::vector<double> orig_d_active;
@@ -3347,46 +3334,44 @@ GParameterSet::specificTestsNoFailureExpected_GUnitTests_()
             std::vector<bool> rand_b_active;
 
             // Extract the parameters
-            BOOST_CHECK_NO_THROW(
+            CHECK_NOTHROW(
                 p_test_orig->streamline<double>(orig_d_active, activityMode::
                     ACTIVEONLY));
-            BOOST_CHECK_NO_THROW(
+            CHECK_NOTHROW(
                 p_test_rand->streamline<double>(rand_d_active, activityMode::
                     ACTIVEONLY));
-            BOOST_CHECK_NO_THROW(
+            CHECK_NOTHROW(
                 p_test_orig->streamline<std::int32_t>(orig_i_active,
                     activityMode::ACTIVEONLY))
             ;
-            BOOST_CHECK_NO_THROW(
+            CHECK_NOTHROW(
                 p_test_rand->streamline<std::int32_t>(rand_i_active,
                     activityMode::ACTIVEONLY))
             ;
-            BOOST_CHECK_NO_THROW(
+            CHECK_NOTHROW(
                 p_test_orig->streamline<bool>(orig_b_active, activityMode::
                     ACTIVEONLY));
-            BOOST_CHECK_NO_THROW(
+            CHECK_NOTHROW(
                 p_test_rand->streamline<bool>(rand_b_active, activityMode::
                     ACTIVEONLY));
 
             // Check that the "active" vectors' contents indeed differ
-            BOOST_CHECK(orig_d_active.size() == NDOUBLEACTIVE);
-            BOOST_CHECK(rand_d_active.size() == NDOUBLEACTIVE);
-            BOOST_CHECK(orig_d_active != rand_d_active);
-            BOOST_CHECK(orig_i_active.size() == NINTACTIVE);
-            BOOST_CHECK(rand_i_active.size() == NINTACTIVE);
-            BOOST_CHECK_MESSAGE(
-                orig_i_active != rand_i_active,
-                "orig_i_active: " << Gem::Common::vecToString(orig_i_active) <<
+            CHECK(orig_d_active.size() == NDOUBLEACTIVE);
+            CHECK(rand_d_active.size() == NDOUBLEACTIVE);
+            CHECK(orig_d_active != rand_d_active);
+            CHECK(orig_i_active.size() == NINTACTIVE);
+            CHECK(rand_i_active.size() == NINTACTIVE);
+            INFO("orig_i_active: " << Gem::Common::vecToString(orig_i_active) <<
                 "\n" << "rand_i_active: " <<
-                Gem::Common::vecToString(rand_i_active) << "\n"
-            );
-            BOOST_CHECK(orig_b_active.size() == NBOOLACTIVE);
-            BOOST_CHECK(rand_b_active.size() == NBOOLACTIVE);
+                Gem::Common::vecToString(rand_i_active) << "\n");
+            CHECK(orig_i_active != rand_i_active);
+            CHECK(orig_b_active.size() == NBOOLACTIVE);
+            CHECK(rand_b_active.size() == NBOOLACTIVE);
 
             // We do not compare the (single) boolean value here, as there are just
             // two distinct values it may assume, so the likelihood for identical values
             // and thus failure of this test is high.
-            // BOOST_CHECK(orig_b_active != rand_b_active);
+            // CHECK(orig_b_active != rand_b_active);
         }
 
         //-----------------------------------------------------------------
@@ -3409,8 +3394,6 @@ void
 GParameterSet::specificTestsFailuresExpected_GUnitTests_()
 {
 #ifdef GEM_TESTING
-    using boost::unit_test_framework::test_suite;
-    using boost::unit_test_framework::test_case;
 
     // Call the parent classes' functions
     GObject::specificTestsFailuresExpected_GUnitTests_();

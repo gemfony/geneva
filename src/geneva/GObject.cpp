@@ -139,8 +139,6 @@ namespace Gem::Geneva
  */
 	void GObject::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
-		using boost::unit_test_framework::test_suite;
-		using boost::unit_test_framework::test_case;
 
 		// no parent class
 
@@ -157,14 +155,12 @@ namespace Gem::Geneva
 		std::filesystem::remove(std::filesystem::path(configFileName));
 
 		// Write and read the config file
-		BOOST_CHECK_NO_THROW(p_test->writeConfigFile(configFileName, header));
-		BOOST_CHECK_NO_THROW(p_test->readConfigFile(configFileName));
+		CHECK_NOTHROW(p_test->writeConfigFile(configFileName, header));
+		CHECK_NOTHROW(p_test->readConfigFile(configFileName));
 
 		// Check that a config file exists
-		BOOST_CHECK_MESSAGE(
-			std::filesystem::exists(std::filesystem::path(configFileName))
-			, "Error: file " << configFileName << " was not found"
-		);
+		INFO("Error: file " << configFileName << " was not found");
+		CHECK(std::filesystem::exists(std::filesystem::path(configFileName)));
 	}
 	 */
 
@@ -174,7 +170,7 @@ namespace Gem::Geneva
 			std::shared_ptr <GObject> p_test = this->clone<GObject>();
 
 			// Check that the pointer actually points somewhere
-			BOOST_CHECK(p_test);
+			CHECK(p_test);
 		}
 
 		// --------------------------------------------------------------------------
@@ -183,7 +179,7 @@ namespace Gem::Geneva
 			std::shared_ptr <GObject> p_test = this->clone();
 
 			// Check that the pointer actually points somewhere
-			BOOST_CHECK(p_test);
+			CHECK(p_test);
 		}
 
 		// --------------------------------------------------------------------------
@@ -192,7 +188,7 @@ namespace Gem::Geneva
 			std::shared_ptr <GObject> p_test = this->clone();
 
 			// Check that the pointer actually points somewhere
-			BOOST_CHECK(not (p_test->report()).empty());
+			CHECK(not (p_test->report()).empty());
 		}
 
 
@@ -201,23 +197,23 @@ namespace Gem::Geneva
 
 			{ // Text mode
 				std::ostringstream ostr;
-				BOOST_CHECK_NO_THROW(p_test->toStream(ostr, Gem::Common::serializationMode::TEXT));
+				CHECK_NOTHROW(p_test->toStream(ostr, Gem::Common::serializationMode::TEXT));
 				std::istringstream istr(ostr.str());
-				BOOST_CHECK_NO_THROW(p_test->fromStream(istr, Gem::Common::serializationMode::TEXT));
+				CHECK_NOTHROW(p_test->fromStream(istr, Gem::Common::serializationMode::TEXT));
 			}
 
 			{ // XML mode
 				std::ostringstream ostr;
-				BOOST_CHECK_NO_THROW(p_test->toStream(ostr, Gem::Common::serializationMode::XML));
+				CHECK_NOTHROW(p_test->toStream(ostr, Gem::Common::serializationMode::XML));
 				std::istringstream istr(ostr.str());
-				BOOST_CHECK_NO_THROW(p_test->fromStream(istr, Gem::Common::serializationMode::XML));
+				CHECK_NOTHROW(p_test->fromStream(istr, Gem::Common::serializationMode::XML));
 			}
 
 			{ // Binary mode
 				std::ostringstream ostr;
-				BOOST_CHECK_NO_THROW(p_test->toStream(ostr, Gem::Common::serializationMode::BINARY));
+				CHECK_NOTHROW(p_test->toStream(ostr, Gem::Common::serializationMode::BINARY));
 				std::istringstream istr(ostr.str());
-				BOOST_CHECK_NO_THROW(p_test->fromStream(istr, Gem::Common::serializationMode::BINARY));
+				CHECK_NOTHROW(p_test->fromStream(istr, Gem::Common::serializationMode::BINARY));
 			}
 		}
 
@@ -226,11 +222,11 @@ namespace Gem::Geneva
 		{ // Check (de-)serialization from/to strings in three modes
 			std::shared_ptr <GObject> p_test = this->clone();
 
-			BOOST_CHECK_NO_THROW(p_test->fromString(p_test->toString(Gem::Common::serializationMode::TEXT),
+			CHECK_NOTHROW(p_test->fromString(p_test->toString(Gem::Common::serializationMode::TEXT),
 				Gem::Common::serializationMode::TEXT));
-			BOOST_CHECK_NO_THROW(
+			CHECK_NOTHROW(
 				p_test->fromString(p_test->toString(Gem::Common::serializationMode::XML), Gem::Common::serializationMode::XML));
-			BOOST_CHECK_NO_THROW(p_test->fromString(p_test->toString(Gem::Common::serializationMode::BINARY),
+			CHECK_NOTHROW(p_test->fromString(p_test->toString(Gem::Common::serializationMode::BINARY),
 				Gem::Common::serializationMode::BINARY));
 		}
 
@@ -240,24 +236,24 @@ namespace Gem::Geneva
 			std::shared_ptr <GObject> p_test = this->clone();
 
 			{ // Text mode
-				BOOST_CHECK_NO_THROW(p_test->toFile(std::filesystem::path("123test.txt"), Gem::Common::serializationMode::TEXT));
-				BOOST_CHECK_NO_THROW(p_test->fromFile(std::filesystem::path("123test.txt"), Gem::Common::serializationMode::TEXT));
+				CHECK_NOTHROW(p_test->toFile(std::filesystem::path("123test.txt"), Gem::Common::serializationMode::TEXT));
+				CHECK_NOTHROW(p_test->fromFile(std::filesystem::path("123test.txt"), Gem::Common::serializationMode::TEXT));
 
 				// Get rid of the file
 				remove(std::filesystem::path("./123test.txt"));
 			}
 
 			{ // XML mode
-				BOOST_CHECK_NO_THROW(p_test->toFile(std::filesystem::path("123test.xml"), Gem::Common::serializationMode::XML));
-				BOOST_CHECK_NO_THROW(p_test->fromFile(std::filesystem::path("123test.xml"), Gem::Common::serializationMode::XML));
+				CHECK_NOTHROW(p_test->toFile(std::filesystem::path("123test.xml"), Gem::Common::serializationMode::XML));
+				CHECK_NOTHROW(p_test->fromFile(std::filesystem::path("123test.xml"), Gem::Common::serializationMode::XML));
 
 				// Get rid of the file
 				remove(std::filesystem::path("./123test.xml"));
 			}
 
 			{ // Binary mode
-				BOOST_CHECK_NO_THROW(p_test->toFile(std::filesystem::path("123test.bin"), Gem::Common::serializationMode::BINARY));
-				BOOST_CHECK_NO_THROW(p_test->fromFile(std::filesystem::path("123test.bin"), Gem::Common::serializationMode::BINARY));
+				CHECK_NOTHROW(p_test->toFile(std::filesystem::path("123test.bin"), Gem::Common::serializationMode::BINARY));
+				CHECK_NOTHROW(p_test->fromFile(std::filesystem::path("123test.bin"), Gem::Common::serializationMode::BINARY));
 
 				// Get rid of the file
 				remove(std::filesystem::path("./123test.bin"));

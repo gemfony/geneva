@@ -1433,7 +1433,7 @@ GEvolutionaryAlgorithm::fillWithObjects(const std::size_t &nIndividuals)
 {
 #ifdef GEM_TESTING
     // Clear the collection, so we can start fresh
-    BOOST_CHECK_NO_THROW(this->clear());
+    CHECK_NOTHROW(this->clear());
 
     // Add some some
     for (std::size_t i = 0; i < nIndividuals; i++)
@@ -1488,23 +1488,23 @@ GEvolutionaryAlgorithm::specificTestsNoFailureExpected_GUnitTests_()
             for (std::size_t nParents = 1; nParents < nChildren; nParents++)
             {
                 // Clear the collection
-                BOOST_CHECK_NO_THROW(p_test->clear());
+                CHECK_NOTHROW(p_test->clear());
 
                 // Add the required number of individuals
                 p_test->fillWithObjects(nParents + nChildren);
 
-                BOOST_CHECK_NO_THROW(p_test->setPopulationSizes(nParents + nChildren, nParents));
+                CHECK_NOTHROW(p_test->setPopulationSizes(nParents + nChildren, nParents));
 
                 // Check that the number of parents is as expected
-                BOOST_CHECK_MESSAGE(p_test->getNParents() == nParents,
-                                    "p_test->getNParents() == " << p_test->getNParents()
+                INFO("p_test->getNParents() == " << p_test->getNParents()
                                     << ", nParents = " << nParents
                                     << ", size = " << p_test->size());
+                CHECK(p_test->getNParents() == nParents);
 
                 // Check that the actual number of children has the same value
-                BOOST_CHECK_MESSAGE(p_test->getNChildren() == nChildren,
-                                    "p_test->getNChildren() = " << p_test->getNChildren()
+                INFO("p_test->getNChildren() = " << p_test->getNChildren()
                                     << ", nChildren = " << nChildren);
+                CHECK(p_test->getNChildren() == nChildren);
             }
         }
     }

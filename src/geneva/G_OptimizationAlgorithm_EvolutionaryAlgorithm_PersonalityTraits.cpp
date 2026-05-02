@@ -164,8 +164,6 @@ namespace Gem::Geneva
  */
 	void GEvolutionaryAlgorithm_PersonalityTraits::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
-		using boost::unit_test_framework::test_suite;
-		using boost::unit_test_framework::test_case;
 
 		// Call the parent class'es function
 		GBaseParChildPersonalityTraits::specificTestsNoFailureExpected_GUnitTests_();
@@ -184,8 +182,6 @@ namespace Gem::Geneva
  */
 	void GEvolutionaryAlgorithm_PersonalityTraits::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
-		using boost::unit_test_framework::test_suite;
-		using boost::unit_test_framework::test_case;
 
 		// Call the parent class'es function
 		GBaseParChildPersonalityTraits::specificTestsFailuresExpected_GUnitTests_();

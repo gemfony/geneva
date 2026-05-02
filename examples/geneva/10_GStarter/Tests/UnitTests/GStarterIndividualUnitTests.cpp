@@ -1,5 +1,5 @@
 /**
- * @file GNeuralNetworkUnitTests.cpp
+ * @file GStarterIndividualUnitTests.cpp
  */
 
 /********************************************************************************
@@ -31,12 +31,7 @@
  *
  ********************************************************************************/
 
-
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_ALTERNATIVE_INIT_API
-#include <boost/test/unit_test.hpp>
-
-using namespace boost::unit_test;
+#include <catch2/catch_template_test_macros.hpp>
 
 // The class to be tested
 #include "../../GStarterIndividual.hpp"
@@ -49,37 +44,21 @@ using namespace Gem::Hap;
 using namespace Gem::Geneva;
 
 /************************************************************************************************/
-//////////////////////////////////////////////////////////////////////////////////////////////////
-/************************************************************************************************/
-/**
- * This test suite checks as much as possible of the functionality provided by Geneva classes.
- * All those Geneva classes should be listed that should be tested here.
- */
-class GenevaStandardTestSuite
-	: public test_suite
-{
-public:
-	GenevaStandardTestSuite() :test_suite("GenevaStandardTestSuite") {
-		using userind_types = boost::mpl::list<GStarterIndividual>;
 
-		/****************************************************************************************/
-
-		add( BOOST_TEST_CASE_TEMPLATE( StandardTests_no_failure_expected, userind_types) );
-		add( BOOST_TEST_CASE_TEMPLATE( StandardTests_failures_expected, userind_types) );
-	}
-};
-
-/************************************************************************************************/
-/**
- * The test program entry point
- */
-bool init_unit_test() {
-	framework::master_test_suite().add(new GenevaStandardTestSuite());
-	return true;
+TEMPLATE_TEST_CASE(
+	"StandardTests_no_failure_expected — GStarterIndividual",
+	"[examples][starter][standard]",
+	GStarterIndividual
+) {
+	Gem::Tests::StandardTests_no_failure_expected<TestType>();
 }
 
-int main(int argc, char* argv[]) {
-	return ::boost::unit_test::unit_test_main(&init_unit_test, argc, argv);
+TEMPLATE_TEST_CASE(
+	"StandardTests_failures_expected — GStarterIndividual",
+	"[examples][starter][standard]",
+	GStarterIndividual
+) {
+	Gem::Tests::StandardTests_failures_expected<TestType>();
 }
 
 /************************************************************************************************/

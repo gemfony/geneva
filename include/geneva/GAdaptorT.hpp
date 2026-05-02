@@ -907,8 +907,6 @@ protected:
     bool modify_GUnitTests_() override
     {
 #ifdef GEM_TESTING
-        using boost::unit_test_framework::test_suite;
-        using boost::unit_test_framework::test_case;
 
         bool result = false;
 
@@ -941,8 +939,6 @@ protected:
     void specificTestsNoFailureExpected_GUnitTests_() override
     {
 #ifdef GEM_TESTING
-        using boost::unit_test_framework::test_suite;
-        using boost::unit_test_framework::test_case;
 
         // Call the parent classes' functions
         GObject::specificTestsNoFailureExpected_GUnitTests_();
@@ -956,12 +952,10 @@ protected:
             std::shared_ptr<GAdaptorT<T, fp_type>> p_test = this->clone<GAdaptorT<T, fp_type>>();
 
             // The adaption probability should have been cloned
-            BOOST_CHECK_MESSAGE(
-                    p_test->getAdaptionProbability() == this->getAdaptionProbability()
-            , "\n"
+            INFO("\n"
                             << "p_test->getAdaptionProbability() = " << p_test->getAdaptionProbability() << "\n"
-                            << "this->getAdaptionProbability() = " << this->getAdaptionProbability() << "\n"
-            );
+                            << "this->getAdaptionProbability() = " << this->getAdaptionProbability() << "\n");
+            CHECK(p_test->getAdaptionProbability() == this->getAdaptionProbability());
 
             // Set an appropriate range for the adaption
             p_test->setAdProbRange(
@@ -971,15 +965,13 @@ protected:
 
             // Set the adaption probability to a sensible value and check the new setting
             fp_type testAdProb = fp_type(0.5);
-            BOOST_CHECK_NO_THROW(
-                    p_test->setAdaptionProbability(testAdProb);
+            CHECK_NOTHROW(
+                    p_test->setAdaptionProbability(testAdProb)
             );
-            BOOST_CHECK_MESSAGE(
-                    p_test->getAdaptionProbability() == testAdProb
-            , "\n"
+            INFO("\n"
                             << "p_test->getAdaptionProbability() = " << p_test->getAdaptionProbability() << "\n"
-                            << "testAdProb = " << testAdProb << "\n"
-            );
+                            << "testAdProb = " << testAdProb << "\n");
+            CHECK(p_test->getAdaptionProbability() == testAdProb);
         }
 
         //------------------------------------------------------------------------------
@@ -1003,8 +995,8 @@ protected:
                 }
 
                 p_test->setAdaptionProbability(prob);
-                BOOST_CHECK_NO_THROW(p_test->setAdaptionProbability(prob));
-                BOOST_CHECK_NO_THROW(p_test->adapt(
+                CHECK_NOTHROW(p_test->setAdaptionProbability(prob));
+                CHECK_NOTHROW(p_test->adapt(
                         testVal
                         , T(1)
                         , gr
@@ -1058,13 +1050,11 @@ protected:
 
                 fp_type changeProb = fp_type(nChanged) / fp_type(nTests);
 
-                BOOST_CHECK_MESSAGE(
-                        changeProb > 0.8 * prob && changeProb < 1.2 * prob
-                , "\n"
+                INFO("\n"
                                 << "changeProb = " << changeProb << "\n"
                                 << "prob = " << prob << "\n"
-                                << "with allowed window = [" << 0.8 * prob << " : " << 1.2 * prob << "]" << "\n"
-                );
+                                << "with allowed window = [" << 0.8 * prob << " : " << 1.2 * prob << "]" << "\n");
+                CHECK((changeProb > 0.8 * prob && changeProb < 1.2 * prob));
             }
         }
 
@@ -1075,31 +1065,25 @@ protected:
 
             // Check setting of the different allowed values
             // false
-            BOOST_CHECK_NO_THROW (p_test->setAdaptionMode(adaptionMode::NEVER));
-            BOOST_CHECK_MESSAGE (
-                    p_test->getAdaptionMode() == adaptionMode::NEVER
-            , "\n"
+            CHECK_NOTHROW (p_test->setAdaptionMode(adaptionMode::NEVER));
+            INFO("\n"
                             << "p_test->getAdaptionMode() = " << p_test->getAdaptionMode() << "\n"
-                            << "required value            = adaptionMode::NEVER\n"
-            );
+                            << "required value            = adaptionMode::NEVER\n");
+            CHECK(p_test->getAdaptionMode() == adaptionMode::NEVER);
 
             // true
-            BOOST_CHECK_NO_THROW (p_test->setAdaptionMode(adaptionMode::ALWAYS));
-            BOOST_CHECK_MESSAGE (
-                    adaptionMode::ALWAYS == p_test->getAdaptionMode()
-            , "\n"
+            CHECK_NOTHROW (p_test->setAdaptionMode(adaptionMode::ALWAYS));
+            INFO("\n"
                             << "p_test->getAdaptionMode() = " << p_test->getAdaptionMode() << "\n"
-                            << "required value            = adaptionMode::ALWAYS\n"
-            );
+                            << "required value            = adaptionMode::ALWAYS\n");
+            CHECK(adaptionMode::ALWAYS == p_test->getAdaptionMode());
 
             // boost::logic::indeterminate
-            BOOST_CHECK_NO_THROW (p_test->setAdaptionMode(adaptionMode::WITHPROBABILITY));
-            BOOST_CHECK_MESSAGE (
-                    adaptionMode::WITHPROBABILITY == p_test->getAdaptionMode()
-            , "\n"
+            CHECK_NOTHROW (p_test->setAdaptionMode(adaptionMode::WITHPROBABILITY));
+            INFO("\n"
                             << "p_test->getAdaptionMode() = " << p_test->getAdaptionMode() << "\n"
-                            << "required value            = boost::logic::indeterminate\n"
-            );
+                            << "required value            = boost::logic::indeterminate\n");
+            CHECK(adaptionMode::WITHPROBABILITY == p_test->getAdaptionMode());
         }
 
         //------------------------------------------------------------------------------
@@ -1111,7 +1095,7 @@ protected:
             const std::size_t nTests = 10000;
 
             // false: There should never be adaptions, independent of the adaption probability
-            BOOST_CHECK_NO_THROW (p_test->setAdaptionMode(adaptionMode::NEVER));
+            CHECK_NOTHROW (p_test->setAdaptionMode(adaptionMode::NEVER));
             T currentValue = T(0);
             T oldValue = currentValue;
             for (std::size_t i = 0; i < nTests; i++) {
@@ -1120,18 +1104,16 @@ protected:
                         , T(1)
                         , gr
                 );
-                BOOST_CHECK_MESSAGE (
-                        currentValue == oldValue
-                , "\n"
+                INFO("\n"
                                 << "Values differ, when they shouldn't:"
                                 << "currentValue = " << currentValue << "\n"
                                 << "oldValue     = " << oldValue << "\n"
-                                << "iteration    = " << i << "\n"
-                );
+                                << "iteration    = " << i << "\n");
+                CHECK(currentValue == oldValue);
             }
 
             // true: Adaptions should happen always, independent of the adaption probability
-            BOOST_CHECK_NO_THROW (p_test->setAdaptionMode(adaptionMode::ALWAYS));
+            CHECK_NOTHROW (p_test->setAdaptionMode(adaptionMode::ALWAYS));
             currentValue = T(0);
             oldValue = currentValue;
             for (std::size_t i = 0; i < nTests; i++) {
@@ -1140,15 +1122,13 @@ protected:
                         , T(1)
                         , gr
                 );
-                BOOST_CHECK_MESSAGE (
-                        currentValue != oldValue
-                , "\n"
+                INFO("\n"
                                 << "Values are identical when they shouldn't be:" << "\n"
                                 << "currentValue = " << currentValue << "\n"
                                 << "oldValue     = " << oldValue << "\n"
                                 << "iteration    = " << i << "\n"
-                                << (this->printDiagnostics()).c_str()
-                );
+                                << (this->printDiagnostics()).c_str());
+                CHECK(currentValue != oldValue);
                 oldValue = currentValue;
             }
 
@@ -1162,24 +1142,20 @@ protected:
             std::shared_ptr<GAdaptorT<T, fp_type>> p_test = this->clone<GAdaptorT<T, fp_type>>();
 
             // The adaption probability should have been cloned
-            BOOST_CHECK_MESSAGE(
-                    p_test->getAdaptAdaptionProbability() == this->getAdaptAdaptionProbability()
-            , "\n"
+            INFO("\n"
                             << "p_test->getAdaptAdaptionProbability() = " << p_test->getAdaptAdaptionProbability() << "\n"
-                            << "this->getAdaptAdaptionProbability() = " << this->getAdaptAdaptionProbability() << "\n"
-            );
+                            << "this->getAdaptAdaptionProbability() = " << this->getAdaptAdaptionProbability() << "\n");
+            CHECK(p_test->getAdaptAdaptionProbability() == this->getAdaptAdaptionProbability());
 
             // Set the adaption probability to a sensible value and check the new setting
             fp_type testAdProb = 0.5;
-            BOOST_CHECK_NO_THROW(
-                    p_test->setAdaptAdaptionProbability(testAdProb);
+            CHECK_NOTHROW(
+                    p_test->setAdaptAdaptionProbability(testAdProb)
             );
-            BOOST_CHECK_MESSAGE(
-                    p_test->getAdaptAdaptionProbability() == testAdProb
-            , "\n"
+            INFO("\n"
                             << "p_test->getAdaptAdaptionProbability() = " << p_test->getAdaptAdaptionProbability() << "\n"
-                            << "testAdProb = " << testAdProb << "\n"
-            );
+                            << "testAdProb = " << testAdProb << "\n");
+            CHECK(p_test->getAdaptAdaptionProbability() == testAdProb);
         }
 
         //------------------------------------------------------------------------------
@@ -1202,15 +1178,13 @@ protected:
             // Set the adaption threshold to a specific value
             for (std::uint32_t adThr = 10; adThr > 0; adThr--) {
                 // Just make sure our logic is right and we stay in the right window
-                BOOST_CHECK(adThr <= 10);
+                CHECK(adThr <= 10);
 
-                BOOST_CHECK_NO_THROW(p_test->setAdaptionThreshold(adThr));
-                BOOST_CHECK_MESSAGE(
-                        p_test->getAdaptionThreshold() == adThr
-                , "\n"
+                CHECK_NOTHROW(p_test->setAdaptionThreshold(adThr));
+                INFO("\n"
                                 << "p_test->getAdaptionThreshold() = " << p_test->getAdaptionThreshold() << "\n"
-                                << "adThr = " << adThr << "\n"
-                );
+                                << "adThr = " << adThr << "\n");
+                CHECK(p_test->getAdaptionThreshold() == adThr);
 
                 // Check that the adaption counter does not exceed the threshold by
                 // adapting a value a number of times > adThr
@@ -1222,38 +1196,32 @@ protected:
                             , gr
                     )) {
                         // Check that testVal has indeed been adapted
-                        BOOST_CHECK_MESSAGE(
-                                testVal != oldTestVal
-                        , "\n"
+                        INFO("\n"
                                         << "testVal = " << testVal << "\n"
                                         << "oldTestVal = " << oldTestVal << "\n"
                                         << "adThr = " << adThr << "\n"
-                                        << "adCnt = " << adCnt << "\n"
-                        );
+                                        << "adCnt = " << adCnt << "\n");
+                        CHECK(testVal != oldTestVal);
                         oldTestVal = testVal;
 
                         // Check that the adaption counter has changed at all, as it should
                         // for adaption thresholds > 1
                         if (adThr > 1) {
-                            BOOST_CHECK_MESSAGE(
-                                    p_test->getAdaptionCounter() != oldAdaptionCounter
-                            , "\n"
+                            INFO("\n"
                                             << "p_test->getAdaptionCounter() = " << p_test->getAdaptionCounter() << "\n"
                                             << "oldAdaptionCounter = " << oldAdaptionCounter << "\n"
                                             << "adThr = " << adThr << "\n"
-                                            << "adCnt = " << adCnt << "\n"
-                            );
+                                            << "adCnt = " << adCnt << "\n");
+                            CHECK(p_test->getAdaptionCounter() != oldAdaptionCounter);
                             oldAdaptionCounter = p_test->getAdaptionCounter();
                         }
 
                         // Check that the adaption counter is behaving nicely
-                        BOOST_CHECK_MESSAGE(
-                                p_test->getAdaptionCounter() < adThr
-                        , "\n"
+                        INFO("\n"
                                         << "p_test->getAdaptionCounter() = " << p_test->getAdaptionCounter() << "\n"
                                         << "adThr = " << adThr << "\n"
-                                        << "adCnt = " << adCnt << "\n"
-                        );
+                                        << "adCnt = " << adCnt << "\n");
+                        CHECK(p_test->getAdaptionCounter() < adThr);
                     }
                 }
             }
@@ -1269,19 +1237,17 @@ protected:
             T testVal = T(0);
             T oldTestVal = T(0);
             for (std::size_t i = 0; i < nTests; i++) {
-                BOOST_CHECK_NO_THROW(p_test->customAdaptions(
+                CHECK_NOTHROW(p_test->customAdaptions(
                         testVal
                         , T(1)
                         , gr
                 ));
-                BOOST_CHECK_MESSAGE(
-                        testVal != oldTestVal
-                , "\n"
+                INFO("\n"
                                 << "Found identical values after adaption took place" << "\n"
                                 << "testVal = " << testVal << "\n"
                                 << "oldTestVal = " << oldTestVal << "\n"
-                                << "iteration = " << i << "\n"
-                );
+                                << "iteration = " << i << "\n");
+                CHECK(testVal != oldTestVal);
                 oldTestVal = testVal;
             }
         }
@@ -1300,8 +1266,6 @@ protected:
     void specificTestsFailuresExpected_GUnitTests_() override
     {
 #ifdef GEM_TESTING
-        using boost::unit_test_framework::test_suite;
-        using boost::unit_test_framework::test_case;
 
         // Call the parent classes' functions
         GObject::specificTestsFailuresExpected_GUnitTests_();
@@ -1315,8 +1279,8 @@ protected:
             std::shared_ptr<GAdaptorT<T, fp_type>> p_test = this->clone<GAdaptorT<T, fp_type>>();
 
             // Setting a probability < 0 should throw
-            BOOST_CHECK_THROW(
-                    p_test->setAdaptionProbability(-1.);
+            CHECK_THROWS_AS(
+                    p_test->setAdaptionProbability(-1.)
             , geneva_exception
             );
         }
@@ -1327,8 +1291,8 @@ protected:
             std::shared_ptr<GAdaptorT<T, fp_type>> p_test = this->clone<GAdaptorT<T, fp_type>>();
 
             // Setting a probability > 1 should throw
-            BOOST_CHECK_THROW(
-                    p_test->setAdaptionProbability(2.);
+            CHECK_THROWS_AS(
+                    p_test->setAdaptionProbability(2.)
             , geneva_exception
             );
         }
@@ -1339,8 +1303,8 @@ protected:
             std::shared_ptr<GAdaptorT<T, fp_type>> p_test = this->clone<GAdaptorT<T, fp_type>>();
 
             // Setting a probability < 0 should throw
-            BOOST_CHECK_THROW(
-                    p_test->setAdaptAdaptionProbability(-1.);
+            CHECK_THROWS_AS(
+                    p_test->setAdaptAdaptionProbability(-1.)
             , geneva_exception
             );
         }
@@ -1351,8 +1315,8 @@ protected:
             std::shared_ptr<GAdaptorT<T, fp_type>> p_test = this->clone<GAdaptorT<T, fp_type>>();
 
             // Setting a probability > 1 should throw
-            BOOST_CHECK_THROW(
-                    p_test->setAdaptAdaptionProbability(2.);
+            CHECK_THROWS_AS(
+                    p_test->setAdaptAdaptionProbability(2.)
             , geneva_exception
             );
         }

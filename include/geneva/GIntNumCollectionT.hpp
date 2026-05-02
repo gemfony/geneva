@@ -297,8 +297,8 @@ protected:
                     p_test2 = this->template clone<GIntNumCollectionT<int_type>>();
 
             // Make sure p_test1 and p_test2 are empty
-            BOOST_CHECK_NO_THROW(p_test1->clear());
-            BOOST_CHECK_NO_THROW(p_test2->clear());
+            CHECK_NOTHROW(p_test1->clear());
+            CHECK_NOTHROW(p_test2->clear());
 
             // Add a few items
             for (std::size_t i = 0; i < nItems; i++) {
@@ -308,34 +308,34 @@ protected:
             }
 
             // Set initialization boundaries
-            BOOST_CHECK_NO_THROW(p_test1->setInitBoundaries(
+            CHECK_NOTHROW(p_test1->setInitBoundaries(
                     LOWERINITBOUNDARY
                     , UPPERINITBOUNDARY
             ));
 
             // Check that the boundaries have been set as expected
-            BOOST_CHECK(p_test1->getLowerInitBoundary() == LOWERINITBOUNDARY);
-            BOOST_CHECK(p_test1->getUpperInitBoundary() == UPPERINITBOUNDARY);
+            CHECK(p_test1->getLowerInitBoundary() == LOWERINITBOUNDARY);
+            CHECK(p_test1->getUpperInitBoundary() == UPPERINITBOUNDARY);
 
             // Load the data of p_test1 into p_test2
-            BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
+            CHECK_NOTHROW(p_test2->load(p_test1));
             // Cross check that both are indeed equal
-            BOOST_CHECK(*p_test1 == *p_test2);
+            CHECK(*p_test1 == *p_test2);
 
             // Randomly initialize one of the two objects. Note: we are using the protected function rather than the "global" function
-            BOOST_CHECK_NO_THROW(p_test1->randomInit_(
+            CHECK_NOTHROW(p_test1->randomInit_(
                     activityMode::ALLPARAMETERS
                     , gr
             ));
 
             // Check that the object has indeed changed
-            BOOST_CHECK(*p_test1 != *p_test2);
+            CHECK(*p_test1 != *p_test2);
 
             // Check that the values of p_test1 are inside of the allowed boundaries
             for (std::size_t i = 0; i < nItems; i++) {
-                BOOST_CHECK(p_test1->at(i) != p_test2->at(i));
-                BOOST_CHECK(p_test1->at(i) >= LOWERINITBOUNDARY);
-                BOOST_CHECK(p_test1->at(i) <= UPPERINITBOUNDARY);
+                CHECK(p_test1->at(i) != p_test2->at(i));
+                CHECK(p_test1->at(i) >= LOWERINITBOUNDARY);
+                CHECK(p_test1->at(i) <= UPPERINITBOUNDARY);
             }
         }
 
@@ -355,55 +355,55 @@ protected:
             }
 
             // Load into p_test2 and p_test3 and test equality
-            BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
-            BOOST_CHECK_NO_THROW(p_test3->load(p_test1));
-            BOOST_CHECK(*p_test2 == *p_test1);
-            BOOST_CHECK(*p_test3 == *p_test1);
-            BOOST_CHECK(*p_test3 == *p_test2);
+            CHECK_NOTHROW(p_test2->load(p_test1));
+            CHECK_NOTHROW(p_test3->load(p_test1));
+            CHECK(*p_test2 == *p_test1);
+            CHECK(*p_test3 == *p_test1);
+            CHECK(*p_test3 == *p_test2);
 
             // Check that initialization with a fixed floating point value has no effect on this object
-            BOOST_CHECK_NO_THROW(p_test2->template fixedValueInit<double>(
+            CHECK_NOTHROW(p_test2->template fixedValueInit<double>(
                     2.
                     , activityMode::ALLPARAMETERS
             ));
-            BOOST_CHECK(*p_test2 == *p_test1);
+            CHECK(*p_test2 == *p_test1);
 
             // Check that multiplication with a fixed floating point value has no effect on this object
-            BOOST_CHECK_NO_THROW(p_test2->template multiplyBy<double>(
+            CHECK_NOTHROW(p_test2->template multiplyBy<double>(
                     2.
                     , activityMode::ALLPARAMETERS
             ));
-            BOOST_CHECK(*p_test2 == *p_test1);
+            CHECK(*p_test2 == *p_test1);
 
             // Check that a component-wise multiplication with a random fp value in a given range does not have an effect on this object
-            BOOST_CHECK_NO_THROW(p_test2->template multiplyByRandom<double>(
+            CHECK_NOTHROW(p_test2->template multiplyByRandom<double>(
                     1.
                     , 2.
                     , activityMode::ALLPARAMETERS
                     , gr
             ));
-            BOOST_CHECK(*p_test2 == *p_test1);
+            CHECK(*p_test2 == *p_test1);
 
             // Check that a component-wise multiplication with a random fp value in the range [0:1[ does not have an effect on this object
-            BOOST_CHECK_NO_THROW(p_test2->template multiplyByRandom<double>(
+            CHECK_NOTHROW(p_test2->template multiplyByRandom<double>(
                     activityMode::ALLPARAMETERS
                     , gr
             ));
-            BOOST_CHECK(*p_test2 == *p_test1);
+            CHECK(*p_test2 == *p_test1);
 
             // Check that adding p_test1 to p_test3 does not have an effect
-            BOOST_CHECK_NO_THROW(p_test3->template add<double>(
+            CHECK_NOTHROW(p_test3->template add<double>(
                     p_test1
                     , activityMode::ALLPARAMETERS
             ));
-            BOOST_CHECK(*p_test3 == *p_test2);
+            CHECK(*p_test3 == *p_test2);
 
             // Check that subtracting p_test1 from p_test3 does not have an effect
-            BOOST_CHECK_NO_THROW(p_test3->template subtract<double>(
+            CHECK_NOTHROW(p_test3->template subtract<double>(
                     p_test1
                     , activityMode::ALLPARAMETERS
             ));
-            BOOST_CHECK(*p_test3 == *p_test2);
+            CHECK(*p_test3 == *p_test2);
         }
 
         //------------------------------------------------------------------------------

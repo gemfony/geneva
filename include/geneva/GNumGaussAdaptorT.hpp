@@ -539,8 +539,6 @@ protected:
      */
 	bool modify_GUnitTests_() override {
 #ifdef GEM_TESTING
-		using boost::unit_test_framework::test_suite;
-		using boost::unit_test_framework::test_case;
 
 		bool result = false;
 
@@ -565,8 +563,6 @@ protected:
      */
 	void specificTestsNoFailureExpected_GUnitTests_() override {
 #ifdef GEM_TESTING
-		using boost::unit_test_framework::test_suite;
-		using boost::unit_test_framework::test_case;
 
 		// Call the parent classes' functions
 		GAdaptorT<num_type>::specificTestsNoFailureExpected_GUnitTests_();
@@ -585,24 +581,20 @@ protected:
 					dupper = 1.;
 				}
 
-				BOOST_CHECK_NO_THROW(p_test->setSigmaRange(dlower, dupper));
+				CHECK_NOTHROW(p_test->setSigmaRange(dlower, dupper));
 				typename std::tuple<fp_type, fp_type> range;
-				BOOST_CHECK_NO_THROW(range = p_test->getSigmaRange());
+				CHECK_NOTHROW(range = p_test->getSigmaRange());
 
 				using namespace boost;
 
 				if(dlower == 0.) { // Account for the fact that a lower boundary of 0. will be silently changed
-					BOOST_CHECK_MESSAGE(
-							std::get<0>(range) == boost::numeric_cast<fp_type>(DEFAULTMINSIGMA)
-					, std::get<0>(range) << " / " << boost::numeric_cast<fp_type>(DEFAULTMINSIGMA)
-					);
-					BOOST_CHECK_MESSAGE(
-							std::get<1>(range) == boost::numeric_cast<fp_type>(1.)
-					, std::get<1>(range) << " / " << boost::numeric_cast<fp_type>(1.)
-					);
+					INFO(std::get<0>(range) << " / " << boost::numeric_cast<fp_type>(DEFAULTMINSIGMA));
+					CHECK(std::get<0>(range) == boost::numeric_cast<fp_type>(DEFAULTMINSIGMA));
+					INFO(std::get<1>(range) << " / " << boost::numeric_cast<fp_type>(1.));
+					CHECK(std::get<1>(range) == boost::numeric_cast<fp_type>(1.));
 				}
 				else {
-					BOOST_CHECK(std::get<0>(range) == dlower);
+					CHECK(std::get<0>(range) == dlower);
 				}
 			}
 
@@ -613,9 +605,9 @@ protected:
 		{ // Test that setting a sigma of 0. will result in a sigma with value DEFAULTMINSIGMA
 			std::shared_ptr<GNumGaussAdaptorT<num_type, fp_type>> p_test = this->template clone<GNumGaussAdaptorT<num_type, fp_type>>();
 
-			BOOST_CHECK_NO_THROW(p_test->setSigmaRange(fp_type(0.), fp_type(1.)));
-			BOOST_CHECK_NO_THROW(p_test->setSigma(fp_type(DEFAULTMINSIGMA)));
-			BOOST_CHECK(p_test->getSigma() == fp_type(DEFAULTMINSIGMA));
+			CHECK_NOTHROW(p_test->setSigmaRange(fp_type(0.), fp_type(1.)));
+			CHECK_NOTHROW(p_test->setSigma(fp_type(DEFAULTMINSIGMA)));
+			CHECK(p_test->getSigma() == fp_type(DEFAULTMINSIGMA));
 		}
 
 		//------------------------------------------------------------------------------
@@ -623,11 +615,11 @@ protected:
 		{ // Tests setting and retrieval of the sigma parameter
 			std::shared_ptr<GNumGaussAdaptorT<num_type, fp_type>> p_test = this->template clone<GNumGaussAdaptorT<num_type, fp_type>>();
 
-			BOOST_CHECK_NO_THROW(p_test->setSigmaRange(fp_type(0.), fp_type(1.)));
+			CHECK_NOTHROW(p_test->setSigmaRange(fp_type(0.), fp_type(1.)));
 
 			for(fp_type d=fp_type(0.1); d<fp_type(0.9); d+=fp_type(0.1)) {
-				BOOST_CHECK_NO_THROW(p_test->setSigma(d));
-				BOOST_CHECK(p_test->getSigma() == d);
+				CHECK_NOTHROW(p_test->setSigma(d));
+				CHECK(p_test->getSigma() == d);
 			}
 		}
 
@@ -637,8 +629,8 @@ protected:
 			std::shared_ptr<GNumGaussAdaptorT<num_type, fp_type>> p_test = this->template clone<GNumGaussAdaptorT<num_type, fp_type>>();
 
 			for(fp_type d=fp_type(0.1); d<fp_type(0.9); d+=fp_type(0.1)) {
-				BOOST_CHECK_NO_THROW(p_test->setSigmaAdaptionRate(d));
-				BOOST_CHECK(p_test->getSigmaAdaptionRate() == d);
+				CHECK_NOTHROW(p_test->setSigmaAdaptionRate(d));
+				CHECK(p_test->getSigmaAdaptionRate() == d);
 			}
 		}
 
@@ -649,13 +641,13 @@ protected:
 
 			std::shared_ptr<GNumGaussAdaptorT<num_type, fp_type>> p_test = this->template clone<GNumGaussAdaptorT<num_type, fp_type>>();
 
-			BOOST_CHECK_NO_THROW(p_test->setAll(fp_type(0.5), fp_type(0.8), fp_type(0.), fp_type(1.)));
-			BOOST_CHECK(p_test->getSigma() == fp_type(0.5));
-			BOOST_CHECK(p_test->getSigmaAdaptionRate() == fp_type(0.8));
+			CHECK_NOTHROW(p_test->setAll(fp_type(0.5), fp_type(0.8), fp_type(0.), fp_type(1.)));
+			CHECK(p_test->getSigma() == fp_type(0.5));
+			CHECK(p_test->getSigmaAdaptionRate() == fp_type(0.8));
 			std::tuple<fp_type, fp_type> range;
-			BOOST_CHECK_NO_THROW(range = p_test->getSigmaRange());
-			BOOST_CHECK(std::get<0>(range) == fp_type(DEFAULTMINSIGMA));
-			BOOST_CHECK(std::get<1>(range) == fp_type(1.));
+			CHECK_NOTHROW(range = p_test->getSigmaRange());
+			CHECK(std::get<0>(range) == fp_type(DEFAULTMINSIGMA));
+			CHECK(std::get<1>(range) == fp_type(1.));
 		}
 
 		//------------------------------------------------------------------------------
@@ -664,37 +656,35 @@ protected:
 			std::shared_ptr<GNumGaussAdaptorT<num_type, fp_type>> p_test = this->template clone<GNumGaussAdaptorT<num_type, fp_type>>();
 
 			// true: Adaptions should happen always, independent of the adaption probability
-			BOOST_CHECK_NO_THROW (p_test->setAdaptionMode(adaptionMode::ALWAYS));
+			CHECK_NOTHROW (p_test->setAdaptionMode(adaptionMode::ALWAYS));
 
 			const fp_type minSigma = fp_type(0.0001);
 			const fp_type maxSigma = fp_type(1.);
 			const fp_type sigmaStart = fp_type(1.);
 			const fp_type sigmaSigma = fp_type(0.001);
 
-			BOOST_CHECK_NO_THROW(p_test->setSigmaRange(minSigma, maxSigma));
-			BOOST_CHECK_NO_THROW(p_test->setSigma(sigmaStart));
-			BOOST_CHECK_NO_THROW(p_test->setSigmaAdaptionRate(sigmaSigma));
+			CHECK_NOTHROW(p_test->setSigmaRange(minSigma, maxSigma));
+			CHECK_NOTHROW(p_test->setSigma(sigmaStart));
+			CHECK_NOTHROW(p_test->setSigmaAdaptionRate(sigmaSigma));
 
 			fp_type oldSigma = p_test->getSigma();
 			fp_type newSigma = 0.;
-			BOOST_CHECK(oldSigma == sigmaStart);
+			CHECK(oldSigma == sigmaStart);
 
 			std::size_t nTests = 10000;
 			std::size_t maxCounter = 0;
 			std::size_t maxMaxCounter = 500;
 			for(std::size_t i=0; i<nTests; i++) {
-				BOOST_CHECK_NO_THROW(p_test->adaptAdaption(num_type(1), gr));
-				BOOST_CHECK(newSigma = p_test->getSigma());
-				BOOST_CHECK(newSigma >= minSigma && newSigma <= maxSigma);
+				CHECK_NOTHROW(p_test->adaptAdaption(num_type(1), gr));
+				newSigma = p_test->getSigma();
+				CHECK((newSigma >= minSigma && newSigma <= maxSigma));
 
 				if(newSigma != minSigma && newSigma != maxSigma) {
-					BOOST_CHECK_MESSAGE (
-							newSigma != oldSigma
-					,  "\n"
+					INFO("\n"
 									<< "oldSigma = " << oldSigma << "\n"
 									<< "newSigma = " << newSigma << "\n"
-									<< "iteration = " << i << "\n"
-					);
+									<< "iteration = " << i << "\n");
+					CHECK(newSigma != oldSigma);
 					oldSigma = newSigma;
 				}
 				else {
@@ -703,12 +693,10 @@ protected:
 				}
 			}
 
-			BOOST_CHECK_MESSAGE (
-					maxCounter < maxMaxCounter
-			,  "\n"
+			INFO("\n"
 							<< "maxCounter = " << maxCounter << "\n"
-							<< "maxMaxCounter = " << maxMaxCounter << "\n"
-			);
+							<< "maxMaxCounter = " << maxMaxCounter << "\n");
+			CHECK(maxCounter < maxMaxCounter);
 		}
 
 		//------------------------------------------------------------------------------
@@ -724,8 +712,6 @@ protected:
      */
 	void specificTestsFailuresExpected_GUnitTests_() override {
 #ifdef GEM_TESTING
-		using boost::unit_test_framework::test_suite;
-		using boost::unit_test_framework::test_case;
 
 		// Call the parent classes' functions
 		GAdaptorT<num_type>::specificTestsFailuresExpected_GUnitTests_();
@@ -735,7 +721,7 @@ protected:
 		{ // Test that setting a minimal sigma < 0. throws
 			std::shared_ptr<GNumGaussAdaptorT<num_type, fp_type>> p_test = this->template clone<GNumGaussAdaptorT<num_type, fp_type>>();
 
-			BOOST_CHECK_THROW(p_test->setSigmaRange(fp_type(-1.), fp_type(2.)), geneva_exception);
+			CHECK_THROWS_AS((p_test->setSigmaRange(fp_type(-1.), fp_type(2.))), geneva_exception);
 		}
 
 		//------------------------------------------------------------------------------
@@ -743,7 +729,7 @@ protected:
 		{ // Test that setting a minimal sigma > the maximum sigma throws
 			std::shared_ptr<GNumGaussAdaptorT<num_type, fp_type>> p_test = this->template clone<GNumGaussAdaptorT<num_type, fp_type>>();
 
-			BOOST_CHECK_THROW(p_test->setSigmaRange(fp_type(2.), fp_type(1.)), geneva_exception);
+			CHECK_THROWS_AS((p_test->setSigmaRange(fp_type(2.), fp_type(1.))), geneva_exception);
 		}
 
 		//------------------------------------------------------------------------------
@@ -751,7 +737,7 @@ protected:
 		{ // Test that setting a negative sigma throws
 			std::shared_ptr<GNumGaussAdaptorT<num_type, fp_type>> p_test = this->template clone<GNumGaussAdaptorT<num_type, fp_type>>();
 
-			BOOST_CHECK_THROW(p_test->setSigma(fp_type(-1.)), geneva_exception);
+			CHECK_THROWS_AS((p_test->setSigma(fp_type(-1.))), geneva_exception);
 		}
 
 		//------------------------------------------------------------------------------
@@ -759,8 +745,8 @@ protected:
 		{ // Test that setting a sigma below the allowed range throws
 			std::shared_ptr<GNumGaussAdaptorT<num_type, fp_type>> p_test = this->template clone<GNumGaussAdaptorT<num_type, fp_type>>();
 
-			BOOST_CHECK_NO_THROW(p_test->setSigmaRange(fp_type(0.5), fp_type(1.)));
-			BOOST_CHECK_THROW(p_test->setSigma(fp_type(0.1)), geneva_exception);
+			CHECK_NOTHROW(p_test->setSigmaRange(fp_type(0.5), fp_type(1.)));
+			CHECK_THROWS_AS((p_test->setSigma(fp_type(0.1))), geneva_exception);
 		}
 
 		//------------------------------------------------------------------------------
@@ -768,8 +754,8 @@ protected:
 		{ // Test that setting a sigma above the allowed range throws
 			std::shared_ptr<GNumGaussAdaptorT<num_type, fp_type>> p_test = this->template clone<GNumGaussAdaptorT<num_type, fp_type>>();
 
-			BOOST_CHECK_NO_THROW(p_test->setSigmaRange(fp_type(0.5), fp_type(1.)));
-			BOOST_CHECK_THROW(p_test->setSigma(fp_type(3.)), geneva_exception);
+			CHECK_NOTHROW(p_test->setSigmaRange(fp_type(0.5), fp_type(1.)));
+			CHECK_THROWS_AS((p_test->setSigma(fp_type(3.))), geneva_exception);
 		}
 
 		//------------------------------------------------------------------------------

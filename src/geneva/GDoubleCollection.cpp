@@ -387,27 +387,27 @@ namespace Gem::Geneva
 		Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
 
 		// Make sure the collection is empty
-		BOOST_CHECK_NO_THROW(this->clear());
+		CHECK_NOTHROW(this->clear());
 
 		// Cross check that it really is
-		BOOST_CHECK(this->size() == 0);
+		CHECK(this->size() == 0);
 		// Use another method
-		BOOST_CHECK(this->empty());
+		CHECK(this->empty());
 
 		// Add a single item of defined value, so we can test the find() and count() functions
-		BOOST_CHECK_NO_THROW(this->push_back(0.));
+		CHECK_NOTHROW(this->push_back(0.));
 
 		std::uniform_real_distribution<double> uniform_real_distribution(-10.,10.);
 		for (std::size_t i = 1; i < nItems - 1; i++) {
-			BOOST_CHECK_NO_THROW(this->push_back(uniform_real_distribution(gr)));
+			CHECK_NOTHROW(this->push_back(uniform_real_distribution(gr)));
 		}
 
 		// Add a single item of defined value, so we can test the find() and count() functions
-		BOOST_CHECK_NO_THROW(this->push_back(1.));
+		CHECK_NOTHROW(this->push_back(1.));
 
 		// Cross-check the size
-		BOOST_CHECK(this->size() == nItems);
-		BOOST_CHECK(not this->empty());
+		CHECK(this->size() == nItems);
+		CHECK(not this->empty());
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
 	Gem::Common::condnotset("GDoubleCollection::fillWithData", "GEM_TESTING");
@@ -462,20 +462,20 @@ namespace Gem::Geneva
 
 				for (std::size_t t = 0; t < nTests; t++) {
 					// Load p_test1 into p_test2
-					BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
+					CHECK_NOTHROW(p_test2->load(p_test1));
 
 					// Make sure the objects match
-					BOOST_CHECK(*p_test1 == *p_test2);
+					CHECK(*p_test1 == *p_test2);
 
 					// Adapt p_test1
-					BOOST_CHECK_NO_THROW(p_test1->adapt(gr));
+					CHECK_NOTHROW(p_test1->adapt(gr));
 
 					// Test whether the two objects differ now
-					BOOST_CHECK(*p_test1 != *p_test2);
+					CHECK(*p_test1 != *p_test2);
 
 					// Check that each element differs
 					for (std::size_t i = 0; i < nItems; i++) {
-						BOOST_CHECK(p_test1->at(i) != p_test2->at(i));
+						CHECK(p_test1->at(i) != p_test2->at(i));
 					}
 				}
 			}
@@ -498,35 +498,35 @@ namespace Gem::Geneva
 				}
 
 				// Load p_test1 into p_test2 and p_test3
-				BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
-				BOOST_CHECK_NO_THROW(p_test3->load(p_test1));
+				CHECK_NOTHROW(p_test2->load(p_test1));
+				CHECK_NOTHROW(p_test3->load(p_test1));
 
 				// Make sure the objects match
-				BOOST_CHECK(*p_test1 == *p_test2);
-				BOOST_CHECK(*p_test1 == *p_test3);
-				BOOST_CHECK(*p_test3 == *p_test2);
+				CHECK(*p_test1 == *p_test2);
+				CHECK(*p_test1 == *p_test3);
+				CHECK(*p_test3 == *p_test2);
 
 				// Adapt p_test1
-				BOOST_CHECK_NO_THROW(p_test1->adapt(gr));
+				CHECK_NOTHROW(p_test1->adapt(gr));
 
 				// Test whether p_test1 and p_test2/3 differ now
-				BOOST_CHECK(*p_test1 != *p_test2);
-				BOOST_CHECK(*p_test1 != *p_test3);
+				CHECK(*p_test1 != *p_test2);
+				CHECK(*p_test1 != *p_test3);
 				// Test whether p_test2 is still the same as p_test3
-				BOOST_CHECK(*p_test3 == *p_test2);
+				CHECK(*p_test3 == *p_test2);
 
 				// Swap the data of p_test2 and p_test1
-				BOOST_CHECK_NO_THROW(p_test2->swap(*p_test1));
+				CHECK_NOTHROW(p_test2->swap(*p_test1));
 
 				// Extract the data vectors from p_test1 and p_test3
 				std::vector<double> data1, data3;
-				BOOST_CHECK_NO_THROW(p_test1->Gem::Common::GPODVectorT<double>::getDataCopy(data1));
-				BOOST_CHECK_NO_THROW(p_test3->Gem::Common::GPODVectorT<double>::getDataCopy(data3));
+				CHECK_NOTHROW(p_test1->Gem::Common::GPODVectorT<double>::getDataCopy(data1));
+				CHECK_NOTHROW(p_test3->Gem::Common::GPODVectorT<double>::getDataCopy(data3));
 
 				// Now p_test1->data  and p_test3->data should be the same, while p_test2 differs from both
-				BOOST_CHECK(data1 == data3);
-				BOOST_CHECK(*p_test2 != *p_test1);
-				BOOST_CHECK(*p_test2 != *p_test3);
+				CHECK(data1 == data3);
+				CHECK(*p_test2 != *p_test1);
+				CHECK(*p_test2 != *p_test3);
 			}
 		}
 
@@ -536,27 +536,27 @@ namespace Gem::Geneva
 			std::shared_ptr <GDoubleCollection> p_test1 = this->clone<GDoubleCollection>();
 
 			// Make sure the collection is empty
-			BOOST_CHECK_NO_THROW(p_test1->clear());
+			CHECK_NOTHROW(p_test1->clear());
 
 			// Check the site
-			BOOST_CHECK(p_test1->size() == 0);
-			BOOST_CHECK(p_test1->empty());
+			CHECK(p_test1->size() == 0);
+			CHECK(p_test1->empty());
 
 			// Check that the maximum size is > 0
-			BOOST_CHECK(p_test1->max_size() > 0);
+			CHECK(p_test1->max_size() > 0);
 
 			// Reserve some space
-			BOOST_CHECK_NO_THROW(p_test1->reserve(nItems));
+			CHECK_NOTHROW(p_test1->reserve(nItems));
 
 			// Check that the capacity is > 0
-			BOOST_CHECK(p_test1->capacity() > 0);
+			CHECK(p_test1->capacity() > 0);
 
 			// Add some data
-			BOOST_CHECK_NO_THROW(p_test1->fillWithData_(nItems));
+			CHECK_NOTHROW(p_test1->fillWithData_(nItems));
 
 			// Check the size again
-			BOOST_CHECK(p_test1->size() == nItems);
-			BOOST_CHECK(not p_test1->empty());
+			CHECK(p_test1->size() == nItems);
+			CHECK(not p_test1->empty());
 		}
 
 		//------------------------------------------------------------------------------
@@ -565,18 +565,18 @@ namespace Gem::Geneva
 			std::shared_ptr <GDoubleCollection> p_test1 = this->clone<GDoubleCollection>();
 
 			// Add some data
-			BOOST_CHECK_NO_THROW(p_test1->fillWithData_(nItems));
+			CHECK_NOTHROW(p_test1->fillWithData_(nItems));
 
 			// Count the number of values == 0. . Should be >= 1
-			BOOST_CHECK(p_test1->count(0.) >= 1);
+			CHECK(p_test1->count(0.) >= 1);
 			// Count the number of values == 1. . Should be >= 1
-			BOOST_CHECK(p_test1->count(1.) >= 1);
+			CHECK(p_test1->count(1.) >= 1);
 
 			// Find the item with value 0. -- the first one is in position 0
 			GDoubleCollection::const_iterator find_it, pos_it;
-			BOOST_CHECK_NO_THROW(pos_it = p_test1->begin());
-			BOOST_CHECK_NO_THROW(find_it = p_test1->find(0.));
-			BOOST_CHECK(find_it == pos_it);
+			CHECK_NOTHROW(pos_it = p_test1->begin());
+			CHECK_NOTHROW(find_it = p_test1->find(0.));
+			CHECK(find_it == pos_it);
 		}
 
 		//------------------------------------------------------------------------------
@@ -585,17 +585,17 @@ namespace Gem::Geneva
 			std::shared_ptr <GDoubleCollection> p_test1 = this->clone<GDoubleCollection>();
 
 			// Add some data
-			BOOST_CHECK_NO_THROW(p_test1->fillWithData_(nItems));
+			CHECK_NOTHROW(p_test1->fillWithData_(nItems));
 
 			// Retrieve items
-			BOOST_CHECK((*p_test1)[0] == 0.);
-			BOOST_CHECK(p_test1->at(0) == 0.);
+			CHECK((*p_test1)[0] == 0.);
+			CHECK(p_test1->at(0) == 0.);
 
 			// Set and retrieve an item using two different functions
-			BOOST_CHECK_NO_THROW((*p_test1)[0] = 1.);
-			BOOST_CHECK((*p_test1)[0] == 1.);
-			BOOST_CHECK_NO_THROW(p_test1->at(0) = 2.);
-			BOOST_CHECK(p_test1->at(0) == 2.);
+			CHECK_NOTHROW((*p_test1)[0] = 1.);
+			CHECK((*p_test1)[0] == 1.);
+			CHECK_NOTHROW(p_test1->at(0) = 2.);
+			CHECK(p_test1->at(0) == 2.);
 		}
 
 		//------------------------------------------------------------------------------
@@ -604,11 +604,11 @@ namespace Gem::Geneva
 			std::shared_ptr <GDoubleCollection> p_test1 = this->clone<GDoubleCollection>();
 
 			// Add some data
-			BOOST_CHECK_NO_THROW(p_test1->fillWithData_(nItems));
+			CHECK_NOTHROW(p_test1->fillWithData_(nItems));
 
 			// Check the front and back of the vector -- we know the values
-			BOOST_CHECK(p_test1->front() == 0.);
-			BOOST_CHECK(p_test1->back() == 1.);
+			CHECK(p_test1->front() == 0.);
+			CHECK(p_test1->back() == 1.);
 		}
 
 		//------------------------------------------------------------------------------
@@ -617,13 +617,13 @@ namespace Gem::Geneva
 			std::shared_ptr <GDoubleCollection> p_test1 = this->clone<GDoubleCollection>();
 
 			// Add some data
-			BOOST_CHECK_NO_THROW(p_test1->fillWithData_(nItems));
+			CHECK_NOTHROW(p_test1->fillWithData_(nItems));
 
 			// Iterate over the sequence
 			GDoubleCollection::iterator it;
 			std::size_t itemCount = 0;
 			for (it = p_test1->begin(); it != p_test1->end(); ++it) itemCount++;
-			BOOST_CHECK(itemCount == nItems);
+			CHECK(itemCount == nItems);
 		}
 
 		//------------------------------------------------------------------------------
@@ -632,52 +632,52 @@ namespace Gem::Geneva
 			std::shared_ptr <GDoubleCollection> p_test1 = this->clone<GDoubleCollection>();
 
 			// Add some data
-			BOOST_CHECK_NO_THROW(p_test1->fillWithData_(nItems));
+			CHECK_NOTHROW(p_test1->fillWithData_(nItems));
 
 			// Insert 1 item at position 1 and cross-check
-			BOOST_CHECK_NO_THROW(p_test1->insert(p_test1->begin() + 1, 1.));
-			BOOST_CHECK(p_test1->at(1) == 1.);
-			BOOST_CHECK(p_test1->size() == nItems + 1);
+			CHECK_NOTHROW(p_test1->insert(p_test1->begin() + 1, 1.));
+			CHECK(p_test1->at(1) == 1.);
+			CHECK(p_test1->size() == nItems + 1);
 
 			// Insert another (nItems - 1 ) items at position 0
-			BOOST_CHECK_NO_THROW(p_test1->insert(p_test1->begin(), nItems - 1, 1.));
-			BOOST_CHECK(p_test1->size() == 2 * nItems);
-			BOOST_CHECK(p_test1->at(0) == 1.);
+			CHECK_NOTHROW(p_test1->insert(p_test1->begin(), nItems - 1, 1.));
+			CHECK(p_test1->size() == 2 * nItems);
+			CHECK(p_test1->at(0) == 1.);
 
 			// Erase 1 item at the beginning and cross-check
-			BOOST_CHECK_NO_THROW(p_test1->erase(p_test1->begin()));
-			BOOST_CHECK(p_test1->size() == 2 * nItems - 1);
+			CHECK_NOTHROW(p_test1->erase(p_test1->begin()));
+			CHECK(p_test1->size() == 2 * nItems - 1);
 
 			// Erase another nItems - 1 items from the beginning
-			BOOST_CHECK_NO_THROW(p_test1->erase(p_test1->begin(), p_test1->begin() + nItems - 1));
-			BOOST_CHECK(p_test1->size() == nItems);
+			CHECK_NOTHROW(p_test1->erase(p_test1->begin(), p_test1->begin() + nItems - 1));
+			CHECK(p_test1->size() == nItems);
 
 			// Remove another item at the end
-			BOOST_CHECK_NO_THROW(p_test1->pop_back());
-			BOOST_CHECK(p_test1->size() == nItems - 1);
+			CHECK_NOTHROW(p_test1->pop_back());
+			CHECK(p_test1->size() == nItems - 1);
 
 			// Remove all remaining items
-			BOOST_CHECK_NO_THROW(p_test1->resize(0, 0.));
-			BOOST_CHECK(p_test1->size() == 0);
+			CHECK_NOTHROW(p_test1->resize(0, 0.));
+			CHECK(p_test1->size() == 0);
 
 			// Add a number of identical items, using the resize() function and cross-check
-			BOOST_CHECK_NO_THROW(p_test1->resize(nItems, 1.));
-			BOOST_CHECK(p_test1->size() == nItems);
-			BOOST_CHECK(p_test1->count(1.) == nItems);
+			CHECK_NOTHROW(p_test1->resize(nItems, 1.));
+			CHECK(p_test1->size() == nItems);
+			CHECK(p_test1->count(1.) == nItems);
 
 			std::vector<double> dataCopy;
-			BOOST_CHECK_NO_THROW(p_test1->getDataCopy(dataCopy));
-			BOOST_CHECK(dataCopy.size() == nItems);
-			BOOST_CHECK((std::size_t) std::count(dataCopy.begin(), dataCopy.end(), 1.) == nItems);
+			CHECK_NOTHROW(p_test1->getDataCopy(dataCopy));
+			CHECK(dataCopy.size() == nItems);
+			CHECK((std::size_t) std::count(dataCopy.begin(), dataCopy.end(), 1.) == nItems);
 
 			// Assign 1 to all positions and add further items
 			for (std::size_t i = 0; i < dataCopy.size(); i++) dataCopy[i] = 0.;
 			for (std::size_t i = 0; i < nItems; i++) dataCopy.push_back(0.);
 
 			// Assign the vector to p_test1 and cross-check
-			BOOST_CHECK_NO_THROW(p_test1->Gem::Common::GPODVectorT<double>::operator=(dataCopy));
-			BOOST_CHECK(p_test1->size() == 2 * nItems);
-			BOOST_CHECK(p_test1->count(0.) == 2 * nItems);
+			CHECK_NOTHROW(p_test1->Gem::Common::GPODVectorT<double>::operator=(dataCopy));
+			CHECK(p_test1->size() == 2 * nItems);
+			CHECK(p_test1->count(0.) == 2 * nItems);
 		}
 
 		//------------------------------------------------------------------------------

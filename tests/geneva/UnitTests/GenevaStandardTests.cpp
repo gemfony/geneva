@@ -31,13 +31,7 @@
  *
  ********************************************************************************/
 
-#include <iostream>
-
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_ALTERNATIVE_INIT_API
-#include <boost/test/unit_test.hpp>
-
-using namespace boost::unit_test;
+#include <catch2/catch_template_test_macros.hpp>
 
 // All classes that will be tested in this file
 #include "geneva/GInt32FlipAdaptor.hpp"
@@ -59,8 +53,10 @@ using namespace boost::unit_test;
 #include "geneva/GInt32Collection.hpp"
 #include "geneva/GDoubleCollection.hpp"
 #include "geneva/GBooleanCollection.hpp"
+#include "geneva/G_OptimizationAlgorithm_EvolutionaryAlgorithm_PersonalityTraits.hpp"
 #include "geneva/G_OptimizationAlgorithm_GradientDescent_PersonalityTraits.hpp"
 #include "geneva/G_OptimizationAlgorithm_ParameterScan_PersonalityTraits.hpp"
+#include "geneva/G_OptimizationAlgorithm_SimulatedAnnealing_PersonalityTraits.hpp"
 #include "geneva/G_OptimizationAlgorithm_SwarmAlgorithm_PersonalityTraits.hpp"
 #include "geneva/GParameterObjectCollection.hpp"
 #include "geneva/GTestIndividual1.hpp"
@@ -73,109 +69,108 @@ using namespace boost::unit_test;
 
 using namespace Gem::Geneva;
 
-/*************************************************************************************************/
-/**
- * This test suite checks as much as possible of the functionality provided by Geneva classes.
- * All instantiable core Geneva classes should be listed here.
- */
-class GenevaStandardTestSuite
-	: public test_suite
-{
-public:
-    G_API_GENEVA GenevaStandardTestSuite() :test_suite("GenevaStandardTestSuite") {
+// ============================================================================
+// Standard tests — no failure expected
+// ============================================================================
 
-		using adaptor_types = boost::mpl::list<
-			GInt32FlipAdaptor
-			, GBooleanAdaptor
-			, GInt32GaussAdaptor
-			, GDoubleBiGaussAdaptor
-			, GDoubleGaussAdaptor
-		>;
-
-		using data_types = boost::mpl::list<
-			GBooleanObject
-			, GInt32Object
-			, GDoubleObject
-			, GConstrainedInt32Object
-			, GConstrainedDoubleObject
-		>;
-
-		using object_collection_types = boost::mpl::list<
-			GParameterObjectCollection
-			, GBooleanObjectCollection
-			, GInt32ObjectCollection
-			, GConstrainedInt32ObjectCollection
-			, GDoubleObjectCollection
-			, GConstrainedDoubleObjectCollection
-		>;
-
-		using pod_collection_types = boost::mpl::list<
-			GInt32Collection
-			, GDoubleCollection
-			, GBooleanCollection
-			, GConstrainedDoubleCollection
-		>;
-
-		// TODO: Add tests for algorithm types
-		using algorithm_types = boost::mpl::list<
-		>;
-
-		using trait_types = boost::mpl::list<
-			GEvolutionaryAlgorithm_PersonalityTraits
-			, GGradientDescent_PersonalityTraits
-			, GSwarmAlgorithm_PersonalityTraits
-			, GSimulatedAnnealing_PersonalityTraits
-			, GParameterScan_PersonalityTraits
-		>;
-
-		using individual_types = boost::mpl::list<
-			Gem::Tests::GTestIndividual1
-			// , Gem::Tests::GTestIndividual3 // TODO: Add test for GTestIndividual3
-			, GFunctionIndividual
-			, GDelayIndividual
-			, GExternalEvaluatorIndividual
-		>;
-
-		/*****************************************************************************************/
-
-		add( BOOST_TEST_CASE_TEMPLATE( StandardTests_no_failure_expected, adaptor_types ) );
-		add( BOOST_TEST_CASE_TEMPLATE( StandardTests_failures_expected, adaptor_types ) );
-
-		add( BOOST_TEST_CASE_TEMPLATE( StandardTests_no_failure_expected, data_types ) );
-		add( BOOST_TEST_CASE_TEMPLATE( StandardTests_failures_expected, data_types ) );
-
-		add( BOOST_TEST_CASE_TEMPLATE( StandardTests_no_failure_expected, object_collection_types ) );
-		add( BOOST_TEST_CASE_TEMPLATE( StandardTests_failures_expected, object_collection_types ) );
-
-		add( BOOST_TEST_CASE_TEMPLATE( StandardTests_no_failure_expected, pod_collection_types ) );
-		add( BOOST_TEST_CASE_TEMPLATE( StandardTests_failures_expected, pod_collection_types ) );
-
-		// add( BOOST_TEST_CASE_TEMPLATE( StandardTests_no_failure_expected, algorithm_types ) );
-		// add( BOOST_TEST_CASE_TEMPLATE( StandardTests_failures_expected, algorithm_types ) );
-
-		add( BOOST_TEST_CASE_TEMPLATE( StandardTests_no_failure_expected, trait_types ) );
-		add( BOOST_TEST_CASE_TEMPLATE( StandardTests_failures_expected, trait_types ) );
-
-		add( BOOST_TEST_CASE_TEMPLATE( StandardTests_no_failure_expected, individual_types ) );
-		add( BOOST_TEST_CASE_TEMPLATE( StandardTests_failures_expected, individual_types ) );
-	}
-
-    G_API_GENEVA ~GenevaStandardTestSuite() {
-		std::cout << "GenevaStandardTestSuite has ended." << std::endl;
-	}
-};
-
-/*************************************************************************************************/
-/**
- * The test program entry point
- */
-bool init_unit_test() {
-	framework::master_test_suite().add(new GenevaStandardTestSuite());
-	return true;
+TEMPLATE_TEST_CASE("StandardTests_no_failure_expected — adaptor types",
+                   "[geneva][standard]",
+                   GInt32FlipAdaptor, GBooleanAdaptor, GInt32GaussAdaptor,
+                   GDoubleBiGaussAdaptor, GDoubleGaussAdaptor) {
+    Gem::Tests::StandardTests_no_failure_expected<TestType>();
 }
 
-int main(int argc, char* argv[]) {
-	return ::boost::unit_test::unit_test_main(&init_unit_test, argc, argv);
+TEMPLATE_TEST_CASE("StandardTests_no_failure_expected — data types",
+                   "[geneva][standard]",
+                   GBooleanObject, GInt32Object, GDoubleObject,
+                   GConstrainedInt32Object, GConstrainedDoubleObject) {
+    Gem::Tests::StandardTests_no_failure_expected<TestType>();
 }
 
-/*************************************************************************************************/
+TEMPLATE_TEST_CASE("StandardTests_no_failure_expected — object collection types",
+                   "[geneva][standard]",
+                   GParameterObjectCollection, GBooleanObjectCollection,
+                   GInt32ObjectCollection, GConstrainedInt32ObjectCollection,
+                   GDoubleObjectCollection, GConstrainedDoubleObjectCollection) {
+    Gem::Tests::StandardTests_no_failure_expected<TestType>();
+}
+
+TEMPLATE_TEST_CASE("StandardTests_no_failure_expected — pod collection types",
+                   "[geneva][standard]",
+                   GInt32Collection, GDoubleCollection, GBooleanCollection,
+                   GConstrainedDoubleCollection) {
+    Gem::Tests::StandardTests_no_failure_expected<TestType>();
+}
+
+TEMPLATE_TEST_CASE("StandardTests_no_failure_expected — trait types",
+                   "[geneva][standard]",
+                   GEvolutionaryAlgorithm_PersonalityTraits,
+                   GGradientDescent_PersonalityTraits,
+                   GSwarmAlgorithm_PersonalityTraits,
+                   GSimulatedAnnealing_PersonalityTraits,
+                   GParameterScan_PersonalityTraits) {
+    Gem::Tests::StandardTests_no_failure_expected<TestType>();
+}
+
+TEMPLATE_TEST_CASE("StandardTests_no_failure_expected — individual types",
+                   "[geneva][standard]",
+                   Gem::Tests::GTestIndividual1,
+                   // Gem::Tests::GTestIndividual3, // TODO: Add test for GTestIndividual3
+                   GFunctionIndividual,
+                   GDelayIndividual,
+                   GExternalEvaluatorIndividual) {
+    Gem::Tests::StandardTests_no_failure_expected<TestType>();
+}
+
+// ============================================================================
+// Standard tests — failures expected
+// ============================================================================
+
+TEMPLATE_TEST_CASE("StandardTests_failures_expected — adaptor types",
+                   "[geneva][standard][failures-expected]",
+                   GInt32FlipAdaptor, GBooleanAdaptor, GInt32GaussAdaptor,
+                   GDoubleBiGaussAdaptor, GDoubleGaussAdaptor) {
+    Gem::Tests::StandardTests_failures_expected<TestType>();
+}
+
+TEMPLATE_TEST_CASE("StandardTests_failures_expected — data types",
+                   "[geneva][standard][failures-expected]",
+                   GBooleanObject, GInt32Object, GDoubleObject,
+                   GConstrainedInt32Object, GConstrainedDoubleObject) {
+    Gem::Tests::StandardTests_failures_expected<TestType>();
+}
+
+TEMPLATE_TEST_CASE("StandardTests_failures_expected — object collection types",
+                   "[geneva][standard][failures-expected]",
+                   GParameterObjectCollection, GBooleanObjectCollection,
+                   GInt32ObjectCollection, GConstrainedInt32ObjectCollection,
+                   GDoubleObjectCollection, GConstrainedDoubleObjectCollection) {
+    Gem::Tests::StandardTests_failures_expected<TestType>();
+}
+
+TEMPLATE_TEST_CASE("StandardTests_failures_expected — pod collection types",
+                   "[geneva][standard][failures-expected]",
+                   GInt32Collection, GDoubleCollection, GBooleanCollection,
+                   GConstrainedDoubleCollection) {
+    Gem::Tests::StandardTests_failures_expected<TestType>();
+}
+
+TEMPLATE_TEST_CASE("StandardTests_failures_expected — trait types",
+                   "[geneva][standard][failures-expected]",
+                   GEvolutionaryAlgorithm_PersonalityTraits,
+                   GGradientDescent_PersonalityTraits,
+                   GSwarmAlgorithm_PersonalityTraits,
+                   GSimulatedAnnealing_PersonalityTraits,
+                   GParameterScan_PersonalityTraits) {
+    Gem::Tests::StandardTests_failures_expected<TestType>();
+}
+
+TEMPLATE_TEST_CASE("StandardTests_failures_expected — individual types",
+                   "[geneva][standard][failures-expected]",
+                   Gem::Tests::GTestIndividual1,
+                   // Gem::Tests::GTestIndividual3, // TODO: Add test for GTestIndividual3
+                   GFunctionIndividual,
+                   GDelayIndividual,
+                   GExternalEvaluatorIndividual) {
+    Gem::Tests::StandardTests_failures_expected<TestType>();
+}

@@ -437,20 +437,19 @@ namespace Gem::Geneva
 
 		{ // Check default constructor
 			GBooleanCollection gbc;
-			BOOST_CHECK(gbc.empty());
+			CHECK(gbc.empty());
 		}
 
 		// --------------------------------------------------------------------------
 
 		{ // Check copy construction
 			GBooleanCollection gbc1;
-			BOOST_CHECK_NO_THROW(gbc1.push_back(true));
+			CHECK_NOTHROW(gbc1.push_back(true));
 			GBooleanCollection gbc2(gbc1);
-			BOOST_CHECK_MESSAGE(
-				gbc2.size() == 1 && gbc2.at(0) == true, "\n"
+			INFO("\n"
 				<< "gbc2.size() = " << gbc2.size()
-				<< "gbc2.at(0) = " << gbc2.at(0)
-			);
+				<< "gbc2.at(0) = " << gbc2.at(0));
+			CHECK((gbc2.size() == 1 && gbc2.at(0) == true));
 		}
 
 		// --------------------------------------------------------------------------
@@ -458,11 +457,10 @@ namespace Gem::Geneva
 		{ // Check construction with a number of random bits
 			GBooleanCollection gbc(nItems);
 
-			BOOST_CHECK_MESSAGE(
-				gbc.size() == nItems, "\n"
+			INFO("\n"
 				<< "gbc.size() = " << gbc.size() << "\n"
-				<< "nItems = " << nItems
-			);
+				<< "nItems = " << nItems);
+			CHECK(gbc.size() == nItems);
 
 			// Count the number of true and false values
 			std::size_t nTrue = 0;
@@ -472,14 +470,13 @@ namespace Gem::Geneva
 			}
 
 			// We allow a slight deviation, as the initialization is a random process
-			BOOST_REQUIRE(nFalse != 0); // There should be a few false values
+			REQUIRE(nFalse != 0); // There should be a few false values
 			double ratio = double(nTrue) / double(nFalse);
-			BOOST_CHECK_MESSAGE(
-				ratio > LOWERBND && ratio < UPPERBND, "\n"
+			INFO("\n"
 				<< "ratio = " << ratio << "\n"
 				<< "nTrue = " << nTrue << "\n"
-				<< "nFalse = " << nFalse << "\n"
-			);
+				<< "nFalse = " << nFalse << "\n");
+			CHECK((ratio > LOWERBND && ratio < UPPERBND));
 		}
 
 		// --------------------------------------------------------------------------
@@ -487,11 +484,10 @@ namespace Gem::Geneva
 		{ // Check construction with a number of identical bits
 			GBooleanCollection gbc(nItems, true);
 
-			BOOST_CHECK_MESSAGE(
-				gbc.size() == nItems, "\n"
+			INFO("\n"
 				<< "gbc.size() = " << gbc.size()
-				<< "nItems = " << nItems
-			);
+				<< "nItems = " << nItems);
+			CHECK(gbc.size() == nItems);
 
 			// Count the number of true and false values
 			std::size_t nTrue = 0;
@@ -500,11 +496,10 @@ namespace Gem::Geneva
 				gbc.at(i) ? nTrue++ : nFalse++;
 			}
 
-			BOOST_CHECK_MESSAGE(
-				nTrue == nItems, "\n"
+			INFO("\n"
 				<< "nTrue = " << nTrue << "\n"
-				<< "nItems = " << nItems << "\n"
-			);
+				<< "nItems = " << nItems << "\n");
+			CHECK(nTrue == nItems);
 		}
 
 		// --------------------------------------------------------------------------
@@ -512,11 +507,10 @@ namespace Gem::Geneva
 		{ // Check construction with a given probability for the value true
 			GBooleanCollection gbc(nItems, 0.5);
 
-			BOOST_CHECK_MESSAGE(
-				gbc.size() == nItems, "\n"
+			INFO("\n"
 				<< "gbc.size() = " << gbc.size()
-				<< "nItems = " << nItems
-			);
+				<< "nItems = " << nItems);
+			CHECK(gbc.size() == nItems);
 
 			// Count the number of true and false values
 			std::size_t nTrue = 0;
@@ -526,14 +520,13 @@ namespace Gem::Geneva
 			}
 
 			// We allow a slight deviation, as the initialization is a random process
-			BOOST_REQUIRE(nFalse != 0); // There should be a few false values
+			REQUIRE(nFalse != 0); // There should be a few false values
 			double ratio = double(nTrue) / double(nFalse);
-			BOOST_CHECK_MESSAGE(
-				ratio > LOWERBND && ratio < UPPERBND, "\n"
+			INFO("\n"
 				<< "ratio = " << ratio << "\n"
 				<< "nTrue = " << nTrue << "\n"
-				<< "nFalse = " << nFalse << "\n"
-			);
+				<< "nFalse = " << nFalse << "\n");
+			CHECK((ratio > LOWERBND && ratio < UPPERBND));
 		}
 
 		// --------------------------------------------------------------------------
@@ -542,7 +535,7 @@ namespace Gem::Geneva
 			std::shared_ptr <GBooleanCollection> p_test = this->clone<GBooleanCollection>();
 
 			// Make sure the collection is empty
-			BOOST_CHECK_NO_THROW(p_test->clear());
+			CHECK_NOTHROW(p_test->clear());
 
 			// Add items of fixed value
 			for (std::size_t i = 0; i < nItems; i++) {
@@ -550,10 +543,10 @@ namespace Gem::Geneva
 			}
 
 			// Check the size
-			BOOST_CHECK(p_test->size() == nItems);
+			CHECK(p_test->size() == nItems);
 
 			// Randomly initialize, using the internal function
-			BOOST_CHECK_NO_THROW(p_test->randomInit_(activityMode::ALLPARAMETERS, gr));
+			CHECK_NOTHROW(p_test->randomInit_(activityMode::ALLPARAMETERS, gr));
 
 			// Count the number of true and false values
 			std::size_t nTrue = 0;
@@ -563,14 +556,13 @@ namespace Gem::Geneva
 			}
 
 			// We allow a slight deviation, as the initialization is a random process
-			BOOST_REQUIRE(nFalse != 0); // There should be a few false values
+			REQUIRE(nFalse != 0); // There should be a few false values
 			double ratio = double(nTrue) / double(nFalse);
-			BOOST_CHECK_MESSAGE(
-				ratio > LOWERBND && ratio < UPPERBND, "\n"
+			INFO("\n"
 				<< "ratio = " << ratio << "\n"
 				<< "nTrue = " << nTrue << "\n"
-				<< "nFalse = " << nFalse << "\n"
-			);
+				<< "nFalse = " << nFalse << "\n");
+			CHECK((ratio > LOWERBND && ratio < UPPERBND));
 		}
 
 		// --------------------------------------------------------------------------
@@ -579,7 +571,7 @@ namespace Gem::Geneva
 			std::shared_ptr <GBooleanCollection> p_test = this->clone<GBooleanCollection>();
 
 			// Make sure the collection is empty
-			BOOST_CHECK_NO_THROW(p_test->clear());
+			CHECK_NOTHROW(p_test->clear());
 
 			// Add items of fixed value
 			for (std::size_t i = 0; i < nItems; i++) {
@@ -587,7 +579,7 @@ namespace Gem::Geneva
 			}
 
 			// Randomly initialize, using the internal function
-			BOOST_CHECK_NO_THROW(p_test->randomInit_(0., activityMode::ALLPARAMETERS, gr));
+			CHECK_NOTHROW(p_test->randomInit_(0., activityMode::ALLPARAMETERS, gr));
 
 			// Count the number of true and false values
 			std::size_t nTrue = 0;
@@ -597,11 +589,10 @@ namespace Gem::Geneva
 			}
 
 			// Cross-check
-			BOOST_CHECK_MESSAGE(
-				nTrue == 0, "\n"
+			INFO("\n"
 				<< "nTrue = " << nTrue << "\n"
-				<< "nFalse = " << nFalse << "\n"
-			);
+				<< "nFalse = " << nFalse << "\n");
+			CHECK(nTrue == 0);
 		}
 
 		// --------------------------------------------------------------------------
@@ -610,7 +601,7 @@ namespace Gem::Geneva
 			std::shared_ptr <GBooleanCollection> p_test = this->clone<GBooleanCollection>();
 
 			// Make sure the collection is empty
-			BOOST_CHECK_NO_THROW(p_test->clear());
+			CHECK_NOTHROW(p_test->clear());
 
 			// Add items of fixed value
 			for (std::size_t i = 0; i < nItems; i++) {
@@ -618,7 +609,7 @@ namespace Gem::Geneva
 			}
 
 			// Randomly initialize, using the internal function
-			BOOST_CHECK_NO_THROW(p_test->randomInit_(1., activityMode::ALLPARAMETERS, gr));
+			CHECK_NOTHROW(p_test->randomInit_(1., activityMode::ALLPARAMETERS, gr));
 
 			// Count the number of true and false values
 			std::size_t nTrue = 0;
@@ -628,11 +619,10 @@ namespace Gem::Geneva
 			}
 
 			// Cross-check
-			BOOST_CHECK_MESSAGE(
-				nTrue == nItems, "\n"
+			INFO("\n"
 				<< "nTrue = " << nTrue << "\n"
-				<< "nFalse = " << nFalse << "\n"
-			);
+				<< "nFalse = " << nFalse << "\n");
+			CHECK(nTrue == nItems);
 		}
 
 		// --------------------------------------------------------------------------
@@ -642,7 +632,7 @@ namespace Gem::Geneva
 				std::shared_ptr <GBooleanCollection> p_test = this->clone<GBooleanCollection>();
 
 				// Make sure the collection is empty
-				BOOST_CHECK_NO_THROW(p_test->clear());
+				CHECK_NOTHROW(p_test->clear());
 
 				// Add items of fixed value
 				for (std::size_t i = 0; i < nItems; i++) {
@@ -650,7 +640,7 @@ namespace Gem::Geneva
 				}
 
 				// Randomly initialize, using the internal function and the required probability
-				BOOST_CHECK_NO_THROW(p_test->randomInit_(d, activityMode::ALLPARAMETERS, gr));
+				CHECK_NOTHROW(p_test->randomInit_(d, activityMode::ALLPARAMETERS, gr));
 
 				// Count the number of true and false values
 				std::size_t nTrue = 0;
@@ -663,16 +653,15 @@ namespace Gem::Geneva
 				double expectedTrueMin = 0.8 * d * nItems;
 				double expectedTrueMax = 1.2 * d * nItems;
 
-				BOOST_CHECK_MESSAGE(
-					double(nTrue) > expectedTrueMin && double(nTrue) < expectedTrueMax, "\n"
+				INFO("\n"
 					<< "d = " << d << "\n"
 					<< "Allowed window = " <<
 					expectedTrueMin << " - " <<
 					expectedTrueMax << "\n"
 					<< "nItems = " << nItems << "\n"
 					<< "nTrue = " << nTrue << "\n"
-					<< "nFalse = " << nFalse << "\n"
-				);
+					<< "nFalse = " << nFalse << "\n");
+				CHECK((double(nTrue) > expectedTrueMin && double(nTrue) < expectedTrueMax));
 			}
 		}
 
@@ -683,8 +672,8 @@ namespace Gem::Geneva
 			std::shared_ptr <GBooleanCollection> p_test2 = this->clone<GBooleanCollection>();
 
 			// Make sure the collections are empty
-			BOOST_CHECK_NO_THROW(p_test1->clear());
-			BOOST_CHECK_NO_THROW(p_test2->clear());
+			CHECK_NOTHROW(p_test1->clear());
+			CHECK_NOTHROW(p_test2->clear());
 
 			// Add items of fixed value
 			for (std::size_t i = 0; i < nItems; i++) {
@@ -692,23 +681,23 @@ namespace Gem::Geneva
 			}
 
 			// Block random initialization and cross check
-			BOOST_CHECK_NO_THROW(p_test1->blockRandomInitialization());
-			BOOST_CHECK(p_test1->randomInitializationBlocked() == true);
+			CHECK_NOTHROW(p_test1->blockRandomInitialization());
+			CHECK(p_test1->randomInitializationBlocked() == true);
 
 			// Load the data into p_test2
-			BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
+			CHECK_NOTHROW(p_test2->load(p_test1));
 
 			// Check that both objects are equal
-			BOOST_CHECK(*p_test1 == *p_test2);
+			CHECK(*p_test1 == *p_test2);
 
 			// Check that random initialization is also blocked for p_test2
-			BOOST_CHECK(p_test2->randomInitializationBlocked() == true);
+			CHECK(p_test2->randomInitializationBlocked() == true);
 
 			// Try to randomly initialize, using the *external* function
-			BOOST_CHECK_NO_THROW(p_test1->randomInit(activityMode::ALLPARAMETERS, gr));
+			CHECK_NOTHROW(p_test1->randomInit(activityMode::ALLPARAMETERS, gr));
 
 			// Check that both objects are still the same
-			BOOST_CHECK(*p_test1 == *p_test2);
+			CHECK(*p_test1 == *p_test2);
 		}
 
 		// --------------------------------------------------------------------------
@@ -718,8 +707,8 @@ namespace Gem::Geneva
 			std::shared_ptr <GBooleanCollection> p_test2 = this->clone<GBooleanCollection>();
 
 			// Make sure the collections are empty
-			BOOST_CHECK_NO_THROW(p_test1->clear());
-			BOOST_CHECK_NO_THROW(p_test2->clear());
+			CHECK_NOTHROW(p_test1->clear());
+			CHECK_NOTHROW(p_test2->clear());
 
 			// Add items of fixed value
 			for (std::size_t i = 0; i < nItems; i++) {
@@ -727,23 +716,23 @@ namespace Gem::Geneva
 			}
 
 			// Block random initialization and cross check
-			BOOST_CHECK_NO_THROW(p_test1->blockRandomInitialization());
-			BOOST_CHECK(p_test1->randomInitializationBlocked() == true);
+			CHECK_NOTHROW(p_test1->blockRandomInitialization());
+			CHECK(p_test1->randomInitializationBlocked() == true);
 
 			// Load the data into p_test2
-			BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
+			CHECK_NOTHROW(p_test2->load(p_test1));
 
 			// Check that both objects are equal
-			BOOST_CHECK(*p_test1 == *p_test2);
+			CHECK(*p_test1 == *p_test2);
 
 			// Check that random initialization is also blocked for p_test2
-			BOOST_CHECK(p_test2->randomInitializationBlocked() == true);
+			CHECK(p_test2->randomInitializationBlocked() == true);
 
 			// Try to randomly initialize, using the *external* function
-			BOOST_CHECK_NO_THROW(p_test1->randomInit(0.7, activityMode::ALLPARAMETERS, gr));
+			CHECK_NOTHROW(p_test1->randomInit(0.7, activityMode::ALLPARAMETERS, gr));
 
 			// Check that both objects are still the same
-			BOOST_CHECK(*p_test1 == *p_test2);
+			CHECK(*p_test1 == *p_test2);
 		}
 
 		// --------------------------------------------------------------------------
@@ -759,35 +748,35 @@ namespace Gem::Geneva
 			}
 
 			// Load into p_test2 and p_test3 and test equality
-			BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
-			BOOST_CHECK_NO_THROW(p_test3->load(p_test1));
-			BOOST_CHECK(*p_test2 == *p_test1);
-			BOOST_CHECK(*p_test3 == *p_test1);
-			BOOST_CHECK(*p_test3 == *p_test2);
+			CHECK_NOTHROW(p_test2->load(p_test1));
+			CHECK_NOTHROW(p_test3->load(p_test1));
+			CHECK(*p_test2 == *p_test1);
+			CHECK(*p_test3 == *p_test1);
+			CHECK(*p_test3 == *p_test2);
 
 			// Check that initialization with a fixed floating point value has no effect on this object
-			BOOST_CHECK_NO_THROW(p_test2->fixedValueInit<double>(2., activityMode::ALLPARAMETERS));
-			BOOST_CHECK(*p_test2 == *p_test1);
+			CHECK_NOTHROW(p_test2->fixedValueInit<double>(2., activityMode::ALLPARAMETERS));
+			CHECK(*p_test2 == *p_test1);
 
 			// Check that multiplication with a fixed floating point value has no effect on this object
-			BOOST_CHECK_NO_THROW(p_test2->multiplyBy<double>(2., activityMode::ALLPARAMETERS));
-			BOOST_CHECK(*p_test2 == *p_test1);
+			CHECK_NOTHROW(p_test2->multiplyBy<double>(2., activityMode::ALLPARAMETERS));
+			CHECK(*p_test2 == *p_test1);
 
 			// Check that a component-wise multiplication with a random fp value in a given range does not have an effect on this object
-			BOOST_CHECK_NO_THROW(p_test2->multiplyByRandom<double>(1., 2., activityMode::ALLPARAMETERS, gr));
-			BOOST_CHECK(*p_test2 == *p_test1);
+			CHECK_NOTHROW(p_test2->multiplyByRandom<double>(1., 2., activityMode::ALLPARAMETERS, gr));
+			CHECK(*p_test2 == *p_test1);
 
 			// Check that a component-wise multiplication with a random fp value in the range [0:1[ does not have an effect on this object
-			BOOST_CHECK_NO_THROW(p_test2->multiplyByRandom<double>(activityMode::ALLPARAMETERS, gr));
-			BOOST_CHECK(*p_test2 == *p_test1);
+			CHECK_NOTHROW(p_test2->multiplyByRandom<double>(activityMode::ALLPARAMETERS, gr));
+			CHECK(*p_test2 == *p_test1);
 
 			// Check that adding p_test1 to p_test3 does not have an effect
-			BOOST_CHECK_NO_THROW(p_test3->add<double>(p_test1, activityMode::ALLPARAMETERS));
-			BOOST_CHECK(*p_test3 == *p_test2);
+			CHECK_NOTHROW(p_test3->add<double>(p_test1, activityMode::ALLPARAMETERS));
+			CHECK(*p_test3 == *p_test2);
 
 			// Check that subtracting p_test1 from p_test3 does not have an effect
-			BOOST_CHECK_NO_THROW(p_test3->subtract<double>(p_test1, activityMode::ALLPARAMETERS));
-			BOOST_CHECK(*p_test3 == *p_test2);
+			CHECK_NOTHROW(p_test3->subtract<double>(p_test1, activityMode::ALLPARAMETERS));
+			CHECK(*p_test3 == *p_test2);
 		}
 
 		// --------------------------------------------------------------------------
@@ -840,7 +829,7 @@ namespace Gem::Geneva
 			std::shared_ptr <GBooleanCollection> p_test = this->clone<GBooleanCollection>();
 
 			// Make sure the collection is empty
-			BOOST_CHECK_NO_THROW(p_test->clear());
+			CHECK_NOTHROW(p_test->clear());
 
 			// Add items of fixed value
 			for (std::size_t i = 0; i < nItems; i++) {
@@ -848,7 +837,7 @@ namespace Gem::Geneva
 			}
 
 			// Randomly initialize, using the internal function
-			BOOST_CHECK_THROW(p_test->randomInit_(-1., activityMode::ALLPARAMETERS, gr), geneva_exception);
+			CHECK_THROWS_AS((p_test->randomInit_(-1., activityMode::ALLPARAMETERS, gr)), geneva_exception);
 		}
 
 		// --------------------------------------------------------------------------
@@ -857,7 +846,7 @@ namespace Gem::Geneva
 			std::shared_ptr <GBooleanCollection> p_test = this->clone<GBooleanCollection>();
 
 			// Make sure the collection is empty
-			BOOST_CHECK_NO_THROW(p_test->clear());
+			CHECK_NOTHROW(p_test->clear());
 
 			// Add items of fixed value
 			for (std::size_t i = 0; i < nItems; i++) {
@@ -865,7 +854,7 @@ namespace Gem::Geneva
 			}
 
 			// Randomly initialize, using the internal function
-			BOOST_CHECK_THROW(p_test->randomInit_(2., activityMode::ALLPARAMETERS, gr), geneva_exception);
+			CHECK_THROWS_AS((p_test->randomInit_(2., activityMode::ALLPARAMETERS, gr)), geneva_exception);
 		}
 
 		// --------------------------------------------------------------------------

@@ -156,8 +156,6 @@ namespace Gem::Geneva
  */
 	bool GStandardMonitor::modify_GUnitTests_() {
 #ifdef GEM_TESTING
-		using boost::unit_test_framework::test_suite;
-		using boost::unit_test_framework::test_case;
 
 		bool result = false;
 
@@ -182,8 +180,6 @@ namespace Gem::Geneva
  */
 	void GStandardMonitor::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
-		using boost::unit_test_framework::test_suite;
-		using boost::unit_test_framework::test_case;
 
 		// Call the parent classes' functions
 		GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests_();
@@ -198,8 +194,6 @@ namespace Gem::Geneva
  */
 	void GStandardMonitor::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
-		using boost::unit_test_framework::test_suite;
-		using boost::unit_test_framework::test_case;
 
 		// Call the parent classes' functions
 		GBasePluggableOM::specificTestsFailuresExpected_GUnitTests_();
@@ -528,8 +522,6 @@ namespace Gem::Geneva
  */
 	bool GFitnessMonitor::modify_GUnitTests_() {
 #ifdef GEM_TESTING
-		using boost::unit_test_framework::test_suite;
-		using boost::unit_test_framework::test_case;
 
 		bool result = false;
 
@@ -554,8 +546,6 @@ namespace Gem::Geneva
  */
 	void GFitnessMonitor::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
-		using boost::unit_test_framework::test_suite;
-		using boost::unit_test_framework::test_case;
 
 		// Call the parent classes' functions
 		GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests_();
@@ -570,8 +560,6 @@ namespace Gem::Geneva
  */
 	void GFitnessMonitor::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
-		using boost::unit_test_framework::test_suite;
-		using boost::unit_test_framework::test_case;
 
 		// Call the parent classes' functions
 		GBasePluggableOM::specificTestsFailuresExpected_GUnitTests_();
@@ -712,8 +700,6 @@ namespace Gem::Geneva
  */
 	bool GCollectiveMonitor::modify_GUnitTests_()  {
 #ifdef GEM_TESTING
-		using boost::unit_test_framework::test_suite;
-		using boost::unit_test_framework::test_case;
 
 		bool result = false;
 
@@ -738,8 +724,6 @@ namespace Gem::Geneva
  */
 	void GCollectiveMonitor::specificTestsNoFailureExpected_GUnitTests_()  {
 #ifdef GEM_TESTING
-		using boost::unit_test_framework::test_suite;
-		using boost::unit_test_framework::test_case;
 
 		// Call the parent classes' functions
 		GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests_();
@@ -754,8 +738,6 @@ namespace Gem::Geneva
  */
 	void GCollectiveMonitor::specificTestsFailuresExpected_GUnitTests_()  {
 #ifdef GEM_TESTING
-		using boost::unit_test_framework::test_suite;
-		using boost::unit_test_framework::test_case;
 
 		// Call the parent classes' functions
 		GBasePluggableOM::specificTestsFailuresExpected_GUnitTests_();
@@ -1111,8 +1093,6 @@ namespace Gem::Geneva
  */
 	bool GAllSolutionFileLogger::modify_GUnitTests_() {
 #ifdef GEM_TESTING
-		using boost::unit_test_framework::test_suite;
-		using boost::unit_test_framework::test_case;
 
 		bool result = false;
 
@@ -1137,8 +1117,6 @@ namespace Gem::Geneva
  */
 	void GAllSolutionFileLogger::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
-		using boost::unit_test_framework::test_suite;
-		using boost::unit_test_framework::test_case;
 
 		// Call the parent classes' functions
 		GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests_();
@@ -1153,8 +1131,6 @@ namespace Gem::Geneva
  */
 	void GAllSolutionFileLogger::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
-		using boost::unit_test_framework::test_suite;
-		using boost::unit_test_framework::test_case;
 
 		// Call the parent classes' functions
 		GBasePluggableOM::specificTestsFailuresExpected_GUnitTests_();
@@ -1360,8 +1336,6 @@ namespace Gem::Geneva
  */
 	bool GIterationResultsFileLogger::modify_GUnitTests_() {
 #ifdef GEM_TESTING
-		using boost::unit_test_framework::test_suite;
-		using boost::unit_test_framework::test_case;
 
 		bool result = false;
 
@@ -1386,8 +1360,6 @@ namespace Gem::Geneva
  */
 	void GIterationResultsFileLogger::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
-		using boost::unit_test_framework::test_suite;
-		using boost::unit_test_framework::test_case;
 
 		// Call the parent classes' functions
 		GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests_();
@@ -1402,8 +1374,6 @@ namespace Gem::Geneva
  */
 	void GIterationResultsFileLogger::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
-		using boost::unit_test_framework::test_suite;
-		using boost::unit_test_framework::test_case;
 
 		// Call the parent classes' functions
 		GBasePluggableOM::specificTestsFailuresExpected_GUnitTests_();
@@ -1735,8 +1705,6 @@ namespace Gem::Geneva
  */
 	bool GNAdpationsLogger::modify_GUnitTests_() {
 #ifdef GEM_TESTING
-		using boost::unit_test_framework::test_suite;
-		using boost::unit_test_framework::test_case;
 
 		bool result = false;
 
@@ -1761,8 +1729,6 @@ namespace Gem::Geneva
  */
 	void GNAdpationsLogger::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
-		using boost::unit_test_framework::test_suite;
-		using boost::unit_test_framework::test_case;
 
 		// Call the parent classes' functions
 		GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests_();
@@ -1777,8 +1743,6 @@ namespace Gem::Geneva
  */
 	void GNAdpationsLogger::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
-		using boost::unit_test_framework::test_suite;
-		using boost::unit_test_framework::test_case;
 
 		// Call the parent classes' functions
 		GBasePluggableOM::specificTestsFailuresExpected_GUnitTests_();
@@ -2271,8 +2235,6 @@ namespace Gem::Geneva
  */
 	bool GProcessingTimesLogger::modify_GUnitTests_() {
 #ifdef GEM_TESTING
-		using boost::unit_test_framework::test_suite;
-		using boost::unit_test_framework::test_case;
 
 		bool result = false;
 
@@ -2297,8 +2259,6 @@ namespace Gem::Geneva
  */
 	void GProcessingTimesLogger::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
-		using boost::unit_test_framework::test_suite;
-		using boost::unit_test_framework::test_case;
 
 		// Call the parent classes' functions
 		GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests_();
@@ -2313,8 +2273,6 @@ namespace Gem::Geneva
  */
 	void GProcessingTimesLogger::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
-		using boost::unit_test_framework::test_suite;
-		using boost::unit_test_framework::test_case;
 
 		// Call the parent classes' functions
 		GBasePluggableOM::specificTestsFailuresExpected_GUnitTests_();

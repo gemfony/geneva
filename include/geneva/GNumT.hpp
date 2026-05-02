@@ -335,11 +335,11 @@ protected:
 			std::shared_ptr<GNumT<num_type>> p_test = this->template clone<GNumT<num_type>>();
 
 			// Set the boundaries
-			BOOST_CHECK_NO_THROW(p_test->setInitBoundaries(LOWERTESTINITVAL, UPPERTESTINITVAL));
+			CHECK_NOTHROW(p_test->setInitBoundaries(LOWERTESTINITVAL, UPPERTESTINITVAL));
 
 			// Check that these values have indeed been assigned
-			BOOST_CHECK(p_test->getLowerInitBoundary() == LOWERTESTINITVAL);
-			BOOST_CHECK(p_test->getUpperInitBoundary() == UPPERTESTINITVAL);
+			CHECK(p_test->getLowerInitBoundary() == LOWERTESTINITVAL);
+			CHECK(p_test->getUpperInitBoundary() == UPPERTESTINITVAL);
 		}
 
 		//------------------------------------------------------------------------------
@@ -367,7 +367,7 @@ protected:
 		{ // Check that assignement of initialization boundaries throws for invalid boundaries
 			std::shared_ptr<GNumT<num_type>> p_test = this->template clone<GNumT<num_type>>();
 
-			BOOST_CHECK_THROW(p_test->setInitBoundaries(UPPERTESTINITVAL, LOWERTESTINITVAL), geneva_exception);
+			CHECK_THROWS_AS((p_test->setInitBoundaries(UPPERTESTINITVAL, LOWERTESTINITVAL)), geneva_exception);
 		}
 
 		//------------------------------------------------------------------------------

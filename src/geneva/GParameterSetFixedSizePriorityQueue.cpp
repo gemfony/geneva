@@ -254,8 +254,6 @@ namespace Gem::Geneva
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
 	bool GParameterSetFixedSizePriorityQueue::modify_GUnitTests_() {
 #ifdef GEM_TESTING
-		using boost::unit_test_framework::test_suite;
-		using boost::unit_test_framework::test_case;
 
 		bool result = false;
 
@@ -275,8 +273,6 @@ namespace Gem::Geneva
 	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
 	void GParameterSetFixedSizePriorityQueue::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
-		using boost::unit_test_framework::test_suite;
-		using boost::unit_test_framework::test_case;
 
 		// Call the parent classes' functions
 		Gem::Common::GFixedSizePriorityQueueT<GParameterSet>::specificTestsNoFailureExpected_GUnitTests_();
@@ -292,8 +288,6 @@ namespace Gem::Geneva
 	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
 	void GParameterSetFixedSizePriorityQueue::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
-		using boost::unit_test_framework::test_suite;
-		using boost::unit_test_framework::test_case;
 
 		// Call the parent classes' functions
 		Gem::Common::GFixedSizePriorityQueueT<GParameterSet>::specificTestsFailuresExpected_GUnitTests_();

@@ -2154,8 +2154,6 @@ namespace Gem::Geneva
  */
 	void G_OptimizationAlgorithm_Base::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
-		using boost::unit_test_framework::test_suite;
-		using boost::unit_test_framework::test_case;
 
 		// Call the parent classes' functions
 		GObject::specificTestsNoFailureExpected_GUnitTests_();
@@ -2172,8 +2170,6 @@ namespace Gem::Geneva
  */
 	void G_OptimizationAlgorithm_Base::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
-		using boost::unit_test_framework::test_suite;
-		using boost::unit_test_framework::test_case;
 
 		// Call the parent classes' functions
 		GObject::specificTestsFailuresExpected_GUnitTests_();

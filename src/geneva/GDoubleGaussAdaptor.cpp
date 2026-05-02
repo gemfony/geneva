@@ -158,8 +158,6 @@ namespace Gem::Geneva
  */
 	bool GDoubleGaussAdaptor::modify_GUnitTests_() {
 #ifdef GEM_TESTING
-		using boost::unit_test_framework::test_suite;
-		using boost::unit_test_framework::test_case;
 
 		bool result = false;
 
@@ -180,8 +178,6 @@ namespace Gem::Geneva
  */
 	void GDoubleGaussAdaptor::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
-		using boost::unit_test_framework::test_suite;
-		using boost::unit_test_framework::test_case;
 
 		// Call the parent class'es function
 		GFPGaussAdaptorT<double>::specificTestsNoFailureExpected_GUnitTests_();
@@ -191,11 +187,10 @@ namespace Gem::Geneva
 		{ // Check that the adaptor returns the correct adaptor id
 			std::shared_ptr <GDoubleGaussAdaptor> p_test = this->clone<GDoubleGaussAdaptor>();
 
-			BOOST_CHECK_MESSAGE(
-				p_test->getAdaptorId() == adaptorId::GDOUBLEGAUSSADAPTOR, "\n"
+			INFO("\n"
 				<< "p_test->getAdaptorId() = " << p_test->getAdaptorId()
-				<< "GDOUBLEGAUSSADAPTOR     = " << adaptorId::GDOUBLEGAUSSADAPTOR << "\n"
-			);
+				<< "GDOUBLEGAUSSADAPTOR     = " << adaptorId::GDOUBLEGAUSSADAPTOR << "\n");
+			CHECK(p_test->getAdaptorId() == adaptorId::GDOUBLEGAUSSADAPTOR);
 		}
 
 		// --------------------------------------------------------------------------
@@ -216,8 +211,6 @@ namespace Gem::Geneva
  */
 	void GDoubleGaussAdaptor::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
-		using boost::unit_test_framework::test_suite;
-		using boost::unit_test_framework::test_case;
 
 		// Call the parent class'es function
 		GFPGaussAdaptorT<double>::specificTestsFailuresExpected_GUnitTests_();

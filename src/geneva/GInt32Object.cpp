@@ -385,16 +385,16 @@ namespace Gem::Geneva
 			std::shared_ptr <GInt32Object> p_test = this->clone<GInt32Object>();
 
 			// Make sure we start in pristine condition. This will add a GInt32FlipAdaptor.
-			BOOST_CHECK_NO_THROW(p_test->resetAdaptor());
+			CHECK_NOTHROW(p_test->resetAdaptor());
 
 			//********************************
 			// Adding an adaptor of different type present should clone the adaptor
-			BOOST_CHECK_NO_THROW(p_test->addAdaptor(giga_ptr));
+			CHECK_NOTHROW(p_test->addAdaptor(giga_ptr));
 
 			// Check that the addresses of both adaptors differ
 			std::shared_ptr <GInt32GaussAdaptor> giga_clone_ptr;
-			BOOST_CHECK_NO_THROW(giga_clone_ptr = p_test->getAdaptor<GInt32GaussAdaptor>());
-			BOOST_CHECK(giga_clone_ptr.get() != giga_ptr.get());
+			CHECK_NOTHROW(giga_clone_ptr = p_test->getAdaptor<GInt32GaussAdaptor>());
+			CHECK(giga_clone_ptr.get() != giga_ptr.get());
 
 			//********************************
 			// Adding an adaptor when an adaptor of the same type is present should leave the original address intact
@@ -403,14 +403,14 @@ namespace Gem::Geneva
 			GInt32GaussAdaptor *ptr_store = giga_clone_ptr.get();
 
 			// Add the "global" adaptor again, should be load()-ed
-			BOOST_CHECK_NO_THROW(p_test->addAdaptor(giga_ptr));
+			CHECK_NOTHROW(p_test->addAdaptor(giga_ptr));
 
 			// Retrieve the adaptor again
 			std::shared_ptr <GInt32GaussAdaptor> giga_clone2_ptr;
-			BOOST_CHECK_NO_THROW(giga_clone2_ptr = p_test->getAdaptor<GInt32GaussAdaptor>());
+			CHECK_NOTHROW(giga_clone2_ptr = p_test->getAdaptor<GInt32GaussAdaptor>());
 
 			// Check that the address hasn't changed
-			BOOST_CHECK(ptr_store == giga_clone2_ptr.get());
+			CHECK(ptr_store == giga_clone2_ptr.get());
 
 			//********************************
 		}
@@ -430,7 +430,7 @@ namespace Gem::Geneva
 			std::int32_t previous = -1;
 			for (std::size_t i = 0; i < 10; i++) {
 				GInt32Object p(0, 10000000);
-				BOOST_CHECK(p.value() != previous);
+				CHECK(p.value() != previous);
 				previous = p.value();
 			}
 		}
@@ -473,13 +473,13 @@ namespace Gem::Geneva
 			std::shared_ptr<GInt32Object> p_test = this->clone<GInt32Object>();
 
 			// Make sure an adaptor is present
-			BOOST_REQUIRE(p_test->hasAdaptor() == true);
+			REQUIRE(p_test->hasAdaptor() == true);
 
 			// Make sure the local adaptor has the type we expect
-			BOOST_CHECK(p_test->getAdaptor()->getAdaptorId() == adaptorId::GINT32GAUSSADAPTOR);
+			CHECK(p_test->getAdaptor()->getAdaptorId() == adaptorId::GINT32GAUSSADAPTOR);
 
 			// Attempted conversion to an invalid target type should throw
-			BOOST_CHECK_THROW(p_test->getAdaptor<GInt32FlipAdaptor>(), geneva_exception);
+			CHECK_THROWS_AS((p_test->getAdaptor<GInt32FlipAdaptor>()), geneva_exception);
 		}
 #endif /* DEBUG */
 

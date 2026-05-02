@@ -267,8 +267,6 @@ namespace Gem::Tests
 	bool GTestIndividual3::modify_GUnitTests_() {
 #ifdef GEM_TESTING
 
-		using boost::unit_test_framework::test_suite;
-		using boost::unit_test_framework::test_case;
 
 		bool result = false;
 
@@ -294,8 +292,6 @@ namespace Gem::Tests
 #ifdef GEM_TESTING
 		using namespace Gem::Geneva;
 
-		using boost::unit_test_framework::test_suite;
-		using boost::unit_test_framework::test_case;
 
 		// Call the parent classes' functions
 		Gem::Geneva::GParameterSet::specificTestsNoFailureExpected_GUnitTests_();
@@ -308,12 +304,12 @@ namespace Gem::Tests
 			std::shared_ptr <GTestIndividual3> p;
 			std::shared_ptr <float> result_old, result_new;
 
-			BOOST_CHECK_NO_THROW(p = std::shared_ptr<GTestIndividual3>(new GTestIndividual3()));
-			BOOST_CHECK_NO_THROW(result_old = p->getPlainData());
+			CHECK_NOTHROW(p = std::shared_ptr<GTestIndividual3>(new GTestIndividual3()));
+			CHECK_NOTHROW(result_old = p->getPlainData());
 			for (std::size_t i = 0; i < NTESTS; i++) {
-				BOOST_CHECK_NO_THROW(result_new = p->getPlainData());
+				CHECK_NOTHROW(result_new = p->getPlainData());
 				for (std::size_t m = 0; m < GTI_DEF_NITEMS * 10; i++) {
-					BOOST_CHECK((result_old.get())[i] == (result_new.get())[i]); // std::shared_ptr doesn't support subscripting
+					CHECK((result_old.get())[i] == (result_new.get())[i]); // std::shared_ptr doesn't support subscripting
 				}
 			}
 		}
@@ -334,8 +330,6 @@ namespace Gem::Tests
 
 		using namespace Gem::Geneva;
 
-		using boost::unit_test_framework::test_suite;
-		using boost::unit_test_framework::test_case;
 
 		// Call the parent classes' functions
 		Gem::Geneva::GParameterSet::specificTestsFailuresExpected_GUnitTests_();

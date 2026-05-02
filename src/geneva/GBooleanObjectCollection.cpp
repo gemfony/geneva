@@ -168,36 +168,36 @@ namespace Gem::Geneva
         Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
 
         // Clear the collection, so we can start fresh
-        BOOST_CHECK_NO_THROW(this->clear());
+        CHECK_NOTHROW(this->clear());
 
         // Add GBooleanObject items with adaptors to p_test1
         for (std::size_t i = 0; i < nAddedObjects; i++) {
             // Create a suitable adaptor
             std::shared_ptr<GBooleanAdaptor> gba_ptr;
 
-            BOOST_CHECK_NO_THROW(gba_ptr = std::shared_ptr<GBooleanAdaptor>(new GBooleanAdaptor(1.0)));
-            BOOST_CHECK_NO_THROW(gba_ptr->setAdaptionThreshold(
+            CHECK_NOTHROW(gba_ptr = std::shared_ptr<GBooleanAdaptor>(new GBooleanAdaptor(1.0)));
+            CHECK_NOTHROW(gba_ptr->setAdaptionThreshold(
                 0
             )); // Make sure the adaptor's internal parameters don't change through the adaption
-            BOOST_CHECK_NO_THROW(gba_ptr->setAdaptionMode(adaptionMode::ALWAYS)); // Always adapt
+            CHECK_NOTHROW(gba_ptr->setAdaptionMode(adaptionMode::ALWAYS)); // Always adapt
 
             // Create a suitable GBooleanObject object
             std::shared_ptr<GBooleanObject> gbo_ptr;
 
-            BOOST_CHECK_NO_THROW(gbo_ptr
+            CHECK_NOTHROW(gbo_ptr
                 = std::shared_ptr<GBooleanObject>(new GBooleanObject())); // Initialization with standard values
 
             // Add the adaptor
-            BOOST_CHECK_NO_THROW(gbo_ptr->addAdaptor(gba_ptr));
+            CHECK_NOTHROW(gbo_ptr->addAdaptor(gba_ptr));
 
             // Randomly initialize the GBooleanObject object, so it is unique
-            BOOST_CHECK_NO_THROW(gbo_ptr->randomInit(
+            CHECK_NOTHROW(gbo_ptr->randomInit(
                 activityMode::ALLPARAMETERS
                 , gr
             ));
 
             // Add the object to the collection
-            BOOST_CHECK_NO_THROW(this->push_back(gbo_ptr));
+            CHECK_NOTHROW(this->push_back(gbo_ptr));
         }
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
@@ -241,7 +241,7 @@ namespace Gem::Geneva
 
         { // Check default construction
             GBooleanObjectCollection gboc;
-            BOOST_CHECK(gboc.empty());
+            CHECK(gboc.empty());
         }
 
         //----------------------------------------------------------------------------
@@ -249,15 +249,13 @@ namespace Gem::Geneva
         { // Check copy construction
             GBooleanObjectCollection gboc1;
             gboc1.push_back(std::shared_ptr<GBooleanObject>(new GBooleanObject(0.5)));
-            BOOST_CHECK(gboc1.size() == 1);
+            CHECK(gboc1.size() == 1);
             GBooleanObjectCollection gboc2(gboc1);
-            BOOST_CHECK(gboc1.size() == gboc2.size());
-            BOOST_CHECK_MESSAGE(
-                gboc1.at(0)->value() == gboc2.at(0)->value()
-                , "\n"
+            CHECK(gboc1.size() == gboc2.size());
+            INFO("\n"
                 << "gboc1.at(0)->value() = " << gboc1.at(0)->value()
-                << "gboc2.at(0)->value() = " << gboc2.at(0)->value()
-            );
+                << "gboc2.at(0)->value() = " << gboc2.at(0)->value());
+            CHECK(gboc1.at(0)->value() == gboc2.at(0)->value());
         }
 
         //----------------------------------------------------------------------------
@@ -269,23 +267,19 @@ namespace Gem::Geneva
                 , gbo_ptr
             );
 
-            BOOST_CHECK_MESSAGE(
-                gboc.size() == nTests
-                , "\n"
+            INFO("\n"
                 << "gboc.size() = " << gboc.size()
-                << "nTests = " << nTests
-            );
+                << "nTests = " << nTests);
+            CHECK(gboc.size() == nTests);
 
             for (std::size_t i = 0; i < nTests; i++) {
-                BOOST_CHECK_MESSAGE(
-                    gboc.at(i)->value() == Gem::Common::GDefaultValueT<bool>::value()
-                    , "\n"
+                INFO("\n"
                     << "gboc.at(" << i << ")->value() = " <<
                     gboc.at(i)->value()
                     <<
                     "Gem::Common::GDefaultValueT<bool>::value() = " <<
-                    Gem::Common::GDefaultValueT<bool>::value()
-                );
+                    Gem::Common::GDefaultValueT<bool>::value());
+                CHECK(gboc.at(i)->value() == Gem::Common::GDefaultValueT<bool>::value());
             }
         }
 
@@ -303,15 +297,13 @@ namespace Gem::Geneva
             }
 
             // We allow a slight deviation, as the initialization is a random process
-            BOOST_REQUIRE(nFalse != 0); // There should be a few false values
+            REQUIRE(nFalse != 0); // There should be a few false values
             double ratio = double(nTrue) / double(nFalse);
-            BOOST_CHECK_MESSAGE(
-                ratio > LOWERBND && ratio < UPPERBND
-                , "\n"
+            INFO("\n"
                 << "ratio = " << ratio << "\n"
                 << "nTrue = " << nTrue << "\n"
-                << "nFalse = " << nFalse << "\n"
-            );
+                << "nFalse = " << nFalse << "\n");
+            CHECK((ratio > LOWERBND && ratio < UPPERBND));
         }
 
         // --------------------------------------------------------------------------
@@ -321,60 +313,60 @@ namespace Gem::Geneva
             std::shared_ptr<GBooleanObjectCollection> p_test2 = this->clone<GBooleanObjectCollection>();
 
             // Fill p_test1 with objects
-            BOOST_CHECK_NO_THROW(p_test1->fillWithObjects_(nAddedObjects));
+            CHECK_NOTHROW(p_test1->fillWithObjects_(nAddedObjects));
 
             // Make sure it has the expected size
-            BOOST_CHECK(p_test1->size() == nAddedObjects);
+            CHECK(p_test1->size() == nAddedObjects);
 
             // Load the data into p_test2
-            BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
+            CHECK_NOTHROW(p_test2->load(p_test1));
 
             // Check that both items are identical
-            BOOST_CHECK(*p_test1 == *p_test2);
+            CHECK(*p_test1 == *p_test2);
 
             // Try to add a fixed fp value to p_test1 and check whether it has changed
-            BOOST_CHECK_NO_THROW(p_test1->fixedValueInit<double>(
+            CHECK_NOTHROW(p_test1->fixedValueInit<double>(
                 FIXEDVALUEINIT
                 , activityMode::ALLPARAMETERS
             ));
-            BOOST_CHECK(*p_test1 == *p_test2);
+            CHECK(*p_test1 == *p_test2);
 
             // Try to multiply p_test1 with a fixed fp value and check whether it has changed
-            BOOST_CHECK_NO_THROW(p_test1->multiplyBy<double>(
+            CHECK_NOTHROW(p_test1->multiplyBy<double>(
                 MULTVALUE
                 , activityMode::ALLPARAMETERS
             ));
-            BOOST_CHECK(*p_test1 == *p_test2);
+            CHECK(*p_test1 == *p_test2);
 
             // Try to multiply p_test1 with a random fp value in a given range and check whether it has changed
-            BOOST_CHECK_NO_THROW(p_test1->multiplyByRandom<double>(
+            CHECK_NOTHROW(p_test1->multiplyByRandom<double>(
                 RANDLOWERBOUNDARY
                 , RANDUPPERBOUNDARY
                 , activityMode::ALLPARAMETERS
                 , gr
             ));
-            BOOST_CHECK(*p_test1 == *p_test2);
+            CHECK(*p_test1 == *p_test2);
 
             // Try to multiply p_test1 with a random fp value in the range [0,1[ and check whether it has changed
-            BOOST_CHECK_NO_THROW(p_test1->multiplyByRandom<double>(
+            CHECK_NOTHROW(p_test1->multiplyByRandom<double>(
                 activityMode::ALLPARAMETERS
                 , gr
             ));
-            BOOST_CHECK(*p_test1 == *p_test2);
+            CHECK(*p_test1 == *p_test2);
 
             // Try to add p_test2 to p_test1 and see whether it has changed
-            BOOST_CHECK_NO_THROW(p_test1->add<double>(
+            CHECK_NOTHROW(p_test1->add<double>(
                 p_test2
                 , activityMode::ALLPARAMETERS
             ));
-            BOOST_CHECK(*p_test1 == *p_test2);
+            CHECK(*p_test1 == *p_test2);
 
             // Try to subtract p_test2 from p_test1 and see whether it has changed
-            BOOST_CHECK_NO_THROW(p_test1->subtract<double>(
+            CHECK_NOTHROW(p_test1->subtract<double>(
                 p_test2
                 , activityMode::ALLPARAMETERS
             ));
-            BOOST_CHECK(*p_test1 == *p_test2);
+            CHECK(*p_test1 == *p_test2);
         }
 
         // --------------------------------------------------------------------------

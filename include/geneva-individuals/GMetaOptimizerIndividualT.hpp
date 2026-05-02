@@ -1084,8 +1084,6 @@ protected:
      */
     bool modify_GUnitTests_() override {
 #ifdef GEM_TESTING
-        using boost::unit_test_framework::test_suite;
-        using boost::unit_test_framework::test_case;
 
         bool result = false;
 
@@ -1115,8 +1113,6 @@ protected:
 #ifdef GEM_TESTING
         using namespace Gem::Geneva;
 
-        using boost::unit_test_framework::test_suite;
-        using boost::unit_test_framework::test_case;
 
         // Call the parent classes' functions
         Gem::Geneva::GParameterSet::specificTestsNoFailureExpected_GUnitTests_();
@@ -1140,8 +1136,6 @@ protected:
 #ifdef GEM_TESTING
         using namespace Gem::Geneva;
 
-        using boost::unit_test_framework::test_suite;
-        using boost::unit_test_framework::test_case;
 
         // Call the parent classes' functions
         Gem::Geneva::GParameterSet::specificTestsFailuresExpected_GUnitTests_();
@@ -1983,8 +1977,6 @@ protected:
      */
     bool modify_GUnitTests_() override {
 #ifdef GEM_TESTING
-        using boost::unit_test_framework::test_suite;
-        using boost::unit_test_framework::test_case;
 
         bool result = false;
 
@@ -2009,8 +2001,6 @@ protected:
      */
     void specificTestsNoFailureExpected_GUnitTests_() override {
 #ifdef GEM_TESTING
-        using boost::unit_test_framework::test_suite;
-        using boost::unit_test_framework::test_case;
 
         // Call the parent classes' functions
         GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests_();
@@ -2025,8 +2015,6 @@ protected:
      */
     void specificTestsFailuresExpected_GUnitTests_() override {
 #ifdef GEM_TESTING
-        using boost::unit_test_framework::test_suite;
-        using boost::unit_test_framework::test_case;
 
         // Call the parent classes' functions
         GBasePluggableOM::specificTestsFailuresExpected_GUnitTests_();

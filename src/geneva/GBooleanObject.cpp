@@ -395,12 +395,11 @@ namespace Gem::Geneva
 
 		{ // Test default constructor
 			GBooleanObject gbo;
-			BOOST_CHECK_MESSAGE (
-				gbo.value() == Gem::Common::GDefaultValueT<bool>::value(), "\n"
+			INFO("\n"
 				<< "gbo.value() = " << gbo.value()
 				<< "DEFBOVAL = " <<
-				Gem::Common::GDefaultValueT<bool>::value()
-			);
+				Gem::Common::GDefaultValueT<bool>::value());
+			CHECK(gbo.value() == Gem::Common::GDefaultValueT<bool>::value());
 		}
 
 		// --------------------------------------------------------------------------
@@ -408,11 +407,10 @@ namespace Gem::Geneva
 		{ // Test copy construction and construction with value
 			GBooleanObject gbo1(false), gbo2(gbo1);
 
-			BOOST_CHECK_MESSAGE (
-				not gbo1.value() && gbo2.value() == gbo1.value(), "\n"
+			INFO("\n"
 				<< "gbo1.value() = " << gbo1.value()
-				<< "gbo2.value() = " << gbo2.value()
-			);
+				<< "gbo2.value() = " << gbo2.value());
+			CHECK((not gbo1.value() && gbo2.value() == gbo1.value()));
 		}
 
 		// --------------------------------------------------------------------------
@@ -425,14 +423,13 @@ namespace Gem::Geneva
 			}
 
 			// We allow a slight deviation, as the initialization is a random process
-			BOOST_REQUIRE(nFalse != 0); // There should be a few false values
+			REQUIRE(nFalse != 0); // There should be a few false values
 			double ratio = double(nTrue) / double(nFalse);
-			BOOST_CHECK_MESSAGE(
-				ratio > LOWERBND && ratio < UPPERBND, "\n"
+			INFO("\n"
 				<< "ratio = " << ratio << "\n"
 				<< "nTrue = " << nTrue << "\n"
-				<< "nFalse = " << nFalse << "\n"
-			);
+				<< "nFalse = " << nFalse << "\n");
+			CHECK((ratio > LOWERBND && ratio < UPPERBND));
 		}
 
 		// --------------------------------------------------------------------------
@@ -441,9 +438,9 @@ namespace Gem::Geneva
 			std::shared_ptr <GBooleanObject> p_test = this->clone<GBooleanObject>();
 
 			// Assign a boolean value true
-			BOOST_CHECK_NO_THROW(*p_test = true);
+			CHECK_NOTHROW(*p_test = true);
 			// Cross-check
-			BOOST_CHECK(p_test->value());
+			CHECK(p_test->value());
 
 			// Count the number of true and false values for a number of subsequent initializations
 			// with the internal randomInit_ function.
@@ -455,14 +452,13 @@ namespace Gem::Geneva
 			}
 
 			// We allow a slight deviation, as the initialization is a random process
-			BOOST_REQUIRE(nFalse != 0); // There should be a few false values
+			REQUIRE(nFalse != 0); // There should be a few false values
 			double ratio = double(nTrue) / double(nFalse);
-			BOOST_CHECK_MESSAGE(
-				ratio > 0.8 && ratio < 1.2, "\n"
+			INFO("\n"
 				<< "ratio = " << ratio << "\n"
 				<< "nTrue = " << nTrue << "\n"
-				<< "nFalse = " << nFalse << "\n"
-			);
+				<< "nFalse = " << nFalse << "\n");
+			CHECK((ratio > 0.8 && ratio < 1.2));
 		}
 
 		// --------------------------------------------------------------------------
@@ -471,9 +467,9 @@ namespace Gem::Geneva
 			std::shared_ptr <GBooleanObject> p_test = this->clone<GBooleanObject>();
 
 			// Assign a boolean value true
-			BOOST_CHECK_NO_THROW(*p_test = false);
+			CHECK_NOTHROW(*p_test = false);
 			// Cross-check
-			BOOST_CHECK(not p_test->value());
+			CHECK(not p_test->value());
 
 			// Count the number of true and false values for a number of subsequent initializations
 			// with the internal randomInit_ function.
@@ -485,7 +481,7 @@ namespace Gem::Geneva
 			}
 
 			// We should have received only true values
-			BOOST_CHECK(nTrue == nTests);
+			CHECK(nTrue == nTests);
 		}
 
 		// --------------------------------------------------------------------------
@@ -494,9 +490,9 @@ namespace Gem::Geneva
 			std::shared_ptr <GBooleanObject> p_test = this->clone<GBooleanObject>();
 
 			// Assign a boolean value true
-			BOOST_CHECK_NO_THROW(*p_test = true);
+			CHECK_NOTHROW(*p_test = true);
 			// Cross-check
-			BOOST_CHECK(p_test->value());
+			CHECK(p_test->value());
 
 			// Count the number of true and false values for a number of subsequent initializations
 			// with the internal randomInit_ function.
@@ -508,7 +504,7 @@ namespace Gem::Geneva
 			}
 
 			// We should have received only true values
-			BOOST_CHECK(nFalse == nTests);
+			CHECK(nFalse == nTests);
 		}
 
 		//-----------------------------------------------------------------------------
@@ -518,12 +514,12 @@ namespace Gem::Geneva
 				std::shared_ptr <GBooleanObject> p_test = this->clone<GBooleanObject>();
 
 				// Assign a boolean value true
-				BOOST_CHECK_NO_THROW(*p_test = true);
+				CHECK_NOTHROW(*p_test = true);
 				// Cross-check
-				BOOST_CHECK(p_test->value());
+				CHECK(p_test->value());
 
 				// Randomly initialize, using the internal function, with the current probability
-				BOOST_CHECK_NO_THROW(p_test->randomInit_(d, activityMode::ALLPARAMETERS, gr));
+				CHECK_NOTHROW(p_test->randomInit_(d, activityMode::ALLPARAMETERS, gr));
 
 				// Count the number of true and false values for a number of subsequent initializations
 				// with the internal randomInit_ function.
@@ -538,16 +534,15 @@ namespace Gem::Geneva
 				double expectedTrueMin = 0.8 * d * nTests;
 				double expectedTrueMax = 1.2 * d * nTests;
 
-				BOOST_CHECK_MESSAGE(
-					double(nTrue) > expectedTrueMin && double(nTrue) < expectedTrueMax, "\n"
+				INFO("\n"
 					<< "d = " << d << "\n"
 					<< "Allowed window = " <<
 					expectedTrueMin << " - " <<
 					expectedTrueMax << "\n"
 					<< "nTests = " << nTests << "\n"
 					<< "nTrue = " << nTrue << "\n"
-					<< "nFalse = " << nFalse << "\n"
-				);
+					<< "nFalse = " << nFalse << "\n");
+				CHECK((double(nTrue) > expectedTrueMin && double(nTrue) < expectedTrueMax));
 			}
 		}
 
@@ -558,28 +553,28 @@ namespace Gem::Geneva
 			std::shared_ptr <GBooleanObject> p_test2 = this->clone<GBooleanObject>();
 
 			// Assign a boolean value true
-			BOOST_CHECK_NO_THROW(*p_test1 = true);
+			CHECK_NOTHROW(*p_test1 = true);
 			// Cross-check
-			BOOST_CHECK(p_test1->value());
+			CHECK(p_test1->value());
 
 			// Block random initialization and cross check
-			BOOST_CHECK_NO_THROW(p_test1->blockRandomInitialization());
-			BOOST_CHECK(p_test1->randomInitializationBlocked());
+			CHECK_NOTHROW(p_test1->blockRandomInitialization());
+			CHECK(p_test1->randomInitializationBlocked());
 
 			// Load the data into p_test2
-			BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
+			CHECK_NOTHROW(p_test2->load(p_test1));
 
 			// Check that both objects are equal
-			BOOST_CHECK(*p_test1 == *p_test2);
+			CHECK(*p_test1 == *p_test2);
 
 			// Check that random initialization is also blocked for p_test2
-			BOOST_CHECK(p_test2->randomInitializationBlocked());
+			CHECK(p_test2->randomInitializationBlocked());
 
 			// Try to randomly initialize, using the *external* function
-			BOOST_CHECK_NO_THROW(p_test1->randomInit(activityMode::ALLPARAMETERS, gr));
+			CHECK_NOTHROW(p_test1->randomInit(activityMode::ALLPARAMETERS, gr));
 
 			// Check that both objects are still the same
-			BOOST_CHECK(*p_test1 == *p_test2);
+			CHECK(*p_test1 == *p_test2);
 		}
 
 		// --------------------------------------------------------------------------
@@ -589,28 +584,28 @@ namespace Gem::Geneva
 			std::shared_ptr <GBooleanObject> p_test2 = this->clone<GBooleanObject>();
 
 			// Assign a boolean value true
-			BOOST_CHECK_NO_THROW(*p_test1 = true);
+			CHECK_NOTHROW(*p_test1 = true);
 			// Cross-check
-			BOOST_CHECK(p_test1->value()); // Should be true
+			CHECK(p_test1->value()); // Should be true
 
 			// Block random initialization and cross check
-			BOOST_CHECK_NO_THROW(p_test1->blockRandomInitialization());
-			BOOST_CHECK(p_test1->randomInitializationBlocked());
+			CHECK_NOTHROW(p_test1->blockRandomInitialization());
+			CHECK(p_test1->randomInitializationBlocked());
 
 			// Load the data into p_test2
-			BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
+			CHECK_NOTHROW(p_test2->load(p_test1));
 
 			// Check that both objects are equal
-			BOOST_CHECK(*p_test1 == *p_test2);
+			CHECK(*p_test1 == *p_test2);
 
 			// Check that random initialization is also blocked for p_test2
-			BOOST_CHECK(p_test2->randomInitializationBlocked());
+			CHECK(p_test2->randomInitializationBlocked());
 
 			// Try to randomly initialize, using the *external* function
-			BOOST_CHECK_NO_THROW(p_test1->randomInit(0.7, activityMode::ALLPARAMETERS, gr));
+			CHECK_NOTHROW(p_test1->randomInit(0.7, activityMode::ALLPARAMETERS, gr));
 
 			// Check that both objects are still the same
-			BOOST_CHECK(*p_test1 == *p_test2);
+			CHECK(*p_test1 == *p_test2);
 		}
 
 		// --------------------------------------------------------------------------
@@ -621,40 +616,40 @@ namespace Gem::Geneva
 			std::shared_ptr <GBooleanObject> p_test3 = this->GObject::clone<GBooleanObject>();
 
 			// Assign a boolean value true
-			BOOST_CHECK_NO_THROW(*p_test1 = true);
+			CHECK_NOTHROW(*p_test1 = true);
 			// Cross-check
-			BOOST_CHECK(p_test1->value()); // should be true
+			CHECK(p_test1->value()); // should be true
 
 			// Load into p_test2 and p_test3 and test equality
-			BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
-			BOOST_CHECK_NO_THROW(p_test3->load(p_test1));
-			BOOST_CHECK(*p_test2 == *p_test1);
-			BOOST_CHECK(*p_test3 == *p_test1);
-			BOOST_CHECK(*p_test3 == *p_test2);
+			CHECK_NOTHROW(p_test2->load(p_test1));
+			CHECK_NOTHROW(p_test3->load(p_test1));
+			CHECK(*p_test2 == *p_test1);
+			CHECK(*p_test3 == *p_test1);
+			CHECK(*p_test3 == *p_test2);
 
 			// Check that initialization with a fixed floating point value has no effect on this object
-			BOOST_CHECK_NO_THROW(p_test2->fixedValueInit<double>(2., activityMode::ALLPARAMETERS));
-			BOOST_CHECK(*p_test2 == *p_test1);
+			CHECK_NOTHROW(p_test2->fixedValueInit<double>(2., activityMode::ALLPARAMETERS));
+			CHECK(*p_test2 == *p_test1);
 
 			// Check that multiplication with a fixed floating point value has no effect on this object
-			BOOST_CHECK_NO_THROW(p_test2->multiplyBy<double>(2., activityMode::ALLPARAMETERS));
-			BOOST_CHECK(*p_test2 == *p_test1);
+			CHECK_NOTHROW(p_test2->multiplyBy<double>(2., activityMode::ALLPARAMETERS));
+			CHECK(*p_test2 == *p_test1);
 
 			// Check that a component-wise multiplication with a random fp value in a given range does not have an effect on this object
-			BOOST_CHECK_NO_THROW(p_test2->multiplyByRandom<double>(1., 2., activityMode::ALLPARAMETERS, gr));
-			BOOST_CHECK(*p_test2 == *p_test1);
+			CHECK_NOTHROW(p_test2->multiplyByRandom<double>(1., 2., activityMode::ALLPARAMETERS, gr));
+			CHECK(*p_test2 == *p_test1);
 
 			// Check that a component-wise multiplication with a random fp value in the range [0:1[ does not have an effect on this object
-			BOOST_CHECK_NO_THROW(p_test2->multiplyByRandom<double>(activityMode::ALLPARAMETERS, gr));
-			BOOST_CHECK(*p_test2 == *p_test1);
+			CHECK_NOTHROW(p_test2->multiplyByRandom<double>(activityMode::ALLPARAMETERS, gr));
+			CHECK(*p_test2 == *p_test1);
 
 			// Check that adding p_test1 to p_test3 does not have an effect
-			BOOST_CHECK_NO_THROW(p_test3->add<double>(p_test1, activityMode::ALLPARAMETERS));
-			BOOST_CHECK(*p_test3 == *p_test2);
+			CHECK_NOTHROW(p_test3->add<double>(p_test1, activityMode::ALLPARAMETERS));
+			CHECK(*p_test3 == *p_test2);
 
 			// Check that subtracting p_test1 from p_test3 does not have an effect
-			BOOST_CHECK_NO_THROW(p_test3->subtract<double>(p_test1, activityMode::ALLPARAMETERS));
-			BOOST_CHECK(*p_test3 == *p_test2);
+			CHECK_NOTHROW(p_test3->subtract<double>(p_test1, activityMode::ALLPARAMETERS));
+			CHECK(*p_test3 == *p_test2);
 		}
 
 		// --------------------------------------------------------------------------

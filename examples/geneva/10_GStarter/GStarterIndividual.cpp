@@ -370,9 +370,6 @@ namespace Gem::Geneva
  */
 	bool GStarterIndividual::modify_GUnitTests_() {
 #ifdef GEM_TESTING
-		using boost::unit_test_framework::test_suite;
-		using boost::unit_test_framework::test_case;
-
 		bool result = false;
 
 		// Call the parent classes' functions
@@ -402,9 +399,6 @@ namespace Gem::Geneva
 #ifdef GEM_TESTING
 		using namespace Gem::Geneva;
 
-		using boost::unit_test_framework::test_suite;
-		using boost::unit_test_framework::test_case;
-
 		// Call the parent classes' functions
 		Gem::Geneva::GParameterSet::specificTestsNoFailureExpected_GUnitTests_();
 
@@ -424,7 +418,7 @@ namespace Gem::Geneva
 			}
 
 			std::shared_ptr<GStarterIndividual> p_test;
-			BOOST_CHECK_NO_THROW(p_test = std::shared_ptr<GStarterIndividual>(
+			CHECK_NOTHROW(p_test = std::shared_ptr<GStarterIndividual>(
 				new GStarterIndividual(
 					0 // indicates the first individual
 					, startValues
@@ -438,7 +432,7 @@ namespace Gem::Geneva
 				)
 			));
 
-			BOOST_CHECK_CLOSE(DEFAULTSIGMA, p_test->getAverageSigma(), 0.001); // Should be similar
+			CHECK_THAT(p_test->getAverageSigma(), Catch::Matchers::WithinRel(DEFAULTSIGMA, 0.001/100.0)); // Should be similar
 		}
 
 		//------------------------------------------------------------------------------
@@ -446,11 +440,11 @@ namespace Gem::Geneva
 		{ // Test setting and retrieval of the target function valie
 			std::shared_ptr<GStarterIndividual> p_test = this->clone<GStarterIndividual>();
 
-			BOOST_CHECK_NO_THROW(p_test->setTargetFunction(targetFunction::PARABOLA));
-			BOOST_CHECK(targetFunction::PARABOLA == p_test->getTargetFunction());
+			CHECK_NOTHROW(p_test->setTargetFunction(targetFunction::PARABOLA));
+			CHECK(targetFunction::PARABOLA == p_test->getTargetFunction());
 
-			BOOST_CHECK_NO_THROW(p_test->setTargetFunction(targetFunction::NOISYPARABOLA));
-			BOOST_CHECK(targetFunction::NOISYPARABOLA == p_test->getTargetFunction());
+			CHECK_NOTHROW(p_test->setTargetFunction(targetFunction::NOISYPARABOLA));
+			CHECK(targetFunction::NOISYPARABOLA == p_test->getTargetFunction());
 		}
 
 		//------------------------------------------------------------------------------
@@ -468,9 +462,6 @@ namespace Gem::Geneva
 	void GStarterIndividual::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 		using namespace Gem::Geneva;
-
-		using boost::unit_test_framework::test_suite;
-		using boost::unit_test_framework::test_case;
 
 		// Call the parent classes' functions
 		Gem::Geneva::GParameterSet::specificTestsFailuresExpected_GUnitTests_();

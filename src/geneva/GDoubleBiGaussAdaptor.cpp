@@ -127,8 +127,6 @@ namespace Gem::Geneva
  */
 	bool GDoubleBiGaussAdaptor::modify_GUnitTests_() {
 #ifdef GEM_TESTING
-		using boost::unit_test_framework::test_suite;
-		using boost::unit_test_framework::test_case;
 
 		bool result = false;
 
@@ -149,8 +147,6 @@ namespace Gem::Geneva
  */
 	void GDoubleBiGaussAdaptor::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
-		using boost::unit_test_framework::test_suite;
-		using boost::unit_test_framework::test_case;
 
 		// Call the parent class'es function
 		GFPBiGaussAdaptorT<double>::specificTestsNoFailureExpected_GUnitTests_();
@@ -160,12 +156,11 @@ namespace Gem::Geneva
 		{ // Check that the adaptor returns the correct adaptor id
 			std::shared_ptr <GDoubleBiGaussAdaptor> p_test = this->clone<GDoubleBiGaussAdaptor>();
 
-			BOOST_CHECK_MESSAGE(
-				p_test->getAdaptorId() == adaptorId::GDOUBLEBIGAUSSADAPTOR, "\n"
+			INFO("\n"
 				<< "p_test->getAdaptorId() = " << p_test->getAdaptorId()
 				<< "GDOUBLEBIGAUSSADAPTOR     = " << adaptorId::GDOUBLEBIGAUSSADAPTOR <<
-				"\n"
-			);
+				"\n");
+			CHECK(p_test->getAdaptorId() == adaptorId::GDOUBLEBIGAUSSADAPTOR);
 		}
 
 		// --------------------------------------------------------------------------
@@ -186,8 +181,6 @@ namespace Gem::Geneva
  */
 	void GDoubleBiGaussAdaptor::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
-		using boost::unit_test_framework::test_suite;
-		using boost::unit_test_framework::test_case;
 
 		// Call the parent class'es function
 		GFPBiGaussAdaptorT<double>::specificTestsFailuresExpected_GUnitTests_();

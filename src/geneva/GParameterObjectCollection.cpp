@@ -146,74 +146,74 @@ namespace Gem::Geneva
 		Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
 
 		// Clear the collection, so we can start fresh
-		BOOST_CHECK_NO_THROW(this->clear());
+		CHECK_NOTHROW(this->clear());
 
 		// Add a GBooleanObject object
 		// Create a suitable adaptor
 		std::shared_ptr <GBooleanAdaptor> gba_ptr;
-		BOOST_CHECK_NO_THROW(gba_ptr = std::shared_ptr<GBooleanAdaptor>(new GBooleanAdaptor(1.0)));
-		BOOST_CHECK_NO_THROW(gba_ptr->setAdaptionThreshold(
+		CHECK_NOTHROW(gba_ptr = std::shared_ptr<GBooleanAdaptor>(new GBooleanAdaptor(1.0)));
+		CHECK_NOTHROW(gba_ptr->setAdaptionThreshold(
 			0)); // Make sure the adaptor's internal parameters don't change through the adaption
-		BOOST_CHECK_NO_THROW(gba_ptr->setAdaptionMode(adaptionMode::ALWAYS)); // Always adapt
+		CHECK_NOTHROW(gba_ptr->setAdaptionMode(adaptionMode::ALWAYS)); // Always adapt
 
 		// Create a suitable GBooleanObject object
 		std::shared_ptr <GBooleanObject> gbo_ptr;
-		BOOST_CHECK_NO_THROW(
+		CHECK_NOTHROW(
 			gbo_ptr = std::shared_ptr<GBooleanObject>(new GBooleanObject())); // Initialization with standard values
 
 		// Add the adaptor
-		BOOST_CHECK_NO_THROW(gbo_ptr->addAdaptor(gba_ptr));
+		CHECK_NOTHROW(gbo_ptr->addAdaptor(gba_ptr));
 
 		// Randomly initialize the GBooleanObject object, so it is unique
-		BOOST_CHECK_NO_THROW(gbo_ptr->randomInit(activityMode::ALLPARAMETERS, gr));
+		CHECK_NOTHROW(gbo_ptr->randomInit(activityMode::ALLPARAMETERS, gr));
 
 		// Add the object to the collection
-		BOOST_CHECK_NO_THROW(this->push_back(gbo_ptr));
+		CHECK_NOTHROW(this->push_back(gbo_ptr));
 
 		// Add a GInt32 object
 		// Create a suitable adaptor
 		std::shared_ptr <GInt32GaussAdaptor> giga_ptr;
-		BOOST_CHECK_NO_THROW(giga_ptr = std::shared_ptr<GInt32GaussAdaptor>(new GInt32GaussAdaptor(0.025, 0.1, 0, 1, 1.0)));
-		BOOST_CHECK_NO_THROW(giga_ptr->setAdaptionThreshold(
+		CHECK_NOTHROW(giga_ptr = std::shared_ptr<GInt32GaussAdaptor>(new GInt32GaussAdaptor(0.025, 0.1, 0, 1, 1.0)));
+		CHECK_NOTHROW(giga_ptr->setAdaptionThreshold(
 			0)); // Make sure the adaptor's internal parameters don't change through the adaption
-		BOOST_CHECK_NO_THROW(giga_ptr->setAdaptionMode(adaptionMode::ALWAYS)); // Always adapt
+		CHECK_NOTHROW(giga_ptr->setAdaptionMode(adaptionMode::ALWAYS)); // Always adapt
 
 		// Create a suitable GInt32Object object
 		std::shared_ptr <GInt32Object> gio_ptr;
-		BOOST_CHECK_NO_THROW(
+		CHECK_NOTHROW(
 			gio_ptr = std::shared_ptr<GInt32Object>(new GInt32Object(-100, 100))); // Initialization in the range -100, 100
 
 		// Add the adaptor
-		BOOST_CHECK_NO_THROW(gio_ptr->addAdaptor(giga_ptr));
+		CHECK_NOTHROW(gio_ptr->addAdaptor(giga_ptr));
 
 		// Randomly initialize the GInt32Object object, so it is unique
-		BOOST_CHECK_NO_THROW(gio_ptr->randomInit(activityMode::ALLPARAMETERS, gr));
+		CHECK_NOTHROW(gio_ptr->randomInit(activityMode::ALLPARAMETERS, gr));
 
 		// Add the object to the collection
-		BOOST_CHECK_NO_THROW(this->push_back(gio_ptr));
+		CHECK_NOTHROW(this->push_back(gio_ptr));
 
 		// Add a GDouble object
 		// Create a suitable adaptor
 		std::shared_ptr <GDoubleGaussAdaptor> gdga_ptr;
-		BOOST_CHECK_NO_THROW(
+		CHECK_NOTHROW(
 			gdga_ptr = std::shared_ptr<GDoubleGaussAdaptor>(new GDoubleGaussAdaptor(0.025, 0.1, 0, 1, 1.0)));
-		BOOST_CHECK_NO_THROW(gdga_ptr->setAdaptionThreshold(
+		CHECK_NOTHROW(gdga_ptr->setAdaptionThreshold(
 			0)); // Make sure the adaptor's internal parameters don't change through the adaption
-		BOOST_CHECK_NO_THROW(gdga_ptr->setAdaptionMode(adaptionMode::ALWAYS)); // Always adapt
+		CHECK_NOTHROW(gdga_ptr->setAdaptionMode(adaptionMode::ALWAYS)); // Always adapt
 
 		// Create a suitable GDoubleObject object
 		std::shared_ptr <GDoubleObject> gdo_ptr;
-		BOOST_CHECK_NO_THROW(gdo_ptr = std::shared_ptr<GDoubleObject>(
+		CHECK_NOTHROW(gdo_ptr = std::shared_ptr<GDoubleObject>(
 			new GDoubleObject(-100., 100.))); // Initialization in the range -100, 100
 
 		// Add the adaptor
-		BOOST_CHECK_NO_THROW(gdo_ptr->addAdaptor(gdga_ptr));
+		CHECK_NOTHROW(gdo_ptr->addAdaptor(gdga_ptr));
 
 		// Randomly initialize the GDoubleObject object, so it is unique
-		BOOST_CHECK_NO_THROW(gdo_ptr->randomInit(activityMode::ALLPARAMETERS, gr));
+		CHECK_NOTHROW(gdo_ptr->randomInit(activityMode::ALLPARAMETERS, gr));
 
 		// Add the object to the collection
-		BOOST_CHECK_NO_THROW(this->push_back(gdo_ptr));
+		CHECK_NOTHROW(this->push_back(gdo_ptr));
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
    Gem::Common::condnotset("GParameterObjectCollection::fillWithObjects", "GEM_TESTING");
@@ -256,31 +256,31 @@ namespace Gem::Geneva
 			std::shared_ptr <GParameterObjectCollection> p_test2 = this->clone<GParameterObjectCollection>();
 
 			// Fill p_test1 with parameters
-			BOOST_CHECK_NO_THROW(p_test1->fillWithObjects_());
+			CHECK_NOTHROW(p_test1->fillWithObjects_());
 
 			// Load the data intp p_test2
-			BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
+			CHECK_NOTHROW(p_test2->load(p_test1));
 
 			// Check that both individuals are identical
-			BOOST_CHECK(*p_test1 == *p_test2);
+			CHECK(*p_test1 == *p_test2);
 
 			// Test initialization of p_test2 with a fixed value
-			BOOST_CHECK_NO_THROW(p_test2->fixedValueInit<double>(FIXEDVALUEINIT, activityMode::ALLPARAMETERS));
+			CHECK_NOTHROW(p_test2->fixedValueInit<double>(FIXEDVALUEINIT, activityMode::ALLPARAMETERS));
 
 			// The first two parameters should be unchanged
-			BOOST_CHECK(*(p_test1->at(0)) == *(p_test2->at(0)));
-			BOOST_CHECK(*(p_test1->at(1)) == *(p_test2->at(1)));
+			CHECK(*(p_test1->at(0)) == *(p_test2->at(0)));
+			CHECK(*(p_test1->at(1)) == *(p_test2->at(1)));
 
 			// Extract the fp parameters
 			std::shared_ptr <GDoubleObject> gdo_ptr1, gdo_ptr2;
-			BOOST_CHECK_NO_THROW(gdo_ptr1 = p_test1->at<GDoubleObject>(2));
-			BOOST_CHECK_NO_THROW(gdo_ptr2 = p_test2->at<GDoubleObject>(2));
+			CHECK_NOTHROW(gdo_ptr1 = p_test1->at<GDoubleObject>(2));
+			CHECK_NOTHROW(gdo_ptr2 = p_test2->at<GDoubleObject>(2));
 
 			// Check that the value is changed
-			BOOST_CHECK(gdo_ptr1->value() != gdo_ptr2->value());
+			CHECK(gdo_ptr1->value() != gdo_ptr2->value());
 
 			// Check that the desired value has been assigned
-			BOOST_CHECK(gdo_ptr2->value() == FIXEDVALUEINIT);
+			CHECK(gdo_ptr2->value() == FIXEDVALUEINIT);
 		}
 
 		//------------------------------------------------------------------------------
@@ -290,44 +290,42 @@ namespace Gem::Geneva
 			std::shared_ptr <GParameterObjectCollection> p_test2 = this->clone<GParameterObjectCollection>();
 
 			// Fill p_test1 with parameters
-			BOOST_CHECK_NO_THROW(p_test1->fillWithObjects_());
+			CHECK_NOTHROW(p_test1->fillWithObjects_());
 
 			// Load the data into p_test2
-			BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
+			CHECK_NOTHROW(p_test2->load(p_test1));
 
 			// Check that both individuals are identical
-			BOOST_CHECK(*p_test1 == *p_test2);
+			CHECK(*p_test1 == *p_test2);
 
 			// Initialize p_test2 with a fixed value
-			BOOST_CHECK_NO_THROW(p_test2->fixedValueInit<double>(FIXEDVALUEINIT, activityMode::ALLPARAMETERS));
+			CHECK_NOTHROW(p_test2->fixedValueInit<double>(FIXEDVALUEINIT, activityMode::ALLPARAMETERS));
 
 			// The first two parameters should be unchanged
-			BOOST_CHECK(*(p_test1->at(0)) == *(p_test2->at(0)));
-			BOOST_CHECK(*(p_test1->at(1)) == *(p_test2->at(1)));
+			CHECK(*(p_test1->at(0)) == *(p_test2->at(0)));
+			CHECK(*(p_test1->at(1)) == *(p_test2->at(1)));
 
 			// Extract the fp parameters
 			std::shared_ptr <GDoubleObject> gdo_ptr1, gdo_ptr2;
-			BOOST_CHECK_NO_THROW(gdo_ptr1 = p_test1->at<GDoubleObject>(2));
-			BOOST_CHECK_NO_THROW(gdo_ptr2 = p_test2->at<GDoubleObject>(2));
+			CHECK_NOTHROW(gdo_ptr1 = p_test1->at<GDoubleObject>(2));
+			CHECK_NOTHROW(gdo_ptr2 = p_test2->at<GDoubleObject>(2));
 
 			// Check that the value is changed
-			BOOST_CHECK(gdo_ptr1->value() != gdo_ptr2->value());
+			CHECK(gdo_ptr1->value() != gdo_ptr2->value());
 
 			// Check that the desired value has been assigned
-			BOOST_CHECK(gdo_ptr2->value() == FIXEDVALUEINIT);
+			CHECK(gdo_ptr2->value() == FIXEDVALUEINIT);
 
 			// Multiply with a fixed value
-			BOOST_CHECK_NO_THROW(p_test2->multiplyBy<double>(MULTVALUE, activityMode::ALLPARAMETERS));
+			CHECK_NOTHROW(p_test2->multiplyBy<double>(MULTVALUE, activityMode::ALLPARAMETERS));
 
 			// The first two parameters should again be unchanged
-			BOOST_CHECK(*(p_test1->at(0)) == *(p_test2->at(0)));
-			BOOST_CHECK(*(p_test1->at(1)) == *(p_test2->at(1)));
+			CHECK(*(p_test1->at(0)) == *(p_test2->at(0)));
+			CHECK(*(p_test1->at(1)) == *(p_test2->at(1)));
 
 			// The fp value should have changed
-			BOOST_CHECK_MESSAGE(
-				gdo_ptr2->value() == FIXEDVALUEINIT * MULTVALUE,
-				"gdo_ptr2->value() = " << gdo_ptr2->value() << ", FIXEDVALUEINIT*MULTVALUE = " << FIXEDVALUEINIT * MULTVALUE
-			);
+			INFO("gdo_ptr2->value() = " << gdo_ptr2->value() << ", FIXEDVALUEINIT*MULTVALUE = " << FIXEDVALUEINIT * MULTVALUE);
+			CHECK(gdo_ptr2->value() == FIXEDVALUEINIT * MULTVALUE);
 		}
 
 		//------------------------------------------------------------------------------
@@ -337,31 +335,31 @@ namespace Gem::Geneva
 			std::shared_ptr <GParameterObjectCollection> p_test2 = this->clone<GParameterObjectCollection>();
 
 			// Fill p_test1 with parameters
-			BOOST_CHECK_NO_THROW(p_test1->fillWithObjects_());
+			CHECK_NOTHROW(p_test1->fillWithObjects_());
 
 			// Initialize p_test1 with a fixed value
-			BOOST_CHECK_NO_THROW(p_test1->fixedValueInit<double>(FIXEDVALUEINIT, activityMode::ALLPARAMETERS));
+			CHECK_NOTHROW(p_test1->fixedValueInit<double>(FIXEDVALUEINIT, activityMode::ALLPARAMETERS));
 
 			// Load the data intp p_test2
-			BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
+			CHECK_NOTHROW(p_test2->load(p_test1));
 
 			// Check that both individuals are identical
-			BOOST_CHECK(*p_test1 == *p_test2);
+			CHECK(*p_test1 == *p_test2);
 
 			// Multiply p_test2 with a random number in a given range
-			BOOST_CHECK_NO_THROW(p_test2->multiplyByRandom<double>(RANDLOWERBOUNDARY, RANDUPPERBOUNDARY, activityMode::ALLPARAMETERS, gr));
+			CHECK_NOTHROW(p_test2->multiplyByRandom<double>(RANDLOWERBOUNDARY, RANDUPPERBOUNDARY, activityMode::ALLPARAMETERS, gr));
 
 			// The first two parameters should again be unchanged
-			BOOST_CHECK(*(p_test1->at(0)) == *(p_test2->at(0)));
-			BOOST_CHECK(*(p_test1->at(1)) == *(p_test2->at(1)));
+			CHECK(*(p_test1->at(0)) == *(p_test2->at(0)));
+			CHECK(*(p_test1->at(1)) == *(p_test2->at(1)));
 
 			// Extract the fp parameters
 			std::shared_ptr <GDoubleObject> gdo_ptr1, gdo_ptr2;
-			BOOST_CHECK_NO_THROW(gdo_ptr1 = p_test1->at<GDoubleObject>(2));
-			BOOST_CHECK_NO_THROW(gdo_ptr2 = p_test2->at<GDoubleObject>(2));
+			CHECK_NOTHROW(gdo_ptr1 = p_test1->at<GDoubleObject>(2));
+			CHECK_NOTHROW(gdo_ptr2 = p_test2->at<GDoubleObject>(2));
 
 			// The fp value should have changed
-			BOOST_CHECK(gdo_ptr2->value() != gdo_ptr1->value());
+			CHECK(gdo_ptr2->value() != gdo_ptr1->value());
 		}
 
 		//------------------------------------------------------------------------------
@@ -371,31 +369,31 @@ namespace Gem::Geneva
 			std::shared_ptr <GParameterObjectCollection> p_test2 = this->clone<GParameterObjectCollection>();
 
 			// Fill p_test1 with parameters
-			BOOST_CHECK_NO_THROW(p_test1->fillWithObjects_());
+			CHECK_NOTHROW(p_test1->fillWithObjects_());
 
 			// Initialize p_test1 with a fixed value
-			BOOST_CHECK_NO_THROW(p_test1->fixedValueInit<double>(FIXEDVALUEINIT, activityMode::ALLPARAMETERS));
+			CHECK_NOTHROW(p_test1->fixedValueInit<double>(FIXEDVALUEINIT, activityMode::ALLPARAMETERS));
 
 			// Load the data intp p_test2
-			BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
+			CHECK_NOTHROW(p_test2->load(p_test1));
 
 			// Check that both individuals are identical
-			BOOST_CHECK(*p_test1 == *p_test2);
+			CHECK(*p_test1 == *p_test2);
 
 			// Multiply p_test2 with a random number in the range [0,1[
-			BOOST_CHECK_NO_THROW(p_test2->multiplyByRandom<double>(activityMode::ALLPARAMETERS, gr));
+			CHECK_NOTHROW(p_test2->multiplyByRandom<double>(activityMode::ALLPARAMETERS, gr));
 
 			// The first two parameters should again be unchanged
-			BOOST_CHECK(*(p_test1->at(0)) == *(p_test2->at(0)));
-			BOOST_CHECK(*(p_test1->at(1)) == *(p_test2->at(1)));
+			CHECK(*(p_test1->at(0)) == *(p_test2->at(0)));
+			CHECK(*(p_test1->at(1)) == *(p_test2->at(1)));
 
 			// Extract the fp parameters
 			std::shared_ptr <GDoubleObject> gdo_ptr1, gdo_ptr2;
-			BOOST_CHECK_NO_THROW(gdo_ptr1 = p_test1->at<GDoubleObject>(2));
-			BOOST_CHECK_NO_THROW(gdo_ptr2 = p_test2->at<GDoubleObject>(2));
+			CHECK_NOTHROW(gdo_ptr1 = p_test1->at<GDoubleObject>(2));
+			CHECK_NOTHROW(gdo_ptr2 = p_test2->at<GDoubleObject>(2));
 
 			// The fp value should have changed
-			BOOST_CHECK(gdo_ptr2->value() != gdo_ptr1->value());
+			CHECK(gdo_ptr2->value() != gdo_ptr1->value());
 		}
 
 		//------------------------------------------------------------------------------
@@ -405,32 +403,32 @@ namespace Gem::Geneva
 			std::shared_ptr <GParameterObjectCollection> p_test2 = this->clone<GParameterObjectCollection>();
 
 			// Fill p_test1 with parameters
-			BOOST_CHECK_NO_THROW(p_test1->fillWithObjects_());
+			CHECK_NOTHROW(p_test1->fillWithObjects_());
 
 			// Initialize p_test1 with a fixed value
-			BOOST_CHECK_NO_THROW(p_test1->fixedValueInit<double>(FIXEDVALUEINIT, activityMode::ALLPARAMETERS));
+			CHECK_NOTHROW(p_test1->fixedValueInit<double>(FIXEDVALUEINIT, activityMode::ALLPARAMETERS));
 
 			// Load the data intp p_test2
-			BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
+			CHECK_NOTHROW(p_test2->load(p_test1));
 
 			// Check that both individuals are identical
-			BOOST_CHECK(*p_test1 == *p_test2);
+			CHECK(*p_test1 == *p_test2);
 
 			// Add p_test1 to p_test2
-			BOOST_CHECK_NO_THROW(p_test2->add<double>(p_test1, activityMode::ALLPARAMETERS));
+			CHECK_NOTHROW(p_test2->add<double>(p_test1, activityMode::ALLPARAMETERS));
 
 			// The first two parameters should again be unchanged
-			BOOST_CHECK(*(p_test1->at(0)) == *(p_test2->at(0)));
-			BOOST_CHECK(*(p_test1->at(1)) == *(p_test2->at(1)));
+			CHECK(*(p_test1->at(0)) == *(p_test2->at(0)));
+			CHECK(*(p_test1->at(1)) == *(p_test2->at(1)));
 
 			// Extract the fp parameters
 			std::shared_ptr <GDoubleObject> gdo_ptr1, gdo_ptr2;
-			BOOST_CHECK_NO_THROW(gdo_ptr1 = p_test1->at<GDoubleObject>(2));
-			BOOST_CHECK_NO_THROW(gdo_ptr2 = p_test2->at<GDoubleObject>(2));
+			CHECK_NOTHROW(gdo_ptr1 = p_test1->at<GDoubleObject>(2));
+			CHECK_NOTHROW(gdo_ptr2 = p_test2->at<GDoubleObject>(2));
 
 			// The fp value should have changed, the value should be (FIXEDVALUEINIT+FIXEDVALUEINIT)
-			BOOST_CHECK(gdo_ptr2->value() != gdo_ptr1->value());
-			BOOST_CHECK(gdo_ptr2->value() == FIXEDVALUEINIT + FIXEDVALUEINIT);
+			CHECK(gdo_ptr2->value() != gdo_ptr1->value());
+			CHECK(gdo_ptr2->value() == FIXEDVALUEINIT + FIXEDVALUEINIT);
 		}
 
 		//------------------------------------------------------------------------------
@@ -440,32 +438,32 @@ namespace Gem::Geneva
 			std::shared_ptr <GParameterObjectCollection> p_test2 = this->clone<GParameterObjectCollection>();
 
 			// Fill p_test1 with parameters
-			BOOST_CHECK_NO_THROW(p_test1->fillWithObjects_());
+			CHECK_NOTHROW(p_test1->fillWithObjects_());
 
 			// Initialize p_test1 with a fixed value
-			BOOST_CHECK_NO_THROW(p_test1->fixedValueInit<double>(FIXEDVALUEINIT, activityMode::ALLPARAMETERS));
+			CHECK_NOTHROW(p_test1->fixedValueInit<double>(FIXEDVALUEINIT, activityMode::ALLPARAMETERS));
 
 			// Load the data intp p_test2
-			BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
+			CHECK_NOTHROW(p_test2->load(p_test1));
 
 			// Check that both individuals are identical
-			BOOST_CHECK(*p_test1 == *p_test2);
+			CHECK(*p_test1 == *p_test2);
 
 			// Subtract p_test1 from p_test2
-			BOOST_CHECK_NO_THROW(p_test2->subtract<double>(p_test1, activityMode::ALLPARAMETERS));
+			CHECK_NOTHROW(p_test2->subtract<double>(p_test1, activityMode::ALLPARAMETERS));
 
 			// The first two parameters should again be unchanged
-			BOOST_CHECK(*(p_test1->at(0)) == *(p_test2->at(0)));
-			BOOST_CHECK(*(p_test1->at(1)) == *(p_test2->at(1)));
+			CHECK(*(p_test1->at(0)) == *(p_test2->at(0)));
+			CHECK(*(p_test1->at(1)) == *(p_test2->at(1)));
 
 			// Extract the fp parameters
 			std::shared_ptr <GDoubleObject> gdo_ptr1, gdo_ptr2;
-			BOOST_CHECK_NO_THROW(gdo_ptr1 = p_test1->at<GDoubleObject>(2));
-			BOOST_CHECK_NO_THROW(gdo_ptr2 = p_test2->at<GDoubleObject>(2));
+			CHECK_NOTHROW(gdo_ptr1 = p_test1->at<GDoubleObject>(2));
+			CHECK_NOTHROW(gdo_ptr2 = p_test2->at<GDoubleObject>(2));
 
 			// The fp value should have changed, the value should be 0
-			BOOST_CHECK(gdo_ptr2->value() != gdo_ptr1->value());
-			BOOST_CHECK(gdo_ptr2->value() == 0);
+			CHECK(gdo_ptr2->value() != gdo_ptr1->value());
+			CHECK(gdo_ptr2->value() == 0);
 		}
 
 		//------------------------------------------------------------------------------
@@ -475,21 +473,21 @@ namespace Gem::Geneva
 			std::shared_ptr<GParameterObjectCollection> p_test2 = this->clone<GParameterObjectCollection>();
 
 			// Fill p_test1 with parameters
-			BOOST_CHECK_NO_THROW(p_test1->fillWithObjects_());
-			BOOST_REQUIRE(not p_test1->empty());
+			CHECK_NOTHROW(p_test1->fillWithObjects_());
+			REQUIRE(not p_test1->empty());
 
 			// Load the data intp p_test2
-			BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
-			BOOST_REQUIRE(not p_test2->empty());
+			CHECK_NOTHROW(p_test2->load(p_test1));
+			REQUIRE(not p_test2->empty());
 
 			// Check that both individuals are identical
-			BOOST_CHECK(*p_test1 == *p_test2);
+			CHECK(*p_test1 == *p_test2);
 
 			// Randomly initialize p_test2, using GParameterTCollectionT<T>::randomInit()
-			BOOST_CHECK_NO_THROW(p_test2->randomInit(activityMode::ALLPARAMETERS, gr));
+			CHECK_NOTHROW(p_test2->randomInit(activityMode::ALLPARAMETERS, gr));
 
 			// Check that the two objects differ
-			BOOST_CHECK(*p_test1 != *p_test2);
+			CHECK(*p_test1 != *p_test2);
 
 			// Note: Checks of changes in the individual parameters do not make sense, as e.g. the boolean type
 			// might not have changed.

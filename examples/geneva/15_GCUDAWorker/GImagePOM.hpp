@@ -215,8 +215,6 @@ namespace Gem::Geneva
         bool modify_GUnitTests_() override
         {
 #ifdef GEM_TESTING
-            using boost::unit_test_framework::test_suite;
-            using boost::unit_test_framework::test_case;
 
             bool result = false;
 
@@ -243,8 +241,6 @@ namespace Gem::Geneva
         void specificTestsNoFailureExpected_GUnitTests_() override
         {
 #ifdef GEM_TESTING
-            using boost::unit_test_framework::test_suite;
-            using boost::unit_test_framework::test_case;
 
             // Call the parent classes' functions
             GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests();
@@ -260,8 +256,6 @@ namespace Gem::Geneva
         void specificTestsFailuresExpected_GUnitTests_() override
         {
 #ifdef GEM_TESTING
-            using boost::unit_test_framework::test_suite;
-            using boost::unit_test_framework::test_case;
 
             // Call the parent classes' functions
             GBasePluggableOM::specificTestsFailuresExpected_GUnitTests();

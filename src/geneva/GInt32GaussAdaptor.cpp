@@ -200,11 +200,10 @@ namespace Gem::Geneva
 		{ // Check that the adaptor returns the correct adaptor id
 			std::shared_ptr <GInt32GaussAdaptor> p_test = this->clone<GInt32GaussAdaptor>();
 
-			BOOST_CHECK_MESSAGE(
-				p_test->getAdaptorId() == adaptorId::GINT32GAUSSADAPTOR, "\n"
+			INFO("\n"
 				<< "p_test->getAdaptorId() = " << p_test->getAdaptorId()
-				<< "GINT32GAUSSADAPTOR     = " << adaptorId::GINT32GAUSSADAPTOR << "\n"
-			);
+				<< "GINT32GAUSSADAPTOR     = " << adaptorId::GINT32GAUSSADAPTOR << "\n");
+			CHECK(p_test->getAdaptorId() == adaptorId::GINT32GAUSSADAPTOR);
 		}
 
 		// --------------------------------------------------------------------------

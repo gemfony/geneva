@@ -578,8 +578,6 @@ namespace Gem::Geneva
  */
 	bool GFunctionIndividual::modify_GUnitTests_() {
 #ifdef GEM_TESTING
-		using boost::unit_test_framework::test_suite;
-		using boost::unit_test_framework::test_case;
 
 		bool result = false;
 
@@ -605,8 +603,6 @@ return false;
 #ifdef GEM_TESTING
 		using namespace Gem::Geneva;
 
-		using boost::unit_test_framework::test_suite;
-		using boost::unit_test_framework::test_case;
 
 		// Call the parent classes' functions
 		Gem::Geneva::GParameterSet::specificTestsNoFailureExpected_GUnitTests_();
@@ -627,8 +623,6 @@ return false;
 #ifdef GEM_TESTING
 		using namespace Gem::Geneva;
 
-		using boost::unit_test_framework::test_suite;
-		using boost::unit_test_framework::test_case;
 
 		// Call the parent classes' functions
 		Gem::Geneva::GParameterSet::specificTestsFailuresExpected_GUnitTests_();

@@ -338,8 +338,6 @@ namespace Gem::Geneva
  */
 	void GSwarmAlgorithm_PersonalityTraits::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
-		using boost::unit_test_framework::test_suite;
-		using boost::unit_test_framework::test_case;
 
 		// Call the parent class'es function
 		GPersonalityTraits::specificTestsNoFailureExpected_GUnitTests_();
@@ -350,20 +348,20 @@ namespace Gem::Geneva
 			std::shared_ptr <GSwarmAlgorithm_PersonalityTraits> p_test = this->clone<GSwarmAlgorithm_PersonalityTraits>();
 
 			// Check setting and retrieval
-			BOOST_CHECK_NO_THROW(p_test->setNoPositionUpdate());
-			BOOST_CHECK(p_test->noPositionUpdate() == true);
+			CHECK_NOTHROW(p_test->setNoPositionUpdate());
+			CHECK(p_test->noPositionUpdate() == true);
 
 			// Check retrieval and reset
 			bool noPositionUpdate = false; // This value should be changed by the following call
-			BOOST_CHECK_NO_THROW(noPositionUpdate = p_test->checkNoPositionUpdateAndReset());
-			BOOST_CHECK(noPositionUpdate == true);
-			BOOST_CHECK(p_test->noPositionUpdate() == false);
+			CHECK_NOTHROW(noPositionUpdate = p_test->checkNoPositionUpdateAndReset());
+			CHECK(noPositionUpdate == true);
+			CHECK(p_test->noPositionUpdate() == false);
 
 			// Try again -- the value "false" should not change
 			noPositionUpdate = true; // This value should be changed by the following call
-			BOOST_CHECK_NO_THROW(noPositionUpdate = p_test->checkNoPositionUpdateAndReset());
-			BOOST_CHECK(noPositionUpdate == false);
-			BOOST_CHECK(p_test->noPositionUpdate() == false);
+			CHECK_NOTHROW(noPositionUpdate = p_test->checkNoPositionUpdateAndReset());
+			CHECK(noPositionUpdate == false);
+			CHECK(p_test->noPositionUpdate() == false);
 		}
 
 		//---------------------------------------------------------------------------
@@ -373,8 +371,8 @@ namespace Gem::Geneva
 
 			// Setting and retrieval of the neighborhood
 			for (std::size_t i = 0; i < 10; i++) {
-				BOOST_CHECK_NO_THROW(p_test->setNeighborhood(i));
-				BOOST_CHECK(p_test->getNeighborhood() == i);
+				CHECK_NOTHROW(p_test->setNeighborhood(i));
+				CHECK(p_test->getNeighborhood() == i);
 			}
 		}
 
@@ -391,8 +389,6 @@ namespace Gem::Geneva
  */
 	void GSwarmAlgorithm_PersonalityTraits::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
-		using boost::unit_test_framework::test_suite;
-		using boost::unit_test_framework::test_case;
 
 		// Call the parent class'es function
 		GPersonalityTraits::specificTestsFailuresExpected_GUnitTests_();

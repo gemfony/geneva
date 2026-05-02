@@ -382,32 +382,32 @@ namespace Gem::Geneva
 			std::shared_ptr <GConstrainedDoubleObject> p_test = this->GObject::clone<GConstrainedDoubleObject>();
 
 			// Reset the boundaries so we are free to do what we want
-			BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
+			CHECK_NOTHROW(p_test->resetBoundaries());
 
 			// Assign a value with operator=
-			BOOST_CHECK_NO_THROW(*p_test = testVal2);
+			CHECK_NOTHROW(*p_test = testVal2);
 
 			// Check the value
-			BOOST_CHECK(p_test->value() == testVal2);
+			CHECK(p_test->value() == testVal2);
 
 			// Assign boundaries and values
-			BOOST_CHECK_NO_THROW(p_test->setValue(testVal2, lowerBoundary, upperBoundary));
+			CHECK_NOTHROW(p_test->setValue(testVal2, lowerBoundary, upperBoundary));
 
 			// Check the value again
-			BOOST_CHECK(p_test->value() == testVal2);
+			CHECK(p_test->value() == testVal2);
 
 			// Assign a value with operator=
-			BOOST_CHECK_NO_THROW(*p_test = testVal);
+			CHECK_NOTHROW(*p_test = testVal);
 
 			// Check the value again, should have changed
-			BOOST_CHECK(p_test->value() == testVal);
+			CHECK(p_test->value() == testVal);
 		}
 
 		// --------------------------------------------------------------------------
 
 		{ // Check construction with two boundaries plus initialization with a random value and extraction of that value
 			std::shared_ptr <GConstrainedDoubleObject> p_test(new GConstrainedDoubleObject(0.3, 0.6));
-			BOOST_CHECK_NO_THROW(testVal3 = p_test->value());
+			CHECK_NOTHROW(testVal3 = p_test->value());
 		}
 
 		// --------------------------------------------------------------------------
@@ -415,8 +415,8 @@ namespace Gem::Geneva
 		{ // Check construction with two boundaries and a value and extraction of that value
 			const double TESTVAL = 0.4;
 			std::shared_ptr <GConstrainedDoubleObject> p_test(new GConstrainedDoubleObject(0.4, 0.3, 0.6));
-			BOOST_CHECK_NO_THROW(testVal3 = p_test->value());
-			BOOST_CHECK(testVal3 == TESTVAL);
+			CHECK_NOTHROW(testVal3 = p_test->value());
+			CHECK(testVal3 == TESTVAL);
 		}
 
 		// --------------------------------------------------------------------------
@@ -425,10 +425,9 @@ namespace Gem::Geneva
 			const double TESTVAL = 0.4;
 			std::shared_ptr <GConstrainedDoubleObject> p_test(new GConstrainedDoubleObject(0.4, 0.3, 0.6));
 			for (std::size_t i = 0; i < NTESTS; i++) {
-				BOOST_CHECK_NO_THROW(testVal3 = p_test->value());
-				BOOST_CHECK_MESSAGE(
-					testVal3 == TESTVAL, "The value has changed: " << testVal3 << " / " << TESTVAL
-				);
+				CHECK_NOTHROW(testVal3 = p_test->value());
+				INFO("The value has changed: " << testVal3 << " / " << TESTVAL);
+				CHECK(testVal3 == TESTVAL);
 			}
 		}
 
