@@ -46,7 +46,7 @@
 #include <algorithm>
 
 // Boost header files go here
-#include <boost/test/unit_test.hpp>
+#include <catch2/catch_test_macros.hpp>
 
 // Geneva header files go here
 #include "common/GExceptions.hpp"
@@ -81,14 +81,14 @@ public:
 		{ // Check seeding
 			// Check that we are running with more seeds than the amount of
 			// pre-fabricated seeds
-			BOOST_CHECK(nSeeds_>DEFAULTSEEDVECTORSIZE);
+			CHECK(nSeeds_>DEFAULTSEEDVECTORSIZE);
 
 			// Check that we always get different seeds
 			seed_type lastSeed;
-			BOOST_CHECK_NO_THROW(lastSeed = GRANDOMFACTORY->getSeed());
+			CHECK_NOTHROW(lastSeed = GRANDOMFACTORY->getSeed());
 			for(std::size_t s=0; s<nSeeds_-1; s++) {
 				seed_type currentSeed=GRANDOMFACTORY->getSeed();
-				BOOST_CHECK(lastSeed != currentSeed);
+				CHECK(lastSeed != currentSeed);
 				lastSeed=currentSeed;
 			}
 		}
@@ -112,18 +112,18 @@ public:
 				std::int32_t randVal;
 
 				// Produce a single random number
-				BOOST_CHECK_NO_THROW(randVal = uniform_int_distribution(*gr_ptr));
+				CHECK_NOTHROW(randVal = uniform_int_distribution(*gr_ptr));
 
 				// Is it in the allowed range ?
-				BOOST_CHECK(randVal >= MINRANDOM && randVal <= MAXRANDOM);
+				CHECK((randVal >= MINRANDOM && randVal <= MAXRANDOM));
 
 				// Add the value to the vector
-				BOOST_CHECK_NO_THROW(randomHist.at(std::size_t(randVal+10)) += 1);
+				CHECK_NOTHROW(randomHist.at(std::size_t(randVal+10)) += 1);
 			}
 
 			// Due to the large number of entries, we should have > 0 entries in all positions
 			for(std::size_t i=0; i<21; i++) {
-				BOOST_CHECK(randomHist.at(i) > 0);
+				CHECK(randomHist.at(i) > 0);
 			}
 		}
 
@@ -146,18 +146,18 @@ public:
 				std::int32_t randVal;
 
 				// Produce a single random number
-				BOOST_CHECK_NO_THROW(randVal = uniform_int_distribution(*gr_ptr));
+				CHECK_NOTHROW(randVal = uniform_int_distribution(*gr_ptr));
 
 				// Is it in the allowed range ?
-				BOOST_CHECK(randVal >= MINRANDOM && randVal <= MAXRANDOM);
+				CHECK((randVal >= MINRANDOM && randVal <= MAXRANDOM));
 
 				// Add the value to the vector
-				BOOST_CHECK_NO_THROW(randomHist.at(std::size_t(randVal+10)) += 1);
+				CHECK_NOTHROW(randomHist.at(std::size_t(randVal+10)) += 1);
 			}
 
 			// Due to the large number of entries, we should have > 0 entries in all positions
 			for(std::size_t i=0; i<21; i++) {
-				BOOST_CHECK(randomHist.at(i) > 0);
+				CHECK(randomHist.at(i) > 0);
 			}
 		}
 
@@ -172,7 +172,7 @@ public:
 
 			volatile std::int32_t randVal;
 			for(std::size_t i=0; i<nTests_; i++) {
-				BOOST_CHECK_NO_THROW(randVal = uniform_int_distribution(*gr_ptr));
+				CHECK_NOTHROW(randVal = uniform_int_distribution(*gr_ptr));
 			}
 		}
 
@@ -187,7 +187,7 @@ public:
 
 			volatile std::int32_t randVal;
 			for(std::size_t i=0; i<nTests_; i++) {
-				BOOST_CHECK_NO_THROW(randVal = uniform_int_distribution(*gr_ptr));
+				CHECK_NOTHROW(randVal = uniform_int_distribution(*gr_ptr));
 			}
 		}
 

@@ -1,5 +1,5 @@
 /**
- * @file GHapTest.hpp
+ * @file GHapStandardTests.cpp
  */
 
 /********************************************************************************
@@ -31,14 +31,14 @@
  *
  ********************************************************************************/
 
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MAIN
-#define BOOST_TEST_ALTERNATIVE_INIT_API
-#include <boost/test/unit_test.hpp>
+#include <catch2/catch_test_macros.hpp>
 
 #include "hap/tests/GHap_tests.hpp"
 
-BOOST_FIXTURE_TEST_SUITE(GHapSuite, GHap_tests)
-BOOST_AUTO_TEST_CASE(no_failure_expected_test) { no_failure_expected(); }
-BOOST_AUTO_TEST_CASE(failures_expected_test) { failures_expected(); }
-BOOST_AUTO_TEST_SUITE_END()
+TEST_CASE_METHOD(GHap_tests, "GHap no_failure_expected", "[hap][standard]") {
+    no_failure_expected();
+}
+
+TEST_CASE_METHOD(GHap_tests, "GHap failures_expected", "[hap][standard][failures-expected]") {
+    failures_expected();
+}
