@@ -33,6 +33,12 @@
 
 #include "GStarterIndividual.hpp"
 
+#ifdef GEM_TESTING
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers.hpp>
+#include <catch2/matchers/catch_matchers_floating_point.hpp>
+#endif /* GEM_TESTING */
+
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GStarterIndividual) // NOLINT
 namespace Gem::Geneva
 {
