@@ -8,8 +8,8 @@
 #include <vector>
 #include <algorithm>
 
-// Boost headers go here
-#include <boost/test/unit_test.hpp>
+// Catch2 headers go here
+#include <catch2/catch_test_macros.hpp>
 
 // Geneva headers go here
 #include "common/GBoundedBufferT.hpp"
@@ -165,23 +165,23 @@ public:
 	 	 //----------------------------------------------------------------------
 
 		 { // Check construction with different sizes and value types
-			 BOOST_CHECK_NO_THROW((GBoundedBufferT<copy_only_struct>())); // DEFAULTBUFFERSIZE
-			 BOOST_CHECK_NO_THROW((GBoundedBufferT<copy_only_struct, 0>())); // unbounded
-			 BOOST_CHECK_NO_THROW((GBoundedBufferT<copy_only_struct, 10>()));
-			 BOOST_CHECK_NO_THROW((GBoundedBufferT<copy_only_struct, 20>()));
-			 BOOST_CHECK_NO_THROW((GBoundedBufferT<copy_only_struct, 30>()));
+			 CHECK_NOTHROW((GBoundedBufferT<copy_only_struct>())); // DEFAULTBUFFERSIZE
+			 CHECK_NOTHROW((GBoundedBufferT<copy_only_struct, 0>())); // unbounded
+			 CHECK_NOTHROW((GBoundedBufferT<copy_only_struct, 10>()));
+			 CHECK_NOTHROW((GBoundedBufferT<copy_only_struct, 20>()));
+			 CHECK_NOTHROW((GBoundedBufferT<copy_only_struct, 30>()));
 
-			 BOOST_CHECK_NO_THROW((GBoundedBufferT<move_only_struct>())); // DEFAULTBUFFERSIZE
-			 BOOST_CHECK_NO_THROW((GBoundedBufferT<move_only_struct, 0>())); // unbounded
-			 BOOST_CHECK_NO_THROW((GBoundedBufferT<move_only_struct, 10>()));
-			 BOOST_CHECK_NO_THROW((GBoundedBufferT<move_only_struct, 20>()));
-			 BOOST_CHECK_NO_THROW((GBoundedBufferT<move_only_struct, 30>()));
+			 CHECK_NOTHROW((GBoundedBufferT<move_only_struct>())); // DEFAULTBUFFERSIZE
+			 CHECK_NOTHROW((GBoundedBufferT<move_only_struct, 0>())); // unbounded
+			 CHECK_NOTHROW((GBoundedBufferT<move_only_struct, 10>()));
+			 CHECK_NOTHROW((GBoundedBufferT<move_only_struct, 20>()));
+			 CHECK_NOTHROW((GBoundedBufferT<move_only_struct, 30>()));
 
-			 BOOST_CHECK_NO_THROW((GBoundedBufferT<copy_move_struct>())); // DEFAULTBUFFERSIZE
-			 BOOST_CHECK_NO_THROW((GBoundedBufferT<copy_move_struct, 0>())); // unbounded
-			 BOOST_CHECK_NO_THROW((GBoundedBufferT<copy_move_struct, 10>()));
-			 BOOST_CHECK_NO_THROW((GBoundedBufferT<copy_move_struct, 20>()));
-			 BOOST_CHECK_NO_THROW((GBoundedBufferT<copy_move_struct, 30>()));
+			 CHECK_NOTHROW((GBoundedBufferT<copy_move_struct>())); // DEFAULTBUFFERSIZE
+			 CHECK_NOTHROW((GBoundedBufferT<copy_move_struct, 0>())); // unbounded
+			 CHECK_NOTHROW((GBoundedBufferT<copy_move_struct, 10>()));
+			 CHECK_NOTHROW((GBoundedBufferT<copy_move_struct, 20>()));
+			 CHECK_NOTHROW((GBoundedBufferT<copy_move_struct, 30>()));
 		 }
 
 		 //----------------------------------------------------------------------
@@ -191,115 +191,115 @@ public:
 		 	 // copy_only_struct
 
 			 GBoundedBufferT<copy_only_struct> gbt1; // DEFAULTBUFFERSIZE
-			 BOOST_CHECK(gbt1.getCapacity() == DEFAULTBUFFERSIZE);
-			 BOOST_CHECK(gbt1.isBounded());
-			 BOOST_CHECK(gbt1.empty());
-			 BOOST_CHECK(gbt1.size() == 0);
-			 BOOST_CHECK(!gbt1.isNotEmpty());
+			 CHECK(gbt1.getCapacity() == DEFAULTBUFFERSIZE);
+			 CHECK(gbt1.isBounded());
+			 CHECK(gbt1.empty());
+			 CHECK(gbt1.size() == 0);
+			 CHECK(!gbt1.isNotEmpty());
 
 			 GBoundedBufferT<copy_only_struct, 0> gbt2; // unbounded
-			 BOOST_CHECK(gbt2.getCapacity() == 0);
-			 BOOST_CHECK(!gbt2.isBounded());
-			 BOOST_CHECK(gbt2.empty());
-			 BOOST_CHECK(gbt2.size() == 0);
-			 BOOST_CHECK(!gbt2.isNotEmpty());
+			 CHECK(gbt2.getCapacity() == 0);
+			 CHECK(!gbt2.isBounded());
+			 CHECK(gbt2.empty());
+			 CHECK(gbt2.size() == 0);
+			 CHECK(!gbt2.isNotEmpty());
 
 			 GBoundedBufferT<copy_only_struct, 10> gbt3;
-			 BOOST_CHECK(gbt3.getCapacity() == 10);
-			 BOOST_CHECK(gbt3.isBounded());
-			 BOOST_CHECK(gbt3.empty());
-			 BOOST_CHECK(gbt3.size() == 0);
-			 BOOST_CHECK(!gbt3.isNotEmpty());
+			 CHECK(gbt3.getCapacity() == 10);
+			 CHECK(gbt3.isBounded());
+			 CHECK(gbt3.empty());
+			 CHECK(gbt3.size() == 0);
+			 CHECK(!gbt3.isNotEmpty());
 
 			 GBoundedBufferT<copy_only_struct, 20> gbt4;
-			 BOOST_CHECK(gbt4.getCapacity() == 20);
-			 BOOST_CHECK(gbt4.isBounded());
-			 BOOST_CHECK(gbt4.empty());
-			 BOOST_CHECK(gbt4.size() == 0);
-			 BOOST_CHECK(!gbt4.isNotEmpty());
+			 CHECK(gbt4.getCapacity() == 20);
+			 CHECK(gbt4.isBounded());
+			 CHECK(gbt4.empty());
+			 CHECK(gbt4.size() == 0);
+			 CHECK(!gbt4.isNotEmpty());
 
 			 GBoundedBufferT<copy_only_struct, 30> gbt5;
-			 BOOST_CHECK(gbt5.getCapacity() == 30);
-			 BOOST_CHECK(gbt5.isBounded());
-			 BOOST_CHECK(gbt5.empty());
-			 BOOST_CHECK(gbt5.size() == 0);
-			 BOOST_CHECK(!gbt5.isNotEmpty());
+			 CHECK(gbt5.getCapacity() == 30);
+			 CHECK(gbt5.isBounded());
+			 CHECK(gbt5.empty());
+			 CHECK(gbt5.size() == 0);
+			 CHECK(!gbt5.isNotEmpty());
 
 			 //-------------------------------------------------------------------
 		 	 // move_only_struct
 
 			 GBoundedBufferT<move_only_struct> gbt6; // DEFAULTBUFFERSIZE
-			 BOOST_CHECK(gbt6.getCapacity() == DEFAULTBUFFERSIZE);
-			 BOOST_CHECK(gbt6.isBounded());
-			 BOOST_CHECK(gbt6.empty());
-			 BOOST_CHECK(gbt6.size() == 0);
-			 BOOST_CHECK(!gbt6.isNotEmpty());
+			 CHECK(gbt6.getCapacity() == DEFAULTBUFFERSIZE);
+			 CHECK(gbt6.isBounded());
+			 CHECK(gbt6.empty());
+			 CHECK(gbt6.size() == 0);
+			 CHECK(!gbt6.isNotEmpty());
 
 			 GBoundedBufferT<move_only_struct, 0> gbt7; // unbounded
-			 BOOST_CHECK(gbt7.getCapacity() == 0);
-			 BOOST_CHECK(!gbt7.isBounded());
-			 BOOST_CHECK(gbt7.empty());
-			 BOOST_CHECK(gbt7.size() == 0);
-			 BOOST_CHECK(!gbt7.isNotEmpty());
+			 CHECK(gbt7.getCapacity() == 0);
+			 CHECK(!gbt7.isBounded());
+			 CHECK(gbt7.empty());
+			 CHECK(gbt7.size() == 0);
+			 CHECK(!gbt7.isNotEmpty());
 
 			 GBoundedBufferT<move_only_struct, 10> gbt8;
-			 BOOST_CHECK(gbt8.getCapacity() == 10);
-			 BOOST_CHECK(gbt8.isBounded());
-			 BOOST_CHECK(gbt8.empty());
-			 BOOST_CHECK(gbt8.size() == 0);
-			 BOOST_CHECK(!gbt8.isNotEmpty());
+			 CHECK(gbt8.getCapacity() == 10);
+			 CHECK(gbt8.isBounded());
+			 CHECK(gbt8.empty());
+			 CHECK(gbt8.size() == 0);
+			 CHECK(!gbt8.isNotEmpty());
 
 			 GBoundedBufferT<move_only_struct, 20> gbt9;
-			 BOOST_CHECK(gbt9.getCapacity() == 20);
-			 BOOST_CHECK(gbt9.isBounded());
-			 BOOST_CHECK(gbt9.empty());
-			 BOOST_CHECK(gbt9.size() == 0);
-			 BOOST_CHECK(!gbt9.isNotEmpty());
+			 CHECK(gbt9.getCapacity() == 20);
+			 CHECK(gbt9.isBounded());
+			 CHECK(gbt9.empty());
+			 CHECK(gbt9.size() == 0);
+			 CHECK(!gbt9.isNotEmpty());
 
 			 GBoundedBufferT<move_only_struct, 30> gbt10;
-			 BOOST_CHECK(gbt10.getCapacity() == 30);
-			 BOOST_CHECK(gbt10.isBounded());
-			 BOOST_CHECK(gbt10.empty());
-			 BOOST_CHECK(gbt10.size() == 0);
-			 BOOST_CHECK(!gbt10.isNotEmpty());
+			 CHECK(gbt10.getCapacity() == 30);
+			 CHECK(gbt10.isBounded());
+			 CHECK(gbt10.empty());
+			 CHECK(gbt10.size() == 0);
+			 CHECK(!gbt10.isNotEmpty());
 
 			 //-------------------------------------------------------------------
 			 // copy_move_struct
 
 			 GBoundedBufferT<copy_move_struct> gpbt11; // DEFAULTBUFFERSIZE
-			 BOOST_CHECK(gpbt11.getCapacity() == DEFAULTBUFFERSIZE);
-			 BOOST_CHECK(gpbt11.isBounded());
-			 BOOST_CHECK(gpbt11.empty());
-			 BOOST_CHECK(gpbt11.size() == 0);
-			 BOOST_CHECK(!gpbt11.isNotEmpty());
+			 CHECK(gpbt11.getCapacity() == DEFAULTBUFFERSIZE);
+			 CHECK(gpbt11.isBounded());
+			 CHECK(gpbt11.empty());
+			 CHECK(gpbt11.size() == 0);
+			 CHECK(!gpbt11.isNotEmpty());
 
 			 GBoundedBufferT<copy_move_struct, 0> gpbt12; // unbounded
-			 BOOST_CHECK(gpbt12.getCapacity() == 0);
-			 BOOST_CHECK(!gpbt12.isBounded());
-			 BOOST_CHECK(gpbt12.empty());
-			 BOOST_CHECK(gpbt12.size() == 0);
-			 BOOST_CHECK(!gpbt12.isNotEmpty());
+			 CHECK(gpbt12.getCapacity() == 0);
+			 CHECK(!gpbt12.isBounded());
+			 CHECK(gpbt12.empty());
+			 CHECK(gpbt12.size() == 0);
+			 CHECK(!gpbt12.isNotEmpty());
 
 			 GBoundedBufferT<copy_move_struct, 10> gpbt13;
-			 BOOST_CHECK(gpbt13.getCapacity() == 10);
-			 BOOST_CHECK(gpbt13.isBounded());
-			 BOOST_CHECK(gpbt13.empty());
-			 BOOST_CHECK(gpbt13.size() == 0);
-			 BOOST_CHECK(!gpbt13.isNotEmpty());
+			 CHECK(gpbt13.getCapacity() == 10);
+			 CHECK(gpbt13.isBounded());
+			 CHECK(gpbt13.empty());
+			 CHECK(gpbt13.size() == 0);
+			 CHECK(!gpbt13.isNotEmpty());
 
 			 GBoundedBufferT<copy_move_struct, 20> gpbt14;
-			 BOOST_CHECK(gpbt14.getCapacity() == 20);
-			 BOOST_CHECK(gpbt14.isBounded());
-			 BOOST_CHECK(gpbt14.empty());
-			 BOOST_CHECK(gpbt14.size() == 0);
-			 BOOST_CHECK(!gpbt14.isNotEmpty());
+			 CHECK(gpbt14.getCapacity() == 20);
+			 CHECK(gpbt14.isBounded());
+			 CHECK(gpbt14.empty());
+			 CHECK(gpbt14.size() == 0);
+			 CHECK(!gpbt14.isNotEmpty());
 
 			 GBoundedBufferT<copy_move_struct, 30> gpbt15;
-			 BOOST_CHECK(gpbt15.getCapacity() == 30);
-			 BOOST_CHECK(gpbt15.isBounded());
-			 BOOST_CHECK(gpbt15.empty());
-			 BOOST_CHECK(gpbt15.size() == 0);
-			 BOOST_CHECK(!gpbt15.isNotEmpty());
+			 CHECK(gpbt15.getCapacity() == 30);
+			 CHECK(gpbt15.isBounded());
+			 CHECK(gpbt15.empty());
+			 CHECK(gpbt15.size() == 0);
+			 CHECK(!gpbt15.isNotEmpty());
 
 			 //-------------------------------------------------------------------
 		 }
@@ -316,12 +316,12 @@ public:
 				 bool push_succeeded = false;
 				 for (std::size_t i = 0; i < 2 * DEFAULTBUFFERSIZE; i++) { // Add items
 					 copy_only_struct c(i);
-					 BOOST_CHECK(c.getSecret() == i); // Copy should not alter this value
-					 BOOST_CHECK_NO_THROW(push_succeeded = gbt_co_unbounded.try_push_copy(c));
-					 BOOST_CHECK(!gbt_co_unbounded.empty());
-					 BOOST_CHECK(push_succeeded);
-					 BOOST_CHECK(gbt_co_unbounded.size() == i + 1);
-					 BOOST_CHECK(c.getSecret() == i);
+					 CHECK(c.getSecret() == i); // Copy should not alter this value
+					 CHECK_NOTHROW(push_succeeded = gbt_co_unbounded.try_push_copy(c));
+					 CHECK(!gbt_co_unbounded.empty());
+					 CHECK(push_succeeded);
+					 CHECK(gbt_co_unbounded.size() == i + 1);
+					 CHECK(c.getSecret() == i);
 
 					 push_succeeded = false;
 				 }
@@ -329,17 +329,17 @@ public:
 				 bool pop_succeeded = false;
 				 for (std::size_t i = 0; i < 2*DEFAULTBUFFERSIZE; i++) { // Copy should not alter this value; i++) { // Remove items
 					 copy_only_struct c(3*DEFAULTBUFFERSIZE); // This value should never be reached
-					 BOOST_CHECK(c.getSecret() == 3*DEFAULTBUFFERSIZE);
-					 BOOST_CHECK_NO_THROW(pop_succeeded = gbt_co_unbounded.try_pop_copy(c));
-				 	 BOOST_CHECK(pop_succeeded);
-				 	 BOOST_CHECK(gbt_co_unbounded.size() == 2*DEFAULTBUFFERSIZE - i - 1);
-				 	 BOOST_CHECK(c.getSecret() == i);
+					 CHECK(c.getSecret() == 3*DEFAULTBUFFERSIZE);
+					 CHECK_NOTHROW(pop_succeeded = gbt_co_unbounded.try_pop_copy(c));
+				 	 CHECK(pop_succeeded);
+				 	 CHECK(gbt_co_unbounded.size() == 2*DEFAULTBUFFERSIZE - i - 1);
+				 	 CHECK(c.getSecret() == i);
 
 				 	 pop_succeeded = false;
 				 }
 
-				 BOOST_CHECK(gbt_co_unbounded.size() == 0);
-				 BOOST_CHECK(gbt_co_unbounded.empty());
+				 CHECK(gbt_co_unbounded.size() == 0);
+				 CHECK(gbt_co_unbounded.empty());
 
 				 //------------------------------------------
 				 // Next with an unbounded queue with move_only_struct
@@ -349,12 +349,12 @@ public:
 				 push_succeeded = false;
 				 for (std::size_t i = 0; i < 2 * DEFAULTBUFFERSIZE; i++) {
 					 move_only_struct m(i);
-					 BOOST_CHECK(m.getSecret() == i);
-					 BOOST_CHECK_NO_THROW(push_succeeded = gbt_mo_unbounded.try_push_move(std::move(m)));
-					 BOOST_CHECK(m.getSecret() == 0); // Should have been cleared after move
-					 BOOST_CHECK(!gbt_mo_unbounded.empty());
-					 BOOST_CHECK(push_succeeded);
-					 BOOST_CHECK(gbt_mo_unbounded.size() == i + 1);
+					 CHECK(m.getSecret() == i);
+					 CHECK_NOTHROW(push_succeeded = gbt_mo_unbounded.try_push_move(std::move(m)));
+					 CHECK(m.getSecret() == 0); // Should have been cleared after move
+					 CHECK(!gbt_mo_unbounded.empty());
+					 CHECK(push_succeeded);
+					 CHECK(gbt_mo_unbounded.size() == i + 1);
 
 					 push_succeeded = false;
 				 }
@@ -363,17 +363,17 @@ public:
 				 pop_succeeded = false;
 				 for (std::size_t i = 0; i < 2*DEFAULTBUFFERSIZE; i++) { // Remove items
 					 move_only_struct m(3*DEFAULTBUFFERSIZE); // This value should never be reached
-					 BOOST_CHECK(m.getSecret() == 3*DEFAULTBUFFERSIZE);
-					 BOOST_CHECK_NO_THROW(pop_succeeded = gbt_mo_unbounded.try_pop_move(m));
-					 BOOST_CHECK(pop_succeeded);
-					 BOOST_CHECK(gbt_mo_unbounded.size() == 2*DEFAULTBUFFERSIZE - i - 1);
-					 BOOST_CHECK(m.getSecret() == i);
+					 CHECK(m.getSecret() == 3*DEFAULTBUFFERSIZE);
+					 CHECK_NOTHROW(pop_succeeded = gbt_mo_unbounded.try_pop_move(m));
+					 CHECK(pop_succeeded);
+					 CHECK(gbt_mo_unbounded.size() == 2*DEFAULTBUFFERSIZE - i - 1);
+					 CHECK(m.getSecret() == i);
 
 					 pop_succeeded = false;
 				 }
 
-				 BOOST_CHECK(gbt_mo_unbounded.size() == 0);
-				 BOOST_CHECK(gbt_mo_unbounded.empty());
+				 CHECK(gbt_mo_unbounded.size() == 0);
+				 CHECK(gbt_mo_unbounded.empty());
 
 				 //------------------------------------------
 				 // Now with copy_move_struct, while only copying
@@ -383,12 +383,12 @@ public:
 				 push_succeeded = false;
 				 for (std::size_t i = 0; i < 2 * DEFAULTBUFFERSIZE; i++) { // Add items
 					 copy_move_struct c(i);
-					 BOOST_CHECK(c.getSecret() == i); // Copy should not alter this value
-					 BOOST_CHECK_NO_THROW(push_succeeded = gbt_copy_only_cms_unbounded.try_push_copy(c));
-					 BOOST_CHECK(!gbt_copy_only_cms_unbounded.empty());
-					 BOOST_CHECK(push_succeeded);
-					 BOOST_CHECK(gbt_copy_only_cms_unbounded.size() == i + 1);
-					 BOOST_CHECK(c.getSecret() == i);
+					 CHECK(c.getSecret() == i); // Copy should not alter this value
+					 CHECK_NOTHROW(push_succeeded = gbt_copy_only_cms_unbounded.try_push_copy(c));
+					 CHECK(!gbt_copy_only_cms_unbounded.empty());
+					 CHECK(push_succeeded);
+					 CHECK(gbt_copy_only_cms_unbounded.size() == i + 1);
+					 CHECK(c.getSecret() == i);
 
 					 push_succeeded = false;
 				 }
@@ -396,22 +396,22 @@ public:
 				 pop_succeeded = false;
 				 for (std::size_t i = 0; i < 2*DEFAULTBUFFERSIZE; i++) { // Copy should not alter this value; i++) { // Remove items
 					 copy_move_struct c(3*DEFAULTBUFFERSIZE); // This value should never be reached
-					 BOOST_CHECK(c.getSecret() == 3*DEFAULTBUFFERSIZE);
-					 BOOST_CHECK_NO_THROW(pop_succeeded = gbt_copy_only_cms_unbounded.try_pop_copy(c));
-					 BOOST_CHECK(pop_succeeded);
-					 BOOST_CHECK(gbt_copy_only_cms_unbounded.size() == 2*DEFAULTBUFFERSIZE - i - 1);
-					 BOOST_CHECK(c.getSecret() == i);
+					 CHECK(c.getSecret() == 3*DEFAULTBUFFERSIZE);
+					 CHECK_NOTHROW(pop_succeeded = gbt_copy_only_cms_unbounded.try_pop_copy(c));
+					 CHECK(pop_succeeded);
+					 CHECK(gbt_copy_only_cms_unbounded.size() == 2*DEFAULTBUFFERSIZE - i - 1);
+					 CHECK(c.getSecret() == i);
 
 					 // Check that the item ws only copied, never moved, but that one of the two has happened
-					 BOOST_CHECK(c.struct_was_copied());
-					 BOOST_CHECK(!c.struct_was_moved());
-					 BOOST_CHECK(c.struct_was_copied_or_moved());
+					 CHECK(c.struct_was_copied());
+					 CHECK(!c.struct_was_moved());
+					 CHECK(c.struct_was_copied_or_moved());
 
 					 pop_succeeded = false;
 				 }
 
-				 BOOST_CHECK(gbt_copy_only_cms_unbounded.size() == 0);
-				 BOOST_CHECK(gbt_copy_only_cms_unbounded.empty());
+				 CHECK(gbt_copy_only_cms_unbounded.size() == 0);
+				 CHECK(gbt_copy_only_cms_unbounded.empty());
 
 				 //------------------------------------------
 				 // Now with copy_move_struct, while only moving
@@ -421,12 +421,12 @@ public:
 				 push_succeeded = false;
 				 for (std::size_t i = 0; i < 2 * DEFAULTBUFFERSIZE; i++) {
 					 copy_move_struct m(i);
-					 BOOST_CHECK(m.getSecret() == i);
-					 BOOST_CHECK_NO_THROW(push_succeeded = gbt_move_only_cms_unbounded.try_push_move(std::move(m)));
-					 BOOST_CHECK(m.getSecret() == 0); // Should have been cleared after move
-					 BOOST_CHECK(!gbt_move_only_cms_unbounded.empty());
-					 BOOST_CHECK(push_succeeded);
-					 BOOST_CHECK(gbt_move_only_cms_unbounded.size() == i + 1);
+					 CHECK(m.getSecret() == i);
+					 CHECK_NOTHROW(push_succeeded = gbt_move_only_cms_unbounded.try_push_move(std::move(m)));
+					 CHECK(m.getSecret() == 0); // Should have been cleared after move
+					 CHECK(!gbt_move_only_cms_unbounded.empty());
+					 CHECK(push_succeeded);
+					 CHECK(gbt_move_only_cms_unbounded.size() == i + 1);
 
 					 push_succeeded = false;
 				 }
@@ -435,22 +435,22 @@ public:
 				 pop_succeeded = false;
 				 for (std::size_t i = 0; i < 2*DEFAULTBUFFERSIZE; i++) { // Remove items
 					 copy_move_struct m(3*DEFAULTBUFFERSIZE); // This value should never be reached
-					 BOOST_CHECK(m.getSecret() == 3*DEFAULTBUFFERSIZE);
-					 BOOST_CHECK_NO_THROW(pop_succeeded = gbt_move_only_cms_unbounded.try_pop_move(m));
-					 BOOST_CHECK(pop_succeeded);
-					 BOOST_CHECK(gbt_move_only_cms_unbounded.size() == 2*DEFAULTBUFFERSIZE - i - 1);
-					 BOOST_CHECK(m.getSecret() == i);
+					 CHECK(m.getSecret() == 3*DEFAULTBUFFERSIZE);
+					 CHECK_NOTHROW(pop_succeeded = gbt_move_only_cms_unbounded.try_pop_move(m));
+					 CHECK(pop_succeeded);
+					 CHECK(gbt_move_only_cms_unbounded.size() == 2*DEFAULTBUFFERSIZE - i - 1);
+					 CHECK(m.getSecret() == i);
 
 					 // Check that the item ws only moved, never copied, but that one of the two has happened
-					 BOOST_CHECK(!m.struct_was_copied());
-					 BOOST_CHECK(m.struct_was_moved());
-					 BOOST_CHECK(m.struct_was_copied_or_moved());
+					 CHECK(!m.struct_was_copied());
+					 CHECK(m.struct_was_moved());
+					 CHECK(m.struct_was_copied_or_moved());
 
 					 pop_succeeded = false;
 				 }
 
-				 BOOST_CHECK(gbt_move_only_cms_unbounded.size() == 0);
-				 BOOST_CHECK(gbt_move_only_cms_unbounded.empty());
+				 CHECK(gbt_move_only_cms_unbounded.size() == 0);
+				 CHECK(gbt_move_only_cms_unbounded.empty());
 
 
 				 //------------------------------------------
@@ -461,21 +461,21 @@ public:
 				 // Now to a bounded queue with copy_only_struct
 
 				 GBoundedBufferT<copy_only_struct> gbt_co_bounded; // DEFAULTBUFFERSIZE
-				 BOOST_CHECK(gbt_co_bounded.getCapacity() == DEFAULTBUFFERSIZE);
+				 CHECK(gbt_co_bounded.getCapacity() == DEFAULTBUFFERSIZE);
 
 				 bool push_succeeded = false;
 				 for (std::size_t i = 0; i < 2*DEFAULTBUFFERSIZE; i++) { // More than the capacity of the queue
 					 copy_only_struct c(i);
-					 BOOST_CHECK_NO_THROW(push_succeeded = gbt_co_bounded.try_push_copy(c));
-					 BOOST_CHECK(!gbt_co_bounded.empty());
+					 CHECK_NOTHROW(push_succeeded = gbt_co_bounded.try_push_copy(c));
+					 CHECK(!gbt_co_bounded.empty());
 					 if(i<DEFAULTBUFFERSIZE) {
-						 BOOST_CHECK(push_succeeded);
-						 BOOST_CHECK(gbt_co_bounded.size() == i + 1);
+						 CHECK(push_succeeded);
+						 CHECK(gbt_co_bounded.size() == i + 1);
 					 } else {
-						 BOOST_CHECK(!push_succeeded);
-						 BOOST_CHECK(gbt_co_bounded.size() == DEFAULTBUFFERSIZE);
+						 CHECK(!push_succeeded);
+						 CHECK(gbt_co_bounded.size() == DEFAULTBUFFERSIZE);
 					 }
-					 BOOST_CHECK(c.getSecret() == i); // No changes by copying, or if the item was ignored
+					 CHECK(c.getSecret() == i); // No changes by copying, or if the item was ignored
 
 					 push_succeeded = false;
 				 }
@@ -483,17 +483,17 @@ public:
 				 bool pop_succeeded = false;
 				 for (std::size_t i = 0; i < 2*DEFAULTBUFFERSIZE; i++) { // Remove items
 					 copy_only_struct c(3*DEFAULTBUFFERSIZE); // This value should never be reached
-					 BOOST_CHECK(c.getSecret() == 3*DEFAULTBUFFERSIZE);
-					 BOOST_CHECK_NO_THROW(pop_succeeded = gbt_co_bounded.try_pop_copy(c));
+					 CHECK(c.getSecret() == 3*DEFAULTBUFFERSIZE);
+					 CHECK_NOTHROW(pop_succeeded = gbt_co_bounded.try_pop_copy(c));
 					 if(i<DEFAULTBUFFERSIZE) {
-						 BOOST_CHECK(pop_succeeded);
-						 BOOST_CHECK(gbt_co_bounded.size() == DEFAULTBUFFERSIZE - i - 1);
-						 BOOST_CHECK(c.getSecret() == i);
+						 CHECK(pop_succeeded);
+						 CHECK(gbt_co_bounded.size() == DEFAULTBUFFERSIZE - i - 1);
+						 CHECK(c.getSecret() == i);
 					 } else { // We try to remove more items than were in the queue
-						 BOOST_CHECK(!pop_succeeded);
-						 BOOST_CHECK(gbt_co_bounded.size() == 0);
-						 BOOST_CHECK(gbt_co_bounded.empty());
-						 BOOST_CHECK(c.getSecret() == 3*DEFAULTBUFFERSIZE); // No item was popped, so original value remains
+						 CHECK(!pop_succeeded);
+						 CHECK(gbt_co_bounded.size() == 0);
+						 CHECK(gbt_co_bounded.empty());
+						 CHECK(c.getSecret() == 3*DEFAULTBUFFERSIZE); // No item was popped, so original value remains
 					 }
 
 					 pop_succeeded = false;
@@ -503,21 +503,21 @@ public:
 				 // Next with a bounded queue with move_only_struct
 
 				 GBoundedBufferT<move_only_struct> gbt_mo_bounded; // DEFAULTBUFFERSIZE
-				 BOOST_CHECK(gbt_mo_bounded.getCapacity() == DEFAULTBUFFERSIZE);
+				 CHECK(gbt_mo_bounded.getCapacity() == DEFAULTBUFFERSIZE);
 
 				 push_succeeded = false;
 				 for (std::size_t i = 0; i < 2*DEFAULTBUFFERSIZE; i++) { // More than the capacity of the queue
 					 move_only_struct m(i);
-					 BOOST_CHECK_NO_THROW(push_succeeded = gbt_mo_bounded.try_push_move(std::move(m)));
-					 BOOST_CHECK(!gbt_mo_bounded.empty());
+					 CHECK_NOTHROW(push_succeeded = gbt_mo_bounded.try_push_move(std::move(m)));
+					 CHECK(!gbt_mo_bounded.empty());
 					 if(i<DEFAULTBUFFERSIZE) {
-						 BOOST_CHECK(push_succeeded);
-						 BOOST_CHECK(m.getSecret() == 0); // Should have been cleared after move
-						 BOOST_CHECK(gbt_mo_bounded.size() == i + 1);
+						 CHECK(push_succeeded);
+						 CHECK(m.getSecret() == 0); // Should have been cleared after move
+						 CHECK(gbt_mo_bounded.size() == i + 1);
 					 } else {
-						 BOOST_CHECK(!push_succeeded);
-						 BOOST_CHECK(m.getSecret() == i); // Should not have been altered by move if item was ignored
-						 BOOST_CHECK(gbt_mo_bounded.size() == DEFAULTBUFFERSIZE);
+						 CHECK(!push_succeeded);
+						 CHECK(m.getSecret() == i); // Should not have been altered by move if item was ignored
+						 CHECK(gbt_mo_bounded.size() == DEFAULTBUFFERSIZE);
 					 }
 
 					 push_succeeded = false;
@@ -526,23 +526,23 @@ public:
 				 pop_succeeded = false;
 				 for (std::size_t i = 0; i < 2*DEFAULTBUFFERSIZE; i++) { // Remove items (more than are stored in the queue)
 					 move_only_struct m(3*DEFAULTBUFFERSIZE); // This value should never be found
-					 BOOST_CHECK(m.getSecret() == 3*DEFAULTBUFFERSIZE);
-					 BOOST_CHECK_NO_THROW(pop_succeeded = gbt_mo_bounded.try_pop_move(m));
+					 CHECK(m.getSecret() == 3*DEFAULTBUFFERSIZE);
+					 CHECK_NOTHROW(pop_succeeded = gbt_mo_bounded.try_pop_move(m));
 					 if(i<DEFAULTBUFFERSIZE) {
-					 	BOOST_CHECK(pop_succeeded);
-					 	BOOST_CHECK(gbt_mo_bounded.size() == DEFAULTBUFFERSIZE - i - 1);
-					 	BOOST_CHECK(m.getSecret() == i);
+					 	CHECK(pop_succeeded);
+					 	CHECK(gbt_mo_bounded.size() == DEFAULTBUFFERSIZE - i - 1);
+					 	CHECK(m.getSecret() == i);
 					 } else {
-						 BOOST_CHECK(!pop_succeeded);
-						 BOOST_CHECK(gbt_mo_bounded.size() == 0);
-						 BOOST_CHECK(m.getSecret() == 3*DEFAULTBUFFERSIZE); // Should not be altered, as no items were popped
+						 CHECK(!pop_succeeded);
+						 CHECK(gbt_mo_bounded.size() == 0);
+						 CHECK(m.getSecret() == 3*DEFAULTBUFFERSIZE); // Should not be altered, as no items were popped
 					 }
 
 					 pop_succeeded = false;
 				 }
 
-				 BOOST_CHECK(gbt_mo_bounded.size() == 0);
-				 BOOST_CHECK(gbt_mo_bounded.empty());
+				 CHECK(gbt_mo_bounded.size() == 0);
+				 CHECK(gbt_mo_bounded.empty());
 
 				 //------------------------------------------
 			 }
@@ -559,23 +559,23 @@ public:
 
 				 for (std::size_t i = 0; i < 2 * DEFAULTBUFFERSIZE; i++) { // Add items
 					 copy_only_struct c(i);
-					 BOOST_CHECK(c.getSecret() == i); // Copy should not alter this value
-					 BOOST_CHECK_NO_THROW(gbt_co_unbounded.push_and_block_copy(c));
-					 BOOST_CHECK(!gbt_co_unbounded.empty());
-					 BOOST_CHECK(gbt_co_unbounded.size() == i + 1);
-					 BOOST_CHECK(c.getSecret() == i);
+					 CHECK(c.getSecret() == i); // Copy should not alter this value
+					 CHECK_NOTHROW(gbt_co_unbounded.push_and_block_copy(c));
+					 CHECK(!gbt_co_unbounded.empty());
+					 CHECK(gbt_co_unbounded.size() == i + 1);
+					 CHECK(c.getSecret() == i);
 				 }
 
 				 for (std::size_t i = 0; i < 2*DEFAULTBUFFERSIZE; i++) { // Remove items
 					 copy_only_struct c(3*DEFAULTBUFFERSIZE); // This value should never be reached
-					 BOOST_CHECK(c.getSecret() == 3*DEFAULTBUFFERSIZE);
-					 BOOST_CHECK_NO_THROW(gbt_co_unbounded.pop_and_block_copy(c));
-					 BOOST_CHECK(gbt_co_unbounded.size() == 2*DEFAULTBUFFERSIZE - i - 1);
-					 BOOST_CHECK(c.getSecret() == i);
+					 CHECK(c.getSecret() == 3*DEFAULTBUFFERSIZE);
+					 CHECK_NOTHROW(gbt_co_unbounded.pop_and_block_copy(c));
+					 CHECK(gbt_co_unbounded.size() == 2*DEFAULTBUFFERSIZE - i - 1);
+					 CHECK(c.getSecret() == i);
 				 }
 
-				 BOOST_CHECK(gbt_co_unbounded.size() == 0);
-				 BOOST_CHECK(gbt_co_unbounded.empty());
+				 CHECK(gbt_co_unbounded.size() == 0);
+				 CHECK(gbt_co_unbounded.empty());
 
 				 //------------------------------------------
 				 // Next with an unbounded queue with move_only_struct
@@ -584,23 +584,23 @@ public:
 
 				 for (std::size_t i = 0; i < 2 * DEFAULTBUFFERSIZE; i++) {
 					 move_only_struct m(i);
-					 BOOST_CHECK(m.getSecret() == i);
-					 BOOST_CHECK_NO_THROW(gbt_mo_unbounded.push_and_block_move(std::move(m)));
-					 BOOST_CHECK(m.getSecret() == 0); // Should have been cleared after move
-					 BOOST_CHECK(!gbt_mo_unbounded.empty());
-					 BOOST_CHECK(gbt_mo_unbounded.size() == i + 1);
+					 CHECK(m.getSecret() == i);
+					 CHECK_NOTHROW(gbt_mo_unbounded.push_and_block_move(std::move(m)));
+					 CHECK(m.getSecret() == 0); // Should have been cleared after move
+					 CHECK(!gbt_mo_unbounded.empty());
+					 CHECK(gbt_mo_unbounded.size() == i + 1);
 				 }
 
 				 for (std::size_t i = 0; i < 2*DEFAULTBUFFERSIZE; i++) { // Remove items
 					 move_only_struct m(3*DEFAULTBUFFERSIZE); // This value should never be reached
-					 BOOST_CHECK(m.getSecret() == 3*DEFAULTBUFFERSIZE);
-					 BOOST_CHECK_NO_THROW(gbt_mo_unbounded.pop_and_block_move(m));
-					 BOOST_CHECK(gbt_mo_unbounded.size() == 2*DEFAULTBUFFERSIZE - i - 1);
-					 BOOST_CHECK(m.getSecret() == i);
+					 CHECK(m.getSecret() == 3*DEFAULTBUFFERSIZE);
+					 CHECK_NOTHROW(gbt_mo_unbounded.pop_and_block_move(m));
+					 CHECK(gbt_mo_unbounded.size() == 2*DEFAULTBUFFERSIZE - i - 1);
+					 CHECK(m.getSecret() == i);
 				 }
 
-				 BOOST_CHECK(gbt_mo_unbounded.size() == 0);
-				 BOOST_CHECK(gbt_mo_unbounded.empty());
+				 CHECK(gbt_mo_unbounded.size() == 0);
+				 CHECK(gbt_mo_unbounded.empty());
 
 				 //------------------------------------------
 			 }
@@ -610,48 +610,48 @@ public:
 				 // Now to a bounded queue with copy_only_struct
 
 				 GBoundedBufferT<copy_only_struct> gbt_co_bounded; // DEFAULTBUFFERSIZE
-				 BOOST_CHECK(gbt_co_bounded.getCapacity() == DEFAULTBUFFERSIZE);
+				 CHECK(gbt_co_bounded.getCapacity() == DEFAULTBUFFERSIZE);
 
 				 for (std::size_t i = 0; i < DEFAULTBUFFERSIZE; i++) {
 					 copy_only_struct c(i);
-					 BOOST_CHECK_NO_THROW(gbt_co_bounded.push_and_block_copy(c));
-					 BOOST_CHECK(!gbt_co_bounded.empty());
-					 BOOST_CHECK(gbt_co_bounded.size() == i + 1);
-					 BOOST_CHECK(c.getSecret() == i); // No changes by copying, or if the item was ignored
+					 CHECK_NOTHROW(gbt_co_bounded.push_and_block_copy(c));
+					 CHECK(!gbt_co_bounded.empty());
+					 CHECK(gbt_co_bounded.size() == i + 1);
+					 CHECK(c.getSecret() == i); // No changes by copying, or if the item was ignored
 				 }
 
 				 for (std::size_t i = 0; i < DEFAULTBUFFERSIZE; i++) { // Remove items
 					 copy_only_struct c(3*DEFAULTBUFFERSIZE); // This value should never be reached
-					 BOOST_CHECK(c.getSecret() == 3*DEFAULTBUFFERSIZE);
-					 BOOST_CHECK_NO_THROW(gbt_co_bounded.pop_and_block_copy(c));
-					 BOOST_CHECK(gbt_co_bounded.size() == DEFAULTBUFFERSIZE - i - 1);
-					 BOOST_CHECK(c.getSecret() == i);
+					 CHECK(c.getSecret() == 3*DEFAULTBUFFERSIZE);
+					 CHECK_NOTHROW(gbt_co_bounded.pop_and_block_copy(c));
+					 CHECK(gbt_co_bounded.size() == DEFAULTBUFFERSIZE - i - 1);
+					 CHECK(c.getSecret() == i);
 				 }
 
 				 //------------------------------------------
 				 // Next with a bounded queue with move_only_struct
 
 				 GBoundedBufferT<move_only_struct> gbt_mo_bounded; // DEFAULTBUFFERSIZE
-				 BOOST_CHECK(gbt_mo_bounded.getCapacity() == DEFAULTBUFFERSIZE);
+				 CHECK(gbt_mo_bounded.getCapacity() == DEFAULTBUFFERSIZE);
 
 				 for (std::size_t i = 0; i < DEFAULTBUFFERSIZE; i++) {
 					 move_only_struct m(i);
-					 BOOST_CHECK_NO_THROW(gbt_mo_bounded.push_and_block_move(std::move(m)));
-					 BOOST_CHECK(!gbt_mo_bounded.empty());
-					 BOOST_CHECK(m.getSecret() == 0); // Should have been cleared after move
-					 BOOST_CHECK(gbt_mo_bounded.size() == i + 1);
+					 CHECK_NOTHROW(gbt_mo_bounded.push_and_block_move(std::move(m)));
+					 CHECK(!gbt_mo_bounded.empty());
+					 CHECK(m.getSecret() == 0); // Should have been cleared after move
+					 CHECK(gbt_mo_bounded.size() == i + 1);
 				 }
 
 				 for (std::size_t i = 0; i < DEFAULTBUFFERSIZE; i++) { // Remove items (more than are stored in the queue)
 					 move_only_struct m(3*DEFAULTBUFFERSIZE); // This value should never be found
-					 BOOST_CHECK(m.getSecret() == 3*DEFAULTBUFFERSIZE);
-					 BOOST_CHECK_NO_THROW(gbt_mo_bounded.pop_and_block_move(m));
-					 BOOST_CHECK(gbt_mo_bounded.size() == DEFAULTBUFFERSIZE - i - 1);
-					 BOOST_CHECK(m.getSecret() == i);
+					 CHECK(m.getSecret() == 3*DEFAULTBUFFERSIZE);
+					 CHECK_NOTHROW(gbt_mo_bounded.pop_and_block_move(m));
+					 CHECK(gbt_mo_bounded.size() == DEFAULTBUFFERSIZE - i - 1);
+					 CHECK(m.getSecret() == i);
 				 }
 
-				 BOOST_CHECK(gbt_mo_bounded.size() == 0);
-				 BOOST_CHECK(gbt_mo_bounded.empty());
+				 CHECK(gbt_mo_bounded.size() == 0);
+				 CHECK(gbt_mo_bounded.empty());
 
 				 //------------------------------------------
 			 }
@@ -671,12 +671,12 @@ public:
 				 bool push_succeeded = false;
 				 for (std::size_t i = 0; i < 2 * DEFAULTBUFFERSIZE; i++) { // Add items
 					 copy_only_struct c(i);
-					 BOOST_CHECK(c.getSecret() == i); // Copy should not alter this value
-					 BOOST_CHECK_NO_THROW(push_succeeded = gbt_co_unbounded.push_and_wait_copy(c, timeout));
-					 BOOST_CHECK(!gbt_co_unbounded.empty());
-					 BOOST_CHECK(push_succeeded);
-					 BOOST_CHECK(gbt_co_unbounded.size() == i + 1);
-					 BOOST_CHECK(c.getSecret() == i);
+					 CHECK(c.getSecret() == i); // Copy should not alter this value
+					 CHECK_NOTHROW(push_succeeded = gbt_co_unbounded.push_and_wait_copy(c, timeout));
+					 CHECK(!gbt_co_unbounded.empty());
+					 CHECK(push_succeeded);
+					 CHECK(gbt_co_unbounded.size() == i + 1);
+					 CHECK(c.getSecret() == i);
 
 					 push_succeeded = false;
 				 }
@@ -684,17 +684,17 @@ public:
 				 bool pop_succeeded = false;
 				 for (std::size_t i = 0; i < 2*DEFAULTBUFFERSIZE; i++) { // Copy should not alter this value; i++) { // Remove items
 					 copy_only_struct c(3*DEFAULTBUFFERSIZE); // This value should never be reached
-					 BOOST_CHECK(c.getSecret() == 3*DEFAULTBUFFERSIZE);
-					 BOOST_CHECK_NO_THROW(pop_succeeded = gbt_co_unbounded.pop_and_wait_copy(c, timeout));
-					 BOOST_CHECK(pop_succeeded);
-					 BOOST_CHECK(gbt_co_unbounded.size() == 2*DEFAULTBUFFERSIZE - i - 1);
-					 BOOST_CHECK(c.getSecret() == i);
+					 CHECK(c.getSecret() == 3*DEFAULTBUFFERSIZE);
+					 CHECK_NOTHROW(pop_succeeded = gbt_co_unbounded.pop_and_wait_copy(c, timeout));
+					 CHECK(pop_succeeded);
+					 CHECK(gbt_co_unbounded.size() == 2*DEFAULTBUFFERSIZE - i - 1);
+					 CHECK(c.getSecret() == i);
 
 					 pop_succeeded = false;
 				 }
 
-				 BOOST_CHECK(gbt_co_unbounded.size() == 0);
-				 BOOST_CHECK(gbt_co_unbounded.empty());
+				 CHECK(gbt_co_unbounded.size() == 0);
+				 CHECK(gbt_co_unbounded.empty());
 
 				 //------------------------------------------
 				 // Next with an unbounded queue with move_only_struct
@@ -704,12 +704,12 @@ public:
 				 push_succeeded = false;
 				 for (std::size_t i = 0; i < 2 * DEFAULTBUFFERSIZE; i++) {
 					 move_only_struct m(i);
-					 BOOST_CHECK(m.getSecret() == i);
-					 BOOST_CHECK_NO_THROW(push_succeeded = gbt_mo_unbounded.push_and_wait_move(std::move(m), timeout));
-					 BOOST_CHECK(m.getSecret() == 0); // Should have been cleared after move
-					 BOOST_CHECK(!gbt_mo_unbounded.empty());
-					 BOOST_CHECK(push_succeeded);
-					 BOOST_CHECK(gbt_mo_unbounded.size() == i + 1);
+					 CHECK(m.getSecret() == i);
+					 CHECK_NOTHROW(push_succeeded = gbt_mo_unbounded.push_and_wait_move(std::move(m), timeout));
+					 CHECK(m.getSecret() == 0); // Should have been cleared after move
+					 CHECK(!gbt_mo_unbounded.empty());
+					 CHECK(push_succeeded);
+					 CHECK(gbt_mo_unbounded.size() == i + 1);
 
 					 push_succeeded = false;
 				 }
@@ -718,17 +718,17 @@ public:
 				 pop_succeeded = false;
 				 for (std::size_t i = 0; i < 2*DEFAULTBUFFERSIZE; i++) { // Remove items
 					 move_only_struct m(3*DEFAULTBUFFERSIZE); // This value should never be reached
-					 BOOST_CHECK(m.getSecret() == 3*DEFAULTBUFFERSIZE);
-					 BOOST_CHECK_NO_THROW(pop_succeeded = gbt_mo_unbounded.pop_and_wait_move(m, timeout));
-					 BOOST_CHECK(pop_succeeded);
-					 BOOST_CHECK(gbt_mo_unbounded.size() == 2*DEFAULTBUFFERSIZE - i - 1);
-					 BOOST_CHECK(m.getSecret() == i);
+					 CHECK(m.getSecret() == 3*DEFAULTBUFFERSIZE);
+					 CHECK_NOTHROW(pop_succeeded = gbt_mo_unbounded.pop_and_wait_move(m, timeout));
+					 CHECK(pop_succeeded);
+					 CHECK(gbt_mo_unbounded.size() == 2*DEFAULTBUFFERSIZE - i - 1);
+					 CHECK(m.getSecret() == i);
 
 					 pop_succeeded = false;
 				 }
 
-				 BOOST_CHECK(gbt_mo_unbounded.size() == 0);
-				 BOOST_CHECK(gbt_mo_unbounded.empty());
+				 CHECK(gbt_mo_unbounded.size() == 0);
+				 CHECK(gbt_mo_unbounded.empty());
 
 				 //------------------------------------------
 			 }
@@ -738,21 +738,21 @@ public:
 				 // Now to a bounded queue with copy_only_struct
 
 				 GBoundedBufferT<copy_only_struct> gbt_co_bounded; // DEFAULTBUFFERSIZE
-				 BOOST_CHECK(gbt_co_bounded.getCapacity() == DEFAULTBUFFERSIZE);
+				 CHECK(gbt_co_bounded.getCapacity() == DEFAULTBUFFERSIZE);
 
 				 bool push_succeeded = false;
 				 for (std::size_t i = 0; i < 2*DEFAULTBUFFERSIZE; i++) { // More than the capacity of the queue
 					 copy_only_struct c(i);
-					 BOOST_CHECK_NO_THROW(push_succeeded = gbt_co_bounded.push_and_wait_copy(c, timeout));
-					 BOOST_CHECK(!gbt_co_bounded.empty());
+					 CHECK_NOTHROW(push_succeeded = gbt_co_bounded.push_and_wait_copy(c, timeout));
+					 CHECK(!gbt_co_bounded.empty());
 					 if(i<DEFAULTBUFFERSIZE) {
-						 BOOST_CHECK(push_succeeded);
-						 BOOST_CHECK(gbt_co_bounded.size() == i + 1);
+						 CHECK(push_succeeded);
+						 CHECK(gbt_co_bounded.size() == i + 1);
 					 } else {
-						 BOOST_CHECK(!push_succeeded);
-						 BOOST_CHECK(gbt_co_bounded.size() == DEFAULTBUFFERSIZE);
+						 CHECK(!push_succeeded);
+						 CHECK(gbt_co_bounded.size() == DEFAULTBUFFERSIZE);
 					 }
-					 BOOST_CHECK(c.getSecret() == i); // No changes by copying, or if the item was ignored
+					 CHECK(c.getSecret() == i); // No changes by copying, or if the item was ignored
 
 					 push_succeeded = false;
 				 }
@@ -760,17 +760,17 @@ public:
 				 bool pop_succeeded = false;
 				 for (std::size_t i = 0; i < 2*DEFAULTBUFFERSIZE; i++) { // Remove items
 					 copy_only_struct c(3*DEFAULTBUFFERSIZE); // This value should never be reached
-					 BOOST_CHECK(c.getSecret() == 3*DEFAULTBUFFERSIZE);
-					 BOOST_CHECK_NO_THROW(pop_succeeded = gbt_co_bounded.pop_and_wait_copy(c, timeout));
+					 CHECK(c.getSecret() == 3*DEFAULTBUFFERSIZE);
+					 CHECK_NOTHROW(pop_succeeded = gbt_co_bounded.pop_and_wait_copy(c, timeout));
 					 if(i<DEFAULTBUFFERSIZE) {
-						 BOOST_CHECK(pop_succeeded);
-						 BOOST_CHECK(gbt_co_bounded.size() == DEFAULTBUFFERSIZE - i - 1);
-						 BOOST_CHECK(c.getSecret() == i);
+						 CHECK(pop_succeeded);
+						 CHECK(gbt_co_bounded.size() == DEFAULTBUFFERSIZE - i - 1);
+						 CHECK(c.getSecret() == i);
 					 } else { // We try to remove more items than were in the queue
-						 BOOST_CHECK(!pop_succeeded);
-						 BOOST_CHECK(gbt_co_bounded.size() == 0);
-						 BOOST_CHECK(gbt_co_bounded.empty());
-						 BOOST_CHECK(c.getSecret() == 3*DEFAULTBUFFERSIZE); // No item was popped, so original value remains
+						 CHECK(!pop_succeeded);
+						 CHECK(gbt_co_bounded.size() == 0);
+						 CHECK(gbt_co_bounded.empty());
+						 CHECK(c.getSecret() == 3*DEFAULTBUFFERSIZE); // No item was popped, so original value remains
 					 }
 
 					 pop_succeeded = false;
@@ -780,21 +780,21 @@ public:
 				 // Next with a bounded queue with move_only_struct
 
 				 GBoundedBufferT<move_only_struct> gbt_mo_bounded; // DEFAULTBUFFERSIZE
-				 BOOST_CHECK(gbt_mo_bounded.getCapacity() == DEFAULTBUFFERSIZE);
+				 CHECK(gbt_mo_bounded.getCapacity() == DEFAULTBUFFERSIZE);
 
 				 push_succeeded = false;
 				 for (std::size_t i = 0; i < 2*DEFAULTBUFFERSIZE; i++) { // More than the capacity of the queue
 					 move_only_struct m(i);
-					 BOOST_CHECK_NO_THROW(push_succeeded = gbt_mo_bounded.push_and_wait_move(std::move(m), timeout));
-					 BOOST_CHECK(!gbt_mo_bounded.empty());
+					 CHECK_NOTHROW(push_succeeded = gbt_mo_bounded.push_and_wait_move(std::move(m), timeout));
+					 CHECK(!gbt_mo_bounded.empty());
 					 if(i<DEFAULTBUFFERSIZE) {
-						 BOOST_CHECK(push_succeeded);
-						 BOOST_CHECK(m.getSecret() == 0); // Should have been cleared after move
-						 BOOST_CHECK(gbt_mo_bounded.size() == i + 1);
+						 CHECK(push_succeeded);
+						 CHECK(m.getSecret() == 0); // Should have been cleared after move
+						 CHECK(gbt_mo_bounded.size() == i + 1);
 					 } else {
-						 BOOST_CHECK(!push_succeeded);
-						 BOOST_CHECK(m.getSecret() == i); // Should not have been altered by move if item was ignored
-						 BOOST_CHECK(gbt_mo_bounded.size() == DEFAULTBUFFERSIZE);
+						 CHECK(!push_succeeded);
+						 CHECK(m.getSecret() == i); // Should not have been altered by move if item was ignored
+						 CHECK(gbt_mo_bounded.size() == DEFAULTBUFFERSIZE);
 					 }
 
 					 push_succeeded = false;
@@ -803,23 +803,23 @@ public:
 				 pop_succeeded = false;
 				 for (std::size_t i = 0; i < 2*DEFAULTBUFFERSIZE; i++) { // Remove items (more than are stored in the queue)
 					 move_only_struct m(3*DEFAULTBUFFERSIZE); // This value should never be found
-					 BOOST_CHECK(m.getSecret() == 3*DEFAULTBUFFERSIZE);
-					 BOOST_CHECK_NO_THROW(pop_succeeded = gbt_mo_bounded.pop_and_wait_move(m, timeout));
+					 CHECK(m.getSecret() == 3*DEFAULTBUFFERSIZE);
+					 CHECK_NOTHROW(pop_succeeded = gbt_mo_bounded.pop_and_wait_move(m, timeout));
 					 if(i<DEFAULTBUFFERSIZE) {
-						 BOOST_CHECK(pop_succeeded);
-						 BOOST_CHECK(gbt_mo_bounded.size() == DEFAULTBUFFERSIZE - i - 1);
-						 BOOST_CHECK(m.getSecret() == i);
+						 CHECK(pop_succeeded);
+						 CHECK(gbt_mo_bounded.size() == DEFAULTBUFFERSIZE - i - 1);
+						 CHECK(m.getSecret() == i);
 					 } else {
-						 BOOST_CHECK(!pop_succeeded);
-						 BOOST_CHECK(gbt_mo_bounded.size() == 0);
-						 BOOST_CHECK(m.getSecret() == 3*DEFAULTBUFFERSIZE); // Should not be altered, as no items were popped
+						 CHECK(!pop_succeeded);
+						 CHECK(gbt_mo_bounded.size() == 0);
+						 CHECK(m.getSecret() == 3*DEFAULTBUFFERSIZE); // Should not be altered, as no items were popped
 					 }
 
 					 pop_succeeded = false;
 				 }
 
-				 BOOST_CHECK(gbt_mo_bounded.size() == 0);
-				 BOOST_CHECK(gbt_mo_bounded.empty());
+				 CHECK(gbt_mo_bounded.size() == 0);
+				 CHECK(gbt_mo_bounded.empty());
 
 				 //------------------------------------------
 			 }

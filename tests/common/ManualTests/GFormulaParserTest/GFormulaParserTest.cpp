@@ -1,5 +1,5 @@
 /**
- * @file GLoggerTest.cpp
+ * @file GFormulaParserTest.cpp
  */
 
 /********************************************************************************
@@ -39,14 +39,13 @@
 #include <map>
 
 // Boost headers go here
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MAIN
-#define BOOST_TEST_ALTERNATIVE_INIT_API
-#include <boost/test/unit_test.hpp>
-#include <boost/test/tools/floating_point_comparison.hpp>
 #include <boost/math/constants/constants.hpp>
 #include <boost/assign/list_of.hpp>
 #include <boost/assign/list_inserter.hpp>
+
+// Catch2 headers go here
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers_floating_point.hpp>
 
 // Geneva headers go here
 #include "common/GFormulaParserT.hpp"
@@ -55,23 +54,24 @@ using namespace boost::assign;
 using namespace Gem::Common;
 using namespace std;
 
+// Boost-Eps is percent; Catch2 WithinRel uses a factor (divide by 100)
 #define testFormula(FORMULA)\
 {\
 	std::string formula( #FORMULA );\
 	GFormulaParserT<double> f(formula);\
 	double fp_val = FORMULA;\
 	double parse_val = f();\
-	BOOST_CHECK_CLOSE(parse_val, fp_val, 0.001);\
+	CHECK_THAT(parse_val, Catch::Matchers::WithinRel(fp_val, 0.001 / 100.0));\
 }\
 
 #define testFormulaFailure(FORMULA, EXCEPTION)\
 {\
 	std::string formula( #FORMULA );\
 	GFormulaParserT<double> f(formula);\
-	BOOST_CHECK_THROW(f(), EXCEPTION );\
+	CHECK_THROWS_AS(f(), EXCEPTION);\
 }\
 
-BOOST_AUTO_TEST_CASE(formula_parser_tests) {
+TEST_CASE("formula_parser_tests", "[common][manual]") {
 	{ // Test replacement of variables and constants (1)
 		std::map<std::string, std::vector<double>> parameterValues;
 
@@ -88,7 +88,7 @@ BOOST_AUTO_TEST_CASE(formula_parser_tests) {
 		double fp_val = sin(4.34343434343434)/8.98989898989899;
 		double parse_val = f(parameterValues);
 
-		BOOST_CHECK_CLOSE(parse_val, fp_val, 0.001);
+		CHECK_THAT(parse_val, Catch::Matchers::WithinRel(fp_val, 0.001 / 100.0));
 	}
 
 	{ // Test replacement of variables and constants (1)
@@ -107,7 +107,7 @@ BOOST_AUTO_TEST_CASE(formula_parser_tests) {
 		double fp_val = fabs(sin(4.34343434343434)/max(8.98989898989899, 0.000001));
 		double parse_val = f(parameterValues);
 
-		BOOST_CHECK_CLOSE(parse_val, fp_val, 0.001);
+		CHECK_THAT(parse_val, Catch::Matchers::WithinRel(fp_val, 0.001 / 100.0));
 	}
 
 	{ // Test replacement of variables and constants (1)
@@ -126,7 +126,7 @@ BOOST_AUTO_TEST_CASE(formula_parser_tests) {
 		double fp_val = sin(list0[2])/list1[0];
 		double parse_val = f(parameterValues);
 
-		BOOST_CHECK_CLOSE(parse_val, fp_val, 0.001);
+		CHECK_THAT(parse_val, Catch::Matchers::WithinRel(fp_val, 0.001 / 100.0));
 	}
 
 	{ // Test replacement of variables and constants (2)
@@ -144,7 +144,7 @@ BOOST_AUTO_TEST_CASE(formula_parser_tests) {
 		double fp_val = -1.*sin(2.)*cos(boost::math::constants::pi<double>());
 		double parse_val = f(parameterValues);
 
-		BOOST_CHECK_CLOSE(parse_val, fp_val, 0.001);
+		CHECK_THAT(parse_val, Catch::Matchers::WithinRel(fp_val, 0.001 / 100.0));
 	}
 
 	// Test constants
@@ -156,7 +156,7 @@ BOOST_AUTO_TEST_CASE(formula_parser_tests) {
 		double fp_val = boost::math::constants::pi<double>();
 		double parse_val = f();
 
-		BOOST_CHECK_CLOSE(parse_val, fp_val, 0.001);
+		CHECK_THAT(parse_val, Catch::Matchers::WithinRel(fp_val, 0.001 / 100.0));
 	}
 
 	{
@@ -167,7 +167,7 @@ BOOST_AUTO_TEST_CASE(formula_parser_tests) {
 		double fp_val = boost::math::constants::e<double>();
 		double parse_val = f();
 
-		BOOST_CHECK_CLOSE(parse_val, fp_val, 0.001);
+		CHECK_THAT(parse_val, Catch::Matchers::WithinRel(fp_val, 0.001 / 100.0));
 	}
 
 	// Test simple calculations
