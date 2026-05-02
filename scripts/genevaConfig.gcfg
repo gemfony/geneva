@@ -61,7 +61,7 @@ CMAKE="/usr/bin/cmake"
 # be the location of Boost's 'boost/' headers folder where the file
 # 'version.hpp' is found.
 #
-#BOOSTROOT="/opt/boost"
+BOOSTROOT="/opt/boost"
 #BOOSTLIBS="/usr/lib"
 #BOOSTINCL="/usr/include"
 
@@ -103,7 +103,7 @@ BUILDMPICONSUMER="1"
 BUILDCUDAEXAMPLES="0"
 
 # Whether to add CUDA-generated random numbers to Hap
-USECUDARNG="1"
+USECUDARNG="0"
 
 # Further CMake parameters you might want to provide; these
 # will be passed 'verbatim' to CMake's command line
