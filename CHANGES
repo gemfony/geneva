@@ -19,6 +19,22 @@ Recommended Versions:
 
 ************************* Noteworthy Changes ***********************************
 
+- Comprehensive unit tests added for GCommonMathHelperFunctionsT and
+  GCommonHelperFunctionsT in GCommonStandardTests.cpp. New tests cover:
+  grational_sigmoid (zero, boundedness, antisymmetry, convergence, known
+  values, DEBUG steepness guard); enforceRangeConstraint; checkRangeCompliance
+  (fp and int); getWorstCase/getBestCase (bool and sortOrder overloads);
+  checkValueRange (fp/int, open/closed boundaries, warnOnly); getMinMax (1D–4D);
+  GMean; GStandardDeviation; PowSmallPosInt constexpr function; subtractVec;
+  addVec; multVecConst; assignVecConst; sumTupleVec; squareSumTupleVec;
+  productSumTupleVec; squareDeviation; getRegressionParameters; getRatioError;
+  getRatioErrors; isClose; g_delete; g_array_delete; ptrDifferenceCheck (raw
+  and shared_ptr); g_ptr_conversion (raw and shared_ptr); convertSmartPointer;
+  vecToString; copyArrays; splitStringT (single and dual separator);
+  getMapItem (mutable and const); to_string (integral, fp, scoped enum);
+  erase_if; environmentVariableAs. DEBUG-only assertions are guarded with
+  #ifdef DEBUG so the test suite is valid in both Debug and Release builds.
+
 - Build script (prepareBuild.sh) overhauled. New options: --clean (interactively
   wipes the build directory, then exits — does not proceed to reconfigure);
   --dryrun (prints all CMake -D flags without configuring, useful for IDE setup);
