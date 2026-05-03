@@ -25,9 +25,12 @@ Recommended Versions:
   --generate-preset (writes a CMakeUserPresets.json to the current directory
   encoding all settings from the current .gcfg file, then exits without running
   cmake — the user copies the file to the project root so that IDEs such as CLion
-  pick up the configuration automatically). When called without --clean in an
-  already-configured directory the script prompts to clean before proceeding; if
-  the user declines, it terminates.
+  pick up the configuration automatically); --build (runs make -j$(nproc) after
+  cmake configuration). --build may be combined with --clean and/or a .gcfg file:
+  --build alone skips cmake when the directory is already configured and goes
+  straight to make; --clean --build cleans, configures, then builds. When called
+  without --clean in an already-configured directory the script prompts to clean
+  before proceeding; if the user declines, it terminates.
 
 - CMakePresets.json added. Provides a ready-made "geneva-default" preset that
   CLion and VS Code can pick up directly, eliminating the need to manually

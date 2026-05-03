@@ -44,22 +44,30 @@ GENEVA_BUILDROOT="${PWD}"
 # Parse command line arguments
 DRYRUN=0
 CLEAN=0
+BUILD=0
 GENERATE_PRESET=0
 CONFIGFILE=""
 
 for arg in "$@"; do
 	case "$arg" in
 		--help|-h)
-			echo -e "\nUsage: $(basename "$0") [<config.gcfg>] [--clean] [--dryrun] [--generate-preset] [--help|-h]"
+			echo -e "\nUsage: $(basename "$0") [<config.gcfg>] [--clean] [--build] [--dryrun] [--generate-preset] [--help|-h]"
 			echo -e "\nOptions:"
 			echo -e "  <config.gcfg>       Optional Geneva configuration file (must end in .gcfg)."
 			echo -e "                      If omitted, built-in defaults are used or a single .gcfg"
 			echo -e "                      file in the current directory is used automatically."
 			echo -e "  --clean             Remove all files from the build directory except .gcfg"
-			echo -e "                      files, then exit. May not be combined with any other"
-			echo -e "                      argument. When --clean is omitted but the build directory"
-			echo -e "                      is already configured, the script will prompt to clean"
-			echo -e "                      before reconfiguring."
+			echo -e "                      files. When used alone it exits after cleaning with a"
+			echo -e "                      hint on how to reconfigure. May be combined with --build"
+			echo -e "                      and/or a .gcfg file, in which case the directory is"
+			echo -e "                      cleaned and then configured (and built if --build). Cannot"
+			echo -e "                      be combined with --dryrun or --generate-preset. When"
+			echo -e "                      --clean is omitted but the directory is already configured,"
+			echo -e "                      the script prompts before reconfiguring."
+			echo -e "  --build             Build the project after configuration using all available"
+			echo -e "                      cores (make -j\$(nproc)). If the build directory is already"
+			echo -e "                      configured and no .gcfg file or --clean is given, cmake is"
+			echo -e "                      skipped and only the build step is run."
 			echo -e "  --dryrun            Print the full cmake command that would be executed,"
 			echo -e "                      including all -D options derived from the config file,"
 			echo -e "                      without actually running cmake. Useful for copying the"
@@ -74,6 +82,9 @@ for arg in "$@"; do
 			;;
 		--clean)
 			CLEAN=1
+			;;
+		--build)
+			BUILD=1
 			;;
 		--dryrun)
 			DRYRUN=1
@@ -95,11 +106,11 @@ for arg in "$@"; do
 	esac
 done
 
-# --clean is a standalone operation and may not be combined with anything else.
+# --clean may not be combined with --dryrun or --generate-preset.
 if [ "${CLEAN}" = "1" ]; then
-	if [ "${DRYRUN}" = "1" ] || [ "${GENERATE_PRESET}" = "1" ] || [ -n "${CONFIGFILE}" ]; then
-		echo -e "\nError: --clean may not be combined with other arguments."
-		echo -e "Usage: $(basename "$0") --clean\nLeaving...\n"
+	if [ "${DRYRUN}" = "1" ] || [ "${GENERATE_PRESET}" = "1" ]; then
+		echo -e "\nError: --clean may not be combined with --dryrun or --generate-preset."
+		echo -e "Usage: $(basename "$0") [<config.gcfg>] [--clean] [--build]\nLeaving...\n"
 		exit 1
 	fi
 fi
@@ -126,8 +137,9 @@ _confirm_and_clean() {
 }
 
 ####################################################################
-# Handle --clean: clean the build directory and exit without
-# proceeding to cmake configuration.
+# Handle --clean: clean the build directory.  When used alone (no
+# --build, no config file) exit immediately with a reconfigure hint;
+# otherwise fall through to the configure (and optionally build) step.
 if [ "${CLEAN}" = "1" ]; then
 	if [ -e "${GENEVA_BUILDROOT}/CMakeCache.txt" ]; then
 		_confirm_and_clean
@@ -135,11 +147,25 @@ if [ "${CLEAN}" = "1" ]; then
 		echo -e "\nBuild directory '${GENEVA_BUILDROOT}' does not appear to be configured."
 		echo -e "Nothing to clean.\n"
 	fi
-	echo -e "To configure CMake, call $(basename "$0") again without arguments"
-	echo -e "or with a suitable .gcfg file:\n"
-	echo -e "  $(basename "$0")"
-	echo -e "  $(basename "$0") /path/to/myConfig.gcfg\n"
-	exit 0
+	if [ "${BUILD}" = "0" ] && [ -z "${CONFIGFILE}" ]; then
+		echo -e "To configure CMake, call $(basename "$0") again without arguments"
+		echo -e "or with a suitable .gcfg file:\n"
+		echo -e "  $(basename "$0")"
+		echo -e "  $(basename "$0") /path/to/myConfig.gcfg\n"
+		exit 0
+	fi
+fi
+
+####################################################################
+# Build-only shortcut: --build requested, directory already configured,
+# no --clean and no explicit config file — skip cmake, go straight to make.
+if [ "${BUILD}" = "1" ] && [ "${CLEAN}" = "0" ] && [ -z "${CONFIGFILE}" ] \
+		&& [ -e "${GENEVA_BUILDROOT}/CMakeCache.txt" ]; then
+	_NCORES=$(nproc 2>/dev/null || echo 1)
+	echo -e "\nBuild directory already configured. Running: make -j${_NCORES}\n"
+	echo -e "---------------------------------------------------------------------\n"
+	make -j"${_NCORES}"
+	exit $?
 fi
 
 ####################################################################
@@ -369,12 +395,23 @@ echo -e "---------------------------------------------------------------------\n
 if [ "${DRYRUN}" = "1" ]; then
 	echo -e "Dry run: cmake was NOT executed. Copy the command above into your"
 	echo -e "IDE (e.g. JetBrains CLion) as the CMake options / command line.\n"
+	if [ "${BUILD}" = "1" ]; then
+		_NCORES=$(nproc 2>/dev/null || echo 1)
+		echo -e "Build step that would follow: make -j${_NCORES}\n"
+	fi
 else
 	if "${CMAKE}" "${cmake_args[@]}" "${PROJECTROOT}"; then
 		echo -e "\n---------------------------------------------------------------------"
-		echo -e "\nYou may now build and install Geneva in the usual way:"
-		echo -e "make\t\t# Use '-jn', where 'n' is the number of cores in your system"
-		echo -e "make install\n"
+		if [ "${BUILD}" = "1" ]; then
+			_NCORES=$(nproc 2>/dev/null || echo 1)
+			echo -e "\nConfiguration complete. Building with: make -j${_NCORES}\n"
+			echo -e "---------------------------------------------------------------------\n"
+			make -j"${_NCORES}"
+		else
+			echo -e "\nYou may now build and install Geneva in the usual way:"
+			echo -e "make\t\t# Use '-jn', where 'n' is the number of cores in your system"
+			echo -e "make install\n"
+		fi
 	fi
 fi
 
