@@ -19,6 +19,17 @@ Recommended Versions:
 
 ************************* Noteworthy Changes ***********************************
 
+- Comprehensive unit tests added for GCanvas, GCommonMathHelperFunctionsT and
+  GCommonHelperFunctionsT in GCommonStandardTests.cpp. GCanvas coverage includes:
+  coord2D (construction, operator-, dot product); GRgb (construction, setColor);
+  GColumn (size, operator[], at(), init()); t_circle (getAlphaValue, ==, !=,
+  toString); GCanvas<8> construction, clear/reset, PPM output/load/round-trip
+  (including comment/blank-line handling and all five error paths), diff (value,
+  symmetry, scaling, dimension-mismatch), addTriangle(t_cart) (alpha=0/0.5/1,
+  bounding-box exclusion), addTriangle(t_circle) (pixel coloring, DEBUG bad-angle
+  guards), addTriangles (empty no-op), getAverageColors; GCanvas8/16/24 concrete
+  classes (construction, color-depth constants, operator-, PPM round-trip).
+
 - Comprehensive unit tests added for GCommonMathHelperFunctionsT and
   GCommonHelperFunctionsT in GCommonStandardTests.cpp. New tests cover:
   grational_sigmoid (zero, boundedness, antisymmetry, convergence, known
@@ -107,8 +118,9 @@ Recommended Versions:
   - Performance: push_back loop in reset() replaced with assign().
   - Cleanliness: duplicate standard headers removed (<cstdlib>, <vector>,
     <algorithm> each appeared twice; <list> was unused). boost/math/constants
-    header removed; boost::math::constants::pi<float>() replaced with
-    std::numbers::pi_v<float> throughout. using namespace std; removed from the
+    header removed; boost::math::constants::pi<float>() replaced with a local
+    constexpr float two_pi_f (std::numbers unavailable in CUDA nvcc). using
+    namespace std; removed from the
     loadFromPPM() method body (was polluting every including translation unit);
     all affected identifiers qualified with std::. Redundant using namespace
     Gem::Common; directives removed from diff() and addTriangle(t_cart) (both

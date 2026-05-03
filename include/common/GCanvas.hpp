@@ -43,7 +43,6 @@
 #include <iterator>
 #include <algorithm>
 #include <cmath>
-#include <numbers>
 #include <utility>
 #include <tuple>
 
@@ -807,15 +806,17 @@ public:
 		 }
 #endif /* DEBUG */
 
-		 // and store them in the structs holding the cartesic coordinates
-		 t_c.tr_one.x = t.middle.x + t.radius * std::cos(t.angle1 * 2.0f * std::numbers::pi_v<float>);
-		 t_c.tr_one.y = t.middle.y + t.radius * std::sin(t.angle1 * 2.0f * std::numbers::pi_v<float>);
+		 // std::numbers is not available in all CUDA nvcc versions; use a local constexpr
+		 constexpr float two_pi_f = 6.28318530717958647692f;
 
-		 t_c.tr_two.x = t.middle.x + t.radius * std::cos(t.angle2 * 2.0f * std::numbers::pi_v<float>);
-		 t_c.tr_two.y = t.middle.y + t.radius * std::sin(t.angle2 * 2.0f * std::numbers::pi_v<float>);
+		 t_c.tr_one.x = t.middle.x + t.radius * std::cos(t.angle1 * two_pi_f);
+		 t_c.tr_one.y = t.middle.y + t.radius * std::sin(t.angle1 * two_pi_f);
 
-		 t_c.tr_three.x = t.middle.x + t.radius * std::cos(t.angle3 * 2.0f * std::numbers::pi_v<float>);
-		 t_c.tr_three.y = t.middle.y + t.radius * std::sin(t.angle3 * 2.0f * std::numbers::pi_v<float>);
+		 t_c.tr_two.x = t.middle.x + t.radius * std::cos(t.angle2 * two_pi_f);
+		 t_c.tr_two.y = t.middle.y + t.radius * std::sin(t.angle2 * two_pi_f);
+
+		 t_c.tr_three.x = t.middle.x + t.radius * std::cos(t.angle3 * two_pi_f);
+		 t_c.tr_three.y = t.middle.y + t.radius * std::sin(t.angle3 * two_pi_f);
 
 		 t_c.r = t.r;
 		 t_c.g = t.g;
