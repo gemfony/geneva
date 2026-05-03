@@ -133,6 +133,10 @@ if [ "${CLEAN}" = "1" ]; then
 		echo -e "\nBuild directory '${GENEVA_BUILDROOT}' does not appear to be configured."
 		echo -e "Nothing to clean.\n"
 	fi
+	echo -e "To configure CMake, call $(basename "$0") again without arguments"
+	echo -e "or with a suitable .gcfg file:\n"
+	echo -e "  $(basename "$0")"
+	echo -e "  $(basename "$0") /path/to/myConfig.gcfg\n"
 	exit 0
 fi
 
