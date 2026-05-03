@@ -53,11 +53,13 @@ for arg in "$@"; do
 			echo -e "\nUsage: $(basename "$0") [<config.gcfg>] [--clean] [--dryrun] [--generate-preset] [--help|-h]"
 			echo -e "\nOptions:"
 			echo -e "  <config.gcfg>       Optional Geneva configuration file (must end in .gcfg)."
-			echo -e "                      If omitted, built-in defaults are used."
+			echo -e "                      If omitted, built-in defaults are used or a single .gcfg"
+			echo -e "                      file in the current directory is used automatically."
 			echo -e "  --clean             Remove all files from the build directory except .gcfg"
-			echo -e "                      files, then exit. When --clean is omitted but the build"
-			echo -e "                      directory is already configured, the script will prompt"
-			echo -e "                      to clean before reconfiguring."
+			echo -e "                      files, then exit. May not be combined with any other"
+			echo -e "                      argument. When --clean is omitted but the build directory"
+			echo -e "                      is already configured, the script will prompt to clean"
+			echo -e "                      before reconfiguring."
 			echo -e "  --dryrun            Print the full cmake command that would be executed,"
 			echo -e "                      including all -D options derived from the config file,"
 			echo -e "                      without actually running cmake. Useful for copying the"
@@ -91,10 +93,13 @@ for arg in "$@"; do
 	esac
 done
 
-if [ "${CLEAN}" = "1" ] && [ "${DRYRUN}" = "1" ]; then
-	echo -e "\nError: --clean and --dryrun are mutually exclusive."
-	echo -e "--clean deletes files; --dryrun must not change anything. Leaving...\n"
-	exit 1
+# --clean is a standalone operation and may not be combined with anything else.
+if [ "${CLEAN}" = "1" ]; then
+	if [ "${DRYRUN}" = "1" ] || [ "${GENERATE_PRESET}" = "1" ] || [ -n "${CONFIGFILE}" ]; then
+		echo -e "\nError: --clean may not be combined with other arguments."
+		echo -e "Usage: $(basename "$0") --clean\nLeaving...\n"
+		exit 1
+	fi
 fi
 
 ####################################################################
@@ -162,12 +167,14 @@ BUILDMPICONSUMER="0"
 USECUDARNG="0"
 
 if [ -n "${CONFIGFILE}" ]; then
-	testfile=$(basename "${CONFIGFILE}" .gcfg).gcfg
-	if [ ! "$(basename "${CONFIGFILE}")" = "$testfile" ]; then
-		echo -e "\nFile '${CONFIGFILE}' does not seem to be a Geneva config file, as it"
-		echo -e "does not end in '.gcfg' as expected. Leaving...\n"
-		exit 1
-	fi
+	case "${CONFIGFILE}" in
+		*.gcfg) ;;
+		*)
+			echo -e "\nFile '${CONFIGFILE}' does not seem to be a Geneva config file, as it"
+			echo -e "does not end in '.gcfg' as expected. Leaving...\n"
+			exit 1
+			;;
+	esac
 	if [ ! -e "${CONFIGFILE}" ]; then
 		echo -e "\nError: File '${CONFIGFILE}' does not seem to exist.\nLeaving...\n"
 		exit 1
@@ -201,33 +208,25 @@ if [ ! -x "${CMAKE}" ]; then
 	exit 1
 fi
 
-# Check if the BOOST* variables were set correctly: either ROOT or LIB+INCLUDE
-# must be set, or none at all
+# Validate Boost location variables.  Three valid states:
+#   (a) all empty  — let CMake find Boost automatically
+#   (b) BOOSTROOT only — standard prefix installation
+#   (c) BOOSTLIBS + BOOSTINCL together — split installation
+# Everything else is an error.
 if [ -z "${BOOSTROOT}" ] && [ -z "${BOOSTLIBS}" ] && [ -z "${BOOSTINCL}" ]; then
 	echo "Variable BOOSTROOT wasn't set. Letting CMake search for a system Boost installation."
-elif [ -z "${BOOSTLIBS}" ] && [ -n "${BOOSTINCL}" ]; then
-	_BOOST_VAR_ERROR="true"
-elif [ -n "${BOOSTLIBS}" ] && [ -z "${BOOSTINCL}" ]; then
-	_BOOST_VAR_ERROR="true"
-elif [ -n "${BOOSTROOT}" ] && [ -n "${BOOSTLIBS}" ] && [ -n "${BOOSTINCL}" ]; then
-	_BOOST_VAR_ERROR="true"
-fi
-
-if [ "${_BOOST_VAR_ERROR}" = "true" ]; then
-	echo -e "\nError: inconsistent Boost location variables. Please"
-	echo -e "set either BOOSTROOT, or both BOOSTLIBS and BOOSTINCL,"
-	echo -e "or none at all. Got variables:"
+elif [ -n "${BOOSTROOT}" ] && [ -z "${BOOSTLIBS}" ] && [ -z "${BOOSTINCL}" ]; then
+	: # BOOSTROOT only — valid
+elif [ -z "${BOOSTROOT}" ] && [ -n "${BOOSTLIBS}" ] && [ -n "${BOOSTINCL}" ]; then
+	if [ ! -e "${BOOSTINCL}/boost/version.hpp" ]; then
+		echo -e "\nError: incomplete Boost installation."
+		echo -e "Expected to find 'boost/version.hpp' in BOOSTINCL='${BOOSTINCL}'.\nLeaving...\n"
+		exit 1
+	fi
+else
+	echo -e "\nError: inconsistent Boost location variables."
+	echo -e "Set either BOOSTROOT, or both BOOSTLIBS and BOOSTINCL, or none at all. Got:"
 	echo -e "\tBOOSTROOT = ${BOOSTROOT}"
-	echo -e "\tBOOSTLIBS = ${BOOSTLIBS}"
-	echo -e "\tBOOSTINCL = ${BOOSTINCL}"
-	echo -e "Leaving...\n"
-	exit 1
-fi
-
-if [ -n "${BOOSTINCL}" ] && [ ! -e "${BOOSTINCL}/boost/version.hpp" ]; then
-	echo -e "\nError: there does not seem to be a complete Boost installation."
-	echo -e "Expected to find the file 'boost/version.hpp' in \$BOOSTINCL."
-	echo -e "Got variables:"
 	echo -e "\tBOOSTLIBS = ${BOOSTLIBS}"
 	echo -e "\tBOOSTINCL = ${BOOSTINCL}"
 	echo -e "Leaving...\n"
@@ -244,17 +243,16 @@ _check_bool BUILDEXAMPLES    "${BUILDEXAMPLES}"
 _check_bool BUILDBENCHMARKS  "${BUILDBENCHMARKS}"
 _check_bool BUILDSTATIC      "${BUILDSTATIC}"
 _check_bool VERBOSEMAKEFILE  "${VERBOSEMAKEFILE}"
-_check_bool BUILDMPICONSUMER   "${BUILDMPICONSUMER}"
-_check_bool USECUDARNG         "${USECUDARNG}"
+_check_bool BUILDMPICONSUMER "${BUILDMPICONSUMER}"
+_check_bool USECUDARNG       "${USECUDARNG}"
 
 ####################################################################
-# Find out where this script is located and whether there is a
-# CMakeLists.txt file in the same directory. We then assume that
-# this is the project root, as it should be.
+# Find the project root (CMakeLists.txt must be one level above the
+# scripts/ directory in which this script lives).
 PROJECTROOT=$(dirname "$0")/..
 if [ ! -e "${PROJECTROOT}/CMakeLists.txt" ]; then
-	echo -e "Error: the script should reside in the project root."
-	echo -e "Leaving...\n"
+	echo -e "Error: could not find CMakeLists.txt relative to this script's location."
+	echo -e "Expected it at '${PROJECTROOT}/CMakeLists.txt'. Leaving...\n"
 	exit 1
 fi
 
@@ -266,49 +264,41 @@ if [ -e "${GENEVA_BUILDROOT}/CMakeCache.txt" ] && [ "${DRYRUN}" = "0" ]; then
 fi
 
 ####################################################################
-# Do the actual call to cmake.
-if [ -n "${BOOSTROOT}" ]; then
-	BOOSTLOCATIONPATHS="-DBOOST_ROOT=${BOOSTROOT}"
-elif [ -n "${BOOSTLIBS}" ]; then
-	BOOSTLOCATIONPATHS="-DBOOST_LIBRARYDIR=${BOOSTLIBS} -DBOOST_INCLUDEDIR=${BOOSTINCL}"
-fi
-
-CONFIGURE="${CMAKE} $BOOSTLOCATIONPATHS \
--DGENEVA_BUILD_TYPE=${BUILDMODE} \
--DGENEVA_BUILD_TESTS=${BUILDTESTCODE} \
--DGENEVA_BUILD_EXAMPLES=${BUILDEXAMPLES} \
--DGENEVA_BUILD_BENCHMARKS=${BUILDBENCHMARKS} \
--DGENEVA_STATIC=${BUILDSTATIC} \
--DCMAKE_VERBOSE_MAKEFILE=${VERBOSEMAKEFILE} \
--DCMAKE_INSTALL_PREFIX=${INSTALLDIR} \
--DGENEVA_BUILD_WITH_MPI_CONSUMER=${BUILDMPICONSUMER} \
--DGENEVA_USE_CUDA_RNG=${USECUDARNG}"
-
-if [ "$MPIROOT" != "" ]; then
-	CONFIGURE="${CONFIGURE} -DMPI_HOME='${MPIROOT}'"
-fi
-
-if [ "$CXXEXTRAFLAGS" != "" ]; then
-	CONFIGURE="${CONFIGURE} -DCMAKE_CXX_FLAGS='${CXXEXTRAFLAGS}'"
-fi
-
-if [ "$LINKEREXTRAFLAGS" != "" ]; then
-	CONFIGURE="${CONFIGURE} -DCMAKE_EXE_LINKER_FLAGS='${LINKEREXTRAFLAGS}'"
-fi
-
-if [ "$CMAKEEXTRAFLAGS" != "" ]; then
-	CONFIGURE="${CONFIGURE} ${CMAKEEXTRAFLAGS}"
+# Build the cmake argument list.  Using an array avoids word-splitting
+# problems with paths or flags that contain spaces.
+cmake_args=()
+[ -n "${BOOSTROOT}" ] && cmake_args+=("-DBOOST_ROOT=${BOOSTROOT}")
+[ -n "${BOOSTLIBS}" ] && cmake_args+=("-DBOOST_LIBRARYDIR=${BOOSTLIBS}" "-DBOOST_INCLUDEDIR=${BOOSTINCL}")
+cmake_args+=(
+	"-DGENEVA_BUILD_TYPE=${BUILDMODE}"
+	"-DGENEVA_BUILD_TESTS=${BUILDTESTCODE}"
+	"-DGENEVA_BUILD_EXAMPLES=${BUILDEXAMPLES}"
+	"-DGENEVA_BUILD_BENCHMARKS=${BUILDBENCHMARKS}"
+	"-DGENEVA_STATIC=${BUILDSTATIC}"
+	"-DCMAKE_VERBOSE_MAKEFILE=${VERBOSEMAKEFILE}"
+	"-DCMAKE_INSTALL_PREFIX=${INSTALLDIR}"
+	"-DGENEVA_BUILD_WITH_MPI_CONSUMER=${BUILDMPICONSUMER}"
+	"-DGENEVA_USE_CUDA_RNG=${USECUDARNG}"
+)
+[ -n "${MPIROOT}" ]          && cmake_args+=("-DMPI_HOME=${MPIROOT}")
+[ -n "${CXXEXTRAFLAGS}" ]    && cmake_args+=("-DCMAKE_CXX_FLAGS=${CXXEXTRAFLAGS}")
+[ -n "${LINKEREXTRAFLAGS}" ] && cmake_args+=("-DCMAKE_EXE_LINKER_FLAGS=${LINKEREXTRAFLAGS}")
+if [ -n "${CMAKEEXTRAFLAGS}" ]; then
+	# CMAKEEXTRAFLAGS holds multiple tokens — intentional word splitting
+	read -ra _extra_flags <<< "${CMAKEEXTRAFLAGS}"
+	cmake_args+=("${_extra_flags[@]}")
 fi
 
 ####################################################################
 # Optionally generate CMakeUserPresets.json for CLion integration.
-if [ "${GENERATE_PRESET}" = "1" ]; then
-	_preset_add() {
-		[ -n "${_PRESET_VARS}" ] && _PRESET_VARS="${_PRESET_VARS},"
-		_PRESET_VARS="${_PRESET_VARS}
-        \"${1}\": { \"type\": \"${2}\", \"value\": \"${3}\" }"
-	}
 
+_preset_add() {
+	[ -n "${_PRESET_VARS}" ] && _PRESET_VARS="${_PRESET_VARS},"
+	_PRESET_VARS="${_PRESET_VARS}
+        \"${1}\": { \"type\": \"${2}\", \"value\": \"${3}\" }"
+}
+
+if [ "${GENERATE_PRESET}" = "1" ]; then
 	_PRESET_VARS=""
 	_preset_add "CMAKE_INSTALL_PREFIX"            "PATH"   "${INSTALLDIR}"
 	_preset_add "CMAKE_VERBOSE_MAKEFILE"          "BOOL"   "${VERBOSEMAKEFILE}"
@@ -327,9 +317,9 @@ if [ "${GENERATE_PRESET}" = "1" ]; then
 		_preset_add "BOOST_INCLUDEDIR" "PATH" "${BOOSTINCL}"
 	fi
 
-	[ "$MPIROOT" != "" ]          && _preset_add "MPI_HOME"               "PATH"   "${MPIROOT}"
-	[ "$CXXEXTRAFLAGS" != "" ]    && _preset_add "CMAKE_CXX_FLAGS"        "STRING" "${CXXEXTRAFLAGS}"
-	[ "$LINKEREXTRAFLAGS" != "" ] && _preset_add "CMAKE_EXE_LINKER_FLAGS" "STRING" "${LINKEREXTRAFLAGS}"
+	[ -n "${MPIROOT}" ]          && _preset_add "MPI_HOME"               "PATH"   "${MPIROOT}"
+	[ -n "${CXXEXTRAFLAGS}" ]    && _preset_add "CMAKE_CXX_FLAGS"        "STRING" "${CXXEXTRAFLAGS}"
+	[ -n "${LINKEREXTRAFLAGS}" ] && _preset_add "CMAKE_EXE_LINKER_FLAGS" "STRING" "${LINKEREXTRAFLAGS}"
 
 	PRESET_FILE="${PROJECTROOT}/CMakeUserPresets.json"
 	cat > "${PRESET_FILE}" <<ENDOFPRESET
@@ -350,7 +340,7 @@ if [ "${GENERATE_PRESET}" = "1" ]; then
 }
 ENDOFPRESET
 
-	if [ "$CMAKEEXTRAFLAGS" != "" ]; then
+	if [ -n "${CMAKEEXTRAFLAGS}" ]; then
 		echo -e "Note: CMAKEEXTRAFLAGS='${CMAKEEXTRAFLAGS}' was not written to ${PRESET_FILE}."
 		echo -e "      Add these flags manually to the preset's 'cacheVariables' if needed.\n"
 	fi
@@ -358,16 +348,14 @@ ENDOFPRESET
 fi
 
 ####################################################################
-echo -e "\nConfiguring with command: \"${CONFIGURE} ${PROJECTROOT}\"\n"
+echo -e "\nConfiguring with command: \"${CMAKE} ${cmake_args[*]} ${PROJECTROOT}\"\n"
 echo -e "---------------------------------------------------------------------\n"
 
 if [ "${DRYRUN}" = "1" ]; then
 	echo -e "Dry run: cmake was NOT executed. Copy the command above into your"
 	echo -e "IDE (e.g. JetBrains CLion) as the CMake options / command line.\n"
 else
-	# Word-splitting of CONFIGURE is intentional here — it holds cmake flags
-	# shellcheck disable=SC2086
-	if eval ${CONFIGURE} ${PROJECTROOT}; then
+	if "${CMAKE}" "${cmake_args[@]}" "${PROJECTROOT}"; then
 		echo -e "\n---------------------------------------------------------------------"
 		echo -e "\nYou may now build and install Geneva in the usual way:"
 		echo -e "make\t\t# Use '-jn', where 'n' is the number of cores in your system"
