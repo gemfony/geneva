@@ -263,13 +263,13 @@ public:
 		 // Rectify sigma_ and reset_sigma_, if necessary
 		 Gem::Common::enforceRangeConstraint<fp_type>(
 			 sigma_
-			 , Gem::Common::gmax(fp_type(minSigma_), fp_type(DEFAULTMINSIGMA))
+			 , std::max(fp_type(minSigma_), fp_type(DEFAULTMINSIGMA))
 			 , maxSigma_
 			 , "GNumGaussAdaptorT<>::setSigmaRange() / 1"
 		 );
 		 Gem::Common::enforceRangeConstraint<fp_type>(
 			 sigma_reset_
-			 , Gem::Common::gmax(fp_type(minSigma_), fp_type(DEFAULTMINSIGMA))
+			 , std::max(fp_type(minSigma_), fp_type(DEFAULTMINSIGMA))
 			 , maxSigma_
 			 , "GNumGaussAdaptorT<>::setSigmaRange() / 2"
 		 );
@@ -487,7 +487,7 @@ protected:
 
 		 // The following random distribution slightly favours values < 1. Selection pressure
 		 // will keep the values higher if needed
-		 sigma_ *= gexp(GAdaptorT<num_type, fp_type>::m_normal_distribution(gr, typename std::normal_distribution<fp_type>::param_type(0., gfabs(sigmaSigma_))));
+		 sigma_ *= std::exp(GAdaptorT<num_type, fp_type>::m_normal_distribution(gr, typename std::normal_distribution<fp_type>::param_type(0., std::abs(sigmaSigma_))));
 
 		 // make sure sigma_ doesn't get out of range
 		 Gem::Common::enforceRangeConstraint<fp_type>(sigma_, minSigma_, maxSigma_, "GNumGaussAdaptorT<>::customAdaptAdaption()", false /* silent */);
@@ -580,7 +580,7 @@ protected:
 			std::shared_ptr<GNumGaussAdaptorT<num_type, fp_type>> p_test = this->template clone<GNumGaussAdaptorT<num_type, fp_type>>();
 
 			for(fp_type dlower=fp_type(0.); dlower<fp_type(0.8); dlower+=fp_type(0.1)) {
-				fp_type dupper = Gem::Common::gmin(fp_type(2.)*dlower, fp_type(1.));
+				fp_type dupper = std::min(fp_type(2.)*dlower, fp_type(1.));
 				if(0==dupper) {
 					dupper = 1.;
 				}

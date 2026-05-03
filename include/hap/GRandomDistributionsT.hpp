@@ -41,7 +41,6 @@
 // Geneva headers go here
 
 #include "hap/GRandomT.hpp"
-#include "common/GCommonMathHelperFunctions.hpp"
 
 namespace Gem {
 namespace Hap {
@@ -269,11 +268,11 @@ public:
 	template <class T_Generator>
 	result_type operator()(T_Generator& g, const param_type& params) {
 		if (m_uniform_bool(g)) {
-			fp_type mean_left  = params.mean() - Gem::Common::gfabs(params.distance() / 2.);
+			fp_type mean_left  = params.mean() - std::abs(params.distance() / 2.);
 			fp_type sigma_left = params.sigma1();
 			return sigma_left*m_normal_distribution(g) + mean_left;
 		} else {
-			fp_type mean_right  = params.mean() + Gem::Common::gfabs(params.distance() / 2.);
+			fp_type mean_right  = params.mean() + std::abs(params.distance() / 2.);
 			fp_type sigma_right = params.sigma2();
 			return sigma_right*m_normal_distribution(g) + mean_right;
 		}

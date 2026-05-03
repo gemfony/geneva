@@ -233,7 +233,7 @@ std::vector<std::tuple<double,double,double,double>> getReferenceTimes(
 
 		std::get<1>(*it) = 0.; // No error on the sleep time
 		std::get<2>(*it) = a + b*sleepTime; // a line
-		std::get<3>(*it) = sqrt(gpow(a_err, 2.) + gpow(sleepTime*b_err, 2.));
+		std::get<3>(*it) = sqrt(std::pow(a_err, 2.) + std::pow(sleepTime*b_err, 2.));
 	}
 
 	return referenceExecutionTimes;

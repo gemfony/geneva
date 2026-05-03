@@ -53,7 +53,7 @@
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
 #include "common/GErrorStreamer.hpp"
-#include "common/GCommonMathHelperFunctions.hpp"
+#include "common/GCommonHelperFunctionsT.hpp"
 
 namespace Gem {
 namespace Common {
@@ -807,8 +807,8 @@ std::tuple<fp_type, fp_type> squareSumTupleVec(
 
 	typename std::vector<std::tuple<fp_type, fp_type>>::const_iterator cit;
 	for (cit = dataPoints.begin(); cit != dataPoints.end(); ++cit) {
-		std::get<0>(result) += gpow(std::get<0>(*cit), 2.);
-		std::get<1>(result) += gpow(std::get<1>(*cit), 2.);
+		std::get<0>(result) += std::pow(std::get<0>(*cit), 2.);
+		std::get<1>(result) += std::pow(std::get<1>(*cit), 2.);
 	}
 
 	return result;
@@ -851,7 +851,7 @@ fp_type squareDeviation(
 	fp_type result = fp_type(0);
 	typename std::vector<std::tuple<fp_type, fp_type>>::const_iterator cit;
 	for (cit = dataPoints.begin(); cit != dataPoints.end(); ++cit) {
-		result += gpow(std::get<1>(*cit) - a - b * std::get<0>(*cit), 2.);
+		result += std::pow(std::get<1>(*cit) - a - b * std::get<0>(*cit), 2.);
 	}
 	return result;
 }
@@ -887,13 +887,13 @@ auto getRegressionParameters(
 
 	fp_type prod_sum_xy = productSumTupleVec(dataPoints);
 
-	a = (sum_y * sq_sum_x - sum_x * prod_sum_xy) / (n * sq_sum_x - gpow(sum_x, 2.));
-	b = (n * prod_sum_xy - sum_x * sum_y) / (n * sq_sum_x - gpow(sum_x, 2.));
+	a = (sum_y * sq_sum_x - sum_x * prod_sum_xy) / (n * sq_sum_x - std::pow(sum_x, 2.));
+	b = (n * prod_sum_xy - sum_x * sum_y) / (n * sq_sum_x - std::pow(sum_x, 2.));
 
 	fp_type dev = squareDeviation(dataPoints, a, b);
 
-	fp_type sigma_a = gsqrt(dev / (n - 2.)) * gsqrt(sq_sum_x / (n * sq_sum_x - gpow(sum_x, 2.)));
-	fp_type sigma_b = gsqrt(dev / (n - 2.)) * gsqrt(n / (n * sq_sum_x - gpow(sum_x, 2.)));
+	fp_type sigma_a = std::sqrt(dev / (n - 2.)) * std::sqrt(sq_sum_x / (n * sq_sum_x - std::pow(sum_x, 2.)));
+	fp_type sigma_b = std::sqrt(dev / (n - 2.)) * std::sqrt(n / (n * sq_sum_x - std::pow(sum_x, 2.)));
 
 	return std::tuple<fp_type, fp_type, fp_type, fp_type>{a, sigma_a, b, sigma_b};
 }
@@ -942,7 +942,7 @@ auto getRatioError(
 		sleep_time
 		, 0.
 		, s_val / p_val
-		, gsqrt(gpow(s_err / p_val, fp_type(2.)) + gpow(s_val * p_err / gpow(p_val, fp_type(2.)), fp_type(2.)))
+		, std::sqrt(std::pow(s_err / p_val, fp_type(2.)) + std::pow(s_val * p_err / std::pow(p_val, fp_type(2.)), fp_type(2.)))
 	};
 }
 
@@ -989,7 +989,38 @@ bool isClose(
 	, fp_type margin = fp_type(0.00001)
 	, typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = nullptr
 ) {
-	return (gfabs(val - target) <= margin);
+	return (std::abs(val - target) <= margin);
+}
+
+/******************************************************************************/
+/**
+ * Rational (algebraic) sigmoid — the Gjl-softsign function.
+ * See http://en.wikipedia.org/wiki/File:Gjl-t%28x%29.svg .
+ *
+ * NOT the logistic sigmoid (1/(1+e^-x)). This is a softsign:
+ *   f(var) = barrier * var / (steepness + |var|)
+ * which maps ℝ → (-barrier, +barrier) antisymmetrically and approaches its
+ * asymptotes polynomially (not exponentially). Uses long double internally
+ * for precision near the barrier. Precondition: steepness > 0.
+ *
+ * @param var       Input value
+ * @param barrier   Asymptotic limit; output stays strictly within (-barrier, +barrier)
+ * @param steepness Controls convergence speed; larger → slower approach to barrier
+ */
+template <typename fp_type, typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = nullptr>
+fp_type grational_sigmoid(fp_type var, fp_type barrier, fp_type steepness) {
+#ifndef NDEBUG
+    if (steepness <= fp_type(0)) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, time_and_place)
+                << "grational_sigmoid(): steepness must be > 0, got " << steepness << std::endl
+        );
+    }
+#endif
+    const auto lvar       = static_cast<long double>(var);
+    const auto lbarrier   = static_cast<long double>(barrier);
+    const auto lsteepness = static_cast<long double>(steepness);
+    return static_cast<fp_type>(lbarrier * lvar / (lsteepness + std::abs(lvar)));
 }
 
 /******************************************************************************/

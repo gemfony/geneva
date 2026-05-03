@@ -55,7 +55,7 @@ namespace Gem::Geneva
 
 		// Update the adaption probability, if requested by the user
 		if(m_adaptAdProb > double(0.)) {
-			m_adProb *= gexp(
+			m_adProb *= std::exp(
 				m_normal_distribution(gr, typename std::normal_distribution<double>::param_type(0.,m_adaptAdProb))
 			);
 			Gem::Common::enforceRangeConstraint<double>(
@@ -71,7 +71,7 @@ namespace Gem::Geneva
 		if(adaptionMode::WITHPROBABILITY == m_adaptionMode) { // The most likely case is indeterminate (means: "depends")
 			for (auto && val: valVec) {
 				// A likelihood of m_adProb for adaption
-				if(m_weighted_bool(gr, std::bernoulli_distribution::param_type(gfabs(m_adProb)))) {
+				if(m_weighted_bool(gr, std::bernoulli_distribution::param_type(std::abs(m_adProb)))) {
 					dummy_val = val;
 					adaptAdaption(range, gr);
 					customAdaptions(dummy_val, range, gr); // does not know about the bool-proxy of std::vector<bool>

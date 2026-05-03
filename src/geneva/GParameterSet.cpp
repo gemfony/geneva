@@ -1952,7 +1952,7 @@ GParameterSet::process_(
                     this->modifyStoredResult(i).setTransformedFitnessWith(
                         [this](const double rawValue)
                         {
-                            return Gem::Common::gsigmoid(
+                            return Gem::Common::grational_sigmoid(
                                 rawValue
                                 , this->m_sigmoid_extremes
                                 , this->m_sigmoid_steepness
@@ -2152,7 +2152,7 @@ GParameterSet::setFitness_(std::vector<double> const &f_cnt)
                 p.setTransformedFitnessWith(
                     [this](const double rawValue)
                     {
-                        return Gem::Common::gsigmoid(
+                        return Gem::Common::grational_sigmoid(
                             rawValue
                             , this->m_sigmoid_extremes
                             , this->m_sigmoid_steepness
@@ -2247,7 +2247,7 @@ GParameterSet::fabsSumCombiner() const
 
     for (std::size_t id = 0; id < this->getNStoredResults(); id++)
     {
-        result += Gem::Common::gfabs(this->transformed_fitness(id));
+        result += std::abs(this->transformed_fitness(id));
     }
 
     return result;

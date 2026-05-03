@@ -80,7 +80,6 @@
 #include "common/GLogger.hpp"
 #include "common/GErrorStreamer.hpp"
 #include "common/GCommonHelperFunctionsT.hpp"
-#include "common/GCommonMathHelperFunctions.hpp"
 
 namespace Gem {
 namespace Common {
@@ -817,12 +816,12 @@ private:
 
 				case byte_code::op_min:
 					--stack_ptr_;
-					stack_ptr_[-1] = Gem::Common::gmin(stack_ptr_[-1], stack_ptr_[0]);
+					stack_ptr_[-1] = std::min(stack_ptr_[-1], stack_ptr_[0]);
 					break;
 
 				case byte_code::op_max:
 					--stack_ptr_;
-					stack_ptr_[-1] = Gem::Common::gmax(stack_ptr_[-1], stack_ptr_[0]);
+					stack_ptr_[-1] = std::max(stack_ptr_[-1], stack_ptr_[0]);
 					break;
 
 				case byte_code::op_pow:

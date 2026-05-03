@@ -56,7 +56,6 @@
 // Gemfony headers go here
 #include "common/GCommonEnums.hpp"
 #include "common/GCommonHelperFunctionsT.hpp"
-#include "common/GCommonMathHelperFunctions.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
 #include "common/GErrorStreamer.hpp"
@@ -509,7 +508,7 @@ void compare(
 
     switch (e) {
         case Gem::Common::expectation::FP_SIMILARITY: expectation_str = "FP_SIMILARITY";
-            if (gfabs(x - y) < boost::numeric_cast<fp_type>(limit)) {
+            if (std::abs(x - y) < boost::numeric_cast<fp_type>(limit)) {
                 expectationMet = true;
             }
             break;
@@ -747,7 +746,7 @@ void compare(
             typename c_type<fp_type, std::allocator<fp_type>>::const_iterator x_it, y_it;
             if (Gem::Common::expectation::FP_SIMILARITY == e) {
                 for (x_it = x.begin(), y_it = y.begin(); x_it != x.end(); ++x_it, ++y_it) {
-                    if (gfabs(*x_it - *y_it) >= boost::numeric_cast<fp_type>(limit)) {
+                    if (std::abs(*x_it - *y_it) >= boost::numeric_cast<fp_type>(limit)) {
                         foundDeviation = true;
                         deviation_pos = boost::numeric_cast<std::size_t>(
                             std::distance(
@@ -759,7 +758,7 @@ void compare(
                             << x_name << "[" << deviation_pos << "] = " << *x_it << "; " << std::endl
                             << y_name << "[" << deviation_pos << "] = " << *y_it << "; " << std::endl
                             << "limit = " << boost::numeric_cast<fp_type>(limit) << "; " << std::endl
-                            << "deviation = " << gfabs(*x_it - *y_it) << std::endl;
+                            << "deviation = " << std::abs(*x_it - *y_it) << std::endl;
                         break; // break the loop
                     }
                 }
@@ -853,7 +852,7 @@ void compare(
             typename s_type<fp_type, std::less<fp_type>, std::allocator<fp_type>>::const_iterator x_it, y_it;
             if (Gem::Common::expectation::FP_SIMILARITY == e) {
                 for (x_it = x.begin(), y_it = y.begin(); x_it != x.end(); ++x_it, ++y_it) {
-                    if (gfabs(*x_it - *y_it) >= boost::numeric_cast<fp_type>(limit)) {
+                    if (std::abs(*x_it - *y_it) >= boost::numeric_cast<fp_type>(limit)) {
                         foundDeviation = true;
                         deviation_pos = boost::numeric_cast<std::size_t>(
                             std::distance(
@@ -865,7 +864,7 @@ void compare(
                             << x_name << "[" << deviation_pos << "] = " << *x_it << "; " << std::endl
                             << y_name << "[" << deviation_pos << "] = " << *y_it << "; " << std::endl
                             << "limit = " << boost::numeric_cast<fp_type>(limit) << "; " << std::endl
-                            << "deviation = " << gfabs(*x_it - *y_it) << std::endl;
+                            << "deviation = " << std::abs(*x_it - *y_it) << std::endl;
                         break; // break the loop
                     }
                 }

@@ -31,7 +31,6 @@ SET ( COMMONSOURCES
 	GCanvas.cpp
     GCommonEnums.cpp
     GCommonHelperFunctions.cpp
-    GCommonMathHelperFunctions.cpp
     GExceptions.cpp
 	GExpectationChecksT.cpp
 	GFormulaParserT.cpp

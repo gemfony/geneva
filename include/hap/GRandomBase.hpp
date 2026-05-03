@@ -51,7 +51,6 @@
 #include <boost/cast.hpp>
 
 // Hap headers go here
-#include "common/GCommonMathHelperFunctions.hpp"
 #include "hap/GHapEnums.hpp"
 #include "hap/GRandomDefines.hpp"
 #include "hap/GRandomFactory.hpp"

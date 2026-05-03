@@ -44,10 +44,8 @@
 
 // Geneva headers go here
 #include "common/GExceptions.hpp"
-#include "common/GCommonHelperFunctionsT.hpp"
-#include "common/GCommonMathHelperFunctions.hpp"
+#include "common/GCommonMathHelperFunctionsT.hpp"
 #include "common/GLogger.hpp"
-#include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GPtrVectorT.hpp"
 #include "hap/GRandomT.hpp"
 #include "courtier/GProcessingContainerT.hpp"

@@ -63,18 +63,18 @@ std::normal_distribution<double> normal_distribution;
 /******************************************************************************/
 /**
  * First distribution:
- * gexp(normal_distribution(*gr_ptr, std::normal_distribution<double>::param_type(0., gfabs(sigmaSigma)))*(uniform_bool(*gr_ptr)?1.:-1.));
+ * std::exp(normal_distribution(*gr_ptr, std::normal_distribution<double>::param_type(0., std::abs(sigmaSigma)))*(uniform_bool(*gr_ptr)?1.:-1.));
  */
 double dist1(std::shared_ptr<Gem::Hap::GRandomBase> gr_ptr, const double& sigmaSigma) {
-	return gexp(normal_distribution(*gr_ptr, std::normal_distribution<double>::param_type(0., gfabs(sigmaSigma)))*(uniform_bool(*gr_ptr)?1.:-1.));
+	return std::exp(normal_distribution(*gr_ptr, std::normal_distribution<double>::param_type(0., std::abs(sigmaSigma)))*(uniform_bool(*gr_ptr)?1.:-1.));
 }
 
 /**
  * Second distribution:
- * gexp(normal_distribution(*gr_ptr, std::normal_distribution<double>::param_type(0.,gfabs(sigmaSigma))));
+ * std::exp(normal_distribution(*gr_ptr, std::normal_distribution<double>::param_type(0.,std::abs(sigmaSigma))));
  */
 double dist2(std::shared_ptr<Gem::Hap::GRandomBase> gr_ptr, const double& sigmaSigma) {
-	return gexp(normal_distribution(*gr_ptr, std::normal_distribution<double>::param_type(0.,gfabs(sigmaSigma))));
+	return std::exp(normal_distribution(*gr_ptr, std::normal_distribution<double>::param_type(0.,std::abs(sigmaSigma))));
 }
 
 /******************************************************************************/

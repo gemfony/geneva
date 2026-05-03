@@ -38,7 +38,6 @@
 // Boost header files go here
 
 // Geneva header files go here
-#include "common/GCommonMathHelperFunctions.hpp"
 #include "geneva/GObject.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GenevaHelperFunctionsT.hpp"
@@ -126,7 +125,7 @@ public:
             } else { // invalid
                 if (result < 0.) { // we need to calculate a replacement value
                     // Will be the more invalid the further below 0 "result" is
-                    return 1. + Gem::Common::gfabs(result);
+                    return 1. + std::abs(result);
                 } else { // result > 1, we may just return the unmodified value
                     return result;
                 }

@@ -808,24 +808,24 @@ protected:
 
         // The following random distribution slightly favours values < 1. Selection pressure
         // will keep the values higher if needed
-        sigma1_ *= gexp(
+        sigma1_ *= std::exp(
             GAdaptorT<num_type>::m_normal_distribution(
                 gr
                 , typename std::normal_distribution<fp_type>::param_type(
                     0.
-                    , gfabs(sigmaSigma1_))));
-        sigma2_ *= gexp(
+                    , std::abs(sigmaSigma1_))));
+        sigma2_ *= std::exp(
             GAdaptorT<num_type>::m_normal_distribution(
                 gr
                 , typename std::normal_distribution<fp_type>::param_type(
                     0.
-                    , gfabs(sigmaSigma2_))));
-        delta_ *= gexp(
+                    , std::abs(sigmaSigma2_))));
+        delta_ *= std::exp(
             GAdaptorT<num_type>::m_normal_distribution(
                 gr
                 , typename std::normal_distribution<fp_type>::param_type(
                     0.
-                    , gfabs(sigmaDelta_))));
+                    , std::abs(sigmaDelta_))));
 
         // Make sure valued don't get out of range
         enforceRangeConstraint(

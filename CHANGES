@@ -59,6 +59,18 @@ Recommended Versions:
 
 - Fixed compilation issues for CUDA example, related to mismatch of compiler- and CUDA-versions.
 
+- Removed GCommonMathHelperFunctions.hpp / GCommonMathHelperFunctions.cpp entirely. The ~20
+  g-prefixed math wrappers (gsqrt, gpow, gfabs, gexp, glog, gmin, gmax, gfloor, gcos, gsin, …)
+  they contained were redundant in C++20 and are now replaced with direct std:: calls at every
+  call site. The header is no longer installed. The gmix wrapper is replaced with std::lerp
+  (or its manual equivalent where nvcc is involved). The gsign wrapper, which was unused, has
+  been deleted. The gsigmoid function, which implements a rational/algebraic softsign rather
+  than a true sigmoid (f(x) = barrier·x / (steepness + |x|)), has been moved to
+  GCommonMathHelperFunctionsT.hpp as a floating-point template renamed grational_sigmoid
+  (the old name gsigmoid was misleading — this is a rational/algebraic softsign, not an
+  exponential sigmoid) with a debug-mode precondition check for steepness > 0.
+  Unit tests for grational_sigmoid are in GCommonStandardTests.
+
 //------------------------------------------------------------------------------------------------------
 * Version 1.11, "Hendaye" - March 16, 2026
 

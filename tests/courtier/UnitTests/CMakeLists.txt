@@ -29,22 +29,44 @@
 
 IF (NOT GENEVA_FULL_TREE_BUILD)
 
-	PROJECT(Geneva_Tests_Courtier)
+	PROJECT(GCourtierStandardTests)
 
-	# For building the examples independently, we still assume that the
-	# 'CMakeModules' folder can be found at the same place as the current
-	# source folder... This avoids having to copy the same content over
-	# and over again in all the examples.
-	SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/../../CMakeModules")
+	SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/../../../CMakeModules")
 
 	MESSAGE("\nPerforming an independent build of ${PROJECT_NAME}")
 	INCLUDE(CommonGenevaBuild)
 
 ENDIF ()
 
-ADD_SUBDIRECTORY ( UnitTests )
+SET ( EXECUTABLENAME GCourtierStandardTests )
 
-ADD_CUSTOM_TARGET( "tests-courtier"
-	DEPENDS "tests-courtier-unit"
-	COMMENT "Building all the tests for the Courtier library."
+SET ( ${EXECUTABLENAME}_SRCS
+        GCourtierStandardTests.cpp
+)
+
+ADD_EXECUTABLE(${EXECUTABLENAME}
+	${${EXECUTABLENAME}_SRCS}
+)
+
+SET(LIBRARIES_TO_LINK
+		${GENEVA_LIBRARIES}
+		${Boost_LIBRARIES}
+		Catch2::Catch2WithMain)
+
+IF(GENEVA_BUILD_WITH_MPI_CONSUMER)
+	SET(LIBRARIES_TO_LINK
+			${LIBRARIES_TO_LINK}
+			${MPI_LIBRARIES})
+ENDIF()
+
+TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
+		${LIBRARIES_TO_LINK})
+
+ADD_TEST(${EXECUTABLENAME} ${EXECUTABLENAME})
+
+INSTALL ( TARGETS ${EXECUTABLENAME} DESTINATION ${INSTALL_PREFIX_DATA}/tests/courtier/UnitTests )
+
+ADD_CUSTOM_TARGET( "tests-courtier-unit"
+	DEPENDS GCourtierStandardTests
+	COMMENT "Building the unit tests for the \"courtier\" library."
 )

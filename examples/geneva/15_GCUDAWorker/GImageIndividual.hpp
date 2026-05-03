@@ -64,7 +64,6 @@
 #include "common/GSingletonT.hpp"
 #include "common/GParserBuilder.hpp"
 #include "common/GFactoryT.hpp"
-#include "common/GCommonMathHelperFunctions.hpp"
 #include "common/GCommonMathHelperFunctionsT.hpp"
 #include "common/GCanvas.hpp"
 

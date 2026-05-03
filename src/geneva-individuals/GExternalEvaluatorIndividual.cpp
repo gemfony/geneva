@@ -1577,7 +1577,7 @@ namespace Gem::Geneva
 								// Create the parameter object
 								gcdo_ptr = std::shared_ptr<GConstrainedDoubleObject>(
 									new GConstrainedDoubleObject(
-										initValue, initValue, Gem::Common::gmax(1.0001 * initValue, initValue + 0.0001)
+										initValue, initValue, std::max(1.0001 * initValue, initValue + 0.0001)
 									)
 								);
 								// Disable mutations

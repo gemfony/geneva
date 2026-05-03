@@ -46,7 +46,6 @@
 
 // Geneva header files go here
 #include "common/GParserBuilder.hpp"
-#include "common/GCommonMathHelperFunctions.hpp"
 #include "hap/GRandomT.hpp"
 #include "geneva/GDoubleCollection.hpp"
 #include "geneva/GConstrainedDoubleCollection.hpp"

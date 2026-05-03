@@ -45,7 +45,6 @@
 #include "geneva/GConstrainedNumT.hpp"
 #include "geneva/GParameterBase.hpp"
 #include "common/GExceptions.hpp"
-#include "common/GCommonMathHelperFunctions.hpp"
 #include "hap/GRandomBase.hpp"
 #include "hap/GRandomT.hpp"
 
@@ -325,9 +324,9 @@ public:
 			 std::int64_t region = 0;
 
 #ifdef DEBUG
-			 long double fp_region = Gem::Common::gfloor((localVal - (long double)(lowerBoundary)) / ((long double)(upperBoundary) - (long double)(lowerBoundary)));
+			 long double fp_region = std::floor((localVal - (long double)(lowerBoundary)) / ((long double)(upperBoundary) - (long double)(lowerBoundary)));
 
-			 if(Gem::Common::gfabs(fp_region) < boost::numeric_cast<long double>((std::numeric_limits<std::int64_t>::max)())) {
+			 if(std::abs(fp_region) < boost::numeric_cast<long double>((std::numeric_limits<std::int64_t>::max)())) {
 				 // We need floor here, as an integer cast rounds towards 0, which would be wrong for negative values of val
 				 region = boost::numeric_cast<std::int64_t>(fp_region);
 			 } else {
@@ -339,7 +338,7 @@ public:
 				 );
 			 }
 #else   /* DEBUG */
-			 region =	static_cast<std::int64_t>(Gem::Common::gfloor((localVal - (long double)(lowerBoundary)) / ((long double)(upperBoundary) - (long double)(lowerBoundary))));
+			 region =	static_cast<std::int64_t>(std::floor((localVal - (long double)(lowerBoundary)) / ((long double)(upperBoundary) - (long double)(lowerBoundary))));
 #endif  /* DEBUG */
 
 			 // Check whether we are in an odd or an even range and calculate the

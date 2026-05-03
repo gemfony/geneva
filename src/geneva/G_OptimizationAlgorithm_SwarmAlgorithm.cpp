@@ -1147,9 +1147,9 @@ namespace Gem::Geneva
 			}
 #endif /* DEBUG */
 
-			if (Gem::Common::gfabs(velVec[i]) > m_dbl_vel_max_cnt[i]) {
+			if (std::abs(velVec[i]) > m_dbl_vel_max_cnt[i]) {
 				overflowFound = true;
-				currentPercentage = Gem::Common::gfabs(velVec[i]) / m_dbl_vel_max_cnt[i];
+				currentPercentage = std::abs(velVec[i]) / m_dbl_vel_max_cnt[i];
 				if (currentPercentage > maxPercentage) {
 					maxPercentage = currentPercentage;
 				}

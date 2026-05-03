@@ -181,10 +181,10 @@ public:
 
 #ifdef DEBUG
             region = boost::numeric_cast<std::int32_t>(
-                Gem::Common::gfloor(
+                std::floor(
                     (fp_type(val) - fp_type(lowerBoundary)) / (fp_type(upperBoundary) - fp_type(lowerBoundary))));
 #else
-            region =	static_cast<std::int32_t>(Gem::Common::gfloor((fp_type(val) - fp_type(lowerBoundary)) / (fp_type(upperBoundary) - fp_type(lowerBoundary))));
+            region =	static_cast<std::int32_t>(std::floor((fp_type(val) - fp_type(lowerBoundary)) / (fp_type(upperBoundary) - fp_type(lowerBoundary))));
 #endif
 
             // Check whether we are in an odd or an even range and calculate the
