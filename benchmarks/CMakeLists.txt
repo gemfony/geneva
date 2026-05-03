@@ -40,6 +40,15 @@ IF (NOT GENEVA_FULL_TREE_BUILD)
 	MESSAGE("\nPerforming an independent build of ${PROJECT_NAME}")
 	INCLUDE(CommonGenevaBuild)
 
+	# In a full-tree build the top-level CMakeLists.txt probes for CUDA.
+	# In a standalone build we must do it here so that CMAKE_CUDA_COMPILER_LOADED
+	# is set before benchmarks/geneva/CMakeLists.txt evaluates its guard.
+	include(CheckLanguage)
+	check_language(CUDA)
+	if(CMAKE_CUDA_COMPILER)
+		enable_language(CUDA)
+	endif()
+
 ENDIF ()
 
 ADD_CUSTOM_TARGET( "benchmarks"

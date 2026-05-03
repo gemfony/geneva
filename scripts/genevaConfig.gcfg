@@ -92,10 +92,11 @@ LINKEREXTRAFLAGS=""
 # Whether to build MPI consumer
 BUILDMPICONSUMER="1"
 
-# Whether to build CUDA examples. Note that this is an experimental feature
-BUILDCUDAEXAMPLES="0"
-
-# Whether to add CUDA-generated random numbers to Hap
+# Whether to add CUDA-generated random numbers to Hap.
+# Note: enabling this makes the Hap library depend on the CUDA runtime, so
+# programs linked with Geneva become less portable (CUDA toolkit required).
+# CUDA examples and benchmarks are built automatically when nvcc is found,
+# independently of this setting.
 USECUDARNG="0"
 
 # Further CMake parameters you might want to provide; these

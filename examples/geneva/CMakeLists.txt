@@ -39,6 +39,15 @@ IF (NOT GENEVA_FULL_TREE_BUILD)
 	MESSAGE("\nPerforming an independent build of ${PROJECT_NAME}")
 	INCLUDE(CommonGenevaBuild)
 
+	# In a full-tree build the top-level CMakeLists.txt probes for CUDA.
+	# In a standalone build we must do it here so that CMAKE_CUDA_COMPILER_LOADED
+	# is set before the IF(CMAKE_CUDA_COMPILER_LOADED) guard below.
+	include(CheckLanguage)
+	check_language(CUDA)
+	if(CMAKE_CUDA_COMPILER)
+		enable_language(CUDA)
+	endif()
+
 ENDIF ()
 
 SET(DEPENDENCIES
@@ -65,7 +74,7 @@ IF(GENEVA_BUILD_WITH_MPI_CONSUMER)
 			GMPISubClients)
 ENDIF()
 
-IF(GENEVA_BUILD_WITH_CUDA_EXAMPLES)
+IF(CMAKE_CUDA_COMPILER_LOADED)
 	SET(DEPENDENCIES
 		${DEPENDENCIES}
 		GCUDAWorker)
@@ -94,7 +103,7 @@ ADD_SUBDIRECTORY( 12_GExternalEvaluator )
 ADD_SUBDIRECTORY( 13_GPluggableOptimizationMonitors )
 ADD_SUBDIRECTORY( 14_GDependentConstraints )
 
-IF(GENEVA_BUILD_WITH_CUDA_EXAMPLES)
+IF(CMAKE_CUDA_COMPILER_LOADED)
     ADD_SUBDIRECTORY(15_GCUDAWorker)
 ENDIF()
 

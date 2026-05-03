@@ -31,25 +31,38 @@ CMAKE_MINIMUM_REQUIRED(VERSION 3.27 FATAL_ERROR)
 
 MESSAGE ("")
 
-PROJECT (Geneva_Library_Collection LANGUAGES CXX CUDA)
+PROJECT (Geneva_Library_Collection LANGUAGES CXX)
 
-# Detect the CXX compiler's libstdc++.so location and cache it.
-# The GCUDAWorker example uses this to link explicitly against the right
-# libstdc++.so version when the CUDA toolkit's bundled host compiler (an
-# older GCC) would otherwise inject an older libstdc++ into the link path,
-# causing "undefined reference to __cxa_*@CXXABI_X.Y" link failures.
-if(CMAKE_CUDA_COMPILER_LOADED AND CMAKE_CXX_COMPILER)
-    execute_process(
-        COMMAND "${CMAKE_CXX_COMPILER}" -print-file-name=libstdc++.so
-        OUTPUT_VARIABLE _cxx_libstdcxx_path
-        OUTPUT_STRIP_TRAILING_WHITESPACE
-    )
-    if(_cxx_libstdcxx_path AND NOT _cxx_libstdcxx_path STREQUAL "libstdc++.so")
-        get_filename_component(_cxx_lib_dir "${_cxx_libstdcxx_path}" DIRECTORY)
-        set(GENEVA_CXX_RUNTIME_LIB_DIR "${_cxx_lib_dir}" CACHE INTERNAL "CXX runtime lib dir for CUDA link fix")
+# Probe for an optional CUDA toolchain.  If nvcc is found, CUDA examples and
+# benchmarks are added to the build automatically; if not, the rest of the
+# build proceeds as pure C++.  GENEVA_USE_CUDA_RNG remains a separate opt-in
+# flag (see genevaConfig.gcfg) because enabling it makes the Hap library
+# depend on the CUDA runtime, reducing portability of programs linked with it.
+include(CheckLanguage)
+check_language(CUDA)
+if(CMAKE_CUDA_COMPILER)
+    enable_language(CUDA)
+    message(STATUS "CUDA ${CMAKE_CUDA_COMPILER_VERSION} detected — CUDA examples and benchmarks will be built")
+
+    # Detect the CXX compiler's libstdc++.so location and cache it.
+    # CUDA targets link it by full path to prevent the CUDA toolkit's bundled
+    # (older) GCC from injecting an incompatible libstdc++ into the link step,
+    # which would cause "undefined reference to __cxa_*@CXXABI_X.Y" failures.
+    if(CMAKE_CXX_COMPILER)
+        execute_process(
+            COMMAND "${CMAKE_CXX_COMPILER}" -print-file-name=libstdc++.so
+            OUTPUT_VARIABLE _cxx_libstdcxx_path
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+        )
+        if(_cxx_libstdcxx_path AND NOT _cxx_libstdcxx_path STREQUAL "libstdc++.so")
+            get_filename_component(_cxx_lib_dir "${_cxx_libstdcxx_path}" DIRECTORY)
+            set(GENEVA_CXX_RUNTIME_LIB_DIR "${_cxx_lib_dir}" CACHE INTERNAL "CXX runtime lib dir for CUDA link fix")
+        endif()
+        unset(_cxx_libstdcxx_path)
+        unset(_cxx_lib_dir)
     endif()
-    unset(_cxx_libstdcxx_path)
-    unset(_cxx_lib_dir)
+else()
+    message(STATUS "CUDA not found — building without CUDA examples and benchmarks")
 endif()
 
 ################################################################################
@@ -80,7 +93,7 @@ SET(GENEVA_RUN_BENCHMARKS_AS_TESTS FALSE)
 #                              examples, tests and other scripts
 # If none of these variables is set, the whole Geneva binary tree is installed
 # (as expected) in "CMAKE_INSTALL_PREFIX". The default value for this last
-# valiable is set here, and further handled in the 'CommonGenevaBuild' module.
+# variable is set here, and further handled in the 'CommonGenevaBuild' module.
 # Generally, this can be provided through a custom genevaConfig.gcfg, in
 # conjunction with the prepareBuild.sh script.
 
