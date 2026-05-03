@@ -90,6 +90,33 @@ Recommended Versions:
   exponential sigmoid) with a debug-mode precondition check for steepness > 0.
   Unit tests for grational_sigmoid are in GCommonStandardTests.
 
+- GCanvas.hpp / GCanvas.cpp cleaned up and optimised:
+  - Bug fix: dimension check in loadFromPPM() used `v[0] <= 0` on std::size_t
+    (unsigned), which is always false. Fixed to `v[0] == 0 || v[1] == 0`.
+  - Performance: diff31 / diff21 and the derived dot products (dot11, dot12,
+    dot22, denom_inv) are triangle-invariant but were being recomputed for every
+    pixel in the inner i_y loop of addTriangle(t_cart). They are now hoisted
+    before the outer i_x loop.
+  - Memory: virtual destructors removed from GRgb and GColumn (nothing inherits
+    from them; the vtable pointer cost was 8 bytes per pixel — ~3.8 MB per
+    800×600 canvas). BOOST_CLASS_EXPORT_KEY/IMPLEMENT removed from both types
+    (serialized by value, not through base-class pointers, so export is a no-op).
+  - Memory: NCOLORS and MAXCOLOR in GCanvas<> promoted from non-static instance
+    members to static constexpr, eliminating one redundant copy per canvas object.
+  - Performance: std::pow(x, 2.f) × 3 in diff() replaced with x*x.
+  - Performance: push_back loop in reset() replaced with assign().
+  - Cleanliness: duplicate standard headers removed (<cstdlib>, <vector>,
+    <algorithm> each appeared twice; <list> was unused). boost/math/constants
+    header removed; boost::math::constants::pi<float>() replaced with
+    std::numbers::pi_v<float> throughout. using namespace std; removed from the
+    loadFromPPM() method body (was polluting every including translation unit);
+    all affected identifiers qualified with std::. Redundant using namespace
+    Gem::Common; directives removed from diff() and addTriangle(t_cart) (both
+    are already inside that namespace). C-style casts replaced with static_cast
+    in toPPM() and getAverageColors(). Typo "addTriangel" fixed to "addTriangle"
+    in the DEBUG error message. Dead comment "// Converts the three angles"
+    removed.
+
 - GBarrier.hpp removed. The single usage site (GBufferPortTTest.cpp) has been
   updated to use std::latch (C++20, <latch>) instead. std::latch::arrive_and_wait()
   replaces GBarrier::wait() directly; std::latch is the appropriate type here

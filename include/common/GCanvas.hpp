@@ -43,11 +43,8 @@
 #include <iterator>
 #include <algorithm>
 #include <cmath>
-#include <cstdlib>
-#include <vector>
-#include <list>
-#include <algorithm> // for std::sort
-#include <utility> // For std::pair
+#include <numbers>
+#include <utility>
 #include <tuple>
 
 // Boost header files go here
@@ -55,7 +52,6 @@
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/cast.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/math/constants/constants.hpp>
 #include <boost/archive/xml_oarchive.hpp>
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/text_oarchive.hpp>
@@ -224,7 +220,7 @@ public:
 	 G_API_COMMON GRgb() = default;
 	 G_API_COMMON GRgb(GRgb const&) = default;
 	 G_API_COMMON GRgb(GRgb &&) = default;
-	 virtual G_API_COMMON ~GRgb() BASE = default;
+	 G_API_COMMON ~GRgb() = default;
 
 	 G_API_COMMON GRgb& operator=(GRgb const&) = default;
 	 G_API_COMMON GRgb& operator=(GRgb &&) = default;
@@ -275,7 +271,7 @@ public:
 	 G_API_COMMON GColumn() = default;
 	 G_API_COMMON GColumn(GColumn const &) = default;
 	 G_API_COMMON GColumn(GColumn &&) = default;
-	 virtual G_API_COMMON ~GColumn() BASE = default;
+	 G_API_COMMON ~GColumn() = default;
 
 	 G_API_COMMON  GColumn &operator=(GColumn const &) = default;
 	 G_API_COMMON  GColumn &operator=(GColumn &&) = default;
@@ -480,8 +476,6 @@ public:
 	  */
 	 float
 	 diff(GCanvas<COLORDEPTH> const &cp) const {
-		 using namespace Gem::Common;
-
 		 if (cp.dimensions() != this->dimensions()) {
 			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
@@ -494,11 +488,10 @@ public:
 		 float result = 0.f;
 		 for (std::size_t i_x = 0; i_x < m_xDim; i_x++) {
 			 for (std::size_t i_y = 0; i_y < m_yDim; i_y++) {
-				 result += std::sqrt(
-					 std::pow((m_canvasData[i_x][i_y]).r - (cp[i_x][i_y]).r, 2.f)
-					 + std::pow((m_canvasData[i_x][i_y]).g - (cp[i_x][i_y]).g, 2.f)
-					 + std::pow((m_canvasData[i_x][i_y]).b - (cp[i_x][i_y]).b, 2.f)
-				 );
+				 float dr = m_canvasData[i_x][i_y].r - cp[i_x][i_y].r;
+				 float dg = m_canvasData[i_x][i_y].g - cp[i_x][i_y].g;
+				 float db = m_canvasData[i_x][i_y].b - cp[i_x][i_y].b;
+				 result += std::sqrt(dr*dr + dg*dg + db*db);
 			 }
 		 }
 
@@ -521,9 +514,9 @@ public:
 		 for (std::size_t i_y = 0; i_y < m_yDim; i_y++) {
 			 for (std::size_t i_x = 0; i_x < m_xDim; i_x++) {
 				 result
-					 << (std::size_t) (m_canvasData[i_x][i_y].r * float(MAXCOLOR)) << " "
-					 << (std::size_t) (m_canvasData[i_x][i_y].g * float(MAXCOLOR)) << " "
-					 << (std::size_t) (m_canvasData[i_x][i_y].b * float(MAXCOLOR)) << " ";
+					 << static_cast<std::size_t>(m_canvasData[i_x][i_y].r * float(MAXCOLOR)) << " "
+					 << static_cast<std::size_t>(m_canvasData[i_x][i_y].g * float(MAXCOLOR)) << " "
+					 << static_cast<std::size_t>(m_canvasData[i_x][i_y].b * float(MAXCOLOR)) << " ";
 			 }
 			 result << std::endl;
 		 }
@@ -539,8 +532,6 @@ public:
 	  */
 	 void
 	 loadFromPPM(std::string const &ppmString) {
-		 using namespace std;
-
 		 // Some status flags
 		 bool header_found = false;
 		 bool dimensions_found = false;
@@ -558,7 +549,7 @@ public:
 
 			 // Remove parts beginning with a # (i.e. comments)
 			 std::size_t pos = 0;
-			 if ((pos = s.find('#')) != string::npos) {
+			 if ((pos = s.find('#')) != std::string::npos) {
 				 s.erase(pos); // Erase till the end of the string
 			 }
 
@@ -589,7 +580,7 @@ public:
 
 			 // The next meaningful line of the input file should contain the picture dimensions
 			 if (not dimensions_found) {
-				 std::copy(istream_iterator<std::size_t>(iss), istream_iterator<std::size_t>(), back_inserter(v));
+				 std::copy(std::istream_iterator<std::size_t>(iss), std::istream_iterator<std::size_t>(), std::back_inserter(v));
 
 				 if (v.size() != 2) { // We should have received exactly two numbers
 					 throw geneva_exception(
@@ -598,7 +589,7 @@ public:
 					 );
 				 }
 
-				 if (v[0] <= 0 || v[1] <= 0) {
+				 if (v[0] == 0 || v[1] == 0) {
 					 throw geneva_exception(
 						 g_error_streamer(DO_LOG, time_and_place)
 							 << "Error: Got invalid dimensions: " << v[0] << " / " << v[1] << std::endl
@@ -622,7 +613,7 @@ public:
 
 			 // Next should be the color depth
 			 if (not color_depth_found) {
-				 copy(istream_iterator<std::size_t>(iss), istream_iterator<std::size_t>(), back_inserter(v));
+				 std::copy(std::istream_iterator<std::size_t>(iss), std::istream_iterator<std::size_t>(), std::back_inserter(v));
 
 				 if (v.size() != 1) { // We should have received exactly one number
 					 throw geneva_exception(
@@ -655,7 +646,7 @@ public:
 		 while (std::getline(input, s)) {
 			 // Remove parts beginning with a # (i.e. comments)
 			 std::size_t pos = 0;
-			 if ((pos = s.find('#')) != string::npos) {
+			 if ((pos = s.find('#')) != std::string::npos) {
 				 s.erase(pos); // Erase till the end of the string
 			 }
 
@@ -668,10 +659,10 @@ public:
 				 continue;
 			 }
 
-			 istringstream iss(s);
+			 std::istringstream iss(s);
 
 			 // We are now getting to the color content. These are rgb integer triples
-			 copy(istream_iterator<std::size_t>(iss), istream_iterator<std::size_t>(), back_inserter(v));
+			 std::copy(std::istream_iterator<std::size_t>(iss), std::istream_iterator<std::size_t>(), std::back_inserter(v));
 
 			 // Return the string to pristine condition
 			 s.clear();
@@ -776,9 +767,7 @@ public:
 		 m_xDim = std::get<0>(dimension);
 		 m_yDim = std::get<1>(dimension);
 
-		 for (std::size_t i = 0; i < m_xDim; i++) {
-			 m_canvasData.push_back(GColumn(m_yDim, std::tuple<float, float, float>(red, green, blue)));
-		 }
+		 m_canvasData.assign(m_xDim, GColumn(m_yDim, std::tuple<float, float, float>{red, green, blue}));
 	 }
 
 	 /***************************************************************************/
@@ -811,7 +800,7 @@ public:
 		 if(t.angle1 < 0.f || t.angle2 <= t.angle1 || t.angle3 <= t.angle2 || t.angle3 >= 1.f) {
 			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
-					 << "In GCanvas<>::addTriangel(): Error!" << std::endl
+					 << "In GCanvas<>::addTriangle(): Error!" << std::endl
 					 << "Angles are not in consecutive oder: " << std::endl
 					 << t << std::endl
 			 );
@@ -819,14 +808,14 @@ public:
 #endif /* DEBUG */
 
 		 // and store them in the structs holding the cartesic coordinates
-		 t_c.tr_one.x = t.middle.x + t.radius * std::cos(t.angle1 * 2.0f * boost::math::constants::pi<float>());
-		 t_c.tr_one.y = t.middle.y + t.radius * std::sin(t.angle1 * 2.0f * boost::math::constants::pi<float>());
+		 t_c.tr_one.x = t.middle.x + t.radius * std::cos(t.angle1 * 2.0f * std::numbers::pi_v<float>);
+		 t_c.tr_one.y = t.middle.y + t.radius * std::sin(t.angle1 * 2.0f * std::numbers::pi_v<float>);
 
-		 t_c.tr_two.x = t.middle.x + t.radius * std::cos(t.angle2 * 2.0f * boost::math::constants::pi<float>());
-		 t_c.tr_two.y = t.middle.y + t.radius * std::sin(t.angle2 * 2.0f * boost::math::constants::pi<float>());
+		 t_c.tr_two.x = t.middle.x + t.radius * std::cos(t.angle2 * 2.0f * std::numbers::pi_v<float>);
+		 t_c.tr_two.y = t.middle.y + t.radius * std::sin(t.angle2 * 2.0f * std::numbers::pi_v<float>);
 
-		 t_c.tr_three.x = t.middle.x + t.radius * std::cos(t.angle3 * 2.0f * boost::math::constants::pi<float>());
-		 t_c.tr_three.y = t.middle.y + t.radius * std::sin(t.angle3 * 2.0f * boost::math::constants::pi<float>());
+		 t_c.tr_three.x = t.middle.x + t.radius * std::cos(t.angle3 * 2.0f * std::numbers::pi_v<float>);
+		 t_c.tr_three.y = t.middle.y + t.radius * std::sin(t.angle3 * 2.0f * std::numbers::pi_v<float>);
 
 		 t_c.r = t.r;
 		 t_c.g = t.g;
@@ -854,12 +843,18 @@ public:
 	  */
 	 void
 	 addTriangle(t_cart const & t) {
-		 using namespace Gem::Common;
-
 		 float xDim_inv = 1.f / float(m_xDim);
 		 float yDim_inv = 1.f / float(m_yDim);
-		 float dot11, dot12, dot22, dot1p, dot2p, denom_inv, u, v;
-		 coord2D diff31, diff21, diffp1, pos_f;
+		 float dot1p, dot2p, u, v;
+		 coord2D diffp1, pos_f;
+
+		 // These depend only on the triangle vertices — compute once
+		 coord2D diff31 = t.tr_three - t.tr_one;
+		 coord2D diff21 = t.tr_two - t.tr_one;
+		 float dot11 = diff31 * diff31;
+		 float dot12 = diff31 * diff21;
+		 float dot22 = diff21 * diff21;
+		 float denom_inv = 1.f / std::max(dot11 * dot22 - dot12 * dot12, 0.0000001f);
 
 		 for (std::size_t i_x = 0; i_x < m_xDim; i_x++) {
 			 // Calculate the pixel x-position
@@ -901,17 +896,9 @@ public:
 					 continue;
 				 }
 
-				 diff31 = t.tr_three - t.tr_one;
-				 diff21 = t.tr_two - t.tr_one;
 				 diffp1 = pos_f - t.tr_one;
-
-				 dot11 = diff31 * diff31;
-				 dot12 = diff31 * diff21;
-				 dot22 = diff21 * diff21;
 				 dot1p = diff31 * diffp1;
 				 dot2p = diff21 * diffp1;
-
-				 denom_inv = 1.f / std::max(dot11 * dot22 - dot12 * dot12, 0.0000001f);
 
 				 u = (dot22 * dot1p - dot12 * dot2p) * denom_inv;
 				 v = (dot11 * dot2p - dot12 * dot1p) * denom_inv;
@@ -943,15 +930,12 @@ public:
 			 }
 		 }
 
-		 averageRed /= (float) (m_xDim * m_yDim);
-		 averageGreen /= (float) (m_xDim * m_yDim);
-		 averageBlue /= (float) (m_xDim * m_yDim);
+		 averageRed /= static_cast<float>(m_xDim * m_yDim);
+		 averageGreen /= static_cast<float>(m_xDim * m_yDim);
+		 averageBlue /= static_cast<float>(m_xDim * m_yDim);
 
 		 return std::tuple<float, float, float>{averageRed, averageGreen, averageBlue};
 	 }
-
-	 /***************************************************************************/
-	 // Converts the three angles
 
 	 /***************************************************************************/
 
@@ -959,8 +943,8 @@ protected:
 	 std::size_t m_xDim = 0, m_yDim = 0; ///< The dimensions of this canvas
 	 std::vector<GColumn> m_canvasData; ///< Holds this canvas' columns
 
-	 std::size_t NCOLORS = Gem::Common::PowSmallPosInt<2, COLORDEPTH>();
-	 std::size_t MAXCOLOR = NCOLORS - 1;
+	 static constexpr std::size_t NCOLORS = Gem::Common::PowSmallPosInt<2, COLORDEPTH>();
+	 static constexpr std::size_t MAXCOLOR = NCOLORS - 1;
 };
 
 /******************************************************************************/
@@ -1132,8 +1116,6 @@ G_API_COMMON float operator-(
 } /* namespace Common */
 } /* namespace Gem */
 
-BOOST_CLASS_EXPORT_KEY(Gem::Common::GRgb) // NOLINT
-BOOST_CLASS_EXPORT_KEY(Gem::Common::GColumn) // NOLINT
 BOOST_CLASS_EXPORT_KEY(Gem::Common::GCanvas8) // NOLINT
 BOOST_CLASS_EXPORT_KEY(Gem::Common::GCanvas16) // NOLINT
 BOOST_CLASS_EXPORT_KEY(Gem::Common::GCanvas24) // NOLINT
