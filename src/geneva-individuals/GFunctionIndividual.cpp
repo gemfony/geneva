@@ -28,6 +28,7 @@
  ********************************************************************************/
 
 #include "geneva-individuals/GFunctionIndividual.hpp"
+#include "geneva-individuals/GBenchmarkFunctions.hpp"
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GFunctionIndividual) // NOLINT
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GFunctionIndividualFactory) // NOLINT
@@ -38,18 +39,18 @@ BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GSphereConstraint) // NOLINT
 namespace Gem::Geneva
 {
 
-	/******************************************************************************/
-	////////////////////////////////////////////////////////////////////////////////
-	/******************************************************************************/
-	/**
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
  * Initialization with the constant
  */
 	GDoubleSumConstraint::GDoubleSumConstraint(const double &C)
 		: C_(C)
 	{ /* nothing */ }
 
-	/******************************************************************************/
-	/**
+/******************************************************************************/
+/**
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *
@@ -499,15 +500,23 @@ namespace Gem::Geneva
 				, GO_DEF_EVALFUNCTION // The default value
 				, [this](solverFunction sf) { this->setDemoFunction(sf); }
 			)
-			<< "Specifies which demo function should be used:" << std::endl
-			<< "0: Parabola" << std::endl
-			<< "1: Berlich" << std::endl
-			<< "2: Rosenbrock" << std::endl
-			<< "3: Ackley" << std::endl
-			<< "4: Rastrigin" << std::endl
-			<< "5: Schwefel" << std::endl
-			<< "6: Salomon" << std::endl
-			<< "7: Negative Parabola" << std::endl;
+			<< "Specifies which benchmark function to minimise (maximise for NEGPARABOLA)." << std::endl
+			<< "Select by integer ID:" << std::endl
+			<< " 0: Parabola            -- unimodal, separable baseline; global min f=0 at origin" << std::endl
+			<< " 1: Berlich noisy para  -- radial cosine overlay; global min f=0 at origin" << std::endl
+			<< " 2: Rosenbrock          -- narrow banana valley, n>=2; global min f=0 at (1,...,1)" << std::endl
+			<< " 3: Ackley (variant)    -- Geneva pairwise variant, n>=2; NOT the canonical form" << std::endl
+			<< " 4: Rastrigin           -- highly multimodal, separable; global min f=0 at origin" << std::endl
+			<< " 5: Schwefel            -- deceptive, global opt near boundary; domain [-500,500]" << std::endl
+			<< " 6: Salomon             -- concentric-ring landscape; global min f=0 at origin" << std::endl
+			<< " 7: Negative Parabola   -- maximisation test; global max f=0 at origin" << std::endl
+			<< " 8: Ackley (canonical)  -- CEC/BBOB standard; plateau + deep basin; domain [-32.768,32.768]" << std::endl
+			<< " 9: Griewank            -- multimodal with quadratic envelope; global min f=0 at origin" << std::endl
+			<< "10: Levy                -- narrow-basin multimodal; global min f=0 at (1,...,1)" << std::endl
+			<< "11: Styblinski-Tang     -- asymmetric wells; global min ~-39.166*n at (~-2.903,...)" << std::endl
+			<< "12: Ellipsoid           -- ill-conditioned (1e6), unimodal; global min f=0 at origin" << std::endl
+			<< "13: Michalewicz (m=10)  -- steep ridges; domain [0,pi]; set minVar=0 maxVar=3.14159!" << std::endl
+			<< "14: Zakharov            -- unimodal, non-separable coupling; global min f=0 at origin" << std::endl;
 	}
 
 	/******************************************************************************/
@@ -637,133 +646,36 @@ return false;
 
 	/******************************************************************************/
 	/**
- * The actual value calculation takes place here
- *
- * @param The id of the target function (ignored here)
- * @return The value of this object, as calculated with the evaluation function
- */
+	 * @brief Evaluates the individual's parameters against the selected benchmark function.
+	 *
+	 * Delegates to Gem::Geneva::BM::eval() in GBenchmarkFunctions.hpp, which provides
+	 * the same implementations annotated for both CPU and CUDA device execution.
+	 * The function set covers all 15 solverFunction IDs 0–14.
+	 *
+	 * @return Fitness value (lower is better for minimisation functions)
+	 */
 	double GFunctionIndividual::fitnessCalculation() {
-		double result = 0;
-
-		// Retrieve the parameters
 		std::vector<double> parVec;
 		this->streamline(parVec);
-		std::size_t parameterSize = parVec.size();
 
-		// Perform the actual calculation
-		switch (demoFunction_) {
-		//-----------------------------------------------------------
-		// A simple, multi-dimensional parabola
-		case solverFunction::PARABOLA: {
-			for (std::size_t i = 0; i < parameterSize; i++) {
-				result += GSQUARED(parVec[i]);
-			}
-		}
-			break;
-
-		//-----------------------------------------------------------
-		// A "noisy" parabola, i.e. a parabola with a very large number of overlaid local optima
-		case solverFunction::NOISYPARABOLA: {
-			double xsquared = 0.;
-			for (std::size_t i = 0; i < parameterSize; i++) {
-				xsquared += GSQUARED(parVec[i]);
-			}
-			result = (cos(xsquared) + 2.) * xsquared;
-		}
-			break;
-
-		//-----------------------------------------------------------
-		// The generalized Rosenbrock function (see e.g. http://en.wikipedia.org/wiki/Rosenbrock_function)
-		// or http://www.it.lut.fi/ip/evo/functions/node5.html .
-		case solverFunction::ROSENBROCK: {
 #ifdef DEBUG
-			// Check the size of the parameter vector -- must be at least 2
-			if(parameterSize < 2) {
-				throw geneva_exception(
-					g_error_streamer(DO_LOG,  time_and_place)
-					<< "In GFunctionIndividual::fitnessCalculation() / ROSENBROCK: Error!" << std::endl
-					<< "Need to use at least two input dimensions, but got " << parameterSize << std::endl
-				);
-			}
+		const int id = static_cast<int>(demoFunction_);
+		if (parVec.size() < 2
+		    && (demoFunction_ == solverFunction::ROSENBROCK || demoFunction_ == solverFunction::ACKLEY))
+		{
+			throw geneva_exception(
+				g_error_streamer(DO_LOG, time_and_place)
+				<< "In GFunctionIndividual::fitnessCalculation(): function " << id
+				<< " requires at least 2 dimensions, got " << parVec.size() << std::endl
+			);
+		}
 #endif /* DEBUG */
 
-			for (std::size_t i = 0; i < (parameterSize - 1); i++) {
-				result += 100. * GSQUARED(GSQUARED(parVec[i]) - parVec[i + 1]) + GSQUARED(1. - parVec[i]);
-			}
-		}
-			break;
-
-		//-----------------------------------------------------------
-		// The Ackeley function (see e.g. http://www.it.lut.fi/ip/evo/functions/node14.html)
-		case solverFunction::ACKLEY: {
-#ifdef DEBUG
-			// Check the size of the parameter vector -- must be at least 2
-			if(parameterSize < 2) {
-				throw geneva_exception(
-					g_error_streamer(DO_LOG,  time_and_place)
-					<< "In GFunctionIndividual::fitnessCalculation() / ACKLEY: Error!" << std::endl
-					<< "Need to use at least two input dimensions, but got " << parameterSize << std::endl
-				);
-			}
-#endif /* DEBUG */
-
-			for (std::size_t i = 0; i < (parameterSize - 1); i++) {
-				result += (exp(-0.2) * sqrt(GSQUARED(parVec[i]) + GSQUARED(parVec[i + 1])) +
-					3. * (cos(2. * parVec[i]) + sin(2. * parVec[i + 1])));
-			}
-		}
-			break;
-
-		//-----------------------------------------------------------
-		// The Rastrigin function (see e.g. http://www.it.lut.fi/ip/evo/functions/node6.html)
-		case solverFunction::RASTRIGIN: {
-			result = 10 * double(parameterSize);
-
-			for (std::size_t i = 0; i < parameterSize; i++) {
-				result += (GSQUARED(parVec[i]) - 10. * cos(2 * boost::math::constants::pi<double>() * parVec[i]));
-			}
-		}
-			break;
-
-		//-----------------------------------------------------------
-		// The Schwefel function (see e.g. http://www.it.lut.fi/ip/evo/functions/node10.html)
-		case solverFunction::SCHWEFEL: {
-			for (std::size_t i = 0; i < parameterSize; i++) {
-				result += -parVec[i] * sin(sqrt(fabs(parVec[i])));
-			}
-
-			result /= parameterSize;
-		}
-			break;
-
-		//-----------------------------------------------------------
-		// The Salomon function (see e.g. http://www.it.lut.fi/ip/evo/functions/node12.html)
-		case solverFunction::SALOMON: {
-			double sum_root = 0.;
-			for (std::size_t i = 0; i < parameterSize; i++) {
-				sum_root += GSQUARED(parVec[i]);
-			}
-			sum_root = sqrt(sum_root);
-
-			result = -cos(2 * boost::math::constants::pi<double>() * sum_root) + 0.1 * sum_root + 1;
-		}
-			break;
-
-		//-----------------------------------------------------------
-		// A "negative" parabola, used for maximization tests
-		case solverFunction::NEGPARABOLA: {
-			for (std::size_t i = 0; i < parameterSize; i++) {
-				result += GSQUARED(parVec[i]);
-			}
-			result *= -1.;
-		}
-			break;
-
-		//-----------------------------------------------------------
-		};
-
-		// Let the audience know
-		return result;
+		return BM::eval(
+			static_cast<int>(demoFunction_),
+			parVec.data(),
+			static_cast<int>(parVec.size())
+		);
 	}
 
 	/******************************************************************************/

@@ -65,20 +65,189 @@ namespace Gem::Geneva {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * This enum denotes the possible demo function types
+ * @brief Enumerates all available benchmark test functions.
+ *
+ * The functions span a range of difficulty classes, landscape topologies, and
+ * algorithmic challenges, making them suitable for systematic algorithm benchmarking
+ * across multiple dimensions. Each entry documents its landscape properties and the
+ * class of algorithmic weakness it is designed to expose.
+ *
+ * Unless stated otherwise, all functions are defined for n ≥ 1 dimensions.
+ * Recommended search domains per function are documented individually below.
  */
 enum class solverFunction : Gem::Common::ENUMBASETYPE {
-	 PARABOLA = 0,
-	 NOISYPARABOLA = 1,
-	 ROSENBROCK = 2,
-	 ACKLEY = 3,
-	 RASTRIGIN = 4,
-	 SCHWEFEL = 5,
-	 SALOMON = 6,
-	 NEGPARABOLA = 7
+	/**
+	 * Simple n-dimensional parabola: f(x) = Σxᵢ².
+	 * Global minimum: f=0 at x=(0,...,0). Recommended domain: any (default [-10,10]).
+	 * Unimodal, convex, separable. Serves as a baseline sanity check to verify
+	 * that any algorithm can locate a trivially placed, convex global optimum.
+	 * Performance on this function establishes the lower bound of expected runtime.
+	 */
+	PARABOLA = 0,
+
+	/**
+	 * Berlich noisy parabola: f(x) = (cos(‖x‖²)+2)·‖x‖².
+	 * Global minimum: f=0 at x=(0,...,0). Recommended domain: [-4π, 4π].
+	 * Multimodal, radially symmetric, non-separable. The cosine overlay creates
+	 * a dense ring structure of local optima around the origin. Tests whether
+	 * an algorithm can escape near-origin local optima while the overall
+	 * gradient-free global structure remains simple (decreasing with ‖x‖).
+	 */
+	NOISYPARABOLA = 1,
+
+	/**
+	 * Generalized Rosenbrock function: f(x) = Σ[100(xᵢ₊₁-xᵢ²)²+(1-xᵢ)²].
+	 * Requires n ≥ 2. Global minimum: f=0 at x=(1,...,1). Domain: [-2, 2].
+	 * Unimodal for n≤3, strongly non-separable, with a narrow, curved banana-shaped
+	 * valley. The gradient along the valley floor is nearly zero, making gradient
+	 * descent slow and gradient-free methods prone to overshooting. A classic
+	 * benchmark for non-separable slow-convergence scenarios.
+	 */
+	ROSENBROCK = 2,
+
+	/**
+	 * Modified Ackley variant (Geneva-specific, pairwise sum form).
+	 * f(x) = Σ[exp(-0.2)·√(xᵢ²+xᵢ₊₁²) + 3·(cos(2xᵢ)+sin(2xᵢ₊₁))].
+	 * Requires n ≥ 2. Non-separable, multimodal.
+	 * NOTE: This is NOT the canonical Ackley function. It accumulates n-1 pairwise
+	 * terms and has a different, numerically approximated global minimum location.
+	 * Retained for backward compatibility with existing configurations.
+	 * For the standard CEC/BBOB benchmark formulation, use ACKLEY_CANONICAL (8).
+	 */
+	ACKLEY = 3,
+
+	/**
+	 * Rastrigin function: f(x) = 10n + Σ[xᵢ²-10·cos(2πxᵢ)].
+	 * Global minimum: f=0 at x=(0,...,0). Recommended domain: [-5.12, 5.12].
+	 * Highly multimodal, separable. Contains approximately 10ⁿ regularly spaced
+	 * local minima arranged in a regular grid, all of similar depth. Each dimension
+	 * can in principle be treated independently, but the density of minima makes
+	 * high-dimensional instances very challenging for population-based methods.
+	 * A standard benchmark for multimodal optimisation in evolutionary computation.
+	 */
+	RASTRIGIN = 4,
+
+	/**
+	 * Schwefel function: f(x) = -1/n · Σ xᵢ·sin(√|xᵢ|).
+	 * Global minimum: f≈-418.9829/n at xᵢ≈420.9687. Recommended domain: [-500, 500].
+	 * NOTE: Geneva normalises by 1/n; the standard formulation does not.
+	 * Deceptive: the global optimum lies far from the origin and near the boundary
+	 * of the search space. Secondary optima cluster near the origin, attracting
+	 * population members that initialise or drift inward. Tests resistance to
+	 * deceptive attractor basins and global exploration far from the initialisation.
+	 */
+	SCHWEFEL = 5,
+
+	/**
+	 * Salomon function: f(x) = -cos(2π‖x‖) + 0.1·‖x‖ + 1.
+	 * Global minimum: f=0 at x=(0,...,0). Recommended domain: [-100, 100].
+	 * Multimodal, radially symmetric, non-separable. Creates concentric spherical
+	 * shells of local optima at ‖x‖ = k for integer k. The very gradual linear
+	 * increase of 0.1·‖x‖ provides weak directional guidance. Tests the ability
+	 * to follow a radial gradient in the presence of strong perpendicular
+	 * oscillations across the shells.
+	 */
+	SALOMON = 6,
+
+	/**
+	 * Negative parabola: f(x) = -Σxᵢ².
+	 * Global maximum: f=0 at x=(0,...,0). Recommended domain: any.
+	 * Used exclusively for maximisation tests to verify that Geneva's internal
+	 * maximisation mode (Go2/GParameterSet maxMode) functions correctly. The
+	 * landscape is identical to PARABOLA but sign-inverted.
+	 */
+	NEGPARABOLA = 7,
+
+	/**
+	 * Canonical n-dimensional Ackley function.
+	 * f(x) = -20·exp(-0.2·√(1/n·Σxᵢ²)) - exp(1/n·Σcos(2πxᵢ)) + 20 + e.
+	 * Global minimum: f=0 at x=(0,...,0). Recommended domain: [-32.768, 32.768].
+	 * Non-separable, multimodal. The outer region of the landscape is almost flat
+	 * (nearly zero gradient for large ‖x‖), suddenly dropping into a narrow global
+	 * basin at the origin. Gradient-based methods stall on the plateau; stochastic
+	 * and population-based methods are generally more effective. The canonical
+	 * formulation used in all CEC and BBOB benchmark suites.
+	 */
+	ACKLEY_CANONICAL = 8,
+
+	/**
+	 * Griewank function: f(x) = 1/4000·Σxᵢ² - Πcos(xᵢ/√i) + 1.
+	 * Global minimum: f=0 at x=(0,...,0). Recommended domain: [-600, 600].
+	 * Weakly non-separable (the product term introduces cross-dimension coupling),
+	 * multimodal. At large scale the landscape is nearly quadratic; the product
+	 * of cosines creates a fine-grained multimodal structure at smaller scale.
+	 * With growing dimension the local minima become denser but the global basin
+	 * remains identifiable through the quadratic envelope. Distinguishes algorithms
+	 * that exploit global structure from purely local explorers.
+	 */
+	GRIEWANK = 9,
+
+	/**
+	 * Lévy function.
+	 * f(x) = sin²(πw₁) + Σᵢ₌₁ⁿ⁻¹[(wᵢ-1)²(1+10sin²(πwᵢ₊₁))] + (wₙ-1)²(1+sin²(2πwₙ)),
+	 * with wᵢ = 1+(xᵢ-1)/4.
+	 * Global minimum: f=0 at x=(1,...,1). Recommended domain: [-10, 10].
+	 * Separable, multimodal. The regular sin²-based ripple structure creates narrow,
+	 * closely spaced local minima around each dimension's valley. Tests fine-grained
+	 * local search precision: the algorithm must resolve the global minimum from its
+	 * immediate neighbours, which become progressively closer in value as dimension
+	 * grows. Widely used in the IEEE CEC benchmark suite.
+	 */
+	LEVY = 10,
+
+	/**
+	 * Styblinski-Tang function: f(x) = 1/2·Σ(xᵢ⁴-16xᵢ²+5xᵢ).
+	 * Global minimum: f≈-39.166·n at xᵢ≈-2.9035. Recommended domain: [-5, 5].
+	 * Separable, multimodal, asymmetric. Each dimension has two local minima at
+	 * different depths (≈-39.17 at x≈-2.90 and ≈-21.25 at x≈+2.75). Because the
+	 * global minimum is not located at the origin, symmetric Gaussian mutation
+	 * centred on the initial population introduces a systematic bias against the
+	 * global basin. This function exposes initialisation and mutation symmetry
+	 * artefacts that PARABOLA and RASTRIGIN cannot reveal.
+	 */
+	STYBLINSKI_TANG = 11,
+
+	/**
+	 * Axis-parallel Ellipsoid function: f(x) = Σ 10^(6i/(n-1))·xᵢ².
+	 * Global minimum: f=0 at x=(0,...,0). Recommended domain: [-5, 5].
+	 * Unimodal, separable, condition number 10⁶ (ratio of largest to smallest
+	 * Hessian eigenvalue). All algorithms eventually find the minimum; the
+	 * discriminating metric is convergence speed and final precision. Algorithms
+	 * with isotropic mutation (uniform σ for all dimensions) converge slowly
+	 * because x₀ requires very large steps while xₙ₋₁ requires very small steps.
+	 * Tests the effectiveness of Geneva's self-adaptive σ mechanisms in the EA.
+	 */
+	ELLIPSOID = 12,
+
+	/**
+	 * Michalewicz function: f(x) = -Σ sin(xᵢ)·sin²ᵐ(i·xᵢ²/π), with m=10.
+	 * Global minimum: dimension-dependent, not analytically known
+	 * (≈-1.8013 for n=2, ≈-4.6877 for n=5, ≈-9.660 for n=10).
+	 * Recommended domain: [0, π].
+	 * NOTE: Unlike all other functions, the natural domain is [0, π].
+	 * Set minVar=0 and maxVar≈3.14159 explicitly in the factory configuration.
+	 * The exponent m=10 creates extremely narrow ridges. The global minimum lies
+	 * inside a steep, razor-thin valley; approaching it requires precise alignment
+	 * of the search direction. Tests fine-grained local search and the ability to
+	 * follow narrow ridges reliably. The analytically unknown optimum also makes
+	 * this function useful for benchmarking solution quality across releases.
+	 */
+	MICHALEWICZ = 13,
+
+	/**
+	 * Zakharov function: f(x) = Σxᵢ² + (Σ0.5·i·xᵢ)² + (Σ0.5·i·xᵢ)⁴.
+	 * Global minimum: f=0 at x=(0,...,0). Recommended domain: [-5, 10].
+	 * Unimodal, non-separable. The quadratic and quartic terms of the weighted
+	 * linear combination 0.5·Σi·xᵢ introduce dimension-weighted interactions:
+	 * later dimensions (large index i) are penalised more strongly, creating an
+	 * asymmetric, non-separable bowl. Gradient descent handles this well; gradient-
+	 * free methods must adapt step sizes per dimension. Tests non-separable
+	 * interaction without the confounding effect of multimodality.
+	 */
+	ZAKHAROV = 14
 };
 
-const solverFunction MAXDEMOFUNCTION = solverFunction::NEGPARABOLA;
+const solverFunction MAXDEMOFUNCTION = solverFunction::ZAKHAROV;
 
 // Make sure solverFunction can be streamed
 /** @brief Puts a Gem::Geneva::solverFunction into a stream. Needed also for boost::lexical_cast<> */
@@ -155,8 +324,20 @@ class GFunctionIndividualFactory;
 
 /******************************************************************************/
 /**
- * This individual searches for a minimum of a number of predefined functions, each capable
- * of processing their input in multiple dimensions.
+ * @brief An individual that evaluates one of several standard benchmark test functions.
+ *
+ * GFunctionIndividual is the standard benchmark vehicle for Geneva's optimisation algorithms.
+ * It supports 15 test functions (solverFunction enum, IDs 0–14) covering unimodal, multimodal,
+ * separable, non-separable, ill-conditioned, deceptive, and asymmetric landscapes. The active
+ * function is selected via setDemoFunction() or through the factory configuration file.
+ *
+ * All functions accept arbitrary parameter dimensionality n ≥ 1 (some require n ≥ 2).
+ * The factory (GFunctionIndividualFactory) populates the individual with n GConstrainedDoubleObject
+ * parameters within [minVar, maxVar]; these bounds should match the recommended domain of the
+ * selected function (see solverFunction enum documentation).
+ *
+ * @note For MICHALEWICZ the natural domain is [0, π]. Set minVar=0 and maxVar≈3.14159
+ *       explicitly; the factory default of [-10, 10] is not suitable for that function.
  */
 class GFunctionIndividual : public GParameterSet
 {
@@ -198,16 +379,36 @@ public:
 
 	 //---------------------------------------------------------------------------
 	 /**
-	  * This function converts the function id to a string representation. This is a convenience
-	  * function that is mostly used in GArgumentParser.cpp of various Geneva examples.
+	  * @brief Converts a solverFunction id to a human-readable name string.
 	  *
-	  * @param df The id of the desired function individual
-	  * @return A string representing the name of the current function
+	  * Used primarily for plot labels in GOptimizationBenchmark and similar tools.
+	  * The returned string matches the conventional name of the function in the
+	  * evolutionary computation literature.
+	  *
+	  * | ID | Enum                | String                       |
+	  * |----|---------------------|------------------------------|
+	  * |  0 | PARABOLA            | "Parabola"                   |
+	  * |  1 | NOISYPARABOLA       | "Berlich noisy parabola"     |
+	  * |  2 | ROSENBROCK          | "Rosenbrock"                 |
+	  * |  3 | ACKLEY              | "Ackley (pairwise variant)"  |
+	  * |  4 | RASTRIGIN           | "Rastrigin"                  |
+	  * |  5 | SCHWEFEL            | "Schwefel"                   |
+	  * |  6 | SALOMON             | "Salomon"                    |
+	  * |  7 | NEGPARABOLA         | "Negative parabola"          |
+	  * |  8 | ACKLEY_CANONICAL    | "Ackley (canonical)"         |
+	  * |  9 | GRIEWANK            | "Griewank"                   |
+	  * | 10 | LEVY                | "Levy"                       |
+	  * | 11 | STYBLINSKI_TANG     | "Styblinski-Tang"            |
+	  * | 12 | ELLIPSOID           | "Ellipsoid"                  |
+	  * | 13 | MICHALEWICZ         | "Michalewicz (m=10)"         |
+	  * | 14 | ZAKHAROV            | "Zakharov"                   |
+	  *
+	  * @param df The solverFunction identifier
+	  * @return Human-readable name of the function
 	  */
 	 static G_API_INDIVIDUALS std::string getStringRepresentation(const solverFunction &df) {
 		 std::string result;
 
-		 // Set up a single function individual, depending on the expected function type
 		 switch (df) {
 			 case solverFunction::PARABOLA:
 				 result = "Parabola";
@@ -219,7 +420,7 @@ public:
 				 result = "Rosenbrock";
 				 break;
 			 case solverFunction::ACKLEY:
-				 result = "Ackley";
+				 result = "Ackley (pairwise variant)";
 				 break;
 			 case solverFunction::RASTRIGIN:
 				 result = "Rastrigin";
@@ -233,6 +434,27 @@ public:
 			 case solverFunction::NEGPARABOLA:
 				 result = "Negative parabola";
 				 break;
+			 case solverFunction::ACKLEY_CANONICAL:
+				 result = "Ackley (canonical)";
+				 break;
+			 case solverFunction::GRIEWANK:
+				 result = "Griewank";
+				 break;
+			 case solverFunction::LEVY:
+				 result = "Levy";
+				 break;
+			 case solverFunction::STYBLINSKI_TANG:
+				 result = "Styblinski-Tang";
+				 break;
+			 case solverFunction::ELLIPSOID:
+				 result = "Ellipsoid";
+				 break;
+			 case solverFunction::MICHALEWICZ:
+				 result = "Michalewicz (m=10)";
+				 break;
+			 case solverFunction::ZAKHAROV:
+				 result = "Zakharov";
+				 break;
 		 }
 
 		 return result;
@@ -240,40 +462,64 @@ public:
 
 	 //---------------------------------------------------------------------------
 	 /**
-	  * Retrieves a string in ROOT format (see http://root.cern.ch) of the 2D version of a
-	  * given function.
+	  * @brief Returns the 2D version of a function as a ROOT TFormula-compatible string.
 	  *
-	  * @param df The id of the desired function individual
-	  * @return A string suitable for plotting a 2D version of this function with the ROOT analysis framework
+	  * The returned string is suitable for use with ROOT's TF2 class
+	  * (see https://root.cern.ch) and can be passed directly to GPlotDesigner.
+	  * All formulas use ROOT syntax: "pi" for π, "exp(1.)" for e, "^" for power,
+	  * and "sqrt"/"abs" for the respective standard functions.
+	  *
+	  * @param df The solverFunction identifier
+	  * @return ROOT TFormula string for the 2D (n=2) version of the function
 	  */
 	 static G_API_INDIVIDUALS std::string get2DROOTFunction(const solverFunction &df) {
 		 std::string result;
 
-		 // Set up a single function individual, depending on the expected function type
 		 switch (df) {
 			 case solverFunction::PARABOLA:
-				 result = "x^2 + y^2";
+				 result = "x^2+y^2";
 				 break;
 			 case solverFunction::NOISYPARABOLA:
-				 result = "(cos(x^2 + y^2) + 2.) * (x^2 + y^2)";
+				 result = "(cos(x^2+y^2)+2.)*(x^2+y^2)";
 				 break;
 			 case solverFunction::ROSENBROCK:
-				 result = "100.*(x^2 - y)^2 + (1 - x)^2";
+				 result = "100.*(x^2-y)^2+(1.-x)^2";
 				 break;
 			 case solverFunction::ACKLEY:
-				 result = "exp(-0.2)*sqrt(x^2 + y^2) + 3.*(cos(2.*x) + sin(2.*y))";
+				 result = "exp(-0.2)*sqrt(x^2+y^2)+3.*(cos(2.*x)+sin(2.*y))";
 				 break;
 			 case solverFunction::RASTRIGIN:
-				 result = "20.+(x^2 - 10.*cos(2*pi*x)) + (y^2 - 10.*cos(2*pi*y))";
+				 result = "20.+(x^2-10.*cos(2.*pi*x))+(y^2-10.*cos(2.*pi*y))";
 				 break;
 			 case solverFunction::SCHWEFEL:
-				 result = "-0.5*(x*sin(sqrt(abs(x))) + y*sin(sqrt(abs(y))))";
+				 result = "-0.5*(x*sin(sqrt(abs(x)))+y*sin(sqrt(abs(y))))";
 				 break;
 			 case solverFunction::SALOMON:
-				 result = "-cos(2.*pi*sqrt(x^2 + y^2)) + 0.1*sqrt(x^2 + y^2) + 1.";
+				 result = "-cos(2.*pi*sqrt(x^2+y^2))+0.1*sqrt(x^2+y^2)+1.";
 				 break;
 			 case solverFunction::NEGPARABOLA:
-				 result = "-(x^2 + y^2)";
+				 result = "-(x^2+y^2)";
+				 break;
+			 case solverFunction::ACKLEY_CANONICAL:
+				 result = "-20.*exp(-0.2*sqrt((x^2+y^2)/2.))-exp((cos(2.*pi*x)+cos(2.*pi*y))/2.)+20.+exp(1.)";
+				 break;
+			 case solverFunction::GRIEWANK:
+				 result = "(x^2+y^2)/4000.-cos(x)*cos(y/sqrt(2.))+1.";
+				 break;
+			 case solverFunction::LEVY:
+				 result = "sin(pi*(1.+0.25*(x-1.)))^2+((0.25*(x-1.))^2)*(1.+10.*sin(pi*(1.+0.25*(y-1.)))^2)+((0.25*(y-1.))^2)*(1.+sin(2.*pi*(1.+0.25*(y-1.)))^2)";
+				 break;
+			 case solverFunction::STYBLINSKI_TANG:
+				 result = "0.5*(x^4-16.*x^2+5.*x+y^4-16.*y^2+5.*y)";
+				 break;
+			 case solverFunction::ELLIPSOID:
+				 result = "x^2+1000000.*y^2";
+				 break;
+			 case solverFunction::MICHALEWICZ:
+				 result = "-sin(x)*pow(sin(x^2/pi),20.)-sin(y)*pow(sin(2.*y^2/pi),20.)";
+				 break;
+			 case solverFunction::ZAKHAROV:
+				 result = "x^2+y^2+(0.5*x+y)^2+(0.5*x+y)^4";
 				 break;
 		 }
 
@@ -282,15 +528,22 @@ public:
 
 	 //---------------------------------------------------------------------------
 	 /**
-	  * Retrieves the minimum x-value(s) of a given (2D) demo function
+	  * @brief Returns the x-coordinate(s) of the global optimum for the 2D version of a function.
 	  *
-	  * @param df The id of the desired function individual
-	  * @return The x-coordinate(s) of the global optimium in 2D
+	  * Used to annotate plots produced by GFitnessMonitor and GOptimizationBenchmark.
+	  * Multiple values are returned only when the function has more than one global
+	  * optimum in 2D. Coordinates are for the first parameter (x-axis in 2D plots).
+	  *
+	  * For MICHALEWICZ the global minimum location is known only approximately.
+	  * For SCHWEFEL each dimension's optimum is at ≈420.9687; Geneva normalises
+	  * by n so the function value at the optimum is ≈-418.9829/n.
+	  *
+	  * @param df The solverFunction identifier
+	  * @return x-coordinate(s) of the global optimum in 2D
 	  */
 	 static G_API_INDIVIDUALS std::vector<double> getXMin(const solverFunction &df) {
 		 std::vector<double> result;
 
-		 // Set up a single function individual, depending on the expected function type
 		 switch (df) {
 			 case solverFunction::PARABOLA:
 				 result.push_back(0.);
@@ -302,7 +555,7 @@ public:
 				 result.push_back(1.);
 				 break;
 			 case solverFunction::ACKLEY:
-				 // two global optima
+				 // Pairwise-variant: two numerically determined global optima in 2D
 				 result.push_back(-1.5096201);
 				 result.push_back(1.5096201);
 				 break;
@@ -318,6 +571,28 @@ public:
 			 case solverFunction::NEGPARABOLA:
 				 result.push_back(0.);
 				 break;
+			 case solverFunction::ACKLEY_CANONICAL:
+				 result.push_back(0.);
+				 break;
+			 case solverFunction::GRIEWANK:
+				 result.push_back(0.);
+				 break;
+			 case solverFunction::LEVY:
+				 result.push_back(1.);
+				 break;
+			 case solverFunction::STYBLINSKI_TANG:
+				 result.push_back(-2.903534);
+				 break;
+			 case solverFunction::ELLIPSOID:
+				 result.push_back(0.);
+				 break;
+			 case solverFunction::MICHALEWICZ:
+				 // Approximate; exact value not analytically known
+				 result.push_back(2.2029);
+				 break;
+			 case solverFunction::ZAKHAROV:
+				 result.push_back(0.);
+				 break;
 		 }
 
 		 return result;
@@ -325,15 +600,19 @@ public:
 
 	 //---------------------------------------------------------------------------
 	 /**
-	  * Retrieves the minimum y-value(s) of a given (2D) demo function
+	  * @brief Returns the y-coordinate(s) of the global optimum for the 2D version of a function.
 	  *
-	  * @param df The id of the desired function individual
-	  * @return The y-coordinate(s) of the global optimium in 2D
+	  * Used to annotate plots produced by GFitnessMonitor and GOptimizationBenchmark.
+	  * Coordinates are for the second parameter (y-axis in 2D plots). For functions
+	  * with a single global optimum this returns a single value; the ACKLEY pairwise
+	  * variant has one numerically determined y-coordinate for its 2D optimum.
+	  *
+	  * @param df The solverFunction identifier
+	  * @return y-coordinate(s) of the global optimum in 2D
 	  */
 	 static G_API_INDIVIDUALS std::vector<double> getYMin(const solverFunction &df) {
 		 std::vector<double> result;
 
-		 // Set up a single function individual, depending on the expected function type
 		 switch (df) {
 			 case solverFunction::PARABOLA:
 				 result.push_back(0.);
@@ -345,6 +624,7 @@ public:
 				 result.push_back(1.);
 				 break;
 			 case solverFunction::ACKLEY:
+				 // Pairwise-variant: numerically determined y-coordinate of 2D optimum
 				 result.push_back(-0.7548651);
 				 break;
 			 case solverFunction::RASTRIGIN:
@@ -357,6 +637,28 @@ public:
 				 result.push_back(0.);
 				 break;
 			 case solverFunction::NEGPARABOLA:
+				 result.push_back(0.);
+				 break;
+			 case solverFunction::ACKLEY_CANONICAL:
+				 result.push_back(0.);
+				 break;
+			 case solverFunction::GRIEWANK:
+				 result.push_back(0.);
+				 break;
+			 case solverFunction::LEVY:
+				 result.push_back(1.);
+				 break;
+			 case solverFunction::STYBLINSKI_TANG:
+				 result.push_back(-2.903534);
+				 break;
+			 case solverFunction::ELLIPSOID:
+				 result.push_back(0.);
+				 break;
+			 case solverFunction::MICHALEWICZ:
+				 // Approximate; exact value not analytically known
+				 result.push_back(1.5708);
+				 break;
+			 case solverFunction::ZAKHAROV:
 				 result.push_back(0.);
 				 break;
 		 }
