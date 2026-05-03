@@ -1203,7 +1203,7 @@ namespace Gem::Geneva
 		//--------------------------------------------------------------------------------
 		// Take care of unprocessed items, if these exist
 		if(not status.is_complete) {
-			std::size_t n_erased = Gem::Common::erase_if(
+			std::size_t n_erased = std::erase_if(
 				this->m_data_cnt
 				, [this](std::shared_ptr<GParameterSet> p) -> bool {
 					return (p->getProcessingStatus() == Gem::Courtier::processingStatus::DO_PROCESS);
@@ -1220,7 +1220,7 @@ namespace Gem::Geneva
 
 		// Remove items for which an error has occurred during processing
 		if(status.has_errors) {
-			std::size_t n_erased = Gem::Common::erase_if(
+			std::size_t n_erased = std::erase_if(
 				this->m_data_cnt
 				, [this](std::shared_ptr<GParameterSet> p) -> bool {
 					return p->has_errors();

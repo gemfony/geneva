@@ -313,7 +313,7 @@ void connectorProducer(
 
 		// Take care of unprocessed items, if these exist
 		if(!status.is_complete) {
-			std::size_t n_erased = Gem::Common::erase_if(
+			std::size_t n_erased = std::erase_if(
 				data
 				, [](std::shared_ptr<WORKLOAD> p) -> bool {
 					return (p->getProcessingStatus() == Gem::Courtier::processingStatus::DO_PROCESS);
@@ -330,7 +330,7 @@ void connectorProducer(
 
 		// Remove items for which an error has occurred during processing
 		if(status.has_errors) {
-			std::size_t n_erased = Gem::Common::erase_if(
+			std::size_t n_erased = std::erase_if(
 				data
 				, [](std::shared_ptr<WORKLOAD> p) -> bool {
 					return p->has_errors();

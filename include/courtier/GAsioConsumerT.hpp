@@ -174,7 +174,7 @@ private:
 		 }
 
 		 // Prepare a new socket. This will delete the old socket.
-		 m_socket_ptr = Gem::Common::g_make_unique<boost::asio::ip::tcp::socket>(m_io_context);
+		 m_socket_ptr = std::make_unique<boost::asio::ip::tcp::socket>(m_io_context);
 
 		 // Start looking up the domain name. This call will return immediately,
 		 // when_resolved() will be called once the operation is complete.
