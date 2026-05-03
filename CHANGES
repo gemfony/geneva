@@ -19,11 +19,11 @@ Recommended Versions:
 
 ************************* Noteworthy Changes ***********************************
 
-- Build script (prepareBuild.sh) overhauled. New options --clean (triggers an
-  interactive confirmation before wiping the build directory) and --dryrun
-  (prints all CMake -D flags without configuring, useful for IDE setup). The
-  script now refuses to reconfigure an already-configured build directory unless
-  --clean is passed.
+- Build script (prepareBuild.sh) overhauled. New options --clean (interactively
+  wipes the build directory, then exits — does not proceed to reconfigure) and
+  --dryrun (prints all CMake -D flags without configuring, useful for IDE setup).
+  When called without --clean in an already-configured directory the script
+  prompts to clean before proceeding; if the user declines, it terminates.
 
 - CMakePresets.json added. Provides a ready-made "geneva-default" preset that
   CLion and VS Code can pick up directly, eliminating the need to manually

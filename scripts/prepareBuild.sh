@@ -55,8 +55,9 @@ for arg in "$@"; do
 			echo -e "  <config.gcfg>       Optional Geneva configuration file (must end in .gcfg)."
 			echo -e "                      If omitted, built-in defaults are used."
 			echo -e "  --clean             Remove all files from the build directory except .gcfg"
-			echo -e "                      files, then reconfigure. Required when calling the script"
-			echo -e "                      a second time in the same directory."
+			echo -e "                      files, then exit. When --clean is omitted but the build"
+			echo -e "                      directory is already configured, the script will prompt"
+			echo -e "                      to clean before reconfiguring."
 			echo -e "  --dryrun            Print the full cmake command that would be executed,"
 			echo -e "                      including all -D options derived from the config file,"
 			echo -e "                      without actually running cmake. Useful for copying the"
@@ -94,6 +95,40 @@ if [ "${CLEAN}" = "1" ] && [ "${DRYRUN}" = "1" ]; then
 	echo -e "\nError: --clean and --dryrun are mutually exclusive."
 	echo -e "--clean deletes files; --dryrun must not change anything. Leaving...\n"
 	exit 1
+fi
+
+####################################################################
+# Helper: interactively confirm and wipe the build directory.
+# Exits with code 1 if the user declines.
+_confirm_and_clean() {
+	echo -e "\nBuild directory '${GENEVA_BUILDROOT}' is already configured."
+	echo -e "Warning: ALL files (except *.gcfg) will be permanently deleted."
+	printf "Proceed? [y/N] "
+	read -r _confirm
+	case "${_confirm}" in
+		[yY]|[yY][eE][sS])
+			echo -en "Cleaning build directory '${GENEVA_BUILDROOT}' ..."
+			find "${GENEVA_BUILDROOT}" -mindepth 1 -maxdepth 1 ! -name "*.gcfg" -exec rm -rf {} +
+			echo -e " done\n"
+			;;
+		*)
+			echo -e "Aborted. Leaving...\n"
+			exit 1
+			;;
+	esac
+}
+
+####################################################################
+# Handle --clean: clean the build directory and exit without
+# proceeding to cmake configuration.
+if [ "${CLEAN}" = "1" ]; then
+	if [ -e "${GENEVA_BUILDROOT}/CMakeCache.txt" ]; then
+		_confirm_and_clean
+	else
+		echo -e "\nBuild directory '${GENEVA_BUILDROOT}' does not appear to be configured."
+		echo -e "Nothing to clean.\n"
+	fi
+	exit 0
 fi
 
 ####################################################################
@@ -225,29 +260,9 @@ fi
 
 ####################################################################
 # Guard against reconfiguring an already-configured build directory.
-
-_confirm_and_clean() {
-	echo -e "\nBuild directory '${GENEVA_BUILDROOT}' is already configured."
-	echo -e "Warning: ALL files (except *.gcfg) will be permanently deleted."
-	printf "Proceed? [y/N] "
-	read -r _confirm
-	case "${_confirm}" in
-		[yY]|[yY][eE][sS])
-			echo -en "Cleaning build directory '${GENEVA_BUILDROOT}' ..."
-			find "${GENEVA_BUILDROOT}" -mindepth 1 -maxdepth 1 ! -name "*.gcfg" -exec rm -rf {} +
-			echo -e " done\n"
-			;;
-		*)
-			echo -e "Aborted. Leaving...\n"
-			exit 1
-			;;
-	esac
-}
-
-if [ -e "${GENEVA_BUILDROOT}/CMakeCache.txt" ]; then
-	if [ "${CLEAN}" = "1" ] || [ "${DRYRUN}" = "0" ]; then
-		_confirm_and_clean
-	fi
+# (--clean is handled earlier and exits before reaching this point.)
+if [ -e "${GENEVA_BUILDROOT}/CMakeCache.txt" ] && [ "${DRYRUN}" = "0" ]; then
+	_confirm_and_clean
 fi
 
 ####################################################################
