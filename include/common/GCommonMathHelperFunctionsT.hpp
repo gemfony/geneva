@@ -1009,7 +1009,7 @@ bool isClose(
  */
 template <typename fp_type, typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = nullptr>
 fp_type grational_sigmoid(fp_type var, fp_type barrier, fp_type steepness) {
-#ifndef NDEBUG
+#ifdef DEBUG
     if (steepness <= fp_type(0)) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)

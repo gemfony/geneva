@@ -140,7 +140,7 @@ void g_array_delete(T *&p) {
  */
 template <typename T>
 void ptrDifferenceCheck(const T *p1, const T *p2) {
-#ifndef NDEBUG
+#ifdef DEBUG
 	if (nullptr != p1 && p1 == p2) {
 		throw geneva_exception(
 			g_error_streamer(DO_LOG, time_and_place)
@@ -158,7 +158,7 @@ void ptrDifferenceCheck(const T *p1, const T *p2) {
  */
 template <typename T>
 void ptrDifferenceCheck(std::shared_ptr<T> p1, std::shared_ptr<T> p2) {
-#ifndef NDEBUG
+#ifdef DEBUG
 	if (p1 && p1.get() == p2.get()) {
 		throw geneva_exception(
 			g_error_streamer(DO_LOG, time_and_place)
@@ -181,7 +181,7 @@ const target_type * g_ptr_conversion(
 	const base_type *convert_ptr
 	, typename std::enable_if<std::is_base_of<base_type, target_type>::value>::type *dummy = nullptr
 ) {
-#ifndef NDEBUG
+#ifdef DEBUG
 	const auto *p = dynamic_cast<const target_type *>(convert_ptr);
 	if (nullptr == convert_ptr || p) {
 		return p;
@@ -206,7 +206,7 @@ std::shared_ptr<target_type> g_ptr_conversion(
 	std::shared_ptr<base_type> convert_ptr
 	, typename std::enable_if<std::is_base_of<base_type, target_type>::value>::type *dummy = nullptr
 ) {
-#ifndef NDEBUG
+#ifdef DEBUG
 	auto p = std::dynamic_pointer_cast<target_type>(convert_ptr);
 	if (nullptr == convert_ptr.get() || p) {
 		return p;
@@ -488,7 +488,7 @@ void copySmartPointerArrays(
  */
 template<typename source_type, typename target_type>
 std::shared_ptr<target_type> convertSmartPointer(std::shared_ptr<source_type> p_raw) {
-#ifndef NDEBUG
+#ifdef DEBUG
 	if (not p_raw) {
 		throw geneva_exception(
 			g_error_streamer(DO_LOG, time_and_place)
@@ -541,7 +541,7 @@ std::vector<std::tuple<split_type1, split_type2>> splitStringT(
 	std::vector<std::tuple<split_type1, split_type2>> result;
 	for (const auto& fragment : Gem::Common::splitString(raw, sep1)) {
 		const auto sub = Gem::Common::splitString(fragment, sep2);
-#ifndef NDEBUG
+#ifdef DEBUG
 		if (2 != sub.size()) {
 			throw geneva_exception(
 				g_error_streamer(DO_LOG, time_and_place)
