@@ -82,9 +82,7 @@ Recommended Versions:
   g_make_unique replaced with std::make_unique at its sole call site and deleted;
   Gem::Common::erase_if replaced with std::erase_if in pure-C++ translation units
   (the local implementation is retained for CUDA-visible headers where nvcc lacks
-  this C++20 addition); all #ifdef DEBUG guards replaced with #ifndef NDEBUG
-  (the CMake-standard macro — DEBUG was never defined by CMake and all such guards
-  were effectively dead). Style updated throughout: range-based for loops, auto
+  this C++20 addition). Style updated throughout: range-based for loops, auto
   iterator types, std::make_shared, shorter error messages.
 
 //------------------------------------------------------------------------------------------------------
