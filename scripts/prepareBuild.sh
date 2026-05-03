@@ -263,7 +263,9 @@ fi
 ####################################################################
 # Guard against reconfiguring an already-configured build directory.
 # (--clean is handled earlier and exits before reaching this point.)
-if [ -e "${GENEVA_BUILDROOT}/CMakeCache.txt" ] && [ "${DRYRUN}" = "0" ]; then
+# --dryrun and --generate-preset do not alter the build directory and
+# therefore bypass this check.
+if [ -e "${GENEVA_BUILDROOT}/CMakeCache.txt" ] && [ "${DRYRUN}" = "0" ] && [ "${GENERATE_PRESET}" = "0" ]; then
 	_confirm_and_clean
 fi
 
