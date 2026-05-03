@@ -22,9 +22,10 @@ Recommended Versions:
 - Build script (prepareBuild.sh) overhauled. New options: --clean (interactively
   wipes the build directory, then exits — does not proceed to reconfigure);
   --dryrun (prints all CMake -D flags without configuring, useful for IDE setup);
-  --generate-preset (writes a CMakeUserPresets.json to the project root encoding
-  all settings from the current .gcfg file, so IDEs such as CLion pick up the
-  exact same configuration automatically). When called without --clean in an
+  --generate-preset (writes a CMakeUserPresets.json to the current directory
+  encoding all settings from the current .gcfg file, then exits without running
+  cmake — the user copies the file to the project root so that IDEs such as CLion
+  pick up the configuration automatically). When called without --clean in an
   already-configured directory the script prompts to clean before proceeding; if
   the user declines, it terminates.
 
@@ -32,8 +33,9 @@ Recommended Versions:
   CLion and VS Code can pick up directly, eliminating the need to manually
   configure BOOST_ROOT and other paths in the IDE's CMake profile. For a
   configuration tailored to a specific .gcfg file, use
-  prepareBuild.sh --generate-preset, which writes a CMakeUserPresets.json
-  (not checked in) encoding all current build settings.
+  prepareBuild.sh --generate-preset from the build directory, which writes a
+  CMakeUserPresets.json there (not checked in) and exits without reconfiguring.
+  Copy the file to the project root to activate it in the IDE.
 
 - Deprecated Boost Phoenix headers replaced. The boost/spirit/include/phoenix_*.hpp
   shim headers (deprecated since Boost 1.66) are replaced with boost/phoenix/*.hpp

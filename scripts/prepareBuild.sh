@@ -64,9 +64,11 @@ for arg in "$@"; do
 			echo -e "                      including all -D options derived from the config file,"
 			echo -e "                      without actually running cmake. Useful for copying the"
 			echo -e "                      command into an IDE such as JetBrains CLion."
-			echo -e "  --generate-preset   Write a CMakeUserPresets.json to the project root so"
-			echo -e "                      that JetBrains CLion (including via Gateway) picks up"
-			echo -e "                      the same CMake configuration automatically."
+			echo -e "  --generate-preset   Write a CMakeUserPresets.json to the current directory"
+			echo -e "                      encoding all settings from the .gcfg file, then exit."
+			echo -e "                      Copy the file to the project root so that CLion (or"
+			echo -e "                      VS Code) picks up the configuration automatically."
+			echo -e "                      Does not alter the build directory or run cmake."
 			echo -e "  --help, -h          Show this help message.\n"
 			exit 0
 			;;
@@ -261,42 +263,10 @@ if [ ! -e "${PROJECTROOT}/CMakeLists.txt" ]; then
 fi
 
 ####################################################################
-# Guard against reconfiguring an already-configured build directory.
-# (--clean is handled earlier and exits before reaching this point.)
-# --dryrun and --generate-preset do not alter the build directory and
-# therefore bypass this check.
-if [ -e "${GENEVA_BUILDROOT}/CMakeCache.txt" ] && [ "${DRYRUN}" = "0" ] && [ "${GENERATE_PRESET}" = "0" ]; then
-	_confirm_and_clean
-fi
-
-####################################################################
-# Build the cmake argument list.  Using an array avoids word-splitting
-# problems with paths or flags that contain spaces.
-cmake_args=()
-[ -n "${BOOSTROOT}" ] && cmake_args+=("-DBOOST_ROOT=${BOOSTROOT}")
-[ -n "${BOOSTLIBS}" ] && cmake_args+=("-DBOOST_LIBRARYDIR=${BOOSTLIBS}" "-DBOOST_INCLUDEDIR=${BOOSTINCL}")
-cmake_args+=(
-	"-DGENEVA_BUILD_TYPE=${BUILDMODE}"
-	"-DGENEVA_BUILD_TESTS=${BUILDTESTCODE}"
-	"-DGENEVA_BUILD_EXAMPLES=${BUILDEXAMPLES}"
-	"-DGENEVA_BUILD_BENCHMARKS=${BUILDBENCHMARKS}"
-	"-DGENEVA_STATIC=${BUILDSTATIC}"
-	"-DCMAKE_VERBOSE_MAKEFILE=${VERBOSEMAKEFILE}"
-	"-DCMAKE_INSTALL_PREFIX=${INSTALLDIR}"
-	"-DGENEVA_BUILD_WITH_MPI_CONSUMER=${BUILDMPICONSUMER}"
-	"-DGENEVA_USE_CUDA_RNG=${USECUDARNG}"
-)
-[ -n "${MPIROOT}" ]          && cmake_args+=("-DMPI_HOME=${MPIROOT}")
-[ -n "${CXXEXTRAFLAGS}" ]    && cmake_args+=("-DCMAKE_CXX_FLAGS=${CXXEXTRAFLAGS}")
-[ -n "${LINKEREXTRAFLAGS}" ] && cmake_args+=("-DCMAKE_EXE_LINKER_FLAGS=${LINKEREXTRAFLAGS}")
-if [ -n "${CMAKEEXTRAFLAGS}" ]; then
-	# CMAKEEXTRAFLAGS holds multiple tokens — intentional word splitting
-	read -ra _extra_flags <<< "${CMAKEEXTRAFLAGS}"
-	cmake_args+=("${_extra_flags[@]}")
-fi
-
-####################################################################
-# Optionally generate CMakeUserPresets.json for CLion integration.
+# Optionally generate CMakeUserPresets.json and exit immediately.
+# The file is written to the call-site (build directory), not to the
+# project root, so it cannot accidentally overwrite an existing preset.
+# The user is shown explicit copy instructions.
 
 _preset_add() {
 	[ -n "${_PRESET_VARS}" ] && _PRESET_VARS="${_PRESET_VARS},"
@@ -327,7 +297,7 @@ if [ "${GENERATE_PRESET}" = "1" ]; then
 	[ -n "${CXXEXTRAFLAGS}" ]    && _preset_add "CMAKE_CXX_FLAGS"        "STRING" "${CXXEXTRAFLAGS}"
 	[ -n "${LINKEREXTRAFLAGS}" ] && _preset_add "CMAKE_EXE_LINKER_FLAGS" "STRING" "${LINKEREXTRAFLAGS}"
 
-	PRESET_FILE="${PROJECTROOT}/CMakeUserPresets.json"
+	PRESET_FILE="${GENEVA_BUILDROOT}/CMakeUserPresets.json"
 	cat > "${PRESET_FILE}" <<ENDOFPRESET
 {
   "version": 3,
@@ -350,7 +320,46 @@ ENDOFPRESET
 		echo -e "Note: CMAKEEXTRAFLAGS='${CMAKEEXTRAFLAGS}' was not written to ${PRESET_FILE}."
 		echo -e "      Add these flags manually to the preset's 'cacheVariables' if needed.\n"
 	fi
-	echo -e "Generated '${PRESET_FILE}' for CLion integration.\n"
+	echo -e "Written '${PRESET_FILE}'."
+	echo -e "\nTo use this preset in CLion or VS Code, copy it to the project root:"
+	echo -e "  cp \"${PRESET_FILE}\" \"$(cd "${PROJECTROOT}" && pwd)/CMakeUserPresets.json\""
+	echo -e "\nCMake was NOT run. To configure the build directory run prepareBuild.sh"
+	echo -e "again without --generate-preset (optionally with a .gcfg file).\n"
+	exit 0
+fi
+
+####################################################################
+# Guard against reconfiguring an already-configured build directory.
+# (--clean and --generate-preset are handled earlier and exit before
+# reaching this point.)
+if [ -e "${GENEVA_BUILDROOT}/CMakeCache.txt" ] && [ "${DRYRUN}" = "0" ]; then
+	_confirm_and_clean
+fi
+
+####################################################################
+# Build the cmake argument list.  Using an array avoids word-splitting
+# problems with paths or flags that contain spaces.
+cmake_args=()
+[ -n "${BOOSTROOT}" ] && cmake_args+=("-DBOOST_ROOT=${BOOSTROOT}")
+[ -n "${BOOSTLIBS}" ] && cmake_args+=("-DBOOST_LIBRARYDIR=${BOOSTLIBS}" "-DBOOST_INCLUDEDIR=${BOOSTINCL}")
+cmake_args+=(
+	"-DGENEVA_BUILD_TYPE=${BUILDMODE}"
+	"-DGENEVA_BUILD_TESTS=${BUILDTESTCODE}"
+	"-DGENEVA_BUILD_EXAMPLES=${BUILDEXAMPLES}"
+	"-DGENEVA_BUILD_BENCHMARKS=${BUILDBENCHMARKS}"
+	"-DGENEVA_STATIC=${BUILDSTATIC}"
+	"-DCMAKE_VERBOSE_MAKEFILE=${VERBOSEMAKEFILE}"
+	"-DCMAKE_INSTALL_PREFIX=${INSTALLDIR}"
+	"-DGENEVA_BUILD_WITH_MPI_CONSUMER=${BUILDMPICONSUMER}"
+	"-DGENEVA_USE_CUDA_RNG=${USECUDARNG}"
+)
+[ -n "${MPIROOT}" ]          && cmake_args+=("-DMPI_HOME=${MPIROOT}")
+[ -n "${CXXEXTRAFLAGS}" ]    && cmake_args+=("-DCMAKE_CXX_FLAGS=${CXXEXTRAFLAGS}")
+[ -n "${LINKEREXTRAFLAGS}" ] && cmake_args+=("-DCMAKE_EXE_LINKER_FLAGS=${LINKEREXTRAFLAGS}")
+if [ -n "${CMAKEEXTRAFLAGS}" ]; then
+	# CMAKEEXTRAFLAGS holds multiple tokens — intentional word splitting
+	read -ra _extra_flags <<< "${CMAKEEXTRAFLAGS}"
+	cmake_args+=("${_extra_flags[@]}")
 fi
 
 ####################################################################
