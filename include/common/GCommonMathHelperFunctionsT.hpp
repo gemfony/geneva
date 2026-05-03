@@ -43,6 +43,7 @@
 #include <typeinfo>
 #include <tuple>
 #include <limits>
+#include <algorithm>
 
 // Boost headers go here
 #include <boost/math/special_functions.hpp>
@@ -57,9 +58,6 @@
 
 namespace Gem {
 namespace Common {
-
-const bool GWARNINGONLY = true;
-const bool GERRORONLY = false;
 
 /******************************************************************************/
 /**
@@ -249,7 +247,6 @@ const bool GFPLOWERCLOSED = false;
 const bool GFPLOWEROPEN = true;
 const bool GFPUPPERCLOSED = false;
 const bool GFPUPPEROPEN = true;
-const bool GFWARNONLY = true;
 const bool GFNOWARNING = false;
 
 template<typename fp_type>
@@ -309,11 +306,6 @@ fp_type checkValueRange(
  * @param warnOnly Will warn only if the condition isn't met
  * @return The value being checked
  */
-const bool GINTLOWERCLOSED = false;
-const bool GINTLOWEROPEN = true;
-const bool GINTUPPERCLOSED = false;
-const bool GINTUPPEROPEN = true;
-
 template<typename int_type>
 int_type checkValueRange(
 	int_type val, int_type min, int_type max, bool lowerOpen = false, bool upperOpen = false, bool warnOnly = false,
@@ -364,8 +356,7 @@ int_type checkValueRange(
  */
 template<typename x_type_undet>
 auto getMinMax(const std::vector<x_type_undet> &extDat) {
-	// Do some error checking
-	if (extDat.size() < (std::size_t) 2) {
+	if (extDat.size() < std::size_t(2)) {
 		throw geneva_exception(
 			g_error_streamer(DO_LOG, time_and_place)
 				<< "In GBasePlotter::getMinMax(1D): Error!" << std::endl
@@ -373,14 +364,8 @@ auto getMinMax(const std::vector<x_type_undet> &extDat) {
 		);
 	}
 
-	x_type_undet min = extDat.at(0), max = min;
-
-	for (std::size_t i = 1; i < extDat.size(); i++) {
-		if (extDat.at(i) < min) min = extDat.at(i);
-		if (extDat.at(i) > max) max = extDat.at(i);
-	}
-
-	return std::tuple<x_type_undet, x_type_undet>{min, max};
+	auto [min_it, max_it] = std::minmax_element(extDat.begin(), extDat.end());
+	return std::tuple<x_type_undet, x_type_undet>{*min_it, *max_it};
 }
 
 /******************************************************************************/
@@ -454,9 +439,9 @@ auto getMinMax(const std::vector<std::tuple<x_type_undet, y_type_undet, z_type_u
 
 /******************************************************************************/
 /**
- * Find the minimum and maximum component in a vector of 3d-Tuples of undefined types.
- * This function requires that x_type_undet, y_type_undet and z_type_undet can be compared
- * using the usual operators
+ * Find the minimum and maximum component in a vector of 4d-Tuples of undefined types.
+ * This function requires that x_type_undet, y_type_undet, z_type_undet and w_type_undet
+ * can be compared using the usual operators
  *
  * @param extDat The vector holding the data, for which extreme values should be calculated
  * @return A std::tuple holding the extreme values
@@ -467,7 +452,7 @@ auto getMinMax(const std::vector<std::tuple<x_type_undet, y_type_undet, z_type_u
 	if (extDat.size() < (std::size_t) 2) {
 		throw geneva_exception(
 			g_error_streamer(DO_LOG, time_and_place)
-				<< "In GBasePlotter::getMinMax(3D): Error!" << std::endl
+				<< "In GBasePlotter::getMinMax(4D): Error!" << std::endl
 				<< "Got vector of invalid size " << extDat.size() << std::endl
 		);
 	}
@@ -503,8 +488,6 @@ T GMean(
 	const std::vector<T> &parVec
 	, typename std::enable_if<std::is_floating_point<T>::value>::type *dummy = nullptr
 ) {
-	T mean = 0.;
-
 #ifdef DEBUG
    if(parVec.empty()) {
 		throw geneva_exception(
@@ -515,12 +498,9 @@ T GMean(
    }
 #endif /* DEBUG */
 
-	typename std::vector<T>::const_iterator cit;
-	for (cit = parVec.begin(); cit != parVec.end(); ++cit) {
-		mean += *cit;
-	}
-
-	return mean / boost::numeric_cast<T>(parVec.size());
+	T mean = T(0);
+	for (const auto& v : parVec) mean += v;
+	return mean / static_cast<T>(parVec.size());
 }
 
 
@@ -535,138 +515,35 @@ template<typename T>
 auto GStandardDeviation(
 	const std::vector<T> &parVec, typename std::enable_if<std::is_floating_point<T>::value>::type *dummy = nullptr
 ) {
-	T mean = GMean(parVec), sigma = 0.;
-
-#ifdef DEBUG
-   if(parVec.size() == 0) {
-		throw geneva_exception(
-			g_error_streamer(DO_LOG, time_and_place)
-				<< "In std::tuple<T,T> GStandardDeviation(const std::vector<T>&): Error!" << std::endl
-				<< "parVec is empty" << std::endl
-		);
-   }
-#endif /* DEBUG */
+	// GMean will throw in DEBUG mode if parVec is empty
+	T mean = GMean(parVec), sigma = T(0);
 
 	// It is easy if the size is 1
 	if (parVec.size() == 1) {
-		return std::tuple<T, T>{parVec.at(0), 0.};
+		return std::tuple<T, T>{parVec.at(0), T(0)};
 	}
 
-	typename std::vector<T>::const_iterator cit;
-	for (cit = parVec.begin(); cit != parVec.end(); ++cit) {
-		sigma += GSQUARED(*cit - mean);
-
+	for (const auto& v : parVec) {
+		const auto d = v - mean;
+		sigma += d * d;
 	}
-	sigma /= parVec.size() - 1;
-	sigma = sqrt(sigma);
+	sigma /= T(parVec.size() - 1);
+	sigma = std::sqrt(sigma);
 
 	return std::tuple<T, T>{mean, sigma};
 }
 
 /******************************************************************************/
 /**
- * Calculates the mean and standard deviation for each row of a "matrix" made up from several
- * std:vector<T> objects of equal size. E.g., if you have 5 std::vector<double> of size 10, you will
- * get back a std::vector<std::tuple<double, double>>, of size 10, holding the mean and standard
- * deviation of the corresponding positions in the 5 vectors.
- *
- * @param parVec The vectors for which the standard deviations should be calculated
- * @param result A std::vector holdung tuples with the mean and sigma values for each row
- */
-template<typename T>
-void GVecStandardDeviation(
-	const std::vector<std::vector<T>> &parVec, std::vector<std::tuple<T, T>> &result,
-	typename std::enable_if<std::is_floating_point<T>::value>::type *dummy = nullptr
-) {
-
-#ifdef DEBUG
-   // Check that there are entries in the vector
-   if(parVec.size() == 0) {
-		throw geneva_exception(
-			g_error_streamer(DO_LOG, time_and_place)
-				<< "In void GVecStandardDeviation(): Error!" << std::endl
-				<< "parVec is empty" << std::endl
-		);
-   }
-
-   // Check that the first entry has at least one component
-   if(parVec.at(0).empty()) {
-		throw geneva_exception(
-			g_error_streamer(DO_LOG, time_and_place)
-				<< "In void GVecStandardDeviation(): Error!" << std::endl
-				<< "parVec has empty component" << std::endl
-		);
-   }
-
-   // Check that all entries have the same size
-   if(parVec.size() > 1) {
-      std::size_t sizeFirst = parVec.at(0).size(), pos=0;
-      for(auto const &p: parVec) {
-			if(p.size() != sizeFirst) {
-				throw geneva_exception(
-					g_error_streamer(DO_LOG, time_and_place)
-						<< "In void GVecStandardDeviation(): Error!" << std::endl
-						<< "Found parVec component of different size: " << sizeFirst << " / " << pos << " / " << p.size() << std::endl
-				);
-         }
-         pos++;
-      }
-   }
-
-   // Now we know that there is at least one component with at least one entry,
-   // and that all components have the same size. This is sufficient to calculate
-   // the mean and standard deviation for each row of the "matrix" (made up from
-   // the vectors,
-#endif /* DEBUG */
-
-	// Make sure our result vector is empty
-	result.clear();
-
-	typename std::vector<std::vector<T>>::const_iterator cit;
-	for (std::size_t pos = 0; pos < parVec.at(0).size(); pos++) {
-		std::vector<T> indPar;
-
-		// Extract the individual parameters
-		for (cit = parVec.begin(); cit != parVec.end(); ++cit) {
-			indPar.push_back(cit->at(pos));
-		}
-
-		// Calculate the mean and standard deviation
-		result.push_back(GStandardDeviation(indPar));
-	}
-}
-
-/******************************************************************************/
-/**
- * Calculation of pow for small positive integers using template metaprogramming
+ * Compile-time integer power: B^E.
+ * Replaces the old PowSmallPosInt struct template metaprogramming.
  */
 template<std::size_t B, std::size_t E>
-struct PowSmallPosInt {
-	enum : std::size_t {
-		result = B * PowSmallPosInt<B, E - 1>::result
-	};
-};
-
-template<std::size_t B>
-struct PowSmallPosInt<B, 2> {
-	enum : std::size_t {
-		result = B * B
-	};
-};
-
-template<std::size_t B>
-struct PowSmallPosInt<B, 1> {
-	enum : std::size_t {
-		result = B
-	};
-};
-
-template<std::size_t B>
-struct PowSmallPosInt<B, 0> {
-	enum : std::size_t {
-		result = 1
-	};
-};
+constexpr std::size_t PowSmallPosInt() {
+	if constexpr (E == 0) return std::size_t(1);
+	else if constexpr (E == 1) return B;
+	else return B * PowSmallPosInt<B, E - 1>();
+}
 
 /******************************************************************************/
 /**
@@ -682,7 +559,6 @@ void subtractVec(
 	std::vector<T> &a, const std::vector<T> &b
 ) {
 #ifdef DEBUG
-   // Do some error checking
    if(a.size() != b.size()) {
 		throw geneva_exception(
 			g_error_streamer(DO_LOG, time_and_place)
@@ -692,13 +568,8 @@ void subtractVec(
    }
 #endif /* DEBUG */
 
-	typename std::vector<T>::iterator it_a;
-	typename std::vector<T>::const_iterator cit_b;
-
-	// Subtract the elements
-	for (it_a = a.begin(), cit_b = b.begin(); it_a != a.end(); ++it_a, ++cit_b) {
-		(*it_a) -= (*cit_b);
-	}
+	std::transform(a.begin(), a.end(), b.begin(), a.begin(),
+		[](const T& x, const T& y) { return x - y; });
 }
 
 /******************************************************************************/
@@ -715,7 +586,6 @@ void addVec(
 	std::vector<T> &a, const std::vector<T> &b
 ) {
 #ifdef DEBUG
-   // Do some error checking
    if(a.size() != b.size()) {
 		throw geneva_exception(
 			g_error_streamer(DO_LOG, time_and_place)
@@ -725,13 +595,8 @@ void addVec(
    }
 #endif /* DEBUG */
 
-	typename std::vector<T>::iterator it_a;
-	typename std::vector<T>::const_iterator cit_b;
-
-	// Subtract the elements
-	for (it_a = a.begin(), cit_b = b.begin(); it_a != a.end(); ++it_a, ++cit_b) {
-		(*it_a) += (*cit_b);
-	}
+	std::transform(a.begin(), a.end(), b.begin(), a.begin(),
+		[](const T& x, const T& y) { return x + y; });
 }
 
 /******************************************************************************/
@@ -739,25 +604,19 @@ void addVec(
  * Multiplies each position of a std::vector<> with a constant. Note that we assume here that
  * T understands the operator*= . Note that after this function has been called, a will have changed.
  *
- * @param a The vector to whose elements numbers will be added
+ * @param a The vector whose elements will be multiplied by c
  * @param c The constant which will be multiplied with each position of a
  */
 template<typename T>
 void multVecConst(
 	std::vector<T> &a, const T &c
 ) {
-	typename std::vector<T>::iterator it_a;
-
-	// Subtract the elements
-	for (it_a = a.begin(); it_a != a.end(); ++it_a) {
-		(*it_a) *= c;
-	}
+	for (auto& v : a) v *= c;
 }
 
 /******************************************************************************/
 /**
- * Assigns a constant value to each position of the vector. Note that we assume here that
- * T understands the operator*= . Note that after this function has been called, a will have changed.
+ * Assigns a constant value to each position of the vector.
  *
  * @param a The vector to whose elements c will be assigned
  * @param c The constant which will be assigned each position of a
@@ -766,57 +625,48 @@ template<typename T>
 void assignVecConst(
 	std::vector<T> &a, const T &c
 ) {
-	typename std::vector<T>::iterator it_a;
-
-	// Assign c to each element
-	for (it_a = a.begin(); it_a != a.end(); ++it_a) {
-		(*it_a) = c;
-	}
+	std::fill(a.begin(), a.end(), c);
 }
 
 /******************************************************************************/
 /**
- * Summs up the x- and y-components individually of a vector of 2d-tuples
+ * Sums up the x- and y-components individually of a vector of 2d-tuples
  */
 template<typename fp_type>
 std::tuple<fp_type, fp_type> sumTupleVec(
 	const std::vector<std::tuple<fp_type, fp_type>> &dataPoints,
 	typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = nullptr
 ) {
-	std::tuple<fp_type, fp_type> result = std::tuple<fp_type, fp_type>(fp_type(0.), fp_type(0.));;
-
-	typename std::vector<std::tuple<fp_type, fp_type>>::const_iterator cit;
-	for (cit = dataPoints.begin(); cit != dataPoints.end(); ++cit) {
-		std::get<0>(result) += std::get<0>(*cit);
-		std::get<1>(result) += std::get<1>(*cit);
+	std::tuple<fp_type, fp_type> result{fp_type(0.), fp_type(0.)};
+	for (const auto& p : dataPoints) {
+		std::get<0>(result) += std::get<0>(p);
+		std::get<1>(result) += std::get<1>(p);
 	}
-
 	return result;
 }
 
 /******************************************************************************/
 /**
- * Summs up the squares of x- and y-components individually of a vector of 2d-tuples
+ * Sums up the squares of x- and y-components individually of a vector of 2d-tuples
  */
 template<typename fp_type>
 std::tuple<fp_type, fp_type> squareSumTupleVec(
 	const std::vector<std::tuple<fp_type, fp_type>> &dataPoints,
 	typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = nullptr
 ) {
-	std::tuple<fp_type, fp_type> result = std::tuple<fp_type, fp_type>(fp_type(0.), fp_type(0.));
-
-	typename std::vector<std::tuple<fp_type, fp_type>>::const_iterator cit;
-	for (cit = dataPoints.begin(); cit != dataPoints.end(); ++cit) {
-		std::get<0>(result) += std::pow(std::get<0>(*cit), 2.);
-		std::get<1>(result) += std::pow(std::get<1>(*cit), 2.);
+	std::tuple<fp_type, fp_type> result{fp_type(0.), fp_type(0.)};
+	for (const auto& p : dataPoints) {
+		const auto x = std::get<0>(p);
+		const auto y = std::get<1>(p);
+		std::get<0>(result) += x * x;
+		std::get<1>(result) += y * y;
 	}
-
 	return result;
 }
 
 /******************************************************************************/
 /**
- * Summs up the product of x- and y-components of a vector of 2d-tuples
+ * Sums up the product of x- and y-components of a vector of 2d-tuples
  */
 template<typename fp_type>
 fp_type productSumTupleVec(
@@ -824,12 +674,9 @@ fp_type productSumTupleVec(
 	typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = nullptr
 ) {
 	fp_type result = fp_type(0.);
-
-	typename std::vector<std::tuple<fp_type, fp_type>>::const_iterator cit;
-	for (cit = dataPoints.begin(); cit != dataPoints.end(); ++cit) {
-		result += (std::get<0>(*cit) * std::get<1>(*cit));
+	for (const auto& p : dataPoints) {
+		result += std::get<0>(p) * std::get<1>(p);
 	}
-
 	return result;
 }
 
@@ -849,9 +696,9 @@ fp_type squareDeviation(
 	typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = nullptr
 ) {
 	fp_type result = fp_type(0);
-	typename std::vector<std::tuple<fp_type, fp_type>>::const_iterator cit;
-	for (cit = dataPoints.begin(); cit != dataPoints.end(); ++cit) {
-		result += std::pow(std::get<1>(*cit) - a - b * std::get<0>(*cit), 2.);
+	for (const auto& p : dataPoints) {
+		const auto d = std::get<1>(p) - a - b * std::get<0>(p);
+		result += d * d;
 	}
 	return result;
 }
@@ -883,17 +730,17 @@ auto getRegressionParameters(
 
 	std::tuple<fp_type, fp_type> sq_sum_xy = squareSumTupleVec(dataPoints);
 	fp_type sq_sum_x = std::get<0>(sq_sum_xy);
-	fp_type sq_sum_y = std::get<1>(sq_sum_xy);
 
 	fp_type prod_sum_xy = productSumTupleVec(dataPoints);
 
-	a = (sum_y * sq_sum_x - sum_x * prod_sum_xy) / (n * sq_sum_x - std::pow(sum_x, 2.));
-	b = (n * prod_sum_xy - sum_x * sum_y) / (n * sq_sum_x - std::pow(sum_x, 2.));
+	const fp_type denom = n * sq_sum_x - sum_x * sum_x;
+	a = (sum_y * sq_sum_x - sum_x * prod_sum_xy) / denom;
+	b = (n * prod_sum_xy - sum_x * sum_y) / denom;
 
 	fp_type dev = squareDeviation(dataPoints, a, b);
 
-	fp_type sigma_a = std::sqrt(dev / (n - 2.)) * std::sqrt(sq_sum_x / (n * sq_sum_x - std::pow(sum_x, 2.)));
-	fp_type sigma_b = std::sqrt(dev / (n - 2.)) * std::sqrt(n / (n * sq_sum_x - std::pow(sum_x, 2.)));
+	fp_type sigma_a = std::sqrt(dev / (n - fp_type(2.))) * std::sqrt(sq_sum_x / denom);
+	fp_type sigma_b = std::sqrt(dev / (n - fp_type(2.))) * std::sqrt(n / denom);
 
 	return std::tuple<fp_type, fp_type, fp_type, fp_type>{a, sigma_a, b, sigma_b};
 }
@@ -913,7 +760,7 @@ auto getRatioError(
 	const std::tuple<fp_type, fp_type, fp_type, fp_type> &s, const std::tuple<fp_type, fp_type, fp_type, fp_type> &p,
 	typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = nullptr
 ) {
-	// p may not ne 0
+	// p may not be 0
 	if (0. == std::get<2>(p)) {
 		throw geneva_exception(
 			g_error_streamer(DO_LOG, time_and_place)
@@ -933,16 +780,19 @@ auto getRatioError(
 		);
 	}
 
-	fp_type s_val = std::get<2>(s);
-	fp_type s_err = std::get<3>(s);
-	fp_type p_val = std::get<2>(p);
-	fp_type p_err = std::get<3>(p);
+	const fp_type s_val = std::get<2>(s);
+	const fp_type s_err = std::get<3>(s);
+	const fp_type p_val = std::get<2>(p);
+	const fp_type p_err = std::get<3>(p);
+
+	const fp_type s_err_term = s_err / p_val;
+	const fp_type p_err_term = s_val * p_err / (p_val * p_val);
 
 	return std::tuple<fp_type, fp_type, fp_type, fp_type>{
 		sleep_time
-		, 0.
+		, fp_type(0.)
 		, s_val / p_val
-		, std::sqrt(std::pow(s_err / p_val, fp_type(2.)) + std::pow(s_val * p_err / std::pow(p_val, fp_type(2.)), fp_type(2.)))
+		, std::sqrt(s_err_term * s_err_term + p_err_term * p_err_term)
 	};
 }
 
@@ -969,9 +819,9 @@ std::vector<std::tuple<fp_type, fp_type, fp_type, fp_type>> getRatioErrors(
 	}
 
 	std::vector<std::tuple<fp_type, fp_type, fp_type, fp_type>> spn;
-	typename std::vector<std::tuple<fp_type, fp_type, fp_type, fp_type>>::const_iterator s_cit, p_cit;
-	for (s_cit = sn.begin(), p_cit = pn.begin(); s_cit != sn.end(); ++s_cit, ++p_cit) {
-		spn.push_back(getRatioError(*s_cit, *p_cit));
+	spn.reserve(sn.size());
+	for (std::size_t i = 0; i < sn.size(); ++i) {
+		spn.push_back(getRatioError(sn[i], pn[i]));
 	}
 
 	return spn;

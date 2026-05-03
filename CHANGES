@@ -85,6 +85,36 @@ Recommended Versions:
   this C++20 addition). Style updated throughout: range-based for loops, auto
   iterator types, std::make_shared, shorter error messages.
 
+- GCommonMathHelperFunctionsT.hpp overhauled:
+  * GVecStandardDeviation removed (unused).
+  * Unused named boolean constants GWARNINGONLY, GERRORONLY, GFWARNONLY,
+    GINTLOWERCLOSED, GINTLOWEROPEN, GINTUPPERCLOSED, and GINTUPPEROPEN removed.
+  * PowSmallPosInt<B,E> struct replaced with a constexpr function template of the
+    same name (call sites updated: PowSmallPosInt<B,E>::result → PowSmallPosInt<B,E>()).
+    Compatible with nvcc (uses if constexpr, not consteval).
+  * getMinMax(1D) rewritten using std::minmax_element; 4D overload docstring
+    corrected ("3d" → "4d").
+  * GMean: iterator loop replaced with range-based for; boost::numeric_cast
+    replaced with static_cast.
+  * GStandardDeviation: redundant empty-check removed (GMean already guards it);
+    iterator loop replaced with range-based for; std::sqrt used explicitly;
+    GSQUARED macro replaced with d*d.
+  * subtractVec / addVec: iterator loops replaced with std::transform; stale
+    "Subtract" comment in addVec corrected.
+  * multVecConst: iterator loop replaced with range-based for.
+  * assignVecConst: iterator loop replaced with std::fill.
+  * sumTupleVec: iterator loop replaced with range-based for; double semicolon fixed.
+  * squareSumTupleVec: iterator loop replaced with range-based for;
+    std::pow(x, 2.) replaced with x*x.
+  * productSumTupleVec: iterator loop replaced with range-based for.
+  * squareDeviation: iterator loop replaced with range-based for; std::pow(d, 2.)
+    replaced with d*d.
+  * getRegressionParameters: repeated std::pow(sum_x, 2.) calls replaced with a
+    shared denom variable (sum_x*sum_x).
+  * getRatioError: typo "ne" → "be" in comment; std::pow(x, 2.) replaced with
+    explicit intermediate variables.
+  * getRatioErrors: iterator loop replaced with index-based for; reserve() added.
+
 //------------------------------------------------------------------------------------------------------
 * Version 1.11, "Hendaye" - March 16, 2026
 

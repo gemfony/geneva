@@ -95,7 +95,7 @@ namespace Gem::Geneva
     constexpr double GII_DEF_LOC_MAXSIGMA = 0.4;
 
     constexpr std::size_t GII_DEF_COLORDEPTH = 8;
-    constexpr std::size_t GII_DEF_NCOLORS = Gem::Common::PowSmallPosInt<2, GII_DEF_COLORDEPTH>::result;
+    constexpr std::size_t GII_DEF_NCOLORS = Gem::Common::PowSmallPosInt<2, GII_DEF_COLORDEPTH>();
     constexpr std::size_t GII_DEF_MAXCOLOR = GII_DEF_NCOLORS - 1;
     constexpr double GII_DEF_BGRED = 0.9;
     constexpr double GII_DEF_BGGREEN = 0.9;

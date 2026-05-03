@@ -959,7 +959,7 @@ protected:
 	 std::size_t m_xDim = 0, m_yDim = 0; ///< The dimensions of this canvas
 	 std::vector<GColumn> m_canvasData; ///< Holds this canvas' columns
 
-	 std::size_t NCOLORS = Gem::Common::PowSmallPosInt<2, COLORDEPTH>::result;
+	 std::size_t NCOLORS = Gem::Common::PowSmallPosInt<2, COLORDEPTH>();
 	 std::size_t MAXCOLOR = NCOLORS - 1;
 };
 
