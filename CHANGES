@@ -71,6 +71,22 @@ Recommended Versions:
   exponential sigmoid) with a debug-mode precondition check for steepness > 0.
   Unit tests for grational_sigmoid are in GCommonStandardTests.
 
+- GCommonHelperFunctionsT.hpp overhauled: 12 unused or dead functions removed
+  (copySmartPointer, copySmartPointerVector, convertSimplePointer — which also
+  contained a latent dynamic_cast bug — g_ptr_conversion, assert_sizes_match_container,
+  assert_container_sizes_match, erase_according_to_flags,
+  forcedSubmissionToBoostLockfree, timedSubmissionToBoostLockfree,
+  forcedRetrievalFromBoostLockfree, timedRetrievalFromBoostLockfree, vector_as_string),
+  along with the two Boost.Lockfree includes they required. Remaining changes:
+  boost::optional replaced with std::optional in environmentVariableAs;
+  g_make_unique replaced with std::make_unique at its sole call site and deleted;
+  Gem::Common::erase_if replaced with std::erase_if in pure-C++ translation units
+  (the local implementation is retained for CUDA-visible headers where nvcc lacks
+  this C++20 addition); all #ifdef DEBUG guards replaced with #ifndef NDEBUG
+  (the CMake-standard macro — DEBUG was never defined by CMake and all such guards
+  were effectively dead). Style updated throughout: range-based for loops, auto
+  iterator types, std::make_shared, shorter error messages.
+
 //------------------------------------------------------------------------------------------------------
 * Version 1.11, "Hendaye" - March 16, 2026
 
