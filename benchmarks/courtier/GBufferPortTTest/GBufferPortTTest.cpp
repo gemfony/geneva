@@ -35,12 +35,12 @@
 #include <mutex>
 #include <chrono>
 #include <thread>
+#include <latch>
 
 #include "courtier/GBufferPortT.hpp"
 #include "courtier/GDemoProcessingContainers.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GThreadGroup.hpp"
-#include "common/GBarrier.hpp"
 #include "common/GParserBuilder.hpp"
 
 #define WORKLOAD GSimpleContainer
@@ -58,9 +58,9 @@ std::mutex processor_mutex;
 std::mutex output_mutex;
 
 /**
- * A barrier on which all threads have to wait
+ * A latch on which all threads have to wait before starting
  */
-std::shared_ptr<Gem::Common::GBarrier> sync_ptr;
+std::shared_ptr<std::latch> sync_ptr;
 
 using namespace Gem::Courtier;
 
@@ -172,7 +172,7 @@ void producer(
 	std::size_t getTimeouts = 0, totalGetTimeouts = 0, highestGetTimeouts = 0;
 	std::uint32_t cycleCounter = 0;
 
-	sync_ptr->wait(); // Do not start before all threads have reached this wait()
+	sync_ptr->arrive_and_wait(); // Do not start before all threads have reached this point
 
 	// Submit all required items
 	while(cycleCounter < nProductionCycles) {
@@ -275,7 +275,7 @@ void processor (
 	std::size_t getTimeouts = 0, totalGetTimeouts = 0, highestGetTimeouts = 0;
 	std::uint32_t cycleCounter = 0;
 
-	sync_ptr->wait(); // Do not start before all threads have reached this wait()
+	sync_ptr->arrive_and_wait(); // Do not start before all threads have reached this point
 
 	std::shared_ptr<WORKLOAD> p;
 	while(cycleCounter < nProductionCycles) {
@@ -369,7 +369,7 @@ int main(int argc, char **argv) {
 
 	//--------------------------------------------------------------------------------
 	// Initialize the global barrier so all threads start at a predefined time
-	sync_ptr = std::shared_ptr<Gem::Common::GBarrier>(new Gem::Common::GBarrier(1+1));
+	sync_ptr = std::make_shared<std::latch>(2);
 
 	//--------------------------------------------------------------------------------
 	// Start the producer and consumer threads

@@ -90,6 +90,13 @@ Recommended Versions:
   exponential sigmoid) with a debug-mode precondition check for steepness > 0.
   Unit tests for grational_sigmoid are in GCommonStandardTests.
 
+- GBarrier.hpp removed. The single usage site (GBufferPortTTest.cpp) has been
+  updated to use std::latch (C++20, <latch>) instead. std::latch::arrive_and_wait()
+  replaces GBarrier::wait() directly; std::latch is the appropriate type here
+  since the barrier was used as a one-shot "starting gun" (each thread calls it
+  exactly once). For reusable cross-generation barriers, std::barrier would be
+  the equivalent C++20 standard type.
+
 - GCommonHelperFunctionsT.hpp overhauled: 12 unused or dead functions removed
   (copySmartPointer, copySmartPointerVector, convertSimplePointer — which also
   contained a latent dynamic_cast bug — g_ptr_conversion, assert_sizes_match_container,
