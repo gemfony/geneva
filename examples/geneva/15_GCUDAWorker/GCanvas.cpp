@@ -27,13 +27,13 @@
  *
  ********************************************************************************/
 
-#include "common/GCanvas.hpp"
+#include "GCanvas.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GCanvas8) // NOLINT
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GCanvas16) // NOLINT
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GCanvas24) // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GCanvas8) // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GCanvas16) // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GCanvas24) // NOLINT
 
-namespace Gem::Common
+namespace Gem::Geneva
 {
 
 	/******************************************************************************/

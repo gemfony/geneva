@@ -28,7 +28,6 @@
 ################################################################################
 
 SET ( COMMONSOURCES
-	GCanvas.cpp
     GCommonEnums.cpp
     GCommonHelperFunctions.cpp
     GExceptions.cpp

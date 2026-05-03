@@ -77,7 +77,7 @@
 #include "common/GTupleIO.hpp"
 
 namespace Gem {
-namespace Common {
+namespace Geneva {
 
 /******************************************************************************/
 /**
@@ -1114,9 +1114,9 @@ G_API_COMMON float operator-(
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-} /* namespace Common */
+} /* namespace Geneva */
 } /* namespace Gem */
 
-BOOST_CLASS_EXPORT_KEY(Gem::Common::GCanvas8) // NOLINT
-BOOST_CLASS_EXPORT_KEY(Gem::Common::GCanvas16) // NOLINT
-BOOST_CLASS_EXPORT_KEY(Gem::Common::GCanvas24) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GCanvas8) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GCanvas16) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GCanvas24) // NOLINT

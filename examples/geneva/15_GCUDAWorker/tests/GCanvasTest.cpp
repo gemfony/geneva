@@ -1,7 +1,7 @@
 /**
- * @file GCanvasTest.hpp
+ * @file GCanvasTest.cpp
+ * Manual smoke-test for GCanvas: load a PPM image, add a triangle, save the result.
  */
-
 
 /********************************************************************************
  *
@@ -34,9 +34,9 @@
 
 #include <iostream>
 
-#include "common/GCanvas.hpp"
+#include "../GCanvas.hpp"
 
-using namespace Gem::Common;
+using namespace Gem::Geneva;
 
 int main(int argc, char**argv) {
 	GCanvas<8> gc, gc2;
@@ -69,11 +69,12 @@ int main(int argc, char**argv) {
 	// Check that there is a difference between gc2 and gc
 	if(gc2.diff(gc) <= 0.) {
 		std::cout << "Error: Incorrect difference between objects: " << gc2.diff(gc) << std::endl;
-		exit(1);
+		return 1;
 	}
 
 	// Finally save the picture to disk
 	gc.toFile(std::filesystem::path("./pictures/result.ppm"));
 
+	std::cout << "GCanvasTest passed." << std::endl;
 	return 0;
 }

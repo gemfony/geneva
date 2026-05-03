@@ -19,16 +19,25 @@ Recommended Versions:
 
 ************************* Noteworthy Changes ***********************************
 
-- Comprehensive unit tests added for GCanvas, GCommonMathHelperFunctionsT and
-  GCommonHelperFunctionsT in GCommonStandardTests.cpp. GCanvas coverage includes:
-  coord2D (construction, operator-, dot product); GRgb (construction, setColor);
-  GColumn (size, operator[], at(), init()); t_circle (getAlphaValue, ==, !=,
-  toString); GCanvas<8> construction, clear/reset, PPM output/load/round-trip
-  (including comment/blank-line handling and all five error paths), diff (value,
-  symmetry, scaling, dimension-mismatch), addTriangle(t_cart) (alpha=0/0.5/1,
-  bounding-box exclusion), addTriangle(t_circle) (pixel coloring, DEBUG bad-angle
-  guards), addTriangles (empty no-op), getAverageColors; GCanvas8/16/24 concrete
-  classes (construction, color-depth constants, operator-, PPM round-trip).
+- GCanvas (the PPM-image canvas used by the Mona-Lisa CUDA example) has been
+  moved from the Common library (include/common/GCanvas.hpp, src/common/GCanvas.cpp,
+  namespace Gem::Common) into example 15 (examples/geneva/15_GCUDAWorker/GCanvas.hpp
+  / GCanvas.cpp, namespace Gem::Geneva). GCanvas is not a general-purpose library
+  component; moving it keeps the Common library free of application-specific code.
+  The old manual test in tests/common/ManualTests/GCanvasTest/ and the deprecated
+  OpenCL sources in examples/geneva/15_GCUDAWorker/Deprecated/ have been removed.
+  A new test subdirectory (examples/geneva/15_GCUDAWorker/tests/) holds the
+  Catch2 unit tests (GCanvasTests) and a manual smoke-test (GCanvasTest). GCanvas
+  unit tests have been removed from GCommonStandardTests.cpp and now live with
+  example 15. GCanvas test coverage: coord2D (construction, operator-, dot product);
+  GRgb (construction, setColor); GColumn (size, operator[], at(), init());
+  t_circle (getAlphaValue, ==, !=, toString); GCanvas<8> construction,
+  clear/reset, PPM output/load/round-trip (including comment/blank-line handling
+  and all five error paths), diff (value, symmetry, scaling, dimension-mismatch),
+  addTriangle(t_cart) (alpha=0/0.5/1, bounding-box exclusion),
+  addTriangle(t_circle) (pixel coloring, DEBUG bad-angle guards), addTriangles
+  (empty no-op), getAverageColors; GCanvas8/16/24 concrete classes (construction,
+  color-depth constants, operator-, PPM round-trip).
 
 - Comprehensive unit tests added for GCommonMathHelperFunctionsT and
   GCommonHelperFunctionsT in GCommonStandardTests.cpp. New tests cover:

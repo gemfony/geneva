@@ -61,7 +61,6 @@ CONFIGURE_FILE (
 
 SET ( GENEVACOMMONINCLUDES
 	GBoundedBufferT.hpp
-	GCanvas.hpp
 	GCommonEnums.hpp
 	GCommonHelperFunctions.hpp
 	GCommonHelperFunctionsT.hpp

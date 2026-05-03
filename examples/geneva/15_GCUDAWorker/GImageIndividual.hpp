@@ -65,7 +65,7 @@
 #include "common/GParserBuilder.hpp"
 #include "common/GFactoryT.hpp"
 #include "common/GCommonMathHelperFunctionsT.hpp"
-#include "common/GCanvas.hpp"
+#include "GCanvas.hpp"
 
 namespace Gem::Geneva
 {
