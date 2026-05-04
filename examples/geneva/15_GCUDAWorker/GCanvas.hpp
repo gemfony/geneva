@@ -170,8 +170,8 @@ struct t_spec_c {
 	t_spec_c(t_spec_c &&) = default;
 	~t_spec_c() = default;
 
-	t_spec_c& operator=(t_spec_c const&);
-	t_spec_c& operator=(t_spec_c &&);
+	t_spec_c& operator=(t_spec_c const&) = default;
+	t_spec_c& operator=(t_spec_c &&) = default;
 
 	//--------------------------------------------
 
@@ -230,7 +230,7 @@ public:
 	 G_API_COMMON void setColor(float, float, float);
 	 /** @brief Explicit reset of colors, using a std::tuple */
 	 G_API_COMMON void setColor(
-	 	std::tuple<float, float, float>
+	 	std::tuple<float, float, float> const&
 	 );
 
 	 float r = 0.f; ///< red
@@ -278,7 +278,7 @@ public:
 	//--------------------------------------------
 
 	/** @brief Information about the size of this object */
-	 G_API_COMMON std::size_t size() const;
+	 [[nodiscard]] G_API_COMMON std::size_t size() const;
 
 	 /** @brief Unchecked access */
 	 G_API_COMMON GRgb &operator[](std::size_t);
@@ -363,7 +363,7 @@ public:
 	 /**
 	  * Get information about the canvas dimensions
 	  */
-	 auto
+	 [[nodiscard]] auto
 	 dimensions() const {
 		 return std::tuple<std::size_t, std::size_t>{m_xDim, m_yDim};
 	 }
@@ -374,7 +374,7 @@ public:
 	  *
 	  * @return The value of the xDim_ parameter
 	  */
-	 std::size_t
+	 [[nodiscard]] std::size_t
 	 getXDim() const {
 		 return m_xDim;
 	 }
@@ -385,7 +385,7 @@ public:
 	  *
 	  * @return The value of the yDim_ parameter
 	  */
-	 std::size_t
+	 [[nodiscard]] std::size_t
 	 getYDim() const {
 		 return m_yDim;
 	 }
@@ -396,7 +396,7 @@ public:
 	  *
 	  * @return The total number of pixels in the canvas
 	  */
-	 std::size_t
+	 [[nodiscard]] std::size_t
 	 getNPixels() const {
 		 return m_xDim * m_yDim;
 	 }
@@ -407,7 +407,7 @@ public:
 	  *
 	  * @return The chosen color depth
 	  */
-	 std::size_t
+	 [[nodiscard]] std::size_t
 	 getColorDepth() const {
 		 return COLORDEPTH;
 	 }
@@ -418,7 +418,7 @@ public:
 	  *
 	  * @return The number of representable colors
 	  */
-	 std::size_t
+	 [[nodiscard]] std::size_t
 	 getNColors() const {
 		 return NCOLORS;
 	 }
@@ -429,7 +429,7 @@ public:
 	  *
 	  * @return The maximum allowed color value
 	  */
-	 std::size_t
+	 [[nodiscard]] std::size_t
 	 getMaxColor() const {
 		 return MAXCOLOR;
 	 }
@@ -473,7 +473,7 @@ public:
 	 /**
 	  * Find out the deviation between this and another canvas
 	  */
-	 float
+	 [[nodiscard]] float
 	 diff(GCanvas<COLORDEPTH> const &cp) const {
 		 if (cp.dimensions() != this->dimensions()) {
 			 throw geneva_exception(
@@ -501,23 +501,23 @@ public:
 	 /**
 	  * Converts the canvas to an image in PPM-P3 format
 	  */
-	 std::string
+	 [[nodiscard]] std::string
 	 toPPM() const {
 		 std::ostringstream result;
 
 		 result
-			 << "P3" << std::endl
-			 << m_xDim << " " << m_yDim << std::endl
-			 << MAXCOLOR << std::endl;
+			 << "P3\n"
+			 << m_xDim << " " << m_yDim << '\n'
+			 << MAXCOLOR << '\n';
 
 		 for (std::size_t i_y = 0; i_y < m_yDim; i_y++) {
 			 for (std::size_t i_x = 0; i_x < m_xDim; i_x++) {
 				 result
-					 << static_cast<std::size_t>(m_canvasData[i_x][i_y].r * float(MAXCOLOR)) << " "
-					 << static_cast<std::size_t>(m_canvasData[i_x][i_y].g * float(MAXCOLOR)) << " "
-					 << static_cast<std::size_t>(m_canvasData[i_x][i_y].b * float(MAXCOLOR)) << " ";
+					 << static_cast<std::size_t>(m_canvasData[i_x][i_y].r * static_cast<float>(MAXCOLOR)) << " "
+					 << static_cast<std::size_t>(m_canvasData[i_x][i_y].g * static_cast<float>(MAXCOLOR)) << " "
+					 << static_cast<std::size_t>(m_canvasData[i_x][i_y].b * static_cast<float>(MAXCOLOR)) << " ";
 			 }
-			 result << std::endl;
+			 result << '\n';
 		 }
 
 		 return result.str();
@@ -557,7 +557,6 @@ public:
 
 			 // Skip empty lines
 			 if (s.empty()) {
-				 s.clear();
 				 continue;
 			 }
 
@@ -579,7 +578,11 @@ public:
 
 			 // The next meaningful line of the input file should contain the picture dimensions
 			 if (not dimensions_found) {
-				 std::copy(std::istream_iterator<std::size_t>(iss), std::istream_iterator<std::size_t>(), std::back_inserter(v));
+				 std::copy(
+				     std::istream_iterator<std::size_t>(iss) // Begin reading from iss
+				     , std::istream_iterator<std::size_t>()  // End of stream
+				     , std::back_inserter(v)
+				);
 
 				 if (v.size() != 2) { // We should have received exactly two numbers
 					 throw geneva_exception(
@@ -612,7 +615,11 @@ public:
 
 			 // Next should be the color depth
 			 if (not color_depth_found) {
-				 std::copy(std::istream_iterator<std::size_t>(iss), std::istream_iterator<std::size_t>(), std::back_inserter(v));
+			     std::copy(
+			        std::istream_iterator<std::size_t>(iss) // Begin reading from iss
+                    , std::istream_iterator<std::size_t>()  // End of stream
+                    , std::back_inserter(v)
+                 );
 
 				 if (v.size() != 1) { // We should have received exactly one number
 					 throw geneva_exception(
@@ -633,11 +640,21 @@ public:
 
 				 color_depth_found = true; // NOLINT
 				 s.clear();
-			 }
 
-			 // We are ready to read the real data and terminate the loop
-			 break;
+			     // We are ready to read the real data and terminate the loop
+			     break;
+			 }
 		 }
+
+	     if (not (header_found && dimensions_found && color_depth_found)) {
+	         throw geneva_exception(
+                 g_error_streamer(DO_LOG, time_and_place)
+                     << "Error: PPM string ended before all header fields were found." << std::endl
+                     << "  P3 header:   " << (header_found      ? "found" : "MISSING") << std::endl
+                     << "  Dimensions:  " << (dimensions_found   ? "found" : "MISSING") << std::endl
+                     << "  Color depth: " << (color_depth_found  ? "found" : "MISSING") << std::endl
+             );
+	     }
 
 		 // Read the per-pixel information
 		 v.clear();
@@ -654,7 +671,6 @@ public:
 
 			 // Skip empty lines
 			 if (s.empty()) {
-				 s.clear();
 				 continue;
 			 }
 
@@ -684,9 +700,9 @@ public:
 			 for (std::size_t pixel_counter = 0; pixel_counter < m_xDim; pixel_counter++) {
 				 offset = 3 * (line_counter * m_xDim + pixel_counter);
 
-				 (m_canvasData[pixel_counter][line_counter]).r = float(v[offset + std::size_t(0)]) / float(MAXCOLOR);
-				 (m_canvasData[pixel_counter][line_counter]).g = float(v[offset + std::size_t(1)]) / float(MAXCOLOR);
-				 (m_canvasData[pixel_counter][line_counter]).b = float(v[offset + std::size_t(2)]) / float(MAXCOLOR);
+				 m_canvasData[pixel_counter][line_counter].r = static_cast<float>(v[offset])     / static_cast<float>(MAXCOLOR);
+				 m_canvasData[pixel_counter][line_counter].g = static_cast<float>(v[offset + 1]) / static_cast<float>(MAXCOLOR);
+				 m_canvasData[pixel_counter][line_counter].b = static_cast<float>(v[offset + 2]) / static_cast<float>(MAXCOLOR);
 			 }
 		 }
 	 }
@@ -744,8 +760,8 @@ public:
 	 clear() {
 		 m_canvasData.clear();
 
-		 m_xDim = std::size_t(0);
-		 m_yDim = std::size_t(0);
+		 m_xDim = 0;
+		 m_yDim = 0;
 	 }
 
 	 /***************************************************************************/
@@ -844,8 +860,8 @@ public:
 	  */
 	 void
 	 addTriangle(t_cart const & t) {
-		 float xDim_inv = 1.f / float(m_xDim);
-		 float yDim_inv = 1.f / float(m_yDim);
+		 float xDim_inv = 1.f / static_cast<float>(m_xDim);
+		 float yDim_inv = 1.f / static_cast<float>(m_yDim);
 		 float dot1p, dot2p, u, v;
 		 coord2D diffp1, pos_f;
 
@@ -917,7 +933,7 @@ public:
 	 /**
 	  * Calculates the average colors over all pixels
 	  */
-	 auto
+	 [[nodiscard]] auto
 	 getAverageColors() const {
 		 float averageRed = 0.f;
 		 float averageGreen = 0.f;
@@ -953,7 +969,6 @@ protected:
   * Convenience function for the calculation of the difference between two canvasses
   */
 template<std::size_t COLORDEPTH>
-G_API_COMMON
 float
 operator-(
 	GCanvas<COLORDEPTH> const & x
@@ -997,7 +1012,7 @@ public:
 	GCanvas8() = default;
 	GCanvas8(GCanvas8 const &) = default;
 	GCanvas8(GCanvas8 &&) = default;
-	virtual ~GCanvas8() override = default;
+	~GCanvas8() override = default;
 
 	GCanvas8 & operator=(GCanvas8 const &) = default;
 	GCanvas8 & operator=(GCanvas8 &&) = default;
@@ -1047,7 +1062,7 @@ public:
 	GCanvas16(GCanvas16 const &) = default;
 	GCanvas16(GCanvas16 &&) = default;
 
-	virtual ~GCanvas16() override = default;
+	~GCanvas16() override = default;
 
 	GCanvas16 &operator=(GCanvas16 const &) = default;
 	GCanvas16 &operator=(GCanvas16 &&) = default;
@@ -1096,7 +1111,7 @@ public:
 	GCanvas24(GCanvas24 const &) = default;
 	GCanvas24(GCanvas24 &&) = default;
 
-	virtual ~GCanvas24() override = default;
+	~GCanvas24() override = default;
 
 	GCanvas24 &operator=(GCanvas24 const &) = default;
 	GCanvas24 &operator=(GCanvas24 &&) = default;

@@ -41,6 +41,31 @@ IF (NOT GENEVA_FULL_TREE_BUILD)
 	INCLUDE(CommonGenevaBuild)
 ENDIF ()
 
+# Headers listed here for CLion indexing — this target carries no CUDA dependency
+# and must remain before ENABLE_LANGUAGE(CUDA) so CLion sees it even when CUDA
+# is not configured in the IDE toolchain (mirrors the CLION_ALL_COMMON_HEADERS
+# pattern used by the Geneva libraries).
+SET ( MONALISAINCLUDES
+	GCanvas.hpp
+    GImageIndividual.hpp
+    GImagePOM.hpp
+	GImageCUDAWorker.hpp
+	GImageHelperFunctions.hpp
+	GImageIndividualEvaluator.hpp
+	GCUDAFitnessIndividual.hpp
+)
+
+# This is a workaround for a CLion-problem -- see CPP270 in the JetBrains issue tracker
+ADD_CUSTOM_TARGET(CLION_MONALISA_HEADERS SOURCES ${MONALISAINCLUDES})
+
+SET_TARGET_PROPERTIES(
+    CLION_MONALISA_HEADERS
+    PROPERTIES
+	CXX_STANDARD 20
+	CXX_STANDARD_REQUIRED ON
+	CXX_EXTENSIONS OFF
+)
+
 ENABLE_LANGUAGE(CUDA)
 
 # The CUDA toolkit's bundled g++ wrapper selects an older GCC whose library
@@ -125,27 +150,6 @@ if(DEFINED GENEVA_CXX_RUNTIME_LIB_DIR AND
         "${GENEVA_CXX_RUNTIME_LIB_DIR}/libstdc++.so"
     )
 endif()
-
-SET ( MONALISAINCLUDES
-	GCanvas.hpp
-    GImageIndividual.hpp
-    GImagePOM.hpp
-	GImageCUDAWorker.hpp
-	GImageHelperFunctions.hpp
-	GImageIndividualEvaluator.hpp
-	GCUDAFitnessIndividual.hpp
-)
-
-# This is a workaround for a CLion-problem -- see CPP270 in the JetBrains issue tracker
-ADD_CUSTOM_TARGET(CLION_MONALISA_HEADERS SOURCES ${MONALISAINCLUDES})
-
-SET_TARGET_PROPERTIES(
-    CLION_MONALISA_HEADERS
-    PROPERTIES
-	CXX_STANDARD 20
-	CXX_STANDARD_REQUIRED ON
-	CXX_EXTENSIONS OFF
-)
 
 ADD_SUBDIRECTORY(pictures)
 ADD_SUBDIRECTORY(config)

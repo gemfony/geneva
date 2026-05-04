@@ -29,6 +29,8 @@
 
 #include "GCanvas.hpp"
 
+#include <iomanip>
+
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GCanvas8) // NOLINT
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GCanvas16) // NOLINT
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GCanvas24) // NOLINT
@@ -175,7 +177,7 @@ namespace Gem::Geneva
  * Explicit reset of colors, using a std::tuple
  */
 	void
-	GRgb::setColor(std::tuple<float, float, float> color) {
+	GRgb::setColor(std::tuple<float, float, float> const& color) {
 		r = std::get<0>(color);
 		g = std::get<1>(color);
 		b = std::get<2>(color);
