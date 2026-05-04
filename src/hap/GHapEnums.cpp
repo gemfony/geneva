@@ -29,6 +29,8 @@
 
 #include "hap/GHapEnums.hpp"
 
+#include <boost/cast.hpp>
+
 namespace Gem::Hap
 {
 

@@ -36,6 +36,7 @@
 #include "GMPIHelperFunctions.hpp"
 
 // Standard headers go here
+#include <cstdint>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -106,7 +107,7 @@ namespace Gem::Courtier {
         /**
          * The number of threads in a thread pool which is used to handle incoming requests.
          */
-        boost::uint32_t nHandlerThreads{0};
+        std::uint32_t nHandlerThreads{0};
         /**
          * The time in ms between each check of completion of the send operation of a new work item to a worker node.
          */

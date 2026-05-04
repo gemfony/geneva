@@ -29,6 +29,8 @@
 
 #include "courtier/GCourtierHelperFunctions.hpp"
 
+#include <boost/cast.hpp>
+
 namespace Gem::Courtier
 {
 

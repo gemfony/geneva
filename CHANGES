@@ -138,6 +138,31 @@ Recommended Versions:
     in the DEBUG error message. Dead comment "// Converts the three angles"
     removed.
 
+- GCommonEnums.hpp / GCommonEnums.cpp cleaned up for C++20 compliance:
+  - Unused includes removed from the header (<boost/cast.hpp>, <cmath>, <cstdio>,
+    <cstdlib>); <boost/cast.hpp> moved to GCommonEnums.cpp where boost::numeric_cast
+    is used. Files that previously relied on the transitive include now include
+    <boost/cast.hpp> directly (GHapEnums.cpp, GCourtierEnums.cpp,
+    GCourtierHelperFunctions.cpp, GThreadPool.cpp).
+  - 9 namespace-scope `const` variables promoted to `constexpr` (DEFAULTBUFFERSIZE,
+    CE_DEF_SIMILARITY_DIFFERENCE, DEFAULTNBINSGPD, VAR_IS_ESSENTIAL, VAR_IS_SECONDARY,
+    CE_SILENT, CE_WITH_MESSAGES, DEFAULTNHARDWARETHREADS, DEFAULTMAXNHARDWARETHREADS).
+    CE_DEF_SIMILARITY_DIFFERENCE was also simplified from pow(10., -5) to the literal 1e-5.
+  - Dead enum value parameter_source::SIZE removed (it equalled ASSIGNMENT rather than
+    ASSIGNMENT+1, making it useless as a range sentinel; grep confirmed no usage outside
+    its own definition).
+  - Missing operator<< / operator>> for dimensions added to GCommonEnums.cpp (the
+    declarations existed in the header but the definitions were absent).
+  - Typo in serModeToString: "unkown" → "unknown"; dead break-after-return statements
+    removed.
+  - [[nodiscard]] added to serModeToString declaration.
+  - GCourtierEnums.hpp: boost::uint32_t replaced with std::uint32_t (three constants);
+    <cstdint> added; const → constexpr for the three affected constants.
+  - GMPIConsumerT.hpp: boost::uint32_t replaced with std::uint32_t; <cstdint> added.
+  - GOptimizationEnums.hpp: boost::numeric::bounds<T>::highest() / ::lowest() replaced
+    with std::numeric_limits<T>::max() (already included via <limits>); the three
+    affected constants promoted from const to constexpr.
+
 - GBarrier.hpp removed. The single usage site (GBufferPortTTest.cpp) has been
   updated to use std::latch (C++20, <latch>) instead. std::latch::arrive_and_wait()
   replaces GBarrier::wait() directly; std::latch is the appropriate type here

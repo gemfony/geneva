@@ -29,6 +29,8 @@
 
 #include "common/GThreadPool.hpp"
 
+#include <boost/cast.hpp>
+
 namespace Gem::Common
 {
 
