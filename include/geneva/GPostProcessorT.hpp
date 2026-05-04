@@ -124,7 +124,7 @@ public:
 protected:
 	 /**************************************************************************/
 	 /** @brief Raw post-processing (no checks for eligibility); purely virtual */
-	 virtual G_API_GENEVA bool raw_processing_(base_type& p_raw) BASE = 0;
+	 virtual G_API_GENEVA bool raw_processing_(base_type& p_raw) = 0;
 
 	 /**************************************************************************/
 	 /**

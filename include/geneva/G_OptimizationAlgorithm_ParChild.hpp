@@ -220,7 +220,7 @@ protected:
     /***************************************************************************/
 
     /** @brief This function is called from G_OptimizationAlgorithm_Base::optimize() and performs the actual recombination */
-    virtual G_API_GENEVA void recombine() BASE;
+    virtual G_API_GENEVA void recombine();
 
     /** @brief Retrieves the adaption range in a given iteration and sorting scheme. */
     G_API_GENEVA std::tuple<std::size_t, std::size_t> getAdaptionRange() const;
@@ -281,14 +281,14 @@ private:
 
 
     /** @brief Adapts all children of this population */
-    virtual G_API_GENEVA void adaptChildren_() BASE = 0;
+    virtual G_API_GENEVA void adaptChildren_() = 0;
     /** @brief Choose new parents, based on the selection scheme set by the user */
-    virtual G_API_GENEVA void selectBest_() BASE = 0;
+    virtual G_API_GENEVA void selectBest_() = 0;
 
     /** @brief Retrieves the evaluation range in a given iteration and sorting scheme */
-    virtual G_API_GENEVA std::tuple<std::size_t, std::size_t> getEvaluationRange_() const BASE = 0; // Depends on selection scheme
+    virtual G_API_GENEVA std::tuple<std::size_t, std::size_t> getEvaluationRange_() const = 0; // Depends on selection scheme
     /** @brief Some error checks related to population sizes */
-    virtual G_API_GENEVA void populationSanityChecks_() const BASE = 0; // TODO: Take code from old init() function
+    virtual G_API_GENEVA void populationSanityChecks_() const = 0; // TODO: Take code from old init() function
 
 
     /***************************************************************************/

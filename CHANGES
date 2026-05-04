@@ -225,6 +225,37 @@ Recommended Versions:
     explicit intermediate variables.
   * getRatioErrors: iterator loop replaced with index-based for; reserve() added.
 
+- GCommonInterfaceT<g_class_type> overhauled for C++20 compliance and correctness:
+  - Exception safety: fromStream() now wraps the raw pointer returned by
+    Boost.Serialization in a std::unique_ptr before calling load_(), ensuring the
+    allocated object is destroyed if load_() throws.  g_delete() is no longer called
+    at the call site.  The same fix was applied to the only other raw-pointer
+    Boost.Serialization pattern in the codebase (networkData::loadFromDisk()).
+  - #include <sstream> added (std::ostringstream / std::istringstream were used
+    without it; the include was previously satisfied transitively).
+  - SFINAE enable_if constraints on clone<T>(), load(shared_ptr), and load(ref)
+    replaced with C++20 requires-clauses (requires std::is_base_of_v<…>).
+  - Small scalar parameters (serializationMode, expectation, double limit) are now
+    passed by value instead of const-reference in toStream(), fromStream(),
+    toString(), fromString(), toFile(), fromFile(), compare(), and compare_().
+  - Redundant std::ofstream::close() / std::ifstream::close() calls removed from
+    toFile() and fromFile() (the streams close automatically on scope exit).
+  - Redundant std::filesystem::path(p) wrapping removed from fromFile() (p is
+    already a path).
+  - Debug check in toFile() changed from post-close std::filesystem::exists() to
+    ofstr.good() checked while the stream is still open — the old check could not
+    reliably detect write errors.
+  - G_API_GENEVA on the three unit-test virtual methods (modify_GUnitTests_(),
+    specificTestsNoFailureExpected_GUnitTests_(), specificTestsFailuresExpected_
+    GUnitTests_()) corrected to G_API_COMMON (the methods are declared in the
+    Common library, not the Geneva library).
+
+- The vestigial BASE macro (#define BASE, which expanded to nothing) has been
+  removed from GGlobalDefines.hpp and all 40 files that used it across the common,
+  courtier, and geneva libraries.  The macro was a pre-C++11 documentation
+  convention indicating the first pure-virtual declaration of a method; it has been
+  superseded by override and final keywords and carried no semantic value.
+
 //------------------------------------------------------------------------------------------------------
 * Version 1.11, "Hendaye" - March 16, 2026
 

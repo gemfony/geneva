@@ -258,7 +258,7 @@ public:
     /** @brief Perform a cross-over operation between this object and another */
     virtual G_API_GENEVA std::shared_ptr<GParameterSet> crossOverWith(
         std::shared_ptr<GParameterSet> const &
-    ) const BASE;
+    ) const;
 
     /** @brief Triggers updates of adaptors contained in this object */
     G_API_GENEVA void updateAdaptorsOnStall(std::uint32_t);
@@ -271,7 +271,7 @@ public:
     ) const;
 
     /** @brief Retrieves parameters relevant for the evaluation from another GParameterSet */
-    virtual G_API_GENEVA void cannibalize(GParameterSet &) BASE;
+    virtual G_API_GENEVA void cannibalize(GParameterSet &);
 
     /** @brief The adaption interface */
     G_API_GENEVA std::size_t adapt() override;
@@ -288,10 +288,10 @@ public:
     G_API_GENEVA maxMode getMaxMode() const;
 
     /** @brief Retrieves the worst possible evaluation result, depending on whether we are in maximization or minimization mode */
-    virtual G_API_GENEVA double getWorstCase() const BASE;
+    virtual G_API_GENEVA double getWorstCase() const;
 
     /** @brief Retrieves the best possible evaluation result, depending on whether we are in maximization or minimization mode */
-    virtual G_API_GENEVA double getBestCase() const BASE;
+    virtual G_API_GENEVA double getBestCase() const;
 
     /** @brief Retrieves the steepness_ variable (used for the sigmoid transformation) */
     G_API_GENEVA double getSteepness() const;
@@ -932,10 +932,10 @@ protected:
     ) const override;
 
     /** @brief Random initialization */
-    virtual G_API_GENEVA bool randomInit_(activityMode const &) BASE;
+    virtual G_API_GENEVA bool randomInit_(activityMode const &);
 
     /* @brief The actual adaption operations. */
-    virtual G_API_GENEVA std::size_t customAdaptions() BASE;
+    virtual G_API_GENEVA std::size_t customAdaptions();
 
     /** @brief The fitness calculation for the main quality criterion takes place here */
     G_API_GENEVA double fitnessCalculation() override = 0;

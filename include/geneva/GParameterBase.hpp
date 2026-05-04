@@ -408,13 +408,13 @@ public:
     G_API_GENEVA bool randomInitializationBlocked() const;
 
     /** @brief Convenience function so we do not need to always cast derived classes */
-    virtual G_API_GENEVA bool hasAdaptor() const BASE;
+    virtual G_API_GENEVA bool hasAdaptor() const;
 
     /** @brief Converts the local data to a boost::property_tree node */
-    virtual G_API_GENEVA void toPropertyTree(pt::ptree &, const std::string &) const BASE = 0;
+    virtual G_API_GENEVA void toPropertyTree(pt::ptree &, const std::string &) const = 0;
 
     /** @brief Lets the audience know whether this is a leaf or a branch object */
-    virtual G_API_GENEVA bool isLeaf() const BASE;
+    virtual G_API_GENEVA bool isLeaf() const;
 
     /***************************************************************************/
     /**
@@ -452,188 +452,188 @@ public:
 protected:
     /***************************************************************************/
     /** @brief Count the number of float parameters */
-    virtual G_API_GENEVA std::size_t countFloatParameters(const activityMode &am) const BASE;
+    virtual G_API_GENEVA std::size_t countFloatParameters(const activityMode &am) const;
 
     /** @brief Count the number of double parameters */
-    virtual G_API_GENEVA std::size_t countDoubleParameters(const activityMode &am) const BASE;
+    virtual G_API_GENEVA std::size_t countDoubleParameters(const activityMode &am) const;
 
     /** @brief Count the number of std::int32_t parameters */
-    virtual G_API_GENEVA std::size_t countInt32Parameters(const activityMode &am) const BASE;
+    virtual G_API_GENEVA std::size_t countInt32Parameters(const activityMode &am) const;
 
     /** @brief Count the number of bool parameters */
-    virtual G_API_GENEVA std::size_t countBoolParameters(const activityMode &am) const BASE;
+    virtual G_API_GENEVA std::size_t countBoolParameters(const activityMode &am) const;
 
     /** @brief Attach boundaries of type float to the vectors */
     virtual G_API_GENEVA void floatBoundaries(
         std::vector<float> &, std::vector<float> &, const activityMode &
-    ) const BASE;
+    ) const;
 
     /** @brief Attach boundaries of type double to the vectors */
     virtual G_API_GENEVA void doubleBoundaries(
         std::vector<double> &, std::vector<double> &, const activityMode &
-    ) const BASE;
+    ) const;
 
     /** @brief Attach boundaries of type std::int32_t to the vectors */
     virtual G_API_GENEVA void int32Boundaries(
         std::vector<std::int32_t> &, std::vector<std::int32_t> &, const activityMode &
-    ) const BASE;
+    ) const;
 
     /** @brief Attach boundaries of type bool to the vectors */
     virtual G_API_GENEVA void booleanBoundaries(
         std::vector<bool> &, std::vector<bool> &, const activityMode &
-    ) const BASE;
+    ) const;
 
     /** @brief Attach parameters of type float to the vector */
-    virtual G_API_GENEVA void floatStreamline(std::vector<float> &, const activityMode &) const BASE;
+    virtual G_API_GENEVA void floatStreamline(std::vector<float> &, const activityMode &) const;
 
     /** @brief Attach parameters of type double to the vector */
-    virtual G_API_GENEVA void doubleStreamline(std::vector<double> &, const activityMode &) const BASE;
+    virtual G_API_GENEVA void doubleStreamline(std::vector<double> &, const activityMode &) const;
 
     /** @brief Attach parameters of type std::int32_t to the vector */
-    virtual G_API_GENEVA void int32Streamline(std::vector<std::int32_t> &, const activityMode &) const BASE;
+    virtual G_API_GENEVA void int32Streamline(std::vector<std::int32_t> &, const activityMode &) const;
 
     /** @brief Attach parameters of type bool to the vector */
-    virtual G_API_GENEVA void booleanStreamline(std::vector<bool> &, const activityMode &) const BASE;
+    virtual G_API_GENEVA void booleanStreamline(std::vector<bool> &, const activityMode &) const;
 
     /** @brief Attach parameters of type float to the map */
     virtual G_API_GENEVA void floatStreamline(
         std::map<std::string, std::vector<float>> &, const activityMode &
-    ) const BASE;
+    ) const;
 
     /** @brief Attach parameters of type double to the map */
     virtual G_API_GENEVA void doubleStreamline(
         std::map<std::string, std::vector<double>> &, const activityMode &
-    ) const BASE;
+    ) const;
 
     /** @brief Attach parameters of type std::int32_t to the map */
     virtual G_API_GENEVA void int32Streamline(
         std::map<std::string, std::vector<std::int32_t>> &, const activityMode &
-    ) const BASE;
+    ) const;
 
     /** @brief Attach parameters of type bool to the map */
     virtual G_API_GENEVA void booleanStreamline(
         std::map<std::string, std::vector<bool>> &, const activityMode &
-    ) const BASE;
+    ) const;
 
     /** @brief Assigns part of a value vector to the parameter */
     virtual G_API_GENEVA void assignFloatValueVector(
         const std::vector<float> &, std::size_t &, const activityMode &
-    ) BASE;
+    );
 
     /** @brief Assigns part of a value vector to the parameter */
     virtual G_API_GENEVA void assignDoubleValueVector(
         const std::vector<double> &, std::size_t &, const activityMode &
-    ) BASE;
+    );
 
     /** @brief Assigns part of a value vector to the parameter */
     virtual G_API_GENEVA void assignInt32ValueVector(
         const std::vector<std::int32_t> &, std::size_t &, const activityMode &
-    ) BASE;
+    );
 
     /** @brief Assigns part of a value vector to the parameter */
     virtual G_API_GENEVA void assignBooleanValueVector(
         const std::vector<bool> &, std::size_t &, const activityMode &
-    ) BASE;
+    );
 
     /** @brief Assigns part of a value vector to the parameter */
     virtual G_API_GENEVA void assignFloatValueVectors(
         const std::map<std::string, std::vector<float>> &, const activityMode &
-    ) BASE;
+    );
 
     /** @brief Assigns part of a value vector to the parameter */
     virtual G_API_GENEVA void assignDoubleValueVectors(
         const std::map<std::string, std::vector<double>> &, const activityMode &
-    ) BASE;
+    );
 
     /** @brief Assigns part of a value vector to the parameter */
     virtual G_API_GENEVA void assignInt32ValueVectors(
         const std::map<std::string, std::vector<std::int32_t>> &, const activityMode &
-    ) BASE;
+    );
 
     /** @brief Assigns part of a value vector to the parameter */
     virtual G_API_GENEVA void assignBooleanValueVectors(
         const std::map<std::string, std::vector<bool>> &, const activityMode &
-    ) BASE;
+    );
 
     /** @brief Multiplication with a random value in a given range */
     virtual G_API_GENEVA void floatMultiplyByRandom(
         const float &min, const float &max, const activityMode &am, Gem::Hap::GRandomBase &
-    ) BASE;
+    );
 
     /** @brief Multiplication with a random value in a given range */
     virtual G_API_GENEVA void doubleMultiplyByRandom(
         const double &min, const double &max, const activityMode &am, Gem::Hap::GRandomBase &
-    ) BASE;
+    );
 
     /** @brief Multiplication with a random value in a given range */
     virtual G_API_GENEVA void int32MultiplyByRandom(
         const std::int32_t &min, const std::int32_t &max, const activityMode &am, Gem::Hap::GRandomBase &
-    ) BASE;
+    );
 
     /** @brief Multiplication with a random value in a given range */
     virtual G_API_GENEVA void booleanMultiplyByRandom(
         const bool &min, const bool &max, const activityMode &am, Gem::Hap::GRandomBase &
-    ) BASE;
+    );
 
     /** @brief Multiplication with a random value in the range [0,1[ */
-    virtual G_API_GENEVA void floatMultiplyByRandom(const activityMode &am, Gem::Hap::GRandomBase &) BASE;
+    virtual G_API_GENEVA void floatMultiplyByRandom(const activityMode &am, Gem::Hap::GRandomBase &);
 
     /** @brief Multiplication with a random value in the range [0,1[ */
-    virtual G_API_GENEVA void doubleMultiplyByRandom(const activityMode &am, Gem::Hap::GRandomBase &) BASE;
+    virtual G_API_GENEVA void doubleMultiplyByRandom(const activityMode &am, Gem::Hap::GRandomBase &);
 
     /** @brief Multiplication with a random value in the range [0,1[ */
-    virtual G_API_GENEVA void int32MultiplyByRandom(const activityMode &am, Gem::Hap::GRandomBase &) BASE;
+    virtual G_API_GENEVA void int32MultiplyByRandom(const activityMode &am, Gem::Hap::GRandomBase &);
 
     /** @brief Multiplication with a random value in the range [0,1[ */
-    virtual G_API_GENEVA void booleanMultiplyByRandom(const activityMode &am, Gem::Hap::GRandomBase &) BASE;
+    virtual G_API_GENEVA void booleanMultiplyByRandom(const activityMode &am, Gem::Hap::GRandomBase &);
 
     /** @brief Multiplication with a constant value */
-    virtual G_API_GENEVA void floatMultiplyBy(const float &value, const activityMode &am) BASE;
+    virtual G_API_GENEVA void floatMultiplyBy(const float &value, const activityMode &am);
 
     /** @brief Multiplication with a constant value */
-    virtual G_API_GENEVA void doubleMultiplyBy(const double &value, const activityMode &am) BASE;
+    virtual G_API_GENEVA void doubleMultiplyBy(const double &value, const activityMode &am);
 
     /** @brief Multiplication with a constant value */
-    virtual G_API_GENEVA void int32MultiplyBy(const std::int32_t &value, const activityMode &am) BASE;
+    virtual G_API_GENEVA void int32MultiplyBy(const std::int32_t &value, const activityMode &am);
 
     /** @brief Multiplication with a const value */
-    virtual G_API_GENEVA void booleanMultiplyBy(const bool &value, const activityMode &am) BASE;
+    virtual G_API_GENEVA void booleanMultiplyBy(const bool &value, const activityMode &am);
 
     /** @brief Initialization with a constant value */
-    virtual G_API_GENEVA void floatFixedValueInit(const float &value, const activityMode &am) BASE;
+    virtual G_API_GENEVA void floatFixedValueInit(const float &value, const activityMode &am);
 
     /** @brief Initialization with a constant value */
-    virtual G_API_GENEVA void doubleFixedValueInit(const double &value, const activityMode &am) BASE;
+    virtual G_API_GENEVA void doubleFixedValueInit(const double &value, const activityMode &am);
 
     /** @brief Initialization with a constant value */
-    virtual G_API_GENEVA void int32FixedValueInit(const std::int32_t &value, const activityMode &am) BASE;
+    virtual G_API_GENEVA void int32FixedValueInit(const std::int32_t &value, const activityMode &am);
 
     /** @brief Initialization with a const value */
-    virtual G_API_GENEVA void booleanFixedValueInit(const bool &value, const activityMode &am) BASE;
+    virtual G_API_GENEVA void booleanFixedValueInit(const bool &value, const activityMode &am);
 
     /** @brief Adds the "same-type" parameters of another GParameterBase object to this one */
-    virtual G_API_GENEVA void floatAdd(std::shared_ptr<GParameterBase>, const activityMode &am) BASE;
+    virtual G_API_GENEVA void floatAdd(std::shared_ptr<GParameterBase>, const activityMode &am);
 
     /** @brief Adds the "same-type" parameters of another GParameterBase object to this one */
-    virtual G_API_GENEVA void doubleAdd(std::shared_ptr<GParameterBase>, const activityMode &am) BASE;
+    virtual G_API_GENEVA void doubleAdd(std::shared_ptr<GParameterBase>, const activityMode &am);
 
     /** @brief Adds the "same-type" parameters of another GParameterBase object to this one */
-    virtual G_API_GENEVA void int32Add(std::shared_ptr<GParameterBase>, const activityMode &am) BASE;
+    virtual G_API_GENEVA void int32Add(std::shared_ptr<GParameterBase>, const activityMode &am);
 
     /** @brief Adds the "same-type" parameters of another GParameterBase object to this one */
-    virtual G_API_GENEVA void booleanAdd(std::shared_ptr<GParameterBase>, const activityMode &am) BASE;
+    virtual G_API_GENEVA void booleanAdd(std::shared_ptr<GParameterBase>, const activityMode &am);
 
     /** @brief Adds the "same-type" parameters of another GParameterBase object to this one */
-    virtual G_API_GENEVA void floatSubtract(std::shared_ptr<GParameterBase>, const activityMode &am) BASE;
+    virtual G_API_GENEVA void floatSubtract(std::shared_ptr<GParameterBase>, const activityMode &am);
 
     /** @brief Adds the "same-type" parameters of another GParameterBase object to this one */
-    virtual G_API_GENEVA void doubleSubtract(std::shared_ptr<GParameterBase>, const activityMode &am) BASE;
+    virtual G_API_GENEVA void doubleSubtract(std::shared_ptr<GParameterBase>, const activityMode &am);
 
     /** @brief Adds the "same-type" parameters of another GParameterBase object to this one */
-    virtual G_API_GENEVA void int32Subtract(std::shared_ptr<GParameterBase>, const activityMode &am) BASE;
+    virtual G_API_GENEVA void int32Subtract(std::shared_ptr<GParameterBase>, const activityMode &am);
 
     /** @brief Adds the "same-type" parameters of another GParameterBase object to this one */
-    virtual G_API_GENEVA void booleanSubtract(std::shared_ptr<GParameterBase>, const activityMode &am) BASE;
+    virtual G_API_GENEVA void booleanSubtract(std::shared_ptr<GParameterBase>, const activityMode &am);
 
     /***************************************************************************/
     /** @brief Loads the data of another GObject */
@@ -657,7 +657,7 @@ protected:
     virtual G_API_GENEVA bool randomInit_(
         const activityMode &
         , Gem::Hap::GRandomBase &
-    ) BASE = 0;
+    ) = 0;
 
     /** @brief Applies modifications to this object. This is needed for testing purposes */
     G_API_GENEVA bool modify_GUnitTests_() override;
@@ -674,19 +674,19 @@ private:
     G_API_GENEVA GObject *clone_() const override = 0;
 
     /** @brief The actual adaption logic */
-    virtual G_API_GENEVA std::size_t adapt_(Gem::Hap::GRandomBase &) BASE = 0;
+    virtual G_API_GENEVA std::size_t adapt_(Gem::Hap::GRandomBase &) = 0;
     /** @brief Triggers updates when the optimization process has stalled */
-    virtual G_API_GENEVA bool updateAdaptorsOnStall_(std::size_t) BASE = 0;
+    virtual G_API_GENEVA bool updateAdaptorsOnStall_(std::size_t) = 0;
 
     /** @brief Retrieves information from an adaptor on a given property */
     virtual G_API_GENEVA void queryAdaptor_(
         const std::string &adaptorName
         , const std::string &property
         , std::vector<boost::any> &data
-    ) const BASE = 0;
+    ) const = 0;
 
     /** @brief Allows to identify whether we are dealing with a collection or an individual parameter */
-    virtual G_API_GENEVA bool isIndividualParameter_() const BASE;
+    virtual G_API_GENEVA bool isIndividualParameter_() const;
 
     /***************************************************************************/
     bool m_adaptionsActive = true; ///< Specifies whether adaptions of this object should be carried out

@@ -207,7 +207,7 @@ namespace Gem::Courtier
 		GProcessingContainerT(GProcessingContainerT<processable_type, processing_result_type> &&) = delete;
 		GProcessingContainerT<processable_type, processing_result_type>& operator=(GProcessingContainerT<processable_type, processing_result_type> &&) = delete;
 
-		virtual ~GProcessingContainerT() BASE = default;
+		virtual ~GProcessingContainerT() = default;
 
 		/***************************************************************************/
 		/**
@@ -961,7 +961,7 @@ namespace Gem::Courtier
 	  *
 	  * @param cD_ptr A pointer to the object whose data should be loaded
 	  */
-		virtual void loadConstantData_(std::shared_ptr<processable_type>) BASE
+		virtual void loadConstantData_(std::shared_ptr<processable_type>)
 		{ /* nothing */ }
 
 		/***************************************************************************/
@@ -969,7 +969,7 @@ namespace Gem::Courtier
 		/** @brief Allows derived classes to specify the tasks to be performed for this object */
 		virtual G_API_COURTIER void process_(
 			const std::vector<processing_result_type> &res_vec = std::vector<processing_result_type>()
-		) BASE = 0;
+		) = 0;
 
 		/***************************************************************************/
 		/**

@@ -34,6 +34,7 @@
 
 // Standard header files go here
 #include <string>
+#include <sstream>
 #include <filesystem>
 #include <fstream>
 #include <memory>
@@ -92,7 +93,7 @@ public:
      */
     void toStream(
         std::ostream &oarchive_stream
-        , const Gem::Common::serializationMode &serMod
+        , Gem::Common::serializationMode serMod
     ) const {
         const g_class_type *local;
 
@@ -162,16 +163,16 @@ public:
      */
     void fromStream(
         std::istream &istr
-        , const Gem::Common::serializationMode &serMod
+        , Gem::Common::serializationMode serMod
     ) {
-        g_class_type *local = nullptr;
+        g_class_type *raw = nullptr;
 
         switch (serMod) {
             case Gem::Common::serializationMode::TEXT: {
                 boost::archive::text_iarchive ia(istr);
                 ia >> boost::serialization::make_nvp(
                     "classhierarchyFromT"
-                    , local
+                    , raw
                 );
             } // note: explicit scope here is essential so the ia-destructor gets called
 
@@ -181,7 +182,7 @@ public:
                 boost::archive::xml_iarchive ia(istr);
                 ia >> boost::serialization::make_nvp(
                     "classhierarchyFromT"
-                    , local
+                    , raw
                 );
             } // note: explicit scope here is essential so the ia-destructor gets called
 
@@ -191,17 +192,15 @@ public:
                 boost::archive::binary_iarchive ia(istr);
                 ia >> boost::serialization::make_nvp(
                     "classhierarchyFromT"
-                    , local
+                    , raw
                 );
             } // note: explicit scope here is essential so the ia-destructor gets called
 
                 break;
         }
 
-        this->load_(local);
-        if (local) {
-            g_delete(local);
-        }
+        std::unique_ptr<g_class_type> local(raw);
+        this->load_(local.get());
     }
 
     /* ----------------------------------------------------------------------------------
@@ -219,7 +218,7 @@ public:
      * @param serMod The desired serialization mode
      * @return A text-representation of this class (or its derivative)
      */
-    std::string toString(const Gem::Common::serializationMode &serMod) const {
+    std::string toString(Gem::Common::serializationMode serMod) const {
         std::ostringstream oarchive_stream;
         toStream(
             oarchive_stream
@@ -245,7 +244,7 @@ public:
      */
     void fromString(
         const std::string &descr
-        , const Gem::Common::serializationMode &serMod
+        , Gem::Common::serializationMode serMod
     ) {
         std::istringstream istr(descr);
         fromStream(
@@ -269,7 +268,7 @@ public:
      */
     void toFile(
         const std::filesystem::path &p
-        , const Gem::Common::serializationMode &serMod
+        , Gem::Common::serializationMode serMod
     ) const {
         std::ofstream ofstr(
             p
@@ -291,18 +290,16 @@ public:
             ofstr
             , serMod
         );
-        ofstr.close();
 
 #ifdef DEBUG
-        if (not std::filesystem::exists(std::filesystem::path(p))) {
+        if (not ofstr.good()) {
             throw geneva_exception(
                 g_error_streamer(
                     DO_LOG
                     , time_and_place
                 )
                     << "In GCommonInterfaceT::toFile():" << std::endl
-                    << "Data was written to " << p.string() << std::endl
-                    << "but file does not seem to exist." << std::endl
+                    << "Stream error after writing to " << p.string() << std::endl
             );
         }
 #endif
@@ -323,10 +320,10 @@ public:
      */
     void fromFile(
         const std::filesystem::path &p
-        , const Gem::Common::serializationMode &serMod
+        , Gem::Common::serializationMode serMod
     ) {
         // Check that the file exists
-        if (not std::filesystem::exists(std::filesystem::path(p))) {
+        if (not std::filesystem::exists(p)) {
             throw geneva_exception(
                 g_error_streamer(
                     DO_LOG
@@ -355,7 +352,6 @@ public:
             ifstr
             , serMod
         );
-        ifstr.close();
     }
 
     /* ----------------------------------------------------------------------------------
@@ -455,8 +451,8 @@ public:
      */
     void compare(
         const g_class_type &cp // the other object
-        , const Gem::Common::expectation &e // the expectation for this object, e.g. equality
-        , const double &limit // the limit for allowed deviations of floating point types
+        , Gem::Common::expectation e // the expectation for this object, e.g. equality
+        , double limit // the limit for allowed deviations of floating point types
     ) const {
         this->compare_(
             cp
@@ -482,10 +478,8 @@ public:
      *
      * @return A converted clone of this object, wrapped into a std::shared_ptr
      */
-    template<typename clone_type>
-    std::shared_ptr<clone_type> clone(
-        typename std::enable_if<std::is_base_of<g_class_type, clone_type>::value>::type *dummy = nullptr
-    ) const {
+    template<typename clone_type, std::enable_if_t<std::is_base_of_v<g_class_type, clone_type>, int> = 0>
+    std::shared_ptr<clone_type> clone() const {
         return Gem::Common::convertSmartPointer<g_class_type, clone_type>(std::shared_ptr<g_class_type>(this->clone_()));
     }
 
@@ -496,11 +490,8 @@ public:
      *
      * @param cp A copy of another g_class_type-derivative, wrapped into a std::shared_ptr<>
      */
-    template<typename load_type>
-    void load(
-        const std::shared_ptr<load_type> &cp
-        , typename std::enable_if<std::is_base_of<g_class_type, load_type>::value>::type *dummy = nullptr
-    ) {
+    template<typename load_type, std::enable_if_t<std::is_base_of_v<g_class_type, load_type>, int> = 0>
+    void load(const std::shared_ptr<load_type> &cp) {
         load_(cp.get());
     }
 
@@ -511,11 +502,8 @@ public:
      *
      * @param cp A copy of another g_class_type-derivative, wrapped into a std::shared_ptr<>
      */
-    template<typename load_type>
-    void load(
-        const load_type &cp
-        , typename std::enable_if<std::is_base_of<g_class_type, load_type>::value>::type *dummy = nullptr
-    ) {
+    template<typename load_type, std::enable_if_t<std::is_base_of_v<g_class_type, load_type>, int> = 0>
+    void load(const load_type &cp) {
         load_(&cp);
     }
 
@@ -557,7 +545,7 @@ protected:
 
     /***************************************************************************/
     /** @brief Loads the data of another g_class_type */
-    virtual G_API_COMMON void load_(const g_class_type *) BASE = 0;
+    virtual G_API_COMMON void load_(const g_class_type *) = 0;
 
     /***************************************************************************/
     /** @brief Allow access to this classes compare_ function */
@@ -581,7 +569,7 @@ protected:
         const g_class_type &cp // the other object
         , const Gem::Common::expectation &e // the expectation for this object, e.g. equality
         , const double &limit // the limit for allowed deviations of floating point types
-    ) const BASE = 0;
+    ) const = 0;
 
     /***************************************************************************/
     /**
@@ -629,30 +617,30 @@ protected:
      */
     virtual void addConfigurationOptions_(
         Gem::Common::GParserBuilder &gpb
-    ) BASE {
+    ) {
         // No local data, no relevant parent classes, hence nothing to do
     }
 
     /***************************************************************************/
     /** @brief Applies modifications to this object. This is needed for testing purposes */
-    virtual G_API_GENEVA bool modify_GUnitTests_() BASE = 0;
+    virtual G_API_COMMON bool modify_GUnitTests_() = 0;
     /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-    virtual G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests_() BASE = 0;
+    virtual G_API_COMMON void specificTestsNoFailureExpected_GUnitTests_() = 0;
     /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-    virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests_() BASE = 0;
+    virtual G_API_COMMON void specificTestsFailuresExpected_GUnitTests_() = 0;
 
 private:
     /***************************************************************************/
     /**
      * Emits a name for this class / object
      */
-    virtual std::string name_() const BASE {
+    virtual std::string name_() const {
         return std::string("GCommonInterfaceT<g_class_type>");
     }
 
     /***************************************************************************/
     /** @brief Creates a deep clone of this object */
-    virtual G_API_COMMON g_class_type *clone_() const BASE = 0;
+    virtual G_API_COMMON g_class_type *clone_() const = 0;
 };
 
 /******************************************************************************/

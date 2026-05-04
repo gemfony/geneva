@@ -139,10 +139,6 @@
 #endif /* GEM_DYNAMIC */
 //-----------------------------------------------------------
 
-// Check for C++11 and enable some macros, if possible.
-// We only support this for Gcc, Clang and Intel compilers.
-#define BASE
-
 /** Funnily, on g++ std::pow(x,2) seems to be less efficient than direct multiplication */
 #define GSQUARED(X) (X) * (X)
 

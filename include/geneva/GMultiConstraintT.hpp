@@ -196,7 +196,7 @@ protected:
      * that this is a valid solution. This function must be overloaded in
      * derived classes.
      */
-    virtual double check_(const ind_type *) const BASE = 0;
+    virtual double check_(const ind_type *) const = 0;
 
     /***************************************************************************/
     /**

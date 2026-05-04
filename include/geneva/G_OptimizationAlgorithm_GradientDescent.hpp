@@ -153,10 +153,10 @@ protected:
     G_API_GENEVA void finalize() override;
 
     /** @brief Updates the individual parameters of children */
-    virtual G_API_GENEVA void updateChildParameters() BASE;
+    virtual G_API_GENEVA void updateChildParameters();
 
     /** @brief Performs a step of the parent individuals */
-    virtual G_API_GENEVA void updateParentIndividuals() BASE;
+    virtual G_API_GENEVA void updateParentIndividuals();
 
     /** @brief Applies modifications to this object. This is needed for testing purposes */
     G_API_GENEVA bool modify_GUnitTests_() override;

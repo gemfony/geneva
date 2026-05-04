@@ -80,7 +80,7 @@ public:
 	 GSerializableFunctionObjectT() = default;
 	 GSerializableFunctionObjectT(GSerializableFunctionObjectT<processable_type> const& cp) = default;
 	 GSerializableFunctionObjectT(GSerializableFunctionObjectT<processable_type> && cp) = default;
-	 virtual ~GSerializableFunctionObjectT() BASE = default;
+	 virtual ~GSerializableFunctionObjectT() = default;
 
 	 GSerializableFunctionObjectT<processable_type>& operator=(GSerializableFunctionObjectT<processable_type> const&) = default;
 	 GSerializableFunctionObjectT<processable_type>& operator=(GSerializableFunctionObjectT<processable_type> &&) = default;
@@ -147,7 +147,7 @@ protected:
 	 /***************************************************************************/
 
 	 /** @brief overload this function to make this class operational */
-	 virtual G_API_COMMON bool process_(processable_type& p) BASE = 0;
+	 virtual G_API_COMMON bool process_(processable_type& p) = 0;
 
 	 /** @brief Applies modifications to this object. This is needed for testing purposes */
 	 bool modify_GUnitTests_() override { return false; };

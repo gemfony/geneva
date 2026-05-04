@@ -76,7 +76,7 @@ public:
     G_API_GENEVA ~GPersonalityTraits() override = default;
 
     /** @brief Retrieves the mnemonic of the optimization algorithm */
-    virtual G_API_GENEVA std::string getMnemonic() const BASE = 0;
+    virtual G_API_GENEVA std::string getMnemonic() const = 0;
 
 protected:
     /** @brief Loads the data of another GPersonalityTraits object */

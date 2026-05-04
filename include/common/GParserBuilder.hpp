@@ -420,7 +420,7 @@ public:
 	 );
 
 	 /** @brief The destructor */
-	 virtual G_API_COMMON ~GParsableI() BASE = default;
+	 virtual G_API_COMMON ~GParsableI() = default;
 
 	 // Prevent copying, moving and default construction
 	 GParsableI() = delete;
@@ -545,13 +545,13 @@ public:
 private:
 	 /***************************************************************************/
 	 /** @brief Loads data from a property_tree object */
-	 virtual G_API_COMMON void load_from(boost::property_tree::ptree const &) BASE = 0;
+	 virtual G_API_COMMON void load_from(boost::property_tree::ptree const &) = 0;
 
 	 /** @brief Saves data to a property tree object */
-	 virtual G_API_COMMON void save_to(boost::property_tree::ptree &) const BASE = 0;
+	 virtual G_API_COMMON void save_to(boost::property_tree::ptree &) const = 0;
 
 	 /** @brief Executes a stored call-back function */
-	 virtual G_API_COMMON void executeCallBackFunction_() BASE = 0;
+	 virtual G_API_COMMON void executeCallBackFunction_() = 0;
 
 	 /***************************************************************************/
 
@@ -1977,10 +1977,10 @@ public:
 
 protected:
 	 /** @brief Saves data to a property tree object */
-	 virtual void save_to(boost::program_options::options_description &) const BASE = 0;
+	 virtual void save_to(boost::program_options::options_description &) const = 0;
 
 	 /** @brief Returns the content of this object as a std::string */
-	 virtual std::string content() const BASE = 0;
+	 virtual std::string content() const = 0;
 };
 
 /******************************************************************************/
@@ -2112,7 +2112,7 @@ public:
 	 G_API_COMMON GParserBuilder();
 
 	 /** @brief The destructor */
-	 virtual G_API_COMMON ~GParserBuilder() BASE = default;
+	 virtual G_API_COMMON ~GParserBuilder() = default;
 
 	 // Prevent copying and moving
 	 GParserBuilder(GParserBuilder const&) = delete;

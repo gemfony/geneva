@@ -132,7 +132,7 @@ public:
     /**
      * The destructor -- purely virtual to make this an abstract base class
      */
-    virtual ~GPtrVectorT() BASE = 0;
+    virtual ~GPtrVectorT() = 0;
 
 	/***************************************************************************/
 	/**
@@ -217,7 +217,7 @@ public:
 		GPtrVectorT<T,B> const &cp
 		, Gem::Common::expectation const &e
 		, double const &limit
-	) const BASE {
+	) const {
 		Gem::Common::GToken token("GBaseEA::GEAOptimizationMonitor", e);
 		Gem::Common::compare_t(IDENTITY(this->m_data_cnt, cp.m_data_cnt), token);
 		token.evaluate();
@@ -965,11 +965,11 @@ public:
 protected:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
 	// Note to self: changes to GStdPtrVectorInterface should be minimal and not involve objects pointed to
-	virtual bool modify_GUnitTests_() BASE { /* nothing here yet */ return false; }
+	virtual bool modify_GUnitTests_() { /* nothing here yet */ return false; }
 	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-	virtual void specificTestsNoFailureExpected_GUnitTests_() BASE { /* nothing here yet */ }
+	virtual void specificTestsNoFailureExpected_GUnitTests_() { /* nothing here yet */ }
 	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	virtual void specificTestsFailuresExpected_GUnitTests_() BASE { /* nothing here yet */ }
+	virtual void specificTestsFailuresExpected_GUnitTests_() { /* nothing here yet */ }
 
 	std::vector<std::shared_ptr<T>> m_data_cnt;
 };

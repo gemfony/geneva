@@ -290,7 +290,7 @@ public:
     /**
 	  * Retrieves the decorator data. Plot boundaries are not taken into account.
 	  */
-    virtual G_API_COMMON std::string decoratorData(const std::string &, const std::size_t &) const BASE = 0;
+    virtual G_API_COMMON std::string decoratorData(const std::string &, const std::size_t &) const = 0;
 
     /***************************************************************************/
     /**
@@ -305,7 +305,7 @@ public:
         , const std::tuple<coordinate_type, coordinate_type> &y_axis_range
         , const std::string &indent
         , const std::size_t &
-    ) const BASE = 0;
+    ) const = 0;
 
 protected:
     /***************************************************************************/
@@ -662,7 +662,7 @@ public:
     /**
 	  * Retrieves the decorator data. Plot boundaries are not taken into account.
 	  */
-    virtual std::string decoratorData(const std::string &, const std::size_t &) const BASE = 0;
+    virtual std::string decoratorData(const std::string &, const std::size_t &) const = 0;
 
     /***************************************************************************/
     /**
@@ -678,7 +678,7 @@ public:
         , const std::tuple<coordinate_type, coordinate_type> &z_axis_range
         , const std::string &indent
         , const std::size_t &pos
-    ) const BASE = 0;
+    ) const = 0;
 
 protected:
     /***************************************************************************/
@@ -819,7 +819,7 @@ public:
 	  * Retrieves the decorator data of all decorators. Plot boundaries are
 	  * not taken into account.
 	  */
-    virtual std::string decoratorData(const std::string &indent) const BASE {
+    virtual std::string decoratorData(const std::string &indent) const {
         std::string result;
 
         std::size_t pos = 0;
@@ -845,7 +845,7 @@ public:
         const std::tuple<coordinate_type, coordinate_type> &x_axis_range
         , const std::tuple<coordinate_type, coordinate_type> &y_axis_range
         , const std::string &indent
-    ) const BASE {
+    ) const {
         std::string result;
 
         std::size_t pos = 0;
@@ -1108,7 +1108,7 @@ public:
 	  * Retrieves the decorator data of all decorators. Plot boundaries are
 	  * not taken into account.
 	  */
-    virtual std::string decoratorData(const std::string &indent) const BASE {
+    virtual std::string decoratorData(const std::string &indent) const {
         std::string result;
 
         std::size_t pos = 0;
@@ -1135,7 +1135,7 @@ public:
         , const std::tuple<coordinate_type, coordinate_type> &y_axis_range
         , const std::tuple<coordinate_type, coordinate_type> &z_axis_range
         , const std::string &indent
-    ) const BASE {
+    ) const {
         std::string result;
 
         std::size_t pos = 0;
@@ -1434,7 +1434,7 @@ public:
     G_API_COMMON void setId(const std::size_t &);
 
     /** @brief Retrieves a unique name for this plotter */
-    virtual G_API_COMMON std::string getPlotterName() const BASE = 0;
+    virtual G_API_COMMON std::string getPlotterName() const = 0;
 
     /***************************************************************************/
 
@@ -1470,19 +1470,19 @@ protected:
     // Functions to be specified in derived classes
 
     /** @brief Retrieve specific header settings for this plot */
-    virtual G_API_COMMON std::string headerData_(bool, std::size_t, const std::string &) const BASE = 0;
+    virtual G_API_COMMON std::string headerData_(bool, std::size_t, const std::string &) const = 0;
 
     /** @brief Retrieves the actual data sets */
-    virtual G_API_COMMON std::string bodyData_(bool, std::size_t, const std::string &) const BASE = 0;
+    virtual G_API_COMMON std::string bodyData_(bool, std::size_t, const std::string &) const = 0;
 
     /** @brief retrieves specific draw commands for this plot */
-    virtual G_API_COMMON std::string footerData_(bool, std::size_t, const std::string &) const BASE = 0;
+    virtual G_API_COMMON std::string footerData_(bool, std::size_t, const std::string &) const = 0;
 
     /** @brief Retrieve the current drawing arguments */
-    virtual G_API_COMMON std::string drawingArguments(bool) const BASE = 0;
+    virtual G_API_COMMON std::string drawingArguments(bool) const = 0;
 
     /** @brief Check that a given plotter is compatible with us */
-    virtual G_API_COMMON bool isCompatible(std::shared_ptr<GBasePlotter>) const BASE;
+    virtual G_API_COMMON bool isCompatible(std::shared_ptr<GBasePlotter>) const;
 
     /** @brief calculate a suffix from id and parent ids */
     G_API_COMMON std::string suffix(bool, std::size_t) const;

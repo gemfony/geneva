@@ -98,7 +98,7 @@ namespace Gem::Courtier
         /**
          * The destructor
          */
-        virtual ~GWorkerT() BASE = default;
+        virtual ~GWorkerT() = default;
 
         /************************************************************************/
         /**
@@ -300,7 +300,7 @@ namespace Gem::Courtier
          * be added
          */
         virtual void addConfigurationOptions_(
-            Gem::Common::GParserBuilder& gpb) BASE {
+            Gem::Common::GParserBuilder& gpb) {
             /* nothing -- no local data */
         }
 
@@ -396,24 +396,24 @@ namespace Gem::Courtier
         // Some purely virtual functions, to be implemented in derived classes
 
         /** @brief Initialization code for processing. */
-        virtual void processInit_(std::shared_ptr<processable_type> p) BASE = 0;
+        virtual void processInit_(std::shared_ptr<processable_type> p) = 0;
         /** @brief Actual per-item work is done here -- all error-detection
          * instrumentation is done in the protected "process() function. */
-        virtual void process_(std::shared_ptr<processable_type> p) BASE = 0;
+        virtual void process_(std::shared_ptr<processable_type> p) = 0;
         /** @brief Finalization code for processing. */
-        virtual void processFinalize_() BASE = 0;
+        virtual void processFinalize_() = 0;
 
     private:
         /** @brief Creation of deep clones of this object('s derivatives) */
-        virtual std::shared_ptr<GWorkerT<processable_type>> clone_() const BASE = 0;
+        virtual std::shared_ptr<GWorkerT<processable_type>> clone_() const = 0;
         /** @brief Retrieval of work items */
         virtual std::shared_ptr<processable_type>
-        retrieve_(const std::chrono::milliseconds&) BASE = 0;
+        retrieve_(const std::chrono::milliseconds&) = 0;
         /** @brief Submission of work items */
         virtual void submit_(std::shared_ptr<processable_type>,
-                             const std::chrono::milliseconds&) BASE = 0;
+                             const std::chrono::milliseconds&) = 0;
         /** @brief Indicates whether the worker was asked to stop processing */
-        [[nodiscard]] virtual bool stop_requested_() const BASE = 0;
+        [[nodiscard]] virtual bool stop_requested_() const = 0;
 
         /************************************************************************/
         // Data

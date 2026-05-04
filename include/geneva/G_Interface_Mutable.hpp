@@ -51,7 +51,7 @@ namespace Geneva {
 class G_Interface_Mutable {
 public:
 	 /** @brief Allows derivatives to be adapted */
-	 virtual G_API_GENEVA std::size_t adapt() BASE = 0;
+	 virtual G_API_GENEVA std::size_t adapt() = 0;
 
 protected:
 	/**************************************************************************/

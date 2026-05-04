@@ -126,7 +126,7 @@ public:
     /**
      * The destructor -- purely virtual to make this an abstract base class
      */
-    virtual ~GPODVectorT() BASE = 0;
+    virtual ~GPODVectorT() = 0;
 
     /***************************************************************************/
     /**
@@ -158,7 +158,7 @@ public:
      */
     virtual void compare_base(
         const GPODVectorT<T> &cp, const Gem::Common::expectation &e, const double &limit
-    ) const BASE {
+    ) const {
         Gem::Common::GToken token(
             "GBaseEA::GEAOptimizationMonitor"
             , e
@@ -451,11 +451,11 @@ public:
 
 protected:
     /** @brief Applies modifications to this object. This is needed for testing purposes */
-    virtual bool modify_GUnitTests_() BASE { /* nothing here yet */ return false; }
+    virtual bool modify_GUnitTests_() { /* nothing here yet */ return false; }
     /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-    virtual void specificTestsNoFailureExpected_GUnitTests_() BASE { /* nothing here yet */ }
+    virtual void specificTestsNoFailureExpected_GUnitTests_() { /* nothing here yet */ }
     /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-    virtual void specificTestsFailuresExpected_GUnitTests_() BASE { /* nothing here yet */  }
+    virtual void specificTestsFailuresExpected_GUnitTests_() { /* nothing here yet */  }
 
     std::vector<T> m_data_cnt;
 };

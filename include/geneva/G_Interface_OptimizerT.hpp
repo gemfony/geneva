@@ -214,26 +214,26 @@ protected:
 
 private:
 	 /** @brief Perform the actual optimization cycle, starting to count iterations at a given offset */
-	 virtual G_API_GENEVA optimizer_type const * optimize_(std::uint32_t offset) BASE = 0;
+	 virtual G_API_GENEVA optimizer_type const * optimize_(std::uint32_t offset) = 0;
 
 	 /** @brief Calculates the fitness of all required individuals; to be re-implemented in derived classes */
-	 virtual G_API_GENEVA void runFitnessCalculation_() BASE = 0;
+	 virtual G_API_GENEVA void runFitnessCalculation_() = 0;
 
 	 /** @brief Retrieves the best individual found globally */
-	 virtual G_API_GENEVA std::shared_ptr<GParameterSet> getBestGlobalIndividual_() const BASE = 0;
+	 virtual G_API_GENEVA std::shared_ptr<GParameterSet> getBestGlobalIndividual_() const = 0;
 	 /** @brief Retrieves a list of the best individuals found globally*/
-	 virtual G_API_GENEVA std::vector<std::shared_ptr<GParameterSet>> getBestGlobalIndividuals_() const BASE = 0;
+	 virtual G_API_GENEVA std::vector<std::shared_ptr<GParameterSet>> getBestGlobalIndividuals_() const = 0;
 	 /** @brief Retrieves the best individual found in the current iteration*/
-	 virtual G_API_GENEVA std::shared_ptr<GParameterSet> getBestIterationIndividual_() const BASE = 0;
+	 virtual G_API_GENEVA std::shared_ptr<GParameterSet> getBestIterationIndividual_() const = 0;
 	 /** @brief Retrieves a list of the best individuals found in the current iteration */
-	 virtual G_API_GENEVA std::vector<std::shared_ptr<GParameterSet>> getBestIterationIndividuals_() const BASE = 0;
+	 virtual G_API_GENEVA std::vector<std::shared_ptr<GParameterSet>> getBestIterationIndividuals_() const = 0;
 
 	 /** @brief Returns one-word information about the type of optimization algorithm. */
-	 virtual std::string getAlgorithmPersonalityType_() const BASE = 0;
+	 virtual std::string getAlgorithmPersonalityType_() const = 0;
 	 /** @brief Returns a descriptive name assigned to this algorithm */
-	 virtual G_API_GENEVA std::string getAlgorithmName_() const BASE = 0;
+	 virtual G_API_GENEVA std::string getAlgorithmName_() const = 0;
 	 /** @brief Retrieves the current iteration of this object */
-	 virtual G_API_GENEVA std::uint32_t getIteration_() const BASE = 0;
+	 virtual G_API_GENEVA std::uint32_t getIteration_() const = 0;
 
 	 /***************************************************************************/
 	 // Data

@@ -95,7 +95,7 @@ public:
 	G_API_COMMON GBaseLogTarget(GBaseLogTarget const&) = default;
 	G_API_COMMON GBaseLogTarget(GBaseLogTarget &&) = default;
 
-	virtual G_API_COMMON ~GBaseLogTarget() BASE = default;
+	virtual G_API_COMMON ~GBaseLogTarget() = default;
 
 	G_API_COMMON GBaseLogTarget& operator=(GBaseLogTarget const&) = default;
 	G_API_COMMON GBaseLogTarget& operator=(GBaseLogTarget &&) = default;
@@ -103,10 +103,10 @@ public:
 	/*************************************************************************/
 
 	/** @brief The logging interface */
-	 virtual G_API_COMMON void log(std::string const&) const BASE = 0;
+	 virtual G_API_COMMON void log(std::string const&) const = 0;
 
 	 /** @brief Adds an extension to the output */
-	 virtual G_API_COMMON void logWithSource(std::string const&, std::string const&) const BASE = 0;
+	 virtual G_API_COMMON void logWithSource(std::string const&, std::string const&) const = 0;
 };
 
 /******************************************************************************/
@@ -495,7 +495,7 @@ public:
      G_API_COMMON GLogStreamer(GLogStreamer &&) = default;
 
 	 /** @brief A standard destructor */
-	 virtual G_API_COMMON ~GLogStreamer() BASE = default;
+	 virtual G_API_COMMON ~GLogStreamer() = default;
 
      G_API_COMMON GLogStreamer& operator=(GLogStreamer const&) = delete;
      G_API_COMMON GLogStreamer& operator=(GLogStreamer &&) = default;

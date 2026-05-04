@@ -67,7 +67,7 @@ public:
 		GConsumerStore->setOnce(mnemonic, p);
 	}
 	/** @brief An empty destructor */
-	virtual ~GIndividualStandardConsumerInitializerT() BASE = default;
+	virtual ~GIndividualStandardConsumerInitializerT() = default;
 };
 
 /******************************************************************************/

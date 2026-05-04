@@ -130,7 +130,7 @@ public:
 	 GBaseClientT(const GBaseClientT<processable_type>&) = delete;
 	 GBaseClientT(GBaseClientT<processable_type>&&) = delete;
 
-	virtual ~GBaseClientT() BASE = default;
+	virtual ~GBaseClientT() = default;
 
 	 GBaseClientT<processable_type>& operator=(const GBaseClientT<processable_type>&) = delete;
 	 GBaseClientT<processable_type>& operator=(GBaseClientT<processable_type>&&) = delete;
@@ -393,19 +393,19 @@ protected:
 private:
 	 //---------------------------------------------------------------------------
 	 /** @brief Performs initialization work */
-	 virtual bool init() BASE { return true; }
+	 virtual bool init() { return true; }
 
 	 //---------------------------------------------------------------------------
 	 /** @brief This is the main loop of the client, after initialization */
-	 virtual void run_() BASE = 0;
+	 virtual void run_() = 0;
 
 	 //---------------------------------------------------------------------------
 	 /** @brief Perform necessary finalization activities */
-	 virtual bool finally() BASE { return true; }
+	 virtual bool finally() { return true; }
 
 	 //---------------------------------------------------------------------------
 	 /** @brief Custom halt condition for processing */
-	 virtual bool customHalt() BASE { return false; }
+	 virtual bool customHalt() { return false; }
 
 	 //---------------------------------------------------------------------------
 	 /** brief Transformation of run_state to a string */

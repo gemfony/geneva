@@ -217,12 +217,12 @@ protected:
 	 G_API_GENEVA void finalize() override;
 
 	 /** @brief Updates the best individuals found */
-	 virtual G_API_GENEVA std::tuple<double, double> findBests() BASE;
+	 virtual G_API_GENEVA std::tuple<double, double> findBests();
 	 /** @brief Triggers an update of all individual's positions */
-	 virtual G_API_GENEVA void updatePositions() BASE;
+	 virtual G_API_GENEVA void updatePositions();
 
 	 /** @brief Fixes an incomplete population */
-	 virtual G_API_GENEVA void adjustNeighborhoods() BASE;
+	 virtual G_API_GENEVA void adjustNeighborhoods();
 
 	 /** @brief Applies modifications to this object. This is needed for testing purposes */
 	 G_API_GENEVA bool modify_GUnitTests_() override;

@@ -125,7 +125,7 @@ namespace Gem::Common
         /**
          * The destructor
          */
-        ~GBoundedBufferT() BASE {
+        ~GBoundedBufferT() {
             // Any error here is deadly ...
             try
             {

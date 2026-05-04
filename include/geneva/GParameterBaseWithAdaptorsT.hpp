@@ -315,7 +315,7 @@ protected:
 	/***************************************************************************/
 
 	 /** @brief Returns a "comparative range"; this is e.g. used to make Gauss-adaption independent of a parameters value range */
-	 virtual T range() const BASE  = 0;
+	 virtual T range() const  = 0;
 
 	 /***************************************************************************/
 	 /**

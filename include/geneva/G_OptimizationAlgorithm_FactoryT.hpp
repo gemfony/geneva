@@ -136,7 +136,7 @@ public:
 	 virtual void addCLOptions(
 		 boost::program_options::options_description &visible
 		 , boost::program_options::options_description &hidden
-	 ) BASE {
+	 ) {
 		 namespace po = boost::program_options;
 
 		 hidden.add_options()(

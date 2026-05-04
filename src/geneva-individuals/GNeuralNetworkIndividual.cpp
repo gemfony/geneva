@@ -261,7 +261,7 @@ namespace Gem::Geneva
  * @param fileName The name of the file from which data should be loaded
  */
 	void networkData::loadFromDisk(const std::string &networkDataFile) {
-		networkData *nD;
+		networkData *raw = nullptr;
 
 		std::ifstream trDat(networkDataFile.c_str());
 
@@ -280,19 +280,16 @@ namespace Gem::Geneva
 			);
 		}
 
-		// Load the data into nD, using the Boost.Serialization library
+		// Load the data into raw, using the Boost.Serialization library
 		{
 			boost::archive::xml_iarchive ia(trDat);
-			ia >> boost::serialization::make_nvp("networkData", nD);
+			ia >> boost::serialization::make_nvp("networkData", raw);
 		} // Explicit scope at this point is essential so that ia's destructor is called
 
-		trDat.close();
+		std::unique_ptr<networkData> nD(raw);
 
 		// Copy the data over, using our own operator=()
 		*this = *nD;
-
-		// Clean up
-		Gem::Common::g_delete(nD);
 	}
 
 	/******************************************************************************/

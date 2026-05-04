@@ -1324,7 +1324,7 @@ namespace Gem::Courtier {
          *
          * @return A unique identifier for a given consumer
          */
-        [[nodiscard]] std::string getConsumerName_() const BASE override {
+        [[nodiscard]] std::string getConsumerName_() const override {
             return {"GMPIConsumerT"};
         }
 
@@ -1334,7 +1334,7 @@ namespace Gem::Courtier {
          * Inherited form GBaseConsumerT
          * @return short identifier for this consumer
          */
-        [[nodiscard]] std::string getMnemonic_() const BASE override {
+        [[nodiscard]] std::string getMnemonic_() const override {
             return {"mpi"};
         }
 
@@ -1343,7 +1343,7 @@ namespace Gem::Courtier {
          *
          * Requires that cluster position has already been set with the setPositionInCluster()-method
          */
-        void async_startProcessing_() BASE override {
+        void async_startProcessing_() override {
             if (!isMasterNode()) {
                 glogger
                         << "In GMPIConsumerT<>::async_startProcessing_():" << std::endl
@@ -1373,7 +1373,7 @@ namespace Gem::Courtier {
          * @param exact
          * @return the amount of worker nodes in the cluster used by the instance of GMPIConsumerT
          */
-        size_t getNProcessingUnitsEstimate_(bool &exact) const BASE override {
+        size_t getNProcessingUnitsEstimate_(bool &exact) const override {
             exact = true; // mark the answer as exact
             return m_commSize - 1;
         }
@@ -1382,7 +1382,7 @@ namespace Gem::Courtier {
          * Inherited from GBaseConsumerT
          * @return
          */
-        [[nodiscard]] bool capableOfFullReturn_() const BASE override {
+        [[nodiscard]] bool capableOfFullReturn_() const override {
             return true; // mpi errors are fatal in most cases, assume everything returns or we have an error
         }
 
@@ -1426,7 +1426,7 @@ namespace Gem::Courtier {
         /**
          * Inherited from GBaseClientT
          */
-        void run_() BASE override {
+        void run_() override {
             if (!isWorkerNode()) {
                 glogger
                         << "In GMPIConsumerT<>::run_():" << std::endl

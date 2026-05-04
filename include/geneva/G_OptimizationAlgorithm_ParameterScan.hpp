@@ -129,13 +129,13 @@ std::vector<double> fillWithData<double>(
 class scanParInterface
 {
 public:
-    virtual G_API_GENEVA ~scanParInterface() BASE = default;
-    virtual G_API_GENEVA NAMEANDIDTYPE getVarAddress() const BASE = 0;
-    virtual G_API_GENEVA bool goToNextItem() BASE = 0;
-    virtual G_API_GENEVA bool isAtTerminalPosition() const BASE = 0;
-    virtual G_API_GENEVA bool isAtFirstPosition() const BASE = 0;
-    virtual G_API_GENEVA void resetPosition() BASE = 0;
-    virtual G_API_GENEVA std::string getTypeDescriptor() const BASE = 0;
+    virtual G_API_GENEVA ~scanParInterface() = default;
+    virtual G_API_GENEVA NAMEANDIDTYPE getVarAddress() const = 0;
+    virtual G_API_GENEVA bool goToNextItem() = 0;
+    virtual G_API_GENEVA bool isAtTerminalPosition() const = 0;
+    virtual G_API_GENEVA bool isAtFirstPosition() const = 0;
+    virtual G_API_GENEVA void resetPosition() = 0;
+    virtual G_API_GENEVA std::string getTypeDescriptor() const = 0;
 };
 
 /******************************************************************************/

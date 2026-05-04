@@ -78,7 +78,7 @@ public:
 	}
 
 	/** @brief Defaulted destructor */
-	virtual ~G_OptimizationAlgorithm_InitializerT() BASE = default;
+	virtual ~G_OptimizationAlgorithm_InitializerT() = default;
 };
 
 /******************************************************************************/

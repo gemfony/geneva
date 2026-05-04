@@ -351,7 +351,7 @@ public:
 	 GCanvas() = default;
 	 GCanvas(GCanvas<COLORDEPTH> const &) = default;
 	 GCanvas(GCanvas<COLORDEPTH> &&) = default;
-	 virtual ~GCanvas() BASE = default;
+	 virtual ~GCanvas() = default;
 
 	 GCanvas<COLORDEPTH> & operator=(GCanvas<COLORDEPTH> const &) = default;
 	 GCanvas<COLORDEPTH> & operator=(GCanvas<COLORDEPTH> &&) = default;

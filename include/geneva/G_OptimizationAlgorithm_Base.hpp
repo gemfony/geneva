@@ -157,7 +157,7 @@ private:
     virtual G_API_GENEVA void informationFunction_(
         infoMode
         , G_OptimizationAlgorithm_Base const * const
-    ) BASE = 0;
+    ) = 0;
 };
 
 /******************************************************************************/
@@ -518,12 +518,12 @@ protected:
     ) const override;
 
     /** @brief Resets the class to the state before the optimize call. */
-    virtual G_API_GENEVA void resetToOptimizationStart_() BASE;
+    virtual G_API_GENEVA void resetToOptimizationStart_();
 
     /** @brief Initialization code to be run before the optimization cycle */
-    virtual G_API_GENEVA void init() BASE;
+    virtual G_API_GENEVA void init();
     /** @brief Finalization code to be run after the optimization cycle */
-    virtual G_API_GENEVA void finalize() BASE;
+    virtual G_API_GENEVA void finalize();
 
     /** @brief Applies modifications to this object */
     G_API_GENEVA bool modify_GUnitTests_() override;
@@ -559,9 +559,9 @@ protected:
 
     // NB: protected, as a derived function may fall back to this function, cmp EA in non-pareto mode
     /** @brief Adds the individuals of this iteration to a priority queue. */
-    virtual G_API_GENEVA void updateGlobalBestsPQ_(GParameterSetFixedSizePriorityQueue &bestIndividuals) BASE;
+    virtual G_API_GENEVA void updateGlobalBestsPQ_(GParameterSetFixedSizePriorityQueue &bestIndividuals);
     /** @brief Adds the individuals of this iteration to a priority queue. */
-    virtual G_API_GENEVA void updateIterationBestsPQ_(GParameterSetFixedSizePriorityQueue &bestIndividuals) BASE;
+    virtual G_API_GENEVA void updateIterationBestsPQ_(GParameterSetFixedSizePriorityQueue &bestIndividuals);
 
     /** @brief Set the number of "best" individuals to be recorded in each iteration */
     G_API_GENEVA void setNRecordBestIndividuals(std::size_t nRecordBestIndividuals);
@@ -591,7 +591,7 @@ private:
     /** @brief Calculates the fitness of all required individuals; to be re-implemented in derived classes */
     G_API_GENEVA void runFitnessCalculation_() override = 0;
     /** @brief The actual business logic to be performed during each iteration */
-    virtual G_API_GENEVA std::tuple<double, double> cycleLogic_() BASE = 0;
+    virtual G_API_GENEVA std::tuple<double, double> cycleLogic_() = 0;
 
     /** @brief Retrieve the current iteration of the optimization run */
     G_API_GENEVA std::uint32_t getIteration_() const override;
@@ -607,16 +607,16 @@ private:
     G_API_GENEVA std::vector<std::shared_ptr<GParameterSet>> getBestIterationIndividuals_() const final;
 
     /** @brief Retrieve the number of processable items in the current iteration. */
-    virtual G_API_GENEVA std::size_t getNProcessableItems_() const BASE;
+    virtual G_API_GENEVA std::size_t getNProcessableItems_() const;
 
     /** @brief Retrieve a personality trait object belonging to this algorithm */
-    virtual G_API_GENEVA std::shared_ptr<GPersonalityTraits> getPersonalityTraits_() const BASE = 0;
+    virtual G_API_GENEVA std::shared_ptr<GPersonalityTraits> getPersonalityTraits_() const = 0;
 
     /** @brief Resizes the population to the desired level and does some error checks */
-    virtual G_API_GENEVA void adjustPopulation_() BASE = 0;
+    virtual G_API_GENEVA void adjustPopulation_() = 0;
 
     /** @brief Gives derived classes an opportunity to update their internal structures. */
-    virtual G_API_GENEVA void actOnStalls_() BASE = 0;
+    virtual G_API_GENEVA void actOnStalls_() = 0;
 
     /***************************************************************************/
 
@@ -646,9 +646,9 @@ private:
     G_API_GENEVA bool touchHalt() const;
 
     /** @brief A wrapper for customHalt_ that allows to emit the termination reason */
-    G_API_GENEVA bool customHalt() const BASE;
+    G_API_GENEVA bool customHalt() const;
     /** @brief Custom setting of halt criteria */
-    virtual G_API_GENEVA bool customHalt_() const BASE;
+    virtual G_API_GENEVA bool customHalt_() const;
 
     /** @brief This function checks whether a halt criterion has been reached. */
     G_API_GENEVA bool halt() const;

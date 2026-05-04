@@ -108,7 +108,7 @@ public:
 	  * @param val The new value for val_
 	  * @return The new value of val_
 	  */
-	 virtual GParameterT<T>& operator=(const T& val) BASE {
+	 virtual GParameterT<T>& operator=(const T& val) {
 		 setValue(val);
 		 return *this;
 	 }
@@ -121,7 +121,7 @@ public:
 	  *
 	  * @param val The new T value stored in this class
 	  */
-	 virtual void setValue(const T& val) BASE {
+	 virtual void setValue(const T& val) {
 		 m_val = val;
 	 }
 
@@ -149,7 +149,7 @@ public:
 	  *
 	  * @return The value of val_
 	  */
-	 virtual T value() const BASE {
+	 virtual T value() const {
 		 return m_val;
 	 }
 

@@ -421,7 +421,7 @@ public:
 	  *
 	  * @param adaptionMode The desired mode (always/never/with a given probability)
 	  */
-	 virtual void setAdaptionMode(adaptionMode am) BASE {
+	 virtual void setAdaptionMode(adaptionMode am) {
 		 m_adaptionMode = am;
 	 }
 
@@ -682,7 +682,7 @@ public:
 	 virtual bool updateOnStall(
 		 const std::size_t &nStalls
 		 , const T &range
-	 ) BASE {
+	 ) {
 #ifdef DEBUG
 		 if (0 == nStalls) {
 			 throw geneva_exception(
@@ -708,7 +708,7 @@ public:
 	  *
 	  * @return A diagnostic message
 	  */
-	 virtual std::string printDiagnostics() const BASE
+	 virtual std::string printDiagnostics() const
 	 {
 		 return std::string();
 	 }
@@ -731,7 +731,7 @@ public:
 		 const std::string &adaptorName
 		 , const std::string &property
 		 , std::vector<boost::any> &data
-	 ) const BASE {
+	 ) const {
 		 // Do nothing, if this query is not for us
 		 if (adaptorName != this->name()) {
 			 return;
@@ -756,7 +756,7 @@ public:
 
 	 /***************************************************************************/
 	 /** @brief Allows derived classes to randomly initialize parameter members */
-	 virtual bool randomInit(Gem::Hap::GRandomBase&) BASE = 0;
+	 virtual bool randomInit(Gem::Hap::GRandomBase&) = 0;
 
 protected:
 	/***************************************************************************/
@@ -876,7 +876,7 @@ protected:
 	 virtual bool customQueryProperty(
 		 const std::string &property
 		 , std::vector<boost::any> &data
-	 ) const BASE {
+	 ) const {
 		 return false;
 	 }
 
@@ -891,12 +891,12 @@ protected:
 	 virtual void customAdaptAdaption(
 		 const T &
 		 , Gem::Hap::GRandomBase& gr
-	 ) BASE { /* nothing */}
+	 ) { /* nothing */}
 
 	 /***************************************************************************/
 
 	 /** @brief Adaption of values as specified by the user */
-	 virtual void customAdaptions(T &, const T &, Gem::Hap::GRandomBase&) BASE = 0;
+	 virtual void customAdaptions(T &, const T &, Gem::Hap::GRandomBase&) = 0;
 
 	 /** @brief Creates a deep copy of this object */
 	 GObject *clone_() const override = 0;
@@ -1347,7 +1347,7 @@ private:
      *
      * @return The id of the adaptor
      */
-	virtual Gem::Geneva::adaptorId getAdaptorId_() const BASE = 0;
+	virtual Gem::Geneva::adaptorId getAdaptorId_() const = 0;
 
 	/* ----------------------------------------------------------------------------------
      * Tested in GBooleanAdaptor

@@ -245,7 +245,7 @@ public:
      * @param lower The new lower boundary for this object
      * @param upper The new upper boundary for this object
      */
-    virtual void setBoundaries(const num_type &lower, const num_type &upper) BASE {
+    virtual void setBoundaries(const num_type &lower, const num_type &upper) {
         std::vector<num_type> currentValues;
         for (std::size_t pos = 0; pos < this->size(); pos++) {
             currentValues.push_back(GParameterCollectionT<num_type>::value(pos));
@@ -348,7 +348,7 @@ public:
     /***************************************************************************/
     /** @brief The transfer function needed to calculate the externally visible
      * value. Declared public so we can do tests of the value transformation. */
-    virtual num_type transfer(const num_type &) const BASE = 0;
+    virtual num_type transfer(const num_type &) const = 0;
 
     /***************************************************************************/
     /**

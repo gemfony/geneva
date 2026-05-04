@@ -129,7 +129,7 @@ public:
 
 	 GFactoryT(const GFactoryT<prod_type> &cp) = default;
 	 GFactoryT(GFactoryT<prod_type> && cp) noexcept = default;
-	 virtual ~GFactoryT() BASE = default;
+	 virtual ~GFactoryT() = default;
 
 	 GFactoryT<prod_type>& operator=(GFactoryT<prod_type> const&) = default;
 	 GFactoryT<prod_type>& operator=(GFactoryT<prod_type> &&) noexcept = default;
@@ -230,7 +230,7 @@ public:
 	 /**
 	  * Loads the data of another GFactoryT<> object
 	  */
-	 virtual void load(std::shared_ptr<GFactoryT<prod_type>> cp) BASE {
+	 virtual void load(std::shared_ptr<GFactoryT<prod_type>> cp) {
 		 m_config_path = cp->m_config_path;
 		 m_id = cp->m_id;
 		 m_initialized = cp->m_initialized;
@@ -242,7 +242,7 @@ public:
 	  * wishing to use this functionality need to overload this function.
 	  * Others don't have to due to this "pseudo-implementation".
 	  */
-	 virtual std::shared_ptr <GFactoryT<prod_type>> clone() const BASE {
+	 virtual std::shared_ptr <GFactoryT<prod_type>> clone() const {
 		 throw geneva_exception(
 			 g_error_streamer(DO_LOG, time_and_place)
 				 << "In GFactoryT<prod_type>::clone(): Error!" << std::endl
@@ -266,13 +266,13 @@ protected:
 
 	 /***************************************************************************/
 	 /** @brief Performs necessary initialization work */
-	 virtual void init_() BASE { /* nothing */ }
+	 virtual void init_() { /* nothing */ }
 
 	 /** @brief Allows to describe local configuration options in derived classes */
-	 virtual void describeLocalOptions_(Gem::Common::GParserBuilder &gpb) BASE { /* nothing */ };
+	 virtual void describeLocalOptions_(Gem::Common::GParserBuilder &gpb) { /* nothing */ };
 
 	 /** @brief Allows to act on the configuration options received from the configuration file */
-	 virtual void postProcess_(std::shared_ptr <prod_type> &) BASE = 0;
+	 virtual void postProcess_(std::shared_ptr <prod_type> &) = 0;
 
 	 /***************************************************************************/
 	 /**
@@ -286,7 +286,7 @@ protected:
 	/**
      * Allows the creation of objects of the desired type.
      */
-	virtual std::shared_ptr<prod_type> get_() BASE {
+	virtual std::shared_ptr<prod_type> get_() {
 		// Make sure the initialization code has been executed.
 		// This function will do nothing when called more than once
 		this->globalInit();
@@ -343,7 +343,7 @@ private:
 
 	 /***************************************************************************/
 	 /** @brief Creates individuals of the desired type */
-	 virtual std::shared_ptr <prod_type> getObject_(Gem::Common::GParserBuilder &, const std::size_t &) BASE = 0;
+	 virtual std::shared_ptr <prod_type> getObject_(Gem::Common::GParserBuilder &, const std::size_t &) = 0;
 
 	 /***************************************************************************/
 

@@ -88,7 +88,7 @@ public:
 	 GBaseConsumerT(const GBaseConsumerT<processable_type> &) = delete; ///< Intentionally left undefined
 	 GBaseConsumerT(GBaseConsumerT<processable_type> &&) = delete; ///< Intentionally left undefined
 
-	 virtual ~GBaseConsumerT() BASE = default;
+	 virtual ~GBaseConsumerT() = default;
 
 	 GBaseConsumerT<processable_type> &operator=(const GBaseConsumerT<processable_type> &) = delete; ///< Intentionally left undefined
 	 GBaseConsumerT<processable_type> &operator=(GBaseConsumerT<processable_type> &&) = delete; ///< Intentionally left undefined
@@ -233,7 +233,7 @@ protected:
 	 /**
 	  * Stop execution
 	  */
-	 virtual void shutdown_() BASE {
+	 virtual void shutdown_() {
 		 m_server_stopping.store(true);
 	 }
 
@@ -248,7 +248,7 @@ protected:
 	  */
 	 virtual void addConfigurationOptions(
 		 Gem::Common::GParserBuilder &gpb
-	 ) BASE { /* nothing -- no local data */ }
+	 ) { /* nothing -- no local data */ }
 
 private:
 	 //-------------------------------------------------------------------------
@@ -258,19 +258,19 @@ private:
 	 virtual void addCLOptions_(
 		 boost::program_options::options_description&
 		 , boost::program_options::options_description&
-	 ) BASE = 0;
+	 ) = 0;
 
 	 /** @brief Takes a boost::program_options::variables_map object and checks for supplied options */
-	 virtual void actOnCLOptions_(const boost::program_options::variables_map&) BASE = 0;
+	 virtual void actOnCLOptions_(const boost::program_options::variables_map&) = 0;
 
 	 /** @brief A unique identifier for a given consumer */
-	 virtual std::string getConsumerName_() const BASE = 0;
+	 virtual std::string getConsumerName_() const = 0;
 
 	 /** @brief Returns a short identifier for this consumer */
-	 virtual std::string getMnemonic_() const BASE = 0;
+	 virtual std::string getMnemonic_() const = 0;
 
 	 /** @brief The actual business logic */
-	 virtual void async_startProcessing_() BASE = 0;
+	 virtual void async_startProcessing_() = 0;
 
 	 //-------------------------------------------------------------------------
 	 /**
@@ -278,7 +278,7 @@ private:
 	  * it returns an empty smart pointer, so that consumers without the need for
 	  * clients do not need to re-implement this function.
 	  */
-	 virtual std::shared_ptr<GBaseClientT<processable_type>> getClient_() const BASE {
+	 virtual std::shared_ptr<GBaseClientT<processable_type>> getClient_() const {
 		 return std::shared_ptr<GBaseClientT<processable_type>>();
 	 }
 
@@ -290,7 +290,7 @@ private:
 	  *
 	  * @return A boolean indicating whether this consumer needs a client to operate
 	  */
-	 virtual bool needsClient_() const noexcept BASE {
+	 virtual bool needsClient_() const noexcept {
 		 return false;
 	 }
 
@@ -301,14 +301,14 @@ private:
 	  * make any assumptions whether processing units are dedicated solely to a
 	  * given task.
 	  */
-	 virtual std::size_t getNProcessingUnitsEstimate_(bool& exact) const BASE = 0;
+	 virtual std::size_t getNProcessingUnitsEstimate_(bool& exact) const = 0;
 
 	 //-------------------------------------------------------------------------
 	 /**
 	  * Returns an indication whether full return can be expected from the consumer.
 	  * By default we assume that a full return is not possible.
 	  */
-	 virtual bool capableOfFullReturn_() const BASE = 0;
+	 virtual bool capableOfFullReturn_() const = 0;
 
     //-------------------------------------------------------------------------
 

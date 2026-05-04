@@ -137,7 +137,7 @@ public:
      * @param pos The position for which the value needs to be returned
      * @return The value of val_
      */
-    virtual num_type value(const std::size_t &pos) BASE {
+    virtual num_type value(const std::size_t &pos) {
         return this->at(pos);
     }
 
@@ -150,7 +150,7 @@ public:
      * @param pos The position at which the value shout be stored
      * @param val The new num_type value stored in this class
      */
-    virtual void setValue(const std::size_t &pos, const num_type &val) BASE {
+    virtual void setValue(const std::size_t &pos, const num_type &val) {
         this->at(pos) = val;
 
 #ifdef DEBUG

@@ -122,7 +122,7 @@ public:
     G_API_GENEVA GObject(GObject const & cp) = default;
     G_API_GENEVA GObject(GObject && cp) = default;
 
-    G_API_GENEVA virtual ~GObject() BASE = default;
+    G_API_GENEVA virtual ~GObject() = default;
 
     G_API_GENEVA GObject& operator=(GObject const&) = default;
     G_API_GENEVA GObject& operator=(GObject &&) = default;

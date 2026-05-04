@@ -551,7 +551,7 @@ protected:
 	 /**
 	  * General initialization function to be called prior to the first submission
 	  */
-	 virtual void init_() BASE {
+	 virtual void init_() {
 		 m_no_items_submitted_in_object = true;
 	 }
 
@@ -559,13 +559,13 @@ protected:
 	 /**
 	  * General finalization function to be called after the last submission
 	  */
-	 virtual void finalize_() BASE { /* nothing */ }
+	 virtual void finalize_() { /* nothing */ }
 
 	 /***************************************************************************/
 	 /**
 	  * General initialization function to be called prior to the first submission
 	  */
-	 virtual void iterationInit_(std::vector<std::shared_ptr<processable_type>>& workItems) BASE {
+	 virtual void iterationInit_(std::vector<std::shared_ptr<processable_type>>& workItems) {
 		 // Make it known that a new iteration is about to start
 		 m_iteration_running = true;
 		 // Make it known that no items have been submitted yet in this iteration
@@ -606,7 +606,7 @@ protected:
 	 /**
 	  * General initialization function to be called prior to the first submission
 	  */
-	 virtual void iterationFinalize_(std::vector<std::shared_ptr<processable_type>>& workItems) BASE {
+	 virtual void iterationFinalize_(std::vector<std::shared_ptr<processable_type>>& workItems) {
 		 // Sort remaining old work items according to their position
 		 std::sort(
 			 m_old_work_items_cnt.begin()
@@ -659,7 +659,7 @@ protected:
 	  */
 	 virtual void cycleInit_(
 		 std::vector<std::shared_ptr<processable_type>>& workItems
-	 ) BASE {
+	 ) {
 		 // No items have so far been submitted in current cycle
 		 m_no_items_submitted_in_cycle = true;
 		 // Make it known that a new cycle is about to start
@@ -684,7 +684,7 @@ protected:
 	  */
 	 virtual void cycleFinalize_(
 		 std::vector<std::shared_ptr<processable_type>>& workItems
-	 ) BASE {
+	 ) {
 		 // Mark the end of processing in this cycle
 		 m_cycle_end_time = this->now();
 		 // Make it known that the cycle has ended
@@ -823,7 +823,7 @@ protected:
 	 /** @brief Submits a single work item */
 	 virtual void submit(
 		 std::shared_ptr<processable_type>
-	 ) BASE = 0;
+	 ) = 0;
 
 	 /***************************************************************************/
 	 /**
@@ -837,7 +837,7 @@ protected:
 	 virtual executor_status_t waitForReturn(
 		 std::vector<std::shared_ptr<processable_type>>& workItems
 		 , std::vector<std::shared_ptr<processable_type>>&
-	 ) BASE = 0;
+	 ) = 0;
 
 	 /***************************************************************************/
 	 /**
@@ -981,11 +981,11 @@ private:
 
 	 /***************************************************************************/
 	 /** @brief Determination of the time when execution of the initial cycle has started */
-	 virtual std::chrono::high_resolution_clock::time_point determineInitialCycleStartTime() const BASE = 0;
+	 virtual std::chrono::high_resolution_clock::time_point determineInitialCycleStartTime() const = 0;
 
 	 /***************************************************************************/
 	 /** @brief Graphical progress feedback */
-	 virtual void visualize_performance() BASE = 0;
+	 virtual void visualize_performance() = 0;
 
 	 /***************************************************************************/
 	 /**

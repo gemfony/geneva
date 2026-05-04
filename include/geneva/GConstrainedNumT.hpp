@@ -258,7 +258,7 @@ public:
 	  * @param lowerBoundary The new lower boundary for this object
 	  * @param upperBoundary The new upper boundary for this object
 	  */
-	 virtual void setBoundaries(const T& lowerBoundary, const T& upperBoundary) BASE {
+	 virtual void setBoundaries(const T& lowerBoundary, const T& upperBoundary) {
 		 const T currentValue = this->value(); // Store the externally visible value
 
 		 // Check that the boundaries make sense
@@ -339,7 +339,7 @@ public:
 		 const T& val
 		 , const T& lowerBoundary
 		 , const T& upperBoundary
-	 ) BASE {
+	 ) {
 		 // Do some error checking
 
 		 // Do the boundaries make sense ?
@@ -420,7 +420,7 @@ public:
 	  * The transfer function needed to calculate the externally visible
 	  * value. Declared public so we can do tests of the value transformation.
 	  */
-	 virtual T transfer(const T&) const BASE = 0;
+	 virtual T transfer(const T&) const = 0;
 
 
 	 /***************************************************************************/

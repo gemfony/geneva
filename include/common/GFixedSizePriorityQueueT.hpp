@@ -259,7 +259,7 @@ namespace Gem::Common
         virtual void add(
             std::shared_ptr<T> const& item_ptr
             , const bool do_clone
-        ) BASE {
+        ) {
             // Add the work item to the queue
             // - If the queue is unlimited
             // - If the queue isn't full yet
@@ -317,7 +317,7 @@ namespace Gem::Common
             typename std::vector<std::shared_ptr<T>>::const_iterator end,
             bool do_clone,
             bool replace
-        ) BASE {
+        ) {
             double worstKnownEvaluation = Gem::Common::getWorstCase<double>(m_sortOrder_);
             if (replace || m_data_deq_.empty())
             {
@@ -401,7 +401,7 @@ namespace Gem::Common
             std::vector<std::shared_ptr<T>> const& item_ptr_vec
             , bool do_clone
             , bool replace
-        ) BASE {
+        ) {
             this->add(item_ptr_vec.begin(), item_ptr_vec.end(), do_clone, replace);
         }
 
@@ -623,9 +623,9 @@ namespace Gem::Common
 
         /***************************************************************************/
         /** @brief Checks whether an Item is valid */
-        virtual G_API_COMMON bool isValid(const std::shared_ptr<T>&) const BASE = 0;
+        virtual G_API_COMMON bool isValid(const std::shared_ptr<T>&) const = 0;
         /** @brief Evaluates a single work item, so that it can be sorted */
-        virtual G_API_COMMON double evaluation(const std::shared_ptr<T>&) const BASE = 0;
+        virtual G_API_COMMON double evaluation(const std::shared_ptr<T>&) const = 0;
 
         /***************************************************************************/
         /**
