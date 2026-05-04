@@ -15,7 +15,7 @@ Recommended Versions:
 - gemfony_exception was renamed to geneva_exception (~128 files). Any user code that
   catches or explicitly names this exception type must be updated accordingly.
 - The Boost.Test library linkage has been removed from the build-system, instead Geneva now
-  uses Catch2 v3.
+  uses Catch2 v3 which needs to be present on the system in order to compile the code.
 
 ************************* Noteworthy Changes ***********************************
 

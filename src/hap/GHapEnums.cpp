@@ -29,8 +29,6 @@
 
 #include "hap/GHapEnums.hpp"
 
-#include <boost/cast.hpp>
-
 namespace Gem::Hap
 {
 
@@ -59,13 +57,7 @@ namespace Gem::Hap
 	std::istream &operator>>(std::istream &i, Gem::Hap::RANDFLAVOURS &grts) {
 		Gem::Common::ENUMBASETYPE tmp;
 		i >> tmp;
-
-#ifdef DEBUG
-		grts = boost::numeric_cast<Gem::Hap::RANDFLAVOURS>(tmp);
-#else
-	grts = static_cast<Gem::Hap::RANDFLAVOURS>(tmp);
-#endif /* DEBUG */
-
+		grts = static_cast<Gem::Hap::RANDFLAVOURS>(tmp);
 		return i;
 	}
 

@@ -29,8 +29,6 @@
 
 #include "courtier/GCourtierEnums.hpp"
 
-#include <boost/cast.hpp>
-
 namespace Gem::Courtier
 {
 
@@ -59,13 +57,7 @@ namespace Gem::Courtier
 	std::istream &operator>>(std::istream &i, Gem::Courtier::run_state &rs) {
 		Gem::Common::ENUMBASETYPE tmp;
 		i >> tmp;
-
-#ifdef DEBUG
-		rs = boost::numeric_cast<Gem::Courtier::run_state>(tmp);
-#else
-	rs = static_cast<Gem::Courtier::run_state>(tmp);
-#endif /* DEBUG */
-
+		rs = static_cast<Gem::Courtier::run_state>(tmp);
 		return i;
 	}
 
@@ -94,13 +86,7 @@ namespace Gem::Courtier
 	std::istream &operator>>(std::istream &i, Gem::Courtier::networked_consumer_payload_command &ps) {
 		Gem::Common::ENUMBASETYPE tmp;
 		i >> tmp;
-
-#ifdef DEBUG
-		ps = boost::numeric_cast<Gem::Courtier::networked_consumer_payload_command>(tmp);
-#else
-	ps = static_cast<Gem::Courtier::networked_consumer_payload_command>(tmp);
-#endif /* DEBUG */
-
+		ps = static_cast<Gem::Courtier::networked_consumer_payload_command>(tmp);
 		return i;
 	}
 
@@ -129,13 +115,7 @@ namespace Gem::Courtier
 	std::istream &operator>>(std::istream &i, Gem::Courtier::beast_ping_state &ps) {
 		Gem::Common::ENUMBASETYPE tmp;
 		i >> tmp;
-
-#ifdef DEBUG
-		ps = boost::numeric_cast<Gem::Courtier::beast_ping_state>(tmp);
-#else
-	ps = static_cast<Gem::Courtier::beast_ping_state>(tmp);
-#endif /* DEBUG */
-
+		ps = static_cast<Gem::Courtier::beast_ping_state>(tmp);
 		return i;
 	}
 
@@ -164,13 +144,7 @@ namespace Gem::Courtier
 	std::istream &operator>>(std::istream &i, Gem::Courtier::submissionReturnMode &srm) {
 		Gem::Common::ENUMBASETYPE tmp;
 		i >> tmp;
-
-#ifdef DEBUG
-		srm = boost::numeric_cast<Gem::Courtier::submissionReturnMode>(tmp);
-#else
-	srm = static_cast<Gem::Courtier::submissionReturnMode>(tmp);
-#endif /* DEBUG */
-
+		srm = static_cast<Gem::Courtier::submissionReturnMode>(tmp);
 		return i;
 	}
 
@@ -215,13 +189,7 @@ namespace Gem::Courtier
 	std::istream &operator>>(std::istream &i, Gem::Courtier::processingStatus &srm) {
 		Gem::Common::ENUMBASETYPE tmp;
 		i >> tmp;
-
-#ifdef DEBUG
-		srm = boost::numeric_cast<Gem::Courtier::processingStatus>(tmp);
-#else
-	srm = static_cast<Gem::Courtier::processingStatus>(tmp);
-#endif /* DEBUG */
-
+		srm = static_cast<Gem::Courtier::processingStatus>(tmp);
 		return i;
 	}
 
@@ -242,13 +210,7 @@ namespace Gem::Courtier
 	std::istream& operator>>(std::istream& i, Gem::Courtier::consumerType& bm) {
 		Gem::Common::ENUMBASETYPE tmp;
 		i >> tmp;
-
-#ifdef DEBUG
-		bm = boost::numeric_cast<Gem::Courtier::consumerType>(tmp);
-#else
-	bm = static_cast<Gem::Courtier::consumerType>(tmp);
-#endif /* DEBUG */
-
+		bm = static_cast<Gem::Courtier::consumerType>(tmp);
 		return i;
 	}
 

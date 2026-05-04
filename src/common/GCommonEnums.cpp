@@ -29,8 +29,6 @@
 
 #include "common/GCommonEnums.hpp"
 
-#include <boost/cast.hpp>
-
 namespace Gem::Common
 {
 
@@ -50,13 +48,7 @@ namespace Gem::Common
 	std::istream &operator>>(std::istream &i, Gem::Common::parameter_source &x) {
 		Gem::Common::ENUMBASETYPE tmp;
 		i >> tmp;
-
-#ifdef DEBUG
-		x = boost::numeric_cast<Gem::Common::parameter_source>(tmp);
-#else
 		x = static_cast<Gem::Common::parameter_source>(tmp);
-#endif /* DEBUG */
-
 		return i;
 	}
 
@@ -76,13 +68,7 @@ namespace Gem::Common
 	std::istream &operator>>(std::istream &i, Gem::Common::sortOrder &x) {
 		Gem::Common::ENUMBASETYPE tmp;
 		i >> tmp;
-
-#ifdef DEBUG
-		x = boost::numeric_cast<Gem::Common::sortOrder>(tmp);
-#else
 		x = static_cast<Gem::Common::sortOrder>(tmp);
-#endif /* DEBUG */
-
 		return i;
 	}
 
@@ -102,13 +88,7 @@ namespace Gem::Common
 	std::istream &operator>>(std::istream &i, Gem::Common::dimensions &x) {
 		Gem::Common::ENUMBASETYPE tmp;
 		i >> tmp;
-
-#ifdef DEBUG
-		x = boost::numeric_cast<Gem::Common::dimensions>(tmp);
-#else
 		x = static_cast<Gem::Common::dimensions>(tmp);
-#endif /* DEBUG */
-
 		return i;
 	}
 
@@ -128,13 +108,7 @@ namespace Gem::Common
 	std::istream &operator>>(std::istream &i, Gem::Common::logType &x) {
 		Gem::Common::ENUMBASETYPE tmp;
 		i >> tmp;
-
-#ifdef DEBUG
-		x = boost::numeric_cast<Gem::Common::logType>(tmp);
-#else
 		x = static_cast<Gem::Common::logType>(tmp);
-#endif /* DEBUG */
-
 		return i;
 	}
 
@@ -154,13 +128,7 @@ namespace Gem::Common
 	std::istream &operator>>(std::istream &i, Gem::Common::triboolStates &x) {
 		Gem::Common::ENUMBASETYPE tmp;
 		i >> tmp;
-
-#ifdef DEBUG
-		x = boost::numeric_cast<Gem::Common::triboolStates>(tmp);
-#else
 		x = static_cast<Gem::Common::triboolStates>(tmp);
-#endif /* DEBUG */
-
 		return i;
 	}
 
@@ -180,13 +148,7 @@ namespace Gem::Common
 	std::istream &operator>>(std::istream &i, Gem::Common::serializationMode &x) {
 		Gem::Common::ENUMBASETYPE tmp;
 		i >> tmp;
-
-#ifdef DEBUG
-		x = boost::numeric_cast<Gem::Common::serializationMode>(tmp);
-#else
 		x = static_cast<Gem::Common::serializationMode>(tmp);
-#endif /* DEBUG */
-
 		return i;
 	}
 
@@ -223,13 +185,7 @@ namespace Gem::Common
 	std::istream &operator>>(std::istream &i, Gem::Common::expectation &x) {
 		Gem::Common::ENUMBASETYPE tmp;
 		i >> tmp;
-
-#ifdef DEBUG
-		x = boost::numeric_cast<Gem::Common::expectation>(tmp);
-#else
 		x = static_cast<Gem::Common::expectation>(tmp);
-#endif /* DEBUG */
-
 		return i;
 	}
 

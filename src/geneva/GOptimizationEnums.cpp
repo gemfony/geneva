@@ -56,13 +56,7 @@ namespace Gem::Geneva
 	std::istream &operator>>(std::istream &i, Gem::Geneva::maxMode &am) {
 		Gem::Common::ENUMBASETYPE tmp;
 		i >> tmp;
-
-#ifdef DEBUG
-		am = boost::numeric_cast<Gem::Geneva::maxMode>(tmp);
-#else
-	am = static_cast<Gem::Geneva::maxMode>(tmp);
-#endif /* DEBUG */
-
+		am = static_cast<Gem::Geneva::maxMode>(tmp);
 		return i;
 	}
 
@@ -91,13 +85,7 @@ namespace Gem::Geneva
 	std::istream &operator>>(std::istream &i, Gem::Geneva::activityMode &am) {
 		Gem::Common::ENUMBASETYPE tmp;
 		i >> tmp;
-
-#ifdef DEBUG
-		am = boost::numeric_cast<Gem::Geneva::activityMode>(tmp);
-#else
-	am = static_cast<Gem::Geneva::activityMode>(tmp);
-#endif /* DEBUG */
-
+		am = static_cast<Gem::Geneva::activityMode>(tmp);
 		return i;
 	}
 
@@ -126,13 +114,7 @@ namespace Gem::Geneva
 	std::istream &operator>>(std::istream &i, Gem::Geneva::validityCheckCombinerPolicy &vccp) {
 		Gem::Common::ENUMBASETYPE tmp;
 		i >> tmp;
-
-#ifdef DEBUG
-		vccp = boost::numeric_cast<Gem::Geneva::validityCheckCombinerPolicy>(tmp);
-#else
-	vccp = static_cast<Gem::Geneva::validityCheckCombinerPolicy>(tmp);
-#endif /* DEBUG */
-
+		vccp = static_cast<Gem::Geneva::validityCheckCombinerPolicy>(tmp);
 		return i;
 	}
 
@@ -161,13 +143,7 @@ namespace Gem::Geneva
 	std::istream &operator>>(std::istream &i, Gem::Geneva::evaluationPolicy &iip) {
 		Gem::Common::ENUMBASETYPE tmp;
 		i >> tmp;
-
-#ifdef DEBUG
-		iip = boost::numeric_cast<Gem::Geneva::evaluationPolicy>(tmp);
-#else
-	iip = static_cast<Gem::Geneva::evaluationPolicy>(tmp);
-#endif /* DEBUG */
-
+		iip = static_cast<Gem::Geneva::evaluationPolicy>(tmp);
 		return i;
 	}
 
@@ -196,13 +172,7 @@ namespace Gem::Geneva
 	std::istream &operator>>(std::istream &i, Gem::Geneva::execMode &pm) {
 		Gem::Common::ENUMBASETYPE tmp;
 		i >> tmp;
-
-#ifdef DEBUG
-		pm = boost::numeric_cast<Gem::Geneva::execMode>(tmp);
-#else
-	pm = static_cast<Gem::Geneva::execMode>(tmp);
-#endif /* DEBUG */
-
+		pm = static_cast<Gem::Geneva::execMode>(tmp);
 		return i;
 	}
 
@@ -231,13 +201,7 @@ namespace Gem::Geneva
 	std::istream &operator>>(std::istream &i, Gem::Geneva::duplicationScheme &rc) {
 		Gem::Common::ENUMBASETYPE tmp;
 		i >> tmp;
-
-#ifdef DEBUG
-		rc = boost::numeric_cast<Gem::Geneva::duplicationScheme>(tmp);
-#else
-	rc = static_cast<Gem::Geneva::duplicationScheme>(tmp);
-#endif /* DEBUG */
-
+		rc = static_cast<Gem::Geneva::duplicationScheme>(tmp);
 		return i;
 	}
 
@@ -266,13 +230,7 @@ namespace Gem::Geneva
 	std::istream &operator>>(std::istream &i, Gem::Geneva::infoMode &im) {
 		Gem::Common::ENUMBASETYPE tmp;
 		i >> tmp;
-
-#ifdef DEBUG
-		im = boost::numeric_cast<Gem::Geneva::infoMode>(tmp);
-#else
-	im = static_cast<Gem::Geneva::infoMode>(tmp);
-#endif /* DEBUG */
-
+		im = static_cast<Gem::Geneva::infoMode>(tmp);
 		return i;
 	}
 
@@ -301,13 +259,7 @@ namespace Gem::Geneva
 	std::istream &operator>>(std::istream &i, Gem::Geneva::adaptorId &aid) {
 		Gem::Common::ENUMBASETYPE tmp;
 		i >> tmp;
-
-#ifdef DEBUG
-		aid = boost::numeric_cast<Gem::Geneva::adaptorId>(tmp);
-#else
-	aid = static_cast<Gem::Geneva::adaptorId>(tmp);
-#endif /* DEBUG */
-
+		aid = static_cast<Gem::Geneva::adaptorId>(tmp);
 		return i;
 	}
 
@@ -336,13 +288,7 @@ namespace Gem::Geneva
 	std::istream &operator>>(std::istream &i, Gem::Geneva::sortingMode &smode) {
 		Gem::Common::ENUMBASETYPE tmp;
 		i >> tmp;
-
-#ifdef DEBUG
-		smode = boost::numeric_cast<Gem::Geneva::sortingMode>(tmp);
-#else
-	smode = static_cast<Gem::Geneva::sortingMode>(tmp);
-#endif /* DEBUG */
-
+		smode = static_cast<Gem::Geneva::sortingMode>(tmp);
 		return i;
 	}
 
@@ -371,13 +317,7 @@ namespace Gem::Geneva
 	std::istream &operator>>(std::istream &i, Gem::Geneva::sortingModeMP &smode) {
 		Gem::Common::ENUMBASETYPE tmp;
 		i >> tmp;
-
-#ifdef DEBUG
-		smode = boost::numeric_cast<Gem::Geneva::sortingModeMP>(tmp);
-#else
-	smode = static_cast<Gem::Geneva::sortingModeMP>(tmp);
-#endif /* DEBUG */
-
+		smode = static_cast<Gem::Geneva::sortingModeMP>(tmp);
 		return i;
 	}
 
@@ -406,13 +346,7 @@ namespace Gem::Geneva
 	std::istream &operator>>(std::istream &i, Gem::Geneva::updateRule &ur) {
 		Gem::Common::ENUMBASETYPE tmp;
 		i >> tmp;
-
-#ifdef DEBUG
-		ur = boost::numeric_cast<Gem::Geneva::updateRule>(tmp);
-#else
-	ur = static_cast<Gem::Geneva::updateRule>(tmp);
-#endif /* DEBUG */
-
+		ur = static_cast<Gem::Geneva::updateRule>(tmp);
 		return i;
 	}
 
@@ -433,13 +367,7 @@ namespace Gem::Geneva
 	std::istream& operator>>(std::istream& i, Gem::Geneva::adaptionMode& am) {
 		Gem::Common::ENUMBASETYPE tmp;
 		i >> tmp;
-
-#ifdef DEBUG
-		am = boost::numeric_cast<Gem::Geneva::adaptionMode>(tmp);
-#else
-	am = static_cast<Gem::Geneva::adaptionMode>(tmp);
-#endif /* DEBUG */
-
+		am = static_cast<Gem::Geneva::adaptionMode>(tmp);
 		return i;
 	}
 
