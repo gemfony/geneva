@@ -22,13 +22,6 @@
  *
  ********************************************************************************
  *
- * Geneva was started by Dr. Rüdiger Berlich and was later maintained together
- * with Dr. Ariel Garcia under the auspices of Gemfony scientific. For further
- * information on Gemfony scientific, see http://www.gemfomy.eu .
- *
- * The majority of files in Geneva was released under the Apache license v2.0
- * in February 2020.
- *
  * See the NOTICE file in the top-level directory of the Geneva library
  * collection for a list of contributors and copyright information.
  *
@@ -36,8 +29,7 @@
 
 #include "geneva-individuals/GDelayIndividual.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GDelayIndividual)
-
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GDelayIndividual) // NOLINT
 namespace Gem::Geneva
 {
 
@@ -248,7 +240,7 @@ namespace Gem::Geneva
 
 		// Enforce that the sanity of the lower and upper boundaries
 		if(std::get<0>(randSleepBoundaries) < 0. || std::get<0>(randSleepBoundaries) >= std::get<1>(randSleepBoundaries)) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GDelayIndividual::setRandomSleep(): Error!" << std::endl
 				<< "Got invalid boundaries for the sleep time: " << std::get<0>(randSleepBoundaries) << " / " << std::get<1>(randSleepBoundaries) << std::endl

@@ -22,13 +22,6 @@
  *
  ********************************************************************************
  *
- * Geneva was started by Dr. Rüdiger Berlich and was later maintained together
- * with Dr. Ariel Garcia under the auspices of Gemfony scientific. For further
- * information on Gemfony scientific, see http://www.gemfomy.eu .
- *
- * The majority of files in Geneva was released under the Apache license v2.0
- * in February 2020.
- *
  * See the NOTICE file in the top-level directory of the Geneva library
  * collection for a list of contributors and copyright information.
  *
@@ -142,7 +135,7 @@ namespace Gem::Geneva {
          * Callback function which is executed by sub-clients when clientRun() is called
          */
         std::function<int(MPI_Comm)> m_subClientJob{[](MPI_Comm comm) -> int {
-            throw gemfony_exception(
+            throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
                             << "GMPISubClientOptimizer::m_subClientJob(MPI_Comm comm): Error!" << std::endl
                             << "The sub-client job has not been set. Set it using the `GMPISubClientOptimizer &GMPISubClientOptimizer::registerSubClientJob(std::function<int(MPI_Comm)> &callback)` method."

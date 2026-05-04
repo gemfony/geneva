@@ -22,13 +22,6 @@
  *
  ********************************************************************************
  *
- * Geneva was started by Dr. Rüdiger Berlich and was later maintained together
- * with Dr. Ariel Garcia under the auspices of Gemfony scientific. For further
- * information on Gemfony scientific, see http://www.gemfomy.eu .
- *
- * The majority of files in Geneva was released under the Apache license v2.0
- * in February 2020.
- *
  * See the NOTICE file in the top-level directory of the Geneva library
  * collection for a list of contributors and copyright information.
  *
@@ -208,7 +201,7 @@ namespace Gem::Geneva
   */
 	void GSimulatedAnnealing::setTDegradationStrength(double alpha) {
 		if (alpha <= 0.) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GSimulatedAnnealing::setTDegradationStrength(const double&):" << std::endl
 				<< "Got negative alpha: " << alpha << std::endl
@@ -236,7 +229,7 @@ namespace Gem::Geneva
   */
 	void GSimulatedAnnealing::setT0(double t0) {
 		if (t0 <= 0.) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GSimulatedAnnealing::setT0(const double&):" << std::endl
 				<< "Got negative start temperature: " << t0 << std::endl
@@ -314,7 +307,7 @@ namespace Gem::Geneva
 		// Note that a number of checks (e.g. population size != 0) has already been done
 		// in the parent class.
 		if (this->m_n_parents == 0) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GSimulatedAnnealing::populationSanityChecks(): Error!" << std::endl
 				<< "Number of parents is set to 0"
@@ -324,7 +317,7 @@ namespace Gem::Geneva
 		// We need at least as many children as parents
 		std::size_t popSize = this->getPopulationSize();
 		if (popSize <= this->m_n_parents) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GSimulatedAnnealing::populationSanityChecks() :" << std::endl
 				<< "Requested size of population is too small :" << popSize << " " << this->m_n_parents << std::endl
@@ -363,14 +356,14 @@ namespace Gem::Geneva
 			try {
 				f.get();
 			} catch(std::exception& e) {
-				throw gemfony_exception(
+				throw geneva_exception(
 					g_error_streamer(DO_LOG,  time_and_place)
 					<< "In GSimulatedAnnealing::adaptChildren() :" << std::endl
 					<< "Got error during thread execution with message:" << std::endl
 					<< e.what() << std::endl
 				);
 			} catch(...) {
-				throw gemfony_exception(
+				throw geneva_exception(
 					g_error_streamer(DO_LOG,  time_and_place)
 					<< "In GSimulatedAnnealing::adaptChildren() :" << std::endl
 					<< "Got unknown exception during thread execution" << std::endl
@@ -397,7 +390,7 @@ namespace Gem::Geneva
 		// parents are clean, e.g. when they were extracted from another optimization.
 		for(std::size_t i=this->getNParents(); i<this->size(); i++) {
 			if(not this->at(i)->is_due_for_processing()) {
-				throw gemfony_exception(
+				throw geneva_exception(
 					g_error_streamer(DO_LOG,  time_and_place)
 					<< "In GSimulatedAnnealing::runFitnessCalculation(): Error!" << std::endl
 					<< "Tried to evaluate children in range " << std::get<0>(range) << " - " << std::get<1>(range) << std::endl
@@ -510,7 +503,7 @@ namespace Gem::Geneva
 
 		// Check that individuals do exist in the population. We cannot continue, if this is not the case
 		if(this->empty()) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GSimulatedAnnealing::fixAfterJobSubmission(): Error!" << std::endl
 				<< "Population holds no data" << std::endl
@@ -528,7 +521,7 @@ namespace Gem::Geneva
 
 		// Check that the last individual is not unprocessed. This is a severe error.
 		if(this->back()->is_due_for_processing()) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GSimulatedAnnealing::fixAfterJobSubmission():" << std::endl
 				<< "The last individual in the population is is unprocessed" << std::endl
@@ -575,7 +568,7 @@ namespace Gem::Geneva
 		// Make sure our population is not smaller than its nominal size -- this
 		// should have been taken care of in fixAfterJobSubmission() .
 		if(this->size() < this->getDefaultPopulationSize()) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GSimulatedAnnealing::selectBest(): Error!" << std::endl
 				<< "Size of population is smaller than expected: " << this->size() << " / " << this->getDefaultPopulationSize() << std::endl

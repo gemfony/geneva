@@ -22,13 +22,6 @@
  *
  ********************************************************************************
  *
- * Geneva was started by Dr. Rüdiger Berlich and was later maintained together
- * with Dr. Ariel Garcia under the auspices of Gemfony scientific. For further
- * information on Gemfony scientific, see http://www.gemfomy.eu .
- *
- * The majority of files in Geneva was released under the Apache license v2.0
- * in February 2020.
- *
  * See the NOTICE file in the top-level directory of the Geneva library
  * collection for a list of contributors and copyright information.
  *
@@ -48,5 +41,4 @@
 #include "geneva/GParameterSet.hpp"
 
 // Make sure the instantiation with GParameterSet as template argument can be serialized
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GCheckCombinerT<Gem::Geneva::GParameterSet>)
-
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GCheckCombinerT<Gem::Geneva::GParameterSet>) // NOLINT

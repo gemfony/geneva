@@ -22,13 +22,6 @@
  *
  ********************************************************************************
  *
- * Geneva was started by Dr. Rüdiger Berlich and was later maintained together
- * with Dr. Ariel Garcia under the auspices of Gemfony scientific. For further
- * information on Gemfony scientific, see http://www.gemfomy.eu .
- *
- * The majority of files in Geneva was released under the Apache license v2.0
- * in February 2020.
- *
  * See the NOTICE file in the top-level directory of the Geneva library
  * collection for a list of contributors and copyright information.
  *
@@ -192,7 +185,7 @@ namespace Gem::Geneva
 		// Some error checking -- it should not happen that no processed items are found
 		if (processed_cnt.empty())
 		{
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG, time_and_place)
 				<< "In GParameterSetFixedSizePriorityQueue::add(range): Error!" << std::endl
 				<< "Container is empty when it should not be!" << std::endl
@@ -229,7 +222,7 @@ namespace Gem::Geneva
 		// Some error checking -- it should not happen that no processed items are found
 		if (processed_cnt.empty())
 		{
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG, time_and_place)
 				<< "In GParameterSetFixedSizePriorityQueue::add(vec): Error!" << std::endl
 				<< "Container is empty when it should not be!" << std::endl

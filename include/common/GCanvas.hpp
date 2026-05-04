@@ -22,13 +22,6 @@
  *
  ********************************************************************************
  *
- * Geneva was started by Dr. Rüdiger Berlich and was later maintained together
- * with Dr. Ariel Garcia under the auspices of Gemfony scientific. For further
- * information on Gemfony scientific, see http://www.gemfomy.eu .
- *
- * The majority of files in Geneva was released under the Apache license v2.0
- * in February 2020.
- *
  * See the NOTICE file in the top-level directory of the Geneva library
  * collection for a list of contributors and copyright information.
  *
@@ -491,7 +484,7 @@ public:
 		 using namespace Gem::Common;
 
 		 if (cp.dimensions() != this->dimensions()) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GCanvas::diff(): Error!" << std::endl
 					 << "Dimensions differ: (" << std::get<0>(cp.dimensions()) << ", " << std::get<1>(cp.dimensions()) << ") / ("
@@ -582,7 +575,7 @@ public:
 			 // The file should start with a header, which should read "P3". Complain if this isn't the case
 			 if (not header_found) {
 				 if (s != "P3") {
-					 throw gemfony_exception(
+					 throw geneva_exception(
 						 g_error_streamer(DO_LOG, time_and_place)
 							 << "Error: Header should be \"P3\", but got " << s << std::endl
 					 );
@@ -600,14 +593,14 @@ public:
 				 std::copy(istream_iterator<std::size_t>(iss), istream_iterator<std::size_t>(), back_inserter(v));
 
 				 if (v.size() != 2) { // We should have received exactly two numbers
-					 throw gemfony_exception(
+					 throw geneva_exception(
 						 g_error_streamer(DO_LOG, time_and_place)
 							 << "Error: Got invalid number of dimensions: " << v.size() << std::endl
 					 );
 				 }
 
 				 if (v[0] <= 0 || v[1] <= 0) {
-					 throw gemfony_exception(
+					 throw geneva_exception(
 						 g_error_streamer(DO_LOG, time_and_place)
 							 << "Error: Got invalid dimensions: " << v[0] << " / " << v[1] << std::endl
 					 );
@@ -633,7 +626,7 @@ public:
 				 copy(istream_iterator<std::size_t>(iss), istream_iterator<std::size_t>(), back_inserter(v));
 
 				 if (v.size() != 1) { // We should have received exactly one number
-					 throw gemfony_exception(
+					 throw geneva_exception(
 						 g_error_streamer(DO_LOG, time_and_place)
 							 << "Error: Did not find specification of the number of colors" << std::endl
 							 << "or an invalid number of specifications: " << v.size() << std::endl
@@ -643,7 +636,7 @@ public:
 				 // We only accept a single color depth for now. Except for this check, we
 				 // do nothing in this block
 				 if (v[0] != MAXCOLOR) {
-					 throw gemfony_exception(
+					 throw geneva_exception(
 						 g_error_streamer(DO_LOG, time_and_place)
 							 << "Error: Got invalid color depth " << v[0] << std::endl
 					 );
@@ -688,7 +681,7 @@ public:
 		 // v should now contain all per-pixel information. Check the size - as
 		 // we are reading triplets, the size of the vector is known.
 		 if (v.size() != 3 * m_xDim * m_yDim) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "Error: got invalid number of entries in line." << std::endl
 					 << "Expected " << 3 * m_xDim * m_yDim << ", but got " << v.size() << std::endl
@@ -723,7 +716,7 @@ public:
 		 // Hand the string over to loadFromPPM() -- it will do the rest
 #ifdef DEBUG
 		 if(imageData.empty()) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "GCanvas::loadFromFile(): Error!" << std::endl
 					 << "File data was empty" << std::endl
@@ -743,7 +736,7 @@ public:
 		 std::ofstream result(p);
 
 		 if (not result) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GCanvas<>::toFile(): Error!" << std::endl
 					 << "Could not open output file " << p.string() << std::endl
@@ -817,7 +810,7 @@ public:
 #ifdef DEBUG
 		 // Check that angles are in consecutive order
 		 if(t.angle1 < 0.f || t.angle2 <= t.angle1 || t.angle3 <= t.angle2 || t.angle3 >= 1.f) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GCanvas<>::addTriangel(): Error!" << std::endl
 					 << "Angles are not in consecutive oder: " << std::endl
@@ -1140,8 +1133,8 @@ G_API_COMMON float operator-(
 } /* namespace Common */
 } /* namespace Gem */
 
-BOOST_CLASS_EXPORT_KEY(Gem::Common::GRgb)
-BOOST_CLASS_EXPORT_KEY(Gem::Common::GColumn)
-BOOST_CLASS_EXPORT_KEY(Gem::Common::GCanvas8)
-BOOST_CLASS_EXPORT_KEY(Gem::Common::GCanvas16)
-BOOST_CLASS_EXPORT_KEY(Gem::Common::GCanvas24)
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GRgb) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GColumn) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GCanvas8) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GCanvas16) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GCanvas24) // NOLINT

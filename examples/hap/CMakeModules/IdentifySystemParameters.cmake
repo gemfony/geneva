@@ -22,13 +22,6 @@
 #
 ################################################################################
 #
-# Geneva was started by Dr. Rüdiger Berlich and was later maintained together
-# with Dr. Ariel Garcia under the auspices of Gemfony scientific. For further
-# information on Gemfony scientific, see http://www.gemfomy.eu .
-#
-# The majority of files in Geneva was released under the Apache license v2.0
-# in February 2020.
-#
 # See the NOTICE file in the top-level directory of the Geneva library
 # collection for a list of contributors and copyright information.
 #
@@ -179,19 +172,19 @@ FUNCTION (
 	#       support it, at least in cmake 3.x
 	#
 	IF(APPLE)
-		EXEC_PROGRAM(/usr/bin/uname ARGS -r  OUTPUT_VARIABLE DARWIN_VERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
+		execute_process(COMMAND /usr/bin/uname -r OUTPUT_VARIABLE DARWIN_VERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
 		SET(${GENEVA_OS_NAME_OUT} "MacOSX" PARENT_SCOPE)
 		SET(${GENEVA_OS_VERSION_OUT} "${DARWIN_VERSION}" PARENT_SCOPE)
 	ELSEIF(CMAKE_SYSTEM_NAME MATCHES "Linux")
-		EXEC_PROGRAM(uname ARGS -r  OUTPUT_VARIABLE LINUX_VERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
+		execute_process(COMMAND uname -r OUTPUT_VARIABLE LINUX_VERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
 		SET(${GENEVA_OS_NAME_OUT} "Linux" PARENT_SCOPE)
 		SET(${GENEVA_OS_VERSION_OUT} "${LINUX_VERSION}" PARENT_SCOPE)
 	ELSEIF(CMAKE_SYSTEM_NAME MATCHES "FreeBSD")
-		EXEC_PROGRAM(uname ARGS -r  OUTPUT_VARIABLE FREEBSD_VERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
+		execute_process(COMMAND uname -r OUTPUT_VARIABLE FREEBSD_VERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
 		SET(${GENEVA_OS_NAME_OUT} "FreeBSD" PARENT_SCOPE)
 		SET(${GENEVA_OS_VERSION_OUT} "${FREEBSD_VERSION}" PARENT_SCOPE)
 	ELSEIF(CYGWIN)
-		EXEC_PROGRAM(uname ARGS -r  OUTPUT_VARIABLE CYGWIN_VERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
+		execute_process(COMMAND uname -r OUTPUT_VARIABLE CYGWIN_VERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
 		SET(${GENEVA_OS_NAME_OUT} "Cygwin" PARENT_SCOPE)
 		SET(${GENEVA_OS_VERSION_OUT} "${CYGWIN_VERSION}" PARENT_SCOPE)
 	ELSEIF(WIN32)

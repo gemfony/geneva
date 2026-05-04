@@ -22,13 +22,6 @@
  *
  ********************************************************************************
  *
- * Geneva was started by Dr. Rüdiger Berlich and was later maintained together
- * with Dr. Ariel Garcia under the auspices of Gemfony scientific. For further
- * information on Gemfony scientific, see http://www.gemfomy.eu .
- *
- * The majority of files in Geneva was released under the Apache license v2.0
- * in February 2020.
- *
  * See the NOTICE file in the top-level directory of the Geneva library
  * collection for a list of contributors and copyright information.
  *
@@ -144,7 +137,7 @@ public:
 	 void setInitBoundaries(const num_type& lowerInitBoundary, const num_type& upperInitBoundary) {
 		 // Do some error checking
 		 if(lowerInitBoundary >= upperInitBoundary) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GNumT<T>::setInitBoundaries():" << std::endl
 					 << "Invalid boundaries provided: " << std::endl
@@ -374,7 +367,7 @@ protected:
 		{ // Check that assignement of initialization boundaries throws for invalid boundaries
 			std::shared_ptr<GNumT<num_type>> p_test = this->template clone<GNumT<num_type>>();
 
-			BOOST_CHECK_THROW(p_test->setInitBoundaries(UPPERTESTINITVAL, LOWERTESTINITVAL), gemfony_exception);
+			BOOST_CHECK_THROW(p_test->setInitBoundaries(UPPERTESTINITVAL, LOWERTESTINITVAL), geneva_exception);
 		}
 
 		//------------------------------------------------------------------------------
@@ -414,8 +407,7 @@ private:
 } /* namespace Gem */
 
 /******************************************************************************/
-// The content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T)
-
+// The content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T) // NOLINT
 namespace boost {
 namespace serialization {
 template<typename num_type>

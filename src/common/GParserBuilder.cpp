@@ -22,13 +22,6 @@
  *
  ********************************************************************************
  *
- * Geneva was started by Dr. Rüdiger Berlich and was later maintained together
- * with Dr. Ariel Garcia under the auspices of Gemfony scientific. For further
- * information on Gemfony scientific, see http://www.gemfomy.eu .
- *
- * The majority of files in Geneva was released under the Apache license v2.0
- * in February 2020.
- *
  * See the NOTICE file in the top-level directory of the Geneva library
  * collection for a list of contributors and copyright information.
  *
@@ -97,7 +90,7 @@ namespace Gem::Common
  */
 	std::string GParsableI::optionName(std::size_t pos) const {
 		if (m_option_name.size() <= pos) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GParsableI::optionName(std::size_t): Error!" << std::endl
 				<< "Tried to access item at position " << pos << std::endl
@@ -114,7 +107,7 @@ namespace Gem::Common
  */
 	std::string GParsableI::comment(std::size_t pos) const {
 		if (m_comment.size() <= pos) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GParsableI::m_comment(std::size_t): Error!" << std::endl
 				<< "Tried to access item at position " << pos << std::endl
@@ -181,7 +174,7 @@ namespace Gem::Common
 	GParsableI &GParsableI::operator<<(commentLevel const& cl) {
 #ifdef DEBUG
 		if(m_comment.empty()) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GParsableI::operator<< (commentLevel const& cl): Error!" << std::endl
 				<< "No comments in vector" << std::endl
@@ -189,7 +182,7 @@ namespace Gem::Common
 		}
 
 		if(m_comment.size() <= cl.getCommentLevel()) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GParsableI::operator<< (commentLevel const& cl): Error!" << std::endl
 				<< "Invalid comment level " << cl.getCommentLevel() << " requested, where the maximum is " << m_comment.size() - 1 << std::endl
@@ -208,7 +201,7 @@ namespace Gem::Common
 	GParsableI &GParsableI::operator<<(nextComment const & nC) {
 #ifdef DEBUG
 		if(m_comment.empty()) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GParsableI::operator<< (nextComment const& nC): Error!" << std::endl
 				<< "No comments in vector" << std::endl
@@ -216,7 +209,7 @@ namespace Gem::Common
 		}
 
 		if(m_comment.size() <= (m_cl+1)) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GParsableI::operator<< (nextComment const& nC): Error!" << std::endl
 				<< "Invalid comment level " << m_cl+1 << " requested, where the maximum is " << m_comment.size() - 1 << std::endl
@@ -364,7 +357,7 @@ namespace Gem::Common
 			if(not m_config_base_dir.empty()) {
 				// Check that the base directory exists
 				if(not std::filesystem::exists(m_config_base_dir)) {
-					throw gemfony_exception(
+					throw geneva_exception(
 						g_error_streamer(DO_LOG,  time_and_place)
 						<< "In GParserBuilder::parseConfigFile(): Error!" << std::endl
 						<< "Base-directory " << m_config_base_dir.string() << " does not exist" << std::endl
@@ -394,7 +387,7 @@ namespace Gem::Common
 			} else { // configFile exists
 				// Is it a regular file ?
 				if (not std::filesystem::is_regular_file(config_path)) {
-					throw gemfony_exception(
+					throw geneva_exception(
 						g_error_streamer(DO_LOG,  time_and_place)
 						<< "In GParserBuilder::parseConfigFile(): Error!" << std::endl
 						<< config_path.string() << " exists but is no regular file." << std::endl
@@ -403,7 +396,7 @@ namespace Gem::Common
 
 				// We require the file to have the json extension
 				if (not std::filesystem::path(config_path).has_extension() || std::filesystem::path(config_path).extension() != ".json") {
-					throw gemfony_exception(
+					throw geneva_exception(
 						g_error_streamer(DO_LOG,  time_and_place)
 						<< "In GParserBuilder::parseConfigFile(): Error!" << std::endl
 						<< config_path.string() << " does not have the required extension \".json\"" << std::endl
@@ -421,9 +414,9 @@ namespace Gem::Common
 			}
 
 			return true; // Success!
-		} catch (gemfony_exception const & e) {
+		} catch (geneva_exception const & e) {
 			glogger
-				<< "Caught gemfony_exception when parsing configuration file " << config_path.string() << ":" << std::endl
+				<< "Caught geneva_exception when parsing configuration file " << config_path.string() << ":" << std::endl
 				<< e.what() << std::endl
 				<< GLOGGING;
 			return false;
@@ -461,7 +454,7 @@ namespace Gem::Common
 		{
 			// Is configFile a directory ?
 			if (std::filesystem::is_directory(configFile)) {
-				throw gemfony_exception(
+				throw geneva_exception(
 					g_error_streamer(DO_LOG,  time_and_place)
 					<< "In GParserBuilder::writeConfigFile(): Error!" << std::endl
 					<< configFile.string() << " is a directory." << std::endl
@@ -470,7 +463,7 @@ namespace Gem::Common
 
 			// We do not allow to overwrite existing files
 			if (std::filesystem::exists(configFile) && std::filesystem::is_regular_file(configFile)) {
-				throw gemfony_exception(
+				throw geneva_exception(
 					g_error_streamer(DO_LOG,  time_and_place)
 					<< "In GParserBuilder::writeConfigFile(): Error!" << std::endl
 					<< "You have specified an existing file (" << configFile.string() << ")." << std::endl
@@ -480,7 +473,7 @@ namespace Gem::Common
 			// Check that the target path exists and is a directory
 			if (not std::filesystem::exists(std::filesystem::path(configFile).remove_filename()) ||
 				not std::filesystem::is_directory(std::filesystem::path(configFile).remove_filename())) { // We need to act on a copy
-				throw gemfony_exception(
+				throw geneva_exception(
 					g_error_streamer(DO_LOG,  time_and_place)
 					<< "In GParserBuilder::writeConfigFile(): Error!" << std::endl
 					<< "The target path " << std::filesystem::path(configFile).remove_filename().string()
@@ -490,7 +483,7 @@ namespace Gem::Common
 
 			// Check that the configuration file has the required extension
 			if (not configFile.has_extension() || configFile.extension() != ".json") {
-				throw gemfony_exception(
+				throw geneva_exception(
 					g_error_streamer(DO_LOG,  time_and_place)
 					<< "In GParserBuilder::writeConfigFile(): Error!" << std::endl
 					<< configFile.string() << " does not have the required extension \".json\"" << std::endl
@@ -501,7 +494,7 @@ namespace Gem::Common
 		// Open the required configuration file
 		std::ofstream ofs(configFile);
 		if (not ofs) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GParserBuilder::writeConfigFile(): Error writing configuration file " << configFile.string() << std::endl
 			);
@@ -509,7 +502,7 @@ namespace Gem::Common
 
 		// Do some error checking
 		if (m_file_parameter_proxies.empty()) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GParserBuilder::writeConfigFile(): No variables found!" << std::endl
 			);

@@ -22,13 +22,6 @@
  *
  ********************************************************************************
  *
- * Geneva was started by Dr. Rüdiger Berlich and was later maintained together
- * with Dr. Ariel Garcia under the auspices of Gemfony scientific. For further
- * information on Gemfony scientific, see http://www.gemfomy.eu .
- *
- * The majority of files in Geneva was released under the Apache license v2.0
- * in February 2020.
- *
  * See the NOTICE file in the top-level directory of the Geneva library
  * collection for a list of contributors and copyright information.
  *
@@ -129,7 +122,7 @@ namespace Gem::Geneva
 		// Retrieve the algorithm from the global store
 		std::shared_ptr<G_OptimizationAlgorithm_FactoryT<GOABase>> p;
 		if (not GOAFactoryStore->get(mn, p)) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In Go2::registerDefaultAlgorithm(std::string): Error!" << std::endl
 				<< "Got invalid algorithm mnemonic " << mn << std::endl
@@ -149,7 +142,7 @@ namespace Gem::Geneva
 	void Go2::registerDefaultAlgorithm(std::shared_ptr<GOABase> default_algorithm) {
 		// Check that the pointer isn't empty
 		if (not default_algorithm) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In Go2::registerDefaultAlgorithm(): Error!" << std::endl
 				<< "Got empty algorithm." << std::endl
@@ -178,7 +171,7 @@ namespace Gem::Geneva
 		if (pluggableOM) {
 			m_pluggable_monitors_cnt.push_back(pluggableOM);
 		} else {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In Go2::registerPluggableOM(): Tried to register empty pluggable optimization monitor" << std::endl
 			);
@@ -233,7 +226,7 @@ namespace Gem::Geneva
 			GO2_DEF_NOCONSUMER == m_consumer_name
 			|| not GConsumerStore->exists(m_consumer_name)
 		) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In Go2::clientRun(): Error!" << std::endl
 				<< "Received invalid consumer name: " << m_consumer_name << std::endl
@@ -246,7 +239,7 @@ namespace Gem::Geneva
 		if (GConsumerStore->get(m_consumer_name)->needsClient()) {
 			p = GConsumerStore->get(m_consumer_name)->getClient();
 		} else {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In Go2::clientRun(): Error!" << std::endl
 				<< "Trying to execute clientRun() on consumer " << m_consumer_name << std::endl
@@ -256,7 +249,7 @@ namespace Gem::Geneva
 
 		// Check for errors
 		if (not p) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In Go2::clientRun(): Error!" << std::endl
 				<< "Received empty client from consumer " << m_consumer_name << std::endl
@@ -317,7 +310,7 @@ namespace Gem::Geneva
 	void Go2::addAlgorithm(std::shared_ptr<GOABase> alg) {
 		// Check that the pointer is not empty
 		if (not alg) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In Go2::addAlgorithm(): Error!" << std::endl
 				<< "Tried to register an empty pointer" << std::endl
@@ -382,7 +375,7 @@ namespace Gem::Geneva
 		// Retrieve the algorithm from the global store
 		std::shared_ptr<G_OptimizationAlgorithm_FactoryT<GOABase>> p;
 		if (not GOAFactoryStore->get(mn, p)) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In Go2::addAlgorithm(std::string): Error!" << std::endl
 				<< "Got invalid algorithm mnemonic " << mn << std::endl
@@ -409,7 +402,7 @@ namespace Gem::Geneva
 		std::shared_ptr<Gem::Common::GFactoryT<GParameterSet>> cc_ptr
 	) {
 		if (not cc_ptr) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In Go2::registerContentCreator(): Error!" << std::endl
 				<< "Tried to register an empty pointer" << std::endl
@@ -431,7 +424,7 @@ namespace Gem::Geneva
  *
  * @param offset An offset at which the first algorithm should start
  */
-	Go2 const * const Go2::optimize_(std::uint32_t) {
+	Go2 const * Go2::optimize_(std::uint32_t) {
 		// Check that algorithms have indeed been registered. If not, try to add a default algorithm
 		if (m_algorithms_cnt.empty()) {
 			if (not m_default_algorithm) {
@@ -451,7 +444,7 @@ namespace Gem::Geneva
 
 		// Check whether a possible checkpoint file fits the first algorithm in the chain
 		if(m_cp_file != "empty" && not m_algorithms_cnt[0]->cp_personality_fits(std::filesystem::path(m_cp_file))) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In Go2::optimize(): Error!" << std::endl
 				<< "Checkpoint file " << m_cp_file << " does not" << std::endl
@@ -476,7 +469,7 @@ namespace Gem::Geneva
 							this->push_back(p_ind);
 						} else { // No valid item received, the factory has run empty
 							if (this->empty()) { // Still empty ?
-								throw gemfony_exception(
+								throw geneva_exception(
 									g_error_streamer(DO_LOG,  time_and_place)
 									<< "In Go2::optimize(): Error!" << std::endl
 									<< "The content creator did not deliver any individuals" << std::endl
@@ -488,7 +481,7 @@ namespace Gem::Geneva
 						}
 					}
 				} else {
-					throw gemfony_exception(
+					throw geneva_exception(
 						g_error_streamer(DO_LOG,  time_and_place)
 						<< "In Go2::optimize(): Error!" << std::endl
 						<< "Neither a content creator nor individuals have been registered." << std::endl
@@ -563,7 +556,7 @@ namespace Gem::Geneva
 	std::shared_ptr<Gem::Geneva::GParameterSet> Go2::getBestGlobalIndividual_() const {
 		// Do some error checking
 		if (this->empty()) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In Go2::getBestGlobalIndividual_(): Error!" << std::endl
 				<< "No individuals found" << std::endl
@@ -571,7 +564,7 @@ namespace Gem::Geneva
 		}
 
 		if (not m_sorted) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In Go2::getBestGlobalIndividual_(): Error!" << std::endl
 				<< "Tried to retrieve best individual" << std::endl
@@ -581,7 +574,7 @@ namespace Gem::Geneva
 
 		// Check if the best individual is processed
 		if(not this->front()->is_processed() && not this->front()->is_ignored()) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In Go2::getBestGlobalIndividual_(): Error!" << std::endl
 				<< "Best individual is unprocessed or has errors" << std::endl
@@ -602,7 +595,7 @@ namespace Gem::Geneva
 	std::vector<std::shared_ptr<Gem::Geneva::GParameterSet>> Go2::getBestGlobalIndividuals_() const {
 		// Do some error checking
 		if (this->empty()) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In Go2::getBestGlobalIndividuals_(): Error!" << std::endl
 				<< "No individuals found" << std::endl
@@ -613,7 +606,7 @@ namespace Gem::Geneva
 		std::vector<std::shared_ptr<Gem::Geneva::GParameterSet>> bestIndividuals;
 		for (const auto& ind_ptr: *this) {
 			if (ind_ptr->is_due_for_processing() || ind_ptr->has_errors()) {
-				throw gemfony_exception(
+				throw geneva_exception(
 					g_error_streamer(DO_LOG,  time_and_place)
 					<< "In Go2::getBestGlobalIndividuals_(): Error!" << std::endl
 					<< "Found individual in position " << pos << " which is unprocessed or which has errors" <<
@@ -638,7 +631,7 @@ namespace Gem::Geneva
  * @return The best individual found
  */
 	std::shared_ptr<Gem::Geneva::GParameterSet> Go2::getBestIterationIndividual_() const {
-		throw gemfony_exception(
+		throw geneva_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 			<< "In Go2::getBestIterationIndividual_(): Error!" << std::endl
 			<< "This function should not be called" << std::endl
@@ -653,7 +646,7 @@ namespace Gem::Geneva
  * @return The best individual found
  */
 	std::vector<std::shared_ptr<Gem::Geneva::GParameterSet>> Go2::getBestIterationIndividuals_() const {
-		throw gemfony_exception(
+		throw geneva_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 			<< "In Go2::getBestIterationIndividuals_(): Error!" << std::endl
 			<< "This function should not be called" << std::endl
@@ -715,7 +708,7 @@ namespace Gem::Geneva
 	void Go2::setClientMode(bool clientMode) {
 #ifdef GENEVA_BUILD_WITH_MPI_CONSUMER
     if (m_consumer_name == "GMPIConsumerT" || m_consumer_name == "mpi") {
-        throw gemfony_exception(
+        throw geneva_exception(
 				g_error_streamer(DO_LOG, time_and_place)
 					<< "In Go2::setClientMode(): Error!" << std::endl
 					<< "If running MPI then the mode can not be changed between client and server mode after the process has been launched"
@@ -922,7 +915,7 @@ namespace Gem::Geneva
 
 			// No consumer specified, although brokered execution was requested
 			if (vm.count("consumer") != 1) {
-				throw gemfony_exception(
+				throw geneva_exception(
 					g_error_streamer(DO_LOG,  time_and_place)
 					<< "In Go2::parseCommandLine(): Error!" << std::endl
 					<< "You need to specify exactly one consumer for brokered execution," << std::endl
@@ -932,7 +925,7 @@ namespace Gem::Geneva
 
 			// Check that the requested consumer actually exists
 			if (vm.count("consumer") && not GConsumerStore->exists(m_consumer_name)) {
-				throw gemfony_exception(
+				throw geneva_exception(
 					g_error_streamer(DO_LOG,  time_and_place)
 					<< "In Go2::parseCommandLine(): Error!" << std::endl
 					<< "You have requested a consumer with name " << m_consumer_name << std::endl
@@ -941,7 +934,7 @@ namespace Gem::Geneva
 			}
 
 			if (m_client_mode && not GConsumerStore->get(m_consumer_name)->needsClient()) {
-				throw gemfony_exception(
+				throw geneva_exception(
 					g_error_streamer(DO_LOG,  time_and_place)
 					<< "In Go2::parseCommandLine(): Error!" << std::endl
 					<< "Requested client mode even though consumer " << m_consumer_name << " does not require a client" <<
@@ -998,7 +991,7 @@ namespace Gem::Geneva
 					// Retrieve the algorithm factory from the global store
 					std::shared_ptr<G_OptimizationAlgorithm_FactoryT<GOABase>> p;
 					if (not GOAFactoryStore->get(alg_str, p)) {
-						throw gemfony_exception(
+						throw geneva_exception(
 							g_error_streamer(DO_LOG,  time_and_place)
 							<< "In Go2::parseCommandLine(int, char**): Error!" << std::endl
 							<< "Got invalid algorithm mnemonic \"" << alg_str << "\"." << std::endl
@@ -1018,7 +1011,7 @@ namespace Gem::Geneva
 			m_max_client_duration = Gem::Common::duration_from_string(maxClientDuration);
 		}
 		catch (const po::error &e) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "Error parsing the command line:" << std::endl
 				<< e.what() << std::endl

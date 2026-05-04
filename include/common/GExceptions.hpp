@@ -63,15 +63,15 @@
  * General exception class to be thrown in the case of severe errors
  * in the Geneva library collection.
  */
-class gemfony_exception : public std::runtime_error
+class geneva_exception : public std::runtime_error
 {
 public:
 	using std::runtime_error::runtime_error;
 };
 
 /******************************************************************************/
-/** @brief This function allows to output a gemfony_exception to a stream */
-G_API_COMMON std::ostream& operator<<(std::ostream&, const gemfony_exception&);
+/** @brief This function allows to output a geneva_exception to a stream */
+G_API_COMMON std::ostream& operator<<(std::ostream&, const geneva_exception&);
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -80,10 +80,10 @@ G_API_COMMON std::ostream& operator<<(std::ostream&, const gemfony_exception&);
  * An exception to be thrown in case of an expectation violation. This is used
  * in the compare infrastructure, but listed here to resolve a circular dependency.
  */
-class g_expectation_violation : public gemfony_exception
+class g_expectation_violation : public geneva_exception
 {
 public:
-	 using gemfony_exception::gemfony_exception;
+	 using geneva_exception::geneva_exception;
 };
 
 /******************************************************************************/
@@ -112,7 +112,7 @@ public:
        << "We appreciate your help!" << std::endl                                                        \
        << "The Geneva team" << std::endl                                                                 \
        << "================================================" << std::endl;                               \
-    throw(gemfony_exception(error.str()));                                            \
+    throw(geneva_exception(error.str()));                                            \
   }
 
 /******************************************************************************/

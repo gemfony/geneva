@@ -24,13 +24,6 @@
 #
 ################################################################################
 #
-# Geneva was started by Dr. Rüdiger Berlich and was later maintained together
-# with Dr. Ariel Garcia under the auspices of Gemfony scientific. For further
-# information on Gemfony scientific, see http://www.gemfomy.eu .
-#
-# The majority of files in Geneva was released under the Apache license v2.0
-# in February 2020.
-#
 # See the NOTICE file in the top-level directory of the Geneva library
 # collection for a list of contributors and copyright information.
 #
@@ -48,124 +41,135 @@
 GENEVA_BUILDROOT="${PWD}"
 
 ####################################################################
-# Check variables, set variable defaults if no config file was given
-if [ $# -eq 0 ]; then
-	echo -e "\nSetting variable defaults, as no Geneva config"
-	echo -e "file was provided. See the Geneva 'scripts' directory"
-	echo -e "for an example (genevaConfig.gcfg).\n"
+# Parse command line arguments
+DRYRUN=0
+CLEAN=0
+GENERATE_PRESET=0
+CONFIGFILE=""
 
-	CMAKE="/usr/bin/cmake"         # Where the cmake executable is located
-	BUILDMODE="Release"            # Release, Debug, RelWithDebInfo, MinSizeRel or Sanitize (experimental, will default to Debug on unsupported platforms)
-	BUILDTESTCODE="1"              # Whether to build Geneva with testing code
-	BUILDSTATIC="0"                # Whether to build static code / libraries (experimental!)
-	VERBOSEMAKEFILE="1"            # Whether compilation information should be emitted
-	INSTALLDIR="/opt/geneva"       # Where the Geneva library shall go
-	MPIROOT=""                     # Root directory of the MPI installation, empty for automatic find through Cmake
-	BUILDMPICONSUMER="0"           # Whether to build the MPI-consumer of the courtier library
-	BUILDCUDAEXAMPLES="0"          # Whether to build CUDA examples (note: this is an experimental feature)
-	USECUDARNG="0"                 # Whether CUDA shall be used to create random numbers in the Hap-library
-elif [ $# -eq 1 ]; then
-	# Check that the command file has the expected form (ends with .gcfg)
-	testfile=`basename $1 .gcfg`.gcfg
-	if [ ! `basename $1` = "$testfile" ]; then
-		echo -e "\nFile '$1' does not seem to be a Geneva config file, as it"
-		echo -e "does not end in '.gcfg' as expected. Leaving...\n"
-		exit
-	fi
+for arg in "$@"; do
+	case "$arg" in
+		--help|-h)
+			echo -e "\nUsage: $(basename "$0") [<config.gcfg>] [--clean] [--dryrun] [--generate-preset] [--help|-h]"
+			echo -e "\nOptions:"
+			echo -e "  <config.gcfg>       Optional Geneva configuration file (must end in .gcfg)."
+			echo -e "                      If omitted, built-in defaults are used."
+			echo -e "  --clean             Remove all files from the build directory except .gcfg"
+			echo -e "                      files, then reconfigure. Required when calling the script"
+			echo -e "                      a second time in the same directory."
+			echo -e "  --dryrun            Print the full cmake command that would be executed,"
+			echo -e "                      including all -D options derived from the config file,"
+			echo -e "                      without actually running cmake. Useful for copying the"
+			echo -e "                      command into an IDE such as JetBrains CLion."
+			echo -e "  --generate-preset   Write a CMakeUserPresets.json to the project root so"
+			echo -e "                      that JetBrains CLion (including via Gateway) picks up"
+			echo -e "                      the same CMake configuration automatically."
+			echo -e "  --help, -h          Show this help message.\n"
+			exit 0
+			;;
+		--clean)
+			CLEAN=1
+			;;
+		--dryrun)
+			DRYRUN=1
+			;;
+		--generate-preset)
+			GENERATE_PRESET=1
+			;;
+		-*)
+			echo -e "\nUnknown option: '$arg'. Use --help for usage information.\nLeaving...\n"
+			exit 1
+			;;
+		*)
+			if [ -n "${CONFIGFILE}" ]; then
+				echo -e "\nError: multiple config files specified. Leaving...\n"
+				exit 1
+			fi
+			CONFIGFILE="$arg"
+			;;
+	esac
+done
 
-	# Check that the file exists
-	if [ ! -e $1 ]; then
-		echo -e "\nError: File '$1' does not seem to exist.\nLeaving...\n"
-		exit
-	fi
-
-	# Source the config file
-	echo -e "\nUsing configuration file '$1'\n"
-	. $1
-
-	# Check whether all required variables were set
-	if [ -z "${CMAKE}" ]; then
-		CMAKE="/usr/bin/cmake"
-		echo "Variable CMAKE wasn't set. Setting to default value '${CMAKE}'"
-	fi
-
-	if [ -z "${BUILDMODE}" ]; then
-		BUILDMODE="Debug"
-		echo "Variable BUILDMODE wasn't set. Setting to default value '${BUILDMODE}'"
-	fi
-
-	if [ -z "${BUILDTESTCODE}" ]; then
-		BUILDTESTCODE="1"
-		echo "Variable BUILDTESTCODE wasn't set. Setting to default value '${BUILDTESTCODE}'"
-	fi
-
-	if [ -z "${BUILDEXAMPLES}" ]; then
-		BUILDEXAMPLES="1"
-		echo "Variable BUILDEXAMPLES wasn't set. Setting to default value '${BUILDEXAMPLES}'"
-	fi
-
-    if [ -z "${BUILDBENCHMARKS}" ]; then
-		BUILDBENCHMARKS="1"
-		echo "Variable BUILDBENCHMARKS wasn't set. Setting to default value '${BUILDBENCHMARKS}'"
-	fi
-
-	if [ -z "${BUILDSTATIC}" ]; then
-		BUILDSTATIC="0"
-		echo "Variable BUILDSTATIC wasn't set. Setting to default value '${BUILDSTATIC}'"
-	fi
-
-	if [ -z "${VERBOSEMAKEFILE}" ]; then
-		VERBOSEMAKEFILE="0"
-		echo "Variable VERBOSEMAKEFILE wasn't set. Setting to default value '${VERBOSEMAKEFILE}'"
-	fi
-
-	if [ -z "${INSTALLDIR}" ]; then
-		INSTALLDIR="/opt/geneva"
-		echo "Variable INSTALLDIR wasn't set. Setting to default value '${INSTALLDIR}'"
-	fi
-
-	if [ -z "${BUILDMPICONSUMER}" ]; then
-      BUILDMPICONSUMER="1"
-      echo "Variable BUILDMPICONSUMER wasn't set. Setting to default value '${BUILDMPICONSUMER}'"
-    fi
-
-    if [ -z "${MPIROOT}" ]; then
-      	MPIROOT=""
-      	echo "Variable MPIROOT not specified, setting MPIROOT to empty string, indicating automatic find through CMake."
-    fi
-
-	if [ -z "${BUILDCUDAEXAMPLES}" ]; then
-		BUILDCUDAEXAMPLES="0"
-		echo "Variable BUILDCUDAEXAMPLES wasn't set. Setting to default value '${BUILDCUDAEXAMPLES}'"
-	fi
-
-  if [ -z "${USECUDARNG}" ]; then
-    USECUDARNG="0"
-    echo "Variable USECUDARNG wasn't set. Setting to default value '${USECUDARNG}'"
-  fi
-else
-	echo -e "\nReceived $# command line arguments, which is an invalid number."
-	echo -e "You can either call this script without arguments, in which case"
-	echo -e "default values will be assumed for all configuration options,"
-	echo -e "or you can provide exactly one Geneva config file as command"
-	echo -e "line argument, ending in '.gcfg'. Leaving now, as we do not know"
-	echo -e "how to proceed.\n"
-	exit
+if [ "${CLEAN}" = "1" ] && [ "${DRYRUN}" = "1" ]; then
+	echo -e "\nError: --clean and --dryrun are mutually exclusive."
+	echo -e "--clean deletes files; --dryrun must not change anything. Leaving...\n"
+	exit 1
 fi
 
 ####################################################################
-# Some checks
+# Auto-detect a .gcfg file in the call directory if none was given
+if [ -z "${CONFIGFILE}" ]; then
+	gcfg_files=( "${GENEVA_BUILDROOT}"/*.gcfg )
+	if [ -e "${gcfg_files[0]}" ]; then
+		if [ "${#gcfg_files[@]}" -eq 1 ]; then
+			CONFIGFILE="${gcfg_files[0]}"
+			_AUTODETECTED=1
+		else
+			echo -e "\nError: multiple .gcfg files found in '${GENEVA_BUILDROOT}'."
+			echo -e "Please specify the configuration file explicitly. Leaving...\n"
+			exit 1
+		fi
+	fi
+fi
+
+####################################################################
+# Set built-in defaults, then override with the config file if provided.
+CMAKE="/usr/bin/cmake"
+BUILDMODE="Debug"
+BUILDTESTCODE="1"
+BUILDEXAMPLES="1"
+BUILDBENCHMARKS="1"
+BUILDSTATIC="0"
+VERBOSEMAKEFILE="0"
+INSTALLDIR="/opt/geneva"
+MPIROOT=""
+BUILDMPICONSUMER="0"
+BUILDCUDAEXAMPLES="0"
+USECUDARNG="0"
+
+if [ -n "${CONFIGFILE}" ]; then
+	testfile=$(basename "${CONFIGFILE}" .gcfg).gcfg
+	if [ ! "$(basename "${CONFIGFILE}")" = "$testfile" ]; then
+		echo -e "\nFile '${CONFIGFILE}' does not seem to be a Geneva config file, as it"
+		echo -e "does not end in '.gcfg' as expected. Leaving...\n"
+		exit 1
+	fi
+	if [ ! -e "${CONFIGFILE}" ]; then
+		echo -e "\nError: File '${CONFIGFILE}' does not seem to exist.\nLeaving...\n"
+		exit 1
+	fi
+	if [ "${_AUTODETECTED}" = "1" ]; then
+		echo -e "\nUsing auto-detected configuration file '${CONFIGFILE}'"
+	else
+		echo -e "\nUsing configuration file '${CONFIGFILE}'"
+	fi
+	# shellcheck source=/dev/null
+	. "${CONFIGFILE}"
+else
+	echo -e "\nNo Geneva config file provided — using built-in defaults."
+	echo -e "See the Geneva 'scripts' directory for an example (genevaConfig.gcfg).\n"
+fi
+
+####################################################################
+# Validate variables
+
+_check_bool() {
+	if [ ! "${2}" = "0" ] && [ ! "${2}" = "1" ]; then
+		echo -e "\nError: Variable ${1} must be 0 or 1. Got '${2}'\nLeaving...\n"
+		exit 1
+	fi
+}
+
 if [ ! -x "${CMAKE}" ]; then
 	echo -e "\nError: Could not find cmake executable '${CMAKE}'"
 	echo -e "Please provide the correct path in the configuration file."
 	echo -e "Leaving...\n"
-	exit
+	exit 1
 fi
 
 # Check if the BOOST* variables were set correctly: either ROOT or LIB+INCLUDE
 # must be set, or none at all
 if [ -z "${BOOSTROOT}" ] && [ -z "${BOOSTLIBS}" ] && [ -z "${BOOSTINCL}" ]; then
-	_BOOST_SYSTEM="true"
 	echo "Variable BOOSTROOT wasn't set. Letting CMake search for a system Boost installation."
 elif [ -z "${BOOSTLIBS}" ] && [ -n "${BOOSTINCL}" ]; then
 	_BOOST_VAR_ERROR="true"
@@ -173,17 +177,9 @@ elif [ -n "${BOOSTLIBS}" ] && [ -z "${BOOSTINCL}" ]; then
 	_BOOST_VAR_ERROR="true"
 elif [ -n "${BOOSTROOT}" ] && [ -n "${BOOSTLIBS}" ] && [ -n "${BOOSTINCL}" ]; then
 	_BOOST_VAR_ERROR="true"
-elif [ -n "${BOOSTROOT}" ] && [ -z "${BOOSTLIBS}" ] && [ -z "${BOOSTINCL}" ]; then
-	# This case is fine, let CMakes' FindBoost find the header and lib locations,
-	# but without searching system paths
-	_BOOST_SYSTEM="false"
-elif [ -z "${BOOSTROOT}" ] && [ -n "${BOOSTLIBS}" ] && [ -n "${BOOSTINCL}" ]; then
-	# This case is fine, both the header and lib locations are given explicitely
-	# so do not search system paths
-	_BOOST_SYSTEM="false"
 fi
 
-if [ "x${_BOOST_VAR_ERROR}" = "xtrue" ]; then
+if [ "${_BOOST_VAR_ERROR}" = "true" ]; then
 	echo -e "\nError: inconsistent Boost location variables. Please"
 	echo -e "set either BOOSTROOT, or both BOOSTLIBS and BOOSTINCL,"
 	echo -e "or none at all. Got variables:"
@@ -191,7 +187,7 @@ if [ "x${_BOOST_VAR_ERROR}" = "xtrue" ]; then
 	echo -e "\tBOOSTLIBS = ${BOOSTLIBS}"
 	echo -e "\tBOOSTINCL = ${BOOSTINCL}"
 	echo -e "Leaving...\n"
-	exit
+	exit 1
 fi
 
 if [ -n "${BOOSTINCL}" ] && [ ! -e "${BOOSTINCL}/boost/version.hpp" ]; then
@@ -201,93 +197,70 @@ if [ -n "${BOOSTINCL}" ] && [ ! -e "${BOOSTINCL}/boost/version.hpp" ]; then
 	echo -e "\tBOOSTLIBS = ${BOOSTLIBS}"
 	echo -e "\tBOOSTINCL = ${BOOSTINCL}"
 	echo -e "Leaving...\n"
-	exit
+	exit 1
 fi
 
-if [ ! "${BUILDMODE}" = "Release" ] && [ ! "${BUILDMODE}" = "Debug" ] \
-		&& [ ! "${BUILDMODE}" = "RelWithDebInfo" ] && [ ! "${BUILDMODE}" = "MinSizeRel" ] \
-		&& [ ! "${BUILDMODE}" = "Sanitize" ]; then
-	echo -e "\nError: Invalid build mode ${BUILDMODE} provided. Leaving...\n"
-	exit
-fi
+case "${BUILDMODE}" in
+	Release|Debug|RelWithDebInfo|MinSizeRel|Sanitize) ;;
+	*) echo -e "\nError: Invalid build mode '${BUILDMODE}'. Leaving...\n"; exit 1 ;;
+esac
 
-if [ ! "${BUILDTESTCODE}" = "0" ] && [ ! "${BUILDTESTCODE}" = "1" ]; then
-	echo -e "\nError: Variable BUILDTESTCODE must be 0 or 1. Got ${BUILDTESTCODE}"
-	echo -e "Leaving...\n"
-	exit
-fi
-
-if [ ! "${BUILDEXAMPLES}" = "0" ] && [ ! "${BUILDEXAMPLES}" = "1" ]; then
-	echo -e "\nError: Variable BUILDEXAMPLES must be 0 or 1. Got ${BUILDEXAMPLES}"
-	echo -e "Leaving...\n"
-	exit
-fi
-
-if [ ! "${BUILDBENCHMARKS}" = "0" ] && [ ! "${BUILDBENCHMARKS}" = "1" ]; then
-	echo -e "\nError: Variable BUILDBENCHMARKS must be 0 or 1. Got ${BUILDBENCHMARKS}"
-	echo -e "Leaving...\n"
-	exit
-fi
-
-if [ ! "${BUILDSTATIC}" = "0" ] && [ ! "${BUILDSTATIC}" = "1" ]; then
-	echo -e "\nError: Variable BUILDSTATIC must be 0 or 1. Got ${BUILDSTATIC}"
-	echo -e "Leaving...\n"
-	exit
-fi
-
-if [ ! "${VERBOSEMAKEFILE}" = "0" ] && [ ! "${VERBOSEMAKEFILE}" = "1" ]; then
-	echo -e "\nError: Variable VERBOSEMAKEFILE must be 0 or 1. Got ${VERBOSEMAKEFILE}"
-	echo -e "Leaving...\n"
-	exit
-fi
+_check_bool BUILDTESTCODE    "${BUILDTESTCODE}"
+_check_bool BUILDEXAMPLES    "${BUILDEXAMPLES}"
+_check_bool BUILDBENCHMARKS  "${BUILDBENCHMARKS}"
+_check_bool BUILDSTATIC      "${BUILDSTATIC}"
+_check_bool VERBOSEMAKEFILE  "${VERBOSEMAKEFILE}"
+_check_bool BUILDMPICONSUMER   "${BUILDMPICONSUMER}"
+_check_bool BUILDCUDAEXAMPLES  "${BUILDCUDAEXAMPLES}"
+_check_bool USECUDARNG         "${USECUDARNG}"
 
 ####################################################################
 # Find out where this script is located and whether there is a
 # CMakeLists.txt file in the same directory. We then assume that
 # this is the project root, as it should be.
-PROJECTROOT=`dirname $0`/..
+PROJECTROOT=$(dirname "$0")/..
 if [ ! -e "${PROJECTROOT}/CMakeLists.txt" ]; then
 	echo -e "Error: the script should reside in the project root."
 	echo -e "Leaving...\n"
-	exit
+	exit 1
 fi
 
 ####################################################################
-# If there is a Makefile in the directory, reset the CMake build
-# system, as we are about to launch a new configuration run
-# clean-all is a build-target defined by the Geneva-build-system.
-# If a Makefile exists, we assume that the build environment has been
-# set up before
-if [ -e "${GENEVA_BUILDROOT}/Makefile" ]; then
-	cd "${GENEVA_BUILDROOT}"
-	echo -en "Cleaning old build-environment ..."
-	make clean-cmake > /dev/null 2>&1
-	echo -e " done"
-fi
-# CMake variables get cached and old ones may be used if currently
-# missing, which is very misleading if the user tries changing values.
-# Force removing the cache, because 'make clean-cmake' may fail if
-# a previous cmake run failed.
+# Guard against reconfiguring an already-configured build directory.
+
+_confirm_and_clean() {
+	echo -e "\nBuild directory '${GENEVA_BUILDROOT}' is already configured."
+	echo -e "Warning: ALL files (except *.gcfg) will be permanently deleted."
+	printf "Proceed? [y/N] "
+	read -r _confirm
+	case "${_confirm}" in
+		[yY]|[yY][eE][sS])
+			echo -en "Cleaning build directory '${GENEVA_BUILDROOT}' ..."
+			find "${GENEVA_BUILDROOT}" -mindepth 1 -maxdepth 1 ! -name "*.gcfg" -exec rm -rf {} +
+			echo -e " done\n"
+			;;
+		*)
+			echo -e "Aborted. Leaving...\n"
+			exit 1
+			;;
+	esac
+}
+
 if [ -e "${GENEVA_BUILDROOT}/CMakeCache.txt" ]; then
-	rm -f "${GENEVA_BUILDROOT}/CMakeCache.txt"
+	if [ "${CLEAN}" = "1" ] || [ "${DRYRUN}" = "0" ]; then
+		_confirm_and_clean
+	fi
 fi
 
 ####################################################################
 # Do the actual call to cmake.
-#
-# The 'FindBoost' module uses either the BOOST_ROOT or the
-# BOOST_LIBRARYDIR and BOOST_INCLUDEDIR variables, not both.
 if [ -n "${BOOSTROOT}" ]; then
 	BOOSTLOCATIONPATHS="-DBOOST_ROOT=${BOOSTROOT}"
 elif [ -n "${BOOSTLIBS}" ]; then
 	BOOSTLOCATIONPATHS="-DBOOST_LIBRARYDIR=${BOOSTLIBS} -DBOOST_INCLUDEDIR=${BOOSTINCL}"
 fi
 
-if [ "x${_BOOST_SYSTEM}" = "xfalse" ]; then
-	BOOSTSYSTEMFLAG="-DBoost_NO_SYSTEM_PATHS=1"
-fi
-
-CONFIGURE="${CMAKE} $BOOSTLOCATIONPATHS $BOOSTSYSTEMFLAG \
+CONFIGURE="${CMAKE} $BOOSTLOCATIONPATHS \
 -DGENEVA_BUILD_TYPE=${BUILDMODE} \
 -DGENEVA_BUILD_TESTS=${BUILDTESTCODE} \
 -DGENEVA_BUILD_EXAMPLES=${BUILDEXAMPLES} \
@@ -299,33 +272,96 @@ CONFIGURE="${CMAKE} $BOOSTLOCATIONPATHS $BOOSTSYSTEMFLAG \
 -DGENEVA_BUILD_WITH_CUDA_EXAMPLES=${BUILDCUDAEXAMPLES} \
 -DGENEVA_USE_CUDA_RNG=${USECUDARNG}"
 
-if [ "x$MPIROOT" != "x" ]; then
+if [ "$MPIROOT" != "" ]; then
 	CONFIGURE="${CONFIGURE} -DMPI_HOME='${MPIROOT}'"
 fi
 
-if [ "x$CXXEXTRAFLAGS" != "x" ]; then
+if [ "$CXXEXTRAFLAGS" != "" ]; then
 	CONFIGURE="${CONFIGURE} -DCMAKE_CXX_FLAGS='${CXXEXTRAFLAGS}'"
 fi
 
-if [ "x$LINKEREXTRAFLAGS" != "x" ]; then
+if [ "$LINKEREXTRAFLAGS" != "" ]; then
 	CONFIGURE="${CONFIGURE} -DCMAKE_EXE_LINKER_FLAGS='${LINKEREXTRAFLAGS}'"
 fi
 
-if [ "x$CMAKEEXTRAFLAGS" != "x" ]; then
+if [ "$CMAKEEXTRAFLAGS" != "" ]; then
 	CONFIGURE="${CONFIGURE} ${CMAKEEXTRAFLAGS}"
 fi
 
-echo -e "\nConfiguring with command: \"${CONFIGURE} ${PROJECTROOT}\"\n"
-echo -e "---------------------------------------------------------------------\n\n"
-eval ${CONFIGURE} ${PROJECTROOT}
+####################################################################
+# Optionally generate CMakeUserPresets.json for CLion integration.
+if [ "${GENERATE_PRESET}" = "1" ]; then
+	_preset_add() {
+		[ -n "${_PRESET_VARS}" ] && _PRESET_VARS="${_PRESET_VARS},"
+		_PRESET_VARS="${_PRESET_VARS}
+        \"${1}\": { \"type\": \"${2}\", \"value\": \"${3}\" }"
+	}
+
+	_PRESET_VARS=""
+	_preset_add "CMAKE_INSTALL_PREFIX"            "PATH"   "${INSTALLDIR}"
+	_preset_add "CMAKE_VERBOSE_MAKEFILE"          "BOOL"   "${VERBOSEMAKEFILE}"
+	_preset_add "GENEVA_BUILD_TYPE"               "STRING" "${BUILDMODE}"
+	_preset_add "GENEVA_BUILD_TESTS"              "BOOL"   "${BUILDTESTCODE}"
+	_preset_add "GENEVA_BUILD_EXAMPLES"           "BOOL"   "${BUILDEXAMPLES}"
+	_preset_add "GENEVA_BUILD_BENCHMARKS"         "BOOL"   "${BUILDBENCHMARKS}"
+	_preset_add "GENEVA_STATIC"                   "BOOL"   "${BUILDSTATIC}"
+	_preset_add "GENEVA_BUILD_WITH_MPI_CONSUMER"  "BOOL"   "${BUILDMPICONSUMER}"
+	_preset_add "GENEVA_BUILD_WITH_CUDA_EXAMPLES" "BOOL"   "${BUILDCUDAEXAMPLES}"
+	_preset_add "GENEVA_USE_CUDA_RNG"             "BOOL"   "${USECUDARNG}"
+
+	if [ -n "${BOOSTROOT}" ]; then
+		_preset_add "BOOST_ROOT"       "PATH" "${BOOSTROOT}"
+	elif [ -n "${BOOSTLIBS}" ]; then
+		_preset_add "BOOST_LIBRARYDIR" "PATH" "${BOOSTLIBS}"
+		_preset_add "BOOST_INCLUDEDIR" "PATH" "${BOOSTINCL}"
+	fi
+
+	[ "$MPIROOT" != "" ]          && _preset_add "MPI_HOME"               "PATH"   "${MPIROOT}"
+	[ "$CXXEXTRAFLAGS" != "" ]    && _preset_add "CMAKE_CXX_FLAGS"        "STRING" "${CXXEXTRAFLAGS}"
+	[ "$LINKEREXTRAFLAGS" != "" ] && _preset_add "CMAKE_EXE_LINKER_FLAGS" "STRING" "${LINKEREXTRAFLAGS}"
+
+	PRESET_FILE="${PROJECTROOT}/CMakeUserPresets.json"
+	cat > "${PRESET_FILE}" <<ENDOFPRESET
+{
+  "version": 3,
+  "cmakeMinimumRequired": { "major": 3, "minor": 27, "patch": 0 },
+  "configurePresets": [
+    {
+      "name": "geneva-from-script",
+      "displayName": "Geneva (prepareBuild config)",
+      "description": "Auto-generated by prepareBuild.sh -- do not edit manually",
+      "generator": "Unix Makefiles",
+      "binaryDir": "${GENEVA_BUILDROOT}",
+      "cacheVariables": {${_PRESET_VARS}
+      }
+    }
+  ]
+}
+ENDOFPRESET
+
+	if [ "$CMAKEEXTRAFLAGS" != "" ]; then
+		echo -e "Note: CMAKEEXTRAFLAGS='${CMAKEEXTRAFLAGS}' was not written to ${PRESET_FILE}."
+		echo -e "      Add these flags manually to the preset's 'cacheVariables' if needed.\n"
+	fi
+	echo -e "Generated '${PRESET_FILE}' for CLion integration.\n"
+fi
 
 ####################################################################
-# Finish by telling the user how to continue, unless there were errors
-if [ $? -eq 0 ]; then
-	echo -e "\n\n---------------------------------------------------------------------"
-	echo -e "\nYou may now build and install Geneva in the usual way:"
-	echo -e "make\t\t# Use '-jn', where 'n' is the number of cores in your system"
-	echo -e "make install\n\n"
+echo -e "\nConfiguring with command: \"${CONFIGURE} ${PROJECTROOT}\"\n"
+echo -e "---------------------------------------------------------------------\n"
+
+if [ "${DRYRUN}" = "1" ]; then
+	echo -e "Dry run: cmake was NOT executed. Copy the command above into your"
+	echo -e "IDE (e.g. JetBrains CLion) as the CMake options / command line.\n"
+else
+	# Word-splitting of CONFIGURE is intentional here — it holds cmake flags
+	# shellcheck disable=SC2086
+	if eval ${CONFIGURE} ${PROJECTROOT}; then
+		echo -e "\n---------------------------------------------------------------------"
+		echo -e "\nYou may now build and install Geneva in the usual way:"
+		echo -e "make\t\t# Use '-jn', where 'n' is the number of cores in your system"
+		echo -e "make install\n"
+	fi
 fi
 
 ####################################################################

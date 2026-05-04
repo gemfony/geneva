@@ -22,13 +22,6 @@
  *
  ********************************************************************************
  *
- * Geneva was started by Dr. Rüdiger Berlich and was later maintained together
- * with Dr. Ariel Garcia under the auspices of Gemfony scientific. For further
- * information on Gemfony scientific, see http://www.gemfomy.eu .
- *
- * The majority of files in Geneva was released under the Apache license v2.0
- * in February 2020.
- *
  * See the NOTICE file in the top-level directory of the Geneva library
  * collection for a list of contributors and copyright information.
  *
@@ -176,7 +169,7 @@ namespace Gem::Geneva
 
 #ifdef DEBUG
 		if(std::get<1>(range) <= std::get<0>(range)) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In G_OptimizationAlgorithm_ParChild<>::getNProcessableItems(): Error!" << std::endl
 				<< "Upper boundary of range <= lower boundary: " << std::get<1>(range) << "/" << std::get<0>(range) << std::endl
@@ -306,7 +299,7 @@ namespace Gem::Geneva
  */
 	void G_OptimizationAlgorithm_ParChild::setAmalgamationLikelihood(double amalgamationLikelihood) {
 		if (amalgamationLikelihood < 0. || amalgamationLikelihood > 1.) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In setCrossOverLikelihood(" << amalgamationLikelihood << "): Error!" << std::endl
 				<< "Received invalid likelihood for amalgamation. Must be in the range [0:1]." << std::endl
@@ -454,7 +447,7 @@ namespace Gem::Geneva
 		// children is present. If individuals can get lost in your setting,
 		// you must add mechanisms to "repair" the population.
 		if((this->size()-m_n_parents) < m_default_n_children){
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In G_OptimizationAlgorithm_ParChild::recombine():" << std::endl
 				<< "Too few children. Got " << this->size()-m_n_parents << "," << std::endl
@@ -546,7 +539,7 @@ namespace Gem::Geneva
 #ifdef DEBUG
 		// The dirty flag of this individual shouldn't be set
 		if(not this->at(0)->is_processed()) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In G_OptimizationAlgorithm_ParChild::cycleLogic(): Error!" << std::endl
 				<< "Expected clean individual in best position" << std::endl
@@ -603,7 +596,7 @@ namespace Gem::Geneva
 	void G_OptimizationAlgorithm_ParChild::adjustPopulation_() {
 		// Has the population size been set at all ?
 		if(G_OptimizationAlgorithm_Base::getDefaultPopulationSize() == 0) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In G_OptimizationAlgorithm_ParChild::adjustPopulation() :" << std::endl
 				<< "The population size is 0." << std::endl
@@ -614,7 +607,7 @@ namespace Gem::Geneva
 		// Check how many individuals have been added already. At least one is required.
 		std::size_t this_sz = this->size();
 		if(this_sz == 0) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In G_OptimizationAlgorithm_ParChild::adjustPopulation() :" << std::endl
 				<< "size of population is 0. Did you add any individuals?" << std::endl
@@ -626,7 +619,7 @@ namespace Gem::Geneva
 		typename std::vector<std::shared_ptr<GParameterSet>>::iterator it;
 		for(it=G_OptimizationAlgorithm_Base::m_data_cnt.begin(); it!=G_OptimizationAlgorithm_Base::m_data_cnt.end(); ++it) {
 			if(not (*it)) { // shared_ptr can be implicitly converted to bool
-				throw gemfony_exception(
+				throw geneva_exception(
 					g_error_streamer(DO_LOG,  time_and_place)
 					<< "In G_OptimizationAlgorithm_ParChild::adjustPopulation() :" << std::endl
 					<< "Found empty smart pointer." << std::endl
@@ -727,7 +720,7 @@ namespace Gem::Geneva
 		}
 
 		if(not done) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In G_OptimizationAlgorithm_ParChild::valueRecombine():" << std::endl
 				<< "Could not recombine." << std::endl

@@ -22,13 +22,6 @@
  *
  ********************************************************************************
  *
- * Geneva was started by Dr. Rüdiger Berlich and was later maintained together
- * with Dr. Ariel Garcia under the auspices of Gemfony scientific. For further
- * information on Gemfony scientific, see http://www.gemfomy.eu .
- *
- * The majority of files in Geneva was released under the Apache license v2.0
- * in February 2020.
- *
  * See the NOTICE file in the top-level directory of the Geneva library
  * collection for a list of contributors and copyright information.
  *
@@ -355,7 +348,7 @@ namespace Gem::Geneva
 
 			// We expect both sizes to be identical
 			if(global_bests.size() != iter_bests.size()) {
-				throw gemfony_exception(
+				throw geneva_exception(
 					g_error_streamer(DO_LOG,  time_and_place)
 					<< "In GFitnessMonitor::informationFunction_(): Error!" << std::endl
 					<< "global_bests.size() = " << global_bests.size() << " != iter_bests.size() = " << iter_bests.size() << std::endl
@@ -623,7 +616,7 @@ namespace Gem::Geneva
 		if(om_ptr) {
 			m_pluggable_monitors.push_back(om_ptr);
 		} else {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GCollectiveMonitor::registerPluggableOM(): Error!" << std::endl
 				<< "Got empty pointer to pluggable optimization monitor." << std::endl
@@ -1987,7 +1980,7 @@ namespace Gem::Geneva
 		if(nBinsX > 0) {
 			m_nBinsX = nBinsX;
 		} else {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GProcessingTimesLogger::setNBinsX(): Error!" << std::endl
 				<< "nBinsX is set to 0" << std::endl
@@ -2012,7 +2005,7 @@ namespace Gem::Geneva
 		if(nBinsY > 0) {
 			m_nBinsY = nBinsY;
 		} else {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GProcessingTimesLogger::setNBinsY(): Error!" << std::endl
 				<< "nBinsY is set to 0" << std::endl

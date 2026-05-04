@@ -1,4 +1,47 @@
 //------------------------------------------------------------------------------------------------------
+* Version 1.11.1 "Puente de Santiago" - May 02, 2026
+
+Recommended Versions:
+- Unchanged
+
+********************** INCOMPATIBILITIES / PLEASE NOTE *************************
+
+- gemfony_exception was renamed to geneva_exception (~128 files). Any user code that
+  catches or explicitly names this exception type must be updated accordingly.
+
+************************* Noteworthy Changes ***********************************
+
+- Build script (prepareBuild.sh) overhauled. New options --clean (triggers an
+  interactive confirmation before wiping the build directory) and --dryrun
+  (prints all CMake -D flags without configuring, useful for IDE setup). The
+  script now refuses to reconfigure an already-configured build directory unless
+  --clean is passed.
+
+- CMakePresets.json added. Provides a ready-made "geneva-default" preset that
+  CLion and VS Code can pick up directly, eliminating the need to manually
+  configure BOOST_ROOT and other paths in the IDE's CMake profile.
+
+- Deprecated Boost Phoenix headers replaced. The boost/spirit/include/phoenix_*.hpp
+  shim headers (deprecated since Boost 1.66) are replaced with boost/phoenix/*.hpp
+  in GFormulaParserT.hpp, GParameterPropertyParser.hpp, and GBaseClientT.hpp,
+  removing a category of compiler warnings on Boost >= 1.90.
+
+- Boost serialization macros annotated with // NOLINT. CLion/clangd incorrectly
+  flagged BOOST_CLASS_EXPORT_IMPLEMENT, BOOST_CLASS_EXPORT_KEY, and related
+  macros as missing semicolons. All instances now carry a // NOLINT comment.
+
+- Gemfony branding removed from file headers.
+
+- Boost.Test infrastructure fixed and modernized. The test drivers now use the
+  modern BOOST_TEST_DYN_LINK / BOOST_TEST_ALTERNATIVE_INIT_API API. A runtime
+  crash (free(): invalid size on exit) caused by simultaneously linking
+  libboost_test_exec_monitor.a and libboost_unit_test_framework.so is fixed by
+  removing test_exec_monitor from the Boost components list. The common test
+  executable was renamed from CommonStandardTests to GCommonStandardTests.
+
+- Fixed compilation issues for CUDA example, related to mismatch of compiler- and CUDA-versions.
+
+//------------------------------------------------------------------------------------------------------
 * Version 1.11, "Hendaye" - March 16, 2026
 
 We have restarted development of the Geneva library!
@@ -28,10 +71,7 @@ Recommended versions:
   directory and are no longer considered to be tests
 - An extensive CUDA example has been implemented
 
-********************************************************************************
-
-Current issues with this development release:
-- The C++ standard is not set centrally, but individually for each library
+ç
 
 //------------------------------------------------------------------------------------------------------
 * Version 1.10, "Genova" - March 10, 2020

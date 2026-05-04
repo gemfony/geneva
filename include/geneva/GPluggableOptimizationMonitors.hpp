@@ -22,13 +22,6 @@
  *
  ********************************************************************************
  *
- * Geneva was started by Dr. Rüdiger Berlich and was later maintained together
- * with Dr. Ariel Garcia under the auspices of Gemfony scientific. For further
- * information on Gemfony scientific, see http://www.gemfomy.eu .
- *
- * The majority of files in Geneva was released under the Apache license v2.0
- * in February 2020.
- *
  * See the NOTICE file in the top-level directory of the Geneva library
  * collection for a list of contributors and copyright information.
  *
@@ -436,7 +429,7 @@ public:
 	 void setProfileSpec(std::string const& parStr) {
 		 // Check that the parameter string isn't empty
 		 if(parStr.empty()) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GPluggableOptimizationMonitors<>::setProfileSpec(std::string): Error!" << std::endl
 					 << "Parameter string " << parStr << " is empty" << std::endl
@@ -639,7 +632,7 @@ public:
 				 //--------------------------------------------------------------------
 			 default:
 			 {
-				 throw gemfony_exception(
+				 throw geneva_exception(
 					 g_error_streamer(DO_LOG, time_and_place)
 						 << "In GProgressPlotterT<fp_type>::getLabel(): Error" << std::endl
 						 << "Invalid mode " << var_mode << " requested" << std::endl
@@ -1930,7 +1923,7 @@ private:
 
 			default:
 			{
-				throw gemfony_exception(
+				throw geneva_exception(
 						g_error_streamer(DO_LOG, time_and_place)
 								<< "In GAdaptorPropertyLoggerT: Received invalid infoMode " << im << std::endl
 				);
@@ -2141,17 +2134,16 @@ template <typename num_type> using GAdaptorPropertyLogger = GAdaptorPropertyLogg
 /******************************************************************************/
 // Exports of classes
 
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GStandardMonitor)
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GFitnessMonitor)
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GCollectiveMonitor)
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GProgressPlotter)
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GAllSolutionFileLogger)
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GIterationResultsFileLogger)
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GNAdpationsLogger)
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GAdaptorPropertyLogger<double>)
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GAdaptorPropertyLogger<std::int32_t>)
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GAdaptorPropertyLogger<bool>)
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GProcessingTimesLogger)
-
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GStandardMonitor) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GFitnessMonitor) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GCollectiveMonitor) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GProgressPlotter) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GAllSolutionFileLogger) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GIterationResultsFileLogger) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GNAdpationsLogger) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GAdaptorPropertyLogger<double>) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GAdaptorPropertyLogger<std::int32_t>) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GAdaptorPropertyLogger<bool>) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GProcessingTimesLogger) // NOLINT
 /******************************************************************************/
 

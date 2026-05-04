@@ -22,13 +22,6 @@
  *
  ********************************************************************************
  *
- * Geneva was started by Dr. Rüdiger Berlich and was later maintained together
- * with Dr. Ariel Garcia under the auspices of Gemfony scientific. For further
- * information on Gemfony scientific, see http://www.gemfomy.eu .
- *
- * The majority of files in Geneva was released under the Apache license v2.0
- * in February 2020.
- *
  * See the NOTICE file in the top-level directory of the Geneva library
  * collection for a list of contributors and copyright information.
  *
@@ -692,7 +685,7 @@ return false;
 #ifdef DEBUG
 			// Check the size of the parameter vector -- must be at least 2
 			if(parameterSize < 2) {
-				throw gemfony_exception(
+				throw geneva_exception(
 					g_error_streamer(DO_LOG,  time_and_place)
 					<< "In GFunctionIndividual::fitnessCalculation() / ROSENBROCK: Error!" << std::endl
 					<< "Need to use at least two input dimensions, but got " << parameterSize << std::endl
@@ -712,7 +705,7 @@ return false;
 #ifdef DEBUG
 			// Check the size of the parameter vector -- must be at least 2
 			if(parameterSize < 2) {
-				throw gemfony_exception(
+				throw geneva_exception(
 					g_error_streamer(DO_LOG,  time_and_place)
 					<< "In GFunctionIndividual::fitnessCalculation() / ACKLEY: Error!" << std::endl
 					<< "Need to use at least two input dimensions, but got " << parameterSize << std::endl
@@ -881,7 +874,7 @@ return false;
  */
 	void GFunctionIndividualFactory::setParDim(std::size_t parDim) {
 		if (parDim == 0) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GFunctionIndividualFactory::setParDim(): Error!" << std::endl
 				<< "Dimension of the function is set to 0" << std::endl
@@ -908,7 +901,7 @@ return false;
 		double max = std::get<1>(boundaries);
 
 		if (min >= max) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GFunctionIndividualFactory::setVarBoundaries(): Error!" << std::endl
 				<< "Received invalid boundaries " << min << " / " << max << std::endl
@@ -1082,7 +1075,7 @@ return false;
 		double max = std::get<1>(range);
 
 		if (min < 0) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GFunctionIndividualFactory::setDeltaRange(): Error" << std::endl
 				<< "min must be >= 0. Got : " << max << std::endl
@@ -1090,7 +1083,7 @@ return false;
 		}
 
 		if (min >= max) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GFunctionIndividualFactory::setDeltaRange(): Error" << std::endl
 				<< "Invalid range specified: " << min << " / " << max << std::endl
@@ -1134,7 +1127,7 @@ return false;
 		double max = std::get<1>(range);
 
 		if (min < 0) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GFunctionIndividualFactory::setSigma1Range(): Error" << std::endl
 				<< "min must be >= 0. Got : " << max << std::endl
@@ -1142,7 +1135,7 @@ return false;
 		}
 
 		if (min >= max) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GFunctionIndividualFactory::setSigma1Range(): Error" << std::endl
 				<< "Invalid range specified: " << min << " / " << max << std::endl
@@ -1186,7 +1179,7 @@ return false;
 		double max = std::get<1>(range);
 
 		if (min < 0) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GFunctionIndividualFactory::setSigma2Range(): Error" << std::endl
 				<< "min must be >= 0. Got : " << max << std::endl
@@ -1194,7 +1187,7 @@ return false;
 		}
 
 		if (min >= max) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GFunctionIndividualFactory::setSigma2Range(): Error" << std::endl
 				<< "Invalid range specified: " << min << " / " << max << std::endl
@@ -1356,7 +1349,7 @@ return false;
 	void GFunctionIndividualFactory::setAdaptAdProb(double adaptAdProb) {
 #ifdef DEBUG
 		if(adaptAdProb < 0.) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GFunctionIndividualFactory::setAdaptAdProb(): Error!" << std::endl
 				<< "Invalid value for adaptAdProb given: " << adaptAdProb << std::endl
@@ -1382,7 +1375,7 @@ return false;
 	void GFunctionIndividualFactory::setAdProbRange(double minAdProb, double maxAdProb) {
 #ifdef DEBUG
 		if(minAdProb < 0.) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GFunctionIndividualFactory::setAdProbRange(): Error!" << std::endl
 				<< "minAdProb < 0: " << minAdProb << std::endl
@@ -1390,7 +1383,7 @@ return false;
 		}
 
 		if(minAdProb > maxAdProb) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GFunctionIndividualFactory::setAdProbRange(): Error!" << std::endl
 				<< "Invalid minAdProb and/or maxAdProb: " << minAdProb << " / " << maxAdProb << std::endl
@@ -1398,7 +1391,7 @@ return false;
 		}
 
 		if(maxAdProb > 1.) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GFunctionIndividualFactory::setAdProbRange(): Error!" << std::endl
 				<< "maxAdProb > 1: " << maxAdProb << std::endl
@@ -1714,7 +1707,7 @@ return false;
 			break;
 
 		default: {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GFunctionIndividualFactory::postProcess_(): Error!"
 				<< "Found invalid pT_: " << pT_ << std::endl

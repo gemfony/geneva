@@ -28,13 +28,6 @@
  *
  ********************************************************************************
  *
- * Geneva was started by Dr. Rüdiger Berlich and was later maintained together
- * with Dr. Ariel Garcia under the auspices of Gemfony scientific. For further
- * information on Gemfony scientific, see http://www.gemfomy.eu .
- *
- * The majority of files in Geneva was released under the Apache license v2.0
- * in February 2020.
- *
  * See the NOTICE file in the top-level directory of the Geneva library
  * collection for a list of contributors and copyright information.
  *
@@ -54,7 +47,6 @@
 
 // Boost header files go here
 #include <boost/test/unit_test.hpp>
-#include <boost/shared_ptr.hpp>
 
 // Geneva header files go here
 #include "common/GExceptions.hpp"
@@ -63,9 +55,6 @@
 #include "hap/GRandomDistributionsT.hpp"
 
 using namespace Gem::Hap;
-
-using boost::unit_test_framework::test_suite;
-using boost::unit_test_framework::test_case;
 
 /********************************************************************************************/
 /**
@@ -217,27 +206,6 @@ public:
 private:
 	const std::size_t nTests_;
 	const std::size_t nSeeds_;
-};
-
-/********************************************************************************************/
-/**
- * This test suite checks as much as possible of the functionality provided
- + by the Hap library. Please also have a look at the histograms created
- * in the "manual" test section.
- */
-class GHapSuite: public test_suite
-{
-public:
-	GHapSuite() :test_suite("GHapSuite") {
-		// create an instance of the test cases class
-		boost::shared_ptr<GHap_tests> instance(new GHap_tests());
-
-		test_case* GRandom_no_failure_expected_test_case = BOOST_CLASS_TEST_CASE(&GHap_tests::no_failure_expected, instance);
-		test_case* GRandom_failures_expected_test_case = BOOST_CLASS_TEST_CASE(&GHap_tests::failures_expected, instance);
-
-		add(GRandom_no_failure_expected_test_case);
-		add(GRandom_failures_expected_test_case);
-	}
 };
 
 /********************************************************************************************/

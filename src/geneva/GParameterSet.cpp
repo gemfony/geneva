@@ -22,13 +22,6 @@
  *
  ********************************************************************************
  *
- * Geneva was started by Dr. Rüdiger Berlich and was later maintained together
- * with Dr. Ariel Garcia under the auspices of Gemfony scientific. For further
- * information on Gemfony scientific, see http://www.gemfomy.eu .
- *
- * The majority of files in Geneva was released under the Apache license v2.0
- * in February 2020.
- *
  * See the NOTICE file in the top-level directory of the Geneva library
  * collection for a list of contributors and copyright information.
  *
@@ -39,8 +32,7 @@
 #include <memory>
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GParameterSet) // NOLINT
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::parameterset_processing_result)
-
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::parameterset_processing_result) // NOLINT
 namespace Gem::Geneva
 {
 /******************************************************************************/
@@ -145,7 +137,7 @@ parameterset_processing_result::setTransformedFitnessWith(
     }
     else
     {
-        throw gemfony_exception(
+        throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In parameterset_processing_result::setTransformedFitnessWith():"
             << std::endl
@@ -232,7 +224,7 @@ parameterset_processing_result::reset(
     }
     else
     {
-        throw gemfony_exception(
+        throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In parameterset_processing_result::reset():" << std::endl
             << "Function object f is empty." << std::endl
@@ -424,7 +416,7 @@ GParameterSet::toPropertyTree(
     // Check if the object is empty. If so, complain
     if (this->empty())
     {
-        throw gemfony_exception(
+        throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GParameterSet::toPropertyTree(): Error!" << std::endl
             << "Object is empty." << std::endl
@@ -716,7 +708,7 @@ GParameterSet::isGoodEnough(std::vector<double> const &boundaries)
     // Does the number of fitness criteria match the number of boundaries ?
     if (boundaries.size() != this->getNStoredResults())
     {
-        throw gemfony_exception(
+        throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GParameterSet::isGoodEnough(): Error!" << std::endl
             << "Number of boundaries does not match number of fitness criteria"
@@ -727,7 +719,7 @@ GParameterSet::isGoodEnough(std::vector<double> const &boundaries)
     // Has the individual been processed
     if (not this->is_processed())
     {
-        throw gemfony_exception(
+        throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GParameterSet::isGoodEnough(): Error!" << std::endl
             << "Trying to compare fitness values although the individual isn't processed"
@@ -823,7 +815,7 @@ GParameterSet::crossOverWith(std::shared_ptr<GParameterSet> const &cp) const
     // Do some error checking
     if (this_double_cnt.size() != cp_double_cnt.size())
     {
-        throw gemfony_exception(
+        throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GParameterSet::perItemCrossOver(): Error!" << std::endl
             << "Got invalid sizes (double): " << this_double_cnt.size() << " / "
@@ -833,7 +825,7 @@ GParameterSet::crossOverWith(std::shared_ptr<GParameterSet> const &cp) const
     }
     if (this_float_cnt.size() != cp_float_cnt.size())
     {
-        throw gemfony_exception(
+        throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GParameterSet::perItemCrossOver(): Error!" << std::endl
             << "Got invalid sizes (float): " << this_float_cnt.size() << " / "
@@ -843,7 +835,7 @@ GParameterSet::crossOverWith(std::shared_ptr<GParameterSet> const &cp) const
     }
     if (this_bool_cnt.size() != cp_bool_cnt.size())
     {
-        throw gemfony_exception(
+        throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GParameterSet::perItemCrossOver(): Error!" << std::endl
             << "Got invalid sizes (bool): " << this_bool_cnt.size() << " / " <<
@@ -852,7 +844,7 @@ GParameterSet::crossOverWith(std::shared_ptr<GParameterSet> const &cp) const
     }
     if (this_int_cnt.size() != cp_int_cnt.size())
     {
-        throw gemfony_exception(
+        throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GParameterSet::perItemCrossOver(): Error!" << std::endl
             << "Got invalid sizes (std::int32_t): " << this_int_cnt.size() <<
@@ -967,7 +959,7 @@ GParameterSet::cannibalize(GParameterSet &cp)
     // Check whether the "foreign" entity is processed
     if (cp.is_due_for_processing() || cp.has_errors())
     {
-        throw gemfony_exception(
+        throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GParameterSet::cannibalize(const GParameterSet& cp)" <<
             std::endl
@@ -1140,7 +1132,7 @@ GParameterSet::setResult(
 #ifdef DEBUG
     if (id >= this->getNStoredResults())
     {
-        throw gemfony_exception(
+        throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GParameterSet::setResult(...): Error!" << std::endl
             << "Invalid position in vector: " << id <<
@@ -1242,7 +1234,7 @@ GParameterSet::setSteepness(const double steepness)
 {
     if (steepness <= 0.)
     {
-        throw gemfony_exception(
+        throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GParameterSet::setSteepness(double steepness): Error!" <<
             std::endl
@@ -1273,7 +1265,7 @@ GParameterSet::setBarrier(const double barrier)
 {
     if (barrier <= 0.)
     {
-        throw gemfony_exception(
+        throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GParameterSet::setBarrier(double barrier): Error!" <<
             std::endl
@@ -1480,7 +1472,7 @@ GParameterSet::getPersonalityTraits()
     // Do some error checking
     if (not m_pt_ptr)
     {
-        throw gemfony_exception(
+        throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GParameterSet::getPersonalityTraits():" << std::endl
             << "Pointer to personality traits object is empty." << std::endl
@@ -1511,7 +1503,7 @@ GParameterSet::setPersonality(
     // Make sure we haven't been given an empty pointer
     if (not gpt)
     {
-        throw gemfony_exception(
+        throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GParameterSet::setPersonality(): Error!" << std::endl
             << "Received empty personality traits pointer" << std::endl
@@ -1556,7 +1548,7 @@ GParameterSet::getMnemonic() const
     }
     else
     {
-        throw gemfony_exception(
+        throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GParameterSet::getMnemonic():" << std::endl
             << "Pointer to personality traits object is empty." << std::endl
@@ -1733,7 +1725,7 @@ GParameterSet::registerConstraint(
 {
     if (not c_ptr)
     {
-        throw gemfony_exception(
+        throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GParameterSet::registerConstraint(): Error!" << std::endl
             << "Tried to register empty constraint object" << std::endl
@@ -1778,7 +1770,7 @@ GParameterSet::isValid() const
 #ifdef DEBUG
     if (this->is_due_for_processing() || this->has_errors())
     {
-        throw gemfony_exception(
+        throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GParameterSet::isValid():" << std::endl
             << "Function was called for unprocessed or erroneous individual" <<
@@ -1890,7 +1882,7 @@ GParameterSet::process_(
                 // Check that sizes match
                 if (res_vec.size() != this->getNStoredResults())
                 {
-                    throw gemfony_exception(
+                    throw geneva_exception(
                         g_error_streamer(DO_LOG, time_and_place)
                         << "In GParameterSet::process_ : Error!" << std::endl
                         << "res_vec has invalid size. Got " << res_vec.size() <<
@@ -2122,7 +2114,7 @@ GParameterSet::setFitness_(std::vector<double> const &f_cnt)
 #ifdef DEBUG
     if (f_cnt.size() != this->getNStoredResults())
     {
-        throw gemfony_exception(
+        throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GParameterSet::setFitness_(...): Error!" << std::endl
             << "Invalid size of fitness vector: " << std::endl
@@ -2293,7 +2285,7 @@ GParameterSet::weighedSquaredSumCombiner(
 {
     if (this->getNStoredResults() != weights.size())
     {
-        throw gemfony_exception(
+        throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GParameterSet::weighedSquaredSumCombine(): Error!" <<
             std::endl
@@ -2369,7 +2361,7 @@ GParameterSet::getVarVal(
     }
     else
     {
-        throw gemfony_exception(
+        throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GParameterSet::getVarVal(): Error!" << std::endl
             << "Received invalid type description" << std::endl

@@ -22,13 +22,6 @@
  *
  ********************************************************************************
  *
- * Geneva was started by Dr. Rüdiger Berlich and was later maintained together
- * with Dr. Ariel Garcia under the auspices of Gemfony scientific. For further
- * information on Gemfony scientific, see http://www.gemfomy.eu .
- *
- * The majority of files in Geneva was released under the Apache license v2.0
- * in February 2020.
- *
  * See the NOTICE file in the top-level directory of the Geneva library
  * collection for a list of contributors and copyright information.
  *
@@ -133,7 +126,7 @@ namespace Gem::Courtier
         {
             if (m_worker_id < 0)
             {
-                throw gemfony_exception(
+                throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
                     << "In GWorkerT<processable_type>::getWorkerId(): Error!" << std::endl
                     << "It appears as if the worker id was not set!" << std::endl);
@@ -173,7 +166,7 @@ namespace Gem::Courtier
             // Some error checks
             if (-1 == m_worker_id)
             {
-                throw gemfony_exception(
+                throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
                     << "In GWorkerT<processable_type>::run(): Error!" << std::endl
                     << "It appears as if the worker id was not set!" << std::endl);
@@ -218,11 +211,11 @@ namespace Gem::Courtier
                 // Perform any final work
                 this->processFinalize();
             }
-            catch (gemfony_exception& e)
+            catch (geneva_exception& e)
             {
                 has_error = true;
                 error_streamer << "In GWorkerT<processable_type>::run(): Caught "
-                    "gemfony_exception with message"
+                    "geneva_exception with message"
                     << std::endl
                     << e.what() << std::endl;
             } catch (boost::exception& e)
@@ -248,7 +241,7 @@ namespace Gem::Courtier
             // Make it known if there was a problem
             if (has_error)
             {
-                throw gemfony_exception(g_error_streamer(DO_LOG, time_and_place)
+                throw geneva_exception(g_error_streamer(DO_LOG, time_and_place)
                     << error_streamer.str());
             }
 
@@ -580,7 +573,7 @@ namespace Gem::Courtier
         {
             if (not broker_ferry_ptr)
             {
-                throw gemfony_exception(g_error_streamer(DO_LOG, time_and_place)
+                throw geneva_exception(g_error_streamer(DO_LOG, time_and_place)
                     << "In "
                     "GLocalConsumerWorkerT<processable_type>::"
                     "registerBrokerFerry(): Error!"

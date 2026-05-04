@@ -26,13 +26,6 @@
  *
  ********************************************************************************
  *
- * Geneva was started by Dr. Rüdiger Berlich and was later maintained together
- * with Dr. Ariel Garcia under the auspices of Gemfony scientific. For further
- * information on Gemfony scientific, see http://www.gemfomy.eu .
- *
- * The majority of files in Geneva was released under the Apache license v2.0
- * in February 2020.
- *
  * See the NOTICE file in the top-level directory of the Geneva library
  * collection for a list of contributors and copyright information.
  *
@@ -46,6 +39,9 @@
 #include <map>
 
 // Boost headers go here
+#define BOOST_TEST_DYN_LINK
+#define BOOST_TEST_MAIN
+#define BOOST_TEST_ALTERNATIVE_INIT_API
 #include <boost/test/unit_test.hpp>
 #include <boost/test/tools/floating_point_comparison.hpp>
 #include <boost/math/constants/constants.hpp>
@@ -75,7 +71,7 @@ using namespace std;
 	BOOST_CHECK_THROW(f(), EXCEPTION );\
 }\
 
-int test_main(int argc, char** const argv) {
+BOOST_AUTO_TEST_CASE(formula_parser_tests) {
 	{ // Test replacement of variables and constants (1)
 		std::map<std::string, std::vector<double>> parameterValues;
 
@@ -212,45 +208,43 @@ int test_main(int argc, char** const argv) {
 	testFormula(sinh(1.0)*sin(1.0));
 
 	// Test failures in formulas
-	testFormulaFailure(1/0, gemfony_exception);
+	testFormulaFailure(1/0, geneva_exception);
 	testFormulaFailure(1/0, Gem::Common::math_logic_error);
 	testFormulaFailure(1/0, Gem::Common::division_by_0);
 
-	testFormulaFailure(acos(-2), gemfony_exception);
+	testFormulaFailure(acos(-2), geneva_exception);
 	testFormulaFailure(acos(-2), Gem::Common::math_logic_error);
 	testFormulaFailure(acos(-2), Gem::Common::acos_invalid_range<double>);
 
-	testFormulaFailure(acos(+2), gemfony_exception);
+	testFormulaFailure(acos(+2), geneva_exception);
 	testFormulaFailure(acos(+2), Gem::Common::math_logic_error);
 	testFormulaFailure(acos(+2), Gem::Common::acos_invalid_range<double>);
 
-	testFormulaFailure(asin(-2), gemfony_exception);
+	testFormulaFailure(asin(-2), geneva_exception);
 	testFormulaFailure(asin(-2), Gem::Common::math_logic_error);
 	testFormulaFailure(asin(-2), Gem::Common::asin_invalid_range<double>);
 
-	testFormulaFailure(asin(+2), gemfony_exception);
+	testFormulaFailure(asin(+2), geneva_exception);
 	testFormulaFailure(asin(+2), Gem::Common::math_logic_error);
 	testFormulaFailure(asin(+2), Gem::Common::asin_invalid_range<double>);
 
-	testFormulaFailure(log(0), gemfony_exception);
+	testFormulaFailure(log(0), geneva_exception);
 	testFormulaFailure(log(0), Gem::Common::math_logic_error);
 	testFormulaFailure(log(0), Gem::Common::log_negative_value<double>);
 
-	testFormulaFailure(log(-1), gemfony_exception);
+	testFormulaFailure(log(-1), geneva_exception);
 	testFormulaFailure(log(-1), Gem::Common::math_logic_error);
 	testFormulaFailure(log(-1), Gem::Common::log_negative_value<double>);
 
-	testFormulaFailure(log10(0), gemfony_exception);
+	testFormulaFailure(log10(0), geneva_exception);
 	testFormulaFailure(log10(0), Gem::Common::math_logic_error);
 	testFormulaFailure(log10(0), Gem::Common::log10_negative_value<double>);
 
-	testFormulaFailure(log10(-1), gemfony_exception);
+	testFormulaFailure(log10(-1), geneva_exception);
 	testFormulaFailure(log10(-1), Gem::Common::math_logic_error);
 	testFormulaFailure(log10(-1), Gem::Common::log10_negative_value<double>);
 
-	testFormulaFailure(sqrt(-1), gemfony_exception);
+	testFormulaFailure(sqrt(-1), geneva_exception);
 	testFormulaFailure(sqrt(-1), Gem::Common::math_logic_error);
 	testFormulaFailure(sqrt(-1), Gem::Common::sqrt_negative_value<double>);
-
-	return 0;
 }

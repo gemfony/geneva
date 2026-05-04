@@ -22,21 +22,13 @@
  *
  ********************************************************************************
  *
- * Geneva was started by Dr. Rüdiger Berlich and was later maintained together
- * with Dr. Ariel Garcia under the auspices of Gemfony scientific. For further
- * information on Gemfony scientific, see http://www.gemfomy.eu .
- *
- * The majority of files in Geneva was released under the Apache license v2.0
- * in February 2020.
- *
  * See the NOTICE file in the top-level directory of the Geneva library
  * collection for a list of contributors and copyright information.
  *
  ********************************************************************************/
 #include "geneva/GDoubleObject.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GDoubleObject)
-
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GDoubleObject) // NOLINT
 namespace Gem::Geneva
 {
 
@@ -165,7 +157,7 @@ namespace Gem::Geneva
 	) const {
 #ifdef DEBUG
 		if((this->getParameterName()).empty()) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GDoubleObject::doubleStreamline(std::map<std::string, std::vector<double>>& parVec) const: Error!" << std::endl
 				<< "No name was assigned to the object" << std::endl
@@ -218,7 +210,7 @@ namespace Gem::Geneva
 #ifdef DEBUG
 		// Do we have a valid position ?
 		if(pos >= parVec.size()) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GDoubleObject::assignDoubleValueVector(const std::vector<double>&, std::size_t&):" << std::endl
 				<< "Tried to access position beyond end of vector: " << parVec.size() << "/" << pos << std::endl
@@ -551,7 +543,7 @@ namespace Gem::Geneva
 
 			// Add an empty std::shared_ptr<GDoubleGaussAdaptor>. This should throw
 			BOOST_CHECK_THROW(p_test->addAdaptor(std::shared_ptr<GDoubleGaussAdaptor>()),
-			                  gemfony_exception);
+			                  geneva_exception);
 		}
 
 		// --------------------------------------------------------------------------

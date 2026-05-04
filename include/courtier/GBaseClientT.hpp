@@ -22,13 +22,6 @@
  *
  ********************************************************************************
  *
- * Geneva was started by Dr. Rüdiger Berlich and was later maintained together
- * with Dr. Ariel Garcia under the auspices of Gemfony scientific. For further
- * information on Gemfony scientific, see http://www.gemfomy.eu .
- *
- * The majority of files in Geneva was released under the Apache license v2.0
- * in February 2020.
- *
  * See the NOTICE file in the top-level directory of the Geneva library
  * collection for a list of contributors and copyright information.
  *
@@ -79,9 +72,9 @@
 #include <boost/spirit/include/qi_lit.hpp>
 #include <boost/spirit/include/qi_raw.hpp>
 #include <boost/spirit/include/qi_hold.hpp>
-#include <boost/spirit/include/phoenix_core.hpp>
-#include <boost/spirit/include/phoenix_operator.hpp>
-#include <boost/spirit/include/phoenix_stl.hpp>
+#include <boost/phoenix/core.hpp>
+#include <boost/phoenix/operator.hpp>
+#include <boost/phoenix/stl.hpp>
 
 // Geneva headers go here
 #include "common/GErrorStreamer.hpp"
@@ -220,7 +213,7 @@ public:
 			 r = run_state::INIT;
 
 			 if (not this->init()) { // Initialize the client
-				 throw gemfony_exception(
+				 throw geneva_exception(
 					 g_error_streamer(DO_LOG, time_and_place)
 						 << "In GBaseClientT<T>::run(): Initialization failed. Leaving ..." << std::endl
 				 );
@@ -231,33 +224,33 @@ public:
 
 			 r = run_state::FINALLY;
 			 if (not this->finally()) {
-				 throw gemfony_exception(
+				 throw geneva_exception(
 					 g_error_streamer(DO_LOG, time_and_place)
 						 << "In GBaseClientT<T>::run(): Finalization failed." << std::endl
 				 );
 			 }
-		 } catch (gemfony_exception &e) {
-			 throw gemfony_exception(
+		 } catch (geneva_exception &e) {
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG,  time_and_place)
 					 << "In GBaseClientT<T>::run() / " << rs_to_str(r) << ":" << std::endl
-					 << "Caught gemfony_exception" << std::endl
+					 << "Caught geneva_exception" << std::endl
 					 << "with message" << std::endl
 					 << e.what()
 			 );
 		 } catch (boost::exception& e) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GBaseClientT<T>::run() / " << rs_to_str(r) << ": Caught boost::exception with message" << std::endl
 					 << boost::diagnostic_information(e) << std::endl
 			 );
 		 } catch (std::exception &e) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GBaseClientT<T>::run() / " << rs_to_str(r) << ": Caught std::exception with message" << std::endl
 					 << e.what() << std::endl
 			 );
 		 } catch (...) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GBaseClientT<T>::run() / " << rs_to_str(r) << ": Caught unknown exception." << std::endl
 			 );

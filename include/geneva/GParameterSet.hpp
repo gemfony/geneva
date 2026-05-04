@@ -22,13 +22,6 @@
  *
  ********************************************************************************
  *
- * Geneva was started by Dr. Rüdiger Berlich and was later maintained together
- * with Dr. Ariel Garcia under the auspices of Gemfony scientific. For further
- * information on Gemfony scientific, see http://www.gemfomy.eu .
- *
- * The majority of files in Geneva was released under the Apache license v2.0
- * in February 2020.
- *
  * See the NOTICE file in the top-level directory of the Geneva library
  * collection for a list of contributors and copyright information.
  *
@@ -384,7 +377,7 @@ public:
                         , target
                     )));
         } else {
-            throw gemfony_exception(
+            throw geneva_exception(
                 g_error_streamer(
                     DO_LOG
                     , time_and_place
@@ -416,7 +409,7 @@ public:
 #ifdef DEBUG
         // Check that m_pt_ptr actually points somewhere
         if (not m_pt_ptr) {
-            throw gemfony_exception(
+            throw geneva_exception(
                 g_error_streamer(
                     DO_LOG
                     , time_and_place
@@ -551,7 +544,7 @@ public:
 
                 //---------------------------------------------------------------------
             default: {
-                throw gemfony_exception(
+                throw geneva_exception(
                     g_error_streamer(
                         DO_LOG
                         , time_and_place
@@ -673,7 +666,7 @@ public:
     ) {
 #ifdef DEBUG
         if (countParameters<par_type>() != parVec.size()) {
-            throw gemfony_exception(
+            throw geneva_exception(
                 g_error_streamer(
                     DO_LOG
                     , time_and_place
@@ -1060,8 +1053,7 @@ private:
 /**
  * @brief Needed for Boost.Serialization
  */
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GParameterSet)
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::parameterset_processing_result)
-
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GParameterSet) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::parameterset_processing_result) // NOLINT
 /******************************************************************************/
 

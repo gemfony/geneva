@@ -22,13 +22,6 @@
  *
  ********************************************************************************
  *
- * Geneva was started by Dr. Rüdiger Berlich and was later maintained together
- * with Dr. Ariel Garcia under the auspices of Gemfony scientific. For further
- * information on Gemfony scientific, see http://www.gemfomy.eu .
- *
- * The majority of files in Geneva was released under the Apache license v2.0
- * in February 2020.
- *
  * See the NOTICE file in the top-level directory of the Geneva library
  * collection for a list of contributors and copyright information.
  *
@@ -1604,7 +1597,7 @@ public:
             x = boost::numeric_cast<x_type>(x_undet);
         }
         catch (bad_numeric_cast &e) {
-            throw gemfony_exception(
+            throw geneva_exception(
                 g_error_streamer(
                     DO_LOG
                     , time_and_place
@@ -1651,7 +1644,7 @@ public:
                 x = boost::numeric_cast<x_type>(*cit);
             }
             catch (bad_numeric_cast &e) {
-                throw gemfony_exception(
+                throw geneva_exception(
                     g_error_streamer(
                         DO_LOG
                         , time_and_place
@@ -2055,7 +2048,7 @@ public:
         std::size_t
         , std::tuple<x_type, x_type>
     ) const {
-        throw gemfony_exception(
+        throw geneva_exception(
             g_error_streamer(
                 DO_LOG
                 , time_and_place
@@ -2078,7 +2071,7 @@ public:
         std::size_t
         , std::tuple<y_type, y_type>
     ) const {
-        throw gemfony_exception(
+        throw geneva_exception(
             g_error_streamer(
                 DO_LOG
                 , time_and_place
@@ -2126,7 +2119,7 @@ public:
             y = boost::numeric_cast<y_type>(std::get<1>(point_undet));
         }
         catch (bad_numeric_cast &e) {
-            throw gemfony_exception(
+            throw geneva_exception(
                 g_error_streamer(
                     DO_LOG
                     , time_and_place
@@ -2180,7 +2173,7 @@ public:
                 y = boost::numeric_cast<y_type>(std::get<1>(*cit));
             }
             catch (bad_numeric_cast &e) {
-                throw gemfony_exception(
+                throw geneva_exception(
                     g_error_streamer(
                         DO_LOG
                         , time_and_place
@@ -2502,7 +2495,7 @@ public:
             ey = boost::numeric_cast<y_type>(std::get<3>(point_undet));
         }
         catch (bad_numeric_cast &e) {
-            throw gemfony_exception(
+            throw geneva_exception(
                 g_error_streamer(
                     DO_LOG
                     , time_and_place
@@ -2564,7 +2557,7 @@ public:
                 ey = boost::numeric_cast<y_type>(std::get<3>(*cit));
             }
             catch (bad_numeric_cast &e) {
-                throw gemfony_exception(
+                throw geneva_exception(
                     g_error_streamer(
                         DO_LOG
                         , time_and_place
@@ -3075,7 +3068,7 @@ public:
     std::shared_ptr<GDataCollector1T<x_type>> projectX(
         std::size_t, std::tuple<x_type, x_type>
     ) const {
-        throw gemfony_exception(
+        throw geneva_exception(
             g_error_streamer(
                 DO_LOG
                 , time_and_place
@@ -3097,7 +3090,7 @@ public:
     std::shared_ptr<GDataCollector1T<y_type>> projectY(
         std::size_t, std::tuple<y_type, y_type>
     ) const {
-        throw gemfony_exception(
+        throw geneva_exception(
             g_error_streamer(
                 DO_LOG
                 , time_and_place
@@ -3119,7 +3112,7 @@ public:
     std::shared_ptr<GDataCollector1T<z_type>> projectZ(
         std::size_t, std::tuple<z_type, z_type>
     ) const {
-        throw gemfony_exception(
+        throw geneva_exception(
             g_error_streamer(
                 DO_LOG
                 , time_and_place
@@ -3166,7 +3159,7 @@ public:
             z = boost::numeric_cast<z_type>(std::get<2>(point_undet));
         }
         catch (bad_numeric_cast &e) {
-            throw gemfony_exception(
+            throw geneva_exception(
                 g_error_streamer(
                     DO_LOG
                     , time_and_place
@@ -3223,7 +3216,7 @@ public:
                 z = boost::numeric_cast<z_type>(std::get<2>(*cit));
             }
             catch (bad_numeric_cast &e) {
-                throw gemfony_exception(
+                throw geneva_exception(
                     g_error_streamer(
                         DO_LOG
                         , time_and_place
@@ -3613,7 +3606,7 @@ public:
     std::shared_ptr<GDataCollector1T<x_type>> projectX(
         std::size_t, std::tuple<x_type, x_type>
     ) const {
-        throw gemfony_exception(
+        throw geneva_exception(
             g_error_streamer(
                 DO_LOG
                 , time_and_place
@@ -3635,7 +3628,7 @@ public:
     std::shared_ptr<GDataCollector1T<y_type>> projectY(
         std::size_t, std::tuple<y_type, y_type>
     ) const {
-        throw gemfony_exception(
+        throw geneva_exception(
             g_error_streamer(
                 DO_LOG
                 , time_and_place
@@ -3657,7 +3650,7 @@ public:
     std::shared_ptr<GDataCollector1T<z_type>> projectZ(
         std::size_t, std::tuple<z_type, z_type>
     ) const {
-        throw gemfony_exception(
+        throw geneva_exception(
             g_error_streamer(
                 DO_LOG
                 , time_and_place
@@ -3679,7 +3672,7 @@ public:
     std::shared_ptr<GDataCollector1T<w_type>> projectW(
         std::size_t, std::tuple<w_type, w_type>
     ) const {
-        throw gemfony_exception(
+        throw geneva_exception(
             g_error_streamer(
                 DO_LOG
                 , time_and_place
@@ -3730,7 +3723,7 @@ public:
             w = boost::numeric_cast<w_type>(std::get<3>(point_undet));
         }
         catch (bad_numeric_cast &e) {
-            throw gemfony_exception(
+            throw geneva_exception(
                 g_error_streamer(
                     DO_LOG
                     , time_and_place
@@ -3794,7 +3787,7 @@ public:
                 w = boost::numeric_cast<w_type>(std::get<3>(*cit));
             }
             catch (bad_numeric_cast &e) {
-                throw gemfony_exception(
+                throw geneva_exception(
                     g_error_streamer(
                         DO_LOG
                         , time_and_place
@@ -4638,38 +4631,29 @@ struct is_abstract<const Gem::Common::GDataCollector4T<x_type, y_type, z_type, w
 } /* namespace serialization */
 } /* namespace boost */
 
-BOOST_SERIALIZATION_ASSUME_ABSTRACT(GBasePlotter)
-
-BOOST_CLASS_EXPORT_KEY(Gem::Common::GMarker<short>);
-BOOST_CLASS_EXPORT_KEY(Gem::Common::GMarker<std::int32_t>);
-BOOST_CLASS_EXPORT_KEY(Gem::Common::GMarker<std::uint32_t>);
-BOOST_CLASS_EXPORT_KEY(Gem::Common::GMarker<float>);
-BOOST_CLASS_EXPORT_KEY(Gem::Common::GMarker<double>);
-
-BOOST_CLASS_EXPORT_KEY(Gem::Common::GDecoratorContainer_2D<short>);
-BOOST_CLASS_EXPORT_KEY(Gem::Common::GDecoratorContainer_2D<std::int32_t>);
-BOOST_CLASS_EXPORT_KEY(Gem::Common::GDecoratorContainer_2D<std::uint32_t>);
-BOOST_CLASS_EXPORT_KEY(Gem::Common::GDecoratorContainer_2D<float>);
-BOOST_CLASS_EXPORT_KEY(Gem::Common::GDecoratorContainer_2D<double>);
-
-BOOST_CLASS_EXPORT_KEY(Gem::Common::GDecoratorContainer_3D<short>);
-BOOST_CLASS_EXPORT_KEY(Gem::Common::GDecoratorContainer_3D<std::int32_t>);
-BOOST_CLASS_EXPORT_KEY(Gem::Common::GDecoratorContainer_3D<std::uint32_t>);
-BOOST_CLASS_EXPORT_KEY(Gem::Common::GDecoratorContainer_3D<float>);
-BOOST_CLASS_EXPORT_KEY(Gem::Common::GDecoratorContainer_3D<double>);
-
-BOOST_CLASS_EXPORT_KEY(Gem::Common::GHistogram1D);
-BOOST_CLASS_EXPORT_KEY(Gem::Common::GHistogram1I);
-
-BOOST_CLASS_EXPORT_KEY(Gem::Common::GHistogram2D);
-BOOST_CLASS_EXPORT_KEY(Gem::Common::GGraph2D);
-BOOST_CLASS_EXPORT_KEY(Gem::Common::GGraph2ED);
-
-BOOST_CLASS_EXPORT_KEY(Gem::Common::GGraph3D);
-
-BOOST_CLASS_EXPORT_KEY(Gem::Common::GGraph4D);
-
-BOOST_CLASS_EXPORT_KEY(Gem::Common::GFunctionPlotter1D);
-BOOST_CLASS_EXPORT_KEY(Gem::Common::GFunctionPlotter2D);
-
-BOOST_CLASS_EXPORT_KEY(Gem::Common::GPlotDesigner);
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(GBasePlotter) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GMarker<short>) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GMarker<std::int32_t>) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GMarker<std::uint32_t>) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GMarker<float>) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GMarker<double>) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GDecoratorContainer_2D<short>) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GDecoratorContainer_2D<std::int32_t>) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GDecoratorContainer_2D<std::uint32_t>) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GDecoratorContainer_2D<float>) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GDecoratorContainer_2D<double>) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GDecoratorContainer_3D<short>) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GDecoratorContainer_3D<std::int32_t>) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GDecoratorContainer_3D<std::uint32_t>) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GDecoratorContainer_3D<float>) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GDecoratorContainer_3D<double>) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GHistogram1D) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GHistogram1I) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GHistogram2D) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GGraph2D) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GGraph2ED) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GGraph3D) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GGraph4D) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GFunctionPlotter1D) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GFunctionPlotter2D) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GPlotDesigner) // NOLINT

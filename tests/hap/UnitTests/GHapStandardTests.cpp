@@ -26,30 +26,19 @@
  *
  ********************************************************************************
  *
- * Geneva was started by Dr. Rüdiger Berlich and was later maintained together
- * with Dr. Ariel Garcia under the auspices of Gemfony scientific. For further
- * information on Gemfony scientific, see http://www.gemfomy.eu .
- *
- * The majority of files in Geneva was released under the Apache license v2.0
- * in February 2020.
- *
  * See the NOTICE file in the top-level directory of the Geneva library
  * collection for a list of contributors and copyright information.
  *
  ********************************************************************************/
 
+#define BOOST_TEST_DYN_LINK
+#define BOOST_TEST_MAIN
+#define BOOST_TEST_ALTERNATIVE_INIT_API
 #include <boost/test/unit_test.hpp>
 
-using boost::unit_test_framework::test_suite;
-using namespace boost::unit_test;
-
-// Boost headers go here
-
-// This file holds the actual random tests
 #include "hap/tests/GHap_tests.hpp"
 
-// Test program entry point
-test_suite* init_unit_test_suite(int argc, char** const argv) {
-	framework::master_test_suite().add(new GHapSuite());
-	return 0;
-}
+BOOST_FIXTURE_TEST_SUITE(GHapSuite, GHap_tests)
+BOOST_AUTO_TEST_CASE(no_failure_expected_test) { no_failure_expected(); }
+BOOST_AUTO_TEST_CASE(failures_expected_test) { failures_expected(); }
+BOOST_AUTO_TEST_SUITE_END()

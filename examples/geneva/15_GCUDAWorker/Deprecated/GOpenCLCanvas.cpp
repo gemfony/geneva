@@ -26,13 +26,6 @@
  *
  ********************************************************************************
  *
- * Geneva was started by Dr. Rüdiger Berlich and was later maintained together
- * with Dr. Ariel Garcia under the auspices of Gemfony scientific. For further
- * information on Gemfony scientific, see http://www.gemfomy.eu .
- *
- * The majority of files in Geneva was released under the Apache license v2.0
- * in February 2020.
- *
  * See the NOTICE file in the top-level directory of the Geneva library
  * collection for a list of contributors and copyright information.
  *
@@ -40,8 +33,7 @@
 
 #include "GOpenCLCanvas.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GOpenCLCanvas);
-
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GOpenCLCanvas) // NOLINT
 namespace Gem {
 namespace Geneva {
 
@@ -132,7 +124,7 @@ GOpenCLCanvas::getOpenCLCanvasI() const {
 
 	// Check that our dimension fit the number of entries in the array
 	if(m_xDim*m_yDim*4 != nEntries) {
-		throw gemfony_exception(
+		throw geneva_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GOpenCLCanvas::loadFromOpenCLArray(): Error!" << std::endl
 				<< "Dimensions don't fit: " << m_xDim << "/" << m_yDim << "/" << 4*m_xDim*m_yDim << "/" << nEntries << std::endl
@@ -188,7 +180,7 @@ GOpenCLCanvas::getOpenCLCanvasF() const {
 
 	// Check that our dimension fit the number of entries in the array
 	if(4*m_xDim*m_yDim != nEntries) {
-		throw gemfony_exception(
+		throw geneva_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GOpenCLCanvas::loadFromOpenCLArrayF(): Error!" << std::endl
 				<< "Dimensions don't fit: " << m_xDim << "/" << m_yDim << "/" << 4*m_xDim*m_yDim << "/" << nEntries << std::endl
@@ -243,7 +235,7 @@ GOpenCLCanvas::getOpenCLCanvasF() const {
 
 	// Check that our dimension fit the number of entries in the array
 	if(m_xDim*m_yDim != nEntries) {
-		throw gemfony_exception(
+		throw geneva_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GOpenCLCanvas::loadFromOpenCLArrayF4(): Error!" << std::endl
 				<< "Dimensions don't fit: " << m_xDim << "/" << m_yDim << "/" << m_xDim*m_yDim << "/" << nEntries << std::endl

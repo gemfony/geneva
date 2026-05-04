@@ -22,13 +22,6 @@
 #
 ################################################################################
 #
-# Geneva was started by Dr. Rüdiger Berlich and was later maintained together
-# with Dr. Ariel Garcia under the auspices of Gemfony scientific. For further
-# information on Gemfony scientific, see http://www.gemfomy.eu .
-#
-# The majority of files in Geneva was released under the Apache license v2.0
-# in February 2020.
-#
 # See the NOTICE file in the top-level directory of the Geneva library
 # collection for a list of contributors and copyright information.
 #
@@ -61,7 +54,7 @@ CMAKE="/usr/bin/cmake"
 # be the location of Boost's 'boost/' headers folder where the file
 # 'version.hpp' is found.
 #
-#BOOSTROOT="/opt/boost"
+BOOSTROOT="/opt/boost"
 #BOOSTLIBS="/usr/lib"
 #BOOSTINCL="/usr/include"
 
@@ -103,7 +96,7 @@ BUILDMPICONSUMER="1"
 BUILDCUDAEXAMPLES="0"
 
 # Whether to add CUDA-generated random numbers to Hap
-USECUDARNG="1"
+USECUDARNG="0"
 
 # Further CMake parameters you might want to provide; these
 # will be passed 'verbatim' to CMake's command line

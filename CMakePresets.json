@@ -1,0 +1,26 @@
+{
+  "version": 3,
+  "cmakeMinimumRequired": { "major": 3, "minor": 27, "patch": 0 },
+  "configurePresets": [
+    {
+      "name": "geneva-default",
+      "displayName": "Geneva (default config)",
+      "description": "Default build configuration derived from scripts/genevaConfig.gcfg",
+      "generator": "Unix Makefiles",
+      "binaryDir": "${sourceDir}/../build",
+      "cacheVariables": {
+        "CMAKE_INSTALL_PREFIX":            { "type": "PATH",   "value": "/opt/geneva" },
+        "CMAKE_VERBOSE_MAKEFILE":          { "type": "BOOL",   "value": "0" },
+        "GENEVA_BUILD_TYPE":               { "type": "STRING", "value": "Debug" },
+        "GENEVA_BUILD_TESTS":              { "type": "BOOL",   "value": "1" },
+        "GENEVA_BUILD_EXAMPLES":           { "type": "BOOL",   "value": "1" },
+        "GENEVA_BUILD_BENCHMARKS":         { "type": "BOOL",   "value": "1" },
+        "GENEVA_STATIC":                   { "type": "BOOL",   "value": "0" },
+        "GENEVA_BUILD_WITH_MPI_CONSUMER":  { "type": "BOOL",   "value": "1" },
+        "GENEVA_BUILD_WITH_CUDA_EXAMPLES": { "type": "BOOL",   "value": "0" },
+        "GENEVA_USE_CUDA_RNG":             { "type": "BOOL",   "value": "0" },
+        "BOOST_ROOT":                      { "type": "PATH",   "value": "/opt/boost" }
+      }
+    }
+  ]
+}

@@ -22,13 +22,6 @@
  *
  ********************************************************************************
  *
- * Geneva was started by Dr. Rüdiger Berlich and was later maintained together
- * with Dr. Ariel Garcia under the auspices of Gemfony scientific. For further
- * information on Gemfony scientific, see http://www.gemfomy.eu .
- *
- * The majority of files in Geneva was released under the Apache license v2.0
- * in February 2020.
- *
  * See the NOTICE file in the top-level directory of the Geneva library
  * collection for a list of contributors and copyright information.
  *
@@ -86,7 +79,7 @@ std::vector<T> fillWithData(
     , T /* lower */
     , T /* upper */
 ) {
-    throw gemfony_exception(
+    throw geneva_exception(
         g_error_streamer(
             DO_LOG
             , time_and_place
@@ -343,7 +336,7 @@ protected:
         Gem::Hap::GRandomBase &gr
     ) const {
         // A trap. This function needs to be re-implemented for each supported type
-        throw gemfony_exception(
+        throw geneva_exception(
             g_error_streamer(
                 DO_LOG
                 , time_and_place
@@ -789,7 +782,7 @@ private:
     ) {
 #ifdef DEBUG
         if (0 != std::get<1>(dataPoint)) {
-            throw gemfony_exception(
+            throw geneva_exception(
                 g_error_streamer(
                     DO_LOG
                     , time_and_place
@@ -805,7 +798,7 @@ private:
 
         // Check that we haven't exceeded the size of the boolean data vector
         if (lPos >= dataVec.size()) {
-            throw gemfony_exception(
+            throw geneva_exception(
                 g_error_streamer(
                     DO_LOG
                     , time_and_place
@@ -882,10 +875,8 @@ private:
 } /* namespace Geneva */
 } /* namespace Gem */
 
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::bScanPar)
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::int32ScanPar)
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::dScanPar)
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::fScanPar)
-
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GParameterScan)
-
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::bScanPar) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::int32ScanPar) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::dScanPar) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::fScanPar) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GParameterScan) // NOLINT

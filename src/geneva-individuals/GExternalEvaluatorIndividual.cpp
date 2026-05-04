@@ -22,13 +22,6 @@
  *
  ********************************************************************************
  *
- * Geneva was started by Dr. Rüdiger Berlich and was later maintained together
- * with Dr. Ariel Garcia under the auspices of Gemfony scientific. For further
- * information on Gemfony scientific, see http://www.gemfomy.eu .
- *
- * The majority of files in Geneva was released under the Apache license v2.0
- * in February 2020.
- *
  * See the NOTICE file in the top-level directory of the Geneva library
  * collection for a list of contributors and copyright information.
  *
@@ -36,9 +29,8 @@
 
 #include "geneva-individuals/GExternalEvaluatorIndividual.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GExternalEvaluatorIndividual)
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GExternalEvaluatorIndividualFactory)
-
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GExternalEvaluatorIndividual) // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GExternalEvaluatorIndividualFactory) // NOLINT
 namespace Gem::Geneva
 {
 
@@ -152,7 +144,7 @@ namespace Gem::Geneva
  */
 	void GExternalEvaluatorIndividual::setExchangeBaseName(const std::string &parameterFile) {
 		if (parameterFile.empty() || parameterFile == "empty") {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GExternalEvaluatorIndividual::setExchangeBaseName(): Error!" << std::endl
 				<< "Invalid file name \"" << parameterFile << "\"" << std::endl
@@ -178,7 +170,7 @@ namespace Gem::Geneva
  */
 	void GExternalEvaluatorIndividual::setNExpectedResults(const std::size_t &nResults) {
 		if (0 == nResults) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GExternalEvaluatorIndividual::setNExpectedResults(): Error!" << std::endl
 				<< "Got invalid number of expected results: " << nResults << std::endl
@@ -310,7 +302,7 @@ namespace Gem::Geneva
 		} else { // Everything is o.k., lets retrieve the evaluation
 			// Check that the result file exists
 			if (not std::filesystem::exists(resultFileName)) {
-				throw gemfony_exception(
+				throw geneva_exception(
 					g_error_streamer(DO_LOG,  time_and_place)
 					<< "In GExternalEvaluatorIndividual::fitnessCalculation(): Error!" << std::endl
 					<< "Result file " << resultFileName << " does not seem to exist." << std::endl
@@ -322,14 +314,14 @@ namespace Gem::Geneva
 			try {
 				pt::read_xml(resultFileName, ptr_in);
 			} catch (const boost::property_tree::xml_parser::xml_parser_error &e) {
-				throw gemfony_exception(
+				throw geneva_exception(
 					g_error_streamer(DO_LOG,  time_and_place)
 					<< "In GExternalEvaluatorIndividual::fitnessCalculation(): Error  " << std::endl
 					<< "Caught boost::property_tree::xml_parser::xml_parser_error" << std::endl
 					<< "for file " << e.filename() << " (line " << e.line() << ")" << std::endl
 				);
 			} catch (const std::exception &e) {
-				throw gemfony_exception(
+				throw geneva_exception(
 					g_error_streamer(DO_LOG,  time_and_place)
 					<< "In GExternalEvaluatorIndividual::fitnessCalculation(): Error reading " << resultFileName << std::endl
 					<< "with message " << e.what() << std::endl
@@ -339,7 +331,7 @@ namespace Gem::Geneva
 			// Check that only a single result was returned
 			std::size_t nExternalIndividuals = ptr_in.get<std::size_t>(batch + ".nIndividuals");
 			if (1 != nExternalIndividuals) {
-				throw gemfony_exception(
+				throw geneva_exception(
 					g_error_streamer(DO_LOG,  time_and_place)
 					<< "In GExternalEvaluatorIndividual::fitnessCalculation(): Error!" << std::endl
 					<< "Number of result individuals != 1: " << nExternalIndividuals << std::endl
@@ -349,7 +341,7 @@ namespace Gem::Geneva
 			// Check that the number of results provided by the result file matches the number of expected results
 			std::size_t externalNResults = ptr_in.get<std::size_t>("batch.individuals.individual0.nResults");
 			if (externalNResults != m_n_results) {
-				throw gemfony_exception(
+				throw geneva_exception(
 					g_error_streamer(DO_LOG,  time_and_place)
 					<< "In GExternalEvaluatorIndividual::fitnessCalculation(): Error!" << std::endl
 					<< "Result file provides nResults = " << externalNResults << std::endl
@@ -416,7 +408,7 @@ namespace Gem::Geneva
  */
 	void GExternalEvaluatorIndividual::setRunId(std::string runID) {
 		if (runID.empty() || "empty" == runID) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GExternalEvaluatorIndividual::setRunId(): Error!" << std::endl
 				<< "Attempt to set an invalid run id: \"" << runID << "\"" << std::endl
@@ -651,7 +643,7 @@ namespace Gem::Geneva
 	void GExternalEvaluatorIndividualFactory::setAdaptAdProb(double adaptAdProb) {
 #ifdef DEBUG
 		if(adaptAdProb < 0.) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GExternalEvaluatorIndividualFactory::setAdaptAdProb(): Error!" << std::endl
 				<< "Invalid value for adaptAdProb given: " << adaptAdProb << std::endl
@@ -677,7 +669,7 @@ namespace Gem::Geneva
 	void GExternalEvaluatorIndividualFactory::setAdProbRange(double minAdProb, double maxAdProb) {
 #ifdef DEBUG
 		if(minAdProb < 0.) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GExternalEvaluatorIndividualFactory::setAdProbRange(): Error!" << std::endl
 				<< "minAdProb < 0: " << minAdProb << std::endl
@@ -685,7 +677,7 @@ namespace Gem::Geneva
 		}
 
 		if(minAdProb > maxAdProb) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GExternalEvaluatorIndividualFactory::setAdProbRange(): Error!" << std::endl
 				<< "Invalid minAdProb and/or maxAdProb: " << minAdProb << " / " << maxAdProb << std::endl
@@ -693,7 +685,7 @@ namespace Gem::Geneva
 		}
 
 		if(maxAdProb > 1.) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GExternalEvaluatorIndividualFactory::setAdProbRange(): Error!" << std::endl
 				<< "maxAdProb > 1: " << maxAdProb << std::endl
@@ -803,7 +795,7 @@ namespace Gem::Geneva
 		double max = std::get<1>(range);
 
 		if (min < 0) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GExternalEvaluatorIndividualFactory::setDeltaRange(): Error" << std::endl
 				<< "min must be >= 0. Got : " << max << std::endl
@@ -811,7 +803,7 @@ namespace Gem::Geneva
 		}
 
 		if (min >= max) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GExternalEvaluatorIndividualFactory::setDeltaRange(): Error" << std::endl
 				<< "Invalid range specified: " << min << " / " << max << std::endl
@@ -855,7 +847,7 @@ namespace Gem::Geneva
 		double max = std::get<1>(range);
 
 		if (min < 0) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GExternalEvaluatorIndividualFactory::setSigma1Range(): Error" << std::endl
 				<< "min must be >= 0. Got : " << max << std::endl
@@ -863,7 +855,7 @@ namespace Gem::Geneva
 		}
 
 		if (min >= max) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GExternalEvaluatorIndividualFactory::setSigma1Range(): Error" << std::endl
 				<< "Invalid range specified: " << min << " / " << max << std::endl
@@ -907,7 +899,7 @@ namespace Gem::Geneva
 		double max = std::get<1>(range);
 
 		if (min < 0) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GExternalEvaluatorIndividualFactory::setSigma2Range(): Error" << std::endl
 				<< "min must be >= 0. Got : " << max << std::endl
@@ -915,7 +907,7 @@ namespace Gem::Geneva
 		}
 
 		if (min >= max) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GExternalEvaluatorIndividualFactory::setSigma2Range(): Error" << std::endl
 				<< "Invalid range specified: " << min << " / " << max << std::endl
@@ -1032,7 +1024,7 @@ namespace Gem::Geneva
 	void GExternalEvaluatorIndividualFactory::setProgramName(std::string programName) {
 		// Check that the file name isn't empty
 		if (programName.empty()) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GExternalEvaluatorIndividualFactory::setProgramName(): Error!" << std::endl
 				<< "File name was empty" << std::endl
@@ -1041,7 +1033,7 @@ namespace Gem::Geneva
 
 		// Check that the file exists
 		if (not std::filesystem::exists(programName)) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GExternalEvaluatorIndividualFactory::setProgramName(): Error!" << std::endl
 				<< "External program " << programName << " does not seem to exist" << std::endl
@@ -1085,7 +1077,7 @@ namespace Gem::Geneva
 	void GExternalEvaluatorIndividualFactory::setParameterFileBaseName(std::string parameterFileBaseName) {
 		// Check that the name isn't empty
 		if (parameterFileBaseName.empty()) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GExternalEvaluatorIndividualFactory::setParameterFileBaseName(): Error!" << std::endl
 				<< "Name was empty" << std::endl
@@ -1111,7 +1103,7 @@ namespace Gem::Geneva
  */
 	void GExternalEvaluatorIndividualFactory::setInitValues(std::string initValues) {
 		if (initValues != "random" && initValues != "min" && initValues != "max") {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GExternalEvaluatorIndividualFactory::setInitValues(): Error!" << std::endl
 				<< "Invalid argument: " << initValues << std::endl
@@ -1221,7 +1213,7 @@ namespace Gem::Geneva
 
 		// Let the audience know
 		if(errorCode) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GExternalEvaluatorIndividualFactory::archive(): Error" << std::endl
 				<< "Execution of external command failed." << std::endl
@@ -1399,7 +1391,7 @@ namespace Gem::Geneva
 
 		// Check that the file name isn't empty
 		if (m_programName.value().empty()) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GExternalEvaluatorIndividualFactory::setUpPropertyTree(): Error!" << std::endl
 				<< "File name was empty" << std::endl
@@ -1408,7 +1400,7 @@ namespace Gem::Geneva
 
 		// Check that the file exists
 		if (not std::filesystem::exists(m_programName.value())) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GExternalEvaluatorIndividualFactory::setUpPropertyTree(): Error!" << std::endl
 				<< "External program " << m_programName.value() << " does not seem to exist" << std::endl
@@ -1433,7 +1425,7 @@ namespace Gem::Geneva
 			);
 
 			if (errorCode) {
-				throw gemfony_exception(
+				throw geneva_exception(
 					g_error_streamer(DO_LOG,  time_and_place)
 					<< "In GExternalEvaluatorIndividual::setUpPropertyTree(//1//): Error" << std::endl
 					<< "Execution of external command failed." << std::endl
@@ -1464,7 +1456,7 @@ namespace Gem::Geneva
 			);
 
 			if (errorCode) {
-				throw gemfony_exception(
+				throw geneva_exception(
 					g_error_streamer(DO_LOG,  time_and_place)
 					<< "In GExternalEvaluatorIndividual::setUpPropertyTree(//2//): Error" << std::endl
 					<< "Execution of external command failed." << std::endl
@@ -1505,7 +1497,7 @@ namespace Gem::Geneva
 		this->setUpPropertyTree();
 
 		if (m_ptr.empty()) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GExternalEvaluatorIndividualFactory::postProcess_(): Error!" << std::endl
 				<< "Property tree is empty." << std::endl
@@ -1538,7 +1530,7 @@ namespace Gem::Geneva
 			// Extract the number of individuals
 			std::size_t nIndividuals = m_ptr.get<std::size_t>("batch.nIndividuals");
 			if (1 != nIndividuals) {
-				throw gemfony_exception(
+				throw geneva_exception(
 					g_error_streamer(DO_LOG,  time_and_place)
 					<< "In GExternalEvaluatorIndividualFactory::postProcess_(): Error!" << std::endl
 					<< "Received invalid number of setup-individuals: " << nIndividuals << std::endl
@@ -1606,7 +1598,7 @@ namespace Gem::Geneva
 							// Add the object to the individual
 							p->push_back(gcdo_ptr);
 						} else {
-							throw gemfony_exception(
+							throw geneva_exception(
 								g_error_streamer(DO_LOG,  time_and_place)
 								<< "In GExternalEvaluatorIndividualFactory::postProcess_(): Error!" << std::endl
 								<< (cit->second).get<std::string>("type") << " provided as type name." << std::endl
@@ -1624,7 +1616,7 @@ namespace Gem::Geneva
 					}
 				}
 			} else {
-				throw gemfony_exception(
+				throw geneva_exception(
 					g_error_streamer(DO_LOG,  time_and_place)
 					<< "In GExternalEvaluatorIndividualFactory::postProcess_(): Error!" << std::endl
 					<< "No variables were specified" << std::endl
@@ -1681,16 +1673,16 @@ namespace Gem::Geneva
 			p->setRemoveExecTemporaries(m_removeExecTemporaries);
 			p->setRunId(runID);
 		} catch (const pt::ptree_bad_path &e) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GExternalEvaluatorIndividualFactory::postProcess_(): Error!" << std::endl
 				<< "Caught ptree_bad_path exception with message " << std::endl
 				<< e.what() << std::endl
 			);
-		} catch (const gemfony_exception &gec) {
+		} catch (const geneva_exception &gec) {
 			throw gec; // Re-throw
 		} catch (...) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GExternalEvaluatorIndividualFactory::postProcess_(): Caught unknown exception!" << std::endl
 			);

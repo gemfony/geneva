@@ -22,13 +22,6 @@
  *
  ********************************************************************************
  *
- * Geneva was started by Dr. Rüdiger Berlich and was later maintained together
- * with Dr. Ariel Garcia under the auspices of Gemfony scientific. For further
- * information on Gemfony scientific, see http://www.gemfomy.eu .
- *
- * The majority of files in Geneva was released under the Apache license v2.0
- * in February 2020.
- *
  * See the NOTICE file in the top-level directory of the Geneva library
  * collection for a list of contributors and copyright information.
  *
@@ -207,7 +200,7 @@ GEvolutionaryAlgorithm::updateGlobalBestsPQ_(
 #ifdef DEBUG
     if (this->empty())
     {
-        throw gemfony_exception(
+        throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In G_OA_EvolutionaryAlgorithm::updateGlobalBestsPQ() :" << std::endl
             << "Tried to retrieve the best individuals even though the population is empty." << std::endl
@@ -267,7 +260,7 @@ GEvolutionaryAlgorithm::updateIterationBestsPQ_(
 #ifdef DEBUG
     if (this->empty())
     {
-        throw gemfony_exception(
+        throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "G_OA_EvolutionaryAlgorithm::updateIterationBestsPQ() :" << std::endl
             << "Tried to retrieve the best individuals even though the population is empty." << std::endl
@@ -449,7 +442,7 @@ GEvolutionaryAlgorithm::populationSanityChecks_() const
     // in the parent class.
     if (this->m_n_parents == 0)
     {
-        throw gemfony_exception(
+        throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In G_OA_EvolutionaryAlgorithm::populationSanityChecks(): Error!" << std::endl
             << "Number of parents is set to 0"
@@ -493,7 +486,7 @@ GEvolutionaryAlgorithm::populationSanityChecks_() const
             break;
         };
 
-        throw gemfony_exception(
+        throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << error.str()
         );
@@ -541,7 +534,7 @@ GEvolutionaryAlgorithm::adaptChildren_()
         }
         catch (std::exception &e)
         {
-            throw gemfony_exception(
+            throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GSimulatedAnnealing::adaptChildren() :" << std::endl
                 << "Got error during thread execution with message:" << std::endl
@@ -549,7 +542,7 @@ GEvolutionaryAlgorithm::adaptChildren_()
             );
         } catch (...)
         {
-            throw gemfony_exception(
+            throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GSimulatedAnnealing::adaptChildren() :" << std::endl
                 << "Got unknown exception during thread execution" << std::endl
@@ -580,7 +573,7 @@ GEvolutionaryAlgorithm::runFitnessCalculation_()
     {
         if (not this->at(i)->is_due_for_processing())
         {
-            throw gemfony_exception(
+            throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GEvolutionaryAlgorithm::runFitnessCalculation(): Error!" << std::endl
                 << "Tried to evaluate children in range " << std::get<0>(range) << " - " << std::get<1>(range) <<
@@ -592,7 +585,7 @@ GEvolutionaryAlgorithm::runFitnessCalculation_()
 
     if (this->size() != this->getDefaultPopulationSize())
     {
-        throw gemfony_exception(
+        throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GEvolutionaryAlgorithm::runFitnessCalculation(): Error!" << std::endl
             << "Size of data vector (" << this->size() << ") should be " << this->getDefaultPopulationSize() <<
@@ -719,7 +712,7 @@ GEvolutionaryAlgorithm::fixAfterJobSubmission()
     // Check that individuals do exist in the population. We cannot continue, if this is not the case
     if (this->empty())
     {
-        throw gemfony_exception(
+        throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GEvolutionaryAlgorithm::fixAfterJobSubmission(): Error!" << std::endl
             << "Population holds no data" << std::endl
@@ -742,7 +735,7 @@ GEvolutionaryAlgorithm::fixAfterJobSubmission()
     // Check that the last individual is not unprocessed. This is a severe error.
     if (this->back()->is_due_for_processing())
     {
-        throw gemfony_exception(
+        throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GEvolutionaryAlgorithm::fixAfterJobSubmission(): Error!" << std::endl
             << "The last individual in the population is is unprocessed" << std::endl
@@ -790,7 +783,7 @@ GEvolutionaryAlgorithm::selectBest_()
     // function is called
     if ((this->size() - this->m_n_parents) < this->m_default_n_children)
     {
-        throw gemfony_exception(
+        throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In G_OA_EvolutionaryAlgorithm::select():" << std::endl
             << "Too few children. Got " << (this->size() - this->getNParents()) << "," << std::endl
@@ -866,7 +859,7 @@ GEvolutionaryAlgorithm::selectBest_()
     // should have been taken care of in fixAfterJobSubmission() .
     if (this->size() < this->getDefaultPopulationSize())
     {
-        throw gemfony_exception(
+        throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In G_OA_EvolutionaryAlgorithm::selectBest(): Error!" << std::endl
             << "Size of population is smaller than expected: " << this->size() << " / " << this->
@@ -957,7 +950,7 @@ GEvolutionaryAlgorithm::sortMuPlusNuMode()
     {
         if (ind_ptr->is_due_for_processing())
         {
-            throw gemfony_exception(
+            throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GEvolutionaryAlgorithm::sortMuplusnuMode(): Error!" << std::endl
                 << "In iteration " << G_OptimizationAlgorithm_Base::getIteration() << ": Found individual in position "
@@ -999,7 +992,7 @@ GEvolutionaryAlgorithm::sortMuCommaNuMode()
         {
             if ((*it)->is_due_for_processing())
             {
-                throw gemfony_exception(
+                throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
                     << "In GEvolutionaryAlgorithm::sortMucommanuMode(): Error!" << std::endl
                     << "In iteration " << G_OptimizationAlgorithm_Base::getIteration() <<
@@ -1020,7 +1013,7 @@ GEvolutionaryAlgorithm::sortMuCommaNuMode()
         {
             if ((*it)->is_due_for_processing())
             {
-                throw gemfony_exception(
+                throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
                     << "In GEvolutionaryAlgorithm::sortMucommanuMode(): Error!" << std::endl
                     << "In iteration " << G_OptimizationAlgorithm_Base::getIteration() <<
@@ -1073,7 +1066,7 @@ GEvolutionaryAlgorithm::sortMunu1pretainMode()
     {
         if ((*it)->is_due_for_processing())
         {
-            throw gemfony_exception(
+            throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GEvolutionaryAlgorithm::sortMunu1pretainMode(): Error!" << std::endl
                 << "In iteration " << G_OptimizationAlgorithm_Base::getIteration() << ": Found individual in position "
@@ -1375,7 +1368,7 @@ GEvolutionaryAlgorithm::aDominatesB(
     std::size_t nCriteriaY = y_ptr->getNStoredResults();
     if (nCriteriaX != nCriteriaY)
     {
-        throw gemfony_exception(
+        throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In G_OA_EvolutionaryAlgorithm::aDominatesB(): Error!" << std::endl
             << "Number of fitness criteria differ: " << nCriteriaX << " / " << nCriteriaY << std::endl

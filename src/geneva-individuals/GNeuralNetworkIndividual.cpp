@@ -22,13 +22,6 @@
  *
  ********************************************************************************
  *
- * Geneva was started by Dr. Rüdiger Berlich and was later maintained together
- * with Dr. Ariel Garcia under the auspices of Gemfony scientific. For further
- * information on Gemfony scientific, see http://www.gemfomy.eu .
- *
- * The majority of files in Geneva was released under the Apache license v2.0
- * in February 2020.
- *
  * See the NOTICE file in the top-level directory of the Geneva library
  * collection for a list of contributors and copyright information.
  *
@@ -36,10 +29,9 @@
 
 #include <geneva-individuals/GNeuralNetworkIndividual.hpp>
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::trainingSet)
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::networkData)
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GNeuralNetworkIndividual)
-
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::trainingSet) // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::networkData) // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GNeuralNetworkIndividual) // NOLINT
 namespace Gem::Geneva
 {
 
@@ -245,7 +237,7 @@ namespace Gem::Geneva
 		std::ofstream trDat(networkDataFile);
 
 		if (not trDat) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In networkData::saveToDisk(const std::string&) : Error!" << std::endl
 				<< "Data file " << networkDataFile << " could not be opened for writing." << std::endl
@@ -282,7 +274,7 @@ namespace Gem::Geneva
 				error << "File does not exist." << std::endl;
 			}
 
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< error.str() << std::endl
 			);
@@ -316,7 +308,7 @@ namespace Gem::Geneva
 		std::size_t &pos
 	) {
 		if(pos >= arraySize_) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In networkData::addTrainingSet(): Error!" << std::endl
 				<< "pos = " << pos << " exceeds end of array (size = " << arraySize_ << ")" << std::endl
@@ -689,7 +681,7 @@ namespace Gem::Geneva
 
 #ifdef DEBUG
 		if(not nD_) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GNeuralNetworkIndividual::init([...]): Error!" << std::endl
 				<< "No network data appears to have been registered." << std::endl
@@ -703,7 +695,7 @@ namespace Gem::Geneva
 		std::size_t nLayers = nD_->size();
 
 		if (nLayers < 2) { // Two layers are required at the minimum (3 and 4 layers are useful)
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GNeuralNetworkIndividual::init([...]): Error!" << std::endl
 				<< "Invalid number of layers supplied (" << nLayers << ")." << std::endl
@@ -751,7 +743,7 @@ namespace Gem::Geneva
 				nNodesPrevious = nNodes;
 				layerNumber++;
 			} else {
-				throw gemfony_exception(
+				throw geneva_exception(
 					g_error_streamer(DO_LOG,  time_and_place)
 					<< "In GNeuralNetworkIndividual::init([...]): Error!" << std::endl
 					<< "Found invalid number of nodes in layer: " << *layerIterator << std::endl
@@ -787,7 +779,7 @@ namespace Gem::Geneva
  */
 	void GNeuralNetworkIndividual::writeVisualizationFile(const std::string &visFile) {
 		if (visFile == "" || visFile.empty()) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GNeuralNetworkIndividual::writeVisualizationFile(const std::string&) : Error" << std::endl
 				<< "Received empty file name." << std::endl
@@ -796,7 +788,7 @@ namespace Gem::Geneva
 
 		std::ofstream visProgram(visFile);
 		if (not visProgram) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GNeuralNetworkIndividual::writeVisualizationFile(const std::string&) :" << std::endl
 				<< "Attempt to open output file " << visFile << " for writing failed." << std::endl
@@ -1124,7 +1116,7 @@ namespace Gem::Geneva
  */
 	void GNeuralNetworkIndividual::writeTrainedNetwork(const std::string &headerFile) {
 		if (headerFile == "" || headerFile.empty()) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GNeuralNetworkIndividual::writeTrainedNetwork(const std::string&) : Error" << std::endl
 				<< "Received empty file name." << std::endl
@@ -1133,7 +1125,7 @@ namespace Gem::Geneva
 
 		std::ofstream header(headerFile);
 		if (not header) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GNeuralNetworkIndividual::writeTrainedNetwork(const std::string&) :" << std::endl
 				<< "Error writing output file " << headerFile << std::endl
@@ -1428,7 +1420,7 @@ namespace Gem::Geneva
 			break;
 
 		default: {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GNeuralNetworkIndividual::transfer(): Error!" << std::endl
 				<< "Got invalid tranfer function " << tF_ << std::endl

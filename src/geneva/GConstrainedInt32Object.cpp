@@ -22,13 +22,6 @@
  *
  ********************************************************************************
  *
- * Geneva was started by Dr. Rüdiger Berlich and was later maintained together
- * with Dr. Ariel Garcia under the auspices of Gemfony scientific. For further
- * information on Gemfony scientific, see http://www.gemfomy.eu .
- *
- * The majority of files in Geneva was released under the Apache license v2.0
- * in February 2020.
- *
  * See the NOTICE file in the top-level directory of the Geneva library
  * collection for a list of contributors and copyright information.
  *
@@ -36,8 +29,7 @@
 
 #include "geneva/GConstrainedInt32Object.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GConstrainedInt32Object)
-
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GConstrainedInt32Object) // NOLINT
 namespace Gem::Geneva
 {
 
@@ -204,7 +196,7 @@ namespace Gem::Geneva
 #ifdef DEBUG
 		// Do we have a valid position ?
 		if(pos >= parVec.size()) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GConstrainedInt32Object::assignInt32ValueVector(const std::vector<std::int32_t>&, std::size_t&):" << std::endl
 				<< "Tried to access position beyond end of vector: " << parVec.size() << "/" << pos << std::endl

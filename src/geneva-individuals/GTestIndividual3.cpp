@@ -22,13 +22,6 @@
  *
  ********************************************************************************
  *
- * Geneva was started by Dr. Rüdiger Berlich and was later maintained together
- * with Dr. Ariel Garcia under the auspices of Gemfony scientific. For further
- * information on Gemfony scientific, see http://www.gemfomy.eu .
- *
- * The majority of files in Geneva was released under the Apache license v2.0
- * in February 2020.
- *
  * See the NOTICE file in the top-level directory of the Geneva library
  * collection for a list of contributors and copyright information.
  *
@@ -36,8 +29,7 @@
 
 #include "geneva-individuals/GTestIndividual3.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Tests::GTestIndividual3)
-
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Tests::GTestIndividual3) // NOLINT
 namespace Gem::Tests
 {
 
@@ -216,7 +208,7 @@ namespace Gem::Tests
 
 #ifdef DEBUG
 		if(this->size() != GTI_DEF_NITEMS) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GTestIndividual3::getPlainData(): Error!" << std::endl
 				<< "Invalid number of entries in this class " << this->size() << " / " << GTI_DEF_NITEMS << std::endl

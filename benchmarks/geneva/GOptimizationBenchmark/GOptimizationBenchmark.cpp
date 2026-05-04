@@ -26,13 +26,6 @@
  *
  ********************************************************************************
  *
- * Geneva was started by Dr. Rüdiger Berlich and was later maintained together
- * with Dr. Ariel Garcia under the auspices of Gemfony scientific. For further
- * information on Gemfony scientific, see http://www.gemfomy.eu .
- *
- * The majority of files in Geneva was released under the Apache license v2.0
- * in February 2020.
- *
  * See the NOTICE file in the top-level directory of the Geneva library
  * collection for a list of contributors and copyright information.
  *
@@ -113,14 +106,14 @@ int main(int argc, char **argv) {
 
 #ifdef DEBUG
 			if(g->getParameterSize() != *it) {
-				throw gemfony_exception(
+				throw geneva_exception(
 					g_error_streamer(DO_LOG,  time_and_place)
 						<< "In main(): parameter size of individual != requested size: " << g->getParameterSize() << " / " << *it << std::endl
 				);
 			}
 
 			if(!go_loop.empty()) {
-				throw gemfony_exception(
+				throw geneva_exception(
 					g_error_streamer(DO_LOG,  time_and_place)
 						<< "In main(): go contains " << go_loop.size() << " items when it should be empty." << std::endl
 				);

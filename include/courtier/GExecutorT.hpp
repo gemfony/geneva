@@ -22,13 +22,6 @@
  *
  ********************************************************************************
  *
- * Geneva was started by Dr. Rüdiger Berlich and was later maintained together
- * with Dr. Ariel Garcia under the auspices of Gemfony scientific. For further
- * information on Gemfony scientific, see http://www.gemfomy.eu .
- *
- * The majority of files in Geneva was released under the Apache license v2.0
- * in February 2020.
- *
  * See the NOTICE file in the top-level directory of the Geneva library
  * collection for a list of contributors and copyright information.
  *
@@ -262,7 +255,7 @@ public:
 		 // the mutex fails, some other call to this function is still alive, which is a severe error
 		 std::unique_lock<std::mutex> workon_lock(m_concurrent_workon_mutex, std::defer_lock);
 		 if(not workon_lock.try_lock()) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GBaseExeuctorT<processable_type>::workOn(): Another call to this function still seems" << std::endl
 					 << "to be active which is a severe error."
@@ -472,7 +465,7 @@ public:
 #ifdef DEBUG
 		 // Cross check that the cycle has indeed ended
 		 if(m_cycle_running) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GBaseExecutorT<processable_type>::getCycleEndTime():" << std::endl
 					 << "There still seems to be an active cycle while the end" << std::endl
@@ -492,7 +485,7 @@ public:
 #ifdef DEBUG
 		 // Cross check that the cycle has indeed ended
 		 if(m_iteration_running) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GBaseExecutorT<processable_type>::getIterationEndTime():" << std::endl
 					 << "There still seems to be an active iteration while the end" << std::endl
@@ -720,7 +713,7 @@ protected:
 		 for(auto const & w_ptr: workItems) {
 #ifdef DEBUG
 			 if(not w_ptr) {
-				 throw gemfony_exception(
+				 throw geneva_exception(
 					 g_error_streamer(DO_LOG, time_and_place)
 						 << "In GBaseExecutorT<processable_type>::submitAllWorkItems():" << std::endl
 						 << "Received empty work item in position "  << pos_cnt << std::endl
@@ -770,7 +763,7 @@ protected:
 				 // Update the submission counter
 				 nSubmittedItems++;
 			 } else if(processingStatus::DO_IGNORE != ps && processingStatus::PROCESSED != ps) {
-				 throw gemfony_exception(
+				 throw geneva_exception(
 					 g_error_streamer(DO_LOG, time_and_place)
 						 << "In GBaseExecutorT<processable_type>::submitAllWorkItems(): Error" << std::endl
 						 << "processing status is neither DO_PROCESS nor DO_IGNORE. We got " << ps << std::endl
@@ -1001,7 +994,7 @@ private:
 	  */
 	 void set_external_iteration_counter(const ITERATION_COUNTER_TYPE& external_iteration_counter) {
 		 if(external_iteration_counter < m_iteration_counter){
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GBaseExeuctorT<processable_type>::set_external_iteration_counter():" << std::endl
 					 << "Tried to set external iteration counter to value " << external_iteration_counter << " ," << std::endl
@@ -1110,10 +1103,10 @@ protected:
 	  * @param cp A constant pointer to another GSerialExecutorT object
 	  */
 	 void load_(const GBaseExecutorT<processable_type> *cp) override {
-		 const auto p_load_ptr = dynamic_cast<GSerialExecutorT<processable_type> const *const>(cp);
+		 const auto p_load_ptr = dynamic_cast<GSerialExecutorT<processable_type> const *>(cp);
 
 		 if (not cp) { // nullptr
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GSerialExecutorT<processable_type>::load_(): Conversion error!" << std::endl
 			 );
@@ -1193,7 +1186,7 @@ protected:
 			 // All exceptions should be caught inside of the process() call. It is a
 			 // severe error if we nevertheless catch an error here. We throw a corresponding
 			 // gemfony exception.
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GSerialExecutorT<processable_type>::submit(): Caught a" << std::endl
 					 << "std::exception in a place where we didn't expect any exceptions." << std::endl
@@ -1204,7 +1197,7 @@ protected:
 			 // All exceptions should be caught inside of the process() call. It is a
 			 // severe error if we nevertheless catch an error here. We throw a corresponding
 			 // gemfony exception.
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GSerialExecutorT<processable_type>::submit(): Caught an" << std::endl
 					 << "unknown exception in a place where we didn't expect any exceptions" << std::endl
@@ -1449,7 +1442,7 @@ protected:
 		 const auto p_load_ptr = dynamic_cast<const GMTExecutorT<processable_type> *>(cp);
 
 		 if (not cp) { // nullptr
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GMTExecutorT<processable_type>::load_(): Conversion error!" << std::endl
 			 );
@@ -1617,13 +1610,13 @@ protected:
 			 );
 		 } else {
 			 if (not m_gtp_ptr) {
-				 throw gemfony_exception(
+				 throw geneva_exception(
 					 g_error_streamer(DO_LOG, time_and_place)
 						 << "In In GMTExecutorT<processable_type>::submit(): Error!" << std::endl
 						 << "Threadpool pointer is empty" << std::endl
 				 );
 			 } else if(not w_ptr) {
-				 throw gemfony_exception(
+				 throw geneva_exception(
 					 g_error_streamer(DO_LOG, time_and_place)
 						 << "In In GMTExecutorT<processable_type>::submit(): Error!" << std::endl
 						 << "work item pointer is empty" << std::endl
@@ -1673,7 +1666,7 @@ protected:
 					 << GWARNING;
 #endif
 			 } catch(const std::exception& e) {
-				 throw gemfony_exception(
+				 throw geneva_exception(
 					 g_error_streamer(DO_LOG, time_and_place)
 						 << "In GMTExecutorT<processable_type>::waitForReturn():" << std::endl
 						 << "caught std::exception in a place where we didn't expect any exceptions" << std::endl
@@ -1684,7 +1677,7 @@ protected:
 				 // All exceptions should be caught inside of the process() call (i.e. emanate
 				 // from future.get() . It is a severe error if we nevertheless catch an error here.
 				 // We throw a corresponding gemfony exception.
-				 throw gemfony_exception(
+				 throw geneva_exception(
 					 g_error_streamer(DO_LOG, time_and_place)
 						 << "In GMTExecutorT<processable_type>::waitForReturn(): Caught an" << std::endl
 						 << "unknown exception in a place where we didn't expect any exceptions" << std::endl
@@ -1931,7 +1924,7 @@ protected:
 		 const auto p_load_ptr = dynamic_cast<const GBrokerExecutorT<processable_type> *>(cp);
 
 		 if (not p_load_ptr) { // nullptr
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GBrokerExecutorT<processable_type>::load(): Conversion error!" << std::endl
 			 );
@@ -2110,7 +2103,7 @@ protected:
 		 std::shared_ptr<processable_type> w_ptr
 	 ) override {
 		 if(not w_ptr) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GBrokerExecutorT::submit(): Errornot " << std::endl
 					 << "Work item is empty" << std::endl
@@ -2118,7 +2111,7 @@ protected:
 		 }
 
 		 if(not m_current_buffer_port_ptr) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GBrokerExecutorT::submit(): Error!" << std::endl
 					 << "Current buffer port is empty when it shouldn't be" << std::endl
@@ -2316,7 +2309,7 @@ private:
 		 // Calculate the average return time so far. This holds true also for the very first item
 #ifdef DEBUG
 		 if(0==m_nReturnedCurrent) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GBrokerExeuctorT<processable_type>::updateTimeout():" << std::endl
 					 << "m_nReturnedCurrent is 0" << std::endl
@@ -2430,7 +2423,7 @@ private:
 
 				 // It is a severe error if we get an empty pointer here
 				 if (not w_ptr) {
-					 throw gemfony_exception(
+					 throw geneva_exception(
 						 g_error_streamer(
 							 DO_LOG
 							 , time_and_place
@@ -2471,7 +2464,7 @@ private:
 		 if(w_ptr) {
 #ifdef DEBUG
 			 if(w_ptr->getRawRetrievalTime() >= w_ptr->getProcSubmissionTime()) {
-				 throw gemfony_exception(
+				 throw geneva_exception(
 					 g_error_streamer(DO_LOG, time_and_place)
 						 << "In GBrokerExeuctorT<processable_type>::getNextItem():" << std::endl
 						 << "Retrieval from the raw queue seems to have happened after" << std::endl
@@ -2498,7 +2491,7 @@ private:
 		 if(m_first_retrieval) {
 #ifdef DEBUG
 			 if((not this->inFirstIteration() || not this->inFirstCycle() || 0<m_nReturnedCurrent)) {
-				 throw gemfony_exception(
+				 throw geneva_exception(
 					 g_error_streamer(
 						 DO_LOG
 						 , time_and_place
@@ -2529,7 +2522,7 @@ private:
 		 if(m_first_item) {
 #ifdef DEBUG
 			 if((not this->inFirstIteration() || 1 != m_nReturnedCurrent)) {
-				 throw gemfony_exception(
+				 throw geneva_exception(
 					 g_error_streamer(
 						 DO_LOG
 						 , time_and_place
@@ -2644,7 +2637,7 @@ private:
 #ifdef DEBUG
 		 // Check if we have a valid buffer port
 		 if(not m_current_buffer_port_ptr) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GBrokerExecutorT<processable_type>::determineInitialCycleStartTime():" << std::endl
 					 << "No valid buffer port found" << std::endl
@@ -2697,8 +2690,7 @@ private:
 // Some code for Boost.Serialization
 
 /******************************************************************************/
-// Mark GBaseExecutorT<> as abstract. This is the content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T)
-
+// Mark GBaseExecutorT<> as abstract. This is the content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T) // NOLINT
 namespace boost {
 namespace serialization {
 template<typename processable_type>

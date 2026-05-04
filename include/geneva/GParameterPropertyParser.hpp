@@ -22,13 +22,6 @@
  *
  ********************************************************************************
  *
- * Geneva was started by Dr. Rüdiger Berlich and was later maintained together
- * with Dr. Ariel Garcia under the auspices of Gemfony scientific. For further
- * information on Gemfony scientific, see http://www.gemfomy.eu .
- *
- * The majority of files in Geneva was released under the Apache license v2.0
- * in February 2020.
- *
  * See the NOTICE file in the top-level directory of the Geneva library
  * collection for a list of contributors and copyright information.
  *
@@ -61,9 +54,9 @@
 #include <boost/fusion/adapted/boost_tuple.hpp>
 #include <boost/fusion/include/adapt_struct.hpp>
 #include <boost/fusion/include/io.hpp>
-#include <boost/spirit/include/phoenix_core.hpp>
-#include <boost/spirit/include/phoenix_operator.hpp>
-#include <boost/spirit/include/phoenix_stl.hpp>
+#include <boost/phoenix/core.hpp>
+#include <boost/phoenix/operator.hpp>
+#include <boost/phoenix/stl.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/utility.hpp>
 
@@ -273,7 +266,7 @@ std::ostream& operator<<(std::ostream& o, const parPropSpec<par_type>& s) {
 		o
 			<< "Name        = " << std::get<1>(s.var) << std::endl;
 	} else {
-		throw gemfony_exception(
+		throw geneva_exception(
 			g_error_streamer(DO_LOG, time_and_place)
 				<< "In std::ostream& operator<<(std::ostream& o, const parPropSpec<par_type>& s): Error!" << std::endl
 				<< "Got invalid mode " << std::get<0>(s.var) << std::endl
@@ -400,7 +393,7 @@ public:
 			 , typename std::vector<parPropSpec<par_type>>::const_iterator
 		 > result;
 
-		 throw gemfony_exception(
+		 throw geneva_exception(
 			 g_error_streamer(DO_LOG, time_and_place)
 				 << "In generic GParameterPropertyParser::getIterators<par_type>() function: Error!" << std::endl
 				 << "Function was called for an unsupported type" << std::endl
@@ -453,7 +446,7 @@ template <>
 inline std::tuple<std::vector<parPropSpec<double>>::const_iterator, std::vector<parPropSpec<double>>::const_iterator> GParameterPropertyParser::getIterators<double>() const {
 	// Make sure parsing has happened.
 	if(not parsed_) {
-		throw gemfony_exception(
+		throw geneva_exception(
 			g_error_streamer(DO_LOG, time_and_place)
 				<< "In GParameterPropertyParser::getIterators<double>(): Error!" << std::endl
 				<< "Tried to retrieve iterators when parsing hasn't happened yet" << std::endl
@@ -485,7 +478,7 @@ template <>
 inline std::tuple<std::vector<parPropSpec<float>>::const_iterator, std::vector<parPropSpec<float>>::const_iterator> GParameterPropertyParser::getIterators<float>() const {
 	// Make sure parsing has happened.
 	if(not parsed_) {
-		throw gemfony_exception(
+		throw geneva_exception(
 			g_error_streamer(DO_LOG, time_and_place)
 				<< "In GParameterPropertyParser::getIterators<float>(): Error!" << std::endl
 				<< "Tried to retrieve iterators when parsing hasn't happened yet" << std::endl
@@ -518,7 +511,7 @@ inline std::tuple<std::vector<parPropSpec<std::int32_t>>::const_iterator, std::v
 GParameterPropertyParser::getIterators<std::int32_t>() const {
 	// Make sure parsing has happened.
 	if(not parsed_) {
-		throw gemfony_exception(
+		throw geneva_exception(
 			g_error_streamer(DO_LOG, time_and_place)
 				<< "In GParameterPropertyParser::getIterators<std::int32_t>(): Error!" << std::endl
 				<< "Tried to retrieve iterators when parsing hasn't happened yet" << std::endl
@@ -550,7 +543,7 @@ inline std::tuple<std::vector<parPropSpec<bool>>::const_iterator, std::vector<pa
 GParameterPropertyParser::getIterators<bool>() const {
 	// Make sure parsing has happened.
 	if(not parsed_) {
-		throw gemfony_exception(
+		throw geneva_exception(
 			g_error_streamer(DO_LOG, time_and_place)
 				<< "In GParameterPropertyParser::getIterators<bool>(): Error!" << std::endl
 				<< "Tried to retrieve iterators when parsing hasn't happened yet" << std::endl

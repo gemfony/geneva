@@ -26,13 +26,6 @@
  *
  ********************************************************************************
  *
- * Geneva was started by Dr. Rüdiger Berlich and was later maintained together
- * with Dr. Ariel Garcia under the auspices of Gemfony scientific. For further
- * information on Gemfony scientific, see http://www.gemfomy.eu .
- *
- * The majority of files in Geneva was released under the Apache license v2.0
- * in February 2020.
- *
  * See the NOTICE file in the top-level directory of the Geneva library
  * collection for a list of contributors and copyright information.
  *
@@ -405,7 +398,7 @@ namespace Gem::Common
         const std::size_t channel_size = imageData_vec.size();
         if (channel_size != width * height * 3)
         {
-            throw gemfony_exception(
+            throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In loadImageToFloat: Error!" << std::endl
                 << "Invalid dimensions " << width << " / " << height << std::endl
@@ -477,7 +470,7 @@ namespace Gem::Common
         // Check the dimensions
         if (imageData_f_vec.size() != width * height * 3)
         {
-            throw gemfony_exception(
+            throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In saveFloatImageToFile: Error!" << std::endl
                 << "Invalid dimensions: " << "width = " << width << " / " << "height = " << height

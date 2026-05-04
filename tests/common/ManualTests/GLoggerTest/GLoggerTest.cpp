@@ -26,13 +26,6 @@
  *
  ********************************************************************************
  *
- * Geneva was started by Dr. Rüdiger Berlich and was later maintained together
- * with Dr. Ariel Garcia under the auspices of Gemfony scientific. For further
- * information on Gemfony scientific, see http://www.gemfomy.eu .
- *
- * The majority of files in Geneva was released under the Apache license v2.0
- * in February 2020.
- *
  * See the NOTICE file in the top-level directory of the Geneva library
  * collection for a list of contributors and copyright information.
  *
@@ -90,7 +83,7 @@ int main(int argc, char** argv) {
 	// a file named GENEVA-EXCEPTION.log
 	try {
 		glogger << "Some information " << 5 << " " << 6 << std::endl << GEXCEPTION;
-	} catch(gemfony_exception& e) {
+	} catch(geneva_exception& e) {
 		std::cout
 		<< "Caught exception with message" << std::endl
 		<< e << std::endl;

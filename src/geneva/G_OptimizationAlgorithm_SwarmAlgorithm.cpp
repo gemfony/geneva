@@ -22,13 +22,6 @@
  *
  ********************************************************************************
  *
- * Geneva was started by Dr. Rüdiger Berlich and was later maintained together
- * with Dr. Ariel Garcia under the auspices of Gemfony scientific. For further
- * information on Gemfony scientific, see http://www.gemfomy.eu .
- *
- * The majority of files in Geneva was released under the Apache license v2.0
- * in February 2020.
- *
  * See the NOTICE file in the top-level directory of the Geneva library
  * collection for a list of contributors and copyright information.
  *
@@ -387,7 +380,7 @@ namespace Gem::Geneva
 	) const {
 #ifdef DEBUG
 		if(neighborhood >= m_n_neighborhoods) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GSwarmAlgorithm::getFirstNIPosVec():" << std::endl
 				<< "Received id " << neighborhood << " of a neighborhood which does not exist." << std::endl
@@ -423,7 +416,7 @@ namespace Gem::Geneva
 	std::size_t GSwarmAlgorithm::getLastNIPos(const std::size_t &neighborhood) const {
 #ifdef DEBUG
 		if(neighborhood >= m_n_neighborhoods) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GSwarmAlgorithm::getLastNIPos():" << std::endl
 				<< "Received id " << neighborhood << " of a neighborhood which does not exist." << std::endl
@@ -447,7 +440,7 @@ namespace Gem::Geneva
 	) {
 #ifdef DEBUG
 		if(not ind_ptr) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GSwarmAlgorithm::updatePersonalBest():" << std::endl
 				<< "Got empty ind_ptr" << std::endl
@@ -455,7 +448,7 @@ namespace Gem::Geneva
 		}
 
 		if(ind_ptr->is_due_for_processing() || ind_ptr->has_errors()) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GSwarmAlgorithm::updatePersonalBest():" << std::endl
 				<< "ind_ptr is unprocessed or has errors: " << std::endl
@@ -479,7 +472,7 @@ namespace Gem::Geneva
 	) {
 #ifdef DEBUG
 		if(not ind_ptr) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GSwarmAlgorithm::updatePersonalBestIfBetter():" << std::endl
 				<< "Got empty ind_ptr" << std::endl
@@ -487,7 +480,7 @@ namespace Gem::Geneva
 		}
 
 		if(ind_ptr->is_due_for_processing() || ind_ptr->has_errors()) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GSwarmAlgorithm::updatePersonalBestIfBetter(): Error!" << std::endl
 				<< "dirty flag of individual is set." << std::endl
@@ -614,7 +607,7 @@ namespace Gem::Geneva
 #ifdef DEBUG
 		// Size matters!
 		if(m_dbl_lower_parameter_boundaries_cnt.size() != m_dbl_upper_parameter_boundaries_cnt.size()) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GSwarmAlgorithm::init(): Error!" << std::endl
 				<< "Found invalid sizes: "
@@ -638,7 +631,7 @@ namespace Gem::Geneva
 		for(const auto& ind_ptr: *this) {
 #ifdef DEBUG
 			if(not ind_ptr) {
-				throw gemfony_exception(
+				throw geneva_exception(
 					g_error_streamer(DO_LOG,  time_and_place)
 					<< "In GSwarmAlgorithm::init(): Error!" << std::endl
 					<< "Found empty std::shared_ptr in position " << pos << std::endl
@@ -659,7 +652,7 @@ namespace Gem::Geneva
 #ifdef DEBUG
 			// Check that the number of parameters equals those in the velocity boundaries
 			if(velVec.size() != m_dbl_lower_parameter_boundaries_cnt.size() || velVec.size() != m_dbl_vel_max_cnt.size()) {
-				throw gemfony_exception(
+				throw geneva_exception(
 					g_error_streamer(DO_LOG,  time_and_place)
 					<< "In GSwarmAlgorithm::init(): Error! (2)" << std::endl
 					<< "Found invalid sizes: " << velVec.size()
@@ -768,7 +761,7 @@ namespace Gem::Geneva
 #ifdef DEBUG
 		// Check that m_last_iteration_individuals_cnt has the desired size in iterations other than the first
 		if(afterFirstIteration() && m_last_iteration_individuals_cnt.size() != m_default_n_neighborhood_members*m_n_neighborhoods) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GSwarmAlgorithm::adjustNeighborhoods(): Error!" << std::endl
 				<< "m_last_iteration_individuals_cnt has incorrect size! Expected" << std::endl
@@ -816,7 +809,7 @@ namespace Gem::Geneva
 #ifdef DEBUG
 					// At least one individual must have returned.
 					if(this->empty()) {
-						throw gemfony_exception(
+						throw geneva_exception(
 							g_error_streamer(DO_LOG,  time_and_place)
 							<< "In GSwarmAlgorithm::adjustNeighborhoods(): Error!" << std::endl
 							<< "No items found in the population. Cannot fix." << std::endl
@@ -846,7 +839,7 @@ namespace Gem::Geneva
 #ifdef DEBUG
 		// Check that the population has the expected size
 		if(this->size() != m_n_neighborhoods*m_default_n_neighborhood_members) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GSwarmAlgorithm::adjustNeighborhoods(): Error!" << std::endl
 				<< "The population has an incorrect size of " << this->size() << ", expected " << m_n_neighborhoods*m_default_n_neighborhood_members << std::endl
@@ -889,7 +882,7 @@ namespace Gem::Geneva
 		// Check that all neighborhoods have the default size
 		for(std::size_t n=0; n<m_n_neighborhoods; n++) {
 			if(m_n_neighborhood_members_cnt[n] != m_default_n_neighborhood_members) {
-				throw gemfony_exception(
+				throw geneva_exception(
 					g_error_streamer(DO_LOG,  time_and_place)
 					<< "In GSwarmAlgorithm::updatePositions(): Error!" << std::endl
 					<< "m_n_neighborhood_members_cnt[" << n << "] has invalid size " << m_n_neighborhood_members_cnt[n] << std::endl
@@ -898,7 +891,7 @@ namespace Gem::Geneva
 			}
 
 			if(this->size() != m_n_neighborhoods*m_default_n_neighborhood_members) {
-				throw gemfony_exception(
+				throw geneva_exception(
 					g_error_streamer(DO_LOG,  time_and_place)
 					<< "In GSwarmAlgorithm::updatePositions(): Error!" << std::endl
 					<< "The population has an incorrect size of " << this->size() << ", expected " << m_n_neighborhoods*m_default_n_neighborhood_members << std::endl
@@ -918,7 +911,7 @@ namespace Gem::Geneva
 #ifdef DEBUG
 		// Cross-check that we have the nominal amount of individuals
 		if(this->size() != m_n_neighborhoods*m_default_n_neighborhood_members) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GSwarmAlgorithm::updatePositions(): Error!" << std::endl
 				<< "Invalid number of individuals found." << std::endl
@@ -932,7 +925,7 @@ namespace Gem::Geneva
 #ifdef DEBUG
 			if(afterFirstIteration()) {
 				if(not m_neighborhood_bests_cnt[n]) {
-					throw gemfony_exception(
+					throw geneva_exception(
 						g_error_streamer(DO_LOG,  time_and_place)
 						<< "In GSwarmAlgorithm::updatePositions():" << std::endl
 						<< "m_neighborhood_bests_cnt[" << n << "] is empty." << std::endl
@@ -940,7 +933,7 @@ namespace Gem::Geneva
 				}
 
 				if(n==0 && not m_global_best_ptr) { // Only check for the first n
-					throw gemfony_exception(
+					throw geneva_exception(
 						g_error_streamer(DO_LOG,  time_and_place)
 						<< "In GSwarmAlgorithm::updatePositions():" << std::endl
 						<< "m_global_best_ptr is empty." << std::endl
@@ -950,7 +943,7 @@ namespace Gem::Geneva
 
 			// Check that the number if individuals in each neighborhoods has the expected value
 			if(m_n_neighborhood_members_cnt[n] != m_default_n_neighborhood_members) {
-				throw gemfony_exception(
+				throw geneva_exception(
 					g_error_streamer(DO_LOG,  time_and_place)
 					<< "In GSwarmAlgorithm::updatePositions(): Error!" << std::endl
 					<< "Invalid number of members in neighborhood " << n << ": " << m_n_neighborhood_members_cnt[n] << std::endl
@@ -1009,7 +1002,7 @@ namespace Gem::Geneva
 #ifdef DEBUG
 		// Do some error checking
 		if(not ind) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GSwarmAlgorithm::updateIndividualPositions():" << std::endl
 				<< "Found empty individual \"ind\"" << std::endl
@@ -1023,7 +1016,7 @@ namespace Gem::Geneva
 		// Further error checks
 #ifdef DEBUG
 		if(not personal_best) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GSwarmAlgorithm::updateIndividualPositions():" << std::endl
 				<< "Found empty individual \"personal_best\"" << std::endl
@@ -1031,7 +1024,7 @@ namespace Gem::Geneva
 		}
 
 		if(not neighborhood_best) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GSwarmAlgorithm::updateIndividualPositions():" << std::endl
 				<< "Found empty individual \"neighborhood_best\"" << std::endl
@@ -1039,7 +1032,7 @@ namespace Gem::Geneva
 		}
 
 		if(not global_best) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GSwarmAlgorithm::updateIndividualPositions():" << std::endl
 				<< "Found empty individual \"global_best\"" << std::endl
@@ -1047,7 +1040,7 @@ namespace Gem::Geneva
 		}
 
 		if(not velocity) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GSwarmAlgorithm::updateIndividualPositions():" << std::endl
 				<< "Found empty individual \"velocity\"" << std::endl
@@ -1130,7 +1123,7 @@ namespace Gem::Geneva
 	void GSwarmAlgorithm::pruneVelocity(std::vector<double> &velVec) {
 #ifdef DEBUG
 		if(velVec.size() != m_dbl_vel_max_cnt.size()) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GSwarmAlgorithm::pruneVelocity(): Error!" << std::endl
 				<< "Found invalid vector sizes: " << velVec.size() << " / " << m_dbl_vel_max_cnt.size() << std::endl
@@ -1146,7 +1139,7 @@ namespace Gem::Geneva
 		for (std::size_t i = 0; i < velVec.size(); i++) {
 #ifdef DEBUG
 			if(m_dbl_vel_max_cnt[i] <= 0.) {
-				throw gemfony_exception(
+				throw geneva_exception(
 					g_error_streamer(DO_LOG,  time_and_place)
 					<< "In GSwarmAlgorithm::pruneVelocity(): Error!" << std::endl
 					<< "Found invalid max value: " << m_dbl_vel_max_cnt[i] << std::endl
@@ -1168,7 +1161,7 @@ namespace Gem::Geneva
 			for (std::size_t i = 0; i < velVec.size(); i++) {
 #ifdef DEBUG
 				if(maxPercentage <= 0.) {
-					throw gemfony_exception(
+					throw geneva_exception(
 						g_error_streamer(DO_LOG,  time_and_place)
 						<< "In GSwarmAlgorithm::pruneVelocity(): Error!" << std::endl
 						<< "Invalid maxPercentage: " << maxPercentage << std::endl
@@ -1282,7 +1275,7 @@ namespace Gem::Geneva
 		std::size_t pos = 0;
 		for(const auto& ind_ptr: *this) {
 			if(ind_ptr->is_due_for_processing() || ind_ptr->has_errors()) {
-				throw gemfony_exception(
+				throw geneva_exception(
 					g_error_streamer(DO_LOG,  time_and_place)
 					<< "In GSwarmAlgorithm::findBests(): Error!" << std::endl
 					<< "Found individual in position " << pos << " in iteration " << this->getIteration() << std::endl
@@ -1387,7 +1380,7 @@ namespace Gem::Geneva
 		const std::size_t nNeighborhoods = getNNeighborhoods();
 
 		if (currentSize == 0) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GSwarmAlgorithm::adjustPopulation() :" << std::endl
 				<< "No individuals found in the population." << std::endl
@@ -1460,7 +1453,7 @@ namespace Gem::Geneva
 		// As the above switch statement is quite complicated, cross check that we now
 		// indeed have at least the required number of individuals
 		if(this->size() < defaultPopSize) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GSwarmAlgorithm::adjustPopulation() :" << std::endl
 				<< "Expected at least a population size of " << defaultPopSize << std::endl
@@ -1484,7 +1477,7 @@ namespace Gem::Geneva
 	void GSwarmAlgorithm::fillUpNeighborhood1() {
 		// Do some error checking
 		if (this->size() != m_n_neighborhoods) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GSwarmAlgorithm::fillUpNeighborhood1():" << std::endl
 				<< "Invalid size: " << this->size() << " Expected " << m_n_neighborhoods << std::endl
@@ -1505,7 +1498,7 @@ namespace Gem::Geneva
 				if (m_random_fill_up) {
 #ifdef DEBUG
 					if(not (*(this->begin()+n+1))) {
-						throw gemfony_exception(
+						throw geneva_exception(
 							g_error_streamer(DO_LOG,  time_and_place)
 							<< "In GSwarmAlgorithm::fillUpNeighborhood1():" << std::endl
 							<< "Found empty position " << n << std::endl
@@ -1611,7 +1604,7 @@ namespace Gem::Geneva
 	void GSwarmAlgorithm::setVelocityRangePercentage(double velocityRangePercentage) {
 		// Do some error checking
 		if (velocityRangePercentage <= 0. || velocityRangePercentage > 1.) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GSwarmAlgorithm::setVelocityRangePercentage()" << std::endl
 				<< "Invalid velocityRangePercentage: " << velocityRangePercentage << std::endl

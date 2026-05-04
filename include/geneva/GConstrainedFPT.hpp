@@ -22,13 +22,6 @@
  *
  ********************************************************************************
  *
- * Geneva was started by Dr. Rüdiger Berlich and was later maintained together
- * with Dr. Ariel Garcia under the auspices of Gemfony scientific. For further
- * information on Gemfony scientific, see http://www.gemfomy.eu .
- *
- * The majority of files in Geneva was released under the Apache license v2.0
- * in February 2020.
- *
  * See the NOTICE file in the top-level directory of the Geneva library
  * collection for a list of contributors and copyright information.
  *
@@ -282,7 +275,7 @@ public:
 			 } break;
 
 			 case FP_INFINITE:  {
-				 throw gemfony_exception(
+				 throw geneva_exception(
 					 g_error_streamer(DO_LOG, time_and_place)
 						 << "In GConstrainedFPT::transfer(): Error" << std::endl
 						 << "val is infinite" << std::endl
@@ -290,7 +283,7 @@ public:
 			 } break;
 
 			 case FP_NAN:       {
-				 throw gemfony_exception(
+				 throw geneva_exception(
 					 g_error_streamer(DO_LOG, time_and_place)
 						 << "In GConstrainedFPT::transfer(): Error" << std::endl
 						 << "val is NaN" << std::endl
@@ -298,7 +291,7 @@ public:
 			 } break;
 
 			 case FP_SUBNORMAL: {
-				 throw gemfony_exception(
+				 throw geneva_exception(
 					 g_error_streamer(DO_LOG, time_and_place)
 						 << "In GConstrainedFPT::transfer(): Error" << std::endl
 						 << "val is subnormal" << std::endl
@@ -306,7 +299,7 @@ public:
 			 } break;
 
 			 default: {
-				 throw gemfony_exception(
+				 throw geneva_exception(
 					 g_error_streamer(DO_LOG, time_and_place)
 						 << "In GConstrainedFPT::transfer(): Error" << std::endl
 						 << "Unknown value type" << std::endl
@@ -334,7 +327,7 @@ public:
 				 // We need floor here, as an integer cast rounds towards 0, which would be wrong for negative values of val
 				 region = boost::numeric_cast<std::int64_t>(fp_region);
 			 } else {
-				 throw gemfony_exception(
+				 throw geneva_exception(
 					 g_error_streamer(DO_LOG, time_and_place)
 						 << "In GConstrainedFPT::transfer(): Error" << std::endl
 						 << "fp_region = " << fp_region << " is too large and cannot be" << std::endl
@@ -899,7 +892,7 @@ protected:
 			BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
 
 			// Set value, upper and lower boundaries; should throw, as value >= upperBoundary
-			BOOST_CHECK_THROW(p_test->setValue(1.1*upperBoundary, lowerBoundary, upperBoundary), gemfony_exception);
+			BOOST_CHECK_THROW(p_test->setValue(1.1*upperBoundary, lowerBoundary, upperBoundary), geneva_exception);
 		}
 
 		//------------------------------------------------------------------------------
@@ -914,7 +907,7 @@ protected:
 			BOOST_CHECK_NO_THROW(p_test->setValue(testVal, lowerBoundary, upperBoundary));
 
 			// Try to set a value equal to the upper boundary, should throw
-			BOOST_CHECK_THROW(p_test->setValue(1.1*upperBoundary), gemfony_exception);
+			BOOST_CHECK_THROW(p_test->setValue(1.1*upperBoundary), geneva_exception);
 		}
 
 		//------------------------------------------------------------------------------
@@ -926,7 +919,7 @@ protected:
 			BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
 
 			// Try to set an upper boundary == lower boundary
-			BOOST_CHECK_THROW(p_test->setBoundaries(lowerBoundary, lowerBoundary), gemfony_exception);
+			BOOST_CHECK_THROW(p_test->setBoundaries(lowerBoundary, lowerBoundary), geneva_exception);
 		}
 
 		//------------------------------------------------------------------------------
@@ -938,7 +931,7 @@ protected:
 			BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
 
 			// Try to set an upper boundary == lower boundary
-			BOOST_CHECK_THROW(p_test->setValue(lowerBoundary, lowerBoundary, lowerBoundary), gemfony_exception);
+			BOOST_CHECK_THROW(p_test->setValue(lowerBoundary, lowerBoundary, lowerBoundary), geneva_exception);
 		}
 
 		//------------------------------------------------------------------------------
@@ -954,7 +947,7 @@ protected:
 			BOOST_CHECK(p_test->getUpperBoundary() ==  boost::math::float_prior<fp_type>(GConstrainedValueLimitT<fp_type>::highest()));
 
 			// Try to set a boundary to a bad value
-			BOOST_CHECK_THROW(p_test->setValue(lowerBoundary, lowerBoundary, boost::numeric::bounds<fp_type>::highest()), gemfony_exception);
+			BOOST_CHECK_THROW(p_test->setValue(lowerBoundary, lowerBoundary, boost::numeric::bounds<fp_type>::highest()), geneva_exception);
 		}
 
 		//------------------------------------------------------------------------------
@@ -970,7 +963,7 @@ protected:
 			BOOST_CHECK(p_test->getUpperBoundary() ==  boost::math::float_prior<fp_type>(GConstrainedValueLimitT<fp_type>::highest()));
 
 			// Try to set a boundary to a bad value
-			BOOST_CHECK_THROW(p_test->setValue(0., boost::numeric::bounds<fp_type>::lowest(), upperBoundary), gemfony_exception);
+			BOOST_CHECK_THROW(p_test->setValue(0., boost::numeric::bounds<fp_type>::lowest(), upperBoundary), geneva_exception);
 		}
 
 		//------------------------------------------------------------------------------
@@ -986,7 +979,7 @@ protected:
 			BOOST_CHECK(p_test->getUpperBoundary() ==  boost::math::float_prior<fp_type>(GConstrainedValueLimitT<fp_type>::highest()));
 
 			// Try to set a boundary to a bad value
-			BOOST_CHECK_THROW(p_test->setBoundaries(lowerBoundary, boost::numeric::bounds<fp_type>::highest()), gemfony_exception);
+			BOOST_CHECK_THROW(p_test->setBoundaries(lowerBoundary, boost::numeric::bounds<fp_type>::highest()), geneva_exception);
 		}
 
 		//------------------------------------------------------------------------------
@@ -1002,7 +995,7 @@ protected:
 			BOOST_CHECK(p_test->getUpperBoundary() ==  boost::math::float_prior<fp_type>(GConstrainedValueLimitT<fp_type>::highest()));
 
 			// Try to set a boundary to a bad value
-			BOOST_CHECK_THROW(p_test->setBoundaries(boost::numeric::bounds<fp_type>::lowest(), upperBoundary), gemfony_exception);
+			BOOST_CHECK_THROW(p_test->setBoundaries(boost::numeric::bounds<fp_type>::lowest(), upperBoundary), geneva_exception);
 		}
 
 		//------------------------------------------------------------------------------
@@ -1032,8 +1025,7 @@ private:
 } /* namespace Gem */
 
 /******************************************************************************/
-// The content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T)
-
+// The content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T) // NOLINT
 namespace boost {
 namespace serialization {
 template<typename fp_type>

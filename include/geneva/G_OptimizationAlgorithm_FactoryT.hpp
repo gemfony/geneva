@@ -22,13 +22,6 @@
  *
  ********************************************************************************
  *
- * Geneva was started by Dr. Rüdiger Berlich and was later maintained together
- * with Dr. Ariel Garcia under the auspices of Gemfony scientific. For further
- * information on Gemfony scientific, see http://www.gemfomy.eu .
- *
- * The majority of files in Geneva was released under the Apache license v2.0
- * in February 2020.
- *
  * See the NOTICE file in the top-level directory of the Geneva library
  * collection for a list of contributors and copyright information.
  *
@@ -180,7 +173,7 @@ public:
 		 std::shared_ptr<Gem::Common::GFactoryT<GParameterSet>> cc_ptr
 	 ) {
 		 if (not cc_ptr) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GOptiomizationAlgorithmFactoryT<T>::registerContentCreator(): Error!" << std::endl
 					 << "Tried to register an empty pointer" << std::endl
@@ -198,7 +191,7 @@ public:
 		 if (pluggableOM) {
 			 m_pluggableOM = pluggableOM;
 		 } else {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In G_OptimizationAlgorithm_FactoryT<>::registerPluggableOM(): Tried to register empty pluggable optimization monitor" << std::endl
 			 );
@@ -250,7 +243,7 @@ public:
 		 if (m_maxIterationCL >= 0) {
 			 return boost::numeric_cast<std::uint32_t>(m_maxIterationCL);
 		 } else {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In G_OptimizationAlgorithm_Base<>::getMaxIterationCL(): Error!" << std::endl
 					 << "m_maxIterationCL wasn't set" << std::endl
@@ -286,7 +279,7 @@ public:
 		 if (m_maxStallIterationCL >= 0) {
 			 return boost::numeric_cast<std::uint32_t>(m_maxStallIterationCL);
 		 } else {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In G_OptimizationAlgorithm_Base<>::getMaxStallIterationCL(): Error!" << std::endl
 					 << "m_maxStallIterationCL wasn't set" << std::endl
@@ -323,7 +316,7 @@ public:
 			 std::chrono::duration<double> maxDuration = std::chrono::seconds(boost::numeric_cast<long>(m_maxSecondsCL));
 			 return maxDuration;
 		 } else {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In G_OptimizationAlgorithm_Base<>::getMaxTimeCL(): Error!" << std::endl
 					 << "m_maxSecondsCL wasn't set" << std::endl

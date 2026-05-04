@@ -22,13 +22,6 @@
  *
  ********************************************************************************
  *
- * Geneva was started by Dr. Rüdiger Berlich and was later maintained together
- * with Dr. Ariel Garcia under the auspices of Gemfony scientific. For further
- * information on Gemfony scientific, see http://www.gemfomy.eu .
- *
- * The majority of files in Geneva was released under the Apache license v2.0
- * in February 2020.
- *
  * See the NOTICE file in the top-level directory of the Geneva library
  * collection for a list of contributors and copyright information.
  *
@@ -424,7 +417,7 @@ private:
 
 		 // There should be no situation where in this location processing is active
 		 if(m_processing_is_active) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG,  time_and_place)
 					 << "In GWebsocketClientT<processable_type>::when_read():" << std::endl
 					 << "process_reques() is running in a location where it shouldn't be" << std::endl
@@ -505,7 +498,7 @@ private:
 			 } break;
 
 			 default: {
-				 throw gemfony_exception(
+				 throw geneva_exception(
 					 g_error_streamer(DO_LOG,  time_and_place)
 						 << "GWebsocketClientT<processable_type><>::process_request():" << std::endl
 						 << "Received invalid command " << pcToStr(inboundCommand) << std::endl
@@ -545,7 +538,7 @@ private:
 					 << GLOGGING;
 
 				 // Not much more we can do
-				 throw gemfony_exception(
+				 throw geneva_exception(
 					 g_error_streamer(DO_LOG,  time_and_place)
 						 << "GWebsocketClientT<processable_type>::do_close():" << std::endl
 						 << "Shutdown of next layer has failed" << std::endl
@@ -1027,7 +1020,7 @@ private:
 
 			 if (ec) {
 				 // Not much else we can do here
-				 throw gemfony_exception(
+				 throw geneva_exception(
 					 g_error_streamer(DO_LOG,  time_and_place)
 						 << "GWebsocketConsumerSessionT<processable_type>::do_close():" << std::endl
 						 << "Shutdown of next layer has failed" << std::endl
@@ -1280,13 +1273,13 @@ private:
 		 m_acceptor.open(m_endpoint.protocol(), ec);
 		 if(ec || not m_acceptor.is_open()) {
 			 if(ec) {
-				 throw gemfony_exception(
+				 throw geneva_exception(
 					 g_error_streamer(DO_LOG,  time_and_place)
 						 << "GWebsocketConsumerT<>::async_startProcessing_() / m_acceptor.open: Got error message \"" << ec.message() << "\"" << std::endl
 						 << "No connections will be accepted. The server is not running" << std::endl
 				 );
 			 } else {
-				 throw gemfony_exception(
+				 throw geneva_exception(
 					 g_error_streamer(DO_LOG,  time_and_place)
 						 << "GWebsocketConsumerT<>::async_startProcessing_() / m_acceptor.open did not succeed." << std::endl
 						 << "No connections will be accepted. The server is not running" << std::endl
@@ -1297,7 +1290,7 @@ private:
 		 // Bind to the server address
 		 m_acceptor.bind(m_endpoint, ec);
 		 if(ec) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG,  time_and_place)
 					 << "GWebsocketConsumerT<>::async_startProcessing_() / m_acceptor.bind: Got error message \"" << ec.message() << "\"" << std::endl
 					 << "No connections will be accepted. The server is not running" << std::endl
@@ -1311,7 +1304,7 @@ private:
 		 // Start listening for connections  TODO: Check if this should be increased
 		 m_acceptor.listen(boost::asio::socket_base::max_listen_connections, ec);
 		 if(ec) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG,  time_and_place)
 					 << "GWebsocketConsumerT<>::async_startProcessing_() / m_acceptor.listen: Got error message \"" << ec.message() << "\"" << std::endl
 					 << "No connections will be accepted. The server is not running" << std::endl
@@ -1377,7 +1370,7 @@ private:
 							 // This won't help, though, if m_n_active_sessions becomes 0 after the if-check
 							 this->m_n_active_sessions--;
 						 } else {
-							 throw gemfony_exception(
+							 throw geneva_exception(
 								 g_error_streamer(DO_LOG,  time_and_place)
 									 << "In GWebsocketConsumerT<>::when_accepted():" << std::endl
 									 << "Tried to decrement #sessions which is already 0" << std::endl
@@ -1421,7 +1414,7 @@ private:
 	  */
 	 void putPayloadItem(std::shared_ptr<processable_type> p) {
 		 if(not p) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG,  time_and_place)
 					 << "GWebsocketConsumerT<>::putPayloadItem():" << std::endl
 					 << "Function called with empty work item" << std::endl

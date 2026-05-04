@@ -22,13 +22,6 @@
  *
  ********************************************************************************
  *
- * Geneva was started by Dr. Rüdiger Berlich and was later maintained together
- * with Dr. Ariel Garcia under the auspices of Gemfony scientific. For further
- * information on Gemfony scientific, see http://www.gemfomy.eu .
- *
- * The majority of files in Geneva was released under the Apache license v2.0
- * in February 2020.
- *
  * See the NOTICE file in the top-level directory of the Geneva library
  * collection for a list of contributors and copyright information.
  *
@@ -259,7 +252,7 @@ public:
 
             // Check that the value is inside the allowed range
             if (currentValues[pos] < lower || currentValues[pos] > upper) {
-                throw gemfony_exception(
+                throw geneva_exception(
                     g_error_streamer(
                         DO_LOG
                         , time_and_place
@@ -275,7 +268,7 @@ public:
 
         // Check that the boundaries make sense
         if (lower > upper) {
-            throw gemfony_exception(
+            throw geneva_exception(
                 g_error_streamer(
                     DO_LOG
                     , time_and_place
@@ -311,7 +304,7 @@ public:
     void setValue(const std::size_t &pos, const num_type &val) override {
         // Do some error checking
         if (val < m_lowerBoundary || val > m_upperBoundary) {
-            throw gemfony_exception(
+            throw geneva_exception(
                 g_error_streamer(
                     DO_LOG
                     , time_and_place
@@ -371,7 +364,7 @@ public:
 #ifdef DEBUG
         // Check that the object isn't empty
         if (this->empty()) {
-            throw gemfony_exception(
+            throw geneva_exception(
                 g_error_streamer(
                     DO_LOG
                     , time_and_place
@@ -616,8 +609,7 @@ inline bool GConstrainedNumCollectionT<bool>::range() const {
 } /* namespace Gem */
 
 /******************************************************************************/
-// The content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T)
-
+// The content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T) // NOLINT
 namespace boost {
 namespace serialization {
 template<typename num_type>

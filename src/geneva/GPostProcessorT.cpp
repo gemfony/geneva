@@ -22,13 +22,6 @@
  *
  ********************************************************************************
  *
- * Geneva was started by Dr. Rüdiger Berlich and was later maintained together
- * with Dr. Ariel Garcia under the auspices of Gemfony scientific. For further
- * information on Gemfony scientific, see http://www.gemfomy.eu .
- *
- * The majority of files in Geneva was released under the Apache license v2.0
- * in February 2020.
- *
  * See the NOTICE file in the top-level directory of the Geneva library
  * collection for a list of contributors and copyright information.
  *
@@ -134,7 +127,7 @@ namespace Gem::Geneva
 
 		case execMode::BROKER:
 			{
-				throw gemfony_exception(
+				throw geneva_exception(
 					g_error_streamer(DO_LOG,  time_and_place)
 					<< "In GEvolutionaryAlgorithmPostOptimizer::setExecMode(): Error!" << std::endl
 					<< "Got invalid execution mode " << executionMode << std::endl
@@ -218,7 +211,7 @@ namespace Gem::Geneva
 	bool GEvolutionaryAlgorithmPostOptimizer::raw_processing_(GParameterSet &p) {
 		// Make sure p is processed
 		if (not p.is_processed()) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GEvolutionaryAlgorithmPostOptimizer::raw_processing_: Error!" << std::endl
 				<< "Provided base_type has dirty flag set." << std::endl
@@ -226,7 +219,7 @@ namespace Gem::Geneva
 		}
 
 		if(m_executionMode == execMode::BROKER) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GEvolutionaryAlgorithmPostOptimizer::raw_processing_: Error!" << std::endl
 				<< "Got invalid execution mode " << m_executionMode << std::endl

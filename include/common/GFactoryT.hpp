@@ -22,13 +22,6 @@
  *
  ********************************************************************************
  *
- * Geneva was started by Dr. Rüdiger Berlich and was later maintained together
- * with Dr. Ariel Garcia under the auspices of Gemfony scientific. For further
- * information on Gemfony scientific, see http://www.gemfomy.eu .
- *
- * The majority of files in Geneva was released under the Apache license v2.0
- * in February 2020.
- *
  * See the NOTICE file in the top-level directory of the Geneva library
  * collection for a list of contributors and copyright information.
  *
@@ -250,7 +243,7 @@ public:
 	  * Others don't have to due to this "pseudo-implementation".
 	  */
 	 virtual std::shared_ptr <GFactoryT<prod_type>> clone() const BASE {
-		 throw gemfony_exception(
+		 throw geneva_exception(
 			 g_error_streamer(DO_LOG, time_and_place)
 				 << "In GFactoryT<prod_type>::clone(): Error!" << std::endl
 				 << "Function was called when it shouldn't be." << std::endl
@@ -314,7 +307,7 @@ protected:
 
 		// Read the configuration parameters from file
 		if (not gpb.parseConfigFile(m_config_path)) {
-			throw gemfony_exception(
+			throw geneva_exception(
 					g_error_streamer(DO_LOG, time_and_place)
 							<< "In GFactoryT<prod_type>::operator(): Error!" << std::endl
 							<< "Could not parse configuration file " << m_config_path.string() << std::endl

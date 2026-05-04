@@ -22,13 +22,6 @@
  *
  ********************************************************************************
  *
- * Geneva was started by Dr. Rüdiger Berlich and was later maintained together
- * with Dr. Ariel Garcia under the auspices of Gemfony scientific. For further
- * information on Gemfony scientific, see http://www.gemfomy.eu .
- *
- * The majority of files in Geneva was released under the Apache license v2.0
- * in February 2020.
- *
  * See the NOTICE file in the top-level directory of the Geneva library
  * collection for a list of contributors and copyright information.
  *
@@ -272,7 +265,7 @@ public:
     void setNRunsPerOptimization(std::size_t nRunsPerOptimization) {
 #ifdef DEBUG
         if (0 == nRunsPerOptimization) {
-            throw gemfony_exception(
+            throw geneva_exception(
                 g_error_streamer(
                     DO_LOG
                     , time_and_place
@@ -712,7 +705,7 @@ public:
      */
     void registerIndividualFactory(std::shared_ptr<typename ind_type::FACTORYTYPE> factory) {
         if (not factory) {
-            throw gemfony_exception(
+            throw geneva_exception(
                 g_error_streamer(
                     DO_LOG
                     , time_and_place
@@ -903,7 +896,7 @@ protected:
 #ifdef DEBUG
         // Check that we have been given a factory
         if (not ind_factory_) {
-            throw gemfony_exception(
+            throw geneva_exception(
                 g_error_streamer(
                     DO_LOG
                     , time_and_place
@@ -1243,7 +1236,7 @@ public:
      */
     void registerIndividualFactory(std::shared_ptr<typename ind_type::FACTORYTYPE> factory) {
         if (not factory) {
-            throw gemfony_exception(
+            throw geneva_exception(
                 g_error_streamer(
                     DO_LOG
                     , time_and_place
@@ -2177,7 +2170,7 @@ private:
                 break;
 
             default: {
-                throw gemfony_exception(
+                throw geneva_exception(
                         g_error_streamer(
                                 DO_LOG
                                 , time_and_place
@@ -2219,5 +2212,4 @@ private:
 } /* namespace Geneva */
 } /* namespace Gem */
 
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GMetaOptimizerIndividualT<Gem::Geneva::GFunctionIndividual>);
-
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GMetaOptimizerIndividualT<Gem::Geneva::GFunctionIndividual>) // NOLINT

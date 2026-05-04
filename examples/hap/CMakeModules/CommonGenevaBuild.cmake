@@ -22,13 +22,6 @@
 #
 ################################################################################
 #
-# Geneva was started by Dr. Rüdiger Berlich and was later maintained together
-# with Dr. Ariel Garcia under the auspices of Gemfony scientific. For further
-# information on Gemfony scientific, see http://www.gemfomy.eu .
-#
-# The majority of files in Geneva was released under the Apache license v2.0
-# in February 2020.
-#
 # See the NOTICE file in the top-level directory of the Geneva library
 # collection for a list of contributors and copyright information.
 #
@@ -211,13 +204,18 @@ IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
 		SET (
 				GENEVA_BOOST_LIBS
 				${GENEVA_BOOST_LIBS}
-				test_exec_monitor
 				unit_test_framework
 		)
 	ENDIF()
 
-	# Make sure we use the old CMake behaviour (cmp. Boost 1.70)
-	SET(Boost_NO_BOOST_CMAKE ON)
+	# Use Boost's own BoostConfig.cmake (available since Boost 1.70) rather than
+	# CMake's legacy FindBoost module, which was removed in CMake 4.x (CMP0167).
+	if(POLICY CMP0167)
+		cmake_policy(SET CMP0167 NEW)
+	endif()
+	if(POLICY CMP0153)
+		cmake_policy(SET CMP0153 NEW)
+	endif()
 
 	# Search for the required libraries
 	MESSAGE("Searching for Boost...\n")

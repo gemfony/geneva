@@ -22,13 +22,6 @@
  *
  ********************************************************************************
  *
- * Geneva was started by Dr. Rüdiger Berlich and was later maintained together
- * with Dr. Ariel Garcia under the auspices of Gemfony scientific. For further
- * information on Gemfony scientific, see http://www.gemfomy.eu .
- *
- * The majority of files in Geneva was released under the Apache license v2.0
- * in February 2020.
- *
  * See the NOTICE file in the top-level directory of the Geneva library
  * collection for a list of contributors and copyright information.
  *
@@ -136,7 +129,7 @@ public:
 	 G_CPU_BASE_GENERATOR::result_type next() {
 #ifdef DEBUG
 		 if(empty()) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In random_container::next(): Error!" << std::endl
 					 << "Invalid m_current_pos: " << m_current_pos << " / " << DEFAULTARRAYSIZE << std::endl
@@ -160,14 +153,14 @@ private:
 		 try {
 			 std::generate(m_r.begin(), m_r.end(), [&](){ return rng(); });
 		 } catch (const std::bad_alloc &e) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In random_container::random_container(T_RNG&): Error!" << std::endl
 					 << "std::bad_alloc caught with message" << std::endl
 					 << e.what() << std::endl
 			 );
 		 } catch (...) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In random_container::random_container(T_RNG&): Error!" << std::endl
 					 << "unknown exception caught" << std::endl

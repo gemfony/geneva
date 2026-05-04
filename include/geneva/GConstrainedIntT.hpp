@@ -22,13 +22,6 @@
  *
  ********************************************************************************
  *
- * Geneva was started by Dr. Rüdiger Berlich and was later maintained together
- * with Dr. Ariel Garcia under the auspices of Gemfony scientific. For further
- * information on Gemfony scientific, see http://www.gemfomy.eu .
- *
- * The majority of files in Geneva was released under the Apache license v2.0
- * in February 2020.
- *
  * See the NOTICE file in the top-level directory of the Geneva library
  * collection for a list of contributors and copyright information.
  *
@@ -535,7 +528,7 @@ protected:
                     0
                     , 0
                     , boost::numeric::bounds<int_type>::highest())
-            , gemfony_exception);
+            , geneva_exception);
         }
 
         //------------------------------------------------------------------------------
@@ -556,7 +549,7 @@ protected:
                     , boost::numeric::bounds<int_type>::lowest()
                     , 100
             )
-            , gemfony_exception);
+            , geneva_exception);
         }
 
         //------------------------------------------------------------------------------
@@ -575,7 +568,7 @@ protected:
             BOOST_CHECK_THROW(p_test->setBoundaries(
                     0
                     , boost::numeric::bounds<int_type>::highest())
-            , gemfony_exception);
+            , geneva_exception);
         }
 
         //------------------------------------------------------------------------------
@@ -595,7 +588,7 @@ protected:
                     boost::numeric::bounds<int_type>::lowest()
                     , 100
             )
-            , gemfony_exception);
+            , geneva_exception);
         }
 
         //------------------------------------------------------------------------------
@@ -676,8 +669,7 @@ private:
 } /* namespace Gem */
 
 /******************************************************************************/
-// The content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T)
-
+// The content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T) // NOLINT
 namespace boost {
 namespace serialization {
 template<typename int_type>

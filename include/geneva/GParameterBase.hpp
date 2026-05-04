@@ -22,13 +22,6 @@
  *
  ********************************************************************************
  *
- * Geneva was started by Dr. Rüdiger Berlich and was later maintained together
- * with Dr. Ariel Garcia under the auspices of Gemfony scientific. For further
- * information on Gemfony scientific, see http://www.gemfomy.eu .
- *
- * The majority of files in Geneva was released under the Apache license v2.0
- * in February 2020.
- *
  * See the NOTICE file in the top-level directory of the Geneva library
  * collection for a list of contributors and copyright information.
  *
@@ -159,7 +152,7 @@ public:
     std::size_t countParameters(
         activityMode am
     ) const {
-        throw gemfony_exception(
+        throw geneva_exception(
             g_error_streamer(
                 DO_LOG
                 , time_and_place
@@ -187,7 +180,7 @@ public:
         , std::vector<par_type> &uBndVec
         , activityMode am
     ) const {
-        throw gemfony_exception(
+        throw geneva_exception(
             g_error_streamer(
                 DO_LOG
                 , time_and_place
@@ -210,7 +203,7 @@ public:
         std::vector<par_type> &parVec
         , activityMode am
     ) const {
-        throw gemfony_exception(
+        throw geneva_exception(
             g_error_streamer(
                 DO_LOG
                 , time_and_place
@@ -233,7 +226,7 @@ public:
         std::map<std::string, std::vector<par_type>> &parVec
         , activityMode am
     ) const {
-        throw gemfony_exception(
+        throw geneva_exception(
             g_error_streamer(
                 DO_LOG
                 , time_and_place
@@ -258,7 +251,7 @@ public:
         , std::size_t &pos
         , activityMode am
     ) {
-        throw gemfony_exception(
+        throw geneva_exception(
             g_error_streamer(
                 DO_LOG
                 , time_and_place
@@ -279,7 +272,7 @@ public:
         const std::map<std::string, std::vector<par_type>> &parMap
         , activityMode am
     ) {
-        throw gemfony_exception(
+        throw geneva_exception(
             g_error_streamer(
                 DO_LOG
                 , time_and_place
@@ -300,7 +293,7 @@ public:
         , activityMode am
         , Gem::Hap::GRandomBase &
     ) {
-        throw gemfony_exception(
+        throw geneva_exception(
             g_error_streamer(
                 DO_LOG
                 , time_and_place
@@ -319,7 +312,7 @@ public:
         activityMode am
         , Gem::Hap::GRandomBase &
     ) {
-        throw gemfony_exception(
+        throw geneva_exception(
             g_error_streamer(
                 DO_LOG
                 , time_and_place
@@ -338,7 +331,7 @@ public:
         par_type val
         , activityMode am
     ) {
-        throw gemfony_exception(
+        throw geneva_exception(
             g_error_streamer(
                 DO_LOG
                 , time_and_place
@@ -357,7 +350,7 @@ public:
         par_type val
         , activityMode am
     ) {
-        throw gemfony_exception(
+        throw geneva_exception(
             g_error_streamer(
                 DO_LOG
                 , time_and_place
@@ -376,7 +369,7 @@ public:
         const std::shared_ptr<GParameterBase> &p
         , activityMode am
     ) {
-        throw gemfony_exception(
+        throw geneva_exception(
             g_error_streamer(
                 DO_LOG
                 , time_and_place
@@ -395,7 +388,7 @@ public:
         const std::shared_ptr<GParameterBase> &p
         , activityMode am
     ) {
-        throw gemfony_exception(
+        throw geneva_exception(
             g_error_streamer(
                 DO_LOG
                 , time_and_place
@@ -441,7 +434,7 @@ public:
         std::shared_ptr<load_type> p = std::dynamic_pointer_cast<load_type>(load_ptr);
         if (p) { return p; }
         else {
-            throw gemfony_exception(
+            throw geneva_exception(
                 g_error_streamer(
                     DO_LOG
                     , time_and_place
@@ -1619,7 +1612,6 @@ inline void GParameterBase::subtract<bool>(
 /**
  * @brief Needed for Boost.Serialization
  */
-BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::GParameterBase)
-
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::GParameterBase) // NOLINT
 /******************************************************************************/
 

@@ -22,13 +22,6 @@
  *
  ********************************************************************************
  *
- * Geneva was started by Dr. Rüdiger Berlich and was later maintained together
- * with Dr. Ariel Garcia under the auspices of Gemfony scientific. For further
- * information on Gemfony scientific, see http://www.gemfomy.eu .
- *
- * The majority of files in Geneva was released under the Apache license v2.0
- * in February 2020.
- *
  * See the NOTICE file in the top-level directory of the Geneva library
  * collection for a list of contributors and copyright information.
  *
@@ -74,7 +67,7 @@ public:
 	 /**
 	  * Triggers the optimization cycle, starting to count iterations at a given offset
 	  */
-	 optimizer_type const * const optimize(std::uint32_t offset = 0) {
+	 optimizer_type const * optimize(std::uint32_t offset = 0) {
 	 	return this->optimize_(offset);
 	 }
 
@@ -113,7 +106,7 @@ public:
 
 		 // Cross check that we indeed got a valid set of individuals
 		 if(bestBaseIndividuals.empty()) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In G_Interface_OptimizerT<optimizer_type>::getBestGlobalIndividuals(): Error!" << std::endl
 					 << "Received empty collection of best individuals." << std::endl
@@ -164,7 +157,7 @@ public:
 
 		 // Cross check that we indeed got a valid set of individuals
 		 if(bestBaseIndividuals.empty()) {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In G_Interface_OptimizerT<optimizer_type>::getBestIterationIndividuals(): Error!" << std::endl
 					 << "Received empty collection of best individuals." << std::endl
@@ -221,7 +214,7 @@ protected:
 
 private:
 	 /** @brief Perform the actual optimization cycle, starting to count iterations at a given offset */
-	 virtual G_API_GENEVA optimizer_type const * const optimize_(std::uint32_t offset) BASE = 0;
+	 virtual G_API_GENEVA optimizer_type const * optimize_(std::uint32_t offset) BASE = 0;
 
 	 /** @brief Calculates the fitness of all required individuals; to be re-implemented in derived classes */
 	 virtual G_API_GENEVA void runFitnessCalculation_() BASE = 0;

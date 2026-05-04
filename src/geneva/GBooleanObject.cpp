@@ -22,13 +22,6 @@
  *
  ********************************************************************************
  *
- * Geneva was started by Dr. Rüdiger Berlich and was later maintained together
- * with Dr. Ariel Garcia under the auspices of Gemfony scientific. For further
- * information on Gemfony scientific, see http://www.gemfomy.eu .
- *
- * The majority of files in Geneva was released under the Apache license v2.0
- * in February 2020.
- *
  * See the NOTICE file in the top-level directory of the Geneva library
  * collection for a list of contributors and copyright information.
  *
@@ -36,8 +29,7 @@
 
 #include "geneva/GBooleanObject.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GBooleanObject)
-
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GBooleanObject) // NOLINT
 namespace Gem::Geneva
 {
 
@@ -169,7 +161,7 @@ namespace Gem::Geneva
 	) {
 		// Do some error checks
 		if(not Gem::Common::checkRangeCompliance(probability, 0., 1., "GBooleanObject::randomInit_(probability)")) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GBooleanObject::randomInit_(probability): Error!" << std::endl
 				<< "Probability " << probability << " not in allowed value range [0,1]" << std::endl
@@ -255,7 +247,7 @@ namespace Gem::Geneva
 	) const {
 #ifdef DEBUG
 		if((this->getParameterName()).empty()) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GBooleanObject::booleanStreamline(std::map<std::string, std::vector<bool>>& parVec) const: Error!" << std::endl
 				<< "No name was assigned to the object" << std::endl
@@ -307,7 +299,7 @@ namespace Gem::Geneva
 #ifdef DEBUG
 		// Do we have a valid position ?
 		if(pos >= parVec.size()) {
-			throw gemfony_exception(
+			throw geneva_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GBooleanObject::assignBooleanValueVector(const std::vector<bool>&, std::size_t&):" << std::endl
 				<< "Tried to access position beyond end of vector: " << parVec.size() << "/" << pos << std::endl

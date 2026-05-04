@@ -22,13 +22,6 @@
  *
  ********************************************************************************
  *
- * Geneva was started by Dr. Rüdiger Berlich and was later maintained together
- * with Dr. Ariel Garcia under the auspices of Gemfony scientific. For further
- * information on Gemfony scientific, see http://www.gemfomy.eu .
- *
- * The majority of files in Geneva was released under the Apache license v2.0
- * in February 2020.
- *
  * See the NOTICE file in the top-level directory of the Geneva library
  * collection for a list of contributors and copyright information.
  *
@@ -195,7 +188,7 @@ public:
 		 if(m_payload_ptr) {
 			 m_payload_ptr->process();
 		 } else {
-			 throw gemfony_exception(
+			 throw geneva_exception(
 				 g_error_streamer(DO_LOG,  time_and_place)
 					 << "In GCommandContainerT<processable_type, command_type>::process():" << std::endl
 					 << "Tried to process a work item while m_payload_ptr is empty" << std::endl
@@ -260,7 +253,7 @@ std::string container_to_string(
 			} break;
 		}
 	} catch (const boost::system::system_error &e) {
-		throw gemfony_exception(
+		throw geneva_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In container_to_string(GCommandContainerT<>):" << std::endl
 				<< "Caught boost::system::system_error exception with messages:" << std::endl
@@ -268,7 +261,7 @@ std::string container_to_string(
 				<< "with serializationMode == " << Gem::Common::serModeToString(serMode) << std::endl
 		);
 	} catch (const boost::exception &e) {
-		throw gemfony_exception(
+		throw geneva_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In container_to_string(GCommandContainerT<>):" << std::endl
 				<< "Caught boost::exception exception with messages:" << std::endl
@@ -276,7 +269,7 @@ std::string container_to_string(
 				<< "with serializationMode == " << Gem::Common::serModeToString(serMode) << std::endl
 		);
 	} catch (const std::exception& e) {
-		throw gemfony_exception(
+		throw geneva_exception(
 			g_error_streamer(
 				DO_LOG
 				, time_and_place
@@ -287,7 +280,7 @@ std::string container_to_string(
 				<< "with serializationMode == " << Gem::Common::serModeToString(serMode) << std::endl
 		);
 	} catch (...) {
-		throw gemfony_exception(
+		throw geneva_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In container_to_string(GCommandContainerT<>):" << std::endl
 				<< "Caught unknown exception" << std::endl
@@ -335,7 +328,7 @@ void container_from_string(
 			} break;
 		}
 	} catch (const boost::system::system_error &e) {
-		throw gemfony_exception(
+		throw geneva_exception(
 			g_error_streamer(
 				DO_LOG
 				,  time_and_place
@@ -346,7 +339,7 @@ void container_from_string(
 				<< "with serializationMode == " << Gem::Common::serModeToString(serMode) << std::endl
 		);
 	} catch (const boost::exception &e) {
-		throw gemfony_exception(
+		throw geneva_exception(
 			g_error_streamer(
 				DO_LOG
 				, time_and_place
@@ -357,7 +350,7 @@ void container_from_string(
 				<< "with serializationMode == " << Gem::Common::serModeToString(serMode) << std::endl
 		);
 	} catch (const std::exception& e) {
-		throw gemfony_exception(
+		throw geneva_exception(
 			g_error_streamer(
 				DO_LOG
 				, time_and_place
@@ -368,7 +361,7 @@ void container_from_string(
 				<< "with serializationMode == " << Gem::Common::serModeToString(serMode) << std::endl
 		);
 	} catch (...) {
-		throw gemfony_exception(
+		throw geneva_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In container_from_string(GCommandContainerT<>):" << std::endl
 				<< "Caught unknown exception" << std::endl
