@@ -46,15 +46,10 @@
 #include <string>
 #include <istream>
 #include <ostream>
-#include <cstdio>
 #include <cstdint>
-#include <cstdlib>
 #include <csignal>
-#include <cmath>
 
 // Boost headers go here
-
-#include <boost/cast.hpp>
 
 // Geneva headers go here
 
@@ -82,9 +77,9 @@ namespace Common {
  * limit.
  */
 #ifdef GENEVA_COMMON_DEFAULT_BUFFER_SIZE
-	const std::size_t DEFAULTBUFFERSIZE = GENEVA_COMMON_DEFAULT_BUFFER_SIZE;
+	constexpr std::size_t DEFAULTBUFFERSIZE = GENEVA_COMMON_DEFAULT_BUFFER_SIZE;
 #else
-	const std::size_t DEFAULTBUFFERSIZE = 5000;
+	constexpr std::size_t DEFAULTBUFFERSIZE = 5000;
 #endif
 
 /******************************************************************************/
@@ -101,7 +96,6 @@ enum class parameter_source : Gem::Common::ENUMBASETYPE {
    , ENVIRONMENT_VARIABLE = 3
    , CONFIGURATION_FILE = 4
 	, ASSIGNMENT = 5
-	, SIZE = parameter_source::ASSIGNMENT
 };
 
 /** @brief Puts a Gem::Common::parameter_source into a stream. Needed also for boost::lexical_cast<> */
@@ -131,7 +125,7 @@ G_API_COMMON std::istream &operator>>(std::istream &, Gem::Common::dimensions &)
 /**
  * The limit for similarity checks of floating point numbers
  */
-const double CE_DEF_SIMILARITY_DIFFERENCE = pow(10., -5);
+constexpr double CE_DEF_SIMILARITY_DIFFERENCE = 1e-5;
 
 /******************************************************************************/
 /**
@@ -174,14 +168,14 @@ G_API_COMMON std::istream &operator>>(std::istream &, Gem::Common::logType &);
 /**
  * The default number of bins in histograms, used in GPlotDesigner
  */
-const std::size_t DEFAULTNBINSGPD = 100;
+constexpr std::size_t DEFAULTNBINSGPD = 100;
 
 /******************************************************************************/
 /**
  * Used in parameter definitions (GParserBuilder)
  */
-const bool VAR_IS_ESSENTIAL = true;
-const bool VAR_IS_SECONDARY = false;
+constexpr bool VAR_IS_ESSENTIAL = true;
+constexpr bool VAR_IS_SECONDARY = false;
 
 /******************************************************************************/
 /**
@@ -216,14 +210,14 @@ G_API_COMMON std::ostream &operator<<(std::ostream &, Gem::Common::serialization
 G_API_COMMON std::istream &operator>>(std::istream &, Gem::Common::serializationMode &);
 
 /** @brief Converts a serializationMode to a string representation for debugging purposes */
-G_API_COMMON std::string serModeToString(Gem::Common::serializationMode);
+[[nodiscard]] G_API_COMMON std::string serModeToString(Gem::Common::serializationMode);
 
 /******************************************************************************/
 /**
  * Specification of whether checkExpectation should emit messages
  */
-const bool CE_SILENT = false;
-const bool CE_WITH_MESSAGES = true;
+constexpr bool CE_SILENT = false;
+constexpr bool CE_WITH_MESSAGES = true;
 
 /******************************************************************************/
 /**
@@ -246,11 +240,11 @@ G_API_COMMON std::istream &operator>>(std::istream &, Gem::Common::expectation &
  * Specification of the default number of threads, when no information about hardware
  * concurrency can be determined.
  */
-const unsigned int DEFAULTNHARDWARETHREADS = 2;
+constexpr unsigned int DEFAULTNHARDWARETHREADS = 2;
 /**
  * Specification of the default maximum number of threads
  */
-const unsigned int DEFAULTMAXNHARDWARETHREADS = 4;
+constexpr unsigned int DEFAULTMAXNHARDWARETHREADS = 4;
 
 /******************************************************************************/
 

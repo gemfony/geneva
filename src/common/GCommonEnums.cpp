@@ -29,6 +29,8 @@
 
 #include "common/GCommonEnums.hpp"
 
+#include <boost/cast.hpp>
+
 namespace Gem::Common
 {
 
@@ -52,7 +54,7 @@ namespace Gem::Common
 #ifdef DEBUG
 		x = boost::numeric_cast<Gem::Common::parameter_source>(tmp);
 #else
-	x = static_cast<Gem::Common::parameter_source>(tmp);
+		x = static_cast<Gem::Common::parameter_source>(tmp);
 #endif /* DEBUG */
 
 		return i;
@@ -78,10 +80,19 @@ namespace Gem::Common
 #ifdef DEBUG
 		x = boost::numeric_cast<Gem::Common::sortOrder>(tmp);
 #else
-	x = static_cast<Gem::Common::sortOrder>(tmp);
+		x = static_cast<Gem::Common::sortOrder>(tmp);
 #endif /* DEBUG */
 
 		return i;
+	}
+
+	/******************************************************************************/
+	/**
+ * Puts a Gem::Common::dimensions into a stream. Needed also for boost::lexical_cast<>
+ */
+	std::ostream &operator<<(std::ostream &o, Gem::Common::dimensions const &x) {
+		o << static_cast<Gem::Common::ENUMBASETYPE>(x);
+		return o;
 	}
 
 	/******************************************************************************/
@@ -95,7 +106,7 @@ namespace Gem::Common
 #ifdef DEBUG
 		x = boost::numeric_cast<Gem::Common::dimensions>(tmp);
 #else
-	x = static_cast<Gem::Common::dimensions>(tmp);
+		x = static_cast<Gem::Common::dimensions>(tmp);
 #endif /* DEBUG */
 
 		return i;
@@ -121,7 +132,7 @@ namespace Gem::Common
 #ifdef DEBUG
 		x = boost::numeric_cast<Gem::Common::logType>(tmp);
 #else
-	x = static_cast<Gem::Common::logType>(tmp);
+		x = static_cast<Gem::Common::logType>(tmp);
 #endif /* DEBUG */
 
 		return i;
@@ -147,7 +158,7 @@ namespace Gem::Common
 #ifdef DEBUG
 		x = boost::numeric_cast<Gem::Common::triboolStates>(tmp);
 #else
-	x = static_cast<Gem::Common::triboolStates>(tmp);
+		x = static_cast<Gem::Common::triboolStates>(tmp);
 #endif /* DEBUG */
 
 		return i;
@@ -173,7 +184,7 @@ namespace Gem::Common
 #ifdef DEBUG
 		x = boost::numeric_cast<Gem::Common::serializationMode>(tmp);
 #else
-	x = static_cast<Gem::Common::serializationMode>(tmp);
+		x = static_cast<Gem::Common::serializationMode>(tmp);
 #endif /* DEBUG */
 
 		return i;
@@ -187,16 +198,12 @@ namespace Gem::Common
 		switch(serMod) {
 		case Gem::Common::serializationMode::TEXT:
 			return "TEXT";
-			break;
 		case Gem::Common::serializationMode::XML:
 			return "XML";
-			break;
 		case Gem::Common::serializationMode::BINARY:
 			return "BINARY";
-			break;
 		default:
-			return "unkown";
-			break;
+			return "unknown";
 		}
 	}
 
@@ -220,7 +227,7 @@ namespace Gem::Common
 #ifdef DEBUG
 		x = boost::numeric_cast<Gem::Common::expectation>(tmp);
 #else
-	x = static_cast<Gem::Common::expectation>(tmp);
+		x = static_cast<Gem::Common::expectation>(tmp);
 #endif /* DEBUG */
 
 		return i;
