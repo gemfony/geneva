@@ -67,14 +67,29 @@
 
 #include <boost/config.hpp>
 
-/** The current version of the Geneva library */
-#define GENEVA_VERSION @GENEVA_API_VERSION@
+/**
+ * The current version of the Geneva library, encoded as an integer.
+ * Encoding: 0 + major(1 digit) + minor(2 digits) + patch(1 digit)
+ * Example:  1.12.0  →  "0" + "1" + "12" + "0"  =  01120
+ *
+ * Keep in sync with VERSION_MAJOR / VERSION_MINOR / VERSION_PATCH
+ * in the top-level CMakeLists.txt.
+ * Note: FindGeneva.cmake parses this line to determine the installed version.
+ */
+#define GENEVA_VERSION 01120
 
-/** The minimum allowed version of the Boost library */
-#define MIN_BOOST_VERSION @GENEVA_MIN_BOOST_API_VERSION@
+/**
+ * The minimum required Boost version, encoded as an integer.
+ * Encoding: major(1 digit) + "0" + minor(2 digits) + "00"
+ * Example:  1.90  →  "1" + "0" + "90" + "00"  =  109000
+ *
+ * Keep in sync with GENEVA_MIN_BOOST_VERSION in
+ * CMakeModules/CommonGenevaBuild.cmake.
+ */
+#define MIN_BOOST_VERSION 109000
 
 #if BOOST_VERSION < MIN_BOOST_VERSION
-#error "Error: Boost should at least have version @GENEVA_MIN_BOOST_VERSION@ !"
+#error "Error: Boost should at least have version 1.90 !"
 #endif /* BOOST_VERSION */
 
 /** Make sure we use boost filesystem v3 */

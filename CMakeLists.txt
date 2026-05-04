@@ -120,9 +120,13 @@ INCLUDE(CommonGenevaBuild)
 ###############################################################################
 # Set the library/package version. Uneven minor numbers denote development
 # versions while even minor numbers stand for production releases.
+#
+# IMPORTANT: When bumping the version here, also update the two macros
+#   GENEVA_VERSION  and  MIN_BOOST_VERSION
+# in include/common/GGlobalDefines.hpp accordingly.
 
 SET(VERSION_MAJOR "1")
-SET(VERSION_MINOR "11")
+SET(VERSION_MINOR "12")
 SET(VERSION_PATCH "0")
 
 SET(GENEVA_VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})

@@ -27,37 +27,14 @@
 #
 ################################################################################
 #
-# Check the major/minor/patch strings configured in the top level CMakeLists file
-#   and use them to define the GENEVA_VERSION variable in GGlobalDefines.hpp
+# GGlobalDefines.hpp is a regular, manually maintained header — it is no longer
+# generated from a .in template.  When bumping the Geneva version or the minimum
+# Boost version, update the GENEVA_VERSION and MIN_BOOST_VERSION macros in that
+# file directly (see the comments there for the encoding rules).
+# The authoritative version numbers are VERSION_MAJOR / VERSION_MINOR /
+# VERSION_PATCH in the top-level CMakeLists.txt and GENEVA_MIN_BOOST_VERSION in
+# CMakeModules/CommonGenevaBuild.cmake.
 #
-SET ( VERSION_PREFIX "0" )
-
-IF ( NOT VERSION_MAJOR MATCHES "^[0-9]$" )
-	MESSAGE ( AUTHOR_WARNING "Wrong major version number! (${VERSION_MAJOR})" )
-ENDIF ()
-
-IF ( NOT VERSION_MINOR MATCHES "^(1?[0-9])$" )
-	MESSAGE ( AUTHOR_WARNING "Wrong minor version number! (${VERSION_MINOR})" )
-ENDIF ()
-
-# Allow additional suffixes like "rc1" in the patch number
-IF ( NOT VERSION_PATCH MATCHES "^[0-9]" )
-	MESSAGE ( AUTHOR_WARNING "Wrong patch version number! (${VERSION_PATCH})" )
-ENDIF ()
-
-# Keep the first character only (a number)
-STRING ( SUBSTRING ${VERSION_PATCH} 0 1 VERSION_PATCH_SHORT )
-
-# Get the minimal Boost major and minor versions
-STRING ( SUBSTRING ${GENEVA_MIN_BOOST_VERSION} 0 1 MIN_BOOST_VERSION_MAJOR )
-STRING ( SUBSTRING ${GENEVA_MIN_BOOST_VERSION} 2 2 MIN_BOOST_VERSION_MINOR )
-
-SET ( GENEVA_API_VERSION ${VERSION_PREFIX}${VERSION_MAJOR}${VERSION_MINOR}${VERSION_PATCH_SHORT} )
-SET ( GENEVA_MIN_BOOST_API_VERSION ${MIN_BOOST_VERSION_MAJOR}0${MIN_BOOST_VERSION_MINOR}00)
-CONFIGURE_FILE (
-	GGlobalDefines.hpp.in ${CMAKE_CURRENT_SOURCE_DIR}/GGlobalDefines.hpp
-	@ONLY
-)
 
 SET ( GENEVACOMMONINCLUDES
 	GBoundedBufferT.hpp

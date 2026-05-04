@@ -163,6 +163,17 @@ Recommended Versions:
     with std::numeric_limits<T>::max() (already included via <limits>); the three
     affected constants promoted from const to constexpr.
 
+- GGlobalDefines.hpp is no longer generated from a CMake template at build time.
+  The file GGlobalDefines.hpp.in has been deleted; GGlobalDefines.hpp is now a
+  regular, manually maintained header checked directly into the repository.
+  The two macros it defines (GENEVA_VERSION and MIN_BOOST_VERSION) carry inline
+  comments explaining their encoding and pointing to the authoritative locations
+  (VERSION_MAJOR/MINOR/PATCH in CMakeLists.txt and GENEVA_MIN_BOOST_VERSION in
+  CMakeModules/CommonGenevaBuild.cmake). CMakeLists.txt likewise points back to
+  GGlobalDefines.hpp for the required manual update. The CONFIGURE_FILE call and
+  the associated string-manipulation logic have been removed from
+  include/common/CMakeLists.txt.
+
 - GBarrier.hpp removed. The single usage site (GBufferPortTTest.cpp) has been
   updated to use std::latch (C++20, <latch>) instead. std::latch::arrive_and_wait()
   replaces GBarrier::wait() directly; std::latch is the appropriate type here
