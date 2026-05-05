@@ -298,28 +298,28 @@ boost::variant<
 >;
 
 struct nil {
-	void swap(nil &);
+	void swap(nil &) noexcept;
 };
 
 struct signed_ {
-	char sign;
+	char sign = '\0';
 	operand operand_;
 
-	void swap(signed_ &);
+	void swap(signed_ &) noexcept;
 };
 
 struct operation {
-	char operator_;
+	char operator_ = '\0';
 	operand operand_;
 
-	void swap(operation &);
+	void swap(operation &) noexcept;
 };
 
 struct unary_function_ {
 	std::string fname_;
 	operand operand_;
 
-	void swap(unary_function_ &);
+	void swap(unary_function_ &) noexcept;
 };
 
 struct binary_function_ {
@@ -327,14 +327,14 @@ struct binary_function_ {
 	operand operand1_;
 	operand operand2_;
 
-	void swap(binary_function_ &);
+	void swap(binary_function_ &) noexcept;
 };
 
 struct ast_expression {
 	operand first;
 	std::list<operation> rest;
 
-	void swap(ast_expression &);
+	void swap(ast_expression &) noexcept;
 };
 
 /** @brief print function for debugging */
@@ -1009,12 +1009,12 @@ private:
 namespace boost {
 namespace spirit {
 
-G_API_COMMON void swap(Gem::Common::nil &, Gem::Common::nil &);
-G_API_COMMON void swap(Gem::Common::signed_ &, Gem::Common::signed_ &);
-G_API_COMMON void swap(Gem::Common::operation &, Gem::Common::operation &);
-G_API_COMMON void swap(Gem::Common::unary_function_ &, Gem::Common::unary_function_ &);
-G_API_COMMON void swap(Gem::Common::binary_function_ &, Gem::Common::binary_function_ &);
-G_API_COMMON void swap(Gem::Common::ast_expression &, Gem::Common::ast_expression &);
+G_API_COMMON void swap(Gem::Common::nil &, Gem::Common::nil &) noexcept;
+G_API_COMMON void swap(Gem::Common::signed_ &, Gem::Common::signed_ &) noexcept;
+G_API_COMMON void swap(Gem::Common::operation &, Gem::Common::operation &) noexcept;
+G_API_COMMON void swap(Gem::Common::unary_function_ &, Gem::Common::unary_function_ &) noexcept;
+G_API_COMMON void swap(Gem::Common::binary_function_ &, Gem::Common::binary_function_ &) noexcept;
+G_API_COMMON void swap(Gem::Common::ast_expression &, Gem::Common::ast_expression &) noexcept;
 
 } /* namespace spirit */
 } /* namespace boost */

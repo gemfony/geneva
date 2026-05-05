@@ -92,7 +92,7 @@ namespace Gem::Common
 			std::cerr
 				<< "In GFileLogger::log() : Error" << std::endl
 				<< "std::ofstring is in a bad state" << std::endl;
-			exit(1);
+			std::terminate();
 		}
 	}
 
@@ -123,7 +123,7 @@ namespace Gem::Common
 			std::cerr
 				<< "In GFileLogger::logWithSource() : Error" << std::endl
 				<< "std::ofstring is in a bad state" << std::endl;
-			exit(1);
+			std::terminate();
 		}
 	}
 

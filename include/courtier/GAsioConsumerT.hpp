@@ -690,7 +690,7 @@ private:
 						 << GWARNING;
 				 } break;
 			 }
-		 } catch(...) {
+		 } catch(...) { // NOLINT(bugprone-empty-catch) — intentionally swallowed; session ends, caller retries
 			 glogger
 				 << "GAsioConsumerSessionT<processable_type>::process_request(): Caught exception" << std::endl
 				 << GLOGGING;

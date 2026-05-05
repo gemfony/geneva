@@ -154,7 +154,7 @@ public:
      *
      * @param cp A copy of another GBrokerConnector object
      */
-	GBaseExecutorT(GBaseExecutorT<processable_type> && cp)
+	GBaseExecutorT(GBaseExecutorT<processable_type> && cp) noexcept
 		: Gem::Common::GCommonInterfaceT<GBaseExecutorT<processable_type>>(std::move(cp))
 		, m_maxResubmissions(cp.m_maxResubmissions)
 	{
@@ -1166,7 +1166,7 @@ protected:
 		 try {
 			 // process may throw ...
 			 w_ptr->process();
-		 } catch(const g_processing_exception& e) {
+		 } catch(const g_processing_exception& e) { // NOLINT(bugprone-empty-catch) — expected; error stored in work item, caller decides fate
 			 // This is an expected exception if processing has failed. We do nothing,
 			 // it is up to the caller to decide what to do with processing errors, and
 			 // these are also stored in the processing item. We do try to create a sort
@@ -2218,7 +2218,7 @@ private:
 		 do {
 			 // Get the next individual. If we didn't receive a valid
 			 // item, go to the timeout check
-			 if(not (w_ptr = this->getNextItem())) continue;
+			 if(not (w_ptr = this->getNextItem())) continue; // NOLINT(bugprone-assignment-in-if-condition)
 
 			 // Try to add the work item to the list and check for completeness
 			 status = this->addWorkItemAndCheckCompleteness(

@@ -464,7 +464,7 @@ namespace Gem::Common
 #else
 		std::ostringstream oss;
 		std::time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-		struct tm timeinfo;
+		struct tm timeinfo{};
 
 #if defined(_MSC_VER)  && (_MSC_VER >= 1020)
 			localtime_s(&timeinfo, &now);

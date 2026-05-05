@@ -107,6 +107,7 @@ public:
 		   * The assignment operator
 		   */
 		  param_type& operator=(param_type const& params) {
+			  if (this == &params) return *this;
 			  m_mean = params.m_mean;
 			  m_sigma1 = params.m_sigma1;
 			  m_sigma2 = params.m_sigma2;

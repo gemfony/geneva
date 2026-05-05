@@ -121,7 +121,7 @@ public:
     /**
      * Swap another object's vector with ours
      */
-    void swap(GParameterCollectionT<num_type> &cp) {
+    void swap(GParameterCollectionT<num_type> &cp) noexcept {
         Gem::Common::GPODVectorT<num_type>::swap(cp.m_data_cnt);
     }
 

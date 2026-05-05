@@ -904,7 +904,7 @@ namespace Gem::Geneva
 					}
 					std::cout << selected << std::endl;
 				}
-				exit(0);
+				exit(0); // NOLINT(concurrency-mt-unsafe) — --help path; no worker threads have started yet
 			}
 
 			po::notify(vm);

@@ -150,6 +150,7 @@ public:
      * The assignment operator
      */
     GPtrVectorT<T,B> & operator=(GPtrVectorT<T,B> const& cp) {
+        if (this == &cp) return *this;
         Gem::Common::copyCloneableSmartPointerContainer(cp.m_data_cnt, m_data_cnt);
         return *this;
     }

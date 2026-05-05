@@ -33,19 +33,19 @@
 namespace boost::spirit
 {
 
-	void swap(Gem::Geneva::parPropSpec<double> &a, Gem::Geneva::parPropSpec<double> &b) {
+	void swap(Gem::Geneva::parPropSpec<double> &a, Gem::Geneva::parPropSpec<double> &b) noexcept {
 		a.swap(b);
 	}
 
-	void swap(Gem::Geneva::parPropSpec<float> &a, Gem::Geneva::parPropSpec<float> &b) {
+	void swap(Gem::Geneva::parPropSpec<float> &a, Gem::Geneva::parPropSpec<float> &b) noexcept {
 		a.swap(b);
 	}
 
-	void swap(Gem::Geneva::parPropSpec<std::int32_t> &a, Gem::Geneva::parPropSpec<std::int32_t> &b) {
+	void swap(Gem::Geneva::parPropSpec<std::int32_t> &a, Gem::Geneva::parPropSpec<std::int32_t> &b) noexcept {
 		a.swap(b);
 	}
 
-	void swap(Gem::Geneva::parPropSpec<bool> &a, Gem::Geneva::parPropSpec<bool> &b) {
+	void swap(Gem::Geneva::parPropSpec<bool> &a, Gem::Geneva::parPropSpec<bool> &b) noexcept {
 		a.swap(b);
 	}
 
@@ -101,7 +101,7 @@ namespace Gem::Geneva
 
 		try {
 			this->parse();
-		} catch (const geneva_exception &e) {
+		} catch (const geneva_exception &e) { // NOLINT(bugprone-empty-catch) — logs and terminates via GTERMINATION
 			glogger
 				<< "In GParameterPropertyParser::GParameterPropertyParser(const std::string& raw): Error!" << std::endl
 				<< "Caught Geneva exception with message " << std::endl

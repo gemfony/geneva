@@ -598,13 +598,13 @@ namespace Gem::Common
 					std::cout << std::endl;
 				}
 			}
-		} catch (po::error const & e) {
+		} catch (po::error const & e) { // NOLINT(bugprone-empty-catch) — logs and terminates via GTERMINATION
 			glogger
 				<< "In GParserBuilder::parseCommandLine(int argc, char **argv):" << std::endl
 				<< "Error parsing the command line:" << std::endl
 				<< e.what() << std::endl
 				<< GTERMINATION;
-		} catch (...) {
+		} catch (...) { // NOLINT(bugprone-empty-catch) — logs and terminates via GTERMINATION
 			glogger
 				<< "In GParserBuilder::parseCommandLine(int argc, char **argv):" << std::endl
 				<< "Unknown error while parsing the command line" << std::endl

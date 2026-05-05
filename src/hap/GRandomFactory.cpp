@@ -298,7 +298,7 @@ namespace Gem::Hap
  */
 	void GRandomFactory::producer(std::uint32_t seed) {
 		try {
-			G_CPU_BASE_GENERATOR mt(seed);
+			G_CPU_BASE_GENERATOR mt(static_cast<G_CPU_BASE_GENERATOR::result_type>(seed));
 			std::unique_ptr<random_container> p;
 
 			while(not m_threads_stop_requested) {

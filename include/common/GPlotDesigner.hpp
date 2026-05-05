@@ -1986,10 +1986,10 @@ private:
 
     GHistogram1I() = default; ///< The default constructor -- intentionally private as it is only needed for (de-)serialization
 
-    std::size_t nBinsX_; ///< The number of bins in the histogram
+    std::size_t nBinsX_ = 0; ///< The number of bins in the histogram
 
-    double minX_; ///< The lower boundary of the histogram // TODO: Really "double" ?
-    double maxX_; ///< The upper boundary of the histogram
+    double minX_ = 0.; ///< The lower boundary of the histogram // TODO: Really "double" ?
+    double maxX_ = 0.; ///< The upper boundary of the histogram
 };
 
 /******************************************************************************/

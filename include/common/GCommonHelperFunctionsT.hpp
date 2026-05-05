@@ -94,7 +94,7 @@ std::optional<target_type> environmentVariableAs(std::string const& var) {
 			return {};
 		}
 #else
-		const char *env_ptr = std::getenv(var.c_str());
+		const char *env_ptr = std::getenv(var.c_str()); // NOLINT(concurrency-mt-unsafe) — called under lock; Geneva never calls putenv/setenv from threads
 		if (env_ptr) {
 			result_str = std::string(env_ptr);
 		} else {

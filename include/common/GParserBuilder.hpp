@@ -264,6 +264,7 @@ public:
 	  * Assignment of another object of this type
 	  */
 	 GOneTimeRefParameterT<parameter_type> &operator=(GOneTimeRefParameterT<parameter_type> const& cp) {
+		 if (this == &cp) return *this;
 		 m_parm = cp.m_parm;
 		 m_parm_dummy = cp.m_parm_dummy;
 		 m_parm_set = cp.m_parm_set;

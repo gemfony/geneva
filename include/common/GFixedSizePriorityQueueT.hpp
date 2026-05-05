@@ -157,6 +157,7 @@ namespace Gem::Common
          */
         GFixedSizePriorityQueueT& operator=(GFixedSizePriorityQueueT const& cp)
         {
+            if (this == &cp) return *this;
             m_maxSize_ = cp.m_maxSize_;
             m_sortOrder_ = cp.m_sortOrder_;
 

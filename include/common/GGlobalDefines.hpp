@@ -140,7 +140,7 @@
 //-----------------------------------------------------------
 
 /** Funnily, on g++ std::pow(x,2) seems to be less efficient than direct multiplication */
-#define GSQUARED(X) (X) * (X)
+#define GSQUARED(X) ((X) * (X))
 
 //-----------------------------------------------------------
 // Allow to mark functions as deprecated on supported compilers

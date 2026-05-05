@@ -1020,7 +1020,7 @@ GParameterSet::adapt()
         {
             // Try again if no adaption has taken place
             // Perform the actual adaption; Terminate, if at least one adaption was performed
-            if ((nAdaptions = this->customAdaptions()) > 0)
+            if ((nAdaptions = this->customAdaptions()) > 0) // NOLINT(bugprone-assignment-in-if-condition)
             {
                 break;
             }
@@ -2510,7 +2510,7 @@ GParameterSet::specificTestsNoFailureExpected_GUnitTests_()
                 << "d = " << d << "\n");
             CHECK(p_test->getBestKnownPrimaryFitness() == std::make_tuple(d, d));
 
-            if ((d += 0.1) >= 1.)
+            if ((d += 0.1) >= 1.) // NOLINT(bugprone-assignment-in-if-condition)
                 break;
         }
     }
@@ -2679,7 +2679,7 @@ GParameterSet::specificTestsNoFailureExpected_GUnitTests_()
                 CHECK(*p_boolean_orig == *p_boolean_cloned);
                 counter++;
 
-                if ((d += 1.) >= FPFIXEDVALINITMAX)
+                if ((d += 1.) >= FPFIXEDVALINITMAX) // NOLINT(bugprone-assignment-in-if-condition)
                     break;
             }
         }
@@ -2760,7 +2760,7 @@ GParameterSet::specificTestsNoFailureExpected_GUnitTests_()
                 CHECK(*p_boolean_orig == *p_boolean_cloned);
                 counter++;
 
-                if ((d += 1.) >= 3.)
+                if ((d += 1.) >= 3.) // NOLINT(bugprone-assignment-in-if-condition)
                     break;
             }
         }

@@ -157,7 +157,7 @@ namespace Gem::Geneva
 
 		try {
 			return f(parameterValues); // Parse the formula. This may throw a Gem::Common::math_logic_error
-		} catch (Gem::Common::math_logic_error &m) {
+		} catch (Gem::Common::math_logic_error &m) { // NOLINT(bugprone-empty-catch) — logs warning and returns MAX_DOUBLE sentinel
 			glogger
 				<< "In GParameterSetFormulaConstraint::check_(): WARNING" << std::endl
 				<< "Caught Gem::Common::math_logic_error with message" << std::endl

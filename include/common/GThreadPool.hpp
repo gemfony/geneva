@@ -189,7 +189,7 @@ namespace Gem::Common
                             // Whatever was thrown may be stored in the promise
                             promise_ptr->set_exception(std::make_exception_ptr(r));
                         }
-                        catch (...)
+                        catch (...) // NOLINT(bugprone-empty-catch) — logs and terminates via GTERMINATION
                         {
                             // Unfortunately set_exception() may throw too
                             glogger
@@ -198,14 +198,14 @@ namespace Gem::Common
                                 << "We cannot continue" << std::endl
                                 << GTERMINATION;
                         }
-                    } catch (...)
+                    } catch (...) // NOLINT(bugprone-empty-catch) — propagates via set_exception or terminates
                     {
                         try
                         {
                             // Whatever was thrown may be stored in the promise
                             promise_ptr->set_exception(std::current_exception());
                         }
-                        catch (...)
+                        catch (...) // NOLINT(bugprone-empty-catch) — logs and terminates via GTERMINATION
                         {
                             // Unfortunately set_exception() may throw too
                             glogger
@@ -339,7 +339,7 @@ namespace Gem::Common
                             // Whatever was thrown may be stored in the promise
                             promise_ptr->set_exception(std::make_exception_ptr(r));
                         }
-                        catch (...)
+                        catch (...) // NOLINT(bugprone-empty-catch) — logs and terminates via GTERMINATION
                         {
                             // Unfortunately set_exception() may throw too
                             glogger
@@ -348,14 +348,14 @@ namespace Gem::Common
                                 << "We cannot continue" << std::endl
                                 << GTERMINATION;
                         }
-                    } catch (...)
+                    } catch (...) // NOLINT(bugprone-empty-catch) — propagates via set_exception or terminates
                     {
                         try
                         {
                             // Whatever was thrown may be stored in the promise
                             promise_ptr->set_exception(std::current_exception());
                         }
-                        catch (...)
+                        catch (...) // NOLINT(bugprone-empty-catch) — logs and terminates via GTERMINATION
                         {
                             // Unfortunately set_exception() may throw too
                             glogger

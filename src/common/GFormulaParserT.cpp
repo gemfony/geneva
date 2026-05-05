@@ -73,35 +73,35 @@ namespace Gem::Common
 	// Some swap functions needed to deal with MSVC peculiarities
 
 	// Swaps two nil structs
-	void nil::swap(nil &n) { }
+	void nil::swap(nil &n) noexcept { }
 
 	// Swaps two signed_ structs
-	void signed_::swap(signed_ &s) {
+	void signed_::swap(signed_ &s) noexcept {
 		std::swap(sign, s.sign);
 		std::swap(operand_, s.operand_);
 	}
 
 	// Swaps two operation structs
-	void operation::swap(operation &o) {
+	void operation::swap(operation &o) noexcept {
 		std::swap(operator_, o.operator_);
 		std::swap(operand_, o.operand_);
 	}
 
 	// Swaps two unary_function_ structs
-	void unary_function_::swap(unary_function_ &u) {
+	void unary_function_::swap(unary_function_ &u) noexcept {
 		std::swap(fname_, u.fname_);
 		std::swap(operand_, u.operand_);
 	}
 
 	// Swaps two binary_function_ structs
-	void binary_function_::swap(binary_function_ &b) {
+	void binary_function_::swap(binary_function_ &b) noexcept {
 		std::swap(fname_, b.fname_);
 		std::swap(operand1_, b.operand1_);
 		std::swap(operand2_, b.operand2_);
 	}
 
 	// Swaps two ast_expression structs
-	void ast_expression::swap(ast_expression &a) {
+	void ast_expression::swap(ast_expression &a) noexcept {
 		std::swap(first, a.first);
 		std::swap(rest, a.rest);
 	}
@@ -116,27 +116,27 @@ namespace Gem::Common
 namespace boost::spirit
 {
 
-	void swap(Gem::Common::nil &a, Gem::Common::nil &b) {
+	void swap(Gem::Common::nil &a, Gem::Common::nil &b) noexcept {
 		a.swap(b);
 	}
 
-	void swap(Gem::Common::signed_ &a, Gem::Common::signed_ &b) {
+	void swap(Gem::Common::signed_ &a, Gem::Common::signed_ &b) noexcept {
 		a.swap(b);
 	}
 
-	void swap(Gem::Common::operation &a, Gem::Common::operation &b) {
+	void swap(Gem::Common::operation &a, Gem::Common::operation &b) noexcept {
 		a.swap(b);
 	}
 
-	void swap(Gem::Common::unary_function_ &a, Gem::Common::unary_function_ &b) {
+	void swap(Gem::Common::unary_function_ &a, Gem::Common::unary_function_ &b) noexcept {
 		a.swap(b);
 	}
 
-	void swap(Gem::Common::binary_function_ &a, Gem::Common::binary_function_ &b) {
+	void swap(Gem::Common::binary_function_ &a, Gem::Common::binary_function_ &b) noexcept {
 		a.swap(b);
 	}
 
-	void swap(Gem::Common::ast_expression &a, Gem::Common::ast_expression &b) {
+	void swap(Gem::Common::ast_expression &a, Gem::Common::ast_expression &b) noexcept {
 		a.swap(b);
 	}
 

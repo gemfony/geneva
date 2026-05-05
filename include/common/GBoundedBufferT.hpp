@@ -133,7 +133,7 @@ namespace Gem::Common
                 m_container.clear();
             }
             // This is a standard error raised by the lock/mutex
-            catch (std::system_error& e)
+            catch (std::system_error& e) // NOLINT(bugprone-empty-catch) — logs and terminates via GTERMINATION
             {
                 glogger
                     << "In GRandomFactory::producer(): Error!" << std::endl
@@ -143,7 +143,7 @@ namespace Gem::Common
                     << GTERMINATION;
             }
             // We do not know whether any of the destructors of the items in the buffer throw anything
-            catch (...)
+            catch (...) // NOLINT(bugprone-empty-catch) — logs and terminates via GTERMINATION
             {
                 glogger
                     << "Caught unknown exception in GBoundedBufferT::~GBoundedBufferT(). Terminating ..." << std::endl

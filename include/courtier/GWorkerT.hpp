@@ -76,7 +76,7 @@ namespace Gem::Courtier
          * supplied by the caller.
          */
         explicit GWorkerT(std::size_t workerId)
-            : m_worker_id(workerId)
+            : m_worker_id(static_cast<std::int32_t>(workerId))
         {
             /* nothing */
         }
@@ -187,7 +187,7 @@ namespace Gem::Courtier
                 {
                     // Retrieve an item and check for its validity. Try again if
                     // we didn't receive a valid item
-                    if (not(p = this->retrieve(m_retrieval_timeout)))
+                    if (not(p = this->retrieve(m_retrieval_timeout))) // NOLINT(bugprone-assignment-in-if-condition)
                     {
                         continue;
                     }
@@ -331,7 +331,7 @@ namespace Gem::Courtier
             {
                 this->process_(p);
             }
-            catch (const g_processing_exception& e)
+            catch (const g_processing_exception& e) // NOLINT(bugprone-empty-catch) — expected; error stored in work item
             {
                 glogger
                     << "In GWorkerT<processable_type>::process():" << std::endl

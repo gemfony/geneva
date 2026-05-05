@@ -231,6 +231,7 @@ namespace Gem::Common
  * Assignment operator
  */
 	GBasePlotter& GBasePlotter::operator=(GBasePlotter const & cp) {
+		if (this == &cp) return *this;
 		GCommonInterfaceT<GBasePlotter>::operator=(cp);
 
 		m_drawingArguments = cp.m_drawingArguments;
@@ -3113,6 +3114,7 @@ namespace Gem::Common
  * The assignment operator
  */
 	GPlotDesigner& GPlotDesigner::operator=(GPlotDesigner const& cp) {
+		if (this == &cp) return *this;
 		m_c_x_div = cp.m_c_x_div;
 		m_c_y_div = cp.m_c_y_div;
 		m_c_x_dim = cp.m_c_x_dim;

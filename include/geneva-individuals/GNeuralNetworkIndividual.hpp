@@ -1018,16 +1018,16 @@ private:
 	 G_API_INDIVIDUALS virtual std::shared_ptr <GParameterSet> getObject_(Gem::Common::GParserBuilder &,
 																		 const std::size_t &);
 
-	 double adProb_;
-	 double adaptAdProb_;
-	 double minAdProb_;
-	 double maxAdProb_;
-	 double sigma_;
-	 double sigmaSigma_;
-	 double minSigma_;
-	 double maxSigma_;
-	 double minVar_;
-	 double maxVar_;
+	 double adProb_ = 0.;
+	 double adaptAdProb_ = 0.;
+	 double minAdProb_ = 0.;
+	 double maxAdProb_ = 0.;
+	 double sigma_ = 0.;
+	 double sigmaSigma_ = 0.;
+	 double minSigma_ = 0.;
+	 double maxSigma_ = 0.;
+	 double minVar_ = 0.;
+	 double maxVar_ = 0.;
 
 	 transferFunction tF_;
 };

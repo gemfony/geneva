@@ -514,7 +514,7 @@ namespace Gem::Geneva
 		//-----------------------------------------------------------------------------
 
 		{ // Test that random initialization with a given probability for true will result in roughly the expected amount of corresponding values
-			for (double d = 0.1; d < 0.9; d += 0.1) {
+			for (int prob_i = 1; prob_i <= 8; ++prob_i) { const double d = prob_i * 0.1;
 				std::shared_ptr <GBooleanObject> p_test = this->clone<GBooleanObject>();
 
 				// Assign a boolean value true

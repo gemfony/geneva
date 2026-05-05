@@ -130,7 +130,7 @@ public:
 	 /**
 	  * Swap with another parPropSpec
 	  */
-	 void swap(parPropSpec<par_type>& b) {
+	 void swap(parPropSpec<par_type>& b) noexcept {
 		 NAMEANDIDTYPE var_c = b.var; b.var = this->var; this->var = var_c;
 		 par_type lowerBoundary_c = b.lowerBoundary;  b.lowerBoundary = this->lowerBoundary; this->lowerBoundary = lowerBoundary_c;
 		 par_type upperBoundary_c = b.upperBoundary;  b.upperBoundary = this->upperBoundary; this->upperBoundary = upperBoundary_c;
@@ -565,10 +565,10 @@ GParameterPropertyParser::getIterators<bool>() const {
 namespace boost {
 namespace spirit {
 
-G_API_GENEVA void swap(Gem::Geneva::parPropSpec<double>&, Gem::Geneva::parPropSpec<double>&);
-G_API_GENEVA void swap(Gem::Geneva::parPropSpec<float>&, Gem::Geneva::parPropSpec<float>&);
-G_API_GENEVA void swap(Gem::Geneva::parPropSpec<std::int32_t>&, Gem::Geneva::parPropSpec<std::int32_t>&);
-G_API_GENEVA void swap(Gem::Geneva::parPropSpec<bool>&, Gem::Geneva::parPropSpec<bool>&);
+G_API_GENEVA void swap(Gem::Geneva::parPropSpec<double>&, Gem::Geneva::parPropSpec<double>&) noexcept;
+G_API_GENEVA void swap(Gem::Geneva::parPropSpec<float>&, Gem::Geneva::parPropSpec<float>&) noexcept;
+G_API_GENEVA void swap(Gem::Geneva::parPropSpec<std::int32_t>&, Gem::Geneva::parPropSpec<std::int32_t>&) noexcept;
+G_API_GENEVA void swap(Gem::Geneva::parPropSpec<bool>&, Gem::Geneva::parPropSpec<bool>&) noexcept;
 
 
 } /* namespace spirit */

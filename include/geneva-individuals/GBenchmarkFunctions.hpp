@@ -95,8 +95,8 @@
 #  define GBM_E   2.718281828459045235360
 #else
 #  include <cmath>
-namespace { constexpr double GBM_PI = 3.14159265358979323846; }
-namespace { constexpr double GBM_E  = 2.71828182845904523536; }
+inline constexpr double GBM_PI = 3.14159265358979323846;
+inline constexpr double GBM_E  = 2.71828182845904523536;
 #endif
 
 // ── Integer IDs (mirror solverFunction enum, avoids including GFunctionIndividual.hpp from .cu) ──

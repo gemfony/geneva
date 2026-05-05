@@ -385,7 +385,7 @@ namespace Gem::Geneva
 		{ // Test of GParameterT<T>'s methods for setting and retrieval of values
 			std::shared_ptr <GDoubleObject> p_test = this->clone<GDoubleObject>();
 
-			for (double d = 0.; d < 10; d += 0.01) {
+			for (int val_i = 0; val_i < 1000; ++val_i) { const double d = val_i * 0.01;
 				CHECK_NOTHROW((*p_test) = d); // Setting using operator=()
 				CHECK(p_test->value() == d); // Retrieval through the value() function
 				CHECK_NOTHROW(p_test->setValue(d)); // Setting using the setValue() function
@@ -401,7 +401,7 @@ namespace Gem::Geneva
 			std::shared_ptr<GDoubleObject> p_test = this->clone<GDoubleObject>();
 
 			double target = -1.;
-			for (double d = 0.; d < 10; d += 0.01) {
+			for (int val_i = 0; val_i < 1000; ++val_i) { const double d = val_i * 0.01;
 				CHECK_NOTHROW(p_test->setValue(d)); // Setting using the setValue() function
 				CHECK_NOTHROW(target = *p_test); // Automatic conversion
 				CHECK(target == d); // Cross-check

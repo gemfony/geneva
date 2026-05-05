@@ -296,7 +296,7 @@ public:
 	/**
 	 * Copy-assignment does nothing
 	 */
-	GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL>& operator=(GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL> const& cp) noexcept(false)
+	GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL>& operator=(GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL> const& cp) noexcept(false) // NOLINT(cert-oop54-cpp) — intentionally trivial: each instance owns independent state
 	{
 		return *this;
 	}

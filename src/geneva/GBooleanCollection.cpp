@@ -632,7 +632,7 @@ namespace Gem::Geneva
 		// --------------------------------------------------------------------------
 
 		{ // Test that random initialization with a given probability will result in roughly the expected amount of true and false values
-			for (double d = 0.1; d < 0.9; d += 0.1) {
+			for (int prob_i = 1; prob_i <= 8; ++prob_i) { const double d = prob_i * 0.1;
 				std::shared_ptr <GBooleanCollection> p_test = this->clone<GBooleanCollection>();
 
 				// Make sure the collection is empty
