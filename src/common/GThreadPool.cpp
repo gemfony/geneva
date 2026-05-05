@@ -31,8 +31,7 @@
 
 #include <boost/cast.hpp>
 
-namespace Gem::Common
-{
+namespace Gem::Common {
 
 /******************************************************************************/
 /**
@@ -41,15 +40,12 @@ namespace Gem::Common
  * @param nThreads The desired number of threads executing work concurrently in the pool
  */
 GThreadPool::GThreadPool(unsigned int nThreads)
-    : m_nThreads(nThreads > 0 ? nThreads : DEFAULTNHARDWARETHREADS)
-{
-    if (0 == nThreads)
-    {
-        glogger
-            << "In GThreadPool::GThreadPool(unsigned int const &nThreads):" << std::endl
-            << "User requested nThreads == 0. nThreads was reset to the default " << DEFAULTNHARDWARETHREADS <<
-            std::endl
-            << GWARNING;
+  : m_nThreads(nThreads > 0 ? nThreads : DEFAULTNHARDWARETHREADS) {
+    if(0 == nThreads) {
+        glogger << "In GThreadPool::GThreadPool(unsigned int const &nThreads):" << std::endl
+                << "User requested nThreads == 0. nThreads was reset to the default "
+                << DEFAULTNHARDWARETHREADS << std::endl
+                << GWARNING;
     }
 }
 
@@ -59,16 +55,14 @@ GThreadPool::GThreadPool(unsigned int nThreads)
  * at the time of its call no calls to async_schedule(), setNThreads() or
  * wait() may occur. It does allow the queue to run empty, though.
  */
-GThreadPool::~GThreadPool()
-{
+GThreadPool::~GThreadPool() {
     // Make sure no new jobs may be submitted and let the pool run empty
     std::unique_lock<std::mutex> job_lck(m_task_submission_mutex);
     {
         // Makes sure cnt_lck is released
         // Acquire the lock, then return it as long as the condition hasn't been fulfilled
         std::unique_lock<std::mutex> cnt_lck(m_task_counter_mutex);
-        while (m_tasksInFlight.load() > 0)
-        {
+        while(m_tasksInFlight.load() > 0) {
             // Deal with spurious wake-ups
             m_condition.wait(cnt_lck);
         }
@@ -92,20 +86,17 @@ GThreadPool::~GThreadPool()
  *
  * @param nThreads The desired number of threads
  */
-void
-GThreadPool::setNThreads(unsigned int nThreads)
-{
+void GThreadPool::setNThreads(unsigned int nThreads) {
     // Make sure no new jobs may be submitted
     std::unique_lock<std::mutex> job_lck(m_task_submission_mutex, std::defer_lock);
     // Make sure no threads may be created by other entities
     std::unique_lock<std::mutex> tc_lk(m_thread_creation_mutex, std::defer_lock);
 
-    // Simulataneously lock both locks
+    // Simultaneously lock both locks
     std::lock(job_lck, tc_lk);
 
     // Check if any work needs to be done
-    if (m_gtg.size() == nThreads)
-    {
+    if(m_gtg.size() == nThreads) {
         // We do nothing if we already have the desired size
         return;
     }
@@ -117,29 +108,22 @@ GThreadPool::setNThreads(unsigned int nThreads)
         // Let the pool run empty
         // Acquire the lock, then return it as long as the condition hasn't been fulfilled
         std::unique_lock<std::mutex> cnt_lck(m_task_counter_mutex);
-        while (m_tasksInFlight.load() > 0)
-        {
+        while(m_tasksInFlight.load() > 0) {
             // Deal with spurious wake-ups
             m_condition.wait(cnt_lck);
         }
     }
 
     // If threads were already running, either add new threads or recreate the pool
-    if (m_threads_started)
-    {
-        if (nThreads > m_nThreads.load())
-        {
+    if(m_threads_started) {
+        if(nThreads > m_nThreads.load()) {
             // We simply add the required number of threads
             m_gtg.create_threads(
-                [this]()
-                {
-                    this->m_io_context.run();
-                }
-                , nThreads - m_nThreads.load()
+                [this]() { this->m_io_context.run(); },
+                nThreads - m_nThreads.load()
             );
         }
-        else
-        {
+        else {
             // We need to remove threads and thus reset the entire pool
             m_work_guard_ptr.reset(); // This will initiate termination of all threads
             m_gtg.join_all();         // wait for the threads to terminate
@@ -149,17 +133,13 @@ GThreadPool::setNThreads(unsigned int nThreads)
             m_io_context.restart();
 
             // Store a new worker (a place holder, really) in the m_io_service object
-            m_work_guard_ptr = std::make_shared<boost::asio::executor_work_guard<
-                boost::asio::io_context::executor_type>>(m_io_context.get_executor());
+            m_work_guard_ptr = std::make_shared<
+                boost::asio::executor_work_guard<boost::asio::io_context::executor_type>>(
+                m_io_context.get_executor()
+            );
 
             // Start the threads
-            m_gtg.create_threads(
-                [&]()
-                {
-                    m_io_context.run();
-                }
-                , nThreads
-            );
+            m_gtg.create_threads([&]() { m_io_context.run(); }, nThreads);
         }
     }
 
@@ -171,9 +151,7 @@ GThreadPool::setNThreads(unsigned int nThreads)
 /**
  * Retrieves the current "true" number of threads being used in the pool
  */
-unsigned int
-GThreadPool::getNThreads() const
-{
+unsigned int GThreadPool::getNThreads() const {
     return boost::numeric_cast<unsigned int>(m_gtg.size());
 }
 
@@ -182,9 +160,7 @@ GThreadPool::getNThreads() const
  * Waits for all submitted jobs to be cleared from the pool. Note that this
  * function may NOT be called from a task running inside the pool.
  */
-void
-GThreadPool::wait()
-{
+void GThreadPool::wait() {
     // Make sure no new jobs may be submitted
     std::unique_lock<std::mutex> job_lck(m_task_submission_mutex);
 
@@ -192,13 +168,7 @@ GThreadPool::wait()
         // Makes sure cnt_lck is released
         // Acquire the lock, then return it as long as the condition hasn't been fulfilled
         std::unique_lock<std::mutex> cnt_lck(m_task_counter_mutex);
-        m_condition.wait(
-            cnt_lck
-            , [this]() -> bool
-            {
-                return (m_tasksInFlight.load() == 0);
-            }
-        );
+        m_condition.wait(cnt_lck, [this]() -> bool { return (m_tasksInFlight.load() == 0); });
     }
 }
 

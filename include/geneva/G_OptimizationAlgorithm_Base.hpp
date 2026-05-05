@@ -33,26 +33,26 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard header files go here
-#include <iostream>
-#include <ctime>
 #include <chrono>
+#include <ctime>
+#include <iostream>
 #include <type_traits>
 #include <utility>
 
 // Boost header files go here
 
 // Geneva headers go here
-#include "common/GPtrVectorT.hpp"
 #include "common/GCommonHelperFunctions.hpp"
 #include "common/GCommonHelperFunctionsT.hpp"
-#include "common/GSerializationHelperFunctionsT.hpp"
 #include "common/GPlotDesigner.hpp"
+#include "common/GPtrVectorT.hpp"
+#include "common/GSerializationHelperFunctionsT.hpp"
 #include "courtier/GExecutorT.hpp"
 #include "geneva/GObject.hpp"
-#include "geneva/G_Interface_OptimizerT.hpp"
 #include "geneva/GParameterSet.hpp"
-#include "geneva/GPersonalityTraits.hpp"
 #include "geneva/GParameterSetFixedSizePriorityQueue.hpp"
+#include "geneva/GPersonalityTraits.hpp"
+#include "geneva/G_Interface_OptimizerT.hpp"
 #include "geneva/GenevaHelperFunctions.hpp"
 
 namespace Gem {
@@ -75,19 +75,16 @@ class G_OptimizationAlgorithm_Base;
 /**
  * The base class of all pluggable optimization monitors
  */
-class GBasePluggableOM :
-    public GObject
-{
+class GBasePluggableOM : public GObject {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
-    template<typename Archive>
+    template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar
-        & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject)
-        & BOOST_SERIALIZATION_NVP(m_useRawEvaluation);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject) &
+            BOOST_SERIALIZATION_NVP(m_useRawEvaluation);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -96,20 +93,17 @@ public:
     // Defaulted constructors, destructor and assignment operators
 
     G_API_GENEVA GBasePluggableOM() = default;
-    G_API_GENEVA GBasePluggableOM(GBasePluggableOM const & cp) = default;
-    G_API_GENEVA GBasePluggableOM(GBasePluggableOM && cp) = default;
+    G_API_GENEVA GBasePluggableOM(GBasePluggableOM const &cp) = default;
+    G_API_GENEVA GBasePluggableOM(GBasePluggableOM &&cp) = default;
 
     G_API_GENEVA ~GBasePluggableOM() override = default;
 
-    G_API_GENEVA GBasePluggableOM& operator=(GBasePluggableOM const&) = default;
-    G_API_GENEVA GBasePluggableOM& operator=(GBasePluggableOM &&) = default;
+    G_API_GENEVA GBasePluggableOM &operator=(GBasePluggableOM const &) = default;
+    G_API_GENEVA GBasePluggableOM &operator=(GBasePluggableOM &&) = default;
 
     /***************************************************************************/
     /** @brief Access tp information about the current iteration */
-    G_API_GENEVA void informationFunction(
-        infoMode
-        , G_OptimizationAlgorithm_Base const * const
-    );
+    G_API_GENEVA void informationFunction(infoMode, G_OptimizationAlgorithm_Base const *const);
 
     /** @brief Allows to set the m_useRawEvaluation variable */
     void G_API_GENEVA setUseRawEvaluation(bool useRaw);
@@ -124,16 +118,16 @@ protected:
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GBasePluggableOM>(
-        GBasePluggableOM const &
-        , GBasePluggableOM const &
-        , Gem::Common::GToken &
+        GBasePluggableOM const &,
+        GBasePluggableOM const &,
+        Gem::Common::GToken &
     );
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
     G_API_GENEVA void compare_(
-        const GObject &cp
-        , const Gem::Common::expectation &e
-        , const double &limit
+        const GObject &cp,
+        const Gem::Common::expectation &e,
+        const double &limit
     ) const override;
 
     /** @brief Applies modifications to this object. This is needed for testing purposes
@@ -147,17 +141,16 @@ protected:
     /***************************************************************************/
     // Data
 
-    bool m_useRawEvaluation = false; ///< Specifies whether the true (unmodified) evaluation should be used
+    bool m_useRawEvaluation =
+        false; ///< Specifies whether the true (unmodified) evaluation should be used
 
 private:
     /** @brief Creates a deep clone of this object */
     G_API_GENEVA GObject *clone_() const override = 0;
 
     /** @brief Overload this function in derived classes, specifying actions for initialization, the optimization cycles and finalization. */
-    virtual G_API_GENEVA void informationFunction_(
-        infoMode
-        , G_OptimizationAlgorithm_Base const * const
-    ) = 0;
+    virtual G_API_GENEVA void
+    informationFunction_(infoMode, G_OptimizationAlgorithm_Base const *const) = 0;
 };
 
 /******************************************************************************/
@@ -170,106 +163,93 @@ private:
  * algorithms, such as a general call to "optimize()".
  */
 class G_OptimizationAlgorithm_Base
-    : public GObject
-    , public Gem::Common::GPtrVectorT<GParameterSet, Gem::Geneva::GObject>
-    , public G_Interface_OptimizerT<G_OptimizationAlgorithm_Base>
-{
+  : public GObject
+  , public Gem::Common::GPtrVectorT<GParameterSet, Gem::Geneva::GObject>
+  , public G_Interface_OptimizerT<G_OptimizationAlgorithm_Base> {
 private:
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
-    template<typename Archive>
+    template <typename Archive>
     void load(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
         std::string cpDir{};
 
-        ar
-        & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject)
-        & make_nvp(
-            "GStdPtrVectorInterfaceT_T"
-            , boost::serialization::base_object<Gem::Common::GPtrVectorT<GParameterSet, Gem::Geneva::GObject>>(*this))
-        & BOOST_SERIALIZATION_NVP(m_iteration)
-        & BOOST_SERIALIZATION_NVP(m_offset)
-        & BOOST_SERIALIZATION_NVP(m_maxIteration)
-        & BOOST_SERIALIZATION_NVP(m_minIteration)
-        & BOOST_SERIALIZATION_NVP(m_maxStallIteration)
-        & BOOST_SERIALIZATION_NVP(m_reportIteration)
-        & BOOST_SERIALIZATION_NVP(m_nRecordbestGlobalIndividuals)
-        & BOOST_SERIALIZATION_NVP(m_bestGlobalIndividuals_pq)
-        & BOOST_SERIALIZATION_NVP(m_defaultPopulationSize)
-        & BOOST_SERIALIZATION_NVP(m_bestKnownPrimaryFitness)
-        & BOOST_SERIALIZATION_NVP(m_bestCurrentPrimaryFitness)
-        & BOOST_SERIALIZATION_NVP(m_stallCounter)
-        & BOOST_SERIALIZATION_NVP(m_stallCounterThreshold)
-        & BOOST_SERIALIZATION_NVP(m_cp_interval)
-        & BOOST_SERIALIZATION_NVP(m_cp_base_name)
-        & BOOST_SERIALIZATION_NVP(cpDir)
-        & BOOST_SERIALIZATION_NVP(m_cp_last)
-        & BOOST_SERIALIZATION_NVP(m_cp_remove)
-        & BOOST_SERIALIZATION_NVP(m_cp_serialization_mode)
-        & BOOST_SERIALIZATION_NVP(m_qualityThreshold)
-        & BOOST_SERIALIZATION_NVP(m_hasQualityThreshold)
-        & BOOST_SERIALIZATION_NVP(m_maxDuration)
-        & BOOST_SERIALIZATION_NVP(m_minDuration)
-        & BOOST_SERIALIZATION_NVP(m_terminationFile)
-        & BOOST_SERIALIZATION_NVP(m_terminateOnFileModification)
-        & BOOST_SERIALIZATION_NVP(m_emitTerminationReason)
-        & BOOST_SERIALIZATION_NVP(m_halted)
-        & BOOST_SERIALIZATION_NVP(m_worstKnownValids_cnt)
-        & BOOST_SERIALIZATION_NVP(m_pluggable_monitors_cnt)
-        & BOOST_SERIALIZATION_NVP(m_executor_ptr)
-        & BOOST_SERIALIZATION_NVP(m_default_execMode)
-        & BOOST_SERIALIZATION_NVP(m_default_executor_config);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject) &
+            make_nvp(
+                "GStdPtrVectorInterfaceT_T",
+                boost::serialization::base_object<
+                    Gem::Common::GPtrVectorT<GParameterSet, Gem::Geneva::GObject>>(*this)
+            ) &
+            BOOST_SERIALIZATION_NVP(m_iteration) & BOOST_SERIALIZATION_NVP(m_offset) &
+            BOOST_SERIALIZATION_NVP(m_maxIteration) & BOOST_SERIALIZATION_NVP(m_minIteration) &
+            BOOST_SERIALIZATION_NVP(m_maxStallIteration) &
+            BOOST_SERIALIZATION_NVP(m_reportIteration) &
+            BOOST_SERIALIZATION_NVP(m_nRecordbestGlobalIndividuals) &
+            BOOST_SERIALIZATION_NVP(m_bestGlobalIndividuals_pq) &
+            BOOST_SERIALIZATION_NVP(m_defaultPopulationSize) &
+            BOOST_SERIALIZATION_NVP(m_bestKnownPrimaryFitness) &
+            BOOST_SERIALIZATION_NVP(m_bestCurrentPrimaryFitness) &
+            BOOST_SERIALIZATION_NVP(m_stallCounter) &
+            BOOST_SERIALIZATION_NVP(m_stallCounterThreshold) &
+            BOOST_SERIALIZATION_NVP(m_cp_interval) & BOOST_SERIALIZATION_NVP(m_cp_base_name) &
+            BOOST_SERIALIZATION_NVP(cpDir) & BOOST_SERIALIZATION_NVP(m_cp_last) &
+            BOOST_SERIALIZATION_NVP(m_cp_remove) &
+            BOOST_SERIALIZATION_NVP(m_cp_serialization_mode) &
+            BOOST_SERIALIZATION_NVP(m_qualityThreshold) &
+            BOOST_SERIALIZATION_NVP(m_hasQualityThreshold) &
+            BOOST_SERIALIZATION_NVP(m_maxDuration) & BOOST_SERIALIZATION_NVP(m_minDuration) &
+            BOOST_SERIALIZATION_NVP(m_terminationFile) &
+            BOOST_SERIALIZATION_NVP(m_terminateOnFileModification) &
+            BOOST_SERIALIZATION_NVP(m_emitTerminationReason) & BOOST_SERIALIZATION_NVP(m_halted) &
+            BOOST_SERIALIZATION_NVP(m_worstKnownValids_cnt) &
+            BOOST_SERIALIZATION_NVP(m_pluggable_monitors_cnt) &
+            BOOST_SERIALIZATION_NVP(m_executor_ptr) & BOOST_SERIALIZATION_NVP(m_default_execMode) &
+            BOOST_SERIALIZATION_NVP(m_default_executor_config);
 
         // Transfer the string to the path
         m_cp_directory_path = std::filesystem::path(cpDir);
     }
 
-    template<typename Archive>
+    template <typename Archive>
     void save(Archive &ar, const unsigned int) const {
         using boost::serialization::make_nvp;
 
         // Transfer the path to the string
         std::string cpDir = m_cp_directory_path.string();
 
-        ar
-        & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject)
-        & make_nvp(
-            "GStdPtrVectorInterfaceT_T"
-            , boost::serialization::base_object<Gem::Common::GPtrVectorT<GParameterSet, Gem::Geneva::GObject>>(*this))
-        & BOOST_SERIALIZATION_NVP(m_iteration)
-        & BOOST_SERIALIZATION_NVP(m_offset)
-        & BOOST_SERIALIZATION_NVP(m_maxIteration)
-        & BOOST_SERIALIZATION_NVP(m_minIteration)
-        & BOOST_SERIALIZATION_NVP(m_maxStallIteration)
-        & BOOST_SERIALIZATION_NVP(m_reportIteration)
-        & BOOST_SERIALIZATION_NVP(m_nRecordbestGlobalIndividuals)
-        & BOOST_SERIALIZATION_NVP(m_bestGlobalIndividuals_pq)
-        & BOOST_SERIALIZATION_NVP(m_defaultPopulationSize)
-        & BOOST_SERIALIZATION_NVP(m_bestKnownPrimaryFitness)
-        & BOOST_SERIALIZATION_NVP(m_bestCurrentPrimaryFitness)
-        & BOOST_SERIALIZATION_NVP(m_stallCounter)
-        & BOOST_SERIALIZATION_NVP(m_stallCounterThreshold)
-        & BOOST_SERIALIZATION_NVP(m_cp_interval)
-        & BOOST_SERIALIZATION_NVP(m_cp_base_name)
-        & BOOST_SERIALIZATION_NVP(cpDir)
-        & BOOST_SERIALIZATION_NVP(m_cp_last)
-        & BOOST_SERIALIZATION_NVP(m_cp_remove)
-        & BOOST_SERIALIZATION_NVP(m_cp_serialization_mode)
-        & BOOST_SERIALIZATION_NVP(m_qualityThreshold)
-        & BOOST_SERIALIZATION_NVP(m_hasQualityThreshold)
-        & BOOST_SERIALIZATION_NVP(m_maxDuration)
-        & BOOST_SERIALIZATION_NVP(m_minDuration)
-        & BOOST_SERIALIZATION_NVP(m_terminationFile)
-        & BOOST_SERIALIZATION_NVP(m_terminateOnFileModification)
-        & BOOST_SERIALIZATION_NVP(m_emitTerminationReason)
-        & BOOST_SERIALIZATION_NVP(m_halted)
-        & BOOST_SERIALIZATION_NVP(m_worstKnownValids_cnt)
-        & BOOST_SERIALIZATION_NVP(m_pluggable_monitors_cnt)
-        & BOOST_SERIALIZATION_NVP(m_executor_ptr)
-        & BOOST_SERIALIZATION_NVP(m_default_execMode)
-        & BOOST_SERIALIZATION_NVP(m_default_executor_config);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject) &
+            make_nvp(
+                "GStdPtrVectorInterfaceT_T",
+                boost::serialization::base_object<
+                    Gem::Common::GPtrVectorT<GParameterSet, Gem::Geneva::GObject>>(*this)
+            ) &
+            BOOST_SERIALIZATION_NVP(m_iteration) & BOOST_SERIALIZATION_NVP(m_offset) &
+            BOOST_SERIALIZATION_NVP(m_maxIteration) & BOOST_SERIALIZATION_NVP(m_minIteration) &
+            BOOST_SERIALIZATION_NVP(m_maxStallIteration) &
+            BOOST_SERIALIZATION_NVP(m_reportIteration) &
+            BOOST_SERIALIZATION_NVP(m_nRecordbestGlobalIndividuals) &
+            BOOST_SERIALIZATION_NVP(m_bestGlobalIndividuals_pq) &
+            BOOST_SERIALIZATION_NVP(m_defaultPopulationSize) &
+            BOOST_SERIALIZATION_NVP(m_bestKnownPrimaryFitness) &
+            BOOST_SERIALIZATION_NVP(m_bestCurrentPrimaryFitness) &
+            BOOST_SERIALIZATION_NVP(m_stallCounter) &
+            BOOST_SERIALIZATION_NVP(m_stallCounterThreshold) &
+            BOOST_SERIALIZATION_NVP(m_cp_interval) & BOOST_SERIALIZATION_NVP(m_cp_base_name) &
+            BOOST_SERIALIZATION_NVP(cpDir) & BOOST_SERIALIZATION_NVP(m_cp_last) &
+            BOOST_SERIALIZATION_NVP(m_cp_remove) &
+            BOOST_SERIALIZATION_NVP(m_cp_serialization_mode) &
+            BOOST_SERIALIZATION_NVP(m_qualityThreshold) &
+            BOOST_SERIALIZATION_NVP(m_hasQualityThreshold) &
+            BOOST_SERIALIZATION_NVP(m_maxDuration) & BOOST_SERIALIZATION_NVP(m_minDuration) &
+            BOOST_SERIALIZATION_NVP(m_terminationFile) &
+            BOOST_SERIALIZATION_NVP(m_terminateOnFileModification) &
+            BOOST_SERIALIZATION_NVP(m_emitTerminationReason) & BOOST_SERIALIZATION_NVP(m_halted) &
+            BOOST_SERIALIZATION_NVP(m_worstKnownValids_cnt) &
+            BOOST_SERIALIZATION_NVP(m_pluggable_monitors_cnt) &
+            BOOST_SERIALIZATION_NVP(m_executor_ptr) & BOOST_SERIALIZATION_NVP(m_default_execMode) &
+            BOOST_SERIALIZATION_NVP(m_default_executor_config);
     }
 
     BOOST_SERIALIZATION_SPLIT_MEMBER()
@@ -278,7 +258,7 @@ private:
 
 public:
     /** @brief The copy constructor */
-    G_API_GENEVA G_OptimizationAlgorithm_Base(G_OptimizationAlgorithm_Base const & cp);
+    G_API_GENEVA G_OptimizationAlgorithm_Base(G_OptimizationAlgorithm_Base const &cp);
 
     /***************************************************************************/
     // Defaulted functions
@@ -292,7 +272,7 @@ public:
     G_API_GENEVA void checkpoint(bool is_better) const;
 
     /** @brief Loads the state of the class from disc */
-    G_API_GENEVA void loadCheckpoint(std::filesystem::path const & cpFile);
+    G_API_GENEVA void loadCheckpoint(std::filesystem::path const &cpFile);
 
     /** @brief Checks whether the optimization process has been halted */
     G_API_GENEVA bool halted() const;
@@ -324,14 +304,11 @@ public:
 
     /** @brief Adds a new executor to the class, replacing the default executor */
     G_API_GENEVA void registerExecutor(
-        std::shared_ptr<Gem::Courtier::GBaseExecutorT<GParameterSet>> executor_ptr
-        , std::filesystem::path const &executorConfigFile
+        std::shared_ptr<Gem::Courtier::GBaseExecutorT<GParameterSet>> executor_ptr,
+        std::filesystem::path const &executorConfigFile
     );
     /** @brief Adds a new executor to the class, using the chosen execution mode */
-    G_API_GENEVA void registerExecutor(
-        execMode e
-        , std::filesystem::path const &executorConfigFile
-    );
+    G_API_GENEVA void registerExecutor(execMode e, std::filesystem::path const &executorConfigFile);
 
     /******************************************************************************/
     /**
@@ -343,9 +320,11 @@ public:
       * are converting to. The function will throw (via dynamic_pointer_cast), if
       * this is not the case.
       */
-    template<typename target_type>
+    template <typename target_type>
     std::shared_ptr<target_type> getExecutor(
-        typename std::enable_if<std::is_base_of<Gem::Courtier::GBaseExecutorT<GParameterSet>, target_type>::value>::type *dummy = nullptr
+        typename std::enable_if<
+            std::is_base_of<Gem::Courtier::GBaseExecutorT<GParameterSet>, target_type>::value>::type
+            *dummy = nullptr
     ) {
         return std::dynamic_pointer_cast<target_type>(m_executor_ptr);
     }
@@ -359,9 +338,7 @@ public:
     G_API_GENEVA bool progress() const;
 
     /** @brief Allows to register a pluggable optimization monitor. */
-    G_API_GENEVA void registerPluggableOM(
-        std::shared_ptr<GBasePluggableOM> pluggableOM
-    );
+    G_API_GENEVA void registerPluggableOM(std::shared_ptr<GBasePluggableOM> pluggableOM);
     /** @brief Allows to reset the local pluggable optimization monitors */
     G_API_GENEVA void resetPluggableOM();
     /** @brief Allows to check whether pluggable optimization monitors were registered */
@@ -403,7 +380,8 @@ public:
     G_API_GENEVA double getQualityThreshold(bool &hasQualityThreshold) const;
 
     /** @brief Sets the name of a "termination file" */
-    G_API_GENEVA void setTerminationFile(std::string terminationFile, bool terminateOnFileModification);
+    G_API_GENEVA void
+    setTerminationFile(std::string terminationFile, bool terminateOnFileModification);
     /** @brief Retrieves the current name of the termination file and also indicates whether the "touched halt" is active */
     G_API_GENEVA std::string getTerminationFile(bool &terminateOnFileModification) const;
 
@@ -447,19 +425,15 @@ public:
      * @param pos The position in our data array that shall be converted
      * @return A converted version of the GParameterSet object, as required by the user
      */
-    template<typename target_type>
-    std::shared_ptr<target_type> individual_cast(
-        std::size_t pos
-    ) const {
+    template <typename target_type>
+    std::shared_ptr<target_type> individual_cast(std::size_t pos) const {
 #ifdef DEBUG
-        if (pos >= this->size()) {
+        if(pos >= this->size()) {
             throw geneva_exception(
-                g_error_streamer(
-                    DO_LOG
-                    , time_and_place
-                )
-                    << "In G_OptimizationAlgorithm_Base::individual_cast<>() : Error" << std::endl
-                    << "Tried to access position " << pos << " which is >= array size " << this->size() << std::endl
+                g_error_streamer(DO_LOG, time_and_place)
+                << "In G_OptimizationAlgorithm_Base::individual_cast<>() : Error" << std::endl
+                << "Tried to access position " << pos << " which is >= array size " << this->size()
+                << std::endl
             );
         }
 #endif /* DEBUG */
@@ -497,24 +471,22 @@ protected:
     // Overridden or virtual protected functions
 
     /** @brief Adds local configuration options to a GParserBuilder object */
-    G_API_GENEVA void addConfigurationOptions_(
-        Gem::Common::GParserBuilder &gpb
-    ) override;
+    G_API_GENEVA void addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) override;
     /** @brief Loads the data of another GOptimizationAlgorithm object */
     G_API_GENEVA void load_(const GObject *cp) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<G_OptimizationAlgorithm_Base>(
-        G_OptimizationAlgorithm_Base const &
-        , G_OptimizationAlgorithm_Base const &
-        , Gem::Common::GToken &
+        G_OptimizationAlgorithm_Base const &,
+        G_OptimizationAlgorithm_Base const &,
+        Gem::Common::GToken &
     );
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
     G_API_GENEVA void compare_(
-        const GObject &cp
-        , const Gem::Common::expectation &e
-        , const double &limit
+        const GObject &cp,
+        const Gem::Common::expectation &e,
+        const double &limit
     ) const override;
 
     /** @brief Resets the class to the state before the optimize call. */
@@ -536,15 +508,15 @@ protected:
 
     /** @brief Delegation of work to be performed to the private executor object */
     G_API_GENEVA Gem::Courtier::executor_status_t workOn(
-        std::vector<std::shared_ptr<GParameterSet>> &workItems
-        , bool resubmitUnprocessed = false
-        , const std::string &caller = std::string()
+        std::vector<std::shared_ptr<GParameterSet>> &workItems,
+        bool resubmitUnprocessed = false,
+        const std::string &caller = std::string()
     );
     /** @brief Retrieves a vector of old work items after job submission */
     G_API_GENEVA std::vector<std::shared_ptr<GParameterSet>> getOldWorkItems();
 
     /** @brief Saves the state of the class to disc */
-    G_API_GENEVA void saveCheckpoint(std::filesystem::path const & outputFile) const;
+    G_API_GENEVA void saveCheckpoint(std::filesystem::path const &outputFile) const;
 
     /** @brief Extracts the short name of the optimization algorithm */
     G_API_GENEVA std::string extractOptAlgFromPath(const std::filesystem::path &p) const;
@@ -559,9 +531,11 @@ protected:
 
     // NB: protected, as a derived function may fall back to this function, cmp EA in non-pareto mode
     /** @brief Adds the individuals of this iteration to a priority queue. */
-    virtual G_API_GENEVA void updateGlobalBestsPQ_(GParameterSetFixedSizePriorityQueue &bestIndividuals);
+    virtual G_API_GENEVA void
+    updateGlobalBestsPQ_(GParameterSetFixedSizePriorityQueue &bestIndividuals);
     /** @brief Adds the individuals of this iteration to a priority queue. */
-    virtual G_API_GENEVA void updateIterationBestsPQ_(GParameterSetFixedSizePriorityQueue &bestIndividuals);
+    virtual G_API_GENEVA void
+    updateIterationBestsPQ_(GParameterSetFixedSizePriorityQueue &bestIndividuals);
 
     /** @brief Set the number of "best" individuals to be recorded in each iteration */
     G_API_GENEVA void setNRecordBestIndividuals(std::size_t nRecordBestIndividuals);
@@ -582,7 +556,7 @@ private:
     // Overloaded or virtual base functions
 
     /** @brief This function encapsulates some common functionality of iteration-based optimization algorithms. */
-    G_API_GENEVA G_OptimizationAlgorithm_Base const * optimize_(std::uint32_t offset) final;
+    G_API_GENEVA G_OptimizationAlgorithm_Base const *optimize_(std::uint32_t offset) final;
     /** @brief Emits a name for this class / object; this can be a long name with spaces */
     G_API_GENEVA std::string name_() const override = 0;
     /** @brief Creates a deep clone of this object */
@@ -599,12 +573,14 @@ private:
     /** @brief Retrieves the best individual found up to now */
     G_API_GENEVA std::shared_ptr<GParameterSet> getBestGlobalIndividual_() const final;
     /** @brief Retrieves a list of the best individuals found */
-    G_API_GENEVA std::vector<std::shared_ptr<GParameterSet>> getBestGlobalIndividuals_() const final;
+    G_API_GENEVA std::vector<std::shared_ptr<GParameterSet>>
+    getBestGlobalIndividuals_() const final;
 
     /** @brief Retrieves the best individual found in the iteration */
     G_API_GENEVA std::shared_ptr<GParameterSet> getBestIterationIndividual_() const final;
     /** @brief Retrieves a list of the best individuals found in the */
-    G_API_GENEVA std::vector<std::shared_ptr<GParameterSet>> getBestIterationIndividuals_() const final;
+    G_API_GENEVA std::vector<std::shared_ptr<GParameterSet>>
+    getBestIterationIndividuals_() const final;
 
     /** @brief Retrieve the number of processable items in the current iteration. */
     virtual G_API_GENEVA std::size_t getNProcessableItems_() const;
@@ -670,65 +646,83 @@ private:
     G_API_GENEVA bool stallCounterThresholdExceeded() const;
 
     /** @brief Retrieves an executor for the given execution mode */
-    G_API_GENEVA std::shared_ptr<Gem::Courtier::GBaseExecutorT<GParameterSet>> createExecutor(const execMode &e);
+    G_API_GENEVA std::shared_ptr<Gem::Courtier::GBaseExecutorT<GParameterSet>>
+    createExecutor(const execMode &e);
 
     /***************************************************************************/
     // Data
 
     std::uint32_t m_iteration = 0; ///< The current iteration
-    std::uint32_t m_offset = DEFAULTOFFSET; ///< An iteration offset which can be used, if the optimization starts from a checkpoint file
+    std::uint32_t m_offset =
+        DEFAULTOFFSET; ///< An iteration offset which can be used, if the optimization starts from a checkpoint file
     std::uint32_t m_minIteration = DEFAULTMINIT; ///< The minimum number of iterations
     std::uint32_t m_maxIteration = DEFAULTMAXIT; ///< The maximum number of iterations
-    std::uint32_t m_maxStallIteration = DEFAULTMAXSTALLIT; ///< The maximum number of generations without improvement, after which optimization is stopped
-    std::uint32_t m_reportIteration = DEFAULTREPORTITER; ///< The number of generations after which a report should be issued
+    std::uint32_t m_maxStallIteration =
+        DEFAULTMAXSTALLIT; ///< The maximum number of generations without improvement, after which optimization is stopped
+    std::uint32_t m_reportIteration =
+        DEFAULTREPORTITER; ///< The number of generations after which a report should be issued
 
-    std::size_t m_nRecordbestGlobalIndividuals = DEFNRECORDBESTINDIVIDUALS; ///< Indicates the number of best individuals to be recorded/updated in each iteration
-    GParameterSetFixedSizePriorityQueue m_bestGlobalIndividuals_pq{m_nRecordbestGlobalIndividuals}; ///< A priority queue with the best individuals found so far
-    GParameterSetFixedSizePriorityQueue m_bestIterationIndividuals_pq{m_nRecordbestGlobalIndividuals}; ///< A priority queue with the best individuals of a given iteration; unlimited size so all individuals of an iteration fit in
+    std::size_t m_nRecordbestGlobalIndividuals =
+        DEFNRECORDBESTINDIVIDUALS; ///< Indicates the number of best individuals to be recorded/updated in each iteration
+    GParameterSetFixedSizePriorityQueue m_bestGlobalIndividuals_pq{
+        m_nRecordbestGlobalIndividuals
+    }; ///< A priority queue with the best individuals found so far
+    GParameterSetFixedSizePriorityQueue m_bestIterationIndividuals_pq{
+        m_nRecordbestGlobalIndividuals
+    }; ///< A priority queue with the best individuals of a given iteration; unlimited size so all individuals of an iteration fit in
 
-    std::size_t m_defaultPopulationSize = DEFAULTPOPULATIONSIZE; ///< The nominal size of the population
-    std::tuple<double, double> m_bestKnownPrimaryFitness = std::tuple<double, double>(
-        0.
-        , 0.
-    ); ///< Records the best primary fitness found so far
+    std::size_t m_defaultPopulationSize =
+        DEFAULTPOPULATIONSIZE; ///< The nominal size of the population
+    std::tuple<double, double> m_bestKnownPrimaryFitness =
+        std::tuple<double, double>(0., 0.); ///< Records the best primary fitness found so far
     std::tuple<double, double> m_bestCurrentPrimaryFitness = std::tuple<double, double>(
+        0.,
         0.
-        , 0.
     ); ///< Records the best fitness found in the current iteration
 
     std::uint32_t m_stallCounter = 0; ///< Counts the number of iterations without improvement
-    std::uint32_t m_stallCounterThreshold = DEFAULTSTALLCOUNTERTHRESHOLD; ///< The number of stalls after which individuals are asked to update their internal data structures
+    std::uint32_t m_stallCounterThreshold =
+        DEFAULTSTALLCOUNTERTHRESHOLD; ///< The number of stalls after which individuals are asked to update their internal data structures
 
-    std::int32_t m_cp_interval = DEFAULTCHECKPOINTIT; ///< Number of iterations after which a checkpoint should be written. -1 means: Write whenever an improvement was encountered
+    std::int32_t m_cp_interval =
+        DEFAULTCHECKPOINTIT; ///< Number of iterations after which a checkpoint should be written. -1 means: Write whenever an improvement was encountered
     std::string m_cp_base_name = DEFAULTCPBASENAME; ///< The base name of the checkpoint file
-    std::filesystem::path m_cp_directory_path = std::filesystem::path(DEFAULTCPDIR); ///< Path object to store the directory
+    std::filesystem::path m_cp_directory_path =
+        std::filesystem::path(DEFAULTCPDIR); ///< Path object to store the directory
     mutable std::string m_cp_last = "empty"; ///< The name of the last saved checkpoint
     bool m_cp_remove = true; ///< Whether checkpoint files should be overwritten or kept
-    Gem::Common::serializationMode m_cp_serialization_mode = DEFAULTCPSERMODE; ///< Determines whether check-pointing should be done in text-, XML, or binary mode
-    double m_qualityThreshold = DEFAULTQUALITYTHRESHOLD; ///< A threshold beyond which optimization is expected to stop
+    Gem::Common::serializationMode m_cp_serialization_mode =
+        DEFAULTCPSERMODE; ///< Determines whether check-pointing should be done in text-, XML, or binary mode
+    double m_qualityThreshold =
+        DEFAULTQUALITYTHRESHOLD; ///< A threshold beyond which optimization is expected to stop
     bool m_hasQualityThreshold = false; ///< Specifies whether a qualityThreshold has been set
-    std::chrono::duration<double>
-        m_maxDuration = Gem::Common::duration_from_string(DEFAULTDURATION); ///< Maximum time-frame for the optimization
-    std::chrono::duration<double> m_minDuration
-        = Gem::Common::duration_from_string(DEFAULTMINDURATION); ///< Minimum time-frame for the optimization
-    mutable std::chrono::system_clock::time_point m_startTime; ///< Used to store the start time of the optimization. Declared mutable so the halt criteria can be const
-    mutable std::filesystem::file_time_type m_file_startTime; ///< Used for the touchHalt-feature, as system_clock file_time may not be comparable
-    std::string m_terminationFile
-        = DEFAULTTERMINATIONFILE; ///< The name of a file which, when modified after the start of the optimization run, will cause termination of the run
+    std::chrono::duration<double> m_maxDuration = Gem::Common::duration_from_string(
+        DEFAULTDURATION
+    ); ///< Maximum time-frame for the optimization
+    std::chrono::duration<double> m_minDuration = Gem::Common::duration_from_string(
+        DEFAULTMINDURATION
+    ); ///< Minimum time-frame for the optimization
+    mutable std::chrono::system_clock::time_point
+        m_startTime; ///< Used to store the start time of the optimization. Declared mutable so the halt criteria can be const
+    mutable std::filesystem::file_time_type
+        m_file_startTime; ///< Used for the touchHalt-feature, as system_clock file_time may not be comparable
+    std::string m_terminationFile =
+        DEFAULTTERMINATIONFILE; ///< The name of a file which, when modified after the start of the optimization run, will cause termination of the run
     bool m_terminateOnFileModification = false;
-    bool m_emitTerminationReason
-        = DEFAULTEMITTERMINATIONREASON; ///< Specifies whether information about reasons for termination should be emitted
+    bool m_emitTerminationReason =
+        DEFAULTEMITTERMINATIONREASON; ///< Specifies whether information about reasons for termination should be emitted
     std::atomic<bool> m_halted{true}; ///< Set to true when halt() has returned "true"
     std::vector<std::tuple<double, double>>
         m_worstKnownValids_cnt; ///< Stores the worst known valid evaluations up to the current iteration (first entry: raw, second: tranformed)
-    std::vector<std::shared_ptr<GBasePluggableOM>> m_pluggable_monitors_cnt; ///< A collection of monitors
+    std::vector<std::shared_ptr<GBasePluggableOM>>
+        m_pluggable_monitors_cnt; ///< A collection of monitors
 
     std::shared_ptr<Gem::Courtier::GBaseExecutorT<GParameterSet>>
         m_executor_ptr; ///< Holds the current executor for this algorithm
-    execMode m_default_execMode
-        = execMode::BROKER; ///< The default execution mode. Unless explicitöy requested by the user, we always go through the broker
-    std::string m_default_executor_config
-        = "./config/GBrokerExecutor.json"; ///< The default configuration file for the broker executor
+    execMode m_default_execMode = execMode::
+        BROKER; ///< The default execution mode. Unless explicitöy requested by the user, we always go through the broker
+    std::string m_default_executor_config =
+        "./config/GBrokerExecutor.json"; ///< The default configuration file for the broker executor
 };
 
 /*******************************************************************************/
@@ -742,10 +736,9 @@ private:
 // Some serialization-related exports and declarations. Note that namespace
 // specifiers are included in the macros, no need for an explicit namespace boost::serialization
 
-BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::GBasePluggableOM) // NOLINT
-BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::G_OptimizationAlgorithm_Base) // NOLINT
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::GBasePluggableOM)                  // NOLINT
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::G_OptimizationAlgorithm_Base)      // NOLINT
 BOOST_CLASS_EXPORT_KEY(Gem::Courtier::GBrokerExecutorT<Gem::Geneva::GParameterSet>) // NOLINT
 BOOST_CLASS_EXPORT_KEY(Gem::Courtier::GSerialExecutorT<Gem::Geneva::GParameterSet>) // NOLINT
-BOOST_CLASS_EXPORT_KEY(Gem::Courtier::GMTExecutorT<Gem::Geneva::GParameterSet>) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Courtier::GMTExecutorT<Gem::Geneva::GParameterSet>)     // NOLINT
 /******************************************************************************/
-
