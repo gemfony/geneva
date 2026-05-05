@@ -70,7 +70,9 @@ Checks: >-
   -readability-identifier-length
 
 WarningsAsErrors: ''
-HeaderFilterRegex: '.*'
+# Restrict header warnings to Geneva's own headers; this avoids noise from
+# Boost, system, and third-party headers that appear in the same TU.
+HeaderFilterRegex: '.*/include/(common|hap|courtier|geneva|geneva-individuals)/.*'
 FormatStyle: file
 UseColor: true
 
@@ -123,8 +125,9 @@ CheckOptions:
   readability-identifier-naming.StructCase: CamelCase
   readability-identifier-naming.UnionCase: CamelCase
   readability-identifier-naming.EnumCase: CamelCase
-  readability-identifier-naming.EnumConstantCase: CamelCase
-  readability-identifier-naming.ScopedEnumConstantCase: CamelCase
+  # Geneva enum constants are UPPER_CASE: TEXT, XML, BINARY, LOWERISBETTER, etc.
+  readability-identifier-naming.EnumConstantCase: UPPER_CASE
+  readability-identifier-naming.ScopedEnumConstantCase: UPPER_CASE
   readability-identifier-naming.TypeAliasCase: CamelCase
   readability-identifier-naming.TypedefCase: CamelCase
   readability-identifier-naming.TemplateParameterCase: CamelCase
@@ -155,7 +158,8 @@ CheckOptions:
   modernize-replace-auto-ptr.IncludeStyle: llvm
   modernize-use-nullptr.NullMacros: 'NULL'
   modernize-use-noexcept.ReplacementString: 'noexcept'
-  modernize-use-noexcept.UseNoexceptFalse: 'true'
+  # noexcept(false) annotations are almost never useful and generate noise.
+  modernize-use-noexcept.UseNoexceptFalse: 'false'
 
   # ------------------------------------------------------------------
   # Bugprone / cppcoreguidelines tuning.
@@ -170,7 +174,10 @@ CheckOptions:
   # Macros should be avoided per Geneva guideline "function macros should
   # be avoided at all costs" and "defines may not be used for specific
   # values". cppcoreguidelines-macro-usage flags both.
-  cppcoreguidelines-macro-usage.AllowedRegexp: '^(DEBUG|.*_HPP_|GENEVA_.*)$'
+  # Allowed: G_API_* visibility macros, GEM_* build guards, G_DEPRECATED,
+  # GSQUARED utility macro, GENEVA_* config macros, DEBUG, and the
+  # intentionally lowercase `time_and_place` source-location macro.
+  cppcoreguidelines-macro-usage.AllowedRegexp: '^(DEBUG|G_.*|GEM_.*|GENEVA_.*|time_and_place)$'
 
   # Performance.
   performance-for-range-copy.WarnOnAllAutoCopies: 'true'

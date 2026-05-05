@@ -30,12 +30,13 @@ Language: Cpp
 BasedOnStyle: LLVM
 Standard: c++20
 
-# Basic indentation.
-IndentWidth: 2
-TabWidth: 2
+# Basic indentation. The existing codebase uses 1 tab per level; when
+# normalizing to spaces (UseTab: Never), 4 spaces is the natural equivalent.
+IndentWidth: 4
+TabWidth: 4
 UseTab: Never
-ContinuationIndentWidth: 3
-AccessModifierOffset: -2
+ContinuationIndentWidth: 4
+AccessModifierOffset: -4
 NamespaceIndentation: None
 IndentPPDirectives: None
 IndentCaseLabels: false
@@ -115,10 +116,11 @@ SpaceAfterCStyleCast: false
 SpaceAroundPointerQualifiers: Default
 SpacesBeforeTrailingComments: 1
 
-# Pointer/reference alignment: left-aligned, e.g. `int* p`, `int& r`.
-# This matches the Geneva examples like `const myClass&`.
-PointerAlignment: Left
-ReferenceAlignment: Left
+# Pointer/reference alignment: right-aligned, e.g. `int *p`, `int &r`.
+# This matches the prevalent Geneva style: `std::ostream &stream`,
+# `const g_class_type *ptr`, `Gem::Common::sortOrder const &`.
+PointerAlignment: Right
+ReferenceAlignment: Right
 DerivePointerAlignment: false
 
 # Operators and expressions.
@@ -174,7 +176,7 @@ InsertBraces: false
 InsertNewlineAtEOF: true
 RemoveBracesLLVM: false
 RemoveSemicolon: false
-SeparateDefinitionBlocks: Always
+SeparateDefinitionBlocks: Leave
 EmptyLineBeforeAccessModifier: LogicalBlock
 EmptyLineAfterAccessModifier: Never
 
