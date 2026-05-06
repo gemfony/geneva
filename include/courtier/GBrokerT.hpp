@@ -67,8 +67,7 @@
 #include "courtier/GCourtierEnums.hpp"
 #include "courtier/GProcessingContainerT.hpp"
 
-namespace Gem {
-namespace Courtier {
+namespace Gem::Courtier {
 
 /******************************************************************************/
 /** @brief Exception to be thrown as a message in the case of a time-out in GBrokerT */
@@ -644,7 +643,7 @@ private:
 	  */
 	 BUFFERPORT_ID_TYPE getNextBufferPortId() {
 		 bool id_in_use = false;
-		 BUFFERPORT_ID_TYPE next_id = m_current_bufferport_id;
+		 BUFFERPORT_ID_TYPE next_id = m_current_bufferport_id; // NOLINT(cppcoreguidelines-init-variables)
 
 		 do {
 			 id_in_use = false;
@@ -705,6 +704,5 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Courtier */
-} /* namespace Gem */
+} /* namespace Gem::Courtier */
 

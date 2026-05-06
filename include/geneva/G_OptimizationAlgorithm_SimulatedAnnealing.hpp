@@ -46,8 +46,7 @@
 #include "geneva/G_OptimizationAlgorithm_ParChild.hpp"
 #include "geneva/G_OptimizationAlgorithm_SimulatedAnnealing_PersonalityTraits.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -56,8 +55,8 @@ namespace Geneva {
  * This is a specialization of the GParameterSetParChild class. The class adds
  * an infrastructure for simulated annealing (Geneva-style, i.e. with larger populations).
  */
-class GSimulatedAnnealing :
-    public G_OptimizationAlgorithm_ParChild
+class GSimulatedAnnealing // NOLINT(cppcoreguidelines-special-member-functions)
+    : public G_OptimizationAlgorithm_ParChild
 {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
@@ -206,7 +205,6 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GSimulatedAnnealing) // NOLINT

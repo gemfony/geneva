@@ -50,8 +50,7 @@
 #include "geneva/GTestIndividual1.hpp"
 #endif /* GEM_TESTING */
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 /**
@@ -164,8 +163,7 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GConjugateGradientDescent) // NOLINT

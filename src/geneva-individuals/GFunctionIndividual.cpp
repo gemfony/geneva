@@ -59,7 +59,7 @@ namespace Gem::Geneva
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 	void GDoubleSumConstraint::compare_(
-		const GObject &cp, const Gem::Common::expectation &e, const double &limit
+		const GObject &cp, const Gem::Common::expectation &e, const double &/*limit*/
 	) const {
 		using namespace Gem::Common;
 
@@ -154,7 +154,7 @@ namespace Gem::Geneva
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 	void GDoubleSumGapConstraint::compare_(
-		const GObject &cp, const Gem::Common::expectation &e, const double &limit
+		const GObject &cp, const Gem::Common::expectation &e, const double &/*limit*/
 	) const {
 		using namespace Gem::Common;
 
@@ -252,7 +252,7 @@ namespace Gem::Geneva
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 	void GSphereConstraint::compare_(
-		const GObject &cp, const Gem::Common::expectation &e, const double &limit
+		const GObject &cp, const Gem::Common::expectation &e, const double &/*limit*/
 	) const {
 		// Check that we are dealing with a GSphereConstraint reference independent of this object and convert the pointer
 		const GSphereConstraint *p_load = Gem::Common::g_convert_and_compare<GObject, GSphereConstraint>(cp, this);
@@ -352,7 +352,7 @@ namespace Gem::Geneva
  * @return The std::istream object used to read the item from
  */
 	std::istream &operator>>(std::istream &i, Gem::Geneva::solverFunction &ur) {
-		Gem::Common::ENUMBASETYPE tmp;
+		Gem::Common::ENUMBASETYPE tmp = 0;
 		i >> tmp;
 
 #ifdef DEBUG
@@ -387,7 +387,7 @@ namespace Gem::Geneva
  * @return The std::istream object used to read the item from
  */
 	std::istream &operator>>(std::istream &i, Gem::Geneva::parameterType &ur) {
-		Gem::Common::ENUMBASETYPE tmp;
+		Gem::Common::ENUMBASETYPE tmp = 0;
 		i >> tmp;
 
 #ifdef DEBUG
@@ -422,7 +422,7 @@ namespace Gem::Geneva
  * @return The std::istream object used to read the item from
  */
 	std::istream &operator>>(std::istream &i, Gem::Geneva::initMode &ur) {
-		Gem::Common::ENUMBASETYPE tmp;
+		Gem::Common::ENUMBASETYPE tmp = 0;
 		i >> tmp;
 
 #ifdef DEBUG
@@ -465,7 +465,7 @@ namespace Gem::Geneva
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 	void GFunctionIndividual::compare_(
-		const GObject &cp, const Gem::Common::expectation &e, const double &limit
+		const GObject &cp, const Gem::Common::expectation &e, const double &/*limit*/
 	) const {
 		// Check that we are dealing with a GFunctionIndividual reference independent of this object and convert the pointer
 		const GFunctionIndividual *p_load = Gem::Common::g_convert_and_compare<GObject, GFunctionIndividual>(cp, this);
@@ -1316,7 +1316,7 @@ return false;
  * @return Items of the desired type
  */
 	std::shared_ptr <GParameterSet> GFunctionIndividualFactory::getObject_(
-		Gem::Common::GParserBuilder &gpb, const std::size_t &id
+		Gem::Common::GParserBuilder &gpb, const std::size_t &/*id*/
 	) {
 		// Will hold the result
 		std::shared_ptr <GFunctionIndividual> target(new GFunctionIndividual());
@@ -1335,7 +1335,7 @@ return false;
 		// Describe our own options
 		using namespace Gem::Courtier;
 
-		std::string comment;
+		std::string comment; // NOLINT(cppcoreguidelines-init-variables)
 
 		comment = "";
 		comment += "The probability for random adaption of values in evolutionary algorithms;";
@@ -1517,7 +1517,7 @@ return false;
 
 		// Find out about the amount of data items to be added
 		// std::size_t nData = parDimLocal_?parDimLocal_:parDim_;
-		std::size_t nData = parDim_.value();
+		std::size_t nData = parDim_.value(); // NOLINT(cppcoreguidelines-init-variables)
 
 		// Set up the data collections
 		switch (pT_.value()) {
@@ -1625,4 +1625,4 @@ return false;
 
 	/******************************************************************************/
 
-}
+} /* namespace Gem::Geneva */

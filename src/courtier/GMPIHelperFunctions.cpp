@@ -66,7 +66,7 @@ std::uint32_t mpiSize(const MPI_Comm &comm) {
  */
 std::string mpiErrorString(int mpiError) {
     char errorMessage[MPI_MAX_ERROR_STRING];
-    int messageLength;
+    int messageLength = 0;
     MPI_Error_string(mpiError, errorMessage, &messageLength);
 
     // the string in errorMessage is null terminated, which allows us to pass it to the std::string constructor

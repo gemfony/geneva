@@ -54,8 +54,7 @@
 
 // Geneva headers go here
 
-namespace Gem {
-namespace Common {
+namespace Gem::Common {
 
 /******************************************************************************/
 /**
@@ -137,5 +136,4 @@ public:
 
 /******************************************************************************/
 
-} /* namespace Common */
-} /* namespace Gem */
+} /* namespace Gem::Common */

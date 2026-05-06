@@ -191,7 +191,7 @@ namespace Gem::Geneva
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 	void GGradientDescent::compare_(
-		const GObject &cp, const Gem::Common::expectation &e, const double &limit
+		const GObject &cp, const Gem::Common::expectation &e, const double &/*limit*/
 	) const {
 		using namespace Gem::Common;
 
@@ -547,7 +547,7 @@ namespace Gem::Geneva
 			adjustedFiniteStep_.clear();
 			long double finiteStepRatio = ((long double) finiteStep_) / ((long double) 1000.);
 			for (std::size_t pos = 0; pos < dblLowerParameterBoundaries_.size(); pos++) {
-				long double parameterRange =
+				long double parameterRange = // NOLINT(cppcoreguidelines-init-variables)
 					(long double) dblUpperParameterBoundaries_[pos] - (long double) dblLowerParameterBoundaries_[pos];
 				adjustedFiniteStep_.push_back(boost::numeric_cast<double>(finiteStepRatio * parameterRange));
 			}
@@ -731,4 +731,4 @@ namespace Gem::Geneva
 
 	/******************************************************************************/
 
-}
+} /* namespace Gem::Geneva */

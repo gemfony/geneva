@@ -39,8 +39,7 @@
 // Geneva headers go here
 #include "geneva/G_OptimizationAlgorithm_ParChildT_PersonalityTraits.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -49,7 +48,7 @@ namespace Geneva {
  * This class adds variables and functions to GPersonalityTraits that are specific
  * to evolutionary algorithms.
  */
-class GEvolutionaryAlgorithm_PersonalityTraits
+class GEvolutionaryAlgorithm_PersonalityTraits // NOLINT(cppcoreguidelines-special-member-functions)
     :
         public GBaseParChildPersonalityTraits
 {
@@ -130,8 +129,7 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GEvolutionaryAlgorithm_PersonalityTraits) // NOLINT
 

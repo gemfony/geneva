@@ -40,8 +40,7 @@
 #include "common/GExceptions.hpp"
 #include "geneva/GObject.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 /**
@@ -52,8 +51,8 @@ namespace Geneva {
  * personality. Note that this class is purely virtual. It can only be used in
  * conjunction with a derived personality.
  */
-class GPersonalityTraits :
-    public GObject
+class GPersonalityTraits // NOLINT(cppcoreguidelines-special-member-functions)
+    : public GObject
 {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
@@ -112,8 +111,7 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 
 /******************************************************************************/
 /**

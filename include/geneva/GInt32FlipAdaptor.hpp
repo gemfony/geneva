@@ -40,14 +40,13 @@
 
 #include "GIntFlipAdaptorT.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 /**
  * This adaptor increases or decreases a value by 1
  */
-class GInt32FlipAdaptor
+class GInt32FlipAdaptor // NOLINT(cppcoreguidelines-special-member-functions)
     : public GIntFlipAdaptorT<std::int32_t>
 {
     ///////////////////////////////////////////////////////////////////////
@@ -112,7 +111,6 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GInt32FlipAdaptor) // NOLINT

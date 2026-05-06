@@ -44,8 +44,7 @@
 #include <catch2/catch_test_macros.hpp>
 #endif /* GEM_TESTING */
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 /**
@@ -55,7 +54,7 @@ namespace Geneva {
  * The type used needs to be specified as a template parameter.
  */
 template<typename num_type, typename fp_type>
-class GNumGaussAdaptorT
+class GNumGaussAdaptorT // NOLINT(cppcoreguidelines-special-member-functions)
 	: public GAdaptorT<num_type, fp_type>
 {
 	 ///////////////////////////////////////////////////////////////////////
@@ -365,7 +364,7 @@ public:
 	  * @return The diagnostic message
 	  */
 	 std::string printDiagnostics() const override {
-		 std::ostringstream diag;
+		 std::ostringstream diag; // NOLINT(cppcoreguidelines-init-variables)
 		 std::tuple<fp_type,fp_type> sigmaRange = getSigmaRange();
 
 		 diag
@@ -448,7 +447,7 @@ protected:
 	void compare_(
 		const GObject& cp
 		, const Gem::Common::expectation& e
-		, const double& limit
+		, const double& /*limit*/
 	) const override {
 		using namespace Gem::Common;
 
@@ -479,7 +478,7 @@ protected:
 	  * @param range A typical range for the parameter with type num_type (unused here)
 	  */
 	 void customAdaptAdaption(
-		 const num_type& val
+		 const num_type& /*val*/
 		 , Gem::Hap::GRandomBase& gr
 	 ) override {
 		 using namespace Gem::Common;
@@ -803,17 +802,13 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 
 /******************************************************************************/
 // The content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T)
-namespace boost {
-namespace serialization {
+namespace boost::serialization {
 template<typename num_type, typename fp_type>
 struct is_abstract< Gem::Geneva::GNumGaussAdaptorT<num_type, fp_type>> : public boost::true_type {};
 template<typename num_type, typename fp_type>
 struct is_abstract< const Gem::Geneva::GNumGaussAdaptorT<num_type, fp_type>> : public boost::true_type {};
-}
-}
-
+} /* namespace boost::serialization */

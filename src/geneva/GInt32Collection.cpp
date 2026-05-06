@@ -81,7 +81,7 @@ namespace Gem::Geneva
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 	void GInt32Collection::compare_(
-		const GObject &cp, const Gem::Common::expectation &e, const double &limit
+		const GObject &cp, const Gem::Common::expectation &e, const double &/*limit*/
 	) const {
 		using namespace Gem::Common;
 
@@ -115,7 +115,7 @@ namespace Gem::Geneva
  * @param parVec The vector to which the local values should be attached
  */
 	void GInt32Collection::int32Streamline(
-		std::vector<std::int32_t> &parVec, const activityMode &am
+		std::vector<std::int32_t> &parVec, const activityMode &/*am*/
 	) const {
 		GInt32Collection::const_iterator cit;
 		for (cit = this->begin(); cit != this->end(); ++cit) {
@@ -157,7 +157,7 @@ namespace Gem::Geneva
  * @param uBndVec A vector of upper std::int32_t parameter boundaries
  */
 	void GInt32Collection::int32Boundaries(
-		std::vector<std::int32_t> &lBndVec, std::vector<std::int32_t> &uBndVec, const activityMode &am
+		std::vector<std::int32_t> &lBndVec, std::vector<std::int32_t> &uBndVec, const activityMode &/*am*/
 	) const {
 		// Add as man lower and upper boundaries to the vector as
 		// there are variables
@@ -176,7 +176,7 @@ namespace Gem::Geneva
  * @return The number of std::int32_t parameters
  */
 	std::size_t GInt32Collection::countInt32Parameters(
-		const activityMode &am
+		const activityMode &/*am*/
 	) const {
 		return this->size();
 	}
@@ -186,7 +186,7 @@ namespace Gem::Geneva
  * Assigns part of a value vector to the parameter
  */
 	void GInt32Collection::assignInt32ValueVector(
-		const std::vector<std::int32_t> &parVec, std::size_t &pos, const activityMode &am
+		const std::vector<std::int32_t> &parVec, std::size_t &pos, const activityMode &/*am*/
 	) {
 		for (GInt32Collection::iterator it = this->begin(); it != this->end(); ++it) {
 #ifdef DEBUG
@@ -210,7 +210,7 @@ namespace Gem::Geneva
  * Assigns part of a value map to the parameter
  */
 	void GInt32Collection::assignInt32ValueVectors(
-		const std::map<std::string, std::vector<std::int32_t>> &parMap, const activityMode &am
+		const std::map<std::string, std::vector<std::int32_t>> &parMap, const activityMode &/*am*/
 	) {
 		GInt32Collection::iterator it;
 		std::size_t cnt = 0;
@@ -226,8 +226,8 @@ namespace Gem::Geneva
 	void GInt32Collection::int32MultiplyByRandom(
 		const std::int32_t &min
 		, const std::int32_t &max
-		, const activityMode &am
-		, Gem::Hap::GRandomBase& gr
+		, const activityMode &/*am*/
+		, Gem::Hap::GRandomBase& gr // NOLINT(misc-unused-parameters)
 	) {
 		std::uniform_int_distribution<std::int32_t> uniform_int_distribution(min, max);
 		for (std::size_t pos = 0; pos < this->size(); pos++) {
@@ -243,8 +243,8 @@ namespace Gem::Geneva
  * Multiplication with a DOUBLE random value in the range [0,1[
  */
 	void GInt32Collection::int32MultiplyByRandom(
-		const activityMode &am
-		, Gem::Hap::GRandomBase& gr
+		const activityMode &/*am*/
+		, Gem::Hap::GRandomBase& gr // NOLINT(misc-unused-parameters)
 	) {
 		std::uniform_real_distribution<double> uniform_real_distribution(0., 1.);
 		for (std::size_t pos = 0; pos < this->size(); pos++) {
@@ -263,8 +263,8 @@ namespace Gem::Geneva
  * Multiplication with a constant value
  */
 	void GInt32Collection::int32MultiplyBy(
-		const std::int32_t &val
-		, const activityMode &am
+		const std::int32_t &val // NOLINT(misc-unused-parameters)
+		, const activityMode &/*am*/
 	) {
 		for (std::size_t pos = 0; pos < this->size(); pos++) {
 			GParameterCollectionT<std::int32_t>::setValue(pos, val * this->value(pos));
@@ -276,8 +276,8 @@ namespace Gem::Geneva
  * Initialization with a constant value
  */
 	void GInt32Collection::int32FixedValueInit(
-		const std::int32_t &val
-		, const activityMode &am
+		const std::int32_t &val // NOLINT(misc-unused-parameters)
+		, const activityMode &/*am*/
 	) {
 		for (std::size_t pos = 0; pos < this->size(); pos++) {
 			GParameterCollectionT<std::int32_t>::setValue(pos, val);
@@ -290,7 +290,7 @@ namespace Gem::Geneva
  */
 	void GInt32Collection::int32Add(
 		std::shared_ptr<GParameterBase> p_base
-		, const activityMode &am
+		, const activityMode &/*am*/
 	) {
 		// We first need to convert p_base into the local type
 		std::shared_ptr <GInt32Collection> p = GParameterBase::parameterbase_cast<GInt32Collection>(p_base);
@@ -315,7 +315,7 @@ namespace Gem::Geneva
  */
 	void GInt32Collection::int32Subtract(
 		std::shared_ptr< GParameterBase > p_base
-		, const activityMode &am
+		, const activityMode &/*am*/
 	) {
 		// We first need to convert p_base into the local type
 		std::shared_ptr <GInt32Collection> p = GParameterBase::parameterbase_cast<GInt32Collection>(p_base);
@@ -452,4 +452,4 @@ namespace Gem::Geneva
 
 	/******************************************************************************/
 
-}
+} /* namespace Gem::Geneva */

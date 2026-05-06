@@ -49,8 +49,7 @@
 #include <catch2/catch_test_macros.hpp>
 #endif /* GEM_TESTING */
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -59,7 +58,7 @@ namespace Geneva {
  * This class is a specialization of the GFactoryT<> class for optimization algorithms.
  */
 template<typename oa_type>
-class G_OptimizationAlgorithm_FactoryT
+class G_OptimizationAlgorithm_FactoryT // NOLINT(cppcoreguidelines-special-member-functions)
 	: public Gem::Common::GFactoryT<oa_type> {
 public:
 	 /***************************************************************************/
@@ -134,7 +133,7 @@ public:
 	  * @param hidden Command line options that should only be visible upon request
 	  */
 	 virtual void addCLOptions(
-		 boost::program_options::options_description &visible
+		 boost::program_options::options_description &/*visible*/
 		 , boost::program_options::options_description &hidden
 	 ) {
 		 namespace po = boost::program_options;
@@ -421,6 +420,5 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 

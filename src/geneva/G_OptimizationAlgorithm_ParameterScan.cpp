@@ -47,9 +47,9 @@ namespace Gem::Geneva
  */
 	template<>
 	std::vector<bool> fillWithData<bool>(
-		std::size_t nSteps
-		, bool lower
-		, bool upper
+		std::size_t /*nSteps*/
+		, bool /*lower*/
+		, bool /*upper*/
 	) {
 		std::vector<bool> result;
 		result.push_back(false);
@@ -63,7 +63,7 @@ namespace Gem::Geneva
  */
 	template<>
 	std::vector<std::int32_t> fillWithData<std::int32_t>(
-		std::size_t nSteps // will only be used for random entries
+		std::size_t /*nSteps*/ // will only be used for random entries
 		, std::int32_t lower
 		, std::int32_t upper // inclusive
 	) {
@@ -380,7 +380,7 @@ namespace Gem::Geneva
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 	void GParameterScan::compare_(
-		const GObject &cp, const Gem::Common::expectation &e, const double &limit
+		const GObject &cp, const Gem::Common::expectation &e, const double &/*limit*/
 	) const {
 		using namespace Gem::Common;
 
@@ -1300,4 +1300,4 @@ namespace Gem::Geneva
 
 	/******************************************************************************/
 
-}
+} /* namespace Gem::Geneva */

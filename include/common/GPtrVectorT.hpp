@@ -67,8 +67,7 @@
 #include "common/GExpectationChecksT.hpp"
 #include "common/GTypeTraitsT.hpp"
 
-namespace Gem {
-namespace Common {
+namespace Gem::Common {
 
 /******************************************************************************/
 /**
@@ -175,7 +174,7 @@ public:
 		typename std::vector<std::shared_ptr <T>>::const_iterator cp_it;
 		typename std::vector<std::shared_ptr <T>>::iterator it;
 
-		std::size_t localSize = m_data_cnt.size();
+		std::size_t localSize = m_data_cnt.size(); // NOLINT(cppcoreguidelines-init-variables)
 		std::size_t cpSize = cp.size();
 
 		if (cpSize == localSize) { // The most likely case
@@ -217,7 +216,7 @@ public:
 	virtual void compare_base(
 		GPtrVectorT<T,B> const &cp
 		, Gem::Common::expectation const &e
-		, double const &limit
+		, double const & /*limit*/
 	) const {
 		Gem::Common::GToken token("GBaseEA::GEAOptimizationMonitor", e);
 		Gem::Common::compare_t(IDENTITY(this->m_data_cnt, cp.m_data_cnt), token);
@@ -488,7 +487,7 @@ public:
 			);
 		}
 
-		std::size_t iterator_pos = pos - m_data_cnt.begin();
+		std::size_t iterator_pos = pos - m_data_cnt.begin(); // NOLINT(cppcoreguidelines-init-variables)
 		for (std::size_t i = 0; i < amount; i++) {
 			// Note that we re-calculate the iterator, as it is not clear whether it remains valid
 			m_data_cnt.insert(m_data_cnt.begin() + iterator_pos, item_ptr->T::template clone<T>());
@@ -520,7 +519,7 @@ public:
 			);
 		}
 
-		std::size_t iterator_pos = pos - m_data_cnt.begin();
+		std::size_t iterator_pos = pos - m_data_cnt.begin(); // NOLINT(cppcoreguidelines-init-variables)
 		// Create (amount-1) clones
 		for (std::size_t i = 0; i < amount - 1; i++) {
 			// Note that we re-calculate the iterator, as it is not clear whether it remains valid
@@ -665,7 +664,7 @@ public:
 	 * @param item An item that should be used for initialization of new items, if any
 	 */
 	void resize_noclone(size_type amount, std::shared_ptr <T> item_ptr) {
-		std::size_t dataSize = m_data_cnt.size();
+		std::size_t dataSize = m_data_cnt.size(); // NOLINT(cppcoreguidelines-init-variables)
 
 		if (amount < dataSize)
 			m_data_cnt.resize(amount);
@@ -705,7 +704,7 @@ public:
 	 * @param item An item that should be used for initialization of new items, if any
 	 */
 	void resize_clone(size_type amount, std::shared_ptr <T> item_ptr) {
-		std::size_t dataSize = m_data_cnt.size();
+		std::size_t dataSize = m_data_cnt.size(); // NOLINT(cppcoreguidelines-init-variables)
 
 		if (amount < dataSize)
 			m_data_cnt.resize(amount);
@@ -738,7 +737,7 @@ public:
 	 * data items to each position.
 	 */
 	void resize_empty(size_type amount) {
-		std::size_t dataSize = m_data_cnt.size();
+		std::size_t dataSize = m_data_cnt.size(); // NOLINT(cppcoreguidelines-init-variables)
 		if (amount < dataSize) {
 			m_data_cnt.resize(amount);
 		} else if (amount > dataSize) { // Add empty smart pointers
@@ -988,20 +987,17 @@ inline GPtrVectorT<T, B>::~GPtrVectorT() {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-} /* namespace Common */
-} /* namespace Gem */
+} /* namespace Gem::Common */
 
 /******************************************************************************/
 /**
  * @brief The content of the BOOST_SERIALIZATION_ASSUME_ABSTRACT(T) macro. Needed for Boost.Serialization
  */
-namespace boost {
-namespace serialization {
+namespace boost::serialization {
 template<typename T, typename B>
 struct is_abstract<Gem::Common::GPtrVectorT<T, B>> : public boost::true_type { /* nothing */ };
 template<typename T, typename B>
 struct is_abstract<const Gem::Common::GPtrVectorT<T, B>> : public boost::true_type { /* nothing */ };
-}
-}
+} /* namespace boost::serialization */
 
 /******************************************************************************/

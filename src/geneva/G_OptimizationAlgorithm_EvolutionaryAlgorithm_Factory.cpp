@@ -89,7 +89,7 @@ namespace Gem::Geneva
  */
 	std::shared_ptr<G_OptimizationAlgorithm_Base> GEvolutionaryAlgorithmFactory::getObject_(
 		Gem::Common::GParserBuilder &gpb
-		, const std::size_t &id
+		, const std::size_t &/*id*/
 	) {
 		std::shared_ptr<GEvolutionaryAlgorithm> target(
 			new GEvolutionaryAlgorithm()
@@ -119,4 +119,4 @@ namespace Gem::Geneva
 	////////////////////////////////////////////////////////////////////////////////
 	/******************************************************************************/
 
-}
+} /* namespace Gem::Geneva */

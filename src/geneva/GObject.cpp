@@ -52,7 +52,7 @@ namespace Gem::Geneva
 	void GObject::compare_(
 		const GObject &cp
 		, const Gem::Common::expectation &e
-		, const double &limit
+		, const double &/*limit*/
 	) const {
 		using namespace Gem::Common;
 
@@ -78,7 +78,7 @@ namespace Gem::Geneva
  * @param gpb The GParserBuilder object to which configuration options should be added
  */
 	void GObject::addConfigurationOptions_(
-		Gem::Common::GParserBuilder &gpb
+		Gem::Common::GParserBuilder &gpb // NOLINT(misc-unused-parameters)
 	) {
 		// Call the parent classes function
 		Gem::Common::GCommonInterfaceT<GObject>::addConfigurationOptions_(gpb);
@@ -200,21 +200,21 @@ namespace Gem::Geneva
 			std::shared_ptr <GObject> p_test = this->clone();
 
 			{ // Text mode
-				std::ostringstream ostr;
+				std::ostringstream ostr; // NOLINT(cppcoreguidelines-init-variables)
 				CHECK_NOTHROW(p_test->toStream(ostr, Gem::Common::serializationMode::TEXT));
 				std::istringstream istr(ostr.str());
 				CHECK_NOTHROW(p_test->fromStream(istr, Gem::Common::serializationMode::TEXT));
 			}
 
 			{ // XML mode
-				std::ostringstream ostr;
+				std::ostringstream ostr; // NOLINT(cppcoreguidelines-init-variables)
 				CHECK_NOTHROW(p_test->toStream(ostr, Gem::Common::serializationMode::XML));
 				std::istringstream istr(ostr.str());
 				CHECK_NOTHROW(p_test->fromStream(istr, Gem::Common::serializationMode::XML));
 			}
 
 			{ // Binary mode
-				std::ostringstream ostr;
+				std::ostringstream ostr; // NOLINT(cppcoreguidelines-init-variables)
 				CHECK_NOTHROW(p_test->toStream(ostr, Gem::Common::serializationMode::BINARY));
 				std::istringstream istr(ostr.str());
 				CHECK_NOTHROW(p_test->fromStream(istr, Gem::Common::serializationMode::BINARY));
@@ -286,4 +286,4 @@ namespace Gem::Geneva
 
 	/******************************************************************************/
 
-}
+} /* namespace Gem::Geneva */

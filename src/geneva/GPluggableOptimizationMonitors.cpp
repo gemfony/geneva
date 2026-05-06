@@ -106,7 +106,7 @@ namespace Gem::Geneva
 	void GStandardMonitor::compare_(
 		const GObject& cp
 		, const Gem::Common::expectation& e
-		, const double& limit
+		, const double& /*limit*/
 	) const {
 		using namespace Gem::Common;
 
@@ -458,7 +458,7 @@ namespace Gem::Geneva
 	void GFitnessMonitor::compare_(
 		const GObject& cp
 		, const Gem::Common::expectation& e
-		, const double& limit
+		, const double& /*limit*/
 	) const {
 		using namespace Gem::Common;
 
@@ -648,7 +648,7 @@ namespace Gem::Geneva
 	void GCollectiveMonitor::compare_(
 		const GObject& cp
 		, const Gem::Common::expectation& e
-		, const double& limit
+		, const double& /*limit*/
 	) const  {
 		using namespace Gem::Common;
 
@@ -792,7 +792,7 @@ namespace Gem::Geneva
 	void GAllSolutionFileLogger::compare_(
 		const GObject& cp
 		, const Gem::Common::expectation& e
-		, const double& limit
+		, const double& /*limit*/
 	) const {
 		using namespace Gem::Common;
 
@@ -984,7 +984,7 @@ namespace Gem::Geneva
 			{
 				// If the file pointed to by m_fileName already exists, make a back-up
 				if(std::filesystem::exists(m_fileName)) {
-					std::string newFileName = m_fileName + ".bak_" + Gem::Common::getMSSince1970();
+					std::string newFileName = m_fileName + ".bak_" + Gem::Common::getMSSince1970(); // NOLINT(cppcoreguidelines-init-variables)
 
 					glogger
 						<< "In GAllSolutionFileLogger::informationFunction_(): Warning!" << std::endl
@@ -1056,7 +1056,7 @@ namespace Gem::Geneva
 		, G_OptimizationAlgorithm_Base const * const goa
 	) {
 		// Open the external file
-		std::ofstream data(m_fileName, std::ofstream::app);
+		std::ofstream data(m_fileName, std::ofstream::app); // NOLINT(cppcoreguidelines-init-variables)
 
 		if(m_showIterationBoundaries) {
 			data
@@ -1172,7 +1172,7 @@ namespace Gem::Geneva
 	void GIterationResultsFileLogger::compare_(
 		const GObject& cp
 		, const Gem::Common::expectation& e
-		, const double& limit
+		, const double& /*limit*/
 	) const {
 		using namespace Gem::Common;
 
@@ -1256,7 +1256,7 @@ namespace Gem::Geneva
 			{
 				// If the file pointed to by m_fileName already exists, make a back-up
 				if(std::filesystem::exists(m_fileName)) {
-					std::string newFileName = m_fileName + ".bak_" + Gem::Common::getMSSince1970();
+					std::string newFileName = m_fileName + ".bak_" + Gem::Common::getMSSince1970(); // NOLINT(cppcoreguidelines-init-variables)
 
 					glogger
 						<< "In GIterationResultsFileLogger::informationFunction_(): Warning!" << std::endl
@@ -1273,7 +1273,7 @@ namespace Gem::Geneva
 		case Gem::Geneva::infoMode::INFOPROCESSING:
 			{
 				// Open the external file
-				std::ofstream data(m_fileName.c_str(), std::ofstream::app);
+				std::ofstream data(m_fileName.c_str(), std::ofstream::app); // NOLINT(cppcoreguidelines-init-variables)
 				std::vector<double> fitness_cnt;
 
 				// Loop over all individuals of the algorithm.
@@ -1427,7 +1427,7 @@ namespace Gem::Geneva
 	void GNAdpationsLogger::compare_(
 		const GObject& cp
 		, const Gem::Common::expectation& e
-		, const double& limit
+		, const double& /*limit*/
 	) const {
 		using namespace Gem::Common;
 
@@ -1544,7 +1544,7 @@ namespace Gem::Geneva
 			{
 				// If the file pointed to by m_fileName already exists, make a back-up
 				if(std::filesystem::exists(m_fileName)) {
-					std::string newFileName = m_fileName + ".bak_" + Gem::Common::getMSSince1970();
+					std::string newFileName = m_fileName + ".bak_" + Gem::Common::getMSSince1970(); // NOLINT(cppcoreguidelines-init-variables)
 
 					glogger
 						<< "In GNAdpationsLogger::informationFunction_(): Error!" << std::endl
@@ -1803,7 +1803,7 @@ namespace Gem::Geneva
 	void GProcessingTimesLogger::compare_(
 		const GObject& cp
 		, const Gem::Common::expectation& e
-		, const double& limit
+		, const double& /*limit*/
 	) const {
 		using namespace Gem::Common;
 
@@ -2002,7 +2002,7 @@ namespace Gem::Geneva
 
 			// If the file pointed to by m_fileName_pth already exists, make a back-up
 			if(std::filesystem::exists(m_fileName_pth)) {
-				std::string newFileName = m_fileName_pth + ".bak_" + Gem::Common::getMSSince1970();
+				std::string newFileName = m_fileName_pth + ".bak_" + Gem::Common::getMSSince1970(); // NOLINT(cppcoreguidelines-init-variables)
 
 				glogger
 					<< "In GProcessingTimesLogger::informationFunction_(): Warning!" << std::endl
@@ -2050,7 +2050,7 @@ namespace Gem::Geneva
 
 			// If the file pointed to by m_fileName_pth2 already exists, make a back-up
 			if(std::filesystem::exists(m_fileName_pth2)) {
-				std::string newFileName = m_fileName_pth2 + ".bak_" + Gem::Common::getMSSince1970();
+				std::string newFileName = m_fileName_pth2 + ".bak_" + Gem::Common::getMSSince1970(); // NOLINT(cppcoreguidelines-init-variables)
 
 				glogger
 					<< "In GProcessingTimesLogger::informationFunction_(): Warning!" << std::endl
@@ -2103,7 +2103,7 @@ namespace Gem::Geneva
 
 			// If the file pointed to by m_fileName_txt already exists, make a back-up
 			if(std::filesystem::exists(m_fileName_txt)) {
-				std::string newFileName = m_fileName_txt + ".bak_" + Gem::Common::getMSSince1970();
+				std::string newFileName = m_fileName_txt + ".bak_" + Gem::Common::getMSSince1970(); // NOLINT(cppcoreguidelines-init-variables)
 
 				glogger
 					<< "In GProcessingTimesLogger::informationFunction_(): Warning!" << std::endl
@@ -2121,7 +2121,7 @@ namespace Gem::Geneva
 
 		case Gem::Geneva::infoMode::INFOPROCESSING: {
 			// Open the external text-file
-			std::ofstream data_txt(m_fileName_txt, std::ofstream::app);
+			std::ofstream data_txt(m_fileName_txt, std::ofstream::app); // NOLINT(cppcoreguidelines-init-variables)
 
 			// Retrieve the current iteration in the population
 			auto iteration = boost::numeric_cast<double>(goa->getIteration());
@@ -2286,4 +2286,4 @@ namespace Gem::Geneva
 	////////////////////////////////////////////////////////////////////////////////
 	/******************************************************************************/
 
-}
+} /* namespace Gem::Geneva */

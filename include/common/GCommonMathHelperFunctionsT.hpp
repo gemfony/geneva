@@ -56,8 +56,7 @@
 #include "common/GErrorStreamer.hpp"
 #include "common/GCommonHelperFunctionsT.hpp"
 
-namespace Gem {
-namespace Common {
+namespace Gem::Common {
 
 /******************************************************************************/
 /**
@@ -875,5 +874,4 @@ fp_type grational_sigmoid(fp_type var, fp_type barrier, fp_type steepness) {
 
 /******************************************************************************/
 
-} /* namespace Common */
-} /* namespace Gem */
+} /* namespace Gem::Common */

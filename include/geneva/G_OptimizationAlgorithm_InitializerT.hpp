@@ -48,8 +48,7 @@
 #include "geneva/GParameterSet.hpp"
 #include "geneva/G_OptimizationAlgorithm_FactoryStore.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -85,6 +84,5 @@ public:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 

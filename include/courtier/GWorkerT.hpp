@@ -55,7 +55,7 @@ namespace Gem::Courtier
      * inside of consumers.
      */
     template <class processable_type>
-    class GWorkerT
+    class GWorkerT // NOLINT(cppcoreguidelines-special-member-functions)
     {
         // Make sure processable_type adheres to the GProcessingContainerT interface
         static_assert(std::is_base_of<Gem::Courtier::GProcessingContainerT<
@@ -158,7 +158,7 @@ namespace Gem::Courtier
         {
             //---------------------------------------------------------------------
             // For error descriptions
-            std::ostringstream error_streamer;
+            std::ostringstream error_streamer; // NOLINT(cppcoreguidelines-init-variables)
             // Indicates whether an error was found
             bool has_error = false;
 
@@ -439,7 +439,7 @@ namespace Gem::Courtier
      * needed for retrieving and submitting work items as well as termination.
      */
     template <class processable_type>
-    class GBrokerFerryT
+    class GBrokerFerryT // NOLINT(cppcoreguidelines-special-member-functions)
     {
     public:
         /************************************************************************/
@@ -628,7 +628,8 @@ namespace Gem::Courtier
      * submit work for processing to a remote location.
      */
     template <class processable_type>
-    class GLocalConsumerWorkerT : public GWorkerWithRegisterBrokerFerryT<processable_type>
+    class GLocalConsumerWorkerT // NOLINT(cppcoreguidelines-special-member-functions)
+        : public GWorkerWithRegisterBrokerFerryT<processable_type>
     {
     public:
         /************************************************************************/

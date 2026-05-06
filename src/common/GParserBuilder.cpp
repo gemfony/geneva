@@ -139,7 +139,7 @@ namespace Gem::Common
  * Needed for ostringstream
  */
 	GParsableI &GParsableI::operator<<(std::ostream &( *val )(std::ostream &)) {
-		std::ostringstream oss;
+		std::ostringstream oss; // NOLINT(cppcoreguidelines-init-variables)
 		oss << val;
 		m_comment.at(m_cl) += oss.str();
 		return *this;
@@ -150,7 +150,7 @@ namespace Gem::Common
  * Needed for ostringstream
  */
 	GParsableI &GParsableI::operator<<(std::ios &( *val )(std::ios &)) {
-		std::ostringstream oss;
+		std::ostringstream oss; // NOLINT(cppcoreguidelines-init-variables)
 		oss << val;
 		m_comment.at(m_cl) += oss.str();
 		return *this;
@@ -161,7 +161,7 @@ namespace Gem::Common
  *  Needed for ostringstream
  */
 	GParsableI &GParsableI::operator<<(std::ios_base &( *val )(std::ios_base &)) {
-		std::ostringstream oss;
+		std::ostringstream oss; // NOLINT(cppcoreguidelines-init-variables)
 		oss << val;
 		m_comment.at(m_cl) += oss.str();
 		return *this;
@@ -198,7 +198,7 @@ namespace Gem::Common
 	/**
  * Allows to switch to the next comment level
  */
-	GParsableI &GParsableI::operator<<(nextComment const & nC) {
+	GParsableI &GParsableI::operator<<(nextComment const & /*nC*/) {
 #ifdef DEBUG
 		if(m_comment.empty()) {
 			throw geneva_exception(
@@ -238,7 +238,7 @@ namespace Gem::Common
 			// First split the comment according to newlines
 			std::vector<std::string> nlComments;
 			std::istringstream buffer(comment);
-			std::string line;
+			std::string line; // NOLINT(cppcoreguidelines-init-variables)
 
 			// Break the sub-comments into individual lines after each semicolon
 			while (std::getline(buffer, line)) {
@@ -348,7 +348,7 @@ namespace Gem::Common
 
 		namespace pt = boost::property_tree;
 
-		pt::ptree ptr; // A property tree object. Will hold the configuration options;
+		pt::ptree ptr; // NOLINT(cppcoreguidelines-init-variables) — property tree, holds configuration options
 
 		std::filesystem::path config_path;
 
@@ -513,7 +513,7 @@ namespace Gem::Common
 		boost::char_separator<char> semicolon_sep(";");
 
 		// Create a property tree object;
-		boost::property_tree::ptree ptr;
+		boost::property_tree::ptree ptr; // NOLINT(cppcoreguidelines-init-variables)
 
 		// Output a header
 		if (not header.empty()) {
@@ -625,4 +625,4 @@ namespace Gem::Common
 
 	/******************************************************************************/
 
-}
+} /* namespace Gem::Common */

@@ -40,8 +40,7 @@
 
 #include "geneva/GNumGaussAdaptorT.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 /**
@@ -56,7 +55,7 @@ namespace Geneva {
  * being adapted.
  */
 template <typename int_type>
-class GIntGaussAdaptorT
+class GIntGaussAdaptorT // NOLINT(cppcoreguidelines-special-member-functions)
 	: public GNumGaussAdaptorT<int_type, double>
 {
 	 ///////////////////////////////////////////////////////////////////////
@@ -182,7 +181,7 @@ protected:
 	void compare_(
 		const GObject& cp
 		, const Gem::Common::expectation& e
-		, const double& limit
+		, const double& /*limit*/
 	) const override {
 		using namespace Gem::Common;
 
@@ -312,17 +311,14 @@ private:
 };
 
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 
 /******************************************************************************/
 // The content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T) // NOLINT
-namespace boost {
-namespace serialization {
+namespace boost::serialization {
 template<typename int_type>
 struct is_abstract<Gem::Geneva::GIntGaussAdaptorT<int_type>> : public boost::true_type {};
 template<typename int_type>
 struct is_abstract< const Gem::Geneva::GIntGaussAdaptorT<int_type>> : public boost::true_type {};
-}
-}
+} /* namespace boost::serialization */
 /******************************************************************************/

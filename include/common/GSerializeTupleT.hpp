@@ -57,8 +57,7 @@
  * This file contains some helper functions needed for the serialization of std::tuple objects
  */
 
-namespace boost {
-namespace serialization {
+namespace boost::serialization {
 
 /******************************************************************************/
 // Note that this code is not satisfactory, as it does not address tuples of
@@ -171,5 +170,4 @@ void serialize(archive &ar, std::tuple<T0, T1, T2, T3, T4, T5> &tpl, unsigned in
 
 /******************************************************************************/
 
-} /* namespace serialization */
-} /* namespace boost */
+} /* namespace boost::serialization */

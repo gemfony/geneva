@@ -51,8 +51,7 @@
 #include "geneva/GParameterSet.hpp"
 #include "geneva/G_OptimizationAlgorithm_Base.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -62,7 +61,7 @@ namespace Geneva {
  * It will usually already be registered as a pluggable optimization monitor, when
  * you instantiate a new optimization algorithm.
  */
-class GStandardMonitor
+class GStandardMonitor // NOLINT(cppcoreguidelines-special-member-functions)
 	: public GBasePluggableOM
 {
 	 ///////////////////////////////////////////////////////////////////////
@@ -138,7 +137,7 @@ private:
  * will be output in the same histogram both for the best individual(s) found so far
  * and for the best individual(s) of each iteration.
  */
-class GFitnessMonitor
+class GFitnessMonitor // NOLINT(cppcoreguidelines-special-member-functions)
 	: public GBasePluggableOM
 {
 	 ///////////////////////////////////////////////////////////////////////
@@ -248,7 +247,7 @@ private:
  * This class accepts a number of other pluggable monitors and executes them
  * in sequence.
  */
-class GCollectiveMonitor
+class GCollectiveMonitor // NOLINT(cppcoreguidelines-special-member-functions)
 	: public GBasePluggableOM
 {
 	 ///////////////////////////////////////////////////////////////////////
@@ -339,7 +338,7 @@ private:
  * supports floating point types only. double and float values may not be mixed.
  */
 template <typename fp_type>
-class GProgressPlotterT
+class GProgressPlotterT // NOLINT(cppcoreguidelines-special-member-functions)
 	: public GBasePluggableOM
 {
 	 ///////////////////////////////////////////////////////////////////////
@@ -601,7 +600,7 @@ public:
 	  * Determines a suitable label for a given parPropSpec value
 	  */
 	 std::string getLabel(const parPropSpec<fp_type>& s) const {
-		 std::string result;
+		 std::string result; // NOLINT(cppcoreguidelines-init-variables)
 
 		 std::size_t var_mode = std::get<0>(s.var);
 		 std::string var_name = std::get<1>(s.var);
@@ -693,7 +692,7 @@ protected:
 	void compare_(
 		const GObject& cp
 		, const Gem::Common::expectation& e
-		, const double& limit
+		, const double& /*limit*/
 	) const override {
 		using namespace Gem::Common;
 
@@ -864,7 +863,7 @@ private:
 			case Gem::Geneva::infoMode::INFOPROCESSING:
 			{
 				bool isDirty = true;
-				double primaryFitness;
+				double primaryFitness = 0.;
 
 				if(m_monitorBestOnly) { // Monitor the best individuals only
 					std::shared_ptr<GParameterSet> p = goa->G_Interface_OptimizerT::template getBestGlobalIndividual<GParameterSet>();
@@ -1067,7 +1066,7 @@ private:
  * if individual_type is either a derivative of GParamterSet or is an object of the
  * GParameterSet class itself.
  */
-class GAllSolutionFileLogger
+class GAllSolutionFileLogger // NOLINT(cppcoreguidelines-special-member-functions)
 	: public GBasePluggableOM
 {
 	 ///////////////////////////////////////////////////////////////////////
@@ -1219,7 +1218,7 @@ private:
  * This class prints out all evaluations of each iteration. The format is
  * eval0_0, eval0_1, ... ,eval0_n, ..., evalm_0, evalm_1, ... ,evalm_n
  */
-class GIterationResultsFileLogger
+class GIterationResultsFileLogger // NOLINT(cppcoreguidelines-special-member-functions)
 	: public GBasePluggableOM
 {
 	 ///////////////////////////////////////////////////////////////////////
@@ -1316,7 +1315,7 @@ private:
  * to a file. This is mostly needed for debugging and profiling purposes. The
  * number of adaptions made is a good measure for the adaption probability.
  */
-class GNAdpationsLogger
+class GNAdpationsLogger // NOLINT(cppcoreguidelines-special-member-functions)
 	: public GBasePluggableOM
 {
 	 ///////////////////////////////////////////////////////////////////////
@@ -1441,7 +1440,7 @@ private:
  * are limited to numeric entities, that may be converted to double
  */
 template <typename num_type>
-class GAdaptorPropertyLoggerT
+class GAdaptorPropertyLoggerT // NOLINT(cppcoreguidelines-special-member-functions)
 	: public GBasePluggableOM
 {
 	 ///////////////////////////////////////////////////////////////////////
@@ -1676,7 +1675,7 @@ protected:
 	void compare_(
 		const GObject& cp
 		, const Gem::Common::expectation& e
-		, const double& limit
+		, const double& /*limit*/
 	) const override {
 		using namespace Gem::Common;
 
@@ -1794,7 +1793,7 @@ private:
 			{
 				// If the file pointed to by m_fileName already exists, make a back-up
 				if(std::filesystem::exists(m_fileName)) {
-					std::string newFileName = m_fileName + ".bak_" + Gem::Common::getMSSince1970();
+					std::string newFileName = m_fileName + ".bak_" + Gem::Common::getMSSince1970(); // NOLINT(cppcoreguidelines-init-variables)
 
 					glogger
 							<< "In GAdaptorPropertyLoggerT::informationFunction_(): Error!" << std::endl
@@ -1951,7 +1950,7 @@ private:
  * for the processing times, the other showing the distribution of processing times for
  * each iteration in a 2D histogram
  */
-class GProcessingTimesLogger
+class GProcessingTimesLogger // NOLINT(cppcoreguidelines-special-member-functions)
 	: public GBasePluggableOM
 {
 	 ///////////////////////////////////////////////////////////////////////
@@ -2116,8 +2115,7 @@ template <typename num_type> using GAdaptorPropertyLogger = GAdaptorPropertyLogg
 
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 
 /******************************************************************************/
 // Exports of classes

@@ -67,8 +67,7 @@
 #include "common/GCommonInterfaceT.hpp"
 #include "common/GExpectationChecksT.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 /** @brief Storage of variable-related properties */
@@ -87,7 +86,7 @@ using NAMEANDIDTYPE = std::tuple<std::size_t, std::string, std::size_t>;
  * other classes.
  */
 template <typename par_type>
-class parPropSpec
+class parPropSpec // NOLINT(cppcoreguidelines-special-member-functions)
 	: public Gem::Common::GCommonInterfaceT<parPropSpec<par_type>>
 {
 	 ///////////////////////////////////////////////////////////////////////
@@ -189,7 +188,7 @@ protected:
 	void compare_(
 		const parPropSpec<par_type>& cp // the other object
 		, const Gem::Common::expectation& e // the expectation for this object, e.g. equality
-		, const double& limit // the limit for allowed deviations of floating point types
+		, const double& /*limit*/ // the limit for allowed deviations of floating point types
 	) const override {
 		using namespace Gem::Common;
 
@@ -284,8 +283,7 @@ std::ostream& operator<<(std::ostream& o, const parPropSpec<par_type>& s) {
 
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 
 /******************************************************************************/
 // Make our structs accessible to boost.fusion. These macros must be
@@ -335,8 +333,7 @@ BOOST_FUSION_ADAPT_STRUCT(
 
 /******************************************************************************/
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 /**
@@ -558,12 +555,10 @@ GParameterPropertyParser::getIterators<bool>() const {
 
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 
 // Needed for rules to work. Follows http://boost.2283326.n4.nabble.com/hold-multi-pass-backtracking-swap-compliant-ast-td4664679.html
-namespace boost {
-namespace spirit {
+namespace boost::spirit {
 
 G_API_GENEVA void swap(Gem::Geneva::parPropSpec<double>&, Gem::Geneva::parPropSpec<double>&) noexcept;
 G_API_GENEVA void swap(Gem::Geneva::parPropSpec<float>&, Gem::Geneva::parPropSpec<float>&) noexcept;
@@ -571,6 +566,5 @@ G_API_GENEVA void swap(Gem::Geneva::parPropSpec<std::int32_t>&, Gem::Geneva::par
 G_API_GENEVA void swap(Gem::Geneva::parPropSpec<bool>&, Gem::Geneva::parPropSpec<bool>&) noexcept;
 
 
-} /* namespace spirit */
-} /* namespace boost */
+} /* namespace boost::spirit */
 

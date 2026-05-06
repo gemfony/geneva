@@ -59,8 +59,7 @@
 #include "courtier/GCourtierEnums.hpp"
 #include "courtier/GProcessingContainerT.hpp"
 
-namespace Gem {
-namespace Courtier {
+namespace Gem::Courtier {
 
 /******************************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -81,7 +80,7 @@ class GCommandContainerT {
 	 friend class boost::serialization::access;
 
 	 template<class Archive>
-	 void serialize(Archive & ar, const unsigned int version) {
+	 void serialize(Archive & ar, const unsigned int /*version*/) {
 		 ar
 		 & BOOST_SERIALIZATION_NVP(m_command)
 		 & BOOST_SERIALIZATION_NVP(m_payload_ptr);
@@ -223,7 +222,7 @@ std::string container_to_string(
 	try {
 		switch (serMode) {
 			case Gem::Common::serializationMode::TEXT: {
-				std::ostringstream oss;
+				std::ostringstream oss; // NOLINT(cppcoreguidelines-init-variables)
 				boost::archive::text_oarchive oa(oss);
 				oa << boost::serialization::make_nvp(
 					"command_container"
@@ -233,7 +232,7 @@ std::string container_to_string(
 			} break; // archive and stream closed at end of scope
 
 			case Gem::Common::serializationMode::XML: {
-				std::ostringstream oss;
+				std::ostringstream oss; // NOLINT(cppcoreguidelines-init-variables)
 				boost::archive::xml_oarchive oa(oss);
 				oa << boost::serialization::make_nvp(
 					"command_container"
@@ -374,8 +373,7 @@ void container_from_string(
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-} /* namespace Courtier */
-} /* namespace Gem */
+} /* namespace Gem::Courtier */
 
 /******************************************************************************/
 

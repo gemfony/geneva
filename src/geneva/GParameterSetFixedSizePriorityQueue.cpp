@@ -64,7 +64,7 @@ namespace Gem::Geneva
 	void GParameterSetFixedSizePriorityQueue::compare_(
 		const Gem::Common::GFixedSizePriorityQueueT<GParameterSet>&  cp // the other object
 		, const Gem::Common::expectation& e // the expectation for this object, e.g. equality
-		, const double& limit // the limit for allowed deviations of floating point types
+		, const double& /*limit*/ // the limit for allowed deviations of floating point types
 	) const {
 		using namespace Gem::Common;
 
@@ -86,7 +86,7 @@ namespace Gem::Geneva
 	/**
 	 * Loads the data of another GParameterSetFixedSizePriorityQueue object, camouflaged as a GFixedSizePriorityQueueT<GParameterSet>
 	 */
-	void GParameterSetFixedSizePriorityQueue::load_(const Gem::Common::GFixedSizePriorityQueueT<GParameterSet> *cp) {
+	void GParameterSetFixedSizePriorityQueue::load_(const Gem::Common::GFixedSizePriorityQueueT<GParameterSet> *cp) { // NOLINT(misc-unused-parameters)
 		// Check that we are dealing with a GBasePlotter reference independent of this object and convert the pointer
 		// *** currently not needed ***
 		// const GParameterSetFixedSizePriorityQueue *p_load = Gem::Common::g_convert_and_compare(cp, this);
@@ -125,7 +125,7 @@ namespace Gem::Geneva
 	 */
 	std::string GParameterSetFixedSizePriorityQueue::getCleanStatus() const {
 		std::size_t pos = 0;
-		std::ostringstream oss;
+		std::ostringstream oss; // NOLINT(cppcoreguidelines-init-variables)
 		for(const auto& item_ptr: m_data_deq_) {
 			oss << "(" << pos++ << ", " << (not item_ptr->is_processed() ? "d" : "c") << ") ";
 		}
@@ -301,4 +301,4 @@ namespace Gem::Geneva
 
 	/******************************************************************************/
 
-}
+} /* namespace Gem::Geneva */

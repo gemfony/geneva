@@ -41,16 +41,15 @@
 #include "geneva/GenevaHelperFunctionsT.hpp"
 #include "geneva/GParameterSet.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 /**
  * This class adds variables and functions to GPersonalityTraits that are specific
  * to swarm optimization.
  */
-class GSwarmAlgorithm_PersonalityTraits :
-    public GPersonalityTraits
+class GSwarmAlgorithm_PersonalityTraits // NOLINT(cppcoreguidelines-special-member-functions)
+    : public GPersonalityTraits
 {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
@@ -153,8 +152,7 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GSwarmAlgorithm_PersonalityTraits) // NOLINT
 

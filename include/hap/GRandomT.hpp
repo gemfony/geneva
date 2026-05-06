@@ -50,8 +50,7 @@
 #include "hap/GRandomDefines.hpp"
 #include "common/GLogger.hpp"
 
-namespace Gem {
-namespace Hap {
+namespace Gem::Hap {
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -127,7 +126,7 @@ public:
 	 * should hold a unique set of random numbers. We use a delegating constructor
 	 * to make this happen.
 	 */
-	GRandomT(GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> const &cp) noexcept(false)
+	GRandomT(GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> const & /*cp*/) noexcept(false)
 		: GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY>()
 	{ /* nothing */ }
 
@@ -148,7 +147,7 @@ public:
 	 * Copy assignment -- empty, as every class is meant to hold its own,
 	 * unique set of random numbers (compare copy constructor).
 	 */
-	GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY>& operator=(GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> const& cp) noexcept(false) {
+	GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY>& operator=(GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> const& /*cp*/) noexcept(false) {
 		return *this;
 	}
 
@@ -274,7 +273,7 @@ public:
 	/**
 	 * Copy construction does nothing, delegates to default constructor
 	 */
-	GRandomT(GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL> const& cp) noexcept(false)
+	GRandomT(GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL> const& /*cp*/) noexcept(false)
 		: GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL>()
 	{ /* nothing */ }
 
@@ -282,7 +281,7 @@ public:
 	/**
 	 * Move construction does nothing, delegates to default constructor
 	 */
-	GRandomT(GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL> && cp) noexcept(false)
+	GRandomT(GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL> && /*cp*/) noexcept(false)
 		: GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL>()
 	{ /* nothing */ }
 
@@ -296,7 +295,7 @@ public:
 	/**
 	 * Copy-assignment does nothing
 	 */
-	GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL>& operator=(GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL> const& cp) noexcept(false) // NOLINT(cert-oop54-cpp) — intentionally trivial: each instance owns independent state
+	GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL>& operator=(GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL> const& /*cp*/) noexcept(false) // NOLINT(cert-oop54-cpp) — intentionally trivial: each instance owns independent state
 	{
 		return *this;
 	}
@@ -305,7 +304,7 @@ public:
 	/**
 	 * Move-assignment does nothing
 	 */
-	GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL>& operator=(GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL> && cp) noexcept(false)
+	GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL>& operator=(GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL> && /*cp*/) noexcept(false)
 	{
 		return *this;
 	}
@@ -328,6 +327,5 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-} /* namespace Hap */
-} /* namespace Gem */
+} /* namespace Gem::Hap */
 

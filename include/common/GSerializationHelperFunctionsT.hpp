@@ -66,8 +66,7 @@
 #include "common/GExceptions.hpp"
 #include "common/GErrorStreamer.hpp"
 
-namespace Gem {
-namespace Common {
+namespace Gem::Common {
 
 /******************************************************************************/
 /**
@@ -80,7 +79,7 @@ namespace Common {
  */
 template<typename T>
 std::string sharedPtrToString(std::shared_ptr<T> gt_ptr, const Gem::Common::serializationMode &serMod) {
-	std::ostringstream oarchive_stream;
+	std::ostringstream oarchive_stream; // NOLINT(cppcoreguidelines-init-variables)
 
 	switch (serMod) {
 		case Gem::Common::serializationMode::TEXT: {
@@ -175,15 +174,13 @@ std::shared_ptr<T> sharedPtrFromString(const std::string &gt_string, const Gem::
 
 /******************************************************************************/
 
-} /* namespace Common */
-} /* namespace Gem */
+} /* namespace Gem::Common */
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-namespace boost {
-namespace serialization {
+namespace boost::serialization {
 
 /******************************************************************************/
 /**
@@ -193,7 +190,7 @@ template<typename Archive>
 void save(
 	Archive &ar
 	, const boost::logic::tribool &val
-	, unsigned int version
+	, unsigned int /*version*/
 ) {
 	Gem::Common::triboolStates tbs = Gem::Common::triboolStates::TBS_FALSE;
 	if (val == true)
@@ -212,7 +209,7 @@ template<typename Archive>
 void load(
 	Archive &ar
 	, boost::logic::tribool &val
-	, unsigned int version
+	, unsigned int /*version*/
 ) {
 	Gem::Common::triboolStates tbs = Gem::Common::triboolStates::TBS_FALSE;
 	ar &make_nvp("tbs", tbs);
@@ -240,7 +237,7 @@ template<typename Archive>
 void save(
 	Archive &ar
 	, const std::chrono::duration<double> &val
-	, unsigned int version
+	, unsigned int /*version*/
 ) {
 	typename std::chrono::duration<double>::rep chrono_duration = val.count();
 	ar & make_nvp("chrono_duration", chrono_duration);
@@ -254,7 +251,7 @@ template<typename Archive>
 void load(
 	Archive &ar
 	, std::chrono::duration<double> &val
-	, unsigned int version
+	, unsigned int /*version*/
 ) {
 	typename std::chrono::duration<double>::rep chrono_duration;
 	ar & make_nvp("chrono_duration", chrono_duration);
@@ -269,7 +266,7 @@ template<typename Archive>
 void save(
 	Archive& ar
 	, std::chrono::high_resolution_clock::time_point const& val
-	, unsigned int version
+	, unsigned int /*version*/
 ) {
 	std::chrono::milliseconds::rep representation = Gem::Common::time_point_to_milliseconds(val);
 	ar & make_nvp("timpoint_milliseconds", representation);;
@@ -283,7 +280,7 @@ template<typename Archive>
 void load(
 	Archive& ar
 	, std::chrono::high_resolution_clock::time_point& val
-	, unsigned int version
+	, unsigned int /*version*/
 ) {
 	std::chrono::milliseconds::rep representation;
 	ar & make_nvp("timpoint_milliseconds", representation);
@@ -298,7 +295,7 @@ template<typename Archive>
 void save(
 	Archive & ar
 	, const std::atomic<bool>& b
-	, unsigned int version
+	, unsigned int /*version*/
 ){
 	bool value = b.load();
 	ar & make_nvp("bool_val", value);
@@ -312,7 +309,7 @@ template<typename Archive>
 void load(
 	Archive & ar
 	, std::atomic<bool>& b
-	, unsigned int version
+	, unsigned int /*version*/
 ){
 	bool value = false;
 	ar & make_nvp("bool_val", value);
@@ -321,8 +318,7 @@ void load(
 
 /******************************************************************************/
 
-} /* namespace serialization */
-} /* namespace boost */
+} /* namespace boost::serialization */
 
 /******************************************************************************/
 /**

@@ -39,8 +39,7 @@
 // Geneva headers go here
 #include "geneva/GFPBiGaussAdaptorT.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 /**
@@ -51,7 +50,7 @@ namespace Geneva {
  * as implemented by this library. It is now implemented through a generic
  * base class that can also be used to adapt other numeric types.
  */
-class GDoubleBiGaussAdaptor
+class GDoubleBiGaussAdaptor // NOLINT(cppcoreguidelines-special-member-functions)
     : public GFPBiGaussAdaptorT<double>
 {
     ///////////////////////////////////////////////////////////////////////
@@ -114,7 +113,6 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GDoubleBiGaussAdaptor) // NOLINT

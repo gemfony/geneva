@@ -66,7 +66,7 @@ namespace Gem::Courtier {
  * This class implements the simplest-possible procesiing container object, used for tests of
  * the courtier lib.
  */
-class GSimpleContainer
+class GSimpleContainer // NOLINT(cppcoreguidelines-special-member-functions)
         : public Gem::Courtier::GProcessingContainerT<GSimpleContainer, bool>
 {
     ///////////////////////////////////////////////////////////////////////

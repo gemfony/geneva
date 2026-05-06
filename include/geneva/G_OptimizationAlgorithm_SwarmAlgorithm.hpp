@@ -48,8 +48,7 @@
 #include "geneva/GTestIndividual1.hpp"
 #endif /* GEM_TESTING */
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 
 /******************************************************************************/
@@ -61,7 +60,7 @@ namespace Geneva {
  *
  * TODO: Mark checkpoints so the serialization mode can be determined automatically (e.g. using file extension ??)
  */
-class GSwarmAlgorithm
+class GSwarmAlgorithm // NOLINT(cppcoreguidelines-special-member-functions)
 	:public G_OptimizationAlgorithm_Base
 {
 	 ///////////////////////////////////////////////////////////////////////
@@ -329,7 +328,6 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GSwarmAlgorithm) // NOLINT

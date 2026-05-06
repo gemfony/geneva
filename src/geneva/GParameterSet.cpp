@@ -308,7 +308,7 @@ void
 GParameterSet::compare_(
     GObject const &cp,
     Gem::Common::expectation const &e,
-    double const &limit
+    double const &/*limit*/
 ) const
 {
     using namespace Gem::Common;
@@ -443,7 +443,7 @@ GParameterSet::toPropertyTree(
 
     // Loop over all parameter objects and ask them to add their data to our ptree object
     ptr.put(baseName + ".nVars", this->size());
-    std::string base;
+    std::string base; // NOLINT(cppcoreguidelines-init-variables)
     std::size_t pos = 0;
     for (const auto &item_ptr : *this)
     {
@@ -643,7 +643,7 @@ GParameterSet::toCSV(
     }
 
     // Transfer the data into the result string
-    std::ostringstream result;
+    std::ostringstream result; // NOLINT(cppcoreguidelines-init-variables)
     std::vector<std::string>::const_iterator s_it;
     if (withNameAndType)
     {
@@ -3416,4 +3416,4 @@ GParameterSet::specificTestsFailuresExpected_GUnitTests_()
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
-}
+} /* namespace Gem::Geneva */

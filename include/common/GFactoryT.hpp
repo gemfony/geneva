@@ -61,8 +61,7 @@
 #include "common/GErrorStreamer.hpp"
 #include "common/GCommonHelperFunctionsT.hpp"
 
-namespace Gem {
-namespace Common {
+namespace Gem::Common {
 
 /******************************************************************************/
 
@@ -101,7 +100,7 @@ class GFactoryT {
 		 using boost::serialization::make_nvp;
 
 		 // Transfer the path to the string
-		 std::string configFile = m_config_path.string();
+		 std::string configFile = m_config_path.string(); // NOLINT(cppcoreguidelines-init-variables)
 
 		 ar
 		 & BOOST_SERIALIZATION_NVP(configFile)
@@ -354,22 +353,19 @@ private:
 
  /******************************************************************************/
 
-} /* namespace Common */
-} /* namespace Gem */
+} /* namespace Gem::Common */
 
 /******************************************************************************/
 /** @brief Mark this class as abstract. This is the content of
  * BOOST_SERIALIZATION_ASSUME_ABSTRACT(T) */
 
-namespace boost {
-namespace serialization {
+namespace boost::serialization {
 template<typename T>
 struct is_abstract<Gem::Common::GFactoryT<T>> : public boost::true_type {
 };
 template<typename T>
 struct is_abstract<const Gem::Common::GFactoryT<T>> : public boost::true_type {
 };
-}
-}
+} /* namespace boost::serialization */
 
 /******************************************************************************/

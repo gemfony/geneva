@@ -47,8 +47,7 @@
 #include <catch2/catch_test_macros.hpp>
 #endif /* GEM_TESTING */
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 /**
@@ -57,7 +56,7 @@ namespace Geneva {
  * class is a double.
  */
 template<typename fp_type>
-class GFPNumCollectionT
+class GFPNumCollectionT // NOLINT(cppcoreguidelines-special-member-functions)
     : public GNumCollectionT<fp_type>
 {
     ///////////////////////////////////////////////////////////////////////
@@ -197,7 +196,7 @@ protected:
     void compare_(
         const GObject &cp
         , const Gem::Common::expectation &e
-        , const double &limit
+        , const double &/*limit*/
     ) const override {
         using namespace Gem::Common;
 
@@ -233,7 +232,7 @@ protected:
      * set up. Data that is added later will remain unaffected.
      */
     bool randomInit_(
-        const activityMode &am
+        const activityMode &/*am*/
         , Gem::Hap::GRandomBase &gr
     ) override {
         fp_type lowerBoundary = GNumCollectionT<fp_type>::getLowerInitBoundary();
@@ -667,13 +666,11 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 
 /******************************************************************************/
 // The content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T) // NOLINT
-namespace boost {
-namespace serialization {
+namespace boost::serialization {
 template<typename fp_type>
 struct is_abstract<Gem::Geneva::GFPNumCollectionT<fp_type>> :
     public boost::true_type
@@ -684,7 +681,6 @@ struct is_abstract<const Gem::Geneva::GFPNumCollectionT<fp_type>> :
     public boost::true_type
 {
 };
-}
-}
+} /* namespace boost::serialization */
 /******************************************************************************/
 

@@ -47,8 +47,7 @@
 #include "geneva/GParameterCollectionT.hpp"
 #include "geneva/GConstrainedValueLimitT.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 /**
@@ -60,7 +59,7 @@ namespace Geneva {
  * native iterator, will give you the "raw" data only.
  */
 template<typename num_type>
-class GConstrainedNumCollectionT
+class GConstrainedNumCollectionT // NOLINT(cppcoreguidelines-special-member-functions)
     : public GParameterCollectionT<num_type>
 {
     ///////////////////////////////////////////////////////////////////////
@@ -392,7 +391,7 @@ public:
             , this->size());
 
         typename GConstrainedNumCollectionT<num_type>::const_iterator cit;
-        std::size_t pos;
+        std::size_t pos = 0;
         for (cit = this->begin(); cit != this->end(); ++cit) {
             pos = cit - this->begin();
             ptr.put(
@@ -461,7 +460,7 @@ protected:
     void compare_(
         const GObject &cp
         , const Gem::Common::expectation &e
-        , const double &limit
+        , const double &/*limit*/
     ) const override {
         using namespace Gem::Common;
 
@@ -605,13 +604,11 @@ inline bool GConstrainedNumCollectionT<bool>::range() const {
 
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 
 /******************************************************************************/
 // The content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T) // NOLINT
-namespace boost {
-namespace serialization {
+namespace boost::serialization {
 template<typename num_type>
 struct is_abstract<Gem::Geneva::GConstrainedNumCollectionT<num_type>> :
     public boost::true_type
@@ -622,7 +619,6 @@ struct is_abstract<const Gem::Geneva::GConstrainedNumCollectionT<num_type>> :
     public boost::true_type
 {
 };
-}
-}
+} /* namespace boost::serialization */
 /******************************************************************************/
 

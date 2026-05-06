@@ -52,8 +52,7 @@
 #include "geneva/GParameterSet.hpp"
 #include "geneva/G_OptimizationAlgorithm_ParameterScan_PersonalityTraits.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -145,7 +144,7 @@ public:
  * Basic parameter functionality
  */
 template<typename T>
-class baseScanParT
+class baseScanParT // NOLINT(cppcoreguidelines-special-member-functions)
     :
         public Gem::Common::GPODVectorT<T>
         , public scanParInterface
@@ -333,7 +332,7 @@ protected:
      * Retrieves a random item. To be re-implemented for each supported type
      */
     T getRandomItem(
-        Gem::Hap::GRandomBase &gr
+        Gem::Hap::GRandomBase &/*gr*/
     ) const {
         // A trap. This function needs to be re-implemented for each supported type
         throw geneva_exception(
@@ -424,7 +423,7 @@ inline std::int32_t baseScanParT<std::int32_t>::getRandomItem(
 /**
  * This class holds boolean parameters
  */
-class bScanPar
+class bScanPar // NOLINT(cppcoreguidelines-special-member-functions)
     :
         public baseScanParT<bool>
 {
@@ -466,7 +465,7 @@ private:
 /**
  * A derivative of baseScanParT for std::int32_t values
  */
-class int32ScanPar
+class int32ScanPar // NOLINT(cppcoreguidelines-special-member-functions)
     :
         public baseScanParT<std::int32_t>
 {
@@ -508,7 +507,7 @@ private:
 /**
  * A derivative of fpScanParT for double values
  */
-class dScanPar
+class dScanPar // NOLINT(cppcoreguidelines-special-member-functions)
     :
         public baseScanParT<double>
 {
@@ -551,7 +550,7 @@ private:
 /**
  * A derivative of fpScanParT for float values
  */
-class fScanPar
+class fScanPar // NOLINT(cppcoreguidelines-special-member-functions)
     :
         public baseScanParT<float>
 {
@@ -642,7 +641,7 @@ const std::size_t DEFAULTNMONITORINDS = 10;
  * by those parameters intended to be modified). The optimization monitor associated
  * with this class will simply store all parameters and results in an XML file.
  */
-class GParameterScan
+class GParameterScan // NOLINT(cppcoreguidelines-special-member-functions)
     :
         public G_OptimizationAlgorithm_Base
 {
@@ -872,8 +871,7 @@ private:
     /***************************************************************************/
 };
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::bScanPar) // NOLINT
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::int32ScanPar) // NOLINT

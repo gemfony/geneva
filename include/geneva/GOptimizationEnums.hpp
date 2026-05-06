@@ -44,8 +44,7 @@
 // Geneva headers go here
 #include "common/GCommonEnums.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -634,6 +633,5 @@ G_API_GENEVA std::istream& operator>>(std::istream&, Gem::Geneva::adaptionMode&)
 
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 

@@ -53,7 +53,8 @@ namespace Gem::Geneva {
      * This class only makes sense when the consumer is set to GMPIConsumerT and therefore is not allowed to use with other
      * consumers.
      */
-    class GMPISubClientOptimizer : public Go2 {
+    class GMPISubClientOptimizer // NOLINT(cppcoreguidelines-special-member-functions)
+        : public Go2 {
     public:
         /**
          * A constructor that first parses the command line for relevant parameters and allows to specify a default config file name
@@ -149,7 +150,7 @@ namespace Gem::Geneva {
         */
         const int M_MPI_GENEVA_COLOR{0};
     };
-}
+} /* namespace Gem::Geneva */
 
 
 #endif //GENEVA_LIBRARY_COLLECTION_GMPISUBCLIENTOPTIMIZER_H

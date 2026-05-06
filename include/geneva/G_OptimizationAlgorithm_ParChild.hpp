@@ -47,8 +47,7 @@
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/G_OptimizationAlgorithm_ParChildT_PersonalityTraits.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -72,7 +71,7 @@ namespace Geneva {
  * The population will then be "filled up" with missing individuals as required, before the
  * optimization starts.
  */
-class G_OptimizationAlgorithm_ParChild
+class G_OptimizationAlgorithm_ParChild // NOLINT(cppcoreguidelines-special-member-functions)
     :
         public G_OptimizationAlgorithm_Base
 {
@@ -306,8 +305,7 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////

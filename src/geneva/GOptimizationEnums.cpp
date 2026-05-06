@@ -54,7 +54,7 @@ namespace Gem::Geneva
  * @return The std::istream object used to read the item from
  */
 	std::istream &operator>>(std::istream &i, Gem::Geneva::maxMode &am) {
-		Gem::Common::ENUMBASETYPE tmp;
+		Gem::Common::ENUMBASETYPE tmp = 0;
 		i >> tmp;
 		am = static_cast<Gem::Geneva::maxMode>(tmp);
 		return i;
@@ -83,7 +83,7 @@ namespace Gem::Geneva
  * @return The std::istream object used to read the item from
  */
 	std::istream &operator>>(std::istream &i, Gem::Geneva::activityMode &am) {
-		Gem::Common::ENUMBASETYPE tmp;
+		Gem::Common::ENUMBASETYPE tmp = 0;
 		i >> tmp;
 		am = static_cast<Gem::Geneva::activityMode>(tmp);
 		return i;
@@ -112,7 +112,7 @@ namespace Gem::Geneva
  * @return The std::istream object used to read the item from
  */
 	std::istream &operator>>(std::istream &i, Gem::Geneva::validityCheckCombinerPolicy &vccp) {
-		Gem::Common::ENUMBASETYPE tmp;
+		Gem::Common::ENUMBASETYPE tmp = 0;
 		i >> tmp;
 		vccp = static_cast<Gem::Geneva::validityCheckCombinerPolicy>(tmp);
 		return i;
@@ -141,7 +141,7 @@ namespace Gem::Geneva
  * @return The std::istream object used to read the item from
  */
 	std::istream &operator>>(std::istream &i, Gem::Geneva::evaluationPolicy &iip) {
-		Gem::Common::ENUMBASETYPE tmp;
+		Gem::Common::ENUMBASETYPE tmp = 0;
 		i >> tmp;
 		iip = static_cast<Gem::Geneva::evaluationPolicy>(tmp);
 		return i;
@@ -170,7 +170,7 @@ namespace Gem::Geneva
  * @return The std::istream object used to read the item from
  */
 	std::istream &operator>>(std::istream &i, Gem::Geneva::execMode &pm) {
-		Gem::Common::ENUMBASETYPE tmp;
+		Gem::Common::ENUMBASETYPE tmp = 0;
 		i >> tmp;
 		pm = static_cast<Gem::Geneva::execMode>(tmp);
 		return i;
@@ -199,7 +199,7 @@ namespace Gem::Geneva
  * @return The std::istream object used to read the item from
  */
 	std::istream &operator>>(std::istream &i, Gem::Geneva::duplicationScheme &rc) {
-		Gem::Common::ENUMBASETYPE tmp;
+		Gem::Common::ENUMBASETYPE tmp = 0;
 		i >> tmp;
 		rc = static_cast<Gem::Geneva::duplicationScheme>(tmp);
 		return i;
@@ -228,7 +228,7 @@ namespace Gem::Geneva
  * @return The std::istream object used to read the item from
  */
 	std::istream &operator>>(std::istream &i, Gem::Geneva::infoMode &im) {
-		Gem::Common::ENUMBASETYPE tmp;
+		Gem::Common::ENUMBASETYPE tmp = 0;
 		i >> tmp;
 		im = static_cast<Gem::Geneva::infoMode>(tmp);
 		return i;
@@ -257,7 +257,7 @@ namespace Gem::Geneva
  * @return The std::istream object used to read the item from
  */
 	std::istream &operator>>(std::istream &i, Gem::Geneva::adaptorId &aid) {
-		Gem::Common::ENUMBASETYPE tmp;
+		Gem::Common::ENUMBASETYPE tmp = 0;
 		i >> tmp;
 		aid = static_cast<Gem::Geneva::adaptorId>(tmp);
 		return i;
@@ -286,7 +286,7 @@ namespace Gem::Geneva
  * @return The std::istream object used to read the item from
  */
 	std::istream &operator>>(std::istream &i, Gem::Geneva::sortingMode &smode) {
-		Gem::Common::ENUMBASETYPE tmp;
+		Gem::Common::ENUMBASETYPE tmp = 0;
 		i >> tmp;
 		smode = static_cast<Gem::Geneva::sortingMode>(tmp);
 		return i;
@@ -315,7 +315,7 @@ namespace Gem::Geneva
  * @return The std::istream object used to read the item from
  */
 	std::istream &operator>>(std::istream &i, Gem::Geneva::sortingModeMP &smode) {
-		Gem::Common::ENUMBASETYPE tmp;
+		Gem::Common::ENUMBASETYPE tmp = 0;
 		i >> tmp;
 		smode = static_cast<Gem::Geneva::sortingModeMP>(tmp);
 		return i;
@@ -344,7 +344,7 @@ namespace Gem::Geneva
  * @return The std::istream object used to read the item from
  */
 	std::istream &operator>>(std::istream &i, Gem::Geneva::updateRule &ur) {
-		Gem::Common::ENUMBASETYPE tmp;
+		Gem::Common::ENUMBASETYPE tmp = 0;
 		i >> tmp;
 		ur = static_cast<Gem::Geneva::updateRule>(tmp);
 		return i;
@@ -365,7 +365,7 @@ namespace Gem::Geneva
  * Reads a Gem::Geneva::adaptionMode from a stream. Needed also for boost::lexical_cast<>
  */
 	std::istream& operator>>(std::istream& i, Gem::Geneva::adaptionMode& am) {
-		Gem::Common::ENUMBASETYPE tmp;
+		Gem::Common::ENUMBASETYPE tmp = 0;
 		i >> tmp;
 		am = static_cast<Gem::Geneva::adaptionMode>(tmp);
 		return i;
@@ -373,4 +373,4 @@ namespace Gem::Geneva
 
 	/******************************************************************************/
 
-}
+} /* namespace Gem::Geneva */

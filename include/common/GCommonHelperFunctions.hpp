@@ -73,8 +73,7 @@
 #include "common/GLogger.hpp"
 #include "common/GErrorStreamer.hpp"
 
-namespace Gem {
-namespace Common {
+namespace Gem::Common {
 
 /******************************************************************************/
 /** @brief Creates a file in a given path, optionally with content */
@@ -175,5 +174,4 @@ void condnotset(std::string const&, std::string const&);
 
 /******************************************************************************/
 
-} /* namespace Common */
-} /* namespace Gem */
+} /* namespace Gem::Common */

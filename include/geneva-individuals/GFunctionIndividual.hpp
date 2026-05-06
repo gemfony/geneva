@@ -338,7 +338,7 @@ class GFunctionIndividualFactory;
  * @note For MICHALEWICZ the natural domain is [0, π]. Set minVar=0 and maxVar≈3.14159
  *       explicitly; the factory default of [-10, 10] is not suitable for that function.
  */
-class GFunctionIndividual : public GParameterSet
+class GFunctionIndividual : public GParameterSet // NOLINT(cppcoreguidelines-special-member-functions)
 {
 	 ///////////////////////////////////////////////////////////////////////
 	 friend class boost::serialization::access;
@@ -406,7 +406,7 @@ public:
 	  * @return Human-readable name of the function
 	  */
 	 static G_API_INDIVIDUALS std::string getStringRepresentation(const solverFunction &df) {
-		 std::string result;
+		 std::string result; // NOLINT(cppcoreguidelines-init-variables)
 
 		 switch (df) {
 			 case solverFunction::PARABOLA:
@@ -472,7 +472,7 @@ public:
 	  * @return ROOT TFormula string for the 2D (n=2) version of the function
 	  */
 	 static G_API_INDIVIDUALS std::string get2DROOTFunction(const solverFunction &df) {
-		 std::string result;
+		 std::string result; // NOLINT(cppcoreguidelines-init-variables)
 
 		 switch (df) {
 			 case solverFunction::PARABOLA:
@@ -723,7 +723,7 @@ G_API_INDIVIDUALS std::ostream &operator<<(std::ostream &, std::shared_ptr <Gem:
 /**
  * A factory for GFunctionIndividual objects
  */
-class GFunctionIndividualFactory
+class GFunctionIndividualFactory // NOLINT(cppcoreguidelines-special-member-functions)
 	: public GParameterSetFactory
 {
 	 ///////////////////////////////////////////////////////////////////////
@@ -955,7 +955,7 @@ private:
  * a given constraint. Here, the sum of all double variables needs to be smaller
  * than a given constant.
  */
-class GDoubleSumConstraint : public GParameterSetConstraint {
+class GDoubleSumConstraint : public GParameterSetConstraint { // NOLINT(cppcoreguidelines-special-member-functions)
 	 ///////////////////////////////////////////////////////////////////////
 	 friend class boost::serialization::access;
 
@@ -1015,7 +1015,7 @@ private:
  * A constraint checker trying to enforce a condition x+y+z=C (note the equal
  * sign!) for double variables
  */
-class GDoubleSumGapConstraint : public GParameterSetConstraint {
+class GDoubleSumGapConstraint : public GParameterSetConstraint { // NOLINT(cppcoreguidelines-special-member-functions)
 	 ///////////////////////////////////////////////////////////////////////
 	 friend class boost::serialization::access;
 
@@ -1077,7 +1077,7 @@ private:
  * A simple constraint checker searching for valid solutions that fulfill
  * a given constraint. Here, valid solutions lie in a sphere around 0
  */
-class GSphereConstraint : public GParameterSetConstraint {
+class GSphereConstraint : public GParameterSetConstraint { // NOLINT(cppcoreguidelines-special-member-functions)
 	 ///////////////////////////////////////////////////////////////////////
 	 friend class boost::serialization::access;
 

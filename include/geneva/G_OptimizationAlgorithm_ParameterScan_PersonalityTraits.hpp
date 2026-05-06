@@ -39,16 +39,15 @@
 // Geneva headers go here
 #include "geneva/GPersonalityTraits.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 /**
  * This class adds variables and functions to GPersonalityTraits that are specific
  * to gradient descents.
  */
-class GParameterScan_PersonalityTraits :
-    public GPersonalityTraits
+class GParameterScan_PersonalityTraits // NOLINT(cppcoreguidelines-special-member-functions)
+    : public GPersonalityTraits
 {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
@@ -125,7 +124,6 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GParameterScan_PersonalityTraits) // NOLINT

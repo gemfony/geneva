@@ -52,8 +52,7 @@
 
 #endif /* GEM_TESTING */
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /**
  * The default number of simultaneous starting points for the gradient descent
@@ -70,7 +69,7 @@ const double DEFAULTSTEPSIZE = 0.1;
  * is delegated to the Broker (which may in turn use other means, such as threads or
  * networked execution for the evaluation step).
  */
-class GGradientDescent
+class GGradientDescent // NOLINT(cppcoreguidelines-special-member-functions)
     :
         public G_OptimizationAlgorithm_Base
 {
@@ -222,8 +221,7 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GGradientDescent) // NOLINT

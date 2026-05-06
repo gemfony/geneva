@@ -55,7 +55,7 @@ namespace Gem::Courtier
  * @return The std::istream object used to read the item from
  */
 	std::istream &operator>>(std::istream &i, Gem::Courtier::run_state &rs) {
-		Gem::Common::ENUMBASETYPE tmp;
+		Gem::Common::ENUMBASETYPE tmp = 0;
 		i >> tmp;
 		rs = static_cast<Gem::Courtier::run_state>(tmp);
 		return i;
@@ -84,7 +84,7 @@ namespace Gem::Courtier
  * @return The std::istream object used to read the item from
  */
 	std::istream &operator>>(std::istream &i, Gem::Courtier::networked_consumer_payload_command &ps) {
-		Gem::Common::ENUMBASETYPE tmp;
+		Gem::Common::ENUMBASETYPE tmp = 0;
 		i >> tmp;
 		ps = static_cast<Gem::Courtier::networked_consumer_payload_command>(tmp);
 		return i;
@@ -113,7 +113,7 @@ namespace Gem::Courtier
  * @return The std::istream object used to read the item from
  */
 	std::istream &operator>>(std::istream &i, Gem::Courtier::beast_ping_state &ps) {
-		Gem::Common::ENUMBASETYPE tmp;
+		Gem::Common::ENUMBASETYPE tmp = 0;
 		i >> tmp;
 		ps = static_cast<Gem::Courtier::beast_ping_state>(tmp);
 		return i;
@@ -142,7 +142,7 @@ namespace Gem::Courtier
  * @return The std::istream object used to read the item from
  */
 	std::istream &operator>>(std::istream &i, Gem::Courtier::submissionReturnMode &srm) {
-		Gem::Common::ENUMBASETYPE tmp;
+		Gem::Common::ENUMBASETYPE tmp = 0;
 		i >> tmp;
 		srm = static_cast<Gem::Courtier::submissionReturnMode>(tmp);
 		return i;
@@ -187,7 +187,7 @@ namespace Gem::Courtier
  * @return The std::istream object used to read the item from
  */
 	std::istream &operator>>(std::istream &i, Gem::Courtier::processingStatus &srm) {
-		Gem::Common::ENUMBASETYPE tmp;
+		Gem::Common::ENUMBASETYPE tmp = 0;
 		i >> tmp;
 		srm = static_cast<Gem::Courtier::processingStatus>(tmp);
 		return i;
@@ -208,7 +208,7 @@ namespace Gem::Courtier
  * Reads a Gem::Courtier::brokerMode item from a stream. Needed also for boost::lexical_cast<>
  */
 	std::istream& operator>>(std::istream& i, Gem::Courtier::consumerType& bm) {
-		Gem::Common::ENUMBASETYPE tmp;
+		Gem::Common::ENUMBASETYPE tmp = 0;
 		i >> tmp;
 		bm = static_cast<Gem::Courtier::consumerType>(tmp);
 		return i;
@@ -216,4 +216,4 @@ namespace Gem::Courtier
 
 	/******************************************************************************/
 
-}
+} /* namespace Gem::Courtier */

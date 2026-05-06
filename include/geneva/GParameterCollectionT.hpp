@@ -43,8 +43,7 @@
 #include "geneva/GObject.hpp"
 #include "geneva/GParameterBaseWithAdaptorsT.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 /**
@@ -52,7 +51,7 @@ namespace Geneva {
  * long, bool, ...).
  */
 template<typename num_type>
-class GParameterCollectionT
+class GParameterCollectionT // NOLINT(cppcoreguidelines-special-member-functions)
     : public GParameterBaseWithAdaptorsT<num_type>
     , public Gem::Common::GPODVectorT<num_type>
 {
@@ -200,7 +199,7 @@ public:
             , this->size());
 
         typename GParameterCollectionT<num_type>::const_iterator cit;
-        std::size_t pos;
+        std::size_t pos = 0;
         for (cit = this->begin(); cit != this->end(); ++cit) {
             pos = std::distance(
                 this->begin()
@@ -267,7 +266,7 @@ protected:
     void compare_(
         const GObject &cp
         , const Gem::Common::expectation &e
-        , const double &limit
+        , const double &/*limit*/
     ) const override {
         using namespace Gem::Common;
 
@@ -403,15 +402,13 @@ private:
     }
 };
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 
 /******************************************************************************/
 /**
  * @brief The content of the BOOST_SERIALIZATION_ASSUME_ABSTRACT(num_type) macro. Needed for Boost.Serialization
  */
-namespace boost {
-namespace serialization {
+namespace boost::serialization {
 template<typename num_type>
 struct is_abstract<Gem::Geneva::GParameterCollectionT<num_type>> :
     public boost::true_type
@@ -422,8 +419,6 @@ struct is_abstract<const Gem::Geneva::GParameterCollectionT<num_type>> :
     public boost::true_type
 {
 };
-}
-}
-
+} /* namespace boost::serialization */
 /******************************************************************************/
 

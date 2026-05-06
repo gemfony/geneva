@@ -44,15 +44,14 @@
 #include <catch2/catch_test_macros.hpp>
 #endif /* GEM_TESTING */
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 /**
  * A collection of integer objects without boundaries
  */
 template<typename int_type>
-class GIntNumCollectionT
+class GIntNumCollectionT // NOLINT(cppcoreguidelines-special-member-functions)
     : public GNumCollectionT<int_type>
 {
     ///////////////////////////////////////////////////////////////////////
@@ -196,7 +195,7 @@ protected:
     void compare_(
         const GObject &cp
         , const Gem::Common::expectation &e
-        , const double &limit
+        , const double &/*limit*/
     ) const override {
         using namespace Gem::Common;
 
@@ -232,7 +231,7 @@ protected:
      * that is added later will remain unaffected.
      */
     bool randomInit_(
-        const activityMode &am
+        const activityMode &/*am*/
         , Gem::Hap::GRandomBase &gr
     ) override {
         int_type lowerBoundary = GNumCollectionT<int_type>::getLowerInitBoundary();
@@ -449,13 +448,11 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 
 /******************************************************************************/
 // The content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T) // NOLINT
-namespace boost {
-namespace serialization {
+namespace boost::serialization {
 template<typename int_type>
 struct is_abstract<Gem::Geneva::GIntNumCollectionT<int_type>> :
     public boost::true_type
@@ -466,8 +463,6 @@ struct is_abstract<const Gem::Geneva::GIntNumCollectionT<int_type>> :
     public boost::true_type
 {
 };
-}
-}
-
+} /* namespace boost::serialization */
 /******************************************************************************/
 

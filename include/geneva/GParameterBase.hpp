@@ -50,8 +50,7 @@
 #include "geneva/GMutableParameterI.hpp"
 #include "geneva/GObject.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 /**
@@ -150,7 +149,7 @@ public:
      */
     template<typename par_type>
     std::size_t countParameters(
-        activityMode am
+        activityMode /*am*/
     ) const {
         throw geneva_exception(
             g_error_streamer(
@@ -178,7 +177,7 @@ public:
     void boundaries(
         std::vector<par_type> &lBndVec
         , std::vector<par_type> &uBndVec
-        , activityMode am
+        , activityMode /*am*/
     ) const {
         throw geneva_exception(
             g_error_streamer(
@@ -201,7 +200,7 @@ public:
     template<typename par_type>
     void streamline(
         std::vector<par_type> &parVec
-        , activityMode am
+        , activityMode /*am*/
     ) const {
         throw geneva_exception(
             g_error_streamer(
@@ -224,7 +223,7 @@ public:
     template<typename par_type>
     void streamline(
         std::map<std::string, std::vector<par_type>> &parVec
-        , activityMode am
+        , activityMode /*am*/
     ) const {
         throw geneva_exception(
             g_error_streamer(
@@ -248,8 +247,8 @@ public:
     template<typename par_type>
     void assignValueVector(
         const std::vector<par_type> &parVec
-        , std::size_t &pos
-        , activityMode am
+        , std::size_t &/*pos*/
+        , activityMode /*am*/
     ) {
         throw geneva_exception(
             g_error_streamer(
@@ -270,7 +269,7 @@ public:
     template<typename par_type>
     void assignValueVectors(
         const std::map<std::string, std::vector<par_type>> &parMap
-        , activityMode am
+        , activityMode /*am*/
     ) {
         throw geneva_exception(
             g_error_streamer(
@@ -288,9 +287,9 @@ public:
      */
     template<typename par_type>
     void multiplyByRandom(
-        const par_type &min
-        , const par_type &max
-        , activityMode am
+        const par_type &/*min*/
+        , const par_type &/*max*/
+        , activityMode /*am*/
         , Gem::Hap::GRandomBase &
     ) {
         throw geneva_exception(
@@ -309,7 +308,7 @@ public:
      */
     template<typename par_type>
     void multiplyByRandom(
-        activityMode am
+        activityMode /*am*/
         , Gem::Hap::GRandomBase &
     ) {
         throw geneva_exception(
@@ -328,8 +327,8 @@ public:
      */
     template<typename par_type>
     void multiplyBy(
-        par_type val
-        , activityMode am
+        par_type /*val*/
+        , activityMode /*am*/
     ) {
         throw geneva_exception(
             g_error_streamer(
@@ -347,8 +346,8 @@ public:
      */
     template<typename par_type>
     void fixedValueInit(
-        par_type val
-        , activityMode am
+        par_type /*val*/
+        , activityMode /*am*/
     ) {
         throw geneva_exception(
             g_error_streamer(
@@ -366,8 +365,8 @@ public:
      */
     template<typename par_type>
     void add(
-        const std::shared_ptr<GParameterBase> &p
-        , activityMode am
+        const std::shared_ptr<GParameterBase> &/*p*/
+        , activityMode /*am*/
     ) {
         throw geneva_exception(
             g_error_streamer(
@@ -385,8 +384,8 @@ public:
      */
     template<typename par_type>
     void subtract(
-        const std::shared_ptr<GParameterBase> &p
-        , activityMode am
+        const std::shared_ptr<GParameterBase> &/*p*/
+        , activityMode /*am*/
     ) {
         throw geneva_exception(
             g_error_streamer(
@@ -1605,8 +1604,7 @@ inline void GParameterBase::subtract<bool>(
 
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 
 /******************************************************************************/
 /**

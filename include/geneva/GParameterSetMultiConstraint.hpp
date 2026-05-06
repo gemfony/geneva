@@ -43,8 +43,7 @@
 #include "geneva/GIndividualMultiConstraint.hpp"
 #include "geneva/GParameterSet.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -55,8 +54,8 @@ namespace Geneva {
  * class is to "translate" GParameterSet-based constraints into constraints
  * based on GParameterSets
  */
-class GParameterSetConstraint :
-    public GPreEvaluationValidityCheckT<GParameterSet>
+class GParameterSetConstraint // NOLINT(cppcoreguidelines-special-member-functions)
+    : public GPreEvaluationValidityCheckT<GParameterSet>
 {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
@@ -114,8 +113,8 @@ private:
  * value represented by the formula as the "check"-value. Note that this class
  * currently only deals with double values.
  */
-class GParameterSetFormulaConstraint :
-    public GParameterSetConstraint
+class GParameterSetFormulaConstraint // NOLINT(cppcoreguidelines-special-member-functions)
+    : public GParameterSetConstraint
 {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
@@ -173,8 +172,7 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 
 BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::GParameterSetConstraint) // NOLINT
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GParameterSetFormulaConstraint) // NOLINT

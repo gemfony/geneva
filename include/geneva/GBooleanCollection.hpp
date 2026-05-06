@@ -44,8 +44,7 @@
 #include "geneva/GParameterCollectionT.hpp"
 #include "geneva/GBooleanAdaptor.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 /**
@@ -54,7 +53,8 @@ namespace Geneva {
  * is applied to all bits. If you want individual flip probabilities for
  * all bits, use GBool objects instead.
  */
-class GBooleanCollection :public GParameterCollectionT<bool>
+class GBooleanCollection // NOLINT(cppcoreguidelines-special-member-functions)
+    :public GParameterCollectionT<bool>
 {
 	 ///////////////////////////////////////////////////////////////////////
 	 friend class boost::serialization::access;
@@ -159,7 +159,6 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GBooleanCollection) // NOLINT

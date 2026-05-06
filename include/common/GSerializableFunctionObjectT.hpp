@@ -46,8 +46,7 @@
 // Geneva headers go here
 #include "common/GCommonInterfaceT.hpp"
 
-namespace Gem {
-namespace Common {
+namespace Gem::Common {
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -65,7 +64,7 @@ class GSerializableFunctionObjectT
 	 friend class boost::serialization::access;
 
 	 template<typename Archive>
-	 void serialize(Archive &ar, const unsigned int) {
+	 void serialize(Archive & /*ar*/, const unsigned int) {
 		 using boost::serialization::make_nvp;
 
 		 /* nothing */
@@ -125,7 +124,7 @@ protected:
 	void compare_(
 		const GSerializableFunctionObjectT<processable_type> &cp
 		, const Gem::Common::expectation &e
-		, const double &limit
+		, const double & /*limit*/
 	) const override {
 		using namespace Gem::Common;
 
@@ -174,8 +173,7 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-} /* namespace Common */
-} /* namespace Gem */
+} /* namespace Gem::Common */
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -183,14 +181,12 @@ private:
 /**
  * @brief The content of the BOOST_SERIALIZATION_ASSUME_ABSTRACT(T) macro. Needed for Boost.Serialization
  */
-namespace boost {
-namespace serialization {
+namespace boost::serialization {
 template<typename processable_type>
 struct is_abstract<Gem::Common::GSerializableFunctionObjectT<processable_type>> : public boost::true_type {};
 template<typename processable_type>
 struct is_abstract< const Gem::Common::GSerializableFunctionObjectT<processable_type>> : public boost::true_type {};
-} /* namespace serialization */
-} /* namespace boost */
+} /* namespace boost::serialization */
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////

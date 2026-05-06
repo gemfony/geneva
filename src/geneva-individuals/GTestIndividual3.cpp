@@ -133,7 +133,7 @@ namespace Gem::Tests
 	void GTestIndividual3::compare_(
 		const GObject &cp
 		, const Gem::Common::expectation &e
-		, const double &limit
+		, const double &/*limit*/
 	) const {
 		using namespace Gem::Common;
 		using namespace Gem::Geneva;
@@ -348,4 +348,4 @@ namespace Gem::Tests
 
 	/******************************************************************************/
 
-}
+} /* namespace Gem::Tests */

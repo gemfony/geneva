@@ -39,8 +39,7 @@
 
 // Geneva headers go here
 
-namespace Gem {
-namespace Common {
+namespace Gem::Common {
 
 /******************************************************************************/
 /**
@@ -77,5 +76,4 @@ struct GDefaultValueT<std::string> {
 };
 /******************************************************************************/
 
-} /* namespace Common */
-} /* namespace Gem */
+} /* namespace Gem::Common */

@@ -54,8 +54,7 @@
 
 // Gemfony headers go here
 
-namespace Gem {
-namespace Common {
+namespace Gem::Common {
 
 /******************************************************************************/
 // This set of functions allows to output tuples of any size, starting at 0.
@@ -79,9 +78,9 @@ template <class tuple_type, size_t p>
 std::string g_to_string(
 	const tuple_type& t
 	, const std::string& s
-	, tuple_output_seq<p> sq// This will determine the current value of p
+	, tuple_output_seq<p> /*sq*/
 ){
-	std::ostringstream oss;
+	std::ostringstream oss; // NOLINT(cppcoreguidelines-init-variables)
 	oss << ", " << std::get<std::tuple_size<tuple_type>::value-p>(t);
 	return (g_to_string(t, oss.str(), tuple_output_seq<p-1>()) + s);
 }
@@ -95,9 +94,9 @@ template <class tuple_type>
 std::string g_to_string(
 	const tuple_type& t
 	, const std::string& s
-	, tuple_output_seq<1> sq
+	, tuple_output_seq<1> /*sq*/
 ){
-	std::ostringstream oss;
+	std::ostringstream oss; // NOLINT(cppcoreguidelines-init-variables)
 	oss << std::get<0>(t);
   	return oss.str() + s;
 }
@@ -109,9 +108,9 @@ std::string g_to_string(
  */
 template <class tuple_type>
 std::string g_to_string(
-	const tuple_type& t
+	const tuple_type& /*t*/
 	, const std::string& s
-	, tuple_output_seq<0> sq
+	, tuple_output_seq<0> /*sq*/
 ) {
 	return std::string() + s;
 }
@@ -128,7 +127,7 @@ std::string g_to_string(
 	const std::tuple<args...>& t
 ){
 	static const unsigned short int sz = sizeof...(args); // The actual tuple size
-	std::string empty;
+	std::string empty; // NOLINT(cppcoreguidelines-init-variables)
 	return std::string("(") + g_to_string(t, empty, tuple_output_seq<sz>()) + std::string(")");
 }
 
@@ -144,7 +143,7 @@ std::string g_to_string(
 	const boost::tuple<args...>& t
 ){
 	static const unsigned short int sz = sizeof...(args); // The actual tuple size
-	std::string empty;
+	std::string empty; // NOLINT(cppcoreguidelines-init-variables)
 	return std::string("(") + g_to_string(t, empty, tuple_output_seq<sz>()) + std::string(")");
 }
 /******************************************************************************/
@@ -153,7 +152,7 @@ std::string g_to_string(
  */
 template <typename T>
 std::string g_to_string(const T& t){
-	std::ostringstream oss;
+	std::ostringstream oss; // NOLINT(cppcoreguidelines-init-variables)
 	oss << t;
 	return oss.str();
 }
@@ -186,5 +185,4 @@ std::ostream& operator<<(
 
 /******************************************************************************/
 
-} /* namespace Common */
-} /* namespace Gem */
+} /* namespace Gem::Common */

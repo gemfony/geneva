@@ -78,7 +78,7 @@ namespace Gem::Common
  * Reads a gColor item from a stream. Needed also for boost::lexical_cast<>
  */
 	std::istream &operator>>(std::istream &i, gColor &x) {
-		ENUMBASETYPE tmp;
+		ENUMBASETYPE tmp = 0;
 		i >> tmp;
 
 #ifdef DEBUG
@@ -105,7 +105,7 @@ namespace Gem::Common
  * Reads a gMarker item from a stream. Needed also for boost::lexical_cast<>
  */
 	std::istream &operator>>(std::istream &i, gMarker &x) {
-		ENUMBASETYPE tmp;
+		ENUMBASETYPE tmp = 0;
 		i >> tmp;
 
 #ifdef DEBUG
@@ -132,7 +132,7 @@ namespace Gem::Common
  * Reads a gLineStyle item from a stream. Needed also for boost::lexical_cast<>
  */
 	std::istream &operator>>(std::istream &i, gLineStyle &x) {
-		ENUMBASETYPE tmp;
+		ENUMBASETYPE tmp = 0;
 		i >> tmp;
 
 #ifdef DEBUG
@@ -159,7 +159,7 @@ namespace Gem::Common
  * Reads a graphPlotMode item from a stream. Needed also for boost::lexical_cast<>
  */
 	std::istream &operator>>(std::istream &i, graphPlotMode &x) {
-		ENUMBASETYPE tmp;
+		ENUMBASETYPE tmp = 0;
 		i >> tmp;
 
 #ifdef DEBUG
@@ -186,7 +186,7 @@ namespace Gem::Common
  * Reads a tddropt item from a stream. Needed also for boost::lexical_cast<>
  */
 	std::istream &operator>>(std::istream &i, tddropt &x) {
-		ENUMBASETYPE tmp;
+		ENUMBASETYPE tmp = 0;
 		i >> tmp;
 
 #ifdef DEBUG
@@ -388,7 +388,7 @@ namespace Gem::Common
  * calculate a suffix from id and parent ids
  */
 	std::string GBasePlotter::suffix(bool isSecondary, std::size_t pId) const {
-		std::string result;
+		std::string result; // NOLINT(cppcoreguidelines-init-variables)
 
 		if (not isSecondary) {
 			result = std::string("_") + to_string(this->id());
@@ -434,7 +434,7 @@ namespace Gem::Common
 	void GBasePlotter::compare_(
 		const GBasePlotter& cp
 		, const expectation& e
-		, const double& limit
+		, const double& /*limit*/
 	) const {
 		// Check that we are dealing with a GBasePlotter reference independent of this object and convert the pointer
 		const auto *p_load = g_convert_and_compare(cp, this);
@@ -485,7 +485,7 @@ namespace Gem::Common
  * Retrieve header settings for this plot (and any sub-plots)
  */
 	std::string GBasePlotter::headerData(const std::string& indent) const {
-		std::ostringstream header_data;
+		std::ostringstream header_data; // NOLINT(cppcoreguidelines-init-variables)
 
 		// Add this plot's data
 		header_data
@@ -516,7 +516,7 @@ namespace Gem::Common
  * Retrieves body / data settings for this plot (and any sub-plots)
  */
 	std::string GBasePlotter::bodyData(const std::string& indent) const {
-		std::ostringstream body_data;
+		std::ostringstream body_data; // NOLINT(cppcoreguidelines-init-variables)
 
 		// Add this plot's data
 		body_data
@@ -541,7 +541,7 @@ namespace Gem::Common
  * Retrieves footer / drawing settings for this plot (and any sub-plots)
  */
 	std::string GBasePlotter::footerData(const std::string& indent) const {
-		std::ostringstream footer_data;
+		std::ostringstream footer_data; // NOLINT(cppcoreguidelines-init-variables)
 
 		// Add this plot's data
 		footer_data
@@ -630,7 +630,7 @@ namespace Gem::Common
 	void GGraph2D::compare_(
 		const GBasePlotter& cp
 		, const expectation& e
-		, const double& limit
+		, const double& /*limit*/
 	) const {
 		// Check that we are dealing with a GGraph2D reference independent of this object and convert the pointer
 		const auto *p_load = g_convert_and_compare(cp, this);
@@ -657,7 +657,7 @@ namespace Gem::Common
 		, std::size_t pId
 		, const std::string& indent
 	) const {
-		std::ostringstream header_data;
+		std::ostringstream header_data; // NOLINT(cppcoreguidelines-init-variables)
 
 		// Set up suitable arrays for the header
 		std::string baseName = suffix(isSecondary, pId);
@@ -666,7 +666,7 @@ namespace Gem::Common
 		std::string xArrayName = "x_" + arrayBaseName;
 		std::string yArrayName = "y_" + arrayBaseName;
 
-		std::string comment;
+		std::string comment; // NOLINT(cppcoreguidelines-init-variables)
 		if (m_dsMarker != "") {
 			comment = "// " + m_dsMarker;
 		}
@@ -688,7 +688,7 @@ namespace Gem::Common
 		, std::size_t pId
 		, const std::string& indent
 	) const {
-		std::ostringstream body_data;
+		std::ostringstream body_data; // NOLINT(cppcoreguidelines-init-variables)
 
 		// Set up suitable arrays for the header
 		std::string baseName = suffix(isSecondary, pId);
@@ -697,7 +697,7 @@ namespace Gem::Common
 		std::string xArrayName = "x_" + arrayBaseName;
 		std::string yArrayName = "y_" + arrayBaseName;
 
-		std::string comment;
+		std::string comment; // NOLINT(cppcoreguidelines-init-variables)
 		if (m_dsMarker != "") {
 			body_data << "// " + m_dsMarker << std::endl;
 		}
@@ -725,7 +725,7 @@ namespace Gem::Common
 		, std::size_t pId
 		, const std::string& indent
 	) const {
-		std::ostringstream footer_data;
+		std::ostringstream footer_data; // NOLINT(cppcoreguidelines-init-variables)
 
 		// Set up suitable arrays for the header
 		std::string baseName = suffix(isSecondary, pId);
@@ -736,7 +736,7 @@ namespace Gem::Common
 
 		std::string graphName = std::string("graph") + baseName;
 
-		std::string comment;
+		std::string comment; // NOLINT(cppcoreguidelines-init-variables)
 		if (m_dsMarker != "") {
 			footer_data << "// " + m_dsMarker << std::endl;
 		}
@@ -768,7 +768,7 @@ namespace Gem::Common
 
 			double x1 = std::get<0>(*m_data.begin());
 			double y1 = std::get<1>(*m_data.begin());
-			double x2, y2;
+			double x2 = 0., y2 = 0.;
 
 			for (it = m_data.begin() + 1; it != m_data.end(); ++it) {
 				x2 = std::get<0>(*it);
@@ -889,7 +889,7 @@ namespace Gem::Common
 	void GGraph2ED::compare_(
 		const GBasePlotter& cp
 		, const expectation& e
-		, const double& limit
+		, const double& /*limit*/
 	) const {
 		// Check that we are dealing with a GBasePlotter reference independent of this object and convert the pointer
 		const auto *p_load = g_convert_and_compare(cp, this);
@@ -915,7 +915,7 @@ namespace Gem::Common
 		, std::size_t pId
 		, const std::string& indent
 	) const {
-		std::ostringstream header_data;
+		std::ostringstream header_data; // NOLINT(cppcoreguidelines-init-variables)
 
 		// Set up suitable arrays for the header
 		std::string baseName = suffix(isSecondary, pId);
@@ -926,7 +926,7 @@ namespace Gem::Common
 		std::string yArrayName = "y_" + arrayBaseName;
 		std::string eyArrayName = "ey_" + arrayBaseName;
 
-		std::string comment;
+		std::string comment; // NOLINT(cppcoreguidelines-init-variables)
 		if (m_dsMarker != "") {
 			comment = "// " + m_dsMarker;
 		}
@@ -950,7 +950,7 @@ namespace Gem::Common
 		, std::size_t pId
 		, const std::string& indent
 	) const {
-		std::ostringstream body_data;
+		std::ostringstream body_data; // NOLINT(cppcoreguidelines-init-variables)
 
 		// Set up suitable arrays for the header
 		std::string baseName = suffix(isSecondary, pId);
@@ -961,7 +961,7 @@ namespace Gem::Common
 		std::string yArrayName = "y_" + arrayBaseName;
 		std::string eyArrayName = "ey_" + arrayBaseName;
 
-		std::string comment;
+		std::string comment; // NOLINT(cppcoreguidelines-init-variables)
 		if (m_dsMarker != "") {
 			body_data << "// " + m_dsMarker << std::endl;
 		}
@@ -993,7 +993,7 @@ namespace Gem::Common
 		, std::size_t pId
 		, const std::string& indent
 	) const {
-		std::ostringstream footer_data;
+		std::ostringstream footer_data; // NOLINT(cppcoreguidelines-init-variables)
 
 		// Set up suitable arrays for the header
 		std::string baseName = suffix(isSecondary, pId);
@@ -1006,7 +1006,7 @@ namespace Gem::Common
 
 		std::string graphName = std::string("graph_") + baseName;
 
-		std::string comment;
+		std::string comment; // NOLINT(cppcoreguidelines-init-variables)
 		if (m_dsMarker != "") {
 			footer_data << "// " + m_dsMarker << std::endl;
 		}
@@ -1131,7 +1131,7 @@ namespace Gem::Common
 	void GGraph3D::compare_(
 		const GBasePlotter& cp
 		, const expectation& e
-		, const double& limit
+		, const double& /*limit*/
 	) const {
 		// Check that we are dealing with a GGraph3D reference independent of this object and convert the pointer
 		const auto *p_load = g_convert_and_compare(cp, this);
@@ -1157,7 +1157,7 @@ namespace Gem::Common
 		, std::size_t pId
 		, const std::string& indent
 	) const {
-		std::ostringstream header_data;
+		std::ostringstream header_data; // NOLINT(cppcoreguidelines-init-variables)
 
 		// Set up suitable arrays for the header
 		std::string baseName = suffix(isSecondary, pId);
@@ -1167,7 +1167,7 @@ namespace Gem::Common
 		std::string yArrayName = "y_" + arrayBaseName;
 		std::string zArrayName = "z_" + arrayBaseName;
 
-		std::string comment;
+		std::string comment; // NOLINT(cppcoreguidelines-init-variables)
 		if (m_dsMarker != "") {
 			comment = "// " + m_dsMarker;
 		}
@@ -1190,7 +1190,7 @@ namespace Gem::Common
 		, std::size_t pId
 		, const std::string& indent
 	) const {
-		std::ostringstream body_data;
+		std::ostringstream body_data; // NOLINT(cppcoreguidelines-init-variables)
 
 		// Set up suitable arrays for the header
 		std::string baseName = suffix(isSecondary, pId);
@@ -1200,7 +1200,7 @@ namespace Gem::Common
 		std::string yArrayName = "y_" + arrayBaseName;
 		std::string zArrayName = "z_" + arrayBaseName;
 
-		std::string comment;
+		std::string comment; // NOLINT(cppcoreguidelines-init-variables)
 		if (m_dsMarker != "") {
 			body_data << "// " + m_dsMarker << std::endl;
 		}
@@ -1231,7 +1231,7 @@ namespace Gem::Common
 		, std::size_t pId
 		, const std::string& indent
 	) const {
-		std::ostringstream footer_data;
+		std::ostringstream footer_data; // NOLINT(cppcoreguidelines-init-variables)
 
 		// Set up suitable arrays for the header
 		std::string baseName = suffix(isSecondary, pId);
@@ -1243,7 +1243,7 @@ namespace Gem::Common
 
 		std::string graphName = std::string("graph_") + baseName;
 
-		std::string comment;
+		std::string comment; // NOLINT(cppcoreguidelines-init-variables)
 		if (m_dsMarker != "") {
 			footer_data << "// " + m_dsMarker << std::endl;
 		}
@@ -1279,7 +1279,7 @@ namespace Gem::Common
 			std::vector<std::tuple<double, double, double>>::const_iterator it;
 			std::size_t posCounter = 0;
 
-			double x, y, z;
+			double x = 0.0, y = 0.0, z = 0.0;
 
 			footer_data
 				<< indent << "TPolyLine3D *lines_" << graphName << " = new TPolyLine3D(" << m_data.size() << ");" << std::endl
@@ -1456,7 +1456,7 @@ namespace Gem::Common
 	void GGraph4D::compare_(
 		const GBasePlotter& cp
 		, const expectation& e
-		, const double& limit
+		, const double& /*limit*/
 	) const {
 		// Check that we are dealing with a GGraph3D reference independent of this object and convert the pointer
 		const auto *p_load = g_convert_and_compare(cp, this);
@@ -1486,7 +1486,7 @@ namespace Gem::Common
 		, std::size_t
 		, std::string const&
 	) const {
-		std::ostringstream header_data;
+		std::ostringstream header_data; // NOLINT(cppcoreguidelines-init-variables)
 
 		// nothing
 
@@ -1502,7 +1502,7 @@ namespace Gem::Common
 		, std::size_t
 		, std::string const&
 	) const {
-		std::ostringstream body_data;
+		std::ostringstream body_data; // NOLINT(cppcoreguidelines-init-variables)
 
 		// nothing
 
@@ -1541,7 +1541,7 @@ namespace Gem::Common
 			);
 		}
 
-		std::ostringstream footer_data;
+		std::ostringstream footer_data; // NOLINT(cppcoreguidelines-init-variables)
 
 		// Find out about the minimum and maximum values of the data vector
 		std::tuple<double, double, double, double, double, double, double, double> minMax = getMinMax(
@@ -1702,9 +1702,9 @@ namespace Gem::Common
 		, std::size_t pId
 		, const std::string& indent
 	) const {
-		std::ostringstream header_data;
+		std::ostringstream header_data; // NOLINT(cppcoreguidelines-init-variables)
 
-		std::string comment;
+		std::string comment; // NOLINT(cppcoreguidelines-init-variables)
 		if (m_dsMarker != "") {
 			comment = "// " + m_dsMarker;
 		}
@@ -1739,9 +1739,9 @@ namespace Gem::Common
 		, std::size_t pId
 		, const std::string& indent
 	) const {
-		std::ostringstream body_data;
+		std::ostringstream body_data; // NOLINT(cppcoreguidelines-init-variables)
 
-		std::string comment;
+		std::string comment; // NOLINT(cppcoreguidelines-init-variables)
 		if (m_dsMarker != "") {
 			comment = "// " + m_dsMarker;
 		} else {
@@ -1771,7 +1771,7 @@ namespace Gem::Common
 		, std::size_t pId
 		, const std::string& indent
 	) const {
-		std::ostringstream footer_data;
+		std::ostringstream footer_data; // NOLINT(cppcoreguidelines-init-variables)
 
 		std::string histName = "histD" + suffix(isSecondary, pId);
 
@@ -1781,7 +1781,7 @@ namespace Gem::Common
 			footer_data << indent << histName << "->SetTitle(\" \");" << std::endl;
 		}
 
-		std::string comment;
+		std::string comment; // NOLINT(cppcoreguidelines-init-variables)
 		if (m_dsMarker != "") {
 			footer_data << "// " + m_dsMarker << std::endl;
 		}
@@ -1874,7 +1874,7 @@ namespace Gem::Common
 	void GHistogram1D::compare_(
 		const GBasePlotter& cp
 		, const expectation& e
-		, const double& limit
+		, const double& /*limit*/
 	) const {
 		// Check that we are dealing with a GBasePlotter reference independent of this object and convert the pointer
 		const auto *p_load = g_convert_and_compare(cp, this);
@@ -1958,9 +1958,9 @@ namespace Gem::Common
 		, std::size_t pId
 		, const std::string& indent
 	) const {
-		std::ostringstream header_data;
+		std::ostringstream header_data; // NOLINT(cppcoreguidelines-init-variables)
 
-		std::string comment;
+		std::string comment; // NOLINT(cppcoreguidelines-init-variables)
 		if (m_dsMarker != "") {
 			comment = "// " + m_dsMarker;
 		}
@@ -1984,9 +1984,9 @@ namespace Gem::Common
 		, std::size_t pId
 		, const std::string& indent
 	) const {
-		std::ostringstream body_data;
+		std::ostringstream body_data; // NOLINT(cppcoreguidelines-init-variables)
 
-		std::string comment;
+		std::string comment; // NOLINT(cppcoreguidelines-init-variables)
 		if (m_dsMarker != "") {
 			comment = "// " + m_dsMarker;
 		} else {
@@ -2017,7 +2017,7 @@ namespace Gem::Common
 		, std::size_t pId
 		, const std::string& indent
 	) const {
-		std::ostringstream footer_data;
+		std::ostringstream footer_data; // NOLINT(cppcoreguidelines-init-variables)
 
 		std::string histName = "histI" + suffix(isSecondary, pId);
 
@@ -2029,7 +2029,7 @@ namespace Gem::Common
 				<< indent << histName << "->SetTitle(\" \");" << std::endl;
 		}
 
-		std::string comment;
+		std::string comment; // NOLINT(cppcoreguidelines-init-variables)
 		if (m_dsMarker != "") {
 			footer_data << "// " + m_dsMarker << std::endl;
 		}
@@ -2122,7 +2122,7 @@ namespace Gem::Common
 	void GHistogram1I::compare_(
 		const GBasePlotter& cp
 		, const expectation& e
-		, const double& limit
+		, const double& /*limit*/
 	) const {
 		// Check that we are dealing with a GBasePlotter reference independent of this object and convert the pointer
 		const auto *p_load = g_convert_and_compare(cp, this);
@@ -2235,9 +2235,9 @@ namespace Gem::Common
 		, std::size_t pId
 		, const std::string& indent
 	) const {
-		std::ostringstream header_data;
+		std::ostringstream header_data; // NOLINT(cppcoreguidelines-init-variables)
 
-		std::string comment;
+		std::string comment; // NOLINT(cppcoreguidelines-init-variables)
 		if (m_dsMarker != "") {
 			comment = "// " + m_dsMarker;
 		}
@@ -2308,9 +2308,9 @@ namespace Gem::Common
 		, std::size_t pId
 		, const std::string& indent
 	) const {
-		std::ostringstream body_data;
+		std::ostringstream body_data; // NOLINT(cppcoreguidelines-init-variables)
 
-		std::string comment;
+		std::string comment; // NOLINT(cppcoreguidelines-init-variables)
 		if (m_dsMarker != "") {
 			comment = "// " + m_dsMarker;
 		} else {
@@ -2342,7 +2342,7 @@ namespace Gem::Common
 		, std::size_t pId
 		, const std::string& indent
 	) const {
-		std::ostringstream footer_data;
+		std::ostringstream footer_data; // NOLINT(cppcoreguidelines-init-variables)
 
 		std::string histName = "hist2D" + suffix(isSecondary, pId);
 
@@ -2354,7 +2354,7 @@ namespace Gem::Common
 				<< indent << histName << "->SetTitle(\" \");" << std::endl;
 		}
 
-		std::string comment;
+		std::string comment; // NOLINT(cppcoreguidelines-init-variables)
 		if (m_dsMarker != "") {
 			footer_data << "// " + m_dsMarker << std::endl;
 		}
@@ -2564,7 +2564,7 @@ namespace Gem::Common
 	void GHistogram2D::compare_(
 		const GBasePlotter& cp
 		, const expectation& e
-		, const double& limit
+		, const double& /*limit*/
 	) const {
 		// Check that we are dealing with a GBasePlotter reference independent of this object and convert the pointer
 		const auto *p_load = g_convert_and_compare(cp, this);
@@ -2667,7 +2667,7 @@ namespace Gem::Common
 	void GFunctionPlotter1D::compare_(
 		const GBasePlotter& cp
 		, const expectation& e
-		, const double& limit
+		, const double& /*limit*/
 	) const {
 		// Check that we are dealing with a GGraph3D reference independent of this object and convert the pointer
 		const auto *p_load = g_convert_and_compare(cp, this);
@@ -2707,9 +2707,9 @@ namespace Gem::Common
 			);
 		}
 
-		std::ostringstream result;
+		std::ostringstream result; // NOLINT(cppcoreguidelines-init-variables)
 
-		std::string comment;
+		std::string comment; // NOLINT(cppcoreguidelines-init-variables)
 		if (m_dsMarker != "") {
 			comment = "// " + m_dsMarker;
 		}
@@ -2748,9 +2748,9 @@ namespace Gem::Common
 		, std::size_t pId
 		, const std::string& indent
 	) const {
-		std::ostringstream footer_data;
+		std::ostringstream footer_data; // NOLINT(cppcoreguidelines-init-variables)
 
-		std::string comment;
+		std::string comment; // NOLINT(cppcoreguidelines-init-variables)
 		if (m_dsMarker != "") {
 			comment = "// " + m_dsMarker;
 		}
@@ -2887,7 +2887,7 @@ namespace Gem::Common
 	void GFunctionPlotter2D::compare_(
 		const GBasePlotter& cp
 		, const expectation& e
-		, const double& limit
+		, const double& /*limit*/
 	) const {
 		// Check that we are dealing with a GGraph3D reference independent of this object and convert the pointer
 		const auto *p_load = g_convert_and_compare(cp, this);
@@ -2939,9 +2939,9 @@ namespace Gem::Common
 			);
 		}
 
-		std::ostringstream result;
+		std::ostringstream result; // NOLINT(cppcoreguidelines-init-variables)
 
-		std::string comment;
+		std::string comment; // NOLINT(cppcoreguidelines-init-variables)
 		if (m_dsMarker != "") {
 			comment = "// " + m_dsMarker;
 		}
@@ -2994,9 +2994,9 @@ namespace Gem::Common
 		, std::size_t pId
 		, std::string const& indent
 	) const {
-		std::ostringstream footer_data;
+		std::ostringstream footer_data; // NOLINT(cppcoreguidelines-init-variables)
 
-		std::string comment;
+		std::string comment; // NOLINT(cppcoreguidelines-init-variables)
 		if (m_dsMarker != "") {
 			comment = "// " + m_dsMarker;
 		}
@@ -3146,7 +3146,7 @@ namespace Gem::Common
  * Emits the overall plot
  */
 	std::string GPlotDesigner::plot(const std::filesystem::path &plotName) const {
-		std::ostringstream result;
+		std::ostringstream result; // NOLINT(cppcoreguidelines-init-variables)
 		std::size_t maxPlots = m_c_x_div * m_c_y_div;
 
 		if (m_plotters_cnt.size() > maxPlots) {
@@ -3232,7 +3232,7 @@ namespace Gem::Common
  * A default header for a ROOT file
  */
 	std::string GPlotDesigner::staticHeader(const std::string& indent) const {
-		std::ostringstream result;
+		std::ostringstream result; // NOLINT(cppcoreguidelines-init-variables)
 
 		result
 			<< indent << "gROOT->Reset();" << std::endl
@@ -3391,7 +3391,7 @@ namespace Gem::Common
 	void GPlotDesigner::compare_(
 		const GPlotDesigner& cp
 		, const expectation& e
-		, const double& limit
+		, const double& /*limit*/
 	) const {
 		// Check that we are dealing with a GPlotDesigner reference independent of this object and convert the pointer
 		const auto *p_load = g_convert_and_compare(cp, this);
@@ -3448,4 +3448,4 @@ namespace Gem::Common
 	////////////////////////////////////////////////////////////////////////////////
 	/******************************************************************************/
 
-}
+} /* namespace Gem::Common */

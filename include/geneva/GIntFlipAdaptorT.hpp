@@ -44,8 +44,7 @@
 #include "geneva/GObject.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 /**
@@ -56,7 +55,7 @@ namespace Geneva {
  * allows to deal with booleans instead of "standard" integer types.
  */
 template<typename int_type>
-class GIntFlipAdaptorT
+class GIntFlipAdaptorT // NOLINT(cppcoreguidelines-special-member-functions)
     : public GNumFlipAdaptorT<int_type>
 {
     ///////////////////////////////////////////////////////////////////////
@@ -146,7 +145,7 @@ protected:
     void compare_(
         const GObject &cp
         , const Gem::Common::expectation &e
-        , const double &limit
+        , const double &/*limit*/
     ) const override {
         using namespace Gem::Common;
 
@@ -265,13 +264,11 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 
 /******************************************************************************/
 // The content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T) // NOLINT
-namespace boost {
-namespace serialization {
+namespace boost::serialization {
 template<typename int_type>
 struct is_abstract<Gem::Geneva::GIntFlipAdaptorT<int_type>> :
     public boost::true_type
@@ -282,8 +279,6 @@ struct is_abstract<const Gem::Geneva::GIntFlipAdaptorT<int_type>> :
     public boost::true_type
 {
 };
-}
-}
-
+} /* namespace boost::serialization */
 /******************************************************************************/
 

@@ -41,15 +41,14 @@
 #include "geneva/GParameterTCollectionT.hpp"
 #include "geneva/GInt32GaussAdaptor.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 /**
  * A collection of GInt32Object objects, ready for use in a
  * GParameterSet derivative.
  */
-class GInt32ObjectCollection
+class GInt32ObjectCollection // NOLINT(cppcoreguidelines-special-member-functions)
     : public GParameterTCollectionT<GInt32Object>
 {
     ///////////////////////////////////////////////////////////////////////
@@ -113,7 +112,6 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GInt32ObjectCollection) // NOLINT

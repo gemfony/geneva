@@ -73,8 +73,7 @@
 #include "common/GTupleIO.hpp"
 #include "common/GExceptions.hpp"
 
-namespace Gem {
-namespace Common {
+namespace Gem::Common {
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -432,7 +431,7 @@ private:
  * exception chain, possibly wrapped into a macro giving it information about
  * the file and lines from which it has been called.
  */
-class GManipulator {
+class GManipulator { // NOLINT(cppcoreguidelines-special-member-functions)
 public:
 	 /** @brief A constructor that stores the logging type only */
 	 explicit G_API_COMMON GManipulator(logType);
@@ -550,7 +549,7 @@ private:
 #if BOOST_COMP_GNUC && (BOOST_COMP_GNUC < BOOST_VERSION_NUMBER(5,0,0))
 		 return std::string("Dummy (g++ < 5.0 does not support put_time)");
 #else
-		 std::ostringstream oss;
+		 std::ostringstream oss; // NOLINT(cppcoreguidelines-init-variables)
 		 std::time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
 		 struct tm time_info{};
 
@@ -574,8 +573,7 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-} /* namespace Common */
-} /* namespace Gem */
+} /* namespace Gem::Common */
 
 /******************************************************************************/
 /**

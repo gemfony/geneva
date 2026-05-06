@@ -47,8 +47,7 @@
 #include "geneva/GIndividualStandardConsumerInitializerT.hpp"
 
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -59,7 +58,7 @@ namespace Geneva {
  * algorithms directly, the user needs to manually instantiate this class and
  * register any desired optimization algorithm(-factory).
  */
-class GenevaInitializer {
+class GenevaInitializer { // NOLINT(cppcoreguidelines-special-member-functions)
 public:
 	 /** @brief The default constructor */
 	 G_API_GENEVA GenevaInitializer();
@@ -92,7 +91,7 @@ public:
       * GMPIConsumerT.
       */
      void registerConsumer(const std::shared_ptr<Gem::Courtier::GBaseConsumerT<Gem::Geneva::GParameterSet>>& consumer){
-         std::string mnemonic = consumer->getMnemonic();
+         std::string mnemonic = consumer->getMnemonic(); // NOLINT(cppcoreguidelines-init-variables)
          GConsumerStore->setOnce(mnemonic, consumer);
      }
 
@@ -103,6 +102,5 @@ public:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 

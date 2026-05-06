@@ -60,8 +60,7 @@
 #include "geneva/G_OptimizationAlgorithm_EvolutionaryAlgorithm_Factory.hpp"
 #include "geneva-individuals/GFunctionIndividual.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 // Different types of optimization targets
@@ -179,7 +178,7 @@ const std::size_t MOT_NVAR = 11;
  * but may be used to find better optima as well.
  */
 template<typename ind_type = Gem::Geneva::GFunctionIndividual>
-class GMetaOptimizerIndividualT
+class GMetaOptimizerIndividualT // NOLINT(cppcoreguidelines-special-member-functions)
     : public GParameterSet
 {
     ///////////////////////////////////////////////////////////////////////
@@ -638,8 +637,7 @@ public:
      * Emit information about this individual
      */
     std::string print(bool withFitness = true) const {
-        std::ostringstream result;
-
+        std::ostringstream result; // NOLINT(cppcoreguidelines-init-variables)
         // Retrieve the parameters
         std::shared_ptr<GConstrainedInt32Object> npar_ptr = this->at<GConstrainedInt32Object>(MOT_NPARENTS);
         std::shared_ptr<GConstrainedInt32Object> nch_ptr = this->at<GConstrainedInt32Object>(MOT_NCHILDREN);
@@ -817,7 +815,7 @@ protected:
      * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
     virtual void compare_(
-        const GObject &cp, const Gem::Common::expectation &e, const double &limit
+        const GObject &cp, const Gem::Common::expectation &e, const double &/*limit*/
     ) const final {
         // Check that we are dealing with a GMetaOptimizerIndividualT<ind_type> reference independent of this object and convert the pointer
         const GMetaOptimizerIndividualT<ind_type>
@@ -1254,8 +1252,7 @@ protected:
         // Describe our own options
         using namespace Gem::Courtier;
 
-        std::string comment;
-
+        std::string comment; // NOLINT(cppcoreguidelines-init-variables)
         comment = "";
         comment += "The initial number of parents in a population;";
         gpb.registerFileParameter<std::size_t>(
@@ -1617,7 +1614,7 @@ private:
      * @return Items of the desired type
      */
     std::shared_ptr<GParameterSet> getObject_(
-            Gem::Common::GParserBuilder &gpb, const std::size_t &id
+            Gem::Common::GParserBuilder &gpb, const std::size_t &/*id*/
     ) override {
         // Will hold the result
         std::shared_ptr<GMetaOptimizerIndividualT<ind_type>>
@@ -1712,7 +1709,7 @@ const std::size_t P_YDIM = 1400;
  * TODO: templatize this class on executor_type, like is being done for the other optimization monitors
  */
 template<typename ind_type>
-class GOptOptMonitorT
+class GOptOptMonitorT // NOLINT(cppcoreguidelines-special-member-functions)
     :
         public GBasePluggableOM
 {
@@ -1890,7 +1887,7 @@ protected:
     virtual void compare_(
         const GObject &cp
         , const Gem::Common::expectation &e
-        , const double &limit
+        , const double &/*limit*/
     ) const override {
         using namespace Gem::Common;
 
@@ -2116,7 +2113,7 @@ private:
 
             case Gem::Geneva::infoMode::INFOPROCESSING: {
                 // Convert the base pointer to the target type
-                GEvolutionaryAlgorithm const * const ea = static_cast<GEvolutionaryAlgorithm const * const>(goa);
+                GEvolutionaryAlgorithm const * const ea = static_cast<GEvolutionaryAlgorithm const * const>(goa); // NOLINT(cppcoreguidelines-init-variables)
 
                 // Extract the requested data. First retrieve the best individual.
                 // It can always be found in the first position with evolutionary algorithms
@@ -2197,7 +2194,6 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GMetaOptimizerIndividualT<Gem::Geneva::GFunctionIndividual>) // NOLINT

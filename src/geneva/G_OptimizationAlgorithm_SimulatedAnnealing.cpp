@@ -65,7 +65,7 @@ namespace Gem::Geneva
 	void GSimulatedAnnealing::compare_(
 		const GObject& cp // the other object
 		, const Gem::Common::expectation& e // the expectation for this object, e.g. equality
-		, const double& limit// the limit for allowed deviations of floating point types
+		, const double& /*limit*/// the limit for allowed deviations of floating point types
 	) const {
 		using namespace Gem::Common;
 
@@ -761,4 +761,4 @@ namespace Gem::Geneva
 	////////////////////////////////////////////////////////////////////////////////
 	/******************************************************************************/
 
-}
+} /* namespace Gem::Geneva */

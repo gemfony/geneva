@@ -78,7 +78,7 @@ namespace Gem::Geneva
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 	void GConstrainedDoubleCollection::compare_(
-		const GObject &cp, const Gem::Common::expectation &e, const double &limit
+		const GObject &cp, const Gem::Common::expectation &e, const double &/*limit*/
 	) const {
 		using namespace Gem::Common;
 
@@ -112,7 +112,7 @@ namespace Gem::Geneva
  * @param parVec The vector to which the local value should be attached
  */
 	void GConstrainedDoubleCollection::doubleStreamline(
-		std::vector<double> &parVec, const activityMode &am
+		std::vector<double> &parVec, const activityMode &/*am*/
 	) const {
 		GConstrainedDoubleCollection::const_iterator cit;
 		for (cit = this->begin(); cit != this->end(); ++cit) {
@@ -153,7 +153,7 @@ namespace Gem::Geneva
  * @param uBndVec A vector of upper double parameter boundaries
  */
 	void GConstrainedDoubleCollection::doubleBoundaries(
-		std::vector<double> &lBndVec, std::vector<double> &uBndVec, const activityMode &am
+		std::vector<double> &lBndVec, std::vector<double> &uBndVec, const activityMode &/*am*/
 	) const {
 		// Add a lower and upper boundary to the vectors
 		// for each variable in the collection
@@ -171,7 +171,7 @@ namespace Gem::Geneva
  * @return The number of double parameters
  */
 	std::size_t GConstrainedDoubleCollection::countDoubleParameters(
-		const activityMode &am
+		const activityMode &/*am*/
 	) const {
 		return this->size();
 	}
@@ -185,7 +185,7 @@ namespace Gem::Geneva
  * @param pos The position inside of the vector from which the data is extracted in each turn of the loop
  */
 	void GConstrainedDoubleCollection::assignDoubleValueVector(
-		const std::vector<double> &parVec, std::size_t &pos, const activityMode &am
+		const std::vector<double> &parVec, std::size_t &pos, const activityMode &/*am*/
 	) {
 		for (std::size_t i = 0; i < this->size(); i++) {
 #ifdef DEBUG
@@ -209,7 +209,7 @@ namespace Gem::Geneva
  * Assigns part of a value map to the parameter
  */
 	void GConstrainedDoubleCollection::assignDoubleValueVectors(
-		const std::map<std::string, std::vector<double>> &parMap, const activityMode &am
+		const std::map<std::string, std::vector<double>> &parMap, const activityMode &/*am*/
 	) {
 		for (std::size_t i = 0; i < this->size(); i++) {
 			this->setValue(i, this->transfer((Gem::Common::getMapItem(parMap, this->getParameterName())).at(i)));
@@ -223,8 +223,8 @@ namespace Gem::Geneva
 	void GConstrainedDoubleCollection::doubleMultiplyByRandom(
 		const double &min
 		, const double &max
-		, const activityMode &am
-		, Gem::Hap::GRandomBase& gr
+		, const activityMode &/*am*/
+		, Gem::Hap::GRandomBase& gr // NOLINT(misc-unused-parameters)
 	) {
 		std::uniform_real_distribution<double> uniform_real_distribution(min,max);
 		for (std::size_t pos = 0; pos < this->size(); pos++) {
@@ -239,8 +239,8 @@ namespace Gem::Geneva
  * Multiplication with a random value in the range [0,1[
  */
 	void GConstrainedDoubleCollection::doubleMultiplyByRandom(
-		const activityMode &am
-		, Gem::Hap::GRandomBase& gr
+		const activityMode &/*am*/
+		, Gem::Hap::GRandomBase& gr // NOLINT(misc-unused-parameters)
 	) {
 		std::uniform_real_distribution<double> uniform_real_distribution(0., 1.);
 		for (std::size_t pos = 0; pos < this->size(); pos++) {
@@ -255,7 +255,7 @@ namespace Gem::Geneva
  * Multiplication with a constant value
  */
 	void GConstrainedDoubleCollection::doubleMultiplyBy(
-		const double &val, const activityMode &am
+		const double &val, const activityMode &/*am*/ // NOLINT(misc-unused-parameters)
 	) {
 		for (std::size_t pos = 0; pos < this->size(); pos++) {
 			GParameterCollectionT<double>::setValue(pos, transfer(val * this->value(pos)));
@@ -270,7 +270,7 @@ namespace Gem::Geneva
  * Initialization with a constant value
  */
 	void GConstrainedDoubleCollection::doubleFixedValueInit(
-		const double &val, const activityMode &am
+		const double &val, const activityMode &/*am*/ // NOLINT(misc-unused-parameters)
 	) {
 		for (std::size_t pos = 0; pos < this->size(); pos++) {
 			GParameterCollectionT<double>::setValue(pos, transfer(val));
@@ -283,7 +283,7 @@ namespace Gem::Geneva
  */
 	void GConstrainedDoubleCollection::doubleAdd(
 		std::shared_ptr<GParameterBase> p_base
-		, const activityMode &am
+		, const activityMode &/*am*/
 	) {
 		// We first need to convert p_base into the local type
 		std::shared_ptr<GConstrainedDoubleCollection> p = GParameterBase::parameterbase_cast<GConstrainedDoubleCollection>(p_base);
@@ -308,7 +308,7 @@ namespace Gem::Geneva
  */
 	void GConstrainedDoubleCollection::doubleSubtract(
 		std::shared_ptr<GParameterBase> p_base
-		, const activityMode &am
+		, const activityMode &/*am*/
 	) {
 		// We first need to convert p_base into the local type
 		std::shared_ptr<GConstrainedDoubleCollection> p = GParameterBase::parameterbase_cast<GConstrainedDoubleCollection>(p_base);
@@ -453,4 +453,4 @@ namespace Gem::Geneva
 
 	/******************************************************************************/
 
-}
+} /* namespace Gem::Geneva */

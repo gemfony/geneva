@@ -138,7 +138,7 @@ namespace Gem::Geneva
  * Triggers random initialization of the parameter object
  */
 	bool GBooleanObject::randomInit_(
-		const activityMode & am
+		const activityMode & /*am*/
 		, Gem::Hap::GRandomBase& gr
 	) {
 		std::bernoulli_distribution bernoulli_distribution; // defaults to 0.5
@@ -160,7 +160,7 @@ namespace Gem::Geneva
  */
 	bool GBooleanObject::randomInit_(
 		const double &probability
-		, const activityMode &am
+		, const activityMode &/*am*/
 		, Gem::Hap::GRandomBase& gr
 	) {
 		// Do some error checks
@@ -201,7 +201,7 @@ namespace Gem::Geneva
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 	void GBooleanObject::compare_(
-		const GObject &cp, const Gem::Common::expectation &e, const double &limit
+		const GObject &cp, const Gem::Common::expectation &e, const double &/*limit*/
 	) const {
 		using namespace Gem::Common;
 
@@ -235,7 +235,7 @@ namespace Gem::Geneva
  * @param parVec The vector to which the local value should be attached
  */
 	void GBooleanObject::booleanStreamline(
-		std::vector<bool> &parVec, const activityMode &am
+		std::vector<bool> &parVec, const activityMode &/*am*/
 	) const {
 		parVec.push_back(this->value());
 	}
@@ -247,7 +247,7 @@ namespace Gem::Geneva
  * @param parVec The map to which the local value should be attached
  */
 	void GBooleanObject::booleanStreamline(
-		std::map<std::string, std::vector<bool>> &parVec, const activityMode &am
+		std::map<std::string, std::vector<bool>> &parVec, const activityMode &/*am*/
 	) const {
 #ifdef DEBUG
 		if((this->getParameterName()).empty()) {
@@ -273,7 +273,7 @@ namespace Gem::Geneva
  * @param uBndVec A vector of upper bool parameter boundaries
  */
 	void GBooleanObject::booleanBoundaries(
-		std::vector<bool> &lBndVec, std::vector<bool> &uBndVec, const activityMode &am
+		std::vector<bool> &lBndVec, std::vector<bool> &uBndVec, const activityMode &/*am*/
 	) const {
 		lBndVec.push_back(false);
 		uBndVec.push_back(true);
@@ -288,7 +288,7 @@ namespace Gem::Geneva
  * @return The number of active, incactive or all float parameters
  */
 	std::size_t GBooleanObject::countBoolParameters(
-		const activityMode &am
+		const activityMode &/*am*/
 	) const {
 		return 1;
 	}
@@ -298,7 +298,7 @@ namespace Gem::Geneva
  * Assigns part of a value vector to the parameter
  */
 	void GBooleanObject::assignBooleanValueVector(
-		const std::vector<bool> &parVec, std::size_t &pos, const activityMode &am
+		const std::vector<bool> &parVec, std::size_t &pos, const activityMode &/*am*/
 	) {
 #ifdef DEBUG
 		// Do we have a valid position ?
@@ -320,7 +320,7 @@ namespace Gem::Geneva
  * Assigns part of a value map to the parameter
  */
 	void GBooleanObject::assignBooleanValueVectors(
-		const std::map<std::string, std::vector<bool>> &parMap, const activityMode &am
+		const std::map<std::string, std::vector<bool>> &parMap, const activityMode &/*am*/
 	) {
 		this->setValue((Gem::Common::getMapItem<std::vector<bool>>(parMap, this->getParameterName())).at(0));
 	}
@@ -713,4 +713,4 @@ namespace Gem::Geneva
 
 	/******************************************************************************/
 
-}
+} /* namespace Gem::Geneva */

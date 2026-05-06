@@ -67,7 +67,7 @@ namespace Gem::Tests
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 	void GTestIndividual1::compare_(
-		const GObject &cp, const Gem::Common::expectation &e, const double &limit
+		const GObject &cp, const Gem::Common::expectation &e, const double &/*limit*/
 	) const {
 		using namespace Gem::Common;
 		using namespace Gem::Geneva;
@@ -975,4 +975,4 @@ namespace Gem::Tests
 
 	/******************************************************************************/
 
-}
+} /* namespace Gem::Tests */

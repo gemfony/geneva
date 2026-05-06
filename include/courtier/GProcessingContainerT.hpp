@@ -274,7 +274,7 @@ namespace Gem::Courtier
 			// "Nullify the result list.
 			this->clear_stored_results_vec();
 
-			std::ostringstream error_description_stream;
+			std::ostringstream error_description_stream; // NOLINT(cppcoreguidelines-init-variables)
 			processing_result_type main_result;
 
 			try {
@@ -769,7 +769,7 @@ namespace Gem::Courtier
 	  * @param The desired new processing status
 	  */
 		std::string get_and_clear_exceptions(processingStatus ps = processingStatus::DO_IGNORE) {
-			std::string stored_exceptions = m_stored_error_descriptions;
+			std::string stored_exceptions = m_stored_error_descriptions; // NOLINT(cppcoreguidelines-init-variables)
 			this->set_processing_status(ps);
 			return stored_exceptions;
 		}
@@ -1028,7 +1028,7 @@ namespace Gem::Courtier
 
 	/******************************************************************************/
 
-}
+} /* namespace Gem::Courtier */
 
 /******************************************************************************/
 /** @brief Mark this class as abstract */
@@ -1038,7 +1038,7 @@ namespace boost::serialization
 	struct is_abstract<Gem::Courtier::GProcessingContainerT<processable_type, processing_result_type>> : public boost::true_type {};
 	template<typename processable_type, typename processing_result_type>
 	struct is_abstract<const Gem::Courtier::GProcessingContainerT<processable_type, processing_result_type>> : public boost::true_type {};
-}
+} /* namespace boost::serialization */
 
 /******************************************************************************/
 

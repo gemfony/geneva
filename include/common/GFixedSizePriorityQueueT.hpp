@@ -547,7 +547,7 @@ namespace Gem::Common
         void compare_(
             const GFixedSizePriorityQueueT& cp
             , const expectation& e
-            , const double& limit
+            , const double& /*limit*/
         ) const override
         {
             using namespace Gem::Common;
@@ -703,4 +703,4 @@ namespace Gem::Common
     };
 
     /******************************************************************************/
-}
+} /* namespace Gem::Common */

@@ -42,8 +42,7 @@
 
 #include "hap/GRandomT.hpp"
 
-namespace Gem {
-namespace Hap {
+namespace Gem::Hap {
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -66,7 +65,7 @@ public:
 	 /**
 	  * This embedded class identifies parameters needed for the bi_normal_distribution
 	  */
-	 class param_type {
+	 class param_type { // NOLINT(cppcoreguidelines-special-member-functions)
 	 public:
 		  using distribution_type = bi_normal_distribution<fp_type>;
 
@@ -333,6 +332,5 @@ bool operator!=(
 
 /******************************************************************************/
 
-} /* namespace Hap */
-} /* namespace Gem */
+} /* namespace Gem::Hap */
 

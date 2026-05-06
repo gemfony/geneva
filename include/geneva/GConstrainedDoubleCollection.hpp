@@ -46,8 +46,7 @@
 #include <catch2/catch_test_macros.hpp>
 #endif /* GEM_TESTING */
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 /**
@@ -57,7 +56,7 @@ namespace Geneva {
  * functions. Using the subscript operator or at() function, or the
  * native iterator, will give you the "raw" data only.
  */
-class GConstrainedDoubleCollection
+class GConstrainedDoubleCollection // NOLINT(cppcoreguidelines-special-member-functions)
 	: public GConstrainedFPNumCollectionT<double>
 {
 	 ///////////////////////////////////////////////////////////////////////
@@ -156,8 +155,7 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 
 #ifdef GEM_TESTING
 

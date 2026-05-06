@@ -48,8 +48,7 @@
 #include <catch2/catch_test_macros.hpp>
 #endif /* GEM_TESTING */
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 /**
@@ -681,7 +680,7 @@ public:
 	  */
 	 virtual bool updateOnStall(
 		 const std::size_t &nStalls
-		 , const T &range
+		 , const T &/*range*/
 	 ) {
 #ifdef DEBUG
 		 if (0 == nStalls) {
@@ -810,7 +809,7 @@ protected:
 	void compare_(
 		const GObject &cp
 		, const Gem::Common::expectation &e
-		, const fp_type &limit
+		, const fp_type &/*limit*/
 	) const override {
 		using namespace Gem::Common;
 
@@ -874,7 +873,7 @@ protected:
 	  * this function will simply return false.
 	  */
 	 virtual bool customQueryProperty(
-		 const std::string &property
+		 const std::string &/*property*/
 		 , std::vector<boost::any> &data
 	 ) const {
 		 return false;
@@ -1385,23 +1384,19 @@ std::size_t GAdaptorT<bool, double>::adapt(std::vector<bool> &, const bool &, Ge
 
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 
 /******************************************************************************/
 /** @brief Mark this class as abstract. This is the content of
  * BOOST_SERIALIZATION_ASSUME_ABSTRACT(T) */
 
-namespace boost {
-namespace serialization {
+namespace boost::serialization {
 template<typename T, typename fp_type>
 struct is_abstract<Gem::Geneva::GAdaptorT<T, fp_type>> : public boost::true_type
 {};
 template<typename T, typename fp_type>
 struct is_abstract<const Gem::Geneva::GAdaptorT<T, fp_type>> : public boost::true_type
 {};
-}
-}
-
+} /* namespace boost::serialization */
 /******************************************************************************/
 

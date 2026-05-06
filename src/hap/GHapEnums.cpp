@@ -55,7 +55,7 @@ namespace Gem::Hap
  * @return The std::istream object used to read the item from
  */
 	std::istream &operator>>(std::istream &i, Gem::Hap::RANDFLAVOURS &grts) {
-		Gem::Common::ENUMBASETYPE tmp;
+		Gem::Common::ENUMBASETYPE tmp = 0;
 		i >> tmp;
 		grts = static_cast<Gem::Hap::RANDFLAVOURS>(tmp);
 		return i;
@@ -63,4 +63,4 @@ namespace Gem::Hap
 
 	/******************************************************************************/
 
-}
+} /* namespace Gem::Hap */

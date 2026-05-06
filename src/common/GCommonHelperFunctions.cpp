@@ -30,10 +30,10 @@
 #include "common/GCommonHelperFunctions.hpp"
 
 namespace {
-	std::mutex g_hwt_read_mutex;
-	std::atomic<bool> g_hwt_read{false};
-	std::atomic<unsigned int> g_nHardwareThreads{Gem::Common::DEFAULTNHARDWARETHREADS};
-}
+	std::mutex g_hwt_read_mutex; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
+	std::atomic<bool> g_hwt_read{false}; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
+	std::atomic<unsigned int> g_nHardwareThreads{Gem::Common::DEFAULTNHARDWARETHREADS}; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
+} /* anonymous namespace */
 
 namespace Gem::Common
 {
@@ -144,7 +144,7 @@ namespace Gem::Common
 			);
 		}
 
-		std::string sourceFile(
+		std::string sourceFile( // NOLINT(cppcoreguidelines-init-variables)
 			std::istreambuf_iterator<char>(sourceFileStream), (std::istreambuf_iterator<char>())
 		);
 		return sourceFile;
@@ -181,7 +181,7 @@ namespace Gem::Common
 			);
 		}
 
-		std::string line;
+		std::string line; // NOLINT(cppcoreguidelines-init-variables)
 		std::vector<std::string> str_result_vec;
 
 		while (std::getline(sourceFileStream, line)) {
@@ -462,7 +462,7 @@ namespace Gem::Common
 #if BOOST_COMP_GNUC && (BOOST_COMP_GNUC < BOOST_VERSION_NUMBER(5,0,0))
 			return std::string("Dummy (g++ < 5.0 does not support put_time)");
 #else
-		std::ostringstream oss;
+		std::ostringstream oss; // NOLINT(cppcoreguidelines-init-variables)
 		std::time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
 		struct tm timeinfo{};
 
@@ -514,7 +514,7 @@ namespace Gem::Common
  */
 	void
 	condnotset(std::string const &F, std::string const &D) {
-		std::ostringstream error;
+		std::ostringstream error; // NOLINT(cppcoreguidelines-init-variables)
 		error
 			<< std::endl
 			<< "================================================" << std::endl
@@ -526,4 +526,4 @@ namespace Gem::Common
 
 	/******************************************************************************/
 
-}
+} /* namespace Gem::Common */

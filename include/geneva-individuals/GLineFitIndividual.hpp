@@ -62,15 +62,14 @@
 #include "common/GCommonEnums.hpp"
 #include "common/GFactoryT.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 /**
  * This individual takes a vector of 2D double-tuples and calculates the
  * root-square deviation from the line defined by its two parameters
  */
-class GLineFitIndividual
+class GLineFitIndividual // NOLINT(cppcoreguidelines-special-member-functions)
 	: public Gem::Geneva::GParameterSet {
 	 ///////////////////////////////////////////////////////////////////////
 	 friend class boost::serialization::access;
@@ -141,7 +140,7 @@ private:
 /**
  * A factory for GLineFitIndividual objects
  */
-class GLineFitIndividualFactory
+class GLineFitIndividualFactory // NOLINT(cppcoreguidelines-special-member-functions)
 	: public Gem::Common::GFactoryT<GParameterSet> {
 public:
 	 /** @brief The standard constructor */
@@ -175,7 +174,6 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GLineFitIndividual) // NOLINT

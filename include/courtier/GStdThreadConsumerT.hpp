@@ -55,8 +55,7 @@
 #include "courtier/GProcessingContainerT.hpp"
 #include "courtier/GWorkerT.hpp"
 
-namespace Gem {
-namespace Courtier {
+namespace Gem::Courtier {
 
 /** @brief The default number of threads per worker if the number of hardware threads cannot be determined */
 const std::uint16_t DEFAULTTHREADSPERWORKER = 4;
@@ -231,7 +230,7 @@ private:
 	  * @param hidden Command line options that should only be visible upon request
 	  */
 	 void addCLOptions_(
-		 boost::program_options::options_description &visible
+		 boost::program_options::options_description & /*visible*/
 		 , boost::program_options::options_description &hidden
 	 ) override {
 		 namespace po = boost::program_options;
@@ -395,6 +394,5 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Courtier */
-} /* namespace Gem */
+} /* namespace Gem::Courtier */
 

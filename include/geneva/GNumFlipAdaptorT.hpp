@@ -45,8 +45,7 @@
 #include "geneva/GObject.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 /**
@@ -55,7 +54,7 @@ namespace Geneva {
  * type needs to be specified as a template parameter.
  */
 template<typename num_type>
-class GNumFlipAdaptorT
+class GNumFlipAdaptorT // NOLINT(cppcoreguidelines-special-member-functions)
     : public GAdaptorT<num_type>
 {
     ///////////////////////////////////////////////////////////////////////
@@ -162,7 +161,7 @@ protected:
     void compare_(
         const GObject &cp
         , const Gem::Common::expectation &e
-        , const double &limit
+        , const double &/*limit*/
     ) const override {
         using namespace Gem::Common;
 
@@ -201,7 +200,7 @@ protected:
      */
     void customAdaptions(
         num_type &value
-        , const num_type &range
+        , const num_type &/*range*/
         , Gem::Hap::GRandomBase &gr
     ) override {
         using namespace Gem::Common;
@@ -313,13 +312,11 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 
 /******************************************************************************/
 // The content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T) // NOLINT
-namespace boost {
-namespace serialization {
+namespace boost::serialization {
 template<typename num_type>
 struct is_abstract<Gem::Geneva::GNumFlipAdaptorT<num_type>> :
     public boost::true_type
@@ -330,8 +327,6 @@ struct is_abstract<const Gem::Geneva::GNumFlipAdaptorT<num_type>> :
     public boost::true_type
 {
 };
-}
-}
-
+} /* namespace boost::serialization */
 /******************************************************************************/
 

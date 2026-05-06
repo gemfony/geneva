@@ -75,7 +75,7 @@ namespace Gem::Geneva
 	void GDelayIndividual::compare_(
 		const GObject& cp
 		, const Gem::Common::expectation& e
-		, const double& limit
+		, const double& /*limit*/
 	) const {
 		using namespace Gem::Common;
 
@@ -349,7 +349,7 @@ namespace Gem::Geneva
  */
 	std::shared_ptr<Gem::Geneva::GParameterSet> GDelayIndividualFactory::getObject_(
 		Gem::Common::GParserBuilder& gpb
-		, const std::size_t& id
+		, const std::size_t& /*id*/
 	) {
 		// Will hold the result
 		std::shared_ptr<GDelayIndividual> target(new GDelayIndividual());
@@ -550,4 +550,4 @@ namespace Gem::Geneva
 
 	/******************************************************************************/
 
-}
+} /* namespace Gem::Geneva */

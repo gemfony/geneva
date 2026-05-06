@@ -45,8 +45,7 @@
 #include "geneva/G_OptimizationAlgorithm_EvolutionaryAlgorithm.hpp"
 #include "geneva/G_OptimizationAlgorithm_InitializerT.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -56,7 +55,7 @@ namespace Geneva {
  * It will only return evolutionary algorithms which perform all evaluation through the
  * broker.
  */
-class GEvolutionaryAlgorithmFactory
+class GEvolutionaryAlgorithmFactory // NOLINT(cppcoreguidelines-special-member-functions)
 	: public G_OptimizationAlgorithm_FactoryT<G_OptimizationAlgorithm_Base>
 {
 public:
@@ -95,6 +94,5 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 

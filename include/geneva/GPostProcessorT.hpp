@@ -46,8 +46,7 @@
 #include "geneva/GParameterSet.hpp"
 #include "geneva/G_OptimizationAlgorithm_EvolutionaryAlgorithm_Factory.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -63,7 +62,7 @@ namespace Geneva {
  * must be accessible via the base_type-object through the member-function getMnemonic().
  */
 template <typename base_type>
-class GPostProcessorBaseT
+class GPostProcessorBaseT // NOLINT(cppcoreguidelines-special-member-functions)
 	: public Gem::Common::GSerializableFunctionObjectT<base_type>
 {
 	 ///////////////////////////////////////////////////////////////////////
@@ -176,7 +175,7 @@ protected:
 	void compare_(
 		const Gem::Common::GSerializableFunctionObjectT<base_type> &cp
 		, const Gem::Common::expectation &e
-		, const double &limit
+		, const double &/*limit*/
 	) const override {
 		using namespace Gem::Common;
 
@@ -271,7 +270,7 @@ private:
  * This post-processor runs an evolutionary algorithm, trying to improve the
  * quality of a given individual.
  */
-class GEvolutionaryAlgorithmPostOptimizer
+class GEvolutionaryAlgorithmPostOptimizer // NOLINT(cppcoreguidelines-special-member-functions)
 	: public GPostProcessorBaseT<GParameterSet>
 {
 	 ///////////////////////////////////////////////////////////////////////
@@ -370,8 +369,7 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////

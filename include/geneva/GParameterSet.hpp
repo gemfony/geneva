@@ -74,13 +74,11 @@
 
 #endif /* GEM_TESTING */
 
-namespace Gem {
-
-namespace Tests {
+namespace Gem::Tests {
 class GTestIndividual1; // forward declaration, needed for testing purposes
-} /* namespace Tests */
+} /* namespace Gem::Tests */
 
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -175,7 +173,7 @@ private:
  * This class implements a collection of GParameterBase objects. It
  * will form the basis of many user-defined individuals.
  */
-class GParameterSet
+class GParameterSet // NOLINT(cppcoreguidelines-special-member-functions)
     : public GObject
     , public G_Interface_Mutable
     , public G_Interface_Rateable
@@ -1042,8 +1040,7 @@ private:
     double m_randomCrashProb = 0.; ///< The probability for a random crash
 };
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////

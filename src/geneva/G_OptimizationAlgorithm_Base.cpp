@@ -55,7 +55,7 @@ namespace Gem::Geneva
 	void GBasePluggableOM::compare_(
 		const GObject& cp
 		, const Gem::Common::expectation& e
-		, const double& limit
+		, const double& /*limit*/
 	) const {
 		using namespace Gem::Common;
 
@@ -460,7 +460,7 @@ namespace Gem::Geneva
 	void G_OptimizationAlgorithm_Base::compare_(
 		const GObject& cp
 		, const Gem::Common::expectation& e
-		, const double& limit
+		, const double& /*limit*/
 	) const {
 		using namespace Gem::Common;
 
@@ -2184,4 +2184,4 @@ namespace Gem::Geneva
 	////////////////////////////////////////////////////////////////////////////////
 	/******************************************************************************/
 
-}
+} /* namespace Gem::Geneva */

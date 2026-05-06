@@ -221,7 +221,7 @@ namespace Gem::Geneva
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 	void GSwarmAlgorithm::compare_(
-		const GObject &cp, const Gem::Common::expectation &e, const double &limit
+		const GObject &cp, const Gem::Common::expectation &e, const double &/*limit*/
 	) const {
 		using namespace Gem::Common;
 
@@ -756,7 +756,7 @@ namespace Gem::Geneva
  * TODO: Change name to fixAfterJobSubmission ?
  */
 	void GSwarmAlgorithm::adjustNeighborhoods() {
-		std::size_t firstNIPos; // Will hold the expected first position of a neighborhood
+		std::size_t firstNIPos = 0; // Will hold the expected first position of a neighborhood
 
 #ifdef DEBUG
 		// Check that m_last_iteration_individuals_cnt has the desired size in iterations other than the first
@@ -786,7 +786,7 @@ namespace Gem::Geneva
 				continue;
 			} else if (m_n_neighborhood_members_cnt[n] > m_default_n_neighborhood_members) { // Remove surplus items from the end of the neighborhood
 				// Find out, how many surplus items there are
-				std::size_t nSurplus = m_n_neighborhood_members_cnt[n] - m_default_n_neighborhood_members;
+				std::size_t nSurplus = m_n_neighborhood_members_cnt[n] - m_default_n_neighborhood_members; // NOLINT(cppcoreguidelines-init-variables)
 
 				// Remove nSurplus items from the position (n+1)*m_default_n_neighborhood_members
 				m_data_cnt.erase(
@@ -796,7 +796,7 @@ namespace Gem::Geneva
 			} else { // m_n_neighborhood_members_cnt[n] < m_default_n_neighborhood_members
 				// TODO: Deal with cases where no items of a given neighborhood have returned
 				// The number of missing items
-				std::size_t nMissing = m_default_n_neighborhood_members - m_n_neighborhood_members_cnt[n];
+				std::size_t nMissing = m_default_n_neighborhood_members - m_n_neighborhood_members_cnt[n]; // NOLINT(cppcoreguidelines-init-variables)
 
 				if (afterFirstIteration()) { // The most likely case
 					// Copy the best items of this neighborhood over from the m_last_iteration_individuals_cnt vector.
@@ -986,7 +986,7 @@ namespace Gem::Geneva
  * @param constants A std::tuple holding the various constants needed for the position update
  */
 	void GSwarmAlgorithm::updateIndividualPositions(
-		const std::size_t &neighborhood
+		const std::size_t &/*neighborhood*/
 		, std::shared_ptr <GParameterSet> ind
 		, std::shared_ptr <GParameterSet> neighborhood_best
 		, std::shared_ptr <GParameterSet> global_best
@@ -1783,4 +1783,4 @@ namespace Gem::Geneva
 
 	/******************************************************************************/
 
-}
+} /* namespace Gem::Geneva */

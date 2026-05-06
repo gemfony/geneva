@@ -55,8 +55,7 @@
 #include "geneva/G_Interface_OptimizerT.hpp"
 #include "geneva/GenevaHelperFunctions.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 /*
@@ -162,7 +161,7 @@ private:
  * a given amount of time. The class also defines the interface functions common to these
  * algorithms, such as a general call to "optimize()".
  */
-class G_OptimizationAlgorithm_Base
+class G_OptimizationAlgorithm_Base // NOLINT(cppcoreguidelines-special-member-functions)
   : public GObject
   , public Gem::Common::GPtrVectorT<GParameterSet, Gem::Geneva::GObject>
   , public G_Interface_OptimizerT<G_OptimizationAlgorithm_Base> {
@@ -217,7 +216,7 @@ private:
         using boost::serialization::make_nvp;
 
         // Transfer the path to the string
-        std::string cpDir = m_cp_directory_path.string();
+        std::string cpDir = m_cp_directory_path.string(); // NOLINT(cppcoreguidelines-init-variables)
 
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject) &
             make_nvp(
@@ -729,8 +728,7 @@ private:
 /////////////////////////////////////////////////////////////////////////////////
 /*******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 
 /******************************************************************************/
 // Some serialization-related exports and declarations. Note that namespace

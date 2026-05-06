@@ -103,7 +103,7 @@ namespace Gem::Geneva
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 	void GConstrainedInt32Object::compare_(
-		const GObject &cp, const Gem::Common::expectation &e, const double &limit
+		const GObject &cp, const Gem::Common::expectation &e, const double &/*limit*/
 	) const {
 		using namespace Gem::Common;
 
@@ -138,7 +138,7 @@ namespace Gem::Geneva
  * @param parVec The vector to which the local value should be attached
  */
 	void GConstrainedInt32Object::int32Streamline(
-		std::vector<std::int32_t> &parVec, const activityMode &am
+		std::vector<std::int32_t> &parVec, const activityMode &/*am*/
 	) const {
 		parVec.push_back(this->value());
 	}
@@ -151,7 +151,7 @@ namespace Gem::Geneva
  * @param parVec The vector to which the local value should be attached
  */
 	void GConstrainedInt32Object::int32Streamline(
-		std::map<std::string, std::vector<std::int32_t>> &parVec, const activityMode &am
+		std::map<std::string, std::vector<std::int32_t>> &parVec, const activityMode &/*am*/
 	) const {
 		std::vector<std::int32_t> parameters;
 		parameters.push_back(this->value());
@@ -166,7 +166,7 @@ namespace Gem::Geneva
  * @param uBndVec A vector of upper std::int32_t parameter boundaries
  */
 	void GConstrainedInt32Object::int32Boundaries(
-		std::vector<std::int32_t> &lBndVec, std::vector<std::int32_t> &uBndVec, const activityMode &am
+		std::vector<std::int32_t> &lBndVec, std::vector<std::int32_t> &uBndVec, const activityMode &/*am*/
 	) const {
 		lBndVec.push_back(this->getLowerBoundary());
 		uBndVec.push_back(this->getUpperBoundary());
@@ -180,7 +180,7 @@ namespace Gem::Geneva
  * @return The number 1, as we own a single std::int32_t parameter
  */
 	std::size_t GConstrainedInt32Object::countInt32Parameters(
-		const activityMode &am
+		const activityMode &/*am*/
 	) const {
 		return 1;
 	}
@@ -191,7 +191,7 @@ namespace Gem::Geneva
  * to the assigned value, so that it lies inside of the allowed value range.
  */
 	void GConstrainedInt32Object::assignInt32ValueVector(
-		const std::vector<std::int32_t> &parVec, std::size_t &pos, const activityMode &am
+		const std::vector<std::int32_t> &parVec, std::size_t &pos, const activityMode &/*am*/
 	) {
 #ifdef DEBUG
 		// Do we have a valid position ?
@@ -213,7 +213,7 @@ namespace Gem::Geneva
  * Assigns part of a value map to the parameter
  */
 	void GConstrainedInt32Object::assignInt32ValueVectors(
-		const std::map<std::string, std::vector<std::int32_t>> &parMap, const activityMode &am
+		const std::map<std::string, std::vector<std::int32_t>> &parMap, const activityMode &/*am*/
 	) {
 		this->setValue(
 			this->transfer(
@@ -231,8 +231,8 @@ namespace Gem::Geneva
 	void GConstrainedInt32Object::int32MultiplyByRandom(
 		const std::int32_t &min
 		, const std::int32_t &max
-		, const activityMode &am
-		, Gem::Hap::GRandomBase& gr
+		, const activityMode &/*am*/
+		, Gem::Hap::GRandomBase& gr // NOLINT(misc-unused-parameters)
 	) {
 		std::uniform_int_distribution<std::int32_t> uniform_int_distribution(min, max);
 		GParameterT<std::int32_t>::setValue(
@@ -245,8 +245,8 @@ namespace Gem::Geneva
  * Multiplication with a random DOUBLE value in the range [0,1[
  */
 	void GConstrainedInt32Object::int32MultiplyByRandom(
-		const activityMode &am
-		, Gem::Hap::GRandomBase& gr
+		const activityMode &/*am*/
+		, Gem::Hap::GRandomBase& gr // NOLINT(misc-unused-parameters)
 	) {
 		std::uniform_real_distribution<double> uniform_real_distribution(0., 1.);
 		GParameterT<std::int32_t>::setValue(
@@ -287,7 +287,7 @@ namespace Gem::Geneva
  */
 	void GConstrainedInt32Object::int32Add(
 		std::shared_ptr<GParameterBase> p_base
-		, const activityMode &am
+		, const activityMode &/*am*/
 	) {
 		// We first need to convert p_base into the local type
 		std::shared_ptr<GConstrainedInt32Object> p = GParameterBase::parameterbase_cast<GConstrainedInt32Object>(p_base);
@@ -300,7 +300,7 @@ namespace Gem::Geneva
  */
 	void GConstrainedInt32Object::int32Subtract(
 		std::shared_ptr<GParameterBase> p_base
-		, const activityMode &am
+		, const activityMode &/*am*/
 	) {
 		// We first need to convert p_base into the local type
 		std::shared_ptr<GConstrainedInt32Object> p = GParameterBase::parameterbase_cast<GConstrainedInt32Object>(p_base);
@@ -436,4 +436,4 @@ namespace Gem::Geneva
 
 	/******************************************************************************/
 
-}
+} /* namespace Gem::Geneva */

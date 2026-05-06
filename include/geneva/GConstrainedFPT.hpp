@@ -52,8 +52,7 @@
 #include <catch2/catch_test_macros.hpp>
 #endif /* GEM_TESTING */
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 /* The GConstrainedFPT class represents a floating point type, such as a double,
@@ -63,7 +62,7 @@ namespace Geneva {
  * to benefit from the adaption capabilities.
  */
 template <typename fp_type>
-class GConstrainedFPT
+class GConstrainedFPT // NOLINT(cppcoreguidelines-special-member-functions)
 	: public GConstrainedNumT<fp_type>
 {
 	 ///////////////////////////////////////////////////////////////////////
@@ -400,7 +399,7 @@ protected:
 	void compare_(
 		const GObject& cp
 		, const Gem::Common::expectation& e
-		, const double& limit
+		, const double& /*limit*/
 	) const override {
 		using namespace Gem::Common;
 
@@ -1006,19 +1005,15 @@ private:
 	/***************************************************************************/
 };
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 
 /******************************************************************************/
 // The content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T) // NOLINT
-namespace boost {
-namespace serialization {
+namespace boost::serialization {
 template<typename fp_type>
 struct is_abstract<Gem::Geneva::GConstrainedFPT<fp_type>> : public boost::true_type {};
 template<typename fp_type>
 struct is_abstract< const Gem::Geneva::GConstrainedFPT<fp_type>> : public boost::true_type {};
-}
-}
-
+} /* namespace boost::serialization */
 /******************************************************************************/
 

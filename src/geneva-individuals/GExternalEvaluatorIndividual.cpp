@@ -80,7 +80,7 @@ namespace Gem::Geneva
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 	void GExternalEvaluatorIndividual::compare_(
-		const GObject &cp, const Gem::Common::expectation &e, const double &limit
+		const GObject &cp, const Gem::Common::expectation &e, const double &/*limit*/
 	) const {
 		// Check that we are dealing with a GExternalEvaluatorIndividual reference independent of this object and convert the pointer
 		const GExternalEvaluatorIndividual *p_load = Gem::Common::g_convert_and_compare<GObject, GExternalEvaluatorIndividual>(cp, this);
@@ -229,7 +229,7 @@ namespace Gem::Geneva
  */
 	double GExternalEvaluatorIndividual::fitnessCalculation() {
 		// Transform this object into a boost property tree
-		boost::property_tree::ptree ptr_out;
+		boost::property_tree::ptree ptr_out; // NOLINT(cppcoreguidelines-init-variables)
 
 		std::string batch = "batch";
 
@@ -272,7 +272,7 @@ namespace Gem::Geneva
 		);
 
 		if (errorCode) { // Something went wrong
-			std::ostringstream error_message;
+			std::ostringstream error_message; // NOLINT(cppcoreguidelines-init-variables)
 
 			error_message
 				<< "In GExternalEvaluatorIndividual::fitnessCalculation():" << std::endl
@@ -310,7 +310,7 @@ namespace Gem::Geneva
 			}
 
 			// Parse the results
-			boost::property_tree::ptree ptr_in; // A property tree object;
+			boost::property_tree::ptree ptr_in; // A property tree object; // NOLINT(cppcoreguidelines-init-variables)
 			try {
 				pt::read_xml(resultFileName, ptr_in);
 			} catch (const boost::property_tree::xml_parser::xml_parser_error &e) {
@@ -329,7 +329,7 @@ namespace Gem::Geneva
 			}
 
 			// Check that only a single result was returned
-			std::size_t nExternalIndividuals = ptr_in.get<std::size_t>(batch + ".nIndividuals");
+			std::size_t nExternalIndividuals = ptr_in.get<std::size_t>(batch + ".nIndividuals"); // NOLINT(cppcoreguidelines-init-variables)
 			if (1 != nExternalIndividuals) {
 				throw geneva_exception(
 					g_error_streamer(DO_LOG,  time_and_place)
@@ -339,7 +339,7 @@ namespace Gem::Geneva
 			}
 
 			// Check that the number of results provided by the result file matches the number of expected results
-			std::size_t externalNResults = ptr_in.get<std::size_t>("batch.individuals.individual0.nResults");
+			std::size_t externalNResults = ptr_in.get<std::size_t>("batch.individuals.individual0.nResults"); // NOLINT(cppcoreguidelines-init-variables)
 			if (externalNResults != m_n_results) {
 				throw geneva_exception(
 					g_error_streamer(DO_LOG,  time_and_place)
@@ -350,9 +350,9 @@ namespace Gem::Geneva
 			}
 
 			// Check whether the results represent useful values
-			bool isValid = ptr_in.get<bool>("batch.individuals.individual0.isValid");
+			bool isValid = ptr_in.get<bool>("batch.individuals.individual0.isValid"); // NOLINT(cppcoreguidelines-init-variables)
 			if (not isValid) { // Assign worst-case values to all result
-				std::ostringstream error_message;
+				std::ostringstream error_message; // NOLINT(cppcoreguidelines-init-variables)
 
 				error_message
 					<< "In GExternalEvaluatorIndividual::fitnessCalculation():" << std::endl
@@ -1149,7 +1149,7 @@ namespace Gem::Geneva
 		if(arch.empty()) return; // Do nothing
 
 		// Transform the objects into a batch of boost property tree
-		boost::property_tree::ptree ptr_out;
+		boost::property_tree::ptree ptr_out; // NOLINT(cppcoreguidelines-init-variables)
 		std::string batch = "batch";
 
 		// Output the header data
@@ -1234,7 +1234,7 @@ namespace Gem::Geneva
  */
 	std::shared_ptr <GParameterSet> GExternalEvaluatorIndividualFactory::getObject_(
 		Gem::Common::GParserBuilder &gpb
-		, const std::size_t &id
+		, const std::size_t &/*id*/
 	) {
 		// Will hold the result
 		std::shared_ptr <GExternalEvaluatorIndividual> target(new GExternalEvaluatorIndividual());
@@ -1528,7 +1528,7 @@ namespace Gem::Geneva
 
 		try {
 			// Extract the number of individuals
-			std::size_t nIndividuals = m_ptr.get<std::size_t>("batch.nIndividuals");
+			std::size_t nIndividuals = m_ptr.get<std::size_t>("batch.nIndividuals"); // NOLINT(cppcoreguidelines-init-variables)
 			if (1 != nIndividuals) {
 				throw geneva_exception(
 					g_error_streamer(DO_LOG,  time_and_place)
@@ -1541,13 +1541,13 @@ namespace Gem::Geneva
 			std::string runID = m_ptr.get<std::string>("batch.runID");
 
 			// Extract the number of variables for the first individual
-			std::size_t nVar = m_ptr.get<std::size_t>("batch.individuals.individual0.nVars");
+			std::size_t nVar = m_ptr.get<std::size_t>("batch.individuals.individual0.nVars"); // NOLINT(cppcoreguidelines-init-variables)
 
 			// Extract the number of results to be expected from the external evaluation function for the first individual
-			std::size_t nResultsExpected = m_ptr.get<std::size_t>("batch.individuals.individual0.nResults");
+			std::size_t nResultsExpected = m_ptr.get<std::size_t>("batch.individuals.individual0.nResults"); // NOLINT(cppcoreguidelines-init-variables)
 
 			// Extract the number of boundaries to be expected for the first individual
-			std::size_t nBounds = m_ptr.get<std::size_t>("batch.individuals.individual0.nBounds");
+			std::size_t nBounds = m_ptr.get<std::size_t>("batch.individuals.individual0.nBounds"); // NOLINT(cppcoreguidelines-init-variables)
 
 			// Get an iterator over a property tree
 			ptree::const_iterator cit;
@@ -1692,4 +1692,4 @@ namespace Gem::Geneva
 	/******************************************************************************/
 
 
-}
+} /* namespace Gem::Geneva */

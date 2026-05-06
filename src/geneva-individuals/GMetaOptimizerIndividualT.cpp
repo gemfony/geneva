@@ -58,7 +58,7 @@ namespace Gem::Geneva
  * @return The std::istream object used to read the item from
  */
 	std::istream &operator>>(std::istream &i, Gem::Geneva::metaOptimizationTarget &mot) {
-		Gem::Common::ENUMBASETYPE tmp;
+		Gem::Common::ENUMBASETYPE tmp = 0;
 		i >> tmp;
 
 #ifdef DEBUG
@@ -75,4 +75,4 @@ namespace Gem::Geneva
 	/******************************************************************************/
 
 
-}
+} /* namespace Gem::Geneva */

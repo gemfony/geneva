@@ -43,8 +43,7 @@
 #include "GObject.hpp"
 #include "GOptimizationEnums.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 /**
@@ -54,7 +53,7 @@ namespace Geneva {
  * (with the notable exception of the actual adaption logic) is currently
  * implemented in the GAdaptorT class.
  */
-class GBooleanAdaptor
+class GBooleanAdaptor // NOLINT(cppcoreguidelines-special-member-functions)
     :
         public GAdaptorT<bool>
 {
@@ -130,7 +129,6 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GBooleanAdaptor) // NOLINT

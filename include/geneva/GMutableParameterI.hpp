@@ -42,8 +42,7 @@
 // Geneva header files go here
 #include "hap/GRandomBase.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 /**
@@ -58,8 +57,7 @@ public:
 	 virtual G_API_GENEVA std::size_t adapt(Gem::Hap::GRandomBase&) = 0;
 };
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 
 /******************************************************************************/
 

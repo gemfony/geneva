@@ -65,8 +65,7 @@
 #include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GParserBuilder.hpp"
 
-namespace Gem {
-namespace Common {
+namespace Gem::Common {
 /******************************************************************************/
 /**
  * This is an interface class that specifies common operations that must be
@@ -95,7 +94,7 @@ public:
         std::ostream &oarchive_stream
         , Gem::Common::serializationMode serMod
     ) const {
-        const g_class_type *local;
+        const g_class_type *local = nullptr;
 
         // Note: (De-)serialization must happen through a pointer to the same type.
 #ifdef DEBUG
@@ -219,7 +218,7 @@ public:
      * @return A text-representation of this class (or its derivative)
      */
     std::string toString(Gem::Common::serializationMode serMod) const {
-        std::ostringstream oarchive_stream;
+        std::ostringstream oarchive_stream; // NOLINT(cppcoreguidelines-init-variables)
         toStream(
             oarchive_stream
             , serMod
@@ -270,7 +269,7 @@ public:
         const std::filesystem::path &p
         , Gem::Common::serializationMode serMod
     ) const {
-        std::ofstream ofstr(
+        std::ofstream ofstr( // NOLINT(cppcoreguidelines-init-variables)
             p
             , std::ofstream::trunc
         ); // Note: will overwrite existing files
@@ -584,7 +583,7 @@ protected:
     void compare_(
         const GCommonInterfaceT<g_class_type> &cp // the other object
         , const Gem::Common::expectation &e // the expectation for this object, e.g. equality
-        , const double &limit // the limit for allowed deviations of floating point types
+        , const double & /*limit*/ // the limit for allowed deviations of floating point types
     ) const {
         using namespace Gem::Common;
 
@@ -647,8 +646,7 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-} /* namespace Common */
-} /* namespace Gem */
+} /* namespace Gem::Common */
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////

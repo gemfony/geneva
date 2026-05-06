@@ -48,8 +48,7 @@ namespace Gem::Geneva
 		GRANDOMFACTORY->setNProducerThreads(nProducerThreads);
 	}
 
-	// Regulates access to the call_once facility
-	std::once_flag f_go2;
+	std::once_flag f_go2; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
 
 	/******************************************************************************/
 	////////////////////////////////////////////////////////////////////////////////
@@ -810,31 +809,31 @@ namespace Gem::Geneva
 		try {
 			std::string maxClientDuration = EMPTYDURATION; // 00:00:00
 
-			std::string optimization_algorithms;
+			std::string optimization_algorithms; // NOLINT(cppcoreguidelines-init-variables)
 			std::string checkpointFile = "empty";
 
 			// Extract a list of algorithm mnemonics and clear-text descriptions
-			std::string algorithm_description;
+			std::string algorithm_description; // NOLINT(cppcoreguidelines-init-variables)
 			std::vector<std::string> keys;
 			GOAFactoryStore->getKeyVector(keys); // will clear "keys"
 			for (const auto& key: keys) {
 				algorithm_description += (key + ":  " + GOAFactoryStore->get(key)->getAlgorithmName() + "\n");
 			}
 
-			std::ostringstream oa_help;
+			std::ostringstream oa_help; // NOLINT(cppcoreguidelines-init-variables)
 			oa_help
 				<< "A comma-separated list of optimization algorithms, e.g. \"arg1,arg2\". "
 				<< GOAFactoryStore->size() << " algorithms have been registered: " << std::endl
 				<< algorithm_description;
 
 			// Extract a list of consumer mnemonics and clear-text descriptions
-			std::string consumer_description;
+			std::string consumer_description; // NOLINT(cppcoreguidelines-init-variables)
 			GConsumerStore->getKeyVector(keys);
 			for(const auto& key: keys) {
 				consumer_description += (key + ":  " + GConsumerStore->get(key)->getConsumerName() + "\n");
 			}
 
-			std::ostringstream consumer_help;
+			std::ostringstream consumer_help; // NOLINT(cppcoreguidelines-init-variables)
 			consumer_help
 				<< "The name of a consumer for brokered execution (an error will be flagged if called with any other execution mode than (2) ). "
 				<< GConsumerStore->size() << " consumers have been registered: " << std::endl
@@ -958,7 +957,7 @@ namespace Gem::Geneva
 			// That is because the MPI consumer should not depend on the --client command-line parameter but decide itself
 			// whether it is a server or client depending on the process's MPI rank
 #ifdef GENEVA_BUILD_WITH_MPI_CONSUMER
-        if(GIndividualMPIConsumer* mpiConsumerPtr = dynamic_cast<GIndividualMPIConsumer*>(
+        if(GIndividualMPIConsumer* mpiConsumerPtr = dynamic_cast<GIndividualMPIConsumer*>( // NOLINT(cppcoreguidelines-init-variables)
                 GConsumerStore->get(m_consumer_name).get())) {
             m_client_mode = mpiConsumerPtr->isWorkerNode();
         }
@@ -1047,4 +1046,4 @@ namespace Gem::Geneva
 	////////////////////////////////////////////////////////////////////////////////
 	/******************************************************************************/
 
-}
+} /* namespace Gem::Geneva */

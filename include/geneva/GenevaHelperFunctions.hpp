@@ -45,8 +45,7 @@
 #include "courtier/GCourtierEnums.hpp"
 #include "geneva/GParameterSet.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 /** @brief Sets the processing flag in a given range */
@@ -92,6 +91,5 @@ G_API_GENEVA bool isWorse(
 /******************************************************************************/
 
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 

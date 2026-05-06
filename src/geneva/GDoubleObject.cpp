@@ -108,7 +108,7 @@ namespace Gem::Geneva
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 	void GDoubleObject::compare_(
-		const GObject &cp, const Gem::Common::expectation &e, const double &limit
+		const GObject &cp, const Gem::Common::expectation &e, const double &/*limit*/
 	) const {
 		using namespace Gem::Common;
 
@@ -143,7 +143,7 @@ namespace Gem::Geneva
  */
 	void GDoubleObject::doubleStreamline(
 		std::vector<double> &parVec
-		, const activityMode &am
+		, const activityMode &/*am*/
 	) const {
 		parVec.push_back(this->value());
 	}
@@ -157,7 +157,7 @@ namespace Gem::Geneva
 	void GDoubleObject::doubleStreamline(
 		std::map<std::string
 		         , std::vector<double>> &parVec
-		, const activityMode &am
+		, const activityMode &/*am*/
 	) const {
 #ifdef DEBUG
 		if((this->getParameterName()).empty()) {
@@ -185,7 +185,7 @@ namespace Gem::Geneva
  * @param uBndVec A vector of upper double parameter boundaries
  */
 	void GDoubleObject::doubleBoundaries(
-		std::vector<double> &lBndVec, std::vector<double> &uBndVec, const activityMode &am
+		std::vector<double> &lBndVec, std::vector<double> &uBndVec, const activityMode &/*am*/
 	) const {
 		lBndVec.push_back(this->getLowerInitBoundary());
 		uBndVec.push_back(this->getUpperInitBoundary());
@@ -199,7 +199,7 @@ namespace Gem::Geneva
  * @return The number 1, as we own a single double parameter
  */
 	std::size_t GDoubleObject::countDoubleParameters(
-		const activityMode &am
+		const activityMode &/*am*/
 	) const {
 		return 1;
 	}
@@ -209,7 +209,7 @@ namespace Gem::Geneva
  * Assigns part of a value vector to the parameter
  */
 	void GDoubleObject::assignDoubleValueVector(
-		const std::vector<double> &parVec, std::size_t &pos, const activityMode &am
+		const std::vector<double> &parVec, std::size_t &pos, const activityMode &/*am*/
 	) {
 #ifdef DEBUG
 		// Do we have a valid position ?
@@ -231,7 +231,7 @@ namespace Gem::Geneva
  * Assigns part of a value map to the parameter
  */
 	void GDoubleObject::assignDoubleValueVectors(
-		const std::map<std::string, std::vector<double>> &parMap, const activityMode &am
+		const std::map<std::string, std::vector<double>> &parMap, const activityMode &/*am*/
 	) {
 		this->setValue((Gem::Common::getMapItem(parMap, this->getParameterName())).at(0));
 	}
@@ -243,8 +243,8 @@ namespace Gem::Geneva
 	void GDoubleObject::doubleMultiplyByRandom(
 		const double &min
 		, const double &max
-		, const activityMode &am
-		, Gem::Hap::GRandomBase& gr
+		, const activityMode &/*am*/
+		, Gem::Hap::GRandomBase& gr // NOLINT(misc-unused-parameters)
 	) {
 		std::uniform_real_distribution<double> uniform_real_distribution(min, max);
 		GParameterT<double>::setValue(GParameterT<double>::value() * uniform_real_distribution(gr));
@@ -255,8 +255,8 @@ namespace Gem::Geneva
  * Multiplication with a random value in the range [0,1[
  */
 	void GDoubleObject::doubleMultiplyByRandom(
-		const activityMode &am
-		, Gem::Hap::GRandomBase& gr
+		const activityMode &/*am*/
+		, Gem::Hap::GRandomBase& gr // NOLINT(misc-unused-parameters)
 	) {
 		std::uniform_real_distribution<double> uniform_real_distribution(0., 1.);
 		GParameterT<double>::setValue(GParameterT<double>::value() * uniform_real_distribution(gr));
@@ -288,7 +288,7 @@ namespace Gem::Geneva
  */
 	void GDoubleObject::doubleAdd(
 		std::shared_ptr<GParameterBase> p_base
-		, const activityMode &am
+		, const activityMode &/*am*/
 	) {
 		// We first need to convert p_base into the local type
 		std::shared_ptr <GDoubleObject> p = GParameterBase::parameterbase_cast<GDoubleObject>(p_base);
@@ -301,7 +301,7 @@ namespace Gem::Geneva
  */
 	void GDoubleObject::doubleSubtract(
 		std::shared_ptr<GParameterBase> p_base
-		, const activityMode &am
+		, const activityMode &/*am*/
 	) {
 		// We first need to convert p_base into the local type
 		std::shared_ptr <GDoubleObject> p = GParameterBase::parameterbase_cast<GDoubleObject>(p_base);
@@ -567,4 +567,4 @@ namespace Gem::Geneva
 
 	/******************************************************************************/
 
-}
+} /* namespace Gem::Geneva */

@@ -40,8 +40,7 @@
 #include "geneva/GConstrainedFPT.hpp"
 #include "geneva/GDoubleGaussAdaptor.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 /**
@@ -49,7 +48,7 @@ namespace Geneva {
  * while applying adaptions to a continuous range. This is done by means of a
  * mapping from an internal representation to an externally visible value.
  */
-class GConstrainedDoubleObject
+class GConstrainedDoubleObject // NOLINT(cppcoreguidelines-special-member-functions)
     :
         public GConstrainedFPT<double>
 {
@@ -155,7 +154,6 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GConstrainedDoubleObject) // NOLINT

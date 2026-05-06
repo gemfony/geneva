@@ -70,8 +70,7 @@
 #include "courtier/GBaseConsumerT.hpp"
 #include "courtier/GCommandContainerT.hpp"
 
-namespace Gem {
-namespace Courtier {
+namespace Gem::Courtier {
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -1161,7 +1160,7 @@ private:
  * Boost.Beast.
  */
 template<typename processable_type>
-class GWebsocketConsumerT
+class GWebsocketConsumerT // NOLINT(cppcoreguidelines-special-member-functions)
 	: public Gem::Courtier::GBaseConsumerT<processable_type> // note: GBaseConsumerT<> is non-copyable
 	  , public std::enable_shared_from_this<GWebsocketConsumerT<processable_type>>
 {
@@ -1505,6 +1504,5 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-} /* namespace Courtier */
-} /* namespace Gem */
+} /* namespace Gem::Courtier */
 

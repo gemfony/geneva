@@ -41,15 +41,14 @@
 #include "geneva/GParameterTCollectionT.hpp"
 #include "geneva/GDoubleGaussAdaptor.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 /**
  * A collection of GConstrainedDoubleObject objects, ready for use in a
  * GParameterSet derivative.
  */
-class GConstrainedDoubleObjectCollection
+class GConstrainedDoubleObjectCollection // NOLINT(cppcoreguidelines-special-member-functions)
     :
         public GParameterTCollectionT<GConstrainedDoubleObject>
 {
@@ -114,7 +113,6 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GConstrainedDoubleObjectCollection) // NOLINT

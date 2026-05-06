@@ -66,8 +66,7 @@
 #include "geneva/G_OptimizationAlgorithm_SimulatedAnnealing_Factory.hpp"
 #include "geneva/G_OptimizationAlgorithm_SwarmAlgorithm_Factory.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 // Default values for the variables used by the optimizer
@@ -95,7 +94,7 @@ using GOABase = Gem::Geneva::G_OptimizationAlgorithm_Base;
  * set of individuals can be optimized using more than one algorithm in sequence. The
  * class also hides the details of client/server mode, consumer initialization, etc.
  */
-class Go2
+class Go2 // NOLINT(cppcoreguidelines-special-member-functions)
 	: public G_Interface_OptimizerT<Go2>
 	, public Gem::Common::GPtrVectorT<GParameterSet, GObject>
 {
@@ -273,6 +272,5 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 

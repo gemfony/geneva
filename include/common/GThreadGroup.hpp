@@ -64,8 +64,7 @@
 
 // Geneva header files go here
 
-namespace Gem {
-namespace Common {
+namespace Gem::Common {
 
 // Forward declaration
 class GThreadPool;
@@ -151,5 +150,4 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Common*/
-} /* namespace Gem */
+} /* namespace Gem::Common */

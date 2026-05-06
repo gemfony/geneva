@@ -61,8 +61,7 @@
 #include "common/GExceptions.hpp"
 #include "common/GCommonEnums.hpp"
 
-namespace Gem {
-namespace Tests {
+namespace Gem::Tests {
 
 /******************************************************************************/
 /**
@@ -70,7 +69,8 @@ namespace Tests {
  * of writing, it was included in order to be able to set the individual's personality without
  * weakening data protection.
  */
-class GTestIndividual1 :public Gem::Geneva::GParameterSet
+class GTestIndividual1 // NOLINT(cppcoreguidelines-special-member-functions)
+    :public Gem::Geneva::GParameterSet
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -133,7 +133,6 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Tests */
-} /* namespace Gem */
+} /* namespace Gem::Tests */
 
 BOOST_CLASS_EXPORT_KEY(Gem::Tests::GTestIndividual1) // NOLINT

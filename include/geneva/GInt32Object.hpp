@@ -42,8 +42,7 @@
 #include "geneva/GInt32GaussAdaptor.hpp"
 #include "geneva/GInt32FlipAdaptor.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 /**
@@ -57,7 +56,7 @@ namespace Geneva {
  * Plus, having a separate integer class adds some consistency to Geneva, as other values
  * (most notably doubles) have their own class as well (GConstrainedDoubleObject, GDoubleObject).
  */
-class GInt32Object
+class GInt32Object // NOLINT(cppcoreguidelines-special-member-functions)
     : public GNumIntT<std::int32_t>
 {
     ///////////////////////////////////////////////////////////////////////
@@ -172,7 +171,6 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GInt32Object) // NOLINT

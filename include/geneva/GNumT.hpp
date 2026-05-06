@@ -45,8 +45,7 @@
 #include <catch2/catch_test_macros.hpp>
 #endif /* GEM_TESTING */
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 const double DEFAULTLOWERINITBOUNDARYSINGLE=0.;
 const double DEFAULTUPPERINITBOUNDARYSINGLE=1.;
@@ -58,7 +57,7 @@ const double DEFAULTUPPERINITBOUNDARYSINGLE=1.;
  * by GParameterT, this class becomes rather simple.
  */
 template <typename num_type>
-class GNumT
+class GNumT // NOLINT(cppcoreguidelines-special-member-functions)
 	: public GParameterT<num_type>
 {
 	 ///////////////////////////////////////////////////////////////////////
@@ -263,7 +262,7 @@ protected:
 	void compare_(
 		const GObject& cp
 		, const Gem::Common::expectation& e
-		, const double& limit
+		, const double& /*limit*/
 	) const override {
 		using namespace Gem::Common;
 
@@ -407,19 +406,15 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 
 /******************************************************************************/
 // The content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T) // NOLINT
-namespace boost {
-namespace serialization {
+namespace boost::serialization {
 template<typename num_type>
 struct is_abstract<Gem::Geneva::GNumT<num_type>> : public boost::true_type {};
 template<typename num_type>
 struct is_abstract< const Gem::Geneva::GNumT<num_type>> : public boost::true_type {};
-}
-}
-
+} /* namespace boost::serialization */
 /******************************************************************************/
 

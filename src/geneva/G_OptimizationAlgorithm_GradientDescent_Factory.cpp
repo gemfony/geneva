@@ -86,7 +86,7 @@ namespace Gem::Geneva
  */
 	std::shared_ptr<G_OptimizationAlgorithm_Base> GGradientDescentFactory::getObject_(
 		Gem::Common::GParserBuilder &gpb
-		, const std::size_t &id
+		, const std::size_t &/*id*/
 	) {
 		std::shared_ptr<GGradientDescent> target(
 			new GGradientDescent()
@@ -114,4 +114,4 @@ namespace Gem::Geneva
 
 	/******************************************************************************/
 
-}
+} /* namespace Gem::Geneva */

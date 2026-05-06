@@ -183,7 +183,7 @@ namespace Gem::Common
  * Allows to retrieve the currently registered error messages
  */
 	std::string GToken::getErrorMessages() const {
-		std::string result;
+		std::string result; // NOLINT(cppcoreguidelines-init-variables)
 		result = "Registered errors:\n";
 		for(auto const& error: m_error_messages) {
 			result += error;
@@ -281,7 +281,7 @@ namespace Gem::Common
 		, double
 	) {
 		bool expectationMet = false;
-		std::string expectation_str;
+		std::string expectation_str; // NOLINT(cppcoreguidelines-init-variables)
 
 		switch (e) {
 		case Gem::Common::expectation::FP_SIMILARITY:
@@ -305,7 +305,7 @@ namespace Gem::Common
 		};
 
 		if (not expectationMet) {
-			std::ostringstream error;
+			std::ostringstream error; // NOLINT(cppcoreguidelines-init-variables)
 			error
 				<< "Expectation of " << expectation_str << " was violated for parameters " << std::endl
 				<< "[" << std::endl
@@ -320,4 +320,4 @@ namespace Gem::Common
 	////////////////////////////////////////////////////////////////////////////////
 	/******************************************************************************/
 
-}
+} /* namespace Gem::Common */

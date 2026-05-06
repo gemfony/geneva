@@ -40,8 +40,7 @@
 #include "geneva/GConstrainedIntT.hpp"
 #include "geneva/GInt32GaussAdaptor.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 /**
@@ -49,7 +48,7 @@ namespace Geneva {
  * while applying adaptions to a continuous range. This is done by means of a
  * mapping from an internal representation to an externally visible value.
  */
-class GConstrainedInt32Object
+class GConstrainedInt32Object // NOLINT(cppcoreguidelines-special-member-functions)
     :
         public GConstrainedIntT<std::int32_t>
 {
@@ -169,7 +168,6 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GConstrainedInt32Object) // NOLINT

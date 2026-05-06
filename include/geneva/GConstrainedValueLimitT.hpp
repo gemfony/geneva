@@ -44,8 +44,7 @@
 // Geneva headers go here
 #include "GOptimizationEnums.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 /**
@@ -131,6 +130,5 @@ struct GConstrainedValueLimitT<bool>
 
 /******************************************************************************/
 
-} /* Geneva */
-} /* Gem */
+} /* namespace Gem::Geneva */
 

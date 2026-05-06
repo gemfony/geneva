@@ -41,8 +41,7 @@
 
 // Geneva headers go here
 
-namespace Gem {
-namespace Common {
+namespace Gem::Common {
 
 /******************************************************************************/
 /**
@@ -57,7 +56,7 @@ namespace Common {
  * suited well for frequent querying.
  */
 template<typename T>
-class GGlobalOptionsT {
+class GGlobalOptionsT { // NOLINT(cppcoreguidelines-special-member-functions)
 public:
 	/***************************************************************************/
 	// Defaulted or deleted constructors, destructor and assignment operators
@@ -137,7 +136,7 @@ public:
 	 * @param key The name of the option that should be removed
 	 * @return A boolean indicating whether the option was indeed available
 	 */
-	bool remove(const std::string &key) {
+	bool remove(const std::string & /*key*/) {
 		std::unique_lock<std::mutex> guard(m_mutex);
 		typename std::map<std::string, T>::iterator it = kvp_.end();
 		if (it == kvp_.end()) {
@@ -184,7 +183,7 @@ public:
 	 */
 	std::string getKeyDescription() const {
 		std::unique_lock<std::mutex> guard(m_mutex);
-		std::string result;
+		std::string result; // NOLINT(cppcoreguidelines-init-variables)
 		typename std::map<std::string, T>::const_iterator cit;
 		std::size_t pos = 0;
 		for (cit = kvp_.begin(); cit != kvp_.end(); ++cit) {
@@ -280,5 +279,4 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Common */
-} /* namespace Gem */
+} /* namespace Gem::Common */

@@ -78,8 +78,7 @@
 #include "common/GCommonHelperFunctions.hpp"
 #include "common/GCommonHelperFunctionsT.hpp"
 
-namespace Gem {
-namespace Common {
+namespace Gem::Common {
 
 // Forward declaration
 class GParserBuilder;
@@ -223,7 +222,7 @@ private:
  * It is however possible to explicitly set the parameter.
  */
 template<typename parameter_type>
-class GOneTimeRefParameterT {
+class GOneTimeRefParameterT { // NOLINT(cppcoreguidelines-special-member-functions)
 	 ///////////////////////////////////////////////////////////////////////
 	 friend class boost::serialization::access;
 
@@ -361,7 +360,7 @@ private:
  * A manipulator object that allows to identify the id of the comment to be
  * added
  */
-class commentLevel {
+class commentLevel { // NOLINT(cppcoreguidelines-special-member-functions)
 public:
 	 /** @brief Enforce setting of the comment level */
 	 explicit G_API_COMMON commentLevel(std::size_t);
@@ -469,7 +468,7 @@ public:
 	  */
 	 template<typename T>
 	 GParsableI &operator<<(T const &t) {
-		 std::ostringstream oss;
+		 std::ostringstream oss; // NOLINT(cppcoreguidelines-init-variables)
 		 oss << t;
 		 m_comment.at(m_cl) += oss.str();
 		 return *this;
@@ -1991,7 +1990,7 @@ protected:
  * This class wraps a reference to individual command line parameters.
  */
 template<typename parameter_type>
-class GCLReferenceParsableParameterT
+class GCLReferenceParsableParameterT // NOLINT(cppcoreguidelines-special-member-functions)
 	: public GCLParsableI
 {
 	 // We want GParserBuilder to be able to call our private functions
@@ -2081,7 +2080,7 @@ private:
 	  * Returns the content of this object as a std::string
 	  */
 	 std::string content() const override {
-		 std::ostringstream result;
+		 std::ostringstream result; // NOLINT(cppcoreguidelines-init-variables)
 		 result << this->optionName() << " :\t" << m_stored_reference << "\t" <<
 				  ((m_stored_reference != m_def_val) ? "default: " + Gem::Common::to_string(m_def_val) : std::string());
 		 return result.str();
@@ -2140,7 +2139,7 @@ public:
 	  * objects.
 	  */
 	 template<typename fileParsableDerivative>
-	 std::shared_ptr<fileParsableDerivative> file_at(std::string const& optionName) {
+	 std::shared_ptr<fileParsableDerivative> file_at(std::string const& optionName) { // NOLINT(misc-unused-parameters)
 		 auto it = std::find_if(
 			 m_file_parameter_proxies.begin()
 			 , m_file_parameter_proxies.end()
@@ -2162,7 +2161,7 @@ public:
 	  * objects.
 	  */
 	 template<typename clParsableDerivative>
-	 std::shared_ptr<clParsableDerivative> cl_at(std::string const& optionName) {
+	 std::shared_ptr<clParsableDerivative> cl_at(std::string const& optionName) { // NOLINT(misc-unused-parameters)
 		 auto it = std::find_if(
 			 m_cl_parameter_proxies.begin()
 			 , m_cl_parameter_proxies.end()
@@ -2808,5 +2807,4 @@ void configureFromFile(
 
 /******************************************************************************/
 
-} /* namespace Common */
-} /* namespace Gem */
+} /* namespace Gem::Common */

@@ -56,8 +56,7 @@
 #include "geneva/GenevaHelperFunctions.hpp"
 #include "geneva/GParameterSet.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 /**
@@ -65,7 +64,7 @@ namespace Geneva {
  * based on the maximization/minimization property and the current fitness of
  * the objects.
  */
-class GParameterSetFixedSizePriorityQueue
+class GParameterSetFixedSizePriorityQueue // NOLINT(cppcoreguidelines-special-member-functions)
     : public Gem::Common::GFixedSizePriorityQueueT<GParameterSet>
 {
     ///////////////////////////////////////////////////////////////////////
@@ -159,7 +158,6 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GParameterSetFixedSizePriorityQueue) // NOLINT

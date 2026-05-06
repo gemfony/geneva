@@ -68,7 +68,8 @@ namespace Gem::Geneva {
      * distributed manner. To use this individual a concrete derived class has to be created and it must be used in
      * conjunction with the GMPISubClientOptimizer.
      */
-    class GMPISubClientIndividual : public GParameterSet {
+    class GMPISubClientIndividual // NOLINT(cppcoreguidelines-special-member-functions)
+        : public GParameterSet {
         /** @brief Make the class accessible to Boost.Serialization */
         friend class boost::serialization::access;
 

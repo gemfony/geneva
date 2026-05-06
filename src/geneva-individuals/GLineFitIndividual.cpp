@@ -85,7 +85,7 @@ namespace Gem::Geneva
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 	void GLineFitIndividual::compare_(
-		const GObject &cp, const Gem::Common::expectation &e, const double &limit
+		const GObject &cp, const Gem::Common::expectation &e, const double &/*limit*/
 	) const {
 		using namespace Gem::Common;
 
@@ -261,7 +261,7 @@ namespace Gem::Geneva
  * @return Items of the desired type
  */
 	std::shared_ptr <GParameterSet> GLineFitIndividualFactory::getObject_(
-		Gem::Common::GParserBuilder &gpb, const std::size_t &id
+		Gem::Common::GParserBuilder &gpb, const std::size_t &/*id*/
 	) {
 		// Will hold the result
 		std::shared_ptr <GLineFitIndividual> target(new GLineFitIndividual(this->dataPoints_));
@@ -276,11 +276,11 @@ namespace Gem::Geneva
 	/**
  * Allows to describe local configuration options for gradient descents
  */
-	void GLineFitIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder &gpb) {
+	void GLineFitIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder &gpb) { // NOLINT(misc-unused-parameters)
 		// Describe our own options
 		using namespace Gem::Courtier;
 
-		std::string comment;
+		std::string comment; // NOLINT(cppcoreguidelines-init-variables)
 
 		// No local options
 
@@ -309,4 +309,4 @@ namespace Gem::Geneva
 	////////////////////////////////////////////////////////////////////////////////
 	/******************************************************************************/
 
-}
+} /* namespace Gem::Geneva */

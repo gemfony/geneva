@@ -40,15 +40,14 @@
 #include "geneva/GParameterSet.hpp"
 #include "geneva/GPostProcessorT.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 /**
  * This class facilitates handling of factories for GParameterSet-derivatives.
  * In particular it allows to register pre- and post-procesing objects
  */
-class GParameterSetFactory
+class GParameterSetFactory // NOLINT(cppcoreguidelines-special-member-functions)
 	: public Gem::Common::GFactoryT<GParameterSet>
 {
 	 ///////////////////////////////////////////////////////////////////////
@@ -155,6 +154,5 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 

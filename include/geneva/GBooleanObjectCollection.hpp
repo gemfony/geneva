@@ -41,15 +41,14 @@
 #include "geneva/GParameterTCollectionT.hpp"
 #include "geneva/GBooleanAdaptor.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 /**
  * A collection of GBooleanObject objects, ready for use in a
  * GParameterSet derivative.
  */
-class GBooleanObjectCollection
+class GBooleanObjectCollection // NOLINT(cppcoreguidelines-special-member-functions)
     :
         public GParameterTCollectionT<GBooleanObject>
 {
@@ -116,7 +115,6 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GBooleanObjectCollection) // NOLINT

@@ -84,7 +84,7 @@ namespace Gem::Courtier {
     constexpr int TAG_REQUEST_WORK_ITEM = 42;
     constexpr int TAG_SEND_WORK_ITEM = 43;
     constexpr int RANK_MASTER_NODE = 0;
-    static MPI_Comm MPI_COMMUNICATOR = MPI_COMM_WORLD;
+    static MPI_Comm MPI_COMMUNICATOR = MPI_COMM_WORLD; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
 
     /**
      * Stores configuration options which are used by master node and worker nodes
@@ -488,7 +488,7 @@ namespace Gem::Courtier {
      * at that point in time).
      */
     template<typename processable_type>
-    class GMPIConsumerSessionT
+    class GMPIConsumerSessionT // NOLINT(cppcoreguidelines-special-member-functions)
             : public std::enable_shared_from_this<GMPIConsumerSessionT<processable_type>> {
     public:
         /**
@@ -770,7 +770,7 @@ namespace Gem::Courtier {
      *
      */
     template<typename processable_type>
-    class GMPIConsumerMasterNodeT
+    class GMPIConsumerMasterNodeT // NOLINT(cppcoreguidelines-special-member-functions)
             : public std::enable_shared_from_this<GMPIConsumerMasterNodeT<processable_type>> {
 
     public:
@@ -877,7 +877,7 @@ namespace Gem::Courtier {
 
                     if (isCompleted) {
                         // save atomic variable value
-                        const bool stopRequested = m_isToldToStop.load();
+                        const bool stopRequested = m_isToldToStop.load(); // NOLINT(cppcoreguidelines-init-variables)
 
                         if (stopRequested) {
                             ++stopRequestsSendOut;
@@ -1502,4 +1502,4 @@ namespace Gem::Courtier {
         std::shared_ptr<Gem::Common::GLogger<Gem::Common::GLogStreamer>> m_logger = glogger_ptr; // DO NOT DELETE, unused but keeps instance behind shared_ptr alive
     };
 
-} /* namespace Gem::courtier */
+} /* namespace Gem::Courtier */

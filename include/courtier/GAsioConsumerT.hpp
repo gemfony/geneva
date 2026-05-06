@@ -71,8 +71,7 @@
 #include "courtier/GBaseConsumerT.hpp"
 #include "courtier/GCommandContainerT.hpp"
 
-namespace Gem {
-namespace Courtier {
+namespace Gem::Courtier {
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -480,7 +479,7 @@ private:
  * new connection and will be shut down when the request was served.
  */
 template<typename processable_type>
-class GAsioConsumerSessionT
+class GAsioConsumerSessionT // NOLINT(cppcoreguidelines-special-member-functions)
 	: public std::enable_shared_from_this<GAsioConsumerSessionT<processable_type>>
 {
 public:
@@ -756,7 +755,7 @@ private:
  * fulfilled.
  */
 template<typename processable_type>
-class GAsioConsumerT
+class GAsioConsumerT // NOLINT(cppcoreguidelines-special-member-functions)
 	: public Gem::Courtier::GBaseConsumerT<processable_type> // note: GBaseConsumerT<> is non-copyable
    , public std::enable_shared_from_this<GAsioConsumerT<processable_type>>
 {
@@ -1188,6 +1187,5 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-} /* namespace Courtier */
-} /* namespace Gem */
+} /* namespace Gem::Courtier */
 

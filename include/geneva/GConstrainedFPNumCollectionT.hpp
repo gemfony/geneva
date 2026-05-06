@@ -48,8 +48,7 @@
 #include "geneva/GObject.hpp"
 #include "geneva/GConstrainedNumCollectionT.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 /**
@@ -61,7 +60,7 @@ namespace Geneva {
  * native iterator, will give you the "raw" data only.
  */
 template<typename fp_type>
-class GConstrainedFPNumCollectionT
+class GConstrainedFPNumCollectionT // NOLINT(cppcoreguidelines-special-member-functions)
     : public GConstrainedNumCollectionT<fp_type>
 {
     ///////////////////////////////////////////////////////////////////////
@@ -247,7 +246,7 @@ protected:
     void compare_(
         const GObject &cp
         , const Gem::Common::expectation &e
-        , const double &limit
+        , const double &/*limit*/
     ) const override {
         using namespace Gem::Common;
 
@@ -366,13 +365,11 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 
 /******************************************************************************/
 // The content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T) // NOLINT
-namespace boost {
-namespace serialization {
+namespace boost::serialization {
 template<typename fp_type>
 struct is_abstract<Gem::Geneva::GConstrainedFPNumCollectionT<fp_type>> :
     public boost::true_type
@@ -383,7 +380,6 @@ struct is_abstract<const Gem::Geneva::GConstrainedFPNumCollectionT<fp_type>> :
     public boost::true_type
 {
 };
-}
-}
+} /* namespace boost::serialization */
 /******************************************************************************/
 

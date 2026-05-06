@@ -42,8 +42,7 @@
 #include "geneva/GObject.hpp"
 #include "geneva/GParameterBaseWithAdaptorsT.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 /**
@@ -51,7 +50,7 @@ namespace Geneva {
  * boolean, ...).
  */
 template <typename T>
-class GParameterT
+class GParameterT // NOLINT(cppcoreguidelines-special-member-functions)
 	 : public GParameterBaseWithAdaptorsT<T>
 {
 	 ///////////////////////////////////////////////////////////////////////
@@ -242,7 +241,7 @@ protected:
 	void compare_(
 		const GObject& cp
 		, const Gem::Common::expectation& e
-		, const double& limit
+		, const double& /*limit*/
 	) const override {
 		using namespace Gem::Common;
 
@@ -362,19 +361,15 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 
 /******************************************************************************/
 // The content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T) // NOLINT
-namespace boost {
-namespace serialization {
+namespace boost::serialization {
 template<typename T>
 struct is_abstract<Gem::Geneva::GParameterT<T>> : public boost::true_type {};
 template<typename T>
 struct is_abstract< const Gem::Geneva::GParameterT<T>> : public boost::true_type {};
-}
-}
-
+} /* namespace boost::serialization */
 /******************************************************************************/
 

@@ -59,8 +59,7 @@
 #include "common/GExceptions.hpp"
 #include "common/GCommonEnums.hpp"
 
-namespace Gem {
-namespace Tests {
+namespace Gem::Tests {
 
 /**
  * The types of objects to be tested in this class
@@ -89,7 +88,7 @@ G_API_INDIVIDUALS std::istream &operator>>(std::istream &, Gem::Tests::PERFOBJEC
  * of writing, it was included in order to be able to set the individual's personality without
  * weakening data protection.
  */
-class GTestIndividual2 : public Gem::Geneva::GParameterSet {
+class GTestIndividual2 : public Gem::Geneva::GParameterSet { // NOLINT(cppcoreguidelines-special-member-functions)
 	 ///////////////////////////////////////////////////////////////////////
 	 friend class boost::serialization::access;
 
@@ -149,7 +148,6 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Tests */
-} /* namespace Gem */
+} /* namespace Gem::Tests */
 
 BOOST_CLASS_EXPORT_KEY(Gem::Tests::GTestIndividual2) // NOLINT

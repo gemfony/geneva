@@ -40,14 +40,13 @@
 #include "geneva/GFPNumCollectionT.hpp"
 #include "geneva/GDoubleGaussAdaptor.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 /**
  * A collection of double objects without boundaries
  */
-class GDoubleCollection
+class GDoubleCollection // NOLINT(cppcoreguidelines-special-member-functions)
 	:public GFPNumCollectionT<double>
 {
 	 ///////////////////////////////////////////////////////////////////////
@@ -146,7 +145,6 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GDoubleCollection) // NOLINT

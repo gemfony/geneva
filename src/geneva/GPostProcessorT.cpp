@@ -90,7 +90,7 @@ namespace Gem::Geneva
 	void GEvolutionaryAlgorithmPostOptimizer::compare_(
 		const Gem::Common::GSerializableFunctionObjectT<GParameterSet> &cp
 		, const Gem::Common::expectation &e
-		, const double &limit
+		, const double &/*limit*/
 	) const  {
 		using namespace Gem::Common;
 
@@ -323,4 +323,4 @@ namespace Gem::Geneva
 	////////////////////////////////////////////////////////////////////////////////
 	/******************************************************************************/
 
-}
+} /* namespace Gem::Geneva */

@@ -80,11 +80,11 @@ setProcessingFlag(
 double
 minOnly_transformed_fitness(
     const std::shared_ptr<GParameterSet> &item_ptr,
-    const std::size_t id
+    const std::size_t id // NOLINT(misc-unused-parameters)
 )
 {
-    const double f = item_ptr->transformed_fitness(id);
-    const maxMode m = item_ptr->getMaxMode();
+    const double f = item_ptr->transformed_fitness(id); // NOLINT(cppcoreguidelines-init-variables)
+    const maxMode m = item_ptr->getMaxMode(); // NOLINT(cppcoreguidelines-init-variables)
 
 #ifdef DEBUG
     if (not item_ptr)
@@ -218,4 +218,4 @@ isWorse(
 /******************************************************************************/
 
 
-}
+} /* namespace Gem::Geneva */

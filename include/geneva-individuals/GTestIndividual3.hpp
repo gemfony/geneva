@@ -65,15 +65,14 @@
 #include "common/GParserBuilder.hpp"
 #include "common/GCommonMathHelperFunctionsT.hpp"
 
-namespace Gem {
-namespace Tests {
+namespace Gem::Tests {
 
 /******************************************************************************/
 /**
  * This individual tests different access methods for parameter objects inside
  * of the individual.
  */
-class GTestIndividual3
+class GTestIndividual3 // NOLINT(cppcoreguidelines-special-member-functions)
 	: public Gem::Geneva::GParameterSet
 {
 	 ///////////////////////////////////////////////////////////////////////
@@ -137,7 +136,6 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Tests */
-} /* namespace Gem */
+} /* namespace Gem::Tests */
 
 BOOST_CLASS_EXPORT_KEY(Gem::Tests::GTestIndividual3) // NOLINT

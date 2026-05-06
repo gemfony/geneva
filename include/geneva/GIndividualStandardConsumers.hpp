@@ -53,8 +53,7 @@
 #include "courtier/GMPIConsumerT.hpp"
 #endif // GENEVA_BUILD_WITH_MPI_CONSUMER
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -138,8 +137,7 @@ public:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 
 // Export of GCommandContainerT for Geneva individuals
 BOOST_CLASS_EXPORT_KEY(BOOST_IDENTITY_TYPE((Gem::Courtier::GCommandContainerT<Gem::Geneva::GParameterSet, Gem::Courtier::networked_consumer_payload_command>))) // NOLINT

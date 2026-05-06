@@ -89,7 +89,7 @@ namespace Gem::Geneva
  */
 	std::shared_ptr<G_OptimizationAlgorithm_Base> GSimulatedAnnealingFactory::getObject_(
 		Gem::Common::GParserBuilder &gpb
-		, const std::size_t &id
+		, const std::size_t &/*id*/
 	) {
 		std::shared_ptr<GSimulatedAnnealing> target(
 			new GSimulatedAnnealing()
@@ -119,4 +119,4 @@ namespace Gem::Geneva
 	////////////////////////////////////////////////////////////////////////////////
 	/******************************************************************************/
 
-}
+} /* namespace Gem::Geneva */

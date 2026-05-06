@@ -109,7 +109,7 @@ namespace Gem::Geneva
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 	void trainingSet::compare(
-		const trainingSet &cp, const Gem::Common::expectation &e, const double &limit
+		const trainingSet &cp, const Gem::Common::expectation &e, const double &/*limit*/
 	) const {
 		using namespace Gem::Common;
 
@@ -215,7 +215,7 @@ namespace Gem::Geneva
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 	void networkData::compare(
-		const networkData &cp, const Gem::Common::expectation &e, const double &limit
+		const networkData &cp, const Gem::Common::expectation &e, const double &/*limit*/
 	) const {
 		Gem::Common::GToken token("networkData", e);
 
@@ -266,7 +266,7 @@ namespace Gem::Geneva
 		std::ifstream trDat(networkDataFile.c_str());
 
 		if (not trDat) {
-			std::ostringstream error;
+			std::ostringstream error; // NOLINT(cppcoreguidelines-init-variables)
 			error << "In networkData::loadFromDisk(const std::string&):" << std::endl
 				<< "Data file " << networkDataFile << " could not be opened for reading." << std::endl;
 
@@ -481,7 +481,7 @@ namespace Gem::Geneva
  * Allows to retrieve a string that describes the network geometry
  */
 	std::string networkData::getNetworkGeometryString() const {
-		std::ostringstream result;
+		std::ostringstream result; // NOLINT(cppcoreguidelines-init-variables)
 
 		for (std::size_t i = 0; i < this->size() - 1; i++) {
 			result << this->at(i) << "-";
@@ -513,7 +513,7 @@ namespace Gem::Geneva
  * @return The std::istream object used to read the item from
  */
 	std::istream &operator>>(std::istream &i, Gem::Geneva::trainingDataType &tdt) {
-		Gem::Common::ENUMBASETYPE tmp;
+		Gem::Common::ENUMBASETYPE tmp = 0;
 		i >> tmp;
 
 #ifdef DEBUG
@@ -550,7 +550,7 @@ namespace Gem::Geneva
  * @return The std::istream object used to read the item from
  */
 	std::istream &operator>>(std::istream &i, Gem::Geneva::transferFunction &tF) {
-		Gem::Common::ENUMBASETYPE tmp;
+		Gem::Common::ENUMBASETYPE tmp = 0;
 		i >> tmp;
 
 #ifdef DEBUG
@@ -636,7 +636,7 @@ namespace Gem::Geneva
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 	void GNeuralNetworkIndividual::compare_(
-		const GObject &cp, const Gem::Common::expectation &e, const double &limit
+		const GObject &cp, const Gem::Common::expectation &e, const double &/*limit*/
 	) const {
 		using namespace Gem::Common;
 
@@ -689,7 +689,7 @@ namespace Gem::Geneva
 		// Set up our local data structures
 
 		// Check the architecture we've been given and create the layers
-		std::size_t nLayers = nD_->size();
+		std::size_t nLayers = nD_->size(); // NOLINT(cppcoreguidelines-init-variables)
 
 		if (nLayers < 2) { // Two layers are required at the minimum (3 and 4 layers are useful)
 			throw geneva_exception(
@@ -1203,7 +1203,7 @@ namespace Gem::Geneva
 
 		header << "      };" << std::endl;
 
-		std::size_t nWeights = 2 * (*nD_)[0];
+		std::size_t nWeights = 2 * (*nD_)[0]; // NOLINT(cppcoreguidelines-init-variables)
 		for (std::size_t i = 1; i < nD_->size(); i++) {
 			nWeights += (*nD_)[i] * ((*nD_)[i - 1] + 1);
 		}
@@ -1352,7 +1352,7 @@ namespace Gem::Geneva
 
 			// The input layer
 			std::vector<double> prevResults;
-			std::size_t nLayerNodes = (*nD_)[0];
+			std::size_t nLayerNodes = (*nD_)[0]; // NOLINT(cppcoreguidelines-init-variables)
 			double nodeResult = 0;
 			const GDoubleObjectCollection &inputLayer = *(at<GDoubleObjectCollection>(0));
 			for (std::size_t nodeCounter = 0; nodeCounter < nLayerNodes; nodeCounter++) {
@@ -1367,7 +1367,7 @@ namespace Gem::Geneva
 			for (std::size_t layerCounter = 1; layerCounter < nLayers; layerCounter++) {
 				std::vector<double> currentResults;
 				nLayerNodes = (*nD_)[layerCounter];
-				std::size_t nPrevLayerNodes = (*nD_)[layerCounter - 1];
+				std::size_t nPrevLayerNodes = (*nD_)[layerCounter - 1]; // NOLINT(cppcoreguidelines-init-variables)
 				const GDoubleObjectCollection &currentLayer = *(at<GDoubleObjectCollection>(layerCounter));
 
 				for (std::size_t nodeCounter = 0; nodeCounter < nLayerNodes; nodeCounter++) {
@@ -1474,7 +1474,7 @@ namespace Gem::Geneva
  * @return Items of the desired type
  */
 	std::shared_ptr <GParameterSet> GNeuralNetworkIndividualFactory::getObject_(
-		Gem::Common::GParserBuilder &gpb, const std::size_t &id
+		Gem::Common::GParserBuilder &gpb, const std::size_t &/*id*/
 	) {
 		// Will hold the result
 		std::shared_ptr <GNeuralNetworkIndividual> target(new GNeuralNetworkIndividual());
@@ -1493,7 +1493,7 @@ namespace Gem::Geneva
 		// Describe our own options
 		using namespace Gem::Courtier;
 
-		std::string comment;
+		std::string comment; // NOLINT(cppcoreguidelines-init-variables)
 
 		comment = "";
 		comment += "The probability for random adaptions of values in evolutionary algorithms;";
@@ -1592,7 +1592,7 @@ namespace Gem::Geneva
 	////////////////////////////////////////////////////////////////////////////////
 	/******************************************************************************/
 
-}
+} /* namespace Gem::Geneva */
 
 
 namespace Gem::Common
@@ -1617,7 +1617,7 @@ namespace Gem::Common
 		}
 	}
 
-}
+} /* namespace Gem::Common */
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////

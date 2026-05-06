@@ -110,7 +110,7 @@ namespace Gem::Common
 	////////////////////////////////////////////////////////////////////////////////
 	/******************************************************************************/
 
-}
+} /* namespace Gem::Common */
 
 // Needed for rules to work. Follows http://boost.2283326.n4.nabble.com/hold-multi-pass-backtracking-swap-compliant-ast-td4664679.html
 namespace boost::spirit
@@ -140,4 +140,4 @@ namespace boost::spirit
 		a.swap(b);
 	}
 
-}
+} /* namespace boost::spirit */

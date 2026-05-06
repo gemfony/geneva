@@ -48,8 +48,7 @@
 #include <catch2/catch_test_macros.hpp>
 #endif /* GEM_TESTING */
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 /**
@@ -62,7 +61,7 @@ namespace Geneva {
  * GParameterSet collections.
  */
 template <typename T>
-class GParameterBaseWithAdaptorsT
+class GParameterBaseWithAdaptorsT // NOLINT(cppcoreguidelines-special-member-functions)
 	 : public GParameterBase
 {
 	 ///////////////////////////////////////////////////////////////////////
@@ -292,7 +291,7 @@ protected:
 	void compare_(
 		const GObject& cp
 		, const Gem::Common::expectation& e
-		, const double& limit
+		, const double& /*limit*/
 	) const override {
 		using namespace Gem::Common;
 
@@ -575,18 +574,14 @@ inline std::size_t GParameterBaseWithAdaptorsT<bool>::applyAdaptor(
 
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 
 /******************************************************************************/
 // The content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T) // NOLINT
-namespace boost {
-namespace serialization {
+namespace boost::serialization {
 template<typename T>
 struct is_abstract<Gem::Geneva::GParameterBaseWithAdaptorsT<T>> : public boost::true_type {};
 template<typename T>
 struct is_abstract< const Gem::Geneva::GParameterBaseWithAdaptorsT<T>> : public boost::true_type {};
-}
-}
-
+} /* namespace boost::serialization */
 /******************************************************************************/

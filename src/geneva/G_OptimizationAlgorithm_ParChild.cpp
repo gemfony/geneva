@@ -65,7 +65,7 @@ namespace Gem::Geneva
 	void G_OptimizationAlgorithm_ParChild::compare_(
 		const GObject& cp
 		, const Gem::Common::expectation& e
-		, const double& limit
+		, const double& /*limit*/
 	) const {
 		using namespace Gem::Common;
 
@@ -324,7 +324,7 @@ namespace Gem::Geneva
  * recombination scheme.
  */
 	void G_OptimizationAlgorithm_ParChild::doRecombine() {
-		std::size_t i;
+		std::size_t i = 0;
 		std::vector<double> threshold(m_n_parents);
 		double thresholdSum = 0.;
 		// Calculate a weight vector
@@ -668,7 +668,7 @@ namespace Gem::Geneva
  * @param pos The position of the individual for which a new value should be chosen
  */
 	void G_OptimizationAlgorithm_ParChild::randomRecombine(std::shared_ptr<GParameterSet>& child) {
-		std::size_t parent_pos;
+		std::size_t parent_pos = 0;
 
 		if(m_n_parents==1) {
 			parent_pos = 0;
@@ -704,7 +704,7 @@ namespace Gem::Geneva
 		, const std::vector<double>& threshold
 	) {
 		bool done=false;
-		double randTest // get the test value
+		double randTest // get the test value // NOLINT(cppcoreguidelines-init-variables)
 			= G_OptimizationAlgorithm_Base::m_uniform_real_distribution(this->m_gr);
 
 		for(std::size_t par=0; par<m_n_parents; par++) {
@@ -782,4 +782,4 @@ namespace Gem::Geneva
 	////////////////////////////////////////////////////////////////////////////////
 	/******************************************************************************/
 
-}
+} /* namespace Gem::Geneva */

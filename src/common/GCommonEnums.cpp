@@ -46,7 +46,7 @@ namespace Gem::Common
  * Reads a Gem::Common::parameter_source item from a stream. Needed also for boost::lexical_cast<>
  */
 	std::istream &operator>>(std::istream &i, Gem::Common::parameter_source &x) {
-		Gem::Common::ENUMBASETYPE tmp;
+		Gem::Common::ENUMBASETYPE tmp = 0;
 		i >> tmp;
 		x = static_cast<Gem::Common::parameter_source>(tmp);
 		return i;
@@ -66,7 +66,7 @@ namespace Gem::Common
  * Reads a Gem::Common::sortOder item from a stream. Needed also for boost::lexical_cast<>
  */
 	std::istream &operator>>(std::istream &i, Gem::Common::sortOrder &x) {
-		Gem::Common::ENUMBASETYPE tmp;
+		Gem::Common::ENUMBASETYPE tmp = 0;
 		i >> tmp;
 		x = static_cast<Gem::Common::sortOrder>(tmp);
 		return i;
@@ -86,7 +86,7 @@ namespace Gem::Common
  * Reads a Gem::Common::dimensions item from a stream. Needed also for boost::lexical_cast<>
  */
 	std::istream &operator>>(std::istream &i, Gem::Common::dimensions &x) {
-		Gem::Common::ENUMBASETYPE tmp;
+		Gem::Common::ENUMBASETYPE tmp = 0;
 		i >> tmp;
 		x = static_cast<Gem::Common::dimensions>(tmp);
 		return i;
@@ -106,7 +106,7 @@ namespace Gem::Common
  * Reads a Gem::Common::logType item from a stream. Needed also for boost::lexical_cast<>
  */
 	std::istream &operator>>(std::istream &i, Gem::Common::logType &x) {
-		Gem::Common::ENUMBASETYPE tmp;
+		Gem::Common::ENUMBASETYPE tmp = 0;
 		i >> tmp;
 		x = static_cast<Gem::Common::logType>(tmp);
 		return i;
@@ -126,7 +126,7 @@ namespace Gem::Common
  * Reads a Gem::Common::triboolStates item from a stream. Needed also for boost::lexical_cast<>
  */
 	std::istream &operator>>(std::istream &i, Gem::Common::triboolStates &x) {
-		Gem::Common::ENUMBASETYPE tmp;
+		Gem::Common::ENUMBASETYPE tmp = 0;
 		i >> tmp;
 		x = static_cast<Gem::Common::triboolStates>(tmp);
 		return i;
@@ -146,7 +146,7 @@ namespace Gem::Common
  * Reads a Gem::Common::serializationMode item from a stream. Needed also for boost::lexical_cast<>
  */
 	std::istream &operator>>(std::istream &i, Gem::Common::serializationMode &x) {
-		Gem::Common::ENUMBASETYPE tmp;
+		Gem::Common::ENUMBASETYPE tmp = 0;
 		i >> tmp;
 		x = static_cast<Gem::Common::serializationMode>(tmp);
 		return i;
@@ -183,7 +183,7 @@ namespace Gem::Common
  * Reads a Gem::Common::expectation item from a stream. Needed also for boost::lexical_cast<>
  */
 	std::istream &operator>>(std::istream &i, Gem::Common::expectation &x) {
-		Gem::Common::ENUMBASETYPE tmp;
+		Gem::Common::ENUMBASETYPE tmp = 0;
 		i >> tmp;
 		x = static_cast<Gem::Common::expectation>(tmp);
 		return i;
@@ -191,4 +191,4 @@ namespace Gem::Common
 
 	/******************************************************************************/
 
-}
+} /* namespace Gem::Common */

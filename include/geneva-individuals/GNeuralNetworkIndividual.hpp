@@ -76,8 +76,7 @@
 #include "geneva/GDoubleObjectCollection.hpp"
 #include "geneva/GParameterSet.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -350,7 +349,7 @@ const transferFunction GNN_DEF_TRANSFER = transferFunction::SIGMOID;
  * With this individual you can use Genevas optimization algorithms instead of the
  * standard back-propagation algorithm to train feed-forward neural networks.
  */
-class GNeuralNetworkIndividual
+class GNeuralNetworkIndividual // NOLINT(cppcoreguidelines-special-member-functions)
 	: public GParameterSet {
 	 /////////////////////////////////////////////////////////////////////////////
 
@@ -744,7 +743,7 @@ public:
 					 probeValue += exp(-5. * uniform_real_distribution(gr_l));
 				 }
 
-				 double functionValue;
+				 double functionValue = 0.;
 				 std::vector<double> inputVector(nDim);
 				 do {
 					 functionValue = 0.;
@@ -930,7 +929,7 @@ public:
 				 break;
 
 			 default: { // Error
-				 std::ostringstream error;
+				 std::ostringstream error; // NOLINT(cppcoreguidelines-init-variables)
 				 error << "In createDataset(): Error!" << std::endl
 						 << "Received invalid data type " << t << std::endl;
 				 throw(geneva_exception(error.str()));
@@ -990,7 +989,7 @@ private:
 /**
  * A factory for GNeuralNetworkIndividual objects
  */
-class GNeuralNetworkIndividualFactory
+class GNeuralNetworkIndividualFactory // NOLINT(cppcoreguidelines-special-member-functions)
 	: public Gem::Common::GFactoryT<GParameterSet> {
 public:
 	 /** @brief The standard constructor */
@@ -1034,15 +1033,13 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-namespace Gem {
-namespace Common {
+namespace Gem::Common {
 
 // A global store for network configuration data
 using GNNOptStore = GSingletonT<GGlobalOptionsT<std::string>>;
@@ -1052,8 +1049,7 @@ using GNNOptStore = GSingletonT<GGlobalOptionsT<std::string>>;
 template<>
 std::shared_ptr <Gem::Geneva::networkData> TFactory_GSingletonT();
 
-} /* namespace Common */
-} /* namespace Gem */
+} /* namespace Gem::Common */
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////

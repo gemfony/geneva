@@ -74,8 +74,8 @@ namespace Gem::Geneva
  */
 	void GBooleanAdaptor::customAdaptions(
 		bool &value
-		, const bool &range
-		, Gem::Hap::GRandomBase& gr
+		, const bool &/*range*/
+		, Gem::Hap::GRandomBase& /*gr*/
 	) {
 		value == true ? value = false : value = true;
 	}
@@ -92,7 +92,7 @@ namespace Gem::Geneva
 	void GBooleanAdaptor::compare_(
 		const GObject &cp
 		, const Gem::Common::expectation &e
-		, const double &limit
+		, const double &/*limit*/
 	) const {
 		using namespace Gem::Common;
 
@@ -262,4 +262,4 @@ namespace Gem::Geneva
 
 	/******************************************************************************/
 
-}
+} /* namespace Gem::Geneva */

@@ -81,8 +81,7 @@
 #include "common/GErrorStreamer.hpp"
 #include "common/GCommonHelperFunctionsT.hpp"
 
-namespace Gem {
-namespace Common {
+namespace Gem::Common {
 
 /******************************************************************************/
 // Exceptions for some error conditions
@@ -343,8 +342,7 @@ inline std::ostream &operator<<(std::ostream &out, nil) {
 	return out;
 }
 
-} /* namespace Common */
-} /* namespace Gem */
+} /* namespace Gem::Common */
 
 BOOST_FUSION_ADAPT_STRUCT(
 	Gem::Common::signed_,
@@ -377,8 +375,7 @@ BOOST_FUSION_ADAPT_STRUCT(
 		(std::list<Gem::Common::operation>, rest)
 )
 
-namespace Gem {
-namespace Common {
+namespace Gem::Common {
 
 /******************************************************************************/
 /**
@@ -404,7 +401,7 @@ namespace Common {
  * The actual formula parser
  */
 template<typename fp_type>
-class GFormulaParserT
+class GFormulaParserT // NOLINT(cppcoreguidelines-special-member-functions)
 	: public boost::spirit::qi::grammar<std::string::const_iterator, ast_expression(), boost::spirit::ascii::space_type> {
 	// Make sure, fp_type is a floating point value
 	static_assert(std::is_floating_point<fp_type>::value, "fp_type should ne a floating point type");
@@ -609,7 +606,7 @@ public:
 		// Do the actual parsing of the formula
 		std::string::const_iterator iter = formula.begin();
 		std::string::const_iterator end = formula.end();
-		boost::spirit::ascii::space_type space;
+		boost::spirit::ascii::space_type space; // NOLINT(cppcoreguidelines-init-variables)
 		bool r = boost::spirit::qi::phrase_parse(iter, end, *this, space, ast);
 
 		if (r && iter == end) {
@@ -721,8 +718,8 @@ private:
 	 */
 	std::string replacePlaceHolders(const parameter_map &vm) const {
 		std::string formula = raw_formula_;
-		std::string key, value;
-		boost::xpressive::sregex re;
+		std::string key, value; // NOLINT(cppcoreguidelines-init-variables)
+		boost::xpressive::sregex re; // NOLINT(cppcoreguidelines-init-variables)
 
 		typename parameter_map::const_iterator cit;
 		for (cit = vm.begin(); cit != vm.end(); ++cit) {
@@ -1002,12 +999,10 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Common */
-} /* namespace Gem */
+} /* namespace Gem::Common */
 
 // Needed for rules to work. Follows http://boost.2283326.n4.nabble.com/hold-multi-pass-backtracking-swap-compliant-ast-td4664679.html
-namespace boost {
-namespace spirit {
+namespace boost::spirit {
 
 G_API_COMMON void swap(Gem::Common::nil &, Gem::Common::nil &) noexcept;
 G_API_COMMON void swap(Gem::Common::signed_ &, Gem::Common::signed_ &) noexcept;
@@ -1016,5 +1011,4 @@ G_API_COMMON void swap(Gem::Common::unary_function_ &, Gem::Common::unary_functi
 G_API_COMMON void swap(Gem::Common::binary_function_ &, Gem::Common::binary_function_ &) noexcept;
 G_API_COMMON void swap(Gem::Common::ast_expression &, Gem::Common::ast_expression &) noexcept;
 
-} /* namespace spirit */
-} /* namespace boost */
+} /* namespace boost::spirit */

@@ -38,8 +38,7 @@
 
 // Boost includes go here
 
-namespace Gem {
-namespace Hap {
+namespace Gem::Hap {
 
 /******************************************************************************/
 // Some typedefs for the seed manager and random factory
@@ -123,6 +122,5 @@ const std::size_t MINDOUBLEBUFFERSIZE = 10000;
 
 /******************************************************************************/
 
-} /* namespace Hap */
-} /* namespace Gem */
+} /* namespace Gem::Hap */
 

@@ -41,14 +41,13 @@
 #include "geneva/GIntNumCollectionT.hpp"
 #include "geneva/GInt32GaussAdaptor.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 /**
  * A collection of std::int32_t objects without boundaries
  */
-class GInt32Collection
+class GInt32Collection // NOLINT(cppcoreguidelines-special-member-functions)
     : public GIntNumCollectionT<std::int32_t>
 {
     ///////////////////////////////////////////////////////////////////////
@@ -160,7 +159,6 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GInt32Collection) // NOLINT

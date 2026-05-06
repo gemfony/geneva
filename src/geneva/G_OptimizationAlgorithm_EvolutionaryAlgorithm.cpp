@@ -75,7 +75,7 @@ GEvolutionaryAlgorithm::compare_(
     ,
     const Gem::Common::expectation &e // the expectation for this object, e.g. equality
     ,
-    const double &limit // the limit for allowed deviations of floating point types
+    const double &/*limit*/ // the limit for allowed deviations of floating point types
 ) const
 {
     using namespace Gem::Common;
@@ -465,7 +465,7 @@ GEvolutionaryAlgorithm::populationSanityChecks_() const
         (m_sorting_mode == sortingMode::MUPLUSNU_SINGLEEVAL && popSize <= this->m_n_parents)
     )
     {
-        std::ostringstream error;
+        std::ostringstream error; // NOLINT(cppcoreguidelines-init-variables)
         error
             << "In G_OA_EvolutionaryAlgorithm::populationSanityChecks() :" << std::endl
             << "Requested size of population is too small :" << popSize << " " << this->m_n_parents << std::endl
@@ -1366,10 +1366,10 @@ GEvolutionaryAlgorithm::aDominatesB(
     const std::shared_ptr<GParameterSet> &y_ptr
 ) const
 {
-    std::size_t nCriteriaX = x_ptr->getNStoredResults();
+    std::size_t nCriteriaX = x_ptr->getNStoredResults(); // NOLINT(cppcoreguidelines-init-variables)
 
 #ifdef DEBUG
-    std::size_t nCriteriaY = y_ptr->getNStoredResults();
+    std::size_t nCriteriaY = y_ptr->getNStoredResults(); // NOLINT(cppcoreguidelines-init-variables)
     if (nCriteriaX != nCriteriaY)
     {
         throw geneva_exception(

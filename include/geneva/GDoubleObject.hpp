@@ -41,8 +41,7 @@
 #include "geneva/GNumFPT.hpp"
 #include "geneva/GDoubleGaussAdaptor.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 /**
@@ -51,7 +50,7 @@ namespace Geneva {
  * use the GDoubleCollection class or individual GConstrainedDoubleObject objects
  * instead.
  */
-class GDoubleObject
+class GDoubleObject // NOLINT(cppcoreguidelines-special-member-functions)
     : public GNumFPT<double>
 {
     ///////////////////////////////////////////////////////////////////////
@@ -158,7 +157,6 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GDoubleObject) // NOLINT

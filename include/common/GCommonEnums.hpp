@@ -64,8 +64,7 @@
 #endif
 /******************************************************************************/
 
-namespace Gem {
-namespace Common {
+namespace Gem::Common {
 
 /******************************************************************************/
 /**
@@ -248,5 +247,4 @@ constexpr unsigned int DEFAULTMAXNHARDWARETHREADS = 4;
 
 /******************************************************************************/
 
-} /* namespace Common */
-} /* namespace Gem */
+} /* namespace Gem::Common */

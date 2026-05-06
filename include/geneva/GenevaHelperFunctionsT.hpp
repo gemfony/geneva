@@ -45,8 +45,7 @@
 #include "geneva/GObject.hpp"
 #include "geneva/GAdaptorT.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 /**
@@ -75,6 +74,5 @@ template <> G_API_GENEVA std::shared_ptr<GAdaptorT<bool>> getDefaultAdaptor<bool
 
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 

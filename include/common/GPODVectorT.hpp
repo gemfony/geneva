@@ -70,8 +70,7 @@
 // Forward declaration
 class GEqualityPrinter;
 
-namespace Gem {
-namespace Common {
+namespace Gem::Common {
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -157,7 +156,7 @@ public:
      * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
     virtual void compare_base(
-        const GPODVectorT<T> &cp, const Gem::Common::expectation &e, const double &limit
+        const GPODVectorT<T> &cp, const Gem::Common::expectation &e, const double & /*limit*/
     ) const {
         Gem::Common::GToken token(
             "GBaseEA::GEAOptimizationMonitor"
@@ -473,15 +472,13 @@ inline GPODVectorT<T>::~GPODVectorT() {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-} /* namespace Common */
-} /* namespace Gem */
+} /* namespace Gem::Common */
 
 /******************************************************************************/
 /**
  * @brief The content of the BOOST_SERIALIZATION_ASSUME_ABSTRACT(T) macro. Needed for Boost.Serialization
  */
-namespace boost {
-namespace serialization {
+namespace boost::serialization {
 
 template<typename T>
 struct is_abstract<Gem::Common::GPODVectorT<T>> :
@@ -492,7 +489,6 @@ struct is_abstract<const Gem::Common::GPODVectorT<T>> :
     public boost::true_type
 { /* nothing */ };
 
-} /* namespace serialization */
-} /* namespace boost */
+} /* namespace boost::serialization */
 
 /******************************************************************************/

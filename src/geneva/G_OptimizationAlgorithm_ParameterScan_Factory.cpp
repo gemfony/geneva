@@ -86,7 +86,7 @@ namespace Gem::Geneva
  * @param hidden Command line options that should only be visible upon request
  */
 	void GParameterScanFactory::addCLOptions(
-		boost::program_options::options_description &visible
+		boost::program_options::options_description &visible // NOLINT(misc-unused-parameters)
 		, boost::program_options::options_description &hidden
 	) {
 		namespace po = boost::program_options;
@@ -133,7 +133,7 @@ namespace Gem::Geneva
  */
 	std::shared_ptr<G_OptimizationAlgorithm_Base> GParameterScanFactory::getObject_(
 		Gem::Common::GParserBuilder &gpb
-		, const std::size_t &id
+		, const std::size_t &/*id*/
 	) {
 		std::shared_ptr<GParameterScan> target(
 			new GParameterScan()
@@ -168,4 +168,4 @@ namespace Gem::Geneva
 
 	/******************************************************************************/
 
-}
+} /* namespace Gem::Geneva */

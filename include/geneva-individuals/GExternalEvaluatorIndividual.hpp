@@ -70,8 +70,7 @@
 #include "geneva/GParameterSet.hpp"
 #include "geneva/GParameterSetMultiConstraint.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 // A number of default settings for the factory
@@ -130,7 +129,7 @@ class GExternalEvaluatorIndividualFactory;
  * The xml parameter files are created using boost::property_tree and its write_xml
  * utility. Hence the external program needs to understand the XML format.
  */
-class GExternalEvaluatorIndividual : public GParameterSet {
+class GExternalEvaluatorIndividual : public GParameterSet { // NOLINT(cppcoreguidelines-special-member-functions)
 	 ///////////////////////////////////////////////////////////////////////
 
 	 friend class boost::serialization::access;
@@ -241,7 +240,7 @@ private:
 /**
  * A factory for GExternalEvaluatorIndividual objects
  */
-class GExternalEvaluatorIndividualFactory
+class GExternalEvaluatorIndividualFactory // NOLINT(cppcoreguidelines-special-member-functions)
 	: public Gem::Common::GFactoryT<GParameterSet> {
 	 ///////////////////////////////////////////////////////////////////////
 	 friend class boost::serialization::access;
@@ -480,8 +479,7 @@ private:
 	 pt::ptree m_ptr; ///< Holds setup information for individuals, as provided by the external evaluator program
 };
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GExternalEvaluatorIndividual) // NOLINT
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GExternalEvaluatorIndividualFactory) // NOLINT

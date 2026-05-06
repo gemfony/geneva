@@ -41,8 +41,7 @@
 #include "geneva/GParameterT.hpp"
 #include "geneva/GBooleanAdaptor.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 /**
@@ -50,7 +49,7 @@ namespace Geneva {
  * and indeed for most applications this is not the recommended solution -
  * use the GBooleanCollection instead.
  */
-class GBooleanObject
+class GBooleanObject // NOLINT(cppcoreguidelines-special-member-functions)
     : public GParameterT<bool>
 {
     ///////////////////////////////////////////////////////////////////////
@@ -168,7 +167,6 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GBooleanObject) // NOLINT

@@ -64,8 +64,7 @@
 #include "common/GErrorStreamer.hpp"
 #include "common/GTypeTraitsT.hpp"
 
-namespace Gem {
-namespace Common {
+namespace Gem::Common {
 
 /******************************************************************************/
 /**
@@ -77,7 +76,7 @@ namespace Common {
  */
 template <typename target_type>
 std::optional<target_type> environmentVariableAs(std::string const& var) {
-	std::string result_str;
+	std::string result_str; // NOLINT(cppcoreguidelines-init-variables)
 
 	{
 		// std::getenv is not thread-safe; serialise access with a local mutex.
@@ -274,7 +273,7 @@ const target_type* g_convert_and_compare(
  */
 template<typename T>
 std::string vecToString(const std::vector<T> &vec) {
-	std::ostringstream result;
+	std::ostringstream result; // NOLINT(cppcoreguidelines-init-variables)
 	for (const auto& item : vec) {
 		result << item << " ";
 	}
@@ -718,5 +717,4 @@ std::size_t erase_if(container_type& container, const predicate_type& predicate)
 
 /******************************************************************************/
 
-} /* namespace Common */
-} /* namespace Gem */
+} /* namespace Gem::Common */

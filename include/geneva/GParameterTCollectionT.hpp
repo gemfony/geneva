@@ -43,8 +43,7 @@
 #include "geneva/GParameterBase.hpp"
 #include "geneva/GParameterT.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 /**
@@ -57,7 +56,7 @@ namespace Geneva {
  * in std::shared_ptr objects.
  */
 template<typename T>
-class GParameterTCollectionT
+class GParameterTCollectionT // NOLINT(cppcoreguidelines-special-member-functions)
     : public GParameterBase
     , public Gem::Common::GPtrVectorT<T, GObject>
 {
@@ -166,8 +165,8 @@ public:
 
         // Loop over all parameter objects and ask them to add their
         // data to our ptree object
-        std::string base;
-        std::size_t pos;
+        std::string base; // NOLINT(cppcoreguidelines-init-variables)
+        std::size_t pos = 0;
         typename GParameterTCollectionT<T>::const_iterator cit;
         for (cit = this->begin(); cit != this->end(); ++cit) {
             pos = cit - this->begin();
@@ -219,7 +218,7 @@ protected:
     void compare_(
         const GObject &cp
         , const Gem::Common::expectation &e
-        , const double &limit
+        , const double &/*limit*/
     ) const override {
         using namespace Gem::Common;
 
@@ -1425,15 +1424,13 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 
 /******************************************************************************/
 /** @brief Mark this class as abstract. This is the content of
  * BOOST_SERIALIZATION_ASSUME_ABSTRACT(T) */
 
-namespace boost {
-namespace serialization {
+namespace boost::serialization {
 template<typename T>
 struct is_abstract<Gem::Geneva::GParameterTCollectionT<T>> :
     public boost::true_type
@@ -1444,8 +1441,6 @@ struct is_abstract<const Gem::Geneva::GParameterTCollectionT<T>> :
     public boost::true_type
 {
 };
-}
-}
-
+} /* namespace boost::serialization */
 /******************************************************************************/
 

@@ -40,8 +40,7 @@
 // Geneva headers go here
 #include "geneva/GNumGaussAdaptorT.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 /**
@@ -53,7 +52,7 @@ namespace Geneva {
  * base class that can also be used to adapt other numeric types.
  */
 template<typename fp_type>
-class GFPGaussAdaptorT
+class GFPGaussAdaptorT // NOLINT(cppcoreguidelines-special-member-functions)
     :
         public GNumGaussAdaptorT<fp_type, fp_type>
 {
@@ -200,7 +199,7 @@ protected:
     void compare_(
         const GObject &cp
         , const Gem::Common::expectation &e
-        , const double &limit
+        , const double &/*limit*/
     ) const override {
         using namespace Gem::Common;
 
@@ -331,13 +330,11 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 
 /******************************************************************************/
 // The content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T) // NOLINT
-namespace boost {
-namespace serialization {
+namespace boost::serialization {
 template<typename fp_type>
 struct is_abstract<Gem::Geneva::GFPGaussAdaptorT<fp_type>> :
     public boost::true_type
@@ -348,6 +345,5 @@ struct is_abstract<const Gem::Geneva::GFPGaussAdaptorT<fp_type>> :
     public boost::true_type
 {
 };
-}
-}
+} /* namespace boost::serialization */
 /******************************************************************************/

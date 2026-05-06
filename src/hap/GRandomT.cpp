@@ -47,4 +47,4 @@ GRandomT<RANDFLAVOURS::RANDOMPROXY>& randomProxy() {
 
 	/******************************************************************************/
 
-}
+} /* namespace Gem::Hap */

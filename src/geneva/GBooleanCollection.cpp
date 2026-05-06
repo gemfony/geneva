@@ -144,7 +144,7 @@ namespace Gem::Geneva
  * that is added later will remain unaffected.
  */
 	bool GBooleanCollection::randomInit_(
-		const activityMode &am
+		const activityMode &/*am*/
 		, Gem::Hap::GRandomBase& gr
 	) {
 		bool randomized = false;
@@ -245,7 +245,7 @@ namespace Gem::Geneva
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 	void GBooleanCollection::compare_(
-		const GObject &cp, const Gem::Common::expectation &e, const double &limit
+		const GObject &cp, const Gem::Common::expectation &e, const double &/*limit*/
 	) const {
 		using namespace Gem::Common;
 
@@ -320,7 +320,7 @@ namespace Gem::Geneva
  * @param uBndVec A vector of upper bool parameter boundaries
  */
 	void GBooleanCollection::booleanBoundaries(
-		std::vector<bool> &lBndVec, std::vector<bool> &uBndVec, const activityMode &am
+		std::vector<bool> &lBndVec, std::vector<bool> &uBndVec, const activityMode &/*am*/
 	) const {
 		GBooleanCollection::const_iterator cit;
 		for (cit = this->begin(); cit != this->end(); ++cit) {
@@ -337,7 +337,7 @@ namespace Gem::Geneva
  * @return The number of bool parameters
  */
 	std::size_t GBooleanCollection::countBoolParameters(
-		const activityMode &am
+		const activityMode &/*am*/
 	) const {
 		return this->size();
 	}
@@ -349,7 +349,7 @@ namespace Gem::Geneva
 	void GBooleanCollection::assignBooleanValueVector(
 		const std::vector<bool> &parVec
 		, std::size_t &pos
-		, const activityMode &am
+		, const activityMode &/*am*/
 	) {
 		for (GBooleanCollection::iterator it = this->begin(); it != this->end(); ++it) {
 #ifdef DEBUG
@@ -373,7 +373,7 @@ namespace Gem::Geneva
  * Assigns part of a value map to the parameter
  */
 	void GBooleanCollection::assignBooleanValueVectors(
-		const std::map<std::string, std::vector<bool>> &parMap, const activityMode &am
+		const std::map<std::string, std::vector<bool>> &parMap, const activityMode &/*am*/
 	) {
 		GBooleanCollection::iterator it;
 		std::size_t cnt = 0;
@@ -878,4 +878,4 @@ namespace Gem::Geneva
 
 	/******************************************************************************/
 
-}
+} /* namespace Gem::Geneva */

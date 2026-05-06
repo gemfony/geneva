@@ -40,8 +40,7 @@
 
 #include "geneva/GIntGaussAdaptorT.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 /**
@@ -54,7 +53,7 @@ namespace Geneva {
  * 1 might be a good choice. Similarly, the minSigma parameter should be set
  * accordingly, so sigma cannot get too small when being adapted.
  */
-class GInt32GaussAdaptor
+class GInt32GaussAdaptor // NOLINT(cppcoreguidelines-special-member-functions)
     : public GIntGaussAdaptorT<std::int32_t>
 {
     ///////////////////////////////////////////////////////////////////////
@@ -133,7 +132,6 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GInt32GaussAdaptor) // NOLINT

@@ -68,8 +68,7 @@
 
 /******************************************************************************/
 
-namespace Gem {
-namespace Hap {
+namespace Gem::Hap {
 
 using G_CPU_BASE_GENERATOR = std::mt19937;
 
@@ -296,8 +295,7 @@ private:
 	 std::atomic<bool> m_seeding_has_started = ATOMIC_VAR_INIT(false);
 };
 
-} /* namespace Hap */
-} /* namespace Gem */
+} /* namespace Gem::Hap */
 
 /******************************************************************************/
 /**

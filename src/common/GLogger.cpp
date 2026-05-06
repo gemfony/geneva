@@ -83,7 +83,7 @@ namespace Gem::Common
  * variable fname_. The file is reopened in append mode for every log message.
  */
 	void GFileLogger::log(std::string const& msg) const {
-		std::ofstream ofstr(std::filesystem::path(m_fname), std::ios_base::app);
+		std::ofstream ofstr(std::filesystem::path(m_fname), std::ios_base::app); // NOLINT(cppcoreguidelines-init-variables)
 		if (ofstr) {
 			ofstr << msg;
 			ofstr.close();
@@ -106,7 +106,7 @@ namespace Gem::Common
 	void GFileLogger::logWithSource(
 		std::string const& msg, std::string const& extension
 	) const {
-		std::ofstream ofstr(std::filesystem::path(m_fname + "_" + extension), std::ios_base::app);
+		std::ofstream ofstr(std::filesystem::path(m_fname + "_" + extension), std::ios_base::app); // NOLINT(cppcoreguidelines-init-variables)
 		if (ofstr) {
 			if (m_first) {
 				ofstr
@@ -236,7 +236,7 @@ namespace Gem::Common
 		//------------------------------------------------------------------------
 		case Gem::Common::logType::EXCEPTION: {
 			// Assemble the output string
-			std::ostringstream error;
+			std::ostringstream error; // NOLINT(cppcoreguidelines-init-variables)
 			error
 				<< std::endl
 				<< "================================================" << std::endl
@@ -267,7 +267,7 @@ namespace Gem::Common
 		//------------------------------------------------------------------------
 		case Gem::Common::logType::TERMINATION: {
 			// Assemble the output string
-			std::ostringstream error;
+			std::ostringstream error; // NOLINT(cppcoreguidelines-init-variables)
 			error
 				<< std::endl
 				<< "================================================" << std::endl
@@ -297,7 +297,7 @@ namespace Gem::Common
 		//------------------------------------------------------------------------
 		case Gem::Common::logType::WARNING: {
 			// Assemble warning output
-			std::ostringstream warning;
+			std::ostringstream warning; // NOLINT(cppcoreguidelines-init-variables)
 			warning
 				<< std::endl
 				<< "================================================" << std::endl
@@ -412,4 +412,4 @@ namespace Gem::Common
 
 	/******************************************************************************/
 
-}
+} /* namespace Gem::Common */

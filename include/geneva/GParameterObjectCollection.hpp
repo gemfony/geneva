@@ -47,15 +47,14 @@
 #include "geneva/GInt32Object.hpp"
 #include "geneva/GDoubleObject.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 /**
  * A collection of GParameterBase objects, ready for use in a
  * GParameterSet derivative.
  */
-class GParameterObjectCollection
+class GParameterObjectCollection // NOLINT(cppcoreguidelines-special-member-functions)
 	:public GParameterTCollectionT<GParameterBase>
 {
 	 ///////////////////////////////////////////////////////////////////////
@@ -153,7 +152,6 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GParameterObjectCollection) // NOLINT

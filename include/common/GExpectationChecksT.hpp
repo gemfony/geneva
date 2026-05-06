@@ -61,8 +61,7 @@
 #include "common/GErrorStreamer.hpp"
 #include "common/GTypeTraitsT.hpp"
 
-namespace Gem {
-namespace Common {
+namespace Gem::Common {
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -71,7 +70,7 @@ namespace Common {
  * A token to be handed to different comparators, so they can signal the violation
  * of expectations
  */
-class GToken
+class GToken // NOLINT(cppcoreguidelines-special-member-functions)
 {
 public:
     /** @brief The standard constructor -- initialization with class name and expectation */
@@ -154,7 +153,7 @@ G_API_COMMON std::ostream &operator<<(std::ostream &s, GToken const &g);
  * This struct facilitates transfer of comparable items to comparators
  */
 template<typename T>
-struct identity
+struct identity // NOLINT(cppcoreguidelines-special-member-functions)
 {
 public:
     /***************************************************************************/
@@ -338,7 +337,7 @@ void compare(
     , typename std::enable_if<not Gem::Common::has_gemfony_common_interface<basic_type>::value>::type * = nullptr // Note the negation
 ) {
     bool expectationMet = false;
-    std::string expectation_str;
+    std::string expectation_str; // NOLINT(cppcoreguidelines-init-variables)
 
     switch (e) {
         case Gem::Common::expectation::FP_SIMILARITY:
@@ -356,7 +355,7 @@ void compare(
     };
 
     if (not expectationMet) {
-        std::ostringstream error;
+        std::ostringstream error; // NOLINT(cppcoreguidelines-init-variables)
         error
             << "Expectation of " << expectation_str << " was violated for parameters " << std::endl
             << "[" << std::endl
@@ -394,7 +393,7 @@ void compare(
     , double = 0.
 ) {
     bool expectationMet = false;
-    std::string expectation_str;
+    std::string expectation_str; // NOLINT(cppcoreguidelines-init-variables)
 
     switch (e) {
         case Gem::Common::expectation::FP_SIMILARITY:
@@ -412,7 +411,7 @@ void compare(
     };
 
     if (not expectationMet) {
-        std::ostringstream error;
+        std::ostringstream error; // NOLINT(cppcoreguidelines-init-variables)
         error
             << "Expectation of " << expectation_str << " was violated for parameters " << std::endl
             << "[" << std::endl
@@ -450,7 +449,7 @@ void compare(
     , double = 0.
 ) {
     bool expectationMet = false;
-    std::string expectation_str;
+    std::string expectation_str; // NOLINT(cppcoreguidelines-init-variables)
 
     switch (e) {
         case Gem::Common::expectation::FP_SIMILARITY:
@@ -468,7 +467,7 @@ void compare(
     };
 
     if (not expectationMet) {
-        std::ostringstream error;
+        std::ostringstream error; // NOLINT(cppcoreguidelines-init-variables)
         error
             << "Expectation of " << expectation_str << " was violated for parameters " << std::endl
             << "[" << std::endl
@@ -504,7 +503,7 @@ void compare(
     , typename std::enable_if<std::is_floating_point<fp_type>::value>::type * = nullptr
 ) {
     bool expectationMet = false;
-    std::string expectation_str;
+    std::string expectation_str; // NOLINT(cppcoreguidelines-init-variables)
 
     switch (e) {
         case Gem::Common::expectation::FP_SIMILARITY: expectation_str = "FP_SIMILARITY";
@@ -525,7 +524,7 @@ void compare(
     };
 
     if (not expectationMet) {
-        std::ostringstream error;
+        std::ostringstream error; // NOLINT(cppcoreguidelines-init-variables)
 
         error
             << "Expectation of " << expectation_str << " was violated for parameters " << std::endl
@@ -564,7 +563,7 @@ void compare(
     , typename std::enable_if<not std::is_floating_point<base_type>::value>::type * = nullptr
 ) {
     bool expectationMet = false;
-    std::string expectation_str;
+    std::string expectation_str; // NOLINT(cppcoreguidelines-init-variables)
 
     switch (e) {
         case Gem::Common::expectation::FP_SIMILARITY:
@@ -582,7 +581,7 @@ void compare(
     };
 
     if (not expectationMet) {
-        std::ostringstream error;
+        std::ostringstream error; // NOLINT(cppcoreguidelines-init-variables)
         error
             << "Expectation of " << expectation_str << " was violated for parameters "
             << x_name << " and " << y_name << "!" << std::endl;
@@ -644,7 +643,7 @@ void compare(
     , typename std::enable_if<not std::is_floating_point<base_type>::value>::type * = nullptr
 ) {
     bool expectationMet = false;
-    std::string expectation_str;
+    std::string expectation_str; // NOLINT(cppcoreguidelines-init-variables)
 
     switch (e) {
         case Gem::Common::expectation::FP_SIMILARITY:
@@ -662,7 +661,7 @@ void compare(
     };
 
     if (not expectationMet) {
-        std::ostringstream error;
+        std::ostringstream error; // NOLINT(cppcoreguidelines-init-variables)
         error
             << "Expectation of " << expectation_str << " was violated for parameters "
             << x_name << " and " << y_name << "!" << std::endl;
@@ -720,9 +719,9 @@ void compare(
     , typename std::enable_if<std::is_floating_point<fp_type>::value>::type * = nullptr
 ) {
     bool expectationMet = false;
-    std::string expectation_str;
+    std::string expectation_str; // NOLINT(cppcoreguidelines-init-variables)
     std::size_t deviation_pos = 0;
-    std::ostringstream error;
+    std::ostringstream error; // NOLINT(cppcoreguidelines-init-variables)
 
     switch (e) {
         case Gem::Common::expectation::FP_SIMILARITY:
@@ -826,9 +825,9 @@ void compare(
     , typename std::enable_if<std::is_floating_point<fp_type>::value>::type * = nullptr
 ) {
     bool expectationMet = false;
-    std::string expectation_str;
+    std::string expectation_str; // NOLINT(cppcoreguidelines-init-variables)
     std::size_t deviation_pos = 0;
-    std::ostringstream error;
+    std::ostringstream error; // NOLINT(cppcoreguidelines-init-variables)
 
     switch (e) {
         case Gem::Common::expectation::FP_SIMILARITY:
@@ -933,8 +932,8 @@ void compare(
     , typename std::enable_if<Gem::Common::has_gemfony_common_interface<geneva_type>::value>::type * = nullptr
 ) {
     bool expectationMet = false;
-    std::string expectation_str;
-    std::ostringstream error;
+    std::string expectation_str; // NOLINT(cppcoreguidelines-init-variables)
+    std::ostringstream error; // NOLINT(cppcoreguidelines-init-variables)
 
     switch (e) {
         case Gem::Common::expectation::FP_SIMILARITY:
@@ -1018,8 +1017,8 @@ void compare(
     , typename std::enable_if<Gem::Common::has_gemfony_common_interface<geneva_type>::value>::type * = nullptr
 ) {
     bool expectationMet = false;
-    std::string expectation_str;
-    std::ostringstream error;
+    std::string expectation_str; // NOLINT(cppcoreguidelines-init-variables)
+    std::ostringstream error; // NOLINT(cppcoreguidelines-init-variables)
 
     switch (e) {
         case Gem::Common::expectation::FP_SIMILARITY:
@@ -1131,8 +1130,8 @@ void compare(
     , typename std::enable_if<Gem::Common::has_gemfony_common_interface<geneva_type>::value>::type * = nullptr
 ) {
     bool expectationMet = false;
-    std::string expectation_str;
-    std::ostringstream error;
+    std::string expectation_str; // NOLINT(cppcoreguidelines-init-variables)
+    std::ostringstream error; // NOLINT(cppcoreguidelines-init-variables)
 
     switch (e) {
         case Gem::Common::expectation::FP_SIMILARITY:
@@ -1359,5 +1358,4 @@ void compare_base_t(
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-} /* namespace Common */
-} /* namespace Gem */
+} /* namespace Gem::Common */

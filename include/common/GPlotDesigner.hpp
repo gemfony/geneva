@@ -85,8 +85,7 @@
 #include "common/GSerializationHelperFunctionsT.hpp"
 #include "common/GSerializeTupleT.hpp"
 
-namespace Gem {
-namespace Common {
+namespace Gem::Common {
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -262,7 +261,7 @@ class GDecorator<dimensions::Dim2, coordinate_type>
     friend class boost::serialization::access;
 
     template<typename Archive>
-    void serialize(Archive &ar, const unsigned int) {
+    void serialize(Archive & /*ar*/, const unsigned int) {
         using boost::serialization::make_nvp;
 
         /* nothing */
@@ -340,7 +339,7 @@ protected:
     void compare_(
         const GDecorator<dimensions::Dim2, coordinate_type> &cp // the other object
         , const expectation &e // the expectation for this object, e.g. equality
-        , const double &limit // the limit for allowed deviations of floating point types
+        , const double & /*limit*/ // the limit for allowed deviations of floating point types
     ) const override {
         // Check that we are dealing with a GDecorator reference independent of this object and convert the pointer
         const auto *p_load = g_convert_and_compare(
@@ -447,7 +446,7 @@ public:
 	  * Retrieves the decorator data. Plot boundaries are not taken into account.
 	  */
     std::string decoratorData(const std::string &indent, const std::size_t &pos) const override {
-        std::ostringstream data;
+        std::ostringstream data; // NOLINT(cppcoreguidelines-init-variables)
 
         data
             << indent << "TMarker * tm_" << pos << " = new TMarker("
@@ -532,7 +531,7 @@ protected:
     void compare_(
         const GDecorator<dimensions::Dim2, coordinate_type> &cp // the other object
         , const expectation &e // the expectation for this object, e.g. equality
-        , const double &limit // the limit for allowed deviations of floating point types
+        , const double & /*limit*/ // the limit for allowed deviations of floating point types
     ) const override {
         // Check that we are dealing with a GMarker reference independent of this object and convert the pointer
         const auto *p_load = g_convert_and_compare(
@@ -634,7 +633,7 @@ class GDecorator<dimensions::Dim3, coordinate_type>
     friend class boost::serialization::access;
 
     template<typename Archive>
-    void serialize(Archive &ar, const unsigned int) {
+    void serialize(Archive & /*ar*/, const unsigned int) {
         using boost::serialization::make_nvp;
 
         // nothing
@@ -713,7 +712,7 @@ protected:
     void compare_(
         const GDecorator<dimensions::Dim3, coordinate_type> &cp // the other object
         , const expectation &e // the expectation for this object, e.g. equality
-        , const double &limit // the limit for allowed deviations of floating point types
+        , const double & /*limit*/ // the limit for allowed deviations of floating point types
     ) const override {
         // Check that we are dealing with a GDecorator reference independent of this object and convert the pointer
         const auto *p_load = g_convert_and_compare(
@@ -820,7 +819,7 @@ public:
 	  * not taken into account.
 	  */
     virtual std::string decoratorData(const std::string &indent) const {
-        std::string result;
+        std::string result; // NOLINT(cppcoreguidelines-init-variables)
 
         std::size_t pos = 0;
         for (auto const& decorator_ptr: *this) {
@@ -846,7 +845,7 @@ public:
         , const std::tuple<coordinate_type, coordinate_type> &y_axis_range
         , const std::string &indent
     ) const {
-        std::string result;
+        std::string result; // NOLINT(cppcoreguidelines-init-variables)
 
         std::size_t pos = 0;
         for (auto const& decorator_ptr: *this) {
@@ -895,7 +894,7 @@ protected:
     void compare_(
         const GDecoratorContainer<dimensions::Dim2, coordinate_type> &cp // the other object
         , const expectation &e // the expectation for this object, e.g. equality
-        , const double &limit // the limit for allowed deviations of floating point types
+        , const double & /*limit*/ // the limit for allowed deviations of floating point types
     ) const override {
         // Check that we are dealing with a GDecoratorContainer reference independent of this object and convert the pointer
         const auto *p_load = g_convert_and_compare(
@@ -1007,7 +1006,7 @@ protected:
     void compare_(
         const GDecoratorContainer<dimensions::Dim2, coordinate_type> &cp // the other object
         , const expectation &e // the expectation for this object, e.g. equality
-        , const double &limit // the limit for allowed deviations of floating point types
+        , const double & /*limit*/ // the limit for allowed deviations of floating point types
     ) const override {
         // Check that we are dealing with a GDecoratorContainer reference independent of this object and convert the pointer
         const auto *p_load = g_convert_and_compare(
@@ -1109,7 +1108,7 @@ public:
 	  * not taken into account.
 	  */
     virtual std::string decoratorData(const std::string &indent) const {
-        std::string result;
+        std::string result; // NOLINT(cppcoreguidelines-init-variables)
 
         std::size_t pos = 0;
         for (auto const& decorator_ptr: *this) {
@@ -1136,7 +1135,7 @@ public:
         , const std::tuple<coordinate_type, coordinate_type> &z_axis_range
         , const std::string &indent
     ) const {
-        std::string result;
+        std::string result; // NOLINT(cppcoreguidelines-init-variables)
 
         std::size_t pos = 0;
         for (auto const& decorator_ptr: *this) {
@@ -1186,7 +1185,7 @@ protected:
     void compare_(
         const GDecoratorContainer<dimensions::Dim3, coordinate_type> &cp // the other object
         , const expectation &e // the expectation for this object, e.g. equality
-        , const double &limit // the limit for allowed deviations of floating point types
+        , const double & /*limit*/ // the limit for allowed deviations of floating point types
     ) const override {
         // Check that we are dealing with a GDecoratorContainer reference independent of this object and convert the pointer
         const auto *p_load = g_convert_and_compare(
@@ -1298,7 +1297,7 @@ protected:
     void compare_(
         const GDecoratorContainer<dimensions::Dim3, coordinate_type> &cp // the other object
         , const expectation &e // the expectation for this object, e.g. equality
-        , const double &limit // the limit for allowed deviations of floating point types
+        , const double & /*limit*/ // the limit for allowed deviations of floating point types
     ) const override {
         // Check that we are dealing with a GDecoratorContainer reference independent of this object and convert the pointer
         const auto *p_load = g_convert_and_compare(
@@ -1724,7 +1723,7 @@ protected:
     void compare_(
         const GBasePlotter &cp
         , const expectation &e
-        , const double &limit
+        , const double & /*limit*/
     ) const override {
         // Check that we are dealing with a GDataCollector1T<x_type> reference independent of this object and convert the pointer
         const auto *p_load = g_convert_and_compare(
@@ -2292,7 +2291,7 @@ protected:
     void compare_(
         const GBasePlotter &cp
         , const expectation &e
-        , const double &limit
+        , const double & /*limit*/
     ) const override {
         // Check that we are dealing with a GDataCollector2T<x_type, y_type> reference independent of this object and convert the pointer
         const auto *p_load = g_convert_and_compare(
@@ -2659,7 +2658,7 @@ protected:
     void compare_(
         const GBasePlotter &cp
         , const expectation &e
-        , const double &limit
+        , const double & /*limit*/
     ) const override {
         // Check that we are dealing with a GDataCollector2ET<x_type, y_type> reference independent of this object and convert the pointer
         const auto *p_load = g_convert_and_compare(
@@ -3288,7 +3287,7 @@ protected:
     void compare_(
         const GBasePlotter &cp
         , const expectation &e
-        , const double &limit
+        , const double & /*limit*/
     ) const override {
         // Check that we are dealing with a GDataCollector2T<x_type, y_type> reference independent of this object and convert the pointer
         const auto *p_load = g_convert_and_compare(
@@ -3861,7 +3860,7 @@ protected:
     void compare_(
         const GBasePlotter &cp
         , const expectation &e
-        , const double &limit
+        , const double & /*limit*/
     ) const override {
         // Check that we are dealing with a GDataCollector2T<x_type, y_type> reference independent of this object and convert the pointer
         const auto *p_load = g_convert_and_compare(
@@ -4557,13 +4556,11 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Common */
-} /* namespace Gem */
+} /* namespace Gem::Common */
 
 /******************************************************************************/
 // Declare abstract or export class names for Boost.Serialization
-namespace boost {
-namespace serialization {
+namespace boost::serialization {
 
 template<typename coordinate_type>
 struct is_abstract<Gem::Common::GDecorator<Gem::Common::dimensions::Dim2, coordinate_type>> : public boost::true_type
@@ -4628,8 +4625,7 @@ template<typename x_type, typename y_type, typename z_type, typename w_type>
 struct is_abstract<const Gem::Common::GDataCollector4T<x_type, y_type, z_type, w_type>> : public boost::true_type
 { /* nothing */ };
 
-} /* namespace serialization */
-} /* namespace boost */
+} /* namespace boost::serialization */
 
 BOOST_SERIALIZATION_ASSUME_ABSTRACT(GBasePlotter) // NOLINT
 BOOST_CLASS_EXPORT_KEY(Gem::Common::GMarker<short>) // NOLINT

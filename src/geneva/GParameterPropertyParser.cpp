@@ -50,7 +50,7 @@ namespace boost::spirit
 	}
 
 
-}
+} /* namespace boost::spirit */
 
 namespace Gem::Geneva
 {
@@ -319,4 +319,4 @@ namespace Gem::Geneva
 
 	/******************************************************************************/
 
-}
+} /* namespace Gem::Geneva */

@@ -67,7 +67,7 @@ namespace Gem::Geneva
      * This is a specialization of the GParChildT<executor_type> class. The class adds
      * an infrastructure for evolutionary algorithms.
      */
-    class GEvolutionaryAlgorithm
+    class GEvolutionaryAlgorithm // NOLINT(cppcoreguidelines-special-member-functions)
         : public G_OptimizationAlgorithm_ParChild
     {
         ///////////////////////////////////////////////////////////////////////

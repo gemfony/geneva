@@ -85,8 +85,7 @@
 #include "courtier/GProcessingContainerT.hpp"
 #include "courtier/GCourtierHelperFunctions.hpp"
 
-namespace Gem {
-namespace Courtier {
+namespace Gem::Courtier {
 
 /******************************************************************************/
 /**
@@ -248,7 +247,7 @@ public:
 		 std::vector<std::shared_ptr<processable_type>>& workItems
 		 , bool resubmitUnprocessed = false
 		 , const std::tuple<ITERATION_COUNTER_TYPE, bool>& externalIterationCounter = std::tuple<ITERATION_COUNTER_TYPE, bool>(0, false)
-		 , const std::string &caller = std::string()
+		 , const std::string & /*caller*/ = std::string()
 	 ) {
 		 //------------------------------------------------------------------------------------------
 		 // Make sure only one instance of this function can be called at the same time. If locking
@@ -528,7 +527,7 @@ protected:
 	void compare_(
 		const GBaseExecutorT<processable_type>& cp // the other object
 		, const Gem::Common::expectation& e // the expectation for this object, e.g. equality
-		, const double& limit // the limit for allowed deviations of floating point types
+		, const double& /*limit*/ // the limit for allowed deviations of floating point types
 	) const override {
 		using namespace Gem::Common;
 
@@ -1060,7 +1059,7 @@ private:
  * purposes
  */
 template<typename processable_type>
-class GSerialExecutorT
+class GSerialExecutorT // NOLINT(cppcoreguidelines-special-member-functions)
 	: public GBaseExecutorT<processable_type>
 {
 	 ///////////////////////////////////////////////////////////////////////
@@ -1132,7 +1131,7 @@ protected:
 	void compare_(
 		const GBaseExecutorT<processable_type>& cp // the other object
 		, const Gem::Common::expectation& e // the expectation for this object, e.g. equality
-		, const double& limit // the limit for allowed deviations of floating point types
+		, const double& /*limit*/ // the limit for allowed deviations of floating point types
 	) const override {
 		using namespace Gem::Common;
 
@@ -1346,7 +1345,7 @@ private:
  * This class executes a collection of work items in multiple threads
  */
 template<typename processable_type>
-class GMTExecutorT
+class GMTExecutorT // NOLINT(cppcoreguidelines-special-member-functions)
 	: public GBaseExecutorT<processable_type>
 {
 	 ///////////////////////////////////////////////////////////////////////
@@ -1471,7 +1470,7 @@ protected:
 	void compare_(
 		const GBaseExecutorT<processable_type>& cp // the other object
 		, const Gem::Common::expectation& e // the expectation for this object, e.g. equality
-		, const double& limit // the limit for allowed deviations of floating point types
+		, const double& /*limit*/ // the limit for allowed deviations of floating point types
 	) const override {
 		using namespace Gem::Common;
 
@@ -1743,7 +1742,7 @@ private:
  * different consumers may be connected.
  */
 template<typename processable_type>
-class GBrokerExecutorT :
+class GBrokerExecutorT : // NOLINT(cppcoreguidelines-special-member-functions)
 	public GBaseExecutorT<processable_type>
 {
 	 ///////////////////////////////////////////////////////////////////////
@@ -1891,7 +1890,7 @@ public:
 	 void compare_(
 		 const GBaseExecutorT<processable_type>& cp // the other object
 		 , const Gem::Common::expectation& e // the expectation for this object, e.g. equality
-		 , const double& limit // the limit for allowed deviations of floating point types
+		 , const double& /*limit*/ // the limit for allowed deviations of floating point types
 	 ) const override {
 		 using namespace Gem::Common;
 
@@ -2286,7 +2285,7 @@ private:
 	  * @param w_ptr The last returned item
 	  */
 	 void updateTimeout(
-		 std::shared_ptr<processable_type> w_ptr
+		 std::shared_ptr<processable_type> /*w_ptr*/
 	 ) {
 		 //-----------------------------------------------
 		 // We do not check for error conditions (particularly
@@ -2683,22 +2682,19 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-} /* namespace Courtier */
-} /* namespace Gem */
+} /* namespace Gem::Courtier */
 
 /******************************************************************************/
 // Some code for Boost.Serialization
 
 /******************************************************************************/
 // Mark GBaseExecutorT<> as abstract. This is the content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T) // NOLINT
-namespace boost {
-namespace serialization {
+namespace boost::serialization {
 template<typename processable_type>
 struct is_abstract<Gem::Courtier::GBaseExecutorT<processable_type>> : public boost::true_type {};
 template<typename processable_type>
 struct is_abstract<const Gem::Courtier::GBaseExecutorT<processable_type>> : public boost::true_type {};
-}
-}
+} /* namespace boost::serialization */
 
 /******************************************************************************/
 

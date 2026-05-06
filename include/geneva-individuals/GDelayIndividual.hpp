@@ -59,8 +59,7 @@
 #include "geneva/GParameterSet.hpp"
 #include "geneva/GDoubleGaussAdaptor.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 /**
@@ -82,7 +81,7 @@ public:
  * crash with a predefined likelihood. This allows to test the stability of the communication between
  * clients and server.
  */
-class GDelayIndividual: public GParameterSet
+class GDelayIndividual: public GParameterSet // NOLINT(cppcoreguidelines-special-member-functions)
 {
 	 /////////////////////////////////////////////////////////////////////////////
 	 friend class boost::serialization::access;
@@ -169,7 +168,7 @@ private:
 /**
  * A factory for GFMinIndividual objects
  */
-class GDelayIndividualFactory
+class GDelayIndividualFactory // NOLINT(cppcoreguidelines-special-member-functions)
 	: public Gem::Common::GFactoryT<GParameterSet>
 {
 public:
@@ -228,7 +227,6 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GDelayIndividual) // NOLINT

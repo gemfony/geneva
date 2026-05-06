@@ -39,8 +39,7 @@
 // Geneva headers go here
 #include "geneva/GAdaptorT.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 /**
@@ -53,7 +52,7 @@ namespace Geneva {
  * is experimental. Your mileage may vary.
  */
 template<typename num_type, typename fp_type>
-class GNumBiGaussAdaptorT
+class GNumBiGaussAdaptorT // NOLINT(cppcoreguidelines-special-member-functions)
     : public GAdaptorT<num_type, fp_type>
 {
     ///////////////////////////////////////////////////////////////////////
@@ -676,7 +675,7 @@ protected:
     void compare_(
         const GObject &cp
         , const Gem::Common::expectation &e
-        , const fp_type &limit
+        , const fp_type &/*limit*/
     ) const override {
         using namespace Gem::Common;
 
@@ -938,13 +937,11 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 
 /******************************************************************************/
 // The content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T)
-namespace boost {
-namespace serialization {
+namespace boost::serialization {
 template<typename num_type, typename fp_type>
 struct is_abstract<Gem::Geneva::GNumBiGaussAdaptorT<num_type, fp_type>> :
     public boost::true_type
@@ -955,8 +952,6 @@ struct is_abstract<const Gem::Geneva::GNumBiGaussAdaptorT<num_type, fp_type>> :
     public boost::true_type
 {
 };
-}
-}
-
+} /* namespace boost::serialization */
 /******************************************************************************/
 

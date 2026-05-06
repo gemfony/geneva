@@ -45,8 +45,7 @@
 #include "geneva/G_OptimizationAlgorithm_ParameterScan.hpp"
 #include "geneva/G_OptimizationAlgorithm_InitializerT.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -55,7 +54,7 @@ namespace Geneva {
  * This class is a specialization of the GFactoryT<> class for simulated annealing.
  * It will only return objects which perform all evaluation through the broker.
  */
-class GParameterScanFactory
+class GParameterScanFactory // NOLINT(cppcoreguidelines-special-member-functions)
 	: public G_OptimizationAlgorithm_FactoryT<G_OptimizationAlgorithm_Base>
 {
 public:
@@ -110,6 +109,5 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 

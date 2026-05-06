@@ -197,7 +197,7 @@ namespace Gem::Hap
 			}
 
 			if (nProducerThreads_local > m_n_producer_threads.load()) { // start new 01 threads
-				for (std::uint16_t i = m_n_producer_threads.load(); i < nProducerThreads_local; i++) {
+				for (std::uint16_t i = m_n_producer_threads.load(); i < nProducerThreads_local; i++) { // NOLINT(cppcoreguidelines-init-variables)
 					m_producer_threads.create_thread(
 						[this]() { this->producer(this->getSeed()); }
 					);
@@ -228,7 +228,7 @@ namespace Gem::Hap
 
 			if (m_threads_started) { // Someone has started the threads in the meantime. Adjust the number of threads
 				if (nProducerThreads_local > m_n_producer_threads.load()) { // start new 01 threads
-					for (std::uint16_t i = m_n_producer_threads.load(); i < nProducerThreads_local; i++) {
+					for (std::uint16_t i = m_n_producer_threads.load(); i < nProducerThreads_local; i++) { // NOLINT(cppcoreguidelines-init-variables)
 						m_producer_threads.create_thread(
 							[this]() { this->producer(this->getSeed()); }
 						);
@@ -378,4 +378,4 @@ namespace Gem::Hap
 
 	/******************************************************************************/
 
-}
+} /* namespace Gem::Hap */

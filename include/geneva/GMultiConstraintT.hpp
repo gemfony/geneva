@@ -42,8 +42,7 @@
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GenevaHelperFunctionsT.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 // Forward declaration
 class GParameterSet;
@@ -56,8 +55,8 @@ class GParameterSet;
  * to the evaluation.
  */
 template<typename ind_type>
-class GPreEvaluationValidityCheckT :
-    public GObject
+class GPreEvaluationValidityCheckT // NOLINT(cppcoreguidelines-special-member-functions)
+    : public GObject
 {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
@@ -250,7 +249,7 @@ protected:
     void compare_(
         const GObject &cp
         , const Gem::Common::expectation &e
-        , const double &limit
+        , const double &/*limit*/
     ) const override {
         using namespace Gem::Common;
 
@@ -431,7 +430,7 @@ protected:
     void compare_(
         const GObject &cp
         , const Gem::Common::expectation &e
-        , const double &limit
+        , const double &/*limit*/
     ) const override {
         using namespace Gem::Common;
 
@@ -566,7 +565,7 @@ protected:
     double check_(const ind_type *cp) const override {
         // First identify invalid checks
         std::vector<double> invalidChecks;
-        double validityLevel;
+        double validityLevel = 0.;
         typename std::vector<std::shared_ptr<GPreEvaluationValidityCheckT<ind_type>>>::const_iterator cit;
         for (cit = GValidityCheckContainerT<ind_type>::validityChecks_.begin();
              cit != GValidityCheckContainerT<ind_type>::validityChecks_.end(); ++cit) {
@@ -676,7 +675,7 @@ protected:
     void compare_(
         const GObject &cp
         , const Gem::Common::expectation &e
-        , const double &limit
+        , const double &/*limit*/
     ) const override {
         using namespace Gem::Common;
 
@@ -729,13 +728,11 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 
 /******************************************************************************/
 // The content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T)
-namespace boost {
-namespace serialization {
+namespace boost::serialization {
 template<typename ind_type>
 struct is_abstract<Gem::Geneva::GPreEvaluationValidityCheckT<ind_type>> :
     public boost::true_type
@@ -746,11 +743,8 @@ struct is_abstract<const Gem::Geneva::GPreEvaluationValidityCheckT<ind_type>> :
     public boost::true_type
 {
 };
-}
-}
-
-namespace boost {
-namespace serialization {
+} /* namespace boost::serialization */
+namespace boost::serialization {
 template<typename ind_type>
 struct is_abstract<Gem::Geneva::GValidityCheckContainerT<ind_type>> :
     public boost::true_type
@@ -761,8 +755,6 @@ struct is_abstract<const Gem::Geneva::GValidityCheckContainerT<ind_type>> :
     public boost::true_type
 {
 };
-}
-}
-
+} /* namespace boost::serialization */
 /******************************************************************************/
 
