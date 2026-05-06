@@ -33,45 +33,45 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard headers go here
-#include <vector>
-#include <sstream>
-#include <iostream>
-#include <filesystem>
-#include <fstream>
-#include <string>
-#include <cstdlib>
-#include <cmath>
-#include <typeinfo>
-#include <tuple>
-#include <thread>
-#include <mutex>
+#include <algorithm>
 #include <atomic>
 #include <chrono>
+#include <cmath>
+#include <cstdlib>
+#include <filesystem>
+#include <fstream>
 #include <iomanip>
-#include <algorithm>
+#include <iostream>
+#include <mutex>
+#include <sstream>
+#include <string>
+#include <thread>
+#include <tuple>
+#include <typeinfo>
+#include <vector>
 
 // Boost headers go here
 #include <boost/algorithm/string.hpp>
-#include <boost/tokenizer.hpp>
-#include <boost/property_tree/ptree.hpp>
-#include <boost/property_tree/json_parser.hpp>
-#include <boost/spirit/include/qi_operator.hpp>
-#include <boost/spirit/include/qi_char.hpp>
-#include <boost/spirit/include/qi_string.hpp>
-#include <boost/spirit/include/qi_numeric.hpp>
-#include <boost/spirit/include/qi_auxiliary.hpp>
-#include <boost/spirit/include/qi_nonterminal.hpp>
-#include <boost/spirit/include/qi_action.hpp>
-#include <boost/fusion/include/tuple.hpp>
-#include <boost/fusion/include/boost_tuple.hpp>
 #include <boost/fusion/adapted/std_tuple.hpp> // Compare http://stackoverflow.com/questions/18158376/getting-boostspiritqi-to-use-stl-containers
+#include <boost/fusion/include/boost_tuple.hpp>
+#include <boost/fusion/include/tuple.hpp>
 #include <boost/predef.h>
+#include <boost/property_tree/json_parser.hpp>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/spirit/include/qi_action.hpp>
+#include <boost/spirit/include/qi_auxiliary.hpp>
+#include <boost/spirit/include/qi_char.hpp>
+#include <boost/spirit/include/qi_nonterminal.hpp>
+#include <boost/spirit/include/qi_numeric.hpp>
+#include <boost/spirit/include/qi_operator.hpp>
+#include <boost/spirit/include/qi_string.hpp>
+#include <boost/tokenizer.hpp>
 
 // Geneva headers go here
 #include "common/GCommonEnums.hpp"
+#include "common/GErrorStreamer.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
-#include "common/GErrorStreamer.hpp"
 
 namespace Gem::Common {
 
@@ -79,18 +79,15 @@ namespace Gem::Common {
 /** @brief Creates a file in a given path, optionally with content */
 G_API_COMMON
 std::filesystem::file_time_type touch_time(
-    std::filesystem::path const& path
-    , std::string const& content = ""
-    , bool remove_if_not_present = false
+    std::filesystem::path const &path,
+    std::string const &content = "",
+    bool remove_if_not_present = false
 );
 
 /******************************************************************************/
 /** @brief Reads a json-document from a std::filesystem::path. This is a helper-function */
 G_API_COMMON
-void read_json(
-	std::filesystem::path const& path
-	, boost::property_tree::ptree& pt
-);
+void read_json(std::filesystem::path const &path, boost::property_tree::ptree &pt);
 
 /******************************************************************************/
 /** @brief Determines a suitable number of threads for the current architecture */
@@ -111,10 +108,10 @@ std::vector<std::string> loadTextLinesFromFile(std::filesystem::path const &);
 /** @brief This function executes an external command on the operating system */
 G_API_COMMON
 int runExternalCommand(
-	std::filesystem::path const &
-	, std::vector<std::string> const &
-	, std::filesystem::path const &
-	, std::string &
+    std::filesystem::path const &,
+    std::vector<std::string> const &,
+    std::filesystem::path const &,
+    std::string &
 );
 
 /******************************************************************************/
@@ -145,7 +142,7 @@ std::vector<std::tuple<unsigned int, unsigned int>> stringToUIntTupleVec(std::st
 /******************************************************************************/
 /** @brief Translates a string of the type "00:10:30" into a std::chrono::duration<double> */
 G_API_COMMON
-std::chrono::duration<double> duration_from_string(std::string const&);
+std::chrono::duration<double> duration_from_string(std::string const &);
 
 /******************************************************************************/
 /** @brief Converts the current time to a string */
@@ -160,17 +157,19 @@ std::string getMSSince1970();
 /******************************************************************************/
 /** @brief Converts a std::chrono::high_resolution_clock::time_point into an arithmetic number */
 G_API_COMMON
-std::chrono::milliseconds::rep time_point_to_milliseconds(std::chrono::high_resolution_clock::time_point const&);
+std::chrono::milliseconds::rep
+time_point_to_milliseconds(std::chrono::high_resolution_clock::time_point const &);
 
 /******************************************************************************/
 /** @brief Converts an arithmetic number into  a std::chrono::high_resolution_clock::time_point */
 G_API_COMMON
-std::chrono::high_resolution_clock::time_point milliseconds_to_time_point(std::chrono::milliseconds::rep const&);
+std::chrono::high_resolution_clock::time_point
+milliseconds_to_time_point(std::chrono::milliseconds::rep const &);
 
 /******************************************************************************/
 /** @brief Raise an exception if a given define wasn't set */
 G_API_COMMON
-void condnotset(std::string const&, std::string const&);
+void condnotset(std::string const &, std::string const &);
 
 /******************************************************************************/
 

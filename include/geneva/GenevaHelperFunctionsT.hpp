@@ -33,17 +33,17 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard headers go here
-#include <vector>
 #include <sstream>
 #include <type_traits>
+#include <vector>
 
 // Boost headers go here
 
 // Our own headers go here
 #include "common/GExceptions.hpp"
-#include "geneva/GOptimizationEnums.hpp"
-#include "geneva/GObject.hpp"
 #include "geneva/GAdaptorT.hpp"
+#include "geneva/GObject.hpp"
+#include "geneva/GOptimizationEnums.hpp"
 
 namespace Gem::Geneva {
 
@@ -56,23 +56,25 @@ namespace Gem::Geneva {
  */
 template <typename T>
 std::shared_ptr<GAdaptorT<T>> getDefaultAdaptor() {
-	throw geneva_exception(
-		g_error_streamer(DO_LOG, time_and_place)
-			<< "In getDefaultAdaptor():" << std::endl
-			<< "Function called with invalid type." << std::endl
-	);
+    throw geneva_exception(
+        g_error_streamer(DO_LOG, time_and_place)
+        << "In getDefaultAdaptor():" << std::endl
+        << "Function called with invalid type." << std::endl
+    );
 
-	// Make the compiler happy
-	return std::shared_ptr<GAdaptorT<T>>();
+    // Make the compiler happy
+    return std::shared_ptr<GAdaptorT<T>>();
 }
 
 // Specializations for double, std::int32_t and bool
 /******************************************************************************/
-template <> G_API_GENEVA std::shared_ptr<GAdaptorT<double>> getDefaultAdaptor<double>();
-template <> G_API_GENEVA std::shared_ptr<GAdaptorT<std::int32_t>> getDefaultAdaptor<std::int32_t>();
-template <> G_API_GENEVA std::shared_ptr<GAdaptorT<bool>> getDefaultAdaptor<bool>();
+template <>
+G_API_GENEVA std::shared_ptr<GAdaptorT<double>> getDefaultAdaptor<double>();
+template <>
+G_API_GENEVA std::shared_ptr<GAdaptorT<std::int32_t>> getDefaultAdaptor<std::int32_t>();
+template <>
+G_API_GENEVA std::shared_ptr<GAdaptorT<bool>> getDefaultAdaptor<bool>();
 
 /******************************************************************************/
 
 } /* namespace Gem::Geneva */
-

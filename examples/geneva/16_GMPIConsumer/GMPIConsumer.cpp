@@ -63,19 +63,19 @@
  */
 
 // Standard header files go here
-#include <iostream>
-#include <cmath>
-#include <sstream>
 #include <chrono>
+#include <cmath>
+#include <iostream>
+#include <sstream>
 
 // Boost header files go here
 #include <boost/lexical_cast.hpp>
 
 // Geneva header files go here
-#include "courtier/GMPIConsumerT.hpp"
 #include "common/GParserBuilder.hpp"
-#include "geneva/GenevaInitializer.hpp"
+#include "courtier/GMPIConsumerT.hpp"
 #include "geneva/G_OptimizationAlgorithm_EvolutionaryAlgorithm.hpp"
+#include "geneva/GenevaInitializer.hpp"
 
 // The individual that should be optimized
 #include "geneva-individuals/GFunctionIndividual.hpp"
@@ -93,7 +93,8 @@ namespace po = boost::program_options;
 const std::uint16_t DEFAULTNPRODUCERTHREADS = 10;
 // number of threads in thread-pool of the MPI server that are used to handle connections with workers
 const std::size_t DEFAULTPOPULATIONSIZE06 = 100;
-const std::size_t DEFAULTNPARENTS = 5; // Allow to explore the parameter space from many starting points
+const std::size_t DEFAULTNPARENTS =
+    5; // Allow to explore the parameter space from many starting points
 const std::uint32_t DEFAULTMAXITERATIONS = 200;
 const long DEFAULTMAXMINUTES = 10;
 const std::uint32_t DEFAULTREPORTITERATION = 1;
@@ -106,55 +107,89 @@ const bool DEFAULTLOGTOFILE = false;
  * Parses the command line
  */
 bool parseCommandLine(
-        int argc,
-        char **argv,
-        std::uint16_t &nProducerThreads,
-        std::size_t &populationSize,
-        std::size_t &nParents,
-        std::uint32_t &maxIterations,
-        long &maxMinutes,
-        std::uint32_t &reportIteration,
-        duplicationScheme &rScheme,
-        sortingMode &smode,
-        bool &logToFile) {
+    int argc,
+    char **argv,
+    std::uint16_t &nProducerThreads,
+    std::size_t &populationSize,
+    std::size_t &nParents,
+    std::uint32_t &maxIterations,
+    long &maxMinutes,
+    std::uint32_t &reportIteration,
+    duplicationScheme &rScheme,
+    sortingMode &smode,
+    bool &logToFile
+) {
     // Create the parser builder
     Gem::Common::GParserBuilder gpb;
 
     gpb.registerCLParameter<std::uint16_t>(
-            "nProducerThreads", nProducerThreads, DEFAULTNPRODUCERTHREADS,
-            "The amount of random number producer threads");
+        "nProducerThreads",
+        nProducerThreads,
+        DEFAULTNPRODUCERTHREADS,
+        "The amount of random number producer threads"
+    );
 
     gpb.registerCLParameter<std::size_t>(
-            "populationSize", populationSize, DEFAULTPOPULATIONSIZE06, "The desired size of the population");
+        "populationSize",
+        populationSize,
+        DEFAULTPOPULATIONSIZE06,
+        "The desired size of the population"
+    );
 
     gpb.registerCLParameter<std::size_t>(
-            "nParents", nParents, DEFAULTNPARENTS, "The number of parents in the population");
+        "nParents",
+        nParents,
+        DEFAULTNPARENTS,
+        "The number of parents in the population"
+    );
 
     gpb.registerCLParameter<std::uint32_t>(
-            "maxIterations", maxIterations, DEFAULTMAXITERATIONS, "Maximum number of iterations in the optimization");
+        "maxIterations",
+        maxIterations,
+        DEFAULTMAXITERATIONS,
+        "Maximum number of iterations in the optimization"
+    );
 
     gpb.registerCLParameter<long>(
-            "maxMinutes", maxMinutes, DEFAULTMAXMINUTES,
-            "The maximum number of minutes the optimization of the population should run");
+        "maxMinutes",
+        maxMinutes,
+        DEFAULTMAXMINUTES,
+        "The maximum number of minutes the optimization of the population should run"
+    );
 
     gpb.registerCLParameter<std::uint32_t>(
-            "reportIteration", reportIteration, DEFAULTREPORTITERATION,
-            "The number of iterations after which information should be emitted in the population");
+        "reportIteration",
+        reportIteration,
+        DEFAULTREPORTITERATION,
+        "The number of iterations after which information should be emitted in the population"
+    );
 
     gpb.registerCLParameter<duplicationScheme>(
-            "rScheme", rScheme, DEFAULTRSCHEME, "The recombination scheme of the evolutionary algorithm");
+        "rScheme",
+        rScheme,
+        DEFAULTRSCHEME,
+        "The recombination scheme of the evolutionary algorithm"
+    );
 
     gpb.registerCLParameter<sortingMode>(
-            "smode", smode, DEFAULTEAAPPSORTINGMODE,
-            "Determines whether sorting is done in MUPLUSNU_SINGLEEVAL (0), MUCOMMANU_SINGLEEVAL (1) or MUNU1PRETAIN (2) mode");
+        "smode",
+        smode,
+        DEFAULTEAAPPSORTINGMODE,
+        "Determines whether sorting is done in MUPLUSNU_SINGLEEVAL (0), MUCOMMANU_SINGLEEVAL (1) "
+        "or MUNU1PRETAIN (2) mode"
+    );
 
     gpb.registerCLParameter<bool>(
-            "logToFile", logToFile, DEFAULTLOGTOFILE,
-            "Boolean flag to indicate whether to write log messages to a file rather than print them to console");
+        "logToFile",
+        logToFile,
+        DEFAULTLOGTOFILE,
+        "Boolean flag to indicate whether to write log messages to a file rather than print them "
+        "to console"
+    );
 
     // Parse the command line and leave if the help flag was given. The parser
     // will emit an appropriate help message by itself
-    if (Gem::Common::GCL_HELP_REQUESTED == gpb.parseCommandLine(argc, argv, true /*verbose*/)) {
+    if(Gem::Common::GCL_HELP_REQUESTED == gpb.parseCommandLine(argc, argv, true /*verbose*/)) {
         return false; // Do not continue
     }
 
@@ -183,22 +218,23 @@ int main(int argc, char **argv) {
     /****************************************************************************/
     // Retrieve all necessary configuration data from the command line
 
-    if (!parseCommandLine(
-            argc,
-            argv,
-            nProducerThreads,
-            populationSize,
-            nParents,
-            maxIterations,
-            maxMinutes,
-            reportIteration,
-            rScheme,
-            smode,
-            logToFile)) {
+    if(!parseCommandLine(
+           argc,
+           argv,
+           nProducerThreads,
+           populationSize,
+           nParents,
+           maxIterations,
+           maxMinutes,
+           reportIteration,
+           rScheme,
+           smode,
+           logToFile
+       )) {
         exit(1);
     }
 
-    if (logToFile) {
+    if(logToFile) {
         // writes log messages to a file rather than to std out
         glogger.addLogTarget(std::make_shared<GFileLogger>("GMPIConsumer.cpp.log"));
     }
@@ -208,7 +244,8 @@ int main(int argc, char **argv) {
     GRANDOMFACTORY->setNProducerThreads(nProducerThreads);
 
     // Instantiate the MPI consumer.
-    auto consumer_ptr = std::make_shared<GMPIConsumerT<GParameterSet>>(/* optional configuration */);
+    auto consumer_ptr =
+        std::make_shared<GMPIConsumerT<GParameterSet>>(/* optional configuration */);
     // initialize MPI and figure out position in the cluster
     consumer_ptr->setPositionInCluster();
     // optionally synchronize processes. Makes only sense if some of the procs are doing very long init work
@@ -219,7 +256,7 @@ int main(int argc, char **argv) {
 
     /****************************************************************************/
     // If this is supposed to be a client start an MPI consumer client
-    if (consumer_ptr->isWorkerNode()) {
+    if(consumer_ptr->isWorkerNode()) {
         consumer_ptr->run();
 
         return 0;
@@ -238,7 +275,7 @@ int main(int argc, char **argv) {
 
     // Create the first set of parent individuals. Initialization of parameters is done randomly.
     std::vector<std::shared_ptr<GFunctionIndividual>> parentIndividuals;
-    for (std::size_t p = 0; p < nParents; p++) {
+    for(std::size_t p = 0; p < nParents; p++) {
         parentIndividuals.push_back(gfi.get_as<GFunctionIndividual>());
     }
 
@@ -256,13 +293,12 @@ int main(int argc, char **argv) {
     pop_ptr->setSortingScheme(smode);
 
     // Add individuals to the population.
-    for (const auto &i: parentIndividuals) {
+    for(const auto &i : parentIndividuals) {
         pop_ptr->push_back(i);
     }
 
     // set executor mode in the producer/optimization algorithm
-    pop_ptr->registerExecutor(execMode::BROKER,
-                              "./config/GBrokerExecutor.json");
+    pop_ptr->registerExecutor(execMode::BROKER, "./config/GBrokerExecutor.json");
 
     /****************************************************************************/
     // Perform the actual optimization
@@ -274,9 +310,7 @@ int main(int argc, char **argv) {
     // Here you can do something with the best individual ("p") found.
     // We simply print its content here, by means of an operator<< implemented
     // in the GFunctionIndividual code.
-    std::cout
-            << "Best result found:" << std::endl
-            << p << std::endl;
+    std::cout << "Best result found:" << std::endl << p << std::endl;
 
     return 0;
 }

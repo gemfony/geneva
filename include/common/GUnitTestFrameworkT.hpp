@@ -27,7 +27,6 @@
  *
  ********************************************************************************/
 
-
 /**
  * This file holds function templates that should be specialized for each Geneva class
  * in order to facilitate unit tests.
@@ -44,9 +43,9 @@
 // Boost headers go here
 
 // Geneva headers go here
-#include "common/GLogger.hpp"
-#include "common/GExceptions.hpp"
 #include "common/GErrorStreamer.hpp"
+#include "common/GExceptions.hpp"
+#include "common/GLogger.hpp"
 
 /******************************************************************************/
 /**
@@ -55,24 +54,26 @@
  *
  * @return A std::shared_ptr to a newly created T object
  */
-template<typename T>
-std::shared_ptr <T> TFactory_GUnitTests() {
-	std::shared_ptr <T> p;
+template <typename T>
+std::shared_ptr<T> TFactory_GUnitTests() {
+    std::shared_ptr<T> p;
 
-	try {
-		p = std::shared_ptr<T>(new T());
-	} catch (const geneva_exception &g) {
-		// Re-throw
-		throw g;
-	} catch (...) {
-		throw geneva_exception(
-			g_error_streamer(DO_LOG, time_and_place)
-				<< "In std::shared_ptr<T> TFactory_GUnitTests(): Error!" << std::endl
-				<< "Caught unknown exception" << std::endl
-		);
-	}
+    try {
+        p = std::shared_ptr<T>(new T());
+    }
+    catch(const geneva_exception &g) {
+        // Re-throw
+        throw g;
+    }
+    catch(...) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, time_and_place)
+            << "In std::shared_ptr<T> TFactory_GUnitTests(): Error!" << std::endl
+            << "Caught unknown exception" << std::endl
+        );
+    }
 
-	return p;
+    return p;
 }
 
 /******************************************************************************/

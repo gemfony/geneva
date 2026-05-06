@@ -37,10 +37,10 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard header files go here
-#include <string>
-#include <vector>
 #include <chrono>
 #include <filesystem>
+#include <string>
+#include <vector>
 
 // Boost header files go here
 
@@ -51,7 +51,7 @@
 namespace Gem {
 namespace Tests {
 
-const std::size_t DEFNOPTBENCHTESTS=10;
+const std::size_t DEFNOPTBENCHTESTS = 10;
 
 /*********************************************************************************/
 /**
@@ -59,108 +59,107 @@ const std::size_t DEFNOPTBENCHTESTS=10;
  */
 class GOptimizationBenchmarkConfig {
 public:
-	/*****************************************************************************/
-	/**
+    /*****************************************************************************/
+    /**
 	 * The default constructor
 	 *
 	 * @param configFile The name of a configuration file
 	 * @param resultFile The name of a file to which results should be written
 	 */
-	explicit GOptimizationBenchmarkConfig(std::filesystem::path const & configFile)
-		: nTests_(DEFNOPTBENCHTESTS)
-		, parDim_(0)
-		, resultFile_("result.C")
-	{
-		using namespace Gem::Common;
+    explicit GOptimizationBenchmarkConfig(std::filesystem::path const &configFile)
+      : nTests_(DEFNOPTBENCHTESTS)
+      , parDim_(0)
+      , resultFile_("result.C") {
+        using namespace Gem::Common;
 
-		gpb_.registerFileParameter(
-			"nTests"
-			, nTests_
-			, nTests_
-			, VAR_IS_ESSENTIAL
-			, "The number of tests to be performed for each dimension"
-		);
+        gpb_.registerFileParameter(
+            "nTests",
+            nTests_,
+            nTests_,
+            VAR_IS_ESSENTIAL,
+            "The number of tests to be performed for each dimension"
+        );
 
-		// Set up a vector of default values
-		std::vector<std::uint32_t> def_pardim;
+        // Set up a vector of default values
+        std::vector<std::uint32_t> def_pardim;
 
-		def_pardim.push_back(2);
-		def_pardim.push_back(4);
-		def_pardim.push_back(8);
-		def_pardim.push_back(16);
-		def_pardim.push_back(32);
-		def_pardim.push_back(64);
-		def_pardim.push_back(128);
-		/* def_pardim.push_back(256);
+        def_pardim.push_back(2);
+        def_pardim.push_back(4);
+        def_pardim.push_back(8);
+        def_pardim.push_back(16);
+        def_pardim.push_back(32);
+        def_pardim.push_back(64);
+        def_pardim.push_back(128);
+        /* def_pardim.push_back(256);
 		def_pardim.push_back(512);
 		def_pardim.push_back(1024);
 		def_pardim.push_back(2048);
 		def_pardim.push_back(4096); */
 
-		gpb_.registerFileParameter(
-			"dimension"
-			, parDim_
-			, def_pardim
-			, VAR_IS_ESSENTIAL
-			, "Dimensions of the parameter space to be tested"
-		);
+        gpb_.registerFileParameter(
+            "dimension",
+            parDim_,
+            def_pardim,
+            VAR_IS_ESSENTIAL,
+            "Dimensions of the parameter space to be tested"
+        );
 
-		gpb_.registerFileParameter(
-			"resultFile"
-			, resultFile_
-			, resultFile_
-			, VAR_IS_ESSENTIAL
-			, "The name of a file to which results of the;benchmark should be written"
-		);
+        gpb_.registerFileParameter(
+            "resultFile",
+            resultFile_,
+            resultFile_,
+            VAR_IS_ESSENTIAL,
+            "The name of a file to which results of the;benchmark should be written"
+        );
 
-		// Read in the configuration file
-		gpb_.parseConfigFile(configFile);
-	}
+        // Read in the configuration file
+        gpb_.parseConfigFile(configFile);
+    }
 
-	/*****************************************************************************/
-	/**
+    /*****************************************************************************/
+    /**
 	 * Retrieval of the name of the result file
 	 *
 	 * @return The name of the result file
 	 */
-	const std::string& getResultFileName() const {
-		return resultFile_;
-	}
+    const std::string &getResultFileName() const {
+        return resultFile_;
+    }
 
-	/*****************************************************************************/
-	/**
+    /*****************************************************************************/
+    /**
 	 * Retrieval of the vector holding the test dimensions
 	 *
 	 * @return A vector holding the parameter space dimensions to be tested
 	 */
-	const std::vector<std::uint32_t>& getParDim() const {
-		return parDim_;
-	}
+    const std::vector<std::uint32_t> &getParDim() const {
+        return parDim_;
+    }
 
-	/*****************************************************************************/
-	/**
+    /*****************************************************************************/
+    /**
 	 * Retrieve the number of tests to be performed for each dimension
 	 *
 	 * @return The number of tests to be performed for each dimension
 	 */
-	std::size_t getNTests() const {
-		return nTests_;
-	}
+    std::size_t getNTests() const {
+        return nTests_;
+    }
 
 private:
-	/*****************************************************************************/
+    /*****************************************************************************/
 
-	GOptimizationBenchmarkConfig() = delete; ///< Default constructor: Intentionally private and undefined
+    GOptimizationBenchmarkConfig() =
+        delete; ///< Default constructor: Intentionally private and undefined
 
-	Gem::Common::GParserBuilder gpb_; ///< Handles the actual parsing
+    Gem::Common::GParserBuilder gpb_; ///< Handles the actual parsing
 
-	std::size_t nTests_; ///< The number of tests to be performed for each dimension
-	std::vector<std::uint32_t> parDim_;
-	std::string resultFile_; ///< The name of a file to which results should be written
+    std::size_t nTests_; ///< The number of tests to be performed for each dimension
+    std::vector<std::uint32_t> parDim_;
+    std::string resultFile_; ///< The name of a file to which results should be written
 };
 
 /*********************************************************************************/
 
 } /* namespace Tests */
 } /* namespace Gem */
-

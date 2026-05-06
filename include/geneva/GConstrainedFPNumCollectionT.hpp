@@ -33,20 +33,20 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard header files go here
-#include <string>
 #include <iostream>
 #include <sstream>
-#include <vector>
+#include <string>
 #include <type_traits>
+#include <vector>
 
 // Boost header files go here
 #include <boost/math/special_functions/next.hpp> // Needed so we can calculate the next representable value smaller than a given upper boundary
 
 // Geneva header files go here
 #include "common/GExceptions.hpp"
+#include "geneva/GConstrainedNumCollectionT.hpp"
 #include "geneva/GDoubleGaussAdaptor.hpp"
 #include "geneva/GObject.hpp"
-#include "geneva/GConstrainedNumCollectionT.hpp"
 
 namespace Gem::Geneva {
 
@@ -59,28 +59,24 @@ namespace Gem::Geneva {
  * functions. Using the subscript operator or at() function, or the
  * native iterator, will give you the "raw" data only.
  */
-template<typename fp_type>
+template <typename fp_type>
 class GConstrainedFPNumCollectionT // NOLINT(cppcoreguidelines-special-member-functions)
-    : public GConstrainedNumCollectionT<fp_type>
-{
+  : public GConstrainedNumCollectionT<fp_type> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
-    template<typename Archive>
+    template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
-        ar
-        & make_nvp(
-            "GConstrainedNumCollectionT"
-            , boost::serialization::base_object<GConstrainedNumCollectionT<fp_type>>(*this));
+        ar &make_nvp(
+            "GConstrainedNumCollectionT",
+            boost::serialization::base_object<GConstrainedNumCollectionT<fp_type>>(*this)
+        );
     }
     ///////////////////////////////////////////////////////////////////////
 
     // Make sure this class can only be instantiated if fp_type really is a floating point type
-    static_assert(
-        std::is_floating_point<fp_type>::value
-        , "fp_type must be a floating point type"
-    );
+    static_assert(std::is_floating_point<fp_type>::value, "fp_type must be a floating point type");
 
 public:
     /** @brief Specifies the type of parameters stored in this collection */
@@ -96,25 +92,25 @@ public:
      * @param upperBoundary The upper boundary for data members
      */
     GConstrainedFPNumCollectionT(
-        const std::size_t &size
-        , const fp_type &lowerBoundary
-        , const fp_type &upperBoundary
+        const std::size_t &size,
+        const fp_type &lowerBoundary,
+        const fp_type &upperBoundary
     )
-        :
-        GConstrainedNumCollectionT<fp_type>(
-            size
-            , lowerBoundary
-            , boost::math::float_prior<fp_type>(upperBoundary)) // Note that we define the upper boundary as "open"
+      : GConstrainedNumCollectionT<fp_type>(
+            size,
+            lowerBoundary,
+            boost::math::float_prior<fp_type>(upperBoundary)
+        ) // Note that we define the upper boundary as "open"
     {
         Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL> gr;
         typename std::uniform_real_distribution<fp_type> uniform_real_distribution(
-            lowerBoundary
-            , upperBoundary
+            lowerBoundary,
+            upperBoundary
         );
 
         // Assign random values to each position
         typename GConstrainedFPNumCollectionT<fp_type>::iterator it;
-        for (it = this->begin(); it != this->end(); ++it) {
+        for(it = this->begin(); it != this->end(); ++it) {
             *it = uniform_real_distribution(gr);
         }
     }
@@ -133,19 +129,19 @@ public:
      * @param upperBoundary The upper boundary for data members
      */
     GConstrainedFPNumCollectionT(
-        const std::size_t &size
-        , const fp_type &val
-        , const fp_type &lowerBoundary
-        , const fp_type &upperBoundary
+        const std::size_t &size,
+        const fp_type &val,
+        const fp_type &lowerBoundary,
+        const fp_type &upperBoundary
     )
-        :
-        GConstrainedNumCollectionT<fp_type>(
-            size
-            , (val == upperBoundary ? boost::math::float_prior<fp_type>(val) : val)
-            , lowerBoundary
-            , boost::math::float_prior<fp_type>(upperBoundary)
+      : GConstrainedNumCollectionT<fp_type>(
+            size,
+            (val == upperBoundary ? boost::math::float_prior<fp_type>(val) : val),
+            lowerBoundary,
+            boost::math::float_prior<fp_type>(upperBoundary)
         ) // Note that we define the upper boundary as "open"
-    { /* nothing */ }
+    {     /* nothing */
+    }
 
     /***************************************************************************/
     /**
@@ -170,29 +166,37 @@ public:
         fp_type lowerBoundary = GConstrainedNumCollectionT<fp_type>::getLowerBoundary();
         fp_type upperBoundary = GConstrainedNumCollectionT<fp_type>::getUpperBoundary();
 
-        if (val >= lowerBoundary && val < upperBoundary) {
+        if(val >= lowerBoundary && val < upperBoundary) {
             return val;
-        } else {
+        }
+        else {
             // Find out which region the value is in (compare figure transferFunction.pdf
             // that should have been delivered with this software). Note that boost::numeric_cast<>
             // may throw - exceptions must be caught in surrounding functions.
             std::int32_t region = 0;
 
 #ifdef DEBUG
-            region = boost::numeric_cast<std::int32_t>(
-                std::floor(
-                    (fp_type(val) - fp_type(lowerBoundary)) / (fp_type(upperBoundary) - fp_type(lowerBoundary))));
+            region = boost::numeric_cast<std::int32_t>(std::floor(
+                (fp_type(val) - fp_type(lowerBoundary)) /
+                (fp_type(upperBoundary) - fp_type(lowerBoundary))
+            ));
 #else
-            region =	static_cast<std::int32_t>(std::floor((fp_type(val) - fp_type(lowerBoundary)) / (fp_type(upperBoundary) - fp_type(lowerBoundary))));
+            region = static_cast<std::int32_t>(std::floor(
+                (fp_type(val) - fp_type(lowerBoundary)) /
+                (fp_type(upperBoundary) - fp_type(lowerBoundary))
+            ));
 #endif
 
             // Check whether we are in an odd or an even range and calculate the
             // external value accordingly
             fp_type mapping = fp_type(0.);
-            if (region % 2 == 0) { // can it be divided by 2 ? Region 0,2,... or a negative even range
+            if(region % 2 ==
+               0) { // can it be divided by 2 ? Region 0,2,... or a negative even range
                 mapping = val - fp_type(region) * (upperBoundary - lowerBoundary);
-            } else { // Range 1,3,... or a negative odd range
-                mapping = -val + (fp_type(region - 1) * (upperBoundary - lowerBoundary) + 2 * upperBoundary);
+            }
+            else { // Range 1,3,... or a negative odd range
+                mapping = -val + (fp_type(region - 1) * (upperBoundary - lowerBoundary) +
+                                  2 * upperBoundary);
             }
 
             return mapping;
@@ -214,11 +218,11 @@ protected:
      */
     void load_(const GObject *cp) override {
         // Check that we are dealing with a GConstrainedFPNumCollectionT<fp_type>  reference independent of this object and convert the pointer
-        const GConstrainedFPNumCollectionT<fp_type>
-            *p_load = Gem::Common::g_convert_and_compare<GObject, GConstrainedFPNumCollectionT<fp_type>>(
-            cp
-            , this
-        );
+        const GConstrainedFPNumCollectionT<fp_type> *p_load =
+            Gem::Common::g_convert_and_compare<GObject, GConstrainedFPNumCollectionT<fp_type>>(
+                cp,
+                this
+            );
 
         // Load our parent class'es data ...
         GConstrainedNumCollectionT<fp_type>::load_(cp);
@@ -229,9 +233,9 @@ protected:
     /***************************************************************************/
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GConstrainedFPNumCollectionT<fp_type>>(
-        GConstrainedFPNumCollectionT<fp_type> const &
-        , GConstrainedFPNumCollectionT<fp_type> const &
-        , Gem::Common::GToken &
+        GConstrainedFPNumCollectionT<fp_type> const &,
+        GConstrainedFPNumCollectionT<fp_type> const &,
+        Gem::Common::GToken &
     );
 
     /***************************************************************************/
@@ -244,30 +248,23 @@ protected:
      * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
     void compare_(
-        const GObject &cp
-        , const Gem::Common::expectation &e
-        , const double &/*limit*/
+        const GObject &cp,
+        const Gem::Common::expectation &e,
+        const double & /*limit*/
     ) const override {
         using namespace Gem::Common;
 
         // Check that we are dealing with a GConstrainedFPNumCollectionT<fp_type>  reference independent of this object and convert the pointer
-        const GConstrainedFPNumCollectionT<fp_type>
-            *p_load = Gem::Common::g_convert_and_compare<GObject, GConstrainedFPNumCollectionT<fp_type>>(
-            cp
-            , this
-        );
+        const GConstrainedFPNumCollectionT<fp_type> *p_load =
+            Gem::Common::g_convert_and_compare<GObject, GConstrainedFPNumCollectionT<fp_type>>(
+                cp,
+                this
+            );
 
-        GToken token(
-            "GConstrainedNumCollectionT<fp_type>"
-            , e
-        );
+        GToken token("GConstrainedNumCollectionT<fp_type>", e);
 
         // Compare our parent data ...
-        Gem::Common::compare_base_t<GConstrainedNumCollectionT<fp_type>>(
-            *this
-            , *p_load
-            , token
-        );
+        Gem::Common::compare_base_t<GConstrainedNumCollectionT<fp_type>>(*this, *p_load, token);
 
         // ... no local data
 
@@ -279,18 +276,13 @@ protected:
     /**
      * Triggers random initialization of the parameter collection
      */
-    bool randomInit_(
-        const activityMode &
-        , Gem::Hap::GRandomBase &gr
-    ) override {
+    bool randomInit_(const activityMode &, Gem::Hap::GRandomBase &gr) override {
         typename std::uniform_real_distribution<fp_type> uniform_real_distribution(
-            GConstrainedNumCollectionT<fp_type>::getLowerBoundary()
-            , GConstrainedNumCollectionT<fp_type>::getUpperBoundary()
+            GConstrainedNumCollectionT<fp_type>::getLowerBoundary(),
+            GConstrainedNumCollectionT<fp_type>::getUpperBoundary()
         );
-        for (std::size_t pos = 0; pos < this->size(); pos++) {
-            this->setValue(
-                pos
-                , uniform_real_distribution(gr));
+        for(std::size_t pos = 0; pos < this->size(); pos++) {
+            this->setValue(pos, uniform_real_distribution(gr));
         }
 
         return true;
@@ -315,13 +307,15 @@ protected:
         bool result = false;
 
         // Call the parent classes' functions
-        if (GConstrainedNumCollectionT<fp_type>::modify_GUnitTests_()) { result = true; }
+        if(GConstrainedNumCollectionT<fp_type>::modify_GUnitTests_()) {
+            result = true;
+        }
 
         return result;
-#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
         Gem::Common::condnotset("GConstrainedFPNumCollectionT<>::modify_GUnitTests", "GEM_TESTING");
-       return false;
-#endif /* GEM_TESTING */
+        return false;
+#endif                  /* GEM_TESTING */
     }
 
     /***************************************************************************/
@@ -333,8 +327,11 @@ protected:
         // Call the parent classes' functions
         GConstrainedNumCollectionT<fp_type>::specificTestsNoFailureExpected_GUnitTests_();
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-        Gem::Common::condnotset("GConstrainedFPNumCollectionT<>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
-#endif /* GEM_TESTING */
+        Gem::Common::condnotset(
+            "GConstrainedFPNumCollectionT<>::specificTestsNoFailureExpected_GUnitTests",
+            "GEM_TESTING"
+        );
+#endif                  /* GEM_TESTING */
     }
 
     /***************************************************************************/
@@ -346,8 +343,11 @@ protected:
         // Call the parent classes' functions
         GConstrainedNumCollectionT<fp_type>::specificTestsFailuresExpected_GUnitTests_();
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-        Gem::Common::condnotset("GConstrainedFPNumCollectionT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
-#endif /* GEM_TESTING */
+        Gem::Common::condnotset(
+            "GConstrainedFPNumCollectionT<>::specificTestsFailuresExpected_GUnitTests",
+            "GEM_TESTING"
+        );
+#endif                  /* GEM_TESTING */
     }
 
 private:
@@ -370,16 +370,10 @@ private:
 /******************************************************************************/
 // The content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T) // NOLINT
 namespace boost::serialization {
-template<typename fp_type>
-struct is_abstract<Gem::Geneva::GConstrainedFPNumCollectionT<fp_type>> :
-    public boost::true_type
-{
-};
-template<typename fp_type>
-struct is_abstract<const Gem::Geneva::GConstrainedFPNumCollectionT<fp_type>> :
-    public boost::true_type
-{
-};
+template <typename fp_type>
+struct is_abstract<Gem::Geneva::GConstrainedFPNumCollectionT<fp_type>> : public boost::true_type {};
+template <typename fp_type>
+struct is_abstract<const Gem::Geneva::GConstrainedFPNumCollectionT<fp_type>>
+  : public boost::true_type {};
 } /* namespace boost::serialization */
 /******************************************************************************/
-

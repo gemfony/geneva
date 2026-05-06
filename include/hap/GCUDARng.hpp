@@ -37,74 +37,70 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard headers go here
-#include <cstdint>
+#include <algorithm>
 #include <atomic>
 #include <condition_variable>
+#include <cstdint>
 #include <deque>
+#include <iostream>
 #include <limits>
 #include <mutex>
 #include <thread>
 #include <vector>
-#include <algorithm>
-#include <iostream>
 
 // Boost headers go here
 
 // Geneva headers go here
 
-namespace Gem::Hap
-{
-    /**
+namespace Gem::Hap {
+/**
      * GCudaRNG is a class that provides a C++20-conforming uniform random generator interface.
      * Internally, it produces random numbers on a CUDA-enabled GPU and buffers them in a pool on the host.
      * If more numbers are requested than are available in the pool, the generator will block until enough
      * numbers have been produced. If too many numbers accumulate, production will be reduced.
      */
-    class GCudaRNG
-    {
-    public:
-        // Required by the UniformRandomBitGenerator concept
-        using result_type = std::uint32_t;
+class GCudaRNG {
+public:
+    // Required by the UniformRandomBitGenerator concept
+    using result_type = std::uint32_t;
 
-        static constexpr result_type min()
-        {
-            return std::numeric_limits<result_type>::min();
-        }
+    static constexpr result_type min() {
+        return std::numeric_limits<result_type>::min();
+    }
 
-        static constexpr result_type max()
-        {
-            return std::numeric_limits<result_type>::max();
-        }
+    static constexpr result_type max() {
+        return std::numeric_limits<result_type>::max();
+    }
 
-        // @param poolCapacity     Maximum number of cached random values on the host
-        // @param initialBatchSize Initial number of random values generated per GPU batch
-        GCudaRNG(std::size_t poolCapacity = 1'000'000, std::size_t initialBatchSize = 100'000);
+    // @param poolCapacity     Maximum number of cached random values on the host
+    // @param initialBatchSize Initial number of random values generated per GPU batch
+    GCudaRNG(std::size_t poolCapacity = 1'000'000, std::size_t initialBatchSize = 100'000);
 
-        ~GCudaRNG();
+    ~GCudaRNG();
 
-        // Retrieves the next random number (may block if the pool is empty).
-        result_type operator()();
+    // Retrieves the next random number (may block if the pool is empty).
+    result_type operator()();
 
-    private:
-        // The background thread that continuously generates random numbers on the GPU.
-        void productionLoop();
+private:
+    // The background thread that continuously generates random numbers on the GPU.
+    void productionLoop();
 
-        // A friend helper function declared here for clarity; defined in GCudaRNG.cpp.
-        friend void generateGpuRandomNumbers(std::size_t n, std::vector<std::uint32_t>& hostBuffer);
+    // A friend helper function declared here for clarity; defined in GCudaRNG.cpp.
+    friend void generateGpuRandomNumbers(std::size_t n, std::vector<std::uint32_t> &hostBuffer);
 
-    private:
-        // Host pool of random numbers
-        std::deque<result_type> m_pool;
-        const std::size_t m_poolCapacity;
+private:
+    // Host pool of random numbers
+    std::deque<result_type> m_pool;
+    const std::size_t m_poolCapacity;
 
-        // Dynamic batch size
-        std::atomic<std::size_t> m_batchSize;
+    // Dynamic batch size
+    std::atomic<std::size_t> m_batchSize;
 
-        // Synchronization
-        std::mutex m_mutex;
-        std::condition_variable m_cv;
+    // Synchronization
+    std::mutex m_mutex;
+    std::condition_variable m_cv;
 
-        bool m_stop;
-        std::thread m_productionThread;
-    };
+    bool m_stop;
+    std::thread m_productionThread;
+};
 } /* namespace Gem::Hap */

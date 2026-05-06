@@ -46,19 +46,19 @@ using namespace Gem::Geneva;
 /************************************************************************************************/
 
 TEMPLATE_TEST_CASE(
-	"StandardTests_no_failure_expected — GStarterIndividual",
-	"[examples][starter][standard]",
-	GStarterIndividual
+    "StandardTests_no_failure_expected — GStarterIndividual",
+    "[examples][starter][standard]",
+    GStarterIndividual
 ) {
-	Gem::Tests::StandardTests_no_failure_expected<TestType>();
+    Gem::Tests::StandardTests_no_failure_expected<TestType>();
 }
 
 TEMPLATE_TEST_CASE(
-	"StandardTests_failures_expected — GStarterIndividual",
-	"[examples][starter][standard]",
-	GStarterIndividual
+    "StandardTests_failures_expected — GStarterIndividual",
+    "[examples][starter][standard]",
+    GStarterIndividual
 ) {
-	Gem::Tests::StandardTests_failures_expected<TestType>();
+    Gem::Tests::StandardTests_failures_expected<TestType>();
 }
 
 /************************************************************************************************/

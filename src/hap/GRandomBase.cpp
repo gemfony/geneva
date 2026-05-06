@@ -29,36 +29,35 @@
 
 #include "hap/GRandomBase.hpp"
 
-namespace Gem::Hap
-{
+namespace Gem::Hap {
 
-	/******************************************************************************/
-	/**
+/******************************************************************************/
+/**
  * The standard constructor. Note that the seed "val" might just be ignored,
  * if random numbers are obtained from the global factory.
  */
-	GRandomBase::GRandomBase()
-	{ /* nothing */ }
+GRandomBase::GRandomBase() { /* nothing */
+}
 
-	/******************************************************************************/
-	/**
+/******************************************************************************/
+/**
  * The destructor
  */
-	GRandomBase::~GRandomBase()
-	{ /* nothing */ }
+GRandomBase::~GRandomBase() { /* nothing */
+}
 
-	/******************************************************************************/
-	/**
+/******************************************************************************/
+/**
  * Retrieves a raw random item. This function, together with the min() and
  * max() functions make it possible to use GRandomBase as a generator for
  * boost's random distributions.
  *
  * @return A "raw" random number suitable for a C++11 standard random engine
  */
-	GRandomBase::result_type GRandomBase::operator()() {
-		return this->int_random();
-	}
+GRandomBase::result_type GRandomBase::operator()() {
+    return this->int_random();
+}
 
-	/******************************************************************************/
+/******************************************************************************/
 
 } /* namespace Gem::Hap */

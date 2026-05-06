@@ -39,12 +39,12 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard header files go here
+#include <algorithm>
 #include <iostream>
+#include <memory>
 #include <sstream>
 #include <string>
 #include <vector>
-#include <algorithm>
-#include <memory>
 
 // Boost header files go here
 
@@ -55,4 +55,3 @@ using namespace Gem::Common;
 using namespace Gem::Common::Tests;
 
 /********************************************************************************************/
-

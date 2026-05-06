@@ -69,7 +69,7 @@ TEST_CASE("GSerialExecutorT: multiple items are all processed", "[courtier][seri
 
     const std::size_t N = 10;
     std::vector<std::shared_ptr<GSimpleContainer>> items;
-    for (std::size_t i = 0; i < N; ++i) {
+    for(std::size_t i = 0; i < N; ++i) {
         auto item = std::make_shared<GSimpleContainer>(i + 1);
         item->set_processing_status(processingStatus::DO_PROCESS);
         items.emplace_back(std::move(item));
@@ -79,7 +79,7 @@ TEST_CASE("GSerialExecutorT: multiple items are all processed", "[courtier][seri
 
     REQUIRE(status.is_complete);
     REQUIRE_FALSE(status.has_errors);
-    for (auto const& item : items)
+    for(auto const &item : items)
         REQUIRE(item->is_processed());
 }
 
@@ -98,7 +98,7 @@ TEST_CASE("GSerialExecutorT: GRandomNumberContainer items are processed", "[cour
 
     const std::size_t N = 5;
     std::vector<std::shared_ptr<GRandomNumberContainer>> items;
-    for (std::size_t i = 0; i < N; ++i) {
+    for(std::size_t i = 0; i < N; ++i) {
         auto item = std::make_shared<GRandomNumberContainer>(10);
         item->set_processing_status(processingStatus::DO_PROCESS);
         items.emplace_back(std::move(item));
@@ -108,12 +108,14 @@ TEST_CASE("GSerialExecutorT: GRandomNumberContainer items are processed", "[cour
 
     REQUIRE(status.is_complete);
     REQUIRE_FALSE(status.has_errors);
-    for (auto const& item : items)
+    for(auto const &item : items)
         REQUIRE(item->is_processed());
 }
 
-TEST_CASE("GSerialExecutorT: processing status transitions from DO_PROCESS to PROCESSED",
-          "[courtier][serial]") {
+TEST_CASE(
+    "GSerialExecutorT: processing status transitions from DO_PROCESS to PROCESSED",
+    "[courtier][serial]"
+) {
     auto executor = std::make_shared<GSerialExecutorT<GSimpleContainer>>();
 
     auto item = std::make_shared<GSimpleContainer>(1);

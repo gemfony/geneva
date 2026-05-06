@@ -30,16 +30,17 @@
 #include "common/GCommonHelperFunctions.hpp"
 
 namespace {
-	std::mutex g_hwt_read_mutex; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
-	std::atomic<bool> g_hwt_read{false}; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
-	std::atomic<unsigned int> g_nHardwareThreads{Gem::Common::DEFAULTNHARDWARETHREADS}; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
+std::mutex g_hwt_read_mutex;         // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
+std::atomic<bool> g_hwt_read{false}; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
+std::atomic<unsigned int> g_nHardwareThreads{
+    Gem::Common::DEFAULTNHARDWARETHREADS
+}; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
 } /* anonymous namespace */
 
-namespace Gem::Common
-{
+namespace Gem::Common {
 
-	/******************************************************************************/
-	/**
+/******************************************************************************/
+/**
  * This function is meant to determine the access-time of a file in a given path.
  * The file will be created, if it does not exist, filled with an optional text
  * and removed afterwards, if a) the file did not exist before and b) the user
@@ -51,68 +52,64 @@ namespace Gem::Common
  * @param remove_if_not_present Indicates whether the file should be removed after having been touched (default false)
  * @return The time of the last access to the file
  */
-	std::filesystem::file_time_type
-	touch_time(
-		std::filesystem::path const& path
-		, std::string const& content
-		, bool remove_if_not_present
-	) {
-		bool file_already_existed = std::filesystem::exists(path);
-		std::ofstream ofs(path);
-		ofs << content;
-		auto last_write_time = std::filesystem::last_write_time(path);
-		if(remove_if_not_present && not file_already_existed) {
-			std::filesystem::remove(path);
-		}
-		return last_write_time;
-	}
+std::filesystem::file_time_type touch_time(
+    std::filesystem::path const &path,
+    std::string const &content,
+    bool remove_if_not_present
+) {
+    bool file_already_existed = std::filesystem::exists(path);
+    std::ofstream ofs(path);
+    ofs << content;
+    auto last_write_time = std::filesystem::last_write_time(path);
+    if(remove_if_not_present && not file_already_existed) {
+        std::filesystem::remove(path);
+    }
+    return last_write_time;
+}
 
-	/******************************************************************************/
-	/**
+/******************************************************************************/
+/**
  * This function retrieves the number of CPU cores on the system (possibly including "virtual cores" such
  * as in the case of hyperthreading). The function is thread-safe. When called multiple times, it will read the number of
  * hardware threads from a local cache.
  *
  * @return A guess at a suitable number of threads for this architecture
  */
-	unsigned int
-	getNHardwareThreads() {
-		if (not g_hwt_read) {
-			std::unique_lock<std::mutex> lock(g_hwt_read_mutex);
-			if (not g_hwt_read) {
-				g_nHardwareThreads.store(std::thread::hardware_concurrency());
+unsigned int getNHardwareThreads() {
+    if(not g_hwt_read) {
+        std::unique_lock<std::mutex> lock(g_hwt_read_mutex);
+        if(not g_hwt_read) {
+            g_nHardwareThreads.store(std::thread::hardware_concurrency());
 
-				if(g_nHardwareThreads.load() == 0) { // We could not load the number of hardware threads
-					glogger
-						<< "In getNHardwareThreads():"
-						<< "Could not get information regarding suitable number of threads." << std::endl
-						<< "from hardware. Using the default value  = " << DEFAULTNHARDWARETHREADS << " instead." << std::endl
-						<< GWARNING;
+            if(g_nHardwareThreads.load() == 0) { // We could not load the number of hardware threads
+                glogger << "In getNHardwareThreads():"
+                        << "Could not get information regarding suitable number of threads."
+                        << std::endl
+                        << "from hardware. Using the default value  = " << DEFAULTNHARDWARETHREADS
+                        << " instead." << std::endl
+                        << GWARNING;
 
-					g_nHardwareThreads.store(DEFAULTNHARDWARETHREADS);
-				}
+                g_nHardwareThreads.store(DEFAULTNHARDWARETHREADS);
+            }
 
-				g_hwt_read = true;
-			}
-		} // exclusive access ends
+            g_hwt_read = true;
+        }
+    } // exclusive access ends
 
-		return g_nHardwareThreads.load();
-	}
+    return g_nHardwareThreads.load();
+}
 
-	/******************************************************************************/
-	/**
+/******************************************************************************/
+/**
  * Reads a json-document from a std::filesystem::path. This is a helper-function,
  * as boost::property_tree::read_json does not accept a std::filesystem argument.
  */
-	void read_json(
-		std::filesystem::path const& path
-		, boost::property_tree::ptree & pt
-	){
-		boost::property_tree::read_json(path.string(), pt);
-	}
+void read_json(std::filesystem::path const &path, boost::property_tree::ptree &pt) {
+    boost::property_tree::read_json(path.string(), pt);
+}
 
-	/******************************************************************************/
-	/**
+/******************************************************************************/
+/**
  * This function loads textual (ASCII) data from an external file. Note that this function is
  * not currently meant to be used with binary data, although it should work with that as well
  * (at least in theory -- this is untested). There is no check whether the data loaded represents
@@ -121,79 +118,78 @@ namespace Gem::Common
  * @param p The name of the file to be loaded
  * @return The data contained in the file
  */
-	std::string
-	loadTextDataFromFile(std::filesystem::path const &p) {
-		// Check that the file exists
-		if (not std::filesystem::exists(p)) {
-			throw geneva_exception(
-				g_error_streamer(DO_LOG,  time_and_place)
-				<< "In loadTextDataFromFile(): Error!" << std::endl
-				<< "Tried to load data from file " << p.string() << std::endl
-				<< "which does not exist" << std::endl
-			);
-		}
+std::string loadTextDataFromFile(std::filesystem::path const &p) {
+    // Check that the file exists
+    if(not std::filesystem::exists(p)) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, time_and_place)
+            << "In loadTextDataFromFile(): Error!" << std::endl
+            << "Tried to load data from file " << p.string() << std::endl
+            << "which does not exist" << std::endl
+        );
+    }
 
-		std::ifstream sourceFileStream(p);
+    std::ifstream sourceFileStream(p);
 
-		if (not sourceFileStream) {
-			throw geneva_exception(
-				g_error_streamer(DO_LOG,  time_and_place)
-				<< "In loadTextDataFromFile(): Error!" << std::endl
-				<< "Stream from file " << p.string() << std::endl
-				<< "is not valid" << std::endl
-			);
-		}
+    if(not sourceFileStream) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, time_and_place)
+            << "In loadTextDataFromFile(): Error!" << std::endl
+            << "Stream from file " << p.string() << std::endl
+            << "is not valid" << std::endl
+        );
+    }
 
-		std::string sourceFile( // NOLINT(cppcoreguidelines-init-variables)
+    std::string sourceFile( // NOLINT(cppcoreguidelines-init-variables)
 			std::istreambuf_iterator<char>(sourceFileStream), (std::istreambuf_iterator<char>())
 		);
-		return sourceFile;
-	}
+    return sourceFile;
+}
 
-	/******************************************************************************/
-	/**
+/******************************************************************************/
+/**
  * This function loads textual (ASCII) data from an external file line by line and emits
  * a std::vector of strings, each holding a single line
  *
  * @param p The name of the file to be loaded
  * @return The data contained in the file, as a std::vector
  */
-	std::vector<std::string>
-	loadTextLinesFromFile(std::filesystem::path const &p) {
-		// Check that the file exists
-		if (not std::filesystem::exists(p)) {
-			throw geneva_exception(
-				g_error_streamer(DO_LOG,  time_and_place)
-				<< "In loadTextLinesFromFile(): Error!" << std::endl
-				<< "Tried to load data from file " << p.string() << std::endl
-				<< "which does not exist" << std::endl
-			);
-		}
+std::vector<std::string> loadTextLinesFromFile(std::filesystem::path const &p) {
+    // Check that the file exists
+    if(not std::filesystem::exists(p)) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, time_and_place)
+            << "In loadTextLinesFromFile(): Error!" << std::endl
+            << "Tried to load data from file " << p.string() << std::endl
+            << "which does not exist" << std::endl
+        );
+    }
 
-		std::ifstream sourceFileStream(p);
+    std::ifstream sourceFileStream(p);
 
-		if (not sourceFileStream) {
-			throw geneva_exception(
-				g_error_streamer(DO_LOG,  time_and_place)
-				<< "In loadTextLinesFromFile(): Error!" << std::endl
-				<< "Stream from file " << p.string() << std::endl
-				<< "is not valid" << std::endl
-			);
-		}
+    if(not sourceFileStream) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, time_and_place)
+            << "In loadTextLinesFromFile(): Error!" << std::endl
+            << "Stream from file " << p.string() << std::endl
+            << "is not valid" << std::endl
+        );
+    }
 
-		std::string line; // NOLINT(cppcoreguidelines-init-variables)
-		std::vector<std::string> str_result_vec;
+    std::string line; // NOLINT(cppcoreguidelines-init-variables)
+    std::vector<std::string> str_result_vec;
 
-		while (std::getline(sourceFileStream, line)) {
-			// Omit empty lines, store everything else in the vector
-			if(not line.empty()) str_result_vec.push_back(line);
-		}
+    while(std::getline(sourceFileStream, line)) {
+        // Omit empty lines, store everything else in the vector
+        if(not line.empty())
+            str_result_vec.push_back(line);
+    }
 
-		return str_result_vec;
-	}
+    return str_result_vec;
+}
 
-	/******************************************************************************/
-	/**
+/******************************************************************************/
+/**
  * Execute an external command, reacting to possible errors.
  *
  * @param command The command to be executed (possibly including errors)
@@ -202,77 +198,76 @@ namespace Gem::Common
  * @param fullCommand Allows the caller to find out about the full command
  * @return The error code
  */
-	int
-	runExternalCommand(
-		std::filesystem::path const & program
-		, std::vector<std::string> const & arguments
-		, std::filesystem::path const & commandOutputFileName
-		, std::string &fullCommand
-	) {
-		// Convert slashes to backslashes on Windows
-		std::filesystem::path p_program = program;
-		std::string localCommand = (p_program.make_preferred()).string();
+int runExternalCommand(
+    std::filesystem::path const &program,
+    std::vector<std::string> const &arguments,
+    std::filesystem::path const &commandOutputFileName,
+    std::string &fullCommand
+) {
+    // Convert slashes to backslashes on Windows
+    std::filesystem::path p_program = program;
+    std::string localCommand = (p_program.make_preferred()).string();
 
-		// Add command line arguments
-		for (auto const& argument: arguments) {
-			localCommand += (std::string(" ") + argument);
-		}
+    // Add command line arguments
+    for(auto const &argument : arguments) {
+        localCommand += (std::string(" ") + argument);
+    }
 
-		// If requested by the user, we want to send the command to an external file
-		if (not commandOutputFileName.empty()) {
-			std::filesystem::path p_commandOutputFileName = commandOutputFileName;
-			std::string localcommandOutputFileName = (p_commandOutputFileName.make_preferred()).string();
+    // If requested by the user, we want to send the command to an external file
+    if(not commandOutputFileName.empty()) {
+        std::filesystem::path p_commandOutputFileName = commandOutputFileName;
+        std::string localcommandOutputFileName =
+            (p_commandOutputFileName.make_preferred()).string();
 
-			localCommand =
-				std::string("(") + localCommand + std::string(") > ") + localcommandOutputFileName + std::string(" 2>&1");
-		}
+        localCommand = std::string("(") + localCommand + std::string(") > ") +
+                       localcommandOutputFileName + std::string(" 2>&1");
+    }
 
-		// MOstly for external debugging
+    // MOstly for external debugging
 #ifdef GEM_COMMON_PRINT_COMMANDLINE
-	std::cout << "Executing external command \"" << localCommand << "\" ...";
+    std::cout << "Executing external command \"" << localCommand << "\" ...";
 #endif /* GEM_COMMON_PRINT_COMMANDLINE */
 
-		// Assign the full command (mostly needed for external error-evaluation)
-		fullCommand = localCommand;
+    // Assign the full command (mostly needed for external error-evaluation)
+    fullCommand = localCommand;
 
-		// Run the actual command.
-		int errorCode = system(localCommand.c_str());
+    // Run the actual command.
+    int errorCode = system(localCommand.c_str());
 
 #ifdef GEM_COMMON_PRINT_COMMANDLINE
-	std::cout << "... done." << std::endl;
+    std::cout << "... done." << std::endl;
 #endif /* GEM_COMMON_PRINT_COMMANDLINE */
 
-		// The error code will be returned as the function valiue
-		return errorCode;
-	}
+    // The error code will be returned as the function valiue
+    return errorCode;
+}
 
-	/******************************************************************************/
-	/**
+/******************************************************************************/
+/**
  * Returns a string for a given serialization mode
  *
  * @param s The serialization mode which should be translated to a string
  * @return A string for a given serialization mode
  */
-	std::string
-	serializationModeToString(serializationMode s) {
-		switch (s) {
-		case Gem::Common::serializationMode::TEXT:
-			return std::string("text mode");
-			break;
-		case Gem::Common::serializationMode::XML:
-			return std::string("XML mode");
-			break;
-		case Gem::Common::serializationMode::BINARY:
-			return std::string("binary mode");
-			break;
-		}
+std::string serializationModeToString(serializationMode s) {
+    switch(s) {
+    case Gem::Common::serializationMode::TEXT:
+        return std::string("text mode");
+        break;
+    case Gem::Common::serializationMode::XML:
+        return std::string("XML mode");
+        break;
+    case Gem::Common::serializationMode::BINARY:
+        return std::string("binary mode");
+        break;
+    }
 
-		// Make the compiler happy
-		return std::string("");
-	}
+    // Make the compiler happy
+    return std::string("");
+}
 
-	/******************************************************************************/
-	/**
+/******************************************************************************/
+/**
  * Splits a string into a vector of strings, according to a seperator character.
  * Any trailing or leading white spaces are removed from the result strings.
  *
@@ -280,250 +275,237 @@ namespace Gem::Common
  * @param sep The separator character
  * @return A std::vector holding the fragments
  */
-	std::vector<std::string>
-	splitString(std::string const &str, const char *sep) {
-		std::vector<std::string> result;
+std::vector<std::string> splitString(std::string const &str, const char *sep) {
+    std::vector<std::string> result;
 
 #ifdef DEBUG
-		if(1 != std::string(sep).size()) {
-			throw geneva_exception(
-				g_error_streamer(DO_LOG,  time_and_place)
-				<< "In splitString(): Error!" << std::endl
-				<< "Supplied separator \"" << sep << "\" has invalid size " << std::string(sep).size() << std::endl
-			);
-		}
+    if(1 != std::string(sep).size()) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, time_and_place)
+            << "In splitString(): Error!" << std::endl
+            << "Supplied separator \"" << sep << "\" has invalid size " << std::string(sep).size()
+            << std::endl
+        );
+    }
 #endif /* DEBUG */
 
-		using tokenizer = boost::tokenizer<boost::char_separator<char>>;
-		boost::char_separator<char> sep_char(sep);
-		tokenizer oaTokenizer(str, sep_char);
-		for (auto const& token: oaTokenizer) {
-			std::string frag = token;
-			boost::trim(frag); // Remove any leading or trailing white spaces
-			if (frag.empty()) continue; // Ignore empty strings
-			result.push_back(frag);
-		}
+    using tokenizer = boost::tokenizer<boost::char_separator<char>>;
+    boost::char_separator<char> sep_char(sep);
+    tokenizer oaTokenizer(str, sep_char);
+    for(auto const &token : oaTokenizer) {
+        std::string frag = token;
+        boost::trim(frag); // Remove any leading or trailing white spaces
+        if(frag.empty())
+            continue; // Ignore empty strings
+        result.push_back(frag);
+    }
 
-		return result;
-	}
+    return result;
+}
 
-	/******************************************************************************/
-	/**
+/******************************************************************************/
+/**
  * Splits a string into a vector of unsigned int, if possible, or throws
  * an exception. The list must at least contain one entry and must be
  * comma-separated.
  */
-	std::vector<unsigned int>
-	stringToUIntVec(
-		std::string const &raw
-		, char sep
-	) {
-		using namespace boost::spirit;
+std::vector<unsigned int> stringToUIntVec(std::string const &raw, char sep) {
+    using namespace boost::spirit;
 
-		std::vector<unsigned int> result;
+    std::vector<unsigned int> result;
 
-		std::string::const_iterator from = raw.begin();
-		std::string::const_iterator to = raw.end();
+    std::string::const_iterator from = raw.begin();
+    std::string::const_iterator to = raw.end();
 
-		// Do the actual parsing
-		bool success = qi::phrase_parse(
-			from, to, (uint_ % sep), qi::space, result
-		);
+    // Do the actual parsing
+    bool success = qi::phrase_parse(from, to, (uint_ % sep), qi::space, result);
 
-		if (from != to || not success) {
-			std::string rest(from, to);
-			throw geneva_exception(
-				g_error_streamer(DO_LOG,  time_and_place)
-				<< "In stringToUIntVec(const std::string& raw): Error!" << std::endl
-				<< "Parsing failed." << std::endl
-				<< "Stopped at: \": " << rest << "\"" << std::endl
-			);
-		}
+    if(from != to || not success) {
+        std::string rest(from, to);
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, time_and_place)
+            << "In stringToUIntVec(const std::string& raw): Error!" << std::endl
+            << "Parsing failed." << std::endl
+            << "Stopped at: \": " << rest << "\"" << std::endl
+        );
+    }
 
-		return result;
-	}
+    return result;
+}
 
-	/******************************************************************************/
-	/**
+/******************************************************************************/
+/**
  * Splits a string into a vector of double values, if possible, or throws
  * an exception. The list must at least contain one entry and must be
  * comma-separated.
  */
-	std::vector<double>
-	stringToDoubleVec(std::string const & raw) {
-		using namespace boost::spirit;
+std::vector<double> stringToDoubleVec(std::string const &raw) {
+    using namespace boost::spirit;
 
-		std::vector<double> result;
+    std::vector<double> result;
 
-		std::string::const_iterator from = raw.begin();
-		std::string::const_iterator to = raw.end();
+    std::string::const_iterator from = raw.begin();
+    std::string::const_iterator to = raw.end();
 
-		// Do the actual parsing
-		bool success = qi::phrase_parse(
-			from, to, (double_ % ','), qi::space, result
-		);
+    // Do the actual parsing
+    bool success = qi::phrase_parse(from, to, (double_ % ','), qi::space, result);
 
-		if (from != to || not success) {
-			std::string rest(from, to);
-			throw geneva_exception(
-				g_error_streamer(DO_LOG,  time_and_place)
-				<< "In stringToDoubleVec(const std::string& raw): Error!" << std::endl
-				<< "Parsing failed." << std::endl
-				<< "Stopped at: \": " << rest << "\"" << std::endl
-			);
-		}
+    if(from != to || not success) {
+        std::string rest(from, to);
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, time_and_place)
+            << "In stringToDoubleVec(const std::string& raw): Error!" << std::endl
+            << "Parsing failed." << std::endl
+            << "Stopped at: \": " << rest << "\"" << std::endl
+        );
+    }
 
-		return result;
-	}
+    return result;
+}
 
-
-	/******************************************************************************/
-	/**
+/******************************************************************************/
+/**
  * Splits a string into a vector of unsigned int-tuples, if possible, or
  * throws an exception. The string should have the form "(1,2), (3,4)" etc.
  */
-	std::vector<std::tuple<unsigned int, unsigned int>>
-	stringToUIntTupleVec(std::string const & raw) {
-		using namespace boost::spirit;
+std::vector<std::tuple<unsigned int, unsigned int>> stringToUIntTupleVec(std::string const &raw) {
+    using namespace boost::spirit;
 
-		using cit_type = std::string::const_iterator;
-		using res_type = std::vector<std::tuple<unsigned int, unsigned int>>;
+    using cit_type = std::string::const_iterator;
+    using res_type = std::vector<std::tuple<unsigned int, unsigned int>>;
 
-		std::vector<std::tuple<unsigned int, unsigned int>> result;
+    std::vector<std::tuple<unsigned int, unsigned int>> result;
 
-		std::string::const_iterator from = raw.begin();
-		std::string::const_iterator to = raw.end();
+    std::string::const_iterator from = raw.begin();
+    std::string::const_iterator to = raw.end();
 
-		// Do the actual parsing
-		bool success = qi::phrase_parse(
-			from
-			, to
-			, (('(' >> uint_ >> ',' >> uint_ >> ')') % ',')
-			, qi::space
-			, result
-		);
+    // Do the actual parsing
+    bool success = qi::phrase_parse(
+        from,
+        to,
+        (('(' >> uint_ >> ',' >> uint_ >> ')') % ','),
+        qi::space,
+        result
+    );
 
-		if (from != to || not success) {
-			std::string rest(from, to);
-			throw geneva_exception(
-				g_error_streamer(DO_LOG,  time_and_place)
-				<< "In stringToUIntTupleVec(const std::string& raw): Error!" << std::endl
-				<< "Parsing failed." << std::endl
-				<< "Stopped at: \"" << rest << "\"" << std::endl
-			);
-		}
+    if(from != to || not success) {
+        std::string rest(from, to);
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, time_and_place)
+            << "In stringToUIntTupleVec(const std::string& raw): Error!" << std::endl
+            << "Parsing failed." << std::endl
+            << "Stopped at: \"" << rest << "\"" << std::endl
+        );
+    }
 
-		return result;
-	}
+    return result;
+}
 
-	/******************************************************************************/
-	/**
+/******************************************************************************/
+/**
  * Translates a string of the type "00:10:30" into a std::chrono::duration<double>
  * object denoting hours:minutes:seconds
  */
-	std::chrono::duration<double>
-	duration_from_string(std::string const& duration_string) {
-		std::vector<unsigned int> timings = stringToUIntVec(duration_string, ':');
+std::chrono::duration<double> duration_from_string(std::string const &duration_string) {
+    std::vector<unsigned int> timings = stringToUIntVec(duration_string, ':');
 
-		switch(timings.size()) {
-		case 1:
-			return std::chrono::seconds(timings.at(0));
-			break;
+    switch(timings.size()) {
+    case 1:
+        return std::chrono::seconds(timings.at(0));
+        break;
 
-		case 2:
-			return
-			(std::chrono::minutes(timings.at(0))
-				+ std::chrono::seconds(timings.at(1)));
-			break;
+    case 2:
+        return (std::chrono::minutes(timings.at(0)) + std::chrono::seconds(timings.at(1)));
+        break;
 
-		case 3:
-			return
-			(std::chrono::hours(timings.at(0))
-				+ std::chrono::minutes(timings.at(1))
-				+ std::chrono::seconds(timings.at(2)));
-			break;
+    case 3:
+        return (
+            std::chrono::hours(timings.at(0)) + std::chrono::minutes(timings.at(1)) +
+            std::chrono::seconds(timings.at(2))
+        );
+        break;
 
-		default:
-			throw geneva_exception(
-				g_error_streamer(DO_LOG,  time_and_place)
-				<< "In Gem::Common::duration_from_string(\"" << duration_string << "\"): Error!" << std::endl
-				<< "Invalid number of fields present: " << timings.size() << std::endl
-			);
-			break;
-		}
-	}
+    default:
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, time_and_place)
+            << "In Gem::Common::duration_from_string(\"" << duration_string << "\"): Error!"
+            << std::endl
+            << "Invalid number of fields present: " << timings.size() << std::endl
+        );
+        break;
+    }
+}
 
-	/******************************************************************************/
-	/**
+/******************************************************************************/
+/**
  * Converts the current time to a string
  */
-	std::string
-	currentTimeAsString() {
-#if BOOST_COMP_GNUC && (BOOST_COMP_GNUC < BOOST_VERSION_NUMBER(5,0,0))
-			return std::string("Dummy (g++ < 5.0 does not support put_time)");
+std::string currentTimeAsString() {
+#if BOOST_COMP_GNUC && (BOOST_COMP_GNUC < BOOST_VERSION_NUMBER(5, 0, 0))
+    return std::string("Dummy (g++ < 5.0 does not support put_time)");
 #else
-		std::ostringstream oss; // NOLINT(cppcoreguidelines-init-variables)
-		std::time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-		struct tm timeinfo{};
+    std::ostringstream oss; // NOLINT(cppcoreguidelines-init-variables)
+    std::time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    struct tm timeinfo{};
 
-#if defined(_MSC_VER)  && (_MSC_VER >= 1020)
-			localtime_s(&timeinfo, &now);
+#if defined(_MSC_VER) && (_MSC_VER >= 1020)
+    localtime_s(&timeinfo, &now);
 #else // We assume a POSIX-compliand platform
-		localtime_r(&now, &timeinfo);
+    localtime_r(&now, &timeinfo);
 #endif
 
-		oss << std::put_time(&timeinfo, "%c");
-		return oss.str();
+    oss << std::put_time(&timeinfo, "%c");
+    return oss.str();
 #endif
-	}
+}
 
-	/******************************************************************************/
-	/**
+/******************************************************************************/
+/**
  * Returns the number of milliseconds since 1.1.1970
  */
-	std::string
-	getMSSince1970() {
-		std::chrono::time_point<std::chrono::system_clock> p1; // 1970
-		std::chrono::time_point<std::chrono::system_clock> p2 = std::chrono::system_clock::now();
-		std::chrono::milliseconds ms_since_1970 = std::chrono::duration_cast<std::chrono::milliseconds>(p2 - p1);
-		return std::to_string(ms_since_1970.count()); // Cannot use Gem::Common::to_string here as we do not want to include GCommonHelperFunctionsT.hpp
-	}
+std::string getMSSince1970() {
+    std::chrono::time_point<std::chrono::system_clock> p1; // 1970
+    std::chrono::time_point<std::chrono::system_clock> p2 = std::chrono::system_clock::now();
+    std::chrono::milliseconds ms_since_1970 =
+        std::chrono::duration_cast<std::chrono::milliseconds>(p2 - p1);
+    return std::to_string(
+        ms_since_1970.count()
+    ); // Cannot use Gem::Common::to_string here as we do not want to include GCommonHelperFunctionsT.hpp
+}
 
-	/******************************************************************************/
-	/**
+/******************************************************************************/
+/**
  * Converts a std::chrono::high_resolution_clock::time_point into an arithmetic number
  */
-	std::chrono::milliseconds::rep
-	time_point_to_milliseconds(std::chrono::high_resolution_clock::time_point const& val) {
-		return std::chrono::duration_cast<std::chrono::milliseconds>(val.time_since_epoch()).count();
-	}
+std::chrono::milliseconds::rep
+time_point_to_milliseconds(std::chrono::high_resolution_clock::time_point const &val) {
+    return std::chrono::duration_cast<std::chrono::milliseconds>(val.time_since_epoch()).count();
+}
 
-	/******************************************************************************/
-	/**
+/******************************************************************************/
+/**
  * Converts an arithmetic number into a std::chrono::high_resolution_clock::time_point
  */
-	std::chrono::high_resolution_clock::time_point
-	milliseconds_to_time_point(std::chrono::milliseconds::rep const& val) {
-		return std::chrono::high_resolution_clock::time_point(std::chrono::milliseconds(val));
-	}
+std::chrono::high_resolution_clock::time_point
+milliseconds_to_time_point(std::chrono::milliseconds::rep const &val) {
+    return std::chrono::high_resolution_clock::time_point(std::chrono::milliseconds(val));
+}
 
-	/******************************************************************************/
-	/**
+/******************************************************************************/
+/**
  * Raise an exception if a given define wasn't set. "F" stands for "function",
  * "D" for "define".
  */
-	void
-	condnotset(std::string const &F, std::string const &D) {
-		std::ostringstream error; // NOLINT(cppcoreguidelines-init-variables)
-		error
-			<< std::endl
-			<< "================================================" << std::endl
-			<< "In function " << F << " Error!" << std::endl
-			<< "Function was called even though " << D << " hasn't been set." << std::endl
-			<< "================================================" << std::endl;                               \
-		throw(geneva_exception(error.str()));
-	}
+void condnotset(std::string const &F, std::string const &D) {
+    std::ostringstream error; // NOLINT(cppcoreguidelines-init-variables)
+    error << std::endl
+          << "================================================" << std::endl
+          << "In function " << F << " Error!" << std::endl
+          << "Function was called even though " << D << " hasn't been set." << std::endl
+          << "================================================" << std::endl;
+    throw(geneva_exception(error.str()));
+}
 
-	/******************************************************************************/
+/******************************************************************************/
 
 } /* namespace Gem::Common */

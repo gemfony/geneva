@@ -47,19 +47,18 @@ namespace Gem::Geneva {
  * This adaptor increases or decreases a value by 1
  */
 class GInt32FlipAdaptor // NOLINT(cppcoreguidelines-special-member-functions)
-    : public GIntFlipAdaptorT<std::int32_t>
-{
+  : public GIntFlipAdaptorT<std::int32_t> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
-    template<typename Archive>
+    template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar
-        & make_nvp(
-            "GIntFlipAdaptorT_int32"
-            , boost::serialization::base_object<GIntFlipAdaptorT<std::int32_t>>(*this));
+        ar &make_nvp(
+            "GIntFlipAdaptorT_int32",
+            boost::serialization::base_object<GIntFlipAdaptorT<std::int32_t>>(*this)
+        );
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -81,16 +80,18 @@ protected:
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GInt32FlipAdaptor>(
-        GInt32FlipAdaptor const &
-        , GInt32FlipAdaptor const &
-        , Gem::Common::GToken &
+        GInt32FlipAdaptor const &,
+        GInt32FlipAdaptor const &,
+        Gem::Common::GToken &
     );
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
     G_API_GENEVA void compare_(
         const GObject & // the other object
-        , const Gem::Common::expectation & // the expectation for this object, e.g. equality
-        , const double & // the limit for allowed deviations of floating point types
+        ,
+        const Gem::Common::expectation & // the expectation for this object, e.g. equality
+        ,
+        const double & // the limit for allowed deviations of floating point types
     ) const override;
 
     /** @brief Applies modifications to this object. This is needed for testing purposes */

@@ -40,8 +40,8 @@
 #include <mpi.h>
 
 // Geneva header files go here
-#include "geneva/GMPISubClientOptimizer.hpp"
 #include "courtier/GMPIHelperFunctions.hpp"
+#include "geneva/GMPISubClientOptimizer.hpp"
 
 // The individual that should be optimized
 #include "GMPISubClientParaboloidIndividualMultiD.hpp"
@@ -56,7 +56,7 @@ int main(int argc, char **argv) {
 
     //---------------------------------------------------------------------
     // Initialize a client, if requested
-    if (optimizer.clientMode()) {
+    if(optimizer.clientMode()) {
         return optimizer.clientRun();
     }
 
@@ -64,7 +64,9 @@ int main(int argc, char **argv) {
     // Add individuals and algorithms and perform the actual optimization cycle
 
     // Make an individual known to the optimizer
-    std::shared_ptr<GMPISubClientParaboloidIndividualMultiD> p(new GMPISubClientParaboloidIndividualMultiD());
+    std::shared_ptr<GMPISubClientParaboloidIndividualMultiD> p(
+        new GMPISubClientParaboloidIndividualMultiD()
+    );
     optimizer.push_back(p);
 
     // Add an evolutionary algorithm to the Go2 class.
@@ -73,14 +75,14 @@ int main(int argc, char **argv) {
     auto timeStart{std::chrono::system_clock::now()};
 
     // Perform the actual optimization
-    std::shared_ptr<GMPISubClientParaboloidIndividualMultiD>
-            bestIndividual_ptr = optimizer.optimize()->getBestGlobalIndividual<GMPISubClientParaboloidIndividualMultiD>();
+    std::shared_ptr<GMPISubClientParaboloidIndividualMultiD> bestIndividual_ptr =
+        optimizer.optimize()->getBestGlobalIndividual<GMPISubClientParaboloidIndividualMultiD>();
 
     auto timeElapsed{std::chrono::system_clock::now() - timeStart};
 
     std::cout << "Optimization finished in "
-              << std::chrono::duration_cast<std::chrono::milliseconds>(timeElapsed).count() << " milliseconds"
-              << std::endl;
+              << std::chrono::duration_cast<std::chrono::milliseconds>(timeElapsed).count()
+              << " milliseconds" << std::endl;
 
     // Do something with the best result
 }

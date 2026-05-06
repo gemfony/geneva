@@ -34,8 +34,8 @@
 
 // Standard headers go here
 #include <map>
-#include <utility>
 #include <mutex>
+#include <utility>
 
 // Boost headers go here
 
@@ -55,23 +55,23 @@ namespace Gem::Common {
  * to make it thread-safe. It thus assumes occasional accesses and is not
  * suited well for frequent querying.
  */
-template<typename T>
+template <typename T>
 class GGlobalOptionsT { // NOLINT(cppcoreguidelines-special-member-functions)
 public:
-	/***************************************************************************/
-	// Defaulted or deleted constructors, destructor and assignment operators
-	// Rule of five
+    /***************************************************************************/
+    // Defaulted or deleted constructors, destructor and assignment operators
+    // Rule of five
 
-	GGlobalOptionsT() = default;
+    GGlobalOptionsT() = default;
 
-	GGlobalOptionsT(GGlobalOptionsT<T> const&) = delete;
-	GGlobalOptionsT(GGlobalOptionsT<T> &&) = delete;
+    GGlobalOptionsT(GGlobalOptionsT<T> const &) = delete;
+    GGlobalOptionsT(GGlobalOptionsT<T> &&) = delete;
 
-	GGlobalOptionsT<T>& operator=(GGlobalOptionsT<T> const&) = delete;
-	GGlobalOptionsT<T>& operator=(GGlobalOptionsT<T> &&) = delete;
+    GGlobalOptionsT<T> &operator=(GGlobalOptionsT<T> const &) = delete;
+    GGlobalOptionsT<T> &operator=(GGlobalOptionsT<T> &&) = delete;
 
-	/***************************************************************************/
-	/**
+    /***************************************************************************/
+    /**
 	 * Retrieves the value of an option from the map, storing it in
 	 * an argument.
 	 *
@@ -79,202 +79,206 @@ public:
 	 * @param value The value that should be retrieved
 	 * @return A boolean indicating whether retrieval of the option was successful
 	 */
-	bool get(const std::string &key, T &value) {
-		std::unique_lock<std::mutex> guard(m_mutex);
+    bool get(const std::string &key, T &value) {
+        std::unique_lock<std::mutex> guard(m_mutex);
 
-		if (kvp_.find(key) != kvp_.end()) {
-			value = kvp_[key];
-			return true;
-		} else {
-			return false;
-		}
-	}
+        if(kvp_.find(key) != kvp_.end()) {
+            value = kvp_[key];
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
 
-	/***************************************************************************/
-	/**
+    /***************************************************************************/
+    /**
 	 * Retrieves an option from the map, returning it as the function result.
 	 * Note that this function does not check for availability of the option.
 	 */
-	T get(const std::string &key) {
-		std::unique_lock<std::mutex> guard(m_mutex);
-		return kvp_[key];
-	}
+    T get(const std::string &key) {
+        std::unique_lock<std::mutex> guard(m_mutex);
+        return kvp_[key];
+    }
 
-	/***************************************************************************/
-	/**
+    /***************************************************************************/
+    /**
 	 * Sets a new option or changes an existing option
 	 *
 	 * @param key The name of the option
 	 * @param value The value of the option
 	 */
-	void set(const std::string &key, T value) {
-		std::unique_lock<std::mutex> guard(m_mutex);
-		kvp_[key] = value;
-	}
+    void set(const std::string &key, T value) {
+        std::unique_lock<std::mutex> guard(m_mutex);
+        kvp_[key] = value;
+    }
 
-	/***************************************************************************/
-	/**
+    /***************************************************************************/
+    /**
 	 * Sets a new option once or returns false, if the option already exists
 	 *
 	 * @param key The name of the option
     * @param value The value of the option
 	 * @return A boolean indicating whether creation of the new option was successful
 	 */
-	bool setOnce(const std::string &key, T value) {
-		std::unique_lock<std::mutex> guard(m_mutex);
-		if (kvp_.find(key) != kvp_.end()) {
-			return false;
-		}
-		kvp_[key] = value;
-		return true;
-	}
+    bool setOnce(const std::string &key, T value) {
+        std::unique_lock<std::mutex> guard(m_mutex);
+        if(kvp_.find(key) != kvp_.end()) {
+            return false;
+        }
+        kvp_[key] = value;
+        return true;
+    }
 
-	/***************************************************************************/
-	/**
+    /***************************************************************************/
+    /**
 	 * Removes an option from the map, if available
 	 *
 	 * @param key The name of the option that should be removed
 	 * @return A boolean indicating whether the option was indeed available
 	 */
-	bool remove(const std::string & /*key*/) {
-		std::unique_lock<std::mutex> guard(m_mutex);
-		typename std::map<std::string, T>::iterator it = kvp_.end();
-		if (it == kvp_.end()) {
-			return false;
-		} else {
-			kvp_.erase(it);
-			return true;
-		}
-	}
+    bool remove(const std::string & /*key*/) {
+        std::unique_lock<std::mutex> guard(m_mutex);
+        typename std::map<std::string, T>::iterator it = kvp_.end();
+        if(it == kvp_.end()) {
+            return false;
+        }
+        else {
+            kvp_.erase(it);
+            return true;
+        }
+    }
 
-	/************************************************************************/
-	/**
+    /************************************************************************/
+    /**
 	 * Allows to check whether an option with a given name is available
 	 *
 	 * @param key The name of the option that should be checked for existence
 	 * @return A boolean that indicates whether a given option is available
 	 */
-	bool exists(const std::string &key) const {
-		std::unique_lock<std::mutex> guard(m_mutex);
-		return kvp_.find(key) != kvp_.end();
-	}
+    bool exists(const std::string &key) const {
+        std::unique_lock<std::mutex> guard(m_mutex);
+        return kvp_.find(key) != kvp_.end();
+    }
 
-	/************************************************************************/
-	/**
+    /************************************************************************/
+    /**
 	 * Allows to find out the number of registered options
 	 */
-	std::size_t size() const {
-		std::unique_lock<std::mutex> guard(m_mutex);
-		return kvp_.size();
-	}
+    std::size_t size() const {
+        std::unique_lock<std::mutex> guard(m_mutex);
+        return kvp_.size();
+    }
 
-	/************************************************************************/
-	/**
+    /************************************************************************/
+    /**
 	 * Allows to check whether any options are present
 	 */
-	bool empty() const {
-		std::unique_lock<std::mutex> guard(m_mutex);
-		return kvp_.empty();
-	}
+    bool empty() const {
+        std::unique_lock<std::mutex> guard(m_mutex);
+        return kvp_.empty();
+    }
 
-	/************************************************************************/
-	/**
+    /************************************************************************/
+    /**
 	 * Retrieves a full list of all keys
 	 */
-	std::string getKeyDescription() const {
-		std::unique_lock<std::mutex> guard(m_mutex);
-		std::string result; // NOLINT(cppcoreguidelines-init-variables)
-		typename std::map<std::string, T>::const_iterator cit;
-		std::size_t pos = 0;
-		for (cit = kvp_.begin(); cit != kvp_.end(); ++cit) {
-			result += cit->first;
-			if (++pos != kvp_.size()) {
-				result += ", ";
-			}
-		}
-		return result;
-	}
+    std::string getKeyDescription() const {
+        std::unique_lock<std::mutex> guard(m_mutex);
+        std::string result; // NOLINT(cppcoreguidelines-init-variables)
+        typename std::map<std::string, T>::const_iterator cit;
+        std::size_t pos = 0;
+        for(cit = kvp_.begin(); cit != kvp_.end(); ++cit) {
+            result += cit->first;
+            if(++pos != kvp_.size()) {
+                result += ", ";
+            }
+        }
+        return result;
+    }
 
-	/************************************************************************/
-	/**
+    /************************************************************************/
+    /**
 	 * Retrieves a vector of all keys
 	 */
-	void getKeyVector(std::vector<std::string> &keys) const {
-		keys.clear(); // Make sure the vector is empty
-		std::unique_lock<std::mutex> guard(m_mutex);
-		typename std::map<std::string, T>::const_iterator cit;
-		for (cit = kvp_.begin(); cit != kvp_.end(); ++cit) {
-			keys.push_back(cit->first);
-		}
-	}
+    void getKeyVector(std::vector<std::string> &keys) const {
+        keys.clear(); // Make sure the vector is empty
+        std::unique_lock<std::mutex> guard(m_mutex);
+        typename std::map<std::string, T>::const_iterator cit;
+        for(cit = kvp_.begin(); cit != kvp_.end(); ++cit) {
+            keys.push_back(cit->first);
+        }
+    }
 
-	/************************************************************************/
-	/**
+    /************************************************************************/
+    /**
 	 * Retrieves a vector of all content items
 	 */
-	void getContentVector(std::vector<T> content) const {
-		std::unique_lock<std::mutex> guard(m_mutex);
-		content.clear();
-		typename std::map<std::string, T>::const_iterator cit;
-		for (cit = kvp_.begin(); cit != kvp_.end(); ++cit) {
-			content.push_back(cit->second);
-		}
-	}
+    void getContentVector(std::vector<T> content) const {
+        std::unique_lock<std::mutex> guard(m_mutex);
+        content.clear();
+        typename std::map<std::string, T>::const_iterator cit;
+        for(cit = kvp_.begin(); cit != kvp_.end(); ++cit) {
+            content.push_back(cit->second);
+        }
+    }
 
-	/************************************************************************/
-	/**
+    /************************************************************************/
+    /**
 	 * Positions an internal iterator at the beginning of the map
 	 */
-	void rewind() {
-		std::unique_lock<std::mutex> guard(m_mutex);
-		pos = kvp_.begin();
-	}
+    void rewind() {
+        std::unique_lock<std::mutex> guard(m_mutex);
+        pos = kvp_.begin();
+    }
 
-	/************************************************************************/
-	/**
+    /************************************************************************/
+    /**
 	 * Switches to the next position or returns false, if this is not possible
 	 */
-	bool goToNextPosition() {
-		std::unique_lock<std::mutex> guard(m_mutex);
-		if (++pos != kvp_.end()) {
-			return true;
-		} else {
-			return false;
-		}
-	}
+    bool goToNextPosition() {
+        std::unique_lock<std::mutex> guard(m_mutex);
+        if(++pos != kvp_.end()) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
 
-	/************************************************************************/
-	/**
+    /************************************************************************/
+    /**
 	 * Retrieves the item at the current position
 	 */
-	T getCurrentItem() {
-		std::unique_lock<std::mutex> guard(m_mutex);
-		return pos->second;
-	}
+    T getCurrentItem() {
+        std::unique_lock<std::mutex> guard(m_mutex);
+        return pos->second;
+    }
 
-	/************************************************************************/
-	/**
+    /************************************************************************/
+    /**
 	 * Retrieves the next item (thereby incrementing the position iterator)
 	 * or returns false, if the end of the map has been reached. Note that it
 	 * is up to you to rewind the position iterator using the rewind function.
 	 */
-	bool getNextItem(T &item) {
-		std::unique_lock<std::mutex> guard(m_mutex);
-		if (++pos != kvp_.end()) {
-			item = pos->second;
-			return true;
-		} else {
-			return false;
-		}
-	}
+    bool getNextItem(T &item) {
+        std::unique_lock<std::mutex> guard(m_mutex);
+        if(++pos != kvp_.end()) {
+            item = pos->second;
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
 
 private:
-	/************************************************************************/
-	// Holds the actual data
-	std::map<std::string, T> kvp_{};
+    /************************************************************************/
+    // Holds the actual data
+    std::map<std::string, T> kvp_{};
 
-	typename std::map<std::string, T>::iterator pos = kvp_.begin();
-	mutable std::mutex m_mutex; ///< Lock get/set operations
+    typename std::map<std::string, T>::iterator pos = kvp_.begin();
+    mutable std::mutex m_mutex; ///< Lock get/set operations
 };
 
 /******************************************************************************/

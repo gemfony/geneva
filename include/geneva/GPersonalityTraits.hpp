@@ -52,17 +52,15 @@ namespace Gem::Geneva {
  * conjunction with a derived personality.
  */
 class GPersonalityTraits // NOLINT(cppcoreguidelines-special-member-functions)
-    : public GObject
-{
+  : public GObject {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
-    template<typename Archive>
+    template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar
-        & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -83,16 +81,18 @@ protected:
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GPersonalityTraits>(
-        GPersonalityTraits const &
-        , GPersonalityTraits const &
-        , Gem::Common::GToken &
+        GPersonalityTraits const &,
+        GPersonalityTraits const &,
+        Gem::Common::GToken &
     );
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
     G_API_GENEVA void compare_(
         const GObject & // the other object
-        , const Gem::Common::expectation & // the expectation for this object, e.g. equality
-        , const double & // the limit for allowed deviations of floating point types
+        ,
+        const Gem::Common::expectation & // the expectation for this object, e.g. equality
+        ,
+        const double & // the limit for allowed deviations of floating point types
     ) const override;
 
     /** @brief Applies modifications to this object. This is needed for testing purposes */
@@ -117,5 +117,6 @@ private:
 /**
  * @brief Needed for Boost.Serialization
  */
-BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::GPersonalityTraits) // NOLINT/******************************************************************************/
-
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(
+    Gem::Geneva::GPersonalityTraits
+) // NOLINT/******************************************************************************/

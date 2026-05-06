@@ -37,8 +37,8 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard headers go here
-#include <memory>
 #include <functional>
+#include <memory>
 
 // Third party header files go here
 
@@ -46,98 +46,95 @@
 
 // Geneva headers go here
 #include "common/GParserBuilder.hpp"
-#include "geneva/GParameterSet.hpp"
-#include "courtier/GWorkerT.hpp"
 #include "courtier/GStdThreadConsumerT.hpp"
+#include "courtier/GWorkerT.hpp"
+#include "geneva/GParameterSet.hpp"
 
 // Local headers for the image individual and canvas
 #include "GImageIndividual.hpp"
 #include "GImageIndividualEvaluator.hpp"
 
-namespace Gem::Courtier
-{
-    /******************************************************************************/
-    // Some default settings
-    constexpr unsigned int GII_DEF_BS_X{16};
-    constexpr unsigned int GII_DEF_BS_Y{16};
+namespace Gem::Courtier {
+/******************************************************************************/
+// Some default settings
+constexpr unsigned int GII_DEF_BS_X{16};
+constexpr unsigned int GII_DEF_BS_Y{16};
 
-    // 0 means: determine automatically
-    constexpr unsigned int GII_DEF_GS_X{0}; // 64 is a good choice for block.x == 16
-    constexpr unsigned int GII_DEF_GS_Y{0}; // 48 is a good choice for block.y == 16
+// 0 means: determine automatically
+constexpr unsigned int GII_DEF_GS_X{0}; // 64 is a good choice for block.x == 16
+constexpr unsigned int GII_DEF_GS_Y{0}; // 48 is a good choice for block.y == 16
 
-    const std::string GII_DEF_IMAGEFILE{"./pictures/ml.png"};
-    constexpr bool GII_DEF_USEGPU = true;
+const std::string GII_DEF_IMAGEFILE{"./pictures/ml.png"};
+constexpr bool GII_DEF_USEGPU = true;
 
-    constexpr int GII_DEF_IMAGE_WIDTH{1024};
-    constexpr int GII_DEF_IMAGE_HEIGHT{768};
+constexpr int GII_DEF_IMAGE_WIDTH{1024};
+constexpr int GII_DEF_IMAGE_HEIGHT{768};
 
-    /******************************************************************************/
-    /**
+/******************************************************************************/
+/**
      * A GWorkerT-derivative for the GStdThreadConsumerT, targeted at CUDA work.
      */
-    class GImageCUDAWorker final
-        : public GWorkerWithRegisterBrokerFerryT<Geneva::GParameterSet>
-    {
-    public:
-        /** @brief Initialization with the name of a configuration file. */
-        explicit GImageCUDAWorker(const std::string&);
-        /** @brief Copy constructor */
-        GImageCUDAWorker(const GImageCUDAWorker&);
-        /** @brief The destructor */
-        ~GImageCUDAWorker() override = default;
+class GImageCUDAWorker final : public GWorkerWithRegisterBrokerFerryT<Geneva::GParameterSet> {
+public:
+    /** @brief Initialization with the name of a configuration file. */
+    explicit GImageCUDAWorker(const std::string &);
+    /** @brief Copy constructor */
+    GImageCUDAWorker(const GImageCUDAWorker &);
+    /** @brief The destructor */
+    ~GImageCUDAWorker() override = default;
 
-        //------------------------------------------------------------------
-        // Get rid of the default constructor
+    //------------------------------------------------------------------
+    // Get rid of the default constructor
 
-        /** @brief Disabled default constructor */
-        GImageCUDAWorker() = delete;
+    /** @brief Disabled default constructor */
+    GImageCUDAWorker() = delete;
 
-        //------------------------------------------------------------------
-        // Provide access to some key data to eliminate redundancy in
-        // other classes (in particular GImageIndividualEvaluator
+    //------------------------------------------------------------------
+    // Provide access to some key data to eliminate redundancy in
+    // other classes (in particular GImageIndividualEvaluator
 
-        /** @brief Retrieval of the name of the target image */
-        std::string getTargetImageFileName() const;
-        /** @brief Check whether the GPU should be used for calculations */
-        bool useGPU() const;
-        /** @brief Retrieval of the block size (x/y) */
-        std::tuple<int, int> getBlockSize() const;
-        /** @brief  Retrieval of the grid size (x/y) */
-        std::tuple<int, int> getGridSize() const;
+    /** @brief Retrieval of the name of the target image */
+    std::string getTargetImageFileName() const;
+    /** @brief Check whether the GPU should be used for calculations */
+    bool useGPU() const;
+    /** @brief Retrieval of the block size (x/y) */
+    std::tuple<int, int> getBlockSize() const;
+    /** @brief  Retrieval of the grid size (x/y) */
+    std::tuple<int, int> getGridSize() const;
 
-        //------------------------------------------------------------------
+    //------------------------------------------------------------------
 
-    protected:
-        /** @brief Initialization code for processing */
-        void processInit_(std::shared_ptr<Geneva::GParameterSet>) override;
-        /** @brief The actual per-item work is done here */
-        void process_(std::shared_ptr<Geneva::GParameterSet>) override;
-        /** @brief Finalization code after processing */
-        void processFinalize_() override;
-        /** @brief Adds local configuration options to a GParserBuilder object */
-        void addConfigurationOptions_(Gem::Common::GParserBuilder&) override;
+protected:
+    /** @brief Initialization code for processing */
+    void processInit_(std::shared_ptr<Geneva::GParameterSet>) override;
+    /** @brief The actual per-item work is done here */
+    void process_(std::shared_ptr<Geneva::GParameterSet>) override;
+    /** @brief Finalization code after processing */
+    void processFinalize_() override;
+    /** @brief Adds local configuration options to a GParserBuilder object */
+    void addConfigurationOptions_(Gem::Common::GParserBuilder &) override;
 
-    private:
-        /** @brief Creates a deep clone of this object, camouflaged as a GWorker */
-        std::shared_ptr<GWorkerT<Geneva::GParameterSet>> clone_() const override;
+private:
+    /** @brief Creates a deep clone of this object, camouflaged as a GWorker */
+    std::shared_ptr<GWorkerT<Geneva::GParameterSet>> clone_() const override;
 
-        // Our evaluator
-        std::shared_ptr<Geneva::GImageIndividualEvaluator> evaluator_ptr_;
+    // Our evaluator
+    std::shared_ptr<Geneva::GImageIndividualEvaluator> evaluator_ptr_;
 
-        //---------- Data --------------
+    //---------- Data --------------
 
-        Gem::Common::GOneTimeRefParameterT<unsigned int> blockSize_x_{GII_DEF_BS_X};
-        Gem::Common::GOneTimeRefParameterT<unsigned int> blockSize_y_{GII_DEF_BS_Y};
+    Gem::Common::GOneTimeRefParameterT<unsigned int> blockSize_x_{GII_DEF_BS_X};
+    Gem::Common::GOneTimeRefParameterT<unsigned int> blockSize_y_{GII_DEF_BS_Y};
 
-        Gem::Common::GOneTimeRefParameterT<unsigned int> gridSize_x_{GII_DEF_GS_X};
-        Gem::Common::GOneTimeRefParameterT<unsigned int> gridSize_y_{GII_DEF_GS_Y};
+    Gem::Common::GOneTimeRefParameterT<unsigned int> gridSize_x_{GII_DEF_GS_X};
+    Gem::Common::GOneTimeRefParameterT<unsigned int> gridSize_y_{GII_DEF_GS_Y};
 
-        Gem::Common::GOneTimeRefParameterT<std::string> targetImageFileName_{GII_DEF_IMAGEFILE};
-        Gem::Common::GOneTimeRefParameterT<bool> useGPU_{GII_DEF_USEGPU};
+    Gem::Common::GOneTimeRefParameterT<std::string> targetImageFileName_{GII_DEF_IMAGEFILE};
+    Gem::Common::GOneTimeRefParameterT<bool> useGPU_{GII_DEF_USEGPU};
 
-        int width_{GII_DEF_IMAGE_WIDTH}; ///< The width of the target image
-        int height_{GII_DEF_IMAGE_HEIGHT}; ///< The height of the target image
-    };
+    int width_{GII_DEF_IMAGE_WIDTH};   ///< The width of the target image
+    int height_{GII_DEF_IMAGE_HEIGHT}; ///< The height of the target image
+};
 
-    /******************************************************************************/
+/******************************************************************************/
 } /* namespace Gem::Geneva */

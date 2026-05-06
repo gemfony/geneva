@@ -33,9 +33,9 @@
 
 #pragma once
 
-#include <vector>
 #include <memory>
 #include <stdexcept>
+#include <vector>
 
 #include "GBenchmarkBatchEvaluator.cuh"
 #include "geneva-individuals/GFunctionIndividual.hpp"
@@ -63,11 +63,11 @@ namespace Gem::Geneva {
  * @throws std::runtime_error    on CUDA errors (from GBenchmarkCUDAContext::eval).
  */
 inline void batchEvalPopulationGPU(
-    const std::vector<std::shared_ptr<GFunctionIndividual>>& population,
+    const std::vector<std::shared_ptr<GFunctionIndividual>> &population,
     int funcId,
-    GBenchmarkCUDAContext& ctx)
-{
-    if (population.empty()) {
+    GBenchmarkCUDAContext &ctx
+) {
+    if(population.empty()) {
         throw std::invalid_argument("batchEvalPopulationGPU: population must not be empty");
     }
 
@@ -75,24 +75,25 @@ inline void batchEvalPopulationGPU(
     std::vector<double> probe;
     population.front()->streamline(probe);
     const int dim = static_cast<int>(probe.size());
-    const int N   = static_cast<int>(population.size());
+    const int N = static_cast<int>(population.size());
 
     // Fill flat row-major parameter buffer.
     std::vector<double> h_params(static_cast<std::size_t>(N) * dim);
-    for (int i = 0; i < N; ++i) {
+    for(int i = 0; i < N; ++i) {
         std::vector<double> pv;
         population[static_cast<std::size_t>(i)]->streamline(pv);
-        std::copy(pv.begin(), pv.end(),
-                  h_params.begin() + static_cast<std::ptrdiff_t>(i * dim));
+        std::copy(pv.begin(), pv.end(), h_params.begin() + static_cast<std::ptrdiff_t>(i * dim));
     }
 
     std::vector<double> h_results(static_cast<std::size_t>(N));
     ctx.eval(h_params.data(), h_results.data(), N, dim, funcId);
 
     // Write fitness values back into the individuals.
-    for (int i = 0; i < N; ++i) {
+    for(int i = 0; i < N; ++i) {
         population[static_cast<std::size_t>(i)]->setFitness(
-            0, h_results[static_cast<std::size_t>(i)]);
+            0,
+            h_results[static_cast<std::size_t>(i)]
+        );
     }
 }
 
@@ -104,9 +105,9 @@ inline void batchEvalPopulationGPU(
  * prefer the overload that accepts an explicit context to amortise cudaMalloc.
  */
 inline void batchEvalPopulationGPU(
-    const std::vector<std::shared_ptr<GFunctionIndividual>>& population,
-    int funcId)
-{
+    const std::vector<std::shared_ptr<GFunctionIndividual>> &population,
+    int funcId
+) {
     GBenchmarkCUDAContext ctx;
     batchEvalPopulationGPU(population, funcId, ctx);
 }

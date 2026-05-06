@@ -29,90 +29,87 @@
 
 #include "geneva/G_OptimizationAlgorithm_SwarmAlgorithm_Factory.hpp"
 
-namespace Gem::Geneva
-{
+namespace Gem::Geneva {
 
-	/******************************************************************************/
-	/**
+/******************************************************************************/
+/**
  * The default constructor
  */
-	GSwarmAlgorithmFactory::GSwarmAlgorithmFactory()
-		: G_OptimizationAlgorithm_FactoryT<G_OptimizationAlgorithm_Base>(
-			"./config/GSwarmAlgorithm.json")
-	{ /* nothing */ }
+GSwarmAlgorithmFactory::GSwarmAlgorithmFactory()
+  : G_OptimizationAlgorithm_FactoryT<G_OptimizationAlgorithm_Base>(
+        "./config/GSwarmAlgorithm.json"
+    ) { /* nothing */
+}
 
-	/******************************************************************************/
-	/**
+/******************************************************************************/
+/**
  * Initialization with the name of the config file
  */
-	GSwarmAlgorithmFactory::GSwarmAlgorithmFactory(
-		std::filesystem::path const& configFile
-	)
-		: G_OptimizationAlgorithm_FactoryT<G_OptimizationAlgorithm_Base>(configFile)
-	{ /* nothing */ }
+GSwarmAlgorithmFactory::GSwarmAlgorithmFactory(std::filesystem::path const &configFile)
+  : G_OptimizationAlgorithm_FactoryT<G_OptimizationAlgorithm_Base>(configFile) { /* nothing */
+}
 
-	/******************************************************************************/
-	/**
+/******************************************************************************/
+/**
  * A constructor with the ability to switch the parallelization mode and
  * to add a content creator. It initializes a target item as needed.
  */
-	GSwarmAlgorithmFactory::GSwarmAlgorithmFactory(
-		std::filesystem::path const& configFile
-		, std::shared_ptr <Gem::Common::GFactoryT<GParameterSet>> contentCreatorPtr
-	)
-		: G_OptimizationAlgorithm_FactoryT<G_OptimizationAlgorithm_Base>(configFile, contentCreatorPtr)
-	{ /* nothing */ }
+GSwarmAlgorithmFactory::GSwarmAlgorithmFactory(
+    std::filesystem::path const &configFile,
+    std::shared_ptr<Gem::Common::GFactoryT<GParameterSet>> contentCreatorPtr
+)
+  : G_OptimizationAlgorithm_FactoryT<G_OptimizationAlgorithm_Base>(
+        configFile,
+        contentCreatorPtr
+    ) { /* nothing */
+}
 
-	/******************************************************************************/
-	/**
+/******************************************************************************/
+/**
  * Gives access to the mnemonics / nickname describing an algorithm
  */
-	std::string GSwarmAlgorithmFactory::getMnemonic() const {
-		return GSwarmAlgorithm_PersonalityTraits::nickname;
-	}
+std::string GSwarmAlgorithmFactory::getMnemonic() const {
+    return GSwarmAlgorithm_PersonalityTraits::nickname;
+}
 
-	/******************************************************************************/
-	/**
+/******************************************************************************/
+/**
  * Gives access to a clear-text description of the algorithm
  */
-	std::string GSwarmAlgorithmFactory::getAlgorithmName() const {
-		return std::string("Swarm Algorithm");
-	}
+std::string GSwarmAlgorithmFactory::getAlgorithmName() const {
+    return std::string("Swarm Algorithm");
+}
 
-	/******************************************************************************/
-	/**
+/******************************************************************************/
+/**
  * Creates items of this type
  *
  * @return Items of the desired type
  */
-	std::shared_ptr<G_OptimizationAlgorithm_Base> GSwarmAlgorithmFactory::getObject_(
-		Gem::Common::GParserBuilder &gpb
-		, const std::size_t &/*id*/
-	) {
-		std::shared_ptr<GSwarmAlgorithm> target(
-			new GSwarmAlgorithm()
-		);
+std::shared_ptr<G_OptimizationAlgorithm_Base> GSwarmAlgorithmFactory::getObject_(
+    Gem::Common::GParserBuilder &gpb,
+    const std::size_t & /*id*/
+) {
+    std::shared_ptr<GSwarmAlgorithm> target(new GSwarmAlgorithm());
 
-		// Make the local configuration options known (up to the level of GSwarmAlgorithm)
-		target->GSwarmAlgorithm::addConfigurationOptions(gpb);
+    // Make the local configuration options known (up to the level of GSwarmAlgorithm)
+    target->GSwarmAlgorithm::addConfigurationOptions(gpb);
 
-		return target;
-	}
+    return target;
+}
 
-	/******************************************************************************/
-	/**
+/******************************************************************************/
+/**
  * Allows to act on the configuration options received from the configuration file. Here
  * we can add the options described in describeLocalOptions to the object.
  *
  * @param p A smart-pointer to be acted on during post-processing
  */
-	void GSwarmAlgorithmFactory::postProcess_(
-		std::shared_ptr<G_OptimizationAlgorithm_Base>& p_base
-	) {
-		// Call our parent class'es function
-		G_OptimizationAlgorithm_FactoryT<G_OptimizationAlgorithm_Base>::postProcess_(p_base);
-	}
+void GSwarmAlgorithmFactory::postProcess_(std::shared_ptr<G_OptimizationAlgorithm_Base> &p_base) {
+    // Call our parent class'es function
+    G_OptimizationAlgorithm_FactoryT<G_OptimizationAlgorithm_Base>::postProcess_(p_base);
+}
 
-	/******************************************************************************/
+/******************************************************************************/
 
 } /* namespace Gem::Geneva */

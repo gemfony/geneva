@@ -43,11 +43,11 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard headers go here
-#include <string>
+#include <csignal>
+#include <cstdint>
 #include <istream>
 #include <ostream>
-#include <cstdint>
-#include <csignal>
+#include <string>
 
 // Boost headers go here
 
@@ -57,7 +57,7 @@
 /**
  * We need local signals, so we can act both on Windows and POSIX-OSs
  */
-#if defined(_MSC_VER)  && (_MSC_VER >= 1020)
+#if defined(_MSC_VER) && (_MSC_VER >= 1020)
 #define G_SIGHUP CTRL_CLOSE_EVENT
 #else
 #define G_SIGHUP SIGHUP
@@ -76,9 +76,9 @@ namespace Gem::Common {
  * limit.
  */
 #ifdef GENEVA_COMMON_DEFAULT_BUFFER_SIZE
-	constexpr std::size_t DEFAULTBUFFERSIZE = GENEVA_COMMON_DEFAULT_BUFFER_SIZE;
+constexpr std::size_t DEFAULTBUFFERSIZE = GENEVA_COMMON_DEFAULT_BUFFER_SIZE;
 #else
-	constexpr std::size_t DEFAULTBUFFERSIZE = 5000;
+constexpr std::size_t DEFAULTBUFFERSIZE = 5000;
 #endif
 
 /******************************************************************************/
@@ -90,11 +90,11 @@ using ENUMBASETYPE = std::uint16_t;
  * Indicates the different sources for the GMultiSourceParamater
  */
 enum class parameter_source : Gem::Common::ENUMBASETYPE {
-   NETWORK = 1
-	, COMMAND_LINE = 2
-   , ENVIRONMENT_VARIABLE = 3
-   , CONFIGURATION_FILE = 4
-	, ASSIGNMENT = 5
+    NETWORK = 1,
+    COMMAND_LINE = 2,
+    ENVIRONMENT_VARIABLE = 3,
+    CONFIGURATION_FILE = 4,
+    ASSIGNMENT = 5
 };
 
 /** @brief Puts a Gem::Common::parameter_source into a stream. Needed also for boost::lexical_cast<> */
@@ -108,10 +108,10 @@ G_API_COMMON std::istream &operator>>(std::istream &, Gem::Common::parameter_sou
  * This enum denotes different dimensions (used particularly by GDecoratorCollection
  */
 enum class dimensions : Gem::Common::ENUMBASETYPE {
-	Dim1 = 1
-	, Dim2 = 2
-	, Dim3 = 3
-	, Dim4 = 4
+    Dim1 = 1,
+    Dim2 = 2,
+    Dim3 = 3,
+    Dim4 = 4
 };
 
 /** @brief Puts a Gem::Common::dimensions into a stream. Needed also for boost::lexical_cast<> */
@@ -132,8 +132,8 @@ constexpr double CE_DEF_SIMILARITY_DIFFERENCE = 1e-5;
  * in conjunction with the sorting in priority queues.
  */
 enum class sortOrder : Gem::Common::ENUMBASETYPE {
-	 LOWERISBETTER = 0
-	 , HIGHERISBETTER = 1
+    LOWERISBETTER = 0,
+    HIGHERISBETTER = 1
 };
 
 /** @brief Puts a Gem::Common::sortOrder into a stream. Needed also for boost::lexical_cast<> */
@@ -147,15 +147,14 @@ G_API_COMMON std::istream &operator>>(std::istream &, Gem::Common::sortOrder &);
  * Different log and exception types
  */
 enum class logType : Gem::Common::ENUMBASETYPE {
-	EXCEPTION = 0
-	, TERMINATION = 1
-	, WARNING = 2
-	, LOGGING = 3
-	, FILE = 4
-	, STDOUT = 5
-	, STDERR = 6
+    EXCEPTION = 0,
+    TERMINATION = 1,
+    WARNING = 2,
+    LOGGING = 3,
+    FILE = 4,
+    STDOUT = 5,
+    STDERR = 6
 };
-
 
 /** @brief Puts a Gem::Common::logType into a stream. Needed also for boost::lexical_cast<> */
 G_API_COMMON std::ostream &operator<<(std::ostream &, Gem::Common::logType const &);
@@ -181,9 +180,9 @@ constexpr bool VAR_IS_SECONDARY = false;
  * Needed for the serialization of boost::logic::tribool
  */
 enum class triboolStates : Gem::Common::ENUMBASETYPE {
-	TBS_FALSE
-	, TBS_INDETERMINATE
-	, TBS_TRUE
+    TBS_FALSE,
+    TBS_INDETERMINATE,
+    TBS_TRUE
 };
 
 /** @brief Puts a Gem::Common::triboolStates into a stream. Needed also for boost::lexical_cast<> */
@@ -197,9 +196,9 @@ G_API_COMMON std::istream &operator>>(std::istream &, Gem::Common::triboolStates
  * The serialization modes that are currently allowed
  */
 enum class serializationMode : Gem::Common::ENUMBASETYPE {
-	TEXT = 0
-	, XML = 1
-	, BINARY = 2
+    TEXT = 0,
+    XML = 1,
+    BINARY = 2
 };
 
 /** @brief Puts a Gem::Common::serializationMode into a stream. Needed also for boost::lexical_cast<> */
@@ -223,9 +222,11 @@ constexpr bool CE_WITH_MESSAGES = true;
  * Needed to express expectations in testing framework.
  */
 enum class expectation : Gem::Common::ENUMBASETYPE {
-	EQUALITY = 0 // bitwise equality of all checked components
-	, FP_SIMILARITY = 1 // equality for non-floating point components, similarity for floating point
-	, INEQUALITY = 2// at least one checked component differs
+    EQUALITY = 0 // bitwise equality of all checked components
+        ,
+    FP_SIMILARITY = 1 // equality for non-floating point components, similarity for floating point
+        ,
+    INEQUALITY = 2 // at least one checked component differs
 };
 
 /** @brief Puts a Gem::Common::expectation into a stream. Needed also for boost::lexical_cast<> */

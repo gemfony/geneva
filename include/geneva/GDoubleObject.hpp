@@ -38,8 +38,8 @@
 
 // Geneva headers go here
 
-#include "geneva/GNumFPT.hpp"
 #include "geneva/GDoubleGaussAdaptor.hpp"
+#include "geneva/GNumFPT.hpp"
 
 namespace Gem::Geneva {
 
@@ -51,19 +51,15 @@ namespace Gem::Geneva {
  * instead.
  */
 class GDoubleObject // NOLINT(cppcoreguidelines-special-member-functions)
-    : public GNumFPT<double>
-{
+  : public GNumFPT<double> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
-    template<typename Archive>
+    template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar
-        & make_nvp(
-            "GNumFPT_double"
-            , boost::serialization::base_object<GNumFPT<double>>(*this));
+        ar &make_nvp("GNumFPT_double", boost::serialization::base_object<GNumFPT<double>>(*this));
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -84,7 +80,7 @@ public:
     G_API_GENEVA ~GDoubleObject() override = default;
 
     /** @brief An assignment operator for the contained value type */
-    G_API_GENEVA GDoubleObject& operator=(const double &) override;
+    G_API_GENEVA GDoubleObject &operator=(const double &) override;
 
 protected:
     /** @brief Loads the data of another GObject */
@@ -92,45 +88,58 @@ protected:
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GDoubleObject>(
-        GDoubleObject const &
-        , GDoubleObject const &
-        , Gem::Common::GToken &
+        GDoubleObject const &,
+        GDoubleObject const &,
+        Gem::Common::GToken &
     );
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
     G_API_GENEVA void compare_(
         const GObject & // the other object
-        , const Gem::Common::expectation & // the expectation for this object, e.g. equality
-        , const double & // the limit for allowed deviations of floating point types
+        ,
+        const Gem::Common::expectation & // the expectation for this object, e.g. equality
+        ,
+        const double & // the limit for allowed deviations of floating point types
     ) const override;
 
     /** @brief Attach our local value to the vector. */
-    G_API_GENEVA void doubleStreamline(std::vector<double> &, const activityMode &am) const override;
+    G_API_GENEVA void
+    doubleStreamline(std::vector<double> &, const activityMode &am) const override;
     /** @brief Attach boundaries of type double to the vectors */
     G_API_GENEVA void doubleBoundaries(
-        std::vector<double> &, std::vector<double> &, const activityMode &am
+        std::vector<double> &,
+        std::vector<double> &,
+        const activityMode &am
     ) const override;
     /** @brief Tell the audience that we own a double value */
     G_API_GENEVA std::size_t countDoubleParameters(const activityMode &am) const override;
     /** @brief Assigns part of a value vector to the parameter */
     G_API_GENEVA void assignDoubleValueVector(
-        const std::vector<double> &, std::size_t &, const activityMode &am
+        const std::vector<double> &,
+        std::size_t &,
+        const activityMode &am
     ) override;
     /** @brief Attach our local value to the map. */
     G_API_GENEVA void doubleStreamline(
-        std::map<std::string, std::vector<double>> &, const activityMode &am
+        std::map<std::string, std::vector<double>> &,
+        const activityMode &am
     ) const override;
     /** @brief Assigns part of a value map to the parameter */
     G_API_GENEVA void assignDoubleValueVectors(
-        const std::map<std::string, std::vector<double>> &, const activityMode &am
+        const std::map<std::string, std::vector<double>> &,
+        const activityMode &am
     ) override;
 
     /** @brief Multiplication with a random value in a given range */
     G_API_GENEVA void doubleMultiplyByRandom(
-        const double &min, const double &max, const activityMode &am, Gem::Hap::GRandomBase &
+        const double &min,
+        const double &max,
+        const activityMode &am,
+        Gem::Hap::GRandomBase &
     ) override;
     /** @brief Multiplication with a random value in the range [0,1[ */
-    G_API_GENEVA void doubleMultiplyByRandom(const activityMode &am, Gem::Hap::GRandomBase &) override;
+    G_API_GENEVA void
+    doubleMultiplyByRandom(const activityMode &am, Gem::Hap::GRandomBase &) override;
     /** @brief Multiplication with a constant value */
     G_API_GENEVA void doubleMultiplyBy(const double &value, const activityMode &am) override;
     /** @brief Initialization with a constant value */
@@ -138,7 +147,8 @@ protected:
     /** @brief Adds the "same-type" parameters of another GParameterBase object to this one */
     G_API_GENEVA void doubleAdd(std::shared_ptr<GParameterBase>, const activityMode &am) override;
     /** @brief Adds the "same-type" parameters of another GParameterBase object to this one */
-    G_API_GENEVA void doubleSubtract(std::shared_ptr<GParameterBase>, const activityMode &am) override;
+    G_API_GENEVA void
+    doubleSubtract(std::shared_ptr<GParameterBase>, const activityMode &am) override;
 
     /** @brief Applies modifications to this object. This is needed for testing purposes */
     G_API_GENEVA bool modify_GUnitTests_() override;
@@ -153,7 +163,6 @@ private:
     /** @brief Creates a deep clone of this object. */
     G_API_GENEVA GObject *clone_() const override;
 };
-
 
 /******************************************************************************/
 

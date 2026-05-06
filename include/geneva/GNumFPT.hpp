@@ -52,28 +52,24 @@ namespace Gem::Geneva {
  * in this class is a double. It adds floating point initialization and multiplication
  * to GNumT
  */
-template<typename fp_type>
+template <typename fp_type>
 class GNumFPT // NOLINT(cppcoreguidelines-special-member-functions)
-    : public GNumT<fp_type>
-{
+  : public GNumT<fp_type> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
-    template<typename Archive>
+    template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
-        ar & make_nvp(
-            "GNumT"
-            , boost::serialization::base_object<GNumT<fp_type>>(*this));
+        ar &make_nvp("GNumT", boost::serialization::base_object<GNumT<fp_type>>(*this));
     }
     ///////////////////////////////////////////////////////////////////////
 
     // Make sure this class can only be instantiated if fp_type really is a floating point type
     static_assert(
-        std::is_floating_point<fp_type>::value
-        , "fp_type should be a floating point type"
+        std::is_floating_point<fp_type>::value,
+        "fp_type should be a floating point type"
     );
-
 
 public:
     /** @brief Specifies the type of parameters stored in this object */
@@ -92,8 +88,8 @@ public:
      * @param val The value used for the initialization
      */
     explicit GNumFPT(const fp_type &val)
-        :
-        GNumT<fp_type>(val) { /* nothing */ }
+      : GNumT<fp_type>(val) { /* nothing */
+    }
 
     /***************************************************************************/
     /**
@@ -102,20 +98,10 @@ public:
      * @param min The lower boundary for random entries
      * @param max The upper boundary for random entries
      */
-    GNumFPT(
-        const fp_type &min
-        , const fp_type &max
-    )
-        :
-        GNumT<fp_type>(
-            min
-            , max
-        ) {
+    GNumFPT(const fp_type &min, const fp_type &max)
+      : GNumT<fp_type>(min, max) {
         Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL> gr;
-        GNumFPT<fp_type>::randomInit(
-            activityMode::ACTIVEONLY
-            , gr
-        );
+        GNumFPT<fp_type>::randomInit(activityMode::ACTIVEONLY, gr);
     }
 
     /***************************************************************************/
@@ -130,16 +116,8 @@ public:
      * @param min The lower boundary for random entries
      * @param max The upper boundary for random entries
      */
-    GNumFPT(
-        const fp_type &val
-        , const fp_type &min
-        , const fp_type &max
-    )
-        :
-        GNumT<fp_type>(
-            min
-            , max
-        ) {
+    GNumFPT(const fp_type &val, const fp_type &min, const fp_type &max)
+      : GNumT<fp_type>(min, max) {
         GParameterT<fp_type>::setValue(val);
     }
 
@@ -164,7 +142,7 @@ public:
      * @param val The value to be assigned to this object
      * @return The value that was assigned to this object
      */
-    GNumFPT<fp_type>& operator=(const fp_type &val) override {
+    GNumFPT<fp_type> &operator=(const fp_type &val) override {
         GNumT<fp_type>::operator=(val);
         return *this;
     }
@@ -181,10 +159,8 @@ protected:
      */
     void load_(const GObject *cp) override {
         // Check that we are dealing with a GNumFPT<fp_type> reference independent of this object and convert the pointer
-        const GNumFPT<fp_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GNumFPT<fp_type>>(
-            cp
-            , this
-        );
+        const GNumFPT<fp_type> *p_load =
+            Gem::Common::g_convert_and_compare<GObject, GNumFPT<fp_type>>(cp, this);
 
         // Load our parent class'es data ...
         GNumT<fp_type>::load_(cp);
@@ -195,9 +171,9 @@ protected:
     /***************************************************************************/
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GNumFPT<fp_type>>(
-        GNumFPT<fp_type> const &
-        , GNumFPT<fp_type> const &
-        , Gem::Common::GToken &
+        GNumFPT<fp_type> const &,
+        GNumFPT<fp_type> const &,
+        Gem::Common::GToken &
     );
 
     /***************************************************************************/
@@ -210,29 +186,20 @@ protected:
      * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
     void compare_(
-        const GObject &cp
-        , const Gem::Common::expectation &e
-        , const double &/*limit*/
+        const GObject &cp,
+        const Gem::Common::expectation &e,
+        const double & /*limit*/
     ) const override {
         using namespace Gem::Common;
 
         // Check that we are dealing with a GNumFPT<fp_type> reference independent of this object and convert the pointer
-        const GNumFPT<fp_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GNumFPT<fp_type>>(
-            cp
-            , this
-        );
+        const GNumFPT<fp_type> *p_load =
+            Gem::Common::g_convert_and_compare<GObject, GNumFPT<fp_type>>(cp, this);
 
-        GToken token(
-            "GNumFPT<fp_type>"
-            , e
-        );
+        GToken token("GNumFPT<fp_type>", e);
 
         // Compare our parent data ...
-        Gem::Common::compare_base_t<GNumT<fp_type>>(
-            *this
-            , *p_load
-            , token
-        );
+        Gem::Common::compare_base_t<GNumT<fp_type>>(*this, *p_load, token);
 
         // ... no local data
 
@@ -245,15 +212,16 @@ protected:
      * Triggers random initialization of the parameter
      */
     bool randomInit_(
-        const activityMode &/*am*/
-        , Gem::Hap::GRandomBase &gr
+        const activityMode & /*am*/
+        ,
+        Gem::Hap::GRandomBase &gr
     ) override {
         fp_type lowerBoundary = GNumT<fp_type>::getLowerInitBoundary();
         fp_type upperBoundary = GNumT<fp_type>::getUpperInitBoundary();
 
         typename std::uniform_real_distribution<fp_type> uniform_real_distribution(
-            lowerBoundary
-            , upperBoundary
+            lowerBoundary,
+            upperBoundary
         );
         GParameterT<fp_type>::setValue(uniform_real_distribution(gr));
 
@@ -271,14 +239,16 @@ protected:
         bool result = false;
 
         // Call the parent classes' functions
-        if (GNumT<fp_type>::modify_GUnitTests_()) { result = true; }
+        if(GNumT<fp_type>::modify_GUnitTests_()) {
+            result = true;
+        }
 
         return result;
 
-#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
         Gem::Common::condnotset("GNumFPT<>::modify_GUnitTests", "GEM_TESTING");
-       return false;
-#endif /* GEM_TESTING */
+        return false;
+#endif                  /* GEM_TESTING */
     }
 
     /***************************************************************************/
@@ -313,50 +283,37 @@ protected:
 
             // Initialize with a fixed value
             CHECK_NOTHROW(p_test1->GParameterBase::template fixedValueInit<fp_type>(
-                    boost::numeric_cast<fp_type>(
-                            2. * UPPERINITBOUNDARY
-                    )
-                    , activityMode::ALLPARAMETERS
+                boost::numeric_cast<fp_type>(2. * UPPERINITBOUNDARY),
+                activityMode::ALLPARAMETERS
             )); // Make sure the parameters indeed change
 
             // Check that the value has indeed been set.
-            INFO("\n"
-                            << std::setprecision(10)
-                            << "p_test1->value() = " << p_test1->value() << "\n"
-                            << "2.*UPPERINITBOUNDARY = " << 2. * UPPERINITBOUNDARY << "\n"
-                            << "fabs(p_test1->value() - 2.*UPPERINITBOUNDARY) = " << fabs(p_test1->value() - 2. * UPPERINITBOUNDARY)
-                            << "\n"
-                            << "pow(10., -8) = " << pow(
-                    10.
-                    , -8
-            ) << "\n");
-            CHECK(fabs(p_test1->value() - fp_type(2. * UPPERINITBOUNDARY)) < pow(
-                            10.
-                            , -6
-                    ));
+            INFO(
+                "\n"
+                << std::setprecision(10) << "p_test1->value() = " << p_test1->value() << "\n"
+                << "2.*UPPERINITBOUNDARY = " << 2. * UPPERINITBOUNDARY << "\n"
+                << "fabs(p_test1->value() - 2.*UPPERINITBOUNDARY) = "
+                << fabs(p_test1->value() - 2. * UPPERINITBOUNDARY) << "\n"
+                << "pow(10., -8) = " << pow(10., -8) << "\n"
+            );
+            CHECK(fabs(p_test1->value() - fp_type(2. * UPPERINITBOUNDARY)) < pow(10., -6));
 
             // Set initialization boundaries
-            CHECK_NOTHROW(p_test1->setInitBoundaries(
-                    LOWERINITBOUNDARY
-                    , UPPERINITBOUNDARY
-            ));
+            CHECK_NOTHROW(p_test1->setInitBoundaries(LOWERINITBOUNDARY, UPPERINITBOUNDARY));
 
             // Cross-check the boundaries
             CHECK(p_test1->getLowerInitBoundary() == LOWERINITBOUNDARY);
             CHECK(p_test1->getUpperInitBoundary() == UPPERINITBOUNDARY);
 
             // Check that each value is different and that the values of p_test1 are inside of the allowed boundaries
-            for (std::size_t i = 0; i < nTests; i++) {
+            for(std::size_t i = 0; i < nTests; i++) {
                 // Load p_test1 into p_test2
                 CHECK_NOTHROW(p_test2->load(p_test1));
                 // Cross-check that both objects are equal
                 CHECK(*p_test1 == *p_test2);
 
                 // Randomly initialize one of the two objects. Note: we are using the protected function rather than the "global" function
-                CHECK_NOTHROW(p_test2->randomInit_(
-                        activityMode::ALLPARAMETERS
-                        , gr
-                ));
+                CHECK_NOTHROW(p_test2->randomInit_(activityMode::ALLPARAMETERS, gr));
 
                 // Check that the object has indeed changed
                 CHECK(*p_test2 != *p_test1);
@@ -375,24 +332,18 @@ protected:
 
             // Initialize with a fixed value
             CHECK_NOTHROW(p_test1->GParameterBase::template fixedValueInit<fp_type>(
-                    FIXEDVALUEINIT
-                    , activityMode::ALLPARAMETERS
+                FIXEDVALUEINIT,
+                activityMode::ALLPARAMETERS
             ));
 
             // Check that this value has been set
             CHECK(p_test1->value() == FIXEDVALUEINIT);
 
             // Set initialization boundaries
-            CHECK_NOTHROW(p_test1->setInitBoundaries(
-                    LOWERINITBOUNDARY
-                    , UPPERINITBOUNDARY
-            ));
+            CHECK_NOTHROW(p_test1->setInitBoundaries(LOWERINITBOUNDARY, UPPERINITBOUNDARY));
 
             // Randomly initialize one of the two objects. Note: we are using the protected function rather than the "global" function
-            CHECK_NOTHROW(p_test1->randomInit_(
-                    activityMode::ALLPARAMETERS
-                    , gr
-            ));
+            CHECK_NOTHROW(p_test1->randomInit_(activityMode::ALLPARAMETERS, gr));
 
             // Load the data into p_test2 and check that both objects are equal
             CHECK_NOTHROW(p_test2->load(p_test1));
@@ -400,8 +351,8 @@ protected:
 
             // Multiply p_test1 with a fixed value
             CHECK_NOTHROW(p_test1->GParameterBase::template multiplyBy<fp_type>(
-                    MULTVALUE
-                    , activityMode::ALLPARAMETERS
+                MULTVALUE,
+                activityMode::ALLPARAMETERS
             ));
 
             // Check that the multiplication has succeeded
@@ -415,8 +366,8 @@ protected:
 
             // Initialize with a fixed value
             CHECK_NOTHROW(p_test1->GParameterBase::template fixedValueInit<fp_type>(
-                    1.
-                    , activityMode::ALLPARAMETERS
+                1.,
+                activityMode::ALLPARAMETERS
             )); // 1. chosen so we see the multiplication value of the random number generator
 
             // Check that this value has been set
@@ -424,10 +375,10 @@ protected:
 
             // Multiply with random values in a given range
             CHECK_NOTHROW(p_test1->GParameterBase::template multiplyByRandom<fp_type>(
-                    RANDLOWERBOUNDARY
-                    , RANDUPPERBOUNDARY
-                    , activityMode::ALLPARAMETERS
-                    , gr
+                RANDLOWERBOUNDARY,
+                RANDUPPERBOUNDARY,
+                activityMode::ALLPARAMETERS,
+                gr
             ));
 
             // Check that all values are in the allowed range
@@ -442,8 +393,8 @@ protected:
 
             // Initialize with a fixed value
             CHECK_NOTHROW(p_test1->GParameterBase::template fixedValueInit<fp_type>(
-                    1.
-                    , activityMode::ALLPARAMETERS
+                1.,
+                activityMode::ALLPARAMETERS
             )); // 1. chosen so we see the multiplication value of the random number generator
 
             // Check that this value has been set
@@ -451,8 +402,8 @@ protected:
 
             // Multiply with random values in a given range
             CHECK_NOTHROW(p_test1->GParameterBase::template multiplyByRandom<fp_type>(
-                    activityMode::ALLPARAMETERS
-                    , gr
+                activityMode::ALLPARAMETERS,
+                gr
             ));
 
             // Check that all values are in the allowed range
@@ -469,29 +420,20 @@ protected:
 
             // Initialize with a fixed value
             CHECK_NOTHROW(p_test1->GParameterBase::template fixedValueInit<fp_type>(
-                    0.
-                    , activityMode::ALLPARAMETERS
+                0.,
+                activityMode::ALLPARAMETERS
             ));
             CHECK(p_test1->value() == 0.);
 
             // Set initialization boundaries
-            CHECK_NOTHROW(p_test1->setInitBoundaries(
-                    LOWERINITBOUNDARY
-                    , UPPERINITBOUNDARY
-            ));
+            CHECK_NOTHROW(p_test1->setInitBoundaries(LOWERINITBOUNDARY, UPPERINITBOUNDARY));
 
             // Load the data of p_test_1 into p_test2
             CHECK_NOTHROW(p_test2->load(p_test1));
 
             // Randomly initialize p_test1 and p_test2, so that both objects are different
-            CHECK_NOTHROW(p_test1->randomInit_(
-                    activityMode::ALLPARAMETERS
-                    , gr
-            ));
-            CHECK_NOTHROW(p_test2->randomInit_(
-                    activityMode::ALLPARAMETERS
-                    , gr
-            ));
+            CHECK_NOTHROW(p_test1->randomInit_(activityMode::ALLPARAMETERS, gr));
+            CHECK_NOTHROW(p_test2->randomInit_(activityMode::ALLPARAMETERS, gr));
 
             // Check that they are indeed different
             CHECK(*p_test1 != *p_test2);
@@ -500,10 +442,9 @@ protected:
             CHECK_NOTHROW(p_test3->load(p_test2));
 
             // Add p_test1 to p_test3
-            CHECK_NOTHROW(p_test3->GParameterBase::template add<fp_type>(
-                    p_test1
-                    , activityMode::ALLPARAMETERS
-            ));
+            CHECK_NOTHROW(
+                p_test3->GParameterBase::template add<fp_type>(p_test1, activityMode::ALLPARAMETERS)
+            );
 
             // Cross-check that the addition has worked
             CHECK(p_test3->value() == p_test1->value() + p_test2->value());
@@ -518,29 +459,20 @@ protected:
 
             // Initialize with a fixed value
             CHECK_NOTHROW(p_test1->GParameterBase::template fixedValueInit<fp_type>(
-                    0.
-                    , activityMode::ALLPARAMETERS
+                0.,
+                activityMode::ALLPARAMETERS
             ));
             CHECK(p_test1->value() == 0.);
 
             // Set initialization boundaries
-            CHECK_NOTHROW(p_test1->setInitBoundaries(
-                    LOWERINITBOUNDARY
-                    , UPPERINITBOUNDARY
-            ));
+            CHECK_NOTHROW(p_test1->setInitBoundaries(LOWERINITBOUNDARY, UPPERINITBOUNDARY));
 
             // Load the data of p_test_1 into p_test2
             CHECK_NOTHROW(p_test2->load(p_test1));
 
             // Randomly initialize p_test1 and p_test2, so that both objects are different
-            CHECK_NOTHROW(p_test1->randomInit_(
-                    activityMode::ALLPARAMETERS
-                    , gr
-            ));
-            CHECK_NOTHROW(p_test2->randomInit_(
-                    activityMode::ALLPARAMETERS
-                    , gr
-            ));
+            CHECK_NOTHROW(p_test1->randomInit_(activityMode::ALLPARAMETERS, gr));
+            CHECK_NOTHROW(p_test2->randomInit_(activityMode::ALLPARAMETERS, gr));
 
             // Check that they are indeed different
             CHECK(*p_test1 != *p_test2);
@@ -549,10 +481,9 @@ protected:
             CHECK_NOTHROW(p_test3->load(p_test2));
 
             // Subtract p_test1 from p_test3
-            CHECK_NOTHROW(p_test3->template subtract<fp_type>(
-                    p_test1
-                    , activityMode::ALLPARAMETERS
-            ));
+            CHECK_NOTHROW(
+                p_test3->template subtract<fp_type>(p_test1, activityMode::ALLPARAMETERS)
+            );
 
             // Cross-check that the addition has worked. Note that we do need to take into
             // account effects of floating point accuracy
@@ -561,9 +492,12 @@ protected:
 
         //------------------------------------------------------------------------------
 
-#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-        Gem::Common::condnotset("GNumFPT<>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
-#endif /* GEM_TESTING */
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+        Gem::Common::condnotset(
+            "GNumFPT<>::specificTestsNoFailureExpected_GUnitTests",
+            "GEM_TESTING"
+        );
+#endif                  /* GEM_TESTING */
     }
 
     /***************************************************************************/
@@ -575,9 +509,12 @@ protected:
         // Call the parent classes' functions
         GNumT<fp_type>::specificTestsFailuresExpected_GUnitTests_();
 
-#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-        Gem::Common::condnotset("GNumFPT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
-#endif /* GEM_TESTING */
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+        Gem::Common::condnotset(
+            "GNumFPT<>::specificTestsFailuresExpected_GUnitTests",
+            "GEM_TESTING"
+        );
+#endif                  /* GEM_TESTING */
     }
 
     /***************************************************************************/
@@ -606,16 +543,9 @@ private:
 /******************************************************************************/
 // The content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T) // NOLINT
 namespace boost::serialization {
-template<typename fp_type>
-struct is_abstract<Gem::Geneva::GNumFPT<fp_type>> :
-    public boost::true_type
-{
-};
-template<typename fp_type>
-struct is_abstract<const Gem::Geneva::GNumFPT<fp_type>> :
-    public boost::true_type
-{
-};
+template <typename fp_type>
+struct is_abstract<Gem::Geneva::GNumFPT<fp_type>> : public boost::true_type {};
+template <typename fp_type>
+struct is_abstract<const Gem::Geneva::GNumFPT<fp_type>> : public boost::true_type {};
 } /* namespace boost::serialization */
 /******************************************************************************/
-

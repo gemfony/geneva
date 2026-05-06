@@ -37,9 +37,9 @@
 // Boost headers go here
 
 // Geneva headers go here
+#include "geneva/GParameterSet.hpp"
 #include "geneva/GPersonalityTraits.hpp"
 #include "geneva/GenevaHelperFunctionsT.hpp"
-#include "geneva/GParameterSet.hpp"
 
 namespace Gem::Geneva {
 
@@ -49,21 +49,18 @@ namespace Gem::Geneva {
  * to swarm optimization.
  */
 class GSwarmAlgorithm_PersonalityTraits // NOLINT(cppcoreguidelines-special-member-functions)
-    : public GPersonalityTraits
-{
+  : public GPersonalityTraits {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
-    template<typename Archive>
+    template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar
-        & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPersonalityTraits)
-        & BOOST_SERIALIZATION_NVP(neighborhood_)
-        & BOOST_SERIALIZATION_NVP(noPositionUpdate_)
-        & BOOST_SERIALIZATION_NVP(personal_best_)
-        & BOOST_SERIALIZATION_NVP(personal_best_quality_);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPersonalityTraits) &
+            BOOST_SERIALIZATION_NVP(neighborhood_) & BOOST_SERIALIZATION_NVP(noPositionUpdate_) &
+            BOOST_SERIALIZATION_NVP(personal_best_) &
+            BOOST_SERIALIZATION_NVP(personal_best_quality_);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -111,16 +108,18 @@ protected:
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GSwarmAlgorithm_PersonalityTraits>(
-        GSwarmAlgorithm_PersonalityTraits const &
-        , GSwarmAlgorithm_PersonalityTraits const &
-        , Gem::Common::GToken &
+        GSwarmAlgorithm_PersonalityTraits const &,
+        GSwarmAlgorithm_PersonalityTraits const &,
+        Gem::Common::GToken &
     );
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
     G_API_GENEVA void compare_(
         const GObject & // the other object
-        , const Gem::Common::expectation & // the expectation for this object, e.g. equality
-        , const double & // the limit for allowed deviations of floating point types
+        ,
+        const Gem::Common::expectation & // the expectation for this object, e.g. equality
+        ,
+        const double & // the limit for allowed deviations of floating point types
     ) const override;
 
     /** @brief Applies modifications to this object. This is needed for testing purposes */
@@ -155,4 +154,3 @@ private:
 } /* namespace Gem::Geneva */
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GSwarmAlgorithm_PersonalityTraits) // NOLINT
-

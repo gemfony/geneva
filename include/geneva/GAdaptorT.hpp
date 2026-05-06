@@ -40,9 +40,9 @@
 // Geneva headers go here
 
 #include "common/GSerializationHelperFunctionsT.hpp"
-#include "hap/GRandomT.hpp"
 #include "geneva/GObject.hpp"
 #include "geneva/GOptimizationEnums.hpp"
+#include "hap/GRandomT.hpp"
 
 #ifdef GEM_TESTING
 #include <catch2/catch_test_macros.hpp>
@@ -85,100 +85,93 @@ namespace Gem::Geneva {
  * As a derivative of GObject, this class follows similar rules as
  * the other Geneva classes.
  */
-template<typename T, typename fp_type = double>
-class GAdaptorT
-	: public GObject
-{
-	 ///////////////////////////////////////////////////////////////////////
-	 friend class boost::serialization::access;
+template <typename T, typename fp_type = double>
+class GAdaptorT : public GObject {
+    ///////////////////////////////////////////////////////////////////////
+    friend class boost::serialization::access;
 
-	 template<typename Archive>
-	 void serialize(Archive &ar, const unsigned int)
-	 {
-		 using boost::serialization::make_nvp;
-		 ar
-		 & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject)
-		 & BOOST_SERIALIZATION_NVP(m_adaptionCounter)
-		 & BOOST_SERIALIZATION_NVP(m_adaptionThreshold)
-		 & BOOST_SERIALIZATION_NVP(m_adProb)
-		 & BOOST_SERIALIZATION_NVP(m_adaptAdProb)
-		 & BOOST_SERIALIZATION_NVP(m_minAdProb)
-		 & BOOST_SERIALIZATION_NVP(m_maxAdProb)
-		 & BOOST_SERIALIZATION_NVP(m_adaptionMode)
-		 & BOOST_SERIALIZATION_NVP(m_adaptAdaptionProbability)
-		 & BOOST_SERIALIZATION_NVP(m_adProb_reset);
-	 }
-	 ///////////////////////////////////////////////////////////////////////
+    template <typename Archive>
+    void serialize(Archive &ar, const unsigned int) {
+        using boost::serialization::make_nvp;
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject) &
+            BOOST_SERIALIZATION_NVP(m_adaptionCounter) &
+            BOOST_SERIALIZATION_NVP(m_adaptionThreshold) & BOOST_SERIALIZATION_NVP(m_adProb) &
+            BOOST_SERIALIZATION_NVP(m_adaptAdProb) & BOOST_SERIALIZATION_NVP(m_minAdProb) &
+            BOOST_SERIALIZATION_NVP(m_maxAdProb) & BOOST_SERIALIZATION_NVP(m_adaptionMode) &
+            BOOST_SERIALIZATION_NVP(m_adaptAdaptionProbability) &
+            BOOST_SERIALIZATION_NVP(m_adProb_reset);
+    }
+    ///////////////////////////////////////////////////////////////////////
 
 public:
-	 /***************************************************************************/
-	 /**
+    /***************************************************************************/
+    /**
 	  * Allows external callers to find out about the type stored in this object
 	  */
-	 using adaption_type = T;
+    using adaption_type = T;
 
-	/***************************************************************************/
-	/**
+    /***************************************************************************/
+    /**
      * This constructor allows to set the probability with which an adaption is indeed
      * performed.
      *
      * @param adProb The likelihood for a an adaption to be actually carried out
      */
-	explicit GAdaptorT(const fp_type &adProb)
-			: GObject()
-			, m_adProb(adProb)
-	{
-		// Do some error checking
-		// Check that m_adProb is in the allowed range. Adapt, if necessary
-		if (not Gem::Common::checkRangeCompliance<fp_type>(
-				m_adProb
-				, m_minAdProb
-				, m_maxAdProb
-				, "GAdaptorT<>::GAdaptorT(" + Gem::Common::to_string(adProb) + ")"
-		)) {
-			glogger
-					<< "In GAdaptorT<T, fp_type>::GadaptorT(const fp_type& adProb):" << std::endl << "adProb value " << m_adProb
-					<< " is outside of allowed value range [" << m_minAdProb << ", " << m_maxAdProb << "]" << std::endl
-					<< "The value will be adapted to fit this range." << std::endl << GWARNING;
+    explicit GAdaptorT(const fp_type &adProb)
+      : GObject()
+      , m_adProb(adProb) {
+        // Do some error checking
+        // Check that m_adProb is in the allowed range. Adapt, if necessary
+        if(not Gem::Common::checkRangeCompliance<fp_type>(
+               m_adProb,
+               m_minAdProb,
+               m_maxAdProb,
+               "GAdaptorT<>::GAdaptorT(" + Gem::Common::to_string(adProb) + ")"
+           )) {
+            glogger << "In GAdaptorT<T, fp_type>::GadaptorT(const fp_type& adProb):" << std::endl
+                    << "adProb value " << m_adProb << " is outside of allowed value range ["
+                    << m_minAdProb << ", " << m_maxAdProb << "]" << std::endl
+                    << "The value will be adapted to fit this range." << std::endl
+                    << GWARNING;
 
-			Gem::Common::enforceRangeConstraint<fp_type>(
-					m_adProb
-					, m_minAdProb
-					, m_maxAdProb
-					, "GAdaptorT<>::GAdaptorT(" + Gem::Common::to_string(adProb) + " / 1)"
-			);
-			Gem::Common::enforceRangeConstraint<fp_type>(
-					m_adProb_reset
-					, m_minAdProb
-					, m_maxAdProb
-					, "GAdaptorT<>::GAdaptorT(" + Gem::Common::to_string(adProb) + " / 2)"
-			);
-		}
-	}
+            Gem::Common::enforceRangeConstraint<fp_type>(
+                m_adProb,
+                m_minAdProb,
+                m_maxAdProb,
+                "GAdaptorT<>::GAdaptorT(" + Gem::Common::to_string(adProb) + " / 1)"
+            );
+            Gem::Common::enforceRangeConstraint<fp_type>(
+                m_adProb_reset,
+                m_minAdProb,
+                m_maxAdProb,
+                "GAdaptorT<>::GAdaptorT(" + Gem::Common::to_string(adProb) + " / 2)"
+            );
+        }
+    }
 
-	/***************************************************************************/
-	// Defaulted constructors, destructor and assignment operators -- rule of five
+    /***************************************************************************/
+    // Defaulted constructors, destructor and assignment operators -- rule of five
 
-	 GAdaptorT() = default;
-	 GAdaptorT(GAdaptorT<T, fp_type> const & cp) = default;
-	 GAdaptorT(GAdaptorT<T, fp_type> && cp) = default;
+    GAdaptorT() = default;
+    GAdaptorT(GAdaptorT<T, fp_type> const &cp) = default;
+    GAdaptorT(GAdaptorT<T, fp_type> &&cp) = default;
 
-     ~GAdaptorT() override = default;
+    ~GAdaptorT() override = default;
 
-	 GAdaptorT<T, fp_type>& operator=(GAdaptorT<T, fp_type> const&) = default;
-	 GAdaptorT<T, fp_type>& operator=(GAdaptorT<T, fp_type> &&) = default;
+    GAdaptorT<T, fp_type> &operator=(GAdaptorT<T, fp_type> const &) = default;
+    GAdaptorT<T, fp_type> &operator=(GAdaptorT<T, fp_type> &&) = default;
 
-	 /***************************************************************************/
-	 /**
+    /***************************************************************************/
+    /**
 	  * Retrieves the id of the adaptor.
 	  *
 	  * @return The id of the adaptor
 	  */
-	 Gem::Geneva::adaptorId getAdaptorId() const {
-	 	return getAdaptorId_();
-	 }
+    Gem::Geneva::adaptorId getAdaptorId() const {
+        return getAdaptorId_();
+    }
 
-	 /* ----------------------------------------------------------------------------------
+    /* ----------------------------------------------------------------------------------
 	  * Tested in GBooleanAdaptor
 	  * Tested in GInt32FlipAdaptor
 	  * Tested in GInt32GaussAdaptor
@@ -186,332 +179,326 @@ public:
 	  * ----------------------------------------------------------------------------------
 	  */
 
-	 /***************************************************************************/
-	 /**
+    /***************************************************************************/
+    /**
 	  * Sets the adaption probability to a given value. This function will throw
 	  * if the probability is not in the allowed range.
 	  *
 	  * @param adProb The new value of the probability of adaptions taking place
 	  */
-	 void setAdaptionProbability(const fp_type &adProb)
-	 {
-		 // Check the supplied probability value
-		 if (adProb < fp_type(0.) || adProb > fp_type(1.)) {
-			 throw geneva_exception(
-				 g_error_streamer(DO_LOG, time_and_place)
-					 << "In GAdaptorT<T, fp_type>::setAdaptionProbability(const fp_type&):" << std::endl
-					 << "Bad probability value given: " << adProb << std::endl
-			 );
-		 }
+    void setAdaptionProbability(const fp_type &adProb) {
+        // Check the supplied probability value
+        if(adProb < fp_type(0.) || adProb > fp_type(1.)) {
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, time_and_place)
+                << "In GAdaptorT<T, fp_type>::setAdaptionProbability(const fp_type&):" << std::endl
+                << "Bad probability value given: " << adProb << std::endl
+            );
+        }
 
-		 // Check that the new value fits in the allowed value range
-		 if (not Gem::Common::checkRangeCompliance<fp_type>(
-			 adProb
-			 , m_minAdProb
-			 , m_maxAdProb
-			 , "GAdaptorT<>::setAdaptionProbability(" + Gem::Common::to_string(adProb) + ")"
-		 )) {
-			 throw geneva_exception(
-				 g_error_streamer(DO_LOG, time_and_place)
-					 << "In GAdaptorT<T, fp_type>::setAdaptionProbability(const fp_type& adProb):" << std::endl
-					 << "adProb value " << adProb << " is outside of allowed value range [" << m_minAdProb << ", " << m_maxAdProb
-					 << "]" << std::endl
-					 << "Set new boundaries first before setting a new \"adProb\" value" << std::endl
-			 );
-		 }
+        // Check that the new value fits in the allowed value range
+        if(not Gem::Common::checkRangeCompliance<fp_type>(
+               adProb,
+               m_minAdProb,
+               m_maxAdProb,
+               "GAdaptorT<>::setAdaptionProbability(" + Gem::Common::to_string(adProb) + ")"
+           )) {
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, time_and_place)
+                << "In GAdaptorT<T, fp_type>::setAdaptionProbability(const fp_type& adProb):"
+                << std::endl
+                << "adProb value " << adProb << " is outside of allowed value range ["
+                << m_minAdProb << ", " << m_maxAdProb << "]" << std::endl
+                << "Set new boundaries first before setting a new \"adProb\" value" << std::endl
+            );
+        }
 
-		 m_adProb = adProb;
-	 }
+        m_adProb = adProb;
+    }
 
-	 /* ----------------------------------------------------------------------------------
+    /* ----------------------------------------------------------------------------------
 	  * Setting of valid probabilities is tested in GAdaptorT<T, fp_type>::specificTestsNoFailuresExpected_GUnitTests()
 	  * Checks for setting of invalid probabilities is tested in GAdaptorT<T, fp_type>::specificTestsFailuresExpected_GUnitTests()
 	  * The effects on the probability of adaptions actually taking place are tested in GAdaptorT<T, fp_type>::specificTestsNoFailuresExpected_GUnitTests()
 	  * ----------------------------------------------------------------------------------
 	  */
 
-	 /***************************************************************************/
-	 /**
+    /***************************************************************************/
+    /**
 	  * Retrieves the current value of the adaption probability
 	  *
 	  * @return The current value of the adaption probability
 	  */
-	 fp_type getAdaptionProbability() const
-	 {
-		 return m_adProb;
-	 }
+    fp_type getAdaptionProbability() const {
+        return m_adProb;
+    }
 
-	 /* ----------------------------------------------------------------------------------
+    /* ----------------------------------------------------------------------------------
 	  * Retrieval of probabilities is tested in GAdaptorT<T, fp_type>::specificTestsNoFailuresExpected_GUnitTests()
 	  * ----------------------------------------------------------------------------------
 	  */
 
-	 /***************************************************************************/
-	 /**
+    /***************************************************************************/
+    /**
 	  * Sets the "reset" adaption probability to a given value. This is the probability
 	  * to which adProb_ will be reset if updateOnStall() is called. This function will
 	  * throw if the probability is not in the allowed range.
 	  *
 	  * @param adProb_reset The new value of the "reset" probability
 	  */
-	 void setResetAdaptionProbability(const fp_type &adProb_reset)
-	 {
-		 // Check the supplied probability value
-		 if (not Gem::Common::checkRangeCompliance<fp_type>(
-			 adProb_reset
-			 , m_minAdProb
-			 , m_maxAdProb
-			 , "GAdaptorT<>::setResetAdaptionProbability(" + Gem::Common::to_string(adProb_reset) + ")"
-		 )) {
-			 throw geneva_exception(
-				 g_error_streamer(DO_LOG, time_and_place)
-					 << "In GAdaptorT<T, fp_type>::setResetAdaptionProbability(const fp_type&):" << std::endl
-					 << "adProb_reset value " << adProb_reset << " is outside of allowed value range [" << m_minAdProb << ", "
-					 << m_maxAdProb << "]" << std::endl
-					 << "Set new boundaries first before setting a new \"adProb_reset\" value" << std::endl
-			 );
-		 }
+    void setResetAdaptionProbability(const fp_type &adProb_reset) {
+        // Check the supplied probability value
+        if(not Gem::Common::checkRangeCompliance<fp_type>(
+               adProb_reset,
+               m_minAdProb,
+               m_maxAdProb,
+               "GAdaptorT<>::setResetAdaptionProbability(" + Gem::Common::to_string(adProb_reset) +
+                   ")"
+           )) {
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, time_and_place)
+                << "In GAdaptorT<T, fp_type>::setResetAdaptionProbability(const fp_type&):"
+                << std::endl
+                << "adProb_reset value " << adProb_reset << " is outside of allowed value range ["
+                << m_minAdProb << ", " << m_maxAdProb << "]" << std::endl
+                << "Set new boundaries first before setting a new \"adProb_reset\" value"
+                << std::endl
+            );
+        }
 
-		 m_adProb_reset = adProb_reset;
-	 }
+        m_adProb_reset = adProb_reset;
+    }
 
-	 /***************************************************************************/
-	 /**
+    /***************************************************************************/
+    /**
 	  * Retrieves the current value of the "reset" adaption probability
 	  *
 	  * @return The current value of the "reset" adaption probability
 	  */
-	 fp_type getResetAdaptionProbability() const
-	 {
-		 return m_adProb_reset;
-	 }
+    fp_type getResetAdaptionProbability() const {
+        return m_adProb_reset;
+    }
 
-	 /***************************************************************************/
-	 /**
+    /***************************************************************************/
+    /**
 	  * Sets the probability for the adaption of adaption parameters
 	  *
 	  * @param probability The new value of the probability of adaptions of adaption parameters
 	  */
-	 void setAdaptAdaptionProbability(const fp_type &probability)
-	 {
-		 // Check the supplied probability value
-		 if (not Gem::Common::checkRangeCompliance<fp_type>(
-			 probability
-			 , 0.
-			 , 1.
-			 , "GAdaptorT<>::setAdaptAdaptionProbability(" + Gem::Common::to_string(probability) + ")"
-		 )) {
-			 throw geneva_exception(
-				 g_error_streamer(DO_LOG, time_and_place)
-					 << "In GAdaptorT<T, fp_type>::setAdaptAdaptionProbability(const fp_type&) :" << std::endl
-					 << "Probability " << probability << " not in allowed range [0.,1.]" << std::endl
-			 );
-		 }
+    void setAdaptAdaptionProbability(const fp_type &probability) {
+        // Check the supplied probability value
+        if(not Gem::Common::checkRangeCompliance<fp_type>(
+               probability,
+               0.,
+               1.,
+               "GAdaptorT<>::setAdaptAdaptionProbability(" + Gem::Common::to_string(probability) +
+                   ")"
+           )) {
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, time_and_place)
+                << "In GAdaptorT<T, fp_type>::setAdaptAdaptionProbability(const fp_type&) :"
+                << std::endl
+                << "Probability " << probability << " not in allowed range [0.,1.]" << std::endl
+            );
+        }
 
-		 m_adaptAdaptionProbability = probability;
-	 }
+        m_adaptAdaptionProbability = probability;
+    }
 
-	 /* ----------------------------------------------------------------------------------
+    /* ----------------------------------------------------------------------------------
 	  * Setting of valid probabilities is tested in GAdaptorT<T, fp_type>::specificTestsNoFailuresExpected_GUnitTests()
 	  * Checks for setting of invalid probabilities is tested in GAdaptorT<T, fp_type>::specificTestsFailuresExpected_GUnitTests()
 	  * ----------------------------------------------------------------------------------
 	  */
 
-	 /***************************************************************************/
-	 /**
+    /***************************************************************************/
+    /**
 	  * Retrieves the current value of the adaptAdaptionProbability_ variable
 	  *
 	  * @return The current value of the adaptAdaptionProbability_ variable
 	  */
-	 fp_type getAdaptAdaptionProbability() const
-	 {
-		 return m_adaptAdaptionProbability;
-	 }
+    fp_type getAdaptAdaptionProbability() const {
+        return m_adaptAdaptionProbability;
+    }
 
-	 /* ----------------------------------------------------------------------------------
+    /* ----------------------------------------------------------------------------------
 	  * Retrieval of probabilities is tested in GAdaptorT<T, fp_type>::specificTestsNoFailuresExpected_GUnitTests()
 	  * ----------------------------------------------------------------------------------
 	  */
 
-	 /***************************************************************************/
-	 /**
+    /***************************************************************************/
+    /**
 	  * Allows to specify an adaption factor for adProb_ (or 0, if you do not
 	  * want this feature)
 	  */
-	 void setAdaptAdProb(fp_type adaptAdProb)
-	 {
+    void setAdaptAdProb(fp_type adaptAdProb) {
 #ifdef DEBUG
-		 if (adaptAdProb < fp_type(0.)) {
-			 throw geneva_exception(
-				 g_error_streamer(DO_LOG, time_and_place)
-					 << "In GAdaptorT<>::setAdaptAdProb(): Error!" << std::endl
-					 << "adaptAdProb < 0: " << adaptAdProb << std::endl
-			 );
-		 }
+        if(adaptAdProb < fp_type(0.)) {
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, time_and_place)
+                << "In GAdaptorT<>::setAdaptAdProb(): Error!" << std::endl
+                << "adaptAdProb < 0: " << adaptAdProb << std::endl
+            );
+        }
 #endif /* DEBUG */
 
-		 m_adaptAdProb = adaptAdProb;
-	 }
+        m_adaptAdProb = adaptAdProb;
+    }
 
-	 /***************************************************************************/
-	 /**
+    /***************************************************************************/
+    /**
 	  * Allows to retrieve the rate of evolutionary adaption of adProb_
 	  */
-	 fp_type getAdaptAdProb() const
-	 {
-		 return m_adaptAdProb;
-	 }
+    fp_type getAdaptAdProb() const {
+        return m_adaptAdProb;
+    }
 
-	 /***************************************************************************/
-	 /**
+    /***************************************************************************/
+    /**
 	  * Retrieves the current value of the m_adaptionCounter variable.
 	  *
 	  * @return The value of the m_adaptionCounter variable
 	  */
-	 std::uint32_t getAdaptionCounter() const
-	 {
-		 return m_adaptionCounter;
-	 }
+    std::uint32_t getAdaptionCounter() const {
+        return m_adaptionCounter;
+    }
 
-	 /* ----------------------------------------------------------------------------------
+    /* ----------------------------------------------------------------------------------
 	  * It is tested in GAdaptorT<T, fp_type>::specificTestsNoFailuresExpected_GUnitTests() that the
 	  * adaption counter does not exceed the set adaption threshold
 	  * ----------------------------------------------------------------------------------
 	  */
 
-	 /***************************************************************************/
-	 /**
+    /***************************************************************************/
+    /**
 	  * Sets the value of adaptionThreshold_. If set to 0, no adaption of the optimization
 	  * parameters will take place
 	  *
 	  * @param adaptionCounter The value that should be assigned to the adaptionCounter_ variable
 	  */
-	 void setAdaptionThreshold(const std::uint32_t &adaptionThreshold)
-	 {
-		 m_adaptionThreshold = adaptionThreshold;
-	 }
+    void setAdaptionThreshold(const std::uint32_t &adaptionThreshold) {
+        m_adaptionThreshold = adaptionThreshold;
+    }
 
-	 /* ----------------------------------------------------------------------------------
+    /* ----------------------------------------------------------------------------------
 	  * Setting of adaption thresholds is tested in GAdaptorT<T, fp_type>::specificTestsNoFailuresExpected_GUnitTests()
 	  * ----------------------------------------------------------------------------------
 	  */
 
-	 /***************************************************************************/
-	 /**
+    /***************************************************************************/
+    /**
 	  * Retrieves the value of the adaptionThreshold_ variable.
 	  *
 	  * @return The value of the adaptionThreshold_ variable
 	  */
-	 std::uint32_t getAdaptionThreshold() const
-	 {
-		 return m_adaptionThreshold;
-	 }
+    std::uint32_t getAdaptionThreshold() const {
+        return m_adaptionThreshold;
+    }
 
-	 /* ----------------------------------------------------------------------------------
+    /* ----------------------------------------------------------------------------------
 	  * Retrieval of adaption threshold is tested in GAdaptorT<T, fp_type>::specificTestsNoFailuresExpected_GUnitTests()
 	  * ----------------------------------------------------------------------------------
 	  */
 
-	 /***************************************************************************/
-	 /**
+    /***************************************************************************/
+    /**
 	  * Allows to specify whether adaptions should happen always, never, or with a given
 	  * probability. The function is declared virtual so adaptors requiring adaptions to
 	  * happen always or never can prevent resetting of the m_adaptionMode variable.
 	  *
 	  * @param adaptionMode The desired mode (always/never/with a given probability)
 	  */
-	 virtual void setAdaptionMode(adaptionMode am) {
-		 m_adaptionMode = am;
-	 }
+    virtual void setAdaptionMode(adaptionMode am) {
+        m_adaptionMode = am;
+    }
 
-	 /* ----------------------------------------------------------------------------------
+    /* ----------------------------------------------------------------------------------
 	  * Setting of the adaption mode is tested in GAdaptorT<T, fp_type>::specificTestsNoFailuresExpected_GUnitTests()
 	  * The effect of setting the adaption mode is tested in GAdaptorT<T, fp_type>::specificTestsNoFailuresExpected_GUnitTests()
 	  * ----------------------------------------------------------------------------------
 	  */
 
-	 /***************************************************************************/
-	 /**
+    /***************************************************************************/
+    /**
 	  * Returns the current value of the m_adaptionMode variable
 	  *
 	  * @return The current value of the m_adaptionMode variable
 	  */
-	 adaptionMode getAdaptionMode() const {
-		 return m_adaptionMode;
-	 }
+    adaptionMode getAdaptionMode() const {
+        return m_adaptionMode;
+    }
 
-	 /* ----------------------------------------------------------------------------------
+    /* ----------------------------------------------------------------------------------
 	  * Retrieval of the adaption mode is tested in GAdaptorT<T, fp_type>::specificTestsNoFailuresExpected_GUnitTests()
 	  * ----------------------------------------------------------------------------------
 	  */
 
-	 /***************************************************************************/
-	 /**
+    /***************************************************************************/
+    /**
 	  * Allows to set the allowed range for adaption probability variation.
 	  * NOTE that this function will silently adapt the values of adProb_ and
 	  * adProb_reset_, if they fall outside of the new range.
 	  */
-	 void setAdProbRange(fp_type minAdProb, fp_type maxAdProb)
-	 {
+    void setAdProbRange(fp_type minAdProb, fp_type maxAdProb) {
 #ifdef DEBUG
-		 if (minAdProb < 0.) {
-			 throw geneva_exception(
-				 g_error_streamer(DO_LOG, time_and_place)
-					 << "In GAdaptorT<T, fp_type>::setAdProbRange(): Error!" << std::endl
-					 << "minAdProb < 0: " << minAdProb << std::endl
-			 );
-		 }
+        if(minAdProb < 0.) {
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, time_and_place)
+                << "In GAdaptorT<T, fp_type>::setAdProbRange(): Error!" << std::endl
+                << "minAdProb < 0: " << minAdProb << std::endl
+            );
+        }
 
-		 if (maxAdProb > 1.) {
-			 throw geneva_exception(
-				 g_error_streamer(DO_LOG, time_and_place)
-					 << "In GAdaptorT<T, fp_type>::setAdProbRange(): Error!" << std::endl
-					 << "maxAdProb > 1: " << maxAdProb << std::endl
-			 );
-		 }
+        if(maxAdProb > 1.) {
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, time_and_place)
+                << "In GAdaptorT<T, fp_type>::setAdProbRange(): Error!" << std::endl
+                << "maxAdProb > 1: " << maxAdProb << std::endl
+            );
+        }
 
-		 if (minAdProb > maxAdProb) {
-			 throw geneva_exception(
-				 g_error_streamer(DO_LOG, time_and_place)
-					 << "In GAdaptorT<T, fp_type>::setAdProbRange(): Error!" << std::endl
-					 << "Invalid minAdProb and/or maxAdProb: " << minAdProb << " / " << maxAdProb << std::endl
-			 );
-		 }
+        if(minAdProb > maxAdProb) {
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, time_and_place)
+                << "In GAdaptorT<T, fp_type>::setAdProbRange(): Error!" << std::endl
+                << "Invalid minAdProb and/or maxAdProb: " << minAdProb << " / " << maxAdProb
+                << std::endl
+            );
+        }
 #endif /* DEBUG */
 
-		 // Store the new values
-		 m_minAdProb = minAdProb;
-		 if (m_minAdProb < DEFMINADPROB) {
-			 m_minAdProb = DEFMINADPROB;
-		 }
-		 m_maxAdProb = maxAdProb;
+        // Store the new values
+        m_minAdProb = minAdProb;
+        if(m_minAdProb < DEFMINADPROB) {
+            m_minAdProb = DEFMINADPROB;
+        }
+        m_maxAdProb = maxAdProb;
 
-		 // Make sure m_adProb and m_adProb_reset fit the new allowed range
-		 Gem::Common::enforceRangeConstraint<fp_type>(
-			 m_adProb
-			 , m_minAdProb
-			 , m_maxAdProb
-			 , "GAdaptorT<>::setAdProbRange() / 1"
-		 );
-		 Gem::Common::enforceRangeConstraint<fp_type>(
-			 m_adProb_reset
-			 , m_minAdProb
-			 , m_maxAdProb
-			 , "GAdaptorT<>::setAdProbRange() / 2"
-		 );
-	 }
+        // Make sure m_adProb and m_adProb_reset fit the new allowed range
+        Gem::Common::enforceRangeConstraint<fp_type>(
+            m_adProb,
+            m_minAdProb,
+            m_maxAdProb,
+            "GAdaptorT<>::setAdProbRange() / 1"
+        );
+        Gem::Common::enforceRangeConstraint<fp_type>(
+            m_adProb_reset,
+            m_minAdProb,
+            m_maxAdProb,
+            "GAdaptorT<>::setAdProbRange() / 2"
+        );
+    }
 
-	 /***************************************************************************/
-	 /**
+    /***************************************************************************/
+    /**
 	  * Allows to retrieve the allowed range for adProb_ variation
 	  */
-	 auto getAdProbRange() const
-	 {
-		 return std::tuple<fp_type, fp_type>{m_minAdProb, m_maxAdProb};
-	 }
+    auto getAdProbRange() const {
+        return std::tuple<fp_type, fp_type>{m_minAdProb, m_maxAdProb};
+    }
 
-	 /***************************************************************************/
-	 /**
+    /***************************************************************************/
+    /**
 	  * Common interface for all adaptors to the adaption functionality. The user
 	  * specifies the actual actions in the customAdaptions() function.
 	  *
@@ -520,70 +507,60 @@ public:
 	  * @param gr A reference to a random number generator
 	  * @return The number of adaptions that were carried out
 	  */
-	 std::size_t adapt(
-		 T &val
-		 , const T &range
-		 , Gem::Hap::GRandomBase& gr
-	 ) {
-		 using namespace Gem::Common;
-		 using namespace Gem::Hap;
+    std::size_t adapt(T &val, const T &range, Gem::Hap::GRandomBase &gr) {
+        using namespace Gem::Common;
+        using namespace Gem::Hap;
 
-		 bool adapted = false;
+        bool adapted = false;
 
-		 // Update the adaption probability, if requested by the user
-		 if (m_adaptAdProb > fp_type(0.)) {
-			 m_adProb *= std::exp(
-				 m_normal_distribution(
-					 gr
-					 , typename std::normal_distribution<fp_type>::param_type(
-						 0.
-						 , m_adaptAdProb
-					 ))
-			 );
-			 Gem::Common::enforceRangeConstraint<fp_type>(
-				 m_adProb
-				 , m_minAdProb
-				 , m_maxAdProb
-				 , "GAdaptorT<>::adapt() / 1"
-			 );
-		 }
+        // Update the adaption probability, if requested by the user
+        if(m_adaptAdProb > fp_type(0.)) {
+            m_adProb *= std::exp(m_normal_distribution(
+                gr,
+                typename std::normal_distribution<fp_type>::param_type(0., m_adaptAdProb)
+            ));
+            Gem::Common::enforceRangeConstraint<fp_type>(
+                m_adProb,
+                m_minAdProb,
+                m_maxAdProb,
+                "GAdaptorT<>::adapt() / 1"
+            );
+        }
 
-		 if (adaptionMode::WITHPROBABILITY == m_adaptionMode) { // The most likely case is indeterminate (means: "sometimes" here)
-			 if (m_weighted_bool(gr, std::bernoulli_distribution::param_type(std::abs(m_adProb)))) { // Likelihood of m_adProb for the adaption
-				 adaptAdaption(range, gr);
-				 customAdaptions(
-					 val
-					 , range
-					 , gr
-				 );
-				 adapted = true;
-			 }
-		 } else if (adaptionMode::ALWAYS == m_adaptionMode) { // always adapt
-			 adaptAdaption(range, gr);
-			 customAdaptions(
-				 val
-				 , range
-				 , gr
-			 );
-			 adapted = true;
-		 }
+        if(adaptionMode::WITHPROBABILITY ==
+           m_adaptionMode) { // The most likely case is indeterminate (means: "sometimes" here)
+            if(m_weighted_bool(
+                   gr,
+                   std::bernoulli_distribution::param_type(std::abs(m_adProb))
+               )) { // Likelihood of m_adProb for the adaption
+                adaptAdaption(range, gr);
+                customAdaptions(val, range, gr);
+                adapted = true;
+            }
+        }
+        else if(adaptionMode::ALWAYS == m_adaptionMode) { // always adapt
+            adaptAdaption(range, gr);
+            customAdaptions(val, range, gr);
+            adapted = true;
+        }
 
-		 // No need to test for "m_adaptionMode == adaptionMode::NEVER" as no action is needed in this case
+        // No need to test for "m_adaptionMode == adaptionMode::NEVER" as no action is needed in this case
 
-		 if (adapted) {
-			 return std::size_t(1);
-		 } else {
-			 return std::size_t(0);
-		 }
-	 }
+        if(adapted) {
+            return std::size_t(1);
+        }
+        else {
+            return std::size_t(0);
+        }
+    }
 
-	 /* ----------------------------------------------------------------------------------
+    /* ----------------------------------------------------------------------------------
 	  * Adaption is tested in GAdaptorT<T, fp_type>::specificTestsNoFailuresExpected_GUnitTests()
 	  * ----------------------------------------------------------------------------------
 	  */
 
-	 /***************************************************************************/
-	 /**
+    /***************************************************************************/
+    /**
 	  * Common interface for all adaptors to the adaption functionality. The user
 	  * specifies the actual actions in the customAdaptions() function. This function
 	  * deals with entire parameter vectors. The philosophy behind these vectors is
@@ -604,73 +581,61 @@ public:
 	  * @param range A typical value range for type T
 	  * @return The number of adaptions that were carried out
 	  */
-	 std::size_t adapt(
-		 std::vector<T> &valVec
-		 , const T &range
-		 , Gem::Hap::GRandomBase& gr
-	 ) {
-		 using namespace Gem::Common;
-		 using namespace Gem::Hap;
+    std::size_t adapt(std::vector<T> &valVec, const T &range, Gem::Hap::GRandomBase &gr) {
+        using namespace Gem::Common;
+        using namespace Gem::Hap;
 
-		 std::size_t nAdapted = 0;
+        std::size_t nAdapted = 0;
 
-		 // Update the adaption probability, if requested by the user
-		 if (m_adaptAdProb > fp_type(0.)) {
-			 m_adProb *= std::exp(
-				 m_normal_distribution(
-					 gr
-					 , typename std::normal_distribution<fp_type>::param_type(
-						 0.
-						 , m_adaptAdProb
-					 ))
-			 );
-			 Gem::Common::enforceRangeConstraint<fp_type>(
-				 m_adProb
-				 , m_minAdProb
-				 , m_maxAdProb
-				 , "GAdaptorT<>::adapt() / 2"
-			 );
-		 }
+        // Update the adaption probability, if requested by the user
+        if(m_adaptAdProb > fp_type(0.)) {
+            m_adProb *= std::exp(m_normal_distribution(
+                gr,
+                typename std::normal_distribution<fp_type>::param_type(0., m_adaptAdProb)
+            ));
+            Gem::Common::enforceRangeConstraint<fp_type>(
+                m_adProb,
+                m_minAdProb,
+                m_maxAdProb,
+                "GAdaptorT<>::adapt() / 2"
+            );
+        }
 
-		 if (adaptionMode::WITHPROBABILITY == m_adaptionMode) { // The most likely case
-			 for (auto &val: valVec) {
-				 // A likelihood of m_adProb for adaption
-				 if (m_weighted_bool(gr, std::bernoulli_distribution::param_type(std::abs(m_adProb)))) {
-					 adaptAdaption(range, gr);
-					 customAdaptions(
-						 val
-						 , range
-						 , gr
-					 );
+        if(adaptionMode::WITHPROBABILITY == m_adaptionMode) { // The most likely case
+            for(auto &val : valVec) {
+                // A likelihood of m_adProb for adaption
+                if(m_weighted_bool(
+                       gr,
+                       std::bernoulli_distribution::param_type(std::abs(m_adProb))
+                   )) {
+                    adaptAdaption(range, gr);
+                    customAdaptions(val, range, gr);
 
-					 nAdapted += 1;
-				 }
-			 }
-		 } else if (adaptionMode::ALWAYS == m_adaptionMode) { // always adapt
-			 for (auto &val: valVec) {
-				 adaptAdaption(range, gr);
-				 customAdaptions(
-					 val
-					 , range
-					 , gr
-				 );
+                    nAdapted += 1;
+                }
+            }
+        }
+        else if(adaptionMode::ALWAYS == m_adaptionMode) { // always adapt
+            for(auto &val : valVec) {
+                adaptAdaption(range, gr);
+                customAdaptions(val, range, gr);
 
-				 nAdapted += 1;
-			 }
-		 }
+                nAdapted += 1;
+            }
+        }
 
-		 // No need to test for "m_adaptionMode == adaptionMode::NEVER" as no action is needed in this case
+        // No need to test for "m_adaptionMode == adaptionMode::NEVER" as no action is needed in this case
 
-		 return nAdapted;
-	 }
+        return nAdapted;
+    }
 
-	 /* ----------------------------------------------------------------------------------
+    /* ----------------------------------------------------------------------------------
 	  * Adaption is tested in GAdaptorT<T, fp_type>::specificTestsNoFailuresExpected_GUnitTests()
 	  * ----------------------------------------------------------------------------------
 	  */
 
-	 /***************************************************************************/
-	 /**
+    /***************************************************************************/
+    /**
 	  * Triggers updates when the optimization process has stalled. This function
 	  * resets the adaption probability to its original value
 	  *
@@ -678,42 +643,42 @@ public:
 	  * @param range A typical value range for type T
 	  * @return A boolean indicating whether updates were performed
 	  */
-	 virtual bool updateOnStall(
-		 const std::size_t &nStalls
-		 , const T &/*range*/
-	 ) {
+    virtual bool updateOnStall(
+        const std::size_t &nStalls,
+        const T & /*range*/
+    ) {
 #ifdef DEBUG
-		 if (0 == nStalls) {
-			 throw geneva_exception(
-				 g_error_streamer(DO_LOG, time_and_place)
-					 << "In GAdaptorT<>::updateOnStall(" << nStalls << "): Error!" << std::endl
-					 << "Function called for zero nStalls" << std::endl
-			 );
-		 }
+        if(0 == nStalls) {
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, time_and_place)
+                << "In GAdaptorT<>::updateOnStall(" << nStalls << "): Error!" << std::endl
+                << "Function called for zero nStalls" << std::endl
+            );
+        }
 #endif
 
-		 // Reset the adaption probability
-		 if (m_adProb == m_adProb_reset) {
-			 return false;
-		 } else {
-			 m_adProb = m_adProb_reset;
-			 return true;
-		 }
-	 }
+        // Reset the adaption probability
+        if(m_adProb == m_adProb_reset) {
+            return false;
+        }
+        else {
+            m_adProb = m_adProb_reset;
+            return true;
+        }
+    }
 
-	 /***************************************************************************/
-	 /**
+    /***************************************************************************/
+    /**
 	  * Allows derived classes to print diagnostic messages
 	  *
 	  * @return A diagnostic message
 	  */
-	 virtual std::string printDiagnostics() const
-	 {
-		 return std::string();
-	 }
+    virtual std::string printDiagnostics() const {
+        return std::string();
+    }
 
-	 /***************************************************************************/
-	 /**
+    /***************************************************************************/
+    /**
 	  * Allows to query specific properties of a given adaptor. Note that the
 	  * adaptor must have implemented a "response" for the query, as the function
 	  * will otherwise throw. This function is meant for debugging and profiling.
@@ -726,40 +691,40 @@ public:
 	  * @param property The property for which information is sought
 	  * @param data A vector, to which the properties should be added
 	  */
-	 void queryPropertyFrom(
-		 const std::string &adaptorName
-		 , const std::string &property
-		 , std::vector<boost::any> &data
-	 ) const {
-		 // Do nothing, if this query is not for us
-		 if (adaptorName != this->name()) {
-			 return;
-		 } else { // O.k., this query is for us!
-			 if (property == "adProb") { // The only property that can be queried for this class
-				 data.push_back(boost::any(m_adProb));
-			 } else { // Ask derived classes
-				 if (not this->customQueryProperty(
-					 property
-					 , data
-				 )) {
-					 throw geneva_exception(
-						 g_error_streamer(DO_LOG, time_and_place)
-							 << "In GAdaptorT<T, fp_type>::queryPropertyFrom(): Error!" << std::endl
-							 << "Function was called for unimplemented property " << property << std::endl
-							 << "on adaptor " << adaptorName << std::endl
-					 );
-				 }
-			 }
-		 }
-	 }
+    void queryPropertyFrom(
+        const std::string &adaptorName,
+        const std::string &property,
+        std::vector<boost::any> &data
+    ) const {
+        // Do nothing, if this query is not for us
+        if(adaptorName != this->name()) {
+            return;
+        }
+        else {                         // O.k., this query is for us!
+            if(property == "adProb") { // The only property that can be queried for this class
+                data.push_back(boost::any(m_adProb));
+            }
+            else { // Ask derived classes
+                if(not this->customQueryProperty(property, data)) {
+                    throw geneva_exception(
+                        g_error_streamer(DO_LOG, time_and_place)
+                        << "In GAdaptorT<T, fp_type>::queryPropertyFrom(): Error!" << std::endl
+                        << "Function was called for unimplemented property " << property
+                        << std::endl
+                        << "on adaptor " << adaptorName << std::endl
+                    );
+                }
+            }
+        }
+    }
 
-	 /***************************************************************************/
-	 /** @brief Allows derived classes to randomly initialize parameter members */
-	 virtual bool randomInit(Gem::Hap::GRandomBase&) = 0;
+    /***************************************************************************/
+    /** @brief Allows derived classes to randomly initialize parameter members */
+    virtual bool randomInit(Gem::Hap::GRandomBase &) = 0;
 
 protected:
-	/***************************************************************************/
-	 /**
+    /***************************************************************************/
+    /**
 	  * Loads the contents of another GAdaptorT<T, fp_type>. The function
 	  * is similar to a copy constructor (but with a pointer as
 	  * argument). As this function might be called in an environment
@@ -769,36 +734,36 @@ protected:
 	  *
 	  * @param gb A pointer to another GAdaptorT<T, fp_type>, camouflaged as a GObject
 	  */
-	 void load_(const GObject *cp) override
-	 {
-		 // Check that we are dealing with a GAdaptorT<T, fp_type> reference independent of this object and convert the pointer
-		 const GAdaptorT<T, fp_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GAdaptorT<T, fp_type>>(cp, this);
+    void load_(const GObject *cp) override {
+        // Check that we are dealing with a GAdaptorT<T, fp_type> reference independent of this object and convert the pointer
+        const GAdaptorT<T, fp_type> *p_load =
+            Gem::Common::g_convert_and_compare<GObject, GAdaptorT<T, fp_type>>(cp, this);
 
-		 // Load the parent class'es data
-		 GObject::load_(cp);
+        // Load the parent class'es data
+        GObject::load_(cp);
 
-		 // Then our own data
-		 m_adaptionCounter = p_load->m_adaptionCounter;
-		 m_adaptionThreshold = p_load->m_adaptionThreshold;
-		 m_adProb = p_load->m_adProb;
-		 m_adaptAdProb = p_load->m_adaptAdProb;
-		 m_minAdProb = p_load->m_minAdProb;
-		 m_maxAdProb = p_load->m_maxAdProb;
-		 m_adaptionMode = p_load->m_adaptionMode;
-		 m_adaptAdaptionProbability = p_load->m_adaptAdaptionProbability;
-		 m_adProb_reset = p_load->m_adProb_reset;
-	 }
+        // Then our own data
+        m_adaptionCounter = p_load->m_adaptionCounter;
+        m_adaptionThreshold = p_load->m_adaptionThreshold;
+        m_adProb = p_load->m_adProb;
+        m_adaptAdProb = p_load->m_adaptAdProb;
+        m_minAdProb = p_load->m_minAdProb;
+        m_maxAdProb = p_load->m_maxAdProb;
+        m_adaptionMode = p_load->m_adaptionMode;
+        m_adaptAdaptionProbability = p_load->m_adaptAdaptionProbability;
+        m_adProb_reset = p_load->m_adProb_reset;
+    }
 
-	/***************************************************************************/
-	/** @brief Allow access to this classes compare_ function */
-	friend void Gem::Common::compare_base_t<GAdaptorT<T, fp_type>>(
-		GAdaptorT<T, fp_type> const &
-		, GAdaptorT<T, fp_type> const &
-		, Gem::Common::GToken &
-	);
+    /***************************************************************************/
+    /** @brief Allow access to this classes compare_ function */
+    friend void Gem::Common::compare_base_t<GAdaptorT<T, fp_type>>(
+        GAdaptorT<T, fp_type> const &,
+        GAdaptorT<T, fp_type> const &,
+        Gem::Common::GToken &
+    );
 
-	/***************************************************************************/
-	/**
+    /***************************************************************************/
+    /**
      * Searches for compliance with expectations with respect to another object
      * of the same type
      *
@@ -806,100 +771,100 @@ protected:
      * @param e The expected outcome of the comparison
      * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
-	void compare_(
-		const GObject &cp
-		, const Gem::Common::expectation &e
-		, const fp_type &/*limit*/
-	) const override {
-		using namespace Gem::Common;
+    void compare_(
+        const GObject &cp,
+        const Gem::Common::expectation &e,
+        const fp_type & /*limit*/
+    ) const override {
+        using namespace Gem::Common;
 
-		// Check that we are dealing with a GAdaptorT<T, fp_type> reference independent of this object and convert the pointer
-		const GAdaptorT<T, fp_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GAdaptorT<T, fp_type>>(cp, this);
+        // Check that we are dealing with a GAdaptorT<T, fp_type> reference independent of this object and convert the pointer
+        const GAdaptorT<T, fp_type> *p_load =
+            Gem::Common::g_convert_and_compare<GObject, GAdaptorT<T, fp_type>>(cp, this);
 
-		GToken token("GAdaptorT<T, fp_type>", e);
+        GToken token("GAdaptorT<T, fp_type>", e);
 
-		// Compare our parent data ...
-		Gem::Common::compare_base_t<GObject>(*this, *p_load, token);
+        // Compare our parent data ...
+        Gem::Common::compare_base_t<GObject>(*this, *p_load, token);
 
-		// ... and then the local data
-		compare_t(IDENTITY(m_adaptionCounter, p_load->m_adaptionCounter), token);
-		compare_t(IDENTITY(m_adaptionThreshold, p_load->m_adaptionThreshold), token);
-		compare_t(IDENTITY(m_adProb, p_load->m_adProb), token);
-		compare_t(IDENTITY(m_adaptAdProb, p_load->m_adaptAdProb), token);
-		compare_t(IDENTITY(m_minAdProb, p_load->m_minAdProb), token);
-		compare_t(IDENTITY(m_maxAdProb, p_load->m_maxAdProb), token);
-		compare_t(IDENTITY(m_adaptionMode, p_load->m_adaptionMode), token);
-		compare_t(IDENTITY(m_adaptAdaptionProbability, p_load->m_adaptAdaptionProbability), token);
-		compare_t(IDENTITY(m_adProb_reset, p_load->m_adProb_reset), token);
+        // ... and then the local data
+        compare_t(IDENTITY(m_adaptionCounter, p_load->m_adaptionCounter), token);
+        compare_t(IDENTITY(m_adaptionThreshold, p_load->m_adaptionThreshold), token);
+        compare_t(IDENTITY(m_adProb, p_load->m_adProb), token);
+        compare_t(IDENTITY(m_adaptAdProb, p_load->m_adaptAdProb), token);
+        compare_t(IDENTITY(m_minAdProb, p_load->m_minAdProb), token);
+        compare_t(IDENTITY(m_maxAdProb, p_load->m_maxAdProb), token);
+        compare_t(IDENTITY(m_adaptionMode, p_load->m_adaptionMode), token);
+        compare_t(IDENTITY(m_adaptAdaptionProbability, p_load->m_adaptAdaptionProbability), token);
+        compare_t(IDENTITY(m_adProb_reset, p_load->m_adProb_reset), token);
 
-		// React on deviations from the expectation
-		token.evaluate();
-	}
+        // React on deviations from the expectation
+        token.evaluate();
+    }
 
-	/***************************************************************************/
-	 /**
+    /***************************************************************************/
+    /**
 	  * This function helps to adapt the adaption parameters, if certain conditions are met.
 	  * Adaption is triggered by the parameter object.
 	  *
 	  *  @param range A typical range for the parameter with type T
 	  */
-	 void adaptAdaption(
-		 const T &range
-		 , Gem::Hap::GRandomBase& gr
-	 ) {
-		 using namespace Gem::Common;
-		 using namespace Gem::Hap;
+    void adaptAdaption(const T &range, Gem::Hap::GRandomBase &gr) {
+        using namespace Gem::Common;
+        using namespace Gem::Hap;
 
-		 // The adaption parameters are modified every m_adaptionThreshold number of adaptions.
-		 if (m_adaptionThreshold > 0) {
-			 if (++m_adaptionCounter >= m_adaptionThreshold) {
-				 m_adaptionCounter = 0;
-				 customAdaptAdaption(range, gr);
-			 }
-		 } else if (m_adaptAdaptionProbability) { // Do the same with probability settings
-			 // Likelihood of m_adaptAdaptionProbability for the adaption
-			 if (m_weighted_bool(gr, std::bernoulli_distribution::param_type(std::abs(m_adaptAdaptionProbability)))) {
-				 customAdaptAdaption(range, gr);
-			 }
-		 }
-	 }
+        // The adaption parameters are modified every m_adaptionThreshold number of adaptions.
+        if(m_adaptionThreshold > 0) {
+            if(++m_adaptionCounter >= m_adaptionThreshold) {
+                m_adaptionCounter = 0;
+                customAdaptAdaption(range, gr);
+            }
+        }
+        else if(m_adaptAdaptionProbability) { // Do the same with probability settings
+            // Likelihood of m_adaptAdaptionProbability for the adaption
+            if(m_weighted_bool(
+                   gr,
+                   std::bernoulli_distribution::param_type(std::abs(m_adaptAdaptionProbability))
+               )) {
+                customAdaptAdaption(range, gr);
+            }
+        }
+    }
 
-	 /***************************************************************************/
-	 /**
+    /***************************************************************************/
+    /**
 	  * Adds a given property value to the vector or returns false, if the property
 	  * was not found. We do not check anymore if this query was for as, as this was
 	  * already done by  queryPropertyFrom(). Thus function needs to be re-implemented
 	  * by derived classes wishing to emit information. If there is no re-implementation,
 	  * this function will simply return false.
 	  */
-	 virtual bool customQueryProperty(
-		 const std::string &/*property*/
-		 , std::vector<boost::any> &data
-	 ) const {
-		 return false;
-	 }
+    virtual bool customQueryProperty(
+        const std::string & /*property*/
+        ,
+        std::vector<boost::any> &data
+    ) const {
+        return false;
+    }
 
-	 /***************************************************************************/
-	 /**
+    /***************************************************************************/
+    /**
 	  *  This function is re-implemented by derived classes, if they wish to
 	  *  implement special behavior for a new adaption run. E.g., an internal
 	  *  variable could be set to a new value.
 	  *
 	  *  @param range A typical range for the parameter with type T
 	  */
-	 virtual void customAdaptAdaption(
-		 const T &
-		 , Gem::Hap::GRandomBase& gr
-	 ) { /* nothing */}
+    virtual void customAdaptAdaption(const T &, Gem::Hap::GRandomBase &gr) { /* nothing */
+    }
 
-	 /***************************************************************************/
+    /***************************************************************************/
 
-	 /** @brief Adaption of values as specified by the user */
-	 virtual void customAdaptions(T &, const T &, Gem::Hap::GRandomBase&) = 0;
+    /** @brief Adaption of values as specified by the user */
+    virtual void customAdaptions(T &, const T &, Gem::Hap::GRandomBase &) = 0;
 
-	 /** @brief Creates a deep copy of this object */
-	 GObject *clone_() const override = 0;
-
+    /** @brief Creates a deep copy of this object */
+    GObject *clone_() const override = 0;
 
     /***************************************************************************/
     /**
@@ -907,21 +872,21 @@ protected:
      *
      * @return A boolean which indicates whether modifications were made
      */
-    bool modify_GUnitTests_() override
-    {
+    bool modify_GUnitTests_() override {
 #ifdef GEM_TESTING
 
         bool result = false;
 
         // Call the parent classes' functions
-        if (GObject::modify_GUnitTests_()) {
+        if(GObject::modify_GUnitTests_()) {
             result = true;
         }
 
         // Modify some local parameters
-        if (this->getAdaptionProbability() <= 0.5) {
+        if(this->getAdaptionProbability() <= 0.5) {
             this->setAdaptionProbability(0.75);
-        } else {
+        }
+        else {
             this->setAdaptionProbability(0.25);
         }
 
@@ -929,18 +894,17 @@ protected:
 
         return result;
 
-#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
         Gem::Common::condnotset("GAdaptorT<>::modify_GUnitTests", "GEM_TESTING");
-		 return false;
-#endif /* GEM_TESTING */
+        return false;
+#endif                  /* GEM_TESTING */
     }
 
     /***************************************************************************/
     /**
      * Performs self tests that are expected to succeed. This is needed for testing purposes
      */
-    void specificTestsNoFailureExpected_GUnitTests_() override
-    {
+    void specificTestsNoFailureExpected_GUnitTests_() override {
 #ifdef GEM_TESTING
 
         // Call the parent classes' functions
@@ -955,25 +919,24 @@ protected:
             std::shared_ptr<GAdaptorT<T, fp_type>> p_test = this->clone<GAdaptorT<T, fp_type>>();
 
             // The adaption probability should have been cloned
-            INFO("\n"
-                            << "p_test->getAdaptionProbability() = " << p_test->getAdaptionProbability() << "\n"
-                            << "this->getAdaptionProbability() = " << this->getAdaptionProbability() << "\n");
+            INFO(
+                "\n"
+                << "p_test->getAdaptionProbability() = " << p_test->getAdaptionProbability() << "\n"
+                << "this->getAdaptionProbability() = " << this->getAdaptionProbability() << "\n"
+            );
             CHECK(p_test->getAdaptionProbability() == this->getAdaptionProbability());
 
             // Set an appropriate range for the adaption
-            p_test->setAdProbRange(
-                    0.001
-                    , 1.
-            );
+            p_test->setAdProbRange(0.001, 1.);
 
             // Set the adaption probability to a sensible value and check the new setting
             fp_type testAdProb = fp_type(0.5);
-            CHECK_NOTHROW(
-                    p_test->setAdaptionProbability(testAdProb)
+            CHECK_NOTHROW(p_test->setAdaptionProbability(testAdProb));
+            INFO(
+                "\n"
+                << "p_test->getAdaptionProbability() = " << p_test->getAdaptionProbability() << "\n"
+                << "testAdProb = " << testAdProb << "\n"
             );
-            INFO("\n"
-                            << "p_test->getAdaptionProbability() = " << p_test->getAdaptionProbability() << "\n"
-                            << "testAdProb = " << testAdProb << "\n");
             CHECK(p_test->getAdaptionProbability() == testAdProb);
         }
 
@@ -985,25 +948,18 @@ protected:
             // Make sure the adaption probability is taken into account
             p_test->setAdaptionMode(adaptionMode::WITHPROBABILITY);
             // Set an appropriate range for the adaption
-            p_test->setAdProbRange(
-                    0.001
-                    , 1.
-            );
+            p_test->setAdProbRange(0.001, 1.);
 
             T testVal = T(0);
-            for (fp_type prob = 0.001; prob < 1.; prob += 0.01) {
+            for(fp_type prob = 0.001; prob < 1.; prob += 0.01) {
                 // Account for rounding problems
-                if (prob > 1.) {
+                if(prob > 1.) {
                     prob = 1.;
                 }
 
                 p_test->setAdaptionProbability(prob);
                 CHECK_NOTHROW(p_test->setAdaptionProbability(prob));
-                CHECK_NOTHROW(p_test->adapt(
-                        testVal
-                        , T(1)
-                        , gr
-                ));
+                CHECK_NOTHROW(p_test->adapt(testVal, T(1), gr));
             }
         }
 
@@ -1017,16 +973,13 @@ protected:
             // Prevent changes to m_adProb
             p_test->setAdaptAdProb(0.);
 
-            p_test->setAdProbRange(
-                    0.
-                    , 1.
-            );
+            p_test->setAdProbRange(0., 1.);
 
             const std::size_t nTests = 100000;
 
-            for (fp_type prob = 0.1; prob < 1.; prob += 0.1) {
+            for(fp_type prob = 0.1; prob < 1.; prob += 0.1) {
                 // Account for rounding problems
-                if (prob > 1.) {
+                if(prob > 1.) {
                     prob = 1.;
                 }
 
@@ -1039,13 +992,9 @@ protected:
                 p_test->setAdaptionProbability(prob);
 
                 // Mutating a boolean value a number of times should now result in a certain number of changed values
-                for (std::size_t i = 0; i < nTests; i++) {
-                    p_test->adapt(
-                            testVal
-                            , T(1)
-                            , gr
-                    );
-                    if (testVal != prevTestVal) {
+                for(std::size_t i = 0; i < nTests; i++) {
+                    p_test->adapt(testVal, T(1), gr);
+                    if(testVal != prevTestVal) {
                         nChanged++;
                         prevTestVal = testVal;
                     }
@@ -1053,10 +1002,12 @@ protected:
 
                 fp_type changeProb = fp_type(nChanged) / fp_type(nTests);
 
-                INFO("\n"
-                                << "changeProb = " << changeProb << "\n"
-                                << "prob = " << prob << "\n"
-                                << "with allowed window = [" << 0.8 * prob << " : " << 1.2 * prob << "]" << "\n");
+                INFO(
+                    "\n"
+                    << "changeProb = " << changeProb << "\n"
+                    << "prob = " << prob << "\n"
+                    << "with allowed window = [" << 0.8 * prob << " : " << 1.2 * prob << "]" << "\n"
+                );
                 CHECK((changeProb > 0.8 * prob && changeProb < 1.2 * prob));
             }
         }
@@ -1068,24 +1019,30 @@ protected:
 
             // Check setting of the different allowed values
             // false
-            CHECK_NOTHROW (p_test->setAdaptionMode(adaptionMode::NEVER));
-            INFO("\n"
-                            << "p_test->getAdaptionMode() = " << p_test->getAdaptionMode() << "\n"
-                            << "required value            = adaptionMode::NEVER\n");
+            CHECK_NOTHROW(p_test->setAdaptionMode(adaptionMode::NEVER));
+            INFO(
+                "\n"
+                << "p_test->getAdaptionMode() = " << p_test->getAdaptionMode() << "\n"
+                << "required value            = adaptionMode::NEVER\n"
+            );
             CHECK(p_test->getAdaptionMode() == adaptionMode::NEVER);
 
             // true
-            CHECK_NOTHROW (p_test->setAdaptionMode(adaptionMode::ALWAYS));
-            INFO("\n"
-                            << "p_test->getAdaptionMode() = " << p_test->getAdaptionMode() << "\n"
-                            << "required value            = adaptionMode::ALWAYS\n");
+            CHECK_NOTHROW(p_test->setAdaptionMode(adaptionMode::ALWAYS));
+            INFO(
+                "\n"
+                << "p_test->getAdaptionMode() = " << p_test->getAdaptionMode() << "\n"
+                << "required value            = adaptionMode::ALWAYS\n"
+            );
             CHECK(adaptionMode::ALWAYS == p_test->getAdaptionMode());
 
             // boost::logic::indeterminate
-            CHECK_NOTHROW (p_test->setAdaptionMode(adaptionMode::WITHPROBABILITY));
-            INFO("\n"
-                            << "p_test->getAdaptionMode() = " << p_test->getAdaptionMode() << "\n"
-                            << "required value            = boost::logic::indeterminate\n");
+            CHECK_NOTHROW(p_test->setAdaptionMode(adaptionMode::WITHPROBABILITY));
+            INFO(
+                "\n"
+                << "p_test->getAdaptionMode() = " << p_test->getAdaptionMode() << "\n"
+                << "required value            = boost::logic::indeterminate\n"
+            );
             CHECK(adaptionMode::WITHPROBABILITY == p_test->getAdaptionMode());
         }
 
@@ -1098,39 +1055,35 @@ protected:
             const std::size_t nTests = 10000;
 
             // false: There should never be adaptions, independent of the adaption probability
-            CHECK_NOTHROW (p_test->setAdaptionMode(adaptionMode::NEVER));
+            CHECK_NOTHROW(p_test->setAdaptionMode(adaptionMode::NEVER));
             T currentValue = T(0);
             T oldValue = currentValue;
-            for (std::size_t i = 0; i < nTests; i++) {
-                p_test->adapt(
-                        currentValue
-                        , T(1)
-                        , gr
+            for(std::size_t i = 0; i < nTests; i++) {
+                p_test->adapt(currentValue, T(1), gr);
+                INFO(
+                    "\n"
+                    << "Values differ, when they shouldn't:"
+                    << "currentValue = " << currentValue << "\n"
+                    << "oldValue     = " << oldValue << "\n"
+                    << "iteration    = " << i << "\n"
                 );
-                INFO("\n"
-                                << "Values differ, when they shouldn't:"
-                                << "currentValue = " << currentValue << "\n"
-                                << "oldValue     = " << oldValue << "\n"
-                                << "iteration    = " << i << "\n");
                 CHECK(currentValue == oldValue);
             }
 
             // true: Adaptions should happen always, independent of the adaption probability
-            CHECK_NOTHROW (p_test->setAdaptionMode(adaptionMode::ALWAYS));
+            CHECK_NOTHROW(p_test->setAdaptionMode(adaptionMode::ALWAYS));
             currentValue = T(0);
             oldValue = currentValue;
-            for (std::size_t i = 0; i < nTests; i++) {
-                p_test->adapt(
-                        currentValue
-                        , T(1)
-                        , gr
+            for(std::size_t i = 0; i < nTests; i++) {
+                p_test->adapt(currentValue, T(1), gr);
+                INFO(
+                    "\n"
+                    << "Values are identical when they shouldn't be:" << "\n"
+                    << "currentValue = " << currentValue << "\n"
+                    << "oldValue     = " << oldValue << "\n"
+                    << "iteration    = " << i << "\n"
+                    << (this->printDiagnostics()).c_str()
                 );
-                INFO("\n"
-                                << "Values are identical when they shouldn't be:" << "\n"
-                                << "currentValue = " << currentValue << "\n"
-                                << "oldValue     = " << oldValue << "\n"
-                                << "iteration    = " << i << "\n"
-                                << (this->printDiagnostics()).c_str());
                 CHECK(currentValue != oldValue);
                 oldValue = currentValue;
             }
@@ -1145,19 +1098,24 @@ protected:
             std::shared_ptr<GAdaptorT<T, fp_type>> p_test = this->clone<GAdaptorT<T, fp_type>>();
 
             // The adaption probability should have been cloned
-            INFO("\n"
-                            << "p_test->getAdaptAdaptionProbability() = " << p_test->getAdaptAdaptionProbability() << "\n"
-                            << "this->getAdaptAdaptionProbability() = " << this->getAdaptAdaptionProbability() << "\n");
+            INFO(
+                "\n"
+                << "p_test->getAdaptAdaptionProbability() = "
+                << p_test->getAdaptAdaptionProbability() << "\n"
+                << "this->getAdaptAdaptionProbability() = " << this->getAdaptAdaptionProbability()
+                << "\n"
+            );
             CHECK(p_test->getAdaptAdaptionProbability() == this->getAdaptAdaptionProbability());
 
             // Set the adaption probability to a sensible value and check the new setting
             fp_type testAdProb = 0.5;
-            CHECK_NOTHROW(
-                    p_test->setAdaptAdaptionProbability(testAdProb)
+            CHECK_NOTHROW(p_test->setAdaptAdaptionProbability(testAdProb));
+            INFO(
+                "\n"
+                << "p_test->getAdaptAdaptionProbability() = "
+                << p_test->getAdaptAdaptionProbability() << "\n"
+                << "testAdProb = " << testAdProb << "\n"
             );
-            INFO("\n"
-                            << "p_test->getAdaptAdaptionProbability() = " << p_test->getAdaptAdaptionProbability() << "\n"
-                            << "testAdProb = " << testAdProb << "\n");
             CHECK(p_test->getAdaptAdaptionProbability() == testAdProb);
         }
 
@@ -1179,51 +1137,57 @@ protected:
             std::uint32_t oldAdaptionCounter = p_test->getAdaptionCounter();
 
             // Set the adaption threshold to a specific value
-            for (std::uint32_t adThr = 10; adThr > 0; adThr--) {
+            for(std::uint32_t adThr = 10; adThr > 0; adThr--) {
                 // Just make sure our logic is right and we stay in the right window
                 CHECK(adThr <= 10);
 
                 CHECK_NOTHROW(p_test->setAdaptionThreshold(adThr));
-                INFO("\n"
-                                << "p_test->getAdaptionThreshold() = " << p_test->getAdaptionThreshold() << "\n"
-                                << "adThr = " << adThr << "\n");
+                INFO(
+                    "\n"
+                    << "p_test->getAdaptionThreshold() = " << p_test->getAdaptionThreshold() << "\n"
+                    << "adThr = " << adThr << "\n"
+                );
                 CHECK(p_test->getAdaptionThreshold() == adThr);
 
                 // Check that the adaption counter does not exceed the threshold by
                 // adapting a value a number of times > adThr
-                for (std::uint32_t adCnt = 0; adCnt < 3 * adThr; adCnt++) {
+                for(std::uint32_t adCnt = 0; adCnt < 3 * adThr; adCnt++) {
                     // Do the actual adaption
-                    if (p_test->adapt(
-                            testVal
-                            , T(1)
-                            , gr
-                    )) {
+                    if(p_test->adapt(testVal, T(1), gr)) {
                         // Check that testVal has indeed been adapted
-                        INFO("\n"
-                                        << "testVal = " << testVal << "\n"
-                                        << "oldTestVal = " << oldTestVal << "\n"
-                                        << "adThr = " << adThr << "\n"
-                                        << "adCnt = " << adCnt << "\n");
+                        INFO(
+                            "\n"
+                            << "testVal = " << testVal << "\n"
+                            << "oldTestVal = " << oldTestVal << "\n"
+                            << "adThr = " << adThr << "\n"
+                            << "adCnt = " << adCnt << "\n"
+                        );
                         CHECK(testVal != oldTestVal);
                         oldTestVal = testVal;
 
                         // Check that the adaption counter has changed at all, as it should
                         // for adaption thresholds > 1
-                        if (adThr > 1) {
-                            INFO("\n"
-                                            << "p_test->getAdaptionCounter() = " << p_test->getAdaptionCounter() << "\n"
-                                            << "oldAdaptionCounter = " << oldAdaptionCounter << "\n"
-                                            << "adThr = " << adThr << "\n"
-                                            << "adCnt = " << adCnt << "\n");
+                        if(adThr > 1) {
+                            INFO(
+                                "\n"
+                                << "p_test->getAdaptionCounter() = " << p_test->getAdaptionCounter()
+                                << "\n"
+                                << "oldAdaptionCounter = " << oldAdaptionCounter << "\n"
+                                << "adThr = " << adThr << "\n"
+                                << "adCnt = " << adCnt << "\n"
+                            );
                             CHECK(p_test->getAdaptionCounter() != oldAdaptionCounter);
                             oldAdaptionCounter = p_test->getAdaptionCounter();
                         }
 
                         // Check that the adaption counter is behaving nicely
-                        INFO("\n"
-                                        << "p_test->getAdaptionCounter() = " << p_test->getAdaptionCounter() << "\n"
-                                        << "adThr = " << adThr << "\n"
-                                        << "adCnt = " << adCnt << "\n");
+                        INFO(
+                            "\n"
+                            << "p_test->getAdaptionCounter() = " << p_test->getAdaptionCounter()
+                            << "\n"
+                            << "adThr = " << adThr << "\n"
+                            << "adCnt = " << adCnt << "\n"
+                        );
                         CHECK(p_test->getAdaptionCounter() < adThr);
                     }
                 }
@@ -1239,17 +1203,15 @@ protected:
 
             T testVal = T(0);
             T oldTestVal = T(0);
-            for (std::size_t i = 0; i < nTests; i++) {
-                CHECK_NOTHROW(p_test->customAdaptions(
-                        testVal
-                        , T(1)
-                        , gr
-                ));
-                INFO("\n"
-                                << "Found identical values after adaption took place" << "\n"
-                                << "testVal = " << testVal << "\n"
-                                << "oldTestVal = " << oldTestVal << "\n"
-                                << "iteration = " << i << "\n");
+            for(std::size_t i = 0; i < nTests; i++) {
+                CHECK_NOTHROW(p_test->customAdaptions(testVal, T(1), gr));
+                INFO(
+                    "\n"
+                    << "Found identical values after adaption took place" << "\n"
+                    << "testVal = " << testVal << "\n"
+                    << "oldTestVal = " << oldTestVal << "\n"
+                    << "iteration = " << i << "\n"
+                );
                 CHECK(testVal != oldTestVal);
                 oldTestVal = testVal;
             }
@@ -1258,16 +1220,18 @@ protected:
         //------------------------------------------------------------------------------
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-        Gem::Common::condnotset("GAdaptorT<>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
-#endif /* GEM_TESTING */
+        Gem::Common::condnotset(
+            "GAdaptorT<>::specificTestsNoFailureExpected_GUnitTests",
+            "GEM_TESTING"
+        );
+#endif                  /* GEM_TESTING */
     }
 
     /***************************************************************************/
     /**
      * Performs self tests that are expected to fail. This is needed for testing purposes.
      */
-    void specificTestsFailuresExpected_GUnitTests_() override
-    {
+    void specificTestsFailuresExpected_GUnitTests_() override {
 #ifdef GEM_TESTING
 
         // Call the parent classes' functions
@@ -1282,10 +1246,7 @@ protected:
             std::shared_ptr<GAdaptorT<T, fp_type>> p_test = this->clone<GAdaptorT<T, fp_type>>();
 
             // Setting a probability < 0 should throw
-            CHECK_THROWS_AS(
-                    p_test->setAdaptionProbability(-1.)
-            , geneva_exception
-            );
+            CHECK_THROWS_AS(p_test->setAdaptionProbability(-1.), geneva_exception);
         }
 
         //------------------------------------------------------------------------------
@@ -1294,10 +1255,7 @@ protected:
             std::shared_ptr<GAdaptorT<T, fp_type>> p_test = this->clone<GAdaptorT<T, fp_type>>();
 
             // Setting a probability > 1 should throw
-            CHECK_THROWS_AS(
-                    p_test->setAdaptionProbability(2.)
-            , geneva_exception
-            );
+            CHECK_THROWS_AS(p_test->setAdaptionProbability(2.), geneva_exception);
         }
 
         //------------------------------------------------------------------------------
@@ -1306,10 +1264,7 @@ protected:
             std::shared_ptr<GAdaptorT<T, fp_type>> p_test = this->clone<GAdaptorT<T, fp_type>>();
 
             // Setting a probability < 0 should throw
-            CHECK_THROWS_AS(
-                    p_test->setAdaptAdaptionProbability(-1.)
-            , geneva_exception
-            );
+            CHECK_THROWS_AS(p_test->setAdaptAdaptionProbability(-1.), geneva_exception);
         }
 
         //------------------------------------------------------------------------------
@@ -1318,37 +1273,39 @@ protected:
             std::shared_ptr<GAdaptorT<T, fp_type>> p_test = this->clone<GAdaptorT<T, fp_type>>();
 
             // Setting a probability > 1 should throw
-            CHECK_THROWS_AS(
-                    p_test->setAdaptAdaptionProbability(2.)
-            , geneva_exception
-            );
+            CHECK_THROWS_AS(p_test->setAdaptAdaptionProbability(2.), geneva_exception);
         }
 
         //------------------------------------------------------------------------------
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-        Gem::Common::condnotset("GAdaptorT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
-#endif /* GEM_TESTING */
+        Gem::Common::condnotset(
+            "GAdaptorT<>::specificTestsFailuresExpected_GUnitTests",
+            "GEM_TESTING"
+        );
+#endif                  /* GEM_TESTING */
     }
 
-	 /***************************************************************************/
-	 // Protected data
+    /***************************************************************************/
+    // Protected data
 
-	 std::normal_distribution<fp_type> m_normal_distribution; ///< Helps with gauss-type mutation
-	 std::uniform_real_distribution<fp_type> m_uniform_real_distribution; ///< Access to uniformly distributed floating point random numbers
-	 std::bernoulli_distribution m_weighted_bool; ///< Access to boolean random numbers with a given probability structure
+    std::normal_distribution<fp_type> m_normal_distribution; ///< Helps with gauss-type mutation
+    std::uniform_real_distribution<fp_type>
+        m_uniform_real_distribution; ///< Access to uniformly distributed floating point random numbers
+    std::bernoulli_distribution
+        m_weighted_bool; ///< Access to boolean random numbers with a given probability structure
 
 private:
-	/***************************************************************************/
-	/**
+    /***************************************************************************/
+    /**
      * Retrieves the id of the adaptor. Purely virtual, must be implemented by the
      * actual adaptors.
      *
      * @return The id of the adaptor
      */
-	virtual Gem::Geneva::adaptorId getAdaptorId_() const = 0;
+    virtual Gem::Geneva::adaptorId getAdaptorId_() const = 0;
 
-	/* ----------------------------------------------------------------------------------
+    /* ----------------------------------------------------------------------------------
      * Tested in GBooleanAdaptor
      * Tested in GInt32FlipAdaptor
      * Tested in GInt32GaussAdaptor
@@ -1356,31 +1313,36 @@ private:
      * ----------------------------------------------------------------------------------
      */
 
-	/***************************************************************************/
-	 /**
+    /***************************************************************************/
+    /**
 	  * Emits a name for this class / object
 	  */
-	 std::string name_() const override {
-		 return std::string("GAdaptorT");
-	 }
+    std::string name_() const override {
+        return std::string("GAdaptorT");
+    }
 
-	 /***************************************************************************/
+    /***************************************************************************/
 
-	 std::uint32_t m_adaptionCounter = 0;///< A local counter
-	 std::uint32_t m_adaptionThreshold = DEFAULTADAPTIONTHRESHOLD;///< Specifies after how many adaptions the adaption itself should be adapted
-	 fp_type m_adProb = DEFAULTADPROB;///< internal representation of the adaption probability
-	 fp_type m_adaptAdProb = DEFAUPTADAPTADPROB;///< The rate, at which adProb_ should be adapted
-	 fp_type m_minAdProb = DEFMINADPROB;///< The lower allowed value for adProb_ during variation
-	 fp_type m_maxAdProb = DEFMAXADPROB;///< The upper allowed value for adProb_ during variation
-	 adaptionMode m_adaptionMode = adaptionMode::WITHPROBABILITY; ///< Whether to adapt always, never, or with a given probability
-	 fp_type m_adaptAdaptionProbability = DEFAULTADAPTADAPTIONPROB;///< Influences the likelihood for the adaption of the adaption parameters
-	 fp_type m_adProb_reset = m_adProb;///< The value to which adProb_ will be reset if "updateOnStall()" is called
+    std::uint32_t m_adaptionCounter = 0; ///< A local counter
+    std::uint32_t m_adaptionThreshold =
+        DEFAULTADAPTIONTHRESHOLD; ///< Specifies after how many adaptions the adaption itself should be adapted
+    fp_type m_adProb = DEFAULTADPROB; ///< internal representation of the adaption probability
+    fp_type m_adaptAdProb = DEFAUPTADAPTADPROB; ///< The rate, at which adProb_ should be adapted
+    fp_type m_minAdProb = DEFMINADPROB; ///< The lower allowed value for adProb_ during variation
+    fp_type m_maxAdProb = DEFMAXADPROB; ///< The upper allowed value for adProb_ during variation
+    adaptionMode m_adaptionMode = adaptionMode::
+        WITHPROBABILITY; ///< Whether to adapt always, never, or with a given probability
+    fp_type m_adaptAdaptionProbability =
+        DEFAULTADAPTADAPTIONPROB; ///< Influences the likelihood for the adaption of the adaption parameters
+    fp_type m_adProb_reset =
+        m_adProb; ///< The value to which adProb_ will be reset if "updateOnStall()" is called
 };
 
 /******************************************************************************/
 /** @brief Specialization of GAdaptorT<T,fp_type>::adapt(vec) for the T==bool */
-template<>
-std::size_t GAdaptorT<bool, double>::adapt(std::vector<bool> &, const bool &, Gem::Hap::GRandomBase&);
+template <>
+std::size_t
+GAdaptorT<bool, double>::adapt(std::vector<bool> &, const bool &, Gem::Hap::GRandomBase &);
 
 /******************************************************************************/
 
@@ -1391,12 +1353,9 @@ std::size_t GAdaptorT<bool, double>::adapt(std::vector<bool> &, const bool &, Ge
  * BOOST_SERIALIZATION_ASSUME_ABSTRACT(T) */
 
 namespace boost::serialization {
-template<typename T, typename fp_type>
-struct is_abstract<Gem::Geneva::GAdaptorT<T, fp_type>> : public boost::true_type
-{};
-template<typename T, typename fp_type>
-struct is_abstract<const Gem::Geneva::GAdaptorT<T, fp_type>> : public boost::true_type
-{};
+template <typename T, typename fp_type>
+struct is_abstract<Gem::Geneva::GAdaptorT<T, fp_type>> : public boost::true_type {};
+template <typename T, typename fp_type>
+struct is_abstract<const Gem::Geneva::GAdaptorT<T, fp_type>> : public boost::true_type {};
 } /* namespace boost::serialization */
 /******************************************************************************/
-

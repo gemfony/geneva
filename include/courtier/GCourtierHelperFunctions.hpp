@@ -34,24 +34,23 @@
 
 // Standard headers go here
 
-#include <iostream>
-#include <iomanip>
-#include <sstream>
-#include <string>
-#include <sstream>
-#include <vector>
-#include <cmath>
 #include <cfloat>
 #include <climits>
+#include <cmath>
+#include <iomanip>
+#include <iostream>
+#include <sstream>
+#include <string>
+#include <vector>
 
 // Boost headers go here
-#include <boost/lexical_cast.hpp>
 #include <boost/asio.hpp>
+#include <boost/lexical_cast.hpp>
 
 // Geneva headers go here
+#include "common/GErrorStreamer.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
-#include "common/GErrorStreamer.hpp"
 #include "courtier/GCourtierEnums.hpp"
 
 namespace Gem::Courtier {
@@ -67,17 +66,14 @@ G_API_COURTIER std::size_t extractDataSize(const char *, const std::size_t &);
 G_API_COURTIER void disconnect(boost::asio::ip::tcp::socket &);
 
 /** @brief Create a boolean mask */
-G_API_COURTIER std::vector<bool> getBooleanMask(
-	std::size_t vecSize
-	, std::size_t start
-	, std::size_t end
-);
+G_API_COURTIER std::vector<bool>
+getBooleanMask(std::size_t vecSize, std::size_t start, std::size_t end);
 
 /** @brief Translate the processingStatus into a clear-text string */
-G_API_COURTIER std::string psToStr(const processingStatus&);
+G_API_COURTIER std::string psToStr(const processingStatus &);
 
 /** @brief Translate the networked_consumer_payload_command into a clear-text string */
-G_API_COURTIER std::string pcToStr(const networked_consumer_payload_command&);
+G_API_COURTIER std::string pcToStr(const networked_consumer_payload_command &);
 
 /******************************************************************************/
 

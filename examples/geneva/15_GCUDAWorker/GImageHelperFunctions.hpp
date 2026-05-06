@@ -51,29 +51,27 @@
  * to various graphics formats on disc. The file currently only holds implementations
  * for the PNG format
  */
-namespace Gem::Common
-{
-    /** @brief Loads a PNG file from disk and outputs an RGB array (8 bits/channel) */
-    bool loadPngToRGB(const std::string& filename,
-                      std::vector<unsigned char>&,
-                      int&,
-                      int&);
+namespace Gem::Common {
+/** @brief Loads a PNG file from disk and outputs an RGB array (8 bits/channel) */
+bool loadPngToRGB(const std::string &filename, std::vector<unsigned char> &, int &, int &);
 
-    /** @brief Writes a raw 8-bit RGB array (3 bytes per pixel) to a PNG file */
-    bool writeRGBtoPNG(const std::string&,
-                       const std::vector<unsigned char>&,
-                       int,
-                       int);
+/** @brief Writes a raw 8-bit RGB array (3 bytes per pixel) to a PNG file */
+bool writeRGBtoPNG(const std::string &, const std::vector<unsigned char> &, int, int);
 
-    /** @brief Transfers an image to a local data structure in RGB format */
-    bool loadImageToRGB(const std::string&, std::vector<unsigned char>&, int&, int&);
+/** @brief Transfers an image to a local data structure in RGB format */
+bool loadImageToRGB(const std::string &, std::vector<unsigned char> &, int &, int &);
 
-    /** @brief Transfers an image to a local data structure with color channels encoded as floats */
-    bool loadImageToFloat(const std::string&, std::vector<float>&, int&, int&);
+/** @brief Transfers an image to a local data structure with color channels encoded as floats */
+bool loadImageToFloat(const std::string &, std::vector<float> &, int &, int &);
 
-    /** @brief Writes an image in RGB format to disc */
-    bool saveRGBImageToFile(const std::string&, const std::vector<unsigned char>&, const int, const int);
+/** @brief Writes an image in RGB format to disc */
+bool saveRGBImageToFile(
+    const std::string &,
+    const std::vector<unsigned char> &,
+    const int,
+    const int
+);
 
-    /** @brief Writes an image in RGB format to disc */
-    bool saveFloatImageToFile(const std::string&, const std::vector<float>&, const int, const int);
+/** @brief Writes an image in RGB format to disc */
+bool saveFloatImageToFile(const std::string &, const std::vector<float> &, const int, const int);
 } /* namespace Gem::Common */

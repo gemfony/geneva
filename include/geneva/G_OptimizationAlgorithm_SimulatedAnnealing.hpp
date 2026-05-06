@@ -38,8 +38,8 @@
 // Boost headers go here
 
 // Geneva headers go here
-#include "common/GExceptions.hpp"
 #include "common/GCommonHelperFunctionsT.hpp"
+#include "common/GExceptions.hpp"
 #include "common/GPlotDesigner.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GParameterSet.hpp"
@@ -56,23 +56,20 @@ namespace Gem::Geneva {
  * an infrastructure for simulated annealing (Geneva-style, i.e. with larger populations).
  */
 class GSimulatedAnnealing // NOLINT(cppcoreguidelines-special-member-functions)
-    : public G_OptimizationAlgorithm_ParChild
-{
+  : public G_OptimizationAlgorithm_ParChild {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
-    template<typename Archive>
+    template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar
-        & make_nvp(
-            "G_OptimizationAlgorithm_ParChild"
-            , boost::serialization::base_object<G_OptimizationAlgorithm_ParChild>(*this))
-        & BOOST_SERIALIZATION_NVP(m_t0)
-        & BOOST_SERIALIZATION_NVP(m_t)
-        & BOOST_SERIALIZATION_NVP(m_alpha)
-        & BOOST_SERIALIZATION_NVP(m_n_threads);
+        ar &make_nvp(
+            "G_OptimizationAlgorithm_ParChild",
+            boost::serialization::base_object<G_OptimizationAlgorithm_ParChild>(*this)
+        ) & BOOST_SERIALIZATION_NVP(m_t0) &
+            BOOST_SERIALIZATION_NVP(m_t) & BOOST_SERIALIZATION_NVP(m_alpha) &
+            BOOST_SERIALIZATION_NVP(m_n_threads);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -107,25 +104,25 @@ protected:
     // Virtual or overridden protected functions
 
     /** @brief Adds local configuration options to a GParserBuilder object */
-    G_API_GENEVA void addConfigurationOptions_(
-        Gem::Common::GParserBuilder &gpb
-    ) override;
+    G_API_GENEVA void addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) override;
 
     /** @brief Loads the data of another GSimulatedAnnealingT object, camouflaged as a GObject */
     G_API_GENEVA void load_(const GObject *cp) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GSimulatedAnnealing>(
-        GSimulatedAnnealing const &
-        , GSimulatedAnnealing const &
-        , Gem::Common::GToken &
+        GSimulatedAnnealing const &,
+        GSimulatedAnnealing const &,
+        Gem::Common::GToken &
     );
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
     G_API_GENEVA void compare_(
         const GObject &cp // the other object
-        , const Gem::Common::expectation &e // the expectation for this object, e.g. equality
-        , const double &limit// the limit for allowed deviations of floating point types
+        ,
+        const Gem::Common::expectation &e // the expectation for this object, e.g. equality
+        ,
+        const double &limit // the limit for allowed deviations of floating point types
     ) const override;
 
     /** @brief Resets the settings of this population to what was configured when the optimize()-call was issued */
@@ -192,8 +189,8 @@ private:
     /***************************************************************************/
     // Data
 
-    double m_t0 = SA_T0; ///< The start temperature, used in simulated annealing
-    double m_t = m_t0; ///< The current temperature, used in simulated annealing
+    double m_t0 = SA_T0;       ///< The start temperature, used in simulated annealing
+    double m_t = m_t0;         ///< The current temperature, used in simulated annealing
     double m_alpha = SA_ALPHA; ///< A constant used in the cooling schedule in simulated annealing
 
     std::uint16_t m_n_threads = Gem::Common::DEFAULTNHARDWARETHREADS; ///< The number of threads

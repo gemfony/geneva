@@ -79,9 +79,9 @@
 // ── Portability macro ────────────────────────────────────────────────────────
 
 #ifdef __CUDACC__
-#  define G_CALLABLE __host__ __device__
+#define G_CALLABLE __host__ __device__
 #else
-#  define G_CALLABLE
+#define G_CALLABLE
 #endif
 
 // ── Constants ────────────────────────────────────────────────────────────────
@@ -89,36 +89,36 @@
 // Not using Boost or <numbers> so this file remains includable from .cu units.
 // The value matches boost::math::constants::pi<double>() to full double precision.
 #ifdef __CUDACC__
-#  include <math_constants.h>         // CUDART_PI (CUDART_E does not exist)
-#  define GBM_PI  CUDART_PI
+#include <math_constants.h> // CUDART_PI (CUDART_E does not exist)
+#define GBM_PI CUDART_PI
 // e = exp(1): no CUDART_E constant, use the literal directly.
-#  define GBM_E   2.718281828459045235360
+#define GBM_E 2.718281828459045235360
 #else
-#  include <cmath>
+#include <cmath>
 inline constexpr double GBM_PI = 3.14159265358979323846;
-inline constexpr double GBM_E  = 2.71828182845904523536;
+inline constexpr double GBM_E = 2.71828182845904523536;
 #endif
 
 // ── Integer IDs (mirror solverFunction enum, avoids including GFunctionIndividual.hpp from .cu) ──
 
 namespace Gem::Geneva::BM {
 
-constexpr int FUNC_PARABOLA         =  0;
-constexpr int FUNC_NOISYPARABOLA    =  1;
-constexpr int FUNC_ROSENBROCK       =  2;
-constexpr int FUNC_ACKLEY           =  3;
-constexpr int FUNC_RASTRIGIN        =  4;
-constexpr int FUNC_SCHWEFEL         =  5;
-constexpr int FUNC_SALOMON          =  6;
-constexpr int FUNC_NEGPARABOLA      =  7;
-constexpr int FUNC_ACKLEY_CANONICAL =  8;
-constexpr int FUNC_GRIEWANK         =  9;
-constexpr int FUNC_LEVY             = 10;
-constexpr int FUNC_STYBLINSKI_TANG  = 11;
-constexpr int FUNC_ELLIPSOID        = 12;
-constexpr int FUNC_MICHALEWICZ      = 13;
-constexpr int FUNC_ZAKHAROV         = 14;
-constexpr int FUNC_MAX              = 14; ///< highest valid ID
+constexpr int FUNC_PARABOLA = 0;
+constexpr int FUNC_NOISYPARABOLA = 1;
+constexpr int FUNC_ROSENBROCK = 2;
+constexpr int FUNC_ACKLEY = 3;
+constexpr int FUNC_RASTRIGIN = 4;
+constexpr int FUNC_SCHWEFEL = 5;
+constexpr int FUNC_SALOMON = 6;
+constexpr int FUNC_NEGPARABOLA = 7;
+constexpr int FUNC_ACKLEY_CANONICAL = 8;
+constexpr int FUNC_GRIEWANK = 9;
+constexpr int FUNC_LEVY = 10;
+constexpr int FUNC_STYBLINSKI_TANG = 11;
+constexpr int FUNC_ELLIPSOID = 12;
+constexpr int FUNC_MICHALEWICZ = 13;
+constexpr int FUNC_ZAKHAROV = 14;
+constexpr int FUNC_MAX = 14; ///< highest valid ID
 
 // ── Individual function implementations ─────────────────────────────────────
 
@@ -129,11 +129,10 @@ constexpr int FUNC_MAX              = 14; ///< highest valid ID
  * Baseline function — every algorithm should solve this in few iterations.
  * Condition number = 1; no scale imbalance between dimensions.
  */
-G_CALLABLE inline double
-parabola(const double* x, int n)
-{
+G_CALLABLE inline double parabola(const double *x, int n) {
     double r = 0.;
-    for (int i = 0; i < n; ++i) r += x[i] * x[i];
+    for(int i = 0; i < n; ++i)
+        r += x[i] * x[i];
     return r;
 }
 
@@ -144,11 +143,10 @@ parabola(const double* x, int n)
  * The cosine overlay creates a dense shell structure of local optima
  * centred on the origin while the global parabolic shape remains.
  */
-G_CALLABLE inline double
-noisyParabola(const double* x, int n)
-{
+G_CALLABLE inline double noisyParabola(const double *x, int n) {
     double sq = 0.;
-    for (int i = 0; i < n; ++i) sq += x[i] * x[i];
+    for(int i = 0; i < n; ++i)
+        sq += x[i] * x[i];
     return (cos(sq) + 2.) * sq;
 }
 
@@ -159,11 +157,9 @@ noisyParabola(const double* x, int n)
  * The narrow, curved banana-shaped valley is nearly flat along its floor,
  * making it hard for gradient-free methods and slow for gradient descent.
  */
-G_CALLABLE inline double
-rosenbrock(const double* x, int n)
-{
+G_CALLABLE inline double rosenbrock(const double *x, int n) {
     double r = 0.;
-    for (int i = 0; i < n - 1; ++i) {
+    for(int i = 0; i < n - 1; ++i) {
         double t = x[i + 1] - x[i] * x[i];
         double u = 1. - x[i];
         r += 100. * t * t + u * u;
@@ -177,11 +173,9 @@ rosenbrock(const double* x, int n)
  * Non-canonical form retained for backward compatibility.
  * For the standard CEC/BBOB benchmark, use ackleyCanonical().
  */
-G_CALLABLE inline double
-ackley(const double* x, int n)
-{
+G_CALLABLE inline double ackley(const double *x, int n) {
     double r = 0.;
-    for (int i = 0; i < n - 1; ++i) {
+    for(int i = 0; i < n - 1; ++i) {
         double s = x[i] * x[i] + x[i + 1] * x[i + 1];
         r += exp(-0.2) * sqrt(s) + 3. * (cos(2. * x[i]) + sin(2. * x[i + 1]));
     }
@@ -195,11 +189,9 @@ ackley(const double* x, int n)
  * ~10ⁿ regularly spaced local minima of similar depth. Recommended domain [-5.12, 5.12].
  * Standard benchmark for multimodal robustness.
  */
-G_CALLABLE inline double
-rastrigin(const double* x, int n)
-{
+G_CALLABLE inline double rastrigin(const double *x, int n) {
     double r = 10. * n;
-    for (int i = 0; i < n; ++i)
+    for(int i = 0; i < n; ++i)
         r += x[i] * x[i] - 10. * cos(2. * GBM_PI * x[i]);
     return r;
 }
@@ -211,11 +203,9 @@ rastrigin(const double* x, int n)
  * all secondary optima. Recommended domain [-500, 500].
  * Note: Geneva normalises by 1/n; the standard formulation does not.
  */
-G_CALLABLE inline double
-schwefel(const double* x, int n)
-{
+G_CALLABLE inline double schwefel(const double *x, int n) {
     double r = 0.;
-    for (int i = 0; i < n; ++i)
+    for(int i = 0; i < n; ++i)
         r += -x[i] * sin(sqrt(fabs(x[i])));
     return r / n;
 }
@@ -226,11 +216,10 @@ schwefel(const double* x, int n)
  * Multimodal, radially symmetric, non-separable. Global minimum f=0 at origin.
  * Recommended domain [-100, 100]. Concentric shells of local optima.
  */
-G_CALLABLE inline double
-salomon(const double* x, int n)
-{
+G_CALLABLE inline double salomon(const double *x, int n) {
     double sq = 0.;
-    for (int i = 0; i < n; ++i) sq += x[i] * x[i];
+    for(int i = 0; i < n; ++i)
+        sq += x[i] * x[i];
     const double r = sqrt(sq);
     return -cos(2. * GBM_PI * r) + 0.1 * r + 1.;
 }
@@ -240,9 +229,7 @@ salomon(const double* x, int n)
  *
  * Global maximum f=0 at origin. Used only to verify Geneva's maximisation mode.
  */
-G_CALLABLE inline double
-negParabola(const double* x, int n)
-{
+G_CALLABLE inline double negParabola(const double *x, int n) {
     return -parabola(x, n);
 }
 
@@ -254,11 +241,9 @@ negParabola(const double* x, int n)
  * Almost flat outer plateau (near-zero gradient) followed by steep drop to global basin.
  * Standard benchmark in CEC and BBOB suites.
  */
-G_CALLABLE inline double
-ackleyCanonical(const double* x, int n)
-{
+G_CALLABLE inline double ackleyCanonical(const double *x, int n) {
     double sq = 0., cs = 0.;
-    for (int i = 0; i < n; ++i) {
+    for(int i = 0; i < n; ++i) {
         sq += x[i] * x[i];
         cs += cos(2. * GBM_PI * x[i]);
     }
@@ -273,12 +258,10 @@ ackleyCanonical(const double* x, int n)
  * Recommended domain [-600, 600]. Quadratic envelope with fine multimodal structure;
  * distinguishes global-structure exploitation from local exploration.
  */
-G_CALLABLE inline double
-griewank(const double* x, int n)
-{
+G_CALLABLE inline double griewank(const double *x, int n) {
     double sq = 0., prod = 1.;
-    for (int i = 0; i < n; ++i) {
-        sq   += x[i] * x[i];
+    for(int i = 0; i < n; ++i) {
+        sq += x[i] * x[i];
         prod *= cos(x[i] / sqrt((double)(i + 1)));
     }
     return sq / 4000. - prod + 1.;
@@ -291,18 +274,16 @@ griewank(const double* x, int n)
  * Separable, multimodal. Global minimum f=0 at (1,...,1).
  * Recommended domain [-10, 10]. Narrow closely-spaced basins test fine-grained precision.
  */
-G_CALLABLE inline double
-levy(const double* x, int n)
-{
+G_CALLABLE inline double levy(const double *x, int n) {
     auto w = [](double xi) { return 1. + (xi - 1.) / 4.; };
 
     const double w0 = w(x[0]);
     double r = sin(GBM_PI * w0) * sin(GBM_PI * w0);
 
-    for (int i = 0; i < n - 1; ++i) {
-        const double wi   = w(x[i]);
-        const double wi1  = w(x[i + 1]);
-        const double sm   = sin(GBM_PI * wi1);
+    for(int i = 0; i < n - 1; ++i) {
+        const double wi = w(x[i]);
+        const double wi1 = w(x[i + 1]);
+        const double sm = sin(GBM_PI * wi1);
         r += (wi - 1.) * (wi - 1.) * (1. + 10. * sm * sm);
     }
     const double wn = w(x[n - 1]);
@@ -318,11 +299,9 @@ levy(const double* x, int n)
  * Recommended domain [-5, 5]. The off-centre optimum exposes initialisation bias
  * and mutation symmetry artefacts of gradient-free algorithms.
  */
-G_CALLABLE inline double
-styblinskiTang(const double* x, int n)
-{
+G_CALLABLE inline double styblinskiTang(const double *x, int n) {
     double r = 0.;
-    for (int i = 0; i < n; ++i) {
+    for(int i = 0; i < n; ++i) {
         const double xi = x[i];
         const double x2 = xi * xi;
         r += x2 * x2 - 16. * x2 + 5. * xi;
@@ -337,11 +316,9 @@ styblinskiTang(const double* x, int n)
  * Recommended domain [-5, 5]. The extreme scale imbalance across dimensions tests
  * self-adaptive per-dimension step-size mechanisms (sigma in ES adaptors).
  */
-G_CALLABLE inline double
-ellipsoid(const double* x, int n)
-{
+G_CALLABLE inline double ellipsoid(const double *x, int n) {
     double r = 0.;
-    for (int i = 0; i < n; ++i) {
+    for(int i = 0; i < n; ++i) {
         const double exp = (n > 1) ? 6. * i / (n - 1.) : 0.;
         r += pow(10., exp) * x[i] * x[i];
     }
@@ -356,11 +333,9 @@ ellipsoid(const double* x, int n)
  * NOTE: Set minVar=0, maxVar≈3.14159 in the factory configuration!
  * The high exponent m=20 creates extremely narrow ridges. Tests fine-grained local search.
  */
-G_CALLABLE inline double
-michalewicz(const double* x, int n)
-{
+G_CALLABLE inline double michalewicz(const double *x, int n) {
     double r = 0.;
-    for (int i = 0; i < n; ++i) {
+    for(int i = 0; i < n; ++i) {
         const double s = sin((double)(i + 1) * x[i] * x[i] / GBM_PI);
         // pow(s,20) with s possibly negative: use s*s raised to 10 to stay positive
         const double s2 = s * s;
@@ -377,12 +352,10 @@ michalewicz(const double* x, int n)
  * Recommended domain [-5, 10]. The weighted linear coupling introduces dimension-
  * weighted interactions without multimodality; tests non-separable step adaptation.
  */
-G_CALLABLE inline double
-zakharov(const double* x, int n)
-{
+G_CALLABLE inline double zakharov(const double *x, int n) {
     double sq = 0., lin = 0.;
-    for (int i = 0; i < n; ++i) {
-        sq  += x[i] * x[i];
+    for(int i = 0; i < n; ++i) {
+        sq += x[i] * x[i];
         lin += 0.5 * (i + 1) * x[i];
     }
     return sq + lin * lin + lin * lin * lin * lin;
@@ -402,29 +375,43 @@ zakharov(const double* x, int n)
  * @param n       Number of parameters (dimension)
  * @return        Fitness value (lower = better for all minimisation functions)
  */
-G_CALLABLE inline double
-eval(int funcId, const double* x, int n)
-{
-    switch (funcId) {
-        case FUNC_PARABOLA:         return parabola(x, n);
-        case FUNC_NOISYPARABOLA:    return noisyParabola(x, n);
-        case FUNC_ROSENBROCK:       return rosenbrock(x, n);
-        case FUNC_ACKLEY:           return ackley(x, n);
-        case FUNC_RASTRIGIN:        return rastrigin(x, n);
-        case FUNC_SCHWEFEL:         return schwefel(x, n);
-        case FUNC_SALOMON:          return salomon(x, n);
-        case FUNC_NEGPARABOLA:      return negParabola(x, n);
-        case FUNC_ACKLEY_CANONICAL: return ackleyCanonical(x, n);
-        case FUNC_GRIEWANK:         return griewank(x, n);
-        case FUNC_LEVY:             return levy(x, n);
-        case FUNC_STYBLINSKI_TANG:  return styblinskiTang(x, n);
-        case FUNC_ELLIPSOID:        return ellipsoid(x, n);
-        case FUNC_MICHALEWICZ:      return michalewicz(x, n);
-        case FUNC_ZAKHAROV:         return zakharov(x, n);
-        default:                    return 0.;  // unreachable with valid input
+G_CALLABLE inline double eval(int funcId, const double *x, int n) {
+    switch(funcId) {
+    case FUNC_PARABOLA:
+        return parabola(x, n);
+    case FUNC_NOISYPARABOLA:
+        return noisyParabola(x, n);
+    case FUNC_ROSENBROCK:
+        return rosenbrock(x, n);
+    case FUNC_ACKLEY:
+        return ackley(x, n);
+    case FUNC_RASTRIGIN:
+        return rastrigin(x, n);
+    case FUNC_SCHWEFEL:
+        return schwefel(x, n);
+    case FUNC_SALOMON:
+        return salomon(x, n);
+    case FUNC_NEGPARABOLA:
+        return negParabola(x, n);
+    case FUNC_ACKLEY_CANONICAL:
+        return ackleyCanonical(x, n);
+    case FUNC_GRIEWANK:
+        return griewank(x, n);
+    case FUNC_LEVY:
+        return levy(x, n);
+    case FUNC_STYBLINSKI_TANG:
+        return styblinskiTang(x, n);
+    case FUNC_ELLIPSOID:
+        return ellipsoid(x, n);
+    case FUNC_MICHALEWICZ:
+        return michalewicz(x, n);
+    case FUNC_ZAKHAROV:
+        return zakharov(x, n);
+    default:
+        return 0.; // unreachable with valid input
     }
 }
 
 } /* namespace Gem::Geneva::BM */
 
-/** @} */  // end of GBenchmarkFunctions group
+/** @} */ // end of GBenchmarkFunctions group

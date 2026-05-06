@@ -47,18 +47,16 @@ namespace Gem::Geneva {
  * to gradient descents.
  */
 class GGradientDescent_PersonalityTraits // NOLINT(cppcoreguidelines-special-member-functions)
-    : public GPersonalityTraits
-{
+  : public GPersonalityTraits {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
-    template<typename Archive>
+    template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar
-        & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPersonalityTraits)
-        & BOOST_SERIALIZATION_NVP(m_popPos);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPersonalityTraits) &
+            BOOST_SERIALIZATION_NVP(m_popPos);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -69,7 +67,8 @@ public:
     /** @brief The default constructor */
     G_API_GENEVA GGradientDescent_PersonalityTraits() = default;
     /** @brief The copy contructor */
-    G_API_GENEVA GGradientDescent_PersonalityTraits(const GGradientDescent_PersonalityTraits &) = default;
+    G_API_GENEVA
+    GGradientDescent_PersonalityTraits(const GGradientDescent_PersonalityTraits &) = default;
 
     /** @brief The standard destructor */
     G_API_GENEVA ~GGradientDescent_PersonalityTraits() override = default;
@@ -91,16 +90,18 @@ protected:
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GGradientDescent_PersonalityTraits>(
-        GGradientDescent_PersonalityTraits const &
-        , GGradientDescent_PersonalityTraits const &
-        , Gem::Common::GToken &
+        GGradientDescent_PersonalityTraits const &,
+        GGradientDescent_PersonalityTraits const &,
+        Gem::Common::GToken &
     );
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
     G_API_GENEVA void compare_(
         const GObject & // the other object
-        , const Gem::Common::expectation & // the expectation for this object, e.g. equality
-        , const double & // the limit for allowed deviations of floating point types
+        ,
+        const Gem::Common::expectation & // the expectation for this object, e.g. equality
+        ,
+        const double & // the limit for allowed deviations of floating point types
     ) const override;
 
     /** @brief Applies modifications to this object. This is needed for testing purposes */
@@ -127,4 +128,3 @@ private:
 } /* namespace Gem::Geneva */
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GGradientDescent_PersonalityTraits) // NOLINT
-

@@ -34,52 +34,51 @@
 
 // Standard header files go here
 #include <algorithm>
-#include <filesystem>
 #include <cassert>
-#include <cmath>
 #include <cfloat>
+#include <cmath>
+#include <csignal>
 #include <cstdio>
 #include <cstdlib>
-#include <csignal>
 #include <deque>
+#include <filesystem>
 #include <fstream>
+#include <functional>
 #include <iomanip>
 #include <iostream>
 #include <limits>
 #include <map>
+#include <memory>
 #include <sstream>
 #include <string>
+#include <tuple>
 #include <typeinfo>
 #include <vector>
-#include <functional>
-#include <memory>
-#include <tuple>
-#include <limits>
 
 // Boost header files go here
 #include <boost/archive/basic_archive.hpp>
 #include <boost/cast.hpp>
-#include <boost/lexical_cast.hpp>
 #include <boost/lambda/lambda.hpp>
+#include <boost/lexical_cast.hpp>
 #include <boost/numeric/conversion/bounds.hpp> // get rid of the numeric_limits<double>::min() vs. numeric_limits<int>::min() problem
 #include <boost/program_options.hpp>
 #include <boost/property_tree/ptree.hpp>
-#include <boost/utility.hpp>
 #include <boost/property_tree/ptree_serialization.hpp>
+#include <boost/utility.hpp>
 
 // Geneva header files go here
+#include "common/GCommonHelperFunctionsT.hpp"
+#include "common/GCommonInterfaceT.hpp"
 #include "common/GDefaultValueT.hpp"
 #include "common/GErrorStreamer.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GExpectationChecksT.hpp"
-#include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GLogger.hpp"
-#include "common/GCommonInterfaceT.hpp"
 #include "common/GSerializeTupleT.hpp"
 #include "common/GTupleIO.hpp"
 #include "geneva/GOptimizationEnums.hpp"
-#include "hap/GRandomT.hpp"
 #include "hap/GRandomDistributionsT.hpp"
+#include "hap/GRandomT.hpp"
 
 #ifdef GEM_TESTING
 
@@ -99,14 +98,12 @@ namespace Gem::Geneva {
  * std::shared_ptr<GObject> or std::unique_ptr<GObject>, hence this class has a
  * very central role.
  */
-class GObject
-    : public Gem::Common::GCommonInterfaceT<GObject>
-{
+class GObject : public Gem::Common::GCommonInterfaceT<GObject> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
-    template<typename Archive>
-    void serialize(Archive &/*ar*/, const unsigned int) {
+    template <typename Archive>
+    void serialize(Archive & /*ar*/, const unsigned int) {
         using boost::serialization::make_nvp;
 
         /* nothing */
@@ -118,13 +115,13 @@ public:
     // Defaulted constructors, destructor and assignment operators -- rule of five
 
     G_API_GENEVA GObject() = default;
-    G_API_GENEVA GObject(GObject const & cp) = default;
-    G_API_GENEVA GObject(GObject && cp) = default;
+    G_API_GENEVA GObject(GObject const &cp) = default;
+    G_API_GENEVA GObject(GObject &&cp) = default;
 
     G_API_GENEVA virtual ~GObject() = default;
 
-    G_API_GENEVA GObject& operator=(GObject const&) = default;
-    G_API_GENEVA GObject& operator=(GObject &&) = default;
+    G_API_GENEVA GObject &operator=(GObject const &) = default;
+    G_API_GENEVA GObject &operator=(GObject &&) = default;
 
     /***************************************************************************/
     /**
@@ -140,7 +137,7 @@ public:
      * both for Windows and Unix-Systems.
      */
     static G_API_GENEVA void sigHupHandler(int signum) {
-        if (G_SIGHUP == signum) {
+        if(G_SIGHUP == signum) {
             GObject::GenevaSigHupSent = 1;
         }
     }
@@ -151,17 +148,16 @@ protected:
     G_API_GENEVA void load_(const GObject *) override;
 
     /** @brief Allow access to this classes compare_ function */
-    friend void Gem::Common::compare_base_t<GObject>(
-        GObject const &
-        , GObject const &
-        , Gem::Common::GToken &
-    );
+    friend void
+    Gem::Common::compare_base_t<GObject>(GObject const &, GObject const &, Gem::Common::GToken &);
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
     G_API_GENEVA void compare_(
         const GObject & // the other object
-        , const Gem::Common::expectation & // the expectation for this object, e.g. equality
-        , const double & // the limit for allowed deviations of floating point types
+        ,
+        const Gem::Common::expectation & // the expectation for this object, e.g. equality
+        ,
+        const double & // the limit for allowed deviations of floating point types
     ) const override;
 
     /** @brief Adds local configuration options to a GParserBuilder object */
@@ -183,7 +179,7 @@ private:
 
     // Needed to allow interruption of the optimization run without loss of data
     // Npte that "volatile" is needed in order for the signal handler to work
-    static volatile G_API_GENEVA std::sig_atomic_t GenevaSigHupSent;  // Initialized in GObject.cpp
+    static volatile G_API_GENEVA std::sig_atomic_t GenevaSigHupSent; // Initialized in GObject.cpp
 };
 
 /******************************************************************************/

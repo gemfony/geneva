@@ -33,7 +33,7 @@
 
 #include "courtier/GDemoProcessingContainers.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Courtier::GSimpleContainer) // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Courtier::GSimpleContainer)       // NOLINT
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Courtier::GRandomNumberContainer) // NOLINT
 
 namespace Gem::Courtier {
@@ -44,24 +44,24 @@ namespace Gem::Courtier {
 *
 * @param snr The number to be stored in the object
 */
-GSimpleContainer::GSimpleContainer(const std::size_t& snr)
-    : Gem::Courtier::GProcessingContainerT<GSimpleContainer, bool>(1)
-    , m_stored_number(snr)
-{ /* nothing */ }
+GSimpleContainer::GSimpleContainer(const std::size_t &snr)
+  : Gem::Courtier::GProcessingContainerT<GSimpleContainer, bool>(1)
+  , m_stored_number(snr) { /* nothing */
+}
 
 /********************************************************************************************/
 /**
 * Allows to specify the tasks to be performed for this object. We simply do nothing,
 * as this class is for debugging and benchmarking purposes only.
 */
-void GSimpleContainer::process_(const std::vector<bool> &) { /* nothing */ }
+void GSimpleContainer::process_(const std::vector<bool> &) { /* nothing */
+}
 
 /********************************************************************************************/
 /**
 * Prints out this functions stored number
 */
-void GSimpleContainer::print() const
-{
+void GSimpleContainer::print() const {
     std::cout << "storedNumber_ = " << m_stored_number << std::endl;
 }
 
@@ -71,12 +71,11 @@ void GSimpleContainer::print() const
  *
  * @param nrnr The desired amount of random numbers to be added to the randomNumbers_ vector
  */
-GRandomNumberContainer::GRandomNumberContainer(const std::size_t& nrnr)
-    : Gem::Courtier::GProcessingContainerT<GRandomNumberContainer, bool>(1)
-{
+GRandomNumberContainer::GRandomNumberContainer(const std::size_t &nrnr)
+  : Gem::Courtier::GProcessingContainerT<GRandomNumberContainer, bool>(1) {
     Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
     std::uniform_real_distribution<double> uniform_real_distribution;
-    for(std::size_t i=0; i<nrnr; i++) {
+    for(std::size_t i = 0; i < nrnr; i++) {
         randomNumbers_.push_back(uniform_real_distribution(gr));
     }
 }
@@ -94,9 +93,8 @@ void GRandomNumberContainer::process_(const std::vector<bool> &) {
 /**
  * Prints out this functions random number container
  */
-void GRandomNumberContainer::print() const
-{
-    for(std::size_t i=0; i<randomNumbers_.size(); i++) {
+void GRandomNumberContainer::print() const {
+    for(std::size_t i = 0; i < randomNumbers_.size(); i++) {
         std::cout << i << ": " << randomNumbers_[i] << std::endl;
     }
 }
@@ -104,4 +102,3 @@ void GRandomNumberContainer::print() const
 /********************************************************************************************/
 
 } // namespace Gem::Courtier
-

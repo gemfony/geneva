@@ -38,8 +38,8 @@
 // Boost header files go here
 
 // Geneva header files go here
-#include "common/GTypeToStringT.hpp"
 #include "common/GPODVectorT.hpp"
+#include "common/GTypeToStringT.hpp"
 #include "geneva/GObject.hpp"
 #include "geneva/GParameterBaseWithAdaptorsT.hpp"
 
@@ -50,32 +50,29 @@ namespace Gem::Geneva {
  * A class holding a collection of mutable parameters - usually just an atomic value (double,
  * long, bool, ...).
  */
-template<typename num_type>
+template <typename num_type>
 class GParameterCollectionT // NOLINT(cppcoreguidelines-special-member-functions)
-    : public GParameterBaseWithAdaptorsT<num_type>
-    , public Gem::Common::GPODVectorT<num_type>
-{
+  : public GParameterBaseWithAdaptorsT<num_type>
+  , public Gem::Common::GPODVectorT<num_type> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
-    template<typename Archive>
+    template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
-        ar
-        & make_nvp(
-            "GParameterBaseWithAdaptorsT_num_type"
-            , boost::serialization::base_object<GParameterBaseWithAdaptorsT<num_type>>(*this))
-        & make_nvp(
-            "GStdSimpleVectorInterfaceT_num_type"
-            , boost::serialization::base_object<Gem::Common::GPODVectorT<num_type>>(*this));
+        ar &make_nvp(
+            "GParameterBaseWithAdaptorsT_num_type",
+            boost::serialization::base_object<GParameterBaseWithAdaptorsT<num_type>>(*this)
+        ) &
+            make_nvp(
+                "GStdSimpleVectorInterfaceT_num_type",
+                boost::serialization::base_object<Gem::Common::GPODVectorT<num_type>>(*this)
+            );
     }
     ///////////////////////////////////////////////////////////////////////
 
     // Make sure this class can only be instantiated with num_type as an arithmetic type
-    static_assert(
-        std::is_arithmetic<num_type>::value
-        , "num_type should be an arithmetic type"
-    );
+    static_assert(std::is_arithmetic<num_type>::value, "num_type should be an arithmetic type");
 
 public:
     /***************************************************************************/
@@ -91,16 +88,10 @@ public:
      * @param nval The number of values
      * @param val  The value to be assigned to each position
      */
-    GParameterCollectionT(
-        const std::size_t &nval
-        , const num_type &val
-    )
-        :
-        GParameterBaseWithAdaptorsT<num_type>()
-        , Gem::Common::GPODVectorT<num_type>(
-        nval
-        , val
-    ) { /* nothing */ }
+    GParameterCollectionT(const std::size_t &nval, const num_type &val)
+      : GParameterBaseWithAdaptorsT<num_type>()
+      , Gem::Common::GPODVectorT<num_type>(nval, val) { /* nothing */
+    }
 
     /***************************************************************************/
     /**
@@ -164,59 +155,32 @@ public:
      * @param ptr The boost::property_tree object the data should be saved to
      * @param id The id assigned to this object
      */
-    void toPropertyTree(
-        pt::ptree &ptr
-        , const std::string &baseName
-    ) const override {
+    void toPropertyTree(pt::ptree &ptr, const std::string &baseName) const override {
 #ifdef DEBUG
         // Check that the object isn't empty
-        if (this->empty()) {
+        if(this->empty()) {
             throw geneva_exception(
-                g_error_streamer(
-                    DO_LOG
-                    , time_and_place
-                )
-                    << "In GParameterCollectionT<num_type>::toPropertyTree(): Error!" << std::endl
-                    << "Object is empty!" << std::endl
+                g_error_streamer(DO_LOG, time_and_place)
+                << "In GParameterCollectionT<num_type>::toPropertyTree(): Error!" << std::endl
+                << "Object is empty!" << std::endl
             );
         }
 #endif /* DEBUG */
 
-        ptr.put(
-            baseName + ".name"
-            , this->getParameterName());
-        ptr.put(
-            baseName + ".type"
-            , this->name());
-        ptr.put(
-            baseName + ".baseType"
-            , Gem::Common::GTypeToStringT<num_type>::value());
-        ptr.put(
-            baseName + ".isLeaf"
-            , this->isLeaf());
-        ptr.put(
-            baseName + ".nVals"
-            , this->size());
+        ptr.put(baseName + ".name", this->getParameterName());
+        ptr.put(baseName + ".type", this->name());
+        ptr.put(baseName + ".baseType", Gem::Common::GTypeToStringT<num_type>::value());
+        ptr.put(baseName + ".isLeaf", this->isLeaf());
+        ptr.put(baseName + ".nVals", this->size());
 
         typename GParameterCollectionT<num_type>::const_iterator cit;
         std::size_t pos = 0;
-        for (cit = this->begin(); cit != this->end(); ++cit) {
-            pos = std::distance(
-                this->begin()
-                , cit
-            );
-            ptr.put(
-                baseName + "values.value" + Gem::Common::to_string(pos)
-                , *cit
-            );
+        for(cit = this->begin(); cit != this->end(); ++cit) {
+            pos = std::distance(this->begin(), cit);
+            ptr.put(baseName + "values.value" + Gem::Common::to_string(pos), *cit);
         }
-        ptr.put(
-            baseName + ".initRandom"
-            , false
-        ); // Unused for the creation of a property tree
-        ptr.put(
-            baseName + ".adaptionsActive"
-            , this->adaptionsActive());
+        ptr.put(baseName + ".initRandom", false); // Unused for the creation of a property tree
+        ptr.put(baseName + ".adaptionsActive", this->adaptionsActive());
     }
 
     /***************************************************************************/
@@ -236,11 +200,8 @@ protected:
      */
     void load_(const GObject *cp) override {
         // Check that we are dealing with a  GParameterCollectionT<num_type> reference independent of this object and convert the pointer
-        const GParameterCollectionT<num_type>
-            *p_load = Gem::Common::g_convert_and_compare<GObject, GParameterCollectionT<num_type>>(
-            cp
-            , this
-        );
+        const GParameterCollectionT<num_type> *p_load =
+            Gem::Common::g_convert_and_compare<GObject, GParameterCollectionT<num_type>>(cp, this);
 
         // Load our parent class'es data ...
         GParameterBaseWithAdaptorsT<num_type>::load_(cp);
@@ -249,9 +210,9 @@ protected:
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GParameterCollectionT<num_type>>(
-        GParameterCollectionT<num_type> const &
-        , GParameterCollectionT<num_type> const &
-        , Gem::Common::GToken &
+        GParameterCollectionT<num_type> const &,
+        GParameterCollectionT<num_type> const &,
+        Gem::Common::GToken &
     );
 
     /***************************************************************************/
@@ -264,37 +225,23 @@ protected:
      * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
     void compare_(
-        const GObject &cp
-        , const Gem::Common::expectation &e
-        , const double &/*limit*/
+        const GObject &cp,
+        const Gem::Common::expectation &e,
+        const double & /*limit*/
     ) const override {
         using namespace Gem::Common;
 
         // Check that we are dealing with a  GParameterCollectionT<num_type> reference independent of this object and convert the pointer
-        const GParameterCollectionT<num_type>
-            *p_load = Gem::Common::g_convert_and_compare<GObject, GParameterCollectionT<num_type>>(
-            cp
-            , this
-        );
+        const GParameterCollectionT<num_type> *p_load =
+            Gem::Common::g_convert_and_compare<GObject, GParameterCollectionT<num_type>>(cp, this);
 
-        GToken token(
-            "GParameterCollectionT<num_type>"
-            , e
-        );
+        GToken token("GParameterCollectionT<num_type>", e);
 
         // Compare our parent data ...
-        Gem::Common::compare_base_t<GParameterBaseWithAdaptorsT<num_type>>(
-            *this
-            , *p_load
-            , token
-        );
+        Gem::Common::compare_base_t<GParameterBaseWithAdaptorsT<num_type>>(*this, *p_load, token);
 
         // We access the relevant data of one of the parent classes directly for simplicity reasons
-        compare_t(
-            IDENTITY(this->m_data_cnt
-                     , p_load->m_data_cnt)
-            , token
-        );
+        compare_t(IDENTITY(this->m_data_cnt, p_load->m_data_cnt), token);
 
         // React on deviations from the expectation
         token.evaluate();
@@ -311,15 +258,19 @@ protected:
         bool result = false;
 
         // Call the parent classes' functions
-        if (GParameterBaseWithAdaptorsT<num_type>::modify_GUnitTests_()) { result = true; }
-        if (Gem::Common::GPODVectorT<num_type>::modify_GUnitTests_()) { result = true; }
+        if(GParameterBaseWithAdaptorsT<num_type>::modify_GUnitTests_()) {
+            result = true;
+        }
+        if(Gem::Common::GPODVectorT<num_type>::modify_GUnitTests_()) {
+            result = true;
+        }
 
         return result;
 
-#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
         Gem::Common::condnotset("GParameterCollectionT<>::modify_GUnitTests", "GEM_TESTING");
-       return false;
-#endif /* GEM_TESTING */
+        return false;
+#endif                  /* GEM_TESTING */
     }
 
     /***************************************************************************/
@@ -332,9 +283,12 @@ protected:
         GParameterBaseWithAdaptorsT<num_type>::specificTestsNoFailureExpected_GUnitTests_();
         Gem::Common::GPODVectorT<num_type>::specificTestsNoFailureExpected_GUnitTests_();
 
-#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-        Gem::Common::condnotset("GParameterCollectionT<>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
-#endif /* GEM_TESTING */
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+        Gem::Common::condnotset(
+            "GParameterCollectionT<>::specificTestsNoFailureExpected_GUnitTests",
+            "GEM_TESTING"
+        );
+#endif                  /* GEM_TESTING */
     }
 
     /***************************************************************************/
@@ -347,10 +301,12 @@ protected:
         GParameterBaseWithAdaptorsT<num_type>::specificTestsFailuresExpected_GUnitTests_();
         Gem::Common::GPODVectorT<num_type>::specificTestsFailuresExpected_GUnitTests_();
 
-
-#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-        Gem::Common::condnotset("GParameterCollectionT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
-#endif /* GEM_TESTING */
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+        Gem::Common::condnotset(
+            "GParameterCollectionT<>::specificTestsFailuresExpected_GUnitTests",
+            "GEM_TESTING"
+        );
+#endif                  /* GEM_TESTING */
     }
 
     /******************************************************************************/
@@ -378,13 +334,11 @@ private:
      *
      * @return The number of adaptions that were carried out
      */
-    std::size_t adapt_(
-            Gem::Hap::GRandomBase &gr
-    ) override {
+    std::size_t adapt_(Gem::Hap::GRandomBase &gr) override {
         return GParameterBaseWithAdaptorsT<num_type>::applyAdaptor(
-                Gem::Common::GPODVectorT<num_type>::m_data_cnt
-                , this->range()
-                , gr
+            Gem::Common::GPODVectorT<num_type>::m_data_cnt,
+            this->range(),
+            gr
         );
     }
 
@@ -409,16 +363,9 @@ private:
  * @brief The content of the BOOST_SERIALIZATION_ASSUME_ABSTRACT(num_type) macro. Needed for Boost.Serialization
  */
 namespace boost::serialization {
-template<typename num_type>
-struct is_abstract<Gem::Geneva::GParameterCollectionT<num_type>> :
-    public boost::true_type
-{
-};
-template<typename num_type>
-struct is_abstract<const Gem::Geneva::GParameterCollectionT<num_type>> :
-    public boost::true_type
-{
-};
+template <typename num_type>
+struct is_abstract<Gem::Geneva::GParameterCollectionT<num_type>> : public boost::true_type {};
+template <typename num_type>
+struct is_abstract<const Gem::Geneva::GParameterCollectionT<num_type>> : public boost::true_type {};
 } /* namespace boost::serialization */
 /******************************************************************************/
-

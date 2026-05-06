@@ -38,9 +38,9 @@
 
 // Geneva headers go here
 #include "common/GExceptions.hpp"
-#include "geneva/GNumFlipAdaptorT.hpp"
 #include "geneva/GConstrainedDoubleObject.hpp"
 #include "geneva/GDoubleGaussAdaptor.hpp"
+#include "geneva/GNumFlipAdaptorT.hpp"
 #include "geneva/GObject.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 
@@ -54,20 +54,19 @@ namespace Gem::Geneva {
  * that a specialization of this class, as defined in GIntFlipAdaptorT.cpp,
  * allows to deal with booleans instead of "standard" integer types.
  */
-template<typename int_type>
+template <typename int_type>
 class GIntFlipAdaptorT // NOLINT(cppcoreguidelines-special-member-functions)
-    : public GNumFlipAdaptorT<int_type>
-{
+  : public GNumFlipAdaptorT<int_type> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
-    template<typename Archive>
+    template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
-        ar
-        & make_nvp(
-            "GNumFlipAdaptorT"
-            , boost::serialization::base_object<GNumFlipAdaptorT<int_type>>(*this));
+        ar &make_nvp(
+            "GNumFlipAdaptorT",
+            boost::serialization::base_object<GNumFlipAdaptorT<int_type>>(*this)
+        );
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -86,8 +85,8 @@ public:
      * @param prob The probability for a flip
      */
     explicit GIntFlipAdaptorT(const double &adProb)
-        :
-        GNumFlipAdaptorT<int_type>(adProb) { /* nothing */ }
+      : GNumFlipAdaptorT<int_type>(adProb) { /* nothing */
+    }
 
     /***************************************************************************/
     /**
@@ -113,11 +112,8 @@ protected:
      */
     void load_(const GObject *cp) override {
         // Convert the pointer to our target type and check for self-assignment
-        const GIntFlipAdaptorT<int_type>
-            *p_load = Gem::Common::g_convert_and_compare<GObject, GIntFlipAdaptorT<int_type>>(
-            cp
-            , this
-        );
+        const GIntFlipAdaptorT<int_type> *p_load =
+            Gem::Common::g_convert_and_compare<GObject, GIntFlipAdaptorT<int_type>>(cp, this);
 
         // Load the data of our parent class ...
         GNumFlipAdaptorT<int_type>::load_(cp);
@@ -128,9 +124,9 @@ protected:
     /***************************************************************************/
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GIntFlipAdaptorT<int_type>>(
-        GIntFlipAdaptorT<int_type> const &
-        , GIntFlipAdaptorT<int_type> const &
-        , Gem::Common::GToken &
+        GIntFlipAdaptorT<int_type> const &,
+        GIntFlipAdaptorT<int_type> const &,
+        Gem::Common::GToken &
     );
 
     /***************************************************************************/
@@ -143,30 +139,20 @@ protected:
      * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
     void compare_(
-        const GObject &cp
-        , const Gem::Common::expectation &e
-        , const double &/*limit*/
+        const GObject &cp,
+        const Gem::Common::expectation &e,
+        const double & /*limit*/
     ) const override {
         using namespace Gem::Common;
 
         // Check that we are dealing with a GIntFlipAdaptorT<int_type> reference independent of this object and convert the pointer
-        const GIntFlipAdaptorT<int_type>
-            *p_load = Gem::Common::g_convert_and_compare<GObject, GIntFlipAdaptorT<int_type>>(
-            cp
-            , this
-        );
+        const GIntFlipAdaptorT<int_type> *p_load =
+            Gem::Common::g_convert_and_compare<GObject, GIntFlipAdaptorT<int_type>>(cp, this);
 
-        GToken token(
-            "GIntFlipAdaptorT<int_type>"
-            , e
-        );
+        GToken token("GIntFlipAdaptorT<int_type>", e);
 
         // Compare our parent data ...
-        Gem::Common::compare_base_t<GNumFlipAdaptorT<int_type>>(
-            *this
-            , *p_load
-            , token
-        );
+        Gem::Common::compare_base_t<GNumFlipAdaptorT<int_type>>(*this, *p_load, token);
 
         //... no local data
 
@@ -186,16 +172,18 @@ protected:
         bool result = false;
 
         // Call the parent classes' functions
-        if (GNumFlipAdaptorT<int_type>::modify_GUnitTests_()) { result = true; }
+        if(GNumFlipAdaptorT<int_type>::modify_GUnitTests_()) {
+            result = true;
+        }
 
         // no local data -- nothing to change
 
         return result;
 
-#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
         Gem::Common::condnotset("GIntFlipAdaptorT<>::modify_GUnitTests", "GEM_TESTING");
-       return false;
-#endif /* GEM_TESTING */
+        return false;
+#endif                  /* GEM_TESTING */
     }
 
     /***************************************************************************/
@@ -207,9 +195,12 @@ protected:
 
         // Call the parent classes' functions
         GNumFlipAdaptorT<int_type>::specificTestsNoFailureExpected_GUnitTests_();
-#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-        Gem::Common::condnotset("GIntFlipAdaptorT<>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
-#endif /* GEM_TESTING */
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+        Gem::Common::condnotset(
+            "GIntFlipAdaptorT<>::specificTestsNoFailureExpected_GUnitTests",
+            "GEM_TESTING"
+        );
+#endif                  /* GEM_TESTING */
     }
 
     /***************************************************************************/
@@ -222,9 +213,12 @@ protected:
         // Call the parent classes' functions
         GNumFlipAdaptorT<int_type>::specificTestsFailuresExpected_GUnitTests_();
 
-#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-        Gem::Common::condnotset("GIntFlipAdaptorT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
-#endif /* GEM_TESTING */
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+        Gem::Common::condnotset(
+            "GIntFlipAdaptorT<>::specificTestsFailuresExpected_GUnitTests",
+            "GEM_TESTING"
+        );
+#endif                  /* GEM_TESTING */
     }
     /***************************************************************************/
 
@@ -269,16 +263,9 @@ private:
 /******************************************************************************/
 // The content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T) // NOLINT
 namespace boost::serialization {
-template<typename int_type>
-struct is_abstract<Gem::Geneva::GIntFlipAdaptorT<int_type>> :
-    public boost::true_type
-{
-};
-template<typename int_type>
-struct is_abstract<const Gem::Geneva::GIntFlipAdaptorT<int_type>> :
-    public boost::true_type
-{
-};
+template <typename int_type>
+struct is_abstract<Gem::Geneva::GIntFlipAdaptorT<int_type>> : public boost::true_type {};
+template <typename int_type>
+struct is_abstract<const Gem::Geneva::GIntFlipAdaptorT<int_type>> : public boost::true_type {};
 } /* namespace boost::serialization */
 /******************************************************************************/
-

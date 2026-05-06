@@ -34,9 +34,8 @@
 // Standard header files go here
 #include <iostream>
 #include <memory>
-#include <vector>
 #include <tuple>
-#include <memory>
+#include <vector>
 
 // Boost headers
 #include <boost/program_options.hpp>
@@ -44,8 +43,8 @@
 // Geneva header files go here
 #include "common/GCommonHelperFunctions.hpp"
 #include "courtier/GStdThreadConsumerT.hpp"
-#include "geneva/Go2.hpp"
 #include "geneva/GPluggableOptimizationMonitors.hpp"
+#include "geneva/Go2.hpp"
 
 // The individual that should be optimized
 #include "GImageIndividual.hpp"
@@ -68,16 +67,15 @@ namespace po = boost::program_options;
  * A function that allows parsing of the command line
  */
 void assembleCommandLineOptions(
-    boost::program_options::options_description& user_options
-    , bool& showDevices
-    , std::string& logAll
-    , std::string& logResults
-    , std::string& monitorNAdaptions
-    , std::string& logSigma
-    , bool& logImages
-    , bool& emitBestOnly
-)
-{
+    boost::program_options::options_description &user_options,
+    bool &showDevices,
+    std::string &logAll,
+    std::string &logResults,
+    std::string &monitorNAdaptions,
+    std::string &logSigma,
+    bool &logImages,
+    bool &emitBestOnly
+) {
     user_options.add_options()(
         "showDevices"
         , po::value<bool>(&showDevices)->implicit_value(true)->default_value(false)
@@ -117,88 +115,92 @@ void assembleCommandLineOptions(
  * profiling purposes
  */
 std::shared_ptr<GCollectiveMonitor> getPOM(
-    const std::string& logAll,
-    const std::string& logResults,
-    const std::string& monitorNAdaptions,
-    const std::string& logSigma,
+    const std::string &logAll,
+    const std::string &logResults,
+    const std::string &monitorNAdaptions,
+    const std::string &logSigma,
     bool logImages,
-    const std::string& resultDirectory,
-    const std::string& targetFileName,
+    const std::string &resultDirectory,
+    const std::string &targetFileName,
     bool emitBestOnly,
     bool useGPU,
-    const std::tuple<int, int>& blockSize,
-    const std::tuple<int, int>& gridSize
-)
-{
+    const std::tuple<int, int> &blockSize,
+    const std::tuple<int, int> &gridSize
+) {
     std::shared_ptr<GCollectiveMonitor> collectiveMonitor_ptr(new GCollectiveMonitor());
 
-    if (logAll != "empty")
-    {
-        std::shared_ptr<GAllSolutionFileLogger> allsolutionLogger_ptr(new GAllSolutionFileLogger(logAll));
+    if(logAll != "empty") {
+        std::shared_ptr<GAllSolutionFileLogger> allsolutionLogger_ptr(
+            new GAllSolutionFileLogger(logAll)
+        );
 
-        allsolutionLogger_ptr->setPrintWithNameAndType(true); // Output information about variable names and types
+        allsolutionLogger_ptr->setPrintWithNameAndType(
+            true
+        ); // Output information about variable names and types
         allsolutionLogger_ptr->setPrintWithCommas(true); // Output commas between values
-        allsolutionLogger_ptr->setUseTrueFitness(false); // Output "transformed" fitness, not the "true" value
+        allsolutionLogger_ptr->setUseTrueFitness(
+            false
+        ); // Output "transformed" fitness, not the "true" value
         allsolutionLogger_ptr->setShowValidity(true); // Indicate, whether this is a valid solution
 
         collectiveMonitor_ptr->registerPluggableOM(allsolutionLogger_ptr);
     }
 
-    if (logResults != "empty")
-    {
+    if(logResults != "empty") {
         std::shared_ptr<GIterationResultsFileLogger> iterationResultLogger_ptr(
-            new GIterationResultsFileLogger(logResults));
+            new GIterationResultsFileLogger(logResults)
+        );
 
         iterationResultLogger_ptr->setPrintWithCommas(true); // Output commas between values
-        iterationResultLogger_ptr->setUseTrueFitness(false); // Output "transformed" fitness, not the "true" value
+        iterationResultLogger_ptr->setUseTrueFitness(
+            false
+        ); // Output "transformed" fitness, not the "true" value
 
         collectiveMonitor_ptr->registerPluggableOM(iterationResultLogger_ptr);
     }
 
-    if (monitorNAdaptions != "empty")
-    {
-        std::shared_ptr<GNAdpationsLogger> nAdaptionsLogger_ptr(new GNAdpationsLogger(monitorNAdaptions));
+    if(monitorNAdaptions != "empty") {
+        std::shared_ptr<GNAdpationsLogger> nAdaptionsLogger_ptr(
+            new GNAdpationsLogger(monitorNAdaptions)
+        );
 
         nAdaptionsLogger_ptr->setMonitorBestOnly(false); // Output information for all individuals
-        nAdaptionsLogger_ptr->setAddPrintCommand(true); // Create a PNG file if Root-file is executed
+        nAdaptionsLogger_ptr->setAddPrintCommand(
+            true
+        ); // Create a PNG file if Root-file is executed
 
         collectiveMonitor_ptr->registerPluggableOM(nAdaptionsLogger_ptr);
     }
 
-    if (logSigma != "empty")
-    {
-        std::shared_ptr<GAdaptorPropertyLogger<double>>
-            sigmaLogger_ptr(new GAdaptorPropertyLogger<double>(logSigma, "GDoubleGaussAdaptor", "sigma"));
+    if(logSigma != "empty") {
+        std::shared_ptr<GAdaptorPropertyLogger<double>> sigmaLogger_ptr(
+            new GAdaptorPropertyLogger<double>(logSigma, "GDoubleGaussAdaptor", "sigma")
+        );
 
         sigmaLogger_ptr->setMonitorBestOnly(false); // Output information for all individuals
-        sigmaLogger_ptr->setAddPrintCommand(true); // Create a PNG file if Root-file is executed
+        sigmaLogger_ptr->setAddPrintCommand(true);  // Create a PNG file if Root-file is executed
 
         collectiveMonitor_ptr->registerPluggableOM(sigmaLogger_ptr);
     }
 
     // Create an additional POM for the image emission, if requested
-    if (logImages)
-    {
-        std::shared_ptr<GImagePOM>
-            imageLogger_ptr(new GImagePOM(
-                    resultDirectory,
-                    targetFileName,
-                    emitBestOnly,
-                    useGPU,
-                    blockSize,
-                    gridSize
-                )
-            );
+    if(logImages) {
+        std::shared_ptr<GImagePOM> imageLogger_ptr(new GImagePOM(
+            resultDirectory,
+            targetFileName,
+            emitBestOnly,
+            useGPU,
+            blockSize,
+            gridSize
+        ));
 
         collectiveMonitor_ptr->registerPluggableOM(imageLogger_ptr);
     }
 
-    if (collectiveMonitor_ptr->hasOptimizationMonitors())
-    {
+    if(collectiveMonitor_ptr->hasOptimizationMonitors()) {
         return collectiveMonitor_ptr;
     }
-    else
-    {
+    else {
         return {}; // empty pointer indicates that no monitor was requested
     }
 }
@@ -207,12 +209,9 @@ std::shared_ptr<GCollectiveMonitor> getPOM(
 //////////////////////////////////////////////////////////////////////////////////
 /********************************************************************************/
 // Emits information on CUDA errors
-void checkCuda(cudaError_t err, const char* msg)
-{
-    if (err != cudaSuccess)
-    {
-        fprintf(stderr, "CUDA Error! %s (%s)\n", msg,
-                cudaGetErrorString(err));
+void checkCuda(cudaError_t err, const char *msg) {
+    if(err != cudaSuccess) {
+        fprintf(stderr, "CUDA Error! %s (%s)\n", msg, cudaGetErrorString(err));
         exit(EXIT_FAILURE);
     }
 }
@@ -223,15 +222,13 @@ void checkCuda(cudaError_t err, const char* msg)
 /**
  * Prints out information about all devices
  */
-void printDeviceInfo()
-{
+void printDeviceInfo() {
     int deviceCount = 0;
 
     // Anzahl der CUDA-fähigen Geräte abrufen
     checkCuda(cudaGetDeviceCount(&deviceCount), "deviceCount");
 
-    if (deviceCount == 0)
-    {
+    if(deviceCount == 0) {
         std::cout << "No CUDA-capable devices found." << std::endl;
         return;
     }
@@ -239,71 +236,66 @@ void printDeviceInfo()
     std::cout << "Number of CUDA-capable devices: " << deviceCount << "\n" << std::endl;
 
     // Informationen zu jedem Gerät abrufen und ausgeben
-    for (int device = 0; device < deviceCount; ++device)
-    {
+    for(int device = 0; device < deviceCount; ++device) {
         cudaDeviceProp deviceProp;
         checkCuda(cudaGetDeviceProperties(&deviceProp, device), "device properties");
 
         std::cout << "Device " << device << ": " << deviceProp.name << std::endl;
-        std::cout << "  Compute Capability: " << deviceProp.major << "." << deviceProp.minor << std::endl;
-        std::cout << "  Global Memory: " << static_cast<float>(deviceProp.totalGlobalMem) / (1 << 20) << " MB" <<
-            std::endl;
+        std::cout << "  Compute Capability: " << deviceProp.major << "." << deviceProp.minor
+                  << std::endl;
+        std::cout << "  Global Memory: "
+                  << static_cast<float>(deviceProp.totalGlobalMem) / (1 << 20) << " MB"
+                  << std::endl;
         std::cout << "  Multiprocessors: " << deviceProp.multiProcessorCount << std::endl;
 
         // Number of CUDA-cores (this is an estimate)
         int cudaCores = 0;
-        if (deviceProp.major == 2)
-        {
+        if(deviceProp.major == 2) {
             // Fermi
             cudaCores = deviceProp.multiProcessorCount * 32;
         }
-        else if (deviceProp.major == 3)
-        {
+        else if(deviceProp.major == 3) {
             // Kepler
             cudaCores = deviceProp.multiProcessorCount * 192;
         }
-        else if (deviceProp.major == 5)
-        {
+        else if(deviceProp.major == 5) {
             // Maxwell
             cudaCores = deviceProp.multiProcessorCount * 128;
         }
-        else if (deviceProp.major == 6)
-        {
+        else if(deviceProp.major == 6) {
             // Pascal
             cudaCores = deviceProp.multiProcessorCount * 64;
         }
-        else if (deviceProp.major == 7)
-        {
+        else if(deviceProp.major == 7) {
             // Volta, Turing
             cudaCores = deviceProp.multiProcessorCount * 64;
         }
-        else if (deviceProp.major >= 8)
-        {
+        else if(deviceProp.major >= 8) {
             // Ampere und neuer
             cudaCores = deviceProp.multiProcessorCount * 64;
         }
-        else
-        {
+        else {
             cudaCores = deviceProp.multiProcessorCount * 128; // Default estimate
         }
 
         std::cout << "  CUDA-Cores (estimate): " << cudaCores << std::endl;
         std::cout << "  Device Frequency: " << deviceProp.clockRate * 1e-3f << " MHz" << std::endl;
-        std::cout << "  Memory Frequency: " << deviceProp.memoryClockRate * 1e-3f << " MHz" << std::endl;
+        std::cout << "  Memory Frequency: " << deviceProp.memoryClockRate * 1e-3f << " MHz"
+                  << std::endl;
         std::cout << "  Memory Bandwidth: " << deviceProp.memoryBusWidth << " Bit" << std::endl;
         std::cout << "  L2-Cache: " << deviceProp.l2CacheSize << " Bytes" << std::endl;
-        std::cout << "  Maximum number of threads per block: " << deviceProp.maxThreadsPerBlock << std::endl;
-        std::cout << "  Maximum Thread-Dimension: ("
-            << deviceProp.maxThreadsDim[0] << ", "
-            << deviceProp.maxThreadsDim[1] << ", "
-            << deviceProp.maxThreadsDim[2] << ")" << std::endl;
-        std::cout << "  Maximum Grid-Size: ("
-            << deviceProp.maxGridSize[0] << ", "
-            << deviceProp.maxGridSize[1] << ", "
-            << deviceProp.maxGridSize[2] << ")" << "\n" << std::endl;
-        if (deviceProp.concurrentKernels) {
+        std::cout << "  Maximum number of threads per block: " << deviceProp.maxThreadsPerBlock
+                  << std::endl;
+        std::cout << "  Maximum Thread-Dimension: (" << deviceProp.maxThreadsDim[0] << ", "
+                  << deviceProp.maxThreadsDim[1] << ", " << deviceProp.maxThreadsDim[2] << ")"
+                  << std::endl;
+        std::cout << "  Maximum Grid-Size: (" << deviceProp.maxGridSize[0] << ", "
+                  << deviceProp.maxGridSize[1] << ", " << deviceProp.maxGridSize[2] << ")" << "\n"
+                  << std::endl;
+        if(deviceProp.concurrentKernels) {
             std::cout << "  The GPU supports concurrent Kernel-execution." << std::endl;
-        } else {
+        }
+        else {
             std::cout << "  The GPU does not support concurrent Kernel-execution." << std::endl;
         }
     }
@@ -317,8 +309,7 @@ void printDeviceInfo()
  *
  * @return A CUDA worker template for the consumer
  */
-std::shared_ptr<GImageCUDAWorker> getImageCUDAWorker()
-{
+std::shared_ptr<GImageCUDAWorker> getImageCUDAWorker() {
     return std::make_shared<Gem::Courtier::GImageCUDAWorker>("./config/GImageCUDAWorker.json");
 }
 
@@ -328,8 +319,7 @@ std::shared_ptr<GImageCUDAWorker> getImageCUDAWorker()
 /**
  * The main function
  */
-int main(int argc, char** argv)
-{
+int main(int argc, char **argv) {
     boost::program_options::options_description user_options;
 
     bool showDevices = false;
@@ -341,14 +331,14 @@ int main(int argc, char** argv)
     bool emitBestOnly;
 
     assembleCommandLineOptions(
-        user_options
-        , showDevices
-        , logAll
-        , logResults
-        , monitorNAdaptions
-        , logSigma
-        , logImages
-        , emitBestOnly
+        user_options,
+        showDevices,
+        logAll,
+        logResults,
+        monitorNAdaptions,
+        logSigma,
+        logImages,
+        emitBestOnly
     );
 
     // Retrieve workers
@@ -371,8 +361,7 @@ int main(int argc, char** argv)
 
     //---------------------------------------------------------------------------
     // If we have only been asked to print device info, do so and exit
-    if (showDevices)
-    {
+    if(showDevices) {
         printDeviceInfo();
         exit(0);
     }
@@ -392,8 +381,7 @@ int main(int argc, char** argv)
         cudaWorker_ptr->getGridSize()
     );
 
-    if (collectiveMonitor_ptr)
-    {
+    if(collectiveMonitor_ptr) {
         go.registerPluggableOM(collectiveMonitor_ptr);
     }
 
@@ -412,7 +400,8 @@ int main(int argc, char** argv)
     go & ea_ptr;
 
     // Perform the actual optimization and extract the best individual
-    std::shared_ptr<GImageIndividual> p = go.optimize()->getBestGlobalIndividual<GImageIndividual>();
+    std::shared_ptr<GImageIndividual> p =
+        go.optimize()->getBestGlobalIndividual<GImageIndividual>();
 
     // Note that the useful work of this program is done at the end of each
     // iteration when it writes out the current picture. So we do nothing

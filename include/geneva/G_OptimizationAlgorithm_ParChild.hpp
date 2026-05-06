@@ -33,18 +33,18 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard headers go here
-#include <type_traits>
 #include <tuple>
+#include <type_traits>
 
 // Boost headers go here
 
 // Geneva headers go here
-#include "common/GExceptions.hpp"
 #include "common/GCommonHelperFunctionsT.hpp"
+#include "common/GExceptions.hpp"
 #include "courtier/GExecutorT.hpp"
+#include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GParameterSet.hpp"
 #include "geneva/G_OptimizationAlgorithm_Base.hpp"
-#include "geneva/GOptimizationEnums.hpp"
 #include "geneva/G_OptimizationAlgorithm_ParChildT_PersonalityTraits.hpp"
 
 namespace Gem::Geneva {
@@ -72,26 +72,22 @@ namespace Gem::Geneva {
  * optimization starts.
  */
 class G_OptimizationAlgorithm_ParChild // NOLINT(cppcoreguidelines-special-member-functions)
-    :
-        public G_OptimizationAlgorithm_Base
-{
+  : public G_OptimizationAlgorithm_Base {
     /////////////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
-    template<typename Archive>
+    template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar
-        & make_nvp(
-            "G_OptimizationAlgorithm_Base"
-            , boost::serialization::base_object<G_OptimizationAlgorithm_Base>(*this))
-        & BOOST_SERIALIZATION_NVP(m_n_parents)
-        & BOOST_SERIALIZATION_NVP(m_recombination_method)
-        & BOOST_SERIALIZATION_NVP(m_default_n_children)
-        & BOOST_SERIALIZATION_NVP(m_growth_rate)
-        & BOOST_SERIALIZATION_NVP(m_max_population_size)
-        & BOOST_SERIALIZATION_NVP(m_amalgamationLikelihood);
+        ar &make_nvp(
+            "G_OptimizationAlgorithm_Base",
+            boost::serialization::base_object<G_OptimizationAlgorithm_Base>(*this)
+        ) & BOOST_SERIALIZATION_NVP(m_n_parents) &
+            BOOST_SERIALIZATION_NVP(m_recombination_method) &
+            BOOST_SERIALIZATION_NVP(m_default_n_children) & BOOST_SERIALIZATION_NVP(m_growth_rate) &
+            BOOST_SERIALIZATION_NVP(m_max_population_size) &
+            BOOST_SERIALIZATION_NVP(m_amalgamationLikelihood);
     }
     /////////////////////////////////////////////////////////////////////////////
 
@@ -100,7 +96,8 @@ public:
     /** @brief The default constructor */
     G_API_GENEVA G_OptimizationAlgorithm_ParChild();
     /** @brief A standard copy constructor */
-    G_API_GENEVA G_OptimizationAlgorithm_ParChild(const G_OptimizationAlgorithm_ParChild &cp) = default;
+    G_API_GENEVA
+    G_OptimizationAlgorithm_ParChild(const G_OptimizationAlgorithm_ParChild &cp) = default;
     /** @brief The standard destructor */
     G_API_GENEVA ~G_OptimizationAlgorithm_ParChild() override = default;
 
@@ -121,10 +118,7 @@ public:
     G_API_GENEVA duplicationScheme getRecombinationMethod() const;
 
     /** @brief Adds the option to increase the population by a given amount per iteration */
-    G_API_GENEVA void setPopulationGrowth(
-        std::size_t growthRate
-        , std::size_t maxPopulationSize
-    );
+    G_API_GENEVA void setPopulationGrowth(std::size_t growthRate, std::size_t maxPopulationSize);
     /** @brief Allows to retrieve the growth rate of the population */
     G_API_GENEVA std::size_t getGrowthRate() const;
     /** @brief Allows to retrieve the maximum population size when growth is enabled */
@@ -144,22 +138,21 @@ public:
      * @param parent The id of the parent that should be returned
      * @return A converted shared_ptr to the parent
      */
-    template<typename parent_type>
+    template <typename parent_type>
     std::shared_ptr<parent_type> getParentIndividual(
-        std::size_t parentId
-        , typename std::enable_if<std::is_base_of<GParameterSet, parent_type>::value>::type *dummy = nullptr
+        std::size_t parentId,
+        typename std::enable_if<std::is_base_of<GParameterSet, parent_type>::value>::type *dummy =
+            nullptr
     ) {
 #ifdef DEBUG
         // Check that the parent id is in a valid range
-        if (parentId >= this->getNParents()) {
+        if(parentId >= this->getNParents()) {
             throw geneva_exception(
-                g_error_streamer(
-                    DO_LOG
-                    , time_and_place
-                )
-                    << "In G_OptimizationAlgorithm_ParChild::getParentIndividual<>() : Error" << std::endl
-                    << "Requested parent id which does not exist: " << parentId << " / " << this->getNParents()
-                    << std::endl
+                g_error_streamer(DO_LOG, time_and_place)
+                << "In G_OptimizationAlgorithm_ParChild::getParentIndividual<>() : Error"
+                << std::endl
+                << "Requested parent id which does not exist: " << parentId << " / "
+                << this->getNParents() << std::endl
             );
 
             // Make the compiler happy
@@ -168,7 +161,9 @@ public:
 #endif /* DEBUG */
 
         // Does error checks on the conversion internally
-        return Gem::Common::convertSmartPointer<GParameterSet, parent_type>(*(this->begin() + parentId));
+        return Gem::Common::convertSmartPointer<GParameterSet, parent_type>(
+            *(this->begin() + parentId)
+        );
     }
 
 protected:
@@ -176,25 +171,23 @@ protected:
     // Virtual or overridden protected functions
 
     /** @brief Adds local configuration options to a GParserBuilder object */
-    G_API_GENEVA void addConfigurationOptions_(
-        Gem::Common::GParserBuilder &gpb
-    ) override;
+    G_API_GENEVA void addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) override;
 
     /** @brief Loads the data of another GParChildT object, camouflaged as a GObject. */
     G_API_GENEVA void load_(const GObject *cp) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<G_OptimizationAlgorithm_ParChild>(
-        G_OptimizationAlgorithm_ParChild const &
-        , G_OptimizationAlgorithm_ParChild const &
-        , Gem::Common::GToken &
+        G_OptimizationAlgorithm_ParChild const &,
+        G_OptimizationAlgorithm_ParChild const &,
+        Gem::Common::GToken &
     );
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
     G_API_GENEVA void compare_(
-        const GObject &cp
-        , const Gem::Common::expectation &e
-        , const double &limit
+        const GObject &cp,
+        const Gem::Common::expectation &e,
+        const double &limit
     ) const override;
 
     /** @brief The function checks that the population size meets the requirements and resizes the population to the appropriate size, if required. */
@@ -207,7 +200,6 @@ protected:
     G_API_GENEVA void init() override;
     /** @brief Does any necessary finalization work atfer the optimization loop has ended */
     G_API_GENEVA void finalize() override;
-
 
     /** @brief Applies modifications to this object */
     G_API_GENEVA bool modify_GUnitTests_() override;
@@ -237,21 +229,20 @@ protected:
     /** @brief This function implements the RANDOMDUPLICATIONSCHEME scheme */
     G_API_GENEVA void randomRecombine(std::shared_ptr<GParameterSet> &child);
     /** @brief  This function implements the VALUEDUPLICATIONSCHEME scheme */
-    G_API_GENEVA void valueRecombine(
-        std::shared_ptr<GParameterSet> &p
-        , const std::vector<double> &threshold
-    );
+    G_API_GENEVA void
+    valueRecombine(std::shared_ptr<GParameterSet> &p, const std::vector<double> &threshold);
 
     /***************************************************************************/
 
     std::size_t m_n_parents = DEFPARCHILDNPARENTS; ///< The number of parents
-    duplicationScheme m_recombination_method = duplicationScheme::DEFAULTDUPLICATIONSCHEME; ///< The chosen recombination method
+    duplicationScheme m_recombination_method =
+        duplicationScheme::DEFAULTDUPLICATIONSCHEME;         ///< The chosen recombination method
     std::size_t m_default_n_children = DEFPARCHILDNCHILDREN; ///< Expected number of children
     std::size_t m_growth_rate = 0; ///< Specifies the amount of individuals added per iteration
-    std::size_t m_max_population_size
-        = 0; ///< Specifies the maximum amount of individuals in the population if growth is enabled
-    double m_amalgamationLikelihood
-        = DEFAULTAMALGAMATIONLIKELIHOOD; ///< Likelihood for children to be created by cross-over rather than "just" duplication (note that they may nevertheless be mutated)
+    std::size_t m_max_population_size =
+        0; ///< Specifies the maximum amount of individuals in the population if growth is enabled
+    double m_amalgamationLikelihood =
+        DEFAULTAMALGAMATIONLIKELIHOOD; ///< Likelihood for children to be created by cross-over rather than "just" duplication (note that they may nevertheless be mutated)
 
 private:
     /***************************************************************************/
@@ -278,17 +269,17 @@ private:
     /** @brief Gives individuals an opportunity to update their internal structures */
     G_API_GENEVA void actOnStalls_() override;
 
-
     /** @brief Adapts all children of this population */
     virtual G_API_GENEVA void adaptChildren_() = 0;
     /** @brief Choose new parents, based on the selection scheme set by the user */
     virtual G_API_GENEVA void selectBest_() = 0;
 
     /** @brief Retrieves the evaluation range in a given iteration and sorting scheme */
-    virtual G_API_GENEVA std::tuple<std::size_t, std::size_t> getEvaluationRange_() const = 0; // Depends on selection scheme
+    virtual G_API_GENEVA std::tuple<std::size_t, std::size_t>
+    getEvaluationRange_() const = 0; // Depends on selection scheme
     /** @brief Some error checks related to population sizes */
-    virtual G_API_GENEVA void populationSanityChecks_() const = 0; // TODO: Take code from old init() function
-
+    virtual G_API_GENEVA void
+    populationSanityChecks_() const = 0; // TODO: Take code from old init() function
 
     /***************************************************************************/
 
@@ -298,7 +289,8 @@ private:
     /***************************************************************************/
     // Data
 
-    std::uniform_int_distribution<std::size_t> m_uniform_int_distribution; ///< Access to uniformly distributed random numbers
+    std::uniform_int_distribution<std::size_t>
+        m_uniform_int_distribution; ///< Access to uniformly distributed random numbers
 
     /***************************************************************************/
 };
@@ -313,4 +305,3 @@ private:
 
 BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::G_OptimizationAlgorithm_ParChild) // NOLINT
 /******************************************************************************/
-

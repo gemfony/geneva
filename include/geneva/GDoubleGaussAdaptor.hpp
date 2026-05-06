@@ -51,20 +51,18 @@ namespace Gem::Geneva {
  * base class that can also be used to adapt other numeric types.
  */
 class GDoubleGaussAdaptor // NOLINT(cppcoreguidelines-special-member-functions)
-    :
-        public GFPGaussAdaptorT<double>
-{
+  : public GFPGaussAdaptorT<double> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
-    template<typename Archive>
+    template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar
-        & make_nvp(
-            "GFPGaussAdaptorT_double"
-            , boost::serialization::base_object<GFPGaussAdaptorT<double>>(*this));
+        ar &make_nvp(
+            "GFPGaussAdaptorT_double",
+            boost::serialization::base_object<GFPGaussAdaptorT<double>>(*this)
+        );
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -77,19 +75,15 @@ public:
     /** @brief Initialization with a adaption probability */
     explicit G_API_GENEVA GDoubleGaussAdaptor(const double &);
     /** @brief Initialization with a number of values belonging to the width of the gaussian */
-    G_API_GENEVA GDoubleGaussAdaptor(
-        const double &
-        , const double &
-        , const double &
-        , const double &
-    );
+    G_API_GENEVA
+    GDoubleGaussAdaptor(const double &, const double &, const double &, const double &);
     /** @brief Initialization with a number of values belonging to the width of the gaussian and the adaption probability */
     G_API_GENEVA GDoubleGaussAdaptor(
+        const double &,
+        const double &,
+        const double &,
+        const double &,
         const double &
-        , const double &
-        , const double &
-        , const double &
-        , const double &
     );
 
     /** @brief The destructor */
@@ -101,16 +95,18 @@ protected:
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GDoubleGaussAdaptor>(
-        GDoubleGaussAdaptor const &
-        , GDoubleGaussAdaptor const &
-        , Gem::Common::GToken &
+        GDoubleGaussAdaptor const &,
+        GDoubleGaussAdaptor const &,
+        Gem::Common::GToken &
     );
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
     G_API_GENEVA void compare_(
         const GObject & // the other object
-        , const Gem::Common::expectation & // the expectation for this object, e.g. equality
-        , const double & // the limit for allowed deviations of floating point types
+        ,
+        const Gem::Common::expectation & // the expectation for this object, e.g. equality
+        ,
+        const double & // the limit for allowed deviations of floating point types
     ) const override;
 
     /** @brief Applies modifications to this object. This is needed for testing purposes */

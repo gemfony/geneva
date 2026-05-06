@@ -54,26 +54,23 @@ class GParameterSet;
  * validity. Note that the classes in this hierarchy are meant to be used PRIOR
  * to the evaluation.
  */
-template<typename ind_type>
+template <typename ind_type>
 class GPreEvaluationValidityCheckT // NOLINT(cppcoreguidelines-special-member-functions)
-    : public GObject
-{
+  : public GObject {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
-    template<typename Archive>
+    template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
-        ar
-        & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject)
-        & BOOST_SERIALIZATION_NVP(allowNegative_);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject) & BOOST_SERIALIZATION_NVP(allowNegative_);
     }
     ///////////////////////////////////////////////////////////////////////
 
     // We only accept validity checks for types derived directly or indirectly from GParameterSet
     static_assert(
-        std::is_base_of<Gem::Geneva::GParameterSet, ind_type>::value
-        , "GParameterSet is no base of ind_type"
+        std::is_base_of<Gem::Geneva::GParameterSet, ind_type>::value,
+        "GParameterSet is no base of ind_type"
     );
 
 public:
@@ -107,25 +104,27 @@ public:
      * allowNegative is set to false, am invalidity is calculated, and the return-
      * value will be > 1.
      */
-    double check(
-        const ind_type *cp
-    ) const {
+    double check(const ind_type *cp) const {
         double result = check_(cp);
 
-        if (allowNegative_) {
-            if (result <= 1.) { // valid
+        if(allowNegative_) {
+            if(result <= 1.) { // valid
                 return 0.;
-            } else {
+            }
+            else {
                 return result;
             }
-        } else {
-            if (result >= 0. && result <= 1.) { // valid
+        }
+        else {
+            if(result >= 0. && result <= 1.) { // valid
                 return 0.;
-            } else { // invalid
-                if (result < 0.) { // we need to calculate a replacement value
+            }
+            else {                // invalid
+                if(result < 0.) { // we need to calculate a replacement value
                     // Will be the more invalid the further below 0 "result" is
                     return 1. + std::abs(result);
-                } else { // result > 1, we may just return the unmodified value
+                }
+                else { // result > 1, we may just return the unmodified value
                     return result;
                 }
             }
@@ -144,14 +143,15 @@ public:
         // Set the external validity level
         validityLevel = this->check(cp);
 
-        if (boost::numeric::bounds<double>::highest() == validityLevel ||
-            boost::numeric::bounds<double>::lowest() == validityLevel) {
+        if(boost::numeric::bounds<double>::highest() == validityLevel ||
+           boost::numeric::bounds<double>::lowest() == validityLevel) {
             return false;
         }
 
-        if (allowNegative_) {
+        if(allowNegative_) {
             return (validityLevel <= 1.);
-        } else {
+        }
+        else {
             return (validityLevel >= 0. && validityLevel <= 1.);
         }
     }
@@ -165,10 +165,7 @@ public:
      * @return A boolean indicating whether a constraint is invalid
      */
     bool isInvalid(const ind_type *cp, double &validityLevel) const {
-        return not this->isValid(
-            cp
-            , validityLevel
-        );
+        return not this->isValid(cp, validityLevel);
     }
 
     /***************************************************************************/
@@ -203,9 +200,7 @@ protected:
      *
      * TODO: Check whether it makes sense to provide custom configuration files -- if so, add allowNegative_ here
      */
-    void addConfigurationOptions_(
-        Gem::Common::GParserBuilder &gpb
-    ) override {
+    void addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) override {
         // Call our parent class'es function
         GObject::addConfigurationOptions_(gpb);
     }
@@ -216,11 +211,11 @@ protected:
      */
     void load_(const GObject *cp) override {
         // Check that we are dealing with a GPreEvaluationValidityCheckT<ind_type>  reference independent of this object and convert the pointer
-        const GPreEvaluationValidityCheckT<ind_type>
-            *p_load = Gem::Common::g_convert_and_compare<GObject, GPreEvaluationValidityCheckT<ind_type>>(
-            cp
-            , this
-        );
+        const GPreEvaluationValidityCheckT<ind_type> *p_load =
+            Gem::Common::g_convert_and_compare<GObject, GPreEvaluationValidityCheckT<ind_type>>(
+                cp,
+                this
+            );
 
         // Load our parent class'es data ...
         GObject::load_(cp);
@@ -232,9 +227,9 @@ protected:
     /***************************************************************************/
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GPreEvaluationValidityCheckT<ind_type>>(
-        GPreEvaluationValidityCheckT<ind_type> const &
-        , GPreEvaluationValidityCheckT<ind_type> const &
-        , Gem::Common::GToken &
+        GPreEvaluationValidityCheckT<ind_type> const &,
+        GPreEvaluationValidityCheckT<ind_type> const &,
+        Gem::Common::GToken &
     );
 
     /***************************************************************************/
@@ -247,37 +242,26 @@ protected:
      * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
     void compare_(
-        const GObject &cp
-        , const Gem::Common::expectation &e
-        , const double &/*limit*/
+        const GObject &cp,
+        const Gem::Common::expectation &e,
+        const double & /*limit*/
     ) const override {
         using namespace Gem::Common;
 
         // Check that we are dealing with a GPreEvaluationValidityCheckT<ind_type>  reference independent of this object and convert the pointer
-        const GPreEvaluationValidityCheckT<ind_type>
-            *p_load = Gem::Common::g_convert_and_compare<GObject, GPreEvaluationValidityCheckT<ind_type>>(
-            cp
-            , this
-        );
+        const GPreEvaluationValidityCheckT<ind_type> *p_load =
+            Gem::Common::g_convert_and_compare<GObject, GPreEvaluationValidityCheckT<ind_type>>(
+                cp,
+                this
+            );
 
-        GToken token(
-            "GPreEvaluationValidityCheckT<ind_type>"
-            , e
-        );
+        GToken token("GPreEvaluationValidityCheckT<ind_type>", e);
 
         // Compare our parent data ...
-        Gem::Common::compare_base_t<GObject>(
-            *this
-            , *p_load
-            , token
-        );
+        Gem::Common::compare_base_t<GObject>(*this, *p_load, token);
 
         // ... and then the local data
-        compare_t(
-            IDENTITY(allowNegative_
-                     , p_load->allowNegative_)
-            , token
-        );
+        compare_t(IDENTITY(allowNegative_, p_load->allowNegative_), token);
 
         // React on deviations from the expectation
         token.evaluate();
@@ -299,18 +283,15 @@ private:
 /**
  * An collection of validity checks with the GPreEvaluationValidityCheckT interface
  */
-template<typename ind_type>
-class GValidityCheckContainerT :
-    public GPreEvaluationValidityCheckT<ind_type>
-{
+template <typename ind_type>
+class GValidityCheckContainerT : public GPreEvaluationValidityCheckT<ind_type> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
-    template<typename Archive>
+    template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
-        ar
-        & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPreEvaluationValidityCheckT<ind_type>);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPreEvaluationValidityCheckT<ind_type>);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -328,23 +309,16 @@ public:
     explicit GValidityCheckContainerT(
         const std::vector<std::shared_ptr<GPreEvaluationValidityCheckT<ind_type>>> &validityChecks
     ) {
-        Gem::Common::copyCloneableSmartPointerContainer(
-            validityChecks
-            , validityChecks_
-        );
+        Gem::Common::copyCloneableSmartPointerContainer(validityChecks, validityChecks_);
     }
 
     /***************************************************************************/
     /**
      * The copy constructor
      */
-    GValidityCheckContainerT(const GValidityCheckContainerT<ind_type> &cp):
-        GPreEvaluationValidityCheckT<ind_type>(cp)
-    {
-        Gem::Common::copyCloneableSmartPointerContainer(
-            cp.validityChecks_
-            , validityChecks_
-        );
+    GValidityCheckContainerT(const GValidityCheckContainerT<ind_type> &cp)
+      : GPreEvaluationValidityCheckT<ind_type>(cp) {
+        Gem::Common::copyCloneableSmartPointerContainer(cp.validityChecks_, validityChecks_);
     }
 
     /***************************************************************************/
@@ -358,7 +332,8 @@ public:
      * The standard assignment operator
      */
     GValidityCheckContainerT<ind_type> &operator=(const GValidityCheckContainerT<ind_type> &cp) {
-        if (this == &cp) return *this;
+        if(this == &cp)
+            return *this;
         this->load_(&cp);
         return *this;
     }
@@ -369,18 +344,17 @@ public:
      * that it can be used multiple times.
      */
     void addCheck(std::shared_ptr<GPreEvaluationValidityCheckT<ind_type>> vc_ptr) {
-        if (not vc_ptr) {
+        if(not vc_ptr) {
             throw geneva_exception(
-                g_error_streamer(
-                    DO_LOG
-                    , time_and_place
-                )
-                    << "In GValidityCheckContainerT<>::addCheck(): Error!" << std::endl
-                    << "Got empty check pointer" << std::endl
+                g_error_streamer(DO_LOG, time_and_place)
+                << "In GValidityCheckContainerT<>::addCheck(): Error!" << std::endl
+                << "Got empty check pointer" << std::endl
             );
         }
 
-        validityChecks_.push_back(vc_ptr->GObject::template clone<GPreEvaluationValidityCheckT<ind_type>>());
+        validityChecks_.push_back(
+            vc_ptr->GObject::template clone<GPreEvaluationValidityCheckT<ind_type>>()
+        );
     }
 
 protected:
@@ -394,28 +368,25 @@ protected:
      */
     void load_(const GObject *cp) override {
         // Check that we are dealing with a GValidityCheckContainerT<ind_type>  reference independent of this object and convert the pointer
-        const GValidityCheckContainerT<ind_type>
-            *p_load = Gem::Common::g_convert_and_compare<GObject, GValidityCheckContainerT<ind_type>>(
-            cp
-            , this
-        );
+        const GValidityCheckContainerT<ind_type> *p_load =
+            Gem::Common::g_convert_and_compare<GObject, GValidityCheckContainerT<ind_type>>(
+                cp,
+                this
+            );
 
         // Load our parent class'es data ...
         GPreEvaluationValidityCheckT<ind_type>::load_(cp);
 
         // and then our local data
-        Gem::Common::copyCloneableSmartPointerContainer(
-            p_load->validityChecks_
-            , validityChecks_
-        );
+        Gem::Common::copyCloneableSmartPointerContainer(p_load->validityChecks_, validityChecks_);
     }
 
     /***************************************************************************/
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GValidityCheckContainerT<ind_type>>(
-        GValidityCheckContainerT<ind_type> const &
-        , GValidityCheckContainerT<ind_type> const &
-        , Gem::Common::GToken &
+        GValidityCheckContainerT<ind_type> const &,
+        GValidityCheckContainerT<ind_type> const &,
+        Gem::Common::GToken &
     );
 
     /***************************************************************************/
@@ -428,37 +399,26 @@ protected:
      * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
     void compare_(
-        const GObject &cp
-        , const Gem::Common::expectation &e
-        , const double &/*limit*/
+        const GObject &cp,
+        const Gem::Common::expectation &e,
+        const double & /*limit*/
     ) const override {
         using namespace Gem::Common;
 
         // Check that we are dealing with a GValidityCheckContainerT<ind_type>  reference independent of this object and convert the pointer
-        const GValidityCheckContainerT<ind_type>
-            *p_load = Gem::Common::g_convert_and_compare<GObject, GValidityCheckContainerT<ind_type>>(
-            cp
-            , this
-        );
+        const GValidityCheckContainerT<ind_type> *p_load =
+            Gem::Common::g_convert_and_compare<GObject, GValidityCheckContainerT<ind_type>>(
+                cp,
+                this
+            );
 
-        GToken token(
-            "GValidityCheckContainerT<ind_type>"
-            , e
-        );
+        GToken token("GValidityCheckContainerT<ind_type>", e);
 
         // Compare our parent data ...
-        compare_base_t<GPreEvaluationValidityCheckT<ind_type>>(
-            *this
-            , *p_load
-            , token
-        );
+        compare_base_t<GPreEvaluationValidityCheckT<ind_type>>(*this, *p_load, token);
 
         // ... and then the local data
-        compare_t(
-            IDENTITY(validityChecks_
-                     , p_load->validityChecks_)
-            , token
-        );
+        compare_t(IDENTITY(validityChecks_, p_load->validityChecks_), token);
 
         // React on deviations from the expectation
         token.evaluate();
@@ -483,19 +443,16 @@ private:
  * A class which combines all values (i.e. values > 1) according to a
  * user-defined policy or returns 0, if all checks are valid.
  */
-template<typename ind_type>
-class GCheckCombinerT:
-    public GValidityCheckContainerT<ind_type>
-{
+template <typename ind_type>
+class GCheckCombinerT : public GValidityCheckContainerT<ind_type> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
-    template<typename Archive>
+    template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
-        ar
-        & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPreEvaluationValidityCheckT<ind_type>)
-        & BOOST_SERIALIZATION_NVP(combinerPolicy_);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPreEvaluationValidityCheckT<ind_type>) &
+            BOOST_SERIALIZATION_NVP(combinerPolicy_);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -513,9 +470,8 @@ public:
     explicit GCheckCombinerT(
         const std::vector<std::shared_ptr<GPreEvaluationValidityCheckT<ind_type>>> &validityChecks
     )
-        :
-        GValidityCheckContainerT<ind_type>(validityChecks)
-    { /* nothing */ }
+      : GValidityCheckContainerT<ind_type>(validityChecks) { /* nothing */
+    }
 
     /***************************************************************************/
     /**
@@ -534,7 +490,8 @@ public:
      * The standard assignment operator
      */
     GCheckCombinerT<ind_type> &operator=(const GCheckCombinerT<ind_type> &cp) {
-        if (this == &cp) return *this;
+        if(this == &cp)
+            return *this;
         this->load_(&cp);
         return *this;
     }
@@ -566,73 +523,67 @@ protected:
         // First identify invalid checks
         std::vector<double> invalidChecks;
         double validityLevel = 0.;
-        typename std::vector<std::shared_ptr<GPreEvaluationValidityCheckT<ind_type>>>::const_iterator cit;
-        for (cit = GValidityCheckContainerT<ind_type>::validityChecks_.begin();
-             cit != GValidityCheckContainerT<ind_type>::validityChecks_.end(); ++cit) {
-            if (not(*cit)->isValid(
-                cp
-                , validityLevel
-            )) {
+        typename std::vector<
+            std::shared_ptr<GPreEvaluationValidityCheckT<ind_type>>>::const_iterator cit;
+        for(cit = GValidityCheckContainerT<ind_type>::validityChecks_.begin();
+            cit != GValidityCheckContainerT<ind_type>::validityChecks_.end();
+            ++cit) {
+            if(not(*cit)->isValid(cp, validityLevel)) {
                 invalidChecks.push_back(validityLevel);
             }
         }
 
         // We can leave now, if no invalid checks were found
-        if (invalidChecks.empty()) { // All checks were valid
+        if(invalidChecks.empty()) { // All checks were valid
             return 0.;
         }
 
         // Now act on the invalid tests
-        switch (combinerPolicy_) {
+        switch(combinerPolicy_) {
+        // --------------------------------------------------------------------
+        // Multiply all invalidities
+        case Gem::Geneva::validityCheckCombinerPolicy::MULTIPLYINVALID: {
+            double result = 1.;
+            std::vector<double>::const_iterator d_cit;
+            for(d_cit = invalidChecks.begin(); d_cit != invalidChecks.end(); ++d_cit) {
+                // If we encounter an invalidity at the numeric boundaries, we simply
+                // return MAX_DOUBLE
+                if(boost::numeric::bounds<double>::highest() == *d_cit ||
+                   boost::numeric::bounds<double>::lowest() == *d_cit) {
+                    return boost::numeric::bounds<double>::highest();
+                }
+
+                result *= *d_cit;
+            }
+            return result;
+        } break;
+
             // --------------------------------------------------------------------
-            // Multiply all invalidities
-            case Gem::Geneva::validityCheckCombinerPolicy::MULTIPLYINVALID: {
-                double result = 1.;
-                std::vector<double>::const_iterator d_cit;
-                for (d_cit = invalidChecks.begin(); d_cit != invalidChecks.end(); ++d_cit) {
-                    // If we encounter an invalidity at the numeric boundaries, we simply
-                    // return MAX_DOUBLE
-                    if (boost::numeric::bounds<double>::highest() == *d_cit ||
-                        boost::numeric::bounds<double>::lowest() == *d_cit) {
-                        return boost::numeric::bounds<double>::highest();
-                    }
-
-                    result *= *d_cit;
+            // Add all invalidities
+        case Gem::Geneva::validityCheckCombinerPolicy::ADDINVALID: {
+            double result = 0.;
+            std::vector<double>::const_iterator d_cit;
+            for(d_cit = invalidChecks.begin(); d_cit != invalidChecks.end(); ++d_cit) {
+                // If we encounter an invalidity at the numeric boundaries, we simply
+                // return MAX_DOUBLE
+                if(boost::numeric::bounds<double>::highest() == *d_cit ||
+                   boost::numeric::bounds<double>::lowest() == *d_cit) {
+                    return boost::numeric::bounds<double>::highest();
                 }
-                return result;
-            }
-                break;
 
-                // --------------------------------------------------------------------
-                // Add all invalidities
-            case Gem::Geneva::validityCheckCombinerPolicy::ADDINVALID: {
-                double result = 0.;
-                std::vector<double>::const_iterator d_cit;
-                for (d_cit = invalidChecks.begin(); d_cit != invalidChecks.end(); ++d_cit) {
-                    // If we encounter an invalidity at the numeric boundaries, we simply
-                    // return MAX_DOUBLE
-                    if (boost::numeric::bounds<double>::highest() == *d_cit ||
-                        boost::numeric::bounds<double>::lowest() == *d_cit) {
-                        return boost::numeric::bounds<double>::highest();
-                    }
-
-                    result += *d_cit;
-                }
-                return result;
+                result += *d_cit;
             }
-                break;
+            return result;
+        } break;
 
-                // --------------------------------------------------------------------
-            default: {
-                throw geneva_exception(
-                    g_error_streamer(
-                        DO_LOG
-                        , time_and_place
-                    )
-                        << "In GCheckCombinerT<ind_type>::check_(): Error!" << std::endl
-                        << "Got invalid combinerPolicy_ value: " << combinerPolicy_ << std::endl
-                );
-            }
+            // --------------------------------------------------------------------
+        default: {
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, time_and_place)
+                << "In GCheckCombinerT<ind_type>::check_(): Error!" << std::endl
+                << "Got invalid combinerPolicy_ value: " << combinerPolicy_ << std::endl
+            );
+        }
         }
     }
 
@@ -642,11 +593,8 @@ protected:
      */
     void load_(const GObject *cp) override {
         // Check that we are dealing with a GCheckCombinerT<ind_type>  reference independent of this object and convert the pointer
-        const GCheckCombinerT<ind_type>
-            *p_load = Gem::Common::g_convert_and_compare<GObject, GCheckCombinerT<ind_type>>(
-            cp
-            , this
-        );
+        const GCheckCombinerT<ind_type> *p_load =
+            Gem::Common::g_convert_and_compare<GObject, GCheckCombinerT<ind_type>>(cp, this);
 
         // Load our parent class'es data ...
         GPreEvaluationValidityCheckT<ind_type>::load_(cp);
@@ -658,9 +606,9 @@ protected:
     /***************************************************************************/
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GCheckCombinerT<ind_type>>(
-        GCheckCombinerT<ind_type> const &
-        , GCheckCombinerT<ind_type> const &
-        , Gem::Common::GToken &
+        GCheckCombinerT<ind_type> const &,
+        GCheckCombinerT<ind_type> const &,
+        Gem::Common::GToken &
     );
 
     /***************************************************************************/
@@ -673,37 +621,23 @@ protected:
      * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
     void compare_(
-        const GObject &cp
-        , const Gem::Common::expectation &e
-        , const double &/*limit*/
+        const GObject &cp,
+        const Gem::Common::expectation &e,
+        const double & /*limit*/
     ) const override {
         using namespace Gem::Common;
 
         // Check that we are dealing with a GCheckCombinerT<ind_type>  reference independent of this object and convert the pointer
-        const GCheckCombinerT<ind_type>
-            *p_load = Gem::Common::g_convert_and_compare<GObject, GCheckCombinerT<ind_type>>(
-            cp
-            , this
-        );
+        const GCheckCombinerT<ind_type> *p_load =
+            Gem::Common::g_convert_and_compare<GObject, GCheckCombinerT<ind_type>>(cp, this);
 
-        GToken token(
-            "GCheckCombinerT<ind_type"
-            , e
-        );
+        GToken token("GCheckCombinerT<ind_type", e);
 
         // Compare our parent data ...
-        compare_base_t<GValidityCheckContainerT<ind_type>>(
-            *this
-            , *p_load
-            , token
-        );
+        compare_base_t<GValidityCheckContainerT<ind_type>>(*this, *p_load, token);
 
         // ... and then the local data
-        compare_t(
-            IDENTITY(combinerPolicy_
-                     , p_load->combinerPolicy_)
-            , token
-        );
+        compare_t(IDENTITY(combinerPolicy_, p_load->combinerPolicy_), token);
 
         // React on deviations from the expectation
         token.evaluate();
@@ -721,7 +655,8 @@ private:
     /***************************************************************************/
     // Local data
 
-    validityCheckCombinerPolicy combinerPolicy_ = Gem::Geneva::validityCheckCombinerPolicy::MULTIPLYINVALID; ///< Indicates how validity checks should be combined
+    validityCheckCombinerPolicy combinerPolicy_ = Gem::Geneva::validityCheckCombinerPolicy::
+        MULTIPLYINVALID; ///< Indicates how validity checks should be combined
 };
 
 /******************************************************************************/
@@ -733,28 +668,18 @@ private:
 /******************************************************************************/
 // The content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T)
 namespace boost::serialization {
-template<typename ind_type>
-struct is_abstract<Gem::Geneva::GPreEvaluationValidityCheckT<ind_type>> :
-    public boost::true_type
-{
-};
-template<typename ind_type>
-struct is_abstract<const Gem::Geneva::GPreEvaluationValidityCheckT<ind_type>> :
-    public boost::true_type
-{
-};
+template <typename ind_type>
+struct is_abstract<Gem::Geneva::GPreEvaluationValidityCheckT<ind_type>>
+  : public boost::true_type {};
+template <typename ind_type>
+struct is_abstract<const Gem::Geneva::GPreEvaluationValidityCheckT<ind_type>>
+  : public boost::true_type {};
 } /* namespace boost::serialization */
 namespace boost::serialization {
-template<typename ind_type>
-struct is_abstract<Gem::Geneva::GValidityCheckContainerT<ind_type>> :
-    public boost::true_type
-{
-};
-template<typename ind_type>
-struct is_abstract<const Gem::Geneva::GValidityCheckContainerT<ind_type>> :
-    public boost::true_type
-{
-};
+template <typename ind_type>
+struct is_abstract<Gem::Geneva::GValidityCheckContainerT<ind_type>> : public boost::true_type {};
+template <typename ind_type>
+struct is_abstract<const Gem::Geneva::GValidityCheckContainerT<ind_type>>
+  : public boost::true_type {};
 } /* namespace boost::serialization */
 /******************************************************************************/
-

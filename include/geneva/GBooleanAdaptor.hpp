@@ -37,11 +37,11 @@
 // Boost headers go here
 
 // Geneva headers go here
-#include "common/GExceptions.hpp"
 #include "GAdaptorT.hpp"
 #include "GConstrainedDoubleObject.hpp"
 #include "GObject.hpp"
 #include "GOptimizationEnums.hpp"
+#include "common/GExceptions.hpp"
 
 namespace Gem::Geneva {
 
@@ -54,20 +54,15 @@ namespace Gem::Geneva {
  * implemented in the GAdaptorT class.
  */
 class GBooleanAdaptor // NOLINT(cppcoreguidelines-special-member-functions)
-    :
-        public GAdaptorT<bool>
-{
+  : public GAdaptorT<bool> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
-    template<typename Archive>
+    template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar
-        & make_nvp(
-            "GAdaptorT_bool"
-            , boost::serialization::base_object<GAdaptorT<bool>>(*this));
+        ar &make_nvp("GAdaptorT_bool", boost::serialization::base_object<GAdaptorT<bool>>(*this));
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -92,24 +87,22 @@ protected:
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GBooleanAdaptor>(
-        GBooleanAdaptor const &
-        , GBooleanAdaptor const &
-        , Gem::Common::GToken &
+        GBooleanAdaptor const &,
+        GBooleanAdaptor const &,
+        Gem::Common::GToken &
     );
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
     G_API_GENEVA void compare_(
         const GObject & // the other object
-        , const Gem::Common::expectation & // the expectation for this object, e.g. equality
-        , const double & // the limit for allowed deviations of floating point types
+        ,
+        const Gem::Common::expectation & // the expectation for this object, e.g. equality
+        ,
+        const double & // the limit for allowed deviations of floating point types
     ) const override;
 
     /** @brief Flip the value up or down by 1, depending on a random number */
-    G_API_GENEVA void customAdaptions(
-        bool &
-        , const bool &
-        , Gem::Hap::GRandomBase &
-    ) override;
+    G_API_GENEVA void customAdaptions(bool &, const bool &, Gem::Hap::GRandomBase &) override;
 
     /** @brief Applies modifications to this object. This is needed for testing purposes */
     G_API_GENEVA bool modify_GUnitTests_() override;

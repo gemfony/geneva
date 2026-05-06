@@ -33,9 +33,12 @@
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 // Export of GCommandContainerT for Geneva individuals
-BOOST_CLASS_EXPORT_IMPLEMENT(BOOST_IDENTITY_TYPE((Gem::Courtier::GCommandContainerT<Gem::Geneva::GParameterSet, Gem::Courtier::networked_consumer_payload_command>))) // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(
+    BOOST_IDENTITY_TYPE((Gem::Courtier::GCommandContainerT<
+                         Gem::Geneva::GParameterSet,
+                         Gem::Courtier::networked_consumer_payload_command>))
+) // NOLINT
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
-

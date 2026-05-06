@@ -34,8 +34,8 @@
 // Boosrt headers go here
 
 // Geneva headers go here
-#include "common/GFactoryT.hpp"
 #include "common/GExceptions.hpp"
+#include "common/GFactoryT.hpp"
 #include "common/GLogger.hpp"
 #include "geneva/GParameterSet.hpp"
 #include "geneva/GPostProcessorT.hpp"
@@ -48,111 +48,112 @@ namespace Gem::Geneva {
  * In particular it allows to register pre- and post-procesing objects
  */
 class GParameterSetFactory // NOLINT(cppcoreguidelines-special-member-functions)
-	: public Gem::Common::GFactoryT<GParameterSet>
-{
-	 ///////////////////////////////////////////////////////////////////////
-	 friend class boost::serialization::access;
+  : public Gem::Common::GFactoryT<GParameterSet> {
+    ///////////////////////////////////////////////////////////////////////
+    friend class boost::serialization::access;
 
-	 template<typename Archive>
-	 void serialize(Archive &ar, const unsigned int) {
-		 using boost::serialization::make_nvp;
+    template <typename Archive>
+    void serialize(Archive &ar, const unsigned int) {
+        using boost::serialization::make_nvp;
 
-		 ar
-		 & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Gem::Common::GFactoryT<GParameterSet>)
-		 & BOOST_SERIALIZATION_NVP(m_preProcessor)
-		 & BOOST_SERIALIZATION_NVP(m_postProcessor);
-	 }
-	 ///////////////////////////////////////////////////////////////////////
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(Gem::Common::GFactoryT<GParameterSet>) &
+            BOOST_SERIALIZATION_NVP(m_preProcessor) & BOOST_SERIALIZATION_NVP(m_postProcessor);
+    }
+    ///////////////////////////////////////////////////////////////////////
 
 public:
-	 /***************************************************************************/
-	 /**
+    /***************************************************************************/
+    /**
 	  * The standard constructor
 	  *
 	  * @param configFile path object of a configuration file holding information about objects of type T
 	  */
-	 explicit GParameterSetFactory(std::filesystem::path const &configFile)
-		 : Gem::Common::GFactoryT<GParameterSet>(configFile)
-	 { /* nothing */ }
+    explicit GParameterSetFactory(std::filesystem::path const &configFile)
+      : Gem::Common::GFactoryT<GParameterSet>(configFile) { /* nothing */
+    }
 
-	 /***************************************************************************/
-	 /**
+    /***************************************************************************/
+    /**
 	  * The copy constructor
 	  */
-	 GParameterSetFactory(const GParameterSetFactory& cp)
-		 : Gem::Common::GFactoryT<GParameterSet>(cp)
-	 {
-		 Gem::Common::copyCloneableSmartPointer(cp.m_postProcessor, m_postProcessor);
-		 Gem::Common::copyCloneableSmartPointer(cp.m_postProcessor, m_postProcessor);
-	 }
+    GParameterSetFactory(const GParameterSetFactory &cp)
+      : Gem::Common::GFactoryT<GParameterSet>(cp) {
+        Gem::Common::copyCloneableSmartPointer(cp.m_postProcessor, m_postProcessor);
+        Gem::Common::copyCloneableSmartPointer(cp.m_postProcessor, m_postProcessor);
+    }
 
-	 /***************************************************************************/
-	 // Defaulted and deleted functions
-	 ~GParameterSetFactory() override = default;
+    /***************************************************************************/
+    // Defaulted and deleted functions
+    ~GParameterSetFactory() override = default;
 
-	 /***************************************************************************/
-	 /**
+    /***************************************************************************/
+    /**
 	  * Registration of pre-processor function objects
 	  */
-	 void registerPreProcessor(std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<GParameterSet>> p) {
-		 if(p) {
-			 m_preProcessor = p;
-		 } else {
-			 throw geneva_exception(
-				 g_error_streamer(DO_LOG, time_and_place)
-					 << "In GParameterSetFactory::registerPreProcessor(): Error!" << std::endl
-					 << "Got empty pre-processor" << std::endl
-			 );
-		 }
-	 }
+    void registerPreProcessor(
+        std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<GParameterSet>> p
+    ) {
+        if(p) {
+            m_preProcessor = p;
+        }
+        else {
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, time_and_place)
+                << "In GParameterSetFactory::registerPreProcessor(): Error!" << std::endl
+                << "Got empty pre-processor" << std::endl
+            );
+        }
+    }
 
-	 /***************************************************************************/
-	 /**
+    /***************************************************************************/
+    /**
 	  * Registration of post-processor function objects
 	  */
-	 void registerPostProcessor(std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<GParameterSet>> p) {
-		 if(p) {
-			 m_postProcessor = p;
-		 } else {
-			 throw geneva_exception(
-				 g_error_streamer(DO_LOG, time_and_place)
-					 << "In GParameterSetFactory::registerPostProcessor(): Error!" << std::endl
-					 << "Got empty post-processor" << std::endl
-			 );
-		 }
-	 }
+    void registerPostProcessor(
+        std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<GParameterSet>> p
+    ) {
+        if(p) {
+            m_postProcessor = p;
+        }
+        else {
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, time_and_place)
+                << "In GParameterSetFactory::registerPostProcessor(): Error!" << std::endl
+                << "Got empty post-processor" << std::endl
+            );
+        }
+    }
 
 protected:
-	 /** @brief A pre-processor for GParameterSet-derivatives */
-	 std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<GParameterSet>> m_preProcessor;
+    /** @brief A pre-processor for GParameterSet-derivatives */
+    std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<GParameterSet>> m_preProcessor;
 
-	 /** @brief A post-processor for GParameterSet-derivatives */
-	 std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<GParameterSet>> m_postProcessor;
+    /** @brief A post-processor for GParameterSet-derivatives */
+    std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<GParameterSet>> m_postProcessor;
 
-	/***************************************************************************/
-	/**
+    /***************************************************************************/
+    /**
      * Production of GParameterSet-derivatives
      */
-	std::shared_ptr<GParameterSet> get_() override {
-		std::shared_ptr<GParameterSet> p = GFactoryT<GParameterSet>::get_();
+    std::shared_ptr<GParameterSet> get_() override {
+        std::shared_ptr<GParameterSet> p = GFactoryT<GParameterSet>::get_();
 
-		if(m_preProcessor) {
-			p->registerPreProcessor(m_preProcessor->clone());
-		}
+        if(m_preProcessor) {
+            p->registerPreProcessor(m_preProcessor->clone());
+        }
 
-		if(m_postProcessor) {
-			p->registerPostProcessor(m_postProcessor->clone());
-		}
+        if(m_postProcessor) {
+            p->registerPostProcessor(m_postProcessor->clone());
+        }
 
-		return p;
-	}
+        return p;
+    }
 
 private:
-	 // Only needed for (de-)serialization purposes, hence private
-	 GParameterSetFactory() = default;
+    // Only needed for (de-)serialization purposes, hence private
+    GParameterSetFactory() = default;
 };
 
 /******************************************************************************/
 
 } /* namespace Gem::Geneva */
-

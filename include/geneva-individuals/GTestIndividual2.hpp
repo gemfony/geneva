@@ -33,31 +33,31 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard header files go here
-#include <iostream>
+#include <algorithm> // for std::sort
 #include <cmath>
 #include <cstdlib>
+#include <iostream>
+#include <list>
 #include <sstream>
 #include <vector>
-#include <list>
-#include <algorithm> // for std::sort
 
 // Boost header files go here
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/cast.hpp>
 
 // Geneva header files go here
-#include "geneva/GParameterSet.hpp"
-#include "geneva/GDoubleCollection.hpp"
-#include "geneva/GDoubleObject.hpp"
-#include "geneva/GDoubleGaussAdaptor.hpp"
+#include "common/GCommonEnums.hpp"
+#include "common/GExceptions.hpp"
 #include "geneva/GConstrainedDoubleCollection.hpp"
-#include "geneva/GConstrainedDoubleObjectCollection.hpp"
 #include "geneva/GConstrainedDoubleObject.hpp"
+#include "geneva/GConstrainedDoubleObjectCollection.hpp"
+#include "geneva/GDoubleCollection.hpp"
+#include "geneva/GDoubleGaussAdaptor.hpp"
+#include "geneva/GDoubleObject.hpp"
 #include "geneva/GOptimizationEnums.hpp"
+#include "geneva/GParameterSet.hpp"
 #include "geneva/G_OptimizationAlgorithm_GradientDescent_PersonalityTraits.hpp"
 #include "geneva/G_OptimizationAlgorithm_SwarmAlgorithm_PersonalityTraits.hpp"
-#include "common/GExceptions.hpp"
-#include "common/GCommonEnums.hpp"
 
 namespace Gem::Tests {
 
@@ -65,11 +65,11 @@ namespace Gem::Tests {
  * The types of objects to be tested in this class
  */
 enum class PERFOBJECTTYPE : Gem::Common::ENUMBASETYPE {
-	 PERFGDOUBLEOBJECT = 0,
-	 PERFGCONSTRDOUBLEOBJECT = 1,
-	 PERFGCONSTRAINEDDOUBLEOBJECTCOLLECTION = 2,
-	 PERFGDOUBLECOLLECTION = 3,
-	 PERFGCONSTRAINEDDOUBLECOLLECTION = 4
+    PERFGDOUBLEOBJECT = 0,
+    PERFGCONSTRDOUBLEOBJECT = 1,
+    PERFGCONSTRAINEDDOUBLEOBJECTCOLLECTION = 2,
+    PERFGDOUBLECOLLECTION = 3,
+    PERFGCONSTRAINEDDOUBLECOLLECTION = 4
 };
 
 const PERFOBJECTTYPE POTMIN = PERFOBJECTTYPE::PERFGDOUBLEOBJECT;
@@ -78,9 +78,9 @@ const std::size_t NPERFOBJECTTYPES = 5;
 
 /******************************************************************************/
 /** @brief Puts a Gem::Common::logType into a stream. Needed also for boost::lexical_cast<> */
-G_API_INDIVIDUALS std::ostream &operator<<(std::ostream &, const Gem::Tests::PERFOBJECTTYPE&);
+G_API_INDIVIDUALS std::ostream &operator<<(std::ostream &, const Gem::Tests::PERFOBJECTTYPE &);
 /** @brief Reads a Gem::Common::logType from a stream. Needed also for boost::lexical_cast<> */
-G_API_INDIVIDUALS std::istream &operator>>(std::istream &, Gem::Tests::PERFOBJECTTYPE&);
+G_API_INDIVIDUALS std::istream &operator>>(std::istream &, Gem::Tests::PERFOBJECTTYPE &);
 
 /******************************************************************************/
 /**
@@ -88,62 +88,64 @@ G_API_INDIVIDUALS std::istream &operator>>(std::istream &, Gem::Tests::PERFOBJEC
  * of writing, it was included in order to be able to set the individual's personality without
  * weakening data protection.
  */
-class GTestIndividual2 : public Gem::Geneva::GParameterSet { // NOLINT(cppcoreguidelines-special-member-functions)
-	 ///////////////////////////////////////////////////////////////////////
-	 friend class boost::serialization::access;
+class GTestIndividual2
+  : public Gem::Geneva::GParameterSet { // NOLINT(cppcoreguidelines-special-member-functions)
+    ///////////////////////////////////////////////////////////////////////
+    friend class boost::serialization::access;
 
-	 template<typename Archive>
-	 void serialize(Archive &ar, const unsigned int) {
-		 using boost::serialization::make_nvp;
+    template <typename Archive>
+    void serialize(Archive &ar, const unsigned int) {
+        using boost::serialization::make_nvp;
 
-		 ar
-		 & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet);
-	 }
-	 ///////////////////////////////////////////////////////////////////////
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet);
+    }
+    ///////////////////////////////////////////////////////////////////////
 
 public:
-	 /** @brief The default constructor */
-	 G_API_INDIVIDUALS GTestIndividual2(const std::size_t &, const PERFOBJECTTYPE &);
-	 /** @brief The copy constructor */
-	 G_API_INDIVIDUALS GTestIndividual2(const GTestIndividual2 &);
+    /** @brief The default constructor */
+    G_API_INDIVIDUALS GTestIndividual2(const std::size_t &, const PERFOBJECTTYPE &);
+    /** @brief The copy constructor */
+    G_API_INDIVIDUALS GTestIndividual2(const GTestIndividual2 &);
 
-	 /** @brief The standard destructor */
-	 virtual G_API_INDIVIDUALS ~GTestIndividual2();
+    /** @brief The standard destructor */
+    virtual G_API_INDIVIDUALS ~GTestIndividual2();
 
 protected:
-	 /** @brief Loads the data of another GTestIndividual2 */
-	 virtual G_API_INDIVIDUALS void load_(const GObject *) final;
+    /** @brief Loads the data of another GTestIndividual2 */
+    virtual G_API_INDIVIDUALS void load_(const GObject *) final;
 
-	/** @brief Allow access to this classes compare_ function */
-	friend void Gem::Common::compare_base_t<GTestIndividual2>(
-		GTestIndividual2 const &
-		, GTestIndividual2 const &
-		, Gem::Common::GToken &
-	);
+    /** @brief Allow access to this classes compare_ function */
+    friend void Gem::Common::compare_base_t<GTestIndividual2>(
+        GTestIndividual2 const &,
+        GTestIndividual2 const &,
+        Gem::Common::GToken &
+    );
 
-	/** @brief Searches for compliance with expectations with respect to another object of the same type */
-	virtual G_API_INDIVIDUALS void compare_(
-		const GObject & // the other object
-		, const Gem::Common::expectation & // the expectation for this object, e.g. equality
-		, const double & // the limit for allowed deviations of floating point types
-	) const final;
+    /** @brief Searches for compliance with expectations with respect to another object of the same type */
+    virtual G_API_INDIVIDUALS void compare_(
+        const GObject & // the other object
+        ,
+        const Gem::Common::expectation & // the expectation for this object, e.g. equality
+        ,
+        const double & // the limit for allowed deviations of floating point types
+    ) const final;
 
-	 /** @brief The actual fitness calculation takes place here. */
-	 virtual G_API_INDIVIDUALS double fitnessCalculation() final;
+    /** @brief The actual fitness calculation takes place here. */
+    virtual G_API_INDIVIDUALS double fitnessCalculation() final;
 
-	 /** @brief Applies modifications to this object. */
-	 virtual G_API_INDIVIDUALS bool modify_GUnitTests_();
-	 /** @brief Performs self tests that are expected to succeed. */
-	 virtual G_API_INDIVIDUALS void specificTestsNoFailureExpected_GUnitTests_();
-	 /** @brief Performs self tests that are expected to fail. */
-	 virtual G_API_INDIVIDUALS void specificTestsFailuresExpected_GUnitTests_();
+    /** @brief Applies modifications to this object. */
+    virtual G_API_INDIVIDUALS bool modify_GUnitTests_();
+    /** @brief Performs self tests that are expected to succeed. */
+    virtual G_API_INDIVIDUALS void specificTestsNoFailureExpected_GUnitTests_();
+    /** @brief Performs self tests that are expected to fail. */
+    virtual G_API_INDIVIDUALS void specificTestsFailuresExpected_GUnitTests_();
 
 private:
-	 /** @brief Creates a deep clone of this object */
-	 virtual G_API_INDIVIDUALS GObject *clone_() const final;
+    /** @brief Creates a deep clone of this object */
+    virtual G_API_INDIVIDUALS GObject *clone_() const final;
 
-	 /** @brief The default constructor -- protected, as it is only needed for (de-)serialization purposes */
-	 GTestIndividual2();
+    /** @brief The default constructor -- protected, as it is only needed for (de-)serialization purposes */
+    GTestIndividual2();
 };
 
 /******************************************************************************/

@@ -43,80 +43,80 @@
 // Boost header files go here
 
 // Geneva header files go here
-#include <geneva/GMPISubClientIndividual.hpp>
-#include <geneva/GConstrainedDoubleObject.hpp>
 #include <courtier/GMPIHelperFunctions.hpp>
+#include <geneva/GConstrainedDoubleObject.hpp>
+#include <geneva/GMPISubClientIndividual.hpp>
 
 namespace Gem::Geneva {
 
-    /******************************************************************/
-    /**
+/******************************************************************/
+/**
      * This class demonstrates the functionality of GMPISubClientIndividual.
      * In the fitnessCalculation function it will communicate to MPI sub-clients.
      * In this example we just send an example message. But in a real implementation
      * real data would be sent in order to solve the fitnessCalculation in a distributed manner.
      */
-    class GMPISubClientParaboloidIndividualMultiD : public GMPISubClientIndividual {
-        /** @brief Make the class accessible to Boost.Serialization */
-        friend class boost::serialization::access;
+class GMPISubClientParaboloidIndividualMultiD : public GMPISubClientIndividual {
+    /** @brief Make the class accessible to Boost.Serialization */
+    friend class boost::serialization::access;
 
-        /**************************************************************/
-        /**
+    /**************************************************************/
+    /**
          * This function triggers serialization of this class and its
          * base classes.
          */
-        template<typename Archive>
-        void serialize(Archive &ar, const unsigned int) {
-            using boost::serialization::make_nvp;
-            // Serialize the base class
-            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet);
-            // Add other variables here like this:
-            // ar & BOOST_SERIALIZATION_NVP(sampleVariable);
-        }
-        /**************************************************************/
-    public:
-        /** @brief The default constructor */
-        GMPISubClientParaboloidIndividualMultiD();
+    template <typename Archive>
+    void serialize(Archive &ar, const unsigned int) {
+        using boost::serialization::make_nvp;
+        // Serialize the base class
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet);
+        // Add other variables here like this:
+        // ar & BOOST_SERIALIZATION_NVP(sampleVariable);
+    }
+    /**************************************************************/
+public:
+    /** @brief The default constructor */
+    GMPISubClientParaboloidIndividualMultiD();
 
-        /** @brief A standard copy constructor */
-        GMPISubClientParaboloidIndividualMultiD(const GMPISubClientParaboloidIndividualMultiD &);
+    /** @brief A standard copy constructor */
+    GMPISubClientParaboloidIndividualMultiD(const GMPISubClientParaboloidIndividualMultiD &);
 
-        static int subClientJob(MPI_Comm comm);
+    static int subClientJob(MPI_Comm comm);
 
-    protected:
-        /** @brief Loads the data of another GMPISubClientParaboloidIndividualMultiD */
-        void load_(const GObject *) final;
+protected:
+    /** @brief Loads the data of another GMPISubClientParaboloidIndividualMultiD */
+    void load_(const GObject *) final;
 
-        /** @brief The actual fitness calculation takes place here. */
-        double fitnessCalculation() final;
+    /** @brief The actual fitness calculation takes place here. */
+    double fitnessCalculation() final;
 
-    private:
-        /** @brief calculates the square of all parameters in this parameters set together with all sub-clients */
-        [[nodiscard]] static MPICompletionStatus
-        distributedSolveWhile(const std::optional<std::vector<double>> &sendVec,
-                              std::optional<std::vector<double>> &resultVec,
-                              const std::uint32_t &parsPerProc,
-                              const std::function<bool()> &runWhile);
+private:
+    /** @brief calculates the square of all parameters in this parameters set together with all sub-clients */
+    [[nodiscard]] static MPICompletionStatus distributedSolveWhile(
+        const std::optional<std::vector<double>> &sendVec,
+        std::optional<std::vector<double>> &resultVec,
+        const std::uint32_t &parsPerProc,
+        const std::function<bool()> &runWhile
+    );
 
+    /** @brief Creates a deep clone of this object */
+    [[nodiscard]] GObject *clone_() const final;
 
-        /** @brief Creates a deep clone of this object */
-        [[nodiscard]] GObject *clone_() const final;
+    const double M_PAR_MIN;
+    const double M_PAR_MAX;
 
-        const double M_PAR_MIN;
-        const double M_PAR_MAX;
+    /** the number of parameters to optimize */
+    inline const static std::uint32_t m_nParameters{64};
 
-        /** the number of parameters to optimize */
-        inline const static std::uint32_t m_nParameters{64};
+    /** Simulated time required to calculate one parameter in this parameter set */
+    inline const static std::uint32_t m_delayPerParameterMSec{50};
 
-        /** Simulated time required to calculate one parameter in this parameter set */
-        inline const static std::uint32_t m_delayPerParameterMSec{50};
+    /** Interval for checking the result of mpi communication requests */
+    inline const static std::uint32_t m_pollIntervalMSec{5};
 
-        /** Interval for checking the result of mpi communication requests */
-        inline const static std::uint32_t m_pollIntervalMSec{5};
-
-        /** Maximum time to wait before a timeout is triggered on an mpi communication request */
-        inline const static std::uint32_t m_pollTimeoutMSec{5000}; // 30 seconds
-    };
+    /** Maximum time to wait before a timeout is triggered on an mpi communication request */
+    inline const static std::uint32_t m_pollTimeoutMSec{5000}; // 30 seconds
+};
 
 /******************************************************************/
 

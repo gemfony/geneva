@@ -44,9 +44,9 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard header files go here
-#include <string>
 #include <sstream>
 #include <stdexcept>
+#include <string>
 
 // Boost header files go here
 
@@ -63,15 +63,14 @@
  * General exception class to be thrown in the case of severe errors
  * in the Geneva library collection.
  */
-class geneva_exception : public std::runtime_error
-{
+class geneva_exception : public std::runtime_error {
 public:
-	using std::runtime_error::runtime_error;
+    using std::runtime_error::runtime_error;
 };
 
 /******************************************************************************/
 /** @brief This function allows to output a geneva_exception to a stream */
-G_API_COMMON std::ostream& operator<<(std::ostream&, const geneva_exception&);
+G_API_COMMON std::ostream &operator<<(std::ostream &, const geneva_exception &);
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -80,10 +79,9 @@ G_API_COMMON std::ostream& operator<<(std::ostream&, const geneva_exception&);
  * An exception to be thrown in case of an expectation violation. This is used
  * in the compare infrastructure, but listed here to resolve a circular dependency.
  */
-class g_expectation_violation : public geneva_exception
-{
+class g_expectation_violation : public geneva_exception {
 public:
-	 using geneva_exception::geneva_exception;
+    using geneva_exception::geneva_exception;
 };
 
 /******************************************************************************/
@@ -92,28 +90,27 @@ public:
 /**
  * This define allows easy access to throwing exceptions.
  */
-#define raiseException(E)                                                                                \
-  {                                                                                                      \
-    std::ostringstream error;                                                                            \
-    error                                                                                                \
-       << std::endl                                                                                      \
-       << "================================================" << std::endl                                \
-       << "ERROR" << std::endl                                                                           \
-       << "in file " << __FILE__ << std::endl                                                            \
-       << "near line " << __LINE__ << " with description:" << std::endl                                  \
-       << std::endl                                                                                      \
-       << E /* NOLINT(bugprone-macro-parentheses) */ << std::endl                                        \
-       << std::endl                                                                                      \
-       << "If you suspect that this error is due to Geneva," << std::endl                                \
-       << "then please consider filing a bug via" << std::endl                                           \
-       << "http://www.gemfony.eu (link \"Bug Reports\") or" << std::endl                                 \
-       << "through http://www.launchpad.net/geneva" << std::endl                                         \
-       << std::endl                                                                                      \
-       << "We appreciate your help!" << std::endl                                                        \
-       << "The Geneva team" << std::endl                                                                 \
-       << "================================================" << std::endl;                               \
-    throw(geneva_exception(error.str()));                                            \
-  }
+#define raiseException(E)                                                                          \
+    {                                                                                              \
+        std::ostringstream error;                                                                  \
+        error << std::endl                                                                         \
+              << "================================================" << std::endl                   \
+              << "ERROR" << std::endl                                                              \
+              << "in file " << __FILE__ << std::endl                                               \
+              << "near line " << __LINE__ << " with description:" << std::endl                     \
+              << std::endl                                                                         \
+              << E /* NOLINT(bugprone-macro-parentheses) */ << std::endl                           \
+              << std::endl                                                                         \
+              << "If you suspect that this error is due to Geneva," << std::endl                   \
+              << "then please consider filing a bug via" << std::endl                              \
+              << "http://www.gemfony.eu (link \"Bug Reports\") or" << std::endl                    \
+              << "through http://www.launchpad.net/geneva" << std::endl                            \
+              << std::endl                                                                         \
+              << "We appreciate your help!" << std::endl                                           \
+              << "The Geneva team" << std::endl                                                    \
+              << "================================================" << std::endl;                  \
+        throw(geneva_exception(error.str()));                                                      \
+    }
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////

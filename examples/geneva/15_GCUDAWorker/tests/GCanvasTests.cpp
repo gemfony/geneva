@@ -32,19 +32,18 @@
  *
  ********************************************************************************/
 
-#include <catch2/catch_test_macros.hpp>
 #include <catch2/catch_approx.hpp>
+#include <catch2/catch_test_macros.hpp>
 
 #include "../GCanvas.hpp"
 
 #include <cmath>
-#include <string>
-#include <vector>
-#include <tuple>
 #include <memory>
+#include <string>
+#include <tuple>
+#include <vector>
 
 using Catch::Approx;
-
 
 /******************************************************************************/
 // ============================================================
@@ -56,12 +55,11 @@ namespace {
 // Minimal valid P3-PPM: 2×2, depth 8, with four distinct extremal colors.
 // Row 0: pixel(0,0)=red,  pixel(1,0)=green
 // Row 1: pixel(0,1)=blue, pixel(1,1)=white
-const std::string k2x2Ppm =
-    "P3\n"
-    "2 2\n"
-    "255\n"
-    "255 0 0 0 255 0\n"
-    "0 0 255 255 255 255\n";
+const std::string k2x2Ppm = "P3\n"
+                            "2 2\n"
+                            "255\n"
+                            "255 0 0 0 255 0\n"
+                            "0 0 255 255 255 255\n";
 
 } // namespace
 
@@ -90,7 +88,7 @@ TEST_CASE("coord2D: operator- computes component-wise difference", "[common][can
 TEST_CASE("coord2D: operator* computes dot product", "[common][canvas][coord2D]") {
     Gem::Geneva::coord2D a{1.f, 2.f};
     Gem::Geneva::coord2D b{3.f, 4.f};
-    REQUIRE((a * b) == Approx(11.f));  // 1*3 + 2*4
+    REQUIRE((a * b) == Approx(11.f)); // 1*3 + 2*4
 }
 
 TEST_CASE("coord2D: dot product of perpendicular vectors is zero", "[common][canvas][coord2D]") {
@@ -156,7 +154,7 @@ TEST_CASE("GColumn: default construction yields empty column", "[common][canvas]
 TEST_CASE("GColumn: construction sets size and uniform color", "[common][canvas][GColumn]") {
     Gem::Geneva::GColumn col{4, std::make_tuple(0.5f, 0.25f, 0.75f)};
     REQUIRE(col.size() == 4);
-    for (std::size_t i = 0; i < 4; ++i) {
+    for(std::size_t i = 0; i < 4; ++i) {
         REQUIRE(col[i].r == Approx(0.5f));
         REQUIRE(col[i].g == Approx(0.25f));
         REQUIRE(col[i].b == Approx(0.75f));
@@ -188,7 +186,7 @@ TEST_CASE("GColumn: init() resizes and recolors", "[common][canvas][GColumn]") {
     Gem::Geneva::GColumn col{3, std::make_tuple(1.f, 0.f, 0.f)};
     col.init(5, std::make_tuple(0.f, 1.f, 0.f));
     REQUIRE(col.size() == 5);
-    for (std::size_t i = 0; i < 5; ++i) {
+    for(std::size_t i = 0; i < 5; ++i) {
         REQUIRE(col[i].r == Approx(0.f));
         REQUIRE(col[i].g == Approx(1.f));
         REQUIRE(col[i].b == Approx(0.f));
@@ -235,7 +233,10 @@ TEST_CASE("GCanvas<8>: default construction yields empty canvas", "[common][canv
     REQUIRE(c.getNPixels() == 0);
 }
 
-TEST_CASE("GCanvas<8>: construction with dimensions and color sets all pixels", "[common][canvas][GCanvas]") {
+TEST_CASE(
+    "GCanvas<8>: construction with dimensions and color sets all pixels",
+    "[common][canvas][GCanvas]"
+) {
     Gem::Geneva::GCanvas<8> c{
         std::make_tuple(std::size_t{10}, std::size_t{8}),
         std::make_tuple(0.5f, 0.25f, 0.1f)
@@ -289,7 +290,10 @@ TEST_CASE("GCanvas<8>: operator[] mutable access", "[common][canvas][GCanvas]") 
     REQUIRE(c[1][0].r == Approx(0.f));
 }
 
-TEST_CASE("GCanvas<8>: at() mutable — in-range ok, out-of-range throws", "[common][canvas][GCanvas]") {
+TEST_CASE(
+    "GCanvas<8>: at() mutable — in-range ok, out-of-range throws",
+    "[common][canvas][GCanvas]"
+) {
     Gem::Geneva::GCanvas<8> c{
         std::make_tuple(std::size_t{3}, std::size_t{3}),
         std::make_tuple(1.f, 0.f, 0.f)
@@ -299,7 +303,10 @@ TEST_CASE("GCanvas<8>: at() mutable — in-range ok, out-of-range throws", "[com
     REQUIRE_THROWS_AS(c.at(3), std::out_of_range);
 }
 
-TEST_CASE("GCanvas<8>: at() const — in-range ok, out-of-range throws", "[common][canvas][GCanvas]") {
+TEST_CASE(
+    "GCanvas<8>: at() const — in-range ok, out-of-range throws",
+    "[common][canvas][GCanvas]"
+) {
     const Gem::Geneva::GCanvas<8> c{
         std::make_tuple(std::size_t{3}, std::size_t{3}),
         std::make_tuple(0.5f, 0.f, 0.f)
@@ -321,20 +328,26 @@ TEST_CASE("GCanvas<8>: clear() resets dimensions to zero", "[common][canvas][GCa
     REQUIRE(c.getNPixels() == 0);
 }
 
-TEST_CASE("GCanvas<8>: reset(dim, r,g,b) changes size and fills color", "[common][canvas][GCanvas]") {
+TEST_CASE(
+    "GCanvas<8>: reset(dim, r,g,b) changes size and fills color",
+    "[common][canvas][GCanvas]"
+) {
     Gem::Geneva::GCanvas<8> c;
     c.reset(std::make_tuple(std::size_t{3}, std::size_t{2}), 0.f, 1.f, 0.f);
     REQUIRE(c.getXDim() == 3);
     REQUIRE(c.getYDim() == 2);
-    for (std::size_t x = 0; x < 3; ++x)
-        for (std::size_t y = 0; y < 2; ++y) {
+    for(std::size_t x = 0; x < 3; ++x)
+        for(std::size_t y = 0; y < 2; ++y) {
             REQUIRE(c[x][y].r == Approx(0.f));
             REQUIRE(c[x][y].g == Approx(1.f));
             REQUIRE(c[x][y].b == Approx(0.f));
         }
 }
 
-TEST_CASE("GCanvas<8>: reset(dim, tuple) changes size and fills color", "[common][canvas][GCanvas]") {
+TEST_CASE(
+    "GCanvas<8>: reset(dim, tuple) changes size and fills color",
+    "[common][canvas][GCanvas]"
+) {
     Gem::Geneva::GCanvas<8> c;
     c.reset(std::make_tuple(std::size_t{2}, std::size_t{2}), std::make_tuple(0.1f, 0.2f, 0.3f));
     REQUIRE(c[0][0].r == Approx(0.1f));
@@ -362,7 +375,10 @@ TEST_CASE("GCanvas<8>: toPPM begins with 'P3' header", "[common][canvas][GCanvas
     REQUIRE(c.toPPM().substr(0, 3) == "P3\n");
 }
 
-TEST_CASE("GCanvas<8>: toPPM encodes a 1×1 red canvas correctly", "[common][canvas][GCanvas][ppm]") {
+TEST_CASE(
+    "GCanvas<8>: toPPM encodes a 1×1 red canvas correctly",
+    "[common][canvas][GCanvas][ppm]"
+) {
     Gem::Geneva::GCanvas<8> c{
         std::make_tuple(std::size_t{1}, std::size_t{1}),
         std::make_tuple(1.f, 0.f, 0.f)
@@ -373,7 +389,10 @@ TEST_CASE("GCanvas<8>: toPPM encodes a 1×1 red canvas correctly", "[common][can
     REQUIRE(ppm.find("255 0 0") != std::string::npos);
 }
 
-TEST_CASE("GCanvas<8>: toPPM encodes a 1×1 black canvas as all zeros", "[common][canvas][GCanvas][ppm]") {
+TEST_CASE(
+    "GCanvas<8>: toPPM encodes a 1×1 black canvas as all zeros",
+    "[common][canvas][GCanvas][ppm]"
+) {
     Gem::Geneva::GCanvas<8> c{
         std::make_tuple(std::size_t{1}, std::size_t{1}),
         std::make_tuple(0.f, 0.f, 0.f)
@@ -383,7 +402,10 @@ TEST_CASE("GCanvas<8>: toPPM encodes a 1×1 black canvas as all zeros", "[common
 
 // --- GCanvas<8>: PPM loading ---
 
-TEST_CASE("GCanvas<8>: PPM string constructor parses 2×2 image correctly", "[common][canvas][GCanvas][ppm]") {
+TEST_CASE(
+    "GCanvas<8>: PPM string constructor parses 2×2 image correctly",
+    "[common][canvas][GCanvas][ppm]"
+) {
     Gem::Geneva::GCanvas<8> c{k2x2Ppm};
     REQUIRE(c.getXDim() == 2);
     REQUIRE(c.getYDim() == 2);
@@ -405,22 +427,27 @@ TEST_CASE("GCanvas<8>: PPM string constructor parses 2×2 image correctly", "[co
     REQUIRE(c[1][1].b == Approx(1.f));
 }
 
-TEST_CASE("GCanvas<8>: loadFromPPM handles comments and blank lines", "[common][canvas][GCanvas][ppm]") {
-    const std::string ppm =
-        "# comment\n"
-        "P3\n"
-        "\n"
-        "# another comment\n"
-        "1 1\n"
-        "255\n"
-        "128 64 32\n";
+TEST_CASE(
+    "GCanvas<8>: loadFromPPM handles comments and blank lines",
+    "[common][canvas][GCanvas][ppm]"
+) {
+    const std::string ppm = "# comment\n"
+                            "P3\n"
+                            "\n"
+                            "# another comment\n"
+                            "1 1\n"
+                            "255\n"
+                            "128 64 32\n";
     Gem::Geneva::GCanvas<8> c;
     REQUIRE_NOTHROW(c.loadFromPPM(ppm));
     REQUIRE(c.getXDim() == 1);
     REQUIRE(c.getYDim() == 1);
 }
 
-TEST_CASE("GCanvas<8>: toPPM then loadFromPPM round-trips extremal colors", "[common][canvas][GCanvas][ppm]") {
+TEST_CASE(
+    "GCanvas<8>: toPPM then loadFromPPM round-trips extremal colors",
+    "[common][canvas][GCanvas][ppm]"
+) {
     Gem::Geneva::GCanvas<8> original{k2x2Ppm};
     std::string serialized = original.toPPM();
     Gem::Geneva::GCanvas<8> restored;
@@ -435,27 +462,42 @@ TEST_CASE("GCanvas<8>: toPPM then loadFromPPM round-trips extremal colors", "[co
 
 // --- GCanvas<8>: PPM error cases ---
 
-TEST_CASE("GCanvas<8>: loadFromPPM throws on wrong magic number", "[common][canvas][GCanvas][ppm][errors]") {
+TEST_CASE(
+    "GCanvas<8>: loadFromPPM throws on wrong magic number",
+    "[common][canvas][GCanvas][ppm][errors]"
+) {
     Gem::Geneva::GCanvas<8> c;
     REQUIRE_THROWS_AS(c.loadFromPPM("P6\n1 1\n255\n"), geneva_exception);
 }
 
-TEST_CASE("GCanvas<8>: loadFromPPM throws on zero x-dimension", "[common][canvas][GCanvas][ppm][errors]") {
+TEST_CASE(
+    "GCanvas<8>: loadFromPPM throws on zero x-dimension",
+    "[common][canvas][GCanvas][ppm][errors]"
+) {
     Gem::Geneva::GCanvas<8> c;
     REQUIRE_THROWS_AS(c.loadFromPPM("P3\n0 1\n255\n"), geneva_exception);
 }
 
-TEST_CASE("GCanvas<8>: loadFromPPM throws on zero y-dimension", "[common][canvas][GCanvas][ppm][errors]") {
+TEST_CASE(
+    "GCanvas<8>: loadFromPPM throws on zero y-dimension",
+    "[common][canvas][GCanvas][ppm][errors]"
+) {
     Gem::Geneva::GCanvas<8> c;
     REQUIRE_THROWS_AS(c.loadFromPPM("P3\n1 0\n255\n"), geneva_exception);
 }
 
-TEST_CASE("GCanvas<8>: loadFromPPM throws on wrong color depth", "[common][canvas][GCanvas][ppm][errors]") {
+TEST_CASE(
+    "GCanvas<8>: loadFromPPM throws on wrong color depth",
+    "[common][canvas][GCanvas][ppm][errors]"
+) {
     Gem::Geneva::GCanvas<8> c;
     REQUIRE_THROWS_AS(c.loadFromPPM("P3\n1 1\n127\n0 0 0\n"), geneva_exception);
 }
 
-TEST_CASE("GCanvas<8>: loadFromPPM throws on too-few pixel values", "[common][canvas][GCanvas][ppm][errors]") {
+TEST_CASE(
+    "GCanvas<8>: loadFromPPM throws on too-few pixel values",
+    "[common][canvas][GCanvas][ppm][errors]"
+) {
     Gem::Geneva::GCanvas<8> c;
     // 2×2 needs 12 values; only 3 given
     REQUIRE_THROWS_AS(c.loadFromPPM("P3\n2 2\n255\n255 0 0\n"), geneva_exception);
@@ -471,7 +513,10 @@ TEST_CASE("GCanvas<8>: diff of a canvas with itself is zero", "[common][canvas][
     REQUIRE(c.diff(c) == Approx(0.f));
 }
 
-TEST_CASE("GCanvas<8>: diff of white vs black 1×1 canvas equals sqrt(3)", "[common][canvas][GCanvas][diff]") {
+TEST_CASE(
+    "GCanvas<8>: diff of white vs black 1×1 canvas equals sqrt(3)",
+    "[common][canvas][GCanvas][diff]"
+) {
     auto dim = std::make_tuple(std::size_t{1}, std::size_t{1});
     Gem::Geneva::GCanvas<8> white{dim, std::make_tuple(1.f, 1.f, 1.f)};
     Gem::Geneva::GCanvas<8> black{dim, std::make_tuple(0.f, 0.f, 0.f)};
@@ -487,23 +532,47 @@ TEST_CASE("GCanvas<8>: diff is symmetric", "[common][canvas][GCanvas][diff]") {
 
 TEST_CASE("GCanvas<8>: diff scales linearly with pixel count", "[common][canvas][GCanvas][diff]") {
     // 1×1 white vs black: sqrt(3); 1×2 should give 2*sqrt(3)
-    Gem::Geneva::GCanvas<8> w1{std::make_tuple(std::size_t{1}, std::size_t{1}), std::make_tuple(1.f, 1.f, 1.f)};
-    Gem::Geneva::GCanvas<8> b1{std::make_tuple(std::size_t{1}, std::size_t{1}), std::make_tuple(0.f, 0.f, 0.f)};
+    Gem::Geneva::GCanvas<8> w1{
+        std::make_tuple(std::size_t{1}, std::size_t{1}),
+        std::make_tuple(1.f, 1.f, 1.f)
+    };
+    Gem::Geneva::GCanvas<8> b1{
+        std::make_tuple(std::size_t{1}, std::size_t{1}),
+        std::make_tuple(0.f, 0.f, 0.f)
+    };
     float d1 = w1.diff(b1);
-    Gem::Geneva::GCanvas<8> w2{std::make_tuple(std::size_t{1}, std::size_t{2}), std::make_tuple(1.f, 1.f, 1.f)};
-    Gem::Geneva::GCanvas<8> b2{std::make_tuple(std::size_t{1}, std::size_t{2}), std::make_tuple(0.f, 0.f, 0.f)};
+    Gem::Geneva::GCanvas<8> w2{
+        std::make_tuple(std::size_t{1}, std::size_t{2}),
+        std::make_tuple(1.f, 1.f, 1.f)
+    };
+    Gem::Geneva::GCanvas<8> b2{
+        std::make_tuple(std::size_t{1}, std::size_t{2}),
+        std::make_tuple(0.f, 0.f, 0.f)
+    };
     REQUIRE(w2.diff(b2) == Approx(2.f * d1));
 }
 
 TEST_CASE("GCanvas<8>: diff throws on mismatched dimensions", "[common][canvas][GCanvas][diff]") {
-    Gem::Geneva::GCanvas<8> a{std::make_tuple(std::size_t{2}, std::size_t{2}), std::make_tuple(0.f, 0.f, 0.f)};
-    Gem::Geneva::GCanvas<8> b{std::make_tuple(std::size_t{3}, std::size_t{3}), std::make_tuple(0.f, 0.f, 0.f)};
+    Gem::Geneva::GCanvas<8> a{
+        std::make_tuple(std::size_t{2}, std::size_t{2}),
+        std::make_tuple(0.f, 0.f, 0.f)
+    };
+    Gem::Geneva::GCanvas<8> b{
+        std::make_tuple(std::size_t{3}, std::size_t{3}),
+        std::make_tuple(0.f, 0.f, 0.f)
+    };
     REQUIRE_THROWS_AS(a.diff(b), geneva_exception);
 }
 
 TEST_CASE("GCanvas8: operator- is equivalent to diff", "[common][canvas][GCanvas][diff]") {
-    Gem::Geneva::GCanvas8 a{std::make_tuple(std::size_t{2}, std::size_t{2}), std::make_tuple(1.f, 0.f, 0.f)};
-    Gem::Geneva::GCanvas8 b{std::make_tuple(std::size_t{2}, std::size_t{2}), std::make_tuple(0.f, 0.f, 1.f)};
+    Gem::Geneva::GCanvas8 a{
+        std::make_tuple(std::size_t{2}, std::size_t{2}),
+        std::make_tuple(1.f, 0.f, 0.f)
+    };
+    Gem::Geneva::GCanvas8 b{
+        std::make_tuple(std::size_t{2}, std::size_t{2}),
+        std::make_tuple(0.f, 0.f, 1.f)
+    };
     REQUIRE((a - b) == Approx(a.diff(b)));
 }
 
@@ -516,26 +585,35 @@ TEST_CASE("GCanvas8: operator- is equivalent to diff", "[common][canvas][GCanvas
 namespace {
 Gem::Geneva::t_cart full_cover_triangle(float r, float g, float b, float a) {
     Gem::Geneva::t_cart t;
-    t.tr_one   = {0.f, 0.f};
-    t.tr_two   = {3.f, 0.f};
+    t.tr_one = {0.f, 0.f};
+    t.tr_two = {3.f, 0.f};
     t.tr_three = {0.f, 3.f};
-    t.r = r; t.g = g; t.b = b; t.a = a;
+    t.r = r;
+    t.g = g;
+    t.b = b;
+    t.a = a;
     return t;
 }
 } // namespace
 
-TEST_CASE("GCanvas<8>: addTriangle(t_cart) with alpha=0 leaves canvas unchanged", "[common][canvas][GCanvas][triangle]") {
+TEST_CASE(
+    "GCanvas<8>: addTriangle(t_cart) with alpha=0 leaves canvas unchanged",
+    "[common][canvas][GCanvas][triangle]"
+) {
     Gem::Geneva::GCanvas<8> c{
         std::make_tuple(std::size_t{4}, std::size_t{4}),
         std::make_tuple(0.5f, 0.5f, 0.5f)
     };
     c.addTriangle(full_cover_triangle(1.f, 0.f, 0.f, 0.f));
-    for (std::size_t x = 0; x < 4; ++x)
-        for (std::size_t y = 0; y < 4; ++y)
+    for(std::size_t x = 0; x < 4; ++x)
+        for(std::size_t y = 0; y < 4; ++y)
             REQUIRE(c[x][y].r == Approx(0.5f));
 }
 
-TEST_CASE("GCanvas<8>: addTriangle(t_cart) with alpha=1 fully overwrites covered pixels", "[common][canvas][GCanvas][triangle]") {
+TEST_CASE(
+    "GCanvas<8>: addTriangle(t_cart) with alpha=1 fully overwrites covered pixels",
+    "[common][canvas][GCanvas][triangle]"
+) {
     // White canvas + fully-opaque red triangle covering all pixels.
     // Blend: new_g = 1 + 1*(0-1) = 0; new_b = 0.
     Gem::Geneva::GCanvas<8> c{
@@ -543,15 +621,18 @@ TEST_CASE("GCanvas<8>: addTriangle(t_cart) with alpha=1 fully overwrites covered
         std::make_tuple(1.f, 1.f, 1.f)
     };
     c.addTriangle(full_cover_triangle(1.f, 0.f, 0.f, 1.f));
-    for (std::size_t x = 0; x < 4; ++x)
-        for (std::size_t y = 0; y < 4; ++y) {
+    for(std::size_t x = 0; x < 4; ++x)
+        for(std::size_t y = 0; y < 4; ++y) {
             REQUIRE(c[x][y].r == Approx(1.f));
             REQUIRE(c[x][y].g == Approx(0.f));
             REQUIRE(c[x][y].b == Approx(0.f));
         }
 }
 
-TEST_CASE("GCanvas<8>: addTriangle(t_cart) with alpha=0.5 blends correctly", "[common][canvas][GCanvas][triangle]") {
+TEST_CASE(
+    "GCanvas<8>: addTriangle(t_cart) with alpha=0.5 blends correctly",
+    "[common][canvas][GCanvas][triangle]"
+) {
     // Black canvas + 50%-opaque white triangle.
     // new_r = 0 + 0.5*(1-0) = 0.5
     Gem::Geneva::GCanvas<8> c{
@@ -565,7 +646,10 @@ TEST_CASE("GCanvas<8>: addTriangle(t_cart) with alpha=0.5 blends correctly", "[c
     REQUIRE(c[0][0].b == Approx(0.5f));
 }
 
-TEST_CASE("GCanvas<8>: addTriangle(t_cart) leaves pixels outside bounding box unchanged", "[common][canvas][GCanvas][triangle]") {
+TEST_CASE(
+    "GCanvas<8>: addTriangle(t_cart) leaves pixels outside bounding box unchanged",
+    "[common][canvas][GCanvas][triangle]"
+) {
     // Triangle with all vertices at x > 0.8; pixels at i_x=0 (pos_f.x=0.25) are
     // entirely to the left of the bounding box and must remain untouched.
     Gem::Geneva::GCanvas<8> c{
@@ -573,26 +657,32 @@ TEST_CASE("GCanvas<8>: addTriangle(t_cart) leaves pixels outside bounding box un
         std::make_tuple(0.5f, 0.5f, 0.5f)
     };
     Gem::Geneva::t_cart t;
-    t.tr_one   = {0.85f, 0.85f};
-    t.tr_two   = {0.90f, 0.85f};
+    t.tr_one = {0.85f, 0.85f};
+    t.tr_two = {0.90f, 0.85f};
     t.tr_three = {0.87f, 0.95f};
-    t.r = 1.f; t.g = 0.f; t.b = 0.f; t.a = 1.f;
+    t.r = 1.f;
+    t.g = 0.f;
+    t.b = 0.f;
+    t.a = 1.f;
     c.addTriangle(t);
     // Column 0 is to the left of all triangle vertices — must be gray
-    for (std::size_t y = 0; y < 4; ++y)
+    for(std::size_t y = 0; y < 4; ++y)
         REQUIRE(c[0][y].r == Approx(0.5f));
 }
 
-TEST_CASE("GCanvas<8>: addTriangles adds multiple triangles", "[common][canvas][GCanvas][triangle]") {
+TEST_CASE(
+    "GCanvas<8>: addTriangles adds multiple triangles",
+    "[common][canvas][GCanvas][triangle]"
+) {
     // Two non-overlapping triangles (left vs right half), both red alpha=1.
     // After both: canvas should be all red everywhere.
     Gem::Geneva::GCanvas<8> c{
         std::make_tuple(std::size_t{4}, std::size_t{4}),
-        std::make_tuple(0.f, 0.f, 1.f)  // blue
+        std::make_tuple(0.f, 0.f, 1.f) // blue
     };
     Gem::Geneva::t_cart t1 = full_cover_triangle(1.f, 0.f, 0.f, 1.f);
-    c.addTriangles(std::vector<Gem::Geneva::t_circle>{});  // verify empty is a no-op
-    REQUIRE(c[0][0].b == Approx(1.f));  // unchanged
+    c.addTriangles(std::vector<Gem::Geneva::t_circle>{}); // verify empty is a no-op
+    REQUIRE(c[0][0].b == Approx(1.f));                    // unchanged
     c.addTriangle(t1);
     REQUIRE(c[0][0].r == Approx(1.f));
     REQUIRE(c[0][0].b == Approx(0.f));
@@ -600,13 +690,16 @@ TEST_CASE("GCanvas<8>: addTriangles adds multiple triangles", "[common][canvas][
 
 // --- GCanvas<8>: addTriangle(t_circle) ---
 
-TEST_CASE("GCanvas<8>: addTriangle(t_circle) colors pixels inside the derived triangle", "[common][canvas][GCanvas][triangle]") {
+TEST_CASE(
+    "GCanvas<8>: addTriangle(t_circle) colors pixels inside the derived triangle",
+    "[common][canvas][GCanvas][triangle]"
+) {
     // Circle-based triangle: center(0.5,0.5), radius=0.4, angles 0/0.25/0.5.
     // Derived cartesian vertices: (0.9,0.5), (0.5,0.9), (0.1,0.5).
     // For a 10×10 canvas, pixel(4,4) has pos_f=(0.5,0.5) which lies inside.
     Gem::Geneva::GCanvas<8> c{
         std::make_tuple(std::size_t{10}, std::size_t{10}),
-        std::make_tuple(0.f, 0.f, 0.f)  // black
+        std::make_tuple(0.f, 0.f, 0.f) // black
     };
     Gem::Geneva::t_circle tc;
     tc.middle = {0.5f, 0.5f};
@@ -614,7 +707,10 @@ TEST_CASE("GCanvas<8>: addTriangle(t_circle) colors pixels inside the derived tr
     tc.angle1 = 0.f;
     tc.angle2 = 0.25f;
     tc.angle3 = 0.5f;
-    tc.r = 1.f; tc.g = 0.f; tc.b = 0.f; tc.a = 1.f;
+    tc.r = 1.f;
+    tc.g = 0.f;
+    tc.b = 0.f;
+    tc.a = 1.f;
     c.addTriangle(tc);
     // pixel (4,4) at pos_f=(0.5,0.5) must now be red
     REQUIRE(c[4][4].r == Approx(1.f));
@@ -623,7 +719,10 @@ TEST_CASE("GCanvas<8>: addTriangle(t_circle) colors pixels inside the derived tr
 }
 
 #ifdef DEBUG
-TEST_CASE("GCanvas<8>: addTriangle(t_circle) throws in DEBUG on non-ascending angles", "[common][canvas][GCanvas][triangle]") {
+TEST_CASE(
+    "GCanvas<8>: addTriangle(t_circle) throws in DEBUG on non-ascending angles",
+    "[common][canvas][GCanvas][triangle]"
+) {
     Gem::Geneva::GCanvas<8> c{
         std::make_tuple(std::size_t{4}, std::size_t{4}),
         std::make_tuple(0.f, 0.f, 0.f)
@@ -631,25 +730,37 @@ TEST_CASE("GCanvas<8>: addTriangle(t_circle) throws in DEBUG on non-ascending an
     Gem::Geneva::t_circle tc;
     tc.middle = {0.5f, 0.5f};
     tc.radius = 0.3f;
-    tc.r = 1.f; tc.g = 0.f; tc.b = 0.f; tc.a = 1.f;
+    tc.r = 1.f;
+    tc.g = 0.f;
+    tc.b = 0.f;
+    tc.a = 1.f;
 
     // angle2 <= angle1
-    tc.angle1 = 0.3f; tc.angle2 = 0.2f; tc.angle3 = 0.8f;
+    tc.angle1 = 0.3f;
+    tc.angle2 = 0.2f;
+    tc.angle3 = 0.8f;
     REQUIRE_THROWS_AS(c.addTriangle(tc), geneva_exception);
 
     // angle3 >= 1
-    tc.angle1 = 0.1f; tc.angle2 = 0.3f; tc.angle3 = 1.0f;
+    tc.angle1 = 0.1f;
+    tc.angle2 = 0.3f;
+    tc.angle3 = 1.0f;
     REQUIRE_THROWS_AS(c.addTriangle(tc), geneva_exception);
 
     // angle1 < 0
-    tc.angle1 = -0.1f; tc.angle2 = 0.2f; tc.angle3 = 0.5f;
+    tc.angle1 = -0.1f;
+    tc.angle2 = 0.2f;
+    tc.angle3 = 0.5f;
     REQUIRE_THROWS_AS(c.addTriangle(tc), geneva_exception);
 }
 #endif /* DEBUG */
 
 // --- GCanvas<8>: getAverageColors ---
 
-TEST_CASE("GCanvas<8>: getAverageColors on uniform canvas returns that color", "[common][canvas][GCanvas]") {
+TEST_CASE(
+    "GCanvas<8>: getAverageColors on uniform canvas returns that color",
+    "[common][canvas][GCanvas]"
+) {
     Gem::Geneva::GCanvas<8> c{
         std::make_tuple(std::size_t{4}, std::size_t{4}),
         std::make_tuple(0.5f, 0.25f, 0.75f)
@@ -660,7 +771,10 @@ TEST_CASE("GCanvas<8>: getAverageColors on uniform canvas returns that color", "
     REQUIRE(ab == Approx(0.75f));
 }
 
-TEST_CASE("GCanvas<8>: getAverageColors of half-red half-blue 2×1 canvas", "[common][canvas][GCanvas]") {
+TEST_CASE(
+    "GCanvas<8>: getAverageColors of half-red half-blue 2×1 canvas",
+    "[common][canvas][GCanvas]"
+) {
     // 2×1 canvas: pixel(0,0)=red, pixel(1,0)=blue → avg=(0.5,0,0.5)
     Gem::Geneva::GCanvas<8> c{
         std::make_tuple(std::size_t{2}, std::size_t{1}),

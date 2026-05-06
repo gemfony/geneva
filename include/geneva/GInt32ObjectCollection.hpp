@@ -37,9 +37,9 @@
 // Boost header files go here
 
 // Geneva header files go here
+#include "geneva/GInt32GaussAdaptor.hpp"
 #include "geneva/GInt32Object.hpp"
 #include "geneva/GParameterTCollectionT.hpp"
-#include "geneva/GInt32GaussAdaptor.hpp"
 
 namespace Gem::Geneva {
 
@@ -49,19 +49,18 @@ namespace Gem::Geneva {
  * GParameterSet derivative.
  */
 class GInt32ObjectCollection // NOLINT(cppcoreguidelines-special-member-functions)
-    : public GParameterTCollectionT<GInt32Object>
-{
+  : public GParameterTCollectionT<GInt32Object> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
-    template<typename Archive>
+    template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar
-        & make_nvp(
-            "GParameterTCollectionT_ioc"
-            , boost::serialization::base_object<GParameterTCollectionT<GInt32Object>>(*this));
+        ar &make_nvp(
+            "GParameterTCollectionT_ioc",
+            boost::serialization::base_object<GParameterTCollectionT<GInt32Object>>(*this)
+        );
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -81,16 +80,18 @@ protected:
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GInt32ObjectCollection>(
-        GInt32ObjectCollection const &
-        , GInt32ObjectCollection const &
-        , Gem::Common::GToken &
+        GInt32ObjectCollection const &,
+        GInt32ObjectCollection const &,
+        Gem::Common::GToken &
     );
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
     G_API_GENEVA void compare_(
         const GObject & // the other object
-        , const Gem::Common::expectation & // the expectation for this object, e.g. equality
-        , const double & // the limit for allowed deviations of floating point types
+        ,
+        const Gem::Common::expectation & // the expectation for this object, e.g. equality
+        ,
+        const double & // the limit for allowed deviations of floating point types
     ) const override;
 
     /** @brief Applies modifications to this object. This is needed for testing purposes */

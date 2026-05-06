@@ -35,10 +35,9 @@
 #include <catch2/catch_test_macros.hpp>
 #endif /* GEM_TESTING */
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GParameterSet) // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GParameterSet)                  // NOLINT
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::parameterset_processing_result) // NOLINT
-namespace Gem::Geneva
-{
+namespace Gem::Geneva {
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
@@ -50,10 +49,9 @@ namespace Gem::Geneva
  * @param raw_fitness The raw fitness value.
  */
 parameterset_processing_result::parameterset_processing_result(const double raw_fitness)
-    : m_raw_fitness(raw_fitness),
-      m_transformed_fitness(m_raw_fitness),
-      m_transformed_fitness_set(false)
-{
+  : m_raw_fitness(raw_fitness)
+  , m_transformed_fitness(m_raw_fitness)
+  , m_transformed_fitness_set(false) {
     /* nothing */
 }
 
@@ -70,10 +68,9 @@ parameterset_processing_result::parameterset_processing_result(
     const double raw_fitness,
     const double transformed_fitness
 )
-    : m_raw_fitness(raw_fitness),
-      m_transformed_fitness(transformed_fitness),
-      m_transformed_fitness_set(true)
-{
+  : m_raw_fitness(raw_fitness)
+  , m_transformed_fitness(transformed_fitness)
+  , m_transformed_fitness_set(true) {
     /* nothing */
 }
 /******************************************************************************/
@@ -89,19 +86,15 @@ parameterset_processing_result::parameterset_processing_result(
     const double raw_fitness,
     std::function<double(double)> f
 )
-    : m_raw_fitness(raw_fitness)
-{
-    if (f)
-    {
+  : m_raw_fitness(raw_fitness) {
+    if(f) {
         m_transformed_fitness = f(m_raw_fitness);
         m_transformed_fitness_set = true;
     }
-    else
-    {
-        glogger
-            << "In parameterset_processing_result(double, std::function<double(double)>)"
-            << std::endl
-            << GTERMINATION;
+    else {
+        glogger << "In parameterset_processing_result(double, std::function<double(double)>)"
+                << std::endl
+                << GTERMINATION;
     }
 }
 
@@ -109,9 +102,7 @@ parameterset_processing_result::parameterset_processing_result(
 /**
  * Access to the raw fitness
  */
-double
-parameterset_processing_result::rawFitness() const
-{
+double parameterset_processing_result::rawFitness() const {
     return m_raw_fitness;
 }
 
@@ -119,9 +110,7 @@ parameterset_processing_result::rawFitness() const
 /**
  * Access to the transformed fitness
  */
-double
-parameterset_processing_result::transformedFitness() const
-{
+double parameterset_processing_result::transformedFitness() const {
     return m_transformed_fitness;
 }
 
@@ -129,22 +118,15 @@ parameterset_processing_result::transformedFitness() const
 /**
      * Updates the transformed fitness using an external function
      */
-void
-parameterset_processing_result::setTransformedFitnessWith(
-    std::function<double(double)> f
-)
-{
-    if (f)
-    {
+void parameterset_processing_result::setTransformedFitnessWith(std::function<double(double)> f) {
+    if(f) {
         m_transformed_fitness = f(m_raw_fitness);
         m_transformed_fitness_set = true;
     }
-    else
-    {
+    else {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In parameterset_processing_result::setTransformedFitnessWith():"
-            << std::endl
+            << "In parameterset_processing_result::setTransformedFitnessWith():" << std::endl
             << "Function object f is empty." << std::endl
         );
     }
@@ -154,10 +136,7 @@ parameterset_processing_result::setTransformedFitnessWith(
 /**
      * Sets the transformed fitness to a user-defined value
      */
-void
-parameterset_processing_result::setTransformedFitnessTo(
-    const double transformed_fitness)
-{
+void parameterset_processing_result::setTransformedFitnessTo(const double transformed_fitness) {
     m_transformed_fitness = transformed_fitness;
     m_transformed_fitness_set = true;
 }
@@ -166,9 +145,7 @@ parameterset_processing_result::setTransformedFitnessTo(
 /**
      * Sets the transformed fitness to the same value as the raw fitness
      */
-void
-parameterset_processing_result::setTransformedFitnessToRaw()
-{
+void parameterset_processing_result::setTransformedFitnessToRaw() {
     m_transformed_fitness = m_raw_fitness;
     m_transformed_fitness_set = true;
 }
@@ -177,9 +154,7 @@ parameterset_processing_result::setTransformedFitnessToRaw()
 /**
      * Checks whether the transformed fitness was set
      */
-bool
-parameterset_processing_result::transformedFitnessSet() const
-{
+bool parameterset_processing_result::transformedFitnessSet() const {
     return m_transformed_fitness_set;
 }
 
@@ -187,9 +162,7 @@ parameterset_processing_result::transformedFitnessSet() const
 /**
      * Resets the object and stores a new raw value in the class
      */
-void
-parameterset_processing_result::reset(const double raw_fitness)
-{
+void parameterset_processing_result::reset(const double raw_fitness) {
     m_raw_fitness = raw_fitness;
     m_transformed_fitness = m_raw_fitness;
     m_transformed_fitness_set = false;
@@ -199,12 +172,10 @@ parameterset_processing_result::reset(const double raw_fitness)
 /**
  * Resets the object and stores a new raw and transformed value in the class
  */
-void
-parameterset_processing_result::reset(
+void parameterset_processing_result::reset(
     const double raw_fitness,
     const double transformed_fitness
-)
-{
+) {
     m_raw_fitness = raw_fitness;
     m_transformed_fitness = transformed_fitness;
     m_transformed_fitness_set = true;
@@ -214,20 +185,16 @@ parameterset_processing_result::reset(
 /**
  * Resets the object and stores a new raw value in the class and triggers recalculation of the transformed value
  */
-void
-parameterset_processing_result::reset(
+void parameterset_processing_result::reset(
     const double raw_fitness,
     std::function<double(double)> f
-)
-{
-    if (f)
-    {
+) {
+    if(f) {
         m_raw_fitness = raw_fitness;
         m_transformed_fitness = f(m_raw_fitness);
         m_transformed_fitness_set = true;
     }
-    else
-    {
+    else {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In parameterset_processing_result::reset():" << std::endl
@@ -244,9 +211,7 @@ parameterset_processing_result::reset(
      * fitness criterion.
      */
 GParameterSet::GParameterSet()
-    : Gem::Courtier::GProcessingContainerT<GParameterSet,
-                                           parameterset_processing_result>(1)
-{
+  : Gem::Courtier::GProcessingContainerT<GParameterSet, parameterset_processing_result>(1) {
     /* nothing */
 }
 
@@ -255,9 +220,9 @@ GParameterSet::GParameterSet()
      * Initialization with the number of fitness criteria
      */
 GParameterSet::GParameterSet(const std::size_t n_fitness_criteria)
-    : Gem::Courtier::GProcessingContainerT<GParameterSet,
-                                           parameterset_processing_result>(n_fitness_criteria)
-{
+  : Gem::Courtier::GProcessingContainerT<GParameterSet, parameterset_processing_result>(
+        n_fitness_criteria
+    ) {
     /* nothing */
 }
 
@@ -268,29 +233,29 @@ GParameterSet::GParameterSet(const std::size_t n_fitness_criteria)
      * @param cp A copy of another GParameterSet object
      */
 GParameterSet::GParameterSet(GParameterSet const &cp)
-    : GObject(cp)
-      , G_Interface_Mutable(cp)
-      , G_Interface_Rateable(cp)
-      , Gem::Common::GPtrVectorT<GParameterBase, GObject>(cp)
-      , Gem::Courtier::GProcessingContainerT<GParameterSet,
-                                             parameterset_processing_result>(cp)
-      , m_best_past_primary_fitness(cp.m_best_past_primary_fitness)
-      , m_n_stalls(cp.m_n_stalls)
-      , m_maxmode(cp.m_maxmode)
-      , m_assigned_iteration(cp.m_assigned_iteration)
-      , m_validity_level(cp.m_validity_level)
-      , m_eval_policy(cp.m_eval_policy)
-      , m_sigmoid_steepness(cp.m_sigmoid_steepness)
-      , m_sigmoid_extremes(cp.m_sigmoid_extremes)
-      , m_max_unsuccessful_adaptions(cp.m_max_unsuccessful_adaptions)
-      , m_max_retries_until_valid(cp.m_max_retries_until_valid)
-      , m_n_adaptions(cp.m_n_adaptions)
-{
+  : GObject(cp)
+  , G_Interface_Mutable(cp)
+  , G_Interface_Rateable(cp)
+  , Gem::Common::GPtrVectorT<GParameterBase, GObject>(cp)
+  , Gem::Courtier::GProcessingContainerT<GParameterSet, parameterset_processing_result>(cp)
+  , m_best_past_primary_fitness(cp.m_best_past_primary_fitness)
+  , m_n_stalls(cp.m_n_stalls)
+  , m_maxmode(cp.m_maxmode)
+  , m_assigned_iteration(cp.m_assigned_iteration)
+  , m_validity_level(cp.m_validity_level)
+  , m_eval_policy(cp.m_eval_policy)
+  , m_sigmoid_steepness(cp.m_sigmoid_steepness)
+  , m_sigmoid_extremes(cp.m_sigmoid_extremes)
+  , m_max_unsuccessful_adaptions(cp.m_max_unsuccessful_adaptions)
+  , m_max_retries_until_valid(cp.m_max_retries_until_valid)
+  , m_n_adaptions(cp.m_n_adaptions) {
     // Copy the personality pointer over
     Gem::Common::copyCloneableSmartPointer(cp.m_pt_ptr, m_pt_ptr);
     // Make sure any constraints are copied over
-    Gem::Common::copyCloneableSmartPointer(cp.m_individual_constraint_ptr,
-                                           m_individual_constraint_ptr);
+    Gem::Common::copyCloneableSmartPointer(
+        cp.m_individual_constraint_ptr,
+        m_individual_constraint_ptr
+    );
 }
 
 /******************************************************************************/
@@ -304,18 +269,16 @@ GParameterSet::GParameterSet(GParameterSet const &cp)
      * @param e The expected outcome of the comparison
      * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
-void
-GParameterSet::compare_(
+void GParameterSet::compare_(
     GObject const &cp,
     Gem::Common::expectation const &e,
-    double const &/*limit*/
-) const
-{
+    double const & /*limit*/
+) const {
     using namespace Gem::Common;
 
     // Check that we are dealing with a GParameterSet reference independent of this object and convert the pointer
-    const GParameterSet *p_load = Gem::Common::g_convert_and_compare<GObject,
-                                                                     GParameterSet>(cp, this);
+    const GParameterSet *p_load =
+        Gem::Common::g_convert_and_compare<GObject, GParameterSet>(cp, this);
 
     GToken token("GParameterSet", e);
 
@@ -325,24 +288,18 @@ GParameterSet::compare_(
     // ... and then the local data
     compare_t(IDENTITY(this->m_data_cnt, p_load->m_data_cnt), token);
     // data is actually contained in a parent class
-    compare_t(IDENTITY(m_best_past_primary_fitness,
-                       p_load->m_best_past_primary_fitness), token);
+    compare_t(IDENTITY(m_best_past_primary_fitness, p_load->m_best_past_primary_fitness), token);
     compare_t(IDENTITY(m_n_stalls, p_load->m_n_stalls), token);
     compare_t(IDENTITY(m_maxmode, p_load->m_maxmode), token);
-    compare_t(IDENTITY(m_assigned_iteration, p_load->m_assigned_iteration),
-              token);
+    compare_t(IDENTITY(m_assigned_iteration, p_load->m_assigned_iteration), token);
     compare_t(IDENTITY(m_validity_level, p_load->m_validity_level), token);
     compare_t(IDENTITY(m_eval_policy, p_load->m_eval_policy), token);
     compare_t(IDENTITY(m_pt_ptr, p_load->m_pt_ptr), token);
-    compare_t(IDENTITY(m_individual_constraint_ptr,
-                       p_load->m_individual_constraint_ptr), token);
-    compare_t(IDENTITY(m_sigmoid_steepness, p_load->m_sigmoid_steepness),
-              token);
+    compare_t(IDENTITY(m_individual_constraint_ptr, p_load->m_individual_constraint_ptr), token);
+    compare_t(IDENTITY(m_sigmoid_steepness, p_load->m_sigmoid_steepness), token);
     compare_t(IDENTITY(m_sigmoid_extremes, p_load->m_sigmoid_extremes), token);
-    compare_t(IDENTITY(m_max_unsuccessful_adaptions,
-                       p_load->m_max_unsuccessful_adaptions), token);
-    compare_t(IDENTITY(m_max_retries_until_valid,
-                       p_load->m_max_retries_until_valid), token);
+    compare_t(IDENTITY(m_max_unsuccessful_adaptions, p_load->m_max_unsuccessful_adaptions), token);
+    compare_t(IDENTITY(m_max_retries_until_valid, p_load->m_max_retries_until_valid), token);
     compare_t(IDENTITY(m_n_adaptions, p_load->m_n_adaptions), token);
 
     // React on deviations from the expectation
@@ -354,9 +311,7 @@ GParameterSet::compare_(
      * Swap another object's vector with ours. We need to set the dirty flag of both
      * individuals in this case.
      */
-void
-GParameterSet::swap(GParameterSet &cp)
-{
+void GParameterSet::swap(GParameterSet &cp) {
     Gem::Common::GPtrVectorT<GParameterBase, GObject>::swap(cp.m_data_cnt);
     this->mark_as_due_for_processing();
     cp.mark_as_due_for_processing();
@@ -376,13 +331,10 @@ GParameterSet::swap(GParameterSet &cp)
      *
      * @return A boolean indicating whether modifications where made
      */
-bool
-GParameterSet::randomInit(activityMode const &am)
-{
+bool GParameterSet::randomInit(activityMode const &am) {
     bool modifications_made = this->randomInit_(am);
 
-    if (modifications_made)
-    {
+    if(modifications_made) {
         this->mark_as_due_for_processing();
     }
 
@@ -398,9 +350,7 @@ GParameterSet::randomInit(activityMode const &am)
      *
      * @param mode An enum class which indicates whether we want to work in maximization or minimization mode
      */
-void
-GParameterSet::setMaxMode(maxMode const &mode)
-{
+void GParameterSet::setMaxMode(maxMode const &mode) {
     m_maxmode = mode;
 }
 
@@ -410,16 +360,10 @@ GParameterSet::setMaxMode(maxMode const &mode)
      * This is e.g. used in GExternalEvaluatorIndividual for the communication with external
      * evaluation programs.
      */
-void
-GParameterSet::toPropertyTree(
-    pt::ptree &ptr,
-    std::string const &baseName
-) const
-{
+void GParameterSet::toPropertyTree(pt::ptree &ptr, std::string const &baseName) const {
 #ifdef DEBUG
     // Check if the object is empty. If so, complain
-    if (this->empty())
-    {
+    if(this->empty()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GParameterSet::toPropertyTree(): Error!" << std::endl
@@ -428,8 +372,7 @@ GParameterSet::toPropertyTree(
     }
 #endif
 
-    bool dirtyFlag = (Gem::Courtier::processingStatus::DO_PROCESS == this->
-                      getProcessingStatus());
+    bool dirtyFlag = (Gem::Courtier::processingStatus::DO_PROCESS == this->getProcessingStatus());
     bool hasErrors = this->has_errors();
 
     double rawFitness = 0., transformedFitness = 0.;
@@ -437,24 +380,21 @@ GParameterSet::toPropertyTree(
     ptr.put(baseName + ".iteration", this->getAssignedIteration());
     ptr.put(baseName + ".isDirty", dirtyFlag);
     ptr.put(baseName + ".hasErrors", hasErrors);
-    ptr.put(baseName + ".isValid",
-            hasErrors || dirtyFlag ? false : this->isValid());
+    ptr.put(baseName + ".isValid", hasErrors || dirtyFlag ? false : this->isValid());
     ptr.put(baseName + ".type", std::string("GParameterSet"));
 
     // Loop over all parameter objects and ask them to add their data to our ptree object
     ptr.put(baseName + ".nVars", this->size());
     std::string base; // NOLINT(cppcoreguidelines-init-variables)
     std::size_t pos = 0;
-    for (const auto &item_ptr : *this)
-    {
+    for(const auto &item_ptr : *this) {
         base = baseName + ".vars.var" + Gem::Common::to_string(pos);
         item_ptr->toPropertyTree(ptr, base);
         pos++;
     }
 
     // Output the transformation policy
-    switch (this->getEvaluationPolicy())
-    {
+    switch(this->getEvaluationPolicy()) {
     case evaluationPolicy::USESIMPLEEVALUATION:
         ptr.put(baseName + ".transformationPolicy", "USESIMPLEEVALUATION");
         break;
@@ -472,14 +412,10 @@ GParameterSet::toPropertyTree(
     // as the property is meant to capture the current state of the individual.
     // Check the "isDirty" tag, if you need to know whether the results are current.
     ptr.put(baseName + ".nResults", this->getNStoredResults());
-    for (std::size_t i = 0; i < this->getNStoredResults(); i++)
-    {
-        rawFitness = (dirtyFlag || hasErrors)
-                         ? this->getWorstCase()
-                         : this->raw_fitness(i);
-        transformedFitness = (dirtyFlag || hasErrors)
-                                 ? this->getWorstCase()
-                                 : this->transformed_fitness(i);
+    for(std::size_t i = 0; i < this->getNStoredResults(); i++) {
+        rawFitness = (dirtyFlag || hasErrors) ? this->getWorstCase() : this->raw_fitness(i);
+        transformedFitness =
+            (dirtyFlag || hasErrors) ? this->getWorstCase() : this->transformed_fitness(i);
 
         base = baseName + ".results.result" + Gem::Common::to_string(i);
         ptr.put(base, transformedFitness);
@@ -498,14 +434,12 @@ GParameterSet::toPropertyTree(
      * @param  useRawFitness Indicates, whether the true fitness instead of the transformed fitness should be returned
      * @return A string holding the parameter values and possibly the types
      */
-std::string
-GParameterSet::toCSV(
+std::string GParameterSet::toCSV(
     bool withNameAndType,
     bool withCommas,
     bool useRawFitness,
     bool showValidity
-) const
-{
+) const {
     std::map<std::string, std::vector<double>> dData;
     std::map<std::string, std::vector<float>> fData;
     std::map<std::string, std::vector<std::int32_t>> iData;
@@ -522,56 +456,40 @@ GParameterSet::toCSV(
     std::vector<std::string> varValues;
 
     // Extract the data
-    for (auto const &item : dData)
-    {
-        for (std::size_t pos = 0; pos < (item.second).size(); pos++)
-        {
-            if (withNameAndType)
-            {
-                varNames.push_back(
-                    item.first + "_" + Gem::Common::to_string(pos));
+    for(auto const &item : dData) {
+        for(std::size_t pos = 0; pos < (item.second).size(); pos++) {
+            if(withNameAndType) {
+                varNames.push_back(item.first + "_" + Gem::Common::to_string(pos));
                 varTypes.emplace_back("double");
             }
             varValues.push_back(Gem::Common::to_string((item.second).at(pos)));
         }
     }
 
-    for (auto const &item : fData)
-    {
-        for (std::size_t pos = 0; pos < (item.second).size(); pos++)
-        {
-            if (withNameAndType)
-            {
-                varNames.push_back(
-                    item.first + "_" + Gem::Common::to_string(pos));
+    for(auto const &item : fData) {
+        for(std::size_t pos = 0; pos < (item.second).size(); pos++) {
+            if(withNameAndType) {
+                varNames.push_back(item.first + "_" + Gem::Common::to_string(pos));
                 varTypes.emplace_back("float");
             }
             varValues.push_back(Gem::Common::to_string((item.second).at(pos)));
         }
     }
 
-    for (auto const &item : iData)
-    {
-        for (std::size_t pos = 0; pos < (item.second).size(); pos++)
-        {
-            if (withNameAndType)
-            {
-                varNames.push_back(
-                    item.first + "_" + Gem::Common::to_string(pos));
+    for(auto const &item : iData) {
+        for(std::size_t pos = 0; pos < (item.second).size(); pos++) {
+            if(withNameAndType) {
+                varNames.push_back(item.first + "_" + Gem::Common::to_string(pos));
                 varTypes.emplace_back("int32");
             }
             varValues.push_back(Gem::Common::to_string((item.second).at(pos)));
         }
     }
 
-    for (auto const &item : bData)
-    {
-        for (std::size_t pos = 0; pos < (item.second).size(); pos++)
-        {
-            if (withNameAndType)
-            {
-                varNames.push_back(
-                    item.first + "_" + Gem::Common::to_string(pos));
+    for(auto const &item : bData) {
+        for(std::size_t pos = 0; pos < (item.second).size(); pos++) {
+            if(withNameAndType) {
+                varNames.push_back(item.first + "_" + Gem::Common::to_string(pos));
                 varTypes.emplace_back("bool");
             }
             varValues.push_back(Gem::Common::to_string((item.second).at(pos)));
@@ -579,65 +497,44 @@ GParameterSet::toCSV(
     }
 
     // Note: The following will output the string "dirty" if the individual is in a "dirty" state
-    for (std::size_t i = 0; i < this->getNStoredResults(); i++)
-    {
-        if (withNameAndType)
-        {
-            varNames.push_back(
-                std::string("Fitness_") + Gem::Common::to_string(i));
+    for(std::size_t i = 0; i < this->getNStoredResults(); i++) {
+        if(withNameAndType) {
+            varNames.push_back(std::string("Fitness_") + Gem::Common::to_string(i));
             varTypes.emplace_back("double");
         }
-        if (this->is_processed())
-        {
+        if(this->is_processed()) {
             // The individual has already been evaluated
-            if (useRawFitness)
-            {
-                varValues.push_back(
-                    Gem::Common::to_string(
-                        this->raw_fitness(i)
-                    )
-                );
+            if(useRawFitness) {
+                varValues.push_back(Gem::Common::to_string(this->raw_fitness(i)));
             }
-            else
-            {
+            else {
                 // Output potentially transformed fitness
-                varValues.push_back(
-                    Gem::Common::to_string(
-                        this->transformed_fitness(i)
-                    )
-                );
+                varValues.push_back(Gem::Common::to_string(this->transformed_fitness(i)));
             }
         }
-        else
-        {
+        else {
             // No evaluation was performed so far
-            if (this->has_errors())
-            {
+            if(this->has_errors()) {
                 varValues.emplace_back("has_errors");
             }
-            else
-            {
+            else {
                 // "only" dirty / unevaluated
                 varValues.emplace_back("dirty");
             }
         }
     }
 
-    if (showValidity)
-    {
-        if (withNameAndType)
-        {
+    if(showValidity) {
+        if(withNameAndType) {
             varNames.emplace_back("validity");
             varTypes.emplace_back("bool");
         }
 
-        if (this->is_processed())
-        {
+        if(this->is_processed()) {
             // The individual has already been evaluated
             varValues.push_back(Gem::Common::to_string(this->isValid()));
         }
-        else
-        {
+        else {
             varValues.push_back(Gem::Common::to_string(false));
         }
     }
@@ -645,34 +542,27 @@ GParameterSet::toCSV(
     // Transfer the data into the result string
     std::ostringstream result; // NOLINT(cppcoreguidelines-init-variables)
     std::vector<std::string>::const_iterator s_it;
-    if (withNameAndType)
-    {
-        for (s_it = varNames.begin(); s_it != varNames.end(); ++s_it)
-        {
+    if(withNameAndType) {
+        for(s_it = varNames.begin(); s_it != varNames.end(); ++s_it) {
             result << *s_it;
-            if (s_it + 1 != varNames.end())
-            {
+            if(s_it + 1 != varNames.end()) {
                 result << (withCommas ? ",\t" : "\t");
             }
         }
         result << std::endl;
 
-        for (s_it = varTypes.begin(); s_it != varTypes.end(); ++s_it)
-        {
+        for(s_it = varTypes.begin(); s_it != varTypes.end(); ++s_it) {
             result << *s_it;
-            if (s_it + 1 != varTypes.end())
-            {
+            if(s_it + 1 != varTypes.end()) {
                 result << (withCommas ? ",\t" : "\t");
             }
         }
         result << std::endl;
     }
 
-    for (s_it = varValues.begin(); s_it != varValues.end(); ++s_it)
-    {
+    for(s_it = varValues.begin(); s_it != varValues.end(); ++s_it) {
         result << *s_it;
-        if (s_it + 1 != varValues.end())
-        {
+        if(s_it + 1 != varValues.end()) {
             result << (withCommas ? ",\t" : "\t");
         }
     }
@@ -689,8 +579,7 @@ GParameterSet::toCSV(
      * @return The item we aim to retrieve from the std::vector<GParameterBase>
      */
 Gem::Common::GPtrVectorT<GParameterBase, GObject>::reference
-GParameterSet::at(std::size_t const &pos)
-{
+GParameterSet::at(std::size_t const &pos) {
     return Gem::Common::GPtrVectorT<GParameterBase, GObject>::at(pos);
 }
 
@@ -705,24 +594,19 @@ GParameterSet::at(std::size_t const &pos)
      * function compares "real" boundaries with evaluations, hence we use "raw"
      * measurements here instead of transformed measurements.
      */
-bool
-GParameterSet::isGoodEnough(std::vector<double> const &boundaries)
-{
+bool GParameterSet::isGoodEnough(std::vector<double> const &boundaries) {
 #ifdef DEBUG
     // Does the number of fitness criteria match the number of boundaries ?
-    if (boundaries.size() != this->getNStoredResults())
-    {
+    if(boundaries.size() != this->getNStoredResults()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GParameterSet::isGoodEnough(): Error!" << std::endl
-            << "Number of boundaries does not match number of fitness criteria"
-            << std::endl
+            << "Number of boundaries does not match number of fitness criteria" << std::endl
         );
     }
 
     // Has the individual been processed
-    if (not this->is_processed())
-    {
+    if(not this->is_processed()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GParameterSet::isGoodEnough(): Error!" << std::endl
@@ -735,24 +619,18 @@ GParameterSet::isGoodEnough(std::vector<double> const &boundaries)
     // Check the fitness values. If we find at least one
     // which is worse than the one supplied by the boundaries
     // vector, then this individual fails the test
-    if (maxMode::MAXIMIZE == this->getMaxMode())
-    {
+    if(maxMode::MAXIMIZE == this->getMaxMode()) {
         // Maximization
-        for (std::size_t i = 0; i < boundaries.size(); i++)
-        {
-            if (this->raw_fitness(i) < boundaries.at(i))
-            {
+        for(std::size_t i = 0; i < boundaries.size(); i++) {
+            if(this->raw_fitness(i) < boundaries.at(i)) {
                 return false;
             }
         }
     }
-    else
-    {
+    else {
         // maxMode::MINIMIZE
-        for (std::size_t i = 0; i < boundaries.size(); i++)
-        {
-            if (this->raw_fitness(i) > boundaries.at(i))
-            {
+        for(std::size_t i = 0; i < boundaries.size(); i++) {
+            if(this->raw_fitness(i) > boundaries.at(i)) {
                 return false;
             }
         }
@@ -770,21 +648,15 @@ GParameterSet::isGoodEnough(std::vector<double> const &boundaries)
      * @param upper The upper (exclusive) boundary for retrieval of a cross-over position
      * @return A suitable cross-over position in the range [lower, upper[
      */
-std::size_t
-GParameterSet::getCrossOverPos(
-    const std::size_t lower,
-    const std::size_t upper
-)
-{
+std::size_t GParameterSet::getCrossOverPos(const std::size_t lower, const std::size_t upper) {
     // Make sure the boundaries are suitable.
     assert(lower > 0);
     // Should be at least 1, or a cross-over doesn't make sense
     assert(upper > lower);
 
     return m_uniform_int(
-        m_gr
-        , std::uniform_int_distribution<std::size_t>::param_type(lower,
-                                                                 upper - 1)
+        m_gr,
+        std::uniform_int_distribution<std::size_t>::param_type(lower, upper - 1)
     );
 }
 
@@ -793,11 +665,9 @@ GParameterSet::getCrossOverPos(
      * Perform a fusion operation between this object and another.
      */
 std::shared_ptr<GParameterSet>
-GParameterSet::crossOverWith(std::shared_ptr<GParameterSet> const &cp) const
-{
+GParameterSet::crossOverWith(std::shared_ptr<GParameterSet> const &cp) const {
     // Create a copy of this object
-    std::shared_ptr<GParameterSet> this_cp = this->GObject::clone<
-        GParameterSet>();
+    std::shared_ptr<GParameterSet> this_cp = this->GObject::clone<GParameterSet>();
 
     // Extract all data items
     std::vector<double> this_double_cnt, cp_double_cnt;
@@ -817,50 +687,42 @@ GParameterSet::crossOverWith(std::shared_ptr<GParameterSet> const &cp) const
 
 #ifdef DEBUG
     // Do some error checking
-    if (this_double_cnt.size() != cp_double_cnt.size())
-    {
+    if(this_double_cnt.size() != cp_double_cnt.size()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GParameterSet::perItemCrossOver(): Error!" << std::endl
             << "Got invalid sizes (double): " << this_double_cnt.size() << " / "
-            << cp_double_cnt.size() <<
-            std::endl
+            << cp_double_cnt.size() << std::endl
         );
     }
-    if (this_float_cnt.size() != cp_float_cnt.size())
-    {
+    if(this_float_cnt.size() != cp_float_cnt.size()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GParameterSet::perItemCrossOver(): Error!" << std::endl
             << "Got invalid sizes (float): " << this_float_cnt.size() << " / "
-            << cp_float_cnt.size() <<
-            std::endl
+            << cp_float_cnt.size() << std::endl
         );
     }
-    if (this_bool_cnt.size() != cp_bool_cnt.size())
-    {
+    if(this_bool_cnt.size() != cp_bool_cnt.size()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GParameterSet::perItemCrossOver(): Error!" << std::endl
-            << "Got invalid sizes (bool): " << this_bool_cnt.size() << " / " <<
-            cp_bool_cnt.size() << std::endl
+            << "Got invalid sizes (bool): " << this_bool_cnt.size() << " / " << cp_bool_cnt.size()
+            << std::endl
         );
     }
-    if (this_int_cnt.size() != cp_int_cnt.size())
-    {
+    if(this_int_cnt.size() != cp_int_cnt.size()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GParameterSet::perItemCrossOver(): Error!" << std::endl
-            << "Got invalid sizes (std::int32_t): " << this_int_cnt.size() <<
-            " / " << cp_int_cnt.size() <<
-            std::endl
+            << "Got invalid sizes (std::int32_t): " << this_int_cnt.size() << " / "
+            << cp_int_cnt.size() << std::endl
         );
     }
 #endif /* DEBUG */
 
     // Do the actual cross-over
-    if (not this_double_cnt.empty())
-    {
+    if(not this_double_cnt.empty()) {
         // Calculate a suitable position for the cross-over
         // We use this->cp as the source for getCrossOverPos in order to avoid
         // having to mark getCrossOverPos const and this m_gr mutable.
@@ -868,41 +730,34 @@ GParameterSet::crossOverWith(std::shared_ptr<GParameterSet> const &cp) const
 
         // Perform the actual cross-over operation. This is in fact
         // a "half" cross-over, as we only need one output vector
-        std::copy(cp_double_cnt.begin() + pos, cp_double_cnt.end(),
-                  this_double_cnt.begin() + pos);
+        std::copy(cp_double_cnt.begin() + pos, cp_double_cnt.end(), this_double_cnt.begin() + pos);
     }
 
-    if (not this_float_cnt.empty())
-    {
+    if(not this_float_cnt.empty()) {
         // Calculate a suitable position for the cross-over
         const auto pos = this_cp->getCrossOverPos(1, this_float_cnt.size());
 
         // Perform the actual cross-over operation. This is in fact
         // a "half" cross-over, as we only need one output vector
-        std::copy(cp_float_cnt.begin() + pos, cp_float_cnt.end(),
-                  this_float_cnt.begin() + pos);
+        std::copy(cp_float_cnt.begin() + pos, cp_float_cnt.end(), this_float_cnt.begin() + pos);
     }
 
-    if (not this_bool_cnt.empty())
-    {
+    if(not this_bool_cnt.empty()) {
         // Calculate a suitable position for the cross-over
         const auto pos = this_cp->getCrossOverPos(1, this_bool_cnt.size());
 
         // Perform the actual cross-over operation. This is in fact
         // a "half" cross-over, as we only need one output vector
-        std::copy(cp_bool_cnt.begin() + pos, cp_bool_cnt.end(),
-                  this_bool_cnt.begin() + pos);
+        std::copy(cp_bool_cnt.begin() + pos, cp_bool_cnt.end(), this_bool_cnt.begin() + pos);
     }
 
-    if (not this_int_cnt.empty())
-    {
+    if(not this_int_cnt.empty()) {
         // Calculate a suitable position for the cross-over
         const auto pos = this_cp->getCrossOverPos(1, this_int_cnt.size());
 
         // Perform the actual cross-over operation. This is in fact
         // a "half" cross-over, as we only need one output vector
-        std::copy(cp_int_cnt.begin() + pos, cp_int_cnt.end(),
-                  this_int_cnt.begin() + pos);
+        std::copy(cp_int_cnt.begin() + pos, cp_int_cnt.end(), this_int_cnt.begin() + pos);
     }
 
     // Load the data vectors back into this object
@@ -921,11 +776,8 @@ GParameterSet::crossOverWith(std::shared_ptr<GParameterSet> const &cp) const
 /**
      * Triggers updates of adaptors contained in this object.
      */
-void
-GParameterSet::updateAdaptorsOnStall(const std::uint32_t nStalls)
-{
-    for (auto const &item_ptr : *this)
-    {
+void GParameterSet::updateAdaptorsOnStall(const std::uint32_t nStalls) {
+    for(auto const &item_ptr : *this) {
         item_ptr->updateAdaptorsOnStall(nStalls);
     }
 }
@@ -938,15 +790,12 @@ GParameterSet::updateAdaptorsOnStall(const std::uint32_t nStalls)
      * @param property The property for which information is sought
      * @param data A vector, to which the properties should be added
      */
-void
-GParameterSet::queryAdaptor(
+void GParameterSet::queryAdaptor(
     std::string const &adaptorName,
     std::string const &property,
     std::vector<boost::any> &data
-) const
-{
-    for (const auto &item_ptr : *this)
-    {
+) const {
+    for(const auto &item_ptr : *this) {
         item_ptr->queryAdaptor(adaptorName, property, data);
     }
 }
@@ -957,16 +806,12 @@ GParameterSet::queryAdaptor(
      * NOTE: The other parameter set will be an empty shell afterwards. The function may
      * only be called for "clean" foreign parameter sets
      */
-void
-GParameterSet::cannibalize(GParameterSet &cp)
-{
+void GParameterSet::cannibalize(GParameterSet &cp) {
     // Check whether the "foreign" entity is processed
-    if (cp.is_due_for_processing() || cp.has_errors())
-    {
+    if(cp.is_due_for_processing() || cp.has_errors()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GParameterSet::cannibalize(const GParameterSet& cp)" <<
-            std::endl
+            << "In GParameterSet::cannibalize(const GParameterSet& cp)" << std::endl
             << "cp isn't processed or has errors" << std::endl
         );
     }
@@ -975,8 +820,7 @@ GParameterSet::cannibalize(GParameterSet &cp)
     this->clear();
 
     // Copy all "foreign" parameters over
-    for (const auto &t_ptr : cp)
-    {
+    for(const auto &t_ptr : cp) {
         this->push_back(t_ptr);
     }
 
@@ -996,9 +840,7 @@ GParameterSet::cannibalize(GParameterSet &cp)
      * PSO and Gradient Descents, may choose to change parameters directly. Adaptions will be performed
      * until actual changes were done to the object AND a valid parameter set was found.
      */
-std::size_t
-GParameterSet::adapt()
-{
+std::size_t GParameterSet::adapt() {
     std::size_t nAdaptionAttempts = 0;
     std::size_t nAdaptions = 0;
     // This is a measure of the "effective" adaption probability
@@ -1011,40 +853,34 @@ GParameterSet::adapt()
     // may be, that the algorithm moves closer to MUPLUSNU. Thus, if you find
     // yourself stuck in local optima too often, consider setting m_max_retries_until_valid
     // to 0, using the appropriate function.
-    while (true)
-    {
+    while(true) {
         // Make sure at least one modification is performed. E.g., for low
         // adaption probabilities combined with few parameters, it may happen
         // otherwise that individuals remain unchanged after a call to adapt()
-        while (true)
-        {
+        while(true) {
             // Try again if no adaption has taken place
             // Perform the actual adaption; Terminate, if at least one adaption was performed
-            if ((nAdaptions = this->customAdaptions()) > 0) // NOLINT(bugprone-assignment-in-if-condition)
+            if((nAdaptions = this->customAdaptions()) >
+               0) // NOLINT(bugprone-assignment-in-if-condition)
             {
                 break;
             }
 
             // Terminate, if the maximum number of adaptions has been exceeded
-            if (m_max_unsuccessful_adaptions > 0 && ++nAdaptionAttempts >
-                m_max_unsuccessful_adaptions)
-            {
+            if(m_max_unsuccessful_adaptions > 0 &&
+               ++nAdaptionAttempts > m_max_unsuccessful_adaptions) {
                 break;
             }
         }
 
-        if (
-            this->parameterSetFulfillsConstraints(validity)
-            || ++nInvalidAdaptions > m_max_retries_until_valid
-        )
-        {
+        if(this->parameterSetFulfillsConstraints(validity) ||
+           ++nInvalidAdaptions > m_max_retries_until_valid) {
             break;
         }
     }
 
     // Make sure the individual is re-evaluated when fitness(...) is called next time
-    if (nAdaptions > 0)
-    {
+    if(nAdaptions > 0) {
         this->mark_as_due_for_processing();
     }
 
@@ -1061,9 +897,7 @@ GParameterSet::adapt()
 /**
      * Retrieves the stored raw fitness with a given id
      */
-double
-GParameterSet::raw_fitness_(const std::size_t id) const
-{
+double GParameterSet::raw_fitness_(const std::size_t id) const {
     return this->getStoredResult(id).rawFitness();
 }
 
@@ -1071,9 +905,7 @@ GParameterSet::raw_fitness_(const std::size_t id) const
 /**
      * Retrieves the stored transformed fitness with a given id
      */
-double
-GParameterSet::transformed_fitness_(const std::size_t id) const
-{
+double GParameterSet::transformed_fitness_(const std::size_t id) const {
     return this->getStoredResult(id).transformedFitness();
 }
 
@@ -1081,14 +913,11 @@ GParameterSet::transformed_fitness_(const std::size_t id) const
 /**
      * Returns all raw fitness results in a std::vector
      */
-std::vector<double>
-GParameterSet::raw_fitness_vec_() const
-{
+std::vector<double> GParameterSet::raw_fitness_vec_() const {
     std::size_t nFitnessCriteria = this->getNStoredResults();
     std::vector<double> resultVec;
 
-    for (std::size_t i = 0; i < nFitnessCriteria; i++)
-    {
+    for(std::size_t i = 0; i < nFitnessCriteria; i++) {
         resultVec.push_back(this->raw_fitness(i));
     }
 
@@ -1099,14 +928,11 @@ GParameterSet::raw_fitness_vec_() const
 /**
      * Returns all transformed fitness results in a std::vector
      */
-std::vector<double>
-GParameterSet::transformed_fitness_vec_() const
-{
+std::vector<double> GParameterSet::transformed_fitness_vec_() const {
     std::size_t nFitnessCriteria = this->getNStoredResults();
     std::vector<double> resultVec;
 
-    for (std::size_t i = 0; i < nFitnessCriteria; i++)
-    {
+    for(std::size_t i = 0; i < nFitnessCriteria; i++) {
         resultVec.push_back(this->transformed_fitness(i));
     }
 
@@ -1127,21 +953,14 @@ GParameterSet::transformed_fitness_vec_() const
      * @param id The position of the fitness criterion (must be >= 0 !)
      * @param value The fitness value to be registered
      */
-void
-GParameterSet::setResult(
-    const std::size_t id,
-    const double value
-)
-{
+void GParameterSet::setResult(const std::size_t id, const double value) {
 #ifdef DEBUG
-    if (id >= this->getNStoredResults())
-    {
+    if(id >= this->getNStoredResults()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GParameterSet::setResult(...): Error!" << std::endl
-            << "Invalid position in vector: " << id <<
-            " (expected min 0 and max " << this->getNStoredResults()
-            - 1 << ")" << std::endl
+            << "Invalid position in vector: " << id << " (expected min 0 and max "
+            << this->getNStoredResults() - 1 << ")" << std::endl
         );
     }
 #endif /* DEBUG */
@@ -1155,9 +974,7 @@ GParameterSet::setResult(
      *
      * @return A boolean indicating whether more than one target function is present
      */
-bool
-GParameterSet::hasMultipleFitnessCriteria() const
-{
+bool GParameterSet::hasMultipleFitnessCriteria() const {
     return this->getNStoredResults() > 1;
 }
 
@@ -1165,13 +982,8 @@ GParameterSet::hasMultipleFitnessCriteria() const
 /**
      * Retrieve the fitness tuple at a given evaluation position.
      */
-std::tuple<double, double>
-GParameterSet::getFitnessTuple(const std::uint32_t id) const
-{
-    return std::make_tuple<double, double>(
-        this->raw_fitness(id)
-        , this->transformed_fitness(id)
-    );
+std::tuple<double, double> GParameterSet::getFitnessTuple(const std::uint32_t id) const {
+    return std::make_tuple<double, double>(this->raw_fitness(id), this->transformed_fitness(id));
 }
 
 /******************************************************************************/
@@ -1180,9 +992,7 @@ GParameterSet::getFitnessTuple(const std::uint32_t id) const
      *
      * @return The current value of the m_maxmode parameter
      */
-maxMode
-GParameterSet::getMaxMode() const
-{
+maxMode GParameterSet::getMaxMode() const {
     return m_maxmode;
 }
 
@@ -1198,12 +1008,11 @@ GParameterSet::getMaxMode() const
      *
      * @return The worst case value, depending on maximization or minimization
      */
-double
-GParameterSet::getWorstCase() const
-{
-    return ((maxMode::MAXIMIZE == this->getMaxMode())
-                ? boost::numeric::bounds<double>::lowest()
-                : boost::numeric::bounds<double>::highest());
+double GParameterSet::getWorstCase() const {
+    return (
+        (maxMode::MAXIMIZE == this->getMaxMode()) ? boost::numeric::bounds<double>::lowest()
+                                                  : boost::numeric::bounds<double>::highest()
+    );
 }
 
 /******************************************************************************/
@@ -1211,21 +1020,18 @@ GParameterSet::getWorstCase() const
      * Retrieves the best possible evaluation result, depending on whether we are in
      * maximization or minimization mode
      */
-double
-GParameterSet::getBestCase() const
-{
-    return ((maxMode::MAXIMIZE == this->getMaxMode())
-                ? boost::numeric::bounds<double>::highest()
-                : boost::numeric::bounds<double>::lowest());
+double GParameterSet::getBestCase() const {
+    return (
+        (maxMode::MAXIMIZE == this->getMaxMode()) ? boost::numeric::bounds<double>::highest()
+                                                  : boost::numeric::bounds<double>::lowest()
+    );
 }
 
 /******************************************************************************/
 /**
      * Retrieves the steepness_ variable (used for the sigmoid transformation)
      */
-double
-GParameterSet::getSteepness() const
-{
+double GParameterSet::getSteepness() const {
     return m_sigmoid_steepness;
 }
 
@@ -1233,17 +1039,12 @@ GParameterSet::getSteepness() const
 /**
      * Sets the steepness variable (used for the sigmoid transformation)
      */
-void
-GParameterSet::setSteepness(const double steepness)
-{
-    if (steepness <= 0.)
-    {
+void GParameterSet::setSteepness(const double steepness) {
+    if(steepness <= 0.) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GParameterSet::setSteepness(double steepness): Error!" <<
-            std::endl
-            << "Invalid value of steepness parameter: " << steepness <<
-            std::endl
+            << "In GParameterSet::setSteepness(double steepness): Error!" << std::endl
+            << "Invalid value of steepness parameter: " << steepness << std::endl
         );
     }
 
@@ -1254,9 +1055,7 @@ GParameterSet::setSteepness(const double steepness)
 /**
      * Retrieves the barrier_ variable (used for the sigmoid transformation)
      */
-double
-GParameterSet::getBarrier() const
-{
+double GParameterSet::getBarrier() const {
     return m_sigmoid_extremes;
 }
 
@@ -1264,15 +1063,11 @@ GParameterSet::getBarrier() const
 /**
      * Sets the barrier variable (used for the sigmoid transformation)
      */
-void
-GParameterSet::setBarrier(const double barrier)
-{
-    if (barrier <= 0.)
-    {
+void GParameterSet::setBarrier(const double barrier) {
+    if(barrier <= 0.) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GParameterSet::setBarrier(double barrier): Error!" <<
-            std::endl
+            << "In GParameterSet::setBarrier(double barrier): Error!" << std::endl
             << "Invalid value of barrier parameter: " << barrier << std::endl
         );
     }
@@ -1287,10 +1082,7 @@ GParameterSet::setBarrier(const double barrier)
      * do this if you are sure that an adaption will eventually happen. Otherwise
      * you would get an endless loop.
      */
-void
-GParameterSet::setMaxUnsuccessfulAdaptions(
-    const std::size_t maxUnsuccessfulAdaptions)
-{
+void GParameterSet::setMaxUnsuccessfulAdaptions(const std::size_t maxUnsuccessfulAdaptions) {
     m_max_unsuccessful_adaptions = maxUnsuccessfulAdaptions;
 }
 
@@ -1299,9 +1091,7 @@ GParameterSet::setMaxUnsuccessfulAdaptions(
      * Retrieves the maximum number of adaption attempts that may pass without
      * actual modifications
      */
-std::size_t
-GParameterSet::getMaxUnsuccessfulAdaptions() const
-{
+std::size_t GParameterSet::getMaxUnsuccessfulAdaptions() const {
     return m_max_unsuccessful_adaptions;
 }
 
@@ -1310,11 +1100,7 @@ GParameterSet::getMaxUnsuccessfulAdaptions() const
      * Allows to set the maximum number of retries during the adaption of individuals
      * until a valid individual was found. Setting this value to 0 will disable retries.
      */
-void
-GParameterSet::setMaxRetriesUntilValid(
-    const std::size_t maxRetriesUntilValid
-)
-{
+void GParameterSet::setMaxRetriesUntilValid(const std::size_t maxRetriesUntilValid) {
     m_max_retries_until_valid = maxRetriesUntilValid;
 }
 
@@ -1323,9 +1109,7 @@ GParameterSet::setMaxRetriesUntilValid(
      * Allows to retrieve the current maximum number of retries during the adaption of
      * individuals until a valid individual was found.
      */
-std::size_t
-GParameterSet::getMaxRetriesUntilValid() const
-{
+std::size_t GParameterSet::getMaxRetriesUntilValid() const {
     return m_max_retries_until_valid;
 }
 
@@ -1334,9 +1118,7 @@ GParameterSet::getMaxRetriesUntilValid() const
      * Retrieves the number of adaptions performed during the last call to adapt()
      * (or 0, if no adaptions were performed so far).
      */
-std::size_t
-GParameterSet::getNAdaptions() const
-{
+std::size_t GParameterSet::getNAdaptions() const {
     return m_n_adaptions;
 }
 
@@ -1346,9 +1128,7 @@ GParameterSet::getNAdaptions() const
      *
      * @param parentAlgIteration The current iteration of the optimization algorithm
      */
-void
-GParameterSet::setAssignedIteration(std::uint32_t const &parentAlgIteration)
-{
+void GParameterSet::setAssignedIteration(std::uint32_t const &parentAlgIteration) {
     m_assigned_iteration = parentAlgIteration;
 }
 
@@ -1363,9 +1143,7 @@ GParameterSet::setAssignedIteration(std::uint32_t const &parentAlgIteration)
      *
      * @return The parent optimization algorithm's current iteration
      */
-std::uint32_t
-GParameterSet::getAssignedIteration() const
-{
+std::uint32_t GParameterSet::getAssignedIteration() const {
     return m_assigned_iteration;
 }
 
@@ -1380,9 +1158,7 @@ GParameterSet::getAssignedIteration() const
      *
      * @param nStalls The number of optimization cycles without improvement in the parent algorithm
      */
-void
-GParameterSet::setNStalls(std::uint32_t const &nStalls)
-{
+void GParameterSet::setNStalls(std::uint32_t const &nStalls) {
     m_n_stalls = nStalls;
 }
 
@@ -1397,9 +1173,7 @@ GParameterSet::setNStalls(std::uint32_t const &nStalls)
      *
      * @return The number of optimization cycles without improvement in the parent algorithm
      */
-std::uint32_t
-GParameterSet::getNStalls() const
-{
+std::uint32_t GParameterSet::getNStalls() const {
     return m_n_stalls;
 }
 
@@ -1414,15 +1188,11 @@ GParameterSet::getNStalls() const
      *
      * @return An identifier for the current personality of this object
      */
-std::string
-GParameterSet::getPersonality() const
-{
-    if (m_pt_ptr)
-    {
+std::string GParameterSet::getPersonality() const {
+    if(m_pt_ptr) {
         return m_pt_ptr->name();
     }
-    else
-    {
+    else {
         return std::string("PERSONALITY_NONE");
     }
 }
@@ -1436,9 +1206,7 @@ GParameterSet::getPersonality() const
 /**
      * Allows to check whether random crashs of individuals are enabled
      */
-std::tuple<bool, double>
-GParameterSet::getRandomCrash() const
-{
+std::tuple<bool, double> GParameterSet::getRandomCrash() const {
     return std::tuple<bool, double>{m_useRandomCrash, m_randomCrashProb};
 };
 
@@ -1446,15 +1214,9 @@ GParameterSet::getRandomCrash() const
 /**
      * Allows to enable random crashs of individuals for testing purposes
      */
-void
-GParameterSet::setRandomCrash(
-    const bool useRandomCrash,
-    const double crashProb
-)
-{
+void GParameterSet::setRandomCrash(const bool useRandomCrash, const double crashProb) {
     // Check that the crash probability is in the allowed value range
-    Gem::Common::checkRangeCompliance(crashProb, 0., 1.,
-                                      "GParameterSet::setRandomCrash()");
+    Gem::Common::checkRangeCompliance(crashProb, 0., 1., "GParameterSet::setRandomCrash()");
 
     // Set the value as demanded
     m_useRandomCrash = useRandomCrash;
@@ -1469,13 +1231,10 @@ GParameterSet::setRandomCrash(
      *
      * @return A shared pointer to the personality traits base class
      */
-std::shared_ptr<GPersonalityTraits>
-GParameterSet::getPersonalityTraits()
-{
+std::shared_ptr<GPersonalityTraits> GParameterSet::getPersonalityTraits() {
 #ifdef DEBUG
     // Do some error checking
-    if (not m_pt_ptr)
-    {
+    if(not m_pt_ptr) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GParameterSet::getPersonalityTraits():" << std::endl
@@ -1499,14 +1258,9 @@ GParameterSet::getPersonalityTraits()
      *
      * @param gpt A pointer to an object representing the new personality of this object
      */
-void
-GParameterSet::setPersonality(
-    std::shared_ptr<GPersonalityTraits> gpt
-)
-{
+void GParameterSet::setPersonality(std::shared_ptr<GPersonalityTraits> gpt) {
     // Make sure we haven't been given an empty pointer
-    if (not gpt)
-    {
+    if(not gpt) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GParameterSet::setPersonality(): Error!" << std::endl
@@ -1518,7 +1272,6 @@ GParameterSet::setPersonality(
     m_pt_ptr = gpt;
 }
 
-
 /* ----------------------------------------------------------------------------------
      * Tested in GParameterSet::specificTestsNoFailureExpected_GUnitTests()
      * ----------------------------------------------------------------------------------
@@ -1528,9 +1281,7 @@ GParameterSet::setPersonality(
 /**
      * Resets the current personality to PERSONALITY_NONE
      */
-void
-GParameterSet::resetPersonality()
-{
+void GParameterSet::resetPersonality() {
     m_pt_ptr.reset();
 }
 
@@ -1543,15 +1294,11 @@ GParameterSet::resetPersonality()
 /**
      * Retrieves the mnemonic used for the optimization of this object
      */
-std::string
-GParameterSet::getMnemonic() const
-{
-    if (m_pt_ptr)
-    {
+std::string GParameterSet::getMnemonic() const {
+    if(m_pt_ptr) {
         return m_pt_ptr->getMnemonic();
     }
-    else
-    {
+    else {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GParameterSet::getMnemonic():" << std::endl
@@ -1569,115 +1316,96 @@ GParameterSet::getMnemonic() const
      *
      * @param gpb The GParserBuilder object to which configuration options should be added
      */
-void
-GParameterSet::addConfigurationOptions_(
-    Gem::Common::GParserBuilder &gpb
-)
-{
+void GParameterSet::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
     // Call our parent class'es function
     GObject::addConfigurationOptions_(gpb);
 
     // Add local data
     gpb.registerFileParameter<evaluationPolicy>(
-            "evalPolicy" // The name of the variable
-            , Gem::Geneva::evaluationPolicy::USESIMPLEEVALUATION
-            // The default value
-            , [this](const evaluationPolicy ep)
-            {
-                this->setEvaluationPolicy(ep);
-            }
-        )
-        << "Specifies which strategy should be used to calculate the evaluation:"
-        << std::endl
-        << "0 (a.k.a. USESIMPLEEVALUATION): Always call the evaluation function, even for invalid solutions"
-        <<
-        std::endl
-        << "1 (a.k.a. USEWORSTCASEFORINVALID) : Assign the worst possible value to our fitness and evaluate only valid solutions"
-        << std::endl
-        <<
-        "2 (a.k.a. USESIGMOID): Assign a multiple of m_validity_level and sigmoid barrier to invalid solutions, apply a sigmoid function to valid evaluations"
-        << std::endl;
+        "evalPolicy" // The name of the variable
+        ,
+        Gem::Geneva::evaluationPolicy::USESIMPLEEVALUATION
+        // The default value
+        ,
+        [this](const evaluationPolicy ep) { this->setEvaluationPolicy(ep); }
+    ) << "Specifies which strategy should be used to calculate the evaluation:"
+      << std::endl
+      << "0 (a.k.a. USESIMPLEEVALUATION): Always call the evaluation function, even for invalid "
+         "solutions"
+      << std::endl
+      << "1 (a.k.a. USEWORSTCASEFORINVALID) : Assign the worst possible value to our fitness and "
+         "evaluate only valid solutions"
+      << std::endl
+      << "2 (a.k.a. USESIGMOID): Assign a multiple of m_validity_level and sigmoid barrier to "
+         "invalid solutions, apply a sigmoid function to valid evaluations"
+      << std::endl;
 
     gpb.registerFileParameter<double>(
-            "steepness"                            // The name of the variable
-            , Gem::Geneva::FITNESSSIGMOIDSTEEPNESS // The default value
-            , [this](const double ss)
-            {
-                this->setSteepness(ss);
-            }
-        )
-        << "When using a sigmoid function to transform the individual's fitness,"
-        << std::endl
-        << "this parameter influences the steepness of the function at the center of the sigmoid."
-        << std::endl
-        << "The parameter must have a value > 0.";
+        "steepness" // The name of the variable
+        ,
+        Gem::Geneva::FITNESSSIGMOIDSTEEPNESS // The default value
+        ,
+        [this](const double ss) { this->setSteepness(ss); }
+    ) << "When using a sigmoid function to transform the individual's fitness,"
+      << std::endl
+      << "this parameter influences the steepness of the function at the center of the sigmoid."
+      << std::endl
+      << "The parameter must have a value > 0.";
 
     gpb.registerFileParameter<double>(
-            "barrier"                               // The name of the variable
-            , Gem::Geneva::WORSTALLOWEDVALIDFITNESS // The default value
-            , [this](const double barrier)
-            {
-                this->setBarrier(barrier);
-            }
-        )
-        << "When using a sigmoid function to transform the individual's fitness,"
-        << std::endl
-        << "this parameter sets the upper/lower boundary of the sigmoid." <<
-        std::endl
-        << "The parameter must have a value > 0.;";
+        "barrier" // The name of the variable
+        ,
+        Gem::Geneva::WORSTALLOWEDVALIDFITNESS // The default value
+        ,
+        [this](const double barrier) { this->setBarrier(barrier); }
+    ) << "When using a sigmoid function to transform the individual's fitness,"
+      << std::endl
+      << "this parameter sets the upper/lower boundary of the sigmoid." << std::endl
+      << "The parameter must have a value > 0.;";
 
     gpb.registerFileParameter<std::size_t>(
-            "maxUnsuccessfulAdaptions"    // The name of the variable
-            , DEFMAXUNSUCCESSFULADAPTIONS // The default value
-            , [this](const std::size_t mua)
-            {
-                this->setMaxUnsuccessfulAdaptions(mua);
-            }
-        )
-        << "The maximum number of unsuccessful adaptions in a row for one call to adapt()";
+        "maxUnsuccessfulAdaptions" // The name of the variable
+        ,
+        DEFMAXUNSUCCESSFULADAPTIONS // The default value
+        ,
+        [this](const std::size_t mua) { this->setMaxUnsuccessfulAdaptions(mua); }
+    ) << "The maximum number of unsuccessful adaptions in a row for one call to adapt()";
 
     gpb.registerFileParameter<std::size_t>(
-            "maxRetriesUntilValid"    // The name of the variable
-            , DEFMAXRETRIESUNTILVALID // The default value
-            , [this](const std::size_t mruv)
-            {
-                this->setMaxRetriesUntilValid(mruv);
-            }
-        )
-        << "The maximum allowed number of retries during the" << std::endl
-        << "adaption of individuals until a valid solution was found" <<
-        std::endl
-        << "A parameter set is considered to be \"valid\" if" << std::endl
-        << "it passes all validity checks;";
+        "maxRetriesUntilValid" // The name of the variable
+        ,
+        DEFMAXRETRIESUNTILVALID // The default value
+        ,
+        [this](const std::size_t mruv) { this->setMaxRetriesUntilValid(mruv); }
+    ) << "The maximum allowed number of retries during the"
+      << std::endl
+      << "adaption of individuals until a valid solution was found" << std::endl
+      << "A parameter set is considered to be \"valid\" if" << std::endl
+      << "it passes all validity checks;";
 
     // Add local data
     gpb.registerFileParameter<maxMode>(
-            "maxmode"           // The name of the variable
-            , maxMode::MINIMIZE // The default value
-            , [this](const maxMode mm)
-            {
-                this->setMaxMode(mm);
-            }
-        )
-        << "Specifies whether the individual should be maximized (1) or minimized (0)"
-        << std::endl
-        << "Note that minimization is the by far most common option.";
+        "maxmode" // The name of the variable
+        ,
+        maxMode::MINIMIZE // The default value
+        ,
+        [this](const maxMode mm) { this->setMaxMode(mm); }
+    ) << "Specifies whether the individual should be maximized (1) or minimized (0)"
+      << std::endl
+      << "Note that minimization is the by far most common option.";
 
     gpb.registerFileParameter<bool, double>(
-            "useRandomCrash" // The name of the variable
-            , "randomCrashProb"
-            , GPS_DEF_USE_RANDOMCRASH // The default value
-            , GPS_DEF_RANDOMCRASHPROB
-            , [this](const bool use_rc, const double rc_prob)
-            {
-                this->setRandomCrash(use_rc, rc_prob);
-            }
-            , "randomCrashParameters"
-        )
-        << "Indicates whether random crashes should occur for debugging purposes"
-        << std::endl <<
-        Gem::Common::nextComment()
-        << "The probability of a random crash to occur";
+        "useRandomCrash" // The name of the variable
+        ,
+        "randomCrashProb",
+        GPS_DEF_USE_RANDOMCRASH // The default value
+        ,
+        GPS_DEF_RANDOMCRASHPROB,
+        [this](const bool use_rc, const double rc_prob) { this->setRandomCrash(use_rc, rc_prob); },
+        "randomCrashParameters"
+    ) << "Indicates whether random crashes should occur for debugging purposes"
+      << std::endl
+      << Gem::Common::nextComment() << "The probability of a random crash to occur";
 }
 
 /******************************************************************************/
@@ -1686,9 +1414,7 @@ GParameterSet::addConfigurationOptions_(
      *
      * @return The name of this class / object
      */
-std::string
-GParameterSet::name_() const
-{
+std::string GParameterSet::name_() const {
     return std::string("GParameterSet");
 }
 
@@ -1698,9 +1424,7 @@ GParameterSet::name_() const
      *
      * @return The validity level of this solution
      */
-double
-GParameterSet::getValidityLevel() const
-{
+double GParameterSet::getValidityLevel() const {
     return m_validity_level;
 }
 
@@ -1708,10 +1432,8 @@ GParameterSet::getValidityLevel() const
 /**
      * @return A boolean indicating, whether all constraints were fulfilled
      */
-bool
-GParameterSet::constraintsFulfilled() const
-{
-    if (m_validity_level <= 1.)
+bool GParameterSet::constraintsFulfilled() const {
+    if(m_validity_level <= 1.)
         return true;
     else
         return false;
@@ -1722,13 +1444,10 @@ GParameterSet::constraintsFulfilled() const
      * Allows to register a constraint with this individual. Note that the constraint
      * object will be cloned.
      */
-void
-GParameterSet::registerConstraint(
+void GParameterSet::registerConstraint(
     std::shared_ptr<GPreEvaluationValidityCheckT<GParameterSet>> c_ptr
-)
-{
-    if (not c_ptr)
-    {
+) {
+    if(not c_ptr) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GParameterSet::registerConstraint(): Error!" << std::endl
@@ -1737,17 +1456,15 @@ GParameterSet::registerConstraint(
     }
 
     // We store clones, so individual objects do not share the same object
-    m_individual_constraint_ptr = c_ptr->GObject::clone<
-        GPreEvaluationValidityCheckT<GParameterSet>>();
+    m_individual_constraint_ptr =
+        c_ptr->GObject::clone<GPreEvaluationValidityCheckT<GParameterSet>>();
 }
 
 /******************************************************************************/
 /**
      * Allows to set the policy to use in case this individual represents an invalid solution
      */
-void
-GParameterSet::setEvaluationPolicy(const evaluationPolicy evalPolicy)
-{
+void GParameterSet::setEvaluationPolicy(const evaluationPolicy evalPolicy) {
     m_eval_policy = evalPolicy;
 }
 
@@ -1755,12 +1472,9 @@ GParameterSet::setEvaluationPolicy(const evaluationPolicy evalPolicy)
 /**
      * Allows to retrieve the current policy in case this individual represents an invalid solution
      */
-evaluationPolicy
-GParameterSet::getEvaluationPolicy() const
-{
+evaluationPolicy GParameterSet::getEvaluationPolicy() const {
     return m_eval_policy;
 }
-
 
 /******************************************************************************/
 /**
@@ -1768,27 +1482,21 @@ GParameterSet::getEvaluationPolicy() const
      * for "clean" individuals only and will throw when called for unprocessed or
      * erroneous individuals.
      */
-bool
-GParameterSet::isValid() const
-{
+bool GParameterSet::isValid() const {
 #ifdef DEBUG
-    if (this->is_due_for_processing() || this->has_errors())
-    {
+    if(this->is_due_for_processing() || this->has_errors()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GParameterSet::isValid():" << std::endl
-            << "Function was called for unprocessed or erroneous individual" <<
-            std::endl
+            << "Function was called for unprocessed or erroneous individual" << std::endl
         );
     }
 #endif
 
-    if (m_validity_level <= 1.)
-    {
+    if(m_validity_level <= 1.) {
         return true;
     }
-    else
-    {
+    else {
         return false;
     }
 }
@@ -1797,9 +1505,7 @@ GParameterSet::isValid() const
 /**
      * Checks whether this solution is invalid
      */
-bool
-GParameterSet::isInValid() const
-{
+bool GParameterSet::isInValid() const {
     return not this->isValid();
 }
 
@@ -1809,11 +1515,7 @@ GParameterSet::isInValid() const
      *
      * @param bnf The best known primary fitness so far
      */
-void
-GParameterSet::setBestKnownPrimaryFitness(
-    const std::tuple<double, double> &bnf
-)
-{
+void GParameterSet::setBestKnownPrimaryFitness(const std::tuple<double, double> &bnf) {
     m_best_past_primary_fitness = bnf;
 }
 
@@ -1828,9 +1530,7 @@ GParameterSet::setBestKnownPrimaryFitness(
      *
      * @return The best known primary fitness so far
      */
-std::tuple<double, double>
-GParameterSet::getBestKnownPrimaryFitness() const
-{
+std::tuple<double, double> GParameterSet::getBestKnownPrimaryFitness() const {
     return m_best_past_primary_fitness;
 }
 
@@ -1843,24 +1543,17 @@ GParameterSet::getBestKnownPrimaryFitness() const
 /**
      * Performs all necessary (remote-)processing steps for this object.
      */
-void
-GParameterSet::process_(
-    const std::vector<parameterset_processing_result> &res_vec
-)
-{
+void GParameterSet::process_(const std::vector<parameterset_processing_result> &res_vec) {
 #ifdef DEBUG
     //---------------------------------------------
     // Crash if we have been asked to (only active in DEBUG mode)
-    if (m_useRandomCrash)
-    {
+    if(m_useRandomCrash) {
         std::uniform_real_distribution<double> dist01{0., 1.};
-        if (dist01(this->m_gr) <= m_randomCrashProb)
-        {
-            glogger
-                << "GParameterSet is performing random crash for debugging purposes"
-                << std::endl
-                << std::endl
-                << GLOGGING;
+        if(dist01(this->m_gr) <= m_randomCrashProb) {
+            glogger << "GParameterSet is performing random crash for debugging purposes"
+                    << std::endl
+                    << std::endl
+                    << GLOGGING;
 
             throw;
         }
@@ -1868,29 +1561,22 @@ GParameterSet::process_(
 #endif
 
     // Find out, whether this is a valid solution
-    if (
-        this->parameterSetFulfillsConstraints(m_validity_level)
-        // Needs to be called first, or else the m_validity_level will not be filled
-        || evaluationPolicy::USESIMPLEEVALUATION == m_eval_policy
-    )
-    {
+    if(this->parameterSetFulfillsConstraints(m_validity_level)
+       // Needs to be called first, or else the m_validity_level will not be filled
+       || evaluationPolicy::USESIMPLEEVALUATION == m_eval_policy) {
         // Trigger actual fitness calculation using the user-supplied function. This will
         // also register any secondary "raw" fitness values used in multi-criterion optimization.
         // Transformation of values is taken care of below.
         double main_raw_result = 0.;
 
-        try
-        {
-            if (not res_vec.empty())
-            {
+        try {
+            if(not res_vec.empty()) {
                 // Check that sizes match
-                if (res_vec.size() != this->getNStoredResults())
-                {
+                if(res_vec.size() != this->getNStoredResults()) {
                     throw geneva_exception(
                         g_error_streamer(DO_LOG, time_and_place)
                         << "In GParameterSet::process_ : Error!" << std::endl
-                        << "res_vec has invalid size. Got " << res_vec.size() <<
-                        std::endl
+                        << "res_vec has invalid size. Got " << res_vec.size() << std::endl
                         << "Expected " << this->getNStoredResults() << std::endl
                     );
                 }
@@ -1900,24 +1586,22 @@ GParameterSet::process_(
 
                 // Extract all additional *raw* results. Then we are on par with fitnessCalculation()
                 std::size_t pos = 0;
-                for (const auto &res : res_vec)
-                {
-                    if (pos == 0) continue; // Skip the main raw result
+                for(const auto &res : res_vec) {
+                    if(pos == 0)
+                        continue; // Skip the main raw result
 
                     this->setResult(pos, res_vec.at(pos).rawFitness());
 
                     pos++;
                 }
             }
-            else
-            {
+            else {
                 // If we are dealing with multiple fitness criteria,
                 // then fitnessCalculation() will set additional raw values
                 main_raw_result = this->fitnessCalculation();
             }
         }
-        catch (...)
-        {
+        catch(...) {
             // Make sure we invalidate all fitness values, if an exception was thrown
             this->setAllFitnessTo(this->getWorstCase());
 
@@ -1935,73 +1619,55 @@ GParameterSet::process_(
         // entire solutions as invalid after the evaluation happens relatively rarely so that a flat
         // "worst" quality surface for such solutions does not hinder progress of the optimization
         // procedure too much
-        if (this->error_flagged_by_user())
-        {
+        if(this->error_flagged_by_user()) {
             // has the user indicated a problem without throwing an error ?
             // Fill the raw and transformed vectors with the worst case scenario.
             this->setAllFitnessTo(this->getWorstCase());
         }
-        else
-        {
+        else {
             // So this is a valid solution!
-            for (std::size_t i = 0; i < this->getNStoredResults(); i++)
-            {
-                if (evaluationPolicy::USESIGMOID == m_eval_policy)
-                {
+            for(std::size_t i = 0; i < this->getNStoredResults(); i++) {
+                if(evaluationPolicy::USESIGMOID == m_eval_policy) {
                     // Update the fitness value to use sigmoidal values
                     this->modifyStoredResult(i).setTransformedFitnessWith(
-                        [this](const double rawValue)
-                        {
+                        [this](const double rawValue) {
                             return Gem::Common::grational_sigmoid(
-                                rawValue
-                                , this->m_sigmoid_extremes
-                                , this->m_sigmoid_steepness
+                                rawValue,
+                                this->m_sigmoid_extremes,
+                                this->m_sigmoid_steepness
                             );
                         }
                     );
                 }
-                else
-                {
+                else {
                     // All other transformation policies use the same value for the transformed fitness as a (valid) raw fitness
                     this->modifyStoredResult(i).setTransformedFitnessToRaw();
                 }
             }
         }
     }
-    else
-    {
+    else {
         // Some constraints were violated. Act on the chosen policy
-        if (evaluationPolicy::USEWORSTCASEFORINVALID == m_eval_policy)
-        {
+        if(evaluationPolicy::USEWORSTCASEFORINVALID == m_eval_policy) {
             this->setAllFitnessTo(this->getWorstCase());
         }
-        else if (evaluationPolicy::USESIGMOID == m_eval_policy)
-        {
+        else if(evaluationPolicy::USESIGMOID == m_eval_policy) {
             double uniformFitnessValue = 0.;
-            if (maxMode::MAXIMIZE == this->getMaxMode())
-            {
+            if(maxMode::MAXIMIZE == this->getMaxMode()) {
                 // maximize
-                if (boost::numeric::bounds<double>::highest() ==
-                    m_validity_level)
-                {
+                if(boost::numeric::bounds<double>::highest() == m_validity_level) {
                     uniformFitnessValue = this->getWorstCase();
                 }
-                else
-                {
-                    uniformFitnessValue =
-                        -m_validity_level * m_sigmoid_extremes;
+                else {
+                    uniformFitnessValue = -m_validity_level * m_sigmoid_extremes;
                 }
             }
-            else
-            {
+            else {
                 // minimize
-                if (boost::numeric::bounds<double>::highest() ==
-                    m_validity_level)
-                {
+                if(boost::numeric::bounds<double>::highest() == m_validity_level) {
                     uniformFitnessValue = this->getWorstCase();
                 }
-                else
-                {
+                else {
                     uniformFitnessValue = m_validity_level * m_sigmoid_extremes;
                 }
             }
@@ -2017,18 +1683,17 @@ GParameterSet::process_(
      *         *
      * @param cp A copy of another GParameterSet object, camouflaged as a GObject
      */
-void
-GParameterSet::load_(const GObject *cp)
-{
+void GParameterSet::load_(const GObject *cp) {
     // Check that we are dealing with a GParameterSet reference independent of this object and convert the pointer
-    const GParameterSet *p_load = Gem::Common::g_convert_and_compare<GObject,
-                                                                     GParameterSet>(cp, this);
+    const GParameterSet *p_load =
+        Gem::Common::g_convert_and_compare<GObject, GParameterSet>(cp, this);
 
     // Load the parent class'es data
     GObject::load_(cp);
     Gem::Common::GPtrVectorT<GParameterBase, GObject>::operator=(*p_load);
-    Gem::Courtier::GProcessingContainerT<GParameterSet,
-                                         parameterset_processing_result>::load_pc(p_load);
+    Gem::Courtier::GProcessingContainerT<GParameterSet, parameterset_processing_result>::load_pc(
+        p_load
+    );
 
     // and then our local data
     m_best_past_primary_fitness = p_load->m_best_past_primary_fitness;
@@ -2044,8 +1709,10 @@ GParameterSet::load_(const GObject *cp)
     m_n_adaptions = p_load->m_n_adaptions;
 
     Gem::Common::copyCloneableSmartPointer(p_load->m_pt_ptr, m_pt_ptr);
-    Gem::Common::copyCloneableSmartPointer(p_load->m_individual_constraint_ptr,
-                                           m_individual_constraint_ptr);
+    Gem::Common::copyCloneableSmartPointer(
+        p_load->m_individual_constraint_ptr,
+        m_individual_constraint_ptr
+    );
 }
 
 /******************************************************************************/
@@ -2056,16 +1723,12 @@ GParameterSet::load_(const GObject *cp)
      *
      * @return A boolean indicating whether modifications where made
      */
-bool
-GParameterSet::randomInit_(activityMode const &am)
-{
+bool GParameterSet::randomInit_(activityMode const &am) {
     bool modifications_made = false;
 
     // Trigger random initialization of all our parameter objects
-    for (auto &parm_ptr : *this)
-    {
-        if (parm_ptr->randomInit(am, m_gr))
-        {
+    for(auto &parm_ptr : *this) {
+        if(parm_ptr->randomInit(am, m_gr)) {
             modifications_made = true;
         }
     }
@@ -2086,12 +1749,9 @@ GParameterSet::randomInit_(activityMode const &am)
      * in this collection must implement the adapt() function, as they are
      * derived from the GMutableI class / interface.
      */
-std::size_t
-GParameterSet::customAdaptions()
-{
+std::size_t GParameterSet::customAdaptions() {
     std::size_t nAdaptions = 0;
-    for (const auto &par_ptr : *this)
-    {
+    for(const auto &par_ptr : *this) {
         nAdaptions += par_ptr->adapt(m_gr);
     }
 
@@ -2112,56 +1772,45 @@ GParameterSet::customAdaptions()
      *
      * @param f_cnt A vector of raw fitness values
      */
-void
-GParameterSet::setFitness_(std::vector<double> const &f_cnt)
-{
+void GParameterSet::setFitness_(std::vector<double> const &f_cnt) {
 #ifdef DEBUG
-    if (f_cnt.size() != this->getNStoredResults())
-    {
+    if(f_cnt.size() != this->getNStoredResults()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GParameterSet::setFitness_(...): Error!" << std::endl
             << "Invalid size of fitness vector: " << std::endl
-            << f_cnt.size() << ", expected: " << this->getNStoredResults() <<
-            std::endl
+            << f_cnt.size() << ", expected: " << this->getNStoredResults() << std::endl
         );
     }
 #endif /* DEBUG */
 
     // Find out, whether this is a valid solution
-    if (
-        this->parameterSetFulfillsConstraints(m_validity_level)
-        // Needs to be called first, or else the m_validity_level will not be filled
-        || evaluationPolicy::USESIMPLEEVALUATION == m_eval_policy
-    )
-    {
+    if(this->parameterSetFulfillsConstraints(m_validity_level)
+       // Needs to be called first, or else the m_validity_level will not be filled
+       || evaluationPolicy::USESIMPLEEVALUATION == m_eval_policy) {
         // Create a vector of parameterset_processing_result objects
         std::vector<parameterset_processing_result> processing_results(
-            f_cnt.size(), parameterset_processing_result());
+            f_cnt.size(),
+            parameterset_processing_result()
+        );
 
         // Take care of the transformed fitness
         std::size_t pos = 0;
-        for (auto &p : processing_results)
-        {
+        for(auto &p : processing_results) {
             // Set the raw fitness
             p.reset(f_cnt.at(pos));
 
-            if (evaluationPolicy::USESIGMOID == m_eval_policy)
-            {
+            if(evaluationPolicy::USESIGMOID == m_eval_policy) {
                 // Update the fitness value to use sigmoidal values
-                p.setTransformedFitnessWith(
-                    [this](const double rawValue)
-                    {
-                        return Gem::Common::grational_sigmoid(
-                            rawValue
-                            , this->m_sigmoid_extremes
-                            , this->m_sigmoid_steepness
-                        );
-                    }
-                );
+                p.setTransformedFitnessWith([this](const double rawValue) {
+                    return Gem::Common::grational_sigmoid(
+                        rawValue,
+                        this->m_sigmoid_extremes,
+                        this->m_sigmoid_steepness
+                    );
+                });
             }
-            else
-            {
+            else {
                 // All other transformation policies use the same value for the transformed fitness as a (valid) raw fitness
                 p.setTransformedFitnessToRaw();
             }
@@ -2172,40 +1821,28 @@ GParameterSet::setFitness_(std::vector<double> const &f_cnt)
         // Transfer the data into the individual
         this->markAsProcessedWith(processing_results);
     }
-    else
-    {
+    else {
         // Some constraints were violated. Act on the chosen policy
-        if (evaluationPolicy::USEWORSTCASEFORINVALID == m_eval_policy)
-        {
+        if(evaluationPolicy::USEWORSTCASEFORINVALID == m_eval_policy) {
             this->setAllFitnessTo(this->getWorstCase());
         }
-        else if (evaluationPolicy::USESIGMOID == m_eval_policy)
-        {
+        else if(evaluationPolicy::USESIGMOID == m_eval_policy) {
             double uniformFitnessValue = 0.;
-            if (maxMode::MAXIMIZE == this->getMaxMode())
-            {
+            if(maxMode::MAXIMIZE == this->getMaxMode()) {
                 // maximize
-                if (boost::numeric::bounds<double>::highest() ==
-                    m_validity_level)
-                {
+                if(boost::numeric::bounds<double>::highest() == m_validity_level) {
                     uniformFitnessValue = this->getWorstCase();
                 }
-                else
-                {
-                    uniformFitnessValue =
-                        -m_validity_level * m_sigmoid_extremes;
+                else {
+                    uniformFitnessValue = -m_validity_level * m_sigmoid_extremes;
                 }
             }
-            else
-            {
+            else {
                 // minimize
-                if (boost::numeric::bounds<double>::highest() ==
-                    m_validity_level)
-                {
+                if(boost::numeric::bounds<double>::highest() == m_validity_level) {
                     uniformFitnessValue = this->getWorstCase();
                 }
-                else
-                {
+                else {
                     uniformFitnessValue = m_validity_level * m_sigmoid_extremes;
                 }
             }
@@ -2221,13 +1858,10 @@ GParameterSet::setFitness_(std::vector<double> const &f_cnt)
      *
      *  @return The result of the combination
      */
-double
-GParameterSet::sumCombiner() const
-{
+double GParameterSet::sumCombiner() const {
     double result = 0.;
 
-    for (std::size_t id = 0; id < this->getNStoredResults(); id++)
-    {
+    for(std::size_t id = 0; id < this->getNStoredResults(); id++) {
         result += this->transformed_fitness(id);
     }
 
@@ -2240,13 +1874,10 @@ GParameterSet::sumCombiner() const
      *
      *  @return The result of the combination
      */
-double
-GParameterSet::fabsSumCombiner() const
-{
+double GParameterSet::fabsSumCombiner() const {
     double result = 0.;
 
-    for (std::size_t id = 0; id < this->getNStoredResults(); id++)
-    {
+    for(std::size_t id = 0; id < this->getNStoredResults(); id++) {
         result += std::abs(this->transformed_fitness(id));
     }
 
@@ -2261,13 +1892,10 @@ GParameterSet::fabsSumCombiner() const
      *
      * @return The result of the combination
      */
-double
-GParameterSet::squaredSumCombiner() const
-{
+double GParameterSet::squaredSumCombiner() const {
     double result = 0.;
 
-    for (std::size_t id = 0; id < this->getNStoredResults(); id++)
-    {
+    for(std::size_t id = 0; id < this->getNStoredResults(); id++) {
         result += GSQUARED(this->transformed_fitness(id));
     }
 
@@ -2283,29 +1911,20 @@ GParameterSet::squaredSumCombiner() const
      * @param weights The weights to be multiplied with the cached results
      * @return The result of the combination
      */
-double
-GParameterSet::weighedSquaredSumCombiner(
-    std::vector<double> const &weights) const
-{
-    if (this->getNStoredResults() != weights.size())
-    {
+double GParameterSet::weighedSquaredSumCombiner(std::vector<double> const &weights) const {
+    if(this->getNStoredResults() != weights.size()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GParameterSet::weighedSquaredSumCombine(): Error!" <<
-            std::endl
+            << "In GParameterSet::weighedSquaredSumCombine(): Error!" << std::endl
             << "Sizes of transformedCurrentFitnessVec_ and the weights vector don't match: "
-            << this->
-            getNStoredResults() <<
-            " / " << weights.size() << std::endl
+            << this->getNStoredResults() << " / " << weights.size() << std::endl
         );
     }
 
     double result = 0.;
     auto cit_weights = weights.begin();
 
-    for (std::size_t id = 0; id < this->getNStoredResults();
-         id++, ++cit_weights)
-    {
+    for(std::size_t id = 0; id < this->getNStoredResults(); id++, ++cit_weights) {
         result += GSQUARED((*cit_weights) * this->transformed_fitness(id));
     }
 
@@ -2317,15 +1936,11 @@ GParameterSet::weighedSquaredSumCombiner(
      * Checks whether this solution fulfills the set of constraints. Note that this
      * function may be called prior to evaluation in order to check
      */
-bool
-GParameterSet::parameterSetFulfillsConstraints(double &validityLevel) const
-{
-    if (m_individual_constraint_ptr)
-    {
+bool GParameterSet::parameterSetFulfillsConstraints(double &validityLevel) const {
+    if(m_individual_constraint_ptr) {
         return m_individual_constraint_ptr->isValid(this, validityLevel);
     }
-    else
-    {
+    else {
         // Always valid, if no constraint object has been registered
         validityLevel = 0.;
         return true;
@@ -2339,32 +1954,25 @@ GParameterSet::parameterSetFulfillsConstraints(double &validityLevel) const
 /**
      * Retrieves a parameter of a given type at the specified position
      */
-boost::any
-GParameterSet::getVarVal(
+boost::any GParameterSet::getVarVal(
     std::string const &descr,
     std::tuple<std::size_t, std::string, std::size_t> const &target
-)
-{
+) {
     boost::any result;
 
-    if (descr == "d")
-    {
+    if(descr == "d") {
         result = GParameterSet::getVarItem<double>(target);
     }
-    else if (descr == "f")
-    {
+    else if(descr == "f") {
         result = GParameterSet::getVarItem<float>(target);
     }
-    else if (descr == "i")
-    {
+    else if(descr == "i") {
         result = GParameterSet::getVarItem<std::int32_t>(target);
     }
-    else if (descr == "b")
-    {
+    else if(descr == "b") {
         result = GParameterSet::getVarItem<bool>(target);
     }
-    else
-    {
+    else {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GParameterSet::getVarVal(): Error!" << std::endl
@@ -2379,14 +1987,8 @@ GParameterSet::getVarVal(
 /**
      * Allows to set all fitnesses to the same value (raw and transformed values seperately)
      */
-void
-GParameterSet::setAllFitnessTo(
-    const double rawValue,
-    const double transformedValue
-)
-{
-    for (std::size_t i = 0; i < this->getNStoredResults(); i++)
-    {
+void GParameterSet::setAllFitnessTo(const double rawValue, const double transformedValue) {
+    for(std::size_t i = 0; i < this->getNStoredResults(); i++) {
         this->modifyStoredResult(i).reset(rawValue);
         this->modifyStoredResult(i).setTransformedFitnessTo(transformedValue);
     }
@@ -2396,9 +1998,7 @@ GParameterSet::setAllFitnessTo(
 /**
      * Allows to set all fitnesses to the same value (both raw and transformed values)
      */
-void
-GParameterSet::setAllFitnessTo(const double val)
-{
+void GParameterSet::setAllFitnessTo(const double val) {
     this->setAllFitnessTo(val, val);
 }
 
@@ -2408,27 +2008,23 @@ GParameterSet::setAllFitnessTo(const double val)
      *
      * @return A boolean which indicates whether modifications were made
      */
-bool
-GParameterSet::modify_GUnitTests_()
-{
+bool GParameterSet::modify_GUnitTests_() {
 #ifdef GEM_TESTING
 
     bool result = false;
 
     // Call the parent class'es function
-    if (GObject::modify_GUnitTests_())
+    if(GObject::modify_GUnitTests_())
         result = true;
-    if (Gem::Common::GPtrVectorT<GParameterBase, GObject>::modify_GUnitTests_())
+    if(Gem::Common::GPtrVectorT<GParameterBase, GObject>::modify_GUnitTests_())
         result = true;
 
-    for (const auto &o_ptr : *this)
-    {
-        if (o_ptr->modify_GUnitTests())
+    for(const auto &o_ptr : *this) {
+        if(o_ptr->modify_GUnitTests())
             result = true;
     }
 
-    if (this->randomInit(activityMode::ALLPARAMETERS))
-    {
+    if(this->randomInit(activityMode::ALLPARAMETERS)) {
         result = true;
     }
 
@@ -2438,21 +2034,18 @@ GParameterSet::modify_GUnitTests_()
 
     return result;
 
-#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
 
-
-	Gem::Common::condnotset("GParameterSet::modify_GUnitTests", "GEM_TESTING");
-   return false;
-#endif /* GEM_TESTING */
+    Gem::Common::condnotset("GParameterSet::modify_GUnitTests", "GEM_TESTING");
+    return false;
+#endif                  /* GEM_TESTING */
 }
 
 /******************************************************************************/
 /**
      * Performs self tests that are expected to succeed. This is needed for testing purposes
      */
-void
-GParameterSet::specificTestsNoFailureExpected_GUnitTests_()
-{
+void GParameterSet::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 
     // Access to uniformly distributed double random numbers
@@ -2460,8 +2053,7 @@ GParameterSet::specificTestsNoFailureExpected_GUnitTests_()
 
     // Call the parent class'es function
     GObject::specificTestsNoFailureExpected_GUnitTests_();
-    Gem::Common::GPtrVectorT<GParameterBase,
-                             GObject>::specificTestsNoFailureExpected_GUnitTests_();
+    Gem::Common::GPtrVectorT<GParameterBase, GObject>::specificTestsNoFailureExpected_GUnitTests_();
 
     // --------------------------------------------------------------------------
 
@@ -2481,13 +2073,13 @@ GParameterSet::specificTestsNoFailureExpected_GUnitTests_()
         // Test setting and retrieval of the surrounding optimization algorithm's current iteration
         std::shared_ptr<GParameterSet> p_test = this->clone<GParameterSet>();
 
-        for (std::uint32_t i = 1; i < 10; i++)
-        {
+        for(std::uint32_t i = 1; i < 10; i++) {
             CHECK_NOTHROW(p_test->setAssignedIteration(i));
-            INFO("\n"
-                << "p_test->getAssignedIteration() = " <<
-                p_test->getAssignedIteration() << "\n"
-                << "i = " << i << "\n");
+            INFO(
+                "\n"
+                << "p_test->getAssignedIteration() = " << p_test->getAssignedIteration() << "\n"
+                << "i = " << i << "\n"
+            );
             CHECK(p_test->getAssignedIteration() == i);
         }
     }
@@ -2499,18 +2091,17 @@ GParameterSet::specificTestsNoFailureExpected_GUnitTests_()
         std::shared_ptr<GParameterSet> p_test = this->clone<GParameterSet>();
 
         double d = 0.;
-        while (true)
-        {
-            CHECK_NOTHROW(
-                p_test->setBestKnownPrimaryFitness(std::make_tuple(d, d)));
-            INFO("\n"
-                << "p_test->getBestKnownPrimaryFitness() = " << Gem::Common::
-                g_to_string(p_test->
-                    getBestKnownPrimaryFitness()) << "\n"
-                << "d = " << d << "\n");
+        while(true) {
+            CHECK_NOTHROW(p_test->setBestKnownPrimaryFitness(std::make_tuple(d, d)));
+            INFO(
+                "\n"
+                << "p_test->getBestKnownPrimaryFitness() = "
+                << Gem::Common::g_to_string(p_test->getBestKnownPrimaryFitness()) << "\n"
+                << "d = " << d << "\n"
+            );
             CHECK(p_test->getBestKnownPrimaryFitness() == std::make_tuple(d, d));
 
-            if ((d += 0.1) >= 1.) // NOLINT(bugprone-assignment-in-if-condition)
+            if((d += 0.1) >= 1.) // NOLINT(bugprone-assignment-in-if-condition)
                 break;
         }
     }
@@ -2521,12 +2112,13 @@ GParameterSet::specificTestsNoFailureExpected_GUnitTests_()
         // Test setting and retrieval of the number of consecutive stalls
         std::shared_ptr<GParameterSet> p_test = this->clone<GParameterSet>();
 
-        for (std::uint32_t i = 1; i < 10; i++)
-        {
+        for(std::uint32_t i = 1; i < 10; i++) {
             CHECK_NOTHROW(p_test->setNStalls(i));
-            INFO("\n"
+            INFO(
+                "\n"
                 << "p_test->getNStalls() = " << p_test->getNStalls() << "\n"
-                << "i = " << i << "\n");
+                << "i = " << i << "\n"
+            );
             CHECK(p_test->getNStalls() == i);
         }
     }
@@ -2557,8 +2149,7 @@ GParameterSet::specificTestsNoFailureExpected_GUnitTests_()
         // Make sure it is really empty
         CHECK(p_test_0->empty());
         // Add some floating pount parameters
-        for (std::size_t i = 0; i < FPLOOPCOUNT; i++)
-        {
+        for(std::size_t i = 0; i < FPLOOPCOUNT; i++) {
             p_test_0->push_back(
                 std::make_shared<GConstrainedDoubleObject>(
                     uniform_real_distribution(
@@ -2567,21 +2158,20 @@ GParameterSet::specificTestsNoFailureExpected_GUnitTests_()
                             MINGCONSTRDOUBLE,
                             MAXGCONSTRDOUBLE
                         )
-                    )
-                    , MINGCONSTRDOUBLE
-                    , MAXGCONSTRDOUBLE
+                    ),
+                    MINGCONSTRDOUBLE,
+                    MAXGCONSTRDOUBLE
                 )
             );
             p_test_0->push_back(
-                std::make_shared<GDoubleObject>(
-                    uniform_real_distribution(
-                        m_gr
-                        , std::uniform_real_distribution<
-                            double>::param_type(MINGDOUBLE, MAXGDOUBLE)
-                    )
-                )
+                std::make_shared<GDoubleObject>(uniform_real_distribution(
+                    m_gr,
+                    std::uniform_real_distribution<double>::param_type(MINGDOUBLE, MAXGDOUBLE)
+                ))
             );
-            p_test_0->push_back(std::make_shared<GDoubleCollection>(NGDOUBLECOLL, MINGDOUBLECOLL, MAXGDOUBLECOLL));
+            p_test_0->push_back(
+                std::make_shared<GDoubleCollection>(NGDOUBLECOLL, MINGDOUBLECOLL, MAXGDOUBLECOLL)
+            );
         }
 
         // Attach a few other parameter types
@@ -2593,38 +2183,32 @@ GParameterSet::specificTestsNoFailureExpected_GUnitTests_()
         {
             // Test random initialization
             // Create a GParameterSet object as a clone of p_test_0 for further usage
-            std::shared_ptr<GParameterSet> p_test = p_test_0->clone<
-                GParameterSet>();
+            std::shared_ptr<GParameterSet> p_test = p_test_0->clone<GParameterSet>();
 
-            CHECK_NOTHROW(
-                p_test->randomInit(activityMode::ALLPARAMETERS));
+            CHECK_NOTHROW(p_test->randomInit(activityMode::ALLPARAMETERS));
 
             bool objects_equal = false;
-            try
-            {
+            try {
                 p_test->compare(
-                    *p_test_0
-                    , Gem::Common::expectation::INEQUALITY
-                    , Gem::Common::CE_DEF_SIMILARITY_DIFFERENCE
+                    *p_test_0,
+                    Gem::Common::expectation::INEQUALITY,
+                    Gem::Common::CE_DEF_SIMILARITY_DIFFERENCE
                 );
             }
-            catch (const g_expectation_violation &)
-            {
+            catch(const g_expectation_violation &) {
                 objects_equal = true;
             }
 
-            CHECK(false==objects_equal);
+            CHECK(false == objects_equal);
         }
 
         //-----------------------------------------------------------------
         {
             // Test initialization of all fp parameters with a fixed value
             double d = FPFIXEDVALINITMIN;
-            while (true)
-            {
+            while(true) {
                 // Create a GParameterSet object as a clone of p_test_0 for further usage
-                std::shared_ptr<GParameterSet> p_test = p_test_0->clone<
-                    GParameterSet>();
+                std::shared_ptr<GParameterSet> p_test = p_test_0->clone<GParameterSet>();
 
                 // Initialize all fp-values with 0.
                 p_test->fixedValueInit<double>(d, activityMode::ALLPARAMETERS);
@@ -2634,26 +2218,20 @@ GParameterSet::specificTestsNoFailureExpected_GUnitTests_()
 
                 // Cross-check
                 std::size_t counter = 0;
-                for (std::size_t i = 0; i < FPLOOPCOUNT; i++)
-                {
-                    CHECK(
-                        p_test->at<GConstrainedDoubleObject>(counter)->value()
-                        == d);
+                for(std::size_t i = 0; i < FPLOOPCOUNT; i++) {
+                    CHECK(p_test->at<GConstrainedDoubleObject>(counter)->value() == d);
                     counter++;
-                    CHECK(
-                        p_test->at<GDoubleObject>(counter)->value() == d);
+                    CHECK(p_test->at<GDoubleObject>(counter)->value() == d);
                     counter++;
                     std::shared_ptr<GDoubleCollection> p_gdc;
-                    CHECK_NOTHROW(
-                        p_gdc = p_test->at<GDoubleCollection>(counter));
-                    for (std::size_t gdc_cnt = 0; gdc_cnt < NGDOUBLECOLL;
-                         gdc_cnt++)
-                    {
-                        INFO("\n"
-                            << "p_gdc->at(gdc_cnt) = " << p_gdc->at(gdc_cnt) <<
+                    CHECK_NOTHROW(p_gdc = p_test->at<GDoubleCollection>(counter));
+                    for(std::size_t gdc_cnt = 0; gdc_cnt < NGDOUBLECOLL; gdc_cnt++) {
+                        INFO(
                             "\n"
+                            << "p_gdc->at(gdc_cnt) = " << p_gdc->at(gdc_cnt) << "\n"
                             << "expected " << d << "\n"
-                            << "iteration = " << gdc_cnt << "\n");
+                            << "iteration = " << gdc_cnt << "\n"
+                        );
                         CHECK(p_gdc->at(gdc_cnt) == d);
                     }
                     counter++;
@@ -2662,24 +2240,20 @@ GParameterSet::specificTestsNoFailureExpected_GUnitTests_()
                 // The int32 parameter should have stayed the same
                 std::shared_ptr<GConstrainedInt32Object> p_int32_0;
                 std::shared_ptr<GConstrainedInt32Object> p_int32;
-                CHECK_NOTHROW(
-                    p_int32_0 = p_test_0->at<GConstrainedInt32Object>(counter));
-                CHECK_NOTHROW(
-                    p_int32 = p_test->at<GConstrainedInt32Object>(counter));
+                CHECK_NOTHROW(p_int32_0 = p_test_0->at<GConstrainedInt32Object>(counter));
+                CHECK_NOTHROW(p_int32 = p_test->at<GConstrainedInt32Object>(counter));
                 CHECK(*p_int32_0 == *p_int32);
                 counter++;
 
                 // Likewise, the boolean parameter should have stayed the same
                 std::shared_ptr<GBooleanObject> p_boolean_orig;
                 std::shared_ptr<GBooleanObject> p_boolean_cloned;
-                CHECK_NOTHROW(
-                    p_boolean_orig = p_test_0->at<GBooleanObject>(counter));
-                CHECK_NOTHROW(
-                    p_boolean_cloned = p_test->at<GBooleanObject>(counter));
+                CHECK_NOTHROW(p_boolean_orig = p_test_0->at<GBooleanObject>(counter));
+                CHECK_NOTHROW(p_boolean_cloned = p_test->at<GBooleanObject>(counter));
                 CHECK(*p_boolean_orig == *p_boolean_cloned);
                 counter++;
 
-                if ((d += 1.) >= FPFIXEDVALINITMAX) // NOLINT(bugprone-assignment-in-if-condition)
+                if((d += 1.) >= FPFIXEDVALINITMAX) // NOLINT(bugprone-assignment-in-if-condition)
                     break;
             }
         }
@@ -2689,52 +2263,44 @@ GParameterSet::specificTestsNoFailureExpected_GUnitTests_()
         {
             // Test multiplication of all fp parameters with a fixed value
             double d = -3.;
-            while (true)
-            {
+            while(true) {
                 // Create a GParameterSet object as a clone of p_test_0 for further usage
-                std::shared_ptr<GParameterSet> p_test = p_test_0->clone<
-                    GParameterSet>();
+                std::shared_ptr<GParameterSet> p_test = p_test_0->clone<GParameterSet>();
 
                 // Initialize all fp-values with FPFIXEDVALINITMAX
                 CHECK_NOTHROW(
-                    p_test->fixedValueInit<double>(FPFIXEDVALINITMAX,
-                        activityMode::ALLPARAMETERS));
+                    p_test->fixedValueInit<double>(FPFIXEDVALINITMAX, activityMode::ALLPARAMETERS)
+                );
 
                 // Multiply this fixed value by d
-                CHECK_NOTHROW(
-                    p_test->multiplyBy<double>(d, activityMode::ALLPARAMETERS));
+                CHECK_NOTHROW(p_test->multiplyBy<double>(d, activityMode::ALLPARAMETERS));
 
                 // Make sure the dirty flag is set
                 CHECK(p_test->is_due_for_processing() == true);
 
                 // Cross-check
                 std::size_t counter = 0;
-                for (std::size_t i = 0; i < FPLOOPCOUNT; i++)
-                {
+                for(std::size_t i = 0; i < FPLOOPCOUNT; i++) {
                     // A constrained value does not have to assume the value d*FPFIXEDVALINITMAX,
                     // but needs to stay within its boundaries
                     CHECK(
-                        p_test->at<GConstrainedDoubleObject>(counter)->value()
-                        >= MINGCONSTRDOUBLE);
+                        p_test->at<GConstrainedDoubleObject>(counter)->value() >= MINGCONSTRDOUBLE
+                    );
                     CHECK(
-                        p_test->at<GConstrainedDoubleObject>(counter)->value()
-                        <= MAXGCONSTRDOUBLE);
+                        p_test->at<GConstrainedDoubleObject>(counter)->value() <= MAXGCONSTRDOUBLE
+                    );
                     counter++;
-                    CHECK(
-                        p_test->at<GDoubleObject>(counter)->value() == d *
-                        FPFIXEDVALINITMAX);
+                    CHECK(p_test->at<GDoubleObject>(counter)->value() == d * FPFIXEDVALINITMAX);
                     counter++;
                     std::shared_ptr<GDoubleCollection> p_gdc;
-                    CHECK_NOTHROW(
-                        p_gdc = p_test->at<GDoubleCollection>(counter));
-                    for (std::size_t gdc_cnt = 0; gdc_cnt < NGDOUBLECOLL;
-                         gdc_cnt++)
-                    {
-                        INFO("\n"
-                            << "p_gdc->at(gdc_cnt) = " << p_gdc->at(gdc_cnt) <<
+                    CHECK_NOTHROW(p_gdc = p_test->at<GDoubleCollection>(counter));
+                    for(std::size_t gdc_cnt = 0; gdc_cnt < NGDOUBLECOLL; gdc_cnt++) {
+                        INFO(
                             "\n"
+                            << "p_gdc->at(gdc_cnt) = " << p_gdc->at(gdc_cnt) << "\n"
                             << "expected " << d * FPFIXEDVALINITMAX << "\n"
-                            << "iteration = " << gdc_cnt << "\n");
+                            << "iteration = " << gdc_cnt << "\n"
+                        );
                         CHECK(p_gdc->at(gdc_cnt) == d * FPFIXEDVALINITMAX);
                     }
                     counter++;
@@ -2743,24 +2309,20 @@ GParameterSet::specificTestsNoFailureExpected_GUnitTests_()
                 // The int32 parameter should have stayed the same
                 std::shared_ptr<GConstrainedInt32Object> p_int32_0;
                 std::shared_ptr<GConstrainedInt32Object> p_int32;
-                CHECK_NOTHROW(
-                    p_int32_0 = p_test_0->at<GConstrainedInt32Object>(counter));
-                CHECK_NOTHROW(
-                    p_int32 = p_test->at<GConstrainedInt32Object>(counter));
+                CHECK_NOTHROW(p_int32_0 = p_test_0->at<GConstrainedInt32Object>(counter));
+                CHECK_NOTHROW(p_int32 = p_test->at<GConstrainedInt32Object>(counter));
                 CHECK(*p_int32_0 == *p_int32);
                 counter++;
 
                 // Likewise, the boolean parameter should have stayed the same
                 std::shared_ptr<GBooleanObject> p_boolean_orig;
                 std::shared_ptr<GBooleanObject> p_boolean_cloned;
-                CHECK_NOTHROW(
-                    p_boolean_orig = p_test_0->at<GBooleanObject>(counter));
-                CHECK_NOTHROW(
-                    p_boolean_cloned = p_test->at<GBooleanObject>(counter));
+                CHECK_NOTHROW(p_boolean_orig = p_test_0->at<GBooleanObject>(counter));
+                CHECK_NOTHROW(p_boolean_cloned = p_test->at<GBooleanObject>(counter));
                 CHECK(*p_boolean_orig == *p_boolean_cloned);
                 counter++;
 
-                if ((d += 1.) >= 3.) // NOLINT(bugprone-assignment-in-if-condition)
+                if((d += 1.) >= 3.) // NOLINT(bugprone-assignment-in-if-condition)
                     break;
             }
         }
@@ -2770,45 +2332,42 @@ GParameterSet::specificTestsNoFailureExpected_GUnitTests_()
         {
             // Test that fpMultiplyByRandom(min,max) changes every single parameter
             // Create a GParameterSet object as a clone of p_test_0 for further usage
-            std::shared_ptr<GParameterSet> p_test = p_test_0->clone<
-                GParameterSet>();
+            std::shared_ptr<GParameterSet> p_test = p_test_0->clone<GParameterSet>();
 
             // Multiply each floating point value with a constrained random value
-            CHECK_NOTHROW(
-                p_test->multiplyByRandom<double>(FPMULTIPLYBYRANDMIN,
-                    FPMULTIPLYBYRANDMAX, activityMode::
-                    ALLPARAMETERS));
+            CHECK_NOTHROW(p_test->multiplyByRandom<double>(
+                FPMULTIPLYBYRANDMIN,
+                FPMULTIPLYBYRANDMAX,
+                activityMode::ALLPARAMETERS
+            ));
 
             // Make sure the dirty flag is set
             CHECK(p_test->is_due_for_processing() == true);
 
             // Cross-check
             std::size_t counter = 0;
-            for (std::size_t i = 0; i < FPLOOPCOUNT; i++)
-            {
+            for(std::size_t i = 0; i < FPLOOPCOUNT; i++) {
                 CHECK(
                     p_test->at<GConstrainedDoubleObject>(counter)->value() !=
-                    p_test_0->at<GConstrainedDoubleObject>(counter)->value());
+                    p_test_0->at<GConstrainedDoubleObject>(counter)->value()
+                );
                 counter++;
                 CHECK(
-                    p_test->at<GDoubleObject>(counter)->value() != p_test_0->at<
-                    GDoubleObject>(counter)->value(
-                    ));
+                    p_test->at<GDoubleObject>(counter)->value() !=
+                    p_test_0->at<GDoubleObject>(counter)->value()
+                );
                 counter++;
                 std::shared_ptr<GDoubleCollection> p_gdc;
                 std::shared_ptr<GDoubleCollection> p_gdc_0;
-                CHECK_NOTHROW(
-                    p_gdc = p_test->at<GDoubleCollection>(counter));
-                CHECK_NOTHROW(
-                    p_gdc_0 = p_test_0->at<GDoubleCollection>(counter));
-                for (std::size_t gdc_cnt = 0; gdc_cnt < NGDOUBLECOLL; gdc_cnt
-                     ++)
-                {
-                    INFO("\n"
-                        << "p_gdc->at(gdc_cnt) = " << p_gdc->at(gdc_cnt) << "\n"
-                        << "p_gdc_0->at(gdc_cnt) = " << p_gdc_0->at(gdc_cnt) <<
+                CHECK_NOTHROW(p_gdc = p_test->at<GDoubleCollection>(counter));
+                CHECK_NOTHROW(p_gdc_0 = p_test_0->at<GDoubleCollection>(counter));
+                for(std::size_t gdc_cnt = 0; gdc_cnt < NGDOUBLECOLL; gdc_cnt++) {
+                    INFO(
                         "\n"
-                        << "iteration = " << gdc_cnt << "\n");
+                        << "p_gdc->at(gdc_cnt) = " << p_gdc->at(gdc_cnt) << "\n"
+                        << "p_gdc_0->at(gdc_cnt) = " << p_gdc_0->at(gdc_cnt) << "\n"
+                        << "iteration = " << gdc_cnt << "\n"
+                    );
                     CHECK(p_gdc->at(gdc_cnt) != p_gdc_0->at(gdc_cnt));
                 }
                 counter++;
@@ -2817,20 +2376,16 @@ GParameterSet::specificTestsNoFailureExpected_GUnitTests_()
             // The int32 parameter should have stayed the same
             std::shared_ptr<GConstrainedInt32Object> p_int32_0;
             std::shared_ptr<GConstrainedInt32Object> p_int32;
-            CHECK_NOTHROW(
-                p_int32_0 = p_test_0->at<GConstrainedInt32Object>(counter));
-            CHECK_NOTHROW(
-                p_int32 = p_test->at<GConstrainedInt32Object>(counter));
+            CHECK_NOTHROW(p_int32_0 = p_test_0->at<GConstrainedInt32Object>(counter));
+            CHECK_NOTHROW(p_int32 = p_test->at<GConstrainedInt32Object>(counter));
             CHECK(*p_int32_0 == *p_int32);
             counter++;
 
             // Likewise, the boolean parameter should have stayed the same
             std::shared_ptr<GBooleanObject> p_boolean_orig;
             std::shared_ptr<GBooleanObject> p_boolean_cloned;
-            CHECK_NOTHROW(
-                p_boolean_orig = p_test_0->at<GBooleanObject>(counter));
-            CHECK_NOTHROW(
-                p_boolean_cloned = p_test->at<GBooleanObject>(counter));
+            CHECK_NOTHROW(p_boolean_orig = p_test_0->at<GBooleanObject>(counter));
+            CHECK_NOTHROW(p_boolean_cloned = p_test->at<GBooleanObject>(counter));
             CHECK(*p_boolean_orig == *p_boolean_cloned);
             counter++;
         }
@@ -2840,43 +2395,38 @@ GParameterSet::specificTestsNoFailureExpected_GUnitTests_()
         {
             // Test that fpMultiplyByRandom() changes every single parameter
             // Create a GParameterSet object as a clone of p_test_0 for further usage
-            std::shared_ptr<GParameterSet> p_test = p_test_0->clone<
-                GParameterSet>();
+            std::shared_ptr<GParameterSet> p_test = p_test_0->clone<GParameterSet>();
 
             // Multiply each floating point value with a constrained random value
-            CHECK_NOTHROW(
-                p_test->multiplyByRandom<double>(activityMode::ALLPARAMETERS));
+            CHECK_NOTHROW(p_test->multiplyByRandom<double>(activityMode::ALLPARAMETERS));
 
             // Make sure the dirty flag is set
             CHECK(p_test->is_due_for_processing() == true);
 
             // Cross-check
             std::size_t counter = 0;
-            for (std::size_t i = 0; i < FPLOOPCOUNT; i++)
-            {
+            for(std::size_t i = 0; i < FPLOOPCOUNT; i++) {
                 CHECK(
                     p_test->at<GConstrainedDoubleObject>(counter)->value() !=
-                    p_test_0->at<GConstrainedDoubleObject>(counter)->value());
+                    p_test_0->at<GConstrainedDoubleObject>(counter)->value()
+                );
                 counter++;
                 CHECK(
-                    p_test->at<GDoubleObject>(counter)->value() != p_test_0->at<
-                    GDoubleObject>(counter)->value(
-                    ));
+                    p_test->at<GDoubleObject>(counter)->value() !=
+                    p_test_0->at<GDoubleObject>(counter)->value()
+                );
                 counter++;
                 std::shared_ptr<GDoubleCollection> p_gdc;
                 std::shared_ptr<GDoubleCollection> p_gdc_0;
-                CHECK_NOTHROW(
-                    p_gdc = p_test->at<GDoubleCollection>(counter));
-                CHECK_NOTHROW(
-                    p_gdc_0 = p_test_0->at<GDoubleCollection>(counter));
-                for (std::size_t gdc_cnt = 0; gdc_cnt < NGDOUBLECOLL; gdc_cnt
-                     ++)
-                {
-                    INFO("\n"
-                        << "p_gdc->at(gdc_cnt) = " << p_gdc->at(gdc_cnt) << "\n"
-                        << "p_gdc_0->at(gdc_cnt) = " << p_gdc_0->at(gdc_cnt) <<
+                CHECK_NOTHROW(p_gdc = p_test->at<GDoubleCollection>(counter));
+                CHECK_NOTHROW(p_gdc_0 = p_test_0->at<GDoubleCollection>(counter));
+                for(std::size_t gdc_cnt = 0; gdc_cnt < NGDOUBLECOLL; gdc_cnt++) {
+                    INFO(
                         "\n"
-                        << "iteration = " << gdc_cnt << "\n");
+                        << "p_gdc->at(gdc_cnt) = " << p_gdc->at(gdc_cnt) << "\n"
+                        << "p_gdc_0->at(gdc_cnt) = " << p_gdc_0->at(gdc_cnt) << "\n"
+                        << "iteration = " << gdc_cnt << "\n"
+                    );
                     CHECK(p_gdc->at(gdc_cnt) != p_gdc_0->at(gdc_cnt));
                 }
                 counter++;
@@ -2885,20 +2435,16 @@ GParameterSet::specificTestsNoFailureExpected_GUnitTests_()
             // The int32 parameter should have stayed the same
             std::shared_ptr<GConstrainedInt32Object> p_int32_0;
             std::shared_ptr<GConstrainedInt32Object> p_int32;
-            CHECK_NOTHROW(
-                p_int32_0 = p_test_0->at<GConstrainedInt32Object>(counter));
-            CHECK_NOTHROW(
-                p_int32 = p_test->at<GConstrainedInt32Object>(counter));
+            CHECK_NOTHROW(p_int32_0 = p_test_0->at<GConstrainedInt32Object>(counter));
+            CHECK_NOTHROW(p_int32 = p_test->at<GConstrainedInt32Object>(counter));
             CHECK(*p_int32_0 == *p_int32);
             counter++;
 
             // Likewise, the boolean parameter should have stayed the same
             std::shared_ptr<GBooleanObject> p_boolean_orig;
             std::shared_ptr<GBooleanObject> p_boolean_cloned;
-            CHECK_NOTHROW(
-                p_boolean_orig = p_test_0->at<GBooleanObject>(counter));
-            CHECK_NOTHROW(
-                p_boolean_cloned = p_test->at<GBooleanObject>(counter));
+            CHECK_NOTHROW(p_boolean_orig = p_test_0->at<GBooleanObject>(counter));
+            CHECK_NOTHROW(p_boolean_cloned = p_test->at<GBooleanObject>(counter));
             CHECK(*p_boolean_orig == *p_boolean_cloned);
             counter++;
         }
@@ -2908,56 +2454,41 @@ GParameterSet::specificTestsNoFailureExpected_GUnitTests_()
         {
             // Check adding of individuals
             // Create two GParameterSet objects as a clone of p_test_0 for further usage
-            std::shared_ptr<GParameterSet> p_test = p_test_0->clone<
-                GParameterSet>();
-            std::shared_ptr<GParameterSet> p_test_fixed = p_test_0->clone<
-                GParameterSet>();
+            std::shared_ptr<GParameterSet> p_test = p_test_0->clone<GParameterSet>();
+            std::shared_ptr<GParameterSet> p_test_fixed = p_test_0->clone<GParameterSet>();
 
             // Initialize all fp-values of the "add" individual with a fixed value
-            CHECK_NOTHROW(
-                p_test_fixed->fixedValueInit<double>(FPADD, activityMode::
-                    ALLPARAMETERS));
+            CHECK_NOTHROW(p_test_fixed->fixedValueInit<double>(FPADD, activityMode::ALLPARAMETERS));
 
             // Add p_test_fixed to p_test
-            CHECK_NOTHROW(
-                p_test->add<double>(p_test_fixed, activityMode::ALLPARAMETERS));
+            CHECK_NOTHROW(p_test->add<double>(p_test_fixed, activityMode::ALLPARAMETERS));
 
             // Check the results
             std::size_t counter = 0;
-            for (std::size_t i = 0; i < FPLOOPCOUNT; i++)
-            {
+            for(std::size_t i = 0; i < FPLOOPCOUNT; i++) {
                 // A constrained value does not have to assume the value value()+FPADD
                 // but needs to stay within its boundaries
-                CHECK(
-                    p_test->at<GConstrainedDoubleObject>(counter)->value() >=
-                    MINGCONSTRDOUBLE);
-                CHECK(
-                    p_test->at<GConstrainedDoubleObject>(counter)->value() <=
-                    MAXGCONSTRDOUBLE);
+                CHECK(p_test->at<GConstrainedDoubleObject>(counter)->value() >= MINGCONSTRDOUBLE);
+                CHECK(p_test->at<GConstrainedDoubleObject>(counter)->value() <= MAXGCONSTRDOUBLE);
                 counter++;
                 CHECK(
-                    p_test->at<GDoubleObject>(counter)->value() == p_test_0->at<
-                    GDoubleObject>(counter)->value()
-                    + FPADD);
+                    p_test->at<GDoubleObject>(counter)->value() ==
+                    p_test_0->at<GDoubleObject>(counter)->value() + FPADD
+                );
                 counter++;
                 std::shared_ptr<GDoubleCollection> p_gdc;
                 std::shared_ptr<GDoubleCollection> p_gdc_0;
-                CHECK_NOTHROW(
-                    p_gdc = p_test->at<GDoubleCollection>(counter));
-                CHECK_NOTHROW(
-                    p_gdc_0 = p_test_0->at<GDoubleCollection>(counter));
-                for (std::size_t gdc_cnt = 0; gdc_cnt < NGDOUBLECOLL; gdc_cnt
-                     ++)
-                {
-                    INFO("\n"
-                        << "p_gdc->at(gdc_cnt) = " <<
-                        p_gdc->at(gdc_cnt) << "\n"
-                        << "p_gdc_0->at(gdc_cnt) = " <<
-                        p_gdc_0->at(gdc_cnt) << "\n"
+                CHECK_NOTHROW(p_gdc = p_test->at<GDoubleCollection>(counter));
+                CHECK_NOTHROW(p_gdc_0 = p_test_0->at<GDoubleCollection>(counter));
+                for(std::size_t gdc_cnt = 0; gdc_cnt < NGDOUBLECOLL; gdc_cnt++) {
+                    INFO(
+                        "\n"
+                        << "p_gdc->at(gdc_cnt) = " << p_gdc->at(gdc_cnt) << "\n"
+                        << "p_gdc_0->at(gdc_cnt) = " << p_gdc_0->at(gdc_cnt) << "\n"
                         << "FPADD = " << FPADD
-                        << "p_gdc_0->at(gdc_cnt) + FPADD = " <<
-                        p_gdc_0->at(gdc_cnt) + FPADD << "\n"
-                        << "iteration = " << gdc_cnt << "\n");
+                        << "p_gdc_0->at(gdc_cnt) + FPADD = " << p_gdc_0->at(gdc_cnt) + FPADD << "\n"
+                        << "iteration = " << gdc_cnt << "\n"
+                    );
                     CHECK(p_gdc->at(gdc_cnt) == p_gdc_0->at(gdc_cnt) + FPADD);
                 }
                 counter++;
@@ -2966,20 +2497,16 @@ GParameterSet::specificTestsNoFailureExpected_GUnitTests_()
             // The int32 parameter should have stayed the same
             std::shared_ptr<GConstrainedInt32Object> p_int32_0;
             std::shared_ptr<GConstrainedInt32Object> p_int32;
-            CHECK_NOTHROW(
-                p_int32_0 = p_test_0->at<GConstrainedInt32Object>(counter));
-            CHECK_NOTHROW(
-                p_int32 = p_test->at<GConstrainedInt32Object>(counter));
+            CHECK_NOTHROW(p_int32_0 = p_test_0->at<GConstrainedInt32Object>(counter));
+            CHECK_NOTHROW(p_int32 = p_test->at<GConstrainedInt32Object>(counter));
             CHECK(*p_int32_0 == *p_int32);
             counter++;
 
             // Likewise, the boolean parameter should have stayed the same
             std::shared_ptr<GBooleanObject> p_boolean_orig;
             std::shared_ptr<GBooleanObject> p_boolean_cloned;
-            CHECK_NOTHROW(
-                p_boolean_orig = p_test_0->at<GBooleanObject>(counter));
-            CHECK_NOTHROW(
-                p_boolean_cloned = p_test->at<GBooleanObject>(counter));
+            CHECK_NOTHROW(p_boolean_orig = p_test_0->at<GBooleanObject>(counter));
+            CHECK_NOTHROW(p_boolean_cloned = p_test->at<GBooleanObject>(counter));
             CHECK(*p_boolean_orig == *p_boolean_cloned);
             counter++;
         }
@@ -2991,55 +2518,43 @@ GParameterSet::specificTestsNoFailureExpected_GUnitTests_()
 
             // Check subtraction of individuals
             // Create two GParameterSet objects as a clone of p_test_0 for further usage
-            std::shared_ptr<GParameterSet> p_test = p_test_0->clone<
-                GParameterSet>();
-            std::shared_ptr<GParameterSet> p_test_fixed = p_test_0->clone<
-                GParameterSet>();
+            std::shared_ptr<GParameterSet> p_test = p_test_0->clone<GParameterSet>();
+            std::shared_ptr<GParameterSet> p_test_fixed = p_test_0->clone<GParameterSet>();
 
             // Initialize all fp-values of the "add" individual with a fixed valie
             CHECK_NOTHROW(
-                p_test_fixed->fixedValueInit<double>(FPSUBTRACT, activityMode::
-                    ALLPARAMETERS));
+                p_test_fixed->fixedValueInit<double>(FPSUBTRACT, activityMode::ALLPARAMETERS)
+            );
 
             // Add p_test_fixed to p_test
-            CHECK_NOTHROW(
-                p_test->subtract<double>(p_test_fixed, activityMode::
-                    ALLPARAMETERS));
+            CHECK_NOTHROW(p_test->subtract<double>(p_test_fixed, activityMode::ALLPARAMETERS));
 
             // Check the results
             std::size_t counter = 0;
-            for (std::size_t i = 0; i < FPLOOPCOUNT; i++)
-            {
+            for(std::size_t i = 0; i < FPLOOPCOUNT; i++) {
                 // A constrained value does not have to assume the value value()-FPSUBTRACT
                 // but needs to stay within its boundaries
-                CHECK(
-                    p_test->at<GConstrainedDoubleObject>(counter)->value() >=
-                    MINGCONSTRDOUBLE);
-                CHECK(
-                    p_test->at<GConstrainedDoubleObject>(counter)->value() <=
-                    MAXGCONSTRDOUBLE);
+                CHECK(p_test->at<GConstrainedDoubleObject>(counter)->value() >= MINGCONSTRDOUBLE);
+                CHECK(p_test->at<GConstrainedDoubleObject>(counter)->value() <= MAXGCONSTRDOUBLE);
                 counter++;
-                CHECK(p_test->at<GDoubleObject>(counter)->value() ==
-                    p_test_0->at<GDoubleObject>(counter)->value() - FPSUBTRACT);
+                CHECK(
+                    p_test->at<GDoubleObject>(counter)->value() ==
+                    p_test_0->at<GDoubleObject>(counter)->value() - FPSUBTRACT
+                );
                 counter++;
                 std::shared_ptr<GDoubleCollection> p_gdc;
                 std::shared_ptr<GDoubleCollection> p_gdc_0;
-                CHECK_NOTHROW(
-                    p_gdc = p_test->at<GDoubleCollection>(counter));
-                CHECK_NOTHROW(
-                    p_gdc_0 = p_test_0->at<GDoubleCollection>(counter));
-                for (std::size_t gdc_cnt = 0; gdc_cnt < NGDOUBLECOLL; gdc_cnt
-                     ++)
-                {
-                    INFO("\n"
-                        << "p_gdc->at(gdc_cnt) = " <<
-                        p_gdc->at(gdc_cnt) << "\n"
-                        << "p_gdc_0->at(gdc_cnt) = " <<
-                        p_gdc_0->at(gdc_cnt) << "\n"
-                        << "FPSUBTRACT = " << FPSUBTRACT
-                        << "p_gdc_0->at(gdc_cnt) - FPSUBTRACT = " <<
-                        p_gdc_0->at(gdc_cnt) - FPSUBTRACT << "\n"
-                        << "iteration = " << gdc_cnt << "\n");
+                CHECK_NOTHROW(p_gdc = p_test->at<GDoubleCollection>(counter));
+                CHECK_NOTHROW(p_gdc_0 = p_test_0->at<GDoubleCollection>(counter));
+                for(std::size_t gdc_cnt = 0; gdc_cnt < NGDOUBLECOLL; gdc_cnt++) {
+                    INFO(
+                        "\n"
+                        << "p_gdc->at(gdc_cnt) = " << p_gdc->at(gdc_cnt) << "\n"
+                        << "p_gdc_0->at(gdc_cnt) = " << p_gdc_0->at(gdc_cnt) << "\n"
+                        << "FPSUBTRACT = " << FPSUBTRACT << "p_gdc_0->at(gdc_cnt) - FPSUBTRACT = "
+                        << p_gdc_0->at(gdc_cnt) - FPSUBTRACT << "\n"
+                        << "iteration = " << gdc_cnt << "\n"
+                    );
                     CHECK(p_gdc->at(gdc_cnt) == p_gdc_0->at(gdc_cnt) - FPSUBTRACT);
                 }
                 counter++;
@@ -3048,20 +2563,16 @@ GParameterSet::specificTestsNoFailureExpected_GUnitTests_()
             // The int32 parameter should have stayed the same
             std::shared_ptr<GConstrainedInt32Object> p_int32_0;
             std::shared_ptr<GConstrainedInt32Object> p_int32;
-            CHECK_NOTHROW(
-                p_int32_0 = p_test_0->at<GConstrainedInt32Object>(counter));
-            CHECK_NOTHROW(
-                p_int32 = p_test->at<GConstrainedInt32Object>(counter));
+            CHECK_NOTHROW(p_int32_0 = p_test_0->at<GConstrainedInt32Object>(counter));
+            CHECK_NOTHROW(p_int32 = p_test->at<GConstrainedInt32Object>(counter));
             CHECK(*p_int32_0 == *p_int32);
             counter++;
 
             // Likewise, the boolean parameter should have stayed the same
             std::shared_ptr<GBooleanObject> p_boolean_orig;
             std::shared_ptr<GBooleanObject> p_boolean_cloned;
-            CHECK_NOTHROW(
-                p_boolean_orig = p_test_0->at<GBooleanObject>(counter));
-            CHECK_NOTHROW(
-                p_boolean_cloned = p_test->at<GBooleanObject>(counter));
+            CHECK_NOTHROW(p_boolean_orig = p_test_0->at<GBooleanObject>(counter));
+            CHECK_NOTHROW(p_boolean_cloned = p_test->at<GBooleanObject>(counter));
             CHECK(*p_boolean_orig == *p_boolean_cloned);
             counter++;
         }
@@ -3101,31 +2612,27 @@ GParameterSet::specificTestsNoFailureExpected_GUnitTests_()
         CHECK(p_test_0->empty());
 
         // Add some floating point parameters
-        for (std::size_t i = 0; i < FPLOOPCOUNT; i++)
-        {
-            std::shared_ptr<GConstrainedDoubleObject> gcdo_ptr = std::shared_ptr
-                <GConstrainedDoubleObject>(
-                    new GConstrainedDoubleObject(
-                        uniform_real_distribution(
-                            m_gr, std::uniform_real_distribution<
-                                double>::param_type(
-                                MINGCONSTRDOUBLE, MAXGCONSTRDOUBLE))
-                        , MINGCONSTRDOUBLE
-                        , MAXGCONSTRDOUBLE
-                    )
-                );
-            std::shared_ptr<GDoubleObject> gdo_ptr = std::shared_ptr<
-                GDoubleObject>(
-                new GDoubleObject(
+        for(std::size_t i = 0; i < FPLOOPCOUNT; i++) {
+            std::shared_ptr<GConstrainedDoubleObject> gcdo_ptr =
+                std::shared_ptr<GConstrainedDoubleObject>(new GConstrainedDoubleObject(
                     uniform_real_distribution(
-                        m_gr, std::uniform_real_distribution<
-                            double>::param_type(MINGDOUBLE, MAXGDOUBLE))
-                )
+                        m_gr,
+                        std::uniform_real_distribution<double>::param_type(
+                            MINGCONSTRDOUBLE,
+                            MAXGCONSTRDOUBLE
+                        )
+                    ),
+                    MINGCONSTRDOUBLE,
+                    MAXGCONSTRDOUBLE
+                ));
+            std::shared_ptr<GDoubleObject> gdo_ptr =
+                std::shared_ptr<GDoubleObject>(new GDoubleObject(uniform_real_distribution(
+                    m_gr,
+                    std::uniform_real_distribution<double>::param_type(MINGDOUBLE, MAXGDOUBLE)
+                )));
+            std::shared_ptr<GDoubleCollection> gdc_ptr = std::shared_ptr<GDoubleCollection>(
+                new GDoubleCollection(NGDOUBLECOLL, MINGDOUBLECOLL, MAXGDOUBLECOLL)
             );
-            std::shared_ptr<GDoubleCollection> gdc_ptr = std::shared_ptr<
-                GDoubleCollection>(
-                new GDoubleCollection(NGDOUBLECOLL, MINGDOUBLECOLL,
-                                      MAXGDOUBLECOLL));
 
             // Mark the last parameter type as inactive
             gdc_ptr->setAdaptionsInactive();
@@ -3137,69 +2644,61 @@ GParameterSet::specificTestsNoFailureExpected_GUnitTests_()
         }
 
         // Attach a few other parameter types
-        for (std::size_t i = 0; i < NINTBOOLOBJ; i++)
-        {
+        for(std::size_t i = 0; i < NINTBOOLOBJ; i++) {
             p_test_0->push_back(
                 std::shared_ptr<GConstrainedInt32Object>(
-                    new GConstrainedInt32Object(7, MINGINT, MAXGINT)));
-            p_test_0->push_back(
-                std::shared_ptr<GBooleanObject>(new GBooleanObject(true)));
+                    new GConstrainedInt32Object(7, MINGINT, MAXGINT)
+                )
+            );
+            p_test_0->push_back(std::shared_ptr<GBooleanObject>(new GBooleanObject(true)));
         }
 
         // Finally we add a tree structure
         std::shared_ptr<GParameterObjectCollection> poc_ptr =
-            std::shared_ptr<GParameterObjectCollection>(
-                new GParameterObjectCollection());
+            std::shared_ptr<GParameterObjectCollection>(new GParameterObjectCollection());
 
-        for (std::size_t i = 0; i < FPLOOPCOUNT; i++)
-        {
-            std::shared_ptr<GConstrainedDoubleObject> gcdo_ptr = std::shared_ptr
-                <GConstrainedDoubleObject>(
-                    new GConstrainedDoubleObject(
-                        uniform_real_distribution(
-                            m_gr, std::uniform_real_distribution<
-                                double>::param_type(
-                                MINGCONSTRDOUBLE, MAXGCONSTRDOUBLE))
-                        , MINGCONSTRDOUBLE
-                        , MAXGCONSTRDOUBLE
-                    )
-                );
-            std::shared_ptr<GDoubleObject> gdo_ptr = std::shared_ptr<
-                GDoubleObject>(
-                new GDoubleObject(
+        for(std::size_t i = 0; i < FPLOOPCOUNT; i++) {
+            std::shared_ptr<GConstrainedDoubleObject> gcdo_ptr =
+                std::shared_ptr<GConstrainedDoubleObject>(new GConstrainedDoubleObject(
                     uniform_real_distribution(
-                        m_gr, std::uniform_real_distribution<
-                            double>::param_type(MINGDOUBLE, MAXGDOUBLE))
-                )
-            );
-            std::shared_ptr<GConstrainedInt32ObjectCollection> gcioc_ptr
-                = std::shared_ptr<GConstrainedInt32ObjectCollection>(
+                        m_gr,
+                        std::uniform_real_distribution<double>::param_type(
+                            MINGCONSTRDOUBLE,
+                            MAXGCONSTRDOUBLE
+                        )
+                    ),
+                    MINGCONSTRDOUBLE,
+                    MAXGCONSTRDOUBLE
+                ));
+            std::shared_ptr<GDoubleObject> gdo_ptr =
+                std::shared_ptr<GDoubleObject>(new GDoubleObject(uniform_real_distribution(
+                    m_gr,
+                    std::uniform_real_distribution<double>::param_type(MINGDOUBLE, MAXGDOUBLE)
+                )));
+            std::shared_ptr<GConstrainedInt32ObjectCollection> gcioc_ptr =
+                std::shared_ptr<GConstrainedInt32ObjectCollection>(
                     new GConstrainedInt32ObjectCollection()
                 );
 
             std::shared_ptr<GParameterObjectCollection> sub_poc_ptr =
-                std::shared_ptr<GParameterObjectCollection>(
-                    new GParameterObjectCollection());
+                std::shared_ptr<GParameterObjectCollection>(new GParameterObjectCollection());
 
-            for (std::size_t ip = 0; ip < NINTCOLL; ip++)
-            {
-                std::shared_ptr<GConstrainedInt32Object> gci32o_ptr
-                    = std::shared_ptr<GConstrainedInt32Object>(
-                        new GConstrainedInt32Object(MINGINT, MAXGINT));
+            for(std::size_t ip = 0; ip < NINTCOLL; ip++) {
+                std::shared_ptr<GConstrainedInt32Object> gci32o_ptr =
+                    std::shared_ptr<GConstrainedInt32Object>(
+                        new GConstrainedInt32Object(MINGINT, MAXGINT)
+                    );
                 gci32o_ptr->setAdaptionsInactive();
                 // The parameter should not be modifiable now
 
                 sub_poc_ptr->push_back(gci32o_ptr);
             }
 
-            std::shared_ptr<GDoubleObject> gdo2_ptr = std::shared_ptr<
-                GDoubleObject>(
-                new GDoubleObject(
-                    uniform_real_distribution(
-                        m_gr, std::uniform_real_distribution<
-                            double>::param_type(MINGDOUBLE, MAXGDOUBLE))
-                )
-            );
+            std::shared_ptr<GDoubleObject> gdo2_ptr =
+                std::shared_ptr<GDoubleObject>(new GDoubleObject(uniform_real_distribution(
+                    m_gr,
+                    std::uniform_real_distribution<double>::param_type(MINGDOUBLE, MAXGDOUBLE)
+                )));
             gdo2_ptr->setAdaptionsInactive();
             sub_poc_ptr->push_back(gdo2_ptr);
 
@@ -3228,37 +2727,20 @@ GParameterSet::specificTestsNoFailureExpected_GUnitTests_()
         {
             // Test counting of parameters
             // Create a GParameterSet object as a clone of p_test_0 for further usage
-            std::shared_ptr<GParameterSet> p_test = p_test_0->clone<
-                GParameterSet>();
+            std::shared_ptr<GParameterSet> p_test = p_test_0->clone<GParameterSet>();
 
             // Count the number of parameters and compare with the expected number
+            CHECK(p_test->countParameters<double>(activityMode::ACTIVEONLY) == NDOUBLEACTIVE);
+            CHECK(p_test->countParameters<double>(activityMode::INACTIVEONLY) == NDOUBLEINACTIVE);
+            CHECK(p_test->countParameters<double>(activityMode::ALLPARAMETERS) == NDOUBLEALL);
+            CHECK(p_test->countParameters<std::int32_t>(activityMode::ACTIVEONLY) == NINTACTIVE);
             CHECK(
-                p_test->countParameters<double>(activityMode::ACTIVEONLY) ==
-                NDOUBLEACTIVE);
-            CHECK(
-                p_test->countParameters<double>(activityMode::INACTIVEONLY) ==
-                NDOUBLEINACTIVE);
-            CHECK(
-                p_test->countParameters<double>(activityMode::ALLPARAMETERS) ==
-                NDOUBLEALL);
-            CHECK(
-                p_test->countParameters<std::int32_t>(activityMode::ACTIVEONLY)
-                == NINTACTIVE);
-            CHECK(
-                p_test->countParameters<std::int32_t>(activityMode::INACTIVEONLY
-                ) == NINTINACTIVE);
-            CHECK(
-                p_test->countParameters<std::int32_t>(activityMode::
-                    ALLPARAMETERS) == NINTALL);
-            CHECK(
-                p_test->countParameters<bool>(activityMode::ACTIVEONLY) ==
-                NBOOLACTIVE);
-            CHECK(
-                p_test->countParameters<bool>(activityMode::INACTIVEONLY) ==
-                NBOOLINACTIVE);
-            CHECK(
-                p_test->countParameters<bool>(activityMode::ALLPARAMETERS) ==
-                NBOOLALL);
+                p_test->countParameters<std::int32_t>(activityMode::INACTIVEONLY) == NINTINACTIVE
+            );
+            CHECK(p_test->countParameters<std::int32_t>(activityMode::ALLPARAMETERS) == NINTALL);
+            CHECK(p_test->countParameters<bool>(activityMode::ACTIVEONLY) == NBOOLACTIVE);
+            CHECK(p_test->countParameters<bool>(activityMode::INACTIVEONLY) == NBOOLINACTIVE);
+            CHECK(p_test->countParameters<bool>(activityMode::ALLPARAMETERS) == NBOOLALL);
         }
 
         //-----------------------------------------------------------------
@@ -3266,14 +2748,11 @@ GParameterSet::specificTestsNoFailureExpected_GUnitTests_()
         {
             // Check that streamline(activityMode::INACTIVEONLY) yields unchanged results before and after randomInit(activityMode::ACTIVEONLY)
             // Create two GParameterSet objects as clones of p_test_0 for further usage
-            std::shared_ptr<GParameterSet> p_test_orig = p_test_0->clone<
-                GParameterSet>();
-            std::shared_ptr<GParameterSet> p_test_rand = p_test_0->clone<
-                GParameterSet>();
+            std::shared_ptr<GParameterSet> p_test_orig = p_test_0->clone<GParameterSet>();
+            std::shared_ptr<GParameterSet> p_test_rand = p_test_0->clone<GParameterSet>();
 
             // Randomly initialize active components of p_test2
-            CHECK_NOTHROW(
-                p_test_rand->randomInit(activityMode::ACTIVEONLY));
+            CHECK_NOTHROW(p_test_rand->randomInit(activityMode::ACTIVEONLY));
 
             std::vector<double> orig_d_inactive;
             std::vector<double> rand_d_inactive;
@@ -3286,23 +2765,23 @@ GParameterSet::specificTestsNoFailureExpected_GUnitTests_()
 
             // Extract the parameters
             CHECK_NOTHROW(
-                p_test_orig->streamline<double>(orig_d_inactive, activityMode::
-                    INACTIVEONLY));
+                p_test_orig->streamline<double>(orig_d_inactive, activityMode::INACTIVEONLY)
+            );
             CHECK_NOTHROW(
-                p_test_rand->streamline<double>(rand_d_inactive, activityMode::
-                    INACTIVEONLY));
+                p_test_rand->streamline<double>(rand_d_inactive, activityMode::INACTIVEONLY)
+            );
             CHECK_NOTHROW(
-                p_test_orig->streamline<std::int32_t>(orig_i_inactive,
-                    activityMode::INACTIVEONLY));
+                p_test_orig->streamline<std::int32_t>(orig_i_inactive, activityMode::INACTIVEONLY)
+            );
             CHECK_NOTHROW(
-                p_test_rand->streamline<std::int32_t>(rand_i_inactive,
-                    activityMode::INACTIVEONLY));
+                p_test_rand->streamline<std::int32_t>(rand_i_inactive, activityMode::INACTIVEONLY)
+            );
             CHECK_NOTHROW(
-                p_test_orig->streamline<bool>(orig_b_inactive, activityMode::
-                    INACTIVEONLY));
+                p_test_orig->streamline<bool>(orig_b_inactive, activityMode::INACTIVEONLY)
+            );
             CHECK_NOTHROW(
-                p_test_rand->streamline<bool>(rand_b_inactive, activityMode::
-                    INACTIVEONLY));
+                p_test_rand->streamline<bool>(rand_b_inactive, activityMode::INACTIVEONLY)
+            );
 
             // Check that the "inactive" vectors have the expected characteristics
             CHECK(orig_d_inactive.size() == NDOUBLEINACTIVE);
@@ -3319,14 +2798,11 @@ GParameterSet::specificTestsNoFailureExpected_GUnitTests_()
             // Check that streamline(activityMode::ACTIVEONLY) yields changed results after randomInit(activityMode::ACTIVEONLY)
             // Create a GParameterSet object as a clone of p_test_0 for further usage
             // Create two GParameterSet objects as clones of p_test_0 for further usage
-            std::shared_ptr<GParameterSet> p_test_orig = p_test_0->clone<
-                GParameterSet>();
-            std::shared_ptr<GParameterSet> p_test_rand = p_test_0->clone<
-                GParameterSet>();
+            std::shared_ptr<GParameterSet> p_test_orig = p_test_0->clone<GParameterSet>();
+            std::shared_ptr<GParameterSet> p_test_rand = p_test_0->clone<GParameterSet>();
 
             // Randomly initialize active components of p_test2
-            CHECK_NOTHROW(
-                p_test_rand->randomInit(activityMode::ACTIVEONLY));
+            CHECK_NOTHROW(p_test_rand->randomInit(activityMode::ACTIVEONLY));
 
             std::vector<double> orig_d_active;
             std::vector<double> rand_d_active;
@@ -3338,26 +2814,16 @@ GParameterSet::specificTestsNoFailureExpected_GUnitTests_()
             std::vector<bool> rand_b_active;
 
             // Extract the parameters
+            CHECK_NOTHROW(p_test_orig->streamline<double>(orig_d_active, activityMode::ACTIVEONLY));
+            CHECK_NOTHROW(p_test_rand->streamline<double>(rand_d_active, activityMode::ACTIVEONLY));
             CHECK_NOTHROW(
-                p_test_orig->streamline<double>(orig_d_active, activityMode::
-                    ACTIVEONLY));
+                p_test_orig->streamline<std::int32_t>(orig_i_active, activityMode::ACTIVEONLY)
+            );
             CHECK_NOTHROW(
-                p_test_rand->streamline<double>(rand_d_active, activityMode::
-                    ACTIVEONLY));
-            CHECK_NOTHROW(
-                p_test_orig->streamline<std::int32_t>(orig_i_active,
-                    activityMode::ACTIVEONLY))
-            ;
-            CHECK_NOTHROW(
-                p_test_rand->streamline<std::int32_t>(rand_i_active,
-                    activityMode::ACTIVEONLY))
-            ;
-            CHECK_NOTHROW(
-                p_test_orig->streamline<bool>(orig_b_active, activityMode::
-                    ACTIVEONLY));
-            CHECK_NOTHROW(
-                p_test_rand->streamline<bool>(rand_b_active, activityMode::
-                    ACTIVEONLY));
+                p_test_rand->streamline<std::int32_t>(rand_i_active, activityMode::ACTIVEONLY)
+            );
+            CHECK_NOTHROW(p_test_orig->streamline<bool>(orig_b_active, activityMode::ACTIVEONLY));
+            CHECK_NOTHROW(p_test_rand->streamline<bool>(rand_b_active, activityMode::ACTIVEONLY));
 
             // Check that the "active" vectors' contents indeed differ
             CHECK(orig_d_active.size() == NDOUBLEACTIVE);
@@ -3365,9 +2831,11 @@ GParameterSet::specificTestsNoFailureExpected_GUnitTests_()
             CHECK(orig_d_active != rand_d_active);
             CHECK(orig_i_active.size() == NINTACTIVE);
             CHECK(rand_i_active.size() == NINTACTIVE);
-            INFO("orig_i_active: " << Gem::Common::vecToString(orig_i_active) <<
-                "\n" << "rand_i_active: " <<
-                Gem::Common::vecToString(rand_i_active) << "\n");
+            INFO(
+                "orig_i_active: " << Gem::Common::vecToString(orig_i_active) << "\n"
+                                  << "rand_i_active: " << Gem::Common::vecToString(rand_i_active)
+                                  << "\n"
+            );
             CHECK(orig_i_active != rand_i_active);
             CHECK(orig_b_active.size() == NBOOLACTIVE);
             CHECK(rand_b_active.size() == NBOOLACTIVE);
@@ -3383,34 +2851,35 @@ GParameterSet::specificTestsNoFailureExpected_GUnitTests_()
 
     //---------------------------------------------------------------------
 
-#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
 
-
-	Gem::Common::condnotset("GParameterSet::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
-#endif /* GEM_TESTING */
+    Gem::Common::condnotset(
+        "GParameterSet::specificTestsNoFailureExpected_GUnitTests",
+        "GEM_TESTING"
+    );
+#endif                  /* GEM_TESTING */
 }
 
 /******************************************************************************/
 /**
      * Performs self tests that are expected to fail. This is needed for testing purposes
      */
-void
-GParameterSet::specificTestsFailuresExpected_GUnitTests_()
-{
+void GParameterSet::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 
     // Call the parent classes' functions
     GObject::specificTestsFailuresExpected_GUnitTests_();
-    Gem::Common::GPtrVectorT<GParameterBase,
-                             GObject>::specificTestsFailuresExpected_GUnitTests_();
+    Gem::Common::GPtrVectorT<GParameterBase, GObject>::specificTestsFailuresExpected_GUnitTests_();
 
     // no tests here yet
 
-#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
 
-
-	Gem::Common::condnotset("GParameterSet::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
-#endif /* GEM_TESTING */
+    Gem::Common::condnotset(
+        "GParameterSet::specificTestsFailuresExpected_GUnitTests",
+        "GEM_TESTING"
+    );
+#endif                  /* GEM_TESTING */
 }
 
 /******************************************************************************/

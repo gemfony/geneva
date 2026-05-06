@@ -40,11 +40,10 @@
 // Geneva headers go here
 #include "common/GExceptions.hpp"
 #include "common/GPlotDesigner.hpp"
+#include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GParameterSet.hpp"
 #include "geneva/G_OptimizationAlgorithm_Base.hpp"
-#include "geneva/GOptimizationEnums.hpp"
 #include "geneva/G_OptimizationAlgorithm_GradientDescent_PersonalityTraits.hpp"
-#include "geneva/G_OptimizationAlgorithm_Base.hpp"
 
 #ifdef GEM_TESTING
 
@@ -70,24 +69,20 @@ const double DEFAULTSTEPSIZE = 0.1;
  * networked execution for the evaluation step).
  */
 class GGradientDescent // NOLINT(cppcoreguidelines-special-member-functions)
-    :
-        public G_OptimizationAlgorithm_Base
-{
+  : public G_OptimizationAlgorithm_Base {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
-    template<typename Archive>
+    template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar
-        & make_nvp(
-            "G_OptimizationAlgorithm_Base"
-            , boost::serialization::base_object<G_OptimizationAlgorithm_Base>(*this))
-        & BOOST_SERIALIZATION_NVP(nStartingPoints_)
-        & BOOST_SERIALIZATION_NVP(nFPParmsFirst_)
-        & BOOST_SERIALIZATION_NVP(finiteStep_)
-        & BOOST_SERIALIZATION_NVP(stepSize_);
+        ar &make_nvp(
+            "G_OptimizationAlgorithm_Base",
+            boost::serialization::base_object<G_OptimizationAlgorithm_Base>(*this)
+        ) & BOOST_SERIALIZATION_NVP(nStartingPoints_) &
+            BOOST_SERIALIZATION_NVP(nFPParmsFirst_) & BOOST_SERIALIZATION_NVP(finiteStep_) &
+            BOOST_SERIALIZATION_NVP(stepSize_);
     }
 
     ///////////////////////////////////////////////////////////////////////
@@ -122,25 +117,25 @@ protected:
     // Virtual or overridden protected functions
 
     /** @brief Adds local configuration options to a GParserBuilder object */
-    G_API_GENEVA void addConfigurationOptions_(
-        Gem::Common::GParserBuilder &gpb
-    ) override;
+    G_API_GENEVA void addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) override;
 
     /** @brief Loads the data of another population */
     G_API_GENEVA void load_(const GObject *) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GGradientDescent>(
-        GGradientDescent const &
-        , GGradientDescent const &
-        , Gem::Common::GToken &
+        GGradientDescent const &,
+        GGradientDescent const &,
+        Gem::Common::GToken &
     );
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
     G_API_GENEVA void compare_(
         const GObject & // the other object
-        , const Gem::Common::expectation & // the expectation for this object, e.g. equality
-        , const double & // the limit for allowed deviations of floating point types
+        ,
+        const Gem::Common::expectation & // the expectation for this object, e.g. equality
+        ,
+        const double & // the limit for allowed deviations of floating point types
     ) const override;
 
     /** @brief Resets the settings of this population to what was configured when the optimize()-call was issued */
@@ -199,21 +194,23 @@ private:
     /***************************************************************************/
     // Data
 
-    std::size_t nStartingPoints_ = DEFAULTGDSTARTINGPOINTS; ///< The number of starting positions in the parameter space
+    std::size_t nStartingPoints_ =
+        DEFAULTGDSTARTINGPOINTS;    ///< The number of starting positions in the parameter space
     std::size_t nFPParmsFirst_ = 0; ///< The amount of floating point values in the first individual
 
-    double finiteStep_ = DEFAULTFINITESTEP; ///< The size of the incremental adaption of the feature vector
+    double finiteStep_ =
+        DEFAULTFINITESTEP; ///< The size of the incremental adaption of the feature vector
     double stepSize_ = DEFAULTSTEPSIZE; ///< A multiplicative factor for the adaption
-    long double stepRatio_ = (
-        DEFAULTSTEPSIZE / DEFAULTFINITESTEP
-    ); ///< The ratio of stepSize_ and finiteStep_. NOTE: long double; Will be recalculated in init()
+    long double stepRatio_ =
+        (DEFAULTSTEPSIZE /
+         DEFAULTFINITESTEP); ///< The ratio of stepSize_ and finiteStep_. NOTE: long double; Will be recalculated in init()
 
-    std::vector<double> dblLowerParameterBoundaries_
-        = std::vector<double>(); ///< Holds lower boundaries of double parameters; Will be extracted in init()
-    std::vector<double> dblUpperParameterBoundaries_
-        = std::vector<double>(); ///< Holds upper boundaries of double parameters; Will be extracted in init()
-    std::vector<double> adjustedFiniteStep_
-        = std::vector<double>(); ///< A step-size normalized to each parameter range; Will be recalculated in init()
+    std::vector<double> dblLowerParameterBoundaries_ = std::vector<
+        double>(); ///< Holds lower boundaries of double parameters; Will be extracted in init()
+    std::vector<double> dblUpperParameterBoundaries_ = std::vector<
+        double>(); ///< Holds upper boundaries of double parameters; Will be extracted in init()
+    std::vector<double> adjustedFiniteStep_ = std::vector<
+        double>(); ///< A step-size normalized to each parameter range; Will be recalculated in init()
 
     /** @brief Lets individuals know about their position in the population */
     void markIndividualPositions();
@@ -222,6 +219,5 @@ private:
 /******************************************************************************/
 
 } /* namespace Gem::Geneva */
-
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GGradientDescent) // NOLINT

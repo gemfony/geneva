@@ -29,12 +29,10 @@
 
 #include "geneva/GPersonalityTraits.hpp"
 
+namespace Gem::Geneva {
 
-namespace Gem::Geneva
-{
-
-	/******************************************************************************/
-	/**
+/******************************************************************************/
+/**
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *
@@ -42,102 +40,113 @@ namespace Gem::Geneva
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
-	void GPersonalityTraits::compare_(
-		const GObject &cp, const Gem::Common::expectation &e, const double &/*limit*/
-	) const {
-		using namespace Gem::Common;
+void GPersonalityTraits::compare_(
+    const GObject &cp,
+    const Gem::Common::expectation &e,
+    const double & /*limit*/
+) const {
+    using namespace Gem::Common;
 
-		// Check that we are dealing with a GPersonalityTraits reference independent of this object and convert the pointer
-		const GPersonalityTraits *p_load = Gem::Common::g_convert_and_compare<GObject, GPersonalityTraits>(cp, this);
+    // Check that we are dealing with a GPersonalityTraits reference independent of this object and convert the pointer
+    const GPersonalityTraits *p_load =
+        Gem::Common::g_convert_and_compare<GObject, GPersonalityTraits>(cp, this);
 
-		GToken token("GPersonalityTraits", e);
+    GToken token("GPersonalityTraits", e);
 
-		// Compare our parent data ...
-		Gem::Common::compare_base_t<GObject>(*this, *p_load, token);
+    // Compare our parent data ...
+    Gem::Common::compare_base_t<GObject>(*this, *p_load, token);
 
-		// ... no local data
+    // ... no local data
 
-		// React on deviations from the expectation
-		token.evaluate();
-	}
+    // React on deviations from the expectation
+    token.evaluate();
+}
 
-	/******************************************************************************/
-	/**
+/******************************************************************************/
+/**
  * Emits a name for this class / object
  */
-	std::string GPersonalityTraits::name_() const {
-		return std::string("GPersonalityTraits");
-	}
+std::string GPersonalityTraits::name_() const {
+    return std::string("GPersonalityTraits");
+}
 
-	/******************************************************************************/
-	/**
+/******************************************************************************/
+/**
  * Loads the data of another GPersonalityTraits object
  *
  * @param cp A copy of another GPersonalityTraits object, camouflaged as a GObject
  */
-	void GPersonalityTraits::load_(const GObject *cp) {
-		// Convert the pointer to our target type and check for self-assignment
-		const GPersonalityTraits * p_load = Gem::Common::g_convert_and_compare<GObject, GPersonalityTraits>(cp, this);
+void GPersonalityTraits::load_(const GObject *cp) {
+    // Convert the pointer to our target type and check for self-assignment
+    const GPersonalityTraits *p_load =
+        Gem::Common::g_convert_and_compare<GObject, GPersonalityTraits>(cp, this);
 
-		// Load the parent class'es data
-		GObject::load_(cp);
+    // Load the parent class'es data
+    GObject::load_(cp);
 
-		// No local data
-	}
+    // No local data
+}
 
-	/******************************************************************************/
-	/**
+/******************************************************************************/
+/**
  * Applies modifications to this object. This is needed for testing purposes
  *
  * @return A boolean which indicates whether modifications were made
  */
-	bool GPersonalityTraits::modify_GUnitTests_() {
+bool GPersonalityTraits::modify_GUnitTests_() {
 #ifdef GEM_TESTING
-		bool result = false;
+    bool result = false;
 
-		// Call the parent class'es function
-		if (GObject::modify_GUnitTests_()) result = true;
+    // Call the parent class'es function
+    if(GObject::modify_GUnitTests_())
+        result = true;
 
-		return result;
+    return result;
 
-#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-   Gem::Common::condnotset("GPersonalityTraits::modify_GUnitTests", "GEM_TESTING");
-   return false;
-#endif /* GEM_TESTING */
-	}
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+    Gem::Common::condnotset("GPersonalityTraits::modify_GUnitTests", "GEM_TESTING");
+    return false;
+#endif                  /* GEM_TESTING */
+}
 
-	/******************************************************************************/
-	/**
+/******************************************************************************/
+/**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
-	void GPersonalityTraits::specificTestsNoFailureExpected_GUnitTests_() {
+void GPersonalityTraits::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
-		// Call the parent class'es function
-		GObject::specificTestsNoFailureExpected_GUnitTests_();
+    // Call the parent class'es function
+    GObject::specificTestsNoFailureExpected_GUnitTests_();
 
-		// No local data -- nothing to test
+    // No local data -- nothing to test
 
-#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-   Gem::Common::condnotset("GPersonalityTraits::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
-#endif /* GEM_TESTING */
-	}
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+    Gem::Common::condnotset(
+        "GPersonalityTraits::specificTestsNoFailureExpected_GUnitTests",
+        "GEM_TESTING"
+    );
+#endif                  /* GEM_TESTING */
+}
 
-	/******************************************************************************/
-	/**
+/******************************************************************************/
+/**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
-	void GPersonalityTraits::specificTestsFailuresExpected_GUnitTests_() {
+void GPersonalityTraits::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
-		// Call the parent class'es function
-		GObject::specificTestsFailuresExpected_GUnitTests_();
+    // Call the parent class'es function
+    GObject::specificTestsFailuresExpected_GUnitTests_();
 
-		// No local data -- nothing to test
+    // No local data -- nothing to test
 
-#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-   Gem::Common::condnotset("GPersonalityTraits::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
-#endif /* GEM_TESTING */
-	}
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+    Gem::Common::condnotset(
+        "GPersonalityTraits::specificTestsFailuresExpected_GUnitTests",
+        "GEM_TESTING"
+    );
+#endif                  /* GEM_TESTING */
+}
 
-	/******************************************************************************/
+/******************************************************************************/
 
 } /* namespace Gem::Geneva */

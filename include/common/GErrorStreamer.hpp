@@ -33,27 +33,29 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard header files go here
-#include <string>
-#include <sstream>
-#include <fstream>
 #include <filesystem>
+#include <fstream>
+#include <sstream>
+#include <string>
 
 // Boost header files go here
 
 // Geneva header files go here
-#include "common/GLogger.hpp"
 #include "common/GCommonHelperFunctions.hpp"
+#include "common/GLogger.hpp"
 
 /******************************************************************************/
 // Syntactic sugar
-const bool DO_LOG=true;
-const bool NO_LOG=false;
+const bool DO_LOG = true;
+const bool NO_LOG = false;
 
 /******************************************************************************/
 
-#define time_and_place \
-	std::string(std::string("Recorded on ") + Gem::Common::currentTimeAsString()  + "\n" \
-	+ "in File " + __FILE__ + " at line " + std::to_string(__LINE__) + " :\n")
+#define time_and_place                                                                             \
+    std::string(                                                                                   \
+        std::string("Recorded on ") + Gem::Common::currentTimeAsString() + "\n" + "in File " +     \
+        __FILE__ + " at line " + std::to_string(__LINE__) + " :\n"                                 \
+    )
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -66,35 +68,32 @@ const bool NO_LOG=false;
  */
 class g_error_streamer {
 public:
-	 /**************************************************************************/
-	 /**
+    /**************************************************************************/
+    /**
 	  * The default constructor. We may optionally instruct the class to
 	  * also log to the global logger during string conversion.
 	  *
 	  * @param do_log Instructs the object to also send data to the logger
 	  */
-	 explicit g_error_streamer(
-		 bool do_log
-		 , std::string where_and_when
-	 )
-		 : m_do_log(do_log)
-	 	 , m_where_and_when(std::move(where_and_when))
-	 { /* nothing */ }
+    explicit g_error_streamer(bool do_log, std::string where_and_when)
+      : m_do_log(do_log)
+      , m_where_and_when(std::move(where_and_when)) { /* nothing */
+    }
 
-	/*************************************************************************/
-	// Defaulted or deleted constructors, destructor and assignment operators
+    /*************************************************************************/
+    // Defaulted or deleted constructors, destructor and assignment operators
 
-	g_error_streamer() = default;
+    g_error_streamer() = default;
 
-	g_error_streamer(const g_error_streamer&) = delete;
-	g_error_streamer& operator=(g_error_streamer&) = delete;
-	g_error_streamer(const g_error_streamer&&) = delete;
-	g_error_streamer& operator=(g_error_streamer &&) = delete;
+    g_error_streamer(const g_error_streamer &) = delete;
+    g_error_streamer &operator=(g_error_streamer &) = delete;
+    g_error_streamer(const g_error_streamer &&) = delete;
+    g_error_streamer &operator=(g_error_streamer &&) = delete;
 
-	~g_error_streamer() = default;
+    ~g_error_streamer() = default;
 
-	 /**************************************************************************/
-	 /**
+    /**************************************************************************/
+    /**
 	  * This function allows us to stream virtually any type of streamable data
 	  * to this class.
 	  *
@@ -102,81 +101,79 @@ public:
 	  * @param value The value streamed into this class
 	  * @return A pointer to this object
 	  */
-	 template <typename value_type>
-	 g_error_streamer& operator<<(const value_type& val) {
-		 m_ostream << val;
-		 return *this;
-	 }
+    template <typename value_type>
+    g_error_streamer &operator<<(const value_type &val) {
+        m_ostream << val;
+        return *this;
+    }
 
-	 /******************************************************************************/
-	 /**
+    /******************************************************************************/
+    /**
 	  * Needed for stringstream
 	  */
-	 g_error_streamer& operator<<(std::ostream &( *val )(std::ostream &)) {
-		 m_ostream << val;
-		 return *this;
-	 }
+    g_error_streamer &operator<<(std::ostream &(*val)(std::ostream &)) {
+        m_ostream << val;
+        return *this;
+    }
 
-	 /******************************************************************************/
-	 /**
+    /******************************************************************************/
+    /**
 	  * Needed for stringstream
 	  */
-	 g_error_streamer& operator<<(std::ios &( *val )(std::ios &)) {
-		 m_ostream << val;
-		 return *this;
-	 }
+    g_error_streamer &operator<<(std::ios &(*val)(std::ios &)) {
+        m_ostream << val;
+        return *this;
+    }
 
-	 /******************************************************************************/
-	 /**
+    /******************************************************************************/
+    /**
 	  *  Needed for stringstream
 	  */
-	 g_error_streamer& operator<<(std::ios_base &( *val )(std::ios_base &)) {
-		 m_ostream << val;
-		 return *this;
-	 }
+    g_error_streamer &operator<<(std::ios_base &(*val)(std::ios_base &)) {
+        m_ostream << val;
+        return *this;
+    }
 
-	 /**************************************************************************/
-	 /**
+    /**************************************************************************/
+    /**
 	  * Automatic conversion to a string. The function will optionally send the
 	  * output to the global logger.
 	  *
 	  * @return A string with the content of the wrapped string_error_streamer object.
 	  */
-	 operator std::string() const { // NOLINT
-		 using namespace Gem::Common;
-		 if(m_do_log) {
-			 glogger(std::filesystem::path(exception_file))
-				 << "========================================================" << std::endl
-				 << "Error!" << std::endl
-				 << std::endl
-				 << m_where_and_when
-				 << std::endl
-				 << m_ostream.str() << std::endl
-				 << std::endl
-				 << "If you suspect that there is an underlying problem with the" << std::endl
-				 << "Ge library collection, then please consider filing a bug." << std::endl
-				 << std::endl
-				 << "We appreciate your help!" << std::endl
-				 << "The Geneva team" << std::endl
-				 << std::endl
-				 << "========================================================" << std::endl
-				 << GFILE;
-		 }
-		 return m_ostream.str();
-	 }
+    operator std::string() const { // NOLINT
+        using namespace Gem::Common;
+        if(m_do_log) {
+            glogger(std::filesystem::path(exception_file))
+                << "========================================================" << std::endl
+                << "Error!" << std::endl
+                << std::endl
+                << m_where_and_when << std::endl
+                << m_ostream.str() << std::endl
+                << std::endl
+                << "If you suspect that there is an underlying problem with the" << std::endl
+                << "Ge library collection, then please consider filing a bug." << std::endl
+                << std::endl
+                << "We appreciate your help!" << std::endl
+                << "The Geneva team" << std::endl
+                << std::endl
+                << "========================================================" << std::endl
+                << GFILE;
+        }
+        return m_ostream.str();
+    }
 
 private:
-	 /**************************************************************************/
-	 // Data
-	 std::ostringstream m_ostream;
-	 bool m_do_log = NO_LOG;
-	 const std::string exception_file = "./GENEVA-EXCEPTION.log";
-	 std::string m_where_and_when{};
+    /**************************************************************************/
+    // Data
+    std::ostringstream m_ostream;
+    bool m_do_log = NO_LOG;
+    const std::string exception_file = "./GENEVA-EXCEPTION.log";
+    std::string m_where_and_when{};
 
-	 /**************************************************************************/
+    /**************************************************************************/
 };
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
-

@@ -36,21 +36,25 @@
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GMPIEvaluatedIndividual) // NOLINT
 namespace Gem::Geneva {
 
-    MPI_Comm GMPIEvaluatedIndividual::communicator{MPI_COMM_NULL};
+MPI_Comm GMPIEvaluatedIndividual::communicator{MPI_COMM_NULL};
 /********************************************************************************************/
 /**
  * The default constructor. This function will add two double parameters to this individual,
  * each of which has a constrained value range [-10:10].
  */
-    GMPIEvaluatedIndividual::GMPIEvaluatedIndividual()
-            : GParameterSet(), M_PAR_MIN(-10.), M_PAR_MAX(10.) {
-        for (std::size_t npar = 0; npar < 2; npar++) {
-            // GConstrainedDoubleObject is constrained to [M_PAR_MIN:M_PAR_MAX[
-            std::shared_ptr<GConstrainedDoubleObject> gcdo_ptr(new GConstrainedDoubleObject(M_PAR_MIN, M_PAR_MAX));
-            // Add the parameters to this individual
-            this->push_back(gcdo_ptr);
-        }
+GMPIEvaluatedIndividual::GMPIEvaluatedIndividual()
+  : GParameterSet()
+  , M_PAR_MIN(-10.)
+  , M_PAR_MAX(10.) {
+    for(std::size_t npar = 0; npar < 2; npar++) {
+        // GConstrainedDoubleObject is constrained to [M_PAR_MIN:M_PAR_MAX[
+        std::shared_ptr<GConstrainedDoubleObject> gcdo_ptr(
+            new GConstrainedDoubleObject(M_PAR_MIN, M_PAR_MAX)
+        );
+        // Add the parameters to this individual
+        this->push_back(gcdo_ptr);
     }
+}
 
 /********************************************************************************************/
 /**
@@ -58,8 +62,11 @@ namespace Gem::Geneva {
  *
  * @param cp A copy of another GMPIEvaluatedIndividual
  */
-    GMPIEvaluatedIndividual::GMPIEvaluatedIndividual(const GMPIEvaluatedIndividual &cp)
-            : GParameterSet(cp), M_PAR_MIN(-10.), M_PAR_MAX(10) { /* nothing */ }
+GMPIEvaluatedIndividual::GMPIEvaluatedIndividual(const GMPIEvaluatedIndividual &cp)
+  : GParameterSet(cp)
+  , M_PAR_MIN(-10.)
+  , M_PAR_MAX(10) { /* nothing */
+}
 
 /********************************************************************************************/
 /**
@@ -67,15 +74,16 @@ namespace Gem::Geneva {
  * added in the constructor. Upon destruction, they will take care of releasing the allocated
  * memory.
  */
-    GMPIEvaluatedIndividual::~GMPIEvaluatedIndividual() { /* nothing */    }
+GMPIEvaluatedIndividual::~GMPIEvaluatedIndividual() { /* nothing */
+}
 
 /**
  * Allows to set the communicator which is used inside of the fitness calculation function to communicate with sub-clients
  * @param c the new communicator
  */
-    void GMPIEvaluatedIndividual::setCommunicator(MPI_Comm c) {
-        GMPIEvaluatedIndividual::communicator = c;
-    }
+void GMPIEvaluatedIndividual::setCommunicator(MPI_Comm c) {
+    GMPIEvaluatedIndividual::communicator = c;
+}
 
 /********************************************************************************************/
 /**
@@ -83,17 +91,17 @@ namespace Gem::Geneva {
  *
  * @param cp A copy of another GMPIEvaluatedIndividual, camouflaged as a GObject
  */
-    void GMPIEvaluatedIndividual::load_(const GObject *cp) {
-        // Check that we are dealing with a GMPIEvaluatedIndividual reference independent of this object and convert the pointer
-        const GMPIEvaluatedIndividual *p_load = Gem::Common::g_convert_and_compare<GObject, GMPIEvaluatedIndividual>(cp,
-                                                                                                                     this);
+void GMPIEvaluatedIndividual::load_(const GObject *cp) {
+    // Check that we are dealing with a GMPIEvaluatedIndividual reference independent of this object and convert the pointer
+    const GMPIEvaluatedIndividual *p_load =
+        Gem::Common::g_convert_and_compare<GObject, GMPIEvaluatedIndividual>(cp, this);
 
-        // Load our parent's data
-        GParameterSet::load_(cp);
+    // Load our parent's data
+    GParameterSet::load_(cp);
 
-        // No local data
-        // sampleVariable = p_load->sampleVariable;
-    }
+    // No local data
+    // sampleVariable = p_load->sampleVariable;
+}
 
 /********************************************************************************************/
 /**
@@ -101,9 +109,9 @@ namespace Gem::Geneva {
  *
  * @return A deep clone of this object, camouflaged as a GObject
  */
-    GObject *GMPIEvaluatedIndividual::clone_() const {
-        return new GMPIEvaluatedIndividual(*this);
-    }
+GObject *GMPIEvaluatedIndividual::clone_() const {
+    return new GMPIEvaluatedIndividual(*this);
+}
 
 /********************************************************************************************/
 /**
@@ -111,22 +119,22 @@ namespace Gem::Geneva {
  *
  * @return The value of this object
  */
-    double GMPIEvaluatedIndividual::fitnessCalculation() {
-        double result = 0.; // Will hold the result
-        std::vector<double> parVec; // Will hold the parameters
+double GMPIEvaluatedIndividual::fitnessCalculation() {
+    double result = 0.;         // Will hold the result
+    std::vector<double> parVec; // Will hold the parameters
 
-        this->streamline(parVec); // Retrieve the parameters
+    this->streamline(parVec); // Retrieve the parameters
 
-        // communicate with the sub-clients. In this example just use a useless barrier
-        MPI_Barrier(communicator);
+    // communicate with the sub-clients. In this example just use a useless barrier
+    MPI_Barrier(communicator);
 
-        // Do the actual calculation
-        for (auto const &d: parVec) {
-            result += d * d;
-        }
-
-        return result;
+    // Do the actual calculation
+    for(auto const &d : parVec) {
+        result += d * d;
     }
+
+    return result;
+}
 
 /********************************************************************************************/
 

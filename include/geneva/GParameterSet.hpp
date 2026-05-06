@@ -33,43 +33,42 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard header files go here
+#include <functional>
+#include <limits>
 #include <map>
 #include <typeinfo>
-#include <limits>
-#include <functional>
 
 // Boost header files go here
 #include <boost/numeric/conversion/bounds.hpp>
 #include <boost/serialization/split_member.hpp>
 
 // Geneva headers go here
-#include "common/GExceptions.hpp"
 #include "common/GCommonMathHelperFunctionsT.hpp"
+#include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
 #include "common/GPtrVectorT.hpp"
-#include "hap/GRandomT.hpp"
 #include "courtier/GProcessingContainerT.hpp"
+#include "geneva/GMultiConstraintT.hpp"
 #include "geneva/GObject.hpp"
 #include "geneva/GParameterBase.hpp"
-#include "geneva/GenevaHelperFunctionsT.hpp"
 #include "geneva/GPersonalityTraits.hpp"
 #include "geneva/G_Interface_Mutable.hpp"
 #include "geneva/G_Interface_Rateable.hpp"
-#include "geneva/GPersonalityTraits.hpp"
-#include "geneva/GMultiConstraintT.hpp"
+#include "geneva/GenevaHelperFunctionsT.hpp"
+#include "hap/GRandomT.hpp"
 
 #ifdef GEM_TESTING
 
+#include "common/GUnitTestFrameworkT.hpp"
 #include "geneva/GBooleanObject.hpp"
-#include "geneva/GConstrainedInt32Object.hpp"
 #include "geneva/GConstrainedDoubleObject.hpp"
 #include "geneva/GConstrainedDoubleObjectCollection.hpp"
+#include "geneva/GConstrainedInt32Object.hpp"
 #include "geneva/GConstrainedInt32ObjectCollection.hpp"
 #include "geneva/GDoubleCollection.hpp"
 #include "geneva/GDoubleObject.hpp"
-#include "geneva/GParameterObjectCollection.hpp"
 #include "geneva/GInt32Collection.hpp"
-#include "common/GUnitTestFrameworkT.hpp"
+#include "geneva/GParameterObjectCollection.hpp"
 #include "hap/GRandomT.hpp"
 
 #endif /* GEM_TESTING */
@@ -87,18 +86,16 @@ namespace Gem::Geneva {
  * Container for fitness and transformed fitness values, as produced by the
  * GParameterSet class.
  */
-class parameterset_processing_result
-{
+class parameterset_processing_result {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
-    template<typename Archive>
+    template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
-        ar
-        & BOOST_SERIALIZATION_NVP(m_raw_fitness)
-        & BOOST_SERIALIZATION_NVP(m_transformed_fitness)
-        & BOOST_SERIALIZATION_NVP(m_transformed_fitness_set);
+        ar &BOOST_SERIALIZATION_NVP(m_raw_fitness) &
+            BOOST_SERIALIZATION_NVP(m_transformed_fitness) &
+            BOOST_SERIALIZATION_NVP(m_transformed_fitness_set);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -162,8 +159,10 @@ private:
     // Data
 
     double m_raw_fitness = 0.; ///< The fitness as it comes out of the fitnessCalculation() function
-    double m_transformed_fitness = m_raw_fitness; ///< The fitness as calculated from m_raw_fitness through
-    bool m_transformed_fitness_set = false; ///< Indicates whether a suitable m_transformed_fitness value is available
+    double m_transformed_fitness =
+        m_raw_fitness; ///< The fitness as calculated from m_raw_fitness through
+    bool m_transformed_fitness_set =
+        false; ///< Indicates whether a suitable m_transformed_fitness value is available
 };
 
 /******************************************************************************/
@@ -174,43 +173,43 @@ private:
  * will form the basis of many user-defined individuals.
  */
 class GParameterSet // NOLINT(cppcoreguidelines-special-member-functions)
-    : public GObject
-    , public G_Interface_Mutable
-    , public G_Interface_Rateable
-    , public Gem::Common::GPtrVectorT<GParameterBase, GObject>
-    , public Gem::Courtier::GProcessingContainerT<GParameterSet, parameterset_processing_result>
-{
+  : public GObject
+  , public G_Interface_Mutable
+  , public G_Interface_Rateable
+  , public Gem::Common::GPtrVectorT<GParameterBase, GObject>
+  , public Gem::Courtier::GProcessingContainerT<GParameterSet, parameterset_processing_result> {
     friend class Gem::Tests::GTestIndividual1; ///< Needed for testing purposes
 
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
-    template<typename Archive>
+    template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
-        ar
-        & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject)
-        & make_nvp(
-            "GStdPtrVectorInterfaceT_GParameterBase"
-            , boost::serialization::base_object<Gem::Common::GPtrVectorT<GParameterBase, GObject>>(*this))
-        & make_nvp(
-            "GProcessingContainerT_ParameterSet_double"
-            , boost::serialization::base_object<Gem::Courtier::GProcessingContainerT<GParameterSet, parameterset_processing_result>>(*this))
-        & BOOST_SERIALIZATION_NVP(m_best_past_primary_fitness)
-        & BOOST_SERIALIZATION_NVP(m_n_stalls)
-        & BOOST_SERIALIZATION_NVP(m_maxmode)
-        & BOOST_SERIALIZATION_NVP(m_assigned_iteration)
-        & BOOST_SERIALIZATION_NVP(m_validity_level)
-        & BOOST_SERIALIZATION_NVP(m_pt_ptr)
-        & BOOST_SERIALIZATION_NVP(m_eval_policy)
-        & BOOST_SERIALIZATION_NVP(m_individual_constraint_ptr)
-        & BOOST_SERIALIZATION_NVP(m_sigmoid_steepness)
-        & BOOST_SERIALIZATION_NVP(m_sigmoid_extremes)
-        & BOOST_SERIALIZATION_NVP(m_max_unsuccessful_adaptions)
-        & BOOST_SERIALIZATION_NVP(m_max_retries_until_valid)
-        & BOOST_SERIALIZATION_NVP(m_n_adaptions)
-        & BOOST_SERIALIZATION_NVP(m_useRandomCrash)
-        & BOOST_SERIALIZATION_NVP(m_randomCrashProb);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject) &
+            make_nvp(
+                "GStdPtrVectorInterfaceT_GParameterBase",
+                boost::serialization::base_object<
+                    Gem::Common::GPtrVectorT<GParameterBase, GObject>>(*this)
+            ) &
+            make_nvp(
+                "GProcessingContainerT_ParameterSet_double",
+                boost::serialization::base_object<Gem::Courtier::GProcessingContainerT<
+                    GParameterSet,
+                    parameterset_processing_result>>(*this)
+            ) &
+            BOOST_SERIALIZATION_NVP(m_best_past_primary_fitness) &
+            BOOST_SERIALIZATION_NVP(m_n_stalls) & BOOST_SERIALIZATION_NVP(m_maxmode) &
+            BOOST_SERIALIZATION_NVP(m_assigned_iteration) &
+            BOOST_SERIALIZATION_NVP(m_validity_level) & BOOST_SERIALIZATION_NVP(m_pt_ptr) &
+            BOOST_SERIALIZATION_NVP(m_eval_policy) &
+            BOOST_SERIALIZATION_NVP(m_individual_constraint_ptr) &
+            BOOST_SERIALIZATION_NVP(m_sigmoid_steepness) &
+            BOOST_SERIALIZATION_NVP(m_sigmoid_extremes) &
+            BOOST_SERIALIZATION_NVP(m_max_unsuccessful_adaptions) &
+            BOOST_SERIALIZATION_NVP(m_max_retries_until_valid) &
+            BOOST_SERIALIZATION_NVP(m_n_adaptions) & BOOST_SERIALIZATION_NVP(m_useRandomCrash) &
+            BOOST_SERIALIZATION_NVP(m_randomCrashProb);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -234,38 +233,38 @@ public:
     G_API_GENEVA void setMaxMode(maxMode const &);
 
     /** @brief Transformation of the individual's parameter objects into a boost::property_tree object */
-    G_API_GENEVA void toPropertyTree(
-        pt::ptree &
-        , std::string const & = "parameterset"
-    ) const;
+    G_API_GENEVA void toPropertyTree(pt::ptree &, std::string const & = "parameterset") const;
 
     /** @brief Transformation of the individual's parameter objects into a list of comma-separated values */
     G_API_GENEVA std::string toCSV(
-        bool= false // withNameAndType
-        , bool= true // withCommas
-        , bool= true // useRawFitness
-        , bool= true // showValidity
+        bool = false // withNameAndType
+        ,
+        bool = true // withCommas
+        ,
+        bool = true // useRawFitness
+        ,
+        bool = true // showValidity
     ) const;
 
     /** @brief Prevent shadowing of std::vector<GParameterBase>::at() */
-    G_API_GENEVA Gem::Common::GPtrVectorT<GParameterBase, GObject>::reference at(std::size_t const &pos);
+    G_API_GENEVA Gem::Common::GPtrVectorT<GParameterBase, GObject>::reference
+    at(std::size_t const &pos);
 
     /** @brief Checks whether this object is better than a given set of evaluations */
     G_API_GENEVA bool isGoodEnough(std::vector<double> const &);
 
     /** @brief Perform a cross-over operation between this object and another */
-    virtual G_API_GENEVA std::shared_ptr<GParameterSet> crossOverWith(
-        std::shared_ptr<GParameterSet> const &
-    ) const;
+    virtual G_API_GENEVA std::shared_ptr<GParameterSet>
+    crossOverWith(std::shared_ptr<GParameterSet> const &) const;
 
     /** @brief Triggers updates of adaptors contained in this object */
     G_API_GENEVA void updateAdaptorsOnStall(std::uint32_t);
 
     /** @brief Retrieves information from adaptors with a given property */
     G_API_GENEVA void queryAdaptor(
-        std::string const &adaptorName
-        , std::string const &property
-        , std::vector<boost::any> &data
+        std::string const &adaptorName,
+        std::string const &property,
+        std::vector<boost::any> &data
     ) const;
 
     /** @brief Retrieves parameters relevant for the evaluation from another GParameterSet */
@@ -336,50 +335,35 @@ public:
     /**
      * Retrieves a parameter of a given type at the specified position.
      */
-    template<typename val_type>
-    val_type getVarVal(
-        std::tuple<std::size_t, std::string, std::size_t> const &target
-    ) {
+    template <typename val_type>
+    val_type getVarVal(std::tuple<std::size_t, std::string, std::size_t> const &target) {
         val_type result = val_type(0);
 
-        if (typeid(val_type) == typeid(double)) {
+        if(typeid(val_type) == typeid(double)) {
             return boost::numeric_cast<val_type>(
-                boost::any_cast<double>(
-                    this->getVarVal(
-                        "d"
-                        , target
-                    )));
-        } else if (typeid(val_type) == typeid(float)) {
-            return boost::numeric_cast<val_type>(
-                boost::any_cast<float>(
-                    this->getVarVal(
-                        "f"
-                        , target
-                    )));
+                boost::any_cast<double>(this->getVarVal("d", target))
+            );
         }
-        if (typeid(val_type) == typeid(std::int32_t)) {
+        else if(typeid(val_type) == typeid(float)) {
             return boost::numeric_cast<val_type>(
-                boost::any_cast<std::int32_t>(
-                    this->getVarVal(
-                        "i"
-                        , target
-                    )));
+                boost::any_cast<float>(this->getVarVal("f", target))
+            );
         }
-        if (typeid(val_type) == typeid(bool)) {
+        if(typeid(val_type) == typeid(std::int32_t)) {
             return boost::numeric_cast<val_type>(
-                boost::any_cast<bool>(
-                    this->getVarVal(
-                        "b"
-                        , target
-                    )));
-        } else {
+                boost::any_cast<std::int32_t>(this->getVarVal("i", target))
+            );
+        }
+        if(typeid(val_type) == typeid(bool)) {
+            return boost::numeric_cast<val_type>(
+                boost::any_cast<bool>(this->getVarVal("b", target))
+            );
+        }
+        else {
             throw geneva_exception(
-                g_error_streamer(
-                    DO_LOG
-                    , time_and_place
-                )
-                    << "In GParameterSet::getVarVal<>(): Error!" << std::endl
-                    << "Received invalid type descriptor " << std::endl
+                g_error_streamer(DO_LOG, time_and_place)
+                << "In GParameterSet::getVarVal<>(): Error!" << std::endl
+                << "Received invalid type descriptor " << std::endl
             );
         }
 
@@ -398,21 +382,20 @@ public:
      *
      * @return A std::shared_ptr converted to the desired target type
      */
-    template<typename personality_type>
+    template <typename personality_type>
     std::shared_ptr<personality_type> getPersonalityTraits(
-        typename std::enable_if<std::is_base_of<GPersonalityTraits, personality_type>::value>::type *dummy = nullptr
+        typename std::enable_if<std::is_base_of<GPersonalityTraits, personality_type>::value>::type
+            *dummy = nullptr
     ) {
 #ifdef DEBUG
         // Check that m_pt_ptr actually points somewhere
-        if (not m_pt_ptr) {
+        if(not m_pt_ptr) {
             throw geneva_exception(
-                g_error_streamer(
-                    DO_LOG
-                    , time_and_place
-                )
-                    << "In GParameterSet::getPersonalityTraits<personality_type>() : Empty personality pointer found"
-                    << std::endl
-                    << "This should not happen." << std::endl
+                g_error_streamer(DO_LOG, time_and_place)
+                << "In GParameterSet::getPersonalityTraits<personality_type>() : Empty personality "
+                   "pointer found"
+                << std::endl
+                << "This should not happen." << std::endl
             );
 
             // Make the compiler happy
@@ -435,9 +418,7 @@ public:
     G_API_GENEVA std::shared_ptr<GPersonalityTraits> getPersonalityTraits();
 
     /** @brief Sets the current personality of this individual */
-    G_API_GENEVA void setPersonality(
-        std::shared_ptr<GPersonalityTraits>
-    );
+    G_API_GENEVA void setPersonality(std::shared_ptr<GPersonalityTraits>);
     /** @brief Resets the current personality to PERSONALITY_NONE */
     G_API_GENEVA void resetPersonality();
     /** @brief Retrieves the mnemonic used for the optimization of this object */
@@ -448,7 +429,8 @@ public:
     /** @brief Checks whether all constraints were fulfilled */
     G_API_GENEVA bool constraintsFulfilled() const;
     /** @brief Allows to register a constraint with this individual */
-    G_API_GENEVA void registerConstraint(std::shared_ptr<GPreEvaluationValidityCheckT<GParameterSet>>);
+    G_API_GENEVA void
+        registerConstraint(std::shared_ptr<GPreEvaluationValidityCheckT<GParameterSet>>);
 
     /** @brief Allows to set the policy to use in case this individual represents an invalid solution */
     G_API_GENEVA void setEvaluationPolicy(evaluationPolicy evalPolicy);
@@ -475,11 +457,11 @@ public:
      * @param pos The position in our data array that shall be converted
      * @return A converted version of the GParameterBase object, as required by the user
      */
-    template<typename par_type>
-    const std::shared_ptr<par_type> at(
-        std::size_t const &pos
-        , typename std::enable_if<std::is_base_of<GParameterBase, par_type>::value>::type *dummy = nullptr
-    ) const {
+    template <typename par_type>
+    const std::shared_ptr<par_type>
+    at(std::size_t const &pos,
+       typename std::enable_if<std::is_base_of<GParameterBase, par_type>::value>::type *dummy =
+           nullptr) const {
         // Does error checks on the conversion internally
         return Gem::Common::convertSmartPointer<GParameterBase, par_type>(m_data_cnt.at(pos));
     }
@@ -493,13 +475,13 @@ public:
     /**
      * Allows to retrieve a list of all variable names registered with the parameter set
      */
-    template<typename par_type>
+    template <typename par_type>
     std::vector<std::string> getVariableNames() const {
         std::vector<std::string> varNames;
         std::map<std::string, std::vector<par_type>> pMap;
         this->streamline<par_type>(pMap);
 
-        for (const auto &name: pMap) {
+        for(const auto &name : pMap) {
             varNames.push_back(name.first);
         }
 
@@ -510,48 +492,38 @@ public:
     /**
      * Retrieves an item according to a description provided by the target tuple
      */
-    template<typename par_type>
-    boost::any getVarItem(
-        std::tuple<std::size_t, std::string, std::size_t> const &target
-    ) {
+    template <typename par_type>
+    boost::any getVarItem(std::tuple<std::size_t, std::string, std::size_t> const &target) {
         boost::any result;
 
-        switch (std::get<0>(target)) {
+        switch(std::get<0>(target)) {
+        //---------------------------------------------------------------------
+        case 0: {
+            std::vector<par_type> vars;
+            this->streamline<par_type>(vars);
+            result = vars.at(std::get<2>(target));
+        } break;
+
             //---------------------------------------------------------------------
-            case 0: {
-                std::vector<par_type> vars;
-                this->streamline<par_type>(vars);
-                result = vars.at(std::get<2>(target));
-            }
-                break;
+        case 1: // var[3]
+        case 2: // var    --> treated as var[0]
+        {
+            std::map<std::string, std::vector<par_type>> varMap;
+            this->streamline<par_type>(varMap);
+            result = (Gem::Common::getMapItem<std::vector<par_type>>(varMap, std::get<1>(target)))
+                         .at(std::get<2>(target));
+        } break;
 
-                //---------------------------------------------------------------------
-            case 1: // var[3]
-            case 2: // var    --> treated as var[0]
-            {
-                std::map<std::string, std::vector<par_type>> varMap;
-                this->streamline<par_type>(varMap);
-                result = (
-                    Gem::Common::getMapItem<std::vector<par_type>>(
-                        varMap
-                        , std::get<1>(target))).at(std::get<2>(target));
-            }
-                break;
+            //---------------------------------------------------------------------
+        default: {
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, time_and_place)
+                << "In GParameterSet::getVarVal(): Error!" << std::endl
+                << "Got invalid mode setting: " << std::get<0>(target) << std::endl
+            );
+        } break;
 
-                //---------------------------------------------------------------------
-            default: {
-                throw geneva_exception(
-                    g_error_streamer(
-                        DO_LOG
-                        , time_and_place
-                    )
-                        << "In GParameterSet::getVarVal(): Error!" << std::endl
-                        << "Got invalid mode setting: " << std::get<0>(target) << std::endl
-                );
-            }
-                break;
-
-                //---------------------------------------------------------------------
+            //---------------------------------------------------------------------
         }
 
         return result;
@@ -565,16 +537,14 @@ public:
      *
      * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be extracted
      */
-    template<typename par_type>
-    std::size_t countParameters(
-        activityMode const &am = activityMode::DEFAULTACTIVITYMODE
-    ) const {
+    template <typename par_type>
+    std::size_t countParameters(activityMode const &am = activityMode::DEFAULTACTIVITYMODE) const {
         std::size_t result = 0;
 
         // Loop over all GParameterBase objects. Each object
         // will contribute the amount of its parameters of this type
         // to the result.
-        for (const auto &parm_ptr: *this) {
+        for(const auto &parm_ptr : *this) {
             result += parm_ptr->countParameters<par_type>(am);
         }
 
@@ -595,20 +565,17 @@ public:
      * @param parVec The vector to which the parameters will be added
      * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be extracted
      */
-    template<typename par_type>
+    template <typename par_type>
     void streamline(
-        std::vector<par_type> &parVec
-        , activityMode const &am = activityMode::DEFAULTACTIVITYMODE
+        std::vector<par_type> &parVec,
+        activityMode const &am = activityMode::DEFAULTACTIVITYMODE
     ) const {
         // Make sure the vector is clean
         parVec.clear();
 
         // Loop over all GParameterBase objects.
-        for (const auto &parm_ptr: *this) {
-            parm_ptr->streamline<par_type>(
-                parVec
-                , am
-            );
+        for(const auto &parm_ptr : *this) {
+            parm_ptr->streamline<par_type>(parVec, am);
         }
     }
 
@@ -626,20 +593,17 @@ public:
      * @param parVec The map to which the parameters will be added
      * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be extracted
      */
-    template<typename par_type>
+    template <typename par_type>
     void streamline(
-        std::map<std::string, std::vector<par_type>> &parVec
-        , activityMode const &am = activityMode::DEFAULTACTIVITYMODE
+        std::map<std::string, std::vector<par_type>> &parVec,
+        activityMode const &am = activityMode::DEFAULTACTIVITYMODE
     ) const {
         // Make sure the vector is clean
         parVec.clear();
 
         // Loop over all GParameterBase objects.
-        for (const auto &parm_ptr: *this) {
-            parm_ptr->streamline<par_type>(
-                parVec
-                , am
-            );
+        for(const auto &parm_ptr : *this) {
+            parm_ptr->streamline<par_type>(parVec, am);
         }
     }
 
@@ -655,20 +619,18 @@ public:
      * @param parVec A vector of values, to be assigned to be added to GParameterBase derivatives
      * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be assigned
      */
-    template<typename par_type>
+    template <typename par_type>
     void assignValueVector(
-        std::vector<par_type> const &parVec
-        , activityMode const &am = activityMode::DEFAULTACTIVITYMODE
+        std::vector<par_type> const &parVec,
+        activityMode const &am = activityMode::DEFAULTACTIVITYMODE
     ) {
 #ifdef DEBUG
-        if (countParameters<par_type>() != parVec.size()) {
+        if(countParameters<par_type>() != parVec.size()) {
             throw geneva_exception(
-                g_error_streamer(
-                    DO_LOG
-                    , time_and_place
-                )
-                    << "In GParameterSet::assignValueVector(const std::vector<pat_type>&):" << std::endl
-                    << "Sizes don't match: " << countParameters<par_type>() << " / " << parVec.size() << std::endl
+                g_error_streamer(DO_LOG, time_and_place)
+                << "In GParameterSet::assignValueVector(const std::vector<pat_type>&):" << std::endl
+                << "Sizes don't match: " << countParameters<par_type>() << " / " << parVec.size()
+                << std::endl
             );
         }
 #endif /* DEBUG */
@@ -678,12 +640,8 @@ public:
 
         // Loop over all GParameterBase objects. Each object will extract the relevant
         // parameters and increment the position counter as required.
-        for (const auto &parm_ptr: *this) {
-            parm_ptr->assignValueVector<par_type>(
-                parVec
-                , pos
-                , am
-            );
+        for(const auto &parm_ptr : *this) {
+            parm_ptr->assignValueVector<par_type>(parVec, pos, am);
         }
 
         // As we have modified our internal data sets, make sure the item is reprocessed
@@ -697,17 +655,14 @@ public:
      * @param parMap A map of values, to be assigned to be added to GParameterBase derivatives
      * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be assigned
      */
-    template<typename par_type>
+    template <typename par_type>
     void assignValueVectors(
-        std::map<std::string, std::vector<par_type>> const &parMap
-        , activityMode const &am = activityMode::DEFAULTACTIVITYMODE
+        std::map<std::string, std::vector<par_type>> const &parMap,
+        activityMode const &am = activityMode::DEFAULTACTIVITYMODE
     ) {
         // Loop over all GParameterBase objects. Each object will extract the relevant parameters
-        for (const auto &parm_ptr: *this) {
-            parm_ptr->assignValueVectors<par_type>(
-                parMap
-                , am
-            );
+        for(const auto &parm_ptr : *this) {
+            parm_ptr->assignValueVectors<par_type>(parMap, am);
         }
 
         // As we have modified our internal data sets, make sure the item is reprocessed
@@ -725,23 +680,19 @@ public:
      * @param uBndVec The vector to which the upper boundaries will be added
      * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be extracted
      */
-    template<typename par_type>
+    template <typename par_type>
     void boundaries(
-        std::vector<par_type> &lBndVec
-        , std::vector<par_type> &uBndVec
-        , activityMode const &am = activityMode::DEFAULTACTIVITYMODE
+        std::vector<par_type> &lBndVec,
+        std::vector<par_type> &uBndVec,
+        activityMode const &am = activityMode::DEFAULTACTIVITYMODE
     ) const {
         // Make sure the vectors are clean
         lBndVec.clear();
         uBndVec.clear();
 
         // Loop over all GParameterBase objects.
-        for (const auto &parm_ptr: *this) {
-            parm_ptr->boundaries<par_type>(
-                lBndVec
-                , uBndVec
-                , am
-            );
+        for(const auto &parm_ptr : *this) {
+            parm_ptr->boundaries<par_type>(lBndVec, uBndVec, am);
         }
     }
 
@@ -754,20 +705,11 @@ public:
     /**
      * Multiplication with a random value in a given range
      */
-    template<typename par_type>
-    void multiplyByRandom(
-        par_type const &min
-        , par_type const &max
-        , activityMode const &am
-    ) {
+    template <typename par_type>
+    void multiplyByRandom(par_type const &min, par_type const &max, activityMode const &am) {
         // Loop over all GParameterBase objects.
-        for (auto &parm_ptr: *this) {
-            parm_ptr->multiplyByRandom<par_type>(
-                min
-                , max
-                , am
-                , m_gr
-            );
+        for(auto &parm_ptr : *this) {
+            parm_ptr->multiplyByRandom<par_type>(min, max, am, m_gr);
         }
 
         // As we have modified our internal data sets, make sure the item is reprocessed
@@ -778,16 +720,11 @@ public:
     /**
      * Multiplication with a random value in the range [0, 1[
      */
-    template<typename par_type>
-    void multiplyByRandom(
-        activityMode const &am
-    ) {
+    template <typename par_type>
+    void multiplyByRandom(activityMode const &am) {
         // Loop over all GParameterBase objects.
-        for (auto &parm_ptr: *this) {
-            parm_ptr->multiplyByRandom<par_type>(
-                am
-                , m_gr
-            );
+        for(auto &parm_ptr : *this) {
+            parm_ptr->multiplyByRandom<par_type>(am, m_gr);
         }
 
         // As we have modified our internal data sets, make sure the item is reprocessed
@@ -798,17 +735,11 @@ public:
     /**
      * Multiplication with a constant value
      */
-    template<typename par_type>
-    void multiplyBy(
-        par_type const &val
-        , activityMode const &am
-    ) {
+    template <typename par_type>
+    void multiplyBy(par_type const &val, activityMode const &am) {
         // Loop over all GParameterBase objects.
-        for (auto &parm_ptr: *this) {
-            parm_ptr->multiplyBy<par_type>(
-                val
-                , am
-            );
+        for(auto &parm_ptr : *this) {
+            parm_ptr->multiplyBy<par_type>(val, am);
         }
 
         // As we have modified our internal data sets, make sure the item is reprocessed
@@ -819,17 +750,11 @@ public:
     /**
      * Initializes all parameters of a given type with a constant value
      */
-    template<typename par_type>
-    void fixedValueInit(
-        par_type const &val
-        , activityMode const &am
-    ) {
+    template <typename par_type>
+    void fixedValueInit(par_type const &val, activityMode const &am) {
         // Loop over all GParameterBase objects.
-        for (auto const &item_ptr: *this) {
-            item_ptr->fixedValueInit<par_type>(
-                val
-                , am
-            );
+        for(auto const &item_ptr : *this) {
+            item_ptr->fixedValueInit<par_type>(val, am);
         }
 
         // As we have modified our internal data sets, make sure the item is reprocessed
@@ -840,22 +765,16 @@ public:
     /**
      * Adds the parameters of another GParameterSet object to this one
      */
-    template<typename par_type>
-    void add(
-        std::shared_ptr<GParameterSet> const &p
-        , activityMode const &am
-    ) {
+    template <typename par_type>
+    void add(std::shared_ptr<GParameterSet> const &p, activityMode const &am) {
         GParameterSet::iterator it;
         GParameterSet::const_iterator cit;
 
         // Note that the GParameterBase objects need to accept a
         // std::shared_ptr<GParameterBase>, contrary to the calling conventions
         // of this function.
-        for (it = this->begin(), cit = p->begin(); it != this->end(); ++it, ++cit) {
-            (*it)->add<par_type>(
-                *cit
-                , am
-            );
+        for(it = this->begin(), cit = p->begin(); it != this->end(); ++it, ++cit) {
+            (*it)->add<par_type>(*cit, am);
         }
 
         // As we have modified our internal data sets, make sure the item is reprocessed
@@ -866,22 +785,16 @@ public:
     /**
      * Subtracts the parameters of another GParameterSet object from this one
      */
-    template<typename par_type>
-    void subtract(
-        std::shared_ptr<GParameterSet> const &p
-        , activityMode const &am
-    ) {
+    template <typename par_type>
+    void subtract(std::shared_ptr<GParameterSet> const &p, activityMode const &am) {
         GParameterSet::iterator it;
         GParameterSet::const_iterator cit;
 
         // Note that the GParameterBase objects need to accept a
         // std::shared_ptr<GParameterBase>, contrary to the calling conventions
         // of this function.
-        for (it = this->begin(), cit = p->begin(); it != this->end(); ++it, ++cit) {
-            (*it)->subtract<par_type>(
-                *cit
-                , am
-            );
+        for(it = this->begin(), cit = p->begin(); it != this->end(); ++it, ++cit) {
+            (*it)->subtract<par_type>(*cit, am);
         }
 
         // As we have modified our internal data sets, make sure the item is reprocessed
@@ -891,7 +804,7 @@ public:
     /***************************************************************************/
     // Deleted functions
 
-    explicit G_API_GENEVA GParameterSet(float const &) = delete; ///< Intentionally undefined
+    explicit G_API_GENEVA GParameterSet(float const &) = delete;  ///< Intentionally undefined
     explicit G_API_GENEVA GParameterSet(double const &) = delete; ///< Intentionally undefined
 
 protected:
@@ -905,28 +818,29 @@ protected:
     /***************************************************************************/
     /** @brief Do the required processing for this object */
     G_API_GENEVA void process_(
-        const std::vector<parameterset_processing_result> &res_vec = std::vector<parameterset_processing_result>()
+        const std::vector<parameterset_processing_result> &res_vec =
+            std::vector<parameterset_processing_result>()
     ) final;
 
     /** @brief Adds local configuration options to a GParserBuilder object */
-    G_API_GENEVA void addConfigurationOptions_(
-        Gem::Common::GParserBuilder &
-    ) override;
+    G_API_GENEVA void addConfigurationOptions_(Gem::Common::GParserBuilder &) override;
     /** @brief Loads the data of another GObject */
     G_API_GENEVA void load_(const GObject *) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GParameterSet>(
-        GParameterSet const &
-        , GParameterSet const &
-        , Gem::Common::GToken &
+        GParameterSet const &,
+        GParameterSet const &,
+        Gem::Common::GToken &
     );
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
     G_API_GENEVA void compare_(
         GObject const & // the other object
-        , Gem::Common::expectation const & // the expectation for this object, e.g. equality
-        , double const & // the limit for allowed deviations of floating point types
+        ,
+        Gem::Common::expectation const & // the expectation for this object, e.g. equality
+        ,
+        double const & // the limit for allowed deviations of floating point types
     ) const override;
 
     /** @brief Random initialization */
@@ -981,10 +895,8 @@ private:
     /***************************************************************************/
 
     /** @brief Retrieves a parameter of a given type at the specified position */
-    G_API_GENEVA boost::any getVarVal(
-        const std::string &
-        , const std::tuple<std::size_t, std::string, std::size_t> &target
-    );
+    G_API_GENEVA boost::any
+    getVarVal(const std::string &, const std::tuple<std::size_t, std::string, std::size_t> &target);
 
     /** @brief  Allows to set all fitnesses to the same value (both raw and transformed values) */
     void setAllFitnessTo(double);
@@ -1002,12 +914,7 @@ private:
     std::uniform_int_distribution<std::size_t> m_uniform_int;
 
     /** @brief Holds the globally best known primary fitness of all individuals */
-    std::tuple<double, double> m_best_past_primary_fitness{
-        std::make_tuple(
-            0.
-            , 0.
-        )
-    };
+    std::tuple<double, double> m_best_past_primary_fitness{std::make_tuple(0., 0.)};
     /** @brief The number of stalls of the primary fitness criterion in the entire set of individuals */
     std::uint32_t m_n_stalls = 0;
     /** @brief Indicates whether we are using maximization or minimization mode */
@@ -1029,14 +936,15 @@ private:
     /** @brief A constraint-check to be applied to one or more components of this individual */
     std::shared_ptr<GPreEvaluationValidityCheckT<GParameterSet>> m_individual_constraint_ptr;
 
-    std::size_t m_max_unsuccessful_adaptions
-        = Gem::Geneva::DEFMAXUNSUCCESSFULADAPTIONS; ///< The maximum number of calls to customAdaptions() in a row without actual modifications
-    std::size_t m_max_retries_until_valid
-        = Gem::Geneva::DEFMAXRETRIESUNTILVALID; ///< The maximum number an adaption of an individual should be performed until a valid parameter set was found
-    std::size_t m_n_adaptions = 0; ///< Stores the actual number of adaptions after a call to "adapt()"
+    std::size_t m_max_unsuccessful_adaptions = Gem::Geneva::
+        DEFMAXUNSUCCESSFULADAPTIONS; ///< The maximum number of calls to customAdaptions() in a row without actual modifications
+    std::size_t m_max_retries_until_valid = Gem::Geneva::
+        DEFMAXRETRIESUNTILVALID; ///< The maximum number an adaption of an individual should be performed until a valid parameter set was found
+    std::size_t m_n_adaptions =
+        0; ///< Stores the actual number of adaptions after a call to "adapt()"
 
-    bool m_useRandomCrash
-        = false; ///< Indicates whether the individual should crash at random intervals for debugging purposes
+    bool m_useRandomCrash =
+        false; ///< Indicates whether the individual should crash at random intervals for debugging purposes
     double m_randomCrashProb = 0.; ///< The probability for a random crash
 };
 
@@ -1048,7 +956,6 @@ private:
 /**
  * @brief Needed for Boost.Serialization
  */
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GParameterSet) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GParameterSet)                  // NOLINT
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::parameterset_processing_result) // NOLINT
 /******************************************************************************/
-

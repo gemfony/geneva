@@ -38,8 +38,8 @@
 // Boost headers go here
 
 // Geneva headers go here
-#include "geneva/GParameterT.hpp"
 #include "geneva/GBooleanAdaptor.hpp"
+#include "geneva/GParameterT.hpp"
 
 namespace Gem::Geneva {
 
@@ -50,19 +50,18 @@ namespace Gem::Geneva {
  * use the GBooleanCollection instead.
  */
 class GBooleanObject // NOLINT(cppcoreguidelines-special-member-functions)
-    : public GParameterT<bool>
-{
+  : public GParameterT<bool> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
-    template<typename Archive>
+    template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar
-        & make_nvp(
-            "GParameterT_bool"
-            , boost::serialization::base_object<GParameterT<bool>>(*this));
+        ar &make_nvp(
+            "GParameterT_bool",
+            boost::serialization::base_object<GParameterT<bool>>(*this)
+        );
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -79,19 +78,12 @@ public:
     G_API_GENEVA ~GBooleanObject() override = default;
 
     /** @brief An assignment operator */
-    G_API_GENEVA GBooleanObject& operator=(const bool &) override;
+    G_API_GENEVA GBooleanObject &operator=(const bool &) override;
 
     /** @brief Triggers random initialization of the parameter object */
-    G_API_GENEVA bool randomInit(
-        const activityMode &
-        , Gem::Hap::GRandomBase &
-    ) override;
+    G_API_GENEVA bool randomInit(const activityMode &, Gem::Hap::GRandomBase &) override;
     /** @brief Triggers random initialization of the parameter object, with a given likelihood structure */
-    G_API_GENEVA bool randomInit(
-        const double &
-        , const activityMode &
-        , Gem::Hap::GRandomBase &
-    );
+    G_API_GENEVA bool randomInit(const double &, const activityMode &, Gem::Hap::GRandomBase &);
 
     /** @brief Flips the value of this object */
     G_API_GENEVA void flip();
@@ -102,29 +94,24 @@ protected:
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GBooleanObject>(
-        GBooleanObject const &
-        , GBooleanObject const &
-        , Gem::Common::GToken &
+        GBooleanObject const &,
+        GBooleanObject const &,
+        Gem::Common::GToken &
     );
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
     G_API_GENEVA void compare_(
         const GObject & // the other object
-        , const Gem::Common::expectation & // the expectation for this object, e.g. equality
-        , const double & // the limit for allowed deviations of floating point types
+        ,
+        const Gem::Common::expectation & // the expectation for this object, e.g. equality
+        ,
+        const double & // the limit for allowed deviations of floating point types
     ) const override;
 
     /** @brief Triggers random initialization of the parameter object */
-    G_API_GENEVA bool randomInit_(
-        const activityMode &
-        , Gem::Hap::GRandomBase &
-    ) override;
+    G_API_GENEVA bool randomInit_(const activityMode &, Gem::Hap::GRandomBase &) override;
     /** @brief Triggers random initialization of the parameter object, with a given likelihood structure */
-    G_API_GENEVA bool randomInit_(
-        const double &
-        , const activityMode &
-        , Gem::Hap::GRandomBase &
-    );
+    G_API_GENEVA bool randomInit_(const double &, const activityMode &, Gem::Hap::GRandomBase &);
 
     /** @brief Returns a "comparative range" for this type */
     G_API_GENEVA bool range() const override;
@@ -133,22 +120,28 @@ protected:
     G_API_GENEVA void booleanStreamline(std::vector<bool> &, const activityMode &am) const override;
     /** @brief Attach boundaries of type bool to the vectors */
     G_API_GENEVA void booleanBoundaries(
-        std::vector<bool> &, std::vector<bool> &, const activityMode &am
+        std::vector<bool> &,
+        std::vector<bool> &,
+        const activityMode &am
     ) const override;
 
     /** @brief Tell the audience that we own a std::int32_t value */
     std::size_t countBoolParameters(const activityMode &am) const override;
     /** @brief Assigns part of a value vector to the parameter */
     G_API_GENEVA void assignBooleanValueVector(
-        const std::vector<bool> &, std::size_t &, const activityMode &am
+        const std::vector<bool> &,
+        std::size_t &,
+        const activityMode &am
     ) override;
     /** @brief Attach our local value to the map. */
     G_API_GENEVA void booleanStreamline(
-        std::map<std::string, std::vector<bool>> &, const activityMode &am
+        std::map<std::string, std::vector<bool>> &,
+        const activityMode &am
     ) const override;
     /** @brief Assigns part of a value map to the parameter */
     G_API_GENEVA void assignBooleanValueVectors(
-        const std::map<std::string, std::vector<bool>> &, const activityMode &am
+        const std::map<std::string, std::vector<bool>> &,
+        const activityMode &am
     ) override;
 
     /** @brief Applies modifications to this object. This is needed for testing purposes */

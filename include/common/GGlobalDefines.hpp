@@ -51,16 +51,16 @@
 
 //-----------------------------------------------------------
 // For Microsoft-compatible compilers
-#if defined(_MSC_VER)  && (_MSC_VER >= 1020)
+#if defined(_MSC_VER) && (_MSC_VER >= 1020)
 
 // We need to take care of Boost 1.70, which has a problem in Beast with std::max + Windows
-#if (BOOST_VERSION==107000)
+#if (BOOST_VERSION == 107000)
 #define NOMINMAX
 #define WIN32_LEAN_AND_MEAN
 #endif
 
-#include <winsock2.h>
 #include <windows.h>
+#include <winsock2.h>
 
 #endif /* _MSC_VER */
 //-----------------------------------------------------------
@@ -145,9 +145,9 @@
 //-----------------------------------------------------------
 // Allow to mark functions as deprecated on supported compilers
 #ifdef __GNUC__
-#define G_DEPRECATED(message) __attribute__ ((deprecated(#message)))
+#define G_DEPRECATED(message) __attribute__((deprecated(#message)))
 #elif defined(__clang__)
-#define G_DEPRECATED(message) __attribute__ ((deprecated(#message)))
+#define G_DEPRECATED(message) __attribute__((deprecated(#message)))
 #elif defined(_MSC_VER)
 #define G_DEPRECATED(message) __declspec(deprecated(#message))
 #else

@@ -48,9 +48,9 @@ namespace Gem::Common {
  */
 template <typename T>
 struct GDefaultValueT {
-   static T value() {
-      return T(0);
-   }
+    static T value() {
+        return T(0);
+    }
 };
 
 /******************************************************************************/
@@ -59,9 +59,9 @@ struct GDefaultValueT {
  */
 template <>
 struct GDefaultValueT<bool> {
-   static bool value() {
-      return true;
-   }
+    static bool value() {
+        return true;
+    }
 };
 
 /******************************************************************************/
@@ -70,9 +70,9 @@ struct GDefaultValueT<bool> {
  */
 template <>
 struct GDefaultValueT<std::string> {
-   static std::string value() {
-      return std::string();
-   }
+    static std::string value() {
+        return std::string();
+    }
 };
 /******************************************************************************/
 

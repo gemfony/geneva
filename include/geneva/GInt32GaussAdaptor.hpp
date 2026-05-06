@@ -54,19 +54,18 @@ namespace Gem::Geneva {
  * accordingly, so sigma cannot get too small when being adapted.
  */
 class GInt32GaussAdaptor // NOLINT(cppcoreguidelines-special-member-functions)
-    : public GIntGaussAdaptorT<std::int32_t>
-{
+  : public GIntGaussAdaptorT<std::int32_t> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
-    template<typename Archive>
+    template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar
-        & make_nvp(
-            "GIntGaussAdaptorT_int32"
-            , boost::serialization::base_object<GIntGaussAdaptorT<std::int32_t>>(*this));
+        ar &make_nvp(
+            "GIntGaussAdaptorT_int32",
+            boost::serialization::base_object<GIntGaussAdaptorT<std::int32_t>>(*this)
+        );
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -79,19 +78,14 @@ public:
     /** @brief Initialization with a adaption probability */
     explicit G_API_GENEVA GInt32GaussAdaptor(const double &);
     /** @brief Initialization with a number of values belonging to the width of the gaussian */
-    G_API_GENEVA GInt32GaussAdaptor(
-        const double &
-        , const double &
-        , const double &
-        , const double &
-    );
+    G_API_GENEVA GInt32GaussAdaptor(const double &, const double &, const double &, const double &);
     /** @brief Initialization with a number of values belonging to the width of the gaussian and the adaption probability */
     G_API_GENEVA GInt32GaussAdaptor(
+        const double &,
+        const double &,
+        const double &,
+        const double &,
         const double &
-        , const double &
-        , const double &
-        , const double &
-        , const double &
     );
     /** @brief The destructor */
     G_API_GENEVA ~GInt32GaussAdaptor() override = default;
@@ -102,16 +96,18 @@ protected:
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GInt32GaussAdaptor>(
-        GInt32GaussAdaptor const &
-        , GInt32GaussAdaptor const &
-        , Gem::Common::GToken &
+        GInt32GaussAdaptor const &,
+        GInt32GaussAdaptor const &,
+        Gem::Common::GToken &
     );
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
     G_API_GENEVA void compare_(
         const GObject & // the other object
-        , const Gem::Common::expectation & // the expectation for this object, e.g. equality
-        , const double & // the limit for allowed deviations of floating point types
+        ,
+        const Gem::Common::expectation & // the expectation for this object, e.g. equality
+        ,
+        const double & // the limit for allowed deviations of floating point types
     ) const override;
 
     /** @brief Applies modifications to this object. This is needed for testing purposes */

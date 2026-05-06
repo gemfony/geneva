@@ -216,7 +216,8 @@ private:
         using boost::serialization::make_nvp;
 
         // Transfer the path to the string
-        std::string cpDir = m_cp_directory_path.string(); // NOLINT(cppcoreguidelines-init-variables)
+        std::string cpDir =
+            m_cp_directory_path.string(); // NOLINT(cppcoreguidelines-init-variables)
 
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject) &
             make_nvp(

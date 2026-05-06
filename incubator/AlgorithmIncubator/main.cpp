@@ -43,15 +43,15 @@
  * Some code in this file was contributed by Lisa Schaetzle.
  */
 
-#include <iostream>
-#include <vector>
 #include <cmath>
+#include <iostream>
 #include <limits>
+#include <vector>
 
-#include <tuple>
 #include <memory>
-#include <type_traits>
 #include <random>
+#include <tuple>
+#include <type_traits>
 
 #include "incubator.hpp"
 
@@ -69,36 +69,36 @@ const std::size_t MAXITERATIONS = 10;
  */
 using real_generator = srd::mt19937;
 using real_dist = std::uniform_real_distribution<>;
-using Generator = std::variate_generator<real_generator&, real_dist>;
+using Generator = std::variate_generator<real_generator &, real_dist>;
 
 int main() {
-	real_generator mt; // From Boosts own random number suite
-	real_dist dist(0, 1);
-	Generator rng(mt,dist);
+    real_generator mt; // From Boosts own random number suite
+    real_dist dist(0, 1);
+    Generator rng(mt, dist);
 
-	std::vector<double> startValues;
-   startValues.push_back(rng());
-   startValues.push_back(rng());
-   startValues.push_back(rng());
-   startValues.push_back(rng());
+    std::vector<double> startValues;
+    startValues.push_back(rng());
+    startValues.push_back(rng());
+    startValues.push_back(rng());
+    startValues.push_back(rng());
 
-   std::vector<double> bestResults;
+    std::vector<double> bestResults;
 
-   // Set up our solver
-   solver s(PARABOLA);
-   //-----------------------------------------------------
-   // We start to optimize with the conjugate gradient
-   optimizerPlaceHolder cg(startValues, s, MAXITERATIONS);
+    // Set up our solver
+    solver s(PARABOLA);
+    //-----------------------------------------------------
+    // We start to optimize with the conjugate gradient
+    optimizerPlaceHolder cg(startValues, s, MAXITERATIONS);
 
-   // Run the actual optimization
-   bestResults = cg.optimize();
+    // Run the actual optimization
+    bestResults = cg.optimize();
 
-   // Output the result
-   print(bestResults, "DummyOA:");
+    // Output the result
+    print(bestResults, "DummyOA:");
 
-   //-----------------------------------------------------
-   // We are done -- let the audience know
+    //-----------------------------------------------------
+    // We are done -- let the audience know
 
-   std::cout << "done ..." << std::endl;
-   return SUCCESS;
+    std::cout << "done ..." << std::endl;
+    return SUCCESS;
 }

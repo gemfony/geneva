@@ -50,29 +50,25 @@ namespace Gem::Geneva {
 /**
  * A collection of integer objects without boundaries
  */
-template<typename int_type>
+template <typename int_type>
 class GIntNumCollectionT // NOLINT(cppcoreguidelines-special-member-functions)
-    : public GNumCollectionT<int_type>
-{
+  : public GNumCollectionT<int_type> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
-    template<typename Archive>
+    template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar
-        & make_nvp(
-            "GNumCollectionT_intType"
-            , boost::serialization::base_object<GNumCollectionT<int_type>>(*this));
+        ar &make_nvp(
+            "GNumCollectionT_intType",
+            boost::serialization::base_object<GNumCollectionT<int_type>>(*this)
+        );
     }
     ///////////////////////////////////////////////////////////////////////
 
     // Make sure this class can only be instantiated if int_type is a *signed* integer type
-    static_assert(
-        std::is_signed<int_type>::value
-        , "int_type should be a signed integer type"
-    );
+    static_assert(std::is_signed<int_type>::value, "int_type should be a signed integer type");
 
 public:
     /***************************************************************************/
@@ -89,28 +85,20 @@ public:
      * @param min The minimum random value
      * @param max The maximum random value
      */
-    GIntNumCollectionT(
-        const std::size_t &nval
-        , const int_type &min
-        , const int_type &max
-    )
-        :
-        GNumCollectionT<int_type>(
-            nval
-            , min
-            , min
-            , max
+    GIntNumCollectionT(const std::size_t &nval, const int_type &min, const int_type &max)
+      : GNumCollectionT<int_type>(
+            nval,
+            min,
+            min,
+            max
         ) // Initialization of a vector with nval variables of value "min"
     {
         Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL> gr;
-        typename std::uniform_int_distribution<int_type> uniform_int(
-            min
-            , max
-        );
+        typename std::uniform_int_distribution<int_type> uniform_int(min, max);
 
         // Fill the vector with random values
         typename GIntNumCollectionT<int_type>::iterator it;
-        for (it = this->begin(); it != this->end(); ++it) {
+        for(it = this->begin(); it != this->end(); ++it) {
             *it = uniform_int(gr);
         }
     }
@@ -127,18 +115,13 @@ public:
      * @param max The maximum random value
      */
     GIntNumCollectionT(
-        const std::size_t &nval
-        , const int_type &val
-        , const int_type &min
-        , const int_type &max
+        const std::size_t &nval,
+        const int_type &val,
+        const int_type &min,
+        const int_type &max
     )
-        :
-        GNumCollectionT<int_type>(
-            nval
-            , val
-            , min
-            , max
-        ) { /* nothing */ }
+      : GNumCollectionT<int_type>(nval, val, min, max) { /* nothing */
+    }
 
     /***************************************************************************/
     /**
@@ -163,11 +146,8 @@ protected:
      */
     void load_(const GObject *cp) override {
         // Convert the pointer to our target type and check for self-assignment
-        const GIntNumCollectionT<int_type>
-            *p_load = Gem::Common::g_convert_and_compare<GObject, GIntNumCollectionT<int_type>>(
-            cp
-            , this
-        );
+        const GIntNumCollectionT<int_type> *p_load =
+            Gem::Common::g_convert_and_compare<GObject, GIntNumCollectionT<int_type>>(cp, this);
 
         // Load our parent class'es data ...
         GNumCollectionT<int_type>::load_(cp);
@@ -178,9 +158,9 @@ protected:
     /***************************************************************************/
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GIntNumCollectionT<int_type>>(
-        GIntNumCollectionT<int_type> const &
-        , GIntNumCollectionT<int_type> const &
-        , Gem::Common::GToken &
+        GIntNumCollectionT<int_type> const &,
+        GIntNumCollectionT<int_type> const &,
+        Gem::Common::GToken &
     );
 
     /***************************************************************************/
@@ -193,30 +173,20 @@ protected:
      * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
     void compare_(
-        const GObject &cp
-        , const Gem::Common::expectation &e
-        , const double &/*limit*/
+        const GObject &cp,
+        const Gem::Common::expectation &e,
+        const double & /*limit*/
     ) const override {
         using namespace Gem::Common;
 
         // Check that we are dealing with a GIntNumCollectionT<int_type> reference independent of this object and convert the pointer
-        const GIntNumCollectionT<int_type>
-            *p_load = Gem::Common::g_convert_and_compare<GObject, GIntNumCollectionT<int_type>>(
-            cp
-            , this
-        );
+        const GIntNumCollectionT<int_type> *p_load =
+            Gem::Common::g_convert_and_compare<GObject, GIntNumCollectionT<int_type>>(cp, this);
 
-        GToken token(
-            "GIntNumCollectionT<int_type>"
-            , e
-        );
+        GToken token("GIntNumCollectionT<int_type>", e);
 
         // Compare our parent data ...
-        Gem::Common::compare_base_t<GNumCollectionT<int_type>>(
-            *this
-            , *p_load
-            , token
-        );
+        Gem::Common::compare_base_t<GNumCollectionT<int_type>>(*this, *p_load, token);
 
         // ... no local data
 
@@ -231,18 +201,16 @@ protected:
      * that is added later will remain unaffected.
      */
     bool randomInit_(
-        const activityMode &/*am*/
-        , Gem::Hap::GRandomBase &gr
+        const activityMode & /*am*/
+        ,
+        Gem::Hap::GRandomBase &gr
     ) override {
         int_type lowerBoundary = GNumCollectionT<int_type>::getLowerInitBoundary();
         int_type upperBoundary = GNumCollectionT<int_type>::getUpperInitBoundary();
 
-        typename std::uniform_int_distribution<int_type> uniform_int(
-            lowerBoundary
-            , upperBoundary
-        );
+        typename std::uniform_int_distribution<int_type> uniform_int(lowerBoundary, upperBoundary);
         typename GIntNumCollectionT<int_type>::iterator it;
-        for (it = this->begin(); it != this->end(); ++it) {
+        for(it = this->begin(); it != this->end(); ++it) {
             (*it) = uniform_int(gr);
         }
 
@@ -263,14 +231,16 @@ protected:
         bool result = false;
 
         // Call the parent class'es function
-        if (GNumCollectionT<int_type>::modify_GUnitTests_()) { result = true; }
+        if(GNumCollectionT<int_type>::modify_GUnitTests_()) {
+            result = true;
+        }
 
         return result;
 
-#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
         Gem::Common::condnotset("GIntNumCollectionT<>::modify_GUnitTests", "GEM_TESTING");
-       return false;
-#endif /* GEM_TESTING */
+        return false;
+#endif                  /* GEM_TESTING */
     }
 
     /***************************************************************************/
@@ -281,7 +251,8 @@ protected:
 #ifdef GEM_TESTING
         // A few general settings
         const std::size_t nItems = 100;
-        const int_type LOWERINITBOUNDARY = int_type(0); // non-negative value, as int_type might be negative
+        const int_type LOWERINITBOUNDARY =
+            int_type(0); // non-negative value, as int_type might be negative
         const int_type UPPERINITBOUNDARY = int_type(10);
         const int_type FIXEDVALUEINIT = int_type(1);
 
@@ -294,27 +265,24 @@ protected:
         //------------------------------------------------------------------------------
 
         { // Initialize with a fixed value, then check setting and retrieval of boundaries and random initialization
-            std::shared_ptr<GIntNumCollectionT<int_type>>
-                    p_test1 = this->template clone<GIntNumCollectionT<int_type>>();
-            std::shared_ptr<GIntNumCollectionT<int_type>>
-                    p_test2 = this->template clone<GIntNumCollectionT<int_type>>();
+            std::shared_ptr<GIntNumCollectionT<int_type>> p_test1 =
+                this->template clone<GIntNumCollectionT<int_type>>();
+            std::shared_ptr<GIntNumCollectionT<int_type>> p_test2 =
+                this->template clone<GIntNumCollectionT<int_type>>();
 
             // Make sure p_test1 and p_test2 are empty
             CHECK_NOTHROW(p_test1->clear());
             CHECK_NOTHROW(p_test2->clear());
 
             // Add a few items
-            for (std::size_t i = 0; i < nItems; i++) {
+            for(std::size_t i = 0; i < nItems; i++) {
                 p_test1->push_back(
-                        2 * UPPERINITBOUNDARY
+                    2 * UPPERINITBOUNDARY
                 ); // Make sure random initialization cannot randomly leave the value unchanged
             }
 
             // Set initialization boundaries
-            CHECK_NOTHROW(p_test1->setInitBoundaries(
-                    LOWERINITBOUNDARY
-                    , UPPERINITBOUNDARY
-            ));
+            CHECK_NOTHROW(p_test1->setInitBoundaries(LOWERINITBOUNDARY, UPPERINITBOUNDARY));
 
             // Check that the boundaries have been set as expected
             CHECK(p_test1->getLowerInitBoundary() == LOWERINITBOUNDARY);
@@ -326,16 +294,13 @@ protected:
             CHECK(*p_test1 == *p_test2);
 
             // Randomly initialize one of the two objects. Note: we are using the protected function rather than the "global" function
-            CHECK_NOTHROW(p_test1->randomInit_(
-                    activityMode::ALLPARAMETERS
-                    , gr
-            ));
+            CHECK_NOTHROW(p_test1->randomInit_(activityMode::ALLPARAMETERS, gr));
 
             // Check that the object has indeed changed
             CHECK(*p_test1 != *p_test2);
 
             // Check that the values of p_test1 are inside of the allowed boundaries
-            for (std::size_t i = 0; i < nItems; i++) {
+            for(std::size_t i = 0; i < nItems; i++) {
                 CHECK(p_test1->at(i) != p_test2->at(i));
                 CHECK(p_test1->at(i) >= LOWERINITBOUNDARY);
                 CHECK(p_test1->at(i) <= UPPERINITBOUNDARY);
@@ -345,15 +310,15 @@ protected:
         //------------------------------------------------------------------------------
 
         { // Check that the fp-family of functions doesn't have an effect on this object
-            std::shared_ptr<GIntNumCollectionT<int_type>>
-                    p_test1 = this->template clone<GIntNumCollectionT<int_type>>();
-            std::shared_ptr<GIntNumCollectionT<int_type>>
-                    p_test2 = this->template clone<GIntNumCollectionT<int_type>>();
-            std::shared_ptr<GIntNumCollectionT<int_type>>
-                    p_test3 = this->template clone<GIntNumCollectionT<int_type>>();
+            std::shared_ptr<GIntNumCollectionT<int_type>> p_test1 =
+                this->template clone<GIntNumCollectionT<int_type>>();
+            std::shared_ptr<GIntNumCollectionT<int_type>> p_test2 =
+                this->template clone<GIntNumCollectionT<int_type>>();
+            std::shared_ptr<GIntNumCollectionT<int_type>> p_test3 =
+                this->template clone<GIntNumCollectionT<int_type>>();
 
             // Add a few items to p_test1
-            for (std::size_t i = 0; i < nItems; i++) {
+            for(std::size_t i = 0; i < nItems; i++) {
                 p_test1->push_back(FIXEDVALUEINIT);
             }
 
@@ -365,55 +330,44 @@ protected:
             CHECK(*p_test3 == *p_test2);
 
             // Check that initialization with a fixed floating point value has no effect on this object
-            CHECK_NOTHROW(p_test2->template fixedValueInit<double>(
-                    2.
-                    , activityMode::ALLPARAMETERS
-            ));
+            CHECK_NOTHROW(
+                p_test2->template fixedValueInit<double>(2., activityMode::ALLPARAMETERS)
+            );
             CHECK(*p_test2 == *p_test1);
 
             // Check that multiplication with a fixed floating point value has no effect on this object
-            CHECK_NOTHROW(p_test2->template multiplyBy<double>(
-                    2.
-                    , activityMode::ALLPARAMETERS
-            ));
+            CHECK_NOTHROW(p_test2->template multiplyBy<double>(2., activityMode::ALLPARAMETERS));
             CHECK(*p_test2 == *p_test1);
 
             // Check that a component-wise multiplication with a random fp value in a given range does not have an effect on this object
-            CHECK_NOTHROW(p_test2->template multiplyByRandom<double>(
-                    1.
-                    , 2.
-                    , activityMode::ALLPARAMETERS
-                    , gr
-            ));
+            CHECK_NOTHROW(
+                p_test2->template multiplyByRandom<double>(1., 2., activityMode::ALLPARAMETERS, gr)
+            );
             CHECK(*p_test2 == *p_test1);
 
             // Check that a component-wise multiplication with a random fp value in the range [0:1[ does not have an effect on this object
-            CHECK_NOTHROW(p_test2->template multiplyByRandom<double>(
-                    activityMode::ALLPARAMETERS
-                    , gr
-            ));
+            CHECK_NOTHROW(
+                p_test2->template multiplyByRandom<double>(activityMode::ALLPARAMETERS, gr)
+            );
             CHECK(*p_test2 == *p_test1);
 
             // Check that adding p_test1 to p_test3 does not have an effect
-            CHECK_NOTHROW(p_test3->template add<double>(
-                    p_test1
-                    , activityMode::ALLPARAMETERS
-            ));
+            CHECK_NOTHROW(p_test3->template add<double>(p_test1, activityMode::ALLPARAMETERS));
             CHECK(*p_test3 == *p_test2);
 
             // Check that subtracting p_test1 from p_test3 does not have an effect
-            CHECK_NOTHROW(p_test3->template subtract<double>(
-                    p_test1
-                    , activityMode::ALLPARAMETERS
-            ));
+            CHECK_NOTHROW(p_test3->template subtract<double>(p_test1, activityMode::ALLPARAMETERS));
             CHECK(*p_test3 == *p_test2);
         }
 
         //------------------------------------------------------------------------------
 
-#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-        Gem::Common::condnotset("GIntNumCollectionT<>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
-#endif /* GEM_TESTING */
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+        Gem::Common::condnotset(
+            "GIntNumCollectionT<>::specificTestsNoFailureExpected_GUnitTests",
+            "GEM_TESTING"
+        );
+#endif                  /* GEM_TESTING */
     }
 
     /***************************************************************************/
@@ -425,9 +379,12 @@ protected:
         // Call the parent class'es function
         GNumCollectionT<int_type>::specificTestsFailuresExpected_GUnitTests_();
 
-#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-        Gem::Common::condnotset("GIntNumCollectionT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
-#endif /* GEM_TESTING */
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+        Gem::Common::condnotset(
+            "GIntNumCollectionT<>::specificTestsFailuresExpected_GUnitTests",
+            "GEM_TESTING"
+        );
+#endif                  /* GEM_TESTING */
     }
 
     /***************************************************************************/
@@ -453,16 +410,9 @@ private:
 /******************************************************************************/
 // The content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T) // NOLINT
 namespace boost::serialization {
-template<typename int_type>
-struct is_abstract<Gem::Geneva::GIntNumCollectionT<int_type>> :
-    public boost::true_type
-{
-};
-template<typename int_type>
-struct is_abstract<const Gem::Geneva::GIntNumCollectionT<int_type>> :
-    public boost::true_type
-{
-};
+template <typename int_type>
+struct is_abstract<Gem::Geneva::GIntNumCollectionT<int_type>> : public boost::true_type {};
+template <typename int_type>
+struct is_abstract<const Gem::Geneva::GIntNumCollectionT<int_type>> : public boost::true_type {};
 } /* namespace boost::serialization */
 /******************************************************************************/
-

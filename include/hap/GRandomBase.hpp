@@ -34,21 +34,21 @@
 
 // Standard headers go here
 
-#include <cstdlib>
-#include <iomanip>
-#include <ctime>
-#include <cmath>
-#include <iostream>
-#include <sstream>
-#include <cassert>
 #include <algorithm>
+#include <cassert>
+#include <cmath>
+#include <cstdlib>
+#include <ctime>
+#include <iomanip>
+#include <iostream>
 #include <random>
+#include <sstream>
 
 // Boost headers go here
+#include <boost/cast.hpp>
+#include <boost/lexical_cast.hpp>
 #include <boost/math/constants/constants.hpp>
 #include <boost/utility.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/cast.hpp>
 
 // Hap headers go here
 #include "hap/GHapEnums.hpp"
@@ -65,56 +65,54 @@ namespace Gem::Hap {
  * from "raw" random numbers, which can be obtained in derived classes using
  * various different ways.
  */
-class GRandomBase
-{
+class GRandomBase {
 public:
-	 /** @brief Helps to use this object as a generator for C++11 std::distributions */
-	 using result_type = G_CPU_BASE_GENERATOR::result_type;
+    /** @brief Helps to use this object as a generator for C++11 std::distributions */
+    using result_type = G_CPU_BASE_GENERATOR::result_type;
 
-	 /***************************************************************************/
-	 /** @brief The standard constructor */
-	 G_API_HAP GRandomBase();
-	 /** @brief A standard destructor */
-	 virtual G_API_HAP ~GRandomBase();
-	 /** @brief Retrieves a "raw" random item item */
-	 G_API_HAP GRandomBase::result_type operator()();
+    /***************************************************************************/
+    /** @brief The standard constructor */
+    G_API_HAP GRandomBase();
+    /** @brief A standard destructor */
+    virtual G_API_HAP ~GRandomBase();
+    /** @brief Retrieves a "raw" random item item */
+    G_API_HAP GRandomBase::result_type operator()();
 
-	/***************************************************************************/
-	// Prevent copying
-	GRandomBase(const GRandomBase&) = delete;
-	GRandomBase(const GRandomBase&&) = delete;
-	GRandomBase& operator=(const GRandomBase&) = delete;
-	GRandomBase& operator=(const GRandomBase&&) = delete;
+    /***************************************************************************/
+    // Prevent copying
+    GRandomBase(const GRandomBase &) = delete;
+    GRandomBase(const GRandomBase &&) = delete;
+    GRandomBase &operator=(const GRandomBase &) = delete;
+    GRandomBase &operator=(const GRandomBase &&) = delete;
 
-	 /***************************************************************************/
-	 /**
+    /***************************************************************************/
+    /**
 	  * This function is part of the standard interface of C++11 random number
 	  * engines. It returns the minimum value returned by the generator. Since
 	  * this class acts as a proxy for a wrapped generator or a generator running
 	  * as a factory, we simply return the base generators min()-Value.
 	  */
-	 static constexpr G_API_HAP result_type (min)() {
-		 return (G_CPU_BASE_GENERATOR::min)();
-	 }
+    static constexpr G_API_HAP result_type(min)() {
+        return (G_CPU_BASE_GENERATOR::min)();
+    }
 
-	 /***************************************************************************/
-	 /**
+    /***************************************************************************/
+    /**
 	  * This function is part of the standard interface of C++11 random number
 	  * engines. It returns the maximum value returned by the generator. Since
 	  * this class acts as a proxy for a wrapped generator or a generator running
 	  * as a factory, we simply return the base generators max()-Value.
 	  */
-	 static constexpr G_API_HAP result_type (max)() {
-		 return (G_CPU_BASE_GENERATOR::max)();
-	 }
+    static constexpr G_API_HAP result_type(max)() {
+        return (G_CPU_BASE_GENERATOR::max)();
+    }
 
 private:
-	 /***************************************************************************/
-	 /** @brief Uniformly distributed integer numbers in the range min/max */
-	 virtual G_API_HAP result_type int_random() = 0;
+    /***************************************************************************/
+    /** @brief Uniformly distributed integer numbers in the range min/max */
+    virtual G_API_HAP result_type int_random() = 0;
 };
 
 /******************************************************************************/
 
 } /* namespace Gem::Hap */
-

@@ -45,33 +45,37 @@
 using namespace Gem::Geneva;
 
 int main(int argc, char **argv) {
-	Go2 go(argc, argv, "./config/Go2.json");
+    Go2 go(argc, argv, "./config/Go2.json");
 
-	//---------------------------------------------------------------------
-	// Client mode (networked)
-	if(go.clientMode()) {
-		go.clientRun();
-		return 0;
-	}
+    //---------------------------------------------------------------------
+    // Client mode (networked)
+    if(go.clientMode()) {
+        go.clientRun();
+        return 0;
+    }
 
-	//---------------------------------------------------------------------
-	// Server mode, serial or multi-threaded execution
+    //---------------------------------------------------------------------
+    // Server mode, serial or multi-threaded execution
 
-	// Create a factory for GMultiCriterionParabolaIndividual objects and perform
-	// any necessary initial work.
-	std::shared_ptr<GMultiCriterionParabolaIndividualFactory>
-		gpi_ptr(new GMultiCriterionParabolaIndividualFactory("./config/GMultiCriterionParabolaIndividual.json"));
+    // Create a factory for GMultiCriterionParabolaIndividual objects and perform
+    // any necessary initial work.
+    std::shared_ptr<GMultiCriterionParabolaIndividualFactory> gpi_ptr(
+        new GMultiCriterionParabolaIndividualFactory(
+            "./config/GMultiCriterionParabolaIndividual.json"
+        )
+    );
 
-	// Add a content creator so Go2 can generate its own individuals, if necessary
-	go.registerContentCreator(gpi_ptr);
+    // Add a content creator so Go2 can generate its own individuals, if necessary
+    go.registerContentCreator(gpi_ptr);
 
-	// Add a default optimization algorithm to the Go2 object.
-	// Note that this is the only algorithm that currently can handle multi-criterion optimization
-	go.registerDefaultAlgorithm("ea");
+    // Add a default optimization algorithm to the Go2 object.
+    // Note that this is the only algorithm that currently can handle multi-criterion optimization
+    go.registerDefaultAlgorithm("ea");
 
-	// Perform the actual optimization
-	std::shared_ptr<GMultiCriterionParabolaIndividual> bestIndividual_ptr = go.optimize()->getBestGlobalIndividual<GMultiCriterionParabolaIndividual>();
+    // Perform the actual optimization
+    std::shared_ptr<GMultiCriterionParabolaIndividual> bestIndividual_ptr =
+        go.optimize()->getBestGlobalIndividual<GMultiCriterionParabolaIndividual>();
 
-	// Do something with the best result
-	std::cout << bestIndividual_ptr << std::endl;
+    // Do something with the best result
+    std::cout << bestIndividual_ptr << std::endl;
 }

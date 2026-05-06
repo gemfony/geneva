@@ -51,29 +51,27 @@ namespace Gem::Geneva {
  * as implemented by this library. It is now implemented through a generic
  * base class that can also be used to adapt other numeric types.
  */
-template<typename fp_type>
+template <typename fp_type>
 class GFPGaussAdaptorT // NOLINT(cppcoreguidelines-special-member-functions)
-    :
-        public GNumGaussAdaptorT<fp_type, fp_type>
-{
+  : public GNumGaussAdaptorT<fp_type, fp_type> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
-    template<typename Archive>
+    template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar
-        & make_nvp(
-            "GNumGaussAdaptorT_fp_type"
-            , boost::serialization::base_object<GNumGaussAdaptorT<fp_type, fp_type>>(*this));
+        ar &make_nvp(
+            "GNumGaussAdaptorT_fp_type",
+            boost::serialization::base_object<GNumGaussAdaptorT<fp_type, fp_type>>(*this)
+        );
     }
     ///////////////////////////////////////////////////////////////////////
 
     // Make sure this class can only be instantiated if fp_type really is a floating point type
     static_assert(
-        std::is_floating_point<fp_type>::value
-        , "fp_type should be a floating point type"
+        std::is_floating_point<fp_type>::value,
+        "fp_type should be a floating point type"
     );
 
 public:
@@ -98,8 +96,8 @@ public:
      * @param adProb The adaption probability
      */
     explicit GFPGaussAdaptorT(const double &adProb)
-        :
-        GNumGaussAdaptorT<fp_type, fp_type>(adProb) { /* nothing */ }
+      : GNumGaussAdaptorT<fp_type, fp_type>(adProb) { /* nothing */
+    }
 
     /***************************************************************************/
     /**
@@ -112,18 +110,13 @@ public:
      * @param maxSigma The maximal value allowed for sigma_
      */
     GFPGaussAdaptorT(
-        const fp_type &sigma
-        , const fp_type &sigmaSigma
-        , const fp_type &minSigma
-        , const fp_type &maxSigma
+        const fp_type &sigma,
+        const fp_type &sigmaSigma,
+        const fp_type &minSigma,
+        const fp_type &maxSigma
     )
-        :
-        GNumGaussAdaptorT<fp_type, fp_type>(
-            sigma
-            , sigmaSigma
-            , minSigma
-            , maxSigma
-        ) { /* nothing */ }
+      : GNumGaussAdaptorT<fp_type, fp_type>(sigma, sigmaSigma, minSigma, maxSigma) { /* nothing */
+    }
 
     /***************************************************************************/
     /**
@@ -137,20 +130,20 @@ public:
      * @param adProb The adaption probability
      */
     GFPGaussAdaptorT(
-        const fp_type &sigma
-        , const fp_type &sigmaSigma
-        , const fp_type &minSigma
-        , const fp_type &maxSigma
-        , const double &adProb
+        const fp_type &sigma,
+        const fp_type &sigmaSigma,
+        const fp_type &minSigma,
+        const fp_type &maxSigma,
+        const double &adProb
     )
-        :
-        GNumGaussAdaptorT<fp_type, fp_type>(
-            sigma
-            , sigmaSigma
-            , minSigma
-            , maxSigma
-            , adProb
-        ) { /* nothing */ }
+      : GNumGaussAdaptorT<fp_type, fp_type>(
+            sigma,
+            sigmaSigma,
+            minSigma,
+            maxSigma,
+            adProb
+        ) { /* nothing */
+    }
 
     /***************************************************************************/
     /**
@@ -167,11 +160,8 @@ protected:
      */
     void load_(const GObject *cp) override {
         // Convert the pointer to our target type and check for self-assignment
-        const GFPGaussAdaptorT<fp_type>
-            *p_load = Gem::Common::g_convert_and_compare<GObject, GFPGaussAdaptorT<fp_type>>(
-            cp
-            , this
-        );
+        const GFPGaussAdaptorT<fp_type> *p_load =
+            Gem::Common::g_convert_and_compare<GObject, GFPGaussAdaptorT<fp_type>>(cp, this);
 
         // Load our parent class'es data ...
         GNumGaussAdaptorT<fp_type, fp_type>::load_(cp);
@@ -182,9 +172,9 @@ protected:
     /***************************************************************************/
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GFPGaussAdaptorT<fp_type>>(
-        GFPGaussAdaptorT<fp_type> const &
-        , GFPGaussAdaptorT<fp_type> const &
-        , Gem::Common::GToken &
+        GFPGaussAdaptorT<fp_type> const &,
+        GFPGaussAdaptorT<fp_type> const &,
+        Gem::Common::GToken &
     );
 
     /***************************************************************************/
@@ -197,30 +187,20 @@ protected:
      * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
     void compare_(
-        const GObject &cp
-        , const Gem::Common::expectation &e
-        , const double &/*limit*/
+        const GObject &cp,
+        const Gem::Common::expectation &e,
+        const double & /*limit*/
     ) const override {
         using namespace Gem::Common;
 
         // Check that we are dealing with a GFPGaussAdaptorT<fp_type> reference independent of this object and convert the pointer
-        const GFPGaussAdaptorT<fp_type>
-            *p_load = Gem::Common::g_convert_and_compare<GObject, GFPGaussAdaptorT<fp_type>>(
-            cp
-            , this
-        );
+        const GFPGaussAdaptorT<fp_type> *p_load =
+            Gem::Common::g_convert_and_compare<GObject, GFPGaussAdaptorT<fp_type>>(cp, this);
 
-        GToken token(
-            "GFPGaussAdaptorT<fp_type>"
-            , e
-        );
+        GToken token("GFPGaussAdaptorT<fp_type>", e);
 
         // Compare our parent data ...
-        Gem::Common::compare_base_t<GNumGaussAdaptorT<fp_type, fp_type>>(
-            *this
-            , *p_load
-            , token
-        );
+        Gem::Common::compare_base_t<GNumGaussAdaptorT<fp_type, fp_type>>(*this, *p_load, token);
 
         // ... no local data
 
@@ -235,23 +215,20 @@ protected:
      * @param value The value that is going to be adapted in situ
      * @param range A typical range for the parameter with type num_type
      */
-    void customAdaptions(
-        fp_type &value
-        , const fp_type &range
-        , Gem::Hap::GRandomBase &gr
-    ) override {
+    void customAdaptions(fp_type &value, const fp_type &range, Gem::Hap::GRandomBase &gr) override {
         using namespace Gem::Common;
         using namespace Gem::Hap;
 
         // adapt the value in situ. Note that this changes
         // the argument of this function
-        value += (
-            range * GAdaptorT<fp_type, fp_type>::m_normal_distribution(
-                gr
-                , typename std::normal_distribution<fp_type>::param_type(
-                    0.
-                    , GNumGaussAdaptorT<fp_type, fp_type>::sigma_
-                )));
+        value +=
+            (range * GAdaptorT<fp_type, fp_type>::m_normal_distribution(
+                         gr,
+                         typename std::normal_distribution<fp_type>::param_type(
+                             0.,
+                             GNumGaussAdaptorT<fp_type, fp_type>::sigma_
+                         )
+                     ));
     }
 
     /* ----------------------------------------------------------------------------------
@@ -269,14 +246,16 @@ protected:
         bool result = false;
 
         // Call the parent class'es function
-        if (GNumGaussAdaptorT<fp_type, fp_type>::modify_GUnitTests_()) { result = true; }
+        if(GNumGaussAdaptorT<fp_type, fp_type>::modify_GUnitTests_()) {
+            result = true;
+        }
 
         return result;
 
-#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
         Gem::Common::condnotset("GFPGaussAdaptorT<>::modify_GUnitTests", "GEM_TESTING");
-       return false;
-#endif /* GEM_TESTING */
+        return false;
+#endif                  /* GEM_TESTING */
     }
 
     /***************************************************************************/
@@ -291,8 +270,11 @@ protected:
         GNumGaussAdaptorT<fp_type, fp_type>::specificTestsNoFailureExpected_GUnitTests_();
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-        Gem::Common::condnotset("GFPGaussAdaptorT<>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
-#endif /* GEM_TESTING */
+        Gem::Common::condnotset(
+            "GFPGaussAdaptorT<>::specificTestsNoFailureExpected_GUnitTests",
+            "GEM_TESTING"
+        );
+#endif                  /* GEM_TESTING */
     }
 
     /***************************************************************************/
@@ -306,8 +288,11 @@ protected:
         GNumGaussAdaptorT<fp_type, fp_type>::specificTestsFailuresExpected_GUnitTests_();
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-        Gem::Common::condnotset("GFPGaussAdaptorT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
-#endif /* GEM_TESTING */
+        Gem::Common::condnotset(
+            "GFPGaussAdaptorT<>::specificTestsFailuresExpected_GUnitTests",
+            "GEM_TESTING"
+        );
+#endif                  /* GEM_TESTING */
     }
 
 private:
@@ -335,15 +320,9 @@ private:
 /******************************************************************************/
 // The content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T) // NOLINT
 namespace boost::serialization {
-template<typename fp_type>
-struct is_abstract<Gem::Geneva::GFPGaussAdaptorT<fp_type>> :
-    public boost::true_type
-{
-};
-template<typename fp_type>
-struct is_abstract<const Gem::Geneva::GFPGaussAdaptorT<fp_type>> :
-    public boost::true_type
-{
-};
+template <typename fp_type>
+struct is_abstract<Gem::Geneva::GFPGaussAdaptorT<fp_type>> : public boost::true_type {};
+template <typename fp_type>
+struct is_abstract<const Gem::Geneva::GFPGaussAdaptorT<fp_type>> : public boost::true_type {};
 } /* namespace boost::serialization */
 /******************************************************************************/

@@ -33,14 +33,14 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard headers go here
-#include <vector>
-#include <deque>
-#include <sstream>
-#include <iostream>
-#include <string>
-#include <cstdlib>
 #include <cmath>
+#include <cstdlib>
+#include <deque>
+#include <iostream>
+#include <sstream>
+#include <string>
 #include <typeinfo>
+#include <vector>
 
 // Boost headers go here
 #include <boost/cast.hpp>
@@ -63,11 +63,12 @@ class gemfony_common_interface_indicator {};
  * interface. The simple convention is that the base class of a hierarchy must
  * (we recommend) privately inherit from common_gemfony_iterface .
  */
-template<typename T>
+template <typename T>
 struct has_gemfony_common_interface {
-	enum {
-		value = std::is_base_of<gemfony_common_interface_indicator, T>::value
-	};
+    enum {
+        value = std::is_base_of < gemfony_common_interface_indicator,
+        T > ::value
+    };
 };
 
 /******************************************************************************/
@@ -76,21 +77,21 @@ struct has_gemfony_common_interface {
 /**
  * A type trait helping to check whether a class has a compare function.
  */
-template<typename T>
+template <typename T>
 class has_compare_member {
-	using yes = char;
-	using no = long;
+    using yes = char;
+    using no = long;
 
-	template<typename C>
-	static yes test(decltype(&C::compare));
+    template <typename C>
+    static yes test(decltype(&C::compare));
 
-	template<typename C>
-	static no test(...);
+    template <typename C>
+    static no test(...);
 
 public:
-	enum {
-		value = sizeof(test<T>(0)) == sizeof(char)
-	};
+    enum {
+        value = sizeof(test<T>(0)) == sizeof(char)
+    };
 };
 
 /******************************************************************************/
@@ -99,21 +100,21 @@ public:
 /**
  * A type trait helping to check whether a class has a clone function.
  */
-template<typename T>
+template <typename T>
 class has_clone_member {
-	using yes = char;
-	using no = long;
+    using yes = char;
+    using no = long;
 
-	template<typename C>
-	static yes test(decltype(&C::clone));
+    template <typename C>
+    static yes test(decltype(&C::clone));
 
-	template<typename C>
-	static no test(...);
+    template <typename C>
+    static no test(...);
 
 public:
-	enum {
-		value = sizeof(test<T>(0)) == sizeof(char)
-	};
+    enum {
+        value = sizeof(test<T>(0)) == sizeof(char)
+    };
 };
 
 /******************************************************************************/
@@ -122,21 +123,21 @@ public:
 /**
  * A type trait helping to check whether a class has a load function.
  */
-template<typename T>
+template <typename T>
 class has_load_member {
-	using yes = char;
- 	using no = long;
+    using yes = char;
+    using no = long;
 
-	template<typename C>
-	static yes test(decltype(&C::load));
+    template <typename C>
+    static yes test(decltype(&C::load));
 
-	template<typename C>
-	static no test(...);
+    template <typename C>
+    static no test(...);
 
 public:
-	enum {
-		value = sizeof(test<T>(0)) == sizeof(char)
-	};
+    enum {
+        value = sizeof(test<T>(0)) == sizeof(char)
+    };
 };
 
 /******************************************************************************/

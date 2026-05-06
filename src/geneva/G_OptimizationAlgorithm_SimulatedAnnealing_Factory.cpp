@@ -29,94 +29,93 @@
 
 #include "geneva/G_OptimizationAlgorithm_SimulatedAnnealing_Factory.hpp"
 
-namespace Gem::Geneva
-{
+namespace Gem::Geneva {
 
-	/******************************************************************************/
-	////////////////////////////////////////////////////////////////////////////////
-	/******************************************************************************/
-	/**
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
  * The default constructor
  */
-	GSimulatedAnnealingFactory::GSimulatedAnnealingFactory()
-		: G_OptimizationAlgorithm_FactoryT<G_OptimizationAlgorithm_Base>(
-			"./config/GSimulatedAnnealing.json")
-	{ /* nothing */ }
+GSimulatedAnnealingFactory::GSimulatedAnnealingFactory()
+  : G_OptimizationAlgorithm_FactoryT<G_OptimizationAlgorithm_Base>(
+        "./config/GSimulatedAnnealing.json"
+    ) { /* nothing */
+}
 
-	/******************************************************************************/
-	/**
+/******************************************************************************/
+/**
  * Initialization with the name of the config file
  */
-	GSimulatedAnnealingFactory::GSimulatedAnnealingFactory(
-		std::filesystem::path const& configFile
-	)
-		: G_OptimizationAlgorithm_FactoryT<G_OptimizationAlgorithm_Base>(configFile)
-	{ /* nothing */ }
+GSimulatedAnnealingFactory::GSimulatedAnnealingFactory(std::filesystem::path const &configFile)
+  : G_OptimizationAlgorithm_FactoryT<G_OptimizationAlgorithm_Base>(configFile) { /* nothing */
+}
 
-	/******************************************************************************/
-	/**
+/******************************************************************************/
+/**
  * A constructor with the ability to switch the parallelization mode and
  * to add a content creator. It initializes a target item as needed.
  */
-	GSimulatedAnnealingFactory::GSimulatedAnnealingFactory(
-		std::filesystem::path const& configFile
-		, std::shared_ptr <Gem::Common::GFactoryT<GParameterSet>> contentCreatorPtr
-	)
-		: G_OptimizationAlgorithm_FactoryT<G_OptimizationAlgorithm_Base>(configFile, contentCreatorPtr)
-	{ /* nothing */ }
+GSimulatedAnnealingFactory::GSimulatedAnnealingFactory(
+    std::filesystem::path const &configFile,
+    std::shared_ptr<Gem::Common::GFactoryT<GParameterSet>> contentCreatorPtr
+)
+  : G_OptimizationAlgorithm_FactoryT<G_OptimizationAlgorithm_Base>(
+        configFile,
+        contentCreatorPtr
+    ) { /* nothing */
+}
 
-	/******************************************************************************/
-	/**
+/******************************************************************************/
+/**
  * Gives access to the mnemonics / nickname describing an algorithm
  */
-	std::string GSimulatedAnnealingFactory::getMnemonic() const {
-		return GSimulatedAnnealing_PersonalityTraits::nickname;
-	}
+std::string GSimulatedAnnealingFactory::getMnemonic() const {
+    return GSimulatedAnnealing_PersonalityTraits::nickname;
+}
 
-	/******************************************************************************/
-	/**
+/******************************************************************************/
+/**
  * Gives access to a clear-text description of the algorithm
  */
-	std::string GSimulatedAnnealingFactory::getAlgorithmName() const {
-		return std::string("Simulated Annealing");
-	}
+std::string GSimulatedAnnealingFactory::getAlgorithmName() const {
+    return std::string("Simulated Annealing");
+}
 
-	/******************************************************************************/
-	/**
+/******************************************************************************/
+/**
  * Creates items of this type
  *
  * @return Items of the desired type
  */
-	std::shared_ptr<G_OptimizationAlgorithm_Base> GSimulatedAnnealingFactory::getObject_(
-		Gem::Common::GParserBuilder &gpb
-		, const std::size_t &/*id*/
-	) {
-		std::shared_ptr<GSimulatedAnnealing> target(
-			new GSimulatedAnnealing()
-		);
+std::shared_ptr<G_OptimizationAlgorithm_Base> GSimulatedAnnealingFactory::getObject_(
+    Gem::Common::GParserBuilder &gpb,
+    const std::size_t & /*id*/
+) {
+    std::shared_ptr<GSimulatedAnnealing> target(new GSimulatedAnnealing());
 
-		// Make the local configuration options known (up to the level of GSimulatedAnnealing)
-		target->GSimulatedAnnealing::addConfigurationOptions(gpb);
+    // Make the local configuration options known (up to the level of GSimulatedAnnealing)
+    target->GSimulatedAnnealing::addConfigurationOptions(gpb);
 
-		return target;
-	}
+    return target;
+}
 
-	/******************************************************************************/
-	/**
+/******************************************************************************/
+/**
  * Allows to act on the configuration options received from the configuration file. Here
  * we can add the options described in describeLocalOptions to the object.
  *
  * @param p A smart-pointer to be acted on during post-processing
  */
-	void GSimulatedAnnealingFactory::postProcess_(
-		std::shared_ptr<G_OptimizationAlgorithm_Base>& p_base
-	) {
-		// Call our parent class'es function
-		G_OptimizationAlgorithm_FactoryT<G_OptimizationAlgorithm_Base>::postProcess_(p_base);
-	}
+void GSimulatedAnnealingFactory::postProcess_(
+    std::shared_ptr<G_OptimizationAlgorithm_Base> &p_base
+) {
+    // Call our parent class'es function
+    G_OptimizationAlgorithm_FactoryT<G_OptimizationAlgorithm_Base>::postProcess_(p_base);
+}
 
-	/******************************************************************************/
-	////////////////////////////////////////////////////////////////////////////////
-	/******************************************************************************/
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 
 } /* namespace Gem::Geneva */

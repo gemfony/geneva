@@ -33,14 +33,14 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard header files go here
-#include <iostream>
+#include <algorithm> // for std::sort
 #include <cmath>
 #include <cstdlib>
-#include <sstream>
-#include <vector>
+#include <iostream>
 #include <list>
-#include <algorithm> // for std::sort
+#include <sstream>
 #include <tuple>
+#include <vector>
 
 // Boost header files go here
 #include <boost/algorithm/string.hpp>
@@ -49,21 +49,21 @@
 #include <boost/lexical_cast.hpp>
 
 // Geneva header files go here
-#include "geneva/GParameterSet.hpp"
-#include "geneva/GDoubleGaussAdaptor.hpp"
-#include "geneva/GConstrainedDoubleObjectCollection.hpp"
-#include "geneva/GConstrainedDoubleObject.hpp"
+#include "common/GCommonMathHelperFunctionsT.hpp"
+#include "common/GExceptions.hpp"
+#include "common/GParserBuilder.hpp"
+#include "common/GSingletonT.hpp"
 #include "geneva/GConstrainedDoubleCollection.hpp"
+#include "geneva/GConstrainedDoubleObject.hpp"
+#include "geneva/GConstrainedDoubleObjectCollection.hpp"
+#include "geneva/GConstrainedInt32Object.hpp"
+#include "geneva/GConstrainedInt32ObjectCollection.hpp"
+#include "geneva/GDoubleGaussAdaptor.hpp"
 #include "geneva/GInt32FlipAdaptor.hpp"
 #include "geneva/GInt32GaussAdaptor.hpp"
-#include "geneva/GConstrainedInt32ObjectCollection.hpp"
-#include "geneva/GConstrainedInt32Object.hpp"
-#include "geneva/GParameterObjectCollection.hpp"
 #include "geneva/GOptimizationEnums.hpp"
-#include "common/GExceptions.hpp"
-#include "common/GSingletonT.hpp"
-#include "common/GParserBuilder.hpp"
-#include "common/GCommonMathHelperFunctionsT.hpp"
+#include "geneva/GParameterObjectCollection.hpp"
+#include "geneva/GParameterSet.hpp"
 
 namespace Gem::Tests {
 
@@ -73,65 +73,64 @@ namespace Gem::Tests {
  * of the individual.
  */
 class GTestIndividual3 // NOLINT(cppcoreguidelines-special-member-functions)
-	: public Gem::Geneva::GParameterSet
-{
-	 ///////////////////////////////////////////////////////////////////////
-	 friend class boost::serialization::access;
+  : public Gem::Geneva::GParameterSet {
+    ///////////////////////////////////////////////////////////////////////
+    friend class boost::serialization::access;
 
-	 template<typename Archive>
-	 void serialize(Archive &ar, const unsigned int) {
-		 using boost::serialization::make_nvp;
-		 using namespace Gem::Geneva;
+    template <typename Archive>
+    void serialize(Archive &ar, const unsigned int) {
+        using boost::serialization::make_nvp;
+        using namespace Gem::Geneva;
 
-		 ar
-		 & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet);
-	 }
-	 ///////////////////////////////////////////////////////////////////////
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet);
+    }
+    ///////////////////////////////////////////////////////////////////////
 
 public:
-	 /** @brief The default constructor */
-	 G_API_INDIVIDUALS GTestIndividual3();
-	 /** @brief The copy constructor */
-	 G_API_INDIVIDUALS GTestIndividual3(const GTestIndividual3 &);
+    /** @brief The default constructor */
+    G_API_INDIVIDUALS GTestIndividual3();
+    /** @brief The copy constructor */
+    G_API_INDIVIDUALS GTestIndividual3(const GTestIndividual3 &);
 
-	 /** @brief The destructor */
-	 virtual G_API_INDIVIDUALS ~GTestIndividual3();
+    /** @brief The destructor */
+    virtual G_API_INDIVIDUALS ~GTestIndividual3();
 
-	 /** @brief Get all data members of this class as a plain array */
-	 G_API_INDIVIDUALS std::shared_ptr<float> getPlainData() const;
+    /** @brief Get all data members of this class as a plain array */
+    G_API_INDIVIDUALS std::shared_ptr<float> getPlainData() const;
 
 protected:
-	 /** @brief Loads the data of another GTestIndividual3 */
-	 virtual G_API_INDIVIDUALS void load_(const GObject *) final;
+    /** @brief Loads the data of another GTestIndividual3 */
+    virtual G_API_INDIVIDUALS void load_(const GObject *) final;
 
-	/** @brief Allow access to this classes compare_ function */
-	friend void Gem::Common::compare_base_t<GTestIndividual3>(
-		GTestIndividual3 const &
-		, GTestIndividual3 const &
-		, Gem::Common::GToken &
-	);
+    /** @brief Allow access to this classes compare_ function */
+    friend void Gem::Common::compare_base_t<GTestIndividual3>(
+        GTestIndividual3 const &,
+        GTestIndividual3 const &,
+        Gem::Common::GToken &
+    );
 
-	/** @brief Searches for compliance with expectations with respect to another object of the same type */
-	virtual G_API_INDIVIDUALS void compare_(
-		const GObject & // the other object
-		, const Gem::Common::expectation & // the expectation for this object, e.g. equality
-		, const double & // the limit for allowed deviations of floating point types
-	) const final;
+    /** @brief Searches for compliance with expectations with respect to another object of the same type */
+    virtual G_API_INDIVIDUALS void compare_(
+        const GObject & // the other object
+        ,
+        const Gem::Common::expectation & // the expectation for this object, e.g. equality
+        ,
+        const double & // the limit for allowed deviations of floating point types
+    ) const final;
 
+    /** @brief The actual fitness calculation takes place here. */
+    virtual G_API_INDIVIDUALS double fitnessCalculation() final;
 
-	/** @brief The actual fitness calculation takes place here. */
-	virtual G_API_INDIVIDUALS double fitnessCalculation() final;
-
-	/** @brief Applies modifications to this object. */
-	virtual G_API_INDIVIDUALS bool modify_GUnitTests_();
-	/** @brief Performs self tests that are expected to succeed. */
-	virtual G_API_INDIVIDUALS void specificTestsNoFailureExpected_GUnitTests_();
-	/** @brief Performs self tests that are expected to fail. */
-	virtual G_API_INDIVIDUALS void specificTestsFailuresExpected_GUnitTests_();
+    /** @brief Applies modifications to this object. */
+    virtual G_API_INDIVIDUALS bool modify_GUnitTests_();
+    /** @brief Performs self tests that are expected to succeed. */
+    virtual G_API_INDIVIDUALS void specificTestsNoFailureExpected_GUnitTests_();
+    /** @brief Performs self tests that are expected to fail. */
+    virtual G_API_INDIVIDUALS void specificTestsFailuresExpected_GUnitTests_();
 
 private:
-	 /** @brief Creates a deep clone of this object */
-	 virtual G_API_INDIVIDUALS GObject *clone_() const final;
+    /** @brief Creates a deep clone of this object */
+    virtual G_API_INDIVIDUALS GObject *clone_() const final;
 };
 
 /******************************************************************************/

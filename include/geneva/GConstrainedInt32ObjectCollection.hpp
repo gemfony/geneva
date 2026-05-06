@@ -38,8 +38,8 @@
 
 // Geneva header files go here
 #include "geneva/GConstrainedInt32Object.hpp"
-#include "geneva/GParameterTCollectionT.hpp"
 #include "geneva/GInt32GaussAdaptor.hpp"
+#include "geneva/GParameterTCollectionT.hpp"
 
 namespace Gem::Geneva {
 
@@ -49,20 +49,20 @@ namespace Gem::Geneva {
  * GParameterSet derivative.
  */
 class GConstrainedInt32ObjectCollection // NOLINT(cppcoreguidelines-special-member-functions)
-    :
-        public GParameterTCollectionT<GConstrainedInt32Object>
-{
+  : public GParameterTCollectionT<GConstrainedInt32Object> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
-    template<typename Archive>
+    template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar
-        & make_nvp(
-            "GParameterTCollectionT_gbi"
-            , boost::serialization::base_object<GParameterTCollectionT<GConstrainedInt32Object>>(*this));
+        ar &make_nvp(
+            "GParameterTCollectionT_gbi",
+            boost::serialization::base_object<GParameterTCollectionT<GConstrainedInt32Object>>(
+                *this
+            )
+        );
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -70,9 +70,13 @@ public:
     /** @brief The default constructor */
     G_API_GENEVA GConstrainedInt32ObjectCollection() = default;
     /** @brief Initialization with a number of GConstrainedInt32Object objects */
-    G_API_GENEVA GConstrainedInt32ObjectCollection(const std::size_t &, std::shared_ptr<GConstrainedInt32Object>);
+    G_API_GENEVA GConstrainedInt32ObjectCollection(
+        const std::size_t &,
+        std::shared_ptr<GConstrainedInt32Object>
+    );
     /** @brief The copy constructor */
-    G_API_GENEVA GConstrainedInt32ObjectCollection(const GConstrainedInt32ObjectCollection &) = default;
+    G_API_GENEVA
+    GConstrainedInt32ObjectCollection(const GConstrainedInt32ObjectCollection &) = default;
 
     /** @brief The destructor */
     G_API_GENEVA ~GConstrainedInt32ObjectCollection() override = default;
@@ -83,16 +87,18 @@ protected:
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GConstrainedInt32ObjectCollection>(
-        GConstrainedInt32ObjectCollection const &
-        , GConstrainedInt32ObjectCollection const &
-        , Gem::Common::GToken &
+        GConstrainedInt32ObjectCollection const &,
+        GConstrainedInt32ObjectCollection const &,
+        Gem::Common::GToken &
     );
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
     G_API_GENEVA void compare_(
         const GObject & // the other object
-        , const Gem::Common::expectation & // the expectation for this object, e.g. equality
-        , const double & // the limit for allowed deviations of floating point types
+        ,
+        const Gem::Common::expectation & // the expectation for this object, e.g. equality
+        ,
+        const double & // the limit for allowed deviations of floating point types
     ) const override;
 
     /** @brief Applies modifications to this object. This is needed for testing purposes */

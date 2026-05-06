@@ -38,9 +38,9 @@
 // Boost headers go here
 
 // Geneva headers go here
-#include "geneva/GObject.hpp"
-#include "geneva/GConstrainedNumT.hpp"
 #include "common/GExceptions.hpp"
+#include "geneva/GConstrainedNumT.hpp"
+#include "geneva/GObject.hpp"
 #include "hap/GRandomT.hpp"
 
 #ifdef GEM_TESTING
@@ -59,30 +59,26 @@ namespace Gem::Geneva {
  * internal to external value, and both are required to be of the same type at the moment.
  * Signed integers as types are enforced using Boost's concept checks.
  */
-template<typename int_type>
+template <typename int_type>
 class GConstrainedIntT // NOLINT(cppcoreguidelines-special-member-functions)
-    : public GConstrainedNumT<int_type>
-{
+  : public GConstrainedNumT<int_type> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
-    template<typename Archive>
+    template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
         // Save data
-        ar
-        & make_nvp(
-            "GConstrainedNumT_T"
-            , boost::serialization::base_object<GConstrainedNumT<int_type>>(*this));
+        ar &make_nvp(
+            "GConstrainedNumT_T",
+            boost::serialization::base_object<GConstrainedNumT<int_type>>(*this)
+        );
     }
     ///////////////////////////////////////////////////////////////////////
 
     // Make sure this class can only be instantiated if int_type is a *signed* integer type
-    static_assert(
-        std::is_signed<int_type>::value
-        , "int_type should be a signed integer type"
-    );
+    static_assert(std::is_signed<int_type>::value, "int_type should be a signed integer type");
 
 public:
     /***************************************************************************/
@@ -99,8 +95,8 @@ public:
      * @param val The desired external value of this object
      */
     explicit GConstrainedIntT(const int_type &val)
-        :
-        GConstrainedNumT<int_type>(val) { /* nothing */    }
+      : GConstrainedNumT<int_type>(val) { /* nothing */
+    }
 
     /***************************************************************************/
     /**
@@ -109,20 +105,10 @@ public:
      * @param lowerBoundary The lower boundary of the value range
      * @param upperBoundary The upper boundary of the value range
      */
-    GConstrainedIntT(
-        const int_type &lowerBoundary
-        , const int_type &upperBoundary
-    )
-        :
-        GConstrainedNumT<int_type>(
-            lowerBoundary
-            , upperBoundary
-        ) {
+    GConstrainedIntT(const int_type &lowerBoundary, const int_type &upperBoundary)
+      : GConstrainedNumT<int_type>(lowerBoundary, upperBoundary) {
         Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL> gr;
-        typename std::uniform_int_distribution<int_type> uniform_int(
-            lowerBoundary
-            , upperBoundary
-        );
+        typename std::uniform_int_distribution<int_type> uniform_int(lowerBoundary, upperBoundary);
         GParameterT<int_type>::setValue(uniform_int(gr));
     }
 
@@ -135,16 +121,12 @@ public:
      * @param upperBoundary The upper boundary of the value range
      */
     GConstrainedIntT(
-        const int_type &val
-        , const int_type &lowerBoundary
-        , const int_type &upperBoundary
+        const int_type &val,
+        const int_type &lowerBoundary,
+        const int_type &upperBoundary
     )
-        :
-        GConstrainedNumT<int_type>(
-            val
-            , lowerBoundary
-            , upperBoundary
-        ) { /* nothing */    }
+      : GConstrainedNumT<int_type>(val, lowerBoundary, upperBoundary) { /* nothing */
+    }
 
     /***************************************************************************/
     /**
@@ -169,7 +151,7 @@ public:
      * @param The desired new external value
      * @return The new external value of this object
      */
-    GConstrainedNumT<int_type>& operator=(const int_type &val) override {
+    GConstrainedNumT<int_type> &operator=(const int_type &val) override {
         GConstrainedNumT<int_type>::operator=(val);
         return *this;
     }
@@ -186,9 +168,10 @@ public:
         int_type lowerBoundary = GConstrainedNumT<int_type>::getLowerBoundary();
         int_type upperBoundary = GConstrainedNumT<int_type>::getUpperBoundary();
 
-        if (val >= lowerBoundary && val <= upperBoundary) {
+        if(val >= lowerBoundary && val <= upperBoundary) {
             return val;
-        } else {
+        }
+        else {
             // The result
             int_type mapping = int_type(0);
 
@@ -196,7 +179,7 @@ public:
             // are included, so that we need to add 1 to the difference.
             int_type value_range = upperBoundary - lowerBoundary + int_type(1);
 
-            if (val < lowerBoundary) {
+            if(val < lowerBoundary) {
                 // Find out how many full value ranges val is below the lower boundary.
                 // We use integer division here, so 13/4 would be 3.
                 int_type nBelowLowerBoundary = (lowerBoundary - (val + int_type(1))) / value_range;
@@ -206,11 +189,12 @@ public:
 
                 // Transfer the value into the allowed region
                 mapping = val + (value_range * (nBelowLowerBoundary + int_type(1)));
-                if (nBelowLowerBoundary % 2 == 0) { // nBelowLowerBoundary is even
+                if(nBelowLowerBoundary % 2 == 0) { // nBelowLowerBoundary is even
                     // Revert the value to a descending sequence
                     mapping = revert(mapping);
                 }
-            } else { // val > getUpperBoundary()
+            }
+            else { // val > getUpperBoundary()
                 // Find out how many full value ranges val is above the upper boundary.
                 // We use integer division here, so 13/4 would be 3.
                 int_type nAboveUpperBoundary = (val - upperBoundary - int_type(1)) / value_range;
@@ -220,7 +204,7 @@ public:
 
                 // Transfer into the allowed region
                 mapping = val - (value_range * (nAboveUpperBoundary + int_type(1)));
-                if (nAboveUpperBoundary % 2 == 0) { // nAboveUpperBoundary is even
+                if(nAboveUpperBoundary % 2 == 0) { // nAboveUpperBoundary is even
                     // Revert, as we are dealing with a descending value range
                     mapping = revert(mapping);
                 }
@@ -239,11 +223,8 @@ protected:
      */
     void load_(const GObject *cp) override {
         // Check that we are dealing with a GConstrainedIntT<int_type> reference independent of this object and convert the pointer
-        const GConstrainedIntT<int_type>
-            *p_load = Gem::Common::g_convert_and_compare<GObject, GConstrainedIntT<int_type>>(
-            cp
-            , this
-        );
+        const GConstrainedIntT<int_type> *p_load =
+            Gem::Common::g_convert_and_compare<GObject, GConstrainedIntT<int_type>>(cp, this);
 
         // Load our parent class'es data ...
         GConstrainedNumT<int_type>::load_(cp);
@@ -254,9 +235,9 @@ protected:
     /***************************************************************************/
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GConstrainedIntT<int_type>>(
-        GConstrainedIntT<int_type> const &
-        , GConstrainedIntT<int_type> const &
-        , Gem::Common::GToken &
+        GConstrainedIntT<int_type> const &,
+        GConstrainedIntT<int_type> const &,
+        Gem::Common::GToken &
     );
 
     /***************************************************************************/
@@ -269,30 +250,20 @@ protected:
      * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
     virtual void compare_(
-        const GObject &cp
-        , const Gem::Common::expectation &e
-        , const double &/*limit*/
+        const GObject &cp,
+        const Gem::Common::expectation &e,
+        const double & /*limit*/
     ) const override {
         using namespace Gem::Common;
 
         // Check that we are dealing with a GConstrainedIntT<int_type> reference independent of this object and convert the pointer
-        const GConstrainedIntT<int_type>
-            *p_load = Gem::Common::g_convert_and_compare<GObject, GConstrainedIntT<int_type>>(
-            cp
-            , this
-        );
+        const GConstrainedIntT<int_type> *p_load =
+            Gem::Common::g_convert_and_compare<GObject, GConstrainedIntT<int_type>>(cp, this);
 
-        GToken token(
-            "GConstrainedIntT<int_type>"
-            , e
-        );
+        GToken token("GConstrainedIntT<int_type>", e);
 
         // Compare our parent data ...
-        Gem::Common::compare_base_t<GConstrainedNumT<int_type>>(
-            *this
-            , *p_load
-            , token
-        );
+        Gem::Common::compare_base_t<GConstrainedNumT<int_type>>(*this, *p_load, token);
 
         // ... no local local data
 
@@ -304,13 +275,10 @@ protected:
     /**
      * Randomly initializes the parameter (within its limits)
      */
-    virtual bool randomInit_(
-        const activityMode &
-        , Gem::Hap::GRandomBase &gr
-    ) override {
+    virtual bool randomInit_(const activityMode &, Gem::Hap::GRandomBase &gr) override {
         typename std::uniform_int_distribution<int_type> uniform_int(
-            GConstrainedNumT<int_type>::getLowerBoundary()
-            , GConstrainedNumT<int_type>::getUpperBoundary()
+            GConstrainedNumT<int_type>::getLowerBoundary(),
+            GConstrainedNumT<int_type>::getUpperBoundary()
         );
 
         this->setValue(uniform_int(gr));
@@ -328,14 +296,16 @@ protected:
         bool result = false;
 
         // Call the parent classes' functions
-        if (GConstrainedNumT<int_type>::modify_GUnitTests_()) { result = true; }
+        if(GConstrainedNumT<int_type>::modify_GUnitTests_()) {
+            result = true;
+        }
 
         return result;
 
-#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
         Gem::Common::condnotset("GConstrainedIntT<>::modify_GUnitTests", "GEM_TESTING");
-       return false;
-#endif /* GEM_TESTING */
+        return false;
+#endif                  /* GEM_TESTING */
     }
 
     /***************************************************************************/
@@ -345,8 +315,8 @@ protected:
     void specificTestsNoFailureExpected_GUnitTests_() override {
 #ifdef GEM_TESTING
         // Some general settings
-        const int_type minLower
-                = -50; // NOTE: This will fail if int_type is unsigned; GConstrainedIntT has been designed for signed types only
+        const int_type minLower =
+            -50; // NOTE: This will fail if int_type is unsigned; GConstrainedIntT has been designed for signed types only
         const int_type maxLower = 50;
         const int_type minUpper = 25; // Allow some overlap
         const int_type maxUpper = 125;
@@ -362,13 +332,14 @@ protected:
         //------------------------------------------------------------------------------
 
         { // Check that the assignment of different valid values in the allowed range works without boundaries
-            std::shared_ptr<GConstrainedIntT<int_type>> p_test = this->template clone<GConstrainedIntT<int_type>>();
+            std::shared_ptr<GConstrainedIntT<int_type>> p_test =
+                this->template clone<GConstrainedIntT<int_type>>();
 
             // Reset the boundaries
             CHECK_NOTHROW(p_test->resetBoundaries());
 
             // Try to assign values
-            for (int_type i = -nTests; i < nTests; i++) {
+            for(int_type i = -nTests; i < nTests; i++) {
                 CHECK_NOTHROW(*p_test = i);
                 CHECK(p_test->value() == i);
             }
@@ -377,40 +348,37 @@ protected:
         //------------------------------------------------------------------------------
 
         { // Check that the assignment of different valid values in the allowed range works with boundaries
-            std::shared_ptr<GConstrainedIntT<int_type>> p_test = this->template clone<GConstrainedIntT<int_type>>();
+            std::shared_ptr<GConstrainedIntT<int_type>> p_test =
+                this->template clone<GConstrainedIntT<int_type>>();
 
-            for (int_type i = -nTests; i < nTests; i++) {
+            for(int_type i = -nTests; i < nTests; i++) {
                 // Make sure we start with the maximum range
                 CHECK_NOTHROW(p_test->resetBoundaries());
 
                 int_type lowerBoundary = uniform_int(
-                        gr
-                        , typename std::uniform_int_distribution<int_type>::param_type(
-                                minLower
-                                , maxLower
-                        ));
+                    gr,
+                    typename std::uniform_int_distribution<int_type>::param_type(minLower, maxLower)
+                );
                 int_type upperBoundary;
-                while ((
-                               upperBoundary = uniform_int(
-                                       gr
-                                       , typename std::uniform_int_distribution<int_type>::param_type(
-                                               minUpper
-                                               , maxUpper
-                                       ))) <= lowerBoundary) {}
+                while((upperBoundary = uniform_int(
+                           gr,
+                           typename std::uniform_int_distribution<int_type>::param_type(
+                               minUpper,
+                               maxUpper
+                           )
+                       )) <= lowerBoundary) {
+                }
 
-                CHECK_NOTHROW(p_test->setValue(
-                        lowerBoundary
-                        , lowerBoundary
-                        , upperBoundary
-                ));
+                CHECK_NOTHROW(p_test->setValue(lowerBoundary, lowerBoundary, upperBoundary));
 
                 // Check that there are no values outside of the allowed range
                 int_type probe = uniform_int(
-                        gr
-                        , typename std::uniform_int_distribution<int_type>::param_type(
-                                lowerBoundary
-                                , upperBoundary
-                        ));
+                    gr,
+                    typename std::uniform_int_distribution<int_type>::param_type(
+                        lowerBoundary,
+                        upperBoundary
+                    )
+                );
                 CHECK_NOTHROW(*p_test = probe);
                 CHECK(p_test->value() == probe);
             }
@@ -419,41 +387,35 @@ protected:
         //------------------------------------------------------------------------------
 
         { // Check that the transfer function only returns items in the allowed value range
-            std::shared_ptr<GConstrainedIntT<int_type>> p_test = this->template clone<GConstrainedIntT<int_type>>();
+            std::shared_ptr<GConstrainedIntT<int_type>> p_test =
+                this->template clone<GConstrainedIntT<int_type>>();
 
-            for (int_type i = 0; i < nTests; i++) {
+            for(int_type i = 0; i < nTests; i++) {
                 // Make sure we start with the maximum range
                 CHECK_NOTHROW(p_test->resetBoundaries());
 
                 int_type lowerBoundary = uniform_int(
-                        gr
-                        , typename std::uniform_int_distribution<int_type>::param_type(
-                                minLower
-                                , maxLower
-                        ));
+                    gr,
+                    typename std::uniform_int_distribution<int_type>::param_type(minLower, maxLower)
+                );
                 int_type upperBoundary;
-                while ((
-                               upperBoundary = uniform_int(
-                                       gr
-                                       , typename std::uniform_int_distribution<int_type>::param_type(
-                                               minUpper
-                                               , maxUpper
-                                       ))) <= lowerBoundary) {}
+                while((upperBoundary = uniform_int(
+                           gr,
+                           typename std::uniform_int_distribution<int_type>::param_type(
+                               minUpper,
+                               maxUpper
+                           )
+                       )) <= lowerBoundary) {
+                }
 
-                CHECK_NOTHROW(p_test->setValue(
-                        lowerBoundary
-                        , lowerBoundary
-                        , upperBoundary
-                ));
+                CHECK_NOTHROW(p_test->setValue(lowerBoundary, lowerBoundary, upperBoundary));
 
                 // Check that there are no values outside of the allowed range
-                for (std::size_t j = 0; j < 100; j++) {
+                for(std::size_t j = 0; j < 100; j++) {
                     int_type probe = uniform_int(
-                            gr
-                            , typename std::uniform_int_distribution<int_type>::param_type(
-                                    -10000
-                                    , 10000
-                            ));
+                        gr,
+                        typename std::uniform_int_distribution<int_type>::param_type(-10000, 10000)
+                    );
                     int_type mapping = int_type(0);
                     CHECK_NOTHROW(mapping = p_test->transfer(probe));
                     CHECK((mapping >= lowerBoundary && mapping <= upperBoundary));
@@ -464,60 +426,52 @@ protected:
         //------------------------------------------------------------------------------
 
         { // Test random initialization using our internal randomInit_ function, without boundaries
-            std::shared_ptr<GConstrainedIntT<int_type>> p_test = this->template clone<GConstrainedIntT<int_type>>();
+            std::shared_ptr<GConstrainedIntT<int_type>> p_test =
+                this->template clone<GConstrainedIntT<int_type>>();
 
             // Reset the boundaries
             CHECK_NOTHROW(p_test->resetBoundaries());
 
             // Randomly initialize using our internal function -- will use the most extreme boundaries available
-            CHECK_NOTHROW(p_test->randomInit_(
-                    activityMode::ALLPARAMETERS
-                    , gr
-            ));
+            CHECK_NOTHROW(p_test->randomInit_(activityMode::ALLPARAMETERS, gr));
         }
 
         //------------------------------------------------------------------------------
 
         { // Test random initialization using our internal randomInit_ function, with boundaries
-            std::shared_ptr<GConstrainedIntT<int_type>> p_test = this->template clone<GConstrainedIntT<int_type>>();
+            std::shared_ptr<GConstrainedIntT<int_type>> p_test =
+                this->template clone<GConstrainedIntT<int_type>>();
 
-            for (int_type i = -nTests; i < nTests; i++) {
+            for(int_type i = -nTests; i < nTests; i++) {
                 // Make sure we start with the maximum range
                 CHECK_NOTHROW(p_test->resetBoundaries());
 
                 int_type lowerBoundary = uniform_int(
-                        gr
-                        , typename std::uniform_int_distribution<int_type>::param_type(
-                                minLower
-                                , maxLower
-                        ));
+                    gr,
+                    typename std::uniform_int_distribution<int_type>::param_type(minLower, maxLower)
+                );
                 int_type upperBoundary;
-                while ((
-                               upperBoundary = uniform_int(
-                                       gr
-                                       , typename std::uniform_int_distribution<int_type>::param_type(
-                                               minUpper
-                                               , maxUpper
-                                       ))) <= lowerBoundary) {}
+                while((upperBoundary = uniform_int(
+                           gr,
+                           typename std::uniform_int_distribution<int_type>::param_type(
+                               minUpper,
+                               maxUpper
+                           )
+                       )) <= lowerBoundary) {
+                }
 
-                CHECK_NOTHROW(p_test->setValue(
-                        lowerBoundary
-                        , lowerBoundary
-                        , upperBoundary
-                ));
+                CHECK_NOTHROW(p_test->setValue(lowerBoundary, lowerBoundary, upperBoundary));
 
                 // Randomly initialize, using our internal value
-                CHECK_NOTHROW(p_test->randomInit_(
-                        activityMode::ALLPARAMETERS
-                        , gr
-                ));
+                CHECK_NOTHROW(p_test->randomInit_(activityMode::ALLPARAMETERS, gr));
             }
         }
 
         //------------------------------------------------------------------------------
 
         { // Check that setting an upper boundary larger than the allowed value (see GConstrainedValueLimitT<T>) with the setValue(val, lower, upper) function throws
-            std::shared_ptr<GConstrainedIntT<int_type>> p_test = this->template clone<GConstrainedIntT<int_type>>();
+            std::shared_ptr<GConstrainedIntT<int_type>> p_test =
+                this->template clone<GConstrainedIntT<int_type>>();
 
             // Reset the boundaries so we are free to do what we want
             CHECK_NOTHROW(p_test->resetBoundaries());
@@ -527,17 +481,17 @@ protected:
             CHECK(p_test->getUpperBoundary() == GConstrainedValueLimitT<int_type>::highest());
 
             // Try to set a boundary to a bad value
-            CHECK_THROWS_AS(p_test->setValue(
-                    0
-                    , 0
-                    , boost::numeric::bounds<int_type>::highest())
-            , geneva_exception);
+            CHECK_THROWS_AS(
+                p_test->setValue(0, 0, boost::numeric::bounds<int_type>::highest()),
+                geneva_exception
+            );
         }
 
         //------------------------------------------------------------------------------
 
         { // Check that setting a lower boundary smaller than the allowed value (see GConstrainedValueLimitT<T>)  with the setValue(val, lower, upper) function throws
-            std::shared_ptr<GConstrainedIntT<int_type>> p_test = this->template clone<GConstrainedIntT<int_type>>();
+            std::shared_ptr<GConstrainedIntT<int_type>> p_test =
+                this->template clone<GConstrainedIntT<int_type>>();
 
             // Reset the boundaries so we are free to do what we want
             CHECK_NOTHROW(p_test->resetBoundaries());
@@ -547,18 +501,17 @@ protected:
             CHECK(p_test->getUpperBoundary() == GConstrainedValueLimitT<int_type>::highest());
 
             // Try to set a boundary to a bad value
-            CHECK_THROWS_AS(p_test->setValue(
-                    0
-                    , boost::numeric::bounds<int_type>::lowest()
-                    , 100
-            )
-            , geneva_exception);
+            CHECK_THROWS_AS(
+                p_test->setValue(0, boost::numeric::bounds<int_type>::lowest(), 100),
+                geneva_exception
+            );
         }
 
         //------------------------------------------------------------------------------
 
         { // Check that setting an upper boundary larger than the allowed value (see GConstrainedValueLimitT<T>) with the setBoundaries(lower, upper) function throws
-            std::shared_ptr<GConstrainedIntT<int_type>> p_test = this->template clone<GConstrainedIntT<int_type>>();
+            std::shared_ptr<GConstrainedIntT<int_type>> p_test =
+                this->template clone<GConstrainedIntT<int_type>>();
 
             // Reset the boundaries so we are free to do what we want
             CHECK_NOTHROW(p_test->resetBoundaries());
@@ -568,16 +521,17 @@ protected:
             CHECK(p_test->getUpperBoundary() == GConstrainedValueLimitT<int_type>::highest());
 
             // Try to set a boundary to a bad value
-            CHECK_THROWS_AS(p_test->setBoundaries(
-                    0
-                    , boost::numeric::bounds<int_type>::highest())
-            , geneva_exception);
+            CHECK_THROWS_AS(
+                p_test->setBoundaries(0, boost::numeric::bounds<int_type>::highest()),
+                geneva_exception
+            );
         }
 
         //------------------------------------------------------------------------------
 
         { // Check that setting a lower boundary smaller than the allowed value (see GConstrainedValueLimitT<T>) with the setBoundaries(lower, upper) function throws
-            std::shared_ptr<GConstrainedIntT<int_type>> p_test = this->template clone<GConstrainedIntT<int_type>>();
+            std::shared_ptr<GConstrainedIntT<int_type>> p_test =
+                this->template clone<GConstrainedIntT<int_type>>();
 
             // Reset the boundaries so we are free to do what we want
             CHECK_NOTHROW(p_test->resetBoundaries());
@@ -587,42 +541,42 @@ protected:
             CHECK(p_test->getUpperBoundary() == GConstrainedValueLimitT<int_type>::highest());
 
             // Try to set a boundary to a bad value
-            CHECK_THROWS_AS(p_test->setBoundaries(
-                    boost::numeric::bounds<int_type>::lowest()
-                    , 100
-            )
-            , geneva_exception);
+            CHECK_THROWS_AS(
+                p_test->setBoundaries(boost::numeric::bounds<int_type>::lowest(), 100),
+                geneva_exception
+            );
         }
 
         //------------------------------------------------------------------------------
 
         { // Test reversion of order
-            std::shared_ptr<GConstrainedIntT<int_type>> p_test = this->template clone<GConstrainedIntT<int_type>>();
+            std::shared_ptr<GConstrainedIntT<int_type>> p_test =
+                this->template clone<GConstrainedIntT<int_type>>();
 
             // Reset the boundaries so we are free to do what we want
             CHECK_NOTHROW(p_test->resetBoundaries());
 
-            for (int_type i = 1; i < 100; i++) {
+            for(int_type i = 1; i < 100; i++) {
                 int_type probe = uniform_int(
-                        gr
-                        , typename std::uniform_int_distribution<int_type>::param_type(
-                                i
-                                , 2 * i
-                        ));
-                CHECK_NOTHROW(p_test->setValue(
-                        probe
-                        , i
-                        , 2 * i
-                ));
-                CHECK(p_test->revert(probe) == p_test->getUpperBoundary() - (probe - p_test->getLowerBoundary()));
+                    gr,
+                    typename std::uniform_int_distribution<int_type>::param_type(i, 2 * i)
+                );
+                CHECK_NOTHROW(p_test->setValue(probe, i, 2 * i));
+                CHECK(
+                    p_test->revert(probe) ==
+                    p_test->getUpperBoundary() - (probe - p_test->getLowerBoundary())
+                );
             }
         }
 
         //------------------------------------------------------------------------------
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-        Gem::Common::condnotset("GConstrainedIntT<>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
-#endif /* GEM_TESTING */
+        Gem::Common::condnotset(
+            "GConstrainedIntT<>::specificTestsNoFailureExpected_GUnitTests",
+            "GEM_TESTING"
+        );
+#endif                  /* GEM_TESTING */
     }
 
     /***************************************************************************/
@@ -635,8 +589,11 @@ protected:
         GConstrainedNumT<int_type>::specificTestsFailuresExpected_GUnitTests_();
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-        Gem::Common::condnotset("GConstrainedIntT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
-#endif /* GEM_TESTING */
+        Gem::Common::condnotset(
+            "GConstrainedIntT<>::specificTestsFailuresExpected_GUnitTests",
+            "GEM_TESTING"
+        );
+#endif                  /* GEM_TESTING */
     }
 
     /***************************************************************************/
@@ -673,14 +630,8 @@ private:
 /******************************************************************************/
 // The content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T) // NOLINT
 namespace boost::serialization {
-template<typename int_type>
-struct is_abstract<Gem::Geneva::GConstrainedIntT<int_type>> :
-    public boost::true_type
-{
-};
-template<typename int_type>
-struct is_abstract<const Gem::Geneva::GConstrainedIntT<int_type>> :
-    public boost::true_type
-{
-};
+template <typename int_type>
+struct is_abstract<Gem::Geneva::GConstrainedIntT<int_type>> : public boost::true_type {};
+template <typename int_type>
+struct is_abstract<const Gem::Geneva::GConstrainedIntT<int_type>> : public boost::true_type {};
 } /* namespace boost::serialization */

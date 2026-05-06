@@ -32,18 +32,18 @@
  ********************************************************************************/
 
 // Standard header files go here
-#include <iostream>
 #include <cmath>
-#include <sstream>
 #include <fstream>
+#include <iostream>
+#include <sstream>
 #include <vector>
 
 // Boost header files go here
 
 // Geneva header files go here
-#include "geneva/GBooleanObject.hpp"
-#include "geneva/GBooleanCollection.hpp"
 #include "geneva/GBooleanAdaptor.hpp"
+#include "geneva/GBooleanCollection.hpp"
+#include "geneva/GBooleanObject.hpp"
 
 using namespace Gem::Geneva;
 using namespace boost;
@@ -55,134 +55,146 @@ using namespace boost;
  * analysis toolkit (see http://root.cern.ch).
  */
 
-const std::size_t MAXFLIP=10000;
-const std::size_t NBIT=10;
+const std::size_t MAXFLIP = 10000;
+const std::size_t NBIT = 10;
 
 /************************************************************************************************/
 /**
  * The main function
  */
-int main(int argc, char **argv){
-	// Get a random number generator
-	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
+int main(int argc, char **argv) {
+    // Get a random number generator
+    Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
 
-	// Create test candidates
-	GBooleanObject A(true), A_tmp;
-	GBooleanCollection B(NBIT), B_tmp; // B is initialized with 100 random booleans
+    // Create test candidates
+    GBooleanObject A(true), A_tmp;
+    GBooleanCollection B(NBIT), B_tmp; // B is initialized with 100 random booleans
 
-	std::shared_ptr<GBooleanAdaptor> A_adaptor(new GBooleanAdaptor(0.1));
-	std::shared_ptr<GBooleanAdaptor> B_adaptor(new GBooleanAdaptor(0.2));
+    std::shared_ptr<GBooleanAdaptor> A_adaptor(new GBooleanAdaptor(0.1));
+    std::shared_ptr<GBooleanAdaptor> B_adaptor(new GBooleanAdaptor(0.2));
 
-	A.addAdaptor(A_adaptor);
-	B.addAdaptor(B_adaptor);
+    A.addAdaptor(A_adaptor);
+    B.addAdaptor(B_adaptor);
 
-	std::ofstream ofs("bitflipResult.C"); // Output file
+    std::ofstream ofs("bitflipResult.C"); // Output file
 
-	ofs << "{" << std::endl
-	<< "  TCanvas *cc = new TCanvas(\"cc\",\"cc\",0,0,800,800);" << std::endl
-	<< "  cc->Divide(2,2);" << std::endl
-	<< std::endl
-	<< "  TH1F *singleFlipValueNPA = new TH1F(\"singleFlipValueNPA\",\"singleFlipValueNPA\",2,-0.5,1.5);" << std::endl
-	<< "  TH1F *collectionFlipValueNPA = new TH1F(\"collectionFlipValueNPA\",\"collectionFlipValueNPA\",2,-0.5,1.5);" << std::endl
-	<< "  TH1F *singleFlipValuePA = new TH1F(\"singleFlipValuePA\",\"singleFlipValuePA\",2,-0.5,1.5);" << std::endl
-	<< "  TH1F *collectionFlipValuePA = new TH1F(\"collectionFlipValuePA\",\"collectionFlipValuePA\",2,-0.5,1.5);" << std::endl
-	<< std::endl;
+    ofs << "{" << std::endl
+        << "  TCanvas *cc = new TCanvas(\"cc\",\"cc\",0,0,800,800);" << std::endl
+        << "  cc->Divide(2,2);" << std::endl
+        << std::endl
+        << "  TH1F *singleFlipValueNPA = new "
+           "TH1F(\"singleFlipValueNPA\",\"singleFlipValueNPA\",2,-0.5,1.5);"
+        << std::endl
+        << "  TH1F *collectionFlipValueNPA = new "
+           "TH1F(\"collectionFlipValueNPA\",\"collectionFlipValueNPA\",2,-0.5,1.5);"
+        << std::endl
+        << "  TH1F *singleFlipValuePA = new "
+           "TH1F(\"singleFlipValuePA\",\"singleFlipValuePA\",2,-0.5,1.5);"
+        << std::endl
+        << "  TH1F *collectionFlipValuePA = new "
+           "TH1F(\"collectionFlipValuePA\",\"collectionFlipValuePA\",2,-0.5,1.5);"
+        << std::endl
+        << std::endl;
 
-	/////////////////////////////////////////////////////////////////////////////////////////
-	// Tests without adaption of flip probability
-	A_adaptor->setAdaptionThreshold(0);
-	B_adaptor->setAdaptionThreshold(0);
+    /////////////////////////////////////////////////////////////////////////////////////////
+    // Tests without adaption of flip probability
+    A_adaptor->setAdaptionThreshold(0);
+    B_adaptor->setAdaptionThreshold(0);
 
-	double A_noprobadapt_notflipped=0., A_noprobadapt_flipped=0.;
-	double B_noprobadapt_notflipped=0., B_noprobadapt_flipped=0.;
-	for(std::size_t i=0; i<MAXFLIP; i++){
-		// GBooleanObject
-		A_tmp = A;
-		A.adapt(gr); // adapt
-		if(A.value() == A_tmp.value()){
-			ofs << "  singleFlipValueNPA->Fill(0.);" << std::endl; // 0 means "not flipped"
-			A_noprobadapt_notflipped += 1.;
-		}
-		else{
-			ofs << "  singleFlipValueNPA->Fill(1.);" << std::endl; // 1 means "flipped"
-			A_noprobadapt_flipped += 1.;
-		}
+    double A_noprobadapt_notflipped = 0., A_noprobadapt_flipped = 0.;
+    double B_noprobadapt_notflipped = 0., B_noprobadapt_flipped = 0.;
+    for(std::size_t i = 0; i < MAXFLIP; i++) {
+        // GBooleanObject
+        A_tmp = A;
+        A.adapt(gr); // adapt
+        if(A.value() == A_tmp.value()) {
+            ofs << "  singleFlipValueNPA->Fill(0.);" << std::endl; // 0 means "not flipped"
+            A_noprobadapt_notflipped += 1.;
+        }
+        else {
+            ofs << "  singleFlipValueNPA->Fill(1.);" << std::endl; // 1 means "flipped"
+            A_noprobadapt_flipped += 1.;
+        }
 
-		// GBooleanCollection
-		B_tmp = B;
-		B.adapt(gr);
-		for(std::size_t j=0; j<NBIT; j++){
-			if(B[j] == B_tmp[j]){
-				ofs << "  collectionFlipValueNPA->Fill(0.);" << std::endl; // 0 means "not flipped"
-				B_noprobadapt_notflipped += 1.;
-			}
-			else {
-				ofs << "  collectionFlipValueNPA->Fill(1.);" << std::endl; // 1 means "flipped"
-				B_noprobadapt_flipped += 1.;
-			}
-		}
-	}
+        // GBooleanCollection
+        B_tmp = B;
+        B.adapt(gr);
+        for(std::size_t j = 0; j < NBIT; j++) {
+            if(B[j] == B_tmp[j]) {
+                ofs << "  collectionFlipValueNPA->Fill(0.);" << std::endl; // 0 means "not flipped"
+                B_noprobadapt_notflipped += 1.;
+            }
+            else {
+                ofs << "  collectionFlipValueNPA->Fill(1.);" << std::endl; // 1 means "flipped"
+                B_noprobadapt_flipped += 1.;
+            }
+        }
+    }
 
-	std::cout << "A flip ratio (no probability adaption): " << A_noprobadapt_flipped/double(MAXFLIP) << std::endl
-	<< "B flip ratio (no probability adaption): " << B_noprobadapt_flipped/double(MAXFLIP*NBIT) << std::endl;
+    std::cout << "A flip ratio (no probability adaption): "
+              << A_noprobadapt_flipped / double(MAXFLIP) << std::endl
+              << "B flip ratio (no probability adaption): "
+              << B_noprobadapt_flipped / double(MAXFLIP * NBIT) << std::endl;
 
-	/////////////////////////////////////////////////////////////////////////////////////////
-	// Tests with adaption of flip probability
-	A_adaptor->setAdaptionThreshold(10);
-	B_adaptor->setAdaptionThreshold(1);
+    /////////////////////////////////////////////////////////////////////////////////////////
+    // Tests with adaption of flip probability
+    A_adaptor->setAdaptionThreshold(10);
+    B_adaptor->setAdaptionThreshold(1);
 
-	// A_adaptor->setAdaptionParameters(0.1,0.01,0.00001,10); // This will result in a rather large adaption rate
-	// B_adaptor->setAdaptionParameters(0.1,0.01,0.00001,10);
+    // A_adaptor->setAdaptionParameters(0.1,0.01,0.00001,10); // This will result in a rather large adaption rate
+    // B_adaptor->setAdaptionParameters(0.1,0.01,0.00001,10);
 
-	A_adaptor->setAdaptionProbability(0.25);
-	B_adaptor->setAdaptionProbability(0.5);
+    A_adaptor->setAdaptionProbability(0.25);
+    B_adaptor->setAdaptionProbability(0.5);
 
-	double A_probadapt_notflipped=0., A_probadapt_flipped=0.;
-	double B_probadapt_notflipped=0., B_probadapt_flipped=0.;
-	for(std::size_t i=0; i<MAXFLIP; i++){
-		// GBooleanObject
-		A_tmp = A;
-		A.adapt(gr); // adapt
-		if(A.value() == A_tmp.value()){
-			ofs << "  singleFlipValuePA->Fill(0.);" << std::endl; // 0 means "not flipped"
-			A_probadapt_notflipped += 1.;
-		}
-		else{
-			ofs << "  singleFlipValuePA->Fill(1.);" << std::endl; // 1 means "flipped"
-			A_probadapt_flipped += 1.;
-		}
+    double A_probadapt_notflipped = 0., A_probadapt_flipped = 0.;
+    double B_probadapt_notflipped = 0., B_probadapt_flipped = 0.;
+    for(std::size_t i = 0; i < MAXFLIP; i++) {
+        // GBooleanObject
+        A_tmp = A;
+        A.adapt(gr); // adapt
+        if(A.value() == A_tmp.value()) {
+            ofs << "  singleFlipValuePA->Fill(0.);" << std::endl; // 0 means "not flipped"
+            A_probadapt_notflipped += 1.;
+        }
+        else {
+            ofs << "  singleFlipValuePA->Fill(1.);" << std::endl; // 1 means "flipped"
+            A_probadapt_flipped += 1.;
+        }
 
-		// GBooleanCollection
-		B_tmp = B;
-		B.adapt(gr);
-		for(std::size_t j=0; j<NBIT; j++){
-			if(B[j] == B_tmp[j]){
-				ofs << "  collectionFlipValuePA->Fill(0.);" << std::endl; // 0 means "not flipped"
-				B_probadapt_notflipped += 1.;
-			}
-			else {
-				ofs << "  collectionFlipValuePA->Fill(1.);" << std::endl; // 1 means "flipped"
-				B_probadapt_flipped += 1.;
-			}
-		}
-	}
+        // GBooleanCollection
+        B_tmp = B;
+        B.adapt(gr);
+        for(std::size_t j = 0; j < NBIT; j++) {
+            if(B[j] == B_tmp[j]) {
+                ofs << "  collectionFlipValuePA->Fill(0.);" << std::endl; // 0 means "not flipped"
+                B_probadapt_notflipped += 1.;
+            }
+            else {
+                ofs << "  collectionFlipValuePA->Fill(1.);" << std::endl; // 1 means "flipped"
+                B_probadapt_flipped += 1.;
+            }
+        }
+    }
 
-	std::cout << "A flip ratio (probability adaption): " << A_probadapt_flipped/double(MAXFLIP) << std::endl
-	<< "B flip ratio (probability adaption): " << B_probadapt_flipped/double(MAXFLIP*NBIT) << std::endl;
+    std::cout << "A flip ratio (probability adaption): " << A_probadapt_flipped / double(MAXFLIP)
+              << std::endl
+              << "B flip ratio (probability adaption): "
+              << B_probadapt_flipped / double(MAXFLIP * NBIT) << std::endl;
 
-	ofs << std::endl
-	<< "  cc->cd(1);" << std::endl
-	<< "  singleFlipValueNPA->Draw();" << std::endl
-	<< "  cc->cd(2);" << std::endl
-	<< "  collectionFlipValueNPA->Draw();" << std::endl
-	<< "  cc->cd(3);" << std::endl
-	<< "  singleFlipValuePA->Draw();" << std::endl
-	<< "  cc->cd(4);" << std::endl
-	<< "  collectionFlipValuePA->Draw();" << std::endl
-	<< "  cc->cd();" << std::endl
-	<< "}" << std::endl;
+    ofs << std::endl
+        << "  cc->cd(1);" << std::endl
+        << "  singleFlipValueNPA->Draw();" << std::endl
+        << "  cc->cd(2);" << std::endl
+        << "  collectionFlipValueNPA->Draw();" << std::endl
+        << "  cc->cd(3);" << std::endl
+        << "  singleFlipValuePA->Draw();" << std::endl
+        << "  cc->cd(4);" << std::endl
+        << "  collectionFlipValuePA->Draw();" << std::endl
+        << "  cc->cd();" << std::endl
+        << "}" << std::endl;
 
-	ofs.close();
+    ofs.close();
 
-	return 0;
+    return 0;
 }

@@ -80,23 +80,23 @@ std::string mpiErrorString(int mpiError) {
  * @param runWhile predicate, when this is false the waiting will be aborted
  * @return status of the operation when terminated
  */
-MPICompletionStatus waitForRequestCompletionWhile(MPI_Request &request,
-                                                  const std::uint64_t &pollIntervalMSec,
-                                                  const std::function<bool()> &runWhile) {
+MPICompletionStatus waitForRequestCompletionWhile(
+    MPI_Request &request,
+    const std::uint64_t &pollIntervalMSec,
+    const std::function<bool()> &runWhile
+) {
     int isCompleted{0};
     MPI_Status status{};
 
-    while (runWhile()) {
-        MPI_Test(&request,
-                 &isCompleted,
-                 &status);
-
+    while(runWhile()) {
+        MPI_Test(&request, &isCompleted, &status);
 
         // return appropriate result in case of completion
-        if (isCompleted) {
-            if (status.MPI_ERROR == MPI_SUCCESS) {
+        if(isCompleted) {
+            if(status.MPI_ERROR == MPI_SUCCESS) {
                 return MPICompletionStatus{MPIStatusCode::SUCCESS, status};
-            } else {
+            }
+            else {
                 return MPICompletionStatus{MPIStatusCode::ERROR, status};
             }
         }
@@ -113,26 +113,29 @@ MPICompletionStatus waitForRequestCompletionWhile(MPI_Request &request,
 /**
  * Performs an async scatter and bocks until the request has completed or a predicate returns false
  */
-MPICompletionStatus mpiScatterWhile(const void *sendBuf,
-                                    const std::uint32_t &sendCount,
-                                    void *recvBuf,
-                                    MPI_Datatype type,
-                                    const std::function<bool()> &runWhile,
-                                    const std::uint32_t &root = 0,
-                                    MPI_Comm comm = MPI_COMM_WORLD,
-                                    const std::uint64_t &pollIntervalMSec = 1) {
+MPICompletionStatus mpiScatterWhile(
+    const void *sendBuf,
+    const std::uint32_t &sendCount,
+    void *recvBuf,
+    MPI_Datatype type,
+    const std::function<bool()> &runWhile,
+    const std::uint32_t &root = 0,
+    MPI_Comm comm = MPI_COMM_WORLD,
+    const std::uint64_t &pollIntervalMSec = 1
+) {
     MPI_Request requestHandle{};
 
     MPI_Iscatter(
-            sendBuf, // send substrings of the test message
-            static_cast<int>(sendCount), // send one char to each other process
-            type,
-            recvBuf, // receive one character as the root process
-            static_cast<int>(sendCount), // send one character to every other process
-            type,
-            static_cast<int>(root), // rank 0 (this process) is the root.
-            comm,
-            &requestHandle);
+        sendBuf,                     // send substrings of the test message
+        static_cast<int>(sendCount), // send one char to each other process
+        type,
+        recvBuf,                     // receive one character as the root process
+        static_cast<int>(sendCount), // send one character to every other process
+        type,
+        static_cast<int>(root), // rank 0 (this process) is the root.
+        comm,
+        &requestHandle
+    );
 
     return waitForRequestCompletionWhile(requestHandle, pollIntervalMSec, runWhile);
 }
@@ -140,27 +143,29 @@ MPICompletionStatus mpiScatterWhile(const void *sendBuf,
 /**
  * Performs an async gather and bocks until the request has completed or a predicate returns false
  */
-MPICompletionStatus mpiGatherWhile(const void *sendBuf,
-                                   const std::uint32_t &sendCount,
-                                   void *recvBuf,
-                                   MPI_Datatype type,
-                                   const std::function<bool()> &runWhile,
-                                   const std::uint32_t &root = 0,
-                                   MPI_Comm comm = MPI_COMM_WORLD,
-                                   const std::uint64_t &pollIntervalMSec = 1) {
+MPICompletionStatus mpiGatherWhile(
+    const void *sendBuf,
+    const std::uint32_t &sendCount,
+    void *recvBuf,
+    MPI_Datatype type,
+    const std::function<bool()> &runWhile,
+    const std::uint32_t &root = 0,
+    MPI_Comm comm = MPI_COMM_WORLD,
+    const std::uint64_t &pollIntervalMSec = 1
+) {
     MPI_Request requestHandle{};
 
     MPI_Igather(
-            sendBuf, // send substrings of the test message
-            static_cast<int>(sendCount), // send one char to each other process
-            type,
-            recvBuf, // receive one character as the root process
-            static_cast<int>(sendCount), // send one character to every other process
-            type,
-            static_cast<int>(root), // rank 0 (this process) is the root.
-            comm,
-            &requestHandle);
+        sendBuf,                     // send substrings of the test message
+        static_cast<int>(sendCount), // send one char to each other process
+        type,
+        recvBuf,                     // receive one character as the root process
+        static_cast<int>(sendCount), // send one character to every other process
+        type,
+        static_cast<int>(root), // rank 0 (this process) is the root.
+        comm,
+        &requestHandle
+    );
 
     return waitForRequestCompletionWhile(requestHandle, pollIntervalMSec, runWhile);
 }
-

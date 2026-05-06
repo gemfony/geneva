@@ -53,53 +53,53 @@ const std::size_t NRESETS = 3; // The number of resets performed for each algori
  * parsing ability to retrieve algorithms.
  */
 int main(int argc, char **argv) {
-	Go2 go(argc, argv, "./config/Go2.json");
+    Go2 go(argc, argv, "./config/Go2.json");
 
-	//---------------------------------------------------------------------------
-	// Client mode
-	if(go.clientMode()) {
-		return go.clientRun();
-	} // Execution will end here in client mode
+    //---------------------------------------------------------------------------
+    // Client mode
+    if(go.clientMode()) {
+        return go.clientRun();
+    } // Execution will end here in client mode
 
-	//---------------------------------------------------------------------------
-	// As we are dealing with a server, register a signal handler that allows us
-	// to interrupt execution "on the run"
-	signal(G_SIGHUP, GObject::sigHupHandler);
+    //---------------------------------------------------------------------------
+    // As we are dealing with a server, register a signal handler that allows us
+    // to interrupt execution "on the run"
+    signal(G_SIGHUP, GObject::sigHupHandler);
 
-	//---------------------------------------------------------------------------
-	// Create a factory for GFunctionIndividual objects and perform
-	// any necessary initial work.
-	std::shared_ptr<GFunctionIndividualFactory>
-		gfif_ptr(new GFunctionIndividualFactory("./config/GFunctionIndividual.json"));
+    //---------------------------------------------------------------------------
+    // Create a factory for GFunctionIndividual objects and perform
+    // any necessary initial work.
+    std::shared_ptr<GFunctionIndividualFactory> gfif_ptr(
+        new GFunctionIndividualFactory("./config/GFunctionIndividual.json")
+    );
 
-	// Check that algorithms were indeed registered and fix, if this was not the case.
-	if(go.getNAlgorithms() == 0) {
-		glogger
-			<< "In GResetToOptimizationStart:" << std::endl
-			<< "No algorithms were registered." << std::endl
-			<< "We will add an Evolutionary Algorithm" << std::endl
-		   << GLOGGING;
+    // Check that algorithms were indeed registered and fix, if this was not the case.
+    if(go.getNAlgorithms() == 0) {
+        glogger << "In GResetToOptimizationStart:" << std::endl
+                << "No algorithms were registered." << std::endl
+                << "We will add an Evolutionary Algorithm" << std::endl
+                << GLOGGING;
 
-		go & "ea";
-	}
+        go & "ea";
+    }
 
-	// Retrieve the registered algorithms
-	auto algorithms_cnt = go.getRegisteredAlgorithms();
+    // Retrieve the registered algorithms
+    auto algorithms_cnt = go.getRegisteredAlgorithms();
 
-	std::cout << "Got algorithms_cnt of size " << algorithms_cnt.size() << std::endl;
+    std::cout << "Got algorithms_cnt of size " << algorithms_cnt.size() << std::endl;
 
-	for(auto const & alg_ptr: algorithms_cnt) {
-		for(std::size_t resetCounter=0; resetCounter<NRESETS; resetCounter++) {
-			alg_ptr->push_back(gfif_ptr->get());
-			alg_ptr->optimize();
+    for(auto const &alg_ptr : algorithms_cnt) {
+        for(std::size_t resetCounter = 0; resetCounter < NRESETS; resetCounter++) {
+            alg_ptr->push_back(gfif_ptr->get());
+            alg_ptr->optimize();
 
-			if(resetCounter < NRESETS) {
-				alg_ptr->resetToOptimizationStart();
-				std::cout << "Algorithm was reset" << std::endl;
-			}
-		}
-	}
+            if(resetCounter < NRESETS) {
+                alg_ptr->resetToOptimizationStart();
+                std::cout << "Algorithm was reset" << std::endl;
+            }
+        }
+    }
 
-	std::cout << "Done ..." << std::endl;
-	return(0);
+    std::cout << "Done ..." << std::endl;
+    return (0);
 }

@@ -47,8 +47,8 @@
  * This function allows to output a geneva_exception to a stream
  */
 std::ostream &operator<<(std::ostream &o, const geneva_exception &g) {
-	o << g.what();
-	return o;
+    o << g.what();
+    return o;
 }
 
 /******************************************************************************/
