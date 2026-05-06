@@ -35,7 +35,9 @@
 // Standard headers go here
 #include <map>
 #include <mutex>
+#include <string>
 #include <utility>
+#include <vector>
 
 // Boost headers go here
 
