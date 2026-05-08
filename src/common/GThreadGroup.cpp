@@ -93,6 +93,7 @@ std::size_t GThreadGroup::size() const {
  * thread GThreadPool class.
  */
 void GThreadGroup::clearThreads() {
+    std::unique_lock<std::mutex> guard(mutex_);
     threads_.clear();
 }
 

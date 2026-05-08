@@ -504,7 +504,7 @@ public:
         } // Release the lock
 
         if(success)
-            not_empty_.notify_one();
+            not_full_.notify_one();
 
         return success;
     }
@@ -531,7 +531,7 @@ public:
         } // Release the lock
 
         if(success)
-            not_empty_.notify_one();
+            not_full_.notify_one();
 
         return success;
     }
