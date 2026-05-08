@@ -46,7 +46,7 @@ namespace Gem::Courtier {
 */
 GSimpleContainer::GSimpleContainer(const std::size_t &snr)
   : Gem::Courtier::GProcessingContainerT<GSimpleContainer, bool>(1)
-  , m_stored_number(snr) { /* nothing */
+  , stored_number_(snr) { /* nothing */
 }
 
 /********************************************************************************************/
@@ -62,7 +62,7 @@ void GSimpleContainer::process_(const std::vector<bool> &) { /* nothing */
 * Prints out this functions stored number
 */
 void GSimpleContainer::print() const {
-    std::cout << "storedNumber_ = " << m_stored_number << std::endl;
+    std::cout << "storedNumber_ = " << stored_number_ << std::endl;
 }
 
 /********************************************************************************************/

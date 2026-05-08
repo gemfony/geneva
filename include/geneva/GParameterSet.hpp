@@ -93,9 +93,9 @@ class parameterset_processing_result {
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
-        ar &BOOST_SERIALIZATION_NVP(m_raw_fitness) &
-            BOOST_SERIALIZATION_NVP(m_transformed_fitness) &
-            BOOST_SERIALIZATION_NVP(m_transformed_fitness_set);
+        ar &BOOST_SERIALIZATION_NVP(raw_fitness_) &
+            BOOST_SERIALIZATION_NVP(transformed_fitness_) &
+            BOOST_SERIALIZATION_NVP(transformed_fitness_set_);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -158,11 +158,11 @@ private:
     /***************************************************************************/
     // Data
 
-    double m_raw_fitness = 0.; ///< The fitness as it comes out of the fitnessCalculation() function
-    double m_transformed_fitness =
-        m_raw_fitness; ///< The fitness as calculated from m_raw_fitness through
-    bool m_transformed_fitness_set =
-        false; ///< Indicates whether a suitable m_transformed_fitness value is available
+    double raw_fitness_ = 0.; ///< The fitness as it comes out of the fitnessCalculation() function
+    double transformed_fitness_ =
+        raw_fitness_; ///< The fitness as calculated from raw_fitness_ through
+    bool transformed_fitness_set_ =
+        false; ///< Indicates whether a suitable transformed_fitness_ value is available
 };
 
 /******************************************************************************/
@@ -198,18 +198,18 @@ class GParameterSet // NOLINT(cppcoreguidelines-special-member-functions)
                     GParameterSet,
                     parameterset_processing_result>>(*this)
             ) &
-            BOOST_SERIALIZATION_NVP(m_best_past_primary_fitness) &
-            BOOST_SERIALIZATION_NVP(m_n_stalls) & BOOST_SERIALIZATION_NVP(m_maxmode) &
-            BOOST_SERIALIZATION_NVP(m_assigned_iteration) &
-            BOOST_SERIALIZATION_NVP(m_validity_level) & BOOST_SERIALIZATION_NVP(m_pt_ptr) &
-            BOOST_SERIALIZATION_NVP(m_eval_policy) &
-            BOOST_SERIALIZATION_NVP(m_individual_constraint_ptr) &
-            BOOST_SERIALIZATION_NVP(m_sigmoid_steepness) &
-            BOOST_SERIALIZATION_NVP(m_sigmoid_extremes) &
-            BOOST_SERIALIZATION_NVP(m_max_unsuccessful_adaptions) &
-            BOOST_SERIALIZATION_NVP(m_max_retries_until_valid) &
-            BOOST_SERIALIZATION_NVP(m_n_adaptions) & BOOST_SERIALIZATION_NVP(m_useRandomCrash) &
-            BOOST_SERIALIZATION_NVP(m_randomCrashProb);
+            BOOST_SERIALIZATION_NVP(best_past_primary_fitness_) &
+            BOOST_SERIALIZATION_NVP(n_stalls_) & BOOST_SERIALIZATION_NVP(maxmode_) &
+            BOOST_SERIALIZATION_NVP(assigned_iteration_) &
+            BOOST_SERIALIZATION_NVP(validity_level_) & BOOST_SERIALIZATION_NVP(pt_ptr_) &
+            BOOST_SERIALIZATION_NVP(eval_policy_) &
+            BOOST_SERIALIZATION_NVP(individual_constraint_ptr_) &
+            BOOST_SERIALIZATION_NVP(sigmoid_steepness_) &
+            BOOST_SERIALIZATION_NVP(sigmoid_extremes_) &
+            BOOST_SERIALIZATION_NVP(max_unsuccessful_adaptions_) &
+            BOOST_SERIALIZATION_NVP(max_retries_until_valid_) &
+            BOOST_SERIALIZATION_NVP(n_adaptions_) & BOOST_SERIALIZATION_NVP(useRandomCrash_) &
+            BOOST_SERIALIZATION_NVP(randomCrashProb_);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -281,7 +281,7 @@ public:
     /** @brief Retrieve the fitness tuple at a given evaluation position */
     G_API_GENEVA std::tuple<double, double> getFitnessTuple(std::uint32_t = 0) const;
 
-    /** @brief Allows to retrieve the m_maxmode parameter */
+    /** @brief Allows to retrieve the maxmode_ parameter */
     G_API_GENEVA maxMode getMaxMode() const;
 
     /** @brief Retrieves the worst possible evaluation result, depending on whether we are in maximization or minimization mode */
@@ -388,8 +388,8 @@ public:
             *dummy = nullptr
     ) {
 #ifdef DEBUG
-        // Check that m_pt_ptr actually points somewhere
-        if(not m_pt_ptr) {
+        // Check that pt_ptr_ actually points somewhere
+        if(not pt_ptr_) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GParameterSet::getPersonalityTraits<personality_type>() : Empty personality "
@@ -404,7 +404,7 @@ public:
 #endif /* DEBUG */
 
         // Does error checks on the conversion internally
-        return Gem::Common::convertSmartPointer<GPersonalityTraits, personality_type>(m_pt_ptr);
+        return Gem::Common::convertSmartPointer<GPersonalityTraits, personality_type>(pt_ptr_);
     }
 
     /* ----------------------------------------------------------------------------------
@@ -463,7 +463,7 @@ public:
        typename std::enable_if<std::is_base_of<GParameterBase, par_type>::value>::type *dummy =
            nullptr) const {
         // Does error checks on the conversion internally
-        return Gem::Common::convertSmartPointer<GParameterBase, par_type>(m_data_cnt.at(pos));
+        return Gem::Common::convertSmartPointer<GParameterBase, par_type>(data_cnt_.at(pos));
     }
 
     /* ----------------------------------------------------------------------------------
@@ -709,7 +709,7 @@ public:
     void multiplyByRandom(par_type const &min, par_type const &max, activityMode const &am) {
         // Loop over all GParameterBase objects.
         for(auto &parm_ptr : *this) {
-            parm_ptr->multiplyByRandom<par_type>(min, max, am, m_gr);
+            parm_ptr->multiplyByRandom<par_type>(min, max, am, gr_);
         }
 
         // As we have modified our internal data sets, make sure the item is reprocessed
@@ -724,7 +724,7 @@ public:
     void multiplyByRandom(activityMode const &am) {
         // Loop over all GParameterBase objects.
         for(auto &parm_ptr : *this) {
-            parm_ptr->multiplyByRandom<par_type>(am, m_gr);
+            parm_ptr->multiplyByRandom<par_type>(am, gr_);
         }
 
         // As we have modified our internal data sets, make sure the item is reprocessed
@@ -813,7 +813,7 @@ protected:
      * A random number generator. Note that the actual calculation is
      * done in a random number proxy / factory
      */
-    Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> m_gr;
+    Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr_;
 
     /***************************************************************************/
     /** @brief Do the required processing for this object */
@@ -911,41 +911,41 @@ private:
     // Data
 
     /** @brief Uniformly distributed integer random numbers */
-    std::uniform_int_distribution<std::size_t> m_uniform_int;
+    std::uniform_int_distribution<std::size_t> uniform_int_;
 
     /** @brief Holds the globally best known primary fitness of all individuals */
-    std::tuple<double, double> m_best_past_primary_fitness{std::make_tuple(0., 0.)};
+    std::tuple<double, double> best_past_primary_fitness_{std::make_tuple(0., 0.)};
     /** @brief The number of stalls of the primary fitness criterion in the entire set of individuals */
-    std::uint32_t m_n_stalls = 0;
+    std::uint32_t n_stalls_ = 0;
     /** @brief Indicates whether we are using maximization or minimization mode */
-    maxMode m_maxmode = maxMode::MINIMIZE;
+    maxMode maxmode_ = maxMode::MINIMIZE;
     /** @brief The iteration of the parent algorithm's optimization cycle */
-    std::uint32_t m_assigned_iteration = 0;
+    std::uint32_t assigned_iteration_ = 0;
     /** @brief Indicates how valid a given solution is */
-    double m_validity_level = 0.;
+    double validity_level_ = 0.;
     /** @brief Holds the actual personality information */
-    std::shared_ptr<GPersonalityTraits> m_pt_ptr;
+    std::shared_ptr<GPersonalityTraits> pt_ptr_;
 
     /** @brief Specifies what to do when the individual is marked as invalid */
-    evaluationPolicy m_eval_policy = Gem::Geneva::evaluationPolicy::USESIMPLEEVALUATION;
+    evaluationPolicy eval_policy_ = Gem::Geneva::evaluationPolicy::USESIMPLEEVALUATION;
     /** @brief Determines the "steepness" of a sigmoid function used by optimization algorithms */
-    double m_sigmoid_steepness = Gem::Geneva::FITNESSSIGMOIDSTEEPNESS;
+    double sigmoid_steepness_ = Gem::Geneva::FITNESSSIGMOIDSTEEPNESS;
     /** @brief Determines the extreme values of a sigmoid function used by optimization algorithms */
-    double m_sigmoid_extremes = Gem::Geneva::WORSTALLOWEDVALIDFITNESS;
+    double sigmoid_extremes_ = Gem::Geneva::WORSTALLOWEDVALIDFITNESS;
 
     /** @brief A constraint-check to be applied to one or more components of this individual */
-    std::shared_ptr<GPreEvaluationValidityCheckT<GParameterSet>> m_individual_constraint_ptr;
+    std::shared_ptr<GPreEvaluationValidityCheckT<GParameterSet>> individual_constraint_ptr_;
 
-    std::size_t m_max_unsuccessful_adaptions = Gem::Geneva::
+    std::size_t max_unsuccessful_adaptions_ = Gem::Geneva::
         DEFMAXUNSUCCESSFULADAPTIONS; ///< The maximum number of calls to customAdaptions() in a row without actual modifications
-    std::size_t m_max_retries_until_valid = Gem::Geneva::
+    std::size_t max_retries_until_valid_ = Gem::Geneva::
         DEFMAXRETRIESUNTILVALID; ///< The maximum number an adaption of an individual should be performed until a valid parameter set was found
-    std::size_t m_n_adaptions =
+    std::size_t n_adaptions_ =
         0; ///< Stores the actual number of adaptions after a call to "adapt()"
 
-    bool m_useRandomCrash =
+    bool useRandomCrash_ =
         false; ///< Indicates whether the individual should crash at random intervals for debugging purposes
-    double m_randomCrashProb = 0.; ///< The probability for a random crash
+    double randomCrashProb_ = 0.; ///< The probability for a random crash
 };
 
 } /* namespace Gem::Geneva */

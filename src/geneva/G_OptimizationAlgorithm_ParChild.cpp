@@ -77,12 +77,12 @@ void G_OptimizationAlgorithm_ParChild::compare_(
     Gem::Common::compare_base_t<G_OptimizationAlgorithm_Base>(*this, *p_load, token);
 
     // ... and then the local data
-    compare_t(IDENTITY(m_n_parents, p_load->m_n_parents), token);
-    compare_t(IDENTITY(m_recombination_method, p_load->m_recombination_method), token);
-    compare_t(IDENTITY(m_default_n_children, p_load->m_default_n_children), token);
-    compare_t(IDENTITY(m_max_population_size, p_load->m_max_population_size), token);
-    compare_t(IDENTITY(m_growth_rate, p_load->m_growth_rate), token);
-    compare_t(IDENTITY(m_amalgamationLikelihood, p_load->m_amalgamationLikelihood), token);
+    compare_t(IDENTITY(n_parents_, p_load->n_parents_), token);
+    compare_t(IDENTITY(recombination_method_, p_load->recombination_method_), token);
+    compare_t(IDENTITY(default_n_children_, p_load->default_n_children_), token);
+    compare_t(IDENTITY(max_population_size_, p_load->max_population_size_), token);
+    compare_t(IDENTITY(growth_rate_, p_load->growth_rate_), token);
+    compare_t(IDENTITY(amalgamationLikelihood_, p_load->amalgamationLikelihood_), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -114,7 +114,7 @@ void G_OptimizationAlgorithm_ParChild::setPopulationSizes(
     std::size_t nParents
 ) {
     G_OptimizationAlgorithm_Base::setDefaultPopulationSize(popSize);
-    m_n_parents = nParents;
+    n_parents_ = nParents;
 }
 
 /******************************************************************************/
@@ -127,7 +127,7 @@ void G_OptimizationAlgorithm_ParChild::setPopulationSizes(
  * @return The number of parents in the population
  */
 std::size_t G_OptimizationAlgorithm_ParChild::getNParents() const {
-    return (std::min)(this->size(), m_n_parents);
+    return (std::min)(this->size(), n_parents_);
 }
 
 /******************************************************************************/
@@ -138,13 +138,13 @@ std::size_t G_OptimizationAlgorithm_ParChild::getNParents() const {
  * @return The number of children in the population
  */
 std::size_t G_OptimizationAlgorithm_ParChild::getNChildren() const {
-    if(this->size() <= m_n_parents) {
+    if(this->size() <= n_parents_) {
         // This will happen, when only the default population size has been set,
         // but no individuals have been added yet
         return 0;
     }
     else {
-        return this->size() - m_n_parents;
+        return this->size() - n_parents_;
     }
 }
 
@@ -158,7 +158,7 @@ std::size_t G_OptimizationAlgorithm_ParChild::getNChildren() const {
  * @return The defaultNChildren_ parameter
  */
 std::size_t G_OptimizationAlgorithm_ParChild::getDefaultNChildren() const {
-    return m_default_n_children;
+    return default_n_children_;
 }
 
 /**************************************************************************/
@@ -194,7 +194,7 @@ std::size_t G_OptimizationAlgorithm_ParChild::getNProcessableItems_() const {
 void G_OptimizationAlgorithm_ParChild::setRecombinationMethod(
     duplicationScheme recombinationMethod
 ) {
-    m_recombination_method = recombinationMethod;
+    recombination_method_ = recombinationMethod;
 }
 
 /******************************************************************************/
@@ -204,7 +204,7 @@ void G_OptimizationAlgorithm_ParChild::setRecombinationMethod(
  * @return The value of the recombinationMethod_ variable
  */
 duplicationScheme G_OptimizationAlgorithm_ParChild::getRecombinationMethod() const {
-    return m_recombination_method;
+    return recombination_method_;
 }
 
 /******************************************************************************/
@@ -218,8 +218,8 @@ void G_OptimizationAlgorithm_ParChild::setPopulationGrowth(
     std::size_t growthRate,
     std::size_t maxPopulationSize
 ) {
-    m_growth_rate = growthRate;
-    m_max_population_size = maxPopulationSize;
+    growth_rate_ = growthRate;
+    max_population_size_ = maxPopulationSize;
 }
 
 /******************************************************************************/
@@ -229,7 +229,7 @@ void G_OptimizationAlgorithm_ParChild::setPopulationGrowth(
  * @return The growth rate of the population per iteration
  */
 std::size_t G_OptimizationAlgorithm_ParChild::getGrowthRate() const {
-    return m_growth_rate;
+    return growth_rate_;
 }
 
 /******************************************************************************/
@@ -239,7 +239,7 @@ std::size_t G_OptimizationAlgorithm_ParChild::getGrowthRate() const {
  * @return The maximum population size allowed, when growth is enabled
  */
 std::size_t G_OptimizationAlgorithm_ParChild::getMaxPopulationSize() const {
-    return m_max_population_size;
+    return max_population_size_;
 }
 
 /******************************************************************************/
@@ -320,7 +320,7 @@ void G_OptimizationAlgorithm_ParChild::setAmalgamationLikelihood(double amalgama
         );
     }
 
-    m_amalgamationLikelihood = amalgamationLikelihood;
+    amalgamationLikelihood_ = amalgamationLikelihood;
 }
 
 /******************************************************************************/
@@ -329,7 +329,7 @@ void G_OptimizationAlgorithm_ParChild::setAmalgamationLikelihood(double amalgama
  * performed instead of "just" duplication.
  */
 double G_OptimizationAlgorithm_ParChild::getAmalgamationLikelihood() const {
-    return m_amalgamationLikelihood;
+    return amalgamationLikelihood_;
 }
 
 /******************************************************************************/
@@ -339,15 +339,15 @@ double G_OptimizationAlgorithm_ParChild::getAmalgamationLikelihood() const {
  */
 void G_OptimizationAlgorithm_ParChild::doRecombine() {
     std::size_t i = 0;
-    std::vector<double> threshold(m_n_parents);
+    std::vector<double> threshold(n_parents_);
     double thresholdSum = 0.;
     // Calculate a weight vector
     // TODO: Check whether it is sufficient to do this only once
-    if(duplicationScheme::VALUEDUPLICATIONSCHEME == m_recombination_method && m_n_parents > 1) {
-        for(i = 0; i < m_n_parents; i++) {
+    if(duplicationScheme::VALUEDUPLICATIONSCHEME == recombination_method_ && n_parents_ > 1) {
+        for(i = 0; i < n_parents_; i++) {
             thresholdSum += 1. / (static_cast<double>(i) + 2.);
         }
-        for(i = 0; i < m_n_parents - 1; i++) {
+        for(i = 0; i < n_parents_ - 1; i++) {
             // Normalizing the sum to 1
             threshold[i] = (1. / (static_cast<double>(i) + 2.)) / thresholdSum;
 
@@ -355,28 +355,28 @@ void G_OptimizationAlgorithm_ParChild::doRecombine() {
             if(i > 0)
                 threshold[i] += threshold[i - 1];
         }
-        threshold[m_n_parents - 1] = 1.; // Necessary due to rounding errors
+        threshold[n_parents_ - 1] = 1.; // Necessary due to rounding errors
     }
 
     std::vector<std::shared_ptr<GParameterSet>>::iterator it;
     std::bernoulli_distribution amalgamationWanted(
-        m_amalgamationLikelihood
-    ); // true with a likelihood of m_amalgamation_likelihood
-    for(it = G_OptimizationAlgorithm_Base::m_data_cnt.begin() + m_n_parents;
-        it != G_OptimizationAlgorithm_Base::m_data_cnt.end();
+        amalgamationLikelihood_
+    ); // true with a likelihood of amalgamation_likelihood_
+    for(it = G_OptimizationAlgorithm_Base::data_cnt_.begin() + n_parents_;
+        it != G_OptimizationAlgorithm_Base::data_cnt_.end();
         ++it) {
         // Retrieve a random number so we can decide whether to perform cross-over or duplication
         // If we do perform cross-over, we always cross the best individual with another random parent
-        if(m_n_parents > 1 &&
-           amalgamationWanted(this->m_gr)) { // Create individuals using a cross-over scheme
+        if(n_parents_ > 1 &&
+           amalgamationWanted(this->gr_)) { // Create individuals using a cross-over scheme
             std::shared_ptr<GParameterSet> bestParent = this->front();
             std::shared_ptr<GParameterSet> combiner =
-                (m_n_parents > 2)
-                    ? (*(this->begin() + this->m_uniform_int_distribution(
-                                             this->m_gr,
+                (n_parents_ > 2)
+                    ? (*(this->begin() + this->uniform_int_distribution_(
+                                             this->gr_,
                                              std::uniform_int_distribution<std::size_t>::param_type(
                                                  1,
-                                                 m_n_parents - 1
+                                                 n_parents_ - 1
                                              )
                                          )))
                     : (*(this->begin() + 1));
@@ -384,7 +384,7 @@ void G_OptimizationAlgorithm_ParChild::doRecombine() {
             (*it)->GObject::load(bestParent->crossOverWith(combiner));
         }
         else { // Just perform duplication
-            switch(m_recombination_method) {
+            switch(recombination_method_) {
             case duplicationScheme::
                 DEFAULTDUPLICATIONSCHEME: // we want the RANDOMDUPLICATIONSCHEME behavior
             case duplicationScheme::RANDOMDUPLICATIONSCHEME: {
@@ -392,8 +392,8 @@ void G_OptimizationAlgorithm_ParChild::doRecombine() {
             } break;
 
             case duplicationScheme::VALUEDUPLICATIONSCHEME: {
-                if(m_n_parents == 1) {
-                    (*it)->GObject::load(*(G_OptimizationAlgorithm_Base::m_data_cnt.begin()));
+                if(n_parents_ == 1) {
+                    (*it)->GObject::load(*(G_OptimizationAlgorithm_Base::data_cnt_.begin()));
                     (*it)
                         ->GParameterSet::getPersonalityTraits<GBaseParChildPersonalityTraits>()
                         ->setParentId(0);
@@ -456,12 +456,12 @@ void G_OptimizationAlgorithm_ParChild::load_(const GObject *cp) {
     G_OptimizationAlgorithm_Base::load_(cp);
 
     // ... and then our own data
-    m_n_parents = p_load->m_n_parents;
-    m_recombination_method = p_load->m_recombination_method;
-    m_default_n_children = p_load->m_default_n_children;
-    m_max_population_size = p_load->m_max_population_size;
-    m_growth_rate = p_load->m_growth_rate;
-    m_amalgamationLikelihood = p_load->m_amalgamationLikelihood;
+    n_parents_ = p_load->n_parents_;
+    recombination_method_ = p_load->recombination_method_;
+    default_n_children_ = p_load->default_n_children_;
+    max_population_size_ = p_load->max_population_size_;
+    growth_rate_ = p_load->growth_rate_;
+    amalgamationLikelihood_ = p_load->amalgamationLikelihood_;
 }
 
 /******************************************************************************/
@@ -479,12 +479,12 @@ void G_OptimizationAlgorithm_ParChild::recombine() {
     // We require at this stage that at least the default number of
     // children is present. If individuals can get lost in your setting,
     // you must add mechanisms to "repair" the population.
-    if((this->size() - m_n_parents) < m_default_n_children) {
+    if((this->size() - n_parents_) < default_n_children_) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In G_OptimizationAlgorithm_ParChild::recombine():" << std::endl
-            << "Too few children. Got " << this->size() - m_n_parents << "," << std::endl
-            << "but was expecting at least " << m_default_n_children << std::endl
+            << "Too few children. Got " << this->size() - n_parents_ << "," << std::endl
+            << "but was expecting at least " << default_n_children_ << std::endl
         );
     }
 #endif
@@ -506,7 +506,7 @@ void G_OptimizationAlgorithm_ParChild::recombine() {
  * @return The range inside which adaption should take place
  */
 std::tuple<std::size_t, std::size_t> G_OptimizationAlgorithm_ParChild::getAdaptionRange() const {
-    return std::tuple<std::size_t, std::size_t>{m_n_parents, this->size()};
+    return std::tuple<std::size_t, std::size_t>{n_parents_, this->size()};
 }
 
 /******************************************************************************/
@@ -515,8 +515,8 @@ std::tuple<std::size_t, std::size_t> G_OptimizationAlgorithm_ParChild::getAdapti
  */
 void G_OptimizationAlgorithm_ParChild::markParents() {
     typename std::vector<std::shared_ptr<GParameterSet>>::iterator it;
-    for(it = G_OptimizationAlgorithm_Base::m_data_cnt.begin();
-        it != G_OptimizationAlgorithm_Base::m_data_cnt.begin() + m_n_parents;
+    for(it = G_OptimizationAlgorithm_Base::data_cnt_.begin();
+        it != G_OptimizationAlgorithm_Base::data_cnt_.begin() + n_parents_;
         ++it) {
         (*it)
             ->GParameterSet::template getPersonalityTraits<GBaseParChildPersonalityTraits>()
@@ -530,8 +530,8 @@ void G_OptimizationAlgorithm_ParChild::markParents() {
  */
 void G_OptimizationAlgorithm_ParChild::markChildren() {
     typename std::vector<std::shared_ptr<GParameterSet>>::iterator it;
-    for(it = G_OptimizationAlgorithm_Base::m_data_cnt.begin() + m_n_parents;
-        it != G_OptimizationAlgorithm_Base::m_data_cnt.end();
+    for(it = G_OptimizationAlgorithm_Base::data_cnt_.begin() + n_parents_;
+        it != G_OptimizationAlgorithm_Base::data_cnt_.end();
         ++it) {
         (*it)
             ->GParameterSet::template getPersonalityTraits<GBaseParChildPersonalityTraits>()
@@ -547,8 +547,8 @@ void G_OptimizationAlgorithm_ParChild::markChildren() {
 void G_OptimizationAlgorithm_ParChild::markIndividualPositions() {
     std::size_t pos = 0;
     typename std::vector<std::shared_ptr<GParameterSet>>::iterator it;
-    for(it = G_OptimizationAlgorithm_Base::m_data_cnt.begin();
-        it != G_OptimizationAlgorithm_Base::m_data_cnt.end();
+    for(it = G_OptimizationAlgorithm_Base::data_cnt_.begin();
+        it != G_OptimizationAlgorithm_Base::data_cnt_.end();
         ++it) {
         (*it)
             ->GParameterSet::template getPersonalityTraits<GBaseParChildPersonalityTraits>()
@@ -618,7 +618,7 @@ void G_OptimizationAlgorithm_ParChild::init() {
     // what the desired number of children is. This is particularly important, if, in a
     // network environment, some individuals might not return and some individuals return
     // late. The factual size of the population then changes and we need to take action.
-    m_default_n_children = G_OptimizationAlgorithm_Base::getDefaultPopulationSize() - m_n_parents;
+    default_n_children_ = G_OptimizationAlgorithm_Base::getDefaultPopulationSize() - n_parents_;
 }
 
 /******************************************************************************/
@@ -663,8 +663,8 @@ void G_OptimizationAlgorithm_ParChild::adjustPopulation_() {
 
     // Do the smart pointers actually point to any objects ?
     typename std::vector<std::shared_ptr<GParameterSet>>::iterator it;
-    for(it = G_OptimizationAlgorithm_Base::m_data_cnt.begin();
-        it != G_OptimizationAlgorithm_Base::m_data_cnt.end();
+    for(it = G_OptimizationAlgorithm_Base::data_cnt_.begin();
+        it != G_OptimizationAlgorithm_Base::data_cnt_.end();
         ++it) {
         if(not(*it)) { // shared_ptr can be implicitly converted to bool
             throw geneva_exception(
@@ -679,12 +679,12 @@ void G_OptimizationAlgorithm_ParChild::adjustPopulation_() {
     if(this_sz < G_OptimizationAlgorithm_Base::getDefaultPopulationSize()) {
         this->resize_clone(
             G_OptimizationAlgorithm_Base::getDefaultPopulationSize(),
-            G_OptimizationAlgorithm_Base::m_data_cnt[0]
+            G_OptimizationAlgorithm_Base::data_cnt_[0]
         );
 
         // Randomly initialize new items
-        for(it = G_OptimizationAlgorithm_Base::m_data_cnt.begin() + this_sz;
-            it != G_OptimizationAlgorithm_Base::m_data_cnt.end();
+        for(it = G_OptimizationAlgorithm_Base::data_cnt_.begin() + this_sz;
+            it != G_OptimizationAlgorithm_Base::data_cnt_.end();
             ++it) {
             (*it)->randomInit(activityMode::ACTIVEONLY);
         }
@@ -697,19 +697,19 @@ void G_OptimizationAlgorithm_ParChild::adjustPopulation_() {
  * a predefined value, set with setPopulationGrowth() .
  */
 void G_OptimizationAlgorithm_ParChild::performScheduledPopulationGrowth() {
-    if(m_growth_rate != 0 &&
-       (this->getDefaultPopulationSize() + m_growth_rate <= m_max_population_size) &&
-       (this->size() < m_max_population_size)) {
+    if(growth_rate_ != 0 &&
+       (this->getDefaultPopulationSize() + growth_rate_ <= max_population_size_) &&
+       (this->size() < max_population_size_)) {
         // Set a new default population size
         this->setPopulationSizes(
-            this->getDefaultPopulationSize() + m_growth_rate,
+            this->getDefaultPopulationSize() + growth_rate_,
             this->getNParents()
         );
 
         // Add missing items as copies of the last individual in the list
         this->resize_clone(
             G_OptimizationAlgorithm_Base::getDefaultPopulationSize(),
-            G_OptimizationAlgorithm_Base::m_data_cnt[0]
+            G_OptimizationAlgorithm_Base::data_cnt_[0]
         );
     }
 }
@@ -724,7 +724,7 @@ void G_OptimizationAlgorithm_ParChild::performScheduledPopulationGrowth() {
 void G_OptimizationAlgorithm_ParChild::randomRecombine(std::shared_ptr<GParameterSet> &child) {
     std::size_t parent_pos = 0;
 
-    if(m_n_parents == 1) {
+    if(n_parents_ == 1) {
         parent_pos = 0;
     }
     else {
@@ -732,15 +732,15 @@ void G_OptimizationAlgorithm_ParChild::randomRecombine(std::shared_ptr<GParamete
         // numeric_cast may throw. Exceptions need to be caught in surrounding functions.
         // try/catch blocks would add a non-negligible overhead in this function. uniform_int(max)
         // returns integer values in the range [0,max]. As we want to have values in the range
-        // 0,1, ... m_n_parents-1, we need to subtract one from the argument.
-        parent_pos = m_uniform_int_distribution(
-            this->m_gr,
-            std::uniform_int_distribution<std::size_t>::param_type(0, m_n_parents - 1)
+        // 0,1, ... n_parents_-1, we need to subtract one from the argument.
+        parent_pos = uniform_int_distribution_(
+            this->gr_,
+            std::uniform_int_distribution<std::size_t>::param_type(0, n_parents_ - 1)
         );
     }
 
     // Load the parent data into the individual
-    child->GObject::load(*(G_OptimizationAlgorithm_Base::m_data_cnt.begin() + parent_pos));
+    child->GObject::load(*(G_OptimizationAlgorithm_Base::data_cnt_.begin() + parent_pos));
 
     // Let the individual know the id of the parent
     child->GParameterSet::template getPersonalityTraits<GBaseParChildPersonalityTraits>()
@@ -764,12 +764,12 @@ void G_OptimizationAlgorithm_ParChild::valueRecombine(
 ) {
     bool done = false;
     double randTest // get the test value // NOLINT(cppcoreguidelines-init-variables)
-        = G_OptimizationAlgorithm_Base::m_uniform_real_distribution(this->m_gr);
+        = G_OptimizationAlgorithm_Base::uniform_real_distribution_(this->gr_);
 
-    for(std::size_t par = 0; par < m_n_parents; par++) {
+    for(std::size_t par = 0; par < n_parents_; par++) {
         if(randTest < threshold[par]) {
             // Load the parent's data
-            p->GObject::load(*(G_OptimizationAlgorithm_Base::m_data_cnt.begin() + par));
+            p->GObject::load(*(G_OptimizationAlgorithm_Base::data_cnt_.begin() + par));
             // Let the individual know the parent's id
             p->GParameterSet::template getPersonalityTraits<GBaseParChildPersonalityTraits>()
                 ->setParentId(par);

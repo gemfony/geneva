@@ -102,28 +102,28 @@ public:
         Gem::Common::serializationMode serialization_mode,
         bool verbose_control_frames
     )
-      : m_resolver(m_io_context)
-      , m_ws(m_io_context)
-      , m_address(std::move(address))
-      , m_port(port)
-      , m_serialization_mode(serialization_mode)
-      , m_verbose_control_frames(verbose_control_frames) {
+      : resolver_(io_context_)
+      , ws_(io_context_)
+      , address_(std::move(address))
+      , port_(port)
+      , serialization_mode_(serialization_mode)
+      , verbose_control_frames_(verbose_control_frames) {
         // Set the auto_fragment option, so control frames are delivered timely
-        m_ws.auto_fragment(true);
+        ws_.auto_fragment(true);
 #if (BOOST_VERSION >= 107000)
-        m_ws.write_buffer_bytes(16384);
+        ws_.write_buffer_bytes(16384);
 #else
-        m_ws.write_buffer_size(16384);
+        ws_.write_buffer_size(16384);
 #endif
 
         // Set the transfer mode
-        switch(m_serialization_mode) {
+        switch(serialization_mode_) {
         case Gem::Common::serializationMode::BINARY:
-            m_ws.binary(true);
+            ws_.binary(true);
             break;
         case Gem::Common::serializationMode::XML:
         case Gem::Common::serializationMode::TEXT:
-            m_ws.binary(false);
+            ws_.binary(false);
             break;
         }
 
@@ -131,7 +131,7 @@ public:
         f_when_control_frame_arrived = [this](frame_type frame_t, string_view s) {
             // Let the audience know what type of control frame we have received
             // if the user has requested it.
-            if(this->m_verbose_control_frames) {
+            if(this->verbose_control_frames_) {
                 if(boost::beast::websocket::frame_type::close == frame_t) {
                     glogger << "GWebsocketClientT<> client has received a close frame" << std::endl
                             << GLOGGING;
@@ -148,7 +148,7 @@ public:
         };
 
         // Set the callback to be executed on every incoming control frame.
-        m_ws.control_callback(f_when_control_frame_arrived);
+        ws_.control_callback(f_when_control_frame_arrived);
     }
 
     //-------------------------------------------------------------------------
@@ -159,7 +159,7 @@ public:
         glogger << std::endl
                 << "GWebsocketClientT<> is shutting down. Processed " << this->getNProcessed()
                 << " items in total" << std::endl
-                << "\"no data\" was received " << m_n_nodata << " times" << std::endl
+                << "\"no data\" was received " << n_nodata_ << " times" << std::endl
                 << std::endl
                 << GLOGGING;
     }
@@ -185,19 +185,19 @@ private:
         // Start looking up the domain name. This call will return immediately,
         // when_resolved() will be called once the operation is complete.
         auto self = this->shared_from_this();
-        m_resolver.async_resolve(
-            m_address,
-            std::to_string(m_port),
+        resolver_.async_resolve(
+            address_,
+            std::to_string(port_),
             [self](boost::system::error_code ec, const resolver::results_type &results) {
                 self->when_resolved(ec, results);
             }
         );
 
         // This call will block until no more work remains in the ASIO work queue
-        m_io_context.run();
+        io_context_.run();
 
         // Finally close all outstanding connections
-        do_close(m_close_code);
+        do_close(close_code_);
 
         // Let the audience know that we have finished the shutdown
         glogger << "GWebsocketClientT<processable_type>::run_(): Client session has terminated"
@@ -218,12 +218,12 @@ private:
 
         // We need to persist the message for asynchronous operations.
         // It is hence stored in a class variable.
-        m_outgoing_message = message;
+        outgoing_message_ = message;
 
         // Send the message
         auto self = this->shared_from_this();
-        m_ws.async_write(
-            boost::asio::buffer(m_outgoing_message),
+        ws_.async_write(
+            boost::asio::buffer(outgoing_message_),
             [self](boost::system::error_code ec, std::size_t nBytesTransferred) {
                 self->when_written(ec, nBytesTransferred);
             }
@@ -240,8 +240,8 @@ private:
             return;
 
         auto self = this->shared_from_this();
-        m_ws.async_read(
-            m_incoming_buffer,
+        ws_.async_read(
+            incoming_buffer_,
             [self](boost::system::error_code ec, std::size_t nBytesTransferred) {
                 self->when_read(ec, nBytesTransferred);
             }
@@ -264,7 +264,7 @@ private:
                     << GLOGGING;
 
             // Give the audience a hint why we are terminating
-            m_close_code = boost::beast::websocket::close_code::going_away;
+            close_code_ = boost::beast::websocket::close_code::going_away;
 
             return;
         }
@@ -272,7 +272,7 @@ private:
         // Make the ASIO connection on the endpoint we get from a lookup
         auto self = this->shared_from_this();
         boost::asio::async_connect(
-            m_ws.next_layer(),
+            ws_.next_layer(),
             results.begin(),
             results.end(),
             [self](boost::system::error_code ec, auto /* unused */) { self->when_connected(ec); }
@@ -294,14 +294,14 @@ private:
                     << GLOGGING;
 
             // Give the audience a hint why we are terminating
-            m_close_code = boost::beast::websocket::close_code::going_away;
+            close_code_ = boost::beast::websocket::close_code::going_away;
 
             return;
         }
 
         // Perform the handshake
         auto self = this->shared_from_this();
-        m_ws.async_handshake(m_address, "/", [self](boost::system::error_code ec) {
+        ws_.async_handshake(address_, "/", [self](boost::system::error_code ec) {
             self->when_handshake_complete(ec);
         });
     }
@@ -323,7 +323,7 @@ private:
                     << GLOGGING;
 
             // Give the audience a hint why we are terminating
-            m_close_code = boost::beast::websocket::close_code::going_away;
+            close_code_ = boost::beast::websocket::close_code::going_away;
 
             // This will terminate the client
             return;
@@ -332,8 +332,8 @@ private:
         // Send the first command to the server
         async_start_write(
             Gem::Courtier::container_to_string(
-                m_command_container.reset(networked_consumer_payload_command::GETDATA),
-                m_serialization_mode
+                command_container_.reset(networked_consumer_payload_command::GETDATA),
+                serialization_mode_
             )
         );
 
@@ -358,7 +358,7 @@ private:
                     << GLOGGING;
 
             // Give the audience a hint why we are terminating
-            m_close_code = boost::beast::websocket::close_code::going_away;
+            close_code_ = boost::beast::websocket::close_code::going_away;
 
             // This will terminate the client
             // TODO: It is not quite true that this will terminate the client
@@ -366,7 +366,7 @@ private:
         }
 
         // Clear the outgoing message -- no longer needed
-        m_outgoing_message.clear();
+        outgoing_message_.clear();
     }
 
     //-------------------------------------------------------------------------
@@ -387,14 +387,14 @@ private:
                     << GLOGGING;
 
             // Give the audience a hint why we are terminating
-            m_close_code = boost::beast::websocket::close_code::going_away;
+            close_code_ = boost::beast::websocket::close_code::going_away;
 
             // This will terminate the client
             return;
         }
 
         // There should be no situation where in this location processing is active
-        if(m_processing_is_active) {
+        if(processing_is_active_) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GWebsocketClientT<processable_type>::when_read():" << std::endl
@@ -407,7 +407,7 @@ private:
         try {
             // Start asynchronous processing of the work item.
             auto self = this->shared_from_this();
-            m_gtp.async_schedule([self]() { self->process_request(); });
+            gtp_.async_schedule([self]() { self->process_request(); });
 
             async_start_read();
         }
@@ -417,7 +417,7 @@ private:
                     << "Caught exception" << std::endl
                     << GWARNING;
 
-            m_close_code = boost::beast::websocket::close_code::internal_error;
+            close_code_ = boost::beast::websocket::close_code::internal_error;
         }
     }
 
@@ -427,48 +427,48 @@ private:
 	  */
     void process_request() {
         // Make it known that we are processing a new work item
-        m_processing_is_active = true;
+        processing_is_active_ = true;
 
         // Extract the string from the buffer
-        auto message = boost::beast::buffers_to_string(m_incoming_buffer.data());
+        auto message = boost::beast::buffers_to_string(incoming_buffer_.data());
 
         // Clear the buffer, so we may later fill it with data to be sent
-        m_incoming_buffer.consume(m_incoming_buffer.size());
+        incoming_buffer_.consume(incoming_buffer_.size());
 
         // De-serialize the object
         Gem::Courtier::container_from_string(
             message,
-            m_command_container,
-            m_serialization_mode
+            command_container_,
+            serialization_mode_
         ); // may throw
 
         // Extract the command
-        auto inboundCommand = m_command_container.get_command();
+        auto inboundCommand = command_container_.get_command();
 
         // Act on the command received
         switch(inboundCommand) {
         case networked_consumer_payload_command::COMPUTE: {
             // Process the work item
-            m_command_container.process();
+            command_container_.process();
 
             // Update the processed counter
             this->incrementProcessingCounter();
 
             // Set the command for the way back to the server
-            m_command_container.set_command(networked_consumer_payload_command::RESULT);
+            command_container_.set_command(networked_consumer_payload_command::RESULT);
         } break;
 
         case networked_consumer_payload_command::NODATA: { // This must be a command payload
             // Update the nodata counter for bookkeeping
-            m_n_nodata++;
+            n_nodata_++;
 
             // sleep for a short while (between 50 and 200 milliseconds, randomly),
             // before we ask for new work.
             std::uniform_int_distribution<> dist(50, 200);
-            std::this_thread::sleep_for(std::chrono::milliseconds(dist(m_rng_engine)));
+            std::this_thread::sleep_for(std::chrono::milliseconds(dist(rng_engine_)));
 
             // Tell the server again we need work
-            m_command_container.reset(networked_consumer_payload_command::GETDATA);
+            command_container_.reset(networked_consumer_payload_command::GETDATA);
         } break;
 
         default: {
@@ -481,11 +481,11 @@ private:
         }
 
         // Processing has finished
-        m_processing_is_active = false;
+        processing_is_active_ = false;
 
         // Serialize the object again and return the result
         this->async_start_write(
-            Gem::Courtier::container_to_string(m_command_container, m_serialization_mode)
+            Gem::Courtier::container_to_string(command_container_, serialization_mode_)
         );
     }
 
@@ -496,15 +496,15 @@ private:
 	  * @param cc The close code to be sent to the peer
 	  */
     void do_close(close_code cc) {
-        if(m_ws.is_open()) {
-            m_ws.close(cc);
+        if(ws_.is_open()) {
+            ws_.close(cc);
         }
 
-        if(m_ws.next_layer().is_open()) {
+        if(ws_.next_layer().is_open()) {
             boost::system::error_code ec;
 
-            m_ws.next_layer().shutdown(socket::shutdown_both, ec);
-            m_ws.next_layer().close(ec);
+            ws_.next_layer().shutdown(socket::shutdown_both, ec);
+            ws_.next_layer().close(ec);
 
             if(ec) {
                 glogger << "In GWebsocketClientT<processable_type>::do_close():" << std::endl
@@ -533,42 +533,42 @@ private:
     // Data
 
     boost::asio::io_context
-        m_io_context; ///< The io-service object handling the asynchronous processing
-    resolver m_resolver{m_io_context}; ///< Helps to resolve the peer
-    boost::beast::websocket::stream<socket> m_ws{
-        m_io_context
+        io_context_; ///< The io-service object handling the asynchronous processing
+    resolver resolver_{io_context_}; ///< Helps to resolve the peer
+    boost::beast::websocket::stream<socket> ws_{
+        io_context_
     }; ///< All messages are sent and received through this socket
 
-    std::string m_address; ///< The ip address or name of the peer system
-    unsigned int m_port;   ///< The peer port
+    std::string address_; ///< The ip address or name of the peer system
+    unsigned int port_;   ///< The peer port
 
-    boost::beast::multi_buffer m_incoming_buffer;
-    std::string m_outgoing_message; ///< Helps to persist outgoing messages
+    boost::beast::multi_buffer incoming_buffer_;
+    std::string outgoing_message_; ///< Helps to persist outgoing messages
 
-    std::random_device m_nondet_rng; ///< Source of non-deterministic random numbers
-    std::mt19937 m_rng_engine{
-        m_nondet_rng()
-    }; ///< The actual random number engine, seeded my m_nondet_rng
+    std::random_device nondet_rng_; ///< Source of non-deterministic random numbers
+    std::mt19937 rng_engine_{
+        nondet_rng_()
+    }; ///< The actual random number engine, seeded my nondet_rng_
 
-    boost::beast::websocket::close_code m_close_code = boost::beast::websocket::close_code::
+    boost::beast::websocket::close_code close_code_ = boost::beast::websocket::close_code::
         normal; ///< Holds the close code when terminating the connection
 
-    Gem::Common::serializationMode m_serialization_mode = Gem::Common::serializationMode::
+    Gem::Common::serializationMode serialization_mode_ = Gem::Common::serializationMode::
         BINARY; ///< Determines which seriliztion mode should be used
-    bool m_verbose_control_frames =
+    bool verbose_control_frames_ =
         false; ///< Whether a diagnostic message should be emitted when a control frame arrives
 
-    std::uint64_t m_n_nodata = 0;
+    std::uint64_t n_nodata_ = 0;
 
-    GCommandContainerT<processable_type, networked_consumer_payload_command> m_command_container{
+    GCommandContainerT<processable_type, networked_consumer_payload_command> command_container_{
         networked_consumer_payload_command::NONE
     }; ///< Holds the current command and payload (if any)
 
-    Gem::Common::GThreadPool m_gtp{
+    Gem::Common::GThreadPool gtp_{
         1
     }; ///< Holds workers doing the processing and serialization of incoming workloads
 
-    std::atomic<bool> m_processing_is_active{
+    std::atomic<bool> processing_is_active_{
         false
     }; ///< A safeguard against accidental processing of two work items
 
@@ -616,19 +616,19 @@ public:
         std::size_t ping_interval,
         bool verbose_control_frames
     )
-      : m_ws(std::move(socket))
-      , m_strand(io_context.get_executor())
-      , m_timer(io_context, (std::chrono::steady_clock::time_point::max)())
-      , m_get_payload_item(std::move(get_payload_item))
-      , m_put_payload_item(std::move(put_payload_item))
-      , m_check_server_stopped(std::move(check_server_stopped))
-      , m_server_sign_on(std::move(server_sign_on))
-      , m_serialization_mode(serialization_mode)
-      , m_ping_interval(std::chrono::seconds(ping_interval))
-      , m_verbose_control_frames(verbose_control_frames) {
+      : ws_(std::move(socket))
+      , strand_(io_context.get_executor())
+      , timer_(io_context, (std::chrono::steady_clock::time_point::max)())
+      , get_payload_item_(std::move(get_payload_item))
+      , put_payload_item_(std::move(put_payload_item))
+      , check_server_stopped_(std::move(check_server_stopped))
+      , server_sign_on_(std::move(server_sign_on))
+      , serialization_mode_(serialization_mode)
+      , ping_interval_(std::chrono::seconds(ping_interval))
+      , verbose_control_frames_(verbose_control_frames) {
         // ---------------------------------------------------
         // Make it known to the server that a new session has started
-        this->m_server_sign_on(true);
+        this->server_sign_on_(true);
 
         // ---------------------------------------------------
         // Prepare ping cycle. It must start after the handshake, upon whose
@@ -644,12 +644,12 @@ public:
 				 || boost::beast::websocket::frame_type::ping==frame_t
 				 ) {
                 // Note that the connection is alive
-                this->m_ping_state = beast_ping_state::CONNECTION_IS_ALIVE;
+                this->ping_state_ = beast_ping_state::CONNECTION_IS_ALIVE;
             }
 
             // Let the audience know what type of control frame we have received
             // if the user has requested it.
-            if(this->m_verbose_control_frames) {
+            if(this->verbose_control_frames_) {
                 if(boost::beast::websocket::frame_type::close == frame_t) {
                     glogger << "GWebsocketConsumerSessionT<> session has received a close frame"
                             << std::endl
@@ -669,27 +669,27 @@ public:
         };
 
         // Set the callback to be executed on every incoming control frame.
-        m_ws.control_callback(f_when_control_frame_arrived);
+        ws_.control_callback(f_when_control_frame_arrived);
 
         // ---------------------------------------------------
         // Set the auto_fragment option, so control frames are delivered timely
-        m_ws.auto_fragment(true);
+        ws_.auto_fragment(true);
 #if (BOOST_VERSION >= 107000)
-        m_ws.write_buffer_bytes(16384);
+        ws_.write_buffer_bytes(16384);
 #else
-        m_ws.write_buffer_size(16384);
+        ws_.write_buffer_size(16384);
 #endif
 
         // ---------------------------------------------------
         // Set the transfer mode according to the defines in CMakeLists.txt
         // Set the transfer mode
-        switch(m_serialization_mode) {
+        switch(serialization_mode_) {
         case Gem::Common::serializationMode::BINARY:
-            m_ws.binary(true);
+            ws_.binary(true);
             break;
         case Gem::Common::serializationMode::XML:
         case Gem::Common::serializationMode::TEXT:
-            m_ws.binary(false);
+            ws_.binary(false);
             break;
         }
 
@@ -700,7 +700,7 @@ public:
     /** @brief The destructor */
     ~GWebsocketConsumerSessionT() {
         // Make it known to the server that this session has terminated
-        this->m_server_sign_on(false);
+        this->server_sign_on_(false);
     }
 
     //-------------------------------------------------------------------------
@@ -738,10 +738,10 @@ private:
     void async_start_read() {
         // Read a message into our buffer
         auto self = this->shared_from_this();
-        m_ws.async_read(
-            m_incoming_buffer,
+        ws_.async_read(
+            incoming_buffer_,
             boost::asio::bind_executor(
-                m_strand,
+                strand_,
                 [self](boost::system::error_code ec, std::size_t nBytesTransferred) {
                     self->when_read(ec, nBytesTransferred);
                 }
@@ -757,14 +757,14 @@ private:
 	  */
     void async_start_write(std::string message) {
         // We need to persist the message for asynchronous operations
-        m_outgoing_message = std::move(message);
+        outgoing_message_ = std::move(message);
 
         // Return an answer
         auto self = this->shared_from_this();
-        m_ws.async_write(
-            boost::asio::buffer(m_outgoing_message),
+        ws_.async_write(
+            boost::asio::buffer(outgoing_message_),
             boost::asio::bind_executor(
-                m_strand,
+                strand_,
                 [self](boost::system::error_code ec, std::size_t nBytesTransferred) {
                     self->when_written(ec, nBytesTransferred);
                 }
@@ -778,13 +778,13 @@ private:
 	  */
     void async_start_ping() {
         // Set the timer
-        m_timer.expires_after(m_ping_interval);
+        timer_.expires_after(ping_interval_);
 
         // Start to wait asynchronously. This call will return immediately.
         // when_timer_fired() will be called once the timer has expired.
         auto self = this->shared_from_this();
-        m_timer.async_wait(
-            boost::asio::bind_executor(m_strand, [self](boost::system::error_code ec) {
+        timer_.async_wait(
+            boost::asio::bind_executor(strand_, [self](boost::system::error_code ec) {
                 self->when_timer_fired(ec);
             })
         );
@@ -793,12 +793,12 @@ private:
         // else the pong might arrive before the SENDING_PING state is set
         // and we might overwrite the CONNECTION_IS_ALIVE state set by the
         // control-frame callback
-        m_ping_state = beast_ping_state::SENDING_PING;
+        ping_state_ = beast_ping_state::SENDING_PING;
 
         // Start the ping session
-        m_ws.async_ping(
-            m_ping_data,
-            boost::asio::bind_executor(m_strand, [self](boost::system::error_code ec) {
+        ws_.async_ping(
+            ping_data_,
+            boost::asio::bind_executor(strand_, [self](boost::system::error_code ec) {
                 self->when_ping_sent(ec);
             })
         );
@@ -814,8 +814,8 @@ private:
         // executed when the previous call (here: async_accept) is completed. Error handling is
         // done in the callback, using an error code provided by Boost.Beast and/or Boost.ASIO.
         auto self = this->shared_from_this();
-        m_ws.async_accept(
-            boost::asio::bind_executor(m_strand, [self](boost::system::error_code ec) {
+        ws_.async_accept(
+            boost::asio::bind_executor(strand_, [self](boost::system::error_code ec) {
                 self->when_connection_accepted(ec);
             })
         );
@@ -835,7 +835,7 @@ private:
                         << GLOGGING;
             }
 
-            m_ping_state = beast_ping_state::CONNECTION_IS_STALE;
+            ping_state_ = beast_ping_state::CONNECTION_IS_STALE;
         }
     }
 
@@ -854,23 +854,23 @@ private:
                         << GLOGGING;
             }
 
-            m_ping_state = beast_ping_state::CONNECTION_IS_STALE;
+            ping_state_ = beast_ping_state::CONNECTION_IS_STALE;
             return;
         }
 
-        if(m_ping_state == beast_ping_state::CONNECTION_IS_ALIVE) {
+        if(ping_state_ == beast_ping_state::CONNECTION_IS_ALIVE) {
             // Start the next ping session, if this is a healthy connection
             async_start_ping();
             return;
         }
         else {
-            m_ping_state = beast_ping_state::CONNECTION_IS_STALE;
+            ping_state_ = beast_ping_state::CONNECTION_IS_STALE;
 
-            if(not this->m_check_server_stopped()) {
+            if(not this->check_server_stopped_()) {
                 // Either this is a stale connection or the SENDING_PING flag is still set
                 glogger << "GWebsocketConsumerSessionT<processable_type>::when_timer_fired():"
                         << std::endl
-                        << "Connection seems to be dead: " << m_ping_state << std::endl
+                        << "Connection seems to be dead: " << ping_state_ << std::endl
                         << GLOGGING;
             }
             return;
@@ -949,9 +949,9 @@ private:
         }
 
         // Clear the outgoing message -- no longer needed
-        m_outgoing_message.clear();
+        outgoing_message_.clear();
 
-        if(this->m_check_server_stopped()) {
+        if(this->check_server_stopped_()) {
             // Do not continue if a stop criterion was reached
             do_close(boost::beast::websocket::close_code::normal);
         }
@@ -974,23 +974,23 @@ private:
 	  */
     void do_close(boost::beast::websocket::close_code cc) {
         // Store the close code for later reference
-        m_close_code = cc;
+        close_code_ = cc;
 
         // Make sure no more pings are sent and the timer expires
-        m_timer.cancel();
+        timer_.cancel();
 
-        if(m_ws.is_open()) {
+        if(ws_.is_open()) {
             // Close the connection
-            m_ws.close(cc);
+            ws_.close(cc);
         }
 
-        if(m_ws.next_layer().is_open()) {
+        if(ws_.next_layer().is_open()) {
             boost::system::error_code ec;
 
             // Closing the socket cancels all outstanding operations. They
             // will complete with boost::asio::error::operation_aborted
-            m_ws.next_layer().shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
-            m_ws.next_layer().close(ec);
+            ws_.next_layer().shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
+            ws_.next_layer().close(ec);
 
             if(ec) {
                 // Not much else we can do here
@@ -1013,20 +1013,20 @@ private:
     std::string process_request() {
         try {
             // Extract the string from the buffer
-            auto message = boost::beast::buffers_to_string(m_incoming_buffer.data());
+            auto message = boost::beast::buffers_to_string(incoming_buffer_.data());
 
             // De-serialize the object
             Gem::Courtier::container_from_string(
                 message,
-                m_command_container,
-                m_serialization_mode
+                command_container_,
+                serialization_mode_
             ); // may throw
 
             // Clear the buffer, so we may later fill it with data to be sent
-            m_incoming_buffer.consume(m_incoming_buffer.size());
+            incoming_buffer_.consume(incoming_buffer_.size());
 
             // Extract the command
-            auto inboundCommand = m_command_container.get_command();
+            auto inboundCommand = command_container_.get_command();
 
             // Act on the command received
             switch(inboundCommand) {
@@ -1036,11 +1036,11 @@ private:
 
             case networked_consumer_payload_command::RESULT: {
                 // Retrieve the payload from the command container
-                auto payload_ptr = m_command_container.get_payload();
+                auto payload_ptr = command_container_.get_payload();
 
                 // Submit the payload to the server (which will send it to the broker)
                 if(payload_ptr) {
-                    this->m_put_payload_item(payload_ptr);
+                    this->put_payload_item_(payload_ptr);
                 }
                 else {
                     glogger << "GWebsocketConsumerSessionT<processable_type>::process_request():"
@@ -1083,49 +1083,49 @@ private:
 	  */
     std::string getAndSerializeWorkItem() {
         // Obtain a container_payload object from the queue, serialize it and send it off
-        auto payload_ptr = this->m_get_payload_item();
+        auto payload_ptr = this->get_payload_item_();
 
         if(payload_ptr) { // Did we get a valid item ?
-            m_command_container.reset(networked_consumer_payload_command::COMPUTE, payload_ptr);
+            command_container_.reset(networked_consumer_payload_command::COMPUTE, payload_ptr);
         }
         else {
             // Let the remote side know whe don't have work
-            m_command_container.reset(networked_consumer_payload_command::NODATA);
+            command_container_.reset(networked_consumer_payload_command::NODATA);
         }
 
-        return Gem::Courtier::container_to_string(m_command_container, m_serialization_mode);
+        return Gem::Courtier::container_to_string(command_container_, serialization_mode_);
     }
 
     //-------------------------------------------------------------------------
     // Data
 
-    boost::beast::websocket::stream<boost::asio::ip::tcp::socket> m_ws;
-    boost::asio::strand<boost::asio::io_context::executor_type> m_strand;
+    boost::beast::websocket::stream<boost::asio::ip::tcp::socket> ws_;
+    boost::asio::strand<boost::asio::io_context::executor_type> strand_;
 
-    boost::beast::multi_buffer m_incoming_buffer;
-    std::string m_outgoing_message;
+    boost::beast::multi_buffer incoming_buffer_;
+    std::string outgoing_message_;
 
-    boost::asio::steady_timer m_timer;
+    boost::asio::steady_timer timer_;
 
-    std::function<std::shared_ptr<processable_type>()> m_get_payload_item;
-    std::function<void(std::shared_ptr<processable_type>)> m_put_payload_item;
-    std::function<bool()> m_check_server_stopped;
-    std::function<void(bool)> m_server_sign_on;
+    std::function<std::shared_ptr<processable_type>()> get_payload_item_;
+    std::function<void(std::shared_ptr<processable_type>)> put_payload_item_;
+    std::function<bool()> check_server_stopped_;
+    std::function<void(bool)> server_sign_on_;
 
-    boost::beast::websocket::close_code m_close_code = boost::beast::websocket::close_code::
+    boost::beast::websocket::close_code close_code_ = boost::beast::websocket::close_code::
         normal; ///< Holds the close code when terminating the connection
 
-    Gem::Common::serializationMode m_serialization_mode = Gem::Common::serializationMode::BINARY;
+    Gem::Common::serializationMode serialization_mode_ = Gem::Common::serializationMode::BINARY;
 
-    const std::chrono::seconds m_ping_interval{
+    const std::chrono::seconds ping_interval_{
         GBEASTCONSUMERPINGINTERVAL
     }; // Time between two pings in seconds
-    bool m_verbose_control_frames = false;
+    bool verbose_control_frames_ = false;
 
-    std::atomic<beast_ping_state> m_ping_state{beast_ping_state::CONNECTION_IS_ALIVE};
-    const boost::beast::websocket::ping_data m_ping_data{};
+    std::atomic<beast_ping_state> ping_state_{beast_ping_state::CONNECTION_IS_ALIVE};
+    const boost::beast::websocket::ping_data ping_data_{};
 
-    GCommandContainerT<processable_type, networked_consumer_payload_command> m_command_container{
+    GCommandContainerT<processable_type, networked_consumer_payload_command> command_container_{
         networked_consumer_payload_command::NONE
     }; ///< Holds the current command and payload (if any)
 
@@ -1172,14 +1172,14 @@ protected:
         GBaseConsumerT<processable_type>::shutdown_();
 
         // Make sure context threads may terminate
-        m_io_context.stop();
+        io_context_.stop();
 
         //------------------------------------------------------
         // Wait for context threads to finish
-        for(auto &t : m_io_context_thread_cnt) {
+        for(auto &t : io_context_thread_cnt_) {
             t.join();
         }
-        m_io_context_thread_cnt.clear();
+        io_context_thread_cnt_.clear();
 
         //------------------------------------------------------
     }
@@ -1199,20 +1199,20 @@ private:
         namespace po = boost::program_options;
 
         visible
-            .add_options()("beast_ip", po::value<std::string>(&m_server)->default_value(GCONSUMERDEFAULTSERVER), "\t[beast] The name or ip of the server")(
+            .add_options()("beast_ip", po::value<std::string>(&server_)->default_value(GCONSUMERDEFAULTSERVER), "\t[beast] The name or ip of the server")(
                 "beast_port",
-                po::value<unsigned short>(&m_port)->default_value(GCONSUMERDEFAULTPORT),
+                po::value<unsigned short>(&port_)->default_value(GCONSUMERDEFAULTPORT),
                 "\t[beast] The port of the server"
             );
 
         hidden.add_options()
-			 ("beast_serializationMode", po::value<Gem::Common::serializationMode>(&m_serializationMode)->default_value(GCONSUMERSERIALIZATIONMODE),
+			 ("beast_serializationMode", po::value<Gem::Common::serializationMode>(&serializationMode_)->default_value(GCONSUMERSERIALIZATIONMODE),
 				 "\t[beast] Specifies whether serialization shall be done in TEXTMODE (0), XMLMODE (1) or BINARYMODE (2)")
-			 ("beast_nListenerThreads", po::value<std::size_t>(&m_n_listener_threads)->default_value(m_n_listener_threads),
+			 ("beast_nListenerThreads", po::value<std::size_t>(&n_listener_threads_)->default_value(n_listener_threads_),
 				 "\t[beast] The number of threads used to listen for incoming connections")
-			 ("beast_pingInterval", po::value<std::size_t>(&m_ping_interval)->default_value(GBEASTCONSUMERPINGINTERVAL),
+			 ("beast_pingInterval", po::value<std::size_t>(&ping_interval_)->default_value(GBEASTCONSUMERPINGINTERVAL),
 				 "\t[beast] The number of seconds between two consecutive pings")
-			 ("beast_verboseControlFrames", po::value<bool>(&m_verbose_control_frames)->default_value(false)->implicit_value(true),
+			 ("beast_verboseControlFrames", po::value<bool>(&verbose_control_frames_)->default_value(false)->implicit_value(true),
 				 "\t[beast] Whether sending and arrival of ping/pong and receipt of a close frame should be announced by client and server");
     }
 
@@ -1250,15 +1250,15 @@ private:
         boost::system::error_code ec;
 
         // Set up the endpoint according to the endpoint information we have received from the command line
-        m_endpoint = std::move(boost::asio::ip::tcp::endpoint{boost::asio::ip::tcp::v4(), m_port});
+        endpoint_ = std::move(boost::asio::ip::tcp::endpoint{boost::asio::ip::tcp::v4(), port_});
 
         // Open the acceptor
-        m_acceptor.open(m_endpoint.protocol(), ec);
-        if(ec || not m_acceptor.is_open()) {
+        acceptor_.open(endpoint_.protocol(), ec);
+        if(ec || not acceptor_.is_open()) {
             if(ec) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
-                    << "GWebsocketConsumerT<>::async_startProcessing_() / m_acceptor.open: Got "
+                    << "GWebsocketConsumerT<>::async_startProcessing_() / acceptor_.open: Got "
                        "error message \""
                     << ec.message() << "\"" << std::endl
                     << "No connections will be accepted. The server is not running" << std::endl
@@ -1267,7 +1267,7 @@ private:
             else {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
-                    << "GWebsocketConsumerT<>::async_startProcessing_() / m_acceptor.open did not "
+                    << "GWebsocketConsumerT<>::async_startProcessing_() / acceptor_.open did not "
                        "succeed."
                     << std::endl
                     << "No connections will be accepted. The server is not running" << std::endl
@@ -1276,11 +1276,11 @@ private:
         }
 
         // Bind to the server address
-        m_acceptor.bind(m_endpoint, ec);
+        acceptor_.bind(endpoint_, ec);
         if(ec) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "GWebsocketConsumerT<>::async_startProcessing_() / m_acceptor.bind: Got error "
+                << "GWebsocketConsumerT<>::async_startProcessing_() / acceptor_.bind: Got error "
                    "message \""
                 << ec.message() << "\"" << std::endl
                 << "No connections will be accepted. The server is not running" << std::endl
@@ -1289,14 +1289,14 @@ private:
 
         // Some acceptor options
         boost::asio::socket_base::reuse_address option(true);
-        m_acceptor.set_option(option);
+        acceptor_.set_option(option);
 
         // Start listening for connections  TODO: Check if this should be increased
-        m_acceptor.listen(boost::asio::socket_base::max_listen_connections, ec);
+        acceptor_.listen(boost::asio::socket_base::max_listen_connections, ec);
         if(ec) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "GWebsocketConsumerT<>::async_startProcessing_() / m_acceptor.listen: Got error "
+                << "GWebsocketConsumerT<>::async_startProcessing_() / acceptor_.listen: Got error "
                    "message \""
                 << ec.message() << "\"" << std::endl
                 << "No connections will be accepted. The server is not running" << std::endl
@@ -1307,9 +1307,9 @@ private:
         async_start_accept();
 
         // Allow to serve requests simultaneously from multiple threads
-        m_io_context_thread_cnt.reserve(m_n_listener_threads);
-        for(std::size_t t_cnt = 0; t_cnt < m_n_listener_threads; t_cnt++) {
-            m_io_context_thread_cnt.emplace_back([this]() { this->m_io_context.run(); });
+        io_context_thread_cnt_.reserve(n_listener_threads_);
+        for(std::size_t t_cnt = 0; t_cnt < n_listener_threads_; t_cnt++) {
+            io_context_thread_cnt_.emplace_back([this]() { this->io_context_.run(); });
         }
 
         // Done -- the function will return immediately
@@ -1322,7 +1322,7 @@ private:
 	  */
     void async_start_accept() {
         auto self = this->shared_from_this();
-        m_acceptor.async_accept(m_socket, [self](boost::system::error_code ec) {
+        acceptor_.async_accept(socket_, [self](boost::system::error_code ec) {
             self->when_accepted(ec);
         });
     }
@@ -1343,20 +1343,20 @@ private:
         else {
             // Create the GWebsocketConsumerSessionT and run it. This call will return immediately.
             std::make_shared<GWebsocketConsumerSessionT<processable_type>>(
-                m_io_context,
-                std::move(m_socket) // m_socket will stay in a valid state
+                io_context_,
+                std::move(socket_) // socket_ will stay in a valid state
                 ,
                 [this]() -> std::shared_ptr<processable_type> { return this->getPayloadItem(); },
                 [this](std::shared_ptr<processable_type> p) { this->putPayloadItem(p); },
                 [this]() -> bool { return this->stopped(); },
                 [this](bool sign_on) {
                     if(true == sign_on) {
-                        this->m_n_active_sessions++;
+                        this->n_active_sessions_++;
                     }
                     else {
-                        if(this->m_n_active_sessions > 0) {
-                            // This won't help, though, if m_n_active_sessions becomes 0 after the if-check
-                            this->m_n_active_sessions--;
+                        if(this->n_active_sessions_ > 0) {
+                            // This won't help, though, if n_active_sessions_ becomes 0 after the if-check
+                            this->n_active_sessions_--;
                         }
                         else {
                             throw geneva_exception(
@@ -1367,13 +1367,13 @@ private:
                         }
                     }
 
-                    glogger << "GWebsocketConsumerT<>: " << this->m_n_active_sessions
+                    glogger << "GWebsocketConsumerT<>: " << this->n_active_sessions_
                             << " active sessions" << std::endl
                             << GLOGGING;
                 },
-                m_serializationMode,
-                m_ping_interval,
-                m_verbose_control_frames
+                serializationMode_,
+                ping_interval_,
+                verbose_control_frames_
             )
                 ->async_start_run();
         }
@@ -1393,7 +1393,7 @@ private:
         std::shared_ptr<processable_type> p;
 
         // Try to retrieve a work item from the broker
-        m_broker_ptr->get(p, m_timeout);
+        broker_ptr_->get(p, timeout_);
 
         // May be empty, if we ran into a timeout
         return p;
@@ -1412,7 +1412,7 @@ private:
             );
         }
 
-        if(not m_broker_ptr->put(p, m_timeout)) {
+        if(not broker_ptr_->put(p, timeout_)) {
             glogger << "In GWebsocketConsumerT<>::putPayloadItem():" << std::endl
                     << "Work item could not be submitted to the broker" << std::endl
                     << "The item will be discarded" << std::endl
@@ -1429,10 +1429,10 @@ private:
     std::shared_ptr<GBaseClientT<processable_type>> getClient_() const override {
         return std::shared_ptr<GBaseClientT<processable_type>>(
             new GWebsocketClientT<processable_type>(
-                m_server,
-                m_port,
-                m_serializationMode,
-                m_verbose_control_frames
+                server_,
+                port_,
+                serializationMode_,
+                verbose_control_frames_
             )
         );
     }
@@ -1455,7 +1455,7 @@ private:
 	  */
     std::size_t getNProcessingUnitsEstimate_(bool &exact) const override {
         exact = false; // mark the answer as approximate
-        return m_n_active_sessions.load();
+        return n_active_sessions_.load();
     }
 
     //-------------------------------------------------------------------------
@@ -1471,26 +1471,26 @@ private:
     //-------------------------------------------------------------------------
     // Data
 
-    std::string m_server = GCONSUMERDEFAULTSERVER; ///< The name or ip if the server
-    unsigned short m_port =
+    std::string server_ = GCONSUMERDEFAULTSERVER; ///< The name or ip if the server
+    unsigned short port_ =
         GCONSUMERDEFAULTPORT; ///< The port on which the server is supposed to listen
-    boost::asio::ip::tcp::endpoint m_endpoint{boost::asio::ip::tcp::v4(), m_port};
-    std::size_t m_n_listener_threads =
+    boost::asio::ip::tcp::endpoint endpoint_{boost::asio::ip::tcp::v4(), port_};
+    std::size_t n_listener_threads_ =
         GCONSUMERLISTENERTHREADS; ///< The number of threads used to listen for incoming connections through io_context::run()
-    boost::asio::io_context m_io_context{boost::numeric_cast<int>(m_n_listener_threads)};
-    boost::asio::ip::tcp::acceptor m_acceptor{m_io_context};
-    boost::asio::ip::tcp::socket m_socket{m_io_context};
-    Gem::Common::serializationMode m_serializationMode =
+    boost::asio::io_context io_context_{boost::numeric_cast<int>(n_listener_threads_)};
+    boost::asio::ip::tcp::acceptor acceptor_{io_context_};
+    boost::asio::ip::tcp::socket socket_{io_context_};
+    Gem::Common::serializationMode serializationMode_ =
         Gem::Common::serializationMode::BINARY; ///< Specifies the serialization mode
-    std::vector<std::thread> m_io_context_thread_cnt;
-    std::atomic<std::size_t> m_n_active_sessions{0};
-    std::size_t m_ping_interval = GBEASTCONSUMERPINGINTERVAL;
-    bool m_verbose_control_frames =
+    std::vector<std::thread> io_context_thread_cnt_;
+    std::atomic<std::size_t> n_active_sessions_{0};
+    std::size_t ping_interval_ = GBEASTCONSUMERPINGINTERVAL;
+    bool verbose_control_frames_ =
         false; ///< Whether the control_callback should emit information when a control frame is received
 
-    std::shared_ptr<GBrokerT<processable_type>> m_broker_ptr =
+    std::shared_ptr<GBrokerT<processable_type>> broker_ptr_ =
         GBROKER(processable_type); ///< Simplified access to the broker
-    const std::chrono::duration<double> m_timeout = std::chrono::milliseconds(
+    const std::chrono::duration<double> timeout_ = std::chrono::milliseconds(
         GBEASTMSTIMEOUT
     ); ///< A timeout for put- and get-operations via the broker
 

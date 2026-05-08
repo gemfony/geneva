@@ -76,8 +76,8 @@ public:
 	  * @param do_log Instructs the object to also send data to the logger
 	  */
     explicit g_error_streamer(bool do_log, std::string where_and_when)
-      : m_do_log(do_log)
-      , m_where_and_when(std::move(where_and_when)) { /* nothing */
+      : do_log_(do_log)
+      , where_and_when_(std::move(where_and_when)) { /* nothing */
     }
 
     /*************************************************************************/
@@ -103,7 +103,7 @@ public:
 	  */
     template <typename value_type>
     g_error_streamer &operator<<(const value_type &val) {
-        m_ostream << val;
+        ostream_ << val;
         return *this;
     }
 
@@ -112,7 +112,7 @@ public:
 	  * Needed for stringstream
 	  */
     g_error_streamer &operator<<(std::ostream &(*val)(std::ostream &)) {
-        m_ostream << val;
+        ostream_ << val;
         return *this;
     }
 
@@ -121,7 +121,7 @@ public:
 	  * Needed for stringstream
 	  */
     g_error_streamer &operator<<(std::ios &(*val)(std::ios &)) {
-        m_ostream << val;
+        ostream_ << val;
         return *this;
     }
 
@@ -130,7 +130,7 @@ public:
 	  *  Needed for stringstream
 	  */
     g_error_streamer &operator<<(std::ios_base &(*val)(std::ios_base &)) {
-        m_ostream << val;
+        ostream_ << val;
         return *this;
     }
 
@@ -143,13 +143,13 @@ public:
 	  */
     operator std::string() const { // NOLINT
         using namespace Gem::Common;
-        if(m_do_log) {
+        if(do_log_) {
             glogger(std::filesystem::path(exception_file))
                 << "========================================================" << std::endl
                 << "Error!" << std::endl
                 << std::endl
-                << m_where_and_when << std::endl
-                << m_ostream.str() << std::endl
+                << where_and_when_ << std::endl
+                << ostream_.str() << std::endl
                 << std::endl
                 << "If you suspect that there is an underlying problem with the" << std::endl
                 << "Ge library collection, then please consider filing a bug." << std::endl
@@ -160,16 +160,16 @@ public:
                 << "========================================================" << std::endl
                 << GFILE;
         }
-        return m_ostream.str();
+        return ostream_.str();
     }
 
 private:
     /**************************************************************************/
     // Data
-    std::ostringstream m_ostream;
-    bool m_do_log = NO_LOG;
+    std::ostringstream ostream_;
+    bool do_log_ = NO_LOG;
     const std::string exception_file = "./GENEVA-EXCEPTION.log";
-    std::string m_where_and_when{};
+    std::string where_and_when_{};
 
     /**************************************************************************/
 };

@@ -69,8 +69,8 @@ public:
 	 * The default constructor
 	 */
     testTask()
-      : m_counterValue(0)
-      , m_operatorCalled(0) { /* nothing */
+      : counterValue_(0)
+      , operatorCalled_(0) { /* nothing */
     }
 
     /********************************************************************/
@@ -78,7 +78,7 @@ public:
 	 * Allows to check how often increment() has been called
 	 */
     std::int32_t getCounterValue() const {
-        return m_counterValue;
+        return counterValue_;
     }
 
     /********************************************************************/
@@ -86,7 +86,7 @@ public:
 	 * Retrieves the number of operator calls
 	 */
     std::uint32_t getOperatorCalledValue() const {
-        return m_operatorCalled;
+        return operatorCalled_;
     }
 
     /********************************************************************/
@@ -95,7 +95,7 @@ public:
 	 * inside of the threads
 	 */
     void process(bool simulateCrash) {
-        if(m_uniform_bool(m_gr)) {
+        if(uniform_bool_(gr_)) {
             this->increment();
         }
         else {
@@ -104,7 +104,7 @@ public:
 
         std::this_thread::sleep_for(
             std::chrono::milliseconds(
-                this->m_uniform_int(m_gr, std::uniform_int_distribution<long>::param_type(10, 20))
+                this->uniform_int_(gr_, std::uniform_int_distribution<long>::param_type(10, 20))
             )
         );
 
@@ -124,8 +124,8 @@ private:
 	 * Increments the local counter
 	 */
     void increment() {
-        m_counterValue++;
-        m_operatorCalled++;
+        counterValue_++;
+        operatorCalled_++;
     }
 
     /********************************************************************/
@@ -133,18 +133,18 @@ private:
 	 * Decrements the local counter
 	 */
     void decrement() {
-        m_counterValue--;
-        m_operatorCalled++;
+        counterValue_--;
+        operatorCalled_++;
     }
 
     /********************************************************************/
-    std::int32_t m_counterValue; ///< The internal value to be decremented or incremented
+    std::int32_t counterValue_; ///< The internal value to be decremented or incremented
     std::uint32_t
-        m_operatorCalled; ///< This counter will be incremented whenever process() is called
+        operatorCalled_; ///< This counter will be incremented whenever process() is called
 
-    Gem::Hap::GRandom m_gr; // Instantiates a random number generator
-    std::uniform_int_distribution<long> m_uniform_int;
-    std::bernoulli_distribution m_uniform_bool; // probability of 0.5 is the default
+    Gem::Hap::GRandom gr_; // Instantiates a random number generator
+    std::uniform_int_distribution<long> uniform_int_;
+    std::bernoulli_distribution uniform_bool_; // probability of 0.5 is the default
 };
 
 /************************************************************************/
@@ -157,7 +157,7 @@ private:
  */
 int main(int argc, char **argv) {
     Gem::Hap::GRandom gr; // Instantiates a random number generator
-    std::uniform_int_distribution<unsigned int> m_uniform_int;
+    std::uniform_int_distribution<unsigned int> uniform_int_;
 
     //----------------------------------------------------------------
     // Local variables
@@ -233,7 +233,7 @@ int main(int argc, char **argv) {
         }
 
         if(nResizeEvents > 0 && weighted_bool(gr)) {
-            unsigned int nt = m_uniform_int(
+            unsigned int nt = uniform_int_(
                 gr,
                 std::uniform_int_distribution<unsigned int>::param_type(MINTHREADS, MAXTHREADS)
             );

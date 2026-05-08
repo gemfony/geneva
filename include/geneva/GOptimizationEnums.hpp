@@ -406,7 +406,7 @@ enum class evaluationPolicy : Gem::Common::ENUMBASETYPE {
         1 // Assign the worst possible value to invalid individuals, evaluate valid solutions as usual
         ,
     USESIGMOID =
-        2 // Assign a multiple of m_validity_level and sigmoid barrier to invalid solutions, apply a sigmoid function to valid evaluations
+        2 // Assign a multiple of validity_level_ and sigmoid barrier to invalid solutions, apply a sigmoid function to valid evaluations
         ,
     EVALUATIONPOLICY_LAST = static_cast<Gem::Common::ENUMBASETYPE>(evaluationPolicy::USESIGMOID)
 };

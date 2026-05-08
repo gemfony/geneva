@@ -86,10 +86,10 @@ public:
 	  * this quantity upon creation.
 	  */
     explicit GStdThreadConsumerT(std::size_t nThreads = DEFAULTTHREADSPERWORKER)
-      : m_nThreads(nThreads > 0 ? nThreads : DEFAULTTHREADSPERWORKER) {
+      : nThreads_(nThreads > 0 ? nThreads : DEFAULTTHREADSPERWORKER) {
         if(0 == nThreads) {
             glogger << "In GStdThreadConsumerT::GStdThreadConsumerT(nThreads):" << std::endl
-                    << "nThreads == 0 was requested. m_n_threads was set to the default "
+                    << "nThreads == 0 was requested. n_threads_ was set to the default "
                     << DEFAULTTHREADSPERWORKER << std::endl
                     << GWARNING;
         }
@@ -121,7 +121,7 @@ public:
 	 * @return The maximum number of allowed threads
 	 */
     std::size_t getNThreadsPerWorker() const {
-        return m_nThreads;
+        return nThreads_;
     }
 
     /***************************************************************************/
@@ -129,7 +129,7 @@ public:
 	  * Allows to check whether a worker template was registered
 	  */
     bool hasWorkerTemplate() const {
-        if(this->m_workerTemplate) {
+        if(this->workerTemplate_) {
             return true;
         }
         return false;
@@ -142,10 +142,10 @@ public:
     void setCapableOfFullReturn(bool capableOfFullReturn) {
         glogger << "In GStdThreadConsumerT<processable_type>::setCapableOfFullReturn():"
                 << std::endl
-                << "m_capableOfFullReturn will be set to "
+                << "capableOfFullReturn_ will be set to "
                 << (capableOfFullReturn ? "true" : "false") << std::endl
                 << GLOGGING;
-        m_capableOfFullReturn = capableOfFullReturn;
+        capableOfFullReturn_ = capableOfFullReturn;
     }
 
     /***************************************************************************/
@@ -166,7 +166,7 @@ public:
         }
 #endif /* DEBUG */
 
-        m_workerTemplate = workerTemplate;
+        workerTemplate_ = workerTemplate;
     }
 
     /***************************************************************************/
@@ -199,8 +199,8 @@ protected:
         GBaseConsumerT<processable_type>::shutdown_();
 
         // Wait for local workers to terminate
-        m_gtg.join_all();
-        m_workers.clear();
+        gtg_.join_all();
+        workers_.clear();
     }
 
     /***************************************************************************/
@@ -244,13 +244,13 @@ private:
 
         hidden.add_options()(
             "nWorkerThreads",
-            po::value<std::size_t>(&m_nThreads)->default_value(m_nThreads),
+            po::value<std::size_t>(&nThreads_)->default_value(nThreads_),
             "\t[stc] The number of threads used to process the worker"
         );
 
         hidden.add_options()(
             "stcCapableOfFullReturn",
-            po::value<bool>(&m_capableOfFullReturn)->default_value(m_capableOfFullReturn),
+            po::value<bool>(&capableOfFullReturn_)->default_value(capableOfFullReturn_),
             "\t[stc] A debugging option making the multi-threaded consumer use timeouts in the "
             "executor"
         );
@@ -279,10 +279,10 @@ private:
                     << DEFAULTTHREADSPERWORKER << std::endl
                     << GWARNING;
 
-            m_nThreads = DEFAULTTHREADSPERWORKER;
+            nThreads_ = DEFAULTTHREADSPERWORKER;
         }
         else {
-            m_nThreads = nThreads;
+            nThreads_ = nThreads;
         }
     }
 
@@ -311,22 +311,22 @@ private:
 	 */
     void async_startProcessing_() override {
         // Add a default worker if no worker was registered
-        if(not m_workerTemplate) {
+        if(not workerTemplate_) {
             std::shared_ptr<GWorkerWithRegisterBrokerFerryT<processable_type>> default_worker(
                 new GLocalConsumerWorkerT<processable_type>()
             );
             this->registerWorkerTemplate(default_worker);
         }
 
-        // Start m_nWorkerThreads threads for each registered worker template
-        glogger << "Starting " << m_nThreads
+        // Start nWorkerThreads_ threads for each registered worker template
+        glogger << "Starting " << nThreads_
                 << " processing threads in GStdThreadConsumerT<processable_type>" << std::endl
                 << GLOGGING;
-        for(std::size_t worker_id = 0; worker_id < m_nThreads; worker_id++) {
+        for(std::size_t worker_id = 0; worker_id < nThreads_; worker_id++) {
             // The actual worker
             std::shared_ptr<GWorkerWithRegisterBrokerFerryT<processable_type>> p_worker =
                 std::dynamic_pointer_cast<GWorkerWithRegisterBrokerFerryT<processable_type>>(
-                    m_workerTemplate->clone()
+                    workerTemplate_->clone()
                 );
 
             // The "broker ferry" holding the connection to the broker
@@ -339,7 +339,7 @@ private:
                     [this](const std::chrono::milliseconds &timeout)
                         -> std::shared_ptr<processable_type> {
                         std::shared_ptr<processable_type> p;
-                        m_broker_ptr->get(p, timeout);
+                        broker_ptr_->get(p, timeout);
                         return p;
                     }
                     //----------------------
@@ -347,7 +347,7 @@ private:
                     [this](
                         std::shared_ptr<processable_type> p,
                         const std::chrono::milliseconds &timeout
-                    ) -> void { m_broker_ptr->put(p, timeout); }
+                    ) -> void { broker_ptr_->put(p, timeout); }
                     //----------------------
                     ,
                     [this]() -> bool { return this->stopped(); }
@@ -359,10 +359,10 @@ private:
             p_worker->registerBrokerFerry(broker_ferry_ptr);
 
             // Start the actual thread
-            m_gtg.create_thread([p_worker]() -> void { p_worker->run(); });
+            gtg_.create_thread([p_worker]() -> void { p_worker->run(); });
 
             // Store the worker for later reference
-            m_workers.push_back(p_worker);
+            workers_.push_back(p_worker);
         }
     }
 
@@ -385,30 +385,30 @@ private:
 	  * Returns an indication whether full return can be expected from this
 	  * consumer. Since evaluation is performed in threads, we assume that this
 	  * is possible and return true. If you believe that this is not the case,
-	  * make sure to set m_capableOfFullReturn to false using the setCapableOfFullReturn()
+	  * make sure to set capableOfFullReturn_ to false using the setCapableOfFullReturn()
 	  * function. Note that, while processing-errors will likely be caught,
 	  * "full return" does not mean "fully processed return", as errors (be it in
 	  * user- or Geneva-code) are always possible.
 	  */
     bool capableOfFullReturn_() const override {
-        return m_capableOfFullReturn;
+        return capableOfFullReturn_;
     }
 
     /***************************************************************************/
 
-    bool m_capableOfFullReturn =
+    bool capableOfFullReturn_ =
         true; ///< Indicates whether this consumer is capable of full return
 
-    std::size_t m_nThreads =
+    std::size_t nThreads_ =
         DEFAULTTHREADSPERWORKER;     ///< The maximum number of allowed threads in the pool
-    Gem::Common::GThreadGroup m_gtg; ///< Holds the processing threads
+    Gem::Common::GThreadGroup gtg_; ///< Holds the processing threads
 
     std::vector<std::shared_ptr<GWorkerWithRegisterBrokerFerryT<processable_type>>>
-        m_workers; ///< Holds the current worker objects
+        workers_; ///< Holds the current worker objects
     std::shared_ptr<GWorkerWithRegisterBrokerFerryT<processable_type>>
-        m_workerTemplate; ///< All workers will be created as a clone of this worker
+        workerTemplate_; ///< All workers will be created as a clone of this worker
 
-    std::shared_ptr<GBrokerT<processable_type>> m_broker_ptr = GBROKER(
+    std::shared_ptr<GBrokerT<processable_type>> broker_ptr_ = GBROKER(
         processable_type
     ); ///< A shortcut to the broker so we do not have to go through the singleton
 };

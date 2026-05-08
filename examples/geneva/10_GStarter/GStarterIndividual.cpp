@@ -104,7 +104,7 @@ GStarterIndividual::GStarterIndividual(
     const double &adProb
 )
   : GParameterSet()
-  , m_targetFunction(targetFunction::PARABOLA) {
+  , targetFunction_(targetFunction::PARABOLA) {
     try {
         // The following is a static function used both here
         // and in the factory, so setup code cannot diverge
@@ -137,7 +137,7 @@ GStarterIndividual::GStarterIndividual(
  */
 GStarterIndividual::GStarterIndividual(const GStarterIndividual &cp)
   : GParameterSet(cp)
-  , m_targetFunction(cp.m_targetFunction) { /* nothing */
+  , targetFunction_(cp.targetFunction_) { /* nothing */
 }
 
 /******************************************************************************/
@@ -173,7 +173,7 @@ void GStarterIndividual::compare_(
     Gem::Common::compare_base_t<Gem::Geneva::GParameterSet>(*this, *p_load, token);
 
     // ... and then the local data
-    Gem::Common::compare_t(IDENTITY(m_targetFunction, p_load->m_targetFunction), token);
+    Gem::Common::compare_t(IDENTITY(targetFunction_, p_load->targetFunction_), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -211,7 +211,7 @@ void GStarterIndividual::addConfigurationOptions(Gem::Common::GParserBuilder &gp
  * @param tF The id if the demo function
  */
 void GStarterIndividual::setTargetFunction(targetFunction tF) {
-    m_targetFunction = tF;
+    targetFunction_ = tF;
 }
 
 /*******************************************************************************************/
@@ -221,7 +221,7 @@ void GStarterIndividual::setTargetFunction(targetFunction tF) {
  * @return The id of the currently selected demo function
  */
 targetFunction GStarterIndividual::getTargetFunction() const {
-    return m_targetFunction;
+    return targetFunction_;
 }
 
 /*******************************************************************************************/
@@ -262,7 +262,7 @@ std::string GStarterIndividual::print() {
     this->streamline(parVec);
 
     result << "GStarterIndividual with target function "
-           << (m_targetFunction == targetFunction::PARABOLA ? " PARABOLA" : " NOISY PARABOLA")
+           << (targetFunction_ == targetFunction::PARABOLA ? " PARABOLA" : " NOISY PARABOLA")
            << std::endl
            << "and raw fitness " << this->raw_fitness(0)
            << " has the following parameter values:" << std::endl;
@@ -290,7 +290,7 @@ void GStarterIndividual::load_(const GObject *cp) {
     GParameterSet::load_(cp);
 
     // ... and then our local data
-    m_targetFunction = p_load->m_targetFunction;
+    targetFunction_ = p_load->targetFunction_;
 }
 
 /******************************************************************************/
@@ -316,7 +316,7 @@ double GStarterIndividual::fitnessCalculation() {
     this->streamline(parVec);
 
     // Perform the actual calculation
-    switch(m_targetFunction) {
+    switch(targetFunction_) {
     //-----------------------------------------------------------
     // A simple, multi-dimensional parabola
     case targetFunction::PARABOLA:
@@ -553,26 +553,26 @@ void GStarterIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilde
     Gem::Common::GFactoryT<GParameterSet>::describeLocalOptions_(gpb);
 
     // Local data
-    gpb.registerFileParameter<double>("adProb", m_adProb, GSI_DEF_ADPROB)
+    gpb.registerFileParameter<double>("adProb", adProb_, GSI_DEF_ADPROB)
         << "The probability for random adaptions of values in evolutionary algorithms";
 
-    gpb.registerFileParameter<double>("sigma", m_sigma, GSI_DEF_SIGMA)
+    gpb.registerFileParameter<double>("sigma", sigma_, GSI_DEF_SIGMA)
         << "The sigma for gauss-adaption in ES";
 
-    gpb.registerFileParameter<double>("sigmaSigma", m_sigmaSigma, GSI_DEF_SIGMASIGMA)
+    gpb.registerFileParameter<double>("sigmaSigma", sigmaSigma_, GSI_DEF_SIGMASIGMA)
         << "Influences the self-adaption of gauss-mutation in ES";
 
-    gpb.registerFileParameter<double>("minSigma", m_minSigma, GSI_DEF_MINSIGMA)
+    gpb.registerFileParameter<double>("minSigma", minSigma_, GSI_DEF_MINSIGMA)
         << "The minimum amount value of sigma";
 
-    gpb.registerFileParameter<double>("maxSigma", m_maxSigma, GSI_DEF_MAXSIGMA)
+    gpb.registerFileParameter<double>("maxSigma", maxSigma_, GSI_DEF_MAXSIGMA)
         << "The maximum amount value of sigma";
 
     std::vector<double> defStartValues;
     defStartValues.push_back(1.);
     defStartValues.push_back(1.);
     defStartValues.push_back(1.);
-    gpb.registerFileParameter<double>("startValues", m_startValues, defStartValues)
+    gpb.registerFileParameter<double>("startValues", startValues_, defStartValues)
         << "The start values for all parameters" << std::endl
         << "Note that the number of entries also determines" << std::endl
         << "The number of parameter used in the optimization" << std::endl
@@ -583,7 +583,7 @@ void GStarterIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilde
     defLowerBoundaries.push_back(0.);
     defLowerBoundaries.push_back(0.);
     defLowerBoundaries.push_back(0.);
-    gpb.registerFileParameter<double>("lowerBoundaries", m_lowerBoundaries, defLowerBoundaries)
+    gpb.registerFileParameter<double>("lowerBoundaries", lowerBoundaries_, defLowerBoundaries)
         << "The lower boundaries for all parameters" << std::endl
         << "Note that as many entries are needed as" << std::endl
         << "There are entries in the startValues vector";
@@ -592,7 +592,7 @@ void GStarterIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilde
     defUpperBoundaries.push_back(2.);
     defUpperBoundaries.push_back(2.);
     defUpperBoundaries.push_back(2.);
-    gpb.registerFileParameter<double>("upperBoundaries", m_upperBoundaries, defUpperBoundaries)
+    gpb.registerFileParameter<double>("upperBoundaries", upperBoundaries_, defUpperBoundaries)
         << "The upper boundaries for all parameters" << std::endl
         << "Note that as many entries are needed as" << std::endl
         << "There are entries in the startValues vector";
@@ -618,14 +618,14 @@ void GStarterIndividualFactory::postProcess_(std::shared_ptr<GParameterSet> &p_b
     GStarterIndividual::addContent(
         *p,
         this->getId(),
-        m_startValues,
-        m_lowerBoundaries,
-        m_upperBoundaries,
-        m_sigma,
-        m_sigmaSigma,
-        m_minSigma,
-        m_maxSigma,
-        m_adProb
+        startValues_,
+        lowerBoundaries_,
+        upperBoundaries_,
+        sigma_,
+        sigmaSigma_,
+        minSigma_,
+        maxSigma_,
+        adProb_
     );
 }
 

@@ -61,7 +61,7 @@ void GGradientDescent_PersonalityTraits::compare_(
     Gem::Common::compare_base_t<GPersonalityTraits>(*this, *p_load, token);
 
     // ... and then the local data
-    compare_t(IDENTITY(m_popPos, p_load->m_popPos), token);
+    compare_t(IDENTITY(popPos_, p_load->popPos_), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -108,7 +108,7 @@ void GGradientDescent_PersonalityTraits::load_(const GObject *cp) {
     GPersonalityTraits::load_(cp);
 
     // and then the local data
-    m_popPos = p_load->m_popPos;
+    popPos_ = p_load->popPos_;
 }
 
 /******************************************************************************/
@@ -118,7 +118,7 @@ void GGradientDescent_PersonalityTraits::load_(const GObject *cp) {
  * @param popPos The new position of this individual in the population
  */
 void GGradientDescent_PersonalityTraits::setPopulationPosition(const std::size_t &popPos) {
-    m_popPos = popPos;
+    popPos_ = popPos;
 }
 
 /* ----------------------------------------------------------------------------------
@@ -133,7 +133,7 @@ void GGradientDescent_PersonalityTraits::setPopulationPosition(const std::size_t
  * @return The current position of this individual in the population
  */
 std::size_t GGradientDescent_PersonalityTraits::getPopulationPosition(void) const {
-    return m_popPos;
+    return popPos_;
 }
 
 /* ----------------------------------------------------------------------------------

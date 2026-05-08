@@ -74,8 +74,8 @@ class GFixedSizePriorityQueueT : public GCommonInterfaceT<GFixedSizePriorityQueu
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar &BOOST_SERIALIZATION_NVP(m_maxSize_) & BOOST_SERIALIZATION_NVP(m_sortOrder_) &
-            BOOST_SERIALIZATION_NVP(m_data_deq_);
+        ar &BOOST_SERIALIZATION_NVP(maxSize_) & BOOST_SERIALIZATION_NVP(sortOrder_) &
+            BOOST_SERIALIZATION_NVP(data_deq_);
     }
 
     ///////////////////////////////////////////////////////////////////////
@@ -88,7 +88,7 @@ public:
          * @param maxSize The maximum size of the queue
          */
     explicit GFixedSizePriorityQueueT(const std::size_t &maxSize)
-      : m_maxSize_(maxSize) {
+      : maxSize_(maxSize) {
         /* nothing */
     }
 
@@ -101,8 +101,8 @@ public:
          * @param sortOrder Indicates whether the queue should minimize or maximize
          */
     GFixedSizePriorityQueueT(const std::size_t &maxSize, const sortOrder &sortOrder)
-      : m_maxSize_(maxSize)
-      , m_sortOrder_(sortOrder) {
+      : maxSize_(maxSize)
+      , sortOrder_(sortOrder) {
         /* nothing */
     }
 
@@ -111,9 +111,9 @@ public:
          * The copy constructor
          */
     GFixedSizePriorityQueueT(GFixedSizePriorityQueueT const &cp)
-      : m_maxSize_(cp.m_maxSize_)
-      , m_sortOrder_(cp.m_sortOrder_) {
-        Common::copyCloneableSmartPointerContainer(cp.m_data_deq_, m_data_deq_);
+      : maxSize_(cp.maxSize_)
+      , sortOrder_(cp.sortOrder_) {
+        Common::copyCloneableSmartPointerContainer(cp.data_deq_, data_deq_);
     }
 
     /***************************************************************************/
@@ -122,14 +122,14 @@ public:
          */
     GFixedSizePriorityQueueT(GFixedSizePriorityQueueT &&cp) noexcept {
         // Move content, then reset cp to default values
-        m_maxSize_ = cp.m_maxSize_;
-        cp.m_maxSize_ = GFSPQ_DEF_MAX_SIZE;
+        maxSize_ = cp.maxSize_;
+        cp.maxSize_ = GFSPQ_DEF_MAX_SIZE;
 
-        m_sortOrder_ = cp.m_sortOrder_;
-        cp.m_sortOrder_ = GFSPQ_DEF_SORT_ORDER;
+        sortOrder_ = cp.sortOrder_;
+        cp.sortOrder_ = GFSPQ_DEF_SORT_ORDER;
 
-        m_data_deq_ = std::move(cp.m_data_deq_);
-        cp.m_data_deq_.clear();
+        data_deq_ = std::move(cp.data_deq_);
+        cp.data_deq_.clear();
     }
 
     /***************************************************************************/
@@ -145,10 +145,10 @@ public:
     GFixedSizePriorityQueueT &operator=(GFixedSizePriorityQueueT const &cp) {
         if(this == &cp)
             return *this;
-        m_maxSize_ = cp.m_maxSize_;
-        m_sortOrder_ = cp.m_sortOrder_;
+        maxSize_ = cp.maxSize_;
+        sortOrder_ = cp.sortOrder_;
 
-        Common::copyCloneableSmartPointerContainer(cp.m_data_deq_, m_data_deq_);
+        Common::copyCloneableSmartPointerContainer(cp.data_deq_, data_deq_);
 
         return *this;
     }
@@ -159,14 +159,14 @@ public:
          */
     GFixedSizePriorityQueueT &operator=(GFixedSizePriorityQueueT &&cp) noexcept {
         // Move data over, then set remote object to default values
-        m_maxSize_ = cp.m_maxSize;
-        cp.m_maxSize_ = GFSPQ_DEF_MAX_SIZE;
+        maxSize_ = cp.maxSize_;
+        cp.maxSize_ = GFSPQ_DEF_MAX_SIZE;
 
-        m_sortOrder_ = cp.m_sortOrder;
-        cp.m_sortOrder_ = GFSPQ_DEF_SORT_ORDER;
+        sortOrder_ = cp.sortOrder_;
+        cp.sortOrder_ = GFSPQ_DEF_SORT_ORDER;
 
-        m_data_deq_ = std::move(cp.m_data_deq_);
-        cp.m_data_deq_.clear();
+        data_deq_ = std::move(cp.data_deq_);
+        cp.data_deq_.clear();
 
         return *this;
     }
@@ -176,7 +176,7 @@ public:
          * Gives access to the best item without copying it
          */
     std::shared_ptr<T> best() const {
-        if(m_data_deq_.empty()) {
+        if(data_deq_.empty()) {
             // Throw an exception
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
@@ -185,7 +185,7 @@ public:
             );
         }
         else {
-            return m_data_deq_.front();
+            return data_deq_.front();
         }
     }
 
@@ -194,7 +194,7 @@ public:
          * Gives access to the worst item without copying it
          */
     std::shared_ptr<T> worst() const {
-        if(m_data_deq_.empty()) {
+        if(data_deq_.empty()) {
             // Throw an exception
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
@@ -203,7 +203,7 @@ public:
             );
         }
         else {
-            return m_data_deq_.back();
+            return data_deq_.back();
         }
     }
 
@@ -214,15 +214,15 @@ public:
          * considered to be better.
          */
     void setSortOrder(const sortOrder &sortOrder) {
-        m_sortOrder_ = sortOrder;
+        sortOrder_ = sortOrder;
     }
 
     /***************************************************************************/
     /**
-         * Allows to retrieve the current value of m_sortOrder
+         * Allows to retrieve the current value of sortOrder_
          */
     sortOrder getSortOrder() const {
-        return m_sortOrder_;
+        return sortOrder_;
     }
 
     /***************************************************************************/
@@ -240,23 +240,23 @@ public:
         // - If the queue is unlimited
         // - If the queue isn't full yet
         // - If the item is better than the worst one contained in the queue
-        if(0 == m_maxSize_ || m_data_deq_.size() < m_maxSize_ ||
+        if(0 == maxSize_ || data_deq_.size() < maxSize_ ||
            isBetter(this->evaluation(item_ptr), this->evaluation(this->worst()))) {
             if(do_clone) {
-                m_data_deq_.push_back(item_ptr->template clone<T>());
+                data_deq_.push_back(item_ptr->template clone<T>());
             }
             else {
-                m_data_deq_.push_back(item_ptr);
+                data_deq_.push_back(item_ptr);
             }
         }
 
         // Remove duplicate items
-        removeDuplicates(m_data_deq_);
+        removeDuplicates(data_deq_);
 
         // Sort the data according to the evaluation
         std::sort(
-            m_data_deq_.begin(),
-            m_data_deq_.end(),
+            data_deq_.begin(),
+            data_deq_.end(),
             [this](std::shared_ptr<T> const &x_ptr, std::shared_ptr<T> const &y_ptr) -> bool {
                 if(this->getSortOrder() == sortOrder::LOWERISBETTER) {
                     // higher is better
@@ -271,9 +271,9 @@ public:
 
         // Remove surplus work items, if the queue has reached the corresponding size
         // As the worst items are not at the end of the queue, they will be removed, if
-        // they are beyond the allowed size. This will only have an effect if m_maxSize is != 0 .
-        if(m_maxSize_ && m_data_deq_.size() > m_maxSize_) {
-            m_data_deq_.resize(m_maxSize_);
+        // they are beyond the allowed size. This will only have an effect if maxSize_ is != 0 .
+        if(maxSize_ && data_deq_.size() > maxSize_) {
+            data_deq_.resize(maxSize_);
         }
     }
 
@@ -286,9 +286,9 @@ public:
         typename std::vector<std::shared_ptr<T>>::const_iterator end,
         bool do_clone,
         bool replace) {
-        double worstKnownEvaluation = Gem::Common::getWorstCase<double>(m_sortOrder_);
-        if(replace || m_data_deq_.empty()) {
-            m_data_deq_.clear();
+        double worstKnownEvaluation = Gem::Common::getWorstCase<double>(sortOrder_);
+        if(replace || data_deq_.empty()) {
+            data_deq_.clear();
         }
         else {
             // Data already exists, we know better than the worst known valid
@@ -310,24 +310,24 @@ public:
             // - If the queue is unlimited
             // - If the queue isn't full yet
             // - If the item is better than the worst one already contained in the queue
-            if(0 == m_maxSize_ || m_data_deq_.size() < m_maxSize_ ||
+            if(0 == maxSize_ || data_deq_.size() < maxSize_ ||
                isBetter(this->evaluation(item_ptr), worstKnownEvaluation)) {
                 if(do_clone) {
-                    m_data_deq_.push_back(item_ptr->template clone<T>());
+                    data_deq_.push_back(item_ptr->template clone<T>());
                 }
                 else {
-                    m_data_deq_.push_back(item_ptr);
+                    data_deq_.push_back(item_ptr);
                 }
             }
         }
 
         // Remove duplicate items
-        removeDuplicates(m_data_deq_);
+        removeDuplicates(data_deq_);
 
         // Sort according to the evaluation in ascending or descending order
         std::sort(
-            m_data_deq_.begin(),
-            m_data_deq_.end(),
+            data_deq_.begin(),
+            data_deq_.end(),
             [this](std::shared_ptr<T> const &x_ptr, std::shared_ptr<T> const &y_ptr) -> bool {
                 if(this->getSortOrder() == sortOrder::LOWERISBETTER) {
                     return this->evaluation(x_ptr) < this->evaluation(y_ptr);
@@ -339,9 +339,9 @@ public:
         );
 
         // Remove surplus work items, if the queue has reached the corresponding size
-        // This will only have an effect if m_maxSize is != 0
-        if(m_maxSize_ && m_data_deq_.size() > m_maxSize_) {
-            m_data_deq_.resize(m_maxSize_);
+        // This will only have an effect if maxSize_ is != 0
+        if(maxSize_ && data_deq_.size() > maxSize_) {
+            data_deq_.resize(maxSize_);
         }
     }
 
@@ -366,7 +366,7 @@ public:
              * Removes the best item from the queue and returns it
              */
     std::shared_ptr<T> pop() {
-        if(m_data_deq_.empty()) {
+        if(data_deq_.empty()) {
             // Throw an exception
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
@@ -375,8 +375,8 @@ public:
             );
         }
         else {
-            auto item_ptr = m_data_deq_.front();
-            m_data_deq_.pop_front();
+            auto item_ptr = data_deq_.front();
+            data_deq_.pop_front();
             return item_ptr;
         }
     }
@@ -388,7 +388,7 @@ public:
     std::vector<std::shared_ptr<T>> toVector() const {
         std::vector<std::shared_ptr<T>> result;
 
-        for(auto const &item_ptr : m_data_deq_) {
+        for(auto const &item_ptr : data_deq_) {
             result.push_back(item_ptr);
         }
 
@@ -400,7 +400,7 @@ public:
              * Returns the current size of the queue
              */
     std::size_t size() const {
-        return m_data_deq_.size();
+        return data_deq_.size();
     }
 
     /***************************************************************************/
@@ -408,7 +408,7 @@ public:
              * Checks whether the data is empty
              */
     bool empty() const {
-        return m_data_deq_.empty();
+        return data_deq_.empty();
     }
 
     /***************************************************************************/
@@ -416,7 +416,7 @@ public:
              * Allows to clear the queue
              */
     void clear() {
-        m_data_deq_.clear();
+        data_deq_.clear();
     }
 
     /***************************************************************************/
@@ -424,12 +424,12 @@ public:
              * Sets the maximum size of the priority queue
              */
     void setMaxSize(std::size_t maxSize) {
-        // Make sure the current size of m_data complies with maxSize
-        if(m_data_deq_.size() > maxSize) {
-            m_data_deq_.resize(maxSize);
+        // Make sure the current size of data_ complies with maxSize
+        if(data_deq_.size() > maxSize) {
+            data_deq_.resize(maxSize);
         }
 
-        m_maxSize_ = maxSize;
+        maxSize_ = maxSize;
     }
 
     /***************************************************************************/
@@ -437,7 +437,7 @@ public:
              * Retrieves the maximum size of the priority queue
              */
     std::size_t getMaxSize() const {
-        return m_maxSize_;
+        return maxSize_;
     }
 
     /***************************************************************************/
@@ -446,7 +446,7 @@ public:
              */
     void printEvaluations() const {
         std::cout << "==================== printEvaluations =====================" << std::endl;
-        for(auto const &item_ptr : m_data_deq_) {
+        for(auto const &item_ptr : data_deq_) {
             std::cout << this->evaluation(item_ptr) << std::endl;
         }
     }
@@ -465,9 +465,9 @@ protected:
             );
 
         // Load local data
-        m_maxSize_ = p_load->m_maxSize_;
-        m_sortOrder_ = p_load->m_sortOrder_;
-        Common::copyCloneableSmartPointerContainer(p_load->m_data_deq_, m_data_deq_);
+        maxSize_ = p_load->maxSize_;
+        sortOrder_ = p_load->sortOrder_;
+        Common::copyCloneableSmartPointerContainer(p_load->data_deq_, data_deq_);
     }
 
     /***************************************************************************/
@@ -507,9 +507,9 @@ protected:
         Common::compare_base_t<GCommonInterfaceT<GFixedSizePriorityQueueT>>(*this, *p_load, token);
 
         // ... and then our local data
-        compare_t(IDENTITY(m_maxSize_, p_load->m_maxSize_), token);
-        compare_t(IDENTITY(m_sortOrder_, p_load->m_sortOrder_), token);
-        compare_t(IDENTITY(m_data_deq_, p_load->m_data_deq_), token);
+        compare_t(IDENTITY(maxSize_, p_load->maxSize_), token);
+        compare_t(IDENTITY(sortOrder_, p_load->sortOrder_), token);
+        compare_t(IDENTITY(data_deq_, p_load->data_deq_), token);
 
         // React on deviations from the expectation
         token.evaluate();
@@ -545,7 +545,7 @@ protected:
          * Checks whether value new_item is better than value old_item
          */
     bool isBetter(double new_item_val, double old_item_val) const {
-        return (m_sortOrder_ == sortOrder::LOWERISBETTER) ? (new_item_val <= old_item_val)
+        return (sortOrder_ == sortOrder::LOWERISBETTER) ? (new_item_val <= old_item_val)
                                                           : (new_item_val > old_item_val);
     }
 
@@ -581,12 +581,12 @@ protected:
 
     /***************************************************************************/
 
-    std::size_t m_maxSize_{GFSPQ_DEF_MAX_SIZE}; ///< The maximum number of work-items
-    sortOrder m_sortOrder_{sortOrder::LOWERISBETTER};
+    std::size_t maxSize_{GFSPQ_DEF_MAX_SIZE}; ///< The maximum number of work-items
+    sortOrder sortOrder_{sortOrder::LOWERISBETTER};
     ///< Indicates whether higher evaluations of items indicate a higher priority
 
     std::deque<std::shared_ptr<T>>
-        m_data_deq_{}; ///< Holds the actual data. Empty at the beginning.
+        data_deq_{}; ///< Holds the actual data. Empty at the beginning.
 
 private:
     /***************************************************************************/

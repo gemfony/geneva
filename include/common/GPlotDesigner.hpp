@@ -399,9 +399,9 @@ class GMarker : public GDecorator<dimensions::Dim2, coordinate_type> {
         ar &make_nvp(
             "GDecorator2<dimensions::Dim2, coordinate_type>",
             boost::serialization::base_object<GDecorator<dimensions::Dim2, coordinate_type>>(*this)
-        ) & BOOST_SERIALIZATION_NVP(m_coordinates) &
-            BOOST_SERIALIZATION_NVP(m_marker) & BOOST_SERIALIZATION_NVP(m_color) &
-            BOOST_SERIALIZATION_NVP(m_size);
+        ) & BOOST_SERIALIZATION_NVP(coordinates_) &
+            BOOST_SERIALIZATION_NVP(marker_) & BOOST_SERIALIZATION_NVP(color_) &
+            BOOST_SERIALIZATION_NVP(size_);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -417,10 +417,10 @@ public:
         const gColor &color,
         const double &size
     )
-      : m_coordinates(coordinates)
-      , m_marker(marker)
-      , m_color(color)
-      , m_size(size) { /* nothing */
+      : coordinates_(coordinates)
+      , marker_(marker)
+      , color_(color)
+      , size_(size) { /* nothing */
     }
 
     /***************************************************************************/
@@ -442,11 +442,11 @@ public:
         std::ostringstream data; // NOLINT(cppcoreguidelines-init-variables)
 
         data << indent << "TMarker * tm_" << pos << " = new TMarker("
-             << boost::numeric_cast<double>(std::get<0>(m_coordinates)) << ", "
-             << boost::numeric_cast<double>(std::get<1>(m_coordinates)) << ", " << m_marker << ");"
+             << boost::numeric_cast<double>(std::get<0>(coordinates_)) << ", "
+             << boost::numeric_cast<double>(std::get<1>(coordinates_)) << ", " << marker_ << ");"
              << std::endl
-             << indent << "tm_" << pos << "->SetMarkerColor(" << m_color << ");" << std::endl
-             << indent << "tm_" << pos << "->SetMarkerSize(" << m_size << ");" << std::endl
+             << indent << "tm_" << pos << "->SetMarkerColor(" << color_ << ");" << std::endl
+             << indent << "tm_" << pos << "->SetMarkerSize(" << size_ << ");" << std::endl
              << indent << "tm_" << pos << "->Draw();" << std::endl
              << std::endl;
 
@@ -463,8 +463,8 @@ public:
         const std::string &indent,
         const std::size_t &pos
     ) const override {
-        coordinate_type marker_x = std::get<0>(m_coordinates);
-        coordinate_type marker_y = std::get<1>(m_coordinates);
+        coordinate_type marker_x = std::get<0>(coordinates_);
+        coordinate_type marker_y = std::get<1>(coordinates_);
         coordinate_type x_min = std::get<0>(x_axis_range);
         coordinate_type x_max = std::get<1>(x_axis_range);
         coordinate_type y_min = std::get<0>(y_axis_range);
@@ -492,10 +492,10 @@ protected:
         GDecorator<dimensions::Dim2, coordinate_type>::load_(cp);
 
         // ... and then our local data
-        m_coordinates = p_load->m_coordinates;
-        m_marker = p_load->m_marker;
-        m_color = p_load->m_color;
-        m_size = p_load->m_size;
+        coordinates_ = p_load->coordinates_;
+        marker_ = p_load->marker_;
+        color_ = p_load->color_;
+        size_ = p_load->size_;
     }
 
     /***************************************************************************/
@@ -527,10 +527,10 @@ protected:
         compare_base_t<GDecorator<dimensions::Dim2, coordinate_type>>(*this, *p_load, token);
 
         // ... and then our local data
-        compare_t(IDENTITY(this->m_coordinates, p_load->m_coordinates), token);
-        compare_t(IDENTITY(this->m_marker, p_load->m_marker), token);
-        compare_t(IDENTITY(this->m_color, p_load->m_color), token);
-        compare_t(IDENTITY(this->m_size, p_load->m_size), token);
+        compare_t(IDENTITY(this->coordinates_, p_load->coordinates_), token);
+        compare_t(IDENTITY(this->marker_, p_load->marker_), token);
+        compare_t(IDENTITY(this->color_, p_load->color_), token);
+        compare_t(IDENTITY(this->size_, p_load->size_), token);
 
         // React on deviations from the expectation
         token.evaluate();
@@ -573,11 +573,11 @@ private:
     /***************************************************************************/
     // Local data ...
 
-    std::tuple<coordinate_type, coordinate_type> m_coordinates; ///< The coordinates of the marker
+    std::tuple<coordinate_type, coordinate_type> coordinates_; ///< The coordinates of the marker
 
-    gMarker m_marker = gMarker::closedCircle; ///< Denotes the type of markers to be drawn
-    gColor m_color = gColor::black;           ///< The color of the marker
-    double m_size = 0.05;                     ///< The size of the marker
+    gMarker marker_ = gMarker::closedCircle; ///< Denotes the type of markers to be drawn
+    gColor color_ = gColor::black;           ///< The color of the marker
+    double size_ = 0.05;                     ///< The size of the marker
 };
 
 /******************************************************************************/
@@ -864,7 +864,7 @@ protected:
 
         // ... and then the local data. Actually this allows us to compare
         // the second parent class without directly calling it.
-        compare_t(IDENTITY(this->m_data_cnt, p_load->m_data_cnt), token);
+        compare_t(IDENTITY(this->data_cnt_, p_load->data_cnt_), token);
 
         // React on deviations from the expectation
         token.evaluate();
@@ -1138,7 +1138,7 @@ protected:
 
         // ... and then the local data. This allows us to compare
         // the second parent class without directly calling it.
-        compare_t(IDENTITY(this->m_data_cnt, p_load->m_data_cnt), token);
+        compare_t(IDENTITY(this->data_cnt_, p_load->data_cnt_), token);
 
         // React on deviations from the expectation
         token.evaluate();
@@ -1288,10 +1288,10 @@ class GBasePlotter : public GCommonInterfaceT<GBasePlotter> {
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar &BOOST_SERIALIZATION_NVP(m_drawingArguments) & BOOST_SERIALIZATION_NVP(m_x_axis_label) &
-            BOOST_SERIALIZATION_NVP(m_y_axis_label) & BOOST_SERIALIZATION_NVP(m_z_axis_label) &
-            BOOST_SERIALIZATION_NVP(m_plot_label) & BOOST_SERIALIZATION_NVP(m_dsMarker) &
-            BOOST_SERIALIZATION_NVP(m_secondaryPlotter) & BOOST_SERIALIZATION_NVP(m_id);
+        ar &BOOST_SERIALIZATION_NVP(drawingArguments_) & BOOST_SERIALIZATION_NVP(x_axis_label_) &
+            BOOST_SERIALIZATION_NVP(y_axis_label_) & BOOST_SERIALIZATION_NVP(z_axis_label_) &
+            BOOST_SERIALIZATION_NVP(plot_label_) & BOOST_SERIALIZATION_NVP(dsMarker_) &
+            BOOST_SERIALIZATION_NVP(secondaryPlotter_) & BOOST_SERIALIZATION_NVP(id_);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -1409,14 +1409,14 @@ protected:
 
     /***************************************************************************/
 
-    std::string m_drawingArguments = std::string(""); ///< Holds the drawing arguments for this plot
+    std::string drawingArguments_ = std::string(""); ///< Holds the drawing arguments for this plot
 
-    std::string m_x_axis_label = std::string("x"); ///< A label for the x-axis
-    std::string m_y_axis_label = std::string("y"); ///< A label for the y-axis
-    std::string m_z_axis_label = std::string("z"); ///< A label for the z-axis (if available)
+    std::string x_axis_label_ = std::string("x"); ///< A label for the x-axis
+    std::string y_axis_label_ = std::string("y"); ///< A label for the y-axis
+    std::string z_axis_label_ = std::string("z"); ///< A label for the z-axis (if available)
 
-    std::string m_plot_label = std::string(""); ///< A label to be assigned to the entire plot
-    std::string m_dsMarker = std::string(
+    std::string plot_label_ = std::string(""); ///< A label to be assigned to the entire plot
+    std::string dsMarker_ = std::string(
         ""
     ); ///< A marker to make the origin of data structures clear in the output file
 
@@ -1431,10 +1431,10 @@ private:
 
     /***************************************************************************/
     /** @brief A list of plotters that should emit their data into the same canvas */
-    std::vector<std::shared_ptr<GBasePlotter>> m_secondaryPlotter =
+    std::vector<std::shared_ptr<GBasePlotter>> secondaryPlotter_ =
         std::vector<std::shared_ptr<GBasePlotter>>();
 
-    std::size_t m_id = 0; ///< The id of this object
+    std::size_t id_ = 0; ///< The id of this object
 };
 
 /******************************************************************************/
@@ -1452,7 +1452,7 @@ class GDataCollector1T : public GBasePlotter {
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBasePlotter) & BOOST_SERIALIZATION_NVP(m_data);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBasePlotter) & BOOST_SERIALIZATION_NVP(data_);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -1475,7 +1475,7 @@ public:
 	  * this object
 	  */
     std::size_t currentSize() const {
-        return m_data.size();
+        return data_.size();
     }
 
     /***************************************************************************/
@@ -1518,7 +1518,7 @@ public:
         }
 
         // Add the converted data to our collection
-        m_data.push_back(x);
+        data_.push_back(x);
     }
 
     /***************************************************************************/
@@ -1529,7 +1529,7 @@ public:
 	  */
     void operator&(const x_type &x) {
         // Add the data item to our collection
-        m_data.push_back(x);
+        data_.push_back(x);
     }
 
     /***************************************************************************/
@@ -1562,30 +1562,30 @@ public:
             }
 
             // Add the converted data to our collection
-            m_data.push_back(x);
+            data_.push_back(x);
         }
     }
 
     /***************************************************************************/
     /**
-	  * Allows to add a collection of data items of type x_type to our m_data vector.
+	  * Allows to add a collection of data items of type x_type to our data_ vector.
 	  *
-	  * @param x_cnt A vector of data items to be added to the m_data vector
+	  * @param x_cnt A vector of data items to be added to the data_ vector
 	  */
     void operator&(const std::vector<x_type> &x_cnt) {
         typename std::vector<x_type>::const_iterator cit;
         for(cit = x_cnt.begin(); cit != x_cnt.end(); ++cit) {
             // Add the data item to our collection
-            m_data.push_back(*cit);
+            data_.push_back(*cit);
         }
     }
 
     /***************************************************************************/
     /**
-	  * Retrieves the minimum and maximum values in m_data
+	  * Retrieves the minimum and maximum values in data_
 	  */
     std::tuple<x_type, x_type> getMinMaxElements() const {
-        auto minmax = std::minmax_element(m_data.begin(), m_data.end());
+        auto minmax = std::minmax_element(data_.begin(), data_.end());
         return std::make_tuple(*minmax.first, *minmax.second);
     };
 
@@ -1602,7 +1602,7 @@ protected:
         GBasePlotter::load_(cp);
 
         // ... and then our own
-        m_data = p_load->m_data; // This assumes that x_type is POD
+        data_ = p_load->data_; // This assumes that x_type is POD
     }
 
     /***************************************************************************/
@@ -1632,7 +1632,7 @@ protected:
         compare_base_t<GBasePlotter>(*this, *p_load, token);
 
         // ... and then the local data
-        compare_t(IDENTITY(m_data, p_load->m_data), token);
+        compare_t(IDENTITY(data_, p_load->data_), token);
 
         // React on deviations from the expectation
         token.evaluate();
@@ -1640,7 +1640,7 @@ protected:
 
     /***************************************************************************/
 
-    std::vector<x_type> m_data; ///< Holds the actual data
+    std::vector<x_type> data_; ///< Holds the actual data
 
 private:
     /***************************************************************************/
@@ -1865,7 +1865,7 @@ class GDataCollector2T : public GBasePlotter {
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBasePlotter) & BOOST_SERIALIZATION_NVP(m_data);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBasePlotter) & BOOST_SERIALIZATION_NVP(data_);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -1888,7 +1888,7 @@ public:
 	  * this object
 	  */
     std::size_t currentSize() const {
-        return m_data.size();
+        return data_.size();
     }
 
     /***************************************************************************/
@@ -1968,7 +1968,7 @@ public:
             );
         }
 
-        m_data.push_back(std::tuple<x_type, y_type>(x, y));
+        data_.push_back(std::tuple<x_type, y_type>(x, y));
     }
 
     /***************************************************************************/
@@ -1980,7 +1980,7 @@ public:
 	  */
     void operator&(const std::tuple<x_type, y_type> &point) {
         // Add the data item to the collection
-        m_data.push_back(point);
+        data_.push_back(point);
     }
 
     /***************************************************************************/
@@ -2016,7 +2016,7 @@ public:
                 );
             }
 
-            m_data.push_back(std::tuple<x_type, y_type>(x, y));
+            data_.push_back(std::tuple<x_type, y_type>(x, y));
         }
     }
 
@@ -2032,7 +2032,7 @@ public:
         typename std::vector<std::tuple<x_type, y_type>>::const_iterator cit;
         for(cit = point_cnt.begin(); cit != point_cnt.end(); ++cit) {
             // Add the data item to the collection
-            m_data.push_back(*cit);
+            data_.push_back(*cit);
         }
     }
 
@@ -2042,8 +2042,8 @@ public:
 	  */
     void sortX() {
         std::sort(
-            m_data.begin(),
-            m_data.end(),
+            data_.begin(),
+            data_.end(),
             [](const std::tuple<x_type, y_type> &x, const std::tuple<x_type, y_type> &y) -> bool {
                 return std::get<0>(x) < std::get<0>(y);
             }
@@ -2052,20 +2052,20 @@ public:
 
     /***************************************************************************/
     /**
-		* Retrieves the minimum and maximum values in m_data in x- and y-direction
+		* Retrieves the minimum and maximum values in data_ in x- and y-direction
 		*/
     std::tuple<x_type, x_type, y_type, y_type> getMinMaxElements() const {
         auto minmax_x = std::minmax_element(
-            m_data.begin(),
-            m_data.end(),
+            data_.begin(),
+            data_.end(),
             [](const std::tuple<x_type, y_type> &x, const std::tuple<x_type, y_type> &y) -> bool {
                 return (std::get<0>(x) < std::get<0>(y));
             }
         );
 
         auto minmax_y = std::minmax_element(
-            m_data.begin(),
-            m_data.end(),
+            data_.begin(),
+            data_.end(),
             [](const std::tuple<x_type, y_type> &x, const std::tuple<x_type, y_type> &y) -> bool {
                 return (std::get<1>(x) < std::get<1>(y));
             }
@@ -2092,7 +2092,7 @@ protected:
         GBasePlotter::load_(cp);
 
         // ... and then our own
-        m_data = p_load->m_data; // This assumes that x_type is POD
+        data_ = p_load->data_; // This assumes that x_type is POD
     }
 
     /***************************************************************************/
@@ -2122,7 +2122,7 @@ protected:
         compare_base_t<GBasePlotter>(*this, *p_load, token);
 
         // ... and then the local data
-        compare_t(IDENTITY(m_data, p_load->m_data), token);
+        compare_t(IDENTITY(data_, p_load->data_), token);
 
         // React on deviations from the expectation
         token.evaluate();
@@ -2130,7 +2130,7 @@ protected:
 
     /***************************************************************************/
 
-    std::vector<std::tuple<x_type, y_type>> m_data; ///< Holds the actual data
+    std::vector<std::tuple<x_type, y_type>> data_; ///< Holds the actual data
 
 private:
     /***************************************************************************/
@@ -2164,8 +2164,8 @@ inline std::shared_ptr<GDataCollector1T<double>> GDataCollector2T<double, double
     std::tuple<double, double> myRangeX;
     std::tuple<double, double> default_range;
     if(rangeX == default_range) {
-        // Find out about the minimum and maximum values in the m_data array
-        std::tuple<double, double, double, double> extremes = getMinMax(this->m_data);
+        // Find out about the minimum and maximum values in the data_ array
+        std::tuple<double, double, double, double> extremes = getMinMax(this->data_);
         myRangeX = std::tuple<double, double>(std::get<0>(extremes), std::get<1>(extremes));
     }
     else {
@@ -2179,7 +2179,7 @@ inline std::shared_ptr<GDataCollector1T<double>> GDataCollector2T<double, double
     result->setPlotLabel(this->plotLabel() + " / x-projection");
 
     // Add data to the object
-    for(auto const &o : m_data) {
+    for(auto const &o : data_) {
         (*result) & std::get<0>(o);
     }
 
@@ -2205,8 +2205,8 @@ inline std::shared_ptr<GDataCollector1T<double>> GDataCollector2T<double, double
     std::tuple<double, double> myRangeY;
     std::tuple<double, double> default_range;
     if(rangeY == default_range) {
-        // Find out about the minimum and maximum values in the m_data array
-        std::tuple<double, double, double, double> extremes = getMinMax(m_data);
+        // Find out about the minimum and maximum values in the data_ array
+        std::tuple<double, double, double, double> extremes = getMinMax(data_);
         myRangeY = std::tuple<double, double>(std::get<2>(extremes), std::get<3>(extremes));
     }
     else {
@@ -2220,7 +2220,7 @@ inline std::shared_ptr<GDataCollector1T<double>> GDataCollector2T<double, double
     result->setPlotLabel(this->plotLabel() + " / y-projection");
 
     // Add data to the object
-    for(auto const &o : m_data) {
+    for(auto const &o : data_) {
         (*result) & std::get<1>(o);
     }
 
@@ -2243,7 +2243,7 @@ class GDataCollector2ET : public GBasePlotter {
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBasePlotter) & BOOST_SERIALIZATION_NVP(m_data);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBasePlotter) & BOOST_SERIALIZATION_NVP(data_);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -2297,7 +2297,7 @@ public:
             );
         }
 
-        m_data.push_back(std::tuple<x_type, x_type, y_type, y_type>(x, ex, y, ey));
+        data_.push_back(std::tuple<x_type, x_type, y_type, y_type>(x, ex, y, ey));
     }
 
     /***************************************************************************/
@@ -2309,7 +2309,7 @@ public:
 	  */
     void operator&(const std::tuple<x_type, x_type, y_type, y_type> &point) {
         // Add the data item to the collection
-        m_data.push_back(point);
+        data_.push_back(point);
     }
 
     /***************************************************************************/
@@ -2353,7 +2353,7 @@ public:
                 );
             }
 
-            m_data.push_back(std::tuple<x_type, x_type, y_type, y_type>(x, ex, y, ey));
+            data_.push_back(std::tuple<x_type, x_type, y_type, y_type>(x, ex, y, ey));
         }
     }
 
@@ -2369,7 +2369,7 @@ public:
         typename std::vector<std::tuple<x_type, x_type, y_type, y_type>>::const_iterator cit;
         for(cit = point_cnt.begin(); cit != point_cnt.end(); ++cit) {
             // Add the data item to the collection
-            m_data.push_back(*cit);
+            data_.push_back(*cit);
         }
     }
 
@@ -2391,8 +2391,8 @@ public:
 	  */
     void sortX() {
         std::sort(
-            m_data.begin(),
-            m_data.end(),
+            data_.begin(),
+            data_.end(),
             [](const std::tuple<x_type, x_type, y_type, y_type> &x,
                const std::tuple<x_type, x_type, y_type, y_type> &y) -> bool {
                 return std::get<0>(x) < std::get<0>(y);
@@ -2413,7 +2413,7 @@ protected:
         GBasePlotter::load_(cp);
 
         // ... and then our own
-        m_data = p_load->m_data; // This assumes that x_type is POD
+        data_ = p_load->data_; // This assumes that x_type is POD
     }
 
     /***************************************************************************/
@@ -2443,7 +2443,7 @@ protected:
         compare_base_t<GBasePlotter>(*this, *p_load, token);
 
         // ... and then the local data
-        compare_t(IDENTITY(m_data, p_load->m_data), token);
+        compare_t(IDENTITY(data_, p_load->data_), token);
 
         // React on deviations from the expectation
         token.evaluate();
@@ -2451,7 +2451,7 @@ protected:
 
     /***************************************************************************/
 
-    std::vector<std::tuple<x_type, x_type, y_type, y_type>> m_data; ///< Holds the actual data
+    std::vector<std::tuple<x_type, x_type, y_type, y_type>> data_; ///< Holds the actual data
 
 private:
     /***************************************************************************/
@@ -2775,7 +2775,7 @@ class GDataCollector3T : public GBasePlotter {
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBasePlotter) & BOOST_SERIALIZATION_NVP(m_data);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBasePlotter) & BOOST_SERIALIZATION_NVP(data_);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -2891,7 +2891,7 @@ public:
             );
         }
 
-        m_data.push_back(std::tuple<x_type, y_type, z_type>(x, y, z));
+        data_.push_back(std::tuple<x_type, y_type, z_type>(x, y, z));
     }
 
     /***************************************************************************/
@@ -2903,7 +2903,7 @@ public:
 	  */
     void operator&(const std::tuple<x_type, y_type, z_type> &point) {
         // Add the data item to the collection
-        m_data.push_back(point);
+        data_.push_back(point);
     }
 
     /***************************************************************************/
@@ -2945,7 +2945,7 @@ public:
                 );
             }
 
-            m_data.push_back(std::tuple<x_type, y_type, z_type>(x, y, z));
+            data_.push_back(std::tuple<x_type, y_type, z_type>(x, y, z));
         }
     }
 
@@ -2961,7 +2961,7 @@ public:
         typename std::vector<std::tuple<x_type, y_type, z_type>>::const_iterator cit;
         for(cit = point_cnt.begin(); cit != point_cnt.end(); ++cit) {
             // Add the data item to the collection
-            m_data.push_back(*cit);
+            data_.push_back(*cit);
         }
     }
 
@@ -2978,7 +2978,7 @@ protected:
         GBasePlotter::load_(cp);
 
         // ... and then our own
-        m_data = p_load->m_data; // This assumes that x_type is POD
+        data_ = p_load->data_; // This assumes that x_type is POD
     }
 
     /***************************************************************************/
@@ -3008,7 +3008,7 @@ protected:
         compare_base_t<GBasePlotter>(*this, *p_load, token);
 
         // ... and then the local data
-        compare_t(IDENTITY(m_data, p_load->m_data), token);
+        compare_t(IDENTITY(data_, p_load->data_), token);
 
         // React on deviations from the expectation
         token.evaluate();
@@ -3016,7 +3016,7 @@ protected:
 
     /***************************************************************************/
 
-    std::vector<std::tuple<x_type, y_type, z_type>> m_data; ///< Holds the actual data
+    std::vector<std::tuple<x_type, y_type, z_type>> data_; ///< Holds the actual data
 
 private:
     /***************************************************************************/
@@ -3050,9 +3050,9 @@ inline std::shared_ptr<GDataCollector1T<double>> GDataCollector3T<double, double
     std::tuple<double, double> myRangeX;
     std::tuple<double, double> default_range;
     if(rangeX == default_range) {
-        // Find out about the minimum and maximum values in the m_data array
+        // Find out about the minimum and maximum values in the data_ array
         std::tuple<double, double, double, double, double, double> extremes =
-            getMinMax(this->m_data);
+            getMinMax(this->data_);
         myRangeX = std::tuple<double, double>(std::get<0>(extremes), std::get<1>(extremes));
     }
     else {
@@ -3066,7 +3066,7 @@ inline std::shared_ptr<GDataCollector1T<double>> GDataCollector3T<double, double
     result->setPlotLabel(this->plotLabel() + " / x-projection");
 
     // Add data to the object
-    for(auto const &o : m_data) {
+    for(auto const &o : data_) {
         (*result) & std::get<0>(o);
     }
 
@@ -3092,8 +3092,8 @@ inline std::shared_ptr<GDataCollector1T<double>> GDataCollector3T<double, double
     std::tuple<double, double> myRangeY;
     std::tuple<double, double> default_range;
     if(rangeY == default_range) {
-        // Find out about the minimum and maximum values in the m_data array
-        std::tuple<double, double, double, double, double, double> extremes = getMinMax(m_data);
+        // Find out about the minimum and maximum values in the data_ array
+        std::tuple<double, double, double, double, double, double> extremes = getMinMax(data_);
         myRangeY = std::tuple<double, double>(std::get<2>(extremes), std::get<3>(extremes));
     }
     else {
@@ -3107,7 +3107,7 @@ inline std::shared_ptr<GDataCollector1T<double>> GDataCollector3T<double, double
     result->setPlotLabel(this->plotLabel() + " / y-projection");
 
     // Add data to the object
-    for(auto const &o : m_data) {
+    for(auto const &o : data_) {
         (*result) & std::get<1>(o);
     }
 
@@ -3133,8 +3133,8 @@ inline std::shared_ptr<GDataCollector1T<double>> GDataCollector3T<double, double
     std::tuple<double, double> myRangeZ;
     std::tuple<double, double> default_range;
     if(rangeZ == default_range) {
-        // Find out about the minimum and maximum values in the m_data array
-        std::tuple<double, double, double, double, double, double> extremes = getMinMax(m_data);
+        // Find out about the minimum and maximum values in the data_ array
+        std::tuple<double, double, double, double, double, double> extremes = getMinMax(data_);
         myRangeZ = std::tuple<double, double>(std::get<4>(extremes), std::get<5>(extremes));
     }
     else {
@@ -3148,7 +3148,7 @@ inline std::shared_ptr<GDataCollector1T<double>> GDataCollector3T<double, double
     result->setPlotLabel(this->plotLabel() + " / z-projection");
 
     // Add data to the object
-    for(auto const &o : m_data) {
+    for(auto const &o : data_) {
         (*result) & std::get<2>(o);
     }
 
@@ -3251,7 +3251,7 @@ class GDataCollector4T : public GBasePlotter {
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBasePlotter) & BOOST_SERIALIZATION_NVP(m_data);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBasePlotter) & BOOST_SERIALIZATION_NVP(data_);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -3392,7 +3392,7 @@ public:
             );
         }
 
-        m_data.push_back(std::tuple<x_type, y_type, z_type, w_type>(x, y, z, w));
+        data_.push_back(std::tuple<x_type, y_type, z_type, w_type>(x, y, z, w));
     }
 
     /***************************************************************************/
@@ -3404,7 +3404,7 @@ public:
 	  */
     void operator&(const std::tuple<x_type, y_type, z_type, w_type> &point) {
         // Add the data item to the collection
-        m_data.push_back(point);
+        data_.push_back(point);
     }
 
     /***************************************************************************/
@@ -3452,7 +3452,7 @@ public:
                 );
             }
 
-            m_data.push_back(std::tuple<x_type, y_type, z_type, w_type>(x, y, z, w));
+            data_.push_back(std::tuple<x_type, y_type, z_type, w_type>(x, y, z, w));
         }
     }
 
@@ -3468,7 +3468,7 @@ public:
         typename std::vector<std::tuple<x_type, y_type, z_type, w_type>>::const_iterator cit;
         for(cit = point_cnt.begin(); cit != point_cnt.end(); ++cit) {
             // Add the data item to the collection
-            m_data.push_back(*cit);
+            data_.push_back(*cit);
         }
     }
 
@@ -3485,7 +3485,7 @@ protected:
         GBasePlotter::load_(cp);
 
         // ... and then our own
-        m_data = p_load->m_data; // This assumes that x_type is POD
+        data_ = p_load->data_; // This assumes that x_type is POD
     }
 
     /***************************************************************************/
@@ -3515,7 +3515,7 @@ protected:
         compare_base_t<GBasePlotter>(*this, *p_load, token);
 
         // ... and then the local data
-        compare_t(IDENTITY(m_data, p_load->m_data), token);
+        compare_t(IDENTITY(data_, p_load->data_), token);
 
         // React on deviations from the expectation
         token.evaluate();
@@ -3523,7 +3523,7 @@ protected:
 
     /***************************************************************************/
 
-    std::vector<std::tuple<x_type, y_type, z_type, w_type>> m_data; ///< Holds the actual data
+    std::vector<std::tuple<x_type, y_type, z_type, w_type>> data_; ///< Holds the actual data
 
 private:
     /***************************************************************************/
@@ -3558,9 +3558,9 @@ GDataCollector4T<double, double, double, double>::projectX(
     std::tuple<double, double> myRangeX;
     std::tuple<double, double> default_range;
     if(rangeX == default_range) {
-        // Find out about the minimum and maximum values in the m_data array
+        // Find out about the minimum and maximum values in the data_ array
         std::tuple<double, double, double, double, double, double, double, double> extremes =
-            getMinMax(this->m_data);
+            getMinMax(this->data_);
         myRangeX = std::tuple<double, double>(std::get<0>(extremes), std::get<1>(extremes));
     }
     else {
@@ -3574,7 +3574,7 @@ GDataCollector4T<double, double, double, double>::projectX(
     result->setPlotLabel(this->plotLabel() + " / x-projection");
 
     // Add data to the object
-    for(auto const &o : m_data) {
+    for(auto const &o : data_) {
         (*result) & std::get<0>(o);
     }
 
@@ -3601,9 +3601,9 @@ GDataCollector4T<double, double, double, double>::projectY(
     std::tuple<double, double> myRangeY;
     std::tuple<double, double> default_range;
     if(rangeY == default_range) {
-        // Find out about the minimum and maximum values in the m_data array
+        // Find out about the minimum and maximum values in the data_ array
         std::tuple<double, double, double, double, double, double, double, double> extremes =
-            getMinMax(this->m_data);
+            getMinMax(this->data_);
         myRangeY = std::tuple<double, double>(std::get<2>(extremes), std::get<3>(extremes));
     }
     else {
@@ -3617,7 +3617,7 @@ GDataCollector4T<double, double, double, double>::projectY(
     result->setPlotLabel(this->plotLabel() + " / y-projection");
 
     // Add data to the object
-    for(auto const &o : m_data) {
+    for(auto const &o : data_) {
         (*result) & std::get<1>(o);
     }
 
@@ -3644,9 +3644,9 @@ GDataCollector4T<double, double, double, double>::projectZ(
     std::tuple<double, double> myRangeZ;
     std::tuple<double, double> default_range;
     if(rangeZ == default_range) {
-        // Find out about the minimum and maximum values in the m_data array
+        // Find out about the minimum and maximum values in the data_ array
         std::tuple<double, double, double, double, double, double, double, double> extremes =
-            getMinMax(this->m_data);
+            getMinMax(this->data_);
         myRangeZ = std::tuple<double, double>(std::get<4>(extremes), std::get<5>(extremes));
     }
     else {
@@ -3660,7 +3660,7 @@ GDataCollector4T<double, double, double, double>::projectZ(
     result->setPlotLabel(this->plotLabel() + " / z-projection");
 
     // Add data to the object
-    for(auto const &o : m_data) {
+    for(auto const &o : data_) {
         (*result) & std::get<2>(o);
     }
 
@@ -3687,9 +3687,9 @@ GDataCollector4T<double, double, double, double>::projectW(
     std::tuple<double, double> myRangeW;
     std::tuple<double, double> default_range;
     if(rangeW == default_range) {
-        // Find out about the minimum and maximum values in the m_data array
+        // Find out about the minimum and maximum values in the data_ array
         std::tuple<double, double, double, double, double, double, double, double> extremes =
-            getMinMax(this->m_data);
+            getMinMax(this->data_);
         myRangeW = std::tuple<double, double>(std::get<6>(extremes), std::get<7>(extremes));
     }
     else {
@@ -3703,7 +3703,7 @@ GDataCollector4T<double, double, double, double>::projectW(
     result->setPlotLabel(this->plotLabel() + " / w-projection");
 
     // Add data to the object
-    for(auto const &o : m_data) {
+    for(auto const &o : data_) {
         (*result) & std::get<3>(o);
     }
 
@@ -4021,10 +4021,10 @@ class GPlotDesigner : public GCommonInterfaceT<GPlotDesigner> {
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar &BOOST_SERIALIZATION_NVP(m_c_x_div) & BOOST_SERIALIZATION_NVP(m_c_y_div) &
-            BOOST_SERIALIZATION_NVP(m_c_x_dim) & BOOST_SERIALIZATION_NVP(m_c_y_dim) &
-            BOOST_SERIALIZATION_NVP(m_canvas_label) & BOOST_SERIALIZATION_NVP(m_add_print_command) &
-            BOOST_SERIALIZATION_NVP(m_n_indention_spaces);
+        ar &BOOST_SERIALIZATION_NVP(c_x_div_) & BOOST_SERIALIZATION_NVP(c_y_div_) &
+            BOOST_SERIALIZATION_NVP(c_x_dim_) & BOOST_SERIALIZATION_NVP(c_y_dim_) &
+            BOOST_SERIALIZATION_NVP(canvas_label_) & BOOST_SERIALIZATION_NVP(add_print_command_) &
+            BOOST_SERIALIZATION_NVP(n_indention_spaces_);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -4125,20 +4125,20 @@ private:
     /** @brief Creates a deep clone of this object */
     G_API_COMMON GPlotDesigner *clone_() const override;
 
-    std::vector<std::shared_ptr<GBasePlotter>> m_plotters_cnt = std::vector<
+    std::vector<std::shared_ptr<GBasePlotter>> plotters_cnt_ = std::vector<
         std::shared_ptr<GBasePlotter>>(); ///< A list of plots to be added to the diagram
 
-    std::size_t m_c_x_div = 1, m_c_y_div = 1; ///< The number of divisions in x- and y-direction
-    std::uint32_t m_c_x_dim = DEFCXDIM,
-                  m_c_y_dim = DEFCYDIM; ///< Holds the number of pixels of the canvas
+    std::size_t c_x_div_ = 1, c_y_div_ = 1; ///< The number of divisions in x- and y-direction
+    std::uint32_t c_x_dim_ = DEFCXDIM,
+                  c_y_dim_ = DEFCYDIM; ///< Holds the number of pixels of the canvas
 
-    std::string m_canvas_label =
+    std::string canvas_label_ =
         std::string("empty"); ///< A label to be assigned to the entire canvas
 
-    bool m_add_print_command =
+    bool add_print_command_ =
         false; ///< Indicates whether a print command for the creation of a png file should be added
 
-    std::size_t m_n_indention_spaces = std::size_t(DEFNINDENTIONSPACES);
+    std::size_t n_indention_spaces_ = std::size_t(DEFNINDENTIONSPACES);
 };
 
 /******************************************************************************/

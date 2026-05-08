@@ -238,7 +238,7 @@ void networkData::compare(
 
     // Compare our local data
     Gem::Common::compare_t(IDENTITY(arraySize_, cp.arraySize_), token);
-    Gem::Common::compare_t(IDENTITY(this->m_data_cnt, cp.m_data_cnt), token);
+    Gem::Common::compare_t(IDENTITY(this->data_cnt_, cp.data_cnt_), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -765,7 +765,7 @@ void GNeuralNetworkIndividual::init(
                 i++) {
                 // Set up a GDoubleObject object, initializing it with random data
                 std::shared_ptr<GDoubleObject> gd_ptr(
-                    new GDoubleObject(uniform_real_distribution(m_gr))
+                    new GDoubleObject(uniform_real_distribution(gr_))
                 );
 
                 // Set up an adaptor
@@ -784,7 +784,7 @@ void GNeuralNetworkIndividual::init(
             }
 
             // Make the parameter collection known to this individual
-            this->m_data_cnt.push_back(gdoc);
+            this->data_cnt_.push_back(gdoc);
 
             nNodesPrevious = nNodes;
             layerNumber++;
@@ -1259,7 +1259,7 @@ void GNeuralNetworkIndividual::writeTrainedNetwork(const std::string &headerFile
            << "      register std::size_t nodeCounter = 0;" << std::endl
            << "      register std::size_t prevNodeCounter = 0;" << std::endl
            << std::endl
-           << "      const std::size_t nLayers = " << this->m_data_cnt.size() << ";" << std::endl
+           << "      const std::size_t nLayers = " << this->data_cnt_.size() << ";" << std::endl
            << "      const std::size_t architecture[nLayers] = {" << std::endl;
 
     for(std::size_t i = 0; i < nD_->size(); i++) {
@@ -1459,7 +1459,7 @@ double GNeuralNetworkIndividual::fitnessCalculation() {
         }
 
         // All other layers
-        std::size_t nLayers = this->m_data_cnt.size();
+        std::size_t nLayers = this->data_cnt_.size();
         for(std::size_t layerCounter = 1; layerCounter < nLayers; layerCounter++) {
             std::vector<double> currentResults;
             nLayerNodes = (*nD_)[layerCounter];

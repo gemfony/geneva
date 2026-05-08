@@ -123,7 +123,7 @@ GParameterSetFixedSizePriorityQueue::clone_() const {
 	 */
 bool GParameterSetFixedSizePriorityQueue::allClean(std::size_t &pos) const {
     pos = 0;
-    for(const auto &item_ptr : m_data_deq_) {
+    for(const auto &item_ptr : data_deq_) {
         if(not item_ptr->is_processed()) {
             return false;
         }
@@ -140,7 +140,7 @@ bool GParameterSetFixedSizePriorityQueue::allClean(std::size_t &pos) const {
 std::string GParameterSetFixedSizePriorityQueue::getCleanStatus() const {
     std::size_t pos = 0;
     std::ostringstream oss; // NOLINT(cppcoreguidelines-init-variables)
-    for(const auto &item_ptr : m_data_deq_) {
+    for(const auto &item_ptr : data_deq_) {
         oss << "(" << pos++ << ", " << (not item_ptr->is_processed() ? "d" : "c") << ") ";
     }
 

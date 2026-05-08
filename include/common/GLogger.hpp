@@ -168,8 +168,8 @@ public:
     G_API_COMMON void logWithSource(std::string const &, std::string const &) const override;
 
 private:
-    std::string m_fname = "Geneva-Library-Collection.log"; ///< The name of the log file
-    mutable bool m_first = true; ///< Indicates whether any logging has already been done
+    std::string fname_ = "Geneva-Library-Collection.log"; ///< The name of the log file
+    mutable bool first_ = true; ///< Indicates whether any logging has already been done
 };
 
 /******************************************************************************/
@@ -268,7 +268,7 @@ public:
 		 */
     void setDefaultLogTarget(std::shared_ptr<GBaseLogTarget> gblt) {
         if(gblt) {
-            m_default_logger = gblt;
+            default_logger_ = gblt;
         }
         else {
             raiseException(
@@ -285,7 +285,7 @@ public:
 		 */
     void addLogTarget(std::shared_ptr<GBaseLogTarget> gblt) {
         if(gblt) {
-            m_log_cnt.push_back(gblt);
+            log_cnt_.push_back(gblt);
         }
         else {
             raiseException(
@@ -301,7 +301,7 @@ public:
 		 * Checks whether any log targets are present
 		 */
     bool hasLogTargets() const {
-        return not m_log_cnt.empty();
+        return not log_cnt_.empty();
     }
 
     /***************************************************************************/
@@ -309,7 +309,7 @@ public:
 		 * Clears local log-targets
 		 */
     void resetLogTargets() {
-        m_log_cnt.clear();
+        log_cnt_.clear();
     }
 
     /***************************************************************************/
@@ -320,17 +320,17 @@ public:
 		 */
     void log(std::string const &message) const {
         // Make sure only one entity outputs data
-        std::unique_lock<std::mutex> lk(m_logger_mutex);
+        std::unique_lock<std::mutex> lk(logger_mutex_);
 
-        if(not m_log_cnt.empty()) {
+        if(not log_cnt_.empty()) {
             // Do the actual logging
-            for(auto const &cit : m_log_cnt) {
+            for(auto const &cit : log_cnt_) {
                 cit->log(message);
             }
         }
         else {
-            if(m_default_logger) {
-                m_default_logger->log(message);
+            if(default_logger_) {
+                default_logger_->log(message);
             }
             else {
                 raiseException(
@@ -349,17 +349,17 @@ public:
 		 */
     void logWithSource(std::string const &message, std::string const &extension) const {
         // Make sure only one entity outputs data
-        std::unique_lock<std::mutex> lk(m_logger_mutex);
+        std::unique_lock<std::mutex> lk(logger_mutex_);
 
-        if(not m_log_cnt.empty()) {
+        if(not log_cnt_.empty()) {
             // Do the actual logging
-            for(auto cit : m_log_cnt) { // std::shared_ptr max be copied
+            for(auto cit : log_cnt_) { // std::shared_ptr max be copied
                 cit->logWithSource(message, extension);
             }
         }
         else {
-            if(m_default_logger) {
-                m_default_logger->logWithSource(message, extension);
+            if(default_logger_) {
+                default_logger_->logWithSource(message, extension);
             }
             else {
                 raiseException(
@@ -377,7 +377,7 @@ public:
 		 */
     void throwException(std::string const &error) {
         // Make sure only one entity outputs data
-        std::unique_lock<std::mutex> lk(m_logger_mutex);
+        std::unique_lock<std::mutex> lk(logger_mutex_);
 
         throw(geneva_exception(error));
     }
@@ -388,7 +388,7 @@ public:
 		 */
     void terminateApplication(std::string const &error) {
         // Make sure only one entity outputs data
-        std::unique_lock<std::mutex> lk(m_logger_mutex);
+        std::unique_lock<std::mutex> lk(logger_mutex_);
 
         std::cerr << error;
         std::terminate();
@@ -400,7 +400,7 @@ public:
 		 */
     void toStdOut(std::string const &message) {
         // Make sure only one entity outputs data
-        std::unique_lock<std::mutex> lk(m_logger_mutex);
+        std::unique_lock<std::mutex> lk(logger_mutex_);
 
         std::cout << message;
     }
@@ -411,7 +411,7 @@ public:
 		 */
     void toStdErr(std::string const &message) {
         // Make sure only one entity outputs data
-        std::unique_lock<std::mutex> lk(m_logger_mutex);
+        std::unique_lock<std::mutex> lk(logger_mutex_);
 
         std::cerr << message;
     }
@@ -419,10 +419,10 @@ public:
 private:
     /***************************************************************************/
 
-    std::vector<std::shared_ptr<GBaseLogTarget>> m_log_cnt; ///< Contains the log targets
-    mutable std::mutex m_logger_mutex; ///< Needed for concurrent access to the log targets
+    std::vector<std::shared_ptr<GBaseLogTarget>> log_cnt_; ///< Contains the log targets
+    mutable std::mutex logger_mutex_; ///< Needed for concurrent access to the log targets
 
-    std::shared_ptr<GBaseLogTarget> m_default_logger =
+    std::shared_ptr<GBaseLogTarget> default_logger_ =
         std::make_shared<GConsoleLogger>(); ///< The default log target
 };
 
@@ -462,8 +462,8 @@ public:
     G_API_COMMON bool hasAccompInfo() const;
 
 private:
-    std::string m_accomp_info; ///< Holds accompanying information
-    logType m_log_type; ///< Holds the type of logging event used for instantiating the manipulator
+    std::string accomp_info_; ///< Holds accompanying information
+    logType log_type_; ///< Holds the type of logging event used for instantiating the manipulator
 };
 
 /******************************************************************************/
@@ -531,7 +531,7 @@ public:
 	  */
     template <typename T>
     GLogStreamer &operator<<(T const &val) {
-        m_oss << val;
+        oss_ << val;
         return *this;
     }
 
@@ -564,9 +564,9 @@ private:
 #endif
     }
 
-    std::ostringstream m_oss;         ///< Holds the actual streamed data
-    std::string m_extension;          ///< Additional information about the logging source
-    std::filesystem::path m_log_file; ///< The name of a manually specified log file
+    std::ostringstream oss_;         ///< Holds the actual streamed data
+    std::string extension_;          ///< Additional information about the logging source
+    std::filesystem::path log_file_; ///< The name of a manually specified log file
 };
 
 /******************************************************************************/

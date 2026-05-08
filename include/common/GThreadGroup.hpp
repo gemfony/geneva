@@ -113,9 +113,9 @@ public:
 	  */
     template <typename F>
     std::shared_ptr<std::thread> create_thread(F f) {
-        std::unique_lock<std::mutex> guard(m_mutex);
+        std::unique_lock<std::mutex> guard(mutex_);
         thread_ptr new_thread(new std::thread(f));
-        m_threads.push_back(new_thread);
+        threads_.push_back(new_thread);
         return new_thread;
     }
 
@@ -141,8 +141,8 @@ private:
     /** @brief Clears the thread vector */
     void clearThreads();
 
-    thread_vector m_threads;    ///< Holds the actual threads
-    mutable std::mutex m_mutex; ///< Needed to synchronize access to the vector
+    thread_vector threads_;    ///< Holds the actual threads
+    mutable std::mutex mutex_; ///< Needed to synchronize access to the vector
 };
 
 /******************************************************************************/

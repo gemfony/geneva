@@ -83,11 +83,11 @@ class G_OptimizationAlgorithm_ParChild // NOLINT(cppcoreguidelines-special-membe
         ar &make_nvp(
             "G_OptimizationAlgorithm_Base",
             boost::serialization::base_object<G_OptimizationAlgorithm_Base>(*this)
-        ) & BOOST_SERIALIZATION_NVP(m_n_parents) &
-            BOOST_SERIALIZATION_NVP(m_recombination_method) &
-            BOOST_SERIALIZATION_NVP(m_default_n_children) & BOOST_SERIALIZATION_NVP(m_growth_rate) &
-            BOOST_SERIALIZATION_NVP(m_max_population_size) &
-            BOOST_SERIALIZATION_NVP(m_amalgamationLikelihood);
+        ) & BOOST_SERIALIZATION_NVP(n_parents_) &
+            BOOST_SERIALIZATION_NVP(recombination_method_) &
+            BOOST_SERIALIZATION_NVP(default_n_children_) & BOOST_SERIALIZATION_NVP(growth_rate_) &
+            BOOST_SERIALIZATION_NVP(max_population_size_) &
+            BOOST_SERIALIZATION_NVP(amalgamationLikelihood_);
     }
     /////////////////////////////////////////////////////////////////////////////
 
@@ -234,14 +234,14 @@ protected:
 
     /***************************************************************************/
 
-    std::size_t m_n_parents = DEFPARCHILDNPARENTS; ///< The number of parents
-    duplicationScheme m_recombination_method =
+    std::size_t n_parents_ = DEFPARCHILDNPARENTS; ///< The number of parents
+    duplicationScheme recombination_method_ =
         duplicationScheme::DEFAULTDUPLICATIONSCHEME;         ///< The chosen recombination method
-    std::size_t m_default_n_children = DEFPARCHILDNCHILDREN; ///< Expected number of children
-    std::size_t m_growth_rate = 0; ///< Specifies the amount of individuals added per iteration
-    std::size_t m_max_population_size =
+    std::size_t default_n_children_ = DEFPARCHILDNCHILDREN; ///< Expected number of children
+    std::size_t growth_rate_ = 0; ///< Specifies the amount of individuals added per iteration
+    std::size_t max_population_size_ =
         0; ///< Specifies the maximum amount of individuals in the population if growth is enabled
-    double m_amalgamationLikelihood =
+    double amalgamationLikelihood_ =
         DEFAULTAMALGAMATIONLIKELIHOOD; ///< Likelihood for children to be created by cross-over rather than "just" duplication (note that they may nevertheless be mutated)
 
 private:
@@ -290,7 +290,7 @@ private:
     // Data
 
     std::uniform_int_distribution<std::size_t>
-        m_uniform_int_distribution; ///< Access to uniformly distributed random numbers
+        uniform_int_distribution_; ///< Access to uniformly distributed random numbers
 
     /***************************************************************************/
 };

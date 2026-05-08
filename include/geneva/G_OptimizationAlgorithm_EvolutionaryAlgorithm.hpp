@@ -78,8 +78,8 @@ class GEvolutionaryAlgorithm // NOLINT(cppcoreguidelines-special-member-function
         ar &make_nvp(
             "G_OptimizationAlgorithm_ParChild",
             boost::serialization::base_object<G_OptimizationAlgorithm_ParChild>(*this)
-        ) & BOOST_SERIALIZATION_NVP(m_sorting_mode) &
-            BOOST_SERIALIZATION_NVP(m_n_threads);
+        ) & BOOST_SERIALIZATION_NVP(sorting_mode_) &
+            BOOST_SERIALIZATION_NVP(n_threads_);
     }
 
     ///////////////////////////////////////////////////////////////////////
@@ -216,9 +216,9 @@ private:
     /***************************************************************************/
     // Local data
 
-    sortingMode m_sorting_mode = DEFAULTEASORTINGMODE;                ///< The chosen sorting scheme
-    std::uint16_t m_n_threads = Gem::Common::DEFAULTNHARDWARETHREADS; ///< The number of threads
-    std::shared_ptr<Gem::Common::GThreadPool> m_tp_ptr; ///< Temporarily holds a thread pool
+    sortingMode sorting_mode_ = DEFAULTEASORTINGMODE;                ///< The chosen sorting scheme
+    std::uint16_t n_threads_ = Gem::Common::DEFAULTNHARDWARETHREADS; ///< The number of threads
+    std::shared_ptr<Gem::Common::GThreadPool> tp_ptr_; ///< Temporarily holds a thread pool
 
     /***************************************************************************/
 };

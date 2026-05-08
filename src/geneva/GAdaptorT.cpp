@@ -52,15 +52,15 @@ std::size_t GAdaptorT<bool, double>::adapt(
     std::size_t nAdapted = 0;
 
     // Update the adaption probability, if requested by the user
-    if(m_adaptAdProb > double(0.)) {
-        m_adProb *= std::exp(m_normal_distribution(
+    if(adaptAdProb_ > double(0.)) {
+        adProb_ *= std::exp(normal_distribution_(
             gr,
-            typename std::normal_distribution<double>::param_type(0., m_adaptAdProb)
+            typename std::normal_distribution<double>::param_type(0., adaptAdProb_)
         ));
         Gem::Common::enforceRangeConstraint<double>(
-            m_adProb,
-            m_minAdProb,
-            m_maxAdProb,
+            adProb_,
+            minAdProb_,
+            maxAdProb_,
             "GAdaptorT<bool,double>::adapt()"
         );
     }
@@ -68,10 +68,10 @@ std::size_t GAdaptorT<bool, double>::adapt(
     bool dummy_val;
 
     if(adaptionMode::WITHPROBABILITY ==
-       m_adaptionMode) { // The most likely case is indeterminate (means: "depends")
+       adaptionMode_) { // The most likely case is indeterminate (means: "depends")
         for(auto &&val : valVec) {
-            // A likelihood of m_adProb for adaption
-            if(m_weighted_bool(gr, std::bernoulli_distribution::param_type(std::abs(m_adProb)))) {
+            // A likelihood of adProb_ for adaption
+            if(weighted_bool_(gr, std::bernoulli_distribution::param_type(std::abs(adProb_)))) {
                 dummy_val = val;
                 adaptAdaption(range, gr);
                 customAdaptions(
@@ -84,7 +84,7 @@ std::size_t GAdaptorT<bool, double>::adapt(
             }
         }
     }
-    else if(adaptionMode::ALWAYS == m_adaptionMode) { // always adapt
+    else if(adaptionMode::ALWAYS == adaptionMode_) { // always adapt
         for(auto &&val : valVec) {
             dummy_val = val;
             adaptAdaption(range, gr);
@@ -94,7 +94,7 @@ std::size_t GAdaptorT<bool, double>::adapt(
         }
     }
 
-    // No need to test for "m_adaptionMode == adaptionMode::NEVER" as no action is needed in this case
+    // No need to test for "adaptionMode_ == adaptionMode::NEVER" as no action is needed in this case
 
     return nAdapted;
 }

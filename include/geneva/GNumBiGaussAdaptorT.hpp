@@ -193,12 +193,12 @@ public:
         minSigma1_ = minSigma1;
         maxSigma1_ = maxSigma1;
 
-        // Silently adapt m_minSigma1, if it is smaller than DEFAULTMINSIGMA. E.g., a value of 0 does not make sense
+        // Silently adapt minSigma1_, if it is smaller than DEFAULTMINSIGMA. E.g., a value of 0 does not make sense
         if(minSigma1_ < fp_type(DEFAULTMINSIGMA)) {
             minSigma1_ = fp_type(DEFAULTMINSIGMA);
         }
 
-        // Rectify m_sigma1, if necessary
+        // Rectify sigma1_, if necessary
         enforceRangeConstraint(
             sigma1_,
             minSigma1_,
@@ -329,12 +329,12 @@ public:
         minSigma2_ = minSigma2;
         maxSigma2_ = maxSigma2;
 
-        // Silently adapt m_minSigma1, if it is smaller than DEFAULTMINSIGMA. E.g., a value of 0 does not make sense
+        // Silently adapt minSigma1_, if it is smaller than DEFAULTMINSIGMA. E.g., a value of 0 does not make sense
         if(minSigma2_ < fp_type(DEFAULTMINSIGMA)) {
             minSigma2_ = fp_type(DEFAULTMINSIGMA);
         }
 
-        // Rectify m_sigma1, if necessary
+        // Rectify sigma1_, if necessary
         enforceRangeConstraint(
             sigma2_,
             minSigma2_,
@@ -460,7 +460,7 @@ public:
         // Note: In contrast to setSigmaXRange(...) we allow a delta < DEFAULTMINDELTA
         // (as long as it is >= 0), as a delta of 0 makes sense
 
-        // Rectify m_delta, if necessary
+        // Rectify delta_, if necessary
         if(delta_ < minDelta_) {
             delta_ = minDelta_;
         }
@@ -532,15 +532,15 @@ public:
         using namespace Gem::Common;
         using namespace Gem::Hap;
 
-        sigma1_ = GAdaptorT<num_type, fp_type>::m_uniform_real_distribution(
+        sigma1_ = GAdaptorT<num_type, fp_type>::uniform_real_distribution_(
             gr,
             typename std::uniform_real_distribution<fp_type>::param_type(minSigma1_, maxSigma1_)
         );
-        sigma2_ = GAdaptorT<num_type, fp_type>::m_uniform_real_distribution(
+        sigma2_ = GAdaptorT<num_type, fp_type>::uniform_real_distribution_(
             gr,
             typename std::uniform_real_distribution<fp_type>::param_type(minSigma2_, maxSigma2_)
         );
-        delta_ = GAdaptorT<num_type, fp_type>::m_uniform_real_distribution(
+        delta_ = GAdaptorT<num_type, fp_type>::uniform_real_distribution_(
             gr,
             typename std::uniform_real_distribution<fp_type>::param_type(minDelta_, maxDelta_)
         );
@@ -568,7 +568,7 @@ protected:
     fp_type maxDelta_ = DEFAULTMAXDELTA;      ///< maximum allowed value for delta_
 
     Gem::Hap::bi_normal_distribution<fp_type>
-        m_bi_normal_distribution; ///< Access to random numbers with a bi_normal distribution
+        bi_normal_distribution_; ///< Access to random numbers with a bi_normal distribution
 
     /***************************************************************************/
     /**
@@ -696,19 +696,19 @@ protected:
         // The following random distribution slightly favours values < 1. Selection pressure
         // will keep the values higher if needed
         sigma1_ *= std::exp(
-            GAdaptorT<num_type>::m_normal_distribution(
+            GAdaptorT<num_type>::normal_distribution_(
                 gr,
                 typename std::normal_distribution<fp_type>::param_type(0., std::abs(sigmaSigma1_))
             )
         );
         sigma2_ *= std::exp(
-            GAdaptorT<num_type>::m_normal_distribution(
+            GAdaptorT<num_type>::normal_distribution_(
                 gr,
                 typename std::normal_distribution<fp_type>::param_type(0., std::abs(sigmaSigma2_))
             )
         );
         delta_ *= std::exp(
-            GAdaptorT<num_type>::m_normal_distribution(
+            GAdaptorT<num_type>::normal_distribution_(
                 gr,
                 typename std::normal_distribution<fp_type>::param_type(0., std::abs(sigmaDelta_))
             )

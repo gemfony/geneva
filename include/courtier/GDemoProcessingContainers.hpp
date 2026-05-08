@@ -79,7 +79,7 @@ class GSimpleContainer // NOLINT(cppcoreguidelines-special-member-functions)
             "GProcessingContainerT_GSimpleContainer",
             boost::serialization::base_object<
                 Gem::Courtier::GProcessingContainerT<GSimpleContainer, bool>>(*this)
-        ) & BOOST_SERIALIZATION_NVP(m_stored_number);
+        ) & BOOST_SERIALIZATION_NVP(stored_number_);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -100,7 +100,7 @@ private:
     /** @brief Allows to specify the tasks to be performed for this object */
     G_API_COURTIER void process_(const std::vector<bool> &res_vec = std::vector<bool>()) final;
 
-    std::size_t m_stored_number = 0; ///< Holds the pay-load of this object
+    std::size_t stored_number_ = 0; ///< Holds the pay-load of this object
 };
 
 /**********************************************************************************************/

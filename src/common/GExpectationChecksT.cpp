@@ -45,9 +45,9 @@ const std::size_t SUCCESSCOUNTER = 1;
  * The standard constructor -- initialization with class name and expectation
  */
 GToken::GToken(std::string caller, Gem::Common::expectation e)
-  : m_test_counter(std::make_tuple(std::size_t(0), std::size_t(0)))
-  , m_caller(std::move(caller))
-  , m_e(e) { /* nothing */
+  : test_counter_(std::make_tuple(std::size_t(0), std::size_t(0)))
+  , caller_(std::move(caller))
+  , e_(e) { /* nothing */
 }
 
 /******************************************************************************/
@@ -55,7 +55,7 @@ GToken::GToken(std::string caller, Gem::Common::expectation e)
  * Increments the test counter
  */
 void GToken::incrTestCounter() {
-    std::get<TESTCOUNTER>(m_test_counter) += 1;
+    std::get<TESTCOUNTER>(test_counter_) += 1;
 }
 
 /******************************************************************************/
@@ -63,7 +63,7 @@ void GToken::incrTestCounter() {
  * Increments the counter of tests that met the expectation
  */
 void GToken::incrSuccessCounter() {
-    std::get<SUCCESSCOUNTER>(m_test_counter) += 1;
+    std::get<SUCCESSCOUNTER>(test_counter_) += 1;
 }
 
 /******************************************************************************/
@@ -71,13 +71,13 @@ void GToken::incrSuccessCounter() {
  * Allows to retrieve the current state of the success counter
  */
 std::size_t GToken::getSuccessCounter() const {
-    return std::get<SUCCESSCOUNTER>(m_test_counter);
+    return std::get<SUCCESSCOUNTER>(test_counter_);
 }
 
 /******************************************************************************/
 /** @brief Allows to retrieve the current state of the test counter */
 std::size_t GToken::getTestCounter() const {
-    return std::get<TESTCOUNTER>(m_test_counter);
+    return std::get<TESTCOUNTER>(test_counter_);
 }
 
 /******************************************************************************/
@@ -85,16 +85,16 @@ std::size_t GToken::getTestCounter() const {
  * Allows to check whether the expectation was met
  */
 bool GToken::expectationMet() const {
-    switch(m_e) {
+    switch(e_) {
     case Gem::Common::expectation::FP_SIMILARITY:
     case Gem::Common::expectation::EQUALITY:
-        if(std::get<TESTCOUNTER>(m_test_counter) == std::get<SUCCESSCOUNTER>(m_test_counter)) {
+        if(std::get<TESTCOUNTER>(test_counter_) == std::get<SUCCESSCOUNTER>(test_counter_)) {
             return true;
         }
         break;
 
     case Gem::Common::expectation::INEQUALITY:
-        if(std::get<SUCCESSCOUNTER>(m_test_counter) > 0) {
+        if(std::get<SUCCESSCOUNTER>(test_counter_) > 0) {
             return true;
         }
         break;
@@ -116,7 +116,7 @@ GToken::operator bool() const {
  * Allows to retrieve the expectation token
  */
 Gem::Common::expectation GToken::getExpectation() const {
-    return m_e;
+    return e_;
 }
 
 /******************************************************************************/
@@ -124,7 +124,7 @@ Gem::Common::expectation GToken::getExpectation() const {
  * Allows to retrieve the expectation token as a string
  */
 std::string GToken::getExpectationStr() const {
-    switch(m_e) {
+    switch(e_) {
     case Gem::Common::expectation::FP_SIMILARITY:
         return "FP_SIMILARITY";
         break;
@@ -147,7 +147,7 @@ std::string GToken::getExpectationStr() const {
  * Allows to retrieve the name of the caller
  */
 std::string GToken::getCallerName() const {
-    return m_caller;
+    return caller_;
 }
 
 /******************************************************************************/
@@ -156,7 +156,7 @@ std::string GToken::getCallerName() const {
  */
 void GToken::registerErrorMessage(std::string const &m) {
     if(not m.empty()) {
-        m_error_messages.push_back(m);
+        error_messages_.push_back(m);
     }
     else {
         throw geneva_exception(
@@ -172,7 +172,7 @@ void GToken::registerErrorMessage(std::string const &m) {
  * Allows to register an exception obtained from a failed check
  */
 void GToken::registerErrorMessage(g_expectation_violation const &g) {
-    m_error_messages.emplace_back(g.what());
+    error_messages_.emplace_back(g.what());
 }
 
 /******************************************************************************/
@@ -182,7 +182,7 @@ void GToken::registerErrorMessage(g_expectation_violation const &g) {
 std::string GToken::getErrorMessages() const {
     std::string result; // NOLINT(cppcoreguidelines-init-variables)
     result = "Registered errors:\n";
-    for(auto const &error : m_error_messages) {
+    for(auto const &error : error_messages_) {
         result += error;
     }
     return result;
@@ -195,7 +195,7 @@ std::string GToken::getErrorMessages() const {
 std::string GToken::toString() const {
     std::string result = "Expectation of ";
 
-    switch(m_e) {
+    switch(e_) {
     case Gem::Common::expectation::FP_SIMILARITY: {
         result += std::string("FP_SIMILARITY was ");
     } break;
@@ -210,10 +210,10 @@ std::string GToken::toString() const {
     }
 
     if(this->expectationMet()) {
-        result += std::string("met in ") + m_caller + std::string("\n");
+        result += std::string("met in ") + caller_ + std::string("\n");
     }
     else {
-        result += std::string("not met in ") + m_caller + std::string("\n");
+        result += std::string("not met in ") + caller_ + std::string("\n");
         // We only add specific information about failed checks for the expectation
         // "inequality", so we do not swamp the user with useless information.
         // For the inequality information, just one out of many checks for data-
@@ -221,8 +221,8 @@ std::string GToken::toString() const {
         // Only the information "everything is equal while inequality was expected"
         // is important. If equality or similarity were expected, every single
         // deviation from equality is of interest.
-        if(Gem::Common::expectation::INEQUALITY != m_e) {
-            for(auto const &error : m_error_messages) {
+        if(Gem::Common::expectation::INEQUALITY != e_) {
+            for(auto const &error : error_messages_) {
                 result += error;
             }
         }

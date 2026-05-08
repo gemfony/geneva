@@ -76,7 +76,7 @@ class GPostProcessorBaseT // NOLINT(cppcoreguidelines-special-member-functions)
             boost::serialization::base_object<Gem::Common::GSerializableFunctionObjectT<base_type>>(
                 *this
             )
-        ) & BOOST_SERIALIZATION_NVP(m_allowed_mnemonics);
+        ) & BOOST_SERIALIZATION_NVP(allowed_mnemonics_);
     }
 
     ///////////////////////////////////////////////////////////////////////
@@ -105,7 +105,7 @@ public:
 	  * Permits postprocessing for a specific type
 	  */
     void allowPostProcessingFor(const std::string &oa_mnemonic) {
-        m_allowed_mnemonics.insert(oa_mnemonic);
+        allowed_mnemonics_.insert(oa_mnemonic);
     }
 
     /**************************************************************************/
@@ -113,12 +113,12 @@ public:
 	  * Allows to check whether post-processing is allowed for a given base_type
 	  */
     bool postProcessingAllowedFor(const base_type &ind) const {
-        if(m_allowed_mnemonics.count("all") != 0) {
+        if(allowed_mnemonics_.count("all") != 0) {
             return true;
         }
 
         // Check whether the given mnemonic was registered with this class
-        return m_allowed_mnemonics.count(ind.getMnemonic()) != 0;
+        return allowed_mnemonics_.count(ind.getMnemonic()) != 0;
     }
 
 protected:
@@ -154,7 +154,7 @@ protected:
         Gem::Common::GSerializableFunctionObjectT<base_type>::load_(cp);
 
         // ... and then our local data
-        m_allowed_mnemonics = p_load->m_allowed_mnemonics;
+        allowed_mnemonics_ = p_load->allowed_mnemonics_;
     }
 
     /**************************************************************************/
@@ -193,7 +193,7 @@ protected:
 
         // ... and then our local data
         compare_t<std::set<std::string>>(
-            IDENTITY(m_allowed_mnemonics, p_load->m_allowed_mnemonics),
+            IDENTITY(allowed_mnemonics_, p_load->allowed_mnemonics_),
             token
         );
 
@@ -277,7 +277,7 @@ private:
     // Data
 
     std::set<std::string>
-        m_allowed_mnemonics; ///< A list of mnemonics for which optimization is allowed
+        allowed_mnemonics_; ///< A list of mnemonics for which optimization is allowed
 };
 
 /******************************************************************************/
@@ -299,9 +299,9 @@ class GEvolutionaryAlgorithmPostOptimizer // NOLINT(cppcoreguidelines-special-me
         ar &make_nvp(
             "GPostProcessorBaseT_GParameterSet",
             boost::serialization::base_object<GPostProcessorBaseT<GParameterSet>>(*this)
-        ) & BOOST_SERIALIZATION_NVP(m_oa_configFile) &
-            BOOST_SERIALIZATION_NVP(m_executor_configFile) &
-            BOOST_SERIALIZATION_NVP(m_executionMode);
+        ) & BOOST_SERIALIZATION_NVP(oa_configFile_) &
+            BOOST_SERIALIZATION_NVP(executor_configFile_) &
+            BOOST_SERIALIZATION_NVP(executionMode_);
 
         // TODO: How to initialize the ea factory
     }
@@ -379,9 +379,9 @@ private:
     /**************************************************************************/
     // Data
     std::string
-        m_oa_configFile; ///< The name of the configuration file for this evolutionary algorithm
-    std::string m_executor_configFile; ///< The name of the configuration file for the executor
-    execMode m_executionMode =
+        oa_configFile_; ///< The name of the configuration file for this evolutionary algorithm
+    std::string executor_configFile_; ///< The name of the configuration file for the executor
+    execMode executionMode_ =
         execMode::SERIAL; ///< Whether to run the post-optimizer in serial or multi-threaded mode
 };
 

@@ -102,25 +102,25 @@ class GProcessingContainerT {
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar &BOOST_SERIALIZATION_NVP(m_iteration_counter) &
-            BOOST_SERIALIZATION_NVP(m_resubmission_counter) &
-            BOOST_SERIALIZATION_NVP(m_collection_position) &
-            BOOST_SERIALIZATION_NVP(m_bufferport_id) &
-            BOOST_SERIALIZATION_NVP(m_preProcessingDisabled) &
-            BOOST_SERIALIZATION_NVP(m_postProcessingDisabled) &
-            BOOST_SERIALIZATION_NVP(m_pre_processor_ptr) &
-            BOOST_SERIALIZATION_NVP(m_post_processor_ptr) &
-            BOOST_SERIALIZATION_NVP(m_pre_processing_time) &
-            BOOST_SERIALIZATION_NVP(m_processing_time) &
-            BOOST_SERIALIZATION_NVP(m_post_processing_time) &
-            BOOST_SERIALIZATION_NVP(m_bufferport_raw_retrieval_time) &
-            BOOST_SERIALIZATION_NVP(m_bufferport_raw_submission_time) &
-            BOOST_SERIALIZATION_NVP(m_bufferport_proc_retrieval_time) &
-            BOOST_SERIALIZATION_NVP(m_bufferport_proc_submission_time) &
-            BOOST_SERIALIZATION_NVP(m_stored_results_cnt) &
-            BOOST_SERIALIZATION_NVP(m_stored_error_descriptions) &
-            BOOST_SERIALIZATION_NVP(m_processing_status);
-        //& BOOST_SERIALIZATION_NVP(m_evaluation_id);
+        ar &BOOST_SERIALIZATION_NVP(iteration_counter_) &
+            BOOST_SERIALIZATION_NVP(resubmission_counter_) &
+            BOOST_SERIALIZATION_NVP(collection_position_) &
+            BOOST_SERIALIZATION_NVP(bufferport_id_) &
+            BOOST_SERIALIZATION_NVP(preProcessingDisabled_) &
+            BOOST_SERIALIZATION_NVP(postProcessingDisabled_) &
+            BOOST_SERIALIZATION_NVP(pre_processor_ptr_) &
+            BOOST_SERIALIZATION_NVP(post_processor_ptr_) &
+            BOOST_SERIALIZATION_NVP(pre_processing_time_) &
+            BOOST_SERIALIZATION_NVP(processing_time_) &
+            BOOST_SERIALIZATION_NVP(post_processing_time_) &
+            BOOST_SERIALIZATION_NVP(bufferport_raw_retrieval_time_) &
+            BOOST_SERIALIZATION_NVP(bufferport_raw_submission_time_) &
+            BOOST_SERIALIZATION_NVP(bufferport_proc_retrieval_time_) &
+            BOOST_SERIALIZATION_NVP(bufferport_proc_submission_time_) &
+            BOOST_SERIALIZATION_NVP(stored_results_cnt_) &
+            BOOST_SERIALIZATION_NVP(stored_error_descriptions_) &
+            BOOST_SERIALIZATION_NVP(processing_status_);
+        //& BOOST_SERIALIZATION_NVP(evaluation_id_);
     }
 
     ///////////////////////////////////////////////////////////////////////
@@ -134,7 +134,7 @@ public:
 	  * Initialization with the number of stored results
 	  */
     explicit GProcessingContainerT(std::size_t n_stored_results)
-      : m_stored_results_cnt(n_stored_results, processing_result_type()) { /* nothing */
+      : stored_results_cnt_(n_stored_results, processing_result_type()) { /* nothing */
     }
 
     /***************************************************************************/
@@ -146,28 +146,28 @@ public:
     explicit GProcessingContainerT(
         GProcessingContainerT<processable_type, processing_result_type> const &cp
     )
-      : m_iteration_counter(cp.m_iteration_counter)
-      , m_resubmission_counter(cp.m_resubmission_counter)
-      , m_collection_position(cp.m_collection_position)
-      , m_bufferport_id(cp.m_bufferport_id)
-      , m_preProcessingDisabled(cp.m_preProcessingDisabled)
-      , m_postProcessingDisabled(cp.m_postProcessingDisabled)
-      , m_pre_processing_time(cp.m_pre_processing_time)
-      , m_processing_time(cp.m_processing_time)
-      , m_post_processing_time(cp.m_post_processing_time)
-      , m_bufferport_raw_retrieval_time(cp.m_bufferport_raw_retrieval_time)
-      , m_bufferport_raw_submission_time(cp.m_bufferport_raw_submission_time)
-      , m_bufferport_proc_retrieval_time(cp.m_bufferport_proc_retrieval_time)
-      , m_bufferport_proc_submission_time(cp.m_bufferport_proc_submission_time)
-      , m_stored_results_cnt(
-            cp.m_stored_results_cnt
+      : iteration_counter_(cp.iteration_counter_)
+      , resubmission_counter_(cp.resubmission_counter_)
+      , collection_position_(cp.collection_position_)
+      , bufferport_id_(cp.bufferport_id_)
+      , preProcessingDisabled_(cp.preProcessingDisabled_)
+      , postProcessingDisabled_(cp.postProcessingDisabled_)
+      , pre_processing_time_(cp.pre_processing_time_)
+      , processing_time_(cp.processing_time_)
+      , post_processing_time_(cp.post_processing_time_)
+      , bufferport_raw_retrieval_time_(cp.bufferport_raw_retrieval_time_)
+      , bufferport_raw_submission_time_(cp.bufferport_raw_submission_time_)
+      , bufferport_proc_retrieval_time_(cp.bufferport_proc_retrieval_time_)
+      , bufferport_proc_submission_time_(cp.bufferport_proc_submission_time_)
+      , stored_results_cnt_(
+            cp.stored_results_cnt_
         ) // Note: processing_result_type must be copyable (e.g. it should not contain pointers)
-      , m_stored_error_descriptions(cp.m_stored_error_descriptions)
-      , m_processing_status(cp.m_processing_status)
-    // , m_evaluation_id(cp.m_evaluation_id)
+      , stored_error_descriptions_(cp.stored_error_descriptions_)
+      , processing_status_(cp.processing_status_)
+    // , evaluation_id_(cp.evaluation_id_)
     {
-        Gem::Common::copyCloneableSmartPointer(cp.m_pre_processor_ptr, m_pre_processor_ptr);
-        Gem::Common::copyCloneableSmartPointer(cp.m_post_processor_ptr, m_post_processor_ptr);
+        Gem::Common::copyCloneableSmartPointer(cp.pre_processor_ptr_, pre_processor_ptr_);
+        Gem::Common::copyCloneableSmartPointer(cp.post_processor_ptr_, post_processor_ptr_);
     }
 
     /***************************************************************************/
@@ -176,27 +176,27 @@ public:
 	  */
     GProcessingContainerT<processable_type, processing_result_type> &
     operator=(GProcessingContainerT<processable_type, processing_result_type> const &cp) {
-        m_iteration_counter = cp.m_iteration_counter;
-        m_resubmission_counter = cp.m_resubmission_counter;
-        m_collection_position = cp.m_collection_position;
-        m_bufferport_id = cp.m_bufferport_id;
-        m_preProcessingDisabled = cp.m_preProcessingDisabled;
-        m_postProcessingDisabled = cp.m_postProcessingDisabled;
-        m_pre_processing_time = cp.m_pre_processing_time;
-        m_processing_time = cp.m_processing_time;
-        m_post_processing_time = cp.m_post_processing_time;
-        m_bufferport_raw_retrieval_time = cp.m_bufferport_raw_retrieval_time;
-        m_bufferport_raw_submission_time = cp.m_bufferport_raw_submission_time;
-        m_bufferport_proc_retrieval_time = cp.m_bufferport_proc_retrieval_time;
-        m_bufferport_proc_submission_time = cp.m_bufferport_proc_submission_time;
-        m_stored_results_cnt =
-            cp.m_stored_results_cnt; // Note: processing_result_type must be copyable (e.g. it should not contain pointers)
-        m_stored_error_descriptions = cp.m_stored_error_descriptions;
-        m_processing_status = cp.m_processing_status;
-        // m_evaluation_id = cp.m_evaluation_id;
+        iteration_counter_ = cp.iteration_counter_;
+        resubmission_counter_ = cp.resubmission_counter_;
+        collection_position_ = cp.collection_position_;
+        bufferport_id_ = cp.bufferport_id_;
+        preProcessingDisabled_ = cp.preProcessingDisabled_;
+        postProcessingDisabled_ = cp.postProcessingDisabled_;
+        pre_processing_time_ = cp.pre_processing_time_;
+        processing_time_ = cp.processing_time_;
+        post_processing_time_ = cp.post_processing_time_;
+        bufferport_raw_retrieval_time_ = cp.bufferport_raw_retrieval_time_;
+        bufferport_raw_submission_time_ = cp.bufferport_raw_submission_time_;
+        bufferport_proc_retrieval_time_ = cp.bufferport_proc_retrieval_time_;
+        bufferport_proc_submission_time_ = cp.bufferport_proc_submission_time_;
+        stored_results_cnt_ =
+            cp.stored_results_cnt_; // Note: processing_result_type must be copyable (e.g. it should not contain pointers)
+        stored_error_descriptions_ = cp.stored_error_descriptions_;
+        processing_status_ = cp.processing_status_;
+        // evaluation_id_ = cp.evaluation_id_;
 
-        Gem::Common::copyCloneableSmartPointer(cp.m_pre_processor_ptr, m_pre_processor_ptr);
-        Gem::Common::copyCloneableSmartPointer(cp.m_post_processor_ptr, m_post_processor_ptr);
+        Gem::Common::copyCloneableSmartPointer(cp.pre_processor_ptr_, pre_processor_ptr_);
+        Gem::Common::copyCloneableSmartPointer(cp.post_processor_ptr_, post_processor_ptr_);
 
         return *this;
     }
@@ -223,27 +223,27 @@ public:
     markAsProcessedWith(std::vector<processing_result_type> const &result_cnt) {
 #ifdef DEBUG
         // Check that we have been given a suitable new results vector
-        if(result_cnt.size() != m_stored_results_cnt.size()) {
+        if(result_cnt.size() != stored_results_cnt_.size()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GProcessingContainerT::markAsProcessedWith(): Vector dimensions" << std::endl
-                << "do not fit: " << result_cnt.size() << " / " << m_stored_results_cnt.size()
+                << "do not fit: " << result_cnt.size() << " / " << stored_results_cnt_.size()
                 << std::endl
             );
         }
 #endif
 
         // Transfer the new values
-        m_stored_results_cnt = result_cnt;
+        stored_results_cnt_ = result_cnt;
 
         // Clear the error descriptions
-        m_stored_error_descriptions.clear();
+        stored_error_descriptions_.clear();
 
         // Mark as processed
-        m_processing_status = processingStatus::PROCESSED;
+        processing_status_ = processingStatus::PROCESSED;
 
         // This part of the code should never be reached if an exception was thrown
-        return this->m_stored_results_cnt.at(0);
+        return this->stored_results_cnt_.at(0);
     }
 
     /***************************************************************************/
@@ -264,21 +264,21 @@ public:
         const std::vector<processing_result_type> &res_vec = std::vector<processing_result_type>()
     ) {
         // We only accept items that are due for processing
-        if(processingStatus::DO_PROCESS != m_processing_status) {
+        if(processingStatus::DO_PROCESS != processing_status_) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GProcessingContainerT::process(): Function called while m_processing_status "
+                << "In GProcessingContainerT::process(): Function called while processing_status_ "
                    "was set to "
-                << m_processing_status << std::endl
+                << processing_status_ << std::endl
                 << "Expected " << processingStatus::DO_PROCESS << std::endl
             );
         }
 
         // Assign a new evaluation id
-        // m_evaluation_id = std::string("eval_") + Gem::Common::to_string(boost::uuids::random_generator()());
+        // evaluation_id_ = std::string("eval_") + Gem::Common::to_string(boost::uuids::random_generator()());
 
         // Clear the error descriptions
-        m_stored_error_descriptions.clear();
+        stored_error_descriptions_.clear();
 
         // "Nullify the result list.
         this->clear_stored_results_vec();
@@ -300,18 +300,18 @@ public:
             const auto afterPostProcessing = std::chrono::high_resolution_clock::now();
 
             // Make a note of the time needed for each step
-            m_pre_processing_time =
+            pre_processing_time_ =
                 std::chrono::duration<double>(afterPreProcessing - startTime).count();
-            m_processing_time =
+            processing_time_ =
                 std::chrono::duration<double>(afterProcessing - afterPreProcessing).count();
-            m_post_processing_time =
+            post_processing_time_ =
                 std::chrono::duration<double>(afterPostProcessing - afterProcessing).count();
 
-            m_processing_status = processingStatus::PROCESSED;
+            processing_status_ = processingStatus::PROCESSED;
         }
         catch(boost::exception &e) {
             // Let the audience know we had an error
-            m_processing_status = processingStatus::EXCEPTION_CAUGHT;
+            processing_status_ = processingStatus::EXCEPTION_CAUGHT;
             error_description_stream << "In GProcessingContainerT<>::process():" << std::endl
                                      << "Processing has thrown a boost exception with message"
                                      << std::endl
@@ -320,7 +320,7 @@ public:
         }
         catch(std::exception &e) {
             // Let the audience know we had an error
-            m_processing_status = processingStatus::EXCEPTION_CAUGHT;
+            processing_status_ = processingStatus::EXCEPTION_CAUGHT;
             error_description_stream
                 << "In GProcessingContainerT<processable_type>::process():" << std::endl
                 << "Processing has thrown an exception with message" << std::endl
@@ -329,7 +329,7 @@ public:
         }
         catch(...) {
             // Let the audience know we had an error
-            m_processing_status = processingStatus::EXCEPTION_CAUGHT;
+            processing_status_ = processingStatus::EXCEPTION_CAUGHT;
             error_description_stream
                 << "In GProcessingContainerT<processable_type>::process():" << std::endl
                 << "Processing has thrown an unknown exception." << std::endl;
@@ -337,26 +337,26 @@ public:
 
         if(this->has_errors()) { // Either an exception was caught or the user has flagged an error
             // Do some cleanup
-            m_pre_processing_time = 0.;
-            m_processing_time = 0.;
-            m_post_processing_time = 0.;
+            pre_processing_time_ = 0.;
+            processing_time_ = 0.;
+            post_processing_time_ = 0.;
 
             // "Nullify the result list.
             this->clear_stored_results_vec();
 
             // Store the exceptions for later reference
-            if(processingStatus::EXCEPTION_CAUGHT == m_processing_status) {
+            if(processingStatus::EXCEPTION_CAUGHT == processing_status_) {
                 // Error information added by the user might already be stored in this variable. Hence we use +=
-                m_stored_error_descriptions += error_description_stream.str();
+                stored_error_descriptions_ += error_description_stream.str();
             }
 
             throw g_processing_exception( // Note: this is a specific exception to flag errors during processing
-					g_error_streamer(DO_LOG, time_and_place) << m_stored_error_descriptions
+					g_error_streamer(DO_LOG, time_and_place) << stored_error_descriptions_
 				);
         }
 
         // This part of the code should never be reached if an exception was thrown
-        return this->m_stored_results_cnt.at(0);
+        return this->stored_results_cnt_.at(0);
     }
 
     /***************************************************************************/
@@ -366,7 +366,7 @@ public:
 	  * item which does not have the PROCESSED flag set.
 	  *
 	  * @param id The id of the stored result to be returned
-	  * @return The stored result at position id in m_stored_results_vec
+	  * @return The stored result at position id in stored_results_vec_
 	  */
     processing_result_type getStoredResult(std::size_t id = 0) const {
         if(not this->is_processed()) {
@@ -377,7 +377,7 @@ public:
             );
         }
 
-        return m_stored_results_cnt.at(id);
+        return stored_results_cnt_.at(id);
     }
 
     /******************************************************************************/
@@ -388,7 +388,7 @@ public:
 	  */
     /*
 		std::string getCurrentEvaluationID() const {
-			return m_evaluation_id;
+			return evaluation_id_;
 		}*/
 
     /***************************************************************************/
@@ -411,7 +411,7 @@ public:
 	  * Allows to retrieve the current processing status
 	  */
     processingStatus getProcessingStatus() const noexcept {
-        return m_processing_status;
+        return processing_status_;
     }
 
     /***************************************************************************/
@@ -420,7 +420,7 @@ public:
 	  * debugging purposes).
 	  */
     std::string getProcessingStatusAsStr() const noexcept {
-        return psToStr(m_processing_status);
+        return psToStr(processing_status_);
     }
 
     /***************************************************************************/
@@ -458,8 +458,8 @@ public:
 	  * @return A boolean indicating whether there were errors during processing
 	  */
     bool has_errors() const noexcept {
-        return (processingStatus::EXCEPTION_CAUGHT == m_processing_status) ||
-               (processingStatus::ERROR_FLAGGED == m_processing_status);
+        return (processingStatus::EXCEPTION_CAUGHT == processing_status_) ||
+               (processingStatus::ERROR_FLAGGED == processing_status_);
     }
 
     /***************************************************************************/
@@ -467,7 +467,7 @@ public:
 	  * Allows to check whether an error was flagged by the user
 	  */
     bool error_flagged_by_user() const noexcept {
-        return (processingStatus::ERROR_FLAGGED == m_processing_status);
+        return (processingStatus::ERROR_FLAGGED == processing_status_);
     }
 
     /***************************************************************************/
@@ -488,7 +488,7 @@ public:
 	  */
     void set_processing_status(processingStatus target_ps = processingStatus::DO_IGNORE) {
         // Do nothing if the new state is equal to the old one
-        if(target_ps == m_processing_status) {
+        if(target_ps == processing_status_) {
             return;
         }
 
@@ -503,15 +503,15 @@ public:
         }
 
         // We want to enforce specific targets depending on the current state
-        switch(m_processing_status) {
+        switch(processing_status_) {
             //------------------------------------------------------------------------------------
 
         case processingStatus::DO_IGNORE:
             if(target_ps == processingStatus::DO_PROCESS) {
                 // Store the new state
-                m_processing_status = target_ps;
+                processing_status_ = target_ps;
                 // Clear any remaining error messages
-                m_stored_error_descriptions.clear();
+                stored_error_descriptions_.clear();
                 // "Nullify" the result list.
                 this->clear_stored_results_vec();
             }
@@ -521,7 +521,7 @@ public:
                     << "In GProcessingContainerT<>::set_processing_status():" << std::endl
                     << "Got invalid target processing status " << psToStr(target_ps) << std::endl
                     << "Expected a new state of DO_PROCESS for the" << std::endl
-                    << "current state of " << psToStr(m_processing_status) << std::endl
+                    << "current state of " << psToStr(processing_status_) << std::endl
                 );
             }
             break;
@@ -531,9 +531,9 @@ public:
         case processingStatus::DO_PROCESS:
             if(target_ps == processingStatus::DO_IGNORE) {
                 // Store the new state
-                m_processing_status = target_ps;
+                processing_status_ = target_ps;
                 // Clear any remaining error messages
-                m_stored_error_descriptions.clear();
+                stored_error_descriptions_.clear();
                 // "Nullify" the result list.
                 this->clear_stored_results_vec();
             }
@@ -543,7 +543,7 @@ public:
                     << "In GProcessingContainerT<>::set_processing_status():" << std::endl
                     << "Got invalid target processing status " << psToStr(target_ps) << std::endl
                     << "Expected a new state of DO_IGNORE for the" << std::endl
-                    << "current state of " << psToStr(m_processing_status) << std::endl
+                    << "current state of " << psToStr(processing_status_) << std::endl
                 );
             }
             break;
@@ -554,9 +554,9 @@ public:
             if(target_ps == processingStatus::DO_IGNORE ||
                target_ps == processingStatus::DO_PROCESS) {
                 // Store the new state
-                m_processing_status = target_ps;
+                processing_status_ = target_ps;
                 // Clear any remaining error messages
-                m_stored_error_descriptions.clear();
+                stored_error_descriptions_.clear();
                 // "Nullify" the result list.
                 this->clear_stored_results_vec();
             }
@@ -566,7 +566,7 @@ public:
                     << "In GProcessingContainerT<>::set_processing_status():" << std::endl
                     << "Got invalid target processing status " << psToStr(target_ps) << std::endl
                     << "Expected a new state of DO_IGNORE or DO_PROCESS for the" << std::endl
-                    << "current state of " << psToStr(m_processing_status) << std::endl
+                    << "current state of " << psToStr(processing_status_) << std::endl
                 );
             }
             break;
@@ -578,9 +578,9 @@ public:
             if(target_ps == processingStatus::DO_IGNORE ||
                target_ps == processingStatus::DO_PROCESS) {
                 // Store the new state
-                m_processing_status = target_ps;
+                processing_status_ = target_ps;
                 // Clear any remaining error messages
-                m_stored_error_descriptions.clear();
+                stored_error_descriptions_.clear();
                 // "Nullify" the result list.
                 this->clear_stored_results_vec();
             }
@@ -590,7 +590,7 @@ public:
                     << "In GProcessingContainerT<>::set_processing_status():" << std::endl
                     << "Got invalid target processing status " << psToStr(target_ps) << std::endl
                     << "Expected a new state of DO_IGNORE or DO_PROCESS for the" << std::endl
-                    << "current state of " << psToStr(m_processing_status) << std::endl
+                    << "current state of " << psToStr(processing_status_) << std::endl
                 );
             }
             break;
@@ -604,7 +604,7 @@ public:
 	  * Marks this item as being due for processing.
 	  */
     void mark_as_due_for_processing() {
-        m_processing_status = processingStatus::DO_PROCESS;
+        processing_status_ = processingStatus::DO_PROCESS;
     }
 
     /***************************************************************************/
@@ -612,7 +612,7 @@ public:
 	  * Sets the IGNORE flag for this work item so that it will not be processed.
 	  */
     void mark_as_ignorable() {
-        m_processing_status = processingStatus::DO_IGNORE;
+        processing_status_ = processingStatus::DO_IGNORE;
     }
 
     /***************************************************************************/
@@ -620,7 +620,7 @@ public:
 	  * Allows to set the counter of a given iteration
 	  */
     void setIterationCounter(const ITERATION_COUNTER_TYPE &counter) noexcept {
-        m_iteration_counter = counter;
+        iteration_counter_ = counter;
     }
 
     /***************************************************************************/
@@ -628,7 +628,7 @@ public:
 	  * Allows to retrieve the counter of a given iteration
 	  */
     ITERATION_COUNTER_TYPE getIterationCounter() const noexcept {
-        return m_iteration_counter;
+        return iteration_counter_;
     }
 
     /***************************************************************************/
@@ -636,7 +636,7 @@ public:
 	  * Allows to set the counter of the current submission inside of an iteration
 	  */
     void setResubmissionCounter(const RESUBMISSION_COUNTER_TYPE &resubmission_counter) noexcept {
-        m_resubmission_counter = resubmission_counter;
+        resubmission_counter_ = resubmission_counter;
     }
 
     /***************************************************************************/
@@ -644,7 +644,7 @@ public:
 	  * Allows to retrieve the counter of the current submission inside of an iteration
 	  */
     RESUBMISSION_COUNTER_TYPE getResubmissionCounter() const noexcept {
-        return m_resubmission_counter;
+        return resubmission_counter_;
     }
 
     /***************************************************************************/
@@ -652,7 +652,7 @@ public:
 	  * Allows to set the position inside of a given collection submitted to the broker
 	  */
     void setCollectionPosition(const COLLECTION_POSITION_TYPE &pos) noexcept {
-        m_collection_position = pos;
+        collection_position_ = pos;
     }
 
     /***************************************************************************/
@@ -660,7 +660,7 @@ public:
 	  * Allows to retrieve the position inside of a given collection submitted to the broker
 	  */
     COLLECTION_POSITION_TYPE getCollectionPosition() const noexcept {
-        return m_collection_position;
+        return collection_position_;
     }
 
     /***************************************************************************/
@@ -668,7 +668,7 @@ public:
 	  * Allows to set the id inside of the originating buffer
 	  */
     void setBufferId(const BUFFERPORT_ID_TYPE &id) noexcept {
-        m_bufferport_id = id;
+        bufferport_id_ = id;
     }
 
     /***************************************************************************/
@@ -676,7 +676,7 @@ public:
 	  * Allows to retrieve the id of the originating buffer
 	  */
     BUFFERPORT_ID_TYPE getBufferId() const noexcept {
-        return m_bufferport_id;
+        return bufferport_id_;
     }
 
     /***************************************************************************/
@@ -684,7 +684,7 @@ public:
 	  * Allows to retrieve the timepoint when a work item was retrieved from the raw queue
 	  */
     std::chrono::high_resolution_clock::time_point getRawRetrievalTime() const {
-        return m_bufferport_raw_retrieval_time;
+        return bufferport_raw_retrieval_time_;
     }
 
     /***************************************************************************/
@@ -692,7 +692,7 @@ public:
 	  * Allows to retrieve the timepoint when a work item was submitted to the raw queue
 	  */
     std::chrono::high_resolution_clock::time_point getRawSubmissionTime() const {
-        return m_bufferport_raw_submission_time;
+        return bufferport_raw_submission_time_;
     }
 
     /***************************************************************************/
@@ -700,7 +700,7 @@ public:
 	  * Allows to retrieve the timepoint when a work item was retrieved from the processed queue
 	  */
     std::chrono::high_resolution_clock::time_point getProcRetrievalTime() const {
-        return m_bufferport_proc_retrieval_time;
+        return bufferport_proc_retrieval_time_;
     }
 
     /***************************************************************************/
@@ -708,7 +708,7 @@ public:
 	  * Allows to retrieve the timepoint when a work item was submitted to the processed queue
 	  */
     std::chrono::high_resolution_clock::time_point getProcSubmissionTime() const {
-        return m_bufferport_proc_submission_time;
+        return bufferport_proc_submission_time_;
     }
 
     /***************************************************************************/
@@ -717,7 +717,7 @@ public:
 	  * step may occur. This may alter the individual's data.
 	  */
     bool mayBePreProcessed() const noexcept {
-        return not m_preProcessingDisabled;
+        return not preProcessingDisabled_;
     }
 
     /***************************************************************************/
@@ -727,7 +727,7 @@ public:
 	  * exists, no pre-processing will occur until the veto is lifted.
 	  */
     void vetoPreProcessing(bool veto) noexcept {
-        m_preProcessingDisabled = veto;
+        preProcessingDisabled_ = veto;
     }
 
     /***************************************************************************/
@@ -739,7 +739,7 @@ public:
             pre_processor_ptr
     ) {
         if(pre_processor_ptr) {
-            m_pre_processor_ptr = pre_processor_ptr;
+            pre_processor_ptr_ = pre_processor_ptr;
         }
     }
 
@@ -751,7 +751,7 @@ public:
 	  * run on the individual. This may alter the individual's data.
 	  */
     bool mayBePostProcessed() const {
-        return not m_postProcessingDisabled;
+        return not postProcessingDisabled_;
     }
 
     /***************************************************************************/
@@ -761,7 +761,7 @@ public:
 	  * exists, no post-processing will occur until the veto is lifted.
 	  */
     void vetoPostProcessing(bool veto) {
-        m_postProcessingDisabled = veto;
+        postProcessingDisabled_ = veto;
     }
 
     /***************************************************************************/
@@ -773,7 +773,7 @@ public:
             post_processor_ptr
     ) {
         if(post_processor_ptr) {
-            m_post_processor_ptr = post_processor_ptr;
+            post_processor_ptr_ = post_processor_ptr;
         }
     }
 
@@ -782,7 +782,7 @@ public:
 	  * Allows to retrieve the processing time needed for the work item
 	  */
     std::tuple<double, double, double> getProcessingTimes() const {
-        return std::make_tuple(m_pre_processing_time, m_processing_time, m_post_processing_time);
+        return std::make_tuple(pre_processing_time_, processing_time_, post_processing_time_);
     };
 
     /***************************************************************************/
@@ -793,7 +793,7 @@ public:
 	  */
     std::string get_and_clear_exceptions(processingStatus ps = processingStatus::DO_IGNORE) {
         std::string stored_exceptions =
-            m_stored_error_descriptions; // NOLINT(cppcoreguidelines-init-variables)
+            stored_error_descriptions_; // NOLINT(cppcoreguidelines-init-variables)
         this->set_processing_status(ps);
         return stored_exceptions;
     }
@@ -803,7 +803,7 @@ public:
 	  * Allows to extract stored error descriptions
 	  */
     std::string getStoredErrorDescriptions() const {
-        return m_stored_error_descriptions;
+        return stored_error_descriptions_;
     }
 
     /***************************************************************************/
@@ -811,7 +811,7 @@ public:
  	  * Marks the time when the item was added to a GBuffferPortT raw queue
  	  */
     void markRawSubmissionTime() {
-        m_bufferport_raw_submission_time = std::chrono::high_resolution_clock::now();
+        bufferport_raw_submission_time_ = std::chrono::high_resolution_clock::now();
     }
 
     /***************************************************************************/
@@ -819,7 +819,7 @@ public:
  	  * Marks the time when the item was retrieved from a GBuffferPortT raw queue
  	  */
     void markRawRetrievalTime() {
-        m_bufferport_raw_retrieval_time = std::chrono::high_resolution_clock::now();
+        bufferport_raw_retrieval_time_ = std::chrono::high_resolution_clock::now();
     }
 
     /***************************************************************************/
@@ -827,7 +827,7 @@ public:
 	  * Marks the time when the item was submitted to a GBuffferPortT processed queue
 	  */
     void markProcSubmissionTime() {
-        m_bufferport_proc_submission_time = std::chrono::high_resolution_clock::now();
+        bufferport_proc_submission_time_ = std::chrono::high_resolution_clock::now();
     }
 
     /***************************************************************************/
@@ -835,7 +835,7 @@ public:
 	  * Marks the time when the item was retrieved from a GBuffferPortT processed queue
 	  */
     void markProcRetrievalTime() {
-        m_bufferport_proc_retrieval_time = std::chrono::high_resolution_clock::now();
+        bufferport_proc_retrieval_time_ = std::chrono::high_resolution_clock::now();
     }
 
     /***************************************************************************/
@@ -843,7 +843,7 @@ public:
 	  * Allows to retrieve the number of stored results
 	  */
     std::size_t getNStoredResults() const {
-        return m_stored_results_cnt.size();
+        return stored_results_cnt_.size();
     }
 
     /***************************************************************************/
@@ -858,28 +858,28 @@ public:
                 GProcessingContainerT<processable_type, processing_result_type>>(cp, this);
 
         // Load local data
-        m_iteration_counter = p_load->m_iteration_counter;
-        m_resubmission_counter = p_load->m_resubmission_counter;
-        m_collection_position = p_load->m_collection_position;
-        m_bufferport_id = p_load->m_bufferport_id;
-        m_preProcessingDisabled = p_load->m_preProcessingDisabled;
-        m_postProcessingDisabled = p_load->m_postProcessingDisabled;
-        m_pre_processing_time = p_load->m_pre_processing_time;
-        m_processing_time = p_load->m_processing_time;
-        m_post_processing_time = p_load->m_post_processing_time;
-        m_bufferport_raw_submission_time = p_load->m_bufferport_raw_submission_time;
-        m_bufferport_raw_retrieval_time = p_load->m_bufferport_raw_retrieval_time;
-        m_bufferport_proc_submission_time = p_load->m_bufferport_proc_submission_time;
-        m_bufferport_proc_retrieval_time = p_load->m_bufferport_proc_retrieval_time;
-        m_stored_results_cnt =
+        iteration_counter_ = p_load->iteration_counter_;
+        resubmission_counter_ = p_load->resubmission_counter_;
+        collection_position_ = p_load->collection_position_;
+        bufferport_id_ = p_load->bufferport_id_;
+        preProcessingDisabled_ = p_load->preProcessingDisabled_;
+        postProcessingDisabled_ = p_load->postProcessingDisabled_;
+        pre_processing_time_ = p_load->pre_processing_time_;
+        processing_time_ = p_load->processing_time_;
+        post_processing_time_ = p_load->post_processing_time_;
+        bufferport_raw_submission_time_ = p_load->bufferport_raw_submission_time_;
+        bufferport_raw_retrieval_time_ = p_load->bufferport_raw_retrieval_time_;
+        bufferport_proc_submission_time_ = p_load->bufferport_proc_submission_time_;
+        bufferport_proc_retrieval_time_ = p_load->bufferport_proc_retrieval_time_;
+        stored_results_cnt_ =
             p_load
-                ->m_stored_results_cnt; // note that this implies that processing_result_type is copyable --> e.g. it should not contain pointers
-        m_stored_error_descriptions = p_load->m_stored_error_descriptions;
-        m_processing_status = p_load->m_processing_status;
-        // m_evaluation_id = p_load->m_evaluation_id;
+                ->stored_results_cnt_; // note that this implies that processing_result_type is copyable --> e.g. it should not contain pointers
+        stored_error_descriptions_ = p_load->stored_error_descriptions_;
+        processing_status_ = p_load->processing_status_;
+        // evaluation_id_ = p_load->evaluation_id_;
 
-        Gem::Common::copyCloneableSmartPointer(p_load->m_pre_processor_ptr, m_pre_processor_ptr);
-        Gem::Common::copyCloneableSmartPointer(p_load->m_post_processor_ptr, m_post_processor_ptr);
+        Gem::Common::copyCloneableSmartPointer(p_load->pre_processor_ptr_, pre_processor_ptr_);
+        Gem::Common::copyCloneableSmartPointer(p_load->post_processor_ptr_, post_processor_ptr_);
     }
 
 protected:
@@ -889,10 +889,10 @@ protected:
 	  * return value and is hence protected and only accessible by derived classes.
 	  *
 	  * @param id The id of the stored result to be returned
-	  * @return The stored result at position id in m_stored_results_vec
+	  * @return The stored result at position id in stored_results_vec_
 	  */
     processing_result_type &modifyStoredResult(std::size_t id = 0) {
-        return m_stored_results_cnt.at(id);
+        return stored_results_cnt_.at(id);
     }
 
     /***************************************************************************/
@@ -905,7 +905,7 @@ protected:
 	  * @param new_val A value to be copied into new positions when the vector is increased
 	  */
     void setNStoredResults(std::size_t n_stored_results, processing_result_type new_val) {
-        m_stored_results_cnt.resize(n_stored_results, new_val);
+        stored_results_cnt_.resize(n_stored_results, new_val);
     }
 
     /***************************************************************************/
@@ -925,7 +925,7 @@ protected:
 	  * result storage. This function should be called from inside of the process_ call.
 	  */
     void registerResult(std::size_t id, const processing_result_type &r) {
-        m_stored_results_cnt.at(id) = r;
+        stored_results_cnt_.at(id) = r;
     }
 
     /***************************************************************************/
@@ -946,8 +946,8 @@ protected:
         }
 
         // There may already be information stored in this variable. Hence we attach the new information via +=
-        m_stored_error_descriptions += error_info;
-        m_processing_status = processingStatus::ERROR_FLAGGED;
+        stored_error_descriptions_ += error_info;
+        processing_status_ = processingStatus::ERROR_FLAGGED;
     }
 
     /***************************************************************************/
@@ -965,8 +965,8 @@ private:
 	  * Little helper function to (re-)initialize the result storage vector
 	  */
     void clear_stored_results_vec() {
-        // "Nullify the result list. We cannot use range-based for here, as m_stored_results_cnt might hold booleans
-        for(auto it = m_stored_results_cnt.begin(); it != m_stored_results_cnt.end(); ++it) {
+        // "Nullify the result list. We cannot use range-based for here, as stored_results_cnt_ might hold booleans
+        for(auto it = stored_results_cnt_.begin(); it != stored_results_cnt_.end(); ++it) {
             *it = processing_result_type();
         }
     }
@@ -995,71 +995,71 @@ private:
     /***************************************************************************/
     /**
 		  * Specifies tasks to be performed before the process_ call. Note: This function
-		  * will reset the m_mayBePreProcessed-flag.
+		  * will reset the mayBePreProcessed_-flag.
   		  */
     void preProcess_() {
-        if(this->mayBePreProcessed() && m_pre_processor_ptr) {
+        if(this->mayBePreProcessed() && pre_processor_ptr_) {
             auto &p = dynamic_cast<processable_type &>(*this);
-            (*m_pre_processor_ptr)(p);
+            (*pre_processor_ptr_)(p);
         }
     }
 
     /***************************************************************************/
     /**
 	  * Specifies tasks to be performed after the process_ call. Note: This function
-	  * will reset the m_mayBePostProcessed-flag.
+	  * will reset the mayBePostProcessed_-flag.
   	  */
     void postProcess_() {
-        if(this->mayBePostProcessed() && m_post_processor_ptr) {
+        if(this->mayBePostProcessed() && post_processor_ptr_) {
             auto &p = dynamic_cast<processable_type &>(*this);
-            (*m_post_processor_ptr)(p);
+            (*post_processor_ptr_)(p);
         }
     }
 
     /***************************************************************************/
     // Data
 
-    ITERATION_COUNTER_TYPE m_iteration_counter = ITERATION_COUNTER_TYPE(0);
-    RESUBMISSION_COUNTER_TYPE m_resubmission_counter = RESUBMISSION_COUNTER_TYPE(0);
-    COLLECTION_POSITION_TYPE m_collection_position = COLLECTION_POSITION_TYPE(0);
-    BUFFERPORT_ID_TYPE m_bufferport_id = BUFFERPORT_ID_TYPE();
+    ITERATION_COUNTER_TYPE iteration_counter_ = ITERATION_COUNTER_TYPE(0);
+    RESUBMISSION_COUNTER_TYPE resubmission_counter_ = RESUBMISSION_COUNTER_TYPE(0);
+    COLLECTION_POSITION_TYPE collection_position_ = COLLECTION_POSITION_TYPE(0);
+    BUFFERPORT_ID_TYPE bufferport_id_ = BUFFERPORT_ID_TYPE();
 
-    bool m_preProcessingDisabled = false; ///< Indicates whether pre-processing was diabled entirely
-    bool m_postProcessingDisabled =
+    bool preProcessingDisabled_ = false; ///< Indicates whether pre-processing was diabled entirely
+    bool postProcessingDisabled_ =
         false; ///< Indicates whether pre-processing was diabled entirely
 
     std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<processable_type>>
-        m_pre_processor_ptr; ///< Actions to be performed before processing
+        pre_processor_ptr_; ///< Actions to be performed before processing
     std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<processable_type>>
-        m_post_processor_ptr; ///< Actions to be performed after processing
+        post_processor_ptr_; ///< Actions to be performed after processing
 
-    double m_pre_processing_time =
+    double pre_processing_time_ =
         0.; ///< The amount of time needed for pre-processing (in seconds)
-    double m_processing_time =
+    double processing_time_ =
         0.; ///< The amount of time needed for the actual processing step (in seconds)
-    double m_post_processing_time =
+    double post_processing_time_ =
         0.; ///< The amount of time needed for post-processing (in seconds)
 
     std::chrono::high_resolution_clock::time_point
-        m_bufferport_raw_retrieval_time; ///< Time when the item was retrieved from the raw queue
+        bufferport_raw_retrieval_time_; ///< Time when the item was retrieved from the raw queue
     std::chrono::high_resolution_clock::time_point
-        m_bufferport_raw_submission_time; ///< Time when the item was submitted to the raw queue
+        bufferport_raw_submission_time_; ///< Time when the item was submitted to the raw queue
     std::chrono::high_resolution_clock::time_point
-        m_bufferport_proc_retrieval_time; ///< Time when the item was retrieved from the processed queue
+        bufferport_proc_retrieval_time_; ///< Time when the item was retrieved from the processed queue
     std::chrono::high_resolution_clock::time_point
-        m_bufferport_proc_submission_time; ///< Time when the item was submitted to the processed queue
+        bufferport_proc_submission_time_; ///< Time when the item was submitted to the processed queue
 
-    std::vector<processing_result_type> m_stored_results_cnt = std::vector<processing_result_type>(
+    std::vector<processing_result_type> stored_results_cnt_ = std::vector<processing_result_type>(
         1,
         processing_result_type()
     ); ///< The results stored by this object
 
-    std::string m_stored_error_descriptions =
+    std::string stored_error_descriptions_ =
         ""; ///< Stores exceptions that may have occurred during processing
-    processingStatus m_processing_status =
+    processingStatus processing_status_ =
         processingStatus::DO_IGNORE; ///< By default no processing is initiated
 
-    // std::string m_evaluation_id = "empty"; ///< A unique id that is assigned to an evaluation
+    // std::string evaluation_id_ = "empty"; ///< A unique id that is assigned to an evaluation
 };
 
 /******************************************************************************/

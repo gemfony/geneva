@@ -86,7 +86,7 @@ public:
         std::shared_ptr<Gem::Common::GFactoryT<GParameterSet>> contentCreatorPtr
     )
       : Gem::Common::GFactoryT<oa_type>(configFile)
-      , m_contentCreatorPtr(contentCreatorPtr) { /* nothing */
+      , contentCreatorPtr_(contentCreatorPtr) { /* nothing */
     }
 
     /***************************************************************************/
@@ -95,20 +95,20 @@ public:
 	  */
     G_OptimizationAlgorithm_FactoryT(const G_OptimizationAlgorithm_FactoryT<oa_type> &cp)
       : Gem::Common::GFactoryT<oa_type>(cp)
-      , m_contentCreatorPtr()
-      , m_maxIterationCL(cp.m_maxIterationCL)
-      , m_maxStallIterationCL(cp.m_maxStallIterationCL)
-      , m_maxSecondsCL(cp.m_maxSecondsCL) {
-        if(cp.m_contentCreatorPtr) {
-            if(m_contentCreatorPtr) {
-                m_contentCreatorPtr->load(cp.m_contentCreatorPtr);
+      , contentCreatorPtr_()
+      , maxIterationCL_(cp.maxIterationCL_)
+      , maxStallIterationCL_(cp.maxStallIterationCL_)
+      , maxSecondsCL_(cp.maxSecondsCL_) {
+        if(cp.contentCreatorPtr_) {
+            if(contentCreatorPtr_) {
+                contentCreatorPtr_->load(cp.contentCreatorPtr_);
             }
             else {
-                m_contentCreatorPtr = cp.m_contentCreatorPtr->clone();
+                contentCreatorPtr_ = cp.contentCreatorPtr_->clone();
             }
         }
         else {
-            m_contentCreatorPtr.reset();
+            contentCreatorPtr_.reset();
         }
     }
 
@@ -140,17 +140,17 @@ public:
 
         hidden.add_options()(
 			 (this->getMnemonic() + std::string("MaxIterations")).c_str()
-			 , po::value<std::int32_t>(&m_maxIterationCL)->default_value(-1)
+			 , po::value<std::int32_t>(&maxIterationCL_)->default_value(-1)
 			 , (std::string("\t[G_OptimizationAlgorithm_FactoryT / ") + this->getMnemonic() +
 				 "] The maximum allowed number of iterations or 0 to disable limit").c_str()
 		 )(
 			 (this->getMnemonic() + std::string("MaxStallIterations")).c_str()
-			 , po::value<std::int32_t>(&m_maxStallIterationCL)->default_value(-1)
+			 , po::value<std::int32_t>(&maxStallIterationCL_)->default_value(-1)
 			 , (std::string("\t[G_OptimizationAlgorithm_FactoryT / ") + this->getMnemonic() +
 				 "] The maximum allowed number of stalled iterations or 0 to disable limit").c_str()
 		 )(
 			 (this->getMnemonic() + std::string("MaxSeconds")).c_str()
-			 , po::value<std::int32_t>(&m_maxSecondsCL)->default_value(-1)
+			 , po::value<std::int32_t>(&maxSecondsCL_)->default_value(-1)
 			 , (std::string("\t[G_OptimizationAlgorithm_FactoryT / ") + this->getMnemonic() +
 				 "] The maximum allowed duration in seconds or 0 to disable limit").c_str()
 		 );
@@ -184,7 +184,7 @@ public:
             );
         }
 
-        m_contentCreatorPtr = cc_ptr;
+        contentCreatorPtr_ = cc_ptr;
     }
 
     /***************************************************************************/
@@ -193,7 +193,7 @@ public:
 	  */
     void registerPluggableOM(std::shared_ptr<GBasePluggableOM> pluggableOM) {
         if(pluggableOM) {
-            m_pluggableOM = pluggableOM;
+            pluggableOM_ = pluggableOM;
         }
         else {
             throw geneva_exception(
@@ -210,7 +210,7 @@ public:
 	  * Allows to reset the local pluggable optimization monitor
 	  */
     void resetPluggableOM() {
-        m_pluggableOM.reset();
+        pluggableOM_.reset();
     }
 
     /***************************************************************************/
@@ -230,7 +230,7 @@ public:
 	  * Allows to manually set the maximum number of iterations as is usually specified on the command line
 	  */
     void setMaxIterationCL(std::uint32_t maxIterationCL) {
-        m_maxIterationCL = boost::numeric_cast<std::int32_t>(maxIterationCL);
+        maxIterationCL_ = boost::numeric_cast<std::int32_t>(maxIterationCL);
     }
 
     /***************************************************************************/
@@ -238,7 +238,7 @@ public:
 	  * Allows to check whether the maximum number of iterations was set on the command line or using the manual function
 	  */
     bool maxIterationsCLSet() const {
-        if(m_maxIterationCL >= 0)
+        if(maxIterationCL_ >= 0)
             return true;
         else
             return false;
@@ -249,14 +249,14 @@ public:
 	  * Allows to retrieve the maximum number of iterations as set on the command line
 	  */
     std::uint32_t getMaxIterationCL() const {
-        if(m_maxIterationCL >= 0) {
-            return boost::numeric_cast<std::uint32_t>(m_maxIterationCL);
+        if(maxIterationCL_ >= 0) {
+            return boost::numeric_cast<std::uint32_t>(maxIterationCL_);
         }
         else {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In G_OptimizationAlgorithm_Base<>::getMaxIterationCL(): Error!" << std::endl
-                << "m_maxIterationCL wasn't set" << std::endl
+                << "maxIterationCL_ wasn't set" << std::endl
             );
 
             // Make the compiler happy
@@ -269,7 +269,7 @@ public:
 	  * Allows to manually set the maximum number of stall iterations as is usually specified on the command line
 	  */
     void setMaxStallIterationCL(std::uint32_t maxStallIterationCL) {
-        m_maxStallIterationCL = boost::numeric_cast<std::int32_t>(maxStallIterationCL);
+        maxStallIterationCL_ = boost::numeric_cast<std::int32_t>(maxStallIterationCL);
     }
 
     /***************************************************************************/
@@ -277,7 +277,7 @@ public:
 	  * Allows to check whether the maximum number of stall iterations was set on the command line or using the manual function
 	  */
     bool maxStallIterationsCLSet() const {
-        if(m_maxStallIterationCL >= 0)
+        if(maxStallIterationCL_ >= 0)
             return true;
         else
             return false;
@@ -288,15 +288,15 @@ public:
 	  * Allows to retrieve the maximum number of stall iterations as set on the command line
 	  */
     std::uint32_t getMaxStallIterationCL() const {
-        if(m_maxStallIterationCL >= 0) {
-            return boost::numeric_cast<std::uint32_t>(m_maxStallIterationCL);
+        if(maxStallIterationCL_ >= 0) {
+            return boost::numeric_cast<std::uint32_t>(maxStallIterationCL_);
         }
         else {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In G_OptimizationAlgorithm_Base<>::getMaxStallIterationCL(): Error!"
                 << std::endl
-                << "m_maxStallIterationCL wasn't set" << std::endl
+                << "maxStallIterationCL_ wasn't set" << std::endl
             );
 
             // Make the compiler happy
@@ -309,7 +309,7 @@ public:
 	  * Allows to manually set the maximum number of seconds for a run as is usually specified on the command line
 	  */
     void setMaxSecondsCL(std::uint32_t maxSecondsCL) {
-        m_maxSecondsCL = boost::numeric_cast<std::int32_t>(maxSecondsCL);
+        maxSecondsCL_ = boost::numeric_cast<std::int32_t>(maxSecondsCL);
     }
 
     /***************************************************************************/
@@ -317,7 +317,7 @@ public:
 	  * Allows to check whether the maximum number of seconds was set on the command line or using the manual function
 	  */
     bool maxSecondsCLSet() const {
-        if(m_maxSecondsCL >= 0)
+        if(maxSecondsCL_ >= 0)
             return true;
         else
             return false;
@@ -328,16 +328,16 @@ public:
 	  * Allows to retrieve the maximum number of seconds as set on the command line
 	  */
     std::chrono::duration<double> getMaxTimeCL() const {
-        if(m_maxSecondsCL >= 0) {
+        if(maxSecondsCL_ >= 0) {
             std::chrono::duration<double> maxDuration =
-                std::chrono::seconds(boost::numeric_cast<long>(m_maxSecondsCL));
+                std::chrono::seconds(boost::numeric_cast<long>(maxSecondsCL_));
             return maxDuration;
         }
         else {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In G_OptimizationAlgorithm_Base<>::getMaxTimeCL(): Error!" << std::endl
-                << "m_maxSecondsCL wasn't set" << std::endl
+                << "maxSecondsCL_ wasn't set" << std::endl
             );
 
             // Make the compiler happy
@@ -358,9 +358,9 @@ protected:
         std::shared_ptr<oa_type> p_alg = Gem::Common::GFactoryT<oa_type>::get_();
 
         // If we have been given a factory function for individuals, fill the object with data
-        if(m_contentCreatorPtr) { // Has a content creation object been registered ? If so, add individuals to the population
+        if(contentCreatorPtr_) { // Has a content creation object been registered ? If so, add individuals to the population
             for(std::size_t ind = 0; ind < p_alg->getDefaultPopulationSize(); ind++) {
-                std::shared_ptr<GParameterSet> p_ind = (*m_contentCreatorPtr)();
+                std::shared_ptr<GParameterSet> p_ind = (*contentCreatorPtr_)();
                 if(not p_ind) { // No valid item received, the factory has run empty
                     break;
                 }
@@ -372,8 +372,8 @@ protected:
 
         // Check if any pluggable optimization monitor was registered. If so,
         // load it into the optimization algorithm
-        if(m_pluggableOM) {
-            p_alg->registerPluggableOM(m_pluggableOM);
+        if(pluggableOM_) {
+            p_alg->registerPluggableOM(pluggableOM_);
         }
 
         // Return the filled object to the audience
@@ -416,9 +416,9 @@ protected:
     /***************************************************************************/
 
     std::shared_ptr<Gem::Common::GFactoryT<GParameterSet>>
-        m_contentCreatorPtr; ///< Holds an object capable of producing objects of the desired type
+        contentCreatorPtr_; ///< Holds an object capable of producing objects of the desired type
     std::shared_ptr<GBasePluggableOM>
-        m_pluggableOM; // A user-defined means for information retrieval
+        pluggableOM_; // A user-defined means for information retrieval
 
 private:
     /***************************************************************************/
@@ -428,11 +428,11 @@ private:
 
     /***************************************************************************/
 
-    std::int32_t m_maxIterationCL =
+    std::int32_t maxIterationCL_ =
         -1; ///< The maximum number of iterations. NOTE: SIGNED TO ALLOW CHECK WHETHER PARAMETER WAS SET
-    std::int32_t m_maxStallIterationCL =
+    std::int32_t maxStallIterationCL_ =
         -1; ///< The maximum number of generations without improvement, after which optimization is stopped. NOTE: SIGNED TO ALLOW CHECK WHETHER PARAMETER WAS SET
-    std::int32_t m_maxSecondsCL =
+    std::int32_t maxSecondsCL_ =
         -1; ///< The maximum number of seconds for the optimization to run. NOTE: SIGNED TO ALLOW CHECK WHETHER PARAMETER WAS SET
 };
 

@@ -268,8 +268,8 @@ void GGradientDescent::load_(const GObject *cp) {
     finiteStep_ = p_load->finiteStep_;
     stepSize_ = p_load->stepSize_;
     // stepRatio_ = p_load->stepRatio_; // temporary parameter
-    // m_dbl_lower_parameter_boundaries_cnt = p_load->m_dbl_lower_parameter_boundaries_cnt; // temporary parameter
-    // m_dbl_upper_parameter_boundaries_cnt = p_load->m_dbl_upper_parameter_boundaries_cnt; // temporary parameter
+    // dbl_lower_parameter_boundaries_cnt_ = p_load->dbl_lower_parameter_boundaries_cnt_; // temporary parameter
+    // dbl_upper_parameter_boundaries_cnt_ = p_load->dbl_upper_parameter_boundaries_cnt_; // temporary parameter
     // adjustedFiniteStep_ = p_load->adjustedFiniteStep_; // temporary parameter
 }
 
@@ -494,9 +494,9 @@ void GGradientDescent::runFitnessCalculation_() {
     //--------------------------------------------------------------------------------
     // Submit all work items and wait for their return
 
-    setProcessingFlag(this->m_data_cnt, std::make_tuple(std::size_t(0), this->m_data_cnt.size()));
+    setProcessingFlag(this->data_cnt_, std::make_tuple(std::size_t(0), this->data_cnt_.size()));
     auto status = this->workOn(
-        this->m_data_cnt,
+        this->data_cnt_,
         true // resubmit unprocessed items
         ,
         "GGradientDescent::runFitnessCalculation()"

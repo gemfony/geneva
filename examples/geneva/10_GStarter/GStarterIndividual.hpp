@@ -96,7 +96,7 @@ class GStarterIndividual : public GParameterSet {
     template <class Archive>
     void serialize(Archive &ar, const unsigned int) {
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet) &
-            BOOST_SERIALIZATION_NVP(m_targetFunction);
+            BOOST_SERIALIZATION_NVP(targetFunction_);
     }
 
     ///////////////////////////////////////////////////////////////////////
@@ -245,7 +245,7 @@ protected:
 private:
     /***************************************************************************/
 
-    targetFunction m_targetFunction =
+    targetFunction targetFunction_ =
         GO_DEF_TARGETFUNCTION; ///< Specifies which demo function should be used
 
     /***************************************************************************/
@@ -290,15 +290,15 @@ private:
     std::shared_ptr<GParameterSet>
     getObject_(Gem::Common::GParserBuilder &, const std::size_t &) override;
 
-    double m_adProb = GSI_DEF_ADPROB;         ///< Probability for a parameter to be mutated
-    double m_sigma = GSI_DEF_SIGMA;           ///< Step-width
-    double m_sigmaSigma = GSI_DEF_SIGMASIGMA; ///< Speed of sigma_-adaption
-    double m_minSigma = GSI_DEF_MINSIGMA;     ///< Minimum allowed sigma value
-    double m_maxSigma = GSI_DEF_MAXSIGMA;     ///< Maximum allowed sigma value
+    double adProb_ = GSI_DEF_ADPROB;         ///< Probability for a parameter to be mutated
+    double sigma_ = GSI_DEF_SIGMA;           ///< Step-width
+    double sigmaSigma_ = GSI_DEF_SIGMASIGMA; ///< Speed of sigma_-adaption
+    double minSigma_ = GSI_DEF_MINSIGMA;     ///< Minimum allowed sigma value
+    double maxSigma_ = GSI_DEF_MAXSIGMA;     ///< Maximum allowed sigma value
 
-    std::vector<double> m_startValues;     ///< Start values for all parameters
-    std::vector<double> m_lowerBoundaries; ///< Lower boundaries for all parameters
-    std::vector<double> m_upperBoundaries; ///< Upper boundaroes for all parameters
+    std::vector<double> startValues_;     ///< Start values for all parameters
+    std::vector<double> lowerBoundaries_; ///< Lower boundaries for all parameters
+    std::vector<double> upperBoundaries_; ///< Upper boundaroes for all parameters
 };
 
 /******************************************************************************/

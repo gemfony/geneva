@@ -57,7 +57,7 @@ class GParameterSetFactory // NOLINT(cppcoreguidelines-special-member-functions)
         using boost::serialization::make_nvp;
 
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(Gem::Common::GFactoryT<GParameterSet>) &
-            BOOST_SERIALIZATION_NVP(m_preProcessor) & BOOST_SERIALIZATION_NVP(m_postProcessor);
+            BOOST_SERIALIZATION_NVP(preProcessor_) & BOOST_SERIALIZATION_NVP(postProcessor_);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -78,8 +78,8 @@ public:
 	  */
     GParameterSetFactory(const GParameterSetFactory &cp)
       : Gem::Common::GFactoryT<GParameterSet>(cp) {
-        Gem::Common::copyCloneableSmartPointer(cp.m_postProcessor, m_postProcessor);
-        Gem::Common::copyCloneableSmartPointer(cp.m_postProcessor, m_postProcessor);
+        Gem::Common::copyCloneableSmartPointer(cp.postProcessor_, postProcessor_);
+        Gem::Common::copyCloneableSmartPointer(cp.postProcessor_, postProcessor_);
     }
 
     /***************************************************************************/
@@ -94,7 +94,7 @@ public:
         std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<GParameterSet>> p
     ) {
         if(p) {
-            m_preProcessor = p;
+            preProcessor_ = p;
         }
         else {
             throw geneva_exception(
@@ -113,7 +113,7 @@ public:
         std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<GParameterSet>> p
     ) {
         if(p) {
-            m_postProcessor = p;
+            postProcessor_ = p;
         }
         else {
             throw geneva_exception(
@@ -126,10 +126,10 @@ public:
 
 protected:
     /** @brief A pre-processor for GParameterSet-derivatives */
-    std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<GParameterSet>> m_preProcessor;
+    std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<GParameterSet>> preProcessor_;
 
     /** @brief A post-processor for GParameterSet-derivatives */
-    std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<GParameterSet>> m_postProcessor;
+    std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<GParameterSet>> postProcessor_;
 
     /***************************************************************************/
     /**
@@ -138,12 +138,12 @@ protected:
     std::shared_ptr<GParameterSet> get_() override {
         std::shared_ptr<GParameterSet> p = GFactoryT<GParameterSet>::get_();
 
-        if(m_preProcessor) {
-            p->registerPreProcessor(m_preProcessor->clone());
+        if(preProcessor_) {
+            p->registerPreProcessor(preProcessor_->clone());
         }
 
-        if(m_postProcessor) {
-            p->registerPostProcessor(m_postProcessor->clone());
+        if(postProcessor_) {
+            p->registerPostProcessor(postProcessor_->clone());
         }
 
         return p;

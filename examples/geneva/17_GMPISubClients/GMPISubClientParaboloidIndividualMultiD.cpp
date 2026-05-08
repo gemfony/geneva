@@ -45,7 +45,7 @@ GMPISubClientParaboloidIndividualMultiD::GMPISubClientParaboloidIndividualMultiD
   : GMPISubClientIndividual()
   , M_PAR_MIN(-10.)
   , M_PAR_MAX(10.) {
-    for(std::size_t npar = 0; npar < m_nParameters; npar++) {
+    for(std::size_t npar = 0; npar < nParameters_; npar++) {
         // GConstrainedDoubleObject is constrained to [M_PAR_MIN:M_PAR_MAX[
         std::shared_ptr<GConstrainedDoubleObject> gcdo_ptr(
             new GConstrainedDoubleObject(M_PAR_MIN, M_PAR_MAX)
@@ -121,7 +121,7 @@ double GMPISubClientParaboloidIndividualMultiD::fitnessCalculation() {
     MPICompletionStatus status = distributedSolveWhile(
         parVec,
         recvVecOpt,
-        m_nParameters / size,
+        nParameters_ / size,
         // clients stop themselves, and always run
         []() { return true; }
     );
@@ -154,7 +154,7 @@ int GMPISubClientParaboloidIndividualMultiD::subClientJob(MPI_Comm _communicator
 
     while(true) {
         MPICompletionStatus status =
-            distributedSolveWhile({}, dummyRecvVec, m_nParameters / size, []() {
+            distributedSolveWhile({}, dummyRecvVec, nParameters_ / size, []() {
                 return GMPISubClientIndividual::getClientStatus() == ClientStatus::RUNNING;
             });
 
@@ -202,7 +202,7 @@ MPICompletionStatus GMPISubClientParaboloidIndividualMultiD::distributedSolveWhi
         runWhile,
         0,
         getCommunicator(),
-        m_pollIntervalMSec
+        pollIntervalMSec_
     );
 
     // return early with the error status if not completed successfully
@@ -213,7 +213,7 @@ MPICompletionStatus GMPISubClientParaboloidIndividualMultiD::distributedSolveWhi
     // actual calculation on the range of parameters assigned to this process
     for(double &par : parameterSubset) {
         // simulate longer time for the calculation of one parameter
-        std::this_thread::sleep_for(std::chrono::milliseconds(m_delayPerParameterMSec));
+        std::this_thread::sleep_for(std::chrono::milliseconds(delayPerParameterMSec_));
 
         // square each parameter
         par = par * par;
@@ -228,7 +228,7 @@ MPICompletionStatus GMPISubClientParaboloidIndividualMultiD::distributedSolveWhi
         runWhile,
         0,
         getCommunicator(),
-        m_pollIntervalMSec
+        pollIntervalMSec_
     );
 
     return completionStatus;

@@ -77,7 +77,7 @@ public:
          * supplied by the caller.
          */
     explicit GWorkerT(std::size_t workerId)
-      : m_worker_id(static_cast<std::int32_t>(workerId)) {
+      : worker_id_(static_cast<std::int32_t>(workerId)) {
         /* nothing */
     }
 
@@ -110,7 +110,7 @@ public:
          * @param The requested worker id
          */
     void setWorkerId(std::size_t workerId) {
-        m_worker_id = boost::numeric_cast<std::int32_t>(workerId);
+        worker_id_ = boost::numeric_cast<std::int32_t>(workerId);
     }
 
     /************************************************************************/
@@ -121,7 +121,7 @@ public:
          * @return The current worker id
          */
     [[maybe_unused]] [[nodiscard]] std::size_t getWorkerId() const {
-        if(m_worker_id < 0) {
+        if(worker_id_ < 0) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GWorkerT<processable_type>::getWorkerId(): Error!" << std::endl
@@ -129,7 +129,7 @@ public:
             );
         }
         else {
-            return boost::numeric_cast<std::size_t>(m_worker_id);
+            return boost::numeric_cast<std::size_t>(worker_id_);
         }
     }
 
@@ -158,7 +158,7 @@ public:
 
         //---------------------------------------------------------------------
         // Some error checks
-        if(-1 == m_worker_id) {
+        if(-1 == worker_id_) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GWorkerT<processable_type>::run(): Error!" << std::endl
@@ -180,7 +180,7 @@ public:
                 // Retrieve an item and check for its validity. Try again if
                 // we didn't receive a valid item
                 if(not(
-                       p = this->retrieve(m_retrieval_timeout)
+                       p = this->retrieve(retrieval_timeout_)
                    )) // NOLINT(bugprone-assignment-in-if-condition)
                 {
                     continue;
@@ -197,7 +197,7 @@ public:
 
                 // Return the item. Note that the submit function has the freedom
                 // to discard items if a submission is not possible.
-                this->submit(p, m_submission_timeout);
+                this->submit(p, submission_timeout_);
             }
             while(not this->stop_requested());
 
@@ -410,12 +410,12 @@ private:
     /************************************************************************/
     // Data
 
-    const std::chrono::milliseconds m_submission_timeout =
+    const std::chrono::milliseconds submission_timeout_ =
         std::chrono::milliseconds(200); ///< Timeout for submit operations
-    const std::chrono::milliseconds m_retrieval_timeout =
+    const std::chrono::milliseconds retrieval_timeout_ =
         std::chrono::milliseconds(200); ///< Timeout for retrieval operations
 
-    std::int32_t m_worker_id = -1; ///< The id of the thread running this class'es operator()
+    std::int32_t worker_id_ = -1; ///< The id of the thread running this class'es operator()
 
     std::size_t nWorkers_{0}; ///< The amount of workers of this type
 
@@ -446,11 +446,11 @@ public:
             submitter,
         std::function<bool()> stop_requested
     )
-      : m_worker_id(worker_id)
-      , m_retriever(retriever)
-      , m_submitter(submitter)
-      , m_stop_requested(stop_requested) {
-        if(not m_retriever) {
+      : worker_id_(worker_id)
+      , retriever_(retriever)
+      , submitter_(submitter)
+      , stop_requested_(stop_requested) {
+        if(not retriever_) {
             glogger << "In GLocalConsumerWorkerT<processable_type>::GBrokerFerryT(): "
                        "Error!"
                     << std::endl
@@ -459,7 +459,7 @@ public:
                     << GTERMINATION;
         }
 
-        if(not m_submitter) {
+        if(not submitter_) {
             glogger << "In GLocalConsumerWorkerT<processable_type>::GBrokerFerryT(): "
                        "Error!"
                     << std::endl
@@ -468,7 +468,7 @@ public:
                     << GTERMINATION;
         }
 
-        if(not m_stop_requested) {
+        if(not stop_requested_) {
             glogger << "In GLocalConsumerWorkerT<processable_type>::GBrokerFerryT(): "
                        "Error!"
                     << std::endl
@@ -491,7 +491,7 @@ public:
          * Retrieval of work items
          */
     std::shared_ptr<processable_type> retrieve(const std::chrono::milliseconds &timeout) {
-        return this->m_retriever(timeout);
+        return this->retriever_(timeout);
     }
 
     /************************************************************************/
@@ -500,7 +500,7 @@ public:
          */
     void
     submit(std::shared_ptr<processable_type> item_ptr, const std::chrono::milliseconds &timeout) {
-        return this->m_submitter(item_ptr, timeout);
+        return this->submitter_(item_ptr, timeout);
     }
 
     /************************************************************************/
@@ -508,7 +508,7 @@ public:
          * Indicates whether the worker was asked to stop processing
          */
     [[nodiscard]] bool stop_requested() const {
-        return this->m_stop_requested();
+        return this->stop_requested_();
     }
 
     /************************************************************************/
@@ -516,23 +516,23 @@ public:
          * Access to the worker id
          */
     [[nodiscard]] std::size_t getWorkerId() const {
-        return m_worker_id;
+        return worker_id_;
     }
 
 private:
     /************************************************************************/
     // Data and stored functions
 
-    std::size_t m_worker_id = 0; ///< An id to be assigned to a worker
+    std::size_t worker_id_ = 0; ///< An id to be assigned to a worker
 
     std::function<std::shared_ptr<processable_type>(const std::chrono::milliseconds &)>
-        m_retriever; ///< Retrieval of new work item
+        retriever_; ///< Retrieval of new work item
     std::function<void(
         std::shared_ptr<processable_type>,
         const std::chrono::milliseconds &
     )>
-        m_submitter;                        ///< Submission of processed work items
-    std::function<bool()> m_stop_requested; ///< Termination of the exeecution run
+        submitter_;                        ///< Submission of processed work items
+    std::function<bool()> stop_requested_; ///< Termination of the exeecution run
 
     /************************************************************************/
 };
@@ -568,18 +568,18 @@ public:
             );
         }
 
-        m_broker_ferry_ptr = broker_ferry_ptr;
+        broker_ferry_ptr_ = broker_ferry_ptr;
 
         // Set the worker id immediately, so the run function does not stumble on
         // an invalid value		 // Extract and set the worker id
-        this->setWorkerId(m_broker_ferry_ptr->getWorkerId());
+        this->setWorkerId(broker_ferry_ptr_->getWorkerId());
     }
 
 private:
     /************************************************************************/
     /** @brief Retrieval of work items */
     std::shared_ptr<processable_type> retrieve_(const std::chrono::milliseconds &timeout) override {
-        return this->m_broker_ferry_ptr->retrieve(timeout);
+        return this->broker_ferry_ptr_->retrieve(timeout);
     }
 
     /************************************************************************/
@@ -588,20 +588,20 @@ private:
         std::shared_ptr<processable_type> p,
         const std::chrono::milliseconds &timeout
     ) override {
-        this->m_broker_ferry_ptr->submit(p, timeout);
+        this->broker_ferry_ptr_->submit(p, timeout);
     }
 
     /************************************************************************/
     /** @brief Indicates whether the worker was asked to stop processing */
     [[nodiscard]] bool stop_requested_() const override {
-        return this->m_broker_ferry_ptr->stop_requested();
+        return this->broker_ferry_ptr_->stop_requested();
     }
 
     /************************************************************************/
     // Data
 
     /** @brief A pointer to a container object holding information needed by this class */
-    std::shared_ptr<GBrokerFerryT<processable_type>> m_broker_ferry_ptr;
+    std::shared_ptr<GBrokerFerryT<processable_type>> broker_ferry_ptr_;
 };
 
 /******************************************************************************/

@@ -96,7 +96,7 @@ void GParameterScanFactory::addCLOptions(
 
     hidden.add_options()(
         "parameterSpec",
-        po::value<std::string>(&m_parameterSpecCL)->default_value(std::string("empty")),
+        po::value<std::string>(&parameterSpecCL_)->default_value(std::string("empty")),
         "\t[GParameterScanFactory] Specification of parameters to be scanned. Syntax: \"d(0, -10., "
         "10., 100)\". Use a comma-separated list for more than one variable. A single entry "
         "\"s(1000)\" will lead to a random scan over all parameters of up to 1000 individuals"
@@ -111,7 +111,7 @@ void GParameterScanFactory::addCLOptions(
  * Allows to specify the command line parameter manually for variables to be scanned
  */
 void GParameterScanFactory::setCLParameterSpecs(std::string parStr) {
-    m_parameterSpecCL = parStr;
+    parameterSpecCL_ = parStr;
 }
 
 /******************************************************************************/
@@ -119,7 +119,7 @@ void GParameterScanFactory::setCLParameterSpecs(std::string parStr) {
  * Allows to retrieve the command line parameter settings for variables to be scanned
  */
 std::string GParameterScanFactory::getCLParameterSpecs() const {
-    return m_parameterSpecCL;
+    return parameterSpecCL_;
 }
 
 /******************************************************************************/
@@ -127,7 +127,7 @@ std::string GParameterScanFactory::getCLParameterSpecs() const {
  * Allows to reset the command line parameter specs
  */
 void GParameterScanFactory::resetCLParameterSpecs() {
-    m_parameterSpecCL = "empty";
+    parameterSpecCL_ = "empty";
 }
 
 /******************************************************************************/
@@ -156,11 +156,11 @@ std::shared_ptr<G_OptimizationAlgorithm_Base> GParameterScanFactory::getObject_(
  * @param p A smart-pointer to be acted on during post-processing
  */
 void GParameterScanFactory::postProcess_(std::shared_ptr<G_OptimizationAlgorithm_Base> &p_base) {
-    if(m_parameterSpecCL != "empty") {
+    if(parameterSpecCL_ != "empty") {
         std::shared_ptr<GParameterScan> p =
             Gem::Common::convertSmartPointer<G_OptimizationAlgorithm_Base, GParameterScan>(p_base);
 
-        p->setParameterSpecs(m_parameterSpecCL);
+        p->setParameterSpecs(parameterSpecCL_);
     }
 
     // Call our parent class'es function

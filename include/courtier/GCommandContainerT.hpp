@@ -78,7 +78,7 @@ class GCommandContainerT {
 
     template <class Archive>
     void serialize(Archive &ar, const unsigned int /*version*/) {
-        ar &BOOST_SERIALIZATION_NVP(m_command) & BOOST_SERIALIZATION_NVP(m_payload_ptr);
+        ar &BOOST_SERIALIZATION_NVP(command_) & BOOST_SERIALIZATION_NVP(payload_ptr_);
     }
     ///////////////////////////////////////////////////////////////
 
@@ -100,7 +100,7 @@ public:
 	  * @param command The command to be executed
 	  */
     explicit GCommandContainerT(command_type command)
-      : m_command(command) { /* nothing */
+      : command_(command) { /* nothing */
     }
 
     //-------------------------------------------------------------------------
@@ -112,8 +112,8 @@ public:
 	  * @param payload_ptr The payload transported by this object
 	  */
     GCommandContainerT(command_type command, std::shared_ptr<processable_type> payload_ptr)
-      : m_command(command)
-      , m_payload_ptr(payload_ptr) { /* nothing */
+      : command_(command)
+      , payload_ptr_(payload_ptr) { /* nothing */
     }
 
     //-------------------------------------------------------------------------
@@ -141,8 +141,8 @@ public:
         command_type command = command_type(0),
         std::shared_ptr<processable_type> payload_ptr = std::shared_ptr<processable_type>()
     ) {
-        m_command = command;
-        m_payload_ptr = payload_ptr;
+        command_ = command;
+        payload_ptr_ = payload_ptr;
         return *this;
     }
 
@@ -152,7 +152,7 @@ public:
 	  * @param command The command to be executed on the payload
 	  */
     void set_command(command_type command) {
-        m_command = command;
+        command_ = command;
     }
 
     //-------------------------------------------------------------------------
@@ -161,7 +161,7 @@ public:
 	  * @return The command to be executed on the payload
 	  */
     command_type get_command() const noexcept {
-        return m_command;
+        return command_;
     }
 
     //-------------------------------------------------------------------------
@@ -169,7 +169,7 @@ public:
 	  * Retrieves the payload
 	  */
     std::shared_ptr<processable_type> get_payload() const {
-        return m_payload_ptr;
+        return payload_ptr_;
     }
 
     //-------------------------------------------------------------------------
@@ -179,14 +179,14 @@ public:
 	  * // TODO: Check for errors during processing
 	  */
     void process() {
-        if(m_payload_ptr) {
-            m_payload_ptr->process();
+        if(payload_ptr_) {
+            payload_ptr_->process();
         }
         else {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GCommandContainerT<processable_type, command_type>::process():" << std::endl
-                << "Tried to process a work item while m_payload_ptr is empty" << std::endl
+                << "Tried to process a work item while payload_ptr_ is empty" << std::endl
             );
         }
     }
@@ -195,8 +195,8 @@ private:
     //-------------------------------------------------------------------------
     // Data
 
-    command_type m_command{command_type(0)};         ///< The command to be exeecuted
-    std::shared_ptr<processable_type> m_payload_ptr; ///< The actual payload, if any
+    command_type command_{command_type(0)};         ///< The command to be exeecuted
+    std::shared_ptr<processable_type> payload_ptr_; ///< The actual payload, if any
 
     //-------------------------------------------------------------------------
 };

@@ -229,52 +229,52 @@ private:
 
     /***************************************************************************/
     // Initialization code for the Geneva library
-    GenevaInitializer m_gi;
+    GenevaInitializer gi_;
 
     /***************************************************************************/
     // These parameters can enter the object through the constructor
-    bool m_client_mode =
+    bool client_mode_ =
         GO2_DEF_CLIENTMODE; ///< Specifies whether this object represents a network client
-    std::string m_config_filename =
+    std::string config_filename_ =
         GO2_DEF_DEFAULTCONFIGFILE; ///< Indicates where the configuration file is stored
-    std::string m_consumer_name =
+    std::string consumer_name_ =
         GO2_DEF_NOCONSUMER; ///< The name of a consumer requested by the user on the command line
 
     //---------------------------------------------------------------------------
     // Parameters for the random number generator
-    std::uint16_t m_n_producer_threads =
+    std::uint16_t n_producer_threads_ =
         GO2_DEF_NPRODUCERTHREADS; ///< The number of threads that will simultaneously produce random numbers
 
     //---------------------------------------------------------------------------
     // Parameters for clients
-    std::chrono::duration<double> m_max_client_duration = Gem::Common::duration_from_string(
+    std::chrono::duration<double> max_client_duration_ = Gem::Common::duration_from_string(
         DEFAULTDURATION
     ); ///< Maximum time-frame for a client to run
 
     //---------------------------------------------------------------------------
     // Internal parameters
-    std::uint32_t m_offset =
+    std::uint32_t offset_ =
         GO2_DEF_OFFSET;    ///< The offset to be used when starting a new optimization run
-    bool m_sorted = false; ///< Indicates whether local individuals have been sorted
-    std::uint32_t m_iterations_consumed =
+    bool sorted_ = false; ///< Indicates whether local individuals have been sorted
+    std::uint32_t iterations_consumed_ =
         0; ///< The number of successive iterations performed by this object so far
-    bool m_copyBestIndividualsOnly =
+    bool copyBestIndividualsOnly_ =
         GO2_DEF_COPYBESTINDIVIDUALSONLY; ///< Indicates whether only the best individuals of an optimization run are copied to the next algorithm
     //---------------------------------------------------------------------------
     // Name and path of a checkpoint file, if supplied by the user
-    std::string m_cp_file = "empty";
+    std::string cp_file_ = "empty";
 
     //---------------------------------------------------------------------------
     // The list of "chained" optimization algorithms
-    std::vector<std::shared_ptr<GOABase>> m_algorithms_cnt;
+    std::vector<std::shared_ptr<GOABase>> algorithms_cnt_;
     // The default algorithm (if any)
-    std::shared_ptr<GOABase> m_default_algorithm;
+    std::shared_ptr<GOABase> default_algorithm_;
     // A string representation of the default algorithm
-    const std::string m_default_algorithm_str = DEFAULTOPTALG; ///< This is the last fall-back
+    const std::string default_algorithm_str_ = DEFAULTOPTALG; ///< This is the last fall-back
     // Holds an object capable of producing objects of the desired type
-    std::shared_ptr<Gem::Common::GFactoryT<GParameterSet>> m_content_creator_ptr;
+    std::shared_ptr<Gem::Common::GFactoryT<GParameterSet>> content_creator_ptr_;
     // A user-defined means for information retrieval
-    std::vector<std::shared_ptr<GBasePluggableOM>> m_pluggable_monitors_cnt;
+    std::vector<std::shared_ptr<GBasePluggableOM>> pluggable_monitors_cnt_;
 };
 
 /******************************************************************************/

@@ -59,8 +59,8 @@ namespace Gem::Common {
  */
 void GThreadGroup::add_thread(thread_ptr thrd) {
     if(thrd) {
-        std::unique_lock<std::mutex> guard(m_mutex);
-        m_threads.push_back(thrd);
+        std::unique_lock<std::mutex> guard(mutex_);
+        threads_.push_back(thrd);
     }
 }
 
@@ -69,9 +69,9 @@ void GThreadGroup::add_thread(thread_ptr thrd) {
  * Requests all threads to join
  */
 void GThreadGroup::join_all() {
-    std::unique_lock<std::mutex> guard(m_mutex);
+    std::unique_lock<std::mutex> guard(mutex_);
 
-    for(auto &t : m_threads) {
+    for(auto &t : threads_) {
         t->join();
     }
 }
@@ -82,8 +82,8 @@ void GThreadGroup::join_all() {
  * @return The size of the current group
  */
 std::size_t GThreadGroup::size() const {
-    std::unique_lock<std::mutex> guard(m_mutex);
-    return m_threads.size();
+    std::unique_lock<std::mutex> guard(mutex_);
+    return threads_.size();
 }
 
 /******************************************************************************/
@@ -93,7 +93,7 @@ std::size_t GThreadGroup::size() const {
  * thread GThreadPool class.
  */
 void GThreadGroup::clearThreads() {
-    m_threads.clear();
+    threads_.clear();
 }
 
 /******************************************************************************/

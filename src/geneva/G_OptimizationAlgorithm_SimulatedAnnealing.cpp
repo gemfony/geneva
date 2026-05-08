@@ -79,10 +79,10 @@ void GSimulatedAnnealing::compare_(
     Gem::Common::compare_base_t<G_OptimizationAlgorithm_ParChild>(*this, *p_load, token);
 
     // ... and then the local data
-    compare_t(IDENTITY(m_t0, p_load->m_t0), token);
-    compare_t(IDENTITY(m_t, p_load->m_t), token);
-    compare_t(IDENTITY(m_alpha, p_load->m_alpha), token);
-    compare_t(IDENTITY(m_n_threads, p_load->m_n_threads), token);
+    compare_t(IDENTITY(t0_, p_load->t0_), token);
+    compare_t(IDENTITY(t_, p_load->t_), token);
+    compare_t(IDENTITY(alpha_, p_load->alpha_), token);
+    compare_t(IDENTITY(n_threads_, p_load->n_threads_), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -95,7 +95,7 @@ void GSimulatedAnnealing::compare_(
  */
 void GSimulatedAnnealing::resetToOptimizationStart_() {
     // Reset the temperature
-    m_t = m_t0;
+    t_ = t0_;
 
     // There is no more work to be done here, so we simply call the
     // function of the parent class
@@ -174,14 +174,14 @@ void GSimulatedAnnealing::addConfigurationOptions_(Gem::Common::GParserBuilder &
 void GSimulatedAnnealing::setNThreads(std::uint16_t nThreads) {
     if(nThreads == 0) {
         glogger << "In GSimulatedAnnealing::setNThreads(nThreads):" << std::endl
-                << "nThreads == 0 was requested. m_n_threads was reset to the default "
+                << "nThreads == 0 was requested. n_threads_ was reset to the default "
                 << DEFAULTNSTDTHREADS << std::endl
                 << GWARNING;
 
-        m_n_threads = DEFAULTNSTDTHREADS;
+        n_threads_ = DEFAULTNSTDTHREADS;
     }
     else {
-        m_n_threads = nThreads;
+        n_threads_ = nThreads;
     }
 }
 
@@ -192,7 +192,7 @@ void GSimulatedAnnealing::setNThreads(std::uint16_t nThreads) {
   * @return The maximum number of allowed threads
   */
 std::uint16_t GSimulatedAnnealing::getNThreads() const {
-    return m_n_threads;
+    return n_threads_;
 }
 
 /******************************************************************************/
@@ -210,7 +210,7 @@ void GSimulatedAnnealing::setTDegradationStrength(double alpha) {
         );
     }
 
-    m_alpha = alpha;
+    alpha_ = alpha;
 }
 
 /******************************************************************************/
@@ -220,7 +220,7 @@ void GSimulatedAnnealing::setTDegradationStrength(double alpha) {
   * @return The temperature degradation strength
   */
 double GSimulatedAnnealing::getTDegradationStrength() const {
-    return m_alpha;
+    return alpha_;
 }
 
 /******************************************************************************/
@@ -238,7 +238,7 @@ void GSimulatedAnnealing::setT0(double t0) {
         );
     }
 
-    m_t0 = t0;
+    t0_ = t0;
 }
 
 /******************************************************************************/
@@ -248,7 +248,7 @@ void GSimulatedAnnealing::setT0(double t0) {
   * @return The start temperature
   */
 double GSimulatedAnnealing::getT0() const {
-    return m_t0;
+    return t0_;
 }
 
 /******************************************************************************/
@@ -258,7 +258,7 @@ double GSimulatedAnnealing::getT0() const {
   * @return The current temperature
   */
 double GSimulatedAnnealing::getT() const {
-    return m_t;
+    return t_;
 }
 
 /******************************************************************************/
@@ -285,10 +285,10 @@ void GSimulatedAnnealing::load_(const GObject *cp) {
     G_OptimizationAlgorithm_ParChild::load_(cp);
 
     // ... and then our own data
-    m_t0 = p_load->m_t0;
-    m_t = p_load->m_t;
-    m_alpha = p_load->m_alpha;
-    m_n_threads = p_load->m_n_threads;
+    t0_ = p_load->t0_;
+    t_ = p_load->t_;
+    alpha_ = p_load->alpha_;
+    n_threads_ = p_load->n_threads_;
 }
 
 /******************************************************************************/
@@ -309,7 +309,7 @@ void GSimulatedAnnealing::populationSanityChecks_() const {
     // First check that we have been given a suitable value for the number of parents.
     // Note that a number of checks (e.g. population size != 0) has already been done
     // in the parent class.
-    if(this->m_n_parents == 0) {
+    if(this->n_parents_ == 0) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GSimulatedAnnealing::populationSanityChecks(): Error!" << std::endl
@@ -319,11 +319,11 @@ void GSimulatedAnnealing::populationSanityChecks_() const {
 
     // We need at least as many children as parents
     std::size_t popSize = this->getPopulationSize();
-    if(popSize <= this->m_n_parents) {
+    if(popSize <= this->n_parents_) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GSimulatedAnnealing::populationSanityChecks() :" << std::endl
-            << "Requested size of population is too small :" << popSize << " " << this->m_n_parents
+            << "Requested size of population is too small :" << popSize << " " << this->n_parents_
             << std::endl
         );
     }
@@ -343,7 +343,7 @@ void GSimulatedAnnealing::adaptChildren_() {
     // Loop over all requested individuals and perform the adaption
     for(auto it = (this->begin() + std::get<0>(range)); it != (this->begin() + std::get<1>(range));
         ++it) {
-        futures_cnt.push_back(m_tp_ptr->async_schedule(
+        futures_cnt.push_back(tp_ptr_->async_schedule(
             // Note: may not pass it as a reference, as it is a local variable in the loop and might
             // vanish or have been altered once the thread has started and adaption is requested.
             [it]() { return (*it)->adapt(); } // Returns the number of adaptions
@@ -351,7 +351,7 @@ void GSimulatedAnnealing::adaptChildren_() {
     }
 
     // Wait for all threads in the pool to complete their work
-    m_tp_ptr->wait();
+    tp_ptr_->wait();
 
 #ifdef DEBUG
     // Check for errors
@@ -409,12 +409,12 @@ void GSimulatedAnnealing::runFitnessCalculation_() {
     //--------------------------------------------------------------------------------
     // Set the "DO_PROCESS" flag in all required work items, the "DO_IGNORE" flag in all others.
 
-    setProcessingFlag(this->m_data_cnt, range);
+    setProcessingFlag(this->data_cnt_, range);
 
     //--------------------------------------------------------------------------------
     // Now submit work items and wait for results.
     auto status = this->workOn(
-        this->m_data_cnt,
+        this->data_cnt_,
         false // do not resubmit unprocessed items
         ,
         "GSimulatedAnnealing::runFitnessCalculation()"
@@ -424,7 +424,7 @@ void GSimulatedAnnealing::runFitnessCalculation_() {
     // Take care of unprocessed items, if these exist. We simply remove them and continue.
     if(not status.is_complete) {
         std::size_t n_erased =
-            std::erase_if(this->m_data_cnt, [this](std::shared_ptr<GParameterSet> p) -> bool {
+            std::erase_if(this->data_cnt_, [this](std::shared_ptr<GParameterSet> p) -> bool {
                 return (p->getProcessingStatus() == Gem::Courtier::processingStatus::DO_PROCESS);
             });
 
@@ -440,7 +440,7 @@ void GSimulatedAnnealing::runFitnessCalculation_() {
     // We simply remove them and continue.
     if(status.has_errors) {
         std::size_t n_erased =
-            std::erase_if(this->m_data_cnt, [this](std::shared_ptr<GParameterSet> p) -> bool {
+            std::erase_if(this->data_cnt_, [this](std::shared_ptr<GParameterSet> p) -> bool {
                 return p->has_errors();
             });
 
@@ -548,7 +548,7 @@ void GSimulatedAnnealing::fixAfterJobSubmission() {
         }
     }
 
-    // Mark the first this->m_n_parents individuals as parents and the rest of the individuals as children.
+    // Mark the first this->n_parents_ individuals as parents and the rest of the individuals as children.
     // We want to have a sane population.
     typename G_OptimizationAlgorithm_Base::iterator it;
     for(it = this->begin(); it != this->begin() + np; ++it) {
@@ -628,7 +628,7 @@ void GSimulatedAnnealing::init() {
     G_OptimizationAlgorithm_ParChild::init();
 
     // Initialize our thread pool
-    m_tp_ptr.reset(new Gem::Common::GThreadPool(m_n_threads));
+    tp_ptr_.reset(new Gem::Common::GThreadPool(n_threads_));
 }
 
 /******************************************************************************/
@@ -637,7 +637,7 @@ void GSimulatedAnnealing::init() {
  */
 void GSimulatedAnnealing::finalize() {
     // Terminate our thread pool
-    m_tp_ptr.reset();
+    tp_ptr_.reset();
 
     // Last action. Place any "local" finalization action before this call.
     G_OptimizationAlgorithm_ParChild::finalize();
@@ -660,8 +660,8 @@ std::shared_ptr<GPersonalityTraits> GSimulatedAnnealing::getPersonalityTraits_()
 void GSimulatedAnnealing::sortSAMode() {
     // Position the nParents best children of the population right behind the parents
     std::partial_sort(
-        this->begin() + this->m_n_parents,
-        this->begin() + 2 * this->m_n_parents,
+        this->begin() + this->n_parents_,
+        this->begin() + 2 * this->n_parents_,
         this->end(),
         [](std::shared_ptr<GParameterSet> x_ptr, std::shared_ptr<GParameterSet> y_ptr) -> bool {
             return minOnly_transformed_fitness(x_ptr) < minOnly_transformed_fitness(y_ptr);
@@ -669,21 +669,21 @@ void GSimulatedAnnealing::sortSAMode() {
     );
 
     // Check for each parent whether it should be replaced by the corresponding child
-    for(std::size_t np = 0; np < this->m_n_parents; np++) {
+    for(std::size_t np = 0; np < this->n_parents_; np++) {
         double pPass = saProb(
             minOnly_transformed_fitness(this->at(np)),
-            minOnly_transformed_fitness(this->at(this->m_n_parents + np))
+            minOnly_transformed_fitness(this->at(this->n_parents_ + np))
         );
         if(pPass >= 1.) {
-            this->at(np)->GObject::load(this->at(this->m_n_parents + np));
+            this->at(np)->GObject::load(this->at(this->n_parents_ + np));
         }
         else {
-            double challenge = this->m_uniform_real_distribution(
-                this->m_gr,
+            double challenge = this->uniform_real_distribution_(
+                this->gr_,
                 std::uniform_real_distribution<double>::param_type(0., 1.)
             );
             if(challenge < pPass) {
-                this->at(np)->GObject::load(this->at(this->m_n_parents + np));
+                this->at(np)->GObject::load(this->at(this->n_parents_ + np));
             }
         }
     }
@@ -691,7 +691,7 @@ void GSimulatedAnnealing::sortSAMode() {
     // Sort the new parents -- it is possible that a child with a worse fitness has replaced a parent
     std::sort(
         this->begin(),
-        this->begin() + this->m_n_parents,
+        this->begin() + this->n_parents_,
         [](std::shared_ptr<GParameterSet> x_ptr, std::shared_ptr<GParameterSet> y_ptr) -> bool {
             return minOnly_transformed_fitness(x_ptr) < minOnly_transformed_fitness(y_ptr);
         }
@@ -712,7 +712,7 @@ void GSimulatedAnnealing::sortSAMode() {
   * @return A double value in the range [0,1[, representing the likelihood for the child to replace the parent
   */
 double GSimulatedAnnealing::saProb(const double &fMinOnlyParent, const double &fMinOnlyChild) {
-    return exp(-(fMinOnlyChild - fMinOnlyParent) / m_t);
+    return exp(-(fMinOnlyChild - fMinOnlyParent) / t_);
 }
 
 /******************************************************************************/
@@ -720,7 +720,7 @@ double GSimulatedAnnealing::saProb(const double &fMinOnlyParent, const double &f
   * Updates the temperature. This function is used for simulated annealing.
   */
 void GSimulatedAnnealing::updateTemperature() {
-    m_t *= m_alpha;
+    t_ *= alpha_;
 }
 
 /******************************************************************************/

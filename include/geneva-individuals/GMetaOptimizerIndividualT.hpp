@@ -1284,7 +1284,7 @@ public:
             );
         }
 
-        m_ind_factory = Gem::Common::convertSmartPointer<
+        ind_factory_ = Gem::Common::convertSmartPointer<
             Gem::Common::GFactoryT<GParameterSet>,
             typename ind_type::FACTORYTYPE>(factory->clone());
     }
@@ -1461,7 +1461,7 @@ protected:
         );
 
         comment = "";
-        comment += "The initial value of the strength of m_adProb adaption;";
+        comment += "The initial value of the strength of adProb_ adaption;";
         gpb.registerFileParameter<double>(
             "initAdaptAdProb",
             initAdaptAdProb_,
@@ -1471,7 +1471,7 @@ protected:
         );
 
         comment = "";
-        comment += "The lower boundary for the variation of the strength of m_adProb adaption;";
+        comment += "The lower boundary for the variation of the strength of adProb_ adaption;";
         gpb.registerFileParameter<double>(
             "adaptAdProb_LB",
             adaptAdProb_LB_,
@@ -1481,7 +1481,7 @@ protected:
         );
 
         comment = "";
-        comment += "The upper boundary for the variation of the strength of m_adProb adaption;";
+        comment += "The upper boundary for the variation of the strength of adProb_ adaption;";
         gpb.registerFileParameter<double>(
             "adaptAdProb_UB",
             adaptAdProb_UB_,
@@ -1645,7 +1645,7 @@ protected:
         );
 
         // Finally add the individual factory to p
-        p->registerIndividualFactory(m_ind_factory);
+        p->registerIndividualFactory(ind_factory_);
     }
 
 private:
@@ -1741,7 +1741,7 @@ private:
         GMETAOPT_DEF_SIGMASIGMA_UB; ///< The upper boundary for the variation of the strength of sigma adaption
 
     std::shared_ptr<typename ind_type::FACTORYTYPE>
-        m_ind_factory; ///< Holds a factory for our individuals. It will be added to the individuals when needed
+        ind_factory_; ///< Holds a factory for our individuals. It will be added to the individuals when needed
 };
 
 /******************************************************************************/
@@ -1779,14 +1779,14 @@ class GOptOptMonitorT // NOLINT(cppcoreguidelines-special-member-functions)
         ar &make_nvp(
             "GBasePluggableOM",
             boost::serialization::base_object<GBasePluggableOM>(*this)
-        ) & BOOST_SERIALIZATION_NVP(m_fileName) &
-            BOOST_SERIALIZATION_NVP(m_gpd) & BOOST_SERIALIZATION_NVP(m_progressPlotter) &
-            BOOST_SERIALIZATION_NVP(m_nParentPlotter) &
-            BOOST_SERIALIZATION_NVP(m_nChildrenPlotter) & BOOST_SERIALIZATION_NVP(m_adProbPlotter) &
-            BOOST_SERIALIZATION_NVP(m_minSigmaPlotter) &
-            BOOST_SERIALIZATION_NVP(m_maxSigmaPlotter) &
-            BOOST_SERIALIZATION_NVP(m_sigmaRangePlotter) &
-            BOOST_SERIALIZATION_NVP(m_sigmaSigmaPlotter);
+        ) & BOOST_SERIALIZATION_NVP(fileName_) &
+            BOOST_SERIALIZATION_NVP(gpd_) & BOOST_SERIALIZATION_NVP(progressPlotter_) &
+            BOOST_SERIALIZATION_NVP(nParentPlotter_) &
+            BOOST_SERIALIZATION_NVP(nChildrenPlotter_) & BOOST_SERIALIZATION_NVP(adProbPlotter_) &
+            BOOST_SERIALIZATION_NVP(minSigmaPlotter_) &
+            BOOST_SERIALIZATION_NVP(maxSigmaPlotter_) &
+            BOOST_SERIALIZATION_NVP(sigmaRangePlotter_) &
+            BOOST_SERIALIZATION_NVP(sigmaSigmaPlotter_);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -1796,16 +1796,16 @@ public:
      * The default constructor
      */
     GOptOptMonitorT(const std::string fileName)
-      : m_fileName(fileName)
-      , m_gpd("Progress information", 2, 4)
-      , m_progressPlotter(new Gem::Common::GGraph2D())
-      , m_nParentPlotter(new Gem::Common::GGraph2D())
-      , m_nChildrenPlotter(new Gem::Common::GGraph2D())
-      , m_adProbPlotter(new Gem::Common::GGraph2D())
-      , m_minSigmaPlotter(new Gem::Common::GGraph2D())
-      , m_maxSigmaPlotter(new Gem::Common::GGraph2D())
-      , m_sigmaRangePlotter(new Gem::Common::GGraph2D())
-      , m_sigmaSigmaPlotter(new Gem::Common::GGraph2D()) { /* nothing */
+      : fileName_(fileName)
+      , gpd_("Progress information", 2, 4)
+      , progressPlotter_(new Gem::Common::GGraph2D())
+      , nParentPlotter_(new Gem::Common::GGraph2D())
+      , nChildrenPlotter_(new Gem::Common::GGraph2D())
+      , adProbPlotter_(new Gem::Common::GGraph2D())
+      , minSigmaPlotter_(new Gem::Common::GGraph2D())
+      , maxSigmaPlotter_(new Gem::Common::GGraph2D())
+      , sigmaRangePlotter_(new Gem::Common::GGraph2D())
+      , sigmaSigmaPlotter_(new Gem::Common::GGraph2D()) { /* nothing */
     }
 
     /***************************************************************************/
@@ -1816,20 +1816,20 @@ public:
      */
     GOptOptMonitorT(const GOptOptMonitorT<ind_type> &cp)
       : GBasePluggableOM(cp)
-      , m_fileName(cp.m_fileName)
-      , m_gpd(
+      , fileName_(cp.fileName_)
+      , gpd_(
             "Progress information",
             2,
             4
         ) // We do not want to copy progress information of another object
-      , m_progressPlotter(new Gem::Common::GGraph2D())
-      , m_nParentPlotter(new Gem::Common::GGraph2D())
-      , m_nChildrenPlotter(new Gem::Common::GGraph2D())
-      , m_adProbPlotter(new Gem::Common::GGraph2D())
-      , m_minSigmaPlotter(new Gem::Common::GGraph2D())
-      , m_maxSigmaPlotter(new Gem::Common::GGraph2D())
-      , m_sigmaRangePlotter(new Gem::Common::GGraph2D())
-      , m_sigmaSigmaPlotter(new Gem::Common::GGraph2D()) { /* nothing */
+      , progressPlotter_(new Gem::Common::GGraph2D())
+      , nParentPlotter_(new Gem::Common::GGraph2D())
+      , nChildrenPlotter_(new Gem::Common::GGraph2D())
+      , adProbPlotter_(new Gem::Common::GGraph2D())
+      , minSigmaPlotter_(new Gem::Common::GGraph2D())
+      , maxSigmaPlotter_(new Gem::Common::GGraph2D())
+      , sigmaRangePlotter_(new Gem::Common::GGraph2D())
+      , sigmaSigmaPlotter_(new Gem::Common::GGraph2D()) { /* nothing */
     }
 
     /***************************************************************************/
@@ -1844,7 +1844,7 @@ public:
      * Sets the file name
      */
     void setFileName(std::string fileName) {
-        m_fileName = fileName;
+        fileName_ = fileName;
     }
 
     /***************************************************************************/
@@ -1852,7 +1852,7 @@ public:
      * Retrieves the current file name
      */
     std::string getFileName() const {
-        return m_fileName;
+        return fileName_;
     }
 
 protected:
@@ -1872,16 +1872,16 @@ protected:
         GBasePluggableOM::load_(cp);
 
         // Load local data
-        m_fileName = p_load->m_fileName;
-        m_gpd = p_load->m_gpd;
-        Gem::Common::copyCloneableSmartPointer(p_load->m_progressPlotter, m_progressPlotter);
-        Gem::Common::copyCloneableSmartPointer(p_load->m_nParentPlotter, m_nParentPlotter);
-        Gem::Common::copyCloneableSmartPointer(p_load->m_nChildrenPlotter, m_nChildrenPlotter);
-        Gem::Common::copyCloneableSmartPointer(p_load->m_adProbPlotter, m_adProbPlotter);
-        Gem::Common::copyCloneableSmartPointer(p_load->m_minSigmaPlotter, m_minSigmaPlotter);
-        Gem::Common::copyCloneableSmartPointer(p_load->m_maxSigmaPlotter, m_maxSigmaPlotter);
-        Gem::Common::copyCloneableSmartPointer(p_load->m_sigmaRangePlotter, m_sigmaRangePlotter);
-        Gem::Common::copyCloneableSmartPointer(p_load->m_sigmaSigmaPlotter, m_sigmaSigmaPlotter);
+        fileName_ = p_load->fileName_;
+        gpd_ = p_load->gpd_;
+        Gem::Common::copyCloneableSmartPointer(p_load->progressPlotter_, progressPlotter_);
+        Gem::Common::copyCloneableSmartPointer(p_load->nParentPlotter_, nParentPlotter_);
+        Gem::Common::copyCloneableSmartPointer(p_load->nChildrenPlotter_, nChildrenPlotter_);
+        Gem::Common::copyCloneableSmartPointer(p_load->adProbPlotter_, adProbPlotter_);
+        Gem::Common::copyCloneableSmartPointer(p_load->minSigmaPlotter_, minSigmaPlotter_);
+        Gem::Common::copyCloneableSmartPointer(p_load->maxSigmaPlotter_, maxSigmaPlotter_);
+        Gem::Common::copyCloneableSmartPointer(p_load->sigmaRangePlotter_, sigmaRangePlotter_);
+        Gem::Common::copyCloneableSmartPointer(p_load->sigmaSigmaPlotter_, sigmaSigmaPlotter_);
     }
 
     /***************************************************************************/
@@ -1918,16 +1918,16 @@ protected:
         Gem::Common::compare_base_t<GBasePluggableOM>(*this, *p_load, token);
 
         // ... and then our local data
-        compare_t(IDENTITY(m_fileName, p_load->m_fileName), token);
-        compare_t(IDENTITY(m_gpd, p_load->m_gpd), token);
-        compare_t(IDENTITY(m_progressPlotter, p_load->m_progressPlotter), token);
-        compare_t(IDENTITY(m_nParentPlotter, p_load->m_nParentPlotter), token);
-        compare_t(IDENTITY(m_nChildrenPlotter, p_load->m_nChildrenPlotter), token);
-        compare_t(IDENTITY(m_adProbPlotter, p_load->m_adProbPlotter), token);
-        compare_t(IDENTITY(m_minSigmaPlotter, p_load->m_minSigmaPlotter), token);
-        compare_t(IDENTITY(m_maxSigmaPlotter, p_load->m_maxSigmaPlotter), token);
-        compare_t(IDENTITY(m_sigmaRangePlotter, p_load->m_sigmaRangePlotter), token);
-        compare_t(IDENTITY(m_sigmaSigmaPlotter, p_load->m_sigmaSigmaPlotter), token);
+        compare_t(IDENTITY(fileName_, p_load->fileName_), token);
+        compare_t(IDENTITY(gpd_, p_load->gpd_), token);
+        compare_t(IDENTITY(progressPlotter_, p_load->progressPlotter_), token);
+        compare_t(IDENTITY(nParentPlotter_, p_load->nParentPlotter_), token);
+        compare_t(IDENTITY(nChildrenPlotter_, p_load->nChildrenPlotter_), token);
+        compare_t(IDENTITY(adProbPlotter_, p_load->adProbPlotter_), token);
+        compare_t(IDENTITY(minSigmaPlotter_, p_load->minSigmaPlotter_), token);
+        compare_t(IDENTITY(maxSigmaPlotter_, p_load->maxSigmaPlotter_), token);
+        compare_t(IDENTITY(sigmaRangePlotter_, p_load->sigmaRangePlotter_), token);
+        compare_t(IDENTITY(sigmaSigmaPlotter_, p_load->sigmaSigmaPlotter_), token);
 
         // React on deviations from the expectation
         token.evaluate();
@@ -2025,60 +2025,60 @@ private:
         switch(im) {
         case Gem::Geneva::infoMode::INFOINIT: {
             // Initialize the plots we want to record
-            m_progressPlotter->setPlotMode(Gem::Common::graphPlotMode::CURVE);
-            m_progressPlotter->setPlotLabel("Number of solver calls");
-            m_progressPlotter->setXAxisLabel("Iteration");
-            m_progressPlotter->setYAxisLabel("Best Result (lower is better)");
+            progressPlotter_->setPlotMode(Gem::Common::graphPlotMode::CURVE);
+            progressPlotter_->setPlotLabel("Number of solver calls");
+            progressPlotter_->setXAxisLabel("Iteration");
+            progressPlotter_->setYAxisLabel("Best Result (lower is better)");
 
-            m_nParentPlotter->setPlotMode(Gem::Common::graphPlotMode::CURVE);
-            m_nParentPlotter->setPlotLabel("Number of parents as a function of the iteration");
-            m_nParentPlotter->setXAxisLabel("Iteration");
-            m_nParentPlotter->setYAxisLabel("Number of parents");
+            nParentPlotter_->setPlotMode(Gem::Common::graphPlotMode::CURVE);
+            nParentPlotter_->setPlotLabel("Number of parents as a function of the iteration");
+            nParentPlotter_->setXAxisLabel("Iteration");
+            nParentPlotter_->setYAxisLabel("Number of parents");
 
-            m_nChildrenPlotter->setPlotMode(Gem::Common::graphPlotMode::CURVE);
-            m_nChildrenPlotter->setPlotLabel("Number of children as a function of the iteration");
-            m_nChildrenPlotter->setXAxisLabel("Iteration");
-            m_nChildrenPlotter->setYAxisLabel("Number of children");
+            nChildrenPlotter_->setPlotMode(Gem::Common::graphPlotMode::CURVE);
+            nChildrenPlotter_->setPlotLabel("Number of children as a function of the iteration");
+            nChildrenPlotter_->setXAxisLabel("Iteration");
+            nChildrenPlotter_->setYAxisLabel("Number of children");
 
-            m_adProbPlotter->setPlotMode(Gem::Common::graphPlotMode::CURVE);
-            m_adProbPlotter->setPlotLabel("Adaption probability as a function of the iteration");
-            m_adProbPlotter->setXAxisLabel("Iteration");
-            m_adProbPlotter->setYAxisLabel("Adaption probability");
+            adProbPlotter_->setPlotMode(Gem::Common::graphPlotMode::CURVE);
+            adProbPlotter_->setPlotLabel("Adaption probability as a function of the iteration");
+            adProbPlotter_->setXAxisLabel("Iteration");
+            adProbPlotter_->setYAxisLabel("Adaption probability");
 
-            m_minSigmaPlotter->setPlotMode(Gem::Common::graphPlotMode::CURVE);
-            m_minSigmaPlotter->setPlotLabel("Lower sigma boundary as a function of the iteration");
-            m_minSigmaPlotter->setXAxisLabel("Iteration");
-            m_minSigmaPlotter->setYAxisLabel("Lower sigma boundary");
+            minSigmaPlotter_->setPlotMode(Gem::Common::graphPlotMode::CURVE);
+            minSigmaPlotter_->setPlotLabel("Lower sigma boundary as a function of the iteration");
+            minSigmaPlotter_->setXAxisLabel("Iteration");
+            minSigmaPlotter_->setYAxisLabel("Lower sigma boundary");
 
-            m_maxSigmaPlotter->setPlotMode(Gem::Common::graphPlotMode::CURVE);
-            m_maxSigmaPlotter->setPlotLabel("Upper sigma boundary as a function of the iteration");
-            m_maxSigmaPlotter->setXAxisLabel("Iteration");
-            m_maxSigmaPlotter->setYAxisLabel("Upper sigma boundary");
+            maxSigmaPlotter_->setPlotMode(Gem::Common::graphPlotMode::CURVE);
+            maxSigmaPlotter_->setPlotLabel("Upper sigma boundary as a function of the iteration");
+            maxSigmaPlotter_->setXAxisLabel("Iteration");
+            maxSigmaPlotter_->setYAxisLabel("Upper sigma boundary");
 
-            m_sigmaRangePlotter->setPlotMode(Gem::Common::graphPlotMode::CURVE);
-            m_sigmaRangePlotter->setPlotLabel(
+            sigmaRangePlotter_->setPlotMode(Gem::Common::graphPlotMode::CURVE);
+            sigmaRangePlotter_->setPlotLabel(
                 "Development of the sigma range as a function of the iteration"
             );
-            m_sigmaRangePlotter->setXAxisLabel("Iteration");
-            m_sigmaRangePlotter->setYAxisLabel("Sigma range");
+            sigmaRangePlotter_->setXAxisLabel("Iteration");
+            sigmaRangePlotter_->setYAxisLabel("Sigma range");
 
-            m_sigmaSigmaPlotter->setPlotMode(Gem::Common::graphPlotMode::CURVE);
-            m_sigmaSigmaPlotter->setPlotLabel(
+            sigmaSigmaPlotter_->setPlotMode(Gem::Common::graphPlotMode::CURVE);
+            sigmaSigmaPlotter_->setPlotLabel(
                 "Development of the adaption strength as a function of the iteration"
             );
-            m_sigmaSigmaPlotter->setXAxisLabel("Iteration");
-            m_sigmaSigmaPlotter->setYAxisLabel("Sigma-Sigma");
+            sigmaSigmaPlotter_->setXAxisLabel("Iteration");
+            sigmaSigmaPlotter_->setYAxisLabel("Sigma-Sigma");
 
-            m_gpd.registerPlotter(m_progressPlotter);
-            m_gpd.registerPlotter(m_nParentPlotter);
-            m_gpd.registerPlotter(m_nChildrenPlotter);
-            m_gpd.registerPlotter(m_adProbPlotter);
-            m_gpd.registerPlotter(m_minSigmaPlotter);
-            m_gpd.registerPlotter(m_maxSigmaPlotter);
-            m_gpd.registerPlotter(m_sigmaRangePlotter);
-            m_gpd.registerPlotter(m_sigmaSigmaPlotter);
+            gpd_.registerPlotter(progressPlotter_);
+            gpd_.registerPlotter(nParentPlotter_);
+            gpd_.registerPlotter(nChildrenPlotter_);
+            gpd_.registerPlotter(adProbPlotter_);
+            gpd_.registerPlotter(minSigmaPlotter_);
+            gpd_.registerPlotter(maxSigmaPlotter_);
+            gpd_.registerPlotter(sigmaRangePlotter_);
+            gpd_.registerPlotter(sigmaSigmaPlotter_);
 
-            m_gpd.setCanvasDimensions(P_XDIM, P_YDIM);
+            gpd_.setCanvasDimensions(P_XDIM, P_YDIM);
         } break;
 
         case Gem::Geneva::infoMode::INFOPROCESSING: {
@@ -2094,30 +2094,30 @@ private:
                 ea->clone_at<GMetaOptimizerIndividualT<ind_type>>(0);
 
             // Retrieve the best fitness and average sigma value and add it to our local storage
-            (*m_progressPlotter) &
+            (*progressPlotter_) &
                 std::tuple<double, double>((double)ea->getIteration(), p->raw_fitness(0));
-            (*m_nParentPlotter) &
+            (*nParentPlotter_) &
                 std::tuple<double, double>((double)ea->getIteration(), (double)p->getNParents());
-            (*m_nChildrenPlotter) &
+            (*nChildrenPlotter_) &
                 std::tuple<double, double>((double)ea->getIteration(), (double)p->getNChildren());
-            (*m_adProbPlotter) &
+            (*adProbPlotter_) &
                 std::tuple<double, double>((double)ea->getIteration(), p->getAdProb());
 
             double minSigma = p->getMinSigma();
             double sigmaRange = p->getSigmaRange();
             double maxSigma = minSigma + sigmaRange;
 
-            (*m_minSigmaPlotter) & std::tuple<double, double>((double)ea->getIteration(), minSigma);
-            (*m_maxSigmaPlotter) & std::tuple<double, double>((double)ea->getIteration(), maxSigma);
-            (*m_sigmaRangePlotter) &
+            (*minSigmaPlotter_) & std::tuple<double, double>((double)ea->getIteration(), minSigma);
+            (*maxSigmaPlotter_) & std::tuple<double, double>((double)ea->getIteration(), maxSigma);
+            (*sigmaRangePlotter_) &
                 std::tuple<double, double>((double)ea->getIteration(), sigmaRange);
-            (*m_sigmaSigmaPlotter) &
+            (*sigmaSigmaPlotter_) &
                 std::tuple<double, double>((double)ea->getIteration(), p->getSigmaSigma());
         } break;
 
         case Gem::Geneva::infoMode::INFOEND: {
             // Write out the result
-            m_gpd.writeToFile(m_fileName);
+            gpd_.writeToFile(fileName_);
         } break;
 
         default: {
@@ -2132,28 +2132,28 @@ private:
     /***************************************************************************/
 
     GOptOptMonitorT()
-      : m_gpd("empty", 1, 1) { /* empty */
+      : gpd_("empty", 1, 1) { /* empty */
       }; ///< Default constructor; Intentionally private (only needed for serialization)
 
-    std::string m_fileName; ///< The name of the output file
+    std::string fileName_; ///< The name of the output file
 
-    Gem::Common::GPlotDesigner m_gpd; ///< Ease recording of essential information
+    Gem::Common::GPlotDesigner gpd_; ///< Ease recording of essential information
 
-    std::shared_ptr<Gem::Common::GGraph2D> m_progressPlotter; ///< Records progress information
+    std::shared_ptr<Gem::Common::GGraph2D> progressPlotter_; ///< Records progress information
     std::shared_ptr<Gem::Common::GGraph2D>
-        m_nParentPlotter; ///< Records the number of parents in the individual
+        nParentPlotter_; ///< Records the number of parents in the individual
     std::shared_ptr<Gem::Common::GGraph2D>
-        m_nChildrenPlotter; ///< Records the number of children in the individual
+        nChildrenPlotter_; ///< Records the number of children in the individual
     std::shared_ptr<Gem::Common::GGraph2D>
-        m_adProbPlotter; ///< Records the adaption probability for the individual
+        adProbPlotter_; ///< Records the adaption probability for the individual
     std::shared_ptr<Gem::Common::GGraph2D>
-        m_minSigmaPlotter; ///< Records the development of the lower sigma boundary
+        minSigmaPlotter_; ///< Records the development of the lower sigma boundary
     std::shared_ptr<Gem::Common::GGraph2D>
-        m_maxSigmaPlotter; ///< Records the development of the upper sigma boundary
+        maxSigmaPlotter_; ///< Records the development of the upper sigma boundary
     std::shared_ptr<Gem::Common::GGraph2D>
-        m_sigmaRangePlotter; ///< Records the development of the sigma range
+        sigmaRangePlotter_; ///< Records the development of the sigma range
     std::shared_ptr<Gem::Common::GGraph2D>
-        m_sigmaSigmaPlotter; ///< Records the development of the adaption strength
+        sigmaSigmaPlotter_; ///< Records the development of the adaption strength
 };
 
 /******************************************************************************/

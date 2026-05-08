@@ -67,9 +67,9 @@ class GSimulatedAnnealing // NOLINT(cppcoreguidelines-special-member-functions)
         ar &make_nvp(
             "G_OptimizationAlgorithm_ParChild",
             boost::serialization::base_object<G_OptimizationAlgorithm_ParChild>(*this)
-        ) & BOOST_SERIALIZATION_NVP(m_t0) &
-            BOOST_SERIALIZATION_NVP(m_t) & BOOST_SERIALIZATION_NVP(m_alpha) &
-            BOOST_SERIALIZATION_NVP(m_n_threads);
+        ) & BOOST_SERIALIZATION_NVP(t0_) &
+            BOOST_SERIALIZATION_NVP(t_) & BOOST_SERIALIZATION_NVP(alpha_) &
+            BOOST_SERIALIZATION_NVP(n_threads_);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -189,13 +189,13 @@ private:
     /***************************************************************************/
     // Data
 
-    double m_t0 = SA_T0;       ///< The start temperature, used in simulated annealing
-    double m_t = m_t0;         ///< The current temperature, used in simulated annealing
-    double m_alpha = SA_ALPHA; ///< A constant used in the cooling schedule in simulated annealing
+    double t0_ = SA_T0;       ///< The start temperature, used in simulated annealing
+    double t_ = t0_;         ///< The current temperature, used in simulated annealing
+    double alpha_ = SA_ALPHA; ///< A constant used in the cooling schedule in simulated annealing
 
-    std::uint16_t m_n_threads = Gem::Common::DEFAULTNHARDWARETHREADS; ///< The number of threads
+    std::uint16_t n_threads_ = Gem::Common::DEFAULTNHARDWARETHREADS; ///< The number of threads
 
-    std::shared_ptr<Gem::Common::GThreadPool> m_tp_ptr; ///< Temporarily holds a thread pool
+    std::shared_ptr<Gem::Common::GThreadPool> tp_ptr_; ///< Temporarily holds a thread pool
 };
 
 /******************************************************************************/

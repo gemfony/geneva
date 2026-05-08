@@ -134,11 +134,11 @@ public:
 	  */
     void finalize() {
         // Only allow one finalization action to be carried out
-        if(m_finalized)
+        if(finalized_)
             return;
 
         // Shut down all consumers
-        for(auto const &c_ptr : m_consumer_collection_cnt) {
+        for(auto const &c_ptr : consumer_collection_cnt_) {
             c_ptr->shutdown();
         }
 
@@ -146,15 +146,15 @@ public:
             //-----------------------------------------------------------------------
             // Lock the access to our internal data simultaneously for all mutexs
             std::unique_lock<std::mutex> switchGetPositionLock(
-                m_switchGetPositionMutex,
+                switchGetPositionMutex_,
                 std::defer_lock
             );
             std::unique_lock<std::mutex> findProcessedBufferLock(
-                m_findProcesedBufferMutex,
+                findProcesedBufferMutex_,
                 std::defer_lock
             );
             std::unique_lock<std::mutex> consumerEnrolmentLock(
-                m_consumerEnrolmentMutex,
+                consumerEnrolmentMutex_,
                 std::defer_lock
             );
 
@@ -162,13 +162,13 @@ public:
             //-----------------------------------------------------------------------
 
             // Clear raw and processed buffers and the consumer lists
-            m_RawBuffers.clear();
-            m_ProcessedBuffers.clear();
-            m_consumer_collection_cnt.clear();
-            m_buffersPresent.store(false);
+            RawBuffers_.clear();
+            ProcessedBuffers_.clear();
+            consumer_collection_cnt_.clear();
+            buffersPresent_.store(false);
 
             // Make sure this function does not execute code a second time
-            m_finalized.store(true);
+            finalized_.store(true);
         }
     }
 
@@ -191,11 +191,11 @@ public:
         // Lock the access to our internal data simultaneously for all mutexes
 
         std::unique_lock<std::mutex> switchGetPositionLock(
-            m_switchGetPositionMutex,
+            switchGetPositionMutex_,
             std::defer_lock
         );
         std::unique_lock<std::mutex> findProcessedBufferLock(
-            m_findProcesedBufferMutex,
+            findProcesedBufferMutex_,
             std::defer_lock
         );
         std::lock( // Lock both locks simultaneously
@@ -208,11 +208,11 @@ public:
         // Note that, unforunately, g++ < 5.0 does not support auto in lambda statements,
         // otherwise the following statements could be simplified.
         std::size_t nErasedRaw = Gem::Common::erase_if(
-            m_RawBuffers,
+            RawBuffers_,
             [](const std::pair<BUFFERPORT_ID_TYPE, GBUFFERPORT_PTR> &p) -> bool {
                 return (not p.second->is_connected_to_producer());
             }
-        ); // m_RawBuffers is a std::map, so items are of type std::pair
+        ); // RawBuffers_ is a std::map, so items are of type std::pair
 
 #ifdef DEBUG
         if(nErasedRaw > 0) {
@@ -223,11 +223,11 @@ public:
 #endif
 
         std::size_t nErasedProc = Gem::Common::erase_if(
-            m_ProcessedBuffers,
+            ProcessedBuffers_,
             [](const std::pair<BUFFERPORT_ID_TYPE, GBUFFERPORT_PTR> &p) -> bool {
                 return (not p.second->is_connected_to_producer());
             }
-        ); // m_ProcessedBuffers is a std::map, so items are of type std::pair
+        ); // ProcessedBuffers_ is a std::map, so items are of type std::pair
 
 #ifdef DEBUG
         if(nErasedProc != nErasedRaw) {
@@ -248,16 +248,16 @@ public:
 
         // Update the number of registered buffer ports
 #ifdef DEBUG
-        if(BUFFERPORT_ID_TYPE(nErasedRaw) > m_n_registered_buffer_ports) {
+        if(BUFFERPORT_ID_TYPE(nErasedRaw) > n_registered_buffer_ports_) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GBrokerT<>::enrol_buffer_port(buffer-port-ptr):" << std::endl
-                << "nErasedRaw (" << nErasedRaw << ") > m_n_registered_buffer_ports ("
-                << m_n_registered_buffer_ports << ")" << std::endl
+                << "nErasedRaw (" << nErasedRaw << ") > n_registered_buffer_ports_ ("
+                << n_registered_buffer_ports_ << ")" << std::endl
             );
         }
 #endif
-        m_n_registered_buffer_ports -= BUFFERPORT_ID_TYPE(nErasedRaw);
+        n_registered_buffer_ports_ -= BUFFERPORT_ID_TYPE(nErasedRaw);
 
         // Retrieve a new id for the buffer port.
         auto gbp_tag = getNextBufferPortId();
@@ -266,11 +266,11 @@ public:
         gbp_ptr->set_port_tag(gbp_tag);
 
         // Attach the new items to the maps
-        m_RawBuffers[gbp_tag] = gbp_ptr;
-        m_ProcessedBuffers[gbp_tag] = gbp_ptr;
+        RawBuffers_[gbp_tag] = gbp_ptr;
+        ProcessedBuffers_[gbp_tag] = gbp_ptr;
 
         // Increment the number of registered buffer ports and check if we have exceeded the allowed amound
-        if(++m_n_registered_buffer_ports > MAXREGISTEREDBUFFERPORTS) {
+        if(++n_registered_buffer_ports_ > MAXREGISTEREDBUFFERPORTS) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GBrokerT<>::enrol_buffer_port(buffer-port-ptr):" << std::endl
@@ -280,15 +280,15 @@ public:
         }
 
         // Fix the current get-pointer. We simply attach it to the start of the list
-        m_currentGetPosition = m_RawBuffers.begin();
+        currentGetPosition_ = RawBuffers_.begin();
 
         std::cout << "Buffer port with id " << gbp_tag << " successfully enrolled" << std::endl;
 
         // Let the audience know
-        m_buffersPresent.store(true);
+        buffersPresent_.store(true);
 
         // Let the audience know whether all consumers are capable of full return
-        return m_capable_of_full_return;
+        return capable_of_full_return_;
     }
 
     /***************************************************************************/
@@ -301,7 +301,7 @@ public:
         //-----------------------------------------------------------------------
         // Check whether consumers have already been enrolled. As this may happen
         // only once, we emit a warning and return
-        if(m_consumersPresent) {
+        if(consumersPresent_) {
             glogger << "In GBrokerT<>::enrol_buffer_port(consumer_ptr): One or more consumers have "
                        "already been enrolled."
                     << std::endl
@@ -312,14 +312,14 @@ public:
         }
 
         //-----------------------------------------------------------------------
-        std::unique_lock<std::mutex> consumerEnrolmentLock(m_consumerEnrolmentMutex);
+        std::unique_lock<std::mutex> consumerEnrolmentLock(consumerEnrolmentMutex_);
 
         // Do nothing if a consumer of this type has already been registered
         if(std::find(
-               m_consumerTypesPresent.begin(),
-               m_consumerTypesPresent.end(),
+               consumerTypesPresent_.begin(),
+               consumerTypesPresent_.end(),
                gc_ptr->getConsumerName()
-           ) != m_consumerTypesPresent.end()) {
+           ) != consumerTypesPresent_.end()) {
             glogger << "In GBrokerT<>::enrol_buffer_port(consumer):" << std::endl
                     << "Consumer with name " << gc_ptr->getConsumerName() << " aleady exists."
                     << std::endl
@@ -330,8 +330,8 @@ public:
         }
 
         // Archive the consumer and its name, then start its thread
-        m_consumer_collection_cnt.push_back(gc_ptr);
-        m_consumerTypesPresent.push_back(gc_ptr->getConsumerName());
+        consumer_collection_cnt_.push_back(gc_ptr);
+        consumerTypesPresent_.push_back(gc_ptr->getConsumerName());
 
         // Initiate processing in the consumer. This call will not block.
         gc_ptr->async_startProcessing();
@@ -339,15 +339,15 @@ public:
         //-----------------------------------------------------------------------
         // Make it known to subsequent calls that a consumer is already present
 
-        m_consumersPresent.store(true);
+        consumersPresent_.store(true);
 
         //-----------------------------------------------------------------------
 
         // Check whether all registered consumers are capable of full return
-        m_capable_of_full_return.store(this->checkConsumersCapableOfFullReturn());
+        capable_of_full_return_.store(this->checkConsumersCapableOfFullReturn());
 
         // Notify all interested parties
-        m_consumersEnrolledCondition.notify_all();
+        consumersEnrolledCondition_.notify_all();
 
         //-----------------------------------------------------------------------
     }
@@ -363,7 +363,7 @@ public:
         //-----------------------------------------------------------------------
         // Check whether consumers have already been enrolled. As this may happen
         // only once, we emit a warning and return
-        if(m_consumersPresent) {
+        if(consumersPresent_) {
             glogger << "In GBrokerT<>::enrol_buffer_port(consumer_ptr_vec): One or more consumers "
                        "have already been enrolled."
                     << std::endl
@@ -374,15 +374,15 @@ public:
         }
 
         //-----------------------------------------------------------------------
-        std::unique_lock<std::mutex> consumerEnrolmentLock(m_consumerEnrolmentMutex);
+        std::unique_lock<std::mutex> consumerEnrolmentLock(consumerEnrolmentMutex_);
 
         for(auto const &consumer_ptr : gc_ptr_cnt) {
             // Do nothing if a consumer of this type has already been registered
             if(std::find(
-                   m_consumerTypesPresent.begin(),
-                   m_consumerTypesPresent.end(),
+                   consumerTypesPresent_.begin(),
+                   consumerTypesPresent_.end(),
                    consumer_ptr->getConsumerName()
-               ) != m_consumerTypesPresent.end()) {
+               ) != consumerTypesPresent_.end()) {
                 glogger
                     << "In GBrokerT<>::enrol_buffer_port(consumer_ptr_vec): A consumer with name "
                     << consumer_ptr->getConsumerName() << std::endl
@@ -394,8 +394,8 @@ public:
             }
 
             // Archive the consumer and its name, then start its thread
-            m_consumer_collection_cnt.push_back(consumer_ptr);
-            m_consumerTypesPresent.push_back(consumer_ptr->getConsumerName());
+            consumer_collection_cnt_.push_back(consumer_ptr);
+            consumerTypesPresent_.push_back(consumer_ptr->getConsumerName());
 
             // Initiate processing in the consumer. This call will not block.
             consumer_ptr->async_startProcessing();
@@ -404,15 +404,15 @@ public:
         //-----------------------------------------------------------------------
         // Make it known to subsequent calls that a consumer is already present
 
-        m_consumersPresent.store(true);
+        consumersPresent_.store(true);
 
         //-----------------------------------------------------------------------
 
         // Check whether all registered consumers are capable of full return
-        m_capable_of_full_return.store(this->checkConsumersCapableOfFullReturn());
+        capable_of_full_return_.store(this->checkConsumersCapableOfFullReturn());
 
         // Notify all interested parties
-        m_consumersEnrolledCondition.notify_all();
+        consumersEnrolledCondition_.notify_all();
 
         //-----------------------------------------------------------------------
     }
@@ -539,7 +539,7 @@ public:
 	  * @return A boolean indicating whether any consumers are registered
 	  */
     bool hasConsumers() const {
-        return m_consumersPresent;
+        return consumersPresent_;
     }
 
     /***************************************************************************/
@@ -551,14 +551,14 @@ public:
 	  * is not prevented.
 	  */
     bool capableOfFullReturn() const {
-        std::unique_lock<std::mutex> consumerEnrolmentLock(m_consumerEnrolmentMutex);
-        if(not m_consumersPresent) {
-            m_consumersEnrolledCondition.wait(consumerEnrolmentLock, [this]() -> bool {
+        std::unique_lock<std::mutex> consumerEnrolmentLock(consumerEnrolmentMutex_);
+        if(not consumersPresent_) {
+            consumersEnrolledCondition_.wait(consumerEnrolmentLock, [this]() -> bool {
                 return this->hasConsumers();
             });
         }
 
-        return m_capable_of_full_return;
+        return capable_of_full_return_;
     }
 
 private:
@@ -569,15 +569,15 @@ private:
 	  */
     GBUFFERPORT_PTR getNextRawBufferPort() {
         // Protect access to the iterator
-        std::unique_lock<std::mutex> switchGetPositionLock(m_switchGetPositionMutex);
+        std::unique_lock<std::mutex> switchGetPositionLock(switchGetPositionMutex_);
 
-        if(not m_RawBuffers.empty()) {
+        if(not RawBuffers_.empty()) {
             // Save the current get position
-            auto currentGetPosition = m_currentGetPosition;
+            auto currentGetPosition = currentGetPosition_;
 
             // Switch to the next position, if any
-            if((m_RawBuffers.size() > 1) && (++m_currentGetPosition == m_RawBuffers.end())) {
-                m_currentGetPosition = m_RawBuffers.begin();
+            if((RawBuffers_.size() > 1) && (++currentGetPosition_ == RawBuffers_.end())) {
+                currentGetPosition_ = RawBuffers_.begin();
             }
 
             // Return the shared_ptr. This will also keep the buffer port alive
@@ -595,11 +595,11 @@ private:
 	  */
     GBUFFERPORT_PTR getProcessedBufferPort(BUFFERPORT_ID_TYPE id) {
         // Protect access to the map
-        std::unique_lock<std::mutex> findProcessedBufferLock(m_findProcesedBufferMutex);
+        std::unique_lock<std::mutex> findProcessedBufferLock(findProcesedBufferMutex_);
 
         // Find the buffer port (if any)
         try {
-            return m_ProcessedBuffers.at(id);
+            return ProcessedBuffers_.at(id);
         }
         catch(const std::out_of_range &) {
             // Return an empty pointer
@@ -615,7 +615,7 @@ private:
 	  * @return A boolean indicating whether all registered consumers are capable of full return
 	  */
     bool checkConsumersCapableOfFullReturn() {
-        if(m_consumer_collection_cnt.empty()) {
+        if(consumer_collection_cnt_.empty()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GBrokerT<processable_type>::checkConsumersCapableOfFullReturn(): Error!"
@@ -625,7 +625,7 @@ private:
         }
 
         bool capable_of_full_return = true;
-        for(auto const &item_ptr : m_consumer_collection_cnt) {
+        for(auto const &item_ptr : consumer_collection_cnt_) {
             if(not item_ptr->capableOfFullReturn()) {
                 capable_of_full_return = false;
                 break; // stop the loop
@@ -647,19 +647,19 @@ private:
     BUFFERPORT_ID_TYPE getNextBufferPortId() {
         bool id_in_use = false;
         BUFFERPORT_ID_TYPE next_id =
-            m_current_bufferport_id; // NOLINT(cppcoreguidelines-init-variables)
+            current_bufferport_id_; // NOLINT(cppcoreguidelines-init-variables)
 
         do {
             id_in_use = false;
-            next_id = m_current_bufferport_id;
+            next_id = current_bufferport_id_;
 
             // Reset the id, if we have reached the maximum size
-            if(++m_current_bufferport_id == (std::numeric_limits<BUFFERPORT_ID_TYPE>::max)()) {
-                m_current_bufferport_id = 0;
+            if(++current_bufferport_id_ == (std::numeric_limits<BUFFERPORT_ID_TYPE>::max)()) {
+                current_bufferport_id_ = 0;
             }
 
             // Check if the id is already being used
-            for(const auto &port : m_RawBuffers) {
+            for(const auto &port : RawBuffers_) {
                 if(port.first == next_id) {
                     id_in_use = true;
                     break;
@@ -674,43 +674,43 @@ private:
     /***************************************************************************/
     // Data
 
-    std::atomic<bool> m_finalized{
+    std::atomic<bool> finalized_{
         false
     }; ///< Indicates whether the finalization code has already been executed
 
-    mutable std::mutex m_consumerEnrolmentMutex;  ///< Protects the enrolment of consumers
-    mutable std::mutex m_switchGetPositionMutex;  ///< Protects switches to the next get position
-    mutable std::mutex m_findProcesedBufferMutex; ///< Protects finding a given processed buffer
+    mutable std::mutex consumerEnrolmentMutex_;  ///< Protects the enrolment of consumers
+    mutable std::mutex switchGetPositionMutex_;  ///< Protects switches to the next get position
+    mutable std::mutex findProcesedBufferMutex_; ///< Protects finding a given processed buffer
 
     mutable std::condition_variable
-        m_consumersEnrolledCondition; ///< Allows to notify interested parties once consumers have been enrolled
+        consumersEnrolledCondition_; ///< Allows to notify interested parties once consumers have been enrolled
 
-    RawBufferPtrMap m_RawBuffers;             ///< Holds a std::map of buffer pointers
-    ProcessedBufferPtrMap m_ProcessedBuffers; ///< Holds a std::map of buffer pointers
+    RawBufferPtrMap RawBuffers_;             ///< Holds a std::map of buffer pointers
+    ProcessedBufferPtrMap ProcessedBuffers_; ///< Holds a std::map of buffer pointers
 
-    typename RawBufferPtrMap::iterator m_currentGetPosition{
-        m_RawBuffers.begin()
-    }; ///< The current get position in the m_RawBuffers collection
-    std::atomic<bool> m_buffersPresent{
+    typename RawBufferPtrMap::iterator currentGetPosition_{
+        RawBuffers_.begin()
+    }; ///< The current get position in the RawBuffers_ collection
+    std::atomic<bool> buffersPresent_{
         false
     }; ///< Set to true once the first buffers have been enrolled
 
-    std::atomic<bool> m_consumersPresent{
+    std::atomic<bool> consumersPresent_{
         false
     }; ///< Set to true once one or more consumers have been enrolled
-    std::atomic<bool> m_capable_of_full_return{
+    std::atomic<bool> capable_of_full_return_{
         false
     }; ///< Set to true if all registered consumers are capable of full return, otherwise false
 
     std::vector<std::shared_ptr<GBaseConsumerT<processable_type>>>
-        m_consumer_collection_cnt; ///< Holds the actual consumers
+        consumer_collection_cnt_; ///< Holds the actual consumers
     std::vector<std::string>
-        m_consumerTypesPresent; ///< Holds identifying strings for each consumer
+        consumerTypesPresent_; ///< Holds identifying strings for each consumer
 
-    std::atomic<BUFFERPORT_ID_TYPE> m_current_bufferport_id{
+    std::atomic<BUFFERPORT_ID_TYPE> current_bufferport_id_{
         BUFFERPORT_ID_TYPE(0)
     }; ///< The id assigned to the last registered buffer port
-    std::atomic<BUFFERPORT_ID_TYPE> m_n_registered_buffer_ports{
+    std::atomic<BUFFERPORT_ID_TYPE> n_registered_buffer_ports_{
         BUFFERPORT_ID_TYPE(0)
     }; ///< The current number of registered buffer ports
 };

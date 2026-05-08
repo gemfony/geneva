@@ -67,7 +67,7 @@ void GBasePluggableOM::compare_(
     Gem::Common::compare_base_t<GObject>(*this, *p_load, token);
 
     // ... and then our local data
-    compare_t(IDENTITY(m_useRawEvaluation, p_load->m_useRawEvaluation), token);
+    compare_t(IDENTITY(useRawEvaluation_, p_load->useRawEvaluation_), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -75,18 +75,18 @@ void GBasePluggableOM::compare_(
 
 /******************************************************************************/
 /**
- * Allows to set the m_useRawEvaluation variable
+ * Allows to set the useRawEvaluation_ variable
  */
 void GBasePluggableOM::setUseRawEvaluation(bool useRaw) {
-    m_useRawEvaluation = useRaw;
+    useRawEvaluation_ = useRaw;
 }
 
 /******************************************************************************/
 /**
- * Allows to retrieve the value of the m_useRawEvaluation variable
+ * Allows to retrieve the value of the useRawEvaluation_ variable
  */
 bool GBasePluggableOM::getUseRawEvaluation() const {
-    return m_useRawEvaluation;
+    return useRawEvaluation_;
 }
 
 /******************************************************************************/
@@ -116,7 +116,7 @@ void GBasePluggableOM::load_(const GObject *cp) {
     GObject::load_(cp);
 
     // ... and then our local data
-    m_useRawEvaluation = p_load->m_useRawEvaluation;
+    useRawEvaluation_ = p_load->useRawEvaluation_;
 }
 
 /******************************************************************************/
@@ -188,46 +188,46 @@ void GBasePluggableOM::specificTestsFailuresExpected_GUnitTests_() {
 G_OptimizationAlgorithm_Base::G_OptimizationAlgorithm_Base(const G_OptimizationAlgorithm_Base &cp)
   : GObject(cp)
   , Gem::Common::GPtrVectorT<GParameterSet, Gem::Geneva::GObject>(cp)
-  , m_iteration(cp.m_iteration)
-  , m_offset(DEFAULTOFFSET)
-  , m_minIteration(cp.m_minIteration)
-  , m_maxIteration(cp.m_maxIteration)
-  , m_maxStallIteration(cp.m_maxStallIteration)
-  , m_reportIteration(cp.m_reportIteration)
-  , m_nRecordbestGlobalIndividuals(cp.m_nRecordbestGlobalIndividuals)
-  , m_bestGlobalIndividuals_pq(cp.m_bestGlobalIndividuals_pq)
-  , m_bestIterationIndividuals_pq(cp.m_bestIterationIndividuals_pq)
-  , m_defaultPopulationSize(cp.m_defaultPopulationSize)
-  , m_bestKnownPrimaryFitness(cp.m_bestKnownPrimaryFitness)
-  , m_bestCurrentPrimaryFitness(cp.m_bestCurrentPrimaryFitness)
-  , m_stallCounter(cp.m_stallCounter)
-  , m_stallCounterThreshold(cp.m_stallCounterThreshold)
-  , m_cp_interval(cp.m_cp_interval)
-  , m_cp_base_name(cp.m_cp_base_name)
-  , m_cp_directory_path(cp.m_cp_directory_path)
-  , m_cp_last(cp.m_cp_last)
-  , m_cp_remove(cp.m_cp_remove)
-  , m_cp_serialization_mode(cp.m_cp_serialization_mode)
-  , m_qualityThreshold(cp.m_qualityThreshold)
-  , m_hasQualityThreshold(cp.m_hasQualityThreshold)
-  , m_maxDuration(cp.m_maxDuration)
-  , m_minDuration(cp.m_minDuration)
-  , m_terminationFile(cp.m_terminationFile)
-  , m_terminateOnFileModification(cp.m_terminateOnFileModification)
-  , m_emitTerminationReason(cp.m_emitTerminationReason)
-  , m_worstKnownValids_cnt(cp.m_worstKnownValids_cnt)
-  , m_default_execMode(cp.m_default_execMode)
-  , m_default_executor_config(cp.m_default_executor_config) {
+  , iteration_(cp.iteration_)
+  , offset_(DEFAULTOFFSET)
+  , minIteration_(cp.minIteration_)
+  , maxIteration_(cp.maxIteration_)
+  , maxStallIteration_(cp.maxStallIteration_)
+  , reportIteration_(cp.reportIteration_)
+  , nRecordbestGlobalIndividuals_(cp.nRecordbestGlobalIndividuals_)
+  , bestGlobalIndividuals_pq_(cp.bestGlobalIndividuals_pq_)
+  , bestIterationIndividuals_pq_(cp.bestIterationIndividuals_pq_)
+  , defaultPopulationSize_(cp.defaultPopulationSize_)
+  , bestKnownPrimaryFitness_(cp.bestKnownPrimaryFitness_)
+  , bestCurrentPrimaryFitness_(cp.bestCurrentPrimaryFitness_)
+  , stallCounter_(cp.stallCounter_)
+  , stallCounterThreshold_(cp.stallCounterThreshold_)
+  , cp_interval_(cp.cp_interval_)
+  , cp_base_name_(cp.cp_base_name_)
+  , cp_directory_path_(cp.cp_directory_path_)
+  , cp_last_(cp.cp_last_)
+  , cp_remove_(cp.cp_remove_)
+  , cp_serialization_mode_(cp.cp_serialization_mode_)
+  , qualityThreshold_(cp.qualityThreshold_)
+  , hasQualityThreshold_(cp.hasQualityThreshold_)
+  , maxDuration_(cp.maxDuration_)
+  , minDuration_(cp.minDuration_)
+  , terminationFile_(cp.terminationFile_)
+  , terminateOnFileModification_(cp.terminateOnFileModification_)
+  , emitTerminationReason_(cp.emitTerminationReason_)
+  , worstKnownValids_cnt_(cp.worstKnownValids_cnt_)
+  , default_execMode_(cp.default_execMode_)
+  , default_executor_config_(cp.default_executor_config_) {
     // Copy atomics over
-    m_halted.store(cp.m_halted.load());
+    halted_.store(cp.halted_.load());
 
     // Copy the executor over
-    Gem::Common::copyCloneableSmartPointer(cp.m_executor_ptr, m_executor_ptr);
+    Gem::Common::copyCloneableSmartPointer(cp.executor_ptr_, executor_ptr_);
 
     // Copy the pluggable optimization monitors over (if any)
     Gem::Common::copyCloneableSmartPointerContainer(
-        cp.m_pluggable_monitors_cnt,
-        m_pluggable_monitors_cnt
+        cp.pluggable_monitors_cnt_,
+        pluggable_monitors_cnt_
     );
 }
 
@@ -254,10 +254,10 @@ void G_OptimizationAlgorithm_Base::checkpoint(bool is_better) const {
         );
 
     // Save checkpoints if required by the user
-    if(m_cp_interval < 0 && is_better) {
+    if(cp_interval_ < 0 && is_better) {
         do_save = true;
     } // Only save when a better solution was found
-    else if(m_cp_interval > 0 && m_iteration % m_cp_interval == 0) {
+    else if(cp_interval_ > 0 && iteration_ % cp_interval_ == 0) {
         do_save = true;
     } // Save in regular intervals
     else if(this->halted()) {
@@ -268,14 +268,14 @@ void G_OptimizationAlgorithm_Base::checkpoint(bool is_better) const {
         saveCheckpoint(output_file);
 
         // Remove the last checkoint file if requested by the user
-        if(m_cp_remove && m_cp_last != "empty") {
-            if(std::filesystem::exists(std::filesystem::path(m_cp_last))) {
-                std::filesystem::remove(std::filesystem::path(m_cp_last));
+        if(cp_remove_ && cp_last_ != "empty") {
+            if(std::filesystem::exists(std::filesystem::path(cp_last_))) {
+                std::filesystem::remove(std::filesystem::path(cp_last_));
             }
         }
 
         // Record the name of the last known checkpoint file
-        m_cp_last = output_file.string();
+        cp_last_ = output_file.string();
     }
 }
 
@@ -310,7 +310,7 @@ void G_OptimizationAlgorithm_Base::loadCheckpoint(std::filesystem::path const &c
  * @return A boolean indicating whether the optimization process has been halted
  */
 bool G_OptimizationAlgorithm_Base::halted() const {
-    return m_halted;
+    return halted_;
 }
 
 /******************************************************************************/
@@ -322,7 +322,7 @@ bool G_OptimizationAlgorithm_Base::halted() const {
  * @param cpInterval The number of generations after which a checkpoint should be written
  */
 void G_OptimizationAlgorithm_Base::setCheckpointInterval(std::int32_t cpInterval) {
-    m_cp_interval = cpInterval;
+    cp_interval_ = cpInterval;
 }
 
 /******************************************************************************/
@@ -332,7 +332,7 @@ void G_OptimizationAlgorithm_Base::setCheckpointInterval(std::int32_t cpInterval
  * @return The number of generations after which a checkpoint should be written
  */
 std::int32_t G_OptimizationAlgorithm_Base::getCheckpointInterval() const {
-    return m_cp_interval;
+    return cp_interval_;
 }
 
 /******************************************************************************/
@@ -368,31 +368,31 @@ void G_OptimizationAlgorithm_Base::setCheckpointBaseName(
         );
     }
 
-    m_cp_base_name = cpBaseName;
+    cp_base_name_ = cpBaseName;
 
     // Transform the directory into a path
-    m_cp_directory_path = std::filesystem::path(cpDirectory);
+    cp_directory_path_ = std::filesystem::path(cpDirectory);
 
     // Check that the provided directory exists
-    if(not std::filesystem::exists(m_cp_directory_path)) {
+    if(not std::filesystem::exists(cp_directory_path_)) {
         glogger << "In G_OptimizationAlgorithm_Base::setCheckpointBaseName(): Warning!" << std::endl
-                << "Directory " << m_cp_directory_path.string()
+                << "Directory " << cp_directory_path_.string()
                 << " does not exist and will be created automatically." << std::endl
                 << GWARNING;
 
-        if(not std::filesystem::create_directory(m_cp_directory_path)) {
+        if(not std::filesystem::create_directory(cp_directory_path_)) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In G_OptimizationAlgorithm_Base::setCheckpointBaseName(): Error!" << std::endl
-                << "Could not create directory " << m_cp_directory_path.string() << std::endl
+                << "Could not create directory " << cp_directory_path_.string() << std::endl
             );
         }
     }
-    else if(not std::filesystem::is_directory(m_cp_directory_path)) {
+    else if(not std::filesystem::is_directory(cp_directory_path_)) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In G_OptimizationAlgorithm_Base::setCheckpointBaseName(): Error!" << std::endl
-            << m_cp_directory_path.string() << " exists but is no directory." << std::endl
+            << cp_directory_path_.string() << " exists but is no directory." << std::endl
         );
     }
 }
@@ -404,7 +404,7 @@ void G_OptimizationAlgorithm_Base::setCheckpointBaseName(
  * @return The base name used for checkpoint files
  */
 std::string G_OptimizationAlgorithm_Base::getCheckpointBaseName() const {
-    return m_cp_base_name;
+    return cp_base_name_;
 }
 
 /******************************************************************************/
@@ -414,7 +414,7 @@ std::string G_OptimizationAlgorithm_Base::getCheckpointBaseName() const {
  * @return The base name used for checkpoint files
  */
 std::string G_OptimizationAlgorithm_Base::getCheckpointDirectory() const {
-    return m_cp_directory_path.string();
+    return cp_directory_path_.string();
 }
 
 /******************************************************************************/
@@ -424,7 +424,7 @@ std::string G_OptimizationAlgorithm_Base::getCheckpointDirectory() const {
  * @return The base name used for checkpoint files
  */
 std::filesystem::path G_OptimizationAlgorithm_Base::getCheckpointDirectoryPath() const {
-    return m_cp_directory_path;
+    return cp_directory_path_;
 }
 
 /******************************************************************************/
@@ -436,7 +436,7 @@ std::filesystem::path G_OptimizationAlgorithm_Base::getCheckpointDirectoryPath()
 void G_OptimizationAlgorithm_Base::setCheckpointSerializationMode(
     Gem::Common::serializationMode cpSerMode
 ) {
-    m_cp_serialization_mode = cpSerMode;
+    cp_serialization_mode_ = cpSerMode;
 }
 
 /******************************************************************************/
@@ -447,16 +447,16 @@ void G_OptimizationAlgorithm_Base::setCheckpointSerializationMode(
  */
 Gem::Common::serializationMode
 G_OptimizationAlgorithm_Base::getCheckpointSerializationMode() const {
-    return m_cp_serialization_mode;
+    return cp_serialization_mode_;
 }
 
 /******************************************************************************/
 /**
- * Allows to set the m_cp_overwrite flag (determines whether checkpoint files
+ * Allows to set the cp_overwrite_ flag (determines whether checkpoint files
  * should be removed or kept
  */
 void G_OptimizationAlgorithm_Base::setRemoveCheckpointFiles(bool cp_remove) {
-    m_cp_remove = cp_remove;
+    cp_remove_ = cp_remove;
 }
 
 /******************************************************************************/
@@ -464,7 +464,7 @@ void G_OptimizationAlgorithm_Base::setRemoveCheckpointFiles(bool cp_remove) {
  * Allows to check whether checkpoint files will be removed
  */
 bool G_OptimizationAlgorithm_Base::checkpointFilesAreRemoved() const {
-    return m_cp_remove;
+    return cp_remove_;
 }
 
 /******************************************************************************/
@@ -494,57 +494,57 @@ void G_OptimizationAlgorithm_Base::compare_(
 
     // ... and then the local data
     compare_t(
-        IDENTITY(this->m_data_cnt, p_load->m_data_cnt),
+        IDENTITY(this->data_cnt_, p_load->data_cnt_),
         token
     ); // This allows us to compare the parent class without directly referring to it.
-    compare_t(IDENTITY(m_iteration, p_load->m_iteration), token);
-    compare_t(IDENTITY(m_offset, p_load->m_offset), token);
-    compare_t(IDENTITY(m_maxIteration, p_load->m_maxIteration), token);
-    compare_t(IDENTITY(m_minIteration, p_load->m_minIteration), token);
-    compare_t(IDENTITY(m_maxStallIteration, p_load->m_maxStallIteration), token);
-    compare_t(IDENTITY(m_reportIteration, p_load->m_reportIteration), token);
+    compare_t(IDENTITY(iteration_, p_load->iteration_), token);
+    compare_t(IDENTITY(offset_, p_load->offset_), token);
+    compare_t(IDENTITY(maxIteration_, p_load->maxIteration_), token);
+    compare_t(IDENTITY(minIteration_, p_load->minIteration_), token);
+    compare_t(IDENTITY(maxStallIteration_, p_load->maxStallIteration_), token);
+    compare_t(IDENTITY(reportIteration_, p_load->reportIteration_), token);
     compare_t(
-        IDENTITY(m_nRecordbestGlobalIndividuals, p_load->m_nRecordbestGlobalIndividuals),
+        IDENTITY(nRecordbestGlobalIndividuals_, p_load->nRecordbestGlobalIndividuals_),
         token
     );
-    compare_t(IDENTITY(m_bestGlobalIndividuals_pq, p_load->m_bestGlobalIndividuals_pq), token);
+    compare_t(IDENTITY(bestGlobalIndividuals_pq_, p_load->bestGlobalIndividuals_pq_), token);
     compare_t(
-        IDENTITY(m_bestIterationIndividuals_pq, p_load->m_bestIterationIndividuals_pq),
+        IDENTITY(bestIterationIndividuals_pq_, p_load->bestIterationIndividuals_pq_),
         token
     );
-    compare_t(IDENTITY(m_defaultPopulationSize, p_load->m_defaultPopulationSize), token);
-    compare_t(IDENTITY(m_bestKnownPrimaryFitness, p_load->m_bestKnownPrimaryFitness), token);
-    compare_t(IDENTITY(m_bestCurrentPrimaryFitness, p_load->m_bestCurrentPrimaryFitness), token);
-    compare_t(IDENTITY(m_stallCounter, p_load->m_stallCounter), token);
-    compare_t(IDENTITY(m_stallCounterThreshold, p_load->m_stallCounterThreshold), token);
-    compare_t(IDENTITY(m_cp_interval, p_load->m_cp_interval), token);
-    compare_t(IDENTITY(m_cp_base_name, p_load->m_cp_base_name), token);
-    compare_t(IDENTITY(m_cp_directory_path.string(), p_load->m_cp_directory_path.string()), token);
-    compare_t(IDENTITY(m_cp_last, p_load->m_cp_last), token);
-    compare_t(IDENTITY(m_cp_remove, p_load->m_cp_remove), token);
-    compare_t(IDENTITY(m_cp_serialization_mode, p_load->m_cp_serialization_mode), token);
-    compare_t(IDENTITY(m_qualityThreshold, p_load->m_qualityThreshold), token);
-    compare_t(IDENTITY(m_hasQualityThreshold, p_load->m_hasQualityThreshold), token);
+    compare_t(IDENTITY(defaultPopulationSize_, p_load->defaultPopulationSize_), token);
+    compare_t(IDENTITY(bestKnownPrimaryFitness_, p_load->bestKnownPrimaryFitness_), token);
+    compare_t(IDENTITY(bestCurrentPrimaryFitness_, p_load->bestCurrentPrimaryFitness_), token);
+    compare_t(IDENTITY(stallCounter_, p_load->stallCounter_), token);
+    compare_t(IDENTITY(stallCounterThreshold_, p_load->stallCounterThreshold_), token);
+    compare_t(IDENTITY(cp_interval_, p_load->cp_interval_), token);
+    compare_t(IDENTITY(cp_base_name_, p_load->cp_base_name_), token);
+    compare_t(IDENTITY(cp_directory_path_.string(), p_load->cp_directory_path_.string()), token);
+    compare_t(IDENTITY(cp_last_, p_load->cp_last_), token);
+    compare_t(IDENTITY(cp_remove_, p_load->cp_remove_), token);
+    compare_t(IDENTITY(cp_serialization_mode_, p_load->cp_serialization_mode_), token);
+    compare_t(IDENTITY(qualityThreshold_, p_load->qualityThreshold_), token);
+    compare_t(IDENTITY(hasQualityThreshold_, p_load->hasQualityThreshold_), token);
     compare_t(
-        IDENTITY(m_maxDuration.count(), p_load->m_maxDuration.count()),
+        IDENTITY(maxDuration_.count(), p_load->maxDuration_.count()),
         token
     ); // Cannot directly compare std::chrono::duration<double>
     compare_t(
-        IDENTITY(m_minDuration.count(), p_load->m_minDuration.count()),
+        IDENTITY(minDuration_.count(), p_load->minDuration_.count()),
         token
     ); // Cannot directly compare std::chrono::duration<double>
-    compare_t(IDENTITY(m_terminationFile, p_load->m_terminationFile), token);
+    compare_t(IDENTITY(terminationFile_, p_load->terminationFile_), token);
     compare_t(
-        IDENTITY(m_terminateOnFileModification, p_load->m_terminateOnFileModification),
+        IDENTITY(terminateOnFileModification_, p_load->terminateOnFileModification_),
         token
     );
-    compare_t(IDENTITY(m_emitTerminationReason, p_load->m_emitTerminationReason), token);
-    compare_t(IDENTITY(m_halted, p_load->m_halted), token);
-    compare_t(IDENTITY(m_worstKnownValids_cnt, p_load->m_worstKnownValids_cnt), token);
-    compare_t(IDENTITY(m_pluggable_monitors_cnt, p_load->m_pluggable_monitors_cnt), token);
-    compare_t(IDENTITY(m_executor_ptr, p_load->m_executor_ptr), token);
-    compare_t(IDENTITY(m_default_execMode, p_load->m_default_execMode), token);
-    compare_t(IDENTITY(m_default_executor_config, p_load->m_default_executor_config), token);
+    compare_t(IDENTITY(emitTerminationReason_, p_load->emitTerminationReason_), token);
+    compare_t(IDENTITY(halted_, p_load->halted_), token);
+    compare_t(IDENTITY(worstKnownValids_cnt_, p_load->worstKnownValids_cnt_), token);
+    compare_t(IDENTITY(pluggable_monitors_cnt_, p_load->pluggable_monitors_cnt_), token);
+    compare_t(IDENTITY(executor_ptr_, p_load->executor_ptr_), token);
+    compare_t(IDENTITY(default_execMode_, p_load->default_execMode_), token);
+    compare_t(IDENTITY(default_executor_config_, p_load->default_executor_config_), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -574,26 +574,26 @@ void G_OptimizationAlgorithm_Base::resetToOptimizationStart() {
 void G_OptimizationAlgorithm_Base::resetToOptimizationStart_() {
     this->clear(); // Remove all individuals found in this population
 
-    m_iteration = 0;                    // The current iteration
-    m_bestGlobalIndividuals_pq.clear(); // A priority queue with the best individuals found so far
-    m_bestIterationIndividuals_pq
+    iteration_ = 0;                    // The current iteration
+    bestGlobalIndividuals_pq_.clear(); // A priority queue with the best individuals found so far
+    bestIterationIndividuals_pq_
         .clear(); // A priority queue with the best individuals of a given iteration
 
-    m_bestKnownPrimaryFitness =
+    bestKnownPrimaryFitness_ =
         std::tuple<double, double>(0., 0.); // Records the best primary fitness found so far
-    m_bestCurrentPrimaryFitness = std::tuple<double, double>(
+    bestCurrentPrimaryFitness_ = std::tuple<double, double>(
         0.,
         0.
     ); // Records the best fitness found in the current iteration
 
-    m_stallCounter = 0; // Counts the number of iterations without improvement
+    stallCounter_ = 0; // Counts the number of iterations without improvement
 
-    m_halted = true; // Also means: No optimization is currently running
+    halted_ = true; // Also means: No optimization is currently running
 
-    m_worstKnownValids_cnt
+    worstKnownValids_cnt_
         .clear(); // Stores the worst known valid evaluations up to the current iteration (first entry: raw, second: tranformed)
 
-    m_executor_ptr.reset(); // Removes the local executor
+    executor_ptr_.reset(); // Removes the local executor
 }
 
 /******************************************************************************/
@@ -618,7 +618,7 @@ void G_OptimizationAlgorithm_Base::registerExecutor(
         return;
     }
 
-    if(not m_halted) {
+    if(not halted_) {
         glogger << "In G_OptimizationAlgorithm_Base::registerExecutor(): Warning!" << std::endl
                 << "Tried to register an executor while the optimization is already running"
                 << std::endl
@@ -629,12 +629,12 @@ void G_OptimizationAlgorithm_Base::registerExecutor(
     }
 
     // Register the new executor
-    m_executor_ptr = executor_ptr;
+    executor_ptr_ = executor_ptr;
 
     // Give the executor a chance to configure itself from
     // user-defined configuration options
     Gem::Common::GParserBuilder gpb;
-    m_executor_ptr->addConfigurationOptions(gpb);
+    executor_ptr_->addConfigurationOptions(gpb);
     if(not gpb.parseConfigFile(executorConfigFile)) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
@@ -673,15 +673,15 @@ void G_OptimizationAlgorithm_Base::registerExecutor(
  */
 G_OptimizationAlgorithm_Base const *G_OptimizationAlgorithm_Base::optimize_(std::uint32_t offset) {
     // Reset the generation counter
-    m_iteration = offset;
+    iteration_ = offset;
 
     // Set the iteration offset
-    m_offset = offset;
+    offset_ = offset;
 
     // Store any *clean* individuals that have been added to this algorithm
     // in the priority queue. This happens so that best individuals from a
     // previous "chained" optimization run aren't lost.
-    addCleanStoredBests(m_bestGlobalIndividuals_pq);
+    addCleanStoredBests(bestGlobalIndividuals_pq_);
 
     // Resize the population to the desired size and do some error checks.
     // This function will also check that individuals have indeed been registered
@@ -695,39 +695,39 @@ G_OptimizationAlgorithm_Base const *G_OptimizationAlgorithm_Base::optimize_(std:
     // Emit the info header, unless we do not want any info (parameter 0).
     // Note that this call needs to come after the initialization, so we have the
     // complete set of individuals available.
-    if(m_reportIteration)
+    if(reportIteration_)
         informationUpdate(infoMode::INFOINIT);
 
     // We want to know if no better values were found for a longer period of time
     double worstCase = this->at(0)->getWorstCase();
-    m_bestKnownPrimaryFitness = std::make_tuple(worstCase, worstCase);
-    m_bestCurrentPrimaryFitness = std::make_tuple(worstCase, worstCase);
+    bestKnownPrimaryFitness_ = std::make_tuple(worstCase, worstCase);
+    bestCurrentPrimaryFitness_ = std::make_tuple(worstCase, worstCase);
 
-    m_stallCounter = 0;
+    stallCounter_ = 0;
 
     // Give derived classes the opportunity to perform any other necessary preparatory work.
     init();
 
     // Let the algorithm know that the optimization process hasn't been halted yet.
-    m_halted = false; // general halt criterion
+    halted_ = false; // general halt criterion
 
     // Initialize the start time with the current time.
-    m_startTime = std::chrono::system_clock::now();
+    startTime_ = std::chrono::system_clock::now();
 
     // Initialize a file start time, as it may not be comparable with system_clock
-    m_file_startTime = Gem::Common::touch_time("geneva_file_startTime", "marker", true);
+    file_startTime_ = Gem::Common::touch_time("geneva_file_startTime", "marker", true);
 
     do {
         // Let all individuals know the current iteration
         markIteration();
 
         // Update fitness values and the stall counter
-        updateStallCounter((m_bestCurrentPrimaryFitness = cycleLogic_()));
+        updateStallCounter((bestCurrentPrimaryFitness_ = cycleLogic_()));
 
-        // Add the best individuals to the m_bestGlobalIndividuals_pq
-        // and m_bestIterationIndividuals_pq vectors
-        updateGlobalBestsPQ_(m_bestGlobalIndividuals_pq);
-        updateIterationBestsPQ_(m_bestIterationIndividuals_pq);
+        // Add the best individuals to the bestGlobalIndividuals_pq_
+        // and bestIterationIndividuals_pq_ vectors
+        updateGlobalBestsPQ_(bestGlobalIndividuals_pq_);
+        updateIterationBestsPQ_(bestIterationIndividuals_pq_);
 
         // Check whether a better value was found, and do the check-pointing, if necessary and requested.
         checkpoint(progress());
@@ -740,27 +740,27 @@ G_OptimizationAlgorithm_Base const *G_OptimizationAlgorithm_Base::optimize_(std:
 
         // Give derived classes an opportunity to act on stalls. NOTE that no action
         // may be taken that affects the "dirty" state of individuals
-        if(m_stallCounterThreshold && stallCounterThresholdExceeded()) {
+        if(stallCounterThreshold_ && stallCounterThresholdExceeded()) {
             actOnStalls_();
         }
 
         // We want to provide feedback to the user in regular intervals.
         // Set the reportGeneration_ variable to 0 in order not to emit
         // any information at all.
-        if(m_reportIteration && (m_iteration % m_reportIteration == 0)) {
+        if(reportIteration_ && (iteration_ % reportIteration_ == 0)) {
             informationUpdate(infoMode::INFOPROCESSING);
         }
 
-        // update the m_iteration counter
-        m_iteration++;
+        // update the iteration_ counter
+        iteration_++;
     }
-    while(not(m_halted = halt()));
+    while(not(halted_ = halt()));
 
     // Give derived classes the opportunity to perform any remaining clean-up work
     finalize();
 
     // Finalize the info output
-    if(m_reportIteration)
+    if(reportIteration_)
         informationUpdate(infoMode::INFOEND);
 
     // Remove information particular to the optimization algorithms from the individuals
@@ -799,7 +799,7 @@ void G_OptimizationAlgorithm_Base::informationUpdate(infoMode const &im) {
     };
 
     // Perform any action defined by the user through pluggable monitor objects
-    for(auto const &pm_ptr : m_pluggable_monitors_cnt) {
+    for(auto const &pm_ptr : pluggable_monitors_cnt_) {
         pm_ptr->informationFunction(im, this);
     }
 }
@@ -812,7 +812,7 @@ void G_OptimizationAlgorithm_Base::informationUpdate(infoMode const &im) {
  * @return A boolean indicating whether a better solution was found
  */
 bool G_OptimizationAlgorithm_Base::progress() const {
-    return (0 == m_stallCounter);
+    return (0 == stallCounter_);
 }
 
 /******************************************************************************/
@@ -824,7 +824,7 @@ void G_OptimizationAlgorithm_Base::registerPluggableOM(
     std::shared_ptr<GBasePluggableOM> pluggableOM
 ) {
     if(pluggableOM) {
-        m_pluggable_monitors_cnt.push_back(pluggableOM);
+        pluggable_monitors_cnt_.push_back(pluggableOM);
     }
     else {
         throw geneva_exception(
@@ -841,7 +841,7 @@ void G_OptimizationAlgorithm_Base::registerPluggableOM(
  * Allows to reset the local pluggable optimization monitors
  */
 void G_OptimizationAlgorithm_Base::resetPluggableOM() {
-    m_pluggable_monitors_cnt.clear();
+    pluggable_monitors_cnt_.clear();
 }
 
 /******************************************************************************/
@@ -849,7 +849,7 @@ void G_OptimizationAlgorithm_Base::resetPluggableOM() {
  * Allows to check whether pluggable optimization monitors were registered
   */
 bool G_OptimizationAlgorithm_Base::hasPluggableOptimizationMonitors() const {
-    return not m_pluggable_monitors_cnt.empty();
+    return not pluggable_monitors_cnt_.empty();
 }
 
 /******************************************************************************/
@@ -859,7 +859,7 @@ bool G_OptimizationAlgorithm_Base::hasPluggableOptimizationMonitors() const {
  * @return The default population size
  */
 std::size_t G_OptimizationAlgorithm_Base::getDefaultPopulationSize() const {
-    return m_defaultPopulationSize;
+    return defaultPopulationSize_;
 }
 
 /******************************************************************************/
@@ -882,16 +882,16 @@ std::size_t G_OptimizationAlgorithm_Base::getPopulationSize() const {
 void G_OptimizationAlgorithm_Base::setMaxIteration(std::uint32_t maxIteration) {
     // Check that the maximum number of iterations is > the minimum number
     // The check is only valid if a maximum number of iterations has been set (i.e. is != 0)
-    if(m_maxIteration > 0 && m_maxIteration <= m_minIteration) {
+    if(maxIteration_ > 0 && maxIteration_ <= minIteration_) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In G_OptimizationAlgorithm_Base<>::setMaxIteration(): Error!" << std::endl
-            << "Maximum number of iterations " << m_maxIteration << " is <= the minimum number "
-            << m_minIteration << std::endl
+            << "Maximum number of iterations " << maxIteration_ << " is <= the minimum number "
+            << minIteration_ << std::endl
         );
     }
 
-    m_maxIteration = maxIteration;
+    maxIteration_ = maxIteration;
 }
 
 /******************************************************************************/
@@ -902,7 +902,7 @@ void G_OptimizationAlgorithm_Base::setMaxIteration(std::uint32_t maxIteration) {
  * @return The number of iterations after which the optimization should terminate
  */
 std::uint32_t G_OptimizationAlgorithm_Base::getMaxIteration() const {
-    return m_maxIteration;
+    return maxIteration_;
 }
 
 /******************************************************************************/
@@ -916,16 +916,16 @@ std::uint32_t G_OptimizationAlgorithm_Base::getMaxIteration() const {
 void G_OptimizationAlgorithm_Base::setMinIteration(std::uint32_t minIteration) {
     // Check that the maximum number of iterations is > the minimum number
     // The check is only valid if a maximum number of iterations has been set (i.e. is != 0)
-    if(m_maxIteration > 0 && m_maxIteration <= m_minIteration) {
+    if(maxIteration_ > 0 && maxIteration_ <= minIteration_) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In G_OptimizationAlgorithm_Base<>::setMinIteration(): Error!" << std::endl
-            << "Maximum number of iterations " << m_maxIteration << " is <= the minimum number "
-            << m_minIteration << std::endl
+            << "Maximum number of iterations " << maxIteration_ << " is <= the minimum number "
+            << minIteration_ << std::endl
         );
     }
 
-    m_minIteration = minIteration;
+    minIteration_ = minIteration;
 }
 
 /******************************************************************************/
@@ -933,7 +933,7 @@ void G_OptimizationAlgorithm_Base::setMinIteration(std::uint32_t minIteration) {
  * This function retrieves the value of the minIteration_ variable
  */
 std::uint32_t G_OptimizationAlgorithm_Base::getMinIteration() const {
-    return m_minIteration;
+    return minIteration_;
 }
 
 /******************************************************************************/
@@ -944,7 +944,7 @@ std::uint32_t G_OptimizationAlgorithm_Base::getMinIteration() const {
  * @param The maximum number of allowed generations
  */
 void G_OptimizationAlgorithm_Base::setMaxStallIteration(std::uint32_t maxStallIteration) {
-    m_maxStallIteration = maxStallIteration;
+    maxStallIteration_ = maxStallIteration;
 }
 
 /******************************************************************************/
@@ -955,7 +955,7 @@ void G_OptimizationAlgorithm_Base::setMaxStallIteration(std::uint32_t maxStallIt
  * @return The maximum number of generations
  */
 std::uint32_t G_OptimizationAlgorithm_Base::getMaxStallIteration() const {
-    return m_maxStallIteration;
+    return maxStallIteration_;
 }
 
 /******************************************************************************/
@@ -965,16 +965,16 @@ std::uint32_t G_OptimizationAlgorithm_Base::getMaxStallIteration() const {
  * @param maxDuration The maximum allowed processing time
  */
 void G_OptimizationAlgorithm_Base::setMaxTime(std::chrono::duration<double> maxDuration) {
-    if(not Gem::Common::isClose<double>(maxDuration.count(), 0.) && maxDuration < m_minDuration) {
+    if(not Gem::Common::isClose<double>(maxDuration.count(), 0.) && maxDuration < minDuration_) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In G_OptimizationAlgorithm_Base<>::setMaxTime(): Error!" << std::endl
-            << "Desired maxDuration (" << maxDuration.count() << " is smaller than m_minDuration("
-            << m_minDuration.count() << ")" << std::endl
+            << "Desired maxDuration (" << maxDuration.count() << " is smaller than minDuration_("
+            << minDuration_.count() << ")" << std::endl
         );
     }
 
-    m_maxDuration = maxDuration;
+    maxDuration_ = maxDuration;
 }
 
 /******************************************************************************/
@@ -984,7 +984,7 @@ void G_OptimizationAlgorithm_Base::setMaxTime(std::chrono::duration<double> maxD
  * @return The maximum allowed processing time
  */
 std::chrono::duration<double> G_OptimizationAlgorithm_Base::getMaxTime() const {
-    return m_maxDuration;
+    return maxDuration_;
 }
 
 /******************************************************************************/
@@ -995,16 +995,16 @@ std::chrono::duration<double> G_OptimizationAlgorithm_Base::getMaxTime() const {
 * @param minDuration The minimum allowed processing time
 */
 void G_OptimizationAlgorithm_Base::setMinTime(std::chrono::duration<double> minDuration) {
-    if(not Gem::Common::isClose<double>(m_maxDuration.count(), 0.) && m_maxDuration < minDuration) {
+    if(not Gem::Common::isClose<double>(maxDuration_.count(), 0.) && maxDuration_ < minDuration) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In G_OptimizationAlgorithm_Base<>::setMinTime(): Error!" << std::endl
-            << "Desired maxDuration (" << m_maxDuration.count() << " is smaller than m_minDuration("
+            << "Desired maxDuration (" << maxDuration_.count() << " is smaller than minDuration_("
             << minDuration.count() << ")" << std::endl
         );
     }
 
-    m_minDuration = minDuration;
+    minDuration_ = minDuration;
 }
 
 /******************************************************************************/
@@ -1014,7 +1014,7 @@ void G_OptimizationAlgorithm_Base::setMinTime(std::chrono::duration<double> minD
 * @return The minimum required processing time
 */
 std::chrono::duration<double> G_OptimizationAlgorithm_Base::getMinTime() const {
-    return m_minDuration;
+    return minDuration_;
 }
 
 /******************************************************************************/
@@ -1028,8 +1028,8 @@ void G_OptimizationAlgorithm_Base::setQualityThreshold(
     double qualityThreshold,
     bool hasQualityThreshold
 ) {
-    m_qualityThreshold = qualityThreshold;
-    m_hasQualityThreshold = hasQualityThreshold;
+    qualityThreshold_ = qualityThreshold;
+    hasQualityThreshold_ = hasQualityThreshold;
 }
 
 /******************************************************************************/
@@ -1041,8 +1041,8 @@ void G_OptimizationAlgorithm_Base::setQualityThreshold(
  * @return The current value of the quality threshold
  */
 double G_OptimizationAlgorithm_Base::getQualityThreshold(bool &hasQualityThreshold) const {
-    hasQualityThreshold = m_hasQualityThreshold;
-    return m_qualityThreshold;
+    hasQualityThreshold = hasQualityThreshold_;
+    return qualityThreshold_;
 }
 
 /******************************************************************************/
@@ -1058,8 +1058,8 @@ void G_OptimizationAlgorithm_Base::setTerminationFile(
     std::string terminationFile,
     bool terminateOnFileModification
 ) {
-    m_terminationFile = std::move(terminationFile);
-    m_terminateOnFileModification = terminateOnFileModification;
+    terminationFile_ = std::move(terminationFile);
+    terminateOnFileModification_ = terminateOnFileModification;
 }
 
 /******************************************************************************/
@@ -1072,8 +1072,8 @@ void G_OptimizationAlgorithm_Base::setTerminationFile(
  */
 std::string
 G_OptimizationAlgorithm_Base::getTerminationFile(bool &terminateOnFileModification) const {
-    terminateOnFileModification = m_terminateOnFileModification;
-    return m_terminationFile;
+    terminateOnFileModification = terminateOnFileModification_;
+    return terminationFile_;
 }
 
 /******************************************************************************/
@@ -1081,7 +1081,7 @@ G_OptimizationAlgorithm_Base::getTerminationFile(bool &terminateOnFileModificati
  * Removes the quality threshold
  */
 void G_OptimizationAlgorithm_Base::resetQualityThreshold() {
-    m_hasQualityThreshold = false;
+    hasQualityThreshold_ = false;
 }
 
 /******************************************************************************/
@@ -1091,7 +1091,7 @@ void G_OptimizationAlgorithm_Base::resetQualityThreshold() {
  * @return A boolean indicating whether a quality threshold has been set
  */
 bool G_OptimizationAlgorithm_Base::hasQualityThreshold() const {
-    return m_hasQualityThreshold;
+    return hasQualityThreshold_;
 }
 
 /******************************************************************************/
@@ -1101,7 +1101,7 @@ bool G_OptimizationAlgorithm_Base::hasQualityThreshold() const {
  * @return The current iteration of the optimization run
  */
 std::uint32_t G_OptimizationAlgorithm_Base::getIteration_() const {
-    return m_iteration;
+    return iteration_;
 }
 
 /******************************************************************************/
@@ -1112,7 +1112,7 @@ std::uint32_t G_OptimizationAlgorithm_Base::getIteration_() const {
  * @return The current iteration offset
  */
 std::uint32_t G_OptimizationAlgorithm_Base::getStartIteration() const {
-    return m_offset;
+    return offset_;
 }
 
 /******************************************************************************/
@@ -1123,7 +1123,7 @@ std::uint32_t G_OptimizationAlgorithm_Base::getStartIteration() const {
  * @param iter The number of iterations after which information should be emitted
  */
 void G_OptimizationAlgorithm_Base::setReportIteration(std::uint32_t iter) {
-    m_reportIteration = iter;
+    reportIteration_ = iter;
 }
 
 /******************************************************************************/
@@ -1134,7 +1134,7 @@ void G_OptimizationAlgorithm_Base::setReportIteration(std::uint32_t iter) {
  * @return The number of iterations after which information is emitted
  */
 std::uint32_t G_OptimizationAlgorithm_Base::getReportIteration() const {
-    return m_reportIteration;
+    return reportIteration_;
 }
 
 /******************************************************************************/
@@ -1144,7 +1144,7 @@ std::uint32_t G_OptimizationAlgorithm_Base::getReportIteration() const {
  * @return The current number of failed optimization attempts
  */
 std::uint32_t G_OptimizationAlgorithm_Base::getStallCounter() const {
-    return m_stallCounter;
+    return stallCounter_;
 }
 
 /******************************************************************************/
@@ -1153,7 +1153,7 @@ std::uint32_t G_OptimizationAlgorithm_Base::getStallCounter() const {
  * individuals are asked to update their internal data structures
  */
 void G_OptimizationAlgorithm_Base::setStallCounterThreshold(std::uint32_t stallCounterThreshold) {
-    m_stallCounterThreshold = stallCounterThreshold;
+    stallCounterThreshold_ = stallCounterThreshold;
 }
 
 /******************************************************************************/
@@ -1162,7 +1162,7 @@ void G_OptimizationAlgorithm_Base::setStallCounterThreshold(std::uint32_t stallC
  * individuals are asked to update their internal data structures
  */
 std::uint32_t G_OptimizationAlgorithm_Base::getStallCounterThreshold() const {
-    return m_stallCounterThreshold;
+    return stallCounterThreshold_;
 }
 
 /******************************************************************************/
@@ -1172,9 +1172,9 @@ std::uint32_t G_OptimizationAlgorithm_Base::getStallCounterThreshold() const {
  * @return The best raw and transformed fitness found so far
  */
 std::tuple<double, double> G_OptimizationAlgorithm_Base::getBestKnownPrimaryFitness() const {
-    return (m_bestGlobalIndividuals_pq.best())->getFitnessTuple();
+    return (bestGlobalIndividuals_pq_.best())->getFitnessTuple();
 
-    // return m_bestKnownPrimaryFitness;
+    // return bestKnownPrimaryFitness_;
 }
 
 /******************************************************************************/
@@ -1184,7 +1184,7 @@ std::tuple<double, double> G_OptimizationAlgorithm_Base::getBestKnownPrimaryFitn
  * @return The best raw and transformed fitness found in the current iteration
  */
 std::tuple<double, double> G_OptimizationAlgorithm_Base::getBestCurrentPrimaryFitness() const {
-    return m_bestCurrentPrimaryFitness;
+    return bestCurrentPrimaryFitness_;
 }
 
 /******************************************************************************/
@@ -1194,7 +1194,7 @@ std::tuple<double, double> G_OptimizationAlgorithm_Base::getBestCurrentPrimaryFi
  * @param etr A boolean which specifies whether reasons for the termination of the optimization run should be emitted
  */
 void G_OptimizationAlgorithm_Base::setEmitTerminationReason(bool emitTerminationReason) {
-    m_emitTerminationReason = emitTerminationReason;
+    emitTerminationReason_ = emitTerminationReason;
 }
 
 /******************************************************************************/
@@ -1204,7 +1204,7 @@ void G_OptimizationAlgorithm_Base::setEmitTerminationReason(bool emitTermination
  * @return A boolean which specifies whether reasons for the termination of the optimization run will be emitted
  */
 bool G_OptimizationAlgorithm_Base::getEmitTerminationReason() const {
-    return m_emitTerminationReason;
+    return emitTerminationReason_;
 }
 
 /******************************************************************************/
@@ -1401,12 +1401,12 @@ void G_OptimizationAlgorithm_Base::addConfigurationOptions_(Gem::Common::GParser
         "defaultExecMode" // The name of the variable
         ,
         "defaultExecConfig",
-        this->m_default_execMode // The default value
+        this->default_execMode_ // The default value
         ,
-        this->m_default_executor_config,
+        this->default_executor_config_,
         [this](execMode e, std::string config) {
-            this->m_default_execMode = e;
-            this->m_default_executor_config = config;
+            this->default_execMode_ = e;
+            this->default_executor_config_ = config;
         },
         "defaultExecutor"
     ) << "The default executor type to be used for this algorithm."
@@ -1445,7 +1445,7 @@ void G_OptimizationAlgorithm_Base::updateGlobalBestsPQ_(
     // We simply add all individuals to the queue -- only the best ones will actually be added (and cloned)
     // Unless we have asked for the queue to have an unlimited size, the queue will be resized as required
     // by its maximum allowed size.
-    bestIndividuals.add(this->m_data_cnt, CLONE, DONOTREPLACE);
+    bestIndividuals.add(this->data_cnt_, CLONE, DONOTREPLACE);
 }
 
 /******************************************************************************/
@@ -1473,7 +1473,7 @@ void G_OptimizationAlgorithm_Base::updateIterationBestsPQ_(
 #endif /* DEBUG */
 
     // We simply add all individuals to the queue. They will automatically be sorted.
-    bestIndividuals.add(this->m_data_cnt, CLONE, REPLACE);
+    bestIndividuals.add(this->data_cnt_, CLONE, REPLACE);
 }
 
 /******************************************************************************/
@@ -1507,7 +1507,7 @@ void G_OptimizationAlgorithm_Base::addCleanStoredBests(
  * @return A boolean indicating whether we are inside of the first iteration
  */
 bool G_OptimizationAlgorithm_Base::inFirstIteration() const {
-    return m_iteration == m_offset;
+    return iteration_ == offset_;
 }
 
 /******************************************************************************/
@@ -1517,7 +1517,7 @@ bool G_OptimizationAlgorithm_Base::inFirstIteration() const {
  * @return A boolean indicating whether we are after the first iteration
  */
 bool G_OptimizationAlgorithm_Base::afterFirstIteration() const {
-    return m_iteration > m_offset;
+    return iteration_ > offset_;
 }
 
 /******************************************************************************/
@@ -1549,42 +1549,42 @@ void G_OptimizationAlgorithm_Base::load_(const GObject *cp) {
     Gem::Common::GPtrVectorT<GParameterSet, Gem::Geneva::GObject>::operator=(*p_load);
 
     // and then our local data
-    m_iteration = p_load->m_iteration;
-    m_offset = p_load->m_offset;
-    m_maxIteration = p_load->m_maxIteration;
-    m_minIteration = p_load->m_minIteration;
-    m_maxStallIteration = p_load->m_maxStallIteration;
-    m_reportIteration = p_load->m_reportIteration;
-    m_nRecordbestGlobalIndividuals = p_load->m_nRecordbestGlobalIndividuals;
-    m_bestGlobalIndividuals_pq = p_load->m_bestGlobalIndividuals_pq;
-    m_bestIterationIndividuals_pq = p_load->m_bestIterationIndividuals_pq;
-    m_defaultPopulationSize = p_load->m_defaultPopulationSize;
-    m_bestKnownPrimaryFitness = p_load->m_bestKnownPrimaryFitness;
-    m_bestCurrentPrimaryFitness = p_load->m_bestCurrentPrimaryFitness;
-    m_stallCounter = p_load->m_stallCounter;
-    m_stallCounterThreshold = p_load->m_stallCounterThreshold;
-    m_cp_interval = p_load->m_cp_interval;
-    m_cp_base_name = p_load->m_cp_base_name;
-    m_cp_directory_path = p_load->m_cp_directory_path;
-    m_cp_last = p_load->m_cp_last;
-    m_cp_remove = p_load->m_cp_remove;
-    m_cp_serialization_mode = p_load->m_cp_serialization_mode;
-    m_qualityThreshold = p_load->m_qualityThreshold;
-    m_hasQualityThreshold = p_load->m_hasQualityThreshold;
-    m_terminationFile = p_load->m_terminationFile;
-    m_terminateOnFileModification = p_load->m_terminateOnFileModification;
-    m_maxDuration = p_load->m_maxDuration;
-    m_minDuration = p_load->m_minDuration;
-    m_emitTerminationReason = p_load->m_emitTerminationReason;
-    m_halted.store(p_load->m_halted.load());
-    m_worstKnownValids_cnt = p_load->m_worstKnownValids_cnt;
+    iteration_ = p_load->iteration_;
+    offset_ = p_load->offset_;
+    maxIteration_ = p_load->maxIteration_;
+    minIteration_ = p_load->minIteration_;
+    maxStallIteration_ = p_load->maxStallIteration_;
+    reportIteration_ = p_load->reportIteration_;
+    nRecordbestGlobalIndividuals_ = p_load->nRecordbestGlobalIndividuals_;
+    bestGlobalIndividuals_pq_ = p_load->bestGlobalIndividuals_pq_;
+    bestIterationIndividuals_pq_ = p_load->bestIterationIndividuals_pq_;
+    defaultPopulationSize_ = p_load->defaultPopulationSize_;
+    bestKnownPrimaryFitness_ = p_load->bestKnownPrimaryFitness_;
+    bestCurrentPrimaryFitness_ = p_load->bestCurrentPrimaryFitness_;
+    stallCounter_ = p_load->stallCounter_;
+    stallCounterThreshold_ = p_load->stallCounterThreshold_;
+    cp_interval_ = p_load->cp_interval_;
+    cp_base_name_ = p_load->cp_base_name_;
+    cp_directory_path_ = p_load->cp_directory_path_;
+    cp_last_ = p_load->cp_last_;
+    cp_remove_ = p_load->cp_remove_;
+    cp_serialization_mode_ = p_load->cp_serialization_mode_;
+    qualityThreshold_ = p_load->qualityThreshold_;
+    hasQualityThreshold_ = p_load->hasQualityThreshold_;
+    terminationFile_ = p_load->terminationFile_;
+    terminateOnFileModification_ = p_load->terminateOnFileModification_;
+    maxDuration_ = p_load->maxDuration_;
+    minDuration_ = p_load->minDuration_;
+    emitTerminationReason_ = p_load->emitTerminationReason_;
+    halted_.store(p_load->halted_.load());
+    worstKnownValids_cnt_ = p_load->worstKnownValids_cnt_;
     Gem::Common::copyCloneableSmartPointerContainer(
-        p_load->m_pluggable_monitors_cnt,
-        m_pluggable_monitors_cnt
+        p_load->pluggable_monitors_cnt_,
+        pluggable_monitors_cnt_
     );
-    Gem::Common::copyCloneableSmartPointer(p_load->m_executor_ptr, m_executor_ptr);
-    m_default_execMode = p_load->m_default_execMode;
-    m_default_executor_config = p_load->m_default_executor_config;
+    Gem::Common::copyCloneableSmartPointer(p_load->executor_ptr_, executor_ptr_);
+    default_execMode_ = p_load->default_execMode_;
+    default_executor_config_ = p_load->default_executor_config_;
 }
 
 /******************************************************************************/
@@ -1609,7 +1609,7 @@ Gem::Courtier::executor_status_t G_OptimizationAlgorithm_Base::workOn(
         true
     );
 
-    return m_executor_ptr->workOn(workItems, resubmitUnprocessed, iterationCounter, caller);
+    return executor_ptr_->workOn(workItems, resubmitUnprocessed, iterationCounter, caller);
 }
 
 /******************************************************************************/
@@ -1617,7 +1617,7 @@ Gem::Courtier::executor_status_t G_OptimizationAlgorithm_Base::workOn(
  * Retrieves a vector of old work items after job submission
  */
 std::vector<std::shared_ptr<GParameterSet>> G_OptimizationAlgorithm_Base::getOldWorkItems() {
-    return m_executor_ptr->getOldWorkItems();
+    return executor_ptr_->getOldWorkItems();
 }
 
 /******************************************************************************/
@@ -1664,7 +1664,7 @@ G_OptimizationAlgorithm_Base::extractOptAlgFromPath(const std::filesystem::path 
  */
 std::shared_ptr<GParameterSet> G_OptimizationAlgorithm_Base::getBestGlobalIndividual_() const {
 #ifdef DEBUG
-    std::shared_ptr<GParameterSet> p = m_bestGlobalIndividuals_pq.best();
+    std::shared_ptr<GParameterSet> p = bestGlobalIndividuals_pq_.best();
     if(p)
         return p;
     else {
@@ -1675,7 +1675,7 @@ std::shared_ptr<GParameterSet> G_OptimizationAlgorithm_Base::getBestGlobalIndivi
         );
     }
 #else
-    return m_bestGlobalIndividuals_pq.best()->clone<GParameterSet>();
+    return bestGlobalIndividuals_pq_.best()->clone<GParameterSet>();
 #endif
 }
 
@@ -1688,7 +1688,7 @@ std::vector<std::shared_ptr<GParameterSet>>
 G_OptimizationAlgorithm_Base::getBestGlobalIndividuals_() const {
     std::vector<std::shared_ptr<GParameterSet>> bestIndividualsVec;
 
-    for(const auto &ind_ptr : m_bestGlobalIndividuals_pq.toVector()) {
+    for(const auto &ind_ptr : bestGlobalIndividuals_pq_.toVector()) {
         bestIndividualsVec.push_back(ind_ptr->clone<GParameterSet>());
     }
 
@@ -1702,7 +1702,7 @@ G_OptimizationAlgorithm_Base::getBestGlobalIndividuals_() const {
  */
 std::shared_ptr<GParameterSet> G_OptimizationAlgorithm_Base::getBestIterationIndividual_() const {
 #ifdef DEBUG
-    std::shared_ptr<GParameterSet> p = m_bestIterationIndividuals_pq.best();
+    std::shared_ptr<GParameterSet> p = bestIterationIndividuals_pq_.best();
     if(p)
         return p;
     else {
@@ -1714,7 +1714,7 @@ std::shared_ptr<GParameterSet> G_OptimizationAlgorithm_Base::getBestIterationInd
         );
     }
 #else
-    return m_bestIterationIndividuals_pq.best();
+    return bestIterationIndividuals_pq_.best();
 #endif
 }
 
@@ -1725,7 +1725,7 @@ std::shared_ptr<GParameterSet> G_OptimizationAlgorithm_Base::getBestIterationInd
  */
 std::vector<std::shared_ptr<GParameterSet>>
 G_OptimizationAlgorithm_Base::getBestIterationIndividuals_() const {
-    return m_bestIterationIndividuals_pq.toVector();
+    return bestIterationIndividuals_pq_.toVector();
 }
 
 /******************************************************************************/
@@ -1755,7 +1755,7 @@ void G_OptimizationAlgorithm_Base::resetIndividualPersonalities() {
  * @param popSize The desired size of the population
  */
 void G_OptimizationAlgorithm_Base::setDefaultPopulationSize(const std::size_t &defPopSize) {
-    m_defaultPopulationSize = defPopSize;
+    defaultPopulationSize_ = defPopSize;
 }
 
 /******************************************************************************/
@@ -1774,8 +1774,8 @@ void G_OptimizationAlgorithm_Base::setNRecordBestIndividuals(std::size_t nRecord
         );
     }
 
-    m_nRecordbestGlobalIndividuals = nRecordBestIndividuals;
-    m_bestGlobalIndividuals_pq.setMaxSize(m_nRecordbestGlobalIndividuals);
+    nRecordbestGlobalIndividuals_ = nRecordBestIndividuals;
+    bestGlobalIndividuals_pq_.setMaxSize(nRecordbestGlobalIndividuals_);
 }
 
 /******************************************************************************/
@@ -1785,7 +1785,7 @@ void G_OptimizationAlgorithm_Base::setNRecordBestIndividuals(std::size_t nRecord
  * @return The number of best individuals to be recorded in each iteration
  */
 std::size_t G_OptimizationAlgorithm_Base::getNRecordBestIndividuals() const {
-    return m_nRecordbestGlobalIndividuals;
+    return nRecordbestGlobalIndividuals_;
 }
 
 /******************************************************************************/
@@ -1793,7 +1793,7 @@ std::size_t G_OptimizationAlgorithm_Base::getNRecordBestIndividuals() const {
  * Allows derived classes to reset the stall counter.
  */
 void G_OptimizationAlgorithm_Base::resetStallCounter() {
-    m_stallCounter = 0;
+    stallCounter_ = 0;
 }
 
 /******************************************************************************/
@@ -1804,8 +1804,8 @@ void G_OptimizationAlgorithm_Base::resetStallCounter() {
  */
 void G_OptimizationAlgorithm_Base::init() {
     // Add an executor, if none has been registered
-    if(not m_executor_ptr) {
-        auto executor_ptr = this->createExecutor(m_default_execMode);
+    if(not executor_ptr_) {
+        auto executor_ptr = this->createExecutor(default_execMode_);
 
 #ifdef DEBUG
         if(not executor_ptr) {
@@ -1821,14 +1821,14 @@ void G_OptimizationAlgorithm_Base::init() {
                    "registered. Using default"
                 << std::endl
                 << "\"" << executor_ptr->name() << "\" with config \""
-                << this->m_default_executor_config << "\" instead" << std::endl
+                << this->default_executor_config_ << "\" instead" << std::endl
                 << GLOGGING;
 
-        this->registerExecutor(executor_ptr, this->m_default_executor_config);
+        this->registerExecutor(executor_ptr, this->default_executor_config_);
     }
 
     // Initialize the executor
-    m_executor_ptr->init();
+    executor_ptr_->init();
 }
 
 /******************************************************************************/
@@ -1839,7 +1839,7 @@ void G_OptimizationAlgorithm_Base::init() {
  */
 void G_OptimizationAlgorithm_Base::finalize() {
     // Finalize the broker connector
-    m_executor_ptr->finalize();
+    executor_ptr_->finalize();
 }
 
 /******************************************************************************/
@@ -1849,7 +1849,7 @@ void G_OptimizationAlgorithm_Base::finalize() {
  */
 void G_OptimizationAlgorithm_Base::markIteration() {
     for(auto const &ind_ptr : *this) {
-        ind_ptr->setAssignedIteration(m_iteration);
+        ind_ptr->setAssignedIteration(iteration_);
     }
 }
 
@@ -1859,7 +1859,7 @@ void G_OptimizationAlgorithm_Base::markIteration() {
  */
 void G_OptimizationAlgorithm_Base::markNStalls() {
     for(auto const &ind_ptr : *this) {
-        ind_ptr->setNStalls(m_stallCounter);
+        ind_ptr->setNStalls(stallCounter_);
     }
 }
 
@@ -1873,14 +1873,14 @@ void G_OptimizationAlgorithm_Base::updateStallCounter(const std::tuple<double, d
     auto m = this->at(0)->getMaxMode(); // We assume the same maxMode for all individuals
     if(isBetter(
            std::get<G_TRANSFORMED_FITNESS>(bestEval),
-           std::get<G_TRANSFORMED_FITNESS>(m_bestKnownPrimaryFitness),
+           std::get<G_TRANSFORMED_FITNESS>(bestKnownPrimaryFitness_),
            m
        )) {
-        m_bestKnownPrimaryFitness = bestEval;
-        m_stallCounter = 0;
+        bestKnownPrimaryFitness_ = bestEval;
+        stallCounter_ = 0;
     }
     else {
-        m_stallCounter++;
+        stallCounter_++;
     }
 }
 
@@ -1895,8 +1895,8 @@ void G_OptimizationAlgorithm_Base::updateStallCounter(const std::tuple<double, d
 bool G_OptimizationAlgorithm_Base::timedHalt(
     const std::chrono::system_clock::time_point &currentTime
 ) const {
-    if((currentTime - m_startTime) >= m_maxDuration) {
-        if(m_emitTerminationReason) {
+    if((currentTime - startTime_) >= maxDuration_) {
+        if(emitTerminationReason_) {
             glogger << "Terminating optimization run because maximum time frame has been exceeded."
                     << std::endl
                     << GLOGGING;
@@ -1916,7 +1916,7 @@ bool G_OptimizationAlgorithm_Base::timedHalt(
 bool G_OptimizationAlgorithm_Base::minTimePassed(
     const std::chrono::system_clock::time_point &currentTime
 ) const {
-    return (currentTime - m_startTime) > m_minDuration;
+    return (currentTime - startTime_) > minDuration_;
 }
 
 /******************************************************************************/
@@ -1932,19 +1932,19 @@ bool G_OptimizationAlgorithm_Base::qualityHalt() const {
     auto m = this->at(0)->getMaxMode(); // We assume the same maxMode for all individuals
     if(isBetter(
            std::get<G_RAW_FITNESS>(
-               m_bestKnownPrimaryFitness
+               bestKnownPrimaryFitness_
            ) // note: we use the raw fitness so users do not have to specify "transformed" thresholds
            ,
-           m_qualityThreshold,
+           qualityThreshold_,
            m
        )) {
-        if(m_emitTerminationReason) {
+        if(emitTerminationReason_) {
             glogger << "Terminating optimization run because" << std::endl
-                    << "quality threshold " << m_qualityThreshold << " has been exceeded."
+                    << "quality threshold " << qualityThreshold_ << " has been exceeded."
                     << std::endl
                     << "Best untransformed quality found was "
-                    << std::get<G_RAW_FITNESS>(m_bestKnownPrimaryFitness) << std::endl
-                    << "with termination in iteration " << m_iteration << std::endl
+                    << std::get<G_RAW_FITNESS>(bestKnownPrimaryFitness_) << std::endl
+                    << "with termination in iteration " << iteration_ << std::endl
                     << GLOGGING;
         }
 
@@ -1962,10 +1962,10 @@ bool G_OptimizationAlgorithm_Base::qualityHalt() const {
  * @return A boolean indicating whether the optimization has stalled too often in a row
  */
 bool G_OptimizationAlgorithm_Base::stallHalt() const {
-    if(m_stallCounter > m_maxStallIteration) {
-        if(m_emitTerminationReason) {
+    if(stallCounter_ > maxStallIteration_) {
+        if(emitTerminationReason_) {
             glogger << "Terminating optimization run because" << std::endl
-                    << "maximum number of stalls " << m_maxStallIteration << " has been exceeded."
+                    << "maximum number of stalls " << maxStallIteration_ << " has been exceeded."
                     << std::endl
                     << "This is considered to be a criterion for convergence." << std::endl
                     << GLOGGING;
@@ -1985,10 +1985,10 @@ bool G_OptimizationAlgorithm_Base::stallHalt() const {
  * @return A boolean indicating whether the maximum number of iterations has been exceeded
  */
 bool G_OptimizationAlgorithm_Base::iterationHalt() const {
-    if(m_iteration >= m_maxIteration) {
-        if(m_emitTerminationReason) {
+    if(iteration_ >= maxIteration_) {
+        if(emitTerminationReason_) {
             glogger << "Terminating optimization run because" << std::endl
-                    << "iteration threshold " << m_maxIteration << " has been exceeded."
+                    << "iteration threshold " << maxIteration_ << " has been exceeded."
                     << std::endl
                     << GLOGGING;
         }
@@ -2006,7 +2006,7 @@ bool G_OptimizationAlgorithm_Base::iterationHalt() const {
  * been passed.
  */
 bool G_OptimizationAlgorithm_Base::minIterationPassed() const {
-    return m_iteration > m_minIteration;
+    return iteration_ > minIteration_;
 }
 
 /******************************************************************************/
@@ -2042,7 +2042,7 @@ bool G_OptimizationAlgorithm_Base::sigHupHalt() const {
  */
 bool G_OptimizationAlgorithm_Base::touchHalt() const {
     // Create a suitable path object
-    std::filesystem::path p(m_terminationFile);
+    std::filesystem::path p(terminationFile_);
 
     // Return if the file doesn't exist
     if(not std::filesystem::exists(p)) {
@@ -2053,8 +2053,8 @@ bool G_OptimizationAlgorithm_Base::touchHalt() const {
     const auto modTime = std::filesystem::last_write_time(p);
 
     // Check if the file was modified after the start of the optimization run
-    if(modTime > m_file_startTime) {
-        if(m_emitTerminationReason) {
+    if(modTime > file_startTime_) {
+        if(emitTerminationReason_) {
             glogger << "Terminating optimization run because" << std::endl
                     << p << " was modified after the start of the optimization" << std::endl
                     << GLOGGING;
@@ -2075,7 +2075,7 @@ bool G_OptimizationAlgorithm_Base::touchHalt() const {
  */
 bool G_OptimizationAlgorithm_Base::customHalt() const {
     if(customHalt_()) {
-        if(m_emitTerminationReason) {
+        if(emitTerminationReason_) {
             glogger << "Terminating optimization run because custom halt criterion has triggered."
                     << std::endl
                     << GLOGGING;
@@ -2119,7 +2119,7 @@ bool G_OptimizationAlgorithm_Base::halt() const {
         return true;
 
     // Are we supposed to stop when a file was modified after the start of the optimization run ?
-    if(m_terminateOnFileModification && touchHalt())
+    if(terminateOnFileModification_ && touchHalt())
         return true;
 
     //------------------------------------------------------------------------
@@ -2151,7 +2151,7 @@ bool G_OptimizationAlgorithm_Base::halt() const {
         return true;
 
     // Do we have a scheduled halt time ? The comparatively expensive
-    // timedHalt() calculation is only called if m_maxDuration
+    // timedHalt() calculation is only called if maxDuration_
     // is at least one microsecond.
     if(maxDurationHaltSet() && timedHalt(currentTime))
         return true;
@@ -2171,7 +2171,7 @@ bool G_OptimizationAlgorithm_Base::halt() const {
  * @return A boolean indicating whether the "max-iteration halt" has been set
  */
 bool G_OptimizationAlgorithm_Base::maxIterationHaltset() const {
-    return 0 != m_maxIteration;
+    return 0 != maxIteration_;
 }
 
 /******************************************************************************/
@@ -2181,7 +2181,7 @@ bool G_OptimizationAlgorithm_Base::maxIterationHaltset() const {
  * @return A boolean indicating whether a halt criterion based on the number of stalls has been set
  */
 bool G_OptimizationAlgorithm_Base::stallHaltSet() const {
-    return 0 != m_maxStallIteration;
+    return 0 != maxStallIteration_;
 }
 
 /******************************************************************************/
@@ -2191,7 +2191,7 @@ bool G_OptimizationAlgorithm_Base::stallHaltSet() const {
  * @return A boolean indication whether the max-duration halt criterion has been set
  */
 bool G_OptimizationAlgorithm_Base::maxDurationHaltSet() const {
-    return 0. != m_maxDuration.count();
+    return 0. != maxDuration_.count();
 }
 
 /******************************************************************************/
@@ -2201,7 +2201,7 @@ bool G_OptimizationAlgorithm_Base::maxDurationHaltSet() const {
  * @return A boolean indicating whether the quality-threshold halt-criterion has been set
  */
 bool G_OptimizationAlgorithm_Base::qualityThresholdHaltSet() const {
-    return m_hasQualityThreshold;
+    return hasQualityThreshold_;
 }
 
 /******************************************************************************/
@@ -2219,7 +2219,7 @@ void G_OptimizationAlgorithm_Base::markBestFitness() {
  * Indicates whether the stallCounterThreshold_ has been exceeded
  */
 bool G_OptimizationAlgorithm_Base::stallCounterThresholdExceeded() const {
-    return (m_stallCounter > m_stallCounterThreshold);
+    return (stallCounter_ > stallCounterThreshold_);
 }
 
 /******************************************************************************/

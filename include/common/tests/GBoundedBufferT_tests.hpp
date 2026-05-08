@@ -34,7 +34,7 @@ struct copy_only_struct {
 public:
     copy_only_struct() = delete;
     copy_only_struct(std::size_t secret)
-      : m_secret(secret) { /* nothing */
+      : secret_(secret) { /* nothing */
     }
     copy_only_struct(const copy_only_struct &cp) = default;
     copy_only_struct(copy_only_struct &&) = delete;
@@ -43,11 +43,11 @@ public:
     copy_only_struct &operator=(copy_only_struct &&cp) = delete;
 
     std::size_t getSecret() const {
-        return m_secret;
+        return secret_;
     }
 
 private:
-    std::size_t m_secret = 0;
+    std::size_t secret_ = 0;
 };
 
 /******************************************************************************/
@@ -59,28 +59,28 @@ public:
     move_only_struct() = delete;
 
     move_only_struct(std::size_t secret)
-      : m_secret(secret) { /* nothing */
+      : secret_(secret) { /* nothing */
     }
     move_only_struct(const move_only_struct &cp) = delete;
     move_only_struct(move_only_struct &&cp) {
-        m_secret = cp.m_secret;
-        cp.m_secret = 0;
+        secret_ = cp.secret_;
+        cp.secret_ = 0;
     }
 
     move_only_struct &operator=(move_only_struct &cp) = delete;
     move_only_struct &operator=(move_only_struct &&cp) {
-        m_secret = cp.m_secret;
-        cp.m_secret = 0;
+        secret_ = cp.secret_;
+        cp.secret_ = 0;
 
         return *this;
     }
 
     std::size_t getSecret() const {
-        return m_secret;
+        return secret_;
     }
 
 private:
-    std::size_t m_secret = 0;
+    std::size_t secret_ = 0;
 };
 
 /******************************************************************************/
@@ -92,47 +92,47 @@ public:
     copy_move_struct() = delete;
 
     copy_move_struct(std::size_t secret)
-      : m_secret(secret) { /* nothing */
+      : secret_(secret) { /* nothing */
     }
     copy_move_struct(const copy_move_struct &cp)
-      : m_secret(cp.m_secret)
-      , m_copy_move_history(cp.m_copy_move_history) {
-        m_copy_move_history.push_back(M_COPIED);
+      : secret_(cp.secret_)
+      , copy_move_history_(cp.copy_move_history_) {
+        copy_move_history_.push_back(M_COPIED);
     }
     copy_move_struct(copy_move_struct &&cp) {
-        m_secret = cp.m_secret;
-        cp.m_secret = 0;
-        m_copy_move_history = std::move(cp.m_copy_move_history);
-        m_copy_move_history.push_back(M_MOVED);
+        secret_ = cp.secret_;
+        cp.secret_ = 0;
+        copy_move_history_ = std::move(cp.copy_move_history_);
+        copy_move_history_.push_back(M_MOVED);
     }
 
     copy_move_struct &operator=(copy_move_struct &cp) {
-        m_secret = cp.m_secret;
-        m_copy_move_history = cp.m_copy_move_history;
-        m_copy_move_history.push_back(M_COPIED);
+        secret_ = cp.secret_;
+        copy_move_history_ = cp.copy_move_history_;
+        copy_move_history_.push_back(M_COPIED);
 
         return *this;
     }
     copy_move_struct &operator=(copy_move_struct &&cp) {
-        m_secret = cp.m_secret;
-        cp.m_secret = 0;
-        m_copy_move_history = std::move(cp.m_copy_move_history);
-        m_copy_move_history.push_back(M_MOVED);
+        secret_ = cp.secret_;
+        cp.secret_ = 0;
+        copy_move_history_ = std::move(cp.copy_move_history_);
+        copy_move_history_.push_back(M_MOVED);
 
         return *this;
     }
 
     bool struct_was_copied() {
-        if(std::find(m_copy_move_history.begin(), m_copy_move_history.end(), M_COPIED) !=
-           m_copy_move_history.end()) {
+        if(std::find(copy_move_history_.begin(), copy_move_history_.end(), M_COPIED) !=
+           copy_move_history_.end()) {
             return true;
         }
         return false;
     }
 
     bool struct_was_moved() {
-        if(std::find(m_copy_move_history.begin(), m_copy_move_history.end(), M_MOVED) !=
-           m_copy_move_history.end()) {
+        if(std::find(copy_move_history_.begin(), copy_move_history_.end(), M_MOVED) !=
+           copy_move_history_.end()) {
             return true;
         }
         return false;
@@ -143,18 +143,18 @@ public:
     }
 
     bool struct_was_copied_or_moved() {
-        return !m_copy_move_history.empty();
+        return !copy_move_history_.empty();
     }
 
     std::size_t getSecret() const {
-        return m_secret;
+        return secret_;
     }
 
 private:
     const std::uint32_t M_COPIED = 0, M_MOVED = 1;
 
-    std::size_t m_secret = 0;
-    std::vector<std::uint32_t> m_copy_move_history;
+    std::size_t secret_ = 0;
+    std::vector<std::uint32_t> copy_move_history_;
 };
 
 /******************************************************************************/

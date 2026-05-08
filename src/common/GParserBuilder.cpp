@@ -37,7 +37,7 @@ namespace Gem::Common {
 /**
  * Initialization of static data members
  */
-std::mutex Gem::Common::GParserBuilder::m_configfile_parser_mutex;
+std::mutex Gem::Common::GParserBuilder::configfile_parser_mutex_;
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -46,7 +46,7 @@ std::mutex Gem::Common::GParserBuilder::m_configfile_parser_mutex;
  * The standard constructor of the comment level
  */
 commentLevel::commentLevel(std::size_t cl)
-  : m_comment_level(cl) { /* nothing */
+  : comment_level_(cl) { /* nothing */
 }
 
 /******************************************************************************/
@@ -54,7 +54,7 @@ commentLevel::commentLevel(std::size_t cl)
  * Retrieves the current comment level
  */
 std::size_t commentLevel::getCommentLevel() const {
-    return m_comment_level;
+    return comment_level_;
 }
 
 /******************************************************************************/
@@ -64,9 +64,9 @@ std::size_t commentLevel::getCommentLevel() const {
  * A constructor for individual items
  */
 GParsableI::GParsableI(std::string const &optionNameVar, std::string const &commentVar)
-  : m_option_name(GParsableI::makeVector(optionNameVar))
-  , m_comment(GParsableI::makeVector(commentVar))
-  , m_cl(0) { /* nothing */
+  : option_name_(GParsableI::makeVector(optionNameVar))
+  , comment_(GParsableI::makeVector(commentVar))
+  , cl_(0) { /* nothing */
 }
 
 /******************************************************************************/
@@ -77,9 +77,9 @@ GParsableI::GParsableI(
     std::vector<std::string> const &optionNameVec,
     std::vector<std::string> const &commentVec
 )
-  : m_option_name(optionNameVec)
-  , m_comment(commentVec)
-  , m_cl(0) { /* nothing */
+  : option_name_(optionNameVec)
+  , comment_(commentVec)
+  , cl_(0) { /* nothing */
 }
 
 /******************************************************************************/
@@ -87,16 +87,16 @@ GParsableI::GParsableI(
  * Retrieves the option name
  */
 std::string GParsableI::optionName(std::size_t pos) const {
-    if(m_option_name.size() <= pos) {
+    if(option_name_.size() <= pos) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GParsableI::optionName(std::size_t): Error!" << std::endl
             << "Tried to access item at position " << pos << std::endl
-            << "where the size of the vector is " << m_option_name.size() << std::endl
+            << "where the size of the vector is " << option_name_.size() << std::endl
         );
     }
 
-    return m_option_name.at(pos);
+    return option_name_.at(pos);
 }
 
 /******************************************************************************/
@@ -104,16 +104,16 @@ std::string GParsableI::optionName(std::size_t pos) const {
  * Retrieves the comment that was assigned to this variable
  */
 std::string GParsableI::comment(std::size_t pos) const {
-    if(m_comment.size() <= pos) {
+    if(comment_.size() <= pos) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GParsableI::m_comment(std::size_t): Error!" << std::endl
+            << "In GParsableI::comment_(std::size_t): Error!" << std::endl
             << "Tried to access item at position " << pos << std::endl
-            << "where the size of the vector is " << m_comment.size() << std::endl
+            << "where the size of the vector is " << comment_.size() << std::endl
         );
     }
 
-    return m_comment.at(pos);
+    return comment_.at(pos);
 }
 
 /******************************************************************************/
@@ -121,7 +121,7 @@ std::string GParsableI::comment(std::size_t pos) const {
  * Checks whether comments have indeed been registered
  */
 bool GParsableI::hasComments() const {
-    return not m_comment.empty();
+    return not comment_.empty();
 }
 
 /******************************************************************************/
@@ -129,7 +129,7 @@ bool GParsableI::hasComments() const {
  * Retrieves the number of comments available
  */
 std::size_t GParsableI::numberOfComments() const {
-    return m_comment.size();
+    return comment_.size();
 }
 
 /******************************************************************************/
@@ -139,7 +139,7 @@ std::size_t GParsableI::numberOfComments() const {
 GParsableI &GParsableI::operator<<(std::ostream &(*val)(std::ostream &)) {
     std::ostringstream oss; // NOLINT(cppcoreguidelines-init-variables)
     oss << val;
-    m_comment.at(m_cl) += oss.str();
+    comment_.at(cl_) += oss.str();
     return *this;
 }
 
@@ -150,7 +150,7 @@ GParsableI &GParsableI::operator<<(std::ostream &(*val)(std::ostream &)) {
 GParsableI &GParsableI::operator<<(std::ios &(*val)(std::ios &)) {
     std::ostringstream oss; // NOLINT(cppcoreguidelines-init-variables)
     oss << val;
-    m_comment.at(m_cl) += oss.str();
+    comment_.at(cl_) += oss.str();
     return *this;
 }
 
@@ -161,7 +161,7 @@ GParsableI &GParsableI::operator<<(std::ios &(*val)(std::ios &)) {
 GParsableI &GParsableI::operator<<(std::ios_base &(*val)(std::ios_base &)) {
     std::ostringstream oss; // NOLINT(cppcoreguidelines-init-variables)
     oss << val;
-    m_comment.at(m_cl) += oss.str();
+    comment_.at(cl_) += oss.str();
     return *this;
 }
 
@@ -171,7 +171,7 @@ GParsableI &GParsableI::operator<<(std::ios_base &(*val)(std::ios_base &)) {
  */
 GParsableI &GParsableI::operator<<(commentLevel const &cl) {
 #ifdef DEBUG
-    if(m_comment.empty()) {
+    if(comment_.empty()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GParsableI::operator<< (commentLevel const& cl): Error!" << std::endl
@@ -179,17 +179,17 @@ GParsableI &GParsableI::operator<<(commentLevel const &cl) {
         );
     }
 
-    if(m_comment.size() <= cl.getCommentLevel()) {
+    if(comment_.size() <= cl.getCommentLevel()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GParsableI::operator<< (commentLevel const& cl): Error!" << std::endl
             << "Invalid comment level " << cl.getCommentLevel()
-            << " requested, where the maximum is " << m_comment.size() - 1 << std::endl
+            << " requested, where the maximum is " << comment_.size() - 1 << std::endl
         );
     }
 #endif /* DEBUG */
 
-    m_cl = cl.getCommentLevel();
+    cl_ = cl.getCommentLevel();
     return *this;
 }
 
@@ -199,7 +199,7 @@ GParsableI &GParsableI::operator<<(commentLevel const &cl) {
  */
 GParsableI &GParsableI::operator<<(nextComment const & /*nC*/) {
 #ifdef DEBUG
-    if(m_comment.empty()) {
+    if(comment_.empty()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GParsableI::operator<< (nextComment const& nC): Error!" << std::endl
@@ -207,18 +207,18 @@ GParsableI &GParsableI::operator<<(nextComment const & /*nC*/) {
         );
     }
 
-    if(m_comment.size() <= (m_cl + 1)) {
+    if(comment_.size() <= (cl_ + 1)) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GParsableI::operator<< (nextComment const& nC): Error!" << std::endl
-            << "Invalid comment level " << m_cl + 1 << " requested, where the maximum is "
-            << m_comment.size() - 1 << std::endl
+            << "Invalid comment level " << cl_ + 1 << " requested, where the maximum is "
+            << comment_.size() - 1 << std::endl
         );
     }
 #endif /* DEBUG */
 
     // Increment the comment level
-    m_cl++;
+    cl_++;
     return *this;
 }
 
@@ -266,7 +266,7 @@ GFileParsableI::GFileParsableI(
     bool isEssentialVar
 )
   : GParsableI(optionNameVar, commentVar)
-  , m_is_essential(isEssentialVar) { /* nothing */
+  , is_essential_(isEssentialVar) { /* nothing */
 }
 
 /******************************************************************************/
@@ -279,7 +279,7 @@ GFileParsableI::GFileParsableI(
     bool isEssentialVar
 )
   : GParsableI(optionNameVec, commentVec)
-  , m_is_essential(isEssentialVar) { /* nothing */
+  , is_essential_(isEssentialVar) { /* nothing */
 }
 
 /******************************************************************************/
@@ -287,7 +287,7 @@ GFileParsableI::GFileParsableI(
  * Checks whether this is an essential variable
  */
 bool GFileParsableI::isEssential() const {
-    return m_is_essential;
+    return is_essential_;
 }
 
 /******************************************************************************/
@@ -327,7 +327,7 @@ GParserBuilder::GParserBuilder() {
     auto basename_opt = Gem::Common::environmentVariableAs<std::string>("GENEVA_CONFIG_BASENAME");
     if(basename_opt && !(*basename_opt).empty()) {
         // Read out the directory
-        m_config_base_dir = std::filesystem::path(*basename_opt);
+        config_base_dir_ = std::filesystem::path(*basename_opt);
     }
 }
 
@@ -342,7 +342,7 @@ bool GParserBuilder::parseConfigFile(std::filesystem::path const &configFile) {
     // Make sure only one entity is parsed at once. This allows us to
     // concurrently create e.g. optimization algorithms, letting them
     // parse the same config file.
-    std::unique_lock<std::mutex> lk(GParserBuilder::m_configfile_parser_mutex);
+    std::unique_lock<std::mutex> lk(GParserBuilder::configfile_parser_mutex_);
 
     namespace pt = boost::property_tree;
 
@@ -353,18 +353,18 @@ bool GParserBuilder::parseConfigFile(std::filesystem::path const &configFile) {
 
     try {
         // Assemble a path object from the config file, possibly adding a base directory
-        if(not m_config_base_dir.empty()) {
+        if(not config_base_dir_.empty()) {
             // Check that the base directory exists
-            if(not std::filesystem::exists(m_config_base_dir)) {
+            if(not std::filesystem::exists(config_base_dir_)) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
                     << "In GParserBuilder::parseConfigFile(): Error!" << std::endl
-                    << "Base-directory " << m_config_base_dir.string() << " does not exist"
+                    << "Base-directory " << config_base_dir_.string() << " does not exist"
                     << std::endl
                 );
             }
 
-            config_path = m_config_base_dir / configFile;
+            config_path = config_base_dir_ / configFile;
         }
         else {
             config_path = configFile;
@@ -413,7 +413,7 @@ bool GParserBuilder::parseConfigFile(std::filesystem::path const &configFile) {
         Gem::Common::read_json(config_path, ptr);
 
         // Load the data into our objects and execute the relevant call-back functions
-        for(auto const &proxy_ptr : m_file_parameter_proxies) {
+        for(auto const &proxy_ptr : file_parameter_proxies_) {
             proxy_ptr->load_from(ptr);
             proxy_ptr->executeCallBackFunction();
         }
@@ -515,7 +515,7 @@ void GParserBuilder::writeConfigFile(
     }
 
     // Do some error checking
-    if(m_file_parameter_proxies.empty()) {
+    if(file_parameter_proxies_.empty()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GParserBuilder::writeConfigFile(): No variables found!" << std::endl
@@ -540,7 +540,7 @@ void GParserBuilder::writeConfigFile(
     ptr.add("header.comment", Gem::Common::currentTimeAsString());
 
     // Output variables and values
-    for(auto const &v_ptr : m_file_parameter_proxies) {
+    for(auto const &v_ptr : file_parameter_proxies_) {
         // Only write out the parameter(s) if they are either essential or it
         // has been requested to write out all parameters regardless
         if(not writeAll && not v_ptr->isEssential())
@@ -564,7 +564,7 @@ void GParserBuilder::writeConfigFile(
  * @return The number of configuration options stored in this class
  */
 std::size_t GParserBuilder::numberOfFileOptions() const {
-    return m_file_parameter_proxies.size();
+    return file_parameter_proxies_.size();
 }
 
 /******************************************************************************/
@@ -589,7 +589,7 @@ bool GParserBuilder::parseCommandLine(int argc, char **argv, bool verbose) {
         desc.add_options()("help,h", "Emit help message");
 
         // Add further options from the parameter objects
-        for(auto const &p_ptr : m_cl_parameter_proxies) {
+        for(auto const &p_ptr : cl_parameter_proxies_) {
             p_ptr->save_to(desc);
         }
 
@@ -607,7 +607,7 @@ bool GParserBuilder::parseCommandLine(int argc, char **argv, bool verbose) {
             if(verbose) {
                 std::cout << "GParserBuilder::parseCommandLine():" << std::endl
                           << "Working with the following options:" << std::endl;
-                for(auto const &p_ptr : m_cl_parameter_proxies) {
+                for(auto const &p_ptr : cl_parameter_proxies_) {
                     std::cout << p_ptr->content() << std::endl;
                 }
                 std::cout << std::endl;
@@ -637,7 +637,7 @@ bool GParserBuilder::parseCommandLine(int argc, char **argv, bool verbose) {
  * stored in this class
  */
 std::size_t GParserBuilder::numberOfCLOptions() const {
-    return m_cl_parameter_proxies.size();
+    return cl_parameter_proxies_.size();
 }
 
 /******************************************************************************/

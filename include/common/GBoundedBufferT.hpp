@@ -128,8 +128,8 @@ public:
     ~GBoundedBufferT() {
         // Any error here is deadly ...
         try {
-            std::unique_lock<std::mutex> lock(m_mutex);
-            m_container.clear();
+            std::unique_lock<std::mutex> lock(mutex_);
+            container_.clear();
         }
         // This is a standard error raised by the lock/mutex
         catch(
@@ -170,11 +170,11 @@ public:
         std::enable_if_t<(u_capacity == 0 && t_capacity == u_capacity)> * = nullptr
     ) {
         {
-            std::unique_lock<std::mutex> lock(m_mutex);
-            m_container.push_front(item); // This will copy the item
+            std::unique_lock<std::mutex> lock(mutex_);
+            container_.push_front(item); // This will copy the item
         } // Release the lock
 
-        m_not_empty.notify_one();
+        not_empty_.notify_one();
 
         return true;
     }
@@ -196,18 +196,18 @@ public:
         std::enable_if_t<(u_capacity > 0 && t_capacity == u_capacity)> * = nullptr
     ) {
         {
-            std::unique_lock<std::mutex> lock(m_mutex);
+            std::unique_lock<std::mutex> lock(mutex_);
 
             // Check if the size fits our requirements. Return
             // if this is note the case.
-            if(m_container.size() >= u_capacity) {
+            if(container_.size() >= u_capacity) {
                 return false;
             }
 
-            m_container.push_front(item);
+            container_.push_front(item);
         } // Release the lock
 
-        m_not_empty.notify_one();
+        not_empty_.notify_one();
 
         return true;
     }
@@ -227,11 +227,11 @@ public:
         std::enable_if_t<(u_capacity == 0 && t_capacity == u_capacity)> * = nullptr
     ) {
         {
-            std::unique_lock<std::mutex> lock(m_mutex);
-            m_container.emplace_front(std::move(item));
+            std::unique_lock<std::mutex> lock(mutex_);
+            container_.emplace_front(std::move(item));
         } // Release the lock
 
-        m_not_empty.notify_one();
+        not_empty_.notify_one();
 
         return true;
     }
@@ -252,18 +252,18 @@ public:
         std::enable_if_t<(u_capacity > 0 && t_capacity == u_capacity)> * = nullptr
     ) {
         {
-            std::unique_lock<std::mutex> lock(m_mutex);
+            std::unique_lock<std::mutex> lock(mutex_);
 
             // Check if the size fits our requirements. Return
             // if this is note the case.
-            if(m_container.size() >= u_capacity) {
+            if(container_.size() >= u_capacity) {
                 return false;
             }
 
-            m_container.emplace_front(std::move(item));
+            container_.emplace_front(std::move(item));
         } // Release the lock
 
-        m_not_empty.notify_one();
+        not_empty_.notify_one();
 
         return true;
     }
@@ -282,11 +282,11 @@ public:
         std::enable_if_t<(u_capacity == 0 && t_capacity == u_capacity)> * = nullptr
     ) {
         {
-            std::unique_lock<std::mutex> lock(m_mutex);
-            m_container.push_front(item);
+            std::unique_lock<std::mutex> lock(mutex_);
+            container_.push_front(item);
         } // Release the lock
 
-        m_not_empty.notify_one();
+        not_empty_.notify_one();
     }
 
     /***************************************************************************/
@@ -303,14 +303,14 @@ public:
         std::enable_if_t<(u_capacity > 0 && t_capacity == u_capacity)> * = nullptr
     ) {
         {
-            std::unique_lock<std::mutex> lock(m_mutex);
+            std::unique_lock<std::mutex> lock(mutex_);
             // Note that this overload of wait() internally runs a loop on its predicate to
             // deal with spurious wake-ups
-            m_not_full.wait(lock, [&]() -> bool { return m_container.size() < u_capacity; });
-            m_container.push_front(item);
+            not_full_.wait(lock, [&]() -> bool { return container_.size() < u_capacity; });
+            container_.push_front(item);
         } // Release the lock
 
-        m_not_empty.notify_one();
+        not_empty_.notify_one();
     }
 
     /***************************************************************************/
@@ -327,11 +327,11 @@ public:
         std::enable_if_t<(u_capacity == 0 && t_capacity == u_capacity)> * = nullptr
     ) {
         {
-            std::unique_lock<std::mutex> lock(m_mutex);
-            m_container.emplace_front(std::move(item));
+            std::unique_lock<std::mutex> lock(mutex_);
+            container_.emplace_front(std::move(item));
         } // Release the lock
 
-        m_not_empty.notify_one();
+        not_empty_.notify_one();
     }
 
     /***************************************************************************/
@@ -348,14 +348,14 @@ public:
         std::enable_if_t<(u_capacity > 0 && t_capacity == u_capacity)> * = nullptr
     ) {
         {
-            std::unique_lock<std::mutex> lock(m_mutex);
+            std::unique_lock<std::mutex> lock(mutex_);
             // Note that this overload of wait() internally runs a loop on its predicate to
             // deal with spurious wakeups
-            m_not_full.wait(lock, [&]() -> bool { return m_container.size() < u_capacity; });
-            m_container.emplace_front(std::move(item));
+            not_full_.wait(lock, [&]() -> bool { return container_.size() < u_capacity; });
+            container_.emplace_front(std::move(item));
         } // Release the lock
 
-        m_not_empty.notify_one();
+        not_empty_.notify_one();
     }
 
     /***************************************************************************/
@@ -377,11 +377,11 @@ public:
         std::enable_if_t<(u_capacity == 0 && t_capacity == u_capacity)> * = nullptr
     ) {
         {
-            std::unique_lock<std::mutex> lock(m_mutex);
-            m_container.push_front(item);
+            std::unique_lock<std::mutex> lock(mutex_);
+            container_.push_front(item);
         } // Release the lock
 
-        m_not_empty.notify_one();
+        not_empty_.notify_one();
 
         return true;
     }
@@ -405,18 +405,18 @@ public:
         std::enable_if_t<(u_capacity > 0 && t_capacity == u_capacity)> * = nullptr
     ) {
         {
-            std::unique_lock<std::mutex> lock(m_mutex);
-            if(not m_not_full.wait_for(
+            std::unique_lock<std::mutex> lock(mutex_);
+            if(not not_full_.wait_for(
                    lock,
                    std::chrono::duration_cast<std::chrono::milliseconds>(timeout),
-                   [&]() -> bool { return m_container.size() < u_capacity; }
+                   [&]() -> bool { return container_.size() < u_capacity; }
                )) {
                 return false;
             }
-            m_container.push_front(item);
+            container_.push_front(item);
         } // Release the lock
 
-        m_not_empty.notify_one();
+        not_empty_.notify_one();
 
         return true;
     }
@@ -438,11 +438,11 @@ public:
         std::enable_if_t<(u_capacity == 0 && t_capacity == u_capacity)> * = nullptr
     ) {
         {
-            std::unique_lock<std::mutex> lock(m_mutex);
-            m_container.emplace_front(std::move(item));
+            std::unique_lock<std::mutex> lock(mutex_);
+            container_.emplace_front(std::move(item));
         } // Release the lock
 
-        m_not_empty.notify_one();
+        not_empty_.notify_one();
 
         return true;
     }
@@ -466,18 +466,18 @@ public:
         std::enable_if_t<(u_capacity > 0 && t_capacity == u_capacity)> * = nullptr
     ) {
         {
-            std::unique_lock<std::mutex> lock(m_mutex);
-            if(not m_not_full.wait_for(
+            std::unique_lock<std::mutex> lock(mutex_);
+            if(not not_full_.wait_for(
                    lock,
                    std::chrono::duration_cast<std::chrono::milliseconds>(timeout),
-                   [&]() -> bool { return m_container.size() < u_capacity; }
+                   [&]() -> bool { return container_.size() < u_capacity; }
                )) {
                 return false;
             }
-            m_container.emplace_front(std::move(item));
+            container_.emplace_front(std::move(item));
         } // Release the lock
 
-        m_not_empty.notify_one();
+        not_empty_.notify_one();
 
         return true;
     }
@@ -495,16 +495,16 @@ public:
         bool success = false;
 
         {
-            std::unique_lock<std::mutex> lock(m_mutex);
-            if(not m_container.empty()) {
-                item = m_container.back();
-                m_container.pop_back();
+            std::unique_lock<std::mutex> lock(mutex_);
+            if(not container_.empty()) {
+                item = container_.back();
+                container_.pop_back();
                 success = true;
             }
         } // Release the lock
 
         if(success)
-            m_not_empty.notify_one();
+            not_empty_.notify_one();
 
         return success;
     }
@@ -522,16 +522,16 @@ public:
         bool success = false;
 
         {
-            std::unique_lock<std::mutex> lock(m_mutex);
-            if(not m_container.empty()) {
-                item = std::move(m_container.back());
-                m_container.pop_back();
+            std::unique_lock<std::mutex> lock(mutex_);
+            if(not container_.empty()) {
+                item = std::move(container_.back());
+                container_.pop_back();
                 success = true;
             }
         } // Release the lock
 
         if(success)
-            m_not_empty.notify_one();
+            not_empty_.notify_one();
 
         return success;
     }
@@ -546,14 +546,14 @@ public:
           */
     void pop_and_block_copy(T &item) {
         {
-            std::unique_lock<std::mutex> lock(m_mutex);
-            m_not_empty.wait(lock, [&]() -> bool { return not m_container.empty(); });
+            std::unique_lock<std::mutex> lock(mutex_);
+            not_empty_.wait(lock, [&]() -> bool { return not container_.empty(); });
 
-            item = m_container.back();
-            m_container.pop_back();
+            item = container_.back();
+            container_.pop_back();
         } // Release the lock
 
-        m_not_full.notify_one();
+        not_full_.notify_one();
     }
 
     /***************************************************************************/
@@ -566,14 +566,14 @@ public:
           */
     void pop_and_block_move(T &item) {
         {
-            std::unique_lock<std::mutex> lock(m_mutex);
-            m_not_empty.wait(lock, [&]() -> bool { return not m_container.empty(); });
+            std::unique_lock<std::mutex> lock(mutex_);
+            not_empty_.wait(lock, [&]() -> bool { return not container_.empty(); });
 
-            item = std::move(m_container.back());
-            m_container.pop_back();
+            item = std::move(container_.back());
+            container_.pop_back();
         } // Release the lock
 
-        m_not_full.notify_one();
+        not_full_.notify_one();
     }
 
     /***************************************************************************/
@@ -589,20 +589,20 @@ public:
           */
     bool pop_and_wait_copy(T &item, std::chrono::duration<double> const &timeout) {
         {
-            std::unique_lock<std::mutex> lock(m_mutex);
-            if(not m_not_empty.wait_for(
+            std::unique_lock<std::mutex> lock(mutex_);
+            if(not not_empty_.wait_for(
                    lock,
                    std::chrono::duration_cast<std::chrono::milliseconds>(timeout),
-                   [&]() -> bool { return not m_container.empty(); }
+                   [&]() -> bool { return not container_.empty(); }
                )) {
                 return false;
             }
 
-            item = m_container.back(); // Assign the item at the back of the container
-            m_container.pop_back();    // Remove it from the container
+            item = container_.back(); // Assign the item at the back of the container
+            container_.pop_back();    // Remove it from the container
         } // Release the lock
 
-        m_not_full.notify_one();
+        not_full_.notify_one();
 
         return true;
     }
@@ -620,20 +620,20 @@ public:
           */
     bool pop_and_wait_move(T &item, std::chrono::duration<double> const &timeout) {
         {
-            std::unique_lock<std::mutex> lock(m_mutex);
-            if(not m_not_empty.wait_for(
+            std::unique_lock<std::mutex> lock(mutex_);
+            if(not not_empty_.wait_for(
                    lock,
                    std::chrono::duration_cast<std::chrono::milliseconds>(timeout),
-                   [&]() -> bool { return not m_container.empty(); }
+                   [&]() -> bool { return not container_.empty(); }
                )) {
                 return false;
             }
 
-            item = std::move(m_container.back()); // Assign the item at the back of the container
-            m_container.pop_back();               // Remove it from the container
+            item = std::move(container_.back()); // Assign the item at the back of the container
+            container_.pop_back();               // Remove it from the container
         } // Release the lock
 
-        m_not_full.notify_one();
+        not_full_.notify_one();
 
         return true;
     }
@@ -659,8 +659,8 @@ public:
           * @return The currently remaining space in the buffer
           */
     std::size_t getRemainingSpace() {
-        std::unique_lock<std::mutex> lock(m_mutex);
-        return t_capacity - m_container.size();
+        std::unique_lock<std::mutex> lock(mutex_);
+        return t_capacity - container_.size();
     }
 
     /***************************************************************************/
@@ -673,8 +673,8 @@ public:
           * @return The current size of the buffer
           */
     std::size_t size() {
-        std::unique_lock<std::mutex> lock(m_mutex);
-        return m_container.size();
+        std::unique_lock<std::mutex> lock(mutex_);
+        return container_.size();
     }
 
     /***************************************************************************/
@@ -682,8 +682,8 @@ public:
           * Checks whether the queue is empty
           */
     bool empty() const {
-        std::unique_lock<std::mutex> lock(m_mutex);
-        return m_container.empty();
+        std::unique_lock<std::mutex> lock(mutex_);
+        return container_.empty();
     }
 
     /***************************************************************************/
@@ -696,8 +696,8 @@ public:
           * @return True if the buffer is not empty
           */
     bool isNotEmpty() {
-        std::unique_lock<std::mutex> lock(m_mutex);
-        return not m_container.empty();
+        std::unique_lock<std::mutex> lock(mutex_);
+        return not container_.empty();
     }
 
     /***************************************************************************/
@@ -711,10 +711,10 @@ public:
 protected:
     /***************************************************************************/
 
-    container_type m_container;            ///< The actual data store
-    mutable std::mutex m_mutex{};          ///< Used for synchronization of access to the container
-    std::condition_variable m_not_empty{}; ///< Used for synchronization of access to the container
-    std::condition_variable m_not_full{};  ///< Used for synchronization of access to the container
+    container_type container_;            ///< The actual data store
+    mutable std::mutex mutex_{};          ///< Used for synchronization of access to the container
+    std::condition_variable not_empty_{}; ///< Used for synchronization of access to the container
+    std::condition_variable not_full_{};  ///< Used for synchronization of access to the container
 };
 
 /******************************************************************************/

@@ -86,11 +86,11 @@ class GFactoryT {
 
         std::string configFile{};
 
-        ar &BOOST_SERIALIZATION_NVP(configFile) & BOOST_SERIALIZATION_NVP(m_id) &
-            BOOST_SERIALIZATION_NVP(m_initialized);
+        ar &BOOST_SERIALIZATION_NVP(configFile) & BOOST_SERIALIZATION_NVP(id_) &
+            BOOST_SERIALIZATION_NVP(initialized_);
 
         // Transfer the string to the path
-        m_config_path = std::filesystem::path(configFile);
+        config_path_ = std::filesystem::path(configFile);
     }
 
     template <typename Archive>
@@ -98,10 +98,10 @@ class GFactoryT {
         using boost::serialization::make_nvp;
 
         // Transfer the path to the string
-        std::string configFile = m_config_path.string(); // NOLINT(cppcoreguidelines-init-variables)
+        std::string configFile = config_path_.string(); // NOLINT(cppcoreguidelines-init-variables)
 
-        ar &BOOST_SERIALIZATION_NVP(configFile) & BOOST_SERIALIZATION_NVP(m_id) &
-            BOOST_SERIALIZATION_NVP(m_initialized);
+        ar &BOOST_SERIALIZATION_NVP(configFile) & BOOST_SERIALIZATION_NVP(id_) &
+            BOOST_SERIALIZATION_NVP(initialized_);
     }
 
     BOOST_SERIALIZATION_SPLIT_MEMBER()
@@ -116,7 +116,7 @@ public:
 	  * @param configFile The name of a configuration file holding information about objects of type T
 	  */
     explicit GFactoryT(std::filesystem::path configFile)
-      : m_config_path(std::move(configFile)) { /* nothing */
+      : config_path_(std::move(configFile)) { /* nothing */
     }
 
     /***************************************************************************/
@@ -146,7 +146,7 @@ public:
 	  * @return The name of the config-file
 	  */
     std::string getConfigFileName() const {
-        return m_config_path.string();
+        return config_path_.string();
     }
 
     /***************************************************************************/
@@ -156,7 +156,7 @@ public:
 	  * @return The std::filesystem::path object referring to the config file
 	  */
     std::filesystem::path getConfigFilePath() const {
-        return m_config_path;
+        return config_path_;
     }
 
     /***************************************************************************/
@@ -165,7 +165,7 @@ public:
 	  * the next individual
 	  */
     void setConfigFile(std::string configFile) {
-        m_config_path = std::filesystem::path(configFile);
+        config_path_ = std::filesystem::path(configFile);
     }
 
     /***************************************************************************/
@@ -214,11 +214,11 @@ public:
 
         // Write out the configuration file, if options have been registered
         if(gpb.numberOfFileOptions() > 0) {
-            gpb.writeConfigFile(m_config_path, header, true);
+            gpb.writeConfigFile(config_path_, header, true);
         }
         else {
             std::cout << "Warning: An attempt was made to write out configuration file "
-                      << m_config_path.string() << std::endl
+                      << config_path_.string() << std::endl
                       << "even though no configuration options were registered. Doing nothing."
                       << std::endl;
         }
@@ -229,9 +229,9 @@ public:
 	  * Loads the data of another GFactoryT<> object
 	  */
     virtual void load(std::shared_ptr<GFactoryT<prod_type>> cp) {
-        m_config_path = cp->m_config_path;
-        m_id = cp->m_id;
-        m_initialized = cp->m_initialized;
+        config_path_ = cp->config_path_;
+        id_ = cp->id_;
+        initialized_ = cp->initialized_;
     }
 
     /***************************************************************************/
@@ -278,7 +278,7 @@ protected:
 	  * Retrieve the current value of the id_ variable
 	  */
     std::size_t getId() const {
-        return m_id;
+        return id_;
     }
 
     /***************************************************************************/
@@ -302,14 +302,14 @@ protected:
         // Retrieve the actual object. It may, in the process of its
         // creation, add further configuration options and call-backs to
         // the parser
-        std::shared_ptr<prod_type> p = this->getObject_(gpb, m_id);
+        std::shared_ptr<prod_type> p = this->getObject_(gpb, id_);
 
         // Read the configuration parameters from file
-        if(not gpb.parseConfigFile(m_config_path)) {
+        if(not gpb.parseConfigFile(config_path_)) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GFactoryT<prod_type>::operator(): Error!" << std::endl
-                << "Could not parse configuration file " << m_config_path.string() << std::endl
+                << "Could not parse configuration file " << config_path_.string() << std::endl
             );
         }
 
@@ -318,7 +318,7 @@ protected:
         this->postProcess_(p);
 
         // Update the id
-        m_id++;
+        id_++;
 
         // Let the audience know
         return p;
@@ -333,10 +333,10 @@ private:
 	  * in the "init_()" function, which may be overloaded by the user.
 	  */
     void globalInit() {
-        if(not m_initialized) {
+        if(not initialized_) {
             // Perform the user-defined initialization work
             this->init_();
-            m_initialized = true;
+            initialized_ = true;
         }
     }
 
@@ -347,10 +347,10 @@ private:
 
     /***************************************************************************/
 
-    std::filesystem::path m_config_path; ///< The name and path of the configuration file
-    std::size_t m_id =
+    std::filesystem::path config_path_; ///< The name and path of the configuration file
+    std::size_t id_ =
         GFACTTORYFIRSTID;       ///< The id/number of the individual currently being created
-    bool m_initialized = false; ///< Indicates whether the initialization work has already been done
+    bool initialized_ = false; ///< Indicates whether the initialization work has already been done
 };
 
 /******************************************************************************/

@@ -70,8 +70,8 @@ class GConstrainedNumCollectionT // NOLINT(cppcoreguidelines-special-member-func
         ar &make_nvp(
             "GParameterCollectionT",
             boost::serialization::base_object<GParameterCollectionT<num_type>>(*this)
-        ) & BOOST_SERIALIZATION_NVP(m_lowerBoundary) &
-            BOOST_SERIALIZATION_NVP(m_upperBoundary);
+        ) & BOOST_SERIALIZATION_NVP(lowerBoundary_) &
+            BOOST_SERIALIZATION_NVP(upperBoundary_);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -93,15 +93,15 @@ public:
         const num_type &upperBoundary
     )
       : GParameterCollectionT<num_type>(size, lowerBoundary)
-      , m_lowerBoundary(lowerBoundary)
-      , m_upperBoundary(upperBoundary) {
+      , lowerBoundary_(lowerBoundary)
+      , upperBoundary_(upperBoundary) {
         // Naturally the upper boundary should be >= the lower boundary
-        if(m_lowerBoundary > m_upperBoundary) {
+        if(lowerBoundary_ > upperBoundary_) {
             glogger << "In GConstrainedNumCollectionT<num_type>::GConstrainedNumCollectionT(size, "
                        "lower,upper):"
                     << std::endl
-                    << "lowerBoundary_ = " << m_lowerBoundary << "is larger than" << std::endl
-                    << "upperBoundary_ = " << m_upperBoundary << std::endl
+                    << "lowerBoundary_ = " << lowerBoundary_ << "is larger than" << std::endl
+                    << "upperBoundary_ = " << upperBoundary_ << std::endl
                     << GTERMINATION;
         }
 
@@ -138,15 +138,15 @@ public:
         const num_type &upperBoundary
     )
       : GParameterCollectionT<num_type>(size, val)
-      , m_lowerBoundary(lowerBoundary)
-      , m_upperBoundary(upperBoundary) {
+      , lowerBoundary_(lowerBoundary)
+      , upperBoundary_(upperBoundary) {
         // Naturally the upper boundary should be > the lower boundary
-        if(m_lowerBoundary > m_upperBoundary) {
+        if(lowerBoundary_ > upperBoundary_) {
             glogger << "In GConstrainedNumCollectionT<num_type>::GConstrainedNumCollectionT(size, "
                        "val, lower,upper):"
                     << std::endl
-                    << "lowerBoundary_ = " << m_lowerBoundary << "is larger than" << std::endl
-                    << "upperBoundary_ = " << m_upperBoundary << std::endl
+                    << "lowerBoundary_ = " << lowerBoundary_ << "is larger than" << std::endl
+                    << "upperBoundary_ = " << upperBoundary_ << std::endl
                     << GTERMINATION;
         }
 
@@ -199,7 +199,7 @@ public:
        * @return The value of the lower boundary
        */
     num_type getLowerBoundary() const {
-        return m_lowerBoundary;
+        return lowerBoundary_;
     }
 
     /***************************************************************************/
@@ -209,7 +209,7 @@ public:
        * @return The value of the upper boundary
        */
     num_type getUpperBoundary() const {
-        return m_upperBoundary;
+        return upperBoundary_;
     }
 
     /***************************************************************************/
@@ -267,8 +267,8 @@ public:
             );
         }
 
-        m_lowerBoundary = lower;
-        m_upperBoundary = upper;
+        lowerBoundary_ = lower;
+        upperBoundary_ = upper;
 
         // Re-set the internal representation of the values -- we might be in a different
         // region of the transformation internally, and the mapping will likely depend on
@@ -289,15 +289,15 @@ public:
      */
     void setValue(const std::size_t &pos, const num_type &val) override {
         // Do some error checking
-        if(val < m_lowerBoundary || val > m_upperBoundary) {
+        if(val < lowerBoundary_ || val > upperBoundary_) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GConstrainedNumCollectionT<num_type>::setValue(pos, val):" << std::endl
                 << "In position " << pos << ":" << std::endl
                 << "Assigned value " << val
                 << " is outside of its allowed boundaries: " << std::endl
-                << "lowerBoundary_ = " << m_lowerBoundary << std::endl
-                << "upperBoundary_ = " << m_upperBoundary << std::endl
+                << "lowerBoundary_ = " << lowerBoundary_ << std::endl
+                << "upperBoundary_ = " << upperBoundary_ << std::endl
             );
         }
 
@@ -387,8 +387,8 @@ protected:
         GParameterCollectionT<num_type>::load_(cp);
 
         // ... and then our local data
-        m_lowerBoundary = p_load->m_lowerBoundary;
-        m_upperBoundary = p_load->m_upperBoundary;
+        lowerBoundary_ = p_load->lowerBoundary_;
+        upperBoundary_ = p_load->upperBoundary_;
     }
 
     /***************************************************************************/
@@ -428,8 +428,8 @@ protected:
         Gem::Common::compare_base_t<GParameterCollectionT<num_type>>(*this, *p_load, token);
 
         // ... and then the local data
-        compare_t(IDENTITY(m_lowerBoundary, p_load->m_lowerBoundary), token);
-        compare_t(IDENTITY(m_upperBoundary, p_load->m_upperBoundary), token);
+        compare_t(IDENTITY(lowerBoundary_, p_load->lowerBoundary_), token);
+        compare_t(IDENTITY(upperBoundary_, p_load->upperBoundary_), token);
 
         // React on deviations from the expectation
         token.evaluate();
@@ -441,7 +441,7 @@ protected:
      * independent of a parameters value range
      */
     num_type range() const override {
-        return m_upperBoundary - m_lowerBoundary;
+        return upperBoundary_ - lowerBoundary_;
     }
 
     /***************************************************************************/
@@ -530,8 +530,8 @@ private:
     GObject *clone_() const override = 0;
 
     /***************************************************************************/
-    num_type m_lowerBoundary = num_type(0); ///< The lower allowed boundary for our value
-    num_type m_upperBoundary = num_type(1); ///< The upper allowed boundary for our value
+    num_type lowerBoundary_ = num_type(0); ///< The lower allowed boundary for our value
+    num_type upperBoundary_ = num_type(1); ///< The upper allowed boundary for our value
 };
 
 /******************************************************************************/

@@ -62,7 +62,7 @@ class GParameterT // NOLINT(cppcoreguidelines-special-member-functions)
         ar &make_nvp(
             "GParameterBaseWithAdaptors_T",
             boost::serialization::base_object<GParameterBaseWithAdaptorsT<T>>(*this)
-        ) & BOOST_SERIALIZATION_NVP(m_val);
+        ) & BOOST_SERIALIZATION_NVP(val_);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -82,7 +82,7 @@ public:
 	  */
     explicit GParameterT(const T &val)
       : GParameterBaseWithAdaptorsT<T>()
-      , m_val(val) { /* nothing */
+      , val_(val) { /* nothing */
     }
 
     /***************************************************************************/
@@ -121,7 +121,7 @@ public:
 	  * @param val The new T value stored in this class
 	  */
     virtual void setValue(const T &val) {
-        m_val = val;
+        val_ = val;
     }
 
     /* ----------------------------------------------------------------------------------
@@ -149,7 +149,7 @@ public:
 	  * @return The value of val_
 	  */
     virtual T value() const {
-        return m_val;
+        return val_;
     }
 
     /* ----------------------------------------------------------------------------------
@@ -194,7 +194,7 @@ protected:
 	  * @param val The new T value stored in this class
 	  */
     void setValue_(const T &val) const {
-        m_val = val;
+        val_ = val;
     }
 
     /* ----------------------------------------------------------------------------------
@@ -217,7 +217,7 @@ protected:
         GParameterBaseWithAdaptorsT<T>::load_(cp);
 
         // ... and then our own data
-        m_val = p_load->m_val;
+        val_ = p_load->val_;
     }
 
     /** @brief Allow access to this classes compare_ function */
@@ -253,7 +253,7 @@ protected:
         Gem::Common::compare_base_t<GParameterBaseWithAdaptorsT<T>>(*this, *p_load, token);
 
         // ... and then the local data
-        compare_t(IDENTITY(m_val, p_load->m_val), token);
+        compare_t(IDENTITY(val_, p_load->val_), token);
 
         // React on deviations from the expectation
         token.evaluate();
@@ -330,7 +330,7 @@ protected:
 	  * classes can (re-)set the value from a const function without forcing us to declare
 	  * setValue() const.
 	  */
-    mutable T m_val = Gem::Common::GDefaultValueT<T>::value();
+    mutable T val_ = Gem::Common::GDefaultValueT<T>::value();
 
 private:
     /***************************************************************************/
@@ -352,7 +352,7 @@ private:
      * @return The number of adaptions that were performed
      */
     std::size_t adapt_(Gem::Hap::GRandomBase &gr) override {
-        return GParameterBaseWithAdaptorsT<T>::applyAdaptor(m_val, this->range(), gr);
+        return GParameterBaseWithAdaptorsT<T>::applyAdaptor(val_, this->range(), gr);
     }
 };
 

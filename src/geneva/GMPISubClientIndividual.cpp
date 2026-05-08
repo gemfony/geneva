@@ -37,32 +37,32 @@ BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GMPISubClientIndividual) // NOLINT
 namespace Gem::Geneva {
 
 MPI_Comm GMPISubClientIndividual::getCommunicator() {
-    return GMPISubClientIndividual::m_communicator;
+    return GMPISubClientIndividual::communicator_;
 }
 
 void GMPISubClientIndividual::setCommunicator(const MPI_Comm &communicator) {
-    m_communicator = communicator;
+    communicator_ = communicator;
 }
 
 void GMPISubClientIndividual::setClientStatusRequest(const MPI_Request &request) {
-    m_clientStatusRequest = request;
+    clientStatusRequest_ = request;
 }
 
 void GMPISubClientIndividual::setClientMode(const ClientMode &mode) {
-    m_clientMode = mode;
+    clientMode_ = mode;
 }
 
 ClientStatus GMPISubClientIndividual::getClientStatus() {
     // If the optimization is finished this means that no Individual is being processed.
     // Therefore, clients can only call this method if they are running
-    if(m_clientMode == CLIENT) {
+    if(clientMode_ == CLIENT) {
         return ClientStatus::RUNNING;
     }
 
     MPI_Status status{};
     int isCompleted{};
 
-    MPI_Test(&m_clientStatusRequest, &isCompleted, &status);
+    MPI_Test(&clientStatusRequest_, &isCompleted, &status);
 
     if(!isCompleted) {
         return ClientStatus::RUNNING;
@@ -76,7 +76,7 @@ ClientStatus GMPISubClientIndividual::getClientStatus() {
 }
 
 ClientMode GMPISubClientIndividual::getClientMode() {
-    return m_clientMode;
+    return clientMode_;
 }
 
 } // namespace Gem::Geneva

@@ -150,7 +150,7 @@ bool GBooleanCollection::randomInit_(
     std::bernoulli_distribution bernoulli_distribution; // defaults to 0.5
 
     // Compare http://stackoverflow.com/questions/15927033/what-is-the-correct-way-of-using-c11s-range-based-for
-    for(auto &&b : this->m_data_cnt) {
+    for(auto &&b : this->data_cnt_) {
         b = bernoulli_distribution(gr);
         randomized = true;
     }
@@ -190,7 +190,7 @@ bool GBooleanCollection::randomInit_(
     std::bernoulli_distribution bernoulli_distribution(probability);
 
     // Compare http://stackoverflow.com/questions/15927033/what-is-the-correct-way-of-using-c11s-range-based-for
-    for(auto &&b : this->m_data_cnt) {
+    for(auto &&b : this->data_cnt_) {
         b = bernoulli_distribution(gr);
         randomized = true;
     }

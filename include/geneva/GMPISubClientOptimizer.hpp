@@ -87,7 +87,7 @@ public:
     registerSubClientJob(std::function<int(MPI_Comm)> callback);
 
     [[nodiscard]] G_API_GENEVA bool isSubClient() const {
-        return m_isSubClient;
+        return isSubClient_;
     }
 
 protected:
@@ -109,39 +109,39 @@ private:
     /**
          * MPI communicator used for communication between the geneva GMPIConsumerMasterNodeT and GMPIConsumerWorkerNodeT.
          */
-    MPI_Comm m_genevaComm{};
+    MPI_Comm genevaComm_{};
     /**
          * MPI communicator used for communication between sub-clients inside of their specific sub-group.
          */
-    MPI_Comm m_subClientComm{};
+    MPI_Comm subClientComm_{};
     /**
-         * MPI communicator which has the same scope as m_subClientComm but is used for retrieving status information about of the current group.
+         * MPI communicator which has the same scope as subClientComm_ but is used for retrieving status information about of the current group.
          */
-    MPI_Comm m_subClientStatusComm{};
+    MPI_Comm subClientStatusComm_{};
     /**
          * Total number of the MPI nodes which will instantiate this class
          */
-    int m_baseCommSize{};
+    int baseCommSize_{};
     /**
          * Rank in the base communicator i.e. in the outer most communicator
          */
-    int m_baseCommRank{};
+    int baseCommRank_{};
     /**
           * The number of sub-clients per geneva client. This means each geneva client is part of a sub-group consisting of
-          * m_nSubClients processes.
+          * nSubClients_ processes.
           */
-    std::uint16_t m_subClientGroupSize{4};
+    std::uint16_t subClientGroupSize_{4};
     /**
          * Flag which is true if the current process is a sub-client
          */
-    bool m_isSubClient{};
+    bool isSubClient_{};
     /**
          * Callback function which is executed by sub-clients when clientRun() is called
          */
-    std::function<int(MPI_Comm)> m_subClientJob{[](MPI_Comm comm) -> int {
+    std::function<int(MPI_Comm)> subClientJob_{[](MPI_Comm comm) -> int {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "GMPISubClientOptimizer::m_subClientJob(MPI_Comm comm): Error!" << std::endl
+            << "GMPISubClientOptimizer::subClientJob_(MPI_Comm comm): Error!" << std::endl
             << "The sub-client job has not been set. Set it using the `GMPISubClientOptimizer "
                "&GMPISubClientOptimizer::registerSubClientJob(std::function<int(MPI_Comm)> "
                "&callback)` method."

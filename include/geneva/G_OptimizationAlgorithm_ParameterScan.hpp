@@ -143,10 +143,10 @@ class baseScanParT // NOLINT(cppcoreguidelines-special-member-functions)
         using boost::serialization::make_nvp;
 
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(Gem::Common::GPODVectorT<T>) &
-            BOOST_SERIALIZATION_NVP(m_var) & BOOST_SERIALIZATION_NVP(m_step) &
-            BOOST_SERIALIZATION_NVP(m_nSteps) & BOOST_SERIALIZATION_NVP(m_lower) &
-            BOOST_SERIALIZATION_NVP(m_upper) & BOOST_SERIALIZATION_NVP(m_randomScan) &
-            BOOST_SERIALIZATION_NVP(m_typeDescription);
+            BOOST_SERIALIZATION_NVP(var_) & BOOST_SERIALIZATION_NVP(step_) &
+            BOOST_SERIALIZATION_NVP(nSteps_) & BOOST_SERIALIZATION_NVP(lower_) &
+            BOOST_SERIALIZATION_NVP(upper_) & BOOST_SERIALIZATION_NVP(randomScan_) &
+            BOOST_SERIALIZATION_NVP(typeDescription_);
     }
 
     ///////////////////////////////////////////////////////////////////////
@@ -159,19 +159,19 @@ public:
     baseScanParT(
         parPropSpec<T> pps,
         bool randomScan,
-        const std::string &t // m_typeDescription
+        const std::string &t // typeDescription_
     )
       : Gem::Common::GPODVectorT<T>()
-      , m_var(pps.var)
-      , m_step(0)
-      , m_nSteps(pps.nSteps)
-      , m_lower(pps.lowerBoundary)
-      , m_upper(pps.upperBoundary)
-      , m_randomScan(randomScan)
-      , m_typeDescription(t) {
-        if(not m_randomScan) {
+      , var_(pps.var)
+      , step_(0)
+      , nSteps_(pps.nSteps)
+      , lower_(pps.lowerBoundary)
+      , upper_(pps.upperBoundary)
+      , randomScan_(randomScan)
+      , typeDescription_(t) {
+        if(not randomScan_) {
             // Fill the object with data
-            this->m_data_cnt = fillWithData<T>(m_nSteps, m_lower, m_upper);
+            this->data_cnt_ = fillWithData<T>(nSteps_, lower_, upper_);
         }
     }
 
@@ -181,13 +181,13 @@ public:
      * random number generator.
      */
     baseScanParT(const baseScanParT<T> &cp)
-      : m_var(cp.m_var)
-      , m_step(cp.m_step)
-      , m_nSteps(cp.m_step)
-      , m_lower(cp.m_lower)
-      , m_upper(cp.m_upper)
-      , m_randomScan(cp.m_randomScan)
-      , m_typeDescription(cp.m_typeDescription) { /* nothing */
+      : var_(cp.var_)
+      , step_(cp.step_)
+      , nSteps_(cp.step_)
+      , lower_(cp.lower_)
+      , upper_(cp.upper_)
+      , randomScan_(cp.randomScan_)
+      , typeDescription_(cp.typeDescription_) { /* nothing */
     }
 
     /***************************************************************************/
@@ -201,7 +201,7 @@ public:
      * Retrieve the address of this object
      */
     NAMEANDIDTYPE getVarAddress() const override {
-        return m_var;
+        return var_;
     }
 
     /***************************************************************************/
@@ -209,7 +209,7 @@ public:
      * Retrieves the current item position
      */
     std::size_t getCurrentItemPos() const {
-        return m_step;
+        return step_;
     }
 
     /***************************************************************************/
@@ -217,11 +217,11 @@ public:
      * Retrieve the current item
      */
     T getCurrentItem(Gem::Hap::GRandomBase &gr) const {
-        if(m_randomScan) {
+        if(randomScan_) {
             return getRandomItem(gr);
         }
         else {
-            return this->at(m_step);
+            return this->at(step_);
         }
     }
 
@@ -232,8 +232,8 @@ public:
      * @return A boolean indicating whether a warp has taken place
      */
     bool goToNextItem() override {
-        if(++m_step >= m_nSteps) {
-            m_step = 0;
+        if(++step_ >= nSteps_) {
+            step_ = 0;
             return true;
         }
         return false;
@@ -244,7 +244,7 @@ public:
      * Checks whether step_ points to the last item in the array
      */
     bool isAtTerminalPosition() const override {
-        return m_step >= m_nSteps;
+        return step_ >= nSteps_;
     }
 
     /***************************************************************************/
@@ -252,7 +252,7 @@ public:
      * Checks whether step_ points to the first item in the array
      */
     bool isAtFirstPosition() const override {
-        return 0 == m_step;
+        return 0 == step_;
     }
 
     /***************************************************************************/
@@ -260,7 +260,7 @@ public:
      * Resets the current position
      */
     void resetPosition() override {
-        m_step = 0;
+        step_ = 0;
     }
 
     /***************************************************************************/
@@ -268,33 +268,33 @@ public:
      * Retrieve the type descriptor
      */
     std::string getTypeDescriptor() const override {
-        return m_typeDescription;
+        return typeDescription_;
     }
 
 protected:
     /***************************************************************************/
     // Data
 
-    NAMEANDIDTYPE m_var;           ///< Name and/or position of the variable
-    std::size_t m_step;            ///< The current position in the data vector
-    std::size_t m_nSteps;          ///< The number of steps to be taken in a scan
-    T m_lower;                     ///< The lower boundary of an item
-    T m_upper;                     ///< The upper boundary of an item
-    bool m_randomScan;             ///< Indicates whether we are dealing with a random scan or not
-    std::string m_typeDescription; ///< Holds an identifier for the type described by this class
+    NAMEANDIDTYPE var_;           ///< Name and/or position of the variable
+    std::size_t step_;            ///< The current position in the data vector
+    std::size_t nSteps_;          ///< The number of steps to be taken in a scan
+    T lower_;                     ///< The lower boundary of an item
+    T upper_;                     ///< The upper boundary of an item
+    bool randomScan_;             ///< Indicates whether we are dealing with a random scan or not
+    std::string typeDescription_; ///< Holds an identifier for the type described by this class
 
-    mutable Gem::Hap::GRandom m_gr; ///< Simple access to a random number generator
+    mutable Gem::Hap::GRandom gr_; ///< Simple access to a random number generator
 
     /***************************************************************************/
     /** @brief The default constructor -- only needed for de-serialization, hence protected */
     baseScanParT()
-      : m_var(NAMEANDIDTYPE(0, "empty", 0))
-      , m_step(0)
-      , m_nSteps(2)
-      , m_lower(T(0))
-      , m_upper(T(1))
-      , m_randomScan(true)
-      , m_typeDescription("") { /* nothing */
+      : var_(NAMEANDIDTYPE(0, "empty", 0))
+      , step_(0)
+      , nSteps_(2)
+      , lower_(T(0))
+      , upper_(T(1))
+      , randomScan_(true)
+      , typeDescription_("") { /* nothing */
     }
 
     /***************************************************************************/
@@ -317,13 +317,13 @@ protected:
 
 private:
     mutable std::bernoulli_distribution
-        m_uniform_bool; ///< boolean random numbers with an even distribution
+        uniform_bool_; ///< boolean random numbers with an even distribution
     mutable std::uniform_real_distribution<float>
-        m_uniform_float_distribution; ///< Uniformly distributed fp numbers
+        uniform_float_distribution_; ///< Uniformly distributed fp numbers
     mutable std::uniform_real_distribution<double>
-        m_uniform_double_distribution; ///< Uniformly distributed fp numbers
+        uniform_double_distribution_; ///< Uniformly distributed fp numbers
     mutable std::uniform_int_distribution<std::int32_t>
-        m_uniform_int_distribution; ///< Uniformly distributed integer numbers
+        uniform_int_distribution_; ///< Uniformly distributed integer numbers
 };
 
 /******************************************************************************/
@@ -334,7 +334,7 @@ private:
  */
 template <>
 inline bool baseScanParT<bool>::getRandomItem(Gem::Hap::GRandomBase &gr) const {
-    return m_uniform_bool(gr);
+    return uniform_bool_(gr);
 }
 
 /******************************************************************************/
@@ -343,9 +343,9 @@ inline bool baseScanParT<bool>::getRandomItem(Gem::Hap::GRandomBase &gr) const {
  */
 template <>
 inline float baseScanParT<float>::getRandomItem(Gem::Hap::GRandomBase &gr) const {
-    return m_uniform_float_distribution(
+    return uniform_float_distribution_(
         gr,
-        std::uniform_real_distribution<float>::param_type(m_lower, m_upper)
+        std::uniform_real_distribution<float>::param_type(lower_, upper_)
     );
 }
 
@@ -355,9 +355,9 @@ inline float baseScanParT<float>::getRandomItem(Gem::Hap::GRandomBase &gr) const
  */
 template <>
 inline double baseScanParT<double>::getRandomItem(Gem::Hap::GRandomBase &gr) const {
-    return m_uniform_double_distribution(
+    return uniform_double_distribution_(
         gr,
-        std::uniform_real_distribution<double>::param_type(m_lower, m_upper)
+        std::uniform_real_distribution<double>::param_type(lower_, upper_)
     );
 }
 
@@ -367,9 +367,9 @@ inline double baseScanParT<double>::getRandomItem(Gem::Hap::GRandomBase &gr) con
  */
 template <>
 inline std::int32_t baseScanParT<std::int32_t>::getRandomItem(Gem::Hap::GRandomBase &gr) const {
-    return m_uniform_int_distribution(
+    return uniform_int_distribution_(
         gr,
-        std::uniform_int_distribution<std::int32_t>::param_type(m_lower, m_upper + 1)
+        std::uniform_int_distribution<std::int32_t>::param_type(lower_, upper_ + 1)
     );
 }
 
@@ -582,11 +582,11 @@ class GParameterScan // NOLINT(cppcoreguidelines-special-member-functions)
         ar &make_nvp(
             "G_OptimizationAlgorithm_Base",
             boost::serialization::base_object<G_OptimizationAlgorithm_Base>(*this)
-        ) & BOOST_SERIALIZATION_NVP(m_scanRandomly) &
-            BOOST_SERIALIZATION_NVP(m_nMonitorInds) & BOOST_SERIALIZATION_NVP(m_b_cnt) &
-            BOOST_SERIALIZATION_NVP(m_int32_cnt) & BOOST_SERIALIZATION_NVP(m_d_cnt) &
-            BOOST_SERIALIZATION_NVP(m_f_cnt) & BOOST_SERIALIZATION_NVP(m_simpleScanItems) &
-            BOOST_SERIALIZATION_NVP(m_scansPerformed);
+        ) & BOOST_SERIALIZATION_NVP(scanRandomly_) &
+            BOOST_SERIALIZATION_NVP(nMonitorInds_) & BOOST_SERIALIZATION_NVP(b_cnt_) &
+            BOOST_SERIALIZATION_NVP(int32_cnt_) & BOOST_SERIALIZATION_NVP(d_cnt_) &
+            BOOST_SERIALIZATION_NVP(f_cnt_) & BOOST_SERIALIZATION_NVP(simpleScanItems_) &
+            BOOST_SERIALIZATION_NVP(scansPerformed_);
     }
 
     ///////////////////////////////////////////////////////////////////////
@@ -760,31 +760,31 @@ private:
     /** @brief Switches to the next parameter set */
     bool switchToNextParameterSet();
 
-    /** @brief Fills all parameter objects into the m_all_par_vec vector */
+    /** @brief Fills all parameter objects into the all_par_vec_ vector */
     void fillAllParVec();
 
-    /** @brief Clears the m_all_par_vec vector */
+    /** @brief Clears the all_par_vec_ vector */
     void clearAllParVec();
 
-    bool m_cycleLogicHalt =
+    bool cycleLogicHalt_ =
         false; ///< Temporary flag used to specify that the optimization should be halted
-    bool m_scanRandomly =
+    bool scanRandomly_ =
         true; ///< Determines whether the algorithm should scan the parameter space randomly or on a grid
-    std::size_t m_nMonitorInds =
+    std::size_t nMonitorInds_ =
         DEFAULTNMONITORINDS; ///< The number of best individuals of the entire run to be kept
 
-    std::vector<std::shared_ptr<bScanPar>> m_b_cnt; ///< Holds boolean parameters to be scanned
+    std::vector<std::shared_ptr<bScanPar>> b_cnt_; ///< Holds boolean parameters to be scanned
     std::vector<std::shared_ptr<int32ScanPar>>
-        m_int32_cnt; ///< Holds 32 bit integer parameters to be scanned
-    std::vector<std::shared_ptr<dScanPar>> m_d_cnt; ///< Holds double values to be scanned
-    std::vector<std::shared_ptr<fScanPar>> m_f_cnt; ///< Holds float values to be scanned
+        int32_cnt_; ///< Holds 32 bit integer parameters to be scanned
+    std::vector<std::shared_ptr<dScanPar>> d_cnt_; ///< Holds double values to be scanned
+    std::vector<std::shared_ptr<fScanPar>> f_cnt_; ///< Holds float values to be scanned
 
     std::vector<std::shared_ptr<scanParInterface>>
-        m_all_par_cnt; /// Holds pointers to all parameter objects
+        all_par_cnt_; /// Holds pointers to all parameter objects
 
-    std::size_t m_simpleScanItems =
+    std::size_t simpleScanItems_ =
         0; ///< When set to a value > 0, a random scan of the entire parameter space will be made instead of individual parameters -- set through the configuration file
-    std::size_t m_scansPerformed =
+    std::size_t scansPerformed_ =
         0; ///< Holds the number of processed items so far while a simple scan is performed
 
     /***************************************************************************/

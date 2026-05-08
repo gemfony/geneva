@@ -69,9 +69,9 @@ class GParameterBase
         using boost::serialization::make_nvp;
 
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject) &
-            BOOST_SERIALIZATION_NVP(m_adaptionsActive) &
-            BOOST_SERIALIZATION_NVP(m_randomInitializationBlocked) &
-            BOOST_SERIALIZATION_NVP(m_parameterName);
+            BOOST_SERIALIZATION_NVP(adaptionsActive_) &
+            BOOST_SERIALIZATION_NVP(randomInitializationBlocked_) &
+            BOOST_SERIALIZATION_NVP(parameterName_);
     }
     ///////////////////////////////////////////////////////////////////////
 public:
@@ -672,11 +672,11 @@ private:
     virtual G_API_GENEVA bool isIndividualParameter_() const;
 
     /***************************************************************************/
-    bool m_adaptionsActive =
+    bool adaptionsActive_ =
         true; ///< Specifies whether adaptions of this object should be carried out
-    bool m_randomInitializationBlocked =
+    bool randomInitializationBlocked_ =
         false; ///< Specifies that this object should not be initialized again
-    std::string m_parameterName = Gem::Common::to_string(
+    std::string parameterName_ = Gem::Common::to_string(
         boost::uuids::random_generator()()
     ); ///< A name assigned to this parameter object
 };

@@ -85,7 +85,7 @@ public:
         typename std::enable_if<std::is_base_of<GParameterSet, individual_type>::value>::type
             *dummy = nullptr
     ) const {
-        std::unique_lock<std::mutex> iteration_best_lock(m_get_best_mutex);
+        std::unique_lock<std::mutex> iteration_best_lock(get_best_mutex_);
         return std::dynamic_pointer_cast<individual_type>(this->getBestGlobalIndividual_());
     }
 
@@ -102,7 +102,7 @@ public:
         typename std::enable_if<std::is_base_of<GParameterSet, individual_type>::value>::type
             *dummy = nullptr
     ) const {
-        std::unique_lock<std::mutex> iteration_best_lock(m_get_best_mutex);
+        std::unique_lock<std::mutex> iteration_best_lock(get_best_mutex_);
 
         std::vector<std::shared_ptr<individual_type>> bestIndividuals;
         std::vector<std::shared_ptr<GParameterSet>> bestBaseIndividuals =
@@ -140,7 +140,7 @@ public:
         typename std::enable_if<std::is_base_of<GParameterSet, individual_type>::value>::type
             *dummy = nullptr
     ) const {
-        std::unique_lock<std::mutex> iteration_best_lock(m_get_best_mutex);
+        std::unique_lock<std::mutex> iteration_best_lock(get_best_mutex_);
         return getBestIterationIndividual_()->template clone<individual_type>();
     }
 
@@ -157,7 +157,7 @@ public:
         typename std::enable_if<std::is_base_of<GParameterSet, individual_type>::value>::type
             *dummy = nullptr
     ) const {
-        std::unique_lock<std::mutex> iteration_best_lock(m_get_best_mutex);
+        std::unique_lock<std::mutex> iteration_best_lock(get_best_mutex_);
 
         std::vector<std::shared_ptr<individual_type>> bestIndividuals;
         std::vector<std::shared_ptr<GParameterSet>> bestBaseIndividuals =
@@ -251,7 +251,7 @@ private:
     /***************************************************************************/
     // Data
 
-    mutable std::mutex m_get_best_mutex; ///< Protects access to the best individual of an iteration
+    mutable std::mutex get_best_mutex_; ///< Protects access to the best individual of an iteration
 };
 
 /******************************************************************************/

@@ -181,13 +181,13 @@ protected:
             // adapt the value in situ. Note that this changes
             // the argument of this function
             value +=
-                (range * GNumBiGaussAdaptorT<fp_type, fp_type>::m_bi_normal_distribution(
+                (range * GNumBiGaussAdaptorT<fp_type, fp_type>::bi_normal_distribution_(
                              gr,
                              typename Gem::Hap::bi_normal_distribution<fp_type>::param_type(
                                  fp_type(0.),
                                  GNumBiGaussAdaptorT<fp_type, fp_type>::sigma1_,
                                  GNumBiGaussAdaptorT<fp_type, fp_type>::
-                                     sigma1_ // Intended to be m_sigma1 (symmetry-case)
+                                     sigma1_ // Intended to be sigma1_ (symmetry-case)
                                  ,
                                  GNumBiGaussAdaptorT<fp_type, fp_type>::delta_
                              )
@@ -197,7 +197,7 @@ protected:
             // adapt the value in situ. Note that this changes
             // the argument of this function
             value +=
-                (range * GNumBiGaussAdaptorT<fp_type, fp_type>::m_bi_normal_distribution(
+                (range * GNumBiGaussAdaptorT<fp_type, fp_type>::bi_normal_distribution_(
                              gr,
                              typename Gem::Hap::bi_normal_distribution<fp_type>::param_type(
                                  fp_type(0.),

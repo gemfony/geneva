@@ -85,8 +85,8 @@ void GEvolutionaryAlgorithm::compare_(
     Gem::Common::compare_base_t<G_OptimizationAlgorithm_ParChild>(*this, *p_load, token);
 
     // ... and then the local data
-    compare_t(IDENTITY(m_sorting_mode, p_load->m_sorting_mode), token);
-    compare_t(IDENTITY(m_n_threads, p_load->m_n_threads), token);
+    compare_t(IDENTITY(sorting_mode_, p_load->sorting_mode_), token);
+    compare_t(IDENTITY(n_threads_, p_load->n_threads_), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -134,7 +134,7 @@ std::string GEvolutionaryAlgorithm::getAlgorithmName_() const {
   * @param smode The desired sorting scheme
   */
 void GEvolutionaryAlgorithm::setSortingScheme(const sortingMode smode) {
-    m_sorting_mode = smode;
+    sorting_mode_ = smode;
 }
 
 /******************************************************************************/
@@ -145,7 +145,7 @@ void GEvolutionaryAlgorithm::setSortingScheme(const sortingMode smode) {
   * @return The current sorting scheme
   */
 sortingMode GEvolutionaryAlgorithm::getSortingScheme() const {
-    return m_sorting_mode;
+    return sorting_mode_;
 }
 
 /******************************************************************************/
@@ -192,14 +192,14 @@ void GEvolutionaryAlgorithm::updateGlobalBestsPQ_(
     }
 #endif /* DEBUG */
 
-    switch(m_sorting_mode) {
+    switch(sorting_mode_) {
     //----------------------------------------------------------------------------
     case sortingMode::MUPLUSNU_SINGLEEVAL:
     case sortingMode::MUNU1PRETAIN_SINGLEEVAL:
     case sortingMode::MUCOMMANU_SINGLEEVAL:
         bestIndividuals.add(
-            this->m_data_cnt.begin(),
-            this->m_data_cnt.begin() + this->getNParents(),
+            this->data_cnt_.begin(),
+            this->data_cnt_.begin() + this->getNParents(),
             CLONE,
             DONOTREPLACE
         );
@@ -248,14 +248,14 @@ void GEvolutionaryAlgorithm::updateIterationBestsPQ_(
     }
 #endif /* DEBUG */
 
-    switch(m_sorting_mode) {
+    switch(sorting_mode_) {
     //----------------------------------------------------------------------------
     case sortingMode::MUPLUSNU_SINGLEEVAL:
     case sortingMode::MUNU1PRETAIN_SINGLEEVAL:
     case sortingMode::MUCOMMANU_SINGLEEVAL: {
         bestIndividuals.add(
-            this->m_data_cnt.begin(),
-            this->m_data_cnt.begin() + this->getNParents(),
+            this->data_cnt_.begin(),
+            this->data_cnt_.begin() + this->getNParents(),
             CLONE,
             DONOTREPLACE
         );
@@ -340,10 +340,10 @@ void GEvolutionaryAlgorithm::setNThreads(std::uint16_t nThreads) {
                 << DEFAULTNSTDTHREADS << std::endl
                 << GWARNING;
 
-        m_n_threads = DEFAULTNSTDTHREADS;
+        n_threads_ = DEFAULTNSTDTHREADS;
     }
     else {
-        m_n_threads = nThreads;
+        n_threads_ = nThreads;
     }
 }
 
@@ -354,7 +354,7 @@ void GEvolutionaryAlgorithm::setNThreads(std::uint16_t nThreads) {
  * @return The maximum number of allowed threads
  */
 std::uint16_t GEvolutionaryAlgorithm::getNThreads() const {
-    return m_n_threads;
+    return n_threads_;
 }
 
 /******************************************************************************/
@@ -373,8 +373,8 @@ void GEvolutionaryAlgorithm::load_(const GObject *cp) {
     G_OptimizationAlgorithm_ParChild::load_(cp);
 
     // ... and then our own data
-    m_sorting_mode = p_load->m_sorting_mode;
-    m_n_threads = p_load->m_n_threads;
+    sorting_mode_ = p_load->sorting_mode_;
+    n_threads_ = p_load->n_threads_;
 }
 
 /******************************************************************************/
@@ -395,7 +395,7 @@ void GEvolutionaryAlgorithm::populationSanityChecks_() const {
     // First check that we have been given a suitable value for the number of parents.
     // Note that a number of checks (e.g. population size != 0) has already been done
     // in the parent class.
-    if(this->m_n_parents == 0) {
+    if(this->n_parents_ == 0) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In G_OA_EvolutionaryAlgorithm::populationSanityChecks(): Error!" << std::endl
@@ -410,18 +410,18 @@ void GEvolutionaryAlgorithm::populationSanityChecks_() const {
     // parents, so that the first parent individual will be replaced.
     std::size_t popSize = this->getPopulationSize();
     if ( // TODO: Why are PARETO modes missing here ?
-        ((m_sorting_mode == sortingMode::MUCOMMANU_SINGLEEVAL || m_sorting_mode == sortingMode::MUNU1PRETAIN_SINGLEEVAL)
-         && (popSize < 2 * this->m_n_parents)) ||
-        (m_sorting_mode == sortingMode::MUPLUSNU_SINGLEEVAL && popSize <= this->m_n_parents)
+        ((sorting_mode_ == sortingMode::MUCOMMANU_SINGLEEVAL || sorting_mode_ == sortingMode::MUNU1PRETAIN_SINGLEEVAL)
+         && (popSize < 2 * this->n_parents_)) ||
+        (sorting_mode_ == sortingMode::MUPLUSNU_SINGLEEVAL && popSize <= this->n_parents_)
     )
     {
         std::ostringstream error; // NOLINT(cppcoreguidelines-init-variables)
         error << "In G_OA_EvolutionaryAlgorithm::populationSanityChecks() :" << std::endl
               << "Requested size of population is too small :" << popSize << " "
-              << this->m_n_parents << std::endl
+              << this->n_parents_ << std::endl
               << "Sorting scheme is ";
 
-        switch(m_sorting_mode) {
+        switch(sorting_mode_) {
         case sortingMode::MUPLUSNU_SINGLEEVAL:
             error << "MUPLUSNU_SINGLEEVAL" << std::endl;
             break;
@@ -457,7 +457,7 @@ void GEvolutionaryAlgorithm::adaptChildren_() {
     // Loop over all requested individuals and perform the adaption
     for(auto it = (this->begin() + std::get<0>(range)); it != (this->begin() + std::get<1>(range));
         ++it) {
-        futures_cnt.push_back(m_tp_ptr->async_schedule(
+        futures_cnt.push_back(tp_ptr_->async_schedule(
             // Note: may not pass it as a reference, as it is a local variable in the loop and might
             // vanish or have been altered once the thread has started and adaption is requested.
             [it]() { return (*it)->adapt(); } // Returns the number of adaptions
@@ -465,7 +465,7 @@ void GEvolutionaryAlgorithm::adaptChildren_() {
     }
 
     // Wait for all threads in the pool to complete their work
-    m_tp_ptr->wait();
+    tp_ptr_->wait();
 
 #ifdef DEBUG
     // Check for errors
@@ -532,12 +532,12 @@ void GEvolutionaryAlgorithm::runFitnessCalculation_() {
     //--------------------------------------------------------------------------------
     // Set the "DO_PROCESS" flag in all required work items, the "DO_IGNORE" flag in all others.
 
-    setProcessingFlag(this->m_data_cnt, range);
+    setProcessingFlag(this->data_cnt_, range);
 
     //--------------------------------------------------------------------------------
     // Now submit work items and wait for results.
     auto status = this->workOn(
-        this->m_data_cnt,
+        this->data_cnt_,
         false // do not resubmit unprocessed items
         ,
         "GEvolutionaryAlgorithm::runFitnessCalculation()"
@@ -547,7 +547,7 @@ void GEvolutionaryAlgorithm::runFitnessCalculation_() {
     // Take care of unprocessed items, if these exist
     if(not status.is_complete) {
         std::size_t n_erased =
-            std::erase_if(this->m_data_cnt, [this](std::shared_ptr<GParameterSet> p) -> bool {
+            std::erase_if(this->data_cnt_, [this](std::shared_ptr<GParameterSet> p) -> bool {
                 return (p->getProcessingStatus() == Gem::Courtier::processingStatus::DO_PROCESS);
             });
 
@@ -562,7 +562,7 @@ void GEvolutionaryAlgorithm::runFitnessCalculation_() {
     // Remove items for which an error has occurred during processing
     if(status.has_errors) {
         std::size_t n_erased = std::erase_if(
-            this->m_data_cnt,
+            this->data_cnt_,
             [this](const std::shared_ptr<GParameterSet> &p) -> bool { return p->has_errors(); }
         );
 
@@ -673,7 +673,7 @@ void GEvolutionaryAlgorithm::fixAfterJobSubmission() {
         }
     }
 
-    // Mark the first this->m_n_parents individuals as parents and the rest of the individuals as children.
+    // Mark the first this->n_parents_ individuals as parents and the rest of the individuals as children.
     // We want to have a sane population.
     for(auto it = this->begin(); it != this->begin() + np; ++it) {
         (*it)
@@ -702,7 +702,7 @@ void GEvolutionaryAlgorithm::selectBest_() {
     // children is present. If individuals can get lost in your setting,
     // you must add mechanisms to "repair" the population before this
     // function is called
-    if((this->size() - this->m_n_parents) < this->m_default_n_children) {
+    if((this->size() - this->n_parents_) < this->default_n_children_) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In G_OA_EvolutionaryAlgorithm::select():" << std::endl
@@ -712,7 +712,7 @@ void GEvolutionaryAlgorithm::selectBest_() {
     }
 #endif /* DEBUG */
 
-    switch(m_sorting_mode) {
+    switch(sorting_mode_) {
     //----------------------------------------------------------------------------
     case sortingMode::MUPLUSNU_SINGLEEVAL: {
         this->sortMuPlusNuMode();
@@ -720,7 +720,7 @@ void GEvolutionaryAlgorithm::selectBest_() {
 
     //----------------------------------------------------------------------------
     case sortingMode::MUNU1PRETAIN_SINGLEEVAL: {
-        if(1 == m_n_parents || this->inFirstIteration()) {
+        if(1 == n_parents_ || this->inFirstIteration()) {
             this->sortMuPlusNuMode();
         }
         else {
@@ -808,7 +808,7 @@ void GEvolutionaryAlgorithm::init() {
     G_OptimizationAlgorithm_ParChild::init();
 
     // Initialize our thread pool
-    m_tp_ptr = std::make_shared<Gem::Common::GThreadPool>(m_n_threads);
+    tp_ptr_ = std::make_shared<Gem::Common::GThreadPool>(n_threads_);
 }
 
 /******************************************************************************/
@@ -817,7 +817,7 @@ void GEvolutionaryAlgorithm::init() {
  */
 void GEvolutionaryAlgorithm::finalize() {
     // Terminate our thread pool
-    m_tp_ptr.reset();
+    tp_ptr_.reset();
 
     // Last action. Place any "local" finalization action before this call.
     G_OptimizationAlgorithm_ParChild::finalize();
@@ -857,9 +857,9 @@ void GEvolutionaryAlgorithm::sortMuPlusNuMode() {
 
     // Only partially sort the arrays
     std::partial_sort(
-        G_OptimizationAlgorithm_Base::m_data_cnt.begin(),
-        G_OptimizationAlgorithm_Base::m_data_cnt.begin() + m_n_parents,
-        G_OptimizationAlgorithm_Base::m_data_cnt.end(),
+        G_OptimizationAlgorithm_Base::data_cnt_.begin(),
+        G_OptimizationAlgorithm_Base::data_cnt_.begin() + n_parents_,
+        G_OptimizationAlgorithm_Base::data_cnt_.end(),
         [](const std::shared_ptr<GParameterSet> &x_ptr,
            const std::shared_ptr<GParameterSet> &y_ptr) -> bool {
             return minOnly_transformed_fitness(x_ptr) < minOnly_transformed_fitness(y_ptr);
@@ -894,7 +894,7 @@ void GEvolutionaryAlgorithm::sortMuCommaNuMode() {
     else {
         // Check that we do not accidentally trigger value calculation -- check children only
         typename GEvolutionaryAlgorithm::iterator it;
-        for(it = this->begin() + m_n_parents; it != this->end(); ++it) {
+        for(it = this->begin() + n_parents_; it != this->end(); ++it) {
             if((*it)->is_due_for_processing()) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
@@ -911,9 +911,9 @@ void GEvolutionaryAlgorithm::sortMuCommaNuMode() {
 
     // Only sort the children
     std::partial_sort(
-        G_OptimizationAlgorithm_Base::m_data_cnt.begin() + m_n_parents,
-        G_OptimizationAlgorithm_Base::m_data_cnt.begin() + 2 * m_n_parents,
-        G_OptimizationAlgorithm_Base::m_data_cnt.end(),
+        G_OptimizationAlgorithm_Base::data_cnt_.begin() + n_parents_,
+        G_OptimizationAlgorithm_Base::data_cnt_.begin() + 2 * n_parents_,
+        G_OptimizationAlgorithm_Base::data_cnt_.end(),
         [](const std::shared_ptr<GParameterSet> &x_ptr,
            const std::shared_ptr<GParameterSet> &y_ptr) -> bool {
             return minOnly_transformed_fitness(x_ptr) < minOnly_transformed_fitness(y_ptr);
@@ -921,9 +921,9 @@ void GEvolutionaryAlgorithm::sortMuCommaNuMode() {
     );
 
     std::swap_ranges(
-        G_OptimizationAlgorithm_Base::m_data_cnt.begin(),
-        G_OptimizationAlgorithm_Base::m_data_cnt.begin() + m_n_parents,
-        G_OptimizationAlgorithm_Base::m_data_cnt.begin() + m_n_parents
+        G_OptimizationAlgorithm_Base::data_cnt_.begin(),
+        G_OptimizationAlgorithm_Base::data_cnt_.begin() + n_parents_,
+        G_OptimizationAlgorithm_Base::data_cnt_.begin() + n_parents_
     );
 }
 
@@ -941,7 +941,7 @@ void GEvolutionaryAlgorithm::sortMunu1pretainMode() {
 #ifdef DEBUG
     // Check that we do not accidentally trigger value calculation
     typename GEvolutionaryAlgorithm::iterator it;
-    for(it = this->begin() + m_n_parents; it != this->end(); ++it) {
+    for(it = this->begin() + n_parents_; it != this->end(); ++it) {
         if((*it)->is_due_for_processing()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
@@ -957,9 +957,9 @@ void GEvolutionaryAlgorithm::sortMunu1pretainMode() {
 
     // Sort the children
     std::partial_sort(
-        G_OptimizationAlgorithm_Base::m_data_cnt.begin() + m_n_parents,
-        G_OptimizationAlgorithm_Base::m_data_cnt.begin() + 2 * m_n_parents,
-        G_OptimizationAlgorithm_Base::m_data_cnt.end(),
+        G_OptimizationAlgorithm_Base::data_cnt_.begin() + n_parents_,
+        G_OptimizationAlgorithm_Base::data_cnt_.begin() + 2 * n_parents_,
+        G_OptimizationAlgorithm_Base::data_cnt_.end(),
         [](const std::shared_ptr<GParameterSet> &x_ptr,
            const std::shared_ptr<GParameterSet> &y_ptr) -> bool {
             return minOnly_transformed_fitness(x_ptr) < minOnly_transformed_fitness(y_ptr);
@@ -968,25 +968,25 @@ void GEvolutionaryAlgorithm::sortMunu1pretainMode() {
 
     // Retrieve the best child's and the last generation's best parent's fitness
     double bestTranformedChildFitness_MinOnly = minOnly_transformed_fitness(
-        *(G_OptimizationAlgorithm_Base::m_data_cnt.begin() + m_n_parents)
+        *(G_OptimizationAlgorithm_Base::data_cnt_.begin() + n_parents_)
     );
     double bestTranformedParentFitness_MinOnly =
-        minOnly_transformed_fitness(*(G_OptimizationAlgorithm_Base::m_data_cnt.begin()));
+        minOnly_transformed_fitness(*(G_OptimizationAlgorithm_Base::data_cnt_.begin()));
 
     // Leave the best parent in place, if no better child was found
     if(bestTranformedChildFitness_MinOnly < bestTranformedParentFitness_MinOnly) {
         // A better child was found. Overwrite all parents
         std::swap_ranges(
-            G_OptimizationAlgorithm_Base::m_data_cnt.begin(),
-            G_OptimizationAlgorithm_Base::m_data_cnt.begin() + m_n_parents,
-            G_OptimizationAlgorithm_Base::m_data_cnt.begin() + m_n_parents
+            G_OptimizationAlgorithm_Base::data_cnt_.begin(),
+            G_OptimizationAlgorithm_Base::data_cnt_.begin() + n_parents_,
+            G_OptimizationAlgorithm_Base::data_cnt_.begin() + n_parents_
         );
     }
     else {
         std::swap_ranges(
-            G_OptimizationAlgorithm_Base::m_data_cnt.begin() + 1,
-            G_OptimizationAlgorithm_Base::m_data_cnt.begin() + m_n_parents,
-            G_OptimizationAlgorithm_Base::m_data_cnt.begin() + m_n_parents
+            G_OptimizationAlgorithm_Base::data_cnt_.begin() + 1,
+            G_OptimizationAlgorithm_Base::data_cnt_.begin() + n_parents_,
+            G_OptimizationAlgorithm_Base::data_cnt_.begin() + n_parents_
         );
     }
 }
@@ -1074,13 +1074,13 @@ void GEvolutionaryAlgorithm::sortMuPlusNuParetoMode() {
     // account minimization and maximization).
     if(nIndividualsOnParetoFront > this->getNParents()) {
         // randomly shuffle pareto-front individuals to avoid a bias
-        std::shuffle(this->begin(), this->begin() + nIndividualsOnParetoFront, this->m_gr);
+        std::shuffle(this->begin(), this->begin() + nIndividualsOnParetoFront, this->gr_);
     }
     else if(nIndividualsOnParetoFront < this->getNParents()) {
         // Sort the non-pareto-front individuals according to their master fitness
         std::partial_sort(
             this->begin() + nIndividualsOnParetoFront,
-            this->begin() + this->m_n_parents,
+            this->begin() + this->n_parents_,
             this->end(),
             [](const std::shared_ptr<GParameterSet> &x_ptr,
                const std::shared_ptr<GParameterSet> &y_ptr) -> bool {
@@ -1094,7 +1094,7 @@ void GEvolutionaryAlgorithm::sortMuPlusNuParetoMode() {
     // random recombination scheme.
     std::sort(
         this->begin(),
-        this->begin() + this->m_n_parents,
+        this->begin() + this->n_parents_,
         [](const std::shared_ptr<GParameterSet> &x_ptr,
            const std::shared_ptr<GParameterSet> &y_ptr) -> bool {
             return minOnly_transformed_fitness(x_ptr) < minOnly_transformed_fitness(y_ptr);
@@ -1119,21 +1119,21 @@ void GEvolutionaryAlgorithm::sortMuCommaNuParetoMode() {
     }
 
     // Mark the last iterations parents as not being on the pareto front
-    for(it = this->begin(); it != this->begin() + this->m_n_parents; ++it) {
+    for(it = this->begin(); it != this->begin() + this->n_parents_; ++it) {
         (*it)
             ->template getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>()
             ->setIsNotOnParetoFront();
     }
 
     // Mark all children as being on the pareto front initially
-    for(it = this->begin() + this->m_n_parents; it != this->end(); ++it) {
+    for(it = this->begin() + this->n_parents_; it != this->end(); ++it) {
         (*it)
             ->template getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>()
             ->resetParetoTag();
     }
 
     // Compare all parameters of all children
-    for(it = this->begin() + this->m_n_parents; it != this->end(); ++it) {
+    for(it = this->begin() + this->n_parents_; it != this->end(); ++it) {
         for(it_cmp = it + 1; it_cmp != this->end(); ++it_cmp) {
             // If we already know that this individual is *not*
             // on the front we do not have to do any tests
@@ -1197,13 +1197,13 @@ void GEvolutionaryAlgorithm::sortMuCommaNuParetoMode() {
     // might be changed in subsequent versions of Geneva (TODO).
     if(nIndividualsOnParetoFront > this->getNParents()) {
         // randomly shuffle pareto-front individuals to avoid a bias
-        std::shuffle(this->begin(), this->begin() + nIndividualsOnParetoFront, this->m_gr);
+        std::shuffle(this->begin(), this->begin() + nIndividualsOnParetoFront, this->gr_);
     }
     else if(nIndividualsOnParetoFront < this->getNParents()) {
         // Sort the non-pareto-front individuals according to their master fitness
         std::partial_sort(
             this->begin() + nIndividualsOnParetoFront,
-            this->begin() + this->m_n_parents,
+            this->begin() + this->n_parents_,
             this->end(),
             [](const std::shared_ptr<GParameterSet> &x_ptr,
                const std::shared_ptr<GParameterSet> &y_ptr) -> bool {
@@ -1217,7 +1217,7 @@ void GEvolutionaryAlgorithm::sortMuCommaNuParetoMode() {
     // random recombination scheme.
     std::sort(
         this->begin(),
-        this->begin() + this->m_n_parents,
+        this->begin() + this->n_parents_,
         [](const std::shared_ptr<GParameterSet> &x_ptr,
            const std::shared_ptr<GParameterSet> &y_ptr) -> bool {
             return minOnly_transformed_fitness(x_ptr) < minOnly_transformed_fitness(y_ptr);

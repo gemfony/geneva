@@ -186,7 +186,7 @@ protected:
         using namespace Gem::Common;
         using namespace Gem::Hap;
 
-        if(GAdaptorT<num_type>::m_weighted_bool(gr, std::bernoulli_distribution::param_type(0.5))) {
+        if(GAdaptorT<num_type>::weighted_bool_(gr, std::bernoulli_distribution::param_type(0.5))) {
             value += 1;
         }
         else {

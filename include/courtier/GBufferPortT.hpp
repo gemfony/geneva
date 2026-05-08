@@ -112,7 +112,7 @@ public:
             // This timing may be wrong if the submission has blocked.
             item_ptr->markRawSubmissionTime();
             // The actual submission
-            m_raw_ptr->push_and_block_copy(item_ptr);
+            raw_ptr_->push_and_block_copy(item_ptr);
         }
     }
 
@@ -134,7 +134,7 @@ public:
             // Make it known to the work item when it has left its origin
             item_ptr->markRawSubmissionTime();
             // The actual submission
-            success = m_raw_ptr->push_and_wait_copy(item_ptr, timeout);
+            success = raw_ptr_->push_and_wait_copy(item_ptr, timeout);
 
 #ifdef DEBUG
             // Items may be lost here. This should be a very rare occasion. Emit
@@ -155,14 +155,14 @@ public:
 
     /***************************************************************************/
     /**
-      * Retrieves an item from the back of the "m_raw_ptr" queue. Blocks until
+      * Retrieves an item from the back of the "raw_ptr_" queue. Blocks until
       * an item could be retrieved. This function will block until the item was submitted.
       *
       * @param item_ptr A reference to the item to be retrieved
       */
     void pop_raw(std::shared_ptr<processable_type> &item_ptr) {
         // Do the actual retrieval
-        m_raw_ptr->pop_and_block_copy(item_ptr);
+        raw_ptr_->pop_and_block_copy(item_ptr);
 
         if(item_ptr) {
             // Make it known to the work item when it was taken from the raw queue for processing
@@ -170,12 +170,12 @@ public:
         }
 
         // If this is the first retrieval, mark the time for later usage
-        if(m_no_retrieval && item_ptr) {
-            std::unique_lock<std::mutex> lock(m_first_retrieval_mutex);
-            if(m_no_retrieval) {
-                m_retrieval_start_time = std::chrono::high_resolution_clock::now();
-                m_no_retrieval = false;
-                m_retrievalTimeCondition.notify_all();
+        if(no_retrieval_ && item_ptr) {
+            std::unique_lock<std::mutex> lock(first_retrieval_mutex_);
+            if(no_retrieval_) {
+                retrieval_start_time_ = std::chrono::high_resolution_clock::now();
+                no_retrieval_ = false;
+                retrievalTimeCondition_.notify_all();
             }
         }
     }
@@ -194,19 +194,19 @@ public:
         const std::chrono::duration<double> &timeout
     ) {
         // Do the actual retrieval
-        bool success = m_raw_ptr->pop_and_wait_copy(item_ptr, timeout);
+        bool success = raw_ptr_->pop_and_wait_copy(item_ptr, timeout);
         if(success && item_ptr) {
             // Make it known to the work item when it has returned to its origin
             item_ptr->markRawRetrievalTime();
         }
 
         // If this is the first retrieval, mark the time for later usage
-        if(m_no_retrieval && item_ptr) {
-            std::unique_lock<std::mutex> lock(m_first_retrieval_mutex);
-            if(m_no_retrieval) {
-                m_retrieval_start_time = std::chrono::high_resolution_clock::now();
-                m_no_retrieval = false;
-                m_retrievalTimeCondition.notify_all();
+        if(no_retrieval_ && item_ptr) {
+            std::unique_lock<std::mutex> lock(first_retrieval_mutex_);
+            if(no_retrieval_) {
+                retrieval_start_time_ = std::chrono::high_resolution_clock::now();
+                no_retrieval_ = false;
+                retrievalTimeCondition_.notify_all();
             }
         }
 
@@ -226,7 +226,7 @@ public:
             // This timing may be wrong if the submission has blocked.
             item_ptr->markProcSubmissionTime();
             // The actual submission
-            m_processed_ptr->push_and_block_copy(item_ptr);
+            processed_ptr_->push_and_block_copy(item_ptr);
         }
     }
 
@@ -248,7 +248,7 @@ public:
             // Make it known to the work item when it has entered the processed queue
             item_ptr->markProcSubmissionTime();
             // The actual submission
-            success = m_processed_ptr->push_and_wait_copy(item_ptr, timeout);
+            success = processed_ptr_->push_and_wait_copy(item_ptr, timeout);
 
 #ifdef DEBUG
             // Items may be lost here. This should be a very rare occasion. Emit
@@ -278,7 +278,7 @@ public:
       */
     void pop_processed(std::shared_ptr<processable_type> &item_ptr) {
         // The actual retrieval
-        m_processed_ptr->pop_and_block_copy(item_ptr);
+        processed_ptr_->pop_and_block_copy(item_ptr);
 
         if(item_ptr) {
             // Make it known to the work item when it has returned to its origin
@@ -300,7 +300,7 @@ public:
         const std::chrono::duration<double> &timeout
     ) {
         // The actual retrieval
-        bool success = m_processed_ptr->pop_and_wait_copy(item_ptr, timeout);
+        bool success = processed_ptr_->pop_and_wait_copy(item_ptr, timeout);
         if(success && item_ptr) {
             // Make it known to the work item when it has returned to its origin
             item_ptr->markProcRetrievalTime();
@@ -316,7 +316,7 @@ public:
       * @return The unique tag assigned to this object
       */
     BUFFERPORT_ID_TYPE getUniqueTag() const {
-        return m_tag;
+        return tag_;
     }
 
     /***************************************************************************/
@@ -326,13 +326,13 @@ public:
       * @return The timepoint of the first retrieval
       */
     std::chrono::high_resolution_clock::time_point getFirstRetrievalTime() const {
-        std::unique_lock<std::mutex> lock(m_first_retrieval_mutex);
+        std::unique_lock<std::mutex> lock(first_retrieval_mutex_);
 
         // Wait until a first work item was retrieved
-        m_retrievalTimeCondition.wait(lock, [this]() -> bool { return not this->m_no_retrieval; });
+        retrievalTimeCondition_.wait(lock, [this]() -> bool { return not this->no_retrieval_; });
 
         // Let the audience know when the first retrieval has occurred
-        return m_retrieval_start_time;
+        return retrieval_start_time_;
     }
 
     /***************************************************************************/
@@ -340,7 +340,7 @@ public:
       * Allows a producer to indicate that it has lost interest
       */
     void producer_disconnect() {
-        m_connected_to_producer = false;
+        connected_to_producer_ = false;
     }
 
     /***************************************************************************/
@@ -348,7 +348,7 @@ public:
       * Allows to check whether this object is still connected to a producer
       */
     bool is_connected_to_producer() const {
-        return m_connected_to_producer;
+        return connected_to_producer_;
     }
 
 private:
@@ -357,33 +357,33 @@ private:
       * Setting of a unique id for this buffer port
       */
     void set_port_tag(BUFFERPORT_ID_TYPE tag) {
-        m_tag = tag;
+        tag_ = tag;
     }
 
     /***************************************************************************/
     // Data
 
-    std::atomic<bool> m_no_retrieval{
+    std::atomic<bool> no_retrieval_{
         true
     }; ///< Indicates whether an item was already retrieved from the raw queue
-    mutable std::mutex m_first_retrieval_mutex;
-    ///< Blocks access to m_first_retrieval_time; mutable so we can lock it in a const function
-    std::chrono::high_resolution_clock::time_point m_retrieval_start_time =
+    mutable std::mutex first_retrieval_mutex_;
+    ///< Blocks access to first_retrieval_time_; mutable so we can lock it in a const function
+    std::chrono::high_resolution_clock::time_point retrieval_start_time_ =
         std::chrono::high_resolution_clock::now();
     ///< Holds the time when the first work item was retrieved from the queue
-    mutable std::condition_variable m_retrievalTimeCondition;
-    ///< Regulates retrieval of the data in m_retrieval_start_time
+    mutable std::condition_variable retrievalTimeCondition_;
+    ///< Regulates retrieval of the data in retrieval_start_time_
 
-    std::shared_ptr<RAW_BUFFER_TYPE> m_raw_ptr{
+    std::shared_ptr<RAW_BUFFER_TYPE> raw_ptr_{
         new RAW_BUFFER_TYPE()
     }; ///< The queue for raw objects
-    std::shared_ptr<PROCESSED_BUFFER_TYPE> m_processed_ptr{new PROCESSED_BUFFER_TYPE()};
+    std::shared_ptr<PROCESSED_BUFFER_TYPE> processed_ptr_{new PROCESSED_BUFFER_TYPE()};
     ///< The queue for processed objects
 
-    std::atomic<bool> m_connected_to_producer{true};
+    std::atomic<bool> connected_to_producer_{true};
     ///< Indicates whether this object is currently connected to a producer. We assume that this happens upon creation of this object
 
-    BUFFERPORT_ID_TYPE m_tag = 0; ///< A unique id assigned to objects of this class
+    BUFFERPORT_ID_TYPE tag_ = 0; ///< A unique id assigned to objects of this class
 };
 
 /******************************************************************************/

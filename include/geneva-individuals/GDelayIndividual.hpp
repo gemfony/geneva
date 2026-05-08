@@ -89,9 +89,9 @@ class GDelayIndividual
     template <class Archive>
     void serialize(Archive &ar, const unsigned int) {
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet) &
-            BOOST_SERIALIZATION_NVP(m_fixedSleepTime) & BOOST_SERIALIZATION_NVP(m_mayCrash) &
-            BOOST_SERIALIZATION_NVP(m_throwLikelihood) & BOOST_SERIALIZATION_NVP(m_sleepRandomly) &
-            BOOST_SERIALIZATION_NVP(m_randSleepBoundaries);
+            BOOST_SERIALIZATION_NVP(fixedSleepTime_) & BOOST_SERIALIZATION_NVP(mayCrash_) &
+            BOOST_SERIALIZATION_NVP(throwLikelihood_) & BOOST_SERIALIZATION_NVP(sleepRandomly_) &
+            BOOST_SERIALIZATION_NVP(randSleepBoundaries_);
     }
 
     /////////////////////////////////////////////////////////////////////////////
@@ -106,7 +106,7 @@ public:
 
     /** @brief Sets the sleep-time to a user-defined value */
     G_API_INDIVIDUALS void setFixedSleepTime(const std::chrono::duration<double> &);
-    /** @brief Retrieval of the current value of the m_fixedSleepTime variable */
+    /** @brief Retrieval of the current value of the fixedSleepTime_ variable */
     G_API_INDIVIDUALS std::chrono::duration<double> getFixedSleepTime() const;
 
     /** @brief Indicate that the fitness function may crash at the end of the sleep time */
@@ -153,16 +153,16 @@ private:
     virtual G_API_INDIVIDUALS GObject *clone_() const final;
 
     double
-        m_fixedSleepTime; ///< The amount of time the evaluation function should sleep before continuing (seconds)
+        fixedSleepTime_; ///< The amount of time the evaluation function should sleep before continuing (seconds)
 
-    bool m_mayCrash =
+    bool mayCrash_ =
         false; ///< Indicates whether the fitness function may throw at the end of the sleep time
-    double m_throwLikelihood =
+    double throwLikelihood_ =
         0.001; ///< The likelihood for an exception to be thrown from the fitness function
 
-    bool m_sleepRandomly =
+    bool sleepRandomly_ =
         false; /// Whether to sleep for a random amount of time instead of fixed amounts
-    std::tuple<double, double> m_randSleepBoundaries = std::tuple<double, double>(
+    std::tuple<double, double> randSleepBoundaries_ = std::tuple<double, double>(
         0.,
         1.
     ); ///< Boundaries in seconds for random sleep (min/max amount of delay)
@@ -212,21 +212,21 @@ private:
     /** @brief Converts a tuple to a time format */
     std::chrono::duration<double> tupleToTime(const std::tuple<unsigned int, unsigned int> &);
 
-    std::size_t m_nVariables = 100;
-    std::string m_delays = "(0,1), (0,10), (0,100), (0,500), (1,0)";
-    std::vector<std::tuple<unsigned int, unsigned int>> m_sleepTimes;
-    std::string m_resultFile = "fullResults.C";
-    std::string m_shortResultFile = "shortDelayResults.txt";
-    std::uint32_t m_nMeasurements = 10;        ///< The number of measurements for each delay
-    std::uint32_t m_interMeasurementDelay = 1; ///< The delay between two measurements
-    bool m_mayCrash =
+    std::size_t nVariables_ = 100;
+    std::string delays_ = "(0,1), (0,10), (0,100), (0,500), (1,0)";
+    std::vector<std::tuple<unsigned int, unsigned int>> sleepTimes_;
+    std::string resultFile_ = "fullResults.C";
+    std::string shortResultFile_ = "shortDelayResults.txt";
+    std::uint32_t nMeasurements_ = 10;        ///< The number of measurements for each delay
+    std::uint32_t interMeasurementDelay_ = 1; ///< The delay between two measurements
+    bool mayCrash_ =
         false; ///< Indicates whether the fitness function may throw at the end of the sleep time
-    double m_throwLikelihood =
+    double throwLikelihood_ =
         0.001; ///< The likelihood for an exception to be thrown from the fitness function
-    bool m_sleepRandomly =
+    bool sleepRandomly_ =
         false; /// Whether to sleep for a random amount of time instead of fixed amounts
-    double m_lowerRandSleepBoundary = 0.; ///< The lower boundary for random sleeps
-    double m_upperRandSleepBoundary = 1.; ///< The upper boundary for random sleeps
+    double lowerRandSleepBoundary_ = 0.; ///< The lower boundary for random sleeps
+    double upperRandSleepBoundary_ = 1.; ///< The upper boundary for random sleeps
 };
 
 /******************************************************************************/

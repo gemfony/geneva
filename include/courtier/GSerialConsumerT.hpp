@@ -95,10 +95,10 @@ public:
     void setCapableOfFullReturn(bool capableOfFullReturn) {
         glogger << "In GStdThreadConsumerT<processable_type>::setCapableOfFullReturn():"
                 << std::endl
-                << "m_capableOfFullReturn will be set to "
+                << "capableOfFullReturn_ will be set to "
                 << (capableOfFullReturn ? "true" : "false") << std::endl
                 << GLOGGING;
-        m_capableOfFullReturn = capableOfFullReturn;
+        capableOfFullReturn_ = capableOfFullReturn;
     }
 
     /***************************************************************************/
@@ -119,7 +119,7 @@ public:
         }
 #endif /* DEBUG */
 
-        m_workerTemplate = workerTemplate;
+        workerTemplate_ = workerTemplate;
     }
 
     /***************************************************************************/
@@ -150,7 +150,7 @@ protected:
         // This will set the GBaseConsumerT<processable_type>::stop_ flag
         GBaseConsumerT<processable_type>::shutdown_();
         // Wait for our local threads to join
-        m_processingThread.join();
+        processingThread_.join();
     }
 
     /***************************************************************************/
@@ -184,7 +184,7 @@ private:
 
         hidden.add_options()(
             "scCapableOfFullReturn",
-            po::value<bool>(&m_capableOfFullReturn)->default_value(m_capableOfFullReturn),
+            po::value<bool>(&capableOfFullReturn_)->default_value(capableOfFullReturn_),
             "\t[sc] A debugging option making the serial consumer use timeouts in the executor"
         );
     }
@@ -221,7 +221,7 @@ private:
 	  */
     void async_startProcessing_() override {
         // Add a default worker if no worker was registered
-        if(not m_workerTemplate) {
+        if(not workerTemplate_) {
             std::shared_ptr<GLocalConsumerWorkerT<processable_type>> default_worker(
                 new GLocalConsumerWorkerT<processable_type>()
             );
@@ -234,7 +234,7 @@ private:
         // The actual worker
         std::shared_ptr<GWorkerWithRegisterBrokerFerryT<processable_type>> p_worker =
             std::dynamic_pointer_cast<GWorkerWithRegisterBrokerFerryT<processable_type>>(
-                m_workerTemplate->clone()
+                workerTemplate_->clone()
             );
 
         // The "broker ferry" holding the connection to the broker
@@ -246,13 +246,13 @@ private:
             ,
             [this](const std::chrono::milliseconds &timeout) -> std::shared_ptr<processable_type> {
                 std::shared_ptr<processable_type> p;
-                m_broker_ptr->get(p, timeout);
+                broker_ptr_->get(p, timeout);
                 return p;
             }
             //----------------------
             ,
             [this](std::shared_ptr<processable_type> p, const std::chrono::milliseconds &timeout)
-                -> void { m_broker_ptr->put(p, timeout); }
+                -> void { broker_ptr_->put(p, timeout); }
             //----------------------
             ,
             [this]() -> bool { return this->stopped(); }
@@ -262,10 +262,10 @@ private:
         // Register the broker ferry with the worker
         p_worker->registerBrokerFerry(broker_ferry_ptr);
 
-        m_processingThread = std::move(std::thread([p_worker]() -> void { p_worker->run(); }));
+        processingThread_ = std::move(std::thread([p_worker]() -> void { p_worker->run(); }));
 
         // Store the worker for later reference
-        m_worker = p_worker;
+        worker_ = p_worker;
     }
 
     /***************************************************************************/
@@ -285,28 +285,28 @@ private:
 	  * Returns an indication whether full return can be expected from this
 	  * consumer. Since evaluation is performed in a single thread, we assume that this
 	  * is possible and return true. If you believe that this is not the case,
-	  * make sure to set m_capableOfFullReturn to false using the setCapableOfFullReturn()
+	  * make sure to set capableOfFullReturn_ to false using the setCapableOfFullReturn()
 	  * function. Note that, while processing-errors will likely be caught,
 	  * "full return" does not mean "fully processed return", as errors (be it in
 	  * user- or Geneva-code) are always possible.
 	  */
     bool capableOfFullReturn_() const override {
-        return m_capableOfFullReturn;
+        return capableOfFullReturn_;
     }
 
     /***************************************************************************/
 
-    std::thread m_processingThread; ///< A single thread holding the worker
+    std::thread processingThread_; ///< A single thread holding the worker
 
-    bool m_capableOfFullReturn =
+    bool capableOfFullReturn_ =
         true; ///< Indicates whether this consumer is capable of full return
 
     std::shared_ptr<GWorkerWithRegisterBrokerFerryT<processable_type>>
-        m_worker; ///< Holds the worker assigned to this consumer
+        worker_; ///< Holds the worker assigned to this consumer
     std::shared_ptr<GWorkerWithRegisterBrokerFerryT<processable_type>>
-        m_workerTemplate; ///< Holds an external worker assigned to this consumer
+        workerTemplate_; ///< Holds an external worker assigned to this consumer
 
-    std::shared_ptr<GBrokerT<processable_type>> m_broker_ptr = GBROKER(
+    std::shared_ptr<GBrokerT<processable_type>> broker_ptr_ = GBROKER(
         processable_type
     ); ///< A shortcut to the broker so we do not have to go through the singleton
 };

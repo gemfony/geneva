@@ -125,7 +125,7 @@ class GMultiSourceParameterT {
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar &BOOST_SERIALIZATION_NVP(m_default_value) & BOOST_SERIALIZATION_NVP(m_parameter_values);
+        ar &BOOST_SERIALIZATION_NVP(default_value_) & BOOST_SERIALIZATION_NVP(parameter_values_);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -135,7 +135,7 @@ public:
 	  * Construction with a default value
 	  */
     explicit GMultiSourceParameterT(parameter_type default_value)
-      : m_default_value(default_value) { /* nothing */
+      : default_value_(default_value) { /* nothing */
     }
 
     /***************************************************************************/
@@ -154,7 +154,7 @@ public:
 	  * Allows to set the value associated with a given data source
 	  */
     void set(Gem::Common::parameter_source data_source, parameter_type parameter_value) {
-        m_parameter_values.at(data_source) = parameter_value;
+        parameter_values_.at(data_source) = parameter_value;
     }
 
     /***************************************************************************/
@@ -162,17 +162,17 @@ public:
 	  * Allows to check whether the value for a given data source was set
 	  */
     bool isSet(Gem::Common::parameter_source data_source) {
-        return m_parameter_values.at(data_source).second;
+        return parameter_values_.at(data_source).second;
     }
 
     /***************************************************************************/
     /**
 	  * Retrieves the first stored value that has been set, in the order of
-	  * appearance in m_parameter_values, or alternatively the default value,
+	  * appearance in parameter_values_, or alternatively the default value,
 	  * if the value was not set from any source.
 	  */
     parameter_type value() const {
-        for(auto const &v_pair : m_parameter_values) {
+        for(auto const &v_pair : parameter_values_) {
             if(v_pair.second) { // Value was set
                 return *v_pair.second;
             }
@@ -181,16 +181,16 @@ public:
         }
 
         // Nothing found
-        return m_default_value;
+        return default_value_;
     }
 
     /***************************************************************************/
     /**
 	  * Returns the value stored for a given data source. The function will throw
-	  * when called for a parameter source not listed in m_parameter_values.
+	  * when called for a parameter source not listed in parameter_values_.
 	  */
     parameter_type value(Gem::Common::parameter_source data_source) {
-        return m_parameter_values.at(data_source);
+        return parameter_values_.at(data_source);
     }
 
     /***************************************************************************/
@@ -211,12 +211,12 @@ private:
     /***************************************************************************/
     // Data
 
-    parameter_type m_default_value =
+    parameter_type default_value_ =
         parameter_type(nullptr); // The default value to be returned when all else fails
 
     // Value retrieval will look at each entry of the map until it finds one that was set.
     // If none was set, the default value will be returned
-    std::map<Gem::Common::parameter_source, boost::optional<parameter_type>> m_parameter_values{
+    std::map<Gem::Common::parameter_source, boost::optional<parameter_type>> parameter_values_{
         {Gem::Common::parameter_source::NETWORK, boost::optional<parameter_type>()},
         {Gem::Common::parameter_source::COMMAND_LINE, boost::optional<parameter_type>()},
         {Gem::Common::parameter_source::ENVIRONMENT_VARIABLE, boost::optional<parameter_type>()},
@@ -242,8 +242,8 @@ class GOneTimeRefParameterT { // NOLINT(cppcoreguidelines-special-member-functio
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar &BOOST_SERIALIZATION_NVP(m_parm) & BOOST_SERIALIZATION_NVP(m_parm_dummy) &
-            BOOST_SERIALIZATION_NVP(m_parm_set);
+        ar &BOOST_SERIALIZATION_NVP(parm_) & BOOST_SERIALIZATION_NVP(parm_dummy_) &
+            BOOST_SERIALIZATION_NVP(parm_set_);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -253,9 +253,9 @@ public:
 	  * The standard constructor
 	  */
     explicit GOneTimeRefParameterT(parameter_type const &def = parameter_type(0))
-      : m_parm(def)
-      , m_parm_dummy(def)
-      , m_parm_set(false) { /* nothing */
+      : parm_(def)
+      , parm_dummy_(def)
+      , parm_set_(false) { /* nothing */
     }
 
     /***************************************************************************/
@@ -263,9 +263,9 @@ public:
 	  * The copy constructor
 	  */
     GOneTimeRefParameterT(GOneTimeRefParameterT<parameter_type> const &cp)
-      : m_parm(cp.m_parm)
-      , m_parm_dummy(cp.m_parm_dummy)
-      , m_parm_set(cp.m_parm_set) { /* nothing */
+      : parm_(cp.parm_)
+      , parm_dummy_(cp.parm_dummy_)
+      , parm_set_(cp.parm_set_) { /* nothing */
     }
 
     /***************************************************************************/
@@ -276,9 +276,9 @@ public:
     operator=(GOneTimeRefParameterT<parameter_type> const &cp) {
         if(this == &cp)
             return *this;
-        m_parm = cp.m_parm;
-        m_parm_dummy = cp.m_parm_dummy;
-        m_parm_set = cp.m_parm_set;
+        parm_ = cp.parm_;
+        parm_dummy_ = cp.parm_dummy_;
+        parm_set_ = cp.parm_set_;
 
         return *this;
     }
@@ -291,12 +291,12 @@ public:
 	  * TODO: This function should throw if the parameter is set more than once
 	  */
     parameter_type &reference() {
-        if(m_parm_set) {
-            return m_parm_dummy;
+        if(parm_set_) {
+            return parm_dummy_;
         }
         else {
-            m_parm_set = true;
-            return m_parm;
+            parm_set_ = true;
+            return parm_;
         }
     }
 
@@ -305,7 +305,7 @@ public:
 	  * Allows to check whether a parameter has already been set
 	  */
     bool parmSet() const {
-        return m_parm_set;
+        return parm_set_;
     }
 
     /***************************************************************************/
@@ -313,7 +313,7 @@ public:
 	  * Explicit reset of the "dirty" flag
 	  */
     void reset() {
-        m_parm_set = false;
+        parm_set_ = false;
     }
 
     /***************************************************************************/
@@ -321,7 +321,7 @@ public:
 	  * Returns the parameter value
 	  */
     parameter_type value() const {
-        return m_parm;
+        return parm_;
     }
 
     /***************************************************************************/
@@ -329,8 +329,8 @@ public:
 	  * Allows to explicitly set the value of the parameter
 	  */
     void setValue(parameter_type const &parm) {
-        m_parm = parm;
-        m_parm_set = true;
+        parm_ = parm;
+        parm_set_ = true;
     }
 
     /***************************************************************************/
@@ -347,7 +347,7 @@ public:
 	  * Automatic conversion
 	  */
     operator parameter_type() { // NOLINT
-        return m_parm;
+        return parm_;
     }
 
     /***************************************************************************/
@@ -355,15 +355,15 @@ public:
 	  * Automatic conversion for constant callers
 	  */
     operator parameter_type() const { // NOLINT
-        return m_parm;
+        return parm_;
     }
 
 private:
     /***************************************************************************/
 
-    parameter_type m_parm;       ///< Stores the actual setting
-    parameter_type m_parm_dummy; ///< Returned instead of parm_ if the latter has already been set
-    bool m_parm_set;             ///< Set to true if the parameter has been set already
+    parameter_type parm_;       ///< Stores the actual setting
+    parameter_type parm_dummy_; ///< Returned instead of parm_ if the latter has already been set
+    bool parm_set_;             ///< Set to true if the parameter has been set already
 };
 
 /******************************************************************************/
@@ -395,7 +395,7 @@ public:
     G_API_COMMON std::size_t getCommentLevel() const;
 
 private:
-    std::size_t m_comment_level; ///< The id of the comment inside of GParsableI
+    std::size_t comment_level_; ///< The id of the comment inside of GParsableI
 };
 
 /******************************************************************************/
@@ -477,7 +477,7 @@ public:
     GParsableI &operator<<(T const &t) {
         std::ostringstream oss; // NOLINT(cppcoreguidelines-init-variables)
         oss << t;
-        m_comment.at(m_cl) += oss.str();
+        comment_.at(cl_) += oss.str();
         return *this;
     }
 
@@ -500,10 +500,10 @@ protected:
 
 private:
     /***************************************************************************/
-    std::vector<std::string> m_option_name; ///< The name of this parameter
-    std::vector<std::string> m_comment;     ///< A comment assigned to this parameter
+    std::vector<std::string> option_name_; ///< The name of this parameter
+    std::vector<std::string> comment_;     ///< A comment assigned to this parameter
 
-    std::size_t m_cl; ///< The id of the current comment inside of the comment_ vector
+    std::size_t cl_; ///< The id of the current comment inside of the comment_ vector
 };
 
 /******************************************************************************/
@@ -554,7 +554,7 @@ private:
 
     /***************************************************************************/
 
-    bool m_is_essential; ///< Indicates whether this is an essential variable
+    bool is_essential_; ///< Indicates whether this is an essential variable
 };
 
 /******************************************************************************/
@@ -582,8 +582,8 @@ public:
         const parameter_type &def_val
     )
       : GFileParsableI(optionNameVar, commentVar, isEssentialVar)
-      , m_def_val(def_val)
-      , m_par(def_val) { /* nothing */
+      , def_val_(def_val)
+      , par_(def_val) { /* nothing */
     }
 
     /***************************************************************************/
@@ -609,13 +609,13 @@ protected:
 	  * the "old" par_-value.
 	  */
     void resetDefault(parameter_type const &def_val) {
-        m_def_val = def_val;
-        m_par = def_val;
+        def_val_ = def_val;
+        par_ = def_val;
     }
 
     /***************************************************************************/
-    parameter_type m_def_val; ///< Holds the parameter's default value
-    parameter_type m_par;     ///< Holds the individual parameter
+    parameter_type def_val_; ///< Holds the parameter's default value
+    parameter_type par_;     ///< Holds the individual parameter
 
 private:
     /***************************************************************************/
@@ -702,7 +702,7 @@ public:
             );
         }
 
-        m_call_back_func = callBack;
+        call_back_func_ = callBack;
     }
 
 private:
@@ -713,9 +713,9 @@ private:
 	  * @param pt The object from which data should be loaded
 	  */
     void load_from(boost::property_tree::ptree const &pt) override {
-        GSingleParmT<parameter_type>::m_par = pt.get(
+        GSingleParmT<parameter_type>::par_ = pt.get(
             (GParsableI::optionName(0) + ".value").c_str(),
-            GSingleParmT<parameter_type>::m_def_val
+            GSingleParmT<parameter_type>::def_val_
         );
     }
 
@@ -747,9 +747,9 @@ private:
 
         pt.put(
             (GParsableI::optionName(0) + ".default").c_str(),
-            GSingleParmT<parameter_type>::m_def_val
+            GSingleParmT<parameter_type>::def_val_
         );
-        pt.put((GParsableI::optionName(0) + ".value").c_str(), GSingleParmT<parameter_type>::m_par);
+        pt.put((GParsableI::optionName(0) + ".value").c_str(), GSingleParmT<parameter_type>::par_);
     }
 
     /***************************************************************************/
@@ -757,7 +757,7 @@ private:
 	  * Executes a stored call-back function
 	  */
     void executeCallBackFunction_() override {
-        if(not m_call_back_func) {
+        if(not call_back_func_) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GSingleParsableParameter::executeCallBackFunction_(): Error" << std::endl
@@ -766,12 +766,12 @@ private:
         }
 
         // Execute the function
-        m_call_back_func(GSingleParmT<parameter_type>::m_par);
+        call_back_func_(GSingleParmT<parameter_type>::par_);
     }
 
     /***************************************************************************/
 
-    std::function<void(parameter_type)> m_call_back_func; ///< Holds the call-back function
+    std::function<void(parameter_type)> call_back_func_; ///< Holds the call-back function
 };
 
 /******************************************************************************/
@@ -800,7 +800,7 @@ public:
         parameter_type const &def_val
     )
       : GSingleParmT<parameter_type>(optionNameVar, commentVar, isEssentialVar, def_val)
-      , m_stored_reference(storedReference) { /* nothing */
+      , stored_reference_(storedReference) { /* nothing */
     }
 
     /***************************************************************************/
@@ -819,7 +819,7 @@ public:
             Gem::Common::VAR_IS_ESSENTIAL,
             def_val
         )
-      , m_stored_reference(storedReference) { /* nothing */
+      , stored_reference_(storedReference) { /* nothing */
     }
 
     /***************************************************************************/
@@ -847,9 +847,9 @@ private:
 	  * @param pt The object from which data should be loaded
 	  */
     void load_from(boost::property_tree::ptree const &pt) override {
-        GSingleParmT<parameter_type>::m_par = pt.get(
+        GSingleParmT<parameter_type>::par_ = pt.get(
             (GParsableI::optionName(0) + ".value").c_str(),
-            GSingleParmT<parameter_type>::m_def_val
+            GSingleParmT<parameter_type>::def_val_
         );
     }
 
@@ -881,9 +881,9 @@ private:
 
         pt.put(
             (GParsableI::optionName(0) + ".default").c_str(),
-            GSingleParmT<parameter_type>::m_def_val
+            GSingleParmT<parameter_type>::def_val_
         );
-        pt.put((GParsableI::optionName(0) + ".value").c_str(), GSingleParmT<parameter_type>::m_par);
+        pt.put((GParsableI::optionName(0) + ".value").c_str(), GSingleParmT<parameter_type>::par_);
     }
 
     /***************************************************************************/
@@ -891,13 +891,13 @@ private:
 	  * Assigns the stored parameter to the reference
 	  */
     void executeCallBackFunction_() override {
-        m_stored_reference = GSingleParmT<parameter_type>::m_par;
+        stored_reference_ = GSingleParmT<parameter_type>::par_;
     }
 
     /***************************************************************************/
 
     parameter_type
-        &m_stored_reference; ///< Holds the reference to which the parsed value will be assigned
+        &stored_reference_; ///< Holds the reference to which the parsed value will be assigned
 };
 
 /******************************************************************************/
@@ -933,11 +933,11 @@ public:
             GFileParsableI::makeVector(commentVar0, commentVar1),
             isEssentialVar
         )
-      , m_par0(def_val0)
-      , m_def_val0(def_val0)
-      , m_par1(def_val1)
-      , m_def_val1(def_val1)
-      , m_combined_label(std::move(combined_label)) { /* nothing */
+      , par0_(def_val0)
+      , def_val0_(def_val0)
+      , par1_(def_val1)
+      , def_val1_(def_val1)
+      , combined_label_(std::move(combined_label)) { /* nothing */
     }
 
     /***************************************************************************/
@@ -964,17 +964,17 @@ protected:
 	  * contain the "old" par_-value.
 	  */
     void resetDefault(par_type0 const &def_val0, par_type1 const &def_val1) {
-        m_def_val0 = def_val0;
-        m_def_val1 = def_val1;
-        m_par0 = def_val0;
-        m_par1 = def_val1;
+        def_val0_ = def_val0;
+        def_val1_ = def_val1;
+        par0_ = def_val0;
+        par1_ = def_val1;
     }
 
     /***************************************************************************/
-    par_type0 m_par0, m_def_val0; ///< Holds the individual parameters and default values 0
-    par_type1 m_par1, m_def_val1; ///< Holds the individual parameters and default values 1
+    par_type0 par0_, def_val0_; ///< Holds the individual parameters and default values 0
+    par_type1 par1_, def_val1_; ///< Holds the individual parameters and default values 1
 
-    std::string m_combined_label; ///< Holds a path label for the combined JSON path
+    std::string combined_label_; ///< Holds a path label for the combined JSON path
 
 private:
     /***************************************************************************/
@@ -1081,7 +1081,7 @@ public:
             );
         }
 
-        m_call_back_func = callBack;
+        call_back_func_ = callBack;
     }
 
 private:
@@ -1092,17 +1092,17 @@ private:
 	  * @param pt The object from which data should be loaded
 	  */
     void load_from(boost::property_tree::ptree const &pt) override {
-        GCombinedParT<par_type0, par_type1>::m_par0 = pt.get(
-            (GCombinedParT<par_type0, par_type1>::m_combined_label + "." +
+        GCombinedParT<par_type0, par_type1>::par0_ = pt.get(
+            (GCombinedParT<par_type0, par_type1>::combined_label_ + "." +
              GParsableI::optionName(0) + ".value")
                 .c_str(),
-            GCombinedParT<par_type0, par_type1>::m_def_val0
+            GCombinedParT<par_type0, par_type1>::def_val0_
         );
-        GCombinedParT<par_type0, par_type1>::m_par1 = pt.get(
-            (GCombinedParT<par_type0, par_type1>::m_combined_label + "." +
+        GCombinedParT<par_type0, par_type1>::par1_ = pt.get(
+            (GCombinedParT<par_type0, par_type1>::combined_label_ + "." +
              GParsableI::optionName(1) + ".value")
                 .c_str(),
-            GCombinedParT<par_type0, par_type1>::m_def_val1
+            GCombinedParT<par_type0, par_type1>::def_val1_
         );
     }
 
@@ -1128,7 +1128,7 @@ private:
             if(not comments0.empty()) {
                 for(auto const &comment : comments0) {
                     pt.add(
-                        (GCombinedParT<par_type0, par_type1>::m_combined_label + "." +
+                        (GCombinedParT<par_type0, par_type1>::combined_label_ + "." +
                          GParsableI::optionName(0) + ".comment")
                             .c_str(),
                         comment.c_str()
@@ -1137,16 +1137,16 @@ private:
             }
         }
         pt.put(
-            (GCombinedParT<par_type0, par_type1>::m_combined_label + "." +
+            (GCombinedParT<par_type0, par_type1>::combined_label_ + "." +
              GParsableI::optionName(0) + ".default")
                 .c_str(),
-            GCombinedParT<par_type0, par_type1>::m_def_val0
+            GCombinedParT<par_type0, par_type1>::def_val0_
         );
         pt.put(
-            (GCombinedParT<par_type0, par_type1>::m_combined_label + "." +
+            (GCombinedParT<par_type0, par_type1>::combined_label_ + "." +
              GParsableI::optionName(0) + ".value")
                 .c_str(),
-            GCombinedParT<par_type0, par_type1>::m_par0
+            GCombinedParT<par_type0, par_type1>::par0_
         );
 
         if(this->hasComments()) {
@@ -1154,7 +1154,7 @@ private:
             if(not comments1.empty()) {
                 for(auto const &comment : comments1) {
                     pt.add(
-                        (GCombinedParT<par_type0, par_type1>::m_combined_label + "." +
+                        (GCombinedParT<par_type0, par_type1>::combined_label_ + "." +
                          GParsableI::optionName(1) + ".comment")
                             .c_str(),
                         comment.c_str()
@@ -1163,16 +1163,16 @@ private:
             }
         }
         pt.put(
-            (GCombinedParT<par_type0, par_type1>::m_combined_label + "." +
+            (GCombinedParT<par_type0, par_type1>::combined_label_ + "." +
              GParsableI::optionName(1) + ".default")
                 .c_str(),
-            GCombinedParT<par_type0, par_type1>::m_def_val1
+            GCombinedParT<par_type0, par_type1>::def_val1_
         );
         pt.put(
-            (GCombinedParT<par_type0, par_type1>::m_combined_label + "." +
+            (GCombinedParT<par_type0, par_type1>::combined_label_ + "." +
              GParsableI::optionName(1) + ".value")
                 .c_str(),
-            GCombinedParT<par_type0, par_type1>::m_par1
+            GCombinedParT<par_type0, par_type1>::par1_
         );
     }
 
@@ -1181,7 +1181,7 @@ private:
 	  * Executes a stored call-back function
 	  */
     void executeCallBackFunction_() override {
-        if(not m_call_back_func) {
+        if(not call_back_func_) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GFileCombinedParsableParameterT::executeCallBackFunction_(): Error"
@@ -1191,15 +1191,15 @@ private:
         }
 
         // Execute the function
-        m_call_back_func(
-            GCombinedParT<par_type0, par_type1>::m_par0,
-            GCombinedParT<par_type0, par_type1>::m_par1
+        call_back_func_(
+            GCombinedParT<par_type0, par_type1>::par0_,
+            GCombinedParT<par_type0, par_type1>::par1_
         );
     }
 
     /***************************************************************************/
 
-    std::function<void(par_type0, par_type1)> m_call_back_func; ///< Holds the call-back function
+    std::function<void(par_type0, par_type1)> call_back_func_; ///< Holds the call-back function
 };
 
 /******************************************************************************/
@@ -1227,8 +1227,8 @@ public:
         bool isEssentialVar
     )
       : GFileParsableI(optionNameVar, commentVar, isEssentialVar)
-      , m_def_val_cnt(def_val)
-      , m_par_cnt() { /* nothing */
+      , def_val_cnt_(def_val)
+      , par_cnt_() { /* nothing */
     }
 
     /***************************************************************************/
@@ -1251,12 +1251,12 @@ protected:
 	  * Allows derived classes to reset the default value.
 	  */
     void resetDefault(std::vector<parameter_type> const &def_val) {
-        m_def_val_cnt = def_val;
+        def_val_cnt_ = def_val;
     }
 
     /***************************************************************************/
-    std::vector<parameter_type> m_def_val_cnt; ///< Holds default values
-    std::vector<parameter_type> m_par_cnt;     ///< Holds the parsed parameters
+    std::vector<parameter_type> def_val_cnt_; ///< Holds default values
+    std::vector<parameter_type> par_cnt_;     ///< Holds the parsed parameters
 
 private:
     /***************************************************************************/
@@ -1347,7 +1347,7 @@ public:
             );
         }
 
-        m_call_back_func = callBack;
+        call_back_func_ = callBack;
     }
 
 private:
@@ -1361,11 +1361,11 @@ private:
         using namespace boost::property_tree;
 
         // Make sure the recipient vector is empty
-        GVectorParT<parameter_type>::m_par_cnt.clear();
+        GVectorParT<parameter_type>::par_cnt_.clear();
 
         std::string ppath = GParsableI::optionName(0) + ".value";
         for(auto const &v : pt.get_child(ppath.c_str())) {
-            GVectorParT<parameter_type>::m_par_cnt.push_back(
+            GVectorParT<parameter_type>::par_cnt_.push_back(
                 boost::lexical_cast<parameter_type>(v.second.data())
             );
         }
@@ -1400,7 +1400,7 @@ private:
         }
 
         // Do some error checking
-        if(GVectorParT<parameter_type>::m_def_val_cnt.empty()) {
+        if(GVectorParT<parameter_type>::def_val_cnt_.empty()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GVectorParsableParameter::save_to(): Error!" << std::endl
@@ -1409,8 +1409,8 @@ private:
         }
 
         // Add the value and default items
-        auto par_it = GVectorParT<parameter_type>::m_par_cnt.cbegin();
-        for(auto const &def_val : GVectorParT<parameter_type>::m_def_val_cnt) {
+        auto par_it = GVectorParT<parameter_type>::par_cnt_.cbegin();
+        for(auto const &def_val : GVectorParT<parameter_type>::def_val_cnt_) {
             pt.add((GParsableI::optionName(0) + ".default.item").c_str(), def_val);
             pt.add((GParsableI::optionName(0) + ".value.item").c_str(), *par_it);
 
@@ -1423,7 +1423,7 @@ private:
 	  * Executes a stored call-back function
 	  */
     void executeCallBackFunction_() override {
-        if(not m_call_back_func) {
+        if(not call_back_func_) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GFileVectorParsableParameterT::executeCallBackFunction_(): Error"
@@ -1433,13 +1433,13 @@ private:
         }
 
         // Execute the function
-        m_call_back_func(GVectorParT<parameter_type>::m_par_cnt);
+        call_back_func_(GVectorParT<parameter_type>::par_cnt_);
     }
 
     /***************************************************************************/
 
     std::function<void(std::vector<parameter_type>)>
-        m_call_back_func; ///< Holds the call-back function
+        call_back_func_; ///< Holds the call-back function
 };
 
 /******************************************************************************/
@@ -1469,7 +1469,7 @@ public:
         bool isEssentialVar
     )
       : GVectorParT<parameter_type>(optionNameVar, commentVar, def_val, isEssentialVar)
-      , m_stored_reference(stored_reference) { /* nothing */
+      , stored_reference_(stored_reference) { /* nothing */
     }
 
     /***************************************************************************/
@@ -1487,7 +1487,7 @@ public:
             def_val,
             Gem::Common::VAR_IS_ESSENTIAL
         )
-      , m_stored_reference(stored_reference) { /* nothing */
+      , stored_reference_(stored_reference) { /* nothing */
     }
 
     /***************************************************************************/
@@ -1521,11 +1521,11 @@ private:
         using namespace boost::property_tree;
 
         // Make sure the recipient vector is empty
-        GVectorParT<parameter_type>::m_par_cnt.clear();
+        GVectorParT<parameter_type>::par_cnt_.clear();
 
         std::string ppath = GParsableI::optionName(0) + ".value";
         for(auto const &v : pt.get_child(ppath.c_str())) {
-            GVectorParT<parameter_type>::m_par_cnt.push_back(
+            GVectorParT<parameter_type>::par_cnt_.push_back(
                 boost::lexical_cast<parameter_type>(v.second.data())
             );
         }
@@ -1560,7 +1560,7 @@ private:
         }
 
         // Do some error checking
-        if(GVectorParT<parameter_type>::m_def_val_cnt.empty()) {
+        if(GVectorParT<parameter_type>::def_val_cnt_.empty()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GFileVectorReferenceParsableParameterT::save_to(): Error!" << std::endl
@@ -1569,8 +1569,8 @@ private:
         }
 
         // Add the value and default items
-        auto par_it = GVectorParT<parameter_type>::m_par_cnt.cbegin();
-        for(auto const &def_val : GVectorParT<parameter_type>::m_def_val_cnt) {
+        auto par_it = GVectorParT<parameter_type>::par_cnt_.cbegin();
+        for(auto const &def_val : GVectorParT<parameter_type>::def_val_cnt_) {
             pt.add((GParsableI::optionName(0) + ".default.item").c_str(), def_val);
             pt.add((GParsableI::optionName(0) + ".value.item").c_str(), *par_it);
 
@@ -1583,12 +1583,12 @@ private:
 	  * Assigns the parsed parameters to the reference vector
 	  */
     void executeCallBackFunction_() override {
-        m_stored_reference = GVectorParT<parameter_type>::m_par_cnt;
+        stored_reference_ = GVectorParT<parameter_type>::par_cnt_;
     }
 
     /***************************************************************************/
 
-    std::vector<parameter_type> &m_stored_reference; ///< Holds a reference to the target vector
+    std::vector<parameter_type> &stored_reference_; ///< Holds a reference to the target vector
 };
 
 /******************************************************************************/
@@ -1616,8 +1616,8 @@ public:
         bool isEssentialVar
     )
       : GFileParsableI(optionNameVar, commentVar, isEssentialVar)
-      , m_def_val_arr(def_val)
-      , m_par_arr(def_val) { /* nothing */
+      , def_val_arr_(def_val)
+      , par_arr_(def_val) { /* nothing */
     }
 
     /***************************************************************************/
@@ -1643,13 +1643,13 @@ protected:
 	  * the "old" par_-value.
 	  */
     void resetDefault(std::array<parameter_type, N> const &def_val_arr) {
-        m_def_val_arr = def_val_arr;
-        m_par_arr = def_val_arr;
+        def_val_arr_ = def_val_arr;
+        par_arr_ = def_val_arr;
     }
 
     /***************************************************************************/
-    std::array<parameter_type, N> m_def_val_arr; ///< Holds default values
-    std::array<parameter_type, N> m_par_arr;     ///< Holds the parsed parameters
+    std::array<parameter_type, N> def_val_arr_; ///< Holds default values
+    std::array<parameter_type, N> par_arr_;     ///< Holds the parsed parameters
 
 private:
     /***************************************************************************/
@@ -1738,7 +1738,7 @@ public:
             );
         }
 
-        m_call_back_func = callBack;
+        call_back_func_ = callBack;
     }
 
 private:
@@ -1752,10 +1752,10 @@ private:
         using namespace boost::property_tree;
 
         // We are looping over two arrays here, so a range-based for is unfortunately no option
-        for(std::size_t i = 0; i < GArrayParT<parameter_type, N>::m_par_arr.size(); i++) {
-            GArrayParT<parameter_type, N>::m_par_arr.at(i) = pt.get(
+        for(std::size_t i = 0; i < GArrayParT<parameter_type, N>::par_arr_.size(); i++) {
+            GArrayParT<parameter_type, N>::par_arr_.at(i) = pt.get(
                 (GParsableI::optionName(0) + "." + Gem::Common::to_string(i) + ".value").c_str(),
-                GArrayParT<parameter_type, N>::m_def_val_arr.at(i)
+                GArrayParT<parameter_type, N>::def_val_arr_.at(i)
             );
         }
     }
@@ -1788,7 +1788,7 @@ private:
         }
 
         // Do some error checking
-        if(GArrayParT<parameter_type, N>::m_def_val_arr.empty()) {
+        if(GArrayParT<parameter_type, N>::def_val_arr_.empty()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GFileArrayParsableParameterT::save_to(): Error!" << std::endl
@@ -1797,14 +1797,14 @@ private:
         }
 
         // Add the value and default items
-        for(std::size_t i = 0; i < GArrayParT<parameter_type, N>::m_def_val_arr.size(); i++) {
+        for(std::size_t i = 0; i < GArrayParT<parameter_type, N>::def_val_arr_.size(); i++) {
             pt.add(
                 (GParsableI::optionName(0) + "." + Gem::Common::to_string(i) + ".default").c_str(),
-                GArrayParT<parameter_type, N>::m_def_val_arr.at(i)
+                GArrayParT<parameter_type, N>::def_val_arr_.at(i)
             );
             pt.add(
                 (GParsableI::optionName(0) + "." + Gem::Common::to_string(i) + ".value").c_str(),
-                GArrayParT<parameter_type, N>::m_par_arr.at(i)
+                GArrayParT<parameter_type, N>::par_arr_.at(i)
             );
         }
     }
@@ -1814,7 +1814,7 @@ private:
 	  * Executes a stored call-back function
 	  */
     void executeCallBackFunction_() override {
-        if(not m_call_back_func) {
+        if(not call_back_func_) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GFileArrayParsableParameterT::executeCallBackFunction_(): Error" << std::endl
@@ -1823,13 +1823,13 @@ private:
         }
 
         // Execute the function
-        m_call_back_func(GArrayParT<parameter_type, N>::m_par_arr);
+        call_back_func_(GArrayParT<parameter_type, N>::par_arr_);
     }
 
     /***************************************************************************/
 
     std::function<void(std::array<parameter_type, N>)>
-        m_call_back_func; ///< Holds the call-back function
+        call_back_func_; ///< Holds the call-back function
 };
 
 /******************************************************************************/
@@ -1857,7 +1857,7 @@ public:
         bool isEssentialVar
     )
       : GArrayParT<parameter_type, N>(optionNameVar, commentVar, def_val, isEssentialVar)
-      , m_stored_reference(stored_reference) { /* nothing */
+      , stored_reference_(stored_reference) { /* nothing */
     }
 
     /***************************************************************************/
@@ -1875,7 +1875,7 @@ public:
             def_val,
             Gem::Common::VAR_IS_ESSENTIAL
         )
-      , m_stored_reference(stored_reference) { /* nothing */
+      , stored_reference_(stored_reference) { /* nothing */
     }
 
     /***************************************************************************/
@@ -1908,10 +1908,10 @@ private:
     void load_from(boost::property_tree::ptree const &pt) override {
         using namespace boost::property_tree;
 
-        for(std::size_t i = 0; i < GArrayParT<parameter_type, N>::m_par_arr.size(); i++) {
-            GArrayParT<parameter_type, N>::m_par_arr.at(i) = pt.get(
+        for(std::size_t i = 0; i < GArrayParT<parameter_type, N>::par_arr_.size(); i++) {
+            GArrayParT<parameter_type, N>::par_arr_.at(i) = pt.get(
                 (GParsableI::optionName(0) + "." + Gem::Common::to_string(i) + ".value").c_str(),
-                GArrayParT<parameter_type, N>::m_def_val_arr.at(i)
+                GArrayParT<parameter_type, N>::def_val_arr_.at(i)
             );
         }
     }
@@ -1945,7 +1945,7 @@ private:
         }
 
         // Do some error checking
-        if(GArrayParT<parameter_type, N>::m_def_val_arr.empty()) {
+        if(GArrayParT<parameter_type, N>::def_val_arr_.empty()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GFileArrayReferenceParsableParameterT::save_to(): Error!" << std::endl
@@ -1954,14 +1954,14 @@ private:
         }
 
         // Add the value and default items
-        for(std::size_t i = 0; i < GArrayParT<parameter_type, N>::m_def_val_arr.size(); i++) {
+        for(std::size_t i = 0; i < GArrayParT<parameter_type, N>::def_val_arr_.size(); i++) {
             pt.add(
                 (GParsableI::optionName(0) + "." + Gem::Common::to_string(i) + ".default").c_str(),
-                GArrayParT<parameter_type, N>::m_def_val_arr.at(i)
+                GArrayParT<parameter_type, N>::def_val_arr_.at(i)
             );
             pt.add(
                 (GParsableI::optionName(0) + "." + Gem::Common::to_string(i) + ".value").c_str(),
-                GArrayParT<parameter_type, N>::m_par_arr.at(i)
+                GArrayParT<parameter_type, N>::par_arr_.at(i)
             );
         }
     }
@@ -1971,12 +1971,12 @@ private:
 	  * Assigns the parsed parameters to the reference vector
 	  */
     void executeCallBackFunction_() override {
-        m_stored_reference = GArrayParT<parameter_type, N>::m_par_arr;
+        stored_reference_ = GArrayParT<parameter_type, N>::par_arr_;
     }
 
     /***************************************************************************/
 
-    std::array<parameter_type, N> &m_stored_reference; ///< Holds a reference to the target vector
+    std::array<parameter_type, N> &stored_reference_; ///< Holds a reference to the target vector
 };
 
 /******************************************************************************/
@@ -2045,10 +2045,10 @@ public:
         parameter_type implVal
     )
       : GCLParsableI(GCLParsableI::makeVector(optionNameVar), GCLParsableI::makeVector(commentVar))
-      , m_stored_reference(storedReference)
-      , m_def_val(defVal)
-      , m_implicit_allowed(implicitAllowed)
-      , m_impl_val(implVal) { /* nothing */
+      , stored_reference_(storedReference)
+      , def_val_(defVal)
+      , implicit_allowed_(implicitAllowed)
+      , impl_val_(implVal) { /* nothing */
     }
 
     /***************************************************************************/
@@ -2069,10 +2069,10 @@ public:
             GCLParsableI::makeVector(optionNameVar),
             GCLParsableI::makeVector(std::string())
         )
-      , m_stored_reference(storedReference)
-      , m_def_val(defVal)
-      , m_implicit_allowed(implicitAllowed)
-      , m_impl_val(implVal) { /* nothing */
+      , stored_reference_(storedReference)
+      , def_val_(defVal)
+      , implicit_allowed_(implicitAllowed)
+      , impl_val_(implVal) { /* nothing */
     }
 
     /***************************************************************************/
@@ -2092,19 +2092,19 @@ private:
 	  */
     void save_to(boost::program_options::options_description &desc) const override {
         namespace po = boost::program_options;
-        if(GCL_IMPLICIT_ALLOWED == m_implicit_allowed) {
+        if(GCL_IMPLICIT_ALLOWED == implicit_allowed_) {
             desc.add_options()(
                 (this->optionName()).c_str(),
-                po::value<parameter_type>(&m_stored_reference)
-                    ->implicit_value(m_impl_val)
-                    ->default_value(m_def_val),
+                po::value<parameter_type>(&stored_reference_)
+                    ->implicit_value(impl_val_)
+                    ->default_value(def_val_),
                 (this->comment()).c_str()
             );
         }
         else { // GCL_IMPLICIT_NOT_ALLOWED
             desc.add_options()(
                 (this->optionName()).c_str(),
-                po::value<parameter_type>(&m_stored_reference)->default_value(m_def_val),
+                po::value<parameter_type>(&stored_reference_)->default_value(def_val_),
                 (this->comment()).c_str()
             );
         }
@@ -2116,9 +2116,9 @@ private:
 	  */
     std::string content() const override {
         std::ostringstream result; // NOLINT(cppcoreguidelines-init-variables)
-        result << this->optionName() << " :\t" << m_stored_reference << "\t"
-               << ((m_stored_reference != m_def_val)
-                       ? "default: " + Gem::Common::to_string(m_def_val)
+        result << this->optionName() << " :\t" << stored_reference_ << "\t"
+               << ((stored_reference_ != def_val_)
+                       ? "default: " + Gem::Common::to_string(def_val_)
                        : std::string());
         return result.str();
     }
@@ -2126,11 +2126,11 @@ private:
     /***************************************************************************/
 
     parameter_type
-        &m_stored_reference;  ///< Holds the reference to which the parsed value will be assigned
-    parameter_type m_def_val; ///< Holds the default value
+        &stored_reference_;  ///< Holds the reference to which the parsed value will be assigned
+    parameter_type def_val_; ///< Holds the default value
     bool
-        m_implicit_allowed; ///< Indicates, whether implicit values (e.g. --server=true vs. --server) are allowed
-    parameter_type m_impl_val; ///< Holds an implicit value used if only the option name is given
+        implicit_allowed_; ///< Indicates, whether implicit values (e.g. --server=true vs. --server) are allowed
+    parameter_type impl_val_; ///< Holds an implicit value used if only the option name is given
 };
 
 /******************************************************************************/
@@ -2181,13 +2181,13 @@ public:
     std::shared_ptr<fileParsableDerivative>
     file_at(std::string const &optionName) { // NOLINT(misc-unused-parameters)
         auto it = std::find_if(
-            m_file_parameter_proxies.begin(),
-            m_file_parameter_proxies.end(),
+            file_parameter_proxies_.begin(),
+            file_parameter_proxies_.end(),
             [&](std::shared_ptr<GFileParsableI> const &candidate_ptr) {
                 return (candidate_ptr->GParsableI::optionName(0) == optionName);
             }
         );
-        if(it != m_file_parameter_proxies.end()) {
+        if(it != file_parameter_proxies_.end()) {
             return std::dynamic_pointer_cast<fileParsableDerivative>(*it);
         }
 
@@ -2204,13 +2204,13 @@ public:
     std::shared_ptr<clParsableDerivative>
     cl_at(std::string const &optionName) { // NOLINT(misc-unused-parameters)
         auto it = std::find_if(
-            m_cl_parameter_proxies.begin(),
-            m_cl_parameter_proxies.end(),
+            cl_parameter_proxies_.begin(),
+            cl_parameter_proxies_.end(),
             [&](std::shared_ptr<GCLParsableI> const &candidate_ptr) {
                 return (candidate_ptr->GParsableI::optionName(0) == optionName);
             }
         );
-        if(it != m_cl_parameter_proxies.end()) {
+        if(it != cl_parameter_proxies_.end()) {
             return std::dynamic_pointer_cast<clParsableDerivative>(*it);
         }
 
@@ -2234,13 +2234,13 @@ public:
     ) {
 #ifdef DEBUG
         auto it = std::find_if(
-            m_file_parameter_proxies.begin(),
-            m_file_parameter_proxies.end(),
+            file_parameter_proxies_.begin(),
+            file_parameter_proxies_.end(),
             [&](std::shared_ptr<GFileParsableI> const &candidate_ptr) {
                 return (candidate_ptr->GParsableI::optionName(0) == optionName);
             }
         );
-        if(it != m_file_parameter_proxies.end()) {
+        if(it != file_parameter_proxies_.end()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GParserBuilder::registerFileParameter(singleParm_ptr): Error!" << std::endl
@@ -2270,7 +2270,7 @@ public:
         singleParm_ptr->registerCallBackFunction(callBack);
 
         // Add to the proxy store
-        m_file_parameter_proxies.push_back(singleParm_ptr);
+        file_parameter_proxies_.push_back(singleParm_ptr);
         return *singleParm_ptr;
     }
 
@@ -2294,13 +2294,13 @@ public:
     ) {
 #ifdef DEBUG
         auto it = std::find_if(
-            m_file_parameter_proxies.begin(),
-            m_file_parameter_proxies.end(),
+            file_parameter_proxies_.begin(),
+            file_parameter_proxies_.end(),
             [&](std::shared_ptr<GFileParsableI> const &candidate_ptr) {
                 return (candidate_ptr->GParsableI::optionName(0) == optionName);
             }
         );
-        if(it != m_file_parameter_proxies.end()) {
+        if(it != file_parameter_proxies_.end()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GParserBuilder::registerFileParameter(refParm_ptr): Error!" << std::endl
@@ -2324,7 +2324,7 @@ public:
         }
 
         // Add to the proxy store
-        m_file_parameter_proxies.push_back(refParm_ptr);
+        file_parameter_proxies_.push_back(refParm_ptr);
         return *refParm_ptr;
     }
 
@@ -2377,13 +2377,13 @@ public:
 #ifdef DEBUG
         // Check whether the option already exists
         auto it = std::find_if(
-            m_file_parameter_proxies.begin(),
-            m_file_parameter_proxies.end(),
+            file_parameter_proxies_.begin(),
+            file_parameter_proxies_.end(),
             [&](std::shared_ptr<GFileParsableI> const &candidate_ptr) {
                 return (candidate_ptr->GParsableI::optionName(0) == optionName1);
             }
         );
-        if(it != m_file_parameter_proxies.end()) {
+        if(it != file_parameter_proxies_.end()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GParserBuilder::registerFileParameter(combParm_ptr): Error!" << std::endl
@@ -2423,7 +2423,7 @@ public:
         combParm_ptr->registerCallBackFunction(callBack);
 
         // Add to the proxy store
-        m_file_parameter_proxies.push_back(combParm_ptr);
+        file_parameter_proxies_.push_back(combParm_ptr);
         return *combParm_ptr;
     }
 
@@ -2476,13 +2476,13 @@ public:
 #ifdef DEBUG
         // Check whether the option already exists
         auto it = std::find_if(
-            m_file_parameter_proxies.begin(),
-            m_file_parameter_proxies.end(),
+            file_parameter_proxies_.begin(),
+            file_parameter_proxies_.end(),
             [&](std::shared_ptr<GFileParsableI> const &candidate_ptr) {
                 return (candidate_ptr->GParsableI::optionName(0) == optionName);
             }
         );
-        if(it != m_file_parameter_proxies.end()) {
+        if(it != file_parameter_proxies_.end()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GParserBuilder::registerFileParameter(vecParm_ptr): Error!" << std::endl
@@ -2512,7 +2512,7 @@ public:
         vecParm_ptr->registerCallBackFunction(callBack);
 
         // Add to the proxy store
-        m_file_parameter_proxies.push_back(vecParm_ptr);
+        file_parameter_proxies_.push_back(vecParm_ptr);
         return *vecParm_ptr;
     }
 
@@ -2531,13 +2531,13 @@ public:
 #ifdef DEBUG
         // Check whether the option already exists
         auto it = std::find_if(
-            m_file_parameter_proxies.begin(),
-            m_file_parameter_proxies.end(),
+            file_parameter_proxies_.begin(),
+            file_parameter_proxies_.end(),
             [&](std::shared_ptr<GFileParsableI> const &candidate_ptr) {
                 return (candidate_ptr->GParsableI::optionName(0) == optionName);
             }
         );
-        if(it != m_file_parameter_proxies.end()) {
+        if(it != file_parameter_proxies_.end()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GParserBuilder::registerFileParameter(vecRefParm_ptr): Error!" << std::endl
@@ -2567,7 +2567,7 @@ public:
         }
 
         // Add to the proxy store
-        m_file_parameter_proxies.push_back(vecRefParm_ptr);
+        file_parameter_proxies_.push_back(vecRefParm_ptr);
         return *vecRefParm_ptr;
     }
 
@@ -2620,13 +2620,13 @@ public:
 #ifdef DEBUG
         // Check whether the option already exists
         auto it = std::find_if(
-            m_file_parameter_proxies.begin(),
-            m_file_parameter_proxies.end(),
+            file_parameter_proxies_.begin(),
+            file_parameter_proxies_.end(),
             [&](std::shared_ptr<GFileParsableI> const &candidate_ptr) {
                 return (candidate_ptr->GParsableI::optionName(0) == optionName);
             }
         );
-        if(it != m_file_parameter_proxies.end()) {
+        if(it != file_parameter_proxies_.end()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GParserBuilder::registerFileParameter(arrayParm_ptr): Error!" << std::endl
@@ -2657,7 +2657,7 @@ public:
         arrayParm_ptr->registerCallBackFunction(callBack);
 
         // Add to the proxy store
-        m_file_parameter_proxies.push_back(arrayParm_ptr);
+        file_parameter_proxies_.push_back(arrayParm_ptr);
         return *arrayParm_ptr;
     }
 
@@ -2677,13 +2677,13 @@ public:
 #ifdef DEBUG
         // Check whether the option already exists
         auto it = std::find_if(
-            m_file_parameter_proxies.begin(),
-            m_file_parameter_proxies.end(),
+            file_parameter_proxies_.begin(),
+            file_parameter_proxies_.end(),
             [&](std::shared_ptr<GFileParsableI> const &candidate_ptr) {
                 return (candidate_ptr->GParsableI::optionName(0) == optionName);
             }
         );
-        if(it != m_file_parameter_proxies.end()) {
+        if(it != file_parameter_proxies_.end()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GParserBuilder::registerFileParameter(arrayRefParm_ptr): Error!" << std::endl
@@ -2717,7 +2717,7 @@ public:
         }
 
         // Add to the proxy store
-        m_file_parameter_proxies.push_back(arrayRefParm_ptr);
+        file_parameter_proxies_.push_back(arrayRefParm_ptr);
         return *arrayRefParm_ptr;
     }
 
@@ -2775,14 +2775,14 @@ public:
 #ifdef DEBUG
         // Check whether the option already exists
         auto it = std::find_if(
-            m_cl_parameter_proxies.begin(),
-            m_cl_parameter_proxies.end(),
+            cl_parameter_proxies_.begin(),
+            cl_parameter_proxies_.end(),
             [&](std::shared_ptr<GCLParsableI> const &candidate_ptr) {
                 return (candidate_ptr->GParsableI::optionName(0) == optionName);
             }
         );
 
-        if(it != m_cl_parameter_proxies.end()) {
+        if(it != cl_parameter_proxies_.end()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GParserBuilder::registerCLParameter(refParm_ptr): Error!" << std::endl
@@ -2813,7 +2813,7 @@ public:
         }
 
         // Add to the proxy store
-        m_cl_parameter_proxies.push_back(refParm_ptr);
+        cl_parameter_proxies_.push_back(refParm_ptr);
         return *refParm_ptr;
     }
 
@@ -2821,14 +2821,14 @@ private:
     /***************************************************************************/
 
     std::vector<std::shared_ptr<GFileParsableI>>
-        m_file_parameter_proxies; ///< Holds file parameter proxies
+        file_parameter_proxies_; ///< Holds file parameter proxies
     std::vector<std::shared_ptr<GCLParsableI>>
-        m_cl_parameter_proxies; ///< Holds command line parameter proxies
+        cl_parameter_proxies_; ///< Holds command line parameter proxies
 
-    std::filesystem::path m_config_base_dir{};
+    std::filesystem::path config_base_dir_{};
 
     static std::mutex
-        m_configfile_parser_mutex; ///< Synchronization of access to configuration files (may only happen serially)
+        configfile_parser_mutex_; ///< Synchronization of access to configuration files (may only happen serially)
 };
 
 /******************************************************************************/

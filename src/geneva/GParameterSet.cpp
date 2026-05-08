@@ -49,9 +49,9 @@ namespace Gem::Geneva {
  * @param raw_fitness The raw fitness value.
  */
 parameterset_processing_result::parameterset_processing_result(const double raw_fitness)
-  : m_raw_fitness(raw_fitness)
-  , m_transformed_fitness(m_raw_fitness)
-  , m_transformed_fitness_set(false) {
+  : raw_fitness_(raw_fitness)
+  , transformed_fitness_(raw_fitness_)
+  , transformed_fitness_set_(false) {
     /* nothing */
 }
 
@@ -68,9 +68,9 @@ parameterset_processing_result::parameterset_processing_result(
     const double raw_fitness,
     const double transformed_fitness
 )
-  : m_raw_fitness(raw_fitness)
-  , m_transformed_fitness(transformed_fitness)
-  , m_transformed_fitness_set(true) {
+  : raw_fitness_(raw_fitness)
+  , transformed_fitness_(transformed_fitness)
+  , transformed_fitness_set_(true) {
     /* nothing */
 }
 /******************************************************************************/
@@ -86,10 +86,10 @@ parameterset_processing_result::parameterset_processing_result(
     const double raw_fitness,
     std::function<double(double)> f
 )
-  : m_raw_fitness(raw_fitness) {
+  : raw_fitness_(raw_fitness) {
     if(f) {
-        m_transformed_fitness = f(m_raw_fitness);
-        m_transformed_fitness_set = true;
+        transformed_fitness_ = f(raw_fitness_);
+        transformed_fitness_set_ = true;
     }
     else {
         glogger << "In parameterset_processing_result(double, std::function<double(double)>)"
@@ -103,7 +103,7 @@ parameterset_processing_result::parameterset_processing_result(
  * Access to the raw fitness
  */
 double parameterset_processing_result::rawFitness() const {
-    return m_raw_fitness;
+    return raw_fitness_;
 }
 
 /******************************************************************************/
@@ -111,7 +111,7 @@ double parameterset_processing_result::rawFitness() const {
  * Access to the transformed fitness
  */
 double parameterset_processing_result::transformedFitness() const {
-    return m_transformed_fitness;
+    return transformed_fitness_;
 }
 
 /******************************************************************************/
@@ -120,8 +120,8 @@ double parameterset_processing_result::transformedFitness() const {
      */
 void parameterset_processing_result::setTransformedFitnessWith(std::function<double(double)> f) {
     if(f) {
-        m_transformed_fitness = f(m_raw_fitness);
-        m_transformed_fitness_set = true;
+        transformed_fitness_ = f(raw_fitness_);
+        transformed_fitness_set_ = true;
     }
     else {
         throw geneva_exception(
@@ -137,8 +137,8 @@ void parameterset_processing_result::setTransformedFitnessWith(std::function<dou
      * Sets the transformed fitness to a user-defined value
      */
 void parameterset_processing_result::setTransformedFitnessTo(const double transformed_fitness) {
-    m_transformed_fitness = transformed_fitness;
-    m_transformed_fitness_set = true;
+    transformed_fitness_ = transformed_fitness;
+    transformed_fitness_set_ = true;
 }
 
 /******************************************************************************/
@@ -146,8 +146,8 @@ void parameterset_processing_result::setTransformedFitnessTo(const double transf
      * Sets the transformed fitness to the same value as the raw fitness
      */
 void parameterset_processing_result::setTransformedFitnessToRaw() {
-    m_transformed_fitness = m_raw_fitness;
-    m_transformed_fitness_set = true;
+    transformed_fitness_ = raw_fitness_;
+    transformed_fitness_set_ = true;
 }
 
 /******************************************************************************/
@@ -155,7 +155,7 @@ void parameterset_processing_result::setTransformedFitnessToRaw() {
      * Checks whether the transformed fitness was set
      */
 bool parameterset_processing_result::transformedFitnessSet() const {
-    return m_transformed_fitness_set;
+    return transformed_fitness_set_;
 }
 
 /******************************************************************************/
@@ -163,9 +163,9 @@ bool parameterset_processing_result::transformedFitnessSet() const {
      * Resets the object and stores a new raw value in the class
      */
 void parameterset_processing_result::reset(const double raw_fitness) {
-    m_raw_fitness = raw_fitness;
-    m_transformed_fitness = m_raw_fitness;
-    m_transformed_fitness_set = false;
+    raw_fitness_ = raw_fitness;
+    transformed_fitness_ = raw_fitness_;
+    transformed_fitness_set_ = false;
 }
 
 /******************************************************************************/
@@ -176,9 +176,9 @@ void parameterset_processing_result::reset(
     const double raw_fitness,
     const double transformed_fitness
 ) {
-    m_raw_fitness = raw_fitness;
-    m_transformed_fitness = transformed_fitness;
-    m_transformed_fitness_set = true;
+    raw_fitness_ = raw_fitness;
+    transformed_fitness_ = transformed_fitness;
+    transformed_fitness_set_ = true;
 }
 
 /******************************************************************************/
@@ -190,9 +190,9 @@ void parameterset_processing_result::reset(
     std::function<double(double)> f
 ) {
     if(f) {
-        m_raw_fitness = raw_fitness;
-        m_transformed_fitness = f(m_raw_fitness);
-        m_transformed_fitness_set = true;
+        raw_fitness_ = raw_fitness;
+        transformed_fitness_ = f(raw_fitness_);
+        transformed_fitness_set_ = true;
     }
     else {
         throw geneva_exception(
@@ -238,23 +238,23 @@ GParameterSet::GParameterSet(GParameterSet const &cp)
   , G_Interface_Rateable(cp)
   , Gem::Common::GPtrVectorT<GParameterBase, GObject>(cp)
   , Gem::Courtier::GProcessingContainerT<GParameterSet, parameterset_processing_result>(cp)
-  , m_best_past_primary_fitness(cp.m_best_past_primary_fitness)
-  , m_n_stalls(cp.m_n_stalls)
-  , m_maxmode(cp.m_maxmode)
-  , m_assigned_iteration(cp.m_assigned_iteration)
-  , m_validity_level(cp.m_validity_level)
-  , m_eval_policy(cp.m_eval_policy)
-  , m_sigmoid_steepness(cp.m_sigmoid_steepness)
-  , m_sigmoid_extremes(cp.m_sigmoid_extremes)
-  , m_max_unsuccessful_adaptions(cp.m_max_unsuccessful_adaptions)
-  , m_max_retries_until_valid(cp.m_max_retries_until_valid)
-  , m_n_adaptions(cp.m_n_adaptions) {
+  , best_past_primary_fitness_(cp.best_past_primary_fitness_)
+  , n_stalls_(cp.n_stalls_)
+  , maxmode_(cp.maxmode_)
+  , assigned_iteration_(cp.assigned_iteration_)
+  , validity_level_(cp.validity_level_)
+  , eval_policy_(cp.eval_policy_)
+  , sigmoid_steepness_(cp.sigmoid_steepness_)
+  , sigmoid_extremes_(cp.sigmoid_extremes_)
+  , max_unsuccessful_adaptions_(cp.max_unsuccessful_adaptions_)
+  , max_retries_until_valid_(cp.max_retries_until_valid_)
+  , n_adaptions_(cp.n_adaptions_) {
     // Copy the personality pointer over
-    Gem::Common::copyCloneableSmartPointer(cp.m_pt_ptr, m_pt_ptr);
+    Gem::Common::copyCloneableSmartPointer(cp.pt_ptr_, pt_ptr_);
     // Make sure any constraints are copied over
     Gem::Common::copyCloneableSmartPointer(
-        cp.m_individual_constraint_ptr,
-        m_individual_constraint_ptr
+        cp.individual_constraint_ptr_,
+        individual_constraint_ptr_
     );
 }
 
@@ -286,21 +286,21 @@ void GParameterSet::compare_(
     Gem::Common::compare_base_t<GObject>(*this, *p_load, token);
 
     // ... and then the local data
-    compare_t(IDENTITY(this->m_data_cnt, p_load->m_data_cnt), token);
+    compare_t(IDENTITY(this->data_cnt_, p_load->data_cnt_), token);
     // data is actually contained in a parent class
-    compare_t(IDENTITY(m_best_past_primary_fitness, p_load->m_best_past_primary_fitness), token);
-    compare_t(IDENTITY(m_n_stalls, p_load->m_n_stalls), token);
-    compare_t(IDENTITY(m_maxmode, p_load->m_maxmode), token);
-    compare_t(IDENTITY(m_assigned_iteration, p_load->m_assigned_iteration), token);
-    compare_t(IDENTITY(m_validity_level, p_load->m_validity_level), token);
-    compare_t(IDENTITY(m_eval_policy, p_load->m_eval_policy), token);
-    compare_t(IDENTITY(m_pt_ptr, p_load->m_pt_ptr), token);
-    compare_t(IDENTITY(m_individual_constraint_ptr, p_load->m_individual_constraint_ptr), token);
-    compare_t(IDENTITY(m_sigmoid_steepness, p_load->m_sigmoid_steepness), token);
-    compare_t(IDENTITY(m_sigmoid_extremes, p_load->m_sigmoid_extremes), token);
-    compare_t(IDENTITY(m_max_unsuccessful_adaptions, p_load->m_max_unsuccessful_adaptions), token);
-    compare_t(IDENTITY(m_max_retries_until_valid, p_load->m_max_retries_until_valid), token);
-    compare_t(IDENTITY(m_n_adaptions, p_load->m_n_adaptions), token);
+    compare_t(IDENTITY(best_past_primary_fitness_, p_load->best_past_primary_fitness_), token);
+    compare_t(IDENTITY(n_stalls_, p_load->n_stalls_), token);
+    compare_t(IDENTITY(maxmode_, p_load->maxmode_), token);
+    compare_t(IDENTITY(assigned_iteration_, p_load->assigned_iteration_), token);
+    compare_t(IDENTITY(validity_level_, p_load->validity_level_), token);
+    compare_t(IDENTITY(eval_policy_, p_load->eval_policy_), token);
+    compare_t(IDENTITY(pt_ptr_, p_load->pt_ptr_), token);
+    compare_t(IDENTITY(individual_constraint_ptr_, p_load->individual_constraint_ptr_), token);
+    compare_t(IDENTITY(sigmoid_steepness_, p_load->sigmoid_steepness_), token);
+    compare_t(IDENTITY(sigmoid_extremes_, p_load->sigmoid_extremes_), token);
+    compare_t(IDENTITY(max_unsuccessful_adaptions_, p_load->max_unsuccessful_adaptions_), token);
+    compare_t(IDENTITY(max_retries_until_valid_, p_load->max_retries_until_valid_), token);
+    compare_t(IDENTITY(n_adaptions_, p_load->n_adaptions_), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -312,7 +312,7 @@ void GParameterSet::compare_(
      * individuals in this case.
      */
 void GParameterSet::swap(GParameterSet &cp) {
-    Gem::Common::GPtrVectorT<GParameterBase, GObject>::swap(cp.m_data_cnt);
+    Gem::Common::GPtrVectorT<GParameterBase, GObject>::swap(cp.data_cnt_);
     this->mark_as_due_for_processing();
     cp.mark_as_due_for_processing();
 }
@@ -351,7 +351,7 @@ bool GParameterSet::randomInit(activityMode const &am) {
      * @param mode An enum class which indicates whether we want to work in maximization or minimization mode
      */
 void GParameterSet::setMaxMode(maxMode const &mode) {
-    m_maxmode = mode;
+    maxmode_ = mode;
 }
 
 /******************************************************************************/
@@ -654,8 +654,8 @@ std::size_t GParameterSet::getCrossOverPos(const std::size_t lower, const std::s
     // Should be at least 1, or a cross-over doesn't make sense
     assert(upper > lower);
 
-    return m_uniform_int(
-        m_gr,
+    return uniform_int_(
+        gr_,
         std::uniform_int_distribution<std::size_t>::param_type(lower, upper - 1)
     );
 }
@@ -725,7 +725,7 @@ GParameterSet::crossOverWith(std::shared_ptr<GParameterSet> const &cp) const {
     if(not this_double_cnt.empty()) {
         // Calculate a suitable position for the cross-over
         // We use this->cp as the source for getCrossOverPos in order to avoid
-        // having to mark getCrossOverPos const and this m_gr mutable.
+        // having to mark getCrossOverPos const and this gr_ mutable.
         const auto pos = this_cp->getCrossOverPos(1, this_double_cnt.size());
 
         // Perform the actual cross-over operation. This is in fact
@@ -851,7 +851,7 @@ std::size_t GParameterSet::adapt() {
     // of evolutionary algorithms, this process is indeed equivalent to
     // a larger population, if invalid solutions were produced. The downside
     // may be, that the algorithm moves closer to MUPLUSNU. Thus, if you find
-    // yourself stuck in local optima too often, consider setting m_max_retries_until_valid
+    // yourself stuck in local optima too often, consider setting max_retries_until_valid_
     // to 0, using the appropriate function.
     while(true) {
         // Make sure at least one modification is performed. E.g., for low
@@ -867,14 +867,14 @@ std::size_t GParameterSet::adapt() {
             }
 
             // Terminate, if the maximum number of adaptions has been exceeded
-            if(m_max_unsuccessful_adaptions > 0 &&
-               ++nAdaptionAttempts > m_max_unsuccessful_adaptions) {
+            if(max_unsuccessful_adaptions_ > 0 &&
+               ++nAdaptionAttempts > max_unsuccessful_adaptions_) {
                 break;
             }
         }
 
         if(this->parameterSetFulfillsConstraints(validity) ||
-           ++nInvalidAdaptions > m_max_retries_until_valid) {
+           ++nInvalidAdaptions > max_retries_until_valid_) {
             break;
         }
     }
@@ -885,7 +885,7 @@ std::size_t GParameterSet::adapt() {
     }
 
     // Store the number of adaptions for later use and let the audience know
-    return (m_n_adaptions = nAdaptions);
+    return (n_adaptions_ = nAdaptions);
 }
 
 /* ----------------------------------------------------------------------------------
@@ -988,12 +988,12 @@ std::tuple<double, double> GParameterSet::getFitnessTuple(const std::uint32_t id
 
 /******************************************************************************/
 /**
-     * Allows to retrieve the m_maxmode parameter
+     * Allows to retrieve the maxmode_ parameter
      *
-     * @return The current value of the m_maxmode parameter
+     * @return The current value of the maxmode_ parameter
      */
 maxMode GParameterSet::getMaxMode() const {
-    return m_maxmode;
+    return maxmode_;
 }
 
 /* ----------------------------------------------------------------------------------
@@ -1032,7 +1032,7 @@ double GParameterSet::getBestCase() const {
      * Retrieves the steepness_ variable (used for the sigmoid transformation)
      */
 double GParameterSet::getSteepness() const {
-    return m_sigmoid_steepness;
+    return sigmoid_steepness_;
 }
 
 /******************************************************************************/
@@ -1048,7 +1048,7 @@ void GParameterSet::setSteepness(const double steepness) {
         );
     }
 
-    m_sigmoid_steepness = steepness;
+    sigmoid_steepness_ = steepness;
 }
 
 /******************************************************************************/
@@ -1056,7 +1056,7 @@ void GParameterSet::setSteepness(const double steepness) {
      * Retrieves the barrier_ variable (used for the sigmoid transformation)
      */
 double GParameterSet::getBarrier() const {
-    return m_sigmoid_extremes;
+    return sigmoid_extremes_;
 }
 
 /******************************************************************************/
@@ -1072,7 +1072,7 @@ void GParameterSet::setBarrier(const double barrier) {
         );
     }
 
-    m_sigmoid_extremes = barrier;
+    sigmoid_extremes_ = barrier;
 }
 
 /******************************************************************************/
@@ -1083,7 +1083,7 @@ void GParameterSet::setBarrier(const double barrier) {
      * you would get an endless loop.
      */
 void GParameterSet::setMaxUnsuccessfulAdaptions(const std::size_t maxUnsuccessfulAdaptions) {
-    m_max_unsuccessful_adaptions = maxUnsuccessfulAdaptions;
+    max_unsuccessful_adaptions_ = maxUnsuccessfulAdaptions;
 }
 
 /******************************************************************************/
@@ -1092,7 +1092,7 @@ void GParameterSet::setMaxUnsuccessfulAdaptions(const std::size_t maxUnsuccessfu
      * actual modifications
      */
 std::size_t GParameterSet::getMaxUnsuccessfulAdaptions() const {
-    return m_max_unsuccessful_adaptions;
+    return max_unsuccessful_adaptions_;
 }
 
 /******************************************************************************/
@@ -1101,7 +1101,7 @@ std::size_t GParameterSet::getMaxUnsuccessfulAdaptions() const {
      * until a valid individual was found. Setting this value to 0 will disable retries.
      */
 void GParameterSet::setMaxRetriesUntilValid(const std::size_t maxRetriesUntilValid) {
-    m_max_retries_until_valid = maxRetriesUntilValid;
+    max_retries_until_valid_ = maxRetriesUntilValid;
 }
 
 /******************************************************************************/
@@ -1110,7 +1110,7 @@ void GParameterSet::setMaxRetriesUntilValid(const std::size_t maxRetriesUntilVal
      * individuals until a valid individual was found.
      */
 std::size_t GParameterSet::getMaxRetriesUntilValid() const {
-    return m_max_retries_until_valid;
+    return max_retries_until_valid_;
 }
 
 /******************************************************************************/
@@ -1119,7 +1119,7 @@ std::size_t GParameterSet::getMaxRetriesUntilValid() const {
      * (or 0, if no adaptions were performed so far).
      */
 std::size_t GParameterSet::getNAdaptions() const {
-    return m_n_adaptions;
+    return n_adaptions_;
 }
 
 /******************************************************************************/
@@ -1129,7 +1129,7 @@ std::size_t GParameterSet::getNAdaptions() const {
      * @param parentAlgIteration The current iteration of the optimization algorithm
      */
 void GParameterSet::setAssignedIteration(std::uint32_t const &parentAlgIteration) {
-    m_assigned_iteration = parentAlgIteration;
+    assigned_iteration_ = parentAlgIteration;
 }
 
 /* ----------------------------------------------------------------------------------
@@ -1144,7 +1144,7 @@ void GParameterSet::setAssignedIteration(std::uint32_t const &parentAlgIteration
      * @return The parent optimization algorithm's current iteration
      */
 std::uint32_t GParameterSet::getAssignedIteration() const {
-    return m_assigned_iteration;
+    return assigned_iteration_;
 }
 
 /* ----------------------------------------------------------------------------------
@@ -1159,7 +1159,7 @@ std::uint32_t GParameterSet::getAssignedIteration() const {
      * @param nStalls The number of optimization cycles without improvement in the parent algorithm
      */
 void GParameterSet::setNStalls(std::uint32_t const &nStalls) {
-    m_n_stalls = nStalls;
+    n_stalls_ = nStalls;
 }
 
 /* ----------------------------------------------------------------------------------
@@ -1174,7 +1174,7 @@ void GParameterSet::setNStalls(std::uint32_t const &nStalls) {
      * @return The number of optimization cycles without improvement in the parent algorithm
      */
 std::uint32_t GParameterSet::getNStalls() const {
-    return m_n_stalls;
+    return n_stalls_;
 }
 
 /* ----------------------------------------------------------------------------------
@@ -1189,8 +1189,8 @@ std::uint32_t GParameterSet::getNStalls() const {
      * @return An identifier for the current personality of this object
      */
 std::string GParameterSet::getPersonality() const {
-    if(m_pt_ptr) {
-        return m_pt_ptr->name();
+    if(pt_ptr_) {
+        return pt_ptr_->name();
     }
     else {
         return std::string("PERSONALITY_NONE");
@@ -1207,7 +1207,7 @@ std::string GParameterSet::getPersonality() const {
      * Allows to check whether random crashs of individuals are enabled
      */
 std::tuple<bool, double> GParameterSet::getRandomCrash() const {
-    return std::tuple<bool, double>{m_useRandomCrash, m_randomCrashProb};
+    return std::tuple<bool, double>{useRandomCrash_, randomCrashProb_};
 };
 
 /******************************************************************************/
@@ -1219,8 +1219,8 @@ void GParameterSet::setRandomCrash(const bool useRandomCrash, const double crash
     Gem::Common::checkRangeCompliance(crashProb, 0., 1., "GParameterSet::setRandomCrash()");
 
     // Set the value as demanded
-    m_useRandomCrash = useRandomCrash;
-    m_randomCrashProb = crashProb;
+    useRandomCrash_ = useRandomCrash;
+    randomCrashProb_ = crashProb;
 }
 
 /******************************************************************************/
@@ -1234,7 +1234,7 @@ void GParameterSet::setRandomCrash(const bool useRandomCrash, const double crash
 std::shared_ptr<GPersonalityTraits> GParameterSet::getPersonalityTraits() {
 #ifdef DEBUG
     // Do some error checking
-    if(not m_pt_ptr) {
+    if(not pt_ptr_) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GParameterSet::getPersonalityTraits():" << std::endl
@@ -1243,7 +1243,7 @@ std::shared_ptr<GPersonalityTraits> GParameterSet::getPersonalityTraits() {
     }
 #endif
 
-    return m_pt_ptr;
+    return pt_ptr_;
 }
 
 /* ----------------------------------------------------------------------------------
@@ -1269,7 +1269,7 @@ void GParameterSet::setPersonality(std::shared_ptr<GPersonalityTraits> gpt) {
     }
 
     // Add the personality traits object to our local pointer
-    m_pt_ptr = gpt;
+    pt_ptr_ = gpt;
 }
 
 /* ----------------------------------------------------------------------------------
@@ -1282,7 +1282,7 @@ void GParameterSet::setPersonality(std::shared_ptr<GPersonalityTraits> gpt) {
      * Resets the current personality to PERSONALITY_NONE
      */
 void GParameterSet::resetPersonality() {
-    m_pt_ptr.reset();
+    pt_ptr_.reset();
 }
 
 /* ----------------------------------------------------------------------------------
@@ -1295,8 +1295,8 @@ void GParameterSet::resetPersonality() {
      * Retrieves the mnemonic used for the optimization of this object
      */
 std::string GParameterSet::getMnemonic() const {
-    if(m_pt_ptr) {
-        return m_pt_ptr->getMnemonic();
+    if(pt_ptr_) {
+        return pt_ptr_->getMnemonic();
     }
     else {
         throw geneva_exception(
@@ -1336,7 +1336,7 @@ void GParameterSet::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
       << "1 (a.k.a. USEWORSTCASEFORINVALID) : Assign the worst possible value to our fitness and "
          "evaluate only valid solutions"
       << std::endl
-      << "2 (a.k.a. USESIGMOID): Assign a multiple of m_validity_level and sigmoid barrier to "
+      << "2 (a.k.a. USESIGMOID): Assign a multiple of validity_level_ and sigmoid barrier to "
          "invalid solutions, apply a sigmoid function to valid evaluations"
       << std::endl;
 
@@ -1425,7 +1425,7 @@ std::string GParameterSet::name_() const {
      * @return The validity level of this solution
      */
 double GParameterSet::getValidityLevel() const {
-    return m_validity_level;
+    return validity_level_;
 }
 
 /******************************************************************************/
@@ -1433,7 +1433,7 @@ double GParameterSet::getValidityLevel() const {
      * @return A boolean indicating, whether all constraints were fulfilled
      */
 bool GParameterSet::constraintsFulfilled() const {
-    if(m_validity_level <= 1.)
+    if(validity_level_ <= 1.)
         return true;
     else
         return false;
@@ -1456,7 +1456,7 @@ void GParameterSet::registerConstraint(
     }
 
     // We store clones, so individual objects do not share the same object
-    m_individual_constraint_ptr =
+    individual_constraint_ptr_ =
         c_ptr->GObject::clone<GPreEvaluationValidityCheckT<GParameterSet>>();
 }
 
@@ -1465,7 +1465,7 @@ void GParameterSet::registerConstraint(
      * Allows to set the policy to use in case this individual represents an invalid solution
      */
 void GParameterSet::setEvaluationPolicy(const evaluationPolicy evalPolicy) {
-    m_eval_policy = evalPolicy;
+    eval_policy_ = evalPolicy;
 }
 
 /******************************************************************************/
@@ -1473,7 +1473,7 @@ void GParameterSet::setEvaluationPolicy(const evaluationPolicy evalPolicy) {
      * Allows to retrieve the current policy in case this individual represents an invalid solution
      */
 evaluationPolicy GParameterSet::getEvaluationPolicy() const {
-    return m_eval_policy;
+    return eval_policy_;
 }
 
 /******************************************************************************/
@@ -1493,7 +1493,7 @@ bool GParameterSet::isValid() const {
     }
 #endif
 
-    if(m_validity_level <= 1.) {
+    if(validity_level_ <= 1.) {
         return true;
     }
     else {
@@ -1516,7 +1516,7 @@ bool GParameterSet::isInValid() const {
      * @param bnf The best known primary fitness so far
      */
 void GParameterSet::setBestKnownPrimaryFitness(const std::tuple<double, double> &bnf) {
-    m_best_past_primary_fitness = bnf;
+    best_past_primary_fitness_ = bnf;
 }
 
 /* ----------------------------------------------------------------------------------
@@ -1531,7 +1531,7 @@ void GParameterSet::setBestKnownPrimaryFitness(const std::tuple<double, double> 
      * @return The best known primary fitness so far
      */
 std::tuple<double, double> GParameterSet::getBestKnownPrimaryFitness() const {
-    return m_best_past_primary_fitness;
+    return best_past_primary_fitness_;
 }
 
 /* ----------------------------------------------------------------------------------
@@ -1547,9 +1547,9 @@ void GParameterSet::process_(const std::vector<parameterset_processing_result> &
 #ifdef DEBUG
     //---------------------------------------------
     // Crash if we have been asked to (only active in DEBUG mode)
-    if(m_useRandomCrash) {
+    if(useRandomCrash_) {
         std::uniform_real_distribution<double> dist01{0., 1.};
-        if(dist01(this->m_gr) <= m_randomCrashProb) {
+        if(dist01(this->gr_) <= randomCrashProb_) {
             glogger << "GParameterSet is performing random crash for debugging purposes"
                     << std::endl
                     << std::endl
@@ -1561,9 +1561,9 @@ void GParameterSet::process_(const std::vector<parameterset_processing_result> &
 #endif
 
     // Find out, whether this is a valid solution
-    if(this->parameterSetFulfillsConstraints(m_validity_level)
-       // Needs to be called first, or else the m_validity_level will not be filled
-       || evaluationPolicy::USESIMPLEEVALUATION == m_eval_policy) {
+    if(this->parameterSetFulfillsConstraints(validity_level_)
+       // Needs to be called first, or else the validity_level_ will not be filled
+       || evaluationPolicy::USESIMPLEEVALUATION == eval_policy_) {
         // Trigger actual fitness calculation using the user-supplied function. This will
         // also register any secondary "raw" fitness values used in multi-criterion optimization.
         // Transformation of values is taken care of below.
@@ -1627,14 +1627,14 @@ void GParameterSet::process_(const std::vector<parameterset_processing_result> &
         else {
             // So this is a valid solution!
             for(std::size_t i = 0; i < this->getNStoredResults(); i++) {
-                if(evaluationPolicy::USESIGMOID == m_eval_policy) {
+                if(evaluationPolicy::USESIGMOID == eval_policy_) {
                     // Update the fitness value to use sigmoidal values
                     this->modifyStoredResult(i).setTransformedFitnessWith(
                         [this](const double rawValue) {
                             return Gem::Common::grational_sigmoid(
                                 rawValue,
-                                this->m_sigmoid_extremes,
-                                this->m_sigmoid_steepness
+                                this->sigmoid_extremes_,
+                                this->sigmoid_steepness_
                             );
                         }
                     );
@@ -1648,27 +1648,27 @@ void GParameterSet::process_(const std::vector<parameterset_processing_result> &
     }
     else {
         // Some constraints were violated. Act on the chosen policy
-        if(evaluationPolicy::USEWORSTCASEFORINVALID == m_eval_policy) {
+        if(evaluationPolicy::USEWORSTCASEFORINVALID == eval_policy_) {
             this->setAllFitnessTo(this->getWorstCase());
         }
-        else if(evaluationPolicy::USESIGMOID == m_eval_policy) {
+        else if(evaluationPolicy::USESIGMOID == eval_policy_) {
             double uniformFitnessValue = 0.;
             if(maxMode::MAXIMIZE == this->getMaxMode()) {
                 // maximize
-                if(boost::numeric::bounds<double>::highest() == m_validity_level) {
+                if(boost::numeric::bounds<double>::highest() == validity_level_) {
                     uniformFitnessValue = this->getWorstCase();
                 }
                 else {
-                    uniformFitnessValue = -m_validity_level * m_sigmoid_extremes;
+                    uniformFitnessValue = -validity_level_ * sigmoid_extremes_;
                 }
             }
             else {
                 // minimize
-                if(boost::numeric::bounds<double>::highest() == m_validity_level) {
+                if(boost::numeric::bounds<double>::highest() == validity_level_) {
                     uniformFitnessValue = this->getWorstCase();
                 }
                 else {
-                    uniformFitnessValue = m_validity_level * m_sigmoid_extremes;
+                    uniformFitnessValue = validity_level_ * sigmoid_extremes_;
                 }
             }
 
@@ -1696,22 +1696,22 @@ void GParameterSet::load_(const GObject *cp) {
     );
 
     // and then our local data
-    m_best_past_primary_fitness = p_load->m_best_past_primary_fitness;
-    m_n_stalls = p_load->m_n_stalls;
-    m_maxmode = p_load->m_maxmode;
-    m_assigned_iteration = p_load->m_assigned_iteration;
-    m_validity_level = p_load->m_validity_level;
-    m_eval_policy = p_load->m_eval_policy;
-    m_sigmoid_steepness = p_load->m_sigmoid_steepness;
-    m_sigmoid_extremes = p_load->m_sigmoid_extremes;
-    m_max_unsuccessful_adaptions = p_load->m_max_unsuccessful_adaptions;
-    m_max_retries_until_valid = p_load->m_max_retries_until_valid;
-    m_n_adaptions = p_load->m_n_adaptions;
+    best_past_primary_fitness_ = p_load->best_past_primary_fitness_;
+    n_stalls_ = p_load->n_stalls_;
+    maxmode_ = p_load->maxmode_;
+    assigned_iteration_ = p_load->assigned_iteration_;
+    validity_level_ = p_load->validity_level_;
+    eval_policy_ = p_load->eval_policy_;
+    sigmoid_steepness_ = p_load->sigmoid_steepness_;
+    sigmoid_extremes_ = p_load->sigmoid_extremes_;
+    max_unsuccessful_adaptions_ = p_load->max_unsuccessful_adaptions_;
+    max_retries_until_valid_ = p_load->max_retries_until_valid_;
+    n_adaptions_ = p_load->n_adaptions_;
 
-    Gem::Common::copyCloneableSmartPointer(p_load->m_pt_ptr, m_pt_ptr);
+    Gem::Common::copyCloneableSmartPointer(p_load->pt_ptr_, pt_ptr_);
     Gem::Common::copyCloneableSmartPointer(
-        p_load->m_individual_constraint_ptr,
-        m_individual_constraint_ptr
+        p_load->individual_constraint_ptr_,
+        individual_constraint_ptr_
     );
 }
 
@@ -1728,7 +1728,7 @@ bool GParameterSet::randomInit_(activityMode const &am) {
 
     // Trigger random initialization of all our parameter objects
     for(auto &parm_ptr : *this) {
-        if(parm_ptr->randomInit(am, m_gr)) {
+        if(parm_ptr->randomInit(am, gr_)) {
             modifications_made = true;
         }
     }
@@ -1752,7 +1752,7 @@ bool GParameterSet::randomInit_(activityMode const &am) {
 std::size_t GParameterSet::customAdaptions() {
     std::size_t nAdaptions = 0;
     for(const auto &par_ptr : *this) {
-        nAdaptions += par_ptr->adapt(m_gr);
+        nAdaptions += par_ptr->adapt(gr_);
     }
 
     return nAdaptions;
@@ -1785,9 +1785,9 @@ void GParameterSet::setFitness_(std::vector<double> const &f_cnt) {
 #endif /* DEBUG */
 
     // Find out, whether this is a valid solution
-    if(this->parameterSetFulfillsConstraints(m_validity_level)
-       // Needs to be called first, or else the m_validity_level will not be filled
-       || evaluationPolicy::USESIMPLEEVALUATION == m_eval_policy) {
+    if(this->parameterSetFulfillsConstraints(validity_level_)
+       // Needs to be called first, or else the validity_level_ will not be filled
+       || evaluationPolicy::USESIMPLEEVALUATION == eval_policy_) {
         // Create a vector of parameterset_processing_result objects
         std::vector<parameterset_processing_result> processing_results(
             f_cnt.size(),
@@ -1800,13 +1800,13 @@ void GParameterSet::setFitness_(std::vector<double> const &f_cnt) {
             // Set the raw fitness
             p.reset(f_cnt.at(pos));
 
-            if(evaluationPolicy::USESIGMOID == m_eval_policy) {
+            if(evaluationPolicy::USESIGMOID == eval_policy_) {
                 // Update the fitness value to use sigmoidal values
                 p.setTransformedFitnessWith([this](const double rawValue) {
                     return Gem::Common::grational_sigmoid(
                         rawValue,
-                        this->m_sigmoid_extremes,
-                        this->m_sigmoid_steepness
+                        this->sigmoid_extremes_,
+                        this->sigmoid_steepness_
                     );
                 });
             }
@@ -1823,27 +1823,27 @@ void GParameterSet::setFitness_(std::vector<double> const &f_cnt) {
     }
     else {
         // Some constraints were violated. Act on the chosen policy
-        if(evaluationPolicy::USEWORSTCASEFORINVALID == m_eval_policy) {
+        if(evaluationPolicy::USEWORSTCASEFORINVALID == eval_policy_) {
             this->setAllFitnessTo(this->getWorstCase());
         }
-        else if(evaluationPolicy::USESIGMOID == m_eval_policy) {
+        else if(evaluationPolicy::USESIGMOID == eval_policy_) {
             double uniformFitnessValue = 0.;
             if(maxMode::MAXIMIZE == this->getMaxMode()) {
                 // maximize
-                if(boost::numeric::bounds<double>::highest() == m_validity_level) {
+                if(boost::numeric::bounds<double>::highest() == validity_level_) {
                     uniformFitnessValue = this->getWorstCase();
                 }
                 else {
-                    uniformFitnessValue = -m_validity_level * m_sigmoid_extremes;
+                    uniformFitnessValue = -validity_level_ * sigmoid_extremes_;
                 }
             }
             else {
                 // minimize
-                if(boost::numeric::bounds<double>::highest() == m_validity_level) {
+                if(boost::numeric::bounds<double>::highest() == validity_level_) {
                     uniformFitnessValue = this->getWorstCase();
                 }
                 else {
-                    uniformFitnessValue = m_validity_level * m_sigmoid_extremes;
+                    uniformFitnessValue = validity_level_ * sigmoid_extremes_;
                 }
             }
 
@@ -1937,8 +1937,8 @@ double GParameterSet::weighedSquaredSumCombiner(std::vector<double> const &weigh
      * function may be called prior to evaluation in order to check
      */
 bool GParameterSet::parameterSetFulfillsConstraints(double &validityLevel) const {
-    if(m_individual_constraint_ptr) {
-        return m_individual_constraint_ptr->isValid(this, validityLevel);
+    if(individual_constraint_ptr_) {
+        return individual_constraint_ptr_->isValid(this, validityLevel);
     }
     else {
         // Always valid, if no constraint object has been registered
@@ -2029,7 +2029,7 @@ bool GParameterSet::modify_GUnitTests_() {
     }
 
     // A relatively harmless change
-    m_n_stalls++;
+    n_stalls_++;
     result = true;
 
     return result;
@@ -2153,7 +2153,7 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests_() {
             p_test_0->push_back(
                 std::make_shared<GConstrainedDoubleObject>(
                     uniform_real_distribution(
-                        m_gr,
+                        gr_,
                         std::uniform_real_distribution<double>::param_type(
                             MINGCONSTRDOUBLE,
                             MAXGCONSTRDOUBLE
@@ -2165,7 +2165,7 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests_() {
             );
             p_test_0->push_back(
                 std::make_shared<GDoubleObject>(uniform_real_distribution(
-                    m_gr,
+                    gr_,
                     std::uniform_real_distribution<double>::param_type(MINGDOUBLE, MAXGDOUBLE)
                 ))
             );
@@ -2616,7 +2616,7 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests_() {
             std::shared_ptr<GConstrainedDoubleObject> gcdo_ptr =
                 std::shared_ptr<GConstrainedDoubleObject>(new GConstrainedDoubleObject(
                     uniform_real_distribution(
-                        m_gr,
+                        gr_,
                         std::uniform_real_distribution<double>::param_type(
                             MINGCONSTRDOUBLE,
                             MAXGCONSTRDOUBLE
@@ -2627,7 +2627,7 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests_() {
                 ));
             std::shared_ptr<GDoubleObject> gdo_ptr =
                 std::shared_ptr<GDoubleObject>(new GDoubleObject(uniform_real_distribution(
-                    m_gr,
+                    gr_,
                     std::uniform_real_distribution<double>::param_type(MINGDOUBLE, MAXGDOUBLE)
                 )));
             std::shared_ptr<GDoubleCollection> gdc_ptr = std::shared_ptr<GDoubleCollection>(
@@ -2661,7 +2661,7 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests_() {
             std::shared_ptr<GConstrainedDoubleObject> gcdo_ptr =
                 std::shared_ptr<GConstrainedDoubleObject>(new GConstrainedDoubleObject(
                     uniform_real_distribution(
-                        m_gr,
+                        gr_,
                         std::uniform_real_distribution<double>::param_type(
                             MINGCONSTRDOUBLE,
                             MAXGCONSTRDOUBLE
@@ -2672,7 +2672,7 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests_() {
                 ));
             std::shared_ptr<GDoubleObject> gdo_ptr =
                 std::shared_ptr<GDoubleObject>(new GDoubleObject(uniform_real_distribution(
-                    m_gr,
+                    gr_,
                     std::uniform_real_distribution<double>::param_type(MINGDOUBLE, MAXGDOUBLE)
                 )));
             std::shared_ptr<GConstrainedInt32ObjectCollection> gcioc_ptr =
@@ -2696,7 +2696,7 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests_() {
 
             std::shared_ptr<GDoubleObject> gdo2_ptr =
                 std::shared_ptr<GDoubleObject>(new GDoubleObject(uniform_real_distribution(
-                    m_gr,
+                    gr_,
                     std::uniform_real_distribution<double>::param_type(MINGDOUBLE, MAXGDOUBLE)
                 )));
             gdo2_ptr->setAdaptionsInactive();

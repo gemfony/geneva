@@ -112,7 +112,7 @@ public:
      * Swap another object's vector with ours
      */
     void swap(GParameterCollectionT<num_type> &cp) noexcept {
-        Gem::Common::GPODVectorT<num_type>::swap(cp.m_data_cnt);
+        Gem::Common::GPODVectorT<num_type>::swap(cp.data_cnt_);
     }
 
     /* ----------------------------------------------------------------------------------
@@ -241,7 +241,7 @@ protected:
         Gem::Common::compare_base_t<GParameterBaseWithAdaptorsT<num_type>>(*this, *p_load, token);
 
         // We access the relevant data of one of the parent classes directly for simplicity reasons
-        compare_t(IDENTITY(this->m_data_cnt, p_load->m_data_cnt), token);
+        compare_t(IDENTITY(this->data_cnt_, p_load->data_cnt_), token);
 
         // React on deviations from the expectation
         token.evaluate();
@@ -336,7 +336,7 @@ private:
      */
     std::size_t adapt_(Gem::Hap::GRandomBase &gr) override {
         return GParameterBaseWithAdaptorsT<num_type>::applyAdaptor(
-            Gem::Common::GPODVectorT<num_type>::m_data_cnt,
+            Gem::Common::GPODVectorT<num_type>::data_cnt_,
             this->range(),
             gr
         );

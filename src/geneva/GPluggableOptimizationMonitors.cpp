@@ -211,18 +211,18 @@ void GStandardMonitor::specificTestsFailuresExpected_GUnitTests_() {
  */
 GFitnessMonitor::GFitnessMonitor(const GFitnessMonitor &cp)
   : GBasePluggableOM(cp)
-  , m_xDim(cp.m_xDim)
-  , m_yDim(cp.m_yDim)
-  , m_nMonitorInds(cp.m_nMonitorInds)
-  , m_resultFile(cp.m_resultFile)
-  , m_infoInitRun(cp.m_infoInitRun) {
+  , xDim_(cp.xDim_)
+  , yDim_(cp.yDim_)
+  , nMonitorInds_(cp.nMonitorInds_)
+  , resultFile_(cp.resultFile_)
+  , infoInitRun_(cp.infoInitRun_) {
     Gem::Common::copyCloneableSmartPointerContainer(
-        cp.m_globalFitnessGraphVec,
-        m_globalFitnessGraphVec
+        cp.globalFitnessGraphVec_,
+        globalFitnessGraphVec_
     );
     Gem::Common::copyCloneableSmartPointerContainer(
-        cp.m_iterationFitnessGraphVec,
-        m_iterationFitnessGraphVec
+        cp.iterationFitnessGraphVec_,
+        iterationFitnessGraphVec_
     );
 }
 
@@ -233,7 +233,7 @@ GFitnessMonitor::GFitnessMonitor(const GFitnessMonitor &cp)
  * @param resultFile The desired name of the result file
  */
 void GFitnessMonitor::setResultFileName(const std::string &resultFile) {
-    m_resultFile = resultFile;
+    resultFile_ = resultFile;
 }
 
 /******************************************************************************/
@@ -243,7 +243,7 @@ void GFitnessMonitor::setResultFileName(const std::string &resultFile) {
  * @return The current name of the result file
  */
 std::string GFitnessMonitor::getResultFileName() const {
-    return m_resultFile;
+    return resultFile_;
 }
 
 /******************************************************************************/
@@ -254,8 +254,8 @@ std::string GFitnessMonitor::getResultFileName() const {
  * @param yDim The desired dimension of the canvas in y-direction
  */
 void GFitnessMonitor::setDims(const std::uint32_t &xDim, const std::uint32_t &yDim) {
-    m_xDim = xDim;
-    m_yDim = yDim;
+    xDim_ = xDim;
+    yDim_ = yDim;
 }
 
 /******************************************************************************/
@@ -265,7 +265,7 @@ void GFitnessMonitor::setDims(const std::uint32_t &xDim, const std::uint32_t &yD
  * @return The dimensions of the canvas as a tuple
  */
 std::tuple<std::uint32_t, std::uint32_t> GFitnessMonitor::getDims() const {
-    return std::tuple<std::uint32_t, std::uint32_t>{m_xDim, m_yDim};
+    return std::tuple<std::uint32_t, std::uint32_t>{xDim_, yDim_};
 }
 
 /******************************************************************************/
@@ -275,7 +275,7 @@ std::tuple<std::uint32_t, std::uint32_t> GFitnessMonitor::getDims() const {
  * @return The dimension of the canvas in x-direction
  */
 std::uint32_t GFitnessMonitor::getXDim() const {
-    return m_xDim;
+    return xDim_;
 }
 
 /******************************************************************************/
@@ -285,16 +285,16 @@ std::uint32_t GFitnessMonitor::getXDim() const {
  * @return The dimension of the canvas in y-direction
  */
 std::uint32_t GFitnessMonitor::getYDim() const {
-    return m_yDim;
+    return yDim_;
 }
 
 /******************************************************************************/
 /**
  * Sets the number of individuals in the population that should be monitored.
- * If m_nMonitorInds == 0, the default will be set to 3, as fitness graphs are plotted in a row,
+ * If nMonitorInds_ == 0, the default will be set to 3, as fitness graphs are plotted in a row,
  * and more than 3 will not give satisfactory graphical results. You may however
  * request more monitored individuals, but will likely have to postprocess the ROOT script.
- * If m_nMonitorInds is set to a larger number than there are individuals in the population,
+ * If nMonitorInds_ is set to a larger number than there are individuals in the population,
  * the value will be reset to that amount of individuals in informationFunction.
  *
  * @oaram nMonitorInds The number of individuals in the population that should be monitored
@@ -302,11 +302,11 @@ std::uint32_t GFitnessMonitor::getYDim() const {
 void GFitnessMonitor::setNMonitorIndividuals(const std::size_t &nMonitorInds) {
     // Determine a suitable number of monitored individuals, if it hasn't already
     // been set externally.
-    if(m_nMonitorInds == 0) {
-        m_nMonitorInds = std::size_t(DEFNMONITORINDS);
+    if(nMonitorInds_ == 0) {
+        nMonitorInds_ = std::size_t(DEFNMONITORINDS);
     }
 
-    m_nMonitorInds = nMonitorInds;
+    nMonitorInds_ = nMonitorInds;
 }
 
 /******************************************************************************/
@@ -316,7 +316,7 @@ void GFitnessMonitor::setNMonitorIndividuals(const std::size_t &nMonitorInds) {
  * @return The number of individuals in the population being monitored
  */
 std::size_t GFitnessMonitor::getNMonitorIndividuals() const {
-    return m_nMonitorInds;
+    return nMonitorInds_;
 }
 
 /******************************************************************************/
@@ -357,21 +357,21 @@ void GFitnessMonitor::informationFunction_(
         //------------------------------------------------------------------------------
         // Setup of local vectors
 
-        if(not m_infoInitRun) {
+        if(not infoInitRun_) {
             // Reset the number of monitored individuals to a suitable value, if necessary.
-            if(m_nMonitorInds > global_bests.size()) {
+            if(nMonitorInds_ > global_bests.size()) {
                 glogger << "In GFitnessMonitor::informationFunction_(): Warning!" << std::endl
                         << "Requested number of individuals to be monitored in iteration "
                         << iteration << " is larger" << std::endl
-                        << "than the number of best individuals " << m_nMonitorInds << " / "
+                        << "than the number of best individuals " << nMonitorInds_ << " / "
                         << global_bests.size() << std::endl
                         << GWARNING;
 
-                m_nMonitorInds = global_bests.size();
+                nMonitorInds_ = global_bests.size();
             }
 
             // Set up the plotters
-            for(std::size_t ind = 0; ind < m_nMonitorInds; ind++) {
+            for(std::size_t ind = 0; ind < nMonitorInds_; ind++) {
                 std::shared_ptr<Gem::Common::GGraph2D> global_graph(new Gem::Common::GGraph2D());
                 global_graph->setXAxisLabel("Iteration");
                 global_graph->setYAxisLabel("Best Fitness");
@@ -380,7 +380,7 @@ void GFitnessMonitor::informationFunction_(
                 );
                 global_graph->setPlotMode(Gem::Common::graphPlotMode::CURVE);
 
-                m_globalFitnessGraphVec.push_back(global_graph);
+                globalFitnessGraphVec_.push_back(global_graph);
 
                 std::shared_ptr<Gem::Common::GGraph2D> iteration_graph(new Gem::Common::GGraph2D());
                 iteration_graph->setXAxisLabel("Iteration");
@@ -390,26 +390,26 @@ void GFitnessMonitor::informationFunction_(
                 );
                 iteration_graph->setPlotMode(Gem::Common::graphPlotMode::CURVE);
 
-                m_iterationFitnessGraphVec.push_back(iteration_graph);
+                iterationFitnessGraphVec_.push_back(iteration_graph);
 
                 // Add the iteration graph as secondary plotter
                 global_graph->registerSecondaryPlotter(iteration_graph);
             }
 
-            // Make sure m_globalFitnessGraphVec is only initialized once
-            m_infoInitRun = true;
+            // Make sure globalFitnessGraphVec_ is only initialized once
+            infoInitRun_ = true;
         }
         else {
             // We might have a situation where the number of best individuals changes in each
             // iteration, e.g. when dealing with pareto optimization in EA. In this case we reduce the
-            // number of m_nMonitorInds to 1, which is the only safe option. Recorded data of other
+            // number of nMonitorInds_ to 1, which is the only safe option. Recorded data of other
             // individuals will then be lost -- the program will warn about this.
-            if(m_nMonitorInds > global_bests.size()) {
+            if(nMonitorInds_ > global_bests.size()) {
                 glogger
                     << "In GFitnessMonitor::informationFunction_(): Warning!" << std::endl
                     << "Requested number of individuals to be monitored in iteration " << iteration
                     << " is larger" << std::endl
-                    << "than the number of best individuals " << m_nMonitorInds << " / "
+                    << "than the number of best individuals " << nMonitorInds_ << " / "
                     << global_bests.size() << std::endl
                     << "This seems to be a result of a varying number of best individuals."
                     << std::endl
@@ -420,9 +420,9 @@ void GFitnessMonitor::informationFunction_(
                     << "will be deleted" << std::endl
                     << GWARNING;
 
-                m_nMonitorInds = 1;
-                m_globalFitnessGraphVec.resize(1);
-                m_iterationFitnessGraphVec.resize(1);
+                nMonitorInds_ = 1;
+                globalFitnessGraphVec_.resize(1);
+                iterationFitnessGraphVec_.resize(1);
             }
         }
 
@@ -435,11 +435,11 @@ void GFitnessMonitor::informationFunction_(
         std::vector<std::shared_ptr<GParameterSet>>::iterator iter_ind_it;
 
         std::size_t mInd = 0;
-        for(global_it = m_globalFitnessGraphVec.begin(),
-        iter_it = m_iterationFitnessGraphVec.begin(),
+        for(global_it = globalFitnessGraphVec_.begin(),
+        iter_it = iterationFitnessGraphVec_.begin(),
         global_ind_it = global_bests.begin(),
         iter_ind_it = iter_bests.begin();
-            global_it != m_globalFitnessGraphVec.end();
+            global_it != globalFitnessGraphVec_.end();
             ++global_it, ++iter_it, ++global_ind_it, ++iter_ind_it) {
             (*global_it)
                 ->add(boost::numeric_cast<double>(iteration), (*global_ind_it)->raw_fitness(0));
@@ -488,13 +488,13 @@ void GFitnessMonitor::compare_(
     Gem::Common::compare_base_t<GBasePluggableOM>(*this, *p_load, token);
 
     // ... and then our local data
-    compare_t(IDENTITY(m_xDim, p_load->m_xDim), token);
-    compare_t(IDENTITY(m_yDim, p_load->m_yDim), token);
-    compare_t(IDENTITY(m_nMonitorInds, p_load->m_nMonitorInds), token);
-    compare_t(IDENTITY(m_resultFile, p_load->m_resultFile), token);
-    compare_t(IDENTITY(m_infoInitRun, p_load->m_infoInitRun), token);
-    compare_t(IDENTITY(m_globalFitnessGraphVec, p_load->m_globalFitnessGraphVec), token);
-    compare_t(IDENTITY(m_iterationFitnessGraphVec, p_load->m_iterationFitnessGraphVec), token);
+    compare_t(IDENTITY(xDim_, p_load->xDim_), token);
+    compare_t(IDENTITY(yDim_, p_load->yDim_), token);
+    compare_t(IDENTITY(nMonitorInds_, p_load->nMonitorInds_), token);
+    compare_t(IDENTITY(resultFile_, p_load->resultFile_), token);
+    compare_t(IDENTITY(infoInitRun_, p_load->infoInitRun_), token);
+    compare_t(IDENTITY(globalFitnessGraphVec_, p_load->globalFitnessGraphVec_), token);
+    compare_t(IDENTITY(iterationFitnessGraphVec_, p_load->iterationFitnessGraphVec_), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -514,19 +514,19 @@ void GFitnessMonitor::load_(const GObject *cp) {
     GBasePluggableOM::load_(cp);
 
     // ... and then our local data
-    m_xDim = p_load->m_xDim;
-    m_yDim = p_load->m_yDim;
-    m_nMonitorInds = p_load->m_nMonitorInds;
-    m_resultFile = p_load->m_resultFile;
-    m_infoInitRun = p_load->m_infoInitRun;
+    xDim_ = p_load->xDim_;
+    yDim_ = p_load->yDim_;
+    nMonitorInds_ = p_load->nMonitorInds_;
+    resultFile_ = p_load->resultFile_;
+    infoInitRun_ = p_load->infoInitRun_;
 
     Gem::Common::copyCloneableSmartPointerContainer(
-        p_load->m_globalFitnessGraphVec,
-        m_globalFitnessGraphVec
+        p_load->globalFitnessGraphVec_,
+        globalFitnessGraphVec_
     );
     Gem::Common::copyCloneableSmartPointerContainer(
-        p_load->m_iterationFitnessGraphVec,
-        m_iterationFitnessGraphVec
+        p_load->iterationFitnessGraphVec_,
+        iterationFitnessGraphVec_
     );
 }
 
@@ -607,7 +607,7 @@ void GFitnessMonitor::specificTestsFailuresExpected_GUnitTests_() {
  */
 GCollectiveMonitor::GCollectiveMonitor(const GCollectiveMonitor &cp)
   : GBasePluggableOM(cp) {
-    Gem::Common::copyCloneableSmartPointerContainer(cp.m_pluggable_monitors, m_pluggable_monitors);
+    Gem::Common::copyCloneableSmartPointerContainer(cp.pluggable_monitors_, pluggable_monitors_);
 }
 
 /******************************************************************************/
@@ -618,7 +618,7 @@ void GCollectiveMonitor::informationFunction_(
     infoMode im,
     G_OptimizationAlgorithm_Base const *const goa
 ) {
-    for(auto const &pm_ptr : m_pluggable_monitors) {
+    for(auto const &pm_ptr : pluggable_monitors_) {
         pm_ptr->informationFunction(im, goa);
     }
 }
@@ -631,7 +631,7 @@ void GCollectiveMonitor::registerPluggableOM(
     std::shared_ptr<Gem::Geneva::GBasePluggableOM> om_ptr
 ) {
     if(om_ptr) {
-        m_pluggable_monitors.push_back(om_ptr);
+        pluggable_monitors_.push_back(om_ptr);
     }
     else {
         throw geneva_exception(
@@ -647,7 +647,7 @@ void GCollectiveMonitor::registerPluggableOM(
  * Checks if adaptors have been registered in the collective monitor
  */
 bool GCollectiveMonitor::hasOptimizationMonitors() const {
-    return not m_pluggable_monitors.empty();
+    return not pluggable_monitors_.empty();
 }
 
 /******************************************************************************/
@@ -655,7 +655,7 @@ bool GCollectiveMonitor::hasOptimizationMonitors() const {
  * Allows to clear all registered monitors
  */
 void GCollectiveMonitor::resetPluggbleOM() {
-    m_pluggable_monitors.clear();
+    pluggable_monitors_.clear();
 }
 
 /******************************************************************************/
@@ -691,7 +691,7 @@ void GCollectiveMonitor::compare_(
     Gem::Common::compare_base_t<GBasePluggableOM>(*this, *p_load, token);
 
     // ... and then our local data
-    compare_t(IDENTITY(m_pluggable_monitors, p_load->m_pluggable_monitors), token);
+    compare_t(IDENTITY(pluggable_monitors_, p_load->pluggable_monitors_), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -712,8 +712,8 @@ void GCollectiveMonitor::load_(const GObject *cp) {
 
     // ... and then our local data
     Gem::Common::copyCloneableSmartPointerContainer(
-        p_load->m_pluggable_monitors,
-        m_pluggable_monitors
+        p_load->pluggable_monitors_,
+        pluggable_monitors_
     );
 }
 
@@ -794,7 +794,7 @@ void GCollectiveMonitor::specificTestsFailuresExpected_GUnitTests_() {
  * Initialization with a file name. Note that some variables may be initialized in the class body.
  */
 GAllSolutionFileLogger::GAllSolutionFileLogger(const std::string &fileName)
-  : m_fileName(fileName) { /* nothing */
+  : fileName_(fileName) { /* nothing */
 }
 
 /******************************************************************************/
@@ -806,9 +806,9 @@ GAllSolutionFileLogger::GAllSolutionFileLogger(
     const std::string &fileName,
     const std::vector<double> &boundaries
 )
-  : m_fileName(fileName)
-  , m_boundaries(boundaries)
-  , m_boundariesActive(true) { /* nothing */
+  : fileName_(fileName)
+  , boundaries_(boundaries)
+  , boundariesActive_(true) { /* nothing */
 }
 
 /******************************************************************************/
@@ -845,15 +845,15 @@ void GAllSolutionFileLogger::compare_(
     Gem::Common::compare_base_t<GBasePluggableOM>(*this, *p_load, token);
 
     // ... and then our local data
-    compare_t(IDENTITY(m_fileName, p_load->m_fileName), token);
-    compare_t(IDENTITY(m_boundaries, p_load->m_boundaries), token);
-    compare_t(IDENTITY(m_boundariesActive, p_load->m_boundariesActive), token);
-    compare_t(IDENTITY(m_withNameAndType, p_load->m_withNameAndType), token);
-    compare_t(IDENTITY(m_withCommas, p_load->m_withCommas), token);
-    compare_t(IDENTITY(m_useRawFitness, p_load->m_useRawFitness), token);
-    compare_t(IDENTITY(m_showValidity, p_load->m_showValidity), token);
-    compare_t(IDENTITY(m_printInitial, p_load->m_printInitial), token);
-    compare_t(IDENTITY(m_showIterationBoundaries, p_load->m_showIterationBoundaries), token);
+    compare_t(IDENTITY(fileName_, p_load->fileName_), token);
+    compare_t(IDENTITY(boundaries_, p_load->boundaries_), token);
+    compare_t(IDENTITY(boundariesActive_, p_load->boundariesActive_), token);
+    compare_t(IDENTITY(withNameAndType_, p_load->withNameAndType_), token);
+    compare_t(IDENTITY(withCommas_, p_load->withCommas_), token);
+    compare_t(IDENTITY(useRawFitness_, p_load->useRawFitness_), token);
+    compare_t(IDENTITY(showValidity_, p_load->showValidity_), token);
+    compare_t(IDENTITY(printInitial_, p_load->printInitial_), token);
+    compare_t(IDENTITY(showIterationBoundaries_, p_load->showIterationBoundaries_), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -864,7 +864,7 @@ void GAllSolutionFileLogger::compare_(
  * Sets the file name
  */
 void GAllSolutionFileLogger::setFileName(const std::string &fileName) {
-    m_fileName = fileName;
+    fileName_ = fileName;
 }
 
 /******************************************************************************/
@@ -872,7 +872,7 @@ void GAllSolutionFileLogger::setFileName(const std::string &fileName) {
  * Retrieves the current file name
  */
 std::string GAllSolutionFileLogger::getFileName() const {
-    return m_fileName;
+    return fileName_;
 }
 
 /******************************************************************************/
@@ -880,8 +880,8 @@ std::string GAllSolutionFileLogger::getFileName() const {
  * Sets the boundaries
  */
 void GAllSolutionFileLogger::setBoundaries(const std::vector<double> &boundaries) {
-    m_boundaries = boundaries;
-    m_boundariesActive = true;
+    boundaries_ = boundaries;
+    boundariesActive_ = true;
 }
 
 /******************************************************************************/
@@ -889,7 +889,7 @@ void GAllSolutionFileLogger::setBoundaries(const std::vector<double> &boundaries
  * Allows to retrieve the boundaries
  */
 std::vector<double> GAllSolutionFileLogger::getBoundaries() const {
-    return m_boundaries;
+    return boundaries_;
 }
 
 /******************************************************************************/
@@ -897,7 +897,7 @@ std::vector<double> GAllSolutionFileLogger::getBoundaries() const {
  * Allows to check whether boundaries are active
  */
 bool GAllSolutionFileLogger::boundariesActive() const {
-    return m_boundariesActive;
+    return boundariesActive_;
 }
 
 /******************************************************************************/
@@ -905,7 +905,7 @@ bool GAllSolutionFileLogger::boundariesActive() const {
  * Allows to inactivate boundaries
  */
 void GAllSolutionFileLogger::setBoundariesInactive() {
-    m_boundariesActive = false;
+    boundariesActive_ = false;
 }
 
 /******************************************************************************/
@@ -914,7 +914,7 @@ void GAllSolutionFileLogger::setBoundariesInactive() {
  * and fitness values.
  */
 void GAllSolutionFileLogger::setPrintWithNameAndType(bool withNameAndType) {
-    m_withNameAndType = withNameAndType;
+    withNameAndType_ = withNameAndType;
 }
 
 /******************************************************************************/
@@ -923,7 +923,7 @@ void GAllSolutionFileLogger::setPrintWithNameAndType(bool withNameAndType) {
  * and fitness values
  */
 bool GAllSolutionFileLogger::getPrintWithNameAndType() const {
-    return m_withNameAndType;
+    return withNameAndType_;
 }
 
 /******************************************************************************/
@@ -931,7 +931,7 @@ bool GAllSolutionFileLogger::getPrintWithNameAndType() const {
  * Allows to specify whether commas should be printed in-between values
  */
 void GAllSolutionFileLogger::setPrintWithCommas(bool withCommas) {
-    m_withCommas = withCommas;
+    withCommas_ = withCommas;
 }
 
 /******************************************************************************/
@@ -939,7 +939,7 @@ void GAllSolutionFileLogger::setPrintWithCommas(bool withCommas) {
  * Allows to check whether commas should be printed in-between values
  */
 bool GAllSolutionFileLogger::getPrintWithCommas() const {
-    return m_withCommas;
+    return withCommas_;
 }
 
 /******************************************************************************/
@@ -947,7 +947,7 @@ bool GAllSolutionFileLogger::getPrintWithCommas() const {
  * Allows to specify whether the true (instead of the transformed) fitness should be shown
  */
 void GAllSolutionFileLogger::setUseTrueFitness(bool useRawFitness) {
-    m_useRawFitness = useRawFitness;
+    useRawFitness_ = useRawFitness;
 }
 
 /******************************************************************************/
@@ -955,7 +955,7 @@ void GAllSolutionFileLogger::setUseTrueFitness(bool useRawFitness) {
  * Allows to retrieve whether the true (instead of the transformed) fitness should be shown
  */
 bool GAllSolutionFileLogger::getUseTrueFitness() const {
-    return m_useRawFitness;
+    return useRawFitness_;
 }
 
 /******************************************************************************/
@@ -963,7 +963,7 @@ bool GAllSolutionFileLogger::getUseTrueFitness() const {
  * Allows to specify whether the validity of a solution should be shown
  */
 void GAllSolutionFileLogger::setShowValidity(bool showValidity) {
-    m_showValidity = showValidity;
+    showValidity_ = showValidity;
 }
 
 /******************************************************************************/
@@ -971,7 +971,7 @@ void GAllSolutionFileLogger::setShowValidity(bool showValidity) {
  * Allows to check whether the validity of a solution will be shown
  */
 bool GAllSolutionFileLogger::getShowValidity() const {
-    return m_showValidity;
+    return showValidity_;
 }
 
 /******************************************************************************/
@@ -980,7 +980,7 @@ bool GAllSolutionFileLogger::getShowValidity() const {
  * optimization work) should be printed.
  */
 void GAllSolutionFileLogger::setPrintInitial(bool printInitial) {
-    m_printInitial = printInitial;
+    printInitial_ = printInitial;
 }
 
 /******************************************************************************/
@@ -989,7 +989,7 @@ void GAllSolutionFileLogger::setPrintInitial(bool printInitial) {
  * optimization work) should be printed.
  */
 bool GAllSolutionFileLogger::getPrintInitial() const {
-    return m_printInitial;
+    return printInitial_;
 }
 
 /******************************************************************************/
@@ -998,7 +998,7 @@ bool GAllSolutionFileLogger::getPrintInitial() const {
 * between iterations
 */
 void GAllSolutionFileLogger::setShowIterationBoundaries(bool showIterationBoundaries) {
-    m_showIterationBoundaries = showIterationBoundaries;
+    showIterationBoundaries_ = showIterationBoundaries;
 }
 
 /******************************************************************************/
@@ -1007,7 +1007,7 @@ void GAllSolutionFileLogger::setShowIterationBoundaries(bool showIterationBounda
  * between iterations
  */
 bool GAllSolutionFileLogger::getShowIterationBoundaries() const {
-    return m_showIterationBoundaries;
+    return showIterationBoundaries_;
 }
 
 /******************************************************************************/
@@ -1021,22 +1021,22 @@ void GAllSolutionFileLogger::informationFunction_(
 ) {
     switch(im) {
     case Gem::Geneva::infoMode::INFOINIT: {
-        // If the file pointed to by m_fileName already exists, make a back-up
-        if(std::filesystem::exists(m_fileName)) {
+        // If the file pointed to by fileName_ already exists, make a back-up
+        if(std::filesystem::exists(fileName_)) {
             std::string newFileName =
-                m_fileName + ".bak_" +
+                fileName_ + ".bak_" +
                 Gem::Common::getMSSince1970(); // NOLINT(cppcoreguidelines-init-variables)
 
             glogger << "In GAllSolutionFileLogger::informationFunction_(): Warning!" << std::endl
-                    << "Attempt to output information to file " << m_fileName << std::endl
+                    << "Attempt to output information to file " << fileName_ << std::endl
                     << "which already exists. We will rename the old file to" << std::endl
                     << newFileName << std::endl
                     << GWARNING;
 
-            std::filesystem::rename(m_fileName, newFileName);
+            std::filesystem::rename(fileName_, newFileName);
         }
 
-        if(m_printInitial) {
+        if(printInitial_) {
             this->printPopulation("Initial population", goa);
         }
     } break;
@@ -1068,15 +1068,15 @@ void GAllSolutionFileLogger::load_(const GObject *cp) {
     GBasePluggableOM::load_(cp);
 
     // ... and then our local data
-    m_fileName = p_load->m_fileName;
-    m_boundaries = p_load->m_boundaries;
-    m_boundariesActive = p_load->m_boundariesActive;
-    m_withNameAndType = p_load->m_withNameAndType;
-    m_withCommas = p_load->m_withCommas;
-    m_useRawFitness = p_load->m_useRawFitness;
-    m_showValidity = p_load->m_showValidity;
-    m_printInitial = p_load->m_printInitial;
-    m_showIterationBoundaries = p_load->m_showIterationBoundaries;
+    fileName_ = p_load->fileName_;
+    boundaries_ = p_load->boundaries_;
+    boundariesActive_ = p_load->boundariesActive_;
+    withNameAndType_ = p_load->withNameAndType_;
+    withCommas_ = p_load->withCommas_;
+    useRawFitness_ = p_load->useRawFitness_;
+    showValidity_ = p_load->showValidity_;
+    printInitial_ = p_load->printInitial_;
+    showIterationBoundaries_ = p_load->showIterationBoundaries_;
 }
 
 /******************************************************************************/
@@ -1096,9 +1096,9 @@ void GAllSolutionFileLogger::printPopulation(
     G_OptimizationAlgorithm_Base const *const goa
 ) {
     // Open the external file
-    std::ofstream data(m_fileName, std::ofstream::app); // NOLINT(cppcoreguidelines-init-variables)
+    std::ofstream data(fileName_, std::ofstream::app); // NOLINT(cppcoreguidelines-init-variables)
 
-    if(m_showIterationBoundaries) {
+    if(showIterationBoundaries_) {
         data << "#" << std::endl
              << "# -----------------------------------------------------------------------------"
              << std::endl
@@ -1111,19 +1111,19 @@ void GAllSolutionFileLogger::printPopulation(
         std::shared_ptr<GParameterSet> ind = goa->template individual_cast<GParameterSet>(pos);
 
         // Note that isGoodEnough may throw if loop acts on a "dirty" individual
-        if(not m_boundariesActive || ind->isGoodEnough(m_boundaries)) {
+        if(not boundariesActive_ || ind->isGoodEnough(boundaries_)) {
             // Append the data to the external file
             if(0 == pos &&
                goa->inFirstIteration()) { // Only output name and type in the very first line (if at all)
                 data
-                    << ind->toCSV(m_withNameAndType, m_withCommas, m_useRawFitness, m_showValidity);
+                    << ind->toCSV(withNameAndType_, withCommas_, useRawFitness_, showValidity_);
             }
             else {
                 data << ind->toCSV(
                     false /* withNameAndType */,
-                    m_withCommas,
-                    m_useRawFitness,
-                    m_showValidity
+                    withCommas_,
+                    useRawFitness_,
+                    showValidity_
                 );
             }
         }
@@ -1203,7 +1203,7 @@ void GAllSolutionFileLogger::specificTestsFailuresExpected_GUnitTests_() {
  * in the class body.
  */
 GIterationResultsFileLogger::GIterationResultsFileLogger(const std::string &fileName)
-  : m_fileName(fileName) { /* nothing */
+  : fileName_(fileName) { /* nothing */
 }
 
 /******************************************************************************/
@@ -1240,9 +1240,9 @@ void GIterationResultsFileLogger::compare_(
     Gem::Common::compare_base_t<GBasePluggableOM>(*this, *p_load, token);
 
     // ... and then our local data
-    compare_t(IDENTITY(m_fileName, p_load->m_fileName), token);
-    compare_t(IDENTITY(m_withCommas, p_load->m_withCommas), token);
-    compare_t(IDENTITY(m_useRawFitness, p_load->m_useRawFitness), token);
+    compare_t(IDENTITY(fileName_, p_load->fileName_), token);
+    compare_t(IDENTITY(withCommas_, p_load->withCommas_), token);
+    compare_t(IDENTITY(useRawFitness_, p_load->useRawFitness_), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -1253,7 +1253,7 @@ void GIterationResultsFileLogger::compare_(
  * Sets the file name
  */
 void GIterationResultsFileLogger::setFileName(const std::string &fileName) {
-    m_fileName = fileName;
+    fileName_ = fileName;
 }
 
 /******************************************************************************/
@@ -1261,7 +1261,7 @@ void GIterationResultsFileLogger::setFileName(const std::string &fileName) {
  * Retrieves the current file name
  */
 std::string GIterationResultsFileLogger::getFileName() const {
-    return m_fileName;
+    return fileName_;
 }
 
 /******************************************************************************/
@@ -1269,7 +1269,7 @@ std::string GIterationResultsFileLogger::getFileName() const {
  * Allows to specify whether commas should be printed in-between values
  */
 void GIterationResultsFileLogger::setPrintWithCommas(bool withCommas) {
-    m_withCommas = withCommas;
+    withCommas_ = withCommas;
 }
 
 /******************************************************************************/
@@ -1277,7 +1277,7 @@ void GIterationResultsFileLogger::setPrintWithCommas(bool withCommas) {
  * Allows to check whether commas should be printed in-between values
  */
 bool GIterationResultsFileLogger::getPrintWithCommas() const {
-    return m_withCommas;
+    return withCommas_;
 }
 
 /******************************************************************************/
@@ -1285,7 +1285,7 @@ bool GIterationResultsFileLogger::getPrintWithCommas() const {
  * Allows to specify whether the true (instead of the transformed) fitness should be shown
  */
 void GIterationResultsFileLogger::setUseTrueFitness(bool useRawFitness) {
-    m_useRawFitness = useRawFitness;
+    useRawFitness_ = useRawFitness;
 }
 
 /******************************************************************************/
@@ -1293,7 +1293,7 @@ void GIterationResultsFileLogger::setUseTrueFitness(bool useRawFitness) {
  * Allows to retrieve whether the true (instead of the transformed) fitness should be shown
  */
 bool GIterationResultsFileLogger::getUseTrueFitness() const {
-    return m_useRawFitness;
+    return useRawFitness_;
 }
 
 /******************************************************************************/
@@ -1307,27 +1307,27 @@ void GIterationResultsFileLogger::informationFunction_(
 ) {
     switch(im) {
     case Gem::Geneva::infoMode::INFOINIT: {
-        // If the file pointed to by m_fileName already exists, make a back-up
-        if(std::filesystem::exists(m_fileName)) {
+        // If the file pointed to by fileName_ already exists, make a back-up
+        if(std::filesystem::exists(fileName_)) {
             std::string newFileName =
-                m_fileName + ".bak_" +
+                fileName_ + ".bak_" +
                 Gem::Common::getMSSince1970(); // NOLINT(cppcoreguidelines-init-variables)
 
             glogger << "In GIterationResultsFileLogger::informationFunction_(): Warning!"
                     << std::endl
-                    << "Attempt to output information to file " << m_fileName << std::endl
+                    << "Attempt to output information to file " << fileName_ << std::endl
                     << "which already exists. We will rename the old file to" << std::endl
                     << newFileName << std::endl
                     << GWARNING;
 
-            std::filesystem::rename(m_fileName, newFileName);
+            std::filesystem::rename(fileName_, newFileName);
         }
     } break;
 
     case Gem::Geneva::infoMode::INFOPROCESSING: {
         // Open the external file
         std::ofstream data(
-            m_fileName.c_str(),
+            fileName_.c_str(),
             std::ofstream::app
         ); // NOLINT(cppcoreguidelines-init-variables)
         std::vector<double> fitness_cnt;
@@ -1341,7 +1341,7 @@ void GIterationResultsFileLogger::informationFunction_(
             std::size_t nFitnessCriteria = goa->at(0)->getNStoredResults();
             for(std::size_t i = 0; i < nFitnessCriteria; i++) {
                 data << fitness_cnt.at(i)
-                     << ((m_withCommas && (nFitnessCriteria * nIndividuals > (i + 1) * (pos + 1)))
+                     << ((withCommas_ && (nFitnessCriteria * nIndividuals > (i + 1) * (pos + 1)))
                              ? ", "
                              : " ");
             }
@@ -1373,9 +1373,9 @@ void GIterationResultsFileLogger::load_(const GObject *cp) {
     GBasePluggableOM::load_(cp);
 
     // ... and then our local data
-    m_fileName = p_load->m_fileName;
-    m_withCommas = p_load->m_withCommas;
-    m_useRawFitness = p_load->m_useRawFitness;
+    fileName_ = p_load->fileName_;
+    withCommas_ = p_load->withCommas_;
+    useRawFitness_ = p_load->useRawFitness_;
 }
 
 /************************************************************************/
@@ -1455,9 +1455,9 @@ void GIterationResultsFileLogger::specificTestsFailuresExpected_GUnitTests_() {
  * initialized in the class body.
  */
 GNAdpationsLogger::GNAdpationsLogger(const std::string &fileName)
-  : m_fileName(fileName)
-  , m_canvasDimensions(std::tuple<std::uint32_t, std::uint32_t>(1200, 1600))
-  , m_gpd("Number of adaptions per iteration", 1, 2) { /* nothing */
+  : fileName_(fileName)
+  , canvasDimensions_(std::tuple<std::uint32_t, std::uint32_t>(1200, 1600))
+  , gpd_("Number of adaptions per iteration", 1, 2) { /* nothing */
 }
 
 /******************************************************************************/
@@ -1465,17 +1465,17 @@ GNAdpationsLogger::GNAdpationsLogger(const std::string &fileName)
  * The copy constructor
  */
 GNAdpationsLogger::GNAdpationsLogger(const GNAdpationsLogger &cp)
-  : m_fileName(cp.m_fileName)
-  , m_canvasDimensions(cp.m_canvasDimensions)
-  , m_gpd(cp.m_gpd)
-  , m_monitorBestOnly(cp.m_monitorBestOnly)
-  , m_addPrintCommand(cp.m_addPrintCommand)
-  , m_maxIteration(cp.m_maxIteration)
-  , m_nIterationsRecorded(cp.m_nIterationsRecorded)
-  , m_nAdaptionsStore(cp.m_nAdaptionsStore) {
-    Gem::Common::copyCloneableSmartPointer(cp.m_nAdaptionsHist2D_oa, m_nAdaptionsHist2D_oa);
-    Gem::Common::copyCloneableSmartPointer(cp.m_nAdaptionsGraph2D_oa, m_nAdaptionsGraph2D_oa);
-    Gem::Common::copyCloneableSmartPointer(cp.m_fitnessGraph2D_oa, m_fitnessGraph2D_oa);
+  : fileName_(cp.fileName_)
+  , canvasDimensions_(cp.canvasDimensions_)
+  , gpd_(cp.gpd_)
+  , monitorBestOnly_(cp.monitorBestOnly_)
+  , addPrintCommand_(cp.addPrintCommand_)
+  , maxIteration_(cp.maxIteration_)
+  , nIterationsRecorded_(cp.nIterationsRecorded_)
+  , nAdaptionsStore_(cp.nAdaptionsStore_) {
+    Gem::Common::copyCloneableSmartPointer(cp.nAdaptionsHist2D_oa_, nAdaptionsHist2D_oa_);
+    Gem::Common::copyCloneableSmartPointer(cp.nAdaptionsGraph2D_oa_, nAdaptionsGraph2D_oa_);
+    Gem::Common::copyCloneableSmartPointer(cp.fitnessGraph2D_oa_, fitnessGraph2D_oa_);
 }
 
 /******************************************************************************/
@@ -1504,17 +1504,17 @@ void GNAdpationsLogger::compare_(
     Gem::Common::compare_base_t<GBasePluggableOM>(*this, *p_load, token);
 
     // ... and then our local data
-    compare_t(IDENTITY(m_fileName, p_load->m_fileName), token);
-    compare_t(IDENTITY(m_canvasDimensions, p_load->m_canvasDimensions), token);
-    compare_t(IDENTITY(m_gpd, p_load->m_gpd), token);
-    compare_t(IDENTITY(m_nAdaptionsHist2D_oa, p_load->m_nAdaptionsHist2D_oa), token);
-    compare_t(IDENTITY(m_nAdaptionsGraph2D_oa, p_load->m_nAdaptionsGraph2D_oa), token);
-    compare_t(IDENTITY(m_fitnessGraph2D_oa, p_load->m_fitnessGraph2D_oa), token);
-    compare_t(IDENTITY(m_monitorBestOnly, p_load->m_monitorBestOnly), token);
-    compare_t(IDENTITY(m_addPrintCommand, p_load->m_addPrintCommand), token);
-    compare_t(IDENTITY(m_maxIteration, p_load->m_maxIteration), token);
-    compare_t(IDENTITY(m_nIterationsRecorded, p_load->m_nIterationsRecorded), token);
-    compare_t(IDENTITY(m_nAdaptionsStore, p_load->m_nAdaptionsStore), token);
+    compare_t(IDENTITY(fileName_, p_load->fileName_), token);
+    compare_t(IDENTITY(canvasDimensions_, p_load->canvasDimensions_), token);
+    compare_t(IDENTITY(gpd_, p_load->gpd_), token);
+    compare_t(IDENTITY(nAdaptionsHist2D_oa_, p_load->nAdaptionsHist2D_oa_), token);
+    compare_t(IDENTITY(nAdaptionsGraph2D_oa_, p_load->nAdaptionsGraph2D_oa_), token);
+    compare_t(IDENTITY(fitnessGraph2D_oa_, p_load->fitnessGraph2D_oa_), token);
+    compare_t(IDENTITY(monitorBestOnly_, p_load->monitorBestOnly_), token);
+    compare_t(IDENTITY(addPrintCommand_, p_load->addPrintCommand_), token);
+    compare_t(IDENTITY(maxIteration_, p_load->maxIteration_), token);
+    compare_t(IDENTITY(nIterationsRecorded_, p_load->nIterationsRecorded_), token);
+    compare_t(IDENTITY(nAdaptionsStore_, p_load->nAdaptionsStore_), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -1525,7 +1525,7 @@ void GNAdpationsLogger::compare_(
  * Sets the file name
  */
 void GNAdpationsLogger::setFileName(const std::string &fileName) {
-    m_fileName = fileName;
+    fileName_ = fileName;
 }
 
 /******************************************************************************/
@@ -1533,7 +1533,7 @@ void GNAdpationsLogger::setFileName(const std::string &fileName) {
  * Retrieves the current file name
  */
 std::string GNAdpationsLogger::getFileName() const {
-    return m_fileName;
+    return fileName_;
 }
 
 /******************************************************************************/
@@ -1541,7 +1541,7 @@ std::string GNAdpationsLogger::getFileName() const {
  * Allows to specify whether only the best individuals should be monitored.
  */
 void GNAdpationsLogger::setMonitorBestOnly(bool monitorBestOnly) {
-    m_monitorBestOnly = monitorBestOnly;
+    monitorBestOnly_ = monitorBestOnly;
 }
 
 /******************************************************************************/
@@ -1549,7 +1549,7 @@ void GNAdpationsLogger::setMonitorBestOnly(bool monitorBestOnly) {
  * Allows to check whether only the best individuals should be monitored.
  */
 bool GNAdpationsLogger::getMonitorBestOnly() const {
-    return m_monitorBestOnly;
+    return monitorBestOnly_;
 }
 
 /******************************************************************************/
@@ -1559,7 +1559,7 @@ bool GNAdpationsLogger::getMonitorBestOnly() const {
 void GNAdpationsLogger::setCanvasDimensions(
     std::tuple<std::uint32_t, std::uint32_t> canvasDimensions
 ) {
-    m_canvasDimensions = canvasDimensions;
+    canvasDimensions_ = canvasDimensions;
 }
 
 /******************************************************************************/
@@ -1567,7 +1567,7 @@ void GNAdpationsLogger::setCanvasDimensions(
  * Allows to set the canvas dimensions using separate x and y values
  */
 void GNAdpationsLogger::setCanvasDimensions(std::uint32_t x, std::uint32_t y) {
-    m_canvasDimensions = std::tuple<std::uint32_t, std::uint32_t>(x, y);
+    canvasDimensions_ = std::tuple<std::uint32_t, std::uint32_t>(x, y);
 }
 
 /******************************************************************************/
@@ -1575,7 +1575,7 @@ void GNAdpationsLogger::setCanvasDimensions(std::uint32_t x, std::uint32_t y) {
  * Gives access to the canvas dimensions
  */
 std::tuple<std::uint32_t, std::uint32_t> GNAdpationsLogger::getCanvasDimensions() const {
-    return m_canvasDimensions;
+    return canvasDimensions_;
 }
 
 /******************************************************************************/
@@ -1583,15 +1583,15 @@ std::tuple<std::uint32_t, std::uint32_t> GNAdpationsLogger::getCanvasDimensions(
  * Allows to add a "Print" command to the end of the script so that picture files are created
  */
 void GNAdpationsLogger::setAddPrintCommand(bool addPrintCommand) {
-    m_addPrintCommand = addPrintCommand;
+    addPrintCommand_ = addPrintCommand;
 }
 
 /******************************************************************************/
 /**
- * Allows to retrieve the current value of the m_addPrintCommand variable
+ * Allows to retrieve the current value of the addPrintCommand_ variable
  */
 bool GNAdpationsLogger::getAddPrintCommand() const {
-    return m_addPrintCommand;
+    return addPrintCommand_;
 }
 
 /******************************************************************************/
@@ -1607,29 +1607,29 @@ void GNAdpationsLogger::informationFunction_(
 
     switch(im) {
     case Gem::Geneva::infoMode::INFOINIT: {
-        // If the file pointed to by m_fileName already exists, make a back-up
-        if(std::filesystem::exists(m_fileName)) {
+        // If the file pointed to by fileName_ already exists, make a back-up
+        if(std::filesystem::exists(fileName_)) {
             std::string newFileName =
-                m_fileName + ".bak_" +
+                fileName_ + ".bak_" +
                 Gem::Common::getMSSince1970(); // NOLINT(cppcoreguidelines-init-variables)
 
             glogger << "In GNAdpationsLogger::informationFunction_(): Error!" << std::endl
-                    << "Attempt to output information to file " << m_fileName << std::endl
+                    << "Attempt to output information to file " << fileName_ << std::endl
                     << "which already exists. We will rename the old file to" << std::endl
                     << newFileName << std::endl
                     << GWARNING;
 
-            std::filesystem::rename(m_fileName, newFileName);
+            std::filesystem::rename(fileName_, newFileName);
         }
 
         // Make sure the progress plotter has the desired size
-        m_gpd.setCanvasDimensions(m_canvasDimensions);
+        gpd_.setCanvasDimensions(canvasDimensions_);
 
         // Set up a graph to monitor the best fitness found
-        m_fitnessGraph2D_oa = std::shared_ptr<Gem::Common::GGraph2D>(new Gem::Common::GGraph2D());
-        m_fitnessGraph2D_oa->setXAxisLabel("Iteration");
-        m_fitnessGraph2D_oa->setYAxisLabel("Fitness");
-        m_fitnessGraph2D_oa->setPlotMode(Gem::Common::graphPlotMode::CURVE);
+        fitnessGraph2D_oa_ = std::shared_ptr<Gem::Common::GGraph2D>(new Gem::Common::GGraph2D());
+        fitnessGraph2D_oa_->setXAxisLabel("Iteration");
+        fitnessGraph2D_oa_->setYAxisLabel("Fitness");
+        fitnessGraph2D_oa_->setPlotMode(Gem::Common::graphPlotMode::CURVE);
     } break;
 
     case Gem::Geneva::infoMode::INFOPROCESSING: {
@@ -1638,24 +1638,24 @@ void GNAdpationsLogger::informationFunction_(
         // Record the current fitness
         std::shared_ptr<GParameterSet> p =
             goa->G_Interface_OptimizerT::template getBestGlobalIndividual<GParameterSet>();
-        (*m_fitnessGraph2D_oa) & std::tuple<double, double>(double(iteration), p->raw_fitness(0));
+        (*fitnessGraph2D_oa_) & std::tuple<double, double>(double(iteration), p->raw_fitness(0));
 
         // Update the largest known iteration and the number of recorded iterations
-        m_maxIteration = iteration;
-        m_nIterationsRecorded++;
+        maxIteration_ = iteration;
+        nIterationsRecorded_++;
 
         // Do the actual logging
-        if(m_monitorBestOnly) {
+        if(monitorBestOnly_) {
             std::shared_ptr<GParameterSet> best =
                 goa->G_Interface_OptimizerT::template getBestGlobalIndividual<GParameterSet>();
-            m_nAdaptionsStore.emplace_back(double(iteration), double(best->getNAdaptions()));
+            nAdaptionsStore_.emplace_back(double(iteration), double(best->getNAdaptions()));
         }
         else { // Monitor all individuals
             // Loop over all individuals of the algorithm.
             for(std::size_t pos = 0; pos < goa->size(); pos++) {
                 std::shared_ptr<GParameterSet> ind =
                     goa->template individual_cast<GParameterSet>(pos);
-                m_nAdaptionsStore.emplace_back(double(iteration), double(ind->getNAdaptions()));
+                nAdaptionsStore_.emplace_back(double(iteration), double(ind->getNAdaptions()));
             }
         }
     } break;
@@ -1663,67 +1663,67 @@ void GNAdpationsLogger::informationFunction_(
     case Gem::Geneva::infoMode::INFOEND: {
         std::vector<std::tuple<double, double>>::iterator it;
 
-        if(m_monitorBestOnly) {
+        if(monitorBestOnly_) {
             // Create the graph object
-            m_nAdaptionsGraph2D_oa =
+            nAdaptionsGraph2D_oa_ =
                 std::shared_ptr<Gem::Common::GGraph2D>(new Gem::Common::GGraph2D());
-            m_nAdaptionsGraph2D_oa->setXAxisLabel("Iteration");
-            m_nAdaptionsGraph2D_oa->setYAxisLabel("Number of parameter adaptions");
-            m_nAdaptionsGraph2D_oa->setPlotMode(Gem::Common::graphPlotMode::CURVE);
+            nAdaptionsGraph2D_oa_->setXAxisLabel("Iteration");
+            nAdaptionsGraph2D_oa_->setYAxisLabel("Number of parameter adaptions");
+            nAdaptionsGraph2D_oa_->setPlotMode(Gem::Common::graphPlotMode::CURVE);
 
             // Fill the object with data
-            for(it = m_nAdaptionsStore.begin(); it != m_nAdaptionsStore.end(); ++it) {
-                (*m_nAdaptionsGraph2D_oa) & *it;
+            for(it = nAdaptionsStore_.begin(); it != nAdaptionsStore_.end(); ++it) {
+                (*nAdaptionsGraph2D_oa_) & *it;
             }
 
             // Add the histogram to the plot designer
-            m_gpd.registerPlotter(m_nAdaptionsGraph2D_oa);
+            gpd_.registerPlotter(nAdaptionsGraph2D_oa_);
         }
         else { // All individuals are monitored
-            // Within m_nAdaptionsStore, find the largest number of adaptions performed
+            // Within nAdaptionsStore_, find the largest number of adaptions performed
             std::size_t maxNAdaptions = 0;
-            for(it = m_nAdaptionsStore.begin(); it != m_nAdaptionsStore.end(); ++it) {
+            for(it = nAdaptionsStore_.begin(); it != nAdaptionsStore_.end(); ++it) {
                 if(std::get<1>(*it) > maxNAdaptions) {
                     maxNAdaptions = boost::numeric_cast<std::size_t>(std::get<1>(*it));
                 }
             }
 
             // Create the histogram object
-            m_nAdaptionsHist2D_oa = std::shared_ptr<GHistogram2D>(new GHistogram2D(
-                m_nIterationsRecorded,
+            nAdaptionsHist2D_oa_ = std::shared_ptr<GHistogram2D>(new GHistogram2D(
+                nIterationsRecorded_,
                 maxNAdaptions + 1,
                 0.,
-                double(m_maxIteration),
+                double(maxIteration_),
                 0.,
                 double(maxNAdaptions)
             ));
 
-            m_nAdaptionsHist2D_oa->setXAxisLabel("Iteration");
-            m_nAdaptionsHist2D_oa->setYAxisLabel("Number of parameter adaptions");
-            m_nAdaptionsHist2D_oa->setDrawingArguments("BOX");
+            nAdaptionsHist2D_oa_->setXAxisLabel("Iteration");
+            nAdaptionsHist2D_oa_->setYAxisLabel("Number of parameter adaptions");
+            nAdaptionsHist2D_oa_->setDrawingArguments("BOX");
 
             // Fill the object with data
-            for(it = m_nAdaptionsStore.begin(); it != m_nAdaptionsStore.end(); ++it) {
-                (*m_nAdaptionsHist2D_oa) & *it;
+            for(it = nAdaptionsStore_.begin(); it != nAdaptionsStore_.end(); ++it) {
+                (*nAdaptionsHist2D_oa_) & *it;
             }
 
             // Add the histogram to the plot designer
-            m_gpd.registerPlotter(m_nAdaptionsHist2D_oa);
+            gpd_.registerPlotter(nAdaptionsHist2D_oa_);
         }
 
         // Add the fitness monitor
-        m_gpd.registerPlotter(m_fitnessGraph2D_oa);
+        gpd_.registerPlotter(fitnessGraph2D_oa_);
 
         // Inform the plot designer whether it should print png files
-        m_gpd.setAddPrintCommand(m_addPrintCommand);
+        gpd_.setAddPrintCommand(addPrintCommand_);
 
         // Write out the result. Note that we add
-        m_gpd.writeToFile(m_fileName);
+        gpd_.writeToFile(fileName_);
 
         // Remove all plotters
-        m_gpd.resetPlotters();
-        m_nAdaptionsHist2D_oa.reset();
-        m_nAdaptionsGraph2D_oa.reset();
+        gpd_.resetPlotters();
+        nAdaptionsHist2D_oa_.reset();
+        nAdaptionsGraph2D_oa_.reset();
     } break;
     };
 }
@@ -1743,17 +1743,17 @@ void GNAdpationsLogger::load_(const GObject *cp) {
     GBasePluggableOM::load_(cp);
 
     // ... and then our local data
-    m_fileName = p_load->m_fileName;
-    m_canvasDimensions = p_load->m_canvasDimensions;
-    m_gpd = p_load->m_gpd;
-    Gem::Common::copyCloneableSmartPointer(p_load->m_nAdaptionsHist2D_oa, m_nAdaptionsHist2D_oa);
-    Gem::Common::copyCloneableSmartPointer(p_load->m_nAdaptionsGraph2D_oa, m_nAdaptionsGraph2D_oa);
-    Gem::Common::copyCloneableSmartPointer(p_load->m_fitnessGraph2D_oa, m_fitnessGraph2D_oa);
-    m_monitorBestOnly = p_load->m_monitorBestOnly;
-    m_addPrintCommand = p_load->m_addPrintCommand;
-    m_maxIteration = p_load->m_maxIteration;
-    m_nIterationsRecorded = p_load->m_nIterationsRecorded;
-    m_nAdaptionsStore = p_load->m_nAdaptionsStore;
+    fileName_ = p_load->fileName_;
+    canvasDimensions_ = p_load->canvasDimensions_;
+    gpd_ = p_load->gpd_;
+    Gem::Common::copyCloneableSmartPointer(p_load->nAdaptionsHist2D_oa_, nAdaptionsHist2D_oa_);
+    Gem::Common::copyCloneableSmartPointer(p_load->nAdaptionsGraph2D_oa_, nAdaptionsGraph2D_oa_);
+    Gem::Common::copyCloneableSmartPointer(p_load->fitnessGraph2D_oa_, fitnessGraph2D_oa_);
+    monitorBestOnly_ = p_load->monitorBestOnly_;
+    addPrintCommand_ = p_load->addPrintCommand_;
+    maxIteration_ = p_load->maxIteration_;
+    nIterationsRecorded_ = p_load->nIterationsRecorded_;
+    nAdaptionsStore_ = p_load->nAdaptionsStore_;
 }
 
 /************************************************************************/
@@ -1845,15 +1845,15 @@ GProcessingTimesLogger::GProcessingTimesLogger(
     std::size_t nBinsX,
     std::size_t nBinsY
 )
-  : m_fileName_pth(fileName_pth)
-  , m_canvasDimensions_pth(std::tuple<std::uint32_t, std::uint32_t>(1600, 1200))
-  , m_gpd_pth("Timings for the processing steps of individuals", 2, 2)
-  , m_fileName_pth2(fileName_pth2)
-  , m_canvasDimensions_pth2(std::tuple<std::uint32_t, std::uint32_t>(1600, 1200))
-  , m_gpd_pth2("Timings for the processing steps of individuals vs. iteration", 2, 2)
-  , m_fileName_txt(fileName_txt)
-  , m_nBinsX(nBinsX)
-  , m_nBinsY(nBinsY) { /* nothing */
+  : fileName_pth_(fileName_pth)
+  , canvasDimensions_pth_(std::tuple<std::uint32_t, std::uint32_t>(1600, 1200))
+  , gpd_pth_("Timings for the processing steps of individuals", 2, 2)
+  , fileName_pth2_(fileName_pth2)
+  , canvasDimensions_pth2_(std::tuple<std::uint32_t, std::uint32_t>(1600, 1200))
+  , gpd_pth2_("Timings for the processing steps of individuals vs. iteration", 2, 2)
+  , fileName_txt_(fileName_txt)
+  , nBinsX_(nBinsX)
+  , nBinsY_(nBinsY) { /* nothing */
 }
 
 /******************************************************************************/
@@ -1890,32 +1890,32 @@ void GProcessingTimesLogger::compare_(
     Gem::Common::compare_base_t<GBasePluggableOM>(*this, *p_load, token);
 
     // ... and then our local data
-    compare_t(IDENTITY(m_fileName_pth, p_load->m_fileName_pth), token);
-    compare_t(IDENTITY(m_canvasDimensions_pth, p_load->m_canvasDimensions_pth), token);
-    compare_t(IDENTITY(m_gpd_pth, p_load->m_gpd_pth), token);
-    compare_t(IDENTITY(m_fileName_pth2, p_load->m_fileName_pth2), token);
-    compare_t(IDENTITY(m_canvasDimensions_pth2, p_load->m_canvasDimensions_pth2), token);
-    compare_t(IDENTITY(m_gpd_pth2, p_load->m_gpd_pth2), token);
-    compare_t(IDENTITY(m_fileName_txt, p_load->m_fileName_txt), token);
-    compare_t(IDENTITY(m_pre_processing_times_hist, p_load->m_pre_processing_times_hist), token);
-    compare_t(IDENTITY(m_processing_times_hist, p_load->m_processing_times_hist), token);
-    compare_t(IDENTITY(m_post_processing_times_hist, p_load->m_post_processing_times_hist), token);
-    compare_t(IDENTITY(m_all_processing_times_hist, p_load->m_all_processing_times_hist), token);
+    compare_t(IDENTITY(fileName_pth_, p_load->fileName_pth_), token);
+    compare_t(IDENTITY(canvasDimensions_pth_, p_load->canvasDimensions_pth_), token);
+    compare_t(IDENTITY(gpd_pth_, p_load->gpd_pth_), token);
+    compare_t(IDENTITY(fileName_pth2_, p_load->fileName_pth2_), token);
+    compare_t(IDENTITY(canvasDimensions_pth2_, p_load->canvasDimensions_pth2_), token);
+    compare_t(IDENTITY(gpd_pth2_, p_load->gpd_pth2_), token);
+    compare_t(IDENTITY(fileName_txt_, p_load->fileName_txt_), token);
+    compare_t(IDENTITY(pre_processing_times_hist_, p_load->pre_processing_times_hist_), token);
+    compare_t(IDENTITY(processing_times_hist_, p_load->processing_times_hist_), token);
+    compare_t(IDENTITY(post_processing_times_hist_, p_load->post_processing_times_hist_), token);
+    compare_t(IDENTITY(all_processing_times_hist_, p_load->all_processing_times_hist_), token);
     compare_t(
-        IDENTITY(m_pre_processing_times_hist2D, p_load->m_pre_processing_times_hist2D),
+        IDENTITY(pre_processing_times_hist2D_, p_load->pre_processing_times_hist2D_),
         token
     );
-    compare_t(IDENTITY(m_processing_times_hist2D, p_load->m_processing_times_hist2D), token);
+    compare_t(IDENTITY(processing_times_hist2D_, p_load->processing_times_hist2D_), token);
     compare_t(
-        IDENTITY(m_post_processing_times_hist2D, p_load->m_post_processing_times_hist2D),
+        IDENTITY(post_processing_times_hist2D_, p_load->post_processing_times_hist2D_),
         token
     );
     compare_t(
-        IDENTITY(m_all_processing_times_hist2D, p_load->m_all_processing_times_hist2D),
+        IDENTITY(all_processing_times_hist2D_, p_load->all_processing_times_hist2D_),
         token
     );
-    compare_t(IDENTITY(m_nBinsX, p_load->m_nBinsX), token);
-    compare_t(IDENTITY(m_nBinsY, p_load->m_nBinsY), token);
+    compare_t(IDENTITY(nBinsX_, p_load->nBinsX_), token);
+    compare_t(IDENTITY(nBinsY_, p_load->nBinsY_), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -1926,7 +1926,7 @@ void GProcessingTimesLogger::compare_(
  * Sets the file name for the processing times histogram
  */
 void GProcessingTimesLogger::setFileName_pth(const std::string &fileName) {
-    m_fileName_pth = fileName;
+    fileName_pth_ = fileName;
 }
 
 /******************************************************************************/
@@ -1934,7 +1934,7 @@ void GProcessingTimesLogger::setFileName_pth(const std::string &fileName) {
  * Retrieves the current file name for the processing times histogram
  */
 std::string GProcessingTimesLogger::getFileName_pth() const {
-    return m_fileName_pth;
+    return fileName_pth_;
 }
 
 /******************************************************************************/
@@ -1942,7 +1942,7 @@ std::string GProcessingTimesLogger::getFileName_pth() const {
  * Sets the file name for the processing times histograms (2D)
  */
 void GProcessingTimesLogger::setFileName_pth2(const std::string &fileName) {
-    m_fileName_pth2 = fileName;
+    fileName_pth2_ = fileName;
 }
 
 /******************************************************************************/
@@ -1950,7 +1950,7 @@ void GProcessingTimesLogger::setFileName_pth2(const std::string &fileName) {
  * Retrieves the current file name for the processing times histograms (2D)
  */
 std::string GProcessingTimesLogger::getFileName_pth2() const {
-    return m_fileName_pth2;
+    return fileName_pth2_;
 }
 
 /******************************************************************************/
@@ -1958,7 +1958,7 @@ std::string GProcessingTimesLogger::getFileName_pth2() const {
  * Sets the file name for the text output
  */
 void GProcessingTimesLogger::setFileName_txt(const std::string &fileName) {
-    m_fileName_txt = fileName;
+    fileName_txt_ = fileName;
 }
 
 /******************************************************************************/
@@ -1966,7 +1966,7 @@ void GProcessingTimesLogger::setFileName_txt(const std::string &fileName) {
  * Retrieves the current file name for the text output
  */
 std::string GProcessingTimesLogger::getFileName_txt() const {
-    return m_fileName_txt;
+    return fileName_txt_;
 }
 
 /******************************************************************************/
@@ -1976,7 +1976,7 @@ std::string GProcessingTimesLogger::getFileName_txt() const {
 void GProcessingTimesLogger::setCanvasDimensions_pth(
     std::tuple<std::uint32_t, std::uint32_t> canvasDimensions
 ) {
-    m_canvasDimensions_pth = canvasDimensions;
+    canvasDimensions_pth_ = canvasDimensions;
 }
 
 /******************************************************************************/
@@ -1985,7 +1985,7 @@ void GProcessingTimesLogger::setCanvasDimensions_pth(
  * processing times histograms
  */
 void GProcessingTimesLogger::setCanvasDimensions_pth(std::uint32_t x, std::uint32_t y) {
-    m_canvasDimensions_pth = std::tuple<std::uint32_t, std::uint32_t>(x, y);
+    canvasDimensions_pth_ = std::tuple<std::uint32_t, std::uint32_t>(x, y);
 }
 
 /******************************************************************************/
@@ -1993,7 +1993,7 @@ void GProcessingTimesLogger::setCanvasDimensions_pth(std::uint32_t x, std::uint3
  * Gives access to the canvas dimensions of the processing times histograms
  */
 std::tuple<std::uint32_t, std::uint32_t> GProcessingTimesLogger::getCanvasDimensions_pth() const {
-    return m_canvasDimensions_pth;
+    return canvasDimensions_pth_;
 }
 
 /******************************************************************************/
@@ -2003,7 +2003,7 @@ std::tuple<std::uint32_t, std::uint32_t> GProcessingTimesLogger::getCanvasDimens
 void GProcessingTimesLogger::setCanvasDimensions_pth2(
     std::tuple<std::uint32_t, std::uint32_t> canvasDimensions
 ) {
-    m_canvasDimensions_pth2 = canvasDimensions;
+    canvasDimensions_pth2_ = canvasDimensions;
 }
 
 /******************************************************************************/
@@ -2012,7 +2012,7 @@ void GProcessingTimesLogger::setCanvasDimensions_pth2(
  * processing times histograms (2D)
  */
 void GProcessingTimesLogger::setCanvasDimensions_pth2(std::uint32_t x, std::uint32_t y) {
-    m_canvasDimensions_pth2 = std::tuple<std::uint32_t, std::uint32_t>(x, y);
+    canvasDimensions_pth2_ = std::tuple<std::uint32_t, std::uint32_t>(x, y);
 }
 
 /******************************************************************************/
@@ -2020,7 +2020,7 @@ void GProcessingTimesLogger::setCanvasDimensions_pth2(std::uint32_t x, std::uint
  * Gives access to the canvas dimensions of the processing times histograms (2D)
  */
 std::tuple<std::uint32_t, std::uint32_t> GProcessingTimesLogger::getCanvasDimensions_pth2() const {
-    return m_canvasDimensions_pth2;
+    return canvasDimensions_pth2_;
 }
 
 /******************************************************************************/
@@ -2029,7 +2029,7 @@ std::tuple<std::uint32_t, std::uint32_t> GProcessingTimesLogger::getCanvasDimens
  */
 void GProcessingTimesLogger::setNBinsX(std::size_t nBinsX) {
     if(nBinsX > 0) {
-        m_nBinsX = nBinsX;
+        nBinsX_ = nBinsX;
     }
     else {
         throw geneva_exception(
@@ -2046,7 +2046,7 @@ void GProcessingTimesLogger::setNBinsX(std::size_t nBinsX) {
  * histograms in x-direction
  */
 std::size_t GProcessingTimesLogger::getNBinsX() const {
-    return m_nBinsX;
+    return nBinsX_;
 }
 
 /******************************************************************************/
@@ -2055,7 +2055,7 @@ std::size_t GProcessingTimesLogger::getNBinsX() const {
  */
 void GProcessingTimesLogger::setNBinsY(std::size_t nBinsY) {
     if(nBinsY > 0) {
-        m_nBinsY = nBinsY;
+        nBinsY_ = nBinsY;
     }
     else {
         throw geneva_exception(
@@ -2072,7 +2072,7 @@ void GProcessingTimesLogger::setNBinsY(std::size_t nBinsY) {
  * histograms in y-direction
  */
 std::size_t GProcessingTimesLogger::getNBinsY() const {
-    return m_nBinsY;
+    return nBinsY_;
 }
 
 /******************************************************************************/
@@ -2089,124 +2089,124 @@ void GProcessingTimesLogger::informationFunction_(
         //---------------------------------------------------------------
         // Histograms
 
-        // If the file pointed to by m_fileName_pth already exists, make a back-up
-        if(std::filesystem::exists(m_fileName_pth)) {
+        // If the file pointed to by fileName_pth_ already exists, make a back-up
+        if(std::filesystem::exists(fileName_pth_)) {
             std::string newFileName =
-                m_fileName_pth + ".bak_" +
+                fileName_pth_ + ".bak_" +
                 Gem::Common::getMSSince1970(); // NOLINT(cppcoreguidelines-init-variables)
 
             glogger << "In GProcessingTimesLogger::informationFunction_(): Warning!" << std::endl
-                    << "Attempt to output information to file " << m_fileName_pth << std::endl
+                    << "Attempt to output information to file " << fileName_pth_ << std::endl
                     << "which already exists. We will rename the old file to" << std::endl
                     << newFileName << std::endl
                     << GWARNING;
 
-            std::filesystem::rename(m_fileName_pth, newFileName);
+            std::filesystem::rename(fileName_pth_, newFileName);
         }
 
         // Make sure the processing times plotter has the desired size
-        m_gpd_pth.setCanvasDimensions(m_canvasDimensions_pth);
+        gpd_pth_.setCanvasDimensions(canvasDimensions_pth_);
 
-        m_pre_processing_times_hist = std::make_shared<Gem::Common::GHistogram1D>(m_nBinsX);
-        m_pre_processing_times_hist->setXAxisLabel("Pre-processing time [s]");
-        m_pre_processing_times_hist->setYAxisLabel("Number of Entries");
-        m_pre_processing_times_hist->setDrawingArguments("hist");
+        pre_processing_times_hist_ = std::make_shared<Gem::Common::GHistogram1D>(nBinsX_);
+        pre_processing_times_hist_->setXAxisLabel("Pre-processing time [s]");
+        pre_processing_times_hist_->setYAxisLabel("Number of Entries");
+        pre_processing_times_hist_->setDrawingArguments("hist");
 
-        m_gpd_pth.registerPlotter(m_pre_processing_times_hist);
+        gpd_pth_.registerPlotter(pre_processing_times_hist_);
 
-        m_processing_times_hist = std::make_shared<Gem::Common::GHistogram1D>(m_nBinsX);
-        m_processing_times_hist->setXAxisLabel("Main processing time [s]");
-        m_processing_times_hist->setYAxisLabel("Number of Entries");
-        m_processing_times_hist->setDrawingArguments("hist");
+        processing_times_hist_ = std::make_shared<Gem::Common::GHistogram1D>(nBinsX_);
+        processing_times_hist_->setXAxisLabel("Main processing time [s]");
+        processing_times_hist_->setYAxisLabel("Number of Entries");
+        processing_times_hist_->setDrawingArguments("hist");
 
-        m_gpd_pth.registerPlotter(m_processing_times_hist);
+        gpd_pth_.registerPlotter(processing_times_hist_);
 
-        m_post_processing_times_hist = std::make_shared<Gem::Common::GHistogram1D>(m_nBinsX);
-        m_post_processing_times_hist->setXAxisLabel("Post-processing time [s]");
-        m_post_processing_times_hist->setYAxisLabel("Number of Entries");
-        m_post_processing_times_hist->setDrawingArguments("hist");
+        post_processing_times_hist_ = std::make_shared<Gem::Common::GHistogram1D>(nBinsX_);
+        post_processing_times_hist_->setXAxisLabel("Post-processing time [s]");
+        post_processing_times_hist_->setYAxisLabel("Number of Entries");
+        post_processing_times_hist_->setDrawingArguments("hist");
 
-        m_gpd_pth.registerPlotter(m_post_processing_times_hist);
+        gpd_pth_.registerPlotter(post_processing_times_hist_);
 
-        m_all_processing_times_hist = std::make_shared<Gem::Common::GHistogram1D>(m_nBinsX);
-        m_all_processing_times_hist->setXAxisLabel("Overall processing time for all steps [s]");
-        m_all_processing_times_hist->setYAxisLabel("Number of Entries");
-        m_all_processing_times_hist->setDrawingArguments("hist");
+        all_processing_times_hist_ = std::make_shared<Gem::Common::GHistogram1D>(nBinsX_);
+        all_processing_times_hist_->setXAxisLabel("Overall processing time for all steps [s]");
+        all_processing_times_hist_->setYAxisLabel("Number of Entries");
+        all_processing_times_hist_->setDrawingArguments("hist");
 
-        m_gpd_pth.registerPlotter(m_all_processing_times_hist);
+        gpd_pth_.registerPlotter(all_processing_times_hist_);
 
         //---------------------------------------------------------------
         // 2D Histograms
 
-        // If the file pointed to by m_fileName_pth2 already exists, make a back-up
-        if(std::filesystem::exists(m_fileName_pth2)) {
+        // If the file pointed to by fileName_pth2_ already exists, make a back-up
+        if(std::filesystem::exists(fileName_pth2_)) {
             std::string newFileName =
-                m_fileName_pth2 + ".bak_" +
+                fileName_pth2_ + ".bak_" +
                 Gem::Common::getMSSince1970(); // NOLINT(cppcoreguidelines-init-variables)
 
             glogger << "In GProcessingTimesLogger::informationFunction_(): Warning!" << std::endl
-                    << "Attempt to output information to file " << m_fileName_pth2 << std::endl
+                    << "Attempt to output information to file " << fileName_pth2_ << std::endl
                     << "which already exists. We will rename the old file to" << std::endl
                     << newFileName << std::endl
                     << GWARNING;
 
-            std::filesystem::rename(m_fileName_pth2, newFileName);
+            std::filesystem::rename(fileName_pth2_, newFileName);
         }
 
         // Make sure the processing times has the desired size
-        m_gpd_pth2.setCanvasDimensions(m_canvasDimensions_pth2);
+        gpd_pth2_.setCanvasDimensions(canvasDimensions_pth2_);
 
-        m_pre_processing_times_hist2D =
-            std::make_shared<Gem::Common::GHistogram2D>(m_nBinsX, m_nBinsY);
-        m_pre_processing_times_hist2D->setXAxisLabel("Iteration");
-        m_pre_processing_times_hist2D->setYAxisLabel("Pre-processing time [s]");
-        m_pre_processing_times_hist2D->setZAxisLabel("Number of Entries");
-        m_pre_processing_times_hist2D->setDrawingArguments("box");
+        pre_processing_times_hist2D_ =
+            std::make_shared<Gem::Common::GHistogram2D>(nBinsX_, nBinsY_);
+        pre_processing_times_hist2D_->setXAxisLabel("Iteration");
+        pre_processing_times_hist2D_->setYAxisLabel("Pre-processing time [s]");
+        pre_processing_times_hist2D_->setZAxisLabel("Number of Entries");
+        pre_processing_times_hist2D_->setDrawingArguments("box");
 
-        m_gpd_pth2.registerPlotter(m_pre_processing_times_hist2D);
+        gpd_pth2_.registerPlotter(pre_processing_times_hist2D_);
 
-        m_processing_times_hist2D = std::make_shared<Gem::Common::GHistogram2D>(m_nBinsX, m_nBinsY);
-        m_processing_times_hist2D->setXAxisLabel("Iteration");
-        m_processing_times_hist2D->setYAxisLabel("Main processing time [s]");
-        m_processing_times_hist2D->setZAxisLabel("Number of Entries");
-        m_processing_times_hist2D->setDrawingArguments("box");
+        processing_times_hist2D_ = std::make_shared<Gem::Common::GHistogram2D>(nBinsX_, nBinsY_);
+        processing_times_hist2D_->setXAxisLabel("Iteration");
+        processing_times_hist2D_->setYAxisLabel("Main processing time [s]");
+        processing_times_hist2D_->setZAxisLabel("Number of Entries");
+        processing_times_hist2D_->setDrawingArguments("box");
 
-        m_gpd_pth2.registerPlotter(m_processing_times_hist2D);
+        gpd_pth2_.registerPlotter(processing_times_hist2D_);
 
-        m_post_processing_times_hist2D =
-            std::make_shared<Gem::Common::GHistogram2D>(m_nBinsX, m_nBinsY);
-        m_post_processing_times_hist2D->setXAxisLabel("Iteration");
-        m_post_processing_times_hist2D->setYAxisLabel("Post-processing time [s]");
-        m_post_processing_times_hist2D->setZAxisLabel("Number of Entries");
-        m_post_processing_times_hist2D->setDrawingArguments("box");
+        post_processing_times_hist2D_ =
+            std::make_shared<Gem::Common::GHistogram2D>(nBinsX_, nBinsY_);
+        post_processing_times_hist2D_->setXAxisLabel("Iteration");
+        post_processing_times_hist2D_->setYAxisLabel("Post-processing time [s]");
+        post_processing_times_hist2D_->setZAxisLabel("Number of Entries");
+        post_processing_times_hist2D_->setDrawingArguments("box");
 
-        m_gpd_pth2.registerPlotter(m_post_processing_times_hist2D);
+        gpd_pth2_.registerPlotter(post_processing_times_hist2D_);
 
-        m_all_processing_times_hist2D =
-            std::make_shared<Gem::Common::GHistogram2D>(m_nBinsX, m_nBinsY);
-        m_all_processing_times_hist2D->setXAxisLabel("Iteration");
-        m_all_processing_times_hist2D->setYAxisLabel("Overall processing time [s]");
-        m_all_processing_times_hist2D->setZAxisLabel("Number of Entries");
-        m_all_processing_times_hist2D->setDrawingArguments("box");
+        all_processing_times_hist2D_ =
+            std::make_shared<Gem::Common::GHistogram2D>(nBinsX_, nBinsY_);
+        all_processing_times_hist2D_->setXAxisLabel("Iteration");
+        all_processing_times_hist2D_->setYAxisLabel("Overall processing time [s]");
+        all_processing_times_hist2D_->setZAxisLabel("Number of Entries");
+        all_processing_times_hist2D_->setDrawingArguments("box");
 
-        m_gpd_pth2.registerPlotter(m_all_processing_times_hist2D);
+        gpd_pth2_.registerPlotter(all_processing_times_hist2D_);
 
         //---------------------------------------------------------------
         // Make sure the output file is empty (rename, if it exists)
 
-        // If the file pointed to by m_fileName_txt already exists, make a back-up
-        if(std::filesystem::exists(m_fileName_txt)) {
+        // If the file pointed to by fileName_txt_ already exists, make a back-up
+        if(std::filesystem::exists(fileName_txt_)) {
             std::string newFileName =
-                m_fileName_txt + ".bak_" +
+                fileName_txt_ + ".bak_" +
                 Gem::Common::getMSSince1970(); // NOLINT(cppcoreguidelines-init-variables)
 
             glogger << "In GProcessingTimesLogger::informationFunction_(): Warning!" << std::endl
-                    << "Attempt to output information to file " << m_fileName_pth2 << std::endl
+                    << "Attempt to output information to file " << fileName_pth2_ << std::endl
                     << "which already exists. We will rename the old file to" << std::endl
                     << newFileName << std::endl
                     << GWARNING;
 
-            std::filesystem::rename(m_fileName_txt, newFileName);
+            std::filesystem::rename(fileName_txt_, newFileName);
         }
 
         //---------------------------------------------------------------
@@ -2216,7 +2216,7 @@ void GProcessingTimesLogger::informationFunction_(
     case Gem::Geneva::infoMode::INFOPROCESSING: {
         // Open the external text-file
         std::ofstream data_txt(
-            m_fileName_txt,
+            fileName_txt_,
             std::ofstream::app
         ); // NOLINT(cppcoreguidelines-init-variables)
 
@@ -2237,25 +2237,25 @@ void GProcessingTimesLogger::informationFunction_(
             double allProcessingTime = preProcessingTime + mainProcessingTime + postProcessingTime;
 
             // Fill the timings into the histograms
-            m_pre_processing_times_hist->add(preProcessingTime);   // PREPROCESSING
-            m_processing_times_hist->add(mainProcessingTime);      // PROCESSING
-            m_post_processing_times_hist->add(postProcessingTime); // POSTPROCESSING
-            m_all_processing_times_hist->add(allProcessingTime);   // OVERALL PROCESSING TIME
+            pre_processing_times_hist_->add(preProcessingTime);   // PREPROCESSING
+            processing_times_hist_->add(mainProcessingTime);      // PROCESSING
+            post_processing_times_hist_->add(postProcessingTime); // POSTPROCESSING
+            all_processing_times_hist_->add(allProcessingTime);   // OVERALL PROCESSING TIME
 
             // Fill the timings into the 2D histograms ...
-            m_pre_processing_times_hist2D->add(
+            pre_processing_times_hist2D_->add(
                 boost::numeric_cast<double>(iteration),
                 boost::numeric_cast<double>(preProcessingTime)
             ); // PREPROCESSING
-            m_processing_times_hist2D->add(
+            processing_times_hist2D_->add(
                 boost::numeric_cast<double>(iteration),
                 boost::numeric_cast<double>(mainProcessingTime)
             ); // PROCESSING
-            m_post_processing_times_hist2D->add(
+            post_processing_times_hist2D_->add(
                 boost::numeric_cast<double>(iteration),
                 boost::numeric_cast<double>(postProcessingTime)
             ); // POSTPROCESSING
-            m_all_processing_times_hist2D->add(
+            all_processing_times_hist2D_->add(
                 boost::numeric_cast<double>(iteration),
                 boost::numeric_cast<double>(allProcessingTime)
             ); // OVERALL PROCESSING TIME
@@ -2271,22 +2271,22 @@ void GProcessingTimesLogger::informationFunction_(
 
     case Gem::Geneva::infoMode::INFOEND: {
         // Write out the results
-        m_gpd_pth.writeToFile(m_fileName_pth);
-        m_gpd_pth2.writeToFile(m_fileName_pth2);
+        gpd_pth_.writeToFile(fileName_pth_);
+        gpd_pth2_.writeToFile(fileName_pth2_);
 
         // Remove all plotters
-        m_gpd_pth.resetPlotters();
-        m_gpd_pth2.resetPlotters();
+        gpd_pth_.resetPlotters();
+        gpd_pth2_.resetPlotters();
 
-        m_pre_processing_times_hist.reset();
-        m_processing_times_hist.reset();
-        m_post_processing_times_hist.reset();
-        m_all_processing_times_hist.reset();
+        pre_processing_times_hist_.reset();
+        processing_times_hist_.reset();
+        post_processing_times_hist_.reset();
+        all_processing_times_hist_.reset();
 
-        m_pre_processing_times_hist2D.reset();
-        m_processing_times_hist2D.reset();
-        m_post_processing_times_hist2D.reset();
-        m_all_processing_times_hist2D.reset();
+        pre_processing_times_hist2D_.reset();
+        processing_times_hist2D_.reset();
+        post_processing_times_hist2D_.reset();
+        all_processing_times_hist2D_.reset();
     } break;
     };
 }
@@ -2305,51 +2305,51 @@ void GProcessingTimesLogger::load_(const GObject *cp) {
     GBasePluggableOM::load_(cp);
 
     // ... and then our local data
-    m_fileName_pth = p_load->m_fileName_pth;
-    m_canvasDimensions_pth = p_load->m_canvasDimensions_pth;
-    m_gpd_pth = p_load->m_gpd_pth;
+    fileName_pth_ = p_load->fileName_pth_;
+    canvasDimensions_pth_ = p_load->canvasDimensions_pth_;
+    gpd_pth_ = p_load->gpd_pth_;
 
-    m_fileName_pth2 = p_load->m_fileName_pth2;
-    m_canvasDimensions_pth2 = p_load->m_canvasDimensions_pth2;
-    m_gpd_pth2 = p_load->m_gpd_pth2;
+    fileName_pth2_ = p_load->fileName_pth2_;
+    canvasDimensions_pth2_ = p_load->canvasDimensions_pth2_;
+    gpd_pth2_ = p_load->gpd_pth2_;
 
-    m_fileName_txt = p_load->m_fileName_txt;
-
-    Gem::Common::copyCloneableSmartPointer(
-        p_load->m_pre_processing_times_hist,
-        m_pre_processing_times_hist
-    );
-    Gem::Common::copyCloneableSmartPointer(
-        p_load->m_processing_times_hist,
-        m_processing_times_hist
-    );
-    Gem::Common::copyCloneableSmartPointer(
-        p_load->m_post_processing_times_hist,
-        m_post_processing_times_hist
-    );
-    Gem::Common::copyCloneableSmartPointer(
-        p_load->m_all_processing_times_hist,
-        m_all_processing_times_hist
-    );
+    fileName_txt_ = p_load->fileName_txt_;
 
     Gem::Common::copyCloneableSmartPointer(
-        p_load->m_pre_processing_times_hist2D,
-        m_pre_processing_times_hist2D
+        p_load->pre_processing_times_hist_,
+        pre_processing_times_hist_
     );
     Gem::Common::copyCloneableSmartPointer(
-        p_load->m_processing_times_hist2D,
-        m_processing_times_hist2D
+        p_load->processing_times_hist_,
+        processing_times_hist_
     );
     Gem::Common::copyCloneableSmartPointer(
-        p_load->m_post_processing_times_hist2D,
-        m_post_processing_times_hist2D
+        p_load->post_processing_times_hist_,
+        post_processing_times_hist_
     );
     Gem::Common::copyCloneableSmartPointer(
-        p_load->m_all_processing_times_hist2D,
-        m_all_processing_times_hist2D
+        p_load->all_processing_times_hist_,
+        all_processing_times_hist_
     );
 
-    m_nBinsX = p_load->m_nBinsX;
+    Gem::Common::copyCloneableSmartPointer(
+        p_load->pre_processing_times_hist2D_,
+        pre_processing_times_hist2D_
+    );
+    Gem::Common::copyCloneableSmartPointer(
+        p_load->processing_times_hist2D_,
+        processing_times_hist2D_
+    );
+    Gem::Common::copyCloneableSmartPointer(
+        p_load->post_processing_times_hist2D_,
+        post_processing_times_hist2D_
+    );
+    Gem::Common::copyCloneableSmartPointer(
+        p_load->all_processing_times_hist2D_,
+        all_processing_times_hist2D_
+    );
+
+    nBinsX_ = p_load->nBinsX_;
 }
 
 /************************************************************************/

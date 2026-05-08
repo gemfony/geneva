@@ -121,7 +121,7 @@ void GParameterObjectCollection::load_(const GObject *cp) {
  */
 std::shared_ptr<Gem::Geneva::GParameterBase>
 GParameterObjectCollection::at(const std::size_t &pos) {
-    return m_data_cnt.at(pos);
+    return data_cnt_.at(pos);
 }
 
 /******************************************************************************/

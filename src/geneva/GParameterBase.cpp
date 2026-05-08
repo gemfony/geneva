@@ -50,9 +50,9 @@ void GParameterBase::load_(const GObject *cp) {
     GObject::load_(cp);
 
     // Load local data
-    m_adaptionsActive = p_load->m_adaptionsActive;
-    m_randomInitializationBlocked = p_load->m_randomInitializationBlocked;
-    m_parameterName = p_load->m_parameterName;
+    adaptionsActive_ = p_load->adaptionsActive_;
+    randomInitializationBlocked_ = p_load->randomInitializationBlocked_;
+    parameterName_ = p_load->parameterName_;
 }
 
 /******************************************************************************/
@@ -63,7 +63,7 @@ void GParameterBase::load_(const GObject *cp) {
  * @return The number of adaptions that were performed
  */
 std::size_t GParameterBase::adapt(Gem::Hap::GRandomBase &gr) {
-    if(m_adaptionsActive) {
+    if(adaptionsActive_) {
         return adapt_(gr); // Will determine whether a modification was made
     }
     else {
@@ -100,8 +100,8 @@ void GParameterBase::queryAdaptor(
  * Switches on adaptions for this object
  */
 bool GParameterBase::setAdaptionsActive() {
-    bool previous = m_adaptionsActive;
-    m_adaptionsActive = true;
+    bool previous = adaptionsActive_;
+    adaptionsActive_ = true;
     return previous;
 }
 
@@ -110,8 +110,8 @@ bool GParameterBase::setAdaptionsActive() {
  * Disables adaptions for this object
  */
 bool GParameterBase::setAdaptionsInactive() {
-    bool previous = m_adaptionsActive;
-    m_adaptionsActive = false;
+    bool previous = adaptionsActive_;
+    adaptionsActive_ = false;
     return previous;
 }
 
@@ -127,7 +127,7 @@ bool GParameterBase::setAdaptionsInactive() {
  * @return A boolean indicating whether adaptions are performed for this object
  */
 bool GParameterBase::adaptionsActive() const {
-    return m_adaptionsActive;
+    return adaptionsActive_;
 }
 
 /* -----------------------------------------------------------------------------
@@ -142,7 +142,7 @@ bool GParameterBase::adaptionsActive() const {
  * @return A boolean indicating whether adaptions are inactive for this object
  */
 bool GParameterBase::adaptionsInactive() const {
-    return not m_adaptionsActive;
+    return not adaptionsActive_;
 }
 
 /******************************************************************************/
@@ -171,12 +171,12 @@ void GParameterBase::compare_(
     Gem::Common::compare_base_t<GObject>(*this, *p_load, token);
 
     // ... and then the local data
-    compare_t(IDENTITY(m_adaptionsActive, p_load->m_adaptionsActive), token);
+    compare_t(IDENTITY(adaptionsActive_, p_load->adaptionsActive_), token);
     compare_t(
-        IDENTITY(m_randomInitializationBlocked, p_load->m_randomInitializationBlocked),
+        IDENTITY(randomInitializationBlocked_, p_load->randomInitializationBlocked_),
         token
     );
-    compare_t(IDENTITY(m_parameterName, p_load->m_parameterName), token);
+    compare_t(IDENTITY(parameterName_, p_load->parameterName_), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -195,13 +195,13 @@ std::string GParameterBase::name_() const {
  * Allows to assign a name to this parameter
  */
 void GParameterBase::setParameterName(const std::string &pn) {
-    m_parameterName = pn;
+    parameterName_ = pn;
 }
 
 /***********************************************************************************/
 /** @brief Allows to retrieve the name of this parameter */
 std::string GParameterBase::getParameterName() const {
-    return m_parameterName;
+    return parameterName_;
 }
 
 /***********************************************************************************/
@@ -287,7 +287,7 @@ bool GParameterBase::hasAdaptor() const {
  * version of this function, which only acts if initialization has not been blocked.
  */
 bool GParameterBase::randomInit(const activityMode &am, Gem::Hap::GRandomBase &gr) {
-    if(not m_randomInitializationBlocked && this->modifiableAmMatchOrHandover(am)) {
+    if(not randomInitializationBlocked_ && this->modifiableAmMatchOrHandover(am)) {
         return randomInit_(am, gr);
     }
     else {
@@ -992,7 +992,7 @@ void GParameterBase::booleanSubtract(
  * Specifies that no random initialization should occur anymore
  */
 void GParameterBase::blockRandomInitialization() {
-    m_randomInitializationBlocked = true;
+    randomInitializationBlocked_ = true;
 }
 
 /* -----------------------------------------------------------------------------
@@ -1005,7 +1005,7 @@ void GParameterBase::blockRandomInitialization() {
  * Specifies that no random initialization should occur anymore
  */
 void GParameterBase::allowRandomInitialization() {
-    m_randomInitializationBlocked = false;
+    randomInitializationBlocked_ = false;
 }
 
 /* -----------------------------------------------------------------------------
@@ -1018,7 +1018,7 @@ void GParameterBase::allowRandomInitialization() {
  * Checks whether initialization has been blocked
  */
 bool GParameterBase::randomInitializationBlocked() const {
-    return m_randomInitializationBlocked;
+    return randomInitializationBlocked_;
 }
 
 /* -----------------------------------------------------------------------------

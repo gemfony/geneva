@@ -184,8 +184,8 @@ void GRgb::setColor(std::tuple<float, float, float> const &color) {
  * Initialization with dimensions and colors
  */
 GColumn::GColumn(std::size_t sz, std::tuple<float, float, float> const &color)
-  : m_column_data_mnt(sz) {
-    for(auto &column_data : m_column_data_mnt) {
+  : column_data_mnt_(sz) {
+    for(auto &column_data : column_data_mnt_) {
         column_data.setColor(color);
     }
 }
@@ -195,7 +195,7 @@ GColumn::GColumn(std::size_t sz, std::tuple<float, float, float> const &color)
  * Information about the size of this object
  */
 std::size_t GColumn::size() const {
-    return m_column_data_mnt.size();
+    return column_data_mnt_.size();
 }
 
 /******************************************************************************/
@@ -203,7 +203,7 @@ std::size_t GColumn::size() const {
  * Unchecked access
  */
 GRgb &GColumn::operator[](std::size_t pos) {
-    return m_column_data_mnt[pos];
+    return column_data_mnt_[pos];
 }
 
 /******************************************************************************/
@@ -211,7 +211,7 @@ GRgb &GColumn::operator[](std::size_t pos) {
  * Checked access
  */
 GRgb &GColumn::at(std::size_t pos) {
-    return m_column_data_mnt.at(pos);
+    return column_data_mnt_.at(pos);
 }
 
 /******************************************************************************/
@@ -219,7 +219,7 @@ GRgb &GColumn::at(std::size_t pos) {
  * Unchecked access
  */
 const GRgb &GColumn::operator[](std::size_t pos) const {
-    return m_column_data_mnt[pos];
+    return column_data_mnt_[pos];
 }
 
 /******************************************************************************/
@@ -227,7 +227,7 @@ const GRgb &GColumn::operator[](std::size_t pos) const {
  * Checked access
  */
 const GRgb &GColumn::at(std::size_t pos) const {
-    return m_column_data_mnt.at(pos);
+    return column_data_mnt_.at(pos);
 }
 
 /******************************************************************************/
@@ -235,10 +235,10 @@ const GRgb &GColumn::at(std::size_t pos) const {
  * Initializes the object to a specific size
  */
 void GColumn::init(std::size_t sz, std::tuple<float, float, float> const &color) {
-    m_column_data_mnt.clear();
-    m_column_data_mnt.resize(sz);
+    column_data_mnt_.clear();
+    column_data_mnt_.resize(sz);
 
-    for(auto &column_data : m_column_data_mnt) {
+    for(auto &column_data : column_data_mnt_) {
         column_data.setColor(color);
     }
 }

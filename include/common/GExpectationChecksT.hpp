@@ -127,14 +127,14 @@ public:
 
 private:
     /** @brief Counts all tests vs. tests that have met the expectation */
-    std::tuple<std::size_t, std::size_t> m_test_counter;
+    std::tuple<std::size_t, std::size_t> test_counter_;
     /** @brief Error messages obtained from failed checks */
-    std::vector<std::string> m_error_messages;
+    std::vector<std::string> error_messages_;
 
     /** @brief The name of the calling class */
-    const std::string m_caller{};
+    const std::string caller_{};
     /** @brief The expectation to be met */
-    const Gem::Common::expectation m_e = Gem::Common::expectation::INEQUALITY;
+    const Gem::Common::expectation e_ = Gem::Common::expectation::INEQUALITY;
 };
 
 /******************************************************************************/

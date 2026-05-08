@@ -68,24 +68,24 @@ Go2::Go2(
 )
   : G_Interface_OptimizerT<Go2>()
   , Gem::Common::GPtrVectorT<GParameterSet, GObject>()
-  , m_config_filename(configFilename) {
+  , config_filename_(configFilename) {
     //--------------------------------------------
     // Initialize Geneva as well as the known optimization algorithms
 
-    m_gi.registerOAF<GEvolutionaryAlgorithmFactory>();
-    m_gi.registerOAF<GSwarmAlgorithmFactory>();
-    m_gi.registerOAF<GGradientDescentFactory>();
-    m_gi.registerOAF<GSimulatedAnnealingFactory>();
-    m_gi.registerOAF<GParameterScanFactory>();
+    gi_.registerOAF<GEvolutionaryAlgorithmFactory>();
+    gi_.registerOAF<GSwarmAlgorithmFactory>();
+    gi_.registerOAF<GGradientDescentFactory>();
+    gi_.registerOAF<GSimulatedAnnealingFactory>();
+    gi_.registerOAF<GParameterScanFactory>();
 
-    m_gi.registerConsumer<GIndividualWebsocketConsumer>();
-    m_gi.registerConsumer<GIndividualAsioConsumer>();
-    m_gi.registerConsumer<GIndividualThreadConsumer>();
-    m_gi.registerConsumer<GIndividualSerialConsumer>();
+    gi_.registerConsumer<GIndividualWebsocketConsumer>();
+    gi_.registerConsumer<GIndividualAsioConsumer>();
+    gi_.registerConsumer<GIndividualThreadConsumer>();
+    gi_.registerConsumer<GIndividualSerialConsumer>();
 
 #ifdef GENEVA_BUILD_WITH_MPI_CONSUMER
     // the mpi consumer requires to be a singleton, because it is not allowed to initialize or finalize MPI multiple times
-    m_gi.registerConsumer(GMPIConsumerInstance);
+    gi_.registerConsumer(GMPIConsumerInstance);
 #endif // GENEVA_BUILD_WITH_MPI_CONSUMER
 
     //--------------------------------------------
@@ -99,7 +99,7 @@ Go2::Go2(
     //--------------------------------------------
     // Random numbers are our most valuable good.
     // Initialize all necessary variables
-    std::call_once(f_go2, [this]() { setRNFParameters(this->m_n_producer_threads); });
+    std::call_once(f_go2, [this]() { setRNFParameters(this->n_producer_threads_); });
 }
 
 /******************************************************************************/
@@ -155,7 +155,7 @@ void Go2::registerDefaultAlgorithm(std::shared_ptr<GOABase> default_algorithm) {
     }
 
     // Register the algorithm
-    m_default_algorithm = default_algorithm;
+    default_algorithm_ = default_algorithm;
 }
 
 /******************************************************************************/
@@ -164,7 +164,7 @@ void Go2::registerDefaultAlgorithm(std::shared_ptr<GOABase> default_algorithm) {
  */
 void Go2::registerPluggableOM(std::shared_ptr<GBasePluggableOM> pluggableOM) {
     if(pluggableOM) {
-        m_pluggable_monitors_cnt.push_back(pluggableOM);
+        pluggable_monitors_cnt_.push_back(pluggableOM);
     }
     else {
         throw geneva_exception(
@@ -181,7 +181,7 @@ void Go2::registerPluggableOM(std::shared_ptr<GBasePluggableOM> pluggableOM) {
  * Allows to reset the local pluggable optimization monitor
  */
 void Go2::resetPluggableOM() {
-    m_pluggable_monitors_cnt.clear();
+    pluggable_monitors_cnt_.clear();
 }
 
 /******************************************************************************/
@@ -189,7 +189,7 @@ void Go2::resetPluggableOM() {
  * Allows to check whether pluggable optimization monitors were registered
  */
 bool Go2::hasOptimizationMonitors() const {
-    return not m_pluggable_monitors_cnt.empty();
+    return not pluggable_monitors_cnt_.empty();
 }
 
 /******************************************************************************/
@@ -198,7 +198,7 @@ bool Go2::hasOptimizationMonitors() const {
  * in no time limit being set.
  */
 void Go2::setMaxClientTime(std::chrono::duration<double> maxDuration) {
-    m_max_client_duration = maxDuration;
+    max_client_duration_ = maxDuration;
 }
 
 /******************************************************************************/
@@ -206,7 +206,7 @@ void Go2::setMaxClientTime(std::chrono::duration<double> maxDuration) {
  * Allows to retrieve the maximum running time for a client
  */
 std::chrono::duration<double> Go2::getMaxClientTime() const {
-    return m_max_client_duration;
+    return max_client_duration_;
 }
 
 /******************************************************************************/
@@ -220,25 +220,25 @@ int Go2::clientRun() {
 
 int Go2::clientRun_() {
     // Check that we have indeed been given a valid name
-    if(GO2_DEF_NOCONSUMER == m_consumer_name || not GConsumerStore->exists(m_consumer_name)) {
+    if(GO2_DEF_NOCONSUMER == consumer_name_ || not GConsumerStore->exists(consumer_name_)) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In Go2::clientRun(): Error!" << std::endl
-            << "Received invalid consumer name: " << m_consumer_name << std::endl
+            << "Received invalid consumer name: " << consumer_name_ << std::endl
         );
     }
 
     // Retrieve the client worker from the consumer
     std::shared_ptr<Gem::Courtier::GBaseClientT<Gem::Geneva::GParameterSet>> p;
 
-    if(GConsumerStore->get(m_consumer_name)->needsClient()) {
-        p = GConsumerStore->get(m_consumer_name)->getClient();
+    if(GConsumerStore->get(consumer_name_)->needsClient()) {
+        p = GConsumerStore->get(consumer_name_)->getClient();
     }
     else {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In Go2::clientRun(): Error!" << std::endl
-            << "Trying to execute clientRun() on consumer " << m_consumer_name << std::endl
+            << "Trying to execute clientRun() on consumer " << consumer_name_ << std::endl
             << "which does not require a client" << std::endl
         );
     }
@@ -248,12 +248,12 @@ int Go2::clientRun_() {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In Go2::clientRun(): Error!" << std::endl
-            << "Received empty client from consumer " << m_consumer_name << std::endl
+            << "Received empty client from consumer " << consumer_name_ << std::endl
         );
     }
 
     // Set the maximum runtime of the client
-    p->setMaxTime(this->m_max_client_duration);
+    p->setMaxTime(this->max_client_duration_);
 
     // Start the actual processing loop. This call will not return until run() is finished.
     p->run();
@@ -268,7 +268,7 @@ int Go2::clientRun_() {
  * @return A boolean which indicates whether the client mode has been set for this object
  */
 bool Go2::clientMode() const {
-    return m_client_mode;
+    return client_mode_;
 }
 
 /******************************************************************************/
@@ -276,7 +276,7 @@ bool Go2::clientMode() const {
  * Specifies whether only the best individuals of a population should be copied
  */
 void Go2::setCopyBestIndividualsOnly(bool copyBestIndividualsOnly) {
-    m_copyBestIndividualsOnly = copyBestIndividualsOnly;
+    copyBestIndividualsOnly_ = copyBestIndividualsOnly;
 }
 
 /******************************************************************************/
@@ -284,7 +284,7 @@ void Go2::setCopyBestIndividualsOnly(bool copyBestIndividualsOnly) {
  * Checks whether only the best individuals are copied
  */
 bool Go2::onlyBestIndividualsAreCopied() const {
-    return m_copyBestIndividualsOnly;
+    return copyBestIndividualsOnly_;
 }
 
 /******************************************************************************/
@@ -292,7 +292,7 @@ bool Go2::onlyBestIndividualsAreCopied() const {
  * Retrieves the currently registered number of algorithms
  */
 std::size_t Go2::getNAlgorithms() const {
-    return m_algorithms_cnt.size();
+    return algorithms_cnt_.size();
 }
 
 /******************************************************************************/
@@ -323,7 +323,7 @@ void Go2::addAlgorithm(std::shared_ptr<GOABase> alg) {
         alg->clear();
     }
 
-    m_algorithms_cnt.push_back(alg);
+    algorithms_cnt_.push_back(alg);
 }
 
 /******************************************************************************/
@@ -336,7 +336,7 @@ void Go2::addAlgorithm(std::shared_ptr<GOABase> alg) {
  * @return The algorithms that were registered with this class
  */
 std::vector<std::shared_ptr<GOABase>> Go2::getRegisteredAlgorithms() {
-    return m_algorithms_cnt;
+    return algorithms_cnt_;
 }
 
 /**
@@ -345,7 +345,7 @@ std::vector<std::shared_ptr<GOABase>> Go2::getRegisteredAlgorithms() {
  * @return The used consumer's name
  */
 std::string Go2::getConsumerName() {
-    return m_consumer_name;
+    return consumer_name_;
 }
 
 /******************************************************************************/
@@ -406,7 +406,7 @@ void Go2::registerContentCreator(std::shared_ptr<Gem::Common::GFactoryT<GParamet
         );
     }
 
-    m_content_creator_ptr = cc_ptr;
+    content_creator_ptr_ = cc_ptr;
 }
 
 /******************************************************************************/
@@ -423,49 +423,49 @@ void Go2::registerContentCreator(std::shared_ptr<Gem::Common::GFactoryT<GParamet
  */
 Go2 const *Go2::optimize_(std::uint32_t) {
     // Check that algorithms have indeed been registered. If not, try to add a default algorithm
-    if(m_algorithms_cnt.empty()) {
-        if(not m_default_algorithm) {
+    if(algorithms_cnt_.empty()) {
+        if(not default_algorithm_) {
             // No algorithms given, no default algorithm specified by the user:
             // Simply add the Geneva-side default algorithm
-            this->registerDefaultAlgorithm(m_default_algorithm_str);
+            this->registerDefaultAlgorithm(default_algorithm_str_);
 
             glogger << "In Go2::optimize(): INFORMATION:" << std::endl
                     << "No user-defined optimization algorithm available." << std::endl
-                    << "Using default algorithm \"" << m_default_algorithm_str << "\" instead."
+                    << "Using default algorithm \"" << default_algorithm_str_ << "\" instead."
                     << std::endl
                     << GLOGGING;
         }
 
-        m_algorithms_cnt.push_back(m_default_algorithm->clone<GOABase>());
+        algorithms_cnt_.push_back(default_algorithm_->clone<GOABase>());
     }
 
     // Check whether a possible checkpoint file fits the first algorithm in the chain
-    if(m_cp_file != "empty" &&
-       not m_algorithms_cnt[0]->cp_personality_fits(std::filesystem::path(m_cp_file))) {
+    if(cp_file_ != "empty" &&
+       not algorithms_cnt_[0]->cp_personality_fits(std::filesystem::path(cp_file_))) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In Go2::optimize(): Error!" << std::endl
-            << "Checkpoint file " << m_cp_file << " does not" << std::endl
+            << "Checkpoint file " << cp_file_ << " does not" << std::endl
             << "fit requirements of first algorithm "
-            << m_algorithms_cnt[0]->getAlgorithmPersonalityType() << std::endl
+            << algorithms_cnt_[0]->getAlgorithmPersonalityType() << std::endl
         );
     }
 
     // Load the checkpoint file or create individuals from the content creator
-    if(m_cp_file != "empty") {
+    if(cp_file_ != "empty") {
         // Load the external data
-        m_algorithms_cnt[0]->loadCheckpoint(std::filesystem::path(m_cp_file));
+        algorithms_cnt_[0]->loadCheckpoint(std::filesystem::path(cp_file_));
 
         // Make sure the first algorithm starts right after the iteration where the checkpoint file ended
-        m_iterations_consumed = m_algorithms_cnt[0]->getIteration() + 1;
+        iterations_consumed_ = algorithms_cnt_[0]->getIteration() + 1;
     }
     else {
         // Check that individuals have been registered
         if(this->empty()) {
-            if(m_content_creator_ptr) {
-                for(std::size_t ind = 0; ind < m_algorithms_cnt.at(0)->getDefaultPopulationSize();
+            if(content_creator_ptr_) {
+                for(std::size_t ind = 0; ind < algorithms_cnt_.at(0)->getDefaultPopulationSize();
                     ind++) {
-                    std::shared_ptr<GParameterSet> p_ind = (*m_content_creator_ptr)();
+                    std::shared_ptr<GParameterSet> p_ind = (*content_creator_ptr_)();
                     if(p_ind) {
                         this->push_back(p_ind);
                     }
@@ -496,14 +496,14 @@ Go2 const *Go2::optimize_(std::uint32_t) {
         }
 
         // We start with a predefined iteration offset
-        m_iterations_consumed = m_offset;
+        iterations_consumed_ = offset_;
     }
 
     // Loop over all algorithms
-    m_sorted = false;
-    for(const auto &alg_ptr : m_algorithms_cnt) {
+    sorted_ = false;
+    for(const auto &alg_ptr : algorithms_cnt_) {
         // Add the pluggable optimization monitors to the algorithm
-        for(auto const &pm_ptr : m_pluggable_monitors_cnt) {
+        for(auto const &pm_ptr : pluggable_monitors_cnt_) {
             alg_ptr->registerPluggableOM(pm_ptr);
         }
 
@@ -516,13 +516,13 @@ Go2 const *Go2::optimize_(std::uint32_t) {
         this->clear();
 
         // Do the actual optimization
-        alg_ptr->optimize(m_iterations_consumed);
+        alg_ptr->optimize(iterations_consumed_);
 
         // Make sure we start with the correct iteration in the next algorithm
-        m_iterations_consumed = alg_ptr->getIteration();
+        iterations_consumed_ = alg_ptr->getIteration();
 
         // Unload the individuals from the last algorithm and store them again in this object
-        if(m_copyBestIndividualsOnly) {
+        if(copyBestIndividualsOnly_) {
             for(const auto &best_ind_ptr : alg_ptr->getBestGlobalIndividuals<GParameterSet>()) {
                 this->push_back(best_ind_ptr);
             }
@@ -547,7 +547,7 @@ Go2 const *Go2::optimize_(std::uint32_t) {
         }
     );
 
-    m_sorted = true;
+    sorted_ = true;
 
     return this;
 }
@@ -569,7 +569,7 @@ std::shared_ptr<Gem::Geneva::GParameterSet> Go2::getBestGlobalIndividual_() cons
         );
     }
 
-    if(not m_sorted) {
+    if(not sorted_) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In Go2::getBestGlobalIndividual_(): Error!" << std::endl
@@ -711,7 +711,7 @@ void Go2::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
  */
 void Go2::setClientMode(bool clientMode) {
 #ifdef GENEVA_BUILD_WITH_MPI_CONSUMER
-    if(m_consumer_name == "GMPIConsumerT" || m_consumer_name == "mpi") {
+    if(consumer_name_ == "GMPIConsumerT" || consumer_name_ == "mpi") {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In Go2::setClientMode(): Error!" << std::endl
@@ -720,7 +720,7 @@ void Go2::setClientMode(bool clientMode) {
         );
     }
 #endif // GENEVA_BUILD_WITH_MPI_CONSUMER
-    m_client_mode = clientMode;
+    client_mode_ = clientMode;
 }
 
 /******************************************************************************/
@@ -730,7 +730,7 @@ void Go2::setClientMode(bool clientMode) {
  * @return A boolean indicating whether this object is working in server or client mode
  */
 bool Go2::getClientMode() const {
-    return m_client_mode;
+    return client_mode_;
 }
 
 /******************************************************************************/
@@ -740,7 +740,7 @@ bool Go2::getClientMode() const {
  * @param nProducerThreads The number of threads that will simultaneously produce random numbers
  */
 void Go2::setNProducerThreads(std::uint16_t nProducerThreads) {
-    m_n_producer_threads = nProducerThreads;
+    n_producer_threads_ = nProducerThreads;
 }
 
 /******************************************************************************/
@@ -750,7 +750,7 @@ void Go2::setNProducerThreads(std::uint16_t nProducerThreads) {
  * @return The number of threads that will simultaneously produce random numbers
  */
 std::uint16_t Go2::getNProducerThreads() const {
-    return m_n_producer_threads;
+    return n_producer_threads_;
 }
 
 /******************************************************************************/
@@ -761,7 +761,7 @@ std::uint16_t Go2::getNProducerThreads() const {
  * @param offset The offset with which the iteration counter should start
  */
 void Go2::setOffset(std::uint32_t offset) {
-    m_offset = offset;
+    offset_ = offset;
 }
 
 /******************************************************************************/
@@ -769,7 +769,7 @@ void Go2::setOffset(std::uint32_t offset) {
  * Retrieval of the current iteration
  */
 uint32_t Go2::getIteration_() const {
-    return m_iterations_consumed;
+    return iterations_consumed_;
 }
 
 /******************************************************************************/
@@ -795,7 +795,7 @@ std::string Go2::getAlgorithmPersonalityType_() const {
  * @return The current offset with which the iteration counter will start
  */
 std::uint32_t Go2::getIterationOffset() const {
-    return m_offset;
+    return offset_;
 }
 
 /******************************************************************************/
@@ -861,7 +861,7 @@ void Go2::parseCommandLine(
 				("client", "Indicates that this program should run as a client or in server mode. Note that this setting will trigger an error unless called in conjunction with a consumer capable of dealing with clients. This option is ignored when working with the mpi consumer, because the mpi consumer will configure itself to be a client or server depending on its rank.")
 				("maxClientDuration", po::value<std::string>(&maxClientDuration)->default_value(EMPTYDURATION),
 				 R"(The maximum runtime for a client in the form "hh:mm:ss". Note that a client may run longer as this time-frame if its work load still runs. The default value "00:00:00" means: "no time limit")")
-				("consumer,c", po::value<std::string>(&m_consumer_name)->default_value("stc"), consumer_help.str().c_str());
+				("consumer,c", po::value<std::string>(&consumer_name_)->default_value("stc"), consumer_help.str().c_str());
 
         // Add additional options coming from the algorithms and consumers
         boost::program_options::options_description visible(
@@ -928,7 +928,7 @@ void Go2::parseCommandLine(
         po::notify(vm);
 
         if(vm.count("client")) {
-            m_client_mode = true;
+            client_mode_ = true;
         }
 
         // No consumer specified, although brokered execution was requested
@@ -942,28 +942,28 @@ void Go2::parseCommandLine(
         }
 
         // Check that the requested consumer actually exists
-        if(vm.count("consumer") && not GConsumerStore->exists(m_consumer_name)) {
+        if(vm.count("consumer") && not GConsumerStore->exists(consumer_name_)) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In Go2::parseCommandLine(): Error!" << std::endl
-                << "You have requested a consumer with name " << m_consumer_name << std::endl
+                << "You have requested a consumer with name " << consumer_name_ << std::endl
                 << "which could not be found in the consumer store." << std::endl
             );
         }
 
-        if(m_client_mode && not GConsumerStore->get(m_consumer_name)->needsClient()) {
+        if(client_mode_ && not GConsumerStore->get(consumer_name_)->needsClient()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In Go2::parseCommandLine(): Error!" << std::endl
-                << "Requested client mode even though consumer " << m_consumer_name
+                << "Requested client mode even though consumer " << consumer_name_
                 << " does not require a client" << std::endl
             );
         }
 
-        std::cout << "Using consumer " << m_consumer_name << std::endl;
+        std::cout << "Using consumer " << consumer_name_ << std::endl;
 
         // allow the consumer to perform necessary initialization before startup
-        GConsumerStore->get(m_consumer_name)->init();
+        GConsumerStore->get(consumer_name_)->init();
 
         // TODO: Consider removing this #ifdefs
         //  However, an issue is that this would require to create public functions like GBaseConsumerT::clientMode()
@@ -978,23 +978,23 @@ void Go2::parseCommandLine(
 #ifdef GENEVA_BUILD_WITH_MPI_CONSUMER
         if(GIndividualMPIConsumer *mpiConsumerPtr =
                dynamic_cast<GIndividualMPIConsumer *>( // NOLINT(cppcoreguidelines-init-variables)
-                   GConsumerStore->get(m_consumer_name).get()
+                   GConsumerStore->get(consumer_name_).get()
                )) {
-            m_client_mode = mpiConsumerPtr->isWorkerNode();
+            client_mode_ = mpiConsumerPtr->isWorkerNode();
         }
 #endif // GENEVA_BUILD_WITH_MPI_CONSUMER
 
         // Finally give the consumer the chance to act on the command line options
         // TODO: clone the consumer, then let the clone act on CL options and add the clone to the broker
-        GConsumerStore->get(m_consumer_name)->actOnCLOptions(vm);
+        GConsumerStore->get(consumer_name_)->actOnCLOptions(vm);
 
         // At this point the consumer should be fully configured
 
         // Register the consumer with the broker, unless other consumers have already been registered or we are running in client mode
-        if(not m_client_mode) {
+        if(not client_mode_) {
             if(not GBROKER(Gem::Geneva::GParameterSet)->hasConsumers()) {
                 GBROKER(Gem::Geneva::GParameterSet)
-                    ->enrol_consumer(GConsumerStore->get(m_consumer_name));
+                    ->enrol_consumer(GConsumerStore->get(consumer_name_));
             }
             else {
                 glogger << "In Go2::parseCommandLine(): Note!" << std::endl
@@ -1021,15 +1021,15 @@ void Go2::parseCommandLine(
                 }
 
                 // Retrieve an algorithm from the factory and add it to the list
-                m_algorithms_cnt.push_back(p->Gem::Common::GFactoryT<GOABase>::get());
+                algorithms_cnt_.push_back(p->Gem::Common::GFactoryT<GOABase>::get());
             }
         }
 
         // Set the name of a checkpoint file (if any)
-        m_cp_file = checkpointFile;
+        cp_file_ = checkpointFile;
 
         // Set the maximum running time for the client (if any)
-        m_max_client_duration = Gem::Common::duration_from_string(maxClientDuration);
+        max_client_duration_ = Gem::Common::duration_from_string(maxClientDuration);
     }
     catch(const po::error &e) {
         throw geneva_exception(

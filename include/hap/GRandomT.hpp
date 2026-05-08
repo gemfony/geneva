@@ -98,8 +98,8 @@ public:
 	 */
     GRandomT() noexcept(false)
       : Gem::Hap::GRandomBase()
-      , m_p(/* empty */)
-      , m_grf(GRANDOMFACTORY) // Make sure we have a local pointer to the factory
+      , p_(/* empty */)
+      , grf_(GRANDOMFACTORY) // Make sure we have a local pointer to the factory
     {
         // Make sure we have a first random number package available
         this->getNewRandomContainer();
@@ -110,10 +110,10 @@ public:
 	 * The standard destructor
 	 */
     ~GRandomT() override {
-        if(m_p) {
-            m_grf->returnUsedPackage(std::move(m_p));
+        if(p_) {
+            grf_->returnUsedPackage(std::move(p_));
         }
-        m_grf.reset();
+        grf_.reset();
     }
 
     /***************************************************************************/
@@ -131,8 +131,8 @@ public:
 	 * Move construction. Note that getNewRandomContainer() may throw.
 	 */
     GRandomT(GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> &&cp) noexcept(false)
-      : m_p(std::move(cp.m_p))
-      , m_grf(GRANDOMFACTORY) // Make sure we have a local pointer to the factory
+      : p_(std::move(cp.p_))
+      , grf_(GRANDOMFACTORY) // Make sure we have a local pointer to the factory
     {
         // Make sure cp is in pristine condition -- we need to give it a new random number container
         cp.getNewRandomContainer();
@@ -154,11 +154,11 @@ public:
 	 */
     GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> &
     operator=(GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> &&cp) noexcept(false) {
-        m_p = std::move(cp.m_p);
+        p_ = std::move(cp.p_);
         // We keep our own pointer to the random factory
 
         // Re-initialize the random-number container of the remote class
-        cp.m_p.reset();
+        cp.p_.reset();
         cp.getNewRandomContainer();
 
         return *this;
@@ -184,13 +184,13 @@ private:
 	 * assumes that a valid container is already available.
 	 */
     GRandomBase::result_type int_random() override {
-        if(m_p->empty()) {
+        if(p_->empty()) {
             // Get rid of the old container ...
-            m_grf->returnUsedPackage(std::move(m_p));
+            grf_->returnUsedPackage(std::move(p_));
             // ... then get a new one
             getNewRandomContainer();
         }
-        return m_p->next();
+        return p_->next();
     }
 
     /***************************************************************************/
@@ -200,10 +200,10 @@ private:
 	 */
     void getNewRandomContainer() {
         // Make sure we get rid of the old container
-        // m_p.reset(); No longer needed with std::unique_ptr
+        // p_.reset(); No longer needed with std::unique_ptr
 
 #ifdef DEBUG
-        if(not m_grf) {
+        if(not grf_) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GRandomT<RANDOMPROXY>::getNewRandomContainer(): Error!" << std::endl
@@ -218,7 +218,7 @@ private:
 
         // Try until a valid container has been received. new01Container has
         // a timeout of DEFAULTFACTORYGETWAIT internally.
-        while(not(m_p = m_grf->getNewRandomContainer())) {
+        while(not(p_ = grf_->getNewRandomContainer())) {
 #ifdef DEBUG
             nRetries++;
 #endif /* DEBUG */
@@ -234,9 +234,9 @@ private:
 
     /***************************************************************************/
     /** @brief Holds the container of uniform random numbers */
-    std::unique_ptr<random_container> m_p;
+    std::unique_ptr<random_container> p_;
     /** @brief A local copy of the global GRandomFactory */
-    std::shared_ptr<Gem::Hap::GRandomFactory> m_grf;
+    std::shared_ptr<Gem::Hap::GRandomFactory> grf_;
 };
 
 /** @brief Convenience typedef */
@@ -261,7 +261,7 @@ public:
 	 */
     GRandomT() noexcept(false)
       : Gem::Hap::GRandomBase()
-      , m_rng(GRANDOMFACTORY->getSeed()) { /* nothing */
+      , rng_(GRANDOMFACTORY->getSeed()) { /* nothing */
     }
 
     /***************************************************************************/
@@ -313,12 +313,12 @@ private:
 	 * This function produces uniform random numbers locally.
 	 */
     GRandomBase::result_type int_random() override {
-        return m_rng();
+        return rng_();
     }
 
     /***************************************************************************/
     /** @brief The actual generator for local random number creation */
-    G_CPU_BASE_GENERATOR m_rng;
+    G_CPU_BASE_GENERATOR rng_;
 };
 
 /******************************************************************************/

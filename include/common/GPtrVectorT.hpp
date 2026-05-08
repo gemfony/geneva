@@ -107,7 +107,7 @@ class GPtrVectorT {
         }
 #endif
 
-        ar &BOOST_SERIALIZATION_NVP(m_data_cnt);
+        ar &BOOST_SERIALIZATION_NVP(data_cnt_);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -139,7 +139,7 @@ public:
 	 * @param cp A constant reference to another GStdPtrVectorInterfaceT object
 	 */
     GPtrVectorT(GPtrVectorT<T, B> const &cp) {
-        Gem::Common::copyCloneableSmartPointerContainer(cp.m_data_cnt, m_data_cnt);
+        Gem::Common::copyCloneableSmartPointerContainer(cp.data_cnt_, data_cnt_);
     }
 
     /***************************************************************************/
@@ -149,7 +149,7 @@ public:
     GPtrVectorT<T, B> &operator=(GPtrVectorT<T, B> const &cp) {
         if(this == &cp)
             return *this;
-        Gem::Common::copyCloneableSmartPointerContainer(cp.m_data_cnt, m_data_cnt);
+        Gem::Common::copyCloneableSmartPointerContainer(cp.data_cnt_, data_cnt_);
         return *this;
     }
 
@@ -173,33 +173,33 @@ public:
         typename std::vector<std::shared_ptr<T>>::const_iterator cp_it;
         typename std::vector<std::shared_ptr<T>>::iterator it;
 
-        std::size_t localSize = m_data_cnt.size(); // NOLINT(cppcoreguidelines-init-variables)
+        std::size_t localSize = data_cnt_.size(); // NOLINT(cppcoreguidelines-init-variables)
         std::size_t cpSize = cp.size();
 
         if(cpSize == localSize) { // The most likely case
-            for(it = m_data_cnt.begin(), cp_it = cp.begin(); it != m_data_cnt.end();
+            for(it = data_cnt_.begin(), cp_it = cp.begin(); it != data_cnt_.end();
                 ++it, ++cp_it) {
                 (*it)->B::load(*cp_it);
             }
         }
         else if(cpSize > localSize) {
             // First copy the initial elements
-            for(it = m_data_cnt.begin(), cp_it = cp.begin(); it != m_data_cnt.end();
+            for(it = data_cnt_.begin(), cp_it = cp.begin(); it != data_cnt_.end();
                 ++it, ++cp_it) {
                 (*it)->B::load(*cp_it);
             }
 
             // Then attach the remaining objects from cp
             for(cp_it = cp.begin() + localSize; cp_it != cp.end(); ++cp_it) {
-                m_data_cnt.push_back((*cp_it)->T::template clone<T>());
+                data_cnt_.push_back((*cp_it)->T::template clone<T>());
             }
         }
         else if(cpSize < localSize) {
             // First get rid of surplus items
-            m_data_cnt.resize(cpSize);
+            data_cnt_.resize(cpSize);
 
             // Then copy the elements
-            for(it = m_data_cnt.begin(), cp_it = cp.begin(); it != m_data_cnt.end();
+            for(it = data_cnt_.begin(), cp_it = cp.begin(); it != data_cnt_.end();
                 ++it, ++cp_it) {
                 (*it)->B::load(*cp_it);
             }
@@ -223,7 +223,7 @@ public:
         double const & /*limit*/
     ) const {
         Gem::Common::GToken token("GBaseEA::GEAOptimizationMonitor", e);
-        Gem::Common::compare_t(IDENTITY(this->m_data_cnt, cp.m_data_cnt), token);
+        Gem::Common::compare_t(IDENTITY(this->data_cnt_, cp.data_cnt_), token);
         token.evaluate();
     }
 
@@ -244,20 +244,20 @@ public:
     /***************************************************************************/
     // Non modifying access
     size_type size() const {
-        return m_data_cnt.size();
+        return data_cnt_.size();
     } // not tested -- trivial mapping
     bool empty() const {
-        return m_data_cnt.empty();
+        return data_cnt_.empty();
     } // not tested -- trivial mapping
     size_type max_size() const {
-        return m_data_cnt.max_size();
+        return data_cnt_.max_size();
     } // not tested -- trivial mapping
 
     size_type capacity() const {
-        return m_data_cnt.capacity();
+        return data_cnt_.capacity();
     } // not tested -- trivial mapping
     void reserve(size_type amount) {
-        m_data_cnt.reserve(amount);
+        data_cnt_.reserve(amount);
     } // not tested -- trivial mapping
 
     /***************************************************************************/
@@ -282,8 +282,8 @@ public:
         }
 
         return boost::numeric_cast<size_type>(std::count_if(
-            m_data_cnt.begin(),
-            m_data_cnt.end(),
+            data_cnt_.begin(),
+            data_cnt_.end(),
             [&item](const std::shared_ptr<T> &cont_item) -> bool {
 #ifdef DEBUG
                 try {
@@ -328,8 +328,8 @@ public:
         }
 
         return std::find_if(
-            m_data_cnt.begin(),
-            m_data_cnt.end(),
+            data_cnt_.begin(),
+            data_cnt_.end(),
             [&item](const std::shared_ptr<T> &cont_item) -> bool {
 #ifdef DEBUG
                 try {
@@ -360,7 +360,7 @@ public:
 	 */
     template <typename target_type>
     std::shared_ptr<target_type> clone_at(std::size_t pos) const {
-        return (m_data_cnt.at(pos))->T::template clone<target_type>();
+        return (data_cnt_.at(pos))->T::template clone<target_type>();
     }
 
     /***************************************************************************/
@@ -368,65 +368,65 @@ public:
 
     // Exchange of two data sets
     void swap(std::vector<std::shared_ptr<T>> &cont) {
-        m_data_cnt.swap(cont);
+        data_cnt_.swap(cont);
     } // not tested -- trivial mapping
 
     // Access to elements (unchecked / checked)
     reference operator[](std::size_t pos) {
-        return m_data_cnt[pos];
+        return data_cnt_[pos];
     } // not tested -- trivial mapping
     const_reference operator[](std::size_t pos) const {
-        return m_data_cnt[pos];
+        return data_cnt_[pos];
     } // not tested -- trivial mapping
 
     reference at(std::size_t pos) {
-        return m_data_cnt.at(pos);
+        return data_cnt_.at(pos);
     } // not tested -- trivial mapping
     const_reference at(std::size_t pos) const {
-        return m_data_cnt.at(pos);
+        return data_cnt_.at(pos);
     } // not tested -- trivial mapping
 
     reference front() {
-        return m_data_cnt.front();
+        return data_cnt_.front();
     } // not tested -- trivial mapping
     const_reference front() const {
-        return m_data_cnt.front();
+        return data_cnt_.front();
     } // not tested -- trivial mapping
 
     reference back() {
-        return m_data_cnt.back();
+        return data_cnt_.back();
     } // not tested -- trivial mapping
     const_reference back() const {
-        return m_data_cnt.back();
+        return data_cnt_.back();
     } // not tested -- trivial mapping
 
     // Iterators
     iterator begin() {
-        return m_data_cnt.begin();
+        return data_cnt_.begin();
     } // not tested -- trivial mapping
     const_iterator begin() const {
-        return m_data_cnt.begin();
+        return data_cnt_.begin();
     } // not tested -- trivial mapping
 
     iterator end() {
-        return m_data_cnt.end();
+        return data_cnt_.end();
     } // not tested -- trivial mapping
     const_iterator end() const {
-        return m_data_cnt.end();
+        return data_cnt_.end();
     } // not tested -- trivial mapping
 
     reverse_iterator rbegin() {
-        return m_data_cnt.rbegin();
+        return data_cnt_.rbegin();
     } // not tested -- trivial mapping
     const_reverse_iterator rbegin() const {
-        return m_data_cnt.rbegin();
+        return data_cnt_.rbegin();
     } // not tested -- trivial mapping
 
     reverse_iterator rend() {
-        return m_data_cnt.rend();
+        return data_cnt_.rend();
     } // not tested -- trivial mapping
     const_reverse_iterator rend() const {
-        return m_data_cnt.rend();
+        return data_cnt_.rend();
     } // not tested -- trivial mapping
 
     /***************************************************************************/
@@ -467,7 +467,7 @@ public:
             );
         }
 
-        return m_data_cnt.insert(pos, item_ptr);
+        return data_cnt_.insert(pos, item_ptr);
     }
 
     /* ------------------------------------------------------------------------------------------------
@@ -494,7 +494,7 @@ public:
             );
         }
 
-        return m_data_cnt.insert(pos, item_ptr->T::template clone<T>());
+        return data_cnt_.insert(pos, item_ptr->T::template clone<T>());
     }
 
     /* ------------------------------------------------------------------------------------------------
@@ -539,10 +539,10 @@ public:
         }
 
         std::size_t iterator_pos =
-            pos - m_data_cnt.begin(); // NOLINT(cppcoreguidelines-init-variables)
+            pos - data_cnt_.begin(); // NOLINT(cppcoreguidelines-init-variables)
         for(std::size_t i = 0; i < amount; i++) {
             // Note that we re-calculate the iterator, as it is not clear whether it remains valid
-            m_data_cnt.insert(m_data_cnt.begin() + iterator_pos, item_ptr->T::template clone<T>());
+            data_cnt_.insert(data_cnt_.begin() + iterator_pos, item_ptr->T::template clone<T>());
         }
     }
 
@@ -572,14 +572,14 @@ public:
         }
 
         std::size_t iterator_pos =
-            pos - m_data_cnt.begin(); // NOLINT(cppcoreguidelines-init-variables)
+            pos - data_cnt_.begin(); // NOLINT(cppcoreguidelines-init-variables)
         // Create (amount-1) clones
         for(std::size_t i = 0; i < amount - 1; i++) {
             // Note that we re-calculate the iterator, as it is not clear whether it remains valid
-            m_data_cnt.insert(m_data_cnt.begin() + iterator_pos, item_ptr->T::template clone<T>());
+            data_cnt_.insert(data_cnt_.begin() + iterator_pos, item_ptr->T::template clone<T>());
         }
         // Add the argument
-        m_data_cnt.insert(m_data_cnt.begin() + iterator_pos, item_ptr);
+        data_cnt_.insert(data_cnt_.begin() + iterator_pos, item_ptr);
     }
 
     /* ------------------------------------------------------------------------------------------------
@@ -621,7 +621,7 @@ public:
             );
         }
 
-        m_data_cnt.push_back(item_ptr);
+        data_cnt_.push_back(item_ptr);
     }
 
     /* ------------------------------------------------------------------------------------------------
@@ -647,7 +647,7 @@ public:
             );
         }
 
-        m_data_cnt.push_back(item_ptr->T::template clone<T>());
+        data_cnt_.push_back(item_ptr->T::template clone<T>());
     }
 
     /* ------------------------------------------------------------------------------------------------
@@ -659,15 +659,15 @@ public:
     /***************************************************************************/
     // Removal at a given position or in a range
     iterator erase(iterator pos) {
-        return m_data_cnt.erase(pos);
+        return data_cnt_.erase(pos);
     } // not tested -- trivial mapping
     iterator erase(iterator from, iterator to) {
-        return m_data_cnt.erase(from, to);
+        return data_cnt_.erase(from, to);
     } // not tested -- trivial mapping
 
     // Removing an element from the end of the vector
     void pop_back() {
-        m_data_cnt.pop_back();
+        data_cnt_.pop_back();
     } // not tested -- trivial mapping
 
     /***************************************************************************/
@@ -723,10 +723,10 @@ public:
 	 * @param item An item that should be used for initialization of new items, if any
 	 */
     void resize_noclone(size_type amount, std::shared_ptr<T> item_ptr) {
-        std::size_t dataSize = m_data_cnt.size(); // NOLINT(cppcoreguidelines-init-variables)
+        std::size_t dataSize = data_cnt_.size(); // NOLINT(cppcoreguidelines-init-variables)
 
         if(amount < dataSize)
-            m_data_cnt.resize(amount);
+            data_cnt_.resize(amount);
         else if(amount > dataSize) {
             // Check that item is not empty
             if(not item_ptr) { // Check that item actually contains something useful
@@ -739,11 +739,11 @@ public:
 
             // Create a (amount - dataSize -1) clones
             for(std::size_t i = dataSize; i < amount - 1; i++) {
-                m_data_cnt.push_back(item_ptr->T::template clone<T>());
+                data_cnt_.push_back(item_ptr->T::template clone<T>());
             }
 
             // Finally add item_ptr
-            m_data_cnt.push_back(item_ptr);
+            data_cnt_.push_back(item_ptr);
         }
     }
 
@@ -763,10 +763,10 @@ public:
 	 * @param item An item that should be used for initialization of new items, if any
 	 */
     void resize_clone(size_type amount, std::shared_ptr<T> item_ptr) {
-        std::size_t dataSize = m_data_cnt.size(); // NOLINT(cppcoreguidelines-init-variables)
+        std::size_t dataSize = data_cnt_.size(); // NOLINT(cppcoreguidelines-init-variables)
 
         if(amount < dataSize)
-            m_data_cnt.resize(amount);
+            data_cnt_.resize(amount);
         else if(amount > dataSize) {
             // Check that item is not empty
             if(not item_ptr) { // Check that item actually contains something useful
@@ -778,7 +778,7 @@ public:
             }
 
             for(std::size_t i = dataSize; i < amount; i++) {
-                m_data_cnt.push_back(item_ptr->T::template clone<T>());
+                data_cnt_.push_back(item_ptr->T::template clone<T>());
             }
         }
     }
@@ -796,13 +796,13 @@ public:
 	 * data items to each position.
 	 */
     void resize_empty(size_type amount) {
-        std::size_t dataSize = m_data_cnt.size(); // NOLINT(cppcoreguidelines-init-variables)
+        std::size_t dataSize = data_cnt_.size(); // NOLINT(cppcoreguidelines-init-variables)
         if(amount < dataSize) {
-            m_data_cnt.resize(amount);
+            data_cnt_.resize(amount);
         }
         else if(amount > dataSize) { // Add empty smart pointers
             for(std::size_t i = dataSize; i < amount; i++) {
-                m_data_cnt.push_back(std::shared_ptr<T>());
+                data_cnt_.push_back(std::shared_ptr<T>());
             }
         }
     }
@@ -810,7 +810,7 @@ public:
     /***************************************************************************/
     /** @brief Clearing the data vector */
     void clear() {
-        m_data_cnt.clear();
+        data_cnt_.clear();
     } // Not tested -- trivial mapping
 
     /***************************************************************************/
@@ -822,7 +822,7 @@ public:
 	 */
     void getDataCopy(std::vector<std::shared_ptr<T>> &cp) const {
         cp.clear();
-        for(const auto &item : m_data_cnt) {
+        for(const auto &item : data_cnt_) {
             cp.push_back(item->T::template clone<T>());
         }
     }
@@ -889,7 +889,7 @@ public:
 	 */
     template <typename derivedType>
     void attachViewTo(std::vector<std::shared_ptr<derivedType>> &target) {
-        for(auto &item_ptr : m_data_cnt) {
+        for(auto &item_ptr : data_cnt_) {
             std::shared_ptr<derivedType> derived_item_ptr =
                 std::dynamic_pointer_cast<derivedType>(item_ptr);
             if(derived_item_ptr) {
@@ -918,7 +918,7 @@ public:
 		 * @param end The end of the iteration sequence
 		 */
         explicit conversion_iterator(typename std::vector<std::shared_ptr<T>>::iterator const &end)
-          : m_end(end) { /* nothing */
+          : end_(end) { /* nothing */
         }
 
         /************************************************************************/
@@ -936,11 +936,11 @@ public:
 		 */
         conversion_iterator<derivedType> &
         operator=(typename std::vector<std::shared_ptr<T>>::iterator const &current) {
-            m_current_pos = current;
+            current_pos_ = current;
             // Skip to first "good" entry
-            while(m_current_pos != m_end &&
-                  not(m_valid_ptr = std::dynamic_pointer_cast<derivedType>(*m_current_pos))) {
-                ++m_current_pos;
+            while(current_pos_ != end_ &&
+                  not(valid_ptr_ = std::dynamic_pointer_cast<derivedType>(*current_pos_))) {
+                ++current_pos_;
             }
 
             return *this;
@@ -954,7 +954,7 @@ public:
 		 * @return A boolean indicating whether this iterator's value is inequal with the other iterator
 		 */
         bool operator!=(typename std::vector<std::shared_ptr<T>>::iterator const &other) const {
-            return m_current_pos != other;
+            return current_pos_ != other;
         }
 
         /************************************************************************/
@@ -967,7 +967,7 @@ public:
 		 * @param end The new end of the sequence
 		 */
         void resetEndPosition(typename std::vector<std::shared_ptr<T>>::iterator const &end) {
-            m_end = end;
+            end_ = end;
         }
 
     private:
@@ -983,7 +983,7 @@ public:
 		 */
         std::shared_ptr<derivedType> dereference() const {
 #ifdef DEBUG
-            if(m_current_pos == m_end) {
+            if(current_pos_ == end_) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
                     << "In conversion_iterator::dereference(): Error:" << std::endl
@@ -991,8 +991,8 @@ public:
                 );
             }
 
-            if(m_valid_ptr) {
-                return m_valid_ptr;
+            if(valid_ptr_) {
+                return valid_ptr_;
             }
             else {
                 throw geneva_exception(
@@ -1001,7 +1001,7 @@ public:
                 );
             }
 #else
-            return m_valid_ptr;
+            return valid_ptr_;
 #endif /* DEBUG */
         }
 
@@ -1013,7 +1013,7 @@ public:
 		 * @return A boolean indicating whether equality was found
 		 */
         bool equal(typename std::vector<std::shared_ptr<T>>::iterator const &other) const {
-            return m_current_pos == other;
+            return current_pos_ == other;
         }
 
         /************************************************************************/
@@ -1022,22 +1022,22 @@ public:
 		 * not meet the derivation pattern.
 		 */
         void increment() {
-            while(m_current_pos != m_end) {
-                ++m_current_pos;
-                if(m_current_pos != m_end &&
-                   (m_valid_ptr = std::dynamic_pointer_cast<derivedType>(*m_current_pos)))
+            while(current_pos_ != end_) {
+                ++current_pos_;
+                if(current_pos_ != end_ &&
+                   (valid_ptr_ = std::dynamic_pointer_cast<derivedType>(*current_pos_)))
                     break;
             }
         }
 
         /************************************************************************/
         typename std::vector<std::shared_ptr<T>>::iterator
-            m_current_pos; ///< Marks the current position in the iteration sequence
+            current_pos_; ///< Marks the current position in the iteration sequence
         typename std::vector<std::shared_ptr<T>>::iterator
-            m_end; ///< Marks the end of the iteration sequence
+            end_; ///< Marks the end of the iteration sequence
 
         std::shared_ptr<derivedType>
-            m_valid_ptr; ///< Temporary which holds the current valid pointer
+            valid_ptr_; ///< Temporary which holds the current valid pointer
     };
 
 protected:
@@ -1053,7 +1053,7 @@ protected:
     virtual void specificTestsFailuresExpected_GUnitTests_() { /* nothing here yet */
     }
 
-    std::vector<std::shared_ptr<T>> m_data_cnt;
+    std::vector<std::shared_ptr<T>> data_cnt_;
 };
 
 /******************************************************************************/
@@ -1062,7 +1062,7 @@ protected:
  */
 template <typename T, typename B>
 inline GPtrVectorT<T, B>::~GPtrVectorT() {
-    m_data_cnt.clear();
+    data_cnt_.clear();
 }
 
 /******************************************************************************/

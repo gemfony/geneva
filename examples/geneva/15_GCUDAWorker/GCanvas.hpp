@@ -240,7 +240,7 @@ class GColumn {
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar &BOOST_SERIALIZATION_NVP(m_column_data_mnt);
+        ar &BOOST_SERIALIZATION_NVP(column_data_mnt_);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -278,7 +278,7 @@ public:
     G_API_COMMON void init(std::size_t, std::tuple<float, float, float> const &);
 
 private:
-    std::vector<GRgb> m_column_data_mnt; ///< Holds this column's pixels
+    std::vector<GRgb> column_data_mnt_; ///< Holds this column's pixels
 };
 
 /******************************************************************************/
@@ -296,8 +296,8 @@ class GCanvas {
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar &BOOST_SERIALIZATION_NVP(m_canvasData) & BOOST_SERIALIZATION_NVP(m_xDim) &
-            BOOST_SERIALIZATION_NVP(m_yDim);
+        ar &BOOST_SERIALIZATION_NVP(canvasData_) & BOOST_SERIALIZATION_NVP(xDim_) &
+            BOOST_SERIALIZATION_NVP(yDim_);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -343,7 +343,7 @@ public:
 	  * Get information about the canvas dimensions
 	  */
     [[nodiscard]] auto dimensions() const {
-        return std::tuple<std::size_t, std::size_t>{m_xDim, m_yDim};
+        return std::tuple<std::size_t, std::size_t>{xDim_, yDim_};
     }
 
     /***************************************************************************/
@@ -353,7 +353,7 @@ public:
 	  * @return The value of the xDim_ parameter
 	  */
     [[nodiscard]] std::size_t getXDim() const {
-        return m_xDim;
+        return xDim_;
     }
 
     /***************************************************************************/
@@ -363,7 +363,7 @@ public:
 	  * @return The value of the yDim_ parameter
 	  */
     [[nodiscard]] std::size_t getYDim() const {
-        return m_yDim;
+        return yDim_;
     }
 
     /***************************************************************************/
@@ -373,7 +373,7 @@ public:
 	  * @return The total number of pixels in the canvas
 	  */
     [[nodiscard]] std::size_t getNPixels() const {
-        return m_xDim * m_yDim;
+        return xDim_ * yDim_;
     }
 
     /***************************************************************************/
@@ -411,7 +411,7 @@ public:
 	  * Unchecked access
 	  */
     GColumn &operator[](std::size_t pos) {
-        return m_canvasData[pos];
+        return canvasData_[pos];
     }
 
     /***************************************************************************/
@@ -419,7 +419,7 @@ public:
 	  * Checked access
 	  */
     GColumn &at(std::size_t pos) {
-        return m_canvasData.at(pos);
+        return canvasData_.at(pos);
     }
 
     /***************************************************************************/
@@ -427,7 +427,7 @@ public:
 	  * Unchecked access
 	  */
     const GColumn &operator[](std::size_t pos) const {
-        return m_canvasData[pos];
+        return canvasData_[pos];
     }
 
     /***************************************************************************/
@@ -435,7 +435,7 @@ public:
 	  * Checked access
 	  */
     const GColumn &at(std::size_t pos) const {
-        return m_canvasData.at(pos);
+        return canvasData_.at(pos);
     }
 
     /***************************************************************************/
@@ -454,11 +454,11 @@ public:
         }
 
         float result = 0.f;
-        for(std::size_t i_x = 0; i_x < m_xDim; i_x++) {
-            for(std::size_t i_y = 0; i_y < m_yDim; i_y++) {
-                float dr = m_canvasData[i_x][i_y].r - cp[i_x][i_y].r;
-                float dg = m_canvasData[i_x][i_y].g - cp[i_x][i_y].g;
-                float db = m_canvasData[i_x][i_y].b - cp[i_x][i_y].b;
+        for(std::size_t i_x = 0; i_x < xDim_; i_x++) {
+            for(std::size_t i_y = 0; i_y < yDim_; i_y++) {
+                float dr = canvasData_[i_x][i_y].r - cp[i_x][i_y].r;
+                float dg = canvasData_[i_x][i_y].g - cp[i_x][i_y].g;
+                float db = canvasData_[i_x][i_y].b - cp[i_x][i_y].b;
                 result += std::sqrt(dr * dr + dg * dg + db * db);
             }
         }
@@ -473,20 +473,20 @@ public:
     [[nodiscard]] std::string toPPM() const {
         std::ostringstream result;
 
-        result << "P3\n" << m_xDim << " " << m_yDim << '\n' << MAXCOLOR << '\n';
+        result << "P3\n" << xDim_ << " " << yDim_ << '\n' << MAXCOLOR << '\n';
 
-        for(std::size_t i_y = 0; i_y < m_yDim; i_y++) {
-            for(std::size_t i_x = 0; i_x < m_xDim; i_x++) {
+        for(std::size_t i_y = 0; i_y < yDim_; i_y++) {
+            for(std::size_t i_x = 0; i_x < xDim_; i_x++) {
                 result << static_cast<std::size_t>(
-                              m_canvasData[i_x][i_y].r * static_cast<float>(MAXCOLOR)
+                              canvasData_[i_x][i_y].r * static_cast<float>(MAXCOLOR)
                           )
                        << " "
                        << static_cast<std::size_t>(
-                              m_canvasData[i_x][i_y].g * static_cast<float>(MAXCOLOR)
+                              canvasData_[i_x][i_y].g * static_cast<float>(MAXCOLOR)
                           )
                        << " "
                        << static_cast<std::size_t>(
-                              m_canvasData[i_x][i_y].b * static_cast<float>(MAXCOLOR)
+                              canvasData_[i_x][i_y].b * static_cast<float>(MAXCOLOR)
                           )
                        << " ";
             }
@@ -572,11 +572,11 @@ public:
                     );
                 }
 
-                m_xDim = v[0];
-                m_yDim = v[1];
+                xDim_ = v[0];
+                yDim_ = v[1];
 
                 // Re-initialize the canvas with black
-                this->reset(std::tuple<std::size_t, std::size_t>(m_xDim, m_yDim), 0.f, 0.f, 0.f);
+                this->reset(std::tuple<std::size_t, std::size_t>(xDim_, yDim_), 0.f, 0.f, 0.f);
 
                 dimensions_found = true;
 
@@ -663,26 +663,26 @@ public:
 
         // v should now contain all per-pixel information. Check the size - as
         // we are reading triplets, the size of the vector is known.
-        if(v.size() != 3 * m_xDim * m_yDim) {
+        if(v.size() != 3 * xDim_ * yDim_) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "Error: got invalid number of entries in line." << std::endl
-                << "Expected " << 3 * m_xDim * m_yDim << ", but got " << v.size() << std::endl
-                << "Note: xDim_ = " << m_xDim << ", yDim_ = " << m_yDim << std::endl
+                << "Expected " << 3 * xDim_ * yDim_ << ", but got " << v.size() << std::endl
+                << "Note: xDim_ = " << xDim_ << ", yDim_ = " << yDim_ << std::endl
             );
         }
 
         // Add all pixel data to the canvas
         std::size_t offset = 0;
-        for(std::size_t line_counter = 0; line_counter < m_yDim; line_counter++) {
-            for(std::size_t pixel_counter = 0; pixel_counter < m_xDim; pixel_counter++) {
-                offset = 3 * (line_counter * m_xDim + pixel_counter);
+        for(std::size_t line_counter = 0; line_counter < yDim_; line_counter++) {
+            for(std::size_t pixel_counter = 0; pixel_counter < xDim_; pixel_counter++) {
+                offset = 3 * (line_counter * xDim_ + pixel_counter);
 
-                m_canvasData[pixel_counter][line_counter].r =
+                canvasData_[pixel_counter][line_counter].r =
                     static_cast<float>(v[offset]) / static_cast<float>(MAXCOLOR);
-                m_canvasData[pixel_counter][line_counter].g =
+                canvasData_[pixel_counter][line_counter].g =
                     static_cast<float>(v[offset + 1]) / static_cast<float>(MAXCOLOR);
-                m_canvasData[pixel_counter][line_counter].b =
+                canvasData_[pixel_counter][line_counter].b =
                     static_cast<float>(v[offset + 2]) / static_cast<float>(MAXCOLOR);
             }
         }
@@ -736,10 +736,10 @@ public:
 	  * Removes all data from the canvas
 	  */
     void clear() {
-        m_canvasData.clear();
+        canvasData_.clear();
 
-        m_xDim = 0;
-        m_yDim = 0;
+        xDim_ = 0;
+        yDim_ = 0;
     }
 
     /***************************************************************************/
@@ -756,12 +756,12 @@ public:
     ) {
         this->clear();
 
-        m_xDim = std::get<0>(dimension);
-        m_yDim = std::get<1>(dimension);
+        xDim_ = std::get<0>(dimension);
+        yDim_ = std::get<1>(dimension);
 
-        m_canvasData.assign(
-            m_xDim,
-            GColumn(m_yDim, std::tuple<float, float, float>{red, green, blue})
+        canvasData_.assign(
+            xDim_,
+            GColumn(yDim_, std::tuple<float, float, float>{red, green, blue})
         );
     }
 
@@ -831,8 +831,8 @@ public:
 	  * Adds a triangle to the canvas, using a struct holding cartesic coordinates
 	  */
     void addTriangle(t_cart const &t) {
-        float xDim_inv = 1.f / static_cast<float>(m_xDim);
-        float yDim_inv = 1.f / static_cast<float>(m_yDim);
+        float xDim_inv = 1.f / static_cast<float>(xDim_);
+        float yDim_inv = 1.f / static_cast<float>(yDim_);
         float dot1p, dot2p, u, v;
         coord2D diffp1, pos_f;
 
@@ -844,7 +844,7 @@ public:
         float dot22 = diff21 * diff21;
         float denom_inv = 1.f / std::max(dot11 * dot22 - dot12 * dot12, 0.0000001f);
 
-        for(std::size_t i_x = 0; i_x < m_xDim; i_x++) {
+        for(std::size_t i_x = 0; i_x < xDim_; i_x++) {
             // Calculate the pixel x-position
             pos_f.x = float(i_x + 1) * xDim_inv;
 
@@ -856,7 +856,7 @@ public:
                 continue;
             }
 
-            for(std::size_t i_y = 0; i_y < m_yDim; i_y++) {
+            for(std::size_t i_y = 0; i_y < yDim_; i_y++) {
                 // Calculate the pixel y-position
                 pos_f.y = float(i_y + 1) * yDim_inv;
 
@@ -876,12 +876,12 @@ public:
                 v = (dot11 * dot2p - dot12 * dot1p) * denom_inv;
 
                 if((u >= 0.f) && (v >= 0.f) && (u + v < 1.f)) {
-                    m_canvasData[i_x][i_y].r =
-                        m_canvasData[i_x][i_y].r + t.a * (t.r - m_canvasData[i_x][i_y].r);
-                    m_canvasData[i_x][i_y].g =
-                        m_canvasData[i_x][i_y].g + t.a * (t.g - m_canvasData[i_x][i_y].g);
-                    m_canvasData[i_x][i_y].b =
-                        m_canvasData[i_x][i_y].b + t.a * (t.b - m_canvasData[i_x][i_y].b);
+                    canvasData_[i_x][i_y].r =
+                        canvasData_[i_x][i_y].r + t.a * (t.r - canvasData_[i_x][i_y].r);
+                    canvasData_[i_x][i_y].g =
+                        canvasData_[i_x][i_y].g + t.a * (t.g - canvasData_[i_x][i_y].g);
+                    canvasData_[i_x][i_y].b =
+                        canvasData_[i_x][i_y].b + t.a * (t.b - canvasData_[i_x][i_y].b);
                 }
             }
         }
@@ -896,17 +896,17 @@ public:
         float averageGreen = 0.f;
         float averageBlue = 0.f;
 
-        for(std::size_t i_x = 0; i_x < m_xDim; i_x++) {
-            for(std::size_t i_y = 0; i_y < m_yDim; i_y++) {
-                averageRed += m_canvasData[i_x][i_y].r;
-                averageGreen += m_canvasData[i_x][i_y].g;
-                averageBlue += m_canvasData[i_x][i_y].b;
+        for(std::size_t i_x = 0; i_x < xDim_; i_x++) {
+            for(std::size_t i_y = 0; i_y < yDim_; i_y++) {
+                averageRed += canvasData_[i_x][i_y].r;
+                averageGreen += canvasData_[i_x][i_y].g;
+                averageBlue += canvasData_[i_x][i_y].b;
             }
         }
 
-        averageRed /= static_cast<float>(m_xDim * m_yDim);
-        averageGreen /= static_cast<float>(m_xDim * m_yDim);
-        averageBlue /= static_cast<float>(m_xDim * m_yDim);
+        averageRed /= static_cast<float>(xDim_ * yDim_);
+        averageGreen /= static_cast<float>(xDim_ * yDim_);
+        averageBlue /= static_cast<float>(xDim_ * yDim_);
 
         return std::tuple<float, float, float>{averageRed, averageGreen, averageBlue};
     }
@@ -914,8 +914,8 @@ public:
     /***************************************************************************/
 
 protected:
-    std::size_t m_xDim = 0, m_yDim = 0; ///< The dimensions of this canvas
-    std::vector<GColumn> m_canvasData;  ///< Holds this canvas' columns
+    std::size_t xDim_ = 0, yDim_ = 0; ///< The dimensions of this canvas
+    std::vector<GColumn> canvasData_;  ///< Holds this canvas' columns
 
     static constexpr std::size_t NCOLORS = Gem::Common::PowSmallPosInt<2, COLORDEPTH>();
     static constexpr std::size_t MAXCOLOR = NCOLORS - 1;

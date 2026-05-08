@@ -502,7 +502,7 @@ protected:
         // The following random distribution slightly favours values < 1. Selection pressure
         // will keep the values higher if needed
         sigma_ *= std::exp(
-            GAdaptorT<num_type, fp_type>::m_normal_distribution(
+            GAdaptorT<num_type, fp_type>::normal_distribution_(
                 gr,
                 typename std::normal_distribution<fp_type>::param_type(0., std::abs(sigmaSigma_))
             )
@@ -535,7 +535,7 @@ protected:
         using namespace Gem::Common;
         using namespace Gem::Hap;
 
-        sigma_ = GAdaptorT<num_type, fp_type>::m_uniform_real_distribution(
+        sigma_ = GAdaptorT<num_type, fp_type>::uniform_real_distribution_(
             gr,
             typename std::uniform_real_distribution<fp_type>::param_type(minSigma_, maxSigma_)
         );

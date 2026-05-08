@@ -146,11 +146,11 @@ class GFitnessMonitor // NOLINT(cppcoreguidelines-special-member-functions)
         ar &make_nvp(
             "GBasePluggableOM",
             boost::serialization::base_object<GBasePluggableOM>(*this)
-        ) & BOOST_SERIALIZATION_NVP(m_xDim) &
-            BOOST_SERIALIZATION_NVP(m_yDim) & BOOST_SERIALIZATION_NVP(m_nMonitorInds) &
-            BOOST_SERIALIZATION_NVP(m_resultFile) & BOOST_SERIALIZATION_NVP(m_infoInitRun) &
-            BOOST_SERIALIZATION_NVP(m_globalFitnessGraphVec) &
-            BOOST_SERIALIZATION_NVP(m_iterationFitnessGraphVec);
+        ) & BOOST_SERIALIZATION_NVP(xDim_) &
+            BOOST_SERIALIZATION_NVP(yDim_) & BOOST_SERIALIZATION_NVP(nMonitorInds_) &
+            BOOST_SERIALIZATION_NVP(resultFile_) & BOOST_SERIALIZATION_NVP(infoInitRun_) &
+            BOOST_SERIALIZATION_NVP(globalFitnessGraphVec_) &
+            BOOST_SERIALIZATION_NVP(iterationFitnessGraphVec_);
     }
 
     ///////////////////////////////////////////////////////////////////////
@@ -223,19 +223,19 @@ private:
 
     /************************************************************************/
 
-    std::uint32_t m_xDim = DEFAULTXDIMOM; ///< The dimension of the canvas in x-direction
-    std::uint32_t m_yDim = DEFAULTYDIMOM; ///< The dimension of the canvas in y-direction
-    std::size_t m_nMonitorInds =
+    std::uint32_t xDim_ = DEFAULTXDIMOM; ///< The dimension of the canvas in x-direction
+    std::uint32_t yDim_ = DEFAULTYDIMOM; ///< The dimension of the canvas in y-direction
+    std::size_t nMonitorInds_ =
         DEFNMONITORINDS; ///< The number of individuals that should be monitored
-    std::string m_resultFile =
+    std::string resultFile_ =
         DEFAULTROOTRESULTFILEOM; ///< The name of the file to which data is emitted
 
-    bool m_infoInitRun =
+    bool infoInitRun_ =
         false; ///< Allows to check whether the INFOINIT section of informationFunction has already been passed at least once
     std::vector<std::shared_ptr<Gem::Common::GGraph2D>>
-        m_globalFitnessGraphVec; ///< Will hold progress information for the globally best individual
+        globalFitnessGraphVec_; ///< Will hold progress information for the globally best individual
     std::vector<std::shared_ptr<Gem::Common::GGraph2D>>
-        m_iterationFitnessGraphVec; ///< Will hold progress information for an iteration best's individual
+        iterationFitnessGraphVec_; ///< Will hold progress information for an iteration best's individual
 };
 
 /******************************************************************************/
@@ -262,10 +262,10 @@ class GCollectiveMonitor // NOLINT(cppcoreguidelines-special-member-functions)
         // Some preparation needed if this is a load operation.
         // This is needed to work around a problem in Boost 1.58
         if(Archive::is_loading::value) {
-            m_pluggable_monitors.clear();
+            pluggable_monitors_.clear();
         }
 
-        ar &BOOST_SERIALIZATION_NVP(m_pluggable_monitors);
+        ar &BOOST_SERIALIZATION_NVP(pluggable_monitors_);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -323,7 +323,7 @@ private:
     informationFunction_(infoMode, G_OptimizationAlgorithm_Base const *const goa) override;
 
     std::vector<std::shared_ptr<Gem::Geneva::GBasePluggableOM>>
-        m_pluggable_monitors; ///< The collection of monitors
+        pluggable_monitors_; ///< The collection of monitors
 };
 
 /******************************************************************************/
@@ -347,15 +347,15 @@ class GProgressPlotterT // NOLINT(cppcoreguidelines-special-member-functions)
         ar &make_nvp(
             "GBasePluggableOM",
             boost::serialization::base_object<GBasePluggableOM>(*this)
-        ) & BOOST_SERIALIZATION_NVP(m_fp_profVarVec) &
-            BOOST_SERIALIZATION_NVP(m_gpd) & BOOST_SERIALIZATION_NVP(m_progressPlotter2D_oa) &
-            BOOST_SERIALIZATION_NVP(m_progressPlotter3D_oa) &
-            BOOST_SERIALIZATION_NVP(m_progressPlotter4D_oa) & BOOST_SERIALIZATION_NVP(m_fileName) &
-            BOOST_SERIALIZATION_NVP(m_canvasDimensions) &
-            BOOST_SERIALIZATION_NVP(m_monitorBestOnly) &
-            BOOST_SERIALIZATION_NVP(m_monitorValidOnly) &
-            BOOST_SERIALIZATION_NVP(m_observeBoundaries) &
-            BOOST_SERIALIZATION_NVP(m_addPrintCommand);
+        ) & BOOST_SERIALIZATION_NVP(fp_profVarVec_) &
+            BOOST_SERIALIZATION_NVP(gpd_) & BOOST_SERIALIZATION_NVP(progressPlotter2D_oa_) &
+            BOOST_SERIALIZATION_NVP(progressPlotter3D_oa_) &
+            BOOST_SERIALIZATION_NVP(progressPlotter4D_oa_) & BOOST_SERIALIZATION_NVP(fileName_) &
+            BOOST_SERIALIZATION_NVP(canvasDimensions_) &
+            BOOST_SERIALIZATION_NVP(monitorBestOnly_) &
+            BOOST_SERIALIZATION_NVP(monitorValidOnly_) &
+            BOOST_SERIALIZATION_NVP(observeBoundaries_) &
+            BOOST_SERIALIZATION_NVP(addPrintCommand_);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -379,10 +379,10 @@ public:
 	  * Some member variables may be initialized in the class body.
 	  */
     GProgressPlotterT(bool monitorBestOnly, bool monitorValidOnly)
-      : m_gpd("Progress information", 1, 1)
-      , m_canvasDimensions(std::tuple<std::uint32_t, std::uint32_t>(1024, 768))
-      , m_monitorBestOnly(monitorBestOnly)
-      , m_monitorValidOnly(monitorValidOnly) { /* nothing */
+      : gpd_("Progress information", 1, 1)
+      , canvasDimensions_(std::tuple<std::uint32_t, std::uint32_t>(1024, 768))
+      , monitorBestOnly_(monitorBestOnly)
+      , monitorValidOnly_(monitorValidOnly) { /* nothing */
     }
 
     /***************************************************************************/
@@ -391,17 +391,17 @@ public:
 	  */
     GProgressPlotterT(const GProgressPlotterT<fp_type> &cp)
       : GBasePluggableOM(cp)
-      , m_gpd(cp.m_gpd)
-      , m_fileName(cp.m_fileName)
-      , m_canvasDimensions(cp.m_canvasDimensions)
-      , m_monitorBestOnly(cp.m_monitorBestOnly)
-      , m_monitorValidOnly(cp.m_monitorValidOnly)
-      , m_observeBoundaries(cp.m_observeBoundaries)
-      , m_addPrintCommand(cp.m_addPrintCommand) {
-        Gem::Common::copyCloneableSmartPointer(cp.m_progressPlotter2D_oa, m_progressPlotter2D_oa);
-        Gem::Common::copyCloneableSmartPointer(cp.m_progressPlotter3D_oa, m_progressPlotter3D_oa);
-        Gem::Common::copyCloneableSmartPointer(cp.m_progressPlotter4D_oa, m_progressPlotter4D_oa);
-        Gem::Common::copyCloneableObjectsContainer(cp.m_fp_profVarVec, m_fp_profVarVec);
+      , gpd_(cp.gpd_)
+      , fileName_(cp.fileName_)
+      , canvasDimensions_(cp.canvasDimensions_)
+      , monitorBestOnly_(cp.monitorBestOnly_)
+      , monitorValidOnly_(cp.monitorValidOnly_)
+      , observeBoundaries_(cp.observeBoundaries_)
+      , addPrintCommand_(cp.addPrintCommand_) {
+        Gem::Common::copyCloneableSmartPointer(cp.progressPlotter2D_oa_, progressPlotter2D_oa_);
+        Gem::Common::copyCloneableSmartPointer(cp.progressPlotter3D_oa_, progressPlotter3D_oa_);
+        Gem::Common::copyCloneableSmartPointer(cp.progressPlotter4D_oa_, progressPlotter4D_oa_);
+        Gem::Common::copyCloneableObjectsContainer(cp.fp_profVarVec_, fp_profVarVec_);
     }
 
     /***************************************************************************/
@@ -429,7 +429,7 @@ public:
 
         //---------------------------------------------------------------------------
         // Clear the parameter vectors
-        m_fp_profVarVec.clear();
+        fp_profVarVec_.clear();
 
         // Parse the parameter string
         GParameterPropertyParser ppp(parStr);
@@ -446,7 +446,7 @@ public:
         typename std::vector<parPropSpec<fp_type>>::const_iterator d_end = std::get<1>(t_d);
         for(; fp_cit != d_end;
             ++fp_cit) { // Note: fp_cit is already set to the begin of the double parameter arrays
-            m_fp_profVarVec.push_back(*fp_cit);
+            fp_profVarVec_.push_back(*fp_cit);
         }
 
         //---------------------------------------------------------------------------
@@ -457,7 +457,7 @@ public:
 	  * Allows to specify whether only the best individuals should be monitored.
 	  */
     void setMonitorBestOnly(bool monitorBestOnly = true) {
-        m_monitorBestOnly = monitorBestOnly;
+        monitorBestOnly_ = monitorBestOnly;
     }
 
     /***************************************************************************/
@@ -465,7 +465,7 @@ public:
 	  * Allows to check whether only the best individuals should be monitored.
 	  */
     bool getMonitorBestOnly() const {
-        return m_monitorBestOnly;
+        return monitorBestOnly_;
     }
 
     /***************************************************************************/
@@ -473,7 +473,7 @@ public:
 	  * Allows to specify whether only valid individuals should be monitored.
 	  */
     void setMonitorValidOnly(bool monitorValidOnly = true) {
-        m_monitorValidOnly = monitorValidOnly;
+        monitorValidOnly_ = monitorValidOnly;
     }
 
     /***************************************************************************/
@@ -481,7 +481,7 @@ public:
 	  * Allows to check whether only valid individuals should be monitored.
 	  */
     bool getMonitorValidOnly() const {
-        return m_monitorValidOnly;
+        return monitorValidOnly_;
     }
 
     /***************************************************************************/
@@ -489,7 +489,7 @@ public:
 	  * Allows to spefify whether scan boundaries should be observed
 	  */
     void setObserveBoundaries(bool observeBoundaries) {
-        m_observeBoundaries = observeBoundaries;
+        observeBoundaries_ = observeBoundaries;
     }
 
     /***************************************************************************/
@@ -497,7 +497,7 @@ public:
 	  * Allows to check whether boundaries should be observed
 	  */
     bool getObserveBoundaries() const {
-        return m_observeBoundaries;
+        return observeBoundaries_;
     }
 
     /***************************************************************************/
@@ -505,7 +505,7 @@ public:
 	  * Allows to check whether parameters should be profiled
 	  */
     bool parameterProfileCreationRequested() const {
-        return not m_fp_profVarVec.empty();
+        return not fp_profVarVec_.empty();
     }
 
     /***************************************************************************/
@@ -513,7 +513,7 @@ public:
 	  * Retrieves the number of variables that will be profiled
 	  */
     std::size_t nProfileVars() const {
-        return m_fp_profVarVec.size();
+        return fp_profVarVec_.size();
     }
 
     /***************************************************************************/
@@ -521,7 +521,7 @@ public:
 	  * Allows to set the canvas dimensions
 	  */
     void setCanvasDimensions(std::tuple<std::uint32_t, std::uint32_t> canvasDimensions) {
-        m_canvasDimensions = canvasDimensions;
+        canvasDimensions_ = canvasDimensions;
     }
 
     /***************************************************************************/
@@ -529,7 +529,7 @@ public:
 	  * Allows to set the canvas dimensions using separate x and y values
 	  */
     void setCanvasDimensions(std::uint32_t x, std::uint32_t y) {
-        m_canvasDimensions = std::tuple<std::uint32_t, std::uint32_t>(x, y);
+        canvasDimensions_ = std::tuple<std::uint32_t, std::uint32_t>(x, y);
     }
 
     /***************************************************************************/
@@ -537,7 +537,7 @@ public:
 	  * Gives access to the canvas dimensions
 	  */
     std::tuple<std::uint32_t, std::uint32_t> getCanvasDimensions() const {
-        return m_canvasDimensions;
+        return canvasDimensions_;
     }
 
     /******************************************************************************/
@@ -545,15 +545,15 @@ public:
 	  * Allows to add a "Print" command to the end of the script so that picture files are created
 	  */
     void setAddPrintCommand(bool addPrintCommand) {
-        m_addPrintCommand = addPrintCommand;
+        addPrintCommand_ = addPrintCommand;
     }
 
     /******************************************************************************/
     /**
-	  * Allows to retrieve the current value of the m_addPrintCommand variable
+	  * Allows to retrieve the current value of the addPrintCommand_ variable
 	  */
     bool getAddPrintCommand() const {
-        return m_addPrintCommand;
+        return addPrintCommand_;
     }
 
     /***************************************************************************/
@@ -561,7 +561,7 @@ public:
 	  * Allows to set the filename
 	  */
     void setFileName(const std::string &fileName) {
-        m_fileName = fileName;
+        fileName_ = fileName;
     }
 
     /***************************************************************************/
@@ -569,7 +569,7 @@ public:
 	  * Retrieves the current filename to which information will be emitted
 	  */
     std::string getFileName() const {
-        return m_fileName;
+        return fileName_;
     }
 
     /***************************************************************************/
@@ -577,7 +577,7 @@ public:
 	  * Allows to set the canvas label
 	  */
     void setCanvasLabel(const std::string &canvasLabel) {
-        m_gpd.setCanvasLabel(canvasLabel);
+        gpd_.setCanvasLabel(canvasLabel);
     }
 
     /***************************************************************************/
@@ -585,7 +585,7 @@ public:
 	  * Allows to retrieve the canvas label
 	  */
     std::string getCanvasLabel() const {
-        return m_gpd.getCanvasLabel();
+        return gpd_.getCanvasLabel();
     }
 
     /***************************************************************************/
@@ -646,17 +646,17 @@ protected:
         GBasePluggableOM::load_(cp);
 
         // ... and then our local data
-        Gem::Common::copyCloneableObjectsContainer(p_load->m_fp_profVarVec, m_fp_profVarVec);
-        m_gpd.load(p_load->m_gpd);
-        copyCloneableSmartPointer(p_load->m_progressPlotter2D_oa, m_progressPlotter2D_oa);
-        copyCloneableSmartPointer(p_load->m_progressPlotter3D_oa, m_progressPlotter3D_oa);
-        copyCloneableSmartPointer(p_load->m_progressPlotter4D_oa, m_progressPlotter4D_oa);
-        m_fileName = p_load->m_fileName;
-        m_canvasDimensions = p_load->m_canvasDimensions;
-        m_monitorBestOnly = p_load->m_monitorBestOnly;
-        m_monitorValidOnly = p_load->m_monitorValidOnly;
-        m_observeBoundaries = p_load->m_observeBoundaries;
-        m_addPrintCommand = p_load->m_addPrintCommand;
+        Gem::Common::copyCloneableObjectsContainer(p_load->fp_profVarVec_, fp_profVarVec_);
+        gpd_.load(p_load->gpd_);
+        copyCloneableSmartPointer(p_load->progressPlotter2D_oa_, progressPlotter2D_oa_);
+        copyCloneableSmartPointer(p_load->progressPlotter3D_oa_, progressPlotter3D_oa_);
+        copyCloneableSmartPointer(p_load->progressPlotter4D_oa_, progressPlotter4D_oa_);
+        fileName_ = p_load->fileName_;
+        canvasDimensions_ = p_load->canvasDimensions_;
+        monitorBestOnly_ = p_load->monitorBestOnly_;
+        monitorValidOnly_ = p_load->monitorValidOnly_;
+        observeBoundaries_ = p_load->observeBoundaries_;
+        addPrintCommand_ = p_load->addPrintCommand_;
     }
 
     /***************************************************************************/
@@ -692,17 +692,17 @@ protected:
         Gem::Common::compare_base_t<GBasePluggableOM>(*this, *p_load, token);
 
         // ... and then our local data
-        compare_t(IDENTITY(m_fp_profVarVec, p_load->m_fp_profVarVec), token);
-        compare_t(IDENTITY(m_gpd, p_load->m_gpd), token);
-        compare_t(IDENTITY(m_progressPlotter2D_oa, p_load->m_progressPlotter2D_oa), token);
-        compare_t(IDENTITY(m_progressPlotter3D_oa, p_load->m_progressPlotter3D_oa), token);
-        compare_t(IDENTITY(m_progressPlotter4D_oa, p_load->m_progressPlotter4D_oa), token);
-        compare_t(IDENTITY(m_fileName, p_load->m_fileName), token);
-        compare_t(IDENTITY(m_canvasDimensions, p_load->m_canvasDimensions), token);
-        compare_t(IDENTITY(m_monitorBestOnly, p_load->m_monitorBestOnly), token);
-        compare_t(IDENTITY(m_monitorValidOnly, p_load->m_monitorValidOnly), token);
-        compare_t(IDENTITY(m_observeBoundaries, p_load->m_observeBoundaries), token);
-        compare_t(IDENTITY(m_addPrintCommand, p_load->m_addPrintCommand), token);
+        compare_t(IDENTITY(fp_profVarVec_, p_load->fp_profVarVec_), token);
+        compare_t(IDENTITY(gpd_, p_load->gpd_), token);
+        compare_t(IDENTITY(progressPlotter2D_oa_, p_load->progressPlotter2D_oa_), token);
+        compare_t(IDENTITY(progressPlotter3D_oa_, p_load->progressPlotter3D_oa_), token);
+        compare_t(IDENTITY(progressPlotter4D_oa_, p_load->progressPlotter4D_oa_), token);
+        compare_t(IDENTITY(fileName_, p_load->fileName_), token);
+        compare_t(IDENTITY(canvasDimensions_, p_load->canvasDimensions_), token);
+        compare_t(IDENTITY(monitorBestOnly_, p_load->monitorBestOnly_), token);
+        compare_t(IDENTITY(monitorValidOnly_, p_load->monitorValidOnly_), token);
+        compare_t(IDENTITY(observeBoundaries_, p_load->observeBoundaries_), token);
+        compare_t(IDENTITY(addPrintCommand_, p_load->addPrintCommand_), token);
 
         // React on deviations from the expectation
         token.evaluate();
@@ -797,37 +797,37 @@ private:
         case Gem::Geneva::infoMode::INFOINIT: {
             switch(this->nProfileVars()) {
             case 1: {
-                m_progressPlotter2D_oa = std::make_shared<Gem::Common::GGraph2D>();
+                progressPlotter2D_oa_ = std::make_shared<Gem::Common::GGraph2D>();
 
-                m_progressPlotter2D_oa->setPlotMode(Gem::Common::graphPlotMode::CURVE);
-                m_progressPlotter2D_oa->setPlotLabel("Fitness as a function of a parameter value");
-                m_progressPlotter2D_oa->setXAxisLabel(this->getLabel(m_fp_profVarVec[0]));
-                m_progressPlotter2D_oa->setYAxisLabel("Fitness");
+                progressPlotter2D_oa_->setPlotMode(Gem::Common::graphPlotMode::CURVE);
+                progressPlotter2D_oa_->setPlotLabel("Fitness as a function of a parameter value");
+                progressPlotter2D_oa_->setXAxisLabel(this->getLabel(fp_profVarVec_[0]));
+                progressPlotter2D_oa_->setYAxisLabel("Fitness");
 
-                m_gpd.registerPlotter(m_progressPlotter2D_oa);
+                gpd_.registerPlotter(progressPlotter2D_oa_);
             } break;
             case 2: {
-                m_progressPlotter3D_oa = std::make_shared<Gem::Common::GGraph3D>();
+                progressPlotter3D_oa_ = std::make_shared<Gem::Common::GGraph3D>();
 
-                m_progressPlotter3D_oa->setPlotLabel("Fitness as a function of parameter values");
-                m_progressPlotter3D_oa->setXAxisLabel(this->getLabel(m_fp_profVarVec[0]));
-                m_progressPlotter3D_oa->setYAxisLabel(this->getLabel(m_fp_profVarVec[1]));
-                m_progressPlotter3D_oa->setZAxisLabel("Fitness");
+                progressPlotter3D_oa_->setPlotLabel("Fitness as a function of parameter values");
+                progressPlotter3D_oa_->setXAxisLabel(this->getLabel(fp_profVarVec_[0]));
+                progressPlotter3D_oa_->setYAxisLabel(this->getLabel(fp_profVarVec_[1]));
+                progressPlotter3D_oa_->setZAxisLabel("Fitness");
 
-                m_gpd.registerPlotter(m_progressPlotter3D_oa);
+                gpd_.registerPlotter(progressPlotter3D_oa_);
             } break;
 
             case 3: {
-                m_progressPlotter4D_oa = std::make_shared<Gem::Common::GGraph4D>();
+                progressPlotter4D_oa_ = std::make_shared<Gem::Common::GGraph4D>();
 
-                m_progressPlotter4D_oa->setPlotLabel(
+                progressPlotter4D_oa_->setPlotLabel(
                     "Fitness (color-coded) as a function of parameter values"
                 );
-                m_progressPlotter4D_oa->setXAxisLabel(this->getLabel(m_fp_profVarVec[0]));
-                m_progressPlotter4D_oa->setYAxisLabel(this->getLabel(m_fp_profVarVec[1]));
-                m_progressPlotter4D_oa->setZAxisLabel(this->getLabel(m_fp_profVarVec[2]));
+                progressPlotter4D_oa_->setXAxisLabel(this->getLabel(fp_profVarVec_[0]));
+                progressPlotter4D_oa_->setYAxisLabel(this->getLabel(fp_profVarVec_[1]));
+                progressPlotter4D_oa_->setZAxisLabel(this->getLabel(fp_profVarVec_[2]));
 
-                m_gpd.registerPlotter(m_progressPlotter4D_oa);
+                gpd_.registerPlotter(progressPlotter4D_oa_);
             } break;
 
             default: {
@@ -841,49 +841,49 @@ private:
             } break;
             }
 
-            m_gpd.setCanvasDimensions(m_canvasDimensions);
+            gpd_.setCanvasDimensions(canvasDimensions_);
         } break;
 
         case Gem::Geneva::infoMode::INFOPROCESSING: {
             bool isDirty = true;
             double primaryFitness = 0.;
 
-            if(m_monitorBestOnly) { // Monitor the best individuals only
+            if(monitorBestOnly_) { // Monitor the best individuals only
                 std::shared_ptr<GParameterSet> p =
                     goa->G_Interface_OptimizerT::template getBestGlobalIndividual<GParameterSet>();
-                if(GBasePluggableOM::m_useRawEvaluation) {
+                if(GBasePluggableOM::useRawEvaluation_) {
                     primaryFitness = p->raw_fitness(0);
                 }
                 else {
                     primaryFitness = p->transformed_fitness(0);
                 }
 
-                if(not m_monitorValidOnly || p->isValid()) {
+                if(not monitorValidOnly_ || p->isValid()) {
                     switch(this->nProfileVars()) {
                     case 1: {
-                        fp_type val0 = p->GParameterSet::getVarVal<fp_type>(m_fp_profVarVec[0].var);
+                        fp_type val0 = p->GParameterSet::getVarVal<fp_type>(fp_profVarVec_[0].var);
 
-                        if(m_observeBoundaries) {
-                            if(val0 >= m_fp_profVarVec[0].lowerBoundary &&
-                               val0 <= m_fp_profVarVec[0].upperBoundary) {
-                                m_progressPlotter2D_oa->add(double(val0), primaryFitness);
+                        if(observeBoundaries_) {
+                            if(val0 >= fp_profVarVec_[0].lowerBoundary &&
+                               val0 <= fp_profVarVec_[0].upperBoundary) {
+                                progressPlotter2D_oa_->add(double(val0), primaryFitness);
                             }
                         }
                         else {
-                            m_progressPlotter2D_oa->add(double(val0), primaryFitness);
+                            progressPlotter2D_oa_->add(double(val0), primaryFitness);
                         }
                     } break;
 
                     case 2: {
-                        fp_type val0 = p->GParameterSet::getVarVal<fp_type>(m_fp_profVarVec[0].var);
-                        fp_type val1 = p->GParameterSet::getVarVal<fp_type>(m_fp_profVarVec[1].var);
+                        fp_type val0 = p->GParameterSet::getVarVal<fp_type>(fp_profVarVec_[0].var);
+                        fp_type val1 = p->GParameterSet::getVarVal<fp_type>(fp_profVarVec_[1].var);
 
-                        if(m_observeBoundaries) {
-                            if(val0 >= m_fp_profVarVec[0].lowerBoundary &&
-                               val0 <= m_fp_profVarVec[0].upperBoundary &&
-                               val1 >= m_fp_profVarVec[1].lowerBoundary &&
-                               val1 <= m_fp_profVarVec[1].upperBoundary) {
-                                m_progressPlotter3D_oa->add(
+                        if(observeBoundaries_) {
+                            if(val0 >= fp_profVarVec_[0].lowerBoundary &&
+                               val0 <= fp_profVarVec_[0].upperBoundary &&
+                               val1 >= fp_profVarVec_[1].lowerBoundary &&
+                               val1 <= fp_profVarVec_[1].upperBoundary) {
+                                progressPlotter3D_oa_->add(
                                     std::tuple<double, double, double>(
                                         double(val0),
                                         double(val1),
@@ -893,7 +893,7 @@ private:
                             }
                         }
                         else {
-                            m_progressPlotter3D_oa->add(
+                            progressPlotter3D_oa_->add(
                                 std::tuple<double, double, double>(
                                     double(val0),
                                     double(val1),
@@ -904,18 +904,18 @@ private:
                     } break;
 
                     case 3: {
-                        fp_type val0 = p->GParameterSet::getVarVal<fp_type>(m_fp_profVarVec[0].var);
-                        fp_type val1 = p->GParameterSet::getVarVal<fp_type>(m_fp_profVarVec[1].var);
-                        fp_type val2 = p->GParameterSet::getVarVal<fp_type>(m_fp_profVarVec[2].var);
+                        fp_type val0 = p->GParameterSet::getVarVal<fp_type>(fp_profVarVec_[0].var);
+                        fp_type val1 = p->GParameterSet::getVarVal<fp_type>(fp_profVarVec_[1].var);
+                        fp_type val2 = p->GParameterSet::getVarVal<fp_type>(fp_profVarVec_[2].var);
 
-                        if(m_observeBoundaries) {
-                            if(val0 >= m_fp_profVarVec[0].lowerBoundary &&
-                               val0 <= m_fp_profVarVec[0].upperBoundary &&
-                               val1 >= m_fp_profVarVec[1].lowerBoundary &&
-                               val1 <= m_fp_profVarVec[1].upperBoundary &&
-                               val2 >= m_fp_profVarVec[2].lowerBoundary &&
-                               val2 <= m_fp_profVarVec[2].upperBoundary) {
-                                m_progressPlotter4D_oa->add(
+                        if(observeBoundaries_) {
+                            if(val0 >= fp_profVarVec_[0].lowerBoundary &&
+                               val0 <= fp_profVarVec_[0].upperBoundary &&
+                               val1 >= fp_profVarVec_[1].lowerBoundary &&
+                               val1 <= fp_profVarVec_[1].upperBoundary &&
+                               val2 >= fp_profVarVec_[2].lowerBoundary &&
+                               val2 <= fp_profVarVec_[2].upperBoundary) {
+                                progressPlotter4D_oa_->add(
                                     std::tuple<double, double, double, double>(
                                         double(val0),
                                         double(val1),
@@ -926,7 +926,7 @@ private:
                             }
                         }
                         else {
-                            m_progressPlotter4D_oa->add(
+                            progressPlotter4D_oa_->add(
                                 std::tuple<double, double, double, double>(
                                     double(val0),
                                     double(val1),
@@ -944,45 +944,45 @@ private:
             }
             else { // Monitor all individuals
                 for(const auto &ind_ptr : *goa) {
-                    if(GBasePluggableOM::m_useRawEvaluation) {
+                    if(GBasePluggableOM::useRawEvaluation_) {
                         primaryFitness = ind_ptr->raw_fitness(0);
                     }
                     else {
                         primaryFitness = ind_ptr->transformed_fitness(0);
                     }
 
-                    if(not m_monitorValidOnly || ind_ptr->isValid()) {
+                    if(not monitorValidOnly_ || ind_ptr->isValid()) {
                         switch(this->nProfileVars()) {
                         case 1: {
                             fp_type val0 = ind_ptr->GParameterSet::template getVarVal<fp_type>(
-                                m_fp_profVarVec[0].var
+                                fp_profVarVec_[0].var
                             );
 
-                            if(m_observeBoundaries) {
-                                if(val0 >= m_fp_profVarVec[0].lowerBoundary &&
-                                   val0 <= m_fp_profVarVec[0].upperBoundary) {
-                                    m_progressPlotter2D_oa->add(double(val0), primaryFitness);
+                            if(observeBoundaries_) {
+                                if(val0 >= fp_profVarVec_[0].lowerBoundary &&
+                                   val0 <= fp_profVarVec_[0].upperBoundary) {
+                                    progressPlotter2D_oa_->add(double(val0), primaryFitness);
                                 }
                             }
                             else {
-                                m_progressPlotter2D_oa->add(double(val0), primaryFitness);
+                                progressPlotter2D_oa_->add(double(val0), primaryFitness);
                             }
                         } break;
 
                         case 2: {
                             fp_type val0 = ind_ptr->GParameterSet::template getVarVal<fp_type>(
-                                m_fp_profVarVec[0].var
+                                fp_profVarVec_[0].var
                             );
                             fp_type val1 = ind_ptr->GParameterSet::template getVarVal<fp_type>(
-                                m_fp_profVarVec[1].var
+                                fp_profVarVec_[1].var
                             );
 
-                            if(m_observeBoundaries) {
-                                if(val0 >= m_fp_profVarVec[0].lowerBoundary &&
-                                   val0 <= m_fp_profVarVec[0].upperBoundary &&
-                                   val1 >= m_fp_profVarVec[1].lowerBoundary &&
-                                   val1 <= m_fp_profVarVec[1].upperBoundary) {
-                                    m_progressPlotter3D_oa->add(
+                            if(observeBoundaries_) {
+                                if(val0 >= fp_profVarVec_[0].lowerBoundary &&
+                                   val0 <= fp_profVarVec_[0].upperBoundary &&
+                                   val1 >= fp_profVarVec_[1].lowerBoundary &&
+                                   val1 <= fp_profVarVec_[1].upperBoundary) {
+                                    progressPlotter3D_oa_->add(
                                         std::tuple<double, double, double>(
                                             double(val0),
                                             double(val1),
@@ -992,7 +992,7 @@ private:
                                 }
                             }
                             else {
-                                m_progressPlotter3D_oa->add(
+                                progressPlotter3D_oa_->add(
                                     std::tuple<double, double, double>(
                                         double(val0),
                                         double(val1),
@@ -1004,23 +1004,23 @@ private:
 
                         case 3: {
                             fp_type val0 = ind_ptr->GParameterSet::template getVarVal<fp_type>(
-                                m_fp_profVarVec[0].var
+                                fp_profVarVec_[0].var
                             );
                             fp_type val1 = ind_ptr->GParameterSet::template getVarVal<fp_type>(
-                                m_fp_profVarVec[1].var
+                                fp_profVarVec_[1].var
                             );
                             fp_type val2 = ind_ptr->GParameterSet::template getVarVal<fp_type>(
-                                m_fp_profVarVec[2].var
+                                fp_profVarVec_[2].var
                             );
 
-                            if(m_observeBoundaries) {
-                                if(val0 >= m_fp_profVarVec[0].lowerBoundary &&
-                                   val0 <= m_fp_profVarVec[0].upperBoundary &&
-                                   val1 >= m_fp_profVarVec[1].lowerBoundary &&
-                                   val1 <= m_fp_profVarVec[1].upperBoundary &&
-                                   val2 >= m_fp_profVarVec[2].lowerBoundary &&
-                                   val2 <= m_fp_profVarVec[2].upperBoundary) {
-                                    m_progressPlotter4D_oa->add(
+                            if(observeBoundaries_) {
+                                if(val0 >= fp_profVarVec_[0].lowerBoundary &&
+                                   val0 <= fp_profVarVec_[0].upperBoundary &&
+                                   val1 >= fp_profVarVec_[1].lowerBoundary &&
+                                   val1 <= fp_profVarVec_[1].upperBoundary &&
+                                   val2 >= fp_profVarVec_[2].lowerBoundary &&
+                                   val2 <= fp_profVarVec_[2].upperBoundary) {
+                                    progressPlotter4D_oa_->add(
                                         std::tuple<double, double, double, double>(
                                             double(val0),
                                             double(val1),
@@ -1031,7 +1031,7 @@ private:
                                 }
                             }
                             else {
-                                m_progressPlotter4D_oa->add(
+                                progressPlotter4D_oa_->add(
                                     std::tuple<double, double, double, double>(
                                         double(val0),
                                         double(val1),
@@ -1053,20 +1053,20 @@ private:
         case Gem::Geneva::infoMode::INFOEND: {
             // Make sure 1-D data is sorted
             if(1 == this->nProfileVars()) {
-                m_progressPlotter2D_oa->sortX();
+                progressPlotter2D_oa_->sortX();
             }
 
             // Inform the plot designer whether it should print png files
-            m_gpd.setAddPrintCommand(m_addPrintCommand);
+            gpd_.setAddPrintCommand(addPrintCommand_);
 
             // Write out the result.
-            m_gpd.writeToFile(m_fileName);
+            gpd_.writeToFile(fileName_);
 
             // Remove all plotters
-            m_gpd.resetPlotters();
-            m_progressPlotter2D_oa.reset();
-            m_progressPlotter3D_oa.reset();
-            m_progressPlotter4D_oa.reset();
+            gpd_.resetPlotters();
+            progressPlotter2D_oa_.reset();
+            progressPlotter3D_oa_.reset();
+            progressPlotter4D_oa_.reset();
         } break;
         };
     }
@@ -1074,28 +1074,28 @@ private:
     /************************************************************************/
 
     std::vector<parPropSpec<fp_type>>
-        m_fp_profVarVec; ///< Holds information about variables to be profiled
+        fp_profVarVec_; ///< Holds information about variables to be profiled
 
-    Gem::Common::GPlotDesigner m_gpd{"Progress information", 1, 1}; ///< A wrapper for the plots
+    Gem::Common::GPlotDesigner gpd_{"Progress information", 1, 1}; ///< A wrapper for the plots
 
     // These are temporaries
-    std::shared_ptr<Gem::Common::GGraph2D> m_progressPlotter2D_oa;
-    std::shared_ptr<Gem::Common::GGraph3D> m_progressPlotter3D_oa;
-    std::shared_ptr<Gem::Common::GGraph4D> m_progressPlotter4D_oa;
+    std::shared_ptr<Gem::Common::GGraph2D> progressPlotter2D_oa_;
+    std::shared_ptr<Gem::Common::GGraph3D> progressPlotter3D_oa_;
+    std::shared_ptr<Gem::Common::GGraph4D> progressPlotter4D_oa_;
 
-    std::string m_fileName = std::string(
+    std::string fileName_ = std::string(
         "progressScan.C"
     ); ///< The name of the file the output should be written to. Note that the class will add the name of the algorithm it acts on
-    std::tuple<std::uint32_t, std::uint32_t> m_canvasDimensions =
+    std::tuple<std::uint32_t, std::uint32_t> canvasDimensions_ =
         std::tuple<std::uint32_t, std::uint32_t>(1024, 768); ///< The dimensions of the canvas
 
-    bool m_monitorBestOnly =
+    bool monitorBestOnly_ =
         false; ///< Indicates whether only the best individuals should be monitored
-    bool m_monitorValidOnly = false; ///< Indicates whether only valid individuals should be plotted
-    bool m_observeBoundaries =
+    bool monitorValidOnly_ = false; ///< Indicates whether only valid individuals should be plotted
+    bool observeBoundaries_ =
         false; ///< When set to true, the plotter will ignore values outside of a scan boundary
 
-    bool m_addPrintCommand =
+    bool addPrintCommand_ =
         false; ///< Asks the GPlotDesigner to add a print command to result files
 };
 
@@ -1127,12 +1127,12 @@ class GAllSolutionFileLogger // NOLINT(cppcoreguidelines-special-member-function
         ar &make_nvp(
             "GBasePluggableOM",
             boost::serialization::base_object<GBasePluggableOM>(*this)
-        ) & BOOST_SERIALIZATION_NVP(m_fileName) &
-            BOOST_SERIALIZATION_NVP(m_boundaries) & BOOST_SERIALIZATION_NVP(m_boundariesActive) &
-            BOOST_SERIALIZATION_NVP(m_withNameAndType) & BOOST_SERIALIZATION_NVP(m_withCommas) &
-            BOOST_SERIALIZATION_NVP(m_useRawFitness) & BOOST_SERIALIZATION_NVP(m_showValidity) &
-            BOOST_SERIALIZATION_NVP(m_printInitial) &
-            BOOST_SERIALIZATION_NVP(m_showIterationBoundaries);
+        ) & BOOST_SERIALIZATION_NVP(fileName_) &
+            BOOST_SERIALIZATION_NVP(boundaries_) & BOOST_SERIALIZATION_NVP(boundariesActive_) &
+            BOOST_SERIALIZATION_NVP(withNameAndType_) & BOOST_SERIALIZATION_NVP(withCommas_) &
+            BOOST_SERIALIZATION_NVP(useRawFitness_) & BOOST_SERIALIZATION_NVP(showValidity_) &
+            BOOST_SERIALIZATION_NVP(printInitial_) &
+            BOOST_SERIALIZATION_NVP(showIterationBoundaries_);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -1242,17 +1242,17 @@ private:
     /***************************************************************************/
     // Data
 
-    std::string m_fileName =
+    std::string fileName_ =
         "CompleteSolutionLog.txt";    ///< The name of the file to which solutions should be stored
-    std::vector<double> m_boundaries; ///< Value boundaries used to filter logged solutions
-    bool m_boundariesActive = false;  ///< Set to true if boundaries have been set
-    bool m_withNameAndType = false;   ///< When set to true, explanations for values are printed
-    bool m_withCommas = false; ///< When set to true, commas will be printed in-between values
-    bool m_useRawFitness =
+    std::vector<double> boundaries_; ///< Value boundaries used to filter logged solutions
+    bool boundariesActive_ = false;  ///< Set to true if boundaries have been set
+    bool withNameAndType_ = false;   ///< When set to true, explanations for values are printed
+    bool withCommas_ = false; ///< When set to true, commas will be printed in-between values
+    bool useRawFitness_ =
         true;                   ///< Indicates whether true- or transformed fitness should be output
-    bool m_showValidity = true; ///< Indicates whether the validity of a solution should be shown
-    bool m_printInitial = false; ///< Indicates whether the initial population should be printed
-    bool m_showIterationBoundaries =
+    bool showValidity_ = true; ///< Indicates whether the validity of a solution should be shown
+    bool printInitial_ = false; ///< Indicates whether the initial population should be printed
+    bool showIterationBoundaries_ =
         false; ///< Indicates whether a comment indicating the end of an iteration should be printed
 };
 
@@ -1275,8 +1275,8 @@ class GIterationResultsFileLogger // NOLINT(cppcoreguidelines-special-member-fun
         ar &make_nvp(
             "GBasePluggableOM",
             boost::serialization::base_object<GBasePluggableOM>(*this)
-        ) & BOOST_SERIALIZATION_NVP(m_fileName) &
-            BOOST_SERIALIZATION_NVP(m_withCommas) & BOOST_SERIALIZATION_NVP(m_useRawFitness);
+        ) & BOOST_SERIALIZATION_NVP(fileName_) &
+            BOOST_SERIALIZATION_NVP(withCommas_) & BOOST_SERIALIZATION_NVP(useRawFitness_);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -1344,10 +1344,10 @@ private:
     G_API_GENEVA void
     informationFunction_(infoMode, G_OptimizationAlgorithm_Base const *const goa) override;
 
-    std::string m_fileName =
+    std::string fileName_ =
         "IterationResultsLog.txt"; ///< The name of the file to which solutions should be stored
-    bool m_withCommas = true;      ///< When set to true, commas will be printed in-between values
-    bool m_useRawFitness =
+    bool withCommas_ = true;      ///< When set to true, commas will be printed in-between values
+    bool useRawFitness_ =
         false; ///< Indicates whether true- or transformed fitness should be output
 };
 
@@ -1371,15 +1371,15 @@ class GNAdpationsLogger // NOLINT(cppcoreguidelines-special-member-functions)
         ar &make_nvp(
             "GBasePluggableOM",
             boost::serialization::base_object<GBasePluggableOM>(*this)
-        ) & BOOST_SERIALIZATION_NVP(m_fileName) &
-            BOOST_SERIALIZATION_NVP(m_canvasDimensions) & BOOST_SERIALIZATION_NVP(m_gpd) &
-            BOOST_SERIALIZATION_NVP(m_nAdaptionsHist2D_oa) &
-            BOOST_SERIALIZATION_NVP(m_nAdaptionsGraph2D_oa) &
-            BOOST_SERIALIZATION_NVP(m_fitnessGraph2D_oa) &
-            BOOST_SERIALIZATION_NVP(m_monitorBestOnly) &
-            BOOST_SERIALIZATION_NVP(m_addPrintCommand) & BOOST_SERIALIZATION_NVP(m_maxIteration) &
-            BOOST_SERIALIZATION_NVP(m_nIterationsRecorded) &
-            BOOST_SERIALIZATION_NVP(m_nAdaptionsStore);
+        ) & BOOST_SERIALIZATION_NVP(fileName_) &
+            BOOST_SERIALIZATION_NVP(canvasDimensions_) & BOOST_SERIALIZATION_NVP(gpd_) &
+            BOOST_SERIALIZATION_NVP(nAdaptionsHist2D_oa_) &
+            BOOST_SERIALIZATION_NVP(nAdaptionsGraph2D_oa_) &
+            BOOST_SERIALIZATION_NVP(fitnessGraph2D_oa_) &
+            BOOST_SERIALIZATION_NVP(monitorBestOnly_) &
+            BOOST_SERIALIZATION_NVP(addPrintCommand_) & BOOST_SERIALIZATION_NVP(maxIteration_) &
+            BOOST_SERIALIZATION_NVP(nIterationsRecorded_) &
+            BOOST_SERIALIZATION_NVP(nAdaptionsStore_);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -1415,7 +1415,7 @@ public:
 
     /** @brief Allows to add a "Print" command to the end of the script so that picture files are created */
     G_API_GENEVA void setAddPrintCommand(bool addPrintCommand);
-    /** @brief Allows to retrieve the current value of the m_addPrintCommand variable */
+    /** @brief Allows to retrieve the current value of the addPrintCommand_ variable */
     G_API_GENEVA bool getAddPrintCommand() const;
 
 protected:
@@ -1454,36 +1454,36 @@ private:
     G_API_GENEVA void
     informationFunction_(infoMode, G_OptimizationAlgorithm_Base const *const goa) override;
 
-    std::string m_fileName =
+    std::string fileName_ =
         "NAdaptions.C"; ///< The name of the file to which solutions should be stored
 
-    std::tuple<std::uint32_t, std::uint32_t> m_canvasDimensions =
+    std::tuple<std::uint32_t, std::uint32_t> canvasDimensions_ =
         std::tuple<std::uint32_t, std::uint32_t>(1200, 1600); ///< The dimensions of the canvas
 
-    Gem::Common::GPlotDesigner m_gpd{
+    Gem::Common::GPlotDesigner gpd_{
         "Number of adaptions per iteration",
         1,
         2
     }; ///< A wrapper for the plots
 
     std::shared_ptr<Gem::Common::GHistogram2D>
-        m_nAdaptionsHist2D_oa; ///< Holds the actual histogram
+        nAdaptionsHist2D_oa_; ///< Holds the actual histogram
     std::shared_ptr<Gem::Common::GGraph2D>
-        m_nAdaptionsGraph2D_oa; ///< Used if we only monitor the best solution in each iteration
+        nAdaptionsGraph2D_oa_; ///< Used if we only monitor the best solution in each iteration
     std::shared_ptr<Gem::Common::GGraph2D>
-        m_fitnessGraph2D_oa; ///< Lets us monitor the current fitness of the population
+        fitnessGraph2D_oa_; ///< Lets us monitor the current fitness of the population
 
-    bool m_monitorBestOnly =
+    bool monitorBestOnly_ =
         false; ///< Indicates whether only the best individuals should be monitored
-    bool m_addPrintCommand =
+    bool addPrintCommand_ =
         false; ///< Asks the GPlotDesigner to add a print command to result files
 
-    std::size_t m_maxIteration = 0; ///< Holds the largest iteration recorded for the algorithm
-    std::size_t m_nIterationsRecorded =
-        0; ///< Holds the number of iterations that were recorded (not necessarily == m_maxIteration
+    std::size_t maxIteration_ = 0; ///< Holds the largest iteration recorded for the algorithm
+    std::size_t nIterationsRecorded_ =
+        0; ///< Holds the number of iterations that were recorded (not necessarily == maxIteration_
 
     std::vector<std::tuple<double, double>>
-        m_nAdaptionsStore; ///< Holds all information about the number of adaptions
+        nAdaptionsStore_; ///< Holds all information about the number of adaptions
 };
 
 /******************************************************************************/
@@ -1506,15 +1506,15 @@ class GAdaptorPropertyLoggerT // NOLINT(cppcoreguidelines-special-member-functio
         ar &make_nvp(
             "GBasePluggableOM",
             boost::serialization::base_object<GBasePluggableOM>(*this)
-        ) & BOOST_SERIALIZATION_NVP(m_fileName) &
-            BOOST_SERIALIZATION_NVP(m_adaptorName) & BOOST_SERIALIZATION_NVP(m_property) &
-            BOOST_SERIALIZATION_NVP(m_canvasDimensions) & BOOST_SERIALIZATION_NVP(m_gpd) &
-            BOOST_SERIALIZATION_NVP(m_adaptorPropertyHist2D_oa) &
-            BOOST_SERIALIZATION_NVP(m_fitnessGraph2D_oa) &
-            BOOST_SERIALIZATION_NVP(m_monitorBestOnly) &
-            BOOST_SERIALIZATION_NVP(m_addPrintCommand) & BOOST_SERIALIZATION_NVP(m_maxIteration) &
-            BOOST_SERIALIZATION_NVP(m_nIterationsRecorded) &
-            BOOST_SERIALIZATION_NVP(m_adaptorPropertyStore);
+        ) & BOOST_SERIALIZATION_NVP(fileName_) &
+            BOOST_SERIALIZATION_NVP(adaptorName_) & BOOST_SERIALIZATION_NVP(property_) &
+            BOOST_SERIALIZATION_NVP(canvasDimensions_) & BOOST_SERIALIZATION_NVP(gpd_) &
+            BOOST_SERIALIZATION_NVP(adaptorPropertyHist2D_oa_) &
+            BOOST_SERIALIZATION_NVP(fitnessGraph2D_oa_) &
+            BOOST_SERIALIZATION_NVP(monitorBestOnly_) &
+            BOOST_SERIALIZATION_NVP(addPrintCommand_) & BOOST_SERIALIZATION_NVP(maxIteration_) &
+            BOOST_SERIALIZATION_NVP(nIterationsRecorded_) &
+            BOOST_SERIALIZATION_NVP(adaptorPropertyStore_);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -1533,11 +1533,11 @@ public:
 	  * Initialization with a file name
 	  */
     GAdaptorPropertyLoggerT(std::string fileName, std::string adaptorName, std::string property)
-      : m_fileName(std::move(fileName))
-      , m_adaptorName(std::move(adaptorName))
-      , m_property(std::move(property))
-      , m_canvasDimensions(std::tuple<std::uint32_t, std::uint32_t>(1200, 1600))
-      , m_gpd("Adaptor properties", 1, 2) { /* nothing */
+      : fileName_(std::move(fileName))
+      , adaptorName_(std::move(adaptorName))
+      , property_(std::move(property))
+      , canvasDimensions_(std::tuple<std::uint32_t, std::uint32_t>(1200, 1600))
+      , gpd_("Adaptor properties", 1, 2) { /* nothing */
     }
 
     /***************************************************************************/
@@ -1545,22 +1545,22 @@ public:
 	  * The copy constructor
 	  */
     GAdaptorPropertyLoggerT(const GAdaptorPropertyLoggerT<num_type> &cp)
-      : m_fileName(cp.m_fileName)
-      , m_adaptorName(cp.m_adaptorName)
-      , m_property(cp.m_property)
-      , m_canvasDimensions(cp.m_canvasDimensions)
-      , m_gpd(cp.m_gpd)
-      , m_monitorBestOnly(cp.m_monitorBestOnly)
-      , m_addPrintCommand(cp.m_addPrintCommand)
-      , m_maxIteration(cp.m_maxIteration)
-      , m_nIterationsRecorded(cp.m_nIterationsRecorded)
-      , m_adaptorPropertyStore(cp.m_adaptorPropertyStore) {
+      : fileName_(cp.fileName_)
+      , adaptorName_(cp.adaptorName_)
+      , property_(cp.property_)
+      , canvasDimensions_(cp.canvasDimensions_)
+      , gpd_(cp.gpd_)
+      , monitorBestOnly_(cp.monitorBestOnly_)
+      , addPrintCommand_(cp.addPrintCommand_)
+      , maxIteration_(cp.maxIteration_)
+      , nIterationsRecorded_(cp.nIterationsRecorded_)
+      , adaptorPropertyStore_(cp.adaptorPropertyStore_) {
         // Copy the smart pointers over
         Gem::Common::copyCloneableSmartPointer(
-            cp.m_adaptorPropertyHist2D_oa,
-            m_adaptorPropertyHist2D_oa
+            cp.adaptorPropertyHist2D_oa_,
+            adaptorPropertyHist2D_oa_
         );
-        Gem::Common::copyCloneableSmartPointer(cp.m_fitnessGraph2D_oa, m_fitnessGraph2D_oa);
+        Gem::Common::copyCloneableSmartPointer(cp.fitnessGraph2D_oa_, fitnessGraph2D_oa_);
     }
 
     /***************************************************************************/
@@ -1574,7 +1574,7 @@ public:
 	  * Sets the file name
 	  */
     void setFileName(const std::string &fileName) {
-        m_fileName = fileName;
+        fileName_ = fileName;
     }
 
     /***************************************************************************/
@@ -1582,7 +1582,7 @@ public:
 	  * Retrieves the current file name
 	  */
     std::string getFileName() const {
-        return m_fileName;
+        return fileName_;
     }
 
     /***************************************************************************/
@@ -1590,7 +1590,7 @@ public:
 	  * Sets the name of the adaptor
 	  */
     void setAdaptorName(std::string adaptorName) {
-        m_adaptorName = adaptorName;
+        adaptorName_ = adaptorName;
     }
 
     /***************************************************************************/
@@ -1598,7 +1598,7 @@ public:
 	  * Retrieves the name of the adaptor
 	  */
     std::string getAdaptorName() const {
-        return m_adaptorName;
+        return adaptorName_;
     }
 
     /***************************************************************************/
@@ -1606,7 +1606,7 @@ public:
 	  * Sets the name of the property
 	  */
     void setPropertyName(std::string property) {
-        m_property = property;
+        property_ = property;
     }
 
     /***************************************************************************/
@@ -1614,7 +1614,7 @@ public:
 	  * Retrieves the name of the property
 	  */
     std::string getPropertyName() const {
-        return m_property;
+        return property_;
     }
 
     /***************************************************************************/
@@ -1622,7 +1622,7 @@ public:
 	  * Allows to specify whether only the best individuals should be monitored.
 	  */
     void setMonitorBestOnly(bool monitorBestOnly = true) {
-        m_monitorBestOnly = monitorBestOnly;
+        monitorBestOnly_ = monitorBestOnly;
     }
 
     /***************************************************************************/
@@ -1630,7 +1630,7 @@ public:
 	  * Allows to check whether only the best individuals should be monitored.
 	  */
     bool getMonitorBestOnly() const {
-        return m_monitorBestOnly;
+        return monitorBestOnly_;
     }
 
     /***************************************************************************/
@@ -1638,7 +1638,7 @@ public:
 	  * Allows to set the canvas dimensions
 	  */
     void setCanvasDimensions(std::tuple<std::uint32_t, std::uint32_t> canvasDimensions) {
-        m_canvasDimensions = canvasDimensions;
+        canvasDimensions_ = canvasDimensions;
     }
 
     /***************************************************************************/
@@ -1646,7 +1646,7 @@ public:
 	  * Allows to set the canvas dimensions using separate x and y values
 	  */
     void setCanvasDimensions(std::uint32_t x, std::uint32_t y) {
-        m_canvasDimensions = std::tuple<std::uint32_t, std::uint32_t>(x, y);
+        canvasDimensions_ = std::tuple<std::uint32_t, std::uint32_t>(x, y);
     }
 
     /***************************************************************************/
@@ -1654,7 +1654,7 @@ public:
 	  * Gives access to the canvas dimensions
 	  */
     std::tuple<std::uint32_t, std::uint32_t> getCanvasDimensions() const {
-        return m_canvasDimensions;
+        return canvasDimensions_;
     }
 
     /******************************************************************************/
@@ -1662,15 +1662,15 @@ public:
 	  * Allows to add a "Print" command to the end of the script so that picture files are created
 	  */
     void setAddPrintCommand(bool addPrintCommand) {
-        m_addPrintCommand = addPrintCommand;
+        addPrintCommand_ = addPrintCommand;
     }
 
     /******************************************************************************/
     /**
-	  * Allows to retrieve the current value of the m_addPrintCommand variable
+	  * Allows to retrieve the current value of the addPrintCommand_ variable
 	  */
     bool getAddPrintCommand() const {
-        return m_addPrintCommand;
+        return addPrintCommand_;
     }
 
 protected:
@@ -1692,21 +1692,21 @@ protected:
         GBasePluggableOM::load_(cp);
 
         // ... and then our local data
-        m_fileName = p_load->m_fileName;
-        m_adaptorName = p_load->m_adaptorName;
-        m_property = p_load->m_property;
-        m_canvasDimensions = p_load->m_canvasDimensions;
-        m_gpd = p_load->m_gpd;
+        fileName_ = p_load->fileName_;
+        adaptorName_ = p_load->adaptorName_;
+        property_ = p_load->property_;
+        canvasDimensions_ = p_load->canvasDimensions_;
+        gpd_ = p_load->gpd_;
         Gem::Common::copyCloneableSmartPointer(
-            p_load->m_adaptorPropertyHist2D_oa,
-            m_adaptorPropertyHist2D_oa
+            p_load->adaptorPropertyHist2D_oa_,
+            adaptorPropertyHist2D_oa_
         );
-        Gem::Common::copyCloneableSmartPointer(p_load->m_fitnessGraph2D_oa, m_fitnessGraph2D_oa);
-        m_monitorBestOnly = p_load->m_monitorBestOnly;
-        m_addPrintCommand = p_load->m_addPrintCommand;
-        m_maxIteration = p_load->m_maxIteration;
-        m_nIterationsRecorded = p_load->m_nIterationsRecorded;
-        m_adaptorPropertyStore = p_load->m_adaptorPropertyStore;
+        Gem::Common::copyCloneableSmartPointer(p_load->fitnessGraph2D_oa_, fitnessGraph2D_oa_);
+        monitorBestOnly_ = p_load->monitorBestOnly_;
+        addPrintCommand_ = p_load->addPrintCommand_;
+        maxIteration_ = p_load->maxIteration_;
+        nIterationsRecorded_ = p_load->nIterationsRecorded_;
+        adaptorPropertyStore_ = p_load->adaptorPropertyStore_;
     }
 
     /** @brief Allow access to this classes compare_ function */
@@ -1745,18 +1745,18 @@ protected:
         Gem::Common::compare_base_t<GBasePluggableOM>(*this, *p_load, token);
 
         // ... and then our local data
-        compare_t(IDENTITY(m_fileName, p_load->m_fileName), token);
-        compare_t(IDENTITY(m_adaptorName, p_load->m_adaptorName), token);
-        compare_t(IDENTITY(m_property, p_load->m_property), token);
-        compare_t(IDENTITY(m_canvasDimensions, p_load->m_canvasDimensions), token);
-        compare_t(IDENTITY(m_gpd, p_load->m_gpd), token);
-        compare_t(IDENTITY(m_adaptorPropertyHist2D_oa, p_load->m_adaptorPropertyHist2D_oa), token);
-        compare_t(IDENTITY(m_fitnessGraph2D_oa, p_load->m_fitnessGraph2D_oa), token);
-        compare_t(IDENTITY(m_monitorBestOnly, p_load->m_monitorBestOnly), token);
-        compare_t(IDENTITY(m_addPrintCommand, p_load->m_addPrintCommand), token);
-        compare_t(IDENTITY(m_maxIteration, p_load->m_maxIteration), token);
-        compare_t(IDENTITY(m_nIterationsRecorded, p_load->m_nIterationsRecorded), token);
-        compare_t(IDENTITY(m_adaptorPropertyStore, p_load->m_adaptorPropertyStore), token);
+        compare_t(IDENTITY(fileName_, p_load->fileName_), token);
+        compare_t(IDENTITY(adaptorName_, p_load->adaptorName_), token);
+        compare_t(IDENTITY(property_, p_load->property_), token);
+        compare_t(IDENTITY(canvasDimensions_, p_load->canvasDimensions_), token);
+        compare_t(IDENTITY(gpd_, p_load->gpd_), token);
+        compare_t(IDENTITY(adaptorPropertyHist2D_oa_, p_load->adaptorPropertyHist2D_oa_), token);
+        compare_t(IDENTITY(fitnessGraph2D_oa_, p_load->fitnessGraph2D_oa_), token);
+        compare_t(IDENTITY(monitorBestOnly_, p_load->monitorBestOnly_), token);
+        compare_t(IDENTITY(addPrintCommand_, p_load->addPrintCommand_), token);
+        compare_t(IDENTITY(maxIteration_, p_load->maxIteration_), token);
+        compare_t(IDENTITY(nIterationsRecorded_, p_load->nIterationsRecorded_), token);
+        compare_t(IDENTITY(adaptorPropertyStore_, p_load->adaptorPropertyStore_), token);
 
         // React on deviations from the expectation
         token.evaluate();
@@ -1853,29 +1853,29 @@ private:
 
         switch(im) {
         case Gem::Geneva::infoMode::INFOINIT: {
-            // If the file pointed to by m_fileName already exists, make a back-up
-            if(std::filesystem::exists(m_fileName)) {
+            // If the file pointed to by fileName_ already exists, make a back-up
+            if(std::filesystem::exists(fileName_)) {
                 std::string newFileName =
-                    m_fileName + ".bak_" +
+                    fileName_ + ".bak_" +
                     Gem::Common::getMSSince1970(); // NOLINT(cppcoreguidelines-init-variables)
 
                 glogger << "In GAdaptorPropertyLoggerT::informationFunction_(): Error!" << std::endl
-                        << "Attempt to output information to file " << m_fileName << std::endl
+                        << "Attempt to output information to file " << fileName_ << std::endl
                         << "which already exists. We will rename the old file to" << std::endl
                         << newFileName << std::endl
                         << GWARNING;
 
-                std::filesystem::rename(m_fileName, newFileName);
+                std::filesystem::rename(fileName_, newFileName);
             }
 
             // Make sure the progress plotter has the desired size
-            m_gpd.setCanvasDimensions(m_canvasDimensions);
+            gpd_.setCanvasDimensions(canvasDimensions_);
 
             // Set up a graph to monitor the best fitness found
-            m_fitnessGraph2D_oa = std::make_shared<Gem::Common::GGraph2D>();
-            m_fitnessGraph2D_oa->setXAxisLabel("Iteration");
-            m_fitnessGraph2D_oa->setYAxisLabel("Fitness");
-            m_fitnessGraph2D_oa->setPlotMode(Gem::Common::graphPlotMode::CURVE);
+            fitnessGraph2D_oa_ = std::make_shared<Gem::Common::GGraph2D>();
+            fitnessGraph2D_oa_->setXAxisLabel("Iteration");
+            fitnessGraph2D_oa_->setYAxisLabel("Fitness");
+            fitnessGraph2D_oa_->setPlotMode(Gem::Common::graphPlotMode::CURVE);
         } break;
 
         case Gem::Geneva::infoMode::INFOPROCESSING: {
@@ -1884,28 +1884,28 @@ private:
             // Record the current fitness
             std::shared_ptr<GParameterSet> p =
                 goa->G_Interface_OptimizerT::template getBestGlobalIndividual<GParameterSet>();
-            (*m_fitnessGraph2D_oa) &
+            (*fitnessGraph2D_oa_) &
                 std::tuple<double, double>(double(iteration), p->raw_fitness(0));
 
             // Update the largest known iteration and the number of recorded iterations
-            m_maxIteration = iteration;
-            m_nIterationsRecorded++;
+            maxIteration_ = iteration;
+            nIterationsRecorded_++;
 
             // Will hold the adaptor properties
             std::vector<boost::any> data;
 
             // Do the actual logging
-            if(m_monitorBestOnly) {
+            if(monitorBestOnly_) {
                 std::shared_ptr<GParameterSet> best =
                     goa->G_Interface_OptimizerT::template getBestGlobalIndividual<GParameterSet>();
 
                 // Retrieve the adaptor data (e.g. the sigma of a GDoubleGaussAdaptor
-                best->queryAdaptor(m_adaptorName, m_property, data);
+                best->queryAdaptor(adaptorName_, property_, data);
 
-                // Attach the data to m_adaptorPropertyStore
+                // Attach the data to adaptorPropertyStore_
                 std::vector<boost::any>::iterator prop_it;
                 for(prop_it = data.begin(); prop_it != data.end(); ++prop_it) {
-                    m_adaptorPropertyStore.push_back(
+                    adaptorPropertyStore_.push_back(
                         std::tuple<double, double>(
                             double(iteration),
                             double(boost::any_cast<num_type>(*prop_it))
@@ -1920,12 +1920,12 @@ private:
                         goa->template individual_cast<GParameterSet>(pos);
 
                     // Retrieve the adaptor data (e.g. the sigma of a GDoubleGaussAdaptor
-                    ind->queryAdaptor(m_adaptorName, m_property, data);
+                    ind->queryAdaptor(adaptorName_, property_, data);
 
-                    // Attach the data to m_adaptorPropertyStore
+                    // Attach the data to adaptorPropertyStore_
                     std::vector<boost::any>::iterator prop_it;
                     for(prop_it = data.begin(); prop_it != data.end(); ++prop_it) {
-                        m_adaptorPropertyStore.push_back(
+                        adaptorPropertyStore_.push_back(
                             std::tuple<double, double>(
                                 double(iteration),
                                 double(boost::any_cast<num_type>(*prop_it))
@@ -1939,51 +1939,51 @@ private:
         case Gem::Geneva::infoMode::INFOEND: {
             std::vector<std::tuple<double, double>>::iterator it;
 
-            // Within m_adaptorPropertyStore, find the largest number of adaptions performed
+            // Within adaptorPropertyStore_, find the largest number of adaptions performed
             double maxProperty = 0.;
-            for(it = m_adaptorPropertyStore.begin(); it != m_adaptorPropertyStore.end(); ++it) {
+            for(it = adaptorPropertyStore_.begin(); it != adaptorPropertyStore_.end(); ++it) {
                 if(std::get<1>(*it) > maxProperty) {
                     maxProperty = std::get<1>(*it);
                 }
             }
 
             // Create the histogram object
-            m_adaptorPropertyHist2D_oa = std::make_shared<GHistogram2D>(
-                m_nIterationsRecorded,
+            adaptorPropertyHist2D_oa_ = std::make_shared<GHistogram2D>(
+                nIterationsRecorded_,
                 100,
                 0.,
-                double(m_maxIteration),
+                double(maxIteration_),
                 0.,
                 maxProperty
             );
 
-            m_adaptorPropertyHist2D_oa->setXAxisLabel("Iteration");
-            m_adaptorPropertyHist2D_oa->setYAxisLabel(
-                std::string("Adaptor-Name: ") + m_adaptorName + std::string(", Property: ") +
-                m_property
+            adaptorPropertyHist2D_oa_->setXAxisLabel("Iteration");
+            adaptorPropertyHist2D_oa_->setYAxisLabel(
+                std::string("Adaptor-Name: ") + adaptorName_ + std::string(", Property: ") +
+                property_
             );
-            m_adaptorPropertyHist2D_oa->setDrawingArguments("BOX");
+            adaptorPropertyHist2D_oa_->setDrawingArguments("BOX");
 
             // Fill the object with data
-            for(it = m_adaptorPropertyStore.begin(); it != m_adaptorPropertyStore.end(); ++it) {
-                (*m_adaptorPropertyHist2D_oa) & *it;
+            for(it = adaptorPropertyStore_.begin(); it != adaptorPropertyStore_.end(); ++it) {
+                (*adaptorPropertyHist2D_oa_) & *it;
             }
 
             // Add the histogram to the plot designer
-            m_gpd.registerPlotter(m_adaptorPropertyHist2D_oa);
+            gpd_.registerPlotter(adaptorPropertyHist2D_oa_);
 
             // Add the fitness monitor
-            m_gpd.registerPlotter(m_fitnessGraph2D_oa);
+            gpd_.registerPlotter(fitnessGraph2D_oa_);
 
             // Inform the plot designer whether it should print png files
-            m_gpd.setAddPrintCommand(m_addPrintCommand);
+            gpd_.setAddPrintCommand(addPrintCommand_);
 
             // Write out the result. Note that we add
-            m_gpd.writeToFile(m_fileName);
+            gpd_.writeToFile(fileName_);
 
             // Remove all plotters (they will survive inside of gpd)
-            m_gpd.resetPlotters();
-            m_adaptorPropertyHist2D_oa.reset();
+            gpd_.resetPlotters();
+            adaptorPropertyHist2D_oa_.reset();
         } break;
 
         default: {
@@ -1997,34 +1997,34 @@ private:
 
     /************************************************************************/
 
-    std::string m_fileName =
+    std::string fileName_ =
         "NAdaptions.C"; ///< The name of the file to which solutions should be stored
 
-    std::string m_adaptorName =
+    std::string adaptorName_ =
         "GDoubleGaussAdaptor"; ///< The  name of the adaptor for which properties should be logged
-    std::string m_property = "sigma"; ///< The name of the property to be logged
+    std::string property_ = "sigma"; ///< The name of the property to be logged
 
-    std::tuple<std::uint32_t, std::uint32_t> m_canvasDimensions =
+    std::tuple<std::uint32_t, std::uint32_t> canvasDimensions_ =
         std::tuple<std::uint32_t, std::uint32_t>(1200, 1600); ///< The dimensions of the canvas
 
-    Gem::Common::GPlotDesigner m_gpd{"Adaptor properties", 1, 2}; ///< A wrapper for the plots
+    Gem::Common::GPlotDesigner gpd_{"Adaptor properties", 1, 2}; ///< A wrapper for the plots
 
     std::shared_ptr<Gem::Common::GHistogram2D>
-        m_adaptorPropertyHist2D_oa; ///< Holds the actual histogram
+        adaptorPropertyHist2D_oa_; ///< Holds the actual histogram
     std::shared_ptr<Gem::Common::GGraph2D>
-        m_fitnessGraph2D_oa; ///< Lets us monitor the current fitness of the population
+        fitnessGraph2D_oa_; ///< Lets us monitor the current fitness of the population
 
-    bool m_monitorBestOnly =
+    bool monitorBestOnly_ =
         false; ///< Indicates whether only the best individuals should be monitored
-    bool m_addPrintCommand =
+    bool addPrintCommand_ =
         false; ///< Asks the GPlotDesigner to add a print command to result files
 
-    std::size_t m_maxIteration = 0; ///< Holds the largest iteration recorded for the algorithm
-    std::size_t m_nIterationsRecorded =
-        0; ///< Holds the number of iterations that were recorded (not necessarily == m_maxIteration
+    std::size_t maxIteration_ = 0; ///< Holds the largest iteration recorded for the algorithm
+    std::size_t nIterationsRecorded_ =
+        0; ///< Holds the number of iterations that were recorded (not necessarily == maxIteration_
 
     std::vector<std::tuple<double, double>>
-        m_adaptorPropertyStore; ///< Holds all information about the number of adaptions
+        adaptorPropertyStore_; ///< Holds all information about the number of adaptions
 };
 
 /******************************************************************************/
@@ -2049,20 +2049,20 @@ class GProcessingTimesLogger // NOLINT(cppcoreguidelines-special-member-function
         ar &make_nvp(
             "GBasePluggableOM",
             boost::serialization::base_object<GBasePluggableOM>(*this)
-        ) & BOOST_SERIALIZATION_NVP(m_fileName_pth) &
-            BOOST_SERIALIZATION_NVP(m_canvasDimensions_pth) & BOOST_SERIALIZATION_NVP(m_gpd_pth) &
-            BOOST_SERIALIZATION_NVP(m_fileName_pth2) &
-            BOOST_SERIALIZATION_NVP(m_canvasDimensions_pth2) & BOOST_SERIALIZATION_NVP(m_gpd_pth2) &
-            BOOST_SERIALIZATION_NVP(m_fileName_txt) &
-            BOOST_SERIALIZATION_NVP(m_pre_processing_times_hist) &
-            BOOST_SERIALIZATION_NVP(m_processing_times_hist) &
-            BOOST_SERIALIZATION_NVP(m_post_processing_times_hist) &
-            BOOST_SERIALIZATION_NVP(m_all_processing_times_hist) &
-            BOOST_SERIALIZATION_NVP(m_pre_processing_times_hist2D) &
-            BOOST_SERIALIZATION_NVP(m_processing_times_hist2D) &
-            BOOST_SERIALIZATION_NVP(m_post_processing_times_hist2D) &
-            BOOST_SERIALIZATION_NVP(m_all_processing_times_hist2D) &
-            BOOST_SERIALIZATION_NVP(m_nBinsX) & BOOST_SERIALIZATION_NVP(m_nBinsY);
+        ) & BOOST_SERIALIZATION_NVP(fileName_pth_) &
+            BOOST_SERIALIZATION_NVP(canvasDimensions_pth_) & BOOST_SERIALIZATION_NVP(gpd_pth_) &
+            BOOST_SERIALIZATION_NVP(fileName_pth2_) &
+            BOOST_SERIALIZATION_NVP(canvasDimensions_pth2_) & BOOST_SERIALIZATION_NVP(gpd_pth2_) &
+            BOOST_SERIALIZATION_NVP(fileName_txt_) &
+            BOOST_SERIALIZATION_NVP(pre_processing_times_hist_) &
+            BOOST_SERIALIZATION_NVP(processing_times_hist_) &
+            BOOST_SERIALIZATION_NVP(post_processing_times_hist_) &
+            BOOST_SERIALIZATION_NVP(all_processing_times_hist_) &
+            BOOST_SERIALIZATION_NVP(pre_processing_times_hist2D_) &
+            BOOST_SERIALIZATION_NVP(processing_times_hist2D_) &
+            BOOST_SERIALIZATION_NVP(post_processing_times_hist2D_) &
+            BOOST_SERIALIZATION_NVP(all_processing_times_hist2D_) &
+            BOOST_SERIALIZATION_NVP(nBinsX_) & BOOST_SERIALIZATION_NVP(nBinsY_);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -2165,50 +2165,50 @@ private:
 
     /************************************************************************/
 
-    std::string m_fileName_pth =
+    std::string fileName_pth_ =
         "processingTimingsHist.C"; ///< The name of the file to which timings should be written in ROOT format
-    std::tuple<std::uint32_t, std::uint32_t> m_canvasDimensions_pth =
+    std::tuple<std::uint32_t, std::uint32_t> canvasDimensions_pth_ =
         std::tuple<std::uint32_t, std::uint32_t>(1600, 1200); ///< The dimensions of the canvas
-    Gem::Common::GPlotDesigner m_gpd_pth{
+    Gem::Common::GPlotDesigner gpd_pth_{
         "Timings for the processing steps of individuals",
         2,
         2
     }; ///< A wrapper for the plots
 
-    std::string m_fileName_pth2 =
+    std::string fileName_pth2_ =
         "processingTimingsVsIteration.C"; ///< The name of the file to which timings should be written in ROOT format
-    std::tuple<std::uint32_t, std::uint32_t> m_canvasDimensions_pth2 =
+    std::tuple<std::uint32_t, std::uint32_t> canvasDimensions_pth2_ =
         std::tuple<std::uint32_t, std::uint32_t>(1600, 1200); ///< The dimensions of the canvas
-    Gem::Common::GPlotDesigner m_gpd_pth2{
+    Gem::Common::GPlotDesigner gpd_pth2_{
         "Timings for the processing steps of individuals vs. iteration",
         2,
         2
     }; ///< A wrapper for the plots
 
-    std::string m_fileName_txt =
+    std::string fileName_txt_ =
         "processingTimings.txt"; ///< The name of the file to which timings should be written in text format
 
     std::shared_ptr<Gem::Common::GHistogram1D>
-        m_pre_processing_times_hist; ///< The amount of time needed for pre-processing
+        pre_processing_times_hist_; ///< The amount of time needed for pre-processing
     std::shared_ptr<Gem::Common::GHistogram1D>
-        m_processing_times_hist; ///< The amount of time needed for processing
+        processing_times_hist_; ///< The amount of time needed for processing
     std::shared_ptr<Gem::Common::GHistogram1D>
-        m_post_processing_times_hist; ///< The amount of time needed for post-processing
+        post_processing_times_hist_; ///< The amount of time needed for post-processing
     std::shared_ptr<Gem::Common::GHistogram1D>
-        m_all_processing_times_hist; ///< The amount of time needed for the entire processing step
+        all_processing_times_hist_; ///< The amount of time needed for the entire processing step
 
     std::shared_ptr<Gem::Common::GHistogram2D>
-        m_pre_processing_times_hist2D; ///< The amount of time needed for pre-processing
+        pre_processing_times_hist2D_; ///< The amount of time needed for pre-processing
     std::shared_ptr<Gem::Common::GHistogram2D>
-        m_processing_times_hist2D; ///< The amount of time needed for processing
+        processing_times_hist2D_; ///< The amount of time needed for processing
     std::shared_ptr<Gem::Common::GHistogram2D>
-        m_post_processing_times_hist2D; ///< The amount of time needed for post-processing
+        post_processing_times_hist2D_; ///< The amount of time needed for post-processing
     std::shared_ptr<Gem::Common::GHistogram2D>
-        m_all_processing_times_hist2D; ///< The amount of time needed for the entire processing step
+        all_processing_times_hist2D_; ///< The amount of time needed for the entire processing step
 
-    std::size_t m_nBinsX =
+    std::size_t nBinsX_ =
         Gem::Common::DEFAULTNBINSGPD; ///< The number of bins in the histograms in x-direction
-    std::size_t m_nBinsY =
+    std::size_t nBinsY_ =
         Gem::Common::DEFAULTNBINSGPD; ///< The number of bins in the histograms in y-direction
 };
 

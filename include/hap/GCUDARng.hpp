@@ -90,23 +90,23 @@ private:
 
 private:
     // Host pool of random numbers
-    std::deque<result_type> m_pool;
-    const std::size_t m_poolCapacity;
+    std::deque<result_type> pool_;
+    const std::size_t poolCapacity_;
 
     // Dynamic batch size
-    std::atomic<std::size_t> m_batchSize;
+    std::atomic<std::size_t> batchSize_;
 
     // Synchronization
-    std::mutex m_mutex;
-    std::condition_variable m_cv;
+    std::mutex mutex_;
+    std::condition_variable cv_;
 
-    std::atomic<bool> m_stop{false};
-    std::thread m_productionThread;
+    std::atomic<bool> stop_{false};
+    std::thread productionThread_;
 
     // Persistent GPU buffers — allocated once in the constructor, freed in the destructor.
     // Typed as void* to avoid leaking CUDA types into non-CUDA translation units.
-    void *m_d_states{nullptr}; ///< curandState array on the GPU
-    void *m_d_out{nullptr};    ///< uint32_t output array on the GPU
-    void *m_stream{nullptr};   ///< dedicated cudaStream_t for RNG (decoupled from default stream)
+    void *d_states_{nullptr}; ///< curandState array on the GPU
+    void *d_out_{nullptr};    ///< uint32_t output array on the GPU
+    void *stream_{nullptr};   ///< dedicated cudaStream_t for RNG (decoupled from default stream)
 };
 } /* namespace Gem::Hap */

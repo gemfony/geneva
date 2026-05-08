@@ -99,7 +99,7 @@ private:
     getObject_(Gem::Common::GParserBuilder &, const std::size_t &) override;
 
     /** @brief Holds information on the variables to be optimized -- set through the corresponding member function or on the command line */
-    std::string m_parameterSpecCL = "empty";
+    std::string parameterSpecCL_ = "empty";
 };
 
 /******************************************************************************/

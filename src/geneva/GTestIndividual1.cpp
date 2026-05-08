@@ -51,11 +51,11 @@ GTestIndividual1::GTestIndividual1()
         new Gem::Geneva::GDoubleGaussAdaptor(0.025, 0.1, 0., 1.)
     );
 
-    // Prevent changes to m_adProb
+    // Prevent changes to adProb_
     gdga1->setAdaptAdProb(0.);
 
     gdc_ptr->addAdaptor(gdga1);
-    gdc_ptr->randomInit(Gem::Geneva::activityMode::ACTIVEONLY, m_gr);
+    gdc_ptr->randomInit(Gem::Geneva::activityMode::ACTIVEONLY, gr_);
     this->push_back(gdc_ptr);
 }
 
@@ -210,7 +210,7 @@ void GTestIndividual1::addGDoubleObjects_(const std::size_t &nItems) {
         CHECK_NOTHROW(gdo_ptr->addAdaptor(gdga_ptr));
 
         // Randomly initialize the GDoubleObject object, so it is unique
-        CHECK_NOTHROW(gdo_ptr->randomInit(Gem::Geneva::activityMode::ACTIVEONLY, m_gr));
+        CHECK_NOTHROW(gdo_ptr->randomInit(Gem::Geneva::activityMode::ACTIVEONLY, gr_));
 
         // Add the object to the collection
         CHECK_NOTHROW(this->push_back(gdo_ptr));

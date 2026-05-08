@@ -207,7 +207,7 @@ protected:
         Gem::Common::compare_base_t<GParameterBase>(*this, *p_load, token);
 
         // We treat GPtrVectorT<T, Gem::Geneva::GObject>::data as local data
-        compare_t(IDENTITY(this->m_data_cnt, p_load->m_data_cnt), token);
+        compare_t(IDENTITY(this->data_cnt_, p_load->data_cnt_), token);
 
         // React on deviations from the expectation
         token.evaluate();

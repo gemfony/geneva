@@ -64,70 +64,70 @@ GMPISubClientOptimizer::GMPISubClientOptimizer(
     }
 
     // initialize position in MPI world e.g. in the outermost communicator
-    MPI_Comm_rank(baseCommunicator, &m_baseCommRank);
-    MPI_Comm_size(baseCommunicator, &m_baseCommSize);
+    MPI_Comm_rank(baseCommunicator, &baseCommRank_);
+    MPI_Comm_size(baseCommunicator, &baseCommSize_);
 
     // server has rank 0
-    const bool isServer = m_baseCommRank == 0;
+    const bool isServer = baseCommRank_ == 0;
 
     // All processes but the geneva server and the geneva clients are sub-clients.
     // As an example: In case of 17 processes with one server, 4 clients and 4 sub-clients the ranks
     // [0, 1, 5, 7, 13] are server and geneva clients. All other processes will be sub-clients.
-    m_isSubClient = !isServer && ((m_baseCommRank - 1) % m_subClientGroupSize != 0);
-    const int subCommColor = (m_baseCommRank - 1) / (m_subClientGroupSize) + M_MPI_GENEVA_COLOR;
+    isSubClient_ = !isServer && ((baseCommRank_ - 1) % subClientGroupSize_ != 0);
+    const int subCommColor = (baseCommRank_ - 1) / (subClientGroupSize_) + M_MPI_GENEVA_COLOR;
 
     // emit output about this instance
     if(!isServer) { // the server is in no sub-client group
-        glogger << "baseRank=" << m_baseCommRank
+        glogger << "baseRank=" << baseCommRank_
                 << " with mode=" << (isSubClient() ? "`sub-client`" : "`client`")
                 << " is in subgroup " << subCommColor << std::endl
                 << GLOGGING;
     }
     else {
-        glogger << "baseRank=" << m_baseCommRank << " is the server and in no sub-group"
+        glogger << "baseRank=" << baseCommRank_ << " is the server and in no sub-group"
                 << std::endl
                 << GLOGGING;
     }
 
     // create new communicators based on the current position in the baseRank
-    if(m_isSubClient) { // process is a sub-client
+    if(isSubClient_) { // process is a sub-client
 
         // create the genevaCommunicator, because the call is collective.
         // But as this process is a sub-client we do not want to communicate inside that subgroup and therefore
         // pass MPI_UNDEFINED as color
-        MPI_Comm_split(baseCommunicator, MPI_UNDEFINED, m_baseCommRank, &m_genevaComm);
+        MPI_Comm_split(baseCommunicator, MPI_UNDEFINED, baseCommRank_, &genevaComm_);
 
         // putting nSubClients in one communicator by using down-rounding integer division
-        MPI_Comm_split(baseCommunicator, subCommColor, m_baseCommRank, &m_subClientComm);
+        MPI_Comm_split(baseCommunicator, subCommColor, baseCommRank_, &subClientComm_);
     }
     else { // process is a geneva client or the geneva server
 
         // Create a communicator to be used by GMPIConsumerT
-        MPI_Comm_split(baseCommunicator, M_MPI_GENEVA_COLOR, m_baseCommRank, &m_genevaComm);
+        MPI_Comm_split(baseCommunicator, M_MPI_GENEVA_COLOR, baseCommRank_, &genevaComm_);
 
         if(isServer) { // process is the geneva server (master node)
             // The geneva server has rank 0 and does not need to be in any sub-client communicator.
             // It only communicates with the geneva clients and does not communicate inside of subgroups.
-            MPI_Comm_split(baseCommunicator, MPI_UNDEFINED, m_baseCommRank, &m_subClientComm);
+            MPI_Comm_split(baseCommunicator, MPI_UNDEFINED, baseCommRank_, &subClientComm_);
         }
         else {
             // all geneva clients are in separate communicators by using down-rounding integer division
             // This process (geneva client) receives rank 0 inside the subgroup. All other processes in this subgroup
-            // will definitely pass numbers greater 0 as key and therefore get the ranks 1 - (m_subClientGroupSize - 1)
-            MPI_Comm_split(baseCommunicator, subCommColor, 0, &m_subClientComm);
+            // will definitely pass numbers greater 0 as key and therefore get the ranks 1 - (subClientGroupSize_ - 1)
+            MPI_Comm_split(baseCommunicator, subCommColor, 0, &subClientComm_);
         }
     }
 
     // Notify the GMPIConsumerT to use this inter-communicator
-    Gem::Courtier::GMPIConsumerT<GParameterSet>::setMPICommunicator(m_genevaComm);
+    Gem::Courtier::GMPIConsumerT<GParameterSet>::setMPICommunicator(genevaComm_);
 
     // Notify the individual to use this inter-communicator
-    GMPISubClientIndividual::setCommunicator(m_subClientComm);
+    GMPISubClientIndividual::setCommunicator(subClientComm_);
 
     // set sub-client group status communicator
     if(!isServer) {
         // create the status communicator as a copy of the local group communicator
-        MPI_Comm_dup(m_subClientComm, &m_subClientStatusComm);
+        MPI_Comm_dup(subClientComm_, &subClientStatusComm_);
     }
 }
 
@@ -139,15 +139,15 @@ void GMPISubClientOptimizer::addConfigurationOptions_(Gem::Common::GParserBuilde
 
     gpb.registerFileParameter<std::uint16_t>(
         "subClientGroupSize",
-        m_subClientGroupSize,
-        m_subClientGroupSize
+        subClientGroupSize_,
+        subClientGroupSize_
     ) << "The amount of processes in each sub-group. Each sub group works together on one "
          "individual.";
 }
 
 GMPISubClientOptimizer &
 GMPISubClientOptimizer::registerSubClientJob(std::function<int(MPI_Comm)> callback) {
-    m_subClientJob = std::move(callback);
+    subClientJob_ = std::move(callback);
 
     // return reference to self for chaining calls
     return *this;
@@ -155,18 +155,18 @@ GMPISubClientOptimizer::registerSubClientJob(std::function<int(MPI_Comm)> callba
 
 MPI_Request GMPISubClientOptimizer::startAsyncBarrier() const {
     MPI_Request request{};
-    MPI_Ibarrier(m_subClientStatusComm, &request);
+    MPI_Ibarrier(subClientStatusComm_, &request);
 
     return request;
 }
 
 int GMPISubClientOptimizer::clientRun_() {
-    if(m_isSubClient) {
+    if(isSubClient_) {
         GMPISubClientIndividual::setClientMode(ClientMode::SUB_CLIENT);
         GMPISubClientIndividual::setClientStatusRequest(startAsyncBarrier());
         // start the asynchronous request waiting for the client to finish its job
         // execute the sub-client job
-        return m_subClientJob(m_subClientComm);
+        return subClientJob_(subClientComm_);
     }
     else {
         GMPISubClientIndividual::setClientMode(ClientMode::CLIENT);

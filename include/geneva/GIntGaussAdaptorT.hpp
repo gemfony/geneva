@@ -234,14 +234,14 @@ protected:
         // Calculate a suitable addition to the current parameter value
         auto addition = static_cast<int_type>(
             static_cast<double>(range) *
-            GAdaptorT<int_type, double>::m_normal_distribution(
+            GAdaptorT<int_type, double>::normal_distribution_(
                 gr,
                 std::normal_distribution<double>::param_type(0., this->getSigma())
             )
         );
 
         if(addition == 0) { // Enforce a minimal change of 1.
-            bool flipDirection = GAdaptorT<int_type, double>::m_weighted_bool(
+            bool flipDirection = GAdaptorT<int_type, double>::weighted_bool_(
                 gr,
                 std::bernoulli_distribution::param_type(0.5)
             );

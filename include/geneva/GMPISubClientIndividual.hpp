@@ -136,14 +136,14 @@ private:
     /**
          * Communicator that can be used by this class
          */
-    static inline MPI_Comm m_communicator{MPI_COMM_NULL};
+    static inline MPI_Comm communicator_{MPI_COMM_NULL};
 
     /**
          * Request which can be used to check the client status
          */
-    inline static MPI_Request m_clientStatusRequest{};
+    inline static MPI_Request clientStatusRequest_{};
 
-    inline static ClientMode m_clientMode{ClientMode::CLIENT};
+    inline static ClientMode clientMode_{ClientMode::CLIENT};
 
     // NOTE: the class remains abstract because essential methods of the base class are not implemented
 };

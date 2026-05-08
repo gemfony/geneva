@@ -115,7 +115,7 @@ public:
     /***************************************************************************/
     /** @brief Returns the current position */
     std::size_t getCurrentPosition() const {
-        return m_current_pos;
+        return current_pos_;
     }
 
     /***************************************************************************/
@@ -123,7 +123,7 @@ public:
 	  * Allows to check whether the buffer has run empty
 	  */
     bool empty() const {
-        return (m_current_pos >= DEFAULTARRAYSIZE);
+        return (current_pos_ >= DEFAULTARRAYSIZE);
     }
 
     /***************************************************************************/
@@ -136,13 +136,13 @@ public:
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In random_container::next(): Error!" << std::endl
-                << "Invalid m_current_pos: " << m_current_pos << " / " << DEFAULTARRAYSIZE
+                << "Invalid current_pos_: " << current_pos_ << " / " << DEFAULTARRAYSIZE
                 << std::endl
             );
         }
 #endif
 
-        return m_r[m_current_pos++];
+        return r_[current_pos_++];
     }
 
 private:
@@ -154,7 +154,7 @@ private:
 	  */
     explicit random_container(G_CPU_BASE_GENERATOR &rng) {
         try {
-            std::generate(m_r.begin(), m_r.end(), [&]() { return rng(); });
+            std::generate(r_.begin(), r_.end(), [&]() { return rng(); });
         }
         catch(const std::bad_alloc &e) {
             throw geneva_exception(
@@ -179,14 +179,14 @@ private:
 	  * pointer. T_RNG must be one of the standard C++1x-generators
 	  */
     void refresh(G_CPU_BASE_GENERATOR &rng) {
-        std::generate(m_r.begin(), m_r.begin() + m_current_pos, [&]() { return rng(); });
-        m_current_pos = 0;
+        std::generate(r_.begin(), r_.begin() + current_pos_, [&]() { return rng(); });
+        current_pos_ = 0;
     }
     /***************************************************************************/
 
-    std::size_t m_current_pos = 0; ///< The current position in the array
+    std::size_t current_pos_ = 0; ///< The current position in the array
     std::array<G_CPU_BASE_GENERATOR::result_type, DEFAULTARRAYSIZE>
-        m_r{}; ///< Holds the actual random numbers
+        r_{}; ///< Holds the actual random numbers
 };
 
 /******************************************************************************/
@@ -259,56 +259,56 @@ private:
     /** @brief The production of [0,1[ random numbers takes place here */
     void producer(std::uint32_t seed);
 
-    std::atomic<bool> m_finalized = ATOMIC_VAR_INIT(false);
-    std::atomic<bool> m_threads_started =
+    std::atomic<bool> finalized_ = ATOMIC_VAR_INIT(false);
+    std::atomic<bool> threads_started_ =
         ATOMIC_VAR_INIT(false); ///< Indicates whether threads were already started
-    std::atomic<bool> m_threads_stop_requested =
+    std::atomic<bool> threads_stop_requested_ =
         ATOMIC_VAR_INIT(false); ///< Indicates whether all threads were requested to stop
-    std::atomic<std::uint16_t> m_n_producer_threads = ATOMIC_VAR_INIT(
+    std::atomic<std::uint16_t> n_producer_threads_ = ATOMIC_VAR_INIT(
         DEFAULT01PRODUCERTHREADS
     ); ///< The number of threads used to produce random numbers
 
     Gem::Common::GThreadGroup
-        m_producer_threads; ///< A thread group that holds [0,1[ producer threads
+        producer_threads_; ///< A thread group that holds [0,1[ producer threads
 
     /** @brief A bounded buffer holding the random number packages */
     Gem::Common::GBoundedBufferT<std::unique_ptr<random_container>, DEFAULTFACTORYBUFFERSIZE>
-        m_p_fresh_bfr; // Note: Absolutely needs to be defined after the thread group !!!
+        p_fresh_bfr_; // Note: Absolutely needs to be defined after the thread group !!!
     /** @brief A bounded buffer holding random number packages ready for recycling */
     Gem::Common::GBoundedBufferT<std::unique_ptr<random_container>, DEFAULTFACTORYBUFFERSIZE>
-        m_p_ret_bfr;
+        p_ret_bfr_;
 
     static std::atomic<bool>
-        m_multiple_call_trap; ///< Trap to catch multiple instantiations of this class -- this is mostly for debugging purposes
+        multiple_call_trap_; ///< Trap to catch multiple instantiations of this class -- this is mostly for debugging purposes
 
     mutable std::mutex
-        m_thread_creation_mutex; ///< Synchronization of access to the threads_started_ variable
+        thread_creation_mutex_; ///< Synchronization of access to the threads_started_ variable
 
-    std::random_device m_nondet_rng; ///< Source of non-deterministic random numbers
-    std::seed_seq m_seed_seq         ///< A seeding sequence
-        = {m_nondet_rng(),
-           m_nondet_rng(),
-           m_nondet_rng(),
-           m_nondet_rng(),
-           m_nondet_rng(),
-           m_nondet_rng(),
-           m_nondet_rng(),
-           m_nondet_rng(),
-           m_nondet_rng(),
-           m_nondet_rng(),
-           m_nondet_rng(),
-           m_nondet_rng(),
-           m_nondet_rng(),
-           m_nondet_rng(),
-           m_nondet_rng(),
-           m_nondet_rng()};
+    std::random_device nondet_rng_; ///< Source of non-deterministic random numbers
+    std::seed_seq seed_seq_         ///< A seeding sequence
+        = {nondet_rng_(),
+           nondet_rng_(),
+           nondet_rng_(),
+           nondet_rng_(),
+           nondet_rng_(),
+           nondet_rng_(),
+           nondet_rng_(),
+           nondet_rng_(),
+           nondet_rng_(),
+           nondet_rng_(),
+           nondet_rng_(),
+           nondet_rng_(),
+           nondet_rng_(),
+           nondet_rng_(),
+           nondet_rng_(),
+           nondet_rng_()};
 
-    mutable std::mutex m_seeding_mutex; ///< Regulates start-up of the seeding process
-    std::vector<seed_type> m_seed_collection =
+    mutable std::mutex seeding_mutex_; ///< Regulates start-up of the seeding process
+    std::vector<seed_type> seed_collection_ =
         std::vector<seed_type>(DEFAULTSEEDVECTORSIZE); ///< Holds pre-calculated seeds
-    std::vector<seed_type>::const_iterator m_seed_cit =
-        m_seed_collection.begin(); ///< Iterators over the seedCollection_
-    std::atomic<bool> m_seeding_has_started = ATOMIC_VAR_INIT(false);
+    std::vector<seed_type>::const_iterator seed_cit_ =
+        seed_collection_.begin(); ///< Iterators over the seedCollection_
+    std::atomic<bool> seeding_has_started_ = ATOMIC_VAR_INIT(false);
 };
 
 } /* namespace Gem::Hap */

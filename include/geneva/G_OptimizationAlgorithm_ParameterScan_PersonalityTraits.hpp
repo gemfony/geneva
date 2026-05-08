@@ -56,7 +56,7 @@ class GParameterScan_PersonalityTraits // NOLINT(cppcoreguidelines-special-membe
         using boost::serialization::make_nvp;
 
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPersonalityTraits) &
-            BOOST_SERIALIZATION_NVP(m_popPos);
+            BOOST_SERIALIZATION_NVP(popPos_);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -120,7 +120,7 @@ private:
     G_API_GENEVA GObject *clone_() const override;
 
     /** @brief Stores the current position in the population */
-    std::size_t m_popPos = 0;
+    std::size_t popPos_ = 0;
 };
 
 /******************************************************************************/

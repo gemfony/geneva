@@ -222,7 +222,7 @@ protected:
         // adapt the value in situ. Note that this changes
         // the argument of this function
         value +=
-            (range * GAdaptorT<fp_type, fp_type>::m_normal_distribution(
+            (range * GAdaptorT<fp_type, fp_type>::normal_distribution_(
                          gr,
                          typename std::normal_distribution<fp_type>::param_type(
                              0.,
