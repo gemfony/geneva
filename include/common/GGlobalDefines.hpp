@@ -147,6 +147,19 @@
 #define GSQUARED(X) ((X) * (X))
 
 //-----------------------------------------------------------
+// Suppress known Boost-internal false positives when NVCC is the compiler.
+// NVCC does not honor -isystem suppression the way GCC does, so these
+// warnings fire on every TU that pulls in mpl, mp11, or archive headers:
+//   #68-D  – integer conversion sign change   (boost/mpl/print.hpp)
+//   #186-D – unsigned comparison with zero    (boost/mp11/detail/mp_count.hpp)
+//   #191-D – meaningless cast qualifier       (boost/archive/detail/iserializer.hpp)
+#ifdef __CUDACC__
+#  pragma diag_suppress 68
+#  pragma diag_suppress 186
+#  pragma diag_suppress 191
+#endif
+
+//-----------------------------------------------------------
 // Allow to mark functions as deprecated on supported compilers
 #ifdef __GNUC__
 #define G_DEPRECATED(message) __attribute__((deprecated(#message)))
