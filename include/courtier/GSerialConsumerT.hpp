@@ -93,7 +93,7 @@ public:
 	  * Allows to specifcy whether this consumer is capable of full return
 	  */
     void setCapableOfFullReturn(bool capableOfFullReturn) {
-        glogger << "In GStdThreadConsumerT<processable_type>::setCapableOfFullReturn():"
+        glogger << "In GSerialConsumerT<processable_type>::setCapableOfFullReturn():"
                 << std::endl
                 << "isCapableOfFullReturn_ will be set to "
                 << (capableOfFullReturn ? "true" : "false") << std::endl

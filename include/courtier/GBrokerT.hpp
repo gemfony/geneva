@@ -346,10 +346,9 @@ public:
         // Check whether all registered consumers are capable of full return
         capable_of_full_return_.store(this->checkConsumersCapableOfFullReturn());
 
-        // Notify all interested parties
+        // Notify outside the lock to avoid immediately re-blocking the woken thread
+        consumerEnrolmentLock.unlock();
         consumersEnrolledCondition_.notify_all();
-
-        //-----------------------------------------------------------------------
     }
 
     /***************************************************************************/
@@ -411,10 +410,9 @@ public:
         // Check whether all registered consumers are capable of full return
         capable_of_full_return_.store(this->checkConsumersCapableOfFullReturn());
 
-        // Notify all interested parties
+        // Notify outside the lock to avoid immediately re-blocking the woken thread
+        consumerEnrolmentLock.unlock();
         consumersEnrolledCondition_.notify_all();
-
-        //-----------------------------------------------------------------------
     }
 
     /***************************************************************************/
