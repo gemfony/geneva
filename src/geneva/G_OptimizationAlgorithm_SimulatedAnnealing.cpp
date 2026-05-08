@@ -202,11 +202,11 @@ std::uint16_t GSimulatedAnnealing::getNThreads() const {
   * @param alpha The degradation speed of the temperature
   */
 void GSimulatedAnnealing::setTDegradationStrength(double alpha) {
-    if(alpha <= 0.) {
+    if(alpha <= 0. || alpha >= 1.) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GSimulatedAnnealing::setTDegradationStrength(const double&):" << std::endl
-            << "Got negative alpha: " << alpha << std::endl
+            << "alpha must be in (0,1) for SA cooling; got: " << alpha << std::endl
         );
     }
 
@@ -712,6 +712,9 @@ void GSimulatedAnnealing::sortSAMode() {
   * @return A double value in the range [0,1[, representing the likelihood for the child to replace the parent
   */
 double GSimulatedAnnealing::saProb(const double &fMinOnlyParent, const double &fMinOnlyChild) {
+    if(t_ <= std::numeric_limits<double>::min()) {
+        return (fMinOnlyChild <= fMinOnlyParent) ? 1. : 0.;
+    }
     return exp(-(fMinOnlyChild - fMinOnlyParent) / t_);
 }
 
