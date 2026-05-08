@@ -256,6 +256,39 @@ Recommended Versions:
   convention indicating the first pure-virtual declaration of a method; it has been
   superseded by override and final keywords and carried no semantic value.
 
+- prepareBuild.sh: new -y / --yes flag skips the interactive "Proceed? [y/N]"
+  confirmation that --clean (and reconfiguring an already-configured directory)
+  would otherwise require. Intended for use in scripts and CI pipelines where no
+  terminal is available. The flag is accepted both as -y and --yes; it affects all
+  code paths that call _confirm_and_clean.
+
+- clang-tidy code-quality pass across the entire codebase (~256 files). Fixes
+  cover priorities 1–3 of the project's clang-tidy configuration: modernise-use-
+  override, performance-unnecessary-copy-initialization, readability-qualified-auto,
+  cppcoreguidelines-pro-type-member-init, and related categories. No functional
+  changes; all fixes are mechanical correctness and readability improvements that
+  leave the public API unchanged.
+
+- clang-format normalization across all 325 .cpp/.hpp files. The entire source tree
+  now conforms to the project's .clang-format configuration. One substantive fix
+  included: a missing <boost/numeric/conversion/bounds.hpp> include in
+  GConstrainedValueLimitT.hpp that had been satisfied transitively was made direct.
+
+- GCUDARng bug fix: the CUDA-based random number generator (GCudaRNG, available
+  when USECUDARNG is enabled) previously re-initialized its cuRAND PRNG state on
+  every batch with a hardcoded seed (1234), causing every batch to produce the same
+  sequence of random numbers. The fix allocates curandState on the GPU once at
+  construction time, seeds it from GRandomFactory::getSeed() (the same source used
+  by the CPU-based RNG path), and advances the persistent state on each batch call
+  via curand() without re-initialization. A dedicated cudaStream_t is now used for
+  all RNG kernel launches and transfers so that the RNG producer thread does not
+  compete with fitness-evaluation kernels on the default stream.
+
+- GGlobalOptionsT / GTupleIO: missing direct includes added. GGlobalOptionsT.hpp
+  now includes <string> and <vector> directly; GTupleIO.hpp includes <sstream>
+  directly. Both headers had been relying on transitive includes from other Geneva
+  headers, which caused compilation failures when they were included in isolation.
+
 //------------------------------------------------------------------------------------------------------
 * Version 1.11, "Hendaye" - March 16, 2026
 

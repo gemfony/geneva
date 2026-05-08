@@ -32,6 +32,8 @@
  ********************************************************************************/
 
 #include "hap/GCUDARng.hpp"
+#include "hap/GRandomFactory.hpp"
+#include "common/GLogger.hpp"
 
 #include <cuda_runtime.h>
 #include <curand_kernel.h>
@@ -40,38 +42,27 @@ namespace Gem::Hap
 {
     static constexpr int THREADS_PER_BLOCK = 256;
 
-    // Kernel that initializes PRNG states and generates one random number per thread.
-    // For a true Mersenne Twister, curandStateMtgp32 would be used here.
-    __global__ void generateRandomKernel(curandState* states, std::uint32_t* out, int n)
+    // One-time initialization: sets up independent PRNG streams per thread using the
+    // supplied seed. Each thread receives a distinct sequence number so that all
+    // streams are statistically independent.
+    __global__ void initStatesKernel(curandState *states, unsigned long long seed, int n)
     {
         int idx = blockIdx.x * blockDim.x + threadIdx.x;
         if (idx < n)
         {
-            // Initialize PRNG state (simplified)
-            curand_init(/*seed=*/1234ULL, /*sequence=*/idx, /*offset=*/0, &states[idx]);
-
-            // Generate a uint32_t
-            out[idx] = curand(&states[idx]);
+            curand_init(seed, static_cast<unsigned long long>(idx), /*offset=*/0, &states[idx]);
         }
     }
 
-    // Generates n random numbers on the GPU and copies them into hostBuffer
-    void generateGpuRandomNumbers(std::size_t n, std::vector<std::uint32_t>& hostBuffer)
+    // Per-batch generation: advances the existing PRNG states without re-initialization,
+    // producing one independent random uint32 per thread.
+    __global__ void generateKernel(curandState *states, std::uint32_t *out, int n)
     {
-        if (n == 0) return;
-
-        curandState* d_states = nullptr;
-        std::uint32_t* d_out = nullptr;
-        cudaMalloc(&d_states, n * sizeof(curandState));
-        cudaMalloc(&d_out, n * sizeof(std::uint32_t));
-
-        int blocks = static_cast<int>((n + THREADS_PER_BLOCK - 1) / THREADS_PER_BLOCK);
-        generateRandomKernel<<<blocks, THREADS_PER_BLOCK>>>(d_states, d_out, static_cast<int>(n));
-
-        cudaMemcpy(hostBuffer.data(), d_out, n * sizeof(std::uint32_t), cudaMemcpyDeviceToHost);
-
-        cudaFree(d_out);
-        cudaFree(d_states);
+        int idx = blockIdx.x * blockDim.x + threadIdx.x;
+        if (idx < n)
+        {
+            out[idx] = curand(&states[idx]);
+        }
     }
 
     // ------------------------------
@@ -80,10 +71,27 @@ namespace Gem::Hap
 
     GCudaRNG::GCudaRNG(std::size_t poolCapacity, std::size_t initialBatchSize)
         : m_poolCapacity(poolCapacity)
-          , m_batchSize(initialBatchSize)
-          , m_stop(false)
+        , m_batchSize(initialBatchSize)
     {
-        // Start production thread
+        const int n = static_cast<int>(m_poolCapacity);
+
+        // Dedicated stream so RNG kernel launches never block fitness-evaluation kernels
+        // on the default stream, and vice versa.
+        cudaStreamCreate(reinterpret_cast<cudaStream_t *>(&m_stream));
+
+        // Allocate persistent GPU buffers sized for the maximum possible batch.
+        cudaMalloc(&m_d_states, static_cast<std::size_t>(n) * sizeof(curandState));
+        cudaMalloc(&m_d_out,    static_cast<std::size_t>(n) * sizeof(std::uint32_t));
+
+        // Initialize all PRNG states once with a non-deterministic seed drawn from
+        // GRandomFactory — the same source used by the CPU-based RNG path.
+        const auto seed = static_cast<unsigned long long>(GRANDOMFACTORY->getSeed());
+        const int blocks = (n + THREADS_PER_BLOCK - 1) / THREADS_PER_BLOCK;
+        initStatesKernel<<<blocks, THREADS_PER_BLOCK, 0, reinterpret_cast<cudaStream_t>(m_stream)>>>(
+            static_cast<curandState *>(m_d_states), seed, n);
+        cudaStreamSynchronize(reinterpret_cast<cudaStream_t>(m_stream));
+
+        // Start production thread after GPU state is ready.
         m_productionThread = std::thread(&GCudaRNG::productionLoop, this);
     }
 
@@ -98,6 +106,13 @@ namespace Gem::Hap
         {
             m_productionThread.join();
         }
+
+        cudaStreamDestroy(reinterpret_cast<cudaStream_t>(m_stream));
+        m_stream = nullptr;
+        cudaFree(m_d_states);
+        m_d_states = nullptr;
+        cudaFree(m_d_out);
+        m_d_out = nullptr;
     }
 
     GCudaRNG::result_type GCudaRNG::operator()()
@@ -107,7 +122,9 @@ namespace Gem::Hap
 
         if (m_stop && m_pool.empty())
         {
-            // Return 0 or throw an exception if we're done
+            glogger << "In GCudaRNG::operator()(): Warning!" << std::endl
+                    << "Generator is shutting down and pool is exhausted — returning 0." << std::endl
+                    << GWARNING;
             return 0;
         }
 
@@ -124,6 +141,25 @@ namespace Gem::Hap
         lk.unlock();
         m_cv.notify_all(); // notify producer if waiting
         return val;
+    }
+
+    // Runs generateKernel on the persistent m_d_states — no re-initialization.
+    // n must be <= m_poolCapacity so the pre-allocated buffers are large enough.
+    void GCudaRNG::fillBuffer(std::size_t n, std::vector<result_type> &buf)
+    {
+        if (n == 0) return;
+
+        const int count  = static_cast<int>(n);
+        const int blocks = (count + THREADS_PER_BLOCK - 1) / THREADS_PER_BLOCK;
+
+        generateKernel<<<blocks, THREADS_PER_BLOCK, 0, reinterpret_cast<cudaStream_t>(m_stream)>>>(
+            static_cast<curandState *>(m_d_states),
+            static_cast<std::uint32_t *>(m_d_out),
+            count);
+
+        cudaMemcpyAsync(buf.data(), m_d_out, n * sizeof(result_type),
+                        cudaMemcpyDeviceToHost, reinterpret_cast<cudaStream_t>(m_stream));
+        cudaStreamSynchronize(reinterpret_cast<cudaStream_t>(m_stream));
     }
 
     void GCudaRNG::productionLoop()
@@ -153,9 +189,9 @@ namespace Gem::Hap
                 }
             }
 
-            // Generate 'batch' numbers on the GPU
+            // Generate 'batch' numbers on the GPU using the persistent PRNG states
             tmpBuffer.resize(batch);
-            generateGpuRandomNumbers(batch, tmpBuffer);
+            fillBuffer(batch, tmpBuffer);
 
             {
                 // Wait if the pool is too close to capacity

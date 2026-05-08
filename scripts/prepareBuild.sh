@@ -46,6 +46,7 @@ DRYRUN=0
 CLEAN=0
 BUILD=0
 GENERATE_PRESET=0
+YES=0
 CONFIGFILE=""
 
 for arg in "$@"; do
@@ -77,6 +78,9 @@ for arg in "$@"; do
 			echo -e "                      Copy the file to the project root so that CLion (or"
 			echo -e "                      VS Code) picks up the configuration automatically."
 			echo -e "                      Does not alter the build directory or run cmake."
+			echo -e "  -y, --yes           Automatically answer yes to the 'Proceed? [y/N]'"
+			echo -e "                      prompt that --clean (and reconfigure-without-clean)"
+			echo -e "                      would otherwise show. Intended for non-interactive use."
 			echo -e "  --help, -h          Show this help message.\n"
 			exit 0
 			;;
@@ -91,6 +95,9 @@ for arg in "$@"; do
 			;;
 		--generate-preset)
 			GENERATE_PRESET=1
+			;;
+		-y|--yes)
+			YES=1
 			;;
 		-*)
 			echo -e "\nUnknown option: '$arg'. Use --help for usage information.\nLeaving...\n"
@@ -119,21 +126,24 @@ fi
 # Helper: interactively confirm and wipe the build directory.
 # Exits with code 1 if the user declines.
 _confirm_and_clean() {
-	echo -e "\nBuild directory '${GENEVA_BUILDROOT}' is already configured."
-	echo -e "Warning: ALL files (except *.gcfg) will be permanently deleted."
-	printf "Proceed? [y/N] "
-	read -r _confirm
-	case "${_confirm}" in
-		[yY]|[yY][eE][sS])
-			echo -en "Cleaning build directory '${GENEVA_BUILDROOT}' ..."
-			find "${GENEVA_BUILDROOT}" -mindepth 1 -maxdepth 1 ! -name "*.gcfg" -exec rm -rf {} +
-			echo -e " done\n"
-			;;
-		*)
-			echo -e "Aborted. Leaving...\n"
-			exit 1
-			;;
-	esac
+	if [ "${YES}" = "1" ]; then
+		echo -en "\nCleaning build directory '${GENEVA_BUILDROOT}' (auto-confirmed via -y) ..."
+	else
+		echo -e "\nBuild directory '${GENEVA_BUILDROOT}' is already configured."
+		echo -e "Warning: ALL files (except *.gcfg) will be permanently deleted."
+		printf "Proceed? [y/N] "
+		read -r _confirm
+		case "${_confirm}" in
+			[yY]|[yY][eE][sS]) ;;
+			*)
+				echo -e "Aborted. Leaving...\n"
+				exit 1
+				;;
+		esac
+		echo -en "Cleaning build directory '${GENEVA_BUILDROOT}' ..."
+	fi
+	find "${GENEVA_BUILDROOT}" -mindepth 1 -maxdepth 1 ! -name "*.gcfg" -exec rm -rf {} +
+	echo -e " done\n"
 }
 
 ####################################################################

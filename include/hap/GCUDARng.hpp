@@ -85,8 +85,8 @@ private:
     // The background thread that continuously generates random numbers on the GPU.
     void productionLoop();
 
-    // A friend helper function declared here for clarity; defined in GCudaRNG.cpp.
-    friend void generateGpuRandomNumbers(std::size_t n, std::vector<std::uint32_t> &hostBuffer);
+    // Fills buf with n random numbers from the persistent GPU states.
+    void fillBuffer(std::size_t n, std::vector<result_type> &buf);
 
 private:
     // Host pool of random numbers
@@ -100,7 +100,13 @@ private:
     std::mutex m_mutex;
     std::condition_variable m_cv;
 
-    bool m_stop;
+    std::atomic<bool> m_stop{false};
     std::thread m_productionThread;
+
+    // Persistent GPU buffers — allocated once in the constructor, freed in the destructor.
+    // Typed as void* to avoid leaking CUDA types into non-CUDA translation units.
+    void *m_d_states{nullptr}; ///< curandState array on the GPU
+    void *m_d_out{nullptr};    ///< uint32_t output array on the GPU
+    void *m_stream{nullptr};   ///< dedicated cudaStream_t for RNG (decoupled from default stream)
 };
 } /* namespace Gem::Hap */
