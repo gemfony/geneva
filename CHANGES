@@ -181,6 +181,80 @@ Recommended Versions:
   exactly once). For reusable cross-generation barriers, std::barrier would be
   the equivalent C++20 standard type.
 
+- Several concurrency and logic bugs fixed across the Common, Hap, Courtier, Geneva,
+  and Geneva-Individuals libraries (identified by manual code review):
+  - GGlobalOptionsT::remove(): two bugs corrected simultaneously — the key parameter
+    was commented out and never used, and the iterator was set to kvp_.end() instead
+    of kvp_.find(key), so the function never deleted anything and always returned false.
+  - GGlobalOptionsT::getContentVector(): parameter changed from by-value to by-reference;
+    the old by-value signature silently discarded all push_back results, leaving the
+    caller's vector always unchanged.
+  - GBoundedBufferT::try_pop_copy() / try_pop_move(): both functions notified not_empty_
+    after removing an element instead of not_full_, permanently blocking producers
+    waiting for space under high load when only the non-blocking pop variants were used.
+  - GThreadGroup::clearThreads(): missing mutex guard added; all other methods of the
+    class already held the mutex before accessing the thread container.
+  - GCUDARng (CUDA path): rewritten with persistent curandState allocation and proper
+    non-deterministic seeding via GRandomFactory::getSeed(). The previous implementation
+    re-allocated and re-initialized states on every batch using a hard-coded seed of 1234,
+    causing every batch to produce the identical sequence.
+  - GCUDARng::stop_ changed from plain bool to std::atomic<bool> to make the
+    multi-threaded access safe by type.
+  - baseScanParT copy constructor: nSteps_(cp.step_) corrected to nSteps_(cp.nSteps_).
+    The copy-paste error caused copied scan objects to have a wrong step count,
+    making the parameter scan terminate after the first step (when step_==0 at copy time).
+  - GSimulatedAnnealing::setTDegradationStrength(): validation widened from alpha > 0
+    to alpha in (0, 1). Values >= 1 produce a non-convergent SA (temperature constant
+    or rising). A temperature floor of std::numeric_limits<double>::min() is now applied
+    in updateTemperature() to prevent division by zero / NaN propagation in saProb().
+  - GSwarmAlgorithm::pruneVelocity(): the guard checking dbl_vel_max_cnt_[i] > 0 was
+    inside #ifdef DEBUG; moved outside so Release builds also catch a zero velocity-max
+    (which caused silent division by zero, collapsing all velocities to zero).
+  - GBrokerT::finalize(): the consumer shutdown loop now runs inside the
+    consumerEnrolmentMutex lock, eliminating a data race with concurrent
+    enrol_consumer() calls that could push_back to the same vector simultaneously.
+  - GBrokerT::enrol_consumer() / enrol_consumer_vec(): the consumersPresent_ check
+    was moved inside the lock to eliminate a TOCTOU race that allowed two concurrent
+    callers to both pass the check and each register a consumer.
+  - GBrokerT::enrol_buffer_port(): a stray std::cout replaced with glogger.
+  - GSerialConsumerT::setup(): enrol_consumer_vec() corrected to enrol_consumer()
+    (enrol_consumer_vec expects a std::vector, not a single shared_ptr; the template
+    instantiation error was latent and would only appear when setup() was actually called).
+  - GSerialConsumerT::shutdown_(): processingThread_.join() is now guarded with
+    joinable(), preventing std::system_error when shutdown is called before
+    async_startProcessing_() was ever invoked.
+  - GExternalEvaluatorIndividual::fitnessCalculation(): a RAII TempFileGuard was added
+    directly after the three IPC file names are computed, ensuring the files are cleaned
+    up (respecting the remove_exec_temporaries_ flag) even when an exception is thrown
+    before reaching the end of the function. std::filesystem::remove is a no-op for
+    non-existent files, so the guard is safe for result files that the external program
+    never created.
+  - GExternalEvaluatorIndividual: three setXxxRange() error messages (setDeltaRange,
+    setSigma1Range, setSigma2Range) printed the value of max instead of min when
+    reporting that min was negative.
+  - GNeuralNetworkIndividual::trainingSet::compare(): the Output[] loop used nInputNodes
+    as its bound instead of nOutputNodes, causing out-of-bounds reads (UB) whenever the
+    two counts differ.
+
+- Obsolete Boost version guards removed. Geneva requires Boost 1.90+, making all
+  #if BOOST_VERSION < X conditionals for Boost releases prior to 1.90 dead code:
+  - GPODVectorT.hpp, GPtrVectorT.hpp: Boost 1.58 serialization workaround
+    (data.clear() on load) removed.
+  - GWebsocketConsumerT.hpp: ws_.write_buffer_size() fallback for Boost < 1.70 removed;
+    ws_.write_buffer_bytes() is now unconditional.
+  - GExternalEvaluatorIndividual.cpp: xml_writer_settings<char> fallback for
+    Boost <= 1.55 removed; xml_writer_settings<std::string> is now unconditional.
+  - GGlobalDefines.hpp: NOMINMAX / WIN32_LEAN_AND_MEAN workaround for a Boost 1.70
+    Beast bug on Windows removed.
+
+- Multi-mutex locking modernized. Three sites that used the verbose
+  unique_lock + std::defer_lock + std::lock() pattern have been replaced with
+  std::scoped_lock, which provides identical deadlock-avoidance semantics with
+  less boilerplate: GBrokerT::finalize() (three mutexes), GBrokerT::enrol_buffer_port()
+  (two mutexes), GThreadPool::setNThreads() (two mutexes). Sites that explicitly
+  unlock before a condition_variable notify_all() (enrol_consumer, enrol_consumer_vec)
+  retain unique_lock as scoped_lock has no unlock() method.
+
 - GCommonHelperFunctionsT.hpp overhauled: 12 unused or dead functions removed
   (copySmartPointer, copySmartPointerVector, convertSimplePointer — which also
   contained a latent dynamic_cast bug — g_ptr_conversion, assert_sizes_match_container,
