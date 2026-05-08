@@ -28,7 +28,7 @@
 ################################################################################
 
 IF(CMAKE_CUDA_COMPILER_LOADED)
-    SET(_CUDA_BENCHMARK_DEPS GCUDAOptBenchmarkTest)
+    SET(_CUDA_BENCHMARK_DEPS GCUDAOptBenchmarkTest GCUDAOptBenchmark)
 ELSE()
     SET(_CUDA_BENCHMARK_DEPS)
 ENDIF()

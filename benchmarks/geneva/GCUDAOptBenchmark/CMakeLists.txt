@@ -113,6 +113,10 @@ endif()
 SET(GBENCHMARK_CUDA_HEADERS
     GBenchmarkBatchEvaluator.cuh
     GBenchmarkCUDAConsumer.hpp
+    GBenchmarkRunResult.hpp
+    GAlgorithmBenchmarkRunner.hpp
+    GBenchmarkResultWriter.hpp
+    GCUDAOptBenchmarkMain.cpp
 )
 ADD_CUSTOM_TARGET(CLION_GBENCHMARKCUDA_HEADERS SOURCES ${GBENCHMARK_CUDA_HEADERS})
 
@@ -122,4 +126,52 @@ ENDIF()
 
 INSTALL(TARGETS ${EXECUTABLENAME}
     DESTINATION ${INSTALL_PREFIX_DATA}/benchmarks/${EXECUTABLENAME}
+)
+
+# ---------------------------------------------------------------------------
+# GCUDAOptBenchmark — the main multi-algorithm comparison benchmark
+# ---------------------------------------------------------------------------
+SET(BENCHMARK_EXECNAME GCUDAOptBenchmark)
+
+SET(${BENCHMARK_EXECNAME}_SRCS
+    GCUDAOptBenchmarkMain.cpp
+    GCUDAOptBenchmark.cu
+    GAlgorithmBenchmarkRunner.cpp
+    GBenchmarkResultWriter.cpp
+    GBenchmarkBatchEvaluator.cu
+)
+
+ADD_EXECUTABLE(${BENCHMARK_EXECNAME}
+    ${${BENCHMARK_EXECNAME}_SRCS}
+)
+
+set_target_properties(${BENCHMARK_EXECNAME} PROPERTIES
+    CUDA_ARCHITECTURES "80;86;89"
+)
+
+target_compile_options(${BENCHMARK_EXECNAME} PRIVATE
+    $<$<COMPILE_LANGUAGE:CUDA>:--extended-lambda>
+)
+
+target_include_directories(${BENCHMARK_EXECNAME} PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+TARGET_LINK_LIBRARIES(${BENCHMARK_EXECNAME} PRIVATE
+    ${LIBRARIES_TO_LINK}
+)
+
+if(DEFINED GENEVA_CXX_RUNTIME_LIB_DIR AND
+   EXISTS "${GENEVA_CXX_RUNTIME_LIB_DIR}/libstdc++.so")
+    target_link_libraries(${BENCHMARK_EXECNAME} PRIVATE
+        "${GENEVA_CXX_RUNTIME_LIB_DIR}/libstdc++.so"
+    )
+endif()
+
+# Install the benchmark and its config files
+INSTALL(TARGETS ${BENCHMARK_EXECNAME}
+    DESTINATION ${INSTALL_PREFIX_DATA}/benchmarks/${BENCHMARK_EXECNAME}
+)
+INSTALL(DIRECTORY config/
+    DESTINATION ${INSTALL_PREFIX_DATA}/benchmarks/${BENCHMARK_EXECNAME}/config
 )

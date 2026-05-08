@@ -58,9 +58,9 @@ namespace Gem::Geneva {
 /**
  * @brief Broker-integrated GPU batch consumer for GFunctionIndividual.
  *
- * Pulls work items from the Geneva broker, accumulates them into a batch,
- * evaluates the entire batch in a single CUDA kernel launch via
- * GBenchmarkCUDAContext, then returns the evaluated individuals to the broker.
+ * Registered with GBROKER(GParameterSet) — the same broker type Go2 uses.
+ * Work items arrive as GParameterSet; they are cast to GFunctionIndividual
+ * internally to extract demoFunction and parameters.
  *
  * Batch flushing policy:
  *   - batchSize_ > 0: flush when exactly batchSize_ items have arrived.
@@ -70,19 +70,16 @@ namespace Gem::Geneva {
  * The persistent GBenchmarkCUDAContext avoids repeated cudaMalloc across
  * generations.
  *
- * All individuals in one batch must share the same demoFunction and parameter
- * dimension — which is always the case within a single optimization run.
- *
  * The pre-computed GPU fitness is injected via
  *   individual->process(vector<parameterset_processing_result>{fitness})
- * following the pattern established in examples/geneva/15_GCUDAWorker.
+ * following the pattern from examples/geneva/15_GCUDAWorker.
  * This bypasses fitnessCalculation() while performing all Geneva bookkeeping.
  * GFunctionIndividual itself is not modified and remains CPU-runnable.
  */
 class GCUDABatchConsumer
-    : public Gem::Courtier::GBaseConsumerT<Gem::Geneva::GFunctionIndividual>
+    : public Gem::Courtier::GBaseConsumerT<Gem::Geneva::GParameterSet>
 {
-    using individual_t = Gem::Geneva::GFunctionIndividual;
+    using individual_t = Gem::Geneva::GParameterSet;
     using base_t       = Gem::Courtier::GBaseConsumerT<individual_t>;
 
 public:
@@ -119,10 +116,14 @@ public:
     //--------------------------------------------------------------------------
     /**
      * @brief Convenience factory: creates and enrolls a consumer with the broker.
+     *
+     * Must be called BEFORE constructing Go2 so that Go2's hasConsumers() check
+     * finds the consumer already registered and skips its own enrollment.
      */
-    static void setup() {
+    static std::shared_ptr<GCUDABatchConsumer> setup() {
         auto consumer_ptr = std::make_shared<GCUDABatchConsumer>();
-        GBROKER(individual_t)->enrol_consumer(consumer_ptr);
+        GBROKER(Gem::Geneva::GParameterSet)->enrol_consumer(consumer_ptr);
+        return consumer_ptr;
     }
 
 protected:
@@ -214,24 +215,34 @@ private:
     /**
      * @brief GPU-evaluates all individuals in the batch in one kernel launch.
      *
-     * Extracts parameters into a flat row-major buffer, calls
-     * GBenchmarkCUDAContext::eval(), then injects results back via
-     * individual->process(vector<parameterset_processing_result>{fitness}).
+     * Items arrive as GParameterSet; we cast to GFunctionIndividual to extract
+     * demoFunction (for the kernel funcId) and double parameters.
+     * Results are injected back via process(vector<parameterset_processing_result>{fitness})
+     * on the base GParameterSet pointer — pattern from examples/geneva/15_GCUDAWorker.
      */
     void evaluateBatchOnGPU(std::vector<std::shared_ptr<individual_t>> &batch) {
-        const int N      = static_cast<int>(batch.size());
+        const int N = static_cast<int>(batch.size());
+
+        // Cast first item to GFunctionIndividual to get demoFunction and dimension.
+        // All items in one batch share the same function and dimension.
+        auto front_fi = std::dynamic_pointer_cast<Gem::Geneva::GFunctionIndividual>(batch.front());
+        if (!front_fi) {
+            throw std::runtime_error("GCUDABatchConsumer: batch item is not a GFunctionIndividual");
+        }
         // solverFunction enum values equal BM::FUNC_* integer constants (both 0–14)
-        const int funcId = static_cast<int>(batch.front()->getDemoFunction());
+        const int funcId = static_cast<int>(front_fi->getDemoFunction());
 
         std::vector<double> probe;
-        batch.front()->streamline(probe);
+        front_fi->streamline(probe);
         const int dim = static_cast<int>(probe.size());
 
         // Build flat row-major parameter buffer: h_params[i*dim + j] = param j of individual i
         std::vector<double> h_params(static_cast<std::size_t>(N * dim));
         for (int i = 0; i < N; ++i) {
+            auto fi = std::dynamic_pointer_cast<Gem::Geneva::GFunctionIndividual>(
+                batch[static_cast<std::size_t>(i)]);
             std::vector<double> pv;
-            batch[static_cast<std::size_t>(i)]->streamline(pv);
+            fi->streamline(pv);
             std::copy(pv.begin(), pv.end(),
                       h_params.begin() + static_cast<std::ptrdiff_t>(i * dim));
         }
@@ -266,7 +277,7 @@ private:
     std::chrono::milliseconds flushTimeout_{50};
 
     std::shared_ptr<Gem::Courtier::GBrokerT<individual_t>> broker_ptr_
-        = GBROKER(individual_t);
+        = GBROKER(Gem::Geneva::GParameterSet);
 };
 
 /******************************************************************************/

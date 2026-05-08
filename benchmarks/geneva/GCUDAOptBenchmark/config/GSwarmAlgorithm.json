@@ -1,0 +1,190 @@
+{
+    "header": {
+        "comment": "This configuration file was automatically created by GParserBuilder",
+        "comment": "Thu Oct 12 12:29:21 2017"
+    },
+    "maxResubmissions": {
+        "comment": "The amount of resubmissions allowed if a full return of work",
+        "comment": "items was expected but only a subset has returned",
+        "default": "5",
+        "value": "5"
+    },
+    "waitFactor": {
+        "comment": "A static double factor for timeouts",
+        "comment": "A wait factor <= 0 means \"no timeout\".",
+        "comment": "It is suggested to use values >= 1.",
+        "default": "1.1000000000000001",
+        "value": "1.1000000000000001"
+    },
+    "initialWaitFactor": {
+        "comment": "A static double factor for timeouts in the first iteration.",
+        "comment": "Set this to the inverse of the number of parallel processing",
+        "comment": "units being used.",
+        "default": "1",
+        "value": "1"
+    },
+    "maxIteration": {
+        "comment": "The maximum allowed number of iterations",
+        "default": "1000",
+        "value": "1000"
+    },
+    "minIteration": {
+        "comment": "The minimum allowed number of iterations",
+        "default": "0",
+        "value": "0"
+    },
+    "maxStallIteration": {
+        "comment": "The maximum allowed number of iterations without improvement",
+        "comment": "0 means: no constraint.",
+        "default": "20",
+        "value": "20"
+    },
+    "touchedTermination": {
+        "terminationFile": {
+            "comment": "The name of a file which, when modified after the start of an",
+            "comment": "optimization run, instructs Geneva to terminate optimitation.",
+            "comment": "This can be used to \"touch a file\" after the start of an optimization",
+            "comment": "run, which will lead to the termination of the run after the current iteration.",
+            "default": "empty",
+            "value": "empty"
+        },
+        "touchedTerminationActive": {
+            "comment": "Activates (1) or de-activates (0) the \"touched termination\"",
+            "default": "false",
+            "value": "false"
+        }
+    },
+    "indivdualUpdateStallCounterThreshold": {
+        "comment": "The number of iterations without improvement after which",
+        "comment": "individuals are asked to update their internal data structures",
+        "comment": "through the actOnStalls() function. A value of 0 disables this check",
+        "default": "0",
+        "value": "0"
+    },
+    "reportIteration": {
+        "comment": "The number of iterations after which a report should be issued",
+        "default": "1",
+        "value": "1"
+    },
+    "nRecordBestIndividuals": {
+        "comment": "Indicates how many \"best\" individuals should be recorded in each iteration",
+        "default": "10",
+        "value": "10"
+    },
+    "cpInterval": {
+        "comment": "The number of iterations after which a checkpoint should be written.",
+        "comment": "-1 means: Write a checkpoint file whenever an improvement was encountered",
+        "comment": " 0 means: Never emit checkpoint files.",
+        "default": "0",
+        "value": "0"
+    },
+    "checkpointLocation": {
+        "cpDirectory": {
+            "comment": "The directory where checkpoint files should be stored.",
+            "default": ".\/checkpoints\/",
+            "value": ".\/checkpoints\/"
+        },
+        "cpBaseName": {
+            "comment": "The significant part of the checkpoint file name.",
+            "default": "geneva.cp",
+            "value": "geneva.cp"
+        }
+    },
+    "cpOverwrite": {
+        "comment": "When set to \"true\", old checkpoint files will not be kept",
+        "default": "true",
+        "value": "true"
+    },
+    "cpSerMode": {
+        "comment": "Determines whether check-pointing should be done in",
+        "comment": "text- (0), XML- (1), or binary-mode (2)",
+        "default": "2",
+        "value": "2"
+    },
+    "qualityTermination": {
+        "threshold": {
+            "comment": "A threshold beyond which optimization is expected to stop",
+            "comment": "Note that in order to activate this threshold, you also need to",
+            "comment": "set \"hasQualityThreshold\" to 1.",
+            "default": "0",
+            "value": "0"
+        },
+        "thresholdActive": {
+            "comment": "Activates (1) or de-activates (0) the quality threshold",
+            "default": "false",
+            "value": "false"
+        }
+    },
+    "maxDuration": {
+        "comment": "The maximum allowed time-frame for the optimization",
+        "comment": "in the format hours:minutes:seconds",
+        "default": "00:00:00",
+        "value": "00:00:00"
+    },
+    "minDuration": {
+        "comment": "The minimum required time-frame for the optimization",
+        "comment": "in the format hours:minutes:seconds",
+        "default": "00:00:00",
+        "value": "00:00:00"
+    },
+    "emitTerminationReason": {
+        "comment": "Triggers emission (1) or omission (0) of information about reasons for termination",
+        "default": "true",
+        "value": "true"
+    },
+    "swarmSize": {
+        "nNeighborhoods": {
+            "comment": "The desired number of neighborhoods in the population",
+            "default": "5",
+            "value": "5"
+        },
+        "nNeighborhoodMembers": {
+            "comment": "The desired number of members in each neighborhood",
+            "default": "10",
+            "value": "10"
+        }
+    },
+    "cPersonal": {
+        "comment": "A constant to be multiplied with the personal direction vector",
+        "default": "1.49",
+        "value": "1.49"
+    },
+    "cNeighborhood": {
+        "comment": "A constant to be multiplied with the neighborhood direction vector",
+        "default": "1.49",
+        "value": "1.49"
+    },
+    "cGlobal": {
+        "comment": "A constant to be multiplied with the global direction vector",
+        "default": "1",
+        "value": "1"
+    },
+    "cVelocity": {
+        "comment": "A constant to be multiplied with the old velocity vector",
+        "default": "0.71999999999999997",
+        "value": "0.71999999999999997"
+    },
+    "velocityRangePercentage": {
+        "comment": "Sets the velocity-range percentage",
+        "default": "0.14999999999999999",
+        "value": "0.14999999999999999"
+    },
+    "updateRule": {
+        "comment": "Specifies whether a linear (0) or classical (1)",
+        "comment": "update rule should be used",
+        "default": "1",
+        "value": "1"
+    },
+    "randomFillUp": {
+        "comment": "Specifies whether neighborhoods should be filled up",
+        "comment": "randomly (true) or start with equal values (false)",
+        "default": "true",
+        "value": "true"
+    },
+    "repulsionThreshold": {
+        "comment": "The number of stalls as of which the algorithm switches to repulsive mode",
+        "comment": "Set this to 0 in order to disable this feature",
+        "default": "0",
+        "value": "0"
+    }
+}
