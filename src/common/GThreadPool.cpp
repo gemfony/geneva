@@ -87,13 +87,8 @@ GThreadPool::~GThreadPool() {
  * @param nThreads The desired number of threads
  */
 void GThreadPool::setNThreads(unsigned int nThreads) {
-    // Make sure no new jobs may be submitted
-    std::unique_lock<std::mutex> job_lck(task_submission_mutex_, std::defer_lock);
-    // Make sure no threads may be created by other entities
-    std::unique_lock<std::mutex> tc_lk(thread_creation_mutex_, std::defer_lock);
-
-    // Simultaneously lock both locks
-    std::lock(job_lck, tc_lk);
+    // Make sure no new jobs may be submitted and no threads may be created concurrently
+    std::scoped_lock lk(task_submission_mutex_, thread_creation_mutex_);
 
     // Check if any work needs to be done
     if(gtg_.size() == nThreads) {
