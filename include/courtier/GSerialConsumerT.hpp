@@ -138,7 +138,7 @@ public:
         consumer_ptr->registerWorkerTemplate(worker_ptr);
         consumer_ptr->parseConfigFile(configFile);
 
-        GBROKER(processable_type)->enrol_consumer_vec(consumer_ptr);
+        GBROKER(processable_type)->enrol_consumer(consumer_ptr);
     }
 
 protected:
@@ -150,7 +150,9 @@ protected:
         // This will set the GBaseConsumerT<processable_type>::stop_ flag
         GBaseConsumerT<processable_type>::shutdown_();
         // Wait for our local threads to join
-        processingThread_.join();
+        if(processingThread_.joinable()) {
+            processingThread_.join();
+        }
     }
 
     /***************************************************************************/

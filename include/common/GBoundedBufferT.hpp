@@ -503,8 +503,9 @@ public:
             }
         } // Release the lock
 
-        if(success)
+        if(success) {
             not_full_.notify_one();
+        }
 
         return success;
     }
@@ -530,8 +531,9 @@ public:
             }
         } // Release the lock
 
-        if(success)
+        if(success) {
             not_full_.notify_one();
+        }
 
         return success;
     }

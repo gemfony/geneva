@@ -132,7 +132,7 @@ void trainingSet::compare(
         Gem::Common::compare_t(IDENTITY(Input[i], cp.Input[i]), token);
     }
 
-    for(std::size_t i = 0; i < nInputNodes; i++) {
+    for(std::size_t i = 0; i < nOutputNodes; i++) {
         Gem::Common::compare_t(IDENTITY(Output[i], cp.Output[i]), token);
     }
 
