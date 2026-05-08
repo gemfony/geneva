@@ -1292,7 +1292,6 @@ void GSwarmAlgorithm::pruneVelocity(std::vector<double> &velVec) {
     double maxPercentage = 0.;
     bool overflowFound = false;
     for(std::size_t i = 0; i < velVec.size(); i++) {
-#ifdef DEBUG
         if(dbl_vel_max_cnt_[i] <= 0.) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
@@ -1300,7 +1299,6 @@ void GSwarmAlgorithm::pruneVelocity(std::vector<double> &velVec) {
                 << "Found invalid max value: " << dbl_vel_max_cnt_[i] << std::endl
             );
         }
-#endif /* DEBUG */
 
         if(std::abs(velVec[i]) > dbl_vel_max_cnt_[i]) {
             overflowFound = true;

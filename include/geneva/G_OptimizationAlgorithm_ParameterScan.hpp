@@ -183,7 +183,7 @@ public:
     baseScanParT(const baseScanParT<T> &cp)
       : var_(cp.var_)
       , step_(cp.step_)
-      , nSteps_(cp.step_)
+      , nSteps_(cp.nSteps_)
       , lower_(cp.lower_)
       , upper_(cp.upper_)
       , randomScan_(cp.randomScan_)
