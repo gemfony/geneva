@@ -60,7 +60,7 @@ endif()
 # ---------------------------------------------------------------------------
 # Target
 # ---------------------------------------------------------------------------
-SET(EXECUTABLENAME GBenchmarkCUDATest)
+SET(EXECUTABLENAME GCUDAOptBenchmarkTest)
 
 SET(${EXECUTABLENAME}_SRCS
     GBenchmarkCUDATest.cpp

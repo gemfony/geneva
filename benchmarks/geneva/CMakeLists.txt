@@ -28,7 +28,7 @@
 ################################################################################
 
 IF(CMAKE_CUDA_COMPILER_LOADED)
-    SET(_CUDA_BENCHMARK_DEPS GBenchmarkCUDATest)
+    SET(_CUDA_BENCHMARK_DEPS GCUDAOptBenchmarkTest)
 ELSE()
     SET(_CUDA_BENCHMARK_DEPS)
 ENDIF()
@@ -52,5 +52,5 @@ ADD_SUBDIRECTORY ( GParallelisationOverhead )
 ADD_SUBDIRECTORY ( GSerializationOverhead )
 
 IF(CMAKE_CUDA_COMPILER_LOADED)
-    ADD_SUBDIRECTORY ( GBenchmarkCUDA )
+    ADD_SUBDIRECTORY ( GCUDAOptBenchmark )
 ENDIF()
