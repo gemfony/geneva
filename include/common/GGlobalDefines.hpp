@@ -53,12 +53,6 @@
 // For Microsoft-compatible compilers
 #if defined(_MSC_VER) && (_MSC_VER >= 1020)
 
-// We need to take care of Boost 1.70, which has a problem in Beast with std::max + Windows
-#if (BOOST_VERSION == 107000)
-#define NOMINMAX
-#define WIN32_LEAN_AND_MEAN
-#endif
-
 #include <windows.h>
 #include <winsock2.h>
 

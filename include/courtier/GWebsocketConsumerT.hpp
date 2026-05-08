@@ -110,11 +110,7 @@ public:
       , verbose_control_frames_(verbose_control_frames) {
         // Set the auto_fragment option, so control frames are delivered timely
         ws_.auto_fragment(true);
-#if (BOOST_VERSION >= 107000)
         ws_.write_buffer_bytes(16384);
-#else
-        ws_.write_buffer_size(16384);
-#endif
 
         // Set the transfer mode
         switch(serialization_mode_) {
@@ -674,11 +670,7 @@ public:
         // ---------------------------------------------------
         // Set the auto_fragment option, so control frames are delivered timely
         ws_.auto_fragment(true);
-#if (BOOST_VERSION >= 107000)
         ws_.write_buffer_bytes(16384);
-#else
-        ws_.write_buffer_size(16384);
-#endif
 
         // ---------------------------------------------------
         // Set the transfer mode according to the defines in CMakeLists.txt

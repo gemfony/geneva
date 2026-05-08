@@ -258,12 +258,23 @@ double GExternalEvaluatorIndividual::fitnessCalculation() {
     std::string resultFileName = std::string("result") + extension + ".xml";
     std::string commandOutputFileName = std::string("commandOutput") + extension + ".txt";
 
+    // RAII guard: remove the three IPC temp files on scope exit, whether normal or via exception.
+    // remove() is a no-op for non-existent files (e.g. resultFileName when the external
+    // program never ran), so all three can be listed unconditionally.
+    struct TempFileGuard {
+        const std::string &param, &result, &cmdOut;
+        bool active;
+        ~TempFileGuard() {
+            if (!active) return;
+            std::filesystem::remove(param);
+            std::filesystem::remove(result);
+            std::filesystem::remove(cmdOut);
+        }
+    } tempGuard{parameterfileName, resultFileName, commandOutputFileName,
+                remove_exec_temporaries_};
+
     // Save the parameters to a file for the external evaluation
-#if BOOST_VERSION > 105500
     boost::property_tree::xml_writer_settings<std::string> settings('\t', 1);
-#else
-    boost::property_tree::xml_writer_settings<char> settings('\t', 1);
-#endif /* BOOST_VERSION */
     boost::property_tree::write_xml(parameterfileName, ptr_out, std::locale(), settings);
 
     // Collect all command-line arguments
@@ -409,13 +420,6 @@ double GExternalEvaluatorIndividual::fitnessCalculation() {
                 this->setResult(res, currentResult);
             }
         }
-    }
-
-    // Clean up (remove) parameter-, result- and command-output files, if requested by the user
-    if(remove_exec_temporaries_) {
-        std::filesystem::remove(parameterfileName);
-        std::filesystem::remove(resultFileName);
-        std::filesystem::remove(commandOutputFileName);
     }
 
     // Return the master result (first result returned)
@@ -882,7 +886,7 @@ void GExternalEvaluatorIndividualFactory::setDeltaRange(std::tuple<double, doubl
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GExternalEvaluatorIndividualFactory::setDeltaRange(): Error" << std::endl
-            << "min must be >= 0. Got : " << max << std::endl
+            << "min must be >= 0. Got : " << min << std::endl
         );
     }
 
@@ -934,7 +938,7 @@ void GExternalEvaluatorIndividualFactory::setSigma1Range(std::tuple<double, doub
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GExternalEvaluatorIndividualFactory::setSigma1Range(): Error" << std::endl
-            << "min must be >= 0. Got : " << max << std::endl
+            << "min must be >= 0. Got : " << min << std::endl
         );
     }
 
@@ -986,7 +990,7 @@ void GExternalEvaluatorIndividualFactory::setSigma2Range(std::tuple<double, doub
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GExternalEvaluatorIndividualFactory::setSigma2Range(): Error" << std::endl
-            << "min must be >= 0. Got : " << max << std::endl
+            << "min must be >= 0. Got : " << min << std::endl
         );
     }
 
@@ -1269,11 +1273,7 @@ void GExternalEvaluatorIndividualFactory::archive(
     std::string parameterfileName = parameterFileBaseName_.value() + extension;
 
     // Save the parameters to a file for the external evaluation
-#if BOOST_VERSION > 105500
     boost::property_tree::xml_writer_settings<std::string> settings('\t', 1);
-#else
-    boost::property_tree::xml_writer_settings<char> settings('\t', 1);
-#endif /* BOOST_VERSION */
     boost::property_tree::write_xml(parameterfileName, ptr_out, std::locale(), settings);
 
     // Collect all command-line arguments
