@@ -112,15 +112,20 @@ GBenchmarkRunResult GAlgorithmBenchmarkRunner::runOne(
     auto monitor = std::make_shared<GBenchmarkTerminationMonitor>();
     alg->registerPluggableOM(monitor);
 
-    // Create individual and set demo function
+    // Create individual and set demo function.
+    // benchmarkFunction overrides whatever GFunctionIndividual.json specifies;
+    // an unrecognised name is a fatal config error, not a silent fallback.
     auto ind = indFactory->get_as<GFunctionIndividual>();
     {
         std::istringstream iss(cfg_.functionName);
-        solverFunction sf = solverFunction::PARABOLA;
+        solverFunction sf{};
         iss >> sf;
-        if (!iss.fail()) {
-            ind->setDemoFunction(sf);
+        if (iss.fail()) {
+            throw std::invalid_argument(
+                "GAlgorithmBenchmarkRunner: unknown benchmarkFunction '"
+                + cfg_.functionName + "'");
         }
+        ind->setDemoFunction(sf);
     }
     alg->push_back(ind);
 
