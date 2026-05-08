@@ -44,6 +44,17 @@ if(CMAKE_CUDA_COMPILER)
     enable_language(CUDA)
     message(STATUS "CUDA ${CMAKE_CUDA_COMPILER_VERSION} detected — CUDA examples and benchmarks will be built")
 
+    # Suppress known Boost-internal false positives from NVCC.
+    # NVCC does not honour -isystem suppression the way GCC does, so these
+    # three diagnostics fire on every Boost TU that pulls in mpl, mp11, or
+    # the Boost.Archive serialization headers:
+    #   68   – integer conversion sign change   (boost/mpl/print.hpp)
+    #   186  – unsigned comparison with zero    (boost/mp11/detail/mp_count.hpp)
+    #   191  – meaningless cast qualifier       (boost/archive/detail/iserializer.hpp)
+    add_compile_options($<$<COMPILE_LANGUAGE:CUDA>:-diag-suppress=68>
+                        $<$<COMPILE_LANGUAGE:CUDA>:-diag-suppress=186>
+                        $<$<COMPILE_LANGUAGE:CUDA>:-diag-suppress=191>)
+
     # Detect the CXX compiler's libstdc++.so location and cache it.
     # CUDA targets link it by full path to prevent the CUDA toolkit's bundled
     # (older) GCC from injecting an incompatible libstdc++ into the link step,
