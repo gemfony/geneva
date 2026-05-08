@@ -40,6 +40,7 @@
 
 // Boost headers go here
 #include <boost/fusion/adapted/boost_tuple.hpp>
+#include <boost/fusion/adapted/std_tuple.hpp>
 #include <boost/fusion/include/adapt_struct.hpp>
 #include <boost/fusion/include/boost_tuple.hpp>
 #include <boost/fusion/include/io.hpp>

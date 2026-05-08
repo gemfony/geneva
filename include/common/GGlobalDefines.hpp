@@ -65,6 +65,10 @@
 #endif /* _MSC_VER */
 //-----------------------------------------------------------
 
+// Tell Boost not to compile std::auto_ptr compatibility functions — std::auto_ptr
+// was removed in C++17 and Geneva requires C++20.
+#define BOOST_NO_AUTO_PTR
+
 #include <boost/config.hpp>
 
 /**

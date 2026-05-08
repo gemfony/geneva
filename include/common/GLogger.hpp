@@ -64,7 +64,6 @@
 #include <vector>
 
 // Boost header files go here
-#include <boost/lexical_cast.hpp>
 #include <boost/predef/version_number.h>
 
 // Geneva header files go here

@@ -29,6 +29,8 @@
 
 #include "common/GParserBuilder.hpp"
 
+#include <boost/property_tree/json_parser.hpp>
+
 namespace Gem::Common {
 
 /******************************************************************************/

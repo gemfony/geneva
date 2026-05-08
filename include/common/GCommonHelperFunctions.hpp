@@ -51,21 +51,7 @@
 #include <vector>
 
 // Boost headers go here
-#include <boost/algorithm/string.hpp>
-#include <boost/fusion/adapted/std_tuple.hpp> // Compare http://stackoverflow.com/questions/18158376/getting-boostspiritqi-to-use-stl-containers
-#include <boost/fusion/include/boost_tuple.hpp>
-#include <boost/fusion/include/tuple.hpp>
-#include <boost/predef.h>
-#include <boost/property_tree/json_parser.hpp>
-#include <boost/property_tree/ptree.hpp>
-#include <boost/spirit/include/qi_action.hpp>
-#include <boost/spirit/include/qi_auxiliary.hpp>
-#include <boost/spirit/include/qi_char.hpp>
-#include <boost/spirit/include/qi_nonterminal.hpp>
-#include <boost/spirit/include/qi_numeric.hpp>
-#include <boost/spirit/include/qi_operator.hpp>
-#include <boost/spirit/include/qi_string.hpp>
-#include <boost/tokenizer.hpp>
+#include <boost/property_tree/ptree_fwd.hpp>
 
 // Geneva headers go here
 #include "common/GCommonEnums.hpp"

@@ -51,6 +51,7 @@
 #include <vector>
 
 // Boost headers go here
+#include <boost/algorithm/string.hpp>
 #include <boost/cast.hpp>
 #include <boost/checked_delete.hpp>
 #include <boost/lexical_cast.hpp>

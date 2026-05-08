@@ -29,6 +29,22 @@
 
 #include "common/GCommonHelperFunctions.hpp"
 
+// Boost headers needed for implementation only
+#include <boost/algorithm/string.hpp>
+#include <boost/fusion/adapted/std_tuple.hpp> // needed by Spirit qi for std::tuple output
+#include <boost/fusion/include/boost_tuple.hpp>
+#include <boost/fusion/include/tuple.hpp>
+#include <boost/predef.h>
+#include <boost/property_tree/json_parser.hpp>
+#include <boost/spirit/include/qi_action.hpp>
+#include <boost/spirit/include/qi_auxiliary.hpp>
+#include <boost/spirit/include/qi_char.hpp>
+#include <boost/spirit/include/qi_nonterminal.hpp>
+#include <boost/spirit/include/qi_numeric.hpp>
+#include <boost/spirit/include/qi_operator.hpp>
+#include <boost/spirit/include/qi_string.hpp>
+#include <boost/tokenizer.hpp>
+
 namespace {
 std::mutex g_hwt_read_mutex;         // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
 std::atomic<bool> g_hwt_read{false}; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
