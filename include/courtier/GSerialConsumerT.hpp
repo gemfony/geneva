@@ -95,10 +95,10 @@ public:
     void setCapableOfFullReturn(bool capableOfFullReturn) {
         glogger << "In GStdThreadConsumerT<processable_type>::setCapableOfFullReturn():"
                 << std::endl
-                << "capableOfFullReturn_ will be set to "
+                << "isCapableOfFullReturn_ will be set to "
                 << (capableOfFullReturn ? "true" : "false") << std::endl
                 << GLOGGING;
-        capableOfFullReturn_ = capableOfFullReturn;
+        isCapableOfFullReturn_ = capableOfFullReturn;
     }
 
     /***************************************************************************/
@@ -184,7 +184,7 @@ private:
 
         hidden.add_options()(
             "scCapableOfFullReturn",
-            po::value<bool>(&capableOfFullReturn_)->default_value(capableOfFullReturn_),
+            po::value<bool>(&isCapableOfFullReturn_)->default_value(isCapableOfFullReturn_),
             "\t[sc] A debugging option making the serial consumer use timeouts in the executor"
         );
     }
@@ -285,20 +285,20 @@ private:
 	  * Returns an indication whether full return can be expected from this
 	  * consumer. Since evaluation is performed in a single thread, we assume that this
 	  * is possible and return true. If you believe that this is not the case,
-	  * make sure to set capableOfFullReturn_ to false using the setCapableOfFullReturn()
+	  * make sure to set isCapableOfFullReturn_ to false using the setCapableOfFullReturn()
 	  * function. Note that, while processing-errors will likely be caught,
 	  * "full return" does not mean "fully processed return", as errors (be it in
 	  * user- or Geneva-code) are always possible.
 	  */
     bool capableOfFullReturn_() const override {
-        return capableOfFullReturn_;
+        return isCapableOfFullReturn_;
     }
 
     /***************************************************************************/
 
     std::thread processingThread_; ///< A single thread holding the worker
 
-    bool capableOfFullReturn_ =
+    bool isCapableOfFullReturn_ =
         true; ///< Indicates whether this consumer is capable of full return
 
     std::shared_ptr<GWorkerWithRegisterBrokerFerryT<processable_type>>
