@@ -712,9 +712,6 @@ void GSimulatedAnnealing::sortSAMode() {
   * @return A double value in the range [0,1[, representing the likelihood for the child to replace the parent
   */
 double GSimulatedAnnealing::saProb(const double &fMinOnlyParent, const double &fMinOnlyChild) {
-    if(t_ <= std::numeric_limits<double>::min()) {
-        return (fMinOnlyChild <= fMinOnlyParent) ? 1. : 0.;
-    }
     return exp(-(fMinOnlyChild - fMinOnlyParent) / t_);
 }
 
@@ -723,7 +720,12 @@ double GSimulatedAnnealing::saProb(const double &fMinOnlyParent, const double &f
   * Updates the temperature. This function is used for simulated annealing.
   */
 void GSimulatedAnnealing::updateTemperature() {
-    t_ *= alpha_;
+    // Clamp to the smallest normalised double so t_ never enters the subnormal
+    // range or reaches 0.  With t_ == 0 and Δf == 0, saProb() would compute
+    // 0/0 = NaN; the floor prevents that without changing late-phase behaviour
+    // (exp(-Δf / min()) ≈ 0 for any positive Δf, so worse candidates are
+    // never accepted once the temperature hits the floor).
+    t_ = std::max(t_ * alpha_, std::numeric_limits<double>::min());
 }
 
 /******************************************************************************/
