@@ -137,6 +137,11 @@ public:
         if(finalized_)
             return;
 
+        // Shut down all consumers
+        for(auto const &c_ptr : consumer_collection_cnt_) {
+            c_ptr->shutdown();
+        }
+
         {
             //-----------------------------------------------------------------------
             // Lock the access to our internal data simultaneously for all mutexs
@@ -154,13 +159,6 @@ public:
             );
 
             std::lock(switchGetPositionLock, findProcessedBufferLock, consumerEnrolmentLock);
-            //-----------------------------------------------------------------------
-
-            // Shut down all consumers while holding the enrolment lock to prevent
-            // concurrent push_back from enrol_consumer() racing with our iteration.
-            for(auto const &c_ptr : consumer_collection_cnt_) {
-                c_ptr->shutdown();
-            }
             //-----------------------------------------------------------------------
 
             // Clear raw and processed buffers and the consumer lists
@@ -284,8 +282,7 @@ public:
         // Fix the current get-pointer. We simply attach it to the start of the list
         currentGetPosition_ = RawBuffers_.begin();
 
-        glogger << "Buffer port with id " << gbp_tag << " successfully enrolled" << std::endl
-                << GLOGGING;
+        std::cout << "Buffer port with id " << gbp_tag << " successfully enrolled" << std::endl;
 
         // Let the audience know
         buffersPresent_.store(true);
@@ -302,11 +299,8 @@ public:
 	  */
     void enrol_consumer(std::shared_ptr<GBaseConsumerT<processable_type>> gc_ptr) {
         //-----------------------------------------------------------------------
-        std::unique_lock<std::mutex> consumerEnrolmentLock(consumerEnrolmentMutex_);
-
         // Check whether consumers have already been enrolled. As this may happen
-        // only once, we emit a warning and return. Check is inside the lock to
-        // prevent a TOCTOU race between two concurrent enrol_consumer() callers.
+        // only once, we emit a warning and return
         if(consumersPresent_) {
             glogger << "In GBrokerT<>::enrol_buffer_port(consumer_ptr): One or more consumers have "
                        "already been enrolled."
@@ -316,6 +310,9 @@ public:
 
             return;
         }
+
+        //-----------------------------------------------------------------------
+        std::unique_lock<std::mutex> consumerEnrolmentLock(consumerEnrolmentMutex_);
 
         // Do nothing if a consumer of this type has already been registered
         if(std::find(
@@ -363,11 +360,8 @@ public:
     void
     enrol_consumer_vec(std::vector<std::shared_ptr<GBaseConsumerT<processable_type>>> gc_ptr_cnt) {
         //-----------------------------------------------------------------------
-        std::unique_lock<std::mutex> consumerEnrolmentLock(consumerEnrolmentMutex_);
-
         // Check whether consumers have already been enrolled. As this may happen
-        // only once, we emit a warning and return. Check is inside the lock to
-        // prevent a TOCTOU race between two concurrent enrol_consumer_vec() callers.
+        // only once, we emit a warning and return
         if(consumersPresent_) {
             glogger << "In GBrokerT<>::enrol_buffer_port(consumer_ptr_vec): One or more consumers "
                        "have already been enrolled."
@@ -377,6 +371,9 @@ public:
 
             return;
         }
+
+        //-----------------------------------------------------------------------
+        std::unique_lock<std::mutex> consumerEnrolmentLock(consumerEnrolmentMutex_);
 
         for(auto const &consumer_ptr : gc_ptr_cnt) {
             // Do nothing if a consumer of this type has already been registered
