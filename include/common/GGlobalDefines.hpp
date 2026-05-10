@@ -96,8 +96,6 @@
 //-----------------------------------------------------------
 // Care for symbols to be exported. We cover here all the
 // libraries to avoid extra headers.
-#if defined GEM_DYNAMIC && (GEM_DYNAMIC != 0)
-
 #ifdef GEM_COMMON_EXPORTS
 #define G_API_COMMON BOOST_SYMBOL_EXPORT
 #else
@@ -127,14 +125,6 @@
 #else
 #define G_API_INDIVIDUALS BOOST_SYMBOL_IMPORT
 #endif /* GEM_INDIVIDUALS_EXPORTS */
-
-#else /* GEM_DYNAMIC undefined */
-#define G_API_COMMON
-#define G_API_HAP
-#define G_API_COURTIER
-#define G_API_GENEVA
-#define G_API_INDIVIDUALS
-#endif /* GEM_DYNAMIC */
 //-----------------------------------------------------------
 
 /** Funnily, on g++ std::pow(x,2) seems to be less efficient than direct multiplication */

@@ -124,7 +124,6 @@ IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
 	################################################################################
 	# Geneva only supports shared libraries
 
-	SET (BUILD_SHARED_LIBS ON)
 	# This preprocessor definition is required for knowing
 	# if API-exporting is needed in the code or not
 	ADD_DEFINITIONS("-DGEM_DYNAMIC")
