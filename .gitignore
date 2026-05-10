@@ -8,3 +8,20 @@ build/
 cmake-build-*/
 .vscode
 CMakeUserPresets.json
+# cmake-generated files that end up in the source tree on an in-source build
+/CMakeDoxyfile.in
+/CMakeDoxygenDefaults.cmake
+/CPackConfig.cmake
+/CPackSourceConfig.cmake
+/DartConfiguration.tcl
+/Doxyfile
+
+# Stray dotfiles that appear when HOME is accidentally pointed at the repo root
+/.bashrc
+/.bash_profile
+/.gitconfig
+/.gitmodules
+/.profile
+/.ripgreprc
+/.zshrc
+/.zprofile
