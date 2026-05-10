@@ -1037,12 +1037,12 @@ protected:
             );
             CHECK(adaptionMode::ALWAYS == p_test->getAdaptionMode());
 
-            // boost::logic::indeterminate
+            // Gem::Common::tribool::Indeterminate
             CHECK_NOTHROW(p_test->setAdaptionMode(adaptionMode::WITHPROBABILITY));
             INFO(
                 "\n"
                 << "p_test->getAdaptionMode() = " << p_test->getAdaptionMode() << "\n"
-                << "required value            = boost::logic::indeterminate\n"
+                << "required value            = Gem::Common::tribool::Indeterminate\n"
             );
             CHECK(adaptionMode::WITHPROBABILITY == p_test->getAdaptionMode());
         }
@@ -1089,7 +1089,7 @@ protected:
                 oldValue = currentValue;
             }
 
-            // boost::logic::indeterminate: Adaptions should happen with a certain adaption probability
+            // Gem::Common::tribool::Indeterminate: Adaptions should happen with a certain adaption probability
             // No tests -- we already know that this works
         }
 

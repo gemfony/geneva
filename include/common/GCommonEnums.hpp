@@ -176,13 +176,20 @@ constexpr bool VAR_IS_ESSENTIAL = true;
 constexpr bool VAR_IS_SECONDARY = false;
 
 /******************************************************************************/
-/**
- * Needed for the serialization of boost::logic::tribool
- */
+/** @brief Three-valued logic type */
+enum class tribool : Gem::Common::ENUMBASETYPE {
+    False = 0,
+    Indeterminate = 1,
+    True = 2
+};
+
+inline bool indeterminate(tribool t) noexcept { return t == tribool::Indeterminate; }
+
+/** @brief Intermediate enum used for Boost.Serialization of Gem::Common::tribool (preserves wire format) */
 enum class triboolStates : Gem::Common::ENUMBASETYPE {
-    TBS_FALSE,
-    TBS_INDETERMINATE,
-    TBS_TRUE
+    TBS_FALSE        = 0,
+    TBS_INDETERMINATE = 1,
+    TBS_TRUE         = 2
 };
 
 /** @brief Puts a Gem::Common::triboolStates into a stream. Needed also for boost::lexical_cast<> */

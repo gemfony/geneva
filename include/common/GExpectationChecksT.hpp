@@ -50,8 +50,6 @@
 // Boost headers go here
 #include <boost/cast.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/logic/tribool.hpp>
-#include <boost/logic/tribool_io.hpp>
 
 // Gemfony headers go here
 #include "common/GCommonEnums.hpp"
@@ -1249,11 +1247,11 @@ void compare(
 }
 
 /******************************************************************************/
-/** @brief This function checks whether two objects of type boost::logic::tribool meet a given expectation. */
+/** @brief This function checks whether two objects of type Gem::Common::tribool meet a given expectation. */
 
 void compare(
-    boost::logic::tribool const &,
-    boost::logic::tribool const &,
+    Gem::Common::tribool const &,
+    Gem::Common::tribool const &,
     std::string const &,
     std::string const &,
     Gem::Common::expectation,

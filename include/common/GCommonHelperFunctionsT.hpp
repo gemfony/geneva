@@ -55,7 +55,6 @@
 #include <boost/cast.hpp>
 #include <boost/checked_delete.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/logic/tribool.hpp>
 #include <boost/math/special_functions/next.hpp>
 
 // Geneva headers go here

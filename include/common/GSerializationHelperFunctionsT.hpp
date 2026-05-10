@@ -52,7 +52,6 @@
 #include <boost/archive/xml_oarchive.hpp>
 #include <boost/cast.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/logic/tribool.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/vector.hpp>
 
@@ -187,13 +186,13 @@ namespace boost::serialization {
 template <typename Archive>
 void save(
     Archive &ar,
-    const boost::logic::tribool &val,
+    const Gem::Common::tribool &val,
     unsigned int /*version*/
 ) {
     Gem::Common::triboolStates tbs = Gem::Common::triboolStates::TBS_FALSE;
-    if(val == true)
+    if(val == Gem::Common::tribool::True)
         tbs = Gem::Common::triboolStates::TBS_TRUE;
-    else if(boost::logic::indeterminate(val))
+    else if(val == Gem::Common::tribool::Indeterminate)
         tbs = Gem::Common::triboolStates::TBS_INDETERMINATE;
 
     ar &make_nvp("tbs", tbs);
@@ -206,7 +205,7 @@ void save(
 template <typename Archive>
 void load(
     Archive &ar,
-    boost::logic::tribool &val,
+    Gem::Common::tribool &val,
     unsigned int /*version*/
 ) {
     Gem::Common::triboolStates tbs = Gem::Common::triboolStates::TBS_FALSE;
@@ -214,15 +213,15 @@ void load(
 
     switch(tbs) {
     case Gem::Common::triboolStates::TBS_FALSE:
-        val = false;
+        val = Gem::Common::tribool::False;
         break;
 
     case Gem::Common::triboolStates::TBS_TRUE:
-        val = true;
+        val = Gem::Common::tribool::True;
         break;
 
     case Gem::Common::triboolStates::TBS_INDETERMINATE:
-        val = boost::logic::indeterminate;
+        val = Gem::Common::tribool::Indeterminate;
         break;
     };
 }
@@ -323,7 +322,7 @@ void load(
 /**
  * Needed so Boost.Serialization does not search for a serialize function
  */
-BOOST_SERIALIZATION_SPLIT_FREE(boost::logic::tribool)
+BOOST_SERIALIZATION_SPLIT_FREE(Gem::Common::tribool)
 BOOST_SERIALIZATION_SPLIT_FREE(std::chrono::duration<double>)
 BOOST_SERIALIZATION_SPLIT_FREE(std::chrono::high_resolution_clock::time_point)
 BOOST_SERIALIZATION_SPLIT_FREE(std::atomic<bool>)

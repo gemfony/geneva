@@ -258,7 +258,7 @@ std::ostream &operator<<(std::ostream &s, GToken const &g) {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * This function checks whether two objects of type boost::logic::tribool meet a given expectation.
+ * This function checks whether two objects of type Gem::Common::tribool meet a given expectation.
  *
  * @param x The first vector to be compared
  * @param y The second vector to be compared
@@ -268,8 +268,8 @@ std::ostream &operator<<(std::ostream &s, GToken const &g) {
  * @param limit The maximum allowed deviation of two floating point values
  */
 void compare(
-    boost::logic::tribool const &x,
-    boost::logic::tribool const &y,
+    Gem::Common::tribool const &x,
+    Gem::Common::tribool const &y,
     std::string const &x_name,
     std::string const &y_name,
     Gem::Common::expectation e,
@@ -282,16 +282,18 @@ void compare(
     case Gem::Common::expectation::FP_SIMILARITY:
     case Gem::Common::expectation::EQUALITY:
         expectation_str = "FP_SIMILARITY / EQUALITY";
-        if((x == true && y == true) || (x == false && y == false) ||
-           (boost::logic::indeterminate(x) && boost::logic::indeterminate(y))) {
+        if((x == Gem::Common::tribool::True  && y == Gem::Common::tribool::True) ||
+           (x == Gem::Common::tribool::False && y == Gem::Common::tribool::False) ||
+           (x == Gem::Common::tribool::Indeterminate && y == Gem::Common::tribool::Indeterminate)) {
             expectationMet = true;
         }
         break;
 
     case Gem::Common::expectation::INEQUALITY:
         expectation_str = "INEQUALITY";
-        if(not(x == true && y == true) && not(x == false && y == false) &&
-           not(boost::logic::indeterminate(x) && boost::logic::indeterminate(y))) {
+        if(not(x == Gem::Common::tribool::True  && y == Gem::Common::tribool::True) &&
+           not(x == Gem::Common::tribool::False && y == Gem::Common::tribool::False) &&
+           not(x == Gem::Common::tribool::Indeterminate && y == Gem::Common::tribool::Indeterminate)) {
             expectationMet = true;
         }
         break;
