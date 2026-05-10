@@ -172,9 +172,9 @@ fi
 if [ "${BUILD}" = "1" ] && [ "${CLEAN}" = "0" ] && [ -z "${CONFIGFILE}" ] \
 		&& [ -e "${GENEVA_BUILDROOT}/CMakeCache.txt" ]; then
 	_NCORES=$(nproc 2>/dev/null || echo 1)
-	echo -e "\nBuild directory already configured. Running: make -j${_NCORES}\n"
+	echo -e "\nBuild directory already configured. Running: make -C ${GENEVA_BUILDROOT} -j${_NCORES}\n"
 	echo -e "---------------------------------------------------------------------\n"
-	make -j"${_NCORES}"
+	make -C "${GENEVA_BUILDROOT}" -j"${_NCORES}"
 	exit $?
 fi
 
@@ -416,7 +416,7 @@ if [ -n "${CMAKEEXTRAFLAGS}" ]; then
 fi
 
 ####################################################################
-echo -e "\nConfiguring with command: \"${CMAKE} ${cmake_args[*]} ${PROJECTROOT}\"\n"
+echo -e "\nConfiguring with command: \"${CMAKE} -S ${PROJECTROOT} -B ${GENEVA_BUILDROOT} ${cmake_args[*]}\"\n"
 echo -e "---------------------------------------------------------------------\n"
 
 if [ "${DRYRUN}" = "1" ]; then
@@ -427,13 +427,13 @@ if [ "${DRYRUN}" = "1" ]; then
 		echo -e "Build step that would follow: make -j${_NCORES}\n"
 	fi
 else
-	if "${CMAKE}" "${cmake_args[@]}" "${PROJECTROOT}"; then
+	if "${CMAKE}" -S "${PROJECTROOT}" -B "${GENEVA_BUILDROOT}" "${cmake_args[@]}"; then
 		echo -e "\n---------------------------------------------------------------------"
 		if [ "${BUILD}" = "1" ]; then
 			_NCORES=$(nproc 2>/dev/null || echo 1)
-			echo -e "\nConfiguration complete. Building with: make -j${_NCORES}\n"
+			echo -e "\nConfiguration complete. Building with: make -C ${GENEVA_BUILDROOT} -j${_NCORES}\n"
 			echo -e "---------------------------------------------------------------------\n"
-			make -j"${_NCORES}"
+			make -C "${GENEVA_BUILDROOT}" -j"${_NCORES}"
 		else
 			echo -e "\nYou may now build and install Geneva in the usual way:"
 			echo -e "make\t\t# Use '-jn', where 'n' is the number of cores in your system"
