@@ -72,7 +72,7 @@
 #include <boost/spirit/include/qi_numeric.hpp>
 #include <boost/spirit/include/qi_operator.hpp>
 #include <boost/spirit/include/qi_string.hpp>
-#include <boost/xpressive/xpressive.hpp>
+#include <regex>
 
 // Geneva headers go here
 #include "common/GCommonHelperFunctionsT.hpp"
@@ -742,7 +742,7 @@ private:
     std::string replacePlaceHolders(const parameter_map &vm) const {
         std::string formula = raw_formula_;
         std::string key, value;      // NOLINT(cppcoreguidelines-init-variables)
-        boost::xpressive::sregex re; // NOLINT(cppcoreguidelines-init-variables)
+        std::regex re; // NOLINT(cppcoreguidelines-init-variables)
 
         typename parameter_map::const_iterator cit;
         for(cit = vm.begin(); cit != vm.end(); ++cit) {
@@ -750,8 +750,8 @@ private:
 
             if(1 == (cit->second).size()) { // Try just the key
                 value = Gem::Common::to_string((cit->second).at(0));
-                re = boost::xpressive::as_xpr("{{" + key + "}}");
-                formula = boost::xpressive::regex_replace(formula, re, value);
+                re = std::regex("\\{\\{" + key + "\\}\\}");
+                formula = std::regex_replace(formula, re, value);
             }
             else if((cit->second).size() >
                     1) { // Try key[0], key[1] --> you may use formulas with place holders sin({{x[2]}})
@@ -759,10 +759,10 @@ private:
                 typename std::vector<fp_type>::const_iterator v_cit;
                 for(v_cit = (cit->second).begin(); v_cit != (cit->second).end(); ++v_cit) {
                     value = Gem::Common::to_string(*v_cit);
-                    re = boost::xpressive::as_xpr(
-                        "{{" + key + "[" + Gem::Common::to_string(cnt++) + "]" + "}}"
+                    re = std::regex(
+                        "\\{\\{" + key + "\\[" + Gem::Common::to_string(cnt++) + "\\]" + "\\}\\}"
                     );
-                    formula = boost::xpressive::regex_replace(formula, re, value);
+                    formula = std::regex_replace(formula, re, value);
                 }
             }
             else { // The vector is empty
