@@ -41,8 +41,6 @@
 
 // Boost header files go here
 
-#include <boost/iterator/iterator_facade.hpp>
-
 #include <boost/archive/binary_iarchive.hpp>
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
@@ -890,143 +888,72 @@ public:
     /***************************************************************************/
     /////////////////////////////////////////////////////////////////////////////
     /***************************************************************************/
-    /** An iterator implementation that facilitates access to derived elements */
+    /** An iterator that filters and converts elements to a derived shared_ptr type */
     template <typename derivedType>
-    class conversion_iterator
-      : public boost::iterator_facade<
-            conversion_iterator<derivedType>,
-            std::shared_ptr<T>,
-            boost::forward_traversal_tag,
-            std::shared_ptr<derivedType>> {
+    class conversion_iterator {
     public:
-        /************************************************************************/
-        /**
-		 * The standard constructor. The iterator needs to know about the end of the
-		 * sequence so it can skip items not fitting the derivation pattern.
-		 *
-		 * @param end The end of the iteration sequence
-		 */
-        explicit conversion_iterator(typename std::vector<std::shared_ptr<T>>::iterator const &end)
-          : end_(end) { /* nothing */
-        }
+        using iterator_category = std::forward_iterator_tag;
+        using value_type        = std::shared_ptr<derivedType>;
+        using difference_type   = std::ptrdiff_t;
+        using pointer           = std::shared_ptr<derivedType>;
+        using reference         = std::shared_ptr<derivedType>;
 
-        /************************************************************************/
-        /**
-		  * Deleted default constructor
-		  */
+        explicit conversion_iterator(typename std::vector<std::shared_ptr<T>>::iterator const &end)
+          : end_(end) {}
+
         conversion_iterator() = delete;
 
-        /************************************************************************/
-        /**
-		 * We need to be able to assign values to the iterator, e.g. in a for loop.
-		 *
-		 * @param current The value to assign to this iterator
-		 * @return A reference to this object
-		 */
         conversion_iterator<derivedType> &
         operator=(typename std::vector<std::shared_ptr<T>>::iterator const &current) {
             current_pos_ = current;
-            // Skip to first "good" entry
             while(current_pos_ != end_ &&
                   not(valid_ptr_ = std::dynamic_pointer_cast<derivedType>(*current_pos_))) {
                 ++current_pos_;
             }
-
             return *this;
         }
 
-        /************************************************************************/
-        /**
-		 * We need to test whether we have reached the end of the sequence, e.g. in a for loop.
-		 *
-		 * @param other The iterator to check for inequality
-		 * @return A boolean indicating whether this iterator's value is inequal with the other iterator
-		 */
         bool operator!=(typename std::vector<std::shared_ptr<T>>::iterator const &other) const {
             return current_pos_ != other;
         }
 
-        /************************************************************************/
-        /**
-		 * This iterator internally stores a copy of the end of the sequence it iterates over. If
-		 * the size of the sequence changes, so does the end point. Hence users need to adapt the
-		 * end-point that is stored internally in this class (and which was set with the constructor
-		 * in the first place.
-		 *
-		 * @param end The new end of the sequence
-		 */
-        void resetEndPosition(typename std::vector<std::shared_ptr<T>>::iterator const &end) {
-            end_ = end;
-        }
-
-    private:
-        /************************************************************************/
-        friend class boost::
-            iterator_core_access; ///< Boost's iterator classes need access to the internals of this class
-
-        /************************************************************************/
-        /**
-		 * This is a standard function required by boost's iterator_facade class.
-		 *
-		 * @return A std::shared_ptr holding the derived object
-		 */
-        std::shared_ptr<derivedType> dereference() const {
+        std::shared_ptr<derivedType> operator*() const {
 #ifdef DEBUG
             if(current_pos_ == end_) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
-                    << "In conversion_iterator::dereference(): Error:" << std::endl
+                    << "In conversion_iterator::operator*(): Error:" << std::endl
                     << "current position at end of sequence" << std::endl
                 );
             }
-
-            if(valid_ptr_) {
-                return valid_ptr_;
-            }
-            else {
+            if(!valid_ptr_) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
-                    << "In conversion_iterator::dereference(): Error: empty pointer" << std::endl
+                    << "In conversion_iterator::operator*(): Error: empty pointer" << std::endl
                 );
             }
-#else
-            return valid_ptr_;
 #endif /* DEBUG */
+            return valid_ptr_;
         }
 
-        /************************************************************************/
-        /**
-		 * Checks for equality with another iterator
-		 *
-		 * @param other The item that should be checked for equality
-		 * @return A boolean indicating whether equality was found
-		 */
-        bool equal(typename std::vector<std::shared_ptr<T>>::iterator const &other) const {
-            return current_pos_ == other;
-        }
-
-        /************************************************************************/
-        /**
-		 * This function increments the iterator position, possibly skipping items, should they
-		 * not meet the derivation pattern.
-		 */
-        void increment() {
+        conversion_iterator<derivedType> &operator++() {
             while(current_pos_ != end_) {
                 ++current_pos_;
                 if(current_pos_ != end_ &&
                    (valid_ptr_ = std::dynamic_pointer_cast<derivedType>(*current_pos_)))
                     break;
             }
+            return *this;
         }
 
-        /************************************************************************/
-        typename std::vector<std::shared_ptr<T>>::iterator
-            current_pos_; ///< Marks the current position in the iteration sequence
-        typename std::vector<std::shared_ptr<T>>::iterator
-            end_; ///< Marks the end of the iteration sequence
+        void resetEndPosition(typename std::vector<std::shared_ptr<T>>::iterator const &end) {
+            end_ = end;
+        }
 
-        std::shared_ptr<derivedType>
-            valid_ptr_; ///< Temporary which holds the current valid pointer
+    private:
+        typename std::vector<std::shared_ptr<T>>::iterator current_pos_;
+        typename std::vector<std::shared_ptr<T>>::iterator end_;
+        std::shared_ptr<derivedType>                       valid_ptr_;
     };
 
 protected:
