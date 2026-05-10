@@ -49,9 +49,6 @@
 #include <vector>
 
 // Boost headers go here
-#include <boost/accumulators/accumulators.hpp>
-#include <boost/accumulators/statistics/max.hpp>
-#include <boost/accumulators/statistics/stats.hpp>
 #include <boost/archive/binary_iarchive.hpp>
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
@@ -2330,7 +2327,7 @@ private:
             currentElapsed / boost::numeric_cast<double>(nReturnedCurrent_);
 
         // Retrieve the current maximum processing time
-        std::chrono::duration<double> maxProcessingTime((boost::accumulators::max)(acc_max_));
+        std::chrono::duration<double> maxProcessingTime(max_processing_time_);
 
         //-----------------------------------------------
         // The actual timeout calculation
@@ -2498,7 +2495,7 @@ private:
             // Calculate the processing time and update the accumulator
             std::chrono::duration<double> currentProcessingTime =
                 w_ptr->getProcSubmissionTime() - w_ptr->getRawRetrievalTime();
-            acc_max_(currentProcessingTime.count());
+            max_processing_time_ = std::max(max_processing_time_, currentProcessingTime.count());
         }
 
         return w_ptr; // Will be empty if remainingTime is 0.
@@ -2719,10 +2716,7 @@ private:
         0.
     ); ///< The maximum amount of time allowed for the entire calculation
 
-    /** @brief Holds the maximum return times of processed individuals */
-    boost::accumulators::
-        accumulator_set<double, boost::accumulators::stats<boost::accumulators::tag::max>>
-            acc_max_;
+    double max_processing_time_ = 0.0; ///< Tracks maximum processing time of returned individuals (seconds)
 };
 
 /******************************************************************************/
