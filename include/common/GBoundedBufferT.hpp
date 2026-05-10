@@ -62,6 +62,7 @@
 
 #include <algorithm>
 #include <chrono>
+#include <concepts>
 #include <condition_variable>
 #include <deque>
 #include <fstream>
@@ -161,10 +162,8 @@ public:
           * @return A boolean indicating whether an item has been successfully submitted
           */
     template <std::size_t u_capacity = t_capacity>
-    bool try_push_copy(
-        T const &item,
-        std::enable_if_t<(u_capacity == 0 && t_capacity == u_capacity)> * = nullptr
-    ) {
+        requires (u_capacity == 0 && t_capacity == u_capacity)
+    bool try_push_copy(T const &item) {
         {
             std::unique_lock<std::mutex> lock(mutex_);
             container_.push_front(item); // This will copy the item
@@ -187,10 +186,8 @@ public:
           * @return A boolean indicating whether an item has been successfully submitted
           */
     template <std::size_t u_capacity = t_capacity>
-    bool try_push_copy(
-        T const &item,
-        std::enable_if_t<(u_capacity > 0 && t_capacity == u_capacity)> * = nullptr
-    ) {
+        requires (u_capacity > 0 && t_capacity == u_capacity)
+    bool try_push_copy(T const &item) {
         {
             std::unique_lock<std::mutex> lock(mutex_);
 
@@ -218,10 +215,8 @@ public:
           * @return A boolean indicating whether an item has been successfully submitted
           */
     template <std::size_t u_capacity = t_capacity>
-    bool try_push_move(
-        T &&item,
-        std::enable_if_t<(u_capacity == 0 && t_capacity == u_capacity)> * = nullptr
-    ) {
+        requires (u_capacity == 0 && t_capacity == u_capacity)
+    bool try_push_move(T &&item) {
         {
             std::unique_lock<std::mutex> lock(mutex_);
             container_.emplace_front(std::move(item));
@@ -243,10 +238,8 @@ public:
           * @return A boolean indicating whether an item has been successfully submitted
           */
     template <std::size_t u_capacity = t_capacity>
-    bool try_push_move(
-        T &&item,
-        std::enable_if_t<(u_capacity > 0 && t_capacity == u_capacity)> * = nullptr
-    ) {
+        requires (u_capacity > 0 && t_capacity == u_capacity)
+    bool try_push_move(T &&item) {
         {
             std::unique_lock<std::mutex> lock(mutex_);
 
@@ -273,10 +266,8 @@ public:
           * @param item An item to be added to the front of the buffer
           */
     template <std::size_t u_capacity = t_capacity>
-    void push_and_block_copy(
-        T const &item,
-        std::enable_if_t<(u_capacity == 0 && t_capacity == u_capacity)> * = nullptr
-    ) {
+        requires (u_capacity == 0 && t_capacity == u_capacity)
+    void push_and_block_copy(T const &item) {
         {
             std::unique_lock<std::mutex> lock(mutex_);
             container_.push_front(item);
@@ -294,10 +285,8 @@ public:
           * @param item An item to be added to the front of the buffer
           */
     template <std::size_t u_capacity = t_capacity>
-    void push_and_block_copy(
-        T const &item,
-        std::enable_if_t<(u_capacity > 0 && t_capacity == u_capacity)> * = nullptr
-    ) {
+        requires (u_capacity > 0 && t_capacity == u_capacity)
+    void push_and_block_copy(T const &item) {
         {
             std::unique_lock<std::mutex> lock(mutex_);
             // Note that this overload of wait() internally runs a loop on its predicate to
@@ -318,10 +307,8 @@ public:
           * @param item An item to be added to the front of the buffer
           */
     template <std::size_t u_capacity = t_capacity>
-    void push_and_block_move(
-        T &&item,
-        std::enable_if_t<(u_capacity == 0 && t_capacity == u_capacity)> * = nullptr
-    ) {
+        requires (u_capacity == 0 && t_capacity == u_capacity)
+    void push_and_block_move(T &&item) {
         {
             std::unique_lock<std::mutex> lock(mutex_);
             container_.emplace_front(std::move(item));
@@ -339,10 +326,8 @@ public:
           * @param item An item to be added to the front of the buffer
           */
     template <std::size_t u_capacity = t_capacity>
-    void push_and_block_move(
-        T &&item,
-        std::enable_if_t<(u_capacity > 0 && t_capacity == u_capacity)> * = nullptr
-    ) {
+        requires (u_capacity > 0 && t_capacity == u_capacity)
+    void push_and_block_move(T &&item) {
         {
             std::unique_lock<std::mutex> lock(mutex_);
             // Note that this overload of wait() internally runs a loop on its predicate to
@@ -367,11 +352,8 @@ public:
           * @return A boolean indicating whether an item has been successfully submitted
           */
     template <std::size_t u_capacity = t_capacity>
-    bool push_and_wait_copy(
-        T const &item,
-        std::chrono::duration<double> const &timeout,
-        std::enable_if_t<(u_capacity == 0 && t_capacity == u_capacity)> * = nullptr
-    ) {
+        requires (u_capacity == 0 && t_capacity == u_capacity)
+    bool push_and_wait_copy(T const &item, std::chrono::duration<double> const &timeout) {
         {
             std::unique_lock<std::mutex> lock(mutex_);
             container_.push_front(item);
@@ -395,11 +377,8 @@ public:
           * @return A boolean indicating whether an item has been successfully submitted
           */
     template <std::size_t u_capacity = t_capacity>
-    bool push_and_wait_copy(
-        T const &item,
-        std::chrono::duration<double> const &timeout,
-        std::enable_if_t<(u_capacity > 0 && t_capacity == u_capacity)> * = nullptr
-    ) {
+        requires (u_capacity > 0 && t_capacity == u_capacity)
+    bool push_and_wait_copy(T const &item, std::chrono::duration<double> const &timeout) {
         {
             std::unique_lock<std::mutex> lock(mutex_);
             if(not not_full_.wait_for(
@@ -428,11 +407,8 @@ public:
           * @return A boolean indicating whether an item has been successfully submitted
           */
     template <std::size_t u_capacity = t_capacity>
-    bool push_and_wait_move(
-        T &&item,
-        std::chrono::duration<double> const &timeout,
-        std::enable_if_t<(u_capacity == 0 && t_capacity == u_capacity)> * = nullptr
-    ) {
+        requires (u_capacity == 0 && t_capacity == u_capacity)
+    bool push_and_wait_move(T &&item, std::chrono::duration<double> const &timeout) {
         {
             std::unique_lock<std::mutex> lock(mutex_);
             container_.emplace_front(std::move(item));
@@ -456,11 +432,8 @@ public:
           * @return A boolean indicating whether an item has been successfully submitted
           */
     template <std::size_t u_capacity = t_capacity>
-    bool push_and_wait_move(
-        T &&item,
-        std::chrono::duration<double> const &timeout,
-        std::enable_if_t<(u_capacity > 0 && t_capacity == u_capacity)> * = nullptr
-    ) {
+        requires (u_capacity > 0 && t_capacity == u_capacity)
+    bool push_and_wait_move(T &&item, std::chrono::duration<double> const &timeout) {
         {
             std::unique_lock<std::mutex> lock(mutex_);
             if(not not_full_.wait_for(

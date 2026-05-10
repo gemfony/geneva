@@ -34,6 +34,7 @@
 
 // Standard headers go here
 #include <chrono>
+#include <concepts>
 #include <exception>
 #include <functional>
 #include <optional>
@@ -85,8 +86,8 @@ class g_processing_exception : public geneva_exception {
 	 */
 template <
     typename processable_type,
-    typename processing_result_type,
-    class = std::enable_if_t<not std::is_void_v<processing_result_type>>>
+    typename processing_result_type>
+    requires (!std::is_void_v<processing_result_type>)
 class GProcessingContainerT {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;

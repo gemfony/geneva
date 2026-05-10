@@ -35,6 +35,7 @@
 // Standard headers go here
 #include <chrono>
 #include <cmath>
+#include <concepts>
 #include <cstdlib>
 #include <deque>
 #include <functional>
@@ -206,8 +207,9 @@ private:
      * Does the actual conversion, including a check that base_type is indeed a base of T
      */
     template <typename base_type>
+        requires std::is_base_of_v<base_type, T>
     identity<base_type>
-    to(typename std::enable_if<std::is_base_of<base_type, T>::value>::type *dummy = nullptr) const {
+    to() const {
         auto const &x_conv = dynamic_cast<base_type const &>(x);
         auto const &y_conv = dynamic_cast<base_type const &>(y);
 
@@ -319,18 +321,15 @@ identity<base_type> getBaseIdentity(
  * @param dummy std::enable_if magic to steer overloaded resolution by the compiler
  */
 template <typename basic_type>
+    requires (!std::is_floating_point_v<basic_type> &&
+              !Gem::Common::has_gemfony_common_interface<basic_type>::value)
 void compare(
     basic_type const &x,
     basic_type const &y,
     std::string const &x_name,
     std::string const &y_name,
     Gem::Common::expectation e,
-    double = 0.,
-    typename std::enable_if<not std::is_floating_point<basic_type>::value>::type * =
-        nullptr // Note the negation!
-    ,
-    typename std::enable_if<not Gem::Common::has_gemfony_common_interface<basic_type>::value>::type
-        * = nullptr // Note the negation
+    double = 0.
 ) {
     bool expectationMet = false;
     std::string expectation_str; // NOLINT(cppcoreguidelines-init-variables)
@@ -494,15 +493,14 @@ void compare(
  * @param limit The maximum allowed deviation of two floating point values
  * @param dummy std::enable_if magic to steer overloaded resolution by the compiler
  */
-template <typename fp_type>
+template <std::floating_point fp_type>
 void compare(
     fp_type const &x,
     fp_type const &y,
     std::string const &x_name,
     std::string const &y_name,
     Gem::Common::expectation e,
-    double limit = CE_DEF_SIMILARITY_DIFFERENCE,
-    typename std::enable_if<std::is_floating_point<fp_type>::value>::type * = nullptr
+    double limit = CE_DEF_SIMILARITY_DIFFERENCE
 ) {
     bool expectationMet = false;
     std::string expectation_str; // NOLINT(cppcoreguidelines-init-variables)
@@ -558,14 +556,14 @@ void compare(
  * @param dummy std::enable_if magic to steer overloaded resolution by the compiler
  */
 template <typename base_type, template <typename, typename> class c_type>
+    requires (!std::is_floating_point_v<base_type>)
 void compare(
     c_type<base_type, std::allocator<base_type>> const &x,
     c_type<base_type, std::allocator<base_type>> const &y,
     std::string const &x_name,
     std::string const &y_name,
     Gem::Common::expectation e,
-    double = 0.,
-    typename std::enable_if<not std::is_floating_point<base_type>::value>::type * = nullptr
+    double = 0.
 ) {
     bool expectationMet = false;
     std::string expectation_str; // NOLINT(cppcoreguidelines-init-variables)
@@ -640,14 +638,14 @@ void compare(
  * @param dummy std::enable_if magic to steer overloaded resolution by the compiler
  */
 template <typename base_type, template <typename, typename, typename> class s_type>
+    requires (!std::is_floating_point_v<base_type>)
 void compare(
     s_type<base_type, std::less<base_type>, std::allocator<base_type>> const &x,
     s_type<base_type, std::less<base_type>, std::allocator<base_type>> const &y,
     std::string const &x_name,
     std::string const &y_name,
     Gem::Common::expectation e,
-    double = 0.,
-    typename std::enable_if<not std::is_floating_point<base_type>::value>::type * = nullptr
+    double = 0.
 ) {
     bool expectationMet = false;
     std::string expectation_str; // NOLINT(cppcoreguidelines-init-variables)
@@ -719,15 +717,14 @@ void compare(
  * @param limit The maximum allowed deviation of two floating point values
  * @param dummy std::enable_if magic to steer overloaded resolution by the compiler
  */
-template <typename fp_type, template <typename, typename> class c_type>
+template <std::floating_point fp_type, template <typename, typename> class c_type>
 void compare(
     c_type<fp_type, std::allocator<fp_type>> const &x,
     c_type<fp_type, std::allocator<fp_type>> const &y,
     std::string const &x_name,
     std::string const &y_name,
     Gem::Common::expectation e,
-    double limit = CE_DEF_SIMILARITY_DIFFERENCE,
-    typename std::enable_if<std::is_floating_point<fp_type>::value>::type * = nullptr
+    double limit = CE_DEF_SIMILARITY_DIFFERENCE
 ) {
     bool expectationMet = false;
     std::string expectation_str; // NOLINT(cppcoreguidelines-init-variables)
@@ -818,15 +815,14 @@ void compare(
  * @param limit The maximum allowed deviation of two floating point values
  * @param dummy std::enable_if magic to steer overloaded resolution by the compiler
  */
-template <typename fp_type, template <typename, typename, typename> class s_type>
+template <std::floating_point fp_type, template <typename, typename, typename> class s_type>
 void compare(
     s_type<fp_type, std::less<fp_type>, std::allocator<fp_type>> const &x,
     s_type<fp_type, std::less<fp_type>, std::allocator<fp_type>> const &y,
     std::string const &x_name,
     std::string const &y_name,
     Gem::Common::expectation e,
-    double limit = CE_DEF_SIMILARITY_DIFFERENCE,
-    typename std::enable_if<std::is_floating_point<fp_type>::value>::type * = nullptr
+    double limit = CE_DEF_SIMILARITY_DIFFERENCE
 ) {
     bool expectationMet = false;
     std::string expectation_str; // NOLINT(cppcoreguidelines-init-variables)
@@ -919,15 +915,14 @@ void compare(
  * @param dummy std::enable_if magic to steer overloaded resolution by the compiler
  */
 template <typename geneva_type>
+    requires (Gem::Common::has_gemfony_common_interface<geneva_type>::value)
 void compare(
     geneva_type const &x,
     geneva_type const &y,
     std::string const &x_name,
     std::string const &y_name,
     Gem::Common::expectation e,
-    double limit = Gem::Common::CE_DEF_SIMILARITY_DIFFERENCE,
-    typename std::enable_if<Gem::Common::has_gemfony_common_interface<geneva_type>::value>::type * =
-        nullptr
+    double limit = Gem::Common::CE_DEF_SIMILARITY_DIFFERENCE
 ) {
     bool expectationMet = false;
     std::string expectation_str; // NOLINT(cppcoreguidelines-init-variables)
@@ -997,15 +992,14 @@ void compare(
  * @param dummy std::enable_if magic to steer overloaded resolution by the compiler
  */
 template <typename geneva_type>
+    requires (Gem::Common::has_gemfony_common_interface<geneva_type>::value)
 void compare(
     std::shared_ptr<geneva_type> const &x,
     std::shared_ptr<geneva_type> const &y,
     std::string const &x_name,
     std::string const &y_name,
     Gem::Common::expectation e,
-    double limit = Gem::Common::CE_DEF_SIMILARITY_DIFFERENCE,
-    typename std::enable_if<Gem::Common::has_gemfony_common_interface<geneva_type>::value>::type * =
-        nullptr
+    double limit = Gem::Common::CE_DEF_SIMILARITY_DIFFERENCE
 ) {
     bool expectationMet = false;
     std::string expectation_str; // NOLINT(cppcoreguidelines-init-variables)
@@ -1107,15 +1101,14 @@ void compare(
  * @param dummy std::enable_if magic to steer overloaded resolution by the compiler
  */
 template <typename geneva_type, template <typename, typename> class c_type>
+    requires (Gem::Common::has_gemfony_common_interface<geneva_type>::value)
 void compare(
     c_type<std::shared_ptr<geneva_type>, std::allocator<std::shared_ptr<geneva_type>>> const &x,
     c_type<std::shared_ptr<geneva_type>, std::allocator<std::shared_ptr<geneva_type>>> const &y,
     std::string const &x_name,
     std::string const &y_name,
     Gem::Common::expectation e,
-    double limit = Gem::Common::CE_DEF_SIMILARITY_DIFFERENCE,
-    typename std::enable_if<Gem::Common::has_gemfony_common_interface<geneva_type>::value>::type * =
-        nullptr
+    double limit = Gem::Common::CE_DEF_SIMILARITY_DIFFERENCE
 ) {
     bool expectationMet = false;
     std::string expectation_str; // NOLINT(cppcoreguidelines-init-variables)

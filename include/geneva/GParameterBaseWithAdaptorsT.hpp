@@ -33,6 +33,7 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard header files go here
+#include <concepts>
 
 // Boost header files go here
 
@@ -179,10 +180,8 @@ public:
 	  * @return The desired adaptor instance, using its "natural" type
 	  */
     template <typename adaptor_type>
-    std::shared_ptr<adaptor_type> getAdaptor(
-        typename std::enable_if<std::is_base_of<GAdaptorT<T>, adaptor_type>::value>::type *dummy =
-            nullptr
-    ) const {
+        requires std::derived_from<adaptor_type, GAdaptorT<T>>
+    std::shared_ptr<adaptor_type> getAdaptor() const {
 #ifdef DEBUG
         if(not adaptor_) {
             throw geneva_exception(

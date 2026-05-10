@@ -33,6 +33,7 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard headers go here
+#include <concepts>
 #include <limits>
 #include <random>
 
@@ -51,9 +52,7 @@ namespace Gem::Hap {
  * This class implements a random distribution consisting of two adjacent
  * normal distributions. It models the API common for std C++11 random distributions.
  */
-template <
-    typename fp_type,
-    typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = nullptr>
+template <std::floating_point fp_type>
 class bi_normal_distribution {
 public:
     using input_type = fp_type;
@@ -317,9 +316,7 @@ private:
 /**
  * Checks two bi_normal_distribution distributions for equality
  */
-template <
-    typename fp_type,
-    typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = nullptr>
+template <std::floating_point fp_type>
 bool operator==(
     const bi_normal_distribution<fp_type> &lhs,
     const bi_normal_distribution<fp_type> &rhs
@@ -331,9 +328,7 @@ bool operator==(
 /**
  * Checks two bi_normal_distribution distributions for inequality
  */
-template <
-    typename fp_type,
-    typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = nullptr>
+template <std::floating_point fp_type>
 bool operator!=(
     const bi_normal_distribution<fp_type> &lhs,
     const bi_normal_distribution<fp_type> &rhs

@@ -33,6 +33,7 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard header files go here
+#include <concepts>
 #include <filesystem>
 #include <fstream>
 #include <memory>
@@ -406,9 +407,8 @@ public:
      *
      * @return A converted clone of this object, wrapped into a std::shared_ptr
      */
-    template <
-        typename clone_type,
-        std::enable_if_t<std::is_base_of_v<g_class_type, clone_type>, int> = 0>
+    template <typename clone_type>
+        requires std::derived_from<clone_type, g_class_type>
     std::shared_ptr<clone_type> clone() const {
         return Gem::Common::convertSmartPointer<g_class_type, clone_type>(
             std::shared_ptr<g_class_type>(this->clone_())
@@ -422,9 +422,8 @@ public:
      *
      * @param cp A copy of another g_class_type-derivative, wrapped into a std::shared_ptr<>
      */
-    template <
-        typename load_type,
-        std::enable_if_t<std::is_base_of_v<g_class_type, load_type>, int> = 0>
+    template <typename load_type>
+        requires std::derived_from<load_type, g_class_type>
     void load(const std::shared_ptr<load_type> &cp) {
         load_(cp.get());
     }
@@ -436,9 +435,8 @@ public:
      *
      * @param cp A copy of another g_class_type-derivative, wrapped into a std::shared_ptr<>
      */
-    template <
-        typename load_type,
-        std::enable_if_t<std::is_base_of_v<g_class_type, load_type>, int> = 0>
+    template <typename load_type>
+        requires std::derived_from<load_type, g_class_type>
     void load(const load_type &cp) {
         load_(&cp);
     }

@@ -35,6 +35,7 @@
 // Standard header files go here
 #include <functional>
 #include <sstream>
+#include <concepts>
 #include <type_traits>
 #include <typeinfo>
 #include <vector>
@@ -256,10 +257,8 @@ public:
      * @param item The item to be counted in the collection
      */
     template <typename item_type>
-    size_type count(
-        std::shared_ptr<item_type> const &item,
-        typename std::enable_if<std::is_base_of<T, item_type>::value>::type *dummy = nullptr
-    ) const {
+        requires std::derived_from<item_type, T>
+    size_type count(std::shared_ptr<item_type> const &item) const {
         if(not item) { // Check that item actually contains something useful
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
@@ -302,10 +301,8 @@ public:
 	 * and we do not want to compare the pointers themselves.
 	 */
     template <typename item_type>
-    const_iterator find(
-        std::shared_ptr<item_type> const &item,
-        typename std::enable_if<std::is_base_of<T, item_type>::value>::type *dummy = nullptr
-    ) const {
+        requires std::derived_from<item_type, T>
+    const_iterator find(std::shared_ptr<item_type> const &item) const {
         if(not item) { // Check that item actually contains something useful
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)

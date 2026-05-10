@@ -35,6 +35,7 @@
 // Standard headers go here
 #include <algorithm>
 #include <cmath>
+#include <concepts>
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
@@ -65,14 +66,13 @@ namespace Gem::Common {
  * @param lower The lower boundary of the allowed value range
  * @param upper The upper (inclusive) boundary of the allowed value range
  */
-template <typename fp_type>
+template <std::floating_point fp_type>
 fp_type enforceRangeConstraint(
     fp_type &val,
     const fp_type &lower,
     const fp_type &upper,
     const std::string &caller = "empty",
-    bool verbose = false,
-    typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = nullptr
+    bool verbose = false
 ) {
     if(lower > upper) {
         throw geneva_exception(
@@ -115,13 +115,12 @@ fp_type enforceRangeConstraint(
  * @param lower The lower boundary of the allowed value range
  * @param upper The upper boundary of the allowed value range
  */
-template <typename fp_type>
+template <std::floating_point fp_type>
 bool checkRangeCompliance(
     const fp_type &val,
     const fp_type &lower,
     const fp_type &upper,
-    const std::string &caller = "empty",
-    typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = nullptr
+    const std::string &caller = "empty"
 ) {
     if(lower > upper) {
         throw geneva_exception(
@@ -143,13 +142,12 @@ bool checkRangeCompliance(
  * @param lower The lower boundary of the allowed value range
  * @param upper The upper boundary of the allowed value range
  */
-template <typename int_type>
+template <std::integral int_type>
 bool checkRangeCompliance(
     const int_type &val,
     const int_type &lower,
     const int_type &upper,
-    const std::string &caller = "empty",
-    typename std::enable_if<std::is_integral<int_type>::value>::type *dummy = nullptr
+    const std::string &caller = "empty"
 ) {
     if(lower > upper) {
         throw geneva_exception(
@@ -168,10 +166,9 @@ bool checkRangeCompliance(
  * Retrieves the worst known value for a given floating point type, depending
  * on whether maximal or minimal values are considered to be better
  */
-template <typename fp_type>
+template <std::floating_point fp_type>
 fp_type getWorstCase(
-    bool maxMode,
-    typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = nullptr
+    bool maxMode
 ) {
     return (
         maxMode ? std::numeric_limits<fp_type>::lowest()
@@ -184,10 +181,9 @@ fp_type getWorstCase(
  * Retrieves the best known value for a given floating point type, depending
  * on whether maximal or minimal values are considered to be better
  */
-template <typename fp_type>
+template <std::floating_point fp_type>
 fp_type getBestCase(
-    bool maxMode,
-    typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = nullptr
+    bool maxMode
 ) {
     return (
         maxMode ? std::numeric_limits<fp_type>::max()
@@ -200,10 +196,9 @@ fp_type getBestCase(
  * Retrieves the worst known value for a given floating point type, depending
  * on whether maximal or minimal values are considered to be better
  */
-template <typename fp_type>
+template <std::floating_point fp_type>
 fp_type getWorstCase(
-    Gem::Common::sortOrder sortOrder,
-    typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = nullptr
+    Gem::Common::sortOrder sortOrder
 ) {
     return (
         sortOrder == Gem::Common::sortOrder::HIGHERISBETTER
@@ -217,10 +212,9 @@ fp_type getWorstCase(
  * Retrieves the best known value for a given floating point type, depending
  * on whether maximal or minimal values are considered to be better
  */
-template <typename fp_type>
+template <std::floating_point fp_type>
 fp_type getBestCase(
-    Gem::Common::sortOrder sortOrder,
-    typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = nullptr
+    Gem::Common::sortOrder sortOrder
 ) {
     return (
         sortOrder == Gem::Common::sortOrder::HIGHERISBETTER
@@ -247,7 +241,7 @@ const bool GFPUPPERCLOSED = false;
 const bool GFPUPPEROPEN = true;
 const bool GFNOWARNING = false;
 
-template <typename fp_type>
+template <std::floating_point fp_type>
 fp_type checkValueRange(
     fp_type val,
     fp_type min,
@@ -255,8 +249,7 @@ fp_type checkValueRange(
     bool lowerOpen = false,
     bool upperOpen = false,
     bool warnOnly = false,
-    std::string varName = std::string(),
-    typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = nullptr
+    std::string varName = std::string()
 ) {
     bool inValueRange = true;
 
@@ -314,15 +307,14 @@ fp_type checkValueRange(
  * @param warnOnly Will warn only if the condition isn't met
  * @return The value being checked
  */
-template <typename int_type>
+template <std::integral int_type>
 int_type checkValueRange(
     int_type val,
     int_type min,
     int_type max,
     bool lowerOpen = false,
     bool upperOpen = false,
-    bool warnOnly = false,
-    typename std::enable_if<std::is_integral<int_type>::value>::type *dummy = nullptr
+    bool warnOnly = false
 ) {
     bool inValueRange = true;
 
@@ -551,8 +543,7 @@ auto getMinMax(
  */
 template <typename T>
 T GMean(
-    const std::vector<T> &parVec,
-    typename std::enable_if<std::is_floating_point<T>::value>::type *dummy = nullptr
+    const std::vector<T> &parVec
 ) {
 #ifdef DEBUG
     if(parVec.empty()) {
@@ -579,8 +570,7 @@ T GMean(
  */
 template <typename T>
 auto GStandardDeviation(
-    const std::vector<T> &parVec,
-    typename std::enable_if<std::is_floating_point<T>::value>::type *dummy = nullptr
+    const std::vector<T> &parVec
 ) {
     // GMean will throw in DEBUG mode if parVec is empty
     T mean = GMean(parVec), sigma = T(0);
@@ -699,8 +689,7 @@ void assignVecConst(std::vector<T> &a, const T &c) {
  */
 template <typename fp_type>
 std::tuple<fp_type, fp_type> sumTupleVec(
-    const std::vector<std::tuple<fp_type, fp_type>> &dataPoints,
-    typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = nullptr
+    const std::vector<std::tuple<fp_type, fp_type>> &dataPoints
 ) {
     std::tuple<fp_type, fp_type> result{fp_type(0.), fp_type(0.)};
     for(const auto &p : dataPoints) {
@@ -716,8 +705,7 @@ std::tuple<fp_type, fp_type> sumTupleVec(
  */
 template <typename fp_type>
 std::tuple<fp_type, fp_type> squareSumTupleVec(
-    const std::vector<std::tuple<fp_type, fp_type>> &dataPoints,
-    typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = nullptr
+    const std::vector<std::tuple<fp_type, fp_type>> &dataPoints
 ) {
     std::tuple<fp_type, fp_type> result{fp_type(0.), fp_type(0.)};
     for(const auto &p : dataPoints) {
@@ -733,10 +721,9 @@ std::tuple<fp_type, fp_type> squareSumTupleVec(
 /**
  * Sums up the product of x- and y-components of a vector of 2d-tuples
  */
-template <typename fp_type>
+template <std::floating_point fp_type>
 fp_type productSumTupleVec(
-    const std::vector<std::tuple<fp_type, fp_type>> &dataPoints,
-    typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = nullptr
+    const std::vector<std::tuple<fp_type, fp_type>> &dataPoints
 ) {
     fp_type result = fp_type(0.);
     for(const auto &p : dataPoints) {
@@ -755,12 +742,11 @@ fp_type productSumTupleVec(
  * @param b The slope of a line
  * @return The square deviation of the data points from the line
  */
-template <typename fp_type>
+template <std::floating_point fp_type>
 fp_type squareDeviation(
     const std::vector<std::tuple<fp_type, fp_type>> &dataPoints,
     const fp_type &a,
-    const fp_type &b,
-    typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = nullptr
+    const fp_type &b
 ) {
     fp_type result = fp_type(0);
     for(const auto &p : dataPoints) {
@@ -781,8 +767,7 @@ fp_type squareDeviation(
  */
 template <typename fp_type>
 auto getRegressionParameters(
-    const std::vector<std::tuple<fp_type, fp_type>> &dataPoints,
-    typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = nullptr
+    const std::vector<std::tuple<fp_type, fp_type>> &dataPoints
 ) {
     if(dataPoints.empty()) {
         return std::tuple<fp_type, fp_type, fp_type, fp_type>{
@@ -830,8 +815,7 @@ auto getRegressionParameters(
 template <typename fp_type>
 auto getRatioError(
     const std::tuple<fp_type, fp_type, fp_type, fp_type> &s,
-    const std::tuple<fp_type, fp_type, fp_type, fp_type> &p,
-    typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = nullptr
+    const std::tuple<fp_type, fp_type, fp_type, fp_type> &p
 ) {
     // p may not be 0
     if(0. == std::get<2>(p)) {
@@ -878,8 +862,7 @@ auto getRatioError(
 template <typename fp_type>
 std::vector<std::tuple<fp_type, fp_type, fp_type, fp_type>> getRatioErrors(
     const std::vector<std::tuple<fp_type, fp_type, fp_type, fp_type>> &sn,
-    const std::vector<std::tuple<fp_type, fp_type, fp_type, fp_type>> &pn,
-    typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = nullptr
+    const std::vector<std::tuple<fp_type, fp_type, fp_type, fp_type>> &pn
 ) {
     // Check that both vectors have the same size, otherwise complain
     if(sn.size() != pn.size()) {
@@ -904,12 +887,11 @@ std::vector<std::tuple<fp_type, fp_type, fp_type, fp_type>> getRatioErrors(
  * This function checks whether a given floating point value is "close" to a given
  * target value, with a maximum difference provided as a parameter
  */
-template <typename fp_type>
+template <std::floating_point fp_type>
 bool isClose(
     fp_type val,
     fp_type target = 0,
-    fp_type margin = fp_type(0.00001),
-    typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = nullptr
+    fp_type margin = fp_type(0.00001)
 ) {
     return (std::abs(val - target) <= margin);
 }
@@ -929,9 +911,7 @@ bool isClose(
  * @param barrier   Asymptotic limit; output stays strictly within (-barrier, +barrier)
  * @param steepness Controls convergence speed; larger → slower approach to barrier
  */
-template <
-    typename fp_type,
-    typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = nullptr>
+template <std::floating_point fp_type>
 fp_type grational_sigmoid(fp_type var, fp_type barrier, fp_type steepness) {
 #ifdef DEBUG
     if(steepness <= fp_type(0)) {

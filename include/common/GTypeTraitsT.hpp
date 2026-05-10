@@ -62,10 +62,7 @@ class gemfony_common_interface_indicator {};
  */
 template <typename T>
 struct has_gemfony_common_interface {
-    enum {
-        value = std::is_base_of < gemfony_common_interface_indicator,
-        T > ::value
-    };
+    static constexpr bool value = std::is_base_of_v<gemfony_common_interface_indicator, T>;
 };
 
 /******************************************************************************/

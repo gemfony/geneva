@@ -33,6 +33,7 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard header files go here
+#include <concepts>
 
 // Boost header files go here
 
@@ -93,10 +94,8 @@ public:
 	  * @return A converted version of the GParameterBase object, as required by the user
 	  */
     template <typename parameter_type>
-    const std::shared_ptr<parameter_type>
-    at(const std::size_t &pos,
-       typename std::enable_if<std::is_base_of<GParameterBase, parameter_type>::value>::type
-           *dummy = nullptr) const {
+        requires std::derived_from<parameter_type, GParameterBase>
+    const std::shared_ptr<parameter_type> at(const std::size_t &pos) const {
 #ifdef DEBUG
         if(this->empty() || pos >= this->size()) {
             throw geneva_exception(

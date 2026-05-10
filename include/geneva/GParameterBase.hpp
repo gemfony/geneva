@@ -34,6 +34,7 @@
 
 // Standard header files go here
 #include <any>
+#include <concepts>
 #include <random>
 
 // Boost header files go here
@@ -388,11 +389,8 @@ public:
      * @return A std::shared_ptr holding the converted object
      */
     template <typename load_type>
-    std::shared_ptr<load_type> parameterbase_cast(
-        std::shared_ptr<GParameterBase> load_ptr,
-        typename std::enable_if<
-            std::is_base_of<Gem::Geneva::GParameterBase, load_type>::value>::type *dummy = nullptr
-    ) const {
+        requires std::derived_from<load_type, Gem::Geneva::GParameterBase>
+    std::shared_ptr<load_type> parameterbase_cast(std::shared_ptr<GParameterBase> load_ptr) const {
 #ifdef DEBUG
         std::shared_ptr<load_type> p = std::dynamic_pointer_cast<load_type>(load_ptr);
         if(p) {

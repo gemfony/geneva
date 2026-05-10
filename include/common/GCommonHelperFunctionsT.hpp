@@ -35,6 +35,7 @@
 // Standard headers go here
 #include <chrono>
 #include <cmath>
+#include <concepts>
 #include <cstdint>
 #include <cstdlib>
 #include <iomanip>
@@ -239,10 +240,8 @@ void ptrDifferenceCheck(std::shared_ptr<T> p1, std::shared_ptr<T> p2) {
  * in release builds uses static_cast.
  */
 template <typename base_type, typename target_type>
-const target_type *g_ptr_conversion(
-    const base_type *convert_ptr,
-    typename std::enable_if<std::is_base_of<base_type, target_type>::value>::type *dummy = nullptr
-) {
+    requires std::derived_from<target_type, base_type>
+const target_type *g_ptr_conversion(const base_type *convert_ptr) {
 #ifdef DEBUG
     const auto *p = dynamic_cast<const target_type *>(convert_ptr);
     if(nullptr == convert_ptr || p) {
@@ -264,10 +263,8 @@ const target_type *g_ptr_conversion(
  * Shared-pointer overload of g_ptr_conversion.
  */
 template <typename base_type, typename target_type>
-std::shared_ptr<target_type> g_ptr_conversion(
-    std::shared_ptr<base_type> convert_ptr,
-    typename std::enable_if<std::is_base_of<base_type, target_type>::value>::type *dummy = nullptr
-) {
+    requires std::derived_from<target_type, base_type>
+std::shared_ptr<target_type> g_ptr_conversion(std::shared_ptr<base_type> convert_ptr) {
 #ifdef DEBUG
     auto p = std::dynamic_pointer_cast<target_type>(convert_ptr);
     if(nullptr == convert_ptr.get() || p) {
@@ -289,10 +286,10 @@ std::shared_ptr<target_type> g_ptr_conversion(
  * compare_ptr. Only accessible when base_type is a base of target_type.
  */
 template <typename base_type, typename target_type>
+    requires std::derived_from<target_type, base_type>
 std::shared_ptr<target_type> g_convert_and_compare(
     std::shared_ptr<base_type> convert_ptr,
-    std::shared_ptr<target_type> compare_ptr,
-    typename std::enable_if<std::is_base_of<base_type, target_type>::value>::type *dummy = nullptr
+    std::shared_ptr<target_type> compare_ptr
 ) {
     auto p = g_ptr_conversion<base_type, target_type>(convert_ptr);
     ptrDifferenceCheck(p, compare_ptr);
@@ -304,10 +301,10 @@ std::shared_ptr<target_type> g_convert_and_compare(
  * Raw-pointer overload of g_convert_and_compare.
  */
 template <typename base_type, typename target_type>
+    requires std::derived_from<target_type, base_type>
 const target_type *g_convert_and_compare(
     const base_type *convert_ptr,
-    const target_type *compare_ptr,
-    typename std::enable_if<std::is_base_of<base_type, target_type>::value>::type *dummy = nullptr
+    const target_type *compare_ptr
 ) {
     const target_type *p = g_ptr_conversion<base_type, target_type>(convert_ptr);
     ptrDifferenceCheck(p, compare_ptr);
@@ -319,10 +316,10 @@ const target_type *g_convert_and_compare(
  * Reference overload of g_convert_and_compare.
  */
 template <typename base_type, typename target_type>
+    requires std::derived_from<target_type, base_type>
 const target_type *g_convert_and_compare(
     const base_type &convert_ref,
-    const target_type *compare_ptr,
-    typename std::enable_if<std::is_base_of<base_type, target_type>::value>::type *dummy = nullptr
+    const target_type *compare_ptr
 ) {
     const auto *p = g_ptr_conversion<base_type, target_type>(&convert_ref);
     ptrDifferenceCheck(p, compare_ptr);
@@ -348,12 +345,8 @@ std::string vecToString(const std::vector<T> &vec) {
  * Deep-copies a shared_ptr to a cloneable/loadable object using clone()/load().
  */
 template <typename T>
-void copyCloneableSmartPointer(
-    const std::shared_ptr<T> &from,
-    std::shared_ptr<T> &to,
-    typename std::enable_if<Gem::Common::has_gemfony_common_interface<T>::value>::type *dummy =
-        nullptr
-) {
+    requires (Gem::Common::has_gemfony_common_interface<T>::value)
+void copyCloneableSmartPointer(const std::shared_ptr<T> &from, std::shared_ptr<T> &to) {
     if(not from) {
         to.reset();
     }
@@ -371,11 +364,10 @@ void copyCloneableSmartPointer(
  * clone()/load(). Resizes the target container as needed.
  */
 template <typename T, template <typename, typename> class c_type>
+    requires (Gem::Common::has_gemfony_common_interface<T>::value)
 void copyCloneableSmartPointerContainer(
     const c_type<std::shared_ptr<T>, std::allocator<std::shared_ptr<T>>> &from,
-    c_type<std::shared_ptr<T>, std::allocator<std::shared_ptr<T>>> &to,
-    typename std::enable_if<Gem::Common::has_gemfony_common_interface<T>::value>::type *dummy =
-        nullptr
+    c_type<std::shared_ptr<T>, std::allocator<std::shared_ptr<T>>> &to
 ) {
     using iter_t =
         typename c_type<std::shared_ptr<T>, std::allocator<std::shared_ptr<T>>>::iterator;
@@ -415,11 +407,10 @@ void copyCloneableSmartPointerContainer(
  * target container as needed.
  */
 template <typename T, template <typename, typename> class c_type>
+    requires (Gem::Common::has_gemfony_common_interface<T>::value)
 void copyCloneableObjectsContainer(
     const c_type<T, std::allocator<T>> &from,
-    c_type<T, std::allocator<T>> &to,
-    typename std::enable_if<Gem::Common::has_gemfony_common_interface<T>::value>::type *dummy =
-        nullptr
+    c_type<T, std::allocator<T>> &to
 ) {
     using iter_t = typename c_type<T, std::allocator<T>>::iterator;
     using const_iter_t = typename c_type<T, std::allocator<T>>::const_iterator;
@@ -675,10 +666,8 @@ const item_type &getMapItem(const std::map<std::string, item_type> &m, const std
 /**
  * Adds an operator== to every object with a Gemfony-common interface
  */
-template <
-    class gemfony_common_type,
-    class = typename std::enable_if<
-        Gem::Common::has_gemfony_common_interface<gemfony_common_type>::value>::type>
+template <class gemfony_common_type>
+    requires (Gem::Common::has_gemfony_common_interface<gemfony_common_type>::value)
 bool operator==(const gemfony_common_type &x, const gemfony_common_type &y) {
     try {
         x.compare(y, Gem::Common::expectation::EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
@@ -693,10 +682,8 @@ bool operator==(const gemfony_common_type &x, const gemfony_common_type &y) {
 /**
  * Adds an operator!= to every object with a Gemfony-common interface
  */
-template <
-    class gemfony_common_type,
-    class = typename std::enable_if<
-        Gem::Common::has_gemfony_common_interface<gemfony_common_type>::value>::type>
+template <class gemfony_common_type>
+    requires (Gem::Common::has_gemfony_common_interface<gemfony_common_type>::value)
 bool operator!=(const gemfony_common_type &x, const gemfony_common_type &y) {
     try {
         x.compare(y, Gem::Common::expectation::INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
@@ -712,13 +699,9 @@ bool operator!=(const gemfony_common_type &x, const gemfony_common_type &y) {
  * Converts integral types (except scoped enums) to std::string.
  */
 template <typename integral_type>
-std::string to_string(
-    integral_type val,
-    typename std::enable_if<
-        std::is_integral<integral_type>::value ||
-        (std::is_enum<integral_type>::value &&
-         std::is_convertible<integral_type, int>::value)>::type * = 0
-) {
+    requires (std::is_integral_v<integral_type> ||
+              (std::is_enum_v<integral_type> && std::is_convertible_v<integral_type, int>))
+std::string to_string(integral_type val) {
     return std::to_string(val);
 }
 
@@ -726,11 +709,8 @@ std::string to_string(
 /**
  * Converts floating-point values to std::string with full precision.
  */
-template <typename fp_type>
-std::string to_string(
-    fp_type val,
-    typename std::enable_if<std::is_floating_point<fp_type>::value>::type * = 0
-) {
+template <std::floating_point fp_type>
+std::string to_string(fp_type val) {
     std::ostringstream oss;
     oss << std::setprecision(std::numeric_limits<fp_type>::max_digits10) << val;
     return oss.str();
@@ -741,12 +721,8 @@ std::string to_string(
  * Converts a scoped enum (enum class) to std::string via uint32_t cast.
  */
 template <typename enum_type>
-std::string to_string(
-    enum_type val,
-    typename std::enable_if<
-        std::is_enum<enum_type>::value && not std::is_convertible<enum_type, int>::value>::type * =
-        0
-) {
+    requires (std::is_enum_v<enum_type> && !std::is_convertible_v<enum_type, int>)
+std::string to_string(enum_type val) {
     return std::to_string(static_cast<std::uint32_t>(val));
 }
 
@@ -755,12 +731,8 @@ std::string to_string(
  * Converts any remaining streamable type to std::string via ostringstream.
  */
 template <typename default_type>
-std::string to_string(
-    default_type val,
-    typename std::enable_if<
-        not std::is_enum<default_type>::value && not std::is_arithmetic<default_type>::value>::type
-        * = 0
-) {
+    requires (!std::is_enum_v<default_type> && !std::is_arithmetic_v<default_type>)
+std::string to_string(default_type val) {
     std::ostringstream oss;
     oss << val;
     return oss.str();

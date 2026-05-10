@@ -33,6 +33,7 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard header files go here
+#include <concepts>
 #include <functional>
 #include <any>
 #include <limits>
@@ -383,10 +384,8 @@ public:
      * @return A std::shared_ptr converted to the desired target type
      */
     template <typename personality_type>
-    std::shared_ptr<personality_type> getPersonalityTraits(
-        typename std::enable_if<std::is_base_of<GPersonalityTraits, personality_type>::value>::type
-            *dummy = nullptr
-    ) {
+        requires std::derived_from<personality_type, GPersonalityTraits>
+    std::shared_ptr<personality_type> getPersonalityTraits() {
 #ifdef DEBUG
         // Check that pt_ptr_ actually points somewhere
         if(not pt_ptr_) {
@@ -458,10 +457,8 @@ public:
      * @return A converted version of the GParameterBase object, as required by the user
      */
     template <typename par_type>
-    const std::shared_ptr<par_type>
-    at(std::size_t const &pos,
-       typename std::enable_if<std::is_base_of<GParameterBase, par_type>::value>::type *dummy =
-           nullptr) const {
+        requires std::derived_from<par_type, GParameterBase>
+    const std::shared_ptr<par_type> at(std::size_t const &pos) const {
         // Does error checks on the conversion internally
         return Gem::Common::convertSmartPointer<GParameterBase, par_type>(data_cnt_.at(pos));
     }
