@@ -45,7 +45,7 @@ Write an entry for:
   encoding details that the spec leaves ambiguous)
 - Any resolved specification ambiguity
 - Any build-system or dependency decision discovered through trial
-- Any ROOT validation quirk or Docker/CI infrastructure finding
+- Any ROOT validation quirk or CI infrastructure finding
 - Any finding that, if forgotten, would require repeating non-trivial research
 
 Do NOT write entries for things already documented in §9 or elsewhere in this file.
@@ -947,7 +947,7 @@ table:
 [OK ] GCC 13.2
 [OK ] CMake 3.28.1
 [OK ] xxhash 0.8.2
-[WARN] ROOT not found — docker pull rootproject/root:6.34.04 to enable ROOT validation
+[OK ] ROOT 6.36.12 (/opt/root/bin/root)
 [OK ] Catch2 3.4.0
 ...
 ```
@@ -986,7 +986,6 @@ Deliverables:
 - Repository skeleton from §6 (directories, empty files, CMakeLists.txt hierarchy)
 - `gemfony-chronicle` CMake target building an empty library
 - CTest plumbing with Geneva's test infrastructure
-- `tools/chronicle/Dockerfile.root` building successfully
 - A trivial validation test: `validate_with_root.C` opens a ROOT-generated reference
   RNTuple file and reports OK
 - `docs/chronicle/clean-room-policy.md` complete
@@ -1289,7 +1288,8 @@ Deterministic loops with documented seeds (or a C++ property-testing framework).
 Exercise the full writer through the public API; parse output with a test-only reader.
 
 ### ROOT-validation tests
-Run ROOT in the Docker image. Enabled by `-DGCHR_ENABLE_ROOT_VALIDATION=ON`.
+Invoke ROOT directly at `/opt/root/bin/root`. Enabled by `-DGCHR_ENABLE_ROOT_VALIDATION=ON`.
+CMake locates the ROOT binary via `find_program(ROOT_EXECUTABLE root HINTS /opt/root/bin)`.
 
 ### Reference-file tests
 Assert that our writer's output is semantically equivalent to committed ROOT-generated
@@ -1306,7 +1306,7 @@ ci.yml:                         # No ROOT, fast feedback
   modes: Debug, Release, ASan+UBSan, vendored xxhash, system xxhash
 
 ci-root.yml:                    # ROOT validation, slower
-  container: rootproject/root:6.34.04
+  # ROOT 6.36.12 at /opt/root/ on the dev machine; for CI runners, set ROOT_EXECUTABLE
   modes: full validation suite for all phases reached
 ```
 
@@ -1407,9 +1407,9 @@ Execute in order. Do not advance to the next task until the current one is compl
 Create `tools/chronicle/check_env.sh` and run it. For every missing required tool, provide
 the installation command and wait for the user to install and re-run the check.
 
-If ROOT is not installed, ask the user which installation option they prefer (Docker,
-conda, or pre-built binary) and help them verify that it works:
+ROOT 6.36.12 is installed at `/opt/root/`. Verify it is reachable:
 ```bash
+source /opt/root/bin/thisroot.sh
 root -l -b -q -e 'std::cout << "ROOT OK, version " << gROOT->GetVersion() << std::endl; gApplication->Terminate();'
 ```
 
@@ -1426,9 +1426,9 @@ If the spike does not succeed within 2 weeks: stop and report.
 
 ### Task 3 — Phase 0: Skeleton
 
-Create the repository structure from §6, the validation Dockerfile, and the trivial
-oracle test. Confirm CI runs end-to-end on a known-good reference file before any
-RNTuple-writing code is added.
+Create the repository structure from §6 and the trivial oracle test. Confirm the
+validation harness runs end-to-end (using system ROOT at `/opt/root/bin/root`) on a
+known-good ROOT-generated reference file before any RNTuple-writing code is added.
 
 ### Task 4 — Phases 1–9: Phase by phase
 
