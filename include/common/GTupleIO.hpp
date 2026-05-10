@@ -50,16 +50,12 @@
 #include <tuple>
 #include <type_traits>
 
-// Boost heders go here
-#include <boost/tuple/tuple.hpp>
-
 // Gemfony headers go here
 
 namespace Gem::Common {
 
 /******************************************************************************/
 // This set of functions allows to output tuples of any size, starting at 0.
-// Boost boost::tuple and std::tuple are supported.
 
 /******************************************************************************/
 /**
@@ -119,27 +115,10 @@ std::string g_to_string(
 
 /******************************************************************************/
 /**
- * The actual output function for std::tuple. This implementation uses
- * information taken from http://www.cplusplus.com/articles/EhvU7k9E/ to determine
- * the size of the tuple. It relies on the services of a "g_to_string" function defined
- * for std::tuple and boost::tuple above.
+ * Output function for std::tuple.
  */
 template <class... args>
 std::string g_to_string(const std::tuple<args...> &t) {
-    static const unsigned short int sz = sizeof...(args); // The actual tuple size
-    std::string empty; // NOLINT(cppcoreguidelines-init-variables)
-    return std::string("(") + g_to_string(t, empty, tuple_output_seq<sz>()) + std::string(")");
-}
-
-/******************************************************************************/
-/**
- * The actual output function for boost::tuple. This implementation uses
- * information taken from http://www.cplusplus.com/articles/EhvU7k9E/ to determine
- * the size of the tuple. It relies on the services of a "g_to_string" function defined
- * for std::tuple and boost::tuple above.
- */
-template <class... args>
-std::string g_to_string(const boost::tuple<args...> &t) {
     static const unsigned short int sz = sizeof...(args); // The actual tuple size
     std::string empty; // NOLINT(cppcoreguidelines-init-variables)
     return std::string("(") + g_to_string(t, empty, tuple_output_seq<sz>()) + std::string(")");
@@ -161,16 +140,6 @@ std::string g_to_string(const T &t) {
  */
 template <class... args>
 std::ostream &operator<<(std::ostream &o, const std::tuple<args...> &t) {
-    o << g_to_string(t);
-    return o;
-}
-
-/******************************************************************************/
-/**
- * Streaming operator for boost::tuple
- */
-template <class... args>
-std::ostream &operator<<(std::ostream &o, const boost::tuple<args...> &t) {
     o << g_to_string(t);
     return o;
 }
