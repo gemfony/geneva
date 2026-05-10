@@ -33,6 +33,7 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard headers go here
+#include <concepts>
 #include <tuple>
 #include <type_traits>
 
@@ -139,11 +140,8 @@ public:
      * @return A converted shared_ptr to the parent
      */
     template <typename parent_type>
-    std::shared_ptr<parent_type> getParentIndividual(
-        std::size_t parentId,
-        typename std::enable_if<std::is_base_of<GParameterSet, parent_type>::value>::type *dummy =
-            nullptr
-    ) {
+        requires std::derived_from<parent_type, GParameterSet>
+    std::shared_ptr<parent_type> getParentIndividual(std::size_t parentId) {
 #ifdef DEBUG
         // Check that the parent id is in a valid range
         if(parentId >= this->getNParents()) {

@@ -33,6 +33,7 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard headers go here
+#include <concepts>
 
 // Boost headers go here
 
@@ -159,11 +160,8 @@ public:
 	  * @return A converted shared_ptr to the best individual of a given neighborhood
 	  */
     template <typename parameterset_type>
-    std::shared_ptr<parameterset_type> getBestNeighborhoodIndividual(
-        std::size_t neighborhood,
-        typename std::enable_if<std::is_base_of<GParameterSet, parameterset_type>::value>::type
-            *dummy = nullptr
-    ) {
+        requires std::derived_from<parameterset_type, GParameterSet>
+    std::shared_ptr<parameterset_type> getBestNeighborhoodIndividual(std::size_t neighborhood) {
 #ifdef DEBUG
         // Check that the neighborhood is in a valid range
         if(neighborhood >= n_neighborhoods_) {

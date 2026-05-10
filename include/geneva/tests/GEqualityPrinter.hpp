@@ -35,6 +35,7 @@
 // Standard header files go here
 #include <algorithm>
 #include <cmath>
+#include <concepts>
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -78,12 +79,8 @@ public:
 	 * @return A boolean indicating whether both parameters are equal
 	 */
     template <typename geneva_type>
-    bool isEqual(
-        const geneva_type &x,
-        const geneva_type &y,
-        typename std::enable_if<std::is_base_of<Gem::Geneva::GObject, geneva_type>::value>::type
-            *dummy = nullptr
-    ) const {
+        requires std::derived_from<geneva_type, Gem::Geneva::GObject>
+    bool isEqual(const geneva_type &x, const geneva_type &y) const {
         using namespace Gem::Common;
 
         try {
@@ -107,13 +104,10 @@ public:
 	 * @return A boolean indicating whether both parameters are equal
 	 */
     template <typename geneva_simplecontainer_type>
-    bool isEqual(
-        const geneva_simplecontainer_type &x,
-        const std::vector<typename geneva_simplecontainer_type::value_type> &y,
-        typename std::enable_if<std::is_base_of<
-            Gem::Common::GPODVectorT<typename geneva_simplecontainer_type::value_type>,
-            geneva_simplecontainer_type>::value>::type *dummy = nullptr
-    ) const {
+        requires std::derived_from<geneva_simplecontainer_type,
+                                   Gem::Common::GPODVectorT<typename geneva_simplecontainer_type::value_type>>
+    bool isEqual(const geneva_simplecontainer_type &x,
+                 const std::vector<typename geneva_simplecontainer_type::value_type> &y) const {
         using namespace Gem::Common;
 
         try {
@@ -139,12 +133,8 @@ public:
 	 * @return A boolean indicating whether both parameters are inequal
 	 */
     template <typename geneva_type>
-    bool isInEqual(
-        const geneva_type &x,
-        const geneva_type &y,
-        typename std::enable_if<std::is_base_of<Gem::Geneva::GObject, geneva_type>::value>::type
-            *dummy = nullptr
-    ) const {
+        requires std::derived_from<geneva_type, Gem::Geneva::GObject>
+    bool isInEqual(const geneva_type &x, const geneva_type &y) const {
         using namespace Gem::Common;
 
         try {
@@ -168,13 +158,10 @@ public:
 	 * @return A boolean indicating whether both parameters are equal
 	 */
     template <typename geneva_simplecontainer_type>
-    bool isInEqual(
-        const geneva_simplecontainer_type &x,
-        const std::vector<typename geneva_simplecontainer_type::value_type> &y,
-        typename std::enable_if<std::is_base_of<
-            Gem::Common::GPODVectorT<typename geneva_simplecontainer_type::value_type>,
-            geneva_simplecontainer_type>::value>::type *dummy = nullptr
-    ) const {
+        requires std::derived_from<geneva_simplecontainer_type,
+                                   Gem::Common::GPODVectorT<typename geneva_simplecontainer_type::value_type>>
+    bool isInEqual(const geneva_simplecontainer_type &x,
+                   const std::vector<typename geneva_simplecontainer_type::value_type> &y) const {
         using namespace Gem::Common;
 
         try {
@@ -200,12 +187,8 @@ public:
 	 * @return A boolean indicating whether both parameters are similar
 	 */
     template <typename geneva_type>
-    bool isSimilar(
-        const geneva_type &x,
-        const geneva_type &y,
-        typename std::enable_if<std::is_base_of<Gem::Geneva::GObject, geneva_type>::value>::type
-            *dummy = nullptr
-    ) const {
+        requires std::derived_from<geneva_type, Gem::Geneva::GObject>
+    bool isSimilar(const geneva_type &x, const geneva_type &y) const {
         using namespace Gem::Common;
 
         try {
@@ -230,13 +213,10 @@ public:
 	 * @return A boolean indicating whether both parameters are similar
 	 */
     template <typename geneva_simplecontainer_type>
-    bool isSimilar(
-        const geneva_simplecontainer_type &x,
-        const std::vector<typename geneva_simplecontainer_type::value_type> &y,
-        typename std::enable_if<std::is_base_of<
-            Gem::Common::GPODVectorT<typename geneva_simplecontainer_type::value_type>,
-            geneva_simplecontainer_type>::value>::type *dummy = nullptr
-    ) const {
+        requires std::derived_from<geneva_simplecontainer_type,
+                                   Gem::Common::GPODVectorT<typename geneva_simplecontainer_type::value_type>>
+    bool isSimilar(const geneva_simplecontainer_type &x,
+                   const std::vector<typename geneva_simplecontainer_type::value_type> &y) const {
         using namespace Gem::Common;
 
         try {

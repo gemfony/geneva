@@ -34,6 +34,7 @@
 
 // Standard header files go here
 #include <atomic>
+#include <concepts>
 #include <condition_variable>
 #include <functional>
 #include <future>
@@ -97,12 +98,8 @@ public:
           * @return A std::future holding any exceptions that have occurred
           */
     template <typename F, typename... Args>
-    auto async_schedule(
-        F &&f,
-        Args &&...args,
-        typename std::enable_if<
-            std::is_void<typename std::result_of<F(Args...)>::type>::value>::type *dummy = nullptr
-    ) -> std::future<typename std::result_of<F(Args...)>::type> {
+        requires std::same_as<std::invoke_result_t<F, Args...>, void>
+    auto async_schedule(F &&f, Args &&...args) -> std::future<std::invoke_result_t<F, Args...>> {
         // We may only submit new jobs if job_lck can be acquired. This is important
         // so we have a means of letting the submission queue run empty.
         std::unique_lock<std::mutex> job_lck(task_submission_mutex_);
@@ -157,7 +154,7 @@ public:
             tasksInFlight_++;
         }
 
-        using result_type = typename std::result_of<F(Args && ...)>::type;
+        using result_type = std::invoke_result_t<F, Args&&...>;
         auto promise_ptr = std::make_shared<std::promise<result_type>>();
         std::future<result_type> result = promise_ptr->get_future();
 
@@ -221,13 +218,8 @@ public:
           * @return A std::future holding the results of f and any exceptions that have occurred
           */
     template <typename F, typename... Args>
-    auto async_schedule(
-        F &&f,
-        Args &&...args,
-        typename std::enable_if<
-            not std::is_void<typename std::result_of<F(Args...)>::type>::value>::type *dummy =
-            nullptr
-    ) -> std::future<typename std::result_of<F(Args...)>::type> {
+        requires (!std::same_as<std::invoke_result_t<F, Args...>, void>)
+    auto async_schedule(F &&f, Args &&...args) -> std::future<std::invoke_result_t<F, Args...>> {
         // We may only submit new jobs if job_lck can be acquired. This is important
         // so we have a means of letting the submission queue run empty.
         std::unique_lock<std::mutex> job_lck(task_submission_mutex_);
@@ -282,7 +274,7 @@ public:
             tasksInFlight_++;
         }
 
-        using result_type = typename std::result_of<F(Args && ...)>::type;
+        using result_type = std::invoke_result_t<F, Args&&...>;
         auto promise_ptr = std::make_shared<std::promise<result_type>>();
         std::future<result_type> result = promise_ptr->get_future();
 

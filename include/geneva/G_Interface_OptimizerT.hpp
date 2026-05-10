@@ -33,6 +33,7 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard header files go here
+#include <concepts>
 #include <mutex>
 #include <string>
 #include <thread>
@@ -81,10 +82,8 @@ public:
 	  * @return A copy of the best individual found in the optimization run
 	  */
     template <typename individual_type>
-    std::shared_ptr<individual_type> getBestGlobalIndividual(
-        typename std::enable_if<std::is_base_of<GParameterSet, individual_type>::value>::type
-            *dummy = nullptr
-    ) const {
+        requires std::derived_from<individual_type, GParameterSet>
+    std::shared_ptr<individual_type> getBestGlobalIndividual() const {
         std::unique_lock<std::mutex> iteration_best_lock(get_best_mutex_);
         auto result = std::dynamic_pointer_cast<individual_type>(this->getBestGlobalIndividual_());
         if(!result) {
@@ -106,10 +105,8 @@ public:
 	  * @return A list of copies of the best individuals found in the optimization run
 	  */
     template <typename individual_type>
-    std::vector<std::shared_ptr<individual_type>> getBestGlobalIndividuals(
-        typename std::enable_if<std::is_base_of<GParameterSet, individual_type>::value>::type
-            *dummy = nullptr
-    ) const {
+        requires std::derived_from<individual_type, GParameterSet>
+    std::vector<std::shared_ptr<individual_type>> getBestGlobalIndividuals() const {
         std::unique_lock<std::mutex> iteration_best_lock(get_best_mutex_);
 
         std::vector<std::shared_ptr<individual_type>> bestIndividuals;
@@ -152,10 +149,8 @@ public:
 	  * @return A copy of the best individual found in the iteration
 	  */
     template <typename individual_type>
-    std::shared_ptr<individual_type> getBestIterationIndividual(
-        typename std::enable_if<std::is_base_of<GParameterSet, individual_type>::value>::type
-            *dummy = nullptr
-    ) const {
+        requires std::derived_from<individual_type, GParameterSet>
+    std::shared_ptr<individual_type> getBestIterationIndividual() const {
         std::unique_lock<std::mutex> iteration_best_lock(get_best_mutex_);
         auto result = std::dynamic_pointer_cast<individual_type>(getBestIterationIndividual_());
         if(!result) {
@@ -177,10 +172,8 @@ public:
 	  * @return A list of copies of the best individuals found in the iteration
 	  */
     template <typename individual_type>
-    std::vector<std::shared_ptr<individual_type>> getBestIterationIndividuals(
-        typename std::enable_if<std::is_base_of<GParameterSet, individual_type>::value>::type
-            *dummy = nullptr
-    ) const {
+        requires std::derived_from<individual_type, GParameterSet>
+    std::vector<std::shared_ptr<individual_type>> getBestIterationIndividuals() const {
         std::unique_lock<std::mutex> iteration_best_lock(get_best_mutex_);
 
         std::vector<std::shared_ptr<individual_type>> bestIndividuals;

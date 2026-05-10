@@ -31,7 +31,7 @@ ENABLE_LANGUAGE(CUDA)
 
 # CUDA standard — C++17 is required inside .cu files (lambdas in G_CALLABLE
 # functions); the host code is compiled as C++20 by the normal CXX rules.
-set(CMAKE_CUDA_STANDARD 17)
+set(CMAKE_CUDA_STANDARD 20)
 set(CMAKE_CUDA_STANDARD_REQUIRED ON)
 
 # ---------------------------------------------------------------------------

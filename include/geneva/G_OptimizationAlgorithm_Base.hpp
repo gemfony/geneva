@@ -34,6 +34,7 @@
 
 // Standard header files go here
 #include <chrono>
+#include <concepts>
 #include <ctime>
 #include <iostream>
 #include <type_traits>
@@ -321,11 +322,8 @@ public:
       * this is not the case.
       */
     template <typename target_type>
-    std::shared_ptr<target_type> getExecutor(
-        typename std::enable_if<
-            std::is_base_of<Gem::Courtier::GBaseExecutorT<GParameterSet>, target_type>::value>::type
-            *dummy = nullptr
-    ) {
+        requires std::derived_from<target_type, Gem::Courtier::GBaseExecutorT<GParameterSet>>
+    std::shared_ptr<target_type> getExecutor() {
         return std::dynamic_pointer_cast<target_type>(executor_ptr_);
     }
 
