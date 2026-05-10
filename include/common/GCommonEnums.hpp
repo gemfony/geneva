@@ -192,6 +192,9 @@ enum class triboolStates : Gem::Common::ENUMBASETYPE {
     TBS_TRUE         = 2
 };
 
+/** @brief Puts a Gem::Common::tribool into a stream */
+std::ostream &operator<<(std::ostream &, Gem::Common::tribool const &);
+
 /** @brief Puts a Gem::Common::triboolStates into a stream. Needed also for boost::lexical_cast<> */
 std::ostream &operator<<(std::ostream &, Gem::Common::triboolStates const &);
 

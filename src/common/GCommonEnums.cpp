@@ -113,6 +113,19 @@ std::istream &operator>>(std::istream &i, Gem::Common::logType &x) {
 
 /******************************************************************************/
 /**
+ * Puts a Gem::Common::tribool into a stream
+ */
+std::ostream &operator<<(std::ostream &o, Gem::Common::tribool const &x) {
+    switch(x) {
+    case Gem::Common::tribool::True:          o << "True";          break;
+    case Gem::Common::tribool::False:         o << "False";         break;
+    case Gem::Common::tribool::Indeterminate: o << "Indeterminate"; break;
+    }
+    return o;
+}
+
+/******************************************************************************/
+/**
  * Puts a Gem::Common::triboolStates into a stream. Needed also for boost::lexical_cast<>
  */
 std::ostream &operator<<(std::ostream &o, Gem::Common::triboolStates const &x) {
