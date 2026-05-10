@@ -42,7 +42,6 @@
 #include <vector>
 
 // Boost header files go here
-#include <boost/math/constants/constants.hpp>
 
 // Geneva header files go here
 #include "common/GParserBuilder.hpp"

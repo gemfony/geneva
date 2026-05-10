@@ -33,14 +33,15 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard header files go here
+#include <cmath>
 #include <iostream>
+#include <limits>
 #include <sstream>
 #include <string>
 #include <type_traits>
 #include <vector>
 
 // Boost header files go here
-#include <boost/math/special_functions/next.hpp> // Needed so we can calculate the next representable value smaller than a given upper boundary
 
 // Geneva header files go here
 #include "common/GExceptions.hpp"
@@ -99,7 +100,7 @@ public:
       : GConstrainedNumCollectionT<fp_type>(
             size,
             lowerBoundary,
-            boost::math::float_prior<fp_type>(upperBoundary)
+            std::nextafter(upperBoundary, -std::numeric_limits<fp_type>::infinity())
         ) // Note that we define the upper boundary as "open"
     {
         Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL> gr;
@@ -136,9 +137,9 @@ public:
     )
       : GConstrainedNumCollectionT<fp_type>(
             size,
-            (val == upperBoundary ? boost::math::float_prior<fp_type>(val) : val),
+            (val == upperBoundary ? std::nextafter(val, -std::numeric_limits<fp_type>::infinity()) : val),
             lowerBoundary,
-            boost::math::float_prior<fp_type>(upperBoundary)
+            std::nextafter(upperBoundary, -std::numeric_limits<fp_type>::infinity())
         ) // Note that we define the upper boundary as "open"
     {     /* nothing */
     }

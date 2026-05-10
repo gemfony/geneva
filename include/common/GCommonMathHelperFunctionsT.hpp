@@ -46,7 +46,6 @@
 #include <vector>
 
 // Boost headers go here
-#include <boost/math/special_functions.hpp>
 
 // Geneva headers go here
 #include "common/GCommonEnums.hpp"
@@ -262,7 +261,7 @@ fp_type checkValueRange(
     bool inValueRange = true;
 
     if(lowerOpen) {
-        if(val < boost::math::float_next<fp_type>(min))
+        if(val < std::nextafter(min, std::numeric_limits<fp_type>::infinity()))
             inValueRange = false;
     }
     else {
@@ -271,7 +270,7 @@ fp_type checkValueRange(
     }
 
     if(upperOpen) {
-        if(val > boost::math::float_prior<fp_type>(max))
+        if(val > std::nextafter(max, -std::numeric_limits<fp_type>::infinity()))
             inValueRange = false;
     }
     else {

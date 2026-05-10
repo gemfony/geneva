@@ -33,10 +33,11 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard headers go here
+#include <cmath>
+#include <limits>
 #include <type_traits>
 
 // Boost headers go here
-#include <boost/math/special_functions/next.hpp>
 
 // Geneva headers go here
 #include "common/GExceptions.hpp"
@@ -569,7 +570,7 @@ protected:
             if(typeid(T) == typeid(double)) {
                 CHECK(
                     double(p_test->getUpperBoundary()) ==
-                    boost::math::float_prior<double>(double(GConstrainedValueLimitT<T>::highest()))
+                    std::nextafter(double(GConstrainedValueLimitT<T>::highest()), -std::numeric_limits<double>::infinity())
                 );
             }
             else {
@@ -628,7 +629,7 @@ protected:
             if(typeid(T) == typeid(double)) {
                 CHECK(
                     double(p_test->getUpperBoundary()) ==
-                    boost::math::float_prior<double>(double(upperBoundary))
+                    std::nextafter(double(upperBoundary), -std::numeric_limits<double>::infinity())
                 );
             }
             else {
@@ -667,7 +668,7 @@ protected:
                 );
                 CHECK(
                     double(p_test->getUpperBoundary()) ==
-                    boost::math::float_prior<double>(double(upperBoundary))
+                    std::nextafter(double(upperBoundary), -std::numeric_limits<double>::infinity())
                 );
             }
             else if(typeid(T) == typeid(float)) {
@@ -678,7 +679,7 @@ protected:
                 );
                 CHECK(
                     float(p_test->getUpperBoundary()) ==
-                    boost::math::float_prior<float>(float(upperBoundary))
+                    std::nextafter(float(upperBoundary), -std::numeric_limits<float>::infinity())
                 );
             }
             else {

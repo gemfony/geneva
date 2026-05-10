@@ -39,7 +39,7 @@
 #include <string>
 
 // Boost headers go here
-#include <boost/limits.hpp>
+#include <limits>
 
 // Geneva headers go here
 #include "GOptimizationEnums.hpp"

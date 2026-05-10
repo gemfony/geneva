@@ -55,7 +55,6 @@
 #include <vector>
 
 // Boost headers go here
-#include <boost/math/special_functions/next.hpp>
 
 // Geneva headers go here
 #include "common/GCommonHelperFunctions.hpp"

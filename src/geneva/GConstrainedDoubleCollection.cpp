@@ -29,6 +29,9 @@
 
 #include "geneva/GConstrainedDoubleCollection.hpp"
 
+#include <cmath>
+#include <limits>
+
 #ifdef GEM_TESTING
 #include <catch2/catch_test_macros.hpp>
 #endif /* GEM_TESTING */
@@ -446,7 +449,7 @@ void GConstrainedDoubleCollection::specificTestsNoFailureExpected_GUnitTests_() 
         }
         CHECK(p_test->getLowerBoundary() == DEFMIN);
         CHECK(
-            p_test->getUpperBoundary() == boost::math::float_prior<double>(DEFMAX)
+            p_test->getUpperBoundary() == std::nextafter(DEFMAX, -std::numeric_limits<double>::infinity())
         ); // The upper boundary is an open one
     }
 
@@ -464,7 +467,7 @@ void GConstrainedDoubleCollection::specificTestsNoFailureExpected_GUnitTests_() 
         }
         CHECK(p_test->getLowerBoundary() == DEFMIN);
         CHECK(
-            p_test->getUpperBoundary() == boost::math::float_prior<double>(DEFMAX)
+            p_test->getUpperBoundary() == std::nextafter(DEFMAX, -std::numeric_limits<double>::infinity())
         ); // The upper boundary is an open one
     }
 

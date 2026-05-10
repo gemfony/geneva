@@ -57,7 +57,6 @@
 
 // Boost header files go here
 #include <boost/archive/basic_archive.hpp>
-#include <boost/lambda/lambda.hpp>
 #include <boost/program_options.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/ptree_serialization.hpp>

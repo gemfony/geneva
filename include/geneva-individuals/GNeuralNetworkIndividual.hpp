@@ -49,7 +49,7 @@
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/xml_oarchive.hpp>
-#include <boost/math/constants/constants.hpp>
+#include <numbers>
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/export.hpp>
 #include <boost/serialization/nvp.hpp>
@@ -632,7 +632,7 @@ public:
                     gr_l,
                     std::uniform_real_distribution<double>::param_type(
                         0.,
-                        2 * boost::math::constants::pi<double>()
+                        2 * std::numbers::pi
                     )
                 );
                 tS->Input[0] = local_radius * sin(phi); // x
@@ -658,7 +658,7 @@ public:
                         gr_l,
                         std::uniform_real_distribution<double>::param_type(
                             0.,
-                            boost::math::constants::pi<double>()
+                            std::numbers::pi
                         )
                     );
                 }
@@ -666,7 +666,7 @@ public:
                     gr_l,
                     std::uniform_real_distribution<double>::param_type(
                         0.,
-                        2 * boost::math::constants::pi<double>()
+                        2 * std::numbers::pi
                     )
                 ); // Range of last angle is [0, 2.*Pi[
 

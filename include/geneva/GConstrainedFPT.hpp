@@ -38,7 +38,6 @@
 #include <type_traits>
 
 // Boost headers go here
-#include <boost/math/special_functions/next.hpp> // Needed so we can calculate the next representable value smaller than a given upper boundary
 
 // Geneva headers go here
 #include "common/GExceptions.hpp"
@@ -108,7 +107,7 @@ public:
 	  * @param upperBoundary The upper boundary of the value range
 	  */
     GConstrainedFPT(const fp_type &lowerBoundary, const fp_type &upperBoundary)
-      : GConstrainedNumT<fp_type>(lowerBoundary, boost::math::float_prior<fp_type>(upperBoundary)) {
+      : GConstrainedNumT<fp_type>(lowerBoundary, std::nextafter(upperBoundary, -std::numeric_limits<fp_type>::infinity())) {
         Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL> gr;
         typename std::uniform_real_distribution<fp_type> uniform_real_distribution(
             lowerBoundary,
@@ -131,9 +130,9 @@ public:
 	  * @param upperBoundary The upper boundary of the value range
 	  */
     GConstrainedFPT(const fp_type &val, const fp_type &lowerBoundary, const fp_type &upperBoundary)
-      : GConstrainedNumT<fp_type>(lowerBoundary, boost::math::float_prior<fp_type>(upperBoundary)) {
+      : GConstrainedNumT<fp_type>(lowerBoundary, std::nextafter(upperBoundary, -std::numeric_limits<fp_type>::infinity())) {
         if(val == upperBoundary) {
-            GConstrainedNumT<fp_type>::setValue(boost::math::float_prior<fp_type>(upperBoundary));
+            GConstrainedNumT<fp_type>::setValue(std::nextafter(upperBoundary, -std::numeric_limits<fp_type>::infinity()));
         }
         else {
             GConstrainedNumT<fp_type>::setValue(val);
@@ -164,8 +163,8 @@ public:
 	  */
     GConstrainedNumT<fp_type> &operator=(const fp_type &val) override {
         fp_type tmpVal = val;
-        if(val == boost::math::float_next<fp_type>(this->getUpperBoundary())) {
-            tmpVal = boost::math::float_prior<fp_type>(val);
+        if(val == std::nextafter(this->getUpperBoundary(), std::numeric_limits<fp_type>::infinity())) {
+            tmpVal = std::nextafter(val, -std::numeric_limits<fp_type>::infinity());
         }
 
         GConstrainedNumT<fp_type>::operator=(tmpVal);
@@ -190,8 +189,8 @@ public:
 	  */
     void setValue(const fp_type &val) override {
         fp_type tmpVal = val;
-        if(val == boost::math::float_next<fp_type>(this->getUpperBoundary())) {
-            tmpVal = boost::math::float_prior<fp_type>(val);
+        if(val == std::nextafter(this->getUpperBoundary(), std::numeric_limits<fp_type>::infinity())) {
+            tmpVal = std::nextafter(val, -std::numeric_limits<fp_type>::infinity());
         }
 
         GConstrainedNumT<fp_type>::setValue(tmpVal);
@@ -221,13 +220,13 @@ public:
     ) override {
         fp_type tmpVal = val;
         if(val == upperBoundary) {
-            tmpVal = boost::math::float_prior<fp_type>(val);
+            tmpVal = std::nextafter(val, -std::numeric_limits<fp_type>::infinity());
         }
 
         GConstrainedNumT<fp_type>::setValue(
             tmpVal,
             lowerBoundary,
-            boost::math::float_prior<fp_type>(upperBoundary)
+            std::nextafter(upperBoundary, -std::numeric_limits<fp_type>::infinity())
         );
     }
 
@@ -250,7 +249,7 @@ public:
         // Set the actual boundaries
         GConstrainedNumT<fp_type>::setBoundaries(
             lowerBoundary,
-            boost::math::float_prior<fp_type>(upperBoundary)
+            std::nextafter(upperBoundary, -std::numeric_limits<fp_type>::infinity())
         );
     }
 
@@ -542,7 +541,7 @@ protected:
 
             // Cross-check that boundaries are o.k.
             CHECK(p_test->getLowerBoundary() == lowerBoundary);
-            CHECK(p_test->getUpperBoundary() == boost::math::float_prior<fp_type>(upperBoundary));
+            CHECK(p_test->getUpperBoundary() == std::nextafter(upperBoundary, -std::numeric_limits<fp_type>::infinity()));
 
             // Check the value again
             CHECK(p_test->value() == testVal2);
@@ -579,12 +578,12 @@ protected:
                 "\n"
                 << std::setprecision(16) << "Invalid upper boundary found:\n"
                 << "getUpperBoundary() = " << p_test->getUpperBoundary() << "\n"
-                << "expected " << boost::math::float_prior<fp_type>(upperBoundary) << "\n"
+                << "expected " << std::nextafter(upperBoundary, -std::numeric_limits<fp_type>::infinity()) << "\n"
                 << "Difference is "
-                << p_test->getUpperBoundary() - boost::math::float_prior<fp_type>(upperBoundary)
+                << p_test->getUpperBoundary() - std::nextafter(upperBoundary, -std::numeric_limits<fp_type>::infinity())
                 << "\n"
             );
-            CHECK(p_test->getUpperBoundary() == boost::math::float_prior<fp_type>(upperBoundary));
+            CHECK(p_test->getUpperBoundary() == std::nextafter(upperBoundary, -std::numeric_limits<fp_type>::infinity()));
 
             CHECK(p_test->value() == testVal);
         }
@@ -1034,7 +1033,7 @@ protected:
             CHECK(p_test->getLowerBoundary() == GConstrainedValueLimitT<fp_type>::lowest());
             CHECK(
                 p_test->getUpperBoundary() ==
-                boost::math::float_prior<fp_type>(GConstrainedValueLimitT<fp_type>::highest())
+                std::nextafter(GConstrainedValueLimitT<fp_type>::highest(), -std::numeric_limits<fp_type>::infinity())
             );
 
             // Try to set a boundary to a bad value
@@ -1061,7 +1060,7 @@ protected:
             CHECK(p_test->getLowerBoundary() == GConstrainedValueLimitT<fp_type>::lowest());
             CHECK(
                 p_test->getUpperBoundary() ==
-                boost::math::float_prior<fp_type>(GConstrainedValueLimitT<fp_type>::highest())
+                std::nextafter(GConstrainedValueLimitT<fp_type>::highest(), -std::numeric_limits<fp_type>::infinity())
             );
 
             // Try to set a boundary to a bad value
@@ -1084,7 +1083,7 @@ protected:
             CHECK(p_test->getLowerBoundary() == GConstrainedValueLimitT<fp_type>::lowest());
             CHECK(
                 p_test->getUpperBoundary() ==
-                boost::math::float_prior<fp_type>(GConstrainedValueLimitT<fp_type>::highest())
+                std::nextafter(GConstrainedValueLimitT<fp_type>::highest(), -std::numeric_limits<fp_type>::infinity())
             );
 
             // Try to set a boundary to a bad value
@@ -1107,7 +1106,7 @@ protected:
             CHECK(p_test->getLowerBoundary() == GConstrainedValueLimitT<fp_type>::lowest());
             CHECK(
                 p_test->getUpperBoundary() ==
-                boost::math::float_prior<fp_type>(GConstrainedValueLimitT<fp_type>::highest())
+                std::nextafter(GConstrainedValueLimitT<fp_type>::highest(), -std::numeric_limits<fp_type>::infinity())
             );
 
             // Try to set a boundary to a bad value

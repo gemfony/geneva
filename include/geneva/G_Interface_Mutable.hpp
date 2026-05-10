@@ -37,7 +37,6 @@
 #include <sstream>
 
 // Boost header files go here
-#include <boost/exception/all.hpp>
 
 // Geneva header files go here
 

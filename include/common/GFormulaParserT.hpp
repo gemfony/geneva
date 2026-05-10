@@ -61,7 +61,6 @@
 #include <boost/config/warning_disable.hpp>
 #include <boost/fusion/adapted/std_tuple.hpp> // Compare http://stackoverflow.com/questions/18158376/getting-boostspiritqi-to-use-stl-containers
 #include <boost/fusion/include/adapt_struct.hpp>
-#include <boost/math/constants/constants.hpp>
 #include <boost/phoenix/bind.hpp>
 #include <boost/phoenix/core.hpp>
 #include <boost/phoenix/object.hpp>
@@ -473,9 +472,9 @@ public:
 
         //---------------------------------------------------------------------------
         // Define a number of mathematical constants
-        constants_.add("e", boost::math::constants::e<fp_type>())(
+        constants_.add("e", static_cast<fp_type>(2.718281828459045235360287471352L))(
             "pi",
-            boost::math::constants::pi<fp_type>()
+            static_cast<fp_type>(3.141592653589793238462643383280L)
         );
 
         // Add user-defined constants
