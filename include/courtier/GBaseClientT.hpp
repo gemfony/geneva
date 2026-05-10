@@ -50,7 +50,6 @@
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/xml_oarchive.hpp>
 #include <boost/asio.hpp>
-#include <boost/exception/diagnostic_information.hpp>
 #include <boost/fusion/adapted/boost_tuple.hpp>
 #include <boost/fusion/include/adapt_struct.hpp>
 #include <boost/fusion/include/boost_tuple.hpp>
@@ -230,14 +229,6 @@ public:
                 << "Caught geneva_exception" << std::endl
                 << "with message" << std::endl
                 << e.what()
-            );
-        }
-        catch(boost::exception &e) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
-                << "In GBaseClientT<T>::run() / " << rs_to_str(r)
-                << ": Caught boost::exception with message" << std::endl
-                << boost::diagnostic_information(e) << std::endl
             );
         }
         catch(std::exception &e) {

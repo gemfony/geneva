@@ -48,7 +48,6 @@
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/xml_oarchive.hpp>
-#include <boost/exception/diagnostic_information.hpp>
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/export.hpp>
 #include <boost/serialization/map.hpp>
@@ -302,15 +301,6 @@ public:
                 std::chrono::duration<double>(afterPostProcessing - afterProcessing).count();
 
             processing_status_ = processingStatus::PROCESSED;
-        }
-        catch(boost::exception &e) {
-            // Let the audience know we had an error
-            processing_status_ = processingStatus::EXCEPTION_CAUGHT;
-            error_description_stream << "In GProcessingContainerT<>::process():" << std::endl
-                                     << "Processing has thrown a boost exception with message"
-                                     << std::endl
-                                     << boost::diagnostic_information(e) << std::endl
-                                     << "We will rethrow this exception" << std::endl;
         }
         catch(std::exception &e) {
             // Let the audience know we had an error

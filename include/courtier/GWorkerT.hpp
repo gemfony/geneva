@@ -210,12 +210,6 @@ public:
                            << std::endl
                            << e.what() << std::endl;
         }
-        catch(boost::exception &e) {
-            has_error = true;
-            error_streamer << "In GWorkerT<processable_type>::run():" << std::endl
-                           << "Caught boost::exception with message" << std::endl
-                           << boost::diagnostic_information(e) << std::endl;
-        }
         catch(std::exception &e) {
             has_error = true;
             error_streamer << "In GWorkerT<processable_type>::run():" << std::endl
