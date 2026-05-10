@@ -143,8 +143,8 @@ public:
         // Set the external validity level
         validityLevel = this->check(cp);
 
-        if(boost::numeric::bounds<double>::highest() == validityLevel ||
-           boost::numeric::bounds<double>::lowest() == validityLevel) {
+        if(std::numeric_limits<double>::max() == validityLevel ||
+           std::numeric_limits<double>::lowest() == validityLevel) {
             return false;
         }
 
@@ -548,9 +548,9 @@ protected:
             for(d_cit = invalidChecks.begin(); d_cit != invalidChecks.end(); ++d_cit) {
                 // If we encounter an invalidity at the numeric boundaries, we simply
                 // return MAX_DOUBLE
-                if(boost::numeric::bounds<double>::highest() == *d_cit ||
-                   boost::numeric::bounds<double>::lowest() == *d_cit) {
-                    return boost::numeric::bounds<double>::highest();
+                if(std::numeric_limits<double>::max() == *d_cit ||
+                   std::numeric_limits<double>::lowest() == *d_cit) {
+                    return std::numeric_limits<double>::max();
                 }
 
                 result *= *d_cit;
@@ -566,9 +566,9 @@ protected:
             for(d_cit = invalidChecks.begin(); d_cit != invalidChecks.end(); ++d_cit) {
                 // If we encounter an invalidity at the numeric boundaries, we simply
                 // return MAX_DOUBLE
-                if(boost::numeric::bounds<double>::highest() == *d_cit ||
-                   boost::numeric::bounds<double>::lowest() == *d_cit) {
-                    return boost::numeric::bounds<double>::highest();
+                if(std::numeric_limits<double>::max() == *d_cit ||
+                   std::numeric_limits<double>::lowest() == *d_cit) {
+                    return std::numeric_limits<double>::max();
                 }
 
                 result += *d_cit;

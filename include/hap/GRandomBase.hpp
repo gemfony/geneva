@@ -44,10 +44,6 @@
 #include <random>
 #include <sstream>
 
-// Boost headers go here
-#include <boost/cast.hpp>
-#include <boost/math/constants/constants.hpp>
-
 // Hap headers go here
 #include "hap/GHapEnums.hpp"
 #include "hap/GRandomDefines.hpp"

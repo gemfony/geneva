@@ -1042,7 +1042,7 @@ protected:
                 (p_test->setValue(
                     lowerBoundary,
                     lowerBoundary,
-                    boost::numeric::bounds<fp_type>::highest()
+                    std::numeric_limits<fp_type>::max()
                 )),
                 geneva_exception
             );
@@ -1066,7 +1066,7 @@ protected:
 
             // Try to set a boundary to a bad value
             CHECK_THROWS_AS(
-                (p_test->setValue(0., boost::numeric::bounds<fp_type>::lowest(), upperBoundary)),
+                (p_test->setValue(0., std::numeric_limits<fp_type>::lowest(), upperBoundary)),
                 geneva_exception
             );
         }
@@ -1089,7 +1089,7 @@ protected:
 
             // Try to set a boundary to a bad value
             CHECK_THROWS_AS(
-                (p_test->setBoundaries(lowerBoundary, boost::numeric::bounds<fp_type>::highest())),
+                (p_test->setBoundaries(lowerBoundary, std::numeric_limits<fp_type>::max())),
                 geneva_exception
             );
         }
@@ -1112,7 +1112,7 @@ protected:
 
             // Try to set a boundary to a bad value
             CHECK_THROWS_AS(
-                (p_test->setBoundaries(boost::numeric::bounds<fp_type>::lowest(), upperBoundary)),
+                (p_test->setBoundaries(std::numeric_limits<fp_type>::lowest(), upperBoundary)),
                 geneva_exception
             );
         }

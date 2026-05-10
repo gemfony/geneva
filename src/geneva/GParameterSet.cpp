@@ -1011,8 +1011,8 @@ maxMode GParameterSet::getMaxMode() const {
      */
 double GParameterSet::getWorstCase() const {
     return (
-        (maxMode::MAXIMIZE == this->getMaxMode()) ? boost::numeric::bounds<double>::lowest()
-                                                  : boost::numeric::bounds<double>::highest()
+        (maxMode::MAXIMIZE == this->getMaxMode()) ? std::numeric_limits<double>::lowest()
+                                                  : std::numeric_limits<double>::max()
     );
 }
 
@@ -1023,8 +1023,8 @@ double GParameterSet::getWorstCase() const {
      */
 double GParameterSet::getBestCase() const {
     return (
-        (maxMode::MAXIMIZE == this->getMaxMode()) ? boost::numeric::bounds<double>::highest()
-                                                  : boost::numeric::bounds<double>::lowest()
+        (maxMode::MAXIMIZE == this->getMaxMode()) ? std::numeric_limits<double>::max()
+                                                  : std::numeric_limits<double>::lowest()
     );
 }
 
@@ -1656,7 +1656,7 @@ void GParameterSet::process_(const std::vector<parameterset_processing_result> &
             double uniformFitnessValue = 0.;
             if(maxMode::MAXIMIZE == this->getMaxMode()) {
                 // maximize
-                if(boost::numeric::bounds<double>::highest() == validity_level_) {
+                if(std::numeric_limits<double>::max() == validity_level_) {
                     uniformFitnessValue = this->getWorstCase();
                 }
                 else {
@@ -1665,7 +1665,7 @@ void GParameterSet::process_(const std::vector<parameterset_processing_result> &
             }
             else {
                 // minimize
-                if(boost::numeric::bounds<double>::highest() == validity_level_) {
+                if(std::numeric_limits<double>::max() == validity_level_) {
                     uniformFitnessValue = this->getWorstCase();
                 }
                 else {
@@ -1831,7 +1831,7 @@ void GParameterSet::setFitness_(std::vector<double> const &f_cnt) {
             double uniformFitnessValue = 0.;
             if(maxMode::MAXIMIZE == this->getMaxMode()) {
                 // maximize
-                if(boost::numeric::bounds<double>::highest() == validity_level_) {
+                if(std::numeric_limits<double>::max() == validity_level_) {
                     uniformFitnessValue = this->getWorstCase();
                 }
                 else {
@@ -1840,7 +1840,7 @@ void GParameterSet::setFitness_(std::vector<double> const &f_cnt) {
             }
             else {
                 // minimize
-                if(boost::numeric::bounds<double>::highest() == validity_level_) {
+                if(std::numeric_limits<double>::max() == validity_level_) {
                     uniformFitnessValue = this->getWorstCase();
                 }
                 else {

@@ -50,11 +50,6 @@
 #include <sstream>
 #include <thread>
 
-// Boost headers go here
-#include <boost/cast.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/utility.hpp>
-
 // Geneva headers go here
 
 #include "common/GBoundedBufferT.hpp"

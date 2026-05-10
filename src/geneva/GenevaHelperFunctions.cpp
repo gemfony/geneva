@@ -92,11 +92,11 @@ double minOnly_transformed_fitness(
     else {
         // MAXIMIZE
         // Negation will transform maximization problems into minimization problems
-        if(boost::numeric::bounds<double>::highest() == f) {
-            return boost::numeric::bounds<double>::lowest();
+        if(std::numeric_limits<double>::max() == f) {
+            return std::numeric_limits<double>::lowest();
         }
-        else if(boost::numeric::bounds<double>::lowest() == f) {
-            return boost::numeric::bounds<double>::highest();
+        else if(std::numeric_limits<double>::lowest() == f) {
+            return std::numeric_limits<double>::max();
         }
         else {
             return -f;

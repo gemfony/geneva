@@ -115,7 +115,7 @@ std::istream &operator>>(std::istream &i, GCPModes &gbscmode) {
     i >> tmp;
 
 #ifdef DEBUG
-    gbscmode = boost::numeric_cast<GCPModes>(tmp);
+    gbscmode = Gem::Common::narrow_cast<GCPModes>(tmp);
 #else
     gbscmode = static_cast<GCPModes>(tmp);
 #endif /* DEBUG */
@@ -307,7 +307,7 @@ void connectorProducer(
         for(std::size_t i = 0; i < nContainerObjects; i++) {
             data.push_back(std::shared_ptr<WORKLOAD>(new WORKLOAD(nContainerEntries)));
         }
-        nSentItems += boost::numeric_cast<std::uint32_t>(data.size());
+        nSentItems += Gem::Common::narrow_cast<std::uint32_t>(data.size());
 
         std::vector<bool> workItemPos(data.size(), Gem::Courtier::GBC_UNPROCESSED);
         for(auto item_ptr : data) {
@@ -348,8 +348,8 @@ void connectorProducer(
         // Receive a list of old work items
         oldWorkItems = brokerConnector.getOldWorkItems();
 
-        nReceivedItemsNew += boost::numeric_cast<std::uint32_t>(data.size());
-        nReceivedItemsOld += boost::numeric_cast<std::uint32_t>(oldWorkItems.size());
+        nReceivedItemsNew += Gem::Common::narrow_cast<std::uint32_t>(data.size());
+        nReceivedItemsOld += Gem::Common::narrow_cast<std::uint32_t>(oldWorkItems.size());
 
         std::cout << "Cycle " << cycleCounter << " completed in producer " << id << std::endl
                   << std::flush;

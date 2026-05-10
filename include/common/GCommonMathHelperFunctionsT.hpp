@@ -47,7 +47,6 @@
 
 // Boost headers go here
 #include <boost/math/special_functions.hpp>
-#include <boost/numeric/conversion/bounds.hpp>
 
 // Geneva headers go here
 #include "common/GCommonEnums.hpp"
@@ -176,8 +175,8 @@ fp_type getWorstCase(
     typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = nullptr
 ) {
     return (
-        maxMode ? boost::numeric::bounds<fp_type>::lowest()
-                : boost::numeric::bounds<fp_type>::highest()
+        maxMode ? std::numeric_limits<fp_type>::lowest()
+                : std::numeric_limits<fp_type>::max()
     );
 }
 
@@ -192,8 +191,8 @@ fp_type getBestCase(
     typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = nullptr
 ) {
     return (
-        maxMode ? boost::numeric::bounds<fp_type>::highest()
-                : boost::numeric::bounds<fp_type>::lowest()
+        maxMode ? std::numeric_limits<fp_type>::max()
+                : std::numeric_limits<fp_type>::lowest()
     );
 }
 
@@ -209,8 +208,8 @@ fp_type getWorstCase(
 ) {
     return (
         sortOrder == Gem::Common::sortOrder::HIGHERISBETTER
-            ? boost::numeric::bounds<fp_type>::lowest()
-            : boost::numeric::bounds<fp_type>::highest()
+            ? std::numeric_limits<fp_type>::lowest()
+            : std::numeric_limits<fp_type>::max()
     );
 }
 
@@ -226,8 +225,8 @@ fp_type getBestCase(
 ) {
     return (
         sortOrder == Gem::Common::sortOrder::HIGHERISBETTER
-            ? boost::numeric::bounds<fp_type>::highest()
-            : boost::numeric::bounds<fp_type>::lowest()
+            ? std::numeric_limits<fp_type>::max()
+            : std::numeric_limits<fp_type>::lowest()
     );
 }
 

@@ -38,7 +38,6 @@
 #include <type_traits>
 
 // Boost headers go here
-#include <boost/numeric/conversion/cast.hpp>
 
 // Geneva headers go here
 #include "common/GExceptions.hpp"

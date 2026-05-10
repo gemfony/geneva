@@ -482,7 +482,7 @@ protected:
 
             // Try to set a boundary to a bad value
             CHECK_THROWS_AS(
-                p_test->setValue(0, 0, boost::numeric::bounds<int_type>::highest()),
+                p_test->setValue(0, 0, std::numeric_limits<int_type>::max()),
                 geneva_exception
             );
         }
@@ -502,7 +502,7 @@ protected:
 
             // Try to set a boundary to a bad value
             CHECK_THROWS_AS(
-                p_test->setValue(0, boost::numeric::bounds<int_type>::lowest(), 100),
+                p_test->setValue(0, std::numeric_limits<int_type>::lowest(), 100),
                 geneva_exception
             );
         }
@@ -522,7 +522,7 @@ protected:
 
             // Try to set a boundary to a bad value
             CHECK_THROWS_AS(
-                p_test->setBoundaries(0, boost::numeric::bounds<int_type>::highest()),
+                p_test->setBoundaries(0, std::numeric_limits<int_type>::max()),
                 geneva_exception
             );
         }
@@ -542,7 +542,7 @@ protected:
 
             // Try to set a boundary to a bad value
             CHECK_THROWS_AS(
-                p_test->setBoundaries(boost::numeric::bounds<int_type>::lowest(), 100),
+                p_test->setBoundaries(std::numeric_limits<int_type>::lowest(), 100),
                 geneva_exception
             );
         }

@@ -40,7 +40,6 @@
 
 // Boost headers go here
 #include <boost/limits.hpp>
-#include <boost/numeric/conversion/bounds.hpp>
 
 // Geneva headers go here
 #include "GOptimizationEnums.hpp"
@@ -56,11 +55,11 @@ namespace Gem::Geneva {
 template <typename T>
 struct GConstrainedValueLimitT {
     static T highest() {
-        return boost::numeric::bounds<T>::highest();
+        return std::numeric_limits<T>::max();
     }
 
     static T lowest() {
-        return boost::numeric::bounds<T>::lowest();
+        return std::numeric_limits<T>::lowest();
     }
 };
 

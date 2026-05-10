@@ -40,7 +40,6 @@
 #include <typeinfo>
 
 // Boost header files go here
-#include <boost/numeric/conversion/bounds.hpp>
 #include <boost/serialization/split_member.hpp>
 
 // Geneva headers go here

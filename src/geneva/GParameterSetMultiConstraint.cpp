@@ -169,7 +169,7 @@ double GParameterSetFormulaConstraint::check_(const GParameterSet *p) const {
                 << "We will return MAX_DOUBLE" << std::endl
                 << GWARNING;
 
-        return boost::numeric::bounds<double>::highest();
+        return std::numeric_limits<double>::max();
     }
 }
 

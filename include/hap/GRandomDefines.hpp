@@ -34,9 +34,8 @@
 
 // Standard includes go here
 #include <cstdlib>
+#include <limits>
 #include <random>
-
-// Boost includes go here
 
 namespace Gem::Hap {
 
@@ -106,7 +105,7 @@ const std::uint16_t DEFAULT01PRODUCERTHREADS = 2;
  * needed to scale the output of std::minstd_rand0 to a maximum value of 1.
  */
 const double rnr_max =
-    static_cast<double>(boost::numeric::bounds<std::minstd_rand0::result_type>::highest());
+    static_cast<double>(std::numeric_limits<std::minstd_rand0::result_type>::max());
 
 /******************************************************************************/
 /**

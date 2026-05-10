@@ -54,8 +54,6 @@
 
 // Boost headers go here
 #include <boost/algorithm/string.hpp>
-#include <boost/cast.hpp>
-#include <boost/checked_delete.hpp>
 #include <boost/math/special_functions/next.hpp>
 
 // Geneva headers go here
@@ -148,26 +146,24 @@ std::optional<target_type> environmentVariableAs(std::string const &var) {
 
 /******************************************************************************/
 /**
- * Null-safe delete: uses boost::checked_delete (compile-time check for
- * complete type), then sets the pointer to nullptr.
+ * Null-safe delete, then sets the pointer to nullptr.
  */
 template <typename T>
 void g_delete(T *&p) {
     if(p) {
-        boost::checked_delete(p);
+        delete p;
         p = nullptr;
     }
 }
 
 /******************************************************************************/
 /**
- * Null-safe array delete: uses boost::checked_array_delete, then sets the
- * pointer to nullptr.
+ * Null-safe array delete, then sets the pointer to nullptr.
  */
 template <typename T>
 void g_array_delete(T *&p) {
     if(p) {
-        boost::checked_array_delete(p);
+        delete[] p;
         p = nullptr;
     }
 }
