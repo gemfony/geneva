@@ -37,11 +37,6 @@
 #include <random>
 
 // Boost header files go here
-#include <boost/uuid/random_generator.hpp>
-#include <boost/uuid/uuid.hpp>
-#include <boost/uuid/uuid_generators.hpp>
-#include <boost/uuid/uuid_io.hpp>
-#include <boost/uuid/uuid_serialize.hpp>
 
 // Geneva header files go here
 #include "common/GExceptions.hpp"
@@ -676,9 +671,7 @@ private:
         true; ///< Specifies whether adaptions of this object should be carried out
     bool randomInitializationBlocked_ =
         false; ///< Specifies that this object should not be initialized again
-    std::string parameterName_ = Gem::Common::to_string(
-        boost::uuids::random_generator()()
-    ); ///< A name assigned to this parameter object
+    std::string parameterName_ = Gem::Common::generate_uuid_v4(); ///< A name assigned to this parameter object
 };
 
 /******************************************************************************/

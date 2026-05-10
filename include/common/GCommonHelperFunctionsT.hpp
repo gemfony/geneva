@@ -35,6 +35,7 @@
 // Standard headers go here
 #include <chrono>
 #include <cmath>
+#include <cstdint>
 #include <cstdlib>
 #include <iomanip>
 #include <iostream>
@@ -43,6 +44,7 @@
 #include <memory>
 #include <mutex>
 #include <optional>
+#include <random>
 #include <sstream>
 #include <stdexcept>
 #include <string>
@@ -88,6 +90,30 @@ To narrow_cast(From value) {
         }
     }
     return result;
+}
+
+/******************************************************************************/
+/**
+ * Generates a UUID v4 string (e.g. "550e8400-e29b-41d4-a716-446655440000").
+ * Uses a thread-local Mersenne-Twister seeded from std::random_device.
+ */
+inline std::string generate_uuid_v4() {
+    static thread_local std::mt19937_64 rng{std::random_device{}()};
+    std::uniform_int_distribution<std::uint64_t> dist;
+    std::uint64_t hi = dist(rng);
+    std::uint64_t lo = dist(rng);
+    // Set version 4 (nibble at bits 15-12 of `hi`, i.e. the 3rd group nibble)
+    hi = (hi & 0xFFFFFFFFFFFF0FFFULL) | 0x0000000000004000ULL;
+    // Set variant 10xx (top 2 bits of lo's most-significant byte)
+    lo = (lo & 0xBFFFFFFFFFFFFFFFULL) | 0x8000000000000000ULL;
+    std::ostringstream oss;
+    oss << std::hex << std::setfill('0')
+        << std::setw(8) << static_cast<std::uint32_t>(hi >> 32) << '-'
+        << std::setw(4) << static_cast<std::uint32_t>((hi >> 16) & 0xFFFFU) << '-'
+        << std::setw(4) << static_cast<std::uint32_t>(hi & 0xFFFFU) << '-'
+        << std::setw(4) << static_cast<std::uint32_t>(lo >> 48) << '-'
+        << std::setw(12) << (lo & 0x0000FFFFFFFFFFFFULL);
+    return oss.str();
 }
 
 /******************************************************************************/

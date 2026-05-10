@@ -1267,7 +1267,7 @@ void GExternalEvaluatorIndividualFactory::archive(
     std::chrono::milliseconds ms_since_1970 =
         std::chrono::duration_cast<std::chrono::milliseconds>(p2 - p1);
     std::string extension = "-since1970-" + Gem::Common::to_string(ms_since_1970.count()) +
-                            Gem::Common::to_string(boost::uuids::random_generator()()) + ".xml";
+                            Gem::Common::generate_uuid_v4() + ".xml";
     std::string parameterfileName = parameterFileBaseName_.value() + extension;
 
     // Save the parameters to a file for the external evaluation
