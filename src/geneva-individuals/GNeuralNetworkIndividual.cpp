@@ -331,18 +331,18 @@ void networkData::addTrainingSet(std::shared_ptr<trainingSet> tS, const std::siz
 /******************************************************************************/
 /**
  * Retrieves a training set at a given position. If the position exceeds the size of the array,
- * a boost::optional object is returned which evaluates to "false".
+ * a std::nullopt is returned which evaluates to "false".
  *
  * @param pos The position from which an item should be retreived
- * @return The training set at the requested position (or a boost::optional object which evaluates to "false")
+ * @return The training set at the requested position (or std::nullopt)
  */
-boost::optional<std::shared_ptr<trainingSet>>
+std::optional<std::shared_ptr<trainingSet>>
 networkData::getTrainingSet(const std::size_t &pos) const {
     if(pos >= arraySize_) {
-        return boost::optional<std::shared_ptr<trainingSet>>(); // amounts to "false"
+        return std::nullopt;
     }
     else {
-        return boost::optional<std::shared_ptr<trainingSet>>(data_[pos]);
+        return data_[pos];
     }
 }
 
@@ -1441,7 +1441,7 @@ double GNeuralNetworkIndividual::fitnessCalculation() {
 
     // Now loop over all data sets
     std::size_t currentPos = 0;
-    boost::optional<std::shared_ptr<trainingSet>> o;
+    std::optional<std::shared_ptr<trainingSet>> o;
     while((o = nD_->getTrainingSet(currentPos++))) {
         // Retrieve a constant reference to the training data set for faster access
         const trainingSet &tS = **o;

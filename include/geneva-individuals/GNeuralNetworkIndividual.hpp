@@ -38,6 +38,7 @@
 #include <fstream>
 #include <iostream>
 #include <mutex>
+#include <optional>
 #include <sstream>
 #include <vector>
 
@@ -245,7 +246,7 @@ public:
     /** @brief Adds a new training set to the collection, Requires for the network architecture to be defined already */
     void addTrainingSet(std::shared_ptr<trainingSet>, const std::size_t &);
     /** @brief Retrieves  training set at a given position */
-    boost::optional<std::shared_ptr<trainingSet>>
+    std::optional<std::shared_ptr<trainingSet>>
 
     getTrainingSet(const std::size_t &) const;
 

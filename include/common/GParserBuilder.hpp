@@ -41,6 +41,7 @@
 #include <iostream>
 #include <map>
 #include <mutex>
+#include <optional>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -206,12 +207,12 @@ private:
 
     // Value retrieval will look at each entry of the map until it finds one that was set.
     // If none was set, the default value will be returned
-    std::map<Gem::Common::parameter_source, boost::optional<parameter_type>> parameter_values_{
-        {Gem::Common::parameter_source::NETWORK, boost::optional<parameter_type>()},
-        {Gem::Common::parameter_source::COMMAND_LINE, boost::optional<parameter_type>()},
-        {Gem::Common::parameter_source::ENVIRONMENT_VARIABLE, boost::optional<parameter_type>()},
-        {Gem::Common::parameter_source::CONFIGURATION_FILE, boost::optional<parameter_type>()},
-        {Gem::Common::parameter_source::ASSIGNMENT, boost::optional<parameter_type>()}
+    std::map<Gem::Common::parameter_source, std::optional<parameter_type>> parameter_values_{
+        {Gem::Common::parameter_source::NETWORK, std::optional<parameter_type>()},
+        {Gem::Common::parameter_source::COMMAND_LINE, std::optional<parameter_type>()},
+        {Gem::Common::parameter_source::ENVIRONMENT_VARIABLE, std::optional<parameter_type>()},
+        {Gem::Common::parameter_source::CONFIGURATION_FILE, std::optional<parameter_type>()},
+        {Gem::Common::parameter_source::ASSIGNMENT, std::optional<parameter_type>()}
     };
 };
 
