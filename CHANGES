@@ -12,6 +12,13 @@ Recommended Versions:
 
 ********************** INCOMPATIBILITIES / PLEASE NOTE *************************
 
+- Static linking support (BUILDSTATIC / GENEVA_STATIC / GENEVA_STATIC=TRUE) has
+  been removed. Geneva now builds exclusively as shared libraries. Any build scripts
+  that set BUILDSTATIC="1" or pass -DGENEVA_STATIC=TRUE must be updated to remove
+  that setting. The five Geneva shared libraries (gemfony-common, gemfony-hap,
+  gemfony-courtier, gemfony-geneva, gemfony-geneva-individuals) are always built
+  as SHARED; BUILD_SHARED_LIBS is always ON; GEM_DYNAMIC is always defined.
+
 - gemfony_exception was renamed to geneva_exception (~128 files). Any user code that
   catches or explicitly names this exception type must be updated accordingly.
 - The Boost.Test library linkage has been removed from the build-system, instead Geneva now
@@ -95,6 +102,38 @@ Recommended Versions:
   include/geneva/tests/Geneva_tests.hpp is no longer part of the installed public
   API; it remains in the source tree for internal use by Geneva's own test drivers.
   Users writing tests against Geneva classes should use Catch2 directly.
+
+- Static linking support removed (see INCOMPATIBILITIES above). The
+  CMakeModules/CommonGenevaBuild.cmake and CMakeModules/IdentifySystemParameters.cmake
+  files (and their copies under examples/*/CMakeModules/) have been simplified
+  accordingly: the GENEVA_STATIC_FLAG_IN function parameter, the BUILD_SHARED_LIBS
+  conditional, the Boost_USE_STATIC_LIBS conditional, and the optional dl/z library
+  search on UNIX have all been removed.
+
+- CUDA build improvements:
+  - New SKIPALLCUDA / GENEVA_SKIP_CUDA option in genevaConfig.gcfg and prepareBuild.sh.
+    When set to 1, all CUDA compilation is unconditionally disabled: example 15
+    (GCUDAWorker), the CUDA benchmark (GCUDAOptBenchmark), and the optional CUDA RNG
+    in Hap are excluded from the build even if nvcc is present on the system.
+    GENEVA_USE_CUDA_RNG is force-overridden to OFF. Useful when the installed CUDA
+    is broken or incompatible (e.g. CUDA 13.1 + glibc 2.39 rsqrt/noexcept mismatch).
+  - New CUDA_NVCC / CUDA_ROOT variables in genevaConfig.gcfg and prepareBuild.sh.
+    These allow pinning a specific CUDA toolkit version when multiple toolkits are
+    installed side-by-side. CMAKE_CUDA_COMPILER is passed to CMake; CUDAToolkit_ROOT
+    is automatically derived from it so find_package(CUDAToolkit) locates the
+    matching headers and libraries.
+  - find_package(CUDAToolkit) is now called after enable_language(CUDA) in the
+    top-level CMakeLists.txt and in examples/geneva/15_GCUDAWorker/CMakeLists.txt.
+    This makes CUDA::cudart an explicit link target for GCUDAWorker, fixing an
+    "undefined reference to cudaGetDeviceProperties_v2" linker error that occurred
+    with CUDA 12+ toolkits when multiple CUDA versions are installed.
+  - NVCC diagnostic 20012 (spurious __host__/__device__ annotation warnings from
+    Boost.Fusion headers) suppressed via -diag-suppress=20012, using the same
+    $<$<COMPILE_LANGUAGE:CUDA>:...> generator expression as the existing suppressions
+    for diagnostics 68, 186, and 191 — non-CUDA translation units are unaffected.
+  - GImageBuilder.cpp: clockRate and memoryClockRate fields of cudaDeviceProp are
+    guarded with #if CUDART_VERSION < 12000 — both were removed from the struct in
+    CUDA 12.0.
 
 - Fixed compilation issues for CUDA example, related to mismatch of compiler- and CUDA-versions.
 

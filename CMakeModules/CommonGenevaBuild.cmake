@@ -52,10 +52,6 @@ IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
 		SET( GENEVA_BUILD_TESTS TRUE )
 	ENDIF()
 
-	IF( NOT DEFINED GENEVA_STATIC )
-		SET( GENEVA_STATIC FALSE )
-	ENDIF()
-
 	IF( NOT DEFINED CMAKE_VERBOSE_MAKEFILE )
 		SET( CMAKE_VERBOSE_MAKEFILE FALSE )
 	ENDIF()
@@ -86,7 +82,6 @@ IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
 			${GENEVA_OS_NAME}
 			${GENEVA_OS_VERSION}
 			${GENEVA_BUILD_TYPE}
-			${GENEVA_STATIC}
 	)
 
 	################################################################################
@@ -108,14 +103,12 @@ IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
 			${GENEVA_OS_NAME}
 			${GENEVA_OS_VERSION}
 			${GENEVA_BUILD_TYPE}
-			${GENEVA_STATIC}
 	)
 
 	SET_LINKER_FLAGS (
 			${GENEVA_OS_NAME}
 			${GENEVA_OS_VERSION}
 			${GENEVA_BUILD_TYPE}
-			${GENEVA_STATIC}
 	)
 
 	################################################################################
@@ -125,21 +118,16 @@ IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
 			${GENEVA_OS_NAME}
 			${GENEVA_OS_VERSION}
 			${GENEVA_BUILD_TYPE}
-			${GENEVA_STATIC}
 			"PLATFORM_NEEDS_LIBRARY_LINKING"
 	)
 
 	################################################################################
-	# Set the build mode static or dynamic
+	# Geneva only supports shared libraries
 
-	IF ( GENEVA_STATIC )
-		SET (BUILD_SHARED_LIBS OFF)
-	ELSE () # dynamic libraries
-		SET (BUILD_SHARED_LIBS ON)
-		# This preprocessor definition is required for knowing
-		# if API-exporting is needed in the code or not
-		ADD_DEFINITIONS("-DGEM_DYNAMIC")
-	ENDIF ()
+	SET (BUILD_SHARED_LIBS ON)
+	# This preprocessor definition is required for knowing
+	# if API-exporting is needed in the code or not
+	ADD_DEFINITIONS("-DGEM_DYNAMIC")
 
 	################################################################################
 	# Set the preprocessor definition for enabling testing code
@@ -157,24 +145,11 @@ IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
 			"1.90"
 	)
 
-	IF ( GENEVA_STATIC )
-		SET (Boost_USE_STATIC_LIBS ON)
-	ELSE () # Dynamic libraries
-		SET (Boost_USE_STATIC_LIBS OFF)
-		IF(WIN32)
-			# Disable auto-linking
-			ADD_DEFINITIONS("-DBOOST_ALL_DYN_LINK")
-
-			# Catch2 is a header-only / static library. Building shared Geneva
-			# libraries with testing code under Windows is currently unsupported.
-			IF (GENEVA_BUILD_TESTS)
-				MESSAGE (FATAL_ERROR "Building shared libraries with testing"
-						" code under Windows is currently not suported."
-						" Please set GENEVA_STATIC=TRUE or GENEVA_BUILD_TESTS=FALSE.")
-			ENDIF ()
-
-		ENDIF()
-	ENDIF ()
+	SET (Boost_USE_STATIC_LIBS OFF)
+	IF(WIN32)
+		# Disable auto-linking
+		ADD_DEFINITIONS("-DBOOST_ALL_DYN_LINK")
+	ENDIF()
 
 	# The minimum Boost version required for building Geneva and Geneva applications
 	SET (GENEVA_MIN_BOOST_VERSION 1.90)
@@ -272,14 +247,6 @@ IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
 		FIND_LIBRARY( PTHREAD_LIBRARY NAMES pthread
 				DOC "The threading library needed by Geneva"
 		)
-		IF( GENEVA_STATIC )
-			FIND_LIBRARY( DL_LIBRARY NAMES dl
-					DOC "The dl library needed for statically linking Geneva"
-			)
-			FIND_LIBRARY( Z_LIBRARY NAMES z
-					DOC "The z library needed for statically linking Geneva"
-			)
-		ENDIF()
 	ENDIF()
 
 	################################################################################
@@ -392,11 +359,7 @@ IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
 	ELSE ()
 		MESSAGE ("\ta Geneva application")
 	ENDIF ()
-	IF (GENEVA_STATIC)
-		MESSAGE ("\tstatically linked")
-	ELSE ()
-		MESSAGE ("\tdynamically linked")
-	ENDIF ()
+	MESSAGE ("\tdynamically linked")
 	IF (GENEVA_BUILD_TESTS)
 		MESSAGE ("\tincluding testing code")
 	ELSE ()

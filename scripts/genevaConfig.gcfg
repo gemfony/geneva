@@ -77,9 +77,6 @@ BUILDEXAMPLES="1"
 # Whether to build Geneva with benchmarks
 BUILDBENCHMARKS="1"
 
-# Whether to build static code / libraries (experimental!)
-BUILDSTATIC="0"
-
 # Whether compilation information should be emitted
 VERBOSEMAKEFILE="0"
 

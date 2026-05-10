@@ -207,7 +207,6 @@ FUNCTION (
 	GENEVA_OS_NAME_IN
 	GENEVA_OS_VERSION_IN
 	GENEVA_BUILD_MODE_IN
-	GENEVA_STATIC_FLAG_IN
 )
 
 	# We may use ADD_COMPILE_OPTIONS() but that sets the options in the current
@@ -284,7 +283,6 @@ FUNCTION (
 	GENEVA_OS_NAME_IN
 	GENEVA_OS_VERSION_IN
 	GENEVA_BUILD_MODE_IN
-	GENEVA_STATIC_FLAG_IN
 )
 
 	#--------------------------------------------------------------------------
@@ -293,17 +291,13 @@ FUNCTION (
 		# For Clang on MacOSX we require the standard C++ library
 		IF(${GENEVA_OS_NAME_IN} STREQUAL "MacOSX")
 			SET (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libc++" PARENT_SCOPE)
-			IF(NOT GENEVA_STATIC)
-				SET (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -stdlib=libc++" PARENT_SCOPE)
-				SET (MACOSX_RPATH 1)
-			ENDIF()
+			SET (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -stdlib=libc++" PARENT_SCOPE)
+			SET (MACOSX_RPATH 1)
 		ELSEIF(${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS 3.7)
 			# Avoid https://llvm.org/bugs/show_bug.cgi?id=18402
 			# when using older libstdc++ versions
 			SET (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libc++" PARENT_SCOPE)
-			IF(NOT GENEVA_STATIC)
-				SET (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -stdlib=libc++" PARENT_SCOPE)
-			ENDIF()
+			SET (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -stdlib=libc++" PARENT_SCOPE)
 		ENDIF()
 
 	#*****************************************************************
@@ -312,9 +306,7 @@ FUNCTION (
 		# For GCC version < 9.0 add the filesystem library explicitely
 		IF(${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS 9.0)
 			SET (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -lstdc++fs" PARENT_SCOPE)
-			IF(NOT GENEVA_STATIC)
-				SET (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -lstdc++fs" PARENT_SCOPE)
-			ENDIF()
+			SET (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -lstdc++fs" PARENT_SCOPE)
 		ENDIF()
 
 	ENDIF()
@@ -330,7 +322,6 @@ FUNCTION (
 	GENEVA_OS_NAME_IN
 	GENEVA_OS_VERSION_IN
 	GENEVA_BUILD_MODE_IN
-	GENEVA_STATIC_FLAG_IN
 	PLATFORM_NEEDS_LIBRARY_LINKING_OUT
 )
 
@@ -357,7 +348,6 @@ FUNCTION (
 	GENEVA_OS_NAME_IN
 	GENEVA_OS_VERSION_IN
 	GENEVA_BUILD_MODE_IN
-	GENEVA_STATIC_FLAG_IN
 )
 
 	#--------------------------------------------------------------------------
@@ -376,14 +366,6 @@ FUNCTION (
 			MESSAGE("# Geneva only supports MacOS X >= 10.9 / Mavericks #")
 			MESSAGE("####################################################")
 			MESSAGE(FATAL_ERROR "Unsupported platform Darwin ${GENEVA_OS_VERSION_IN} !")
-		ENDIF()
-
-		# Static linking on MacOSX is currently not supported
-		IF(GENEVA_STATIC_FLAG_IN)
-			MESSAGE("##################################################################")
-			MESSAGE("# Static linking is currently not supported by Geneva on MacOS X #")
-			MESSAGE("##################################################################")
-			MESSAGE(FATAL_ERROR "Unsupported platform!")
 		ENDIF()
 
 	ELSEIF(${GENEVA_OS_NAME_IN} STREQUAL "Linux")
