@@ -230,10 +230,6 @@ GParsableI &GParsableI::operator<<(nextComment const & /*nC*/) {
 std::vector<std::string> GParsableI::splitComment(std::string const &comment) const {
     std::vector<std::string> results;
 
-    // Needed for the separation of comment strings
-    using tokenizer = boost::tokenizer<boost::char_separator<char>>;
-    boost::char_separator<char> semicolon_sep(";");
-
     if(not comment.empty() && comment != "empty") {
         // First split the comment according to newlines
         std::vector<std::string> nlComments;
@@ -242,8 +238,7 @@ std::vector<std::string> GParsableI::splitComment(std::string const &comment) co
 
         // Break the sub-comments into individual lines after each semicolon
         while(std::getline(buffer, line)) {
-            tokenizer commentTokenizer(line, semicolon_sep);
-            for(auto const &t : commentTokenizer) {
+            for(auto const &t : Gem::Common::splitString(line, ";")) {
                 results.push_back(t);
             }
 
@@ -522,18 +517,13 @@ void GParserBuilder::writeConfigFile(
         );
     }
 
-    // Needed for the separation of comment strings
-    using tokenizer = boost::tokenizer<boost::char_separator<char>>;
-    boost::char_separator<char> semicolon_sep(";");
-
     // Create a property tree object;
     boost::property_tree::ptree ptr; // NOLINT(cppcoreguidelines-init-variables)
 
     // Output a header
     if(not header.empty()) {
         // Break the header into individual tokens
-        tokenizer headerTokenizer(header, semicolon_sep);
-        for(auto const &h : headerTokenizer) {
+        for(auto const &h : Gem::Common::splitString(header, ";")) {
             ptr.add("header.comment", std::string(h).c_str());
         }
     }

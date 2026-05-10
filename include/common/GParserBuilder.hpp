@@ -71,7 +71,6 @@
 #include <boost/serialization/tracking.hpp>
 #include <boost/serialization/utility.hpp>
 #include <boost/serialization/vector.hpp>
-#include <boost/tokenizer.hpp>
 
 // Geneva header files go here
 #include "common/GCommonEnums.hpp"
