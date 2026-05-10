@@ -22,6 +22,59 @@ optional automatic timestamp recording.
 
 ---
 
+## 0. Knowledge Persistence Protocol
+
+> **Claude: Read this section before doing anything else, and re-read it after every
+> context compression event.**
+
+### Purpose
+
+During development, Claude discovers format facts, resolves spec ambiguities, makes
+build-system decisions, and learns test-infrastructure quirks. These findings must
+survive context compression. The **§20 Knowledge Log** at the end of this file is
+Claude's persistent notepad — entries written there are "notes from Claude to itself"
+that outlast any context window.
+
+### When to write a §20 entry
+
+**Immediately** — as soon as a finding is confirmed, before the next tool call.
+Do not batch findings for later. Context compression can happen at any moment.
+Write an entry for:
+
+- Any format fact confirmed by reference-file inspection (byte layout, field sizes,
+  encoding details that the spec leaves ambiguous)
+- Any resolved specification ambiguity
+- Any build-system or dependency decision discovered through trial
+- Any ROOT validation quirk or Docker/CI infrastructure finding
+- Any finding that, if forgotten, would require repeating non-trivial research
+
+Do NOT write entries for things already documented in §9 or elsewhere in this file.
+§9 is the authoritative format reference; §20 captures *new* discoveries made during
+implementation.
+
+### After every context compression event
+
+**The first action after any compression must be:**
+
+1. Re-read `prompts/rntuple_writer_tdd_claude_prompt_v2.md` starting from §20
+   (the Knowledge Log) to recover all persisted findings
+2. Briefly summarise which entries are now active context
+3. Then continue implementation from where the work left off
+
+Skipping step 1 means repeating research that has already been done.
+
+### §20 entry format
+
+```
+### YYYY-MM-DD: <one-line summary>
+**Type:** format-fact | spec-ambiguity | build-decision | test-finding | env-finding
+**Finding:** <confirmed fact, specific enough to act on>
+**Source:** <spec section / reference-file hash:offset / experiment / tool output>
+**Impact:** <what changes in the implementation because of this>
+```
+
+---
+
 ## 1. Why this plan looks like it does
 
 This project implements a **publicly specified binary format**. The specification (RNTuple
@@ -38,8 +91,8 @@ places where it is silent. The plan therefore uses a hybrid approach:
   surfaces format details before the disciplined work begins
 - **Bare-file before TFile** (Phase 6 vs 7): the bare-file container is far simpler;
   targeting it first removes the hardest risk from the critical path
-- **Continuous external validation** (Phase 0 onwards): ROOT runs in a Docker container
-  as part of CI from day one
+- **Continuous external validation** (Phase 0 onwards): ROOT 6.36.12 is installed on
+  the development machine at `/opt/root/`; validation scripts invoke it directly
 - **Reference-file methodology**: every non-trivial format claim is cross-checked against
   a ROOT-generated reference file, with the hex dump committed to the repository
 - **Explicit time-boxes and abort criteria**: high-risk phases have scheduled go/no-go
@@ -59,12 +112,12 @@ The library must:
 5. Not link against ROOT in the library target itself
 6. Be developed test-first wherever the test can be written first
 7. Follow all Geneva coding conventions:
-   - Class names begin with uppercase `G` (e.g., `GRNTupleWriter`, `GRNTupleFile`)
+   - Class names begin with uppercase `G` (e.g., `GChronicleWriter`, `GChronicleFile`)
    - All code is formatted with the Geneva `.clang-format` configuration
    - All code passes the Geneva `.clang-tidy` configuration
    - Exceptions use Geneva exception types from `common/GExceptions.hpp`
    - Logging uses `common/GLogger.hpp`
-   - The CMake target is named `gemfony-rntuple` following the `gemfony-*` convention
+   - The CMake target is named `gemfony-chronicle` following the `gemfony-*` convention
 8. Have a documented clean-room policy
 9. Have a documented assumptions and ambiguities log
 10. Have reproducible tests, golden files, and ROOT compatibility validation
@@ -92,12 +145,12 @@ For each non-trivial format element:
 1. Read the relevant section of the public RNTuple format specification
 2. If unambiguous, write a test encoding that requirement
 3. If the spec has gaps, generate a reference `.root` file with ROOT in the validation
-   environment, commit it under `tests/rntuple/fixtures/reference_files/`, hex-dump and
+   environment, commit it under `tests/chronicle/fixtures/reference_files/`, hex-dump and
    annotate it, write a test asserting our writer produces semantically equivalent output
 4. Implement the writer code
 5. Run ROOT against our output to confirm
 
-When a test is changed after discovering format reality, append to `docs/rntuple/assumptions.md`:
+When a test is changed after discovering format reality, append to `docs/chronicle/assumptions.md`:
 
 ```markdown
 ## YYYY-MM-DD: Test refinement: <test name>
@@ -125,7 +178,7 @@ Tests must never be silently rewritten to match a broken implementation.
 |---|---|---|---|
 | −2 | Environment check | 1 day | Blocker found → fix before proceeding |
 | −1 | Spike prototype | 1–2 weeks | Spike fails to produce ROOT-readable bare file → escalate |
-| 0 | Skeleton + validation infra | 3–5 days | Docker ROOT validation cannot be automated → fix first |
+| 0 | Skeleton + validation infra | 3–5 days | ROOT validation fails after fixing PATH → investigate before proceeding |
 | 1–4 | Primitives, schema, buffers, pages | 1–2 weeks | None expected; pure TDD |
 | 5 | RNTuple envelopes | 1–2 weeks | None expected |
 | 6 | Bare-file embedding | 1 week | Not accepted by RNTupleReader after 2 weeks → reconsider |
@@ -139,7 +192,7 @@ Tests must never be silently rewritten to match a broken implementation.
 
 ## 5. Clean-room policy
 
-Create `docs/rntuple/clean-room-policy.md` before writing implementation code.
+Create `docs/chronicle/clean-room-policy.md` before writing implementation code.
 
 ### Allowed sources
 
@@ -162,7 +215,7 @@ Create `docs/rntuple/clean-room-policy.md` before writing implementation code.
 - Translations of ROOT C++ code into another form
 
 If a ROOT source file is opened to confirm a spec ambiguity, the exact question must first
-be written in `docs/rntuple/assumptions.md`; only the factual answer (e.g. "the field uses
+be written in `docs/chronicle/assumptions.md`; only the factual answer (e.g. "the field uses
 little-endian uint32_t") may be transferred. No code, no algorithm, no class layout.
 
 ### Permitted validation
@@ -178,23 +231,23 @@ Byte-identical output is **not required**.
 
 ## 6. Geneva integration: repository structure
 
-The library lives inside the Geneva source tree under a new `rntuple` component, following
+The library lives inside the Geneva source tree under a new `chronicle` component, following
 the same `include/<lib>/` + `src/<lib>/` pattern used by `common`, `hap`, `courtier`,
 `geneva`, and `geneva-individuals`.
 
 ```text
 <geneva-root>/
 ├── include/
-│   └── rntuple/
-│       ├── GRNTupleFile.hpp            # top-level file handle
-│       ├── GRNTupleWriter.hpp          # writer for one ntuple
-│       ├── GRNTupleField.hpp           # typed field handle
-│       ├── GRNTupleOptions.hpp         # configuration (page size, compression, embedding)
-│       ├── GRNTupleAdaptor.hpp         # base concept/interface for streaming adaptors
-│       ├── GRNTupleStream.hpp          # streaming interface template
-│       └── GRNTupleVersion.hpp         # library version
+│   └── chronicle/
+│       ├── GChronicleFile.hpp            # top-level file handle
+│       ├── GChronicleWriter.hpp          # writer for one ntuple
+│       ├── GChronicleField.hpp           # typed field handle
+│       ├── GChronicleOptions.hpp         # configuration (page size, compression, embedding)
+│       ├── GChronicleAdaptor.hpp         # base concept/interface for streaming adaptors
+│       ├── GChronicleStream.hpp          # streaming interface template
+│       └── GChronicleVersion.hpp         # library version
 ├── src/
-│   └── rntuple/
+│   └── chronicle/
 │       ├── CMakeLists.txt
 │       ├── binary/
 │       │   ├── GEndianWriter.cpp
@@ -212,11 +265,11 @@ the same `include/<lib>/` + `src/<lib>/` pattern used by `common`, `hap`, `court
 │       │   ├── GTKeyWriter.cpp
 │       │   └── GAnchorWriter.cpp
 │       └── writer/
-│           ├── GRNTupleFile.cpp
-│           ├── GRNTupleWriter.cpp
+│           ├── GChronicleFile.cpp
+│           ├── GChronicleWriter.cpp
 │           └── GColumnBuffer.cpp
 ├── tests/
-│   └── rntuple/
+│   └── chronicle/
 │       ├── CMakeLists.txt
 │       ├── unit/
 │       ├── golden/
@@ -227,7 +280,7 @@ the same `include/<lib>/` + `src/<lib>/` pattern used by `common`, `hap`, `court
 │           ├── reference_files/        # ROOT-generated committed binaries
 │           └── reference_dumps/        # annotated hex dumps
 ├── examples/
-│   └── rntuple/
+│   └── chronicle/
 │       ├── CMakeLists.txt
 │       ├── GSimpleWrite.cpp            # minimal: write a few scalars
 │       ├── GBatchWrite.cpp             # batch/container API
@@ -235,7 +288,7 @@ the same `include/<lib>/` + `src/<lib>/` pattern used by `common`, `hap`, `court
 │       ├── GTimeSeriesWrite.cpp        # timestamp recording
 │       └── GComplexObjectWrite.cpp     # struct decomposition via adaptor
 └── docs/
-    └── rntuple/
+    └── chronicle/
         ├── clean-room-policy.md
         ├── design.md
         ├── assumptions.md
@@ -248,12 +301,35 @@ the same `include/<lib>/` + `src/<lib>/` pattern used by `common`, `hap`, `court
 The CMake target name follows Geneva's `gemfony-*` convention:
 
 ```cmake
-ADD_LIBRARY( gemfony-rntuple SHARED ${RNTUPLE_SOURCES} )
+ADD_LIBRARY( gemfony-chronicle SHARED ${CHRONICLE_SOURCES} )
 ```
 
 The library links against `gemfony-common` (for `GLogger`, `GExceptions`). It does **not**
 link against `gemfony-hap`, `gemfony-courtier`, `gemfony-geneva`, or any optimization
 component. It is a standalone I/O utility library within the Geneva ecosystem.
+
+### 6.1 Geneva integration constraints
+
+- **Other Geneva libraries** (`hap`, `courtier`, `geneva`, `geneva-individuals`) must
+  **not** be modified as part of this project. `chronicle` is a new standalone addition
+  to the Geneva tree; it must not require changes to existing Geneva code.
+
+- **`gemfony-common`** may be modified to add general utility that is genuinely useful
+  beyond `chronicle` (e.g., a new endian helper, a new exception category). Every such
+  addition must:
+  - Not change or break any existing API, class, or behaviour in `common`
+  - Not break any existing Geneva library, test, or example
+  - Pass the full Geneva build and test suite before the `chronicle` code that relies
+    on the addition is written (build-test gate)
+  - Be committed as a separate commit on `chronicle-draft`, before and independent of
+    the `chronicle` code that depends on it
+
+- **Build-system changes** (any `CMakeLists.txt` outside `chronicle/`, any file under
+  `CMakeModules/`) are subject to the same build-test gate.
+
+- `gemfony-chronicle` must link against `gemfony-common` only. It must **not**
+  transitively pull in `gemfony-hap`, `gemfony-courtier`, `gemfony-geneva`, or any
+  optimization component.
 
 ---
 
@@ -263,16 +339,16 @@ Integrated into Geneva's existing CMake infrastructure (CMake 3.27+, C++20). New
 options in `genevaConfig.gcfg` and `prepareBuild.sh`:
 
 ```cmake
-option(GENEVA_BUILD_RNTUPLE        "Build the RNTuple writer library"         OFF)
-option(RNTW_ENABLE_ROOT_VALIDATION "Run external ROOT validation tests"        OFF)
-option(RNTW_WITH_ZSTD              "Enable ZSTD compression"                   OFF)
-option(RNTW_WITH_LZ4               "Enable LZ4 compression"                    OFF)
-option(RNTW_WITH_ZLIB              "Enable ZLIB compression"                   OFF)
-option(RNTW_USE_SYSTEM_XXHASH      "Link libxxhash instead of vendoring"        ON)
-option(RNTW_ENABLE_SANITIZERS      "Enable ASan/UBSan in rntuple tests"         OFF)
+option(GENEVA_BUILD_CHRONICLE        "Build the RNTuple writer library"         OFF)
+option(GCHR_ENABLE_ROOT_VALIDATION "Run external ROOT validation tests"        OFF)
+option(GCHR_WITH_ZSTD              "Enable ZSTD compression"                   OFF)
+option(GCHR_WITH_LZ4               "Enable LZ4 compression"                    OFF)
+option(GCHR_WITH_ZLIB              "Enable ZLIB compression"                   OFF)
+option(GCHR_USE_SYSTEM_XXHASH      "Link libxxhash instead of vendoring"        ON)
+option(GCHR_ENABLE_SANITIZERS      "Enable ASan/UBSan in chronicle tests"         OFF)
 ```
 
-When `GENEVA_BUILD_RNTUPLE=ON`, the `src/rntuple/CMakeLists.txt` is included. The library
+When `GENEVA_BUILD_CHRONICLE=ON`, the `src/chronicle/CMakeLists.txt` is included. The library
 target must not transitively pull in any ROOT dependency. The ROOT-validation tests are a
 separate CTest target that `exec()`s the `root` binary at runtime.
 
@@ -281,9 +357,26 @@ Ubuntu); allow vendoring for portability.
 
 clang-format and clang-tidy must pass. Run:
 ```bash
-clang-format --dry-run --Werror $(find include/rntuple src/rntuple -name "*.hpp" -o -name "*.cpp")
-clang-tidy $(find src/rntuple -name "*.cpp") -- -I include -std=c++20
+clang-format --dry-run --Werror $(find include/chronicle src/chronicle -name "*.hpp" -o -name "*.cpp")
+clang-tidy $(find src/chronicle -name "*.cpp") -- -I include -std=c++20
 ```
+
+### 7.1 Development branch
+
+All development happens on branch **`chronicle-draft`**, which is cloned from
+`catch2-migration`:
+
+```bash
+git checkout catch2-migration
+git checkout -b chronicle-draft
+```
+
+The main integration branch of the Geneva repository is `develop`. When the bare-file
+deliverable is complete and all acceptance criteria in §16 are met, open a PR from
+`chronicle-draft` into `develop`.
+
+Do not push `chronicle-draft` to `origin` until the Phase 0 skeleton is in place and
+the CI matrix in §14 passes on at least the `ubuntu-24.04 gcc-13 Debug` configuration.
 
 ---
 
@@ -297,15 +390,15 @@ that share the same underlying engine, plus optional timestamp recording.
 The canonical, minimal usage pattern:
 
 ```cpp
-#include "rntuple/GRNTupleFile.hpp"
+#include "chronicle/GChronicleFile.hpp"
 
 int main() {
-    Gem::RNTuple::GRNTupleOptions opts;
+    Gem::Chronicle::GChronicleOptions opts;
     opts.setPageSize(64 * 1024);
-    opts.setCompression(Gem::RNTuple::GCompression::None);
-    opts.setEmbedding(Gem::RNTuple::GEmbedding::TFile);   // or BareFile
+    opts.setCompression(Gem::Chronicle::GCompression::None);
+    opts.setEmbedding(Gem::Chronicle::GEmbedding::TFile);   // or BareFile
 
-    Gem::RNTuple::GRNTupleFile file("output.root", opts);
+    Gem::Chronicle::GChronicleFile file("output.root", opts);
     auto writer = file.makeWriter("Events");
 
     auto px = writer.makeField<float>("px");
@@ -325,7 +418,7 @@ int main() {
 ### 8.2 Batch / container mode
 
 Pass an entire container of values for one field at once. All containers for a given
-`fillBatch()` call must have the same size; a `GRNTupleException` is thrown otherwise.
+`fillBatch()` call must have the same size; a `GChronicleException` is thrown otherwise.
 
 ```cpp
 std::vector<float> px_vals = {1.0f, 2.0f, 3.0f};
@@ -354,14 +447,14 @@ and decouples the object model from the storage model.
 ```cpp
 struct GMyEventAdaptor {
     // Called once to register the fields. writer is not yet frozen.
-    void declareFields(Gem::RNTuple::GRNTupleWriter& w) {
+    void declareFields(Gem::Chronicle::GChronicleWriter& w) {
         w.declareField<float>("px");
         w.declareField<float>("py");
         w.declareField<std::int32_t>("id");
     }
 
     // Called once per object to decompose and fill all fields.
-    void fill(Gem::RNTuple::GRNTupleWriter& w, const MyEvent& e) {
+    void fill(Gem::Chronicle::GChronicleWriter& w, const MyEvent& e) {
         w.setField("px", e.px);
         w.setField("py", e.py);
         w.setField("id", e.id);
@@ -375,8 +468,8 @@ uses a concept to verify that a type satisfies the adaptor requirements:
 
 ```cpp
 template<typename A, typename T>
-concept GRNTupleAdaptor =
-    requires(A& a, Gem::RNTuple::GRNTupleWriter& w, const T& obj) {
+concept GChronicleAdaptor =
+    requires(A& a, Gem::Chronicle::GChronicleWriter& w, const T& obj) {
         a.declareFields(w);
         a.fill(w, obj);
     };
@@ -385,7 +478,7 @@ concept GRNTupleAdaptor =
 #### Using the stream interface
 
 ```cpp
-Gem::RNTuple::GRNTupleFile file("output.root");
+Gem::Chronicle::GChronicleFile file("output.root");
 auto writer = file.makeWriter("Events");
 auto stream = writer.makeStream<MyEvent>(GMyEventAdaptor{});
 
@@ -406,11 +499,11 @@ Sub-objects can be decomposed by delegating to nested adaptors:
 
 ```cpp
 struct GTrackAdaptor {
-    void declareFields(Gem::RNTuple::GRNTupleWriter& w) {
+    void declareFields(Gem::Chronicle::GChronicleWriter& w) {
         w.declareField<float>("track_pt");
         w.declareField<float>("track_eta");
     }
-    void fill(Gem::RNTuple::GRNTupleWriter& w, const Track& t) {
+    void fill(Gem::Chronicle::GChronicleWriter& w, const Track& t) {
         w.setField("track_pt",  t.pt);
         w.setField("track_eta", t.eta);
         w.fill();
@@ -425,8 +518,8 @@ was committed. The timestamp is stored as a separate `std::int64_t` field (nanos
 since Unix epoch) alongside the user's fields.
 
 ```cpp
-Gem::RNTuple::GRNTupleOptions opts;
-opts.enableTimestamps(true);                       // adds field "rntw_timestamp_ns"
+Gem::Chronicle::GChronicleOptions opts;
+opts.enableTimestamps(true);                       // adds field "chronicle_timestamp_ns"
 opts.setTimestampFieldName("submission_time_ns");  // optional: rename the field
 
 auto writer = file.makeWriter("TimeSeries");
@@ -440,22 +533,22 @@ writer.fill();   // second timestamp recorded
 ```
 
 The timestamp field is always the last field in the schema. Its name is configurable but
-defaults to `"rntw_timestamp_ns"`. Timestamps use `std::chrono::system_clock` and are
+defaults to `"chronicle_timestamp_ns"`. Timestamps use `std::chrono::system_clock` and are
 stored as `int64_t` nanoseconds since the Unix epoch.
 
 ### 8.5 API invariants
 
-- Field names are unique within an RNTuple; duplicates throw `GRNTupleFieldException`
+- Field names are unique within an RNTuple; duplicates throw `GChronicleFieldException`
 - Schema is frozen on first `fill()`; subsequent `makeField()` / `declareField()` calls
-  throw `GRNTupleSchemeFrozenException`
+  throw `GChronicleSchemeFrozenException`
 - Every field must have been set before `fill()`, or have a registered default value
-  (documented in `docs/rntuple/design.md`); missing fields throw `GRNTupleFieldNotSetException`
+  (documented in `docs/chronicle/design.md`); missing fields throw `GChronicleFieldNotSetException`
 - `close()` is idempotent
 - Destructors do not throw; they call `close()` and log errors via `GLogger`
 - I/O errors are surfaced as exceptions derived from `Gem::Common::GException`
 - The stream `operator<<` returns the stream reference (chainable)
 - Batch mode and streaming mode cannot be mixed with single-value mode within the same
-  writer instance; attempting to do so throws `GRNTupleModeConflictException`
+  writer instance; attempting to do so throws `GChronicleModeConflictException`
 
 ---
 
@@ -534,9 +627,9 @@ Known type codes for primitive scalar fields:
 
 Note: type codes above 16 were added in format version 1; earlier draft files may differ.
 Verify exact codes against a reference file generated by ROOT 6.34. Commit the
-verification to `docs/rntuple/format-notes.md` with the reference file hash.
+verification to `docs/chronicle/format-notes.md` with the reference file hash.
 
-Source: RNTuple format specification §Column Types and `docs/rntuple/format-notes.md`
+Source: RNTuple format specification §Column Types and `docs/chronicle/format-notes.md`
 (to be populated during Phase 5).
 
 ### 9.5 Locators
@@ -595,7 +688,7 @@ The anchor structure contains:
 
 The exact byte layout of the anchor, including field sizes and padding, must be confirmed
 against a ROOT-generated reference bare file. Document the confirmed layout in
-`docs/rntuple/format-notes.md` during Phase 6.
+`docs/chronicle/format-notes.md` during Phase 6.
 
 Source: RNTuple format specification §Bare File.
 
@@ -697,7 +790,7 @@ RNTuple is immutable. It cannot be reopened and extended with further entries.
 Sources: ROOT architecture documentation, ROOT GitHub issue #19168, ROOT 6.36 release
 notes, uproot WritableNTuple documentation, Fermilab CHEP 2024 paper on RNTuple I/O.
 
-**Consequence for the API design:** `GRNTupleWriter` must document clearly that all
+**Consequence for the API design:** `GChronicleWriter` must document clearly that all
 entries must be written in a single session before `close()` is called. The destructor
 calls `close()` to ensure the footer is always finalized. There is no `reopen()` method.
 
@@ -712,27 +805,32 @@ calls `close()` to ensure the footer is always finalized. There is no `reopen()`
 **Future possibility (out of scope for v1):** A future version of the library could
 support append by implementing a minimal footer reader, rewriting the footer after
 appending new clusters, and patching the footer locator. This would require the library
-to also expose a partial reader. Document as future work in `docs/rntuple/design.md`.
+to also expose a partial reader. Document as future work in `docs/chronicle/design.md`.
 
 ---
 
 ## 10. The validation oracle
 
-Before any implementation begins, `tools/rntuple/Dockerfile.root` must produce an image
-with ROOT 6.34+. The validation harness is a CMake-driven CTest that:
+ROOT 6.36.12 is installed on the development machine at `/opt/root/`. Activate it with:
+
+```bash
+source /opt/root/bin/thisroot.sh
+```
+
+The validation harness is a CMake-driven CTest that:
 
 1. Builds the example `GSimpleWrite`
 2. Runs it to produce `candidate.root` (or `candidate.bare`)
-3. `docker run`s the ROOT image, mounting the build directory
-4. Runs `root -l -b -q tools/rntuple/validate_with_root.C(...)`
-5. Collects exit code and stdout
-6. Fails if the script reports any mismatch
+3. Invokes ROOT directly: `root -l -b -q tools/chronicle/validate_with_root.C(...)`
+4. Collects exit code and stdout
+5. Fails if the script reports any mismatch
+
+The ROOT path is passed to CMake via `-DROOT_EXECUTABLE=/opt/root/bin/root` or detected
+automatically when `GCHR_ENABLE_ROOT_VALIDATION=ON` and `root` is on `PATH`. In
+`CMakeLists.txt` use `find_program(ROOT_EXECUTABLE root HINTS /opt/root/bin)`.
 
 This harness must work end-to-end with a trivial passing case (a ROOT-generated reference
 file validated against itself) before any RNTuple-writing code is written.
-
-If GitHub Actions cannot run Docker-in-Docker, use `rootproject/root:latest` as a CI
-job container.
 
 ---
 
@@ -797,38 +895,23 @@ message and the appropriate installation command(s) for Ubuntu/Debian.**
    ```
 
 5. **ROOT 6.34+** (external validation oracle; not a build dependency)
-   ```bash
-   root --version   # need 6.34.00 or higher
-   ```
-   If missing, offer three options:
-   - **Option A — Docker (recommended, no system pollution)**:
-     ```bash
-     docker pull rootproject/root:6.34.04
-     docker run --rm rootproject/root:6.34.04 root --version
-     ```
-   - **Option B — conda**:
-     ```bash
-     conda install -c conda-forge root
-     ```
-   - **Option C — pre-built binary**:
-     Direct the user to `https://root.cern/install/` and explain that they need
-     a build compiled with C++20 support.
 
-   Ask the user which option they prefer and confirm it works before continuing.
+   ROOT 6.36.12 is installed at `/opt/root/`. Check it is reachable:
+   ```bash
+   source /opt/root/bin/thisroot.sh
+   root --version   # must print 6.36.xx
+   root -l -b -q -e 'std::cout << "ROOT OK, version " << gROOT->GetVersion() << std::endl; gApplication->Terminate();'
+   ```
+   If `source /opt/root/bin/thisroot.sh` is not automatic in your shell, add it to
+   `~/.bashrc` or pass the ROOT path explicitly via `-DROOT_EXECUTABLE=/opt/root/bin/root`
+   when configuring CMake with `GCHR_ENABLE_ROOT_VALIDATION=ON`.
 
-6. **Docker** (needed for CI ROOT validation)
-   ```bash
-   docker --version
-   ```
-   If missing:
-   ```bash
-   sudo apt install docker.io
-   sudo usermod -aG docker $USER  # then log out and back in
-   ```
+   If for some reason ROOT needs to be reinstalled, the recommended approach is a
+   pre-built binary from `https://root.cern/install/` compiled with C++20 support.
 
 #### Optional but recommended tools
 
-7. **clang-format 18+** (for Geneva code style)
+6. **clang-format 18+** (for Geneva code style)
    ```bash
    clang-format --version
    sudo apt install clang-format-18
@@ -847,7 +930,7 @@ message and the appropriate installation command(s) for Ubuntu/Debian.**
    sudo apt install hexyl
    ```
 
-10. **Python 3 + numpy** (for the reference-file dump scripts in `tools/rntuple/`)
+10. **Python 3 + numpy** (for the reference-file dump scripts in `tools/chronicle/`)
     ```bash
     python3 --version
     python3 -c "import numpy"
@@ -857,7 +940,7 @@ message and the appropriate installation command(s) for Ubuntu/Debian.**
 
 #### Environment check script
 
-Create `tools/rntuple/check_env.sh` that runs all checks above and prints a summary
+Create `tools/chronicle/check_env.sh` that runs all checks above and prints a summary
 table:
 
 ```
@@ -882,14 +965,14 @@ Goal: produce one ROOT-readable bare-file RNTuple with a single `float` field an
 handful of entries, using no ROOT headers, to surface format ambiguities early.
 
 The spike lives in `spike/` (deleted or archived before Phase 0). Its value is the
-knowledge captured in `docs/rntuple/spike-findings.md`.
+knowledge captured in `docs/chronicle/spike-findings.md`.
 
 Allowed during spike: everything listed in §5 Allowed sources.
 Forbidden during spike: everything in §5 Forbidden sources.
 
 Deliverables:
 - Working invocation: `spike/write && root -l -b -q spike/validate.C`
-- `docs/rntuple/spike-findings.md` listing every byte-level question that arose,
+- `docs/chronicle/spike-findings.md` listing every byte-level question that arose,
   every answer found (with reference), and all unresolved ambiguities
 
 Success criterion: ROOT prints "OK" for a file generated by hand-rolled code using no
@@ -901,15 +984,15 @@ ROOT headers. If this cannot be achieved in 2 weeks: stop, escalate.
 
 Deliverables:
 - Repository skeleton from §6 (directories, empty files, CMakeLists.txt hierarchy)
-- `gemfony-rntuple` CMake target building an empty library
+- `gemfony-chronicle` CMake target building an empty library
 - CTest plumbing with Geneva's test infrastructure
-- `tools/rntuple/Dockerfile.root` building successfully
+- `tools/chronicle/Dockerfile.root` building successfully
 - A trivial validation test: `validate_with_root.C` opens a ROOT-generated reference
   RNTuple file and reports OK
-- `docs/rntuple/clean-room-policy.md` complete
-- `docs/rntuple/assumptions.md` initialized
-- `docs/rntuple/spike-findings.md` from Phase −1 committed
-- `tools/rntuple/check_env.sh` from Phase −2 committed
+- `docs/chronicle/clean-room-policy.md` complete
+- `docs/chronicle/assumptions.md` initialized
+- `docs/chronicle/spike-findings.md` from Phase −1 committed
+- `tools/chronicle/check_env.sh` from Phase −2 committed
 
 Test gates:
 - `test_project_builds`
@@ -975,7 +1058,7 @@ test_timestamp_field_name_configurable
 ```
 
 MVP types: `float`, `double`, `int32_t`, `uint32_t`, `int64_t`, `uint64_t`, and `int64_t`
-for timestamps. Document the column-type-code mapping in `docs/rntuple/format-notes.md`
+for timestamps. Document the column-type-code mapping in `docs/chronicle/format-notes.md`
 (§9.4 above gives provisional codes; confirm with reference files).
 
 ---
@@ -1030,7 +1113,7 @@ are consistent; no file I/O yet.
 First phase touching the RNTuple format proper. See §9.2–9.6.
 
 For each envelope test, generate a reference file with ROOT, commit it under
-`tests/rntuple/fixtures/reference_files/`, and annotate the hex dump.
+`tests/chronicle/fixtures/reference_files/`, and annotate the hex dump.
 
 Page tests:
 ```text
@@ -1167,7 +1250,7 @@ test_compression_block_header_format
 
 ## 12. Examples (required alongside tests)
 
-Each example in `examples/rntuple/` must compile and run successfully. Examples are not
+Each example in `examples/chronicle/` must compile and run successfully. Examples are not
 validation tests (they don't use Catch2) but must be built as part of the Geneva
 `GENEVA_BUILD_EXAMPLES` target.
 
@@ -1175,7 +1258,7 @@ validation tests (they don't use Catch2) but must be built as part of the Geneva
 |---|---|
 | `GSimpleWrite.cpp` | Single-value API; minimal viable usage |
 | `GBatchWrite.cpp` | `fillBatch()` with `std::vector` and `std::span` |
-| `GStreamWrite.cpp` | `GRNTupleAdaptor` definition and `<<` operator |
+| `GStreamWrite.cpp` | `GChronicleAdaptor` definition and `<<` operator |
 | `GTimeSeriesWrite.cpp` | `enableTimestamps()`, reading back timestamps with ROOT |
 | `GComplexObjectWrite.cpp` | Composing adaptors for nested structs |
 | `GBareFileWrite.cpp` | Explicitly writing a bare-file RNTuple |
@@ -1206,11 +1289,11 @@ Deterministic loops with documented seeds (or a C++ property-testing framework).
 Exercise the full writer through the public API; parse output with a test-only reader.
 
 ### ROOT-validation tests
-Run ROOT in the Docker image. Enabled by `-DRNTW_ENABLE_ROOT_VALIDATION=ON`.
+Run ROOT in the Docker image. Enabled by `-DGCHR_ENABLE_ROOT_VALIDATION=ON`.
 
 ### Reference-file tests
 Assert that our writer's output is semantically equivalent to committed ROOT-generated
-reference files in `tests/rntuple/fixtures/reference_files/`.
+reference files in `tests/chronicle/fixtures/reference_files/`.
 
 ---
 
@@ -1230,24 +1313,24 @@ ci-root.yml:                    # ROOT validation, slower
 CI commands:
 ```bash
 cmake -S . -B build \
-  -DGENEVA_BUILD_RNTUPLE=ON \
+  -DGENEVA_BUILD_CHRONICLE=ON \
   -DGENEVA_BUILD_TESTS=ON \
   -DCMAKE_BUILD_TYPE=Debug
 cmake --build build --parallel
-ctest --test-dir build --output-on-failure -L rntuple
+ctest --test-dir build --output-on-failure -L chronicle
 ```
 
 ---
 
 ## 15. Documentation requirements
 
-- `docs/rntuple/clean-room-policy.md` — Phase 0; never modified except by versioned amendment
-- `docs/rntuple/spike-findings.md` — Phase −1 output; frozen
-- `docs/rntuple/design.md` — Phase 0 stub; completed after Phase 5
-- `docs/rntuple/assumptions.md` — append-only; started Phase 0
-- `docs/rntuple/format-notes.md` — Phase 3 onwards; cite §9 and extend it with confirmed facts
-- `docs/rntuple/testing-strategy.md` — Phase 0 stub; finalized after Phase 8
-- `docs/rntuple/compatibility.md` — Phase 7c onwards; ROOT versions tested
+- `docs/chronicle/clean-room-policy.md` — Phase 0; never modified except by versioned amendment
+- `docs/chronicle/spike-findings.md` — Phase −1 output; frozen
+- `docs/chronicle/design.md` — Phase 0 stub; completed after Phase 5
+- `docs/chronicle/assumptions.md` — append-only; started Phase 0
+- `docs/chronicle/format-notes.md` — Phase 3 onwards; cite §9 and extend it with confirmed facts
+- `docs/chronicle/testing-strategy.md` — Phase 0 stub; finalized after Phase 8
+- `docs/chronicle/compatibility.md` — Phase 7c onwards; ROOT versions tested
 
 ---
 
@@ -1287,18 +1370,31 @@ Everything above, plus:
 5. Never skip failing tests silently. Mark pending tests in code and document why.
 6. Never introduce ROOT as a library dependency.
 7. Never copy code from ROOT sources. Document any factual answer extracted from ROOT
-   source (if it was consulted for ambiguity resolution) in `docs/rntuple/assumptions.md`.
+   source (if it was consulted for ambiguity resolution) in `docs/chronicle/assumptions.md`.
 8. Apply the Geneva `.clang-format` to every new file before committing.
 9. Ensure clang-tidy passes on every new `.cpp` file before committing.
 10. Prefer correctness over performance until correctness is proven.
 11. Update documentation in the same commit as the change it describes.
 12. Respect time-boxes. If a phase exceeds its envelope, stop and escalate.
 13. All new class names begin with `G`. All public types live in the
-    `Gem::RNTuple` namespace.
+    `Gem::Chronicle` namespace.
 14. Use Geneva exception types (`Gem::Common::GException` and subclasses).
 15. Use `GLogger` for all diagnostic output.
 16. Do not add Boost dependencies. The RNTuple library depends only on `gemfony-common`
     and the C++20 standard library.
+17. **Parallel agents**: Where work can be decomposed into independent sub-tasks, spawn
+    multiple Claude agents concurrently. Examples:
+    - Phase −2 environment checks and Phase −1 reference-file collection can overlap
+    - Writing test stubs for Phase 2 (xxHash) while Phase 1 (primitives) is passing CI
+    - Hex-analysing reference files while skeleton code is being written
+    - Inspecting `docs/chronicle/spike-findings.md` while running validation
+    Each parallel agent must receive a self-contained prompt with all needed context
+    (phase number, acceptance criteria, relevant §9 facts, path conventions). After
+    agents complete, merge their findings into the main context before proceeding.
+18. **Persist findings immediately**: whenever a format fact, build decision, or
+    spec-ambiguity resolution is confirmed, append a §20 entry before the next tool
+    call. See §0 for the required format and the re-read protocol after context
+    compression.
 
 ---
 
@@ -1308,7 +1404,7 @@ Execute in order. Do not advance to the next task until the current one is compl
 
 ### Task 1 — Phase −2: Environment check
 
-Create `tools/rntuple/check_env.sh` and run it. For every missing required tool, provide
+Create `tools/chronicle/check_env.sh` and run it. For every missing required tool, provide
 the installation command and wait for the user to install and re-run the check.
 
 If ROOT is not installed, ask the user which installation option they prefer (Docker,
@@ -1323,7 +1419,7 @@ Do not proceed to Task 2 until `check_env.sh` exits 0.
 
 Set up `spike/` with the simplest possible code that produces a bare-file RNTuple
 readable by ROOT. No Geneva conventions, no tests, no production style. Output:
-working spike + `docs/rntuple/spike-findings.md`. Populate the confirmed facts back
+working spike + `docs/chronicle/spike-findings.md`. Populate the confirmed facts back
 into §9 of this document.
 
 If the spike does not succeed within 2 weeks: stop and report.
@@ -1338,7 +1434,7 @@ RNTuple-writing code is added.
 
 Follow §11 strictly. At each phase boundary:
 - Confirm acceptance criteria
-- Update `docs/rntuple/design.md`
+- Update `docs/chronicle/design.md`
 - Verify clang-format and clang-tidy pass
 - Commit and tag
 - Report
@@ -1362,6 +1458,36 @@ Follow §11 strictly. At each phase boundary:
   and documented.
 - Mixed endianness (little-endian RNTuple data inside big-endian TFile headers) is the
   most common implementation error in Phase 7. Read §9.12 carefully.
+- **After every context compression**: re-read §20 (Knowledge Log) before doing
+  anything else. The entries there are your own notes from earlier in this session.
+  Without them, you will repeat work already done.
+- **Write §20 entries immediately** when a finding is confirmed — one entry per
+  finding, before the next tool call. Do not batch. Do not defer.
+- Development happens on branch `chronicle-draft` (cloned from `catch2-migration`).
+  Do not modify `develop` directly.
 
 Begin with Task 1 (Phase −2 environment check). Report the result of `check_env.sh`
 before continuing.
+
+---
+
+## 20. Knowledge Log (Claude's persistent notes)
+
+> **Claude: Read this section first after any context compression.**
+> **Write a new entry here immediately whenever a finding is confirmed.**
+> These are notes from Claude to itself. Without them, context compression erases
+> research that cannot be cheaply repeated.
+
+### Entry format
+
+```
+### YYYY-MM-DD: <one-line summary>
+**Type:** format-fact | spec-ambiguity | build-decision | test-finding | env-finding
+**Finding:** <confirmed fact, specific enough to act on>
+**Source:** <spec section / reference-file SHA256:offset / experiment / tool output>
+**Impact:** <what changes in the implementation because of this>
+```
+
+---
+
+*No entries yet. First entry will be written during Phase −2 environment check.*
