@@ -33,47 +33,79 @@ MESSAGE ("")
 
 PROJECT (Geneva_Library_Collection LANGUAGES CXX)
 
+# Set ON to skip all CUDA compilation regardless of whether nvcc is present.
+# Overrides GENEVA_USE_CUDA_RNG, CUDA_NVCC, and CUDA_ROOT.  Useful when a
+# system CUDA installation is broken or incompatible (e.g. CUDA 13.1 + glibc 2.39).
+option(GENEVA_SKIP_CUDA "Disable all CUDA compilation" OFF)
+
 # Probe for an optional CUDA toolchain.  If nvcc is found, CUDA examples and
 # benchmarks are added to the build automatically; if not, the rest of the
 # build proceeds as pure C++.  GENEVA_USE_CUDA_RNG remains a separate opt-in
 # flag (see genevaConfig.gcfg) because enabling it makes the Hap library
 # depend on the CUDA runtime, reducing portability of programs linked with it.
-include(CheckLanguage)
-check_language(CUDA)
-if(CMAKE_CUDA_COMPILER)
-    enable_language(CUDA)
-    message(STATUS "CUDA ${CMAKE_CUDA_COMPILER_VERSION} detected — CUDA examples and benchmarks will be built")
 
-    # Suppress known Boost-internal false positives from NVCC.
-    # NVCC does not honour -isystem suppression the way GCC does, so these
-    # three diagnostics fire on every Boost TU that pulls in mpl, mp11, or
-    # the Boost.Archive serialization headers:
-    #   68   – integer conversion sign change   (boost/mpl/print.hpp)
-    #   186  – unsigned comparison with zero    (boost/mp11/detail/mp_count.hpp)
-    #   191  – meaningless cast qualifier       (boost/archive/detail/iserializer.hpp)
-    add_compile_options($<$<COMPILE_LANGUAGE:CUDA>:-diag-suppress=68>
-                        $<$<COMPILE_LANGUAGE:CUDA>:-diag-suppress=186>
-                        $<$<COMPILE_LANGUAGE:CUDA>:-diag-suppress=191>)
+if(NOT GENEVA_SKIP_CUDA)
+    # If only CMAKE_CUDA_COMPILER was supplied (e.g. by prepareBuild.sh), derive
+    # CUDAToolkit_ROOT from it so find_package(CUDAToolkit) locates the matching
+    # headers and libraries.  Assumes the standard NVIDIA layout: <root>/bin/nvcc.
+    if(DEFINED CMAKE_CUDA_COMPILER AND NOT DEFINED CUDAToolkit_ROOT)
+        get_filename_component(_geneva_cuda_bindir "${CMAKE_CUDA_COMPILER}" DIRECTORY)
+        get_filename_component(_geneva_cuda_root   "${_geneva_cuda_bindir}"  DIRECTORY)
+        set(CUDAToolkit_ROOT "${_geneva_cuda_root}"
+            CACHE PATH "CUDA toolkit root (derived from CMAKE_CUDA_COMPILER)")
+        unset(_geneva_cuda_bindir)
+        unset(_geneva_cuda_root)
+    endif()
 
-    # Detect the CXX compiler's libstdc++.so location and cache it.
-    # CUDA targets link it by full path to prevent the CUDA toolkit's bundled
-    # (older) GCC from injecting an incompatible libstdc++ into the link step,
-    # which would cause "undefined reference to __cxa_*@CXXABI_X.Y" failures.
-    if(CMAKE_CXX_COMPILER)
-        execute_process(
-            COMMAND "${CMAKE_CXX_COMPILER}" -print-file-name=libstdc++.so
-            OUTPUT_VARIABLE _cxx_libstdcxx_path
-            OUTPUT_STRIP_TRAILING_WHITESPACE
-        )
-        if(_cxx_libstdcxx_path AND NOT _cxx_libstdcxx_path STREQUAL "libstdc++.so")
-            get_filename_component(_cxx_lib_dir "${_cxx_libstdcxx_path}" DIRECTORY)
-            set(GENEVA_CXX_RUNTIME_LIB_DIR "${_cxx_lib_dir}" CACHE INTERNAL "CXX runtime lib dir for CUDA link fix")
+    include(CheckLanguage)
+    check_language(CUDA)
+    if(CMAKE_CUDA_COMPILER)
+        enable_language(CUDA)
+        find_package(CUDAToolkit REQUIRED)
+        message(STATUS "CUDA ${CMAKE_CUDA_COMPILER_VERSION} detected — CUDA examples and benchmarks will be built")
+        message(STATUS "  Toolkit root: ${CUDAToolkit_ROOT}")
+
+        # Suppress known Boost-internal false positives from NVCC.
+        # NVCC does not honour -isystem suppression the way GCC does, so these
+        # diagnostics fire on every Boost TU that pulls in mpl, mp11, fusion,
+        # or the Boost.Archive serialization headers:
+        #   68    – integer conversion sign change   (boost/mpl/print.hpp)
+        #   186   – unsigned comparison with zero    (boost/mp11/detail/mp_count.hpp)
+        #   191   – meaningless cast qualifier       (boost/archive/detail/iserializer.hpp)
+        #   20012 – __host__/__device__ annotation ignored on defaulted function
+        #           (boost/fusion/container/vector/vector.hpp, boost/fusion/tuple/tuple.hpp,
+        #            boost/fusion/support/unused.hpp)
+        add_compile_options($<$<COMPILE_LANGUAGE:CUDA>:-diag-suppress=68>
+                            $<$<COMPILE_LANGUAGE:CUDA>:-diag-suppress=186>
+                            $<$<COMPILE_LANGUAGE:CUDA>:-diag-suppress=191>
+                            $<$<COMPILE_LANGUAGE:CUDA>:-diag-suppress=20012>)
+
+        # Detect the CXX compiler's libstdc++.so location and cache it.
+        # CUDA targets link it by full path to prevent the CUDA toolkit's bundled
+        # (older) GCC from injecting an incompatible libstdc++ into the link step,
+        # which would cause "undefined reference to __cxa_*@CXXABI_X.Y" failures.
+        if(CMAKE_CXX_COMPILER)
+            execute_process(
+                COMMAND "${CMAKE_CXX_COMPILER}" -print-file-name=libstdc++.so
+                OUTPUT_VARIABLE _cxx_libstdcxx_path
+                OUTPUT_STRIP_TRAILING_WHITESPACE
+            )
+            if(_cxx_libstdcxx_path AND NOT _cxx_libstdcxx_path STREQUAL "libstdc++.so")
+                get_filename_component(_cxx_lib_dir "${_cxx_libstdcxx_path}" DIRECTORY)
+                set(GENEVA_CXX_RUNTIME_LIB_DIR "${_cxx_lib_dir}" CACHE INTERNAL "CXX runtime lib dir for CUDA link fix")
+            endif()
+            unset(_cxx_libstdcxx_path)
+            unset(_cxx_lib_dir)
         endif()
-        unset(_cxx_libstdcxx_path)
-        unset(_cxx_lib_dir)
+    else()
+        message(STATUS "CUDA not found — building without CUDA examples and benchmarks")
     endif()
 else()
-    message(STATUS "CUDA not found — building without CUDA examples and benchmarks")
+    message(STATUS "CUDA disabled (GENEVA_SKIP_CUDA=ON) — skipping all CUDA compilation")
+    if(GENEVA_USE_CUDA_RNG)
+        message(WARNING "GENEVA_USE_CUDA_RNG is ON but GENEVA_SKIP_CUDA=ON overrides it")
+    endif()
+    set(GENEVA_USE_CUDA_RNG OFF CACHE BOOL "Use CUDA for RNG in Hap" FORCE)
 endif()
 
 ################################################################################

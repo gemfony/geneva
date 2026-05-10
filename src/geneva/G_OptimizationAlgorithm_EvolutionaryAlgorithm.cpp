@@ -75,7 +75,7 @@ void GEvolutionaryAlgorithm::compare_(
 ) const {
     using namespace Gem::Common;
 
-    // Check that we are dealing with a GBaseSwarm::GSwarmOptimizationMonitor reference independent of this object and convert the pointer
+    // Check that we are dealing with a GEvolutionaryAlgorithm reference independent of this object and convert the pointer
     const GEvolutionaryAlgorithm *p_load =
         Gem::Common::g_convert_and_compare<GObject, GEvolutionaryAlgorithm>(cp, this);
 
@@ -467,8 +467,9 @@ void GEvolutionaryAlgorithm::adaptChildren_() {
     // Wait for all threads in the pool to complete their work
     tp_ptr_->wait();
 
-#ifdef DEBUG
-    // Check for errors
+    // Consume futures in all build modes: after wait() they are immediately ready,
+    // so this is non-blocking. Without consuming them, exceptions thrown by worker
+    // threads are silently discarded when the futures are destroyed.
     for(auto &f : futures_cnt) {
         try {
             f.get();
@@ -476,7 +477,7 @@ void GEvolutionaryAlgorithm::adaptChildren_() {
         catch(std::exception &e) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GSimulatedAnnealing::adaptChildren() :" << std::endl
+                << "In GEvolutionaryAlgorithm::adaptChildren_() :" << std::endl
                 << "Got error during thread execution with message:" << std::endl
                 << e.what() << std::endl
             );
@@ -484,12 +485,11 @@ void GEvolutionaryAlgorithm::adaptChildren_() {
         catch(...) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GSimulatedAnnealing::adaptChildren() :" << std::endl
+                << "In GEvolutionaryAlgorithm::adaptChildren_() :" << std::endl
                 << "Got unknown exception during thread execution" << std::endl
             );
         }
     }
-#endif
 }
 
 /******************************************************************************/
@@ -591,21 +591,10 @@ void GEvolutionaryAlgorithm::fixAfterJobSubmission() {
     auto old_work_items = this->getOldWorkItems();
 
     // Remove parents from older iterations from old work items -- we do not want them.
-    // Note that "remove_if" simply moves items not satisfying the predicate to the end of the list.
-    // We thus need to explicitly erase these items. remove_if returns the iterator position right after
-    // the last item not satisfying the predicate.
-    old_work_items.erase(
-        std::remove_if(
-            old_work_items.begin(),
-            old_work_items.end(),
-            [iteration](const std::shared_ptr<GParameterSet> &x) -> bool {
-                return x->getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>()
-                           ->isParent() &&
-                       x->getAssignedIteration() != iteration;
-            }
-        ),
-        old_work_items.end()
-    );
+    std::erase_if(old_work_items, [iteration](const std::shared_ptr<GParameterSet> &x) -> bool {
+        return x->getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>()->isParent() &&
+               x->getAssignedIteration() != iteration;
+    });
 
     // Make it known to remaining old individuals that they are now part of a new iteration
     std::for_each(
@@ -1251,10 +1240,10 @@ bool GEvolutionaryAlgorithm::aDominatesB(
     }
 #endif
 
-    // x dominates y, if none of its fitness criteria is worse than the
-    // corresponding criterion from y
+    // x dominates y if none of its fitness criteria is worse than the corresponding criterion of y.
+    auto m = x_ptr->getMaxMode();
     for(std::size_t i = 0; i < nCriteriaX; i++) {
-        if(isWorse(x_ptr, y_ptr))
+        if(isWorse(x_ptr->transformed_fitness(i), y_ptr->transformed_fitness(i), m))
             return false;
     }
 

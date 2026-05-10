@@ -69,7 +69,7 @@ void GSimulatedAnnealing::compare_(
 ) const {
     using namespace Gem::Common;
 
-    // Check that we are dealing with a GBaseSwarm::GSwarmOptimizationMonitor reference independent of this object and convert the pointer
+    // Check that we are dealing with a GSimulatedAnnealing reference independent of this object and convert the pointer
     const GSimulatedAnnealing *p_load =
         Gem::Common::g_convert_and_compare<GObject, GSimulatedAnnealing>(cp, this);
 
@@ -353,8 +353,9 @@ void GSimulatedAnnealing::adaptChildren_() {
     // Wait for all threads in the pool to complete their work
     tp_ptr_->wait();
 
-#ifdef DEBUG
-    // Check for errors
+    // Consume futures in all build modes: after wait() they are immediately ready,
+    // so this is non-blocking. Without consuming them, exceptions thrown by worker
+    // threads are silently discarded when the futures are destroyed.
     for(auto &f : futures_cnt) {
         try {
             f.get();
@@ -362,7 +363,7 @@ void GSimulatedAnnealing::adaptChildren_() {
         catch(std::exception &e) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GSimulatedAnnealing::adaptChildren() :" << std::endl
+                << "In GSimulatedAnnealing::adaptChildren_() :" << std::endl
                 << "Got error during thread execution with message:" << std::endl
                 << e.what() << std::endl
             );
@@ -370,12 +371,11 @@ void GSimulatedAnnealing::adaptChildren_() {
         catch(...) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GSimulatedAnnealing::adaptChildren() :" << std::endl
+                << "In GSimulatedAnnealing::adaptChildren_() :" << std::endl
                 << "Got unknown exception during thread execution" << std::endl
             );
         }
     }
-#endif
 }
 
 /******************************************************************************/
@@ -469,21 +469,10 @@ void GSimulatedAnnealing::fixAfterJobSubmission() {
     auto old_work_items = this->getOldWorkItems();
 
     // Remove parents from older iterations from old work items -- we do not want them.
-    // Note that "remove_if" simply moves items not satisfying the predicate to the end of the list.
-    // We thus need to explicitly erase these items. remove_if returns the iterator position right after
-    // the last item not satisfying the predicate.
-    old_work_items.erase(
-        std::remove_if(
-            old_work_items.begin(),
-            old_work_items.end(),
-            [iteration](std::shared_ptr<GParameterSet> x) -> bool {
-                return x->getPersonalityTraits<GSimulatedAnnealing_PersonalityTraits>()
-                           ->isParent() &&
-                       x->getAssignedIteration() != iteration;
-            }
-        ),
-        old_work_items.end()
-    );
+    std::erase_if(old_work_items, [iteration](std::shared_ptr<GParameterSet> x) -> bool {
+        return x->getPersonalityTraits<GSimulatedAnnealing_PersonalityTraits>()->isParent() &&
+               x->getAssignedIteration() != iteration;
+    });
 
     // Make it known to remaining old individuals that they are now part of a new iteration
     std::for_each(
@@ -628,7 +617,7 @@ void GSimulatedAnnealing::init() {
     G_OptimizationAlgorithm_ParChild::init();
 
     // Initialize our thread pool
-    tp_ptr_.reset(new Gem::Common::GThreadPool(n_threads_));
+    tp_ptr_ = std::make_shared<Gem::Common::GThreadPool>(n_threads_);
 }
 
 /******************************************************************************/
@@ -648,9 +637,7 @@ void GSimulatedAnnealing::finalize() {
   * Retrieve a GPersonalityTraits object belonging to this algorithm
   */
 std::shared_ptr<GPersonalityTraits> GSimulatedAnnealing::getPersonalityTraits_() const {
-    return std::shared_ptr<GSimulatedAnnealing_PersonalityTraits>(
-        new GSimulatedAnnealing_PersonalityTraits()
-    );
+    return std::make_shared<GSimulatedAnnealing_PersonalityTraits>();
 }
 
 /******************************************************************************/

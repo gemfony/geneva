@@ -279,9 +279,11 @@ void printDeviceInfo() {
         }
 
         std::cout << "  CUDA-Cores (estimate): " << cudaCores << std::endl;
+#if CUDART_VERSION < 12000
         std::cout << "  Device Frequency: " << deviceProp.clockRate * 1e-3f << " MHz" << std::endl;
         std::cout << "  Memory Frequency: " << deviceProp.memoryClockRate * 1e-3f << " MHz"
                   << std::endl;
+#endif
         std::cout << "  Memory Bandwidth: " << deviceProp.memoryBusWidth << " Bit" << std::endl;
         std::cout << "  L2-Cache: " << deviceProp.l2CacheSize << " Bytes" << std::endl;
         std::cout << "  Maximum number of threads per block: " << deviceProp.maxThreadsPerBlock

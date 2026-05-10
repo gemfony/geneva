@@ -207,6 +207,9 @@ INSTALLDIR="/opt/geneva"
 MPIROOT=""
 BUILDMPICONSUMER="0"
 USECUDARNG="0"
+SKIPALLCUDA="0"
+CUDA_NVCC=""
+CUDA_ROOT=""
 
 if [ -n "${CONFIGFILE}" ]; then
 	case "${CONFIGFILE}" in
@@ -287,6 +290,14 @@ _check_bool BUILDSTATIC      "${BUILDSTATIC}"
 _check_bool VERBOSEMAKEFILE  "${VERBOSEMAKEFILE}"
 _check_bool BUILDMPICONSUMER "${BUILDMPICONSUMER}"
 _check_bool USECUDARNG       "${USECUDARNG}"
+_check_bool SKIPALLCUDA      "${SKIPALLCUDA}"
+
+# Validate CUDA path: if set, the file must exist and be executable.
+if [ -n "${CUDA_NVCC}" ] && [ ! -x "${CUDA_NVCC}" ]; then
+	echo -e "\nWarning: CUDA_NVCC='${CUDA_NVCC}' is set but is not an executable — ignoring."
+	CUDA_NVCC=""
+	CUDA_ROOT=""
+fi
 
 ####################################################################
 # Find the project root (CMakeLists.txt must be one level above the
@@ -330,6 +341,9 @@ if [ "${GENERATE_PRESET}" = "1" ]; then
 	fi
 
 	[ -n "${MPIROOT}" ]          && _preset_add "MPI_HOME"               "PATH"   "${MPIROOT}"
+	_preset_add "GENEVA_SKIP_CUDA" "BOOL" "${SKIPALLCUDA}"
+	[ -n "${CUDA_NVCC}" ] && [ "${SKIPALLCUDA}" = "0" ] && _preset_add "CMAKE_CUDA_COMPILER" "FILEPATH" "${CUDA_NVCC}"
+	[ -n "${CUDA_ROOT}" ] && [ "${SKIPALLCUDA}" = "0" ] && _preset_add "CUDAToolkit_ROOT"   "PATH"     "${CUDA_ROOT}"
 	[ -n "${CXXEXTRAFLAGS}" ]    && _preset_add "CMAKE_CXX_FLAGS"        "STRING" "${CXXEXTRAFLAGS}"
 	[ -n "${LINKEREXTRAFLAGS}" ] && _preset_add "CMAKE_EXE_LINKER_FLAGS" "STRING" "${LINKEREXTRAFLAGS}"
 
@@ -388,8 +402,15 @@ cmake_args+=(
 	"-DCMAKE_INSTALL_PREFIX=${INSTALLDIR}"
 	"-DGENEVA_BUILD_WITH_MPI_CONSUMER=${BUILDMPICONSUMER}"
 	"-DGENEVA_USE_CUDA_RNG=${USECUDARNG}"
+	"-DGENEVA_SKIP_CUDA=${SKIPALLCUDA}"
 )
 [ -n "${MPIROOT}" ]          && cmake_args+=("-DMPI_HOME=${MPIROOT}")
+if [ -n "${CUDA_NVCC}" ] && [ "${SKIPALLCUDA}" = "0" ]; then
+	cmake_args+=("-DCMAKE_CUDA_COMPILER=${CUDA_NVCC}")
+	if [ -n "${CUDA_ROOT}" ] && [ -d "${CUDA_ROOT}" ]; then
+		cmake_args+=("-DCUDAToolkit_ROOT=${CUDA_ROOT}")
+	fi
+fi
 [ -n "${CXXEXTRAFLAGS}" ]    && cmake_args+=("-DCMAKE_CXX_FLAGS=${CXXEXTRAFLAGS}")
 [ -n "${LINKEREXTRAFLAGS}" ] && cmake_args+=("-DCMAKE_EXE_LINKER_FLAGS=${LINKEREXTRAFLAGS}")
 if [ -n "${CMAKEEXTRAFLAGS}" ]; then

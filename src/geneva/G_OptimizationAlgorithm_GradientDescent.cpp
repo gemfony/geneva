@@ -96,13 +96,13 @@ void GGradientDescent::setNStartingPoints(std::size_t nStartingPoints) {
  * @param finiteStep The desired size of the adaption
  */
 void GGradientDescent::setFiniteStep(double finiteStep) {
-    // Check that finiteStep_ has an appropriate value
-    if(finiteStep_ <= 0. ||
-       finiteStep_ > 1000.) { // Specified in per mill of the allowed or preferred value range
+    // Check that the new finiteStep has an appropriate value
+    if(finiteStep <= 0. ||
+       finiteStep > 1000.) { // Specified in per mill of the allowed or preferred value range
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GGradientDescent::setFiniteStep(double): Error!" << std::endl
-            << "Invalid values of finiteStep_: " << finiteStep_ << std::endl
+            << "Invalid value of finiteStep: " << finiteStep << std::endl
             << "Must be in the range ]0.:1000.]" << std::endl
         );
     }
@@ -127,13 +127,13 @@ double GGradientDescent::getFiniteStep() const {
  * @param stepSize A multiplicative factor for the adaption process
  */
 void GGradientDescent::setStepSize(double stepSize) {
-    // Check that stepSize_ has an appropriate value
-    if(stepSize_ <= 0. ||
-       stepSize_ > 1000.) { // Specified in per mill of the allowed or preferred value range
+    // Check that the new stepSize has an appropriate value
+    if(stepSize <= 0. ||
+       stepSize > 1000.) { // Specified in per mill of the allowed or preferred value range
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GGradientDescent::setStepSize(double): Error!" << std::endl
-            << "Invalid values of stepSize_: " << stepSize_ << std::endl
+            << "Invalid value of stepSize: " << stepSize << std::endl
             << "Must be in the range ]0.:1000.]" << std::endl
         );
     }
@@ -212,10 +212,9 @@ void GGradientDescent::compare_(
     compare_t(IDENTITY(nFPParmsFirst_, p_load->nFPParmsFirst_), token);
     compare_t(IDENTITY(finiteStep_, p_load->finiteStep_), token);
     compare_t(IDENTITY(stepSize_, p_load->stepSize_), token);
-    compare_t(IDENTITY(stepRatio_, p_load->stepRatio_), token);
-    compare_t(IDENTITY(dblLowerParameterBoundaries_, p_load->dblLowerParameterBoundaries_), token);
-    compare_t(IDENTITY(dblUpperParameterBoundaries_, p_load->dblUpperParameterBoundaries_), token);
-    compare_t(IDENTITY(adjustedFiniteStep_, p_load->adjustedFiniteStep_), token);
+    // stepRatio_, dblLowerParameterBoundaries_, dblUpperParameterBoundaries_, adjustedFiniteStep_
+    // are transient: recomputed in init() from the serialized fields above and not restored in
+    // load_(). Comparing them would cause round-trip equality tests to fail spuriously.
 
     // React on deviations from the expectation
     token.evaluate();
@@ -609,9 +608,7 @@ void GGradientDescent::finalize() {
  * Retrieve a GPersonalityTraits object belonging to this algorithm
  */
 std::shared_ptr<GPersonalityTraits> GGradientDescent::getPersonalityTraits_() const {
-    return std::shared_ptr<GGradientDescent_PersonalityTraits>(
-        new GGradientDescent_PersonalityTraits()
-    );
+    return std::make_shared<GGradientDescent_PersonalityTraits>();
 }
 
 /******************************************************************************/

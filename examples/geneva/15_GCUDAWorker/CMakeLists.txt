@@ -68,6 +68,12 @@ SET_TARGET_PROPERTIES(
 
 ENABLE_LANGUAGE(CUDA)
 
+# Make CUDA:: imported targets (e.g. CUDA::cudart) available.  This is needed
+# so CXX source files that call the CUDA runtime API (e.g. cudaGetDeviceProperties,
+# which resolves to cudaGetDeviceProperties_v2 with CUDA 12+ headers) resolve
+# correctly at link time regardless of how many CUDA toolkit versions are installed.
+find_package(CUDAToolkit REQUIRED)
+
 # The CUDA toolkit's bundled g++ wrapper selects an older GCC whose library
 # directory is injected into the link command before the system CXX compiler's
 # directory. When Geneva's shared libraries are built with a newer GCC they
@@ -124,7 +130,8 @@ target_compile_options(${EXECUTABLENAME} PRIVATE
 SET(LIBRARIES_TO_LINK
 		${GENEVA_LIBRARIES}
 		${Boost_LIBRARIES}
-		${OpenCL_LIBRARIES})
+		${OpenCL_LIBRARIES}
+		CUDA::cudart)
 
 # Add MPI Libraries in case building with MPI-consumer
 IF(GENEVA_BUILD_WITH_MPI_CONSUMER)

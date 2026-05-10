@@ -86,7 +86,15 @@ public:
             *dummy = nullptr
     ) const {
         std::unique_lock<std::mutex> iteration_best_lock(get_best_mutex_);
-        return std::dynamic_pointer_cast<individual_type>(this->getBestGlobalIndividual_());
+        auto result = std::dynamic_pointer_cast<individual_type>(this->getBestGlobalIndividual_());
+        if(!result) {
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, time_and_place)
+                << "In G_Interface_OptimizerT<>::getBestGlobalIndividual(): Error!" << std::endl
+                << "dynamic_pointer_cast to requested individual_type failed." << std::endl
+            );
+        }
+        return result;
     }
 
     /***************************************************************************/
@@ -119,10 +127,18 @@ public:
         }
 
         for(auto const &ind_ptr : bestBaseIndividuals) {
-            bestIndividuals.push_back(std::dynamic_pointer_cast<individual_type>(ind_ptr));
+            auto cast_ptr = std::dynamic_pointer_cast<individual_type>(ind_ptr);
+            if(!cast_ptr) {
+                throw geneva_exception(
+                    g_error_streamer(DO_LOG, time_and_place)
+                    << "In G_Interface_OptimizerT<>::getBestGlobalIndividuals(): Error!" << std::endl
+                    << "dynamic_pointer_cast to requested individual_type failed." << std::endl
+                );
+            }
+            bestIndividuals.push_back(cast_ptr);
         }
 
-        return std::move(bestIndividuals);
+        return bestIndividuals;
     }
 
     /***************************************************************************/
@@ -141,7 +157,15 @@ public:
             *dummy = nullptr
     ) const {
         std::unique_lock<std::mutex> iteration_best_lock(get_best_mutex_);
-        return getBestIterationIndividual_()->template clone<individual_type>();
+        auto result = std::dynamic_pointer_cast<individual_type>(getBestIterationIndividual_());
+        if(!result) {
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, time_and_place)
+                << "In G_Interface_OptimizerT<>::getBestIterationIndividual(): Error!" << std::endl
+                << "dynamic_pointer_cast to requested individual_type failed." << std::endl
+            );
+        }
+        return result;
     }
 
     /***************************************************************************/
@@ -175,10 +199,18 @@ public:
         }
 
         for(auto const &ind_ptr : bestBaseIndividuals) {
-            bestIndividuals.push_back(ind_ptr->template clone<individual_type>());
+            auto cast_ptr = ind_ptr->template clone<individual_type>();
+            if(!cast_ptr) {
+                throw geneva_exception(
+                    g_error_streamer(DO_LOG, time_and_place)
+                    << "In G_Interface_OptimizerT<>::getBestIterationIndividuals(): Error!" << std::endl
+                    << "clone<individual_type>() returned null." << std::endl
+                );
+            }
+            bestIndividuals.push_back(cast_ptr);
         }
 
-        return std::move(bestIndividuals);
+        return bestIndividuals;
     }
 
     /***************************************************************************/

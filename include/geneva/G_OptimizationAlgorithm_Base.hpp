@@ -527,7 +527,7 @@ protected:
     G_API_GENEVA void resetIndividualPersonalities();
 
     /** @brief Sets the default size of the population */
-    G_API_GENEVA void setDefaultPopulationSize(const std::size_t &defPopSize);
+    G_API_GENEVA void setDefaultPopulationSize(std::size_t defPopSize);
 
     // NB: protected, as a derived function may fall back to this function, cmp EA in non-pareto mode
     /** @brief Adds the individuals of this iteration to a priority queue. */

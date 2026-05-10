@@ -206,7 +206,7 @@ void GSwarmAlgorithm::load_(const GObject *cp) {
             global_best_ptr_->GObject::load(p_load->global_best_ptr_);
         }
         else {
-            global_best_ptr_ = p_load->GObject::clone<GParameterSet>();
+            global_best_ptr_ = p_load->global_best_ptr_->clone<GParameterSet>();
         }
     }
     else if(p_load->inFirstIteration()) { // cp does not have a global best
@@ -539,12 +539,13 @@ void GSwarmAlgorithm::updatePersonalBestIfBetter(std::shared_ptr<GParameterSet> 
 
     auto m =
         this->at(0)->getMaxMode(); // We assume that the maxMode is the same for all individuals
+    // Update personal best only when the current position is better than the stored best.
     if(isBetter(
+           ind_ptr->transformed_fitness(0),
            std::get<G_TRANSFORMED_FITNESS>(
                ind_ptr->getPersonalityTraits<GSwarmAlgorithm_PersonalityTraits>()
                    ->getPersonalBestQuality()
            ),
-           ind_ptr->transformed_fitness(0),
            m
        )) {
         ind_ptr->getPersonalityTraits<GSwarmAlgorithm_PersonalityTraits>()->registerPersonalBest(
@@ -782,9 +783,7 @@ void GSwarmAlgorithm::finalize() {
  * Retrieve a GPersonalityTraits object belonging to this algorithm
  */
 std::shared_ptr<GPersonalityTraits> GSwarmAlgorithm::getPersonalityTraits_() const {
-    return std::shared_ptr<GSwarmAlgorithm_PersonalityTraits>(
-        new GSwarmAlgorithm_PersonalityTraits()
-    );
+    return std::make_shared<GSwarmAlgorithm_PersonalityTraits>();
 }
 
 /******************************************************************************/
@@ -957,7 +956,7 @@ void GSwarmAlgorithm::adjustNeighborhoods() {
  */
 bool GSwarmAlgorithm::neighborhoodsHaveNominalValues() const {
     for(std::size_t n = 0; n < n_neighborhoods_; n++) {
-        if(n_neighborhood_members_cnt_[n] == default_n_neighborhood_members_)
+        if(n_neighborhood_members_cnt_[n] != default_n_neighborhood_members_)
             return false;
     }
     return true;

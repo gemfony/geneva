@@ -312,25 +312,10 @@ GParameterScan::GParameterScan(const GParameterScan &cp)
     // applies to the copying of the optimization monitor.
 
     // Load the parameter objects
-    std::vector<std::shared_ptr<bScanPar>>::const_iterator b_it;
-    for(b_it = cp.b_cnt_.begin(); b_it != cp.b_cnt_.end(); ++b_it) {
-        b_cnt_.push_back((*b_it)->clone());
-    }
-
-    std::vector<std::shared_ptr<int32ScanPar>>::const_iterator i_it;
-    for(i_it = cp.int32_cnt_.begin(); i_it != cp.int32_cnt_.end(); ++i_it) {
-        int32_cnt_.push_back((*i_it)->clone());
-    }
-
-    std::vector<std::shared_ptr<dScanPar>>::const_iterator d_it;
-    for(d_it = cp.d_cnt_.begin(); d_it != cp.d_cnt_.end(); ++d_it) {
-        d_cnt_.push_back((*d_it)->clone());
-    }
-
-    std::vector<std::shared_ptr<fScanPar>>::const_iterator f_it;
-    for(f_it = cp.f_cnt_.begin(); f_it != cp.f_cnt_.end(); ++f_it) {
-        f_cnt_.push_back((*f_it)->clone());
-    }
+    for(const auto &p : cp.b_cnt_)     b_cnt_.push_back(p->clone());
+    for(const auto &p : cp.int32_cnt_) int32_cnt_.push_back(p->clone());
+    for(const auto &p : cp.d_cnt_)     d_cnt_.push_back(p->clone());
+    for(const auto &p : cp.f_cnt_)     f_cnt_.push_back(p->clone());
 }
 
 /******************************************************************************/
@@ -473,28 +458,16 @@ void GParameterScan::load_(const GObject *cp) {
 
     // Load the parameter objects
     b_cnt_.clear();
-    std::vector<std::shared_ptr<bScanPar>>::const_iterator b_it;
-    for(b_it = (p_load->b_cnt_).begin(); b_it != (p_load->b_cnt_).end(); ++b_it) {
-        b_cnt_.push_back((*b_it)->clone());
-    }
+    for(const auto &p : p_load->b_cnt_)     b_cnt_.push_back(p->clone());
 
     int32_cnt_.clear();
-    std::vector<std::shared_ptr<int32ScanPar>>::const_iterator i_it;
-    for(i_it = (p_load->int32_cnt_).begin(); i_it != (p_load->int32_cnt_).end(); ++i_it) {
-        int32_cnt_.push_back((*i_it)->clone());
-    }
+    for(const auto &p : p_load->int32_cnt_) int32_cnt_.push_back(p->clone());
 
     d_cnt_.clear();
-    std::vector<std::shared_ptr<dScanPar>>::const_iterator d_it;
-    for(d_it = (p_load->d_cnt_).begin(); d_it != (p_load->d_cnt_).end(); ++d_it) {
-        d_cnt_.push_back((*d_it)->clone());
-    }
+    for(const auto &p : p_load->d_cnt_)     d_cnt_.push_back(p->clone());
 
     f_cnt_.clear();
-    std::vector<std::shared_ptr<fScanPar>>::const_iterator f_it;
-    for(f_it = (p_load->f_cnt_).begin(); f_it != (p_load->f_cnt_).end(); ++f_it) {
-        f_cnt_.push_back((*f_it)->clone());
-    }
+    for(const auto &p : p_load->f_cnt_)     f_cnt_.push_back(p->clone());
 }
 
 /******************************************************************************/
@@ -765,27 +738,12 @@ void GParameterScan::randomShuffle() {
  * Resets all parameter objects
  */
 void GParameterScan::resetParameterObjects() {
-    std::vector<std::shared_ptr<bScanPar>>::iterator b_it;
-    for(b_it = b_cnt_.begin(); b_it != b_cnt_.end(); ++b_it) {
-        (*b_it)->resetPosition();
-    }
-
-    std::vector<std::shared_ptr<int32ScanPar>>::iterator i_it;
-    for(i_it = int32_cnt_.begin(); i_it != int32_cnt_.end(); ++i_it) {
-        (*i_it)->resetPosition();
-    }
-
-    std::vector<std::shared_ptr<fScanPar>>::iterator f_it;
-    for(f_it = f_cnt_.begin(); f_it != f_cnt_.end(); ++f_it) {
-        (*f_it)->resetPosition();
-    }
-
-    std::vector<std::shared_ptr<dScanPar>>::iterator d_it;
-    for(d_it = d_cnt_.begin(); d_it != d_cnt_.end(); ++d_it) {
-        (*d_it)->resetPosition();
-    }
-
-    simpleScanItems_ = std::size_t(0);
+    for(auto &p : b_cnt_)     p->resetPosition();
+    for(auto &p : int32_cnt_) p->resetPosition();
+    for(auto &p : f_cnt_)     p->resetPosition();
+    for(auto &p : d_cnt_)     p->resetPosition();
+    // simpleScanItems_ is NOT reset here: it is set by the user via setNSimpleScans()
+    // and must survive across resetParameterObjects() calls within a single optimize() run.
 }
 
 /******************************************************************************/
@@ -1250,9 +1208,7 @@ void GParameterScan::finalize() {
  * Retrieve a GPersonalityTraits object belonging to this algorithm
  */
 std::shared_ptr<GPersonalityTraits> GParameterScan::getPersonalityTraits_() const {
-    return std::shared_ptr<GParameterScan_PersonalityTraits>(
-        new GParameterScan_PersonalityTraits()
-    );
+    return std::make_shared<GParameterScan_PersonalityTraits>();
 }
 
 /******************************************************************************/

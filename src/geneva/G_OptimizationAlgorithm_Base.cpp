@@ -880,13 +880,12 @@ std::size_t G_OptimizationAlgorithm_Base::getPopulationSize() const {
  * @param maxIteration The number of iterations after which the optimization should terminate
  */
 void G_OptimizationAlgorithm_Base::setMaxIteration(std::uint32_t maxIteration) {
-    // Check that the maximum number of iterations is > the minimum number
-    // The check is only valid if a maximum number of iterations has been set (i.e. is != 0)
-    if(maxIteration_ > 0 && maxIteration_ <= minIteration_) {
+    // Check that the new maximum is > the current minimum (guard only applies when max != 0)
+    if(maxIteration > 0 && maxIteration <= minIteration_) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In G_OptimizationAlgorithm_Base<>::setMaxIteration(): Error!" << std::endl
-            << "Maximum number of iterations " << maxIteration_ << " is <= the minimum number "
+            << "Maximum number of iterations " << maxIteration << " is <= the minimum number "
             << minIteration_ << std::endl
         );
     }
@@ -914,14 +913,13 @@ std::uint32_t G_OptimizationAlgorithm_Base::getMaxIteration() const {
   * of iterations to 0 in order to disable a check for the minimal number of iterations.
 */
 void G_OptimizationAlgorithm_Base::setMinIteration(std::uint32_t minIteration) {
-    // Check that the maximum number of iterations is > the minimum number
-    // The check is only valid if a maximum number of iterations has been set (i.e. is != 0)
-    if(maxIteration_ > 0 && maxIteration_ <= minIteration_) {
+    // Check that the current maximum will remain > the new minimum (guard only applies when max != 0)
+    if(maxIteration_ > 0 && maxIteration_ <= minIteration) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In G_OptimizationAlgorithm_Base<>::setMinIteration(): Error!" << std::endl
             << "Maximum number of iterations " << maxIteration_ << " is <= the minimum number "
-            << minIteration_ << std::endl
+            << minIteration << std::endl
         );
     }
 
@@ -1663,20 +1661,18 @@ G_OptimizationAlgorithm_Base::extractOptAlgFromPath(const std::filesystem::path 
  * in the priority queue).
  */
 std::shared_ptr<GParameterSet> G_OptimizationAlgorithm_Base::getBestGlobalIndividual_() const {
-#ifdef DEBUG
     std::shared_ptr<GParameterSet> p = bestGlobalIndividuals_pq_.best();
-    if(p)
-        return p;
-    else {
+#ifdef DEBUG
+    if(!p) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In G_OptimizationAlgorithm_Base<T>::getBestGlobalIndividual_(): Error!" << std::endl
             << "Best individual seems to be empty" << std::endl
         );
     }
-#else
-    return bestGlobalIndividuals_pq_.best()->clone<GParameterSet>();
 #endif
+    // Always clone: callers must not alias the internal priority-queue entry.
+    return p->clone<GParameterSet>();
 }
 
 /******************************************************************************/
@@ -1701,11 +1697,9 @@ G_OptimizationAlgorithm_Base::getBestGlobalIndividuals_() const {
  * in the priority queue).
  */
 std::shared_ptr<GParameterSet> G_OptimizationAlgorithm_Base::getBestIterationIndividual_() const {
-#ifdef DEBUG
     std::shared_ptr<GParameterSet> p = bestIterationIndividuals_pq_.best();
-    if(p)
-        return p;
-    else {
+#ifdef DEBUG
+    if(!p) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In G_OptimizationAlgorithm_Base<T>::getBestIterationIndividual_(): Error!"
@@ -1713,9 +1707,9 @@ std::shared_ptr<GParameterSet> G_OptimizationAlgorithm_Base::getBestIterationInd
             << "Best individual seems to be empty" << std::endl
         );
     }
-#else
-    return bestIterationIndividuals_pq_.best();
 #endif
+    // Always clone: callers must not alias the internal priority-queue entry.
+    return p->clone<GParameterSet>();
 }
 
 /******************************************************************************/
@@ -1754,7 +1748,7 @@ void G_OptimizationAlgorithm_Base::resetIndividualPersonalities() {
  *
  * @param popSize The desired size of the population
  */
-void G_OptimizationAlgorithm_Base::setDefaultPopulationSize(const std::size_t &defPopSize) {
+void G_OptimizationAlgorithm_Base::setDefaultPopulationSize(std::size_t defPopSize) {
     defaultPopulationSize_ = defPopSize;
 }
 
@@ -1962,7 +1956,7 @@ bool G_OptimizationAlgorithm_Base::qualityHalt() const {
  * @return A boolean indicating whether the optimization has stalled too often in a row
  */
 bool G_OptimizationAlgorithm_Base::stallHalt() const {
-    if(stallCounter_ > maxStallIteration_) {
+    if(stallCounter_ >= maxStallIteration_) {
         if(emitTerminationReason_) {
             glogger << "Terminating optimization run because" << std::endl
                     << "maximum number of stalls " << maxStallIteration_ << " has been exceeded."
@@ -2233,23 +2227,19 @@ G_OptimizationAlgorithm_Base::createExecutor(const execMode &e) {
     switch(e) {
     case execMode::SERIAL:
         glogger << "Creating GSerialExecutorT" << std::endl << GLOGGING;
-        executor_ptr = std::shared_ptr<Gem::Courtier::GBaseExecutorT<GParameterSet>>(
-            new Gem::Courtier::GSerialExecutorT<GParameterSet>()
-        );
+        executor_ptr = std::make_shared<Gem::Courtier::GSerialExecutorT<GParameterSet>>();
         break;
 
     case execMode::MULTITHREADED:
         glogger << "Creating GMTExecutorT" << std::endl << GLOGGING;
-        executor_ptr = std::shared_ptr<Gem::Courtier::GBaseExecutorT<GParameterSet>>(
-            new Gem::Courtier::GMTExecutorT<GParameterSet>(Gem::Courtier::DEFAULTNSTDTHREADS)
+        executor_ptr = std::make_shared<Gem::Courtier::GMTExecutorT<GParameterSet>>(
+            Gem::Courtier::DEFAULTNSTDTHREADS
         );
         break;
 
     case execMode::BROKER:
         glogger << "Creating GBrokerExecutorT" << std::endl << GLOGGING;
-        executor_ptr = std::shared_ptr<Gem::Courtier::GBaseExecutorT<GParameterSet>>(
-            new Gem::Courtier::GBrokerExecutorT<GParameterSet>()
-        );
+        executor_ptr = std::make_shared<Gem::Courtier::GBrokerExecutorT<GParameterSet>>();
         break;
     }
 

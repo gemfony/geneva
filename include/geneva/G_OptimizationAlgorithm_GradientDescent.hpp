@@ -56,9 +56,9 @@ namespace Gem::Geneva {
 /**
  * The default number of simultaneous starting points for the gradient descent
  */
-const std::size_t DEFAULTGDSTARTINGPOINTS = 1;
-const double DEFAULTFINITESTEP = 0.001;
-const double DEFAULTSTEPSIZE = 0.1;
+constexpr std::size_t DEFAULTGDSTARTINGPOINTS = 1;
+constexpr double DEFAULTFINITESTEP = 0.001;
+constexpr double DEFAULTSTEPSIZE = 0.1;
 
 /******************************************************************************/
 /**
