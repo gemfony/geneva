@@ -50,7 +50,6 @@
 #include <vector>
 
 // Boost headers go here
-#include <boost/lexical_cast.hpp>
 
 // Geneva headers go here
 #include "common/GBoundedBufferT.hpp"

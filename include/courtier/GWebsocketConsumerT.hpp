@@ -51,7 +51,6 @@
 #include <boost/beast/websocket.hpp>
 #include <boost/beast/websocket/rfc6455.hpp>
 #include <boost/enable_shared_from_this.hpp>
-#include <boost/lexical_cast.hpp>
 #include <boost/serialization/vector.hpp>
 
 // Geneva headers go here
@@ -1049,7 +1048,7 @@ private:
                 glogger << "GWebsocketConsumerSessionT<processable_type>::process_request():"
                         << std::endl
                         << "Got unknown or invalid command "
-                        << boost::lexical_cast<std::string>(inboundCommand) << std::endl
+                        << inboundCommand << std::endl
                         << GWARNING;
             } break;
             }

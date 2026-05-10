@@ -43,7 +43,6 @@
 #include <vector>
 
 // Boost header files go here
-#include <boost/lexical_cast.hpp>
 #include <boost/serialization/nvp.hpp>
 #include <boost/tokenizer.hpp>
 

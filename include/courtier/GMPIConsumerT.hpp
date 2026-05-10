@@ -52,7 +52,6 @@
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/xml_oarchive.hpp>
 #include <boost/enable_shared_from_this.hpp>
-#include <boost/lexical_cast.hpp>
 #include <boost/serialization/vector.hpp>
 
 // MPI headers go here
@@ -410,7 +409,7 @@ private:
             glogger << "GMPIConsumerWorkerNodeT<processable_type>::processWorkItem() with rank="
                     << commRank_ << ":" << std::endl
                     << "Got unknown or invalid command "
-                    << boost::lexical_cast<std::string>(commandContainer_.get_command())
+                    << commandContainer_.get_command()
                     << std::endl
                     << GWARNING;
 
@@ -614,7 +613,7 @@ private:
                     << "GMPIConsumerSessionT<processable_type>::processRequest() connected to rank="
                     << mpiStatus_.MPI_SOURCE << ":" << std::endl
                     << "Got unknown or invalid command "
-                    << boost::lexical_cast<std::string>(inboundCommand) << std::endl
+                    << inboundCommand << std::endl
                     << GWARNING;
             }
             }

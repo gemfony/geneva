@@ -36,6 +36,7 @@
 #include <chrono>
 #include <cmath>
 #include <cstdlib>
+#include <iomanip>
 #include <iostream>
 #include <limits>
 #include <map>
@@ -54,7 +55,6 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/cast.hpp>
 #include <boost/checked_delete.hpp>
-#include <boost/lexical_cast.hpp>
 #include <boost/math/special_functions/next.hpp>
 
 // Geneva headers go here
@@ -67,9 +67,19 @@
 namespace Gem::Common {
 
 /******************************************************************************/
+/** @brief Converts a string to target_type via stream extraction (replaces boost::lexical_cast) */
+template <typename T>
+T from_string(const std::string &s) {
+    T val;
+    std::istringstream iss(s);
+    iss >> val;
+    return val;
+}
+
+/******************************************************************************/
 /**
  * Reads a given environment variable and converts it to a target type. The
- * function assumes that a suitable boost::lexical_cast exists for this type.
+ * function requires that target_type is extractable from an istringstream.
  *
  * @param var The name of the environment variable to be read
  * @return The converted environment variable, or an empty optional
@@ -107,7 +117,7 @@ std::optional<target_type> environmentVariableAs(std::string const &var) {
     } // releases the lock
 
     boost::trim(result_str);
-    return {boost::lexical_cast<target_type>(result_str)};
+    return {Gem::Common::from_string<target_type>(result_str)};
 }
 
 /******************************************************************************/
@@ -526,13 +536,12 @@ std::shared_ptr<target_type> convertSmartPointer(std::shared_ptr<source_type> p_
 /******************************************************************************/
 /**
  * Splits a string into a vector of target_type values using a single separator.
- * target_type must be known to boost::lexical_cast.
  */
 template <typename split_type>
 std::vector<split_type> splitStringT(const std::string &raw, const char *sep) {
     std::vector<split_type> result;
     for(const auto &fragment : Gem::Common::splitString(raw, sep)) {
-        result.push_back(boost::lexical_cast<split_type>(fragment));
+        result.push_back(Gem::Common::from_string<split_type>(fragment));
     }
     return result;
 }
@@ -565,8 +574,8 @@ splitStringT(const std::string &raw, const char *sep1, const char *sep2) {
         }
 #endif
         result.emplace_back(
-            boost::lexical_cast<split_type1>(sub[0]),
-            boost::lexical_cast<split_type2>(sub[1])
+            Gem::Common::from_string<split_type1>(sub[0]),
+            Gem::Common::from_string<split_type2>(sub[1])
         );
     }
     return result;
@@ -666,15 +675,16 @@ std::string to_string(
 
 /******************************************************************************/
 /**
- * Converts floating-point values to std::string. Uses boost::lexical_cast to
- * avoid locale-dependent decimal separators (. vs ,).
+ * Converts floating-point values to std::string with full precision.
  */
 template <typename fp_type>
 std::string to_string(
     fp_type val,
     typename std::enable_if<std::is_floating_point<fp_type>::value>::type * = 0
 ) {
-    return boost::lexical_cast<std::string>(val);
+    std::ostringstream oss;
+    oss << std::setprecision(std::numeric_limits<fp_type>::max_digits10) << val;
+    return oss.str();
 }
 
 /******************************************************************************/
@@ -693,7 +703,7 @@ std::string to_string(
 
 /******************************************************************************/
 /**
- * Converts any remaining streamable type to std::string via boost::lexical_cast.
+ * Converts any remaining streamable type to std::string via ostringstream.
  */
 template <typename default_type>
 std::string to_string(
@@ -702,7 +712,9 @@ std::string to_string(
         not std::is_enum<default_type>::value && not std::is_arithmetic<default_type>::value>::type
         * = 0
 ) {
-    return boost::lexical_cast<std::string>(val);
+    std::ostringstream oss;
+    oss << val;
+    return oss.str();
 }
 
 /******************************************************************************/

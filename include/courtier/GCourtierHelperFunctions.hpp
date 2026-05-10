@@ -45,7 +45,6 @@
 
 // Boost headers go here
 #include <boost/asio.hpp>
-#include <boost/lexical_cast.hpp>
 
 // Geneva headers go here
 #include "common/GErrorStreamer.hpp"

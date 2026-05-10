@@ -42,7 +42,6 @@
 
 // Boost header files go here
 #include <boost/exception/all.hpp>
-#include <boost/lexical_cast.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
 

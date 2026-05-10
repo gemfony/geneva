@@ -49,7 +49,6 @@
 
 // Boost headers go here
 #include <boost/cast.hpp>
-#include <boost/lexical_cast.hpp>
 
 // Gemfony headers go here
 #include "common/GCommonEnums.hpp"

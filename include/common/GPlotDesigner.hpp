@@ -54,7 +54,6 @@
 #include <boost/archive/xml_oarchive.hpp>
 #include <boost/cast.hpp>
 #include <boost/fusion/adapted/std_tuple.hpp> // Compare http://stackoverflow.com/questions/18158376/getting-boostspiritqi-to-use-stl-containers
-#include <boost/lexical_cast.hpp>
 #include <boost/serialization/assume_abstract.hpp>
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/export.hpp>

@@ -45,7 +45,6 @@
 #include <boost/fusion/include/boost_tuple.hpp>
 #include <boost/fusion/include/io.hpp>
 #include <boost/fusion/include/tuple.hpp>
-#include <boost/lexical_cast.hpp>
 #include <boost/phoenix/core.hpp>
 #include <boost/phoenix/operator.hpp>
 #include <boost/phoenix/stl.hpp>

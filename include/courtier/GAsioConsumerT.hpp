@@ -49,7 +49,6 @@
 #include <boost/archive/xml_oarchive.hpp>
 #include <boost/asio.hpp>
 #include <boost/enable_shared_from_this.hpp>
-#include <boost/lexical_cast.hpp>
 #include <boost/serialization/vector.hpp>
 
 // Geneva headers go here
@@ -405,7 +404,7 @@ private:
                 g_error_streamer(DO_LOG, time_and_place)
                 << "GWebsocketClientT<processable_type>::process_request():" << std::endl
                 << "Got unknown or invalid command "
-                << boost::lexical_cast<std::string>(inboundCommand) << std::endl
+                << inboundCommand << std::endl
             );
         } break;
         }
@@ -675,7 +674,7 @@ private:
                 glogger << "GAsioConsumerSessionT<processable_type>::process_request():"
                         << std::endl
                         << "Got unknown or invalid command "
-                        << boost::lexical_cast<std::string>(inboundCommand) << std::endl
+                        << inboundCommand << std::endl
                         << GWARNING;
             } break;
             }

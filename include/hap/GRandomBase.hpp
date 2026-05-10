@@ -46,7 +46,6 @@
 
 // Boost headers go here
 #include <boost/cast.hpp>
-#include <boost/lexical_cast.hpp>
 #include <boost/math/constants/constants.hpp>
 
 // Hap headers go here

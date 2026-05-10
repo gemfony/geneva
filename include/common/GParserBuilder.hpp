@@ -60,7 +60,6 @@
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/xml_oarchive.hpp>
-#include <boost/lexical_cast.hpp>
 #include <boost/program_options.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/serialization/base_object.hpp>
@@ -1357,7 +1356,7 @@ private:
         std::string ppath = GParsableI::optionName(0) + ".value";
         for(auto const &v : pt.get_child(ppath.c_str())) {
             GVectorParT<parameter_type>::par_cnt_.push_back(
-                boost::lexical_cast<parameter_type>(v.second.data())
+                Gem::Common::from_string<parameter_type>(v.second.data())
             );
         }
     }
@@ -1517,7 +1516,7 @@ private:
         std::string ppath = GParsableI::optionName(0) + ".value";
         for(auto const &v : pt.get_child(ppath.c_str())) {
             GVectorParT<parameter_type>::par_cnt_.push_back(
-                boost::lexical_cast<parameter_type>(v.second.data())
+                Gem::Common::from_string<parameter_type>(v.second.data())
             );
         }
     }

@@ -59,7 +59,6 @@
 #include <vector>
 
 // Boost headers go here
-#include <boost/lexical_cast.hpp>
 
 // Geneva header files go here
 
