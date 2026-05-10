@@ -51,7 +51,6 @@
 
 // Boost headers go here
 #include <boost/lexical_cast.hpp>
-#include <boost/utility.hpp>
 
 // Geneva headers go here
 #include "common/GBoundedBufferT.hpp"
@@ -110,7 +109,7 @@ public:
 
     /***************************************************************************/
     // Defaulted or deleted constructors and assignment operators.
-    // This class should be noncopyable.
+    // Copy and move are explicitly deleted.
 
     GBrokerT() = default;
 

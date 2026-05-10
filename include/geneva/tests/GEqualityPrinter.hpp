@@ -41,8 +41,6 @@
 #include <vector>
 
 // Boost header files go here
-#include <boost/utility.hpp>
-
 // Geneva headers go here
 #include "common/GExpectationChecksT.hpp"
 #include "common/GPODVectorT.hpp"
@@ -52,8 +50,10 @@
 /**
  * This is a simple convenience class to facilitate comparisons in Geneva's test framework.
  */
-class GEqualityPrinter : boost::noncopyable {
+class GEqualityPrinter {
 public:
+    GEqualityPrinter(const GEqualityPrinter&) = delete;
+    GEqualityPrinter& operator=(const GEqualityPrinter&) = delete;
     /*********************************************************************************************/
     /**
 	 * The only constructor. The default constructor has been disabled.

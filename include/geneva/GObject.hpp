@@ -64,7 +64,6 @@
 #include <boost/program_options.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/ptree_serialization.hpp>
-#include <boost/utility.hpp>
 
 // Geneva header files go here
 #include "common/GCommonHelperFunctionsT.hpp"

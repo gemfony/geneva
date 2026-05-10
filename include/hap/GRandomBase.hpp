@@ -48,7 +48,6 @@
 #include <boost/cast.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/math/constants/constants.hpp>
-#include <boost/utility.hpp>
 
 // Hap headers go here
 #include "hap/GHapEnums.hpp"

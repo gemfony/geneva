@@ -72,7 +72,6 @@
 #include <boost/spirit/include/qi_operator.hpp>
 #include <boost/spirit/include/qi_raw.hpp>
 #include <boost/spirit/include/qi_string.hpp>
-#include <boost/utility.hpp>
 
 // Geneva headers go here
 #include "common/GErrorStreamer.hpp"

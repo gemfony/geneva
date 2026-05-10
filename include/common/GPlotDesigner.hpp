@@ -65,7 +65,6 @@
 #include <boost/serialization/tracking.hpp>
 #include <boost/serialization/utility.hpp>
 #include <boost/serialization/vector.hpp>
-#include <boost/utility.hpp>
 
 // Geneva headers go here
 #include "common/GCommonEnums.hpp"

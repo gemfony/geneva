@@ -44,7 +44,6 @@
 // Boost header files go here
 #include <boost/asio.hpp>
 #include <boost/exception/all.hpp>
-#include <boost/utility.hpp>
 
 // Geneva header files go here
 #include "common/GCommonEnums.hpp"

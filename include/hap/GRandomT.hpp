@@ -86,7 +86,7 @@ public:
  * This specialization of the general GRandomT<> class retrieves random numbers
  * in batches from a global random number factory. The functions provided by
  * GRandomBase then produce different types of random numbers from this raw material.
- * As the class derives from boost::noncopyable, it is not possible to assign other
+ * Copy and move are explicitly deleted; it is not possible to assign other
  * objects or use copy constructors.
  */
 template <>

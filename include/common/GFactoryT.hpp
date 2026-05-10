@@ -53,7 +53,6 @@
 #include <boost/serialization/tracking.hpp>
 #include <boost/serialization/utility.hpp>
 #include <boost/serialization/vector.hpp>
-#include <boost/utility.hpp>
 
 // Geneva header files go here
 #include "common/GCommonHelperFunctionsT.hpp"

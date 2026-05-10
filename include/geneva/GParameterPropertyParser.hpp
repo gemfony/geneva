@@ -59,7 +59,6 @@
 #include <boost/spirit/include/qi_operator.hpp>
 #include <boost/spirit/include/qi_raw.hpp>
 #include <boost/spirit/include/qi_string.hpp>
-#include <boost/utility.hpp>
 
 // Geneva headers go here
 #include "common/GCommonInterfaceT.hpp"
@@ -347,10 +346,11 @@ namespace Gem::Geneva {
  * (including ranges and steps). Note that this class is meant for setup purposes
  * only and thus cannot be serialized (nor can it be copied).
  */
-class GParameterPropertyParser
-  : boost::noncopyable // Make sure this class cannot be copied
-{
+class GParameterPropertyParser {
 public:
+    GParameterPropertyParser(const GParameterPropertyParser&) = delete;
+    GParameterPropertyParser& operator=(const GParameterPropertyParser&) = delete;
+
     /** @brief The default constructor -- intentionally undefined */
     GParameterPropertyParser() = delete;
     /** @brief The standard constructor -- assignment of the "raw" paramter property string */

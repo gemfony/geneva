@@ -40,9 +40,6 @@
 #include <sstream>
 #include <thread>
 
-// Boost header files go here
-#include <boost/utility.hpp>
-
 // Geneva header files go here
 #include "common/GBoundedBufferT.hpp"
 #include "common/GCommonHelperFunctionsT.hpp"

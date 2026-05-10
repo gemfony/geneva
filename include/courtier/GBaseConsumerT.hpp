@@ -52,7 +52,6 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/program_options.hpp>
 #include <boost/serialization/vector.hpp>
-#include <boost/utility.hpp>
 
 // Geneva headers go here
 #include "common/GParserBuilder.hpp"
@@ -66,8 +65,8 @@ namespace Gem::Courtier {
  * objects from GBrokerT and process them, either locally or remotely.
  * Derived classes such as the GAsioTCPConsumerT form the single point
  * of contact for remote clients. We do not want this class and its
- * derivatives to be copyable, hence we derive it from the
- * boost::noncopyable class. GBaseConsumerT::process() is started in a separate
+ * derivatives to be copyable; copy and move are explicitly deleted.
+ * GBaseConsumerT::process() is started in a separate
  * thread by the broker. GBaseConsumer::shutdown() is called by the broker
  * when the consumer is supposed to shut down. Please note that, for the
  * purpose of the calculation of timeouts, the time of the first retrieval

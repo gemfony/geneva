@@ -55,7 +55,6 @@
 #include <boost/logic/tribool.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/vector.hpp>
-#include <boost/utility.hpp>
 
 // Geneva headers go here
 #include "common/GCommonEnums.hpp"

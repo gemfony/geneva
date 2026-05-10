@@ -72,10 +72,6 @@
 #include <tuple>
 #include <type_traits>
 
-// Boost headers go here
-
-#include <boost/utility.hpp>
-
 // Geneva headers go here
 #include "common/GCommonEnums.hpp"
 #include "common/GExceptions.hpp"

@@ -50,8 +50,6 @@
 
 // Boost headers go here
 
-#include <boost/utility.hpp>
-
 // Geneva headers go here
 
 namespace Gem::Common {
@@ -77,7 +75,7 @@ typename std::shared_ptr<T> TFactory_GSingletonT() {
  * the static shared_ptr may long have vanished at that time.
  */
 template <typename T>
-class GSingletonT : boost::noncopyable {
+class GSingletonT {
 public:
     /***************************************************************************/
     // Deleted constructors, destructor and assignment operators. This class is

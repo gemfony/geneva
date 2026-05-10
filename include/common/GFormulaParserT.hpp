@@ -72,7 +72,6 @@
 #include <boost/spirit/include/qi_numeric.hpp>
 #include <boost/spirit/include/qi_operator.hpp>
 #include <boost/spirit/include/qi_string.hpp>
-#include <boost/utility.hpp>
 #include <boost/xpressive/xpressive.hpp>
 
 // Geneva headers go here

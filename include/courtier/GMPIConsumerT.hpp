@@ -54,7 +54,6 @@
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/serialization/vector.hpp>
-#include <boost/utility.hpp>
 
 // MPI headers go here
 

@@ -72,7 +72,6 @@
 #include <boost/serialization/utility.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/tokenizer.hpp>
-#include <boost/utility.hpp>
 
 // Geneva header files go here
 #include "common/GCommonEnums.hpp"
@@ -503,7 +502,7 @@ private:
 /**
  * This class specifies the interface of parsable file parameters, to
  * which a call-back function has been assigned. Note that this class cannot
- * be copied, as the parent class is derived from boost::noncopyable.
+ * be copied; copy and move are explicitly deleted.
  */
 class GFileParsableI : public GParsableI {
     // We want GParserBuilder to be able to call our private load- and save functions
@@ -1975,8 +1974,7 @@ private:
 /******************************************************************************/
 /**
  * This class specifies the interface of parsable command line parameters. Note
- * that this class cannot be copied, as the parent class is derived from
- * boost::noncopyable.
+ * that this class cannot be copied; copy and move are explicitly deleted.
  */
 class GCLParsableI : public GParsableI {
     // We want GParserBuilder to be able to call our private load- and save functions
