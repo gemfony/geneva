@@ -580,77 +580,77 @@ const updateRule DEFAULTUPDATERULE =
 /******************************************************************************/
 
 /** @brief Puts a Gem::Geneva::maxMode into a stream. Needed also for boost::lexical_cast<> */
-G_API_GENEVA std::ostream &operator<<(std::ostream &, const Gem::Geneva::maxMode &);
+std::ostream &operator<<(std::ostream &, const Gem::Geneva::maxMode &);
 
 /** @brief Reads a Gem::Geneva::maxMode from a stream. Needed also for boost::lexical_cast<> */
-G_API_GENEVA std::istream &operator>>(std::istream &, Gem::Geneva::maxMode &);
+std::istream &operator>>(std::istream &, Gem::Geneva::maxMode &);
 
 /** @brief Puts a Gem::Geneva::activityMode into a stream. Needed also for boost::lexical_cast<> */
-G_API_GENEVA std::ostream &operator<<(std::ostream &, const Gem::Geneva::activityMode &);
+std::ostream &operator<<(std::ostream &, const Gem::Geneva::activityMode &);
 
 /** @brief Reads a Gem::Geneva::activityMode item from a stream. Needed also for boost::lexical_cast<> */
-G_API_GENEVA std::istream &operator>>(std::istream &, Gem::Geneva::activityMode &);
+std::istream &operator>>(std::istream &, Gem::Geneva::activityMode &);
 
 /** @brief Puts a Gem::Geneva::evaluationPolicy into a stream. Needed also for boost::lexical_cast<> */
-G_API_GENEVA std::ostream &operator<<(std::ostream &, const Gem::Geneva::evaluationPolicy &);
+std::ostream &operator<<(std::ostream &, const Gem::Geneva::evaluationPolicy &);
 
 /** @brief Reads a Gem::Geneva::evaluationPolicy item from a stream. Needed also for boost::lexical_cast<> */
-G_API_GENEVA std::istream &operator>>(std::istream &, Gem::Geneva::evaluationPolicy &);
+std::istream &operator>>(std::istream &, Gem::Geneva::evaluationPolicy &);
 
 /** @brief Puts a Gem::Geneva::validityCheckCombinerPolicy into a stream. Needed also for boost::lexical_cast<> */
-G_API_GENEVA std::ostream &
+std::ostream &
 operator<<(std::ostream &, const Gem::Geneva::validityCheckCombinerPolicy &);
 
 /** @brief Reads a Gem::Geneva::validityCheckCombinerPolicy item from a stream. Needed also for boost::lexical_cast<> */
-G_API_GENEVA std::istream &operator>>(std::istream &, Gem::Geneva::validityCheckCombinerPolicy &);
+std::istream &operator>>(std::istream &, Gem::Geneva::validityCheckCombinerPolicy &);
 
 /** @brief Puts a Gem::Geneva::execMode into a stream. Needed also for boost::lexical_cast<> */
-G_API_GENEVA std::ostream &operator<<(std::ostream &, const Gem::Geneva::execMode &);
+std::ostream &operator<<(std::ostream &, const Gem::Geneva::execMode &);
 
 /** @brief Reads a Gem::Geneva::execMode item from a stream. Needed also for boost::lexical_cast<> */
-G_API_GENEVA std::istream &operator>>(std::istream &, Gem::Geneva::execMode &);
+std::istream &operator>>(std::istream &, Gem::Geneva::execMode &);
 
 /** @brief Puts a Gem::Geneva::duplicationScheme into a stream. Needed also for boost::lexical_cast<> */
-G_API_GENEVA std::ostream &operator<<(std::ostream &, const Gem::Geneva::duplicationScheme &);
+std::ostream &operator<<(std::ostream &, const Gem::Geneva::duplicationScheme &);
 
 /** @brief Reads a Gem::Geneva::duplicationScheme item from a stream. Needed also for boost::lexical_cast<> */
-G_API_GENEVA std::istream &operator>>(std::istream &, Gem::Geneva::duplicationScheme &);
+std::istream &operator>>(std::istream &, Gem::Geneva::duplicationScheme &);
 
 /** @brief Puts a Gem::Geneva::infoMode into a stream. Needed also for boost::lexical_cast<> */
-G_API_GENEVA std::ostream &operator<<(std::ostream &, const Gem::Geneva::infoMode &);
+std::ostream &operator<<(std::ostream &, const Gem::Geneva::infoMode &);
 
 /** @brief Reads a Gem::Geneva::infoMode item from a stream. Needed also for boost::lexical_cast<> */
-G_API_GENEVA std::istream &operator>>(std::istream &, Gem::Geneva::infoMode &);
+std::istream &operator>>(std::istream &, Gem::Geneva::infoMode &);
 
 /** @brief Puts a Gem::Geneva::adaptorId into a stream. Needed also for boost::lexical_cast<> */
-G_API_GENEVA std::ostream &operator<<(std::ostream &, const Gem::Geneva::adaptorId &);
+std::ostream &operator<<(std::ostream &, const Gem::Geneva::adaptorId &);
 
 /** @brief Reads a Gem::Geneva::adaptorId item from a stream. Needed also for boost::lexical_cast<> */
-G_API_GENEVA std::istream &operator>>(std::istream &, Gem::Geneva::adaptorId &);
+std::istream &operator>>(std::istream &, Gem::Geneva::adaptorId &);
 
 /** @brief Puts a Gem::Geneva::sortingMode into a stream. Needed also for boost::lexical_cast<> */
-G_API_GENEVA std::ostream &operator<<(std::ostream &, const Gem::Geneva::sortingMode &);
+std::ostream &operator<<(std::ostream &, const Gem::Geneva::sortingMode &);
 
 /** @brief Reads a Gem::Geneva::sortingMode from a stream. Needed also for boost::lexical_cast<> */
-G_API_GENEVA std::istream &operator>>(std::istream &, Gem::Geneva::sortingMode &);
+std::istream &operator>>(std::istream &, Gem::Geneva::sortingMode &);
 
 /** @brief Puts a Gem::Geneva::sortingModeMP into a stream. Needed also for boost::lexical_cast<> */
-G_API_GENEVA std::ostream &operator<<(std::ostream &, const Gem::Geneva::sortingModeMP &);
+std::ostream &operator<<(std::ostream &, const Gem::Geneva::sortingModeMP &);
 
 /** @brief Reads a Gem::Geneva::sortingModeMP from a stream. Needed also for boost::lexical_cast<> */
-G_API_GENEVA std::istream &operator>>(std::istream &, Gem::Geneva::sortingModeMP &);
+std::istream &operator>>(std::istream &, Gem::Geneva::sortingModeMP &);
 
 /** @brief Puts a Gem::Geneva::updateRule into a stream. Needed also for boost::lexical_cast<> */
-G_API_GENEVA std::ostream &operator<<(std::ostream &, const Gem::Geneva::updateRule &);
+std::ostream &operator<<(std::ostream &, const Gem::Geneva::updateRule &);
 
 /** @brief Reads a Gem::Geneva::updateRule from a stream. Needed also for boost::lexical_cast<> */
-G_API_GENEVA std::istream &operator>>(std::istream &, Gem::Geneva::updateRule &);
+std::istream &operator>>(std::istream &, Gem::Geneva::updateRule &);
 
 /** @brief Puts a Gem::Geneva::adaptionMode into a stream. Needed also for boost::lexical_cast<> */
-G_API_GENEVA std::ostream &operator<<(std::ostream &, const Gem::Geneva::adaptionMode &);
+std::ostream &operator<<(std::ostream &, const Gem::Geneva::adaptionMode &);
 
 /** @brief Reads a Gem::Geneva::adaptionMode from a stream. Needed also for boost::lexical_cast<> */
-G_API_GENEVA std::istream &operator>>(std::istream &, Gem::Geneva::adaptionMode &);
+std::istream &operator>>(std::istream &, Gem::Geneva::adaptionMode &);
 
 /******************************************************************************/
 

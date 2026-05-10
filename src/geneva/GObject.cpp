@@ -37,7 +37,7 @@ namespace Gem::Geneva {
 
 /******************************************************************************/
 // Needed to allow catching of a SIGHUP or CTRL_CLOSE_EVENT event
-volatile G_API_GENEVA std::sig_atomic_t GObject::GenevaSigHupSent = 0;
+volatile std::sig_atomic_t GObject::GenevaSigHupSent = 0;
 
 /******************************************************************************/
 /**

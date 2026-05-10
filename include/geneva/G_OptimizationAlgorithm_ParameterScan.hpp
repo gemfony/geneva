@@ -91,10 +91,10 @@ std::vector<T> fillWithData(
 }
 
 template <>
-G_API_GENEVA std::vector<bool> fillWithData<bool>(std::size_t nSteps, bool lower, bool upper);
+std::vector<bool> fillWithData<bool>(std::size_t nSteps, bool lower, bool upper);
 
 template <>
-G_API_GENEVA std::vector<std::int32_t> fillWithData<std::int32_t>(
+std::vector<std::int32_t> fillWithData<std::int32_t>(
     std::size_t nSteps // will only be used for random entries
     ,
     std::int32_t lower,
@@ -102,10 +102,10 @@ G_API_GENEVA std::vector<std::int32_t> fillWithData<std::int32_t>(
 );
 
 template <>
-G_API_GENEVA std::vector<float> fillWithData<float>(std::size_t nSteps, float lower, float upper);
+std::vector<float> fillWithData<float>(std::size_t nSteps, float lower, float upper);
 
 template <>
-G_API_GENEVA std::vector<double>
+std::vector<double>
 fillWithData<double>(std::size_t nSteps, double lower, double upper);
 
 /******************************************************************************/
@@ -116,13 +116,13 @@ fillWithData<double>(std::size_t nSteps, double lower, double upper);
  */
 class scanParInterface {
 public:
-    virtual G_API_GENEVA ~scanParInterface() = default;
-    virtual G_API_GENEVA NAMEANDIDTYPE getVarAddress() const = 0;
-    virtual G_API_GENEVA bool goToNextItem() = 0;
-    virtual G_API_GENEVA bool isAtTerminalPosition() const = 0;
-    virtual G_API_GENEVA bool isAtFirstPosition() const = 0;
-    virtual G_API_GENEVA void resetPosition() = 0;
-    virtual G_API_GENEVA std::string getTypeDescriptor() const = 0;
+    virtual ~scanParInterface() = default;
+    virtual NAMEANDIDTYPE getVarAddress() const = 0;
+    virtual bool goToNextItem() = 0;
+    virtual bool isAtTerminalPosition() const = 0;
+    virtual bool isAtFirstPosition() const = 0;
+    virtual void resetPosition() = 0;
+    virtual std::string getTypeDescriptor() const = 0;
 };
 
 /******************************************************************************/
@@ -395,18 +395,18 @@ class bScanPar // NOLINT(cppcoreguidelines-special-member-functions)
 
 public:
     /** @brief Construction from local variables */
-    G_API_GENEVA bScanPar(parPropSpec<bool>, bool);
+    bScanPar(parPropSpec<bool>, bool);
     /** @brief Copy constructor */
-    G_API_GENEVA bScanPar(const bScanPar &) = default;
+    bScanPar(const bScanPar &) = default;
     /** @brief The destructor */
-    G_API_GENEVA ~bScanPar() override = default;
+    ~bScanPar() override = default;
 
     /** @brief Cloning of this object */
-    G_API_GENEVA std::shared_ptr<bScanPar> clone() const;
+    std::shared_ptr<bScanPar> clone() const;
 
 private:
     /** @brief The default constructor -- only needed for de-serialization, hence private */
-    G_API_GENEVA bScanPar();
+    bScanPar();
 };
 
 /******************************************************************************/
@@ -431,18 +431,18 @@ class int32ScanPar // NOLINT(cppcoreguidelines-special-member-functions)
 
 public:
     /** @brief The standard destructor */
-    G_API_GENEVA int32ScanPar(parPropSpec<std::int32_t>, bool);
+    int32ScanPar(parPropSpec<std::int32_t>, bool);
     /** @brief Copy constructor */
-    G_API_GENEVA int32ScanPar(const int32ScanPar &) = default;
+    int32ScanPar(const int32ScanPar &) = default;
     /** @brief The destructor */
-    G_API_GENEVA ~int32ScanPar() override = default;
+    ~int32ScanPar() override = default;
 
     /** @brief Cloning of this object */
-    G_API_GENEVA std::shared_ptr<int32ScanPar> clone() const;
+    std::shared_ptr<int32ScanPar> clone() const;
 
 private:
     /** @brief The default constructor -- only needed for de-serialization, hence private */
-    G_API_GENEVA int32ScanPar();
+    int32ScanPar();
 };
 
 /******************************************************************************/
@@ -467,18 +467,18 @@ class dScanPar // NOLINT(cppcoreguidelines-special-member-functions)
 
 public:
     /** @brief The standard destructor */
-    G_API_GENEVA dScanPar(parPropSpec<double>, bool);
+    dScanPar(parPropSpec<double>, bool);
     /** @brief The copy constructor */
-    G_API_GENEVA dScanPar(const dScanPar &) = default;
+    dScanPar(const dScanPar &) = default;
     /** @brief The destructor */
-    G_API_GENEVA ~dScanPar() override = default;
+    ~dScanPar() override = default;
 
     /** @brief Cloning of this object */
-    G_API_GENEVA std::shared_ptr<dScanPar> clone() const;
+    std::shared_ptr<dScanPar> clone() const;
 
 private:
     /** @brief The default constructor -- only needed for de-serialization, hence private */
-    G_API_GENEVA dScanPar();
+    dScanPar();
 };
 
 /******************************************************************************/
@@ -503,18 +503,18 @@ class fScanPar // NOLINT(cppcoreguidelines-special-member-functions)
 
 public:
     /** @brief The standard destructor */
-    G_API_GENEVA fScanPar(parPropSpec<float>, bool);
+    fScanPar(parPropSpec<float>, bool);
     /** @brief The copy constructor */
-    G_API_GENEVA fScanPar(const fScanPar &) = default;
+    fScanPar(const fScanPar &) = default;
     /** @brief The destructor */
-    G_API_GENEVA ~fScanPar() override = default;
+    ~fScanPar() override = default;
 
     /** @brief Cloning of this object */
-    G_API_GENEVA std::shared_ptr<fScanPar> clone() const;
+    std::shared_ptr<fScanPar> clone() const;
 
 private:
     /** @brief The default constructor -- only needed for de-serialization, hence private */
-    G_API_GENEVA fScanPar();
+    fScanPar();
 };
 
 /******************************************************************************/
@@ -541,7 +541,7 @@ struct parSet {
 
 /******************************************************************************/
 /** @brief A simple output operator for parSet object, mostly meant for debugging */
-G_API_GENEVA std::ostream &operator<<(std::ostream &os, const parSet &pS);
+std::ostream &operator<<(std::ostream &os, const parSet &pS);
 
 /******************************************************************************/
 /** @brief The default number of "best" individuals to be kept during the algorithm run */
@@ -593,40 +593,40 @@ class GParameterScan // NOLINT(cppcoreguidelines-special-member-functions)
 
 public:
     /** @brief The default constructor */
-    G_API_GENEVA GParameterScan() = default;
+    GParameterScan() = default;
     /** @brief A standard copy constructor */
-    G_API_GENEVA GParameterScan(const GParameterScan &);
+    GParameterScan(const GParameterScan &);
     /** @brief The destructor */
-    G_API_GENEVA ~GParameterScan() override = default;
+    ~GParameterScan() override = default;
 
     /** @brief Allows to set the number of "best" individuals to be monitored over the course of the algorithm run */
-    G_API_GENEVA void setNMonitorInds(std::size_t);
+    void setNMonitorInds(std::size_t);
     /** @brief Allows to retrieve  the number of "best" individuals to be monitored over the course of the algorithm run */
-    G_API_GENEVA std::size_t getNMonitorInds() const;
+    std::size_t getNMonitorInds() const;
 
     /** @brief Fills vectors with parameter specifications */
-    G_API_GENEVA void setParameterSpecs(std::string);
+    void setParameterSpecs(std::string);
 
     /** @brief Puts the class in "simple scan" mode */
-    G_API_GENEVA void setNSimpleScans(std::size_t);
+    void setNSimpleScans(std::size_t);
     /** @brief Retrieves the number of simple scans (or 0, if disabled) */
-    G_API_GENEVA std::size_t getNSimpleScans() const;
+    std::size_t getNSimpleScans() const;
     /** @brief Retrieves the number of scans performed so far */
-    G_API_GENEVA std::size_t getNScansPerformed() const;
+    std::size_t getNScansPerformed() const;
 
     /** @brief Allows to specify whether the parameter space should be scanned randomly or on a grid */
-    G_API_GENEVA void setScanRandomly(bool);
+    void setScanRandomly(bool);
     /** @brief Allows to check whether the parameter space should be scanned randomly or on a grid */
-    G_API_GENEVA bool getScanRandomly() const;
+    bool getScanRandomly() const;
 
 protected:
     /***************************************************************************/
     // Virtual or overridden protected functions
 
     /** @brief Adds local configuration options to a GParserBuilder object */
-    G_API_GENEVA void addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) override;
+    void addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) override;
     /** @brief Loads the data of another population */
-    G_API_GENEVA void load_(const GObject *) override;
+    void load_(const GObject *) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GParameterScan>(
@@ -636,7 +636,7 @@ protected:
     );
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
-    G_API_GENEVA void compare_(
+    void compare_(
         const GObject & // the other object
         ,
         const Gem::Common::expectation & // the expectation for this object, e.g. equality
@@ -645,19 +645,19 @@ protected:
     ) const override;
 
     /** @brief Resets the settings of this population to what was configured when the optimize()-call was issued */
-    G_API_GENEVA void resetToOptimizationStart_() override;
+    void resetToOptimizationStart_() override;
 
     /** @brief Does some preparatory work before the optimization starts */
-    G_API_GENEVA void init() override;
+    void init() override;
     /** @brief Does any necessary finalization work */
-    G_API_GENEVA void finalize() override;
+    void finalize() override;
 
     /** @brief Applies modifications to this object. This is needed for testing purposes */
-    G_API_GENEVA bool modify_GUnitTests_() override;
+    bool modify_GUnitTests_() override;
     /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-    G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests_() override;
+    void specificTestsNoFailureExpected_GUnitTests_() override;
     /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-    G_API_GENEVA void specificTestsFailuresExpected_GUnitTests_() override;
+    void specificTestsFailuresExpected_GUnitTests_() override;
 
     /***************************************************************************/
 
@@ -666,32 +666,32 @@ private:
     // Virtual or overridden private functions
 
     /** @brief Emits a name for this class / object */
-    G_API_GENEVA std::string name_() const override;
+    std::string name_() const override;
     /** @brief Creates a deep clone of this object */
-    G_API_GENEVA GObject *clone_() const override;
+    GObject *clone_() const override;
 
     /** @brief The actual business logic to be performed during each iteration. Returns the best achieved fitness */
-    G_API_GENEVA std::tuple<double, double> cycleLogic_() override;
+    std::tuple<double, double> cycleLogic_() override;
     /** @brief Triggers fitness calculation of a number of individuals */
-    G_API_GENEVA void runFitnessCalculation_() override;
+    void runFitnessCalculation_() override;
 
     /** @brief Returns information about the type of optimization algorithm */
-    G_API_GENEVA std::string getAlgorithmPersonalityType_() const override;
+    std::string getAlgorithmPersonalityType_() const override;
     /** @brief Returns the name of this optimization algorithm */
-    G_API_GENEVA std::string getAlgorithmName_() const override;
+    std::string getAlgorithmName_() const override;
 
     /** @brief Retrieves the number of processable items for the current iteration */
-    G_API_GENEVA std::size_t getNProcessableItems_() const override;
+    std::size_t getNProcessableItems_() const override;
 
     /** @brief A custom halt criterion for the optimization, allowing to stop the loop when no items are left to be scanned */
-    G_API_GENEVA bool customHalt_() const override;
+    bool customHalt_() const override;
 
     /** @brief Resizes the population to the desired level and does some error checks */
-    G_API_GENEVA void adjustPopulation_() override;
+    void adjustPopulation_() override;
     /** @brief Retrieve a GPersonalityTraits object belonging to this algorithm */
-    G_API_GENEVA std::shared_ptr<GPersonalityTraits> getPersonalityTraits_() const override;
+    std::shared_ptr<GPersonalityTraits> getPersonalityTraits_() const override;
     /** @brief Gives individuals an opportunity to update their internal structures */
-    G_API_GENEVA void actOnStalls_() override;
+    void actOnStalls_() override;
 
     /***************************************************************************/
     /**

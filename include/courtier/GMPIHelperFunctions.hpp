@@ -73,19 +73,19 @@ struct MPICompletionStatus {
 };
 
 /******************************************************************************/
-G_API_COMMON
+
 int mpiGetCount(const MPI_Status &, MPI_Datatype = MPI_CHAR);
 
 /******************************************************************************/
-G_API_COMMON
+
 std::string mpiErrorString(int);
 
 /******************************************************************************/
-G_API_COMMON
+
 std::uint32_t mpiSize(const MPI_Comm &comm);
 
 /******************************************************************************/
-G_API_COMMON
+
 [[nodiscard]] MPICompletionStatus mpiScatterWhile(
     const void *sendBuf,
     const std::uint32_t &sendCount,
@@ -98,7 +98,7 @@ G_API_COMMON
 );
 
 /******************************************************************************/
-G_API_COMMON
+
 [[nodiscard]] MPICompletionStatus mpiGatherWhile(
     const void *sendBuf,
     const std::uint32_t &sendCount,

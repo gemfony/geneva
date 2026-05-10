@@ -35,7 +35,7 @@ namespace Gem::Geneva {
 
 /******************************************************************************/
 /** A short identifier suitable for storage in a std::map */
-G_API_GENEVA const std::string GEvolutionaryAlgorithm_PersonalityTraits::nickname = "ea"; // NOLINT
+const std::string GEvolutionaryAlgorithm_PersonalityTraits::nickname = "ea"; // NOLINT
 
 /******************************************************************************/
 /**

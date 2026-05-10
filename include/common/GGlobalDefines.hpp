@@ -94,38 +94,6 @@
 #define BOOST_FILESYSTEM_VERSION 3
 
 //-----------------------------------------------------------
-// Care for symbols to be exported. We cover here all the
-// libraries to avoid extra headers.
-#ifdef GEM_COMMON_EXPORTS
-#define G_API_COMMON BOOST_SYMBOL_EXPORT
-#else
-#define G_API_COMMON BOOST_SYMBOL_IMPORT
-#endif /* GEM_COMMON_EXPORTS */
-
-#ifdef GEM_HAP_EXPORTS
-#define G_API_HAP BOOST_SYMBOL_EXPORT
-#else
-#define G_API_HAP BOOST_SYMBOL_IMPORT
-#endif /* GEM_HAP_EXPORTS */
-
-#ifdef GEM_COURTIER_EXPORTS
-#define G_API_COURTIER BOOST_SYMBOL_EXPORT
-#else
-#define G_API_COURTIER BOOST_SYMBOL_IMPORT
-#endif /* GEM_COURTIER_EXPORTS */
-
-#ifdef GEM_GENEVA_EXPORTS
-#define G_API_GENEVA BOOST_SYMBOL_EXPORT
-#else
-#define G_API_GENEVA BOOST_SYMBOL_IMPORT
-#endif /* GEM_GENEVA_EXPORTS */
-
-#ifdef GEM_INDIVIDUALS_EXPORTS
-#define G_API_INDIVIDUALS BOOST_SYMBOL_EXPORT
-#else
-#define G_API_INDIVIDUALS BOOST_SYMBOL_IMPORT
-#endif /* GEM_INDIVIDUALS_EXPORTS */
-//-----------------------------------------------------------
 
 /** Funnily, on g++ std::pow(x,2) seems to be less efficient than direct multiplication */
 #define GSQUARED(X) ((X) * (X))

@@ -124,7 +124,7 @@ public:
 protected:
     /**************************************************************************/
     /** @brief Raw post-processing (no checks for eligibility); purely virtual */
-    virtual G_API_GENEVA bool raw_processing_(base_type &p_raw) = 0;
+    virtual bool raw_processing_(base_type &p_raw) = 0;
 
     /**************************************************************************/
     /**
@@ -271,7 +271,7 @@ private:
 
     /**************************************************************************/
     /** @brief Creates a deep clone of this object; purely virtual */
-    G_API_GENEVA Gem::Common::GSerializableFunctionObjectT<base_type> *clone_() const override = 0;
+    Gem::Common::GSerializableFunctionObjectT<base_type> *clone_() const override = 0;
 
     /**************************************************************************/
     // Data
@@ -311,36 +311,36 @@ class GEvolutionaryAlgorithmPostOptimizer // NOLINT(cppcoreguidelines-special-me
 public:
     /**************************************************************************/
     /** @brief Initialization with the execution mode and configuration file */
-    G_API_GENEVA GEvolutionaryAlgorithmPostOptimizer(
+    GEvolutionaryAlgorithmPostOptimizer(
         execMode executionMode,
         const std::string &oa_configFile,
         const std::string &executor_configFile
     );
     /** @brief The copy constructor */
-    G_API_GENEVA
+    
     GEvolutionaryAlgorithmPostOptimizer(const GEvolutionaryAlgorithmPostOptimizer &cp) = default;
     /** @brief The destructor */
-    G_API_GENEVA ~GEvolutionaryAlgorithmPostOptimizer() override = default;
+    ~GEvolutionaryAlgorithmPostOptimizer() override = default;
 
     /** @brief Allows to set the execution mode for this post-processor (serial vs. multi-threaded) */
-    G_API_GENEVA void setExecMode(execMode executionMode);
+    void setExecMode(execMode executionMode);
     /** @brief Allows to retrieve the current execution mode */
-    G_API_GENEVA execMode getExecMode() const;
+    execMode getExecMode() const;
 
     /** @brief Allows to specify the name of a configuration file for the optimization algorithm */
-    G_API_GENEVA void setOAConfigFile(const std::string &oaConfigFile);
+    void setOAConfigFile(const std::string &oaConfigFile);
     /** @brief Allows to retrieve the configuration file for the optimization algorithm */
-    G_API_GENEVA std::string getOAConfigFile() const;
+    std::string getOAConfigFile() const;
 
     /** @brief Allows to specify the name of a configuration file for the executor */
-    G_API_GENEVA void setExecutorConfigFile(const std::string &executorConfigFile);
+    void setExecutorConfigFile(const std::string &executorConfigFile);
     /** @brief Allows to retrieve the configuration file for the executor */
-    G_API_GENEVA std::string getExecutorConfigFile() const;
+    std::string getExecutorConfigFile() const;
 
 protected:
     /**************************************************************************/
     /** @brief Loads the data of another GEvolutionaryAlgorithmPostOptimizer object */
-    G_API_GENEVA void
+    void
     load_(const Gem::Common::GSerializableFunctionObjectT<GParameterSet> *cp) override;
 
     /** @brief Allow access to this classes compare_ function */
@@ -351,30 +351,30 @@ protected:
     );
 
     /** @brief Checks for compliance with expectations with respect to another object of the same type */
-    G_API_GENEVA void compare_(
+    void compare_(
         const Gem::Common::GSerializableFunctionObjectT<GParameterSet> &cp,
         const Gem::Common::expectation &e,
         const double &limit
     ) const override;
 
     /** @brief The actual post-processing takes place here (no further checks) */
-    G_API_GENEVA bool raw_processing_(GParameterSet &p) override;
+    bool raw_processing_(GParameterSet &p) override;
 
     /** @brief Applies modifications to this object. This is needed for testing purposes */
-    G_API_GENEVA bool modify_GUnitTests_() override;
+    bool modify_GUnitTests_() override;
     /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-    G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests_() override;
+    void specificTestsNoFailureExpected_GUnitTests_() override;
     /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-    G_API_GENEVA void specificTestsFailuresExpected_GUnitTests_() override;
+    void specificTestsFailuresExpected_GUnitTests_() override;
 
 private:
     /** @brief Returns the name of this class */
-    G_API_GENEVA std::string name_() const override;
+    std::string name_() const override;
     /** @brief Creates a deep clone of this object */
-    G_API_GENEVA Gem::Common::GSerializableFunctionObjectT<GParameterSet> *clone_() const override;
+    Gem::Common::GSerializableFunctionObjectT<GParameterSet> *clone_() const override;
 
     /** @brief The standard constructor */
-    G_API_GENEVA GEvolutionaryAlgorithmPostOptimizer();
+    GEvolutionaryAlgorithmPostOptimizer();
 
     /**************************************************************************/
     // Data

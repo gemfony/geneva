@@ -58,31 +58,31 @@ class GSwarmAlgorithmFactory // NOLINT(cppcoreguidelines-special-member-function
   : public G_OptimizationAlgorithm_FactoryT<G_OptimizationAlgorithm_Base> {
 public:
     /** @brief The default constructor */
-    G_API_GENEVA GSwarmAlgorithmFactory();
+    GSwarmAlgorithmFactory();
     /** @brief Initialization with the name of the config file */
-    explicit G_API_GENEVA GSwarmAlgorithmFactory(std::filesystem::path const &);
+    explicit GSwarmAlgorithmFactory(std::filesystem::path const &);
     /** @brief Initialization with the name of the config file and a content creator */
-    G_API_GENEVA GSwarmAlgorithmFactory(
+    GSwarmAlgorithmFactory(
         std::filesystem::path const &,
         std::shared_ptr<Gem::Common::GFactoryT<GParameterSet>>
     );
     /** @brief The copy constructor */
-    G_API_GENEVA GSwarmAlgorithmFactory(const GSwarmAlgorithmFactory &) = default;
+    GSwarmAlgorithmFactory(const GSwarmAlgorithmFactory &) = default;
     /** @brief The destructor */
-    virtual G_API_GENEVA ~GSwarmAlgorithmFactory() = default;
+    virtual ~GSwarmAlgorithmFactory() = default;
 
     /** @brief Gives access to the mnemonics / nickname describing an algorithm */
-    G_API_GENEVA std::string getMnemonic() const override;
+    std::string getMnemonic() const override;
     /** @brief Gives access to a clear-text description of the algorithm */
-    G_API_GENEVA std::string getAlgorithmName() const override;
+    std::string getAlgorithmName() const override;
 
 protected:
     /** @brief Allows to act on the configuration options received from the configuration file */
-    G_API_GENEVA void postProcess_(std::shared_ptr<G_OptimizationAlgorithm_Base> &) override;
+    void postProcess_(std::shared_ptr<G_OptimizationAlgorithm_Base> &) override;
 
 private:
     /** @brief Creates individuals of this type */
-    G_API_GENEVA std::shared_ptr<G_OptimizationAlgorithm_Base>
+    std::shared_ptr<G_OptimizationAlgorithm_Base>
     getObject_(Gem::Common::GParserBuilder &, const std::size_t &) override;
 };
 

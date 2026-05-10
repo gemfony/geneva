@@ -69,11 +69,11 @@ std::shared_ptr<GAdaptorT<T>> getDefaultAdaptor() {
 // Specializations for double, std::int32_t and bool
 /******************************************************************************/
 template <>
-G_API_GENEVA std::shared_ptr<GAdaptorT<double>> getDefaultAdaptor<double>();
+std::shared_ptr<GAdaptorT<double>> getDefaultAdaptor<double>();
 template <>
-G_API_GENEVA std::shared_ptr<GAdaptorT<std::int32_t>> getDefaultAdaptor<std::int32_t>();
+std::shared_ptr<GAdaptorT<std::int32_t>> getDefaultAdaptor<std::int32_t>();
 template <>
-G_API_GENEVA std::shared_ptr<GAdaptorT<bool>> getDefaultAdaptor<bool>();
+std::shared_ptr<GAdaptorT<bool>> getDefaultAdaptor<bool>();
 
 /******************************************************************************/
 

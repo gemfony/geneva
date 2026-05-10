@@ -94,40 +94,40 @@ class G_OptimizationAlgorithm_ParChild // NOLINT(cppcoreguidelines-special-membe
 public:
     /***************************************************************************/
     /** @brief The default constructor */
-    G_API_GENEVA G_OptimizationAlgorithm_ParChild();
+    G_OptimizationAlgorithm_ParChild();
     /** @brief A standard copy constructor */
-    G_API_GENEVA
+    
     G_OptimizationAlgorithm_ParChild(const G_OptimizationAlgorithm_ParChild &cp) = default;
     /** @brief The standard destructor */
-    G_API_GENEVA ~G_OptimizationAlgorithm_ParChild() override = default;
+    ~G_OptimizationAlgorithm_ParChild() override = default;
 
     /** @brief  Specifies the default size of the population plus the number of parents */
-    G_API_GENEVA void setPopulationSizes(std::size_t popSize, std::size_t nParents);
+    void setPopulationSizes(std::size_t popSize, std::size_t nParents);
 
     /** @brief Retrieve the number of parents as set by the user */
-    G_API_GENEVA std::size_t getNParents() const;
+    std::size_t getNParents() const;
     /** @brief Calculates the current number of children from the number of parents and the size of the vector. */
-    G_API_GENEVA std::size_t getNChildren() const;
+    std::size_t getNChildren() const;
     /** @brief Retrieves the defaultNChildren_ parameter */
-    G_API_GENEVA std::size_t getDefaultNChildren() const;
+    std::size_t getDefaultNChildren() const;
 
     /** @brief Lets the user set the desired recombination method */
-    G_API_GENEVA void setRecombinationMethod(duplicationScheme recombinationMethod);
+    void setRecombinationMethod(duplicationScheme recombinationMethod);
 
     /** @brief Retrieves the value of the recombinationMethod_ variable */
-    G_API_GENEVA duplicationScheme getRecombinationMethod() const;
+    duplicationScheme getRecombinationMethod() const;
 
     /** @brief Adds the option to increase the population by a given amount per iteration */
-    G_API_GENEVA void setPopulationGrowth(std::size_t growthRate, std::size_t maxPopulationSize);
+    void setPopulationGrowth(std::size_t growthRate, std::size_t maxPopulationSize);
     /** @brief Allows to retrieve the growth rate of the population */
-    G_API_GENEVA std::size_t getGrowthRate() const;
+    std::size_t getGrowthRate() const;
     /** @brief Allows to retrieve the maximum population size when growth is enabled */
-    G_API_GENEVA std::size_t getMaxPopulationSize() const;
+    std::size_t getMaxPopulationSize() const;
 
     /** @brief Allows to set the likelihood for amalgamation of two units to be performed instead of "just" duplication. */
-    G_API_GENEVA void setAmalgamationLikelihood(double amalgamationLikelihood);
+    void setAmalgamationLikelihood(double amalgamationLikelihood);
     /** @brief Allows to retrieve the likelihood for amalgamation of two units to be performed instead of "just" duplication. */
-    G_API_GENEVA double getAmalgamationLikelihood() const;
+    double getAmalgamationLikelihood() const;
 
     /***************************************************************************/
     /**
@@ -171,10 +171,10 @@ protected:
     // Virtual or overridden protected functions
 
     /** @brief Adds local configuration options to a GParserBuilder object */
-    G_API_GENEVA void addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) override;
+    void addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) override;
 
     /** @brief Loads the data of another GParChildT object, camouflaged as a GObject. */
-    G_API_GENEVA void load_(const GObject *cp) override;
+    void load_(const GObject *cp) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<G_OptimizationAlgorithm_ParChild>(
@@ -184,52 +184,52 @@ protected:
     );
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
-    G_API_GENEVA void compare_(
+    void compare_(
         const GObject &cp,
         const Gem::Common::expectation &e,
         const double &limit
     ) const override;
 
     /** @brief The function checks that the population size meets the requirements and resizes the population to the appropriate size, if required. */
-    G_API_GENEVA void adjustPopulation_() override;
+    void adjustPopulation_() override;
 
     /** @brief Resets the settings of this population to what was configured when the optimize()-call was issued */
-    G_API_GENEVA void resetToOptimizationStart_() override;
+    void resetToOptimizationStart_() override;
 
     /** @brief performs initialization work before the optimization loop starts */
-    G_API_GENEVA void init() override;
+    void init() override;
     /** @brief Does any necessary finalization work atfer the optimization loop has ended */
-    G_API_GENEVA void finalize() override;
+    void finalize() override;
 
     /** @brief Applies modifications to this object */
-    G_API_GENEVA bool modify_GUnitTests_() override;
+    bool modify_GUnitTests_() override;
     /** @brief Performs self tests that are expected to succeed */
-    G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests_() override;
+    void specificTestsNoFailureExpected_GUnitTests_() override;
     /** @brief Performs self tests that are expected to fail */
-    G_API_GENEVA void specificTestsFailuresExpected_GUnitTests_() override;
+    void specificTestsFailuresExpected_GUnitTests_() override;
 
     /***************************************************************************/
 
     /** @brief This function is called from G_OptimizationAlgorithm_Base::optimize() and performs the actual recombination */
-    virtual G_API_GENEVA void recombine();
+    virtual void recombine();
 
     /** @brief Retrieves the adaption range in a given iteration and sorting scheme. */
-    G_API_GENEVA std::tuple<std::size_t, std::size_t> getAdaptionRange() const;
+    std::tuple<std::size_t, std::size_t> getAdaptionRange() const;
 
     /** @brief This helper function marks parents as parents and children as children. */
-    G_API_GENEVA void markParents();
+    void markParents();
     /** @brief This helper function marks children as children */
-    G_API_GENEVA void markChildren();
+    void markChildren();
     /** @brief This helper function lets all individuals know about their position in the population. */
-    G_API_GENEVA void markIndividualPositions();
+    void markIndividualPositions();
 
     /** @brief Increases the population size if requested by the user */
-    G_API_GENEVA void performScheduledPopulationGrowth();
+    void performScheduledPopulationGrowth();
 
     /** @brief This function implements the RANDOMDUPLICATIONSCHEME scheme */
-    G_API_GENEVA void randomRecombine(std::shared_ptr<GParameterSet> &child);
+    void randomRecombine(std::shared_ptr<GParameterSet> &child);
     /** @brief  This function implements the VALUEDUPLICATIONSCHEME scheme */
-    G_API_GENEVA void
+    void
     valueRecombine(std::shared_ptr<GParameterSet> &p, const std::vector<double> &threshold);
 
     /***************************************************************************/
@@ -249,42 +249,42 @@ private:
     // Virtual or overridden private functions
 
     /** @brief Emits a name for this class / object */
-    G_API_GENEVA std::string name_() const override;
+    std::string name_() const override;
     /** @brief Creates a deep clone of this object */
-    G_API_GENEVA GObject *clone_() const override = 0;
+    GObject *clone_() const override = 0;
 
     /** @brief This function implements the logic that constitutes evolutionary algorithms */
-    G_API_GENEVA std::tuple<double, double> cycleLogic_() override;
+    std::tuple<double, double> cycleLogic_() override;
     /** @brief Calculates the fitness of all required individuals; to be re-implemented in derived classes */
-    G_API_GENEVA void runFitnessCalculation_() override = 0;
+    void runFitnessCalculation_() override = 0;
 
     /** @brief Returns the name of this optimization algorithm */
-    G_API_GENEVA std::string getAlgorithmName_() const override = 0;
+    std::string getAlgorithmName_() const override = 0;
     /** @brief Returns information about the type of optimization algorithm */
-    G_API_GENEVA std::string getAlgorithmPersonalityType_() const override = 0;
+    std::string getAlgorithmPersonalityType_() const override = 0;
 
     /** @brief Retrieve the number of processible items in the current iteration. */
-    G_API_GENEVA std::size_t getNProcessableItems_() const override;
+    std::size_t getNProcessableItems_() const override;
 
     /** @brief Gives individuals an opportunity to update their internal structures */
-    G_API_GENEVA void actOnStalls_() override;
+    void actOnStalls_() override;
 
     /** @brief Adapts all children of this population */
-    virtual G_API_GENEVA void adaptChildren_() = 0;
+    virtual void adaptChildren_() = 0;
     /** @brief Choose new parents, based on the selection scheme set by the user */
-    virtual G_API_GENEVA void selectBest_() = 0;
+    virtual void selectBest_() = 0;
 
     /** @brief Retrieves the evaluation range in a given iteration and sorting scheme */
-    virtual G_API_GENEVA std::tuple<std::size_t, std::size_t>
+    virtual std::tuple<std::size_t, std::size_t>
     getEvaluationRange_() const = 0; // Depends on selection scheme
     /** @brief Some error checks related to population sizes */
-    virtual G_API_GENEVA void
+    virtual void
     populationSanityChecks_() const = 0; // TODO: Take code from old init() function
 
     /***************************************************************************/
 
     /** @brief This function assigns a new value to each child individual */
-    G_API_GENEVA void doRecombine();
+    void doRecombine();
 
     /***************************************************************************/
     // Data

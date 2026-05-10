@@ -34,7 +34,7 @@ namespace Gem::Geneva {
 
 /******************************************************************************/
 /** A short identifier suitable for storage in a std::map */
-G_API_GENEVA const std::string GSimulatedAnnealing_PersonalityTraits::nickname = "sa";
+const std::string GSimulatedAnnealing_PersonalityTraits::nickname = "sa";
 
 /******************************************************************************/
 /**

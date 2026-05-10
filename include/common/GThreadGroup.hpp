@@ -84,23 +84,23 @@ public:
     /*************************************************************************/
     // Defaulted or deleted constructors, destructor and assignment operators
 
-    G_API_COMMON GThreadGroup() = default;
-    G_API_COMMON ~GThreadGroup() = default;
-    G_API_COMMON GThreadGroup(GThreadGroup const &) = delete;
-    G_API_COMMON GThreadGroup(GThreadGroup &&) = delete;
-    G_API_COMMON GThreadGroup &operator=(GThreadGroup const &) = delete;
-    G_API_COMMON GThreadGroup &operator=(GThreadGroup &&) = delete;
+    GThreadGroup() = default;
+    ~GThreadGroup() = default;
+    GThreadGroup(GThreadGroup const &) = delete;
+    GThreadGroup(GThreadGroup &&) = delete;
+    GThreadGroup &operator=(GThreadGroup const &) = delete;
+    GThreadGroup &operator=(GThreadGroup &&) = delete;
 
     /*************************************************************************/
 
     /** @brief Adds an already created thread to the group */
-    G_API_COMMON void add_thread(thread_ptr);
+    void add_thread(thread_ptr);
 
     /** @brief Requests all threads to join */
-    G_API_COMMON void join_all();
+    void join_all();
 
     /** @brief Returns the size of the current thread group */
-    G_API_COMMON std::size_t size() const;
+    std::size_t size() const;
 
     /***************************************************************************/
     /**

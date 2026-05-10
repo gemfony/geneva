@@ -988,7 +988,7 @@ private:
     /***************************************************************************/
 
     /** @brief Allows derived classes to specify the tasks to be performed for this object */
-    virtual G_API_COURTIER void process_(
+    virtual void process_(
         const std::vector<processing_result_type> &res_vec = std::vector<processing_result_type>()
     ) = 0;
 

@@ -96,19 +96,19 @@ namespace Gem::Common {
 class math_logic_error : public geneva_exception {
 public:
     /** @brief The default constructor: Intentionally deleted */
-    G_API_COMMON math_logic_error() = delete;
+    math_logic_error() = delete;
     /** @brief The standard constructor */
-    explicit G_API_COMMON math_logic_error(std::string const &) noexcept;
+    explicit math_logic_error(std::string const &) noexcept;
 
     /**************************************************************************/
     // Defaulted functions, constructors and destructor; rule of five
 
-    G_API_COMMON math_logic_error(math_logic_error const &) = default;
-    G_API_COMMON math_logic_error(math_logic_error &&) noexcept = default;
-    G_API_COMMON ~math_logic_error() noexcept override = default;
+    math_logic_error(math_logic_error const &) = default;
+    math_logic_error(math_logic_error &&) noexcept = default;
+    ~math_logic_error() noexcept override = default;
 
-    G_API_COMMON math_logic_error &operator=(math_logic_error const &) = default;
-    G_API_COMMON math_logic_error &operator=(math_logic_error &&) noexcept = default;
+    math_logic_error &operator=(math_logic_error const &) = default;
+    math_logic_error &operator=(math_logic_error &&) noexcept = default;
 };
 
 /******************************************************************************/
@@ -120,17 +120,17 @@ public:
 class division_by_0 : public math_logic_error {
 public:
     /** @brief The default constructor */
-    G_API_COMMON division_by_0() noexcept;
+    division_by_0() noexcept;
 
     /**************************************************************************/
     // Defaulted functions, constructors and destructor; rule of five
 
-    G_API_COMMON division_by_0(division_by_0 const &) = default;
-    G_API_COMMON division_by_0(division_by_0 &&) noexcept = default;
-    G_API_COMMON ~division_by_0() noexcept override = default;
+    division_by_0(division_by_0 const &) = default;
+    division_by_0(division_by_0 &&) noexcept = default;
+    ~division_by_0() noexcept override = default;
 
-    G_API_COMMON division_by_0 &operator=(division_by_0 const &) = default;
-    G_API_COMMON division_by_0 &operator=(division_by_0 &&) noexcept = default;
+    division_by_0 &operator=(division_by_0 const &) = default;
+    division_by_0 &operator=(division_by_0 &&) noexcept = default;
 };
 
 /******************************************************************************/
@@ -156,12 +156,12 @@ public:
     /**************************************************************************/
     // Defaulted functions, constructors and destructor; rule of five
 
-    G_API_COMMON acos_invalid_range(acos_invalid_range const &) = default;
-    G_API_COMMON acos_invalid_range(acos_invalid_range &&) noexcept = default;
-    G_API_COMMON ~acos_invalid_range() noexcept override = default;
+    acos_invalid_range(acos_invalid_range const &) = default;
+    acos_invalid_range(acos_invalid_range &&) noexcept = default;
+    ~acos_invalid_range() noexcept override = default;
 
-    G_API_COMMON acos_invalid_range &operator=(acos_invalid_range const &) = default;
-    G_API_COMMON acos_invalid_range &operator=(acos_invalid_range &&) noexcept = default;
+    acos_invalid_range &operator=(acos_invalid_range const &) = default;
+    acos_invalid_range &operator=(acos_invalid_range &&) noexcept = default;
 };
 
 /******************************************************************************/
@@ -186,12 +186,12 @@ public:
     /**************************************************************************/
     // Defaulted functions, constructors and destructor; rule of five
 
-    G_API_COMMON asin_invalid_range(asin_invalid_range const &) = default;
-    G_API_COMMON asin_invalid_range(asin_invalid_range &&) noexcept = default;
-    G_API_COMMON ~asin_invalid_range() noexcept override = default;
+    asin_invalid_range(asin_invalid_range const &) = default;
+    asin_invalid_range(asin_invalid_range &&) noexcept = default;
+    ~asin_invalid_range() noexcept override = default;
 
-    G_API_COMMON asin_invalid_range &operator=(asin_invalid_range const &) = default;
-    G_API_COMMON asin_invalid_range &operator=(asin_invalid_range &&) noexcept = default;
+    asin_invalid_range &operator=(asin_invalid_range const &) = default;
+    asin_invalid_range &operator=(asin_invalid_range &&) noexcept = default;
 };
 
 /******************************************************************************/
@@ -217,12 +217,12 @@ public:
     /**************************************************************************/
     // Defaulted functions, constructors and destructor; rule of five
 
-    G_API_COMMON log_negative_value(log_negative_value const &) = default;
-    G_API_COMMON log_negative_value(log_negative_value &&) noexcept = default;
-    G_API_COMMON ~log_negative_value() noexcept override = default;
+    log_negative_value(log_negative_value const &) = default;
+    log_negative_value(log_negative_value &&) noexcept = default;
+    ~log_negative_value() noexcept override = default;
 
-    G_API_COMMON log_negative_value &operator=(log_negative_value const &) = default;
-    G_API_COMMON log_negative_value &operator=(log_negative_value &&) noexcept = default;
+    log_negative_value &operator=(log_negative_value const &) = default;
+    log_negative_value &operator=(log_negative_value &&) noexcept = default;
 };
 
 /******************************************************************************/
@@ -247,12 +247,12 @@ public:
     /**************************************************************************/
     // Defaulted functions, constructors and destructor; rule of five
 
-    G_API_COMMON log10_negative_value(log10_negative_value const &) = default;
-    G_API_COMMON log10_negative_value(log10_negative_value &&) noexcept = default;
-    G_API_COMMON ~log10_negative_value() noexcept override = default;
+    log10_negative_value(log10_negative_value const &) = default;
+    log10_negative_value(log10_negative_value &&) noexcept = default;
+    ~log10_negative_value() noexcept override = default;
 
-    G_API_COMMON log10_negative_value &operator=(log10_negative_value const &) = default;
-    G_API_COMMON log10_negative_value &operator=(log10_negative_value &&) noexcept = default;
+    log10_negative_value &operator=(log10_negative_value const &) = default;
+    log10_negative_value &operator=(log10_negative_value &&) noexcept = default;
 };
 
 /******************************************************************************/
@@ -277,12 +277,12 @@ public:
     /**************************************************************************/
     // Defaulted functions, constructors and destructor; rule of five
 
-    G_API_COMMON sqrt_negative_value(sqrt_negative_value const &) = default;
-    G_API_COMMON sqrt_negative_value(sqrt_negative_value &&) noexcept = default;
-    G_API_COMMON ~sqrt_negative_value() noexcept override = default;
+    sqrt_negative_value(sqrt_negative_value const &) = default;
+    sqrt_negative_value(sqrt_negative_value &&) noexcept = default;
+    ~sqrt_negative_value() noexcept override = default;
 
-    G_API_COMMON sqrt_negative_value &operator=(sqrt_negative_value const &) = default;
-    G_API_COMMON sqrt_negative_value &operator=(sqrt_negative_value &&) noexcept = default;
+    sqrt_negative_value &operator=(sqrt_negative_value const &) = default;
+    sqrt_negative_value &operator=(sqrt_negative_value &&) noexcept = default;
 };
 
 /******************************************************************************/
@@ -1046,11 +1046,11 @@ private:
 // Needed for rules to work. Follows http://boost.2283326.n4.nabble.com/hold-multi-pass-backtracking-swap-compliant-ast-td4664679.html
 namespace boost::spirit {
 
-G_API_COMMON void swap(Gem::Common::nil &, Gem::Common::nil &) noexcept;
-G_API_COMMON void swap(Gem::Common::signed_ &, Gem::Common::signed_ &) noexcept;
-G_API_COMMON void swap(Gem::Common::operation &, Gem::Common::operation &) noexcept;
-G_API_COMMON void swap(Gem::Common::unary_function_ &, Gem::Common::unary_function_ &) noexcept;
-G_API_COMMON void swap(Gem::Common::binary_function_ &, Gem::Common::binary_function_ &) noexcept;
-G_API_COMMON void swap(Gem::Common::ast_expression &, Gem::Common::ast_expression &) noexcept;
+void swap(Gem::Common::nil &, Gem::Common::nil &) noexcept;
+void swap(Gem::Common::signed_ &, Gem::Common::signed_ &) noexcept;
+void swap(Gem::Common::operation &, Gem::Common::operation &) noexcept;
+void swap(Gem::Common::unary_function_ &, Gem::Common::unary_function_ &) noexcept;
+void swap(Gem::Common::binary_function_ &, Gem::Common::binary_function_ &) noexcept;
+void swap(Gem::Common::ast_expression &, Gem::Common::ast_expression &) noexcept;
 
 } /* namespace boost::spirit */

@@ -66,26 +66,26 @@ namespace Gem::Common {
 class GThreadPool {
 public:
     /** @brief Deleted default constructor enforces setting of the number of threads */
-    G_API_COMMON GThreadPool() = delete;
+    GThreadPool() = delete;
     /** @brief Initialization with a number of threads */
-    explicit G_API_COMMON GThreadPool(unsigned int);
+    explicit GThreadPool(unsigned int);
     /** @brief The destructor */
-    G_API_COMMON ~GThreadPool();
+    ~GThreadPool();
 
     /** @brief Sets the number of threads currently used */
-    G_API_COMMON void setNThreads(unsigned int);
+    void setNThreads(unsigned int);
     /** @brief Retrieves the current number of threads being used in the pool */
-    G_API_COMMON unsigned int getNThreads() const;
+    unsigned int getNThreads() const;
 
     /** @brief Blocks until all submitted jobs have been cleared from the pool */
-    G_API_COMMON void wait();
+    void wait();
 
     /***************************************************************************/
     // Some deleted functions and constructors
-    G_API_COMMON GThreadPool(const GThreadPool &) = delete;      // deleted copy constructor
-    G_API_COMMON GThreadPool &operator=(GThreadPool &) = delete; // deleted assignment operator
-    G_API_COMMON GThreadPool(const GThreadPool &&) = delete;     // deleted move constructor
-    G_API_COMMON GThreadPool &
+    GThreadPool(const GThreadPool &) = delete;      // deleted copy constructor
+    GThreadPool &operator=(GThreadPool &) = delete; // deleted assignment operator
+    GThreadPool(const GThreadPool &&) = delete;     // deleted move constructor
+    GThreadPool &
     operator=(GThreadPool &&) = delete; // deleted move-assignment operator
 
     /***************************************************************************/

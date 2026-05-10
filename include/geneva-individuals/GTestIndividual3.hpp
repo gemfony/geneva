@@ -88,19 +88,19 @@ class GTestIndividual3 // NOLINT(cppcoreguidelines-special-member-functions)
 
 public:
     /** @brief The default constructor */
-    G_API_INDIVIDUALS GTestIndividual3();
+    GTestIndividual3();
     /** @brief The copy constructor */
-    G_API_INDIVIDUALS GTestIndividual3(const GTestIndividual3 &);
+    GTestIndividual3(const GTestIndividual3 &);
 
     /** @brief The destructor */
-    virtual G_API_INDIVIDUALS ~GTestIndividual3();
+    virtual ~GTestIndividual3();
 
     /** @brief Get all data members of this class as a plain array */
-    G_API_INDIVIDUALS std::shared_ptr<float> getPlainData() const;
+    std::shared_ptr<float> getPlainData() const;
 
 protected:
     /** @brief Loads the data of another GTestIndividual3 */
-    virtual G_API_INDIVIDUALS void load_(const GObject *) final;
+    virtual void load_(const GObject *) final;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GTestIndividual3>(
@@ -110,7 +110,7 @@ protected:
     );
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
-    virtual G_API_INDIVIDUALS void compare_(
+    virtual void compare_(
         const GObject & // the other object
         ,
         const Gem::Common::expectation & // the expectation for this object, e.g. equality
@@ -119,18 +119,18 @@ protected:
     ) const final;
 
     /** @brief The actual fitness calculation takes place here. */
-    virtual G_API_INDIVIDUALS double fitnessCalculation() final;
+    virtual double fitnessCalculation() final;
 
     /** @brief Applies modifications to this object. */
-    virtual G_API_INDIVIDUALS bool modify_GUnitTests_();
+    virtual bool modify_GUnitTests_();
     /** @brief Performs self tests that are expected to succeed. */
-    virtual G_API_INDIVIDUALS void specificTestsNoFailureExpected_GUnitTests_();
+    virtual void specificTestsNoFailureExpected_GUnitTests_();
     /** @brief Performs self tests that are expected to fail. */
-    virtual G_API_INDIVIDUALS void specificTestsFailuresExpected_GUnitTests_();
+    virtual void specificTestsFailuresExpected_GUnitTests_();
 
 private:
     /** @brief Creates a deep clone of this object */
-    virtual G_API_INDIVIDUALS GObject *clone_() const final;
+    virtual GObject *clone_() const final;
 };
 
 /******************************************************************************/

@@ -74,23 +74,23 @@ class GConstrainedDoubleCollection // NOLINT(cppcoreguidelines-special-member-fu
 public:
     /***************************************************************************/
     /** @brief Initialize the lower and upper boundaries for data members of this class */
-    G_API_GENEVA GConstrainedDoubleCollection(const std::size_t &, const double &, const double &);
+    GConstrainedDoubleCollection(const std::size_t &, const double &, const double &);
     /** @brief Assign a fixed value to all positions of the vector and initialize the allowed value range */
-    G_API_GENEVA GConstrainedDoubleCollection(
+    GConstrainedDoubleCollection(
         const std::size_t &,
         const double &,
         const double &,
         const double &
     );
     /** @brief The standard copy constructor */
-    G_API_GENEVA GConstrainedDoubleCollection(const GConstrainedDoubleCollection &) = default;
+    GConstrainedDoubleCollection(const GConstrainedDoubleCollection &) = default;
     /** @brief The standard destructor */
-    G_API_GENEVA ~GConstrainedDoubleCollection() override = default;
+    ~GConstrainedDoubleCollection() override = default;
 
 protected:
     /***************************************************************************/
     /** @brief Loads the data of another GConstrainedDoubleCollection object */
-    G_API_GENEVA void load_(const GObject *) override;
+    void load_(const GObject *) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GConstrainedDoubleCollection>(
@@ -100,7 +100,7 @@ protected:
     );
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
-    G_API_GENEVA void compare_(
+    void compare_(
         const GObject & // the other object
         ,
         const Gem::Common::expectation & // the expectation for this object, e.g. equality
@@ -109,69 +109,69 @@ protected:
     ) const override;
 
     /** @brief Attach our local values to the vector. */
-    G_API_GENEVA void
+    void
     doubleStreamline(std::vector<double> &, const activityMode &am) const override;
     /** @brief Attach boundaries of type double to the vectors */
-    G_API_GENEVA void doubleBoundaries(
+    void doubleBoundaries(
         std::vector<double> &,
         std::vector<double> &,
         const activityMode &am
     ) const override;
     /** @brief Tell the audience that we own a number of double values */
-    G_API_GENEVA std::size_t countDoubleParameters(const activityMode &am) const override;
+    std::size_t countDoubleParameters(const activityMode &am) const override;
     /** @brief Assigns part of a value vector to the parameter */
-    G_API_GENEVA void assignDoubleValueVector(
+    void assignDoubleValueVector(
         const std::vector<double> &,
         std::size_t &,
         const activityMode &am
     ) override;
     /** @brief Attach our local values to the vector. */
-    G_API_GENEVA void doubleStreamline(
+    void doubleStreamline(
         std::map<std::string, std::vector<double>> &,
         const activityMode &am
     ) const override;
     /** @brief Assigns part of a value map to the parameter */
-    G_API_GENEVA void assignDoubleValueVectors(
+    void assignDoubleValueVectors(
         const std::map<std::string, std::vector<double>> &,
         const activityMode &am
     ) override;
 
     /** @brief Multiplication with a random value in a given range */
-    G_API_GENEVA void doubleMultiplyByRandom(
+    void doubleMultiplyByRandom(
         const double &min,
         const double &max,
         const activityMode &am,
         Gem::Hap::GRandomBase &
     ) override;
     /** @brief Multiplication with a random value in the range [0,1[ */
-    G_API_GENEVA void
+    void
     doubleMultiplyByRandom(const activityMode &am, Gem::Hap::GRandomBase &) override;
     /** @brief Multiplication with a constant value */
-    G_API_GENEVA void doubleMultiplyBy(const double &value, const activityMode &am) override;
+    void doubleMultiplyBy(const double &value, const activityMode &am) override;
     /** @brief Initialization with a constant value */
-    G_API_GENEVA void doubleFixedValueInit(const double &value, const activityMode &am) override;
+    void doubleFixedValueInit(const double &value, const activityMode &am) override;
     /** @brief Adds the "same-type" parameters of another GParameterBase object to this one */
-    G_API_GENEVA void doubleAdd(std::shared_ptr<GParameterBase>, const activityMode &am) override;
+    void doubleAdd(std::shared_ptr<GParameterBase>, const activityMode &am) override;
     /** @brief Adds the "same-type" parameters of another GParameterBase object to this one */
-    G_API_GENEVA void
+    void
     doubleSubtract(std::shared_ptr<GParameterBase>, const activityMode &am) override;
 
     /** @brief Applies modifications to this object */
-    G_API_GENEVA bool modify_GUnitTests_() override;
+    bool modify_GUnitTests_() override;
     /** @brief Performs self tests that are expected to succeed */
-    G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests_() override;
+    void specificTestsNoFailureExpected_GUnitTests_() override;
     /** @brief Performs self tests that are expected to fail */
-    G_API_GENEVA void specificTestsFailuresExpected_GUnitTests_() override;
+    void specificTestsFailuresExpected_GUnitTests_() override;
 
     /***************************************************************************/
     /** @brief The default constructor. Intentionally protected	 */
-    G_API_GENEVA GConstrainedDoubleCollection() = default;
+    GConstrainedDoubleCollection() = default;
 
 private:
     /** @brief Emits a name for this class / object */
-    G_API_GENEVA std::string name_() const override;
+    std::string name_() const override;
     /** @brief Creates a deep clone of this object */
-    G_API_GENEVA GObject *clone_() const override;
+    GObject *clone_() const override;
 };
 
 /******************************************************************************/

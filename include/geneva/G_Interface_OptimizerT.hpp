@@ -59,9 +59,9 @@ public:
     // optimization algorithms seems too complex and of very limited use, so
     // we prevent it until the need arises.
 
-    G_API_GENEVA
+    
     G_Interface_OptimizerT(G_Interface_OptimizerT<optimizer_type> &&) noexcept = delete;
-    G_API_GENEVA G_Interface_OptimizerT<optimizer_type> &
+    G_Interface_OptimizerT<optimizer_type> &
     operator=(G_Interface_OptimizerT<optimizer_type> &&) noexcept = delete;
 
     /***************************************************************************/
@@ -241,44 +241,44 @@ protected:
     /***************************************************************************/
     // Defaulted or constructors / destructors / assignment operators
 
-    G_API_GENEVA G_Interface_OptimizerT() = default;
-    G_API_GENEVA G_Interface_OptimizerT(G_Interface_OptimizerT<optimizer_type> const &) = default;
+    G_Interface_OptimizerT() = default;
+    G_Interface_OptimizerT(G_Interface_OptimizerT<optimizer_type> const &) = default;
 
     /**
  	  * The destructor. Making this function protected and non-virtual follows
  	  * this discussion: http://www.gotw.ca/publications/mill18.htm
  	  */
-    G_API_GENEVA ~G_Interface_OptimizerT() = default;
+    ~G_Interface_OptimizerT() = default;
 
-    G_API_GENEVA G_Interface_OptimizerT<optimizer_type> &
+    G_Interface_OptimizerT<optimizer_type> &
     operator=(G_Interface_OptimizerT<optimizer_type> const &) = default;
 
     /***************************************************************************/
 
 private:
     /** @brief Perform the actual optimization cycle, starting to count iterations at a given offset */
-    virtual G_API_GENEVA optimizer_type const *optimize_(std::uint32_t offset) = 0;
+    virtual optimizer_type const *optimize_(std::uint32_t offset) = 0;
 
     /** @brief Calculates the fitness of all required individuals; to be re-implemented in derived classes */
-    virtual G_API_GENEVA void runFitnessCalculation_() = 0;
+    virtual void runFitnessCalculation_() = 0;
 
     /** @brief Retrieves the best individual found globally */
-    virtual G_API_GENEVA std::shared_ptr<GParameterSet> getBestGlobalIndividual_() const = 0;
+    virtual std::shared_ptr<GParameterSet> getBestGlobalIndividual_() const = 0;
     /** @brief Retrieves a list of the best individuals found globally*/
-    virtual G_API_GENEVA std::vector<std::shared_ptr<GParameterSet>>
+    virtual std::vector<std::shared_ptr<GParameterSet>>
     getBestGlobalIndividuals_() const = 0;
     /** @brief Retrieves the best individual found in the current iteration*/
-    virtual G_API_GENEVA std::shared_ptr<GParameterSet> getBestIterationIndividual_() const = 0;
+    virtual std::shared_ptr<GParameterSet> getBestIterationIndividual_() const = 0;
     /** @brief Retrieves a list of the best individuals found in the current iteration */
-    virtual G_API_GENEVA std::vector<std::shared_ptr<GParameterSet>>
+    virtual std::vector<std::shared_ptr<GParameterSet>>
     getBestIterationIndividuals_() const = 0;
 
     /** @brief Returns one-word information about the type of optimization algorithm. */
     virtual std::string getAlgorithmPersonalityType_() const = 0;
     /** @brief Returns a descriptive name assigned to this algorithm */
-    virtual G_API_GENEVA std::string getAlgorithmName_() const = 0;
+    virtual std::string getAlgorithmName_() const = 0;
     /** @brief Retrieves the current iteration of this object */
-    virtual G_API_GENEVA std::uint32_t getIteration_() const = 0;
+    virtual std::uint32_t getIteration_() const = 0;
 
     /***************************************************************************/
     // Data

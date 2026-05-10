@@ -158,7 +158,7 @@ protected:
     /***************************************************************************/
 
     /** @brief overload this function to make this class operational */
-    virtual G_API_COMMON bool process_(processable_type &p) = 0;
+    virtual bool process_(processable_type &p) = 0;
 
     /** @brief Applies modifications to this object. This is needed for testing purposes */
     bool modify_GUnitTests_() override {
@@ -180,7 +180,7 @@ private:
 
     /***************************************************************************/
     /** @brief Creates a deep clone of this object */
-    G_API_COMMON GSerializableFunctionObjectT<processable_type> *clone_() const override = 0;
+    GSerializableFunctionObjectT<processable_type> *clone_() const override = 0;
 };
 
 /******************************************************************************/

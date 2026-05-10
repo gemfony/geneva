@@ -18,13 +18,27 @@ Recommended Versions:
   that setting. The five Geneva shared libraries (gemfony-common, gemfony-hap,
   gemfony-courtier, gemfony-geneva, gemfony-geneva-individuals) are always built
   as SHARED; BUILD_SHARED_LIBS is always ON; GEM_DYNAMIC is always defined.
-
 - gemfony_exception was renamed to geneva_exception (~128 files). Any user code that
   catches or explicitly names this exception type must be updated accordingly.
 - The Boost.Test library linkage has been removed from the build-system, instead Geneva now
   uses Catch2 v3 which needs to be present on the system in order to compile the code.
+- Windows and macOS support has been removed. Geneva now targets Linux exclusively.
+  The G_API_COMMON, G_API_HAP, G_API_COURTIER, G_API_GENEVA, and G_API_INDIVIDUALS
+  symbol-visibility macros have been removed from all 2266 call sites and from
+  GGlobalDefines.hpp entirely (they were no-ops on Linux without -fvisibility=hidden).
+  The GEM_*_EXPORTS preprocessor definitions and the GEM_DYNAMIC definition have been
+  removed from the CMake build system. The PLATFORM_NEEDS_LIBRARY_LINKING variable
+  always evaluates to FALSE and its conditional TARGET_LINK_LIBRARIES blocks have been
+  removed from all five library CMakeLists.txt files. IdentifySystemParameters.cmake
+  now supports only GCC >= 13 and Clang >= 18 on Linux.
 
 ************************* Noteworthy Changes ***********************************
+
+- Build system stripped to Linux-only: IdentifySystemParameters.cmake, all four
+  CommonGenevaBuild.cmake copies, and the five library CMakeLists.txt files have been
+  cleaned of Windows (MSVC, Cygwin), macOS (AppleClang, Darwin), Intel compiler, and
+  FreeBSD branches. The cmake configure step is now ~150 lines shorter with no dead
+  platform-conditional branches.
 
 - GCanvas (the PPM-image canvas used by the Mona-Lisa CUDA example) has been
   moved from the Common library (include/common/GCanvas.hpp, src/common/GCanvas.cpp,

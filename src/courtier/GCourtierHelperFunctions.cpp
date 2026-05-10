@@ -101,7 +101,7 @@ std::vector<bool> getBooleanMask(std::size_t vecSize, std::size_t start, std::si
  * @param ps The processingStatus to be translated into a std::string
  * @return A string representing the processing status
  */
-G_API_COURTIER std::string psToStr(const processingStatus &ps) {
+std::string psToStr(const processingStatus &ps) {
     switch(ps) {
     case processingStatus::DO_IGNORE:
         return "DO_IGNORE";

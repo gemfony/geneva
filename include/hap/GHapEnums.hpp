@@ -64,9 +64,9 @@ enum class RANDFLAVOURS : Gem::Common::ENUMBASETYPE {
 /******************************************************************************/
 
 /** @brief Puts a Gem::Hap::RANDFLAVOURS into a stream. Needed also for boost::lexical_cast<> */
-G_API_HAP std::ostream &operator<<(std::ostream &, const Gem::Hap::RANDFLAVOURS &);
+std::ostream &operator<<(std::ostream &, const Gem::Hap::RANDFLAVOURS &);
 /** @brief Reads a Gem::Hap::RANDFLAVOURS item from a stream. Needed also for boost::lexical_cast<> */
-G_API_HAP std::istream &operator>>(std::istream &, Gem::Hap::RANDFLAVOURS &);
+std::istream &operator>>(std::istream &, Gem::Hap::RANDFLAVOURS &);
 
 /******************************************************************************/
 } /* namespace Gem::Hap */

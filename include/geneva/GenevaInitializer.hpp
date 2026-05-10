@@ -60,10 +60,10 @@ namespace Gem::Geneva {
 class GenevaInitializer { // NOLINT(cppcoreguidelines-special-member-functions)
 public:
     /** @brief The default constructor */
-    G_API_GENEVA GenevaInitializer();
+    GenevaInitializer();
 
     /** @brief The destructor */
-    G_API_GENEVA ~GenevaInitializer();
+    ~GenevaInitializer();
 
     /***************************************************************************/
     /**

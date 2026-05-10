@@ -79,14 +79,14 @@ public:
     /***************************************************************************/
     // Defaulted functions
 
-    G_API_GENEVA GConjugateGradientDescent() = default;
-    G_API_GENEVA GConjugateGradientDescent(GConjugateGradientDescent const &) = default;
-    G_API_GENEVA GConjugateGradientDescent(GConjugateGradientDescent &&) = default;
+    GConjugateGradientDescent() = default;
+    GConjugateGradientDescent(GConjugateGradientDescent const &) = default;
+    GConjugateGradientDescent(GConjugateGradientDescent &&) = default;
 
-    G_API_GENEVA ~GConjugateGradientDescent() override = default;
+    ~GConjugateGradientDescent() override = default;
 
-    G_API_GENEVA GConjugateGradientDescent &operator=(GConjugateGradientDescent const &) = delete;
-    G_API_GENEVA GConjugateGradientDescent &operator=(GConjugateGradientDescent &&) = delete;
+    GConjugateGradientDescent &operator=(GConjugateGradientDescent const &) = delete;
+    GConjugateGradientDescent &operator=(GConjugateGradientDescent &&) = delete;
 
     /***************************************************************************/
 
@@ -95,9 +95,9 @@ protected:
     // Virtual or overridden protected functions
 
     /** @brief Adds local configuration options to a GParserBuilder object */
-    G_API_GENEVA void addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) override;
+    void addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) override;
     /** @brief Loads the data of another population */
-    G_API_GENEVA void load_(const GObject *) override;
+    void load_(const GObject *) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GConjugateGradientDescent>(
@@ -107,7 +107,7 @@ protected:
     );
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
-    G_API_GENEVA void compare_(
+    void compare_(
         const GObject & // the other object
         ,
         const Gem::Common::expectation & // the expectation for this object, e.g. equality
@@ -116,16 +116,16 @@ protected:
     ) const override;
 
     /** @brief Does some preparatory work before the optimization starts */
-    G_API_GENEVA void init() override;
+    void init() override;
     /** @brief Does any necessary finalization work */
-    G_API_GENEVA void finalize() override;
+    void finalize() override;
 
     /** @brief Applies modifications to this object. This is needed for testing purposes */
-    G_API_GENEVA bool modify_GUnitTests_() override;
+    bool modify_GUnitTests_() override;
     /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-    G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests_() override;
+    void specificTestsNoFailureExpected_GUnitTests_() override;
     /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-    G_API_GENEVA void specificTestsFailuresExpected_GUnitTests_() override;
+    void specificTestsFailuresExpected_GUnitTests_() override;
 
     /***************************************************************************/
 
@@ -134,30 +134,30 @@ private:
     // Virtual or overridden private functions
 
     /** @brief Emits a name for this class / object */
-    G_API_GENEVA std::string name_() const override;
+    std::string name_() const override;
     /** @brief Creates a deep clone of this object */
-    G_API_GENEVA GObject *clone_() const override;
+    GObject *clone_() const override;
 
     /** @brief The actual business logic to be performed during each iteration. Returns the best achieved fitness */
-    G_API_GENEVA std::tuple<double, double> cycleLogic_() override;
+    std::tuple<double, double> cycleLogic_() override;
     /** @brief Triggers fitness calculation of a number of individuals */
-    G_API_GENEVA void runFitnessCalculation_() override;
+    void runFitnessCalculation_() override;
 
     /** @brief Returns information about the type of optimization algorithm */
-    G_API_GENEVA std::string getAlgorithmPersonalityType_() const override;
+    std::string getAlgorithmPersonalityType_() const override;
     /** @brief Returns the name of this optimization algorithm */
-    G_API_GENEVA std::string getAlgorithmName_() const override;
+    std::string getAlgorithmName_() const override;
 
     /** @brief Retrieves the number of processable items for the current iteration */
-    G_API_GENEVA std::size_t getNProcessableItems_() const override;
+    std::size_t getNProcessableItems_() const override;
 
     /** @brief Retrieve a GPersonalityTraits object belonging to this algorithm */
-    G_API_GENEVA std::shared_ptr<GPersonalityTraits> getPersonalityTraits_() const override;
+    std::shared_ptr<GPersonalityTraits> getPersonalityTraits_() const override;
     /** @brief Gives individuals an opportunity to update their internal structures */
-    G_API_GENEVA void actOnStalls_() override;
+    void actOnStalls_() override;
 
     /** @brief Resizes the population to the desired level and does some error checks */
-    G_API_GENEVA void adjustPopulation_() override;
+    void adjustPopulation_() override;
 };
 
 /******************************************************************************/

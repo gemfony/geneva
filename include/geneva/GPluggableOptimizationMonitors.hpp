@@ -82,16 +82,16 @@ public:
     /***************************************************************************/
 
     /** @brief The default constructor */
-    G_API_GENEVA GStandardMonitor() = default;
+    GStandardMonitor() = default;
     /** @brief The copy constructor */
-    G_API_GENEVA GStandardMonitor(const GStandardMonitor &cp) = default;
+    GStandardMonitor(const GStandardMonitor &cp) = default;
     /** @brief The destructor */
-    G_API_GENEVA ~GStandardMonitor() override = default;
+    ~GStandardMonitor() override = default;
 
 protected:
     /***************************************************************************/
     /** @brief Loads the data of another object */
-    G_API_GENEVA void load_(const GObject *cp) override;
+    void load_(const GObject *cp) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GStandardMonitor>(
@@ -101,27 +101,27 @@ protected:
     );
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
-    G_API_GENEVA void compare_(
+    void compare_(
         const GObject &cp,
         const Gem::Common::expectation &e,
         const double &limit
     ) const override;
 
     /** @brief Applies modifications to this object. */
-    G_API_GENEVA bool modify_GUnitTests_() override;
+    bool modify_GUnitTests_() override;
     /** @brief Performs self tests that are expected to succeed. */
-    G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests_() override;
+    void specificTestsNoFailureExpected_GUnitTests_() override;
     /** @brief Performs self tests that are expected to fail. */
-    G_API_GENEVA void specificTestsFailuresExpected_GUnitTests_() override;
+    void specificTestsFailuresExpected_GUnitTests_() override;
 
 private:
     /** @brief Emits a name for this class / object */
-    G_API_GENEVA std::string name_() const override;
+    std::string name_() const override;
     /** @brief Creates a deep clone of this object */
-    G_API_GENEVA GObject *clone_() const override;
+    GObject *clone_() const override;
 
     /** @brief Aggregates the work of all registered pluggable monitors */
-    G_API_GENEVA void
+    void
     informationFunction_(infoMode, G_OptimizationAlgorithm_Base const *const goa) override;
 };
 
@@ -159,35 +159,35 @@ public:
     /************************************************************************/
 
     /** @brief The default constructor */
-    G_API_GENEVA GFitnessMonitor() = default;
+    GFitnessMonitor() = default;
     /** @brief The copy constructor */
-    G_API_GENEVA GFitnessMonitor(const GFitnessMonitor &cp);
+    GFitnessMonitor(const GFitnessMonitor &cp);
     /** @brief The destructor */
-    G_API_GENEVA ~GFitnessMonitor() override = default;
+    ~GFitnessMonitor() override = default;
 
     /** @brief Allows to specify a different name for the result file */
-    G_API_GENEVA void setResultFileName(const std::string &resultFile);
+    void setResultFileName(const std::string &resultFile);
     /** @brief Allows to retrieve the current value of the result file name */
-    G_API_GENEVA std::string getResultFileName() const;
+    std::string getResultFileName() const;
 
     /** @brief Allows to set the dimensions of the canvas */
-    G_API_GENEVA void setDims(const std::uint32_t &xDim, const std::uint32_t &yDim);
+    void setDims(const std::uint32_t &xDim, const std::uint32_t &yDim);
     /** @brief Retrieve the dimensions as a tuple */
-    G_API_GENEVA std::tuple<std::uint32_t, std::uint32_t> getDims() const;
+    std::tuple<std::uint32_t, std::uint32_t> getDims() const;
     /** @brief Retrieves the dimension of the canvas in x-direction */
-    G_API_GENEVA std::uint32_t getXDim() const;
+    std::uint32_t getXDim() const;
     /** @brief Retrieves the dimension of the canvas in y-direction */
-    G_API_GENEVA std::uint32_t getYDim() const;
+    std::uint32_t getYDim() const;
 
     /** @brief Sets the number of individuals in the population that should be monitored */
-    G_API_GENEVA void setNMonitorIndividuals(const std::size_t &nMonitorInds);
+    void setNMonitorIndividuals(const std::size_t &nMonitorInds);
     /** @brief Retrieves the number of individuals that are being monitored */
-    G_API_GENEVA std::size_t getNMonitorIndividuals() const;
+    std::size_t getNMonitorIndividuals() const;
 
 protected:
     /************************************************************************/
     /** @brief Loads the data of another object */
-    G_API_GENEVA void load_(const GObject *cp) override;
+    void load_(const GObject *cp) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GFitnessMonitor>(
@@ -197,28 +197,28 @@ protected:
     );
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
-    G_API_GENEVA void compare_(
+    void compare_(
         const GObject &cp,
         const Gem::Common::expectation &e,
         const double &limit
     ) const override;
 
     /** @brief Applies modifications to this object. This is needed for testing purposes */
-    G_API_GENEVA bool modify_GUnitTests_() override;
+    bool modify_GUnitTests_() override;
     /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-    G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests_() override;
+    void specificTestsNoFailureExpected_GUnitTests_() override;
     /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-    G_API_GENEVA void specificTestsFailuresExpected_GUnitTests_() override;
+    void specificTestsFailuresExpected_GUnitTests_() override;
 
 private:
     /************************************************************************/
     /** @brief Emits a name for this class / object */
-    G_API_GENEVA std::string name_() const override;
+    std::string name_() const override;
     /** @brief Creates a deep clone of this object */
-    G_API_GENEVA GObject *clone_() const override;
+    GObject *clone_() const override;
 
     /** @brief Aggregates the work of all registered pluggable monitors */
-    G_API_GENEVA void
+    void
     informationFunction_(infoMode, G_OptimizationAlgorithm_Base const *const goa) override;
 
     /************************************************************************/
@@ -272,23 +272,23 @@ class GCollectiveMonitor // NOLINT(cppcoreguidelines-special-member-functions)
 public:
     /***************************************************************************/
     /** @brief The default constructor */
-    G_API_GENEVA GCollectiveMonitor() = default;
+    GCollectiveMonitor() = default;
     /** @brief The copy constructor */
-    G_API_GENEVA GCollectiveMonitor(const GCollectiveMonitor &cp);
+    GCollectiveMonitor(const GCollectiveMonitor &cp);
     /** @brief The destructor */
-    G_API_GENEVA ~GCollectiveMonitor() override = default;
+    ~GCollectiveMonitor() override = default;
 
     /** @brief Allows to register a new pluggable monitor */
-    G_API_GENEVA void registerPluggableOM(std::shared_ptr<Gem::Geneva::GBasePluggableOM> om_ptr);
+    void registerPluggableOM(std::shared_ptr<Gem::Geneva::GBasePluggableOM> om_ptr);
     /** @brief Checks if adaptors have been registered in the collective monitor */
-    G_API_GENEVA bool hasOptimizationMonitors() const;
+    bool hasOptimizationMonitors() const;
     /** @brief Allows to clear all registered monitors */
-    G_API_GENEVA void resetPluggbleOM();
+    void resetPluggbleOM();
 
 protected:
     /***************************************************************************/
     /** @brief Loads the data of another object */
-    G_API_GENEVA void load_(const GObject *cp) override;
+    void load_(const GObject *cp) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GCollectiveMonitor>(
@@ -298,28 +298,28 @@ protected:
     );
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
-    G_API_GENEVA void compare_(
+    void compare_(
         const GObject &cp,
         const Gem::Common::expectation &e,
         const double &limit
     ) const override;
 
     /** @brief Applies modifications to this object */
-    G_API_GENEVA bool modify_GUnitTests_() override;
+    bool modify_GUnitTests_() override;
     /** @brief Performs self tests that are expected to succeed */
-    G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests_() override;
+    void specificTestsNoFailureExpected_GUnitTests_() override;
     /** @brief Performs self tests that are expected to fail */
     void specificTestsFailuresExpected_GUnitTests_() override;
 
 private:
     /***************************************************************************/
     /** @brief Emits a name for this class / object */
-    G_API_GENEVA std::string name_() const override;
+    std::string name_() const override;
     /** @brief Creates a deep clone of this object */
-    G_API_GENEVA GObject *clone_() const override;
+    GObject *clone_() const override;
 
     /** @brief Aggregates the work of all registered pluggable monitors */
-    G_API_GENEVA void
+    void
     informationFunction_(infoMode, G_OptimizationAlgorithm_Base const *const goa) override;
 
     std::vector<std::shared_ptr<Gem::Geneva::GBasePluggableOM>>
@@ -1140,66 +1140,66 @@ public:
     /***************************************************************************/
 
     /** @brief The default constructor */
-    G_API_GENEVA GAllSolutionFileLogger() = default;
+    GAllSolutionFileLogger() = default;
     /** @brief Initialization with a file name */
-    explicit G_API_GENEVA GAllSolutionFileLogger(const std::string &fileName);
+    explicit GAllSolutionFileLogger(const std::string &fileName);
     /** @brief Initialization with a file name and boundaries */
-    G_API_GENEVA
+    
     GAllSolutionFileLogger(const std::string &fileName, const std::vector<double> &boundaries);
     /** @brief The copy constructor */
-    G_API_GENEVA GAllSolutionFileLogger(const GAllSolutionFileLogger &cp) = default;
+    GAllSolutionFileLogger(const GAllSolutionFileLogger &cp) = default;
     /** @brief The destructor */
-    G_API_GENEVA ~GAllSolutionFileLogger() override = default;
+    ~GAllSolutionFileLogger() override = default;
 
     /** @brief Sets the file name */
-    G_API_GENEVA void setFileName(const std::string &fileName);
+    void setFileName(const std::string &fileName);
     /** @brief Retrieves the current file name */
-    G_API_GENEVA std::string getFileName() const;
+    std::string getFileName() const;
 
     /** @brief Sets the boundaries */
-    G_API_GENEVA void setBoundaries(const std::vector<double> &boundaries);
+    void setBoundaries(const std::vector<double> &boundaries);
     /** @brief Allows to retrieve the boundaries */
-    G_API_GENEVA std::vector<double> getBoundaries() const;
+    std::vector<double> getBoundaries() const;
     /** @brief Allows to check whether boundaries are active */
-    G_API_GENEVA bool boundariesActive() const;
+    bool boundariesActive() const;
     /** @brief Allows to inactivate boundaries */
-    G_API_GENEVA void setBoundariesInactive();
+    void setBoundariesInactive();
 
     /** @brief  Allows to specify whether explanations should be printed for parameter- and fitness values. */
-    G_API_GENEVA void setPrintWithNameAndType(bool withNameAndType = true);
+    void setPrintWithNameAndType(bool withNameAndType = true);
     /** @brief Allows to check whether explanations should be printed for parameter-and fitness values */
-    G_API_GENEVA bool getPrintWithNameAndType() const;
+    bool getPrintWithNameAndType() const;
 
     /** @brief Allows to specify whether commas should be printed in-between values */
-    G_API_GENEVA void setPrintWithCommas(bool withCommas = true);
+    void setPrintWithCommas(bool withCommas = true);
     /** @brief Allows to check whether commas should be printed in-between values */
-    G_API_GENEVA bool getPrintWithCommas() const;
+    bool getPrintWithCommas() const;
 
     /** @brief Allows to specify whether the true (instead of the transformed) fitness should be shown */
-    G_API_GENEVA void setUseTrueFitness(bool useRawFitness = true);
+    void setUseTrueFitness(bool useRawFitness = true);
     /** @brief Allows to retrieve whether the true (instead of the transformed) fitness should be shown */
-    G_API_GENEVA bool getUseTrueFitness() const;
+    bool getUseTrueFitness() const;
 
     /** @brief Allows to specify whether the validity of a solution should be shown */
-    G_API_GENEVA void setShowValidity(bool showValidity = true);
+    void setShowValidity(bool showValidity = true);
     /** @brief Allows to check whether the validity of a solution will be shown */
-    G_API_GENEVA bool getShowValidity() const;
+    bool getShowValidity() const;
 
     /** @brief Allows to specifiy whether the initial population should be printed. */
-    G_API_GENEVA void setPrintInitial(bool printInitial = true);
+    void setPrintInitial(bool printInitial = true);
     /** @brief Allows to check whether the initial population should be printed. */
-    G_API_GENEVA bool getPrintInitial() const;
+    bool getPrintInitial() const;
 
     /** @brief Allows to specifiy whether a comment line should be inserted between iterations */
-    G_API_GENEVA void setShowIterationBoundaries(bool showIterationBoundaries = true);
+    void setShowIterationBoundaries(bool showIterationBoundaries = true);
     /** @brief Allows to check whether a comment line should be inserted between iterations */
-    G_API_GENEVA bool getShowIterationBoundaries() const;
+    bool getShowIterationBoundaries() const;
 
 protected:
     /************************************************************************/
 
     /** @brief Loads the data of another object */
-    G_API_GENEVA void load_(const GObject *cp) override;
+    void load_(const GObject *cp) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GAllSolutionFileLogger>(
@@ -1209,32 +1209,32 @@ protected:
     );
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
-    G_API_GENEVA void compare_(
+    void compare_(
         const GObject &cp,
         const Gem::Common::expectation &e,
         const double &limit
     ) const override;
 
     /** @brief Applies modifications to this object */
-    G_API_GENEVA bool modify_GUnitTests_() override;
+    bool modify_GUnitTests_() override;
     /** @brief Performs self tests that are expected to succeed */
-    G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests_() override;
+    void specificTestsNoFailureExpected_GUnitTests_() override;
     /** @brief Performs self tests that are expected to fail */
-    G_API_GENEVA void specificTestsFailuresExpected_GUnitTests_() override;
+    void specificTestsFailuresExpected_GUnitTests_() override;
 
 private:
     /***************************************************************************/
     /** @brief Emits a name for this class / object */
-    G_API_GENEVA std::string name_() const override;
+    std::string name_() const override;
     /** @brief Creates a deep clone of this object */
-    G_API_GENEVA GObject *clone_() const override;
+    GObject *clone_() const override;
 
     /** @brief Allows to emit information in different stages of the information cycle */
-    G_API_GENEVA void
+    void
     informationFunction_(infoMode, G_OptimizationAlgorithm_Base const *const goa) override;
 
     /** @brief Does the actual printing */
-    G_API_GENEVA void printPopulation(
+    void printPopulation(
         const std::string &iterationDescription,
         G_OptimizationAlgorithm_Base const *const goa
     );
@@ -1284,33 +1284,33 @@ public:
     /***************************************************************************/
 
     /** @brief The default constructor */
-    G_API_GENEVA GIterationResultsFileLogger() = default;
+    GIterationResultsFileLogger() = default;
     /** @brief Initialization with a file name */
-    explicit G_API_GENEVA GIterationResultsFileLogger(const std::string &fileName);
+    explicit GIterationResultsFileLogger(const std::string &fileName);
     /** @brief The copy constructor */
-    G_API_GENEVA GIterationResultsFileLogger(const GIterationResultsFileLogger &cp) = default;
+    GIterationResultsFileLogger(const GIterationResultsFileLogger &cp) = default;
     /** @brief The destructor */
-    G_API_GENEVA ~GIterationResultsFileLogger() override = default;
+    ~GIterationResultsFileLogger() override = default;
 
     /** @brief Sets the file name */
-    G_API_GENEVA void setFileName(const std::string &fileName);
+    void setFileName(const std::string &fileName);
     /** @brief Retrieves the current file name */
-    G_API_GENEVA std::string getFileName() const;
+    std::string getFileName() const;
 
     /** @brief Allows to specify whether commas should be printed in-between values */
-    G_API_GENEVA void setPrintWithCommas(bool withCommas);
+    void setPrintWithCommas(bool withCommas);
     /** @brief Allows to check whether commas should be printed in-between values */
-    G_API_GENEVA bool getPrintWithCommas() const;
+    bool getPrintWithCommas() const;
 
     /** @brief Allows to specify whether the true (instead of the transformed) fitness should be shown */
-    G_API_GENEVA void setUseTrueFitness(bool useRawFitness);
+    void setUseTrueFitness(bool useRawFitness);
     /** @brief Allows to retrieve whether the true (instead of the transformed) fitness should be shown */
-    G_API_GENEVA bool getUseTrueFitness() const;
+    bool getUseTrueFitness() const;
 
 protected:
     /************************************************************************/
     /** @brief Loads the data of another object */
-    G_API_GENEVA void load_(const GObject *cp) override;
+    void load_(const GObject *cp) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GIterationResultsFileLogger>(
@@ -1320,28 +1320,28 @@ protected:
     );
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
-    G_API_GENEVA void compare_(
+    void compare_(
         const GObject &cp,
         const Gem::Common::expectation &e,
         const double &limit
     ) const override;
 
     /** @brief Applies modifications to this object */
-    G_API_GENEVA bool modify_GUnitTests_() override;
+    bool modify_GUnitTests_() override;
     /** @brief Performs self tests that are expected to succeed */
-    G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests_() override;
+    void specificTestsNoFailureExpected_GUnitTests_() override;
     /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-    G_API_GENEVA void specificTestsFailuresExpected_GUnitTests_() override;
+    void specificTestsFailuresExpected_GUnitTests_() override;
 
 private:
     /***************************************************************************/
     /** @brief Emits a name for this class / object */
-    G_API_GENEVA std::string name_() const override;
+    std::string name_() const override;
     /** @brief Creates a deep clone of this object */
-    G_API_GENEVA GObject *clone_() const override;
+    GObject *clone_() const override;
 
     /** @brief Allows to emit information in different stages of the information cycle */
-    G_API_GENEVA void
+    void
     informationFunction_(infoMode, G_OptimizationAlgorithm_Base const *const goa) override;
 
     std::string fileName_ =
@@ -1387,42 +1387,42 @@ public:
     /***************************************************************************/
 
     /** @brief The default constructor */
-    G_API_GENEVA GNAdpationsLogger() = default;
+    GNAdpationsLogger() = default;
     /** @brief Initialization with a file name */
-    explicit G_API_GENEVA GNAdpationsLogger(const std::string &fileName);
+    explicit GNAdpationsLogger(const std::string &fileName);
     /** @brief The copy constructor */
-    G_API_GENEVA GNAdpationsLogger(const GNAdpationsLogger &cp);
+    GNAdpationsLogger(const GNAdpationsLogger &cp);
     /** @brief The destructor */
-    G_API_GENEVA ~GNAdpationsLogger() override = default;
+    ~GNAdpationsLogger() override = default;
 
     /** @brief Sets the file name */
-    G_API_GENEVA void setFileName(const std::string &fileName);
+    void setFileName(const std::string &fileName);
     /** @brief Retrieves the current file name */
-    G_API_GENEVA std::string getFileName() const;
+    std::string getFileName() const;
 
     /** @brief Allows to specify whether only the best individuals should be monitored */
-    G_API_GENEVA void setMonitorBestOnly(bool monitorBestOnly = true);
+    void setMonitorBestOnly(bool monitorBestOnly = true);
     /** @brief Allows to check whether only the best individuals should be monitored */
-    G_API_GENEVA bool getMonitorBestOnly() const;
+    bool getMonitorBestOnly() const;
 
     /** @brief Allows to set the canvas dimensions */
-    G_API_GENEVA void
+    void
     setCanvasDimensions(std::tuple<std::uint32_t, std::uint32_t> canvasDimensions);
     /** @brief Allows to set the canvas dimensions using separate x and y values */
-    G_API_GENEVA void setCanvasDimensions(std::uint32_t x, std::uint32_t y);
+    void setCanvasDimensions(std::uint32_t x, std::uint32_t y);
     /** @brief Gives access to the canvas dimensions */
-    G_API_GENEVA std::tuple<std::uint32_t, std::uint32_t> getCanvasDimensions() const;
+    std::tuple<std::uint32_t, std::uint32_t> getCanvasDimensions() const;
 
     /** @brief Allows to add a "Print" command to the end of the script so that picture files are created */
-    G_API_GENEVA void setAddPrintCommand(bool addPrintCommand);
+    void setAddPrintCommand(bool addPrintCommand);
     /** @brief Allows to retrieve the current value of the addPrintCommand_ variable */
-    G_API_GENEVA bool getAddPrintCommand() const;
+    bool getAddPrintCommand() const;
 
 protected:
     /************************************************************************/
 
     /** @brief Loads the data of another object */
-    G_API_GENEVA void load_(const GObject *cp) override;
+    void load_(const GObject *cp) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GNAdpationsLogger>(
@@ -1432,26 +1432,26 @@ protected:
     );
 
     /** @brief Searches for compliance with expectations with respect to another object */
-    G_API_GENEVA void compare_(
+    void compare_(
         const GObject &cp,
         const Gem::Common::expectation &e,
         const double &limit
     ) const override;
 
     /** @brief Applies modifications to this object */
-    G_API_GENEVA bool modify_GUnitTests_() override;
+    bool modify_GUnitTests_() override;
     /** @brief Performs self tests that are expected to succeed */
-    G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests_() override;
+    void specificTestsNoFailureExpected_GUnitTests_() override;
     /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-    G_API_GENEVA void specificTestsFailuresExpected_GUnitTests_() override;
+    void specificTestsFailuresExpected_GUnitTests_() override;
 
 private:
     /***************************************************************************/
     /** @brief Creates a deep clone of this object */
-    G_API_GENEVA GObject *clone_() const override;
+    GObject *clone_() const override;
 
     /** @brief Allows to emit information in different stages of the information cycle */
-    G_API_GENEVA void
+    void
     informationFunction_(infoMode, G_OptimizationAlgorithm_Base const *const goa) override;
 
     std::string fileName_ =
@@ -2070,9 +2070,9 @@ public:
     /***************************************************************************/
 
     /** @brief The default constructor */
-    G_API_GENEVA GProcessingTimesLogger();
+    GProcessingTimesLogger();
     /** @brief Initialization with a file name */
-    G_API_GENEVA GProcessingTimesLogger(
+    GProcessingTimesLogger(
         const std::string &fileName_pth,
         const std::string &fileName_pth2,
         const std::string &fileName_txt,
@@ -2080,56 +2080,56 @@ public:
         std::size_t nBinsY
     );
     /** @brief The copy constructor */
-    G_API_GENEVA GProcessingTimesLogger(const GProcessingTimesLogger &cp) = default;
+    GProcessingTimesLogger(const GProcessingTimesLogger &cp) = default;
     /** @brief  The destructor */
-    G_API_GENEVA ~GProcessingTimesLogger() override = default;
+    ~GProcessingTimesLogger() override = default;
 
     /** @brief Sets the file name for the processing times histogram */
-    G_API_GENEVA void setFileName_pth(const std::string &fileName);
+    void setFileName_pth(const std::string &fileName);
     /** @brief Retrieves the current file name for the processing times histogram */
-    G_API_GENEVA std::string getFileName_pth() const;
+    std::string getFileName_pth() const;
     /** @brief Sets the file name for the processing times histograms (2D) */
-    G_API_GENEVA void setFileName_pth2(const std::string &fileName);
+    void setFileName_pth2(const std::string &fileName);
     /** @brief Retrieves the current file name for the processing times histograms (2D) */
-    G_API_GENEVA std::string getFileName_pth2() const;
+    std::string getFileName_pth2() const;
 
     /** @brief Sets the file name for the text output */
-    G_API_GENEVA void setFileName_txt(const std::string &fileName);
+    void setFileName_txt(const std::string &fileName);
     /** @brief Retrieves the current file name for the text output */
-    G_API_GENEVA std::string getFileName_txt() const;
+    std::string getFileName_txt() const;
 
     /** @brief Allows to set the canvas dimensions for the processing times histograms */
-    G_API_GENEVA void
+    void
     setCanvasDimensions_pth(std::tuple<std::uint32_t, std::uint32_t> canvasDimensions);
     /** @brief Allows to set the canvas dimensions using separate x and y values for the processing times histograms */
-    G_API_GENEVA void setCanvasDimensions_pth(std::uint32_t x, std::uint32_t y);
+    void setCanvasDimensions_pth(std::uint32_t x, std::uint32_t y);
 
     /** @brief Gives access to the canvas dimensions of the processing times histograms */
-    G_API_GENEVA std::tuple<std::uint32_t, std::uint32_t> getCanvasDimensions_pth() const;
+    std::tuple<std::uint32_t, std::uint32_t> getCanvasDimensions_pth() const;
     /** @brief Allows to set the canvas dimensions for the processing times histograms (2D) */
-    G_API_GENEVA void
+    void
     setCanvasDimensions_pth2(std::tuple<std::uint32_t, std::uint32_t> canvasDimensions);
 
     /** @brief Allows to set the canvas dimensions using separate x and y values for the processing times histograms (2D) */
-    G_API_GENEVA void setCanvasDimensions_pth2(std::uint32_t x, std::uint32_t y);
+    void setCanvasDimensions_pth2(std::uint32_t x, std::uint32_t y);
     /** @brief Gives access to the canvas dimensions of the processing times histograms (2D) */
-    G_API_GENEVA std::tuple<std::uint32_t, std::uint32_t> getCanvasDimensions_pth2() const;
+    std::tuple<std::uint32_t, std::uint32_t> getCanvasDimensions_pth2() const;
 
     /** @brief Sets the number of bins for the processing times histograms in y-direction */
-    G_API_GENEVA void setNBinsX(std::size_t nBinsX);
+    void setNBinsX(std::size_t nBinsX);
     /** @brief Retrieves the current number of bins for the processing times histograms in x-direction */
-    G_API_GENEVA std::size_t getNBinsX() const;
+    std::size_t getNBinsX() const;
 
     /** @brief Sets the number of bins for the processing times histograms in y-direction */
-    G_API_GENEVA void setNBinsY(std::size_t nBinsY);
+    void setNBinsY(std::size_t nBinsY);
     /** @brief Retrieves the current number of bins for the processing times histograms in y-direction */
-    G_API_GENEVA std::size_t getNBinsY() const;
+    std::size_t getNBinsY() const;
 
 protected:
     /************************************************************************/
 
     /** @brief Loads the data of another object */
-    G_API_GENEVA void load_(const GObject *cp) override;
+    void load_(const GObject *cp) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GProcessingTimesLogger>(
@@ -2139,28 +2139,28 @@ protected:
     );
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
-    G_API_GENEVA void compare_(
+    void compare_(
         const GObject &cp,
         const Gem::Common::expectation &e,
         const double &limit
     ) const override;
 
     /** @brief Applies modifications to this object */
-    G_API_GENEVA bool modify_GUnitTests_() override;
+    bool modify_GUnitTests_() override;
     /** @brief Performs self tests that are expected to succeed */
-    G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests_() override;
+    void specificTestsNoFailureExpected_GUnitTests_() override;
     /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-    G_API_GENEVA void specificTestsFailuresExpected_GUnitTests_() override;
+    void specificTestsFailuresExpected_GUnitTests_() override;
 
 private:
     /************************************************************************/
     /** @brief Emits a name for this class / object */
-    G_API_GENEVA std::string name_() const override;
+    std::string name_() const override;
     /** @brief Creates a deep clone of this object */
-    G_API_GENEVA GObject *clone_() const override;
+    GObject *clone_() const override;
 
     /** @brief Allows to emit information in different stages of the information cycle */
-    G_API_GENEVA void
+    void
     informationFunction_(infoMode, G_OptimizationAlgorithm_Base const *const goa) override;
 
     /************************************************************************/

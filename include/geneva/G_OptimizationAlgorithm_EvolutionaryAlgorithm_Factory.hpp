@@ -59,31 +59,31 @@ class GEvolutionaryAlgorithmFactory // NOLINT(cppcoreguidelines-special-member-f
   : public G_OptimizationAlgorithm_FactoryT<G_OptimizationAlgorithm_Base> {
 public:
     /** @brief The default constructor */
-    G_API_GENEVA GEvolutionaryAlgorithmFactory();
+    GEvolutionaryAlgorithmFactory();
     /** @brief Initialization with the name of the config file */
-    explicit G_API_GENEVA GEvolutionaryAlgorithmFactory(std::filesystem::path const &);
+    explicit GEvolutionaryAlgorithmFactory(std::filesystem::path const &);
     /** @brief Initialization with the name of the config file and a content creator */
-    G_API_GENEVA GEvolutionaryAlgorithmFactory(
+    GEvolutionaryAlgorithmFactory(
         const std::string &,
         std::shared_ptr<Gem::Common::GFactoryT<GParameterSet>>
     );
     /** @brief The copy constructor */
-    G_API_GENEVA GEvolutionaryAlgorithmFactory(const GEvolutionaryAlgorithmFactory &) = default;
+    GEvolutionaryAlgorithmFactory(const GEvolutionaryAlgorithmFactory &) = default;
     /** @brief The destructor */
-    virtual G_API_GENEVA ~GEvolutionaryAlgorithmFactory() = default;
+    virtual ~GEvolutionaryAlgorithmFactory() = default;
 
     /** @brief Gives access to the mnemonics / nickname describing an algorithm */
-    G_API_GENEVA std::string getMnemonic() const override;
+    std::string getMnemonic() const override;
     /** @brief Gives access to a clear-text description of the algorithm */
-    G_API_GENEVA std::string getAlgorithmName() const override;
+    std::string getAlgorithmName() const override;
 
 protected:
     /** @brief Allows to act on the configuration options received from the configuration file */
-    G_API_GENEVA void postProcess_(std::shared_ptr<G_OptimizationAlgorithm_Base> &) override;
+    void postProcess_(std::shared_ptr<G_OptimizationAlgorithm_Base> &) override;
 
 private:
     /** @brief Creates individuals of this type */
-    G_API_GENEVA std::shared_ptr<G_OptimizationAlgorithm_Base>
+    std::shared_ptr<G_OptimizationAlgorithm_Base>
     getObject_(Gem::Common::GParserBuilder &, const std::size_t &) override;
 };
 

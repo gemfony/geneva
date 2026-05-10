@@ -63,7 +63,7 @@ public:
          * @param baseCommunicator MPI communicator that all processes which instantiate GMPISubClientOptimizer call.
          *  In the most frequent and less complicated case the default value of MPI_COMM_WORLD will be correct.
          */
-    G_API_GENEVA GMPISubClientOptimizer(
+    GMPISubClientOptimizer(
         int argc,
         char **argv,
         std::string const &configFilePath,
@@ -72,7 +72,7 @@ public:
         MPI_Comm baseCommunicator = MPI_COMM_WORLD
     );
     /** @brief Deleted copy constructor */
-    G_API_GENEVA GMPISubClientOptimizer(GMPISubClientOptimizer const &) = delete;
+    GMPISubClientOptimizer(GMPISubClientOptimizer const &) = delete;
 
     /**
          * Registers a function to be called by sub-clients.
@@ -83,10 +83,10 @@ public:
          * @param callback The function called by sub-clients
          * @return
          */
-    G_API_GENEVA GMPISubClientOptimizer &
+    GMPISubClientOptimizer &
     registerSubClientJob(std::function<int(MPI_Comm)> callback);
 
-    [[nodiscard]] G_API_GENEVA bool isSubClient() const {
+    [[nodiscard]] bool isSubClient() const {
         return isSubClient_;
     }
 
@@ -95,14 +95,14 @@ protected:
          * Triggers execution of the client job
          * @return An integer type return value for the main function indicating execution status.
          */
-    G_API_GENEVA int clientRun_() override;
+    int clientRun_() override;
 
     /**
          * Adds local configuration options to a GParserBuilder object
          *
          * @param gpb The GParserBuilder object to which configuration options should be added
          */
-    G_API_GENEVA void addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) override;
+    void addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) override;
 
 private:
     MPI_Request startAsyncBarrier() const;

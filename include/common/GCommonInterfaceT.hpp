@@ -481,7 +481,7 @@ protected:
 
     /***************************************************************************/
     /** @brief Loads the data of another g_class_type */
-    virtual G_API_COMMON void load_(const g_class_type *) = 0;
+    virtual void load_(const g_class_type *) = 0;
 
     /***************************************************************************/
     /** @brief Allow access to this classes compare_ function */
@@ -559,11 +559,11 @@ protected:
 
     /***************************************************************************/
     /** @brief Applies modifications to this object. This is needed for testing purposes */
-    virtual G_API_COMMON bool modify_GUnitTests_() = 0;
+    virtual bool modify_GUnitTests_() = 0;
     /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-    virtual G_API_COMMON void specificTestsNoFailureExpected_GUnitTests_() = 0;
+    virtual void specificTestsNoFailureExpected_GUnitTests_() = 0;
     /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-    virtual G_API_COMMON void specificTestsFailuresExpected_GUnitTests_() = 0;
+    virtual void specificTestsFailuresExpected_GUnitTests_() = 0;
 
 private:
     /***************************************************************************/
@@ -576,7 +576,7 @@ private:
 
     /***************************************************************************/
     /** @brief Creates a deep clone of this object */
-    virtual G_API_COMMON g_class_type *clone_() const = 0;
+    virtual g_class_type *clone_() const = 0;
 };
 
 /******************************************************************************/

@@ -89,65 +89,65 @@ class GSwarmAlgorithm // NOLINT(cppcoreguidelines-special-member-functions)
 
 public:
     /** @brief The default constructor */
-    G_API_GENEVA GSwarmAlgorithm();
+    GSwarmAlgorithm();
     /** @brief Initialization with neighborhood sizes and amount of individuals in each neighborhood */
-    G_API_GENEVA GSwarmAlgorithm(const std::size_t &, const std::size_t &);
+    GSwarmAlgorithm(const std::size_t &, const std::size_t &);
     /** @brief A standard copy constructor */
-    G_API_GENEVA GSwarmAlgorithm(const GSwarmAlgorithm &);
+    GSwarmAlgorithm(const GSwarmAlgorithm &);
     /** @brief The destructor */
-    G_API_GENEVA ~GSwarmAlgorithm() override = default;
+    ~GSwarmAlgorithm() override = default;
 
     /** @brief Sets the number of neighborhoods and the number of members in them */
-    G_API_GENEVA void setSwarmSizes(std::size_t, std::size_t);
+    void setSwarmSizes(std::size_t, std::size_t);
 
     /** @brief Allows to set a static multiplier for personal distances */
-    G_API_GENEVA void setCPersonal(double);
+    void setCPersonal(double);
     /** @brief Allows to retrieve the static multiplier for personal distances */
-    G_API_GENEVA double getCPersonal() const;
+    double getCPersonal() const;
 
     /** @brief Allows to set a static multiplier for neighborhood distances */
-    G_API_GENEVA void setCNeighborhood(double);
+    void setCNeighborhood(double);
     /** @brief Allows to retrieve the static multiplier for neighborhood distances */
-    G_API_GENEVA double getCNeighborhood() const;
+    double getCNeighborhood() const;
 
     /** @brief Allows to set a static multiplier for global distances */
-    G_API_GENEVA void setCGlobal(double);
+    void setCGlobal(double);
     /** @brief Allows to retrieve the static multiplier for global distances */
-    G_API_GENEVA double getCGlobal() const;
+    double getCGlobal() const;
 
     /** @brief Allows to set a static multiplier for velocities */
-    G_API_GENEVA void setCVelocity(double);
+    void setCVelocity(double);
     /** @brief Allows to retrieve the static multiplier for velocities */
-    G_API_GENEVA double getCVelocity() const;
+    double getCVelocity() const;
 
     /** @brief Allows to set the velocity range percentage */
-    G_API_GENEVA void setVelocityRangePercentage(double);
+    void setVelocityRangePercentage(double);
     /** @brief Allows to retrieve the velocity range percentage */
-    G_API_GENEVA double getVelocityRangePercentage() const;
+    double getVelocityRangePercentage() const;
 
     /** @brief Retrieves the number of neighborhoods */
-    G_API_GENEVA std::size_t getNNeighborhoods() const;
+    std::size_t getNNeighborhoods() const;
     /** @brief Retrieves the default number of individuals in each neighborhood */
-    G_API_GENEVA std::size_t getDefaultNNeighborhoodMembers() const;
+    std::size_t getDefaultNNeighborhoodMembers() const;
     /** @brief Retrieves the current number of individuals in a given neighborhood */
-    G_API_GENEVA std::size_t getCurrentNNeighborhoodMembers(const std::size_t &) const;
+    std::size_t getCurrentNNeighborhoodMembers(const std::size_t &) const;
 
     /** @brief Allows to specify the update rule to be used by the swarm */
-    G_API_GENEVA void setUpdateRule(updateRule);
+    void setUpdateRule(updateRule);
     /** @brief Allows to retrieve the update rule currently used by the swarm */
-    G_API_GENEVA updateRule getUpdateRule() const;
+    updateRule getUpdateRule() const;
 
     /** @brief Allows to specify the number of stalls as of which the algorithm switches to repulsive mode */
-    G_API_GENEVA void setRepulsionThreshold(std::uint32_t);
+    void setRepulsionThreshold(std::uint32_t);
     /** @brief Allows to retrieve the number of stalls as of which the algorithm switches to repulsive mode */
-    G_API_GENEVA std::uint32_t getRepulsionThreshold() const;
+    std::uint32_t getRepulsionThreshold() const;
 
     /** @brief All individuals automatically added to a neighborhood will have equal value */
-    G_API_GENEVA void setNeighborhoodsEqualFillUp();
+    void setNeighborhoodsEqualFillUp();
     /** @brief All individuals automatically added to a neighborhood will have a random value */
-    G_API_GENEVA void setNeighborhoodsRandomFillUp(bool = true);
+    void setNeighborhoodsRandomFillUp(bool = true);
     /** @brief Allows to check whether neighborhoods are filled up with random individuals */
-    G_API_GENEVA bool neighborhoodsFilledUpRandomly() const;
+    bool neighborhoodsFilledUpRandomly() const;
 
     /***************************************************************************/
     /**
@@ -187,9 +187,9 @@ protected:
     // Virtual or overridden protected functions
 
     /** @brief Adds local configuration options to a GParserBuilder object */
-    G_API_GENEVA void addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) override;
+    void addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) override;
     /** @brief Loads the data of another population */
-    G_API_GENEVA void load_(const GObject *) override;
+    void load_(const GObject *) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GSwarmAlgorithm>(
@@ -199,7 +199,7 @@ protected:
     );
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
-    G_API_GENEVA void compare_(
+    void compare_(
         const GObject & // the other object
         ,
         const Gem::Common::expectation & // the expectation for this object, e.g. equality
@@ -208,43 +208,43 @@ protected:
     ) const override;
 
     /** @brief Resets the settings of this population to what was configured when the optimize()-call was issued */
-    G_API_GENEVA void resetToOptimizationStart_() override;
+    void resetToOptimizationStart_() override;
 
     /** @brief Does some preparatory work before the optimization starts */
-    G_API_GENEVA void init() override;
+    void init() override;
     /** @brief Does any necessary finalization work */
-    G_API_GENEVA void finalize() override;
+    void finalize() override;
 
     /** @brief Updates the best individuals found */
-    virtual G_API_GENEVA std::tuple<double, double> findBests();
+    virtual std::tuple<double, double> findBests();
     /** @brief Triggers an update of all individual's positions */
-    virtual G_API_GENEVA void updatePositions();
+    virtual void updatePositions();
 
     /** @brief Fixes an incomplete population */
-    virtual G_API_GENEVA void adjustNeighborhoods();
+    virtual void adjustNeighborhoods();
 
     /** @brief Applies modifications to this object. This is needed for testing purposes */
-    G_API_GENEVA bool modify_GUnitTests_() override;
+    bool modify_GUnitTests_() override;
     /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-    G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests_() override;
+    void specificTestsNoFailureExpected_GUnitTests_() override;
     /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-    G_API_GENEVA void specificTestsFailuresExpected_GUnitTests_() override;
+    void specificTestsFailuresExpected_GUnitTests_() override;
 
     /***************************************************************************/
 
     /** @brief Checks whether each neighborhood has the default size */
-    G_API_GENEVA bool neighborhoodsHaveNominalValues() const;
+    bool neighborhoodsHaveNominalValues() const;
 
     /** @brief Helper function that returns the id of the first individual of a neighborhood */
-    G_API_GENEVA std::size_t getFirstNIPos(const std::size_t &) const;
+    std::size_t getFirstNIPos(const std::size_t &) const;
     /** @brief Helper function that returns the id of the first individual of a neighborhood, using a vector of neighborhood sizes */
-    G_API_GENEVA std::size_t
+    std::size_t
     getFirstNIPosVec(const std::size_t &, const std::vector<std::size_t> &) const;
     /** @brief Helper function that returns the id of the last individual of a neighborhood */
-    G_API_GENEVA std::size_t getLastNIPos(const std::size_t &) const;
+    std::size_t getLastNIPos(const std::size_t &) const;
 
     /** @brief Triggers an update of an individual's positions */
-    G_API_GENEVA void updateIndividualPositions(
+    void updateIndividualPositions(
         const std::size_t &,
         std::shared_ptr<GParameterSet>,
         std::shared_ptr<GParameterSet>,
@@ -254,12 +254,12 @@ protected:
     );
 
     /** @brief Adjusts the velocity vector so that its values don't exceed the allowed value range */
-    G_API_GENEVA void pruneVelocity(std::vector<double> &);
+    void pruneVelocity(std::vector<double> &);
 
     /** Updates the personal best of an individual */
-    G_API_GENEVA void updatePersonalBest(std::shared_ptr<GParameterSet>);
+    void updatePersonalBest(std::shared_ptr<GParameterSet>);
     /** Updates the personal best of an individual, if a better solution was found */
-    G_API_GENEVA void updatePersonalBestIfBetter(std::shared_ptr<GParameterSet>);
+    void updatePersonalBestIfBetter(std::shared_ptr<GParameterSet>);
 
     std::size_t n_neighborhoods_ =
         (DEFAULTNNEIGHBORHOODS ? DEFAULTNNEIGHBORHOODS
@@ -314,30 +314,30 @@ private:
     // Virtual or overridden private functions
 
     /** @brief Emits a name for this class / object */
-    G_API_GENEVA std::string name_() const override;
+    std::string name_() const override;
     /** @brief Creates a deep clone of this object */
-    G_API_GENEVA GObject *clone_() const override;
+    GObject *clone_() const override;
 
     /** @brief The actual business logic to be performed during each iteration; Returns the best achieved fitness */
-    G_API_GENEVA std::tuple<double, double> cycleLogic_() override;
+    std::tuple<double, double> cycleLogic_() override;
     /** @brief Updates the fitness of all individuals */
-    G_API_GENEVA void runFitnessCalculation_() override;
+    void runFitnessCalculation_() override;
 
     /** @brief Returns information about the type of optimization algorithm */
-    G_API_GENEVA std::string getAlgorithmPersonalityType_() const override;
+    std::string getAlgorithmPersonalityType_() const override;
     /** @brief Returns the name of this optimization algorithm */
-    G_API_GENEVA std::string getAlgorithmName_() const override;
+    std::string getAlgorithmName_() const override;
 
     /** @brief Retrieves the number of processable items for the current iteration */
-    G_API_GENEVA std::size_t getNProcessableItems_() const override;
+    std::size_t getNProcessableItems_() const override;
 
     /** @brief Retrieve a GPersonalityTraits object belonging to this algorithm */
-    G_API_GENEVA std::shared_ptr<GPersonalityTraits> getPersonalityTraits_() const override;
+    std::shared_ptr<GPersonalityTraits> getPersonalityTraits_() const override;
     /** @brief Gives individuals an opportunity to update their internal structures */
-    G_API_GENEVA void actOnStalls_() override;
+    void actOnStalls_() override;
 
     /** @brief Resizes the population to the desired level and does some error checks */
-    G_API_GENEVA void adjustPopulation_() override;
+    void adjustPopulation_() override;
 
     /***************************************************************************/
 

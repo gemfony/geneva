@@ -89,22 +89,22 @@ public:
     /*************************************************************************/
     // Defaulted or deleted constructors, destructor and assignment operators
 
-    G_API_COMMON GBaseLogTarget() = default;
-    G_API_COMMON GBaseLogTarget(GBaseLogTarget const &) = default;
-    G_API_COMMON GBaseLogTarget(GBaseLogTarget &&) = default;
+    GBaseLogTarget() = default;
+    GBaseLogTarget(GBaseLogTarget const &) = default;
+    GBaseLogTarget(GBaseLogTarget &&) = default;
 
-    virtual G_API_COMMON ~GBaseLogTarget() = default;
+    virtual ~GBaseLogTarget() = default;
 
-    G_API_COMMON GBaseLogTarget &operator=(GBaseLogTarget const &) = default;
-    G_API_COMMON GBaseLogTarget &operator=(GBaseLogTarget &&) = default;
+    GBaseLogTarget &operator=(GBaseLogTarget const &) = default;
+    GBaseLogTarget &operator=(GBaseLogTarget &&) = default;
 
     /*************************************************************************/
 
     /** @brief The logging interface */
-    virtual G_API_COMMON void log(std::string const &) const = 0;
+    virtual void log(std::string const &) const = 0;
 
     /** @brief Adds an extension to the output */
-    virtual G_API_COMMON void logWithSource(std::string const &, std::string const &) const = 0;
+    virtual void logWithSource(std::string const &, std::string const &) const = 0;
 };
 
 /******************************************************************************/
@@ -119,21 +119,21 @@ public:
     // Defaulted or deleted constructors, destructor and assignment operators
     // rule of five
 
-    G_API_COMMON GConsoleLogger() = default;
-    G_API_COMMON GConsoleLogger(GConsoleLogger const &) = delete;
-    G_API_COMMON GConsoleLogger(GConsoleLogger &&) = default;
-    G_API_COMMON ~GConsoleLogger() override = default;
+    GConsoleLogger() = default;
+    GConsoleLogger(GConsoleLogger const &) = delete;
+    GConsoleLogger(GConsoleLogger &&) = default;
+    ~GConsoleLogger() override = default;
 
-    G_API_COMMON GConsoleLogger &operator=(GConsoleLogger const &) = delete;
-    G_API_COMMON GConsoleLogger &operator=(GConsoleLogger &&) = default;
+    GConsoleLogger &operator=(GConsoleLogger const &) = delete;
+    GConsoleLogger &operator=(GConsoleLogger &&) = default;
 
     /*************************************************************************/
 
     /** @brief Implements the logging to the console */
-    G_API_COMMON void log(std::string const &) const override;
+    void log(std::string const &) const override;
 
     /** @brief Adds a specifier to the output */
-    G_API_COMMON void logWithSource(std::string const &, std::string const &) const override;
+    void logWithSource(std::string const &, std::string const &) const override;
 };
 
 /******************************************************************************/
@@ -145,27 +145,27 @@ public:
 class GFileLogger : public GBaseLogTarget {
 public:
     /** @brief This constructor accepts a boost path to a file name as argument */
-    explicit G_API_COMMON GFileLogger(std::filesystem::path const &);
+    explicit GFileLogger(std::filesystem::path const &);
 
     /*************************************************************************/
     // Defaulted or deleted constructors, destructor and assignment operators
     // rule of five
 
-    G_API_COMMON GFileLogger() = default;
-    G_API_COMMON GFileLogger(GFileLogger const &) = delete;
-    G_API_COMMON GFileLogger(GFileLogger &&) = default;
-    G_API_COMMON ~GFileLogger() override = default;
+    GFileLogger() = default;
+    GFileLogger(GFileLogger const &) = delete;
+    GFileLogger(GFileLogger &&) = default;
+    ~GFileLogger() override = default;
 
-    G_API_COMMON GFileLogger &operator=(GFileLogger const &) = delete;
-    G_API_COMMON GFileLogger &operator=(GFileLogger &&) = default;
+    GFileLogger &operator=(GFileLogger const &) = delete;
+    GFileLogger &operator=(GFileLogger &&) = default;
 
     /*************************************************************************/
 
     /** @brief Implements logging to a file on disk */
-    G_API_COMMON void log(std::string const &) const override;
+    void log(std::string const &) const override;
 
     /** @brief Adds an extension to the output file */
-    G_API_COMMON void logWithSource(std::string const &, std::string const &) const override;
+    void logWithSource(std::string const &, std::string const &) const override;
 
 private:
     std::string fname_ = "Geneva-Library-Collection.log"; ///< The name of the log file
@@ -437,29 +437,29 @@ private:
 class GManipulator { // NOLINT(cppcoreguidelines-special-member-functions)
 public:
     /** @brief A constructor that stores the logging type only */
-    explicit G_API_COMMON GManipulator(logType);
+    explicit GManipulator(logType);
     /** @brief A constructor that stores both accompanying information and the logging type */
-    G_API_COMMON GManipulator(std::string const &, logType);
+    GManipulator(std::string const &, logType);
 
     /*************************************************************************/
     // Deleted and defaulted constructors, destructor and assignment operators.
     // Rule of five ...
 
-    G_API_COMMON GManipulator() = delete; ///< Intentionally deleted -- enforce specific log types
-    G_API_COMMON GManipulator(GManipulator const &) = default;
-    G_API_COMMON GManipulator(GManipulator &&) noexcept = default;
+    GManipulator() = delete; ///< Intentionally deleted -- enforce specific log types
+    GManipulator(GManipulator const &) = default;
+    GManipulator(GManipulator &&) noexcept = default;
 
-    G_API_COMMON GManipulator &operator=(GManipulator const &) = default;
-    G_API_COMMON GManipulator &operator=(GManipulator &&) = default;
+    GManipulator &operator=(GManipulator const &) = default;
+    GManipulator &operator=(GManipulator &&) = default;
 
     /*************************************************************************/
 
     /** @brief Retrieves the stored logging type */
-    G_API_COMMON logType getLogType() const;
+    logType getLogType() const;
     /** @brief Retrieves stored accompanying information (if any) */
-    G_API_COMMON std::string getAccompInfo() const;
+    std::string getAccompInfo() const;
     /** @brief Checks whether any accompanying information is available */
-    G_API_COMMON bool hasAccompInfo() const;
+    bool hasAccompInfo() const;
 
 private:
     std::string accomp_info_; ///< Holds accompanying information
@@ -480,50 +480,50 @@ private:
 class GLogStreamer {
 public:
     /** @brief A constructor that adds an extension string to the output */
-    explicit G_API_COMMON GLogStreamer(std::string const &);
+    explicit GLogStreamer(std::string const &);
 
     /** @brief A constructor that logs data to a file specified by a std::filesystem::path object */
-    explicit G_API_COMMON GLogStreamer(std::filesystem::path);
+    explicit GLogStreamer(std::filesystem::path);
 
     /*************************************************************************/
     // Deleted and defaulted constructors, destructor and assignment operators.
     // Rule of five ...
 
-    G_API_COMMON GLogStreamer() = default;
-    G_API_COMMON GLogStreamer(GLogStreamer const &) = delete;
-    G_API_COMMON GLogStreamer(GLogStreamer &&) = default;
+    GLogStreamer() = default;
+    GLogStreamer(GLogStreamer const &) = delete;
+    GLogStreamer(GLogStreamer &&) = default;
 
     /** @brief A standard destructor */
-    virtual G_API_COMMON ~GLogStreamer() = default;
+    virtual ~GLogStreamer() = default;
 
-    G_API_COMMON GLogStreamer &operator=(GLogStreamer const &) = delete;
-    G_API_COMMON GLogStreamer &operator=(GLogStreamer &&) = default;
+    GLogStreamer &operator=(GLogStreamer const &) = delete;
+    GLogStreamer &operator=(GLogStreamer &&) = default;
 
     /*************************************************************************/
 
     /** @brief Needed for std::ostringstream */
-    G_API_COMMON GLogStreamer &operator<<(std::ostream &(*val)(std::ostream &));
+    GLogStreamer &operator<<(std::ostream &(*val)(std::ostream &));
     /** @brief Needed for std::ostringstream */
-    G_API_COMMON GLogStreamer &operator<<(std::ios &(*val)(std::ios &));
+    GLogStreamer &operator<<(std::ios &(*val)(std::ios &));
     /** @brief Needed for std::ostringstream */
-    G_API_COMMON GLogStreamer &operator<<(std::ios_base &(*val)(std::ios_base &));
+    GLogStreamer &operator<<(std::ios_base &(*val)(std::ios_base &));
 
     /** @brief A GManipulator object triggers the actual logging procedure */
-    G_API_COMMON void operator<<(GManipulator const &gm);
+    void operator<<(GManipulator const &gm);
 
     /** @brief Returns the content of the stream */
-    G_API_COMMON std::string content() const;
+    std::string content() const;
     /** @brief Resets the stream content */
-    G_API_COMMON void reset();
+    void reset();
 
     /** @brief Checks whether an extension string has been registered */
-    G_API_COMMON bool hasExtension() const;
+    bool hasExtension() const;
     /** @brief The content of the extension_ string */
-    G_API_COMMON std::string getExtension() const;
+    std::string getExtension() const;
     /** @brief Checks whether a log file name has been registered */
-    G_API_COMMON bool hasOneTimeLogFile() const;
+    bool hasOneTimeLogFile() const;
     /** @brief The name of the manually specified file */
-    G_API_COMMON std::filesystem::path getOneTimeLogFile() const;
+    std::filesystem::path getOneTimeLogFile() const;
 
     /****************************************************************************/
     /**

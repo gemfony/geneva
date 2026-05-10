@@ -255,7 +255,7 @@ private:
  * parameter scans, where all variables are varied randomly. Currently the only
  * data component is the number of items to be scanned.
  */
-struct G_API_GENEVA simpleScanSpec {
+struct simpleScanSpec {
     std::size_t nItems;
 };
 
@@ -354,21 +354,21 @@ public:
     /** @brief The default constructor -- intentionally undefined */
     GParameterPropertyParser() = delete;
     /** @brief The standard constructor -- assignment of the "raw" paramter property string */
-    explicit G_API_GENEVA GParameterPropertyParser(const std::string &);
+    explicit GParameterPropertyParser(const std::string &);
 
     /** @brief Retrieves the raw parameter description */
-    G_API_GENEVA std::string getRawParameterDescription() const;
+    std::string getRawParameterDescription() const;
     /** @brief Allows to check whether parsing has already taken place */
-    G_API_GENEVA bool isParsed() const;
+    bool isParsed() const;
 
     /** @brief Allows to reset the internal structures and to parse a new parameter string */
-    G_API_GENEVA void setNewParameterDescription(std::string);
+    void setNewParameterDescription(std::string);
 
     /** @brief Initiates parsing of the raw string */
-    G_API_GENEVA void parse();
+    void parse();
 
     /** @brief Retrieve the number of "simple scan" items */
-    G_API_GENEVA std::size_t getNSimpleScanItems() const;
+    std::size_t getNSimpleScanItems() const;
 
     /***************************************************************************/
     /**
@@ -605,12 +605,12 @@ GParameterPropertyParser::getIterators<bool>() const {
 // Needed for rules to work. Follows http://boost.2283326.n4.nabble.com/hold-multi-pass-backtracking-swap-compliant-ast-td4664679.html
 namespace boost::spirit {
 
-G_API_GENEVA void
+void
 swap(Gem::Geneva::parPropSpec<double> &, Gem::Geneva::parPropSpec<double> &) noexcept;
-G_API_GENEVA void
+void
 swap(Gem::Geneva::parPropSpec<float> &, Gem::Geneva::parPropSpec<float> &) noexcept;
-G_API_GENEVA void
+void
 swap(Gem::Geneva::parPropSpec<std::int32_t> &, Gem::Geneva::parPropSpec<std::int32_t> &) noexcept;
-G_API_GENEVA void swap(Gem::Geneva::parPropSpec<bool> &, Gem::Geneva::parPropSpec<bool> &) noexcept;
+void swap(Gem::Geneva::parPropSpec<bool> &, Gem::Geneva::parPropSpec<bool> &) noexcept;
 
 } /* namespace boost::spirit */

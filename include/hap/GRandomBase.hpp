@@ -72,11 +72,11 @@ public:
 
     /***************************************************************************/
     /** @brief The standard constructor */
-    G_API_HAP GRandomBase();
+    GRandomBase();
     /** @brief A standard destructor */
-    virtual G_API_HAP ~GRandomBase();
+    virtual ~GRandomBase();
     /** @brief Retrieves a "raw" random item item */
-    G_API_HAP GRandomBase::result_type operator()();
+    GRandomBase::result_type operator()();
 
     /***************************************************************************/
     // Prevent copying
@@ -92,7 +92,7 @@ public:
 	  * this class acts as a proxy for a wrapped generator or a generator running
 	  * as a factory, we simply return the base generators min()-Value.
 	  */
-    static constexpr G_API_HAP result_type(min)() {
+    static constexpr result_type(min)() {
         return (G_CPU_BASE_GENERATOR::min)();
     }
 
@@ -103,14 +103,14 @@ public:
 	  * this class acts as a proxy for a wrapped generator or a generator running
 	  * as a factory, we simply return the base generators max()-Value.
 	  */
-    static constexpr G_API_HAP result_type(max)() {
+    static constexpr result_type(max)() {
         return (G_CPU_BASE_GENERATOR::max)();
     }
 
 private:
     /***************************************************************************/
     /** @brief Uniformly distributed integer numbers in the range min/max */
-    virtual G_API_HAP result_type int_random() = 0;
+    virtual result_type int_random() = 0;
 };
 
 /******************************************************************************/

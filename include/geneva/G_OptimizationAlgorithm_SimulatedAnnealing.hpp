@@ -76,38 +76,38 @@ class GSimulatedAnnealing // NOLINT(cppcoreguidelines-special-member-functions)
 public:
     /***************************************************************************/
     /** @brief The default constructor */
-    G_API_GENEVA GSimulatedAnnealing();
+    GSimulatedAnnealing();
     /** @brief A standard copy constructor */
-    G_API_GENEVA GSimulatedAnnealing(const GSimulatedAnnealing &) = default;
+    GSimulatedAnnealing(const GSimulatedAnnealing &) = default;
     /** @brief The standard destructor */
-    G_API_GENEVA ~GSimulatedAnnealing() override = default;
+    ~GSimulatedAnnealing() override = default;
 
     /** @brief Sets the number of threads this population uses for adaption */
-    G_API_GENEVA void setNThreads(std::uint16_t nThreads);
+    void setNThreads(std::uint16_t nThreads);
     /** @brief Retrieves the number of threads this population uses for adaption */
-    G_API_GENEVA std::uint16_t getNThreads() const;
+    std::uint16_t getNThreads() const;
 
     /** @brief Determines the strength of the temperature degradation */
-    G_API_GENEVA void setTDegradationStrength(double alpha);
+    void setTDegradationStrength(double alpha);
     /** @brief Retrieves the temperature degradation strength. This function is used for simulated annealing */
-    G_API_GENEVA double getTDegradationStrength() const;
+    double getTDegradationStrength() const;
 
     /** @brief Sets the start temperature. This function is used for simulated annealing */
-    G_API_GENEVA void setT0(double t0);
+    void setT0(double t0);
     /** @brief Retrieves the start temperature. This function is used for simulated annealing */
-    G_API_GENEVA double getT0() const;
+    double getT0() const;
     /** @brief Retrieves the current temperature. This function is used for simulated annealing */
-    G_API_GENEVA double getT() const;
+    double getT() const;
 
 protected:
     /***************************************************************************/
     // Virtual or overridden protected functions
 
     /** @brief Adds local configuration options to a GParserBuilder object */
-    G_API_GENEVA void addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) override;
+    void addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) override;
 
     /** @brief Loads the data of another GSimulatedAnnealingT object, camouflaged as a GObject */
-    G_API_GENEVA void load_(const GObject *cp) override;
+    void load_(const GObject *cp) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GSimulatedAnnealing>(
@@ -117,7 +117,7 @@ protected:
     );
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
-    G_API_GENEVA void compare_(
+    void compare_(
         const GObject &cp // the other object
         ,
         const Gem::Common::expectation &e // the expectation for this object, e.g. equality
@@ -126,54 +126,54 @@ protected:
     ) const override;
 
     /** @brief Resets the settings of this population to what was configured when the optimize()-call was issued */
-    G_API_GENEVA void resetToOptimizationStart_() override;
+    void resetToOptimizationStart_() override;
 
     /** @brief Does any necessary initialization work before the optimization loop starts */
-    G_API_GENEVA void init() override;
+    void init() override;
     /** @brief Does any necessary finalization work after the optimization loop has ended */
-    G_API_GENEVA void finalize() override;
+    void finalize() override;
 
     /** @brief Applies modifications to this object */
-    G_API_GENEVA bool modify_GUnitTests_() override;
+    bool modify_GUnitTests_() override;
     /** @brief Performs self tests that are expected to succeed */
-    G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests_() override;
+    void specificTestsNoFailureExpected_GUnitTests_() override;
     /** @brief Performs self tests that are expected to fail */
-    G_API_GENEVA void specificTestsFailuresExpected_GUnitTests_() override;
+    void specificTestsFailuresExpected_GUnitTests_() override;
 
     /***************************************************************************/
 
     /** @brief Fixes the population after a job submission */
-    G_API_GENEVA void fixAfterJobSubmission();
+    void fixAfterJobSubmission();
 
 private:
     /***************************************************************************/
     // Virtual or overridden private functions
 
     /** @brief Emits a name for this class / object */
-    G_API_GENEVA std::string name_() const override;
+    std::string name_() const override;
     /** @brief Creates a deep copy of this object */
-    G_API_GENEVA GObject *clone_() const override;
+    GObject *clone_() const override;
 
     /** @brief  We submit individuals to the broker connector and wait for processed items. */
-    G_API_GENEVA void runFitnessCalculation_() override;
+    void runFitnessCalculation_() override;
 
     /** @brief Returns information about the type of optimization algorithm */
-    G_API_GENEVA std::string getAlgorithmPersonalityType_() const override;
+    std::string getAlgorithmPersonalityType_() const override;
     /** @brief Returns the name of this optimization algorithm */
-    G_API_GENEVA std::string getAlgorithmName_() const override;
+    std::string getAlgorithmName_() const override;
 
     /** @brief Retrieve a GPersonalityTraits object belonging to this algorithm */
-    G_API_GENEVA std::shared_ptr<GPersonalityTraits> getPersonalityTraits_() const override;
+    std::shared_ptr<GPersonalityTraits> getPersonalityTraits_() const override;
 
     /** @brief Adapt all children in parallel */
-    G_API_GENEVA void adaptChildren_() override;
+    void adaptChildren_() override;
     /** @brief Choose new parents, based on the SA selection scheme. */
-    G_API_GENEVA void selectBest_() override;
+    void selectBest_() override;
 
     /** @brief Retrieves the evaluation range in a given iteration and sorting scheme */
-    G_API_GENEVA std::tuple<std::size_t, std::size_t> getEvaluationRange_() const override;
+    std::tuple<std::size_t, std::size_t> getEvaluationRange_() const override;
     /** @brief Some error checks related to population sizes */
-    G_API_GENEVA void populationSanityChecks_() const override;
+    void populationSanityChecks_() const override;
 
     /***************************************************************************/
 

@@ -48,40 +48,40 @@ namespace Gem::Geneva {
 class G_Interface_Rateable {
 public:
     /** @brief Retrieves the stored raw fitness with a given id */
-    G_API_GENEVA double raw_fitness(std::size_t = 0) const;
+    double raw_fitness(std::size_t = 0) const;
     /** @brief Retrieves the stored transformed fitness with a given id */
-    G_API_GENEVA double transformed_fitness(std::size_t = 0) const;
+    double transformed_fitness(std::size_t = 0) const;
 
     /** @brief Returns all raw fitness results in a std::vector */
-    G_API_GENEVA std::vector<double> raw_fitness_vec() const;
+    std::vector<double> raw_fitness_vec() const;
     /** @brief Returns all transformed fitness results in a std::vector */
-    G_API_GENEVA std::vector<double> transformed_fitness_vec() const;
+    std::vector<double> transformed_fitness_vec() const;
 
 protected:
     /** @brief The fitness calculation for the main quality criterion takes place here */
-    virtual G_API_GENEVA double fitnessCalculation() = 0;
+    virtual double fitnessCalculation() = 0;
 
     /**************************************************************************/
     // Defaulted constructors / destructors / assignment operators
 
-    G_API_GENEVA G_Interface_Rateable() = default;
-    G_API_GENEVA G_Interface_Rateable(G_Interface_Rateable const &) = default;
-    G_API_GENEVA G_Interface_Rateable(G_Interface_Rateable &&) = default;
-    G_API_GENEVA ~G_Interface_Rateable() = default;
+    G_Interface_Rateable() = default;
+    G_Interface_Rateable(G_Interface_Rateable const &) = default;
+    G_Interface_Rateable(G_Interface_Rateable &&) = default;
+    ~G_Interface_Rateable() = default;
 
-    G_API_GENEVA G_Interface_Rateable &operator=(G_Interface_Rateable const &) = default;
-    G_API_GENEVA G_Interface_Rateable &operator=(G_Interface_Rateable &&) = default;
+    G_Interface_Rateable &operator=(G_Interface_Rateable const &) = default;
+    G_Interface_Rateable &operator=(G_Interface_Rateable &&) = default;
 
 private:
     /** @brief Retrieves the stored raw fitness with a given id */
-    virtual G_API_GENEVA double raw_fitness_(std::size_t) const = 0;
+    virtual double raw_fitness_(std::size_t) const = 0;
     /** @brief Retrieves the stored transformed fitness with a given id */
-    virtual G_API_GENEVA double transformed_fitness_(std::size_t) const = 0;
+    virtual double transformed_fitness_(std::size_t) const = 0;
 
     /** @brief Returns all raw fitness results in a std::vector */
-    virtual G_API_GENEVA std::vector<double> raw_fitness_vec_() const = 0;
+    virtual std::vector<double> raw_fitness_vec_() const = 0;
     /** @brief Returns all transformed fitness results in a std::vector */
-    virtual G_API_GENEVA std::vector<double> transformed_fitness_vec_() const = 0;
+    virtual std::vector<double> transformed_fitness_vec_() const = 0;
 };
 
 /******************************************************************************/

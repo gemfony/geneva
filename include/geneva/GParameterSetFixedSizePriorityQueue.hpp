@@ -84,20 +84,20 @@ class GParameterSetFixedSizePriorityQueue // NOLINT(cppcoreguidelines-special-me
 
 public:
     /** @brief The default constructor */
-    G_API_GENEVA GParameterSetFixedSizePriorityQueue() = default;
+    GParameterSetFixedSizePriorityQueue() = default;
 
     /** @brief Initialization with the maximum size */
-    explicit G_API_GENEVA GParameterSetFixedSizePriorityQueue(const std::size_t &);
+    explicit GParameterSetFixedSizePriorityQueue(const std::size_t &);
     /** @brief The copy constructor */
-    G_API_GENEVA
+    
     GParameterSetFixedSizePriorityQueue(const GParameterSetFixedSizePriorityQueue &cp) = default;
     /** @brief The destructor */
-    G_API_GENEVA ~GParameterSetFixedSizePriorityQueue() override = default;
+    ~GParameterSetFixedSizePriorityQueue() override = default;
 
     /** @brief Checks whether no item has the dirty flag set */
-    G_API_GENEVA bool allClean(std::size_t &) const;
+    bool allClean(std::size_t &) const;
     /** @brief Emits information about the "dirty flag" of all items */
-    G_API_GENEVA std::string getCleanStatus() const;
+    std::string getCleanStatus() const;
 
     /** @brief Adds items in a range to the priority queue */
     void
@@ -118,7 +118,7 @@ public:
 protected:
     /***************************************************************************/
     /** @brief Loads the data of another population */
-    G_API_GENEVA void load_(const Gem::Common::GFixedSizePriorityQueueT<GParameterSet> *) override;
+    void load_(const Gem::Common::GFixedSizePriorityQueueT<GParameterSet> *) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GParameterSetFixedSizePriorityQueue>(
@@ -128,7 +128,7 @@ protected:
     );
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
-    G_API_GENEVA void compare_(
+    void compare_(
         const Gem::Common::GFixedSizePriorityQueueT<GParameterSet> & // the other object
         ,
         const Gem::Common::expectation & // the expectation for this object, e.g. equality
@@ -137,22 +137,22 @@ protected:
     ) const override;
 
     /** @brief Checks whether an Item is valid */
-    G_API_GENEVA bool isValid(const std::shared_ptr<GParameterSet> &) const override;
+    bool isValid(const std::shared_ptr<GParameterSet> &) const override;
     /** @brief Evaluates a single work item, so that it can be sorted */
-    G_API_GENEVA double evaluation(const std::shared_ptr<GParameterSet> &) const override;
+    double evaluation(const std::shared_ptr<GParameterSet> &) const override;
 
     /** @brief Applies modifications to this object. This is needed for testing purposes */
-    G_API_GENEVA bool modify_GUnitTests_() override;
+    bool modify_GUnitTests_() override;
     /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-    G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests_() override;
+    void specificTestsNoFailureExpected_GUnitTests_() override;
     /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-    G_API_GENEVA void specificTestsFailuresExpected_GUnitTests_() override;
+    void specificTestsFailuresExpected_GUnitTests_() override;
 
 private:
     /** @brief Emits a name for this class / object */
-    G_API_GENEVA std::string name_() const override;
+    std::string name_() const override;
     /** @brief Creates a deep clone of this object */
-    G_API_GENEVA Gem::Common::GFixedSizePriorityQueueT<GParameterSet> *clone_() const override;
+    Gem::Common::GFixedSizePriorityQueueT<GParameterSet> *clone_() const override;
 };
 
 /******************************************************************************/

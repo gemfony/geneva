@@ -219,9 +219,9 @@ private:
 class GRandomFactory {
 public:
     /** @brief The default constructor */
-    G_API_HAP GRandomFactory();
+    GRandomFactory();
     /** @brief The destructor */
-    G_API_HAP ~GRandomFactory();
+    ~GRandomFactory();
 
     /***************************************************************************/
     // Prevent copying and moving
@@ -234,26 +234,26 @@ public:
     /***************************************************************************/
 
     /** @brief Initialization code for the GRandomFactory */
-    G_API_HAP void init();
+    void init();
     /** @brief Finalization code for the GRandomFactory */
-    G_API_HAP void finalize();
+    void finalize();
 
     /** @brief Sets the number of producer threads for this factory. */
-    G_API_HAP void setNProducerThreads(const std::uint16_t &);
+    void setNProducerThreads(const std::uint16_t &);
 
     /** @brief Allows to retrieve the size of the array */
-    G_API_HAP std::size_t getCurrentArraySize() const;
+    std::size_t getCurrentArraySize() const;
 
     /** @brief Allows to retrieve the size of the buffer */
-    G_API_HAP std::size_t getBufferSize() const;
+    std::size_t getBufferSize() const;
 
     /** @brief Delivers a new [0,1[ random number container with the current standard size to clients */
-    G_API_HAP std::unique_ptr<random_container> getNewRandomContainer();
+    std::unique_ptr<random_container> getNewRandomContainer();
     /** @brief Retrieval of a new seed for external or internal random number generators */
-    G_API_HAP seed_type getSeed();
+    seed_type getSeed();
 
     /** @brief Allows recycling of partially used packages */
-    G_API_HAP void returnUsedPackage(std::unique_ptr<random_container> &&);
+    void returnUsedPackage(std::unique_ptr<random_container> &&);
 
 private:
     /** @brief The production of [0,1[ random numbers takes place here */

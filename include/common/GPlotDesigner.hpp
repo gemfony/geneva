@@ -100,10 +100,10 @@ enum class gColor : ENUMBASETYPE {
 };
 
 /** @brief Puts a gColor into a stream. Needed also for boost::lexical_cast<> */
-G_API_COMMON std::ostream &operator<<(std::ostream &, const gColor &);
+std::ostream &operator<<(std::ostream &, const gColor &);
 
 /** @brief Reads a gColor item from a stream. Needed also for boost::lexical_cast<> */
-G_API_COMMON std::istream &operator>>(std::istream &, gColor &);
+std::istream &operator>>(std::istream &, gColor &);
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -122,10 +122,10 @@ enum class gMarker : ENUMBASETYPE {
 };
 
 /** @brief Puts a gMarker into a stream. Needed also for boost::lexical_cast<> */
-G_API_COMMON std::ostream &operator<<(std::ostream &, const gMarker &);
+std::ostream &operator<<(std::ostream &, const gMarker &);
 
 /** @brief Reads a gMarker item from a stream. Needed also for boost::lexical_cast<> */
-G_API_COMMON std::istream &operator>>(std::istream &, gMarker &);
+std::istream &operator>>(std::istream &, gMarker &);
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -143,10 +143,10 @@ enum class gLineStyle : ENUMBASETYPE {
 };
 
 /** @brief Puts a gLineStyle into a stream. Needed also for boost::lexical_cast<> */
-G_API_COMMON std::ostream &operator<<(std::ostream &, gLineStyle const &);
+std::ostream &operator<<(std::ostream &, gLineStyle const &);
 
 /** @brief Reads a gLineStyle item from a stream. Needed also for boost::lexical_cast<> */
-G_API_COMMON std::istream &operator>>(std::istream &, gLineStyle &);
+std::istream &operator>>(std::istream &, gLineStyle &);
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -160,10 +160,10 @@ enum class graphPlotMode : ENUMBASETYPE {
 };
 
 /** @brief Puts a graphPlotMode into a stream. Needed also for boost::lexical_cast<> */
-G_API_COMMON std::ostream &operator<<(std::ostream &, graphPlotMode const &);
+std::ostream &operator<<(std::ostream &, graphPlotMode const &);
 
 /** @brief Reads a graphPlotMode item from a stream. Needed also for boost::lexical_cast<> */
-G_API_COMMON std::istream &operator>>(std::istream &, graphPlotMode &);
+std::istream &operator>>(std::istream &, graphPlotMode &);
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -193,10 +193,10 @@ enum class tddropt : ENUMBASETYPE {
 };
 
 /** @brief Puts a tddropt into a stream. Needed also for boost::lexical_cast<> */
-G_API_COMMON std::ostream &operator<<(std::ostream &, tddropt const &);
+std::ostream &operator<<(std::ostream &, tddropt const &);
 
 /** @brief Reads a tddropt item from a stream. Needed also for boost::lexical_cast<> */
-G_API_COMMON std::istream &operator>>(std::istream &, tddropt &);
+std::istream &operator>>(std::istream &, tddropt &);
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -292,7 +292,7 @@ public:
     /**
 	  * Retrieves the decorator data. Plot boundaries are not taken into account.
 	  */
-    virtual G_API_COMMON std::string
+    virtual std::string
     decoratorData(const std::string &, const std::size_t &) const = 0;
 
     /***************************************************************************/
@@ -303,7 +303,7 @@ public:
 	  * not be affected by the boundaries. This function needs to be implemented by derived
 	  * classes.
 	  */
-    virtual G_API_COMMON std::string decoratorData(
+    virtual std::string decoratorData(
         const std::tuple<coordinate_type, coordinate_type> &x_axis_range,
         const std::tuple<coordinate_type, coordinate_type> &y_axis_range,
         const std::string &indent,
@@ -1297,57 +1297,57 @@ class GBasePlotter : public GCommonInterfaceT<GBasePlotter> {
 
 public:
     /** @brief Copy constructor */
-    G_API_COMMON GBasePlotter(GBasePlotter const &);
+    GBasePlotter(GBasePlotter const &);
     /** @brief Assignment operator */
-    G_API_COMMON GBasePlotter &operator=(GBasePlotter const &);
+    GBasePlotter &operator=(GBasePlotter const &);
 
     /*********************************************************************/
     // Defaulted constructors, destructor and assignment operators
 
-    G_API_COMMON GBasePlotter() = default;
-    G_API_COMMON GBasePlotter(GBasePlotter &&) = default;
-    virtual G_API_COMMON ~GBasePlotter() = default;
+    GBasePlotter() = default;
+    GBasePlotter(GBasePlotter &&) = default;
+    virtual ~GBasePlotter() = default;
 
-    G_API_COMMON GBasePlotter &operator=(GBasePlotter &&) = default;
+    GBasePlotter &operator=(GBasePlotter &&) = default;
 
     /*********************************************************************/
 
     /** @brief Allows to set the drawing arguments for this plot */
-    G_API_COMMON void setDrawingArguments(std::string);
+    void setDrawingArguments(std::string);
 
     /** @brief Sets the label for the x-axis */
-    G_API_COMMON void setXAxisLabel(std::string);
+    void setXAxisLabel(std::string);
     /** @brief Retrieve the x-axis label */
-    G_API_COMMON std::string xAxisLabel() const;
+    std::string xAxisLabel() const;
     /** @brief Sets the label for the y-axis */
-    G_API_COMMON void setYAxisLabel(std::string);
+    void setYAxisLabel(std::string);
     /** @brief Retrieve the y-axis label */
-    G_API_COMMON std::string yAxisLabel() const;
+    std::string yAxisLabel() const;
     /** @brief Sets the label for the z-axis */
-    G_API_COMMON void setZAxisLabel(std::string);
+    void setZAxisLabel(std::string);
     /** @brief Retrieve the z-axis label */
-    G_API_COMMON std::string zAxisLabel() const;
+    std::string zAxisLabel() const;
 
     /** @brief Allows to assign a label to the entire plot */
-    G_API_COMMON void setPlotLabel(std::string);
+    void setPlotLabel(std::string);
     /** @brief Allows to retrieve the plot label */
-    G_API_COMMON std::string plotLabel() const;
+    std::string plotLabel() const;
 
     /** @brief Allows to assign a marker to data structures */
-    G_API_COMMON void setDataStructureMarker(std::string);
+    void setDataStructureMarker(std::string);
     /** @brief Allows to retrieve the data structure marker */
-    G_API_COMMON std::string dsMarker() const;
+    std::string dsMarker() const;
 
     /** @brief Allows to add secondary plots to be added to the same sub-canvas */
-    G_API_COMMON void registerSecondaryPlotter(std::shared_ptr<GBasePlotter>);
+    void registerSecondaryPlotter(std::shared_ptr<GBasePlotter>);
 
     /** @brief Allows to retrieve the id of this object */
-    G_API_COMMON std::size_t id() const;
+    std::size_t id() const;
     /** @brief Sets the id of the object */
-    G_API_COMMON void setId(const std::size_t &);
+    void setId(const std::size_t &);
 
     /** @brief Retrieves a unique name for this plotter */
-    virtual G_API_COMMON std::string getPlotterName() const = 0;
+    virtual std::string getPlotterName() const = 0;
 
     /***************************************************************************/
 
@@ -1363,13 +1363,13 @@ public:
 protected:
     /***************************************************************************/
     /** @brief Loads the data of another object */
-    G_API_COMMON void load_(const GBasePlotter *) override;
+    void load_(const GBasePlotter *) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void compare_base_t<GBasePlotter>(GBasePlotter const &, GBasePlotter const &, GToken &);
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
-    G_API_COMMON void compare_(
+    void compare_(
         const GBasePlotter & // the other object
         ,
         const expectation & // the expectation for this object, e.g. equality
@@ -1381,31 +1381,31 @@ protected:
     // Functions to be specified in derived classes
 
     /** @brief Retrieve specific header settings for this plot */
-    virtual G_API_COMMON std::string headerData_(bool, std::size_t, const std::string &) const = 0;
+    virtual std::string headerData_(bool, std::size_t, const std::string &) const = 0;
 
     /** @brief Retrieves the actual data sets */
-    virtual G_API_COMMON std::string bodyData_(bool, std::size_t, const std::string &) const = 0;
+    virtual std::string bodyData_(bool, std::size_t, const std::string &) const = 0;
 
     /** @brief retrieves specific draw commands for this plot */
-    virtual G_API_COMMON std::string footerData_(bool, std::size_t, const std::string &) const = 0;
+    virtual std::string footerData_(bool, std::size_t, const std::string &) const = 0;
 
     /** @brief Retrieve the current drawing arguments */
-    virtual G_API_COMMON std::string drawingArguments(bool) const = 0;
+    virtual std::string drawingArguments(bool) const = 0;
 
     /** @brief Check that a given plotter is compatible with us */
-    virtual G_API_COMMON bool isCompatible(std::shared_ptr<GBasePlotter>) const;
+    virtual bool isCompatible(std::shared_ptr<GBasePlotter>) const;
 
     /** @brief calculate a suffix from id and parent ids */
-    G_API_COMMON std::string suffix(bool, std::size_t) const;
+    std::string suffix(bool, std::size_t) const;
 
     /** @brief Applies modifications to this object. This is needed for testing purposes */
-    G_API_GENEVA bool modify_GUnitTests_() override {
+    bool modify_GUnitTests_() override {
         return false;
     }
     /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-    G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests_() override { /* nothing */ };
+    void specificTestsNoFailureExpected_GUnitTests_() override { /* nothing */ };
     /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-    G_API_GENEVA void specificTestsFailuresExpected_GUnitTests_() override { /* nothing */ };
+    void specificTestsFailuresExpected_GUnitTests_() override { /* nothing */ };
 
     /***************************************************************************/
 
@@ -1425,9 +1425,9 @@ protected:
 private:
     /***************************************************************************/
     /** @brief Returns the name of this class */
-    G_API_COMMON std::string name_() const override;
+    std::string name_() const override;
     /** @brief Creates a deep clone of this object */
-    G_API_COMMON GBasePlotter *clone_() const override = 0;
+    GBasePlotter *clone_() const override = 0;
 
     /***************************************************************************/
     /** @brief A list of plotters that should emit their data into the same canvas */
@@ -1653,7 +1653,7 @@ private:
 
     /***************************************************************************/
     /** @brief Creates a deep clone of this object */
-    G_API_COMMON GBasePlotter *clone_() const override = 0;
+    GBasePlotter *clone_() const override = 0;
 
     /***************************************************************************/
 };
@@ -1680,37 +1680,37 @@ class GHistogram1D : public GDataCollector1T<double> {
 
 public:
     /** @brief Initialization with the number of bins and automatic range detection */
-    explicit G_API_COMMON GHistogram1D(const std::size_t &);
+    explicit GHistogram1D(const std::size_t &);
 
     /** @brief Initialization with a range in the form of a tuple */
-    G_API_COMMON GHistogram1D(const std::size_t &, const double &, const double &);
+    GHistogram1D(const std::size_t &, const double &, const double &);
     /** @brief Initialization with a range in the form of a tuple */
-    G_API_COMMON GHistogram1D(const std::size_t &, const std::tuple<double, double> &);
+    GHistogram1D(const std::size_t &, const std::tuple<double, double> &);
 
     /**********************************************************************/
     // Defaulted constructors, destructor and assignment operators
 
-    G_API_COMMON GHistogram1D(GHistogram1D const &) = default;
-    G_API_COMMON GHistogram1D(GHistogram1D &&) = default;
-    G_API_COMMON ~GHistogram1D() override = default;
+    GHistogram1D(GHistogram1D const &) = default;
+    GHistogram1D(GHistogram1D &&) = default;
+    ~GHistogram1D() override = default;
 
-    G_API_COMMON GHistogram1D &operator=(GHistogram1D const &) = default;
-    G_API_COMMON GHistogram1D &operator=(GHistogram1D &&) = default;
+    GHistogram1D &operator=(GHistogram1D const &) = default;
+    GHistogram1D &operator=(GHistogram1D &&) = default;
 
     // Defaulted default-constructor in private section
 
     /**********************************************************************/
 
     /** @brief Retrieve the number of bins in x-direction */
-    G_API_COMMON std::size_t getNBinsX() const;
+    std::size_t getNBinsX() const;
 
     /** @brief Retrieve the lower boundary of the plot */
-    G_API_COMMON double getMinX() const;
+    double getMinX() const;
     /** @brief Retrieve the upper boundary of the plot */
-    G_API_COMMON double getMaxX() const;
+    double getMaxX() const;
 
     /** @brief Retrieves a unique name for this plotter */
-    G_API_COMMON std::string getPlotterName() const override;
+    std::string getPlotterName() const override;
 
 protected:
     /** @brief Retrieve specific header settings for this plot */
@@ -1726,14 +1726,14 @@ protected:
     std::string drawingArguments(bool) const override;
 
     /** @brief Loads the data of another object */
-    G_API_COMMON void load_(const GBasePlotter *) override;
+    void load_(const GBasePlotter *) override;
 
     /***************************************************************************/
 
     friend void compare_base_t<GHistogram1D>(GHistogram1D const &, GHistogram1D const &, GToken &);
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
-    G_API_COMMON void compare_(
+    void compare_(
         const GBasePlotter & // the other object
         ,
         const expectation & // the expectation for this object, e.g. equality
@@ -1743,11 +1743,11 @@ protected:
 
 private:
     /** @brief Returns the name of this class */
-    G_API_COMMON std::string name_() const override;
+    std::string name_() const override;
     /** @brief Creates a deep clone of this object */
-    G_API_COMMON GBasePlotter *clone_() const override;
+    GBasePlotter *clone_() const override;
 
-    G_API_COMMON GHistogram1D() =
+    GHistogram1D() =
         default; ///< The default constructor -- intentionally private as it is only needed for (de-)serialization
 
     std::size_t nBinsX_ = 10; ///< The number of bins in the histogram
@@ -1778,45 +1778,45 @@ class GHistogram1I : public GDataCollector1T<std::int32_t> {
 
 public:
     /** @brief The standard constructor */
-    G_API_COMMON GHistogram1I(const std::size_t &, const double &, const double &);
+    GHistogram1I(const std::size_t &, const double &, const double &);
     /** @brief Initialization with a range in the form of a tuple */
-    G_API_COMMON GHistogram1I(const std::size_t &, const std::tuple<double, double> &);
+    GHistogram1I(const std::size_t &, const std::tuple<double, double> &);
 
     /*********************************************************************/
     // Defaulted constructors, destructor and assignment operator
 
-    G_API_COMMON GHistogram1I(GHistogram1I const &) = default;
-    G_API_COMMON GHistogram1I(GHistogram1I &&) = default;
+    GHistogram1I(GHistogram1I const &) = default;
+    GHistogram1I(GHistogram1I &&) = default;
 
     // Defaulted default-constructor in private section
 
-    G_API_COMMON ~GHistogram1I() override = default;
+    ~GHistogram1I() override = default;
 
-    G_API_COMMON GHistogram1I &operator=(GHistogram1I const &) = default;
-    G_API_COMMON GHistogram1I &operator=(GHistogram1I &&) = default;
+    GHistogram1I &operator=(GHistogram1I const &) = default;
+    GHistogram1I &operator=(GHistogram1I &&) = default;
 
     /*********************************************************************/
 
     /** @brief Retrieve the number of bins in x-direction */
-    G_API_COMMON std::size_t getNBinsX() const;
+    std::size_t getNBinsX() const;
 
     /** @brief Retrieve the lower boundary of the plot */
-    G_API_COMMON double getMinX() const;
+    double getMinX() const;
     /** @brief Retrieve the upper boundary of the plot */
-    G_API_COMMON double getMaxX() const;
+    double getMaxX() const;
 
     /** @brief Retrieves a unique name for this plotter */
-    G_API_COMMON std::string getPlotterName() const override;
+    std::string getPlotterName() const override;
 
 protected:
     /** @brief Loads the data of another object */
-    G_API_COMMON void load_(const GBasePlotter *) override;
+    void load_(const GBasePlotter *) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void compare_base_t<GHistogram1I>(GHistogram1I const &, GHistogram1I const &, GToken &);
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
-    G_API_COMMON void compare_(
+    void compare_(
         const GBasePlotter & // the other object
         ,
         const expectation & // the expectation for this object, e.g. equality
@@ -1838,9 +1838,9 @@ protected:
 
 private:
     /** @brief Returns the name of this class */
-    G_API_COMMON std::string name_() const override;
+    std::string name_() const override;
     /** @brief Creates a deep clone of this object */
-    G_API_COMMON GBasePlotter *clone_() const override;
+    GBasePlotter *clone_() const override;
 
     GHistogram1I() =
         default; ///< The default constructor -- intentionally private as it is only needed for (de-)serialization
@@ -2143,7 +2143,7 @@ private:
 
     /***************************************************************************/
     /** @brief Creates a deep clone of this object */
-    G_API_COMMON GBasePlotter *clone_() const override = 0;
+    GBasePlotter *clone_() const override = 0;
 };
 
 /******************************************************************************/
@@ -2464,7 +2464,7 @@ private:
 
     /***************************************************************************/
     /** @brief Creates a deep clone of this object */
-    G_API_COMMON GBasePlotter *clone_() const override = 0;
+    GBasePlotter *clone_() const override = 0;
 };
 
 /******************************************************************************/
@@ -2492,7 +2492,7 @@ class GHistogram2D : public GDataCollector2T<double, double> {
 
 public:
     /** @brief The standard constructor */
-    G_API_COMMON GHistogram2D(
+    GHistogram2D(
         const std::size_t &,
         const std::size_t &,
         const double &,
@@ -2501,50 +2501,50 @@ public:
         const double &
     );
     /** @brief Initialization with ranges */
-    G_API_COMMON GHistogram2D(
+    GHistogram2D(
         const std::size_t &,
         const std::size_t &,
         const std::tuple<double, double> &,
         const std::tuple<double, double> &
     );
     /** @brief Initialization with automatic range detection */
-    G_API_COMMON GHistogram2D(const std::size_t &, const std::size_t &);
+    GHistogram2D(const std::size_t &, const std::size_t &);
 
     /**********************************************************************/
     // Defaulted constructors, destructor and assignment operators
 
     // Defaulted default constructor in private section
 
-    G_API_COMMON GHistogram2D(GHistogram2D const &) = default;
-    G_API_COMMON GHistogram2D(GHistogram2D &&) = default;
-    G_API_COMMON ~GHistogram2D() override = default;
+    GHistogram2D(GHistogram2D const &) = default;
+    GHistogram2D(GHistogram2D &&) = default;
+    ~GHistogram2D() override = default;
 
-    G_API_COMMON GHistogram2D &operator=(GHistogram2D const &) = default;
-    G_API_COMMON GHistogram2D &operator=(GHistogram2D &&) = default;
+    GHistogram2D &operator=(GHistogram2D const &) = default;
+    GHistogram2D &operator=(GHistogram2D &&) = default;
 
     /**********************************************************************/
 
     /** @brief Retrieve the number of bins in x-direction */
-    G_API_COMMON std::size_t getNBinsX() const;
+    std::size_t getNBinsX() const;
     /** @brief Retrieve the number of bins in y-direction */
-    G_API_COMMON std::size_t getNBinsY() const;
+    std::size_t getNBinsY() const;
 
     /** @brief Retrieve the lower boundary of the plot in x-direction */
-    G_API_COMMON double getMinX() const;
+    double getMinX() const;
     /** @brief Retrieve the upper boundary of the plot in x-direction */
-    G_API_COMMON double getMaxX() const;
+    double getMaxX() const;
     /** @brief Retrieve the lower boundary of the plot in y-direction */
-    G_API_COMMON double getMinY() const;
+    double getMinY() const;
     /** @brief Retrieve the upper boundary of the plot in y-direction */
-    G_API_COMMON double getMaxY() const;
+    double getMaxY() const;
 
     /** @brief Retrieves a unique name for this plotter */
-    G_API_COMMON std::string getPlotterName() const override;
+    std::string getPlotterName() const override;
 
     /** @brief Allows to specify 2d-drawing options */
-    G_API_COMMON void set2DOpt(tddropt);
+    void set2DOpt(tddropt);
     /** @brief Allows to retrieve 2d-drawing options */
-    G_API_COMMON tddropt get2DOpt() const;
+    tddropt get2DOpt() const;
 
 protected:
     /** @brief Retrieve specific header settings for this plot */
@@ -2560,13 +2560,13 @@ protected:
     std::string drawingArguments(bool) const override;
 
     /** @brief Loads the data of another object */
-    G_API_COMMON void load_(const GBasePlotter *) override;
+    void load_(const GBasePlotter *) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void compare_base_t<GHistogram2D>(GHistogram2D const &, GHistogram2D const &, GToken &);
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
-    G_API_COMMON void compare_(
+    void compare_(
         const GBasePlotter & // the other object
         ,
         const expectation & // the expectation for this object, e.g. equality
@@ -2576,11 +2576,11 @@ protected:
 
 private:
     /** @brief Returns the name of this class */
-    G_API_COMMON std::string name_() const override;
+    std::string name_() const override;
     /** @brief Creates a deep clone of this object */
-    G_API_COMMON GBasePlotter *clone_() const override;
+    GBasePlotter *clone_() const override;
 
-    G_API_COMMON GHistogram2D() =
+    GHistogram2D() =
         default; ///< The default constructor -- intentionally private, as it is only needed for (de-)serialization
 
     std::size_t nBinsX_ = 0; ///< The number of bins in the x-direction of the histogram
@@ -2620,28 +2620,28 @@ public:
     /**********************************************************************/
     // Defaulted constructors, destructor and assignment operators
 
-    G_API_COMMON GGraph2D() = default;
-    G_API_COMMON GGraph2D(GGraph2D const &) = default;
-    G_API_COMMON GGraph2D(GGraph2D &&) = default;
-    G_API_COMMON ~GGraph2D() override = default;
+    GGraph2D() = default;
+    GGraph2D(GGraph2D const &) = default;
+    GGraph2D(GGraph2D &&) = default;
+    ~GGraph2D() override = default;
 
-    G_API_COMMON GGraph2D &operator=(GGraph2D const &) = default;
-    G_API_COMMON GGraph2D &operator=(GGraph2D &&) = default;
+    GGraph2D &operator=(GGraph2D const &) = default;
+    GGraph2D &operator=(GGraph2D &&) = default;
 
     /**********************************************************************/
 
     /** @brief Adds arrows to the plots between consecutive points */
-    G_API_COMMON void setDrawArrows(bool = true);
+    void setDrawArrows(bool = true);
     /** @brief Retrieves the value of the drawArrows_ variable */
-    G_API_COMMON bool getDrawArrows() const;
+    bool getDrawArrows() const;
 
     /** @brief Determines whether a scatter plot or a curve is created */
-    G_API_COMMON void setPlotMode(graphPlotMode);
+    void setPlotMode(graphPlotMode);
     /** @brief Allows to retrieve the current plotting mode */
-    G_API_COMMON graphPlotMode getPlotMode() const;
+    graphPlotMode getPlotMode() const;
 
     /** @brief Retrieves a unique name for this plotter */
-    G_API_COMMON std::string getPlotterName() const override;
+    std::string getPlotterName() const override;
 
 protected:
     /** @brief Retrieve specific header settings for this plot */
@@ -2657,13 +2657,13 @@ protected:
     std::string drawingArguments(bool) const override;
 
     /** @brief Loads the data of another object */
-    G_API_COMMON void load_(const GBasePlotter *) override;
+    void load_(const GBasePlotter *) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void compare_base_t<GGraph2D>(GGraph2D const &, GGraph2D const &, GToken &);
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
-    G_API_COMMON void compare_(
+    void compare_(
         const GBasePlotter & // the other object
         ,
         const expectation & // the expectation for this object, e.g. equality
@@ -2673,9 +2673,9 @@ protected:
 
 private:
     /** @brief Returns the name of this class */
-    G_API_COMMON std::string name_() const override;
+    std::string name_() const override;
     /** @brief Creates a deep clone of this object */
-    G_API_COMMON GBasePlotter *clone_() const override;
+    GBasePlotter *clone_() const override;
 
     graphPlotMode pM_ =
         DEFPLOTMODE;          ///< Whether to create scatter plots or a curve, connected by lines
@@ -2706,23 +2706,23 @@ public:
     /**********************************************************************/
     // Defaulted constructors, destructor and assignment operators
 
-    G_API_COMMON GGraph2ED() = default;
-    G_API_COMMON GGraph2ED(GGraph2ED const &) = default;
-    G_API_COMMON GGraph2ED(GGraph2ED &&) = default;
-    G_API_COMMON ~GGraph2ED() override = default;
+    GGraph2ED() = default;
+    GGraph2ED(GGraph2ED const &) = default;
+    GGraph2ED(GGraph2ED &&) = default;
+    ~GGraph2ED() override = default;
 
-    G_API_COMMON GGraph2ED &operator=(GGraph2ED const &) = default;
-    G_API_COMMON GGraph2ED &operator=(GGraph2ED &&) = default;
+    GGraph2ED &operator=(GGraph2ED const &) = default;
+    GGraph2ED &operator=(GGraph2ED &&) = default;
 
     /**********************************************************************/
 
     /** @brief Determines whether a scatter plot or a curve is created */
-    G_API_COMMON void setPlotMode(graphPlotMode);
+    void setPlotMode(graphPlotMode);
     /** @brief Allows to retrieve the current plotting mode */
-    G_API_COMMON graphPlotMode getPlotMode() const;
+    graphPlotMode getPlotMode() const;
 
     /** @brief Retrieves a unique name for this plotter */
-    G_API_COMMON std::string getPlotterName() const override;
+    std::string getPlotterName() const override;
 
 protected:
     /** @brief Retrieve specific header settings for this plot */
@@ -2738,13 +2738,13 @@ protected:
     std::string drawingArguments(bool) const override;
 
     /** @brief Loads the data of another object */
-    G_API_COMMON void load_(const GBasePlotter *) override;
+    void load_(const GBasePlotter *) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void compare_base_t<GGraph2ED>(GGraph2ED const &, GGraph2ED const &, GToken &);
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
-    G_API_COMMON void compare_(
+    void compare_(
         const GBasePlotter & // the other object
         ,
         const expectation & // the expectation for this object, e.g. equality
@@ -2754,9 +2754,9 @@ protected:
 
 private:
     /** @brief Returns the name of this class */
-    G_API_COMMON std::string name_() const override;
+    std::string name_() const override;
     /** @brief Creates a deep clone of this object */
-    G_API_COMMON GBasePlotter *clone_() const override;
+    GBasePlotter *clone_() const override;
 
     graphPlotMode pM_ =
         DEFPLOTMODE; ///< Whether to create scatter plots or a curve, connected by lines
@@ -3029,7 +3029,7 @@ private:
 
     /***************************************************************************/
     /** @brief Creates a deep clone of this object */
-    G_API_COMMON GBasePlotter *clone_() const override = 0;
+    GBasePlotter *clone_() const override = 0;
 };
 
 /******************************************************************************/
@@ -3183,23 +3183,23 @@ public:
     /*********************************************************************/
     // Defaulted constructors, destructor and assignment operators
 
-    G_API_COMMON GGraph3D() = default;
-    G_API_COMMON GGraph3D(GGraph3D const &) = default;
-    G_API_COMMON GGraph3D(GGraph3D &&) = default;
-    G_API_COMMON ~GGraph3D() override = default;
+    GGraph3D() = default;
+    GGraph3D(GGraph3D const &) = default;
+    GGraph3D(GGraph3D &&) = default;
+    ~GGraph3D() override = default;
 
-    G_API_COMMON GGraph3D &operator=(GGraph3D const &) = default;
-    G_API_COMMON GGraph3D &operator=(GGraph3D &&) = default;
+    GGraph3D &operator=(GGraph3D const &) = default;
+    GGraph3D &operator=(GGraph3D &&) = default;
 
     /*********************************************************************/
 
     /** @brief Adds lines to the plots between consecutive points */
-    G_API_COMMON void setDrawLines(bool = true);
+    void setDrawLines(bool = true);
     /** @brief Retrieves the value of the drawLines_ variable */
-    G_API_COMMON bool getDrawLines() const;
+    bool getDrawLines() const;
 
     /** @brief Retrieves a unique name for this plotter */
-    G_API_COMMON std::string getPlotterName() const override;
+    std::string getPlotterName() const override;
 
 protected:
     /** @brief Retrieve specific header settings for this plot */
@@ -3215,13 +3215,13 @@ protected:
     std::string drawingArguments(bool) const override;
 
     /** @brief Loads the data of another object */
-    G_API_COMMON void load_(const GBasePlotter *) override;
+    void load_(const GBasePlotter *) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void compare_base_t<GGraph3D>(GGraph3D const &, GGraph3D const &, GToken &);
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
-    G_API_COMMON void compare_(
+    void compare_(
         const GBasePlotter & // the other object
         ,
         const expectation & // the expectation for this object, e.g. equality
@@ -3231,9 +3231,9 @@ protected:
 
 private:
     /** @brief Returns the name of this class */
-    G_API_COMMON std::string name_() const override;
+    std::string name_() const override;
     /** @brief Creates a deep clone of this object */
-    G_API_COMMON GBasePlotter *clone_() const override;
+    GBasePlotter *clone_() const override;
 
     bool drawLines_ = false; ///< When set to true, lines will be drawn between consecutive points
 };
@@ -3536,7 +3536,7 @@ private:
 
     /***************************************************************************/
     /** @brief Creates a deep clone of this object */
-    G_API_COMMON GBasePlotter *clone_() const override = 0;
+    GBasePlotter *clone_() const override = 0;
 };
 
 /******************************************************************************/
@@ -3742,38 +3742,38 @@ public:
     /*********************************************************************/
     // Defaulted constructors, destructor and assignment operators
 
-    G_API_COMMON GGraph4D() = default;
-    G_API_COMMON GGraph4D(const GGraph4D &) = default;
-    G_API_COMMON GGraph4D(GGraph4D &&) = default;
-    G_API_COMMON ~GGraph4D() override = default;
+    GGraph4D() = default;
+    GGraph4D(const GGraph4D &) = default;
+    GGraph4D(GGraph4D &&) = default;
+    ~GGraph4D() override = default;
 
-    G_API_COMMON GGraph4D &operator=(GGraph4D const &) = default;
-    G_API_COMMON GGraph4D &operator=(GGraph4D &&) = default;
+    GGraph4D &operator=(GGraph4D const &) = default;
+    GGraph4D &operator=(GGraph4D &&) = default;
 
     /*********************************************************************/
 
     /** @brief Allows to set the minimum marker size */
-    G_API_COMMON void setMinMarkerSize(const double &);
+    void setMinMarkerSize(const double &);
     /** @brief Allows to set the maximum marker size */
-    G_API_COMMON void setMaxMarkerSize(const double &);
+    void setMaxMarkerSize(const double &);
 
     /** @brief Allows to retrieve the minimum marker size */
-    G_API_COMMON double getMinMarkerSize() const;
+    double getMinMarkerSize() const;
     /** @brief Allows to retrieve the maximum marker size */
-    G_API_COMMON double getMaxMarkerSize() const;
+    double getMaxMarkerSize() const;
 
     /** @brief Allows to specify whether small w yield large markers */
-    G_API_COMMON void setSmallWLargeMarker(const bool &);
+    void setSmallWLargeMarker(const bool &);
     /** @brief Allows to check whether small w yield large markers */
-    G_API_COMMON bool getSmallWLargeMarker() const;
+    bool getSmallWLargeMarker() const;
 
     /** @brief Allows to set the number of solutions the class should show */
-    G_API_COMMON void setNBest(const std::size_t &);
+    void setNBest(const std::size_t &);
     /** @brief Allows to retrieve the number of solutions the class should show */
-    G_API_COMMON std::size_t getNBest() const;
+    std::size_t getNBest() const;
 
     /** @brief Retrieves a unique name for this plotter */
-    G_API_COMMON std::string getPlotterName() const override;
+    std::string getPlotterName() const override;
 
 protected:
     /** @brief Retrieve specific header settings for this plot */
@@ -3789,13 +3789,13 @@ protected:
     std::string drawingArguments(bool) const override;
 
     /** @brief Loads the data of another object */
-    G_API_COMMON void load_(const GBasePlotter *) override;
+    void load_(const GBasePlotter *) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void compare_base_t<GGraph4D>(GGraph4D const &, GGraph4D const &, GToken &);
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
-    G_API_COMMON void compare_(
+    void compare_(
         const GBasePlotter & // the other object
         ,
         const expectation & // the expectation for this object, e.g. equality
@@ -3805,9 +3805,9 @@ protected:
 
 private:
     /** @brief Returns the name of this class */
-    G_API_COMMON std::string name_() const override;
+    std::string name_() const override;
     /** @brief Creates a deep clone of this object */
-    G_API_COMMON GBasePlotter *clone_() const override;
+    GBasePlotter *clone_() const override;
 
     double minMarkerSize_ = DEFMINMARKERSIZE; ///< The minimum allowed size of the marker
     double maxMarkerSize_ = DEFMAXMARKERSIZE; ///< The maximum allowed size of the marker
@@ -3840,27 +3840,27 @@ class GFunctionPlotter1D : public GBasePlotter {
 
 public:
     /** @brief The standard constructor */
-    G_API_COMMON GFunctionPlotter1D(const std::string &, const std::tuple<double, double> &);
+    GFunctionPlotter1D(const std::string &, const std::tuple<double, double> &);
 
     /*********************************************************************/
     // Defaulted constructors, destructor and assignment operators
 
     // Defaulted default constructor in private section
 
-    G_API_COMMON GFunctionPlotter1D(GFunctionPlotter1D const &) = default;
-    G_API_COMMON GFunctionPlotter1D(GFunctionPlotter1D &&) = default;
-    G_API_COMMON ~GFunctionPlotter1D() override = default;
+    GFunctionPlotter1D(GFunctionPlotter1D const &) = default;
+    GFunctionPlotter1D(GFunctionPlotter1D &&) = default;
+    ~GFunctionPlotter1D() override = default;
 
-    G_API_COMMON GFunctionPlotter1D &operator=(GFunctionPlotter1D const &) = default;
-    G_API_COMMON GFunctionPlotter1D &operator=(GFunctionPlotter1D &&) = default;
+    GFunctionPlotter1D &operator=(GFunctionPlotter1D const &) = default;
+    GFunctionPlotter1D &operator=(GFunctionPlotter1D &&) = default;
 
     /*********************************************************************/
 
     /** @brief Allows to set the number of sampling points in x-direction */
-    G_API_COMMON void setNSamplesX(std::size_t);
+    void setNSamplesX(std::size_t);
 
     /** @brief Retrieves a unique name for this plotter */
-    G_API_COMMON std::string getPlotterName() const override;
+    std::string getPlotterName() const override;
 
 protected:
     /** @brief Retrieve specific header settings for this plot */
@@ -3876,7 +3876,7 @@ protected:
     std::string drawingArguments(bool) const override;
 
     /** @brief Loads the data of another object */
-    G_API_COMMON void load_(const GBasePlotter *) override;
+    void load_(const GBasePlotter *) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void compare_base_t<GFunctionPlotter1D>(
@@ -3886,7 +3886,7 @@ protected:
     );
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
-    G_API_COMMON void compare_(
+    void compare_(
         const GBasePlotter & // the other object
         ,
         const expectation & // the expectation for this object, e.g. equality
@@ -3896,11 +3896,11 @@ protected:
 
 private:
     /** @brief Returns the name of this class */
-    G_API_COMMON std::string name_() const override;
+    std::string name_() const override;
     /** @brief Creates a deep clone of this object */
-    G_API_COMMON GBasePlotter *clone_() const override;
+    GBasePlotter *clone_() const override;
 
-    G_API_COMMON GFunctionPlotter1D() =
+    GFunctionPlotter1D() =
         default; ///< The default constructor. Intentionally private, as it is only needed for (de-)serialization
 
     std::string functionDescription_;
@@ -3930,7 +3930,7 @@ class GFunctionPlotter2D : public GBasePlotter {
 
 public:
     /** @brief The standard constructor */
-    G_API_COMMON GFunctionPlotter2D(
+    GFunctionPlotter2D(
         const std::string &,
         const std::tuple<double, double> &,
         const std::tuple<double, double> &
@@ -3941,22 +3941,22 @@ public:
 
     // Defaulted default constructor in private section
 
-    G_API_COMMON GFunctionPlotter2D(GFunctionPlotter2D const &) = default;
-    G_API_COMMON GFunctionPlotter2D(GFunctionPlotter2D &&) = default;
-    G_API_COMMON ~GFunctionPlotter2D() override = default;
+    GFunctionPlotter2D(GFunctionPlotter2D const &) = default;
+    GFunctionPlotter2D(GFunctionPlotter2D &&) = default;
+    ~GFunctionPlotter2D() override = default;
 
-    G_API_COMMON GFunctionPlotter2D &operator=(GFunctionPlotter2D const &) = default;
-    G_API_COMMON GFunctionPlotter2D &operator=(GFunctionPlotter2D &&) = default;
+    GFunctionPlotter2D &operator=(GFunctionPlotter2D const &) = default;
+    GFunctionPlotter2D &operator=(GFunctionPlotter2D &&) = default;
 
     /*********************************************************************/
 
     /** @brief Allows to set the number of sampling points in x-direction */
-    G_API_COMMON void setNSamplesX(std::size_t);
+    void setNSamplesX(std::size_t);
     /** @brief Allows to set the number of sampling points in y-direction */
-    G_API_COMMON void setNSamplesY(std::size_t);
+    void setNSamplesY(std::size_t);
 
     /** @brief Retrieves a unique name for this plotter */
-    G_API_COMMON std::string getPlotterName() const override;
+    std::string getPlotterName() const override;
 
 protected:
     /** @brief Retrieve specific header settings for this plot */
@@ -3972,7 +3972,7 @@ protected:
     std::string drawingArguments(bool) const override;
 
     /** @brief Loads the data of another object */
-    G_API_COMMON void load_(const GBasePlotter *) override;
+    void load_(const GBasePlotter *) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void compare_base_t<GFunctionPlotter2D>(
@@ -3982,7 +3982,7 @@ protected:
     );
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
-    G_API_COMMON void compare_(
+    void compare_(
         const GBasePlotter & // the other object
         ,
         const expectation & // the expectation for this object, e.g. equality
@@ -3992,11 +3992,11 @@ protected:
 
 private:
     /** @brief Returns the name of this class */
-    G_API_COMMON std::string name_() const override;
+    std::string name_() const override;
     /** @brief Creates a deep clone of this object */
-    G_API_COMMON GBasePlotter *clone_() const override;
+    GBasePlotter *clone_() const override;
 
-    G_API_COMMON GFunctionPlotter2D() =
+    GFunctionPlotter2D() =
         default; ///< The default constructor -- intentionally private, as it is only needed for (de-)serialization
 
     std::string functionDescription_;
@@ -4030,53 +4030,53 @@ class GPlotDesigner : public GCommonInterfaceT<GPlotDesigner> {
 
 public:
     /** @brief The standard constructor */
-    G_API_COMMON GPlotDesigner(const std::string &, const std::size_t &, const std::size_t &);
+    GPlotDesigner(const std::string &, const std::size_t &, const std::size_t &);
 
     /** @brief Copy constructor */
-    G_API_COMMON GPlotDesigner(GPlotDesigner const &);
+    GPlotDesigner(GPlotDesigner const &);
     /** @brief Assignment operator */
-    G_API_COMMON GPlotDesigner &operator=(GPlotDesigner const &);
+    GPlotDesigner &operator=(GPlotDesigner const &);
 
     /*********************************************************************/
     // Defaulted constructors, destructor and assignment operators
 
     // Defaulted default constructor in private section
 
-    G_API_COMMON GPlotDesigner(GPlotDesigner &&) = default;
-    G_API_COMMON virtual ~GPlotDesigner() = default;
+    GPlotDesigner(GPlotDesigner &&) = default;
+    virtual ~GPlotDesigner() = default;
 
-    G_API_COMMON GPlotDesigner &operator=(GPlotDesigner &&) = default;
+    GPlotDesigner &operator=(GPlotDesigner &&) = default;
 
     /*********************************************************************/
 
     /* @brief Emits the overall plot */
-    G_API_COMMON std::string
+    std::string
     plot(const std::filesystem::path & = std::filesystem::path("empty")) const;
     /** @brief Writes the plot to a file */
-    G_API_COMMON void writeToFile(const std::filesystem::path &);
+    void writeToFile(const std::filesystem::path &);
 
     /** @brief Allows to add a new plotter object */
-    G_API_COMMON void registerPlotter(std::shared_ptr<GBasePlotter>);
+    void registerPlotter(std::shared_ptr<GBasePlotter>);
 
     /** @brief Set the dimensions of the output canvas */
-    G_API_COMMON void setCanvasDimensions(const std::uint32_t &, const std::uint32_t &);
+    void setCanvasDimensions(const std::uint32_t &, const std::uint32_t &);
     /** @brief Set the dimensions of the output canvas */
-    G_API_COMMON void setCanvasDimensions(const std::tuple<std::uint32_t, std::uint32_t> &);
+    void setCanvasDimensions(const std::tuple<std::uint32_t, std::uint32_t> &);
     /** @brief Allows to retrieve the canvas dimensions */
-    G_API_COMMON std::tuple<std::uint32_t, std::uint32_t> getCanvasDimensions() const;
+    std::tuple<std::uint32_t, std::uint32_t> getCanvasDimensions() const;
 
     /** @brief Allows to set the canvas label */
-    G_API_COMMON void setCanvasLabel(const std::string &);
+    void setCanvasLabel(const std::string &);
     /** @brief Allows to retrieve the canvas label */
-    G_API_COMMON std::string getCanvasLabel() const;
+    std::string getCanvasLabel() const;
 
     /** @brief Allows to add a "Print" command to the end of the script so that picture files are created */
-    G_API_COMMON void setAddPrintCommand(bool);
+    void setAddPrintCommand(bool);
     /** @brief Allows to retrieve the current value of the addPrintCommand_ variable */
-    G_API_COMMON bool getAddPrintCommand() const;
+    bool getAddPrintCommand() const;
 
     /** @brief Resets the plotters */
-    G_API_COMMON void resetPlotters();
+    void resetPlotters();
 
     /** @brief Allows to set the number of spaces used for indention */
     void setNIndentionSpaces(const std::size_t &);
@@ -4092,14 +4092,14 @@ protected:
     std::string staticHeader(const std::string &) const;
 
     /** @brief Loads the data of another object */
-    G_API_COMMON void load_(const GPlotDesigner *) override;
+    void load_(const GPlotDesigner *) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void
     compare_base_t<GPlotDesigner>(GPlotDesigner const &, GPlotDesigner const &, GToken &);
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
-    G_API_COMMON void compare_(
+    void compare_(
         const GPlotDesigner & // the other object
         ,
         const expectation & // the expectation for this object, e.g. equality
@@ -4108,22 +4108,22 @@ protected:
     ) const override;
 
     /** @brief Applies modifications to this object. This is needed for testing purposes */
-    G_API_COMMON bool modify_GUnitTests_() override {
+    bool modify_GUnitTests_() override {
         return false;
     }
     /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-    G_API_COMMON void specificTestsNoFailureExpected_GUnitTests_() override { /* nothing */ };
+    void specificTestsNoFailureExpected_GUnitTests_() override { /* nothing */ };
     /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-    G_API_COMMON void specificTestsFailuresExpected_GUnitTests_() override { /* nothing */ };
+    void specificTestsFailuresExpected_GUnitTests_() override { /* nothing */ };
 
 private:
     /** @brief The default constructor -- only needed for (de-)serialization */
     GPlotDesigner() = default;
 
     /** @brief Returns the name of this class */
-    G_API_COMMON std::string name_() const override;
+    std::string name_() const override;
     /** @brief Creates a deep clone of this object */
-    G_API_COMMON GPlotDesigner *clone_() const override;
+    GPlotDesigner *clone_() const override;
 
     std::vector<std::shared_ptr<GBasePlotter>> plotters_cnt_ = std::vector<
         std::shared_ptr<GBasePlotter>>(); ///< A list of plots to be added to the diagram

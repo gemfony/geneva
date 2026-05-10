@@ -98,10 +98,10 @@ enum class parameter_source : Gem::Common::ENUMBASETYPE {
 };
 
 /** @brief Puts a Gem::Common::parameter_source into a stream. Needed also for boost::lexical_cast<> */
-G_API_COMMON std::ostream &operator<<(std::ostream &, Gem::Common::parameter_source const &);
+std::ostream &operator<<(std::ostream &, Gem::Common::parameter_source const &);
 
 /** @brief Reads a Gem::Common::parameter_source item from a stream. Needed also for boost::lexical_cast<> */
-G_API_COMMON std::istream &operator>>(std::istream &, Gem::Common::parameter_source &);
+std::istream &operator>>(std::istream &, Gem::Common::parameter_source &);
 
 /******************************************************************************/
 /**
@@ -115,10 +115,10 @@ enum class dimensions : Gem::Common::ENUMBASETYPE {
 };
 
 /** @brief Puts a Gem::Common::dimensions into a stream. Needed also for boost::lexical_cast<> */
-G_API_COMMON std::ostream &operator<<(std::ostream &, Gem::Common::dimensions const &);
+std::ostream &operator<<(std::ostream &, Gem::Common::dimensions const &);
 
 /** @brief Reads a Gem::Common::dimensions item from a stream. Needed also for boost::lexical_cast<> */
-G_API_COMMON std::istream &operator>>(std::istream &, Gem::Common::dimensions &);
+std::istream &operator>>(std::istream &, Gem::Common::dimensions &);
 
 /******************************************************************************/
 /**
@@ -137,10 +137,10 @@ enum class sortOrder : Gem::Common::ENUMBASETYPE {
 };
 
 /** @brief Puts a Gem::Common::sortOrder into a stream. Needed also for boost::lexical_cast<> */
-G_API_COMMON std::ostream &operator<<(std::ostream &, Gem::Common::sortOrder const &);
+std::ostream &operator<<(std::ostream &, Gem::Common::sortOrder const &);
 
 /** @brief Reads a Gem::Common::sortOrder item from a stream. Needed also for boost::lexical_cast<> */
-G_API_COMMON std::istream &operator>>(std::istream &, Gem::Common::sortOrder &);
+std::istream &operator>>(std::istream &, Gem::Common::sortOrder &);
 
 /******************************************************************************/
 /**
@@ -157,10 +157,10 @@ enum class logType : Gem::Common::ENUMBASETYPE {
 };
 
 /** @brief Puts a Gem::Common::logType into a stream. Needed also for boost::lexical_cast<> */
-G_API_COMMON std::ostream &operator<<(std::ostream &, Gem::Common::logType const &);
+std::ostream &operator<<(std::ostream &, Gem::Common::logType const &);
 
 /** @brief Reads a Gem::Common::logType item from a stream. Needed also for boost::lexical_cast<> */
-G_API_COMMON std::istream &operator>>(std::istream &, Gem::Common::logType &);
+std::istream &operator>>(std::istream &, Gem::Common::logType &);
 
 /******************************************************************************/
 /**
@@ -186,10 +186,10 @@ enum class triboolStates : Gem::Common::ENUMBASETYPE {
 };
 
 /** @brief Puts a Gem::Common::triboolStates into a stream. Needed also for boost::lexical_cast<> */
-G_API_COMMON std::ostream &operator<<(std::ostream &, Gem::Common::triboolStates const &);
+std::ostream &operator<<(std::ostream &, Gem::Common::triboolStates const &);
 
 /** @brief Reads a Gem::Common::triboolStates item from a stream. Needed also for boost::lexical_cast<> */
-G_API_COMMON std::istream &operator>>(std::istream &, Gem::Common::triboolStates &);
+std::istream &operator>>(std::istream &, Gem::Common::triboolStates &);
 
 /******************************************************************************/
 /**
@@ -202,13 +202,13 @@ enum class serializationMode : Gem::Common::ENUMBASETYPE {
 };
 
 /** @brief Puts a Gem::Common::serializationMode into a stream. Needed also for boost::lexical_cast<> */
-G_API_COMMON std::ostream &operator<<(std::ostream &, Gem::Common::serializationMode const &);
+std::ostream &operator<<(std::ostream &, Gem::Common::serializationMode const &);
 
 /** @brief Reads a Gem::Common::serializationMode item from a stream. Needed also for boost::lexical_cast<> */
-G_API_COMMON std::istream &operator>>(std::istream &, Gem::Common::serializationMode &);
+std::istream &operator>>(std::istream &, Gem::Common::serializationMode &);
 
 /** @brief Converts a serializationMode to a string representation for debugging purposes */
-[[nodiscard]] G_API_COMMON std::string serModeToString(Gem::Common::serializationMode);
+[[nodiscard]] std::string serModeToString(Gem::Common::serializationMode);
 
 /******************************************************************************/
 /**
@@ -230,10 +230,10 @@ enum class expectation : Gem::Common::ENUMBASETYPE {
 };
 
 /** @brief Puts a Gem::Common::expectation into a stream. Needed also for boost::lexical_cast<> */
-G_API_COMMON std::ostream &operator<<(std::ostream &, Gem::Common::expectation const &);
+std::ostream &operator<<(std::ostream &, Gem::Common::expectation const &);
 
 /** @brief Reads a Gem::Common::expectation item from a stream. Needed also for boost::lexical_cast<> */
-G_API_COMMON std::istream &operator>>(std::istream &, Gem::Common::expectation &);
+std::istream &operator>>(std::istream &, Gem::Common::expectation &);
 
 /******************************************************************************/
 /**

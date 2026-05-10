@@ -39,7 +39,7 @@ namespace Gem::Geneva {
 
 /******************************************************************************/
 /** A short identifier suitable for storage in a std::map */
-G_API_GENEVA const std::string GSwarmAlgorithm_PersonalityTraits::nickname = "swarm"; // NOLINT
+const std::string GSwarmAlgorithm_PersonalityTraits::nickname = "swarm"; // NOLINT
 
 /******************************************************************************/
 /**

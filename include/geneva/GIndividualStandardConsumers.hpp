@@ -108,9 +108,9 @@ class GIndividualSerialConsumer final
   : public Gem::Courtier::GSerialConsumerT<Gem::Geneva::GParameterSet> {
 public:
     /** @brief The default constructor */
-    G_API_GENEVA GIndividualSerialConsumer() = default;
+    GIndividualSerialConsumer() = default;
     /** @brief The desstructor */
-    G_API_GENEVA ~GIndividualSerialConsumer() override = default;
+    ~GIndividualSerialConsumer() override = default;
 };
 
 #ifdef GENEVA_BUILD_WITH_MPI_CONSUMER

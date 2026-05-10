@@ -33,7 +33,7 @@ namespace Gem::Geneva {
 
 /******************************************************************************/
 /** A short identifier suitable for storage in a std::map */
-G_API_GENEVA const std::string GGradientDescent_PersonalityTraits::nickname = "gd";
+const std::string GGradientDescent_PersonalityTraits::nickname = "gd";
 
 /******************************************************************************/
 /**

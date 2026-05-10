@@ -70,7 +70,7 @@ public:
 
 /******************************************************************************/
 /** @brief This function allows to output a geneva_exception to a stream */
-G_API_COMMON std::ostream &operator<<(std::ostream &, const geneva_exception &);
+std::ostream &operator<<(std::ostream &, const geneva_exception &);
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////

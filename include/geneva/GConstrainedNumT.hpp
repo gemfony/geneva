@@ -830,7 +830,7 @@ private:
     /***************************************************************************/
 
     /** @brief Creates a deep clone of this object. */
-    G_API_GENEVA GObject *clone_() const override = 0;
+    GObject *clone_() const override = 0;
 
     /***************************************************************************/
 

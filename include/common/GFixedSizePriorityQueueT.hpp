@@ -551,9 +551,9 @@ protected:
 
     /***************************************************************************/
     /** @brief Checks whether an Item is valid */
-    virtual G_API_COMMON bool isValid(const std::shared_ptr<T> &) const = 0;
+    virtual bool isValid(const std::shared_ptr<T> &) const = 0;
     /** @brief Evaluates a single work item, so that it can be sorted */
-    virtual G_API_COMMON double evaluation(const std::shared_ptr<T> &) const = 0;
+    virtual double evaluation(const std::shared_ptr<T> &) const = 0;
 
     /***************************************************************************/
     /**
@@ -624,7 +624,7 @@ private:
 
     /***************************************************************************/
     /** @brief Creates a deep clone of this object */
-    G_API_COMMON GFixedSizePriorityQueueT *clone_() const override = 0;
+    GFixedSizePriorityQueueT *clone_() const override = 0;
 };
 
 /******************************************************************************/

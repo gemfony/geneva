@@ -63,7 +63,7 @@ namespace Gem::Common {
 
 /******************************************************************************/
 /** @brief Creates a file in a given path, optionally with content */
-G_API_COMMON
+
 std::filesystem::file_time_type touch_time(
     std::filesystem::path const &path,
     std::string const &content = "",
@@ -72,27 +72,27 @@ std::filesystem::file_time_type touch_time(
 
 /******************************************************************************/
 /** @brief Reads a json-document from a std::filesystem::path. This is a helper-function */
-G_API_COMMON
+
 void read_json(std::filesystem::path const &path, boost::property_tree::ptree &pt);
 
 /******************************************************************************/
 /** @brief Determines a suitable number of threads for the current architecture */
-G_API_COMMON
+
 unsigned int getNHardwareThreads();
 
 /******************************************************************************/
 /** @brief This function loads textual (ASCII) data from an external file */
-G_API_COMMON
+
 std::string loadTextDataFromFile(std::filesystem::path const &);
 
 /******************************************************************************/
 /** @brief This function loads textual (ASCII) data from an external file, putting it line by line into a std::vector */
-G_API_COMMON
+
 std::vector<std::string> loadTextLinesFromFile(std::filesystem::path const &);
 
 /******************************************************************************/
 /** @brief This function executes an external command on the operating system */
-G_API_COMMON
+
 int runExternalCommand(
     std::filesystem::path const &,
     std::vector<std::string> const &,
@@ -102,59 +102,59 @@ int runExternalCommand(
 
 /******************************************************************************/
 /** @brief Returns a string for a given serialization mode */
-G_API_COMMON
+
 std::string serializationModeToString(serializationMode);
 
 /******************************************************************************/
 /** @brief Splits a string into a vector of strings, according to a seperator character */
-G_API_COMMON
+
 std::vector<std::string> splitString(std::string const &, const char *);
 
 /******************************************************************************/
 /** @brief Splits a string into a vector of std::uint16_t values, if possible */
-G_API_COMMON
+
 std::vector<unsigned int> stringToUIntVec(std::string const &, char = ',');
 
 /******************************************************************************/
 /** @brief Splits a string into a vector of double values, if possible */
-G_API_COMMON
+
 std::vector<double> stringToDoubleVec(std::string const &);
 
 /******************************************************************************/
 /** @brief Splits a string into a vector of unsigned int-tuples, if possible */
-G_API_COMMON
+
 std::vector<std::tuple<unsigned int, unsigned int>> stringToUIntTupleVec(std::string const &);
 
 /******************************************************************************/
 /** @brief Translates a string of the type "00:10:30" into a std::chrono::duration<double> */
-G_API_COMMON
+
 std::chrono::duration<double> duration_from_string(std::string const &);
 
 /******************************************************************************/
 /** @brief Converts the current time to a string */
-G_API_COMMON
+
 std::string currentTimeAsString();
 
 /******************************************************************************/
 /** @brief Returns the number of milliseconds since 1.1.1970 */
-G_API_COMMON
+
 std::string getMSSince1970();
 
 /******************************************************************************/
 /** @brief Converts a std::chrono::high_resolution_clock::time_point into an arithmetic number */
-G_API_COMMON
+
 std::chrono::milliseconds::rep
 time_point_to_milliseconds(std::chrono::high_resolution_clock::time_point const &);
 
 /******************************************************************************/
 /** @brief Converts an arithmetic number into  a std::chrono::high_resolution_clock::time_point */
-G_API_COMMON
+
 std::chrono::high_resolution_clock::time_point
 milliseconds_to_time_point(std::chrono::milliseconds::rep const &);
 
 /******************************************************************************/
 /** @brief Raise an exception if a given define wasn't set */
-G_API_COMMON
+
 void condnotset(std::string const &, std::string const &);
 
 /******************************************************************************/

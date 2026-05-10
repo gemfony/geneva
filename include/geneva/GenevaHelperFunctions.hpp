@@ -49,33 +49,33 @@ namespace Gem::Geneva {
 
 /******************************************************************************/
 /** @brief Sets the processing flag in a given range */
-G_API_GENEVA void setProcessingFlag(
+void setProcessingFlag(
     std::vector<std::shared_ptr<GParameterSet>> &,
     const std::tuple<std::size_t, std::size_t> &
 );
 
 /******************************************************************************/
 /** @brief Transforms the individual fitness so that the optimization algorithm always "sees" a minimization problem */
-G_API_GENEVA double
+double
 minOnly_transformed_fitness(const std::shared_ptr<GParameterSet> &, std::size_t = 0);
 
 /******************************************************************************/
 /** @brief Checks whether the first individual is better than the second */
-G_API_GENEVA bool
+bool
 isBetter(const std::shared_ptr<GParameterSet> &x_ptr, const std::shared_ptr<GParameterSet> &y_ptr);
 
 /******************************************************************************/
 /** @brief Checks whether the first individual is worse than the second */
-G_API_GENEVA bool
+bool
 isWorse(const std::shared_ptr<GParameterSet> &x_ptr, const std::shared_ptr<GParameterSet> &y_ptr);
 
 /******************************************************************************/
 /** @brief Checks whether the first value is better than the second */
-G_API_GENEVA bool isBetter(double x, double y, maxMode m);
+bool isBetter(double x, double y, maxMode m);
 
 /******************************************************************************/
 /** @brief Checks whether the first value is worse than the second*/
-G_API_GENEVA bool isWorse(double x, double y, maxMode m);
+bool isWorse(double x, double y, maxMode m);
 
 /******************************************************************************/
 

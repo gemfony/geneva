@@ -367,7 +367,7 @@ private:
 class commentLevel { // NOLINT(cppcoreguidelines-special-member-functions)
 public:
     /** @brief Enforce setting of the comment level */
-    explicit G_API_COMMON commentLevel(std::size_t);
+    explicit commentLevel(std::size_t);
 
     /*************************************************************************/
     // Defaulted or deleted functions functions
@@ -383,7 +383,7 @@ public:
     /*************************************************************************/
 
     /** @brief Retrieves the current commentLevel */
-    G_API_COMMON std::size_t getCommentLevel() const;
+    std::size_t getCommentLevel() const;
 
 private:
     std::size_t comment_level_; ///< The id of the comment inside of GParsableI
@@ -398,7 +398,7 @@ private:
 class nextComment {
 public:
     /** @brief The default constructor */
-    G_API_COMMON nextComment() = default;
+    nextComment() = default;
 };
 
 /******************************************************************************/
@@ -412,13 +412,13 @@ public:
 class GParsableI {
 public:
     /** @brief A constructor for individual items */
-    G_API_COMMON GParsableI(std::string const &, std::string const &);
+    GParsableI(std::string const &, std::string const &);
 
     /** @brief A constructor for vectors */
-    G_API_COMMON GParsableI(std::vector<std::string> const &, std::vector<std::string> const &);
+    GParsableI(std::vector<std::string> const &, std::vector<std::string> const &);
 
     /** @brief The destructor */
-    virtual G_API_COMMON ~GParsableI() = default;
+    virtual ~GParsableI() = default;
 
     // Prevent copying, moving and default construction
     GParsableI() = delete;
@@ -428,13 +428,13 @@ public:
     GParsableI &operator=(GParsableI &&) = delete;
 
     /** @brief Retrieves the option name at a given position */
-    G_API_COMMON std::string optionName(std::size_t = 0) const;
+    std::string optionName(std::size_t = 0) const;
     /** @brief Retrieves the comment that was assigned to this variable at a given position */
-    G_API_COMMON std::string comment(std::size_t = 0) const;
+    std::string comment(std::size_t = 0) const;
     /** @brief Checks whether comments have indeed been registered */
-    G_API_COMMON bool hasComments() const;
+    bool hasComments() const;
     /** @brief Retrieves the number of comments available */
-    G_API_COMMON std::size_t numberOfComments() const;
+    std::size_t numberOfComments() const;
 
     /***************************************************************************/
     /**
@@ -474,20 +474,20 @@ public:
 
     /***************************************************************************/
     /** @brief Needed for std::ostringstream */
-    G_API_COMMON GParsableI &operator<<(std::ostream &(*val)(std::ostream &));
+    GParsableI &operator<<(std::ostream &(*val)(std::ostream &));
     /** @brief Needed for std::ostringstream */
-    G_API_COMMON GParsableI &operator<<(std::ios &(*val)(std::ios &));
+    GParsableI &operator<<(std::ios &(*val)(std::ios &));
     /** @brief Needed for std::ostringstream */
-    G_API_COMMON GParsableI &operator<<(std::ios_base &(*val)(std::ios_base &));
+    GParsableI &operator<<(std::ios_base &(*val)(std::ios_base &));
     /** @brief Allows to indicate the current comment level */
-    G_API_COMMON GParsableI &operator<<(commentLevel const &);
+    GParsableI &operator<<(commentLevel const &);
     /** @brief Allows to switch to the next comment level */
-    G_API_COMMON GParsableI &operator<<(nextComment const &);
+    GParsableI &operator<<(nextComment const &);
 
 protected:
     /***************************************************************************/
     /** @brief Splits a comment into sub-tokens */
-    G_API_COMMON std::vector<std::string> splitComment(std::string const &) const;
+    std::vector<std::string> splitComment(std::string const &) const;
 
 private:
     /***************************************************************************/
@@ -511,13 +511,13 @@ class GFileParsableI : public GParsableI {
 
 public:
     /** @brief A constructor for individual items */
-    G_API_COMMON GFileParsableI(std::string const &, std::string const &, bool);
+    GFileParsableI(std::string const &, std::string const &, bool);
     /** @brief A constructor for vectors */
-    G_API_COMMON
+    
     GFileParsableI(std::vector<std::string> const &, std::vector<std::string> const &, bool);
 
     /** @brief The destructor */
-    G_API_COMMON ~GFileParsableI() override = default;
+    ~GFileParsableI() override = default;
 
     // Prevent copying, moving and default construction
     GFileParsableI() = delete;
@@ -527,21 +527,21 @@ public:
     GFileParsableI &operator=(GFileParsableI &&) = delete;
 
     /** @brief Checks whether this is an essential variable at a given position */
-    G_API_COMMON bool isEssential() const;
+    bool isEssential() const;
 
     /** @brief Executes a stored callbacl function */
-    G_API_COMMON void executeCallBackFunction();
+    void executeCallBackFunction();
 
 private:
     /***************************************************************************/
     /** @brief Loads data from a property_tree object */
-    virtual G_API_COMMON void load_from(boost::property_tree::ptree const &) = 0;
+    virtual void load_from(boost::property_tree::ptree const &) = 0;
 
     /** @brief Saves data to a property tree object */
-    virtual G_API_COMMON void save_to(boost::property_tree::ptree &) const = 0;
+    virtual void save_to(boost::property_tree::ptree &) const = 0;
 
     /** @brief Executes a stored call-back function */
-    virtual G_API_COMMON void executeCallBackFunction_() = 0;
+    virtual void executeCallBackFunction_() = 0;
 
     /***************************************************************************/
 
@@ -1984,12 +1984,12 @@ class GCLParsableI : public GParsableI {
 
 public:
     /** @brief A constructor for individual items */
-    G_API_COMMON GCLParsableI(std::string const &, std::string const &);
+    GCLParsableI(std::string const &, std::string const &);
     /** @brief A constructor for vectors */
-    G_API_COMMON GCLParsableI(std::vector<std::string> const &, std::vector<std::string> const &);
+    GCLParsableI(std::vector<std::string> const &, std::vector<std::string> const &);
 
     /** @brief The destructor */
-    G_API_COMMON ~GCLParsableI() override = default;
+    ~GCLParsableI() override = default;
 
     /***************************************************************************/
     // Prevent copying, moving and default construction
@@ -2138,10 +2138,10 @@ private:
 class GParserBuilder {
 public:
     /** @brief The default constructor */
-    G_API_COMMON GParserBuilder();
+    GParserBuilder();
 
     /** @brief The destructor */
-    virtual G_API_COMMON ~GParserBuilder() = default;
+    virtual ~GParserBuilder() = default;
 
     // Prevent copying and moving
     GParserBuilder(GParserBuilder const &) = delete;
@@ -2150,17 +2150,17 @@ public:
     GParserBuilder &operator=(GParserBuilder &&) = delete;
 
     /** @brief Tries to parse a given configuration file for a set of options */
-    G_API_COMMON bool parseConfigFile(std::filesystem::path const &);
+    bool parseConfigFile(std::filesystem::path const &);
     /** @brief Writes out a configuration file */
-    G_API_COMMON void
+    void
     writeConfigFile(std::filesystem::path const &, std::string const & = "", bool = true) const;
     /** @brief Provides information on the number of file configuration options stored in this class */
-    G_API_COMMON std::size_t numberOfFileOptions() const;
+    std::size_t numberOfFileOptions() const;
 
     /** @brief Parses the commandline for options */
-    G_API_COMMON bool parseCommandLine(int, char **, bool = false);
+    bool parseCommandLine(int, char **, bool = false);
     /** @brief Provides information on the number of command line configuration options stored in this class */
-    G_API_COMMON std::size_t numberOfCLOptions() const;
+    std::size_t numberOfCLOptions() const;
 
     /***************************************************************************/
     /**

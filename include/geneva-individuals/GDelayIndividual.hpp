@@ -98,34 +98,34 @@ class GDelayIndividual
 
 public:
     /** The default constructor */
-    G_API_INDIVIDUALS GDelayIndividual();
+    GDelayIndividual();
     /** @brief A standard copy constructor */
-    G_API_INDIVIDUALS GDelayIndividual(const GDelayIndividual &);
+    GDelayIndividual(const GDelayIndividual &);
     /** @brief The standard destructor */
-    virtual G_API_INDIVIDUALS ~GDelayIndividual();
+    virtual ~GDelayIndividual();
 
     /** @brief Sets the sleep-time to a user-defined value */
-    G_API_INDIVIDUALS void setFixedSleepTime(const std::chrono::duration<double> &);
+    void setFixedSleepTime(const std::chrono::duration<double> &);
     /** @brief Retrieval of the current value of the fixedSleepTime_ variable */
-    G_API_INDIVIDUALS std::chrono::duration<double> getFixedSleepTime() const;
+    std::chrono::duration<double> getFixedSleepTime() const;
 
     /** @brief Indicate that the fitness function may crash at the end of the sleep time */
-    G_API_INDIVIDUALS void setMayCrash(bool, double);
+    void setMayCrash(bool, double);
     /** @brief Check whether the fitness function may crash at the end of the sleep time */
-    G_API_INDIVIDUALS bool getMayCrash() const;
+    bool getMayCrash() const;
     /** @brief Check the likelihood for a crash at the end of the sleep time */
-    G_API_INDIVIDUALS double getCrashLikelihood() const;
+    double getCrashLikelihood() const;
 
     /** @brief Indicates that the fitness function should sleep for a random time */
-    G_API_INDIVIDUALS void setRandomSleep(bool, std::tuple<double, double>);
+    void setRandomSleep(bool, std::tuple<double, double>);
     /** @brief Checks whether the fitness function has a random sleep schedule */
-    G_API_INDIVIDUALS bool getMaySleepRandomly() const;
+    bool getMaySleepRandomly() const;
     /** @brief Retrieves the time window for random sleeps */
-    G_API_INDIVIDUALS std::tuple<double, double> getSleepWindow() const;
+    std::tuple<double, double> getSleepWindow() const;
 
 protected:
     /** @brief Loads the data of another GDelayIndividual, camouflaged as a GObject */
-    G_API_INDIVIDUALS virtual void load_(const GObject *) final;
+    virtual void load_(const GObject *) final;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GDelayIndividual>(
@@ -135,7 +135,7 @@ protected:
     );
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
-    virtual G_API_INDIVIDUALS void compare_(
+    virtual void compare_(
         const GObject & // the other object
         ,
         const Gem::Common::expectation & // the expectation for this object, e.g. equality
@@ -144,13 +144,13 @@ protected:
     ) const final;
 
     /** @brief The actual adaption operations */
-    virtual G_API_INDIVIDUALS std::size_t customAdaptions() final;
+    virtual std::size_t customAdaptions() final;
     /** @brief The actual fitness calculation takes place here */
-    virtual G_API_INDIVIDUALS double fitnessCalculation() final;
+    virtual double fitnessCalculation() final;
 
 private:
     /** @brief Creates a deep clone of this object */
-    virtual G_API_INDIVIDUALS GObject *clone_() const final;
+    virtual GObject *clone_() const final;
 
     double
         fixedSleepTime_; ///< The amount of time the evaluation function should sleep before continuing (seconds)
@@ -178,35 +178,35 @@ class GDelayIndividualFactory // NOLINT(cppcoreguidelines-special-member-functio
   : public Gem::Common::GFactoryT<GParameterSet> {
 public:
     /** @brief The standard constructor */
-    G_API_INDIVIDUALS GDelayIndividualFactory(std::filesystem::path const &);
+    GDelayIndividualFactory(std::filesystem::path const &);
     /** @brief The destructor */
-    virtual G_API_INDIVIDUALS ~GDelayIndividualFactory();
+    virtual ~GDelayIndividualFactory();
 
     /** @brief Allows to retrieve the name of the result file */
-    G_API_INDIVIDUALS std::string getResultFileName() const;
+    std::string getResultFileName() const;
     /** @brief Allows to retrieve the name of the file holding the short measurement results */
-    G_API_INDIVIDUALS std::string getShortResultFileName() const;
+    std::string getShortResultFileName() const;
     /** @brief Allows to retrieve the number of delays requested by the user */
-    G_API_INDIVIDUALS std::size_t getNDelays() const;
+    std::size_t getNDelays() const;
     /** @brief Allows to retrieve the number of measurements to be made for each delay */
-    G_API_INDIVIDUALS std::uint32_t getNMeasurements() const;
+    std::uint32_t getNMeasurements() const;
     /** @brief Retrieves the amount of seconds main() should wait between two measurements */
-    G_API_INDIVIDUALS std::uint32_t getInterMeasurementDelay() const;
+    std::uint32_t getInterMeasurementDelay() const;
     /** @brief Retrieves the sleep times */
-    G_API_INDIVIDUALS std::vector<std::tuple<unsigned int, unsigned int>> getSleepTimes() const;
+    std::vector<std::tuple<unsigned int, unsigned int>> getSleepTimes() const;
 
 protected:
     /** @brief Allows to describe local configuration options in derived classes */
-    virtual G_API_INDIVIDUALS void describeLocalOptions_(Gem::Common::GParserBuilder &) final;
+    virtual void describeLocalOptions_(Gem::Common::GParserBuilder &) final;
     /** @brief Allows to act on the configuration options received from the configuration file */
-    virtual G_API_INDIVIDUALS void postProcess_(std::shared_ptr<GParameterSet> &) final;
+    virtual void postProcess_(std::shared_ptr<GParameterSet> &) final;
 
 private:
     /** @brief The default constructor. Only needed for (de-)serialization purposes */
     GDelayIndividualFactory() = default;
 
     /** @brief Creates individuals of this type */
-    virtual G_API_INDIVIDUALS std::shared_ptr<GParameterSet>
+    virtual std::shared_ptr<GParameterSet>
     getObject_(Gem::Common::GParserBuilder &, const std::size_t &) final;
 
     /** @brief Converts a tuple to a time format */

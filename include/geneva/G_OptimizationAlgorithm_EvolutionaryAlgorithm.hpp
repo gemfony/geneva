@@ -87,36 +87,36 @@ class GEvolutionaryAlgorithm // NOLINT(cppcoreguidelines-special-member-function
 public:
     /***************************************************************************/
     /** @brief The default constructor */
-    G_API_GENEVA GEvolutionaryAlgorithm();
+    GEvolutionaryAlgorithm();
     /** @brief A standard copy constructor */
-    G_API_GENEVA GEvolutionaryAlgorithm(const GEvolutionaryAlgorithm &) = default;
+    GEvolutionaryAlgorithm(const GEvolutionaryAlgorithm &) = default;
     /** @brief The standard destructor */
-    G_API_GENEVA ~GEvolutionaryAlgorithm() override = default;
+    ~GEvolutionaryAlgorithm() override = default;
 
     /** @brief Sets the sorting scheme */
-    G_API_GENEVA void setSortingScheme(sortingMode smode);
+    void setSortingScheme(sortingMode smode);
     /** @brief Retrieves information about the current sorting scheme */
-    G_API_GENEVA sortingMode getSortingScheme() const;
+    sortingMode getSortingScheme() const;
 
     /** @brief Extracts all individuals on the pareto front */
-    G_API_GENEVA void extractCurrentParetoIndividuals(
+    void extractCurrentParetoIndividuals(
         std::vector<std::shared_ptr<Gem::Geneva::GParameterSet>> &paretoInds
     );
 
     /** @brief Sets the number of threads this population uses for adaption */
-    G_API_GENEVA void setNThreads(std::uint16_t nThreads);
+    void setNThreads(std::uint16_t nThreads);
     /** @brief Retrieves the number of threads this population uses for adaption */
-    G_API_GENEVA std::uint16_t getNThreads() const;
+    std::uint16_t getNThreads() const;
 
 protected:
     /***************************************************************************/
     // Virtual or overridden protected functions
 
     /** @brief Adds local configuration options to a GParserBuilder object */
-    G_API_GENEVA void addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) override;
+    void addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) override;
 
     /** @brief Loads the data of another GEvolutionaryAlgorithm object, camouflaged as a GObject */
-    G_API_GENEVA void load_(const GObject *cp) override;
+    void load_(const GObject *cp) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GEvolutionaryAlgorithm>(
@@ -126,7 +126,7 @@ protected:
     );
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
-    G_API_GENEVA void compare_(
+    void compare_(
         const GObject &cp // the other object
         ,
         const Gem::Common::expectation &e // the expectation for this object, e.g. equality
@@ -135,83 +135,83 @@ protected:
     ) const override;
 
     /** @brief Resets the settings of this population to what was configured when the optimize()-call was issued */
-    G_API_GENEVA void resetToOptimizationStart_() override;
+    void resetToOptimizationStart_() override;
 
     /** @brief Does any necessary initialization work before the optimization cycle starts */
-    G_API_GENEVA void init() override;
+    void init() override;
     /** @brief Does any necessary finalization work */
-    G_API_GENEVA void finalize() override;
+    void finalize() override;
 
     /** @brief Applies modifications to this object */
-    G_API_GENEVA bool modify_GUnitTests_() override;
+    bool modify_GUnitTests_() override;
     /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-    G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests_() override;
+    void specificTestsNoFailureExpected_GUnitTests_() override;
     /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-    G_API_GENEVA void specificTestsFailuresExpected_GUnitTests_() override;
+    void specificTestsFailuresExpected_GUnitTests_() override;
 
     /***************************************************************************/
 
     /** @brief Fixes the population after a job submission */
-    G_API_GENEVA void fixAfterJobSubmission();
+    void fixAfterJobSubmission();
 
 private:
     /***************************************************************************/
     // Overloaded or virtual base functions
 
     /** @brief Emits a name for this class / object */
-    G_API_GENEVA std::string name_() const override;
+    std::string name_() const override;
     /** @brief Creates a deep copy of this object */
-    G_API_GENEVA GObject *clone_() const override;
+    GObject *clone_() const override;
 
     /** @brief We submit individuals to the broker connector and wait for processed items */
-    G_API_GENEVA void runFitnessCalculation_() override;
+    void runFitnessCalculation_() override;
 
     /** @brief Returns information about the type of optimization algorithm. */
-    G_API_GENEVA std::string getAlgorithmPersonalityType_() const override;
+    std::string getAlgorithmPersonalityType_() const override;
     /** @brief Returns the name of this optimization algorithm */
-    G_API_GENEVA std::string getAlgorithmName_() const override;
+    std::string getAlgorithmName_() const override;
 
     /** @brief Adds the individuals of this iteration to a priority queue */
-    G_API_GENEVA void
+    void
     updateGlobalBestsPQ_(GParameterSetFixedSizePriorityQueue &bestIndividuals) override;
     /** @brief Adds the individuals of this iteration to a priority queue */
-    G_API_GENEVA void
+    void
     updateIterationBestsPQ_(GParameterSetFixedSizePriorityQueue &bestIndividuals) override;
 
     /** @brief Retrieve a GPersonalityTraits object belonging to this algorithm */
-    G_API_GENEVA std::shared_ptr<GPersonalityTraits> getPersonalityTraits_() const override;
+    std::shared_ptr<GPersonalityTraits> getPersonalityTraits_() const override;
 
     /** @brief Adapt all children in parallel */
-    G_API_GENEVA void adaptChildren_() override;
+    void adaptChildren_() override;
     /** @brief Choose new parents, based on the selection scheme set by the user */
-    G_API_GENEVA void selectBest_() override;
+    void selectBest_() override;
 
     /** @brief Some error checks related to population sizes */
-    G_API_GENEVA void populationSanityChecks_() const override;
+    void populationSanityChecks_() const override;
     /** @brief Retrieves the evaluation range in a given iteration and sorting scheme */
-    G_API_GENEVA std::tuple<std::size_t, std::size_t> getEvaluationRange_() const override;
+    std::tuple<std::size_t, std::size_t> getEvaluationRange_() const override;
 
     /***************************************************************************/
 
     /** @brief Selection, MUPLUSNU_SINGLEEVAL style */
-    G_API_GENEVA void sortMuPlusNuMode();
+    void sortMuPlusNuMode();
     /** @brief Selection, MUCOMMANU_SINGLEEVAL style */
-    G_API_GENEVA void sortMuCommaNuMode();
+    void sortMuCommaNuMode();
     /** @brief Selection, MUNU1PRETAIN_SINGLEEVAL style */
-    G_API_GENEVA void sortMunu1pretainMode();
+    void sortMunu1pretainMode();
 
     /** @brief Selection according to the pareto tag, also taking into account the parents of a population (i.e. in MUPLUSNU mode). */
-    G_API_GENEVA void sortMuPlusNuParetoMode();
+    void sortMuPlusNuParetoMode();
     /** @brief Selection according to the pareto tag, not taking into account the parents of a population (i.e. in MUCOMMANU mode). */
-    G_API_GENEVA void sortMuCommaNuParetoMode();
+    void sortMuCommaNuParetoMode();
     /** @brief Determines whether the first individual dominates the second */
-    G_API_GENEVA bool aDominatesB(
+    bool aDominatesB(
         const std::shared_ptr<GParameterSet> &a,
         const std::shared_ptr<GParameterSet> &b
     ) const;
 
     /** @brief Fills the collection with individuals */
-    G_API_GENEVA void fillWithObjects(const std::size_t &nIndividuals);
+    void fillWithObjects(const std::size_t &nIndividuals);
 
     /***************************************************************************/
     // Local data

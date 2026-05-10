@@ -78,9 +78,9 @@ const std::size_t NPERFOBJECTTYPES = 5;
 
 /******************************************************************************/
 /** @brief Puts a Gem::Common::logType into a stream. Needed also for boost::lexical_cast<> */
-G_API_INDIVIDUALS std::ostream &operator<<(std::ostream &, const Gem::Tests::PERFOBJECTTYPE &);
+std::ostream &operator<<(std::ostream &, const Gem::Tests::PERFOBJECTTYPE &);
 /** @brief Reads a Gem::Common::logType from a stream. Needed also for boost::lexical_cast<> */
-G_API_INDIVIDUALS std::istream &operator>>(std::istream &, Gem::Tests::PERFOBJECTTYPE &);
+std::istream &operator>>(std::istream &, Gem::Tests::PERFOBJECTTYPE &);
 
 /******************************************************************************/
 /**
@@ -103,16 +103,16 @@ class GTestIndividual2
 
 public:
     /** @brief The default constructor */
-    G_API_INDIVIDUALS GTestIndividual2(const std::size_t &, const PERFOBJECTTYPE &);
+    GTestIndividual2(const std::size_t &, const PERFOBJECTTYPE &);
     /** @brief The copy constructor */
-    G_API_INDIVIDUALS GTestIndividual2(const GTestIndividual2 &);
+    GTestIndividual2(const GTestIndividual2 &);
 
     /** @brief The standard destructor */
-    virtual G_API_INDIVIDUALS ~GTestIndividual2();
+    virtual ~GTestIndividual2();
 
 protected:
     /** @brief Loads the data of another GTestIndividual2 */
-    virtual G_API_INDIVIDUALS void load_(const GObject *) final;
+    virtual void load_(const GObject *) final;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GTestIndividual2>(
@@ -122,7 +122,7 @@ protected:
     );
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
-    virtual G_API_INDIVIDUALS void compare_(
+    virtual void compare_(
         const GObject & // the other object
         ,
         const Gem::Common::expectation & // the expectation for this object, e.g. equality
@@ -131,18 +131,18 @@ protected:
     ) const final;
 
     /** @brief The actual fitness calculation takes place here. */
-    virtual G_API_INDIVIDUALS double fitnessCalculation() final;
+    virtual double fitnessCalculation() final;
 
     /** @brief Applies modifications to this object. */
-    virtual G_API_INDIVIDUALS bool modify_GUnitTests_();
+    virtual bool modify_GUnitTests_();
     /** @brief Performs self tests that are expected to succeed. */
-    virtual G_API_INDIVIDUALS void specificTestsNoFailureExpected_GUnitTests_();
+    virtual void specificTestsNoFailureExpected_GUnitTests_();
     /** @brief Performs self tests that are expected to fail. */
-    virtual G_API_INDIVIDUALS void specificTestsFailuresExpected_GUnitTests_();
+    virtual void specificTestsFailuresExpected_GUnitTests_();
 
 private:
     /** @brief Creates a deep clone of this object */
-    virtual G_API_INDIVIDUALS GObject *clone_() const final;
+    virtual GObject *clone_() const final;
 
     /** @brief The default constructor -- protected, as it is only needed for (de-)serialization purposes */
     GTestIndividual2();

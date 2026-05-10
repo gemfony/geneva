@@ -75,11 +75,11 @@ enum class metaOptimizationTarget : Gem::Common::ENUMBASETYPE {
 // Input and output of metaOptimizationTarget, so we can serialize this data
 
 /** @brief Puts a Gem::Geneva::metaOptimizationTarget into a stream. Needed also for boost::lexical_cast<> */
-G_API_INDIVIDUALS std::ostream &
+std::ostream &
 operator<<(std::ostream &, const Gem::Geneva::metaOptimizationTarget &);
 
 /** @brief Reads a Gem::Geneva::metaOptimizationTarget from a stream. Needed also for boost::lexical_cast<> */
-G_API_INDIVIDUALS std::istream &operator>>(std::istream &, Gem::Geneva::metaOptimizationTarget &);
+std::istream &operator>>(std::istream &, Gem::Geneva::metaOptimizationTarget &);
 
 /******************************************************************************/
 // A number of default settings for the factory and individual

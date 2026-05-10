@@ -85,20 +85,20 @@ class GSimpleContainer // NOLINT(cppcoreguidelines-special-member-functions)
 
 public:
     /** @brief The standard constructor -- Initialization with an amount of random numbers */
-    G_API_COURTIER explicit GSimpleContainer(const std::size_t &);
+    explicit GSimpleContainer(const std::size_t &);
     /** @brief The copy constructor */
-    G_API_COURTIER GSimpleContainer(const GSimpleContainer &) = default;
+    GSimpleContainer(const GSimpleContainer &) = default;
     /** @brief The destructor */
-    G_API_COURTIER ~GSimpleContainer() override = default;
+    ~GSimpleContainer() override = default;
 
     /** @brief Prints out this objects random number container */
-    G_API_COURTIER void print() const;
+    void print() const;
 
 private:
     /** @brief The default constructor -- only needed for de-serialization purposes */
-    G_API_COURTIER GSimpleContainer() = default;
+    GSimpleContainer() = default;
     /** @brief Allows to specify the tasks to be performed for this object */
-    G_API_COURTIER void process_(const std::vector<bool> &res_vec = std::vector<bool>()) final;
+    void process_(const std::vector<bool> &res_vec = std::vector<bool>()) final;
 
     std::size_t stored_number_ = 0; ///< Holds the pay-load of this object
 };
@@ -126,32 +126,32 @@ class GRandomNumberContainer
 
 public:
     /** @brief The standard constructor -- Initialization with an amount of random numbers */
-    explicit G_API_COURTIER GRandomNumberContainer(const std::size_t &);
+    explicit GRandomNumberContainer(const std::size_t &);
 
     /******************************************************************************************/
     // Defaulted constructors, destructor and assignment operators
 
     // Default constructor is in the private section (only needed for de-serialization)
 
-    G_API_COURTIER GRandomNumberContainer(const GRandomNumberContainer &) = default;
-    G_API_COURTIER ~GRandomNumberContainer() override = default;
+    GRandomNumberContainer(const GRandomNumberContainer &) = default;
+    ~GRandomNumberContainer() override = default;
 
     GRandomNumberContainer &operator=(GRandomNumberContainer const &) = default;
 
     // TODO: Make class movable --> see base class
-    G_API_COURTIER GRandomNumberContainer(GRandomNumberContainer &&) = delete;
-    G_API_COURTIER GRandomNumberContainer &operator=(GRandomNumberContainer &&) = delete;
+    GRandomNumberContainer(GRandomNumberContainer &&) = delete;
+    GRandomNumberContainer &operator=(GRandomNumberContainer &&) = delete;
 
     /******************************************************************************************/
 
     /** @brief Prints out this objects random number container */
-    G_API_COURTIER void print() const;
+    void print() const;
 
 private:
     /** @brief The default constructor -- only needed for de-serialization purposes */
-    G_API_COURTIER GRandomNumberContainer() = default;
+    GRandomNumberContainer() = default;
     /** @brief Allows to specify the tasks to be performed for this object */
-    G_API_COURTIER void process_(const std::vector<bool> &res_vec = std::vector<bool>()) final;
+    void process_(const std::vector<bool> &res_vec = std::vector<bool>()) final;
 
     std::vector<double> randomNumbers_; ///< Holds the pay-load of this object
 };

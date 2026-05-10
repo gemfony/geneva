@@ -66,26 +66,26 @@ class GSimulatedAnnealing_PersonalityTraits // NOLINT(cppcoreguidelines-special-
 
 public:
     /** @brief An easy identifier for the class */
-    static G_API_GENEVA const std::string nickname; // Initialized in the .cpp definition file
+    static const std::string nickname; // Initialized in the .cpp definition file
 
     /** @brief The default constructor */
-    G_API_GENEVA GSimulatedAnnealing_PersonalityTraits() = default;
+    GSimulatedAnnealing_PersonalityTraits() = default;
     /** @brief The copy contructor */
-    G_API_GENEVA
+    
     GSimulatedAnnealing_PersonalityTraits(const GSimulatedAnnealing_PersonalityTraits &) = default;
 
     /** @brief The standard destructor */
-    G_API_GENEVA ~GSimulatedAnnealing_PersonalityTraits() override = default;
+    ~GSimulatedAnnealing_PersonalityTraits() override = default;
 
     /** @brief Retrieves the mnemonic of the optimization algorithm */
-    G_API_GENEVA std::string getMnemonic() const override;
+    std::string getMnemonic() const override;
 
 protected:
     /***************************************************************************/
     // Virtual or overridden protected functions
 
     /** @brief Loads the data of another GSAPersonalityTraits object */
-    G_API_GENEVA void load_(const GObject *) override;
+    void load_(const GObject *) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GSimulatedAnnealing_PersonalityTraits>(
@@ -95,7 +95,7 @@ protected:
     );
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
-    G_API_GENEVA void compare_(
+    void compare_(
         const GObject & // the other object
         ,
         const Gem::Common::expectation & // the expectation for this object, e.g. equality
@@ -104,19 +104,19 @@ protected:
     ) const override;
 
     /** @brief Applies modifications to this object. This is needed for testing purposes */
-    G_API_GENEVA bool modify_GUnitTests_() override;
+    bool modify_GUnitTests_() override;
     /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-    G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests_() override;
+    void specificTestsNoFailureExpected_GUnitTests_() override;
     /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-    G_API_GENEVA void specificTestsFailuresExpected_GUnitTests_() override;
+    void specificTestsFailuresExpected_GUnitTests_() override;
 
     /***************************************************************************/
 
 private:
     /** @brief Emits a name for this class / object */
-    G_API_GENEVA std::string name_() const override;
+    std::string name_() const override;
     /** @brief Creates a deep clone of this object */
-    G_API_GENEVA GObject *clone_() const override;
+    GObject *clone_() const override;
 };
 
 /******************************************************************************/

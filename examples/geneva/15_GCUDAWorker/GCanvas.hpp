@@ -146,11 +146,11 @@ using t_circle = struct triangle_circle_struct {
 };
 
 /** @brief Simplify debugging output */
-G_API_COMMON std::ostream &operator<<(std::ostream &, t_circle const &);
+std::ostream &operator<<(std::ostream &, t_circle const &);
 /** @brief Simplify comparison of two t_circle structs */
-G_API_COMMON bool operator==(t_circle const &, t_circle const &);
+bool operator==(t_circle const &, t_circle const &);
 /** @brief Simplify comparison of two t_circle structs */
-G_API_COMMON bool operator!=(t_circle const &, t_circle const &);
+bool operator!=(t_circle const &, t_circle const &);
 
 /******************************************************************************/
 /**
@@ -198,28 +198,28 @@ private:
 
 public:
     /** @brief Initialization with colors */
-    G_API_COMMON GRgb(float, float, float);
+    GRgb(float, float, float);
     /** @brief Initialization with colors held in a std::tuple */
-    explicit G_API_COMMON GRgb(std::tuple<float, float, float> const &);
+    explicit GRgb(std::tuple<float, float, float> const &);
 
     //----------------------------------------------------
     // Defaulted constructors and destructors
     // Rule of five ...
 
-    G_API_COMMON GRgb() = default;
-    G_API_COMMON GRgb(GRgb const &) = default;
-    G_API_COMMON GRgb(GRgb &&) = default;
-    G_API_COMMON ~GRgb() = default;
+    GRgb() = default;
+    GRgb(GRgb const &) = default;
+    GRgb(GRgb &&) = default;
+    ~GRgb() = default;
 
-    G_API_COMMON GRgb &operator=(GRgb const &) = default;
-    G_API_COMMON GRgb &operator=(GRgb &&) = default;
+    GRgb &operator=(GRgb const &) = default;
+    GRgb &operator=(GRgb &&) = default;
 
     //--------------------------------------------
 
     /** @brief Explicit reset of colors */
-    G_API_COMMON void setColor(float, float, float);
+    void setColor(float, float, float);
     /** @brief Explicit reset of colors, using a std::tuple */
-    G_API_COMMON void setColor(std::tuple<float, float, float> const &);
+    void setColor(std::tuple<float, float, float> const &);
 
     float r = 0.f; ///< red
     float g = 0.f; ///< green
@@ -246,36 +246,36 @@ class GColumn {
 
 public:
     /** @brief Initialization with dimensions and colors */
-    G_API_COMMON GColumn(std::size_t, std::tuple<float, float, float> const &);
+    GColumn(std::size_t, std::tuple<float, float, float> const &);
 
     //----------------------------------------------------
     // Defaulted constructors and destructors
     // Rule of five ...
 
-    G_API_COMMON GColumn() = default;
-    G_API_COMMON GColumn(GColumn const &) = default;
-    G_API_COMMON GColumn(GColumn &&) = default;
-    G_API_COMMON ~GColumn() = default;
+    GColumn() = default;
+    GColumn(GColumn const &) = default;
+    GColumn(GColumn &&) = default;
+    ~GColumn() = default;
 
-    G_API_COMMON GColumn &operator=(GColumn const &) = default;
-    G_API_COMMON GColumn &operator=(GColumn &&) = default;
+    GColumn &operator=(GColumn const &) = default;
+    GColumn &operator=(GColumn &&) = default;
 
     //--------------------------------------------
 
     /** @brief Information about the size of this object */
-    [[nodiscard]] G_API_COMMON std::size_t size() const;
+    [[nodiscard]] std::size_t size() const;
 
     /** @brief Unchecked access */
-    G_API_COMMON GRgb &operator[](std::size_t);
+    GRgb &operator[](std::size_t);
     /** @brief Checked access */
-    G_API_COMMON GRgb &at(std::size_t);
+    GRgb &at(std::size_t);
     /** @brief Unchecked access */
-    G_API_COMMON const GRgb &operator[](std::size_t) const;
+    const GRgb &operator[](std::size_t) const;
     /** @brief Checked access */
-    G_API_COMMON const GRgb &at(std::size_t) const;
+    const GRgb &at(std::size_t) const;
 
     /** @brief Initializes the object to a specific size */
-    G_API_COMMON void init(std::size_t, std::tuple<float, float, float> const &);
+    void init(std::size_t, std::tuple<float, float, float> const &);
 
 private:
     std::vector<GRgb> column_data_mnt_; ///< Holds this column's pixels
@@ -950,10 +950,10 @@ class GCanvas8 : public GCanvas<8> {
 
 public:
     /** @brief Initialization with dimensions and colors */
-    G_API_COMMON
+    
     GCanvas8(std::tuple<std::size_t, std::size_t> const &, std::tuple<float, float, float> const &);
     /** @brief Initialization from data held in a string -- uses the PPM-P3 format */
-    explicit G_API_COMMON GCanvas8(std::string const &);
+    explicit GCanvas8(std::string const &);
     /** @brief Copy construction */
 
     //----------------------------------------------------
@@ -972,7 +972,7 @@ public:
 };
 
 /** @brief Convenience function for the calculation of the difference between two canvasses */
-G_API_COMMON float operator-(GCanvas8 const &, GCanvas8 const &);
+float operator-(GCanvas8 const &, GCanvas8 const &);
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -994,13 +994,13 @@ class GCanvas16 : public GCanvas<16> {
 
 public:
     /** @brief Initialization with dimensions and colors */
-    G_API_COMMON GCanvas16(
+    GCanvas16(
         std::tuple<std::size_t, std::size_t> const &,
         std::tuple<float, float, float> const &
     );
 
     /** @brief Initialization from data held in a string -- uses the PPM-P3 format */
-    explicit G_API_COMMON GCanvas16(std::string const &);
+    explicit GCanvas16(std::string const &);
 
     //----------------------------------------------------
     // Defaulted constructors and destructors
@@ -1019,7 +1019,7 @@ public:
 };
 
 /** @brief Convenience function for the calculation of the difference between two canvasses */
-G_API_COMMON float operator-(GCanvas16 const &, GCanvas16 const &);
+float operator-(GCanvas16 const &, GCanvas16 const &);
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -1041,12 +1041,12 @@ class GCanvas24 : public GCanvas<24> {
 
 public:
     /** @brief Initialization with dimensions and colors */
-    G_API_COMMON GCanvas24(
+    GCanvas24(
         std::tuple<std::size_t, std::size_t> const &,
         std::tuple<float, float, float> const &
     );
     /** @brief Initialization from data held in a string -- uses the PPM-P3 format */
-    explicit G_API_COMMON GCanvas24(std::string const &);
+    explicit GCanvas24(std::string const &);
 
     //----------------------------------------------------
     // Defaulted constructors and destructors
@@ -1065,7 +1065,7 @@ public:
 };
 
 /** @brief Convenience function for the calculation of the difference between two canvasses */
-G_API_COMMON float operator-(GCanvas24 const &, GCanvas24 const &);
+float operator-(GCanvas24 const &, GCanvas24 const &);
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////

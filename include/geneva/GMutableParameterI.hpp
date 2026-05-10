@@ -51,10 +51,10 @@ namespace Gem::Geneva {
 class GMutableParameterI {
 public:
     /** @brief The standard destructor */
-    virtual G_API_GENEVA ~GMutableParameterI() = default;
+    virtual ~GMutableParameterI() = default;
 
     /** @brief Allows derivatives to be adapted */
-    virtual G_API_GENEVA std::size_t adapt(Gem::Hap::GRandomBase &) = 0;
+    virtual std::size_t adapt(Gem::Hap::GRandomBase &) = 0;
 };
 
 } /* namespace Gem::Geneva */

@@ -124,10 +124,6 @@ IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
 	################################################################################
 	# Geneva only supports shared libraries
 
-	# This preprocessor definition is required for knowing
-	# if API-exporting is needed in the code or not
-	ADD_DEFINITIONS("-DGEM_DYNAMIC")
-
 	################################################################################
 	# Set the preprocessor definition for enabling testing code
 
@@ -145,10 +141,6 @@ IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
 	)
 
 	SET (Boost_USE_STATIC_LIBS OFF)
-	IF(WIN32)
-		# Disable auto-linking
-		ADD_DEFINITIONS("-DBOOST_ALL_DYN_LINK")
-	ENDIF()
 
 	# The minimum Boost version required for building Geneva and Geneva applications
 	SET (GENEVA_MIN_BOOST_VERSION 1.90)
@@ -162,16 +154,6 @@ IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
 			serialization
 			program_options
 	)
-
-	IF(WIN32)
-		# Boost.Thread requires Boost.Chrono, required for linking in Windows
-		SET (
-				GENEVA_BOOST_LIBS
-				${GENEVA_BOOST_LIBS}
-				chrono
-				date_time
-		)
-	ENDIF()
 
 	# Use Boost's own BoostConfig.cmake (available since Boost 1.70) rather than
 	# CMake's legacy FindBoost module, which was removed in CMake 4.x (CMP0167).
@@ -209,11 +191,6 @@ IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
 		ENDIF()
 	ENDIF()
 
-	# Add compile-time debug information about Boost's linked libraries
-	IF(WIN32 AND CMAKE_VERBOSE_MAKEFILE)
-		ADD_DEFINITIONS(${Boost_LIB_DIAGNOSTIC_DEFINITIONS})
-	ENDIF()
-
 	################################################################################
 	# The names of the Geneva libraries
 
@@ -240,20 +217,10 @@ IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
 	SET ( GENEVA_LIBRARIES ${GENEVA_LIBNAMES} )
 
 	################################################################################
-	# Add additional libraries if required
+	# Add a custom target to run a "make clean" and remove temporaries,
+	# so the configuration process may start fresh.
 
-	IF(UNIX)
-		FIND_LIBRARY( PTHREAD_LIBRARY NAMES pthread
-				DOC "The threading library needed by Geneva"
-		)
-	ENDIF()
-
-	################################################################################
-	# On a Unix-system, add a custom target to run a "make clean" and remove
-	# temporaries, so the configuration process may start fresh. The make
-	# command will not be available on windows.
-
-	IF (UNIX AND NOT TARGET "clean-cmake")
+	IF (NOT TARGET "clean-cmake")
 		ADD_CUSTOM_TARGET(
 				"clean-cmake"
 				COMMAND ${CMAKE_BUILD_TOOL} clean 2>&1 > /dev/null

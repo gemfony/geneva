@@ -74,56 +74,56 @@ class GToken // NOLINT(cppcoreguidelines-special-member-functions)
 {
 public:
     /** @brief The standard constructor -- initialization with class name and expectation */
-    G_API_COMMON GToken(std::string, Gem::Common::expectation);
+    GToken(std::string, Gem::Common::expectation);
 
     /*************************************************************************/
     // Defaulted or deleted constructors, destructor and assignment operators
     // We enforce the usage of a signle constructor and prevent any assignment.
 
-    G_API_COMMON GToken() = delete;
-    G_API_COMMON GToken(GToken const &) = delete;
-    G_API_COMMON GToken(GToken &&) = delete;
+    GToken() = delete;
+    GToken(GToken const &) = delete;
+    GToken(GToken &&) = delete;
 
-    G_API_COMMON GToken &operator=(GToken const &) = delete;
-    G_API_COMMON GToken &operator=(GToken &&) = delete;
+    GToken &operator=(GToken const &) = delete;
+    GToken &operator=(GToken &&) = delete;
 
     /*************************************************************************/
 
     /** @brief Increments the test counter */
-    G_API_COMMON void incrTestCounter();
+    void incrTestCounter();
     /** @brief Increments the counter of tests that met the expectation */
-    G_API_COMMON void incrSuccessCounter();
+    void incrSuccessCounter();
 
     /** @brief Allows to retrieve the current state of the success counter */
-    G_API_COMMON std::size_t getSuccessCounter() const;
+    std::size_t getSuccessCounter() const;
     /** @brief Allows to retrieve the current state of the test counter */
-    G_API_COMMON std::size_t getTestCounter() const;
+    std::size_t getTestCounter() const;
 
     /** @brief Allows to check whether the expectation was met */
-    G_API_COMMON bool expectationMet() const;
+    bool expectationMet() const;
     /** @brief Conversion to a boolean indicating whether the expectation was met */
-    G_API_COMMON operator bool() const; // NOLINT
+    operator bool() const; // NOLINT
 
     /** @brief Allows to retrieve the expectation token */
-    G_API_COMMON Gem::Common::expectation getExpectation() const;
+    Gem::Common::expectation getExpectation() const;
     /** @brief Allows to retrieve the expectation token as a string */
-    G_API_COMMON std::string getExpectationStr() const;
+    std::string getExpectationStr() const;
     /** @brief Allows to retrieve the name of the caller */
-    G_API_COMMON std::string getCallerName() const;
+    std::string getCallerName() const;
 
     /** @brief Allows to register an error message e.g. obtained from a failed check */
-    G_API_COMMON void registerErrorMessage(std::string const &);
+    void registerErrorMessage(std::string const &);
     /** @brief Allows to register an exception obtained from a failed check */
-    G_API_COMMON void registerErrorMessage(g_expectation_violation const &);
+    void registerErrorMessage(g_expectation_violation const &);
 
     /** @brief Allows to retrieve the currently registered error messages */
-    G_API_COMMON std::string getErrorMessages() const;
+    std::string getErrorMessages() const;
 
     /** @brief Conversion to a string indicating success or failure */
-    G_API_COMMON std::string toString() const;
+    std::string toString() const;
 
     /** @brief Evaluates the information in this object */
-    G_API_COMMON void evaluate() const;
+    void evaluate() const;
 
 private:
     /** @brief Counts all tests vs. tests that have met the expectation */
@@ -141,7 +141,7 @@ private:
 /**
  * This function facilitates the output of GToken objects, mostly for debugging purposes.
  */
-G_API_COMMON std::ostream &operator<<(std::ostream &s, GToken const &g);
+std::ostream &operator<<(std::ostream &s, GToken const &g);
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -1250,7 +1250,7 @@ void compare(
 
 /******************************************************************************/
 /** @brief This function checks whether two objects of type boost::logic::tribool meet a given expectation. */
-G_API_COMMON
+
 void compare(
     boost::logic::tribool const &,
     boost::logic::tribool const &,
