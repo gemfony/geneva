@@ -44,7 +44,6 @@
 
 // Boost header files go here
 #include <boost/serialization/nvp.hpp>
-#include <boost/tokenizer.hpp>
 
 // Geneva header files go here
 #include "common/GCommonHelperFunctionsT.hpp"

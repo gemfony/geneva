@@ -30,7 +30,6 @@
 #include "common/GCommonHelperFunctions.hpp"
 
 // Boost headers needed for implementation only
-#include <boost/algorithm/string.hpp>
 #include <boost/fusion/adapted/std_tuple.hpp> // needed by Spirit qi for std::tuple output
 #include <boost/fusion/include/boost_tuple.hpp>
 #include <boost/fusion/include/tuple.hpp>
@@ -43,7 +42,6 @@
 #include <boost/spirit/include/qi_numeric.hpp>
 #include <boost/spirit/include/qi_operator.hpp>
 #include <boost/spirit/include/qi_string.hpp>
-#include <boost/tokenizer.hpp>
 
 namespace {
 std::mutex g_hwt_read_mutex;         // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
@@ -305,16 +303,32 @@ std::vector<std::string> splitString(std::string const &str, const char *sep) {
     }
 #endif /* DEBUG */
 
-    using tokenizer = boost::tokenizer<boost::char_separator<char>>;
-    boost::char_separator<char> sep_char(sep);
-    tokenizer oaTokenizer(str, sep_char);
-    for(auto const &token : oaTokenizer) {
-        std::string frag = token;
-        boost::trim(frag); // Remove any leading or trailing white spaces
-        if(frag.empty())
-            continue; // Ignore empty strings
-        result.push_back(frag);
+    char sep_char = sep[0];
+    std::string::size_type start = 0;
+    std::string::size_type pos;
+    while((pos = str.find(sep_char, start)) != std::string::npos) {
+        std::string frag = str.substr(start, pos - start);
+        // Trim leading/trailing whitespace
+        auto b = frag.find_first_not_of(" \t\r\n");
+        auto e = frag.find_last_not_of(" \t\r\n");
+        if(b != std::string::npos)
+            frag = frag.substr(b, e - b + 1);
+        else
+            frag.clear();
+        if(not frag.empty())
+            result.push_back(std::move(frag));
+        start = pos + 1;
     }
+    // Remainder after the last separator
+    std::string frag = str.substr(start);
+    auto b = frag.find_first_not_of(" \t\r\n");
+    auto e = frag.find_last_not_of(" \t\r\n");
+    if(b != std::string::npos)
+        frag = frag.substr(b, e - b + 1);
+    else
+        frag.clear();
+    if(not frag.empty())
+        result.push_back(std::move(frag));
 
     return result;
 }
