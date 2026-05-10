@@ -43,8 +43,6 @@
 #include <vector>
 
 // Boost header files go here
-#include <boost/algorithm/string.hpp>
-#include <boost/algorithm/string/trim.hpp>
 
 // Geneva header files go here
 #include "common/GCommonMathHelperFunctionsT.hpp"

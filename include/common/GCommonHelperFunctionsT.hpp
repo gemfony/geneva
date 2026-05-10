@@ -55,7 +55,6 @@
 #include <vector>
 
 // Boost headers go here
-#include <boost/algorithm/string.hpp>
 #include <boost/math/special_functions/next.hpp>
 
 // Geneva headers go here
@@ -166,7 +165,10 @@ std::optional<target_type> environmentVariableAs(std::string const &var) {
 #endif
     } // releases the lock
 
-    boost::trim(result_str);
+    auto ltrim = result_str.find_first_not_of(" \t\r\n");
+    auto rtrim = result_str.find_last_not_of(" \t\r\n");
+    if(ltrim != std::string::npos) result_str = result_str.substr(ltrim, rtrim - ltrim + 1);
+    else result_str.clear();
     return {Gem::Common::from_string<target_type>(result_str)};
 }
 

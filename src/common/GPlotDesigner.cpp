@@ -3098,7 +3098,10 @@ std::string GPlotDesigner::plot(const std::filesystem::path &plotName) const {
     // Check if we are supposed to output a png file
     if(add_print_command_ && plotName.string() != "empty" && not(plotName.string()).empty()) {
         std::string plotName_local = plotName.string(); // Make sure there are no white spaces
-        boost::trim(plotName_local);
+        auto ltrim = plotName_local.find_first_not_of(" \t\r\n");
+        auto rtrim = plotName_local.find_last_not_of(" \t\r\n");
+        if(ltrim != std::string::npos) plotName_local = plotName_local.substr(ltrim, rtrim - ltrim + 1);
+        else plotName_local.clear();
         result << std::endl
                << indent() << "// Print out the data of this file to a png file" << std::endl
                << indent() << "cc->Print(\"" << plotName_local << ".png\");" << std::endl;

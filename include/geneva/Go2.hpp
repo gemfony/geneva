@@ -37,7 +37,6 @@
 #include <mutex>
 
 // Boost header files go here
-#include <boost/algorithm/string.hpp>
 
 // Geneva headers go here
 #include "common/GCommonEnums.hpp"

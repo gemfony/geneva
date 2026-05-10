@@ -53,7 +53,6 @@
 //   #68-D  – integer conversion sign change    (boost/mpl/print.hpp)
 //   #186-D – unsigned comparison with zero     (boost/mp11, via ptree/multi_index)
 //   #191-D – meaningless cast qualifier        (boost/archive/detail/iserializer.hpp)
-#include <boost/algorithm/string.hpp>
 #include <boost/archive/binary_iarchive.hpp>
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
