@@ -527,7 +527,7 @@ std::istream &operator>>(std::istream &i, Gem::Geneva::trainingDataType &tdt) {
     i >> tmp;
 
 #ifdef DEBUG
-    tdt = boost::numeric_cast<Gem::Geneva::trainingDataType>(tmp);
+    tdt = Gem::Common::narrow_cast<Gem::Geneva::trainingDataType>(tmp);
 #else
     tdt = static_cast<Gem::Geneva::trainingDataType>(tmp);
 #endif /* DEBUG */
@@ -564,7 +564,7 @@ std::istream &operator>>(std::istream &i, Gem::Geneva::transferFunction &tF) {
     i >> tmp;
 
 #ifdef DEBUG
-    tF = boost::numeric_cast<Gem::Geneva::transferFunction>(tmp);
+    tF = Gem::Common::narrow_cast<Gem::Geneva::transferFunction>(tmp);
 #else
     tF = static_cast<Gem::Geneva::transferFunction>(tmp);
 #endif /* DEBUG */

@@ -35,7 +35,6 @@
 // Standard header files go here
 
 // Boost header files go here
-#include <boost/cast.hpp>
 
 // Geneva header files go here
 #include "geneva/GBooleanAdaptor.hpp"

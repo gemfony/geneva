@@ -48,7 +48,6 @@
 #include <vector>
 
 // Boost headers go here
-#include <boost/cast.hpp>
 
 // Gemfony headers go here
 #include "common/GCommonEnums.hpp"
@@ -511,7 +510,7 @@ void compare(
     switch(e) {
     case Gem::Common::expectation::FP_SIMILARITY:
         expectation_str = "FP_SIMILARITY";
-        if(std::abs(x - y) < boost::numeric_cast<fp_type>(limit)) {
+        if(std::abs(x - y) < Gem::Common::narrow_cast<fp_type>(limit)) {
             expectationMet = true;
         }
         break;
@@ -757,14 +756,14 @@ void compare(
         typename c_type<fp_type, std::allocator<fp_type>>::const_iterator x_it, y_it;
         if(Gem::Common::expectation::FP_SIMILARITY == e) {
             for(x_it = x.begin(), y_it = y.begin(); x_it != x.end(); ++x_it, ++y_it) {
-                if(std::abs(*x_it - *y_it) >= boost::numeric_cast<fp_type>(limit)) {
+                if(std::abs(*x_it - *y_it) >= Gem::Common::narrow_cast<fp_type>(limit)) {
                     foundDeviation = true;
                     deviation_pos =
-                        boost::numeric_cast<std::size_t>(std::distance(x.begin(), x_it));
+                        Gem::Common::narrow_cast<std::size_t>(std::distance(x.begin(), x_it));
                     error << "Found deviation between containers:" << std::endl
                           << x_name << "[" << deviation_pos << "] = " << *x_it << "; " << std::endl
                           << y_name << "[" << deviation_pos << "] = " << *y_it << "; " << std::endl
-                          << "limit = " << boost::numeric_cast<fp_type>(limit) << "; " << std::endl
+                          << "limit = " << Gem::Common::narrow_cast<fp_type>(limit) << "; " << std::endl
                           << "deviation = " << std::abs(*x_it - *y_it) << std::endl;
                     break; // break the loop
                 }
@@ -775,7 +774,7 @@ void compare(
                 if(*x_it != *y_it) {
                     foundDeviation = true;
                     deviation_pos =
-                        boost::numeric_cast<std::size_t>(std::distance(x.begin(), x_it));
+                        Gem::Common::narrow_cast<std::size_t>(std::distance(x.begin(), x_it));
                     error << "Found deviation between containers:" << std::endl
                           << x_name << "[" << deviation_pos << "] = " << *x_it << "; " << std::endl
                           << y_name << "[" << deviation_pos << "] = " << *y_it << "; " << std::endl;
@@ -857,14 +856,14 @@ void compare(
             y_it;
         if(Gem::Common::expectation::FP_SIMILARITY == e) {
             for(x_it = x.begin(), y_it = y.begin(); x_it != x.end(); ++x_it, ++y_it) {
-                if(std::abs(*x_it - *y_it) >= boost::numeric_cast<fp_type>(limit)) {
+                if(std::abs(*x_it - *y_it) >= Gem::Common::narrow_cast<fp_type>(limit)) {
                     foundDeviation = true;
                     deviation_pos =
-                        boost::numeric_cast<std::size_t>(std::distance(x.begin(), x_it));
+                        Gem::Common::narrow_cast<std::size_t>(std::distance(x.begin(), x_it));
                     error << "Found deviation between containers:" << std::endl
                           << x_name << "[" << deviation_pos << "] = " << *x_it << "; " << std::endl
                           << y_name << "[" << deviation_pos << "] = " << *y_it << "; " << std::endl
-                          << "limit = " << boost::numeric_cast<fp_type>(limit) << "; " << std::endl
+                          << "limit = " << Gem::Common::narrow_cast<fp_type>(limit) << "; " << std::endl
                           << "deviation = " << std::abs(*x_it - *y_it) << std::endl;
                     break; // break the loop
                 }
@@ -875,7 +874,7 @@ void compare(
                 if(*x_it != *y_it) {
                     foundDeviation = true;
                     deviation_pos =
-                        boost::numeric_cast<std::size_t>(std::distance(x.begin(), x_it));
+                        Gem::Common::narrow_cast<std::size_t>(std::distance(x.begin(), x_it));
                     error << "Found deviation between containers:" << std::endl
                           << x_name << "[" << deviation_pos << "] = " << *x_it << "; " << std::endl
                           << y_name << "[" << deviation_pos << "] = " << *y_it << "; " << std::endl;

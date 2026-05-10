@@ -110,7 +110,7 @@ public:
          * @param The requested worker id
          */
     void setWorkerId(std::size_t workerId) {
-        worker_id_ = boost::numeric_cast<std::int32_t>(workerId);
+        worker_id_ = Gem::Common::narrow_cast<std::int32_t>(workerId);
     }
 
     /************************************************************************/
@@ -129,7 +129,7 @@ public:
             );
         }
         else {
-            return boost::numeric_cast<std::size_t>(worker_id_);
+            return Gem::Common::narrow_cast<std::size_t>(worker_id_);
         }
     }
 

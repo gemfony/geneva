@@ -270,7 +270,7 @@ public:
             );
         }
 
-        return boost::numeric_cast<size_type>(std::count_if(
+        return Gem::Common::narrow_cast<size_type>(std::count_if(
             data_cnt_.begin(),
             data_cnt_.end(),
             [&item](const std::shared_ptr<T> &cont_item) -> bool {

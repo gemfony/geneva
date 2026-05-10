@@ -574,8 +574,8 @@ void GDelayIndividualFactory::postProcess_(std::shared_ptr<Gem::Geneva::GParamet
 std::chrono::duration<double>
 GDelayIndividualFactory::tupleToTime(const std::tuple<unsigned int, unsigned int> &timeTuple) {
     std::chrono::duration<double> t =
-        std::chrono::seconds(boost::numeric_cast<long>(std::get<0>(timeTuple))) +
-        std::chrono::milliseconds(boost::numeric_cast<long>(std::get<1>(timeTuple)));
+        std::chrono::seconds(Gem::Common::narrow_cast<long>(std::get<0>(timeTuple))) +
+        std::chrono::milliseconds(Gem::Common::narrow_cast<long>(std::get<1>(timeTuple)));
 
     return t;
 }

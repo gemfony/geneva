@@ -1603,7 +1603,7 @@ Gem::Courtier::executor_status_t G_OptimizationAlgorithm_Base::workOn(
     const std::string &caller
 ) {
     auto iterationCounter = std::make_tuple<Gem::Courtier::ITERATION_COUNTER_TYPE, bool>(
-        boost::numeric_cast<Gem::Courtier::ITERATION_COUNTER_TYPE>(this->getIteration()),
+        Gem::Common::narrow_cast<Gem::Courtier::ITERATION_COUNTER_TYPE>(this->getIteration()),
         true
     );
 

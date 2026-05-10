@@ -622,11 +622,11 @@ protected:
                 if(dlower ==
                    0.) { // Account for the fact that a lower boundary of 0. will be silently changed
                     INFO(
-                        std::get<0>(range) << " / " << boost::numeric_cast<fp_type>(DEFAULTMINSIGMA)
+                        std::get<0>(range) << " / " << Gem::Common::narrow_cast<fp_type>(DEFAULTMINSIGMA)
                     );
-                    CHECK(std::get<0>(range) == boost::numeric_cast<fp_type>(DEFAULTMINSIGMA));
-                    INFO(std::get<1>(range) << " / " << boost::numeric_cast<fp_type>(1.));
-                    CHECK(std::get<1>(range) == boost::numeric_cast<fp_type>(1.));
+                    CHECK(std::get<0>(range) == Gem::Common::narrow_cast<fp_type>(DEFAULTMINSIGMA));
+                    INFO(std::get<1>(range) << " / " << Gem::Common::narrow_cast<fp_type>(1.));
+                    CHECK(std::get<1>(range) == Gem::Common::narrow_cast<fp_type>(1.));
                 }
                 else {
                     CHECK(std::get<0>(range) == dlower);

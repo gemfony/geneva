@@ -59,7 +59,7 @@ std::istream &operator>>(std::istream &i, Gem::Tests::PERFOBJECTTYPE &lt) {
     i >> tmp;
 
 #ifdef DEBUG
-    lt = boost::numeric_cast<Gem::Tests::PERFOBJECTTYPE>(tmp);
+    lt = Gem::Common::narrow_cast<Gem::Tests::PERFOBJECTTYPE>(tmp);
 #else
     lt = static_cast<Gem::Tests::PERFOBJECTTYPE>(tmp);
 #endif /* DEBUG */

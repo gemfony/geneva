@@ -180,7 +180,7 @@ public:
         using namespace Gem::Common;
 
         if(minSigma1 < fp_type(0.) || minSigma1 > maxSigma1 ||
-           maxSigma1 < boost::numeric_cast<fp_type>(DEFAULTMINSIGMA)) {
+           maxSigma1 < Gem::Common::narrow_cast<fp_type>(DEFAULTMINSIGMA)) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GNumBiGaussAdaptorT::setSigma1Range(const fp_type&, const fp_type&):"
@@ -316,7 +316,7 @@ public:
         using namespace Gem::Common;
 
         if(minSigma2 < fp_type(0.) || minSigma2 > maxSigma2 ||
-           maxSigma2 < boost::numeric_cast<fp_type>(DEFAULTMINSIGMA)) {
+           maxSigma2 < Gem::Common::narrow_cast<fp_type>(DEFAULTMINSIGMA)) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GNumBiGaussAdaptorT::setSigma2Range(const fp_type&, const fp_type&):"
@@ -444,7 +444,7 @@ public:
      */
     void setDeltaRange(const fp_type &minDelta, const fp_type &maxDelta) {
         if(minDelta < fp_type(0.) || minDelta > maxDelta ||
-           maxDelta < boost::numeric_cast<fp_type>(DEFAULTMINDELTA)) {
+           maxDelta < Gem::Common::narrow_cast<fp_type>(DEFAULTMINDELTA)) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GNumBiGaussAdaptorT::setDeltaRange(const fp_type&, const fp_type&):"

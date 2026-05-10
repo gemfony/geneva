@@ -42,7 +42,6 @@
 
 // Boost headers go here
 
-#include <boost/cast.hpp>
 
 // Geneva headers go here
 #include "common/GCommonHelperFunctions.hpp"
@@ -376,7 +375,7 @@ private:
         // Mark the answer as exact
         exact = true;
         // Return the result
-        return boost::numeric_cast<std::size_t>(this->getNThreadsPerWorker());
+        return Gem::Common::narrow_cast<std::size_t>(this->getNThreadsPerWorker());
     }
 
     /***************************************************************************/

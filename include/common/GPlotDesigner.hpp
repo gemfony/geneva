@@ -52,7 +52,6 @@
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/xml_oarchive.hpp>
-#include <boost/cast.hpp>
 #include <boost/fusion/adapted/std_tuple.hpp> // Compare http://stackoverflow.com/questions/18158376/getting-boostspiritqi-to-use-stl-containers
 #include <boost/serialization/assume_abstract.hpp>
 #include <boost/serialization/base_object.hpp>
@@ -440,8 +439,8 @@ public:
         std::ostringstream data; // NOLINT(cppcoreguidelines-init-variables)
 
         data << indent << "TMarker * tm_" << pos << " = new TMarker("
-             << boost::numeric_cast<double>(std::get<0>(coordinates_)) << ", "
-             << boost::numeric_cast<double>(std::get<1>(coordinates_)) << ", " << marker_ << ");"
+             << Gem::Common::narrow_cast<double>(std::get<0>(coordinates_)) << ", "
+             << Gem::Common::narrow_cast<double>(std::get<1>(coordinates_)) << ", " << marker_ << ");"
              << std::endl
              << indent << "tm_" << pos << "->SetMarkerColor(" << color_ << ");" << std::endl
              << indent << "tm_" << pos << "->SetMarkerSize(" << size_ << ");" << std::endl
@@ -1497,19 +1496,18 @@ public:
 	  */
     template <typename x_type_undet>
     void operator&(const x_type_undet &x_undet) {
-        using boost::numeric::bad_numeric_cast;
 
         x_type x = x_type(0);
 
         // Make sure the data can be converted to doubles
         try {
-            x = boost::numeric_cast<x_type>(x_undet);
+            x = Gem::Common::narrow_cast<x_type>(x_undet);
         }
-        catch(bad_numeric_cast &e) {
+        catch(std::overflow_error &e) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GDataCollector1T<x_type>::operator&(const T&): Error!" << std::endl
-                << "Encountered invalid cast with boost::numeric_cast," << std::endl
+                << "Encountered invalid cast with Gem::Common::narrow_cast," << std::endl
                 << "with the message " << std::endl
                 << e.what() << std::endl
             );
@@ -1539,7 +1537,6 @@ public:
 	  */
     template <typename x_type_undet>
     void operator&(const std::vector<x_type_undet> &x_cnt_undet) {
-        using boost::numeric::bad_numeric_cast;
 
         x_type x = x_type(0);
 
@@ -1547,13 +1544,13 @@ public:
         for(cit = x_cnt_undet.begin(); cit != x_cnt_undet.end(); ++cit) {
             // Make sure the data can be converted to doubles
             try {
-                x = boost::numeric_cast<x_type>(*cit);
+                x = Gem::Common::narrow_cast<x_type>(*cit);
             }
-            catch(bad_numeric_cast &e) {
+            catch(std::overflow_error &e) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
                     << "In GDataCollector1T::operator&(const std::vector<T>&): Error!" << std::endl
-                    << "Encountered invalid cast with boost::numeric_cast," << std::endl
+                    << "Encountered invalid cast with Gem::Common::narrow_cast," << std::endl
                     << "with the message " << std::endl
                     << e.what() << std::endl
                 );
@@ -1946,21 +1943,20 @@ public:
 	  */
     template <typename x_type_undet, typename y_type_undet>
     void operator&(const std::tuple<x_type_undet, y_type_undet> &point_undet) {
-        using boost::numeric::bad_numeric_cast;
 
         x_type x = x_type(0);
         y_type y = y_type(0);
 
         // Make sure the data can be converted to doubles
         try {
-            x = boost::numeric_cast<x_type>(std::get<0>(point_undet));
-            y = boost::numeric_cast<y_type>(std::get<1>(point_undet));
+            x = Gem::Common::narrow_cast<x_type>(std::get<0>(point_undet));
+            y = Gem::Common::narrow_cast<y_type>(std::get<1>(point_undet));
         }
-        catch(bad_numeric_cast &e) {
+        catch(std::overflow_error &e) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GDataCollector2T::operator&(const std::tuple<S,T>&): Error!" << std::endl
-                << "Encountered invalid cast with boost::numeric_cast," << std::endl
+                << "Encountered invalid cast with Gem::Common::narrow_cast," << std::endl
                 << "with the message " << std::endl
                 << e.what() << std::endl
             );
@@ -1991,7 +1987,6 @@ public:
 	  */
     template <typename x_type_undet, typename y_type_undet>
     void operator&(const std::vector<std::tuple<x_type_undet, y_type_undet>> &point_cnt_undet) {
-        using boost::numeric::bad_numeric_cast;
 
         x_type x = x_type(0);
         y_type y = y_type(0);
@@ -2000,15 +1995,15 @@ public:
         for(cit = point_cnt_undet.begin(); cit != point_cnt_undet.end(); ++cit) {
             // Make sure the data can be converted to doubles
             try {
-                x = boost::numeric_cast<x_type>(std::get<0>(*cit));
-                y = boost::numeric_cast<y_type>(std::get<1>(*cit));
+                x = Gem::Common::narrow_cast<x_type>(std::get<0>(*cit));
+                y = Gem::Common::narrow_cast<y_type>(std::get<1>(*cit));
             }
-            catch(bad_numeric_cast &e) {
+            catch(std::overflow_error &e) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
                     << "In GDataCollector2T::operator&(const std::vector<std::tuple<S,T>>&): Error!"
                     << std::endl
-                    << "Encountered invalid cast with boost::numeric_cast," << std::endl
+                    << "Encountered invalid cast with Gem::Common::narrow_cast," << std::endl
                     << "with the message " << std::endl
                     << e.what() << std::endl
                 );
@@ -2270,7 +2265,6 @@ public:
     void operator&(
         const std::tuple<x_type_undet, x_type_undet, y_type_undet, y_type_undet> &point_undet
     ) {
-        using boost::numeric::bad_numeric_cast;
 
         x_type x = x_type(0);
         x_type ex = x_type(0);
@@ -2279,17 +2273,17 @@ public:
 
         // Make sure the data can be converted to doubles
         try {
-            x = boost::numeric_cast<x_type>(std::get<0>(point_undet));
-            ex = boost::numeric_cast<x_type>(std::get<1>(point_undet));
-            y = boost::numeric_cast<y_type>(std::get<2>(point_undet));
-            ey = boost::numeric_cast<y_type>(std::get<3>(point_undet));
+            x = Gem::Common::narrow_cast<x_type>(std::get<0>(point_undet));
+            ex = Gem::Common::narrow_cast<x_type>(std::get<1>(point_undet));
+            y = Gem::Common::narrow_cast<y_type>(std::get<2>(point_undet));
+            ey = Gem::Common::narrow_cast<y_type>(std::get<3>(point_undet));
         }
-        catch(bad_numeric_cast &e) {
+        catch(std::overflow_error &e) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GDataCollector2ET::operator&(const std::tuple<S,S,T,T>&): Error!"
                 << std::endl
-                << "Encountered invalid cast with boost::numeric_cast," << std::endl
+                << "Encountered invalid cast with Gem::Common::narrow_cast," << std::endl
                 << "with the message " << std::endl
                 << e.what() << std::endl
             );
@@ -2322,7 +2316,6 @@ public:
     void
     operator&(const std::vector<std::tuple<x_type_undet, x_type_undet, y_type_undet, y_type_undet>>
                   &point_cnt_undet) {
-        using boost::numeric::bad_numeric_cast;
 
         x_type x = x_type(0);
         x_type ex = x_type(0);
@@ -2334,18 +2327,18 @@ public:
         for(cit = point_cnt_undet.begin(); cit != point_cnt_undet.end(); ++cit) {
             // Make sure the data can be converted to doubles
             try {
-                x = boost::numeric_cast<x_type>(std::get<0>(*cit));
-                ex = boost::numeric_cast<x_type>(std::get<1>(*cit));
-                y = boost::numeric_cast<y_type>(std::get<2>(*cit));
-                ey = boost::numeric_cast<y_type>(std::get<3>(*cit));
+                x = Gem::Common::narrow_cast<x_type>(std::get<0>(*cit));
+                ex = Gem::Common::narrow_cast<x_type>(std::get<1>(*cit));
+                y = Gem::Common::narrow_cast<y_type>(std::get<2>(*cit));
+                ey = Gem::Common::narrow_cast<y_type>(std::get<3>(*cit));
             }
-            catch(bad_numeric_cast &e) {
+            catch(std::overflow_error &e) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
                     << "In GDataCollector2ET::operator&(const std::vector<std::tuple<S,S,T,T>>&): "
                        "Error!"
                     << std::endl
-                    << "Encountered invalid cast with boost::numeric_cast," << std::endl
+                    << "Encountered invalid cast with Gem::Common::narrow_cast," << std::endl
                     << "with the message " << std::endl
                     << e.what() << std::endl
                 );
@@ -2867,7 +2860,6 @@ public:
 	  */
     template <typename x_type_undet, typename y_type_undet, typename z_type_undet>
     void operator&(const std::tuple<x_type_undet, y_type_undet, z_type_undet> &point_undet) {
-        using boost::numeric::bad_numeric_cast;
 
         x_type x = x_type(0);
         y_type y = y_type(0);
@@ -2875,15 +2867,15 @@ public:
 
         // Make sure the data can be converted to doubles
         try {
-            x = boost::numeric_cast<x_type>(std::get<0>(point_undet));
-            y = boost::numeric_cast<y_type>(std::get<1>(point_undet));
-            z = boost::numeric_cast<z_type>(std::get<2>(point_undet));
+            x = Gem::Common::narrow_cast<x_type>(std::get<0>(point_undet));
+            y = Gem::Common::narrow_cast<y_type>(std::get<1>(point_undet));
+            z = Gem::Common::narrow_cast<z_type>(std::get<2>(point_undet));
         }
-        catch(bad_numeric_cast &e) {
+        catch(std::overflow_error &e) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GDataCollector3T::operator&(const std::tuple<S,T,U>&): Error!" << std::endl
-                << "Encountered invalid cast with boost::numeric_cast," << std::endl
+                << "Encountered invalid cast with Gem::Common::narrow_cast," << std::endl
                 << "with the message " << std::endl
                 << e.what() << std::endl
             );
@@ -2916,7 +2908,6 @@ public:
     void operator&(
         const std::vector<std::tuple<x_type_undet, y_type_undet, z_type_undet>> &point_cnt_undet
     ) {
-        using boost::numeric::bad_numeric_cast;
 
         x_type x = x_type(0);
         y_type y = y_type(0);
@@ -2927,17 +2918,17 @@ public:
         for(cit = point_cnt_undet.begin(); cit != point_cnt_undet.end(); ++cit) {
             // Make sure the data can be converted to doubles
             try {
-                x = boost::numeric_cast<x_type>(std::get<0>(*cit));
-                y = boost::numeric_cast<y_type>(std::get<1>(*cit));
-                z = boost::numeric_cast<z_type>(std::get<2>(*cit));
+                x = Gem::Common::narrow_cast<x_type>(std::get<0>(*cit));
+                y = Gem::Common::narrow_cast<y_type>(std::get<1>(*cit));
+                z = Gem::Common::narrow_cast<z_type>(std::get<2>(*cit));
             }
-            catch(bad_numeric_cast &e) {
+            catch(std::overflow_error &e) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
                     << "In GDataCollector3T::operator&(const std::vector<std::tuple<S,T,U>>&): "
                        "Error!"
                     << std::endl
-                    << "Encountered invalid cast with boost::numeric_cast," << std::endl
+                    << "Encountered invalid cast with Gem::Common::narrow_cast," << std::endl
                     << "with the message " << std::endl
                     << e.what() << std::endl
                 );
@@ -3366,7 +3357,6 @@ public:
     void operator&(
         const std::tuple<x_type_undet, y_type_undet, z_type_undet, w_type_undet> &point_undet
     ) {
-        using boost::numeric::bad_numeric_cast;
 
         x_type x = x_type(0);
         y_type y = y_type(0);
@@ -3375,16 +3365,16 @@ public:
 
         // Make sure the data can be converted to doubles
         try {
-            x = boost::numeric_cast<x_type>(std::get<0>(point_undet));
-            y = boost::numeric_cast<y_type>(std::get<1>(point_undet));
-            z = boost::numeric_cast<z_type>(std::get<2>(point_undet));
-            w = boost::numeric_cast<w_type>(std::get<3>(point_undet));
+            x = Gem::Common::narrow_cast<x_type>(std::get<0>(point_undet));
+            y = Gem::Common::narrow_cast<y_type>(std::get<1>(point_undet));
+            z = Gem::Common::narrow_cast<z_type>(std::get<2>(point_undet));
+            w = Gem::Common::narrow_cast<w_type>(std::get<3>(point_undet));
         }
-        catch(bad_numeric_cast &e) {
+        catch(std::overflow_error &e) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GDataCollector4T::operator&(const std::tuple<S,T,U,W>&): Error!" << std::endl
-                << "Encountered invalid cast with boost::numeric_cast," << std::endl
+                << "Encountered invalid cast with Gem::Common::narrow_cast," << std::endl
                 << "with the message " << std::endl
                 << e.what() << std::endl
             );
@@ -3421,7 +3411,6 @@ public:
     void
     operator&(const std::vector<std::tuple<x_type_undet, y_type_undet, z_type_undet, w_type_undet>>
                   &point_cnt_undet) {
-        using boost::numeric::bad_numeric_cast;
 
         x_type x = x_type(0);
         y_type y = y_type(0);
@@ -3433,18 +3422,18 @@ public:
         for(cit = point_cnt_undet.begin(); cit != point_cnt_undet.end(); ++cit) {
             // Make sure the data can be converted to doubles
             try {
-                x = boost::numeric_cast<x_type>(std::get<0>(*cit));
-                y = boost::numeric_cast<y_type>(std::get<1>(*cit));
-                z = boost::numeric_cast<z_type>(std::get<2>(*cit));
-                w = boost::numeric_cast<w_type>(std::get<3>(*cit));
+                x = Gem::Common::narrow_cast<x_type>(std::get<0>(*cit));
+                y = Gem::Common::narrow_cast<y_type>(std::get<1>(*cit));
+                z = Gem::Common::narrow_cast<z_type>(std::get<2>(*cit));
+                w = Gem::Common::narrow_cast<w_type>(std::get<3>(*cit));
             }
-            catch(bad_numeric_cast &e) {
+            catch(std::overflow_error &e) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
                     << "In GDataCollector4T::operator&(const std::vector<std::tuple<S,T,U,W>>&): "
                        "Error!"
                     << std::endl
-                    << "Encountered invalid cast with boost::numeric_cast," << std::endl
+                    << "Encountered invalid cast with Gem::Common::narrow_cast," << std::endl
                     << "with the message " << std::endl
                     << e.what() << std::endl
                 );

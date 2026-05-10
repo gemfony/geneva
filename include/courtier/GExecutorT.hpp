@@ -852,7 +852,7 @@ protected:
         const std::vector<std::shared_ptr<processable_type>> &workItems,
         const processingStatus &ps
     ) {
-        return boost::numeric_cast<std::size_t>(std::count_if(
+        return Gem::Common::narrow_cast<std::size_t>(std::count_if(
             workItems.begin(),
             workItems.end(),
             [ps](std::shared_ptr<processable_type> p) {
@@ -2323,7 +2323,7 @@ private:
         }
 #endif
         std::chrono::duration<double> avgReturnTime =
-            currentElapsed / boost::numeric_cast<double>(nReturnedCurrent_);
+            currentElapsed / Gem::Common::narrow_cast<double>(nReturnedCurrent_);
 
         // Retrieve the current maximum processing time
         std::chrono::duration<double> maxProcessingTime(max_processing_time_);
@@ -2396,10 +2396,10 @@ private:
             return true;
 
         // Check if we have reached the minimum percentage
-        double realPercentage = boost::numeric_cast<double>(nReturnedCurrent_) /
-                                boost::numeric_cast<double>(expectedNumber);
+        double realPercentage = Gem::Common::narrow_cast<double>(nReturnedCurrent_) /
+                                Gem::Common::narrow_cast<double>(expectedNumber);
         return (
-            realPercentage >= boost::numeric_cast<double>(this->getMinPartialReturnPercentage())
+            realPercentage >= Gem::Common::narrow_cast<double>(this->getMinPartialReturnPercentage())
         );
     }
 
@@ -2647,12 +2647,12 @@ private:
         auto current_iteration = this->get_iteration_counter();
 
         waiting_times_graph_->add(
-            boost::numeric_cast<double>(current_iteration),
+            Gem::Common::narrow_cast<double>(current_iteration),
             maxTimeout_.count()
         );
         returned_items_graph_->add(
-            boost::numeric_cast<double>(current_iteration),
-            boost::numeric_cast<double>(this->getNReturnedLast())
+            Gem::Common::narrow_cast<double>(current_iteration),
+            Gem::Common::narrow_cast<double>(this->getNReturnedLast())
         );
 #endif
     }

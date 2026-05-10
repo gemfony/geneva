@@ -171,12 +171,12 @@ public:
         }
         else {
             // Find out which region the value is in (compare figure transferFunction.pdf
-            // that should have been delivered with this software). Note that boost::numeric_cast<>
+            // that should have been delivered with this software). Note that Gem::Common::narrow_cast<>
             // may throw - exceptions must be caught in surrounding functions.
             std::int32_t region = 0;
 
 #ifdef DEBUG
-            region = boost::numeric_cast<std::int32_t>(std::floor(
+            region = Gem::Common::narrow_cast<std::int32_t>(std::floor(
                 (fp_type(val) - fp_type(lowerBoundary)) /
                 (fp_type(upperBoundary) - fp_type(lowerBoundary))
             ));

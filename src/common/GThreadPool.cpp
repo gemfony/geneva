@@ -29,7 +29,6 @@
 
 #include "common/GThreadPool.hpp"
 
-#include <boost/cast.hpp>
 
 namespace Gem::Common {
 
@@ -147,7 +146,7 @@ void GThreadPool::setNThreads(unsigned int nThreads) {
  * Retrieves the current "true" number of threads being used in the pool
  */
 unsigned int GThreadPool::getNThreads() const {
-    return boost::numeric_cast<unsigned int>(gtg_.size());
+    return Gem::Common::narrow_cast<unsigned int>(gtg_.size());
 }
 
 /******************************************************************************/

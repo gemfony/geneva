@@ -43,7 +43,6 @@
 
 // Boost header files go here
 #include <boost/algorithm/string/trim.hpp>
-#include <boost/cast.hpp>
 
 // Geneva header files go here
 #include "common/GCommonEnums.hpp"

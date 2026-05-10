@@ -44,6 +44,7 @@
 #include <mutex>
 #include <optional>
 #include <sstream>
+#include <stdexcept>
 #include <string>
 #include <thread>
 #include <tuple>
@@ -65,6 +66,30 @@
 #include "common/GTypeTraitsT.hpp"
 
 namespace Gem::Common {
+
+/******************************************************************************/
+/**
+ * Checked numeric cast: throws std::overflow_error if the conversion would lose the value.
+ * Replaces boost::numeric_cast. Float→int truncates (no fractional-part check) but
+ * throws if the value is outside the target integer range.
+ */
+template <typename To, typename From>
+To narrow_cast(From value) {
+    static_assert(std::is_arithmetic_v<To> && std::is_arithmetic_v<From>,
+                  "narrow_cast requires arithmetic types");
+    auto result = static_cast<To>(value);
+    if constexpr (std::is_integral_v<To> && std::is_integral_v<From>) {
+        if(static_cast<From>(result) != value) {
+            throw std::overflow_error("narrow_cast: integer overflow or underflow");
+        }
+    } else if constexpr (std::is_integral_v<To> && std::is_floating_point_v<From>) {
+        if(value < static_cast<From>(std::numeric_limits<To>::min()) ||
+           value > static_cast<From>(std::numeric_limits<To>::max())) {
+            throw std::overflow_error("narrow_cast: float-to-integer overflow");
+        }
+    }
+    return result;
+}
 
 /******************************************************************************/
 /** @brief Converts a string to target_type via stream extraction (replaces boost::lexical_cast) */

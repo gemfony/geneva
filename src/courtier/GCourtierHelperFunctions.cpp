@@ -29,7 +29,6 @@
 
 #include "courtier/GCourtierHelperFunctions.hpp"
 
-#include <boost/cast.hpp>
 
 namespace Gem::Courtier {
 
@@ -44,7 +43,7 @@ namespace Gem::Courtier {
  */
 std::string assembleQueryString(const std::string &query, const std::size_t &sz) {
     std::ostringstream query_stream; // NOLINT(cppcoreguidelines-init-variables)
-    query_stream << std::setw(boost::numeric_cast<int>(sz)) << query;
+    query_stream << std::setw(Gem::Common::narrow_cast<int>(sz)) << query;
     return query_stream.str();
 }
 

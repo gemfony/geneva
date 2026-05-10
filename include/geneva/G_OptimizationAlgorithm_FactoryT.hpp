@@ -230,7 +230,7 @@ public:
 	  * Allows to manually set the maximum number of iterations as is usually specified on the command line
 	  */
     void setMaxIterationCL(std::uint32_t maxIterationCL) {
-        maxIterationCL_ = boost::numeric_cast<std::int32_t>(maxIterationCL);
+        maxIterationCL_ = Gem::Common::narrow_cast<std::int32_t>(maxIterationCL);
     }
 
     /***************************************************************************/
@@ -250,7 +250,7 @@ public:
 	  */
     std::uint32_t getMaxIterationCL() const {
         if(maxIterationCL_ >= 0) {
-            return boost::numeric_cast<std::uint32_t>(maxIterationCL_);
+            return Gem::Common::narrow_cast<std::uint32_t>(maxIterationCL_);
         }
         else {
             throw geneva_exception(
@@ -269,7 +269,7 @@ public:
 	  * Allows to manually set the maximum number of stall iterations as is usually specified on the command line
 	  */
     void setMaxStallIterationCL(std::uint32_t maxStallIterationCL) {
-        maxStallIterationCL_ = boost::numeric_cast<std::int32_t>(maxStallIterationCL);
+        maxStallIterationCL_ = Gem::Common::narrow_cast<std::int32_t>(maxStallIterationCL);
     }
 
     /***************************************************************************/
@@ -289,7 +289,7 @@ public:
 	  */
     std::uint32_t getMaxStallIterationCL() const {
         if(maxStallIterationCL_ >= 0) {
-            return boost::numeric_cast<std::uint32_t>(maxStallIterationCL_);
+            return Gem::Common::narrow_cast<std::uint32_t>(maxStallIterationCL_);
         }
         else {
             throw geneva_exception(
@@ -309,7 +309,7 @@ public:
 	  * Allows to manually set the maximum number of seconds for a run as is usually specified on the command line
 	  */
     void setMaxSecondsCL(std::uint32_t maxSecondsCL) {
-        maxSecondsCL_ = boost::numeric_cast<std::int32_t>(maxSecondsCL);
+        maxSecondsCL_ = Gem::Common::narrow_cast<std::int32_t>(maxSecondsCL);
     }
 
     /***************************************************************************/
@@ -330,7 +330,7 @@ public:
     std::chrono::duration<double> getMaxTimeCL() const {
         if(maxSecondsCL_ >= 0) {
             std::chrono::duration<double> maxDuration =
-                std::chrono::seconds(boost::numeric_cast<long>(maxSecondsCL_));
+                std::chrono::seconds(Gem::Common::narrow_cast<long>(maxSecondsCL_));
             return maxDuration;
         }
         else {

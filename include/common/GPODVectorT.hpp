@@ -192,7 +192,7 @@ public:
      * @return The number of items found
      */
     size_type count(const T &item) const {
-        return boost::numeric_cast<size_type>(
+        return Gem::Common::narrow_cast<size_type>(
             std::count(data_cnt_.begin(), data_cnt_.end(), item)
         );
     }

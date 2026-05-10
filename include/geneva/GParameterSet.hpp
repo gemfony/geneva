@@ -341,22 +341,22 @@ public:
         val_type result = val_type(0);
 
         if(typeid(val_type) == typeid(double)) {
-            return boost::numeric_cast<val_type>(
+            return Gem::Common::narrow_cast<val_type>(
                 std::any_cast<double>(this->getVarVal("d", target))
             );
         }
         else if(typeid(val_type) == typeid(float)) {
-            return boost::numeric_cast<val_type>(
+            return Gem::Common::narrow_cast<val_type>(
                 std::any_cast<float>(this->getVarVal("f", target))
             );
         }
         if(typeid(val_type) == typeid(std::int32_t)) {
-            return boost::numeric_cast<val_type>(
+            return Gem::Common::narrow_cast<val_type>(
                 std::any_cast<std::int32_t>(this->getVarVal("i", target))
             );
         }
         if(typeid(val_type) == typeid(bool)) {
-            return boost::numeric_cast<val_type>(
+            return Gem::Common::narrow_cast<val_type>(
                 std::any_cast<bool>(this->getVarVal("b", target))
             );
         }

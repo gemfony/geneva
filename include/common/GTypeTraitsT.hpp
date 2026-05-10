@@ -43,7 +43,6 @@
 #include <vector>
 
 // Boost headers go here
-#include <boost/cast.hpp>
 
 // Geneva headers go here
 

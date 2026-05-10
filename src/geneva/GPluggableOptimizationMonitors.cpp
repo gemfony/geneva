@@ -442,8 +442,8 @@ void GFitnessMonitor::informationFunction_(
             global_it != globalFitnessGraphVec_.end();
             ++global_it, ++iter_it, ++global_ind_it, ++iter_ind_it) {
             (*global_it)
-                ->add(boost::numeric_cast<double>(iteration), (*global_ind_it)->raw_fitness(0));
-            (*iter_it)->add(boost::numeric_cast<double>(iteration), (*iter_ind_it)->raw_fitness(0));
+                ->add(Gem::Common::narrow_cast<double>(iteration), (*global_ind_it)->raw_fitness(0));
+            (*iter_it)->add(Gem::Common::narrow_cast<double>(iteration), (*iter_ind_it)->raw_fitness(0));
         }
 
         //------------------------------------------------------------------------------
@@ -1684,7 +1684,7 @@ void GNAdpationsLogger::informationFunction_(
             std::size_t maxNAdaptions = 0;
             for(it = nAdaptionsStore_.begin(); it != nAdaptionsStore_.end(); ++it) {
                 if(std::get<1>(*it) > maxNAdaptions) {
-                    maxNAdaptions = boost::numeric_cast<std::size_t>(std::get<1>(*it));
+                    maxNAdaptions = Gem::Common::narrow_cast<std::size_t>(std::get<1>(*it));
                 }
             }
 
@@ -2221,7 +2221,7 @@ void GProcessingTimesLogger::informationFunction_(
         ); // NOLINT(cppcoreguidelines-init-variables)
 
         // Retrieve the current iteration in the population
-        auto iteration = boost::numeric_cast<double>(goa->getIteration());
+        auto iteration = Gem::Common::narrow_cast<double>(goa->getIteration());
 
         // Loop over all individuals of the algorithm.
         for(std::size_t pos = 0; pos < goa->size(); pos++) {
@@ -2244,23 +2244,23 @@ void GProcessingTimesLogger::informationFunction_(
 
             // Fill the timings into the 2D histograms ...
             pre_processing_times_hist2D_->add(
-                boost::numeric_cast<double>(iteration),
-                boost::numeric_cast<double>(preProcessingTime)
+                Gem::Common::narrow_cast<double>(iteration),
+                Gem::Common::narrow_cast<double>(preProcessingTime)
             ); // PREPROCESSING
             processing_times_hist2D_->add(
-                boost::numeric_cast<double>(iteration),
-                boost::numeric_cast<double>(mainProcessingTime)
+                Gem::Common::narrow_cast<double>(iteration),
+                Gem::Common::narrow_cast<double>(mainProcessingTime)
             ); // PROCESSING
             post_processing_times_hist2D_->add(
-                boost::numeric_cast<double>(iteration),
-                boost::numeric_cast<double>(postProcessingTime)
+                Gem::Common::narrow_cast<double>(iteration),
+                Gem::Common::narrow_cast<double>(postProcessingTime)
             ); // POSTPROCESSING
             all_processing_times_hist2D_->add(
-                boost::numeric_cast<double>(iteration),
-                boost::numeric_cast<double>(allProcessingTime)
+                Gem::Common::narrow_cast<double>(iteration),
+                Gem::Common::narrow_cast<double>(allProcessingTime)
             ); // OVERALL PROCESSING TIME
 
-            data_txt << boost::numeric_cast<std::uint32_t>(iteration) << ", " << std::showpoint
+            data_txt << Gem::Common::narrow_cast<std::uint32_t>(iteration) << ", " << std::showpoint
                      << preProcessingTime << ", " << mainProcessingTime << ", "
                      << postProcessingTime << std::endl;
         }

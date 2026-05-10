@@ -400,14 +400,14 @@ void GGradientDescent::updateParentIndividuals() {
             // Calculate the step to be performed in a given direction and
             // adjust the parameter vector of each parent
             try {
-                parmVec[j] -= boost::numeric_cast<double>(
-                    stepRatio_ * (boost::numeric_cast<long double>(
+                parmVec[j] -= Gem::Common::narrow_cast<double>(
+                    stepRatio_ * (Gem::Common::narrow_cast<long double>(
                                      minOnly_transformed_fitness(this->at(childPos)) -
-                                     boost::numeric_cast<long double>(parentFitness)
+                                     Gem::Common::narrow_cast<long double>(parentFitness)
                                  ))
                 );
             }
-            catch(boost::bad_numeric_cast &e) {
+            catch(std::overflow_error &e) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
                     << "In GGradientDescent::updateParentIndividuals(): Error!" << std::endl
@@ -578,11 +578,11 @@ void GGradientDescent::init() {
                 (long double)dblUpperParameterBoundaries_[pos] -
                 (long double)dblLowerParameterBoundaries_[pos];
             adjustedFiniteStep_.push_back(
-                boost::numeric_cast<double>(finiteStepRatio * parameterRange)
+                Gem::Common::narrow_cast<double>(finiteStepRatio * parameterRange)
             );
         }
     }
-    catch(boost::bad_numeric_cast &e) {
+    catch(std::overflow_error &e) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GGradientDescent::init(): Error!" << std::endl

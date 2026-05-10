@@ -283,7 +283,7 @@ protected:
 
             // Initialize with a fixed value
             CHECK_NOTHROW(p_test1->GParameterBase::template fixedValueInit<fp_type>(
-                boost::numeric_cast<fp_type>(2. * UPPERINITBOUNDARY),
+                Gem::Common::narrow_cast<fp_type>(2. * UPPERINITBOUNDARY),
                 activityMode::ALLPARAMETERS
             )); // Make sure the parameters indeed change
 

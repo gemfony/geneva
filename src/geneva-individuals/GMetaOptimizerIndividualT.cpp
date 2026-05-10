@@ -63,7 +63,7 @@ std::istream &operator>>(std::istream &i, Gem::Geneva::metaOptimizationTarget &m
     i >> tmp;
 
 #ifdef DEBUG
-    mot = boost::numeric_cast<Gem::Geneva::metaOptimizationTarget>(tmp);
+    mot = Gem::Common::narrow_cast<Gem::Geneva::metaOptimizationTarget>(tmp);
 #else
     mot = static_cast<Gem::Geneva::metaOptimizationTarget>(tmp);
 #endif /* DEBUG */
