@@ -36,7 +36,6 @@
 #include <string>
 
 // Boost header files go here
-#include "boost/lexical_cast.hpp"
 
 // Geneva header files go here
 #include "geneva/GParameterPropertyParser.hpp"

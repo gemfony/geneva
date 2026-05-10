@@ -51,7 +51,6 @@
 #include <vector>
 
 // Boost header files go here
-#include <boost/lexical_cast.hpp>
 
 // Geneva header files go here
 #include "GCanvas.hpp"

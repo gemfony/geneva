@@ -38,7 +38,6 @@
 #include <stdexcept>
 #include <tuple>
 
-#include <boost/lexical_cast.hpp>
 
 #include "common/GCommonMathHelperFunctionsT.hpp"
 

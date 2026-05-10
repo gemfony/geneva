@@ -38,10 +38,8 @@
 #include <iostream>
 #include <map>
 
-// Boost headers go here
-#include <boost/assign/list_inserter.hpp>
-#include <boost/assign/list_of.hpp>
-#include <boost/math/constants/constants.hpp>
+// Standard headers go here
+#include <numbers>
 
 // Catch2 headers go here
 #include <catch2/catch_test_macros.hpp>
@@ -50,7 +48,6 @@
 // Geneva headers go here
 #include "common/GFormulaParserT.hpp"
 
-using namespace boost::assign;
 using namespace Gem::Common;
 using namespace std;
 
@@ -77,8 +74,8 @@ TEST_CASE("formula_parser_tests", "[common][manual]") {
 
         std::string formula("sin({{0}})/{{1}}");
 
-        std::vector<double> list0 = boost::assign::list_of(4.34343434343434);
-        std::vector<double> list1 = boost::assign::list_of(8.98989898989899);
+        std::vector<double> list0 = {4.34343434343434};
+        std::vector<double> list1 = {8.98989898989899};
 
         parameterValues["0"] = list0;
         parameterValues["1"] = list1;
@@ -96,8 +93,8 @@ TEST_CASE("formula_parser_tests", "[common][manual]") {
 
         std::string formula("fabs(sin({{0}})/max({{1}}, 0.000001))");
 
-        std::vector<double> list0 = boost::assign::list_of(4.34343434343434);
-        std::vector<double> list1 = boost::assign::list_of(8.98989898989899);
+        std::vector<double> list0 = {4.34343434343434};
+        std::vector<double> list1 = {8.98989898989899};
 
         parameterValues["0"] = list0;
         parameterValues["1"] = list1;
@@ -115,8 +112,8 @@ TEST_CASE("formula_parser_tests", "[common][manual]") {
 
         std::string formula("sin({{var0[2]}})/{{var1}}");
 
-        std::vector<double> list0 = boost::assign::list_of(1.5)(2.5)(3.5);
-        std::vector<double> list1 = boost::assign::list_of(8.98989898989899);
+        std::vector<double> list0 = {1.5, 2.5, 3.5};
+        std::vector<double> list1 = {8.98989898989899};
 
         parameterValues["var0"] = list0;
         parameterValues["var1"] = list1;
@@ -135,13 +132,13 @@ TEST_CASE("formula_parser_tests", "[common][manual]") {
 
         std::string formula("gem*sin({{var1}})*cos(pi)");
 
-        std::vector<double> var1list = boost::assign::list_of(2.);
+        std::vector<double> var1list = {2.};
         parameterValues["var1"] = var1list;
         userConstants["gem"] = -1.;
 
         GFormulaParserT<double> f(formula, userConstants);
 
-        double fp_val = -1. * sin(2.) * cos(boost::math::constants::pi<double>());
+        double fp_val = -1. * sin(2.) * cos(std::numbers::pi);
         double parse_val = f(parameterValues);
 
         CHECK_THAT(parse_val, Catch::Matchers::WithinRel(fp_val, 0.001 / 100.0));
@@ -153,7 +150,7 @@ TEST_CASE("formula_parser_tests", "[common][manual]") {
 
         GFormulaParserT<double> f(formula);
 
-        double fp_val = boost::math::constants::pi<double>();
+        double fp_val = std::numbers::pi;
         double parse_val = f();
 
         CHECK_THAT(parse_val, Catch::Matchers::WithinRel(fp_val, 0.001 / 100.0));
@@ -164,7 +161,7 @@ TEST_CASE("formula_parser_tests", "[common][manual]") {
 
         GFormulaParserT<double> f(formula);
 
-        double fp_val = boost::math::constants::e<double>();
+        double fp_val = std::numbers::e;
         double parse_val = f();
 
         CHECK_THAT(parse_val, Catch::Matchers::WithinRel(fp_val, 0.001 / 100.0));

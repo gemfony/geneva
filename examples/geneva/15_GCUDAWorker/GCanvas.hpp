@@ -47,16 +47,12 @@
 #include <vector>
 
 // Boost header files go here
-#include <boost/algorithm/string.hpp>
-#include <boost/algorithm/string/trim.hpp>
 #include <boost/archive/binary_iarchive.hpp>
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/xml_oarchive.hpp>
-#include <boost/cast.hpp>
-#include <boost/lexical_cast.hpp>
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/export.hpp>
 #include <boost/serialization/map.hpp>
@@ -525,7 +521,8 @@ public:
             }
 
             // Remove leading or trailing white spaces
-            boost::trim(s);
+            { auto b=s.find_first_not_of(" \t\r\n"), e=s.find_last_not_of(" \t\r\n");
+              s = (b==std::string::npos) ? std::string{} : s.substr(b, e-b+1); }
 
             // Skip empty lines
             if(s.empty()) {
@@ -641,7 +638,8 @@ public:
             }
 
             // Remove leading or trailing white spaces
-            boost::trim(s);
+            { auto b=s.find_first_not_of(" \t\r\n"), e=s.find_last_not_of(" \t\r\n");
+              s = (b==std::string::npos) ? std::string{} : s.substr(b, e-b+1); }
 
             // Skip empty lines
             if(s.empty()) {

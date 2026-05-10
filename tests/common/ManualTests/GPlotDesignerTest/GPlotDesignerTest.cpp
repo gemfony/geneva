@@ -34,9 +34,7 @@
 // Standard headers go here
 #include <cmath>
 #include <iostream>
-
-// Boost headers go here
-#include <boost/math/constants/constants.hpp>
+#include <numbers>
 
 // Geneva headers go here
 #include "common/GPlotDesigner.hpp"
@@ -45,12 +43,12 @@ using namespace Gem::Common;
 
 int main(int argc, char **argv) {
     std::tuple<double, double> minMaxX(
-        -boost::math::constants::pi<double>(),
-        boost::math::constants::pi<double>()
+        -std::numbers::pi,
+        std::numbers::pi
     );
     std::tuple<double, double> minMaxY(
-        -boost::math::constants::pi<double>(),
-        boost::math::constants::pi<double>()
+        -std::numbers::pi,
+        std::numbers::pi
     );
 
     std::shared_ptr<GGraph2D> gsin_ptr(new GGraph2D());
@@ -70,8 +68,8 @@ int main(int argc, char **argv) {
     gsin_ptr->registerSecondaryPlotter(gcos_ptr_2);
 
     for(std::size_t i = 0; i < 1000; i++) {
-        double x = 2 * boost::math::constants::pi<double>() * double(i) / 1000. -
-                   boost::math::constants::pi<double>();
+        double x = 2 * std::numbers::pi * double(i) / 1000. -
+                   std::numbers::pi;
 
         (*gsin_ptr) & std::tuple<double, double>(x, sin(x));
         (*gcos_ptr) & std::tuple<double, double>(x, cos(x));

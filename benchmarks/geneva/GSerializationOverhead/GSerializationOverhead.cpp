@@ -39,7 +39,6 @@
 #include <string>
 
 // Boost header files go here
-#include "boost/lexical_cast.hpp"
 
 // Geneva header files go here
 #include "common/GPlotDesigner.hpp"

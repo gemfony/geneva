@@ -33,7 +33,6 @@
 
 #include "GImageHelperFunctions.hpp"
 
-#include <boost/xpressive/detail/static/placeholders.hpp>
 
 namespace Gem::Common {
 /******************************************************************************/
