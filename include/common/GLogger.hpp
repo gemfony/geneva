@@ -64,7 +64,6 @@
 #include <vector>
 
 // Boost header files go here
-#include <boost/predef/version_number.h>
 
 // Geneva header files go here
 #include "common/GCommonEnums.hpp"
@@ -546,22 +545,18 @@ private:
 	  * @return A string representing the current time and date
 	  */
     static std::string currentTimeAsString() {
-#if BOOST_COMP_GNUC && (BOOST_COMP_GNUC < BOOST_VERSION_NUMBER(5, 0, 0))
-        return std::string("Dummy (g++ < 5.0 does not support put_time)");
-#else
         std::ostringstream oss; // NOLINT(cppcoreguidelines-init-variables)
         std::time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
         struct tm time_info{};
 
 #if defined(_MSC_VER) && (_MSC_VER >= 1020)
         localtime_s(&time_info, &now);
-#else // We assume a POSIX-compliand platform
+#else // We assume a POSIX-compliant platform
         localtime_r(&now, &time_info);
 #endif
 
         oss << std::put_time(&time_info, "%c");
         return oss.str();
-#endif
     }
 
     std::ostringstream oss_;         ///< Holds the actual streamed data

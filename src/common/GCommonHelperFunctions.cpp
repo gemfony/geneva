@@ -33,7 +33,6 @@
 #include <boost/fusion/adapted/std_tuple.hpp> // needed by Spirit qi for std::tuple output
 #include <boost/fusion/include/boost_tuple.hpp>
 #include <boost/fusion/include/tuple.hpp>
-#include <boost/predef.h>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/spirit/include/qi_action.hpp>
 #include <boost/spirit/include/qi_auxiliary.hpp>
@@ -471,22 +470,18 @@ std::chrono::duration<double> duration_from_string(std::string const &duration_s
  * Converts the current time to a string
  */
 std::string currentTimeAsString() {
-#if BOOST_COMP_GNUC && (BOOST_COMP_GNUC < BOOST_VERSION_NUMBER(5, 0, 0))
-    return std::string("Dummy (g++ < 5.0 does not support put_time)");
-#else
     std::ostringstream oss; // NOLINT(cppcoreguidelines-init-variables)
     std::time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
     struct tm timeinfo{};
 
 #if defined(_MSC_VER) && (_MSC_VER >= 1020)
     localtime_s(&timeinfo, &now);
-#else // We assume a POSIX-compliand platform
+#else // We assume a POSIX-compliant platform
     localtime_r(&now, &timeinfo);
 #endif
 
     oss << std::put_time(&timeinfo, "%c");
     return oss.str();
-#endif
 }
 
 /******************************************************************************/
