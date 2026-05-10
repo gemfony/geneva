@@ -872,7 +872,7 @@ private:
             MPI_Request requestHandle{};
             // create a buffer for each request.
             // once the session finished handling the request, it will release the handle and the memory will be freed
-            auto buffer = std::shared_ptr<char[]>(new char[GMPICONSUMERMAXMESSAGESIZE]);
+            auto buffer = std::make_shared<char[]>(GMPICONSUMERMAXMESSAGESIZE);
 
             // register asynchronous receiving of message from any worker node
             MPI_Irecv(

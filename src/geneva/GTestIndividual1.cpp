@@ -190,9 +190,7 @@ void GTestIndividual1::addGDoubleObjects_(const std::size_t &nItems) {
         std::shared_ptr<GDoubleGaussAdaptor> gdga_ptr;
 
         CHECK_NOTHROW(
-            gdga_ptr = std::shared_ptr<GDoubleGaussAdaptor>(
-                new GDoubleGaussAdaptor(0.025, 0.1, 0., 1., 1.0)
-            )
+            gdga_ptr = std::make_shared<GDoubleGaussAdaptor>(0.025, 0.1, 0., 1., 1.0)
         );
         CHECK_NOTHROW(
             gdga_ptr->setAdaptionThreshold(0)
@@ -203,7 +201,7 @@ void GTestIndividual1::addGDoubleObjects_(const std::size_t &nItems) {
         std::shared_ptr<GDoubleObject> gdo_ptr;
 
         CHECK_NOTHROW(
-            gdo_ptr = std::shared_ptr<GDoubleObject>(new GDoubleObject(-100., 100.))
+            gdo_ptr = std::make_shared<GDoubleObject>(-100., 100.)
         ); // Initialization in the range -100, 100
 
         // Add the adaptor
@@ -352,9 +350,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
 
         // Tell the individual about its personality and duty
         CHECK_NOTHROW(p_test->setPersonality(
-            std::shared_ptr<GEvolutionaryAlgorithm_PersonalityTraits>(
-                new GEvolutionaryAlgorithm_PersonalityTraits()
-            )
+            std::make_shared<GEvolutionaryAlgorithm_PersonalityTraits>()
         ));
 
         // Calling the process() function with the "evaluate" call should clear the dirty flag
@@ -381,9 +377,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
 
         // Tell the individual about its personality
         CHECK_NOTHROW(p_test->setPersonality(
-            std::shared_ptr<GEvolutionaryAlgorithm_PersonalityTraits>(
-                new GEvolutionaryAlgorithm_PersonalityTraits()
-            )
+            std::make_shared<GEvolutionaryAlgorithm_PersonalityTraits>()
         ));
 
         // Calling the process() function with the "evaluate" call should clear the dirty flag
@@ -410,9 +404,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
 
         // Tell the individual about its personality and duty
         CHECK_NOTHROW(p_test->setPersonality(
-            std::shared_ptr<GSwarmAlgorithm_PersonalityTraits>(
-                new GSwarmAlgorithm_PersonalityTraits()
-            )
+            std::make_shared<GSwarmAlgorithm_PersonalityTraits>()
         ));
 
         // Calling the process() function with the "evaluate" call should clear the dirty flag
@@ -722,9 +714,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
 
         // Set the personality type to EA
         CHECK_NOTHROW(p_test->setPersonality(
-            std::shared_ptr<GEvolutionaryAlgorithm_PersonalityTraits>(
-                new GEvolutionaryAlgorithm_PersonalityTraits()
-            )
+            std::make_shared<GEvolutionaryAlgorithm_PersonalityTraits>()
         ));
         INFO(
             "\n"
@@ -748,9 +738,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
 
         // Set the personality type to GD
         CHECK_NOTHROW(p_test->setPersonality(
-            std::shared_ptr<GGradientDescent_PersonalityTraits>(
-                new GGradientDescent_PersonalityTraits()
-            )
+            std::make_shared<GGradientDescent_PersonalityTraits>()
         ));
         INFO(
             "\n"
@@ -772,9 +760,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
 
         // Set the personality type to SWARM
         CHECK_NOTHROW(p_test->setPersonality(
-            std::shared_ptr<GSwarmAlgorithm_PersonalityTraits>(
-                new GSwarmAlgorithm_PersonalityTraits()
-            )
+            std::make_shared<GSwarmAlgorithm_PersonalityTraits>()
         ));
         INFO(
             "\n"
@@ -1039,9 +1025,7 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests_() {
 
         // Make sure the personality type is set to SWARM
         CHECK_NOTHROW(p_test->setPersonality(
-            std::shared_ptr<GSwarmAlgorithm_PersonalityTraits>(
-                new GSwarmAlgorithm_PersonalityTraits()
-            )
+            std::make_shared<GSwarmAlgorithm_PersonalityTraits>()
         ));
 
         // Trying to retrieve an EA personality object should throw

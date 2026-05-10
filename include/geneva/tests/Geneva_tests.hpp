@@ -105,7 +105,7 @@ void StandardTests_no_failure_expected() {
         REQUIRE_NOTHROW(T_ptr->modify_GUnitTests());
 
         // Copy construction
-        REQUIRE_NOTHROW(T_ptr_cp = std::shared_ptr<T>(new T(*T_ptr)));
+        REQUIRE_NOTHROW(T_ptr_cp = std::make_shared<T>(*T_ptr));
 
         // Check for equivalence and similarity
         CHECK(gep.isEqual(*T_ptr_cp, *T_ptr));

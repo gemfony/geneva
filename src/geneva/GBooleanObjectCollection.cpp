@@ -58,7 +58,7 @@ GBooleanObjectCollection::GBooleanObjectCollection(
     const double &probability
 ) {
     for(std::size_t i = 0; i < nVals; i++) {
-        this->push_back(std::shared_ptr<GBooleanObject>(new GBooleanObject(probability)));
+        this->push_back(std::make_shared<GBooleanObject>(probability));
     }
 }
 
@@ -168,7 +168,7 @@ void GBooleanObjectCollection::fillWithObjects_(const std::size_t &nAddedObjects
         // Create a suitable adaptor
         std::shared_ptr<GBooleanAdaptor> gba_ptr;
 
-        CHECK_NOTHROW(gba_ptr = std::shared_ptr<GBooleanAdaptor>(new GBooleanAdaptor(1.0)));
+        CHECK_NOTHROW(gba_ptr = std::make_shared<GBooleanAdaptor>(1.0));
         CHECK_NOTHROW(
             gba_ptr->setAdaptionThreshold(0)
         ); // Make sure the adaptor's internal parameters don't change through the adaption
@@ -178,7 +178,7 @@ void GBooleanObjectCollection::fillWithObjects_(const std::size_t &nAddedObjects
         std::shared_ptr<GBooleanObject> gbo_ptr;
 
         CHECK_NOTHROW(
-            gbo_ptr = std::shared_ptr<GBooleanObject>(new GBooleanObject())
+            gbo_ptr = std::make_shared<GBooleanObject>()
         ); // Initialization with standard values
 
         // Add the adaptor
@@ -240,7 +240,7 @@ void GBooleanObjectCollection::specificTestsNoFailureExpected_GUnitTests_() {
 
     { // Check copy construction
         GBooleanObjectCollection gboc1;
-        gboc1.push_back(std::shared_ptr<GBooleanObject>(new GBooleanObject(0.5)));
+        gboc1.push_back(std::make_shared<GBooleanObject>(0.5));
         CHECK(gboc1.size() == 1);
         GBooleanObjectCollection gboc2(gboc1);
         CHECK(gboc1.size() == gboc2.size());

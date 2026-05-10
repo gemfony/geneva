@@ -147,7 +147,7 @@ bScanPar::bScanPar(parPropSpec<bool> pps, bool randomScan)
  * Cloning of this object
  */
 std::shared_ptr<bScanPar> bScanPar::clone() const {
-    return std::shared_ptr<bScanPar>(new bScanPar(*this));
+    return std::make_shared<bScanPar>(*this);
 }
 
 /******************************************************************************/
@@ -173,7 +173,7 @@ int32ScanPar::int32ScanPar(parPropSpec<std::int32_t> pps, bool randomScan)
  * Cloning
  */
 std::shared_ptr<int32ScanPar> int32ScanPar::clone() const {
-    return std::shared_ptr<int32ScanPar>(new int32ScanPar(*this));
+    return std::make_shared<int32ScanPar>(*this);
 }
 
 /******************************************************************************/
@@ -199,7 +199,7 @@ dScanPar::dScanPar(parPropSpec<double> pps, bool randomScan)
  * Cloning
  */
 std::shared_ptr<dScanPar> dScanPar::clone() const {
-    return std::shared_ptr<dScanPar>(new dScanPar(*this));
+    return std::make_shared<dScanPar>(*this);
 }
 
 /******************************************************************************/
@@ -225,7 +225,7 @@ fScanPar::fScanPar(parPropSpec<float> pps, bool randomScan)
  * Cloning
  */
 std::shared_ptr<fScanPar> fScanPar::clone() const {
-    return std::shared_ptr<fScanPar>(new fScanPar(*this));
+    return std::make_shared<fScanPar>(*this);
 }
 
 /******************************************************************************/
@@ -1083,7 +1083,7 @@ void GParameterScan::setParameterSpecs(std::string parStr) {
         auto d_end = std::get<1>(t_d);
         for(; d_cit != d_end;
             ++d_cit) { // Note: d_cit is already set to the begin of the double parameter arrays
-            d_cnt_.push_back(std::shared_ptr<dScanPar>(new dScanPar(*d_cit, scanRandomly_)));
+            d_cnt_.push_back(std::make_shared<dScanPar>(*d_cit, scanRandomly_));
         }
 
         // Retrieve float parameters
@@ -1096,7 +1096,7 @@ void GParameterScan::setParameterSpecs(std::string parStr) {
         auto f_end = std::get<1>(t_f);
         for(; f_cit != f_end;
             ++f_cit) { // Note: f_cit is already set to the begin of the double parameter arrays
-            f_cnt_.push_back(std::shared_ptr<fScanPar>(new fScanPar(*f_cit, scanRandomly_)));
+            f_cnt_.push_back(std::make_shared<fScanPar>(*f_cit, scanRandomly_));
         }
 
         // Retrieve integer parameters
@@ -1110,7 +1110,7 @@ void GParameterScan::setParameterSpecs(std::string parStr) {
         for(; i_cit != i_end;
             ++i_cit) { // Note: i_cit is already set to the begin of the double parameter arrays
             int32_cnt_.push_back(
-                std::shared_ptr<int32ScanPar>(new int32ScanPar(*i_cit, scanRandomly_))
+                std::make_shared<int32ScanPar>(*i_cit, scanRandomly_)
             );
         }
 
@@ -1124,7 +1124,7 @@ void GParameterScan::setParameterSpecs(std::string parStr) {
         auto b_end = std::get<1>(t_b);
         for(; b_cit != b_end;
             ++b_cit) { // Note: b_cit is already set to the begin of the double parameter arrays
-            b_cnt_.push_back(std::shared_ptr<bScanPar>(new bScanPar(*b_cit, scanRandomly_)));
+            b_cnt_.push_back(std::make_shared<bScanPar>(*b_cit, scanRandomly_));
         }
     }
 

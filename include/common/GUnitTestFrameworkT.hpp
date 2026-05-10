@@ -59,7 +59,7 @@ std::shared_ptr<T> TFactory_GUnitTests() {
     std::shared_ptr<T> p;
 
     try {
-        p = std::shared_ptr<T>(new T());
+        p = std::make_shared<T>();
     }
     catch(const geneva_exception &g) {
         // Re-throw

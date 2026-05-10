@@ -1128,19 +1128,17 @@ std::shared_ptr<Gem::Geneva::networkData> TFactory_GSingletonT();
 template <>
 inline std::shared_ptr<Gem::Geneva::GNeuralNetworkIndividual>
 TFactory_GUnitTests<Gem::Geneva::GNeuralNetworkIndividual>() {
-    return std::shared_ptr<Gem::Geneva::GNeuralNetworkIndividual>(
-        new Gem::Geneva::GNeuralNetworkIndividual(
-            Gem::Geneva::GNN_DEF_MINVAR,
-            Gem::Geneva::GNN_DEF_MAXVAR,
-            Gem::Geneva::GNN_DEF_SIGMA,
-            Gem::Geneva::GNN_DEF_SIGMASIGMA,
-            Gem::Geneva::GNN_DEF_MINSIGMA,
-            Gem::Geneva::GNN_DEF_MAXSIGMA,
-            Gem::Geneva::GNN_DEF_ADPROB,
-            Gem::Geneva::GNN_DEF_ADAPTADPROB,
-            Gem::Geneva::GNN_DEF_MINADPROB,
-            Gem::Geneva::GNN_DEF_MAXADPROB
-        )
+    return std::make_shared<Gem::Geneva::GNeuralNetworkIndividual>(
+        Gem::Geneva::GNN_DEF_MINVAR,
+        Gem::Geneva::GNN_DEF_MAXVAR,
+        Gem::Geneva::GNN_DEF_SIGMA,
+        Gem::Geneva::GNN_DEF_SIGMASIGMA,
+        Gem::Geneva::GNN_DEF_MINSIGMA,
+        Gem::Geneva::GNN_DEF_MAXSIGMA,
+        Gem::Geneva::GNN_DEF_ADPROB,
+        Gem::Geneva::GNN_DEF_ADAPTADPROB,
+        Gem::Geneva::GNN_DEF_MINADPROB,
+        Gem::Geneva::GNN_DEF_MAXADPROB
     );
 }
 

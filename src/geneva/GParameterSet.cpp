@@ -2615,7 +2615,7 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests_() {
         // Add some floating point parameters
         for(std::size_t i = 0; i < FPLOOPCOUNT; i++) {
             std::shared_ptr<GConstrainedDoubleObject> gcdo_ptr =
-                std::shared_ptr<GConstrainedDoubleObject>(new GConstrainedDoubleObject(
+                std::make_shared<GConstrainedDoubleObject>(
                     uniform_real_distribution(
                         gr_,
                         std::uniform_real_distribution<double>::param_type(
@@ -2625,15 +2625,14 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests_() {
                     ),
                     MINGCONSTRDOUBLE,
                     MAXGCONSTRDOUBLE
-                ));
+                );
             std::shared_ptr<GDoubleObject> gdo_ptr =
-                std::shared_ptr<GDoubleObject>(new GDoubleObject(uniform_real_distribution(
+                std::make_shared<GDoubleObject>(uniform_real_distribution(
                     gr_,
                     std::uniform_real_distribution<double>::param_type(MINGDOUBLE, MAXGDOUBLE)
-                )));
-            std::shared_ptr<GDoubleCollection> gdc_ptr = std::shared_ptr<GDoubleCollection>(
-                new GDoubleCollection(NGDOUBLECOLL, MINGDOUBLECOLL, MAXGDOUBLECOLL)
-            );
+                ));
+            std::shared_ptr<GDoubleCollection> gdc_ptr =
+                std::make_shared<GDoubleCollection>(NGDOUBLECOLL, MINGDOUBLECOLL, MAXGDOUBLECOLL);
 
             // Mark the last parameter type as inactive
             gdc_ptr->setAdaptionsInactive();
@@ -2646,21 +2645,17 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests_() {
 
         // Attach a few other parameter types
         for(std::size_t i = 0; i < NINTBOOLOBJ; i++) {
-            p_test_0->push_back(
-                std::shared_ptr<GConstrainedInt32Object>(
-                    new GConstrainedInt32Object(7, MINGINT, MAXGINT)
-                )
-            );
-            p_test_0->push_back(std::shared_ptr<GBooleanObject>(new GBooleanObject(true)));
+            p_test_0->push_back(std::make_shared<GConstrainedInt32Object>(7, MINGINT, MAXGINT));
+            p_test_0->push_back(std::make_shared<GBooleanObject>(true));
         }
 
         // Finally we add a tree structure
         std::shared_ptr<GParameterObjectCollection> poc_ptr =
-            std::shared_ptr<GParameterObjectCollection>(new GParameterObjectCollection());
+            std::make_shared<GParameterObjectCollection>();
 
         for(std::size_t i = 0; i < FPLOOPCOUNT; i++) {
             std::shared_ptr<GConstrainedDoubleObject> gcdo_ptr =
-                std::shared_ptr<GConstrainedDoubleObject>(new GConstrainedDoubleObject(
+                std::make_shared<GConstrainedDoubleObject>(
                     uniform_real_distribution(
                         gr_,
                         std::uniform_real_distribution<double>::param_type(
@@ -2670,25 +2665,21 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests_() {
                     ),
                     MINGCONSTRDOUBLE,
                     MAXGCONSTRDOUBLE
-                ));
+                );
             std::shared_ptr<GDoubleObject> gdo_ptr =
-                std::shared_ptr<GDoubleObject>(new GDoubleObject(uniform_real_distribution(
+                std::make_shared<GDoubleObject>(uniform_real_distribution(
                     gr_,
                     std::uniform_real_distribution<double>::param_type(MINGDOUBLE, MAXGDOUBLE)
-                )));
+                ));
             std::shared_ptr<GConstrainedInt32ObjectCollection> gcioc_ptr =
-                std::shared_ptr<GConstrainedInt32ObjectCollection>(
-                    new GConstrainedInt32ObjectCollection()
-                );
+                std::make_shared<GConstrainedInt32ObjectCollection>();
 
             std::shared_ptr<GParameterObjectCollection> sub_poc_ptr =
-                std::shared_ptr<GParameterObjectCollection>(new GParameterObjectCollection());
+                std::make_shared<GParameterObjectCollection>();
 
             for(std::size_t ip = 0; ip < NINTCOLL; ip++) {
                 std::shared_ptr<GConstrainedInt32Object> gci32o_ptr =
-                    std::shared_ptr<GConstrainedInt32Object>(
-                        new GConstrainedInt32Object(MINGINT, MAXGINT)
-                    );
+                    std::make_shared<GConstrainedInt32Object>(MINGINT, MAXGINT);
                 gci32o_ptr->setAdaptionsInactive();
                 // The parameter should not be modifiable now
 
@@ -2696,10 +2687,10 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests_() {
             }
 
             std::shared_ptr<GDoubleObject> gdo2_ptr =
-                std::shared_ptr<GDoubleObject>(new GDoubleObject(uniform_real_distribution(
+                std::make_shared<GDoubleObject>(uniform_real_distribution(
                     gr_,
                     std::uniform_real_distribution<double>::param_type(MINGDOUBLE, MAXGDOUBLE)
-                )));
+                ));
             gdo2_ptr->setAdaptionsInactive();
             sub_poc_ptr->push_back(gdo2_ptr);
 

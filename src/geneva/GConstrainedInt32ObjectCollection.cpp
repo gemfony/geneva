@@ -156,7 +156,7 @@ void GConstrainedInt32ObjectCollection::fillWithObjects_(const std::size_t &nAdd
 
         CHECK_NOTHROW(
             giga_ptr =
-                std::shared_ptr<GInt32GaussAdaptor>(new GInt32GaussAdaptor(0.025, 0.1, 0, 1, 1.0))
+                std::make_shared<GInt32GaussAdaptor>(0.025, 0.1, 0, 1, 1.0)
         );
         CHECK_NOTHROW(
             giga_ptr->setAdaptionThreshold(0)
@@ -168,7 +168,7 @@ void GConstrainedInt32ObjectCollection::fillWithObjects_(const std::size_t &nAdd
 
         CHECK_NOTHROW(
             gcio_ptr =
-                std::shared_ptr<GConstrainedInt32Object>(new GConstrainedInt32Object(-100, 100))
+                std::make_shared<GConstrainedInt32Object>(-100, 100)
         ); // Initialization in the range -100, 100
 
         // Add the adaptor

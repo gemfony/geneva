@@ -43,7 +43,7 @@ namespace Gem::Geneva {
  */
 template <>
 std::shared_ptr<GAdaptorT<double>> getDefaultAdaptor<double>() {
-    return std::shared_ptr<GDoubleGaussAdaptor>(new GDoubleGaussAdaptor());
+    return std::make_shared<GDoubleGaussAdaptor>();
 }
 
 /******************************************************************************/
@@ -54,7 +54,7 @@ std::shared_ptr<GAdaptorT<double>> getDefaultAdaptor<double>() {
  */
 template <>
 std::shared_ptr<GAdaptorT<std::int32_t>> getDefaultAdaptor<std::int32_t>() {
-    return std::shared_ptr<GInt32FlipAdaptor>(new GInt32FlipAdaptor());
+    return std::make_shared<GInt32FlipAdaptor>();
 }
 
 /******************************************************************************/
@@ -65,7 +65,7 @@ std::shared_ptr<GAdaptorT<std::int32_t>> getDefaultAdaptor<std::int32_t>() {
  */
 template <>
 std::shared_ptr<GAdaptorT<bool>> getDefaultAdaptor<bool>() {
-    return std::shared_ptr<GBooleanAdaptor>(new GBooleanAdaptor());
+    return std::make_shared<GBooleanAdaptor>();
 }
 
 /******************************************************************************/

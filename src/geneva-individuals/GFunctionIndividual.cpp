@@ -799,7 +799,7 @@ void GFunctionIndividualFactory::load(
  * Creates a deep clone of this object
  */
 std::shared_ptr<Gem::Common::GFactoryT<GParameterSet>> GFunctionIndividualFactory::clone() const {
-    return std::shared_ptr<GFunctionIndividualFactory>(new GFunctionIndividualFactory(*this));
+    return std::make_shared<GFunctionIndividualFactory>(*this);
 }
 
 /******************************************************************************/
@@ -1672,14 +1672,10 @@ void GFunctionIndividualFactory::postProcess_(std::shared_ptr<GParameterSet> &p)
         std::shared_ptr<GDoubleCollection> gdc_ptr;
 
         if(initMode::INITRANDOM == iM_.value()) {
-            gdc_ptr = std::shared_ptr<GDoubleCollection>(
-                new GDoubleCollection(nData, minVar_.value(), maxVar_.value())
-            );
+            gdc_ptr = std::make_shared<GDoubleCollection>(nData, minVar_.value(), maxVar_.value());
         }
         else { // initMode::INITPERIMETER
-            gdc_ptr = std::shared_ptr<GDoubleCollection>(
-                new GDoubleCollection(nData, minVar_.value(), minVar_.value(), maxVar_.value())
-            );
+            gdc_ptr = std::make_shared<GDoubleCollection>(nData, minVar_.value(), minVar_.value(), maxVar_.value());
         }
 
         gdc_ptr->addAdaptor(gat_ptr);
@@ -1693,18 +1689,16 @@ void GFunctionIndividualFactory::postProcess_(std::shared_ptr<GParameterSet> &p)
         std::shared_ptr<GConstrainedDoubleCollection> gcdc_ptr;
 
         if(initMode::INITRANDOM == iM_) {
-            gcdc_ptr = std::shared_ptr<GConstrainedDoubleCollection>(
-                new GConstrainedDoubleCollection(nData, minVar_.value(), maxVar_.value())
-            );
+            gcdc_ptr = std::make_shared<GConstrainedDoubleCollection>(nData, minVar_.value(), maxVar_.value());
         }
         else { // initMode::INITPERIMETER
             gcdc_ptr =
-                std::shared_ptr<GConstrainedDoubleCollection>(new GConstrainedDoubleCollection(
+                std::make_shared<GConstrainedDoubleCollection>(
                     nData,
                     minVar_.value(),
                     minVar_.value(),
                     maxVar_.value()
-                ));
+                );
         }
 
         gcdc_ptr->addAdaptor(gat_ptr);

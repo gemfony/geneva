@@ -1626,7 +1626,7 @@ void GNAdpationsLogger::informationFunction_(
         gpd_.setCanvasDimensions(canvasDimensions_);
 
         // Set up a graph to monitor the best fitness found
-        fitnessGraph2D_oa_ = std::shared_ptr<Gem::Common::GGraph2D>(new Gem::Common::GGraph2D());
+        fitnessGraph2D_oa_ = std::make_shared<Gem::Common::GGraph2D>();
         fitnessGraph2D_oa_->setXAxisLabel("Iteration");
         fitnessGraph2D_oa_->setYAxisLabel("Fitness");
         fitnessGraph2D_oa_->setPlotMode(Gem::Common::graphPlotMode::CURVE);
@@ -1666,7 +1666,7 @@ void GNAdpationsLogger::informationFunction_(
         if(monitorBestOnly_) {
             // Create the graph object
             nAdaptionsGraph2D_oa_ =
-                std::shared_ptr<Gem::Common::GGraph2D>(new Gem::Common::GGraph2D());
+                std::make_shared<Gem::Common::GGraph2D>();
             nAdaptionsGraph2D_oa_->setXAxisLabel("Iteration");
             nAdaptionsGraph2D_oa_->setYAxisLabel("Number of parameter adaptions");
             nAdaptionsGraph2D_oa_->setPlotMode(Gem::Common::graphPlotMode::CURVE);
@@ -1689,14 +1689,14 @@ void GNAdpationsLogger::informationFunction_(
             }
 
             // Create the histogram object
-            nAdaptionsHist2D_oa_ = std::shared_ptr<GHistogram2D>(new GHistogram2D(
+            nAdaptionsHist2D_oa_ = std::make_shared<GHistogram2D>(
                 nIterationsRecorded_,
                 maxNAdaptions + 1,
                 0.,
                 double(maxIteration_),
                 0.,
                 double(maxNAdaptions)
-            ));
+            );
 
             nAdaptionsHist2D_oa_->setXAxisLabel("Iteration");
             nAdaptionsHist2D_oa_->setYAxisLabel("Number of parameter adaptions");

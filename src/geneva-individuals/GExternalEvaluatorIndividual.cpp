@@ -679,9 +679,7 @@ void GExternalEvaluatorIndividualFactory::load(
  */
 std::shared_ptr<Gem::Common::GFactoryT<GParameterSet>>
 GExternalEvaluatorIndividualFactory::clone() const {
-    return std::shared_ptr<GExternalEvaluatorIndividualFactory>(
-        new GExternalEvaluatorIndividualFactory(*this)
-    );
+    return std::make_shared<GExternalEvaluatorIndividualFactory>(*this);
 }
 
 /******************************************************************************/
@@ -1663,12 +1661,10 @@ void GExternalEvaluatorIndividualFactory::postProcess_(std::shared_ptr<GParamete
                         if(minVar ==
                            maxVar) { // We take this as a sign that the parameter should not be modified
                             // Create the parameter object
-                            gcdo_ptr = std::shared_ptr<GConstrainedDoubleObject>(
-                                new GConstrainedDoubleObject(
-                                    initValue,
-                                    initValue,
-                                    std::max(1.0001 * initValue, initValue + 0.0001)
-                                )
+                            gcdo_ptr = std::make_shared<GConstrainedDoubleObject>(
+                                initValue,
+                                initValue,
+                                std::max(1.0001 * initValue, initValue + 0.0001)
                             );
                             // Disable mutations
                             gcdo_ptr->setAdaptionsInactive();
@@ -1676,15 +1672,11 @@ void GExternalEvaluatorIndividualFactory::postProcess_(std::shared_ptr<GParamete
                         else if(0 == (cit->second).count("initRandom") ||
                                 false == (cit->second).get<bool>("initRandom")) {
                             // Create the parameter object
-                            gcdo_ptr = std::shared_ptr<GConstrainedDoubleObject>(
-                                new GConstrainedDoubleObject(initValue, minVar, maxVar)
-                            );
+                            gcdo_ptr = std::make_shared<GConstrainedDoubleObject>(initValue, minVar, maxVar);
                         }
                         else { // Random initialization has been requested
                             // Create the parameter object
-                            gcdo_ptr = std::shared_ptr<GConstrainedDoubleObject>(
-                                new GConstrainedDoubleObject(minVar, maxVar)
-                            );
+                            gcdo_ptr = std::make_shared<GConstrainedDoubleObject>(minVar, maxVar);
                         }
                         gcdo_ptr->setParameterName(pName);
 

@@ -438,9 +438,7 @@ void GConstrainedDoubleCollection::specificTestsNoFailureExpected_GUnitTests_() 
         std::shared_ptr<GConstrainedDoubleCollection> p_test;
 
         CHECK_NOTHROW(
-            p_test = std::shared_ptr<GConstrainedDoubleCollection>(
-                new GConstrainedDoubleCollection(DEFSIZE, DEFMIN, DEFMAX)
-            )
+            p_test = std::make_shared<GConstrainedDoubleCollection>(DEFSIZE, DEFMIN, DEFMAX)
         );
         CHECK((p_test->size() == DEFSIZE && DEFSIZE > 1));
         for(std::size_t i = 1; i < DEFSIZE; i++) { // Check that consecutive values are different
@@ -458,9 +456,7 @@ void GConstrainedDoubleCollection::specificTestsNoFailureExpected_GUnitTests_() 
         std::shared_ptr<GConstrainedDoubleCollection> p_test;
 
         CHECK_NOTHROW(
-            p_test = std::shared_ptr<GConstrainedDoubleCollection>(
-                new GConstrainedDoubleCollection(DEFSIZE, DEFVAL, DEFMIN, DEFMAX)
-            )
+            p_test = std::make_shared<GConstrainedDoubleCollection>(DEFSIZE, DEFVAL, DEFMIN, DEFMAX)
         );
         CHECK(p_test->size() == DEFSIZE);
         for(std::size_t i = 0; i < DEFSIZE; i++) {

@@ -154,7 +154,7 @@ void GInt32ObjectCollection::fillWithObjects_(const std::size_t &nAddedObjects) 
 
         CHECK_NOTHROW(
             giga_ptr =
-                std::shared_ptr<GInt32GaussAdaptor>(new GInt32GaussAdaptor(0.025, 0.1, 0, 1, 1.0))
+                std::make_shared<GInt32GaussAdaptor>(0.025, 0.1, 0, 1, 1.0)
         );
         CHECK_NOTHROW(
             giga_ptr->setAdaptionThreshold(0)
@@ -165,7 +165,7 @@ void GInt32ObjectCollection::fillWithObjects_(const std::size_t &nAddedObjects) 
         std::shared_ptr<GInt32Object> gio_ptr;
 
         CHECK_NOTHROW(
-            gio_ptr = std::shared_ptr<GInt32Object>(new GInt32Object(-100, 100))
+            gio_ptr = std::make_shared<GInt32Object>(-100, 100)
         ); // Initialization in the range -100, 100
 
         // Add the adaptor

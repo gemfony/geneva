@@ -189,9 +189,7 @@ void GConjugateGradientDescent::finalize() {
  * Retrieve a GPersonalityTraits object belonging to this algorithm
  */
 std::shared_ptr<GPersonalityTraits> GConjugateGradientDescent::getPersonalityTraits_() const {
-    return std::shared_ptr<GGradientDescent_PersonalityTraits>(
-        new GGradientDescent_PersonalityTraits()
-    );
+    return std::make_shared<GGradientDescent_PersonalityTraits>();
 }
 
 /******************************************************************************/

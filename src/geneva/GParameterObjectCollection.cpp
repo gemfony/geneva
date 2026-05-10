@@ -160,7 +160,7 @@ void GParameterObjectCollection::fillWithObjects_() {
     // Add a GBooleanObject object
     // Create a suitable adaptor
     std::shared_ptr<GBooleanAdaptor> gba_ptr;
-    CHECK_NOTHROW(gba_ptr = std::shared_ptr<GBooleanAdaptor>(new GBooleanAdaptor(1.0)));
+    CHECK_NOTHROW(gba_ptr = std::make_shared<GBooleanAdaptor>(1.0));
     CHECK_NOTHROW(
         gba_ptr->setAdaptionThreshold(0)
     ); // Make sure the adaptor's internal parameters don't change through the adaption
@@ -169,7 +169,7 @@ void GParameterObjectCollection::fillWithObjects_() {
     // Create a suitable GBooleanObject object
     std::shared_ptr<GBooleanObject> gbo_ptr;
     CHECK_NOTHROW(
-        gbo_ptr = std::shared_ptr<GBooleanObject>(new GBooleanObject())
+        gbo_ptr = std::make_shared<GBooleanObject>()
     ); // Initialization with standard values
 
     // Add the adaptor
@@ -186,7 +186,7 @@ void GParameterObjectCollection::fillWithObjects_() {
     std::shared_ptr<GInt32GaussAdaptor> giga_ptr;
     CHECK_NOTHROW(
         giga_ptr =
-            std::shared_ptr<GInt32GaussAdaptor>(new GInt32GaussAdaptor(0.025, 0.1, 0, 1, 1.0))
+            std::make_shared<GInt32GaussAdaptor>(0.025, 0.1, 0, 1, 1.0)
     );
     CHECK_NOTHROW(
         giga_ptr->setAdaptionThreshold(0)
@@ -196,7 +196,7 @@ void GParameterObjectCollection::fillWithObjects_() {
     // Create a suitable GInt32Object object
     std::shared_ptr<GInt32Object> gio_ptr;
     CHECK_NOTHROW(
-        gio_ptr = std::shared_ptr<GInt32Object>(new GInt32Object(-100, 100))
+        gio_ptr = std::make_shared<GInt32Object>(-100, 100)
     ); // Initialization in the range -100, 100
 
     // Add the adaptor
@@ -213,7 +213,7 @@ void GParameterObjectCollection::fillWithObjects_() {
     std::shared_ptr<GDoubleGaussAdaptor> gdga_ptr;
     CHECK_NOTHROW(
         gdga_ptr =
-            std::shared_ptr<GDoubleGaussAdaptor>(new GDoubleGaussAdaptor(0.025, 0.1, 0, 1, 1.0))
+            std::make_shared<GDoubleGaussAdaptor>(0.025, 0.1, 0, 1, 1.0)
     );
     CHECK_NOTHROW(
         gdga_ptr->setAdaptionThreshold(0)
@@ -223,7 +223,7 @@ void GParameterObjectCollection::fillWithObjects_() {
     // Create a suitable GDoubleObject object
     std::shared_ptr<GDoubleObject> gdo_ptr;
     CHECK_NOTHROW(
-        gdo_ptr = std::shared_ptr<GDoubleObject>(new GDoubleObject(-100., 100.))
+        gdo_ptr = std::make_shared<GDoubleObject>(-100., 100.)
     ); // Initialization in the range -100, 100
 
     // Add the adaptor

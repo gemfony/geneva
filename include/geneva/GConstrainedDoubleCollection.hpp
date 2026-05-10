@@ -195,9 +195,7 @@ TFactory_GUnitTests<Gem::Geneva::GConstrainedDoubleCollection>() {
     double UPPERBOUNDARY = 10.;
     std::shared_ptr<Gem::Geneva::GConstrainedDoubleCollection> p;
     CHECK_NOTHROW(
-        p = std::shared_ptr<Gem::Geneva::GConstrainedDoubleCollection>(
-            new Gem::Geneva::GConstrainedDoubleCollection(NPARAMETERS, LOWERBOUNDARY, UPPERBOUNDARY)
-        )
+        p = std::make_shared<Gem::Geneva::GConstrainedDoubleCollection>(NPARAMETERS, LOWERBOUNDARY, UPPERBOUNDARY)
     );
     return p;
 }

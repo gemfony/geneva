@@ -64,7 +64,7 @@ namespace Gem::Common {
  */
 template <typename T>
 typename std::shared_ptr<T> TFactory_GSingletonT() {
-    return std::shared_ptr<T>(new T());
+    return std::make_shared<T>();
 }
 
 /******************************************************************************/

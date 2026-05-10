@@ -1800,13 +1800,13 @@ public:
       , gpd_("Maximum waiting times and returned items", 1, 2) {
         gpd_.setCanvasDimensions(std::make_tuple<std::uint32_t, std::uint32_t>(1200, 1600));
 
-        waiting_times_graph_ = std::shared_ptr<Gem::Common::GGraph2D>(new Gem::Common::GGraph2D());
+        waiting_times_graph_ = std::make_shared<Gem::Common::GGraph2D>();
         waiting_times_graph_->setXAxisLabel("Iteration");
         waiting_times_graph_->setYAxisLabel("Maximum waiting time [s]");
         waiting_times_graph_->setPlotMode(Gem::Common::graphPlotMode::CURVE);
 
         returned_items_graph_ =
-            std::shared_ptr<Gem::Common::GGraph2D>(new Gem::Common::GGraph2D());
+            std::make_shared<Gem::Common::GGraph2D>();
         returned_items_graph_->setXAxisLabel("Iteration");
         returned_items_graph_->setYAxisLabel("Number of returned items");
         returned_items_graph_->setPlotMode(Gem::Common::graphPlotMode::CURVE);
@@ -1827,13 +1827,13 @@ public:
       , waitFactorWarningEmitted_(cp.waitFactorWarningEmitted_) {
         gpd_.setCanvasDimensions(std::make_tuple<std::uint32_t, std::uint32_t>(1200, 1600));
 
-        waiting_times_graph_ = std::shared_ptr<Gem::Common::GGraph2D>(new Gem::Common::GGraph2D());
+        waiting_times_graph_ = std::make_shared<Gem::Common::GGraph2D>();
         waiting_times_graph_->setXAxisLabel("Iteration");
         waiting_times_graph_->setYAxisLabel("Maximum waiting time [s]");
         waiting_times_graph_->setPlotMode(Gem::Common::graphPlotMode::CURVE);
 
         returned_items_graph_ =
-            std::shared_ptr<Gem::Common::GGraph2D>(new Gem::Common::GGraph2D());
+            std::make_shared<Gem::Common::GGraph2D>();
         returned_items_graph_->setXAxisLabel("Iteration");
         returned_items_graph_->setYAxisLabel("Number of returned items");
         returned_items_graph_->setPlotMode(Gem::Common::graphPlotMode::CURVE);

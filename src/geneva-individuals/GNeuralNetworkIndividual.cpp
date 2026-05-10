@@ -1772,14 +1772,10 @@ namespace Gem::Common {
 template <>
 std::shared_ptr<Gem::Geneva::networkData> TFactory_GSingletonT() {
     if(GNeuralNetworkOptions->exists("trainingDataFile")) {
-        return std::shared_ptr<Gem::Geneva::networkData>(
-            new Gem::Geneva::networkData(GNeuralNetworkOptions->get("trainingDataFile"))
-        );
+        return std::make_shared<Gem::Geneva::networkData>(GNeuralNetworkOptions->get("trainingDataFile"));
     }
     else {
-        return std::shared_ptr<Gem::Geneva::networkData>(
-            new Gem::Geneva::networkData(Gem::Geneva::GNN_DEF_DATAFILE)
-        );
+        return std::make_shared<Gem::Geneva::networkData>(Gem::Geneva::GNN_DEF_DATAFILE);
     }
 }
 

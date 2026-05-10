@@ -150,9 +150,7 @@ void GDoubleObjectCollection::fillWithObjects_(const std::size_t &nAddedObjects)
         std::shared_ptr<GDoubleGaussAdaptor> gdga_ptr;
 
         CHECK_NOTHROW(
-            gdga_ptr = std::shared_ptr<GDoubleGaussAdaptor>(
-                new GDoubleGaussAdaptor(0.025, 0.1, 0., 1., 1.0)
-            )
+            gdga_ptr = std::make_shared<GDoubleGaussAdaptor>(0.025, 0.1, 0., 1., 1.0)
         );
         CHECK_NOTHROW(
             gdga_ptr->setAdaptionThreshold(0)
@@ -163,7 +161,7 @@ void GDoubleObjectCollection::fillWithObjects_(const std::size_t &nAddedObjects)
         std::shared_ptr<GDoubleObject> gdo_ptr;
 
         CHECK_NOTHROW(
-            gdo_ptr = std::shared_ptr<GDoubleObject>(new GDoubleObject(-100., 100.))
+            gdo_ptr = std::make_shared<GDoubleObject>(-100., 100.)
         ); // Initialization in the range -100, 100
 
         // Add the adaptor

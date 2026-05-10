@@ -158,9 +158,7 @@ void GConstrainedDoubleObjectCollection::fillWithObjects_(const std::size_t &nAd
         std::shared_ptr<GDoubleGaussAdaptor> gdga_ptr;
 
         CHECK_NOTHROW(
-            gdga_ptr = std::shared_ptr<GDoubleGaussAdaptor>(
-                new GDoubleGaussAdaptor(0.025, 0.1, 0., 1., 1.0)
-            )
+            gdga_ptr = std::make_shared<GDoubleGaussAdaptor>(0.025, 0.1, 0., 1., 1.0)
         );
         CHECK_NOTHROW(
             gdga_ptr->setAdaptionThreshold(0)
@@ -172,7 +170,7 @@ void GConstrainedDoubleObjectCollection::fillWithObjects_(const std::size_t &nAd
 
         CHECK_NOTHROW(
             gcdo_ptr =
-                std::shared_ptr<GConstrainedDoubleObject>(new GConstrainedDoubleObject(-100., 100.))
+                std::make_shared<GConstrainedDoubleObject>(-100., 100.)
         ); // Boundaries in the range [-100., 100.[
 
         // Add the adaptor

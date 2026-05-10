@@ -319,7 +319,7 @@ void GTestIndividual3::specificTestsNoFailureExpected_GUnitTests_() {
         std::shared_ptr<GTestIndividual3> p;
         std::shared_ptr<float> result_old, result_new;
 
-        CHECK_NOTHROW(p = std::shared_ptr<GTestIndividual3>(new GTestIndividual3()));
+        CHECK_NOTHROW(p = std::make_shared<GTestIndividual3>());
         CHECK_NOTHROW(result_old = p->getPlainData());
         for(std::size_t i = 0; i < NTESTS; i++) {
             CHECK_NOTHROW(result_new = p->getPlainData());
