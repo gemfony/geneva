@@ -75,8 +75,9 @@ namespace Gem::Common {
  */
 template <typename To, typename From>
 To narrow_cast(From value) {
-    static_assert(std::is_arithmetic_v<To> && std::is_arithmetic_v<From>,
-                  "narrow_cast requires arithmetic types");
+    static_assert((std::is_arithmetic_v<To> || std::is_enum_v<To>) &&
+                  (std::is_arithmetic_v<From> || std::is_enum_v<From>),
+                  "narrow_cast requires arithmetic or enum types");
     auto result = static_cast<To>(value);
     if constexpr (std::is_integral_v<To> && std::is_integral_v<From>) {
         if(static_cast<From>(result) != value) {

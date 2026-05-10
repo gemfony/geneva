@@ -28,6 +28,7 @@
  ********************************************************************************/
 
 #include "courtier/GCourtierHelperFunctions.hpp"
+#include "common/GCommonHelperFunctionsT.hpp"
 
 
 namespace Gem::Courtier {

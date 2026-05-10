@@ -28,6 +28,7 @@
  ********************************************************************************/
 
 #include "common/GThreadPool.hpp"
+#include "common/GCommonHelperFunctionsT.hpp"
 
 
 namespace Gem::Common {
