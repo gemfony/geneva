@@ -33,6 +33,7 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard header files go here
+#include <any>
 #include <type_traits>
 
 // Boost header files go here
@@ -1152,7 +1153,7 @@ private:
     void queryAdaptor_(
         const std::string &adaptorName,
         const std::string &property,
-        std::vector<boost::any> &data
+        std::vector<std::any> &data
     ) const override {
         for(auto const &par_ptr : *this) {
             par_ptr->queryAdaptor(adaptorName, property, data);

@@ -29,6 +29,7 @@
 
 #include "geneva/GParameterSet.hpp"
 
+#include <any>
 #include <memory>
 
 #ifdef GEM_TESTING
@@ -793,7 +794,7 @@ void GParameterSet::updateAdaptorsOnStall(const std::uint32_t nStalls) {
 void GParameterSet::queryAdaptor(
     std::string const &adaptorName,
     std::string const &property,
-    std::vector<boost::any> &data
+    std::vector<std::any> &data
 ) const {
     for(const auto &item_ptr : *this) {
         item_ptr->queryAdaptor(adaptorName, property, data);
@@ -1954,11 +1955,11 @@ bool GParameterSet::parameterSetFulfillsConstraints(double &validityLevel) const
 /**
      * Retrieves a parameter of a given type at the specified position
      */
-boost::any GParameterSet::getVarVal(
+std::any GParameterSet::getVarVal(
     std::string const &descr,
     std::tuple<std::size_t, std::string, std::size_t> const &target
 ) {
-    boost::any result;
+    std::any result;
 
     if(descr == "d") {
         result = GParameterSet::getVarItem<double>(target);

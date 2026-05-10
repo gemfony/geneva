@@ -35,6 +35,7 @@
 // Standard header files go here
 #include <chrono>
 #include <filesystem>
+#include <any>
 #include <fstream>
 #include <string>
 #include <type_traits>
@@ -1892,7 +1893,7 @@ private:
             nIterationsRecorded_++;
 
             // Will hold the adaptor properties
-            std::vector<boost::any> data;
+            std::vector<std::any> data;
 
             // Do the actual logging
             if(monitorBestOnly_) {
@@ -1903,12 +1904,12 @@ private:
                 best->queryAdaptor(adaptorName_, property_, data);
 
                 // Attach the data to adaptorPropertyStore_
-                std::vector<boost::any>::iterator prop_it;
+                std::vector<std::any>::iterator prop_it;
                 for(prop_it = data.begin(); prop_it != data.end(); ++prop_it) {
                     adaptorPropertyStore_.push_back(
                         std::tuple<double, double>(
                             double(iteration),
-                            double(boost::any_cast<num_type>(*prop_it))
+                            double(std::any_cast<num_type>(*prop_it))
                         )
                     );
                 }
@@ -1923,12 +1924,12 @@ private:
                     ind->queryAdaptor(adaptorName_, property_, data);
 
                     // Attach the data to adaptorPropertyStore_
-                    std::vector<boost::any>::iterator prop_it;
+                    std::vector<std::any>::iterator prop_it;
                     for(prop_it = data.begin(); prop_it != data.end(); ++prop_it) {
                         adaptorPropertyStore_.push_back(
                             std::tuple<double, double>(
                                 double(iteration),
-                                double(boost::any_cast<num_type>(*prop_it))
+                                double(std::any_cast<num_type>(*prop_it))
                             )
                         );
                     }

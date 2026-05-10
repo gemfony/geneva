@@ -665,15 +665,15 @@ protected:
      * was not found.
      */
     bool
-    customQueryProperty(const std::string &property, std::vector<boost::any> &data) const override {
+    customQueryProperty(const std::string &property, std::vector<std::any> &data) const override {
         if(property == "sigma1") {
-            data.push_back(boost::any(sigma1_));
+            data.push_back(std::any(sigma1_));
         }
         else if(property == "sigma2") {
-            data.push_back(boost::any(sigma1_));
+            data.push_back(std::any(sigma1_));
         }
         else if(property == "delta") {
-            data.push_back(boost::any(delta_));
+            data.push_back(std::any(delta_));
         }
         else {
             return false;

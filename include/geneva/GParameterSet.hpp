@@ -34,6 +34,7 @@
 
 // Standard header files go here
 #include <functional>
+#include <any>
 #include <limits>
 #include <map>
 #include <typeinfo>
@@ -264,7 +265,7 @@ public:
     void queryAdaptor(
         std::string const &adaptorName,
         std::string const &property,
-        std::vector<boost::any> &data
+        std::vector<std::any> &data
     ) const;
 
     /** @brief Retrieves parameters relevant for the evaluation from another GParameterSet */
@@ -341,22 +342,22 @@ public:
 
         if(typeid(val_type) == typeid(double)) {
             return boost::numeric_cast<val_type>(
-                boost::any_cast<double>(this->getVarVal("d", target))
+                std::any_cast<double>(this->getVarVal("d", target))
             );
         }
         else if(typeid(val_type) == typeid(float)) {
             return boost::numeric_cast<val_type>(
-                boost::any_cast<float>(this->getVarVal("f", target))
+                std::any_cast<float>(this->getVarVal("f", target))
             );
         }
         if(typeid(val_type) == typeid(std::int32_t)) {
             return boost::numeric_cast<val_type>(
-                boost::any_cast<std::int32_t>(this->getVarVal("i", target))
+                std::any_cast<std::int32_t>(this->getVarVal("i", target))
             );
         }
         if(typeid(val_type) == typeid(bool)) {
             return boost::numeric_cast<val_type>(
-                boost::any_cast<bool>(this->getVarVal("b", target))
+                std::any_cast<bool>(this->getVarVal("b", target))
             );
         }
         else {
@@ -493,8 +494,8 @@ public:
      * Retrieves an item according to a description provided by the target tuple
      */
     template <typename par_type>
-    boost::any getVarItem(std::tuple<std::size_t, std::string, std::size_t> const &target) {
-        boost::any result;
+    std::any getVarItem(std::tuple<std::size_t, std::string, std::size_t> const &target) {
+        std::any result;
 
         switch(std::get<0>(target)) {
         //---------------------------------------------------------------------
@@ -895,7 +896,7 @@ private:
     /***************************************************************************/
 
     /** @brief Retrieves a parameter of a given type at the specified position */
-    boost::any
+    std::any
     getVarVal(const std::string &, const std::tuple<std::size_t, std::string, std::size_t> &target);
 
     /** @brief  Allows to set all fitnesses to the same value (both raw and transformed values) */

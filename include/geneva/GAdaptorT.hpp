@@ -33,6 +33,7 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard headers go here
+#include <any>
 #include <type_traits>
 
 // Boost headers go here
@@ -694,7 +695,7 @@ public:
     void queryPropertyFrom(
         const std::string &adaptorName,
         const std::string &property,
-        std::vector<boost::any> &data
+        std::vector<std::any> &data
     ) const {
         // Do nothing, if this query is not for us
         if(adaptorName != this->name()) {
@@ -702,7 +703,7 @@ public:
         }
         else {                         // O.k., this query is for us!
             if(property == "adProb") { // The only property that can be queried for this class
-                data.push_back(boost::any(adProb_));
+                data.push_back(std::any(adProb_));
             }
             else { // Ask derived classes
                 if(not this->customQueryProperty(property, data)) {
@@ -842,7 +843,7 @@ protected:
     virtual bool customQueryProperty(
         const std::string & /*property*/
         ,
-        std::vector<boost::any> &data
+        std::vector<std::any> &data
     ) const {
         return false;
     }

@@ -512,7 +512,7 @@ private:
     void queryAdaptor_(
         const std::string &adaptorName,
         const std::string &property,
-        std::vector<boost::any> &data
+        std::vector<std::any> &data
     ) const override {
 #ifdef DEBUG
         if(not adaptor_) {

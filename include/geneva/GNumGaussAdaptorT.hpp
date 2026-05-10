@@ -33,6 +33,7 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard headers go here
+#include <any>
 #include <tuple>
 
 // Boost headers go here
@@ -549,9 +550,9 @@ protected:
 	  * was not found.
 	  */
     bool
-    customQueryProperty(const std::string &property, std::vector<boost::any> &data) const override {
+    customQueryProperty(const std::string &property, std::vector<std::any> &data) const override {
         if(property == "sigma") {
-            data.push_back(boost::any(sigma_));
+            data.push_back(std::any(sigma_));
         }
         else {
             return false;

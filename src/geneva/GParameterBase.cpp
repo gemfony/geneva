@@ -90,7 +90,7 @@ bool GParameterBase::updateAdaptorsOnStall(std::size_t nStalls) {
 void GParameterBase::queryAdaptor(
     const std::string &adaptorName,
     const std::string &property,
-    std::vector<boost::any> &data
+    std::vector<std::any> &data
 ) const {
     queryAdaptor_(adaptorName, property, data);
 }

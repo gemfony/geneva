@@ -33,6 +33,7 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard header files go here
+#include <any>
 #include <random>
 
 // Boost header files go here
@@ -99,7 +100,7 @@ public:
     void queryAdaptor(
         const std::string &adaptorName,
         const std::string &property,
-        std::vector<boost::any> &data
+        std::vector<std::any> &data
     ) const;
 
     /** @brief Switches on adaptions for this object */
@@ -665,7 +666,7 @@ private:
     virtual void queryAdaptor_(
         const std::string &adaptorName,
         const std::string &property,
-        std::vector<boost::any> &data
+        std::vector<std::any> &data
     ) const = 0;
 
     /** @brief Allows to identify whether we are dealing with a collection or an individual parameter */
