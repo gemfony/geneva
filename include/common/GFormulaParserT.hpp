@@ -54,6 +54,7 @@
 #include <stack>
 #include <string>
 #include <type_traits>
+#include <variant>
 
 // Boost headers go here
 
@@ -443,7 +444,7 @@ public:
     };
 
     using result_type = void; // Needed for the operator() and apply_visitor
-    using codeEntry = boost::variant<byte_code, fp_type>;
+    using codeEntry = std::variant<byte_code, fp_type>;
     using parameter_map = std::map<std::string, std::vector<fp_type>>;
     using constants_map = std::map<std::string, fp_type>;
 
@@ -799,9 +800,8 @@ private:
             printCode();
 
         while(code_ptr != code_.end()) {
-            // Note: *code_ptr is a boost::variabt, boost::get has nothing to do with a boost::tuple here
             switch(
-                boost::get<byte_code>(*code_ptr++)
+                std::get<byte_code>(*code_ptr++)
             ) { // Read out code_ptr, then switch it to the next position
             case byte_code::op_trap: {
                 throw geneva_exception(
@@ -950,7 +950,7 @@ private:
                 break;
 
             case byte_code::op_fp:
-                *stack_ptr_++ = boost::get<fp_type>(*code_ptr++);
+                *stack_ptr_++ = std::get<fp_type>(*code_ptr++);
                 break;
 
             default: {
@@ -958,7 +958,7 @@ private:
                     g_error_streamer(DO_LOG, time_and_place)
                     << "In GFormulaParserT<fp_type>::execute(): Error!" << std::endl
                     << "Invalid instruction "
-                    << static_cast<std::size_t>(boost::get<byte_code>(*code_ptr--)) << std::endl
+                    << static_cast<std::size_t>(std::get<byte_code>(*code_ptr--)) << std::endl
                 );
                 // Note that the static cast is required here as strongly-typed enums cannot be
                 // cast implicitly to integers types.
@@ -998,7 +998,7 @@ private:
 
         std::cout << "Code: ";
         for(auto it : code_) {
-            std::cout << static_cast<std::size_t>(boost::get<byte_code>(it)) << " " << std::flush;
+            std::cout << static_cast<std::size_t>(std::get<byte_code>(it)) << " " << std::flush;
         }
         std::cout << std::endl;
     }
