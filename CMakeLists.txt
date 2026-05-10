@@ -108,6 +108,25 @@ else()
     set(GENEVA_USE_CUDA_RNG OFF CACHE BOOL "Use CUDA for RNG in Hap" FORCE)
 endif()
 
+# Detect the CXX compiler's libstdc++.so location and cache it.
+# The GCUDAWorker example uses this to link explicitly against the right
+# libstdc++.so version when the CUDA toolkit's bundled host compiler (an
+# older GCC) would otherwise inject an older libstdc++ into the link path,
+# causing "undefined reference to __cxa_*@CXXABI_X.Y" link failures.
+if(CMAKE_CUDA_COMPILER_LOADED AND CMAKE_CXX_COMPILER)
+    execute_process(
+        COMMAND "${CMAKE_CXX_COMPILER}" -print-file-name=libstdc++.so
+        OUTPUT_VARIABLE _cxx_libstdcxx_path
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+    if(_cxx_libstdcxx_path AND NOT _cxx_libstdcxx_path STREQUAL "libstdc++.so")
+        get_filename_component(_cxx_lib_dir "${_cxx_libstdcxx_path}" DIRECTORY)
+        set(GENEVA_CXX_RUNTIME_LIB_DIR "${_cxx_lib_dir}" CACHE INTERNAL "CXX runtime lib dir for CUDA link fix")
+    endif()
+    unset(_cxx_libstdcxx_path)
+    unset(_cxx_lib_dir)
+endif()
+
 ################################################################################
 # We create some examples and test programs as part of the build process.
 # This variable allows their build-scripts to detect that they are being
