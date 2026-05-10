@@ -102,6 +102,35 @@ Recommended Versions:
   in GFormulaParserT.hpp, GParameterPropertyParser.hpp, and GBaseClientT.hpp,
   removing a category of compiler warnings on Boost >= 1.90.
 
+- Incremental Boost de-dependency (non-Serialization / non-Spirit / non-Asio):
+  Numerous Boost headers that have direct C++ standard equivalents have been
+  replaced across all five libraries:
+  - boost::numeric_cast → Gem::Common::narrow_cast (checked cast using std::numeric_limits)
+  - boost::checked_delete / boost::checked_array_delete → delete / delete[]
+  - boost::iterator_facade → hand-written C++ forward iterator in GPtrVectorT.hpp
+  - boost::variant (non-recursive codeEntry in GFormulaParserT) → std::variant
+  - boost::uuids::random_generator → Gem::Common::generate_uuid_v4() (thread-local
+    std::mt19937_64, RFC 4122 v4 UUID)
+  - boost::tokenizer + boost::char_separator → std::string::find-based splitting
+  - boost::trim → inline std::string::find_first/last_not_of whitespace trimming
+  - boost::algorithm/string.hpp → removed from 15+ headers (all uses were stale)
+  - boost::math::float_prior<T> / float_next<T> → std::nextafter (from <cmath>)
+  - boost::math::constants::pi/e → std::numbers::pi/e (or numeric literals in CUDA paths)
+  - boost::math::special_functions.hpp / next.hpp → removed (replaced by std::nextafter)
+  - boost::numeric::bounds<T>::highest() / lowest() → std::numeric_limits<T>::max/lowest()
+  - boost::limits.hpp → <limits>
+  - boost::enable_shared_from_this → std::enable_shared_from_this (already used; include removed)
+  - boost::exception / boost::diagnostic_information → removed; catch(boost::exception&)
+    handlers were dead code (Geneva never throws boost::exception subtypes; Asio's
+    system_error inherits from std::exception); replaced by std::exception catch-all
+  - boost::predef (BOOST_COMP_GNUC < 5 guard) → dead code removed (Geneva requires GCC 13+)
+  - boost::lambda/lambda.hpp → removed (stale include in GObject.hpp)
+  - boost::cstdint.hpp in code-generation output → <cstdint>
+  Remaining intentional Boost dependencies: Boost.Serialization, Boost.Asio/Beast
+  (networking), Boost.Spirit+Phoenix+Fusion (formula parser, Priority 16 rewrite),
+  Boost.ProgramOptions (command-line API), Boost.PropertyTree (JSON config),
+  boost/config.hpp + boost/version.hpp (min-version enforcement in GGlobalDefines.hpp).
+
 - Boost serialization macros annotated with // NOLINT. CLion/clangd incorrectly
   flagged BOOST_CLASS_EXPORT_IMPLEMENT, BOOST_CLASS_EXPORT_KEY, and related
   macros as missing semicolons. All instances now carry a // NOLINT comment.
