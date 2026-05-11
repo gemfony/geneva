@@ -43,18 +43,13 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard headers go here
-#include <string>
+#include <csignal>
+#include <cstdint>
 #include <istream>
 #include <ostream>
-#include <cstdio>
-#include <cstdint>
-#include <cstdlib>
-#include <csignal>
-#include <cmath>
+#include <string>
 
 // Boost headers go here
-
-#include <boost/cast.hpp>
 
 // Geneva headers go here
 
@@ -62,15 +57,14 @@
 /**
  * We need local signals, so we can act both on Windows and POSIX-OSs
  */
-#if defined(_MSC_VER)  && (_MSC_VER >= 1020)
+#if defined(_MSC_VER) && (_MSC_VER >= 1020)
 #define G_SIGHUP CTRL_CLOSE_EVENT
 #else
 #define G_SIGHUP SIGHUP
 #endif
 /******************************************************************************/
 
-namespace Gem {
-namespace Common {
+namespace Gem::Common {
 
 /******************************************************************************/
 /**
@@ -82,9 +76,9 @@ namespace Common {
  * limit.
  */
 #ifdef GENEVA_COMMON_DEFAULT_BUFFER_SIZE
-	const std::size_t DEFAULTBUFFERSIZE = GENEVA_COMMON_DEFAULT_BUFFER_SIZE;
+constexpr std::size_t DEFAULTBUFFERSIZE = GENEVA_COMMON_DEFAULT_BUFFER_SIZE;
 #else
-	const std::size_t DEFAULTBUFFERSIZE = 5000;
+constexpr std::size_t DEFAULTBUFFERSIZE = 5000;
 #endif
 
 /******************************************************************************/
@@ -96,42 +90,41 @@ using ENUMBASETYPE = std::uint16_t;
  * Indicates the different sources for the GMultiSourceParamater
  */
 enum class parameter_source : Gem::Common::ENUMBASETYPE {
-   NETWORK = 1
-	, COMMAND_LINE = 2
-   , ENVIRONMENT_VARIABLE = 3
-   , CONFIGURATION_FILE = 4
-	, ASSIGNMENT = 5
-	, SIZE = parameter_source::ASSIGNMENT
+    NETWORK = 1,
+    COMMAND_LINE = 2,
+    ENVIRONMENT_VARIABLE = 3,
+    CONFIGURATION_FILE = 4,
+    ASSIGNMENT = 5
 };
 
 /** @brief Puts a Gem::Common::parameter_source into a stream. Needed also for boost::lexical_cast<> */
-G_API_COMMON std::ostream &operator<<(std::ostream &, Gem::Common::parameter_source const &);
+std::ostream &operator<<(std::ostream &, Gem::Common::parameter_source const &);
 
 /** @brief Reads a Gem::Common::parameter_source item from a stream. Needed also for boost::lexical_cast<> */
-G_API_COMMON std::istream &operator>>(std::istream &, Gem::Common::parameter_source &);
+std::istream &operator>>(std::istream &, Gem::Common::parameter_source &);
 
 /******************************************************************************/
 /**
  * This enum denotes different dimensions (used particularly by GDecoratorCollection
  */
 enum class dimensions : Gem::Common::ENUMBASETYPE {
-	Dim1 = 1
-	, Dim2 = 2
-	, Dim3 = 3
-	, Dim4 = 4
+    Dim1 = 1,
+    Dim2 = 2,
+    Dim3 = 3,
+    Dim4 = 4
 };
 
 /** @brief Puts a Gem::Common::dimensions into a stream. Needed also for boost::lexical_cast<> */
-G_API_COMMON std::ostream &operator<<(std::ostream &, Gem::Common::dimensions const &);
+std::ostream &operator<<(std::ostream &, Gem::Common::dimensions const &);
 
 /** @brief Reads a Gem::Common::dimensions item from a stream. Needed also for boost::lexical_cast<> */
-G_API_COMMON std::istream &operator>>(std::istream &, Gem::Common::dimensions &);
+std::istream &operator>>(std::istream &, Gem::Common::dimensions &);
 
 /******************************************************************************/
 /**
  * The limit for similarity checks of floating point numbers
  */
-const double CE_DEF_SIMILARITY_DIFFERENCE = pow(10., -5);
+constexpr double CE_DEF_SIMILARITY_DIFFERENCE = 1e-5;
 
 /******************************************************************************/
 /**
@@ -139,120 +132,130 @@ const double CE_DEF_SIMILARITY_DIFFERENCE = pow(10., -5);
  * in conjunction with the sorting in priority queues.
  */
 enum class sortOrder : Gem::Common::ENUMBASETYPE {
-	 LOWERISBETTER = 0
-	 , HIGHERISBETTER = 1
+    LOWERISBETTER = 0,
+    HIGHERISBETTER = 1
 };
 
 /** @brief Puts a Gem::Common::sortOrder into a stream. Needed also for boost::lexical_cast<> */
-G_API_COMMON std::ostream &operator<<(std::ostream &, Gem::Common::sortOrder const &);
+std::ostream &operator<<(std::ostream &, Gem::Common::sortOrder const &);
 
 /** @brief Reads a Gem::Common::sortOrder item from a stream. Needed also for boost::lexical_cast<> */
-G_API_COMMON std::istream &operator>>(std::istream &, Gem::Common::sortOrder &);
+std::istream &operator>>(std::istream &, Gem::Common::sortOrder &);
 
 /******************************************************************************/
 /**
  * Different log and exception types
  */
 enum class logType : Gem::Common::ENUMBASETYPE {
-	EXCEPTION = 0
-	, TERMINATION = 1
-	, WARNING = 2
-	, LOGGING = 3
-	, FILE = 4
-	, STDOUT = 5
-	, STDERR = 6
+    EXCEPTION = 0,
+    TERMINATION = 1,
+    WARNING = 2,
+    LOGGING = 3,
+    FILE = 4,
+    STDOUT = 5,
+    STDERR = 6
 };
 
-
 /** @brief Puts a Gem::Common::logType into a stream. Needed also for boost::lexical_cast<> */
-G_API_COMMON std::ostream &operator<<(std::ostream &, Gem::Common::logType const &);
+std::ostream &operator<<(std::ostream &, Gem::Common::logType const &);
 
 /** @brief Reads a Gem::Common::logType item from a stream. Needed also for boost::lexical_cast<> */
-G_API_COMMON std::istream &operator>>(std::istream &, Gem::Common::logType &);
+std::istream &operator>>(std::istream &, Gem::Common::logType &);
 
 /******************************************************************************/
 /**
  * The default number of bins in histograms, used in GPlotDesigner
  */
-const std::size_t DEFAULTNBINSGPD = 100;
+constexpr std::size_t DEFAULTNBINSGPD = 100;
 
 /******************************************************************************/
 /**
  * Used in parameter definitions (GParserBuilder)
  */
-const bool VAR_IS_ESSENTIAL = true;
-const bool VAR_IS_SECONDARY = false;
+constexpr bool VAR_IS_ESSENTIAL = true;
+constexpr bool VAR_IS_SECONDARY = false;
 
 /******************************************************************************/
-/**
- * Needed for the serialization of boost::logic::tribool
- */
-enum class triboolStates : Gem::Common::ENUMBASETYPE {
-	TBS_FALSE
-	, TBS_INDETERMINATE
-	, TBS_TRUE
+/** @brief Three-valued logic type */
+enum class tribool : Gem::Common::ENUMBASETYPE {
+    False = 0,
+    Indeterminate = 1,
+    True = 2
 };
 
+inline bool indeterminate(tribool t) noexcept { return t == tribool::Indeterminate; }
+
+/** @brief Intermediate enum used for Boost.Serialization of Gem::Common::tribool (preserves wire format) */
+enum class triboolStates : Gem::Common::ENUMBASETYPE {
+    TBS_FALSE        = 0,
+    TBS_INDETERMINATE = 1,
+    TBS_TRUE         = 2
+};
+
+/** @brief Puts a Gem::Common::tribool into a stream */
+std::ostream &operator<<(std::ostream &, Gem::Common::tribool const &);
+
 /** @brief Puts a Gem::Common::triboolStates into a stream. Needed also for boost::lexical_cast<> */
-G_API_COMMON std::ostream &operator<<(std::ostream &, Gem::Common::triboolStates const &);
+std::ostream &operator<<(std::ostream &, Gem::Common::triboolStates const &);
 
 /** @brief Reads a Gem::Common::triboolStates item from a stream. Needed also for boost::lexical_cast<> */
-G_API_COMMON std::istream &operator>>(std::istream &, Gem::Common::triboolStates &);
+std::istream &operator>>(std::istream &, Gem::Common::triboolStates &);
 
 /******************************************************************************/
 /**
  * The serialization modes that are currently allowed
  */
 enum class serializationMode : Gem::Common::ENUMBASETYPE {
-	TEXT = 0
-	, XML = 1
-	, BINARY = 2
+    TEXT = 0,
+    XML = 1,
+    BINARY = 2
 };
 
 /** @brief Puts a Gem::Common::serializationMode into a stream. Needed also for boost::lexical_cast<> */
-G_API_COMMON std::ostream &operator<<(std::ostream &, Gem::Common::serializationMode const &);
+std::ostream &operator<<(std::ostream &, Gem::Common::serializationMode const &);
 
 /** @brief Reads a Gem::Common::serializationMode item from a stream. Needed also for boost::lexical_cast<> */
-G_API_COMMON std::istream &operator>>(std::istream &, Gem::Common::serializationMode &);
+std::istream &operator>>(std::istream &, Gem::Common::serializationMode &);
 
 /** @brief Converts a serializationMode to a string representation for debugging purposes */
-G_API_COMMON std::string serModeToString(Gem::Common::serializationMode);
+[[nodiscard]] std::string serModeToString(Gem::Common::serializationMode);
 
 /******************************************************************************/
 /**
  * Specification of whether checkExpectation should emit messages
  */
-const bool CE_SILENT = false;
-const bool CE_WITH_MESSAGES = true;
+constexpr bool CE_SILENT = false;
+constexpr bool CE_WITH_MESSAGES = true;
 
 /******************************************************************************/
 /**
  * Needed to express expectations in testing framework.
  */
 enum class expectation : Gem::Common::ENUMBASETYPE {
-	EQUALITY = 0 // bitwise equality of all checked components
-	, FP_SIMILARITY = 1 // equality for non-floating point components, similarity for floating point
-	, INEQUALITY = 2// at least one checked component differs
+    EQUALITY = 0 // bitwise equality of all checked components
+        ,
+    FP_SIMILARITY = 1 // equality for non-floating point components, similarity for floating point
+        ,
+    INEQUALITY = 2 // at least one checked component differs
 };
 
 /** @brief Puts a Gem::Common::expectation into a stream. Needed also for boost::lexical_cast<> */
-G_API_COMMON std::ostream &operator<<(std::ostream &, Gem::Common::expectation const &);
+std::ostream &operator<<(std::ostream &, Gem::Common::expectation const &);
 
 /** @brief Reads a Gem::Common::expectation item from a stream. Needed also for boost::lexical_cast<> */
-G_API_COMMON std::istream &operator>>(std::istream &, Gem::Common::expectation &);
+std::istream &operator>>(std::istream &, Gem::Common::expectation &);
 
 /******************************************************************************/
 /**
  * Specification of the default number of threads, when no information about hardware
  * concurrency can be determined.
  */
-const unsigned int DEFAULTNHARDWARETHREADS = 2;
+constexpr unsigned int DEFAULTNHARDWARETHREADS = 2;
 /**
  * Specification of the default maximum number of threads
  */
-const unsigned int DEFAULTMAXNHARDWARETHREADS = 4;
+constexpr unsigned int DEFAULTMAXNHARDWARETHREADS = 4;
 
 /******************************************************************************/
 
-} /* namespace Common */
-} /* namespace Gem */
+} /* namespace Gem::Common */

@@ -38,83 +38,87 @@
 
 // Geneva header files go here
 #include "geneva/GConstrainedDoubleObject.hpp"
-#include "geneva/GParameterTCollectionT.hpp"
 #include "geneva/GDoubleGaussAdaptor.hpp"
+#include "geneva/GParameterTCollectionT.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 /**
  * A collection of GConstrainedDoubleObject objects, ready for use in a
  * GParameterSet derivative.
  */
-class GConstrainedDoubleObjectCollection
-    :
-        public GParameterTCollectionT<GConstrainedDoubleObject>
-{
+class GConstrainedDoubleObjectCollection // NOLINT(cppcoreguidelines-special-member-functions)
+  : public GParameterTCollectionT<GConstrainedDoubleObject> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
-    template<typename Archive>
+    template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar
-        & make_nvp(
-            "GParameterTCollectionT_gbd"
-            , boost::serialization::base_object<GParameterTCollectionT<GConstrainedDoubleObject>>(*this));
+        ar &make_nvp(
+            "GParameterTCollectionT_gbd",
+            boost::serialization::base_object<GParameterTCollectionT<GConstrainedDoubleObject>>(
+                *this
+            )
+        );
     }
     ///////////////////////////////////////////////////////////////////////
 
 public:
     /** @brief The default constructor */
-    G_API_GENEVA GConstrainedDoubleObjectCollection() = default;
+    GConstrainedDoubleObjectCollection() = default;
     /** @brief Initialization with a number of GConstrainedDoubleObject objects */
-    G_API_GENEVA GConstrainedDoubleObjectCollection(const std::size_t &, std::shared_ptr<GConstrainedDoubleObject>);
+    GConstrainedDoubleObjectCollection(
+        const std::size_t &,
+        std::shared_ptr<GConstrainedDoubleObject>
+    );
     /** @brief The copy constructor */
-    G_API_GENEVA GConstrainedDoubleObjectCollection(const GConstrainedDoubleObjectCollection &) = default;
+    
+    GConstrainedDoubleObjectCollection(const GConstrainedDoubleObjectCollection &) = default;
     /** @brief The destructor */
-    G_API_GENEVA ~GConstrainedDoubleObjectCollection() override = default;
+    ~GConstrainedDoubleObjectCollection() override = default;
 
 protected:
     /** @brief Loads the data of another GObject */
-    G_API_GENEVA void load_(const GObject *) override;
+    void load_(const GObject *) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GConstrainedDoubleObjectCollection>(
-        GConstrainedDoubleObjectCollection const &
-        , GConstrainedDoubleObjectCollection const &
-        , Gem::Common::GToken &
+        GConstrainedDoubleObjectCollection const &,
+        GConstrainedDoubleObjectCollection const &,
+        Gem::Common::GToken &
     );
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
-    G_API_GENEVA void compare_(
+    void compare_(
         const GObject & // the other object
-        , const Gem::Common::expectation & // the expectation for this object, e.g. equality
-        , const double & // the limit for allowed deviations of floating point types
+        ,
+        const Gem::Common::expectation & // the expectation for this object, e.g. equality
+        ,
+        const double & // the limit for allowed deviations of floating point types
     ) const override;
 
     /** @brief Applies modifications to this object. This is needed for testing purposes */
-    G_API_GENEVA bool modify_GUnitTests_() override;
+    bool modify_GUnitTests_() override;
     /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-    G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests_() override;
+    void specificTestsNoFailureExpected_GUnitTests_() override;
     /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-    G_API_GENEVA void specificTestsFailuresExpected_GUnitTests_() override;
+    void specificTestsFailuresExpected_GUnitTests_() override;
 
 private:
     /** @brief Emits a name for this class / object */
-    G_API_GENEVA std::string name_() const override;
+    std::string name_() const override;
     /** @brief Creates a deep clone of this object. */
-    G_API_GENEVA GObject *clone_() const override;
+    GObject *clone_() const override;
 
     /** @brief Fills the collection with GConstrainedDoubleObject objects */
-    G_API_GENEVA void fillWithObjects_(const std::size_t &);
+    void fillWithObjects_(const std::size_t &);
 };
 
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GConstrainedDoubleObjectCollection) // NOLINT

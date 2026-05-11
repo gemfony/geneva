@@ -39,8 +39,7 @@
 // Geneva headers go here
 #include "geneva/GFPBiGaussAdaptorT.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 /**
@@ -51,70 +50,70 @@ namespace Geneva {
  * as implemented by this library. It is now implemented through a generic
  * base class that can also be used to adapt other numeric types.
  */
-class GDoubleBiGaussAdaptor
-    : public GFPBiGaussAdaptorT<double>
-{
+class GDoubleBiGaussAdaptor // NOLINT(cppcoreguidelines-special-member-functions)
+  : public GFPBiGaussAdaptorT<double> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
-    template<typename Archive>
+    template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar
-        & make_nvp(
-            "GFPBiGaussAdaptorT_double"
-            , boost::serialization::base_object<GFPBiGaussAdaptorT<double>>(*this));
+        ar &make_nvp(
+            "GFPBiGaussAdaptorT_double",
+            boost::serialization::base_object<GFPBiGaussAdaptorT<double>>(*this)
+        );
     }
     ///////////////////////////////////////////////////////////////////////
 
 public:
     /** @brief The default constructor */
-    G_API_GENEVA GDoubleBiGaussAdaptor() = default;
+    GDoubleBiGaussAdaptor() = default;
     /** @brief The copy constructor */
-    G_API_GENEVA GDoubleBiGaussAdaptor(const GDoubleBiGaussAdaptor &) = default;
+    GDoubleBiGaussAdaptor(const GDoubleBiGaussAdaptor &) = default;
     /** @brief Initialization with a adaption probability */
-    explicit G_API_GENEVA GDoubleBiGaussAdaptor(const double &);
+    explicit GDoubleBiGaussAdaptor(const double &);
     /** @brief The destructor */
-    G_API_GENEVA ~GDoubleBiGaussAdaptor() override = default;
+    ~GDoubleBiGaussAdaptor() override = default;
 
 protected:
     /** @brief Loads the data of another GObject */
-    G_API_GENEVA void load_(const GObject *) override;
+    void load_(const GObject *) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GDoubleBiGaussAdaptor>(
-        GDoubleBiGaussAdaptor const &
-        , GDoubleBiGaussAdaptor const &
-        , Gem::Common::GToken &
+        GDoubleBiGaussAdaptor const &,
+        GDoubleBiGaussAdaptor const &,
+        Gem::Common::GToken &
     );
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
-    G_API_GENEVA void compare_(
+    void compare_(
         const GObject & // the other object
-        , const Gem::Common::expectation & // the expectation for this object, e.g. equality
-        , const double & // the limit for allowed deviations of floating point types
+        ,
+        const Gem::Common::expectation & // the expectation for this object, e.g. equality
+        ,
+        const double & // the limit for allowed deviations of floating point types
     ) const override;
 
     /** @brief Applies modifications to this object. This is needed for testing purposes */
-    G_API_GENEVA bool modify_GUnitTests_() override;
+    bool modify_GUnitTests_() override;
     /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-    G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests_() override;
+    void specificTestsNoFailureExpected_GUnitTests_() override;
     /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-    G_API_GENEVA void specificTestsFailuresExpected_GUnitTests_() override;
+    void specificTestsFailuresExpected_GUnitTests_() override;
 
 private:
     /** @brief Retrieves the id of this adaptor */
-    G_API_GENEVA Gem::Geneva::adaptorId getAdaptorId_() const override;
+    Gem::Geneva::adaptorId getAdaptorId_() const override;
     /** @brief Emits a name for this class / object */
-    G_API_GENEVA std::string name_() const override;
+    std::string name_() const override;
     /** @brief Creates a deep clone of this object. */
-    G_API_GENEVA GObject *clone_() const override;
+    GObject *clone_() const override;
 };
 
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GDoubleBiGaussAdaptor) // NOLINT

@@ -27,47 +27,10 @@
 #
 ################################################################################
 
-IF (NOT GENEVA_FULL_TREE_BUILD)
-
-	PROJECT(GCanvasTest)
-
-	# For building the tests independently, we still assume that the
-	# current source folder is still part of the Geneva tree structure,
-	# i.e., the 'CMakeModules' folder can be found going up... This avoids
-	# having to copy the same content over and over again in the tests.
-	SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/../../../../CMakeModules")
-
-	MESSAGE("\nPerforming an independent build of ${PROJECT_NAME}")
-	INCLUDE(CommonGenevaBuild)
-
-ENDIF ()
-
-SET ( EXECUTABLENAME GCanvasTest )
-
-SET ( ${EXECUTABLENAME}_SRCS
-	GCanvasTest.cpp
+SET ( PICFILES
+	ml.ppm
 )
 
-ADD_EXECUTABLE(${EXECUTABLENAME}
-	${${EXECUTABLENAME}_SRCS}
-)
+FILE ( COPY ${PICFILES} DESTINATION . )
 
-SET(LIBRARIES_TO_LINK
-		${GENEVA_LIBRARIES}
-		${Boost_LIBRARIES})
-
-# Add MPI Libraries in case building with MPI-consumer
-IF(GENEVA_BUILD_WITH_MPI_CONSUMER)
-	SET(LIBRARIES_TO_LINK
-			${LIBRARIES_TO_LINK}
-			${MPI_LIBRARIES})
-ENDIF()
-
-TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
-		${LIBRARIES_TO_LINK})
-
-ADD_SUBDIRECTORY (pictures)
-
-ADD_TEST(${EXECUTABLENAME} ${EXECUTABLENAME})
-
-INSTALL ( TARGETS ${EXECUTABLENAME} DESTINATION ${INSTALL_PREFIX_DATA}/tests/common/ManualTests/${EXECUTABLENAME} )
+INSTALL ( FILES ${PICFILES} DESTINATION ${INSTALL_PREFIX_DATA}/examples/GCUDAWorker/tests/pictures )

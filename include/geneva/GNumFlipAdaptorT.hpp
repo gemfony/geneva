@@ -45,8 +45,7 @@
 #include "geneva/GObject.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 /**
@@ -54,37 +53,30 @@ namespace Geneva {
  * types, by flipping a number to the next larger or smaller one. The unerlying
  * type needs to be specified as a template parameter.
  */
-template<typename num_type>
-class GNumFlipAdaptorT
-    : public GAdaptorT<num_type>
-{
+template <typename num_type>
+class GNumFlipAdaptorT // NOLINT(cppcoreguidelines-special-member-functions)
+  : public GAdaptorT<num_type> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
-    template<typename Archive>
+    template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
-        ar
-        & make_nvp(
-            "GAdaptorT"
-            , boost::serialization::base_object<GAdaptorT<num_type>>(*this));
+        ar &make_nvp("GAdaptorT", boost::serialization::base_object<GAdaptorT<num_type>>(*this));
     }
     ///////////////////////////////////////////////////////////////////////
 
     // Make sure this class can only be instantiated with num_type as an arithmetic type
-    static_assert(
-        std::is_arithmetic<num_type>::value
-        , "num_type should be an arithmetic type"
-    );
+    static_assert(std::is_arithmetic<num_type>::value, "num_type should be an arithmetic type");
 
 public:
     /***************************************************************************/
     /**
      * The standard constructor.
      */
-    GNumFlipAdaptorT() :
-        GAdaptorT<num_type>(DEFAULTADPROB)
-    { /* nothing */    }
+    GNumFlipAdaptorT()
+      : GAdaptorT<num_type>(DEFAULTADPROB) { /* nothing */
+    }
 
     /***************************************************************************/
     /**
@@ -93,9 +85,9 @@ public:
      *
      * @param prob The probability for a flip
      */
-    explicit GNumFlipAdaptorT(const double &adProb):
-        GAdaptorT<num_type>(adProb)
-    { /* nothing */ }
+    explicit GNumFlipAdaptorT(const double &adProb)
+      : GAdaptorT<num_type>(adProb) { /* nothing */
+    }
 
     /***************************************************************************/
     /**
@@ -130,11 +122,8 @@ protected:
      */
     void load_(const GObject *cp) override {
         // Convert the pointer to our target type and check for self-assignment
-        const GNumFlipAdaptorT<num_type>
-            *p_load = Gem::Common::g_convert_and_compare<GObject, GNumFlipAdaptorT<num_type>>(
-            cp
-            , this
-        );
+        const GNumFlipAdaptorT<num_type> *p_load =
+            Gem::Common::g_convert_and_compare<GObject, GNumFlipAdaptorT<num_type>>(cp, this);
 
         // Load the data of our parent class ...
         GAdaptorT<num_type>::load_(cp);
@@ -145,9 +134,9 @@ protected:
     /***************************************************************************/
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GNumFlipAdaptorT<num_type>>(
-        GNumFlipAdaptorT<num_type> const &
-        , GNumFlipAdaptorT<num_type> const &
-        , Gem::Common::GToken &
+        GNumFlipAdaptorT<num_type> const &,
+        GNumFlipAdaptorT<num_type> const &,
+        Gem::Common::GToken &
     );
 
     /***************************************************************************/
@@ -160,37 +149,26 @@ protected:
      * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
     void compare_(
-        const GObject &cp
-        , const Gem::Common::expectation &e
-        , const double &limit
+        const GObject &cp,
+        const Gem::Common::expectation &e,
+        const double & /*limit*/
     ) const override {
         using namespace Gem::Common;
 
         // Check that we are dealing with a GNumFlipAdaptorT<num_type> reference independent of this object and convert the pointer
-        const GNumFlipAdaptorT<num_type>
-            *p_load = Gem::Common::g_convert_and_compare<GObject, GNumFlipAdaptorT<num_type>>(
-            cp
-            , this
-        );
+        const GNumFlipAdaptorT<num_type> *p_load =
+            Gem::Common::g_convert_and_compare<GObject, GNumFlipAdaptorT<num_type>>(cp, this);
 
-        GToken token(
-            "GNumFlipAdaptorT<num_type>"
-            , e
-        );
+        GToken token("GNumFlipAdaptorT<num_type>", e);
 
         // Compare our parent data ...
-        Gem::Common::compare_base_t<GAdaptorT<num_type>>(
-            *this
-            , *p_load
-            , token
-        );
+        Gem::Common::compare_base_t<GAdaptorT<num_type>>(*this, *p_load, token);
 
         // ... no local data
 
         // React on deviations from the expectation
         token.evaluate();
     }
-
 
     /***************************************************************************/
     /**
@@ -200,18 +178,18 @@ protected:
      * @param range A typical range for the parameter with type T (unused here)
      */
     void customAdaptions(
-        num_type &value
-        , const num_type &range
-        , Gem::Hap::GRandomBase &gr
+        num_type &value,
+        const num_type & /*range*/
+        ,
+        Gem::Hap::GRandomBase &gr
     ) override {
         using namespace Gem::Common;
         using namespace Gem::Hap;
 
-        if (GAdaptorT<num_type>::m_weighted_bool(
-            gr
-            , std::bernoulli_distribution::param_type(0.5))) {
+        if(GAdaptorT<num_type>::weighted_bool_(gr, std::bernoulli_distribution::param_type(0.5))) {
             value += 1;
-        } else {
+        }
+        else {
             value -= 1;
         }
     }
@@ -229,22 +207,22 @@ protected:
      */
     bool modify_GUnitTests_() override {
 #ifdef GEM_TESTING
-        using boost::unit_test_framework::test_suite;
-        using boost::unit_test_framework::test_case;
 
         bool result = false;
 
         // Call the parent classes' functions
-        if (GAdaptorT<num_type>::modify_GUnitTests_()) { result = true; }
+        if(GAdaptorT<num_type>::modify_GUnitTests_()) {
+            result = true;
+        }
 
         // no local data -- nothing to change
 
         return result;
 
-#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
         Gem::Common::condnotset("GNumFlipAdaptorT<>::modify_GUnitTests", "GEM_TESTING");
-       return false;
-#endif /* GEM_TESTING */
+        return false;
+#endif                  /* GEM_TESTING */
     }
 
     /***************************************************************************/
@@ -253,15 +231,16 @@ protected:
      */
     void specificTestsNoFailureExpected_GUnitTests_() override {
 #ifdef GEM_TESTING
-        using boost::unit_test_framework::test_suite;
-        using boost::unit_test_framework::test_case;
 
         // Call the parent classes' functions
         GAdaptorT<num_type>::specificTestsNoFailureExpected_GUnitTests_();
 
-#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-        Gem::Common::condnotset("GNumFlipAdaptorT<>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
-#endif /* GEM_TESTING */
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+        Gem::Common::condnotset(
+            "GNumFlipAdaptorT<>::specificTestsNoFailureExpected_GUnitTests",
+            "GEM_TESTING"
+        );
+#endif                  /* GEM_TESTING */
     }
 
     /***************************************************************************/
@@ -270,15 +249,16 @@ protected:
      */
     void specificTestsFailuresExpected_GUnitTests_() override {
 #ifdef GEM_TESTING
-        using boost::unit_test_framework::test_suite;
-        using boost::unit_test_framework::test_case;
 
         // Call the parent classes' functions
         GAdaptorT<num_type>::specificTestsFailuresExpected_GUnitTests_();
 
-#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-        Gem::Common::condnotset("GNumFlipAdaptorT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
-#endif /* GEM_TESTING */
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+        Gem::Common::condnotset(
+            "GNumFlipAdaptorT<>::specificTestsFailuresExpected_GUnitTests",
+            "GEM_TESTING"
+        );
+#endif                  /* GEM_TESTING */
     }
 
     /***************************************************************************/
@@ -319,25 +299,14 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 
 /******************************************************************************/
 // The content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T) // NOLINT
-namespace boost {
-namespace serialization {
-template<typename num_type>
-struct is_abstract<Gem::Geneva::GNumFlipAdaptorT<num_type>> :
-    public boost::true_type
-{
-};
-template<typename num_type>
-struct is_abstract<const Gem::Geneva::GNumFlipAdaptorT<num_type>> :
-    public boost::true_type
-{
-};
-}
-}
-
+namespace boost::serialization {
+template <typename num_type>
+struct is_abstract<Gem::Geneva::GNumFlipAdaptorT<num_type>> : public boost::true_type {};
+template <typename num_type>
+struct is_abstract<const Gem::Geneva::GNumFlipAdaptorT<num_type>> : public boost::true_type {};
+} /* namespace boost::serialization */
 /******************************************************************************/
-

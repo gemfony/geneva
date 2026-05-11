@@ -45,27 +45,27 @@
 using namespace Gem::Geneva;
 
 int main(int argc, char **argv) {
-	Go2 go(argc, argv, "config/Go2.json");
+    Go2 go(argc, argv, "config/Go2.json");
 
-	//---------------------------------------------------------------------
-	// Initialize a client, if requested
-	if(go.clientMode()) {
-		return go.clientRun();
-	}
+    //---------------------------------------------------------------------
+    // Initialize a client, if requested
+    if(go.clientMode()) {
+        return go.clientRun();
+    }
 
-	//---------------------------------------------------------------------
-	// Add individuals and algorithms and perform the actual optimization cycle
+    //---------------------------------------------------------------------
+    // Add individuals and algorithms and perform the actual optimization cycle
 
-	// Make an individual known to the optimizer
-	std::shared_ptr<GParaboloidIndividual2D> p(new GParaboloidIndividual2D());
-	go.push_back(p);
+    // Make an individual known to the optimizer
+    std::shared_ptr<GParaboloidIndividual2D> p(new GParaboloidIndividual2D());
+    go.push_back(p);
 
-	// Add an evolutionary algorithm to the Go2 class.
-	go & "ea";
+    // Add an evolutionary algorithm to the Go2 class.
+    go & "ea";
 
-	// Perform the actual optimization
-	std::shared_ptr<GParaboloidIndividual2D>
-		bestIndividual_ptr = go.optimize()->getBestGlobalIndividual<GParaboloidIndividual2D>();
+    // Perform the actual optimization
+    std::shared_ptr<GParaboloidIndividual2D> bestIndividual_ptr =
+        go.optimize()->getBestGlobalIndividual<GParaboloidIndividual2D>();
 
-	// Do something with the best result
+    // Do something with the best result
 }

@@ -33,1247 +33,733 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard headers go here
-#include <map>
-#include <vector>
-#include <sstream>
-#include <iostream>
-#include <string>
-#include <cstdlib>
-#include <cmath>
-#include <typeinfo>
-#include <tuple>
-#include <limits>
-#include <thread>
-#include <mutex>
 #include <chrono>
-#include <type_traits>
+#include <cmath>
+#include <concepts>
+#include <cstdint>
+#include <cstdlib>
+#include <iomanip>
+#include <iostream>
+#include <limits>
+#include <map>
 #include <memory>
+#include <mutex>
+#include <optional>
+#include <random>
+#include <sstream>
+#include <stdexcept>
+#include <string>
+#include <thread>
+#include <tuple>
+#include <type_traits>
+#include <typeinfo>
+#include <vector>
 
 // Boost headers go here
-#include <boost/cast.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/logic/tribool.hpp>
-#include <boost/math/special_functions/next.hpp>
-#include <boost/checked_delete.hpp>
-#include <boost/lockfree/spsc_queue.hpp>
-#include <boost/lockfree/policies.hpp>
 
 // Geneva headers go here
 #include "common/GCommonHelperFunctions.hpp"
+#include "common/GErrorStreamer.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
-#include "common/GErrorStreamer.hpp"
 #include "common/GTypeTraitsT.hpp"
 
-namespace Gem {
-namespace Common {
+namespace Gem::Common {
+
+/******************************************************************************/
+/**
+ * Checked numeric cast: throws std::overflow_error if the conversion would lose the value.
+ * Replaces boost::numeric_cast. Float→int truncates (no fractional-part check) but
+ * throws if the value is outside the target integer range.
+ */
+template <typename To, typename From>
+To narrow_cast(From value) {
+    static_assert((std::is_arithmetic_v<To> || std::is_enum_v<To>) &&
+                  (std::is_arithmetic_v<From> || std::is_enum_v<From>),
+                  "narrow_cast requires arithmetic or enum types");
+    auto result = static_cast<To>(value);
+    if constexpr (std::is_integral_v<To> && std::is_integral_v<From>) {
+        if(static_cast<From>(result) != value) {
+            throw std::overflow_error("narrow_cast: integer overflow or underflow");
+        }
+    } else if constexpr (std::is_integral_v<To> && std::is_floating_point_v<From>) {
+        if(value < static_cast<From>(std::numeric_limits<To>::min()) ||
+           value > static_cast<From>(std::numeric_limits<To>::max())) {
+            throw std::overflow_error("narrow_cast: float-to-integer overflow");
+        }
+    }
+    return result;
+}
+
+/******************************************************************************/
+/**
+ * Generates a UUID v4 string (e.g. "550e8400-e29b-41d4-a716-446655440000").
+ * Uses a thread-local Mersenne-Twister seeded from std::random_device.
+ */
+inline std::string generate_uuid_v4() {
+    static thread_local std::mt19937_64 rng{std::random_device{}()};
+    std::uniform_int_distribution<std::uint64_t> dist;
+    std::uint64_t hi = dist(rng);
+    std::uint64_t lo = dist(rng);
+    // Set version 4 (nibble at bits 15-12 of `hi`, i.e. the 3rd group nibble)
+    hi = (hi & 0xFFFFFFFFFFFF0FFFULL) | 0x0000000000004000ULL;
+    // Set variant 10xx (top 2 bits of lo's most-significant byte)
+    lo = (lo & 0xBFFFFFFFFFFFFFFFULL) | 0x8000000000000000ULL;
+    std::ostringstream oss;
+    oss << std::hex << std::setfill('0')
+        << std::setw(8) << static_cast<std::uint32_t>(hi >> 32) << '-'
+        << std::setw(4) << static_cast<std::uint32_t>((hi >> 16) & 0xFFFFU) << '-'
+        << std::setw(4) << static_cast<std::uint32_t>(hi & 0xFFFFU) << '-'
+        << std::setw(4) << static_cast<std::uint32_t>(lo >> 48) << '-'
+        << std::setw(12) << (lo & 0x0000FFFFFFFFFFFFULL);
+    return oss.str();
+}
+
+/******************************************************************************/
+/** @brief Converts a string to target_type via stream extraction (replaces boost::lexical_cast) */
+template <typename T>
+T from_string(const std::string &s) {
+    T val;
+    std::istringstream iss(s);
+    iss >> val;
+    return val;
+}
 
 /******************************************************************************/
 /**
  * Reads a given environment variable and converts it to a target type. The
- * function assumes that a suitable boost::lexical_cast exists for this type.
+ * function requires that target_type is extractable from an istringstream.
  *
  * @param var The name of the environment variable to be read
- * @return The converted environment variable or 0
+ * @return The converted environment variable, or an empty optional
  */
 template <typename target_type>
-boost::optional<target_type> environmentVariableAs(std::string const& var) {
-	std::string result_str;
+std::optional<target_type> environmentVariableAs(std::string const &var) {
+    std::string result_str; // NOLINT(cppcoreguidelines-init-variables)
 
-	{
-		// We want to avoid clashes when reading environment variables.
-		// In particular std::getenv is not thread-safe
-		static std::mutex read_env_mutex;
-		std::unique_lock<std::mutex> lk(read_env_mutex);
+    {
+        // std::getenv is not thread-safe; serialise access with a local mutex.
+        static std::mutex read_env_mutex;
+        std::unique_lock<std::mutex> lk(read_env_mutex);
 
 #if defined(_MSC_VER) && (_MSC_VER >= 1020)
-		char* env_ptr = 0;
-		size_t sz = 0;
-		if (0 == _dupenv_s(&env_ptr, &sz, var.c_str()) && nullptr != env_ptr) {
-			// Only convert to a string if the environment variable exists
-			result_str = std::string(env_ptr);
-			// Clean up the environment
-			free(env_ptr);
-		} else {
-			return {}; // Empty optional: no success
-		}
-#else /* no _MSC_VER */
-		// TODO: Switch to std::getenv_s
-		const char *env_ptr = std::getenv(var.c_str());
+        char *env_ptr = 0;
+        size_t sz = 0;
+        if(0 == _dupenv_s(&env_ptr, &sz, var.c_str()) && nullptr != env_ptr) {
+            result_str = std::string(env_ptr);
+            free(env_ptr);
+        }
+        else {
+            return {};
+        }
+#else
+        const char *env_ptr = std::getenv(
+            var.c_str()
+        ); // NOLINT(concurrency-mt-unsafe) — called under lock; Geneva never calls putenv/setenv from threads
+        if(env_ptr) {
+            result_str = std::string(env_ptr);
+        }
+        else {
+            return {};
+        }
+#endif
+    } // releases the lock
 
-		if (env_ptr) {
-			// Only convert to a string if the environment variable exists
-			result_str = std::string(env_ptr);
-		} else {
-			return {}; // Empty optional: no success
-		}
-#endif /* _MSC_VER */
-	} // Releases the lock
-
-	// Remove any white space characters
-	boost::trim(result_str);
-
-	// Let the audience know
-	return { boost::lexical_cast<target_type>(result_str) };
+    auto ltrim = result_str.find_first_not_of(" \t\r\n");
+    auto rtrim = result_str.find_last_not_of(" \t\r\n");
+    if(ltrim != std::string::npos) result_str = result_str.substr(ltrim, rtrim - ltrim + 1);
+    else result_str.clear();
+    return {Gem::Common::from_string<target_type>(result_str)};
 }
 
 /******************************************************************************/
 /**
- * This functions uses boosts checked_delete to delete a pointer, then assigns
- * nullptr to the pointer. As a consequence to the usage of checked_delete, T must
- * be
- * a "complete" type. The assignment of a nullptr is not done automatically
- * by C++ and helps to detect "empty" pointers.
+ * Null-safe delete, then sets the pointer to nullptr.
  */
 template <typename T>
 void g_delete(T *&p) {
-	if(p) {
-		boost::checked_delete(p);
-		p=nullptr;
-	}
+    if(p) {
+        delete p;
+        p = nullptr;
+    }
 }
 
 /******************************************************************************/
 /**
- * This functions uses boosts checked_delete to delete a pointer, then assigns
- * nullptr to the pointer. As a consequence to the usage of checked_delete, T must
- * be
- * a "complete" type. The assignment of a nullptr is not done automatically
- * by C++ and helps to detect "empty" pointers.
+ * Null-safe array delete, then sets the pointer to nullptr.
  */
 template <typename T>
 void g_array_delete(T *&p) {
-	if(p) {
-		boost::checked_array_delete(p);
-		p = nullptr;
-	}
+    if(p) {
+        delete[] p;
+        p = nullptr;
+    }
 }
 
 /******************************************************************************/
 /**
- * This function checks in DEBUG mode whether two pointers point to the
- * same object. The function will throw if this is the case. This is needed
- * in order to prevent assignment of a pointer's content to itself. Both pointers
- * must be of the same type or must be convertible to each other. The function
- * will not throw in case p1 is a nullptr.
- *
- * @param p1 The first pointer to be checked
- * @param p2 The second pointer to be checked
+ * In debug builds, throws if two raw pointers alias the same object.
+ * No-op for nullptr p1.
  */
 template <typename T>
-void ptrDifferenceCheck (
-	const T *p1
-	, const T *p2
-) {
+void ptrDifferenceCheck(const T *p1, const T *p2) {
 #ifdef DEBUG
-	// Check that the two pointers point to different objects
-	if (nullptr!=p1 && p1==p2) {
-		throw geneva_exception(
-			g_error_streamer(DO_LOG, time_and_place)
-				<< "In Gem::Common::ptrEqualityCheck<T>() :" << std::endl
-				<< "p1 and p2 point to the same object!" << std::endl
-		);
-	}
+    if(nullptr != p1 && p1 == p2) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, time_and_place)
+            << "In Gem::Common::ptrDifferenceCheck<T>(): "
+            << "p1 and p2 point to the same object!" << std::endl
+        );
+    }
 #endif
 }
 
 /******************************************************************************/
 /**
- * This function checks in DEBUG mode whether two pointers point to the
- * same object. The function will throw if this is the case. This is needed
- * in order to prevent assignment of a pointer's content to itself. Both pointers
- * must be of the same type or must be convertible to each other. The function
- * will not throw in case p1 is a nullptr.
- *
- * @param p1 The first pointer to be checked
- * @param p2 The second pointer to be checked
+ * Shared-pointer overload: in debug builds, throws if both non-null shared
+ * pointers alias the same object.
  */
 template <typename T>
-void ptrDifferenceCheck (
-	std::shared_ptr<T> p1
-	, std::shared_ptr<T> p2
-) {
+void ptrDifferenceCheck(std::shared_ptr<T> p1, std::shared_ptr<T> p2) {
 #ifdef DEBUG
-	// Check that the two pointers point to different objects
-	if (p1 && p1.get()==p2.get()) {
-		throw geneva_exception(
-			g_error_streamer(DO_LOG, time_and_place)
-				<< "In Gem::Common::ptrEqualityCheck<T>() :" << std::endl
-				<< "Smart pointers p1 and p2 point to the same object!" << std::endl
-		);
-	}
+    if(p1 && p1.get() == p2.get()) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, time_and_place)
+            << "In Gem::Common::ptrDifferenceCheck<T>(): "
+            << "Smart pointers p1 and p2 point to the same object!" << std::endl
+        );
+    }
 #endif
 }
 
-
 /******************************************************************************/
 /**
- * This function converts the "convert_ptr" pointer to the target type.  Note that this template will
- * only be accessible to the compiler if base_type is a base type of target_type.  As a consequence, the
- * function allows up-casts, but no downcasts. The function will do nothing, if convert_ptr points to
- * nullptr.
+ * Converts a raw base pointer to target_type*. Only accessible when
+ * base_type is a base of target_type (upcasts only). Returns nullptr
+ * unchanged. In debug builds uses dynamic_cast and throws on failure;
+ * in release builds uses static_cast.
  */
 template <typename base_type, typename target_type>
-const target_type * g_ptr_conversion (
-	const base_type *convert_ptr
-	, typename std::enable_if<std::is_base_of<base_type, target_type>::value>::type *dummy = nullptr
-) {
+    requires std::derived_from<target_type, base_type>
+const target_type *g_ptr_conversion(const base_type *convert_ptr) {
 #ifdef DEBUG
-	const auto *p = dynamic_cast<const target_type *>(convert_ptr);
-
-	if(nullptr==convert_ptr || p) {
-		return p;
-	} else {
-		throw geneva_exception(
-			g_error_streamer(DO_LOG, time_and_place)
-				<< "In const target_type* g_ptr_conversion<target_type, base_type>() :" << std::endl
-				<< "Invalid conversion from type with name " << typeid(base_type).name() << std::endl
-				<< "to type with name " << typeid(target_type).name() << std::endl
-		);
-
-		// Make the compiler happy
-		return nullptr;
-	}
+    const auto *p = dynamic_cast<const target_type *>(convert_ptr);
+    if(nullptr == convert_ptr || p) {
+        return p;
+    }
+    throw geneva_exception(
+        g_error_streamer(DO_LOG, time_and_place)
+        << "In g_ptr_conversion(): invalid conversion from " << typeid(base_type).name() << " to "
+        << typeid(target_type).name() << std::endl
+    );
+    return nullptr;
 #else
-	return static_cast<const target_type *>(convert_ptr);
+    return static_cast<const target_type *>(convert_ptr);
 #endif
 }
 
 /******************************************************************************/
 /**
- * This function converts the "convert_ptr" pointer to the target type.  Note that this template will
- * only be accessible to the compiler if base_type is a base type of target_type. As a consequence, the
- * function allows up-casts, but no downcasts. The function will do nothing, if convert_ptr points to
- * nullptr.
+ * Shared-pointer overload of g_ptr_conversion.
  */
 template <typename base_type, typename target_type>
-std::shared_ptr<target_type> g_ptr_conversion (
-	std::shared_ptr<base_type> convert_ptr
-	, typename std::enable_if<std::is_base_of<base_type, target_type>::value>::type *dummy = nullptr
-) {
+    requires std::derived_from<target_type, base_type>
+std::shared_ptr<target_type> g_ptr_conversion(std::shared_ptr<base_type> convert_ptr) {
 #ifdef DEBUG
-	std::shared_ptr<target_type> p = std::dynamic_pointer_cast<target_type>(convert_ptr);
-
-	if(nullptr==convert_ptr.get() || p) {
-		return p;
-	} else {
-		throw geneva_exception(
-			g_error_streamer(DO_LOG, time_and_place)
-				<< "In std::shared_ptr<target_type> g_ptr_conversion<target_type, base_type>() :" << std::endl
-				<< "Invalid conversion from type with name " << typeid(base_type).name() << std::endl
-				<< "to type with name " << typeid(target_type).name() << std::endl
-		);
-	}
+    auto p = std::dynamic_pointer_cast<target_type>(convert_ptr);
+    if(nullptr == convert_ptr.get() || p) {
+        return p;
+    }
+    throw geneva_exception(
+        g_error_streamer(DO_LOG, time_and_place)
+        << "In g_ptr_conversion(): invalid conversion from " << typeid(base_type).name() << " to "
+        << typeid(target_type).name() << std::endl
+    );
 #else
-	return std::static_pointer_cast<target_type>(convert_ptr);
+    return std::static_pointer_cast<target_type>(convert_ptr);
 #endif
 }
 
 /******************************************************************************/
 /**
- * This function will convert a "convert_ptr" to a given target type and will
- * check whether it points to the same object as another pointer supplied
- * as a function argument.  Note that this function will only be accessible to
- * the compiler if base_type is a base type of target_type. As a consequence, the
- + function allows up-casts, but no downcasts. The function will not throw for
- * nullptr-values.
- *
- * @param convert_ptr A base pointer to be converted to the target type
- * @param compare_ptr A pointer to be compared to convert_ptr
+ * Converts convert_ptr to target_type and checks it does not alias
+ * compare_ptr. Only accessible when base_type is a base of target_type.
  */
 template <typename base_type, typename target_type>
-std::shared_ptr<target_type> g_convert_and_compare (
-	std::shared_ptr<base_type> convert_ptr
-	, std::shared_ptr<target_type> compare_ptr
-	, typename std::enable_if<std::is_base_of<base_type, target_type>::value>::type *dummy = nullptr
+    requires std::derived_from<target_type, base_type>
+std::shared_ptr<target_type> g_convert_and_compare(
+    std::shared_ptr<base_type> convert_ptr,
+    std::shared_ptr<target_type> compare_ptr
 ) {
-	// Convert the base pointer -- this call will throw, if conversion cannot be done
-	std::shared_ptr<target_type> p =  g_ptr_conversion<base_type, target_type>(convert_ptr);
-
-	// Then compare the two pointers (will throw in case of equality)
-	ptrDifferenceCheck(p, compare_ptr);
-
-	// Return the converted pointer
-	return p;
+    auto p = g_ptr_conversion<base_type, target_type>(convert_ptr);
+    ptrDifferenceCheck(p, compare_ptr);
+    return p;
 }
 
 /******************************************************************************/
 /**
- * This function will convert a "convert_ptr" to a given target type and will
- * check whether it points to the same object as another pointer supplied
- * as a function argument.  Note that this function will only be accessible to
- * the compiler if base_type is a base type of target_type. As a consequence, the
- + function allows up-casts, but no downcasts. The function will not throw for
- * nullptr-values.
- *
- * @param convert_ptr A base pointer to be converted to the target type
- * @param compare_ptr A pointer to be compared to convert_ptr
+ * Raw-pointer overload of g_convert_and_compare.
  */
 template <typename base_type, typename target_type>
-const target_type* g_convert_and_compare (
-	const base_type * convert_ptr
-	, const target_type * compare_ptr
-	, typename std::enable_if<std::is_base_of<base_type, target_type>::value>::type *dummy = nullptr
+    requires std::derived_from<target_type, base_type>
+const target_type *g_convert_and_compare(
+    const base_type *convert_ptr,
+    const target_type *compare_ptr
 ) {
-	// Convert the base pointer -- this call will throw, if conversion cannot be done
-	const target_type * p =  g_ptr_conversion<base_type, target_type>(convert_ptr);
-
-	// Then compare the two pointers (will throw in case of equality)
-	ptrDifferenceCheck(p, compare_ptr);
-
-	// Return the converted pointer
-	return p;
+    const target_type *p = g_ptr_conversion<base_type, target_type>(convert_ptr);
+    ptrDifferenceCheck(p, compare_ptr);
+    return p;
 }
 
 /******************************************************************************/
 /**
- * This function will convert a "convert_ref" to a given target type and will
- * check whether it points to the same object as another pointer supplied
- * as a function argument.  Note that this function will only be accessible to
- * the compiler if base_type is a base type of target_type. As a consequence, the
- + function allows up-casts, but no downcasts. The function will not throw for
- * nullptr-values.
- *
- * @param convert_ref A reference to an object to be converted to the target type as a pointer
- * @param compare_ptr A pointer to be compared to convert_ptr
+ * Reference overload of g_convert_and_compare.
  */
 template <typename base_type, typename target_type>
-const target_type* g_convert_and_compare (
-	const base_type& convert_ref
-	, const target_type * compare_ptr
-	, typename std::enable_if<std::is_base_of<base_type, target_type>::value>::type *dummy = nullptr
+    requires std::derived_from<target_type, base_type>
+const target_type *g_convert_and_compare(
+    const base_type &convert_ref,
+    const target_type *compare_ptr
 ) {
-	// Convert the base pointer -- this call will throw, if conversion cannot be done
-	const auto * p =  g_ptr_conversion<base_type, target_type>(&convert_ref);
-
-	// Then compare the two pointers (will throw in case of equality)
-	ptrDifferenceCheck(p, compare_ptr);
-
-	// Return the converted pointer
-	return p;
+    const auto *p = g_ptr_conversion<base_type, target_type>(&convert_ref);
+    ptrDifferenceCheck(p, compare_ptr);
+    return p;
 }
 
 /******************************************************************************/
 /**
- * This function takes a std::vector and transforms its contents to a std::string.
- * Note that this function assumes, that the template type of the vector can
- * be streamed.
- *
- * @param vec The vector to be printed
- * @return A string-representation of the vector
- */
-template<typename vecType>
-std::string vecToString(const std::vector<vecType> &vec) {
-	std::ostringstream result;
-	typename std::vector<vecType>::const_iterator cit;
-	for (cit = vec.begin(); cit != vec.end(); ++cit) {
-		result << *cit << " ";
-	}
-	return result.str();
-}
-
-/******************************************************************************/
-/**
- * This function takes two smart pointers and copies their contents (if any). Note that this
- * function might yield bad results for virtual types and will not work for purely virtual types.
- *
- * @param from The source smart pointer
- * @param to The target smart pointer
- */
-template<typename T>
-void copySmartPointer(
-	const std::shared_ptr <T> &from, std::shared_ptr <T> &to
-) {
-	// Make sure to is empty when from is empty
-	if (not from) {
-		to.reset();
-	} else {
-		if (not to) {
-			to.reset(new T(*from));
-		} else {
-			*to = *from;
-		}
-	}
-}
-
-/******************************************************************************/
-/**
- * This function takes two vectors of std::shared_ptr smart pointers and copies
- * one into the other. As we want to make a deep copy of the smart pointers' contents
- * this can be quite complicated. Note that we assume here that the objects pointed to
- * can be copied using an operator=(). The function also assumes the existence of
- * a valid copy constructor.  Note that this function might yield bad results for
- * virtual types, when handled through a base class.
- *
- * @param from The vector used as the source of the copying
- * @param to The vector used as the target of the copying
- */
-template<typename T>
-void copySmartPointerVector(
-	const std::vector<std::shared_ptr <T>>& from
-	, std::vector<std::shared_ptr <T>>& to
-) {
-	typename std::vector<std::shared_ptr <T>>::const_iterator it_from;
-	typename std::vector<std::shared_ptr <T>>::iterator it_to;
-
-	std::size_t size_from = from.size();
-	std::size_t size_to = to.size();
-
-	if(size_from==size_to) { // The most likely case
-		for(it_from = from.begin(), it_to = to.begin(); it_to!=to.end(); ++it_from, ++it_to) {
-			**it_to = **it_from; // Uses T::operator=()
-		}
-	} else if(size_from > size_to) {
-		// First copy the data of the first size_to items
-		for(it_from = from.begin(), it_to = to.begin(); it_to!=to.end(); ++it_from, ++it_to) {
-			**it_to = **it_from;
-		}
-
-		// Then attach copies of the remaining items
-		for(it_from = from.begin() + size_to; it_from!=from.end(); ++it_from) {
-			std::shared_ptr <T> p(new T(**it_from));
-			to.push_back(p);
-		}
-	} else if(size_from<size_to) {
-		// First copy the initial size_foreight items over
-		for(it_from = from.begin(), it_to = to.begin(); it_from!=from.end(); ++it_from, ++it_to) {
-			**it_to = **it_from;
-		}
-
-		// Then resize the local vector. Surplus items will vanish
-		to.resize(size_from);
-	}
-}
-
-/******************************************************************************/
-/**
- * This function takes two smart pointers to cloneable objects and copies their contents (if any)
- * with the load / clone functions. std::enable_if makes sure that this function can only be called
- * if the object pointed to has a clone and load function
- *
- * @param from The source smart pointer
- * @param to The target smart pointer
+ * Returns a space-separated string representation of a std::vector.
+ * T must be streamable.
  */
 template <typename T>
-void copyCloneableSmartPointer (
-	const std::shared_ptr<T>& from
-	, std::shared_ptr<T>& to
-	, typename std::enable_if<Gem::Common::has_gemfony_common_interface<T>::value>::type *dummy = nullptr
-) {
-	// Make sure to is empty when from is empty
-	if(not from) {
-		to.reset();
-	} else {
-		if(not to) {
-			to = from->T::template clone<T>();
-		} else {
-			to->T::load(from);
-		}
-	}
+std::string vecToString(const std::vector<T> &vec) {
+    std::ostringstream result; // NOLINT(cppcoreguidelines-init-variables)
+    for(const auto &item : vec) {
+        result << item << " ";
+    }
+    return result.str();
 }
 
 /******************************************************************************/
 /**
- * This function copies a container of smart pointers to cloneable objects to another container.
- * It assumes the availability of a load- and clone-call.
- *
- * @param from The container used as the source of the copying
- * @param to The container used as the target of the copying
+ * Deep-copies a shared_ptr to a cloneable/loadable object using clone()/load().
+ */
+template <typename T>
+    requires (Gem::Common::has_gemfony_common_interface<T>::value)
+void copyCloneableSmartPointer(const std::shared_ptr<T> &from, std::shared_ptr<T> &to) {
+    if(not from) {
+        to.reset();
+    }
+    else if(not to) {
+        to = from->T::template clone<T>();
+    }
+    else {
+        to->T::load(from);
+    }
+}
+
+/******************************************************************************/
+/**
+ * Deep-copies a container of shared_ptrs to cloneable objects using
+ * clone()/load(). Resizes the target container as needed.
  */
 template <typename T, template <typename, typename> class c_type>
+    requires (Gem::Common::has_gemfony_common_interface<T>::value)
 void copyCloneableSmartPointerContainer(
-	const c_type<std::shared_ptr<T>, std::allocator<std::shared_ptr<T>>>& from
-	, c_type<std::shared_ptr<T>, std::allocator<std::shared_ptr<T>>>& to
-	, typename std::enable_if<Gem::Common::has_gemfony_common_interface<T>::value>::type *dummy = nullptr
+    const c_type<std::shared_ptr<T>, std::allocator<std::shared_ptr<T>>> &from,
+    c_type<std::shared_ptr<T>, std::allocator<std::shared_ptr<T>>> &to
 ) {
-	typename c_type<std::shared_ptr<T>, std::allocator<std::shared_ptr<T>>>::const_iterator it_from;
-	typename c_type<std::shared_ptr<T>, std::allocator<std::shared_ptr<T>>>::iterator it_to;
+    using iter_t =
+        typename c_type<std::shared_ptr<T>, std::allocator<std::shared_ptr<T>>>::iterator;
+    using const_iter_t =
+        typename c_type<std::shared_ptr<T>, std::allocator<std::shared_ptr<T>>>::const_iterator;
 
-	std::size_t size_from = from.size();
-	std::size_t size_to   = to.size();
+    const std::size_t size_from = from.size();
+    const std::size_t size_to = to.size();
 
-	if(size_from==size_to) { // The most likely case
-		for(it_from=from.begin(), it_to=to.begin(); it_from!=from.end(); ++it_from, ++it_to) {
-			copyCloneableSmartPointer(*it_from, *it_to);
-		}
-	} else if(size_from > size_to) {
-		// First copy the data of the first size_to items
-		for(it_from=from.begin(), it_to=to.begin(); it_to!=to.end(); ++it_from, ++it_to) {
-			copyCloneableSmartPointer(*it_from, *it_to);
-		}
-
-		// Then attach copies of the remaining items
-		for(it_from=from.begin()+size_to; it_from!=from.end(); ++it_from) {
-			to.push_back((*it_from)->T::template clone<T>());
-		}
-	} else if(size_from < size_to) {
-		// First copy the initial size_for items over
-		for(it_from=from.begin(), it_to=to.begin(); it_from!=from.end(); ++it_from, ++it_to) {
-			copyCloneableSmartPointer(*it_from, *it_to);
-		}
-
-		// Then resize the local vector. Surplus items will vanish
-		to.resize(size_from);
-	}
+    if(size_from == size_to) {
+        const_iter_t it_from = from.begin();
+        for(iter_t it_to = to.begin(); it_to != to.end(); ++it_from, ++it_to) {
+            copyCloneableSmartPointer(*it_from, *it_to);
+        }
+    }
+    else if(size_from > size_to) {
+        const_iter_t it_from = from.begin();
+        for(iter_t it_to = to.begin(); it_to != to.end(); ++it_from, ++it_to) {
+            copyCloneableSmartPointer(*it_from, *it_to);
+        }
+        for(const_iter_t it = from.begin() + size_to; it != from.end(); ++it) {
+            to.push_back((*it)->T::template clone<T>());
+        }
+    }
+    else { // size_from < size_to
+        const_iter_t it_from = from.begin();
+        for(iter_t it_to = to.begin(); it_from != from.end(); ++it_from, ++it_to) {
+            copyCloneableSmartPointer(*it_from, *it_to);
+        }
+        to.resize(size_from);
+    }
 }
 
 /******************************************************************************/
 /**
- * This function copies a container of cloneable / loadable objects to another container
- * holding objects of the same type.
- *
- * @param from The container used as the source of the copying
- * @param to The container used as the target of the copying
+ * Deep-copies a container of cloneable objects using load(). Resizes the
+ * target container as needed.
  */
 template <typename T, template <typename, typename> class c_type>
+    requires (Gem::Common::has_gemfony_common_interface<T>::value)
 void copyCloneableObjectsContainer(
-	const c_type<T, std::allocator<T>>& from
-	, c_type<T, std::allocator<T>>& to
-	, typename std::enable_if<Gem::Common::has_gemfony_common_interface<T>::value>::type *dummy = nullptr
+    const c_type<T, std::allocator<T>> &from,
+    c_type<T, std::allocator<T>> &to
 ) {
-	typename c_type<T, std::allocator<T>>::const_iterator it_from;
-	typename c_type<T, std::allocator<T>>::iterator it_to;
+    using iter_t = typename c_type<T, std::allocator<T>>::iterator;
+    using const_iter_t = typename c_type<T, std::allocator<T>>::const_iterator;
 
-	std::size_t size_from = from.size();
-	std::size_t size_to = to.size();
+    const std::size_t size_from = from.size();
+    const std::size_t size_to = to.size();
 
-	if(size_from==size_to) { // The most likely case
-		for(it_from=from.begin(), it_to=to.begin(); it_from!=from.end(); ++it_from, ++it_to) {
-			it_to->T::load(*it_from);
-		}
-	} else if(size_from > size_to) {
-		// First copy the data of the first size_to items
-		for(it_from=from.begin(), it_to=to.begin(); it_to!=to.end(); ++it_from, ++it_to) {
-			it_to->T::load(*it_from);
-		}
-
-		// Then attach copies of the remaining items
-		for(it_from=from.begin()+size_to; it_from!=from.end(); ++it_from) {
-			to.push_back(T(*it_from));
-		}
-	} else if(size_from < size_to) {
-		// First copy the initial size_for items over
-		for(it_from=from.begin(), it_to=to.begin(); it_from!=from.end(); ++it_from, ++it_to) {
-			it_to->T::load(*it_from);
-		}
-
-		// Then resize the local vector. Surplus items will vanish
-		to.resize(size_from);
-	}
+    if(size_from == size_to) {
+        const_iter_t it_from = from.begin();
+        for(iter_t it_to = to.begin(); it_from != from.end(); ++it_from, ++it_to) {
+            it_to->T::load(*it_from);
+        }
+    }
+    else if(size_from > size_to) {
+        const_iter_t it_from = from.begin();
+        for(iter_t it_to = to.begin(); it_to != to.end(); ++it_from, ++it_to) {
+            it_to->T::load(*it_from);
+        }
+        for(const_iter_t it = from.begin() + size_to; it != from.end(); ++it) {
+            to.push_back(T(*it));
+        }
+    }
+    else { // size_from < size_to
+        const_iter_t it_from = from.begin();
+        for(iter_t it_to = to.begin(); it_from != from.end(); ++it_from, ++it_to) {
+            it_to->T::load(*it_from);
+        }
+        to.resize(size_from);
+    }
 }
 
 /******************************************************************************/
 /**
- * This function takes two arrays and copies their contents. It assumes that
- * uninitialized arrays point to nullptr and that the number of entries given
- * is exact. The from-array may be empty, in which case the to array will also
- * be empty after the call to this function. The function assumes that for
- * this operation, T::operator= makes sense. The function may modify all of its
- * "to"-arguments
+ * Copies a raw array into another raw array, allocating or reallocating the
+ * destination as needed. Both size parameters are kept consistent.
  */
-template<typename T>
-void copyArrays(
-	T const *const from
-	, T *&to
-	, const std::size_t &nFrom
-	, std::size_t &nTo
-) {
-	//--------------------------------------------------------------------------
-	// Do some error checks
-	if (nullptr == from && 0 != nFrom) {
-		throw geneva_exception(
-			g_error_streamer(DO_LOG, time_and_place)
-				<< "In copyArrays(): Error: from-array is empty, but nFrom isn\'t:" << nFrom << std::endl
-		);
-	}
+template <typename T>
+void copyArrays(T const *const from, T *&to, const std::size_t &nFrom, std::size_t &nTo) {
+    if(nullptr == from && 0 != nFrom) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, time_and_place)
+            << "In copyArrays(): from is null but nFrom=" << nFrom << std::endl
+        );
+    }
+    if(nullptr != from && 0 == nFrom) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, time_and_place)
+            << "In copyArrays(): from is non-null but nFrom=0" << std::endl
+        );
+    }
+    if(nullptr == to && 0 != nTo) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, time_and_place)
+            << "In copyArrays(): to is null but nTo=" << nTo << std::endl
+        );
+    }
+    if(nullptr != to && 0 == nTo) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, time_and_place)
+            << "In copyArrays(): to is non-null but nTo=0" << std::endl
+        );
+    }
 
-	if (nullptr != from && 0 == nFrom) {
-		throw geneva_exception(
-			g_error_streamer(DO_LOG, time_and_place)
-				<< "In copyArrays(): Error: from-array isn't empty, but nFrom is:" << std::endl
-		);
-	}
+    if(nullptr == from) {
+        nTo = 0;
+        if(to) {
+            g_array_delete(to);
+        }
+        return;
+    }
 
-	if (nullptr == to && 0 != nTo) {
-		throw geneva_exception(
-			g_error_streamer(DO_LOG, time_and_place)
-				<< "In copyArrays(): Error: to-array is empty, but nTo isn\'t:" << nTo << std::endl
-		);
-	}
+    if(nFrom != nTo) {
+        if(to) {
+            g_array_delete(to);
+        }
+        to = new T[nFrom];
+        nTo = nFrom;
+    }
 
-	if (nullptr != to && 0 == nTo) {
-		throw geneva_exception(
-			g_error_streamer(DO_LOG, time_and_place)
-				<< "In copyArrays(): Error: to-array isn't empty, but nTo is" << std::endl
-		);
-	}
-
-	//--------------------------------------------------------------------------
-
-	// If from is empty, make sure all other arguments are empty
-	if (nullptr == from) {
-		nTo = 0;
-		if (to) {
-			g_array_delete(to);
-		}
-
-		return;
-	}
-
-	// From here in we assume that nFrom contains entries
-
-	// Make sure from and to have the same size. If not, adapt "to" accordingly
-	if (nFrom != nTo) {
-		if (to) {
-			g_array_delete(to);
-		}
-		to = new T[nFrom];
-		nTo = nFrom;
-	}
-
-	// Copy all elements over
-	for (std::size_t i = 0; i < nFrom; i++) {
-		to[i] = from[i];
-	}
+    for(std::size_t i = 0; i < nFrom; i++) {
+        to[i] = from[i];
+    }
 }
 
 /******************************************************************************/
 /**
- * This function takes two arrays of std::shared_ptr smart pointers and copies
- * one into the other. We want to make a deep copy of the smart pointers' contents.
- * Note that we assume here that the objects pointed to can be copied using an
- * operator=(). The function also assumes the existence of a valid copy constructor.
- * Note that this function might yield bad results for virtual types, when handled
- * through a base class.
- *
- * @param from The array used as the source of the copying
- * @param to The array used as the target of the copying
- * @param size_from The number of entries in the first array
- * @param size_to The number of entries in the second array before and after copying (will be modified)
+ * Deep-copies a raw array of shared_ptrs into another, allocating or
+ * reallocating the destination as needed.
  */
-template<typename T>
+template <typename T>
 void copySmartPointerArrays(
-	std::shared_ptr <T> const *const from, std::shared_ptr <T> *&to, const std::size_t &size_from, std::size_t &size_to
+    std::shared_ptr<T> const *const from,
+    std::shared_ptr<T> *&to,
+    const std::size_t &size_from,
+    std::size_t &size_to
 ) {
-	//--------------------------------------------------------------------------
-	// Do some error checks
-	if (nullptr == from && 0 != size_from) {
-		throw geneva_exception(
-			g_error_streamer(DO_LOG, time_and_place)
-				<< "In copySmartPointerArrays(): Error: from-array is empty, but size_from isn\'t:" << size_from << std::endl
-		);
-	}
+    if(nullptr == from && 0 != size_from) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, time_and_place)
+            << "In copySmartPointerArrays(): from is null but size_from=" << size_from << std::endl
+        );
+    }
+    if(nullptr != from && 0 == size_from) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, time_and_place)
+            << "In copySmartPointerArrays(): from is non-null but size_from=0" << std::endl
+        );
+    }
+    if(nullptr == to && 0 != size_to) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, time_and_place)
+            << "In copySmartPointerArrays(): to is null but size_to=" << size_to << std::endl
+        );
+    }
+    if(nullptr != to && 0 == size_to) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, time_and_place)
+            << "In copySmartPointerArrays(): to is non-null but size_to=0" << std::endl
+        );
+    }
 
-	if (nullptr != from && 0 == size_from) {
-		throw geneva_exception(
-			g_error_streamer(DO_LOG, time_and_place)
-				<< "In copySmartPointerArrays(): Error: from-array isn't empty, but size_from is:" << std::endl
-		);
-	}
+    if(size_from != size_to) {
+        for(std::size_t i = 0; i < size_to; i++) {
+            to[i].reset();
+        }
+        g_array_delete(to);
+        to = new std::shared_ptr<T>[size_from];
+        size_to = size_from;
+    }
 
-	if (nullptr == to && 0 != size_to) {
-		throw geneva_exception(
-			g_error_streamer(DO_LOG, time_and_place)
-				<< "In copySmartPointerArrays(): Error: to-array is empty, but size_to isn\'t:" << size_to << std::endl
-		);
-	}
-
-	if (nullptr != to && 0 == size_to) {
-		throw geneva_exception(
-			g_error_streamer(DO_LOG, time_and_place)
-				<< "In copySmartPointerArrays(): Error: to-array isn't empty, but size_to is" << std::endl
-		);
-	}
-
-	//--------------------------------------------------------------------------
-	// From here on we assume that from and to have valid content
-
-	if (size_from != size_to) { // Get rid of all content in "to"
-		for (std::size_t i = 0; i < size_to; i++) {
-			to[i].reset();
-		}
-		g_array_delete(to);
-		to = new std::shared_ptr <T>[size_from];
-		size_to = size_from;
-	}
-
-	for (std::size_t i = 0; i < size_to; i++) {
-		to[i] = std::shared_ptr<T>(new T(*(from[i])));
-	}
+    for(std::size_t i = 0; i < size_to; i++) {
+        to[i] = std::make_shared<T>(*(from[i]));
+    }
 }
 
 /******************************************************************************/
 /**
- * This function converts a smart pointer to a target type, throwing an exception
- * if the conversion cannot be done.
+ * Converts a shared_ptr to target_type. In debug builds uses dynamic_pointer_cast
+ * and throws on failure or null input; in release builds uses static_pointer_cast.
  */
-template<typename source_type, typename target_type>
-std::shared_ptr <target_type> convertSmartPointer(std::shared_ptr <source_type> p_raw) {
+template <typename source_type, typename target_type>
+std::shared_ptr<target_type> convertSmartPointer(std::shared_ptr<source_type> p_raw) {
 #ifdef DEBUG
-	// Check that we have indeed been given an item and that the pointer isn't empty
-	if(not p_raw) {
-		throw geneva_exception(
-			g_error_streamer(DO_LOG, time_and_place)
-				<< "In std::shared_ptr<target_type> convertSmartPointer(std::shared_ptr<source_type> p_raw) :" << std::endl
-				<< "Error: Pointer is empty." << std::endl
-		);
-
-		// Make the compiler happy
-		return std::shared_ptr<target_type>();
-	}
-
-	// Do the actual conversion
-	std::shared_ptr<target_type> p = std::dynamic_pointer_cast<target_type>(p_raw);
-	if(p) return p;
-	else {
-		throw geneva_exception(
-			g_error_streamer(DO_LOG, time_and_place)
-				<< "In std::shared_ptr<target_type> convertSmartPointer(std::shared_ptr<source_type> p_raw) :" << std::endl
-				<< "Error: Invalid conversion to type " << typeid(target_type).name() << std::endl
-		);
-
-		// Make the compiler happy
-		return std::shared_ptr<target_type>();
-	}
+    if(not p_raw) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, time_and_place)
+            << "In convertSmartPointer(): pointer is empty." << std::endl
+        );
+    }
+    auto p = std::dynamic_pointer_cast<target_type>(p_raw);
+    if(p)
+        return p;
+    throw geneva_exception(
+        g_error_streamer(DO_LOG, time_and_place)
+        << "In convertSmartPointer(): invalid conversion to " << typeid(target_type).name()
+        << std::endl
+    );
 #else
-	return std::static_pointer_cast<target_type>(p_raw);
-#endif /* DEBUG */
+    return std::static_pointer_cast<target_type>(p_raw);
+#endif
 }
 
 /******************************************************************************/
 /**
- * This function converts a simple pointer to a target type, throwing an exception
- * if the conversion cannot be done.
+ * Splits a string into a vector of target_type values using a single separator.
  */
-template<typename source_type, typename target_type>
-target_type *convertSimplePointer(source_type *p_raw) {
-#ifdef DEBUG
-	// Check that we have indeed been given an item and that the pointer isn't empty
-	if(not p_raw) {
-		throw geneva_exception(
-			g_error_streamer(DO_LOG, time_and_place)
-				<< "In target_type * convertSimplePointer(source_type *p_raw) :" << std::endl
-				<< "Error: Pointer is empty." << std::endl
-		);
-
-		// Make the compiler happy
-		return nullptr;
-	}
-
-	// Do the actual conversion
-	target_type  *p = dynamic_cast<target_type>(p_raw);
-	if(p) return p;
-	else {
-		throw geneva_exception(
-			g_error_streamer(DO_LOG, time_and_place)
-				<< "In target_type * convertSimplePointer(source_type * p_raw) :" << std::endl
-				<< "Error: Invalid conversion to type " << typeid(target_type).name() << std::endl
-		);
-
-		// Make the compiler happy
-		return nullptr;
-	}
-#else
-	return static_cast<target_type>(p_raw);
-#endif /* DEBUG */
-}
-
-/******************************************************************************/
-/**
- * This function converts a simple pointer to a target type, throwing an exception
- * if the conversion cannot be done.
- */
-template<typename source_type, typename target_type>
-const target_type *convertSimplePointer(const source_type *p_raw) {
-#ifdef DEBUG
-	// Check that we have indeed been given an item and that the pointer isn't empty
-	if(not p_raw) {
-		throw geneva_exception(
-			g_error_streamer(DO_LOG, time_and_place)
-				<< "In const target_type * convertSimplePointer(const source_type *p_raw) :" << std::endl
-				<< "Error: Pointer is empty." << std::endl
-		);
-
-		// Make the compiler happy
-		return nullptr;
-	}
-
-	// Do the actual conversion
-	auto *p = dynamic_cast<const target_type *>(p_raw);
-	if(p) return p;
-	else {
-		throw geneva_exception(
-			g_error_streamer(DO_LOG, time_and_place)
-				<< "In target_type * convertSimplePointer(source_type * p_raw) :" << std::endl
-				<< "Error: Invalid conversion to type " << typeid(target_type).name() << std::endl
-		);
-
-		// Make the compiler happy
-		return nullptr;
-	}
-#else
-	return static_cast<const target_type *>(p_raw);
-#endif /* DEBUG */
-}
-
-/******************************************************************************/
-/**
- * Splits a string into a vector of user-defined types, according to a seperator character.
- * The only precondition is that the target type is known to boost::lexical_cast, which can
- * be achieved simply by providing related operator<< and operator>> .
- */
-template<typename split_type>
+template <typename split_type>
 std::vector<split_type> splitStringT(const std::string &raw, const char *sep) {
-	std::vector<std::string> fragments = Gem::Common::splitString(raw, sep);
-	std::vector<split_type> result;
-	std::vector<std::string>::iterator it;
-	for (it = fragments.begin(); it != fragments.end(); ++it) {
-		result.push_back(boost::lexical_cast<split_type>(*it));
-	}
-	return result;
+    std::vector<split_type> result;
+    for(const auto &fragment : Gem::Common::splitString(raw, sep)) {
+        result.push_back(Gem::Common::from_string<split_type>(fragment));
+    }
+    return result;
 }
 
 /******************************************************************************/
 /**
- * Splits a string into a vector of user-defined type-pairs, according to seperator characters.
- * The only precondition is that the target types are known to boost::lexical_cast, which can
- * be achieved simply by providing related operator<< and operator>> . A possible usage is a
- * split of a string "0/0 0/1 1/0" into tuples of integers.
+ * Splits a string into a vector of (split_type1, split_type2) pairs using
+ * two different separators. A possible usage: "0/0 0/1 1/0" → tuples of ints.
  */
-template<typename split_type1, typename split_type2>
-std::vector<std::tuple<split_type1, split_type2>> splitStringT(
-	const std::string &raw, const char *sep1, const char *sep2
-) {
-	// Check that sep1 and sep2 differ
-	if (std::string(sep1) == std::string(sep2)) {
-		throw geneva_exception(
-			g_error_streamer(DO_LOG, time_and_place)
-				<< "In splitStringT(std::string, const char*, const char*): Error!" << std::endl
-				<< "sep1 and sep2 are identical: \"" << sep1 << "\" / \"" << sep2 << "\"" << std::endl
-		);
-	}
+template <typename split_type1, typename split_type2>
+std::vector<std::tuple<split_type1, split_type2>>
+splitStringT(const std::string &raw, const char *sep1, const char *sep2) {
+    if(std::string(sep1) == std::string(sep2)) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, time_and_place)
+            << "In splitStringT(): sep1 and sep2 are identical: \"" << sep1 << "\" / \"" << sep2
+            << "\"" << std::endl
+        );
+    }
 
-	std::vector<std::string> fragments = Gem::Common::splitString(raw, sep1);
-	std::vector<std::tuple<split_type1, split_type2>> result;
-	std::vector<std::string>::iterator it;
-	for (it = fragments.begin(); it != fragments.end(); ++it) {
-		std::vector<std::string> sub_fragments = Gem::Common::splitString(*it, sep2);
-
+    std::vector<std::tuple<split_type1, split_type2>> result;
+    for(const auto &fragment : Gem::Common::splitString(raw, sep1)) {
+        const auto sub = Gem::Common::splitString(fragment, sep2);
 #ifdef DEBUG
-		if(2 != sub_fragments.size()) {
-			throw geneva_exception(
-				g_error_streamer(DO_LOG, time_and_place)
-					<< "In splitStringT(std::string, const char*, const char*): Error!" << std::endl
-					<< "Incorrect number of sub-fragments: " << sub_fragments.size()
-			);
-		}
-#endif /* DEBUG */
-
-		result.push_back(
-			std::tuple<split_type1, split_type2>(
-				boost::lexical_cast<split_type1>(sub_fragments[0]), boost::lexical_cast<split_type2>(sub_fragments[1])
-			)
-		);
-	}
-
-	return result;
+        if(2 != sub.size()) {
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, time_and_place)
+                << "In splitStringT(): expected 2 sub-fragments, got " << sub.size() << std::endl
+            );
+        }
+#endif
+        result.emplace_back(
+            Gem::Common::from_string<split_type1>(sub[0]),
+            Gem::Common::from_string<split_type2>(sub[1])
+        );
+    }
+    return result;
 }
 
 /******************************************************************************/
 /**
- * Retrieves an item from a std::map and throws, if the corresponding key
- * isn't found
+ * Returns a reference to the value at key in m; throws if the map is empty
+ * or the key is absent.
  */
-template<typename item_type>
+template <typename item_type>
 item_type &getMapItem(std::map<std::string, item_type> &m, const std::string &key) {
-	if (m.empty()) {
-		throw geneva_exception(
-			g_error_streamer(DO_LOG, time_and_place)
-				<< "In item_type& getMapItem(std::map<std::string, item_type>& m, const std::string& key): Error!" << std::endl
-				<< "Map is empty" << std::endl
-		);
-	}
-
-	typename std::map<std::string, item_type>::iterator it = m.find(key);
-	if (it != m.end()) {
-		return it->second;
-	} else {
-		throw geneva_exception(
-			g_error_streamer(DO_LOG, time_and_place)
-				<< "In \"item_type& getMapItem(std::map<std::string, item_type>& m, const std::string& key)\": Error!" << std::endl
-				<< "key " << key << " is not in the map." << std::endl
-		);
-	}
+    if(m.empty()) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, time_and_place) << "In getMapItem(): map is empty" << std::endl
+        );
+    }
+    auto it = m.find(key);
+    if(it != m.end())
+        return it->second;
+    throw geneva_exception(
+        g_error_streamer(DO_LOG, time_and_place)
+        << "In getMapItem(): key \"" << key << "\" not found" << std::endl
+    );
 }
 
 /******************************************************************************/
 /**
- * Retrieves an item from a std::map and throws, if the corresponding key
- * isn't found
+ * Const overload of getMapItem.
  */
-template<typename item_type>
+template <typename item_type>
 const item_type &getMapItem(const std::map<std::string, item_type> &m, const std::string &key) {
-	if (m.empty()) {
-		throw geneva_exception(
-			g_error_streamer(DO_LOG, time_and_place)
-				<< "In const item_type& getMapItem(const std::map<std::string, item_type>& m, const std::string& key): Error!" << std::endl
-				<< "Map is empty" << std::endl
-		);
-	}
-
-	typename std::map<std::string, item_type>::const_iterator cit = m.find(key);
-	if (cit != m.end()) {
-		return cit->second;
-	} else {
-		throw geneva_exception(
-			g_error_streamer(DO_LOG, time_and_place)
-				<<
-				"In \"const item_type& getMapItem(const std::map<std::string, item_type>& m, const std::string& key)\": Error!" << std::endl
-				<< "key " << key << " is not in the map." << std::endl
-		);
-	}
-}
-
-
-/******************************************************************************/
-/**
- * Checks whether start- and end-ids match a given container type. "start"
- * is inclusive, "end" is exclusive.
- */
-template<typename container_type>
-void assert_sizes_match_container(
-	const container_type& container
-	, std::size_t start
-	, std::size_t end
-	, const std::string& caller
-){
-	if (end <= start) {
-		throw geneva_exception(
-			g_error_streamer(DO_LOG, time_and_place)
-				<< "In assert_sizes_match_container() (caller " << caller << "): Error!" << std::endl
-				<< "Invalid start or end-values: " << start << " / " << end << std::endl
-		);
-	}
-
-	if (end > container.size()) {
-		throw geneva_exception(
-			g_error_streamer(DO_LOG, time_and_place)
-				<< "In assert_sizes_match_container() (caller " << caller << "): Error!" << std::endl
-				<< "Last id " << end << " exceeds size of vector " << container.size() << std::endl
-		);
-	}
-}
-
-/******************************************************************************/
-/**
- * Checks that the sizes of two container types match
- */
-template<typename container_type1, typename container_type2>
-void assert_container_sizes_match(
-	const container_type1& container1
-	, const container_type2& container2
-	, const std::string& caller
-) {
-	if(container1.size() != container2.size()) {
-		throw geneva_exception(
-			g_error_streamer(DO_LOG, time_and_place)
-				<< "In assert_container_sizes_match() (caller " << caller << "): Error!" << std::endl
-				<< "Invalid container sizes: " << container1.size() << " / " << container2.size() << std::endl
-		);
-	}
-};
-
-/******************************************************************************/
-/**
- * Erases items from a standard container that comply with a specific condition
- *
- * @param container The container from which items should be erased
- * @param predicate The predicate according to which items should be erased
- * @return The number of erased items
- */
-template<typename container_type, typename predicate_type >
-std::size_t erase_if(
-	container_type& container
-	, const predicate_type& predicate
-) {
-	std::size_t n_erased = 0;
-	for(auto it = container.begin(); it != container.end();) {
-		if(predicate(*it)) {
-			it = container.erase(it);
-			n_erased++;
-		}
-		else {
-			++it;
-		}
-	}
-
-	return n_erased;
-};
-
-/******************************************************************************/
-/**
- * Erases items from a standard container according to a collection of flags
- * in a std::vector of the same size. Erasure may happen in a given range only.
- * The items held by the container must be copyable. A flag equal to "flag" means
- * that the associated container entry will be erased.
- */
-template<typename container_type>
-void erase_according_to_flags(
-	container_type& container
-	, const std::vector<bool>& flags
-	, bool flag
-	, std::size_t start
-	, std::size_t end
-) {
-	typename container_type::iterator item_it;
-	std::vector<bool>::const_iterator pos_it;
-
-	// Make sure the start/stop positions match the container
-	assert_sizes_match_container(container, start, end, "erase_according_to_flags");
-
-	// Make sure the flag vector has the same size as the container
-	assert_container_sizes_match(container, flags, "erase_according_to_flags");
-
-	// Copy items over that do not need to be erased
-	container_type container_tmp;
-	for (
-		item_it = container.begin() + start, pos_it = flags.begin() + start;
-		item_it != container.begin() + end; ++item_it, ++pos_it
-		) {
-		// Attach processed items to the tmp vector
-		if (flag != *pos_it) {
-			container_tmp.push_back(*item_it);
-		}
-	}
-
-	// Remove all other items in the range [start:end[
-	container.erase(container.begin() + start, container.begin() + end);
-
-	// Insert the items from the tmp vector in position "start"
-	container.insert(container.begin() + start, container_tmp.begin(), container_tmp.end());
-}
-
-/******************************************************************************/
-/**
- * Forces submission to a boost::lockfree queue (either queue or spsc_queue)
- *
- * TODO: use enable_if and is_same to make this bullet-proof
- */
-template <typename item_type, template <typename, typename...> class queue_type, typename... Options>
-// Template syntax loosely follows http://stackoverflow.com/questions/7728478/c-template-class-function-with-arbitrary-container-type-how-to-define-it
-bool forcedSubmissionToBoostLockfree(
-	queue_type<item_type, Options...>& queue
-	, item_type item
-	, const std::chrono::duration<double> &sleepTime = std::chrono::duration<double>(std::chrono::milliseconds(1))
-) {
-	while(not queue.push(item)){
-		std::this_thread::sleep_for(sleepTime);
-	}
-
-	return true;
-}
-
-/******************************************************************************/
-/**
- * Submits an item to a boost::lockfree queue (either queue or spsc_queue),
- * observing a timeout.
- */
-template <typename item_type, template <typename, typename...> class queue_type, typename... Options>
-// Template syntax loosely follows http://stackoverflow.com/questions/7728478/c-template-class-function-with-arbitrary-container-type-how-to-define-it
-bool timedSubmissionToBoostLockfree(
-	queue_type<item_type, Options...>& queue
-	, item_type item
-	, const std::chrono::duration<double> &timeout
-	, const std::chrono::duration<double> &sleepTime = std::chrono::duration<double>(std::chrono::milliseconds(1))
-) {
-	bool submitted = true;
-	auto startTime = std::chrono::high_resolution_clock::now();
-	while(not queue.push(item)) {
-		if(std::chrono::high_resolution_clock::now()-startTime > timeout) {
-			submitted = false;
-			break; // Terminate the loop
-		}
-
-		std::this_thread::sleep_for(sleepTime);
-	}
-	return submitted;
-}
-
-/******************************************************************************/
-/**
- * Forces retrieval from a boost::lockfree queue (either queue or spsc_queue)
- */
-template <typename item_type, template <typename, typename...> class queue_type, typename... Options>
-// Template syntax loosely follows http://stackoverflow.com/questions/7728478/c-template-class-function-with-arbitrary-container-type-how-to-define-it
-bool forcedRetrievalFromBoostLockfree(
-	queue_type<item_type, Options...>& queue
-	, item_type& item
-	, const std::chrono::duration<double> &sleepTime = std::chrono::duration<double>(std::chrono::milliseconds(1))
-) {
-	while(not queue.pop(item)){
-		std::this_thread::sleep_for(sleepTime);
-	}
-
-	return true;
-}
-
-/******************************************************************************/
-/**
- * Retrieves an item from a boost::lockfree queue (either queue or spsc_queue),
- * observing a timeout
- */
-template <typename item_type, template <typename, typename...> class queue_type, typename... Options>
-// Template syntax loosely follows http://stackoverflow.com/questions/7728478/c-template-class-function-with-arbitrary-container-type-how-to-define-it
-bool timedRetrievalFromBoostLockfree(
-	queue_type<item_type, Options...>& queue
-	, item_type& item
-	, const std::chrono::duration<double> &timeout
-	, const std::chrono::duration<double> &sleepTime = std::chrono::duration<double>(std::chrono::milliseconds(1))
-) {
-	bool retrieved = true;
-	auto startTime = std::chrono::high_resolution_clock::now();
-	while(not queue.pop(item)) {
-		if(std::chrono::high_resolution_clock::now()-startTime > timeout) {
-			retrieved = false;
-			break; // Terminate the loop
-		}
-
-		std::this_thread::sleep_for(sleepTime);
-	}
-	return retrieved;
-}
-
-/******************************************************************************/
-/**
- * A replacement for std::make_unique -- a C++14 feature that does not seem
- * to be supported well with older compilers
- */
-template<typename p_type, typename... arg_list>
-std::unique_ptr<p_type> g_make_unique(arg_list&&... args) {
-	return std::unique_ptr<p_type>(new p_type(std::forward<arg_list>(args)...));
-}
-
-/******************************************************************************/
-/**
- * This function returns an arbitrary std::vector as a string of value separated
- * by a comma. It assumes that the template type may be output by std::cout
- */
-template <typename vec_cont_type>
-std::string vector_as_string(const std::vector<vec_cont_type>& vec) {
-	typename std::vector<vec_cont_type>::const_iterator cit;
-	std::ostringstream result;
-	for(cit=vec.begin(); cit!=vec.end(); ++cit) {
-		result << *cit;
-		if(cit != (vec.end() - 1)) {
-			result << ", ";
-		}
-	}
-
-	return result.str();
+    if(m.empty()) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, time_and_place) << "In getMapItem(): map is empty" << std::endl
+        );
+    }
+    auto cit = m.find(key);
+    if(cit != m.end())
+        return cit->second;
+    throw geneva_exception(
+        g_error_streamer(DO_LOG, time_and_place)
+        << "In getMapItem(): key \"" << key << "\" not found" << std::endl
+    );
 }
 
 /******************************************************************************/
 /**
  * Adds an operator== to every object with a Gemfony-common interface
  */
-template<
-	class gemfony_common_type
-	, class = typename std::enable_if<Gem::Common::has_gemfony_common_interface<gemfony_common_type>::value>::type
->
-bool operator==(
-	const gemfony_common_type& x
-	, const gemfony_common_type& y
-) {
-	try {
-		x.compare(
-			y
-			, Gem::Common::expectation::EQUALITY
-			, CE_DEF_SIMILARITY_DIFFERENCE
-		);
-		return true;
-	} catch (g_expectation_violation &) {
-		return false;
-	}
+template <class gemfony_common_type>
+    requires (Gem::Common::has_gemfony_common_interface<gemfony_common_type>::value)
+bool operator==(const gemfony_common_type &x, const gemfony_common_type &y) {
+    try {
+        x.compare(y, Gem::Common::expectation::EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+        return true;
+    }
+    catch(g_expectation_violation &) {
+        return false;
+    }
 }
 
 /******************************************************************************/
 /**
  * Adds an operator!= to every object with a Gemfony-common interface
  */
-template<
-	class gemfony_common_type
-	, class = typename std::enable_if<Gem::Common::has_gemfony_common_interface<gemfony_common_type>::value>::type
->
-bool operator!=(
-	const gemfony_common_type& x
-	, const gemfony_common_type& y
-) {
-	try {
-		x.compare(
-			y
-			, Gem::Common::expectation::INEQUALITY
-			, CE_DEF_SIMILARITY_DIFFERENCE
-		);
-		return true;
-	} catch (g_expectation_violation &) {
-		return false;
-	}
+template <class gemfony_common_type>
+    requires (Gem::Common::has_gemfony_common_interface<gemfony_common_type>::value)
+bool operator!=(const gemfony_common_type &x, const gemfony_common_type &y) {
+    try {
+        x.compare(y, Gem::Common::expectation::INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+        return true;
+    }
+    catch(g_expectation_violation &) {
+        return false;
+    }
 }
 
 /******************************************************************************/
 /**
- * Converts integral types (except scoped enums) to a std::string
+ * Converts integral types (except scoped enums) to std::string.
  */
 template <typename integral_type>
-std::string to_string(
-	integral_type val
-	, typename std::enable_if<
-	std::is_integral<integral_type>::value
-	|| (std::is_enum<integral_type>::value && std::is_convertible<integral_type, int>::value)
->::type* = 0
-) {
-	return std::to_string(val);
+    requires (std::is_integral_v<integral_type> ||
+              (std::is_enum_v<integral_type> && std::is_convertible_v<integral_type, int>))
+std::string to_string(integral_type val) {
+    return std::to_string(val);
 }
 
 /******************************************************************************/
 /**
- * Converts floating ppoint values to a std::string.
+ * Converts floating-point values to std::string with full precision.
  */
-template <typename fp_type>
-std::string to_string(
-	fp_type val
-	, typename std::enable_if<std::is_floating_point<fp_type>::value>::type* = 0
-) {
-	// We do not want to use std::to_string here, as it depends on the locale (. vs. ,)
-	return  boost::lexical_cast<std::string>(val);
+template <std::floating_point fp_type>
+std::string to_string(fp_type val) {
+    std::ostringstream oss;
+    oss << std::setprecision(std::numeric_limits<fp_type>::max_digits10) << val;
+    return oss.str();
 }
 
 /******************************************************************************/
 /**
- * Converts a scoped enum (i.e. an enum class) to a std::string. An enum class
- * is not implicitly convertible to an integer, so we explicitly cast it to an int
+ * Converts a scoped enum (enum class) to std::string via uint32_t cast.
  */
 template <typename enum_type>
-std::string to_string(
-	enum_type val
-	, typename std::enable_if<std::is_enum<enum_type>::value && not std::is_convertible<enum_type, int>::value>::type* = 0
-) {
-	return std::to_string(static_cast<std::uint32_t>(val));
+    requires (std::is_enum_v<enum_type> && !std::is_convertible_v<enum_type, int>)
+std::string to_string(enum_type val) {
+    return std::to_string(static_cast<std::uint32_t>(val));
 }
 
 /******************************************************************************/
 /**
- * Converts standard types (except arithmetic and enum types) to a std::string
+ * Converts any remaining streamable type to std::string via ostringstream.
  */
 template <typename default_type>
-std::string to_string(
-	default_type val
-	, typename std::enable_if<not std::is_enum<default_type>::value && not std::is_arithmetic<default_type>::value>::type* = 0
-) {
-	return boost::lexical_cast<std::string>(val);
+    requires (!std::is_enum_v<default_type> && !std::is_arithmetic_v<default_type>)
+std::string to_string(default_type val) {
+    std::ostringstream oss;
+    oss << val;
+    return oss.str();
+}
+
+/******************************************************************************/
+/**
+ * Erases elements from a standard container matching a predicate. Equivalent
+ * to C++20 std::erase_if, kept here for CUDA nvcc compatibility (nvcc does not
+ * expose the C++20 standard-library additions). Returns the number of erased
+ * elements.
+ */
+template <typename container_type, typename predicate_type>
+std::size_t erase_if(container_type &container, const predicate_type &predicate) {
+    std::size_t n_erased = 0;
+    for(auto it = container.begin(); it != container.end();) {
+        if(predicate(*it)) {
+            it = container.erase(it);
+            ++n_erased;
+        }
+        else {
+            ++it;
+        }
+    }
+    return n_erased;
 }
 
 /******************************************************************************/
 
-} /* namespace Common */
-} /* namespace Gem */
+} /* namespace Gem::Common */

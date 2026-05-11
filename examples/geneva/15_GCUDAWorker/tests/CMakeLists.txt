@@ -27,11 +27,58 @@
 #
 ################################################################################
 
-SET ( OCLFILES
-        monalisa.cl
+# --- GCanvasTest: manual smoke-test (load/add/save a PPM image) ---------------
+
+SET ( EXECUTABLENAME GCanvasTest )
+
+SET ( ${EXECUTABLENAME}_SRCS
+	GCanvasTest.cpp
+	../GCanvas.cpp
 )
 
-# Copy the config files to the build tree for easier testing
-FILE ( COPY ${OCLFILES} DESTINATION .)
+ADD_EXECUTABLE(${EXECUTABLENAME}
+	${${EXECUTABLENAME}_SRCS}
+)
 
-INSTALL ( FILES ${OCLFILES} DESTINATION ${INSTALL_PREFIX_DATA}/examples/${EXECUTABLENAME}/code )
+TARGET_INCLUDE_DIRECTORIES(${EXECUTABLENAME} PRIVATE
+	${CMAKE_CURRENT_SOURCE_DIR}/..
+)
+
+SET(LIBRARIES_TO_LINK
+		${GENEVA_LIBRARIES}
+		${Boost_LIBRARIES})
+
+IF(GENEVA_BUILD_WITH_MPI_CONSUMER)
+	SET(LIBRARIES_TO_LINK ${LIBRARIES_TO_LINK} ${MPI_LIBRARIES})
+ENDIF()
+
+TARGET_LINK_LIBRARIES(${EXECUTABLENAME} ${LIBRARIES_TO_LINK})
+
+ADD_SUBDIRECTORY(pictures)
+
+# --- GCanvasTests: Catch2 unit tests ------------------------------------------
+
+SET ( UNITTESTNAME GCanvasTests )
+
+SET ( ${UNITTESTNAME}_SRCS
+	GCanvasTests.cpp
+	../GCanvas.cpp
+)
+
+ADD_EXECUTABLE(${UNITTESTNAME}
+	${${UNITTESTNAME}_SRCS}
+)
+
+TARGET_INCLUDE_DIRECTORIES(${UNITTESTNAME} PRIVATE
+	${CMAKE_CURRENT_SOURCE_DIR}/..
+)
+
+TARGET_LINK_LIBRARIES(${UNITTESTNAME}
+		${GENEVA_LIBRARIES}
+		${Boost_LIBRARIES}
+		Catch2::Catch2WithMain)
+
+ADD_TEST(${UNITTESTNAME} ${UNITTESTNAME})
+
+INSTALL ( TARGETS ${EXECUTABLENAME} ${UNITTESTNAME}
+	DESTINATION ${INSTALL_PREFIX_DATA}/examples/GCUDAWorker/tests )

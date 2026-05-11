@@ -45,107 +45,108 @@
 // Boost header files go here
 
 // Geneva header files go here
-#include <geneva/GParameterSet.hpp>
 #include <geneva/GConstrainedDoubleObject.hpp>
+#include <geneva/GParameterSet.hpp>
 
 namespace Gem::Geneva {
 
-    enum ClientStatus {
-        RUNNING,
-        FINISHED,
-        ERROR
-    };
+enum ClientStatus {
+    RUNNING,
+    FINISHED,
+    ERROR
+};
 
-    enum ClientMode {
-        CLIENT,
-        SUB_CLIENT
-    };
+enum ClientMode {
+    CLIENT,
+    SUB_CLIENT
+};
 
 /******************************************************************/
-    /**
+/**
      * This individual offers to set and retrieve an MPI communicator.
      * The communicator can be used to communicate with MPI sub-clients to solve the fitnessCalculation in a
      * distributed manner. To use this individual a concrete derived class has to be created and it must be used in
      * conjunction with the GMPISubClientOptimizer.
      */
-    class GMPISubClientIndividual : public GParameterSet {
-        /** @brief Make the class accessible to Boost.Serialization */
-        friend class boost::serialization::access;
+class GMPISubClientIndividual // NOLINT(cppcoreguidelines-special-member-functions)
+  : public GParameterSet {
+    /** @brief Make the class accessible to Boost.Serialization */
+    friend class boost::serialization::access;
 
-        /**
+    /**
          * GMPISubClientOptimizer must be able to set the communicator, other classes should not.
          * Therefore we should get access to private members from GMPISubClientOptimizer
          */
-        friend class GMPISubClientOptimizer;
+    friend class GMPISubClientOptimizer;
 
-        /**************************************************************/
-        /**
+    /**************************************************************/
+    /**
          * This function triggers serialization of this class and its
          * base classes.
          */
-        template<typename Archive>
-        void serialize(Archive &ar, const unsigned int) {
-            using boost::serialization::make_nvp;
-            // Serialize the base class
-            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet);
-            // Add other variables here like this:
-            // ar & BOOST_SERIALIZATION_NVP(sampleVariable);
-        }
-        /**************************************************************/
-    public:
-        /** @brief The default constructor */
-        GMPISubClientIndividual() = default;
+    template <typename Archive>
+    void serialize(Archive &ar, const unsigned int) {
+        using boost::serialization::make_nvp;
+        // Serialize the base class
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet);
+        // Add other variables here like this:
+        // ar & BOOST_SERIALIZATION_NVP(sampleVariable);
+    }
+    /**************************************************************/
+public:
+    /** @brief The default constructor */
+    GMPISubClientIndividual() = default;
 
-        /** @brief A standard copy constructor */
-        GMPISubClientIndividual(const GMPISubClientIndividual &) = default;
+    /** @brief A standard copy constructor */
+    GMPISubClientIndividual(const GMPISubClientIndividual &) = default;
 
-        /**
+    /**
          * Allows retrieving the communicator which is used by this individual to communicate with dedicated workers.
          */
-        static MPI_Comm getCommunicator();
+    static MPI_Comm getCommunicator();
 
-    protected:
-        /**
+protected:
+    /**
          * @return status of the associated client in the communication group
          */
-        static ClientStatus getClientStatus();
+    static ClientStatus getClientStatus();
 
-        /**
+    /**
          * @return mode of the current process, either client or sub client
          */
-         static ClientMode getClientMode();
+    static ClientMode getClientMode();
 
-    private:
-        /**
+private:
+    /**
          * Sets the MPI communicator that can be used by the individual to communicate with sub-clients in an MPI sub-group
          * @param communicator The communicator to set.
          */
-        static void setCommunicator(const MPI_Comm &communicator);
+    static void setCommunicator(const MPI_Comm &communicator);
 
-        /**
+    /**
          * Sets a request that can be used to check for the status of the client in the current communication group
          */
-        static void setClientStatusRequest(const MPI_Request &request);
+    static void setClientStatusRequest(const MPI_Request &request);
 
-        /**
+    /**
          * Sets the mode for this process to client or sub-client, such that the user can access this property inside of individuals
          */
-        static void setClientMode(const ClientMode &mode);
+    static void setClientMode(const ClientMode &mode);
 
-        /**
+    /**
          * Communicator that can be used by this class
          */
-        static inline MPI_Comm m_communicator{MPI_COMM_NULL};
+    static inline MPI_Comm communicator_{MPI_COMM_NULL};
 
-        /**
+    /**
          * Request which can be used to check the client status
          */
-        inline static MPI_Request m_clientStatusRequest{};
+    inline static MPI_Request clientStatusRequest_{};
 
-        inline static ClientMode m_clientMode{ClientMode::CLIENT};
+    inline static ClientMode clientMode_{ClientMode::CLIENT};
 
-        // NOTE: the class remains abstract because essential methods of the base class are not implemented
-    };
+    // NOTE: the class remains abstract because essential methods of the base class are not implemented
+};
 
 } /* namespace Gem::Geneva */
 

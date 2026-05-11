@@ -48,42 +48,39 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard headers go here
-#include <iostream>
-#include <string>
-#include <stack>
-#include <map>
 #include <cmath>
+#include <iostream>
+#include <map>
+#include <stack>
+#include <string>
 #include <type_traits>
+#include <variant>
 
 // Boost headers go here
 
 #include <boost/config/warning_disable.hpp>
-#include <boost/spirit/include/qi_operator.hpp>
-#include <boost/spirit/include/qi_char.hpp>
-#include <boost/spirit/include/qi_string.hpp>
-#include <boost/spirit/include/qi_numeric.hpp>
-#include <boost/spirit/include/qi_auxiliary.hpp>
-#include <boost/spirit/include/qi_nonterminal.hpp>
-#include <boost/spirit/include/qi_action.hpp>
-#include <boost/phoenix/core.hpp>
-#include <boost/phoenix/operator.hpp>
-#include <boost/phoenix/object.hpp>
-#include <boost/phoenix/bind.hpp>
-#include <boost/math/constants/constants.hpp>
-#include <boost/xpressive/xpressive.hpp>
-#include <boost/utility.hpp>
-#include <boost/fusion/include/adapt_struct.hpp>
 #include <boost/fusion/adapted/std_tuple.hpp> // Compare http://stackoverflow.com/questions/18158376/getting-boostspiritqi-to-use-stl-containers
+#include <boost/fusion/include/adapt_struct.hpp>
+#include <boost/phoenix/bind.hpp>
+#include <boost/phoenix/core.hpp>
+#include <boost/phoenix/object.hpp>
+#include <boost/phoenix/operator.hpp>
+#include <boost/spirit/include/qi_action.hpp>
+#include <boost/spirit/include/qi_auxiliary.hpp>
+#include <boost/spirit/include/qi_char.hpp>
+#include <boost/spirit/include/qi_nonterminal.hpp>
+#include <boost/spirit/include/qi_numeric.hpp>
+#include <boost/spirit/include/qi_operator.hpp>
+#include <boost/spirit/include/qi_string.hpp>
+#include <regex>
 
 // Geneva headers go here
+#include "common/GCommonHelperFunctionsT.hpp"
+#include "common/GErrorStreamer.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
-#include "common/GErrorStreamer.hpp"
-#include "common/GCommonHelperFunctionsT.hpp"
-#include "common/GCommonMathHelperFunctions.hpp"
 
-namespace Gem {
-namespace Common {
+namespace Gem::Common {
 
 /******************************************************************************/
 // Exceptions for some error conditions
@@ -97,20 +94,20 @@ namespace Common {
  */
 class math_logic_error : public geneva_exception {
 public:
-	/** @brief The default constructor: Intentionally deleted */
-	G_API_COMMON math_logic_error() = delete;
-	/** @brief The standard constructor */
-	explicit G_API_COMMON math_logic_error(std::string const&) noexcept;
+    /** @brief The default constructor: Intentionally deleted */
+    math_logic_error() = delete;
+    /** @brief The standard constructor */
+    explicit math_logic_error(std::string const &) noexcept;
 
-	/**************************************************************************/
-	// Defaulted functions, constructors and destructor; rule of five
+    /**************************************************************************/
+    // Defaulted functions, constructors and destructor; rule of five
 
-	G_API_COMMON math_logic_error(math_logic_error const&) = default;
-	G_API_COMMON math_logic_error(math_logic_error &&) noexcept = default;
-	G_API_COMMON ~math_logic_error() noexcept override = default;
+    math_logic_error(math_logic_error const &) = default;
+    math_logic_error(math_logic_error &&) noexcept = default;
+    ~math_logic_error() noexcept override = default;
 
-	G_API_COMMON math_logic_error& operator=(math_logic_error const&) = default;
-	G_API_COMMON math_logic_error& operator=(math_logic_error &&) noexcept = default;
+    math_logic_error &operator=(math_logic_error const &) = default;
+    math_logic_error &operator=(math_logic_error &&) noexcept = default;
 };
 
 /******************************************************************************/
@@ -121,18 +118,18 @@ public:
  */
 class division_by_0 : public math_logic_error {
 public:
-	/** @brief The default constructor */
-	G_API_COMMON division_by_0() noexcept;
+    /** @brief The default constructor */
+    division_by_0() noexcept;
 
-	/**************************************************************************/
-	// Defaulted functions, constructors and destructor; rule of five
+    /**************************************************************************/
+    // Defaulted functions, constructors and destructor; rule of five
 
-	G_API_COMMON division_by_0(division_by_0 const&) = default;
-	G_API_COMMON division_by_0(division_by_0 &&) noexcept = default;
-	G_API_COMMON ~division_by_0() noexcept override = default;
+    division_by_0(division_by_0 const &) = default;
+    division_by_0(division_by_0 &&) noexcept = default;
+    ~division_by_0() noexcept override = default;
 
-	G_API_COMMON division_by_0& operator=(division_by_0 const&) = default;
-	G_API_COMMON division_by_0& operator=(division_by_0 &&) noexcept = default;
+    division_by_0 &operator=(division_by_0 const &) = default;
+    division_by_0 &operator=(division_by_0 &&) noexcept = default;
 };
 
 /******************************************************************************/
@@ -141,27 +138,29 @@ public:
 /**
  * An exception indicating a range outside [-1:1] in acos
  */
-template<typename fp_type>
+template <typename fp_type>
 class acos_invalid_range : public math_logic_error {
 public:
-	/** @brief The default constructor: Intentionally deleted */
-	acos_invalid_range() = delete;
+    /** @brief The default constructor: Intentionally deleted */
+    acos_invalid_range() = delete;
 
-	/** @brief The standard constructor */
-	explicit acos_invalid_range(const fp_type &val) noexcept
-		: math_logic_error(std::string("acos: Value ") + Gem::Common::to_string(val) +
-								 std::string(" out of valid range [-1:1] in GFormulaParserT"))
-	{ /* nothing */ }
+    /** @brief The standard constructor */
+    explicit acos_invalid_range(const fp_type &val) noexcept
+      : math_logic_error(
+            std::string("acos: Value ") + Gem::Common::to_string(val) +
+            std::string(" out of valid range [-1:1] in GFormulaParserT")
+        ) { /* nothing */
+    }
 
-	/**************************************************************************/
-	// Defaulted functions, constructors and destructor; rule of five
+    /**************************************************************************/
+    // Defaulted functions, constructors and destructor; rule of five
 
-	G_API_COMMON acos_invalid_range(acos_invalid_range const&) = default;
-	G_API_COMMON acos_invalid_range(acos_invalid_range &&) noexcept = default;
-	G_API_COMMON ~acos_invalid_range() noexcept override = default;
+    acos_invalid_range(acos_invalid_range const &) = default;
+    acos_invalid_range(acos_invalid_range &&) noexcept = default;
+    ~acos_invalid_range() noexcept override = default;
 
-	G_API_COMMON acos_invalid_range& operator=(acos_invalid_range const&) = default;
-	G_API_COMMON acos_invalid_range& operator=(acos_invalid_range &&) noexcept = default;
+    acos_invalid_range &operator=(acos_invalid_range const &) = default;
+    acos_invalid_range &operator=(acos_invalid_range &&) noexcept = default;
 };
 
 /******************************************************************************/
@@ -170,25 +169,28 @@ public:
 /**
  * An exception indicating a range outside [-1:1] in acos
  */
-template<typename fp_type>
+template <typename fp_type>
 class asin_invalid_range : public math_logic_error {
 public:
-	/** @brief The default constructor: Intentionally deleted */
-	asin_invalid_range() = delete;
-	/** @brief The standard constructor */
-	explicit asin_invalid_range(const fp_type &val) noexcept
-		: math_logic_error(std::string("asin: Value ") + Gem::Common::to_string(val) +
-								 std::string(" out of valid range [-1:1] in GFormulaParserT")) { /* nothing */ }
+    /** @brief The default constructor: Intentionally deleted */
+    asin_invalid_range() = delete;
+    /** @brief The standard constructor */
+    explicit asin_invalid_range(const fp_type &val) noexcept
+      : math_logic_error(
+            std::string("asin: Value ") + Gem::Common::to_string(val) +
+            std::string(" out of valid range [-1:1] in GFormulaParserT")
+        ) { /* nothing */
+    }
 
-	/**************************************************************************/
-	// Defaulted functions, constructors and destructor; rule of five
+    /**************************************************************************/
+    // Defaulted functions, constructors and destructor; rule of five
 
-	G_API_COMMON asin_invalid_range(asin_invalid_range const&) = default;
-	G_API_COMMON asin_invalid_range(asin_invalid_range &&) noexcept = default;
-	G_API_COMMON ~asin_invalid_range() noexcept override = default;
+    asin_invalid_range(asin_invalid_range const &) = default;
+    asin_invalid_range(asin_invalid_range &&) noexcept = default;
+    ~asin_invalid_range() noexcept override = default;
 
-	G_API_COMMON asin_invalid_range& operator=(asin_invalid_range const&) = default;
-	G_API_COMMON asin_invalid_range& operator=(asin_invalid_range &&) noexcept = default;
+    asin_invalid_range &operator=(asin_invalid_range const &) = default;
+    asin_invalid_range &operator=(asin_invalid_range &&) noexcept = default;
 };
 
 /******************************************************************************/
@@ -198,26 +200,28 @@ public:
  * An exception indicating a value <= 0
  */
 
-template<typename fp_type>
+template <typename fp_type>
 class log_negative_value : public math_logic_error {
 public:
-	/** @brief The default constructor: Intentionally deleted */
-	log_negative_value() = delete;
-	/** @brief The standard constructor */
-	explicit log_negative_value(const fp_type &val) noexcept
-		: math_logic_error(std::string("log: Value ") + Gem::Common::to_string(val) +
-								 std::string(" <= 0 in GFormulaParserT"))
-	{ /* nothing */ }
+    /** @brief The default constructor: Intentionally deleted */
+    log_negative_value() = delete;
+    /** @brief The standard constructor */
+    explicit log_negative_value(const fp_type &val) noexcept
+      : math_logic_error(
+            std::string("log: Value ") + Gem::Common::to_string(val) +
+            std::string(" <= 0 in GFormulaParserT")
+        ) { /* nothing */
+    }
 
-	/**************************************************************************/
-	// Defaulted functions, constructors and destructor; rule of five
+    /**************************************************************************/
+    // Defaulted functions, constructors and destructor; rule of five
 
-	G_API_COMMON log_negative_value(log_negative_value const&) = default;
-	G_API_COMMON log_negative_value(log_negative_value &&) noexcept = default;
-	G_API_COMMON ~log_negative_value() noexcept override = default;
+    log_negative_value(log_negative_value const &) = default;
+    log_negative_value(log_negative_value &&) noexcept = default;
+    ~log_negative_value() noexcept override = default;
 
-	G_API_COMMON log_negative_value& operator=(log_negative_value const&) = default;
-	G_API_COMMON log_negative_value& operator=(log_negative_value &&) noexcept = default;
+    log_negative_value &operator=(log_negative_value const &) = default;
+    log_negative_value &operator=(log_negative_value &&) noexcept = default;
 };
 
 /******************************************************************************/
@@ -226,26 +230,28 @@ public:
 /**
  * An exception indicating a value <= 0
  */
-template<typename fp_type>
+template <typename fp_type>
 class log10_negative_value : public math_logic_error {
 public:
-	/** @brief The default constructor: Intentionally deleted */
-	log10_negative_value() = delete;
-	/** @brief The standard constructor */
-	explicit log10_negative_value(const fp_type &val) noexcept
-		: math_logic_error(std::string("log10: Value ") + Gem::Common::to_string(val) +
-								 std::string(" <= 0  in GFormulaParserT"))
-	{ /* nothing */ }
+    /** @brief The default constructor: Intentionally deleted */
+    log10_negative_value() = delete;
+    /** @brief The standard constructor */
+    explicit log10_negative_value(const fp_type &val) noexcept
+      : math_logic_error(
+            std::string("log10: Value ") + Gem::Common::to_string(val) +
+            std::string(" <= 0  in GFormulaParserT")
+        ) { /* nothing */
+    }
 
-	/**************************************************************************/
-	// Defaulted functions, constructors and destructor; rule of five
+    /**************************************************************************/
+    // Defaulted functions, constructors and destructor; rule of five
 
-	G_API_COMMON log10_negative_value(log10_negative_value const&) = default;
-	G_API_COMMON log10_negative_value(log10_negative_value &&) noexcept = default;
-	G_API_COMMON ~log10_negative_value() noexcept override = default;
+    log10_negative_value(log10_negative_value const &) = default;
+    log10_negative_value(log10_negative_value &&) noexcept = default;
+    ~log10_negative_value() noexcept override = default;
 
-	G_API_COMMON log10_negative_value& operator=(log10_negative_value const&) = default;
-	G_API_COMMON log10_negative_value& operator=(log10_negative_value &&) noexcept = default;
+    log10_negative_value &operator=(log10_negative_value const &) = default;
+    log10_negative_value &operator=(log10_negative_value &&) noexcept = default;
 };
 
 /******************************************************************************/
@@ -254,25 +260,28 @@ public:
 /**
  * An exception indicating a value <= 0
  */
-template<typename fp_type>
+template <typename fp_type>
 class sqrt_negative_value : public math_logic_error {
 public:
-	/** @brief The default constructor: Intentionally deleted */
-	sqrt_negative_value() = delete;
-	/** @brief The standard constructor */
-	explicit sqrt_negative_value(const fp_type &val) noexcept
-		: math_logic_error(std::string("sqrt: Value ") + Gem::Common::to_string(val) +
-								 std::string(" < 0  in GFormulaParserT")) { /* nothing */ }
+    /** @brief The default constructor: Intentionally deleted */
+    sqrt_negative_value() = delete;
+    /** @brief The standard constructor */
+    explicit sqrt_negative_value(const fp_type &val) noexcept
+      : math_logic_error(
+            std::string("sqrt: Value ") + Gem::Common::to_string(val) +
+            std::string(" < 0  in GFormulaParserT")
+        ) { /* nothing */
+    }
 
-	/**************************************************************************/
-	// Defaulted functions, constructors and destructor; rule of five
+    /**************************************************************************/
+    // Defaulted functions, constructors and destructor; rule of five
 
-	G_API_COMMON sqrt_negative_value(sqrt_negative_value const&) = default;
-	G_API_COMMON sqrt_negative_value(sqrt_negative_value &&) noexcept = default;
-	G_API_COMMON ~sqrt_negative_value() noexcept override = default;
+    sqrt_negative_value(sqrt_negative_value const &) = default;
+    sqrt_negative_value(sqrt_negative_value &&) noexcept = default;
+    ~sqrt_negative_value() noexcept override = default;
 
-	G_API_COMMON sqrt_negative_value& operator=(sqrt_negative_value const&) = default;
-	G_API_COMMON sqrt_negative_value& operator=(sqrt_negative_value &&) noexcept = default;
+    sqrt_negative_value &operator=(sqrt_negative_value const &) = default;
+    sqrt_negative_value &operator=(sqrt_negative_value &&) noexcept = default;
 };
 
 /******************************************************************************/
@@ -287,99 +296,83 @@ struct unary_function_;
 struct binary_function_;
 struct ast_expression;
 
-using operand =
-boost::variant<
-	nil
-	, float
-	, double
-	, boost::recursive_wrapper<signed_>
-	, boost::recursive_wrapper<unary_function_>
-	, boost::recursive_wrapper<binary_function_>
-	, boost::recursive_wrapper<ast_expression>
->;
+using operand = boost::variant<
+    nil,
+    float,
+    double,
+    boost::recursive_wrapper<signed_>,
+    boost::recursive_wrapper<unary_function_>,
+    boost::recursive_wrapper<binary_function_>,
+    boost::recursive_wrapper<ast_expression>>;
 
 struct nil {
-	void swap(nil &);
+    void swap(nil &) noexcept;
 };
 
 struct signed_ {
-	char sign;
-	operand operand_;
+    char sign = '\0';
+    operand operand_;
 
-	void swap(signed_ &);
+    void swap(signed_ &) noexcept;
 };
 
 struct operation {
-	char operator_;
-	operand operand_;
+    char operator_ = '\0';
+    operand operand_;
 
-	void swap(operation &);
+    void swap(operation &) noexcept;
 };
 
 struct unary_function_ {
-	std::string fname_;
-	operand operand_;
+    std::string fname_;
+    operand operand_;
 
-	void swap(unary_function_ &);
+    void swap(unary_function_ &) noexcept;
 };
 
 struct binary_function_ {
-	std::string fname_;
-	operand operand1_;
-	operand operand2_;
+    std::string fname_;
+    operand operand1_;
+    operand operand2_;
 
-	void swap(binary_function_ &);
+    void swap(binary_function_ &) noexcept;
 };
 
 struct ast_expression {
-	operand first;
-	std::list<operation> rest;
+    operand first;
+    std::list<operation> rest;
 
-	void swap(ast_expression &);
+    void swap(ast_expression &) noexcept;
 };
 
 /** @brief print function for debugging */
 inline std::ostream &operator<<(std::ostream &out, nil) {
-	out << "nil";
-	return out;
+    out << "nil";
+    return out;
 }
 
-} /* namespace Common */
-} /* namespace Gem */
+} /* namespace Gem::Common */
+
+BOOST_FUSION_ADAPT_STRUCT(Gem::Common::signed_, (char, sign)(Gem::Common::operand, operand_))
+
+BOOST_FUSION_ADAPT_STRUCT(Gem::Common::operation, (char, operator_)(Gem::Common::operand, operand_))
 
 BOOST_FUSION_ADAPT_STRUCT(
-	Gem::Common::signed_,
-	(char, sign)
-		(Gem::Common::operand, operand_)
+    Gem::Common::unary_function_,
+    (std::string, fname_)(Gem::Common::operand, operand_)
 )
 
 BOOST_FUSION_ADAPT_STRUCT(
-	Gem::Common::operation,
-	(char, operator_)
-		(Gem::Common::operand, operand_)
+    Gem::Common::binary_function_,
+    (std::string, fname_)(Gem::Common::operand, operand1_)(Gem::Common::operand, operand2_)
 )
 
 BOOST_FUSION_ADAPT_STRUCT(
-	Gem::Common::unary_function_,
-	(std::string, fname_)
-		(Gem::Common::operand, operand_)
+    Gem::Common::ast_expression,
+    (Gem::Common::operand, first)(std::list<Gem::Common::operation>, rest)
 )
 
-BOOST_FUSION_ADAPT_STRUCT(
-	Gem::Common::binary_function_,
-	(std::string, fname_)
-		(Gem::Common::operand, operand1_)
-		(Gem::Common::operand, operand2_)
-)
-
-BOOST_FUSION_ADAPT_STRUCT(
-	Gem::Common::ast_expression,
-	(Gem::Common::operand, first)
-		(std::list<Gem::Common::operation>, rest)
-)
-
-namespace Gem {
-namespace Common {
+namespace Gem::Common {
 
 /******************************************************************************/
 /**
@@ -404,618 +397,658 @@ namespace Common {
 /**
  * The actual formula parser
  */
-template<typename fp_type>
-class GFormulaParserT
-	: public boost::spirit::qi::grammar<std::string::const_iterator, ast_expression(), boost::spirit::ascii::space_type> {
-	// Make sure, fp_type is a floating point value
-	static_assert(std::is_floating_point<fp_type>::value, "fp_type should ne a floating point type");
+template <typename fp_type>
+class GFormulaParserT // NOLINT(cppcoreguidelines-special-member-functions)
+  : public boost::spirit::qi::
+        grammar<std::string::const_iterator, ast_expression(), boost::spirit::ascii::space_type> {
+    // Make sure, fp_type is a floating point value
+    static_assert(
+        std::is_floating_point<fp_type>::value,
+        "fp_type should ne a floating point type"
+    );
 
 public:
-	/*****************************************************************************/
-	/**
+    /*****************************************************************************/
+    /**
 	 * Specifies the operations the parser must know about
 	 */
-	enum class byte_code : Gem::Common::ENUMBASETYPE {
-		op_trap = 0,      // triggers an exception --> boost::variant<int,fp_type>() == 0
-		op_neg = 1,      // negate the top stack entry
-		op_add = 2,      // add top two stack entries
-		op_sub = 3,      // subtract top two stack entries
-		op_mul = 4,      // multiply top two stack entries
-		op_div = 5,      // divide top two stack entries
-		op_acos = 7,      // Calculates the acos value of the top-most stack-entry
-		op_asin = 8,      // Calculates the asin value of the top-most stack-entry
-		op_atan = 9,      // Calculates the atan value of the top-most stack-entry
-		op_ceil = 10,     // Calculates the ceil value of the top-most stack-entry
-		op_cos = 11,     // Calculates the cos value of the top-most stack-entry
-		op_cosh = 12,     // Calculates the cosh value of the top-most stack-entry
-		op_exp = 13,     // Calculates the exp value of the top-most stack-entry
-		op_fabs = 14,     // Calculates the fabs value of the top-most stack-entry
-		op_floor = 15,     // Calculates the floor value of the top-most stack-entry
-		op_log = 16,     // Calculates the log value of the top-most stack-entry
-		op_log10 = 17,     // Calculates the log10 value of the top-most stack-entry
-		op_sin = 18,     // Calculates the sin value of the top-most stack-entry
-		op_sinh = 19,     // Calculates the sinh value of the top-most stack-entry
-		op_sqrt = 20,     // Calculates the sqrt value of the top-most stack-entry
-		op_tan = 21,     // Calculates the tan value of the top-most stack-entry
-		op_tanh = 22,     // Calculates the tanh value of the top-most stack-entry
-		op_pow = 23,     // Calculates the pow value of the two top-most stack-entries
-		op_hypot = 24,     // Calculates the hypot value of the two top-most stack-entries
-		op_min = 25,     // Calculates the min value of the two top-most stack-entries
-		op_max = 26,     // Calculates the max value of the two top-most stack-entries
-		op_fp = 27,     // Pushes a fp_type onto the stack
-	};
+    enum class byte_code : Gem::Common::ENUMBASETYPE {
+        op_trap = 0,   // triggers an exception --> boost::variant<int,fp_type>() == 0
+        op_neg = 1,    // negate the top stack entry
+        op_add = 2,    // add top two stack entries
+        op_sub = 3,    // subtract top two stack entries
+        op_mul = 4,    // multiply top two stack entries
+        op_div = 5,    // divide top two stack entries
+        op_acos = 7,   // Calculates the acos value of the top-most stack-entry
+        op_asin = 8,   // Calculates the asin value of the top-most stack-entry
+        op_atan = 9,   // Calculates the atan value of the top-most stack-entry
+        op_ceil = 10,  // Calculates the ceil value of the top-most stack-entry
+        op_cos = 11,   // Calculates the cos value of the top-most stack-entry
+        op_cosh = 12,  // Calculates the cosh value of the top-most stack-entry
+        op_exp = 13,   // Calculates the exp value of the top-most stack-entry
+        op_fabs = 14,  // Calculates the fabs value of the top-most stack-entry
+        op_floor = 15, // Calculates the floor value of the top-most stack-entry
+        op_log = 16,   // Calculates the log value of the top-most stack-entry
+        op_log10 = 17, // Calculates the log10 value of the top-most stack-entry
+        op_sin = 18,   // Calculates the sin value of the top-most stack-entry
+        op_sinh = 19,  // Calculates the sinh value of the top-most stack-entry
+        op_sqrt = 20,  // Calculates the sqrt value of the top-most stack-entry
+        op_tan = 21,   // Calculates the tan value of the top-most stack-entry
+        op_tanh = 22,  // Calculates the tanh value of the top-most stack-entry
+        op_pow = 23,   // Calculates the pow value of the two top-most stack-entries
+        op_hypot = 24, // Calculates the hypot value of the two top-most stack-entries
+        op_min = 25,   // Calculates the min value of the two top-most stack-entries
+        op_max = 26,   // Calculates the max value of the two top-most stack-entries
+        op_fp = 27,    // Pushes a fp_type onto the stack
+    };
 
-	using result_type = void; // Needed for the operator() and apply_visitor
-	using codeEntry = boost::variant<byte_code, fp_type>;
-	using parameter_map = std::map<std::string, std::vector<fp_type>>;
-	using constants_map = std::map<std::string, fp_type>;
+    using result_type = void; // Needed for the operator() and apply_visitor
+    using codeEntry = std::variant<byte_code, fp_type>;
+    using parameter_map = std::map<std::string, std::vector<fp_type>>;
+    using constants_map = std::map<std::string, fp_type>;
 
-	/***************************************************************************/
-	/** @brief The default constructor -- intentionally deleted */
-	GFormulaParserT() = delete;
+    /***************************************************************************/
+    /** @brief The default constructor -- intentionally deleted */
+    GFormulaParserT() = delete;
 
-	/***************************************************************************/
-	/**
+    /***************************************************************************/
+    /**
 	 * The standard constructor
 	 */
-	explicit GFormulaParserT(
-		const std::string &formula
-		, const constants_map &user_constants = constants_map()
-	)
-		: GFormulaParserT::base_type(expression_rule_)
-		, raw_formula_(formula)
-		, stack_(4096)
-		, stack_ptr_(stack_.begin())
-		, printCode_(false)
-	{
-		boost::spirit::qi::char_type char_;
-		boost::spirit::qi::string_type string_;
+    explicit GFormulaParserT(
+        const std::string &formula,
+        const constants_map &user_constants = constants_map()
+    )
+      : GFormulaParserT::base_type(expression_rule_)
+      , raw_formula_(formula)
+      , stack_(4096)
+      , stack_ptr_(stack_.begin())
+      , printCode_(false) {
+        boost::spirit::qi::char_type char_;
+        boost::spirit::qi::string_type string_;
 
-		using boost::spirit::qi::on_error;
-		using boost::spirit::qi::fail;
+        using boost::spirit::qi::fail;
+        using boost::spirit::qi::on_error;
 
-		//---------------------------------------------------------------------------
-		// Define a number of mathematical constants
-		constants_.add
-			("e", boost::math::constants::e<fp_type>())
-			("pi", boost::math::constants::pi<fp_type>());
+        //---------------------------------------------------------------------------
+        // Define a number of mathematical constants
+        constants_.add("e", static_cast<fp_type>(2.718281828459045235360287471352L))(
+            "pi",
+            static_cast<fp_type>(3.141592653589793238462643383280L)
+        );
 
-		// Add user-defined constants
-		typename constants_map::const_iterator cit;
-		for (cit = user_constants.begin(); cit != user_constants.end(); ++cit) {
-			constants_.add(cit->first, cit->second);
-		}
+        // Add user-defined constants
+        typename constants_map::const_iterator cit;
+        for(cit = user_constants.begin(); cit != user_constants.end(); ++cit) {
+            constants_.add(cit->first, cit->second);
+        }
 
-		//---------------------------------------------------------------------------
-		// Define the actual grammar
-		expression_rule_ =
-			term_rule_ >> *((char_('+') > term_rule_) | (char_('-') > term_rule_));
+        //---------------------------------------------------------------------------
+        // Define the actual grammar
+        expression_rule_ = term_rule_ >> *((char_('+') > term_rule_) | (char_('-') > term_rule_));
 
-		term_rule_ =
-			factor_rule_ >> *((char_('*') > factor_rule_) | (char_('/') > factor_rule_));
+        term_rule_ = factor_rule_ >> *((char_('*') > factor_rule_) | (char_('/') > factor_rule_));
 
-		unary_function_rule_ =
-			(string_("acos") > '(' > expression_rule_ > ')')
-			| (string_("asin") > '(' > expression_rule_ > ')')
-			| (string_("atan") > '(' > expression_rule_ > ')')
-			| (string_("ceil") > '(' > expression_rule_ > ')')
-			| (string_("cosh") > '(' > expression_rule_ > ')')
-			| (string_("cos") > '(' > expression_rule_ > ')')
-			| (string_("exp") > '(' > expression_rule_ > ')')
-			| (string_("fabs") > '(' > expression_rule_ > ')')
-			| (string_("floor") > '(' > expression_rule_ > ')')
-			| (string_("log10") > '(' > expression_rule_ > ')')
-			| (string_("log") > '(' > expression_rule_ > ')')
-			| (string_("sinh") > '(' > expression_rule_ > ')')
-			| (string_("sin") > '(' > expression_rule_ > ')')
-			| (string_("sqrt") > '(' > expression_rule_ > ')')
-			| (string_("tanh") > '(' > expression_rule_ > ')')
-			| (string_("tan") > '(' > expression_rule_ > ')');
+        unary_function_rule_ = (string_("acos") > '(' > expression_rule_ > ')') |
+                               (string_("asin") > '(' > expression_rule_ > ')') |
+                               (string_("atan") > '(' > expression_rule_ > ')') |
+                               (string_("ceil") > '(' > expression_rule_ > ')') |
+                               (string_("cosh") > '(' > expression_rule_ > ')') |
+                               (string_("cos") > '(' > expression_rule_ > ')') |
+                               (string_("exp") > '(' > expression_rule_ > ')') |
+                               (string_("fabs") > '(' > expression_rule_ > ')') |
+                               (string_("floor") > '(' > expression_rule_ > ')') |
+                               (string_("log10") > '(' > expression_rule_ > ')') |
+                               (string_("log") > '(' > expression_rule_ > ')') |
+                               (string_("sinh") > '(' > expression_rule_ > ')') |
+                               (string_("sin") > '(' > expression_rule_ > ')') |
+                               (string_("sqrt") > '(' > expression_rule_ > ')') |
+                               (string_("tanh") > '(' > expression_rule_ > ')') |
+                               (string_("tan") > '(' > expression_rule_ > ')');
 
-		binary_function_rule_ =
-			(string_("min") > '(' > expression_rule_ > ',' > expression_rule_ > ')')
-			| (string_("max") > '(' > expression_rule_ > ',' > expression_rule_ > ')')
-			| (string_("pow") > '(' > expression_rule_ > ',' > expression_rule_ > ')')
-			| (string_("hypot") > '(' > expression_rule_ > ',' > expression_rule_ > ')');
+        binary_function_rule_ =
+            (string_("min") > '(' > expression_rule_ > ',' > expression_rule_ > ')') |
+            (string_("max") > '(' > expression_rule_ > ',' > expression_rule_ > ')') |
+            (string_("pow") > '(' > expression_rule_ > ',' > expression_rule_ > ')') |
+            (string_("hypot") > '(' > expression_rule_ > ',' > expression_rule_ > ')');
 
-		factor_rule_ =
-			real
-			| ('(' > expression_rule_ > ')')
-			| (char_('-') > factor_rule_)
-			| (char_('+') > factor_rule_)
-			| unary_function_rule_
-			| binary_function_rule_
-			| constants_;
+        factor_rule_ = real | ('(' > expression_rule_ > ')') | (char_('-') > factor_rule_) |
+                       (char_('+') > factor_rule_) | unary_function_rule_ | binary_function_rule_ |
+                       constants_;
 
-		//---------------------------------------------------------------------------
-		// Debugging and error handling and reporting support.
-		BOOST_SPIRIT_DEBUG_NODES(
-			(expression_rule_)
-				(term_rule_)
-				(unary_function_rule_)
-				(binary_function_rule_)
-				(factor_rule_)
-		);
+        //---------------------------------------------------------------------------
+        // Debugging and error handling and reporting support.
+        BOOST_SPIRIT_DEBUG_NODES(
+            (expression_rule_)(term_rule_)(unary_function_rule_)(binary_function_rule_)(factor_rule_)
+        );
 
-		// Error handling
-		{
-			namespace qi = boost::spirit::qi;
-			namespace ascii = boost::spirit::ascii;
-			namespace phoenix = boost::phoenix;
+        // Error handling
+        {
+            namespace qi = boost::spirit::qi;
+            namespace ascii = boost::spirit::ascii;
+            namespace phoenix = boost::phoenix;
 
-			using qi::eps;
-			using qi::lit;
-			using qi::_val;
-			using qi::_2;
-			using qi::_3;
-			using qi::_4;
-			using ascii::char_;
-			using qi::on_error;
-			using qi::fail;
-			using phoenix::construct;
-			using phoenix::val;
+            using ascii::char_;
+            using phoenix::construct;
+            using phoenix::val;
+            using qi::_2;
+            using qi::_3;
+            using qi::_4;
+            using qi::_val;
+            using qi::eps;
+            using qi::fail;
+            using qi::lit;
+            using qi::on_error;
 
-			on_error<fail>
-				(
-					// start
-					expression_rule_, phoenix::ref(std::cout)
-											<< "Error! Was expecting " << qi::_4
-											<< " here: '" << phoenix::construct<std::string>(qi::_3, qi::_2) << "'\n"
-				);
-		}
-	}
+            on_error<fail>(
+                // start
+                expression_rule_,
+                phoenix::ref(std::cout) << "Error! Was expecting " << qi::_4 << " here: '"
+                                        << phoenix::construct<std::string>(qi::_3, qi::_2) << "'\n"
+            );
+        }
+    }
 
-	/***************************************************************************/
-	// Deleted copy and assignment / rule of five
+    /***************************************************************************/
+    // Deleted copy and assignment / rule of five
 
-	GFormulaParserT(GFormulaParserT<fp_type> const&) = delete;
-	GFormulaParserT(GFormulaParserT<fp_type> &&) = delete;
+    GFormulaParserT(GFormulaParserT<fp_type> const &) = delete;
+    GFormulaParserT(GFormulaParserT<fp_type> &&) = delete;
 
-	GFormulaParserT<fp_type>& operator=(GFormulaParserT<fp_type> const&) = delete;
-	GFormulaParserT<fp_type>& operator=(GFormulaParserT<fp_type> &&) = delete;
+    GFormulaParserT<fp_type> &operator=(GFormulaParserT<fp_type> const &) = delete;
+    GFormulaParserT<fp_type> &operator=(GFormulaParserT<fp_type> &&) = delete;
 
-	/***************************************************************************/
-	/**
+    /***************************************************************************/
+    /**
 	 * When set to true, the code-vector will be printed prior to the evaluation
 	 */
-	void setPrintCode(bool printCode) {
-		printCode_ = printCode;
-	}
+    void setPrintCode(bool printCode) {
+        printCode_ = printCode;
+    }
 
-	/***************************************************************************/
-	/**
+    /***************************************************************************/
+    /**
 	 * Retrieves the processed formula (after replacement of place-holders)
 	 *
 	 * @param placeHolders A list of place-holders for variable values
 	 * @return A string containing the processed formula
 	 */
-	std::string getFormula(const parameter_map &vm) const {
-		return this->replacePlaceHolders(vm);
-	}
+    std::string getFormula(const parameter_map &vm) const {
+        return this->replacePlaceHolders(vm);
+    }
 
-	/***************************************************************************/
-	/**
+    /***************************************************************************/
+    /**
 	 * Evaluates a formula after replacing place holders with values
 	 */
-	fp_type evaluate(const parameter_map &vm = parameter_map()) const {
-		// Clear local data structures
-		code_.clear();
-		stack_ptr_ = stack_.begin();
+    fp_type evaluate(const parameter_map &vm = parameter_map()) const {
+        // Clear local data structures
+        code_.clear();
+        stack_ptr_ = stack_.begin();
 
-		ast_expression ast; ///< The abstract syntax tree
+        ast_expression ast; ///< The abstract syntax tree
 
-		// Replace place holders with values taken from the map
-		std::string formula = this->replacePlaceHolders(vm);
+        // Replace place holders with values taken from the map
+        std::string formula = this->replacePlaceHolders(vm);
 
-		// Do the actual parsing of the formula
-		std::string::const_iterator iter = formula.begin();
-		std::string::const_iterator end = formula.end();
-		boost::spirit::ascii::space_type space;
-		bool r = boost::spirit::qi::phrase_parse(iter, end, *this, space, ast);
+        // Do the actual parsing of the formula
+        std::string::const_iterator iter = formula.begin();
+        std::string::const_iterator end = formula.end();
+        boost::spirit::ascii::space_type space; // NOLINT(cppcoreguidelines-init-variables)
+        bool r = boost::spirit::qi::phrase_parse(iter, end, *this, space, ast);
 
-		if (r && iter == end) {
-			this->compile(ast);
-			this->execute();
-		} else {
-			std::string rest(iter, end);
+        if(r && iter == end) {
+            this->compile(ast);
+            this->execute();
+        }
+        else {
+            std::string rest(iter, end);
 
-			throw geneva_exception(
-				g_error_streamer(DO_LOG, time_and_place)
-					<< "In GFormulaParserT<>::evaluate(): Error!" << std::endl
-					<< "Parsing of formula " << formula << " failed at " << rest << std::endl
-			);
-		}
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, time_and_place)
+                << "In GFormulaParserT<>::evaluate(): Error!" << std::endl
+                << "Parsing of formula " << formula << " failed at " << rest << std::endl
+            );
+        }
 
-		return stack_.at(0);
-	}
+        return stack_.at(0);
+    }
 
-	/*****************************************************************************/
-	/**
+    /*****************************************************************************/
+    /**
 	 * Ease of access to the evaluate function
 	 */
-	fp_type operator()(const parameter_map &vm = parameter_map()) const {
-		return this->evaluate(vm);
-	}
+    fp_type operator()(const parameter_map &vm = parameter_map()) const {
+        return this->evaluate(vm);
+    }
 
-	/*****************************************************************************/
-	// Code for the compilation of the AST
-	void operator()(nil) const { BOOST_ASSERT(0); }
+    /*****************************************************************************/
+    // Code for the compilation of the AST
+    void operator()(nil) const {
+        BOOST_ASSERT(0);
+    }
 
-	void operator()(const fp_type &fp_val) const {
-		code_.push_back(codeEntry(byte_code::op_fp));
-		code_.push_back(codeEntry(fp_val));
-	}
+    void operator()(const fp_type &fp_val) const {
+        code_.push_back(codeEntry(byte_code::op_fp));
+        code_.push_back(codeEntry(fp_val));
+    }
 
-	void operator()(const operation &x) const {
-		boost::apply_visitor(*this, x.operand_);
+    void operator()(const operation &x) const {
+        boost::apply_visitor(*this, x.operand_);
 
-		if (x.operator_ == '+') code_.push_back(codeEntry(byte_code::op_add));
-		else if (x.operator_ == '-') code_.push_back(codeEntry(byte_code::op_sub));
-		else if (x.operator_ == '*') code_.push_back(codeEntry(byte_code::op_mul));
-		else if (x.operator_ == '/')
-			code_.push_back(codeEntry(byte_code::op_div));  // division by 0 throws Gem::Common::division_by_0 exception
-		else
-			BOOST_ASSERT(0);
-	}
+        if(x.operator_ == '+')
+            code_.push_back(codeEntry(byte_code::op_add));
+        else if(x.operator_ == '-')
+            code_.push_back(codeEntry(byte_code::op_sub));
+        else if(x.operator_ == '*')
+            code_.push_back(codeEntry(byte_code::op_mul));
+        else if(x.operator_ == '/')
+            code_.push_back(
+                codeEntry(byte_code::op_div)
+            ); // division by 0 throws Gem::Common::division_by_0 exception
+        else
+            BOOST_ASSERT(0);
+    }
 
-	void operator()(const unary_function_ &f) const {
-		boost::apply_visitor(*this, f.operand_);
+    void operator()(const unary_function_ &f) const {
+        boost::apply_visitor(*this, f.operand_);
 
-		if (f.fname_ == "acos")
-			code_.push_back(codeEntry(byte_code::op_acos)); // Value out of valid range [-1,1] throws Gem::Common::acos_invalid_range
-		else if (f.fname_ == "asin")
-			code_.push_back(codeEntry(byte_code::op_asin)); // Value out of valid range [-1,1] throws Gem::Common::asin_invalid_range
-		else if (f.fname_ == "atan") code_.push_back(codeEntry(byte_code::op_atan));
-		else if (f.fname_ == "ceil") code_.push_back(codeEntry(byte_code::op_ceil));
-		else if (f.fname_ == "cos") code_.push_back(codeEntry(byte_code::op_cos));
-		else if (f.fname_ == "cosh") code_.push_back(codeEntry(byte_code::op_cosh));
-		else if (f.fname_ == "exp") code_.push_back(codeEntry(byte_code::op_exp));
-		else if (f.fname_ == "fabs") code_.push_back(codeEntry(byte_code::op_fabs));
-		else if (f.fname_ == "floor") code_.push_back(codeEntry(byte_code::op_floor));
-		else if (f.fname_ == "log")
-			code_.push_back(codeEntry(byte_code::op_log)); // Value <= 0 throws Gem::Common::log_negative_value
-		else if (f.fname_ == "log10")
-			code_.push_back(codeEntry(byte_code::op_log10)); // Value <= 0 throws Gem::Common::log10_negative_value
-		else if (f.fname_ == "sin") code_.push_back(codeEntry(byte_code::op_sin));
-		else if (f.fname_ == "sinh") code_.push_back(codeEntry(byte_code::op_sinh));
-		else if (f.fname_ == "sqrt")
-			code_.push_back(codeEntry(byte_code::op_sqrt)); // Value < 0 throws Gem::Common::sqrt_negative_value
-		else if (f.fname_ == "tan") code_.push_back(codeEntry(byte_code::op_tan));
-		else if (f.fname_ == "tanh") code_.push_back(codeEntry(byte_code::op_tanh));
-		else
-			BOOST_ASSERT(0);
-	}
+        if(f.fname_ == "acos")
+            code_.push_back(
+                codeEntry(byte_code::op_acos)
+            ); // Value out of valid range [-1,1] throws Gem::Common::acos_invalid_range
+        else if(f.fname_ == "asin")
+            code_.push_back(
+                codeEntry(byte_code::op_asin)
+            ); // Value out of valid range [-1,1] throws Gem::Common::asin_invalid_range
+        else if(f.fname_ == "atan")
+            code_.push_back(codeEntry(byte_code::op_atan));
+        else if(f.fname_ == "ceil")
+            code_.push_back(codeEntry(byte_code::op_ceil));
+        else if(f.fname_ == "cos")
+            code_.push_back(codeEntry(byte_code::op_cos));
+        else if(f.fname_ == "cosh")
+            code_.push_back(codeEntry(byte_code::op_cosh));
+        else if(f.fname_ == "exp")
+            code_.push_back(codeEntry(byte_code::op_exp));
+        else if(f.fname_ == "fabs")
+            code_.push_back(codeEntry(byte_code::op_fabs));
+        else if(f.fname_ == "floor")
+            code_.push_back(codeEntry(byte_code::op_floor));
+        else if(f.fname_ == "log")
+            code_.push_back(
+                codeEntry(byte_code::op_log)
+            ); // Value <= 0 throws Gem::Common::log_negative_value
+        else if(f.fname_ == "log10")
+            code_.push_back(
+                codeEntry(byte_code::op_log10)
+            ); // Value <= 0 throws Gem::Common::log10_negative_value
+        else if(f.fname_ == "sin")
+            code_.push_back(codeEntry(byte_code::op_sin));
+        else if(f.fname_ == "sinh")
+            code_.push_back(codeEntry(byte_code::op_sinh));
+        else if(f.fname_ == "sqrt")
+            code_.push_back(
+                codeEntry(byte_code::op_sqrt)
+            ); // Value < 0 throws Gem::Common::sqrt_negative_value
+        else if(f.fname_ == "tan")
+            code_.push_back(codeEntry(byte_code::op_tan));
+        else if(f.fname_ == "tanh")
+            code_.push_back(codeEntry(byte_code::op_tanh));
+        else
+            BOOST_ASSERT(0);
+    }
 
-	void operator()(const binary_function_ &f) const {
-		boost::apply_visitor(*this, f.operand1_);
-		boost::apply_visitor(*this, f.operand2_);
+    void operator()(const binary_function_ &f) const {
+        boost::apply_visitor(*this, f.operand1_);
+        boost::apply_visitor(*this, f.operand2_);
 
-		if (f.fname_ == "min") code_.push_back(codeEntry(byte_code::op_min));
-		else if (f.fname_ == "max") code_.push_back(codeEntry(byte_code::op_max));
-		else if (f.fname_ == "pow") code_.push_back(codeEntry(byte_code::op_pow));
-		else if (f.fname_ == "hypot") code_.push_back(codeEntry(byte_code::op_hypot));
-		else
-			BOOST_ASSERT(0);
-	}
+        if(f.fname_ == "min")
+            code_.push_back(codeEntry(byte_code::op_min));
+        else if(f.fname_ == "max")
+            code_.push_back(codeEntry(byte_code::op_max));
+        else if(f.fname_ == "pow")
+            code_.push_back(codeEntry(byte_code::op_pow));
+        else if(f.fname_ == "hypot")
+            code_.push_back(codeEntry(byte_code::op_hypot));
+        else
+            BOOST_ASSERT(0);
+    }
 
-	void operator()(const signed_ &x) const {
-		boost::apply_visitor(*this, x.operand_);
-		if (x.sign == '-') code_.push_back(codeEntry(byte_code::op_neg));
-		else if (x.sign == '+') { /* nothing */ }
-		else
-			BOOST_ASSERT(0);
-	}
+    void operator()(const signed_ &x) const {
+        boost::apply_visitor(*this, x.operand_);
+        if(x.sign == '-')
+            code_.push_back(codeEntry(byte_code::op_neg));
+        else if(x.sign == '+') { /* nothing */
+        }
+        else
+            BOOST_ASSERT(0);
+    }
 
-	void operator()(const ast_expression &x) const {
-		boost::apply_visitor(*this, x.first);
-		for(const auto& oper: x.rest) {
-			(*this)(oper);
-		}
-	}
+    void operator()(const ast_expression &x) const {
+        boost::apply_visitor(*this, x.first);
+        for(const auto &oper : x.rest) {
+            (*this)(oper);
+        }
+    }
 
 private:
-	/***************************************************************************/
-	/**
+    /***************************************************************************/
+    /**
 	 * Replaces place holders with corresponding parameter values
 	 *
 	 * @param vm A std::map of name-value pairs, holding place-holders to be replaced with values
 	 */
-	std::string replacePlaceHolders(const parameter_map &vm) const {
-		std::string formula = raw_formula_;
-		std::string key, value;
-		boost::xpressive::sregex re;
+    std::string replacePlaceHolders(const parameter_map &vm) const {
+        std::string formula = raw_formula_;
+        std::string key, value;      // NOLINT(cppcoreguidelines-init-variables)
+        std::regex re; // NOLINT(cppcoreguidelines-init-variables)
 
-		typename parameter_map::const_iterator cit;
-		for (cit = vm.begin(); cit != vm.end(); ++cit) {
-			key = cit->first;
+        typename parameter_map::const_iterator cit;
+        for(cit = vm.begin(); cit != vm.end(); ++cit) {
+            key = cit->first;
 
-			if (1 == (cit->second).size()) { // Try just the key
-				value = Gem::Common::to_string((cit->second).at(0));
-				re = boost::xpressive::as_xpr("{{" + key + "}}");
-				formula = boost::xpressive::regex_replace(formula, re, value);
+            if(1 == (cit->second).size()) { // Try just the key
+                value = Gem::Common::to_string((cit->second).at(0));
+                re = std::regex("\\{\\{" + key + "\\}\\}");
+                formula = std::regex_replace(formula, re, value);
+            }
+            else if((cit->second).size() >
+                    1) { // Try key[0], key[1] --> you may use formulas with place holders sin({{x[2]}})
+                std::size_t cnt = 0;
+                typename std::vector<fp_type>::const_iterator v_cit;
+                for(v_cit = (cit->second).begin(); v_cit != (cit->second).end(); ++v_cit) {
+                    value = Gem::Common::to_string(*v_cit);
+                    re = std::regex(
+                        "\\{\\{" + key + "\\[" + Gem::Common::to_string(cnt++) + "\\]" + "\\}\\}"
+                    );
+                    formula = std::regex_replace(formula, re, value);
+                }
+            }
+            else { // The vector is empty
+                throw geneva_exception(
+                    g_error_streamer(DO_LOG, time_and_place)
+                    << "In GFormulaParserT::replacePlaceHolders(): Error!" << std::endl
+                    << "Vector is empty!" << std::endl
+                );
+            }
+        }
 
-			} else if ((cit->second).size() > 1) { // Try key[0], key[1] --> you may use formulas with place holders sin({{x[2]}})
-				std::size_t cnt = 0;
-				typename std::vector<fp_type>::const_iterator v_cit;
-				for (v_cit = (cit->second).begin(); v_cit != (cit->second).end(); ++v_cit) {
-					value = Gem::Common::to_string(*v_cit);
-					re = boost::xpressive::as_xpr("{{" + key + "[" + Gem::Common::to_string(cnt++) + "]" + "}}");
-					formula = boost::xpressive::regex_replace(formula, re, value);
-				}
-			} else { // The vector is empty
-				throw geneva_exception(
-					g_error_streamer(DO_LOG, time_and_place)
-						<< "In GFormulaParserT::replacePlaceHolders(): Error!" << std::endl
-						<< "Vector is empty!" << std::endl
-				);
-			}
-		}
+        return formula;
+    }
 
-		return formula;
-	}
-
-	/***************************************************************************/
-	/**
+    /***************************************************************************/
+    /**
 	 * Compiles the AST into byte code
 	 */
-	void compile(const ast_expression &x) const {
-		(*this)(x);
-	}
+    void compile(const ast_expression &x) const {
+        (*this)(x);
+    }
 
-	/***************************************************************************/
-	/**
+    /***************************************************************************/
+    /**
 	 * The actual calculations
 	 */
-	void execute() const {
-		// Position pointers for stack and code
-		typename std::vector<codeEntry>::const_iterator code_ptr = code_.begin();
-		stack_ptr_ = stack_.begin();
+    void execute() const {
+        // Position pointers for stack and code
+        typename std::vector<codeEntry>::const_iterator code_ptr = code_.begin();
+        stack_ptr_ = stack_.begin();
 
-		// When requested by the user, print a copy of the code-vector
-		if (printCode_) printCode();
+        // When requested by the user, print a copy of the code-vector
+        if(printCode_)
+            printCode();
 
-		while (code_ptr != code_.end()) {
-			// Note: *code_ptr is a boost::variabt, boost::get has nothing to do with a boost::tuple here
-			switch (boost::get<byte_code>(*code_ptr++)) { // Read out code_ptr, then switch it to the next position
-				case byte_code::op_trap: {
-					throw geneva_exception(
-						g_error_streamer(DO_LOG, time_and_place)
-							<< "In GFormulaParserT<fp_type>::execute(): Error!" << std::endl
-							<< "byte_code::op_trap encountered" << std::endl
-					);
-				}
-					break;
+        while(code_ptr != code_.end()) {
+            switch(
+                std::get<byte_code>(*code_ptr++)
+            ) { // Read out code_ptr, then switch it to the next position
+            case byte_code::op_trap: {
+                throw geneva_exception(
+                    g_error_streamer(DO_LOG, time_and_place)
+                    << "In GFormulaParserT<fp_type>::execute(): Error!" << std::endl
+                    << "byte_code::op_trap encountered" << std::endl
+                );
+            } break;
 
-				case byte_code::op_neg:
-					stack_ptr_[-1] = -stack_ptr_[-1];
-					break;
+            case byte_code::op_neg:
+                stack_ptr_[-1] = -stack_ptr_[-1];
+                break;
 
-				case byte_code::op_add:
-					--stack_ptr_;
-					stack_ptr_[-1] += stack_ptr_[0];
-					break;
+            case byte_code::op_add:
+                --stack_ptr_;
+                stack_ptr_[-1] += stack_ptr_[0];
+                break;
 
-				case byte_code::op_sub:
-					--stack_ptr_;
-					stack_ptr_[-1] -= stack_ptr_[0];
-					break;
+            case byte_code::op_sub:
+                --stack_ptr_;
+                stack_ptr_[-1] -= stack_ptr_[0];
+                break;
 
-				case byte_code::op_mul:
-					--stack_ptr_;
-					stack_ptr_[-1] *= stack_ptr_[0];
-					break;
+            case byte_code::op_mul:
+                --stack_ptr_;
+                stack_ptr_[-1] *= stack_ptr_[0];
+                break;
 
-				case byte_code::op_div: {
-					--stack_ptr_;
-					if (0 == stack_ptr_[0]) {
-						throw Gem::Common::division_by_0();
-					} else {
-						stack_ptr_[-1] /= stack_ptr_[0];
-					}
-				}
-					break;
+            case byte_code::op_div: {
+                --stack_ptr_;
+                if(0 == stack_ptr_[0]) {
+                    throw Gem::Common::division_by_0();
+                }
+                else {
+                    stack_ptr_[-1] /= stack_ptr_[0];
+                }
+            } break;
 
-				case byte_code::op_min:
-					--stack_ptr_;
-					stack_ptr_[-1] = Gem::Common::gmin(stack_ptr_[-1], stack_ptr_[0]);
-					break;
+            case byte_code::op_min:
+                --stack_ptr_;
+                stack_ptr_[-1] = std::min(stack_ptr_[-1], stack_ptr_[0]);
+                break;
 
-				case byte_code::op_max:
-					--stack_ptr_;
-					stack_ptr_[-1] = Gem::Common::gmax(stack_ptr_[-1], stack_ptr_[0]);
-					break;
+            case byte_code::op_max:
+                --stack_ptr_;
+                stack_ptr_[-1] = std::max(stack_ptr_[-1], stack_ptr_[0]);
+                break;
 
-				case byte_code::op_pow:
-					--stack_ptr_;
-					stack_ptr_[-1] = std::pow(stack_ptr_[-1], stack_ptr_[0]);
-					break;
+            case byte_code::op_pow:
+                --stack_ptr_;
+                stack_ptr_[-1] = std::pow(stack_ptr_[-1], stack_ptr_[0]);
+                break;
 
-				case byte_code::op_hypot:
-					--stack_ptr_;
-					stack_ptr_[-1] = hypot(stack_ptr_[-1], stack_ptr_[0]);
-					break;
+            case byte_code::op_hypot:
+                --stack_ptr_;
+                stack_ptr_[-1] = hypot(stack_ptr_[-1], stack_ptr_[0]);
+                break;
 
-				case byte_code::op_acos: {
-					if (stack_ptr_[-1] < -1. || stack_ptr_[-1] > 1.) {
-						throw Gem::Common::acos_invalid_range<fp_type>(stack_ptr_[-1]);
-					} else {
-						stack_ptr_[-1] = std::acos(stack_ptr_[-1]);
-					}
-				}
-					break;
+            case byte_code::op_acos: {
+                if(stack_ptr_[-1] < -1. || stack_ptr_[-1] > 1.) {
+                    throw Gem::Common::acos_invalid_range<fp_type>(stack_ptr_[-1]);
+                }
+                else {
+                    stack_ptr_[-1] = std::acos(stack_ptr_[-1]);
+                }
+            } break;
 
-				case byte_code::op_asin: {
-					if (stack_ptr_[-1] < -1. || stack_ptr_[-1] > 1.) {
-						throw Gem::Common::asin_invalid_range<fp_type>(stack_ptr_[-1]);
-					} else {
-						stack_ptr_[-1] = std::asin(stack_ptr_[-1]);
-					}
-				}
-					break;
+            case byte_code::op_asin: {
+                if(stack_ptr_[-1] < -1. || stack_ptr_[-1] > 1.) {
+                    throw Gem::Common::asin_invalid_range<fp_type>(stack_ptr_[-1]);
+                }
+                else {
+                    stack_ptr_[-1] = std::asin(stack_ptr_[-1]);
+                }
+            } break;
 
-				case byte_code::op_atan:
-					stack_ptr_[-1] = std::atan(stack_ptr_[-1]);
-					break;
+            case byte_code::op_atan:
+                stack_ptr_[-1] = std::atan(stack_ptr_[-1]);
+                break;
 
-				case byte_code::op_ceil:
-					stack_ptr_[-1] = std::ceil(stack_ptr_[-1]);
-					break;
+            case byte_code::op_ceil:
+                stack_ptr_[-1] = std::ceil(stack_ptr_[-1]);
+                break;
 
-				case byte_code::op_cos:
-					stack_ptr_[-1] = std::cos(stack_ptr_[-1]);
-					break;
+            case byte_code::op_cos:
+                stack_ptr_[-1] = std::cos(stack_ptr_[-1]);
+                break;
 
-				case byte_code::op_cosh:
-					stack_ptr_[-1] = std::cosh(stack_ptr_[-1]);
-					break;
+            case byte_code::op_cosh:
+                stack_ptr_[-1] = std::cosh(stack_ptr_[-1]);
+                break;
 
-				case byte_code::op_exp:
-					stack_ptr_[-1] = std::exp(stack_ptr_[-1]);
-					break;
+            case byte_code::op_exp:
+                stack_ptr_[-1] = std::exp(stack_ptr_[-1]);
+                break;
 
-				case byte_code::op_fabs:
-					stack_ptr_[-1] = std::fabs(stack_ptr_[-1]);
-					break;
+            case byte_code::op_fabs:
+                stack_ptr_[-1] = std::fabs(stack_ptr_[-1]);
+                break;
 
-				case byte_code::op_floor:
-					stack_ptr_[-1] = std::floor(stack_ptr_[-1]);
-					break;
+            case byte_code::op_floor:
+                stack_ptr_[-1] = std::floor(stack_ptr_[-1]);
+                break;
 
-				case byte_code::op_log: {
-					if (stack_ptr_[-1] <= 0.) {
-						throw Gem::Common::log_negative_value<fp_type>(stack_ptr_[-1]);
-					} else {
-						stack_ptr_[-1] = std::log(stack_ptr_[-1]);
-					}
-				}
-					break;
+            case byte_code::op_log: {
+                if(stack_ptr_[-1] <= 0.) {
+                    throw Gem::Common::log_negative_value<fp_type>(stack_ptr_[-1]);
+                }
+                else {
+                    stack_ptr_[-1] = std::log(stack_ptr_[-1]);
+                }
+            } break;
 
-				case byte_code::op_log10: {
-					if (stack_ptr_[-1] <= 0.) {
-						throw Gem::Common::log10_negative_value<fp_type>(stack_ptr_[-1]);
-					} else {
-						stack_ptr_[-1] = std::log10(stack_ptr_[-1]);
-					}
-				}
-					break;
+            case byte_code::op_log10: {
+                if(stack_ptr_[-1] <= 0.) {
+                    throw Gem::Common::log10_negative_value<fp_type>(stack_ptr_[-1]);
+                }
+                else {
+                    stack_ptr_[-1] = std::log10(stack_ptr_[-1]);
+                }
+            } break;
 
-				case byte_code::op_sin:
-					stack_ptr_[-1] = std::sin(stack_ptr_[-1]);
-					break;
+            case byte_code::op_sin:
+                stack_ptr_[-1] = std::sin(stack_ptr_[-1]);
+                break;
 
-				case byte_code::op_sinh:
-					stack_ptr_[-1] = std::sinh(stack_ptr_[-1]);
-					break;
+            case byte_code::op_sinh:
+                stack_ptr_[-1] = std::sinh(stack_ptr_[-1]);
+                break;
 
-				case byte_code::op_sqrt: {
-					if (stack_ptr_[-1] < 0.) {
-						throw Gem::Common::sqrt_negative_value<fp_type>(stack_ptr_[-1]);
-					} else {
-						stack_ptr_[-1] = std::sqrt(stack_ptr_[-1]);
-					}
-				}
-					break;
+            case byte_code::op_sqrt: {
+                if(stack_ptr_[-1] < 0.) {
+                    throw Gem::Common::sqrt_negative_value<fp_type>(stack_ptr_[-1]);
+                }
+                else {
+                    stack_ptr_[-1] = std::sqrt(stack_ptr_[-1]);
+                }
+            } break;
 
-				case byte_code::op_tan:
-					stack_ptr_[-1] = std::tan(stack_ptr_[-1]);
-					break;
+            case byte_code::op_tan:
+                stack_ptr_[-1] = std::tan(stack_ptr_[-1]);
+                break;
 
-				case byte_code::op_tanh:
-					stack_ptr_[-1] = std::tanh(stack_ptr_[-1]);
-					break;
+            case byte_code::op_tanh:
+                stack_ptr_[-1] = std::tanh(stack_ptr_[-1]);
+                break;
 
-				case byte_code::op_fp:
-					*stack_ptr_++ = boost::get<fp_type>(*code_ptr++);
-					break;
+            case byte_code::op_fp:
+                *stack_ptr_++ = std::get<fp_type>(*code_ptr++);
+                break;
 
-				default: {
-					throw geneva_exception(
-						g_error_streamer(DO_LOG, time_and_place)
-							<< "In GFormulaParserT<fp_type>::execute(): Error!" << std::endl
-							<< "Invalid instruction " << static_cast<std::size_t>(boost::get<byte_code>(*code_ptr--)) << std::endl
-					);
-					// Note that the static cast is required here as strongly-typed enums cannot be
-					// cast implicitly to integers types.
-				}
-					break;
-			}
-		}
-	}
+            default: {
+                throw geneva_exception(
+                    g_error_streamer(DO_LOG, time_and_place)
+                    << "In GFormulaParserT<fp_type>::execute(): Error!" << std::endl
+                    << "Invalid instruction "
+                    << static_cast<std::size_t>(std::get<byte_code>(*code_ptr--)) << std::endl
+                );
+                // Note that the static cast is required here as strongly-typed enums cannot be
+                // cast implicitly to integers types.
+            } break;
+            }
+        }
+    }
 
-	/***************************************************************************/
-	/**
+    /***************************************************************************/
+    /**
 	 * Prints the stack until it encounters a 0 entry or the end of the list
 	 */
-	void printStack() const {
-		if (stack_.empty()) {
-			std::cout << "Stack is empty!" << std::endl;
-			return;
-		}
+    void printStack() const {
+        if(stack_.empty()) {
+            std::cout << "Stack is empty!" << std::endl;
+            return;
+        }
 
-		typename std::vector<fp_type>::const_iterator it = stack_.begin();
-		std::cout << "Stack: ";
-		while (it != stack_.end() && *it != 0.) {
-			std::cout << *it << " " << std::flush;
-			++it;
-		}
-		std::cout << std::endl;
-	}
+        typename std::vector<fp_type>::const_iterator it = stack_.begin();
+        std::cout << "Stack: ";
+        while(it != stack_.end() && *it != 0.) {
+            std::cout << *it << " " << std::flush;
+            ++it;
+        }
+        std::cout << std::endl;
+    }
 
-	/***************************************************************************/
-	/**
+    /***************************************************************************/
+    /**
 	 * Prints the code
 	 */
-	void printCode() const {
-		if (code_.empty()) {
-			std::cout << "Code is empty!" << std::endl;
-			return;
-		}
+    void printCode() const {
+        if(code_.empty()) {
+            std::cout << "Code is empty!" << std::endl;
+            return;
+        }
 
-		std::cout << "Code: ";
-		for (auto it: code_) {
-			std::cout << static_cast<std::size_t>(boost::get<byte_code>(it)) << " " << std::flush;
-		}
-		std::cout << std::endl;
-	}
+        std::cout << "Code: ";
+        for(auto it : code_) {
+            std::cout << static_cast<std::size_t>(std::get<byte_code>(it)) << " " << std::flush;
+        }
+        std::cout << std::endl;
+    }
 
-	/***************************************************************************/
-	// Local data and empty functions
+    /***************************************************************************/
+    // Local data and empty functions
 
-	std::string raw_formula_; ///< Holds the formula with place holders
+    std::string raw_formula_; ///< Holds the formula with place holders
 
-	boost::spirit::qi::rule<std::string::const_iterator, ast_expression(), boost::spirit::ascii::space_type> expression_rule_;
-	boost::spirit::qi::rule<std::string::const_iterator, ast_expression(), boost::spirit::ascii::space_type> term_rule_;
-	boost::spirit::qi::rule<std::string::const_iterator, unary_function_(), boost::spirit::ascii::space_type> unary_function_rule_;
-	boost::spirit::qi::rule<std::string::const_iterator, binary_function_(), boost::spirit::ascii::space_type> binary_function_rule_;
-	boost::spirit::qi::rule<std::string::const_iterator, operand(), boost::spirit::ascii::space_type> factor_rule_;
+    boost::spirit::qi::
+        rule<std::string::const_iterator, ast_expression(), boost::spirit::ascii::space_type>
+            expression_rule_;
+    boost::spirit::qi::
+        rule<std::string::const_iterator, ast_expression(), boost::spirit::ascii::space_type>
+            term_rule_;
+    boost::spirit::qi::
+        rule<std::string::const_iterator, unary_function_(), boost::spirit::ascii::space_type>
+            unary_function_rule_;
+    boost::spirit::qi::
+        rule<std::string::const_iterator, binary_function_(), boost::spirit::ascii::space_type>
+            binary_function_rule_;
+    boost::spirit::qi::
+        rule<std::string::const_iterator, operand(), boost::spirit::ascii::space_type>
+            factor_rule_;
 
-	boost::spirit::qi::real_parser<fp_type, boost::spirit::qi::real_policies<fp_type>> real;
+    boost::spirit::qi::real_parser<fp_type, boost::spirit::qi::real_policies<fp_type>> real;
 
-	boost::spirit::qi::symbols<std::iterator_traits<std::string::const_iterator>::value_type, fp_type> constants_; ///< Holds mathematical- and user-defined constants
+    boost::spirit::qi::
+        symbols<std::iterator_traits<std::string::const_iterator>::value_type, fp_type>
+            constants_; ///< Holds mathematical- and user-defined constants
 
-	mutable std::vector<fp_type> stack_; ///< Holds the data needed as input for each operation
-	mutable std::vector<codeEntry> code_; ///< Holds the "compiled" code
+    mutable std::vector<fp_type> stack_;  ///< Holds the data needed as input for each operation
+    mutable std::vector<codeEntry> code_; ///< Holds the "compiled" code
 
-	mutable typename std::vector<fp_type>::iterator stack_ptr_;
+    mutable typename std::vector<fp_type>::iterator stack_ptr_;
 
-	bool printCode_; ///< When set, the code will be printed prior to the evaluation
+    bool printCode_; ///< When set, the code will be printed prior to the evaluation
 };
 
 /******************************************************************************/
 
-} /* namespace Common */
-} /* namespace Gem */
+} /* namespace Gem::Common */
 
 // Needed for rules to work. Follows http://boost.2283326.n4.nabble.com/hold-multi-pass-backtracking-swap-compliant-ast-td4664679.html
-namespace boost {
-namespace spirit {
+namespace boost::spirit {
 
-G_API_COMMON void swap(Gem::Common::nil &, Gem::Common::nil &);
-G_API_COMMON void swap(Gem::Common::signed_ &, Gem::Common::signed_ &);
-G_API_COMMON void swap(Gem::Common::operation &, Gem::Common::operation &);
-G_API_COMMON void swap(Gem::Common::unary_function_ &, Gem::Common::unary_function_ &);
-G_API_COMMON void swap(Gem::Common::binary_function_ &, Gem::Common::binary_function_ &);
-G_API_COMMON void swap(Gem::Common::ast_expression &, Gem::Common::ast_expression &);
+void swap(Gem::Common::nil &, Gem::Common::nil &) noexcept;
+void swap(Gem::Common::signed_ &, Gem::Common::signed_ &) noexcept;
+void swap(Gem::Common::operation &, Gem::Common::operation &) noexcept;
+void swap(Gem::Common::unary_function_ &, Gem::Common::unary_function_ &) noexcept;
+void swap(Gem::Common::binary_function_ &, Gem::Common::binary_function_ &) noexcept;
+void swap(Gem::Common::ast_expression &, Gem::Common::ast_expression &) noexcept;
 
-} /* namespace spirit */
-} /* namespace boost */
+} /* namespace boost::spirit */

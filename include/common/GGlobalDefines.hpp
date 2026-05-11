@@ -51,92 +51,59 @@
 
 //-----------------------------------------------------------
 // For Microsoft-compatible compilers
-#if defined(_MSC_VER)  && (_MSC_VER >= 1020)
+#if defined(_MSC_VER) && (_MSC_VER >= 1020)
 
-// We need to take care of Boost 1.70, which has a problem in Beast with std::max + Windows
-#if (BOOST_VERSION==107000)
-#define NOMINMAX
-#define WIN32_LEAN_AND_MEAN
-#endif
-
-#include <winsock2.h>
 #include <windows.h>
+#include <winsock2.h>
 
 #endif /* _MSC_VER */
 //-----------------------------------------------------------
 
+// Tell Boost not to compile std::auto_ptr compatibility functions — std::auto_ptr
+// was removed in C++17 and Geneva requires C++20.
+#define BOOST_NO_AUTO_PTR
+
 #include <boost/config.hpp>
 
-/** The current version of the Geneva library */
-#define GENEVA_VERSION @GENEVA_API_VERSION@
+/**
+ * The current version of the Geneva library, encoded as an integer.
+ * Encoding: 0 + major(1 digit) + minor(2 digits) + patch(1 digit)
+ * Example:  1.12.0  →  "0" + "1" + "12" + "0"  =  01120
+ *
+ * Keep in sync with VERSION_MAJOR / VERSION_MINOR / VERSION_PATCH
+ * in the top-level CMakeLists.txt.
+ * Note: FindGeneva.cmake parses this line to determine the installed version.
+ */
+#define GENEVA_VERSION 01120
 
-/** The minimum allowed version of the Boost library */
-#define MIN_BOOST_VERSION @GENEVA_MIN_BOOST_API_VERSION@
+/**
+ * The minimum required Boost version, encoded as an integer.
+ * Encoding: major(1 digit) + "0" + minor(2 digits) + "00"
+ * Example:  1.90  →  "1" + "0" + "90" + "00"  =  109000
+ *
+ * Keep in sync with GENEVA_MIN_BOOST_VERSION in
+ * CMakeModules/CommonGenevaBuild.cmake.
+ */
+#define MIN_BOOST_VERSION 109000
 
 #if BOOST_VERSION < MIN_BOOST_VERSION
-#error "Error: Boost should at least have version @GENEVA_MIN_BOOST_VERSION@ !"
+#error "Error: Boost should at least have version 1.90 !"
 #endif /* BOOST_VERSION */
 
 /** Make sure we use boost filesystem v3 */
 #define BOOST_FILESYSTEM_VERSION 3
 
 //-----------------------------------------------------------
-// Care for symbols to be exported. We cover here all the
-// libraries to avoid extra headers.
-#if defined GEM_DYNAMIC && (GEM_DYNAMIC != 0)
-
-#ifdef GEM_COMMON_EXPORTS
-#define G_API_COMMON BOOST_SYMBOL_EXPORT
-#else
-#define G_API_COMMON BOOST_SYMBOL_IMPORT
-#endif /* GEM_COMMON_EXPORTS */
-
-#ifdef GEM_HAP_EXPORTS
-#define G_API_HAP BOOST_SYMBOL_EXPORT
-#else
-#define G_API_HAP BOOST_SYMBOL_IMPORT
-#endif /* GEM_HAP_EXPORTS */
-
-#ifdef GEM_COURTIER_EXPORTS
-#define G_API_COURTIER BOOST_SYMBOL_EXPORT
-#else
-#define G_API_COURTIER BOOST_SYMBOL_IMPORT
-#endif /* GEM_COURTIER_EXPORTS */
-
-#ifdef GEM_GENEVA_EXPORTS
-#define G_API_GENEVA BOOST_SYMBOL_EXPORT
-#else
-#define G_API_GENEVA BOOST_SYMBOL_IMPORT
-#endif /* GEM_GENEVA_EXPORTS */
-
-#ifdef GEM_INDIVIDUALS_EXPORTS
-#define G_API_INDIVIDUALS BOOST_SYMBOL_EXPORT
-#else
-#define G_API_INDIVIDUALS BOOST_SYMBOL_IMPORT
-#endif /* GEM_INDIVIDUALS_EXPORTS */
-
-#else /* GEM_DYNAMIC undefined */
-#define G_API_COMMON
-#define G_API_HAP
-#define G_API_COURTIER
-#define G_API_GENEVA
-#define G_API_INDIVIDUALS
-#endif /* GEM_DYNAMIC */
-//-----------------------------------------------------------
-
-// Check for C++11 and enable some macros, if possible.
-// We only support this for Gcc, Clang and Intel compilers.
-#define BASE
 
 /** Funnily, on g++ std::pow(x,2) seems to be less efficient than direct multiplication */
-#define GSQUARED(X) (X) * (X)
+#define GSQUARED(X) ((X) * (X))
 
 //-----------------------------------------------------------
 // Allow to mark functions as deprecated on supported compilers
 #ifdef __GNUC__
-#define G_DEPRECATED(message) __attribute__ ((deprecated(#message)))
+#define G_DEPRECATED(message) __attribute__((deprecated(#message)))
 #elif defined(__clang__)
-#define G_DEPRECATED(message) __attribute__ ((deprecated(#message)))
+#define G_DEPRECATED(message) __attribute__((deprecated(#message)))
 #elif defined(_MSC_VER)
 #define G_DEPRECATED(message) __declspec(deprecated(#message))
 #else

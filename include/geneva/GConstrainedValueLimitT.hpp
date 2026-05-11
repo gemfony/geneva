@@ -33,19 +33,18 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard headers go here
-#include <string>
-#include <ostream>
 #include <istream>
 #include <limits>
+#include <ostream>
+#include <string>
 
 // Boost headers go here
-#include <boost/limits.hpp>
+#include <limits>
 
 // Geneva headers go here
 #include "GOptimizationEnums.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 /**
@@ -54,15 +53,14 @@ namespace Geneva {
  * than the allowed maximum value for floating point types.
  */
 template <typename T>
-struct GConstrainedValueLimitT
-{
-	static T highest() {
-		return boost::numeric::bounds<T>::highest();
-	}
+struct GConstrainedValueLimitT {
+    static T highest() {
+        return std::numeric_limits<T>::max();
+    }
 
-	static T lowest() {
-		return boost::numeric::bounds<T>::lowest();
-	}
+    static T lowest() {
+        return std::numeric_limits<T>::lowest();
+    }
 };
 
 /******************************************************************************/
@@ -70,15 +68,14 @@ struct GConstrainedValueLimitT
  * Specialization of GConstrainedValueLimitT for double values.
  */
 template <>
-struct GConstrainedValueLimitT<double>
-{
-	static double highest() {
-		return GMAXCONSTRAINEDDOUBLE;
-	}
+struct GConstrainedValueLimitT<double> {
+    static double highest() {
+        return GMAXCONSTRAINEDDOUBLE;
+    }
 
-	static double lowest() {
-		return -GMAXCONSTRAINEDDOUBLE;
-	}
+    static double lowest() {
+        return -GMAXCONSTRAINEDDOUBLE;
+    }
 };
 
 /******************************************************************************/
@@ -86,15 +83,14 @@ struct GConstrainedValueLimitT<double>
  * Specialization of GConstrainedValueLimitT for float values.
  */
 template <>
-struct GConstrainedValueLimitT<float>
-{
-	static float highest() {
-		return GMAXCONSTRAINEDFLOAT;
-	}
+struct GConstrainedValueLimitT<float> {
+    static float highest() {
+        return GMAXCONSTRAINEDFLOAT;
+    }
 
-	static float lowest() {
-		return -GMAXCONSTRAINEDFLOAT;
-	}
+    static float lowest() {
+        return -GMAXCONSTRAINEDFLOAT;
+    }
 };
 
 /******************************************************************************/
@@ -102,15 +98,14 @@ struct GConstrainedValueLimitT<float>
  * Specialization of GConstrainedValueLimitT for std::int32_t values.
  */
 template <>
-struct GConstrainedValueLimitT<std::int32_t>
-{
-	static std::int32_t highest() {
-		return GMAXCONSTRAINEDINT32;
-	}
+struct GConstrainedValueLimitT<std::int32_t> {
+    static std::int32_t highest() {
+        return GMAXCONSTRAINEDINT32;
+    }
 
-	static std::int32_t lowest() {
-		return -GMAXCONSTRAINEDINT32;
-	}
+    static std::int32_t lowest() {
+        return -GMAXCONSTRAINEDINT32;
+    }
 };
 
 /******************************************************************************/
@@ -118,19 +113,16 @@ struct GConstrainedValueLimitT<std::int32_t>
  * Specialization of GConstrainedValueLimitT for bool values.
  */
 template <>
-struct GConstrainedValueLimitT<bool>
-{
-	static bool highest() {
-		return true;
-	}
+struct GConstrainedValueLimitT<bool> {
+    static bool highest() {
+        return true;
+    }
 
-	static bool lowest() {
-		return false;
-	}
+    static bool lowest() {
+        return false;
+    }
 };
 
 /******************************************************************************/
 
-} /* Geneva */
-} /* Gem */
-
+} /* namespace Gem::Geneva */

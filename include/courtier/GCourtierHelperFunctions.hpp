@@ -34,53 +34,46 @@
 
 // Standard headers go here
 
-#include <iostream>
-#include <iomanip>
-#include <sstream>
-#include <string>
-#include <sstream>
-#include <vector>
-#include <cmath>
 #include <cfloat>
 #include <climits>
+#include <cmath>
+#include <iomanip>
+#include <iostream>
+#include <sstream>
+#include <string>
+#include <vector>
 
 // Boost headers go here
-#include <boost/lexical_cast.hpp>
 #include <boost/asio.hpp>
 
 // Geneva headers go here
+#include "common/GErrorStreamer.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
-#include "common/GErrorStreamer.hpp"
 #include "courtier/GCourtierEnums.hpp"
 
-namespace Gem {
-namespace Courtier {
+namespace Gem::Courtier {
 
 /******************************************************************************/
 /** @brief Assembles a query string from a given command */
-G_API_COURTIER std::string assembleQueryString(const std::string &, const std::size_t &);
+std::string assembleQueryString(const std::string &, const std::size_t &);
 
 /** @brief Extracts the size of ASIO's data section from a C string. */
-G_API_COURTIER std::size_t extractDataSize(const char *, const std::size_t &);
+std::size_t extractDataSize(const char *, const std::size_t &);
 
 /** @brief Cleanly shuts down a socket */
-G_API_COURTIER void disconnect(boost::asio::ip::tcp::socket &);
+void disconnect(boost::asio::ip::tcp::socket &);
 
 /** @brief Create a boolean mask */
-G_API_COURTIER std::vector<bool> getBooleanMask(
-	std::size_t vecSize
-	, std::size_t start
-	, std::size_t end
-);
+std::vector<bool>
+getBooleanMask(std::size_t vecSize, std::size_t start, std::size_t end);
 
 /** @brief Translate the processingStatus into a clear-text string */
-G_API_COURTIER std::string psToStr(const processingStatus&);
+std::string psToStr(const processingStatus &);
 
 /** @brief Translate the networked_consumer_payload_command into a clear-text string */
-G_API_COURTIER std::string pcToStr(const networked_consumer_payload_command&);
+std::string pcToStr(const networked_consumer_payload_command &);
 
 /******************************************************************************/
 
-} /* namespace Courtier */
-} /* namespace Gem */
+} /* namespace Gem::Courtier */

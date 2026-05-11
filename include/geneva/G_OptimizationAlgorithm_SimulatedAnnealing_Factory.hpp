@@ -39,14 +39,13 @@
 
 // Geneva headers go here
 #include "courtier/GCourtierEnums.hpp"
-#include "geneva/G_OptimizationAlgorithm_FactoryT.hpp"
-#include "geneva/G_OptimizationAlgorithm_Base.hpp"
 #include "geneva/GParameterSet.hpp"
-#include "geneva/G_OptimizationAlgorithm_SimulatedAnnealing.hpp"
+#include "geneva/G_OptimizationAlgorithm_Base.hpp"
+#include "geneva/G_OptimizationAlgorithm_FactoryT.hpp"
 #include "geneva/G_OptimizationAlgorithm_InitializerT.hpp"
+#include "geneva/G_OptimizationAlgorithm_SimulatedAnnealing.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -55,45 +54,40 @@ namespace Geneva {
  * This class is a specialization of the GFactoryT<> class for simulated annealing.
  * It will only return objects which perform all evaluation through the broker.
  */
-class GSimulatedAnnealingFactory
-	: public G_OptimizationAlgorithm_FactoryT<G_OptimizationAlgorithm_Base>
-{
+class GSimulatedAnnealingFactory // NOLINT(cppcoreguidelines-special-member-functions)
+  : public G_OptimizationAlgorithm_FactoryT<G_OptimizationAlgorithm_Base> {
 public:
-	 /** @brief The default constructor */
-	 G_API_GENEVA GSimulatedAnnealingFactory();
-	 /** @brief Initialization with the name of the config file */
-	 explicit G_API_GENEVA GSimulatedAnnealingFactory(std::filesystem::path const&);
-	 /** @brief Initialization with the name of the config file and a content creator */
-	 G_API_GENEVA GSimulatedAnnealingFactory(
-		 std::filesystem::path const&
-		 , std::shared_ptr <Gem::Common::GFactoryT<GParameterSet>>
-	 );
-	 /** @brief The copy constructor */
-	 G_API_GENEVA GSimulatedAnnealingFactory(const GSimulatedAnnealingFactory&) = default;
-	 /** @brief The destructor */
-	 virtual G_API_GENEVA ~GSimulatedAnnealingFactory() = default;
+    /** @brief The default constructor */
+    GSimulatedAnnealingFactory();
+    /** @brief Initialization with the name of the config file */
+    explicit GSimulatedAnnealingFactory(std::filesystem::path const &);
+    /** @brief Initialization with the name of the config file and a content creator */
+    GSimulatedAnnealingFactory(
+        std::filesystem::path const &,
+        std::shared_ptr<Gem::Common::GFactoryT<GParameterSet>>
+    );
+    /** @brief The copy constructor */
+    GSimulatedAnnealingFactory(const GSimulatedAnnealingFactory &) = default;
+    /** @brief The destructor */
+    virtual ~GSimulatedAnnealingFactory() = default;
 
-	 /** @brief Gives access to the mnemonics / nickname describing an algorithm */
-	 G_API_GENEVA std::string getMnemonic() const override;
-	 /** @brief Gives access to a clear-text description of the algorithm */
-	 G_API_GENEVA std::string getAlgorithmName() const override;
+    /** @brief Gives access to the mnemonics / nickname describing an algorithm */
+    std::string getMnemonic() const override;
+    /** @brief Gives access to a clear-text description of the algorithm */
+    std::string getAlgorithmName() const override;
 
 protected:
-	 /** @brief Allows to act on the configuration options received from the configuration file */
-	 G_API_GENEVA void postProcess_(std::shared_ptr<G_OptimizationAlgorithm_Base>&) override;
+    /** @brief Allows to act on the configuration options received from the configuration file */
+    void postProcess_(std::shared_ptr<G_OptimizationAlgorithm_Base> &) override;
 
 private:
-	/** @brief Creates individuals of this type */
-	G_API_GENEVA std::shared_ptr<G_OptimizationAlgorithm_Base> getObject_(
-			Gem::Common::GParserBuilder&
-			, const std::size_t&
-	) override;
+    /** @brief Creates individuals of this type */
+    std::shared_ptr<G_OptimizationAlgorithm_Base>
+    getObject_(Gem::Common::GParserBuilder &, const std::size_t &) override;
 };
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
-
+} /* namespace Gem::Geneva */

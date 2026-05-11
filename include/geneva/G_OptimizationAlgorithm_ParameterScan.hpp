@@ -39,29 +39,26 @@
 // Boost headers go here
 
 // Geneva headers go here
-#include "hap/GRandomT.hpp"
-#include "common/GExceptions.hpp"
 #include "common/GCommonHelperFunctionsT.hpp"
+#include "common/GExceptions.hpp"
+#include "common/GPODVectorT.hpp"
 #include "common/GPlotDesigner.hpp"
 #include "common/GSerializeTupleT.hpp"
-#include "common/GPODVectorT.hpp"
 #include "geneva/GObject.hpp"
-#include "geneva/GParameterPropertyParser.hpp"
-#include "geneva/G_OptimizationAlgorithm_Base.hpp"
 #include "geneva/GOptimizationEnums.hpp"
+#include "geneva/GParameterPropertyParser.hpp"
 #include "geneva/GParameterSet.hpp"
+#include "geneva/G_OptimizationAlgorithm_Base.hpp"
 #include "geneva/G_OptimizationAlgorithm_ParameterScan_PersonalityTraits.hpp"
+#include "hap/GRandomT.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /** Indicates that all possible parameter values have been explored */
-class g_end_of_par :
-    public std::exception
-{
+class g_end_of_par : public std::exception {
 public:
     using std::exception::exception;
 };
@@ -73,52 +70,43 @@ public:
  * This function fills a given std::vector<T> with items. It needs to be re-implemented
  * in concrete specializations. This generic function is just a trap.
  */
-template<typename T>
+template <typename T>
 std::vector<T> fillWithData(
     std::size_t /*nSteps*/
-    , T /* lower */
-    , T /* upper */
+    ,
+    T /* lower */
+    ,
+    T /* upper */
 ) {
     throw geneva_exception(
-        g_error_streamer(
-            DO_LOG
-            , time_and_place
-        )
-            << "In generic function template <typename T> std::vector<T> fillWithData(): Error!" << std::endl
-            << "This function should never be called directly. Use one of the specializations." << std::endl
+        g_error_streamer(DO_LOG, time_and_place)
+        << "In generic function template <typename T> std::vector<T> fillWithData(): Error!"
+        << std::endl
+        << "This function should never be called directly. Use one of the specializations."
+        << std::endl
     );
 
     // Make the compiler happy
     return std::vector<T>();
 }
 
-template<> G_API_GENEVA
-std::vector<bool> fillWithData<bool>(
-    std::size_t nSteps
-    , bool lower
-    , bool upper
-);
+template <>
+std::vector<bool> fillWithData<bool>(std::size_t nSteps, bool lower, bool upper);
 
-template<> G_API_GENEVA
+template <>
 std::vector<std::int32_t> fillWithData<std::int32_t>(
     std::size_t nSteps // will only be used for random entries
-    , std::int32_t lower
-    , std::int32_t upper // inclusive
+    ,
+    std::int32_t lower,
+    std::int32_t upper // inclusive
 );
 
-template<> G_API_GENEVA
-std::vector<float> fillWithData<float>(
-    std::size_t nSteps
-    , float lower
-    , float upper
-);
+template <>
+std::vector<float> fillWithData<float>(std::size_t nSteps, float lower, float upper);
 
-template<> G_API_GENEVA
-std::vector<double> fillWithData<double>(
-    std::size_t nSteps
-    , double lower
-    , double upper
-);
+template <>
+std::vector<double>
+fillWithData<double>(std::size_t nSteps, double lower, double upper);
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -126,16 +114,15 @@ std::vector<double> fillWithData<double>(
 /**
  * An interface class for parameter scan objects
  */
-class scanParInterface
-{
+class scanParInterface {
 public:
-    virtual G_API_GENEVA ~scanParInterface() BASE = default;
-    virtual G_API_GENEVA NAMEANDIDTYPE getVarAddress() const BASE = 0;
-    virtual G_API_GENEVA bool goToNextItem() BASE = 0;
-    virtual G_API_GENEVA bool isAtTerminalPosition() const BASE = 0;
-    virtual G_API_GENEVA bool isAtFirstPosition() const BASE = 0;
-    virtual G_API_GENEVA void resetPosition() BASE = 0;
-    virtual G_API_GENEVA std::string getTypeDescriptor() const BASE = 0;
+    virtual ~scanParInterface() = default;
+    virtual NAMEANDIDTYPE getVarAddress() const = 0;
+    virtual bool goToNextItem() = 0;
+    virtual bool isAtTerminalPosition() const = 0;
+    virtual bool isAtFirstPosition() const = 0;
+    virtual void resetPosition() = 0;
+    virtual std::string getTypeDescriptor() const = 0;
 };
 
 /******************************************************************************/
@@ -144,28 +131,22 @@ public:
 /**
  * Basic parameter functionality
  */
-template<typename T>
-class baseScanParT
-    :
-        public Gem::Common::GPODVectorT<T>
-        , public scanParInterface
-{
+template <typename T>
+class baseScanParT // NOLINT(cppcoreguidelines-special-member-functions)
+  : public Gem::Common::GPODVectorT<T>
+  , public scanParInterface {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
-    template<typename Archive>
+    template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar
-        & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Gem::Common::GPODVectorT<T>)
-        & BOOST_SERIALIZATION_NVP(m_var)
-        & BOOST_SERIALIZATION_NVP(m_step)
-        & BOOST_SERIALIZATION_NVP(m_nSteps)
-        & BOOST_SERIALIZATION_NVP(m_lower)
-        & BOOST_SERIALIZATION_NVP(m_upper)
-        & BOOST_SERIALIZATION_NVP(m_randomScan)
-        & BOOST_SERIALIZATION_NVP(m_typeDescription);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(Gem::Common::GPODVectorT<T>) &
+            BOOST_SERIALIZATION_NVP(var_) & BOOST_SERIALIZATION_NVP(step_) &
+            BOOST_SERIALIZATION_NVP(nSteps_) & BOOST_SERIALIZATION_NVP(lower_) &
+            BOOST_SERIALIZATION_NVP(upper_) & BOOST_SERIALIZATION_NVP(randomScan_) &
+            BOOST_SERIALIZATION_NVP(typeDescription_);
     }
 
     ///////////////////////////////////////////////////////////////////////
@@ -176,26 +157,21 @@ public:
      * The standard constructor
      */
     baseScanParT(
-        parPropSpec<T> pps
-        , bool randomScan
-        , const std::string &t // m_typeDescription
+        parPropSpec<T> pps,
+        bool randomScan,
+        const std::string &t // typeDescription_
     )
-        :
-        Gem::Common::GPODVectorT<T>()
-        , m_var(pps.var)
-        , m_step(0)
-        , m_nSteps(pps.nSteps)
-        , m_lower(pps.lowerBoundary)
-        , m_upper(pps.upperBoundary)
-        , m_randomScan(randomScan)
-        , m_typeDescription(t) {
-        if (not m_randomScan) {
+      : Gem::Common::GPODVectorT<T>()
+      , var_(pps.var)
+      , step_(0)
+      , nSteps_(pps.nSteps)
+      , lower_(pps.lowerBoundary)
+      , upper_(pps.upperBoundary)
+      , randomScan_(randomScan)
+      , typeDescription_(t) {
+        if(not randomScan_) {
             // Fill the object with data
-            this->m_data_cnt = fillWithData<T>(
-                m_nSteps
-                , m_lower
-                , m_upper
-            );
+            this->data_cnt_ = fillWithData<T>(nSteps_, lower_, upper_);
         }
     }
 
@@ -205,14 +181,14 @@ public:
      * random number generator.
      */
     baseScanParT(const baseScanParT<T> &cp)
-        : m_var(cp.m_var)
-        , m_step(cp.m_step)
-        , m_nSteps(cp.m_step)
-        , m_lower(cp.m_lower)
-        , m_upper(cp.m_upper)
-        , m_randomScan(cp.m_randomScan)
-        , m_typeDescription(cp.m_typeDescription)
-    { /* nothing */ }
+      : var_(cp.var_)
+      , step_(cp.step_)
+      , nSteps_(cp.nSteps_)
+      , lower_(cp.lower_)
+      , upper_(cp.upper_)
+      , randomScan_(cp.randomScan_)
+      , typeDescription_(cp.typeDescription_) { /* nothing */
+    }
 
     /***************************************************************************/
     /**
@@ -225,7 +201,7 @@ public:
      * Retrieve the address of this object
      */
     NAMEANDIDTYPE getVarAddress() const override {
-        return m_var;
+        return var_;
     }
 
     /***************************************************************************/
@@ -233,20 +209,19 @@ public:
      * Retrieves the current item position
      */
     std::size_t getCurrentItemPos() const {
-        return m_step;
+        return step_;
     }
 
     /***************************************************************************/
     /**
      * Retrieve the current item
      */
-    T getCurrentItem(
-        Gem::Hap::GRandomBase &gr
-    ) const {
-        if (m_randomScan) {
+    T getCurrentItem(Gem::Hap::GRandomBase &gr) const {
+        if(randomScan_) {
             return getRandomItem(gr);
-        } else {
-            return this->at(m_step);
+        }
+        else {
+            return this->at(step_);
         }
     }
 
@@ -257,8 +232,8 @@ public:
      * @return A boolean indicating whether a warp has taken place
      */
     bool goToNextItem() override {
-        if (++m_step >= m_nSteps) {
-            m_step = 0;
+        if(++step_ >= nSteps_) {
+            step_ = 0;
             return true;
         }
         return false;
@@ -269,7 +244,7 @@ public:
      * Checks whether step_ points to the last item in the array
      */
     bool isAtTerminalPosition() const override {
-        return m_step >= m_nSteps;
+        return step_ >= nSteps_;
     }
 
     /***************************************************************************/
@@ -277,7 +252,7 @@ public:
      * Checks whether step_ points to the first item in the array
      */
     bool isAtFirstPosition() const override {
-        return 0 == m_step;
+        return 0 == step_;
     }
 
     /***************************************************************************/
@@ -285,7 +260,7 @@ public:
      * Resets the current position
      */
     void resetPosition() override {
-        m_step = 0;
+        step_ = 0;
     }
 
     /***************************************************************************/
@@ -293,56 +268,47 @@ public:
      * Retrieve the type descriptor
      */
     std::string getTypeDescriptor() const override {
-        return m_typeDescription;
+        return typeDescription_;
     }
 
 protected:
     /***************************************************************************/
     // Data
 
-    NAMEANDIDTYPE m_var; ///< Name and/or position of the variable
-    std::size_t m_step; ///< The current position in the data vector
-    std::size_t m_nSteps; ///< The number of steps to be taken in a scan
-    T m_lower; ///< The lower boundary of an item
-    T m_upper; ///< The upper boundary of an item
-    bool m_randomScan; ///< Indicates whether we are dealing with a random scan or not
-    std::string m_typeDescription; ///< Holds an identifier for the type described by this class
+    NAMEANDIDTYPE var_;           ///< Name and/or position of the variable
+    std::size_t step_;            ///< The current position in the data vector
+    std::size_t nSteps_;          ///< The number of steps to be taken in a scan
+    T lower_;                     ///< The lower boundary of an item
+    T upper_;                     ///< The upper boundary of an item
+    bool randomScan_;             ///< Indicates whether we are dealing with a random scan or not
+    std::string typeDescription_; ///< Holds an identifier for the type described by this class
 
-    mutable Gem::Hap::GRandom m_gr; ///< Simple access to a random number generator
+    mutable Gem::Hap::GRandom gr_; ///< Simple access to a random number generator
 
     /***************************************************************************/
     /** @brief The default constructor -- only needed for de-serialization, hence protected */
     baseScanParT()
-        :
-        m_var(
-            NAMEANDIDTYPE(
-                0
-                , "empty"
-                , 0
-            ))
-        , m_step(0)
-        , m_nSteps(2)
-        , m_lower(T(0))
-        , m_upper(T(1))
-        , m_randomScan(true)
-        , m_typeDescription("")
-    { /* nothing */ }
+      : var_(NAMEANDIDTYPE(0, "empty", 0))
+      , step_(0)
+      , nSteps_(2)
+      , lower_(T(0))
+      , upper_(T(1))
+      , randomScan_(true)
+      , typeDescription_("") { /* nothing */
+    }
 
     /***************************************************************************/
     /**
      * Retrieves a random item. To be re-implemented for each supported type
      */
     T getRandomItem(
-        Gem::Hap::GRandomBase &gr
+        Gem::Hap::GRandomBase & /*gr*/
     ) const {
         // A trap. This function needs to be re-implemented for each supported type
         throw geneva_exception(
-            g_error_streamer(
-                DO_LOG
-                , time_and_place
-            )
-                << "In baseScanParT::getRandomItem(): Error!" << std::endl
-                << "Function called for unsupported type" << std::endl
+            g_error_streamer(DO_LOG, time_and_place)
+            << "In baseScanParT::getRandomItem(): Error!" << std::endl
+            << "Function called for unsupported type" << std::endl
         );
 
         // Make the compiler happy
@@ -350,11 +316,14 @@ protected:
     }
 
 private:
-    mutable std::bernoulli_distribution m_uniform_bool; ///< boolean random numbers with an even distribution
-    mutable std::uniform_real_distribution<float> m_uniform_float_distribution;  ///< Uniformly distributed fp numbers
-    mutable std::uniform_real_distribution<double> m_uniform_double_distribution; ///< Uniformly distributed fp numbers
+    mutable std::bernoulli_distribution
+        uniform_bool_; ///< boolean random numbers with an even distribution
+    mutable std::uniform_real_distribution<float>
+        uniform_float_distribution_; ///< Uniformly distributed fp numbers
+    mutable std::uniform_real_distribution<double>
+        uniform_double_distribution_; ///< Uniformly distributed fp numbers
     mutable std::uniform_int_distribution<std::int32_t>
-        m_uniform_int_distribution; ///< Uniformly distributed integer numbers
+        uniform_int_distribution_; ///< Uniformly distributed integer numbers
 };
 
 /******************************************************************************/
@@ -363,59 +332,45 @@ private:
 /**
  * Retrieval of a random value for type bool
  */
-template<>
-inline bool baseScanParT<bool>::getRandomItem(
-    Gem::Hap::GRandomBase &gr
-) const {
-    return m_uniform_bool(gr);
+template <>
+inline bool baseScanParT<bool>::getRandomItem(Gem::Hap::GRandomBase &gr) const {
+    return uniform_bool_(gr);
 }
 
 /******************************************************************************/
 /**
  * Retrieval of a random value for type float
  */
-template<>
-inline float baseScanParT<float>::getRandomItem(
-    Gem::Hap::GRandomBase &gr
-) const {
-    return m_uniform_float_distribution(
-        gr
-        , std::uniform_real_distribution<float>::param_type(
-            m_lower
-            , m_upper
-        ));
+template <>
+inline float baseScanParT<float>::getRandomItem(Gem::Hap::GRandomBase &gr) const {
+    return uniform_float_distribution_(
+        gr,
+        std::uniform_real_distribution<float>::param_type(lower_, upper_)
+    );
 }
 
 /******************************************************************************/
 /**
  * Retrieval of a random value for type double
  */
-template<>
-inline double baseScanParT<double>::getRandomItem(
-    Gem::Hap::GRandomBase &gr
-) const {
-    return m_uniform_double_distribution(
-        gr
-        , std::uniform_real_distribution<double>::param_type(
-            m_lower
-            , m_upper
-        ));
+template <>
+inline double baseScanParT<double>::getRandomItem(Gem::Hap::GRandomBase &gr) const {
+    return uniform_double_distribution_(
+        gr,
+        std::uniform_real_distribution<double>::param_type(lower_, upper_)
+    );
 }
 
 /******************************************************************************/
 /**
  * Retrieval of a random value for type std::int32_t
  */
-template<>
-inline std::int32_t baseScanParT<std::int32_t>::getRandomItem(
-    Gem::Hap::GRandomBase &gr
-) const {
-    return m_uniform_int_distribution(
-        gr
-        , std::uniform_int_distribution<std::int32_t>::param_type(
-            m_lower
-            , m_upper + 1
-        ));
+template <>
+inline std::int32_t baseScanParT<std::int32_t>::getRandomItem(Gem::Hap::GRandomBase &gr) const {
+    return uniform_int_distribution_(
+        gr,
+        std::uniform_int_distribution<std::int32_t>::param_type(lower_, upper_ + 1)
+    );
 }
 
 /******************************************************************************/
@@ -424,40 +379,34 @@ inline std::int32_t baseScanParT<std::int32_t>::getRandomItem(
 /**
  * This class holds boolean parameters
  */
-class bScanPar
-    :
-        public baseScanParT<bool>
-{
+class bScanPar // NOLINT(cppcoreguidelines-special-member-functions)
+  : public baseScanParT<bool> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
-    template<typename Archive>
+    template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar
-        & BOOST_SERIALIZATION_BASE_OBJECT_NVP(baseScanParT<bool>);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(baseScanParT<bool>);
     }
 
     ///////////////////////////////////////////////////////////////////////
 
 public:
     /** @brief Construction from local variables */
-    G_API_GENEVA bScanPar(
-        parPropSpec<bool>
-        , bool
-    );
+    bScanPar(parPropSpec<bool>, bool);
     /** @brief Copy constructor */
-    G_API_GENEVA bScanPar(const bScanPar &) = default;
+    bScanPar(const bScanPar &) = default;
     /** @brief The destructor */
-    G_API_GENEVA ~bScanPar() override = default;
+    ~bScanPar() override = default;
 
     /** @brief Cloning of this object */
-    G_API_GENEVA std::shared_ptr<bScanPar> clone() const;
+    std::shared_ptr<bScanPar> clone() const;
 
 private:
     /** @brief The default constructor -- only needed for de-serialization, hence private */
-    G_API_GENEVA bScanPar();
+    bScanPar();
 };
 
 /******************************************************************************/
@@ -466,40 +415,34 @@ private:
 /**
  * A derivative of baseScanParT for std::int32_t values
  */
-class int32ScanPar
-    :
-        public baseScanParT<std::int32_t>
-{
+class int32ScanPar // NOLINT(cppcoreguidelines-special-member-functions)
+  : public baseScanParT<std::int32_t> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
-    template<typename Archive>
+    template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar
-        & BOOST_SERIALIZATION_BASE_OBJECT_NVP(baseScanParT<std::int32_t>);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(baseScanParT<std::int32_t>);
     }
 
     ///////////////////////////////////////////////////////////////////////
 
 public:
     /** @brief The standard destructor */
-    G_API_GENEVA int32ScanPar(
-        parPropSpec<std::int32_t>
-        , bool
-    );
+    int32ScanPar(parPropSpec<std::int32_t>, bool);
     /** @brief Copy constructor */
-    G_API_GENEVA int32ScanPar(const int32ScanPar &) = default;
+    int32ScanPar(const int32ScanPar &) = default;
     /** @brief The destructor */
-    G_API_GENEVA ~int32ScanPar() override = default;
+    ~int32ScanPar() override = default;
 
     /** @brief Cloning of this object */
-    G_API_GENEVA std::shared_ptr<int32ScanPar> clone() const;
+    std::shared_ptr<int32ScanPar> clone() const;
 
 private:
     /** @brief The default constructor -- only needed for de-serialization, hence private */
-    G_API_GENEVA int32ScanPar();
+    int32ScanPar();
 };
 
 /******************************************************************************/
@@ -508,42 +451,35 @@ private:
 /**
  * A derivative of fpScanParT for double values
  */
-class dScanPar
-    :
-        public baseScanParT<double>
-{
+class dScanPar // NOLINT(cppcoreguidelines-special-member-functions)
+  : public baseScanParT<double> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
-    template<typename Archive>
+    template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar
-        & BOOST_SERIALIZATION_BASE_OBJECT_NVP(baseScanParT<double>);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(baseScanParT<double>);
     }
 
     ///////////////////////////////////////////////////////////////////////
 
 public:
     /** @brief The standard destructor */
-    G_API_GENEVA dScanPar(
-        parPropSpec<double>
-        , bool
-    );
+    dScanPar(parPropSpec<double>, bool);
     /** @brief The copy constructor */
-    G_API_GENEVA dScanPar(const dScanPar &) = default;
+    dScanPar(const dScanPar &) = default;
     /** @brief The destructor */
-    G_API_GENEVA ~dScanPar() override = default;
+    ~dScanPar() override = default;
 
     /** @brief Cloning of this object */
-    G_API_GENEVA std::shared_ptr<dScanPar> clone() const;
+    std::shared_ptr<dScanPar> clone() const;
 
 private:
     /** @brief The default constructor -- only needed for de-serialization, hence private */
-    G_API_GENEVA dScanPar();
+    dScanPar();
 };
-
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -551,60 +487,52 @@ private:
 /**
  * A derivative of fpScanParT for float values
  */
-class fScanPar
-    :
-        public baseScanParT<float>
-{
+class fScanPar // NOLINT(cppcoreguidelines-special-member-functions)
+  : public baseScanParT<float> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
-    template<typename Archive>
+    template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar
-        & BOOST_SERIALIZATION_BASE_OBJECT_NVP(baseScanParT<float>);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(baseScanParT<float>);
     }
 
     ///////////////////////////////////////////////////////////////////////
 
 public:
     /** @brief The standard destructor */
-    G_API_GENEVA fScanPar(
-        parPropSpec<float>
-        , bool
-    );
+    fScanPar(parPropSpec<float>, bool);
     /** @brief The copy constructor */
-    G_API_GENEVA fScanPar(const fScanPar &) = default;
+    fScanPar(const fScanPar &) = default;
     /** @brief The destructor */
-    G_API_GENEVA ~fScanPar() override = default;
+    ~fScanPar() override = default;
 
     /** @brief Cloning of this object */
-    G_API_GENEVA std::shared_ptr<fScanPar> clone() const;
+    std::shared_ptr<fScanPar> clone() const;
 
 private:
     /** @brief The default constructor -- only needed for de-serialization, hence private */
-    G_API_GENEVA fScanPar();
+    fScanPar();
 };
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-
 /******************************************************************************/
 // A number of typedefs that indicate the position and value of a parameter inside of an individual
-using singleBPar     = std::tuple<bool, std::size_t, std::string, std::size_t>;
+using singleBPar = std::tuple<bool, std::size_t, std::string, std::size_t>;
 using singleInt32Par = std::tuple<std::int32_t, std::size_t, std::string, std::size_t>;
-using singleFPar     = std::tuple<float, std::size_t, std::string, std::size_t>;
-using singleDPar     = std::tuple<double, std::size_t, std::string, std::size_t>;
+using singleFPar = std::tuple<float, std::size_t, std::string, std::size_t>;
+using singleDPar = std::tuple<double, std::size_t, std::string, std::size_t>;
 
 /******************************************************************************/
 /**
  * This struct holds the entire data to be updated inside of an individual
  */
-struct parSet
-{
+struct parSet {
     std::vector<singleBPar> bParVec;
     std::vector<singleInt32Par> iParVec;
     std::vector<singleFPar> fParVec;
@@ -613,7 +541,7 @@ struct parSet
 
 /******************************************************************************/
 /** @brief A simple output operator for parSet object, mostly meant for debugging */
-G_API_GENEVA std::ostream &operator<<(std::ostream &os, const parSet &pS);
+std::ostream &operator<<(std::ostream &os, const parSet &pS);
 
 /******************************************************************************/
 /** @brief The default number of "best" individuals to be kept during the algorithm run */
@@ -642,100 +570,94 @@ const std::size_t DEFAULTNMONITORINDS = 10;
  * by those parameters intended to be modified). The optimization monitor associated
  * with this class will simply store all parameters and results in an XML file.
  */
-class GParameterScan
-    :
-        public G_OptimizationAlgorithm_Base
-{
+class GParameterScan // NOLINT(cppcoreguidelines-special-member-functions)
+  : public G_OptimizationAlgorithm_Base {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
-    template<typename Archive>
+    template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar
-        & make_nvp(
-            "G_OptimizationAlgorithm_Base"
-            , boost::serialization::base_object<G_OptimizationAlgorithm_Base>(*this))
-        & BOOST_SERIALIZATION_NVP(m_scanRandomly)
-        & BOOST_SERIALIZATION_NVP(m_nMonitorInds)
-        & BOOST_SERIALIZATION_NVP(m_b_cnt)
-        & BOOST_SERIALIZATION_NVP(m_int32_cnt)
-        & BOOST_SERIALIZATION_NVP(m_d_cnt)
-        & BOOST_SERIALIZATION_NVP(m_f_cnt)
-        & BOOST_SERIALIZATION_NVP(m_simpleScanItems)
-        & BOOST_SERIALIZATION_NVP(m_scansPerformed);
+        ar &make_nvp(
+            "G_OptimizationAlgorithm_Base",
+            boost::serialization::base_object<G_OptimizationAlgorithm_Base>(*this)
+        ) & BOOST_SERIALIZATION_NVP(scanRandomly_) &
+            BOOST_SERIALIZATION_NVP(nMonitorInds_) & BOOST_SERIALIZATION_NVP(b_cnt_) &
+            BOOST_SERIALIZATION_NVP(int32_cnt_) & BOOST_SERIALIZATION_NVP(d_cnt_) &
+            BOOST_SERIALIZATION_NVP(f_cnt_) & BOOST_SERIALIZATION_NVP(simpleScanItems_) &
+            BOOST_SERIALIZATION_NVP(scansPerformed_);
     }
 
     ///////////////////////////////////////////////////////////////////////
 
 public:
     /** @brief The default constructor */
-    G_API_GENEVA GParameterScan() = default;
+    GParameterScan() = default;
     /** @brief A standard copy constructor */
-    G_API_GENEVA GParameterScan(const GParameterScan &);
+    GParameterScan(const GParameterScan &);
     /** @brief The destructor */
-    G_API_GENEVA ~GParameterScan() override = default;
+    ~GParameterScan() override = default;
 
     /** @brief Allows to set the number of "best" individuals to be monitored over the course of the algorithm run */
-    G_API_GENEVA void setNMonitorInds(std::size_t);
+    void setNMonitorInds(std::size_t);
     /** @brief Allows to retrieve  the number of "best" individuals to be monitored over the course of the algorithm run */
-    G_API_GENEVA std::size_t getNMonitorInds() const;
+    std::size_t getNMonitorInds() const;
 
     /** @brief Fills vectors with parameter specifications */
-    G_API_GENEVA void setParameterSpecs(std::string);
+    void setParameterSpecs(std::string);
 
     /** @brief Puts the class in "simple scan" mode */
-    G_API_GENEVA void setNSimpleScans(std::size_t);
+    void setNSimpleScans(std::size_t);
     /** @brief Retrieves the number of simple scans (or 0, if disabled) */
-    G_API_GENEVA std::size_t getNSimpleScans() const;
+    std::size_t getNSimpleScans() const;
     /** @brief Retrieves the number of scans performed so far */
-    G_API_GENEVA std::size_t getNScansPerformed() const;
+    std::size_t getNScansPerformed() const;
 
     /** @brief Allows to specify whether the parameter space should be scanned randomly or on a grid */
-    G_API_GENEVA void setScanRandomly(bool);
+    void setScanRandomly(bool);
     /** @brief Allows to check whether the parameter space should be scanned randomly or on a grid */
-    G_API_GENEVA bool getScanRandomly() const;
+    bool getScanRandomly() const;
 
 protected:
     /***************************************************************************/
     // Virtual or overridden protected functions
 
     /** @brief Adds local configuration options to a GParserBuilder object */
-    G_API_GENEVA void addConfigurationOptions_(
-        Gem::Common::GParserBuilder &gpb
-    ) override;
+    void addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) override;
     /** @brief Loads the data of another population */
-    G_API_GENEVA void load_(const GObject *) override;
+    void load_(const GObject *) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GParameterScan>(
-        GParameterScan const &
-        , GParameterScan const &
-        , Gem::Common::GToken &
+        GParameterScan const &,
+        GParameterScan const &,
+        Gem::Common::GToken &
     );
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
-    G_API_GENEVA void compare_(
+    void compare_(
         const GObject & // the other object
-        , const Gem::Common::expectation & // the expectation for this object, e.g. equality
-        , const double & // the limit for allowed deviations of floating point types
+        ,
+        const Gem::Common::expectation & // the expectation for this object, e.g. equality
+        ,
+        const double & // the limit for allowed deviations of floating point types
     ) const override;
 
     /** @brief Resets the settings of this population to what was configured when the optimize()-call was issued */
-    G_API_GENEVA void resetToOptimizationStart_() override;
+    void resetToOptimizationStart_() override;
 
     /** @brief Does some preparatory work before the optimization starts */
-    G_API_GENEVA void init() override;
+    void init() override;
     /** @brief Does any necessary finalization work */
-    G_API_GENEVA void finalize() override;
+    void finalize() override;
 
     /** @brief Applies modifications to this object. This is needed for testing purposes */
-    G_API_GENEVA bool modify_GUnitTests_() override;
+    bool modify_GUnitTests_() override;
     /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-    G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests_() override;
+    void specificTestsNoFailureExpected_GUnitTests_() override;
     /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-    G_API_GENEVA void specificTestsFailuresExpected_GUnitTests_() override;
+    void specificTestsFailuresExpected_GUnitTests_() override;
 
     /***************************************************************************/
 
@@ -744,51 +666,48 @@ private:
     // Virtual or overridden private functions
 
     /** @brief Emits a name for this class / object */
-    G_API_GENEVA std::string name_() const override;
+    std::string name_() const override;
     /** @brief Creates a deep clone of this object */
-    G_API_GENEVA GObject *clone_() const override;
+    GObject *clone_() const override;
 
     /** @brief The actual business logic to be performed during each iteration. Returns the best achieved fitness */
-    G_API_GENEVA std::tuple<double, double> cycleLogic_() override;
+    std::tuple<double, double> cycleLogic_() override;
     /** @brief Triggers fitness calculation of a number of individuals */
-    G_API_GENEVA void runFitnessCalculation_() override;
+    void runFitnessCalculation_() override;
 
     /** @brief Returns information about the type of optimization algorithm */
-    G_API_GENEVA std::string getAlgorithmPersonalityType_() const override;
+    std::string getAlgorithmPersonalityType_() const override;
     /** @brief Returns the name of this optimization algorithm */
-    G_API_GENEVA std::string getAlgorithmName_() const override;
+    std::string getAlgorithmName_() const override;
 
     /** @brief Retrieves the number of processable items for the current iteration */
-    G_API_GENEVA std::size_t getNProcessableItems_() const override;
+    std::size_t getNProcessableItems_() const override;
 
     /** @brief A custom halt criterion for the optimization, allowing to stop the loop when no items are left to be scanned */
-    G_API_GENEVA bool customHalt_() const override;
+    bool customHalt_() const override;
 
     /** @brief Resizes the population to the desired level and does some error checks */
-    G_API_GENEVA void adjustPopulation_() override;
+    void adjustPopulation_() override;
     /** @brief Retrieve a GPersonalityTraits object belonging to this algorithm */
-    G_API_GENEVA std::shared_ptr<GPersonalityTraits> getPersonalityTraits_() const override;
+    std::shared_ptr<GPersonalityTraits> getPersonalityTraits_() const override;
     /** @brief Gives individuals an opportunity to update their internal structures */
-    G_API_GENEVA void actOnStalls_() override;
+    void actOnStalls_() override;
 
     /***************************************************************************/
     /**
      * Adds a given data point to a data vector
      */
-    template<typename data_type>
+    template <typename data_type>
     void addDataPoint(
-        const std::tuple<data_type, std::size_t, std::string, std::size_t> &dataPoint
-        , std::vector<data_type> &dataVec
+        const std::tuple<data_type, std::size_t, std::string, std::size_t> &dataPoint,
+        std::vector<data_type> &dataVec
     ) {
 #ifdef DEBUG
-        if (0 != std::get<1>(dataPoint)) {
+        if(0 != std::get<1>(dataPoint)) {
             throw geneva_exception(
-                g_error_streamer(
-                    DO_LOG
-                    , time_and_place
-                )
-                    << "In GParameterScan::addDataPoint(mode 0): Error!" << std::endl
-                    << "Function was called for invalid mode " << std::get<1>(dataPoint) << std::endl
+                g_error_streamer(DO_LOG, time_and_place)
+                << "In GParameterScan::addDataPoint(mode 0): Error!" << std::endl
+                << "Function was called for invalid mode " << std::get<1>(dataPoint) << std::endl
             );
         }
 #endif
@@ -797,14 +716,12 @@ private:
         std::size_t lPos = std::get<3>(dataPoint);
 
         // Check that we haven't exceeded the size of the boolean data vector
-        if (lPos >= dataVec.size()) {
+        if(lPos >= dataVec.size()) {
             throw geneva_exception(
-                g_error_streamer(
-                    DO_LOG
-                    , time_and_place
-                )
-                    << "In GParameterScan::addDataPoint(): Error!" << std::endl
-                    << "Got position beyond end of data vector: " << lPos << " / " << dataVec.size() << std::endl
+                g_error_streamer(DO_LOG, time_and_place)
+                << "In GParameterScan::addDataPoint(): Error!" << std::endl
+                << "Got position beyond end of data vector: " << lPos << " / " << dataVec.size()
+                << std::endl
             );
         }
 
@@ -815,20 +732,16 @@ private:
     /**
      * Adds a given data point to a data map
      */
-    template<typename data_type>
+    template <typename data_type>
     void addDataPoint(
-        const std::tuple<data_type, std::size_t, std::string, std::size_t> &dataPoint
-        , std::map<std::string, std::vector<data_type>> &dataMap
+        const std::tuple<data_type, std::size_t, std::string, std::size_t> &dataPoint,
+        std::map<std::string, std::vector<data_type>> &dataMap
     ) {
         data_type lData = std::get<0>(dataPoint);
         std::string lName = std::get<2>(dataPoint);
         std::size_t lPos = std::get<3>(dataPoint);
 
-        (
-            Gem::Common::getMapItem(
-                dataMap
-                , lName
-            )).at(lPos) = lData;
+        (Gem::Common::getMapItem(dataMap, lName)).at(lPos) = lData;
     }
 
     /***************************************************************************/
@@ -847,36 +760,40 @@ private:
     /** @brief Switches to the next parameter set */
     bool switchToNextParameterSet();
 
-    /** @brief Fills all parameter objects into the m_all_par_vec vector */
+    /** @brief Fills all parameter objects into the all_par_vec_ vector */
     void fillAllParVec();
 
-    /** @brief Clears the m_all_par_vec vector */
+    /** @brief Clears the all_par_vec_ vector */
     void clearAllParVec();
 
-    bool m_cycleLogicHalt = false; ///< Temporary flag used to specify that the optimization should be halted
-    bool m_scanRandomly
-        = true;   ///< Determines whether the algorithm should scan the parameter space randomly or on a grid
-    std::size_t m_nMonitorInds = DEFAULTNMONITORINDS; ///< The number of best individuals of the entire run to be kept
+    bool cycleLogicHalt_ =
+        false; ///< Temporary flag used to specify that the optimization should be halted
+    bool scanRandomly_ =
+        true; ///< Determines whether the algorithm should scan the parameter space randomly or on a grid
+    std::size_t nMonitorInds_ =
+        DEFAULTNMONITORINDS; ///< The number of best individuals of the entire run to be kept
 
-    std::vector<std::shared_ptr<bScanPar>> m_b_cnt;     ///< Holds boolean parameters to be scanned
-    std::vector<std::shared_ptr<int32ScanPar>> m_int32_cnt; ///< Holds 32 bit integer parameters to be scanned
-    std::vector<std::shared_ptr<dScanPar>> m_d_cnt;     ///< Holds double values to be scanned
-    std::vector<std::shared_ptr<fScanPar>> m_f_cnt;     ///< Holds float values to be scanned
+    std::vector<std::shared_ptr<bScanPar>> b_cnt_; ///< Holds boolean parameters to be scanned
+    std::vector<std::shared_ptr<int32ScanPar>>
+        int32_cnt_; ///< Holds 32 bit integer parameters to be scanned
+    std::vector<std::shared_ptr<dScanPar>> d_cnt_; ///< Holds double values to be scanned
+    std::vector<std::shared_ptr<fScanPar>> f_cnt_; ///< Holds float values to be scanned
 
-    std::vector<std::shared_ptr<scanParInterface>> m_all_par_cnt; /// Holds pointers to all parameter objects
+    std::vector<std::shared_ptr<scanParInterface>>
+        all_par_cnt_; /// Holds pointers to all parameter objects
 
-    std::size_t m_simpleScanItems
-        = 0; ///< When set to a value > 0, a random scan of the entire parameter space will be made instead of individual parameters -- set through the configuration file
-    std::size_t m_scansPerformed = 0; ///< Holds the number of processed items so far while a simple scan is performed
+    std::size_t simpleScanItems_ =
+        0; ///< When set to a value > 0, a random scan of the entire parameter space will be made instead of individual parameters -- set through the configuration file
+    std::size_t scansPerformed_ =
+        0; ///< Holds the number of processed items so far while a simple scan is performed
 
     /***************************************************************************/
 };
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::bScanPar) // NOLINT
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::int32ScanPar) // NOLINT
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::dScanPar) // NOLINT
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::fScanPar) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::bScanPar)       // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::int32ScanPar)   // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::dScanPar)       // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::fScanPar)       // NOLINT
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GParameterScan) // NOLINT

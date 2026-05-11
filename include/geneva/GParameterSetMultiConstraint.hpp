@@ -39,12 +39,11 @@
 // Geneva header files go here
 #include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GFormulaParserT.hpp"
-#include "geneva/GMultiConstraintT.hpp"
 #include "geneva/GIndividualMultiConstraint.hpp"
+#include "geneva/GMultiConstraintT.hpp"
 #include "geneva/GParameterSet.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -55,54 +54,53 @@ namespace Geneva {
  * class is to "translate" GParameterSet-based constraints into constraints
  * based on GParameterSets
  */
-class GParameterSetConstraint :
-    public GPreEvaluationValidityCheckT<GParameterSet>
-{
+class GParameterSetConstraint // NOLINT(cppcoreguidelines-special-member-functions)
+  : public GPreEvaluationValidityCheckT<GParameterSet> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
-    template<typename Archive>
+    template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
-        ar
-        & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPreEvaluationValidityCheckT<GParameterSet>);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPreEvaluationValidityCheckT<GParameterSet>);
     }
     ///////////////////////////////////////////////////////////////////////
 public:
-
     /** @brief The default constructor */
-    G_API_GENEVA GParameterSetConstraint() = default;
+    GParameterSetConstraint() = default;
     /** @brief The copy constructor */
-    G_API_GENEVA GParameterSetConstraint(const GParameterSetConstraint &) = default;
+    GParameterSetConstraint(const GParameterSetConstraint &) = default;
     /** @brief The destructor */
-    G_API_GENEVA ~GParameterSetConstraint() override = default;
+    ~GParameterSetConstraint() override = default;
 
 protected:
     /** @brief Checks whether a given individual is valid */
-    G_API_GENEVA double check_(const GParameterSet *) const override = 0;
+    double check_(const GParameterSet *) const override = 0;
 
     /** @brief Adds local configuration options to a GParserBuilder object */
-    G_API_GENEVA void addConfigurationOptions_(Gem::Common::GParserBuilder &) override;
+    void addConfigurationOptions_(Gem::Common::GParserBuilder &) override;
     /** @brief Loads the data of another GParameterSetConstraint */
-    G_API_GENEVA void load_(const GObject *) override;
+    void load_(const GObject *) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GParameterSetConstraint>(
-        GParameterSetConstraint const &
-        , GParameterSetConstraint const &
-        , Gem::Common::GToken &
+        GParameterSetConstraint const &,
+        GParameterSetConstraint const &,
+        Gem::Common::GToken &
     );
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
-    G_API_GENEVA void compare_(
+    void compare_(
         const GObject & // the other object
-        , const Gem::Common::expectation & // the expectation for this object, e.g. equality
-        , const double & // the limit for allowed deviations of floating point types
+        ,
+        const Gem::Common::expectation & // the expectation for this object, e.g. equality
+        ,
+        const double & // the limit for allowed deviations of floating point types
     ) const override;
 
 private:
     /** @brief Creates a deep clone of this object */
-    G_API_GENEVA GObject *clone_() const override = 0;
+    GObject *clone_() const override = 0;
 };
 
 /******************************************************************************/
@@ -114,57 +112,57 @@ private:
  * value represented by the formula as the "check"-value. Note that this class
  * currently only deals with double values.
  */
-class GParameterSetFormulaConstraint :
-    public GParameterSetConstraint
-{
+class GParameterSetFormulaConstraint // NOLINT(cppcoreguidelines-special-member-functions)
+  : public GParameterSetConstraint {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
-    template<typename Archive>
+    template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
-        ar
-        & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSetConstraint)
-        & BOOST_SERIALIZATION_NVP(rawFormula_);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSetConstraint) &
+            BOOST_SERIALIZATION_NVP(rawFormula_);
     }
     ///////////////////////////////////////////////////////////////////////
 public:
     /** @brief The default constructor */
-    explicit G_API_GENEVA GParameterSetFormulaConstraint(std::string);
+    explicit GParameterSetFormulaConstraint(std::string);
     /** @brief The copy constructor */
-    G_API_GENEVA GParameterSetFormulaConstraint(const GParameterSetFormulaConstraint &) = default;
+    GParameterSetFormulaConstraint(const GParameterSetFormulaConstraint &) = default;
     /** @brief The destructor */
-    G_API_GENEVA ~GParameterSetFormulaConstraint() override = default;
+    ~GParameterSetFormulaConstraint() override = default;
 
 protected:
     /** @brief Checks whether a given GParameterSet object is valid */
-    G_API_GENEVA double check_(const GParameterSet *) const override;
+    double check_(const GParameterSet *) const override;
 
     /** @brief Adds local configuration options to a GParserBuilder object */
-    G_API_GENEVA void addConfigurationOptions_(Gem::Common::GParserBuilder &) override;
+    void addConfigurationOptions_(Gem::Common::GParserBuilder &) override;
     /** @brief Loads the data of another GParameterSetConstraint */
-    G_API_GENEVA void load_(const GObject *) override;
+    void load_(const GObject *) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GParameterSetFormulaConstraint>(
-        GParameterSetFormulaConstraint const &
-        , GParameterSetFormulaConstraint const &
-        , Gem::Common::GToken &
+        GParameterSetFormulaConstraint const &,
+        GParameterSetFormulaConstraint const &,
+        Gem::Common::GToken &
     );
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
-    G_API_GENEVA void compare_(
+    void compare_(
         const GObject & // the other object
-        , const Gem::Common::expectation & // the expectation for this object, e.g. equality
-        , const double & // the limit for allowed deviations of floating point types
+        ,
+        const Gem::Common::expectation & // the expectation for this object, e.g. equality
+        ,
+        const double & // the limit for allowed deviations of floating point types
     ) const override;
 
 private:
     /** @brief Creates a deep clone of this object */
-    G_API_GENEVA GObject *clone_() const override;
+    GObject *clone_() const override;
 
     /** @brief The default constructor -- intentionally private, only needed for (de-)serialization */
-    G_API_GENEVA GParameterSetFormulaConstraint() = default;
+    GParameterSetFormulaConstraint() = default;
 
     std::string rawFormula_; ///< Holds the raw formula, in which values haven't been replaced yet
 };
@@ -173,8 +171,7 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 
 BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::GParameterSetConstraint) // NOLINT
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GParameterSetFormulaConstraint) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GParameterSetFormulaConstraint)       // NOLINT

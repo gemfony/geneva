@@ -38,14 +38,13 @@
 // Boost header files go here
 
 // Geneva headers go here
-#include "common/GLogger.hpp"
 #include "common/GGlobalOptionsT.hpp"
+#include "common/GLogger.hpp"
 #include "courtier/GBaseConsumerT.hpp"
-#include "geneva/GParameterSet.hpp"
 #include "geneva/GConsumerStore.hpp"
+#include "geneva/GParameterSet.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -57,23 +56,21 @@ namespace Geneva {
 template <typename c_type> // c_type stands for consumer type
 class GIndividualStandardConsumerInitializerT {
 public:
-	/** @brief The initializing constructor */
-	GIndividualStandardConsumerInitializerT() {
-		// Create a smart pointer holding the consumer
-		std::shared_ptr<Gem::Courtier::GBaseConsumerT<Gem::Geneva::GParameterSet>> p(new c_type());
-		std::string mnemonic = p->getMnemonic();
+    /** @brief The initializing constructor */
+    GIndividualStandardConsumerInitializerT() {
+        // Create a smart pointer holding the consumer
+        std::shared_ptr<Gem::Courtier::GBaseConsumerT<Gem::Geneva::GParameterSet>> p(new c_type());
+        std::string mnemonic = p->getMnemonic();
 
-		// Register the consumer with the store, if it hasn't happened yet
-		GConsumerStore->setOnce(mnemonic, p);
-	}
-	/** @brief An empty destructor */
-	virtual ~GIndividualStandardConsumerInitializerT() BASE = default;
+        // Register the consumer with the store, if it hasn't happened yet
+        GConsumerStore->setOnce(mnemonic, p);
+    }
+    /** @brief An empty destructor */
+    virtual ~GIndividualStandardConsumerInitializerT() = default;
 };
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
-
+} /* namespace Gem::Geneva */

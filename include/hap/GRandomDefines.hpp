@@ -34,12 +34,10 @@
 
 // Standard includes go here
 #include <cstdlib>
+#include <limits>
 #include <random>
 
-// Boost includes go here
-
-namespace Gem {
-namespace Hap {
+namespace Gem::Hap {
 
 /******************************************************************************/
 // Some typedefs for the seed manager and random factory
@@ -52,39 +50,47 @@ using lagged_fibonacci = std::subtract_with_carry_engine<uint_fast64_t, 48, 5, 1
 // Some constants needed for the random number generation
 
 #ifdef GENEVA_HAP_RANDOM_FACTORY_DEFAULT_ARRAY_SIZE
-	const std::size_t   DEFAULTARRAYSIZE = GENEVA_HAP_RANDOM_FACTORY_DEFAULT_ARRAY_SIZE; ///< Default size of the random number array
+const std::size_t DEFAULTARRAYSIZE =
+    GENEVA_HAP_RANDOM_FACTORY_DEFAULT_ARRAY_SIZE; ///< Default size of the random number array
 #else
-	const std::size_t   DEFAULTARRAYSIZE = 10000; ///< Default size of the random number array
+const std::size_t DEFAULTARRAYSIZE = 10000; ///< Default size of the random number array
 #endif /* GHAP_DEFAULT_ARRAY_SIZE */
 
 #ifdef GENEVA_HAP_RANDOM_FACTORY_DEFAULT_BUFFER_SIZE
-	const std::size_t   DEFAULTFACTORYBUFFERSIZE = GENEVA_HAP_RANDOM_FACTORY_DEFAULT_BUFFER_SIZE; ///< Default size of the underlying buffer
+const std::size_t DEFAULTFACTORYBUFFERSIZE =
+    GENEVA_HAP_RANDOM_FACTORY_DEFAULT_BUFFER_SIZE; ///< Default size of the underlying buffer
 #else
-	const std::size_t   DEFAULTFACTORYBUFFERSIZE = Gem::Common::DEFAULTBUFFERSIZE; ///< Default size of the underlying buffer
+const std::size_t DEFAULTFACTORYBUFFERSIZE =
+    Gem::Common::DEFAULTBUFFERSIZE; ///< Default size of the underlying buffer
 #endif /* GENEVA_HAP_RANDOM_FACTORY_DEFAULT_BUFFER_SIZE */
 
 #ifdef GENEVA_HAP_RANDOM_FACTORY_DEFAULT_PUT_WAIT
-	const std::uint16_t DEFAULTFACTORYPUTWAIT = GENEVA_HAP_RANDOM_FACTORY_DEFAULT_PUT_WAIT; ///< waiting time in milliseconds
+const std::uint16_t DEFAULTFACTORYPUTWAIT =
+    GENEVA_HAP_RANDOM_FACTORY_DEFAULT_PUT_WAIT; ///< waiting time in milliseconds
 #else
-	const std::uint16_t DEFAULTFACTORYPUTWAIT = 200; ///< waiting time in milliseconds
+const std::uint16_t DEFAULTFACTORYPUTWAIT = 200; ///< waiting time in milliseconds
 #endif /* GENEVA_HAP_RANDOM_FACTORY_DEFAULT_PUT_WAIT */
 
 #ifdef GENEVA_HAP_RANDOM_FACTORY_DEFAULT_GET_WAIT
-	const std::uint16_t DEFAULTFACTORYGETWAIT = GENEVA_HAP_RANDOM_FACTORY_DEFAULT_GET_WAIT; ///< waiting time in milliseconds
+const std::uint16_t DEFAULTFACTORYGETWAIT =
+    GENEVA_HAP_RANDOM_FACTORY_DEFAULT_GET_WAIT; ///< waiting time in milliseconds
 #else
-	const std::uint16_t DEFAULTFACTORYGETWAIT = 200; ///< waiting time in milliseconds
+const std::uint16_t DEFAULTFACTORYGETWAIT = 200; ///< waiting time in milliseconds
 #endif /* GENEVA_HAP_RANDOM_FACTORY_DEFAULT_GET_WAIT */
 
 #ifdef GENEVA_HAP_RANDOM_FACTORY_SEEDQUEUE_PUT_WAIT
-	const std::uint16_t DEFAULTSEEDQUEUEPUTWAIT = GENEVA_HAP_RANDOM_FACTORY_SEEDQUEUE_PUT_WAIT; ///< waiting time for seeding queue in milliseconds
+const std::uint16_t DEFAULTSEEDQUEUEPUTWAIT =
+    GENEVA_HAP_RANDOM_FACTORY_SEEDQUEUE_PUT_WAIT; ///< waiting time for seeding queue in milliseconds
 #else
-	const std::uint16_t DEFAULTSEEDQUEUEPUTWAIT = 200; ///< waiting time for seeding queue in milliseconds
+const std::uint16_t DEFAULTSEEDQUEUEPUTWAIT =
+    200; ///< waiting time for seeding queue in milliseconds
 #endif /* GENEVA_HAP_RANDOM_FACTORY_SEEDQUEUE_PUT_WAIT */
 
 #ifdef GENEVA_HAP_RANDOM_FACTORY_SEED_VECTOR_SIZE
-	const std::size_t   DEFAULTSEEDVECTORSIZE = GENEVA_HAP_RANDOM_FACTORY_SEED_VECTOR_SIZE; ///< The size of the seeding vector
+const std::size_t DEFAULTSEEDVECTORSIZE =
+    GENEVA_HAP_RANDOM_FACTORY_SEED_VECTOR_SIZE; ///< The size of the seeding vector
 #else
-	const std::size_t   DEFAULTSEEDVECTORSIZE = 2000; ///< The size of the seeding vector
+const std::size_t DEFAULTSEEDVECTORSIZE = 2000; ///< The size of the seeding vector
 #endif /* GENEVA_HAP_RANDOM_FACTORY_SEED_VECTOR_SIZE */
 
 /******************************************************************************/
@@ -98,7 +104,8 @@ const std::uint16_t DEFAULT01PRODUCERTHREADS = 2;
  * The maximum value of std::int32_t, converted to a double value. This is
  * needed to scale the output of std::minstd_rand0 to a maximum value of 1.
  */
-const double rnr_max = static_cast<double>(boost::numeric::bounds<std::minstd_rand0::result_type>::highest());
+const double rnr_max =
+    static_cast<double>(std::numeric_limits<std::minstd_rand0::result_type>::max());
 
 /******************************************************************************/
 /**
@@ -123,6 +130,4 @@ const std::size_t MINDOUBLEBUFFERSIZE = 10000;
 
 /******************************************************************************/
 
-} /* namespace Hap */
-} /* namespace Gem */
-
+} /* namespace Gem::Hap */

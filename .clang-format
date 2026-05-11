@@ -1,31 +1,197 @@
-# This .clang-format replicates the style shown in GBoundedBufferT.hpp
+# clang-format configuration approximating the Geneva Coding Conventions.
+#
+# Intended for CLion and VS Code. Place this file as `.clang-format` in the
+# repository root and use clang-format with `-style=file`.
+#
+# This is a modernized version of the original Geneva-style configuration.
+# The Geneva Coding Conventions are ~10 years old, written before C++20 was
+# available. Where the conventions are silent or refer to outdated practice
+# (e.g. boost::uint32_t instead of std::uint32_t), this config takes a
+# pragmatic modern interpretation while preserving the visual style.
+#
+# Notes / known limitations:
+# - clang-format cannot enforce naming conventions, Doxygen requirements,
+#   include guards, omission of parameter names in headers, `typename` vs
+#   `class`, use of explicit namespaces, avoidance of globals/macros, etc.
+#   Use clang-tidy or custom checks for those rules.
+# - The Geneva guide prefers leading commas in long function parameter lists.
+#   With AlignAfterOpenBracket: BlockIndent and BinPackParameters: false, the
+#   layout comes close to the convention, though clang-format does not produce
+#   leading commas for parameter lists.
+# - The guide wants `class Base {` for non-derived classes but a separate `{`
+#   line for derived classes. clang-format cannot make that conditional. This
+#   config keeps class braces attached, which matches the majority of examples.
+# - The guide closes namespaces with `} /* namespace X */`, while clang-format
+#   would generate `// namespace X`. We disable the auto-fix to avoid wrong
+#   rewrites; verification is left to a pre-commit hook or manual review.
+
+---
 Language: Cpp
 BasedOnStyle: LLVM
+Standard: c++20
+
+# Basic indentation. The existing codebase uses 1 tab per level; when
+# normalizing to spaces (UseTab: Never), 4 spaces is the natural equivalent.
 IndentWidth: 4
 TabWidth: 4
 UseTab: Never
+ContinuationIndentWidth: 4
 AccessModifierOffset: -4
-BreakBeforeBraces: BS_Attach
+NamespaceIndentation: None
+IndentPPDirectives: None
+IndentCaseLabels: false
+IndentCaseBlocks: false
+
+# Line width. The original conventions are silent on this; 100 is a modern
+# pragmatic value that fits today's wider screens while still keeping diffs
+# readable. Adjust if your team prefers 80 or 120.
+ColumnLimit: 100
+
+# Braces: attach opening braces to declarations and control statements.
+# `else`, `catch` and `while` (of do/while) start on a new line, matching the
+# Geneva examples which separate try/catch and do/while across lines.
+BreakBeforeBraces: Custom
 BraceWrapping:
-  AfterClass: true
-  AfterControlStatement: false
-  AfterEnum: true
+  AfterCaseLabel: false
+  AfterClass: false
+  AfterControlStatement: Never
+  AfterEnum: false
   AfterFunction: false
-  AfterNamespace: true
-  AfterStruct: true
-  AfterUnion: true
+  AfterNamespace: false
+  AfterStruct: false
+  AfterUnion: false
+  AfterExternBlock: false
+  BeforeCatch: true
+  BeforeElse: true
+  BeforeLambdaBody: false
+  BeforeWhile: true
   IndentBraces: false
-AlwaysBreakAfterDefinitionReturnType: All
-AlwaysBreakAfterDeclarationReturnType: All
+  SplitEmptyFunction: true
+  SplitEmptyRecord: true
+  SplitEmptyNamespace: true
+
+# Constructor initializer lists and inheritance lists: one item per line with
+# leading colon/comma, as in the Geneva examples.
+BreakConstructorInitializers: BeforeComma
+ConstructorInitializerIndentWidth: 2
+PackConstructorInitializers: Never
+BreakInheritanceList: BeforeComma
+
+# Function declarations/calls: one argument per line, opening paren on the
+# declaration line, closing paren on its own line. This is the closest
+# approximation to the Geneva "leading comma" parameter list style that
+# clang-format can produce.
+BinPackArguments: false
 BinPackParameters: false
+AllowAllArgumentsOnNextLine: false
+AllowAllParametersOfDeclarationOnNextLine: false
 AlignAfterOpenBracket: BlockIndent
-SpaceBeforeParensControlStatements: Always
-SpaceBeforeParensFunctionDecl: false
-SpaceBeforeParensFunctionCall: false
-AllowShortIfStatementsOnASingleLine: false
-AllowShortFunctionsOnASingleLine: Empty
-AllowShortBlocksOnASingleLine: false
-ColumnLimit:     120
+
+# Spaces around control statements. The Geneva examples use no space between
+# control keywords and the parenthesis: `if(...)`, `while(...)`, `for(...)`.
+# `catch (...)` is shown WITH a space in the conventions but clang-format
+# cannot distinguish catch from other control keywords here, so catch will
+# also be rendered without space. This is a documented, deliberate trade-off.
+SpaceBeforeParens: Custom
+SpaceBeforeParensOptions:
+  AfterControlStatements: false
+  AfterFunctionDeclarationName: false
+  AfterFunctionDefinitionName: false
+  AfterIfMacros: false
+  AfterOverloadedOperator: false
+  AfterRequiresInClause: true
+  AfterRequiresInExpression: false
+  BeforeNonEmptyParentheses: false
+
+SpacesInParentheses: false
+SpacesInSquareBrackets: false
+SpacesInAngles: Never
+SpaceAfterTemplateKeyword: true
+SpaceBeforeAssignmentOperators: true
+SpaceBeforeCpp11BracedList: false
+SpaceBeforeRangeBasedForLoopColon: true
+SpaceBeforeCtorInitializerColon: true
+SpaceBeforeInheritanceColon: true
+SpaceAfterCStyleCast: false
+SpaceAroundPointerQualifiers: Default
+SpacesBeforeTrailingComments: 1
+
+# Pointer/reference alignment: right-aligned, e.g. `int *p`, `int &r`.
+# This matches the prevalent Geneva style: `std::ostream &stream`,
+# `const g_class_type *ptr`, `Gem::Common::sortOrder const &`.
+PointerAlignment: Right
+ReferenceAlignment: Right
+DerivePointerAlignment: false
+
+# Operators and expressions.
+BreakBeforeBinaryOperators: None
+BreakBeforeTernaryOperators: true
+AlignOperands: AlignAfterOperator
+
+# Single-line statements: never collapse onto a single line. The Geneva
+# examples always put the body of an if/for/while on a separate line.
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+AllowShortBlocksOnASingleLine: Never
+AllowShortFunctionsOnASingleLine: None
+AllowShortCaseLabelsOnASingleLine: false
+AllowShortLambdasOnASingleLine: All
+AllowShortEnumsOnASingleLine: false
+
+# Templates: `template <typename T>` on its own line, as in the conventions.
+AlwaysBreakTemplateDeclarations: Yes
+AlwaysBreakAfterReturnType: None
+AlwaysBreakBeforeMultilineStrings: false
+
+# Includes: sort within each block but preserve block boundaries. This lets
+# the team keep logical groups (own headers / boost / std) without manual
+# alphabetization within each group.
+SortIncludes: CaseSensitive
+IncludeBlocks: Preserve
+SortUsingDeclarations: true
+
+# Namespace closing comments: the Geneva style is `} /* namespace X */`,
+# clang-format would generate `// namespace X`. Disable the auto-fix to
+# avoid clang-format rewriting the team's preferred style.
+FixNamespaceComments: false
+CompactNamespaces: false
+ShortNamespaceLines: 1
+
+# Comments and trailing-comment alignment.
+ReflowComments: false
 AlignTrailingComments: true
 
+# Modern alignment helpers (C++20-friendly).
+AlignConsecutiveAssignments: None
+AlignConsecutiveDeclarations: None
+AlignConsecutiveMacros: Consecutive
+AlignConsecutiveBitFields: Consecutive
+AlignArrayOfStructures: None
 
+# Misc stable behavior.
+KeepEmptyLinesAtTheStartOfBlocks: false
+MaxEmptyLinesToKeep: 1
+Cpp11BracedListStyle: true
+InsertBraces: false
+InsertNewlineAtEOF: true
+RemoveBracesLLVM: false
+RemoveSemicolon: false
+SeparateDefinitionBlocks: Leave
+EmptyLineBeforeAccessModifier: LogicalBlock
+EmptyLineAfterAccessModifier: Never
+
+# Lambdas and requires-clauses (C++20).
+LambdaBodyIndentation: Signature
+RequiresClausePosition: OwnLine
+RequiresExpressionIndentation: OuterScope
+IndentRequiresClause: true
+
+# Penalties (default LLVM values, listed for clarity).
+PenaltyBreakAssignment: 2
+PenaltyBreakBeforeFirstCallParameter: 19
+PenaltyBreakComment: 300
+PenaltyBreakFirstLessLess: 120
+PenaltyBreakString: 1000
+PenaltyExcessCharacter: 1000000
+PenaltyReturnTypeOnItsOwnLine: 60
+...

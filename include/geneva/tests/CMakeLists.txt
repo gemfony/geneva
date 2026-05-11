@@ -29,10 +29,13 @@
 
 SET ( OPTTESTINCLUDES
 	GEqualityPrinter.hpp
-    Geneva_tests.hpp
 )
 
+# Geneva_tests.hpp is INTERNAL only — not installed, not part of the public API.
+# It is used by tests/geneva/UnitTests/GenevaStandardTests.cpp and
+# examples/geneva/10_GStarter/Tests/UnitTests/GStarterIndividualUnitTests.cpp.
+
 # This is a workaround for a CLion-problem -- see CPP270 in the JetBrains issue tracker
-ADD_CUSTOM_TARGET(CLION_ALL_GENEVA_TEST_HEADERS SOURCES ${OPTTESTINCLUDES})
+ADD_CUSTOM_TARGET(CLION_ALL_GENEVA_TEST_HEADERS SOURCES ${OPTTESTINCLUDES} Geneva_tests.hpp)
 
 INSTALL ( FILES ${OPTTESTINCLUDES} DESTINATION ${INSTALL_PREFIX_INCLUDES}/geneva/tests )

@@ -38,84 +38,88 @@
 
 // Geneva header files go here
 #include "geneva/GConstrainedInt32Object.hpp"
-#include "geneva/GParameterTCollectionT.hpp"
 #include "geneva/GInt32GaussAdaptor.hpp"
+#include "geneva/GParameterTCollectionT.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 /**
  * A collection of GConstrainedInt32Object objects, ready for use in a
  * GParameterSet derivative.
  */
-class GConstrainedInt32ObjectCollection
-    :
-        public GParameterTCollectionT<GConstrainedInt32Object>
-{
+class GConstrainedInt32ObjectCollection // NOLINT(cppcoreguidelines-special-member-functions)
+  : public GParameterTCollectionT<GConstrainedInt32Object> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
-    template<typename Archive>
+    template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar
-        & make_nvp(
-            "GParameterTCollectionT_gbi"
-            , boost::serialization::base_object<GParameterTCollectionT<GConstrainedInt32Object>>(*this));
+        ar &make_nvp(
+            "GParameterTCollectionT_gbi",
+            boost::serialization::base_object<GParameterTCollectionT<GConstrainedInt32Object>>(
+                *this
+            )
+        );
     }
     ///////////////////////////////////////////////////////////////////////
 
 public:
     /** @brief The default constructor */
-    G_API_GENEVA GConstrainedInt32ObjectCollection() = default;
+    GConstrainedInt32ObjectCollection() = default;
     /** @brief Initialization with a number of GConstrainedInt32Object objects */
-    G_API_GENEVA GConstrainedInt32ObjectCollection(const std::size_t &, std::shared_ptr<GConstrainedInt32Object>);
+    GConstrainedInt32ObjectCollection(
+        const std::size_t &,
+        std::shared_ptr<GConstrainedInt32Object>
+    );
     /** @brief The copy constructor */
-    G_API_GENEVA GConstrainedInt32ObjectCollection(const GConstrainedInt32ObjectCollection &) = default;
+    
+    GConstrainedInt32ObjectCollection(const GConstrainedInt32ObjectCollection &) = default;
 
     /** @brief The destructor */
-    G_API_GENEVA ~GConstrainedInt32ObjectCollection() override = default;
+    ~GConstrainedInt32ObjectCollection() override = default;
 
 protected:
     /** @brief Loads the data of another GObject */
-    G_API_GENEVA void load_(const GObject *) override;
+    void load_(const GObject *) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GConstrainedInt32ObjectCollection>(
-        GConstrainedInt32ObjectCollection const &
-        , GConstrainedInt32ObjectCollection const &
-        , Gem::Common::GToken &
+        GConstrainedInt32ObjectCollection const &,
+        GConstrainedInt32ObjectCollection const &,
+        Gem::Common::GToken &
     );
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
-    G_API_GENEVA void compare_(
+    void compare_(
         const GObject & // the other object
-        , const Gem::Common::expectation & // the expectation for this object, e.g. equality
-        , const double & // the limit for allowed deviations of floating point types
+        ,
+        const Gem::Common::expectation & // the expectation for this object, e.g. equality
+        ,
+        const double & // the limit for allowed deviations of floating point types
     ) const override;
 
     /** @brief Applies modifications to this object. This is needed for testing purposes */
-    G_API_GENEVA bool modify_GUnitTests_() override;
+    bool modify_GUnitTests_() override;
     /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-    G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests_() override;
+    void specificTestsNoFailureExpected_GUnitTests_() override;
     /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-    G_API_GENEVA void specificTestsFailuresExpected_GUnitTests_() override;
+    void specificTestsFailuresExpected_GUnitTests_() override;
 
 private:
     /** @brief Emits a name for this class / object */
-    G_API_GENEVA std::string name_() const override;
+    std::string name_() const override;
     /** @brief Creates a deep clone of this object. */
-    G_API_GENEVA GObject *clone_() const override;
+    GObject *clone_() const override;
 
     /** @brief Fills the collection with GConstrainedInt32Object objects */
-    G_API_GENEVA void fillWithObjects_(const std::size_t &);
+    void fillWithObjects_(const std::size_t &);
 };
 
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GConstrainedInt32ObjectCollection) // NOLINT

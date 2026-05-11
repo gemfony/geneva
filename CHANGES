@@ -1,30 +1,135 @@
 //------------------------------------------------------------------------------------------------------
-* Version 1.11.1 "Puente de Santiago" - May 02, 2026
+* Version 1.12.0 "Puente de Santiago" - May 02, 2026
 
 Recommended Versions:
-- Unchanged
+- Make sure Catch 2 v3 is installed in your system
+- Boost version 1.90 or higher is required
+- CMake version 3.27 or higher is required
+- GCC is recommended to be at least version 13, clang should be at least version 18.
+  Earlier versions might work if C++20 is sufficiently supported
+- We suggest to use Ubuntu 24.04 LTS or 26.04 LTS as the host platform if you plan
+  to use the CUDA example.
 
 ********************** INCOMPATIBILITIES / PLEASE NOTE *************************
 
+- Static linking support (BUILDSTATIC / GENEVA_STATIC / GENEVA_STATIC=TRUE) has
+  been removed. Geneva now builds exclusively as shared libraries. Any build scripts
+  that set BUILDSTATIC="1" or pass -DGENEVA_STATIC=TRUE must be updated to remove
+  that setting. The five Geneva shared libraries (gemfony-common, gemfony-hap,
+  gemfony-courtier, gemfony-geneva, gemfony-geneva-individuals) are always built
+  as SHARED; BUILD_SHARED_LIBS is always ON; GEM_DYNAMIC is always defined.
 - gemfony_exception was renamed to geneva_exception (~128 files). Any user code that
   catches or explicitly names this exception type must be updated accordingly.
+- The Boost.Test library linkage has been removed from the build-system, instead Geneva now
+  uses Catch2 v3 which needs to be present on the system in order to compile the code.
+- Windows and macOS support has been removed. Geneva now targets Linux exclusively.
+  The G_API_COMMON, G_API_HAP, G_API_COURTIER, G_API_GENEVA, and G_API_INDIVIDUALS
+  symbol-visibility macros have been removed from all 2266 call sites and from
+  GGlobalDefines.hpp entirely (they were no-ops on Linux without -fvisibility=hidden).
+  The GEM_*_EXPORTS preprocessor definitions and the GEM_DYNAMIC definition have been
+  removed from the CMake build system. The PLATFORM_NEEDS_LIBRARY_LINKING variable
+  always evaluates to FALSE and its conditional TARGET_LINK_LIBRARIES blocks have been
+  removed from all five library CMakeLists.txt files. IdentifySystemParameters.cmake
+  now supports only GCC >= 13 and Clang >= 18 on Linux.
 
 ************************* Noteworthy Changes ***********************************
 
-- Build script (prepareBuild.sh) overhauled. New options --clean (triggers an
-  interactive confirmation before wiping the build directory) and --dryrun
-  (prints all CMake -D flags without configuring, useful for IDE setup). The
-  script now refuses to reconfigure an already-configured build directory unless
-  --clean is passed.
+- Build system stripped to Linux-only: IdentifySystemParameters.cmake, all four
+  CommonGenevaBuild.cmake copies, and the five library CMakeLists.txt files have been
+  cleaned of Windows (MSVC, Cygwin), macOS (AppleClang, Darwin), Intel compiler, and
+  FreeBSD branches. The cmake configure step is now ~150 lines shorter with no dead
+  platform-conditional branches.
+
+- GCanvas (the PPM-image canvas used by the Mona-Lisa CUDA example) has been
+  moved from the Common library (include/common/GCanvas.hpp, src/common/GCanvas.cpp,
+  namespace Gem::Common) into example 15 (examples/geneva/15_GCUDAWorker/GCanvas.hpp
+  / GCanvas.cpp, namespace Gem::Geneva). GCanvas is not a general-purpose library
+  component; moving it keeps the Common library free of application-specific code.
+  The old manual test in tests/common/ManualTests/GCanvasTest/ and the deprecated
+  OpenCL sources in examples/geneva/15_GCUDAWorker/Deprecated/ have been removed.
+  A new test subdirectory (examples/geneva/15_GCUDAWorker/tests/) holds the
+  Catch2 unit tests (GCanvasTests) and a manual smoke-test (GCanvasTest). GCanvas
+  unit tests have been removed from GCommonStandardTests.cpp and now live with
+  example 15. GCanvas test coverage: coord2D (construction, operator-, dot product);
+  GRgb (construction, setColor); GColumn (size, operator[], at(), init());
+  t_circle (getAlphaValue, ==, !=, toString); GCanvas<8> construction,
+  clear/reset, PPM output/load/round-trip (including comment/blank-line handling
+  and all five error paths), diff (value, symmetry, scaling, dimension-mismatch),
+  addTriangle(t_cart) (alpha=0/0.5/1, bounding-box exclusion),
+  addTriangle(t_circle) (pixel coloring, DEBUG bad-angle guards), addTriangles
+  (empty no-op), getAverageColors; GCanvas8/16/24 concrete classes (construction,
+  color-depth constants, operator-, PPM round-trip).
+
+- Comprehensive unit tests added for GCommonMathHelperFunctionsT and
+  GCommonHelperFunctionsT in GCommonStandardTests.cpp. New tests cover:
+  grational_sigmoid (zero, boundedness, antisymmetry, convergence, known
+  values, DEBUG steepness guard); enforceRangeConstraint; checkRangeCompliance
+  (fp and int); getWorstCase/getBestCase (bool and sortOrder overloads);
+  checkValueRange (fp/int, open/closed boundaries, warnOnly); getMinMax (1D–4D);
+  GMean; GStandardDeviation; PowSmallPosInt constexpr function; subtractVec;
+  addVec; multVecConst; assignVecConst; sumTupleVec; squareSumTupleVec;
+  productSumTupleVec; squareDeviation; getRegressionParameters; getRatioError;
+  getRatioErrors; isClose; g_delete; g_array_delete; ptrDifferenceCheck (raw
+  and shared_ptr); g_ptr_conversion (raw and shared_ptr); convertSmartPointer;
+  vecToString; copyArrays; splitStringT (single and dual separator);
+  getMapItem (mutable and const); to_string (integral, fp, scoped enum);
+  erase_if; environmentVariableAs. DEBUG-only assertions are guarded with
+  #ifdef DEBUG so the test suite is valid in both Debug and Release builds.
+
+- Build script (prepareBuild.sh) overhauled. New options: --clean (interactively
+  wipes the build directory, then exits — does not proceed to reconfigure);
+  --dryrun (prints all CMake -D flags without configuring, useful for IDE setup);
+  --generate-preset (writes a CMakeUserPresets.json to the current directory
+  encoding all settings from the current .gcfg file, then exits without running
+  cmake — the user copies the file to the project root so that IDEs such as CLion
+  pick up the configuration automatically); --build (runs make -j$(nproc) after
+  cmake configuration). --build may be combined with --clean and/or a .gcfg file:
+  --build alone skips cmake when the directory is already configured and goes
+  straight to make; --clean --build cleans, configures, then builds. When called
+  without --clean in an already-configured directory the script prompts to clean
+  before proceeding; if the user declines, it terminates.
 
 - CMakePresets.json added. Provides a ready-made "geneva-default" preset that
   CLion and VS Code can pick up directly, eliminating the need to manually
-  configure BOOST_ROOT and other paths in the IDE's CMake profile.
+  configure BOOST_ROOT and other paths in the IDE's CMake profile. For a
+  configuration tailored to a specific .gcfg file, use
+  prepareBuild.sh --generate-preset from the build directory, which writes a
+  CMakeUserPresets.json there (not checked in) and exits without reconfiguring.
+  Copy the file to the project root to activate it in the IDE.
 
 - Deprecated Boost Phoenix headers replaced. The boost/spirit/include/phoenix_*.hpp
   shim headers (deprecated since Boost 1.66) are replaced with boost/phoenix/*.hpp
   in GFormulaParserT.hpp, GParameterPropertyParser.hpp, and GBaseClientT.hpp,
   removing a category of compiler warnings on Boost >= 1.90.
+
+- Incremental Boost de-dependency (non-Serialization / non-Spirit / non-Asio):
+  Numerous Boost headers that have direct C++ standard equivalents have been
+  replaced across all five libraries:
+  - boost::numeric_cast → Gem::Common::narrow_cast (checked cast using std::numeric_limits)
+  - boost::checked_delete / boost::checked_array_delete → delete / delete[]
+  - boost::iterator_facade → hand-written C++ forward iterator in GPtrVectorT.hpp
+  - boost::variant (non-recursive codeEntry in GFormulaParserT) → std::variant
+  - boost::uuids::random_generator → Gem::Common::generate_uuid_v4() (thread-local
+    std::mt19937_64, RFC 4122 v4 UUID)
+  - boost::tokenizer + boost::char_separator → std::string::find-based splitting
+  - boost::trim → inline std::string::find_first/last_not_of whitespace trimming
+  - boost::algorithm/string.hpp → removed from 15+ headers (all uses were stale)
+  - boost::math::float_prior<T> / float_next<T> → std::nextafter (from <cmath>)
+  - boost::math::constants::pi/e → std::numbers::pi/e (or numeric literals in CUDA paths)
+  - boost::math::special_functions.hpp / next.hpp → removed (replaced by std::nextafter)
+  - boost::numeric::bounds<T>::highest() / lowest() → std::numeric_limits<T>::max/lowest()
+  - boost::limits.hpp → <limits>
+  - boost::enable_shared_from_this → std::enable_shared_from_this (already used; include removed)
+  - boost::exception / boost::diagnostic_information → removed; catch(boost::exception&)
+    handlers were dead code (Geneva never throws boost::exception subtypes; Asio's
+    system_error inherits from std::exception); replaced by std::exception catch-all
+  - boost::predef (BOOST_COMP_GNUC < 5 guard) → dead code removed (Geneva requires GCC 13+)
+  - boost::lambda/lambda.hpp → removed (stale include in GObject.hpp)
+  - boost::cstdint.hpp in code-generation output → <cstdint>
+  Remaining intentional Boost dependencies: Boost.Serialization, Boost.Asio/Beast
+  (networking), Boost.Spirit+Phoenix+Fusion (formula parser, Priority 16 rewrite),
+  Boost.ProgramOptions (command-line API), Boost.PropertyTree (JSON config),
+  boost/config.hpp + boost/version.hpp (min-version enforcement in GGlobalDefines.hpp).
 
 - Boost serialization macros annotated with // NOLINT. CLion/clangd incorrectly
   flagged BOOST_CLASS_EXPORT_IMPLEMENT, BOOST_CLASS_EXPORT_KEY, and related
@@ -32,14 +137,313 @@ Recommended Versions:
 
 - Gemfony branding removed from file headers.
 
-- Boost.Test infrastructure fixed and modernized. The test drivers now use the
-  modern BOOST_TEST_DYN_LINK / BOOST_TEST_ALTERNATIVE_INIT_API API. A runtime
-  crash (free(): invalid size on exit) caused by simultaneously linking
-  libboost_test_exec_monitor.a and libboost_unit_test_framework.so is fixed by
-  removing test_exec_monitor from the Boost components list. The common test
-  executable was renamed from CommonStandardTests to GCommonStandardTests.
+- The common test executable was renamed from CommonStandardTests to GCommonStandardTests.
+
+- The test framework has been migrated from Boost.Test to Catch2 v3. Boost.Test
+  is no longer a build dependency. libcatch2-dev (>= 3.0) is now required when
+  building with GENEVA_BUILD_TESTS=TRUE. The header
+  include/geneva/tests/Geneva_tests.hpp is no longer part of the installed public
+  API; it remains in the source tree for internal use by Geneva's own test drivers.
+  Users writing tests against Geneva classes should use Catch2 directly.
+
+- Static linking support removed (see INCOMPATIBILITIES above). The
+  CMakeModules/CommonGenevaBuild.cmake and CMakeModules/IdentifySystemParameters.cmake
+  files (and their copies under examples/*/CMakeModules/) have been simplified
+  accordingly: the GENEVA_STATIC_FLAG_IN function parameter, the BUILD_SHARED_LIBS
+  conditional, the Boost_USE_STATIC_LIBS conditional, and the optional dl/z library
+  search on UNIX have all been removed.
+
+- CUDA build improvements:
+  - New SKIPALLCUDA / GENEVA_SKIP_CUDA option in genevaConfig.gcfg and prepareBuild.sh.
+    When set to 1, all CUDA compilation is unconditionally disabled: example 15
+    (GCUDAWorker), the CUDA benchmark (GCUDAOptBenchmark), and the optional CUDA RNG
+    in Hap are excluded from the build even if nvcc is present on the system.
+    GENEVA_USE_CUDA_RNG is force-overridden to OFF. Useful when the installed CUDA
+    is broken or incompatible (e.g. CUDA 13.1 + glibc 2.39 rsqrt/noexcept mismatch).
+  - New CUDA_NVCC / CUDA_ROOT variables in genevaConfig.gcfg and prepareBuild.sh.
+    These allow pinning a specific CUDA toolkit version when multiple toolkits are
+    installed side-by-side. CMAKE_CUDA_COMPILER is passed to CMake; CUDAToolkit_ROOT
+    is automatically derived from it so find_package(CUDAToolkit) locates the
+    matching headers and libraries.
+  - find_package(CUDAToolkit) is now called after enable_language(CUDA) in the
+    top-level CMakeLists.txt and in examples/geneva/15_GCUDAWorker/CMakeLists.txt.
+    This makes CUDA::cudart an explicit link target for GCUDAWorker, fixing an
+    "undefined reference to cudaGetDeviceProperties_v2" linker error that occurred
+    with CUDA 12+ toolkits when multiple CUDA versions are installed.
+  - NVCC diagnostic 20012 (spurious __host__/__device__ annotation warnings from
+    Boost.Fusion headers) suppressed via -diag-suppress=20012, using the same
+    $<$<COMPILE_LANGUAGE:CUDA>:...> generator expression as the existing suppressions
+    for diagnostics 68, 186, and 191 — non-CUDA translation units are unaffected.
+  - GImageBuilder.cpp: clockRate and memoryClockRate fields of cudaDeviceProp are
+    guarded with #if CUDART_VERSION < 12000 — both were removed from the struct in
+    CUDA 12.0.
 
 - Fixed compilation issues for CUDA example, related to mismatch of compiler- and CUDA-versions.
+
+- Removed GCommonMathHelperFunctions.hpp / GCommonMathHelperFunctions.cpp entirely. The ~20
+  g-prefixed math wrappers (gsqrt, gpow, gfabs, gexp, glog, gmin, gmax, gfloor, gcos, gsin, …)
+  they contained were redundant in C++20 and are now replaced with direct std:: calls at every
+  call site. The header is no longer installed. The gmix wrapper is replaced with std::lerp
+  (or its manual equivalent where nvcc is involved). The gsign wrapper, which was unused, has
+  been deleted. The gsigmoid function, which implements a rational/algebraic softsign rather
+  than a true sigmoid (f(x) = barrier·x / (steepness + |x|)), has been moved to
+  GCommonMathHelperFunctionsT.hpp as a floating-point template renamed grational_sigmoid
+  (the old name gsigmoid was misleading — this is a rational/algebraic softsign, not an
+  exponential sigmoid) with a debug-mode precondition check for steepness > 0.
+  Unit tests for grational_sigmoid are in GCommonStandardTests.
+
+- GCanvas.hpp / GCanvas.cpp cleaned up and optimised:
+  - Bug fix: dimension check in loadFromPPM() used `v[0] <= 0` on std::size_t
+    (unsigned), which is always false. Fixed to `v[0] == 0 || v[1] == 0`.
+  - Performance: diff31 / diff21 and the derived dot products (dot11, dot12,
+    dot22, denom_inv) are triangle-invariant but were being recomputed for every
+    pixel in the inner i_y loop of addTriangle(t_cart). They are now hoisted
+    before the outer i_x loop.
+  - Memory: virtual destructors removed from GRgb and GColumn (nothing inherits
+    from them; the vtable pointer cost was 8 bytes per pixel — ~3.8 MB per
+    800×600 canvas). BOOST_CLASS_EXPORT_KEY/IMPLEMENT removed from both types
+    (serialized by value, not through base-class pointers, so export is a no-op).
+  - Memory: NCOLORS and MAXCOLOR in GCanvas<> promoted from non-static instance
+    members to static constexpr, eliminating one redundant copy per canvas object.
+  - Performance: std::pow(x, 2.f) × 3 in diff() replaced with x*x.
+  - Performance: push_back loop in reset() replaced with assign().
+  - Cleanliness: duplicate standard headers removed (<cstdlib>, <vector>,
+    <algorithm> each appeared twice; <list> was unused). boost/math/constants
+    header removed; boost::math::constants::pi<float>() replaced with a local
+    constexpr float two_pi_f (std::numbers unavailable in CUDA nvcc). using
+    namespace std; removed from the
+    loadFromPPM() method body (was polluting every including translation unit);
+    all affected identifiers qualified with std::. Redundant using namespace
+    Gem::Common; directives removed from diff() and addTriangle(t_cart) (both
+    are already inside that namespace). C-style casts replaced with static_cast
+    in toPPM() and getAverageColors(). Typo "addTriangel" fixed to "addTriangle"
+    in the DEBUG error message. Dead comment "// Converts the three angles"
+    removed.
+
+- GCommonEnums.hpp / GCommonEnums.cpp cleaned up for C++20 compliance:
+  - Unused includes removed from the header (<boost/cast.hpp>, <cmath>, <cstdio>,
+    <cstdlib>); <boost/cast.hpp> moved to GCommonEnums.cpp where boost::numeric_cast
+    is used. Files that previously relied on the transitive include now include
+    <boost/cast.hpp> directly (GHapEnums.cpp, GCourtierEnums.cpp,
+    GCourtierHelperFunctions.cpp, GThreadPool.cpp).
+  - 9 namespace-scope `const` variables promoted to `constexpr` (DEFAULTBUFFERSIZE,
+    CE_DEF_SIMILARITY_DIFFERENCE, DEFAULTNBINSGPD, VAR_IS_ESSENTIAL, VAR_IS_SECONDARY,
+    CE_SILENT, CE_WITH_MESSAGES, DEFAULTNHARDWARETHREADS, DEFAULTMAXNHARDWARETHREADS).
+    CE_DEF_SIMILARITY_DIFFERENCE was also simplified from pow(10., -5) to the literal 1e-5.
+  - Dead enum value parameter_source::SIZE removed (it equalled ASSIGNMENT rather than
+    ASSIGNMENT+1, making it useless as a range sentinel; grep confirmed no usage outside
+    its own definition).
+  - Missing operator<< / operator>> for dimensions added to GCommonEnums.cpp (the
+    declarations existed in the header but the definitions were absent).
+  - Typo in serModeToString: "unkown" → "unknown"; dead break-after-return statements
+    removed.
+  - [[nodiscard]] added to serModeToString declaration.
+  - GCourtierEnums.hpp: boost::uint32_t replaced with std::uint32_t (three constants);
+    <cstdint> added; const → constexpr for the three affected constants.
+  - GMPIConsumerT.hpp: boost::uint32_t replaced with std::uint32_t; <cstdint> added.
+  - GOptimizationEnums.hpp: boost::numeric::bounds<T>::highest() / ::lowest() replaced
+    with std::numeric_limits<T>::max() (already included via <limits>); the three
+    affected constants promoted from const to constexpr.
+
+- GGlobalDefines.hpp is no longer generated from a CMake template at build time.
+  The file GGlobalDefines.hpp.in has been deleted; GGlobalDefines.hpp is now a
+  regular, manually maintained header checked directly into the repository.
+  The two macros it defines (GENEVA_VERSION and MIN_BOOST_VERSION) carry inline
+  comments explaining their encoding and pointing to the authoritative locations
+  (VERSION_MAJOR/MINOR/PATCH in CMakeLists.txt and GENEVA_MIN_BOOST_VERSION in
+  CMakeModules/CommonGenevaBuild.cmake). CMakeLists.txt likewise points back to
+  GGlobalDefines.hpp for the required manual update. The CONFIGURE_FILE call and
+  the associated string-manipulation logic have been removed from
+  include/common/CMakeLists.txt.
+
+- GBarrier.hpp removed. The single usage site (GBufferPortTTest.cpp) has been
+  updated to use std::latch (C++20, <latch>) instead. std::latch::arrive_and_wait()
+  replaces GBarrier::wait() directly; std::latch is the appropriate type here
+  since the barrier was used as a one-shot "starting gun" (each thread calls it
+  exactly once). For reusable cross-generation barriers, std::barrier would be
+  the equivalent C++20 standard type.
+
+- Several concurrency and logic bugs fixed across the Common, Hap, Courtier, Geneva,
+  and Geneva-Individuals libraries (identified by manual code review):
+  - GGlobalOptionsT::remove(): two bugs corrected simultaneously — the key parameter
+    was commented out and never used, and the iterator was set to kvp_.end() instead
+    of kvp_.find(key), so the function never deleted anything and always returned false.
+  - GGlobalOptionsT::getContentVector(): parameter changed from by-value to by-reference;
+    the old by-value signature silently discarded all push_back results, leaving the
+    caller's vector always unchanged.
+  - GBoundedBufferT::try_pop_copy() / try_pop_move(): both functions notified not_empty_
+    after removing an element instead of not_full_, permanently blocking producers
+    waiting for space under high load when only the non-blocking pop variants were used.
+  - GThreadGroup::clearThreads(): missing mutex guard added; all other methods of the
+    class already held the mutex before accessing the thread container.
+  - GCUDARng (CUDA path): rewritten with persistent curandState allocation and proper
+    non-deterministic seeding via GRandomFactory::getSeed(). The previous implementation
+    re-allocated and re-initialized states on every batch using a hard-coded seed of 1234,
+    causing every batch to produce the identical sequence.
+  - GCUDARng::stop_ changed from plain bool to std::atomic<bool> to make the
+    multi-threaded access safe by type.
+  - baseScanParT copy constructor: nSteps_(cp.step_) corrected to nSteps_(cp.nSteps_).
+    The copy-paste error caused copied scan objects to have a wrong step count,
+    making the parameter scan terminate after the first step (when step_==0 at copy time).
+  - GSimulatedAnnealing::setTDegradationStrength(): validation widened from alpha > 0
+    to alpha in (0, 1). Values >= 1 produce a non-convergent SA (temperature constant
+    or rising). A temperature floor of std::numeric_limits<double>::min() is now applied
+    in updateTemperature() to prevent division by zero / NaN propagation in saProb().
+  - GSwarmAlgorithm::pruneVelocity(): the guard checking dbl_vel_max_cnt_[i] > 0 was
+    inside #ifdef DEBUG; moved outside so Release builds also catch a zero velocity-max
+    (which caused silent division by zero, collapsing all velocities to zero).
+  - GBrokerT::finalize(): the consumer shutdown loop now runs inside the
+    consumerEnrolmentMutex lock, eliminating a data race with concurrent
+    enrol_consumer() calls that could push_back to the same vector simultaneously.
+  - GBrokerT::enrol_consumer() / enrol_consumer_vec(): the consumersPresent_ check
+    was moved inside the lock to eliminate a TOCTOU race that allowed two concurrent
+    callers to both pass the check and each register a consumer.
+  - GBrokerT::enrol_buffer_port(): a stray std::cout replaced with glogger.
+  - GSerialConsumerT::setup(): enrol_consumer_vec() corrected to enrol_consumer()
+    (enrol_consumer_vec expects a std::vector, not a single shared_ptr; the template
+    instantiation error was latent and would only appear when setup() was actually called).
+  - GSerialConsumerT::shutdown_(): processingThread_.join() is now guarded with
+    joinable(), preventing std::system_error when shutdown is called before
+    async_startProcessing_() was ever invoked.
+  - GExternalEvaluatorIndividual::fitnessCalculation(): a RAII TempFileGuard was added
+    directly after the three IPC file names are computed, ensuring the files are cleaned
+    up (respecting the remove_exec_temporaries_ flag) even when an exception is thrown
+    before reaching the end of the function. std::filesystem::remove is a no-op for
+    non-existent files, so the guard is safe for result files that the external program
+    never created.
+  - GExternalEvaluatorIndividual: three setXxxRange() error messages (setDeltaRange,
+    setSigma1Range, setSigma2Range) printed the value of max instead of min when
+    reporting that min was negative.
+  - GNeuralNetworkIndividual::trainingSet::compare(): the Output[] loop used nInputNodes
+    as its bound instead of nOutputNodes, causing out-of-bounds reads (UB) whenever the
+    two counts differ.
+
+- Obsolete Boost version guards removed. Geneva requires Boost 1.90+, making all
+  #if BOOST_VERSION < X conditionals for Boost releases prior to 1.90 dead code:
+  - GPODVectorT.hpp, GPtrVectorT.hpp: Boost 1.58 serialization workaround
+    (data.clear() on load) removed.
+  - GWebsocketConsumerT.hpp: ws_.write_buffer_size() fallback for Boost < 1.70 removed;
+    ws_.write_buffer_bytes() is now unconditional.
+  - GExternalEvaluatorIndividual.cpp: xml_writer_settings<char> fallback for
+    Boost <= 1.55 removed; xml_writer_settings<std::string> is now unconditional.
+  - GGlobalDefines.hpp: NOMINMAX / WIN32_LEAN_AND_MEAN workaround for a Boost 1.70
+    Beast bug on Windows removed.
+
+- Multi-mutex locking modernized. Three sites that used the verbose
+  unique_lock + std::defer_lock + std::lock() pattern have been replaced with
+  std::scoped_lock, which provides identical deadlock-avoidance semantics with
+  less boilerplate: GBrokerT::finalize() (three mutexes), GBrokerT::enrol_buffer_port()
+  (two mutexes), GThreadPool::setNThreads() (two mutexes). Sites that explicitly
+  unlock before a condition_variable notify_all() (enrol_consumer, enrol_consumer_vec)
+  retain unique_lock as scoped_lock has no unlock() method.
+
+- GCommonHelperFunctionsT.hpp overhauled: 12 unused or dead functions removed
+  (copySmartPointer, copySmartPointerVector, convertSimplePointer — which also
+  contained a latent dynamic_cast bug — g_ptr_conversion, assert_sizes_match_container,
+  assert_container_sizes_match, erase_according_to_flags,
+  forcedSubmissionToBoostLockfree, timedSubmissionToBoostLockfree,
+  forcedRetrievalFromBoostLockfree, timedRetrievalFromBoostLockfree, vector_as_string),
+  along with the two Boost.Lockfree includes they required. Remaining changes:
+  boost::optional replaced with std::optional in environmentVariableAs;
+  g_make_unique replaced with std::make_unique at its sole call site and deleted;
+  Gem::Common::erase_if replaced with std::erase_if in pure-C++ translation units
+  (the local implementation is retained for CUDA-visible headers where nvcc lacks
+  this C++20 addition). Style updated throughout: range-based for loops, auto
+  iterator types, std::make_shared, shorter error messages.
+
+- GCommonMathHelperFunctionsT.hpp overhauled:
+  * GVecStandardDeviation removed (unused).
+  * Unused named boolean constants GWARNINGONLY, GERRORONLY, GFWARNONLY,
+    GINTLOWERCLOSED, GINTLOWEROPEN, GINTUPPERCLOSED, and GINTUPPEROPEN removed.
+  * PowSmallPosInt<B,E> struct replaced with a constexpr function template of the
+    same name (call sites updated: PowSmallPosInt<B,E>::result → PowSmallPosInt<B,E>()).
+    Compatible with nvcc (uses if constexpr, not consteval).
+  * getMinMax(1D) rewritten using std::minmax_element; 4D overload docstring
+    corrected ("3d" → "4d").
+  * GMean: iterator loop replaced with range-based for; boost::numeric_cast
+    replaced with static_cast.
+  * GStandardDeviation: redundant empty-check removed (GMean already guards it);
+    iterator loop replaced with range-based for; std::sqrt used explicitly;
+    GSQUARED macro replaced with d*d.
+  * subtractVec / addVec: iterator loops replaced with std::transform; stale
+    "Subtract" comment in addVec corrected.
+  * multVecConst: iterator loop replaced with range-based for.
+  * assignVecConst: iterator loop replaced with std::fill.
+  * sumTupleVec: iterator loop replaced with range-based for; double semicolon fixed.
+  * squareSumTupleVec: iterator loop replaced with range-based for;
+    std::pow(x, 2.) replaced with x*x.
+  * productSumTupleVec: iterator loop replaced with range-based for.
+  * squareDeviation: iterator loop replaced with range-based for; std::pow(d, 2.)
+    replaced with d*d.
+  * getRegressionParameters: repeated std::pow(sum_x, 2.) calls replaced with a
+    shared denom variable (sum_x*sum_x).
+  * getRatioError: typo "ne" → "be" in comment; std::pow(x, 2.) replaced with
+    explicit intermediate variables.
+  * getRatioErrors: iterator loop replaced with index-based for; reserve() added.
+
+- GCommonInterfaceT<g_class_type> overhauled for C++20 compliance and correctness:
+  - Exception safety: fromStream() now wraps the raw pointer returned by
+    Boost.Serialization in a std::unique_ptr before calling load_(), ensuring the
+    allocated object is destroyed if load_() throws.  g_delete() is no longer called
+    at the call site.  The same fix was applied to the only other raw-pointer
+    Boost.Serialization pattern in the codebase (networkData::loadFromDisk()).
+  - #include <sstream> added (std::ostringstream / std::istringstream were used
+    without it; the include was previously satisfied transitively).
+  - SFINAE enable_if constraints on clone<T>(), load(shared_ptr), and load(ref)
+    replaced with C++20 requires-clauses (requires std::is_base_of_v<…>).
+  - Small scalar parameters (serializationMode, expectation, double limit) are now
+    passed by value instead of const-reference in toStream(), fromStream(),
+    toString(), fromString(), toFile(), fromFile(), compare(), and compare_().
+  - Redundant std::ofstream::close() / std::ifstream::close() calls removed from
+    toFile() and fromFile() (the streams close automatically on scope exit).
+  - Redundant std::filesystem::path(p) wrapping removed from fromFile() (p is
+    already a path).
+  - Debug check in toFile() changed from post-close std::filesystem::exists() to
+    ofstr.good() checked while the stream is still open — the old check could not
+    reliably detect write errors.
+  - G_API_GENEVA on the three unit-test virtual methods (modify_GUnitTests_(),
+    specificTestsNoFailureExpected_GUnitTests_(), specificTestsFailuresExpected_
+    GUnitTests_()) corrected to G_API_COMMON (the methods are declared in the
+    Common library, not the Geneva library).
+
+- The vestigial BASE macro (#define BASE, which expanded to nothing) has been
+  removed from GGlobalDefines.hpp and all 40 files that used it across the common,
+  courtier, and geneva libraries.  The macro was a pre-C++11 documentation
+  convention indicating the first pure-virtual declaration of a method; it has been
+  superseded by override and final keywords and carried no semantic value.
+
+- prepareBuild.sh: new -y / --yes flag skips the interactive "Proceed? [y/N]"
+  confirmation that --clean (and reconfiguring an already-configured directory)
+  would otherwise require. Intended for use in scripts and CI pipelines where no
+  terminal is available. The flag is accepted both as -y and --yes; it affects all
+  code paths that call _confirm_and_clean.
+
+- clang-tidy code-quality pass across the entire codebase (~256 files). Fixes
+  cover priorities 1–3 of the project's clang-tidy configuration: modernise-use-
+  override, performance-unnecessary-copy-initialization, readability-qualified-auto,
+  cppcoreguidelines-pro-type-member-init, and related categories. No functional
+  changes; all fixes are mechanical correctness and readability improvements that
+  leave the public API unchanged.
+
+- clang-format normalization across all 325 .cpp/.hpp files. The entire source tree
+  now conforms to the project's .clang-format configuration. One substantive fix
+  included: a missing <boost/numeric/conversion/bounds.hpp> include in
+  GConstrainedValueLimitT.hpp that had been satisfied transitively was made direct.
+
+- GCUDARng bug fix: the CUDA-based random number generator (GCudaRNG, available
+  when USECUDARNG is enabled) previously re-initialized its cuRAND PRNG state on
+  every batch with a hardcoded seed (1234), causing every batch to produce the same
+  sequence of random numbers. The fix allocates curandState on the GPU once at
+  construction time, seeds it from GRandomFactory::getSeed() (the same source used
+  by the CPU-based RNG path), and advances the persistent state on each batch call
+  via curand() without re-initialization. A dedicated cudaStream_t is now used for
+  all RNG kernel launches and transfers so that the RNG producer thread does not
+  compete with fitness-evaluation kernels on the default stream.
+
+- GGlobalOptionsT / GTupleIO: missing direct includes added. GGlobalOptionsT.hpp
+  now includes <string> and <vector> directly; GTupleIO.hpp includes <sstream>
+  directly. Both headers had been relying on transitive includes from other Geneva
+  headers, which caused compilation failures when they were included in isolation.
 
 //------------------------------------------------------------------------------------------------------
 * Version 1.11, "Hendaye" - March 16, 2026

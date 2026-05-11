@@ -28,10 +28,8 @@
 ################################################################################
 
 SET ( COMMONSOURCES
-	GCanvas.cpp
     GCommonEnums.cpp
     GCommonHelperFunctions.cpp
-    GCommonMathHelperFunctions.cpp
     GExceptions.cpp
 	GExpectationChecksT.cpp
 	GFormulaParserT.cpp
@@ -50,12 +48,7 @@ set_source_files_properties(
     CXX_STANDARD 20
 )
 
-# BUILD_SHARED_LIBS controls the behavior of ADD_LIBRARY if STATIC/SHARED omitted
-IF ( GENEVA_STATIC )
-	ADD_LIBRARY ( ${COMMON_LIBNAME} STATIC ${COMMONSOURCES} )
-ELSE ()
-	ADD_LIBRARY ( ${COMMON_LIBNAME} SHARED ${COMMONSOURCES} )
-ENDIF ()
+ADD_LIBRARY ( ${COMMON_LIBNAME} SHARED ${COMMONSOURCES} )
 
 SET_TARGET_PROPERTIES(
     ${COMMON_LIBNAME}
@@ -64,17 +57,7 @@ SET_TARGET_PROPERTIES(
 	CXX_STANDARD 20
 	CXX_STANDARD_REQUIRED ON
 	CXX_EXTENSIONS OFF
-    MACOSX_RPATH ${INSTALL_PREFIX_LIBS}
 )
 
-# Enable API-exporting for this library
-ADD_DEFINITIONS("-DGEM_COMMON_EXPORTS")
-
-IF ( PLATFORM_NEEDS_LIBRARY_LINKING )
-	TARGET_LINK_LIBRARIES(
-		${COMMON_LIBNAME}
-		${Boost_LIBRARIES}
-	)
-ENDIF ()
 
 INSTALL ( TARGETS ${COMMON_LIBNAME} DESTINATION ${INSTALL_PREFIX_LIBS} )

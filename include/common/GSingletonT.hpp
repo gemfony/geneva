@@ -50,12 +50,9 @@
 
 // Boost headers go here
 
-#include <boost/utility.hpp>
-
 // Geneva headers go here
 
-namespace Gem {
-namespace Common {
+namespace Gem::Common {
 
 /******************************************************************************/
 /**
@@ -65,9 +62,9 @@ namespace Common {
  *
  * @return A std::shared_ptr to a newly created T object
  */
-template<typename T>
+template <typename T>
 typename std::shared_ptr<T> TFactory_GSingletonT() {
-	return std::shared_ptr<T>(new T());
+    return std::make_shared<T>();
 }
 
 /******************************************************************************/
@@ -77,29 +74,26 @@ typename std::shared_ptr<T> TFactory_GSingletonT() {
  * T, so that it only gets destroyed once it is no longer needed. Note that
  * the static shared_ptr may long have vanished at that time.
  */
-template<typename T>
-class GSingletonT
-	: boost::noncopyable
-{
+template <typename T>
+class GSingletonT {
 public:
-	/***************************************************************************/
-	// Deleted constructors, destructor and assignment operators. This class is
-	// not meant to be instantible.
-	GSingletonT() = delete;
-	GSingletonT(GSingletonT<T> const&) = delete;
-	GSingletonT(GSingletonT<T> &&) = delete;
-	~GSingletonT() = delete;
+    /***************************************************************************/
+    // Deleted constructors, destructor and assignment operators. This class is
+    // not meant to be instantible.
+    GSingletonT() = delete;
+    GSingletonT(GSingletonT<T> const &) = delete;
+    GSingletonT(GSingletonT<T> &&) = delete;
+    ~GSingletonT() = delete;
 
-	GSingletonT<T> & operator=(GSingletonT<T> const&) = delete;
-	GSingletonT<T> & operator=(GSingletonT<T> &&) = delete;
+    GSingletonT<T> &operator=(GSingletonT<T> const &) = delete;
+    GSingletonT<T> &operator=(GSingletonT<T> &&) = delete;
 
-	/***************************************************************************/
+    /***************************************************************************/
 
+    using STYPE = T;
 
-	using STYPE = T;
-
-	 /***************************************************************************/
-	 /**
+    /***************************************************************************/
+    /**
 	  * If called for the first time, the function creates a std::shared_ptr
 	  * of T and returns it to the caller. Subsequent calls to this function
 	  * will return the stored copy of the shared_ptr. Other classes can store
@@ -107,35 +101,35 @@ public:
 	  *
 	  * @param mode Determines the mode in which this function is called
 	  */
-	 static std::shared_ptr<T> Instance(const std::size_t &mode) {
-		 static std::shared_ptr<T> p;
-		 static std::mutex creation_mutex;
+    static std::shared_ptr<T> Instance(const std::size_t &mode) {
+        static std::shared_ptr<T> p;
+        static std::mutex creation_mutex;
 
-		 switch (mode) {
-			 case 0:
-				 // Several callers can reach the next line simultaneously. Hence, if
-				 // p is empty, we need to ask again if it is empty after we have acquired the lock
-				 if (not p) {
-					 // Prevent concurrent "first" access
-					 std::unique_lock<std::mutex> lk(creation_mutex);
-					 if (not p) p = Gem::Common::TFactory_GSingletonT<T>();
-				 }
+        switch(mode) {
+        case 0:
+            // Several callers can reach the next line simultaneously. Hence, if
+            // p is empty, we need to ask again if it is empty after we have acquired the lock
+            if(not p) {
+                // Prevent concurrent "first" access
+                std::unique_lock<std::mutex> lk(creation_mutex);
+                if(not p)
+                    p = Gem::Common::TFactory_GSingletonT<T>();
+            }
 
-				 return p;
-				 break;
+            return p;
+            break;
 
-			 case 1:
-				 p.reset();
-				 break;
-		 }
+        case 1:
+            p.reset();
+            break;
+        }
 
-		 return std::shared_ptr<T>(); // Make the compiler happy
-	 }
+        return std::shared_ptr<T>(); // Make the compiler happy
+    }
 
-	 /***************************************************************************/
+    /***************************************************************************/
 };
 
 /******************************************************************************/
 
-} /* namespace Common */
-} /* namespace Gem */
+} /* namespace Gem::Common */

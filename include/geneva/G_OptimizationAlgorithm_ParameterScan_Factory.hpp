@@ -39,14 +39,13 @@
 
 // Geneva headers go here
 #include "courtier/GCourtierEnums.hpp"
-#include "geneva/G_OptimizationAlgorithm_FactoryT.hpp"
-#include "geneva/G_OptimizationAlgorithm_Base.hpp"
 #include "geneva/GParameterSet.hpp"
-#include "geneva/G_OptimizationAlgorithm_ParameterScan.hpp"
+#include "geneva/G_OptimizationAlgorithm_Base.hpp"
+#include "geneva/G_OptimizationAlgorithm_FactoryT.hpp"
 #include "geneva/G_OptimizationAlgorithm_InitializerT.hpp"
+#include "geneva/G_OptimizationAlgorithm_ParameterScan.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -55,61 +54,56 @@ namespace Geneva {
  * This class is a specialization of the GFactoryT<> class for simulated annealing.
  * It will only return objects which perform all evaluation through the broker.
  */
-class GParameterScanFactory
-	: public G_OptimizationAlgorithm_FactoryT<G_OptimizationAlgorithm_Base>
-{
+class GParameterScanFactory // NOLINT(cppcoreguidelines-special-member-functions)
+  : public G_OptimizationAlgorithm_FactoryT<G_OptimizationAlgorithm_Base> {
 public:
-	 /** @brief The default constructor */
-	 G_API_GENEVA GParameterScanFactory();
-	 /** @brief Initialization with the name of the config file */
-	 explicit G_API_GENEVA GParameterScanFactory(std::filesystem::path const&);
-	 /** @brief Initialization with the name of the config file and a content creator */
-	 G_API_GENEVA GParameterScanFactory(
-		 std::filesystem::path const&
-		 , std::shared_ptr<Gem::Common::GFactoryT<GParameterSet>>
-	 );
-	 /** @brief The copy constructor */
-	 G_API_GENEVA GParameterScanFactory(const GParameterScanFactory&) = default;
-	 /** @brief The destructor */
-	 virtual G_API_GENEVA ~GParameterScanFactory() = default;
+    /** @brief The default constructor */
+    GParameterScanFactory();
+    /** @brief Initialization with the name of the config file */
+    explicit GParameterScanFactory(std::filesystem::path const &);
+    /** @brief Initialization with the name of the config file and a content creator */
+    GParameterScanFactory(
+        std::filesystem::path const &,
+        std::shared_ptr<Gem::Common::GFactoryT<GParameterSet>>
+    );
+    /** @brief The copy constructor */
+    GParameterScanFactory(const GParameterScanFactory &) = default;
+    /** @brief The destructor */
+    virtual ~GParameterScanFactory() = default;
 
-	 /** @brief Gives access to the mnemonics / nickname describing an algorithm */
-	 G_API_GENEVA std::string getMnemonic() const override;
-	 /** @brief Gives access to a clear-text description of the algorithm */
-	 G_API_GENEVA std::string getAlgorithmName() const override;
+    /** @brief Gives access to the mnemonics / nickname describing an algorithm */
+    std::string getMnemonic() const override;
+    /** @brief Gives access to a clear-text description of the algorithm */
+    std::string getAlgorithmName() const override;
 
-	 /** @brief Adds local command line options to boost::program_options::options_description objects */
-	 G_API_GENEVA void addCLOptions(
-		 boost::program_options::options_description&
-		 , boost::program_options::options_description&
-	 ) override;
+    /** @brief Adds local command line options to boost::program_options::options_description objects */
+    void addCLOptions(
+        boost::program_options::options_description &,
+        boost::program_options::options_description &
+    ) override;
 
-	 /** @brief Allows to specify the command line parameter manually for variables to be scanned */
-	 G_API_GENEVA void setCLParameterSpecs(std::string parStr);
-	 /** @brief Allows to retrieve the command line parameter settings for variables to be scanned */
-	 G_API_GENEVA std::string getCLParameterSpecs() const;
-	 /** @brief Allows to reset the command line parameter specs */
-	 G_API_GENEVA void resetCLParameterSpecs();
+    /** @brief Allows to specify the command line parameter manually for variables to be scanned */
+    void setCLParameterSpecs(std::string parStr);
+    /** @brief Allows to retrieve the command line parameter settings for variables to be scanned */
+    std::string getCLParameterSpecs() const;
+    /** @brief Allows to reset the command line parameter specs */
+    void resetCLParameterSpecs();
 
 protected:
-	 /** @brief Allows to act on the configuration options received from the configuration file */
-	 G_API_GENEVA void postProcess_(std::shared_ptr<G_OptimizationAlgorithm_Base>&) override;
+    /** @brief Allows to act on the configuration options received from the configuration file */
+    void postProcess_(std::shared_ptr<G_OptimizationAlgorithm_Base> &) override;
 
 private:
-	 /** @brief Creates individuals of this type */
-	 G_API_GENEVA std::shared_ptr<G_OptimizationAlgorithm_Base> getObject_(
-		Gem::Common::GParserBuilder&
-		, const std::size_t&
-	 ) override;
+    /** @brief Creates individuals of this type */
+    std::shared_ptr<G_OptimizationAlgorithm_Base>
+    getObject_(Gem::Common::GParserBuilder &, const std::size_t &) override;
 
-	 /** @brief Holds information on the variables to be optimized -- set through the corresponding member function or on the command line */
-	 std::string m_parameterSpecCL = "empty";
+    /** @brief Holds information on the variables to be optimized -- set through the corresponding member function or on the command line */
+    std::string parameterSpecCL_ = "empty";
 };
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
-
+} /* namespace Gem::Geneva */

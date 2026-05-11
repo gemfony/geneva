@@ -45,30 +45,26 @@
 
 // Standard headers go here
 #include <iostream>
+#include <sstream>
 #include <string>
 #include <tuple>
 #include <type_traits>
 
-// Boost heders go here
-#include <boost/tuple/tuple.hpp>
-
 // Gemfony headers go here
 
-namespace Gem {
-namespace Common {
+namespace Gem::Common {
 
 /******************************************************************************/
 // This set of functions allows to output tuples of any size, starting at 0.
-// Boost boost::tuple and std::tuple are supported.
 
 /******************************************************************************/
 /**
  * Defines a sequence. Its only purpose is to serve as a stop criterion, so that
  * when tuple_output_seq<1> is reached, recursion stops.
  */
-template<std::size_t>
-struct tuple_output_seq
-{ /* nothing */ };
+template <std::size_t>
+struct tuple_output_seq { /* nothing */
+};
 
 /******************************************************************************/
 /**
@@ -77,13 +73,13 @@ struct tuple_output_seq
  */
 template <class tuple_type, size_t p>
 std::string g_to_string(
-	const tuple_type& t
-	, const std::string& s
-	, tuple_output_seq<p> sq// This will determine the current value of p
-){
-	std::ostringstream oss;
-	oss << ", " << std::get<std::tuple_size<tuple_type>::value-p>(t);
-	return (g_to_string(t, oss.str(), tuple_output_seq<p-1>()) + s);
+    const tuple_type &t,
+    const std::string &s,
+    tuple_output_seq<p> /*sq*/
+) {
+    std::ostringstream oss; // NOLINT(cppcoreguidelines-init-variables)
+    oss << ", " << std::get<std::tuple_size<tuple_type>::value - p>(t);
+    return (g_to_string(t, oss.str(), tuple_output_seq<p - 1>()) + s);
 }
 
 /******************************************************************************/
@@ -93,13 +89,13 @@ std::string g_to_string(
  */
 template <class tuple_type>
 std::string g_to_string(
-	const tuple_type& t
-	, const std::string& s
-	, tuple_output_seq<1> sq
-){
-	std::ostringstream oss;
-	oss << std::get<0>(t);
-  	return oss.str() + s;
+    const tuple_type &t,
+    const std::string &s,
+    tuple_output_seq<1> /*sq*/
+) {
+    std::ostringstream oss; // NOLINT(cppcoreguidelines-init-variables)
+    oss << std::get<0>(t);
+    return oss.str() + s;
 }
 
 /******************************************************************************/
@@ -109,53 +105,33 @@ std::string g_to_string(
  */
 template <class tuple_type>
 std::string g_to_string(
-	const tuple_type& t
-	, const std::string& s
-	, tuple_output_seq<0> sq
+    const tuple_type & /*t*/
+    ,
+    const std::string &s,
+    tuple_output_seq<0> /*sq*/
 ) {
-	return std::string() + s;
+    return std::string() + s;
 }
 
 /******************************************************************************/
 /**
- * The actual output function for std::tuple. This implementation uses
- * information taken from http://www.cplusplus.com/articles/EhvU7k9E/ to determine
- * the size of the tuple. It relies on the services of a "g_to_string" function defined
- * for std::tuple and boost::tuple above.
+ * Output function for std::tuple.
  */
 template <class... args>
-std::string g_to_string(
-	const std::tuple<args...>& t
-){
-	static const unsigned short int sz = sizeof...(args); // The actual tuple size
-	std::string empty;
-	return std::string("(") + g_to_string(t, empty, tuple_output_seq<sz>()) + std::string(")");
-}
-
-/******************************************************************************/
-/**
- * The actual output function for boost::tuple. This implementation uses
- * information taken from http://www.cplusplus.com/articles/EhvU7k9E/ to determine
- * the size of the tuple. It relies on the services of a "g_to_string" function defined
- * for std::tuple and boost::tuple above.
- */
-template <class... args>
-std::string g_to_string(
-	const boost::tuple<args...>& t
-){
-	static const unsigned short int sz = sizeof...(args); // The actual tuple size
-	std::string empty;
-	return std::string("(") + g_to_string(t, empty, tuple_output_seq<sz>()) + std::string(")");
+std::string g_to_string(const std::tuple<args...> &t) {
+    static const unsigned short int sz = sizeof...(args); // The actual tuple size
+    std::string empty; // NOLINT(cppcoreguidelines-init-variables)
+    return std::string("(") + g_to_string(t, empty, tuple_output_seq<sz>()) + std::string(")");
 }
 /******************************************************************************/
 /**
  * Output for all other streamable types
  */
 template <typename T>
-std::string g_to_string(const T& t){
-	std::ostringstream oss;
-	oss << t;
-	return oss.str();
+std::string g_to_string(const T &t) {
+    std::ostringstream oss; // NOLINT(cppcoreguidelines-init-variables)
+    oss << t;
+    return oss.str();
 }
 
 /******************************************************************************/
@@ -163,28 +139,11 @@ std::string g_to_string(const T& t){
  * Streaming operator for std::tuple
  */
 template <class... args>
-std::ostream& operator<<(
-	std::ostream& o
-	, const std::tuple<args...>& t
-) {
-	o << g_to_string(t);
-	return o;
-}
-
-/******************************************************************************/
-/**
- * Streaming operator for boost::tuple
- */
-template <class... args>
-std::ostream& operator<<(
-	std::ostream& o
-	, const boost::tuple<args...>& t
-) {
-	o << g_to_string(t);
-	return o;
+std::ostream &operator<<(std::ostream &o, const std::tuple<args...> &t) {
+    o << g_to_string(t);
+    return o;
 }
 
 /******************************************************************************/
 
-} /* namespace Common */
-} /* namespace Gem */
+} /* namespace Gem::Common */

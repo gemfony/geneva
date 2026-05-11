@@ -42,9 +42,9 @@ IF (NOT GENEVA_FULL_TREE_BUILD)
 
 ENDIF ()
 
+ADD_SUBDIRECTORY ( UnitTests )
+
 ADD_CUSTOM_TARGET( "tests-courtier"
-	DEPENDS #"tests-courtier-unit"
+	DEPENDS "tests-courtier-unit"
 	COMMENT "Building all the tests for the Courtier library."
 )
-
-#ADD_SUBDIRECTORY ( UnitTests )

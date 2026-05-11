@@ -77,9 +77,6 @@ BUILDEXAMPLES="1"
 # Whether to build Geneva with benchmarks
 BUILDBENCHMARKS="1"
 
-# Whether to build static code / libraries (experimental!)
-BUILDSTATIC="0"
-
 # Whether compilation information should be emitted
 VERBOSEMAKEFILE="0"
 
@@ -92,10 +89,40 @@ LINKEREXTRAFLAGS=""
 # Whether to build MPI consumer
 BUILDMPICONSUMER="1"
 
-# Whether to build CUDA examples. Note that this is an experimental feature
-BUILDCUDAEXAMPLES="0"
+# Set to 1 to skip all CUDA compilation entirely — no CUDA examples, no CUDA
+# benchmark, and no CUDA RNG in Hap — even if nvcc is present on the system.
+# All other CUDA settings (CUDA_NVCC, CUDA_ROOT, USECUDARNG) are ignored when
+# this is 1.  Useful when the system CUDA is broken or incompatible.
+SKIPALLCUDA="0"
 
-# Whether to add CUDA-generated random numbers to Hap
+# CUDA toolkit selection.
+#
+# Leave both variables empty (the default) to let CMake auto-detect any
+# installed CUDA.  Set CUDA_NVCC when you have multiple toolkits installed
+# (e.g. 12.4 and 13.1) and want to pin a specific one.  CUDAToolkit_ROOT is
+# derived automatically from CUDA_NVCC if left empty, so you usually only
+# need to set the one path.
+#
+# Example — select CUDA 13.1 alongside a system CUDA 12.4:
+#   CUDA_NVCC="/usr/local/cuda-13.1/bin/nvcc"
+#   CUDA_ROOT="/usr/local/cuda-13.1"   # optional; derived from CUDA_NVCC if omitted
+#
+# Ubuntu 24.04 + CUDA 13.1 known issue: check_language(CUDA) fails because
+# glibc 2.39 re-declares rsqrt with noexcept(true) (__THROW) after CUDA's
+# crt/math_functions.h declared it without — cudafe++ treats this as a hard
+# error.  There is no cmake/nvcc flag workaround: --diag-suppress has no
+# matching diagnostic number, and -D__THROW= is overridden by <sys/cdefs.h>
+# which redefines __THROW unconditionally (no #ifndef guard).
+# Real fixes: (a) use the apt CUDA 12.4 at /usr/bin/nvcc instead, or
+# (b) patch crt/math_functions.h to add noexcept to rsqrt/rsqrtf — see below.
+CUDA_NVCC=""
+CUDA_ROOT=""
+
+# Whether to add CUDA-generated random numbers to Hap.
+# Note: enabling this makes the Hap library depend on the CUDA runtime, so
+# programs linked with Geneva become less portable (CUDA toolkit required).
+# CUDA examples and benchmarks are built automatically when nvcc is found,
+# independently of this setting.
 USECUDARNG="0"
 
 # Further CMake parameters you might want to provide; these
@@ -111,8 +138,6 @@ CXXEXTRAFLAGS=""
 # "Specialist flags" available to fine-tune the behaviour of the Geneva library collection.
 # Add to CXXEXTRAFLAGS in order to activate.
 #
-# -DGENEVA_COMMON_BOUNDED_BUFFER_USE_NOTIFY_ALL :
-# Use notify_all instead of "notify_one" for condition variable in GBoundedBufferT
 # -DGENEVA_HAP_RANDOM_FACTORY_DEFAULT_ARRAY_SIZE <unsigned integer>:
 # The size of a single buffer produced by the random factory
 # -DGENEVA_HAP_RANDOM_FACTORY_DEFAULT_BUFFER_SIZE <unsigned integer>:

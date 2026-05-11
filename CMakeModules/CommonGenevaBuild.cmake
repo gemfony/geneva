@@ -52,10 +52,6 @@ IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
 		SET( GENEVA_BUILD_TESTS TRUE )
 	ENDIF()
 
-	IF( NOT DEFINED GENEVA_STATIC )
-		SET( GENEVA_STATIC FALSE )
-	ENDIF()
-
 	IF( NOT DEFINED CMAKE_VERBOSE_MAKEFILE )
 		SET( CMAKE_VERBOSE_MAKEFILE FALSE )
 	ENDIF()
@@ -86,7 +82,6 @@ IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
 			${GENEVA_OS_NAME}
 			${GENEVA_OS_VERSION}
 			${GENEVA_BUILD_TYPE}
-			${GENEVA_STATIC}
 	)
 
 	################################################################################
@@ -108,14 +103,12 @@ IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
 			${GENEVA_OS_NAME}
 			${GENEVA_OS_VERSION}
 			${GENEVA_BUILD_TYPE}
-			${GENEVA_STATIC}
 	)
 
 	SET_LINKER_FLAGS (
 			${GENEVA_OS_NAME}
 			${GENEVA_OS_VERSION}
 			${GENEVA_BUILD_TYPE}
-			${GENEVA_STATIC}
 	)
 
 	################################################################################
@@ -125,21 +118,11 @@ IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
 			${GENEVA_OS_NAME}
 			${GENEVA_OS_VERSION}
 			${GENEVA_BUILD_TYPE}
-			${GENEVA_STATIC}
 			"PLATFORM_NEEDS_LIBRARY_LINKING"
 	)
 
 	################################################################################
-	# Set the build mode static or dynamic
-
-	IF ( GENEVA_STATIC )
-		SET (BUILD_SHARED_LIBS OFF)
-	ELSE () # dynamic libraries
-		SET (BUILD_SHARED_LIBS ON)
-		# This preprocessor definition is required for knowing
-		# if API-exporting is needed in the code or not
-		ADD_DEFINITIONS("-DGEM_DYNAMIC")
-	ENDIF ()
+	# Geneva only supports shared libraries
 
 	################################################################################
 	# Set the preprocessor definition for enabling testing code
@@ -157,25 +140,7 @@ IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
 			"1.90"
 	)
 
-	IF ( GENEVA_STATIC )
-		SET (Boost_USE_STATIC_LIBS ON)
-	ELSE () # Dynamic libraries
-		SET (Boost_USE_STATIC_LIBS OFF)
-		IF(WIN32)
-			# Disable auto-linking
-			ADD_DEFINITIONS("-DBOOST_ALL_DYN_LINK")
-
-			# Boost::test_exec_monitor cannot be built as shared libraries,
-			# which leads to problems with FindBoost under Windows when trying
-			# to build the other libraries as dynamic. That case is unsupported.
-			IF (GENEVA_BUILD_TESTS)
-				MESSAGE (FATAL_ERROR "Building shared libraries with testing"
-						" code under Windows is currently not suported."
-						" Please set GENEVA_STATIC=TRUE or GENEVA_BUILD_TESTS=FALSE.")
-			ENDIF ()
-
-		ENDIF()
-	ENDIF ()
+	SET (Boost_USE_STATIC_LIBS OFF)
 
 	# The minimum Boost version required for building Geneva and Geneva applications
 	SET (GENEVA_MIN_BOOST_VERSION 1.90)
@@ -189,24 +154,6 @@ IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
 			serialization
 			program_options
 	)
-
-	IF(WIN32)
-		# Boost.Thread requires Boost.Chrono, required for linking in Windows
-		SET (
-				GENEVA_BOOST_LIBS
-				${GENEVA_BOOST_LIBS}
-				chrono
-				date_time
-		)
-	ENDIF()
-
-	IF(GENEVA_BUILD_TESTS)
-		SET (
-				GENEVA_BOOST_LIBS
-				${GENEVA_BOOST_LIBS}
-				unit_test_framework
-		)
-	ENDIF()
 
 	# Use Boost's own BoostConfig.cmake (available since Boost 1.70) rather than
 	# CMake's legacy FindBoost module, which was removed in CMake 4.x (CMP0167).
@@ -226,6 +173,12 @@ IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
 	)
 	MESSAGE("")
 
+	IF (GENEVA_BUILD_TESTS)
+		MESSAGE("Searching for Catch2...\n")
+		FIND_PACKAGE(Catch2 3 REQUIRED)
+		MESSAGE("")
+	ENDIF()
+
 	INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
 
 	# Optionally Search for MPI
@@ -236,11 +189,6 @@ IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
 		IF(MPI_FOUND)
 			INCLUDE_DIRECTORIES(${MPI_INCLUDE_PATH})
 		ENDIF()
-	ENDIF()
-
-	# Add compile-time debug information about Boost's linked libraries
-	IF(WIN32 AND CMAKE_VERBOSE_MAKEFILE)
-		ADD_DEFINITIONS(${Boost_LIB_DIAGNOSTIC_DEFINITIONS})
 	ENDIF()
 
 	################################################################################
@@ -269,28 +217,10 @@ IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
 	SET ( GENEVA_LIBRARIES ${GENEVA_LIBNAMES} )
 
 	################################################################################
-	# Add additional libraries if required
+	# Add a custom target to run a "make clean" and remove temporaries,
+	# so the configuration process may start fresh.
 
-	IF(UNIX)
-		FIND_LIBRARY( PTHREAD_LIBRARY NAMES pthread
-				DOC "The threading library needed by Geneva"
-		)
-		IF( GENEVA_STATIC )
-			FIND_LIBRARY( DL_LIBRARY NAMES dl
-					DOC "The dl library needed for statically linking Geneva"
-			)
-			FIND_LIBRARY( Z_LIBRARY NAMES z
-					DOC "The z library needed for statically linking Geneva"
-			)
-		ENDIF()
-	ENDIF()
-
-	################################################################################
-	# On a Unix-system, add a custom target to run a "make clean" and remove
-	# temporaries, so the configuration process may start fresh. The make
-	# command will not be available on windows.
-
-	IF (UNIX AND NOT TARGET "clean-cmake")
+	IF (NOT TARGET "clean-cmake")
 		ADD_CUSTOM_TARGET(
 				"clean-cmake"
 				COMMAND ${CMAKE_BUILD_TOOL} clean 2>&1 > /dev/null
@@ -314,9 +244,9 @@ IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
 		ENDIF ()
 
 		IF (GENEVA_TESTING AND NOT GENEVA_BUILD_TESTS)
-			# If Geneva was built with testing, the application could be built
-			# without, but we would still need to add Boost's test_exec_monitor
-			# library for avoiding linking errors... that case is unsupported for now.
+			# If Geneva was built with testing, the application must also be built
+			# with testing enabled (Catch2 RTTI symbols are referenced by the shared
+			# library). That case is unsupported for now.
 			MESSAGE (FATAL_ERROR "Geneva was built with testing support,"
 					" building a Geneva application without testing"
 					" is not suported. Please set GENEVA_BUILD_TESTS=TRUE .")
@@ -395,11 +325,7 @@ IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
 	ELSE ()
 		MESSAGE ("\ta Geneva application")
 	ENDIF ()
-	IF (GENEVA_STATIC)
-		MESSAGE ("\tstatically linked")
-	ELSE ()
-		MESSAGE ("\tdynamically linked")
-	ENDIF ()
+	MESSAGE ("\tdynamically linked")
 	IF (GENEVA_BUILD_TESTS)
 		MESSAGE ("\tincluding testing code")
 	ELSE ()

@@ -33,25 +33,20 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard header files go here
+#include <any>
+#include <concepts>
 #include <random>
 
 // Boost header files go here
-#include <boost/uuid/uuid.hpp>
-#include <boost/uuid/uuid_io.hpp>
-#include <boost/uuid/uuid_generators.hpp>
-#include <boost/uuid/random_generator.hpp>
-#include <boost/uuid/uuid_serialize.hpp>
-#include <boost/lexical_cast.hpp>
 
 // Geneva header files go here
 #include "common/GExceptions.hpp"
-#include "hap/GRandomBase.hpp"
-#include "hap/GRandomT.hpp"
 #include "geneva/GMutableParameterI.hpp"
 #include "geneva/GObject.hpp"
+#include "hap/GRandomBase.hpp"
+#include "hap/GRandomT.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 /**
@@ -60,84 +55,78 @@ namespace Geneva {
  * defines the interface that needs to be implemented by parameter classes.
  */
 class GParameterBase
-    : public GObject
-    , public GMutableParameterI
-{
+  : public GObject
+  , public GMutableParameterI {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
-    template<typename Archive>
+    template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar
-        & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject)
-        & BOOST_SERIALIZATION_NVP(m_adaptionsActive)
-        & BOOST_SERIALIZATION_NVP(m_randomInitializationBlocked)
-        & BOOST_SERIALIZATION_NVP(m_parameterName);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject) &
+            BOOST_SERIALIZATION_NVP(adaptionsActive_) &
+            BOOST_SERIALIZATION_NVP(randomInitializationBlocked_) &
+            BOOST_SERIALIZATION_NVP(parameterName_);
     }
     ///////////////////////////////////////////////////////////////////////
 public:
-
     /*********************************************************************/
     // Defaulted constructors, destructor and assignment operators
 
-    G_API_GENEVA GParameterBase() = default;
-    G_API_GENEVA GParameterBase(GParameterBase const &) = default;
-    G_API_GENEVA GParameterBase(GParameterBase &&) = default;
+    GParameterBase() = default;
+    GParameterBase(GParameterBase const &) = default;
+    GParameterBase(GParameterBase &&) = default;
 
-    G_API_GENEVA ~GParameterBase() override = default;
+    ~GParameterBase() override = default;
 
-    G_API_GENEVA GParameterBase& operator=(GParameterBase const&) = default;
-    G_API_GENEVA GParameterBase& operator=(GParameterBase &&) = default;
+    GParameterBase &operator=(GParameterBase const &) = default;
+    GParameterBase &operator=(GParameterBase &&) = default;
 
     /*********************************************************************/
 
     /** @brief The adaption interface */
-    G_API_GENEVA std::size_t adapt(Gem::Hap::GRandomBase &) override;
+    std::size_t adapt(Gem::Hap::GRandomBase &) override;
 
     /** @brief Update adaptors depending on the number of iterations without improvement */
-    G_API_GENEVA bool updateAdaptorsOnStall(std::size_t);
+    bool updateAdaptorsOnStall(std::size_t);
 
     /** @brief Retrieves information from an adaptor on a given property */
-    G_API_GENEVA void queryAdaptor(
-        const std::string &adaptorName
-        , const std::string &property
-        , std::vector<boost::any> &data
+    void queryAdaptor(
+        const std::string &adaptorName,
+        const std::string &property,
+        std::vector<std::any> &data
     ) const;
 
     /** @brief Switches on adaptions for this object */
-    G_API_GENEVA bool setAdaptionsActive();
+    bool setAdaptionsActive();
     /** @brief Disables adaptions for this object */
-    G_API_GENEVA bool setAdaptionsInactive();
+    bool setAdaptionsInactive();
     /** @brief Determines whether adaptions are performed for this object */
-    G_API_GENEVA bool adaptionsActive() const;
+    bool adaptionsActive() const;
     /** @brief Determines whether adaptions are inactive for this object */
-    G_API_GENEVA bool adaptionsInactive() const;
+    bool adaptionsInactive() const;
 
     /** @brief Triggers random initialization of the parameter(-collection) */
-    virtual G_API_GENEVA bool randomInit(
-        const activityMode &
-        , Gem::Hap::GRandomBase &
-    );
+    virtual bool randomInit(const activityMode &, Gem::Hap::GRandomBase &);
 
     /** @brief Allows to identify whether we are dealing with a collection or an individual parameter */
-    G_API_GENEVA bool isIndividualParameter() const;
+    bool isIndividualParameter() const;
     /** @brief Allows to identify whether we are dealing with a collection or an individual parameter */
-    G_API_GENEVA bool isParameterCollection() const;
+    bool isParameterCollection() const;
 
     /** @brief Allows to assign a name to this parameter */
-    G_API_GENEVA void setParameterName(const std::string &);
+    void setParameterName(const std::string &);
     /** @brief Allows to retrieve the name of this parameter */
-    G_API_GENEVA std::string getParameterName() const;
+    std::string getParameterName() const;
 
     /** @brief Checks whether this object matches a given activity mode */
-    G_API_GENEVA bool amMatch(const activityMode &) const;
+    bool amMatch(const activityMode &) const;
     /** @brief Returns true on the case of an activity mode mismatch */
-    G_API_GENEVA bool amMismatch(const activityMode &) const;
+    bool amMismatch(const activityMode &) const;
 
     /** @brief Checks whether this object matches a given activity mode and is modifiable */
-    G_API_GENEVA bool modifiableAmMatchOrHandover(const activityMode &) const;
+    bool modifiableAmMatchOrHandover(const activityMode &) const;
 
     /***************************************************************************/
     /**
@@ -148,21 +137,18 @@ public:
      * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be extracted
      * @return The number of parameters of a given Type
      */
-    template<typename par_type>
+    template <typename par_type>
     std::size_t countParameters(
-        activityMode am
+        activityMode /*am*/
     ) const {
         throw geneva_exception(
-            g_error_streamer(
-                DO_LOG
-                , time_and_place
-            )
-                << "In GParameterBase::countParameters()" << std::endl
-                << "Function called for unsupported type!" << std::endl
+            g_error_streamer(DO_LOG, time_and_place)
+            << "In GParameterBase::countParameters()" << std::endl
+            << "Function called for unsupported type!" << std::endl
         );
 
         // Make the compiler happy
-        return (std::size_t) 0;
+        return (std::size_t)0;
     }
 
     /***************************************************************************/
@@ -174,19 +160,16 @@ public:
      * @oaram lBndVec The vector with lower boundaries of parameters
      * @oaram uBndVec The vector with upper boundaries of parameters
      */
-    template<typename par_type>
+    template <typename par_type>
     void boundaries(
-        std::vector<par_type> &lBndVec
-        , std::vector<par_type> &uBndVec
-        , activityMode am
+        std::vector<par_type> &lBndVec,
+        std::vector<par_type> &uBndVec,
+        activityMode /*am*/
     ) const {
         throw geneva_exception(
-            g_error_streamer(
-                DO_LOG
-                , time_and_place
-            )
-                << "In GParameterBase::boundaries(std::vector<>&)" << std::endl
-                << "Function called for unsupported type!" << std::endl
+            g_error_streamer(DO_LOG, time_and_place)
+            << "In GParameterBase::boundaries(std::vector<>&)" << std::endl
+            << "Function called for unsupported type!" << std::endl
         );
     }
 
@@ -198,18 +181,15 @@ public:
      *
      * @oaram parVec The vector to which the items should be added
      */
-    template<typename par_type>
+    template <typename par_type>
     void streamline(
-        std::vector<par_type> &parVec
-        , activityMode am
+        std::vector<par_type> &parVec,
+        activityMode /*am*/
     ) const {
         throw geneva_exception(
-            g_error_streamer(
-                DO_LOG
-                , time_and_place
-            )
-                << "In GParameterBase::streamline(std::vector<par_type>&)" << std::endl
-                << "Function called for unsupported type!" << std::endl
+            g_error_streamer(DO_LOG, time_and_place)
+            << "In GParameterBase::streamline(std::vector<par_type>&)" << std::endl
+            << "Function called for unsupported type!" << std::endl
         );
     }
 
@@ -221,18 +201,16 @@ public:
      *
      * @oaram parVec The vector to which the items should be added
      */
-    template<typename par_type>
+    template <typename par_type>
     void streamline(
-        std::map<std::string, std::vector<par_type>> &parVec
-        , activityMode am
+        std::map<std::string, std::vector<par_type>> &parVec,
+        activityMode /*am*/
     ) const {
         throw geneva_exception(
-            g_error_streamer(
-                DO_LOG
-                , time_and_place
-            )
-                << "In GParameterBase::streamline(std::map<std::string, std::vec<par_type>>)" << std::endl
-                << "Function called for unsupported type!" << std::endl
+            g_error_streamer(DO_LOG, time_and_place)
+            << "In GParameterBase::streamline(std::map<std::string, std::vec<par_type>>)"
+            << std::endl
+            << "Function called for unsupported type!" << std::endl
         );
     }
 
@@ -245,19 +223,17 @@ public:
      * @param parVec The vector with the parameters to be assigned to the object
      * @param pos The position from which parameters will be taken (will be updated by the call)
      */
-    template<typename par_type>
+    template <typename par_type>
     void assignValueVector(
-        const std::vector<par_type> &parVec
-        , std::size_t &pos
-        , activityMode am
+        const std::vector<par_type> &parVec,
+        std::size_t & /*pos*/
+        ,
+        activityMode /*am*/
     ) {
         throw geneva_exception(
-            g_error_streamer(
-                DO_LOG
-                , time_and_place
-            )
-                << "In GParameterBase::assignValueVector()" << std::endl
-                << "Function called for unsupported type!" << std::endl
+            g_error_streamer(DO_LOG, time_and_place)
+            << "In GParameterBase::assignValueVector()" << std::endl
+            << "Function called for unsupported type!" << std::endl
         );
     }
 
@@ -267,18 +243,15 @@ public:
      *
      * @param parMao The map with the parameters to be assigned to the object
      */
-    template<typename par_type>
+    template <typename par_type>
     void assignValueVectors(
-        const std::map<std::string, std::vector<par_type>> &parMap
-        , activityMode am
+        const std::map<std::string, std::vector<par_type>> &parMap,
+        activityMode /*am*/
     ) {
         throw geneva_exception(
-            g_error_streamer(
-                DO_LOG
-                , time_and_place
-            )
-                << "In GParameterBase::assignValueVectors()" << std::endl
-                << "Function called for unsupported type!" << std::endl
+            g_error_streamer(DO_LOG, time_and_place)
+            << "In GParameterBase::assignValueVectors()" << std::endl
+            << "Function called for unsupported type!" << std::endl
         );
     }
 
@@ -286,20 +259,20 @@ public:
     /**
      * Multiplication with a random value in a given range
      */
-    template<typename par_type>
+    template <typename par_type>
     void multiplyByRandom(
-        const par_type &min
-        , const par_type &max
-        , activityMode am
-        , Gem::Hap::GRandomBase &
+        const par_type & /*min*/
+        ,
+        const par_type & /*max*/
+        ,
+        activityMode /*am*/
+        ,
+        Gem::Hap::GRandomBase &
     ) {
         throw geneva_exception(
-            g_error_streamer(
-                DO_LOG
-                , time_and_place
-            )
-                << "In GParameterBase::multiplyByRandom()" << std::endl
-                << "Function called for unsupported type!" << std::endl
+            g_error_streamer(DO_LOG, time_and_place)
+            << "In GParameterBase::multiplyByRandom()" << std::endl
+            << "Function called for unsupported type!" << std::endl
         );
     }
 
@@ -307,18 +280,16 @@ public:
     /**
      * Multiplication with a random value in the range [0, 1[
      */
-    template<typename par_type>
+    template <typename par_type>
     void multiplyByRandom(
-        activityMode am
-        , Gem::Hap::GRandomBase &
+        activityMode /*am*/
+        ,
+        Gem::Hap::GRandomBase &
     ) {
         throw geneva_exception(
-            g_error_streamer(
-                DO_LOG
-                , time_and_place
-            )
-                << "In GParameterBase::multiplyByRandom()" << std::endl
-                << "Function called for unsupported type!" << std::endl
+            g_error_streamer(DO_LOG, time_and_place)
+            << "In GParameterBase::multiplyByRandom()" << std::endl
+            << "Function called for unsupported type!" << std::endl
         );
     }
 
@@ -326,18 +297,16 @@ public:
     /**
      * Multiplication with a constant value
      */
-    template<typename par_type>
+    template <typename par_type>
     void multiplyBy(
-        par_type val
-        , activityMode am
+        par_type /*val*/
+        ,
+        activityMode /*am*/
     ) {
         throw geneva_exception(
-            g_error_streamer(
-                DO_LOG
-                , time_and_place
-            )
-                << "In GParameterBase::multiplyBy()" << std::endl
-                << "Function called for unsupported type!" << std::endl
+            g_error_streamer(DO_LOG, time_and_place)
+            << "In GParameterBase::multiplyBy()" << std::endl
+            << "Function called for unsupported type!" << std::endl
         );
     }
 
@@ -345,18 +314,16 @@ public:
     /**
      * Initializes all parameters of a given type with a constant value
      */
-    template<typename par_type>
+    template <typename par_type>
     void fixedValueInit(
-        par_type val
-        , activityMode am
+        par_type /*val*/
+        ,
+        activityMode /*am*/
     ) {
         throw geneva_exception(
-            g_error_streamer(
-                DO_LOG
-                , time_and_place
-            )
-                << "In GParameterBase::fixedValueInit()" << std::endl
-                << "Function called for unsupported type!" << std::endl
+            g_error_streamer(DO_LOG, time_and_place)
+            << "In GParameterBase::fixedValueInit()" << std::endl
+            << "Function called for unsupported type!" << std::endl
         );
     }
 
@@ -364,18 +331,16 @@ public:
     /**
      * Adds the parameters of another GParameterSet object to this one
      */
-    template<typename par_type>
+    template <typename par_type>
     void add(
-        const std::shared_ptr<GParameterBase> &p
-        , activityMode am
+        const std::shared_ptr<GParameterBase> & /*p*/
+        ,
+        activityMode /*am*/
     ) {
         throw geneva_exception(
-            g_error_streamer(
-                DO_LOG
-                , time_and_place
-            )
-                << "In GParameterBase::add()" << std::endl
-                << "Function called for unsupported type!" << std::endl
+            g_error_streamer(DO_LOG, time_and_place)
+            << "In GParameterBase::add()" << std::endl
+            << "Function called for unsupported type!" << std::endl
         );
     }
 
@@ -383,38 +348,36 @@ public:
     /**
      * Subtracts the parameters of another GParameterSet object from this one
      */
-    template<typename par_type>
+    template <typename par_type>
     void subtract(
-        const std::shared_ptr<GParameterBase> &p
-        , activityMode am
+        const std::shared_ptr<GParameterBase> & /*p*/
+        ,
+        activityMode /*am*/
     ) {
         throw geneva_exception(
-            g_error_streamer(
-                DO_LOG
-                , time_and_place
-            )
-                << "In GParameterBase::subtract()" << std::endl
-                << "Function called for unsupported type!" << std::endl
+            g_error_streamer(DO_LOG, time_and_place)
+            << "In GParameterBase::subtract()" << std::endl
+            << "Function called for unsupported type!" << std::endl
         );
     }
 
     /***************************************************************************/
 
     /** @brief Specifies that no random initialization should occur anymore */
-    G_API_GENEVA void blockRandomInitialization();
+    void blockRandomInitialization();
     /** @brief Makes random initialization possible */
-    G_API_GENEVA void allowRandomInitialization();
+    void allowRandomInitialization();
     /** @brief Checks whether initialization has been blocked */
-    G_API_GENEVA bool randomInitializationBlocked() const;
+    bool randomInitializationBlocked() const;
 
     /** @brief Convenience function so we do not need to always cast derived classes */
-    virtual G_API_GENEVA bool hasAdaptor() const BASE;
+    virtual bool hasAdaptor() const;
 
     /** @brief Converts the local data to a boost::property_tree node */
-    virtual G_API_GENEVA void toPropertyTree(pt::ptree &, const std::string &) const BASE = 0;
+    virtual void toPropertyTree(pt::ptree &, const std::string &) const = 0;
 
     /** @brief Lets the audience know whether this is a leaf or a branch object */
-    virtual G_API_GENEVA bool isLeaf() const BASE;
+    virtual bool isLeaf() const;
 
     /***************************************************************************/
     /**
@@ -425,22 +388,20 @@ public:
      * @param dummy A dummy argument needed for std::enable_if and type_traits magic
      * @return A std::shared_ptr holding the converted object
      */
-    template<typename load_type>
-    std::shared_ptr<load_type> parameterbase_cast(
-        std::shared_ptr<GParameterBase> load_ptr
-        , typename std::enable_if<std::is_base_of<Gem::Geneva::GParameterBase, load_type>::value>::type *dummy = nullptr
-    ) const {
+    template <typename load_type>
+        requires std::derived_from<load_type, Gem::Geneva::GParameterBase>
+    std::shared_ptr<load_type> parameterbase_cast(std::shared_ptr<GParameterBase> load_ptr) const {
 #ifdef DEBUG
         std::shared_ptr<load_type> p = std::dynamic_pointer_cast<load_type>(load_ptr);
-        if (p) { return p; }
+        if(p) {
+            return p;
+        }
         else {
             throw geneva_exception(
-                g_error_streamer(
-                    DO_LOG
-                    , time_and_place
-                )
-                    << "In std::shared_ptr<load_type> GParameterBase::parameterbase_cast<load_type>() :" << std::endl
-                    << "Invalid conversion with load_type = " << typeid(load_type).name() << std::endl
+                g_error_streamer(DO_LOG, time_and_place)
+                << "In std::shared_ptr<load_type> GParameterBase::parameterbase_cast<load_type>() :"
+                << std::endl
+                << "Invalid conversion with load_type = " << typeid(load_type).name() << std::endl
             );
         }
 #else
@@ -448,250 +409,267 @@ public:
 #endif
     }
 
-
 protected:
     /***************************************************************************/
     /** @brief Count the number of float parameters */
-    virtual G_API_GENEVA std::size_t countFloatParameters(const activityMode &am) const BASE;
+    virtual std::size_t countFloatParameters(const activityMode &am) const;
 
     /** @brief Count the number of double parameters */
-    virtual G_API_GENEVA std::size_t countDoubleParameters(const activityMode &am) const BASE;
+    virtual std::size_t countDoubleParameters(const activityMode &am) const;
 
     /** @brief Count the number of std::int32_t parameters */
-    virtual G_API_GENEVA std::size_t countInt32Parameters(const activityMode &am) const BASE;
+    virtual std::size_t countInt32Parameters(const activityMode &am) const;
 
     /** @brief Count the number of bool parameters */
-    virtual G_API_GENEVA std::size_t countBoolParameters(const activityMode &am) const BASE;
+    virtual std::size_t countBoolParameters(const activityMode &am) const;
 
     /** @brief Attach boundaries of type float to the vectors */
-    virtual G_API_GENEVA void floatBoundaries(
-        std::vector<float> &, std::vector<float> &, const activityMode &
-    ) const BASE;
+    virtual void
+    floatBoundaries(std::vector<float> &, std::vector<float> &, const activityMode &) const;
 
     /** @brief Attach boundaries of type double to the vectors */
-    virtual G_API_GENEVA void doubleBoundaries(
-        std::vector<double> &, std::vector<double> &, const activityMode &
-    ) const BASE;
+    virtual void
+    doubleBoundaries(std::vector<double> &, std::vector<double> &, const activityMode &) const;
 
     /** @brief Attach boundaries of type std::int32_t to the vectors */
-    virtual G_API_GENEVA void int32Boundaries(
-        std::vector<std::int32_t> &, std::vector<std::int32_t> &, const activityMode &
-    ) const BASE;
+    virtual void int32Boundaries(
+        std::vector<std::int32_t> &,
+        std::vector<std::int32_t> &,
+        const activityMode &
+    ) const;
 
     /** @brief Attach boundaries of type bool to the vectors */
-    virtual G_API_GENEVA void booleanBoundaries(
-        std::vector<bool> &, std::vector<bool> &, const activityMode &
-    ) const BASE;
+    virtual void
+    booleanBoundaries(std::vector<bool> &, std::vector<bool> &, const activityMode &) const;
 
     /** @brief Attach parameters of type float to the vector */
-    virtual G_API_GENEVA void floatStreamline(std::vector<float> &, const activityMode &) const BASE;
+    virtual void floatStreamline(std::vector<float> &, const activityMode &) const;
 
     /** @brief Attach parameters of type double to the vector */
-    virtual G_API_GENEVA void doubleStreamline(std::vector<double> &, const activityMode &) const BASE;
+    virtual void doubleStreamline(std::vector<double> &, const activityMode &) const;
 
     /** @brief Attach parameters of type std::int32_t to the vector */
-    virtual G_API_GENEVA void int32Streamline(std::vector<std::int32_t> &, const activityMode &) const BASE;
+    virtual void
+    int32Streamline(std::vector<std::int32_t> &, const activityMode &) const;
 
     /** @brief Attach parameters of type bool to the vector */
-    virtual G_API_GENEVA void booleanStreamline(std::vector<bool> &, const activityMode &) const BASE;
+    virtual void booleanStreamline(std::vector<bool> &, const activityMode &) const;
 
     /** @brief Attach parameters of type float to the map */
-    virtual G_API_GENEVA void floatStreamline(
-        std::map<std::string, std::vector<float>> &, const activityMode &
-    ) const BASE;
+    virtual void
+    floatStreamline(std::map<std::string, std::vector<float>> &, const activityMode &) const;
 
     /** @brief Attach parameters of type double to the map */
-    virtual G_API_GENEVA void doubleStreamline(
-        std::map<std::string, std::vector<double>> &, const activityMode &
-    ) const BASE;
+    virtual void
+    doubleStreamline(std::map<std::string, std::vector<double>> &, const activityMode &) const;
 
     /** @brief Attach parameters of type std::int32_t to the map */
-    virtual G_API_GENEVA void int32Streamline(
-        std::map<std::string, std::vector<std::int32_t>> &, const activityMode &
-    ) const BASE;
+    virtual void
+    int32Streamline(std::map<std::string, std::vector<std::int32_t>> &, const activityMode &) const;
 
     /** @brief Attach parameters of type bool to the map */
-    virtual G_API_GENEVA void booleanStreamline(
-        std::map<std::string, std::vector<bool>> &, const activityMode &
-    ) const BASE;
+    virtual void
+    booleanStreamline(std::map<std::string, std::vector<bool>> &, const activityMode &) const;
 
     /** @brief Assigns part of a value vector to the parameter */
-    virtual G_API_GENEVA void assignFloatValueVector(
-        const std::vector<float> &, std::size_t &, const activityMode &
-    ) BASE;
+    virtual void
+    assignFloatValueVector(const std::vector<float> &, std::size_t &, const activityMode &);
 
     /** @brief Assigns part of a value vector to the parameter */
-    virtual G_API_GENEVA void assignDoubleValueVector(
-        const std::vector<double> &, std::size_t &, const activityMode &
-    ) BASE;
+    virtual void
+    assignDoubleValueVector(const std::vector<double> &, std::size_t &, const activityMode &);
 
     /** @brief Assigns part of a value vector to the parameter */
-    virtual G_API_GENEVA void assignInt32ValueVector(
-        const std::vector<std::int32_t> &, std::size_t &, const activityMode &
-    ) BASE;
+    virtual void
+    assignInt32ValueVector(const std::vector<std::int32_t> &, std::size_t &, const activityMode &);
 
     /** @brief Assigns part of a value vector to the parameter */
-    virtual G_API_GENEVA void assignBooleanValueVector(
-        const std::vector<bool> &, std::size_t &, const activityMode &
-    ) BASE;
+    virtual void
+    assignBooleanValueVector(const std::vector<bool> &, std::size_t &, const activityMode &);
 
     /** @brief Assigns part of a value vector to the parameter */
-    virtual G_API_GENEVA void assignFloatValueVectors(
-        const std::map<std::string, std::vector<float>> &, const activityMode &
-    ) BASE;
+    virtual void assignFloatValueVectors(
+        const std::map<std::string, std::vector<float>> &,
+        const activityMode &
+    );
 
     /** @brief Assigns part of a value vector to the parameter */
-    virtual G_API_GENEVA void assignDoubleValueVectors(
-        const std::map<std::string, std::vector<double>> &, const activityMode &
-    ) BASE;
+    virtual void assignDoubleValueVectors(
+        const std::map<std::string, std::vector<double>> &,
+        const activityMode &
+    );
 
     /** @brief Assigns part of a value vector to the parameter */
-    virtual G_API_GENEVA void assignInt32ValueVectors(
-        const std::map<std::string, std::vector<std::int32_t>> &, const activityMode &
-    ) BASE;
+    virtual void assignInt32ValueVectors(
+        const std::map<std::string, std::vector<std::int32_t>> &,
+        const activityMode &
+    );
 
     /** @brief Assigns part of a value vector to the parameter */
-    virtual G_API_GENEVA void assignBooleanValueVectors(
-        const std::map<std::string, std::vector<bool>> &, const activityMode &
-    ) BASE;
+    virtual void assignBooleanValueVectors(
+        const std::map<std::string, std::vector<bool>> &,
+        const activityMode &
+    );
 
     /** @brief Multiplication with a random value in a given range */
-    virtual G_API_GENEVA void floatMultiplyByRandom(
-        const float &min, const float &max, const activityMode &am, Gem::Hap::GRandomBase &
-    ) BASE;
+    virtual void floatMultiplyByRandom(
+        const float &min,
+        const float &max,
+        const activityMode &am,
+        Gem::Hap::GRandomBase &
+    );
 
     /** @brief Multiplication with a random value in a given range */
-    virtual G_API_GENEVA void doubleMultiplyByRandom(
-        const double &min, const double &max, const activityMode &am, Gem::Hap::GRandomBase &
-    ) BASE;
+    virtual void doubleMultiplyByRandom(
+        const double &min,
+        const double &max,
+        const activityMode &am,
+        Gem::Hap::GRandomBase &
+    );
 
     /** @brief Multiplication with a random value in a given range */
-    virtual G_API_GENEVA void int32MultiplyByRandom(
-        const std::int32_t &min, const std::int32_t &max, const activityMode &am, Gem::Hap::GRandomBase &
-    ) BASE;
+    virtual void int32MultiplyByRandom(
+        const std::int32_t &min,
+        const std::int32_t &max,
+        const activityMode &am,
+        Gem::Hap::GRandomBase &
+    );
 
     /** @brief Multiplication with a random value in a given range */
-    virtual G_API_GENEVA void booleanMultiplyByRandom(
-        const bool &min, const bool &max, const activityMode &am, Gem::Hap::GRandomBase &
-    ) BASE;
+    virtual void booleanMultiplyByRandom(
+        const bool &min,
+        const bool &max,
+        const activityMode &am,
+        Gem::Hap::GRandomBase &
+    );
 
     /** @brief Multiplication with a random value in the range [0,1[ */
-    virtual G_API_GENEVA void floatMultiplyByRandom(const activityMode &am, Gem::Hap::GRandomBase &) BASE;
+    virtual void
+    floatMultiplyByRandom(const activityMode &am, Gem::Hap::GRandomBase &);
 
     /** @brief Multiplication with a random value in the range [0,1[ */
-    virtual G_API_GENEVA void doubleMultiplyByRandom(const activityMode &am, Gem::Hap::GRandomBase &) BASE;
+    virtual void
+    doubleMultiplyByRandom(const activityMode &am, Gem::Hap::GRandomBase &);
 
     /** @brief Multiplication with a random value in the range [0,1[ */
-    virtual G_API_GENEVA void int32MultiplyByRandom(const activityMode &am, Gem::Hap::GRandomBase &) BASE;
+    virtual void
+    int32MultiplyByRandom(const activityMode &am, Gem::Hap::GRandomBase &);
 
     /** @brief Multiplication with a random value in the range [0,1[ */
-    virtual G_API_GENEVA void booleanMultiplyByRandom(const activityMode &am, Gem::Hap::GRandomBase &) BASE;
+    virtual void
+    booleanMultiplyByRandom(const activityMode &am, Gem::Hap::GRandomBase &);
 
     /** @brief Multiplication with a constant value */
-    virtual G_API_GENEVA void floatMultiplyBy(const float &value, const activityMode &am) BASE;
+    virtual void floatMultiplyBy(const float &value, const activityMode &am);
 
     /** @brief Multiplication with a constant value */
-    virtual G_API_GENEVA void doubleMultiplyBy(const double &value, const activityMode &am) BASE;
+    virtual void doubleMultiplyBy(const double &value, const activityMode &am);
 
     /** @brief Multiplication with a constant value */
-    virtual G_API_GENEVA void int32MultiplyBy(const std::int32_t &value, const activityMode &am) BASE;
+    virtual void int32MultiplyBy(const std::int32_t &value, const activityMode &am);
 
     /** @brief Multiplication with a const value */
-    virtual G_API_GENEVA void booleanMultiplyBy(const bool &value, const activityMode &am) BASE;
+    virtual void booleanMultiplyBy(const bool &value, const activityMode &am);
 
     /** @brief Initialization with a constant value */
-    virtual G_API_GENEVA void floatFixedValueInit(const float &value, const activityMode &am) BASE;
+    virtual void floatFixedValueInit(const float &value, const activityMode &am);
 
     /** @brief Initialization with a constant value */
-    virtual G_API_GENEVA void doubleFixedValueInit(const double &value, const activityMode &am) BASE;
+    virtual void doubleFixedValueInit(const double &value, const activityMode &am);
 
     /** @brief Initialization with a constant value */
-    virtual G_API_GENEVA void int32FixedValueInit(const std::int32_t &value, const activityMode &am) BASE;
+    virtual void
+    int32FixedValueInit(const std::int32_t &value, const activityMode &am);
 
     /** @brief Initialization with a const value */
-    virtual G_API_GENEVA void booleanFixedValueInit(const bool &value, const activityMode &am) BASE;
+    virtual void booleanFixedValueInit(const bool &value, const activityMode &am);
 
     /** @brief Adds the "same-type" parameters of another GParameterBase object to this one */
-    virtual G_API_GENEVA void floatAdd(std::shared_ptr<GParameterBase>, const activityMode &am) BASE;
+    virtual void floatAdd(std::shared_ptr<GParameterBase>, const activityMode &am);
 
     /** @brief Adds the "same-type" parameters of another GParameterBase object to this one */
-    virtual G_API_GENEVA void doubleAdd(std::shared_ptr<GParameterBase>, const activityMode &am) BASE;
+    virtual void doubleAdd(std::shared_ptr<GParameterBase>, const activityMode &am);
 
     /** @brief Adds the "same-type" parameters of another GParameterBase object to this one */
-    virtual G_API_GENEVA void int32Add(std::shared_ptr<GParameterBase>, const activityMode &am) BASE;
+    virtual void int32Add(std::shared_ptr<GParameterBase>, const activityMode &am);
 
     /** @brief Adds the "same-type" parameters of another GParameterBase object to this one */
-    virtual G_API_GENEVA void booleanAdd(std::shared_ptr<GParameterBase>, const activityMode &am) BASE;
+    virtual void booleanAdd(std::shared_ptr<GParameterBase>, const activityMode &am);
 
     /** @brief Adds the "same-type" parameters of another GParameterBase object to this one */
-    virtual G_API_GENEVA void floatSubtract(std::shared_ptr<GParameterBase>, const activityMode &am) BASE;
+    virtual void
+    floatSubtract(std::shared_ptr<GParameterBase>, const activityMode &am);
 
     /** @brief Adds the "same-type" parameters of another GParameterBase object to this one */
-    virtual G_API_GENEVA void doubleSubtract(std::shared_ptr<GParameterBase>, const activityMode &am) BASE;
+    virtual void
+    doubleSubtract(std::shared_ptr<GParameterBase>, const activityMode &am);
 
     /** @brief Adds the "same-type" parameters of another GParameterBase object to this one */
-    virtual G_API_GENEVA void int32Subtract(std::shared_ptr<GParameterBase>, const activityMode &am) BASE;
+    virtual void
+    int32Subtract(std::shared_ptr<GParameterBase>, const activityMode &am);
 
     /** @brief Adds the "same-type" parameters of another GParameterBase object to this one */
-    virtual G_API_GENEVA void booleanSubtract(std::shared_ptr<GParameterBase>, const activityMode &am) BASE;
+    virtual void
+    booleanSubtract(std::shared_ptr<GParameterBase>, const activityMode &am);
 
     /***************************************************************************/
     /** @brief Loads the data of another GObject */
-    G_API_GENEVA void load_(const GObject *) override;
+    void load_(const GObject *) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GParameterBase>(
-        GParameterBase const &
-        , GParameterBase const &
-        , Gem::Common::GToken &
+        GParameterBase const &,
+        GParameterBase const &,
+        Gem::Common::GToken &
     );
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
-    G_API_GENEVA void compare_(
+    void compare_(
         const GObject & // the other object
-        , const Gem::Common::expectation & // the expectation for this object, e.g. equality
-        , const double & // the limit for allowed deviations of floating point types
+        ,
+        const Gem::Common::expectation & // the expectation for this object, e.g. equality
+        ,
+        const double & // the limit for allowed deviations of floating point types
     ) const override;
 
     /** @brief Triggers random initialization of the parameter(-collection) */
-    virtual G_API_GENEVA bool randomInit_(
-        const activityMode &
-        , Gem::Hap::GRandomBase &
-    ) BASE = 0;
+    virtual bool randomInit_(const activityMode &, Gem::Hap::GRandomBase &) = 0;
 
     /** @brief Applies modifications to this object. This is needed for testing purposes */
-    G_API_GENEVA bool modify_GUnitTests_() override;
+    bool modify_GUnitTests_() override;
     /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-    G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests_() override;
+    void specificTestsNoFailureExpected_GUnitTests_() override;
     /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-    G_API_GENEVA void specificTestsFailuresExpected_GUnitTests_() override;
+    void specificTestsFailuresExpected_GUnitTests_() override;
 
 private:
     /***************************************************************************/
     /** @brief Emits a name for this class / object */
-    G_API_GENEVA std::string name_() const override;
+    std::string name_() const override;
     /** @brief Creates a deep clone of this object */
-    G_API_GENEVA GObject *clone_() const override = 0;
+    GObject *clone_() const override = 0;
 
     /** @brief The actual adaption logic */
-    virtual G_API_GENEVA std::size_t adapt_(Gem::Hap::GRandomBase &) BASE = 0;
+    virtual std::size_t adapt_(Gem::Hap::GRandomBase &) = 0;
     /** @brief Triggers updates when the optimization process has stalled */
-    virtual G_API_GENEVA bool updateAdaptorsOnStall_(std::size_t) BASE = 0;
+    virtual bool updateAdaptorsOnStall_(std::size_t) = 0;
 
     /** @brief Retrieves information from an adaptor on a given property */
-    virtual G_API_GENEVA void queryAdaptor_(
-        const std::string &adaptorName
-        , const std::string &property
-        , std::vector<boost::any> &data
-    ) const BASE = 0;
+    virtual void queryAdaptor_(
+        const std::string &adaptorName,
+        const std::string &property,
+        std::vector<std::any> &data
+    ) const = 0;
 
     /** @brief Allows to identify whether we are dealing with a collection or an individual parameter */
-    virtual G_API_GENEVA bool isIndividualParameter_() const BASE;
+    virtual bool isIndividualParameter_() const;
 
     /***************************************************************************/
-    bool m_adaptionsActive = true; ///< Specifies whether adaptions of this object should be carried out
-    bool m_randomInitializationBlocked = false; ///< Specifies that this object should not be initialized again
-    std::string m_parameterName = Gem::Common::to_string(boost::uuids::random_generator()()); ///< A name assigned to this parameter object
+    bool adaptionsActive_ =
+        true; ///< Specifies whether adaptions of this object should be carried out
+    bool randomInitializationBlocked_ =
+        false; ///< Specifies that this object should not be initialized again
+    std::string parameterName_ = Gem::Common::generate_uuid_v4(); ///< A name assigned to this parameter object
 };
 
 /******************************************************************************/
@@ -705,16 +683,10 @@ private:
  *
  * @oaram parVec The vector to which the items should be added
  */
-template<>
-inline void GParameterBase::streamline<float>(
-    std::vector<float> &parVec
-    , activityMode am
-) const {
-    if (this->modifiableAmMatchOrHandover(am)) {
-        this->floatStreamline(
-            parVec
-            , am
-        );
+template <>
+inline void GParameterBase::streamline<float>(std::vector<float> &parVec, activityMode am) const {
+    if(this->modifiableAmMatchOrHandover(am)) {
+        this->floatStreamline(parVec, am);
     }
 }
 
@@ -724,16 +696,10 @@ inline void GParameterBase::streamline<float>(
  *
  * @oaram parVec The vector to which the items should be added
  */
-template<>
-inline void GParameterBase::streamline<double>(
-    std::vector<double> &parVec
-    , activityMode am
-) const {
-    if (this->modifiableAmMatchOrHandover(am)) {
-        this->doubleStreamline(
-            parVec
-            , am
-        );
+template <>
+inline void GParameterBase::streamline<double>(std::vector<double> &parVec, activityMode am) const {
+    if(this->modifiableAmMatchOrHandover(am)) {
+        this->doubleStreamline(parVec, am);
     }
 }
 
@@ -743,16 +709,11 @@ inline void GParameterBase::streamline<double>(
  *
  * @oaram parVec The vector to which the items should be added
  */
-template<>
-inline void GParameterBase::streamline<std::int32_t>(
-    std::vector<std::int32_t> &parVec
-    , activityMode am
-) const {
-    if (this->modifiableAmMatchOrHandover(am)) {
-        this->int32Streamline(
-            parVec
-            , am
-        );
+template <>
+inline void
+GParameterBase::streamline<std::int32_t>(std::vector<std::int32_t> &parVec, activityMode am) const {
+    if(this->modifiableAmMatchOrHandover(am)) {
+        this->int32Streamline(parVec, am);
     }
 }
 
@@ -762,16 +723,10 @@ inline void GParameterBase::streamline<std::int32_t>(
  *
  * @oaram parVec The vector to which the items should be added
  */
-template<>
-inline void GParameterBase::streamline<bool>(
-    std::vector<bool> &parVec
-    , activityMode am
-) const {
-    if (this->modifiableAmMatchOrHandover(am)) {
-        this->booleanStreamline(
-            parVec
-            , am
-        );
+template <>
+inline void GParameterBase::streamline<bool>(std::vector<bool> &parVec, activityMode am) const {
+    if(this->modifiableAmMatchOrHandover(am)) {
+        this->booleanStreamline(parVec, am);
     }
 }
 
@@ -781,16 +736,13 @@ inline void GParameterBase::streamline<bool>(
  *
  * @oaram parVec The map to which the items should be added
  */
-template<>
+template <>
 inline void GParameterBase::streamline<float>(
-    std::map<std::string, std::vector<float>> &parVec
-    , activityMode am
+    std::map<std::string, std::vector<float>> &parVec,
+    activityMode am
 ) const {
-    if (this->modifiableAmMatchOrHandover(am)) {
-        this->floatStreamline(
-            parVec
-            , am
-        );
+    if(this->modifiableAmMatchOrHandover(am)) {
+        this->floatStreamline(parVec, am);
     }
 }
 
@@ -800,16 +752,13 @@ inline void GParameterBase::streamline<float>(
  *
  * @oaram parVec The vector to which the items should be added
  */
-template<>
+template <>
 inline void GParameterBase::streamline<double>(
-    std::map<std::string, std::vector<double>> &parVec
-    , activityMode am
+    std::map<std::string, std::vector<double>> &parVec,
+    activityMode am
 ) const {
-    if (this->modifiableAmMatchOrHandover(am)) {
-        this->doubleStreamline(
-            parVec
-            , am
-        );
+    if(this->modifiableAmMatchOrHandover(am)) {
+        this->doubleStreamline(parVec, am);
     }
 }
 
@@ -819,16 +768,13 @@ inline void GParameterBase::streamline<double>(
  *
  * @oaram parVec The vector to which the items should be added
  */
-template<>
+template <>
 inline void GParameterBase::streamline<std::int32_t>(
-    std::map<std::string, std::vector<std::int32_t>> &parVec
-    , activityMode am
+    std::map<std::string, std::vector<std::int32_t>> &parVec,
+    activityMode am
 ) const {
-    if (this->modifiableAmMatchOrHandover(am)) {
-        this->int32Streamline(
-            parVec
-            , am
-        );
+    if(this->modifiableAmMatchOrHandover(am)) {
+        this->int32Streamline(parVec, am);
     }
 }
 
@@ -838,19 +784,15 @@ inline void GParameterBase::streamline<std::int32_t>(
  *
  * @oaram parVec The vector to which the items should be added
  */
-template<>
+template <>
 inline void GParameterBase::streamline<bool>(
-    std::map<std::string, std::vector<bool>> &parVec
-    , activityMode am
+    std::map<std::string, std::vector<bool>> &parVec,
+    activityMode am
 ) const {
-    if (this->modifiableAmMatchOrHandover(am)) {
-        this->booleanStreamline(
-            parVec
-            , am
-        );
+    if(this->modifiableAmMatchOrHandover(am)) {
+        this->booleanStreamline(parVec, am);
     }
 }
-
 
 /******************************************************************************/
 /**
@@ -859,18 +801,14 @@ inline void GParameterBase::streamline<bool>(
  * @param lBndVec A vector of lower double parameter boundaries
  * @param uBndVec A vector of upper double parameter boundaries
  */
-template<>
+template <>
 inline void GParameterBase::boundaries<float>(
-    std::vector<float> &lBndVec
-    , std::vector<float> &uBndVec
-    , activityMode am
+    std::vector<float> &lBndVec,
+    std::vector<float> &uBndVec,
+    activityMode am
 ) const {
-    if (this->modifiableAmMatchOrHandover(am)) {
-        this->floatBoundaries(
-            lBndVec
-            , uBndVec
-            , am
-        );
+    if(this->modifiableAmMatchOrHandover(am)) {
+        this->floatBoundaries(lBndVec, uBndVec, am);
     }
 }
 
@@ -881,18 +819,14 @@ inline void GParameterBase::boundaries<float>(
  * @param lBndVec A vector of lower double parameter boundaries
  * @param uBndVec A vector of upper double parameter boundaries
  */
-template<>
+template <>
 inline void GParameterBase::boundaries<double>(
-    std::vector<double> &lBndVec
-    , std::vector<double> &uBndVec
-    , activityMode am
+    std::vector<double> &lBndVec,
+    std::vector<double> &uBndVec,
+    activityMode am
 ) const {
-    if (this->modifiableAmMatchOrHandover(am)) {
-        this->doubleBoundaries(
-            lBndVec
-            , uBndVec
-            , am
-        );
+    if(this->modifiableAmMatchOrHandover(am)) {
+        this->doubleBoundaries(lBndVec, uBndVec, am);
     }
 }
 
@@ -903,18 +837,14 @@ inline void GParameterBase::boundaries<double>(
  * @param lBndVec A vector of lower std::int32_t parameter boundaries
  * @param uBndVec A vector of upper std::int32_t parameter boundaries
  */
-template<>
+template <>
 inline void GParameterBase::boundaries<std::int32_t>(
-    std::vector<std::int32_t> &lBndVec
-    , std::vector<std::int32_t> &uBndVec
-    , activityMode am
+    std::vector<std::int32_t> &lBndVec,
+    std::vector<std::int32_t> &uBndVec,
+    activityMode am
 ) const {
-    if (this->modifiableAmMatchOrHandover(am)) {
-        this->int32Boundaries(
-            lBndVec
-            , uBndVec
-            , am
-        );
+    if(this->modifiableAmMatchOrHandover(am)) {
+        this->int32Boundaries(lBndVec, uBndVec, am);
     }
 }
 
@@ -925,18 +855,14 @@ inline void GParameterBase::boundaries<std::int32_t>(
  * @param lBndVec A vector of lower bool parameter boundaries
  * @param uBndVec A vector of upper bool parameter boundaries
  */
-template<>
+template <>
 inline void GParameterBase::boundaries<bool>(
-    std::vector<bool> &lBndVec
-    , std::vector<bool> &uBndVec
-    , activityMode am
+    std::vector<bool> &lBndVec,
+    std::vector<bool> &uBndVec,
+    activityMode am
 ) const {
-    if (this->modifiableAmMatchOrHandover(am)) {
-        this->booleanBoundaries(
-            lBndVec
-            , uBndVec
-            , am
-        );
+    if(this->modifiableAmMatchOrHandover(am)) {
+        this->booleanBoundaries(lBndVec, uBndVec, am);
     }
 }
 
@@ -947,13 +873,12 @@ inline void GParameterBase::boundaries<bool>(
  * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be extracted
  * @return The number of parameters of type float
  */
-template<>
-inline std::size_t GParameterBase::countParameters<float>(
-    activityMode am
-) const {
-    if (this->modifiableAmMatchOrHandover(am)) {
+template <>
+inline std::size_t GParameterBase::countParameters<float>(activityMode am) const {
+    if(this->modifiableAmMatchOrHandover(am)) {
         return this->countFloatParameters(am);
-    } else {
+    }
+    else {
         return 0;
     }
 }
@@ -965,13 +890,12 @@ inline std::size_t GParameterBase::countParameters<float>(
  * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be extracted
  * @return The number of parameters of type double
  */
-template<>
-inline std::size_t GParameterBase::countParameters<double>(
-    activityMode am
-) const {
-    if (this->modifiableAmMatchOrHandover(am)) {
+template <>
+inline std::size_t GParameterBase::countParameters<double>(activityMode am) const {
+    if(this->modifiableAmMatchOrHandover(am)) {
         return this->countDoubleParameters(am);
-    } else {
+    }
+    else {
         return 0;
     }
 }
@@ -983,13 +907,12 @@ inline std::size_t GParameterBase::countParameters<double>(
  * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be extracted
  * @return The number of parameters of type std::int32_t
  */
-template<>
-inline std::size_t GParameterBase::countParameters<std::int32_t>(
-    activityMode am
-) const {
-    if (this->modifiableAmMatchOrHandover(am)) {
+template <>
+inline std::size_t GParameterBase::countParameters<std::int32_t>(activityMode am) const {
+    if(this->modifiableAmMatchOrHandover(am)) {
         return this->countInt32Parameters(am);
-    } else {
+    }
+    else {
         return 0;
     }
 }
@@ -1001,13 +924,12 @@ inline std::size_t GParameterBase::countParameters<std::int32_t>(
  * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be extracted
  * @return The number of parameters of type bool
  */
-template<>
-inline std::size_t GParameterBase::countParameters<bool>(
-    activityMode am
-) const {
-    if (this->modifiableAmMatchOrHandover(am)) {
+template <>
+inline std::size_t GParameterBase::countParameters<bool>(activityMode am) const {
+    if(this->modifiableAmMatchOrHandover(am)) {
         return this->countBoolParameters(am);
-    } else {
+    }
+    else {
         return 0;
     }
 }
@@ -1019,18 +941,14 @@ inline std::size_t GParameterBase::countParameters<bool>(
  * @param parVec The vector with the parameters to be assigned to the object
  * @param pos The position from which parameters will be taken (will be updated by the call)
  */
-template<>
+template <>
 inline void GParameterBase::assignValueVector<float>(
-    const std::vector<float> &parVec
-    , std::size_t &pos
-    , activityMode am
+    const std::vector<float> &parVec,
+    std::size_t &pos,
+    activityMode am
 ) {
-    if (this->modifiableAmMatchOrHandover(am)) {
-        this->assignFloatValueVector(
-            parVec
-            , pos
-            , am
-        );
+    if(this->modifiableAmMatchOrHandover(am)) {
+        this->assignFloatValueVector(parVec, pos, am);
     }
 }
 
@@ -1041,18 +959,14 @@ inline void GParameterBase::assignValueVector<float>(
  * @param parVec The vector with the parameters to be assigned to the object
  * @param pos The position from which parameters will be taken (will be updated by the call)
  */
-template<>
+template <>
 inline void GParameterBase::assignValueVector<double>(
-    const std::vector<double> &parVec
-    , std::size_t &pos
-    , activityMode am
+    const std::vector<double> &parVec,
+    std::size_t &pos,
+    activityMode am
 ) {
-    if (this->modifiableAmMatchOrHandover(am)) {
-        this->assignDoubleValueVector(
-            parVec
-            , pos
-            , am
-        );
+    if(this->modifiableAmMatchOrHandover(am)) {
+        this->assignDoubleValueVector(parVec, pos, am);
     }
 }
 
@@ -1063,17 +977,13 @@ inline void GParameterBase::assignValueVector<double>(
  * @param parVec The vector with the parameters to be assigned to the object
  * @param pos The position from which parameters will be taken (will be updated by the call)
  */
-template<>
+template <>
 inline void GParameterBase::assignValueVector<std::int32_t>(
-    const std::vector<std::int32_t> &parVec
-    , std::size_t &pos
-    , activityMode am
+    const std::vector<std::int32_t> &parVec,
+    std::size_t &pos,
+    activityMode am
 ) {
-    this->assignInt32ValueVector(
-        parVec
-        , pos
-        , am
-    );
+    this->assignInt32ValueVector(parVec, pos, am);
 }
 
 /******************************************************************************/
@@ -1083,17 +993,13 @@ inline void GParameterBase::assignValueVector<std::int32_t>(
  * @param parVec The vector with the parameters to be assigned to the object
  * @param pos The position from which parameters will be taken (will be updated by the call)
  */
-template<>
+template <>
 inline void GParameterBase::assignValueVector<bool>(
-    const std::vector<bool> &parVec
-    , std::size_t &pos
-    , activityMode am
+    const std::vector<bool> &parVec,
+    std::size_t &pos,
+    activityMode am
 ) {
-    this->assignBooleanValueVector(
-        parVec
-        , pos
-        , am
-    );
+    this->assignBooleanValueVector(parVec, pos, am);
 }
 
 /******************************************************************************/
@@ -1102,16 +1008,13 @@ inline void GParameterBase::assignValueVector<bool>(
  *
  * @param parMap The vector with the parameters to be assigned to the object
  */
-template<>
+template <>
 inline void GParameterBase::assignValueVectors<float>(
-    const std::map<std::string, std::vector<float>> &parMap
-    , activityMode am
+    const std::map<std::string, std::vector<float>> &parMap,
+    activityMode am
 ) {
-    if (this->modifiableAmMatchOrHandover(am)) {
-        this->assignFloatValueVectors(
-            parMap
-            , am
-        );
+    if(this->modifiableAmMatchOrHandover(am)) {
+        this->assignFloatValueVectors(parMap, am);
     }
 }
 
@@ -1121,16 +1024,13 @@ inline void GParameterBase::assignValueVectors<float>(
  *
  * @param parMap The vector with the parameters to be assigned to the object
  */
-template<>
+template <>
 inline void GParameterBase::assignValueVectors<double>(
-    const std::map<std::string, std::vector<double>> &parMap
-    , activityMode am
+    const std::map<std::string, std::vector<double>> &parMap,
+    activityMode am
 ) {
-    if (this->modifiableAmMatchOrHandover(am)) {
-        this->assignDoubleValueVectors(
-            parMap
-            , am
-        );
+    if(this->modifiableAmMatchOrHandover(am)) {
+        this->assignDoubleValueVectors(parMap, am);
     }
 }
 
@@ -1140,16 +1040,13 @@ inline void GParameterBase::assignValueVectors<double>(
  *
  * @param parMap The vector with the parameters to be assigned to the object
  */
-template<>
+template <>
 inline void GParameterBase::assignValueVectors<std::int32_t>(
-    const std::map<std::string, std::vector<std::int32_t>> &parMap
-    , activityMode am
+    const std::map<std::string, std::vector<std::int32_t>> &parMap,
+    activityMode am
 ) {
-    if (this->modifiableAmMatchOrHandover(am)) {
-        this->assignInt32ValueVectors(
-            parMap
-            , am
-        );
+    if(this->modifiableAmMatchOrHandover(am)) {
+        this->assignInt32ValueVectors(parMap, am);
     }
 }
 
@@ -1159,16 +1056,13 @@ inline void GParameterBase::assignValueVectors<std::int32_t>(
  *
  * @param parMap The vector with the parameters to be assigned to the object
  */
-template<>
+template <>
 inline void GParameterBase::assignValueVectors<bool>(
-    const std::map<std::string, std::vector<bool>> &parMap
-    , activityMode am
+    const std::map<std::string, std::vector<bool>> &parMap,
+    activityMode am
 ) {
-    if (this->modifiableAmMatchOrHandover(am)) {
-        this->assignBooleanValueVectors(
-            parMap
-            , am
-        );
+    if(this->modifiableAmMatchOrHandover(am)) {
+        this->assignBooleanValueVectors(parMap, am);
     }
 }
 
@@ -1176,20 +1070,15 @@ inline void GParameterBase::assignValueVectors<bool>(
 /**
  * Multiplication with a random value in a given range
  */
-template<>
+template <>
 inline void GParameterBase::multiplyByRandom<float>(
-    const float &min
-    , const float &max
-    , activityMode am
-    , Gem::Hap::GRandomBase &gr
+    const float &min,
+    const float &max,
+    activityMode am,
+    Gem::Hap::GRandomBase &gr
 ) {
-    if (this->modifiableAmMatchOrHandover(am)) {
-        this->floatMultiplyByRandom(
-            min
-            , max
-            , am
-            , gr
-        );
+    if(this->modifiableAmMatchOrHandover(am)) {
+        this->floatMultiplyByRandom(min, max, am, gr);
     }
 }
 
@@ -1197,20 +1086,15 @@ inline void GParameterBase::multiplyByRandom<float>(
 /**
  * Multiplication with a random value in a given range
  */
-template<>
+template <>
 inline void GParameterBase::multiplyByRandom<double>(
-    const double &min
-    , const double &max
-    , activityMode am
-    , Gem::Hap::GRandomBase &gr
+    const double &min,
+    const double &max,
+    activityMode am,
+    Gem::Hap::GRandomBase &gr
 ) {
-    if (this->modifiableAmMatchOrHandover(am)) {
-        this->doubleMultiplyByRandom(
-            min
-            , max
-            , am
-            , gr
-        );
+    if(this->modifiableAmMatchOrHandover(am)) {
+        this->doubleMultiplyByRandom(min, max, am, gr);
     }
 }
 
@@ -1218,20 +1102,15 @@ inline void GParameterBase::multiplyByRandom<double>(
 /**
  * Multiplication with a random value in a given range
  */
-template<>
+template <>
 inline void GParameterBase::multiplyByRandom<std::int32_t>(
-    const std::int32_t &min
-    , const std::int32_t &max
-    , activityMode am
-    , Gem::Hap::GRandomBase &gr
+    const std::int32_t &min,
+    const std::int32_t &max,
+    activityMode am,
+    Gem::Hap::GRandomBase &gr
 ) {
-    if (this->modifiableAmMatchOrHandover(am)) {
-        this->int32MultiplyByRandom(
-            min
-            , max
-            , am
-            , gr
-        );
+    if(this->modifiableAmMatchOrHandover(am)) {
+        this->int32MultiplyByRandom(min, max, am, gr);
     }
 }
 
@@ -1241,21 +1120,16 @@ inline void GParameterBase::multiplyByRandom<std::int32_t>(
  * boolean values has been added for completeness and error-detection. It will throw
  * when called.
  */
-template<>
+template <>
 inline void GParameterBase::multiplyByRandom<bool>(
-    const bool &min
-    , const bool &max
-    , activityMode am
-    , Gem::Hap::GRandomBase &gr
+    const bool &min,
+    const bool &max,
+    activityMode am,
+    Gem::Hap::GRandomBase &gr
 ) {
-    if (this->modifiableAmMatchOrHandover(am)) {
+    if(this->modifiableAmMatchOrHandover(am)) {
         // NOTE: This will throw
-        this->booleanMultiplyByRandom(
-            min
-            , max
-            , am
-            , gr
-        );
+        this->booleanMultiplyByRandom(min, max, am, gr);
     }
 }
 
@@ -1263,16 +1137,10 @@ inline void GParameterBase::multiplyByRandom<bool>(
 /**
  * Multiplication with a random value in the range [0,1[
  */
-template<>
-inline void GParameterBase::multiplyByRandom<float>(
-    activityMode am
-    , Gem::Hap::GRandomBase &gr
-) {
-    if (this->modifiableAmMatchOrHandover(am)) {
-        this->floatMultiplyByRandom(
-            am
-            , gr
-        );
+template <>
+inline void GParameterBase::multiplyByRandom<float>(activityMode am, Gem::Hap::GRandomBase &gr) {
+    if(this->modifiableAmMatchOrHandover(am)) {
+        this->floatMultiplyByRandom(am, gr);
     }
 }
 
@@ -1280,16 +1148,10 @@ inline void GParameterBase::multiplyByRandom<float>(
 /**
  * Multiplication with a random value in the range [0,1[
  */
-template<>
-inline void GParameterBase::multiplyByRandom<double>(
-    activityMode am
-    , Gem::Hap::GRandomBase &gr
-) {
-    if (this->modifiableAmMatchOrHandover(am)) {
-        this->doubleMultiplyByRandom(
-            am
-            , gr
-        );
+template <>
+inline void GParameterBase::multiplyByRandom<double>(activityMode am, Gem::Hap::GRandomBase &gr) {
+    if(this->modifiableAmMatchOrHandover(am)) {
+        this->doubleMultiplyByRandom(am, gr);
     }
 }
 
@@ -1297,16 +1159,11 @@ inline void GParameterBase::multiplyByRandom<double>(
 /**
  * Multiplication with a random value in the range [0,1[
  */
-template<>
-inline void GParameterBase::multiplyByRandom<std::int32_t>(
-    activityMode am
-    , Gem::Hap::GRandomBase &gr
-) {
-    if (this->modifiableAmMatchOrHandover(am)) {
-        this->int32MultiplyByRandom(
-            am
-            , gr
-        );
+template <>
+inline void
+GParameterBase::multiplyByRandom<std::int32_t>(activityMode am, Gem::Hap::GRandomBase &gr) {
+    if(this->modifiableAmMatchOrHandover(am)) {
+        this->int32MultiplyByRandom(am, gr);
     }
 }
 
@@ -1316,17 +1173,11 @@ inline void GParameterBase::multiplyByRandom<std::int32_t>(
  * boolean values has been added for completeness and error-detection. It will throw
  * when called.
  */
-template<>
-inline void GParameterBase::multiplyByRandom<bool>(
-    activityMode am
-    , Gem::Hap::GRandomBase &gr
-) {
-    if (this->modifiableAmMatchOrHandover(am)) {
+template <>
+inline void GParameterBase::multiplyByRandom<bool>(activityMode am, Gem::Hap::GRandomBase &gr) {
+    if(this->modifiableAmMatchOrHandover(am)) {
         // NOTE: This will throw
-        this->booleanMultiplyByRandom(
-            am
-            , gr
-        );
+        this->booleanMultiplyByRandom(am, gr);
     }
 }
 
@@ -1334,16 +1185,10 @@ inline void GParameterBase::multiplyByRandom<bool>(
 /**
  * Multiplication with a constant value
  */
-template<>
-inline void GParameterBase::multiplyBy<float>(
-    float val
-    , activityMode am
-) {
-    if (this->modifiableAmMatchOrHandover(am)) {
-        this->floatMultiplyBy(
-            val
-            , am
-        );
+template <>
+inline void GParameterBase::multiplyBy<float>(float val, activityMode am) {
+    if(this->modifiableAmMatchOrHandover(am)) {
+        this->floatMultiplyBy(val, am);
     }
 }
 
@@ -1351,16 +1196,10 @@ inline void GParameterBase::multiplyBy<float>(
 /**
  * Multiplication with a constant value
  */
-template<>
-inline void GParameterBase::multiplyBy<double>(
-    double val
-    , activityMode am
-) {
-    if (this->modifiableAmMatchOrHandover(am)) {
-        this->doubleMultiplyBy(
-            val
-            , am
-        );
+template <>
+inline void GParameterBase::multiplyBy<double>(double val, activityMode am) {
+    if(this->modifiableAmMatchOrHandover(am)) {
+        this->doubleMultiplyBy(val, am);
     }
 }
 
@@ -1368,16 +1207,10 @@ inline void GParameterBase::multiplyBy<double>(
 /**
  * Multiplication with a constant value
  */
-template<>
-inline void GParameterBase::multiplyBy<std::int32_t>(
-    std::int32_t val
-    , activityMode am
-) {
-    if (this->modifiableAmMatchOrHandover(am)) {
-        this->int32MultiplyBy(
-            val
-            , am
-        );
+template <>
+inline void GParameterBase::multiplyBy<std::int32_t>(std::int32_t val, activityMode am) {
+    if(this->modifiableAmMatchOrHandover(am)) {
+        this->int32MultiplyBy(val, am);
     }
 }
 
@@ -1387,17 +1220,11 @@ inline void GParameterBase::multiplyBy<std::int32_t>(
  * boolean values has been added for completeness and error-detection.
  * It will throw when called.
  */
-template<>
-inline void GParameterBase::multiplyBy<bool>(
-    bool val
-    , activityMode am
-) {
-    if (this->modifiableAmMatchOrHandover(am)) {
+template <>
+inline void GParameterBase::multiplyBy<bool>(bool val, activityMode am) {
+    if(this->modifiableAmMatchOrHandover(am)) {
         // NOTE: This will throw
-        this->booleanMultiplyBy(
-            val
-            , am
-        );
+        this->booleanMultiplyBy(val, am);
     }
 }
 
@@ -1405,16 +1232,10 @@ inline void GParameterBase::multiplyBy<bool>(
 /**
  * Initialization with a constant value
  */
-template<>
-inline void GParameterBase::fixedValueInit<float>(
-    float val
-    , activityMode am
-) {
-    if (this->modifiableAmMatchOrHandover(am)) {
-        this->floatFixedValueInit(
-            val
-            , am
-        );
+template <>
+inline void GParameterBase::fixedValueInit<float>(float val, activityMode am) {
+    if(this->modifiableAmMatchOrHandover(am)) {
+        this->floatFixedValueInit(val, am);
     }
 }
 
@@ -1422,16 +1243,10 @@ inline void GParameterBase::fixedValueInit<float>(
 /**
  * Initialization with a constant value
  */
-template<>
-inline void GParameterBase::fixedValueInit<double>(
-    double val
-    , activityMode am
-) {
-    if (this->modifiableAmMatchOrHandover(am)) {
-        this->doubleFixedValueInit(
-            val
-            , am
-        );
+template <>
+inline void GParameterBase::fixedValueInit<double>(double val, activityMode am) {
+    if(this->modifiableAmMatchOrHandover(am)) {
+        this->doubleFixedValueInit(val, am);
     }
 }
 
@@ -1439,16 +1254,10 @@ inline void GParameterBase::fixedValueInit<double>(
 /**
  * Initialization with a constant value
  */
-template<>
-inline void GParameterBase::fixedValueInit<std::int32_t>(
-    std::int32_t val
-    , activityMode am
-) {
-    if (this->modifiableAmMatchOrHandover(am)) {
-        this->int32FixedValueInit(
-            val
-            , am
-        );
+template <>
+inline void GParameterBase::fixedValueInit<std::int32_t>(std::int32_t val, activityMode am) {
+    if(this->modifiableAmMatchOrHandover(am)) {
+        this->int32FixedValueInit(val, am);
     }
 }
 
@@ -1456,16 +1265,10 @@ inline void GParameterBase::fixedValueInit<std::int32_t>(
 /**
  * Initialization with a constant value
  */
-template<>
-inline void GParameterBase::fixedValueInit<bool>(
-    bool val
-    , activityMode am
-) {
-    if (this->modifiableAmMatchOrHandover(am)) {
-        this->booleanFixedValueInit(
-            val
-            , am
-        );
+template <>
+inline void GParameterBase::fixedValueInit<bool>(bool val, activityMode am) {
+    if(this->modifiableAmMatchOrHandover(am)) {
+        this->booleanFixedValueInit(val, am);
     }
 }
 
@@ -1473,15 +1276,10 @@ inline void GParameterBase::fixedValueInit<bool>(
 /**
  * Adds the "same-type" parameters of another GParameterBase object to this one
  */
-template<>
-inline void GParameterBase::add<float>(
-    const std::shared_ptr<GParameterBase> &p, activityMode am
-) {
-    if (this->modifiableAmMatchOrHandover(am)) {
-        this->floatAdd(
-            p
-            , am
-        );
+template <>
+inline void GParameterBase::add<float>(const std::shared_ptr<GParameterBase> &p, activityMode am) {
+    if(this->modifiableAmMatchOrHandover(am)) {
+        this->floatAdd(p, am);
     }
 }
 
@@ -1489,15 +1287,10 @@ inline void GParameterBase::add<float>(
 /**
  * Adds the "same-type" parameters of another GParameterBase object to this one
  */
-template<>
-inline void GParameterBase::add<double>(
-    const std::shared_ptr<GParameterBase> &p, activityMode am
-) {
-    if (this->modifiableAmMatchOrHandover(am)) {
-        this->doubleAdd(
-            p
-            , am
-        );
+template <>
+inline void GParameterBase::add<double>(const std::shared_ptr<GParameterBase> &p, activityMode am) {
+    if(this->modifiableAmMatchOrHandover(am)) {
+        this->doubleAdd(p, am);
     }
 }
 
@@ -1505,15 +1298,11 @@ inline void GParameterBase::add<double>(
 /**
  * Adds the "same-type" parameters of another GParameterBase object to this one
  */
-template<>
-inline void GParameterBase::add<std::int32_t>(
-    const std::shared_ptr<GParameterBase> &p, activityMode am
-) {
-    if (this->modifiableAmMatchOrHandover(am)) {
-        this->int32Add(
-            p
-            , am
-        );
+template <>
+inline void
+GParameterBase::add<std::int32_t>(const std::shared_ptr<GParameterBase> &p, activityMode am) {
+    if(this->modifiableAmMatchOrHandover(am)) {
+        this->int32Add(p, am);
     }
 }
 
@@ -1523,16 +1312,11 @@ inline void GParameterBase::add<std::int32_t>(
  * This specialization for boolean values has been added for completeness and error-detection.
  * It will throw when called.
  */
-template<>
-inline void GParameterBase::add<bool>(
-    const std::shared_ptr<GParameterBase> &p, activityMode am
-) {
-    if (this->modifiableAmMatchOrHandover(am)) {
+template <>
+inline void GParameterBase::add<bool>(const std::shared_ptr<GParameterBase> &p, activityMode am) {
+    if(this->modifiableAmMatchOrHandover(am)) {
         // Note: This call will throw!
-        this->booleanAdd(
-            p
-            , am
-        );
+        this->booleanAdd(p, am);
     }
 }
 
@@ -1540,15 +1324,11 @@ inline void GParameterBase::add<bool>(
 /**
  * Subtracts the "same-type" parameters of another GParameterBase object from this one
  */
-template<>
-inline void GParameterBase::subtract<float>(
-    const std::shared_ptr<GParameterBase> &p, activityMode am
-) {
-    if (this->modifiableAmMatchOrHandover(am)) {
-        this->floatSubtract(
-            p
-            , am
-        );
+template <>
+inline void
+GParameterBase::subtract<float>(const std::shared_ptr<GParameterBase> &p, activityMode am) {
+    if(this->modifiableAmMatchOrHandover(am)) {
+        this->floatSubtract(p, am);
     }
 }
 
@@ -1556,15 +1336,11 @@ inline void GParameterBase::subtract<float>(
 /**
  * Subtracts the "same-type" parameters of another GParameterBase object from this one
  */
-template<>
-inline void GParameterBase::subtract<double>(
-    const std::shared_ptr<GParameterBase> &p, activityMode am
-) {
-    if (this->modifiableAmMatchOrHandover(am)) {
-        this->doubleSubtract(
-            p
-            , am
-        );
+template <>
+inline void
+GParameterBase::subtract<double>(const std::shared_ptr<GParameterBase> &p, activityMode am) {
+    if(this->modifiableAmMatchOrHandover(am)) {
+        this->doubleSubtract(p, am);
     }
 }
 
@@ -1572,15 +1348,11 @@ inline void GParameterBase::subtract<double>(
 /**
  * Subtracts the "same-type" parameters of another GParameterBase object from this one
  */
-template<>
-inline void GParameterBase::subtract<std::int32_t>(
-    const std::shared_ptr<GParameterBase> &p, activityMode am
-) {
-    if (this->modifiableAmMatchOrHandover(am)) {
-        this->int32Subtract(
-            p
-            , am
-        );
+template <>
+inline void
+GParameterBase::subtract<std::int32_t>(const std::shared_ptr<GParameterBase> &p, activityMode am) {
+    if(this->modifiableAmMatchOrHandover(am)) {
+        this->int32Subtract(p, am);
     }
 }
 
@@ -1590,23 +1362,18 @@ inline void GParameterBase::subtract<std::int32_t>(
  * This specialization for boolean values has been added for completeness and error-detection.
  * It will throw when called.
  */
-template<>
-inline void GParameterBase::subtract<bool>(
-    const std::shared_ptr<GParameterBase> &p, activityMode am
-) {
-    if (this->modifiableAmMatchOrHandover(am)) {
+template <>
+inline void
+GParameterBase::subtract<bool>(const std::shared_ptr<GParameterBase> &p, activityMode am) {
+    if(this->modifiableAmMatchOrHandover(am)) {
         // NOTE: This call will throw
-        this->booleanSubtract(
-            p
-            , am
-        );
+        this->booleanSubtract(p, am);
     }
 }
 
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 
 /******************************************************************************/
 /**
@@ -1614,4 +1381,3 @@ inline void GParameterBase::subtract<bool>(
  */
 BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::GParameterBase) // NOLINT
 /******************************************************************************/
-

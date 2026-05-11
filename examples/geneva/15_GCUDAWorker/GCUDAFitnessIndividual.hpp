@@ -37,18 +37,18 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard header files go here
-#include <string>
-#include <cstdio>
-#include <iostream>
-#include <cstdlib>
-#include <vector>
-#include <iterator>
-#include <cmath>
 #include <algorithm> // for std::sort
-#include <utility> // For std::pair
-#include <tuple>
+#include <cmath>
+#include <cstdio>
+#include <cstdlib>
+#include <iostream>
+#include <iterator>
 #include <memory>
+#include <string>
+#include <tuple>
 #include <type_traits>
+#include <utility> // For std::pair
+#include <vector>
 
 // Geneva header files go here
 #include "geneva-individuals/GFunctionIndividual.hpp"
@@ -62,8 +62,7 @@ namespace Gem::Geneva {
  * Instead of performing the evaluation on the CPU, the individual uses
  * a CUDA-capable GPU for the evaluation.
  */
-class GCUDAFitnessIndividual : public GFunctionIndividual
-{
+class GCUDAFitnessIndividual : public GFunctionIndividual {
 public:
 private:
 };

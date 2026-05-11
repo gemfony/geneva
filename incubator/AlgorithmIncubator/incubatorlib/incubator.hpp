@@ -31,10 +31,10 @@
  *
  ********************************************************************************/
 
-#include <iostream>
-#include <vector>
 #include <cmath>
+#include <iostream>
 #include <limits>
+#include <vector>
 
 #pragma once
 
@@ -43,13 +43,13 @@
  * This enum denotes the possible demo function types
  */
 enum solverFunction {
-	PARABOLA=0
-	, NOISYPARABOLA=1
-	, ROSENBROCK=2
-	, ACKLEY=3
-	, RASTRIGIN=4
-	, SCHWEFEL=5
-	, SALOMON=6
+    PARABOLA = 0,
+    NOISYPARABOLA = 1,
+    ROSENBROCK = 2,
+    ACKLEY = 3,
+    RASTRIGIN = 4,
+    SCHWEFEL = 5,
+    SALOMON = 6
 };
 
 /******************************************************************************/
@@ -58,34 +58,34 @@ enum solverFunction {
  */
 class solver {
 public:
-	// The standard constructor
-	solver(const solverFunction&);
-	// The copy constructor
-	solver(const solver&);
+    // The standard constructor
+    solver(const solverFunction &);
+    // The copy constructor
+    solver(const solver &);
 
-	// virtual destructor, so we can later derive classes from this one
-	virtual ~solver();
+    // virtual destructor, so we can later derive classes from this one
+    virtual ~solver();
 
-	// This is just syntactic sugar ...
-	double operator()(const std::vector<double>&) const;
+    // This is just syntactic sugar ...
+    double operator()(const std::vector<double> &) const;
 
-	// Trigger the actual fitness calculation
-	double fitnessCalculation(const std::vector<double>) const;
+    // Trigger the actual fitness calculation
+    double fitnessCalculation(const std::vector<double>) const;
 
 protected:
-	double fitnessParabola(const std::vector<double>& vec) const;
-	double fitnessNoisyParabola(const std::vector<double>& vec) const;
-	double fitnessRosenbrock(const std::vector<double>& vec) const;
-	double fitnessAckley(const std::vector<double>& vec) const;
-	double fitnessRastrigin(const std::vector<double>& vec) const;
-	double fitnessSchwefel(const std::vector<double>& vec) const;
-	double fitnessSalomon(const std::vector<double>& vec) const;
+    double fitnessParabola(const std::vector<double> &vec) const;
+    double fitnessNoisyParabola(const std::vector<double> &vec) const;
+    double fitnessRosenbrock(const std::vector<double> &vec) const;
+    double fitnessAckley(const std::vector<double> &vec) const;
+    double fitnessRastrigin(const std::vector<double> &vec) const;
+    double fitnessSchwefel(const std::vector<double> &vec) const;
+    double fitnessSalomon(const std::vector<double> &vec) const;
 
-	solverFunction f_; ///< The chosen solver
+    solverFunction f_; ///< The chosen solver
 
 private:
-	// The default constructor: intentionally private and undefined, as we want to enforce usage of solver(const solverFunction& f)
-	solver() = delete;
+    // The default constructor: intentionally private and undefined, as we want to enforce usage of solver(const solverFunction& f)
+    solver() = delete;
 };
 
 /******************************************************************************/
@@ -95,78 +95,69 @@ private:
  */
 class optimizerBase {
 public:
-	// The default constructor
-	optimizerBase(
-		const std::vector<double>&
-		, const solver&
-		, const std::size_t&
-	);
-	// The copy constructor
-	optimizerBase(const optimizerBase&);
-	// virtual destructor
-	virtual ~optimizerBase();
+    // The default constructor
+    optimizerBase(const std::vector<double> &, const solver &, const std::size_t &);
+    // The copy constructor
+    optimizerBase(const optimizerBase &);
+    // virtual destructor
+    virtual ~optimizerBase();
 
-	// Retrieve the current iteration
-	std::size_t getCurrentIteration() const;
-	// Retrieve the best result found so far
-	double getBestResult() const;
-	// Retrieve the best parameters  found so far
-	std::vector<double> getBestParameters() const;
+    // Retrieve the current iteration
+    std::size_t getCurrentIteration() const;
+    // Retrieve the best result found so far
+    double getBestResult() const;
+    // Retrieve the best parameters  found so far
+    std::vector<double> getBestParameters() const;
 
-	// The external optimizer interface.
-	std::vector<double> optimize();
+    // The external optimizer interface.
+    std::vector<double> optimize();
 
 protected:
-	// Overload this function in derived classes, if initialization work is required
-	virtual void init();
-	// Overload this function in derived classes, if initialization work is required
-	virtual void finalize();
-	// Overload this function in derived classes -- it holds the logic to be executed in each iteration
-	virtual double cycleLogic(std::vector<double>&) = 0;
+    // Overload this function in derived classes, if initialization work is required
+    virtual void init();
+    // Overload this function in derived classes, if initialization work is required
+    virtual void finalize();
+    // Overload this function in derived classes -- it holds the logic to be executed in each iteration
+    virtual double cycleLogic(std::vector<double> &) = 0;
 
-	// Return "true", if currentIteration_ becomes larger than maxIterations_, otherwise "false"
-	bool halt();
+    // Return "true", if currentIteration_ becomes larger than maxIterations_, otherwise "false"
+    bool halt();
 
-	double bestEvaluation_ = std::numeric_limits<double>::max(); ///< Holds the best value found so far
-	std::vector<double> bestParameters_; ///< Holds the currently best parameter set
+    double bestEvaluation_ =
+        std::numeric_limits<double>::max(); ///< Holds the best value found so far
+    std::vector<double> bestParameters_;    ///< Holds the currently best parameter set
 
-	solver solver_; ///< Holds the solver object
+    solver solver_; ///< Holds the solver object
 
 private:
-	std::size_t maxIterations_; ///< Holds the maximum number of optimization cycles -- this will serve as our stop criterion for the optimization
-	std::size_t currentIteration_ = 0; ///< The current iteration being processed
+    std::size_t
+        maxIterations_; ///< Holds the maximum number of optimization cycles -- this will serve as our stop criterion for the optimization
+    std::size_t currentIteration_ = 0; ///< The current iteration being processed
 
-	// The default constructor: intentionally private and undefined, as we want to enforce usage of optimizerBase(const std::size_t&)
-	optimizerBase() = delete;
+    // The default constructor: intentionally private and undefined, as we want to enforce usage of optimizerBase(const std::size_t&)
+    optimizerBase() = delete;
 };
 
 /******************************************************************************/
 /**
  * A place holder for optimization algorithms to be tried out
  */
-class optimizerPlaceHolder
-	: public optimizerBase
-{
+class optimizerPlaceHolder : public optimizerBase {
 public:
-	optimizerPlaceHolder(
-		const std::vector<double>&
-		, const solver&
-		, const std::size_t&
-	);
+    optimizerPlaceHolder(const std::vector<double> &, const solver &, const std::size_t &);
 
 protected:
-	// The optimization logic. We do nothing in this dummy optimizer. You may implement
-	// your own optimization code here.
-	virtual double cycleLogic(std::vector<double>&);
+    // The optimization logic. We do nothing in this dummy optimizer. You may implement
+    // your own optimization code here.
+    virtual double cycleLogic(std::vector<double> &);
 
 private:
-	// The default constructor: intentionally private and undefined, as we want to enforce usage of optimizerBase(const std::size_t&)
-	optimizerPlaceHolder() = delete;
+    // The default constructor: intentionally private and undefined, as we want to enforce usage of optimizerBase(const std::size_t&)
+    optimizerPlaceHolder() = delete;
 };
 
 /******************************************************************************/
 /** @brief Helper function to output results and keep "main()" clean */
-void print(const std::vector<double>&, const std::string&);
+void print(const std::vector<double> &, const std::string &);
 
 /******************************************************************************/
-

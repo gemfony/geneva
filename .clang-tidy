@@ -1,0 +1,227 @@
+# Geneva-style clang-tidy baseline (modernized for C++20)
+#
+# This file complements .clang-format. It focuses on rules that clang-tidy can
+# check reasonably well. Several Geneva coding conventions require custom
+# checks or human review; see the notes at the end.
+#
+# This is a modernized version of the original Geneva-style configuration.
+# The Geneva Coding Conventions are ~10 years old, written before C++11 was
+# widespread. Where the conventions reference outdated practice (e.g.
+# boost::uint32_t, omitting throw() specs), this config takes a pragmatic
+# modern stance:
+#
+# - boost::uint32_t etc. are NOT enforced; std::uint32_t from <cstdint> is the
+#   modern equivalent. The "use sized integer types" spirit is preserved.
+# - The convention "omit throw() in member function declarations" is folded
+#   into a noexcept-aware modern style; we let modernize-use-noexcept guide.
+# - C++20 features (concepts, ranges, span, format) are encouraged but not
+#   forced, to avoid disruptive changes in legacy code.
+#
+# Usage:
+#   clang-tidy -p build path/to/file.cpp
+#
+# CLion and VS Code can pick this file up when clang-tidy is enabled.
+
+---
+Checks: >-
+  -*,
+  bugprone-*,
+  -bugprone-easily-swappable-parameters,
+  cert-*,
+  -cert-err58-cpp,
+  clang-analyzer-*,
+  concurrency-*,
+  cppcoreguidelines-*,
+  -cppcoreguidelines-avoid-magic-numbers,
+  -cppcoreguidelines-pro-bounds-array-to-pointer-decay,
+  -cppcoreguidelines-pro-bounds-pointer-arithmetic,
+  -cppcoreguidelines-pro-bounds-constant-array-index,
+  -cppcoreguidelines-pro-type-vararg,
+  -cppcoreguidelines-non-private-member-variables-in-classes,
+  google-build-using-namespace,
+  google-explicit-constructor,
+  google-readability-casting,
+  google-readability-namespace-comments,
+  hicpp-exception-baseclass,
+  hicpp-multiway-paths-covered,
+  hicpp-signed-bitwise,
+  misc-confusable-identifiers,
+  misc-definitions-in-headers,
+  misc-misleading-bidirectional,
+  misc-misleading-identifier,
+  misc-misplaced-const,
+  misc-redundant-expression,
+  misc-static-assert,
+  misc-throw-by-value-catch-by-reference,
+  misc-unused-alias-decls,
+  misc-unused-parameters,
+  misc-unused-using-decls,
+  modernize-*,
+  -modernize-use-trailing-return-type,
+  -modernize-avoid-c-arrays,
+  -modernize-use-nodiscard,
+  performance-*,
+  portability-*,
+  readability-*,
+  -readability-magic-numbers,
+  -readability-named-parameter,
+  -readability-uppercase-literal-suffix,
+  -readability-function-cognitive-complexity,
+  -readability-identifier-length
+
+WarningsAsErrors: ''
+# Restrict header warnings to Geneva's own headers; this avoids noise from
+# Boost, system, and third-party headers that appear in the same TU.
+HeaderFilterRegex: '.*/include/(common|hap|courtier|geneva|geneva-individuals)/.*'
+FormatStyle: file
+UseColor: true
+
+CheckOptions:
+  # ------------------------------------------------------------------
+  # Brace style for control flow.
+  # ------------------------------------------------------------------
+  # The Geneva conventions show several examples WITHOUT braces around
+  # single-statement bodies (e.g. setMyClassVariable). Setting
+  # ShortStatementLines: '1' tolerates the documented one-line form,
+  # while still requiring braces when the body wraps.
+  readability-braces-around-statements.ShortStatementLines: '1'
+
+  # ------------------------------------------------------------------
+  # Namespace closing comments.
+  # ------------------------------------------------------------------
+  # Geneva uses `} /* namespace X */`. clang-tidy can only generate
+  # `// namespace X` style, so we leave it as a soft warning rather
+  # than a strict fixer; team review handles the exact spelling.
+  google-readability-namespace-comments.ShortNamespaceLines: '1'
+  google-readability-namespace-comments.SpacesBeforeComments: '1'
+
+  # ------------------------------------------------------------------
+  # Header / implementation parameter consistency.
+  # ------------------------------------------------------------------
+  # Geneva says headers SHOULD omit parameter names. clang-tidy cannot
+  # enforce that directly, but it can catch the more common drift:
+  # parameters renamed in the .cpp without updating the .hpp.
+  readability-inconsistent-declaration-parameter-name.Strict: 'true'
+
+  # ------------------------------------------------------------------
+  # Identifier naming.
+  # ------------------------------------------------------------------
+  # Geneva uses camelBack for functions/variables, CamelCase for classes,
+  # private members end in '_'. The 'G' prefix and 'T' suffix for
+  # template classes are NOT enforced because the convention says
+  # "usually" / "where appropriate".
+  readability-identifier-naming.FunctionCase: camelBack
+  readability-identifier-naming.MethodCase: camelBack
+  readability-identifier-naming.VariableCase: camelBack
+  readability-identifier-naming.ParameterCase: camelBack
+  readability-identifier-naming.LocalVariableCase: camelBack
+  readability-identifier-naming.MemberCase: camelBack
+  readability-identifier-naming.PublicMemberCase: camelBack
+  readability-identifier-naming.PrivateMemberCase: camelBack
+  readability-identifier-naming.PrivateMemberSuffix: _
+  readability-identifier-naming.ProtectedMemberCase: camelBack
+  readability-identifier-naming.ProtectedMemberSuffix: _
+  readability-identifier-naming.ClassCase: CamelCase
+  readability-identifier-naming.StructCase: CamelCase
+  readability-identifier-naming.UnionCase: CamelCase
+  readability-identifier-naming.EnumCase: CamelCase
+  # Geneva enum constants are UPPER_CASE: TEXT, XML, BINARY, LOWERISBETTER, etc.
+  readability-identifier-naming.EnumConstantCase: UPPER_CASE
+  readability-identifier-naming.ScopedEnumConstantCase: UPPER_CASE
+  readability-identifier-naming.TypeAliasCase: CamelCase
+  readability-identifier-naming.TypedefCase: CamelCase
+  readability-identifier-naming.TemplateParameterCase: CamelCase
+  readability-identifier-naming.TypeTemplateParameterCase: CamelCase
+  readability-identifier-naming.ValueTemplateParameterCase: CamelCase
+  readability-identifier-naming.TemplateTemplateParameterCase: CamelCase
+  readability-identifier-naming.ConceptCase: CamelCase
+  readability-identifier-naming.NamespaceCase: CamelCase
+  readability-identifier-naming.MacroDefinitionCase: UPPER_CASE
+  readability-identifier-naming.GlobalConstantCase: UPPER_CASE
+  readability-identifier-naming.StaticConstantCase: UPPER_CASE
+  readability-identifier-naming.ClassConstantCase: UPPER_CASE
+  readability-identifier-naming.ConstexprVariableCase: UPPER_CASE
+  readability-identifier-naming.GlobalFunctionCase: camelBack
+  readability-identifier-naming.ConstexprFunctionCase: camelBack
+  readability-identifier-naming.ConstexprMethodCase: camelBack
+
+  # ------------------------------------------------------------------
+  # Modernization knobs.
+  # ------------------------------------------------------------------
+  modernize-use-override.AllowOverrideAndFinal: 'true'
+  modernize-use-override.IgnoreDestructors: 'false'
+  modernize-use-default-member-init.UseAssignment: 'true'
+  modernize-use-emplace.IgnoreImplicitConstructors: 'true'
+  modernize-use-auto.MinTypeNameLength: '5'
+  modernize-loop-convert.MinConfidence: reasonable
+  modernize-pass-by-value.IncludeStyle: llvm
+  modernize-replace-auto-ptr.IncludeStyle: llvm
+  modernize-use-nullptr.NullMacros: 'NULL'
+  modernize-use-noexcept.ReplacementString: 'noexcept'
+  # noexcept(false) annotations are almost never useful and generate noise.
+  modernize-use-noexcept.UseNoexceptFalse: 'false'
+
+  # ------------------------------------------------------------------
+  # Bugprone / cppcoreguidelines tuning.
+  # ------------------------------------------------------------------
+  # No magic numbers in production code, but allow common literals 0/1/-1
+  # in test code without complaining (avoids alarm fatigue).
+  cppcoreguidelines-init-variables.IncludeStyle: llvm
+  cppcoreguidelines-special-member-functions.AllowSoleDefaultDtor: 'true'
+  cppcoreguidelines-special-member-functions.AllowMissingMoveFunctions: 'true'
+  cppcoreguidelines-special-member-functions.AllowMissingMoveFunctionsWhenCopyIsDeleted: 'true'
+
+  # Macros should be avoided per Geneva guideline "function macros should
+  # be avoided at all costs" and "defines may not be used for specific
+  # values". cppcoreguidelines-macro-usage flags both.
+  # Allowed: G_API_* visibility macros, GEM_* build guards, G_DEPRECATED,
+  # GSQUARED utility macro, GENEVA_* config macros, DEBUG, and the
+  # intentionally lowercase `time_and_place` source-location macro.
+  cppcoreguidelines-macro-usage.AllowedRegexp: '^(DEBUG|G_.*|GEM_.*|GENEVA_.*|time_and_place)$'
+
+  # Performance.
+  performance-for-range-copy.WarnOnAllAutoCopies: 'true'
+  performance-unnecessary-value-param.AllowedTypes: ''
+  performance-inefficient-string-concatenation.StrictMode: 'true'
+
+  # Misc.
+  misc-throw-by-value-catch-by-reference.WarnOnLargeObject: 'true'
+  misc-throw-by-value-catch-by-reference.MaxSize: '64'
+
+  # Readability.
+  readability-implicit-bool-conversion.AllowIntegerConditions: 'true'
+  readability-implicit-bool-conversion.AllowPointerConditions: 'true'
+  readability-function-size.LineThreshold: '100'
+  readability-function-size.StatementThreshold: '50'
+  readability-function-size.BranchThreshold: '15'
+  readability-function-size.ParameterThreshold: '8'
+  readability-function-size.NestingThreshold: '5'
+
+# ----------------------------------------------------------------------
+# Rules NOT covered by stock clang-tidy, or only partially:
+# ----------------------------------------------------------------------
+# - Doxygen comments before every file, class, function and variable.
+#   (Use a Doxygen completeness checker or pre-commit hook instead.)
+# - Exact file header / license block.
+#   (Use a custom regex script in CI.)
+# - Header declarations must omit parameter names.
+#   (No clang-tidy check exists; static review only.)
+# - Prefer 'typename' over 'class' in template parameter lists.
+#   (modernize-use-using covers part of this; full check requires custom.)
+# - Template classes / structs ending with 'T' only.
+# - Interface classes ending with 'I' only.
+# - Core Geneva classes starting with 'G' only where applicable.
+#   (These three could be added via readability-identifier-naming
+#    .ClassPrefix / .ClassSuffix, but cause too many false positives
+#    in code that interfaces with external libraries.)
+# - File extension and one-main-class-per-file rules.
+#   (Filesystem-level check, outside of clang-tidy's scope.)
+#
+# Modernization beyond the original conventions:
+# - std::uint32_t etc. (from <cstdint>) replace boost::uint32_t.
+# - noexcept replaces throw() specifications.
+# - using namespace is forbidden (google-build-using-namespace).
+# - Macros for constants are flagged (cppcoreguidelines-macro-usage).
+# - C-style casts are flagged (google-readability-casting,
+#   cppcoreguidelines-pro-type-cstyle-cast).
+...

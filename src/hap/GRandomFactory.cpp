@@ -29,29 +29,28 @@
 
 #include "hap/GRandomFactory.hpp"
 
-namespace Gem::Hap
-{
+namespace Gem::Hap {
 
-	/******************************************************************************/
-	////////////////////////////////////////////////////////////////////////////////
-	/******************************************************************************/
-	/**
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
  * Initialization of static data members
  */
-	std::atomic<bool> GRandomFactory::m_multiple_call_trap = ATOMIC_VAR_INIT(false);
+std::atomic<bool> GRandomFactory::multiple_call_trap_ = ATOMIC_VAR_INIT(false);
 
-	/******************************************************************************/
-	/**
+/******************************************************************************/
+/**
  * The standard constructor, which seeds the random number generator and checks
  * that this class is instantiated only once.
  */
-	GRandomFactory::GRandomFactory() {
-		/*
+GRandomFactory::GRandomFactory() {
+    /*
 	 * Apparently the entropy() call currently always returns 0 with g++ and clang,
 	 * as this call is not fully implemented.
 	 *
 	// Check whether enough entropy is available. Warn, if this is not the case
-	if (0. == m_multiple_call_trap.entropy()) {
+	if (0. == multiple_call_trap_.entropy()) {
 		glogger
 		<< "In GSeedManager::GSeedManager(): Error!" << std::endl
 		<< "Source of non-deterministic random numbers" << std::endl
@@ -60,100 +59,102 @@ namespace Gem::Hap
 	}
 	*/
 
-		if (m_multiple_call_trap) {
-			glogger
-				<< "Error in GRandomFactory::GRandomFactory():" << std::endl
-				<< "Class has been instantiated before." << std::endl
-				<< "and may be instantiated only once" << std::endl
-				<< GTERMINATION;
-		} else {
-			m_multiple_call_trap.store(true);
-		}
-	}
+    if(multiple_call_trap_) {
+        glogger << "Error in GRandomFactory::GRandomFactory():" << std::endl
+                << "Class has been instantiated before." << std::endl
+                << "and may be instantiated only once" << std::endl
+                << GTERMINATION;
+    }
+    else {
+        multiple_call_trap_.store(true);
+    }
+}
 
-	/******************************************************************************/
-	/**
+/******************************************************************************/
+/**
  * The destructor. All work is done in the finalize() function.
  */
-	GRandomFactory::~GRandomFactory() {
-		// Make sure the finalization code is executed
-		// (if this hasn't happened already). Calling
-		// finalize() multiple times is safe.
-		finalize();
-	}
+GRandomFactory::~GRandomFactory() {
+    // Make sure the finalization code is executed
+    // (if this hasn't happened already). Calling
+    // finalize() multiple times is safe.
+    finalize();
+}
 
-	/******************************************************************************/
-	/**
+/******************************************************************************/
+/**
  * Initializes the factory. This function does nothing at this time. Its
  * only purpose is to control initialization of the factory in the singleton.
  */
-	void GRandomFactory::init() { /* nothing */ }
+void GRandomFactory::init() { /* nothing */
+}
 
-	/******************************************************************************/
-	/**
+/******************************************************************************/
+/**
  * Finalization code for the GRandomFactory. All threads are given the
  * interrupt signal. Then we wait for them to join us. This function will
  * only once perform useful work and will return immediately when called a
  * second time. It can thus be called as often as you wish.
  */
-	void GRandomFactory::finalize() {
-		// Only allow one finalization action to be carried out
-		if (m_finalized) return;
+void GRandomFactory::finalize() {
+    // Only allow one finalization action to be carried out
+    if(finalized_)
+        return;
 
-		// Flag all threads to stop
-		m_threads_stop_requested.store(true);
-		// Wait for all threads to return
-		m_producer_threads.join_all();
+    // Flag all threads to stop
+    threads_stop_requested_.store(true);
+    // Wait for all threads to return
+    producer_threads_.join_all();
 
-		// Let the audience know
-		m_finalized.store(true);
-	}
+    // Let the audience know
+    finalized_.store(true);
+}
 
-	/******************************************************************************/
-	/**
+/******************************************************************************/
+/**
  * Allows to retrieve the size of random number arrays
  *
  * @return The current value of the arraySize_ variable
  */
-	std::size_t GRandomFactory::getCurrentArraySize() const {
-		return DEFAULTARRAYSIZE;
-	}
+std::size_t GRandomFactory::getCurrentArraySize() const {
+    return DEFAULTARRAYSIZE;
+}
 
-	/******************************************************************************/
-	/**
+/******************************************************************************/
+/**
  * Retrieves the size of the random buffer, i.e. the data structure holding the
  * random number packages.
  *
  * @return The size of the random buffer
  */
-	std::size_t GRandomFactory::getBufferSize() const {
-		return DEFAULTFACTORYBUFFERSIZE;
-	}
+std::size_t GRandomFactory::getBufferSize() const {
+    return DEFAULTFACTORYBUFFERSIZE;
+}
 
-	/******************************************************************************/
-	/**
+/******************************************************************************/
+/**
  * This function returns a random number from a pseudo random sequence
  *
  * @return A seed taken from a local seed_seq object
  */
-	seed_type GRandomFactory::getSeed() {
-		std::unique_lock<std::mutex> sm_lck(m_seeding_mutex);
+seed_type GRandomFactory::getSeed() {
+    std::unique_lock<std::mutex> sm_lck(seeding_mutex_);
 
-		// Refill at the start of seeding or when all seeds have been used
-		if(not m_seeding_has_started || m_seed_cit==m_seed_collection.end()) {
-			m_seed_seq.generate(m_seed_collection.begin(), m_seed_collection.end());
-			m_seed_cit=m_seed_collection.begin();
-			m_seeding_has_started.store(true);
-		}
+    // Refill at the start of seeding or when all seeds have been used
+    if(not seeding_has_started_ || seed_cit_ == seed_collection_.end()) {
+        seed_seq_.generate(seed_collection_.begin(), seed_collection_.end());
+        seed_cit_ = seed_collection_.begin();
+        seeding_has_started_.store(true);
+    }
 
-		seed_type result = *m_seed_cit;
-		++m_seed_cit;
+    seed_type result = *seed_cit_;
+    ++seed_cit_;
 
-		return result;
-	}
+    return result;
+}
 
-	/******************************************************************************/
-	/**
+/******************************************************************************/
+/**
  * Allows recycling of (possibly partially used) packages. This way we avoid
  * the continuous allocation and deletion of new buffers. Note that this function
  * may delete its argument if it cannot be added to the buffer.
@@ -161,15 +162,15 @@ namespace Gem::Hap
  * @param r A pointer to a partially used work package
  * @param current_pos The first position in the array that holds unused random numbers
  */
-	void GRandomFactory::returnUsedPackage(std::unique_ptr<random_container>&& p) {
-		// We try to add the item to the m_p_ret_bfr queue.
-		if(not m_p_ret_bfr.try_push_move(std::move(p))) {
-			p.reset();
-		}
-	}
+void GRandomFactory::returnUsedPackage(std::unique_ptr<random_container> &&p) {
+    // We try to add the item to the p_ret_bfr_ queue.
+    if(not p_ret_bfr_.try_push_move(std::move(p))) {
+        p.reset();
+    }
+}
 
-	/******************************************************************************/
-	/**
+/******************************************************************************/
+/**
  * Sets the number of producer threads for this factory. See also
  * http://preshing.com/20130930/double-checked-locking-is-fixed-in-cpp11/ for
  * the rationale of the double checked locking pattern. Note that only an
@@ -177,80 +178,90 @@ namespace Gem::Hap
  *
  * @param n01Threads The number of threads simultaneously producing random numbers
  */
-	void GRandomFactory::setNProducerThreads(const std::uint16_t &nProducerThreads) {
-		// Threads might already be running, so we need to regulate access
-		if(m_threads_started) {
-			// If we enter this code-path, there is no way threads
-			// could go into the "not-running" state, so we do not need
-			// to check again using DCLP .
-			std::unique_lock<std::mutex> lk(m_thread_creation_mutex);
-			// Make a suggestion for the number of threads, if requested
-			std::uint16_t nProducerThreads_local = DEFAULT01PRODUCERTHREADS;
-			if(0 == nProducerThreads) {
-				glogger
-					<< "In GRandomFactory::setNProducerThreads(nProducerThreads) / 1:" << std::endl
-					<< "nProducerThreads == 0 was requested. nProducerThreads_local was set to the default "
-					<< DEFAULT01PRODUCERTHREADS << std::endl
-					<< GWARNING;
-			} else {
-				nProducerThreads_local = nProducerThreads;
-			}
+void GRandomFactory::setNProducerThreads(const std::uint16_t &nProducerThreads) {
+    // Threads might already be running, so we need to regulate access
+    if(threads_started_) {
+        // If we enter this code-path, there is no way threads
+        // could go into the "not-running" state, so we do not need
+        // to check again using DCLP .
+        std::unique_lock<std::mutex> lk(thread_creation_mutex_);
+        // Make a suggestion for the number of threads, if requested
+        std::uint16_t nProducerThreads_local = DEFAULT01PRODUCERTHREADS;
+        if(0 == nProducerThreads) {
+            glogger << "In GRandomFactory::setNProducerThreads(nProducerThreads) / 1:" << std::endl
+                    << "nProducerThreads == 0 was requested. nProducerThreads_local was set to the "
+                       "default "
+                    << DEFAULT01PRODUCERTHREADS << std::endl
+                    << GWARNING;
+        }
+        else {
+            nProducerThreads_local = nProducerThreads;
+        }
 
-			if (nProducerThreads_local > m_n_producer_threads.load()) { // start new 01 threads
-				for (std::uint16_t i = m_n_producer_threads.load(); i < nProducerThreads_local; i++) {
-					m_producer_threads.create_thread(
-						[this]() { this->producer(this->getSeed()); }
-					);
-				}
-			} else if (nProducerThreads_local < m_n_producer_threads.load()) { // We need to remove threads
-				glogger
-					<< "In GRandomFactory::setNProducerThreads(" << nProducerThreads << "): Warning!" << std::endl
-					<< "Attempt to decrease the number of producer threads from " << m_n_producer_threads.load() << " to " << nProducerThreads << std::endl
-					<< "while threads were alredy running. The number of threads will remain unchanged." << std::endl
-					<< GWARNING;
+        if(nProducerThreads_local > n_producer_threads_.load()) { // start new 01 threads
+            for(std::uint16_t i = n_producer_threads_.load(); i < nProducerThreads_local;
+                i++) { // NOLINT(cppcoreguidelines-init-variables)
+                producer_threads_.create_thread([this]() { this->producer(this->getSeed()); });
+            }
+        }
+        else if(nProducerThreads_local < n_producer_threads_.load()) { // We need to remove threads
+            glogger
+                << "In GRandomFactory::setNProducerThreads(" << nProducerThreads << "): Warning!"
+                << std::endl
+                << "Attempt to decrease the number of producer threads from "
+                << n_producer_threads_.load() << " to " << nProducerThreads << std::endl
+                << "while threads were alredy running. The number of threads will remain unchanged."
+                << std::endl
+                << GWARNING;
 
-				return;
-			}
-		} else { // Double-checked locking pattern
-			// Here it appears that no threads were running. We do need to check again, though (DLCP)
-			std::unique_lock<std::mutex> tc_lk(m_thread_creation_mutex);
-			// Make a suggestion for the number of threads, if requested
-			std::uint16_t nProducerThreads_local = DEFAULT01PRODUCERTHREADS;
-			if(nProducerThreads == 0) {
-				glogger
-					<< "In GRandomFactory::setNProducerThreads(nProducerThreads) / 2:" << std::endl
-					<< "nProducerThreads == 0 was requested. nProducerThreads_local was set to the default "
-					<< DEFAULT01PRODUCERTHREADS << std::endl
-					<< GWARNING;
-			} else {
-				nProducerThreads_local = nProducerThreads;
-			}
+            return;
+        }
+    }
+    else { // Double-checked locking pattern
+        // Here it appears that no threads were running. We do need to check again, though (DLCP)
+        std::unique_lock<std::mutex> tc_lk(thread_creation_mutex_);
+        // Make a suggestion for the number of threads, if requested
+        std::uint16_t nProducerThreads_local = DEFAULT01PRODUCERTHREADS;
+        if(nProducerThreads == 0) {
+            glogger << "In GRandomFactory::setNProducerThreads(nProducerThreads) / 2:" << std::endl
+                    << "nProducerThreads == 0 was requested. nProducerThreads_local was set to the "
+                       "default "
+                    << DEFAULT01PRODUCERTHREADS << std::endl
+                    << GWARNING;
+        }
+        else {
+            nProducerThreads_local = nProducerThreads;
+        }
 
-			if (m_threads_started) { // Someone has started the threads in the meantime. Adjust the number of threads
-				if (nProducerThreads_local > m_n_producer_threads.load()) { // start new 01 threads
-					for (std::uint16_t i = m_n_producer_threads.load(); i < nProducerThreads_local; i++) {
-						m_producer_threads.create_thread(
-							[this]() { this->producer(this->getSeed()); }
-						);
-					}
-				} else if (nProducerThreads_local < m_n_producer_threads.load()) { // We need to remove threads
-					glogger
-						<< "In GRandomFactory::setNProducerThreads(" << nProducerThreads << "): Warning!" << std::endl
-						<< "Attempt to decrease the number of producer threads from " << m_n_producer_threads.load() << " to " << nProducerThreads << std::endl
-						<< "while threads were alredy running. The number of threads will remain unchanged." << std::endl
-						<< GWARNING;
+        if(threads_started_) { // Someone has started the threads in the meantime. Adjust the number of threads
+            if(nProducerThreads_local > n_producer_threads_.load()) { // start new 01 threads
+                for(std::uint16_t i = n_producer_threads_.load(); i < nProducerThreads_local;
+                    i++) { // NOLINT(cppcoreguidelines-init-variables)
+                    producer_threads_.create_thread([this]() { this->producer(this->getSeed()); });
+                }
+            }
+            else if(nProducerThreads_local <
+                    n_producer_threads_.load()) { // We need to remove threads
+                glogger << "In GRandomFactory::setNProducerThreads(" << nProducerThreads
+                        << "): Warning!" << std::endl
+                        << "Attempt to decrease the number of producer threads from "
+                        << n_producer_threads_.load() << " to " << nProducerThreads << std::endl
+                        << "while threads were alredy running. The number of threads will remain "
+                           "unchanged."
+                        << std::endl
+                        << GWARNING;
 
-					return;
-				}
-			}
+                return;
+            }
+        }
 
-			// Whether they were already running or not -- we may now adjust the number of producer threads
-			m_n_producer_threads = nProducerThreads_local;
-		}
-	}
+        // Whether they were already running or not -- we may now adjust the number of producer threads
+        n_producer_threads_ = nProducerThreads_local;
+    }
+}
 
-	/******************************************************************************/
-	/**
+/******************************************************************************/
+/**
  * When objects need a new container of [0,1[ -random numbers with the current
  * default size, they call this function. See also
  * http://preshing.com/20130930/double-checked-locking-is-fixed-in-cpp11/ for
@@ -258,37 +269,33 @@ namespace Gem::Hap
  *
  * @return A packet of new [0,1[ random numbers
  */
-	std::unique_ptr<random_container> GRandomFactory::getNewRandomContainer() {
-		// Start the producer threads upon first access to this function
-		if (not m_threads_started) {
-			std::unique_lock<std::mutex> tc_lk(m_thread_creation_mutex);
-			if (not m_threads_started) { // double checked locking pattern
-				//---------------------------------------------------------
-				for (std::uint16_t i = 0; i < m_n_producer_threads.load(); i++) {
-					m_producer_threads.create_thread(
-						[this]() { this->producer(this->getSeed()); }
-					);
-				}
-				//---------------------------------------------------------
+std::unique_ptr<random_container> GRandomFactory::getNewRandomContainer() {
+    // Start the producer threads upon first access to this function
+    if(not threads_started_) {
+        std::unique_lock<std::mutex> tc_lk(thread_creation_mutex_);
+        if(not threads_started_) { // double checked locking pattern
+            //---------------------------------------------------------
+            for(std::uint16_t i = 0; i < n_producer_threads_.load(); i++) {
+                producer_threads_.create_thread([this]() { this->producer(this->getSeed()); });
+            }
+            //---------------------------------------------------------
 
-				m_threads_started.store(true);
-			}
-		}
+            threads_started_.store(true);
+        }
+    }
 
-		std::unique_ptr<random_container> p; // empty
-		if(not m_p_fresh_bfr.pop_and_wait_move(
-			p
-			, std::chrono::milliseconds(DEFAULTFACTORYGETWAIT))) {
-			// nothing - our way of signaling a time out
-			// is to return an empty std::unique_ptr
-			p = std::unique_ptr<random_container>();
-		}
+    std::unique_ptr<random_container> p; // empty
+    if(not p_fresh_bfr_.pop_and_wait_move(p, std::chrono::milliseconds(DEFAULTFACTORYGETWAIT))) {
+        // nothing - our way of signaling a time out
+        // is to return an empty std::unique_ptr
+        p = std::unique_ptr<random_container>();
+    }
 
-		return p;
-	}
+    return p;
+}
 
-	/******************************************************************************/
-	/**
+/******************************************************************************/
+/**
  * The production of [0,1[ random numbers takes place here. As this function
  * is called in a thread, it may only throw using Genevas mechanisms. Exceptions
  * could otherwise go unnoticed. Hence this function has a possibly confusing
@@ -296,86 +303,91 @@ namespace Gem::Hap
  *
  * @param seed A seed for our local random number generator
  */
-	void GRandomFactory::producer(std::uint32_t seed) {
-		try {
-			G_CPU_BASE_GENERATOR mt(seed);
-			std::unique_ptr<random_container> p;
+void GRandomFactory::producer(std::uint32_t seed) {
+    try {
+        G_CPU_BASE_GENERATOR mt(static_cast<G_CPU_BASE_GENERATOR::result_type>(seed));
+        std::unique_ptr<random_container> p;
 
-			while(not m_threads_stop_requested) {
-				// First we try to retrieve a "recycled" item from the m_p_ret_bfr buffer. If this
-				// fails (likely because the buffer is empty), we create a new item instead
-				if(m_p_ret_bfr.try_pop_move(p)) {
-
-					// If we reach this line, we have successfully retrieved a recycled container.
-					// First do some error-checking
+        while(not threads_stop_requested_) {
+            // First we try to retrieve a "recycled" item from the p_ret_bfr_ buffer. If this
+            // fails (likely because the buffer is empty), we create a new item instead
+            if(p_ret_bfr_.try_pop_move(p)) {
+                // If we reach this line, we have successfully retrieved a recycled container.
+                // First do some error-checking
 #ifdef DEBUG
-					if(not p) {
-						throw geneva_exception(
-							g_error_streamer(DO_LOG,  time_and_place)
-							<< "In RandomFactory::producer(): Error!" << std::endl
-							<< "Got empty recycling pointer" << std::endl
-						);
-					}
+                if(not p) {
+                    throw geneva_exception(
+                        g_error_streamer(DO_LOG, time_and_place)
+                        << "In RandomFactory::producer(): Error!" << std::endl
+                        << "Got empty recycling pointer" << std::endl
+                    );
+                }
 
 #endif /* DEBUG */
 
-					// Replace "used" random numbers with new ones
-					p->refresh(mt);
-				} else { // O.k., so we need to create a new container
-					p.reset(new random_container(mt));
-				}
+                // Replace "used" random numbers with new ones
+                p->refresh(mt);
+            }
+            else { // O.k., so we need to create a new container
+                p.reset(new random_container(mt));
+            }
 
-				// Try to submit the item and check for termination conditions along the way
-				while(not m_threads_stop_requested) {
-					if(not m_p_fresh_bfr.try_push_move(std::move(p))){
+            // Try to submit the item and check for termination conditions along the way
+            while(not threads_stop_requested_) {
+                if(not p_fresh_bfr_.try_push_move(std::move(p))) {
 #ifdef DEBUG
-						// p should never be empty here
-						if(not p) {
-							throw geneva_exception(
-								g_error_streamer(DO_LOG,  time_and_place)
-								<< "In RandomFactory::producer(): Error!" << std::endl
-								<< "Got empty pointer after unsuccesfull submission" << std::endl
-							);
-						}
+                    // p should never be empty here
+                    if(not p) {
+                        throw geneva_exception(
+                            g_error_streamer(DO_LOG, time_and_place)
+                            << "In RandomFactory::producer(): Error!" << std::endl
+                            << "Got empty pointer after unsuccesfull submission" << std::endl
+                        );
+                    }
 #endif
-						std::this_thread::sleep_for(std::chrono::milliseconds(100));
-						continue;
-					} else { // We have submitted the item -- stop the inner loop
-						break;
-					}
-				}
-			}
-		} catch (std::bad_alloc &e) {
-			throw geneva_exception(
-				g_error_streamer(DO_LOG,  time_and_place)
-				<< "In GRandomFactory::producer(): Error!" << std::endl
-				<< "Caught std::bad_alloc exception with message" << std::endl
-				<< e.what() << std::endl
-			);
-		} catch (std::invalid_argument &e) {
-			throw geneva_exception(
-				g_error_streamer(DO_LOG,  time_and_place)
-				<< "In GRandomFactory::producer(): Error!" << std::endl
-				<< "Caught std::invalid_argument exception with message" << std::endl
-				<< e.what() << std::endl
-			);
-		} catch (std::system_error& e) {
-			throw geneva_exception(
-				g_error_streamer(DO_LOG,  time_and_place)
-				<< "In GRandomFactory::producer(): Error!" << std::endl
-				<< "Caught std::system_error exception with message" << std::endl
-				<< e.what() << std::endl
-				<< "which might indicate that a mutex could not be locked." << std::endl
-			);
-		} catch (...) {
-			throw geneva_exception(
-				g_error_streamer(DO_LOG,  time_and_place)
-				<< "In GRandomFactory::producer(): Error!" << std::endl
-				<< "Caught unkown exception." << std::endl
-			);
-		}
-	}
-
-	/******************************************************************************/
-
+                    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                    continue;
+                }
+                else { // We have submitted the item -- stop the inner loop
+                    break;
+                }
+            }
+        }
+    }
+    catch(std::bad_alloc &e) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, time_and_place)
+            << "In GRandomFactory::producer(): Error!" << std::endl
+            << "Caught std::bad_alloc exception with message" << std::endl
+            << e.what() << std::endl
+        );
+    }
+    catch(std::invalid_argument &e) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, time_and_place)
+            << "In GRandomFactory::producer(): Error!" << std::endl
+            << "Caught std::invalid_argument exception with message" << std::endl
+            << e.what() << std::endl
+        );
+    }
+    catch(std::system_error &e) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, time_and_place)
+            << "In GRandomFactory::producer(): Error!" << std::endl
+            << "Caught std::system_error exception with message" << std::endl
+            << e.what() << std::endl
+            << "which might indicate that a mutex could not be locked." << std::endl
+        );
+    }
+    catch(...) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, time_and_place)
+            << "In GRandomFactory::producer(): Error!" << std::endl
+            << "Caught unkown exception." << std::endl
+        );
+    }
 }
+
+/******************************************************************************/
+
+} /* namespace Gem::Hap */

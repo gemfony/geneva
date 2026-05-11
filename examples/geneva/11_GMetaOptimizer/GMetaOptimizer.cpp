@@ -45,55 +45,58 @@
 using namespace Gem::Geneva;
 
 int main(int argc, char **argv) {
-	Go2 go(argc, argv, "./config/Go2.json");
+    Go2 go(argc, argv, "./config/Go2.json");
 
-	//---------------------------------------------------------------------------
-	// Client mode
-	if(go.clientMode()) {
-		return go.clientRun();
-	} // Execution will end here in client mode
+    //---------------------------------------------------------------------------
+    // Client mode
+    if(go.clientMode()) {
+        return go.clientRun();
+    } // Execution will end here in client mode
 
-	//---------------------------------------------------------------------------
-	// As we are dealing with a server, register a signal handler that allows us
-	// to interrupt execution "on the run"
-	signal(G_SIGHUP, GObject::sigHupHandler);
+    //---------------------------------------------------------------------------
+    // As we are dealing with a server, register a signal handler that allows us
+    // to interrupt execution "on the run"
+    signal(G_SIGHUP, GObject::sigHupHandler);
 
-	//---------------------------------------------------------------------------
-	// Create a factory for GFunctionIndividual objects and perform
-	// any necessary initial work.
-	std::shared_ptr<GFunctionIndividualFactory>
-		gfi_ptr(new GFunctionIndividualFactory("./config/GFunctionIndividual.json"));
+    //---------------------------------------------------------------------------
+    // Create a factory for GFunctionIndividual objects and perform
+    // any necessary initial work.
+    std::shared_ptr<GFunctionIndividualFactory> gfi_ptr(
+        new GFunctionIndividualFactory("./config/GFunctionIndividual.json")
+    );
 
-	// Create a factory for GMetaOptimizerIndividual objects and perform
-	// any necessary initial work.
-	std::shared_ptr<GMetaOptimizerIndividualFactoryT<GFunctionIndividual>> gmoi_ptr(
-		new GMetaOptimizerIndividualFactoryT<GFunctionIndividual>("./config/GMetaOptimizerIndividual.json")
-	);
+    // Create a factory for GMetaOptimizerIndividual objects and perform
+    // any necessary initial work.
+    std::shared_ptr<GMetaOptimizerIndividualFactoryT<GFunctionIndividual>> gmoi_ptr(
+        new GMetaOptimizerIndividualFactoryT<GFunctionIndividual>(
+            "./config/GMetaOptimizerIndividual.json"
+        )
+    );
 
-	// Add a pluggable optimization monitor (targeted at evolutionary algorithms) and register
-	// it with Go2.
-	go.registerPluggableOM(
-		std::shared_ptr<GOptOptMonitorT<GFunctionIndividual>>(new GOptOptMonitorT<GFunctionIndividual>("./optProgress.C"))
-	);
+    // Add a pluggable optimization monitor (targeted at evolutionary algorithms) and register
+    // it with Go2.
+    go.registerPluggableOM(
+        std::shared_ptr<GOptOptMonitorT<GFunctionIndividual>>(
+            new GOptOptMonitorT<GFunctionIndividual>("./optProgress.C")
+        )
+    );
 
-	// Register the GFunctionIndividualFactory with the meta-optimizer,
-	// so it can be handed to the meta-optimization individuals later
-	gmoi_ptr->registerIndividualFactory(gfi_ptr);
+    // Register the GFunctionIndividualFactory with the meta-optimizer,
+    // so it can be handed to the meta-optimization individuals later
+    gmoi_ptr->registerIndividualFactory(gfi_ptr);
 
-	// Add a content creator so Go2 can generate its own individuals, if necessary
-	go.registerContentCreator(gmoi_ptr);
+    // Add a content creator so Go2 can generate its own individuals, if necessary
+    go.registerContentCreator(gmoi_ptr);
 
-	// Add a default optimization algorithm to the Go2 object
-	go.registerDefaultAlgorithm("ea");
+    // Add a default optimization algorithm to the Go2 object
+    go.registerDefaultAlgorithm("ea");
 
-	// Perform the actual optimization
-	std::shared_ptr<GMetaOptimizerIndividualT<GFunctionIndividual>> bestIndividual_ptr
-		= go.optimize()->getBestGlobalIndividual<GMetaOptimizerIndividualT<GFunctionIndividual>>();
+    // Perform the actual optimization
+    std::shared_ptr<GMetaOptimizerIndividualT<GFunctionIndividual>> bestIndividual_ptr =
+        go.optimize()->getBestGlobalIndividual<GMetaOptimizerIndividualT<GFunctionIndividual>>();
 
-	// Do something with the best result. Here we simply print the result to std-out.
-	std::cout
-	<< "Best Result was:" << std::endl
-	<< *bestIndividual_ptr << std::endl;
+    // Do something with the best result. Here we simply print the result to std-out.
+    std::cout << "Best Result was:" << std::endl << *bestIndividual_ptr << std::endl;
 
-	//---------------------------------------------------------------------------
+    //---------------------------------------------------------------------------
 }

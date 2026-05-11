@@ -33,30 +33,27 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard headers go here
-#include <type_traits>
-#include <thread>
-#include <mutex>
-#include <vector>
 #include <algorithm>
 #include <functional>
+#include <mutex>
+#include <thread>
+#include <type_traits>
+#include <vector>
 
 // Boost headers go here
 
-#include <boost/cast.hpp>
-#include <boost/lexical_cast.hpp>
 
 // Geneva headers go here
-#include "common/GThreadGroup.hpp"
 #include "common/GCommonHelperFunctions.hpp"
-#include "common/GLogger.hpp"
 #include "common/GErrorStreamer.hpp"
-#include "courtier/GBrokerT.hpp"
+#include "common/GLogger.hpp"
+#include "common/GThreadGroup.hpp"
 #include "courtier/GBaseConsumerT.hpp"
+#include "courtier/GBrokerT.hpp"
 #include "courtier/GProcessingContainerT.hpp"
 #include "courtier/GWorkerT.hpp"
 
-namespace Gem {
-namespace Courtier {
+namespace Gem::Courtier {
 
 /** @brief The default number of threads per worker if the number of hardware threads cannot be determined */
 const std::uint16_t DEFAULTTHREADSPERWORKER = 4;
@@ -69,191 +66,203 @@ const std::uint16_t DEFAULTTHREADSPERWORKER = 4;
  * optimization, if the server has spare CPU cores that would otherwise run idle.
  * The class makes use of the template arguments' process() function.
  */
-template<class processable_type>
-class GStdThreadConsumerT
-	: public Gem::Courtier::GBaseConsumerT<processable_type>
-{
-	 // Make sure processable_type adheres to the GProcessingContainerT interface
-	 static_assert(
-		 std::is_base_of<Gem::Courtier::GProcessingContainerT<processable_type, typename processable_type::result_type>, processable_type>::value
-		 , "processable_type does not adhere to the GProcessingContainerT interface"
-	 );
+template <class processable_type>
+class GStdThreadConsumerT : public Gem::Courtier::GBaseConsumerT<processable_type> {
+    // Make sure processable_type adheres to the GProcessingContainerT interface
+    static_assert(
+        std::is_base_of<
+            Gem::Courtier::
+                GProcessingContainerT<processable_type, typename processable_type::result_type>,
+            processable_type>::value,
+        "processable_type does not adhere to the GProcessingContainerT interface"
+    );
 
 public:
-	 /***************************************************************************/
-	 /**
+    /***************************************************************************/
+    /**
 	  * Initialization with the number of threads. We want to enforce setting of
 	  * this quantity upon creation.
 	  */
-	 explicit GStdThreadConsumerT(
-	 	std::size_t nThreads = DEFAULTTHREADSPERWORKER
-	 )
-	 	: m_nThreads(nThreads>0 ? nThreads : DEFAULTTHREADSPERWORKER)
-	 {
-		 if(0 == nThreads) {
-			 glogger
-				 << "In GStdThreadConsumerT::GStdThreadConsumerT(nThreads):" << std::endl
-				 << "nThreads == 0 was requested. m_n_threads was set to the default "
-				 << DEFAULTTHREADSPERWORKER << std::endl
-				 << GWARNING;
-		 }
-	 }
+    explicit GStdThreadConsumerT(std::size_t nThreads = DEFAULTTHREADSPERWORKER)
+      : nThreads_(nThreads > 0 ? nThreads : DEFAULTTHREADSPERWORKER) {
+        if(0 == nThreads) {
+            glogger << "In GStdThreadConsumerT::GStdThreadConsumerT(nThreads):" << std::endl
+                    << "nThreads == 0 was requested. n_threads_ was set to the default "
+                    << DEFAULTTHREADSPERWORKER << std::endl
+                    << GWARNING;
+        }
+    }
 
-	 /***************************************************************************/
+    /***************************************************************************/
 
-	 GStdThreadConsumerT(const GStdThreadConsumerT<processable_type> &) = delete; ///< Intentionally left undefined
-	 GStdThreadConsumerT(GStdThreadConsumerT<processable_type> &&) = delete; ///< Intentionally left undefined
-	 GStdThreadConsumerT<processable_type> &operator=(const GStdThreadConsumerT<processable_type> &) = delete; ///< Intentionally left undefined
-	 GStdThreadConsumerT<processable_type> &operator=(GStdThreadConsumerT<processable_type> &&) = delete; ///< Intentionally left undefined
+    GStdThreadConsumerT(const GStdThreadConsumerT<processable_type> &) =
+        delete; ///< Intentionally left undefined
+    GStdThreadConsumerT(GStdThreadConsumerT<processable_type> &&) =
+        delete; ///< Intentionally left undefined
+    GStdThreadConsumerT<processable_type> &operator=(
+        const GStdThreadConsumerT<processable_type> &
+    ) = delete; ///< Intentionally left undefined
+    GStdThreadConsumerT<processable_type> &
+    operator=(GStdThreadConsumerT<processable_type> &&) = delete; ///< Intentionally left undefined
 
-	 /***************************************************************************/
-	 /**
+    /***************************************************************************/
+    /**
 	  * Standard destructor. Nothing - our threads receive the stop
 	  * signal from the broker and shouldn't exist anymore at this point.
 	  */
-	 ~GStdThreadConsumerT() override = default;
+    ~GStdThreadConsumerT() override = default;
 
-	 /***************************************************************************/
-	 /**
+    /***************************************************************************/
+    /**
 	 * Retrieves the maximum number of allowed threads
 	 *
 	 * @return The maximum number of allowed threads
 	 */
-	 std::size_t getNThreadsPerWorker() const {
-		 return m_nThreads;
-	 }
+    std::size_t getNThreadsPerWorker() const {
+        return nThreads_;
+    }
 
-	 /***************************************************************************/
-	 /**
+    /***************************************************************************/
+    /**
 	  * Allows to check whether a worker template was registered
 	  */
-	 bool hasWorkerTemplate() const {
-		 if(this->m_workerTemplate) { return true; }
-		 return false;
-	 }
+    bool hasWorkerTemplate() const {
+        if(this->workerTemplate_) {
+            return true;
+        }
+        return false;
+    }
 
-	 /***************************************************************************/
-	 /**
+    /***************************************************************************/
+    /**
 	  * Allows to specify whether this consumer is capable of full return
 	  */
-	 void setCapableOfFullReturn(bool capableOfFullReturn) {
-		 glogger
-			 << "In GStdThreadConsumerT<processable_type>::setCapableOfFullReturn():" << std::endl
-			 << "m_capableOfFullReturn will be set to " << (capableOfFullReturn?"true":"false") << std::endl
-			 << GLOGGING;
-		 m_capableOfFullReturn = capableOfFullReturn;
-	 }
+    void setCapableOfFullReturn(bool capableOfFullReturn) {
+        glogger << "In GStdThreadConsumerT<processable_type>::setCapableOfFullReturn():"
+                << std::endl
+                << "isCapableOfFullReturn_ will be set to "
+                << (capableOfFullReturn ? "true" : "false") << std::endl
+                << GLOGGING;
+        isCapableOfFullReturn_ = capableOfFullReturn;
+    }
 
-	 /***************************************************************************/
-	 /**
+    /***************************************************************************/
+    /**
 	  * Allows to register a single worker template with this class.
 	  */
-	 void registerWorkerTemplate(
-		 std::shared_ptr<GWorkerWithRegisterBrokerFerryT<processable_type>> workerTemplate
-	 ) {
+    void registerWorkerTemplate(
+        std::shared_ptr<GWorkerWithRegisterBrokerFerryT<processable_type>> workerTemplate
+    ) {
 #ifdef DEBUG
-		 if(not workerTemplate) { // Does the template point somewhere ?
-			 throw geneva_exception(
-				 g_error_streamer(DO_LOG,  time_and_place)
-					 << "In GStdThreadConsumerT<processable_type>::registerWorkerTemplate(): Error!" << std::endl
-					 << "Found empty worker template pointer" << std::endl
-			 );
-		 }
+        if(not workerTemplate) { // Does the template point somewhere ?
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, time_and_place)
+                << "In GStdThreadConsumerT<processable_type>::registerWorkerTemplate(): Error!"
+                << std::endl
+                << "Found empty worker template pointer" << std::endl
+            );
+        }
 #endif /* DEBUG */
 
-		 m_workerTemplate = workerTemplate;
-	 }
+        workerTemplate_ = workerTemplate;
+    }
 
-	 /***************************************************************************/
-	 /**
+    /***************************************************************************/
+    /**
 	  * Sets up a consumer and registers it with the broker. This function accepts
 	  * a worker as argument.
 	  */
-	 static void setup(
-		 const std::string &configFile,
-		 std::shared_ptr<GWorkerWithRegisterBrokerFerryT<processable_type>> worker_ptr
-	 ) {
-		 std::shared_ptr <GStdThreadConsumerT<processable_type>> consumer_ptr(
-			 new GStdThreadConsumerT<processable_type>()
-		 );
+    static void setup(
+        const std::string &configFile,
+        std::shared_ptr<GWorkerWithRegisterBrokerFerryT<processable_type>> worker_ptr
+    ) {
+        std::shared_ptr<GStdThreadConsumerT<processable_type>> consumer_ptr(
+            new GStdThreadConsumerT<processable_type>()
+        );
 
-		 consumer_ptr->registerWorkerTemplate(worker_ptr);
-		 consumer_ptr->parseConfigFile(configFile);
+        consumer_ptr->registerWorkerTemplate(worker_ptr);
+        consumer_ptr->parseConfigFile(configFile);
 
-		 GBROKER(processable_type)->enrol_consumer(consumer_ptr);
-	 }
+        GBROKER(processable_type)->enrol_consumer(consumer_ptr);
+    }
 
 protected:
-	 /***************************************************************************/
-	 /**
+    /***************************************************************************/
+    /**
 	 * Finalization code. Sends all threads an interrupt signal.
 	 * process() then waits for them to join.
 	 */
-	 void shutdown_() override {
-		 // Initiate the shutdown procedure
-		 GBaseConsumerT<processable_type>::shutdown_();
+    void shutdown_() override {
+        // Initiate the shutdown procedure
+        GBaseConsumerT<processable_type>::shutdown_();
 
-		 // Wait for local workers to terminate
-		 m_gtg.join_all();
-		 m_workers.clear();
-	 }
+        // Wait for local workers to terminate
+        gtg_.join_all();
+        workers_.clear();
+    }
 
-	 /***************************************************************************/
-	 /**
+    /***************************************************************************/
+    /**
 	  * Adds local configuration options to a GParserBuilder object. We have only
 	  * a single local option -- the number of threads
 	  *
 	  * @param gpb The GParserBuilder object, to which configuration options will be added
 	  */
-	 void addConfigurationOptions(
-		 Gem::Common::GParserBuilder &gpb
-	 ) override {
-		 // Call our parent class'es function
-		 GBaseConsumerT<processable_type>::addConfigurationOptions(gpb);
+    void addConfigurationOptions(Gem::Common::GParserBuilder &gpb) override {
+        // Call our parent class'es function
+        GBaseConsumerT<processable_type>::addConfigurationOptions(gpb);
 
-		 // Add local data
-		 gpb.registerFileParameter<std::size_t>(
-			 "threadsPerWorker" // The name of the variable
-			 , 0 // The default value
-			 , [this](std::size_t nt) { this->setNThreads(nt); }
-		 )
-			 << "Indicates the number of threads used to process each worker." << std::endl
-			 << "Setting threadsPerWorker to 0 will result in an attempt to" << std::endl
-			 << "automatically determine the number of hardware threads.";
-	 }
+        // Add local data
+        gpb.registerFileParameter<std::size_t>(
+            "threadsPerWorker" // The name of the variable
+            ,
+            0 // The default value
+            ,
+            [this](std::size_t nt) { this->setNThreads(nt); }
+        ) << "Indicates the number of threads used to process each worker."
+          << std::endl
+          << "Setting threadsPerWorker to 0 will result in an attempt to" << std::endl
+          << "automatically determine the number of hardware threads.";
+    }
 
 private:
-	 /***************************************************************************/
-	 /**
+    /***************************************************************************/
+    /**
 	  * Adds local command line options to a boost::program_options::options_description object.
 	  *
 	  * @param visible Command line options that should always be visible
 	  * @param hidden Command line options that should only be visible upon request
 	  */
-	 void addCLOptions_(
-		 boost::program_options::options_description &visible
-		 , boost::program_options::options_description &hidden
-	 ) override {
-		 namespace po = boost::program_options;
+    void addCLOptions_(
+        boost::program_options::options_description & /*visible*/
+        ,
+        boost::program_options::options_description &hidden
+    ) override {
+        namespace po = boost::program_options;
 
-		 hidden.add_options()
-			 ("nWorkerThreads", po::value<std::size_t>(&m_nThreads)->default_value(m_nThreads),
-				 "\t[stc] The number of threads used to process the worker");
+        hidden.add_options()(
+            "nWorkerThreads",
+            po::value<std::size_t>(&nThreads_)->default_value(nThreads_),
+            "\t[stc] The number of threads used to process the worker"
+        );
 
-		 hidden.add_options()
-			 ("stcCapableOfFullReturn", po::value<bool>(&m_capableOfFullReturn)->default_value(m_capableOfFullReturn),
-				 "\t[stc] A debugging option making the multi-threaded consumer use timeouts in the executor");
-	 }
+        hidden.add_options()(
+            "stcCapableOfFullReturn",
+            po::value<bool>(&isCapableOfFullReturn_)->default_value(isCapableOfFullReturn_),
+            "\t[stc] A debugging option making the multi-threaded consumer use timeouts in the "
+            "executor"
+        );
+    }
 
-	 /***************************************************************************/
-	 /**
+    /***************************************************************************/
+    /**
 	  * Takes a boost::program_options::variables_map object and checks for supplied options.
 	  */
-	 void actOnCLOptions_(const boost::program_options::variables_map &vm) override
-	 { /* nothing */ }
+    void actOnCLOptions_(const boost::program_options::variables_map &vm) override { /* nothing */
+    }
 
-	 /***************************************************************************/
-	 /**
+    /***************************************************************************/
+    /**
 	  * Sets the number of threads. Note that this function
 	  * will only have an effect before the threads have been started.
 	  * If nThreads is set to 0, a warning will be printed and the
@@ -261,140 +270,147 @@ private:
 	  *
 	  * @param nThreads The maximum number of allowed threads
 	  */
-	 void setNThreads(std::size_t nThreads) {
-		 if (nThreads == 0) {
-			 glogger
-				 << "In GStdThreadConsumerT::setNThreads(nThreads):" << std::endl
-				 << "nThreads == 0 was requested. nThreads was reset to the default "
-				 << DEFAULTTHREADSPERWORKER << std::endl
-				 << GWARNING;
+    void setNThreads(std::size_t nThreads) {
+        if(nThreads == 0) {
+            glogger << "In GStdThreadConsumerT::setNThreads(nThreads):" << std::endl
+                    << "nThreads == 0 was requested. nThreads was reset to the default "
+                    << DEFAULTTHREADSPERWORKER << std::endl
+                    << GWARNING;
 
-			 m_nThreads = DEFAULTTHREADSPERWORKER;
-		 }
-		 else {
-			 m_nThreads = nThreads;
-		 }
-	 }
+            nThreads_ = DEFAULTTHREADSPERWORKER;
+        }
+        else {
+            nThreads_ = nThreads;
+        }
+    }
 
-	 /***************************************************************************/
-	 /**
+    /***************************************************************************/
+    /**
 	  * A unique identifier for a given consumer
 	  *
 	  * @return A unique identifier for a given consumer
 	  */
-	 std::string getConsumerName_() const override {
-		 return {"GStdThreadConsumerT"};
-	 }
+    std::string getConsumerName_() const override {
+        return {"GStdThreadConsumerT"};
+    }
 
-	 /***************************************************************************/
-	 /**
+    /***************************************************************************/
+    /**
 	  * Returns a short identifier for this consumer
 	  */
-	 std::string getMnemonic_() const override {
-		 return {"stc"};
-	 }
+    std::string getMnemonic_() const override {
+        return {"stc"};
+    }
 
-	 /***************************************************************************/
-	 /**
+    /***************************************************************************/
+    /**
 	 * Starts the worker threads. This function will not block.
 	 * Termination of the threads is triggered by a call to GBaseConsumerT<processable_type>::shutdown().
 	 */
-	 void async_startProcessing_() override {
-		 // Add a default worker if no worker was registered
-		 if(not m_workerTemplate) {
-			 std::shared_ptr<GWorkerWithRegisterBrokerFerryT<processable_type>> default_worker(new GLocalConsumerWorkerT<processable_type>());
-			 this->registerWorkerTemplate(default_worker);
-		 }
+    void async_startProcessing_() override {
+        // Add a default worker if no worker was registered
+        if(not workerTemplate_) {
+            std::shared_ptr<GWorkerWithRegisterBrokerFerryT<processable_type>> default_worker(
+                new GLocalConsumerWorkerT<processable_type>()
+            );
+            this->registerWorkerTemplate(default_worker);
+        }
 
-		 // Start m_nWorkerThreads threads for each registered worker template
-		 glogger
-			 << "Starting " << m_nThreads << " processing threads in GStdThreadConsumerT<processable_type>" << std::endl
-			 << GLOGGING;
-		 for (std::size_t worker_id = 0; worker_id < m_nThreads; worker_id++) {
-			 // The actual worker
-			 std::shared_ptr<GWorkerWithRegisterBrokerFerryT<processable_type>> p_worker
-				 = std::dynamic_pointer_cast<GWorkerWithRegisterBrokerFerryT<processable_type>>(m_workerTemplate->clone());
+        // Start nWorkerThreads_ threads for each registered worker template
+        glogger << "Starting " << nThreads_
+                << " processing threads in GStdThreadConsumerT<processable_type>" << std::endl
+                << GLOGGING;
+        for(std::size_t worker_id = 0; worker_id < nThreads_; worker_id++) {
+            // The actual worker
+            std::shared_ptr<GWorkerWithRegisterBrokerFerryT<processable_type>> p_worker =
+                std::dynamic_pointer_cast<GWorkerWithRegisterBrokerFerryT<processable_type>>(
+                    workerTemplate_->clone()
+                );
 
-			 // The "broker ferry" holding the connection to the broker
-			 std::shared_ptr<GBrokerFerryT<processable_type>> broker_ferry_ptr(
-				 new GBrokerFerryT<processable_type>(
-					 //----------------------
-					 worker_id
-					 //----------------------
-					 , [this](
-						 const std::chrono::milliseconds& timeout
-					 ) -> std::shared_ptr<processable_type> {
-						 std::shared_ptr<processable_type> p;
-						 m_broker_ptr->get(p, timeout);
-						 return p;
-					 }
-					 //----------------------
-					 , [this](
-						 std::shared_ptr<processable_type> p
-						 , const std::chrono::milliseconds& timeout
-					 ) -> void { m_broker_ptr->put(p, timeout); }
-					 //----------------------
-					 , [this]() -> bool { return this->stopped(); }
-					 //----------------------
-				 )
-			 );
+            // The "broker ferry" holding the connection to the broker
+            std::shared_ptr<GBrokerFerryT<processable_type>> broker_ferry_ptr(
+                new GBrokerFerryT<processable_type>(
+                    //----------------------
+                    worker_id
+                    //----------------------
+                    ,
+                    [this](const std::chrono::milliseconds &timeout)
+                        -> std::shared_ptr<processable_type> {
+                        std::shared_ptr<processable_type> p;
+                        broker_ptr_->get(p, timeout);
+                        return p;
+                    }
+                    //----------------------
+                    ,
+                    [this](
+                        std::shared_ptr<processable_type> p,
+                        const std::chrono::milliseconds &timeout
+                    ) -> void { broker_ptr_->put(p, timeout); }
+                    //----------------------
+                    ,
+                    [this]() -> bool { return this->stopped(); }
+                    //----------------------
+                )
+            );
 
-			 // Register the broker ferry with the worker
-			 p_worker->registerBrokerFerry(broker_ferry_ptr);
+            // Register the broker ferry with the worker
+            p_worker->registerBrokerFerry(broker_ferry_ptr);
 
-			 // Start the actual thread
-			 m_gtg.create_thread(
-				 [p_worker]() -> void { p_worker->run(); }
-			 );
+            // Start the actual thread
+            gtg_.create_thread([p_worker]() -> void { p_worker->run(); });
 
-			 // Store the worker for later reference
-			 m_workers.push_back(p_worker);
-		 }
-	 }
+            // Store the worker for later reference
+            workers_.push_back(p_worker);
+        }
+    }
 
-	 /***************************************************************************/
-	 /**
+    /***************************************************************************/
+    /**
   	 * Returns the (possibly estimated) number of concurrent processing units.
     * A return value of 0 means "unknown". Note that this function does not
     * make any assumptions whether processing units are dedicated solely to a
     * given task.
     */
-	 std::size_t getNProcessingUnitsEstimate_(bool& exact) const override {
-		 // Mark the answer as exact
-		 exact=true;
-		 // Return the result
-		 return boost::numeric_cast<std::size_t>(this->getNThreadsPerWorker());
-	 }
+    std::size_t getNProcessingUnitsEstimate_(bool &exact) const override {
+        // Mark the answer as exact
+        exact = true;
+        // Return the result
+        return Gem::Common::narrow_cast<std::size_t>(this->getNThreadsPerWorker());
+    }
 
-	 /***************************************************************************/
-	 /**
+    /***************************************************************************/
+    /**
 	  * Returns an indication whether full return can be expected from this
 	  * consumer. Since evaluation is performed in threads, we assume that this
 	  * is possible and return true. If you believe that this is not the case,
-	  * make sure to set m_capableOfFullReturn to false using the setCapableOfFullReturn()
+	  * make sure to set isCapableOfFullReturn_ to false using the setCapableOfFullReturn()
 	  * function. Note that, while processing-errors will likely be caught,
 	  * "full return" does not mean "fully processed return", as errors (be it in
 	  * user- or Geneva-code) are always possible.
 	  */
-	 bool capableOfFullReturn_() const override {
-		 return m_capableOfFullReturn;
-	 }
+    bool capableOfFullReturn_() const override {
+        return isCapableOfFullReturn_;
+    }
 
-	 /***************************************************************************/
+    /***************************************************************************/
 
-	 bool m_capableOfFullReturn = true; ///< Indicates whether this consumer is capable of full return
+    bool isCapableOfFullReturn_ =
+        true; ///< Indicates whether this consumer is capable of full return
 
-	 std::size_t m_nThreads = DEFAULTTHREADSPERWORKER; ///< The maximum number of allowed threads in the pool
-	 Gem::Common::GThreadGroup m_gtg; ///< Holds the processing threads
+    std::size_t nThreads_ =
+        DEFAULTTHREADSPERWORKER;     ///< The maximum number of allowed threads in the pool
+    Gem::Common::GThreadGroup gtg_; ///< Holds the processing threads
 
-	 std::vector<std::shared_ptr<GWorkerWithRegisterBrokerFerryT<processable_type>>> m_workers; ///< Holds the current worker objects
-	 std::shared_ptr<GWorkerWithRegisterBrokerFerryT<processable_type>> m_workerTemplate; ///< All workers will be created as a clone of this worker
+    std::vector<std::shared_ptr<GWorkerWithRegisterBrokerFerryT<processable_type>>>
+        workers_; ///< Holds the current worker objects
+    std::shared_ptr<GWorkerWithRegisterBrokerFerryT<processable_type>>
+        workerTemplate_; ///< All workers will be created as a clone of this worker
 
-	 std::shared_ptr<GBrokerT<processable_type>> m_broker_ptr = GBROKER(processable_type); ///< A shortcut to the broker so we do not have to go through the singleton
+    std::shared_ptr<GBrokerT<processable_type>> broker_ptr_ = GBROKER(
+        processable_type
+    ); ///< A shortcut to the broker so we do not have to go through the singleton
 };
 
 /******************************************************************************/
 
-} /* namespace Courtier */
-} /* namespace Gem */
-
+} /* namespace Gem::Courtier */

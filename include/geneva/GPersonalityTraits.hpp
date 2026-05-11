@@ -40,8 +40,7 @@
 #include "common/GExceptions.hpp"
 #include "geneva/GObject.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 /**
@@ -52,72 +51,72 @@ namespace Geneva {
  * personality. Note that this class is purely virtual. It can only be used in
  * conjunction with a derived personality.
  */
-class GPersonalityTraits :
-    public GObject
-{
+class GPersonalityTraits // NOLINT(cppcoreguidelines-special-member-functions)
+  : public GObject {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
-    template<typename Archive>
+    template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar
-        & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject);
     }
     ///////////////////////////////////////////////////////////////////////
 
 public:
     /** @brief The default constructor */
-    G_API_GENEVA GPersonalityTraits() = default;
+    GPersonalityTraits() = default;
     /** @brief The copy constructor */
-    G_API_GENEVA GPersonalityTraits(const GPersonalityTraits &) = default;
+    GPersonalityTraits(const GPersonalityTraits &) = default;
     /** @brief The standard destructor */
-    G_API_GENEVA ~GPersonalityTraits() override = default;
+    ~GPersonalityTraits() override = default;
 
     /** @brief Retrieves the mnemonic of the optimization algorithm */
-    virtual G_API_GENEVA std::string getMnemonic() const BASE = 0;
+    virtual std::string getMnemonic() const = 0;
 
 protected:
     /** @brief Loads the data of another GPersonalityTraits object */
-    G_API_GENEVA void load_(const GObject *) override;
+    void load_(const GObject *) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GPersonalityTraits>(
-        GPersonalityTraits const &
-        , GPersonalityTraits const &
-        , Gem::Common::GToken &
+        GPersonalityTraits const &,
+        GPersonalityTraits const &,
+        Gem::Common::GToken &
     );
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
-    G_API_GENEVA void compare_(
+    void compare_(
         const GObject & // the other object
-        , const Gem::Common::expectation & // the expectation for this object, e.g. equality
-        , const double & // the limit for allowed deviations of floating point types
+        ,
+        const Gem::Common::expectation & // the expectation for this object, e.g. equality
+        ,
+        const double & // the limit for allowed deviations of floating point types
     ) const override;
 
     /** @brief Applies modifications to this object. This is needed for testing purposes */
-    G_API_GENEVA bool modify_GUnitTests_() override;
+    bool modify_GUnitTests_() override;
     /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-    G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests_() override;
+    void specificTestsNoFailureExpected_GUnitTests_() override;
     /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-    G_API_GENEVA void specificTestsFailuresExpected_GUnitTests_() override;
+    void specificTestsFailuresExpected_GUnitTests_() override;
 
 private:
     /** @brief Emits a name for this class / object */
-    G_API_GENEVA std::string name_() const override;
+    std::string name_() const override;
     /** @brief Creates a deep clone of this object */
-    G_API_GENEVA GObject *clone_() const override = 0;
+    GObject *clone_() const override = 0;
 };
 
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 
 /******************************************************************************/
 /**
  * @brief Needed for Boost.Serialization
  */
-BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::GPersonalityTraits) // NOLINT/******************************************************************************/
-
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(
+    Gem::Geneva::GPersonalityTraits
+) // NOLINT/******************************************************************************/

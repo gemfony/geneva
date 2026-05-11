@@ -33,8 +33,8 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard headers go here
-#include <string>
 #include <cstdint>
+#include <string>
 
 // Boost headers go here
 
@@ -47,69 +47,68 @@ namespace Gem::Common {
  * This class allows to specify a string for a given type. Useful e.g. for
  * debugging output.
  */
-template<typename T>
+template <typename T>
 struct GTypeToStringT {
-	static std::string value() {
-		return {"unknown"};
-	}
+    static std::string value() {
+        return {"unknown"};
+    }
 };
 
 /******************************************************************************/
 /**
  * Specialization for T == double
  */
-template<>
+template <>
 struct GTypeToStringT<double> {
-	static std::string value() {
-		return {"double"};
-	}
+    static std::string value() {
+        return {"double"};
+    }
 };
 
 /******************************************************************************/
 /**
  * Specialization for T == float
  */
-template<>
+template <>
 struct GTypeToStringT<float> {
-	static std::string value() {
-		return {"float"};
-	}
+    static std::string value() {
+        return {"float"};
+    }
 };
 
 /******************************************************************************/
 /**
  * Specialization for T == std::int32_t
  */
-template<>
+template <>
 struct GTypeToStringT<std::int32_t> {
-	static std::string value() {
-		return {"int32_t"};
-	}
+    static std::string value() {
+        return {"int32_t"};
+    }
 };
 
 /******************************************************************************/
 /**
  * Specialization for T == bool
  */
-template<>
+template <>
 struct GTypeToStringT<bool> {
-	static std::string value() {
-		return {"bool"};
-	}
+    static std::string value() {
+        return {"bool"};
+    }
 };
 
 /******************************************************************************/
 /**
  * Specialization for T == string
  */
-template<>
+template <>
 struct GTypeToStringT<std::string> {
-	static std::string value() {
-		return {"string"};
-	}
+    static std::string value() {
+        return {"string"};
+    }
 };
 
 /******************************************************************************/
 
 } // namespace Gem::Common
-

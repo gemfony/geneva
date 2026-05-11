@@ -37,8 +37,8 @@
 // Boost header files go here
 
 // Geneva header files go here
-#include <geneva/Go2.hpp>
 #include <geneva/GPluggableOptimizationMonitors.hpp>
+#include <geneva/Go2.hpp>
 
 // The individual that should be optimized
 #include "GStarterIndividual.hpp"
@@ -46,38 +46,41 @@
 using namespace Gem::Geneva;
 
 int main(int argc, char **argv) {
-	Go2 go(argc, argv, "./config/Go2.json");
+    Go2 go(argc, argv, "./config/Go2.json");
 
-	//---------------------------------------------------------------------
-	// Client mode
-	if(go.clientMode()) {
-		return go.clientRun();
-	}
+    //---------------------------------------------------------------------
+    // Client mode
+    if(go.clientMode()) {
+        return go.clientRun();
+    }
 
-	//---------------------------------------------------------------------
-	// Server mode, serial or multi-threaded execution
+    //---------------------------------------------------------------------
+    // Server mode, serial or multi-threaded execution
 
-	// Add a "pluggable optimization monitor" to Go2. This particular monitor will log
-	// solutions that were found into the file allLog.txt.
-	std::shared_ptr<GAllSolutionFileLogger>
-		allSolutionLogger_ptr(new GAllSolutionFileLogger("allLog.txt"));
-	allSolutionLogger_ptr->setPrintInitial(); // Also log the initial population, prior to optimization
-	allSolutionLogger_ptr->setShowIterationBoundaries(); // Facilitates reading of the log file
+    // Add a "pluggable optimization monitor" to Go2. This particular monitor will log
+    // solutions that were found into the file allLog.txt.
+    std::shared_ptr<GAllSolutionFileLogger> allSolutionLogger_ptr(
+        new GAllSolutionFileLogger("allLog.txt")
+    );
+    allSolutionLogger_ptr
+        ->setPrintInitial(); // Also log the initial population, prior to optimization
+    allSolutionLogger_ptr->setShowIterationBoundaries(); // Facilitates reading of the log file
 
-	go.registerPluggableOM(allSolutionLogger_ptr);
+    go.registerPluggableOM(allSolutionLogger_ptr);
 
-	// Create a factory for GStarterIndividual objects and perform
-	// any necessary initial work.
-	std::shared_ptr<GStarterIndividualFactory> gsif_ptr(
-		new GStarterIndividualFactory("./config/GStarterIndividual.json")
-	);
+    // Create a factory for GStarterIndividual objects and perform
+    // any necessary initial work.
+    std::shared_ptr<GStarterIndividualFactory> gsif_ptr(
+        new GStarterIndividualFactory("./config/GStarterIndividual.json")
+    );
 
-	// Add a content creator so Go2 can generate its own individuals, if necessary
-	go.registerContentCreator(gsif_ptr);
+    // Add a content creator so Go2 can generate its own individuals, if necessary
+    go.registerContentCreator(gsif_ptr);
 
-	// Perform the actual optimization
-	std::shared_ptr<GStarterIndividual> bestIndividual_ptr = go.optimize()->getBestGlobalIndividual<GStarterIndividual>();
+    // Perform the actual optimization
+    std::shared_ptr<GStarterIndividual> bestIndividual_ptr =
+        go.optimize()->getBestGlobalIndividual<GStarterIndividual>();
 
-	// Do something with the best result. Here we simply print the result to stdout.
-	std::cout << bestIndividual_ptr << std::endl;
+    // Do something with the best result. Here we simply print the result to stdout.
+    std::cout << bestIndividual_ptr << std::endl;
 }

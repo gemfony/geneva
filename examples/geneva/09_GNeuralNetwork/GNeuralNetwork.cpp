@@ -31,15 +31,13 @@
  *
  ********************************************************************************/
 
-
 // Standard header files go here
-#include <iostream>
 #include <cmath>
+#include <iostream>
 #include <sstream>
 #include <vector>
 
 // Boost header files go here
-#include <boost/lexical_cast.hpp>
 
 // Geneva header files go here
 #include <geneva/Go2.hpp>
@@ -53,24 +51,24 @@ using namespace Gem::Common;
 using namespace Gem::Hap;
 namespace po = boost::program_options;
 
-
 /******************************************************************************/
 /**
  * The main function.
  */
-int main(int argc, char **argv){
-	//---------------------------------------------------------------------------
-	// Assemble additional command line options to be passed to Go2
-	trainingDataType tdt = Gem::Geneva::trainingDataType::TDTNONE;
-	std::string trainingDataFile = "./DataSets/hyper_sphere.dat";
-	std::string architecture = "2-4-4-1"; // two input nodes, one output node, two hidden layers with 4 nodes each
-	std::size_t nDataSets = 2000;
-	std::string resultProgram = "trainedNetwork.hpp";
-	std::string visualizationFile = "visualization.C";
+int main(int argc, char **argv) {
+    //---------------------------------------------------------------------------
+    // Assemble additional command line options to be passed to Go2
+    trainingDataType tdt = Gem::Geneva::trainingDataType::TDTNONE;
+    std::string trainingDataFile = "./DataSets/hyper_sphere.dat";
+    std::string architecture =
+        "2-4-4-1"; // two input nodes, one output node, two hidden layers with 4 nodes each
+    std::size_t nDataSets = 2000;
+    std::string resultProgram = "trainedNetwork.hpp";
+    std::string visualizationFile = "visualization.C";
 
-	// Assemble command line options
-	boost::program_options::options_description user_options;
-	user_options.add_options() (
+    // Assemble command line options
+    boost::program_options::options_description user_options;
+    user_options.add_options() (
 		"traininDataType"
 		, po::value<trainingDataType>(&tdt)->default_value(Gem::Geneva::trainingDataType::TDTNONE)
 		, "Specify training data to be produced: HYPERCUBE=1, HYPERSPHERE=2, AXISCENTRIC=3, SINUS=4"
@@ -96,46 +94,48 @@ int main(int argc, char **argv){
 		, "The name of the visualization file"
 	);
 
-	//---------------------------------------------------------------------------
-	// Create the main optimizer-wrapper
-	Go2 go(argc, argv, "./config/Go2.json", user_options);
+    //---------------------------------------------------------------------------
+    // Create the main optimizer-wrapper
+    Go2 go(argc, argv, "./config/Go2.json", user_options);
 
-	//---------------------------------------------------------------------------
-	// Produce data sets if we have been asked to do so, then leave
-	if(tdt != Gem::Geneva::trainingDataType::TDTNONE) {
-		GNeuralNetworkIndividual::createNetworkData(tdt, trainingDataFile, architecture, nDataSets);
-		return 0;
-	} else { // Store the trainingDataFile in the global options, so they can be accessed by the individuals
-		GNeuralNetworkOptions->set("trainingDataFile", trainingDataFile);
-	}
+    //---------------------------------------------------------------------------
+    // Produce data sets if we have been asked to do so, then leave
+    if(tdt != Gem::Geneva::trainingDataType::TDTNONE) {
+        GNeuralNetworkIndividual::createNetworkData(tdt, trainingDataFile, architecture, nDataSets);
+        return 0;
+    }
+    else { // Store the trainingDataFile in the global options, so they can be accessed by the individuals
+        GNeuralNetworkOptions->set("trainingDataFile", trainingDataFile);
+    }
 
-	//---------------------------------------------------------------------------
-	// Client mode
-	if(go.clientMode()) {
-		return go.clientRun();
-	} // Execution will end here in client mode
+    //---------------------------------------------------------------------------
+    // Client mode
+    if(go.clientMode()) {
+        return go.clientRun();
+    } // Execution will end here in client mode
 
-	//---------------------------------------------------------------------------
+    //---------------------------------------------------------------------------
 
-	// Create a factory for GNeuralNetworkIndividual objects and perform
-	// any necessary initial work.
-	std::shared_ptr<GNeuralNetworkIndividualFactory>
-		gnn_ptr(new GNeuralNetworkIndividualFactory("./config/GNeuralNetworkIndividual.json"));
+    // Create a factory for GNeuralNetworkIndividual objects and perform
+    // any necessary initial work.
+    std::shared_ptr<GNeuralNetworkIndividualFactory> gnn_ptr(
+        new GNeuralNetworkIndividualFactory("./config/GNeuralNetworkIndividual.json")
+    );
 
-	// Add a content creator so Go2 can generate its own individuals, if necessary
-	go.registerContentCreator(gnn_ptr);
+    // Add a content creator so Go2 can generate its own individuals, if necessary
+    go.registerContentCreator(gnn_ptr);
 
-	// Perform the actual optimization and retrieve the best individual
-	std::shared_ptr<GNeuralNetworkIndividual> p = go.optimize()->getBestGlobalIndividual<GNeuralNetworkIndividual>();
+    // Perform the actual optimization and retrieve the best individual
+    std::shared_ptr<GNeuralNetworkIndividual> p =
+        go.optimize()->getBestGlobalIndividual<GNeuralNetworkIndividual>();
 
-	//---------------------------------------------------------------------------
-	// Output the result- and the visualization-program (if available)
-	p->writeTrainedNetwork(resultProgram);
-	p->writeVisualizationFile(visualizationFile);
+    //---------------------------------------------------------------------------
+    // Output the result- and the visualization-program (if available)
+    p->writeTrainedNetwork(resultProgram);
+    p->writeVisualizationFile(visualizationFile);
 
-	// Terminate Geneva
-	return 0;
+    // Terminate Geneva
+    return 0;
 }
 
 /******************************************************************************/
-

@@ -46,49 +46,52 @@ using namespace Gem::Geneva;
 namespace po = boost::program_options;
 
 int main(int argc, char **argv) {
-	bool printBest = false;
-	boost::program_options::options_description user_options;
-	user_options.add_options() (
-		"print"
-		, po::value<bool>(&printBest)->implicit_value(true)->default_value(false) // This allows you say both --print and --print=true
-		, "Switches on printing of the best result"
-	);
+    bool printBest = false;
+    boost::program_options::options_description user_options;
+    user_options.add_options()(
+        "print",
+        po::value<bool>(&printBest)
+            ->implicit_value(true)
+            ->default_value(false) // This allows you say both --print and --print=true
+        ,
+        "Switches on printing of the best result"
+    );
 
-	Go2 go(argc, argv, "./config/Go2.json", user_options);
+    Go2 go(argc, argv, "./config/Go2.json", user_options);
 
-	//---------------------------------------------------------------------
-	// Client mode
-	if(go.clientMode()) {
-		return go.clientRun();
-	}
+    //---------------------------------------------------------------------
+    // Client mode
+    if(go.clientMode()) {
+        return go.clientRun();
+    }
 
-	//---------------------------------------------------------------------
-	// Server mode, serial or multi-threaded execution
+    //---------------------------------------------------------------------
+    // Server mode, serial or multi-threaded execution
 
-	// Create a factory for GFMinIndividual objects and perform
-	// any necessary initial work.
-	GFMinIndividualFactory gfi("./config/GFMinIndividual.json");
+    // Create a factory for GFMinIndividual objects and perform
+    // any necessary initial work.
+    GFMinIndividualFactory gfi("./config/GFMinIndividual.json");
 
-	// Retrieve an individual from the factory and make it known to the optimizer
-	go.push_back(gfi());
+    // Retrieve an individual from the factory and make it known to the optimizer
+    go.push_back(gfi());
 
-	// Create an evolutionary algorithm in multi-threaded mode
-	GEvolutionaryAlgorithmFactory ea("./config/GEvolutionaryAlgorithm.json");
-	std::shared_ptr<GEvolutionaryAlgorithm> ea_ptr = ea.get<GEvolutionaryAlgorithm>();
+    // Create an evolutionary algorithm in multi-threaded mode
+    GEvolutionaryAlgorithmFactory ea("./config/GEvolutionaryAlgorithm.json");
+    std::shared_ptr<GEvolutionaryAlgorithm> ea_ptr = ea.get<GEvolutionaryAlgorithm>();
 
-	// Add the algorithm to the Go2 object. Note that the multi-threaded ea variant will
-	// be executed first, regardless of what other algorithms you might have specified
-	// on the command line. This example simply shows a different way of adding
-	// optimization algorithms to Go2.
-	go & ea_ptr;
+    // Add the algorithm to the Go2 object. Note that the multi-threaded ea variant will
+    // be executed first, regardless of what other algorithms you might have specified
+    // on the command line. This example simply shows a different way of adding
+    // optimization algorithms to Go2.
+    go & ea_ptr;
 
-	// Perform the actual optimization
-	std::shared_ptr<GFMinIndividual> bestIndividual_ptr = go.optimize()->getBestGlobalIndividual<GFMinIndividual>();
+    // Perform the actual optimization
+    std::shared_ptr<GFMinIndividual> bestIndividual_ptr =
+        go.optimize()->getBestGlobalIndividual<GFMinIndividual>();
 
-	// Do something with the best result. Here: Simply print it, if requested
-	if(printBest) {
-		std::cout
-		<< "Best individual found has values" << std::endl
-		<< bestIndividual_ptr << std::endl;
-	}
+    // Do something with the best result. Here: Simply print it, if requested
+    if(printBest) {
+        std::cout << "Best individual found has values" << std::endl
+                  << bestIndividual_ptr << std::endl;
+    }
 }

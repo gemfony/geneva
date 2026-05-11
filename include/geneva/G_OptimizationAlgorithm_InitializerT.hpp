@@ -39,17 +39,15 @@
 // Boost header files go here
 
 // Geneva headers go here
-#include "courtier/GExecutorT.hpp"
-#include "common/GLogger.hpp"
 #include "common/GGlobalOptionsT.hpp"
-#include "geneva/G_OptimizationAlgorithm_FactoryStore.hpp"
-#include "geneva/G_OptimizationAlgorithm_Base.hpp"
-#include "geneva/G_OptimizationAlgorithm_FactoryT.hpp"
+#include "common/GLogger.hpp"
+#include "courtier/GExecutorT.hpp"
 #include "geneva/GParameterSet.hpp"
+#include "geneva/G_OptimizationAlgorithm_Base.hpp"
 #include "geneva/G_OptimizationAlgorithm_FactoryStore.hpp"
+#include "geneva/G_OptimizationAlgorithm_FactoryT.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -60,31 +58,32 @@ namespace Geneva {
  */
 template <typename oaf_type>
 class G_OptimizationAlgorithm_InitializerT {
-	// Make sure oaf_type has the expected type
-	static_assert(
-		std::is_base_of<G_OptimizationAlgorithm_FactoryT<G_OptimizationAlgorithm_Base> , oaf_type>::value
-		, "G_OptimizationAlgorithm_FactoryT<G_OptimizationAlgorithm_Base is no base of oaf_type"
-	);
+    // Make sure oaf_type has the expected type
+    static_assert(
+        std::is_base_of<G_OptimizationAlgorithm_FactoryT<G_OptimizationAlgorithm_Base>, oaf_type>::
+            value,
+        "G_OptimizationAlgorithm_FactoryT<G_OptimizationAlgorithm_Base is no base of oaf_type"
+    );
 
 public:
-	/** @brief The initializing constructor */
-	G_OptimizationAlgorithm_InitializerT() {
-		// Create a smart pointer holding the algorithm
-		std::shared_ptr<G_OptimizationAlgorithm_FactoryT<G_OptimizationAlgorithm_Base>> p(new oaf_type());
-		std::string mnemonic = p->getMnemonic();
+    /** @brief The initializing constructor */
+    G_OptimizationAlgorithm_InitializerT() {
+        // Create a smart pointer holding the algorithm
+        std::shared_ptr<G_OptimizationAlgorithm_FactoryT<G_OptimizationAlgorithm_Base>> p(
+            new oaf_type()
+        );
+        std::string mnemonic = p->getMnemonic();
 
-		// Add the factory to the store, if it hasn't been stored there yet
-		GOAFactoryStore->setOnce(mnemonic, p);
-	}
+        // Add the factory to the store, if it hasn't been stored there yet
+        GOAFactoryStore->setOnce(mnemonic, p);
+    }
 
-	/** @brief Defaulted destructor */
-	virtual ~G_OptimizationAlgorithm_InitializerT() BASE = default;
+    /** @brief Defaulted destructor */
+    virtual ~G_OptimizationAlgorithm_InitializerT() = default;
 };
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
-
+} /* namespace Gem::Geneva */

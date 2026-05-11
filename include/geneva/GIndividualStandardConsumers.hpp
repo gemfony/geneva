@@ -41,20 +41,19 @@
 // Geneva headers go here
 #include "common/GCommonEnums.hpp"
 #include "common/GLogger.hpp"
-#include "geneva/GParameterSet.hpp"
 #include "geneva/GIndividualStandardConsumerInitializerT.hpp"
+#include "geneva/GParameterSet.hpp"
 
-#include "courtier/GBaseConsumerT.hpp"
-#include "courtier/GWebsocketConsumerT.hpp"
 #include "courtier/GAsioConsumerT.hpp"
-#include "courtier/GStdThreadConsumerT.hpp"
+#include "courtier/GBaseConsumerT.hpp"
 #include "courtier/GSerialConsumerT.hpp"
+#include "courtier/GStdThreadConsumerT.hpp"
+#include "courtier/GWebsocketConsumerT.hpp"
 #ifdef GENEVA_BUILD_WITH_MPI_CONSUMER
 #include "courtier/GMPIConsumerT.hpp"
 #endif // GENEVA_BUILD_WITH_MPI_CONSUMER
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -64,11 +63,10 @@ namespace Geneva {
  * and serial communication on the client side.
  */
 class GIndividualWebsocketConsumer final
-	: public Gem::Courtier::GWebsocketConsumerT<Gem::Geneva::GParameterSet>
-{
+  : public Gem::Courtier::GWebsocketConsumerT<Gem::Geneva::GParameterSet> {
 public:
-	 // Forward to base-class constructor
-	 using Gem::Courtier::GWebsocketConsumerT<Gem::Geneva::GParameterSet>::GWebsocketConsumerT;
+    // Forward to base-class constructor
+    using Gem::Courtier::GWebsocketConsumerT<Gem::Geneva::GParameterSet>::GWebsocketConsumerT;
 };
 
 /******************************************************************************/
@@ -80,11 +78,10 @@ public:
  * connection is possible
  */
 class GIndividualAsioConsumer final
-	: public Gem::Courtier::GAsioConsumerT<Gem::Geneva::GParameterSet>
-{
+  : public Gem::Courtier::GAsioConsumerT<Gem::Geneva::GParameterSet> {
 public:
-	 // Forward to base-class constructor
-	 using Gem::Courtier::GAsioConsumerT<Gem::Geneva::GParameterSet>::GAsioConsumerT;
+    // Forward to base-class constructor
+    using Gem::Courtier::GAsioConsumerT<Gem::Geneva::GParameterSet>::GAsioConsumerT;
 };
 
 /******************************************************************************/
@@ -94,11 +91,10 @@ public:
  * A consumer used for multi-threaded processing, using GParameterSet-derivatives
  */
 class GIndividualThreadConsumer final
-	: public Gem::Courtier::GStdThreadConsumerT<Gem::Geneva::GParameterSet>
-{
+  : public Gem::Courtier::GStdThreadConsumerT<Gem::Geneva::GParameterSet> {
 public:
-	 // Forward to base-class constructor
-	 using Gem::Courtier::GStdThreadConsumerT<Gem::Geneva::GParameterSet>::GStdThreadConsumerT;
+    // Forward to base-class constructor
+    using Gem::Courtier::GStdThreadConsumerT<Gem::Geneva::GParameterSet>::GStdThreadConsumerT;
 };
 
 /******************************************************************************/
@@ -109,13 +105,12 @@ public:
  * Its payload are GParameterSet-derivatives.
  */
 class GIndividualSerialConsumer final
-	: public Gem::Courtier::GSerialConsumerT<Gem::Geneva::GParameterSet>
-{
+  : public Gem::Courtier::GSerialConsumerT<Gem::Geneva::GParameterSet> {
 public:
-	/** @brief The default constructor */
-	G_API_GENEVA GIndividualSerialConsumer() = default;
-	/** @brief The desstructor */
- 	G_API_GENEVA ~GIndividualSerialConsumer() override = default;
+    /** @brief The default constructor */
+    GIndividualSerialConsumer() = default;
+    /** @brief The desstructor */
+    ~GIndividualSerialConsumer() override = default;
 };
 
 #ifdef GENEVA_BUILD_WITH_MPI_CONSUMER
@@ -126,23 +121,25 @@ public:
  * A consumer used for network communication with MPI, using GParameterSet-derivatives.
  */
 class GIndividualMPIConsumer final
-        : public Gem::Courtier::GMPIConsumerT<Gem::Geneva::GParameterSet>{
+  : public Gem::Courtier::GMPIConsumerT<Gem::Geneva::GParameterSet> {
 public:
     // Forward to base-class constructor
     using Gem::Courtier::GMPIConsumerT<Gem::Geneva::GParameterSet>::GMPIConsumerT;
 };
 #endif
 
-
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 
 // Export of GCommandContainerT for Geneva individuals
-BOOST_CLASS_EXPORT_KEY(BOOST_IDENTITY_TYPE((Gem::Courtier::GCommandContainerT<Gem::Geneva::GParameterSet, Gem::Courtier::networked_consumer_payload_command>))) // NOLINT
+BOOST_CLASS_EXPORT_KEY(
+    BOOST_IDENTITY_TYPE((Gem::Courtier::GCommandContainerT<
+                         Gem::Geneva::GParameterSet,
+                         Gem::Courtier::networked_consumer_payload_command>))
+) // NOLINT
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////

@@ -37,12 +37,10 @@
 #include <sstream>
 
 // Boost header files go here
-#include <boost/exception/all.hpp>
 
 // Geneva header files go here
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 /**
@@ -50,31 +48,29 @@ namespace Geneva {
  */
 class G_Interface_Mutable {
 public:
-	 /** @brief Allows derivatives to be adapted */
-	 virtual G_API_GENEVA std::size_t adapt() BASE = 0;
+    /** @brief Allows derivatives to be adapted */
+    virtual std::size_t adapt() = 0;
 
 protected:
-	/**************************************************************************/
-	// Defaulted constructors / destructors / assignment operators / rule of five
+    /**************************************************************************/
+    // Defaulted constructors / destructors / assignment operators / rule of five
 
-	G_API_GENEVA G_Interface_Mutable() = default;
-	G_API_GENEVA G_Interface_Mutable(G_Interface_Mutable const&) = default;
-	G_API_GENEVA G_Interface_Mutable(G_Interface_Mutable &&) = default;
+    G_Interface_Mutable() = default;
+    G_Interface_Mutable(G_Interface_Mutable const &) = default;
+    G_Interface_Mutable(G_Interface_Mutable &&) = default;
 
-	/**
+    /**
       * The destructor. Making this function protected and non-virtual follows
       * this discussion: http://www.gotw.ca/publications/mill18.htm
       */
-	G_API_GENEVA ~G_Interface_Mutable() = default;
+    ~G_Interface_Mutable() = default;
 
-	G_API_GENEVA G_Interface_Mutable& operator=(G_Interface_Mutable const&) = default;
-	G_API_GENEVA G_Interface_Mutable& operator=(G_Interface_Mutable &&) = default;
+    G_Interface_Mutable &operator=(G_Interface_Mutable const &) = default;
+    G_Interface_Mutable &operator=(G_Interface_Mutable &&) = default;
 
-	/**************************************************************************/
+    /**************************************************************************/
 };
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 
 /******************************************************************************/
-

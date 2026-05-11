@@ -45,10 +45,8 @@
 // Boost header files go here
 
 // Geneva header files go here
-#include <geneva/GParameterSet.hpp>
 #include <geneva/GConstrainedDoubleObject.hpp>
-
-
+#include <geneva/GParameterSet.hpp>
 
 namespace Gem::Geneva {
 
@@ -57,49 +55,48 @@ namespace Gem::Geneva {
  * This individual searches for the minimum of a 2-dimensional parabola.
  * It is part of an introductory example, used in the Geneva manual.
  */
-class GMPIEvaluatedIndividual :public GParameterSet
-{
-	 /** @brief Make the class accessible to Boost.Serialization */
-	 friend class boost::serialization::access;
+class GMPIEvaluatedIndividual : public GParameterSet {
+    /** @brief Make the class accessible to Boost.Serialization */
+    friend class boost::serialization::access;
 
-	 /**************************************************************/
-	 /**
+    /**************************************************************/
+    /**
 	  * This function triggers serialization of this class and its
 	  * base classes.
 	  */
-	 template<typename Archive>
-	 void serialize(Archive & ar, const unsigned int) {
-		 using boost::serialization::make_nvp;
-		 // Serialize the base class
-		 ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet);
-		 // Add other variables here like this:
-		 // ar & BOOST_SERIALIZATION_NVP(sampleVariable);
-	 }
-	 /**************************************************************/
+    template <typename Archive>
+    void serialize(Archive &ar, const unsigned int) {
+        using boost::serialization::make_nvp;
+        // Serialize the base class
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet);
+        // Add other variables here like this:
+        // ar & BOOST_SERIALIZATION_NVP(sampleVariable);
+    }
+    /**************************************************************/
 public:
-	 /** @brief The default constructor */
-	 GMPIEvaluatedIndividual();
-	 /** @brief A standard copy constructor */
-	 GMPIEvaluatedIndividual(const GMPIEvaluatedIndividual&);
-	 /** @brief The standard destructor */
-	 ~GMPIEvaluatedIndividual() override;
+    /** @brief The default constructor */
+    GMPIEvaluatedIndividual();
+    /** @brief A standard copy constructor */
+    GMPIEvaluatedIndividual(const GMPIEvaluatedIndividual &);
+    /** @brief The standard destructor */
+    ~GMPIEvaluatedIndividual() override;
 
-     static void setCommunicator(MPI_Comm);
+    static void setCommunicator(MPI_Comm);
 
 protected:
-	 /** @brief Loads the data of another GMPIEvaluatedIndividual */
-	 void load_(const GObject*) final;
+    /** @brief Loads the data of another GMPIEvaluatedIndividual */
+    void load_(const GObject *) final;
 
-	 /** @brief The actual fitness calculation takes place here. */
-	 double fitnessCalculation() final;
+    /** @brief The actual fitness calculation takes place here. */
+    double fitnessCalculation() final;
 
 private:
-	 /** @brief Creates a deep clone of this object */
-	 GObject* clone_() const final;
+    /** @brief Creates a deep clone of this object */
+    GObject *clone_() const final;
 
-	 const double M_PAR_MIN;
-	 const double M_PAR_MAX;
-     static MPI_Comm communicator;
+    const double M_PAR_MIN;
+    const double M_PAR_MAX;
+    static MPI_Comm communicator;
 };
 
 /******************************************************************/

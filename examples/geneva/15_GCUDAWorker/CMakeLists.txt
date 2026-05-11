@@ -41,7 +41,38 @@ IF (NOT GENEVA_FULL_TREE_BUILD)
 	INCLUDE(CommonGenevaBuild)
 ENDIF ()
 
+# Headers listed here for CLion indexing — this target carries no CUDA dependency
+# and must remain before ENABLE_LANGUAGE(CUDA) so CLion sees it even when CUDA
+# is not configured in the IDE toolchain (mirrors the CLION_ALL_COMMON_HEADERS
+# pattern used by the Geneva libraries).
+SET ( MONALISAINCLUDES
+	GCanvas.hpp
+    GImageIndividual.hpp
+    GImagePOM.hpp
+	GImageCUDAWorker.hpp
+	GImageHelperFunctions.hpp
+	GImageIndividualEvaluator.hpp
+	GCUDAFitnessIndividual.hpp
+)
+
+# This is a workaround for a CLion-problem -- see CPP270 in the JetBrains issue tracker
+ADD_CUSTOM_TARGET(CLION_MONALISA_HEADERS SOURCES ${MONALISAINCLUDES})
+
+SET_TARGET_PROPERTIES(
+    CLION_MONALISA_HEADERS
+    PROPERTIES
+	CXX_STANDARD 20
+	CXX_STANDARD_REQUIRED ON
+	CXX_EXTENSIONS OFF
+)
+
 ENABLE_LANGUAGE(CUDA)
+
+# Make CUDA:: imported targets (e.g. CUDA::cudart) available.  This is needed
+# so CXX source files that call the CUDA runtime API (e.g. cudaGetDeviceProperties,
+# which resolves to cudaGetDeviceProperties_v2 with CUDA 12+ headers) resolve
+# correctly at link time regardless of how many CUDA toolkit versions are installed.
+find_package(CUDAToolkit REQUIRED)
 
 # The CUDA toolkit's bundled g++ wrapper selects an older GCC whose library
 # directory is injected into the link command before the system CXX compiler's
@@ -64,7 +95,7 @@ if(CMAKE_CXX_COMPILER AND NOT DEFINED GENEVA_CXX_RUNTIME_LIB_DIR)
 endif()
 
 # Setting the CUDA-Standard
-set(CMAKE_CUDA_STANDARD 17)
+set(CMAKE_CUDA_STANDARD 20)
 set(CMAKE_CUDA_STANDARD_REQUIRED ON)
 
 # Search for libpng
@@ -75,6 +106,7 @@ ENDIF()
 
 SET ( EXECUTABLENAME GCUDAWorker )
 SET ( ${EXECUTABLENAME}_SRCS
+	GCanvas.cpp
 	GImageBuilder.cpp
 	GImageCUDAWorker.cpp
     GImageIndividual.cpp
@@ -98,7 +130,8 @@ target_compile_options(${EXECUTABLENAME} PRIVATE
 SET(LIBRARIES_TO_LINK
 		${GENEVA_LIBRARIES}
 		${Boost_LIBRARIES}
-		${OpenCL_LIBRARIES})
+		${OpenCL_LIBRARIES}
+		CUDA::cudart)
 
 # Add MPI Libraries in case building with MPI-consumer
 IF(GENEVA_BUILD_WITH_MPI_CONSUMER)
@@ -125,28 +158,12 @@ if(DEFINED GENEVA_CXX_RUNTIME_LIB_DIR AND
     )
 endif()
 
-SET ( MONALISAINCLUDES
-    GImageIndividual.hpp
-    GImagePOM.hpp
-	GImageCUDAWorker.hpp
-	GImageHelperFunctions.hpp
-	GImageIndividualEvaluator.hpp
-	GCUDAFitnessIndividual.hpp
-)
-
-# This is a workaround for a CLion-problem -- see CPP270 in the JetBrains issue tracker
-ADD_CUSTOM_TARGET(CLION_MONALISA_HEADERS SOURCES ${MONALISAINCLUDES})
-
-SET_TARGET_PROPERTIES(
-    CLION_MONALISA_HEADERS
-    PROPERTIES
-	CXX_STANDARD 20
-	CXX_STANDARD_REQUIRED ON
-	CXX_EXTENSIONS OFF
-)
-
 ADD_SUBDIRECTORY(pictures)
 ADD_SUBDIRECTORY(config)
+
+IF (GENEVA_BUILD_TESTS)
+	ADD_SUBDIRECTORY(tests)
+ENDIF ()
 
 IF (GENEVA_RUN_EXAMPLES_AS_TESTS)
 	ADD_TEST(${EXECUTABLENAME} ${EXECUTABLENAME})

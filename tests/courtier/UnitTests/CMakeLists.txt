@@ -27,11 +27,46 @@
 #
 ################################################################################
 
-SET ( PICFILES
-	ml.ppm
+IF (NOT GENEVA_FULL_TREE_BUILD)
+
+	PROJECT(GCourtierStandardTests)
+
+	SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/../../../CMakeModules")
+
+	MESSAGE("\nPerforming an independent build of ${PROJECT_NAME}")
+	INCLUDE(CommonGenevaBuild)
+
+ENDIF ()
+
+SET ( EXECUTABLENAME GCourtierStandardTests )
+
+SET ( ${EXECUTABLENAME}_SRCS
+        GCourtierStandardTests.cpp
 )
 
-# Copy the config files to the build tree for easier testing
-FILE ( COPY ${PICFILES} DESTINATION . )
+ADD_EXECUTABLE(${EXECUTABLENAME}
+	${${EXECUTABLENAME}_SRCS}
+)
 
-INSTALL ( FILES ${PICFILES} DESTINATION ${INSTALL_PREFIX_DATA}/tests/common/ManualTests/${EXECUTABLENAME}/pictures )
+SET(LIBRARIES_TO_LINK
+		${GENEVA_LIBRARIES}
+		${Boost_LIBRARIES}
+		Catch2::Catch2WithMain)
+
+IF(GENEVA_BUILD_WITH_MPI_CONSUMER)
+	SET(LIBRARIES_TO_LINK
+			${LIBRARIES_TO_LINK}
+			${MPI_LIBRARIES})
+ENDIF()
+
+TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
+		${LIBRARIES_TO_LINK})
+
+ADD_TEST(${EXECUTABLENAME} ${EXECUTABLENAME})
+
+INSTALL ( TARGETS ${EXECUTABLENAME} DESTINATION ${INSTALL_PREFIX_DATA}/tests/courtier/UnitTests )
+
+ADD_CUSTOM_TARGET( "tests-courtier-unit"
+	DEPENDS GCourtierStandardTests
+	COMMENT "Building the unit tests for the \"courtier\" library."
+)

@@ -40,8 +40,7 @@
 // Geneva headers go here
 #include "geneva/GNumBiGaussAdaptorT.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 /**
@@ -53,31 +52,29 @@ namespace Geneva {
  * two different sigma/sigmaSigma values and adaption rates for both gaussians. Note that this adaptor
  * is experimental. Your mileage may vary.
  */
-template<typename fp_type>
-class GFPBiGaussAdaptorT :
-    public GNumBiGaussAdaptorT<fp_type, fp_type>
-{
+template <typename fp_type>
+class GFPBiGaussAdaptorT // NOLINT(cppcoreguidelines-special-member-functions)
+  : public GNumBiGaussAdaptorT<fp_type, fp_type> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
-    template<typename Archive>
+    template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
         // Save all necessary data
-        ar
-        & make_nvp(
-            "GAdaptorT_num"
-            , boost::serialization::base_object<GNumBiGaussAdaptorT<fp_type, fp_type>>(*this));
+        ar &make_nvp(
+            "GAdaptorT_num",
+            boost::serialization::base_object<GNumBiGaussAdaptorT<fp_type, fp_type>>(*this)
+        );
     }
     ///////////////////////////////////////////////////////////////////////
 
     // Make sure this class can only be instantiated if fp_type really is a floating point type
     static_assert(
-        std::is_floating_point<fp_type>::value
-        , "fp_type should be a floating point type"
+        std::is_floating_point<fp_type>::value,
+        "fp_type should be a floating point type"
     );
-
 
 public:
     /***************************************************************************/
@@ -93,9 +90,8 @@ public:
      * @param probability The likelihood for a adaption actually taking place
      */
     GFPBiGaussAdaptorT(const fp_type &probability)
-        :
-        GNumBiGaussAdaptorT<fp_type, fp_type>(probability)
-    { /* nothing */ }
+      : GNumBiGaussAdaptorT<fp_type, fp_type>(probability) { /* nothing */
+    }
 
     /***************************************************************************/
     /**
@@ -122,11 +118,8 @@ protected:
      */
     void load_(const GObject *cp) override {
         // Check that we are dealing with a GFPBiGaussAdaptorT<fp_type> reference independent of this object and convert the pointer
-        const GFPBiGaussAdaptorT<fp_type>
-            *p_load = Gem::Common::g_convert_and_compare<GObject, GFPBiGaussAdaptorT<fp_type>>(
-            cp
-            , this
-        );
+        const GFPBiGaussAdaptorT<fp_type> *p_load =
+            Gem::Common::g_convert_and_compare<GObject, GFPBiGaussAdaptorT<fp_type>>(cp, this);
 
         // Load the data of our parent class ...
         GNumBiGaussAdaptorT<fp_type, fp_type>::load_(cp);
@@ -136,9 +129,9 @@ protected:
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GFPBiGaussAdaptorT<fp_type>>(
-        GFPBiGaussAdaptorT<fp_type> const &
-        , GFPBiGaussAdaptorT<fp_type> const &
-        , Gem::Common::GToken &
+        GFPBiGaussAdaptorT<fp_type> const &,
+        GFPBiGaussAdaptorT<fp_type> const &,
+        Gem::Common::GToken &
     );
 
     /***************************************************************************/
@@ -151,30 +144,20 @@ protected:
      * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
     void compare_(
-        const GObject &cp
-        , const Gem::Common::expectation &e
-        , const fp_type &limit
+        const GObject &cp,
+        const Gem::Common::expectation &e,
+        const fp_type & /*limit*/
     ) const override {
         using namespace Gem::Common;
 
         // Check that we are dealing with a GFPBiGaussAdaptorT<fp_type> reference independent of this object and convert the pointer
-        const GFPBiGaussAdaptorT<fp_type>
-            *p_load = Gem::Common::g_convert_and_compare<GObject, GFPBiGaussAdaptorT<fp_type>>(
-            cp
-            , this
-        );
+        const GFPBiGaussAdaptorT<fp_type> *p_load =
+            Gem::Common::g_convert_and_compare<GObject, GFPBiGaussAdaptorT<fp_type>>(cp, this);
 
-        GToken token(
-            "GFPBiGaussAdaptorT<fp_type>"
-            , e
-        );
+        GToken token("GFPBiGaussAdaptorT<fp_type>", e);
 
         // Compare our parent data ...
-        compare_base_t<GNumBiGaussAdaptorT<fp_type, fp_type>>(
-            *this
-            , *p_load
-            , token
-        );
+        compare_base_t<GNumBiGaussAdaptorT<fp_type, fp_type>>(*this, *p_load, token);
 
         // ... no local data
 
@@ -189,44 +172,40 @@ protected:
      * @param value The value that is going to be adapted in situ
      * @param range A typical range for the parameter with type num_type
      */
-    void customAdaptions(
-        fp_type &value
-        , const fp_type &range
-        , Gem::Hap::GRandomBase &gr
-    ) override {
+    void customAdaptions(fp_type &value, const fp_type &range, Gem::Hap::GRandomBase &gr) override {
         using namespace Gem::Common;
         using namespace Gem::Hap;
 
-        if (GNumBiGaussAdaptorT<fp_type, fp_type>::useSymmetricSigmas_) { // Should we use the same sigma for both gaussians ?
+        if(GNumBiGaussAdaptorT<fp_type, fp_type>::
+               useSymmetricSigmas_) { // Should we use the same sigma for both gaussians ?
             // adapt the value in situ. Note that this changes
             // the argument of this function
-            value
-                += (
-                range * GNumBiGaussAdaptorT<fp_type, fp_type>::m_bi_normal_distribution(
-                    gr
-                    , typename Gem::Hap::bi_normal_distribution<fp_type>::param_type(
-                        fp_type(0.)
-                        , GNumBiGaussAdaptorT<fp_type, fp_type>::sigma1_
-                        , GNumBiGaussAdaptorT<fp_type, fp_type>::sigma1_ // Intended to be m_sigma1 (symmetry-case)
-                        , GNumBiGaussAdaptorT<fp_type, fp_type>::delta_
-                    )
-                )
-            );
-        } else { // We allow asymmetric sigmas, i.e. different widths of both gaussians
+            value +=
+                (range * GNumBiGaussAdaptorT<fp_type, fp_type>::bi_normal_distribution_(
+                             gr,
+                             typename Gem::Hap::bi_normal_distribution<fp_type>::param_type(
+                                 fp_type(0.),
+                                 GNumBiGaussAdaptorT<fp_type, fp_type>::sigma1_,
+                                 GNumBiGaussAdaptorT<fp_type, fp_type>::
+                                     sigma1_ // Intended to be sigma1_ (symmetry-case)
+                                 ,
+                                 GNumBiGaussAdaptorT<fp_type, fp_type>::delta_
+                             )
+                         ));
+        }
+        else { // We allow asymmetric sigmas, i.e. different widths of both gaussians
             // adapt the value in situ. Note that this changes
             // the argument of this function
-            value
-                += (
-                range * GNumBiGaussAdaptorT<fp_type, fp_type>::m_bi_normal_distribution(
-                    gr
-                    , typename Gem::Hap::bi_normal_distribution<fp_type>::param_type(
-                        fp_type(0.)
-                        , GNumBiGaussAdaptorT<fp_type, fp_type>::sigma1_
-                        , GNumBiGaussAdaptorT<fp_type, fp_type>::sigma2_
-                        , GNumBiGaussAdaptorT<fp_type, fp_type>::delta_
-                    )
-                )
-            );
+            value +=
+                (range * GNumBiGaussAdaptorT<fp_type, fp_type>::bi_normal_distribution_(
+                             gr,
+                             typename Gem::Hap::bi_normal_distribution<fp_type>::param_type(
+                                 fp_type(0.),
+                                 GNumBiGaussAdaptorT<fp_type, fp_type>::sigma1_,
+                                 GNumBiGaussAdaptorT<fp_type, fp_type>::sigma2_,
+                                 GNumBiGaussAdaptorT<fp_type, fp_type>::delta_
+                             )
+                         ));
         }
     }
 
@@ -239,20 +218,19 @@ protected:
     bool modify_GUnitTests_() override {
 #ifdef GEM_TESTING
 
-        using boost::unit_test_framework::test_suite;
-        using boost::unit_test_framework::test_case;
-
         bool result = false;
 
         // Call the parent classes' functions
-        if (GNumBiGaussAdaptorT<fp_type, fp_type>::modify_GUnitTests_()) { result = true; }
+        if(GNumBiGaussAdaptorT<fp_type, fp_type>::modify_GUnitTests_()) {
+            result = true;
+        }
 
         return result;
 
-#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
         Gem::Common::condnotset("GFPBiGaussAdaptorT<>::modify_GUnitTests", "GEM_TESTING");
-       return false;
-#endif /* GEM_TESTING */
+        return false;
+#endif                  /* GEM_TESTING */
     }
 
     /***************************************************************************/
@@ -262,15 +240,15 @@ protected:
     void specificTestsNoFailureExpected_GUnitTests_() override {
 #ifdef GEM_TESTING
 
-        using boost::unit_test_framework::test_suite;
-        using boost::unit_test_framework::test_case;
-
         // Call the parent classes' functions
         GNumBiGaussAdaptorT<fp_type, fp_type>::specificTestsNoFailureExpected_GUnitTests_();
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-        Gem::Common::condnotset("GFPBiGaussAdaptorT<>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
-#endif /* GEM_TESTING */
+        Gem::Common::condnotset(
+            "GFPBiGaussAdaptorT<>::specificTestsNoFailureExpected_GUnitTests",
+            "GEM_TESTING"
+        );
+#endif                  /* GEM_TESTING */
     }
 
     /***************************************************************************/
@@ -280,15 +258,15 @@ protected:
     void specificTestsFailuresExpected_GUnitTests_() override {
 #ifdef GEM_TESTING
 
-        using boost::unit_test_framework::test_suite;
-        using boost::unit_test_framework::test_case;
-
         // Call the parent classes' functions
         GNumBiGaussAdaptorT<fp_type, fp_type>::specificTestsFailuresExpected_GUnitTests_();
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-        Gem::Common::condnotset("GFPBiGaussAdaptorT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
-#endif /* GEM_TESTING */
+        Gem::Common::condnotset(
+            "GFPBiGaussAdaptorT<>::specificTestsFailuresExpected_GUnitTests",
+            "GEM_TESTING"
+        );
+#endif                  /* GEM_TESTING */
     }
 
 private:
@@ -311,25 +289,14 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 
 /******************************************************************************/
 // The content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T)
-namespace boost {
-namespace serialization {
-template<typename fp_type>
-struct is_abstract<Gem::Geneva::GFPBiGaussAdaptorT<fp_type>> :
-    public boost::true_type
-{
-};
-template<typename fp_type>
-struct is_abstract<const Gem::Geneva::GFPBiGaussAdaptorT<fp_type>> :
-    public boost::true_type
-{
-};
-}
-}
-
+namespace boost::serialization {
+template <typename fp_type>
+struct is_abstract<Gem::Geneva::GFPBiGaussAdaptorT<fp_type>> : public boost::true_type {};
+template <typename fp_type>
+struct is_abstract<const Gem::Geneva::GFPBiGaussAdaptorT<fp_type>> : public boost::true_type {};
+} /* namespace boost::serialization */
 /******************************************************************************/
-

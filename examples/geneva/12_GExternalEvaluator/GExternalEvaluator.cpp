@@ -45,39 +45,41 @@
 using namespace Gem::Geneva;
 
 int main(int argc, char **argv) {
-	Go2 go(argc, argv, "./config/Go2.json");
+    Go2 go(argc, argv, "./config/Go2.json");
 
-	//---------------------------------------------------------------------
-	// Client mode
-	if(go.clientMode()) {
-		return go.clientRun();
-	} // Execution will end here in client mode
+    //---------------------------------------------------------------------
+    // Client mode
+    if(go.clientMode()) {
+        return go.clientRun();
+    } // Execution will end here in client mode
 
-	//---------------------------------------------------------------------
+    //---------------------------------------------------------------------
 
-	// Create a factory for GExternalEvaluatorIndividual objects and perform
-	// any necessary initial work.
-	std::shared_ptr<GExternalEvaluatorIndividualFactory>
-		geei_ptr(new GExternalEvaluatorIndividualFactory("./config/GExternalEvaluatorIndividual.json"));
+    // Create a factory for GExternalEvaluatorIndividual objects and perform
+    // any necessary initial work.
+    std::shared_ptr<GExternalEvaluatorIndividualFactory> geei_ptr(
+        new GExternalEvaluatorIndividualFactory("./config/GExternalEvaluatorIndividual.json")
+    );
 
-	// Add a content creator so Go2 can generate its own individuals, if necessary^
-	go.registerContentCreator(geei_ptr);
+    // Add a content creator so Go2 can generate its own individuals, if necessary^
+    go.registerContentCreator(geei_ptr);
 
-	// Add a default optimization algorithm to the Go2 object
-	go.registerDefaultAlgorithm("ea");
+    // Add a default optimization algorithm to the Go2 object
+    go.registerDefaultAlgorithm("ea");
 
-	// Perform the actual optimization
-	std::shared_ptr<GExternalEvaluatorIndividual> p = go.optimize()->getBestGlobalIndividual<GExternalEvaluatorIndividual>();
+    // Perform the actual optimization
+    std::shared_ptr<GExternalEvaluatorIndividual> p =
+        go.optimize()->getBestGlobalIndividual<GExternalEvaluatorIndividual>();
 
-	// Extract the best individuals found
-	std::vector<std::shared_ptr<GExternalEvaluatorIndividual>> bestInds
-		= go.getBestGlobalIndividuals<GExternalEvaluatorIndividual>();
+    // Extract the best individuals found
+    std::vector<std::shared_ptr<GExternalEvaluatorIndividual>> bestInds =
+        go.getBestGlobalIndividuals<GExternalEvaluatorIndividual>();
 
-	// Note that the "archive" call is specific to the GExternalEvaluatorIndividual
-	geei_ptr->archive(bestInds);
+    // Note that the "archive" call is specific to the GExternalEvaluatorIndividual
+    geei_ptr->archive(bestInds);
 
-	// The GTaoExternalEvaluatorIndividualFactory will, upon its deletion at the end
-	// of this function, call the external evaluator with the --finalize switch
+    // The GTaoExternalEvaluatorIndividualFactory will, upon its deletion at the end
+    // of this function, call the external evaluator with the --finalize switch
 
-	//---------------------------------------------------------------------------
+    //---------------------------------------------------------------------------
 }

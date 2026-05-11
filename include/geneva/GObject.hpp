@@ -34,58 +34,46 @@
 
 // Standard header files go here
 #include <algorithm>
-#include <filesystem>
 #include <cassert>
-#include <cmath>
 #include <cfloat>
+#include <cmath>
+#include <csignal>
 #include <cstdio>
 #include <cstdlib>
-#include <csignal>
 #include <deque>
+#include <filesystem>
 #include <fstream>
+#include <functional>
 #include <iomanip>
 #include <iostream>
 #include <limits>
 #include <map>
+#include <memory>
 #include <sstream>
 #include <string>
+#include <tuple>
 #include <typeinfo>
 #include <vector>
-#include <functional>
-#include <memory>
-#include <tuple>
-#include <limits>
 
 // Boost header files go here
 #include <boost/archive/basic_archive.hpp>
-#include <boost/cast.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/lambda/lambda.hpp>
-#include <boost/numeric/conversion/bounds.hpp> // get rid of the numeric_limits<double>::min() vs. numeric_limits<int>::min() problem
 #include <boost/program_options.hpp>
 #include <boost/property_tree/ptree.hpp>
-#include <boost/utility.hpp>
 #include <boost/property_tree/ptree_serialization.hpp>
 
-#ifdef GEM_TESTING
-
-#include <boost/test/unit_test.hpp>
-
-#endif /* GEM_TESTING */
-
 // Geneva header files go here
+#include "common/GCommonHelperFunctionsT.hpp"
+#include "common/GCommonInterfaceT.hpp"
 #include "common/GDefaultValueT.hpp"
 #include "common/GErrorStreamer.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GExpectationChecksT.hpp"
-#include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GLogger.hpp"
-#include "common/GCommonInterfaceT.hpp"
 #include "common/GSerializeTupleT.hpp"
 #include "common/GTupleIO.hpp"
 #include "geneva/GOptimizationEnums.hpp"
-#include "hap/GRandomT.hpp"
 #include "hap/GRandomDistributionsT.hpp"
+#include "hap/GRandomT.hpp"
 
 #ifdef GEM_TESTING
 
@@ -96,8 +84,7 @@
 // aliases for ease of use
 namespace pt = boost::property_tree;
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 /**
@@ -106,14 +93,12 @@ namespace Geneva {
  * std::shared_ptr<GObject> or std::unique_ptr<GObject>, hence this class has a
  * very central role.
  */
-class GObject
-    : public Gem::Common::GCommonInterfaceT<GObject>
-{
+class GObject : public Gem::Common::GCommonInterfaceT<GObject> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
-    template<typename Archive>
-    void serialize(Archive &ar, const unsigned int) {
+    template <typename Archive>
+    void serialize(Archive & /*ar*/, const unsigned int) {
         using boost::serialization::make_nvp;
 
         /* nothing */
@@ -124,20 +109,20 @@ public:
     /***************************************************************************/
     // Defaulted constructors, destructor and assignment operators -- rule of five
 
-    G_API_GENEVA GObject() = default;
-    G_API_GENEVA GObject(GObject const & cp) = default;
-    G_API_GENEVA GObject(GObject && cp) = default;
+    GObject() = default;
+    GObject(GObject const &cp) = default;
+    GObject(GObject &&cp) = default;
 
-    G_API_GENEVA virtual ~GObject() BASE = default;
+    virtual ~GObject() = default;
 
-    G_API_GENEVA GObject& operator=(GObject const&) = default;
-    G_API_GENEVA GObject& operator=(GObject &&) = default;
+    GObject &operator=(GObject const &) = default;
+    GObject &operator=(GObject &&) = default;
 
     /***************************************************************************/
     /**
      * Checks whether a SIGHUP or CTRL_CLOSE_EVENT signal has been sent
      */
-    static G_API_GENEVA bool G_SIGHUP_SENT() {
+    static bool G_SIGHUP_SENT() {
         return (1 == GObject::GenevaSigHupSent);
     }
 
@@ -146,8 +131,8 @@ public:
      * A handler for SIGHUP or CTRL_CLOSE_EVENT signals. This function should work
      * both for Windows and Unix-Systems.
      */
-    static G_API_GENEVA void sigHupHandler(int signum) {
-        if (G_SIGHUP == signum) {
+    static void sigHupHandler(int signum) {
+        if(G_SIGHUP == signum) {
             GObject::GenevaSigHupSent = 1;
         }
     }
@@ -155,48 +140,46 @@ public:
 protected:
     /***************************************************************************/
     /** @brief Loads the data of another GObject */
-    G_API_GENEVA void load_(const GObject *) override;
+    void load_(const GObject *) override;
 
     /** @brief Allow access to this classes compare_ function */
-    friend void Gem::Common::compare_base_t<GObject>(
-        GObject const &
-        , GObject const &
-        , Gem::Common::GToken &
-    );
+    friend void
+    Gem::Common::compare_base_t<GObject>(GObject const &, GObject const &, Gem::Common::GToken &);
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
-    G_API_GENEVA void compare_(
+    void compare_(
         const GObject & // the other object
-        , const Gem::Common::expectation & // the expectation for this object, e.g. equality
-        , const double & // the limit for allowed deviations of floating point types
+        ,
+        const Gem::Common::expectation & // the expectation for this object, e.g. equality
+        ,
+        const double & // the limit for allowed deviations of floating point types
     ) const override;
 
     /** @brief Adds local configuration options to a GParserBuilder object */
-    G_API_GENEVA void addConfigurationOptions_(Gem::Common::GParserBuilder &) override;
+    void addConfigurationOptions_(Gem::Common::GParserBuilder &) override;
 
     /** @brief Applies modifications to this object. This is needed for testing purposes */
-    G_API_GENEVA bool modify_GUnitTests_() override;
+    bool modify_GUnitTests_() override;
     /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-    G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests_() override;
+    void specificTestsNoFailureExpected_GUnitTests_() override;
     /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-    G_API_GENEVA void specificTestsFailuresExpected_GUnitTests_() override;
+    void specificTestsFailuresExpected_GUnitTests_() override;
 
 private:
     /***************************************************************************/
     /** @brief Emits a name for this class / object */
-    G_API_GENEVA std::string name_() const override;
+    std::string name_() const override;
     /** @brief Creates a deep clone of this object */
-    G_API_GENEVA GObject *clone_() const override = 0;
+    GObject *clone_() const override = 0;
 
     // Needed to allow interruption of the optimization run without loss of data
     // Npte that "volatile" is needed in order for the signal handler to work
-    static volatile G_API_GENEVA std::sig_atomic_t GenevaSigHupSent;  // Initialized in GObject.cpp
+    static volatile std::sig_atomic_t GenevaSigHupSent; // Initialized in GObject.cpp
 };
 
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 
 /******************************************************************************/
 /**

@@ -37,13 +37,11 @@
 #include <sstream>
 
 // Boost header files go here
-#include <boost/exception/all.hpp>
 
 // Geneva header files go here
 #include "hap/GRandomBase.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 /**
@@ -51,15 +49,13 @@ namespace Geneva {
  */
 class GMutableParameterI {
 public:
-	 /** @brief The standard destructor */
-	 virtual G_API_GENEVA ~GMutableParameterI() BASE = default;
+    /** @brief The standard destructor */
+    virtual ~GMutableParameterI() = default;
 
-	 /** @brief Allows derivatives to be adapted */
-	 virtual G_API_GENEVA std::size_t adapt(Gem::Hap::GRandomBase&) BASE = 0;
+    /** @brief Allows derivatives to be adapted */
+    virtual std::size_t adapt(Gem::Hap::GRandomBase &) = 0;
 };
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 
 /******************************************************************************/
-

@@ -38,11 +38,10 @@
 // Boost headers go here
 
 // Geneva headers go here
-#include "geneva/GParameterT.hpp"
 #include "geneva/GBooleanAdaptor.hpp"
+#include "geneva/GParameterT.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 /**
@@ -50,125 +49,117 @@ namespace Geneva {
  * and indeed for most applications this is not the recommended solution -
  * use the GBooleanCollection instead.
  */
-class GBooleanObject
-    : public GParameterT<bool>
-{
+class GBooleanObject // NOLINT(cppcoreguidelines-special-member-functions)
+  : public GParameterT<bool> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
-    template<typename Archive>
+    template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar
-        & make_nvp(
-            "GParameterT_bool"
-            , boost::serialization::base_object<GParameterT<bool>>(*this));
+        ar &make_nvp(
+            "GParameterT_bool",
+            boost::serialization::base_object<GParameterT<bool>>(*this)
+        );
     }
     ///////////////////////////////////////////////////////////////////////
 
 public:
     /** @brief The default constructor */
-    G_API_GENEVA GBooleanObject() = default;
+    GBooleanObject() = default;
     /** @brief The copy constructor */
-    G_API_GENEVA GBooleanObject(const GBooleanObject &) = default;
+    GBooleanObject(const GBooleanObject &) = default;
     /** @brief Initialization by contained value */
-    explicit G_API_GENEVA GBooleanObject(const bool &);
+    explicit GBooleanObject(const bool &);
     /** @brief Initialization with a given probability for "true" */
-    explicit G_API_GENEVA GBooleanObject(const double &);
+    explicit GBooleanObject(const double &);
     /** @brief The destructor */
-    G_API_GENEVA ~GBooleanObject() override = default;
+    ~GBooleanObject() override = default;
 
     /** @brief An assignment operator */
-    G_API_GENEVA GBooleanObject& operator=(const bool &) override;
+    GBooleanObject &operator=(const bool &) override;
 
     /** @brief Triggers random initialization of the parameter object */
-    G_API_GENEVA bool randomInit(
-        const activityMode &
-        , Gem::Hap::GRandomBase &
-    ) override;
+    bool randomInit(const activityMode &, Gem::Hap::GRandomBase &) override;
     /** @brief Triggers random initialization of the parameter object, with a given likelihood structure */
-    G_API_GENEVA bool randomInit(
-        const double &
-        , const activityMode &
-        , Gem::Hap::GRandomBase &
-    );
+    bool randomInit(const double &, const activityMode &, Gem::Hap::GRandomBase &);
 
     /** @brief Flips the value of this object */
-    G_API_GENEVA void flip();
+    void flip();
 
 protected:
     /** @brief Loads the data of another GObject */
-    G_API_GENEVA void load_(const GObject *) override;
+    void load_(const GObject *) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GBooleanObject>(
-        GBooleanObject const &
-        , GBooleanObject const &
-        , Gem::Common::GToken &
+        GBooleanObject const &,
+        GBooleanObject const &,
+        Gem::Common::GToken &
     );
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
-    G_API_GENEVA void compare_(
+    void compare_(
         const GObject & // the other object
-        , const Gem::Common::expectation & // the expectation for this object, e.g. equality
-        , const double & // the limit for allowed deviations of floating point types
+        ,
+        const Gem::Common::expectation & // the expectation for this object, e.g. equality
+        ,
+        const double & // the limit for allowed deviations of floating point types
     ) const override;
 
     /** @brief Triggers random initialization of the parameter object */
-    G_API_GENEVA bool randomInit_(
-        const activityMode &
-        , Gem::Hap::GRandomBase &
-    ) override;
+    bool randomInit_(const activityMode &, Gem::Hap::GRandomBase &) override;
     /** @brief Triggers random initialization of the parameter object, with a given likelihood structure */
-    G_API_GENEVA bool randomInit_(
-        const double &
-        , const activityMode &
-        , Gem::Hap::GRandomBase &
-    );
+    bool randomInit_(const double &, const activityMode &, Gem::Hap::GRandomBase &);
 
     /** @brief Returns a "comparative range" for this type */
-    G_API_GENEVA bool range() const override;
+    bool range() const override;
 
     /** @brief Attach our local value to the vector. */
-    G_API_GENEVA void booleanStreamline(std::vector<bool> &, const activityMode &am) const override;
+    void booleanStreamline(std::vector<bool> &, const activityMode &am) const override;
     /** @brief Attach boundaries of type bool to the vectors */
-    G_API_GENEVA void booleanBoundaries(
-        std::vector<bool> &, std::vector<bool> &, const activityMode &am
+    void booleanBoundaries(
+        std::vector<bool> &,
+        std::vector<bool> &,
+        const activityMode &am
     ) const override;
 
     /** @brief Tell the audience that we own a std::int32_t value */
     std::size_t countBoolParameters(const activityMode &am) const override;
     /** @brief Assigns part of a value vector to the parameter */
-    G_API_GENEVA void assignBooleanValueVector(
-        const std::vector<bool> &, std::size_t &, const activityMode &am
+    void assignBooleanValueVector(
+        const std::vector<bool> &,
+        std::size_t &,
+        const activityMode &am
     ) override;
     /** @brief Attach our local value to the map. */
-    G_API_GENEVA void booleanStreamline(
-        std::map<std::string, std::vector<bool>> &, const activityMode &am
+    void booleanStreamline(
+        std::map<std::string, std::vector<bool>> &,
+        const activityMode &am
     ) const override;
     /** @brief Assigns part of a value map to the parameter */
-    G_API_GENEVA void assignBooleanValueVectors(
-        const std::map<std::string, std::vector<bool>> &, const activityMode &am
+    void assignBooleanValueVectors(
+        const std::map<std::string, std::vector<bool>> &,
+        const activityMode &am
     ) override;
 
     /** @brief Applies modifications to this object. This is needed for testing purposes */
-    G_API_GENEVA bool modify_GUnitTests_() override;
+    bool modify_GUnitTests_() override;
     /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-    G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests_() override;
+    void specificTestsNoFailureExpected_GUnitTests_() override;
     /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-    G_API_GENEVA void specificTestsFailuresExpected_GUnitTests_() override;
+    void specificTestsFailuresExpected_GUnitTests_() override;
 
 private:
     /** @brief Emits a name for this class / object */
-    G_API_GENEVA std::string name_() const override;
+    std::string name_() const override;
     /** @brief Creates a deep clone of this object. */
-    G_API_GENEVA GObject *clone_() const override;
+    GObject *clone_() const override;
 };
 
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GBooleanObject) // NOLINT

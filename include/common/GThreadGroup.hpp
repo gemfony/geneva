@@ -53,19 +53,16 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard headers go here
-#include <vector>
+#include <memory>
 #include <mutex>
 #include <thread>
-#include <memory>
+#include <vector>
 
 // Boost headers go here
-#include <boost/utility.hpp>
-#include <boost/lexical_cast.hpp>
 
 // Geneva header files go here
 
-namespace Gem {
-namespace Common {
+namespace Gem::Common {
 
 // Forward declaration
 class GThreadPool;
@@ -75,39 +72,36 @@ class GThreadPool;
  * A simple thread group based on std::thread. This class was adapted from
  * a version by Anthony Williams, as offered as part of the Boost 1.36 release
  */
-class GThreadGroup
-{
-	 friend class GThreadPool;
+class GThreadGroup {
+    friend class GThreadPool;
 
-	 using thread_ptr = std::shared_ptr <std::thread>;
-	 using thread_vector = std::vector<thread_ptr>;
+    using thread_ptr = std::shared_ptr<std::thread>;
+    using thread_vector = std::vector<thread_ptr>;
 
 public:
+    /*************************************************************************/
+    // Defaulted or deleted constructors, destructor and assignment operators
 
-	/*************************************************************************/
-	// Defaulted or deleted constructors, destructor and assignment operators
+    GThreadGroup() = default;
+    ~GThreadGroup() = default;
+    GThreadGroup(GThreadGroup const &) = delete;
+    GThreadGroup(GThreadGroup &&) = delete;
+    GThreadGroup &operator=(GThreadGroup const &) = delete;
+    GThreadGroup &operator=(GThreadGroup &&) = delete;
 
-	G_API_COMMON GThreadGroup() = default;
-	G_API_COMMON ~GThreadGroup() = default;
-	G_API_COMMON GThreadGroup(GThreadGroup const &) = delete;
-	G_API_COMMON GThreadGroup(GThreadGroup&&) = delete;
-	G_API_COMMON GThreadGroup& operator=(GThreadGroup const &) = delete;
-	G_API_COMMON GThreadGroup& operator=(GThreadGroup&&) = delete;
+    /*************************************************************************/
 
-	/*************************************************************************/
+    /** @brief Adds an already created thread to the group */
+    void add_thread(thread_ptr);
 
+    /** @brief Requests all threads to join */
+    void join_all();
 
-	/** @brief Adds an already created thread to the group */
-	 G_API_COMMON void add_thread(thread_ptr);
+    /** @brief Returns the size of the current thread group */
+    std::size_t size() const;
 
-	 /** @brief Requests all threads to join */
-	 G_API_COMMON void join_all();
-
-	 /** @brief Returns the size of the current thread group */
-	 G_API_COMMON std::size_t size() const;
-
-	 /***************************************************************************/
-	 /**
+    /***************************************************************************/
+    /**
 	  * Creates a new thread and adds it to the group
 	  *
 	  * TODO: Add perfect forwarding, so we may pass arguments directly
@@ -115,16 +109,16 @@ public:
 	  * @param f The function to be run by the thread
 	  * @return A pointer to the newly created thread
 	  */
-	 template<typename F>
-	 std::shared_ptr<std::thread> create_thread(F f) {
-		 std::unique_lock<std::mutex> guard(m_mutex);
-		 thread_ptr new_thread(new std::thread(f));
-		 m_threads.push_back(new_thread);
-		 return new_thread;
-	 }
+    template <typename F>
+    std::shared_ptr<std::thread> create_thread(F f) {
+        std::unique_lock<std::mutex> guard(mutex_);
+        thread_ptr new_thread(new std::thread(f));
+        threads_.push_back(new_thread);
+        return new_thread;
+    }
 
-	 /***************************************************************************/
-	 /**
+    /***************************************************************************/
+    /**
 	  * Creates nThreads new threads with the same function
 	  * and adds them to the group
 	  *
@@ -132,24 +126,23 @@ public:
 	  * @param nThreads The number of threads to add to the group
 	  * @return A pointer to the newly created thread
 	  */
-	 template<typename F>
-	 void create_threads(F f, const std::size_t &nThreads) {
-		 for (std::size_t i = 0; i < nThreads; i++) {
-			 create_thread(f);
-		 }
-	 }
+    template <typename F>
+    void create_threads(F f, const std::size_t &nThreads) {
+        for(std::size_t i = 0; i < nThreads; i++) {
+            create_thread(f);
+        }
+    }
 
-	 /***************************************************************************/
+    /***************************************************************************/
 
 private:
-	 /** @brief Clears the thread vector */
-	 void clearThreads();
+    /** @brief Clears the thread vector */
+    void clearThreads();
 
-	 thread_vector m_threads; ///< Holds the actual threads
-	 mutable std::mutex m_mutex; ///< Needed to synchronize access to the vector
+    thread_vector threads_;    ///< Holds the actual threads
+    mutable std::mutex mutex_; ///< Needed to synchronize access to the vector
 };
 
 /******************************************************************************/
 
-} /* namespace Common*/
-} /* namespace Gem */
+} /* namespace Gem::Common */

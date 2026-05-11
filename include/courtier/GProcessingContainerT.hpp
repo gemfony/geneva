@@ -33,55 +33,50 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard headers go here
-#include <tuple>
-#include <vector>
 #include <chrono>
-#include <type_traits>
+#include <concepts>
 #include <exception>
 #include <functional>
 #include <optional>
+#include <tuple>
+#include <type_traits>
+#include <vector>
 
 // Boost headers go here
-#include <boost/archive/xml_oarchive.hpp>
-#include <boost/archive/xml_iarchive.hpp>
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/archive/binary_oarchive.hpp>
 #include <boost/archive/binary_iarchive.hpp>
-#include <boost/serialization/nvp.hpp>
-#include <boost/serialization/map.hpp>
-#include <boost/serialization/vector.hpp>
-#include <boost/serialization/shared_ptr.hpp>
+#include <boost/archive/binary_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/xml_iarchive.hpp>
+#include <boost/archive/xml_oarchive.hpp>
 #include <boost/serialization/base_object.hpp>
-#include <boost/serialization/utility.hpp>
-#include <boost/serialization/tracking.hpp>
-#include <boost/serialization/split_member.hpp>
 #include <boost/serialization/export.hpp>
-#include <boost/uuid/uuid.hpp>
-#include <boost/uuid/uuid_io.hpp>
-#include <boost/uuid/uuid_generators.hpp>
-#include <boost/uuid/random_generator.hpp>
-#include <boost/uuid/uuid_serialize.hpp>
-#include <boost/exception/diagnostic_information.hpp>
-
+#include <boost/serialization/map.hpp>
+#include <boost/serialization/nvp.hpp>
+#include <boost/serialization/shared_ptr.hpp>
+#include <boost/serialization/split_member.hpp>
+#include <boost/serialization/tracking.hpp>
+#include <boost/serialization/utility.hpp>
+#include <boost/serialization/vector.hpp>
 // Geneva headers go here
-#include "common/GSerializeTupleT.hpp"
-#include "common/GSerializableFunctionObjectT.hpp"
-#include "common/GExceptions.hpp"
-#include "common/GErrorStreamer.hpp"
 #include "common/GCommonHelperFunctionsT.hpp"
+#include "common/GErrorStreamer.hpp"
+#include "common/GExceptions.hpp"
+#include "common/GSerializableFunctionObjectT.hpp"
+#include "common/GSerializeTupleT.hpp"
 #include "courtier/GCourtierEnums.hpp"
 #include "courtier/GCourtierHelperFunctions.hpp"
 
-namespace Gem::Courtier
-{
+namespace Gem::Courtier {
 
-	/******************************************************************************/
-	// An exception to be thrown if an exception was thrown during processing
-	class g_processing_exception : public geneva_exception { using geneva_exception::geneva_exception; };
+/******************************************************************************/
+// An exception to be thrown if an exception was thrown during processing
+class g_processing_exception : public geneva_exception {
+    using geneva_exception::geneva_exception;
+};
 
-	/******************************************************************************/
-	/**
+/******************************************************************************/
+/**
 	 * This class can serve as a base class for items to be submitted through the broker. You need to
 	 * re-implement the purely virtual functions in derived classes. Note that it is mandatory for
 	 * derived classes to be serializable and to trigger serialization of this class.
@@ -89,158 +84,164 @@ namespace Gem::Courtier
 	 * @tparam processable_type The type of the class derived from GProcessingContainerT
 	 * @tparam processing_result_type The result type of the process_ call; should be copyable
 	 */
-	template<
-		typename processable_type
-		, typename processing_result_type
-		, class = std::enable_if_t<not std::is_void_v<processing_result_type>>
-	>
-	class GProcessingContainerT
-	{
-		///////////////////////////////////////////////////////////////////////
-		friend class boost::serialization::access;
+template <
+    typename processable_type,
+    typename processing_result_type>
+    requires (!std::is_void_v<processing_result_type>)
+class GProcessingContainerT {
+    ///////////////////////////////////////////////////////////////////////
+    friend class boost::serialization::access;
 
-		template<typename Archive>
-		void serialize(Archive &ar, const unsigned int) {
-			using boost::serialization::make_nvp;
+    template <typename Archive>
+    void serialize(Archive &ar, const unsigned int) {
+        using boost::serialization::make_nvp;
 
-			ar
-				& BOOST_SERIALIZATION_NVP(m_iteration_counter)
-				& BOOST_SERIALIZATION_NVP(m_resubmission_counter)
-				& BOOST_SERIALIZATION_NVP(m_collection_position)
-				& BOOST_SERIALIZATION_NVP(m_bufferport_id)
-				& BOOST_SERIALIZATION_NVP(m_preProcessingDisabled)
-				& BOOST_SERIALIZATION_NVP(m_postProcessingDisabled)
-				& BOOST_SERIALIZATION_NVP(m_pre_processor_ptr)
-				& BOOST_SERIALIZATION_NVP(m_post_processor_ptr)
-				& BOOST_SERIALIZATION_NVP(m_pre_processing_time)
-				& BOOST_SERIALIZATION_NVP(m_processing_time)
-				& BOOST_SERIALIZATION_NVP(m_post_processing_time)
-				& BOOST_SERIALIZATION_NVP(m_bufferport_raw_retrieval_time)
-				& BOOST_SERIALIZATION_NVP(m_bufferport_raw_submission_time)
-				& BOOST_SERIALIZATION_NVP(m_bufferport_proc_retrieval_time)
-				& BOOST_SERIALIZATION_NVP(m_bufferport_proc_submission_time)
-				& BOOST_SERIALIZATION_NVP(m_stored_results_cnt)
-				& BOOST_SERIALIZATION_NVP(m_stored_error_descriptions)
-				& BOOST_SERIALIZATION_NVP(m_processing_status);
-				//& BOOST_SERIALIZATION_NVP(m_evaluation_id);
-		}
+        ar &BOOST_SERIALIZATION_NVP(iteration_counter_) &
+            BOOST_SERIALIZATION_NVP(resubmission_counter_) &
+            BOOST_SERIALIZATION_NVP(collection_position_) &
+            BOOST_SERIALIZATION_NVP(bufferport_id_) &
+            BOOST_SERIALIZATION_NVP(preProcessingDisabled_) &
+            BOOST_SERIALIZATION_NVP(postProcessingDisabled_) &
+            BOOST_SERIALIZATION_NVP(pre_processor_ptr_) &
+            BOOST_SERIALIZATION_NVP(post_processor_ptr_) &
+            BOOST_SERIALIZATION_NVP(pre_processing_time_) &
+            BOOST_SERIALIZATION_NVP(processing_time_) &
+            BOOST_SERIALIZATION_NVP(post_processing_time_) &
+            BOOST_SERIALIZATION_NVP(bufferport_raw_retrieval_time_) &
+            BOOST_SERIALIZATION_NVP(bufferport_raw_submission_time_) &
+            BOOST_SERIALIZATION_NVP(bufferport_proc_retrieval_time_) &
+            BOOST_SERIALIZATION_NVP(bufferport_proc_submission_time_) &
+            BOOST_SERIALIZATION_NVP(stored_results_cnt_) &
+            BOOST_SERIALIZATION_NVP(stored_error_descriptions_) &
+            BOOST_SERIALIZATION_NVP(processing_status_);
+        //& BOOST_SERIALIZATION_NVP(evaluation_id_);
+    }
 
-		///////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////
 
-	public:
-		using payload_type = processable_type;
-		using result_type  = processing_result_type;
+public:
+    using payload_type = processable_type;
+    using result_type = processing_result_type;
 
-		/***************************************************************************/
-		/**
+    /***************************************************************************/
+    /**
 	  * Initialization with the number of stored results
 	  */
-		explicit GProcessingContainerT(std::size_t n_stored_results)
-			: m_stored_results_cnt(n_stored_results, processing_result_type())
-		{ /* nothing */ }
+    explicit GProcessingContainerT(std::size_t n_stored_results)
+      : stored_results_cnt_(n_stored_results, processing_result_type()) { /* nothing */
+    }
 
-		/***************************************************************************/
-		/**
+    /***************************************************************************/
+    /**
 	  * The copy constructor
 	  *
 	  * @param cp A copy of another GSubmissionContainer object
 	  */
-		explicit GProcessingContainerT(GProcessingContainerT<processable_type, processing_result_type> const &cp)
-			: m_iteration_counter(cp.m_iteration_counter)
-			  , m_resubmission_counter(cp.m_resubmission_counter)
-			  , m_collection_position(cp.m_collection_position)
-			  , m_bufferport_id(cp.m_bufferport_id)
-			  , m_preProcessingDisabled(cp.m_preProcessingDisabled)
-			  , m_postProcessingDisabled(cp.m_postProcessingDisabled)
-			  , m_pre_processing_time(cp.m_pre_processing_time)
-			  , m_processing_time(cp.m_processing_time)
-			  , m_post_processing_time(cp.m_post_processing_time)
-			  , m_bufferport_raw_retrieval_time(cp.m_bufferport_raw_retrieval_time)
-			  , m_bufferport_raw_submission_time(cp.m_bufferport_raw_submission_time)
-			  , m_bufferport_proc_retrieval_time(cp.m_bufferport_proc_retrieval_time)
-			  , m_bufferport_proc_submission_time(cp.m_bufferport_proc_submission_time)
-			  , m_stored_results_cnt(cp.m_stored_results_cnt) // Note: processing_result_type must be copyable (e.g. it should not contain pointers)
-			  , m_stored_error_descriptions(cp.m_stored_error_descriptions)
-			  , m_processing_status(cp.m_processing_status)
-			  // , m_evaluation_id(cp.m_evaluation_id)
-		{
-			Gem::Common::copyCloneableSmartPointer(cp.m_pre_processor_ptr, m_pre_processor_ptr);
-			Gem::Common::copyCloneableSmartPointer(cp.m_post_processor_ptr, m_post_processor_ptr);
-		}
+    explicit GProcessingContainerT(
+        GProcessingContainerT<processable_type, processing_result_type> const &cp
+    )
+      : iteration_counter_(cp.iteration_counter_)
+      , resubmission_counter_(cp.resubmission_counter_)
+      , collection_position_(cp.collection_position_)
+      , bufferport_id_(cp.bufferport_id_)
+      , preProcessingDisabled_(cp.preProcessingDisabled_)
+      , postProcessingDisabled_(cp.postProcessingDisabled_)
+      , pre_processing_time_(cp.pre_processing_time_)
+      , processing_time_(cp.processing_time_)
+      , post_processing_time_(cp.post_processing_time_)
+      , bufferport_raw_retrieval_time_(cp.bufferport_raw_retrieval_time_)
+      , bufferport_raw_submission_time_(cp.bufferport_raw_submission_time_)
+      , bufferport_proc_retrieval_time_(cp.bufferport_proc_retrieval_time_)
+      , bufferport_proc_submission_time_(cp.bufferport_proc_submission_time_)
+      , stored_results_cnt_(
+            cp.stored_results_cnt_
+        ) // Note: processing_result_type must be copyable (e.g. it should not contain pointers)
+      , stored_error_descriptions_(cp.stored_error_descriptions_)
+      , processing_status_(cp.processing_status_)
+    // , evaluation_id_(cp.evaluation_id_)
+    {
+        Gem::Common::copyCloneableSmartPointer(cp.pre_processor_ptr_, pre_processor_ptr_);
+        Gem::Common::copyCloneableSmartPointer(cp.post_processor_ptr_, post_processor_ptr_);
+    }
 
-		/***************************************************************************/
-		/**
+    /***************************************************************************/
+    /**
 	  * Assignment operator
 	  */
-		GProcessingContainerT<processable_type, processing_result_type>&
-		operator=(GProcessingContainerT<processable_type, processing_result_type> const& cp) {
-			m_iteration_counter = cp.m_iteration_counter;
-			m_resubmission_counter = cp.m_resubmission_counter;
-			m_collection_position = cp.m_collection_position;
-			m_bufferport_id = cp.m_bufferport_id;
-			m_preProcessingDisabled = cp.m_preProcessingDisabled;
-			m_postProcessingDisabled = cp.m_postProcessingDisabled;
-			m_pre_processing_time = cp.m_pre_processing_time;
-			m_processing_time = cp.m_processing_time;
-			m_post_processing_time = cp.m_post_processing_time;
-			m_bufferport_raw_retrieval_time = cp.m_bufferport_raw_retrieval_time;
-			m_bufferport_raw_submission_time = cp.m_bufferport_raw_submission_time;
-			m_bufferport_proc_retrieval_time = cp.m_bufferport_proc_retrieval_time;
-			m_bufferport_proc_submission_time = cp.m_bufferport_proc_submission_time;
-			m_stored_results_cnt = cp.m_stored_results_cnt; // Note: processing_result_type must be copyable (e.g. it should not contain pointers)
-			m_stored_error_descriptions = cp.m_stored_error_descriptions;
-			m_processing_status = cp.m_processing_status;
-			// m_evaluation_id = cp.m_evaluation_id;
+    GProcessingContainerT<processable_type, processing_result_type> &
+    operator=(GProcessingContainerT<processable_type, processing_result_type> const &cp) {
+        iteration_counter_ = cp.iteration_counter_;
+        resubmission_counter_ = cp.resubmission_counter_;
+        collection_position_ = cp.collection_position_;
+        bufferport_id_ = cp.bufferport_id_;
+        preProcessingDisabled_ = cp.preProcessingDisabled_;
+        postProcessingDisabled_ = cp.postProcessingDisabled_;
+        pre_processing_time_ = cp.pre_processing_time_;
+        processing_time_ = cp.processing_time_;
+        post_processing_time_ = cp.post_processing_time_;
+        bufferport_raw_retrieval_time_ = cp.bufferport_raw_retrieval_time_;
+        bufferport_raw_submission_time_ = cp.bufferport_raw_submission_time_;
+        bufferport_proc_retrieval_time_ = cp.bufferport_proc_retrieval_time_;
+        bufferport_proc_submission_time_ = cp.bufferport_proc_submission_time_;
+        stored_results_cnt_ =
+            cp.stored_results_cnt_; // Note: processing_result_type must be copyable (e.g. it should not contain pointers)
+        stored_error_descriptions_ = cp.stored_error_descriptions_;
+        processing_status_ = cp.processing_status_;
+        // evaluation_id_ = cp.evaluation_id_;
 
-			Gem::Common::copyCloneableSmartPointer(cp.m_pre_processor_ptr, m_pre_processor_ptr);
-			Gem::Common::copyCloneableSmartPointer(cp.m_post_processor_ptr, m_post_processor_ptr);
+        Gem::Common::copyCloneableSmartPointer(cp.pre_processor_ptr_, pre_processor_ptr_);
+        Gem::Common::copyCloneableSmartPointer(cp.post_processor_ptr_, post_processor_ptr_);
 
-			return *this;
-		}
+        return *this;
+    }
 
-		/***************************************************************************/
-		// Defaulted or deleted constructors, destructor and move assignment operator
+    /***************************************************************************/
+    // Defaulted or deleted constructors, destructor and move assignment operator
 
-		// Default constructor may be found in private section
+    // Default constructor may be found in private section
 
-		// TODO: Make class movable
-		GProcessingContainerT(GProcessingContainerT<processable_type, processing_result_type> &&) = delete;
-		GProcessingContainerT<processable_type, processing_result_type>& operator=(GProcessingContainerT<processable_type, processing_result_type> &&) = delete;
+    // TODO: Make class movable
+    GProcessingContainerT(GProcessingContainerT<processable_type, processing_result_type> &&) =
+        delete;
+    GProcessingContainerT<processable_type, processing_result_type> &
+    operator=(GProcessingContainerT<processable_type, processing_result_type> &&) = delete;
 
-		virtual ~GProcessingContainerT() BASE = default;
+    virtual ~GProcessingContainerT() = default;
 
-		/***************************************************************************/
-		/**
+    /***************************************************************************/
+    /**
 	  * Sets the vector of stored results to a given collection and marks
 	  * the object as processed
 	  */
-		processing_result_type markAsProcessedWith(std::vector<processing_result_type> const & result_cnt) {
+    processing_result_type
+    markAsProcessedWith(std::vector<processing_result_type> const &result_cnt) {
 #ifdef DEBUG
-			// Check that we have been given a suitable new results vector
-			if(result_cnt.size() != m_stored_results_cnt.size()) {
-				throw geneva_exception(
-					g_error_streamer(DO_LOG, time_and_place)
-					<< "In GProcessingContainerT::markAsProcessedWith(): Vector dimensions" << std::endl
-					<< "do not fit: " << result_cnt.size() << " / " << m_stored_results_cnt.size() << std::endl
-				);
-			}
+        // Check that we have been given a suitable new results vector
+        if(result_cnt.size() != stored_results_cnt_.size()) {
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, time_and_place)
+                << "In GProcessingContainerT::markAsProcessedWith(): Vector dimensions" << std::endl
+                << "do not fit: " << result_cnt.size() << " / " << stored_results_cnt_.size()
+                << std::endl
+            );
+        }
 #endif
 
-			// Transfer the new values
-			m_stored_results_cnt = result_cnt;
+        // Transfer the new values
+        stored_results_cnt_ = result_cnt;
 
-			// Clear the error descriptions
-			m_stored_error_descriptions.clear();
+        // Clear the error descriptions
+        stored_error_descriptions_.clear();
 
-			// Mark as processed
-			m_processing_status = processingStatus::PROCESSED;
+        // Mark as processed
+        processing_status_ = processingStatus::PROCESSED;
 
-			// This part of the code should never be reached if an exception was thrown
-			return this->m_stored_results_cnt.at(0);
-		}
+        // This part of the code should never be reached if an exception was thrown
+        return this->stored_results_cnt_.at(0);
+    }
 
-		/***************************************************************************/
-		/**
+    /***************************************************************************/
+    /**
 	  * Perform the actual processing steps. E.g. in optimization algorithms,
 	  * post-processing allows to run a sub-optimization. The amount of time
 	  * needed for processing is measured for logging purposes. Where one of the
@@ -253,132 +254,130 @@ namespace Gem::Courtier
 	  * @param res_vec Allows to inject an external evaluation
 	  * @return The first result of the processing calls
 	  */
-		processing_result_type process(
-			const std::vector<processing_result_type> &res_vec = std::vector<processing_result_type>()
-		) {
-			// We only accept items that are due for processing
-			if(processingStatus::DO_PROCESS != m_processing_status) {
-				throw geneva_exception(
-					g_error_streamer(DO_LOG, time_and_place)
-					<< "In GProcessingContainerT::process(): Function called while m_processing_status was set to " << m_processing_status << std::endl
-					<< "Expected " << processingStatus::DO_PROCESS << std::endl
+    processing_result_type process(
+        const std::vector<processing_result_type> &res_vec = std::vector<processing_result_type>()
+    ) {
+        // We only accept items that are due for processing
+        if(processingStatus::DO_PROCESS != processing_status_) {
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, time_and_place)
+                << "In GProcessingContainerT::process(): Function called while processing_status_ "
+                   "was set to "
+                << processing_status_ << std::endl
+                << "Expected " << processingStatus::DO_PROCESS << std::endl
+            );
+        }
+
+        // Assign a new evaluation id
+        // evaluation_id_ = std::string("eval_") + Gem::Common::to_string(boost::uuids::random_generator()());
+
+        // Clear the error descriptions
+        stored_error_descriptions_.clear();
+
+        // "Nullify the result list.
+        this->clear_stored_results_vec();
+
+        std::ostringstream error_description_stream; // NOLINT(cppcoreguidelines-init-variables)
+        processing_result_type main_result;
+
+        try {
+            // Perform the actual processing
+            const auto startTime = std::chrono::high_resolution_clock::now();
+            this->preProcess_();
+            const auto afterPreProcessing = std::chrono::high_resolution_clock::now();
+
+            // Do the actual processing
+            this->process_(res_vec);
+
+            const auto afterProcessing = std::chrono::high_resolution_clock::now();
+            this->postProcess_();
+            const auto afterPostProcessing = std::chrono::high_resolution_clock::now();
+
+            // Make a note of the time needed for each step
+            pre_processing_time_ =
+                std::chrono::duration<double>(afterPreProcessing - startTime).count();
+            processing_time_ =
+                std::chrono::duration<double>(afterProcessing - afterPreProcessing).count();
+            post_processing_time_ =
+                std::chrono::duration<double>(afterPostProcessing - afterProcessing).count();
+
+            processing_status_ = processingStatus::PROCESSED;
+        }
+        catch(std::exception &e) {
+            // Let the audience know we had an error
+            processing_status_ = processingStatus::EXCEPTION_CAUGHT;
+            error_description_stream
+                << "In GProcessingContainerT<processable_type>::process():" << std::endl
+                << "Processing has thrown an exception with message" << std::endl
+                << e.what() << std::endl
+                << "We will rethrow this exception" << std::endl;
+        }
+        catch(...) {
+            // Let the audience know we had an error
+            processing_status_ = processingStatus::EXCEPTION_CAUGHT;
+            error_description_stream
+                << "In GProcessingContainerT<processable_type>::process():" << std::endl
+                << "Processing has thrown an unknown exception." << std::endl;
+        }
+
+        if(this->has_errors()) { // Either an exception was caught or the user has flagged an error
+            // Do some cleanup
+            pre_processing_time_ = 0.;
+            processing_time_ = 0.;
+            post_processing_time_ = 0.;
+
+            // "Nullify the result list.
+            this->clear_stored_results_vec();
+
+            // Store the exceptions for later reference
+            if(processingStatus::EXCEPTION_CAUGHT == processing_status_) {
+                // Error information added by the user might already be stored in this variable. Hence we use +=
+                stored_error_descriptions_ += error_description_stream.str();
+            }
+
+            throw g_processing_exception( // Note: this is a specific exception to flag errors during processing
+					g_error_streamer(DO_LOG, time_and_place) << stored_error_descriptions_
 				);
-			}
+        }
 
-			// Assign a new evaluation id
-			// m_evaluation_id = std::string("eval_") + Gem::Common::to_string(boost::uuids::random_generator()());
+        // This part of the code should never be reached if an exception was thrown
+        return this->stored_results_cnt_.at(0);
+    }
 
-			// Clear the error descriptions
-			m_stored_error_descriptions.clear();
-
-			// "Nullify the result list.
-			this->clear_stored_results_vec();
-
-			std::ostringstream error_description_stream;
-			processing_result_type main_result;
-
-			try {
-				// Perform the actual processing
-				const auto startTime = std::chrono::high_resolution_clock::now();
-				this->preProcess_();
-				const auto afterPreProcessing = std::chrono::high_resolution_clock::now();
-
-				// Do the actual processing
-				this->process_(res_vec);
-
-				const auto afterProcessing = std::chrono::high_resolution_clock::now();
-				this->postProcess_();
-				const auto afterPostProcessing = std::chrono::high_resolution_clock::now();
-
-				// Make a note of the time needed for each step
-				m_pre_processing_time = std::chrono::duration<double>(afterPreProcessing - startTime).count();
-				m_processing_time = std::chrono::duration<double>(afterProcessing - afterPreProcessing).count();
-				m_post_processing_time = std::chrono::duration<double>(afterPostProcessing - afterProcessing).count();
-
-				m_processing_status = processingStatus::PROCESSED;
-			} catch(boost::exception& e) {
-				// Let the audience know we had an error
-				m_processing_status = processingStatus::EXCEPTION_CAUGHT;
-				error_description_stream
-					<< "In GProcessingContainerT<>::process():" << std::endl
-					<< "Processing has thrown a boost exception with message" << std::endl
-					<< boost::diagnostic_information(e) << std::endl
-					<< "We will rethrow this exception" << std::endl;
-			} catch(std::exception& e) {
-				// Let the audience know we had an error
-				m_processing_status = processingStatus::EXCEPTION_CAUGHT;
-				error_description_stream
-					<< "In GProcessingContainerT<processable_type>::process():" << std::endl
-					<< "Processing has thrown an exception with message" << std::endl
-					<< e.what() << std::endl
-					<< "We will rethrow this exception" << std::endl;
-			} catch(...) {
-				// Let the audience know we had an error
-				m_processing_status = processingStatus::EXCEPTION_CAUGHT;
-				error_description_stream
-					<< "In GProcessingContainerT<processable_type>::process():" << std::endl
-					<< "Processing has thrown an unknown exception." << std::endl;
-			}
-
-			if(this->has_errors()) { // Either an exception was caught or the user has flagged an error
-				// Do some cleanup
-				m_pre_processing_time = 0.;
-				m_processing_time = 0.;
-				m_post_processing_time = 0.;
-
-				// "Nullify the result list.
-				this->clear_stored_results_vec();
-
-				// Store the exceptions for later reference
-				if(processingStatus::EXCEPTION_CAUGHT == m_processing_status) {
-					// Error information added by the user might already be stored in this variable. Hence we use +=
-					m_stored_error_descriptions += error_description_stream.str();
-				}
-
-				throw g_processing_exception( // Note: this is a specific exception to flag errors during processing
-					g_error_streamer(DO_LOG, time_and_place) << m_stored_error_descriptions
-				);
-			}
-
-			// This part of the code should never be reached if an exception was thrown
-			return this->m_stored_results_cnt.at(0);
-		}
-
-		/***************************************************************************/
-		/**
+    /***************************************************************************/
+    /**
 	  * Retrieval of the stored result. This function does not allow modifications
 	  * of its return value. It will throw, if value retrieval is initiated for a work
 	  * item which does not have the PROCESSED flag set.
 	  *
 	  * @param id The id of the stored result to be returned
-	  * @return The stored result at position id in m_stored_results_vec
+	  * @return The stored result at position id in stored_results_vec_
 	  */
-		processing_result_type getStoredResult(std::size_t id = 0) const {
-			if(not this->is_processed()) {
-				throw geneva_exception(
-					g_error_streamer(DO_LOG, time_and_place)
-					<< "In GProcessingContainerT::getStoredResult(): Tried to" << std::endl
-					<< "retrieve stored result while the PROCESSED flag was not set" << std::endl
-				);
-			}
+    processing_result_type getStoredResult(std::size_t id = 0) const {
+        if(not this->is_processed()) {
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, time_and_place)
+                << "In GProcessingContainerT::getStoredResult(): Tried to" << std::endl
+                << "retrieve stored result while the PROCESSED flag was not set" << std::endl
+            );
+        }
 
-			return m_stored_results_cnt.at(id);
-		}
+        return stored_results_cnt_.at(id);
+    }
 
-
-		/******************************************************************************/
-		/**
+    /******************************************************************************/
+    /**
 	  * Retrieve the id assigned to the current evaluation. Note that there is no
 	  * guaranty that the item has indeed been processed. This is id simply represents
 	  * the processing id assigned at the beginning of the last process()-call.
 	  */
-		/*
+    /*
 		std::string getCurrentEvaluationID() const {
-			return m_evaluation_id;
+			return evaluation_id_;
 		}*/
 
-		/***************************************************************************/
-		/**
+    /***************************************************************************/
+    /**
 	  * Loads user-specified data. This function can be overloaded by derived classes. It
 	  * is mainly intended to provide a mechanism to "deposit" an item at a remote site
 	  * that holds otherwise constant data. That data then does not need to be serialized
@@ -388,77 +387,76 @@ namespace Gem::Courtier
 	  *
 	  * @param cd_ptr A pointer to the object whose data should be loaded
 	  */
-		void loadConstantData(std::shared_ptr<processable_type> cd_ptr) {
-			this->loadConstantData_(cd_ptr);
-		}
+    void loadConstantData(std::shared_ptr<processable_type> cd_ptr) {
+        this->loadConstantData_(cd_ptr);
+    }
 
-		/***************************************************************************/
-		/**
+    /***************************************************************************/
+    /**
 	  * Allows to retrieve the current processing status
 	  */
-		processingStatus getProcessingStatus() const noexcept {
-			return m_processing_status;
-		}
+    processingStatus getProcessingStatus() const noexcept {
+        return processing_status_;
+    }
 
-		/***************************************************************************/
-		/**
+    /***************************************************************************/
+    /**
 	  * Allows to retrieve the current processing status as a string (mostly for
 	  * debugging purposes).
 	  */
-		std::string getProcessingStatusAsStr() const noexcept {
-			return psToStr(m_processing_status);
-		}
+    std::string getProcessingStatusAsStr() const noexcept {
+        return psToStr(processing_status_);
+    }
 
-		/***************************************************************************/
-		/**
+    /***************************************************************************/
+    /**
 	  * Checks whether the processed flag was set for this item
 	  *
 	  * @return A boolean indicating whether the item was processed
 	  */
-		bool is_processed() const noexcept {
-			return (processingStatus::PROCESSED == this->getProcessingStatus());
-		}
+    bool is_processed() const noexcept {
+        return (processingStatus::PROCESSED == this->getProcessingStatus());
+    }
 
-		/***************************************************************************/
-		/**
+    /***************************************************************************/
+    /**
 	  * Checks whether the IGNORED flag is set
 	  */
-		bool is_ignored() const noexcept {
-			return (processingStatus::DO_IGNORE == this->getProcessingStatus());
-		}
+    bool is_ignored() const noexcept {
+        return (processingStatus::DO_IGNORE == this->getProcessingStatus());
+    }
 
-		/***************************************************************************/
-		/**
+    /***************************************************************************/
+    /**
 	  * Checks whether the DO_PROCESS flag was  set for this item
 	  *
 	  * @return A boolean indicating whether the item is due for processing
 	  */
-		bool is_due_for_processing() const noexcept {
-			return (processingStatus::DO_PROCESS == this->getProcessingStatus());
-		}
+    bool is_due_for_processing() const noexcept {
+        return (processingStatus::DO_PROCESS == this->getProcessingStatus());
+    }
 
-		/***************************************************************************/
-		/**
+    /***************************************************************************/
+    /**
 	  * Checks if there were errors during processing
 	  *
 	  * @return A boolean indicating whether there were errors during processing
 	  */
-		bool has_errors() const noexcept {
-			return
-				(processingStatus::EXCEPTION_CAUGHT == m_processing_status)
-				|| (processingStatus::ERROR_FLAGGED == m_processing_status);
-		}
+    bool has_errors() const noexcept {
+        return (processingStatus::EXCEPTION_CAUGHT == processing_status_) ||
+               (processingStatus::ERROR_FLAGGED == processing_status_);
+    }
 
-		/***************************************************************************/
-		/**
+    /***************************************************************************/
+    /**
 	  * Allows to check whether an error was flagged by the user
 	  */
-		bool error_flagged_by_user() const noexcept {
-			return (processingStatus::ERROR_FLAGGED == m_processing_status);
-		}
+    bool error_flagged_by_user() const noexcept {
+        return (processingStatus::ERROR_FLAGGED == processing_status_);
+    }
 
-		/***************************************************************************/
-		/**
+    /***************************************************************************/
+    /**
 	  * Sets a given new processing state. Which new states are
 	  * accepted depends on the current state:
 	  * - IGNORE --> IGNORE, DO_PROCESS
@@ -473,402 +471,417 @@ namespace Gem::Courtier
 	  *
 	  * @param target_ps The desired new processing status
 	  */
-		void set_processing_status(processingStatus target_ps = processingStatus::DO_IGNORE) {
-			// Do nothing if the new state is equal to the old one
-			if(target_ps == m_processing_status) {
-				return;
-			}
+    void set_processing_status(processingStatus target_ps = processingStatus::DO_IGNORE) {
+        // Do nothing if the new state is equal to the old one
+        if(target_ps == processing_status_) {
+            return;
+        }
 
-			// We do not accept setting a target state of PROCESSED via this function
-			if(target_ps == processingStatus::PROCESSED) {
-				throw geneva_exception(
-					g_error_streamer(DO_LOG, time_and_place)
-					<< "In GProcessingContainerT<>::set_processing_status():" << std::endl
-					<< "An attempt was made to set the processing state to PROCESSED" << std::endl
-					<< "which is not allowed through this function." << std::endl
-				);
-			}
+        // We do not accept setting a target state of PROCESSED via this function
+        if(target_ps == processingStatus::PROCESSED) {
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, time_and_place)
+                << "In GProcessingContainerT<>::set_processing_status():" << std::endl
+                << "An attempt was made to set the processing state to PROCESSED" << std::endl
+                << "which is not allowed through this function." << std::endl
+            );
+        }
 
-			// We want to enforce specific targets depending on the current state
-			switch(m_processing_status) {
-			//------------------------------------------------------------------------------------
+        // We want to enforce specific targets depending on the current state
+        switch(processing_status_) {
+            //------------------------------------------------------------------------------------
 
-			case processingStatus::DO_IGNORE:
-				if(target_ps == processingStatus::DO_PROCESS) {
-					// Store the new state
-					m_processing_status = target_ps;
-					// Clear any remaining error messages
-					m_stored_error_descriptions.clear();
-					// "Nullify" the result list.
-					this->clear_stored_results_vec();
-				} else {
-					throw geneva_exception(
-						g_error_streamer(DO_LOG, time_and_place)
-						<< "In GProcessingContainerT<>::set_processing_status():" << std::endl
-						<< "Got invalid target processing status " << psToStr(target_ps) << std::endl
-						<< "Expected a new state of DO_PROCESS for the" << std::endl
-						<< "current state of " << psToStr(m_processing_status) << std::endl
-					);
-				}
-				break;
+        case processingStatus::DO_IGNORE:
+            if(target_ps == processingStatus::DO_PROCESS) {
+                // Store the new state
+                processing_status_ = target_ps;
+                // Clear any remaining error messages
+                stored_error_descriptions_.clear();
+                // "Nullify" the result list.
+                this->clear_stored_results_vec();
+            }
+            else {
+                throw geneva_exception(
+                    g_error_streamer(DO_LOG, time_and_place)
+                    << "In GProcessingContainerT<>::set_processing_status():" << std::endl
+                    << "Got invalid target processing status " << psToStr(target_ps) << std::endl
+                    << "Expected a new state of DO_PROCESS for the" << std::endl
+                    << "current state of " << psToStr(processing_status_) << std::endl
+                );
+            }
+            break;
 
-			//------------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------------
 
-			case processingStatus::DO_PROCESS:
-				if(target_ps == processingStatus::DO_IGNORE) {
-					// Store the new state
-					m_processing_status = target_ps;
-					// Clear any remaining error messages
-					m_stored_error_descriptions.clear();
-					// "Nullify" the result list.
-					this->clear_stored_results_vec();
-				} else {
-					throw geneva_exception(
-						g_error_streamer(DO_LOG, time_and_place)
-						<< "In GProcessingContainerT<>::set_processing_status():" << std::endl
-						<< "Got invalid target processing status " << psToStr(target_ps) << std::endl
-						<< "Expected a new state of DO_IGNORE for the" << std::endl
-						<< "current state of " << psToStr(m_processing_status) << std::endl
-					);
-				}
-				break;
+        case processingStatus::DO_PROCESS:
+            if(target_ps == processingStatus::DO_IGNORE) {
+                // Store the new state
+                processing_status_ = target_ps;
+                // Clear any remaining error messages
+                stored_error_descriptions_.clear();
+                // "Nullify" the result list.
+                this->clear_stored_results_vec();
+            }
+            else {
+                throw geneva_exception(
+                    g_error_streamer(DO_LOG, time_and_place)
+                    << "In GProcessingContainerT<>::set_processing_status():" << std::endl
+                    << "Got invalid target processing status " << psToStr(target_ps) << std::endl
+                    << "Expected a new state of DO_IGNORE for the" << std::endl
+                    << "current state of " << psToStr(processing_status_) << std::endl
+                );
+            }
+            break;
 
-			//------------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------------
 
-			case processingStatus::PROCESSED:
-				if(target_ps == processingStatus::DO_IGNORE || target_ps == processingStatus::DO_PROCESS) {
-					// Store the new state
-					m_processing_status = target_ps;
-					// Clear any remaining error messages
-					m_stored_error_descriptions.clear();
-					// "Nullify" the result list.
-					this->clear_stored_results_vec();
-				} else {
-					throw geneva_exception(
-						g_error_streamer(DO_LOG, time_and_place)
-						<< "In GProcessingContainerT<>::set_processing_status():" << std::endl
-						<< "Got invalid target processing status " << psToStr(target_ps) << std::endl
-						<< "Expected a new state of DO_IGNORE or DO_PROCESS for the" << std::endl
-						<< "current state of " << psToStr(m_processing_status) << std::endl
-					);
-				}
-				break;
+        case processingStatus::PROCESSED:
+            if(target_ps == processingStatus::DO_IGNORE ||
+               target_ps == processingStatus::DO_PROCESS) {
+                // Store the new state
+                processing_status_ = target_ps;
+                // Clear any remaining error messages
+                stored_error_descriptions_.clear();
+                // "Nullify" the result list.
+                this->clear_stored_results_vec();
+            }
+            else {
+                throw geneva_exception(
+                    g_error_streamer(DO_LOG, time_and_place)
+                    << "In GProcessingContainerT<>::set_processing_status():" << std::endl
+                    << "Got invalid target processing status " << psToStr(target_ps) << std::endl
+                    << "Expected a new state of DO_IGNORE or DO_PROCESS for the" << std::endl
+                    << "current state of " << psToStr(processing_status_) << std::endl
+                );
+            }
+            break;
 
-			//------------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------------
 
-			case processingStatus::EXCEPTION_CAUGHT:
-			case processingStatus::ERROR_FLAGGED:
-				if(target_ps == processingStatus::DO_IGNORE || target_ps == processingStatus::DO_PROCESS) {
-					// Store the new state
-					m_processing_status = target_ps;
-					// Clear any remaining error messages
-					m_stored_error_descriptions.clear();
-					// "Nullify" the result list.
-					this->clear_stored_results_vec();
-				} else {
-					throw geneva_exception(
-						g_error_streamer(DO_LOG, time_and_place)
-						<< "In GProcessingContainerT<>::set_processing_status():" << std::endl
-						<< "Got invalid target processing status " << psToStr(target_ps) << std::endl
-						<< "Expected a new state of DO_IGNORE or DO_PROCESS for the" << std::endl
-						<< "current state of " << psToStr(m_processing_status) << std::endl
-					);
-				}
-				break;
+        case processingStatus::EXCEPTION_CAUGHT:
+        case processingStatus::ERROR_FLAGGED:
+            if(target_ps == processingStatus::DO_IGNORE ||
+               target_ps == processingStatus::DO_PROCESS) {
+                // Store the new state
+                processing_status_ = target_ps;
+                // Clear any remaining error messages
+                stored_error_descriptions_.clear();
+                // "Nullify" the result list.
+                this->clear_stored_results_vec();
+            }
+            else {
+                throw geneva_exception(
+                    g_error_streamer(DO_LOG, time_and_place)
+                    << "In GProcessingContainerT<>::set_processing_status():" << std::endl
+                    << "Got invalid target processing status " << psToStr(target_ps) << std::endl
+                    << "Expected a new state of DO_IGNORE or DO_PROCESS for the" << std::endl
+                    << "current state of " << psToStr(processing_status_) << std::endl
+                );
+            }
+            break;
 
-			//------------------------------------------------------------------------------------
-			};
-		}
+            //------------------------------------------------------------------------------------
+        };
+    }
 
-		/***************************************************************************/
-		/**
+    /***************************************************************************/
+    /**
 	  * Marks this item as being due for processing.
 	  */
-		void mark_as_due_for_processing() {
-			m_processing_status = processingStatus::DO_PROCESS;
-		}
+    void mark_as_due_for_processing() {
+        processing_status_ = processingStatus::DO_PROCESS;
+    }
 
-		/***************************************************************************/
-		/**
+    /***************************************************************************/
+    /**
 	  * Sets the IGNORE flag for this work item so that it will not be processed.
 	  */
-		void mark_as_ignorable() {
-			m_processing_status = processingStatus::DO_IGNORE;
-		}
+    void mark_as_ignorable() {
+        processing_status_ = processingStatus::DO_IGNORE;
+    }
 
-		/***************************************************************************/
-		/**
+    /***************************************************************************/
+    /**
 	  * Allows to set the counter of a given iteration
 	  */
-		void setIterationCounter(const ITERATION_COUNTER_TYPE &counter)  noexcept {
-			m_iteration_counter = counter;
-		}
+    void setIterationCounter(const ITERATION_COUNTER_TYPE &counter) noexcept {
+        iteration_counter_ = counter;
+    }
 
-		/***************************************************************************/
-		/**
+    /***************************************************************************/
+    /**
 	  * Allows to retrieve the counter of a given iteration
 	  */
-		ITERATION_COUNTER_TYPE getIterationCounter() const noexcept {
-			return m_iteration_counter;
-		}
+    ITERATION_COUNTER_TYPE getIterationCounter() const noexcept {
+        return iteration_counter_;
+    }
 
-		/***************************************************************************/
-		/**
+    /***************************************************************************/
+    /**
 	  * Allows to set the counter of the current submission inside of an iteration
 	  */
-		void setResubmissionCounter(const RESUBMISSION_COUNTER_TYPE &resubmission_counter) noexcept {
-			m_resubmission_counter = resubmission_counter;
-		}
+    void setResubmissionCounter(const RESUBMISSION_COUNTER_TYPE &resubmission_counter) noexcept {
+        resubmission_counter_ = resubmission_counter;
+    }
 
-		/***************************************************************************/
-		/**
+    /***************************************************************************/
+    /**
 	  * Allows to retrieve the counter of the current submission inside of an iteration
 	  */
-		RESUBMISSION_COUNTER_TYPE getResubmissionCounter() const noexcept {
-			return m_resubmission_counter;
-		}
+    RESUBMISSION_COUNTER_TYPE getResubmissionCounter() const noexcept {
+        return resubmission_counter_;
+    }
 
-		/***************************************************************************/
-		/**
+    /***************************************************************************/
+    /**
 	  * Allows to set the position inside of a given collection submitted to the broker
 	  */
-		void setCollectionPosition(const COLLECTION_POSITION_TYPE &pos) noexcept {
-			m_collection_position = pos;
-		}
+    void setCollectionPosition(const COLLECTION_POSITION_TYPE &pos) noexcept {
+        collection_position_ = pos;
+    }
 
-		/***************************************************************************/
-		/**
+    /***************************************************************************/
+    /**
 	  * Allows to retrieve the position inside of a given collection submitted to the broker
 	  */
-		COLLECTION_POSITION_TYPE getCollectionPosition() const noexcept {
-			return m_collection_position;
-		}
+    COLLECTION_POSITION_TYPE getCollectionPosition() const noexcept {
+        return collection_position_;
+    }
 
-		/***************************************************************************/
-		/**
+    /***************************************************************************/
+    /**
 	  * Allows to set the id inside of the originating buffer
 	  */
-		void setBufferId(const BUFFERPORT_ID_TYPE& id) noexcept {
-			m_bufferport_id = id;
-		}
+    void setBufferId(const BUFFERPORT_ID_TYPE &id) noexcept {
+        bufferport_id_ = id;
+    }
 
-		/***************************************************************************/
-		/**
+    /***************************************************************************/
+    /**
 	  * Allows to retrieve the id of the originating buffer
 	  */
-		BUFFERPORT_ID_TYPE getBufferId() const noexcept {
-			return m_bufferport_id;
-		}
+    BUFFERPORT_ID_TYPE getBufferId() const noexcept {
+        return bufferport_id_;
+    }
 
-		/***************************************************************************/
-		/**
+    /***************************************************************************/
+    /**
 	  * Allows to retrieve the timepoint when a work item was retrieved from the raw queue
 	  */
-		std::chrono::high_resolution_clock::time_point getRawRetrievalTime() const {
-			return m_bufferport_raw_retrieval_time;
-		}
+    std::chrono::high_resolution_clock::time_point getRawRetrievalTime() const {
+        return bufferport_raw_retrieval_time_;
+    }
 
-		/***************************************************************************/
-		/**
+    /***************************************************************************/
+    /**
 	  * Allows to retrieve the timepoint when a work item was submitted to the raw queue
 	  */
-		std::chrono::high_resolution_clock::time_point getRawSubmissionTime() const {
-			return m_bufferport_raw_submission_time;
-		}
+    std::chrono::high_resolution_clock::time_point getRawSubmissionTime() const {
+        return bufferport_raw_submission_time_;
+    }
 
-		/***************************************************************************/
-		/**
+    /***************************************************************************/
+    /**
 	  * Allows to retrieve the timepoint when a work item was retrieved from the processed queue
 	  */
-		std::chrono::high_resolution_clock::time_point getProcRetrievalTime() const {
-			return m_bufferport_proc_retrieval_time;
-		}
+    std::chrono::high_resolution_clock::time_point getProcRetrievalTime() const {
+        return bufferport_proc_retrieval_time_;
+    }
 
-		/***************************************************************************/
-		/**
+    /***************************************************************************/
+    /**
 	  * Allows to retrieve the timepoint when a work item was submitted to the processed queue
 	  */
-		std::chrono::high_resolution_clock::time_point getProcSubmissionTime() const {
-			return m_bufferport_proc_submission_time;
-		}
+    std::chrono::high_resolution_clock::time_point getProcSubmissionTime() const {
+        return bufferport_proc_submission_time_;
+    }
 
-		/***************************************************************************/
-		/**
+    /***************************************************************************/
+    /**
 	  * Allows to check whether any user-defined pre-processing before the process()-
 	  * step may occur. This may alter the individual's data.
 	  */
-		bool mayBePreProcessed() const noexcept {
-			return not m_preProcessingDisabled;
-		}
+    bool mayBePreProcessed() const noexcept {
+        return not preProcessingDisabled_;
+    }
 
-		/***************************************************************************/
-		/**
+    /***************************************************************************/
+    /**
 	  * Allow or prevent pre-processing (used by pre-processing algorithms to prevent
 	  * recursive pre-processing). See e.g. GEvolutionaryAlgorithmPostOptimizerT. Once a veto
 	  * exists, no pre-processing will occur until the veto is lifted.
 	  */
-		void vetoPreProcessing(bool veto) noexcept {
-			m_preProcessingDisabled = veto;
-		}
+    void vetoPreProcessing(bool veto) noexcept {
+        preProcessingDisabled_ = veto;
+    }
 
-		/***************************************************************************/
-		/**
+    /***************************************************************************/
+    /**
 	  * Allows to register a pre-processor object
 	  */
-		void registerPreProcessor(
-			std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<processable_type>> pre_processor_ptr
-		) {
-			if(pre_processor_ptr) {
-				m_pre_processor_ptr = pre_processor_ptr;
-			}
-		}
+    void registerPreProcessor(
+        std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<processable_type>>
+            pre_processor_ptr
+    ) {
+        if(pre_processor_ptr) {
+            pre_processor_ptr_ = pre_processor_ptr;
+        }
+    }
 
-		/***************************************************************************/
-		/**
+    /***************************************************************************/
+    /**
 	  * Allows to check whether any user-defined post-processing after the process()-
 	  * step may occur. This may be important if e.g. an optimization algorithm wants
 	  * to submit evaluation work items to the broker which may then start an optimization
 	  * run on the individual. This may alter the individual's data.
 	  */
-		bool mayBePostProcessed() const {
-			return not m_postProcessingDisabled;
-		}
+    bool mayBePostProcessed() const {
+        return not postProcessingDisabled_;
+    }
 
-		/***************************************************************************/
-		/**
+    /***************************************************************************/
+    /**
 	  * Allow or prevent post-processing (used by post-processing algorithms to prevent
 	  * recursive post-processing). See e.g. GEvolutionaryAlgorithmPostOptimizerT. Once a veto
 	  * exists, no post-processing will occur until the veto is lifted.
 	  */
-		void vetoPostProcessing(bool veto) {
-			m_postProcessingDisabled = veto;
-		}
+    void vetoPostProcessing(bool veto) {
+        postProcessingDisabled_ = veto;
+    }
 
-		/***************************************************************************/
-		/**
+    /***************************************************************************/
+    /**
 	  * Allows to register a post-processor object
 	  */
-		void registerPostProcessor(std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<processable_type>> post_processor_ptr) {
-			if(post_processor_ptr) {
-				m_post_processor_ptr = post_processor_ptr;
-			}
-		}
+    void registerPostProcessor(
+        std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<processable_type>>
+            post_processor_ptr
+    ) {
+        if(post_processor_ptr) {
+            post_processor_ptr_ = post_processor_ptr;
+        }
+    }
 
-		/***************************************************************************/
-		/**
+    /***************************************************************************/
+    /**
 	  * Allows to retrieve the processing time needed for the work item
 	  */
-		std::tuple<double,double,double> getProcessingTimes() const {
-			return std::make_tuple(m_pre_processing_time, m_processing_time, m_post_processing_time);
-		};
+    std::tuple<double, double, double> getProcessingTimes() const {
+        return std::make_tuple(pre_processing_time_, processing_time_, post_processing_time_);
+    };
 
-		/***************************************************************************/
-		/**
+    /***************************************************************************/
+    /**
 	  * Retrieves and clears exceptions and the processing status.
 	  *
 	  * @param The desired new processing status
 	  */
-		std::string get_and_clear_exceptions(processingStatus ps = processingStatus::DO_IGNORE) {
-			std::string stored_exceptions = m_stored_error_descriptions;
-			this->set_processing_status(ps);
-			return stored_exceptions;
-		}
+    std::string get_and_clear_exceptions(processingStatus ps = processingStatus::DO_IGNORE) {
+        std::string stored_exceptions =
+            stored_error_descriptions_; // NOLINT(cppcoreguidelines-init-variables)
+        this->set_processing_status(ps);
+        return stored_exceptions;
+    }
 
-		/***************************************************************************/
-		/**
+    /***************************************************************************/
+    /**
 	  * Allows to extract stored error descriptions
 	  */
-		std::string getStoredErrorDescriptions() const {
-			return m_stored_error_descriptions;
-		}
+    std::string getStoredErrorDescriptions() const {
+        return stored_error_descriptions_;
+    }
 
-		/***************************************************************************/
-		/**
+    /***************************************************************************/
+    /**
  	  * Marks the time when the item was added to a GBuffferPortT raw queue
  	  */
-		void markRawSubmissionTime() {
-			m_bufferport_raw_submission_time = std::chrono::high_resolution_clock::now();
-		}
+    void markRawSubmissionTime() {
+        bufferport_raw_submission_time_ = std::chrono::high_resolution_clock::now();
+    }
 
-		/***************************************************************************/
-		/**
+    /***************************************************************************/
+    /**
  	  * Marks the time when the item was retrieved from a GBuffferPortT raw queue
  	  */
-		void markRawRetrievalTime() {
-			m_bufferport_raw_retrieval_time = std::chrono::high_resolution_clock::now();
-		}
+    void markRawRetrievalTime() {
+        bufferport_raw_retrieval_time_ = std::chrono::high_resolution_clock::now();
+    }
 
-		/***************************************************************************/
-		/**
+    /***************************************************************************/
+    /**
 	  * Marks the time when the item was submitted to a GBuffferPortT processed queue
 	  */
-		void markProcSubmissionTime() {
-			m_bufferport_proc_submission_time = std::chrono::high_resolution_clock::now();
-		}
+    void markProcSubmissionTime() {
+        bufferport_proc_submission_time_ = std::chrono::high_resolution_clock::now();
+    }
 
-		/***************************************************************************/
-		/**
+    /***************************************************************************/
+    /**
 	  * Marks the time when the item was retrieved from a GBuffferPortT processed queue
 	  */
-		void markProcRetrievalTime() {
-			m_bufferport_proc_retrieval_time = std::chrono::high_resolution_clock::now();
-		}
+    void markProcRetrievalTime() {
+        bufferport_proc_retrieval_time_ = std::chrono::high_resolution_clock::now();
+    }
 
-		/***************************************************************************/
-		/**
+    /***************************************************************************/
+    /**
 	  * Allows to retrieve the number of stored results
 	  */
-		std::size_t getNStoredResults() const {
-			return m_stored_results_cnt.size();
-		}
+    std::size_t getNStoredResults() const {
+        return stored_results_cnt_.size();
+    }
 
-		/***************************************************************************/
-		/**
+    /***************************************************************************/
+    /**
 	  * Loads the data of another GProcessingContainerT<processable_type, processing_result_type> object
 	  */
-		void load_pc(const GProcessingContainerT<processable_type, processing_result_type> *cp) {
-			// Check that we are dealing with a GProcessingContainerT<processable_type, processing_result_type> reference independent of this object and convert the pointer
-			const GProcessingContainerT<processable_type, processing_result_type> *p_load
-				= Gem::Common::g_convert_and_compare<GProcessingContainerT<processable_type, processing_result_type>, GProcessingContainerT<processable_type, processing_result_type>>(cp, this);
+    void load_pc(const GProcessingContainerT<processable_type, processing_result_type> *cp) {
+        // Check that we are dealing with a GProcessingContainerT<processable_type, processing_result_type> reference independent of this object and convert the pointer
+        const GProcessingContainerT<processable_type, processing_result_type> *p_load =
+            Gem::Common::g_convert_and_compare<
+                GProcessingContainerT<processable_type, processing_result_type>,
+                GProcessingContainerT<processable_type, processing_result_type>>(cp, this);
 
-			// Load local data
-			m_iteration_counter = p_load->m_iteration_counter;
-			m_resubmission_counter = p_load->m_resubmission_counter;
-			m_collection_position = p_load->m_collection_position;
-			m_bufferport_id = p_load->m_bufferport_id;
-			m_preProcessingDisabled = p_load->m_preProcessingDisabled;
-			m_postProcessingDisabled = p_load->m_postProcessingDisabled;
-			m_pre_processing_time = p_load->m_pre_processing_time;
-			m_processing_time = p_load->m_processing_time;
-			m_post_processing_time = p_load->m_post_processing_time;
-			m_bufferport_raw_submission_time = p_load->m_bufferport_raw_submission_time;
-			m_bufferport_raw_retrieval_time = p_load->m_bufferport_raw_retrieval_time;
-			m_bufferport_proc_submission_time = p_load->m_bufferport_proc_submission_time;
-			m_bufferport_proc_retrieval_time = p_load->m_bufferport_proc_retrieval_time;
-			m_stored_results_cnt = p_load->m_stored_results_cnt; // note that this implies that processing_result_type is copyable --> e.g. it should not contain pointers
-			m_stored_error_descriptions = p_load->m_stored_error_descriptions;
-			m_processing_status = p_load->m_processing_status;
-			// m_evaluation_id = p_load->m_evaluation_id;
+        // Load local data
+        iteration_counter_ = p_load->iteration_counter_;
+        resubmission_counter_ = p_load->resubmission_counter_;
+        collection_position_ = p_load->collection_position_;
+        bufferport_id_ = p_load->bufferport_id_;
+        preProcessingDisabled_ = p_load->preProcessingDisabled_;
+        postProcessingDisabled_ = p_load->postProcessingDisabled_;
+        pre_processing_time_ = p_load->pre_processing_time_;
+        processing_time_ = p_load->processing_time_;
+        post_processing_time_ = p_load->post_processing_time_;
+        bufferport_raw_submission_time_ = p_load->bufferport_raw_submission_time_;
+        bufferport_raw_retrieval_time_ = p_load->bufferport_raw_retrieval_time_;
+        bufferport_proc_submission_time_ = p_load->bufferport_proc_submission_time_;
+        bufferport_proc_retrieval_time_ = p_load->bufferport_proc_retrieval_time_;
+        stored_results_cnt_ =
+            p_load
+                ->stored_results_cnt_; // note that this implies that processing_result_type is copyable --> e.g. it should not contain pointers
+        stored_error_descriptions_ = p_load->stored_error_descriptions_;
+        processing_status_ = p_load->processing_status_;
+        // evaluation_id_ = p_load->evaluation_id_;
 
-			Gem::Common::copyCloneableSmartPointer(p_load->m_pre_processor_ptr, m_pre_processor_ptr);
-			Gem::Common::copyCloneableSmartPointer(p_load->m_post_processor_ptr, m_post_processor_ptr);
-		}
+        Gem::Common::copyCloneableSmartPointer(p_load->pre_processor_ptr_, pre_processor_ptr_);
+        Gem::Common::copyCloneableSmartPointer(p_load->post_processor_ptr_, post_processor_ptr_);
+    }
 
-	protected:
-		/***************************************************************************/
-		/**
+protected:
+    /***************************************************************************/
+    /**
 	  * Retrieval of the stored result. This function allows modifications of its
 	  * return value and is hence protected and only accessible by derived classes.
 	  *
 	  * @param id The id of the stored result to be returned
-	  * @return The stored result at position id in m_stored_results_vec
+	  * @return The stored result at position id in stored_results_vec_
 	  */
-		processing_result_type& modifyStoredResult(std::size_t id = 0) {
-			return m_stored_results_cnt.at(id);
-		}
+    processing_result_type &modifyStoredResult(std::size_t id = 0) {
+        return stored_results_cnt_.at(id);
+    }
 
-		/***************************************************************************/
-		/**
+    /***************************************************************************/
+    /**
 	  * Allows derived classes to set the number of stored results. Note that this
 	  * should happen prior to any operation with this object. Also note that this
 	  * operation may invalidate other results already stored in this object.
@@ -876,37 +889,32 @@ namespace Gem::Courtier
 	  * @param The number of stored results in this class
 	  * @param new_val A value to be copied into new positions when the vector is increased
 	  */
-		void setNStoredResults(
-			std::size_t n_stored_results
-			, processing_result_type new_val
-		) {
-			m_stored_results_cnt.resize(n_stored_results, new_val);
-		}
+    void setNStoredResults(std::size_t n_stored_results, processing_result_type new_val) {
+        stored_results_cnt_.resize(n_stored_results, new_val);
+    }
 
-		/***************************************************************************/
-		/**
+    /***************************************************************************/
+    /**
 	  * Allows derived classes to set the number of stored results. Note that this
 	  * should happen prior to any operation with this object. Also note that this
 	  * operation may invalidate other results already stored in this object.
 	  */
-		void setNStoredResults(
-			std::size_t n_stored_results
-		) {
-			processing_result_type p;
-			this->setNStoredResults(n_stored_results, p);
-		}
+    void setNStoredResults(std::size_t n_stored_results) {
+        processing_result_type p;
+        this->setNStoredResults(n_stored_results, p);
+    }
 
-		/***************************************************************************/
-		/**
+    /***************************************************************************/
+    /**
 	  * Allows to register a result, using its id (i.e. position in the internal
 	  * result storage. This function should be called from inside of the process_ call.
 	  */
-		void registerResult(std::size_t id, const processing_result_type& r) {
-			m_stored_results_cnt.at(id) = r;
-		}
+    void registerResult(std::size_t id, const processing_result_type &r) {
+        stored_results_cnt_.at(id) = r;
+    }
 
-		/***************************************************************************/
-		/**
+    /***************************************************************************/
+    /**
 	  * This function allows derived classes to specify custom error conditions by
 	  * setting their own error messages. The function will also set the internal
 	  * flags that indicate that an error has occurred and that processing was not
@@ -914,44 +922,42 @@ namespace Gem::Courtier
 	  *
 	  * @param An error description
 	  */
-		void force_set_error(
-			const std::string& error_info
-		) {
-			if(error_info.empty()) {
-				throw geneva_exception( // Note: this is a specific exception to flag errors during processing
+    void force_set_error(const std::string &error_info) {
+        if(error_info.empty()) {
+            throw geneva_exception( // Note: this is a specific exception to flag errors during processing
 					g_error_streamer(DO_LOG, time_and_place)
 					<< "In GProcessingContainerT::force_set_error(): Error info is empty" << std::endl
 				);
-			}
+        }
 
-			// There may already be information stored in this variable. Hence we attach the new information via +=
-			m_stored_error_descriptions += error_info;
-			m_processing_status = processingStatus::ERROR_FLAGGED;
-		}
+        // There may already be information stored in this variable. Hence we attach the new information via +=
+        stored_error_descriptions_ += error_info;
+        processing_status_ = processingStatus::ERROR_FLAGGED;
+    }
 
-		/***************************************************************************/
-		/**
+    /***************************************************************************/
+    /**
      * The default constructor. It is only needed for (de-)serialization purposes.
      * We want to enforce the specification of the number of evaluation criteria
      * in derived classes. Protected, so that a derived class can have a defaulted
      * default constructor.
      */
-		GProcessingContainerT() = default;
+    GProcessingContainerT() = default;
 
-	private:
-		/***************************************************************************/
-		/**
+private:
+    /***************************************************************************/
+    /**
 	  * Little helper function to (re-)initialize the result storage vector
 	  */
-		void clear_stored_results_vec() {
-			// "Nullify the result list. We cannot use range-based for here, as m_stored_results_cnt might hold booleans
-			for(auto it=m_stored_results_cnt.begin(); it!=m_stored_results_cnt.end(); ++it) {
-				*it = processing_result_type();
-			}
-		}
+    void clear_stored_results_vec() {
+        // "Nullify the result list. We cannot use range-based for here, as stored_results_cnt_ might hold booleans
+        for(auto it = stored_results_cnt_.begin(); it != stored_results_cnt_.end(); ++it) {
+            *it = processing_result_type();
+        }
+    }
 
-		/***************************************************************************/
-		/**
+    /***************************************************************************/
+    /**
 	  * Loads user-specified data. This function can be overloaded by derived classes. It
 	  * is mainly intended to provide a mechanism to "deposit" an item at a remote site
 	  * that holds otherwise constant data. That data then does not need to be serialized
@@ -961,84 +967,100 @@ namespace Gem::Courtier
 	  *
 	  * @param cD_ptr A pointer to the object whose data should be loaded
 	  */
-		virtual void loadConstantData_(std::shared_ptr<processable_type>) BASE
-		{ /* nothing */ }
+    virtual void loadConstantData_(std::shared_ptr<processable_type>) { /* nothing */
+    }
 
-		/***************************************************************************/
+    /***************************************************************************/
 
-		/** @brief Allows derived classes to specify the tasks to be performed for this object */
-		virtual G_API_COURTIER void process_(
-			const std::vector<processing_result_type> &res_vec = std::vector<processing_result_type>()
-		) BASE = 0;
+    /** @brief Allows derived classes to specify the tasks to be performed for this object */
+    virtual void process_(
+        const std::vector<processing_result_type> &res_vec = std::vector<processing_result_type>()
+    ) = 0;
 
-		/***************************************************************************/
-		/**
+    /***************************************************************************/
+    /**
 		  * Specifies tasks to be performed before the process_ call. Note: This function
-		  * will reset the m_mayBePreProcessed-flag.
+		  * will reset the mayBePreProcessed_-flag.
   		  */
-		void preProcess_() {
-			if(this->mayBePreProcessed() && m_pre_processor_ptr) {
-				auto& p = dynamic_cast<processable_type&>(*this);
-				(*m_pre_processor_ptr)(p);
-			}
-		}
+    void preProcess_() {
+        if(this->mayBePreProcessed() && pre_processor_ptr_) {
+            auto &p = dynamic_cast<processable_type &>(*this);
+            (*pre_processor_ptr_)(p);
+        }
+    }
 
-		/***************************************************************************/
-		/**
+    /***************************************************************************/
+    /**
 	  * Specifies tasks to be performed after the process_ call. Note: This function
-	  * will reset the m_mayBePostProcessed-flag.
+	  * will reset the mayBePostProcessed_-flag.
   	  */
-		void postProcess_() {
-			if(this->mayBePostProcessed() && m_post_processor_ptr) {
-				auto& p = dynamic_cast<processable_type&>(*this);
-				(*m_post_processor_ptr)(p);
-			}
-		}
+    void postProcess_() {
+        if(this->mayBePostProcessed() && post_processor_ptr_) {
+            auto &p = dynamic_cast<processable_type &>(*this);
+            (*post_processor_ptr_)(p);
+        }
+    }
 
-		/***************************************************************************/
-		// Data
+    /***************************************************************************/
+    // Data
 
-		ITERATION_COUNTER_TYPE m_iteration_counter = ITERATION_COUNTER_TYPE(0);
-		RESUBMISSION_COUNTER_TYPE m_resubmission_counter = RESUBMISSION_COUNTER_TYPE(0);
-		COLLECTION_POSITION_TYPE m_collection_position = COLLECTION_POSITION_TYPE(0);
-		BUFFERPORT_ID_TYPE m_bufferport_id = BUFFERPORT_ID_TYPE();
+    ITERATION_COUNTER_TYPE iteration_counter_ = ITERATION_COUNTER_TYPE(0);
+    RESUBMISSION_COUNTER_TYPE resubmission_counter_ = RESUBMISSION_COUNTER_TYPE(0);
+    COLLECTION_POSITION_TYPE collection_position_ = COLLECTION_POSITION_TYPE(0);
+    BUFFERPORT_ID_TYPE bufferport_id_ = BUFFERPORT_ID_TYPE();
 
-		bool m_preProcessingDisabled = false; ///< Indicates whether pre-processing was diabled entirely
-		bool m_postProcessingDisabled = false; ///< Indicates whether pre-processing was diabled entirely
+    bool preProcessingDisabled_ = false; ///< Indicates whether pre-processing was diabled entirely
+    bool postProcessingDisabled_ =
+        false; ///< Indicates whether pre-processing was diabled entirely
 
-		std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<processable_type>> m_pre_processor_ptr; ///< Actions to be performed before processing
-		std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<processable_type>> m_post_processor_ptr; ///< Actions to be performed after processing
+    std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<processable_type>>
+        pre_processor_ptr_; ///< Actions to be performed before processing
+    std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<processable_type>>
+        post_processor_ptr_; ///< Actions to be performed after processing
 
-		double m_pre_processing_time = 0.; ///< The amount of time needed for pre-processing (in seconds)
-		double m_processing_time = 0.; ///< The amount of time needed for the actual processing step (in seconds)
-		double m_post_processing_time = 0.; ///< The amount of time needed for post-processing (in seconds)
+    double pre_processing_time_ =
+        0.; ///< The amount of time needed for pre-processing (in seconds)
+    double processing_time_ =
+        0.; ///< The amount of time needed for the actual processing step (in seconds)
+    double post_processing_time_ =
+        0.; ///< The amount of time needed for post-processing (in seconds)
 
-		std::chrono::high_resolution_clock::time_point m_bufferport_raw_retrieval_time;   ///< Time when the item was retrieved from the raw queue
-		std::chrono::high_resolution_clock::time_point m_bufferport_raw_submission_time;  ///< Time when the item was submitted to the raw queue
-		std::chrono::high_resolution_clock::time_point m_bufferport_proc_retrieval_time;  ///< Time when the item was retrieved from the processed queue
-		std::chrono::high_resolution_clock::time_point m_bufferport_proc_submission_time; ///< Time when the item was submitted to the processed queue
+    std::chrono::high_resolution_clock::time_point
+        bufferport_raw_retrieval_time_; ///< Time when the item was retrieved from the raw queue
+    std::chrono::high_resolution_clock::time_point
+        bufferport_raw_submission_time_; ///< Time when the item was submitted to the raw queue
+    std::chrono::high_resolution_clock::time_point
+        bufferport_proc_retrieval_time_; ///< Time when the item was retrieved from the processed queue
+    std::chrono::high_resolution_clock::time_point
+        bufferport_proc_submission_time_; ///< Time when the item was submitted to the processed queue
 
-		std::vector<processing_result_type> m_stored_results_cnt = std::vector<processing_result_type>(1, processing_result_type()); ///< The results stored by this object
+    std::vector<processing_result_type> stored_results_cnt_ = std::vector<processing_result_type>(
+        1,
+        processing_result_type()
+    ); ///< The results stored by this object
 
-		std::string m_stored_error_descriptions = ""; ///< Stores exceptions that may have occurred during processing
-		processingStatus m_processing_status = processingStatus::DO_IGNORE; ///< By default no processing is initiated
+    std::string stored_error_descriptions_ =
+        ""; ///< Stores exceptions that may have occurred during processing
+    processingStatus processing_status_ =
+        processingStatus::DO_IGNORE; ///< By default no processing is initiated
 
-		// std::string m_evaluation_id = "empty"; ///< A unique id that is assigned to an evaluation
-	};
+    // std::string evaluation_id_ = "empty"; ///< A unique id that is assigned to an evaluation
+};
 
-	/******************************************************************************/
+/******************************************************************************/
 
-}
+} /* namespace Gem::Courtier */
 
 /******************************************************************************/
 /** @brief Mark this class as abstract */
-namespace boost::serialization
-{
-	template<typename processable_type, typename processing_result_type>
-	struct is_abstract<Gem::Courtier::GProcessingContainerT<processable_type, processing_result_type>> : public boost::true_type {};
-	template<typename processable_type, typename processing_result_type>
-	struct is_abstract<const Gem::Courtier::GProcessingContainerT<processable_type, processing_result_type>> : public boost::true_type {};
-}
+namespace boost::serialization {
+template <typename processable_type, typename processing_result_type>
+struct is_abstract<Gem::Courtier::GProcessingContainerT<processable_type, processing_result_type>>
+  : public boost::true_type {};
+template <typename processable_type, typename processing_result_type>
+struct is_abstract<
+    const Gem::Courtier::GProcessingContainerT<processable_type, processing_result_type>>
+  : public boost::true_type {};
+} /* namespace boost::serialization */
 
 /******************************************************************************/
-

@@ -39,14 +39,13 @@
 
 // Geneva headers go here
 #include "courtier/GCourtierEnums.hpp"
-#include "geneva/G_OptimizationAlgorithm_FactoryT.hpp"
-#include "geneva/G_OptimizationAlgorithm_Base.hpp"
 #include "geneva/GParameterSet.hpp"
+#include "geneva/G_OptimizationAlgorithm_Base.hpp"
+#include "geneva/G_OptimizationAlgorithm_FactoryT.hpp"
 #include "geneva/G_OptimizationAlgorithm_GradientDescent.hpp"
 #include "geneva/G_OptimizationAlgorithm_InitializerT.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -55,45 +54,40 @@ namespace Geneva {
  * This class is a specialization of the GFactoryT<> class for simulated annealing.
  * It will only return objects which perform all evaluation through the broker.
  */
-class GGradientDescentFactory
-	: public G_OptimizationAlgorithm_FactoryT<G_OptimizationAlgorithm_Base>
-{
+class GGradientDescentFactory // NOLINT(cppcoreguidelines-special-member-functions)
+  : public G_OptimizationAlgorithm_FactoryT<G_OptimizationAlgorithm_Base> {
 public:
-	 /** @brief The default constructor */
-	 G_API_GENEVA GGradientDescentFactory();
-	 /** @brief Initialization with the name of the config file */
-	 explicit G_API_GENEVA GGradientDescentFactory(std::filesystem::path const&);
-	 /** @brief Initialization with the name of the config file and a content creator */
-	 G_API_GENEVA GGradientDescentFactory(
-		 const std::string&
-		 , std::shared_ptr <Gem::Common::GFactoryT<GParameterSet>>
-	 );
-	 /** @brief The copy constructor */
-	 G_API_GENEVA GGradientDescentFactory(const GGradientDescentFactory&) = default;
-	 /** @brief The destructor */
-	 G_API_GENEVA ~GGradientDescentFactory() override = default;
+    /** @brief The default constructor */
+    GGradientDescentFactory();
+    /** @brief Initialization with the name of the config file */
+    explicit GGradientDescentFactory(std::filesystem::path const &);
+    /** @brief Initialization with the name of the config file and a content creator */
+    GGradientDescentFactory(
+        const std::string &,
+        std::shared_ptr<Gem::Common::GFactoryT<GParameterSet>>
+    );
+    /** @brief The copy constructor */
+    GGradientDescentFactory(const GGradientDescentFactory &) = default;
+    /** @brief The destructor */
+    ~GGradientDescentFactory() override = default;
 
-	 /** @brief Gives access to the mnemonics / nickname describing an algorithm */
-	 G_API_GENEVA std::string getMnemonic() const override;
-	 /** @brief Gives access to a clear-text description of the algorithm */
-	 G_API_GENEVA std::string getAlgorithmName() const override;
+    /** @brief Gives access to the mnemonics / nickname describing an algorithm */
+    std::string getMnemonic() const override;
+    /** @brief Gives access to a clear-text description of the algorithm */
+    std::string getAlgorithmName() const override;
 
 protected:
-	 /** @brief Allows to act on the configuration options received from the configuration file */
-	 G_API_GENEVA void postProcess_(std::shared_ptr<G_OptimizationAlgorithm_Base>&) override;
+    /** @brief Allows to act on the configuration options received from the configuration file */
+    void postProcess_(std::shared_ptr<G_OptimizationAlgorithm_Base> &) override;
 
 private:
-	/** @brief Creates individuals of this type */
-	G_API_GENEVA std::shared_ptr<G_OptimizationAlgorithm_Base> getObject_(
-			Gem::Common::GParserBuilder&
-			, const std::size_t&
-	) override;
+    /** @brief Creates individuals of this type */
+    std::shared_ptr<G_OptimizationAlgorithm_Base>
+    getObject_(Gem::Common::GParserBuilder &, const std::size_t &) override;
 };
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
-
+} /* namespace Gem::Geneva */

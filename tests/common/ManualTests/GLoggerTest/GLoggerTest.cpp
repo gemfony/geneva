@@ -33,8 +33,8 @@
 
 // Standard headers go here
 #include <cmath>
-#include <iostream>
 #include <filesystem>
+#include <iostream>
 
 // Boost headers go here
 
@@ -44,65 +44,70 @@
 
 using namespace Gem::Common;
 
-int main(int argc, char** argv) {
-	bool do_crash = false;
+int main(int argc, char **argv) {
+    bool do_crash = false;
 
-	// Create the parser builder
-	GParserBuilder gpb;
+    // Create the parser builder
+    GParserBuilder gpb;
 
-	gpb.registerCLParameter<bool>(
-		"crash,c"
-		, do_crash
-		, false // do not crash by default
-		, "Whether an uncaught exception should be raised"
-		, GCL_IMPLICIT_ALLOWED // Permit implicit values, so that we can say --crash instead of --crash=true
-		, true // Crash only, if --crash or -c was specified on the command line
-	);
+    gpb.registerCLParameter<bool>(
+        "crash,c",
+        do_crash,
+        false // do not crash by default
+        ,
+        "Whether an uncaught exception should be raised",
+        GCL_IMPLICIT_ALLOWED // Permit implicit values, so that we can say --crash instead of --crash=true
+        ,
+        true // Crash only, if --crash or -c was specified on the command line
+    );
 
-	// Do the actual command line parsing
-	if(GCL_HELP_REQUESTED == gpb.parseCommandLine(argc, argv, false /* not verbose */)) {
-		return 0; // Do not continue
-	}
+    // Do the actual command line parsing
+    if(GCL_HELP_REQUESTED == gpb.parseCommandLine(argc, argv, false /* not verbose */)) {
+        return 0; // Do not continue
+    }
 
-	std::shared_ptr<GBaseLogTarget> gcl_ptr(new GConsoleLogger());
-	std::shared_ptr<GBaseLogTarget> gfl_ptr(new GFileLogger("./somePathToLogFile.txt"));
+    std::shared_ptr<GBaseLogTarget> gcl_ptr(new GConsoleLogger());
+    std::shared_ptr<GBaseLogTarget> gfl_ptr(new GFileLogger("./somePathToLogFile.txt"));
 
-	glogger.addLogTarget(gcl_ptr);
-	glogger.addLogTarget(gfl_ptr);
+    glogger.addLogTarget(gcl_ptr);
+    glogger.addLogTarget(gfl_ptr);
 
-	// Emission of a leading std::endl
-	glogger << std::endl << "This comment starts in the next line!" << std::endl << GLOGGING;
+    // Emission of a leading std::endl
+    glogger << std::endl << "This comment starts in the next line!" << std::endl << GLOGGING;
 
-	// Normal output to all logging targets
-	glogger << "Some information " << 1 << " " << 2 << std::endl << GLOGGING;
+    // Normal output to all logging targets
+    glogger << "Some information " << 1 << " " << 2 << std::endl << GLOGGING;
 
-	// Warning emitted to all targets
-	glogger << "Some information " << 3 << " " << 4 << std::endl << GWARNING;
+    // Warning emitted to all targets
+    glogger << "Some information " << 3 << " " << 4 << std::endl << GWARNING;
 
-	// Raising an exception. Note that the data will also be written to
-	// a file named GENEVA-EXCEPTION.log
-	try {
-		glogger << "Some information " << 5 << " " << 6 << std::endl << GEXCEPTION;
-	} catch(geneva_exception& e) {
-		std::cout
-		<< "Caught exception with message" << std::endl
-		<< e << std::endl;
-	}
+    // Raising an exception. Note that the data will also be written to
+    // a file named GENEVA-EXCEPTION.log
+    try {
+        glogger << "Some information " << 5 << " " << 6 << std::endl << GEXCEPTION;
+    }
+    catch(geneva_exception &e) {
+        std::cout << "Caught exception with message" << std::endl << e << std::endl;
+    }
 
-	// Output to a specific file
-	glogger(std::filesystem::path("anotherFile")) << "Some other information " << 7 << " " << 8 << std::endl << GFILE;
+    // Output to a specific file
+    glogger(std::filesystem::path("anotherFile"))
+        << "Some other information " << 7 << " " << 8 << std::endl
+        << GFILE;
 
-	// Output to registered logging targets with a given extension
-	glogger(std::string("extension")) << "And yet another information " << 9 << " " << 10 << std::endl << GLOGGING;
+    // Output to registered logging targets with a given extension
+    glogger(std::string("extension"))
+        << "And yet another information " << 9 << " " << 10 << std::endl
+        << GLOGGING;
 
-	// Output to stdout
-	glogger << "std::out-information" << std::endl << GSTDOUT;
+    // Output to stdout
+    glogger << "std::out-information" << std::endl << GSTDOUT;
 
-	// Output to stderr
-	glogger << "std::err information" << std::endl << GSTDERR;
+    // Output to stderr
+    glogger << "std::err information" << std::endl << GSTDERR;
 
-	// Crash the applicaton if requested
-	if(do_crash) {
-		glogger << "A crash was requested. Crashing ..." << GEXCEPTION;
-	}
+    // Crash the applicaton if requested
+    if(do_crash) {
+        glogger << "A crash was requested. Crashing ..." << GEXCEPTION;
+    }
 }

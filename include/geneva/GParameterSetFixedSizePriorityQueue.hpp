@@ -35,29 +35,28 @@
 // Standard header files go here
 
 // Boost header files go here
-#include <boost/archive/xml_oarchive.hpp>
-#include <boost/archive/xml_iarchive.hpp>
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/archive/binary_oarchive.hpp>
 #include <boost/archive/binary_iarchive.hpp>
-#include <boost/serialization/nvp.hpp>
-#include <boost/serialization/map.hpp>
-#include <boost/serialization/vector.hpp>
-#include <boost/serialization/shared_ptr.hpp>
+#include <boost/archive/binary_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/xml_iarchive.hpp>
+#include <boost/archive/xml_oarchive.hpp>
 #include <boost/serialization/base_object.hpp>
-#include <boost/serialization/utility.hpp>
-#include <boost/serialization/tracking.hpp>
-#include <boost/serialization/split_member.hpp>
 #include <boost/serialization/export.hpp>
+#include <boost/serialization/map.hpp>
+#include <boost/serialization/nvp.hpp>
+#include <boost/serialization/shared_ptr.hpp>
+#include <boost/serialization/split_member.hpp>
+#include <boost/serialization/tracking.hpp>
+#include <boost/serialization/utility.hpp>
+#include <boost/serialization/vector.hpp>
 
 // Geneva header files go here
 #include "common/GFixedSizePriorityQueueT.hpp"
-#include "geneva/GenevaHelperFunctions.hpp"
 #include "geneva/GParameterSet.hpp"
+#include "geneva/GenevaHelperFunctions.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 /**
@@ -65,101 +64,99 @@ namespace Geneva {
  * based on the maximization/minimization property and the current fitness of
  * the objects.
  */
-class GParameterSetFixedSizePriorityQueue
-    : public Gem::Common::GFixedSizePriorityQueueT<GParameterSet>
-{
+class GParameterSetFixedSizePriorityQueue // NOLINT(cppcoreguidelines-special-member-functions)
+  : public Gem::Common::GFixedSizePriorityQueueT<GParameterSet> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
-    template<typename Archive>
+    template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar
-        & make_nvp(
-            "GFSPQ"
-            , boost::serialization::base_object<Gem::Common::GFixedSizePriorityQueueT<GParameterSet>>(*this));
+        ar &make_nvp(
+            "GFSPQ",
+            boost::serialization::base_object<Gem::Common::GFixedSizePriorityQueueT<GParameterSet>>(
+                *this
+            )
+        );
     }
     ///////////////////////////////////////////////////////////////////////
 
 public:
     /** @brief The default constructor */
-    G_API_GENEVA GParameterSetFixedSizePriorityQueue() = default;
+    GParameterSetFixedSizePriorityQueue() = default;
 
     /** @brief Initialization with the maximum size */
-    explicit G_API_GENEVA GParameterSetFixedSizePriorityQueue(const std::size_t &);
+    explicit GParameterSetFixedSizePriorityQueue(const std::size_t &);
     /** @brief The copy constructor */
-    G_API_GENEVA GParameterSetFixedSizePriorityQueue(const GParameterSetFixedSizePriorityQueue &cp) = default;
+    
+    GParameterSetFixedSizePriorityQueue(const GParameterSetFixedSizePriorityQueue &cp) = default;
     /** @brief The destructor */
-    G_API_GENEVA ~GParameterSetFixedSizePriorityQueue() override = default;
+    ~GParameterSetFixedSizePriorityQueue() override = default;
 
     /** @brief Checks whether no item has the dirty flag set */
-    G_API_GENEVA bool allClean(std::size_t &) const;
+    bool allClean(std::size_t &) const;
     /** @brief Emits information about the "dirty flag" of all items */
-    G_API_GENEVA std::string getCleanStatus() const;
+    std::string getCleanStatus() const;
 
     /** @brief Adds items in a range to the priority queue */
-    void add(
-        std::vector<std::shared_ptr<GParameterSet>>::const_iterator begin,
+    void
+    add(std::vector<std::shared_ptr<GParameterSet>>::const_iterator begin,
         std::vector<std::shared_ptr<GParameterSet>>::const_iterator end,
         bool do_clone,
-        bool replace
-    ) override;
+        bool replace) override;
 
     /** @brief Adds the items in the items_cnt container to the queue */
-    void add(
-        std::vector<std::shared_ptr<GParameterSet>> const &items_cnt
-        , const bool do_clone
-        , const bool replace
-    ) override;
+    void
+    add(std::vector<std::shared_ptr<GParameterSet>> const &items_cnt,
+        const bool do_clone,
+        const bool replace) override;
 
     /** @brief Adds a single item to the queue */
-    void add(
-        std::shared_ptr<GParameterSet> const& item
-        , const bool do_clone
-    ) override;
+    void add(std::shared_ptr<GParameterSet> const &item, const bool do_clone) override;
 
 protected:
     /***************************************************************************/
     /** @brief Loads the data of another population */
-    G_API_GENEVA void load_(const Gem::Common::GFixedSizePriorityQueueT<GParameterSet> *) override;
+    void load_(const Gem::Common::GFixedSizePriorityQueueT<GParameterSet> *) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GParameterSetFixedSizePriorityQueue>(
-        GParameterSetFixedSizePriorityQueue const &
-        , GParameterSetFixedSizePriorityQueue const &
-        , Gem::Common::GToken &
+        GParameterSetFixedSizePriorityQueue const &,
+        GParameterSetFixedSizePriorityQueue const &,
+        Gem::Common::GToken &
     );
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
-    G_API_GENEVA void compare_(
+    void compare_(
         const Gem::Common::GFixedSizePriorityQueueT<GParameterSet> & // the other object
-        , const Gem::Common::expectation & // the expectation for this object, e.g. equality
-        , const double & // the limit for allowed deviations of floating point types
+        ,
+        const Gem::Common::expectation & // the expectation for this object, e.g. equality
+        ,
+        const double & // the limit for allowed deviations of floating point types
     ) const override;
 
     /** @brief Checks whether an Item is valid */
-    G_API_GENEVA bool isValid(const std::shared_ptr<GParameterSet>&) const override;
+    bool isValid(const std::shared_ptr<GParameterSet> &) const override;
     /** @brief Evaluates a single work item, so that it can be sorted */
-    G_API_GENEVA double evaluation(const std::shared_ptr<GParameterSet> &) const override;
+    double evaluation(const std::shared_ptr<GParameterSet> &) const override;
 
     /** @brief Applies modifications to this object. This is needed for testing purposes */
-    G_API_GENEVA bool modify_GUnitTests_() override;
+    bool modify_GUnitTests_() override;
     /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-    G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests_() override;
+    void specificTestsNoFailureExpected_GUnitTests_() override;
     /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-    G_API_GENEVA void specificTestsFailuresExpected_GUnitTests_() override;
+    void specificTestsFailuresExpected_GUnitTests_() override;
 
 private:
     /** @brief Emits a name for this class / object */
-    G_API_GENEVA std::string name_() const override;
+    std::string name_() const override;
     /** @brief Creates a deep clone of this object */
-    G_API_GENEVA Gem::Common::GFixedSizePriorityQueueT<GParameterSet> *clone_() const override;
+    Gem::Common::GFixedSizePriorityQueueT<GParameterSet> *clone_() const override;
 };
 
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GParameterSetFixedSizePriorityQueue) // NOLINT

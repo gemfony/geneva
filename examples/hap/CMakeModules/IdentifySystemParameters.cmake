@@ -46,27 +46,12 @@ SET(CLANG_DEF_MIN_CXX1Z_VERSION "3.9")
 SET(CLANG_DEF_CXX14_STANDARD_FLAG "-std=c++14")
 SET(CLANG_DEF_CXX1Z_STANDARD_FLAG "-std=c++1z")
 
-# Apple Clang settings
-SET(APPLECLANG_DEF_IDENTIFIER "AppleClang")
-SET(APPLECLANG_DEF_MIN_CXX14_VERSION "7.3")
-SET(APPLECLANG_DEF_CXX14_STANDARD_FLAG "-std=c++14")
-
 # GCC settings
 SET(GNU_DEF_IDENTIFIER "GNU")
 SET(GNU_DEF_MIN_CXX14_VERSION "4.9")
 SET(GNU_DEF_MIN_CXX1Z_VERSION "6.0")
 SET(GNU_DEF_CXX14_STANDARD_FLAG "-std=c++14")
 SET(GNU_DEF_CXX1Z_STANDARD_FLAG "-std=c++1z")
-
-# Intel settings
-SET(INTEL_DEF_IDENTIFIER "Intel")
-SET(INTEL_DEF_MIN_CXX14_VERSION "16.0")
-SET(INTEL_DEF_CXX14_STANDARD_FLAG "-std=c++14")
-
-# MS Visual C settings
-SET(MSVC_DEF_IDENTIFIER "MSVC")
-SET(MSVC_DEF_MIN_CXX14_VERSION "21.0")	# Aka MS Visual C++ 14.0, MS Visual Studio 2015
-SET(MSVC_DEF_CXX14_STANDARD_FLAG "")
 
 # Default compiler settings
 SET(NONE_DEF_STANDARD_FLAG "")
@@ -160,284 +145,97 @@ ENDMACRO()
 # Identifies the operating system and version of the host system
 #
 FUNCTION (
-	FIND_HOST_OS
-	GENEVA_OS_NAME_OUT
-	GENEVA_OS_VERSION_OUT
+    FIND_HOST_OS
+    GENEVA_OS_NAME_OUT
+    GENEVA_OS_VERSION_OUT
 )
-
-	#--------------------------------------------------------------------------
-	#
-	# Note: CMAKE_SYSTEM_VERSION is the output of 'uname -r', and
-	#       CMAKE_SYSTEM_NAME is the output of 'uname -s' on systems that
-	#       support it, at least in cmake 3.x
-	#
-	IF(APPLE)
-		execute_process(COMMAND /usr/bin/uname -r OUTPUT_VARIABLE DARWIN_VERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
-		SET(${GENEVA_OS_NAME_OUT} "MacOSX" PARENT_SCOPE)
-		SET(${GENEVA_OS_VERSION_OUT} "${DARWIN_VERSION}" PARENT_SCOPE)
-	ELSEIF(CMAKE_SYSTEM_NAME MATCHES "Linux")
-		execute_process(COMMAND uname -r OUTPUT_VARIABLE LINUX_VERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
-		SET(${GENEVA_OS_NAME_OUT} "Linux" PARENT_SCOPE)
-		SET(${GENEVA_OS_VERSION_OUT} "${LINUX_VERSION}" PARENT_SCOPE)
-	ELSEIF(CMAKE_SYSTEM_NAME MATCHES "FreeBSD")
-		execute_process(COMMAND uname -r OUTPUT_VARIABLE FREEBSD_VERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
-		SET(${GENEVA_OS_NAME_OUT} "FreeBSD" PARENT_SCOPE)
-		SET(${GENEVA_OS_VERSION_OUT} "${FREEBSD_VERSION}" PARENT_SCOPE)
-	ELSEIF(CYGWIN)
-		execute_process(COMMAND uname -r OUTPUT_VARIABLE CYGWIN_VERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
-		SET(${GENEVA_OS_NAME_OUT} "Cygwin" PARENT_SCOPE)
-		SET(${GENEVA_OS_VERSION_OUT} "${CYGWIN_VERSION}" PARENT_SCOPE)
-	ELSEIF(WIN32)
-		SET(${GENEVA_OS_NAME_OUT} "Windows" PARENT_SCOPE)
-		# No "WIN32_VERSION" variable, no way to get the Windows "marketing version"
-		SET(${GENEVA_OS_VERSION_OUT} "NT ${CMAKE_SYSTEM_VERSION}" PARENT_SCOPE)
-	ELSE()
-		SET(${GENEVA_OS_NAME_OUT} "unsupported" PARENT_SCOPE)
-		SET(${GENEVA_OS_VERSION_OUT} "unsupported" PARENT_SCOPE)
-	ENDIF()
-	#-------------------------------------------------------------------------
-
+    execute_process(COMMAND uname -r OUTPUT_VARIABLE LINUX_VERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
+    SET(${GENEVA_OS_NAME_OUT} "Linux" PARENT_SCOPE)
+    SET(${GENEVA_OS_VERSION_OUT} "${LINUX_VERSION}" PARENT_SCOPE)
 ENDFUNCTION()
 
 ################################################################################
 # Sets the compiler flags for this platform and compiler
 #
 FUNCTION (
-	SET_COMPILER_FLAGS
-	GENEVA_OS_NAME_IN
-	GENEVA_OS_VERSION_IN
-	GENEVA_BUILD_MODE_IN
-	GENEVA_STATIC_FLAG_IN
+    SET_COMPILER_FLAGS
+    GENEVA_OS_NAME_IN
+    GENEVA_OS_VERSION_IN
+    GENEVA_BUILD_MODE_IN
 )
+    SET(FLAGS_LOCAL "${CMAKE_CXX_FLAGS}")
 
-	# We may use ADD_COMPILE_OPTIONS() but that sets the options in the current
-	# scope only. We cannot redefine CMAKE_CXX_FLAGS in PARENT_SCOPE more than
-	# once, so we use a local variable.
-	SET(FLAGS_LOCAL "${CMAKE_CXX_FLAGS}")
+    IF(CMAKE_CXX_COMPILER_ID MATCHES ${CLANG_DEF_IDENTIFIER})
+        SET(FLAGS_LOCAL "${FLAGS_LOCAL} -Wall -Wno-unused -Wno-attributes -Wno-parentheses-equality -Wno-deprecated-register")
+        SET(FLAGS_LOCAL "${FLAGS_LOCAL} -ftemplate-depth=512 -pthread")
+        SET(CMAKE_CXX_FLAGS_SANITIZE "${CMAKE_CXX_FLAGS_SANITIZE} -fsanitize=thread" PARENT_SCOPE)
+    ELSEIF(CMAKE_CXX_COMPILER_ID MATCHES ${GNU_DEF_IDENTIFIER})
+        SET(FLAGS_LOCAL "${FLAGS_LOCAL} -fno-unsafe-math-optimizations -fno-finite-math-only")
+        SET(FLAGS_LOCAL "${FLAGS_LOCAL} -fmessage-length=0 -ftemplate-depth=1024 -pthread")
+        SET(CMAKE_CXX_FLAGS_SANITIZE "${CMAKE_CXX_FLAGS_SANITIZE} -fsanitize=thread" PARENT_SCOPE)
+    ELSE()
+        MESSAGE(FATAL_ERROR "Unsupported compiler: ${CMAKE_CXX_COMPILER_ID}. Geneva requires GCC >= 13 or Clang >= 18 on Linux.")
+    ENDIF()
 
-	#--------------------------------------------------------------------------
-	# Determine the necessary compiler flags. We organize this by compiler, as
-	# the same compiler may be present on multiple platforms. The chosen switches
-	# are tailored for the use with Geneva.
-	#
-	#*****************************************************************
-	IF(CMAKE_CXX_COMPILER_ID MATCHES ${INTEL_DEF_IDENTIFIER})
-
-		SET(FLAGS_LOCAL "${FLAGS_LOCAL} -Wall -Wno-unused -wd1572 -wd1418 -wd981 -wd444 -wd383 -pthread")
-
-	#*****************************************************************
-	ELSEIF(CMAKE_CXX_COMPILER_ID MATCHES ${CLANG_DEF_IDENTIFIER} OR CMAKE_CXX_COMPILER_ID MATCHES ${APPLECLANG_DEF_IDENTIFIER})
-
-		SET(FLAGS_LOCAL "${FLAGS_LOCAL} -Wall -Wno-unused -Wno-attributes -Wno-parentheses-equality -Wno-deprecated-register")
-		SET(FLAGS_LOCAL "${FLAGS_LOCAL} -ftemplate-depth=512 -pthread")
-
-		# For Clang on MacOSX we require the standard C++ library
-		IF(${GENEVA_OS_NAME_IN} STREQUAL "MacOSX")
-			SET(FLAGS_LOCAL "${FLAGS_LOCAL} -stdlib=libc++")
-		ELSEIF(${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS 3.7)
-			# Avoid https://llvm.org/bugs/show_bug.cgi?id=18402
-			# when using older libstdc++ versions
-			SET(FLAGS_LOCAL "${FLAGS_LOCAL} -stdlib=libc++")
-		ENDIF()
-
-		# Set the parameters for Google's thread-sanitizer
-		# See http://googletesting.blogspot.ru/2014/06/threadsanitizer-slaughtering-data-races.html
-		SET(CMAKE_CXX_FLAGS_SANITIZE "${CMAKE_CXX_FLAGS_SANITIZE} -fsanitize=thread" PARENT_SCOPE)
-
-	#*****************************************************************
-	ELSEIF(CMAKE_CXX_COMPILER_ID MATCHES ${GNU_DEF_IDENTIFIER})
-
-		SET(FLAGS_LOCAL "${FLAGS_LOCAL} -fno-unsafe-math-optimizations -fno-finite-math-only")
-		SET(FLAGS_LOCAL "${FLAGS_LOCAL} -fmessage-length=0 -ftemplate-depth=1024 -pthread")
-
-		# GCC 4.8 on Cygwin does not provide the math constants (M_PI...) by
-		# default (pure ANSI standard), unless _XOPEN_SOURCE=500 is set, see
-		# http://www.gnu.org/software/libc/manual/html_node/Feature-Test-Macros.html
-		IF(${GENEVA_OS_NAME_IN} STREQUAL "Cygwin")
-			SET(FLAGS_LOCAL "${FLAGS_LOCAL} -D_XOPEN_SOURCE=500")
-		ENDIF()
-
-		# Set the parameters for Google's thread-sanitizer
-		# See http://googletesting.blogspot.ru/2014/06/threadsanitizer-slaughtering-data-races.html
-		SET(CMAKE_CXX_FLAGS_SANITIZE "${CMAKE_CXX_FLAGS_SANITIZE} -fsanitize=thread" PARENT_SCOPE)
-
-	#*****************************************************************
-	ELSEIF(CMAKE_CXX_COMPILER_ID MATCHES ${MSVC_DEF_IDENTIFIER})
-
-		# Compiling the most involved classes requires bigger object resources
-		SET(FLAGS_LOCAL "${FLAGS_LOCAL} /bigobj")
-
-	ENDIF()
-	#--------------------------------------------------------------------------
-	# We cannot redefine CMAKE_CXX_FLAGS in PARENT_SCOPE more than once
-	SET(CMAKE_CXX_FLAGS "${FLAGS_LOCAL}" PARENT_SCOPE)
-
-	#--------------------------------------------------------------------------
-
+    SET(CMAKE_CXX_FLAGS "${FLAGS_LOCAL}" PARENT_SCOPE)
 ENDFUNCTION()
 
 ################################################################################
 # Sets the linker flags for this platform and compiler
 #
 FUNCTION (
-	SET_LINKER_FLAGS
-	GENEVA_OS_NAME_IN
-	GENEVA_OS_VERSION_IN
-	GENEVA_BUILD_MODE_IN
-	GENEVA_STATIC_FLAG_IN
+    SET_LINKER_FLAGS
+    GENEVA_OS_NAME_IN
+    GENEVA_OS_VERSION_IN
+    GENEVA_BUILD_MODE_IN
 )
-
-	#--------------------------------------------------------------------------
-	IF(CMAKE_CXX_COMPILER_ID MATCHES ${CLANG_DEF_IDENTIFIER} OR CMAKE_CXX_COMPILER_ID MATCHES ${APPLECLANG_DEF_IDENTIFIER})
-
-		# For Clang on MacOSX we require the standard C++ library
-		IF(${GENEVA_OS_NAME_IN} STREQUAL "MacOSX")
-			SET (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libc++" PARENT_SCOPE)
-			IF(NOT GENEVA_STATIC)
-				SET (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -stdlib=libc++" PARENT_SCOPE)
-				SET (MACOSX_RPATH 1)
-			ENDIF()
-		ELSEIF(${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS 3.7)
-			# Avoid https://llvm.org/bugs/show_bug.cgi?id=18402
-			# when using older libstdc++ versions
-			SET (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libc++" PARENT_SCOPE)
-			IF(NOT GENEVA_STATIC)
-				SET (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -stdlib=libc++" PARENT_SCOPE)
-			ENDIF()
-		ENDIF()
-
-	#*****************************************************************
-	ELSEIF(CMAKE_CXX_COMPILER_ID MATCHES ${GNU_DEF_IDENTIFIER})
-
-		# For GCC version < 9.0 add the filesystem library explicitely
-		IF(${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS 9.0)
-			SET (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -lstdc++fs" PARENT_SCOPE)
-			IF(NOT GENEVA_STATIC)
-				SET (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -lstdc++fs" PARENT_SCOPE)
-			ENDIF()
-		ENDIF()
-
-	ENDIF()
-	#--------------------------------------------------------------------------
-
+    IF(CMAKE_CXX_COMPILER_ID MATCHES ${GNU_DEF_IDENTIFIER})
+        # For GCC version < 9.0 add the filesystem library explicitly
+        IF(${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS 9.0)
+            SET (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -lstdc++fs" PARENT_SCOPE)
+            SET (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -lstdc++fs" PARENT_SCOPE)
+        ENDIF()
+    ENDIF()
 ENDFUNCTION()
 
 ###############################################################################
 # Determines other build flags for this platform and compiler
 #
 FUNCTION (
-	GET_BUILD_FLAGS
-	GENEVA_OS_NAME_IN
-	GENEVA_OS_VERSION_IN
-	GENEVA_BUILD_MODE_IN
-	GENEVA_STATIC_FLAG_IN
-	PLATFORM_NEEDS_LIBRARY_LINKING_OUT
+    GET_BUILD_FLAGS
+    GENEVA_OS_NAME_IN
+    GENEVA_OS_VERSION_IN
+    GENEVA_BUILD_MODE_IN
+    PLATFORM_NEEDS_LIBRARY_LINKING_OUT
 )
-
-	#--------------------------------------------------------------------------
-	IF(${GENEVA_OS_NAME_IN} MATCHES "MacOSX")
-		SET(${PLATFORM_NEEDS_LIBRARY_LINKING_OUT} TRUE PARENT_SCOPE)
-	ELSEIF(${GENEVA_OS_NAME_IN} STREQUAL "Cygwin")
-		SET(${PLATFORM_NEEDS_LIBRARY_LINKING_OUT} TRUE PARENT_SCOPE)
-	ELSEIF(${GENEVA_OS_NAME_IN} STREQUAL "Windows")
-		SET(${PLATFORM_NEEDS_LIBRARY_LINKING_OUT} TRUE PARENT_SCOPE)
-	ELSE()
-		# Linux and other Unices do not need library linking
-		SET(${PLATFORM_NEEDS_LIBRARY_LINKING_OUT} FALSE PARENT_SCOPE)
-	ENDIF()
-	#-------------------------------------------------------------------------
-
+    # Linux does not need explicit library linking in ADD_LIBRARY targets
+    SET(${PLATFORM_NEEDS_LIBRARY_LINKING_OUT} FALSE PARENT_SCOPE)
 ENDFUNCTION()
 
 ###############################################################################
 # Identifies unsupported setups as early as possible
 #
 FUNCTION (
-	FLAG_UNSUPPORTED_SETUPS
-	GENEVA_OS_NAME_IN
-	GENEVA_OS_VERSION_IN
-	GENEVA_BUILD_MODE_IN
-	GENEVA_STATIC_FLAG_IN
+    FLAG_UNSUPPORTED_SETUPS
+    GENEVA_OS_NAME_IN
+    GENEVA_OS_VERSION_IN
+    GENEVA_BUILD_MODE_IN
 )
+    IF(NOT ${GENEVA_OS_NAME_IN} STREQUAL "Linux")
+        MESSAGE(FATAL_ERROR "Geneva only supports Linux.")
+    ENDIF()
 
-	#--------------------------------------------------------------------------
-	IF(${GENEVA_OS_NAME_IN} STREQUAL "MacOSX")
-		# Only clang is currently supported on MacOS
-		IF(NOT ${CMAKE_CXX_COMPILER_ID} STREQUAL ${CLANG_DEF_IDENTIFIER} AND NOT CMAKE_CXX_COMPILER_ID STREQUAL ${APPLECLANG_DEF_IDENTIFIER})
-			MESSAGE("####################################################################################")
-			MESSAGE("# Compiler ${CMAKE_CXX_COMPILER_ID} is not supported on MacOSX. Use Clang instead. #")
-			MESSAGE("####################################################################################")
-			MESSAGE(FATAL_ERROR "Unsupported platform ${CMAKE_CXX_COMPILER_ID} !")
-		ENDIF()
+    IF(${CMAKE_CXX_COMPILER_ID} STREQUAL ${CLANG_DEF_IDENTIFIER})
+        SET(COMPILER_MIN_VER 18.0)
+    ELSEIF(${CMAKE_CXX_COMPILER_ID} STREQUAL ${GNU_DEF_IDENTIFIER})
+        SET(COMPILER_MIN_VER 13.0)
+    ELSE()
+        MESSAGE(FATAL_ERROR "Unsupported compiler: ${CMAKE_CXX_COMPILER_ID}. Geneva requires GCC >= 13 or Clang >= 18.")
+    ENDIF()
 
-		# Only MacOS X >= 10.9 Mavericks is supported
-		IF(${GENEVA_OS_VERSION_IN} VERSION_LESS 13.0)
-			MESSAGE("####################################################")
-			MESSAGE("# Geneva only supports MacOS X >= 10.9 / Mavericks #")
-			MESSAGE("####################################################")
-			MESSAGE(FATAL_ERROR "Unsupported platform Darwin ${GENEVA_OS_VERSION_IN} !")
-		ENDIF()
-
-		# Static linking on MacOSX is currently not supported
-		IF(GENEVA_STATIC_FLAG_IN)
-			MESSAGE("##################################################################")
-			MESSAGE("# Static linking is currently not supported by Geneva on MacOS X #")
-			MESSAGE("##################################################################")
-			MESSAGE(FATAL_ERROR "Unsupported platform!")
-		ENDIF()
-
-	ELSEIF(${GENEVA_OS_NAME_IN} STREQUAL "Linux")
-		# No restrictions at the moment
-	ELSEIF(${GENEVA_OS_NAME_IN} STREQUAL "FreeBSD")
-		# No restrictions at the moment
-	ELSEIF(${GENEVA_OS_NAME_IN} STREQUAL "Cygwin")
-		# No restrictions at the moment
-	ELSEIF(${GENEVA_OS_NAME_IN} STREQUAL "Windows")
-		MESSAGE("\n")
-		MESSAGE("#########################################################")
-		MESSAGE("# Geneva support for Windows is currently EXPERIMENTAL! #")
-		MESSAGE("#########################################################")
-		MESSAGE("\n")
-	ELSEIF(${GENEVA_OS_NAME_IN} STREQUAL "unsupported")
-		MESSAGE("#####################################")
-		MESSAGE("# Operating system is not supported #")
-		MESSAGE("#####################################")
-		MESSAGE(FATAL_ERROR "Unsupported platform!")
-	ELSE()
-		MESSAGE("#########################################")
-		MESSAGE("# ${GENEVA_OS_NAME_IN} is not supported #")
-		MESSAGE("#########################################")
-		MESSAGE(FATAL_ERROR "Unsupported platform!")
-	ENDIF()
-
-	#--------------------------------------------------------------------------
-	# Enforce a minimum compiler version
-	IF (${CMAKE_CXX_COMPILER_ID} STREQUAL ${CLANG_DEF_IDENTIFIER})
-		SET(COMPILER_MIN_VER 3.5)
-	ELSEIF (${CMAKE_CXX_COMPILER_ID} STREQUAL ${APPLECLANG_DEF_IDENTIFIER})
-		SET(COMPILER_MIN_VER 7.3)
-	ELSEIF (${CMAKE_CXX_COMPILER_ID} STREQUAL ${GNU_DEF_IDENTIFIER})
-		SET(COMPILER_MIN_VER 4.8)
-	ELSEIF (${CMAKE_CXX_COMPILER_ID} STREQUAL ${INTEL_DEF_IDENTIFIER})
-		SET(COMPILER_MIN_VER 16.0)
-	ELSEIF (${CMAKE_CXX_COMPILER_ID} STREQUAL ${MSVC_DEF_IDENTIFIER})
-		SET(COMPILER_MIN_VER 19.0)
-	ELSE()
-		# Unsupported compiler
-		MESSAGE("########################")
-		MESSAGE("# Unsupported compiler #")
-		MESSAGE("########################")
-		MESSAGE(FATAL_ERROR "Unsupported compiler ${CMAKE_CXX_COMPILER_ID} with version ${CMAKE_CXX_COMPILER_VERSION}!")
-	ENDIF()
-
-	IF(${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS ${COMPILER_MIN_VER})
-		MESSAGE("#######################################################")
-		MESSAGE("# Compiler version is not supported, version too old! #")
-		MESSAGE("#######################################################")
-		MESSAGE(FATAL_ERROR "Unsupported compiler version ${COMPILER_MIN_VER}!")
-	ENDIF()
-	#--------------------------------------------------------------------------
-
+    IF(${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS ${COMPILER_MIN_VER})
+        MESSAGE(FATAL_ERROR "Compiler version ${CMAKE_CXX_COMPILER_VERSION} is too old. Need >= ${COMPILER_MIN_VER}.")
+    ENDIF()
 ENDFUNCTION()
 
 ###############################################################################

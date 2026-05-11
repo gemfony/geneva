@@ -36,48 +36,47 @@
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GMPISubClientIndividual) // NOLINT
 namespace Gem::Geneva {
 
-    MPI_Comm GMPISubClientIndividual::getCommunicator() {
-        return GMPISubClientIndividual::m_communicator;
+MPI_Comm GMPISubClientIndividual::getCommunicator() {
+    return GMPISubClientIndividual::communicator_;
+}
+
+void GMPISubClientIndividual::setCommunicator(const MPI_Comm &communicator) {
+    communicator_ = communicator;
+}
+
+void GMPISubClientIndividual::setClientStatusRequest(const MPI_Request &request) {
+    clientStatusRequest_ = request;
+}
+
+void GMPISubClientIndividual::setClientMode(const ClientMode &mode) {
+    clientMode_ = mode;
+}
+
+ClientStatus GMPISubClientIndividual::getClientStatus() {
+    // If the optimization is finished this means that no Individual is being processed.
+    // Therefore, clients can only call this method if they are running
+    if(clientMode_ == CLIENT) {
+        return ClientStatus::RUNNING;
     }
 
-    void GMPISubClientIndividual::setCommunicator(const MPI_Comm &communicator) {
-        m_communicator = communicator;
+    MPI_Status status{};
+    int isCompleted{};
+
+    MPI_Test(&clientStatusRequest_, &isCompleted, &status);
+
+    if(!isCompleted) {
+        return ClientStatus::RUNNING;
     }
 
-    void GMPISubClientIndividual::setClientStatusRequest(const MPI_Request &request) {
-        m_clientStatusRequest = request;
+    if(status.MPI_ERROR != MPI_SUCCESS) {
+        return ClientStatus::ERROR;
     }
 
-    void GMPISubClientIndividual::setClientMode(const ClientMode &mode) {
-        m_clientMode = mode;
-    }
+    return ClientStatus::FINISHED;
+}
 
-    ClientStatus GMPISubClientIndividual::getClientStatus() {
-        // If the optimization is finished this means that no Individual is being processed.
-        // Therefore, clients can only call this method if they are running
-        if (m_clientMode == CLIENT) {
-            return ClientStatus::RUNNING;
-        }
-
-        MPI_Status status{};
-        int isCompleted{};
-
-        MPI_Test(&m_clientStatusRequest, &isCompleted, &status);
-
-        if (!isCompleted) {
-            return ClientStatus::RUNNING;
-        }
-
-        if (status.MPI_ERROR != MPI_SUCCESS) {
-            return ClientStatus::ERROR;
-        }
-
-        return ClientStatus::FINISHED;
-    }
-
-    ClientMode GMPISubClientIndividual::getClientMode() {
-        return m_clientMode;
-    }
-
+ClientMode GMPISubClientIndividual::getClientMode() {
+    return clientMode_;
+}
 
 } // namespace Gem::Geneva

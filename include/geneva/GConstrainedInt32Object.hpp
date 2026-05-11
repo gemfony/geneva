@@ -40,8 +40,7 @@
 #include "geneva/GConstrainedIntT.hpp"
 #include "geneva/GInt32GaussAdaptor.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 /**
@@ -49,127 +48,128 @@ namespace Geneva {
  * while applying adaptions to a continuous range. This is done by means of a
  * mapping from an internal representation to an externally visible value.
  */
-class GConstrainedInt32Object
-    :
-        public GConstrainedIntT<std::int32_t>
-{
+class GConstrainedInt32Object // NOLINT(cppcoreguidelines-special-member-functions)
+  : public GConstrainedIntT<std::int32_t> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
-    template<typename Archive>
+    template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar & make_nvp(
-            "GConstrainedIntT_int32"
-            , boost::serialization::base_object<GConstrainedIntT<std::int32_t>>(*this));
+        ar &make_nvp(
+            "GConstrainedIntT_int32",
+            boost::serialization::base_object<GConstrainedIntT<std::int32_t>>(*this)
+        );
     }
     ///////////////////////////////////////////////////////////////////////
 
 public:
     /** @brief The default constructor */
-    G_API_GENEVA GConstrainedInt32Object() = default;
+    GConstrainedInt32Object() = default;
     /** @brief Initialization with boundaries only */
-    G_API_GENEVA GConstrainedInt32Object(
-        const std::int32_t &
-        , const std::int32_t &
-    );
+    GConstrainedInt32Object(const std::int32_t &, const std::int32_t &);
     /** @brief Initialization with value and boundaries */
-    G_API_GENEVA GConstrainedInt32Object(
-        const std::int32_t &
-        , const std::int32_t &
-        , const std::int32_t &
-    );
+    
+    GConstrainedInt32Object(const std::int32_t &, const std::int32_t &, const std::int32_t &);
     /** @brief The copy constructor */
-    G_API_GENEVA GConstrainedInt32Object(const GConstrainedInt32Object &) = default;
+    GConstrainedInt32Object(const GConstrainedInt32Object &) = default;
     /** @brief Initialization by contained value */
-    explicit G_API_GENEVA GConstrainedInt32Object(const std::int32_t &);
+    explicit GConstrainedInt32Object(const std::int32_t &);
     /** @brief The destructor */
-    G_API_GENEVA ~GConstrainedInt32Object() override = default;
+    ~GConstrainedInt32Object() override = default;
 
     /** @brief An assignment operator for the contained value type */
-    G_API_GENEVA GConstrainedInt32Object& operator=(const std::int32_t &) override;
+    GConstrainedInt32Object &operator=(const std::int32_t &) override;
 
 protected:
     /** @brief Loads the data of another GObject */
-    G_API_GENEVA void load_(const GObject *) override;
+    void load_(const GObject *) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GConstrainedInt32Object>(
-        GConstrainedInt32Object const &
-        , GConstrainedInt32Object const &
-        , Gem::Common::GToken &
+        GConstrainedInt32Object const &,
+        GConstrainedInt32Object const &,
+        Gem::Common::GToken &
     );
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
-    G_API_GENEVA void compare_(
+    void compare_(
         const GObject & // the other object
-        , const Gem::Common::expectation & // the expectation for this object, e.g. equality
-        , const double & // the limit for allowed deviations of floating point types
+        ,
+        const Gem::Common::expectation & // the expectation for this object, e.g. equality
+        ,
+        const double & // the limit for allowed deviations of floating point types
     ) const override;
 
     /** @brief Triggers random initialization of the parameter object */
-    G_API_GENEVA bool randomInit_(
-        const activityMode &
-        , Gem::Hap::GRandomBase &
-    ) override;
+    bool randomInit_(const activityMode &, Gem::Hap::GRandomBase &) override;
 
     /** @brief Attach our local value to the vector. */
-    G_API_GENEVA void int32Streamline(std::vector<std::int32_t> &, const activityMode &am) const override;
+    void
+    int32Streamline(std::vector<std::int32_t> &, const activityMode &am) const override;
     /** @brief Attach boundaries of type std::int32_t to the vectors */
-    G_API_GENEVA void int32Boundaries(
-        std::vector<std::int32_t> &, std::vector<std::int32_t> &, const activityMode &am
+    void int32Boundaries(
+        std::vector<std::int32_t> &,
+        std::vector<std::int32_t> &,
+        const activityMode &am
     ) const override;
     /** @brief Tell the audience that we own a std::int32_t value */
-    G_API_GENEVA std::size_t countInt32Parameters(const activityMode &am) const override;
+    std::size_t countInt32Parameters(const activityMode &am) const override;
     /** @brief Assigns part of a value vector to the parameter */
-    G_API_GENEVA void assignInt32ValueVector(
-        const std::vector<std::int32_t> &, std::size_t &, const activityMode &am
+    void assignInt32ValueVector(
+        const std::vector<std::int32_t> &,
+        std::size_t &,
+        const activityMode &am
     ) override;
     /** @brief Attach our local value to the vector. */
-    G_API_GENEVA void int32Streamline(
-        std::map<std::string, std::vector<std::int32_t>> &, const activityMode &am
+    void int32Streamline(
+        std::map<std::string, std::vector<std::int32_t>> &,
+        const activityMode &am
     ) const override;
     /** @brief Assigns part of a value vector to the parameter */
-    G_API_GENEVA void assignInt32ValueVectors(
-        const std::map<std::string, std::vector<std::int32_t>> &, const activityMode &am
+    void assignInt32ValueVectors(
+        const std::map<std::string, std::vector<std::int32_t>> &,
+        const activityMode &am
     ) override;
 
     /** @brief Multiplication with a random value in a given range */
-    G_API_GENEVA void int32MultiplyByRandom(
-        const std::int32_t &min
-        , const std::int32_t &max
-        , const activityMode &am
-        , Gem::Hap::GRandomBase &
+    void int32MultiplyByRandom(
+        const std::int32_t &min,
+        const std::int32_t &max,
+        const activityMode &am,
+        Gem::Hap::GRandomBase &
     ) override;
     /** @brief Multiplication with a random value in the range [0,1[ */
-    G_API_GENEVA void int32MultiplyByRandom(const activityMode &am, Gem::Hap::GRandomBase &) override;
+    void
+    int32MultiplyByRandom(const activityMode &am, Gem::Hap::GRandomBase &) override;
     /** @brief Multiplication with a constant value */
-    G_API_GENEVA void int32MultiplyBy(const std::int32_t &value, const activityMode &am) override;
+    void int32MultiplyBy(const std::int32_t &value, const activityMode &am) override;
     /** @brief Initialization with a constant value */
-    G_API_GENEVA void int32FixedValueInit(const std::int32_t &value, const activityMode &am) override;
+    void
+    int32FixedValueInit(const std::int32_t &value, const activityMode &am) override;
     /** @brief Adds the "same-type" parameters of another GParameterBase object to this one */
-    G_API_GENEVA void int32Add(std::shared_ptr<GParameterBase>, const activityMode &am) override;
+    void int32Add(std::shared_ptr<GParameterBase>, const activityMode &am) override;
     /** @brief Adds the "same-type" parameters of another GParameterBase object to this one */
-    G_API_GENEVA void int32Subtract(std::shared_ptr<GParameterBase>, const activityMode &am) override;
+    void
+    int32Subtract(std::shared_ptr<GParameterBase>, const activityMode &am) override;
 
     /** @brief Applies modifications to this object. This is needed for testing purposes */
-    G_API_GENEVA bool modify_GUnitTests_() override;
+    bool modify_GUnitTests_() override;
     /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-    G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests_() override;
+    void specificTestsNoFailureExpected_GUnitTests_() override;
     /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-    G_API_GENEVA void specificTestsFailuresExpected_GUnitTests_() override;
+    void specificTestsFailuresExpected_GUnitTests_() override;
 
 private:
     /** @brief Emits a name for this class / object */
-    G_API_GENEVA std::string name_() const override;
+    std::string name_() const override;
     /** @brief Creates a deep clone of this object. */
-    G_API_GENEVA GObject *clone_() const override;
+    GObject *clone_() const override;
 };
 
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GConstrainedInt32Object) // NOLINT

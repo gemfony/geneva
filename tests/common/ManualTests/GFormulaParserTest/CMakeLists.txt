@@ -54,7 +54,8 @@ ADD_EXECUTABLE(${EXECUTABLENAME}
 
 SET(LIBRARIES_TO_LINK
 		${GENEVA_LIBRARIES}
-		${Boost_LIBRARIES})
+		${Boost_LIBRARIES}
+		Catch2::Catch2WithMain)
 
 # Add MPI Libraries in case building with MPI-consumer
 IF(GENEVA_BUILD_WITH_MPI_CONSUMER)

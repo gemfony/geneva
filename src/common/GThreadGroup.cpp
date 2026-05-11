@@ -49,54 +49,54 @@
 
 #include "common/GThreadGroup.hpp"
 
-namespace Gem::Common
-{
+namespace Gem::Common {
 
-	/******************************************************************************/
-	/**
+/******************************************************************************/
+/**
  * Adds an already created thread to the group
  *
  * @param thrd A pointer to a thread that should be added to the group
  */
-	void GThreadGroup::add_thread(thread_ptr thrd) {
-		if (thrd) {
-			std::unique_lock<std::mutex> guard(m_mutex);
-			m_threads.push_back(thrd);
-		}
-	}
+void GThreadGroup::add_thread(thread_ptr thrd) {
+    if(thrd) {
+        std::unique_lock<std::mutex> guard(mutex_);
+        threads_.push_back(thrd);
+    }
+}
 
-	/******************************************************************************/
-	/**
+/******************************************************************************/
+/**
  * Requests all threads to join
  */
-	void GThreadGroup::join_all() {
-		std::unique_lock<std::mutex> guard(m_mutex);
+void GThreadGroup::join_all() {
+    std::unique_lock<std::mutex> guard(mutex_);
 
-		for (auto& t: m_threads) {
-			t->join();
-		}
-	}
+    for(auto &t : threads_) {
+        t->join();
+    }
+}
 
-	/******************************************************************************/
-	/**
+/******************************************************************************/
+/**
  * Returns the size of the current thread group.
  * @return The size of the current group
  */
-	std::size_t GThreadGroup::size() const {
-		std::unique_lock<std::mutex> guard(m_mutex);
-		return m_threads.size();
-	}
+std::size_t GThreadGroup::size() const {
+    std::unique_lock<std::mutex> guard(mutex_);
+    return threads_.size();
+}
 
-	/******************************************************************************/
-	/**
+/******************************************************************************/
+/**
  * Clears the thread vector. Note that this is a very dangerous operation, which
  * is not made publicly available. This function is meant for consumption by the
  * thread GThreadPool class.
  */
-	void GThreadGroup::clearThreads() {
-		m_threads.clear();
-	}
-
-	/******************************************************************************/
-
+void GThreadGroup::clearThreads() {
+    std::unique_lock<std::mutex> guard(mutex_);
+    threads_.clear();
 }
+
+/******************************************************************************/
+
+} /* namespace Gem::Common */

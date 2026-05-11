@@ -44,100 +44,99 @@
 
 #include "common/GFormulaParserT.hpp"
 
-namespace Gem::Common
-{
+namespace Gem::Common {
 
-	/******************************************************************************/
-	////////////////////////////////////////////////////////////////////////////////
-	/******************************************************************************/
-	/**
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
  * The standard constructor
  */
-	math_logic_error::math_logic_error(std::string const& errorText) noexcept
-		: geneva_exception(errorText)
-	{ /* nothing */ }
-
-	/******************************************************************************/
-	////////////////////////////////////////////////////////////////////////////////
-	/******************************************************************************/
-	/**
- * The standard constructor
- */
-	division_by_0::division_by_0() noexcept
-		: math_logic_error("Division by 0 in Geneva formula parser")
-	{ /* nothing */ }
-
-	/******************************************************************************/
-	////////////////////////////////////////////////////////////////////////////////
-	/******************************************************************************/
-	// Some swap functions needed to deal with MSVC peculiarities
-
-	// Swaps two nil structs
-	void nil::swap(nil &n) { }
-
-	// Swaps two signed_ structs
-	void signed_::swap(signed_ &s) {
-		std::swap(sign, s.sign);
-		std::swap(operand_, s.operand_);
-	}
-
-	// Swaps two operation structs
-	void operation::swap(operation &o) {
-		std::swap(operator_, o.operator_);
-		std::swap(operand_, o.operand_);
-	}
-
-	// Swaps two unary_function_ structs
-	void unary_function_::swap(unary_function_ &u) {
-		std::swap(fname_, u.fname_);
-		std::swap(operand_, u.operand_);
-	}
-
-	// Swaps two binary_function_ structs
-	void binary_function_::swap(binary_function_ &b) {
-		std::swap(fname_, b.fname_);
-		std::swap(operand1_, b.operand1_);
-		std::swap(operand2_, b.operand2_);
-	}
-
-	// Swaps two ast_expression structs
-	void ast_expression::swap(ast_expression &a) {
-		std::swap(first, a.first);
-		std::swap(rest, a.rest);
-	}
-
-	/******************************************************************************/
-	////////////////////////////////////////////////////////////////////////////////
-	/******************************************************************************/
-
+math_logic_error::math_logic_error(std::string const &errorText) noexcept
+  : geneva_exception(errorText) { /* nothing */
 }
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * The standard constructor
+ */
+division_by_0::division_by_0() noexcept
+  : math_logic_error("Division by 0 in Geneva formula parser") { /* nothing */
+}
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+// Some swap functions needed to deal with MSVC peculiarities
+
+// Swaps two nil structs
+void nil::swap(nil &n) noexcept {
+}
+
+// Swaps two signed_ structs
+void signed_::swap(signed_ &s) noexcept {
+    std::swap(sign, s.sign);
+    std::swap(operand_, s.operand_);
+}
+
+// Swaps two operation structs
+void operation::swap(operation &o) noexcept {
+    std::swap(operator_, o.operator_);
+    std::swap(operand_, o.operand_);
+}
+
+// Swaps two unary_function_ structs
+void unary_function_::swap(unary_function_ &u) noexcept {
+    std::swap(fname_, u.fname_);
+    std::swap(operand_, u.operand_);
+}
+
+// Swaps two binary_function_ structs
+void binary_function_::swap(binary_function_ &b) noexcept {
+    std::swap(fname_, b.fname_);
+    std::swap(operand1_, b.operand1_);
+    std::swap(operand2_, b.operand2_);
+}
+
+// Swaps two ast_expression structs
+void ast_expression::swap(ast_expression &a) noexcept {
+    std::swap(first, a.first);
+    std::swap(rest, a.rest);
+}
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+
+} /* namespace Gem::Common */
 
 // Needed for rules to work. Follows http://boost.2283326.n4.nabble.com/hold-multi-pass-backtracking-swap-compliant-ast-td4664679.html
-namespace boost::spirit
-{
+namespace boost::spirit {
 
-	void swap(Gem::Common::nil &a, Gem::Common::nil &b) {
-		a.swap(b);
-	}
-
-	void swap(Gem::Common::signed_ &a, Gem::Common::signed_ &b) {
-		a.swap(b);
-	}
-
-	void swap(Gem::Common::operation &a, Gem::Common::operation &b) {
-		a.swap(b);
-	}
-
-	void swap(Gem::Common::unary_function_ &a, Gem::Common::unary_function_ &b) {
-		a.swap(b);
-	}
-
-	void swap(Gem::Common::binary_function_ &a, Gem::Common::binary_function_ &b) {
-		a.swap(b);
-	}
-
-	void swap(Gem::Common::ast_expression &a, Gem::Common::ast_expression &b) {
-		a.swap(b);
-	}
-
+void swap(Gem::Common::nil &a, Gem::Common::nil &b) noexcept {
+    a.swap(b);
 }
+
+void swap(Gem::Common::signed_ &a, Gem::Common::signed_ &b) noexcept {
+    a.swap(b);
+}
+
+void swap(Gem::Common::operation &a, Gem::Common::operation &b) noexcept {
+    a.swap(b);
+}
+
+void swap(Gem::Common::unary_function_ &a, Gem::Common::unary_function_ &b) noexcept {
+    a.swap(b);
+}
+
+void swap(Gem::Common::binary_function_ &a, Gem::Common::binary_function_ &b) noexcept {
+    a.swap(b);
+}
+
+void swap(Gem::Common::ast_expression &a, Gem::Common::ast_expression &b) noexcept {
+    a.swap(b);
+}
+
+} /* namespace boost::spirit */
