@@ -445,6 +445,58 @@ Recommended Versions:
   directly. Both headers had been relying on transitive includes from other Geneva
   headers, which caused compilation failures when they were included in isolation.
 
+- New GContainerT<T, StoragePolicy> class added (include/common/GContainerT.hpp).
+  GContainerT is a unified, storage-policy-based generic container that subsumes the
+  functionality of GPODVectorT and GPtrVectorT while adding C++20 modernisations and
+  support for alternative backends beyond std::vector. Both legacy classes remain
+  untouched; GContainerT is a new component intended to pave the migration path.
+  Key design points:
+  * Two storage policies: PodStorage<T, Container> for POD types (deep copy by
+    value assignment) and SharedPtrStorage<T, Container> for polymorphic Geneva
+    objects held via shared_ptr (deep copy via the clone()/load() protocol).
+  * The Container template parameter (default: std::vector) allows any compatible
+    STL sequence container, e.g. std::deque or Boost containers. Convenience
+    aliases GPodContainer<T, Container> and GPtrContainer<T, Container> are provided.
+  * Four C++20 concepts gate method availability at compile time:
+    HasContiguousStorage (data()), HasCapacity (reserve/capacity/shrinkToFit),
+    HasRandomAccess (crossOver, operator<=>), HasFrontInsertion (pushFront/popFront/
+    emplaceFront). Methods not supported by the chosen container are excluded from the
+    overload set via requires-clauses, yielding clear compiler errors rather than
+    link failures.
+  * The conversion_iterator inner class from GPtrVectorT is superseded by filteredView<
+    DerivedType>(), a lazy C++20 range view (std::views::transform | std::views::filter)
+    that yields only elements dynamically castable to DerivedType. The eager
+    attachViewTo<DerivedType>() variant is retained for callers that require a
+    materialised vector.
+  * Full Boost.Serialization integration including is_abstract specialisations.
+  * Complete Doxygen documentation on all classes, concepts, policies, methods,
+    and data members.
+  * Catch2 v3 unit tests (GContainerTTests) cover 97 % of the implementation
+    (261 assertions across four test groups: [pod][vector], [pod][deque],
+    [ptr][vector], [edge]).
+  * Benchmark program GContainerTBenchmark supports --mode pod|ptr|fuzz|all,
+    --container vector|deque|all, --size, --duration, --seed, and --quick (short
+    smoke-test run); the benchmark is excluded from ctest.
+
+- C++20 modernisation of three member-detection type traits in GTypeTraitsT.hpp:
+  has_compare_member<T>, has_clone_member<T>, and has_load_member<T> previously used
+  a pre-C++11 SFINAE pattern (decltype(&C::member) in an overload set, sized via
+  char/long sentinel types). All three are now implemented with C++20 requires-
+  expressions (requires { &T::member; }). The ::value API is preserved; no call
+  sites needed updating (the traits are not used internally by Geneva).
+  <concepts> added to the include list.
+
+- GRandomT.hpp: GRandomT::getThreadId() return type simplified from
+  decltype(std::this_thread::get_id()) to the canonical std::thread::id. No
+  behavioural change; the type was always std::thread::id.
+
+- GFormulaParserT.hpp: five BOOST_ASSERT(0) calls in the AST-compiler visitor
+  (unreachable branches of the operator(), unary_function_, binary_function_,
+  and signed_ overloads) replaced with assert(false && "unreachable: unknown
+  operator/function in AST visitor"). <cassert> added to the include list.
+  BOOST_ASSERT is no longer referenced in GFormulaParserT.hpp; the Boost.Assert
+  header is no longer transitively included from this file.
+
 //------------------------------------------------------------------------------------------------------
 * Version 1.11, "Hendaye" - March 16, 2026
 

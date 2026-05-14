@@ -48,6 +48,7 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard headers go here
+#include <cassert>
 #include <cmath>
 #include <iostream>
 #include <map>
@@ -625,7 +626,7 @@ public:
     /*****************************************************************************/
     // Code for the compilation of the AST
     void operator()(nil) const {
-        BOOST_ASSERT(0);
+        assert(false && "unreachable: unknown operator/function in AST visitor");
     }
 
     void operator()(const fp_type &fp_val) const {
@@ -647,7 +648,7 @@ public:
                 codeEntry(byte_code::op_div)
             ); // division by 0 throws Gem::Common::division_by_0 exception
         else
-            BOOST_ASSERT(0);
+            assert(false && "unreachable: unknown operator/function in AST visitor");
     }
 
     void operator()(const unary_function_ &f) const {
@@ -696,7 +697,7 @@ public:
         else if(f.fname_ == "tanh")
             code_.push_back(codeEntry(byte_code::op_tanh));
         else
-            BOOST_ASSERT(0);
+            assert(false && "unreachable: unknown operator/function in AST visitor");
     }
 
     void operator()(const binary_function_ &f) const {
@@ -712,7 +713,7 @@ public:
         else if(f.fname_ == "hypot")
             code_.push_back(codeEntry(byte_code::op_hypot));
         else
-            BOOST_ASSERT(0);
+            assert(false && "unreachable: unknown operator/function in AST visitor");
     }
 
     void operator()(const signed_ &x) const {
@@ -722,7 +723,7 @@ public:
         else if(x.sign == '+') { /* nothing */
         }
         else
-            BOOST_ASSERT(0);
+            assert(false && "unreachable: unknown operator/function in AST visitor");
     }
 
     void operator()(const ast_expression &x) const {

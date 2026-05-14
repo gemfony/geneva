@@ -169,7 +169,7 @@ public:
 	 * Retrieves the id of the currently running thread. This function exists
 	 * mostly for debugging purposes
 	 */
-    decltype(std::this_thread::get_id()) getThreadId() const {
+    std::thread::id getThreadId() const {
         return std::this_thread::get_id();
     }
 

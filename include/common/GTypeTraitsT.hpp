@@ -34,6 +34,7 @@
 
 // Standard headers go here
 #include <cmath>
+#include <concepts>
 #include <cstdlib>
 #include <deque>
 #include <iostream>
@@ -70,22 +71,13 @@ struct has_gemfony_common_interface {
 /******************************************************************************/
 /**
  * A type trait helping to check whether a class has a compare function.
+ *
+ * Modernized from pre-C++11 SFINAE to a C++20 requires-expression.
+ * The @c ::value member is preserved for backward compatibility.
  */
 template <typename T>
-class has_compare_member {
-    using yes = char;
-    using no = long;
-
-    template <typename C>
-    static yes test(decltype(&C::compare));
-
-    template <typename C>
-    static no test(...);
-
-public:
-    enum {
-        value = sizeof(test<T>(0)) == sizeof(char)
-    };
+struct has_compare_member {
+    static constexpr bool value = requires { &T::compare; };
 };
 
 /******************************************************************************/
@@ -93,22 +85,13 @@ public:
 /******************************************************************************/
 /**
  * A type trait helping to check whether a class has a clone function.
+ *
+ * Modernized from pre-C++11 SFINAE to a C++20 requires-expression.
+ * The @c ::value member is preserved for backward compatibility.
  */
 template <typename T>
-class has_clone_member {
-    using yes = char;
-    using no = long;
-
-    template <typename C>
-    static yes test(decltype(&C::clone));
-
-    template <typename C>
-    static no test(...);
-
-public:
-    enum {
-        value = sizeof(test<T>(0)) == sizeof(char)
-    };
+struct has_clone_member {
+    static constexpr bool value = requires { &T::clone; };
 };
 
 /******************************************************************************/
@@ -116,22 +99,13 @@ public:
 /******************************************************************************/
 /**
  * A type trait helping to check whether a class has a load function.
+ *
+ * Modernized from pre-C++11 SFINAE to a C++20 requires-expression.
+ * The @c ::value member is preserved for backward compatibility.
  */
 template <typename T>
-class has_load_member {
-    using yes = char;
-    using no = long;
-
-    template <typename C>
-    static yes test(decltype(&C::load));
-
-    template <typename C>
-    static no test(...);
-
-public:
-    enum {
-        value = sizeof(test<T>(0)) == sizeof(char)
-    };
+struct has_load_member {
+    static constexpr bool value = requires { &T::load; };
 };
 
 /******************************************************************************/
