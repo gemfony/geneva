@@ -497,6 +497,28 @@ Recommended Versions:
   BOOST_ASSERT is no longer referenced in GFormulaParserT.hpp; the Boost.Assert
   header is no longer transitively included from this file.
 
+- Clang build support added. The build system now supports Clang (>= 18, default)
+  alongside GCC (>= 13) as an alternative C++ compiler. Compiler selection is
+  controlled by the COMPILER variable in genevaConfig.gcfg ("clang", "gcc", or ""
+  to let CMake choose). prepareBuild.sh resolves the variable to the actual
+  clang/clang++ or gcc/g++ executables found in PATH and passes
+  -DCMAKE_C_COMPILER / -DCMAKE_CXX_COMPILER to CMake. CMakeUserPresets.json
+  (--generate-preset) also encodes the selected compiler. The following Clang-
+  specific warnings that were latent under GCC are now fixed:
+  * GMPIConsumerT.hpp (three sites): constructor initializer-list order corrected
+    to match the class member declaration order (-Wreorder-ctor).
+  * GCourtierHelperFunctions.cpp: missing STOP case added to the pcToStr() switch
+    over networked_consumer_payload_command (-Wswitch).
+  * GAsioConsumerT.hpp, GWebsocketConsumerT.hpp: redundant std::move() removed
+    from boost::asio::ip::tcp::endpoint{} temporaries (-Wpessimizing-move).
+  * GSerialConsumerT.hpp: redundant std::move() removed from std::thread{}
+    temporary (-Wpessimizing-move).
+  Separately, libgemfony-courtier and libgemfony-geneva now declare
+  TARGET_LINK_LIBRARIES(… MPI::MPI_CXX) when GENEVA_BUILD_WITH_MPI_CONSUMER is
+  enabled — Clang's linker is stricter than GCC about unresolved symbols in
+  shared libraries. This is a correctness fix; the GCC build was relying on
+  lazy symbol resolution that is not portable.
+
 //------------------------------------------------------------------------------------------------------
 * Version 1.11, "Hendaye" - March 16, 2026
 

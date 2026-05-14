@@ -37,6 +37,10 @@
 # Where the cmake executable is located
 CMAKE="/usr/bin/cmake"
 
+# Compiler selection: 'clang', 'gcc', or '' (leave empty to let CMake choose).
+# Default is 'clang'. Geneva requires GCC >= 13 or Clang >= 18.
+COMPILER="clang"
+
 #
 # The Boost location parameters.
 #

@@ -143,6 +143,9 @@ std::string pcToStr(const networked_consumer_payload_command &pc) {
 
     case networked_consumer_payload_command::RESULT:
         return "RESULT";
+
+    case networked_consumer_payload_command::STOP:
+        return "STOP";
     }
 
     // Make the compiler happy

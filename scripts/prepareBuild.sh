@@ -209,6 +209,7 @@ USECUDARNG="0"
 SKIPALLCUDA="0"
 CUDA_NVCC=""
 CUDA_ROOT=""
+COMPILER="clang"
 
 if [ -n "${CONFIGFILE}" ]; then
 	case "${CONFIGFILE}" in
@@ -297,6 +298,35 @@ if [ -n "${CUDA_NVCC}" ] && [ ! -x "${CUDA_NVCC}" ]; then
 	CUDA_ROOT=""
 fi
 
+# Resolve COMPILER to actual executable paths.
+_C_COMPILER=""
+_CXX_COMPILER=""
+case "${COMPILER}" in
+	clang)
+		_C_COMPILER="$(command -v clang 2>/dev/null)"
+		_CXX_COMPILER="$(command -v clang++ 2>/dev/null)"
+		if [ -z "${_C_COMPILER}" ] || [ -z "${_CXX_COMPILER}" ]; then
+			echo -e "\nError: COMPILER=clang but clang/clang++ not found in PATH. Leaving...\n"
+			exit 1
+		fi
+		;;
+	gcc)
+		_C_COMPILER="$(command -v gcc 2>/dev/null)"
+		_CXX_COMPILER="$(command -v g++ 2>/dev/null)"
+		if [ -z "${_C_COMPILER}" ] || [ -z "${_CXX_COMPILER}" ]; then
+			echo -e "\nError: COMPILER=gcc but gcc/g++ not found in PATH. Leaving...\n"
+			exit 1
+		fi
+		;;
+	""|auto)
+		: # Let CMake choose the system default compiler
+		;;
+	*)
+		echo -e "\nError: COMPILER must be 'clang', 'gcc', or '' (auto). Got '${COMPILER}'. Leaving...\n"
+		exit 1
+		;;
+esac
+
 ####################################################################
 # Find the project root (CMakeLists.txt must be one level above the
 # scripts/ directory in which this script lives).
@@ -341,8 +371,10 @@ if [ "${GENERATE_PRESET}" = "1" ]; then
 	_preset_add "GENEVA_SKIP_CUDA" "BOOL" "${SKIPALLCUDA}"
 	[ -n "${CUDA_NVCC}" ] && [ "${SKIPALLCUDA}" = "0" ] && _preset_add "CMAKE_CUDA_COMPILER" "FILEPATH" "${CUDA_NVCC}"
 	[ -n "${CUDA_ROOT}" ] && [ "${SKIPALLCUDA}" = "0" ] && _preset_add "CUDAToolkit_ROOT"   "PATH"     "${CUDA_ROOT}"
-	[ -n "${CXXEXTRAFLAGS}" ]    && _preset_add "CMAKE_CXX_FLAGS"        "STRING" "${CXXEXTRAFLAGS}"
-	[ -n "${LINKEREXTRAFLAGS}" ] && _preset_add "CMAKE_EXE_LINKER_FLAGS" "STRING" "${LINKEREXTRAFLAGS}"
+	[ -n "${_C_COMPILER}" ]      && _preset_add "CMAKE_C_COMPILER"        "FILEPATH" "${_C_COMPILER}"
+	[ -n "${_CXX_COMPILER}" ]    && _preset_add "CMAKE_CXX_COMPILER"      "FILEPATH" "${_CXX_COMPILER}"
+	[ -n "${CXXEXTRAFLAGS}" ]    && _preset_add "CMAKE_CXX_FLAGS"         "STRING"   "${CXXEXTRAFLAGS}"
+	[ -n "${LINKEREXTRAFLAGS}" ] && _preset_add "CMAKE_EXE_LINKER_FLAGS"  "STRING"   "${LINKEREXTRAFLAGS}"
 
 	PRESET_FILE="${GENEVA_BUILDROOT}/CMakeUserPresets.json"
 	cat > "${PRESET_FILE}" <<ENDOFPRESET
@@ -407,6 +439,8 @@ if [ -n "${CUDA_NVCC}" ] && [ "${SKIPALLCUDA}" = "0" ]; then
 		cmake_args+=("-DCUDAToolkit_ROOT=${CUDA_ROOT}")
 	fi
 fi
+[ -n "${_C_COMPILER}" ]      && cmake_args+=("-DCMAKE_C_COMPILER=${_C_COMPILER}")
+[ -n "${_CXX_COMPILER}" ]    && cmake_args+=("-DCMAKE_CXX_COMPILER=${_CXX_COMPILER}")
 [ -n "${CXXEXTRAFLAGS}" ]    && cmake_args+=("-DCMAKE_CXX_FLAGS=${CXXEXTRAFLAGS}")
 [ -n "${LINKEREXTRAFLAGS}" ] && cmake_args+=("-DCMAKE_EXE_LINKER_FLAGS=${LINKEREXTRAFLAGS}")
 if [ -n "${CMAKEEXTRAFLAGS}" ]; then

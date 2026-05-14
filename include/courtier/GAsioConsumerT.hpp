@@ -960,7 +960,7 @@ private:
         boost::system::error_code ec;
 
         // Set up the endpoint according to the endpoint information we have received from the command line
-        endpoint_ = std::move(boost::asio::ip::tcp::endpoint{boost::asio::ip::tcp::v4(), port_});
+        endpoint_ = boost::asio::ip::tcp::endpoint{boost::asio::ip::tcp::v4(), port_};
 
         // Open the acceptor
         acceptor_.open(endpoint_.protocol(), ec);
