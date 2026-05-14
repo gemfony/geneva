@@ -528,10 +528,10 @@ public:
       ,
       // avoid copying the string but also not taking it as reference because it should be owned by this object
       requestMessage_{std::move(requestMessage)}
-      , getPayloadItem_(std::move(getPayloadItem))
-      , putPayloadItem_(std::move(putPayloadItem))
       , serializationMode_{serializationMode}
       , stopRequested_{stopRequested}
+      , getPayloadItem_(std::move(getPayloadItem))
+      , putPayloadItem_(std::move(putPayloadItem))
       , mpiRequestHandle_{} {
     }
 
@@ -801,8 +801,8 @@ public:
          */
     explicit GMPIConsumerMasterNodeT(std::int32_t commSize, const MPIConsumerConfig &config)
       : commSize_{commSize}
-      , isToldToStop_{false}
-      , config_{config} {
+      , config_{config}
+      , isToldToStop_{false} {
         glogger << "GMPIConsumerMasterNodeT started with " << config_.nHandlerThreads
                 << " handler threads" << std::endl
                 << GLOGGING;
@@ -1112,11 +1112,11 @@ public:
         char ***argv = nullptr,
         MPIConsumerConfig config = MPIConsumerConfig{}
     )
-      : argc_{argc}
-      , argv_{argv}
-      , config_{config}
+      : config_{config}
+      , commSize_{}
       , commRank_{}
-      , commSize_{} {
+      , argc_{argc}
+      , argv_{argv} {
     }
 
     /**

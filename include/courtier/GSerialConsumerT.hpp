@@ -264,7 +264,7 @@ private:
         // Register the broker ferry with the worker
         p_worker->registerBrokerFerry(broker_ferry_ptr);
 
-        processingThread_ = std::move(std::thread([p_worker]() -> void { p_worker->run(); }));
+        processingThread_ = std::thread([p_worker]() -> void { p_worker->run(); });
 
         // Store the worker for later reference
         worker_ = p_worker;
