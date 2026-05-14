@@ -46,6 +46,7 @@ SET ( EXECUTABLENAME GCommonStandardTests )
 
 SET ( ${EXECUTABLENAME}_SRCS
         GCommonStandardTests.cpp
+        GBoundedBufferTTests.cpp
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}

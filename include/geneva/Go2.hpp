@@ -95,7 +95,7 @@ using GOABase = Gem::Geneva::G_OptimizationAlgorithm_Base;
  */
 class Go2 // NOLINT(cppcoreguidelines-special-member-functions)
   : public G_Interface_OptimizerT<Go2>
-  , public Gem::Common::GPtrVectorT<GParameterSet, GObject> {
+  , public Gem::Common::GPtrContainerT<GParameterSet> {
 public:
     /** @brief The default constructor */
     Go2() = delete;

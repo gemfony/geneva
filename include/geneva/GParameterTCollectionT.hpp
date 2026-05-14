@@ -40,7 +40,7 @@
 
 // Geneva header files go here
 #include "common/GCommonHelperFunctionsT.hpp"
-#include "common/GPtrVectorT.hpp"
+#include "common/GContainerT.hpp"
 #include "geneva/GParameterBase.hpp"
 #include "geneva/GParameterT.hpp"
 
@@ -59,7 +59,7 @@ namespace Gem::Geneva {
 template <typename T>
 class GParameterTCollectionT // NOLINT(cppcoreguidelines-special-member-functions)
   : public GParameterBase
-  , public Gem::Common::GPtrVectorT<T, GObject> {
+  , public Gem::Common::GPtrContainerT<T> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
@@ -71,8 +71,7 @@ class GParameterTCollectionT // NOLINT(cppcoreguidelines-special-member-function
         ar &make_nvp("GParameterBase", boost::serialization::base_object<GParameterBase>(*this)) &
             make_nvp(
                 "GStdPtrVectorInterfaceT_T",
-                boost::serialization::base_object<
-                    Gem::Common::GPtrVectorT<T, Gem::Geneva::GObject>>(*this)
+                boost::serialization::base_object<Gem::Common::GPtrContainerT<T>>(*this)
             );
     }
     ///////////////////////////////////////////////////////////////////////
@@ -171,7 +170,7 @@ protected:
 
         // Load our parent class'es data ...
         GParameterBase::load_(cp);
-        Gem::Common::GPtrVectorT<T, Gem::Geneva::GObject>::operator=(*p_load);
+        Gem::Common::GPtrContainerT<T>::operator=(*p_load);
     }
 
     /***************************************************************************/
@@ -207,7 +206,7 @@ protected:
         // Compare our parent data ...
         Gem::Common::compare_base_t<GParameterBase>(*this, *p_load, token);
 
-        // We treat GPtrVectorT<T, Gem::Geneva::GObject>::data as local data
+        // We treat GPtrContainerT<T>::data as local data
         compare_t(IDENTITY(this->data_cnt_, p_load->data_cnt_), token);
 
         // React on deviations from the expectation
@@ -1033,7 +1032,7 @@ protected:
         if(GParameterBase::modify_GUnitTests_()) {
             result = true;
         }
-        if(Gem::Common::GPtrVectorT<T, Gem::Geneva::GObject>::modify_GUnitTests_()) {
+        if(Gem::Common::GPtrContainerT<T>::modify_GUnitTests_()) {
             result = true;
         }
 
@@ -1053,8 +1052,7 @@ protected:
 #ifdef GEM_TESTING
         // Call the parent classes' functions
         GParameterBase::specificTestsNoFailureExpected_GUnitTests_();
-        Gem::Common::GPtrVectorT<T, Gem::Geneva::GObject>::
-            specificTestsNoFailureExpected_GUnitTests_();
+        Gem::Common::GPtrContainerT<T>::specificTestsNoFailureExpected_GUnitTests_();
 
         //------------------------------------------------------------------------------
 
@@ -1074,8 +1072,7 @@ protected:
 #ifdef GEM_TESTING
         // Call the parent classes' functions
         GParameterBase::specificTestsFailuresExpected_GUnitTests_();
-        Gem::Common::GPtrVectorT<T, Gem::Geneva::GObject>::
-            specificTestsFailuresExpected_GUnitTests_();
+        Gem::Common::GPtrContainerT<T>::specificTestsFailuresExpected_GUnitTests_();
 
         //------------------------------------------------------------------------------
 

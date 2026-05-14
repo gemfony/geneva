@@ -237,7 +237,7 @@ GParameterSet::GParameterSet(GParameterSet const &cp)
   : GObject(cp)
   , G_Interface_Mutable(cp)
   , G_Interface_Rateable(cp)
-  , Gem::Common::GPtrVectorT<GParameterBase, GObject>(cp)
+  , Gem::Common::GPtrContainerT<GParameterBase>(cp)
   , Gem::Courtier::GProcessingContainerT<GParameterSet, parameterset_processing_result>(cp)
   , best_past_primary_fitness_(cp.best_past_primary_fitness_)
   , n_stalls_(cp.n_stalls_)
@@ -313,7 +313,7 @@ void GParameterSet::compare_(
      * individuals in this case.
      */
 void GParameterSet::swap(GParameterSet &cp) {
-    Gem::Common::GPtrVectorT<GParameterBase, GObject>::swap(cp.data_cnt_);
+    Gem::Common::GPtrContainerT<GParameterBase>::swap(cp.data_cnt_);
     this->mark_as_due_for_processing();
     cp.mark_as_due_for_processing();
 }
@@ -579,9 +579,9 @@ std::string GParameterSet::toCSV(
      * @param pos The position of the item we aim to retrieve from the std::vector<GParameterBase>
      * @return The item we aim to retrieve from the std::vector<GParameterBase>
      */
-Gem::Common::GPtrVectorT<GParameterBase, GObject>::reference
+Gem::Common::GPtrContainerT<GParameterBase>::reference
 GParameterSet::at(std::size_t const &pos) {
-    return Gem::Common::GPtrVectorT<GParameterBase, GObject>::at(pos);
+    return Gem::Common::GPtrContainerT<GParameterBase>::at(pos);
 }
 
 /* ----------------------------------------------------------------------------------
@@ -1691,7 +1691,7 @@ void GParameterSet::load_(const GObject *cp) {
 
     // Load the parent class'es data
     GObject::load_(cp);
-    Gem::Common::GPtrVectorT<GParameterBase, GObject>::operator=(*p_load);
+    Gem::Common::GPtrContainerT<GParameterBase>::operator=(*p_load);
     Gem::Courtier::GProcessingContainerT<GParameterSet, parameterset_processing_result>::load_pc(
         p_load
     );
@@ -2017,7 +2017,7 @@ bool GParameterSet::modify_GUnitTests_() {
     // Call the parent class'es function
     if(GObject::modify_GUnitTests_())
         result = true;
-    if(Gem::Common::GPtrVectorT<GParameterBase, GObject>::modify_GUnitTests_())
+    if(Gem::Common::GPtrContainerT<GParameterBase>::modify_GUnitTests_())
         result = true;
 
     for(const auto &o_ptr : *this) {
@@ -2054,7 +2054,7 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests_() {
 
     // Call the parent class'es function
     GObject::specificTestsNoFailureExpected_GUnitTests_();
-    Gem::Common::GPtrVectorT<GParameterBase, GObject>::specificTestsNoFailureExpected_GUnitTests_();
+    Gem::Common::GPtrContainerT<GParameterBase>::specificTestsNoFailureExpected_GUnitTests_();
 
     // --------------------------------------------------------------------------
 
@@ -2861,7 +2861,7 @@ void GParameterSet::specificTestsFailuresExpected_GUnitTests_() {
 
     // Call the parent classes' functions
     GObject::specificTestsFailuresExpected_GUnitTests_();
-    Gem::Common::GPtrVectorT<GParameterBase, GObject>::specificTestsFailuresExpected_GUnitTests_();
+    Gem::Common::GPtrContainerT<GParameterBase>::specificTestsFailuresExpected_GUnitTests_();
 
     // no tests here yet
 

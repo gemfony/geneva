@@ -36,7 +36,6 @@
 
 #include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GCommonMathHelperFunctionsT.hpp"
-#include "common/tests/GCommon_tests.hpp"
 #include <cmath>
 #include <cstring>
 #include <map>
@@ -72,25 +71,6 @@ enum class ScopedColor : unsigned {
 };
 
 } // namespace
-
-/******************************************************************************/
-// GBoundedBuffer tests (pre-existing)
-
-TEST_CASE_METHOD(
-    Gem::Common::Tests::GBoundedBufferT_tests,
-    "GBoundedBuffer no_failure_expected",
-    "[common][standard]"
-) {
-    no_failure_expected();
-}
-
-TEST_CASE_METHOD(
-    Gem::Common::Tests::GBoundedBufferT_tests,
-    "GBoundedBuffer failures_expected",
-    "[common][standard][failures-expected]"
-) {
-    failures_expected();
-}
 
 /******************************************************************************/
 // ============================================================
@@ -351,12 +331,12 @@ TEST_CASE(
 ) {
     // Open lower: value == min should be out of range
     REQUIRE_THROWS_AS(
-        Gem::Common::checkValueRange(0., 0., 10., GFPLOWEROPEN, GFPUPPERCLOSED),
+        Gem::Common::checkValueRange(0., 0., 10., Gem::Common::GFPLOWEROPEN, Gem::Common::GFPUPPERCLOSED),
         geneva_exception
     );
     // Open upper: value == max should be out of range
     REQUIRE_THROWS_AS(
-        Gem::Common::checkValueRange(10., 0., 10., GFPLOWERCLOSED, GFPUPPEROPEN),
+        Gem::Common::checkValueRange(10., 0., 10., Gem::Common::GFPLOWERCLOSED, Gem::Common::GFPUPPEROPEN),
         geneva_exception
     );
 }
