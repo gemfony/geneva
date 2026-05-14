@@ -780,12 +780,9 @@ int main(int argc, char **argv) {
         // Direct conversion, if we know the target type
         std::shared_ptr<GDoubleObject> p_d2 = c1.at<GDoubleObject>(0);
 
-        // Conversion iterator -- will return all GDoubleObject items
-        // stored on this level. Note that the conversion iterator will
-        // *not* recurse into p_child .
-        GParameterObjectCollection::conversion_iterator<GDoubleObject> it_conv(c1.end());
-        for(it_conv = c1.begin(); it_conv != c1.end(); ++it_conv) {
-            std::shared_ptr<GDoubleObject> p_conv = *it_conv;
+        // Filtered range view -- will return all GDoubleObject items
+        // stored on this level (does not recurse into nested collections).
+        for(auto p_conv : c1.filteredView<GDoubleObject>()) {
             std::cout << p_conv->value() << std::endl;
         }
         //-----------------------------------------------------

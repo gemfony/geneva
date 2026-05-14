@@ -72,7 +72,7 @@
 #include "common/GExceptions.hpp"
 #include "common/GExpectationChecksT.hpp"
 #include "common/GLogger.hpp"
-#include "common/GPtrVectorT.hpp"
+#include "common/GContainerT.hpp"
 #include "common/GSerializationHelperFunctionsT.hpp"
 #include "common/GSerializeTupleT.hpp"
 #include "common/GTupleIO.hpp"
@@ -712,7 +712,7 @@ private:
 /******************************************************************************/
 /**
  * This class acts as a container of decorator objects. In its specializations,
- * it is derived from GPtrVectorT and may thus be treated like a
+ * it is derived from GPtrContainerT and may thus be treated like a
  * std::vector of std::shared_ptr<GDecorator<dim>> . Note that the actual work
  * is done in the specializations for different dimensions. Hence some code
  * duplications for the different template specializations cannot be avoided.
@@ -730,9 +730,7 @@ class GDecoratorContainer { /* nothing */
 template <typename coordinate_type>
 class GDecoratorContainer<dimensions::Dim2, coordinate_type>
   : public GCommonInterfaceT<GDecoratorContainer<dimensions::Dim2, coordinate_type>>
-  , public GPtrVectorT<
-        GDecorator<dimensions::Dim2, coordinate_type>,
-        GDecorator<dimensions::Dim2, coordinate_type>> {
+  , public GPtrContainerT<GDecorator<dimensions::Dim2, coordinate_type>> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
@@ -742,9 +740,8 @@ class GDecoratorContainer<dimensions::Dim2, coordinate_type>
 
         ar &make_nvp(
             "GStdPtrVectorInterfaceT_GDecorator2",
-            boost::serialization::base_object<GPtrVectorT<
-                GDecorator<dimensions::Dim2, coordinate_type>,
-                GDecorator<dimensions::Dim2, coordinate_type>>>(*this)
+            boost::serialization::base_object<
+                GPtrContainerT<GDecorator<dimensions::Dim2, coordinate_type>>>(*this)
         );
     }
     ///////////////////////////////////////////////////////////////////////
@@ -819,9 +816,7 @@ protected:
         const auto *p_load = g_convert_and_compare(cp, this);
 
         // Load our parent data ...
-        GPtrVectorT<
-            GDecorator<dimensions::Dim2, coordinate_type>,
-            GDecorator<dimensions::Dim2, coordinate_type>>::operator=(*p_load);
+        GPtrContainerT<GDecorator<dimensions::Dim2, coordinate_type>>::operator=(*p_load);
 
         // ... no local data
     }
@@ -1003,9 +998,7 @@ private:
 template <typename coordinate_type>
 class GDecoratorContainer<dimensions::Dim3, coordinate_type>
   : public GCommonInterfaceT<GDecoratorContainer<dimensions::Dim3, coordinate_type>>
-  , public GPtrVectorT<
-        GDecorator<dimensions::Dim3, coordinate_type>,
-        GDecorator<dimensions::Dim3, coordinate_type>> {
+  , public GPtrContainerT<GDecorator<dimensions::Dim3, coordinate_type>> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
@@ -1015,9 +1008,8 @@ class GDecoratorContainer<dimensions::Dim3, coordinate_type>
 
         ar &make_nvp(
             "GStdPtrVectorInterfaceT_GDecorator3",
-            boost::serialization::base_object<GPtrVectorT<
-                GDecorator<dimensions::Dim3, coordinate_type>,
-                GDecorator<dimensions::Dim3, coordinate_type>>>(*this)
+            boost::serialization::base_object<
+                GPtrContainerT<GDecorator<dimensions::Dim3, coordinate_type>>>(*this)
         );
     }
     ///////////////////////////////////////////////////////////////////////
@@ -1093,9 +1085,7 @@ protected:
         const auto *p_load = g_convert_and_compare(cp, this);
 
         // Load our parent data ...
-        GPtrVectorT<
-            GDecorator<dimensions::Dim3, coordinate_type>,
-            GDecorator<dimensions::Dim3, coordinate_type>>::operator=(*p_load);
+        GPtrContainerT<GDecorator<dimensions::Dim3, coordinate_type>>::operator=(*p_load);
 
         // ... no local data
     }

@@ -68,7 +68,7 @@
 #include "common/GFactoryT.hpp"
 #include "common/GGlobalOptionsT.hpp"
 #include "common/GLogger.hpp"
-#include "common/GPODVectorT.hpp"
+#include "common/GContainerT.hpp"
 #include "common/GSingletonT.hpp"
 #include "common/GUnitTestFrameworkT.hpp"
 #include "geneva/GDoubleGaussAdaptor.hpp"
@@ -169,7 +169,7 @@ private:
  * the first attached number being the input layer and the last one the output layer. In-between
  * numbers are hidden layers.
  */
-class networkData : public Gem::Common::GPODVectorT<std::size_t> {
+class networkData : public Gem::Common::GPodContainerT<std::size_t> {
     /////////////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
@@ -179,7 +179,7 @@ class networkData : public Gem::Common::GPODVectorT<std::size_t> {
 
         ar &make_nvp(
             "GStdSimpleVectorInterfaceT_size_t",
-            boost::serialization::base_object<Gem::Common::GPODVectorT<std::size_t>>(*this)
+            boost::serialization::base_object<Gem::Common::GPodContainerT<std::size_t>>(*this)
         ) & BOOST_SERIALIZATION_NVP(initRange_);
 
         // Make sure the data vector is empty
@@ -203,7 +203,7 @@ class networkData : public Gem::Common::GPODVectorT<std::size_t> {
 
         ar &make_nvp(
             "GStdSimpleVectorInterfaceT_size_t",
-            boost::serialization::base_object<Gem::Common::GPODVectorT<std::size_t>>(*this)
+            boost::serialization::base_object<Gem::Common::GPodContainerT<std::size_t>>(*this)
         ) & BOOST_SERIALIZATION_NVP(initRange_) &
             BOOST_SERIALIZATION_NVP(arraySize_) &
             boost::serialization::make_array(data_, arraySize_);

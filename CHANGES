@@ -519,6 +519,53 @@ Recommended Versions:
   shared libraries. This is a correctness fix; the GCC build was relying on
   lazy symbol resolution that is not portable.
 
+- GPODVectorT.hpp and GPtrVectorT.hpp removed. All consumers have been
+  migrated to GContainerT-based aliases:
+  * GPodContainerT (PodStorage specialisation) replaces GPODVectorT everywhere.
+  * GPtrContainerT (SharedPtrStorage specialisation) replaces GPtrVectorT.
+    The last user was GPlotDesigner.hpp: both GDecoratorContainer<Dim2> and
+    GDecoratorContainer<Dim3> now inherit from GPtrContainerT<GDecorator<dim,
+    coordinate_type>>. The serialize(), load_(), and compare_() methods have been
+    updated accordingly. The Boost.Serialization NVP tag names
+    "GStdPtrVectorInterfaceT_GDecorator2/3" are preserved to maintain archive
+    compatibility. Both headers are removed from the install list.
+
+- GContainerT improvements:
+  * Bug fix: resize_clone() previously accepted the template argument itemPtr
+    as const StoredType & (a const reference). When the caller passed an element
+    of the container itself (e.g. resize_clone(n, data_cnt_[0])), the first
+    push_back() could trigger a vector reallocation that invalidated the reference,
+    causing a dangling-reference read for all subsequent clones. Fixed by changing
+    the parameter to StoredType (by value), matching the original semantics of
+    GPtrVectorT::resizeClone() and making the call site safe regardless of aliasing.
+  * std::list backend support added: <list> and <boost/serialization/list.hpp>
+    included. std::list satisfies HasFrontInsertion but not HasRandomAccess,
+    HasContiguousStorage, or HasCapacity; the concept-constrained method set is
+    verified by the new [pod][list] test case.
+  * Three test-coverage gaps closed: (1) the deque serialization test now actually
+    deserialises from the archive (the previous test wrote to the archive but read
+    from a separately constructed deque, never exercising round-trip symmetry);
+    (2) GPtrContainerT serialization is now tested via a new SerBase helper type
+    (the previous TestBase was in an anonymous namespace and could not be registered
+    with BOOST_CLASS_EXPORT); (3) all protected virtual test-hook functions are now
+    exercised through InstrumentedXxx proxy classes for every instantiation.
+  * Test suite: 378 assertions in 6 test cases; 100 % function and line coverage
+    (llvm-cov report: 80/80 functions, 396/396 lines, 198/198 regions).
+
+- Test-support headers relocated out of the installed include tree:
+  * include/common/tests/GBoundedBufferT_tests.hpp and GCommon_tests.hpp:
+    the Catch2 TEST_CASE bodies have been moved to the proper source file
+    tests/common/UnitTests/GBoundedBufferTTests.cpp. The two headers (a
+    Boost.Test holdover that was installed as a public API) are deleted.
+    GCommonStandardTests.cpp no longer includes GCommon_tests.hpp; the
+    GBoundedBufferTTests.cpp translation unit is compiled into the same
+    GCommonStandardTests executable.
+  * include/geneva/tests/Geneva_tests.hpp: moved to
+    tests/geneva/UnitTests/Geneva_tests.hpp. The file was already marked as
+    internal-only and not installed; the move makes its scope unambiguous.
+    GenevaStandardTests.cpp and GStarterIndividualUnitTests.cpp updated to
+    include it from the new location via TARGET_INCLUDE_DIRECTORIES.
+
 //------------------------------------------------------------------------------------------------------
 * Version 1.11, "Hendaye" - March 16, 2026
 

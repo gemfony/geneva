@@ -46,7 +46,7 @@
 #include "common/GCommonHelperFunctions.hpp"
 #include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GPlotDesigner.hpp"
-#include "common/GPtrVectorT.hpp"
+#include "common/GContainerT.hpp"
 #include "common/GSerializationHelperFunctionsT.hpp"
 #include "courtier/GExecutorT.hpp"
 #include "geneva/GObject.hpp"
@@ -164,7 +164,7 @@ private:
  */
 class G_OptimizationAlgorithm_Base // NOLINT(cppcoreguidelines-special-member-functions)
   : public GObject
-  , public Gem::Common::GPtrVectorT<GParameterSet, Gem::Geneva::GObject>
+  , public Gem::Common::GPtrContainerT<GParameterSet>
   , public G_Interface_OptimizerT<G_OptimizationAlgorithm_Base> {
 private:
     ///////////////////////////////////////////////////////////////////////
@@ -179,8 +179,7 @@ private:
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject) &
             make_nvp(
                 "GStdPtrVectorInterfaceT_T",
-                boost::serialization::base_object<
-                    Gem::Common::GPtrVectorT<GParameterSet, Gem::Geneva::GObject>>(*this)
+                boost::serialization::base_object<Gem::Common::GPtrContainerT<GParameterSet>>(*this)
             ) &
             BOOST_SERIALIZATION_NVP(iteration_) & BOOST_SERIALIZATION_NVP(offset_) &
             BOOST_SERIALIZATION_NVP(maxIteration_) & BOOST_SERIALIZATION_NVP(minIteration_) &
@@ -223,8 +222,7 @@ private:
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject) &
             make_nvp(
                 "GStdPtrVectorInterfaceT_T",
-                boost::serialization::base_object<
-                    Gem::Common::GPtrVectorT<GParameterSet, Gem::Geneva::GObject>>(*this)
+                boost::serialization::base_object<Gem::Common::GPtrContainerT<GParameterSet>>(*this)
             ) &
             BOOST_SERIALIZATION_NVP(iteration_) & BOOST_SERIALIZATION_NVP(offset_) &
             BOOST_SERIALIZATION_NVP(maxIteration_) & BOOST_SERIALIZATION_NVP(minIteration_) &

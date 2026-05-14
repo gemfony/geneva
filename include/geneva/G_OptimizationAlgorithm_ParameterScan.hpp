@@ -41,7 +41,7 @@
 // Geneva headers go here
 #include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GExceptions.hpp"
-#include "common/GPODVectorT.hpp"
+#include "common/GContainerT.hpp"
 #include "common/GPlotDesigner.hpp"
 #include "common/GSerializeTupleT.hpp"
 #include "geneva/GObject.hpp"
@@ -133,7 +133,7 @@ public:
  */
 template <typename T>
 class baseScanParT // NOLINT(cppcoreguidelines-special-member-functions)
-  : public Gem::Common::GPODVectorT<T>
+  : public Gem::Common::GPodContainerT<T>
   , public scanParInterface {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
@@ -142,7 +142,7 @@ class baseScanParT // NOLINT(cppcoreguidelines-special-member-functions)
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(Gem::Common::GPODVectorT<T>) &
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(Gem::Common::GPodContainerT<T>) &
             BOOST_SERIALIZATION_NVP(var_) & BOOST_SERIALIZATION_NVP(step_) &
             BOOST_SERIALIZATION_NVP(nSteps_) & BOOST_SERIALIZATION_NVP(lower_) &
             BOOST_SERIALIZATION_NVP(upper_) & BOOST_SERIALIZATION_NVP(randomScan_) &
@@ -161,7 +161,7 @@ public:
         bool randomScan,
         const std::string &t // typeDescription_
     )
-      : Gem::Common::GPODVectorT<T>()
+      : Gem::Common::GPodContainerT<T>()
       , var_(pps.var)
       , step_(0)
       , nSteps_(pps.nSteps)

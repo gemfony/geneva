@@ -67,7 +67,7 @@ Go2::Go2(
     boost::program_options::options_description const &userDescriptions
 )
   : G_Interface_OptimizerT<Go2>()
-  , Gem::Common::GPtrVectorT<GParameterSet, GObject>()
+  , Gem::Common::GPtrContainerT<GParameterSet>()
   , config_filename_(configFilename) {
     //--------------------------------------------
     // Initialize Geneva as well as the known optimization algorithms

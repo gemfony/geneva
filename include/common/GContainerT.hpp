@@ -38,6 +38,7 @@
 #include <deque>
 #include <initializer_list>
 #include <iterator>
+#include <list>
 #include <memory>
 #include <ranges>
 #include <sstream>
@@ -54,6 +55,7 @@
 #include <boost/serialization/assume_abstract.hpp>
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/deque.hpp>
+#include <boost/serialization/list.hpp>
 #include <boost/serialization/export.hpp>
 #include <boost/serialization/nvp.hpp>
 #include <boost/serialization/shared_ptr.hpp>
@@ -213,7 +215,7 @@ struct SharedPtrStorage {
  *
  * GContainerT is an abstract base class (pure-virtual destructor) that wraps
  * a configurable sequence container and provides the full STL sequence-container
- * API together with Geneva-specific extensions such as crossOver(), compareBase(),
+ * API together with Geneva-specific extensions such as crossOver(), compare_base(),
  * clone-aware push/insert/resize operations (for SharedPtrStorage), and a
  * type-filtered range view.
  *
@@ -240,7 +242,7 @@ class GContainerT {
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
-        ar &BOOST_SERIALIZATION_NVP(dataCnt_);
+        ar &BOOST_SERIALIZATION_NVP(data_cnt_);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -293,7 +295,7 @@ public:
      */
     explicit GContainerT(size_type nVal, const StoredType &val)
         requires std::same_as<StoredType, ValueType>
-      : dataCnt_(nVal, val) {}
+      : data_cnt_(nVal, val) {}
 
     /**
      * @brief Copy constructor — performs a deep copy via the storage policy.
@@ -304,7 +306,7 @@ public:
      * @param cp The source object.
      */
     GContainerT(const GContainerT &cp) {
-        StoragePolicy::deepCopy(cp.dataCnt_, dataCnt_);
+        StoragePolicy::deepCopy(cp.data_cnt_, data_cnt_);
     }
 
     /** @brief Move constructor. Leaves the source in a valid but unspecified state. */
@@ -330,14 +332,37 @@ public:
         if(this == &cp) {
             return *this;
         }
-        StoragePolicy::deepCopy(cp.dataCnt_, dataCnt_);
+        StoragePolicy::deepCopy(cp.data_cnt_, data_cnt_);
         return *this;
     }
 
     /** @brief Move-assignment operator. */
     GContainerT &operator=(GContainerT &&) noexcept = default;
 
-    // Deleted comparison operators (use compareBase() instead).
+    /**
+     * @brief Assignment from the raw underlying container (PodStorage only).
+     *
+     * Enables `podContainer = someStdVector;` which was supported by GPODVectorT.
+     *
+     * @param cont The source container.
+     * @return A reference to this object.
+     */
+    GContainerT &operator=(const ContainerType &cont)
+        requires std::same_as<StoredType, ValueType>
+    {
+        data_cnt_ = cont;
+        return *this;
+    }
+
+    /** @brief Move-assign from raw underlying container (PodStorage only). */
+    GContainerT &operator=(ContainerType &&cont)
+        requires std::same_as<StoredType, ValueType>
+    {
+        data_cnt_ = std::move(cont);
+        return *this;
+    }
+
+    // Deleted comparison operators (use compare_base() instead).
     bool operator==(const GContainerT &) const = delete;
     bool operator!=(const GContainerT &) const = delete;
 
@@ -352,7 +377,7 @@ public:
      * @note noexcept: this function never throws.
      */
     [[nodiscard]] size_type size() const noexcept {
-        return dataCnt_.size();
+        return data_cnt_.size();
     }
 
     /**
@@ -362,7 +387,7 @@ public:
      * @note noexcept: this function never throws.
      */
     [[nodiscard]] bool empty() const noexcept {
-        return dataCnt_.empty();
+        return data_cnt_.empty();
     }
 
     /**
@@ -370,8 +395,8 @@ public:
      *
      * @return The theoretical maximum size.
      */
-    [[nodiscard]] size_type maxSize() const {
-        return dataCnt_.max_size();
+    [[nodiscard]] size_type max_size() const {
+        return data_cnt_.max_size();
     }
 
     /**
@@ -384,7 +409,7 @@ public:
     [[nodiscard]] size_type capacity() const
         requires HasCapacity<ContainerType>
     {
-        return dataCnt_.capacity();
+        return data_cnt_.capacity();
     }
 
     /**
@@ -396,7 +421,7 @@ public:
     void reserve(size_type amount)
         requires HasCapacity<ContainerType>
     {
-        dataCnt_.reserve(amount);
+        data_cnt_.reserve(amount);
     }
 
     /**
@@ -404,10 +429,10 @@ public:
      *
      * @note Only available when ContainerType satisfies HasCapacity.
      */
-    void shrinkToFit()
+    void shrink_to_fit()
         requires HasCapacity<ContainerType>
     {
-        dataCnt_.shrink_to_fit();
+        data_cnt_.shrink_to_fit();
     }
 
     // ------------------------------------------------------------------
@@ -423,7 +448,7 @@ public:
      * @return A reference to the element.
      */
     reference operator[](size_type pos) {
-        return dataCnt_[pos];
+        return data_cnt_[pos];
     }
 
     /**
@@ -435,7 +460,7 @@ public:
      * @return A const reference to the element.
      */
     [[nodiscard]] const_reference operator[](size_type pos) const {
-        return dataCnt_[pos];
+        return data_cnt_[pos];
     }
 
     /**
@@ -446,7 +471,7 @@ public:
      * @throws std::out_of_range when @p pos >= size().
      */
     reference at(size_type pos) {
-        return dataCnt_.at(pos);
+        return data_cnt_.at(pos);
     }
 
     /**
@@ -457,7 +482,7 @@ public:
      * @throws std::out_of_range when @p pos >= size().
      */
     [[nodiscard]] const_reference at(size_type pos) const {
-        return dataCnt_.at(pos);
+        return data_cnt_.at(pos);
     }
 
     /**
@@ -467,7 +492,7 @@ public:
      * @note Calling this on an empty container is undefined behaviour.
      */
     reference front() {
-        return dataCnt_.front();
+        return data_cnt_.front();
     }
 
     /**
@@ -477,7 +502,7 @@ public:
      * @note Calling this on an empty container is undefined behaviour.
      */
     [[nodiscard]] const_reference front() const {
-        return dataCnt_.front();
+        return data_cnt_.front();
     }
 
     /**
@@ -487,7 +512,7 @@ public:
      * @note Calling this on an empty container is undefined behaviour.
      */
     reference back() {
-        return dataCnt_.back();
+        return data_cnt_.back();
     }
 
     /**
@@ -497,7 +522,7 @@ public:
      * @note Calling this on an empty container is undefined behaviour.
      */
     [[nodiscard]] const_reference back() const {
-        return dataCnt_.back();
+        return data_cnt_.back();
     }
 
     /**
@@ -510,7 +535,7 @@ public:
     [[nodiscard]] StoredType *data() noexcept
         requires HasContiguousStorage<ContainerType>
     {
-        return dataCnt_.data();
+        return data_cnt_.data();
     }
 
     /**
@@ -522,7 +547,7 @@ public:
     [[nodiscard]] const StoredType *data() const noexcept
         requires HasContiguousStorage<ContainerType>
     {
-        return dataCnt_.data();
+        return data_cnt_.data();
     }
 
     // ------------------------------------------------------------------
@@ -534,7 +559,7 @@ public:
      * @note noexcept: iterator construction never throws.
      */
     iterator begin() noexcept {
-        return dataCnt_.begin();
+        return data_cnt_.begin();
     }
 
     /**
@@ -542,7 +567,7 @@ public:
      * @note noexcept: iterator construction never throws.
      */
     [[nodiscard]] const_iterator begin() const noexcept {
-        return dataCnt_.begin();
+        return data_cnt_.begin();
     }
 
     /**
@@ -550,7 +575,7 @@ public:
      * @note noexcept: iterator construction never throws.
      */
     iterator end() noexcept {
-        return dataCnt_.end();
+        return data_cnt_.end();
     }
 
     /**
@@ -558,7 +583,7 @@ public:
      * @note noexcept: iterator construction never throws.
      */
     [[nodiscard]] const_iterator end() const noexcept {
-        return dataCnt_.end();
+        return data_cnt_.end();
     }
 
     /**
@@ -566,7 +591,7 @@ public:
      * @note noexcept: iterator construction never throws.
      */
     [[nodiscard]] const_iterator cbegin() const noexcept {
-        return dataCnt_.cbegin();
+        return data_cnt_.cbegin();
     }
 
     /**
@@ -574,7 +599,7 @@ public:
      * @note noexcept: iterator construction never throws.
      */
     [[nodiscard]] const_iterator cend() const noexcept {
-        return dataCnt_.cend();
+        return data_cnt_.cend();
     }
 
     /**
@@ -582,7 +607,7 @@ public:
      * @note noexcept: iterator construction never throws.
      */
     reverse_iterator rbegin() noexcept {
-        return dataCnt_.rbegin();
+        return data_cnt_.rbegin();
     }
 
     /**
@@ -590,7 +615,7 @@ public:
      * @note noexcept: iterator construction never throws.
      */
     [[nodiscard]] const_reverse_iterator rbegin() const noexcept {
-        return dataCnt_.rbegin();
+        return data_cnt_.rbegin();
     }
 
     /**
@@ -598,7 +623,7 @@ public:
      * @note noexcept: iterator construction never throws.
      */
     reverse_iterator rend() noexcept {
-        return dataCnt_.rend();
+        return data_cnt_.rend();
     }
 
     /**
@@ -606,7 +631,7 @@ public:
      * @note noexcept: iterator construction never throws.
      */
     [[nodiscard]] const_reverse_iterator rend() const noexcept {
-        return dataCnt_.rend();
+        return data_cnt_.rend();
     }
 
     /**
@@ -614,7 +639,7 @@ public:
      * @note noexcept: iterator construction never throws.
      */
     [[nodiscard]] const_reverse_iterator crbegin() const noexcept {
-        return dataCnt_.crbegin();
+        return data_cnt_.crbegin();
     }
 
     /**
@@ -622,7 +647,7 @@ public:
      * @note noexcept: iterator construction never throws.
      */
     [[nodiscard]] const_reverse_iterator crend() const noexcept {
-        return dataCnt_.crend();
+        return data_cnt_.crend();
     }
 
     // ------------------------------------------------------------------
@@ -635,19 +660,44 @@ public:
      * The capacity (if applicable) is left unchanged.
      */
     void clear() {
-        dataCnt_.clear();
+        data_cnt_.clear();
     }
 
     /**
-     * @brief Resizes the container to @p amount elements.
+     * @brief Resizes the container to @p amount elements (POD storage only).
      *
-     * If the container grows, new elements are value-initialised (POD: zero,
-     * shared_ptr: nullptr).
+     * For POD storage, new elements are zero-initialised.
+     * For SharedPtrStorage, use resize_clone/resize_noclone/resize_empty instead.
      *
      * @param amount The desired number of elements.
      */
-    void resize(size_type amount) {
-        dataCnt_.resize(amount);
+    void resize(size_type amount)
+        requires std::same_as<StoredType, ValueType>
+    {
+        data_cnt_.resize(amount);
+    }
+
+    /**
+     * @brief Resizes the container to @p amount elements (SharedPtrStorage).
+     *
+     * Shrinking is allowed; growing throws because it would create null shared_ptrs.
+     * Use resize_clone, resize_noclone, or resize_empty to grow SharedPtrStorage containers.
+     *
+     * @param amount The desired number of elements.
+     * @throws geneva_exception when growing (would insert null shared_ptrs).
+     */
+    void resize(size_type amount)
+        requires(!std::same_as<StoredType, ValueType>)
+    {
+        if(amount > data_cnt_.size()) {
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, time_and_place)
+                << "In GContainerT::resize(): "
+                << "Cannot grow a SharedPtrStorage container without a prototype. "
+                << "Use resize_clone(), resize_noclone(), or resize_empty() instead." << std::endl
+            );
+        }
+        data_cnt_.resize(amount);
     }
 
     /**
@@ -658,7 +708,7 @@ public:
      * @param item   The value used for new elements.
      */
     void resize(size_type amount, const StoredType &item) {
-        dataCnt_.resize(amount, item);
+        data_cnt_.resize(amount, item);
     }
 
     // ------------------------------------------------------------------
@@ -672,7 +722,7 @@ public:
      * @param value The value to assign.
      */
     void assign(size_type count, const StoredType &value) {
-        dataCnt_.assign(count, value);
+        data_cnt_.assign(count, value);
     }
 
     /**
@@ -684,7 +734,7 @@ public:
      */
     template <std::input_iterator InputIt>
     void assign(InputIt first, InputIt last) {
-        dataCnt_.assign(first, last);
+        data_cnt_.assign(first, last);
     }
 
     /**
@@ -693,7 +743,7 @@ public:
      * @param il The initializer list.
      */
     void assign(std::initializer_list<StoredType> il) {
-        dataCnt_.assign(il);
+        data_cnt_.assign(il);
     }
 
     // ------------------------------------------------------------------
@@ -704,12 +754,12 @@ public:
      * @brief Appends a copy of @p item to the back of the container.
      *
      * For SharedPtrStorage: performs a no-clone insert (shared ownership).
-     * Use pushBackClone() to insert an independent copy.
+     * Use push_back_clone() to insert an independent copy.
      *
      * @param item The item to append.
      */
-    void pushBack(const StoredType &item) {
-        dataCnt_.push_back(item);
+    void push_back(const StoredType &item) {
+        data_cnt_.push_back(item);
     }
 
     /**
@@ -717,8 +767,8 @@ public:
      *
      * @param item The item to move-append.
      */
-    void pushBack(StoredType &&item) {
-        dataCnt_.push_back(std::move(item));
+    void push_back(StoredType &&item) {
+        data_cnt_.push_back(std::move(item));
     }
 
     /**
@@ -733,10 +783,10 @@ public:
      * @return A reference to the newly constructed element.
      */
     template <typename... Args>
-    reference emplaceBack(Args &&...args)
+    reference emplace_back(Args &&...args)
         requires std::same_as<StoredType, ValueType>
     {
-        return dataCnt_.emplace_back(std::forward<Args>(args)...);
+        return data_cnt_.emplace_back(std::forward<Args>(args)...);
     }
 
     /**
@@ -744,8 +794,8 @@ public:
      *
      * Calling this on an empty container is undefined behaviour.
      */
-    void popBack() {
-        dataCnt_.pop_back();
+    void pop_back() {
+        data_cnt_.pop_back();
     }
 
     // ------------------------------------------------------------------
@@ -759,10 +809,10 @@ public:
      *       (e.g., std::deque, but not std::vector).
      * @param item The item to prepend.
      */
-    void pushFront(const StoredType &item)
+    void push_front(const StoredType &item)
         requires HasFrontInsertion<ContainerType>
     {
-        dataCnt_.push_front(item);
+        data_cnt_.push_front(item);
     }
 
     /**
@@ -771,10 +821,10 @@ public:
      * @note Only available when ContainerType satisfies HasFrontInsertion.
      * @param item The item to move-prepend.
      */
-    void pushFront(StoredType &&item)
+    void push_front(StoredType &&item)
         requires HasFrontInsertion<ContainerType>
     {
-        dataCnt_.push_front(std::move(item));
+        data_cnt_.push_front(std::move(item));
     }
 
     /**
@@ -786,10 +836,10 @@ public:
      * @param args Arguments forwarded to the element constructor.
      */
     template <typename... Args>
-    void emplaceFront(Args &&...args)
+    void emplace_front(Args &&...args)
         requires HasFrontInsertion<ContainerType> && std::same_as<StoredType, ValueType>
     {
-        dataCnt_.emplace_front(std::forward<Args>(args)...);
+        data_cnt_.emplace_front(std::forward<Args>(args)...);
     }
 
     /**
@@ -798,10 +848,10 @@ public:
      * @note Only available when ContainerType satisfies HasFrontInsertion.
      *       Calling this on an empty container is undefined behaviour.
      */
-    void popFront()
+    void pop_front()
         requires HasFrontInsertion<ContainerType>
     {
-        dataCnt_.pop_front();
+        data_cnt_.pop_front();
     }
 
     // ------------------------------------------------------------------
@@ -816,7 +866,7 @@ public:
      * @return An iterator to the inserted element.
      */
     iterator insert(const_iterator pos, const StoredType &item) {
-        return dataCnt_.insert(pos, item);
+        return data_cnt_.insert(pos, item);
     }
 
     /**
@@ -827,7 +877,7 @@ public:
      * @return An iterator to the inserted element.
      */
     iterator insert(const_iterator pos, StoredType &&item) {
-        return dataCnt_.insert(pos, std::move(item));
+        return data_cnt_.insert(pos, std::move(item));
     }
 
     /**
@@ -839,7 +889,7 @@ public:
      * @return An iterator to the first inserted element.
      */
     iterator insert(const_iterator pos, size_type count, const StoredType &item) {
-        return dataCnt_.insert(pos, count, item);
+        return data_cnt_.insert(pos, count, item);
     }
 
     /**
@@ -853,7 +903,7 @@ public:
      */
     template <std::input_iterator InputIt>
     iterator insert(const_iterator pos, InputIt first, InputIt last) {
-        return dataCnt_.insert(pos, first, last);
+        return data_cnt_.insert(pos, first, last);
     }
 
     /**
@@ -864,13 +914,13 @@ public:
      * @return An iterator to the first inserted element.
      */
     iterator insert(const_iterator pos, std::initializer_list<StoredType> il) {
-        return dataCnt_.insert(pos, il);
+        return data_cnt_.insert(pos, il);
     }
 
     /**
      * @brief Constructs an element in-place before @p pos.
      *
-     * Only available for PodStorage (same rationale as emplaceBack()).
+     * Only available for PodStorage (same rationale as emplace_back()).
      *
      * @tparam Args Argument types forwarded to the element constructor.
      * @param pos  An iterator pointing to the insertion position.
@@ -881,7 +931,7 @@ public:
     iterator emplace(const_iterator pos, Args &&...args)
         requires std::same_as<StoredType, ValueType>
     {
-        return dataCnt_.emplace(pos, std::forward<Args>(args)...);
+        return data_cnt_.emplace(pos, std::forward<Args>(args)...);
     }
 
     // ------------------------------------------------------------------
@@ -895,7 +945,7 @@ public:
      * @return An iterator following the removed element.
      */
     iterator erase(const_iterator pos) {
-        return dataCnt_.erase(pos);
+        return data_cnt_.erase(pos);
     }
 
     /**
@@ -906,7 +956,7 @@ public:
      * @return An iterator following the last removed element.
      */
     iterator erase(const_iterator first, const_iterator last) {
-        return dataCnt_.erase(first, last);
+        return data_cnt_.erase(first, last);
     }
 
     // ------------------------------------------------------------------
@@ -919,7 +969,7 @@ public:
      * @param cont The external container to swap with.
      */
     void swap(ContainerType &cont) {
-        dataCnt_.swap(cont);
+        data_cnt_.swap(cont);
     }
 
     /**
@@ -928,7 +978,7 @@ public:
      * @param other The other GContainerT object to swap with.
      */
     void swap(GContainerT &other) {
-        dataCnt_.swap(other.dataCnt_);
+        data_cnt_.swap(other.data_cnt_);
     }
 
     // ------------------------------------------------------------------
@@ -948,7 +998,7 @@ public:
         requires std::same_as<StoredType, ValueType>
     {
         return Gem::Common::narrow_cast<size_type>(
-            std::ranges::count(dataCnt_, item)
+            std::ranges::count(data_cnt_, item)
         );
     }
 
@@ -963,7 +1013,7 @@ public:
     [[nodiscard]] const_iterator find(const StoredType &item) const
         requires std::same_as<StoredType, ValueType>
     {
-        return std::ranges::find(dataCnt_, item);
+        return std::ranges::find(data_cnt_, item);
     }
 
     // ------------------------------------------------------------------
@@ -993,8 +1043,8 @@ public:
             );
         }
         return Gem::Common::narrow_cast<size_type>(std::count_if(
-            dataCnt_.begin(),
-            dataCnt_.end(),
+            data_cnt_.begin(),
+            data_cnt_.end(),
             [&item](const StoredType &contItem) -> bool {
                 auto cast = std::dynamic_pointer_cast<ItemType>(contItem);
                 return cast && (*item == *cast);
@@ -1023,8 +1073,8 @@ public:
             );
         }
         return std::find_if(
-            dataCnt_.begin(),
-            dataCnt_.end(),
+            data_cnt_.begin(),
+            data_cnt_.end(),
             [&item](const StoredType &contItem) -> bool {
                 auto cast = std::dynamic_pointer_cast<ItemType>(contItem);
                 return cast && (*item == *cast);
@@ -1045,17 +1095,17 @@ public:
      * @throws geneva_exception when @p itemPtr is null.
      * @note Only available for SharedPtrStorage.
      */
-    void pushBackClone(const StoredType &itemPtr)
+    void push_back_clone(const StoredType &itemPtr)
         requires(!std::same_as<StoredType, ValueType>)
     {
         if(not itemPtr) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GContainerT::pushBackClone(): "
+                << "In GContainerT::push_back_clone(): "
                 << "Tried to clone an empty smart pointer." << std::endl
             );
         }
-        dataCnt_.push_back(itemPtr->ValueType::template clone<ValueType>());
+        data_cnt_.push_back(itemPtr->ValueType::template clone<ValueType>());
     }
 
     /**
@@ -1068,17 +1118,17 @@ public:
      * @throws geneva_exception when @p itemPtr is null.
      * @note Only available for SharedPtrStorage.
      */
-    void pushBackNoclone(StoredType itemPtr)
+    void push_back_noclone(StoredType itemPtr)
         requires(!std::same_as<StoredType, ValueType>)
     {
         if(not itemPtr) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GContainerT::pushBackNoclone(): "
+                << "In GContainerT::push_back_noclone(): "
                 << "Tried to insert an empty smart pointer." << std::endl
             );
         }
-        dataCnt_.push_back(std::move(itemPtr));
+        data_cnt_.push_back(std::move(itemPtr));
     }
 
     // ------------------------------------------------------------------
@@ -1094,17 +1144,17 @@ public:
      * @throws geneva_exception when @p itemPtr is null.
      * @note Only available for SharedPtrStorage.
      */
-    iterator insertClone(const_iterator pos, const StoredType &itemPtr)
+    iterator insert_clone(const_iterator pos, const StoredType &itemPtr)
         requires(!std::same_as<StoredType, ValueType>)
     {
         if(not itemPtr) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GContainerT::insertClone(): "
+                << "In GContainerT::insert_clone(): "
                 << "Tried to clone an empty smart pointer." << std::endl
             );
         }
-        return dataCnt_.insert(pos, itemPtr->ValueType::template clone<ValueType>());
+        return data_cnt_.insert(pos, itemPtr->ValueType::template clone<ValueType>());
     }
 
     /**
@@ -1116,20 +1166,20 @@ public:
      * @throws geneva_exception when @p itemPtr is null.
      * @note Only available for SharedPtrStorage.
      */
-    void insertClone(const_iterator pos, size_type count, const StoredType &itemPtr)
+    void insert_clone(const_iterator pos, size_type count, const StoredType &itemPtr)
         requires(!std::same_as<StoredType, ValueType>)
     {
         if(not itemPtr) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GContainerT::insertClone(count): "
+                << "In GContainerT::insert_clone(count): "
                 << "Tried to clone an empty smart pointer." << std::endl
             );
         }
-        std::size_t iterPos = static_cast<std::size_t>(pos - dataCnt_.begin());
+        std::size_t iterPos = static_cast<std::size_t>(pos - data_cnt_.begin());
         for(std::size_t i = 0; i < count; ++i) {
-            dataCnt_.insert(
-                dataCnt_.begin() + static_cast<difference_type>(iterPos),
+            data_cnt_.insert(
+                data_cnt_.begin() + static_cast<difference_type>(iterPos),
                 itemPtr->ValueType::template clone<ValueType>()
             );
         }
@@ -1144,17 +1194,17 @@ public:
      * @throws geneva_exception when @p itemPtr is null.
      * @note Only available for SharedPtrStorage.
      */
-    iterator insertNoclone(const_iterator pos, StoredType itemPtr)
+    iterator insert_noclone(const_iterator pos, StoredType itemPtr)
         requires(!std::same_as<StoredType, ValueType>)
     {
         if(not itemPtr) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GContainerT::insertNoclone(): "
+                << "In GContainerT::insert_noclone(): "
                 << "Tried to insert an empty smart pointer." << std::endl
             );
         }
-        return dataCnt_.insert(pos, std::move(itemPtr));
+        return data_cnt_.insert(pos, std::move(itemPtr));
     }
 
     /**
@@ -1170,27 +1220,27 @@ public:
      * @throws geneva_exception when @p itemPtr is null.
      * @note Only available for SharedPtrStorage.
      */
-    void insertNoclone(const_iterator pos, size_type count, StoredType itemPtr)
+    void insert_noclone(const_iterator pos, size_type count, StoredType itemPtr)
         requires(!std::same_as<StoredType, ValueType>)
     {
         if(not itemPtr) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GContainerT::insertNoclone(count): "
+                << "In GContainerT::insert_noclone(count): "
                 << "Tried to insert an empty smart pointer." << std::endl
             );
         }
-        std::size_t iterPos = static_cast<std::size_t>(pos - dataCnt_.begin());
+        std::size_t iterPos = static_cast<std::size_t>(pos - data_cnt_.begin());
         // Insert (count-1) clones
         for(std::size_t i = 0; i < count - 1; ++i) {
-            dataCnt_.insert(
-                dataCnt_.begin() + static_cast<difference_type>(iterPos),
+            data_cnt_.insert(
+                data_cnt_.begin() + static_cast<difference_type>(iterPos),
                 itemPtr->ValueType::template clone<ValueType>()
             );
         }
         // Insert the original
-        dataCnt_.insert(
-            dataCnt_.begin() + static_cast<difference_type>(iterPos),
+        data_cnt_.insert(
+            data_cnt_.begin() + static_cast<difference_type>(iterPos),
             std::move(itemPtr)
         );
     }
@@ -1210,23 +1260,24 @@ public:
      * @throws geneva_exception when growing and @p itemPtr is null.
      * @note Only available for SharedPtrStorage.
      */
-    void resizeClone(size_type amount, const StoredType &itemPtr)
+    void resize_clone(size_type amount, StoredType itemPtr)
         requires(!std::same_as<StoredType, ValueType>)
     {
-        std::size_t dataSize = dataCnt_.size();
+        std::size_t dataSize = data_cnt_.size();
         if(amount < dataSize) {
-            dataCnt_.resize(amount);
+            data_cnt_.resize(amount);
         }
         else if(amount > dataSize) {
             if(not itemPtr) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
-                    << "In GContainerT::resizeClone(): "
+                    << "In GContainerT::resize_clone(): "
                     << "Tried to clone an empty smart pointer." << std::endl
                 );
             }
+            data_cnt_.reserve(amount);
             for(std::size_t i = dataSize; i < amount; ++i) {
-                dataCnt_.push_back(itemPtr->ValueType::template clone<ValueType>());
+                data_cnt_.push_back(itemPtr->ValueType::template clone<ValueType>());
             }
         }
     }
@@ -1240,25 +1291,26 @@ public:
      * @throws geneva_exception when growing and @p itemPtr is null.
      * @note Only available for SharedPtrStorage.
      */
-    void resizeNoclone(size_type amount, StoredType itemPtr)
+    void resize_noclone(size_type amount, StoredType itemPtr)
         requires(!std::same_as<StoredType, ValueType>)
     {
-        std::size_t dataSize = dataCnt_.size();
+        std::size_t dataSize = data_cnt_.size();
         if(amount < dataSize) {
-            dataCnt_.resize(amount);
+            data_cnt_.resize(amount);
         }
         else if(amount > dataSize) {
             if(not itemPtr) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
-                    << "In GContainerT::resizeNoclone(): "
+                    << "In GContainerT::resize_noclone(): "
                     << "Tried to insert an empty smart pointer." << std::endl
                 );
             }
+            data_cnt_.reserve(amount);
             for(std::size_t i = dataSize; i < amount - 1; ++i) {
-                dataCnt_.push_back(itemPtr->ValueType::template clone<ValueType>());
+                data_cnt_.push_back(itemPtr->ValueType::template clone<ValueType>());
             }
-            dataCnt_.push_back(std::move(itemPtr));
+            data_cnt_.push_back(std::move(itemPtr));
         }
     }
 
@@ -1270,22 +1322,22 @@ public:
      * @param amount The desired number of elements.
      * @note Only available for SharedPtrStorage.
      */
-    void resizeEmpty(size_type amount)
+    void resize_empty(size_type amount)
         requires(!std::same_as<StoredType, ValueType>)
     {
-        std::size_t dataSize = dataCnt_.size();
+        std::size_t dataSize = data_cnt_.size();
         if(amount < dataSize) {
-            dataCnt_.resize(amount);
+            data_cnt_.resize(amount);
         }
         else {
             for(std::size_t i = dataSize; i < amount; ++i) {
-                dataCnt_.push_back(StoredType{});
+                data_cnt_.push_back(StoredType{});
             }
         }
     }
 
     // ------------------------------------------------------------------
-    // SharedPtrStorage-specific: cloneAt / attachViewTo / filteredView
+    // SharedPtrStorage-specific: clone_at / attachViewTo / filteredView
     // ------------------------------------------------------------------
 
     /**
@@ -1299,10 +1351,10 @@ public:
      * @note Only available for SharedPtrStorage.
      */
     template <typename TargetType = ValueType>
-    [[nodiscard]] std::shared_ptr<TargetType> cloneAt(std::size_t pos) const
+    [[nodiscard]] std::shared_ptr<TargetType> clone_at(std::size_t pos) const
         requires(!std::same_as<StoredType, ValueType>)
     {
-        return dataCnt_.at(pos)->ValueType::template clone<TargetType>();
+        return data_cnt_.at(pos)->ValueType::template clone<TargetType>();
     }
 
     /**
@@ -1319,7 +1371,7 @@ public:
     void attachViewTo(std::vector<std::shared_ptr<DerivedType>> &target)
         requires(!std::same_as<StoredType, ValueType>)
     {
-        for(auto &itemPtr : dataCnt_) {
+        for(auto &itemPtr : data_cnt_) {
             std::shared_ptr<DerivedType> cast = std::dynamic_pointer_cast<DerivedType>(itemPtr);
             if(cast) {
                 target.push_back(std::move(cast));
@@ -1345,7 +1397,7 @@ public:
     [[nodiscard]] auto filteredView()
         requires(!std::same_as<StoredType, ValueType>)
     {
-        return dataCnt_ | std::views::transform([](const StoredType &ptr) {
+        return data_cnt_ | std::views::transform([](const StoredType &ptr) {
             return std::dynamic_pointer_cast<DerivedType>(ptr);
         }) | std::views::filter([](const std::shared_ptr<DerivedType> &ptr) {
             return static_cast<bool>(ptr);
@@ -1364,7 +1416,7 @@ public:
     [[nodiscard]] auto filteredView() const
         requires(!std::same_as<StoredType, ValueType>)
     {
-        return dataCnt_ | std::views::transform([](const StoredType &ptr) {
+        return data_cnt_ | std::views::transform([](const StoredType &ptr) {
             return std::dynamic_pointer_cast<DerivedType>(ptr);
         }) | std::views::filter([](const std::shared_ptr<DerivedType> &ptr) {
             return static_cast<bool>(ptr);
@@ -1386,7 +1438,7 @@ public:
     void getDataCopy(ContainerType &cp) const
         requires std::same_as<StoredType, ValueType>
     {
-        cp = dataCnt_;
+        cp = data_cnt_;
     }
 
     /**
@@ -1402,7 +1454,7 @@ public:
         requires(!std::same_as<StoredType, ValueType>)
     {
         cp.clear();
-        for(const auto &item : dataCnt_) {
+        for(const auto &item : data_cnt_) {
             cp.push_back(item->ValueType::template clone<ValueType>());
         }
     }
@@ -1441,21 +1493,21 @@ public:
 #endif /* DEBUG */
 
         for(std::size_t i = pos; i < minSize; ++i) {
-            std::swap(dataCnt_[i], cp.dataCnt_[i]);
+            std::swap(data_cnt_[i], cp.data_cnt_[i]);
         }
 
         if(this->size() > cp.size()) {
             for(std::size_t i = cp.size(); i < this->size(); ++i) {
-                cp.dataCnt_.push_back(std::move(dataCnt_[i]));
+                cp.data_cnt_.push_back(std::move(data_cnt_[i]));
             }
-            dataCnt_.erase(dataCnt_.begin() + static_cast<difference_type>(minSize), dataCnt_.end());
+            data_cnt_.erase(data_cnt_.begin() + static_cast<difference_type>(minSize), data_cnt_.end());
         }
         else if(cp.size() > this->size()) {
             for(std::size_t i = this->size(); i < cp.size(); ++i) {
-                dataCnt_.push_back(std::move(cp.dataCnt_[i]));
+                data_cnt_.push_back(std::move(cp.data_cnt_[i]));
             }
-            cp.dataCnt_.erase(
-                cp.dataCnt_.begin() + static_cast<difference_type>(minSize), cp.dataCnt_.end()
+            cp.data_cnt_.erase(
+                cp.data_cnt_.begin() + static_cast<difference_type>(minSize), cp.data_cnt_.end()
             );
         }
     }
@@ -1471,13 +1523,13 @@ public:
      * @param limit The tolerance used for floating-point similarity checks.
      * @throws g_expectation_violation when the comparison result violates @p e.
      */
-    virtual void compareBase(
+    virtual void compare_base(
         const GContainerT &cp,
         Gem::Common::expectation e,
         double limit
     ) const {
         Gem::Common::GToken token("GContainerT", e);
-        Gem::Common::compare_t(IDENTITY(this->dataCnt_, cp.dataCnt_), token);
+        Gem::Common::compare_t(IDENTITY(this->data_cnt_, cp.data_cnt_), token);
         token.evaluate();
     }
 
@@ -1498,10 +1550,10 @@ public:
               && std::three_way_comparable<StoredType>
     {
         return std::lexicographical_compare_three_way(
-            dataCnt_.begin(),
-            dataCnt_.end(),
-            other.dataCnt_.begin(),
-            other.dataCnt_.end()
+            data_cnt_.begin(),
+            data_cnt_.end(),
+            other.data_cnt_.begin(),
+            other.data_cnt_.end()
         );
     }
 
@@ -1518,7 +1570,7 @@ protected:
      *
      * @return true if any modification was made, false otherwise.
      */
-    virtual bool modifyGUnitTests_() {
+    virtual bool modify_GUnitTests_() {
         return false;
     }
 
@@ -1527,16 +1579,16 @@ protected:
      *
      * Override in subclasses to add test logic that must succeed.
      */
-    virtual void specificTestsNoFailureExpectedGUnitTests_() {}
+    virtual void specificTestsNoFailureExpected_GUnitTests_() {}
 
     /**
      * @brief Runs self-tests that are expected to throw or trigger assertions.
      *
      * Override in subclasses to add test logic that must fail gracefully.
      */
-    virtual void specificTestsFailuresExpectedGUnitTests_() {}
+    virtual void specificTestsFailuresExpected_GUnitTests_() {}
 
-    ContainerType dataCnt_; ///< The underlying sequence container holding the data.
+    ContainerType data_cnt_; ///< The underlying sequence container holding the data.
 };
 
 /******************************************************************************/
@@ -1548,7 +1600,7 @@ protected:
  */
 template <typename T, typename StoragePolicy>
 inline GContainerT<T, StoragePolicy>::~GContainerT() {
-    dataCnt_.clear();
+    data_cnt_.clear();
 }
 
 /******************************************************************************/
@@ -1564,7 +1616,7 @@ inline GContainerT<T, StoragePolicy>::~GContainerT() {
  * @tparam Container The underlying sequence container. Defaults to std::vector<T>.
  */
 template <typename T, typename Container = std::vector<T>>
-using GPodContainer = GContainerT<T, PodStorage<T, Container>>;
+using GPodContainerT = GContainerT<T, PodStorage<T, Container>>;
 
 /**
  * @brief Convenience alias: a GContainerT for polymorphic Geneva objects
@@ -1577,7 +1629,7 @@ using GPodContainer = GContainerT<T, PodStorage<T, Container>>;
  *                   Defaults to std::vector<std::shared_ptr<T>>.
  */
 template <typename T, typename Container = std::vector<std::shared_ptr<T>>>
-using GPtrContainer = GContainerT<T, SharedPtrStorage<T, Container>>;
+using GPtrContainerT = GContainerT<T, SharedPtrStorage<T, Container>>;
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////

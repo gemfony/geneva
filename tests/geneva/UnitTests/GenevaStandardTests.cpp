@@ -65,7 +65,7 @@
 #include "geneva/G_OptimizationAlgorithm_SimulatedAnnealing_PersonalityTraits.hpp"
 #include "geneva/G_OptimizationAlgorithm_SwarmAlgorithm_PersonalityTraits.hpp"
 
-#include "geneva/tests/Geneva_tests.hpp"
+#include "Geneva_tests.hpp"
 
 using namespace Gem::Geneva;
 

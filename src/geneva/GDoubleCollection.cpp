@@ -545,8 +545,8 @@ void GDoubleCollection::specificTestsNoFailureExpected_GUnitTests_() {
 
             // Extract the data vectors from p_test1 and p_test3
             std::vector<double> data1, data3;
-            CHECK_NOTHROW(p_test1->Gem::Common::GPODVectorT<double>::getDataCopy(data1));
-            CHECK_NOTHROW(p_test3->Gem::Common::GPODVectorT<double>::getDataCopy(data3));
+            CHECK_NOTHROW(p_test1->Gem::Common::GPodContainerT<double>::getDataCopy(data1));
+            CHECK_NOTHROW(p_test3->Gem::Common::GPodContainerT<double>::getDataCopy(data3));
 
             // Now p_test1->data  and p_test3->data should be the same, while p_test2 differs from both
             CHECK(data1 == data3);
@@ -703,7 +703,7 @@ void GDoubleCollection::specificTestsNoFailureExpected_GUnitTests_() {
             dataCopy.push_back(0.);
 
         // Assign the vector to p_test1 and cross-check
-        CHECK_NOTHROW(p_test1->Gem::Common::GPODVectorT<double>::operator=(dataCopy));
+        CHECK_NOTHROW(p_test1->Gem::Common::GPodContainerT<double>::operator=(dataCopy));
         CHECK(p_test1->size() == 2 * nItems);
         CHECK(p_test1->count(0.) == 2 * nItems);
     }

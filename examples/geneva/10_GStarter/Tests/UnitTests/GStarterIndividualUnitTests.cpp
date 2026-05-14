@@ -37,7 +37,7 @@
 #include "../../GStarterIndividual.hpp"
 
 // Contains the necessary tests
-#include "geneva/tests/Geneva_tests.hpp"
+#include "Geneva_tests.hpp"
 
 using namespace Gem;
 using namespace Gem::Hap;
