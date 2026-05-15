@@ -75,6 +75,8 @@ Go2::Go2(
     gi_.registerOAF<GEvolutionaryAlgorithmFactory>();
     gi_.registerOAF<GSwarmAlgorithmFactory>();
     gi_.registerOAF<GGradientDescentFactory>();
+    gi_.registerOAF<GConjugateGradientDescentFactory>();
+    gi_.registerOAF<GNelderMeadFactory>();
     gi_.registerOAF<GSimulatedAnnealingFactory>();
     gi_.registerOAF<GParameterScanFactory>();
 

@@ -56,12 +56,18 @@ SET ( OPTIMIZATIONSOURCES
 	GInt32ObjectCollection.cpp
 	Go2.cpp
     G_OptimizationAlgorithm_Base.cpp
+    G_OptimizationAlgorithm_ConjugateGradientDescent.cpp
+    G_OptimizationAlgorithm_ConjugateGradientDescent_Factory.cpp
+    G_OptimizationAlgorithm_ConjugateGradientDescent_PersonalityTraits.cpp
     G_OptimizationAlgorithm_EvolutionaryAlgorithm.cpp
     G_OptimizationAlgorithm_EvolutionaryAlgorithm_Factory.cpp
     G_OptimizationAlgorithm_EvolutionaryAlgorithm_PersonalityTraits.cpp
     G_OptimizationAlgorithm_GradientDescent.cpp
     G_OptimizationAlgorithm_GradientDescent_Factory.cpp
     G_OptimizationAlgorithm_GradientDescent_PersonalityTraits.cpp
+    G_OptimizationAlgorithm_NelderMead.cpp
+    G_OptimizationAlgorithm_NelderMead_Factory.cpp
+    G_OptimizationAlgorithm_NelderMead_PersonalityTraits.cpp
     G_OptimizationAlgorithm_ParChild.cpp
     G_OptimizationAlgorithm_ParChildT_PersonalityTraits.cpp
     G_OptimizationAlgorithm_ParameterScan.cpp

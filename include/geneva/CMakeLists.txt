@@ -51,12 +51,18 @@ SET ( OPTIMIZATIONINCLUDES
 	GNumIntT.hpp
 	GNumT.hpp
     G_OptimizationAlgorithm_Base.hpp
+    G_OptimizationAlgorithm_ConjugateGradientDescent.hpp
+    G_OptimizationAlgorithm_ConjugateGradientDescent_Factory.hpp
+    G_OptimizationAlgorithm_ConjugateGradientDescent_PersonalityTraits.hpp
     G_OptimizationAlgorithm_EvolutionaryAlgorithm.hpp
     G_OptimizationAlgorithm_EvolutionaryAlgorithm_Factory.hpp
     G_OptimizationAlgorithm_EvolutionaryAlgorithm_PersonalityTraits.hpp
     G_OptimizationAlgorithm_GradientDescent.hpp
     G_OptimizationAlgorithm_GradientDescent_Factory.hpp
     G_OptimizationAlgorithm_GradientDescent_PersonalityTraits.hpp
+    G_OptimizationAlgorithm_NelderMead.hpp
+    G_OptimizationAlgorithm_NelderMead_Factory.hpp
+    G_OptimizationAlgorithm_NelderMead_PersonalityTraits.hpp
     G_OptimizationAlgorithm_ParChild.hpp
     G_OptimizationAlgorithm_ParameterScan.hpp
     G_OptimizationAlgorithm_ParameterScan_Factory.hpp
