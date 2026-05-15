@@ -129,7 +129,7 @@ public:
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GParameterBaseWithAdaptorsT<T>::addAdaptor()" << std::endl
-                << "Found no local adaptor. This should not happennot " << std::endl
+                << "Found no local adaptor. This should not happen." << std::endl
             );
         }
     }
