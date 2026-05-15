@@ -34,6 +34,7 @@
 
 // Standard header files go here
 #include <iostream>
+#include <mutex>
 #include <sstream>
 #include <string>
 
@@ -119,14 +120,46 @@ public:
     }
 
     /***************************************************************************/
-    // Defaulted functions / rule of five
+    // Rule of five. The init_mutex_ data member (added to fix the M10
+    // thread-safety finding) is not copy- or move-constructible, so the
+    // implicitly-defaulted copy/move ops are deleted. We provide user-defined
+    // versions that copy/move every other member and leave init_mutex_ as a
+    // freshly default-constructed instance in the new object — the standard
+    // pattern for classes that carry a synchronisation primitive.
 
-    GFactoryT(const GFactoryT<prod_type> &cp) = default;
-    GFactoryT(GFactoryT<prod_type> &&cp) noexcept = default;
+    GFactoryT(const GFactoryT<prod_type> &cp)
+      : config_path_(cp.config_path_)
+      , id_(cp.id_)
+      , initialized_(cp.initialized_)
+      , init_mutex_() {}
+
+    GFactoryT(GFactoryT<prod_type> &&cp) noexcept
+      : config_path_(std::move(cp.config_path_))
+      , id_(cp.id_)
+      , initialized_(cp.initialized_)
+      , init_mutex_() {}
+
     virtual ~GFactoryT() = default;
 
-    GFactoryT<prod_type> &operator=(GFactoryT<prod_type> const &) = default;
-    GFactoryT<prod_type> &operator=(GFactoryT<prod_type> &&) noexcept = default;
+    GFactoryT<prod_type> &operator=(GFactoryT<prod_type> const &cp) {
+        if(this != &cp) {
+            config_path_ = cp.config_path_;
+            id_          = cp.id_;
+            initialized_ = cp.initialized_;
+            // init_mutex_ deliberately not copied: synchronisation primitives
+            // do not carry over with the logical value of the object.
+        }
+        return *this;
+    }
+
+    GFactoryT<prod_type> &operator=(GFactoryT<prod_type> &&cp) noexcept {
+        if(this != &cp) {
+            config_path_ = std::move(cp.config_path_);
+            id_          = cp.id_;
+            initialized_ = cp.initialized_;
+        }
+        return *this;
+    }
 
     /***************************************************************************/
     /**
@@ -328,12 +361,19 @@ private:
     /**
 	  * Performs necessary global initialization work. This function is meant for
 	  * initialization work performed just prior to the creation of the first
-	  * item. It will do nothing when called more than once. All real work is done
-	  * in the "init_()" function, which may be overloaded by the user.
+	  * item. It will do nothing when called more than once — thread-safely
+	  * gated via init_mutex_. All real work is done in the "init_()" function,
+	  * which may be overloaded by the user.
+	  *
+	  * Note on serialisation: @c initialized_ is part of the serialised state,
+	  * so a deserialised factory may already be flagged as initialised. The
+	  * mutex-guarded check below correctly skips a second init in that case.
+	  * (A std::once_flag would not work here because it cannot be serialised
+	  * and a fresh post-load flag would re-run init_().)
 	  */
     void globalInit() {
+        std::scoped_lock lk(init_mutex_);
         if(not initialized_) {
-            // Perform the user-defined initialization work
             this->init_();
             initialized_ = true;
         }
@@ -350,6 +390,7 @@ private:
     std::size_t id_ =
         GFACTTORYFIRSTID;       ///< The id/number of the individual currently being created
     bool initialized_ = false; ///< Indicates whether the initialization work has already been done
+    mutable std::mutex init_mutex_; ///< Serialises concurrent first calls to globalInit()
 };
 
 /******************************************************************************/

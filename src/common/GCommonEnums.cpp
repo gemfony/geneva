@@ -120,6 +120,13 @@ std::ostream &operator<<(std::ostream &o, Gem::Common::tribool const &x) {
     case Gem::Common::tribool::True:          o << "True";          break;
     case Gem::Common::tribool::False:         o << "False";         break;
     case Gem::Common::tribool::Indeterminate: o << "Indeterminate"; break;
+    default:
+        // Guard against corrupted-stream deserialisation (>> casts any
+        // ENUMBASETYPE to tribool without validation). Without this arm
+        // the stream would be left untouched, silently producing empty
+        // output instead of a diagnostic.
+        o << "tribool::?(" << static_cast<Gem::Common::ENUMBASETYPE>(x) << ")";
+        break;
     }
     return o;
 }

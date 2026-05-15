@@ -2239,18 +2239,13 @@ public:
         std::shared_ptr<GFileSingleParsableParameterT<parameter_type>> singleParm_ptr;
 
         if(comment.empty()) {
-            singleParm_ptr = std::shared_ptr<GFileSingleParsableParameterT<parameter_type>>(
-                new GFileSingleParsableParameterT<parameter_type>(optionName, def_val)
+            singleParm_ptr = std::make_shared<GFileSingleParsableParameterT<parameter_type>>(
+                optionName, def_val
             );
         }
         else {
-            singleParm_ptr = std::shared_ptr<GFileSingleParsableParameterT<parameter_type>>(
-                new GFileSingleParsableParameterT<parameter_type>(
-                    optionName,
-                    comment,
-                    isEssential,
-                    def_val
-                )
+            singleParm_ptr = std::make_shared<GFileSingleParsableParameterT<parameter_type>>(
+                optionName, comment, isEssential, def_val
             );
         }
 
@@ -2299,14 +2294,13 @@ public:
         std::shared_ptr<GFileReferenceParsableParameterT<parameter_type>> refParm_ptr;
 
         if(comment.empty()) {
-            refParm_ptr = std::shared_ptr<GFileReferenceParsableParameterT<parameter_type>>(
-                new GFileReferenceParsableParameterT<parameter_type>(parameter, optionName, def_val)
+            refParm_ptr = std::make_shared<GFileReferenceParsableParameterT<parameter_type>>(
+                parameter, optionName, def_val
             );
         }
         else {
-            refParm_ptr = std::shared_ptr<GFileReferenceParsableParameterT<parameter_type>>(
-                new GFileReferenceParsableParameterT<
-                    parameter_type>(parameter, optionName, comment, isEssential, def_val)
+            refParm_ptr = std::make_shared<GFileReferenceParsableParameterT<parameter_type>>(
+                parameter, optionName, comment, isEssential, def_val
             );
         }
 
@@ -2382,28 +2376,14 @@ public:
         std::shared_ptr<GFileCombinedParsableParameterT<par_type1, par_type2>> combParm_ptr;
 
         if(comment1.empty() && comment2.empty()) {
-            combParm_ptr = std::shared_ptr<GFileCombinedParsableParameterT<par_type1, par_type2>>(
-                new GFileCombinedParsableParameterT<par_type1, par_type2>(
-                    optionName1,
-                    def_val1,
-                    optionName2,
-                    def_val2,
-                    combined_label
-                )
+            combParm_ptr = std::make_shared<GFileCombinedParsableParameterT<par_type1, par_type2>>(
+                optionName1, def_val1, optionName2, def_val2, combined_label
             );
         }
         else {
-            combParm_ptr = std::shared_ptr<GFileCombinedParsableParameterT<par_type1, par_type2>>(
-                new GFileCombinedParsableParameterT<par_type1, par_type2>(
-                    optionName1,
-                    comment1,
-                    def_val1,
-                    optionName2,
-                    comment2,
-                    def_val2,
-                    isEssential,
-                    combined_label
-                )
+            combParm_ptr = std::make_shared<GFileCombinedParsableParameterT<par_type1, par_type2>>(
+                optionName1, comment1, def_val1, optionName2, comment2, def_val2,
+                isEssential, combined_label
             );
         }
 
@@ -2481,18 +2461,13 @@ public:
         std::shared_ptr<GFileVectorParsableParameterT<parameter_type>> vecParm_ptr;
 
         if(comment.empty()) {
-            vecParm_ptr = std::shared_ptr<GFileVectorParsableParameterT<parameter_type>>(
-                new GFileVectorParsableParameterT<parameter_type>(optionName, def_val)
+            vecParm_ptr = std::make_shared<GFileVectorParsableParameterT<parameter_type>>(
+                optionName, def_val
             );
         }
         else {
-            vecParm_ptr = std::shared_ptr<GFileVectorParsableParameterT<parameter_type>>(
-                new GFileVectorParsableParameterT<parameter_type>(
-                    optionName,
-                    comment,
-                    def_val,
-                    isEssential
-                )
+            vecParm_ptr = std::make_shared<GFileVectorParsableParameterT<parameter_type>>(
+                optionName, comment, def_val, isEssential
             );
         }
 
@@ -2537,19 +2512,14 @@ public:
 
         if(comment.empty()) {
             vecRefParm_ptr =
-                std::shared_ptr<GFileVectorReferenceParsableParameterT<parameter_type>>(
-                    new GFileVectorReferenceParsableParameterT<parameter_type>(
-                        stored_reference,
-                        optionName,
-                        def_val
-                    )
+                std::make_shared<GFileVectorReferenceParsableParameterT<parameter_type>>(
+                    stored_reference, optionName, def_val
                 );
         }
         else {
             vecRefParm_ptr =
-                std::shared_ptr<GFileVectorReferenceParsableParameterT<parameter_type>>(
-                    new GFileVectorReferenceParsableParameterT<
-                        parameter_type>(stored_reference, optionName, comment, def_val, isEssential)
+                std::make_shared<GFileVectorReferenceParsableParameterT<parameter_type>>(
+                    stored_reference, optionName, comment, def_val, isEssential
                 );
         }
 
@@ -2625,18 +2595,13 @@ public:
         std::shared_ptr<GFileArrayParsableParameterT<parameter_type, N>> arrayParm_ptr;
 
         if(comment.empty()) {
-            arrayParm_ptr = std::shared_ptr<GFileArrayParsableParameterT<parameter_type, N>>(
-                new GFileArrayParsableParameterT<parameter_type, N>(optionName, def_val)
+            arrayParm_ptr = std::make_shared<GFileArrayParsableParameterT<parameter_type, N>>(
+                optionName, def_val
             );
         }
         else {
-            arrayParm_ptr = std::shared_ptr<GFileArrayParsableParameterT<parameter_type, N>>(
-                new GFileArrayParsableParameterT<parameter_type, N>(
-                    optionName,
-                    comment,
-                    def_val,
-                    isEssential
-                )
+            arrayParm_ptr = std::make_shared<GFileArrayParsableParameterT<parameter_type, N>>(
+                optionName, comment, def_val, isEssential
             );
         }
 
@@ -2682,24 +2647,14 @@ public:
         std::shared_ptr<GFileArrayReferenceParsableParameterT<parameter_type, N>> arrayRefParm_ptr;
         if(comment.empty()) {
             arrayRefParm_ptr =
-                std::shared_ptr<GFileArrayReferenceParsableParameterT<parameter_type, N>>(
-                    new GFileArrayReferenceParsableParameterT<parameter_type, N>(
-                        stored_reference,
-                        optionName,
-                        def_val
-                    )
+                std::make_shared<GFileArrayReferenceParsableParameterT<parameter_type, N>>(
+                    stored_reference, optionName, def_val
                 );
         }
         else {
             arrayRefParm_ptr =
-                std::shared_ptr<GFileArrayReferenceParsableParameterT<parameter_type, N>>(
-                    new GFileArrayReferenceParsableParameterT<parameter_type, N>(
-                        stored_reference,
-                        optionName,
-                        comment,
-                        def_val,
-                        isEssential
-                    )
+                std::make_shared<GFileArrayReferenceParsableParameterT<parameter_type, N>>(
+                    stored_reference, optionName, comment, def_val, isEssential
                 );
         }
 
@@ -2781,21 +2736,13 @@ public:
         std::shared_ptr<GCLReferenceParsableParameterT<parameter_type>> refParm_ptr;
 
         if(comment.empty()) {
-            refParm_ptr = std::shared_ptr<GCLReferenceParsableParameterT<parameter_type>>(
-                new GCLReferenceParsableParameterT<
-                    parameter_type>(parameter, optionName, def_val, implicitAllowed, impl_val)
+            refParm_ptr = std::make_shared<GCLReferenceParsableParameterT<parameter_type>>(
+                parameter, optionName, def_val, implicitAllowed, impl_val
             );
         }
         else {
-            refParm_ptr = std::shared_ptr<GCLReferenceParsableParameterT<parameter_type>>(
-                new GCLReferenceParsableParameterT<parameter_type>(
-                    parameter,
-                    optionName,
-                    comment,
-                    def_val,
-                    implicitAllowed,
-                    impl_val
-                )
+            refParm_ptr = std::make_shared<GCLReferenceParsableParameterT<parameter_type>>(
+                parameter, optionName, comment, def_val, implicitAllowed, impl_val
             );
         }
 

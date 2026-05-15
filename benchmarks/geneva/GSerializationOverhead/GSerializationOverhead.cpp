@@ -64,7 +64,8 @@ using namespace Gem::Tests;
 int main(int argc, char **argv) {
     std::string caption =
         "Times for adaption and serialization (" + Gem::Common::to_string(NMEASUREMENTS) +
-        " measurements each; serialization in " + serializationModeToString(DEFAULTSERMODE) + ")";
+        " measurements each; serialization in " +
+        std::string(serializationModeToString(DEFAULTSERMODE)) + ")";
     GPlotDesigner gpd(caption, 2, NPERFOBJECTTYPES);
 
     std::shared_ptr<GGraph2D> gdo_adapt_ptr(new GGraph2D());

@@ -542,10 +542,16 @@ protected:
 
     /***************************************************************************/
     /**
-         * Checks whether value new_item is better than value old_item
+         * Checks whether value new_item is *strictly* better than value old_item.
+         *
+         * Both branches use a strict comparison (`<` / `>`) so the ordering is
+         * symmetric: equal values are never reported as "better", regardless of
+         * sort direction. The previous LOWERISBETTER branch used `<=`, which
+         * treated equality as "better" only for one direction — making
+         * incumbent-replacement behave differently for the two sort orders.
          */
     bool isBetter(double new_item_val, double old_item_val) const {
-        return (sortOrder_ == sortOrder::LOWERISBETTER) ? (new_item_val <= old_item_val)
+        return (sortOrder_ == sortOrder::LOWERISBETTER) ? (new_item_val < old_item_val)
                                                           : (new_item_val > old_item_val);
     }
 

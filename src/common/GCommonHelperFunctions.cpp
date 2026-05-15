@@ -257,30 +257,6 @@ int runExternalCommand(
 
 /******************************************************************************/
 /**
- * Returns a string for a given serialization mode
- *
- * @param s The serialization mode which should be translated to a string
- * @return A string for a given serialization mode
- */
-std::string serializationModeToString(serializationMode s) {
-    switch(s) {
-    case Gem::Common::serializationMode::TEXT:
-        return std::string("text mode");
-        break;
-    case Gem::Common::serializationMode::XML:
-        return std::string("XML mode");
-        break;
-    case Gem::Common::serializationMode::BINARY:
-        return std::string("binary mode");
-        break;
-    }
-
-    // Make the compiler happy
-    return std::string("");
-}
-
-/******************************************************************************/
-/**
  * Splits a string into a vector of strings, according to a seperator character.
  * Any trailing or leading white spaces are removed from the result strings.
  *

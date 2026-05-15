@@ -52,6 +52,7 @@
 #include <cmath>
 #include <iostream>
 #include <map>
+#include <numbers>
 #include <stack>
 #include <string>
 #include <type_traits>
@@ -73,7 +74,6 @@
 #include <boost/spirit/include/qi_numeric.hpp>
 #include <boost/spirit/include/qi_operator.hpp>
 #include <boost/spirit/include/qi_string.hpp>
-#include <regex>
 
 // Geneva headers go here
 #include "common/GCommonHelperFunctionsT.hpp"
@@ -97,8 +97,9 @@ class math_logic_error : public geneva_exception {
 public:
     /** @brief The default constructor: Intentionally deleted */
     math_logic_error() = delete;
-    /** @brief The standard constructor */
-    explicit math_logic_error(std::string const &) noexcept;
+    /** @brief The standard constructor. NOT noexcept: the base
+     *  geneva_exception(std::string) may allocate / throw bad_alloc. */
+    explicit math_logic_error(std::string const &);
 
     /**************************************************************************/
     // Defaulted functions, constructors and destructor; rule of five
@@ -119,8 +120,9 @@ public:
  */
 class division_by_0 : public math_logic_error {
 public:
-    /** @brief The default constructor */
-    division_by_0() noexcept;
+    /** @brief The default constructor. NOT noexcept: the base
+     *  math_logic_error ctor stores a std::string and may allocate. */
+    division_by_0();
 
     /**************************************************************************/
     // Defaulted functions, constructors and destructor; rule of five
@@ -146,7 +148,7 @@ public:
     acos_invalid_range() = delete;
 
     /** @brief The standard constructor */
-    explicit acos_invalid_range(const fp_type &val) noexcept
+    explicit acos_invalid_range(const fp_type &val)
       : math_logic_error(
             std::string("acos: Value ") + Gem::Common::to_string(val) +
             std::string(" out of valid range [-1:1] in GFormulaParserT")
@@ -176,7 +178,7 @@ public:
     /** @brief The default constructor: Intentionally deleted */
     asin_invalid_range() = delete;
     /** @brief The standard constructor */
-    explicit asin_invalid_range(const fp_type &val) noexcept
+    explicit asin_invalid_range(const fp_type &val)
       : math_logic_error(
             std::string("asin: Value ") + Gem::Common::to_string(val) +
             std::string(" out of valid range [-1:1] in GFormulaParserT")
@@ -207,7 +209,7 @@ public:
     /** @brief The default constructor: Intentionally deleted */
     log_negative_value() = delete;
     /** @brief The standard constructor */
-    explicit log_negative_value(const fp_type &val) noexcept
+    explicit log_negative_value(const fp_type &val)
       : math_logic_error(
             std::string("log: Value ") + Gem::Common::to_string(val) +
             std::string(" <= 0 in GFormulaParserT")
@@ -237,7 +239,7 @@ public:
     /** @brief The default constructor: Intentionally deleted */
     log10_negative_value() = delete;
     /** @brief The standard constructor */
-    explicit log10_negative_value(const fp_type &val) noexcept
+    explicit log10_negative_value(const fp_type &val)
       : math_logic_error(
             std::string("log10: Value ") + Gem::Common::to_string(val) +
             std::string(" <= 0  in GFormulaParserT")
@@ -472,10 +474,11 @@ public:
         using boost::spirit::qi::on_error;
 
         //---------------------------------------------------------------------------
-        // Define a number of mathematical constants
-        constants_.add("e", static_cast<fp_type>(2.718281828459045235360287471352L))(
-            "pi",
-            static_cast<fp_type>(3.141592653589793238462643383280L)
+        // Define a number of mathematical constants. std::numbers (C++20)
+        // provides type-correct values for `fp_type` without hand-rolled
+        // literal precision.
+        constants_.add("e", std::numbers::e_v<fp_type>)(
+            "pi", std::numbers::pi_v<fp_type>
         );
 
         // Add user-defined constants
@@ -741,41 +744,53 @@ private:
 	 * @param vm A std::map of name-value pairs, holding place-holders to be replaced with values
 	 */
     std::string replacePlaceHolders(const parameter_map &vm) const {
+        // The placeholders are literal text — "{{key}}" or "{{key[index]}}" —
+        // so std::regex is overkill: it incurs a per-call NFA build that
+        // dominated the hot path. Replace with plain std::string::find /
+        // replace; behaviour is identical because no metacharacters appear
+        // in keys (parameters are identifiers).
         std::string formula = raw_formula_;
-        std::string key, value;      // NOLINT(cppcoreguidelines-init-variables)
-        std::regex re; // NOLINT(cppcoreguidelines-init-variables)
-
-        typename parameter_map::const_iterator cit;
-        for(cit = vm.begin(); cit != vm.end(); ++cit) {
-            key = cit->first;
-
-            if(1 == (cit->second).size()) { // Try just the key
-                value = Gem::Common::to_string((cit->second).at(0));
-                re = std::regex("\\{\\{" + key + "\\}\\}");
-                formula = std::regex_replace(formula, re, value);
-            }
-            else if((cit->second).size() >
-                    1) { // Try key[0], key[1] --> you may use formulas with place holders sin({{x[2]}})
-                std::size_t cnt = 0;
-                typename std::vector<fp_type>::const_iterator v_cit;
-                for(v_cit = (cit->second).begin(); v_cit != (cit->second).end(); ++v_cit) {
-                    value = Gem::Common::to_string(*v_cit);
-                    re = std::regex(
-                        "\\{\\{" + key + "\\[" + Gem::Common::to_string(cnt++) + "\\]" + "\\}\\}"
-                    );
-                    formula = std::regex_replace(formula, re, value);
-                }
-            }
-            else { // The vector is empty
+        for(auto const &[key, vals] : vm) {
+            if(vals.empty()) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
                     << "In GFormulaParserT::replacePlaceHolders(): Error!" << std::endl
                     << "Vector is empty!" << std::endl
                 );
             }
+            if(vals.size() == 1) {
+                const std::string needle = "{{" + key + "}}";
+                const std::string value = Gem::Common::to_string(vals.front());
+                replace_all_literal(formula, needle, value);
+            }
+            else { // key[0], key[1], … placeholders
+                for(std::size_t i = 0; i < vals.size(); ++i) {
+                    const std::string needle =
+                        "{{" + key + "[" + Gem::Common::to_string(i) + "]}}";
+                    const std::string value = Gem::Common::to_string(vals.at(i));
+                    replace_all_literal(formula, needle, value);
+                }
+            }
         }
-
         return formula;
+    }
+
+    /***************************************************************************/
+    /**
+	 * In-place replace-all helper for literal substrings. Used by
+	 * replacePlaceHolders to avoid per-call std::regex compilation.
+	 */
+    static void replace_all_literal(
+        std::string &haystack,
+        std::string_view needle,
+        std::string_view value
+    ) {
+        if(needle.empty()) return;
+        std::size_t pos = 0;
+        while((pos = haystack.find(needle, pos)) != std::string::npos) {
+            haystack.replace(pos, needle.size(), value);
+            pos += value.size();
+        }
     }
 
     /***************************************************************************/
@@ -950,6 +965,15 @@ private:
                 break;
 
             case byte_code::op_fp:
+                if(stack_ptr_ == stack_.end()) {
+                    throw geneva_exception(
+                        g_error_streamer(DO_LOG, time_and_place)
+                        << "In GFormulaParserT<fp_type>::execute(): Error!" << std::endl
+                        << "Evaluation stack overflow (depth limit "
+                        << stack_.size() << " exceeded). The formula is too "
+                           "deeply nested or the byte-code is corrupted." << std::endl
+                    );
+                }
                 *stack_ptr_++ = std::get<fp_type>(*code_ptr++);
                 break;
 

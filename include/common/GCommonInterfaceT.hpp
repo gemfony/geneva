@@ -472,7 +472,13 @@ protected:
     GCommonInterfaceT() = default;
     GCommonInterfaceT(const GCommonInterfaceT<g_class_type> &cp) = default;
     GCommonInterfaceT(GCommonInterfaceT<g_class_type> &&cp) = default;
-    ~GCommonInterfaceT() = default;
+    // virtual destructor: the class is a polymorphic base (has virtual
+    // load_/compare_/name_/clone_). `protected` already prevents
+    // `delete pBase;` from outside, but any friend or sibling that
+    // obtained a base pointer would still hit UB on delete-through-base
+    // without virtual dispatch. Costs nothing and makes the contract
+    // explicit.
+    virtual ~GCommonInterfaceT() = default;
 
     GCommonInterfaceT<g_class_type> &operator=(GCommonInterfaceT<g_class_type> const &) = default;
     GCommonInterfaceT<g_class_type> &operator=(GCommonInterfaceT<g_class_type> &&) = default;

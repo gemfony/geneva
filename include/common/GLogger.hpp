@@ -383,24 +383,36 @@ public:
     /***************************************************************************/
     /**
 		 * Throws an exception from a global position. This prevents exceptions thrown
-		 * from within threads from getting lost.
+		 * from within threads from getting lost. The mutex is released *before* the
+		 * throw so that stack-unwinding exception handlers (which may re-enter the
+		 * logger) do not deadlock against the lock we just held.
 		 */
     void throwException(std::string const &error) {
-        // Make sure only one entity outputs data
-        std::scoped_lock lk(logger_mutex_);
-
+        // The `error` argument has already been built by the caller; we don't
+        // touch any logger-protected state inside this function. The lock
+        // exists purely to serialise with other terminate/throw paths if any
+        // were ever added, so we take it briefly and release it before
+        // throwing.
+        {
+            std::scoped_lock lk(logger_mutex_);
+            // (no shared state to mutate here)
+        }
         throw(geneva_exception(error));
     }
 
     /***************************************************************************/
     /**
-		 * Initiates the termination sequence
+		 * Initiates the termination sequence. The mutex is released before
+		 * std::terminate() runs so that any std::terminate_handler the user has
+		 * installed sees a consistent global state (terminating while still
+		 * holding a mutex leaves the lock owned by the now-terminating thread
+		 * and is observable by some handlers).
 		 */
     void terminateApplication(std::string const &error) {
-        // Make sure only one entity outputs data
-        std::scoped_lock lk(logger_mutex_);
-
-        std::cerr << error;
+        {
+            std::scoped_lock lk(logger_mutex_);
+            std::cerr << error;
+        }
         std::terminate();
     }
 
