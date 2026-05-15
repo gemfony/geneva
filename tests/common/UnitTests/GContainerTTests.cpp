@@ -934,6 +934,105 @@ TEST_CASE("GContainerT: GPtrContainerT<TestBase> with std::vector backend", "[GC
         CHECK_THROWS_AS(c.insert_noclone(c.begin(), null), geneva_exception);
     }
 
+    SECTION("insertClone — count, mid-position contiguity") {
+        // Verifies that the count-overload pre-builds the inserted range and
+        // produces `count` independent clones contiguously at the insertion
+        // position. Would fail if the implementation re-used a stale offset
+        // and ended up shifting later clones outside the target window.
+        ConcretePtrVec c;
+        c.push_back_noclone(std::make_shared<TestBase>(0));
+        c.push_back_noclone(std::make_shared<TestBase>(9));
+        auto item = std::make_shared<TestBase>(5);
+
+        c.insert_clone(c.begin() + 1, 3u, item);
+
+        REQUIRE(c.size() == 5u);
+        CHECK(c[0]->val == 0);
+        CHECK(c[1]->val == 5);
+        CHECK(c[2]->val == 5);
+        CHECK(c[3]->val == 5);
+        CHECK(c[4]->val == 9);
+
+        // No clone aliases the prototype; mutating the prototype must not
+        // bleed into the container.
+        for(std::size_t i = 1; i <= 3; ++i) {
+            CHECK(c[i].get() != item.get());
+        }
+        item->val = 42;
+        CHECK(c[1]->val == 5);
+        CHECK(c[2]->val == 5);
+        CHECK(c[3]->val == 5);
+    }
+
+    SECTION("insertClone — count == 0 is a no-op") {
+        // Regression guard: a count of 0 must leave the container unchanged.
+        ConcretePtrVec c;
+        c.push_back_noclone(std::make_shared<TestBase>(1));
+        c.push_back_noclone(std::make_shared<TestBase>(2));
+        auto item = std::make_shared<TestBase>(99);
+        const std::size_t before = c.size();
+
+        CHECK_NOTHROW(c.insert_clone(c.begin() + 1, std::size_t(0), item));
+
+        CHECK(c.size() == before);
+        CHECK(c[0]->val == 1);
+        CHECK(c[1]->val == 2);
+    }
+
+    SECTION("insertNoclone — count, original at pos, clones after") {
+        // Pins down the contract: the user-supplied `item` ends up at exactly
+        // `pos`, followed by (count - 1) independent clones, with the prior
+        // element shifted right by `count`.
+        ConcretePtrVec c;
+        c.push_back_noclone(std::make_shared<TestBase>(0));
+        c.push_back_noclone(std::make_shared<TestBase>(9));
+        auto item = std::make_shared<TestBase>(7);
+
+        c.insert_noclone(c.begin() + 1, 3u, item);
+
+        REQUIRE(c.size() == 5u);
+        // Same address as `item` appears exactly once, and at the insertion position.
+        CHECK(c[1].get() == item.get());
+        std::size_t same_addr = 0;
+        for(std::size_t i = 0; i < c.size(); ++i) {
+            if(c[i].get() == item.get()) ++same_addr;
+        }
+        CHECK(same_addr == 1u);
+        // All inserted slots compare equal by value; the trailing original is preserved.
+        CHECK(c[0]->val == 0);
+        CHECK(c[1]->val == 7);
+        CHECK(c[2]->val == 7);
+        CHECK(c[3]->val == 7);
+        CHECK(c[4]->val == 9);
+    }
+
+    SECTION("insertNoclone — count == 0 is a no-op") {
+        // Regression guard for the previous `count - 1` unsigned underflow:
+        // before the fix, this would loop indefinitely / exhaust memory.
+        ConcretePtrVec c;
+        c.push_back_noclone(std::make_shared<TestBase>(1));
+        c.push_back_noclone(std::make_shared<TestBase>(2));
+        auto item = std::make_shared<TestBase>(99);
+        const std::size_t before = c.size();
+
+        CHECK_NOTHROW(c.insert_noclone(c.begin() + 1, std::size_t(0), item));
+
+        CHECK(c.size() == before);
+        CHECK(c[0]->val == 1);
+        CHECK(c[1]->val == 2);
+        // `item` must NOT have been inserted into the container.
+        for(std::size_t i = 0; i < c.size(); ++i) {
+            CHECK(c[i].get() != item.get());
+        }
+    }
+
+    SECTION("insertNoclone count — null pointer throws") {
+        ConcretePtrVec c;
+        c.push_back_noclone(std::make_shared<TestBase>(1));
+        std::shared_ptr<TestBase> null;
+        CHECK_THROWS_AS(c.insert_noclone(c.begin(), 2u, null), geneva_exception);
+    }
+
     SECTION("resizeClone") {
         ConcretePtrVec c;
         auto item = std::make_shared<TestBase>(7);

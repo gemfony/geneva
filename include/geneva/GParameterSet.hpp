@@ -161,7 +161,7 @@ private:
 
     double raw_fitness_ = 0.; ///< The fitness as it comes out of the fitnessCalculation() function
     double transformed_fitness_ =
-        raw_fitness_; ///< The fitness as calculated from raw_fitness_ through
+        0.; ///< The fitness as calculated from raw_fitness_ through
     bool transformed_fitness_set_ =
         false; ///< Indicates whether a suitable transformed_fitness_ value is available
 };

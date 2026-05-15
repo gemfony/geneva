@@ -44,6 +44,7 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard headers go here
+#include <atomic>
 #include <iostream>
 #include <memory>
 #include <mutex>
@@ -102,29 +103,45 @@ public:
 	  * @param mode Determines the mode in which this function is called
 	  */
     static std::shared_ptr<T> Instance(const std::size_t &mode) {
-        static std::shared_ptr<T> p;
+        // The atomic guarantees that the unlocked first check below is a
+        // well-defined load instead of a data race against the writes in the
+        // locked init path and in case 1's reset.
+        static std::atomic<std::shared_ptr<T>> p;
         static std::mutex creation_mutex;
 
         switch(mode) {
-        case 0:
-            // Several callers can reach the next line simultaneously. Hence, if
-            // p is empty, we need to ask again if it is empty after we have acquired the lock
-            if(not p) {
-                // Prevent concurrent "first" access
-                std::unique_lock<std::mutex> lk(creation_mutex);
-                if(not p)
-                    p = Gem::Common::TFactory_GSingletonT<T>();
+        case 0: {
+            // Load once into a local. An implicit `if(not p)` on the atomic
+            // would construct-and-destroy a temporary shared_ptr (extra
+            // refcount round-trip) on every check; loading into `sp` once
+            // covers both checks and the return.
+            auto sp = p.load();
+            if(not sp) {
+                // Prevent concurrent "first" access. Re-check under the lock:
+                // another thread may have completed the initialisation between
+                // our unlocked load and our acquisition of the mutex.
+                std::scoped_lock lk(creation_mutex);
+                sp = p.load();
+                if(not sp) {
+                    sp = Gem::Common::TFactory_GSingletonT<T>();
+                    p.store(sp);
+                }
             }
-
-            return p;
-            break;
-
-        case 1:
-            p.reset();
-            break;
+            return sp;
         }
 
-        return std::shared_ptr<T>(); // Make the compiler happy
+        case 1: {
+            // Reset must be ordered against any in-flight case-0 initialiser:
+            // without this lock, an initialiser could store the freshly-built
+            // singleton AFTER our reset, silently undoing it.
+            std::scoped_lock lk(creation_mutex);
+            p.store(nullptr);
+            return std::shared_ptr<T>{};
+        }
+
+        default:
+            return std::shared_ptr<T>{};
+        }
     }
 
     /***************************************************************************/

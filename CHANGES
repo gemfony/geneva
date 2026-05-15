@@ -566,6 +566,93 @@ Recommended Versions:
     GenevaStandardTests.cpp and GStarterIndividualUnitTests.cpp updated to
     include it from the new location via TARGET_INCLUDE_DIRECTORIES.
 
+- HIGH-severity bug fixes in the Common library identified by the
+  2026-05-15 review (prompts/2026-05-15-common-library-review.md). Four
+  findings closed:
+  * GSingletonT::Instance (H2): the previous double-checked-locking
+    pattern read the static std::shared_ptr<T> unsynchronised in the
+    fast path and wrote it without any lock in the reset path — a data
+    race on a non-atomic std::shared_ptr. The static is now
+    std::atomic<std::shared_ptr<T>>. The case-0 path loads once into a
+    local to avoid an implicit refcount round-trip on every check;
+    case 1 (reset) now acquires creation_mutex so it is ordered against
+    any in-flight initialiser, closing the second race in which a
+    fresh-built singleton could overwrite a concurrent reset. The
+    unique_lock<mutex> guards are replaced with scoped_lock, the
+    "make the compiler happy" trailing return is folded into a default
+    arm of the switch, and <atomic> is added to the includes.
+  * GLogger (H1): setDefaultLogTarget, addLogTarget, hasLogTargets, and
+    resetLogTargets previously mutated/read default_logger_ and log_cnt_
+    without acquiring logger_mutex_ while log(), logWithSource(),
+    throwException(), terminateApplication(), toStdOut() and toStdErr()
+    all took the same mutex — a textbook std::vector data race against
+    any thread that reconfigured logging at runtime. Each of the four
+    now takes std::scoped_lock(logger_mutex_) for the duration of its
+    work. The six readers also switch from unique_lock<mutex> to
+    scoped_lock. The raiseException macro is self-contained (it builds
+    its message in a local ostringstream and throws directly), so
+    calling it under the lock cannot deadlock.
+  * GExpectationChecksT::identity<T> (H3): the copy/move-assignment
+    operators were declared "= default" on a class with reference and
+    const members. Per [class.copy.assign]/7 they are implicitly
+    defined-as-deleted in that case, so the "= default" was misleading.
+    Both operators are now explicitly "= delete" so the contract
+    matches the actual language semantics and any erroneous assignment
+    produces a clear diagnostic at the point of misuse.
+  * GGlobalOptionsT (H4): the stateful-iterator API (rewind,
+    goToNextPosition, getCurrentItem, getNextItem and the pos_ member)
+    has been removed. The internal iterator leaked across calls and
+    could be invalidated by remove(), making any interleaving of
+    traversal with mutation a dangling-iterator hazard. Two separate
+    fixes:
+      - T get(const std::string &) used kvp_[key], which silently
+        inserted a default-constructed value on miss (e.g. a null
+        shared_ptr that the caller would then dereference). It now uses
+        find() and raises geneva_exception on miss, surfacing the bad
+        access loudly.
+      - A new getContentSnapshot() returns std::vector<T> by value
+        under a single scoped_lock acquisition. Callers iterate the
+        snapshot (which is caller-owned and contention-free) instead
+        of the live map. value_type = T is also exposed as a public
+        alias for API hygiene. The two consumers in src/geneva/Go2.cpp
+        (the consumer-options and OA-factory-options accumulation
+        loops) are switched to range-for over getContentSnapshot();
+        per-iteration lock count drops from O(N) to 1 and the loops
+        no longer rely on cross-call iterator state.
+
+- GContainerT::insert_noclone(pos, count, item) underflow fixed
+  (separately flagged by the 2026-05-14 code review). The previous
+  for(i = 0; i < count - 1; ++i) loop on the unsigned size_type
+  underflowed to SIZE_MAX when count == 0, producing an effectively
+  infinite loop / OOM. Both insert_clone(pos, count, item) and
+  insert_noclone(pos, count, item) now (a) guard count == 0
+  explicitly, (b) pre-build the inserted range into a local
+  std::vector, and (c) perform a single std::vector::insert range
+  call (with std::make_move_iterator) instead of N repeated
+  insertions at the same stale offset. The observable contract is
+  preserved — in particular insert_noclone still places the original
+  item at exactly pos with (count-1) independent clones following —
+  while the previous O(count * N) shift pattern collapses to
+  O(count + N) and the misleading iterator-invalidation construct is
+  retired.
+
+- GContainerT unit-test coverage extended for the count-overload
+  family. tests/common/UnitTests/GContainerTTests.cpp gains five new
+  Catch2 SECTIONs in the GPtrContainerT<TestBase>/std::vector test
+  case: insertClone count mid-position contiguity, insertClone count
+  == 0 no-op, insertNoclone count with original-at-pos contract,
+  insertNoclone count == 0 no-op (regression guard for the underflow
+  above), and insertNoclone count null-pointer throw. The suite now
+  reports 409 assertions in 6 test cases. src/geneva/GTestIndividual1.cpp
+  also gains a count == 0 no-op check inside the existing "Test
+  insert_clone, insert_noclone" block.
+
+- GParameterSet.hpp parameterset_processing_result: changed
+  transformed_fitness_ = raw_fitness_ to a literal 0. The previous
+  initialiser was correct under declaration-order rules but would have
+  silently picked up an uninitialised value if the members were ever
+  reordered. Order-independent now.
+
 //------------------------------------------------------------------------------------------------------
 * Version 1.11, "Hendaye" - March 16, 2026
 
