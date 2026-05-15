@@ -1216,7 +1216,13 @@ public:
     )
       : GFileParsableI(optionNameVar, commentVar, isEssentialVar)
       , def_val_cnt_(def_val)
-      , par_cnt_() { /* nothing */
+      // Seed par_cnt_ with the defaults so writeConfigFile() can emit a "value"
+      // for every "default" entry before any parsing has populated par_cnt_.
+      // The previous version left par_cnt_ empty, and save_to() then iterated
+      // def_val_cnt_ while dereferencing par_cnt_.cbegin() — UB whenever no
+      // load_from() had run yet, observable as silent garbage values in the
+      // generated config or a segfault depending on allocator layout.
+      , par_cnt_(def_val) { /* nothing */
     }
 
     /***************************************************************************/
@@ -1236,10 +1242,13 @@ public:
 protected:
     /***************************************************************************/
     /**
-	  * Allows derived classes to reset the default value.
+	  * Allows derived classes to reset the default value. Keeps par_cnt_ in
+	  * lock-step with the new defaults so a subsequent writeConfigFile()
+	  * before parsing still emits one "value" per "default" entry.
 	  */
     void resetDefault(std::vector<parameter_type> const &def_val) {
         def_val_cnt_ = def_val;
+        par_cnt_     = def_val;
     }
 
     /***************************************************************************/

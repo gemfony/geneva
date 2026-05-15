@@ -38,6 +38,12 @@ PROJECT (Geneva_Library_Collection LANGUAGES CXX)
 # system CUDA installation is broken or incompatible (e.g. CUDA 13.1 + glibc 2.39).
 option(GENEVA_SKIP_CUDA "Disable all CUDA compilation" OFF)
 
+# Set ON to instrument the Common library and its tests with coverage flags
+# (--coverage on GCC, -fprofile-instr-generate -fcoverage-mapping on Clang).
+# Used together with the `coverage` make target to produce gcovr reports.
+# Costs a noticeable amount of runtime; leave OFF for normal builds.
+option(GENEVA_BUILD_WITH_COVERAGE "Instrument Common library + tests for code coverage" OFF)
+
 # Probe for an optional CUDA toolchain.  If nvcc is found, CUDA examples and
 # benchmarks are added to the build automatically; if not, the rest of the
 # build proceeds as pure C++.  GENEVA_USE_CUDA_RNG remains a separate opt-in
@@ -209,6 +215,56 @@ ADD_CUSTOM_TARGET( "geneva-individuals" DEPENDS ${GENEVA_INDIVIDUAL_LIBNAME} COM
 
 # Custom target for building all the libraries but no examples nor tests
 ADD_CUSTOM_TARGET( "core"               DEPENDS ${GENEVA_LIBNAMES}           COMMENT "Building all the Geneva libraries.")
+
+################################################################################
+# Coverage target (Common library only). Only meaningful when configured with
+# -DGENEVA_BUILD_WITH_COVERAGE=ON. Builds the Common library and its tests,
+# runs them under CTest (label "common"), and produces both an HTML report
+# under <build>/coverage/common/ and a text summary on the terminal. Fails
+# if the line-coverage drops below GENEVA_COVERAGE_LINE_THRESHOLD (default
+# 90; override at configure time to relax during early test development).
+SET(GENEVA_COVERAGE_LINE_THRESHOLD 90 CACHE STRING
+    "Minimum acceptable line-coverage percentage for the Common library")
+SET(GENEVA_COVERAGE_BRANCH_THRESHOLD 80 CACHE STRING
+    "Minimum acceptable branch-coverage percentage for the Common library")
+IF (GENEVA_BUILD_WITH_COVERAGE)
+    FIND_PROGRAM(GCOVR_EXECUTABLE NAMES gcovr)
+    IF (NOT GCOVR_EXECUTABLE)
+        MESSAGE(WARNING "GENEVA_BUILD_WITH_COVERAGE=ON but gcovr was not "
+                "found in PATH; the `coverage` make target will not work.")
+    ENDIF ()
+    # Filter: only the Common library's headers and sources count.
+    SET(_GENEVA_COV_FILTER
+        "--filter=${PROJECT_SOURCE_DIR}/include/common/.*"
+        "--filter=${PROJECT_SOURCE_DIR}/src/common/.*"
+        # Exclude headers that are not in scope (e.g. test-support headers).
+        "--exclude=${PROJECT_SOURCE_DIR}/include/common/tests/.*"
+        # Exclude the deprecated-soon GPlotDesigner from the headline number.
+        "--exclude=${PROJECT_SOURCE_DIR}/include/common/GPlotDesigner.hpp"
+        "--exclude=${PROJECT_SOURCE_DIR}/src/common/GPlotDesigner.cpp")
+    ADD_CUSTOM_TARGET( "coverage"
+        COMMAND ${CMAKE_COMMAND} -E make_directory
+                "${CMAKE_BINARY_DIR}/coverage/common"
+        COMMAND ${CMAKE_CTEST_COMMAND} -L common --output-on-failure
+        # --gcov-ignore-errors: needed because gcovr scans every .gcno in
+        # the build tree and stumbles over CUDA / system-header artefacts
+        # that don't resolve a working directory. Those files are outside
+        # the filter anyway; this just silences the noise.
+        COMMAND ${GCOVR_EXECUTABLE}
+                --root "${PROJECT_SOURCE_DIR}"
+                ${_GENEVA_COV_FILTER}
+                --gcov-ignore-errors=no_working_dir_found
+                --print-summary
+                --txt "${CMAKE_BINARY_DIR}/coverage/common/summary.txt"
+                --html-details "${CMAKE_BINARY_DIR}/coverage/common/index.html"
+                --fail-under-line ${GENEVA_COVERAGE_LINE_THRESHOLD}
+                --fail-under-branch ${GENEVA_COVERAGE_BRANCH_THRESHOLD}
+                "${CMAKE_BINARY_DIR}"
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+        COMMENT "Building, running, and measuring Common-library coverage."
+        VERBATIM
+    )
+ENDIF ()
 
 ################################################################################
 # Add sub-directories

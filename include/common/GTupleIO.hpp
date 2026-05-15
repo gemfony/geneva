@@ -68,8 +68,11 @@ struct tuple_output_seq { /* nothing */
 
 /******************************************************************************/
 /**
- * Recursively breaks down output of a tuple. Note: this function assumes that
- * the corresponding tuple element may indeed be streamed!
+ * General recursive step (@p p >= 2). Appends ", <get<N-p>(t)>" to the
+ * accumulator @c s and recurses one position deeper. The previous version
+ * passed @c oss.str() as the next @c s instead of @c s + oss.str(), so the
+ * accumulator was overwritten at every level — the final string then carried
+ * only the deepest contribution and dropped/duplicated earlier ones.
  */
 template <class tuple_type, size_t p>
 std::string g_to_string(
@@ -78,14 +81,18 @@ std::string g_to_string(
     tuple_output_seq<p> /*sq*/
 ) {
     std::ostringstream oss; // NOLINT(cppcoreguidelines-init-variables)
-    oss << ", " << std::get<std::tuple_size<tuple_type>::value - p>(t);
-    return (g_to_string(t, oss.str(), tuple_output_seq<p - 1>()) + s);
+    oss << s << ", " << std::get<std::tuple_size<tuple_type>::value - p>(t);
+    return g_to_string(t, oss.str(), tuple_output_seq<p - 1>());
 }
 
 /******************************************************************************/
 /**
- * Specialization for the case of a single element in the tuple. This overload
- * makes sure that no attempt is made to continue recursion.
+ * Recursion terminator at @c tuple_output_seq<1>: emits the LAST tuple element
+ * prefixed by the @c ", " separator and stops. Must follow the same
+ * @c tuple_size − p indexing as the general overload above (here, p = 1, so
+ * the index is @c tuple_size − 1). When the wrapper above seeds the
+ * accumulator with the first element, this overload appends one more element
+ * on its own; multi-step recursion eventually lands here too.
  */
 template <class tuple_type>
 std::string g_to_string(
@@ -94,14 +101,16 @@ std::string g_to_string(
     tuple_output_seq<1> /*sq*/
 ) {
     std::ostringstream oss; // NOLINT(cppcoreguidelines-init-variables)
-    oss << std::get<0>(t);
-    return oss.str() + s;
+    oss << s << ", " << std::get<std::tuple_size<tuple_type>::value - 1>(t);
+    return oss.str();
 }
 
 /******************************************************************************/
 /**
- * This command is supposed to add nothing to the string, as a tuple<>()
- * has no data. It is meant to cover cases like "std::cout << std::make_tuple();".
+ * Single-element terminator at @c tuple_output_seq<0>. The wrapper seeds the
+ * accumulator with the first element already, so for a 1-tuple there is
+ * nothing more to append; just return the accumulator. (The empty-tuple case
+ * is handled directly in the wrapper.)
  */
 template <class tuple_type>
 std::string g_to_string(
@@ -110,18 +119,27 @@ std::string g_to_string(
     const std::string &s,
     tuple_output_seq<0> /*sq*/
 ) {
-    return std::string() + s;
+    return s;
 }
 
 /******************************************************************************/
 /**
- * Output function for std::tuple.
+ * Output function for std::tuple. Seeds the accumulator with the first
+ * element (so the recursive helpers above never need to special-case the
+ * "no leading separator" prefix), then recurses over the remaining
+ * elements. Empty tuples render as "()".
  */
 template <class... args>
 std::string g_to_string(const std::tuple<args...> &t) {
-    static const unsigned short int sz = sizeof...(args); // The actual tuple size
-    std::string empty; // NOLINT(cppcoreguidelines-init-variables)
-    return std::string("(") + g_to_string(t, empty, tuple_output_seq<sz>()) + std::string(")");
+    constexpr std::size_t sz = sizeof...(args);
+    if constexpr (sz == 0) {
+        return std::string("()");
+    } else {
+        std::ostringstream oss; // NOLINT(cppcoreguidelines-init-variables)
+        oss << std::get<0>(t);
+        return std::string("(") + g_to_string(t, oss.str(), tuple_output_seq<sz - 1>()) +
+               std::string(")");
+    }
 }
 /******************************************************************************/
 /**

@@ -207,6 +207,7 @@ MPIROOT=""
 BUILDMPICONSUMER="0"
 USECUDARNG="0"
 SKIPALLCUDA="0"
+WITHCOVERAGE="0"
 CUDA_NVCC=""
 CUDA_ROOT=""
 COMPILER="clang"
@@ -290,6 +291,7 @@ _check_bool VERBOSEMAKEFILE  "${VERBOSEMAKEFILE}"
 _check_bool BUILDMPICONSUMER "${BUILDMPICONSUMER}"
 _check_bool USECUDARNG       "${USECUDARNG}"
 _check_bool SKIPALLCUDA      "${SKIPALLCUDA}"
+_check_bool WITHCOVERAGE     "${WITHCOVERAGE}"
 
 # Validate CUDA path: if set, the file must exist and be executable.
 if [ -n "${CUDA_NVCC}" ] && [ ! -x "${CUDA_NVCC}" ]; then
@@ -368,7 +370,8 @@ if [ "${GENERATE_PRESET}" = "1" ]; then
 	fi
 
 	[ -n "${MPIROOT}" ]          && _preset_add "MPI_HOME"               "PATH"   "${MPIROOT}"
-	_preset_add "GENEVA_SKIP_CUDA" "BOOL" "${SKIPALLCUDA}"
+	_preset_add "GENEVA_SKIP_CUDA"              "BOOL"   "${SKIPALLCUDA}"
+	_preset_add "GENEVA_BUILD_WITH_COVERAGE"    "BOOL"   "${WITHCOVERAGE}"
 	[ -n "${CUDA_NVCC}" ] && [ "${SKIPALLCUDA}" = "0" ] && _preset_add "CMAKE_CUDA_COMPILER" "FILEPATH" "${CUDA_NVCC}"
 	[ -n "${CUDA_ROOT}" ] && [ "${SKIPALLCUDA}" = "0" ] && _preset_add "CUDAToolkit_ROOT"   "PATH"     "${CUDA_ROOT}"
 	[ -n "${_C_COMPILER}" ]      && _preset_add "CMAKE_C_COMPILER"        "FILEPATH" "${_C_COMPILER}"
@@ -431,6 +434,7 @@ cmake_args+=(
 	"-DGENEVA_BUILD_WITH_MPI_CONSUMER=${BUILDMPICONSUMER}"
 	"-DGENEVA_USE_CUDA_RNG=${USECUDARNG}"
 	"-DGENEVA_SKIP_CUDA=${SKIPALLCUDA}"
+	"-DGENEVA_BUILD_WITH_COVERAGE=${WITHCOVERAGE}"
 )
 [ -n "${MPIROOT}" ]          && cmake_args+=("-DMPI_HOME=${MPIROOT}")
 if [ -n "${CUDA_NVCC}" ] && [ "${SKIPALLCUDA}" = "0" ]; then

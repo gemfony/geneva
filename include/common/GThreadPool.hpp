@@ -165,6 +165,13 @@ public:
              f = std::bind<result_type>(std::forward<F>(f), std::forward<Args>(args)...)]() {
                 try {
                     f();
+                    // Required for the void specialisation: without this the
+                    // future's shared state is destroyed without ever being
+                    // satisfied, and callers calling `.get()` / `.wait()` see
+                    // a std::future_error("Broken promise"). The non-void
+                    // overload below already does this implicitly through
+                    // set_value(f()).
+                    promise_ptr->set_value();
                 }
                 catch(
                     ...
