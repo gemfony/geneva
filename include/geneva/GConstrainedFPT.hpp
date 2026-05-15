@@ -266,28 +266,29 @@ public:
 	  * @return The transformed value
 	  */
     fp_type transfer(const fp_type &val) const override {
-        // Check if val has a suitable value
+        // NaN and infinity are poison values: they bypass the range comparison
+        // below (every comparison against NaN is false) and silently corrupt
+        // every individual subsequently (de)serialised from this object. They
+        // must be rejected in all build types, not only DEBUG.
+        if(std::isnan(val) || std::isinf(val)) {
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, time_and_place)
+                << "In GConstrainedFPT::transfer(): Error" << std::endl
+                << "val is " << (std::isnan(val) ? "NaN" : "infinite") << std::endl
+            );
+        }
+
+        // The remaining classification (subnormal / unknown) is a diagnostic
+        // only. Subnormals are finite, well-defined values that legitimately
+        // occur near convergence, so rejecting them unconditionally would turn
+        // working release runs into failures; keep this DEBUG-only.
 #ifdef DEBUG
         switch(std::fpclassify(val)) {
         case FP_NORMAL:
-        case FP_ZERO: {
+        case FP_ZERO:
+        case FP_INFINITE: // already rejected unconditionally above
+        case FP_NAN: {    // already rejected unconditionally above
             /* nothing */
-        } break;
-
-        case FP_INFINITE: {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
-                << "In GConstrainedFPT::transfer(): Error" << std::endl
-                << "val is infinite" << std::endl
-            );
-        } break;
-
-        case FP_NAN: {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
-                << "In GConstrainedFPT::transfer(): Error" << std::endl
-                << "val is NaN" << std::endl
-            );
         } break;
 
         case FP_SUBNORMAL: {

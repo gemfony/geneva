@@ -67,7 +67,6 @@ SET ( OPTIMIZATIONINCLUDES
     G_OptimizationAlgorithm_SwarmAlgorithm.hpp
     G_OptimizationAlgorithm_SwarmAlgorithm_Factory.hpp
     G_OptimizationAlgorithm_SwarmAlgorithm_PersonalityTraits.hpp
-    G_OA_ConjugateGradientDescent.hpp
     G_OptimizationAlgorithm_FactoryT.hpp
     G_OptimizationAlgorithm_FactoryStore.hpp
     G_OptimizationAlgorithm_InitializerT.hpp

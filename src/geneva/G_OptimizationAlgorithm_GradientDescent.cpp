@@ -108,6 +108,9 @@ void GGradientDescent::setFiniteStep(double finiteStep) {
     }
 
     finiteStep_ = finiteStep;
+
+    // Keep stepRatio_/adjustedFiniteStep_ consistent if called after init()
+    updateDerivedQuantities();
 }
 
 /******************************************************************************/
@@ -139,6 +142,9 @@ void GGradientDescent::setStepSize(double stepSize) {
     }
 
     stepSize_ = stepSize;
+
+    // Keep stepRatio_/adjustedFiniteStep_ consistent if called after init()
+    updateDerivedQuantities();
 }
 
 /******************************************************************************/
@@ -566,6 +572,24 @@ void GGradientDescent::init() {
     }
 #endif /* DEBUG */
 
+    // Compute the quantities derived from stepSize_/finiteStep_ and the
+    // parameter boundaries extracted above.
+    updateDerivedQuantities();
+
+    // Tell individuals about their position in the population
+    markIndividualPositions();
+}
+
+/******************************************************************************/
+/**
+ * Recomputes the quantities derived from finiteStep_, stepSize_ and the
+ * extracted parameter boundaries. Called from init() (after the boundaries
+ * have been extracted) and from setFiniteStep()/setStepSize() so that a
+ * post-init change to those raw inputs does not leave the derived state
+ * stale. Before init() the boundary vectors are empty, so adjustedFiniteStep_
+ * is simply cleared and init() fills it once the boundaries are known.
+ */
+void GGradientDescent::updateDerivedQuantities() {
     // Set the step ratio. We do the calculation in long double precision to preserve accuracy
     stepRatio_ = ((long double)stepSize_) / ((long double)finiteStep_);
 
@@ -585,13 +609,10 @@ void GGradientDescent::init() {
     catch(std::overflow_error &e) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GGradientDescent::init(): Error!" << std::endl
+            << "In GGradientDescent::updateDerivedQuantities(): Error!" << std::endl
             << "Bad conversion with message " << e.what() << std::endl
         );
     }
-
-    // Tell individuals about their position in the population
-    markIndividualPositions();
 }
 
 /******************************************************************************/

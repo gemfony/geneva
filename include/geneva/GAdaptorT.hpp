@@ -333,7 +333,11 @@ public:
 	  * want this feature)
 	  */
     void setAdaptAdProb(fp_type adaptAdProb) {
-#ifdef DEBUG
+        // adaptAdProb_ is used as the standard deviation of a normal
+        // distribution (see customAdaptions()); 0 disables the feature.
+        // A negative value is therefore invalid and must be rejected in
+        // every build type, not only under DEBUG. There is deliberately no
+        // upper bound: a Gaussian sigma may legitimately exceed 1.
         if(adaptAdProb < fp_type(0.)) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
@@ -341,7 +345,6 @@ public:
                 << "adaptAdProb < 0: " << adaptAdProb << std::endl
             );
         }
-#endif /* DEBUG */
 
         adaptAdProb_ = adaptAdProb;
     }
