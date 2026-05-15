@@ -42,71 +42,75 @@ IF (NOT GENEVA_FULL_TREE_BUILD)
 
 ENDIF ()
 
-SET ( EXECUTABLENAME GCommonStandardTests )
-
-SET ( ${EXECUTABLENAME}_SRCS
-        GCommonStandardTests.cpp
-        GBoundedBufferTTests.cpp
-)
-
-ADD_EXECUTABLE(${EXECUTABLENAME}
-	${${EXECUTABLENAME}_SRCS}
-)
-
-SET(LIBRARIES_TO_LINK
-		${GENEVA_LIBRARIES}
-		${Boost_LIBRARIES}
-		Catch2::Catch2WithMain)
-
-# Add MPI Libraries in case building with MPI-consumer
-IF(GENEVA_BUILD_WITH_MPI_CONSUMER)
-	SET(LIBRARIES_TO_LINK
-			${LIBRARIES_TO_LINK}
-			${MPI_LIBRARIES})
-ENDIF()
-
-TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
-		${LIBRARIES_TO_LINK})
-
-ADD_TEST(${EXECUTABLENAME} ${EXECUTABLENAME})
-
-INSTALL ( TARGETS ${EXECUTABLENAME} DESTINATION ${INSTALL_PREFIX_DATA}/tests/geneva/UnitTests )
-
-
+################################################################################
+# Helper: declare a Common-library Catch2 test executable. Each call
 #
-# Take care of other particularities of this test
+#     geneva_common_test(<exe-name> <source-files...>)
 #
+# creates an executable, links it against the Geneva libraries + Boost +
+# Catch2::Catch2WithMain (+ MPI when GENEVA_BUILD_WITH_MPI_CONSUMER), registers
+# it with CTest under the "common" label, installs it, and appends it to the
+# `tests-common-unit` aggregate target. Used by every test below.
 
-SET ( EXECUTABLENAME GContainerTTests )
+SET(_GENEVA_COMMON_TEST_TARGETS "")
 
-SET ( ${EXECUTABLENAME}_SRCS
-        GContainerTTests.cpp
-)
+FUNCTION(geneva_common_test name)
+	ADD_EXECUTABLE(${name} ${ARGN})
 
-ADD_EXECUTABLE(${EXECUTABLENAME}
-	${${EXECUTABLENAME}_SRCS}
-)
+	SET(_libs ${GENEVA_LIBRARIES} ${Boost_LIBRARIES} Catch2::Catch2WithMain)
+	IF (GENEVA_BUILD_WITH_MPI_CONSUMER)
+		LIST(APPEND _libs ${MPI_LIBRARIES})
+	ENDIF ()
+	TARGET_LINK_LIBRARIES(${name} ${_libs})
 
-SET(GCONTAINERT_LIBRARIES_TO_LINK
-		${GENEVA_LIBRARIES}
-		${Boost_LIBRARIES}
-		Catch2::Catch2WithMain)
+	ADD_TEST(${name} ${name})
+	SET_TESTS_PROPERTIES(${name} PROPERTIES LABELS "common")
+	INSTALL(TARGETS ${name}
+		DESTINATION ${INSTALL_PREFIX_DATA}/tests/geneva/UnitTests)
 
-IF(GENEVA_BUILD_WITH_MPI_CONSUMER)
-	SET(GCONTAINERT_LIBRARIES_TO_LINK
-			${GCONTAINERT_LIBRARIES_TO_LINK}
-			${MPI_LIBRARIES})
-ENDIF()
+	# Append to the parent-scope aggregate list.
+	SET(_GENEVA_COMMON_TEST_TARGETS "${_GENEVA_COMMON_TEST_TARGETS};${name}"
+		PARENT_SCOPE)
+ENDFUNCTION()
 
-TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
-		${GCONTAINERT_LIBRARIES_TO_LINK})
+################################################################################
+# Test executables — one per production file, alphabetical.
 
-ADD_TEST(${EXECUTABLENAME} ${EXECUTABLENAME})
+geneva_common_test(GBoundedBufferTTests           GBoundedBufferTTests.cpp)
+geneva_common_test(GCommonEnumsTests              GCommonEnumsTests.cpp)
+geneva_common_test(GCommonHelperFunctionsTests    GCommonHelperFunctionsTests.cpp)
+geneva_common_test(GCommonHelperFunctionsTTests   GCommonHelperFunctionsTTests.cpp)
+geneva_common_test(GCommonInterfaceTTests         GCommonInterfaceTTests.cpp)
+geneva_common_test(GCommonMathHelperFunctionsTTests
+                                                  GCommonMathHelperFunctionsTTests.cpp)
+geneva_common_test(GContainerTTests               GContainerTTests.cpp)
+geneva_common_test(GDefaultValueTTests            GDefaultValueTTests.cpp)
+geneva_common_test(GErrorStreamerTests            GErrorStreamerTests.cpp)
+geneva_common_test(GExceptionsTests               GExceptionsTests.cpp)
+geneva_common_test(GExpectationChecksTTests       GExpectationChecksTTests.cpp)
+geneva_common_test(GFactoryTTests                 GFactoryTTests.cpp)
+geneva_common_test(GFixedSizePriorityQueueTTests  GFixedSizePriorityQueueTTests.cpp)
+geneva_common_test(GFormulaParserTTests           GFormulaParserTTests.cpp)
+geneva_common_test(GGlobalOptionsTTests           GGlobalOptionsTTests.cpp)
+geneva_common_test(GLoggerTests                   GLoggerTests.cpp)
+geneva_common_test(GParserBuilderTests            GParserBuilderTests.cpp)
+geneva_common_test(GSerializableFunctionObjectTTests
+                                                  GSerializableFunctionObjectTTests.cpp)
+geneva_common_test(GSerializationHelperFunctionsTTests
+                                                  GSerializationHelperFunctionsTTests.cpp)
+geneva_common_test(GSerializeTupleTTests          GSerializeTupleTTests.cpp)
+geneva_common_test(GSingletonTTests               GSingletonTTests.cpp)
+geneva_common_test(GThreadGroupTests              GThreadGroupTests.cpp)
+geneva_common_test(GThreadPoolTests               GThreadPoolTests.cpp)
+geneva_common_test(GTupleIOTests                  GTupleIOTests.cpp)
+geneva_common_test(GTypeToStringTTests            GTypeToStringTTests.cpp)
+geneva_common_test(GTypeTraitsTTests              GTypeTraitsTTests.cpp)
+geneva_common_test(GUnitTestFrameworkTTests       GUnitTestFrameworkTTests.cpp)
 
-INSTALL ( TARGETS ${EXECUTABLENAME} DESTINATION ${INSTALL_PREFIX_DATA}/tests/geneva/UnitTests )
+################################################################################
+# Aggregate `tests-common-unit` target builds every Common test exe at once.
 
 ADD_CUSTOM_TARGET( "tests-common-unit"
-	# Add all the available test targets (EXECUTABLENAMEs) here
-	DEPENDS GCommonStandardTests GContainerTTests
+	DEPENDS ${_GENEVA_COMMON_TEST_TARGETS}
 	COMMENT "Building the unit tests for the \"common\" library."
 )

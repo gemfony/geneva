@@ -73,6 +73,21 @@ Recommended Versions:
 - Significant Catch2 v3 unit-test coverage added or extended across
   Common, Hap, Courtier and Geneva.
 
+- Fixed a long-standing bug in GTupleIO: g_to_string and the tuple
+  operator<< rendered multi-element tuples with the first element
+  repeated in place of later ones; fitness logs in the optimisation
+  algorithms now show both components correctly.
+
+- Fixed a bug in GThreadPool::async_schedule (void overload): the
+  returned future was never satisfied on success, so any caller that
+  blocked on .get() / .wait() saw a "Broken promise" failure.
+
+- Fixed a use-after-end-iterator bug in GParserBuilder: writing a
+  vector/array configuration file before any parsing had populated
+  the parsed-value vector dereferenced an end iterator, producing
+  silent garbage in the generated config (or a segfault, depending
+  on allocator layout).
+
 - Housekeeping: Gemfony branding removed from file headers; GBarrier
   removed; GGlobalDefines.hpp no longer generated from a CMake template;
   obsolete Boost version guards dropped; five BOOST_ASSERT(0) sites in

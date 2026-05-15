@@ -59,5 +59,24 @@ SET_TARGET_PROPERTIES(
 	CXX_EXTENSIONS OFF
 )
 
+# Coverage instrumentation: only applied when explicitly enabled, only to
+# the Common library and its tests (driven by the parent CMakeLists.txt
+# option `GENEVA_BUILD_WITH_COVERAGE`). Costly at runtime; do not enable
+# for production builds.
+IF (GENEVA_BUILD_WITH_COVERAGE)
+    IF (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+        TARGET_COMPILE_OPTIONS(${COMMON_LIBNAME} PUBLIC
+            -fprofile-instr-generate -fcoverage-mapping)
+        TARGET_LINK_OPTIONS(${COMMON_LIBNAME} PUBLIC
+            -fprofile-instr-generate -fcoverage-mapping)
+    ELSEIF (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+        TARGET_COMPILE_OPTIONS(${COMMON_LIBNAME} PUBLIC --coverage)
+        TARGET_LINK_OPTIONS(${COMMON_LIBNAME} PUBLIC --coverage)
+    ELSE ()
+        MESSAGE(WARNING
+            "GENEVA_BUILD_WITH_COVERAGE: unsupported compiler "
+            "${CMAKE_CXX_COMPILER_ID}; coverage flags not applied.")
+    ENDIF ()
+ENDIF ()
 
 INSTALL ( TARGETS ${COMMON_LIBNAME} DESTINATION ${INSTALL_PREFIX_LIBS} )

@@ -93,6 +93,12 @@ LINKEREXTRAFLAGS=""
 # Whether to build MPI consumer
 BUILDMPICONSUMER="1"
 
+# Whether to instrument the Common library and its tests with code-coverage
+# flags (--coverage for GCC, -fprofile-instr-generate -fcoverage-mapping for
+# Clang). Used together with the `coverage` make target to produce gcovr
+# reports. Costs noticeable runtime; leave OFF for production builds.
+WITHCOVERAGE="0"
+
 # Set to 1 to skip all CUDA compilation entirely — no CUDA examples, no CUDA
 # benchmark, and no CUDA RNG in Hap — even if nvcc is present on the system.
 # All other CUDA settings (CUDA_NVCC, CUDA_ROOT, USECUDARNG) are ignored when
