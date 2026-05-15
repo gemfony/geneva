@@ -214,6 +214,8 @@ private:
 
     /** @brief Lets individuals know about their position in the population */
     void markIndividualPositions();
+    /** @brief Recomputes stepRatio_ and adjustedFiniteStep_ from the raw inputs */
+    void updateDerivedQuantities();
 };
 
 /******************************************************************************/

@@ -2000,7 +2000,11 @@ bool G_OptimizationAlgorithm_Base::iterationHalt() const {
  * been passed.
  */
 bool G_OptimizationAlgorithm_Base::minIterationPassed() const {
-    return iteration_ > minIteration_;
+    // iteration_ is incremented before halt()/this check is evaluated, so after
+    // the N-th cycle iteration_ == N. ">=" makes the minimum pass at exactly
+    // minIteration_ cycles; ">" would run one extra iteration (and is
+    // inconsistent with iterationHalt(), which uses ">=" for the maximum).
+    return iteration_ >= minIteration_;
 }
 
 /******************************************************************************/

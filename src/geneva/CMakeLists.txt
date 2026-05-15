@@ -73,7 +73,6 @@ SET ( OPTIMIZATIONSOURCES
     G_OptimizationAlgorithm_SwarmAlgorithm.cpp
     G_OptimizationAlgorithm_SwarmAlgorithm_Factory.cpp
     G_OptimizationAlgorithm_SwarmAlgorithm_PersonalityTraits.cpp
-    G_OA_ConjugateGradientDescent.cpp
 	GObject.cpp
 	GOptimizationEnums.cpp
 	GParameterBase.cpp

@@ -407,7 +407,7 @@ public:
      */
     void setDelta(const fp_type &delta) {
         // Delta must be in the allowed value range
-        if(delta < minDelta_ || delta > maxDelta_ || delta_ < fp_type(0)) {
+        if(delta < minDelta_ || delta > maxDelta_ || delta < fp_type(0)) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GNumBiGaussAdaptorT::setDelta(const fp_type&):" << std::endl
@@ -670,7 +670,7 @@ protected:
             data.push_back(std::any(sigma1_));
         }
         else if(property == "sigma2") {
-            data.push_back(std::any(sigma1_));
+            data.push_back(std::any(sigma2_));
         }
         else if(property == "delta") {
             data.push_back(std::any(delta_));
