@@ -19,8 +19,7 @@
 | Bucket | Count | Notes |
 |---|---|---|
 | MEDIUM | **6** | `load_()`/clone derived-state gaps, factory copy omission, MPI handle init, DEBUG-only validity assert, unchecked numeric cast, constructor ignoring args. |
-| LOW | **5** | Documented-as-intentional setters, dead default branches, partial guards, code smell with no real race. |
-| TRIVIAL | **2** | Typo, clumsy boolean toggle. |
+| LOW | **3** | Documented-as-intentional setter, mode-handling inconsistency, partial differentiability guard. |
 | **Dismissed after verification** | **20** | Findings whose described code does not exist or is already correct — listed at the end. |
 
 The originally-identified HIGH findings are not part of this document and are tracked separately.
@@ -90,15 +89,7 @@ The `GNumGaussAdaptorT(sigma, sigmaSigma, minSigma, maxSigma, probability)` cons
 
 ## LOW-severity findings
 
-### L-A. `mutable` cache written from a `const` method without synchronisation — `include/geneva/GParameterT.hpp:333` (written via `GConstrainedNumT.hpp:404-414`)
-
-`mutable T val_` is written from a logically-`const` value path with no mutex/atomic. This is a real code smell, but **not** a data race in Geneva's design: work items are deep-cloned per worker (`GStdThreadConsumerT.hpp:327`) and the broker dispatches each unique item to a single worker, so the same individual is never evaluated by two threads concurrently. (The draft located this in `GParameterSet.hpp`, which has no such member, and overstated the impact as a live race.)
-
-**Fix (optional)**: document the single-owner invariant, or use `std::call_once` if the lazy write must ever be shared.
-
----
-
-### L-B. `setSigmaAdaptionRate` performs no validation — `include/geneva/GNumGaussAdaptorT.hpp:318-320`
+### L-A. `setSigmaAdaptionRate` performs no validation — `include/geneva/GNumGaussAdaptorT.hpp:318-320`
 
 ```cpp
 void setSigmaAdaptionRate(const fp_type &sigmaSigma) { sigmaSigma_ = sigmaSigma; }
@@ -108,22 +99,7 @@ No range check at all. However, the Doxygen explicitly documents that values `<=
 
 ---
 
-### L-C. `setNMonitorIndividuals` has a dead default-assignment — `src/geneva/GPluggableOptimizationMonitors.cpp:302-310`
-
-```cpp
-void GFitnessMonitor::setNMonitorIndividuals(const std::size_t &nMonitorInds) {
-    if(nMonitorInds_ == 0) { nMonitorInds_ = std::size_t(DEFNMONITORINDS); }
-    nMonitorInds_ = nMonitorInds;   // line 309 — unconditionally overwrites the above
-}
-```
-
-The conditional default (lines 305-307) is immediately overwritten and is therefore dead code; there is also no clamp against population size. (The draft mis-described this as a "clamp to max that is overwritten" — it is actually a `==0` default-seed. No concurrency issue exists: `informationFunction()` is called from a single synchronous site, `G_OptimizationAlgorithm_Base.cpp:802-803`.)
-
-**Fix**: delete the dead `if`, or implement a real clamp if one was intended.
-
----
-
-### L-D. `setExecMode` vs. constructor handle `BROKER` mode inconsistently — `src/geneva/GPostProcessorT.cpp`
+### L-B. `setExecMode` vs. constructor handle `BROKER` mode inconsistently — `src/geneva/GPostProcessorT.cpp`
 
 The **constructor** logs a warning and falls back to SERIAL for `execMode::BROKER` (lines 51-70); the **setter** `setExecMode()` **throws** for the same value (lines 128-134). Inconsistent, but the inconsistency is the *reverse* of what the draft stated, and it is in `GPostProcessorT.cpp` (the `GEvolutionaryAlgorithmPostOptimizer`), not `Go2.cpp`.
 
@@ -131,23 +107,11 @@ The **constructor** logs a warning and falls back to SERIAL for `execMode::BROKE
 
 ---
 
-### L-E. Gradient descent only rejects *pure* non-differentiable individuals — `src/geneva/G_OptimizationAlgorithm_GradientDescent.cpp:646-655`
+### L-C. Gradient descent only rejects *pure* non-differentiable individuals — `src/geneva/G_OptimizationAlgorithm_GradientDescent.cpp:646-655`
 
 `adjustPopulation()` throws if there are zero active `double` parameters, so an individual containing **only** `GBooleanObject`/`GInt32Object` is correctly rejected (contradicting the draft's "runs and produces meaningless results"). A **mixed** individual (doubles + ints/bools) passes, and the integer/boolean parameters are silently ignored by the gradient with no warning.
 
 **Fix (optional)**: warn when non-differentiable parameters are present in a mixed individual.
-
----
-
-## TRIVIAL findings
-
-### T-A. Typo "happennot" — `include/geneva/GParameterBaseWithAdaptorsT.hpp:132`
-
-`<< "Found no local adaptor. This should not happennot " << std::endl` — a botched edit merged "happen"+"not". Log-string only. (Not in `GParameterSet.cpp` as the draft stated.)
-
-### T-B. Clumsy boolean toggle — `src/geneva/GBooleanAdaptor.cpp:80`
-
-`value == true ? value = false : value = true;` — equivalent to `value = !value;`. (In the `.cpp`, not the `.hpp`.)
 
 ---
 
@@ -180,4 +144,4 @@ Each of these was checked against the full source and found to be **not a bug** 
 
 ---
 
-*Review verified and corrected 2026-05-15. Net: 6 MEDIUM, 5 LOW, 2 TRIVIAL findings; 20 draft findings dismissed.*
+*Review verified and corrected 2026-05-15. Net: 6 MEDIUM, 3 LOW findings; 20 draft findings dismissed.*

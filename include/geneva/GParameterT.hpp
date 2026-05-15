@@ -329,6 +329,15 @@ protected:
 	  * to call the value() function from constant functions. Declared protected so some derived
 	  * classes can (re-)set the value from a const function without forcing us to declare
 	  * setValue() const.
+	  *
+	  * Thread-safety: this mutable member is written from logically-const paths
+	  * (e.g. GConstrainedNumT<T>::value()) without synchronisation. That is safe
+	  * because of a single-owner invariant: a given parameter object -- and the
+	  * individual that owns it -- is only ever evaluated by one thread at a time.
+	  * The broker deep-clones each work item per worker and dispatches every
+	  * unique item to exactly one worker, so concurrent value() calls on the same
+	  * object never occur. Do NOT share a single parameter/individual instance
+	  * across threads without adding external synchronisation first.
 	  */
     mutable T val_ = Gem::Common::GDefaultValueT<T>::value();
 

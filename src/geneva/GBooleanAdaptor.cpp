@@ -77,7 +77,7 @@ void GBooleanAdaptor::customAdaptions(
     ,
     Gem::Hap::GRandomBase & /*gr*/
 ) {
-    value == true ? value = false : value = true;
+    value = !value;
 }
 
 /******************************************************************************/

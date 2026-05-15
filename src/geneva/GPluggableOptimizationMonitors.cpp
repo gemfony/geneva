@@ -300,13 +300,15 @@ std::uint32_t GFitnessMonitor::getYDim() const {
  * @oaram nMonitorInds The number of individuals in the population that should be monitored
  */
 void GFitnessMonitor::setNMonitorIndividuals(const std::size_t &nMonitorInds) {
-    // Determine a suitable number of monitored individuals, if it hasn't already
-    // been set externally.
-    if(nMonitorInds_ == 0) {
+    // A request of 0 means "use the built-in default"; any positive value is
+    // honoured as-is. (Clamping to the actual population size happens later,
+    // in informationFunction().)
+    if(nMonitorInds == 0) {
         nMonitorInds_ = std::size_t(DEFNMONITORINDS);
     }
-
-    nMonitorInds_ = nMonitorInds;
+    else {
+        nMonitorInds_ = nMonitorInds;
+    }
 }
 
 /******************************************************************************/
