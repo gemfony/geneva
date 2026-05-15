@@ -213,14 +213,17 @@ public:
 
     /************************************************************************/
     /**
-	 * Retrieves a vector of all keys
+	 * Retrieves a vector of all keys. The caller's vector is cleared and
+	 * repopulated under a single lock acquisition (the previous version
+	 * cleared the caller's vector *before* taking the lock, which is a data
+	 * race if the caller shares the vector across threads).
 	 */
     void getKeyVector(std::vector<std::string> &keys) const {
-        keys.clear(); // Make sure the vector is empty
         std::scoped_lock guard(mutex_);
-        typename std::map<std::string, T>::const_iterator cit;
-        for(cit = kvp_.begin(); cit != kvp_.end(); ++cit) {
-            keys.push_back(cit->first);
+        keys.clear();
+        keys.reserve(kvp_.size());
+        for(auto const &[key, _] : kvp_) {
+            keys.push_back(key);
         }
     }
 

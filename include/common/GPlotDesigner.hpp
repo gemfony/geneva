@@ -134,7 +134,13 @@ enum class gLineStyle : ENUMBASETYPE {
     shortdashed = 2,
     dotted = 3,
     shortdashdot = 4,
-    longdashdot = 4,
+    // Previously also `= 4` (collision with shortdashdot — `>>`/`<<`
+    // round-trips would collapse the two names onto a single line style).
+    // Moved to the next free slot below shortdashdot/longdashed. No call
+    // sites reference `longdashdot` directly, so changing the value is
+    // observably a fix rather than a breaking change.
+    longdashdot = 5,
+    longdashdotdot = 6, ///< maps to ROOT TAttLine style 6
     longdashed = 7
 };
 

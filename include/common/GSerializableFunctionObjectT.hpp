@@ -100,12 +100,13 @@ protected:
 	  * Loads the data of another GSerializableFunctionObjectT<processable_type> object
 	  */
     void load_(const GSerializableFunctionObjectT<processable_type> *cp) override {
-        // Check that we are dealing with a GSerializableFunctionObjectT<processable_type> reference independent of this object and convert the pointer
-        const GSerializableFunctionObjectT<processable_type> *p_load =
-            Gem::Common::g_convert_and_compare<
-                GSerializableFunctionObjectT<processable_type>,
-                GSerializableFunctionObjectT<processable_type>>(cp, this);
-
+        // Invoke g_convert_and_compare purely for its side effect (throws on
+        // type mismatch / self-load). The returned pointer would be unused
+        // and a previous assignment to a named local `p_load` triggered
+        // -Wunused-variable.
+        (void)Gem::Common::g_convert_and_compare<
+            GSerializableFunctionObjectT<processable_type>,
+            GSerializableFunctionObjectT<processable_type>>(cp, this);
         // ... no local data
     }
 

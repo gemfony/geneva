@@ -59,20 +59,27 @@ namespace Gem::Common {
  */
 void GThreadGroup::add_thread(thread_ptr thrd) {
     if(thrd) {
-        std::unique_lock<std::mutex> guard(mutex_);
+        std::scoped_lock guard(mutex_);
         threads_.push_back(thrd);
     }
 }
 
 /******************************************************************************/
 /**
- * Requests all threads to join
+ * Requests all threads to join. The mutex is released *before* the join
+ * loop so that any thread that calls back into the group (e.g. add_thread
+ * from inside its functor) does not deadlock against us.
  */
 void GThreadGroup::join_all() {
-    std::unique_lock<std::mutex> guard(mutex_);
-
-    for(auto &t : threads_) {
-        t->join();
+    thread_vector to_join;
+    {
+        std::scoped_lock guard(mutex_);
+        to_join = threads_; // shared_ptrs — cheap copy, keeps threads alive
+    }
+    for(auto &t : to_join) {
+        if(t && t->joinable()) {
+            t->join();
+        }
     }
 }
 
@@ -82,7 +89,7 @@ void GThreadGroup::join_all() {
  * @return The size of the current group
  */
 std::size_t GThreadGroup::size() const {
-    std::unique_lock<std::mutex> guard(mutex_);
+    std::scoped_lock guard(mutex_);
     return threads_.size();
 }
 
@@ -93,7 +100,7 @@ std::size_t GThreadGroup::size() const {
  * thread GThreadPool class.
  */
 void GThreadGroup::clearThreads() {
-    std::unique_lock<std::mutex> guard(mutex_);
+    std::scoped_lock guard(mutex_);
     threads_.clear();
 }
 

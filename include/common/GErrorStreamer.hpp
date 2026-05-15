@@ -45,9 +45,12 @@
 #include "common/GLogger.hpp"
 
 /******************************************************************************/
-// Syntactic sugar
-const bool DO_LOG = true;
-const bool NO_LOG = false;
+// Syntactic sugar. `inline constexpr` so the constants have a single
+// definition across all translation units that include this header
+// (plain `const` at namespace scope gives each TU its own copy and
+// risks ODR mismatches in a future refactor).
+inline constexpr bool DO_LOG = true;
+inline constexpr bool NO_LOG = false;
 
 /******************************************************************************/
 
@@ -139,8 +142,29 @@ public:
 	  * Automatic conversion to a string. The function will optionally send the
 	  * output to the global logger.
 	  *
+	  * IMPORTANT — exception-safety contract: this conversion runs file I/O
+	  * and re-enters the global logger when @c do_log_ is true. The canonical
+	  * use site is inside @c throw geneva_exception(g_error_streamer(...) <<
+	  * ... ); — i.e. the conversion happens while building the exception, *before*
+	  * stack-unwinding starts, so any throw originating here is the primary
+	  * (and only) in-flight exception. Callers MUST NOT trigger this conversion
+	  * from inside a destructor that is itself running during unwinding (a
+	  * second throw under those conditions calls @c std::terminate). If you
+	  * need an allocation-free read of the wrapped message during unwinding,
+	  * call @c content() (no logging) instead of converting.
+	  *
 	  * @return A string with the content of the wrapped string_error_streamer object.
 	  */
+    /**************************************************************************/
+    /**
+	  * Returns the wrapped streamer's contents WITHOUT triggering any I/O
+	  * or logger re-entry. Safe to call from unwinding contexts where the
+	  * implicit @c operator std::string() conversion would be hazardous.
+	  */
+    [[nodiscard]] std::string content() const {
+        return ostream_.str();
+    }
+
     operator std::string() const { // NOLINT
         using namespace Gem::Common;
         if(do_log_) {

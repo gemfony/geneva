@@ -67,6 +67,20 @@
 namespace Gem::Common {
 
 /******************************************************************************/
+// Helper for narrow_cast: maps an enum to its underlying integer; otherwise
+// passes the type through unchanged. std::conditional_t cannot be used
+// directly because it eagerly evaluates both branches and
+// std::underlying_type<int> is ill-formed.
+namespace detail {
+template <typename T, bool = std::is_enum_v<T>>
+struct enum_or_self { using type = T; };
+template <typename T>
+struct enum_or_self<T, true> { using type = std::underlying_type_t<T>; };
+template <typename T>
+using enum_or_self_t = typename enum_or_self<T>::type;
+} // namespace detail
+
+/******************************************************************************/
 /**
  * Checked numeric cast: throws std::overflow_error if the conversion would lose the value.
  * Replaces boost::numeric_cast. Float→int truncates (no fractional-part check) but
@@ -77,15 +91,59 @@ To narrow_cast(From value) {
     static_assert((std::is_arithmetic_v<To> || std::is_enum_v<To>) &&
                   (std::is_arithmetic_v<From> || std::is_enum_v<From>),
                   "narrow_cast requires arithmetic or enum types");
-    auto result = static_cast<To>(value);
-    if constexpr (std::is_integral_v<To> && std::is_integral_v<From>) {
-        if(static_cast<From>(result) != value) {
+
+    // For enum source/target types fall back to their underlying integer
+    // representation so the same range checks apply. Without this, casts
+    // like `narrow_cast<gColor>(some_int)` silently degenerated to plain
+    // static_cast<gColor>(...) and dropped all bounds checking.
+    using ToCheck   = detail::enum_or_self_t<To>;
+    using FromCheck = detail::enum_or_self_t<From>;
+
+    const auto check_value = static_cast<FromCheck>(value);
+    const auto result      = static_cast<To>(value);
+    const auto check_result = static_cast<ToCheck>(result);
+
+    if constexpr (std::is_integral_v<ToCheck> && std::is_integral_v<FromCheck>) {
+        // Integer-to-integer (and enum-via-underlying): round-trip catches
+        // narrowing in both directions.
+        if(static_cast<FromCheck>(check_result) != check_value) {
             throw std::overflow_error("narrow_cast: integer overflow or underflow");
         }
-    } else if constexpr (std::is_integral_v<To> && std::is_floating_point_v<From>) {
-        if(value < static_cast<From>(std::numeric_limits<To>::min()) ||
-           value > static_cast<From>(std::numeric_limits<To>::max())) {
+    } else if constexpr (std::is_integral_v<ToCheck> &&
+                         std::is_floating_point_v<FromCheck>) {
+        // Float-to-integer: the obvious `value > ToCheck::max()` check is
+        // unsafe at the int64 extreme. int64_t::max() == 2^63 − 1 is NOT
+        // exactly representable in double; static_cast<double>(int64_max)
+        // rounds UP to 2^63, so `value > double(int64_max)` lets a value
+        // equal to 2^63 through and `static_cast<int64_t>(2^63)` is UB.
+        //
+        // Detect whether the max-as-float round-tripped exactly by checking
+        // whether the float distance between adjacent integer endpoints is
+        // exactly 1: it is when no rounding occurred (e.g. int32 → double)
+        // and < 1 when adjacent integers collapsed onto the same float
+        // (int64 → double). When inexact, reject `==` at the boundary too.
+        constexpr ToCheck   to_max                 = std::numeric_limits<ToCheck>::max();
+        constexpr ToCheck   to_min                 = std::numeric_limits<ToCheck>::min();
+        constexpr FromCheck max_as_from            = static_cast<FromCheck>(to_max);
+        constexpr FromCheck max_minus_one_as_from  = static_cast<FromCheck>(to_max - 1);
+        constexpr FromCheck min_as_from            = static_cast<FromCheck>(to_min);
+        constexpr bool      max_is_exact           =
+            (max_as_from - max_minus_one_as_from) == FromCheck{1};
+
+        if(check_value < min_as_from) {
             throw std::overflow_error("narrow_cast: float-to-integer overflow");
+        }
+        if constexpr (max_is_exact) {
+            // ToCheck::max() round-trips exactly, so equality is legitimate.
+            if(check_value > max_as_from) {
+                throw std::overflow_error("narrow_cast: float-to-integer overflow");
+            }
+        } else {
+            // Rounding pushed max_as_from above ToCheck::max(): equality
+            // would convert to UB territory, so reject it as well.
+            if(check_value >= max_as_from) {
+                throw std::overflow_error("narrow_cast: float-to-integer overflow");
+            }
         }
     }
     return result;
@@ -234,10 +292,12 @@ void ptrDifferenceCheck(std::shared_ptr<T> p1, std::shared_ptr<T> p2) {
 
 /******************************************************************************/
 /**
- * Converts a raw base pointer to target_type*. Only accessible when
- * base_type is a base of target_type (upcasts only). Returns nullptr
- * unchanged. In debug builds uses dynamic_cast and throws on failure;
- * in release builds uses static_cast.
+ * Converts a raw base pointer to target_type*. The `requires` clause restricts
+ * the template to *downcasts* (target_type must derive from base_type), so
+ * this is a checked dynamic_cast in DEBUG and an unchecked static_cast in
+ * release. Returns nullptr unchanged. Throws in DEBUG on a failed cast.
+ * (The previous comment "upcasts only" was inverted — a derived-from base
+ * cast is a downcast.)
  */
 template <typename base_type, typename target_type>
     requires std::derived_from<target_type, base_type>

@@ -61,9 +61,11 @@ std::shared_ptr<T> TFactory_GUnitTests() {
     try {
         p = std::make_shared<T>();
     }
-    catch(const geneva_exception &g) {
-        // Re-throw
-        throw g;
+    catch(const geneva_exception &) {
+        // Re-throw without slicing: bare `throw;` propagates the dynamic
+        // type, whereas `throw g;` would copy-construct a geneva_exception
+        // and discard any derived-class state.
+        throw;
     }
     catch(...) {
         throw geneva_exception(

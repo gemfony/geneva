@@ -187,11 +187,14 @@ public:
 
     /***************************************************************************/
     /**
-     * Conversion operator. Needed for compare_base, so we do not need
-     * to use macros for the implicit conversion
+     * Explicit conversion to a base-class identity. Mark explicit so the
+     * conversion only fires where intentionally requested (`identity<Base>{id}`
+     * or `static_cast<identity<Base>>(id)`); implicit conversion would
+     * widen the set of overload-resolution paths in surprising ways and
+     * is rarely what the caller wants.
      */
     template <typename base_type>
-    operator identity<base_type>() const { // NOLINT
+    explicit operator identity<base_type>() const {
         // We use an internal function for the actual conversion
         // so we may check whether base_type is an actual base of T
         return to<base_type>();

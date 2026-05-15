@@ -45,6 +45,7 @@
 #include <mutex>
 #include <sstream>
 #include <string>
+#include <string_view>
 #include <thread>
 #include <tuple>
 #include <typeinfo>
@@ -101,9 +102,22 @@ int runExternalCommand(
 );
 
 /******************************************************************************/
-/** @brief Returns a string for a given serialization mode */
-
-std::string serializationModeToString(serializationMode);
+/**
+ * @brief Returns a textual label for a given serialization mode.
+ *
+ * constexpr / string_view: the labels are fixed strings, so a constexpr
+ * lookup avoids per-call std::string allocation. Returning string_view
+ * lets call sites stream the result directly (it implicitly converts to
+ * std::string where one is required).
+ */
+constexpr std::string_view serializationModeToString(serializationMode s) noexcept {
+    switch(s) {
+    case serializationMode::TEXT:   return "text mode";
+    case serializationMode::XML:    return "XML mode";
+    case serializationMode::BINARY: return "binary mode";
+    }
+    return {}; // unreachable for valid enumerator inputs
+}
 
 /******************************************************************************/
 /** @brief Splits a string into a vector of strings, according to a seperator character */

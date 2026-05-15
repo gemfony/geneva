@@ -52,7 +52,7 @@ namespace Gem::Common {
 /**
  * The standard constructor
  */
-math_logic_error::math_logic_error(std::string const &errorText) noexcept
+math_logic_error::math_logic_error(std::string const &errorText)
   : geneva_exception(errorText) { /* nothing */
 }
 
@@ -62,7 +62,7 @@ math_logic_error::math_logic_error(std::string const &errorText) noexcept
 /**
  * The standard constructor
  */
-division_by_0::division_by_0() noexcept
+division_by_0::division_by_0()
   : math_logic_error("Division by 0 in Geneva formula parser") { /* nothing */
 }
 

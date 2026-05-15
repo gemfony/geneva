@@ -111,8 +111,11 @@ public:
 	  */
     template <typename F>
     std::shared_ptr<std::thread> create_thread(F f) {
-        std::unique_lock<std::mutex> guard(mutex_);
-        thread_ptr new_thread(new std::thread(f));
+        // Build the thread before taking the lock so the only critical
+        // section is the vector push. Use make_shared instead of a bare
+        // `new std::thread(...)` for exception-safe single-allocation.
+        auto new_thread = std::make_shared<std::thread>(std::move(f));
+        std::scoped_lock guard(mutex_);
         threads_.push_back(new_thread);
         return new_thread;
     }

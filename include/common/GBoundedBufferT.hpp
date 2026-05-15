@@ -133,7 +133,7 @@ public:
             std::system_error &e
         ) // NOLINT(bugprone-empty-catch) — logs and terminates via GTERMINATION
         {
-            glogger << "In GRandomFactory::producer(): Error!" << std::endl
+            glogger << "In GBoundedBufferT::~GBoundedBufferT(): Error!" << std::endl
                     << "Caught std::system_error exception with message" << std::endl
                     << e.what() << "which might indicate that a mutex could not be locked."
                     << std::endl

@@ -89,9 +89,14 @@ void GFileLogger::log(std::string const &msg) const {
         ofstr.close();
     }
     else {
-        std::cerr << "In GFileLogger::log() : Error" << std::endl
-                  << "std::ofstring is in a bad state" << std::endl;
-        std::terminate();
+        // Transient file-open failures (disk full, EACCES, etc.) used to
+        // call std::terminate() and bring the whole optimisation down. We
+        // now fall back to std::cerr so the message is at least visible,
+        // emitting a one-line diagnostic to make the lost-log-target
+        // condition visible to the operator.
+        std::cerr << "[GFileLogger::log] could not open \"" << fname_
+                  << "\" for appending — falling back to stderr:" << std::endl
+                  << msg;
     }
 }
 
@@ -119,9 +124,13 @@ void GFileLogger::logWithSource(std::string const &msg, std::string const &exten
         }
     }
     else {
-        std::cerr << "In GFileLogger::logWithSource() : Error" << std::endl
-                  << "std::ofstring is in a bad state" << std::endl;
-        std::terminate();
+        // Same fallback as GFileLogger::log(): a transient open failure
+        // should not bring the optimisation down. Emit a one-line
+        // diagnostic to stderr and let execution continue.
+        std::cerr << "[GFileLogger::logWithSource] could not open \""
+                  << (fname_ + "_" + extension) << "\" for appending — "
+                  << "falling back to stderr:" << std::endl
+                  << msg;
     }
 }
 
