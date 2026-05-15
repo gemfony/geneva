@@ -178,8 +178,12 @@ public:
     identity(identity const &) = default;
     identity(identity &&) = default;
 
-    identity &operator=(identity const &) = default;
-    identity &operator=(identity &&) = default;
+    // identity holds reference and const members, so the assignment operators
+    // are implicitly deleted by the language. Declare the deletion explicitly
+    // to surface that fact (a previous `= default` was misleading: defaulted
+    // assignment on such a class is implicitly deleted, not user-provided).
+    identity &operator=(identity const &) = delete;
+    identity &operator=(identity &&) = delete;
 
     /***************************************************************************/
     /**

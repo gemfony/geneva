@@ -641,6 +641,15 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
 
         // The identical item should be at the very beginning of the collection
         CHECK((p_test->at<GDoubleObject>(0)).get() == insert_ptr.get());
+
+        // count == 0 must be a no-op for both insert_clone and insert_noclone
+        // (regression: insert_noclone previously computed `count - 1` on an
+        //  unsigned counter, causing infinite-loop / OOM when count == 0).
+        const std::size_t size_before_zero = p_test->size();
+        CHECK_NOTHROW(p_test->insert_clone(p_test->begin(), std::size_t(0), insert_ptr));
+        CHECK(p_test->size() == size_before_zero);
+        CHECK_NOTHROW(p_test->insert_noclone(p_test->begin(), std::size_t(0), insert_ptr));
+        CHECK(p_test->size() == size_before_zero);
     }
 
     //------------------------------------------------------------------------------

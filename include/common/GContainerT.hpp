@@ -1176,13 +1176,22 @@ public:
                 << "Tried to clone an empty smart pointer." << std::endl
             );
         }
-        std::size_t iterPos = static_cast<std::size_t>(pos - data_cnt_.begin());
+        if(count == 0) return;
+
+        // Pre-build the clones into a local buffer, then perform a single range
+        // insert. This avoids re-inserting at a stale iterPos across iterations
+        // (each vector::insert invalidates iterators) and turns an O(count * N)
+        // pattern into an O(count + N) operation.
+        std::vector<StoredType> clones;
+        clones.reserve(count);
         for(std::size_t i = 0; i < count; ++i) {
-            data_cnt_.insert(
-                data_cnt_.begin() + static_cast<difference_type>(iterPos),
-                itemPtr->ValueType::template clone<ValueType>()
-            );
+            clones.push_back(itemPtr->ValueType::template clone<ValueType>());
         }
+        data_cnt_.insert(
+            pos,
+            std::make_move_iterator(clones.begin()),
+            std::make_move_iterator(clones.end())
+        );
     }
 
     /**
@@ -1230,18 +1239,23 @@ public:
                 << "Tried to insert an empty smart pointer." << std::endl
             );
         }
-        std::size_t iterPos = static_cast<std::size_t>(pos - data_cnt_.begin());
-        // Insert (count-1) clones
+        // Guard against unsigned underflow of `count - 1` below when count == 0.
+        if(count == 0) return;
+
+        // Pre-build the inserted range: the original itemPtr first, followed by
+        // (count-1) independent clones. The single range insert that follows
+        // preserves the existing test contract that the original itemPtr ends up
+        // at exactly `pos` (see GTestIndividual1 "Test insert_clone, insert_noclone").
+        std::vector<StoredType> to_insert;
+        to_insert.reserve(count);
+        to_insert.push_back(std::move(itemPtr));
         for(std::size_t i = 0; i < count - 1; ++i) {
-            data_cnt_.insert(
-                data_cnt_.begin() + static_cast<difference_type>(iterPos),
-                itemPtr->ValueType::template clone<ValueType>()
-            );
+            to_insert.push_back(to_insert.front()->ValueType::template clone<ValueType>());
         }
-        // Insert the original
         data_cnt_.insert(
-            data_cnt_.begin() + static_cast<difference_type>(iterPos),
-            std::move(itemPtr)
+            pos,
+            std::make_move_iterator(to_insert.begin()),
+            std::make_move_iterator(to_insert.end())
         );
     }
 

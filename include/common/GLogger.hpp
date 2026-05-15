@@ -266,6 +266,9 @@ public:
 		 * Allows to set the default log target
 		 */
     void setDefaultLogTarget(std::shared_ptr<GBaseLogTarget> gblt) {
+        // Serialise with concurrent log() / addLogTarget() etc.
+        std::scoped_lock lk(logger_mutex_);
+
         if(gblt) {
             default_logger_ = gblt;
         }
@@ -283,6 +286,9 @@ public:
 		 * Adds a log target, such as console or file
 		 */
     void addLogTarget(std::shared_ptr<GBaseLogTarget> gblt) {
+        // Serialise with concurrent log() / log_cnt_ readers.
+        std::scoped_lock lk(logger_mutex_);
+
         if(gblt) {
             log_cnt_.push_back(gblt);
         }
@@ -300,6 +306,9 @@ public:
 		 * Checks whether any log targets are present
 		 */
     bool hasLogTargets() const {
+        // Read of log_cnt_ must be ordered against concurrent addLogTarget /
+        // resetLogTargets writers. logger_mutex_ is mutable.
+        std::scoped_lock lk(logger_mutex_);
         return not log_cnt_.empty();
     }
 
@@ -308,6 +317,8 @@ public:
 		 * Clears local log-targets
 		 */
     void resetLogTargets() {
+        // Serialise with concurrent log() / addLogTarget().
+        std::scoped_lock lk(logger_mutex_);
         log_cnt_.clear();
     }
 
@@ -319,7 +330,7 @@ public:
 		 */
     void log(std::string const &message) const {
         // Make sure only one entity outputs data
-        std::unique_lock<std::mutex> lk(logger_mutex_);
+        std::scoped_lock lk(logger_mutex_);
 
         if(not log_cnt_.empty()) {
             // Do the actual logging
@@ -348,7 +359,7 @@ public:
 		 */
     void logWithSource(std::string const &message, std::string const &extension) const {
         // Make sure only one entity outputs data
-        std::unique_lock<std::mutex> lk(logger_mutex_);
+        std::scoped_lock lk(logger_mutex_);
 
         if(not log_cnt_.empty()) {
             // Do the actual logging
@@ -376,7 +387,7 @@ public:
 		 */
     void throwException(std::string const &error) {
         // Make sure only one entity outputs data
-        std::unique_lock<std::mutex> lk(logger_mutex_);
+        std::scoped_lock lk(logger_mutex_);
 
         throw(geneva_exception(error));
     }
@@ -387,7 +398,7 @@ public:
 		 */
     void terminateApplication(std::string const &error) {
         // Make sure only one entity outputs data
-        std::unique_lock<std::mutex> lk(logger_mutex_);
+        std::scoped_lock lk(logger_mutex_);
 
         std::cerr << error;
         std::terminate();
@@ -399,7 +410,7 @@ public:
 		 */
     void toStdOut(std::string const &message) {
         // Make sure only one entity outputs data
-        std::unique_lock<std::mutex> lk(logger_mutex_);
+        std::scoped_lock lk(logger_mutex_);
 
         std::cout << message;
     }
@@ -410,7 +421,7 @@ public:
 		 */
     void toStdErr(std::string const &message) {
         // Make sure only one entity outputs data
-        std::unique_lock<std::mutex> lk(logger_mutex_);
+        std::scoped_lock lk(logger_mutex_);
 
         std::cerr << message;
     }

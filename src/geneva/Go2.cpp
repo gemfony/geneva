@@ -871,22 +871,22 @@ void Go2::parseCommandLine(
             "Hidden algorithm- and consumer-options"
         );
 
-        // Retrieve available command-line options from registered consumers, if any
+        // Retrieve available command-line options from registered consumers, if any.
+        // getContentSnapshot() takes the store's mutex once and returns an
+        // atomic snapshot of all stored values, so iteration is both cheap and
+        // race-free with respect to concurrent registrations.
         if(not GConsumerStore->empty()) {
-            GConsumerStore->rewind();
-            do {
-                GConsumerStore->getCurrentItem()->addCLOptions(visible, hidden);
+            for(auto const &consumer : GConsumerStore->getContentSnapshot()) {
+                consumer->addCLOptions(visible, hidden);
             }
-            while(GConsumerStore->goToNextPosition());
         }
 
-        // Retrieve available command-line options from registered optimization algorithm factories, if any
+        // Retrieve available command-line options from registered optimization
+        // algorithm factories, if any (same snapshot pattern).
         if(not GOAFactoryStore->empty()) {
-            GOAFactoryStore->rewind();
-            do {
-                GOAFactoryStore->getCurrentItem()->addCLOptions(visible, hidden);
+            for(auto const &factory : GOAFactoryStore->getContentSnapshot()) {
+                factory->addCLOptions(visible, hidden);
             }
-            while(GOAFactoryStore->goToNextPosition());
         }
 
         // Add the other options to "general"

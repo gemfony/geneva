@@ -62,6 +62,11 @@ template <typename T>
 class GGlobalOptionsT { // NOLINT(cppcoreguidelines-special-member-functions)
 public:
     /***************************************************************************/
+    // Public value-type alias (API hygiene; lets callers spell out the stored
+    // type without restating the template argument).
+    using value_type = T;
+
+    /***************************************************************************/
     // Defaulted or deleted constructors, destructor and assignment operators
     // Rule of five
 
@@ -94,11 +99,23 @@ public:
     /***************************************************************************/
     /**
 	 * Retrieves an option from the map, returning it as the function result.
-	 * Note that this function does not check for availability of the option.
+	 * Throws @c geneva_exception when the key does not exist (previously, the
+	 * function used @c map::operator[] which silently inserted a default-
+	 * constructed value — surprising for a read-only accessor and a source of
+	 * silent map growth / null-deref bugs in callers that forgot to call
+	 * @c exists() first).
 	 */
     T get(const std::string &key) {
         std::scoped_lock guard(mutex_);
-        return kvp_[key];
+        if(auto it = kvp_.find(key); it != kvp_.end()) {
+            return it->second;
+        }
+        raiseException(
+            "In GGlobalOptionsT::get(\"" << key << "\"): Error!" << std::endl
+                << "Key is not present in the global options map." << std::endl
+                << "Use exists(key) to check before calling, or get(key, value) "
+                   "which signals absence via its return value." << std::endl
+        );
     }
 
     /***************************************************************************/
@@ -222,66 +239,34 @@ public:
 
     /************************************************************************/
     /**
-	 * Positions an internal iterator at the beginning of the map
+	 * Returns a fresh vector containing all stored values, captured under a
+	 * single mutex acquisition. Prefer this over keys-then-get loops at the
+	 * call site: it is both atomic (no race window between key snapshot and
+	 * value lookup) and cheaper (one lock + one traversal instead of N+1
+	 * locks + N find()s).
 	 */
-    void rewind() {
+    [[nodiscard]] std::vector<T> getContentSnapshot() const {
         std::scoped_lock guard(mutex_);
-        pos_ = kvp_.begin();
+        std::vector<T> result;
+        result.reserve(kvp_.size());
+        for(auto const &[_, v] : kvp_) {
+            result.push_back(v);
+        }
+        return result;
     }
 
-    /************************************************************************/
-    /**
-	 * Switches to the next position or returns false, if this is not possible
-	 */
-    bool goToNextPosition() {
-        std::scoped_lock guard(mutex_);
-        if(pos_ == kvp_.end()) {
-            return false;
-        }
-        ++pos_;
-        return pos_ != kvp_.end();
-    }
-
-    /************************************************************************/
-    /**
-	 * Retrieves the item at the current position
-	 */
-    T getCurrentItem() {
-        std::scoped_lock guard(mutex_);
-        if(pos_ == kvp_.end()) {
-            glogger << "In GGlobalOptionsT<T>::getCurrentItem(): Warning!\n"
-                    << "Iterator is at end of map. Returning default-constructed value.\n"
-                    << GWARNING;
-            return T{};
-        }
-        return pos_->second;
-    }
-
-    /************************************************************************/
-    /**
-	 * Retrieves the next item (thereby incrementing the position iterator)
-	 * or returns false, if the end of the map has been reached. Note that it
-	 * is up to you to rewind the position iterator using the rewind function.
-	 */
-    bool getNextItem(T &item) {
-        std::scoped_lock guard(mutex_);
-        if(pos_ == kvp_.end()) {
-            return false;
-        }
-        ++pos_;
-        if(pos_ != kvp_.end()) {
-            item = pos_->second;
-            return true;
-        }
-        return false;
-    }
+    // ----------------------------------------------------------------------
+    // Removed stateful-iterator API (rewind / goToNextPosition /
+    // getCurrentItem / getNextItem): the internal iterator `pos_` was
+    // invalidated by remove() and leaked across calls, producing a latent
+    // UB / silent-map-growth hazard whenever traversal was interleaved with
+    // mutation. Callers should now take a snapshot via getKeyVector() or
+    // getContentVector() and iterate that.
 
 private:
     /************************************************************************/
     // Holds the actual data
     std::map<std::string, T> kvp_{};
-
-    typename std::map<std::string, T>::iterator pos_ = kvp_.begin();
     mutable std::mutex mutex_; ///< Lock get/set operations
 };
 
