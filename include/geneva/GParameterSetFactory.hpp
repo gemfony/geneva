@@ -99,8 +99,8 @@ public:
         else {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GParameterSetFactory::registerPreProcessor(): Error!" << std::endl
-                << "Got empty pre-processor" << std::endl
+                << "In GParameterSetFactory::registerPreProcessor(): Error!" << '\n'
+                << "Got empty pre-processor" << '\n'
             );
         }
     }
@@ -118,8 +118,8 @@ public:
         else {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GParameterSetFactory::registerPostProcessor(): Error!" << std::endl
-                << "Got empty post-processor" << std::endl
+                << "In GParameterSetFactory::registerPostProcessor(): Error!" << '\n'
+                << "Got empty post-processor" << '\n'
             );
         }
     }

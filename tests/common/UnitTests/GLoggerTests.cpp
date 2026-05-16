@@ -132,7 +132,7 @@ TEST_CASE("GLogStreamer: templated operator<< accumulates streamable values",
 TEST_CASE("GLogStreamer: std::endl manipulator goes through the dedicated overload",
           "[common][logger]") {
     GLogStreamer s;
-    s << "line1" << std::endl << "line2";
+    s << "line1" << '\n' << "line2";
     CHECK(s.content().find("line1\n") != std::string::npos);
     CHECK(s.content().find("line2")   != std::string::npos);
 }
@@ -310,7 +310,7 @@ TEST_CASE("GLogStreamer << GEXCEPTION throws a geneva_exception",
 
     bool caught = false;
     try {
-        glogger << "test-payload " << 123 << std::endl << GEXCEPTION;
+        glogger << "test-payload " << 123 << '\n' << GEXCEPTION;
         FAIL("expected geneva_exception");
     } catch(geneva_exception const &e) {
         caught = true;
@@ -324,22 +324,22 @@ TEST_CASE("GLogStreamer << GEXCEPTION throws a geneva_exception",
 
 TEST_CASE("GLogStreamer << GWARNING does not throw; emits to the logger sink",
           "[common][logger][manipulator]") {
-    CHECK_NOTHROW(glogger << "warning text" << std::endl << GWARNING);
+    CHECK_NOTHROW(glogger << "warning text" << '\n' << GWARNING);
 }
 
 TEST_CASE("GLogStreamer << GLOGGING does not throw; emits to the logger sink",
           "[common][logger][manipulator]") {
-    CHECK_NOTHROW(glogger << "logging text" << std::endl << GLOGGING);
+    CHECK_NOTHROW(glogger << "logging text" << '\n' << GLOGGING);
 }
 
 TEST_CASE("GLogStreamer << GSTDOUT does not throw; writes via toStdOut",
           "[common][logger][manipulator]") {
-    CHECK_NOTHROW(glogger << "to stdout " << 42 << std::endl << GSTDOUT);
+    CHECK_NOTHROW(glogger << "to stdout " << 42 << '\n' << GSTDOUT);
 }
 
 TEST_CASE("GLogStreamer << GSTDERR does not throw; writes via toStdErr",
           "[common][logger][manipulator]") {
-    CHECK_NOTHROW(glogger << "to stderr " << 42 << std::endl << GSTDERR);
+    CHECK_NOTHROW(glogger << "to stderr " << 42 << '\n' << GSTDERR);
 }
 
 TEST_CASE("GLogStreamer << GFILE with a path writes to that file",
@@ -347,7 +347,7 @@ TEST_CASE("GLogStreamer << GFILE with a path writes to that file",
     auto path = scratch("one_time.log");
     std::filesystem::remove(path);
 
-    CHECK_NOTHROW(glogger(path) << "one-time-payload" << std::endl << GFILE);
+    CHECK_NOTHROW(glogger(path) << "one-time-payload" << '\n' << GFILE);
     REQUIRE(std::filesystem::exists(path));
 
     std::ifstream ifs(path);
@@ -360,7 +360,7 @@ TEST_CASE("GLogStreamer << GFILE with a path writes to that file",
 TEST_CASE("GLogStreamer << GFILE without a path throws",
           "[common][logger][manipulator]") {
     // The path-less form must complain: there is no destination to write to.
-    CHECK_THROWS_AS(glogger << "should-fail" << std::endl << GFILE, geneva_exception);
+    CHECK_THROWS_AS(glogger << "should-fail" << '\n' << GFILE, geneva_exception);
 }
 
 TEST_CASE("GLogStreamer << GWARNING with extension forwards through logWithSource",
@@ -368,13 +368,13 @@ TEST_CASE("GLogStreamer << GWARNING with extension forwards through logWithSourc
     // The string-form of glogger() captures an extension; the WARNING arm
     // then routes through logWithSource on every registered target.
     CHECK_NOTHROW(glogger(std::string{"unit-test-module"})
-                  << "warning with source" << std::endl << GWARNING);
+                  << "warning with source" << '\n' << GWARNING);
 }
 
 TEST_CASE("GLogStreamer << GLOGGING with extension forwards through logWithSource",
           "[common][logger][manipulator]") {
     CHECK_NOTHROW(glogger(std::string{"unit-test-module"})
-                  << "logging with source" << std::endl << GLOGGING);
+                  << "logging with source" << '\n' << GLOGGING);
 }
 
 // ---------------------------------------------------------------------------

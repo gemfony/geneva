@@ -97,9 +97,9 @@ unsigned int getNHardwareThreads() {
             if(g_nHardwareThreads.load() == 0) { // We could not load the number of hardware threads
                 glogger << "In getNHardwareThreads():"
                         << "Could not get information regarding suitable number of threads."
-                        << std::endl
+                        << '\n'
                         << "from hardware. Using the default value  = " << DEFAULTNHARDWARETHREADS
-                        << " instead." << std::endl
+                        << " instead." << '\n'
                         << GWARNING;
 
                 g_nHardwareThreads.store(DEFAULTNHARDWARETHREADS);
@@ -136,9 +136,9 @@ std::string loadTextDataFromFile(std::filesystem::path const &p) {
     if(not std::filesystem::exists(p)) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In loadTextDataFromFile(): Error!" << std::endl
-            << "Tried to load data from file " << p.string() << std::endl
-            << "which does not exist" << std::endl
+            << "In loadTextDataFromFile(): Error!" << '\n'
+            << "Tried to load data from file " << p.string() << '\n'
+            << "which does not exist" << '\n'
         );
     }
 
@@ -147,9 +147,9 @@ std::string loadTextDataFromFile(std::filesystem::path const &p) {
     if(not sourceFileStream) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In loadTextDataFromFile(): Error!" << std::endl
-            << "Stream from file " << p.string() << std::endl
-            << "is not valid" << std::endl
+            << "In loadTextDataFromFile(): Error!" << '\n'
+            << "Stream from file " << p.string() << '\n'
+            << "is not valid" << '\n'
         );
     }
 
@@ -172,9 +172,9 @@ std::vector<std::string> loadTextLinesFromFile(std::filesystem::path const &p) {
     if(not std::filesystem::exists(p)) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In loadTextLinesFromFile(): Error!" << std::endl
-            << "Tried to load data from file " << p.string() << std::endl
-            << "which does not exist" << std::endl
+            << "In loadTextLinesFromFile(): Error!" << '\n'
+            << "Tried to load data from file " << p.string() << '\n'
+            << "which does not exist" << '\n'
         );
     }
 
@@ -183,9 +183,9 @@ std::vector<std::string> loadTextLinesFromFile(std::filesystem::path const &p) {
     if(not sourceFileStream) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In loadTextLinesFromFile(): Error!" << std::endl
-            << "Stream from file " << p.string() << std::endl
-            << "is not valid" << std::endl
+            << "In loadTextLinesFromFile(): Error!" << '\n'
+            << "Stream from file " << p.string() << '\n'
+            << "is not valid" << '\n'
         );
     }
 
@@ -248,7 +248,7 @@ int runExternalCommand(
     int errorCode = system(localCommand.c_str());
 
 #ifdef GEM_COMMON_PRINT_COMMANDLINE
-    std::cout << "... done." << std::endl;
+    std::cout << "... done." << '\n';
 #endif /* GEM_COMMON_PRINT_COMMANDLINE */
 
     // The error code will be returned as the function valiue
@@ -271,9 +271,9 @@ std::vector<std::string> splitString(std::string const &str, const char *sep) {
     if(1 != std::string(sep).size()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In splitString(): Error!" << std::endl
+            << "In splitString(): Error!" << '\n'
             << "Supplied separator \"" << sep << "\" has invalid size " << std::string(sep).size()
-            << std::endl
+            << '\n'
         );
     }
 #endif /* DEBUG */
@@ -329,9 +329,9 @@ std::vector<unsigned int> stringToUIntVec(std::string const &raw, char sep) {
         std::string rest(from, to);
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In stringToUIntVec(const std::string& raw): Error!" << std::endl
-            << "Parsing failed." << std::endl
-            << "Stopped at: \": " << rest << "\"" << std::endl
+            << "In stringToUIntVec(const std::string& raw): Error!" << '\n'
+            << "Parsing failed." << '\n'
+            << "Stopped at: \": " << rest << "\"" << '\n'
         );
     }
 
@@ -359,9 +359,9 @@ std::vector<double> stringToDoubleVec(std::string const &raw) {
         std::string rest(from, to);
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In stringToDoubleVec(const std::string& raw): Error!" << std::endl
-            << "Parsing failed." << std::endl
-            << "Stopped at: \": " << rest << "\"" << std::endl
+            << "In stringToDoubleVec(const std::string& raw): Error!" << '\n'
+            << "Parsing failed." << '\n'
+            << "Stopped at: \": " << rest << "\"" << '\n'
         );
     }
 
@@ -397,9 +397,9 @@ std::vector<std::tuple<unsigned int, unsigned int>> stringToUIntTupleVec(std::st
         std::string rest(from, to);
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In stringToUIntTupleVec(const std::string& raw): Error!" << std::endl
-            << "Parsing failed." << std::endl
-            << "Stopped at: \"" << rest << "\"" << std::endl
+            << "In stringToUIntTupleVec(const std::string& raw): Error!" << '\n'
+            << "Parsing failed." << '\n'
+            << "Stopped at: \"" << rest << "\"" << '\n'
         );
     }
 
@@ -434,8 +434,8 @@ std::chrono::duration<double> duration_from_string(std::string const &duration_s
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In Gem::Common::duration_from_string(\"" << duration_string << "\"): Error!"
-            << std::endl
-            << "Invalid number of fields present: " << timings.size() << std::endl
+            << '\n'
+            << "Invalid number of fields present: " << timings.size() << '\n'
         );
         break;
     }
@@ -499,11 +499,11 @@ milliseconds_to_time_point(std::chrono::milliseconds::rep const &val) {
  */
 void condnotset(std::string const &F, std::string const &D) {
     std::ostringstream error; // NOLINT(cppcoreguidelines-init-variables)
-    error << std::endl
-          << "================================================" << std::endl
-          << "In function " << F << " Error!" << std::endl
-          << "Function was called even though " << D << " hasn't been set." << std::endl
-          << "================================================" << std::endl;
+    error << '\n'
+          << "================================================" << '\n'
+          << "In function " << F << " Error!" << '\n'
+          << "Function was called even though " << D << " hasn't been set." << '\n'
+          << "================================================" << '\n';
     throw(geneva_exception(error.str()));
 }
 

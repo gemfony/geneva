@@ -284,7 +284,7 @@ void StandardTests_no_failure_expected() {
         else {
             std::cout << "Internal (de-)serialization test for object with name "
                       << typeid(T).name()
-                      << " not run because original objects are identical / TEXT" << std::endl;
+                      << " not run because original objects are identical / TEXT" << '\n';
         }
     }
 
@@ -308,7 +308,7 @@ void StandardTests_no_failure_expected() {
         else {
             std::cout << "Internal (de-)serialization test for object with name "
                       << typeid(T).name() << " not run because original objects are identical / XML"
-                      << std::endl;
+                      << '\n';
         }
     }
 
@@ -332,7 +332,7 @@ void StandardTests_no_failure_expected() {
         else {
             std::cout << "Internal (de-)serialization test for object with name "
                       << typeid(T).name()
-                      << " not run because original objects are identical / BINARY" << std::endl;
+                      << " not run because original objects are identical / BINARY" << '\n';
         }
     }
 
@@ -362,7 +362,7 @@ void StandardTests_no_failure_expected() {
         else {
             std::cout << "External (de-)serialization test for object with name "
                       << typeid(T).name()
-                      << " not run because original objects are identical / TEXT" << std::endl;
+                      << " not run because original objects are identical / TEXT" << '\n';
         }
     }
 
@@ -388,7 +388,7 @@ void StandardTests_no_failure_expected() {
         else {
             std::cout << "External (de-)serialization test for object with name "
                       << typeid(T).name() << " not run because original objects are identical / XML"
-                      << std::endl;
+                      << '\n';
         }
     }
 
@@ -414,7 +414,7 @@ void StandardTests_no_failure_expected() {
         else {
             std::cout << "External (de-)serialization test for object with name "
                       << typeid(T).name()
-                      << " not run because original objects are identical / BINARY" << std::endl;
+                      << " not run because original objects are identical / BINARY" << '\n';
         }
     }
 

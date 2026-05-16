@@ -180,8 +180,8 @@ public:
             // Throw an exception
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GFixedSizePriorityQueueT<T>::best(): Error!" << std::endl
-                << "Priority queue is empty." << std::endl
+                << "In GFixedSizePriorityQueueT<T>::best(): Error!" << '\n'
+                << "Priority queue is empty." << '\n'
             );
         }
         else {
@@ -198,8 +198,8 @@ public:
             // Throw an exception
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GFixedSizePriorityQueueT<T>::best(): Error!" << std::endl
-                << "Priority queue is empty." << std::endl
+                << "In GFixedSizePriorityQueueT<T>::best(): Error!" << '\n'
+                << "Priority queue is empty." << '\n'
             );
         }
         else {
@@ -370,8 +370,8 @@ public:
             // Throw an exception
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GFixedSizePriorityQueueT<T>::pop(): Error!" << std::endl
-                << "Priority queue is empty." << std::endl
+                << "In GFixedSizePriorityQueueT<T>::pop(): Error!" << '\n'
+                << "Priority queue is empty." << '\n'
             );
         }
         else {
@@ -445,9 +445,9 @@ public:
              * Prints the evaluations. This is for debugging purposes.
              */
     void printEvaluations() const {
-        std::cout << "==================== printEvaluations =====================" << std::endl;
+        std::cout << "==================== printEvaluations =====================" << '\n';
         for(auto const &item_ptr : data_deq_) {
-            std::cout << this->evaluation(item_ptr) << std::endl;
+            std::cout << this->evaluation(item_ptr) << '\n';
         }
     }
 

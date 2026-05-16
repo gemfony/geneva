@@ -175,8 +175,8 @@ void GSwarmAlgorithm_PersonalityTraits::registerPersonalBest(std::shared_ptr<GPa
     if(not p) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GSwarmAlgorithm_PersonalityTraits::registerPersonalBest():" << std::endl
-            << "Got empty smart pointer." << std::endl
+            << "In GSwarmAlgorithm_PersonalityTraits::registerPersonalBest():" << '\n'
+            << "Got empty smart pointer." << '\n'
         );
     }
 
@@ -184,8 +184,8 @@ void GSwarmAlgorithm_PersonalityTraits::registerPersonalBest(std::shared_ptr<GPa
     if(not p->is_processed()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GSwarmAlgorithm_PersonalityTraits::registerPersonalBest():" << std::endl
-            << "Got individual which isn't processed." << std::endl
+            << "In GSwarmAlgorithm_PersonalityTraits::registerPersonalBest():" << '\n'
+            << "Got individual which isn't processed." << '\n'
         );
     }
 #endif
@@ -215,8 +215,8 @@ std::shared_ptr<GParameterSet> GSwarmAlgorithm_PersonalityTraits::getPersonalBes
     if(not personal_best_) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GSwarmAlgorithm_PersonalityTraits::getPersonalBest(): Error!" << std::endl
-            << "Tried to retrieve personal_best_ while pointer is empty" << std::endl
+            << "In GSwarmAlgorithm_PersonalityTraits::getPersonalBest(): Error!" << '\n'
+            << "Tried to retrieve personal_best_ while pointer is empty" << '\n'
         );
     }
 #endif

@@ -126,15 +126,15 @@ public:
             // if the user has requested it.
             if(this->verbose_control_frames_) {
                 if(boost::beast::websocket::frame_type::close == frame_t) {
-                    glogger << "GWebsocketClientT<> client has received a close frame" << std::endl
+                    glogger << "GWebsocketClientT<> client has received a close frame" << '\n'
                             << GLOGGING;
                 }
                 else if(boost::beast::websocket::frame_type::ping == frame_t) {
-                    glogger << "GWebsocketClientT<> client has received a ping frame" << std::endl
+                    glogger << "GWebsocketClientT<> client has received a ping frame" << '\n'
                             << GLOGGING;
                 }
                 else if(boost::beast::websocket::frame_type::pong == frame_t) {
-                    glogger << "GWebsocketClientT<> client has received a pong frame" << std::endl
+                    glogger << "GWebsocketClientT<> client has received a pong frame" << '\n'
                             << GLOGGING;
                 }
             }
@@ -149,11 +149,11 @@ public:
 	  * The destructor
 	  */
     ~GWebsocketClientT() {
-        glogger << std::endl
+        glogger << '\n'
                 << "GWebsocketClientT<> is shutting down. Processed " << this->getNProcessed()
-                << " items in total" << std::endl
-                << "\"no data\" was received " << n_nodata_ << " times" << std::endl
-                << std::endl
+                << " items in total" << '\n'
+                << "\"no data\" was received " << n_nodata_ << " times" << '\n'
+                << '\n'
                 << GLOGGING;
     }
 
@@ -194,7 +194,7 @@ private:
 
         // Let the audience know that we have finished the shutdown
         glogger << "GWebsocketClientT<processable_type>::run_(): Client session has terminated"
-                << std::endl
+                << '\n'
                 << GLOGGING;
     }
 
@@ -250,10 +250,10 @@ private:
 	  */
     void when_resolved(boost::system::error_code ec, const resolver::results_type &results) {
         if(ec) {
-            glogger << "In GWebsocketClientT<processable_type>::when_resolved():" << std::endl
+            glogger << "In GWebsocketClientT<processable_type>::when_resolved():" << '\n'
                     << "Got ec(\"" << ec.message() << "\"). async_connect() will not be executed."
-                    << std::endl
-                    << "This will terminate the client." << std::endl
+                    << '\n'
+                    << "This will terminate the client." << '\n'
                     << GLOGGING;
 
             // Give the audience a hint why we are terminating
@@ -280,10 +280,10 @@ private:
 	  */
     void when_connected(boost::system::error_code ec) {
         if(ec) {
-            glogger << "In GWebsocketClientT<processable_type>::when_connected():" << std::endl
+            glogger << "In GWebsocketClientT<processable_type>::when_connected():" << '\n'
                     << "Got ec(\"" << ec.message() << "\"). async_handshake() will not be executed."
-                    << std::endl
-                    << "This will terminate the client." << std::endl
+                    << '\n'
+                    << "This will terminate the client." << '\n'
                     << GLOGGING;
 
             // Give the audience a hint why we are terminating
@@ -309,10 +309,10 @@ private:
     void when_handshake_complete(boost::system::error_code ec) {
         if(ec) {
             glogger << "In GWebsocketClientT<processable_type>::when_handshake_complete():"
-                    << std::endl
+                    << '\n'
                     << "Got ec(\"" << ec.message()
-                    << "\"). async_start_write() will not be executed." << std::endl
-                    << "This will terminate the client." << std::endl
+                    << "\"). async_start_write() will not be executed." << '\n'
+                    << "This will terminate the client." << '\n'
                     << GLOGGING;
 
             // Give the audience a hint why we are terminating
@@ -345,9 +345,9 @@ private:
         std::size_t /* nothing */
     ) {
         if(ec) {
-            glogger << "In GWebsocketClientT<processable_type>::when_written():" << std::endl
-                    << "Got ec(\"" << ec.message() << "\")." << std::endl
-                    << "This will terminate the client." << std::endl
+            glogger << "In GWebsocketClientT<processable_type>::when_written():" << '\n'
+                    << "Got ec(\"" << ec.message() << "\")." << '\n'
+                    << "This will terminate the client." << '\n'
                     << GLOGGING;
 
             // Give the audience a hint why we are terminating
@@ -373,10 +373,10 @@ private:
         std::size_t /* nothing */
     ) {
         if(ec) {
-            glogger << "In GWebsocketClientT<processable_type>::when_read():" << std::endl
+            glogger << "In GWebsocketClientT<processable_type>::when_read():" << '\n'
                     << "Got ec(\"" << ec.message()
-                    << "\"). async_start_write() will not be executed." << std::endl
-                    << "This will terminate the client." << std::endl
+                    << "\"). async_start_write() will not be executed." << '\n'
+                    << "This will terminate the client." << '\n'
                     << GLOGGING;
 
             // Give the audience a hint why we are terminating
@@ -390,8 +390,8 @@ private:
         if(processing_is_active_) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GWebsocketClientT<processable_type>::when_read():" << std::endl
-                << "process_reques() is running in a location where it shouldn't be" << std::endl
+                << "In GWebsocketClientT<processable_type>::when_read():" << '\n'
+                << "process_reques() is running in a location where it shouldn't be" << '\n'
             );
         }
 
@@ -406,8 +406,8 @@ private:
         }
         catch(...) {
             // Give the audience a hint why we are terminating
-            glogger << "In GWebsocketClientT<processable_type>::when_read():" << std::endl
-                    << "Caught exception" << std::endl
+            glogger << "In GWebsocketClientT<processable_type>::when_read():" << '\n'
+                    << "Caught exception" << '\n'
                     << GWARNING;
 
             close_code_ = boost::beast::websocket::close_code::internal_error;
@@ -467,8 +467,8 @@ private:
         default: {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "GWebsocketClientT<processable_type><>::process_request():" << std::endl
-                << "Received invalid command " << pcToStr(inboundCommand) << std::endl
+                << "GWebsocketClientT<processable_type><>::process_request():" << '\n'
+                << "Received invalid command " << pcToStr(inboundCommand) << '\n'
             );
         } /* break; */ // break is unreachable
         }
@@ -500,17 +500,17 @@ private:
             ws_.next_layer().close(ec);
 
             if(ec) {
-                glogger << "In GWebsocketClientT<processable_type>::do_close():" << std::endl
-                        << "Got ec(\"" << ec.message() << "\")." << std::endl
+                glogger << "In GWebsocketClientT<processable_type>::do_close():" << '\n'
+                        << "Got ec(\"" << ec.message() << "\")." << '\n'
                         << "We will throw an exception, as there are no other options left"
-                        << std::endl
+                        << '\n'
                         << GLOGGING;
 
                 // Not much more we can do
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
-                    << "GWebsocketClientT<processable_type>::do_close():" << std::endl
-                    << "Shutdown of next layer has failed" << std::endl
+                    << "GWebsocketClientT<processable_type>::do_close():" << '\n'
+                    << "Shutdown of next layer has failed" << '\n'
                 );
             }
         }
@@ -645,17 +645,17 @@ public:
             if(this->verbose_control_frames_) {
                 if(boost::beast::websocket::frame_type::close == frame_t) {
                     glogger << "GWebsocketConsumerSessionT<> session has received a close frame"
-                            << std::endl
+                            << '\n'
                             << GLOGGING;
                 }
                 else if(boost::beast::websocket::frame_type::ping == frame_t) {
                     glogger << "GWebsocketConsumerSessionT<> session has received a ping frame"
-                            << std::endl
+                            << '\n'
                             << GLOGGING;
                 }
                 else if(boost::beast::websocket::frame_type::pong == frame_t) {
                     glogger << "GWebsocketConsumerSessionT<> session has received a pong frame"
-                            << std::endl
+                            << '\n'
                             << GLOGGING;
                 }
             }
@@ -820,7 +820,7 @@ private:
         if(ec) {
             if(ec != boost::asio::error::operation_aborted) {
                 glogger << "GWebsocketConsumerSessionT<processable_type>::when_ping_sent(): "
-                        << ec.message() << std::endl
+                        << ec.message() << '\n'
                         << GLOGGING;
             }
 
@@ -839,7 +839,7 @@ private:
         if(ec) {
             if(ec != boost::asio::error::operation_aborted) {
                 glogger << "GWebsocketConsumerSessionT<processable_type>::when_timer_fired(): "
-                        << ec.message() << std::endl
+                        << ec.message() << '\n'
                         << GLOGGING;
             }
 
@@ -858,8 +858,8 @@ private:
             if(not this->check_server_stopped_()) {
                 // Either this is a stale connection or the SENDING_PING flag is still set
                 glogger << "GWebsocketConsumerSessionT<processable_type>::when_timer_fired():"
-                        << std::endl
-                        << "Connection seems to be dead: " << ping_state_ << std::endl
+                        << '\n'
+                        << "Connection seems to be dead: " << ping_state_ << '\n'
                         << GLOGGING;
             }
             return;
@@ -875,7 +875,7 @@ private:
     void when_connection_accepted(boost::system::error_code ec) {
         if(ec) {
             glogger << "GWebsocketConsumerSessionT<processable_type>::when_connection_accepted(): "
-                    << ec.message() << std::endl
+                    << ec.message() << '\n'
                     << GLOGGING;
 
             do_close(boost::beast::websocket::close_code::going_away);
@@ -904,7 +904,7 @@ private:
         if(ec) {
             if(ec != boost::beast::websocket::error::closed) {
                 glogger << "GWebsocketConsumerSessionT<processable_type>::when_read(): "
-                        << ec.message() << std::endl
+                        << ec.message() << '\n'
                         << GLOGGING;
             }
 
@@ -929,7 +929,7 @@ private:
         if(ec) {
             if(ec != boost::beast::websocket::error::closed) {
                 glogger << "GWebsocketConsumerSessionT<processable_type>::when_written(): "
-                        << ec.message() << std::endl
+                        << ec.message() << '\n'
                         << GLOGGING;
             }
 
@@ -985,9 +985,9 @@ private:
                 // Not much else we can do here
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
-                    << "GWebsocketConsumerSessionT<processable_type>::do_close():" << std::endl
-                    << "Shutdown of next layer has failed" << std::endl
-                    << "Got error code " << ec.message() << std::endl
+                    << "GWebsocketConsumerSessionT<processable_type>::do_close():" << '\n'
+                    << "Shutdown of next layer has failed" << '\n'
+                    << "Got error code " << ec.message() << '\n'
                 );
             }
         }
@@ -1033,8 +1033,8 @@ private:
                 }
                 else {
                     glogger << "GWebsocketConsumerSessionT<processable_type>::process_request():"
-                            << std::endl
-                            << "payload is empty even though a result was expected" << std::endl
+                            << '\n'
+                            << "payload is empty even though a result was expected" << '\n'
                             << GWARNING;
                 }
 
@@ -1044,9 +1044,9 @@ private:
 
             default: {
                 glogger << "GWebsocketConsumerSessionT<processable_type>::process_request():"
-                        << std::endl
+                        << '\n'
                         << "Got unknown or invalid command "
-                        << inboundCommand << std::endl
+                        << inboundCommand << '\n'
                         << GWARNING;
             } break;
             }
@@ -1054,7 +1054,7 @@ private:
         catch(...) {
             glogger << "GWebsocketConsumerSessionT<processable_type>::process_request(): Caught "
                        "exception"
-                    << std::endl
+                    << '\n'
                     << GLOGGING;
 
             do_close(boost::beast::websocket::close_code::internal_error);
@@ -1249,8 +1249,8 @@ private:
                     g_error_streamer(DO_LOG, time_and_place)
                     << "GWebsocketConsumerT<>::async_startProcessing_() / acceptor_.open: Got "
                        "error message \""
-                    << ec.message() << "\"" << std::endl
-                    << "No connections will be accepted. The server is not running" << std::endl
+                    << ec.message() << "\"" << '\n'
+                    << "No connections will be accepted. The server is not running" << '\n'
                 );
             }
             else {
@@ -1258,8 +1258,8 @@ private:
                     g_error_streamer(DO_LOG, time_and_place)
                     << "GWebsocketConsumerT<>::async_startProcessing_() / acceptor_.open did not "
                        "succeed."
-                    << std::endl
-                    << "No connections will be accepted. The server is not running" << std::endl
+                    << '\n'
+                    << "No connections will be accepted. The server is not running" << '\n'
                 );
             }
         }
@@ -1271,8 +1271,8 @@ private:
                 g_error_streamer(DO_LOG, time_and_place)
                 << "GWebsocketConsumerT<>::async_startProcessing_() / acceptor_.bind: Got error "
                    "message \""
-                << ec.message() << "\"" << std::endl
-                << "No connections will be accepted. The server is not running" << std::endl
+                << ec.message() << "\"" << '\n'
+                << "No connections will be accepted. The server is not running" << '\n'
             );
         }
 
@@ -1287,8 +1287,8 @@ private:
                 g_error_streamer(DO_LOG, time_and_place)
                 << "GWebsocketConsumerT<>::async_startProcessing_() / acceptor_.listen: Got error "
                    "message \""
-                << ec.message() << "\"" << std::endl
-                << "No connections will be accepted. The server is not running" << std::endl
+                << ec.message() << "\"" << '\n'
+                << "No connections will be accepted. The server is not running" << '\n'
             );
         }
 
@@ -1325,8 +1325,8 @@ private:
     void when_accepted(error_code ec) {
         if(ec) {
             glogger << "In GWebsocketConsumerT<>::when_accepted(): Got error code \""
-                    << ec.message() << "\"" << std::endl
-                    << "We will nevertheless try to accept more connections" << std::endl
+                    << ec.message() << "\"" << '\n'
+                    << "We will nevertheless try to accept more connections" << '\n'
                     << GWARNING;
         }
         else {
@@ -1350,14 +1350,14 @@ private:
                         else {
                             throw geneva_exception(
                                 g_error_streamer(DO_LOG, time_and_place)
-                                << "In GWebsocketConsumerT<>::when_accepted():" << std::endl
-                                << "Tried to decrement #sessions which is already 0" << std::endl
+                                << "In GWebsocketConsumerT<>::when_accepted():" << '\n'
+                                << "Tried to decrement #sessions which is already 0" << '\n'
                             );
                         }
                     }
 
                     glogger << "GWebsocketConsumerT<>: " << this->n_active_sessions_
-                            << " active sessions" << std::endl
+                            << " active sessions" << '\n'
                             << GLOGGING;
                 },
                 serializationMode_,
@@ -1396,15 +1396,15 @@ private:
         if(not p) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "GWebsocketConsumerT<>::putPayloadItem():" << std::endl
-                << "Function called with empty work item" << std::endl
+                << "GWebsocketConsumerT<>::putPayloadItem():" << '\n'
+                << "Function called with empty work item" << '\n'
             );
         }
 
         if(not broker_ptr_->put(p, timeout_)) {
-            glogger << "In GWebsocketConsumerT<>::putPayloadItem():" << std::endl
-                    << "Work item could not be submitted to the broker" << std::endl
-                    << "The item will be discarded" << std::endl
+            glogger << "In GWebsocketConsumerT<>::putPayloadItem():" << '\n'
+                    << "Work item could not be submitted to the broker" << '\n'
+                    << "The item will be discarded" << '\n'
                     << GWARNING;
         }
     }

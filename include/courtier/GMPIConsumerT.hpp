@@ -203,7 +203,7 @@ public:
       , halt_{std::move(halt)}
       , incrementProcessingCounter_{std::move(incrementProcessingCounter)}
       , config_{config} {
-        glogger << "GMPIConsumerWorkerNodeT with rank " << commRank_ << " started up" << std::endl
+        glogger << "GMPIConsumerWorkerNodeT with rank " << commRank_ << " started up" << '\n'
                 << GLOGGING;
         // create the buffer for incoming messages
         incomingMessageBuffer_ = std::unique_ptr<char[]>(new char[GMPICONSUMERMAXMESSAGESIZE]);
@@ -335,10 +335,10 @@ private:
             glogger
                 << "In GMPIConsumerWorkerNodeT<processable_type>::sendResultAndRequestNewWork() "
                    "with rank="
-                << commRank_ << ":" << std::endl
-                << "Received an error sending a message to GMPIConsumerMasterNodeT:" << std::endl
-                << mpiErrorString(status.MPI_ERROR) << std::endl
-                << "Worker node will shut down." << std::endl
+                << commRank_ << ":" << '\n'
+                << "Received an error sending a message to GMPIConsumerMasterNodeT:" << '\n'
+                << mpiErrorString(status.MPI_ERROR) << '\n'
+                << "Worker node will shut down." << '\n'
                 << GWARNING;
 
             return false;
@@ -351,11 +351,11 @@ private:
             glogger
                 << "In GMPIConsumerWorkerNodeT<processable_type>::sendResultAndRequestNewWork() "
                    "with rank="
-                << commRank_ << ":" << std::endl
+                << commRank_ << ":" << '\n'
                 << "Received an error receiving a message from GMPIConsumerMasterNodeT:"
-                << std::endl
-                << mpiErrorString(status.MPI_ERROR) << std::endl
-                << "Worker node will shut down." << std::endl
+                << '\n'
+                << mpiErrorString(status.MPI_ERROR) << '\n'
+                << "Worker node will shut down." << '\n'
                 << GWARNING;
 
             return false;
@@ -405,10 +405,10 @@ private:
         default: {
             // Emit a warning, ignore item and request new item
             glogger << "GMPIConsumerWorkerNodeT<processable_type>::processWorkItem() with rank="
-                    << commRank_ << ":" << std::endl
+                    << commRank_ << ":" << '\n'
                     << "Got unknown or invalid command "
                     << commandContainer_.get_command()
-                    << std::endl
+                    << '\n'
                     << GWARNING;
 
             commandContainer_.reset(networked_consumer_payload_command::GETDATA);
@@ -434,7 +434,7 @@ private:
         if(commandContainer_.get_command() != networked_consumer_payload_command::STOP) {
             glogger
                 << "In GMPIConsumerWorkerNodeT<processable_type>::processLastResponse() with rank="
-                << commRank_ << ":" << std::endl
+                << commRank_ << ":" << '\n'
                 << "Expected to receive the last stop request but instead received message with "
                    "command "
                 << commandContainer_.get_command() << GTERMINATION;
@@ -609,9 +609,9 @@ private:
             default: { // clients may only send RESULT or GETDATA commands
                 glogger
                     << "GMPIConsumerSessionT<processable_type>::processRequest() connected to rank="
-                    << mpiStatus_.MPI_SOURCE << ":" << std::endl
+                    << mpiStatus_.MPI_SOURCE << ":" << '\n'
                     << "Got unknown or invalid command "
-                    << inboundCommand << std::endl
+                    << inboundCommand << '\n'
                     << GWARNING;
             }
             }
@@ -619,9 +619,9 @@ private:
         catch(const geneva_exception &ex) {
             auto ePtr = std::current_exception();
             glogger << "GMPIConsumerSessionT<processable_type>::processRequest() connected to rank="
-                    << mpiStatus_.MPI_SOURCE << ":" << std::endl
-                    << ": Caught exception while deserializing request" << std::endl
-                    << ex.what() << std::endl
+                    << mpiStatus_.MPI_SOURCE << ":" << '\n'
+                    << ": Caught exception while deserializing request" << '\n'
+                    << ex.what() << '\n'
                     << GEXCEPTION;
         }
 
@@ -639,9 +639,9 @@ private:
         }
 
         glogger << "GMPIConsumerSessionT<processable_type>::process_request() connected to rank="
-                << mpiStatus_.MPI_SOURCE << ":" << std::endl
-                << "payload is empty even though a result was expected." << std::endl
-                << "However, this request will also be responded normally." << std::endl
+                << mpiStatus_.MPI_SOURCE << ":" << '\n'
+                << "payload is empty even though a result was expected." << '\n'
+                << "However, this request will also be responded normally." << '\n'
                 << GWARNING;
     }
 
@@ -680,13 +680,13 @@ private:
         if(outgoingMessage_.size() > GMPICONSUMERMAXMESSAGESIZE) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "GMPIConsumerSessionT<processable_type>::serializeOutgoingMsg():" << std::endl
+                << "GMPIConsumerSessionT<processable_type>::serializeOutgoingMsg():" << '\n'
                 << "Size of individual to send after serialization greater than maximum configured "
                    "message size."
-                << std::endl
-                << "Size of Individual is " << outgoingMessage_.size() << std::endl
-                << "Maximum message size is " << GMPICONSUMERMAXMESSAGESIZE << std::endl
-                << "Serialization mode is " << serializationMode_ << std::endl
+                << '\n'
+                << "Size of Individual is " << outgoingMessage_.size() << '\n'
+                << "Maximum message size is " << GMPICONSUMERMAXMESSAGESIZE << '\n'
+                << "Serialization mode is " << serializationMode_ << '\n'
                 << "To overcome this issue, change the serialization mode or adjust the maximum "
                    "message size."
             );
@@ -804,7 +804,7 @@ public:
       , config_{config}
       , isToldToStop_{false} {
         glogger << "GMPIConsumerMasterNodeT started with " << config_.nHandlerThreads
-                << " handler threads" << std::endl
+                << " handler threads" << '\n'
                 << GLOGGING;
     }
 
@@ -914,10 +914,10 @@ private:
         const bool stopRequested
     ) {
         if(status.MPI_ERROR != MPI_SUCCESS) {
-            glogger << "In GMPIConsumerMasterNodeT<processable_type>::handleRequest():" << std::endl
-                    << "Received an error:" << std::endl
-                    << mpiErrorString(status.MPI_ERROR) << std::endl
-                    << "Request from worker node will not be answered." << std::endl
+            glogger << "In GMPIConsumerMasterNodeT<processable_type>::handleRequest():" << '\n'
+                    << "Received an error:" << '\n'
+                    << mpiErrorString(status.MPI_ERROR) << '\n'
+                    << "Request from worker node will not be answered." << '\n'
                     << GWARNING;
 
             // return from this handler, which means not answering the request
@@ -1024,15 +1024,15 @@ private:
         if(not p) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "GMPIConsumerMasterNodeT<>::putPayloadItem():" << std::endl
-                << "Function called with empty work item" << std::endl
+                << "GMPIConsumerMasterNodeT<>::putPayloadItem():" << '\n'
+                << "Function called with empty work item" << '\n'
             );
         }
 
         if(not brokerPtr_->put(p, timeout_)) {
-            glogger << "In GMPIConsumerMasterNodeT<>::putPayloadItem():" << std::endl
-                    << "Work item could not be submitted to the broker" << std::endl
-                    << "The item will be discarded" << std::endl
+            glogger << "In GMPIConsumerMasterNodeT<>::putPayloadItem():" << '\n'
+                    << "Work item could not be submitted to the broker" << '\n'
+                    << "The item will be discarded" << '\n'
                     << GWARNING;
         }
     }
@@ -1163,11 +1163,11 @@ public:
             if(providedThreadingLevel != MPI_THREAD_MULTIPLE) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
-                    << "GMPIConsumerT<> constructor" << std::endl
+                    << "GMPIConsumerT<> constructor" << '\n'
                     << "Geneva requires MPI implementation with level MPI_THREAD_MULTIPLE (a.k.a. "
                     << MPI_THREAD_MULTIPLE
                     << ") but the runtime environment implementation of MPI only supports level "
-                    << providedThreadingLevel << std::endl
+                    << providedThreadingLevel << '\n'
                 );
             }
         }
@@ -1190,11 +1190,11 @@ public:
             MPI_Finalize();
         }
         else {
-            glogger << "In GMPIConsumerT<>::finalizeMPI():" << std::endl
+            glogger << "In GMPIConsumerT<>::finalizeMPI():" << '\n'
                     << "MPI has been finalized GMPIConsumerT::finalizeMPI() has been called."
-                    << std::endl
-                    << "Happened on node with rank " << commRank_ << std::endl
-                    << "This might indicate issues in the user code." << std::endl
+                    << '\n'
+                    << "Happened on node with rank " << commRank_ << '\n'
+                    << "This might indicate issues in the user code." << '\n'
                     << GWARNING;
         }
     }
@@ -1246,10 +1246,10 @@ public:
             MPI_Wait(&requestHandle, &status);
 
             if(status.MPI_ERROR != MPI_SUCCESS) {
-                glogger << "In GMPIConsumerT<processable_type>::synchronize():" << std::endl
-                        << "Received an error:" << std::endl
-                        << mpiErrorString(status.MPI_ERROR) << std::endl
-                        << "We will try to continue execution anyways." << std::endl
+                glogger << "In GMPIConsumerT<processable_type>::synchronize():" << '\n'
+                        << "Received an error:" << '\n'
+                        << mpiErrorString(status.MPI_ERROR) << '\n'
+                        << "We will try to continue execution anyways." << '\n'
                         << GWARNING;
 
                 return false; // synchronize stopped but unsuccessful
@@ -1268,8 +1268,8 @@ public:
         if(!isClusterPositionDefined) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "GMPIConsumerT<>::isMasterNode():" << std::endl
-                << "The position of the process in the cluster is undefined." << std::endl
+                << "GMPIConsumerT<>::isMasterNode():" << '\n'
+                << "The position of the process in the cluster is undefined." << '\n'
                 << "Use GMPIConsumerT<>::setPositionInCluster() to let the node figure out its "
                    "position "
                    "before calling any methods that require this information."
@@ -1296,13 +1296,13 @@ protected:
          */
     void shutdown_() override {
         if(!isMasterNode()) {
-            glogger << "In GMPIConsumerT<>::shutdown_():" << std::endl
+            glogger << "In GMPIConsumerT<>::shutdown_():" << '\n'
                     << "shutdown_ method is only supposed to be called by instances running master "
                        "mode."
-                    << std::endl
+                    << '\n'
                     << "But the calling node with rank " << commRank_ << " is a worker node."
-                    << std::endl
-                    << "The method will therefore exit." << std::endl
+                    << '\n'
+                    << "The method will therefore exit." << '\n'
                     << GWARNING;
             return;
         }
@@ -1371,13 +1371,13 @@ private:
          */
     void async_startProcessing_() override {
         if(!isMasterNode()) {
-            glogger << "In GMPIConsumerT<>::async_startProcessing_():" << std::endl
+            glogger << "In GMPIConsumerT<>::async_startProcessing_():" << '\n'
                     << "async_startProcessing_ method is only supposed to be called by instances "
                        "running master mode."
-                    << std::endl
+                    << '\n'
                     << "But the calling node with rank " << commRank_ << " is a worker node."
-                    << std::endl
-                    << "The method will therefore exit." << std::endl
+                    << '\n'
+                    << "The method will therefore exit." << '\n'
                     << GWARNING;
             return;
         }
@@ -1425,10 +1425,10 @@ private:
         if(isMasterNode()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "GMPIConsumerT<>::getClient_():" << std::endl
-                << "The current node is the master node in the MPI cluster." << std::endl
+                << "GMPIConsumerT<>::getClient_():" << '\n'
+                << "The current node is the master node in the MPI cluster." << '\n'
                 << "Trying to construct a client a.k.a. worker from this node is not permitted."
-                << std::endl
+                << '\n'
                 << "But still the getClient_ method has been called."
             );
         }
@@ -1458,12 +1458,12 @@ private:
          */
     void run_() override {
         if(!isWorkerNode()) {
-            glogger << "In GMPIConsumerT<>::run_():" << std::endl
+            glogger << "In GMPIConsumerT<>::run_():" << '\n'
                     << "run_ method is only supposed to be called by instances running worker mode."
-                    << std::endl
+                    << '\n'
                     << "But the calling node with rank " << commRank_ << " is the master node."
-                    << std::endl
-                    << "The method will therefore exit." << std::endl
+                    << '\n'
+                    << "The method will therefore exit." << '\n'
                     << GWARNING;
             return;
         }

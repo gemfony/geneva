@@ -58,8 +58,8 @@ template <typename T>
 std::shared_ptr<GAdaptorT<T>> getDefaultAdaptor() {
     throw geneva_exception(
         g_error_streamer(DO_LOG, time_and_place)
-        << "In getDefaultAdaptor():" << std::endl
-        << "Function called with invalid type." << std::endl
+        << "In getDefaultAdaptor():" << '\n'
+        << "Function called with invalid type." << '\n'
     );
 
     // Make the compiler happy

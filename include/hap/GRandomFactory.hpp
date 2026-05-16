@@ -130,9 +130,9 @@ public:
         if(empty()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In random_container::next(): Error!" << std::endl
+                << "In random_container::next(): Error!" << '\n'
                 << "Invalid current_pos_: " << current_pos_ << " / " << DEFAULTARRAYSIZE
-                << std::endl
+                << '\n'
             );
         }
 #endif
@@ -154,16 +154,16 @@ private:
         catch(const std::bad_alloc &e) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In random_container::random_container(T_RNG&): Error!" << std::endl
-                << "std::bad_alloc caught with message" << std::endl
-                << e.what() << std::endl
+                << "In random_container::random_container(T_RNG&): Error!" << '\n'
+                << "std::bad_alloc caught with message" << '\n'
+                << e.what() << '\n'
             );
         }
         catch(...) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In random_container::random_container(T_RNG&): Error!" << std::endl
-                << "unknown exception caught" << std::endl
+                << "In random_container::random_container(T_RNG&): Error!" << '\n'
+                << "unknown exception caught" << '\n'
             );
         }
     }

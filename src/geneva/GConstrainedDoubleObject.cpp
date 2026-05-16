@@ -214,9 +214,9 @@ void GConstrainedDoubleObject::assignDoubleValueVector(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GConstrainedDoubleObject::assignDoubleValueVector(const std::vector<double>&, "
                "std::size_t&):"
-            << std::endl
+            << '\n'
             << "Tried to access position beyond end of vector: " << parVec.size() << "/" << pos
-            << std::endl
+            << '\n'
         );
     }
 #endif

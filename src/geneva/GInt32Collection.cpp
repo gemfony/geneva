@@ -149,8 +149,8 @@ void GInt32Collection::int32Streamline(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GInt32Collection::int32Streamline(std::map<std::string, "
                "std::vector<std::int32_t>>& parVec) const: Error!"
-            << std::endl
-            << "No name was assigned to the object" << std::endl
+            << '\n'
+            << "No name was assigned to the object" << '\n'
         );
     }
 #endif /* DEBUG */
@@ -212,9 +212,9 @@ void GInt32Collection::assignInt32ValueVector(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GInt32Collection::assignInt32ValueVector(const std::vector<std::int32_t>&, "
                    "std::size_t&):"
-                << std::endl
+                << '\n'
                 << "Tried to access position beyond end of vector: " << parVec.size() << "/" << pos
-                << std::endl
+                << '\n'
             );
         }
 #endif
@@ -323,8 +323,8 @@ void GInt32Collection::int32Add(
     if(this->size() != p->size()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GInt32Collection::int32Add():" << std::endl
-            << "Sizes of vectors don't match: " << this->size() << "/" << p->size() << std::endl
+            << "In GInt32Collection::int32Add():" << '\n'
+            << "Sizes of vectors don't match: " << this->size() << "/" << p->size() << '\n'
         );
     }
 
@@ -349,8 +349,8 @@ void GInt32Collection::int32Subtract(
     if(this->size() != p->size()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GInt32Collection::int32Subtract():" << std::endl
-            << "Sizes of vectors don't match: " << this->size() << "/" << p->size() << std::endl
+            << "In GInt32Collection::int32Subtract():" << '\n'
+            << "Sizes of vectors don't match: " << this->size() << "/" << p->size() << '\n'
         );
     }
 

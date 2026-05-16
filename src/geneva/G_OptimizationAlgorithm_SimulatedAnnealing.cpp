@@ -141,7 +141,7 @@ void GSimulatedAnnealing::addConfigurationOptions_(Gem::Common::GParserBuilder &
         ,
         [this](std::uint16_t nt) { this->setNThreads(nt); }
     ) << "The number of threads used to simultaneously adapt individuals"
-      << std::endl
+      << '\n'
       << "0 means \"automatic\"";
 
     gpb.registerFileParameter<double>(
@@ -159,7 +159,7 @@ void GSimulatedAnnealing::addConfigurationOptions_(Gem::Common::GParserBuilder &
         ,
         [this](double ds) { this->setTDegradationStrength(ds); }
     ) << "The degradation strength used in the cooling"
-      << std::endl
+      << '\n'
       << "schedule in simulated annealing;";
 }
 
@@ -173,9 +173,9 @@ void GSimulatedAnnealing::addConfigurationOptions_(Gem::Common::GParserBuilder &
   */
 void GSimulatedAnnealing::setNThreads(std::uint16_t nThreads) {
     if(nThreads == 0) {
-        glogger << "In GSimulatedAnnealing::setNThreads(nThreads):" << std::endl
+        glogger << "In GSimulatedAnnealing::setNThreads(nThreads):" << '\n'
                 << "nThreads == 0 was requested. n_threads_ was reset to the default "
-                << DEFAULTNSTDTHREADS << std::endl
+                << DEFAULTNSTDTHREADS << '\n'
                 << GWARNING;
 
         n_threads_ = DEFAULTNSTDTHREADS;
@@ -205,8 +205,8 @@ void GSimulatedAnnealing::setTDegradationStrength(double alpha) {
     if(alpha <= 0. || alpha >= 1.) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GSimulatedAnnealing::setTDegradationStrength(const double&):" << std::endl
-            << "alpha must be in (0,1) for SA cooling; got: " << alpha << std::endl
+            << "In GSimulatedAnnealing::setTDegradationStrength(const double&):" << '\n'
+            << "alpha must be in (0,1) for SA cooling; got: " << alpha << '\n'
         );
     }
 
@@ -233,8 +233,8 @@ void GSimulatedAnnealing::setT0(double t0) {
     if(t0 <= 0.) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GSimulatedAnnealing::setT0(const double&):" << std::endl
-            << "Got negative start temperature: " << t0 << std::endl
+            << "In GSimulatedAnnealing::setT0(const double&):" << '\n'
+            << "Got negative start temperature: " << t0 << '\n'
         );
     }
 
@@ -312,7 +312,7 @@ void GSimulatedAnnealing::populationSanityChecks_() const {
     if(this->n_parents_ == 0) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GSimulatedAnnealing::populationSanityChecks(): Error!" << std::endl
+            << "In GSimulatedAnnealing::populationSanityChecks(): Error!" << '\n'
             << "Number of parents is set to 0"
         );
     }
@@ -322,9 +322,9 @@ void GSimulatedAnnealing::populationSanityChecks_() const {
     if(popSize <= this->n_parents_) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GSimulatedAnnealing::populationSanityChecks() :" << std::endl
+            << "In GSimulatedAnnealing::populationSanityChecks() :" << '\n'
             << "Requested size of population is too small :" << popSize << " " << this->n_parents_
-            << std::endl
+            << '\n'
         );
     }
 }
@@ -363,16 +363,16 @@ void GSimulatedAnnealing::adaptChildren_() {
         catch(std::exception &e) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GSimulatedAnnealing::adaptChildren_() :" << std::endl
-                << "Got error during thread execution with message:" << std::endl
-                << e.what() << std::endl
+                << "In GSimulatedAnnealing::adaptChildren_() :" << '\n'
+                << "Got error during thread execution with message:" << '\n'
+                << e.what() << '\n'
             );
         }
         catch(...) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GSimulatedAnnealing::adaptChildren_() :" << std::endl
-                << "Got unknown exception during thread execution" << std::endl
+                << "In GSimulatedAnnealing::adaptChildren_() :" << '\n'
+                << "Got unknown exception during thread execution" << '\n'
             );
         }
     }
@@ -397,10 +397,10 @@ void GSimulatedAnnealing::runFitnessCalculation_() {
         if(not this->at(i)->is_due_for_processing()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GSimulatedAnnealing::runFitnessCalculation(): Error!" << std::endl
+                << "In GSimulatedAnnealing::runFitnessCalculation(): Error!" << '\n'
                 << "Tried to evaluate children in range " << std::get<0>(range) << " - "
-                << std::get<1>(range) << std::endl
-                << "but found \"clean\" individual in position " << i << std::endl
+                << std::get<1>(range) << '\n'
+                << "but found \"clean\" individual in position " << i << '\n'
             );
         }
     }
@@ -429,9 +429,9 @@ void GSimulatedAnnealing::runFitnessCalculation_() {
             });
 
 #ifdef DEBUG
-        glogger << "In GSimulatedAnnealing::runFitnessCalculation(): " << std::endl
+        glogger << "In GSimulatedAnnealing::runFitnessCalculation(): " << '\n'
                 << "Removed " << n_erased << " unprocessed work items in iteration "
-                << this->getIteration() << std::endl
+                << this->getIteration() << '\n'
                 << GLOGGING;
 #endif
     }
@@ -445,9 +445,9 @@ void GSimulatedAnnealing::runFitnessCalculation_() {
             });
 
 #ifdef DEBUG
-        glogger << "In GSimulatedAnnealing::runFitnessCalculation(): " << std::endl
+        glogger << "In GSimulatedAnnealing::runFitnessCalculation(): " << '\n'
                 << "Removed " << n_erased << " erroneous work items in iteration "
-                << this->getIteration() << std::endl
+                << this->getIteration() << '\n'
                 << GLOGGING;
 #endif
     }
@@ -503,17 +503,17 @@ void GSimulatedAnnealing::fixAfterJobSubmission() {
     if(this->empty()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GSimulatedAnnealing::fixAfterJobSubmission(): Error!" << std::endl
-            << "Population holds no data" << std::endl
+            << "In GSimulatedAnnealing::fixAfterJobSubmission(): Error!" << '\n'
+            << "Population holds no data" << '\n'
         );
     }
     else {
         // Emit a warning if no children have returned
         if(this->size() <= this->getNParents()) {
-            glogger << "In GSimulatedAnnealing::fixAfterJobSubmission(): Warning!" << std::endl
-                    << "No child individuals have returned" << std::endl
+            glogger << "In GSimulatedAnnealing::fixAfterJobSubmission(): Warning!" << '\n'
+                    << "No child individuals have returned" << '\n'
                     << "We need to fill up the population with clones from parent individuals"
-                    << std::endl
+                    << '\n'
                     << GWARNING;
         }
     }
@@ -522,9 +522,9 @@ void GSimulatedAnnealing::fixAfterJobSubmission() {
     if(this->back()->is_due_for_processing()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GSimulatedAnnealing::fixAfterJobSubmission():" << std::endl
-            << "The last individual in the population is is unprocessed" << std::endl
-            << "so we cannot use it for cloning" << std::endl
+            << "In GSimulatedAnnealing::fixAfterJobSubmission():" << '\n'
+            << "The last individual in the population is is unprocessed" << '\n'
+            << "so we cannot use it for cloning" << '\n'
         );
     }
 
@@ -572,9 +572,9 @@ void GSimulatedAnnealing::selectBest_() {
     if(this->size() < this->getDefaultPopulationSize()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GSimulatedAnnealing::selectBest(): Error!" << std::endl
+            << "In GSimulatedAnnealing::selectBest(): Error!" << '\n'
             << "Size of population is smaller than expected: " << this->size() << " / "
-            << this->getDefaultPopulationSize() << std::endl
+            << this->getDefaultPopulationSize() << '\n'
         );
     }
 #endif /* DEBUG */

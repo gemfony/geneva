@@ -86,9 +86,9 @@ public:
     explicit GStdThreadConsumerT(std::size_t nThreads = DEFAULTTHREADSPERWORKER)
       : nThreads_(nThreads > 0 ? nThreads : DEFAULTTHREADSPERWORKER) {
         if(0 == nThreads) {
-            glogger << "In GStdThreadConsumerT::GStdThreadConsumerT(nThreads):" << std::endl
+            glogger << "In GStdThreadConsumerT::GStdThreadConsumerT(nThreads):" << '\n'
                     << "nThreads == 0 was requested. n_threads_ was set to the default "
-                    << DEFAULTTHREADSPERWORKER << std::endl
+                    << DEFAULTTHREADSPERWORKER << '\n'
                     << GWARNING;
         }
     }
@@ -139,9 +139,9 @@ public:
 	  */
     void setCapableOfFullReturn(bool capableOfFullReturn) {
         glogger << "In GStdThreadConsumerT<processable_type>::setCapableOfFullReturn():"
-                << std::endl
+                << '\n'
                 << "isCapableOfFullReturn_ will be set to "
-                << (capableOfFullReturn ? "true" : "false") << std::endl
+                << (capableOfFullReturn ? "true" : "false") << '\n'
                 << GLOGGING;
         isCapableOfFullReturn_ = capableOfFullReturn;
     }
@@ -158,8 +158,8 @@ public:
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GStdThreadConsumerT<processable_type>::registerWorkerTemplate(): Error!"
-                << std::endl
-                << "Found empty worker template pointer" << std::endl
+                << '\n'
+                << "Found empty worker template pointer" << '\n'
             );
         }
 #endif /* DEBUG */
@@ -220,8 +220,8 @@ protected:
             ,
             [this](std::size_t nt) { this->setNThreads(nt); }
         ) << "Indicates the number of threads used to process each worker."
-          << std::endl
-          << "Setting threadsPerWorker to 0 will result in an attempt to" << std::endl
+          << '\n'
+          << "Setting threadsPerWorker to 0 will result in an attempt to" << '\n'
           << "automatically determine the number of hardware threads.";
     }
 
@@ -272,9 +272,9 @@ private:
 	  */
     void setNThreads(std::size_t nThreads) {
         if(nThreads == 0) {
-            glogger << "In GStdThreadConsumerT::setNThreads(nThreads):" << std::endl
+            glogger << "In GStdThreadConsumerT::setNThreads(nThreads):" << '\n'
                     << "nThreads == 0 was requested. nThreads was reset to the default "
-                    << DEFAULTTHREADSPERWORKER << std::endl
+                    << DEFAULTTHREADSPERWORKER << '\n'
                     << GWARNING;
 
             nThreads_ = DEFAULTTHREADSPERWORKER;
@@ -318,7 +318,7 @@ private:
 
         // Start nWorkerThreads_ threads for each registered worker template
         glogger << "Starting " << nThreads_
-                << " processing threads in GStdThreadConsumerT<processable_type>" << std::endl
+                << " processing threads in GStdThreadConsumerT<processable_type>" << '\n'
                 << GLOGGING;
         for(std::size_t worker_id = 0; worker_id < nThreads_; worker_id++) {
             // The actual worker

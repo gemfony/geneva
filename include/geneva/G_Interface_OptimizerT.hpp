@@ -89,8 +89,8 @@ public:
         if(!result) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In G_Interface_OptimizerT<>::getBestGlobalIndividual(): Error!" << std::endl
-                << "dynamic_pointer_cast to requested individual_type failed." << std::endl
+                << "In G_Interface_OptimizerT<>::getBestGlobalIndividual(): Error!" << '\n'
+                << "dynamic_pointer_cast to requested individual_type failed." << '\n'
             );
         }
         return result;
@@ -118,8 +118,8 @@ public:
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In G_Interface_OptimizerT<optimizer_type>::getBestGlobalIndividuals(): Error!"
-                << std::endl
-                << "Received empty collection of best individuals." << std::endl
+                << '\n'
+                << "Received empty collection of best individuals." << '\n'
             );
         }
 
@@ -128,8 +128,8 @@ public:
             if(!cast_ptr) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
-                    << "In G_Interface_OptimizerT<>::getBestGlobalIndividuals(): Error!" << std::endl
-                    << "dynamic_pointer_cast to requested individual_type failed." << std::endl
+                    << "In G_Interface_OptimizerT<>::getBestGlobalIndividuals(): Error!" << '\n'
+                    << "dynamic_pointer_cast to requested individual_type failed." << '\n'
                 );
             }
             bestIndividuals.push_back(cast_ptr);
@@ -156,8 +156,8 @@ public:
         if(!result) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In G_Interface_OptimizerT<>::getBestIterationIndividual(): Error!" << std::endl
-                << "dynamic_pointer_cast to requested individual_type failed." << std::endl
+                << "In G_Interface_OptimizerT<>::getBestIterationIndividual(): Error!" << '\n'
+                << "dynamic_pointer_cast to requested individual_type failed." << '\n'
             );
         }
         return result;
@@ -186,8 +186,8 @@ public:
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In G_Interface_OptimizerT<optimizer_type>::getBestIterationIndividuals(): "
                    "Error!"
-                << std::endl
-                << "Received empty collection of best individuals." << std::endl
+                << '\n'
+                << "Received empty collection of best individuals." << '\n'
             );
         }
 
@@ -196,8 +196,8 @@ public:
             if(!cast_ptr) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
-                    << "In G_Interface_OptimizerT<>::getBestIterationIndividuals(): Error!" << std::endl
-                    << "clone<individual_type>() returned null." << std::endl
+                    << "In G_Interface_OptimizerT<>::getBestIterationIndividuals(): Error!" << '\n'
+                    << "clone<individual_type>() returned null." << '\n'
                 );
             }
             bestIndividuals.push_back(cast_ptr);

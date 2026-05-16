@@ -128,7 +128,7 @@ int main(int argc, char **argv) {
     // case sets a globally defined integer variable)
     if(useOperator) {
         gpb.registerFileParameter<int>("iOption2", SOMEGLOBALINTDEFAULT, setGlobalInt)
-            << "This is a comment for a call-back option" << std::endl;
+            << "This is a comment for a call-back option" << '\n';
     }
     else {
         gpb.registerFileParameter<int>(
@@ -307,7 +307,7 @@ int main(int argc, char **argv) {
     //----------------------------------------------------------------
 
     // Check the number of registered options
-    std::cout << "Got " << gpb.numberOfFileOptions() << " options." << std::endl;
+    std::cout << "Got " << gpb.numberOfFileOptions() << " options." << '\n';
 
     // Create a suitable path for the config file
     std::filesystem::path file_path(fileName);

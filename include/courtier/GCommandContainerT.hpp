@@ -182,8 +182,8 @@ public:
         else {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GCommandContainerT<processable_type, command_type>::process():" << std::endl
-                << "Tried to process a work item while payload_ptr_ is empty" << std::endl
+                << "In GCommandContainerT<processable_type, command_type>::process():" << '\n'
+                << "Tried to process a work item while payload_ptr_ is empty" << '\n'
             );
         }
     }
@@ -236,27 +236,27 @@ std::string container_to_string(
     catch(const boost::system::system_error &e) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In container_to_string(GCommandContainerT<>):" << std::endl
-            << "Caught boost::system::system_error exception with messages:" << std::endl
-            << e.what() << std::endl
-            << "with serializationMode == " << Gem::Common::serModeToString(serMode) << std::endl
+            << "In container_to_string(GCommandContainerT<>):" << '\n'
+            << "Caught boost::system::system_error exception with messages:" << '\n'
+            << e.what() << '\n'
+            << "with serializationMode == " << Gem::Common::serModeToString(serMode) << '\n'
         );
     }
     catch(const std::exception &e) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In container_to_string(GCommandContainerT<>):" << std::endl
-            << "Caught std::exception exception with messages:" << std::endl
-            << e.what() << std::endl
-            << "with serializationMode == " << Gem::Common::serModeToString(serMode) << std::endl
+            << "In container_to_string(GCommandContainerT<>):" << '\n'
+            << "Caught std::exception exception with messages:" << '\n'
+            << e.what() << '\n'
+            << "with serializationMode == " << Gem::Common::serModeToString(serMode) << '\n'
         );
     }
     catch(...) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In container_to_string(GCommandContainerT<>):" << std::endl
-            << "Caught unknown exception" << std::endl
-            << "with serializationMode == " << Gem::Common::serModeToString(serMode) << std::endl
+            << "In container_to_string(GCommandContainerT<>):" << '\n'
+            << "Caught unknown exception" << '\n'
+            << "with serializationMode == " << Gem::Common::serModeToString(serMode) << '\n'
         );
     }
 
@@ -300,27 +300,27 @@ void container_from_string(
     catch(const boost::system::system_error &e) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In container_from_string(GCommandContainerT<>):" << std::endl
-            << "Caught boost::system::system_error exception with messages:" << std::endl
-            << e.what() << std::endl
-            << "with serializationMode == " << Gem::Common::serModeToString(serMode) << std::endl
+            << "In container_from_string(GCommandContainerT<>):" << '\n'
+            << "Caught boost::system::system_error exception with messages:" << '\n'
+            << e.what() << '\n'
+            << "with serializationMode == " << Gem::Common::serModeToString(serMode) << '\n'
         );
     }
     catch(const std::exception &e) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In container_from_string(GCommandContainerT<>):" << std::endl
-            << "Caught std::exception exception with messages:" << std::endl
-            << e.what() << std::endl
-            << "with serializationMode == " << Gem::Common::serModeToString(serMode) << std::endl
+            << "In container_from_string(GCommandContainerT<>):" << '\n'
+            << "Caught std::exception exception with messages:" << '\n'
+            << e.what() << '\n'
+            << "with serializationMode == " << Gem::Common::serModeToString(serMode) << '\n'
         );
     }
     catch(...) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In container_from_string(GCommandContainerT<>):" << std::endl
-            << "Caught unknown exception" << std::endl
-            << "with serializationMode == " << Gem::Common::serModeToString(serMode) << std::endl
+            << "In container_from_string(GCommandContainerT<>):" << '\n'
+            << "Caught unknown exception" << '\n'
+            << "with serializationMode == " << Gem::Common::serModeToString(serMode) << '\n'
         );
     }
 };

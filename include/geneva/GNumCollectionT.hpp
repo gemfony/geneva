@@ -153,10 +153,10 @@ public:
         if(lowerInitBoundary >= upperInitBoundary) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GNumCollectionT<num_type>::setInitBoundaries():" << std::endl
-                << "Invalid boundaries provided: " << std::endl
-                << "lowerInitBoundary = " << lowerInitBoundary << std::endl
-                << "upperInitBoundary = " << upperInitBoundary << std::endl
+                << "In GNumCollectionT<num_type>::setInitBoundaries():" << '\n'
+                << "Invalid boundaries provided: " << '\n'
+                << "lowerInitBoundary = " << lowerInitBoundary << '\n'
+                << "upperInitBoundary = " << upperInitBoundary << '\n'
             );
         }
 
@@ -216,8 +216,8 @@ public:
         if(this->empty()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GNumCollection<num_type>::toPropertyTree(): Error!" << std::endl
-                << "Object is empty!" << std::endl
+                << "In GNumCollection<num_type>::toPropertyTree(): Error!" << '\n'
+                << "Object is empty!" << '\n'
             );
         }
 #endif /* DEBUG */

@@ -94,7 +94,7 @@ parameterset_processing_result::parameterset_processing_result(
     }
     else {
         glogger << "In parameterset_processing_result(double, std::function<double(double)>)"
-                << std::endl
+                << '\n'
                 << GTERMINATION;
     }
 }
@@ -127,8 +127,8 @@ void parameterset_processing_result::setTransformedFitnessWith(std::function<dou
     else {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In parameterset_processing_result::setTransformedFitnessWith():" << std::endl
-            << "Function object f is empty." << std::endl
+            << "In parameterset_processing_result::setTransformedFitnessWith():" << '\n'
+            << "Function object f is empty." << '\n'
         );
     }
 }
@@ -198,8 +198,8 @@ void parameterset_processing_result::reset(
     else {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In parameterset_processing_result::reset():" << std::endl
-            << "Function object f is empty." << std::endl
+            << "In parameterset_processing_result::reset():" << '\n'
+            << "Function object f is empty." << '\n'
         );
     }
 }
@@ -367,8 +367,8 @@ void GParameterSet::toPropertyTree(pt::ptree &ptr, std::string const &baseName) 
     if(this->empty()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GParameterSet::toPropertyTree(): Error!" << std::endl
-            << "Object is empty." << std::endl
+            << "In GParameterSet::toPropertyTree(): Error!" << '\n'
+            << "Object is empty." << '\n'
         );
     }
 #endif
@@ -550,7 +550,7 @@ std::string GParameterSet::toCSV(
                 result << (withCommas ? ",\t" : "\t");
             }
         }
-        result << std::endl;
+        result << '\n';
 
         for(s_it = varTypes.begin(); s_it != varTypes.end(); ++s_it) {
             result << *s_it;
@@ -558,7 +558,7 @@ std::string GParameterSet::toCSV(
                 result << (withCommas ? ",\t" : "\t");
             }
         }
-        result << std::endl;
+        result << '\n';
     }
 
     for(s_it = varValues.begin(); s_it != varValues.end(); ++s_it) {
@@ -567,7 +567,7 @@ std::string GParameterSet::toCSV(
             result << (withCommas ? ",\t" : "\t");
         }
     }
-    result << std::endl;
+    result << '\n';
 
     return result.str();
 }
@@ -601,8 +601,8 @@ bool GParameterSet::isGoodEnough(std::vector<double> const &boundaries) {
     if(boundaries.size() != this->getNStoredResults()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GParameterSet::isGoodEnough(): Error!" << std::endl
-            << "Number of boundaries does not match number of fitness criteria" << std::endl
+            << "In GParameterSet::isGoodEnough(): Error!" << '\n'
+            << "Number of boundaries does not match number of fitness criteria" << '\n'
         );
     }
 
@@ -610,9 +610,9 @@ bool GParameterSet::isGoodEnough(std::vector<double> const &boundaries) {
     if(not this->is_processed()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GParameterSet::isGoodEnough(): Error!" << std::endl
+            << "In GParameterSet::isGoodEnough(): Error!" << '\n'
             << "Trying to compare fitness values although the individual isn't processed"
-            << std::endl
+            << '\n'
         );
     }
 #endif /* DEBUG */
@@ -691,33 +691,33 @@ GParameterSet::crossOverWith(std::shared_ptr<GParameterSet> const &cp) const {
     if(this_double_cnt.size() != cp_double_cnt.size()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GParameterSet::perItemCrossOver(): Error!" << std::endl
+            << "In GParameterSet::perItemCrossOver(): Error!" << '\n'
             << "Got invalid sizes (double): " << this_double_cnt.size() << " / "
-            << cp_double_cnt.size() << std::endl
+            << cp_double_cnt.size() << '\n'
         );
     }
     if(this_float_cnt.size() != cp_float_cnt.size()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GParameterSet::perItemCrossOver(): Error!" << std::endl
+            << "In GParameterSet::perItemCrossOver(): Error!" << '\n'
             << "Got invalid sizes (float): " << this_float_cnt.size() << " / "
-            << cp_float_cnt.size() << std::endl
+            << cp_float_cnt.size() << '\n'
         );
     }
     if(this_bool_cnt.size() != cp_bool_cnt.size()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GParameterSet::perItemCrossOver(): Error!" << std::endl
+            << "In GParameterSet::perItemCrossOver(): Error!" << '\n'
             << "Got invalid sizes (bool): " << this_bool_cnt.size() << " / " << cp_bool_cnt.size()
-            << std::endl
+            << '\n'
         );
     }
     if(this_int_cnt.size() != cp_int_cnt.size()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GParameterSet::perItemCrossOver(): Error!" << std::endl
+            << "In GParameterSet::perItemCrossOver(): Error!" << '\n'
             << "Got invalid sizes (std::int32_t): " << this_int_cnt.size() << " / "
-            << cp_int_cnt.size() << std::endl
+            << cp_int_cnt.size() << '\n'
         );
     }
 #endif /* DEBUG */
@@ -812,8 +812,8 @@ void GParameterSet::cannibalize(GParameterSet &cp) {
     if(cp.is_due_for_processing() || cp.has_errors()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GParameterSet::cannibalize(const GParameterSet& cp)" << std::endl
-            << "cp isn't processed or has errors" << std::endl
+            << "In GParameterSet::cannibalize(const GParameterSet& cp)" << '\n'
+            << "cp isn't processed or has errors" << '\n'
         );
     }
 
@@ -959,9 +959,9 @@ void GParameterSet::setResult(const std::size_t id, const double value) {
     if(id >= this->getNStoredResults()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GParameterSet::setResult(...): Error!" << std::endl
+            << "In GParameterSet::setResult(...): Error!" << '\n'
             << "Invalid position in vector: " << id << " (expected min 0 and max "
-            << this->getNStoredResults() - 1 << ")" << std::endl
+            << this->getNStoredResults() - 1 << ")" << '\n'
         );
     }
 #endif /* DEBUG */
@@ -1044,8 +1044,8 @@ void GParameterSet::setSteepness(const double steepness) {
     if(steepness <= 0.) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GParameterSet::setSteepness(double steepness): Error!" << std::endl
-            << "Invalid value of steepness parameter: " << steepness << std::endl
+            << "In GParameterSet::setSteepness(double steepness): Error!" << '\n'
+            << "Invalid value of steepness parameter: " << steepness << '\n'
         );
     }
 
@@ -1068,8 +1068,8 @@ void GParameterSet::setBarrier(const double barrier) {
     if(barrier <= 0.) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GParameterSet::setBarrier(double barrier): Error!" << std::endl
-            << "Invalid value of barrier parameter: " << barrier << std::endl
+            << "In GParameterSet::setBarrier(double barrier): Error!" << '\n'
+            << "Invalid value of barrier parameter: " << barrier << '\n'
         );
     }
 
@@ -1238,8 +1238,8 @@ std::shared_ptr<GPersonalityTraits> GParameterSet::getPersonalityTraits() {
     if(not pt_ptr_) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GParameterSet::getPersonalityTraits():" << std::endl
-            << "Pointer to personality traits object is empty." << std::endl
+            << "In GParameterSet::getPersonalityTraits():" << '\n'
+            << "Pointer to personality traits object is empty." << '\n'
         );
     }
 #endif
@@ -1264,8 +1264,8 @@ void GParameterSet::setPersonality(std::shared_ptr<GPersonalityTraits> gpt) {
     if(not gpt) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GParameterSet::setPersonality(): Error!" << std::endl
-            << "Received empty personality traits pointer" << std::endl
+            << "In GParameterSet::setPersonality(): Error!" << '\n'
+            << "Received empty personality traits pointer" << '\n'
         );
     }
 
@@ -1302,8 +1302,8 @@ std::string GParameterSet::getMnemonic() const {
     else {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GParameterSet::getMnemonic():" << std::endl
-            << "Pointer to personality traits object is empty." << std::endl
+            << "In GParameterSet::getMnemonic():" << '\n'
+            << "Pointer to personality traits object is empty." << '\n'
         );
     }
 
@@ -1330,16 +1330,16 @@ void GParameterSet::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
         ,
         [this](const evaluationPolicy ep) { this->setEvaluationPolicy(ep); }
     ) << "Specifies which strategy should be used to calculate the evaluation:"
-      << std::endl
+      << '\n'
       << "0 (a.k.a. USESIMPLEEVALUATION): Always call the evaluation function, even for invalid "
          "solutions"
-      << std::endl
+      << '\n'
       << "1 (a.k.a. USEWORSTCASEFORINVALID) : Assign the worst possible value to our fitness and "
          "evaluate only valid solutions"
-      << std::endl
+      << '\n'
       << "2 (a.k.a. USESIGMOID): Assign a multiple of validity_level_ and sigmoid barrier to "
          "invalid solutions, apply a sigmoid function to valid evaluations"
-      << std::endl;
+      << '\n';
 
     gpb.registerFileParameter<double>(
         "steepness" // The name of the variable
@@ -1348,9 +1348,9 @@ void GParameterSet::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
         ,
         [this](const double ss) { this->setSteepness(ss); }
     ) << "When using a sigmoid function to transform the individual's fitness,"
-      << std::endl
+      << '\n'
       << "this parameter influences the steepness of the function at the center of the sigmoid."
-      << std::endl
+      << '\n'
       << "The parameter must have a value > 0.";
 
     gpb.registerFileParameter<double>(
@@ -1360,8 +1360,8 @@ void GParameterSet::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
         ,
         [this](const double barrier) { this->setBarrier(barrier); }
     ) << "When using a sigmoid function to transform the individual's fitness,"
-      << std::endl
-      << "this parameter sets the upper/lower boundary of the sigmoid." << std::endl
+      << '\n'
+      << "this parameter sets the upper/lower boundary of the sigmoid." << '\n'
       << "The parameter must have a value > 0.;";
 
     gpb.registerFileParameter<std::size_t>(
@@ -1379,9 +1379,9 @@ void GParameterSet::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
         ,
         [this](const std::size_t mruv) { this->setMaxRetriesUntilValid(mruv); }
     ) << "The maximum allowed number of retries during the"
-      << std::endl
-      << "adaption of individuals until a valid solution was found" << std::endl
-      << "A parameter set is considered to be \"valid\" if" << std::endl
+      << '\n'
+      << "adaption of individuals until a valid solution was found" << '\n'
+      << "A parameter set is considered to be \"valid\" if" << '\n'
       << "it passes all validity checks;";
 
     // Add local data
@@ -1392,7 +1392,7 @@ void GParameterSet::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
         ,
         [this](const maxMode mm) { this->setMaxMode(mm); }
     ) << "Specifies whether the individual should be maximized (1) or minimized (0)"
-      << std::endl
+      << '\n'
       << "Note that minimization is the by far most common option.";
 
     gpb.registerFileParameter<bool, double>(
@@ -1405,7 +1405,7 @@ void GParameterSet::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
         [this](const bool use_rc, const double rc_prob) { this->setRandomCrash(use_rc, rc_prob); },
         "randomCrashParameters"
     ) << "Indicates whether random crashes should occur for debugging purposes"
-      << std::endl
+      << '\n'
       << Gem::Common::nextComment() << "The probability of a random crash to occur";
 }
 
@@ -1451,8 +1451,8 @@ void GParameterSet::registerConstraint(
     if(not c_ptr) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GParameterSet::registerConstraint(): Error!" << std::endl
-            << "Tried to register empty constraint object" << std::endl
+            << "In GParameterSet::registerConstraint(): Error!" << '\n'
+            << "Tried to register empty constraint object" << '\n'
         );
     }
 
@@ -1488,8 +1488,8 @@ bool GParameterSet::isValid() const {
     if(this->is_due_for_processing() || this->has_errors()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GParameterSet::isValid():" << std::endl
-            << "Function was called for unprocessed or erroneous individual" << std::endl
+            << "In GParameterSet::isValid():" << '\n'
+            << "Function was called for unprocessed or erroneous individual" << '\n'
         );
     }
 #endif
@@ -1552,8 +1552,8 @@ void GParameterSet::process_(const std::vector<parameterset_processing_result> &
         std::uniform_real_distribution<double> dist01{0., 1.};
         if(dist01(this->gr_) <= randomCrashProb_) {
             glogger << "GParameterSet is performing random crash for debugging purposes"
-                    << std::endl
-                    << std::endl
+                    << '\n'
+                    << '\n'
                     << GLOGGING;
 
             throw;
@@ -1576,9 +1576,9 @@ void GParameterSet::process_(const std::vector<parameterset_processing_result> &
                 if(res_vec.size() != this->getNStoredResults()) {
                     throw geneva_exception(
                         g_error_streamer(DO_LOG, time_and_place)
-                        << "In GParameterSet::process_ : Error!" << std::endl
-                        << "res_vec has invalid size. Got " << res_vec.size() << std::endl
-                        << "Expected " << this->getNStoredResults() << std::endl
+                        << "In GParameterSet::process_ : Error!" << '\n'
+                        << "res_vec has invalid size. Got " << res_vec.size() << '\n'
+                        << "Expected " << this->getNStoredResults() << '\n'
                     );
                 }
 
@@ -1778,9 +1778,9 @@ void GParameterSet::setFitness_(std::vector<double> const &f_cnt) {
     if(f_cnt.size() != this->getNStoredResults()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GParameterSet::setFitness_(...): Error!" << std::endl
-            << "Invalid size of fitness vector: " << std::endl
-            << f_cnt.size() << ", expected: " << this->getNStoredResults() << std::endl
+            << "In GParameterSet::setFitness_(...): Error!" << '\n'
+            << "Invalid size of fitness vector: " << '\n'
+            << f_cnt.size() << ", expected: " << this->getNStoredResults() << '\n'
         );
     }
 #endif /* DEBUG */
@@ -1916,9 +1916,9 @@ double GParameterSet::weighedSquaredSumCombiner(std::vector<double> const &weigh
     if(this->getNStoredResults() != weights.size()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GParameterSet::weighedSquaredSumCombine(): Error!" << std::endl
+            << "In GParameterSet::weighedSquaredSumCombine(): Error!" << '\n'
             << "Sizes of transformedCurrentFitnessVec_ and the weights vector don't match: "
-            << this->getNStoredResults() << " / " << weights.size() << std::endl
+            << this->getNStoredResults() << " / " << weights.size() << '\n'
         );
     }
 
@@ -1976,8 +1976,8 @@ std::any GParameterSet::getVarVal(
     else {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GParameterSet::getVarVal(): Error!" << std::endl
-            << "Received invalid type description" << std::endl
+            << "In GParameterSet::getVarVal(): Error!" << '\n'
+            << "Received invalid type description" << '\n'
         );
     }
 

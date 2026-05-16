@@ -143,8 +143,8 @@ public:
     ) const {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GParameterBase::countParameters()" << std::endl
-            << "Function called for unsupported type!" << std::endl
+            << "In GParameterBase::countParameters()" << '\n'
+            << "Function called for unsupported type!" << '\n'
         );
 
         // Make the compiler happy
@@ -168,8 +168,8 @@ public:
     ) const {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GParameterBase::boundaries(std::vector<>&)" << std::endl
-            << "Function called for unsupported type!" << std::endl
+            << "In GParameterBase::boundaries(std::vector<>&)" << '\n'
+            << "Function called for unsupported type!" << '\n'
         );
     }
 
@@ -188,8 +188,8 @@ public:
     ) const {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GParameterBase::streamline(std::vector<par_type>&)" << std::endl
-            << "Function called for unsupported type!" << std::endl
+            << "In GParameterBase::streamline(std::vector<par_type>&)" << '\n'
+            << "Function called for unsupported type!" << '\n'
         );
     }
 
@@ -209,8 +209,8 @@ public:
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GParameterBase::streamline(std::map<std::string, std::vec<par_type>>)"
-            << std::endl
-            << "Function called for unsupported type!" << std::endl
+            << '\n'
+            << "Function called for unsupported type!" << '\n'
         );
     }
 
@@ -232,8 +232,8 @@ public:
     ) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GParameterBase::assignValueVector()" << std::endl
-            << "Function called for unsupported type!" << std::endl
+            << "In GParameterBase::assignValueVector()" << '\n'
+            << "Function called for unsupported type!" << '\n'
         );
     }
 
@@ -250,8 +250,8 @@ public:
     ) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GParameterBase::assignValueVectors()" << std::endl
-            << "Function called for unsupported type!" << std::endl
+            << "In GParameterBase::assignValueVectors()" << '\n'
+            << "Function called for unsupported type!" << '\n'
         );
     }
 
@@ -271,8 +271,8 @@ public:
     ) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GParameterBase::multiplyByRandom()" << std::endl
-            << "Function called for unsupported type!" << std::endl
+            << "In GParameterBase::multiplyByRandom()" << '\n'
+            << "Function called for unsupported type!" << '\n'
         );
     }
 
@@ -288,8 +288,8 @@ public:
     ) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GParameterBase::multiplyByRandom()" << std::endl
-            << "Function called for unsupported type!" << std::endl
+            << "In GParameterBase::multiplyByRandom()" << '\n'
+            << "Function called for unsupported type!" << '\n'
         );
     }
 
@@ -305,8 +305,8 @@ public:
     ) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GParameterBase::multiplyBy()" << std::endl
-            << "Function called for unsupported type!" << std::endl
+            << "In GParameterBase::multiplyBy()" << '\n'
+            << "Function called for unsupported type!" << '\n'
         );
     }
 
@@ -322,8 +322,8 @@ public:
     ) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GParameterBase::fixedValueInit()" << std::endl
-            << "Function called for unsupported type!" << std::endl
+            << "In GParameterBase::fixedValueInit()" << '\n'
+            << "Function called for unsupported type!" << '\n'
         );
     }
 
@@ -339,8 +339,8 @@ public:
     ) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GParameterBase::add()" << std::endl
-            << "Function called for unsupported type!" << std::endl
+            << "In GParameterBase::add()" << '\n'
+            << "Function called for unsupported type!" << '\n'
         );
     }
 
@@ -356,8 +356,8 @@ public:
     ) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GParameterBase::subtract()" << std::endl
-            << "Function called for unsupported type!" << std::endl
+            << "In GParameterBase::subtract()" << '\n'
+            << "Function called for unsupported type!" << '\n'
         );
     }
 
@@ -400,8 +400,8 @@ public:
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In std::shared_ptr<load_type> GParameterBase::parameterbase_cast<load_type>() :"
-                << std::endl
-                << "Invalid conversion with load_type = " << typeid(load_type).name() << std::endl
+                << '\n'
+                << "Invalid conversion with load_type = " << typeid(load_type).name() << '\n'
             );
         }
 #else

@@ -53,18 +53,18 @@ bool operator==(const CircleTriangle &lhs, const CircleTriangle &rhs) {
 
 // Output operator for the CircleStruct
 std::ostream &operator<<(std::ostream &os, const CircleTriangle &ct) {
-    os << "CircleTriangle(" << std::endl;
-    os << "r=" << static_cast<int>(ct.r) << ", " << std::endl;
-    os << "g=" << static_cast<int>(ct.g) << ", " << std::endl;
-    os << "b=" << static_cast<int>(ct.b) << ", " << std::endl;
-    os << "a=" << static_cast<int>(ct.a) << ", " << std::endl;
-    os << "cx=" << ct.cx << ", " << std::endl;
-    os << "cy=" << ct.cy << ", " << std::endl;
-    os << "radius=" << ct.radius << ", " << std::endl;
-    os << "angle1=" << ct.angle1 << ", " << std::endl;
-    os << "angle2=" << ct.angle2 << ", " << std::endl;
-    os << "angle3=" << ct.angle3 << std::endl;
-    os << ")" << std::endl << std::endl;
+    os << "CircleTriangle(" << '\n';
+    os << "r=" << static_cast<int>(ct.r) << ", " << '\n';
+    os << "g=" << static_cast<int>(ct.g) << ", " << '\n';
+    os << "b=" << static_cast<int>(ct.b) << ", " << '\n';
+    os << "a=" << static_cast<int>(ct.a) << ", " << '\n';
+    os << "cx=" << ct.cx << ", " << '\n';
+    os << "cy=" << ct.cy << ", " << '\n';
+    os << "radius=" << ct.radius << ", " << '\n';
+    os << "angle1=" << ct.angle1 << ", " << '\n';
+    os << "angle2=" << ct.angle2 << ", " << '\n';
+    os << "angle3=" << ct.angle3 << '\n';
+    os << ")" << '\n' << '\n';
     return os;
 }
 
@@ -126,9 +126,9 @@ void GImageIndividual::init(
     if(minSize < 0. || maxSize > 1. || minSize >= maxSize) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GImageIndividual::init() : Error!" << std::endl
+            << "In GImageIndividual::init() : Error!" << '\n'
             << "Invalid values for minSize and maxSize provided: " << minSize << " / " << maxSize
-            << std::endl
+            << '\n'
         );
     }
 
@@ -137,34 +137,34 @@ void GImageIndividual::init(
         // Cannot be < 0 as minSize may not be <= 0
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GImageIndividual::init() : Error!" << std::endl
+            << "In GImageIndividual::init() : Error!" << '\n'
             << "Invalid values for minSize and startSize provided: " << minSize << " / "
-            << startSize << std::endl
+            << startSize << '\n'
         );
     }
 
     if(startSize > maxSize) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GImageIndividual::init() : Error!" << std::endl
+            << "In GImageIndividual::init() : Error!" << '\n'
             << "Invalid values for maxSize and startSize provided: " << maxSize << " / "
-            << startSize << std::endl
+            << startSize << '\n'
         );
     }
 
     if(adaptAdProb < 0. || adaptAdProb > 1.) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GImageIndividual::init() : Error!" << std::endl
-            << "Invalid value for adaptAdProb provided: " << adaptAdProb << std::endl
+            << "In GImageIndividual::init() : Error!" << '\n'
+            << "Invalid value for adaptAdProb provided: " << adaptAdProb << '\n'
         );
     }
 
     if(loc_adaptAdProb < 0. || loc_adaptAdProb > 1.) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GImageIndividual::init() : Error!" << std::endl
-            << "Invalid value for loc_adaptAdProb provided: " << loc_adaptAdProb << std::endl
+            << "In GImageIndividual::init() : Error!" << '\n'
+            << "Invalid value for loc_adaptAdProb provided: " << loc_adaptAdProb << '\n'
         );
     }
 
@@ -172,9 +172,9 @@ void GImageIndividual::init(
        adProb > maxAdProb) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GImageIndividual::init() : Error!" << std::endl
+            << "In GImageIndividual::init() : Error!" << '\n'
             << "Invalid values for minAdprob, maxAdProb or adProb provided: " << minAdProb << " / "
-            << maxAdProb << " / " << adProb << std::endl
+            << maxAdProb << " / " << adProb << '\n'
         );
     }
 
@@ -182,9 +182,9 @@ void GImageIndividual::init(
        loc_adProb < loc_minAdProb || loc_adProb > loc_maxAdProb) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GImageIndividual::init() : Error!" << std::endl
+            << "In GImageIndividual::init() : Error!" << '\n'
             << "Invalid values for loc_minAdprob, loc_maxAdProb or loc_adProb provided: "
-            << loc_minAdProb << " / " << loc_maxAdProb << " / " << loc_adProb << std::endl
+            << loc_minAdProb << " / " << loc_maxAdProb << " / " << loc_adProb << '\n'
         );
     }
 
@@ -331,13 +331,13 @@ void GImageIndividual::init(
         bg_color_r_ptr->setAdaptionsInactive();
         bg_color_g_ptr->setAdaptionsInactive();
         bg_color_b_ptr->setAdaptionsInactive();
-        std::cout << "Background colors will not be adapted" << std::endl;
+        std::cout << "Background colors will not be adapted" << '\n';
     }
     else {
         bg_color_r_ptr->setAdaptionsActive();
         bg_color_g_ptr->setAdaptionsActive();
         bg_color_b_ptr->setAdaptionsActive();
-        std::cout << "Background colors will be adapted" << std::endl;
+        std::cout << "Background colors will be adapted" << '\n';
     }
 
     // ... and add them to the object
@@ -430,9 +430,9 @@ std::vector<CircleTriangle> GImageIndividual::getTriangleData() const {
         // including background color
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GImageIndividual::getTriangleData(): Error!" << std::endl
+            << "In GImageIndividual::getTriangleData(): Error!" << '\n'
             << "Invalid number of entries in this class " << this->size() << " / "
-            << nTriangles_ + 3 << std::endl
+            << nTriangles_ + 3 << '\n'
         );
     }
 #endif /* DEBUG */
@@ -519,8 +519,8 @@ GObject *GImageIndividual::clone_() const {
 double GImageIndividual::fitnessCalculation() {
     throw geneva_exception(
         g_error_streamer(DO_LOG, time_and_place)
-        << "In GImageIndividual::fitnessCalculation(): Error!" << std::endl
-        << "This function is not meant to be called for this individual" << std::endl
+        << "In GImageIndividual::fitnessCalculation(): Error!" << '\n'
+        << "This function is not meant to be called for this individual" << '\n'
     );
 
     // Make the compiler happy
@@ -1212,9 +1212,9 @@ void GImageIndividualFactory::setAdaptAdProb(double adaptAdProb) {
     if(adaptAdProb < 0. || adaptAdProb > 1.) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GImageIndividualFactory::setAdaptAdProb(): Error!" << std::endl
-            << "Invalid value for adaptAdProb given: " << adaptAdProb << std::endl
-            << "Expected range of [0:1]" << std::endl
+            << "In GImageIndividualFactory::setAdaptAdProb(): Error!" << '\n'
+            << "Invalid value for adaptAdProb given: " << adaptAdProb << '\n'
+            << "Expected range of [0:1]" << '\n'
         );
     }
 #endif /* DEBUG */
@@ -1231,9 +1231,9 @@ void GImageIndividualFactory::setLocAdaptAdProb(double loc_adaptAdProb) {
     if(loc_adaptAdProb < 0. || loc_adaptAdProb > 1.) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GImageIndividualFactory::setLocAdaptAdProb(): Error!" << std::endl
-            << "Invalid value for loc_adaptAdProb given: " << loc_adaptAdProb << std::endl
-            << "Expected range of [0:1]" << std::endl
+            << "In GImageIndividualFactory::setLocAdaptAdProb(): Error!" << '\n'
+            << "Invalid value for loc_adaptAdProb given: " << loc_adaptAdProb << '\n'
+            << "Expected range of [0:1]" << '\n'
         );
     }
 #endif /* DEBUG */
@@ -1266,25 +1266,25 @@ void GImageIndividualFactory::setAdProbRange(double minAdProb, double maxAdProb)
     if(minAdProb < 0.) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GImageIndividualFactory::setAdProbRange(): Error!" << std::endl
-            << "minAdProb < 0: " << minAdProb << std::endl
+            << "In GImageIndividualFactory::setAdProbRange(): Error!" << '\n'
+            << "minAdProb < 0: " << minAdProb << '\n'
         );
     }
 
     if(minAdProb > maxAdProb) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GImageIndividualFactory::setAdProbRange(): Error!" << std::endl
+            << "In GImageIndividualFactory::setAdProbRange(): Error!" << '\n'
             << "Invalid minAdProb and/or maxAdProb: " << minAdProb << " / " << maxAdProb
-            << std::endl
+            << '\n'
         );
     }
 
     if(maxAdProb > 1.) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GImageIndividualFactory::setAdProbRange(): Error!" << std::endl
-            << "maxAdProb > 1: " << maxAdProb << std::endl
+            << "In GImageIndividualFactory::setAdProbRange(): Error!" << '\n'
+            << "maxAdProb > 1: " << maxAdProb << '\n'
         );
     }
 #endif /* DEBUG */
@@ -1302,25 +1302,25 @@ void GImageIndividualFactory::setLocAdProbRange(double minLocAdProb, double maxL
     if(minLocAdProb < 0.) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GImageIndividualFactory::setLocAdProbRange(): Error!" << std::endl
-            << "minLocAdProb < 0: " << minLocAdProb << std::endl
+            << "In GImageIndividualFactory::setLocAdProbRange(): Error!" << '\n'
+            << "minLocAdProb < 0: " << minLocAdProb << '\n'
         );
     }
 
     if(minLocAdProb > maxLocAdProb) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GImageIndividualFactory::setLocAdProbRange(): Error!" << std::endl
+            << "In GImageIndividualFactory::setLocAdProbRange(): Error!" << '\n'
             << "Invalid minLocAdProb and/or maxLocAdProb: " << minLocAdProb << " / " << maxLocAdProb
-            << std::endl
+            << '\n'
         );
     }
 
     if(maxLocAdProb > 1.) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GImageIndividualFactory::setLocAdProbRange(): Error!" << std::endl
-            << "maxLocAdProb > 1: " << maxLocAdProb << std::endl
+            << "In GImageIndividualFactory::setLocAdProbRange(): Error!" << '\n'
+            << "maxLocAdProb > 1: " << maxLocAdProb << '\n'
         );
     }
 #endif /* DEBUG */

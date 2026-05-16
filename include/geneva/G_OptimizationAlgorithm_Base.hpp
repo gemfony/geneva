@@ -427,9 +427,9 @@ public:
         if(pos >= this->size()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In G_OptimizationAlgorithm_Base::individual_cast<>() : Error" << std::endl
+                << "In G_OptimizationAlgorithm_Base::individual_cast<>() : Error" << '\n'
                 << "Tried to access position " << pos << " which is >= array size " << this->size()
-                << std::endl
+                << '\n'
             );
         }
 #endif /* DEBUG */

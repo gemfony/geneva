@@ -207,7 +207,7 @@ public:
             if(not this->init()) { // Initialize the client
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
-                    << "In GBaseClientT<T>::run(): Initialization failed. Leaving ..." << std::endl
+                    << "In GBaseClientT<T>::run(): Initialization failed. Leaving ..." << '\n'
                 );
             }
 
@@ -218,16 +218,16 @@ public:
             if(not this->finally()) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
-                    << "In GBaseClientT<T>::run(): Finalization failed." << std::endl
+                    << "In GBaseClientT<T>::run(): Finalization failed." << '\n'
                 );
             }
         }
         catch(geneva_exception &e) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GBaseClientT<T>::run() / " << rs_to_str(r) << ":" << std::endl
-                << "Caught geneva_exception" << std::endl
-                << "with message" << std::endl
+                << "In GBaseClientT<T>::run() / " << rs_to_str(r) << ":" << '\n'
+                << "Caught geneva_exception" << '\n'
+                << "with message" << '\n'
                 << e.what()
             );
         }
@@ -235,15 +235,15 @@ public:
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GBaseClientT<T>::run() / " << rs_to_str(r)
-                << ": Caught std::exception with message" << std::endl
-                << e.what() << std::endl
+                << ": Caught std::exception with message" << '\n'
+                << e.what() << '\n'
             );
         }
         catch(...) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GBaseClientT<T>::run() / " << rs_to_str(r) << ": Caught unknown exception."
-                << std::endl
+                << '\n'
             );
         }
 
@@ -298,7 +298,7 @@ protected:
         // Has a terminal error been flagged?
         if(terminalErrorFlagged()) {
             glogger << "Client is terminating because an unrecoverable error was flagged"
-                    << std::endl
+                    << '\n'
                     << GLOGGING;
 
             return true;
@@ -307,7 +307,7 @@ protected:
         // Has the application been asked to shut down?
         if(closeRequested()) {
             glogger << "Client is terminating because the application was asked to shut down"
-                    << std::endl
+                    << '\n'
                     << GLOGGING;
 
             return true;
@@ -317,7 +317,7 @@ protected:
         if(processMax_ > 0 && (processed_ >= processMax_)) {
             glogger << "Client is terminating because the maximum number of processing steps was "
                        "exceeded"
-                    << std::endl
+                    << '\n'
                     << GLOGGING;
 
             return true;
@@ -327,7 +327,7 @@ protected:
         if(maxDuration_.count() > 0. &&
            ((std::chrono::high_resolution_clock::now() - startTime_) >= maxDuration_)) {
             glogger << "Client is terminating because the maximum time frame was exceeded"
-                    << std::endl
+                    << '\n'
                     << GLOGGING;
 
             return true;
@@ -336,7 +336,7 @@ protected:
         // Custom halt condition reached ?
         if(customHalt()) {
             glogger << "Client is terminating because custom halt condition has triggered"
-                    << std::endl
+                    << '\n'
                     << GLOGGING;
 
             return true;

@@ -53,7 +53,7 @@ int main(int argc, char **argv) {
         for(it = result_single.begin(); it != result_single.end(); ++it) {
             std::cout << *it << " ";
         }
-        std::cout << std::endl;
+        std::cout << '\n';
     }
 
     { // Test of tuple parsing
@@ -65,6 +65,6 @@ int main(int argc, char **argv) {
         for(it = result_tuple.begin(); it != result_tuple.end(); ++it) {
             std::cout << *it << " ";
         }
-        std::cout << std::endl;
+        std::cout << '\n';
     }
 }

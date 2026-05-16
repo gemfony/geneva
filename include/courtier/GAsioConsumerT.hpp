@@ -105,11 +105,11 @@ public:
 	  * The destructor
 	  */
     ~GAsioConsumerClientT() override {
-        glogger << std::endl
+        glogger << '\n'
                 << "GAsioConsumerClientT<> is shutting down. Processed " << this->getNProcessed()
-                << " items in total" << std::endl
-                << "\"no data\" was received " << n_nodata_ << " times" << std::endl
-                << std::endl
+                << " items in total" << '\n'
+                << "\"no data\" was received " << n_nodata_ << " times" << '\n'
+                << '\n'
                 << GLOGGING;
     }
 
@@ -148,7 +148,7 @@ private:
 
         // Let the audience know that we have finished the shutdown
         glogger << "GAsioConsumerClientT<processable_type>::run_(): Client has terminated"
-                << std::endl
+                << '\n'
                 << GLOGGING;
     }
 
@@ -189,10 +189,10 @@ private:
 	  */
     void when_resolved(boost::system::error_code ec, const resolver::results_type &results) {
         if(ec) {
-            glogger << "In GAsioConsumerClientT<processable_type>::when_resolved():" << std::endl
+            glogger << "In GAsioConsumerClientT<processable_type>::when_resolved():" << '\n'
                     << "Got ec(\"" << ec.message() << "\"). async_connect() will not be executed."
-                    << std::endl
-                    << "This will terminate the client." << std::endl
+                    << '\n'
+                    << "This will terminate the client." << '\n'
                     << GLOGGING;
 
             // Terminate operation and return
@@ -220,11 +220,11 @@ private:
         if(ec) {
             if(n_reconnects_++ >= max_reconnects_) { // Terminate the client
                 glogger << "In GAsioConsumerClientT<processable_type>::when_connected():"
-                        << std::endl
+                        << '\n'
                         << n_reconnects_ << " / " << max_reconnects_
-                        << " failed connection attempts" << std::endl
-                        << "Got error code \"" << ec.message() << "\"." << std::endl
-                        << "The client will terminate now." << std::endl
+                        << " failed connection attempts" << '\n'
+                        << "Got error code \"" << ec.message() << "\"." << '\n'
+                        << "The client will terminate now." << '\n'
                         << GLOGGING;
 
                 // Terminate operation and return
@@ -232,11 +232,11 @@ private:
             }
             else { // Try to reconnect after issuing a warning
                 glogger << "In GAsioConsumerClientT<processable_type>::when_connected():"
-                        << std::endl
+                        << '\n'
                         << n_reconnects_ << " / " << max_reconnects_
-                        << " failed connection attempts" << std::endl
-                        << "Got error code \"" << ec.message() << "\"." << std::endl
-                        << "We will try to reconnect" << std::endl
+                        << " failed connection attempts" << '\n'
+                        << "Got error code \"" << ec.message() << "\"." << '\n'
+                        << "We will try to reconnect" << '\n'
                         << GLOGGING;
 
                 // Get rid of the old socket
@@ -279,10 +279,10 @@ private:
         std::size_t /* nothing */
     ) {
         if(ec) {
-            glogger << "In GAsioConsumerClientT<processable_type>::when_written():" << std::endl
+            glogger << "In GAsioConsumerClientT<processable_type>::when_written():" << '\n'
                     << "Got ec(\"" << ec.message()
-                    << "\"). async_start_read() will not be executed." << std::endl
-                    << "This will terminate the client." << std::endl
+                    << "\"). async_start_read() will not be executed." << '\n'
+                    << "This will terminate the client." << '\n'
                     << GLOGGING;
 
             // Terminate operation and return
@@ -331,15 +331,15 @@ private:
         }
         else {
             if(ec) {
-                glogger << "GAsioConsumerClientT<processable_type>::when_read(): " << std::endl
-                        << "Leaving due to error code " << ec.message() << std::endl
+                glogger << "GAsioConsumerClientT<processable_type>::when_read(): " << '\n'
+                        << "Leaving due to error code " << ec.message() << '\n'
                         << GLOGGING;
             }
             else {
-                glogger << "GAsioConsumerClientT<processable_type>::when_read(): " << std::endl
+                glogger << "GAsioConsumerClientT<processable_type>::when_read(): " << '\n'
                         << "No error code was received. Expected boost::asio::error::eof"
-                        << std::endl
-                        << "to indicate end of transmission." << std::endl
+                        << '\n'
+                        << "to indicate end of transmission." << '\n'
                         << GLOGGING;
             }
 
@@ -400,9 +400,9 @@ private:
             // Emit an exception
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "GWebsocketClientT<processable_type>::process_request():" << std::endl
+                << "GWebsocketClientT<processable_type>::process_request():" << '\n'
                 << "Got unknown or invalid command "
-                << inboundCommand << std::endl
+                << inboundCommand << '\n'
             );
         } break;
         }
@@ -559,15 +559,15 @@ private:
         }
         else {
             if(ec) {
-                glogger << "GAsioConsumerSessionT<processable_type>::when_read(): " << std::endl
-                        << "Leaving due to error code " << ec.message() << std::endl
-                        << "Server session will terminate" << std::endl
+                glogger << "GAsioConsumerSessionT<processable_type>::when_read(): " << '\n'
+                        << "Leaving due to error code " << ec.message() << '\n'
+                        << "Server session will terminate" << '\n'
                         << GLOGGING;
             }
             else {
-                glogger << "GAsioConsumerSessionT<processable_type>::when_read(): " << std::endl
-                        << "No ec received but expected boost::asio::error::eof" << std::endl
-                        << "Server session will terminate" << std::endl
+                glogger << "GAsioConsumerSessionT<processable_type>::when_read(): " << '\n'
+                        << "No ec received but expected boost::asio::error::eof" << '\n'
+                        << "Server session will terminate" << '\n'
                         << GLOGGING;
             }
         }
@@ -609,8 +609,8 @@ private:
         std::size_t /* nothing */
     ) {
         if(ec) {
-            glogger << "GAsioConsumerSessionT<processable_type>::when_written(): " << std::endl
-                    << "Got error code " << ec.message() << std::endl
+            glogger << "GAsioConsumerSessionT<processable_type>::when_written(): " << '\n'
+                    << "Got error code " << ec.message() << '\n'
                     << GLOGGING;
         }
 
@@ -659,8 +659,8 @@ private:
                 }
                 else {
                     glogger << "GAsioConsumerSessionT<processable_type>::process_request():"
-                            << std::endl
-                            << "payload is empty even though a result was expected" << std::endl
+                            << '\n'
+                            << "payload is empty even though a result was expected" << '\n'
                             << GWARNING;
                 }
 
@@ -670,9 +670,9 @@ private:
 
             default: {
                 glogger << "GAsioConsumerSessionT<processable_type>::process_request():"
-                        << std::endl
+                        << '\n'
                         << "Got unknown or invalid command "
-                        << inboundCommand << std::endl
+                        << inboundCommand << '\n'
                         << GWARNING;
             } break;
             }
@@ -682,7 +682,7 @@ private:
         ) { // NOLINT(bugprone-empty-catch) — intentionally swallowed; session ends, caller retries
             glogger
                 << "GAsioConsumerSessionT<processable_type>::process_request(): Caught exception"
-                << std::endl
+                << '\n'
                 << GLOGGING;
         }
 
@@ -832,11 +832,11 @@ public:
     void setNThreads(std::size_t nThreads) {
         // Adapt the number of processing threads, if automatic detection was requested
         if(0 == nThreads) {
-            glogger << "In GAsioConsumerT<>::setNThreads(): " << std::endl
+            glogger << "In GAsioConsumerT<>::setNThreads(): " << '\n'
                     << "nThreads was set to 0. n_threads_ will be set to default "
-                    << GCONSUMERLISTENERTHREADS << std::endl
-                    << "This replaces the old behaviour where a value of 0 would have" << std::endl
-                    << "resulted in the number of hardware threads being unsed" << std::endl
+                    << GCONSUMERLISTENERTHREADS << '\n'
+                    << "This replaces the old behaviour where a value of 0 would have" << '\n'
+                    << "resulted in the number of hardware threads being unsed" << '\n'
                     << GWARNING;
 
             n_threads_ = GCONSUMERLISTENERTHREADS;
@@ -970,8 +970,8 @@ private:
                     g_error_streamer(DO_LOG, time_and_place)
                     << "GAsioConsumerT<>::async_startProcessing_() / acceptor_.open: Got error "
                        "message \""
-                    << ec.message() << "\"" << std::endl
-                    << "No connections will be accepted. The server is not running" << std::endl
+                    << ec.message() << "\"" << '\n'
+                    << "No connections will be accepted. The server is not running" << '\n'
                 );
             }
             else {
@@ -979,8 +979,8 @@ private:
                     g_error_streamer(DO_LOG, time_and_place)
                     << "GAsioConsumerT<>::async_startProcessing_() / acceptor_.open did not "
                        "succeed."
-                    << std::endl
-                    << "No connections will be accepted. The server is not running" << std::endl
+                    << '\n'
+                    << "No connections will be accepted. The server is not running" << '\n'
                 );
             }
         }
@@ -992,8 +992,8 @@ private:
                 g_error_streamer(DO_LOG, time_and_place)
                 << "GAsioConsumerT<>::async_startProcessing_() / acceptor_.bind: Got error "
                    "message \""
-                << ec.message() << "\"" << std::endl
-                << "No connections will be accepted. The server is not running" << std::endl
+                << ec.message() << "\"" << '\n'
+                << "No connections will be accepted. The server is not running" << '\n'
             );
         }
 
@@ -1008,8 +1008,8 @@ private:
                 g_error_streamer(DO_LOG, time_and_place)
                 << "GAsioConsumerT<>::async_startProcessing_() / acceptor_.listen: Got error "
                    "message \""
-                << ec.message() << "\"" << std::endl
-                << "No connections will be accepted. The server is not running" << std::endl
+                << ec.message() << "\"" << '\n'
+                << "No connections will be accepted. The server is not running" << '\n'
             );
         }
 
@@ -1049,8 +1049,8 @@ private:
     void when_accepted(error_code ec) {
         if(ec) {
             glogger << "In GAsioConsumerT<>::when_accepted(): Got error code \"" << ec.message()
-                    << "\"" << std::endl
-                    << "We will nevertheless try to accept more connections" << std::endl
+                    << "\"" << '\n'
+                    << "We will nevertheless try to accept more connections" << '\n'
                     << GWARNING;
         }
         else {
@@ -1096,15 +1096,15 @@ private:
         if(not p) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "GAsioConsumerT<>::putPayloadItem():" << std::endl
-                << "Function called with empty work item" << std::endl
+                << "GAsioConsumerT<>::putPayloadItem():" << '\n'
+                << "Function called with empty work item" << '\n'
             );
         }
 
         if(not broker_ptr_->put(p, timeout_)) {
-            glogger << "In GAsioConsumerT<>::putPayloadItem():" << std::endl
-                    << "Work item could not be submitted to the broker" << std::endl
-                    << "The item will be discarded" << std::endl
+            glogger << "In GAsioConsumerT<>::putPayloadItem():" << '\n'
+                    << "Work item could not be submitted to the broker" << '\n'
+                    << "The item will be discarded" << '\n'
                     << GWARNING;
         }
     }

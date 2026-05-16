@@ -275,8 +275,8 @@ public:
         else {
             raiseException(
                 "In GLogger::setDefaultLogTarget(): Error!"
-                << std::endl
-                << "Tried to register empty default logger" << std::endl
+                << '\n'
+                << "Tried to register empty default logger" << '\n'
             );
         }
     }
@@ -294,9 +294,9 @@ public:
         }
         else {
             raiseException(
-                "In GLogger::addLogTarget(): Error!" << std::endl
+                "In GLogger::addLogTarget(): Error!" << '\n'
                                                      << "Tried to register empty logger"
-                                                     << std::endl
+                                                     << '\n'
             );
         }
     }
@@ -344,8 +344,8 @@ public:
             }
             else {
                 raiseException(
-                    "In GLogger::log(): Error!" << std::endl
-                                                << "No loggers found" << std::endl
+                    "In GLogger::log(): Error!" << '\n'
+                                                << "No loggers found" << '\n'
                 );
             }
         }
@@ -373,8 +373,8 @@ public:
             }
             else {
                 raiseException(
-                    "In GLogger::logWithSource(): Error!" << std::endl
-                                                          << "No loggers found" << std::endl
+                    "In GLogger::logWithSource(): Error!" << '\n'
+                                                          << "No loggers found" << '\n'
                 );
             }
         }

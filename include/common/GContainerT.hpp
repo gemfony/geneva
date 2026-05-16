@@ -694,7 +694,7 @@ public:
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GContainerT::resize(): "
                 << "Cannot grow a SharedPtrStorage container without a prototype. "
-                << "Use resize_clone(), resize_noclone(), or resize_empty() instead." << std::endl
+                << "Use resize_clone(), resize_noclone(), or resize_empty() instead." << '\n'
             );
         }
         data_cnt_.resize(amount);
@@ -1039,7 +1039,7 @@ public:
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GContainerT::count(): "
-                << "Tried to count with an empty smart pointer." << std::endl
+                << "Tried to count with an empty smart pointer." << '\n'
             );
         }
         return Gem::Common::narrow_cast<size_type>(std::count_if(
@@ -1069,7 +1069,7 @@ public:
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GContainerT::find(): "
-                << "Tried to find an empty smart pointer." << std::endl
+                << "Tried to find an empty smart pointer." << '\n'
             );
         }
         return std::find_if(
@@ -1102,7 +1102,7 @@ public:
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GContainerT::push_back_clone(): "
-                << "Tried to clone an empty smart pointer." << std::endl
+                << "Tried to clone an empty smart pointer." << '\n'
             );
         }
         data_cnt_.push_back(itemPtr->ValueType::template clone<ValueType>());
@@ -1125,7 +1125,7 @@ public:
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GContainerT::push_back_noclone(): "
-                << "Tried to insert an empty smart pointer." << std::endl
+                << "Tried to insert an empty smart pointer." << '\n'
             );
         }
         data_cnt_.push_back(std::move(itemPtr));
@@ -1151,7 +1151,7 @@ public:
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GContainerT::insert_clone(): "
-                << "Tried to clone an empty smart pointer." << std::endl
+                << "Tried to clone an empty smart pointer." << '\n'
             );
         }
         return data_cnt_.insert(pos, itemPtr->ValueType::template clone<ValueType>());
@@ -1173,7 +1173,7 @@ public:
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GContainerT::insert_clone(count): "
-                << "Tried to clone an empty smart pointer." << std::endl
+                << "Tried to clone an empty smart pointer." << '\n'
             );
         }
         if(count == 0) return;
@@ -1210,7 +1210,7 @@ public:
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GContainerT::insert_noclone(): "
-                << "Tried to insert an empty smart pointer." << std::endl
+                << "Tried to insert an empty smart pointer." << '\n'
             );
         }
         return data_cnt_.insert(pos, std::move(itemPtr));
@@ -1236,7 +1236,7 @@ public:
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GContainerT::insert_noclone(count): "
-                << "Tried to insert an empty smart pointer." << std::endl
+                << "Tried to insert an empty smart pointer." << '\n'
             );
         }
         // Guard against unsigned underflow of `count - 1` below when count == 0.
@@ -1286,7 +1286,7 @@ public:
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
                     << "In GContainerT::resize_clone(): "
-                    << "Tried to clone an empty smart pointer." << std::endl
+                    << "Tried to clone an empty smart pointer." << '\n'
                 );
             }
             data_cnt_.reserve(amount);
@@ -1317,7 +1317,7 @@ public:
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
                     << "In GContainerT::resize_noclone(): "
-                    << "Tried to insert an empty smart pointer." << std::endl
+                    << "Tried to insert an empty smart pointer." << '\n'
                 );
             }
             data_cnt_.reserve(amount);
@@ -1499,9 +1499,9 @@ public:
         if(pos >= minSize) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GContainerT::crossOver(): Error!" << std::endl
+                << "In GContainerT::crossOver(): Error!" << '\n'
                 << "Invalid position " << pos << " / " << this->size() << " / " << cp.size()
-                << std::endl
+                << '\n'
             );
         }
 #endif /* DEBUG */

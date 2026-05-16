@@ -94,9 +94,9 @@ public:
 	  */
     void setCapableOfFullReturn(bool capableOfFullReturn) {
         glogger << "In GSerialConsumerT<processable_type>::setCapableOfFullReturn():"
-                << std::endl
+                << '\n'
                 << "isCapableOfFullReturn_ will be set to "
-                << (capableOfFullReturn ? "true" : "false") << std::endl
+                << (capableOfFullReturn ? "true" : "false") << '\n'
                 << GLOGGING;
         isCapableOfFullReturn_ = capableOfFullReturn;
     }
@@ -113,8 +113,8 @@ public:
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GSerialConsumerT<processable_type>::registerWorkerTemplate(): Error!"
-                << std::endl
-                << "Found empty worker template pointer" << std::endl
+                << '\n'
+                << "Found empty worker template pointer" << '\n'
             );
         }
 #endif /* DEBUG */
@@ -230,7 +230,7 @@ private:
             this->registerWorkerTemplate(default_worker);
         }
 
-        glogger << "Starting single thread in GSerialConsumerT<processable_type>" << std::endl
+        glogger << "Starting single thread in GSerialConsumerT<processable_type>" << '\n'
                 << GLOGGING;
 
         // The actual worker

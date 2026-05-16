@@ -506,37 +506,37 @@ void GFunctionIndividual::addConfigurationOptions_(Gem::Common::GParserBuilder &
         ,
         [this](solverFunction sf) { this->setDemoFunction(sf); }
     ) << "Specifies which benchmark function to minimise (maximise for NEGPARABOLA)."
-      << std::endl
-      << "Select by integer ID:" << std::endl
+      << '\n'
+      << "Select by integer ID:" << '\n'
       << " 0: Parabola            -- unimodal, separable baseline; global min f=0 at origin"
-      << std::endl
-      << " 1: Berlich noisy para  -- radial cosine overlay; global min f=0 at origin" << std::endl
+      << '\n'
+      << " 1: Berlich noisy para  -- radial cosine overlay; global min f=0 at origin" << '\n'
       << " 2: Rosenbrock          -- narrow banana valley, n>=2; global min f=0 at (1,...,1)"
-      << std::endl
+      << '\n'
       << " 3: Ackley (variant)    -- Geneva pairwise variant, n>=2; NOT the canonical form"
-      << std::endl
+      << '\n'
       << " 4: Rastrigin           -- highly multimodal, separable; global min f=0 at origin"
-      << std::endl
+      << '\n'
       << " 5: Schwefel            -- deceptive, global opt near boundary; domain [-500,500]"
-      << std::endl
+      << '\n'
       << " 6: Salomon             -- concentric-ring landscape; global min f=0 at origin"
-      << std::endl
-      << " 7: Negative Parabola   -- maximisation test; global max f=0 at origin" << std::endl
+      << '\n'
+      << " 7: Negative Parabola   -- maximisation test; global max f=0 at origin" << '\n'
       << " 8: Ackley (canonical)  -- CEC/BBOB standard; plateau + deep basin; domain "
          "[-32.768,32.768]"
-      << std::endl
+      << '\n'
       << " 9: Griewank            -- multimodal with quadratic envelope; global min f=0 at origin"
-      << std::endl
+      << '\n'
       << "10: Levy                -- narrow-basin multimodal; global min f=0 at (1,...,1)"
-      << std::endl
+      << '\n'
       << "11: Styblinski-Tang     -- asymmetric wells; global min ~-39.166*n at (~-2.903,...)"
-      << std::endl
+      << '\n'
       << "12: Ellipsoid           -- ill-conditioned (1e6), unimodal; global min f=0 at origin"
-      << std::endl
+      << '\n'
       << "13: Michalewicz (m=10)  -- steep ridges; domain [0,pi]; set minVar=0 maxVar=3.14159!"
-      << std::endl
+      << '\n'
       << "14: Zakharov            -- unimodal, non-separable coupling; global min f=0 at origin"
-      << std::endl;
+      << '\n';
 }
 
 /******************************************************************************/
@@ -691,7 +691,7 @@ double GFunctionIndividual::fitnessCalculation() {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GFunctionIndividual::fitnessCalculation(): function " << id
-            << " requires at least 2 dimensions, got " << parVec.size() << std::endl
+            << " requires at least 2 dimensions, got " << parVec.size() << '\n'
         );
     }
 #endif /* DEBUG */
@@ -713,13 +713,13 @@ std::ostream &operator<<(std::ostream &s, const Gem::Geneva::GFunctionIndividual
     std::vector<double> parVec;
     f.streamline(parVec);
 
-    std::cout << std::endl << "Raw fitness: " << f.raw_fitness(0) << std::endl << std::endl;
+    std::cout << '\n' << "Raw fitness: " << f.raw_fitness(0) << '\n' << '\n';
     std::size_t pos = 0;
-    std::cout << "Parameter values of best individual:" << std::endl;
+    std::cout << "Parameter values of best individual:" << '\n';
     for(const auto &val : parVec) {
-        std::cout << pos++ << ": " << val << std::endl;
+        std::cout << pos++ << ": " << val << '\n';
     }
-    std::cout << std::endl;
+    std::cout << '\n';
 
     return s;
 }
@@ -810,8 +810,8 @@ void GFunctionIndividualFactory::setParDim(std::size_t parDim) {
     if(parDim == 0) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GFunctionIndividualFactory::setParDim(): Error!" << std::endl
-            << "Dimension of the function is set to 0" << std::endl
+            << "In GFunctionIndividualFactory::setParDim(): Error!" << '\n'
+            << "Dimension of the function is set to 0" << '\n'
         );
     }
 
@@ -837,8 +837,8 @@ void GFunctionIndividualFactory::setVarBoundaries(std::tuple<double, double> bou
     if(min >= max) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GFunctionIndividualFactory::setVarBoundaries(): Error!" << std::endl
-            << "Received invalid boundaries " << min << " / " << max << std::endl
+            << "In GFunctionIndividualFactory::setVarBoundaries(): Error!" << '\n'
+            << "Received invalid boundaries " << min << " / " << max << '\n'
         );
     }
 
@@ -1009,16 +1009,16 @@ void GFunctionIndividualFactory::setDeltaRange(std::tuple<double, double> range)
     if(min < 0) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GFunctionIndividualFactory::setDeltaRange(): Error" << std::endl
-            << "min must be >= 0. Got : " << max << std::endl
+            << "In GFunctionIndividualFactory::setDeltaRange(): Error" << '\n'
+            << "min must be >= 0. Got : " << max << '\n'
         );
     }
 
     if(min >= max) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GFunctionIndividualFactory::setDeltaRange(): Error" << std::endl
-            << "Invalid range specified: " << min << " / " << max << std::endl
+            << "In GFunctionIndividualFactory::setDeltaRange(): Error" << '\n'
+            << "Invalid range specified: " << min << " / " << max << '\n'
         );
     }
 
@@ -1061,16 +1061,16 @@ void GFunctionIndividualFactory::setSigma1Range(std::tuple<double, double> range
     if(min < 0) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GFunctionIndividualFactory::setSigma1Range(): Error" << std::endl
-            << "min must be >= 0. Got : " << max << std::endl
+            << "In GFunctionIndividualFactory::setSigma1Range(): Error" << '\n'
+            << "min must be >= 0. Got : " << max << '\n'
         );
     }
 
     if(min >= max) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GFunctionIndividualFactory::setSigma1Range(): Error" << std::endl
-            << "Invalid range specified: " << min << " / " << max << std::endl
+            << "In GFunctionIndividualFactory::setSigma1Range(): Error" << '\n'
+            << "Invalid range specified: " << min << " / " << max << '\n'
         );
     }
 
@@ -1113,16 +1113,16 @@ void GFunctionIndividualFactory::setSigma2Range(std::tuple<double, double> range
     if(min < 0) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GFunctionIndividualFactory::setSigma2Range(): Error" << std::endl
-            << "min must be >= 0. Got : " << max << std::endl
+            << "In GFunctionIndividualFactory::setSigma2Range(): Error" << '\n'
+            << "min must be >= 0. Got : " << max << '\n'
         );
     }
 
     if(min >= max) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GFunctionIndividualFactory::setSigma2Range(): Error" << std::endl
-            << "Invalid range specified: " << min << " / " << max << std::endl
+            << "In GFunctionIndividualFactory::setSigma2Range(): Error" << '\n'
+            << "Invalid range specified: " << min << " / " << max << '\n'
         );
     }
 
@@ -1283,8 +1283,8 @@ void GFunctionIndividualFactory::setAdaptAdProb(double adaptAdProb) {
     if(adaptAdProb < 0.) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GFunctionIndividualFactory::setAdaptAdProb(): Error!" << std::endl
-            << "Invalid value for adaptAdProb given: " << adaptAdProb << std::endl
+            << "In GFunctionIndividualFactory::setAdaptAdProb(): Error!" << '\n'
+            << "Invalid value for adaptAdProb given: " << adaptAdProb << '\n'
         );
     }
 #endif /* DEBUG */
@@ -1309,25 +1309,25 @@ void GFunctionIndividualFactory::setAdProbRange(double minAdProb, double maxAdPr
     if(minAdProb < 0.) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GFunctionIndividualFactory::setAdProbRange(): Error!" << std::endl
-            << "minAdProb < 0: " << minAdProb << std::endl
+            << "In GFunctionIndividualFactory::setAdProbRange(): Error!" << '\n'
+            << "minAdProb < 0: " << minAdProb << '\n'
         );
     }
 
     if(minAdProb > maxAdProb) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GFunctionIndividualFactory::setAdProbRange(): Error!" << std::endl
+            << "In GFunctionIndividualFactory::setAdProbRange(): Error!" << '\n'
             << "Invalid minAdProb and/or maxAdProb: " << minAdProb << " / " << maxAdProb
-            << std::endl
+            << '\n'
         );
     }
 
     if(maxAdProb > 1.) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GFunctionIndividualFactory::setAdProbRange(): Error!" << std::endl
-            << "maxAdProb > 1: " << maxAdProb << std::endl
+            << "In GFunctionIndividualFactory::setAdProbRange(): Error!" << '\n'
+            << "maxAdProb > 1: " << maxAdProb << '\n'
         );
     }
 #endif /* DEBUG */
@@ -1777,7 +1777,7 @@ void GFunctionIndividualFactory::postProcess_(std::shared_ptr<GParameterSet> &p)
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GFunctionIndividualFactory::postProcess_(): Error!"
-            << "Found invalid pT_: " << pT_ << std::endl
+            << "Found invalid pT_: " << pT_ << '\n'
         );
     } break;
     }

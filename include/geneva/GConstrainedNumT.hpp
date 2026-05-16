@@ -115,9 +115,9 @@ public:
         if(lowerBoundary_ >= upperBoundary_) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GConstrainedNumT<T>::GConstrainedNumT(lower,upper):" << std::endl
+                << "In GConstrainedNumT<T>::GConstrainedNumT(lower,upper):" << '\n'
                 << "lowerBoundary_ = " << lowerBoundary_
-                << " is > upperBoundary_ = " << upperBoundary_ << std::endl
+                << " is > upperBoundary_ = " << upperBoundary_ << '\n'
             );
         }
 
@@ -126,14 +126,14 @@ public:
            upperBoundary > GConstrainedValueLimitT<T>::highest()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GConstrainedNumT<T>::GConstrainedNumT(lower,upper):" << std::endl
-                << "lower and/or upper limit outside of allowed value range:" << std::endl
-                << "lowerBoundary = " << lowerBoundary << std::endl
-                << "upperBoundary = " << upperBoundary << std::endl
+                << "In GConstrainedNumT<T>::GConstrainedNumT(lower,upper):" << '\n'
+                << "lower and/or upper limit outside of allowed value range:" << '\n'
+                << "lowerBoundary = " << lowerBoundary << '\n'
+                << "upperBoundary = " << upperBoundary << '\n'
                 << "GConstrainedValueLimit<T>::lowest()  = " << GConstrainedValueLimitT<T>::lowest()
-                << std::endl
+                << '\n'
                 << "GConstrainedValueLimit<T>::highest() = "
-                << GConstrainedValueLimitT<T>::highest() << std::endl
+                << GConstrainedValueLimitT<T>::highest() << '\n'
             );
         }
     }
@@ -154,9 +154,9 @@ public:
         if(lowerBoundary_ >= upperBoundary_) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GConstrainedNumT<T>::GConstrainedNumT(val,lower,upper):" << std::endl
-                << "lowerBoundary_ = " << lowerBoundary_ << "is >= than" << std::endl
-                << "upperBoundary_ = " << upperBoundary_ << std::endl
+                << "In GConstrainedNumT<T>::GConstrainedNumT(val,lower,upper):" << '\n'
+                << "lowerBoundary_ = " << lowerBoundary_ << "is >= than" << '\n'
+                << "upperBoundary_ = " << upperBoundary_ << '\n'
             );
         }
 
@@ -165,14 +165,14 @@ public:
            upperBoundary > GConstrainedValueLimitT<T>::highest()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GConstrainedNumT<T>::GConstrainedNumT(val, lower,upper):" << std::endl
-                << "lower and/or upper limit outside of allowed value range:" << std::endl
-                << "lowerBoundary = " << lowerBoundary << std::endl
-                << "upperBoundary = " << upperBoundary << std::endl
+                << "In GConstrainedNumT<T>::GConstrainedNumT(val, lower,upper):" << '\n'
+                << "lower and/or upper limit outside of allowed value range:" << '\n'
+                << "lowerBoundary = " << lowerBoundary << '\n'
+                << "upperBoundary = " << upperBoundary << '\n'
                 << "GConstrainedValueLimitT<T>::lowest()  = "
-                << GConstrainedValueLimitT<T>::lowest() << std::endl
+                << GConstrainedValueLimitT<T>::lowest() << '\n'
                 << "GConstrainedValueLimitT<T>::highest() = "
-                << GConstrainedValueLimitT<T>::highest() << std::endl
+                << GConstrainedValueLimitT<T>::highest() << '\n'
             );
         }
 
@@ -180,11 +180,11 @@ public:
         if(val < lowerBoundary_ || val > upperBoundary_) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GConstrainedNumT<T>::GConstrainedNumT(val,lower,upper):" << std::endl
+                << "In GConstrainedNumT<T>::GConstrainedNumT(val,lower,upper):" << '\n'
                 << "Assigned value " << val
-                << " is outside of its allowed boundaries: " << std::endl
-                << "lowerBoundary_ = " << lowerBoundary_ << std::endl
-                << "upperBoundary_ = " << upperBoundary_ << std::endl
+                << " is outside of its allowed boundaries: " << '\n'
+                << "lowerBoundary_ = " << lowerBoundary_ << '\n'
+                << "upperBoundary_ = " << upperBoundary_ << '\n'
             );
         }
     }
@@ -267,10 +267,10 @@ public:
         if(lowerBoundary > upperBoundary) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GConstrainedNumT<T>::setBoundaries(const T&, const T&)" << std::endl
-                << "with typeid(T).name() = " << typeid(T).name() << " :" << std::endl
+                << "In GConstrainedNumT<T>::setBoundaries(const T&, const T&)" << '\n'
+                << "with typeid(T).name() = " << typeid(T).name() << " :" << '\n'
                 << "Lower and/or upper boundary has invalid value : " << lowerBoundary << " "
-                << upperBoundary << std::endl
+                << upperBoundary << '\n'
             );
         }
 
@@ -279,14 +279,14 @@ public:
            upperBoundary > GConstrainedValueLimitT<T>::highest()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GConstrainedNumT<T>::setBoundaries(const T&, const T&):" << std::endl
-                << "lower and/or upper limit outside of allowed value range:" << std::endl
-                << "lowerBoundary = " << lowerBoundary << std::endl
-                << "upperBoundary = " << upperBoundary << std::endl
+                << "In GConstrainedNumT<T>::setBoundaries(const T&, const T&):" << '\n'
+                << "lower and/or upper limit outside of allowed value range:" << '\n'
+                << "lowerBoundary = " << lowerBoundary << '\n'
+                << "upperBoundary = " << upperBoundary << '\n'
                 << "GConstrainedValueLimitT<T>::lowest() = " << GConstrainedValueLimitT<T>::lowest()
-                << std::endl
+                << '\n'
                 << " GConstrainedValueLimit<T>::highest() = "
-                << GConstrainedValueLimitT<T>::highest() << std::endl
+                << GConstrainedValueLimitT<T>::highest() << '\n'
             );
         }
 
@@ -294,11 +294,11 @@ public:
         if(currentValue < lowerBoundary || currentValue > upperBoundary) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GConstrainedNumT<T>::setBoundaries(const T&, const T&) :" << std::endl
-                << "with typeid(T).name() = " << typeid(T).name() << std::endl
+                << "In GConstrainedNumT<T>::setBoundaries(const T&, const T&) :" << '\n'
+                << "with typeid(T).name() = " << typeid(T).name() << '\n'
                 << "Attempt to set new boundaries [" << lowerBoundary << ":" << upperBoundary << "]"
-                << std::endl
-                << "with existing value  " << currentValue << " outside of this range." << std::endl
+                << '\n'
+                << "with existing value  " << currentValue << " outside of this range." << '\n'
             );
         }
 
@@ -322,11 +322,11 @@ public:
         if(val < lowerBoundary_ || val > upperBoundary_) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GConstrainedNumT<T>::setValue(val):" << std::endl
+                << "In GConstrainedNumT<T>::setValue(val):" << '\n'
                 << std::setprecision(20) << "Assigned value = " << val
-                << " is outside of its allowed boundaries: " << std::endl
-                << "lowerBoundary_ = " << lowerBoundary_ << std::endl
-                << "upperBoundary_ = " << upperBoundary_ << std::endl
+                << " is outside of its allowed boundaries: " << '\n'
+                << "lowerBoundary_ = " << lowerBoundary_ << '\n'
+                << "upperBoundary_ = " << upperBoundary_ << '\n'
             );
         }
 
@@ -349,9 +349,9 @@ public:
         if(lowerBoundary > upperBoundary) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GConstrainedNumT<T>::setValue(val,lower,upper):" << std::endl
-                << "lowerBoundary_ = " << lowerBoundary_ << "is larger than" << std::endl
-                << "upperBoundary_ = " << upperBoundary_ << std::endl
+                << "In GConstrainedNumT<T>::setValue(val,lower,upper):" << '\n'
+                << "lowerBoundary_ = " << lowerBoundary_ << "is larger than" << '\n'
+                << "upperBoundary_ = " << upperBoundary_ << '\n'
             );
         }
 
@@ -360,14 +360,14 @@ public:
            upperBoundary > GConstrainedValueLimitT<T>::highest()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GConstrainedNumT<T>::setValue(val,lower,upper):" << std::endl
-                << "lower and/or upper limit outside of allowed value range:" << std::endl
-                << "lowerBoundary = " << lowerBoundary << std::endl
-                << "upperBoundary = " << upperBoundary << std::endl
+                << "In GConstrainedNumT<T>::setValue(val,lower,upper):" << '\n'
+                << "lower and/or upper limit outside of allowed value range:" << '\n'
+                << "lowerBoundary = " << lowerBoundary << '\n'
+                << "upperBoundary = " << upperBoundary << '\n'
                 << "GConstrainedValueLimitT<T>::lowest() = " << GConstrainedValueLimitT<T>::lowest()
-                << std::endl
+                << '\n'
                 << " GConstrainedValueLimit<T>::highest() = "
-                << GConstrainedValueLimitT<T>::highest() << std::endl
+                << GConstrainedValueLimitT<T>::highest() << '\n'
             );
         }
 
@@ -375,11 +375,11 @@ public:
         if(val < lowerBoundary || val > upperBoundary) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GConstrainedNumT<T>::setValue(val,lower,upper):" << std::endl
+                << "In GConstrainedNumT<T>::setValue(val,lower,upper):" << '\n'
                 << "Assigned value = " << val
-                << " is outside of its allowed boundaries: " << std::endl
-                << "lowerBoundary  = " << lowerBoundary << std::endl
-                << "upperBoundary  = " << upperBoundary << std::endl
+                << " is outside of its allowed boundaries: " << '\n'
+                << "lowerBoundary  = " << lowerBoundary << '\n'
+                << "upperBoundary  = " << upperBoundary << '\n'
             );
         }
 

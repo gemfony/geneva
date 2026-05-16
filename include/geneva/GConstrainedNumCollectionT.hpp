@@ -99,9 +99,9 @@ public:
         if(lowerBoundary_ > upperBoundary_) {
             glogger << "In GConstrainedNumCollectionT<num_type>::GConstrainedNumCollectionT(size, "
                        "lower,upper):"
-                    << std::endl
-                    << "lowerBoundary_ = " << lowerBoundary_ << "is larger than" << std::endl
-                    << "upperBoundary_ = " << upperBoundary_ << std::endl
+                    << '\n'
+                    << "lowerBoundary_ = " << lowerBoundary_ << "is larger than" << '\n'
+                    << "upperBoundary_ = " << upperBoundary_ << '\n'
                     << GTERMINATION;
         }
 
@@ -110,12 +110,12 @@ public:
            upperBoundary > GConstrainedValueLimitT<num_type>::highest()) {
             glogger << "In GConstrainedNumCollectionT<num_type>::GConstrainedNumCollectionT(size, "
                        "lower,upper):"
-                    << std::endl
-                    << "lower and/or upper limit outside of allowed value range:" << std::endl
-                    << "lowerBoundary = " << lowerBoundary << std::endl
-                    << "upperBoundary = " << upperBoundary << std::endl
+                    << '\n'
+                    << "lower and/or upper limit outside of allowed value range:" << '\n'
+                    << "lowerBoundary = " << lowerBoundary << '\n'
+                    << "upperBoundary = " << upperBoundary << '\n'
                     << "GConstrainedValueLimit<num_type>::lowest() = "
-                    << GConstrainedValueLimitT<num_type>::lowest() << std::endl
+                    << GConstrainedValueLimitT<num_type>::lowest() << '\n'
                     << "GConstrainedValueLimit<num_type>::highest() = "
                     << GConstrainedValueLimitT<num_type>::highest() << GTERMINATION;
         }
@@ -144,9 +144,9 @@ public:
         if(lowerBoundary_ > upperBoundary_) {
             glogger << "In GConstrainedNumCollectionT<num_type>::GConstrainedNumCollectionT(size, "
                        "val, lower,upper):"
-                    << std::endl
-                    << "lowerBoundary_ = " << lowerBoundary_ << "is larger than" << std::endl
-                    << "upperBoundary_ = " << upperBoundary_ << std::endl
+                    << '\n'
+                    << "lowerBoundary_ = " << lowerBoundary_ << "is larger than" << '\n'
+                    << "upperBoundary_ = " << upperBoundary_ << '\n'
                     << GTERMINATION;
         }
 
@@ -155,14 +155,14 @@ public:
            upperBoundary > GConstrainedValueLimitT<num_type>::highest()) {
             glogger << "In GConstrainedNumCollectionT<num_type>::GConstrainedNumCollectionT(size, "
                        "val, lower,upper):"
-                    << std::endl
-                    << "lower and/or upper limit outside of allowed value range:" << std::endl
-                    << "lowerBoundary = " << lowerBoundary << std::endl
-                    << "upperBoundary = " << upperBoundary << std::endl
+                    << '\n'
+                    << "lower and/or upper limit outside of allowed value range:" << '\n'
+                    << "lowerBoundary = " << lowerBoundary << '\n'
+                    << "upperBoundary = " << upperBoundary << '\n'
                     << "GConstrainedValueLimit<num_type>::lowest() = "
-                    << GConstrainedValueLimitT<num_type>::lowest() << std::endl
+                    << GConstrainedValueLimitT<num_type>::lowest() << '\n'
                     << "GConstrainedValueLimit<num_type>::highest() = "
-                    << GConstrainedValueLimitT<num_type>::highest() << std::endl
+                    << GConstrainedValueLimitT<num_type>::highest() << '\n'
                     << GTERMINATION;
         }
 
@@ -170,11 +170,11 @@ public:
         if(val < lowerBoundary || val > upperBoundary) {
             glogger << "In GConstrainedNumCollectionT<num_type>::GConstrainedNumCollectionT(size, "
                        "val, lower,upper):"
-                    << std::endl
-                    << "Assigned value is outside of allowed value range:" << std::endl
-                    << "val = " << val << std::endl
-                    << "lowerBoundary = " << lowerBoundary << std::endl
-                    << "upperBoundary = " << upperBoundary << std::endl
+                    << '\n'
+                    << "Assigned value is outside of allowed value range:" << '\n'
+                    << "val = " << val << '\n'
+                    << "lowerBoundary = " << lowerBoundary << '\n'
+                    << "upperBoundary = " << upperBoundary << '\n'
                     << GTERMINATION;
         }
     }
@@ -245,12 +245,12 @@ public:
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
                     << "In GConstrainedNumT<num_type>::setBoundaries(const T&, const T&) :"
-                    << std::endl
-                    << "with typeid(num_type).name() = " << typeid(num_type).name() << std::endl
+                    << '\n'
+                    << "with typeid(num_type).name() = " << typeid(num_type).name() << '\n'
                     << "Attempt to set new boundaries [" << lower << ":" << upper << "]"
-                    << std::endl
+                    << '\n'
                     << "with existing value  " << currentValues[pos] << " at position " << pos
-                    << " outside of this range." << std::endl
+                    << " outside of this range." << '\n'
                 );
             }
         }
@@ -260,10 +260,10 @@ public:
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GConstrainedNumT<num_type>::setBoundaries(const num_type&, const num_type&)"
-                << std::endl
-                << "with typeid(num_type).name() = " << typeid(num_type).name() << " :" << std::endl
+                << '\n'
+                << "with typeid(num_type).name() = " << typeid(num_type).name() << " :" << '\n'
                 << "Lower and/or upper boundary has invalid value : " << lower << " " << upper
-                << std::endl
+                << '\n'
             );
         }
 
@@ -292,12 +292,12 @@ public:
         if(val < lowerBoundary_ || val > upperBoundary_) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GConstrainedNumCollectionT<num_type>::setValue(pos, val):" << std::endl
-                << "In position " << pos << ":" << std::endl
+                << "In GConstrainedNumCollectionT<num_type>::setValue(pos, val):" << '\n'
+                << "In position " << pos << ":" << '\n'
                 << "Assigned value " << val
-                << " is outside of its allowed boundaries: " << std::endl
-                << "lowerBoundary_ = " << lowerBoundary_ << std::endl
-                << "upperBoundary_ = " << upperBoundary_ << std::endl
+                << " is outside of its allowed boundaries: " << '\n'
+                << "lowerBoundary_ = " << lowerBoundary_ << '\n'
+                << "upperBoundary_ = " << upperBoundary_ << '\n'
             );
         }
 
@@ -341,8 +341,8 @@ public:
         if(this->empty()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GConstrainedNumCollectionT<num_type>::toPropertyTree(): Error!" << std::endl
-                << "Object is empty!" << std::endl
+                << "In GConstrainedNumCollectionT<num_type>::toPropertyTree(): Error!" << '\n'
+                << "Object is empty!" << '\n'
             );
         }
 #endif /* DEBUG */

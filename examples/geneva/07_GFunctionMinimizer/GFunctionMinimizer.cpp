@@ -91,7 +91,7 @@ int main(int argc, char **argv) {
 
     // Do something with the best result. Here: Simply print it, if requested
     if(printBest) {
-        std::cout << "Best individual found has values" << std::endl
-                  << bestIndividual_ptr << std::endl;
+        std::cout << "Best individual found has values" << '\n'
+                  << bestIndividual_ptr << '\n';
     }
 }

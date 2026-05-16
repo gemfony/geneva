@@ -206,8 +206,8 @@ private:
         if(not grf_) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GRandomT<RANDOMPROXY>::getNewRandomContainer(): Error!" << std::endl
-                << "No connection to GRandomFactory object." << std::endl
+                << "In GRandomT<RANDOMPROXY>::getNewRandomContainer(): Error!" << '\n'
+                << "No connection to GRandomFactory object." << '\n'
             );
         }
 #endif /* DEBUG */
@@ -227,7 +227,7 @@ private:
 #ifdef DEBUG
         if(nRetries > 1) {
             std::cout << "Info: Had to try " << nRetries
-                      << " times to retrieve a valid random number container." << std::endl;
+                      << " times to retrieve a valid random number container." << '\n';
         }
 #endif /* DEBUG */
     }

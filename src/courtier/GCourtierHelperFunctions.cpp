@@ -63,7 +63,7 @@ std::size_t extractDataSize(const char *ds, const std::size_t &sz) {
     if(!(is >> std::hex >> inboundDataSize)) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In extractDataSize: Got invalid header!" << std::endl
+            << "In extractDataSize: Got invalid header!" << '\n'
         );
     }
 

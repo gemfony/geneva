@@ -254,7 +254,7 @@ public:
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GBaseExeuctorT<processable_type>::workOn(): Another call to this function "
                    "still seems"
-                << std::endl
+                << '\n'
                 << "to be active which is a severe error."
             );
         }
@@ -466,9 +466,9 @@ public:
         if(cycle_running_) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GBaseExecutorT<processable_type>::getCycleEndTime():" << std::endl
-                << "There still seems to be an active cycle while the end" << std::endl
-                << "time of the cycle is retrieved" << std::endl
+                << "In GBaseExecutorT<processable_type>::getCycleEndTime():" << '\n'
+                << "There still seems to be an active cycle while the end" << '\n'
+                << "time of the cycle is retrieved" << '\n'
             );
         }
 #endif
@@ -486,9 +486,9 @@ public:
         if(iteration_running_) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GBaseExecutorT<processable_type>::getIterationEndTime():" << std::endl
-                << "There still seems to be an active iteration while the end" << std::endl
-                << "time of the iteration is retrieved" << std::endl
+                << "In GBaseExecutorT<processable_type>::getIterationEndTime():" << '\n'
+                << "There still seems to be an active iteration while the end" << '\n'
+                << "time of the iteration is retrieved" << '\n'
             );
         }
 #endif
@@ -603,7 +603,7 @@ protected:
             ,
             [this](std::size_t r) { this->setMaxResubmissions(r); }
         ) << "The amount of resubmissions allowed if a full return of work"
-          << std::endl
+          << '\n'
           << "items was expected but only a subset has returned";
     }
 
@@ -717,9 +717,9 @@ protected:
             if(not w_ptr) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
-                    << "In GBaseExecutorT<processable_type>::submitAllWorkItems():" << std::endl
-                    << "Received empty work item in position " << pos_cnt << std::endl
-                    << "iteration_counter_ = " << iteration_counter_ << std::endl
+                    << "In GBaseExecutorT<processable_type>::submitAllWorkItems():" << '\n'
+                    << "Received empty work item in position " << pos_cnt << '\n'
+                    << "iteration_counter_ = " << iteration_counter_ << '\n'
                 );
             }
 #endif
@@ -769,9 +769,9 @@ protected:
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
                     << "In GBaseExecutorT<processable_type>::submitAllWorkItems(): Error"
-                    << std::endl
+                    << '\n'
                     << "processing status is neither DO_PROCESS nor DO_IGNORE. We got " << ps
-                    << std::endl
+                    << '\n'
                 );
             }
 
@@ -905,12 +905,12 @@ protected:
 #ifdef DEBUG
                     // Some logging, as this condition should be very rare and might indicate a more general problem.
                     glogger << "In GBaseExeuctorT<processable_type>::cleanItemsWithoutFlag():"
-                            << std::endl
+                            << '\n'
                             << "Removing work item in submission " << this->get_iteration_counter()
-                            << std::endl
+                            << '\n'
                             << "because it does not have the desired status " << desired_ps
-                            << std::endl
-                            << "Found status " << ps << " instead." << std::endl
+                            << '\n'
+                            << "Found status " << ps << " instead." << '\n'
                             << GLOGGING;
 #endif
 
@@ -996,12 +996,12 @@ private:
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GBaseExeuctorT<processable_type>::set_external_iteration_counter():"
-                << std::endl
+                << '\n'
                 << "Tried to set external iteration counter to value " << external_iteration_counter
-                << " ," << std::endl
-                << "while internal counter is at " << iteration_counter_ << " ." << std::endl
+                << " ," << '\n'
+                << "while internal counter is at " << iteration_counter_ << " ." << '\n'
                 << "The internal counter needs to be <= the external counter when being set"
-                << std::endl
+                << '\n'
             );
         }
 
@@ -1128,7 +1128,7 @@ protected:
         if(not cp) { // nullptr
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GSerialExecutorT<processable_type>::load_(): Conversion error!" << std::endl
+                << "In GSerialExecutorT<processable_type>::load_(): Conversion error!" << '\n'
             );
         }
 
@@ -1196,15 +1196,15 @@ protected:
             // these are also stored in the processing item. We do try to create a sort
             // of stack trace by emitting a warning, though. Processing errors should be rare,
             // so might hint at some problem.
-            glogger << "In GSerialExecutorT<processable_type>::submit():" << std::endl
+            glogger << "In GSerialExecutorT<processable_type>::submit():" << '\n'
                     << "Caught a g_processing_exception exception while processing the work item"
-                    << std::endl
-                    << "with the error message" << std::endl
-                    << e.what() << std::endl
-                    << "Exception information should have been stored in the" << std::endl
-                    << "work item itself. Processing should have been marked as" << std::endl
-                    << "unsuccessful in the work item. We leave it to the" << std::endl
-                    << "submitter to deal with this." << std::endl
+                    << '\n'
+                    << "with the error message" << '\n'
+                    << e.what() << '\n'
+                    << "Exception information should have been stored in the" << '\n'
+                    << "work item itself. Processing should have been marked as" << '\n'
+                    << "unsuccessful in the work item. We leave it to the" << '\n'
+                    << "submitter to deal with this." << '\n'
                     << GWARNING;
         }
         catch(const std::exception &e) {
@@ -1213,10 +1213,10 @@ protected:
             // gemfony exception.
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GSerialExecutorT<processable_type>::submit(): Caught a" << std::endl
-                << "std::exception in a place where we didn't expect any exceptions." << std::endl
-                << "Got message" << std::endl
-                << e.what() << std::endl
+                << "In GSerialExecutorT<processable_type>::submit(): Caught a" << '\n'
+                << "std::exception in a place where we didn't expect any exceptions." << '\n'
+                << "Got message" << '\n'
+                << e.what() << '\n'
             );
         }
         catch(...) {
@@ -1225,8 +1225,8 @@ protected:
             // gemfony exception.
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GSerialExecutorT<processable_type>::submit(): Caught an" << std::endl
-                << "unknown exception in a place where we didn't expect any exceptions" << std::endl
+                << "In GSerialExecutorT<processable_type>::submit(): Caught an" << '\n'
+                << "unknown exception in a place where we didn't expect any exceptions" << '\n'
             );
         }
     }
@@ -1391,9 +1391,9 @@ public:
       : GBaseExecutorT<processable_type>()
       , n_threads_(nThreads > 0 ? nThreads : Gem::Courtier::DEFAULTNSTDTHREADS) {
         if(0 == nThreads) {
-            glogger << "In GMTExecutorT::GMTExecutorT(std::uint16_t nThreads):" << std::endl
+            glogger << "In GMTExecutorT::GMTExecutorT(std::uint16_t nThreads):" << '\n'
                     << "User requested nThreads == 0. nThreads was reset to the default "
-                    << Gem::Courtier::DEFAULTNSTDTHREADS << std::endl
+                    << Gem::Courtier::DEFAULTNSTDTHREADS << '\n'
                     << GWARNING;
         }
     }
@@ -1425,9 +1425,9 @@ public:
         if(nThreads == 0) {
             n_threads_ = Gem::Courtier::DEFAULTNSTDTHREADS;
 
-            glogger << "In GMTExecutorT::setNThreads(std::uint16_t nThreads):" << std::endl
+            glogger << "In GMTExecutorT::setNThreads(std::uint16_t nThreads):" << '\n'
                     << "User requested nThreads == 0. nThreads was reset to the default "
-                    << Gem::Courtier::DEFAULTNSTDTHREADS << std::endl
+                    << Gem::Courtier::DEFAULTNSTDTHREADS << '\n'
                     << GWARNING;
         }
         else {
@@ -1458,7 +1458,7 @@ protected:
         if(not cp) { // nullptr
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GMTExecutorT<processable_type>::load_(): Conversion error!" << std::endl
+                << "In GMTExecutorT<processable_type>::load_(): Conversion error!" << '\n'
             );
         }
 
@@ -1594,7 +1594,7 @@ protected:
             ,
             [this](std::uint16_t nt) { this->setNThreads(nt); }
         ) << "The number of threads used to simultaneously process work items"
-          << std::endl
+          << '\n'
           << "0 means \"automatic\"";
     }
 
@@ -1619,15 +1619,15 @@ protected:
             if(not gtp_ptr_) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
-                    << "In In GMTExecutorT<processable_type>::submit(): Error!" << std::endl
-                    << "Threadpool pointer is empty" << std::endl
+                    << "In In GMTExecutorT<processable_type>::submit(): Error!" << '\n'
+                    << "Threadpool pointer is empty" << '\n'
                 );
             }
             else if(not w_ptr) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
-                    << "In In GMTExecutorT<processable_type>::submit(): Error!" << std::endl
-                    << "work item pointer is empty" << std::endl
+                    << "In In GMTExecutorT<processable_type>::submit(): Error!" << '\n'
+                    << "work item pointer is empty" << '\n'
                 );
             }
         }
@@ -1663,26 +1663,26 @@ protected:
                 // these are also stored in the processing item. We do try to create a sort
                 // of stack trace by emitting a warning, though. Processing errors should be rare,
                 // so might hint at some problem.
-                glogger << "In GMTExecutorT<processable_type>::waitForReturn():" << std::endl
+                glogger << "In GMTExecutorT<processable_type>::waitForReturn():" << '\n'
                         << "Caught a g_processing_exception exception while retrieving a future"
-                        << std::endl
-                        << "with the error message" << std::endl
-                        << e.what() << std::endl
-                        << "Exception information should have been stored in the" << std::endl
-                        << "work item itself. Processing should have been marked as" << std::endl
-                        << "unsuccessful in the work item. We leave it to the" << std::endl
-                        << "caller to deal with this." << std::endl
+                        << '\n'
+                        << "with the error message" << '\n'
+                        << e.what() << '\n'
+                        << "Exception information should have been stored in the" << '\n'
+                        << "work item itself. Processing should have been marked as" << '\n'
+                        << "unsuccessful in the work item. We leave it to the" << '\n'
+                        << "caller to deal with this." << '\n'
                         << GWARNING;
 #endif
             }
             catch(const std::exception &e) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
-                    << "In GMTExecutorT<processable_type>::waitForReturn():" << std::endl
+                    << "In GMTExecutorT<processable_type>::waitForReturn():" << '\n'
                     << "caught std::exception in a place where we didn't expect any exceptions"
-                    << std::endl
-                    << "Got error message:" << std::endl
-                    << e.what() << std::endl
+                    << '\n'
+                    << "Got error message:" << '\n'
+                    << e.what() << '\n'
                 );
             }
             catch(...) {
@@ -1691,9 +1691,9 @@ protected:
                 // We throw a corresponding gemfony exception.
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
-                    << "In GMTExecutorT<processable_type>::waitForReturn(): Caught an" << std::endl
+                    << "In GMTExecutorT<processable_type>::waitForReturn(): Caught an" << '\n'
                     << "unknown exception in a place where we didn't expect any exceptions"
-                    << std::endl
+                    << '\n'
                 );
             }
         }
@@ -1947,7 +1947,7 @@ protected:
         if(not p_load_ptr) { // nullptr
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GBrokerExecutorT<processable_type>::load(): Conversion error!" << std::endl
+                << "In GBrokerExecutorT<processable_type>::load(): Conversion error!" << '\n'
             );
         }
 
@@ -1981,13 +1981,13 @@ protected:
 
 #ifdef DEBUG
         if(capable_of_full_return_) {
-            glogger << "In GBrokerExecutorT<>::init():" << std::endl
-                    << "Assuming that all consumers are capable of full return" << std::endl
+            glogger << "In GBrokerExecutorT<>::init():" << '\n'
+                    << "Assuming that all consumers are capable of full return" << '\n'
                     << GLOGGING;
         }
         else {
-            glogger << "In GBrokerExecutorT<>::init():" << std::endl
-                    << "At least one consumer is not capable of full return" << std::endl
+            glogger << "In GBrokerExecutorT<>::init():" << '\n'
+                    << "At least one consumer is not capable of full return" << '\n'
                     << GLOGGING;
         }
 #endif
@@ -2027,9 +2027,9 @@ protected:
         // Check that the waitFactor has a suitable size
         if(not waitFactorWarningEmitted_) {
             if(waitFactor_ > 0. && waitFactor_ < 1.) {
-                glogger << "In GBrokerExecutorT::cycleInit_(): Warning" << std::endl
+                glogger << "In GBrokerExecutorT::cycleInit_(): Warning" << '\n'
                         << "It is suggested not to use a wait time < 1. Current value: "
-                        << waitFactor_ << std::endl
+                        << waitFactor_ << '\n'
                         << GWARNING;
             }
             waitFactorWarningEmitted_ = true;
@@ -2085,8 +2085,8 @@ protected:
             ,
             [this](double w) { this->setWaitFactor(w); }
         ) << "A static double factor for timeouts"
-          << std::endl
-          << "A wait factor <= 0 means \"no timeout\"." << std::endl
+          << '\n'
+          << "A wait factor <= 0 means \"no timeout\"." << '\n'
           << "It is suggested to use values >= 1.";
 
         gpb.registerFileParameter<std::uint16_t>(
@@ -2096,8 +2096,8 @@ protected:
             ,
             [this](std::uint16_t percentage) { this->setMinPartialReturnPercentage(percentage); }
         ) << "Set to a value < 100 to allow execution to continue when"
-          << std::endl
-          << "minPartialReturnPercentage percent of the expected work items" << std::endl
+          << '\n'
+          << "minPartialReturnPercentage percent of the expected work items" << '\n'
           << "have returned. Set to 0 to disable this option.";
     }
 
@@ -2111,16 +2111,16 @@ protected:
         if(not w_ptr) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GBrokerExecutorT::submit(): Errornot " << std::endl
-                << "Work item is empty" << std::endl
+                << "In GBrokerExecutorT::submit(): Errornot " << '\n'
+                << "Work item is empty" << '\n'
             );
         }
 
         if(not current_buffer_port_ptr_) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GBrokerExecutorT::submit(): Error!" << std::endl
-                << "Current buffer port is empty when it shouldn't be" << std::endl
+                << "In GBrokerExecutorT::submit(): Error!" << '\n'
+                << "Current buffer port is empty when it shouldn't be" << '\n'
             );
         }
 
@@ -2316,8 +2316,8 @@ private:
         if(0 == nReturnedCurrent_) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GBrokerExeuctorT<processable_type>::updateTimeout():" << std::endl
-                << "nReturnedCurrent_ is 0" << std::endl
+                << "In GBrokerExeuctorT<processable_type>::updateTimeout():" << '\n'
+                << "nReturnedCurrent_ is 0" << '\n'
             );
         }
 #endif
@@ -2335,7 +2335,7 @@ private:
         //-----------------------------------------------
         // Let the audience know in DEBUG mode
 #if defined(DEBUG) && defined(VERBOSETIMEOUTS)
-        glogger << nReturnedCurrent_ << "\t: Got timeout of " << maxTimeout_.count() << std::endl
+        glogger << nReturnedCurrent_ << "\t: Got timeout of " << maxTimeout_.count() << '\n'
                 << GLOGGING;
 #endif
 
@@ -2353,7 +2353,7 @@ private:
         if(currentElapsed >= maxTimeout_) {
 #if defined(DEBUG) && defined(VERBOSETIMEOUTS)
             glogger << "Leaving after timeout of " << maxTimeout_.count() << " was reached"
-                    << std::endl
+                    << '\n'
                     << GLOGGING;
 #endif
 
@@ -2442,7 +2442,7 @@ private:
                         g_error_streamer(DO_LOG, time_and_place)
                         << "In GBrokerExecutorT<processable_type>::getNextItem(): Received empty "
                            "first individual"
-                        << std::endl
+                        << '\n'
                     );
                 }
 
@@ -2452,14 +2452,14 @@ private:
                     break;
                 }
                 else { // unprocessed or has an error
-                    glogger << "In GBrokerExecutorT<>::getNextItem():" << std::endl
-                            << "Received \"first\" individual which is either" << std::endl
+                    glogger << "In GBrokerExecutorT<>::getNextItem():" << '\n'
+                            << "Received \"first\" individual which is either" << '\n'
                             << "unprocessed or has errors. Got processing status of "
-                            << w_ptr->getProcessingStatus() << std::endl
-                            << "but expected " << processingStatus::PROCESSED << " ." << std::endl
+                            << w_ptr->getProcessingStatus() << '\n'
+                            << "but expected " << processingStatus::PROCESSED << " ." << '\n'
                             << "The item will be discarded. As this should be a rare occurance,"
-                            << std::endl
-                            << "we do emit a warning here." << std::endl
+                            << '\n'
+                            << "we do emit a warning here." << '\n'
                             << GWARNING;
                 }
             }
@@ -2483,9 +2483,9 @@ private:
             if(w_ptr->getRawRetrievalTime() >= w_ptr->getProcSubmissionTime()) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
-                    << "In GBrokerExeuctorT<processable_type>::getNextItem():" << std::endl
-                    << "Retrieval from the raw queue seems to have happened after" << std::endl
-                    << "the submission to the processed queue." << std::endl
+                    << "In GBrokerExeuctorT<processable_type>::getNextItem():" << '\n'
+                    << "Retrieval from the raw queue seems to have happened after" << '\n'
+                    << "the submission to the processed queue." << '\n'
                 );
             }
 #endif
@@ -2512,13 +2512,13 @@ private:
                 0 < nReturnedCurrent_)) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
-                    << "In GBrokerExecutorT<processable_type>::firstRetrieval():" << std::endl
+                    << "In GBrokerExecutorT<processable_type>::firstRetrieval():" << '\n'
                     << "Got true==first_retrieval_, while one of the preconditions isn't met:"
-                    << std::endl
-                    << "this->inFirstIteration() : " << this->inFirstIteration() << std::endl
-                    << "this->inFirstCycle()     :" << this->inFirstCycle() << std::endl
+                    << '\n'
+                    << "this->inFirstIteration() : " << this->inFirstIteration() << '\n'
+                    << "this->inFirstCycle()     :" << this->inFirstCycle() << '\n'
                     << "nReturnedCurrent_       :" << nReturnedCurrent_ << " (we expect 0)"
-                    << std::endl
+                    << '\n'
                 );
             }
 #endif
@@ -2543,12 +2543,12 @@ private:
             if((not this->inFirstIteration() || 1 != nReturnedCurrent_)) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
-                    << "In GBrokerExecutorT<processable_type>::firstItem():" << std::endl
+                    << "In GBrokerExecutorT<processable_type>::firstItem():" << '\n'
                     << "Got true==first_item_, while one of the preconditions isn't met:"
-                    << std::endl
-                    << "this->inFirstIteration() : " << this->inFirstIteration() << std::endl
+                    << '\n'
+                    << "this->inFirstIteration() : " << this->inFirstIteration() << '\n'
                     << "nReturnedCurrent_       :" << nReturnedCurrent_ << " (we expect 1)"
-                    << std::endl
+                    << '\n'
                 );
             }
 #endif
@@ -2619,15 +2619,15 @@ private:
             else {
                 // This should be rare. As we throw away items here, we want to
                 // make a record as a frequent occurrance might indicate a problem
-                glogger << "In GBrokerExecutorT<>::addWorkItemAndCheckCompleteness():" << std::endl
+                glogger << "In GBrokerExecutorT<>::addWorkItemAndCheckCompleteness():" << '\n'
                         << "Received old work item from submission cycle " << worker_submission_id
-                        << " (now " << current_submission_id << ")" << std::endl
+                        << " (now " << current_submission_id << ")" << '\n'
                         << "We will throw the item away as it has the status id "
-                        << w_ptr->getProcessingStatus() << std::endl
+                        << w_ptr->getProcessingStatus() << '\n'
                         << "(expected processingStatus::PROCESSED / " << processingStatus::PROCESSED
-                        << ")" << std::endl
+                        << ")" << '\n'
                         << (w_ptr->has_errors() ? w_ptr->getStoredErrorDescriptions() : "")
-                        << std::endl
+                        << '\n'
                         << GLOGGING;
             }
         }
@@ -2671,8 +2671,8 @@ private:
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GBrokerExecutorT<processable_type>::determineInitialCycleStartTime():"
-                << std::endl
-                << "No valid buffer port found" << std::endl
+                << '\n'
+                << "No valid buffer port found" << '\n'
             );
         }
 #endif

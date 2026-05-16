@@ -163,8 +163,8 @@ void GDoubleObject::doubleStreamline(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GDoubleObject::doubleStreamline(std::map<std::string, std::vector<double>>& "
                "parVec) const: Error!"
-            << std::endl
-            << "No name was assigned to the object" << std::endl
+            << '\n'
+            << "No name was assigned to the object" << '\n'
         );
     }
 #endif /* DEBUG */
@@ -220,9 +220,9 @@ void GDoubleObject::assignDoubleValueVector(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GDoubleObject::assignDoubleValueVector(const std::vector<double>&, "
                "std::size_t&):"
-            << std::endl
+            << '\n'
             << "Tried to access position beyond end of vector: " << parVec.size() << "/" << pos
-            << std::endl
+            << '\n'
         );
     }
 #endif

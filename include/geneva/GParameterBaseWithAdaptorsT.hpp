@@ -111,9 +111,9 @@ public:
         if(not gat_ptr) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GParameterBaseWithAdaptorsT<T>::addAdaptor()" << std::endl
-                << "with typeid(T).name() = " << typeid(T).name() << ":" << std::endl
-                << "Error: Empty adaptor provided." << std::endl
+                << "In GParameterBaseWithAdaptorsT<T>::addAdaptor()" << '\n'
+                << "with typeid(T).name() = " << typeid(T).name() << ":" << '\n'
+                << "Error: Empty adaptor provided." << '\n'
             );
         }
 
@@ -128,8 +128,8 @@ public:
         else { // None there ? This should not happen
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GParameterBaseWithAdaptorsT<T>::addAdaptor()" << std::endl
-                << "Found no local adaptor. This should not happen." << std::endl
+                << "In GParameterBaseWithAdaptorsT<T>::addAdaptor()" << '\n'
+                << "Found no local adaptor. This should not happen." << '\n'
             );
         }
     }
@@ -153,9 +153,9 @@ public:
         if(not adaptor_) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GParameterBaseWithAdaptorsT::getAdaptor() :" << std::endl
-                << "with typeid(T).name() = " << typeid(T).name() << std::endl
-                << "Tried to retrieve adaptor while none is present" << std::endl
+                << "In GParameterBaseWithAdaptorsT::getAdaptor() :" << '\n'
+                << "with typeid(T).name() = " << typeid(T).name() << '\n'
+                << "Tried to retrieve adaptor while none is present" << '\n'
             );
         }
 #endif /* DEBUG */
@@ -186,9 +186,9 @@ public:
         if(not adaptor_) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GParameterBaseWithAdaptorsT::getAdaptor<adaptor_type>()" << std::endl
-                << "with typeid(T).name() = " << typeid(T).name() << " :" << std::endl
-                << "Tried to access empty adaptor pointer." << std::endl
+                << "In GParameterBaseWithAdaptorsT::getAdaptor<adaptor_type>()" << '\n'
+                << "with typeid(T).name() = " << typeid(T).name() << " :" << '\n'
+                << "Tried to access empty adaptor pointer." << '\n'
             );
 
             // Make the compiler happy
@@ -259,8 +259,8 @@ protected:
         if(not adaptor_ || not p_load->adaptor_) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GParameterBaseWithAdaptorsT<T>::load_():" << std::endl
-                << "Missing adaptor!" << std::endl
+                << "In GParameterBaseWithAdaptorsT<T>::load_():" << '\n'
+                << "Missing adaptor!" << '\n'
             );
         }
 #endif
@@ -332,9 +332,9 @@ protected:
         if(not adaptor_) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GParameterBaseWithAdaptorsT<T>::applyAdaptor(value,range):" << std::endl
-                << "with typeid(T).name() = " << typeid(T).name() << std::endl
-                << "Error: No adaptor was found." << std::endl
+                << "In GParameterBaseWithAdaptorsT<T>::applyAdaptor(value,range):" << '\n'
+                << "with typeid(T).name() = " << typeid(T).name() << '\n'
+                << "Error: No adaptor was found." << '\n'
             );
         }
 #endif /* DEBUG */
@@ -359,9 +359,9 @@ protected:
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GParameterBaseWithAdaptorsT<T>::applyAdaptor(collection, range, gr):"
-                << std::endl
-                << "with typeid(T).name() = " << typeid(T).name() << std::endl
-                << "Error: No adaptor was found." << std::endl
+                << '\n'
+                << "with typeid(T).name() = " << typeid(T).name() << '\n'
+                << "Error: No adaptor was found." << '\n'
             );
         }
 #endif /* DEBUG */
@@ -490,9 +490,9 @@ private:
         if(not adaptor_) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GParameterBaseWithAdaptorsT<T>::updateAdaptorsOnStall_(...):" << std::endl
-                << "with typeid(T).name() = " << typeid(T).name() << std::endl
-                << "Error: No adaptor was found." << std::endl
+                << "In GParameterBaseWithAdaptorsT<T>::updateAdaptorsOnStall_(...):" << '\n'
+                << "with typeid(T).name() = " << typeid(T).name() << '\n'
+                << "Error: No adaptor was found." << '\n'
             );
         }
 #endif /* DEBUG */
@@ -517,9 +517,9 @@ private:
         if(not adaptor_) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GParameterBaseWithAdaptorsT<T>::queryAdaptor:(...):" << std::endl
-                << "with typeid(T).name() = " << typeid(T).name() << std::endl
-                << "Error: No adaptor was found." << std::endl
+                << "In GParameterBaseWithAdaptorsT<T>::queryAdaptor:(...):" << '\n'
+                << "with typeid(T).name() = " << typeid(T).name() << '\n'
+                << "Error: No adaptor was found." << '\n'
             );
         }
 #endif /* DEBUG */
@@ -559,8 +559,8 @@ inline std::size_t GParameterBaseWithAdaptorsT<bool>::applyAdaptor(
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GParameterBaseWithAdaptorsT<T>::applyAdaptor(std::vector<bool>& collection):"
-            << std::endl
-            << "Error: No adaptor was found." << std::endl
+            << '\n'
+            << "Error: No adaptor was found." << '\n'
         );
     }
 #endif /* DEBUG */

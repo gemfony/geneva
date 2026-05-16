@@ -114,16 +114,16 @@ public:
                 if(0 == nThreads_.load()) {
                     throw geneva_exception(
                         g_error_streamer(DO_LOG, time_and_place)
-                        << "In GThreadPool::async_schedule(F f): Error!" << std::endl
-                        << "The number of threads is set to 0" << std::endl
+                        << "In GThreadPool::async_schedule(F f): Error!" << '\n'
+                        << "The number of threads is set to 0" << '\n'
                     );
                 }
                 if(gtg_.size() > 0) {
                     throw geneva_exception(
                         g_error_streamer(DO_LOG, time_and_place)
-                        << "In GThreadPool::async_schedule(F f): Error!" << std::endl
-                        << "The thread group already has entries, although" << std::endl
-                        << "threads_started_ is set to false" << std::endl
+                        << "In GThreadPool::async_schedule(F f): Error!" << '\n'
+                        << "The thread group already has entries, although" << '\n'
+                        << "threads_started_ is set to false" << '\n'
                     );
                 }
 
@@ -186,9 +186,9 @@ public:
                     ) // NOLINT(bugprone-empty-catch) — logs and terminates via GTERMINATION
                     {
                         // Unfortunately set_exception() may throw too
-                        glogger << "In GThreadPool::async_schedule(/void/):" << std::endl
-                                << "promise.set_exception() has thrown." << std::endl
-                                << "We cannot continue" << std::endl
+                        glogger << "In GThreadPool::async_schedule(/void/):" << '\n'
+                                << "promise.set_exception() has thrown." << '\n'
+                                << "We cannot continue" << '\n'
                                 << GTERMINATION;
                     }
                 }
@@ -198,9 +198,9 @@ public:
                     std::unique_lock<std::mutex> cnt_lck(task_counter_mutex_);
 #ifdef DEBUG
                     if(0 == tasksInFlight_.load()) {
-                        glogger << "In GThreadPool::async_schedule(/void/):" << std::endl
+                        glogger << "In GThreadPool::async_schedule(/void/):" << '\n'
                                 << "Trying to decrement a task counter that is already 0"
-                                << std::endl
+                                << '\n'
                                 << "We cannot continue" << GTERMINATION;
                     }
 #endif /* DEBUG */
@@ -241,16 +241,16 @@ public:
                 if(0 == nThreads_.load()) {
                     throw geneva_exception(
                         g_error_streamer(DO_LOG, time_and_place)
-                        << "In GThreadPool::async_schedule(F f): Error!" << std::endl
-                        << "The number of threads is set to 0" << std::endl
+                        << "In GThreadPool::async_schedule(F f): Error!" << '\n'
+                        << "The number of threads is set to 0" << '\n'
                     );
                 }
                 if(gtg_.size() > 0) {
                     throw geneva_exception(
                         g_error_streamer(DO_LOG, time_and_place)
-                        << "In GThreadPool::async_schedule(F f): Error!" << std::endl
-                        << "The thread group already has entries, although" << std::endl
-                        << "threads_started_ is set to false" << std::endl
+                        << "In GThreadPool::async_schedule(F f): Error!" << '\n'
+                        << "The thread group already has entries, although" << '\n'
+                        << "threads_started_ is set to false" << '\n'
                     );
                 }
 
@@ -306,9 +306,9 @@ public:
                     ) // NOLINT(bugprone-empty-catch) — logs and terminates via GTERMINATION
                     {
                         // Unfortunately set_exception() may throw too
-                        glogger << "In GThreadPool::async_schedule(/non-void/):" << std::endl
-                                << "promise.set_exception() has thrown." << std::endl
-                                << "We cannot continue" << std::endl
+                        glogger << "In GThreadPool::async_schedule(/non-void/):" << '\n'
+                                << "promise.set_exception() has thrown." << '\n'
+                                << "We cannot continue" << '\n'
                                 << GTERMINATION;
                     }
                 }
@@ -318,9 +318,9 @@ public:
                     std::unique_lock<std::mutex> cnt_lck(task_counter_mutex_);
 #ifdef DEBUG
                     if(0 == tasksInFlight_.load()) {
-                        glogger << "In GThreadPool::async_schedule(/non-void/):" << std::endl
+                        glogger << "In GThreadPool::async_schedule(/non-void/):" << '\n'
                                 << "Trying to decrement a task counter that is already 0"
-                                << std::endl
+                                << '\n'
                                 << "We cannot continue" << GTERMINATION;
                     }
 #endif /* DEBUG */

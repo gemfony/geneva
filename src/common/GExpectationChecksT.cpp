@@ -161,8 +161,8 @@ void GToken::registerErrorMessage(std::string const &m) {
     else {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GToken::registerErrorMessage(): Error" << std::endl
-            << "Tried to register empty error message" << std::endl
+            << "In GToken::registerErrorMessage(): Error" << '\n'
+            << "Tried to register empty error message" << '\n'
         );
     }
 }
@@ -247,10 +247,10 @@ void GToken::evaluate() const {
  */
 std::ostream &operator<<(std::ostream &s, GToken const &g) {
     s << "GToken for caller " << g.getCallerName() << " with expectation  " << g.getExpectationStr()
-      << ":" << std::endl
-      << "Test counter:     " << g.getTestCounter() << std::endl
-      << "Success counter:  " << g.getSuccessCounter() << std::endl
-      << g.getErrorMessages() << std::endl;
+      << ":" << '\n'
+      << "Test counter:     " << g.getTestCounter() << '\n'
+      << "Success counter:  " << g.getSuccessCounter() << '\n'
+      << g.getErrorMessages() << '\n';
     return s;
 }
 
@@ -302,11 +302,11 @@ void compare(
     if(not expectationMet) {
         std::ostringstream error; // NOLINT(cppcoreguidelines-init-variables)
         error << "Expectation of " << expectation_str << " was violated for parameters "
-              << std::endl
-              << "[" << std::endl
-              << x_name << " = " << x << std::endl
-              << y_name << " = " << y << std::endl
-              << "]" << std::endl;
+              << '\n'
+              << "[" << '\n'
+              << x_name << " = " << x << '\n'
+              << y_name << " = " << y << '\n'
+              << "]" << '\n';
         throw g_expectation_violation(error.str());
     }
 }

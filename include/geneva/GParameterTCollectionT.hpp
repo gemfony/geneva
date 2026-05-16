@@ -134,8 +134,8 @@ public:
         if(this->empty()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GParameterTCollectionT<T>::toPropertyTree(): Error!" << std::endl
-                << "Object is empty!" << std::endl
+                << "In GParameterTCollectionT<T>::toPropertyTree(): Error!" << '\n'
+                << "Object is empty!" << '\n'
             );
         }
 
@@ -875,9 +875,9 @@ protected:
         if(this->size() != p->size()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GParameterTCollectionT<T>::floatAdd(): Error!" << std::endl
+                << "In GParameterTCollectionT<T>::floatAdd(): Error!" << '\n'
                 << "Collections have a different size: " << this->size() << " / " << p->size()
-                << std::endl
+                << '\n'
             );
         }
 
@@ -901,9 +901,9 @@ protected:
         if(this->size() != p->size()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GParameterTCollectionT<T>::doubleAdd(): Error!" << std::endl
+                << "In GParameterTCollectionT<T>::doubleAdd(): Error!" << '\n'
                 << "Collections have a different size: " << this->size() << " / " << p->size()
-                << std::endl
+                << '\n'
             );
         }
 
@@ -927,9 +927,9 @@ protected:
         if(this->size() != p->size()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GParameterTCollectionT<T>::int32Add(): Error!" << std::endl
+                << "In GParameterTCollectionT<T>::int32Add(): Error!" << '\n'
                 << "Collections have a different size: " << this->size() << " / " << p->size()
-                << std::endl
+                << '\n'
             );
         }
 
@@ -953,9 +953,9 @@ protected:
         if(this->size() != p->size()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GParameterTCollectionT<T>::floatSubtract(): Error!" << std::endl
+                << "In GParameterTCollectionT<T>::floatSubtract(): Error!" << '\n'
                 << "Collections have a different size: " << this->size() << " / " << p->size()
-                << std::endl
+                << '\n'
             );
         }
 
@@ -979,9 +979,9 @@ protected:
         if(this->size() != p->size()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GParameterTCollectionT<T>::doubleSubtract(): Error!" << std::endl
+                << "In GParameterTCollectionT<T>::doubleSubtract(): Error!" << '\n'
                 << "Collections have a different size: " << this->size() << " / " << p->size()
-                << std::endl
+                << '\n'
             );
         }
 
@@ -1005,9 +1005,9 @@ protected:
         if(this->size() != p->size()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GParameterTCollectionT<T>::int32Subtract(): Error!" << std::endl
+                << "In GParameterTCollectionT<T>::int32Subtract(): Error!" << '\n'
                 << "Collections have a different size: " << this->size() << " / " << p->size()
-                << std::endl
+                << '\n'
             );
         }
 

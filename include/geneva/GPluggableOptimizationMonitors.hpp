@@ -423,8 +423,8 @@ public:
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GPluggableOptimizationMonitors<>::setProfileSpec(std::string): Error!"
-                << std::endl
-                << "Parameter string " << parStr << " is empty" << std::endl
+                << '\n'
+                << "Parameter string " << parStr << " is empty" << '\n'
             );
         }
 
@@ -621,8 +621,8 @@ public:
         default: {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GProgressPlotterT<fp_type>::getLabel(): Error" << std::endl
-                << "Invalid mode " << var_mode << " requested" << std::endl
+                << "In GProgressPlotterT<fp_type>::getLabel(): Error" << '\n'
+                << "Invalid mode " << var_mode << " requested" << '\n'
             );
         }
 
@@ -834,10 +834,10 @@ private:
             default: {
                 glogger << "NOTE: In "
                            "GProgressPlotterT<fp_type>::informationFunction_(infoMode::INFOINIT):"
-                        << std::endl
+                        << '\n'
                         << "Number of profiling dimensions " << this->nProfileVars()
-                        << " can not be displayed." << std::endl
-                        << "No graphical output will be created." << std::endl
+                        << " can not be displayed." << '\n'
+                        << "No graphical output will be created." << '\n'
                         << GLOGGING;
             } break;
             }
@@ -1860,10 +1860,10 @@ private:
                     fileName_ + ".bak_" +
                     Gem::Common::getMSSince1970(); // NOLINT(cppcoreguidelines-init-variables)
 
-                glogger << "In GAdaptorPropertyLoggerT::informationFunction_(): Error!" << std::endl
-                        << "Attempt to output information to file " << fileName_ << std::endl
-                        << "which already exists. We will rename the old file to" << std::endl
-                        << newFileName << std::endl
+                glogger << "In GAdaptorPropertyLoggerT::informationFunction_(): Error!" << '\n'
+                        << "Attempt to output information to file " << fileName_ << '\n'
+                        << "which already exists. We will rename the old file to" << '\n'
+                        << newFileName << '\n'
                         << GWARNING;
 
                 std::filesystem::rename(fileName_, newFileName);
@@ -1990,7 +1990,7 @@ private:
         default: {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GAdaptorPropertyLoggerT: Received invalid infoMode " << im << std::endl
+                << "In GAdaptorPropertyLoggerT: Received invalid infoMode " << im << '\n'
             );
         }
         };

@@ -90,9 +90,9 @@ std::string GParsableI::optionName(std::size_t pos) const {
     if(option_name_.size() <= pos) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GParsableI::optionName(std::size_t): Error!" << std::endl
-            << "Tried to access item at position " << pos << std::endl
-            << "where the size of the vector is " << option_name_.size() << std::endl
+            << "In GParsableI::optionName(std::size_t): Error!" << '\n'
+            << "Tried to access item at position " << pos << '\n'
+            << "where the size of the vector is " << option_name_.size() << '\n'
         );
     }
 
@@ -107,9 +107,9 @@ std::string GParsableI::comment(std::size_t pos) const {
     if(comment_.size() <= pos) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GParsableI::comment_(std::size_t): Error!" << std::endl
-            << "Tried to access item at position " << pos << std::endl
-            << "where the size of the vector is " << comment_.size() << std::endl
+            << "In GParsableI::comment_(std::size_t): Error!" << '\n'
+            << "Tried to access item at position " << pos << '\n'
+            << "where the size of the vector is " << comment_.size() << '\n'
         );
     }
 
@@ -174,17 +174,17 @@ GParsableI &GParsableI::operator<<(commentLevel const &cl) {
     if(comment_.empty()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GParsableI::operator<< (commentLevel const& cl): Error!" << std::endl
-            << "No comments in vector" << std::endl
+            << "In GParsableI::operator<< (commentLevel const& cl): Error!" << '\n'
+            << "No comments in vector" << '\n'
         );
     }
 
     if(comment_.size() <= cl.getCommentLevel()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GParsableI::operator<< (commentLevel const& cl): Error!" << std::endl
+            << "In GParsableI::operator<< (commentLevel const& cl): Error!" << '\n'
             << "Invalid comment level " << cl.getCommentLevel()
-            << " requested, where the maximum is " << comment_.size() - 1 << std::endl
+            << " requested, where the maximum is " << comment_.size() - 1 << '\n'
         );
     }
 #endif /* DEBUG */
@@ -202,17 +202,17 @@ GParsableI &GParsableI::operator<<(nextComment const & /*nC*/) {
     if(comment_.empty()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GParsableI::operator<< (nextComment const& nC): Error!" << std::endl
-            << "No comments in vector" << std::endl
+            << "In GParsableI::operator<< (nextComment const& nC): Error!" << '\n'
+            << "No comments in vector" << '\n'
         );
     }
 
     if(comment_.size() <= (cl_ + 1)) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GParsableI::operator<< (nextComment const& nC): Error!" << std::endl
+            << "In GParsableI::operator<< (nextComment const& nC): Error!" << '\n'
             << "Invalid comment level " << cl_ + 1 << " requested, where the maximum is "
-            << comment_.size() - 1 << std::endl
+            << comment_.size() - 1 << '\n'
         );
     }
 #endif /* DEBUG */
@@ -353,9 +353,9 @@ bool GParserBuilder::parseConfigFile(std::filesystem::path const &configFile) {
             if(not std::filesystem::exists(config_base_dir_)) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
-                    << "In GParserBuilder::parseConfigFile(): Error!" << std::endl
+                    << "In GParserBuilder::parseConfigFile(): Error!" << '\n'
                     << "Base-directory " << config_base_dir_.string() << " does not exist"
-                    << std::endl
+                    << '\n'
                 );
             }
 
@@ -368,10 +368,10 @@ bool GParserBuilder::parseConfigFile(std::filesystem::path const &configFile) {
         // Check that the configuration file exists.
         // If not, create a default version
         if(not std::filesystem::exists(config_path)) {
-            glogger << "Note: In GParserBuilder::parseConfigFile():" << std::endl
+            glogger << "Note: In GParserBuilder::parseConfigFile():" << '\n'
                     << "Configuration file " << config_path.string() << " does not exist."
-                    << std::endl
-                    << "We will try to create a file with default values for you." << std::endl
+                    << '\n'
+                    << "We will try to create a file with default values for you." << '\n'
                     << GLOGGING;
 
             std::string header =
@@ -387,8 +387,8 @@ bool GParserBuilder::parseConfigFile(std::filesystem::path const &configFile) {
             if(not std::filesystem::is_regular_file(config_path)) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
-                    << "In GParserBuilder::parseConfigFile(): Error!" << std::endl
-                    << config_path.string() << " exists but is no regular file." << std::endl
+                    << "In GParserBuilder::parseConfigFile(): Error!" << '\n'
+                    << config_path.string() << " exists but is no regular file." << '\n'
                 );
             }
 
@@ -397,9 +397,9 @@ bool GParserBuilder::parseConfigFile(std::filesystem::path const &configFile) {
                std::filesystem::path(config_path).extension() != ".json") {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
-                    << "In GParserBuilder::parseConfigFile(): Error!" << std::endl
+                    << "In GParserBuilder::parseConfigFile(): Error!" << '\n'
                     << config_path.string() << " does not have the required extension \".json\""
-                    << std::endl
+                    << '\n'
                 );
             }
         }
@@ -417,21 +417,21 @@ bool GParserBuilder::parseConfigFile(std::filesystem::path const &configFile) {
     }
     catch(geneva_exception const &e) {
         glogger << "Caught geneva_exception when parsing configuration file "
-                << config_path.string() << ":" << std::endl
-                << e.what() << std::endl
+                << config_path.string() << ":" << '\n'
+                << e.what() << '\n'
                 << GLOGGING;
         return false;
     }
     catch(std::exception const &e) {
         glogger << "Caught std::exception when parsing configuration file " << config_path.string()
-                << ":" << std::endl
-                << e.what() << std::endl
+                << ":" << '\n'
+                << e.what() << '\n'
                 << GLOGGING;
         return false;
     }
     catch(...) {
         glogger << "Unknown error while parsing the configuration file " << config_path.string()
-                << std::endl
+                << '\n'
                 << GLOGGING;
         return false;
     }
@@ -459,8 +459,8 @@ void GParserBuilder::writeConfigFile(
         if(std::filesystem::is_directory(configFile)) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GParserBuilder::writeConfigFile(): Error!" << std::endl
-                << configFile.string() << " is a directory." << std::endl
+                << "In GParserBuilder::writeConfigFile(): Error!" << '\n'
+                << configFile.string() << " is a directory." << '\n'
             );
         }
 
@@ -468,9 +468,9 @@ void GParserBuilder::writeConfigFile(
         if(std::filesystem::exists(configFile) && std::filesystem::is_regular_file(configFile)) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GParserBuilder::writeConfigFile(): Error!" << std::endl
+                << "In GParserBuilder::writeConfigFile(): Error!" << '\n'
                 << "You have specified an existing file (" << configFile.string() << ")."
-                << std::endl
+                << '\n'
             );
         }
 
@@ -481,10 +481,10 @@ void GParserBuilder::writeConfigFile(
            )) { // We need to act on a copy
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GParserBuilder::writeConfigFile(): Error!" << std::endl
+                << "In GParserBuilder::writeConfigFile(): Error!" << '\n'
                 << "The target path "
                 << std::filesystem::path(configFile).remove_filename().string()
-                << " does not exist or is no directory." << std::endl
+                << " does not exist or is no directory." << '\n'
             );
         }
 
@@ -492,9 +492,9 @@ void GParserBuilder::writeConfigFile(
         if(not configFile.has_extension() || configFile.extension() != ".json") {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GParserBuilder::writeConfigFile(): Error!" << std::endl
+                << "In GParserBuilder::writeConfigFile(): Error!" << '\n'
                 << configFile.string() << " does not have the required extension \".json\""
-                << std::endl
+                << '\n'
             );
         }
     }
@@ -505,7 +505,7 @@ void GParserBuilder::writeConfigFile(
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GParserBuilder::writeConfigFile(): Error writing configuration file "
-            << configFile.string() << std::endl
+            << configFile.string() << '\n'
         );
     }
 
@@ -513,7 +513,7 @@ void GParserBuilder::writeConfigFile(
     if(file_parameter_proxies_.empty()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GParserBuilder::writeConfigFile(): No variables found!" << std::endl
+            << "In GParserBuilder::writeConfigFile(): No variables found!" << '\n'
         );
     }
 
@@ -590,31 +590,31 @@ bool GParserBuilder::parseCommandLine(int argc, char **argv, bool verbose) {
 
         // Emit a help message, if necessary and let the caller of this function know
         if(vm.count("help")) {
-            std::cout << desc << std::endl;
+            std::cout << desc << '\n';
             result = GCL_HELP_REQUESTED;
         }
         else {
             if(verbose) {
-                std::cout << "GParserBuilder::parseCommandLine():" << std::endl
-                          << "Working with the following options:" << std::endl;
+                std::cout << "GParserBuilder::parseCommandLine():" << '\n'
+                          << "Working with the following options:" << '\n';
                 for(auto const &p_ptr : cl_parameter_proxies_) {
-                    std::cout << p_ptr->content() << std::endl;
+                    std::cout << p_ptr->content() << '\n';
                 }
-                std::cout << std::endl;
+                std::cout << '\n';
             }
         }
     }
     catch(
         po::error const &e
     ) { // NOLINT(bugprone-empty-catch) — logs and terminates via GTERMINATION
-        glogger << "In GParserBuilder::parseCommandLine(int argc, char **argv):" << std::endl
-                << "Error parsing the command line:" << std::endl
-                << e.what() << std::endl
+        glogger << "In GParserBuilder::parseCommandLine(int argc, char **argv):" << '\n'
+                << "Error parsing the command line:" << '\n'
+                << e.what() << '\n'
                 << GTERMINATION;
     }
     catch(...) { // NOLINT(bugprone-empty-catch) — logs and terminates via GTERMINATION
-        glogger << "In GParserBuilder::parseCommandLine(int argc, char **argv):" << std::endl
-                << "Unknown error while parsing the command line" << std::endl
+        glogger << "In GParserBuilder::parseCommandLine(int argc, char **argv):" << '\n'
+                << "Unknown error while parsing the command line" << '\n'
                 << GTERMINATION;
     }
 

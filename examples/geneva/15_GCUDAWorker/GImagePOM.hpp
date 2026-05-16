@@ -294,7 +294,7 @@ private:
                     throw geneva_exception(
                         g_error_streamer(DO_LOG, time_and_place)
                         << "Error: could not create directory " << resultImageDirectory_
-                        << std::endl
+                        << '\n'
                     );
                 }
             }
@@ -303,7 +303,7 @@ private:
                 if(!std::filesystem::is_directory(std::filesystem::path(resultImageDirectory_))) {
                     throw geneva_exception(
                         g_error_streamer(DO_LOG, time_and_place)
-                        << "Error: " << resultImageDirectory_ << " is not a directory" << std::endl
+                        << "Error: " << resultImageDirectory_ << " is not a directory" << '\n'
                     );
                 }
             }

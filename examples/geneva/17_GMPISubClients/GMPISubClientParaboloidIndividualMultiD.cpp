@@ -128,14 +128,14 @@ double GMPISubClientParaboloidIndividualMultiD::fitnessCalculation() {
 
     switch(status.statusCode) {
     case ::ERROR:
-        std::cerr << "MPI error occurred: " << std::endl
-                  << mpiErrorString(status.mpiStatus.MPI_ERROR) << std::endl;
+        std::cerr << "MPI error occurred: " << '\n'
+                  << mpiErrorString(status.mpiStatus.MPI_ERROR) << '\n';
         break;
     case STOPPED:
         std::cerr
             << "Client executed fitnessCalculation while being stopped. This is an internal error. "
                "Client should only be stopped after the fitnessCalculation has been finished."
-            << std::endl;
+            << '\n';
         break;
     case SUCCESS: {
         // Calculate the sum of all individual results as the fitness value
@@ -160,12 +160,12 @@ int GMPISubClientParaboloidIndividualMultiD::subClientJob(MPI_Comm _communicator
 
         if(status.statusCode == MPIStatusCode::STOPPED) {
             std::cout << "Sub-client will exit because the client sent a shutdown signal"
-                      << std::endl;
+                      << '\n';
             return 0;
         }
         else if(status.statusCode ==
                 MPIStatusCode::ERROR) { // operation was not successful and has not timed out
-            std::cout << "Error occurred: " << std::endl
+            std::cout << "Error occurred: " << '\n'
                       << mpiErrorString(status.mpiStatus.MPI_ERROR);
             return -1;
         }

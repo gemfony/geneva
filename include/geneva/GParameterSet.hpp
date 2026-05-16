@@ -362,8 +362,8 @@ public:
         else {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GParameterSet::getVarVal<>(): Error!" << std::endl
-                << "Received invalid type descriptor " << std::endl
+                << "In GParameterSet::getVarVal<>(): Error!" << '\n'
+                << "Received invalid type descriptor " << '\n'
             );
         }
 
@@ -392,8 +392,8 @@ public:
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GParameterSet::getPersonalityTraits<personality_type>() : Empty personality "
                    "pointer found"
-                << std::endl
-                << "This should not happen." << std::endl
+                << '\n'
+                << "This should not happen." << '\n'
             );
 
             // Make the compiler happy
@@ -514,8 +514,8 @@ public:
         default: {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GParameterSet::getVarVal(): Error!" << std::endl
-                << "Got invalid mode setting: " << std::get<0>(target) << std::endl
+                << "In GParameterSet::getVarVal(): Error!" << '\n'
+                << "Got invalid mode setting: " << std::get<0>(target) << '\n'
             );
         } break;
 
@@ -624,9 +624,9 @@ public:
         if(countParameters<par_type>() != parVec.size()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GParameterSet::assignValueVector(const std::vector<pat_type>&):" << std::endl
+                << "In GParameterSet::assignValueVector(const std::vector<pat_type>&):" << '\n'
                 << "Sizes don't match: " << countParameters<par_type>() << " / " << parVec.size()
-                << std::endl
+                << '\n'
             );
         }
 #endif /* DEBUG */

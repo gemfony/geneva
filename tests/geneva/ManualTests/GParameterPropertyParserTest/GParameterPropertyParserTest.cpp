@@ -57,7 +57,7 @@ int main(int argc, char **argv) {
     std::vector<parPropSpec<double>>::const_iterator d_end = std::get<1>(t_d);
     for(; d_cit != d_end;
         ++d_cit) { // Note: d_cit is already set to the begin of the double parameter arrays
-        std::cout << *d_cit << std::endl << std::endl;
+        std::cout << *d_cit << '\n' << '\n';
     }
 
     // Retrieve float parameters
@@ -69,7 +69,7 @@ int main(int argc, char **argv) {
     std::vector<parPropSpec<float>>::const_iterator f_end = std::get<1>(t_f);
     for(; f_cit != f_end;
         ++f_cit) { // Note: f_cit is already set to the begin of the double parameter arrays
-        std::cout << *f_cit << std::endl << std::endl;
+        std::cout << *f_cit << '\n' << '\n';
     }
 
     // Retrieve integer parameters
@@ -81,7 +81,7 @@ int main(int argc, char **argv) {
     std::vector<parPropSpec<std::int32_t>>::const_iterator i_end = std::get<1>(t_i);
     for(; i_cit != i_end;
         ++i_cit) { // Note: i_cit is already set to the begin of the double parameter arrays
-        std::cout << *i_cit << std::endl << std::endl;
+        std::cout << *i_cit << '\n' << '\n';
     }
 
     // Retrieve boolean parameters
@@ -93,6 +93,6 @@ int main(int argc, char **argv) {
     std::vector<parPropSpec<bool>>::const_iterator b_end = std::get<1>(t_b);
     for(; b_cit != b_end;
         ++b_cit) { // Note: b_cit is already set to the begin of the double parameter arrays
-        std::cout << *b_cit << std::endl << std::endl;
+        std::cout << *b_cit << '\n' << '\n';
     }
 }

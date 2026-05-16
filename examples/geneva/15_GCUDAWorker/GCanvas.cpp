@@ -87,16 +87,16 @@ std::string triangle_circle_struct::toString() const {
  * Simplify debugging output
  */
 std::ostream &operator<<(std::ostream &out, t_circle const &tc) {
-    out << std::setprecision(5) << "middle.x = " << tc.middle.x << std::endl
-        << "middle.y = " << tc.middle.y << std::endl
-        << "radius   = " << tc.radius << std::endl
-        << "angle1   = " << tc.angle1 << std::endl
-        << "angle2   = " << tc.angle2 << std::endl
-        << "angle3   = " << tc.angle3 << std::endl
-        << "red      = " << tc.r << std::endl
-        << "green    = " << tc.g << std::endl
-        << "blue     = " << tc.b << std::endl
-        << "alpha    = " << tc.a << std::endl;
+    out << std::setprecision(5) << "middle.x = " << tc.middle.x << '\n'
+        << "middle.y = " << tc.middle.y << '\n'
+        << "radius   = " << tc.radius << '\n'
+        << "angle1   = " << tc.angle1 << '\n'
+        << "angle2   = " << tc.angle2 << '\n'
+        << "angle3   = " << tc.angle3 << '\n'
+        << "red      = " << tc.r << '\n'
+        << "green    = " << tc.g << '\n'
+        << "blue     = " << tc.b << '\n'
+        << "alpha    = " << tc.a << '\n';
 
     return out;
 }

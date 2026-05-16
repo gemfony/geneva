@@ -293,8 +293,8 @@ void createRandomVector(
     default: {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In createRandomVector(): Error!" << std::endl
-            << "Received invalid distType " << dType << std::endl
+            << "In createRandomVector(): Error!" << '\n'
+            << "Received invalid distType " << dType << '\n'
         );
     } break;
     }
@@ -339,8 +339,8 @@ int main(int argc, char **argv) {
     default: {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In main(): Error!" << std::endl
-            << "Received invalid rnrProductionMode " << rnrProductionMode << std::endl
+            << "In main(): Error!" << '\n'
+            << "Received invalid rnrProductionMode " << rnrProductionMode << '\n'
         );
     } break;
     };
@@ -351,53 +351,53 @@ int main(int argc, char **argv) {
 
     std::ofstream ofs("randomResult.C");
     if(!ofs) {
-        glogger << "Error: Could not write file" << std::endl << GWARNING;
+        glogger << "Error: Could not write file" << '\n' << GWARNING;
         return 1;
     }
 
     // The header of the root file
-    ofs << "{" << std::endl;
-    ofs << "  TCanvas *cc = new TCanvas(\"cc\",\"cc\",0,0,1000,1200);" << std::endl
-        << "  cc->Divide(4,4);" << std::endl
-        << std::endl
-        << "  TH1F *gauss = new TH1F(\"gauss\",\"gauss\",200,-8.,2.);" << std::endl
-        << "  TH1F *dgauss = new TH1F(\"dgauss\",\"dgauss\",200,-8.,2.);" << std::endl
-        << "  TH1F *expGauss01 = new TH1F(\"expGauss01\",\"expGauss01\",110,-1.,10.);" << std::endl
-        << "  TH1F *expGauss02 = new TH1F(\"expGauss02\",\"expGauss02\",110,-1.,10.);" << std::endl
-        << "  TH1F *expGauss04 = new TH1F(\"expGauss04\",\"expGauss04\",110,-1.,10.);" << std::endl
-        << "  TH1F *expGauss08 = new TH1F(\"expGauss08\",\"expGauss08\",110,-1.,10.);" << std::endl
-        << "  TH1F *expGauss16 = new TH1F(\"expGauss16\",\"expGauss16\",110,-1.,10.);" << std::endl
-        << "  TH1F *even = new TH1F(\"even\",\"even\",200,-0.5,1.5);" << std::endl
-        << "  TH1F *evenwb = new TH1F(\"evenwb\",\"evenwb\",200,-3.5,2.5);" << std::endl
-        << "  TH1I *discrete = new TH1I(\"discrete\",\"discrete\",12,-1,10);" << std::endl
-        << "  TH1I *discretewb = new TH1I(\"discretewb\",\"discretewb\",16,-4,11);" << std::endl
-        << "  TH1I *bitprob = new TH1I(\"bitprob\",\"bitprob\",4,-1,2);" << std::endl
-        << "  TH1I *bitsimple = new TH1I(\"bitsimple\",\"bitsimple\",4,-1,2);" << std::endl
-        << "  TH1I *charrnd = new TH1I(\"charrnd\",\"charrnd\",131,-1,129);" << std::endl
+    ofs << "{" << '\n';
+    ofs << "  TCanvas *cc = new TCanvas(\"cc\",\"cc\",0,0,1000,1200);" << '\n'
+        << "  cc->Divide(4,4);" << '\n'
+        << '\n'
+        << "  TH1F *gauss = new TH1F(\"gauss\",\"gauss\",200,-8.,2.);" << '\n'
+        << "  TH1F *dgauss = new TH1F(\"dgauss\",\"dgauss\",200,-8.,2.);" << '\n'
+        << "  TH1F *expGauss01 = new TH1F(\"expGauss01\",\"expGauss01\",110,-1.,10.);" << '\n'
+        << "  TH1F *expGauss02 = new TH1F(\"expGauss02\",\"expGauss02\",110,-1.,10.);" << '\n'
+        << "  TH1F *expGauss04 = new TH1F(\"expGauss04\",\"expGauss04\",110,-1.,10.);" << '\n'
+        << "  TH1F *expGauss08 = new TH1F(\"expGauss08\",\"expGauss08\",110,-1.,10.);" << '\n'
+        << "  TH1F *expGauss16 = new TH1F(\"expGauss16\",\"expGauss16\",110,-1.,10.);" << '\n'
+        << "  TH1F *even = new TH1F(\"even\",\"even\",200,-0.5,1.5);" << '\n'
+        << "  TH1F *evenwb = new TH1F(\"evenwb\",\"evenwb\",200,-3.5,2.5);" << '\n'
+        << "  TH1I *discrete = new TH1I(\"discrete\",\"discrete\",12,-1,10);" << '\n'
+        << "  TH1I *discretewb = new TH1I(\"discretewb\",\"discretewb\",16,-4,11);" << '\n'
+        << "  TH1I *bitprob = new TH1I(\"bitprob\",\"bitprob\",4,-1,2);" << '\n'
+        << "  TH1I *bitsimple = new TH1I(\"bitsimple\",\"bitsimple\",4,-1,2);" << '\n'
+        << "  TH1I *charrnd = new TH1I(\"charrnd\",\"charrnd\",131,-1,129);" << '\n'
         << "  TH2F *evenSelfCorrelation = new "
            "TH2F(\"evenSelfCorrelation\",\"evenSelfCorrelation\",100, 0.,1.,100, 0.,1.);"
-        << std::endl
+        << '\n'
         << "  TH1F *initCorrelation = new "
            "TH1F(\"initCorrelation\",\"initCorrelation\",10,0.5,10.5);"
-        << std::endl
+        << '\n'
         << "  TH1F *initLFCorrelation = new "
            "TH1F(\"initLFCorrelation\",\"initLFCorrelation\",10,0.5,10.5);"
-        << std::endl // Lagged Fibonacci
+        << '\n' // Lagged Fibonacci
         << "  TH2F *evenRNGCorrelation = new "
            "TH2F(\"evenRNGCorrelation\",\"evenRNGCorrelation\",100, 0.,1.,100, 0.,1.);"
-        << std::endl
+        << '\n'
         << "  TH1F *rngDiff = new TH1F(\"rngDiff\",\"rngDiff\"," << nEntries << ", " << 0.5 << ","
-        << 100.5 << ");" << std::endl
-        << std::endl;
+        << 100.5 << ");" << '\n'
+        << '\n';
 
     // In this test correlations between sequential random numbers (with same proxy/seed) are sought for
     {
         std::uniform_real_distribution<double> uniform_real_distribution(0., 1.);
         for(i = 0; i < nEntries; i++) {
             ofs << "  evenSelfCorrelation->Fill(" << uniform_real_distribution(*gr_ptr) << ", "
-                << uniform_real_distribution(*gr_ptr) << ");" << std::endl;
+                << uniform_real_distribution(*gr_ptr) << ");" << '\n';
         }
-        ofs << std::endl;
+        ofs << '\n';
     }
 
     // In this test correlations between subsequent numbers of two generators (with different seeds) are sought for
@@ -428,10 +428,10 @@ int main(int argc, char **argv) {
         std::uniform_real_distribution<double> uniform_real_distribution(0., 1.);
         for(i = 0; i < nEntries; i++) {
             ofs << "  evenRNGCorrelation->Fill(" << uniform_real_distribution(*gr_ptr_one) << ", "
-                << uniform_real_distribution(*gr_ptr_two) << ");" << std::endl;
+                << uniform_real_distribution(*gr_ptr_two) << ");" << '\n';
             ofs << "  rngDiff->Fill(double(" << i << "), "
                 << uniform_real_distribution(*gr_ptr_one) - uniform_real_distribution(*gr_ptr_two)
-                << ");" << std::endl;
+                << ");" << '\n';
         }
     }
 
@@ -494,120 +494,120 @@ int main(int argc, char **argv) {
        expgauss01.size() != nEntries || expgauss02.size() != nEntries ||
        expgauss04.size() != nEntries || expgauss08.size() != nEntries ||
        expgauss16.size() != nEntries) {
-        std::cout << "Error: received invalid sizes for at least one vector" << std::endl;
+        std::cout << "Error: received invalid sizes for at least one vector" << '\n';
         return 1;
     }
 
     for(i = 0; i < nEntries; i++) {
-        ofs << "  gauss->Fill(" << gaussian.at(i) << ");" << std::endl;
+        ofs << "  gauss->Fill(" << gaussian.at(i) << ");" << '\n';
     }
-    ofs << std::endl;
+    ofs << '\n';
 
     for(i = 0; i < nEntries; i++) {
-        ofs << "  dgauss->Fill(" << doublegaussian.at(i) << ");" << std::endl;
+        ofs << "  dgauss->Fill(" << doublegaussian.at(i) << ");" << '\n';
     }
-    ofs << std::endl;
+    ofs << '\n';
 
     for(i = 0; i < nEntries; i++) {
-        ofs << "  expGauss01->Fill(" << expgauss01.at(i) << ");" << std::endl;
+        ofs << "  expGauss01->Fill(" << expgauss01.at(i) << ");" << '\n';
     }
-    ofs << std::endl;
+    ofs << '\n';
 
     for(i = 0; i < nEntries; i++) {
-        ofs << "  expGauss02->Fill(" << expgauss02.at(i) << ");" << std::endl;
+        ofs << "  expGauss02->Fill(" << expgauss02.at(i) << ");" << '\n';
     }
-    ofs << std::endl;
+    ofs << '\n';
 
     for(i = 0; i < nEntries; i++) {
-        ofs << "  expGauss04->Fill(" << expgauss04.at(i) << ");" << std::endl;
+        ofs << "  expGauss04->Fill(" << expgauss04.at(i) << ");" << '\n';
     }
-    ofs << std::endl;
+    ofs << '\n';
 
     for(i = 0; i < nEntries; i++) {
-        ofs << "  expGauss08->Fill(" << expgauss08.at(i) << ");" << std::endl;
+        ofs << "  expGauss08->Fill(" << expgauss08.at(i) << ");" << '\n';
     }
-    ofs << std::endl;
+    ofs << '\n';
 
     for(i = 0; i < nEntries; i++) {
-        ofs << "  expGauss16->Fill(" << expgauss16.at(i) << ");" << std::endl;
+        ofs << "  expGauss16->Fill(" << expgauss16.at(i) << ");" << '\n';
     }
-    ofs << std::endl;
+    ofs << '\n';
 
     for(i = 0; i < nEntries; i++) {
-        ofs << "  even->Fill(" << even.at(i) << ");" << std::endl;
+        ofs << "  even->Fill(" << even.at(i) << ");" << '\n';
     }
-    ofs << std::endl;
+    ofs << '\n';
 
     for(i = 0; i < nEntries; i++) {
-        ofs << "  evenwb->Fill(" << evenwithboundaries.at(i) << ");" << std::endl;
+        ofs << "  evenwb->Fill(" << evenwithboundaries.at(i) << ");" << '\n';
     }
-    ofs << std::endl;
+    ofs << '\n';
 
     for(i = 0; i < nEntries; i++) {
-        ofs << "  discrete->Fill(" << discrete.at(i) << ");" << std::endl;
+        ofs << "  discrete->Fill(" << discrete.at(i) << ");" << '\n';
     }
-    ofs << std::endl;
+    ofs << '\n';
 
     for(i = 0; i < nEntries; i++) {
-        ofs << "  discretewb->Fill(" << discretebound.at(i) << ");" << std::endl;
+        ofs << "  discretewb->Fill(" << discretebound.at(i) << ");" << '\n';
     }
-    ofs << std::endl;
+    ofs << '\n';
 
     for(i = 0; i < nEntries; i++) {
-        ofs << "  bitprob->Fill(" << bitprob.at(i) << ");" << std::endl;
+        ofs << "  bitprob->Fill(" << bitprob.at(i) << ");" << '\n';
     }
-    ofs << std::endl;
+    ofs << '\n';
 
     for(i = 0; i < nEntries; i++) {
-        ofs << "  bitsimple->Fill(" << bitsimple.at(i) << ");" << std::endl;
+        ofs << "  bitsimple->Fill(" << bitsimple.at(i) << ");" << '\n';
     }
-    ofs << std::endl;
+    ofs << '\n';
 
     for(i = 1; i <= 10; i++) {
-        ofs << "  initCorrelation->Fill(" << i << ", " << initCorr.at(i - 1) << ");" << std::endl;
+        ofs << "  initCorrelation->Fill(" << i << ", " << initCorr.at(i - 1) << ");" << '\n';
     }
-    ofs << std::endl;
+    ofs << '\n';
 
     for(i = 1; i <= 10; i++) {
         ofs << "  initLFCorrelation->Fill(" << i << ", " << initLFCorr.at(i - 1) << ");"
-            << std::endl;
+            << '\n';
     }
-    ofs << std::endl;
+    ofs << '\n';
 
-    ofs << "  cc->cd(1);" << std::endl
-        << "  gauss->Draw();" << std::endl
-        << "  cc->cd(2);" << std::endl
-        << "  dgauss->Draw();" << std::endl
-        << "  cc->cd(3);" << std::endl
-        << "  expGauss01->Draw();" << std::endl
-        << "  expGauss02->Draw(\"same\");" << std::endl
-        << "  expGauss04->Draw(\"same\");" << std::endl
-        << "  expGauss08->Draw(\"same\");" << std::endl
-        << "  expGauss16->Draw(\"same\");" << std::endl
-        << "  cc->cd(4);" << std::endl
-        << "  even->Draw();" << std::endl
-        << "  cc->cd(5);" << std::endl
-        << "  evenwb->Draw();" << std::endl
-        << "  cc->cd(6);" << std::endl
-        << "  discrete->Draw();" << std::endl
-        << "  cc->cd(7);" << std::endl
-        << "  discretewb->Draw();" << std::endl
-        << "  cc->cd(8);" << std::endl
-        << "  bitprob->Draw();" << std::endl
-        << "  cc->cd(9);" << std::endl
-        << "  bitsimple->Draw();" << std::endl
-        << "  cc->cd(11);" << std::endl
-        << "  evenSelfCorrelation->Draw(\"contour\");" << std::endl
-        << "  cc->cd(12);" << std::endl
-        << "  initCorrelation->Draw();" << std::endl
-        << "  cc->cd(13);" << std::endl
-        << "  initLFCorrelation->Draw();" << std::endl
-        << "  cc->cd(14);" << std::endl
-        << "  evenRNGCorrelation->Draw(\"contour\");" << std::endl
-        << "  cc->cd(15);" << std::endl
-        << "  rngDiff->Draw();" << std::endl
-        << "  cc->cd();" << std::endl;
-    ofs << "}" << std::endl;
+    ofs << "  cc->cd(1);" << '\n'
+        << "  gauss->Draw();" << '\n'
+        << "  cc->cd(2);" << '\n'
+        << "  dgauss->Draw();" << '\n'
+        << "  cc->cd(3);" << '\n'
+        << "  expGauss01->Draw();" << '\n'
+        << "  expGauss02->Draw(\"same\");" << '\n'
+        << "  expGauss04->Draw(\"same\");" << '\n'
+        << "  expGauss08->Draw(\"same\");" << '\n'
+        << "  expGauss16->Draw(\"same\");" << '\n'
+        << "  cc->cd(4);" << '\n'
+        << "  even->Draw();" << '\n'
+        << "  cc->cd(5);" << '\n'
+        << "  evenwb->Draw();" << '\n'
+        << "  cc->cd(6);" << '\n'
+        << "  discrete->Draw();" << '\n'
+        << "  cc->cd(7);" << '\n'
+        << "  discretewb->Draw();" << '\n'
+        << "  cc->cd(8);" << '\n'
+        << "  bitprob->Draw();" << '\n'
+        << "  cc->cd(9);" << '\n'
+        << "  bitsimple->Draw();" << '\n'
+        << "  cc->cd(11);" << '\n'
+        << "  evenSelfCorrelation->Draw(\"contour\");" << '\n'
+        << "  cc->cd(12);" << '\n'
+        << "  initCorrelation->Draw();" << '\n'
+        << "  cc->cd(13);" << '\n'
+        << "  initLFCorrelation->Draw();" << '\n'
+        << "  cc->cd(14);" << '\n'
+        << "  evenRNGCorrelation->Draw(\"contour\");" << '\n'
+        << "  cc->cd(15);" << '\n'
+        << "  rngDiff->Draw();" << '\n'
+        << "  cc->cd();" << '\n';
+    ofs << "}" << '\n';
 
     ofs.close();
 

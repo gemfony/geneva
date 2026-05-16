@@ -202,8 +202,8 @@ void GParameterSetFixedSizePriorityQueue::GParameterSetFixedSizePriorityQueue::a
     if(processed_cnt.empty()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GParameterSetFixedSizePriorityQueue::add(range): Error!" << std::endl
-            << "Container is empty when it should not be!" << std::endl
+            << "In GParameterSetFixedSizePriorityQueue::add(range): Error!" << '\n'
+            << "Container is empty when it should not be!" << '\n'
         );
     }
 
@@ -241,8 +241,8 @@ void GParameterSetFixedSizePriorityQueue::add(
     if(processed_cnt.empty()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GParameterSetFixedSizePriorityQueue::add(vec): Error!" << std::endl
-            << "Container is empty when it should not be!" << std::endl
+            << "In GParameterSetFixedSizePriorityQueue::add(vec): Error!" << '\n'
+            << "Container is empty when it should not be!" << '\n'
         );
     }
 

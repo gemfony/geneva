@@ -97,7 +97,7 @@ void GFileLogger::log(std::string const &msg) const {
         // emitting a one-line diagnostic to make the lost-log-target
         // condition visible to the operator.
         std::cerr << "[GFileLogger::log] could not open \"" << fname_
-                  << "\" for appending — falling back to stderr:" << std::endl
+                  << "\" for appending — falling back to stderr:" << '\n'
                   << msg;
     }
 }
@@ -116,7 +116,7 @@ void GFileLogger::logWithSource(std::string const &msg, std::string const &exten
     ); // NOLINT(cppcoreguidelines-init-variables)
     if(ofstr) {
         if(first_) {
-            ofstr << "Logging data from source " + extension << std::endl << msg;
+            ofstr << "Logging data from source " + extension << '\n' << msg;
             ofstr.close();
             first_ = false;
         }
@@ -131,7 +131,7 @@ void GFileLogger::logWithSource(std::string const &msg, std::string const &exten
         // diagnostic to stderr and let execution continue.
         std::cerr << "[GFileLogger::logWithSource] could not open \""
                   << (fname_ + "_" + extension) << "\" for appending — "
-                  << "falling back to stderr:" << std::endl
+                  << "falling back to stderr:" << '\n'
                   << msg;
     }
 }
@@ -243,18 +243,18 @@ void GLogStreamer::operator<<(GManipulator const &gm) {
     case Gem::Common::logType::EXCEPTION: {
         // Assemble the output string
         std::ostringstream error; // NOLINT(cppcoreguidelines-init-variables)
-        error << std::endl
-              << "================================================" << std::endl
-              << "ERROR ( recorded on " << GLogStreamer::currentTimeAsString() << " )" << std::endl
-              << gm.getAccompInfo() << std::endl
-              << std::endl
-              << oss_.str() << std::endl
-              << "If you suspect that this error is due to Geneva," << std::endl
-              << "then please consider filing a bug." << std::endl
-              << std::endl
-              << "We appreciate your help!" << std::endl
-              << "The Geneva team" << std::endl
-              << "================================================" << std::endl;
+        error << '\n'
+              << "================================================" << '\n'
+              << "ERROR ( recorded on " << GLogStreamer::currentTimeAsString() << " )" << '\n'
+              << gm.getAccompInfo() << '\n'
+              << '\n'
+              << oss_.str() << '\n'
+              << "If you suspect that this error is due to Geneva," << '\n'
+              << "then please consider filing a bug." << '\n'
+              << '\n'
+              << "We appreciate your help!" << '\n'
+              << "The Geneva team" << '\n'
+              << "================================================" << '\n';
 
         // Do all necessary logging. We use a central exception file for this purpose.
         // The logger's routines will in addition try to print on the console. Note
@@ -272,18 +272,18 @@ void GLogStreamer::operator<<(GManipulator const &gm) {
     case Gem::Common::logType::TERMINATION: {
         // Assemble the output string
         std::ostringstream error; // NOLINT(cppcoreguidelines-init-variables)
-        error << std::endl
-              << "================================================" << std::endl
-              << "ERROR ( recorded on " << GLogStreamer::currentTimeAsString() << " )" << std::endl
-              << gm.getAccompInfo() << std::endl
-              << std::endl
-              << oss_.str() << std::endl
-              << "If you suspect that this error is due to Geneva," << std::endl
-              << "then please consider filing a bug." << std::endl
-              << std::endl
-              << "We appreciate your help!" << std::endl
-              << "The Geneva team" << std::endl
-              << "================================================" << std::endl;
+        error << '\n'
+              << "================================================" << '\n'
+              << "ERROR ( recorded on " << GLogStreamer::currentTimeAsString() << " )" << '\n'
+              << gm.getAccompInfo() << '\n'
+              << '\n'
+              << oss_.str() << '\n'
+              << "If you suspect that this error is due to Geneva," << '\n'
+              << "then please consider filing a bug." << '\n'
+              << '\n'
+              << "We appreciate your help!" << '\n'
+              << "The Geneva team" << '\n'
+              << "================================================" << '\n';
 
         // Do all necessary logging. We use a central exception file for this purpose.
         // The logger's routines will in addition try to print on the console. Note
@@ -300,19 +300,19 @@ void GLogStreamer::operator<<(GManipulator const &gm) {
     case Gem::Common::logType::WARNING: {
         // Assemble warning output
         std::ostringstream warning; // NOLINT(cppcoreguidelines-init-variables)
-        warning << std::endl
-                << "================================================" << std::endl
+        warning << '\n'
+                << "================================================" << '\n'
                 << "WARNING ( recorded on " << GLogStreamer::currentTimeAsString() << " )"
-                << std::endl
-                << gm.getAccompInfo() << std::endl
-                << std::endl
-                << oss_.str() << std::endl
-                << "If you suspect that there is an underlying problem with Geneva," << std::endl
-                << "then please consider filing a bug." << std::endl
-                << std::endl
-                << "We appreciate your help!" << std::endl
-                << "The Geneva team" << std::endl
-                << "================================================" << std::endl;
+                << '\n'
+                << gm.getAccompInfo() << '\n'
+                << '\n'
+                << oss_.str() << '\n'
+                << "If you suspect that there is an underlying problem with Geneva," << '\n'
+                << "then please consider filing a bug." << '\n'
+                << '\n'
+                << "We appreciate your help!" << '\n'
+                << "The Geneva team" << '\n'
+                << "================================================" << '\n';
 
         // Do all necessary logging.
         if(this->hasExtension()) {
@@ -343,11 +343,11 @@ void GLogStreamer::operator<<(GManipulator const &gm) {
         else {
             raiseException(
                 "In GLogStreamer::operator<<(const GManipulator&): Error!"
-                << std::endl
+                << '\n'
                 << "Tried to log to one time log file without a file name specification"
-                << std::endl
-                << "You need to supply a file name like this:" << std::endl
-                << "glogger(\"filename.txt\") << \"some log text\" << GFILE" << std::endl
+                << '\n'
+                << "You need to supply a file name like this:" << '\n'
+                << "glogger(\"filename.txt\") << \"some log text\" << GFILE" << '\n'
             );
         }
     } break;

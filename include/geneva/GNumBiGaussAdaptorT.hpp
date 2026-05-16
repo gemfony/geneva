@@ -143,11 +143,11 @@ public:
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GNumBiGaussAdaptorT<num_type, fp_type>::setSigma1(const fp_type&):"
-                << std::endl
-                << "sigma1 is not in the allowed range: " << std::endl
-                << minSigma1_ << " <= " << sigma1 << " < " << maxSigma1_ << std::endl
-                << "If you want to use these values you need to" << std::endl
-                << "adapt the allowed range first." << std::endl
+                << '\n'
+                << "sigma1 is not in the allowed range: " << '\n'
+                << minSigma1_ << " <= " << sigma1 << " < " << maxSigma1_ << '\n'
+                << "If you want to use these values you need to" << '\n'
+                << "adapt the allowed range first." << '\n'
             );
         }
 
@@ -184,9 +184,9 @@ public:
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GNumBiGaussAdaptorT::setSigma1Range(const fp_type&, const fp_type&):"
-                << std::endl
+                << '\n'
                 << "Invalid values for minSigma1 and maxSigma1 given: " << minSigma1 << " / "
-                << maxSigma1 << std::endl
+                << maxSigma1 << '\n'
             );
         }
 
@@ -279,11 +279,11 @@ public:
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GNumBiGaussAdaptorT<num_type, fp_type>::setSigma2(const fp_type&):"
-                << std::endl
-                << "sigma2 is not in the allowed range: " << std::endl
-                << minSigma2_ << " <= " << sigma2 << " < " << maxSigma2_ << std::endl
-                << "If you want to use this value for sigma you need to" << std::endl
-                << "adapt the allowed range first." << std::endl
+                << '\n'
+                << "sigma2 is not in the allowed range: " << '\n'
+                << minSigma2_ << " <= " << sigma2 << " < " << maxSigma2_ << '\n'
+                << "If you want to use this value for sigma you need to" << '\n'
+                << "adapt the allowed range first." << '\n'
             );
         }
 
@@ -320,9 +320,9 @@ public:
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GNumBiGaussAdaptorT::setSigma2Range(const fp_type&, const fp_type&):"
-                << std::endl
+                << '\n'
                 << "Invalid values for minSigma2 and maxSigma2 given: " << minSigma2 << " / "
-                << maxSigma2 << std::endl
+                << maxSigma2 << '\n'
             );
         }
 
@@ -410,11 +410,11 @@ public:
         if(delta < minDelta_ || delta > maxDelta_ || delta < fp_type(0)) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GNumBiGaussAdaptorT::setDelta(const fp_type&):" << std::endl
-                << "delta is not in the allowed range: " << std::endl
-                << minDelta_ << " <= " << delta << " < " << maxDelta_ << std::endl
-                << "If you want to use these values you need to" << std::endl
-                << "adapt the allowed range first." << std::endl
+                << "In GNumBiGaussAdaptorT::setDelta(const fp_type&):" << '\n'
+                << "delta is not in the allowed range: " << '\n'
+                << minDelta_ << " <= " << delta << " < " << maxDelta_ << '\n'
+                << "If you want to use these values you need to" << '\n'
+                << "adapt the allowed range first." << '\n'
             );
         }
 
@@ -448,9 +448,9 @@ public:
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GNumBiGaussAdaptorT::setDeltaRange(const fp_type&, const fp_type&):"
-                << std::endl
+                << '\n'
                 << "Invalid values for minDelta and maxDelta given: " << minDelta << " / "
-                << maxDelta << std::endl
+                << maxDelta << '\n'
             );
         }
 

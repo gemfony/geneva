@@ -142,10 +142,10 @@ public:
         if(lowerInitBoundary >= upperInitBoundary) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GNumT<T>::setInitBoundaries():" << std::endl
-                << "Invalid boundaries provided: " << std::endl
-                << "lowerInitBoundary = " << lowerInitBoundary << std::endl
-                << "upperInitBoundary = " << upperInitBoundary << std::endl
+                << "In GNumT<T>::setInitBoundaries():" << '\n'
+                << "Invalid boundaries provided: " << '\n'
+                << "lowerInitBoundary = " << lowerInitBoundary << '\n'
+                << "upperInitBoundary = " << upperInitBoundary << '\n'
             );
         }
 

@@ -273,8 +273,8 @@ public:
         if(std::isnan(val) || std::isinf(val)) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GConstrainedFPT::transfer(): Error" << std::endl
-                << "val is " << (std::isnan(val) ? "NaN" : "infinite") << std::endl
+                << "In GConstrainedFPT::transfer(): Error" << '\n'
+                << "val is " << (std::isnan(val) ? "NaN" : "infinite") << '\n'
             );
         }
 
@@ -294,16 +294,16 @@ public:
         case FP_SUBNORMAL: {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GConstrainedFPT::transfer(): Error" << std::endl
-                << "val is subnormal" << std::endl
+                << "In GConstrainedFPT::transfer(): Error" << '\n'
+                << "val is subnormal" << '\n'
             );
         } break;
 
         default: {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GConstrainedFPT::transfer(): Error" << std::endl
-                << "Unknown value type" << std::endl
+                << "In GConstrainedFPT::transfer(): Error" << '\n'
+                << "Unknown value type" << '\n'
             );
         }
         }
@@ -338,10 +338,10 @@ public:
             else {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
-                    << "In GConstrainedFPT::transfer(): Error" << std::endl
-                    << "fp_region = " << fp_region << " is too large and cannot be" << std::endl
+                    << "In GConstrainedFPT::transfer(): Error" << '\n'
+                    << "fp_region = " << fp_region << " is too large and cannot be" << '\n'
                     << "converted to a std::int64_t, which has a maximum value of "
-                    << (std::numeric_limits<std::int64_t>::max)() << std::endl
+                    << (std::numeric_limits<std::int64_t>::max)() << '\n'
                 );
             }
 #else  /* DEBUG */

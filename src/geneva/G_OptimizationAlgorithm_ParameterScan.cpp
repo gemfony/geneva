@@ -88,8 +88,8 @@ std::vector<float> fillWithData<float>(std::size_t nSteps, float lower, float up
     if(nSteps < 2) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In std::vector<float> fillWithData<float>(): Error!" << std::endl
-            << "Number of requested steps is too low: " << nSteps << std::endl
+            << "In std::vector<float> fillWithData<float>(): Error!" << '\n'
+            << "Number of requested steps is too low: " << nSteps << '\n'
         );
     }
 
@@ -112,8 +112,8 @@ std::vector<double> fillWithData<double>(std::size_t nSteps, double lower, doubl
     if(nSteps < 2) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In std::vector<float> fillWithData<double>(): Error!" << std::endl
-            << "Number of requested steps is too low: " << nSteps << std::endl
+            << "In std::vector<float> fillWithData<double>(): Error!" << '\n'
+            << "Number of requested steps is too low: " << nSteps << '\n'
         );
     }
 
@@ -235,12 +235,12 @@ std::shared_ptr<fScanPar> fScanPar::clone() const {
  * A simple output operator for parSet object, mostly meant for debugging
  */
 std::ostream &operator<<(std::ostream &os, const parSet &pS) {
-    os << "###########################################################" << std::endl
-       << "# New parSet object:" << std::endl;
+    os << "###########################################################" << '\n'
+       << "# New parSet object:" << '\n';
 
     // Boolean data
     if(not pS.bParVec.empty()) {
-        os << "# Boolean data" << std::endl;
+        os << "# Boolean data" << '\n';
         std::vector<singleBPar>::const_iterator cit;
         for(cit = pS.bParVec.begin(); cit != pS.bParVec.end(); ++cit) {
             os << (std::get<1>(*cit) ? "true" : "false") << ":" << std::get<0>(*cit);
@@ -248,12 +248,12 @@ std::ostream &operator<<(std::ostream &os, const parSet &pS) {
                 os << ", ";
             }
         }
-        os << std::endl;
+        os << '\n';
     }
 
     // std::int32_t data
     if(not pS.iParVec.empty()) {
-        os << "# std::int32_t data" << std::endl;
+        os << "# std::int32_t data" << '\n';
         std::vector<singleInt32Par>::const_iterator cit;
         for(cit = pS.iParVec.begin(); cit != pS.iParVec.end(); ++cit) {
             os << std::get<1>(*cit) << ":" << std::get<0>(*cit);
@@ -261,12 +261,12 @@ std::ostream &operator<<(std::ostream &os, const parSet &pS) {
                 os << ", ";
             }
         }
-        os << std::endl;
+        os << '\n';
     }
 
     // float data
     if(not pS.fParVec.empty()) {
-        os << "# float data" << std::endl;
+        os << "# float data" << '\n';
         std::vector<singleFPar>::const_iterator cit;
         for(cit = pS.fParVec.begin(); cit != pS.fParVec.end(); ++cit) {
             os << std::get<1>(*cit) << ":" << std::get<0>(*cit);
@@ -274,12 +274,12 @@ std::ostream &operator<<(std::ostream &os, const parSet &pS) {
                 os << ", ";
             }
         }
-        os << std::endl;
+        os << '\n';
     }
 
     // double data
     if(not pS.dParVec.empty()) {
-        os << "# double data" << std::endl;
+        os << "# double data" << '\n';
         std::vector<singleDPar>::const_iterator cit;
         for(cit = pS.dParVec.begin(); cit != pS.dParVec.end(); ++cit) {
             os << std::get<1>(*cit) << ":" << std::get<0>(*cit);
@@ -287,7 +287,7 @@ std::ostream &operator<<(std::ostream &os, const parSet &pS) {
                 os << ", ";
             }
         }
-        os << std::endl;
+        os << '\n';
     }
 
     return os;
@@ -513,9 +513,9 @@ std::tuple<double, double> GParameterScan::cycleLogic_() {
         if(not(*it)->is_processed()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GParameterScan::cycleLogic(): Error!" << std::endl
+                << "In GParameterScan::cycleLogic(): Error!" << '\n'
                 << "Individual in position " << (it - this->begin()) << " is not processed"
-                << std::endl
+                << '\n'
             );
         }
 #endif
@@ -654,8 +654,8 @@ void GParameterScan::updateSelectedParameters() {
         default: {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GParameterScan::updateSelectedParameters(): Error!" << std::endl
-                << "Encountered invalid mode " << mode << std::endl
+                << "In GParameterScan::updateSelectedParameters(): Error!" << '\n'
+                << "Encountered invalid mode " << mode << '\n'
             );
         } break;
         }
@@ -769,8 +769,8 @@ std::shared_ptr<parSet> GParameterScan::getParameterSet(std::size_t &mode) {
             if(std::get<0>(var) != mode) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
-                    << "In GParameterScan::getParameterSet(): Error!" << std::endl
-                    << "Expected mode " << mode << " but got " << std::get<0>(var) << std::endl
+                    << "In GParameterScan::getParameterSet(): Error!" << '\n'
+                    << "Expected mode " << mode << " but got " << std::get<0>(var) << '\n'
                 );
             }
         }
@@ -796,8 +796,8 @@ std::shared_ptr<parSet> GParameterScan::getParameterSet(std::size_t &mode) {
             if(std::get<0>(var) != mode) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
-                    << "In GParameterScan::getParameterSet(): Error!" << std::endl
-                    << "Expected mode " << mode << " but got " << std::get<0>(var) << std::endl
+                    << "In GParameterScan::getParameterSet(): Error!" << '\n'
+                    << "Expected mode " << mode << " but got " << std::get<0>(var) << '\n'
                 );
             }
         }
@@ -823,8 +823,8 @@ std::shared_ptr<parSet> GParameterScan::getParameterSet(std::size_t &mode) {
             if(std::get<0>(var) != mode) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
-                    << "In GParameterScan::getParameterSet(): Error!" << std::endl
-                    << "Expected mode " << mode << " but got " << std::get<0>(var) << std::endl
+                    << "In GParameterScan::getParameterSet(): Error!" << '\n'
+                    << "Expected mode " << mode << " but got " << std::get<0>(var) << '\n'
                 );
             }
         }
@@ -850,8 +850,8 @@ std::shared_ptr<parSet> GParameterScan::getParameterSet(std::size_t &mode) {
             if(std::get<0>(var) != mode) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
-                    << "In GParameterScan::getParameterSet(): Error!" << std::endl
-                    << "Expected mode " << mode << " but got " << std::get<0>(var) << std::endl
+                    << "In GParameterScan::getParameterSet(): Error!" << '\n'
+                    << "Expected mode " << mode << " but got " << std::get<0>(var) << '\n'
                 );
             }
         }
@@ -938,8 +938,8 @@ void GParameterScan::clearAllParVec() {
  */
 bool GParameterScan::customHalt_() const {
     if(this->cycleLogicHalt_) {
-        glogger << "Terminating the loop as no items are left to be" << std::endl
-                << "processed in parameter scan." << std::endl
+        glogger << "Terminating the loop as no items are left to be" << '\n'
+                << "processed in parameter scan." << '\n'
                 << GLOGGING;
         return true;
     }
@@ -970,7 +970,7 @@ void GParameterScan::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) 
         std::string("d(0, -10., 10., 100), d(1, -10., 10., 100)"),
         [this](std::string parSpecs) { this->setParameterSpecs(parSpecs); }
     ) << "Specification of the parameters to be used in the parameter scan"
-      << std::endl;
+      << '\n';
 
     gpb.registerFileParameter<bool>(
         "scanRandomly" // The name of the variable
@@ -979,7 +979,7 @@ void GParameterScan::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) 
         ,
         [this](bool sr) { this->setScanRandomly(sr); }
     ) << "Indicates whether scans of individual variables should be done randomly"
-      << std::endl
+      << '\n'
       << "(1) or on a grid (0)";
 
     // Override the default value of maxStallIteration, as the parent
@@ -1006,9 +1006,9 @@ void GParameterScan::runFitnessCalculation_() {
         if(not(*it)->is_due_for_processing()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GParameterScan::runFitnessCalculation():" << std::endl
+                << "In GParameterScan::runFitnessCalculation():" << '\n'
                 << "Found individual in position " << std::distance(this->begin(), it)
-                << ", which has not been marked as due for processing" << std::endl
+                << ", which has not been marked as due for processing" << '\n'
             );
         }
     }
@@ -1033,8 +1033,8 @@ void GParameterScan::runFitnessCalculation_() {
     if(not status.is_complete || status.has_errors) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GParameterScan::runFitnessCalculation(): Error!" << std::endl
-            << "No complete set of items received or erroneous items found" << std::endl
+            << "In GParameterScan::runFitnessCalculation(): Error!" << '\n'
+            << "No complete set of items received or erroneous items found" << '\n'
         );
     }
 
@@ -1052,8 +1052,8 @@ void GParameterScan::setParameterSpecs(std::string parStr) {
     if(parStr.empty()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GParameterScan::addParameterSpecs(): Error!" << std::endl
-            << "Parameter string " << parStr << " is empty" << std::endl
+            << "In GParameterScan::addParameterSpecs(): Error!" << '\n'
+            << "Parameter string " << parStr << " is empty" << '\n'
         );
     }
 
@@ -1234,9 +1234,9 @@ void GParameterScan::adjustPopulation_() {
     if(nStart == 0) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GParameterScan::adjustPopulation(): Error!" << std::endl
+            << "In GParameterScan::adjustPopulation(): Error!" << '\n'
             << "You didn't add any individuals to the collection. We need at least one."
-            << std::endl
+            << '\n'
         );
     }
 
@@ -1251,8 +1251,8 @@ void GParameterScan::adjustPopulation_() {
     if(0 == this->getDefaultPopulationSize()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GParameterScan::adjustPopulation(): Error!" << std::endl
-            << "Default-size of the population is 0" << std::endl
+            << "In GParameterScan::adjustPopulation(): Error!" << '\n'
+            << "Default-size of the population is 0" << '\n'
         );
     }
 
