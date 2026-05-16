@@ -45,7 +45,7 @@ void setRNFParameters(std::uint16_t n_producer_threads) {
     GRANDOMFACTORY->setNProducerThreads(n_producer_threads);
 }
 
-std::once_flag f_go2; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
+std::once_flag fGo2; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -66,9 +66,7 @@ Go2::Go2(
     std::string const &config_filename,
     boost::program_options::options_description const &user_descriptions
 )
-  : G_Interface_OptimizerT<Go2>()
-  , Gem::Common::GPtrContainerT<GParameterSet>()
-  , config_filename_(config_filename) {
+  : config_filename_(config_filename) {
     //--------------------------------------------
     // Initialize Geneva as well as the known optimization algorithms
 
@@ -101,7 +99,7 @@ Go2::Go2(
     //--------------------------------------------
     // Random numbers are our most valuable good.
     // Initialize all necessary variables
-    std::call_once(f_go2, [this]() { setRNFParameters(this->n_producer_threads_); });
+    std::call_once(fGo2, [this]() { setRNFParameters(this->n_producer_threads_); });
 }
 
 /******************************************************************************/
@@ -137,7 +135,7 @@ void Go2::registerDefaultAlgorithm(std::string const &mn) {
  * not be used. Note that any individuals registered with the default algorithm
  * will be copied into the Go2 object.
  */
-void Go2::registerDefaultAlgorithm(std::shared_ptr<GOABase> default_algorithm) {
+void Go2::registerDefaultAlgorithm(const std::shared_ptr<GOABase> &default_algorithm) {
     // Check that the pointer isn't empty
     if(not default_algorithm) {
         throw geneva_exception(
@@ -150,8 +148,9 @@ void Go2::registerDefaultAlgorithm(std::shared_ptr<GOABase> default_algorithm) {
     // If any individuals have been storedn in the default algorithm, we assume
     // that the user wants us to use them and copy them over. Note that these are not cloned.
     if(not default_algorithm->empty()) { // Have individuals been registered ?
-        for(const auto &ind_ptr : *default_algorithm)
+        for(const auto &ind_ptr : *default_algorithm) {
             this->push_back(ind_ptr);
+        }
         // Remove the individuals from the old algorithm
         default_algorithm->clear();
     }
@@ -164,7 +163,7 @@ void Go2::registerDefaultAlgorithm(std::shared_ptr<GOABase> default_algorithm) {
 /**
  * Allows to register a pluggable optimization monitor
  */
-void Go2::registerPluggableOM(std::shared_ptr<GBasePluggableOM> pluggable_om) {
+void Go2::registerPluggableOM(const std::shared_ptr<GBasePluggableOM> &pluggable_om) {
     if(pluggable_om) {
         pluggable_monitors_cnt_.push_back(pluggable_om);
     }
@@ -303,7 +302,7 @@ std::size_t Go2::getNAlgorithms() const {
  *
  * @param alg A base pointer to another optimization algorithm
  */
-void Go2::addAlgorithm(std::shared_ptr<GOABase> alg) {
+void Go2::addAlgorithm(const std::shared_ptr<GOABase> &alg) {
     // Check that the pointer is not empty
     if(not alg) {
         throw geneva_exception(
@@ -316,9 +315,10 @@ void Go2::addAlgorithm(std::shared_ptr<GOABase> alg) {
     // If any individuals have already been registered with alg, we assume
     // that the user wants us to add them to the optimization and copy them over.
     // Note that these are not cloned, as we will clear its vector anyway.
-    if(not alg->empty()) { // Have individuals been registered ?
-        for(const auto &ind_ptr : *alg)
+    if(not alg->empty()) { // Have individuals been registered?
+        for(const auto &ind_ptr : *alg) {
             this->push_back(ind_ptr);
+        }
         // Remove the individuals from the old algorithm
         alg->clear();
     }
@@ -359,7 +359,7 @@ std::string Go2::getConsumerName() {
  * @param alg A base pointer to another optimization algorithm
  * @return A reference to this object
  */
-Go2 &Go2::operator&(std::shared_ptr<GOABase> alg) {
+Go2 &Go2::operator&(const std::shared_ptr<GOABase> &alg) {
     this->addAlgorithm(alg); // NOLINT
     return *this;
 }
@@ -398,7 +398,7 @@ Go2 &Go2::operator&(std::string const &mn) {
  * Allows to register a content creator. A content creator creates individuals
  * to be added to the population.
  */
-void Go2::registerContentCreator(std::shared_ptr<Gem::Common::GFactoryT<GParameterSet>> cc_ptr) {
+void Go2::registerContentCreator(const std::shared_ptr<Gem::Common::GFactoryT<GParameterSet>> &cc_ptr) {
     if(not cc_ptr) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
@@ -422,7 +422,7 @@ void Go2::registerContentCreator(std::shared_ptr<Gem::Common::GFactoryT<GParamet
  *
  * @param offset An offset at which the first algorithm should start. Empty and present only to satisfy the interface.
  */
-Go2 const *Go2::optimize_(std::uint32_t /* offset */) {
+Go2 const *Go2::optimize_([[maybe_unused]] std::uint32_t offset) {
     // Check that algorithms have indeed been registered. If not, try to add a default algorithm
     if(algorithms_cnt_.empty()) {
         if(not default_algorithm_) {
@@ -540,10 +540,10 @@ Go2 const *Go2::optimize_(std::uint32_t /* offset */) {
 
     // Sort the individuals according to their primary fitness so we have it easier later on
     // to extract the best individuals found.
-    std::sort(
+    std::ranges::sort(
         this->begin(),
         this->end(),
-        [](std::shared_ptr<GParameterSet> x_ptr, std::shared_ptr<GParameterSet> y_ptr) -> bool {
+        [](const std::shared_ptr<GParameterSet> &x_ptr, const std::shared_ptr<GParameterSet> &y_ptr) -> bool {
             return minOnly_transformed_fitness(x_ptr) < minOnly_transformed_fitness(y_ptr);
         }
     );
@@ -780,13 +780,13 @@ uint32_t Go2::getIteration_() const {
  * @return The name assigned to this optimization algorithm
  */
 std::string Go2::getAlgorithmName_() const {
-    return std::string("Algorithm Combiner");
+    return {"Algorithm Combiner"};
 }
 
 /******************************************************************************/
 /** @brief Returns one-word information about the type of optimization algorithm. */
 std::string Go2::getAlgorithmPersonalityType_() const {
-    return std::string("PERSONALITY_NONE");
+    return {"PERSONALITY_NONE"};
 }
 
 /******************************************************************************/
@@ -906,9 +906,9 @@ void Go2::parseCommandLine(
         );
 
         // Emit a help message, if necessary
-        if(vm.count("help") ||
-           vm.count("showAll")) { // Allow syntax "program --help --showAll" and "program --showAll"
-            if(vm.count("showAll")) { // Show all options
+        if(vm.contains("help") ||
+           vm.contains("showAll")) { // Allow syntax "program --help --showAll" and "program --showAll"
+            if(vm.contains("showAll")) { // Show all options
                 std::cout << general << '\n';
             }
             else { // Just show a selection
@@ -928,7 +928,7 @@ void Go2::parseCommandLine(
 
         po::notify(vm);
 
-        if(vm.count("client")) {
+        if(vm.contains("client")) {
             client_mode_ = true;
         }
 
@@ -943,7 +943,7 @@ void Go2::parseCommandLine(
         }
 
         // Check that the requested consumer actually exists
-        if(vm.count("consumer") && not GConsumerStore->exists(consumer_name_)) {
+        if(vm.contains("consumer") && not GConsumerStore->exists(consumer_name_)) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In Go2::parseCommandLine(): Error!" << '\n'
@@ -1006,7 +1006,7 @@ void Go2::parseCommandLine(
         }
 
         // Parse the list of optimization algorithms
-        if(vm.count("optimizationAlgorithms")) {
+        if(vm.contains("optimizationAlgorithms")) {
             std::vector<std::string> algs = Gem::Common::splitString(optimization_algorithms, ",");
 
             for(const auto &alg_str : algs) {
