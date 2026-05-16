@@ -414,9 +414,9 @@ protected:
             CHECK_NOTHROW(p_test->resetAdaptor());
             CHECK(p_test->hasAdaptor() == true);
 
-            T testVal = T(0);
+            T test_val = T(0);
             // We have a local adaptor, so trying to call the applyAdaptor() function should not throw
-            CHECK_NOTHROW(p_test->applyAdaptor(testVal, T(1), gr));
+            CHECK_NOTHROW(p_test->applyAdaptor(test_val, T(1), gr));
         }
 
         //------------------------------------------------------------------------------
@@ -429,11 +429,11 @@ protected:
             CHECK_NOTHROW(p_test->resetAdaptor());
             CHECK(p_test->hasAdaptor() == true);
 
-            std::vector<T> testVec;
+            std::vector<T> test_vec;
             for(std::size_t i = 0; i < 10; i++)
-                testVec.push_back(T(0));
+                test_vec.push_back(T(0));
             // We have a local adaptor, so trying to call the applyAdaptor(collection) function should not throw
-            CHECK_NOTHROW(p_test->applyAdaptor(testVec, T(1), gr));
+            CHECK_NOTHROW(p_test->applyAdaptor(test_vec, T(1), gr));
         }
 
         //------------------------------------------------------------------------------
@@ -482,10 +482,10 @@ private:
     /**
      * Triggers updates when the optimization process has stalled
      *
-     * @param nStalls The number of consecutive stalls up to this point
+     * @param n_stalls The number of consecutive stalls up to this point
      * @return A boolean indicating whether updates were performed
      */
-    bool updateAdaptorsOnStall_(std::size_t nStalls) override {
+    bool updateAdaptorsOnStall_(std::size_t n_stalls) override {
 #ifdef DEBUG
         if(not adaptor_) {
             throw geneva_exception(
@@ -497,7 +497,7 @@ private:
         }
 #endif /* DEBUG */
 
-        return this->adaptor_->updateOnStall(nStalls, this->range());
+        return this->adaptor_->updateOnStall(n_stalls, this->range());
     }
 
     /******************************************************************************/
@@ -509,7 +509,7 @@ private:
      * @param data A vector, to which the properties should be added
      */
     void queryAdaptor_(
-        const std::string &adaptorName,
+        const std::string &adaptor_name,
         const std::string &property,
         std::vector<std::any> &data
     ) const override {
@@ -524,9 +524,9 @@ private:
         }
 #endif /* DEBUG */
 
-        // Note: The following will throw if the adaptor with name "adaptorName" has
+        // Note: The following will throw if the adaptor with name "adaptor_name" has
         // no property named "property".
-        this->adaptor_->queryPropertyFrom(adaptorName, property, data);
+        this->adaptor_->queryPropertyFrom(adaptor_name, property, data);
     }
 
     /***************************************************************************/
@@ -565,18 +565,18 @@ inline std::size_t GParameterBaseWithAdaptorsT<bool>::applyAdaptor(
     }
 #endif /* DEBUG */
 
-    std::size_t nAdapted = 0;
+    std::size_t n_adapted = 0;
 
     std::vector<bool>::iterator it;
     for(it = collection.begin(); it != collection.end(); ++it) {
         bool value = *it;
         if(1 == adaptor_->adapt(value, range, gr)) {
             *it = value;
-            nAdapted += 1;
+            n_adapted += 1;
         }
     }
 
-    return nAdapted;
+    return n_adapted;
 }
 
 /******************************************************************************/

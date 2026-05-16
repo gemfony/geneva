@@ -144,8 +144,8 @@ void GFileLogger::logWithSource(std::string const &msg, std::string const &exten
  * desired log type as an argument and stores the information for
  * later perusal.
  */
-GManipulator::GManipulator(std::string const &accompInfo, logType lt)
-  : accomp_info_(accompInfo)
+GManipulator::GManipulator(std::string const &accomp_info, logType lt)
+  : accomp_info_(accomp_info)
   , log_type_(lt) { /* nothing */
 }
 
@@ -198,8 +198,8 @@ GLogStreamer::GLogStreamer(std::string const &extension)
  * Initialization with the name and path of a file used for
  * one-time logging
  */
-GLogStreamer::GLogStreamer(std::filesystem::path logFile)
-  : log_file_(std::move(logFile)) { /* nothing */
+GLogStreamer::GLogStreamer(std::filesystem::path log_file)
+  : log_file_(std::move(log_file)) { /* nothing */
 }
 
 /******************************************************************************/

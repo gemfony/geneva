@@ -285,17 +285,18 @@ public:
     GContainerT() = default;
 
     /**
-     * @brief Constructs the container with @p nVal copies of @p val.
+     * @brief Constructs the container with @p n_val copies of @p val.
      *
      * Only participates in overload resolution when StoragePolicy is
      * PodStorage (i.e., StoredType == ValueType).
      *
-     * @param nVal The number of elements to create.
+     * @param n_val The number of elements to create.
      * @param val  The value assigned to every element.
      */
-    explicit GContainerT(size_type nVal, const StoredType &val)
+    explicit GContainerT(size_type n_val, const StoredType &val)
         requires std::same_as<StoredType, ValueType>
-      : data_cnt_(nVal, val) {}
+      : data_cnt_(n_val, val) {
+    }
 
     /**
      * @brief Copy constructor — performs a deep copy via the storage policy.
@@ -1045,8 +1046,8 @@ public:
         return Gem::Common::narrow_cast<size_type>(std::count_if(
             data_cnt_.begin(),
             data_cnt_.end(),
-            [&item](const StoredType &contItem) -> bool {
-                auto cast = std::dynamic_pointer_cast<ItemType>(contItem);
+            [&item](const StoredType &cont_item) -> bool {
+                auto cast = std::dynamic_pointer_cast<ItemType>(cont_item);
                 return cast && (*item == *cast);
             }
         ));
@@ -1075,8 +1076,8 @@ public:
         return std::find_if(
             data_cnt_.begin(),
             data_cnt_.end(),
-            [&item](const StoredType &contItem) -> bool {
-                auto cast = std::dynamic_pointer_cast<ItemType>(contItem);
+            [&item](const StoredType &cont_item) -> bool {
+                auto cast = std::dynamic_pointer_cast<ItemType>(cont_item);
                 return cast && (*item == *cast);
             }
         );
@@ -1087,48 +1088,48 @@ public:
     // ------------------------------------------------------------------
 
     /**
-     * @brief Appends a cloned copy of @p itemPtr to the container.
+     * @brief Appends a cloned copy of @p item_ptr to the container.
      *
      * Changes to the original object after this call do not affect the stored copy.
      *
-     * @param itemPtr A shared_ptr to the object to clone and append.
-     * @throws geneva_exception when @p itemPtr is null.
+     * @param item_ptr A shared_ptr to the object to clone and append.
+     * @throws geneva_exception when @p item_ptr is null.
      * @note Only available for SharedPtrStorage.
      */
-    void push_back_clone(const StoredType &itemPtr)
-        requires(!std::same_as<StoredType, ValueType>)
+    void push_back_clone(const StoredType &item_ptr)
+        requires (!std::same_as<StoredType, ValueType>)
     {
-        if(not itemPtr) {
+        if(not item_ptr) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GContainerT::push_back_clone(): "
                 << "Tried to clone an empty smart pointer." << '\n'
             );
         }
-        data_cnt_.push_back(itemPtr->ValueType::template clone<ValueType>());
+        data_cnt_.push_back(item_ptr->ValueType::template clone<ValueType>());
     }
 
     /**
-     * @brief Appends @p itemPtr itself (shared ownership) to the container.
+     * @brief Appends @p item_ptr itself (shared ownership) to the container.
      *
      * Changes to the original object after this call will also be visible
      * through the stored pointer.
      *
-     * @param itemPtr A shared_ptr to the object to append.
-     * @throws geneva_exception when @p itemPtr is null.
+     * @param item_ptr A shared_ptr to the object to append.
+     * @throws geneva_exception when @p item_ptr is null.
      * @note Only available for SharedPtrStorage.
      */
-    void push_back_noclone(StoredType itemPtr)
-        requires(!std::same_as<StoredType, ValueType>)
+    void push_back_noclone(StoredType item_ptr)
+        requires (!std::same_as<StoredType, ValueType>)
     {
-        if(not itemPtr) {
+        if(not item_ptr) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GContainerT::push_back_noclone(): "
                 << "Tried to insert an empty smart pointer." << '\n'
             );
         }
-        data_cnt_.push_back(std::move(itemPtr));
+        data_cnt_.push_back(std::move(item_ptr));
     }
 
     // ------------------------------------------------------------------
@@ -1136,40 +1137,40 @@ public:
     // ------------------------------------------------------------------
 
     /**
-     * @brief Inserts a cloned copy of @p itemPtr before @p pos.
+     * @brief Inserts a cloned copy of @p item_ptr before @p pos.
      *
      * @param pos     An iterator pointing to the insertion position.
-     * @param itemPtr The object to clone and insert.
+     * @param item_ptr The object to clone and insert.
      * @return An iterator to the inserted element.
-     * @throws geneva_exception when @p itemPtr is null.
+     * @throws geneva_exception when @p item_ptr is null.
      * @note Only available for SharedPtrStorage.
      */
-    iterator insert_clone(const_iterator pos, const StoredType &itemPtr)
-        requires(!std::same_as<StoredType, ValueType>)
+    iterator insert_clone(const_iterator pos, const StoredType &item_ptr)
+        requires (!std::same_as<StoredType, ValueType>)
     {
-        if(not itemPtr) {
+        if(not item_ptr) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GContainerT::insert_clone(): "
                 << "Tried to clone an empty smart pointer." << '\n'
             );
         }
-        return data_cnt_.insert(pos, itemPtr->ValueType::template clone<ValueType>());
+        return data_cnt_.insert(pos, item_ptr->ValueType::template clone<ValueType>());
     }
 
     /**
-     * @brief Inserts @p count cloned copies of @p itemPtr before @p pos.
+     * @brief Inserts @p count cloned copies of @p item_ptr before @p pos.
      *
      * @param pos     An iterator pointing to the insertion position.
      * @param count   The number of clones to insert.
-     * @param itemPtr The object to clone and insert.
-     * @throws geneva_exception when @p itemPtr is null.
+     * @param item_ptr The object to clone and insert.
+     * @throws geneva_exception when @p item_ptr is null.
      * @note Only available for SharedPtrStorage.
      */
-    void insert_clone(const_iterator pos, size_type count, const StoredType &itemPtr)
-        requires(!std::same_as<StoredType, ValueType>)
+    void insert_clone(const_iterator pos, size_type count, const StoredType &item_ptr)
+        requires (!std::same_as<StoredType, ValueType>)
     {
-        if(not itemPtr) {
+        if(not item_ptr) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GContainerT::insert_clone(count): "
@@ -1185,7 +1186,7 @@ public:
         std::vector<StoredType> clones;
         clones.reserve(count);
         for(std::size_t i = 0; i < count; ++i) {
-            clones.push_back(itemPtr->ValueType::template clone<ValueType>());
+            clones.push_back(item_ptr->ValueType::template clone<ValueType>());
         }
         data_cnt_.insert(
             pos,
@@ -1195,44 +1196,44 @@ public:
     }
 
     /**
-     * @brief Inserts @p itemPtr itself (shared ownership) before @p pos.
+     * @brief Inserts @p item_ptr itself (shared ownership) before @p pos.
      *
      * @param pos     An iterator pointing to the insertion position.
-     * @param itemPtr The object to insert (not cloned).
+     * @param item_ptr The object to insert (not cloned).
      * @return An iterator to the inserted element.
-     * @throws geneva_exception when @p itemPtr is null.
+     * @throws geneva_exception when @p item_ptr is null.
      * @note Only available for SharedPtrStorage.
      */
-    iterator insert_noclone(const_iterator pos, StoredType itemPtr)
-        requires(!std::same_as<StoredType, ValueType>)
+    iterator insert_noclone(const_iterator pos, StoredType item_ptr)
+        requires (!std::same_as<StoredType, ValueType>)
     {
-        if(not itemPtr) {
+        if(not item_ptr) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GContainerT::insert_noclone(): "
                 << "Tried to insert an empty smart pointer." << '\n'
             );
         }
-        return data_cnt_.insert(pos, std::move(itemPtr));
+        return data_cnt_.insert(pos, std::move(item_ptr));
     }
 
     /**
-     * @brief Inserts @p count references to @p itemPtr (clones all but the last)
+     * @brief Inserts @p count references to @p item_ptr (clones all but the last)
      *        before @p pos.
      *
-     * Inserts (count-1) clones followed by @p itemPtr itself. This matches the
+     * Inserts (count-1) clones followed by @p item_ptr itself. This matches the
      * semantics of GPtrVectorT::insert_noclone(pos, amount, item).
      *
      * @param pos     An iterator pointing to the insertion position.
      * @param count   The number of elements to insert.
-     * @param itemPtr The object to insert.
-     * @throws geneva_exception when @p itemPtr is null.
+     * @param item_ptr The object to insert.
+     * @throws geneva_exception when @p item_ptr is null.
      * @note Only available for SharedPtrStorage.
      */
-    void insert_noclone(const_iterator pos, size_type count, StoredType itemPtr)
-        requires(!std::same_as<StoredType, ValueType>)
+    void insert_noclone(const_iterator pos, size_type count, StoredType item_ptr)
+        requires (!std::same_as<StoredType, ValueType>)
     {
-        if(not itemPtr) {
+        if(not item_ptr) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GContainerT::insert_noclone(count): "
@@ -1242,13 +1243,13 @@ public:
         // Guard against unsigned underflow of `count - 1` below when count == 0.
         if(count == 0) return;
 
-        // Pre-build the inserted range: the original itemPtr first, followed by
+        // Pre-build the inserted range: the original item_ptr first, followed by
         // (count-1) independent clones. The single range insert that follows
-        // preserves the existing test contract that the original itemPtr ends up
+        // preserves the existing test contract that the original item_ptr ends up
         // at exactly `pos` (see GTestIndividual1 "Test insert_clone, insert_noclone").
         std::vector<StoredType> to_insert;
         to_insert.reserve(count);
-        to_insert.push_back(std::move(itemPtr));
+        to_insert.push_back(std::move(item_ptr));
         for(std::size_t i = 0; i < count - 1; ++i) {
             to_insert.push_back(to_insert.front()->ValueType::template clone<ValueType>());
         }
@@ -1264,25 +1265,25 @@ public:
     // ------------------------------------------------------------------
 
     /**
-     * @brief Resizes the container, filling new slots with clones of @p itemPtr.
+     * @brief Resizes the container, filling new slots with clones of @p item_ptr.
      *
      * If the container shrinks, excess elements are removed. If it grows,
-     * clones of @p itemPtr are appended.
+     * clones of @p item_ptr are appended.
      *
      * @param amount  The desired number of elements.
-     * @param itemPtr The prototype object used to fill new slots.
-     * @throws geneva_exception when growing and @p itemPtr is null.
+     * @param item_ptr The prototype object used to fill new slots.
+     * @throws geneva_exception when growing and @p item_ptr is null.
      * @note Only available for SharedPtrStorage.
      */
-    void resize_clone(size_type amount, StoredType itemPtr)
-        requires(!std::same_as<StoredType, ValueType>)
+    void resize_clone(size_type amount, StoredType item_ptr)
+        requires (!std::same_as<StoredType, ValueType>)
     {
-        std::size_t dataSize = data_cnt_.size();
-        if(amount < dataSize) {
+        std::size_t data_size = data_cnt_.size();
+        if(amount < data_size) {
             data_cnt_.resize(amount);
         }
-        else if(amount > dataSize) {
-            if(not itemPtr) {
+        else if(amount > data_size) {
+            if(not item_ptr) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
                     << "In GContainerT::resize_clone(): "
@@ -1290,30 +1291,30 @@ public:
                 );
             }
             data_cnt_.reserve(amount);
-            for(std::size_t i = dataSize; i < amount; ++i) {
-                data_cnt_.push_back(itemPtr->ValueType::template clone<ValueType>());
+            for(std::size_t i = data_size; i < amount; ++i) {
+                data_cnt_.push_back(item_ptr->ValueType::template clone<ValueType>());
             }
         }
     }
 
     /**
-     * @brief Resizes the container; the last new slot gets @p itemPtr itself,
+     * @brief Resizes the container; the last new slot gets @p item_ptr itself,
      *        all others get clones.
      *
      * @param amount  The desired number of elements.
-     * @param itemPtr The prototype object used to fill new slots.
-     * @throws geneva_exception when growing and @p itemPtr is null.
+     * @param item_ptr The prototype object used to fill new slots.
+     * @throws geneva_exception when growing and @p item_ptr is null.
      * @note Only available for SharedPtrStorage.
      */
-    void resize_noclone(size_type amount, StoredType itemPtr)
-        requires(!std::same_as<StoredType, ValueType>)
+    void resize_noclone(size_type amount, StoredType item_ptr)
+        requires (!std::same_as<StoredType, ValueType>)
     {
-        std::size_t dataSize = data_cnt_.size();
-        if(amount < dataSize) {
+        std::size_t data_size = data_cnt_.size();
+        if(amount < data_size) {
             data_cnt_.resize(amount);
         }
-        else if(amount > dataSize) {
-            if(not itemPtr) {
+        else if(amount > data_size) {
+            if(not item_ptr) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
                     << "In GContainerT::resize_noclone(): "
@@ -1321,10 +1322,10 @@ public:
                 );
             }
             data_cnt_.reserve(amount);
-            for(std::size_t i = dataSize; i < amount - 1; ++i) {
-                data_cnt_.push_back(itemPtr->ValueType::template clone<ValueType>());
+            for(std::size_t i = data_size; i < amount - 1; ++i) {
+                data_cnt_.push_back(item_ptr->ValueType::template clone<ValueType>());
             }
-            data_cnt_.push_back(std::move(itemPtr));
+            data_cnt_.push_back(std::move(item_ptr));
         }
     }
 
@@ -1339,12 +1340,12 @@ public:
     void resize_empty(size_type amount)
         requires(!std::same_as<StoredType, ValueType>)
     {
-        std::size_t dataSize = data_cnt_.size();
-        if(amount < dataSize) {
+        std::size_t data_size = data_cnt_.size();
+        if(amount < data_size) {
             data_cnt_.resize(amount);
         }
         else {
-            for(std::size_t i = dataSize; i < amount; ++i) {
+            for(std::size_t i = data_size; i < amount; ++i) {
                 data_cnt_.push_back(StoredType{});
             }
         }
@@ -1385,8 +1386,8 @@ public:
     void attachViewTo(std::vector<std::shared_ptr<DerivedType>> &target)
         requires(!std::same_as<StoredType, ValueType>)
     {
-        for(auto &itemPtr : data_cnt_) {
-            std::shared_ptr<DerivedType> cast = std::dynamic_pointer_cast<DerivedType>(itemPtr);
+        for(auto &item_ptr : data_cnt_) {
+            std::shared_ptr<DerivedType> cast = std::dynamic_pointer_cast<DerivedType>(item_ptr);
             if(cast) {
                 target.push_back(std::move(cast));
             }
@@ -1493,10 +1494,10 @@ public:
     void crossOver(GContainerT &cp, const std::size_t &pos)
         requires HasRandomAccess<ContainerType>
     {
-        std::size_t minSize = std::min(this->size(), cp.size());
+        std::size_t min_size = std::min(this->size(), cp.size());
 
 #ifdef DEBUG
-        if(pos >= minSize) {
+        if(pos >= min_size) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GContainerT::crossOver(): Error!" << '\n'
@@ -1506,7 +1507,7 @@ public:
         }
 #endif /* DEBUG */
 
-        for(std::size_t i = pos; i < minSize; ++i) {
+        for(std::size_t i = pos; i < min_size; ++i) {
             std::swap(data_cnt_[i], cp.data_cnt_[i]);
         }
 
@@ -1514,14 +1515,18 @@ public:
             for(std::size_t i = cp.size(); i < this->size(); ++i) {
                 cp.data_cnt_.push_back(std::move(data_cnt_[i]));
             }
-            data_cnt_.erase(data_cnt_.begin() + static_cast<difference_type>(minSize), data_cnt_.end());
+            data_cnt_.erase(
+                data_cnt_.begin() + static_cast<difference_type>(min_size),
+                data_cnt_.end()
+            );
         }
         else if(cp.size() > this->size()) {
             for(std::size_t i = this->size(); i < cp.size(); ++i) {
                 data_cnt_.push_back(std::move(cp.data_cnt_[i]));
             }
             cp.data_cnt_.erase(
-                cp.data_cnt_.begin() + static_cast<difference_type>(minSize), cp.data_cnt_.end()
+                cp.data_cnt_.begin() + static_cast<difference_type>(min_size),
+                cp.data_cnt_.end()
             );
         }
     }

@@ -361,7 +361,7 @@ void GParameterSet::setMaxMode(maxMode const &mode) {
      * This is e.g. used in GExternalEvaluatorIndividual for the communication with external
      * evaluation programs.
      */
-void GParameterSet::toPropertyTree(pt::ptree &ptr, std::string const &baseName) const {
+void GParameterSet::toPropertyTree(pt::ptree &ptr, std::string const &base_name) const {
 #ifdef DEBUG
     // Check if the object is empty. If so, complain
     if(this->empty()) {
@@ -373,23 +373,23 @@ void GParameterSet::toPropertyTree(pt::ptree &ptr, std::string const &baseName) 
     }
 #endif
 
-    bool dirtyFlag = (Gem::Courtier::processingStatus::DO_PROCESS == this->getProcessingStatus());
-    bool hasErrors = this->has_errors();
+    bool dirty_flag = (Gem::Courtier::processingStatus::DO_PROCESS == this->getProcessingStatus());
+    bool has_errors = this->has_errors();
 
-    double rawFitness = 0., transformedFitness = 0.;
+    double raw_fitness = 0., transformed_fitness = 0.;
 
-    ptr.put(baseName + ".iteration", this->getAssignedIteration());
-    ptr.put(baseName + ".isDirty", dirtyFlag);
-    ptr.put(baseName + ".hasErrors", hasErrors);
-    ptr.put(baseName + ".isValid", hasErrors || dirtyFlag ? false : this->isValid());
-    ptr.put(baseName + ".type", std::string("GParameterSet"));
+    ptr.put(base_name + ".iteration", this->getAssignedIteration());
+    ptr.put(base_name + ".is_dirty", dirty_flag);
+    ptr.put(base_name + ".has_errors", has_errors);
+    ptr.put(base_name + ".isValid", has_errors || dirty_flag ? false : this->isValid());
+    ptr.put(base_name + ".type", std::string("GParameterSet"));
 
     // Loop over all parameter objects and ask them to add their data to our ptree object
-    ptr.put(baseName + ".nVars", this->size());
+    ptr.put(base_name + ".nVars", this->size());
     std::string base; // NOLINT(cppcoreguidelines-init-variables)
     std::size_t pos = 0;
     for(const auto &item_ptr : *this) {
-        base = baseName + ".vars.var" + Gem::Common::to_string(pos);
+        base = base_name + ".vars.var" + Gem::Common::to_string(pos);
         item_ptr->toPropertyTree(ptr, base);
         pos++;
     }
@@ -397,31 +397,31 @@ void GParameterSet::toPropertyTree(pt::ptree &ptr, std::string const &baseName) 
     // Output the transformation policy
     switch(this->getEvaluationPolicy()) {
     case evaluationPolicy::USESIMPLEEVALUATION:
-        ptr.put(baseName + ".transformationPolicy", "USESIMPLEEVALUATION");
+        ptr.put(base_name + ".transformationPolicy", "USESIMPLEEVALUATION");
         break;
 
     case evaluationPolicy::USESIGMOID:
-        ptr.put(baseName + ".transformationPolicy", "USESIGMOID");
+        ptr.put(base_name + ".transformationPolicy", "USESIGMOID");
         break;
 
     case evaluationPolicy::USEWORSTCASEFORINVALID:
-        ptr.put(baseName + ".transformationPolicy", "USEWORSTCASEFORINVALID");
+        ptr.put(base_name + ".transformationPolicy", "USEWORSTCASEFORINVALID");
         break;
     }
 
     // Output all fitness criteria. We do not enforce re-calculation of the fitness here,
     // as the property is meant to capture the current state of the individual.
-    // Check the "isDirty" tag, if you need to know whether the results are current.
-    ptr.put(baseName + ".nResults", this->getNStoredResults());
+    // Check the "is_dirty" tag, if you need to know whether the results are current.
+    ptr.put(base_name + ".n_results", this->getNStoredResults());
     for(std::size_t i = 0; i < this->getNStoredResults(); i++) {
-        rawFitness = (dirtyFlag || hasErrors) ? this->getWorstCase() : this->raw_fitness(i);
-        transformedFitness =
-            (dirtyFlag || hasErrors) ? this->getWorstCase() : this->transformed_fitness(i);
+        raw_fitness = (dirty_flag || has_errors) ? this->getWorstCase() : this->raw_fitness(i);
+        transformed_fitness =
+            (dirty_flag || has_errors) ? this->getWorstCase() : this->transformed_fitness(i);
 
-        base = baseName + ".results.result" + Gem::Common::to_string(i);
-        ptr.put(base, transformedFitness);
-        base = baseName + ".results.rawResult" + Gem::Common::to_string(i);
-        ptr.put(base, rawFitness);
+        base = base_name + ".results.result" + Gem::Common::to_string(i);
+        ptr.put(base, transformed_fitness);
+        base = base_name + ".results.rawResult" + Gem::Common::to_string(i);
+        ptr.put(base, raw_fitness);
     }
 }
 
@@ -430,141 +430,141 @@ void GParameterSet::toPropertyTree(pt::ptree &ptr, std::string const &baseName) 
      * Transformation of the individual's parameter objects into a list of
      * comma-separated values and fitness plus possibly the validity
      *
-     * @param  withNameAndType Indicates whether a list of names and types should be prepended
-     * @param  withCommas Indicates, whether commas should be printed
-     * @param  useRawFitness Indicates, whether the true fitness instead of the transformed fitness should be returned
+     * @param  with_name_and_type Indicates whether a list of names and types should be prepended
+     * @param  with_commas Indicates, whether commas should be printed
+     * @param  use_raw_fitness Indicates, whether the true fitness instead of the transformed fitness should be returned
      * @return A string holding the parameter values and possibly the types
      */
 std::string GParameterSet::toCSV(
-    bool withNameAndType,
-    bool withCommas,
-    bool useRawFitness,
-    bool showValidity
+    bool with_name_and_type,
+    bool with_commas,
+    bool use_raw_fitness,
+    bool show_validity
 ) const {
-    std::map<std::string, std::vector<double>> dData;
-    std::map<std::string, std::vector<float>> fData;
-    std::map<std::string, std::vector<std::int32_t>> iData;
-    std::map<std::string, std::vector<bool>> bData;
+    std::map<std::string, std::vector<double>> d_data;
+    std::map<std::string, std::vector<float>> f_data;
+    std::map<std::string, std::vector<std::int32_t>> i_data;
+    std::map<std::string, std::vector<bool>> b_data;
 
     // Retrieve the parameter maps
-    this->streamline<double>(dData);
-    this->streamline<float>(fData);
-    this->streamline<std::int32_t>(iData);
-    this->streamline<bool>(bData);
+    this->streamline<double>(d_data);
+    this->streamline<float>(f_data);
+    this->streamline<std::int32_t>(i_data);
+    this->streamline<bool>(b_data);
 
-    std::vector<std::string> varNames;
-    std::vector<std::string> varTypes;
-    std::vector<std::string> varValues;
+    std::vector<std::string> var_names;
+    std::vector<std::string> var_types;
+    std::vector<std::string> var_values;
 
     // Extract the data
-    for(auto const &item : dData) {
+    for(auto const &item : d_data) {
         for(std::size_t pos = 0; pos < (item.second).size(); pos++) {
-            if(withNameAndType) {
-                varNames.push_back(item.first + "_" + Gem::Common::to_string(pos));
-                varTypes.emplace_back("double");
+            if(with_name_and_type) {
+                var_names.push_back(item.first + "_" + Gem::Common::to_string(pos));
+                var_types.emplace_back("double");
             }
-            varValues.push_back(Gem::Common::to_string((item.second).at(pos)));
+            var_values.push_back(Gem::Common::to_string((item.second).at(pos)));
         }
     }
 
-    for(auto const &item : fData) {
+    for(auto const &item : f_data) {
         for(std::size_t pos = 0; pos < (item.second).size(); pos++) {
-            if(withNameAndType) {
-                varNames.push_back(item.first + "_" + Gem::Common::to_string(pos));
-                varTypes.emplace_back("float");
+            if(with_name_and_type) {
+                var_names.push_back(item.first + "_" + Gem::Common::to_string(pos));
+                var_types.emplace_back("float");
             }
-            varValues.push_back(Gem::Common::to_string((item.second).at(pos)));
+            var_values.push_back(Gem::Common::to_string((item.second).at(pos)));
         }
     }
 
-    for(auto const &item : iData) {
+    for(auto const &item : i_data) {
         for(std::size_t pos = 0; pos < (item.second).size(); pos++) {
-            if(withNameAndType) {
-                varNames.push_back(item.first + "_" + Gem::Common::to_string(pos));
-                varTypes.emplace_back("int32");
+            if(with_name_and_type) {
+                var_names.push_back(item.first + "_" + Gem::Common::to_string(pos));
+                var_types.emplace_back("int32");
             }
-            varValues.push_back(Gem::Common::to_string((item.second).at(pos)));
+            var_values.push_back(Gem::Common::to_string((item.second).at(pos)));
         }
     }
 
-    for(auto const &item : bData) {
+    for(auto const &item : b_data) {
         for(std::size_t pos = 0; pos < (item.second).size(); pos++) {
-            if(withNameAndType) {
-                varNames.push_back(item.first + "_" + Gem::Common::to_string(pos));
-                varTypes.emplace_back("bool");
+            if(with_name_and_type) {
+                var_names.push_back(item.first + "_" + Gem::Common::to_string(pos));
+                var_types.emplace_back("bool");
             }
-            varValues.push_back(Gem::Common::to_string((item.second).at(pos)));
+            var_values.push_back(Gem::Common::to_string((item.second).at(pos)));
         }
     }
 
     // Note: The following will output the string "dirty" if the individual is in a "dirty" state
     for(std::size_t i = 0; i < this->getNStoredResults(); i++) {
-        if(withNameAndType) {
-            varNames.push_back(std::string("Fitness_") + Gem::Common::to_string(i));
-            varTypes.emplace_back("double");
+        if(with_name_and_type) {
+            var_names.push_back(std::string("Fitness_") + Gem::Common::to_string(i));
+            var_types.emplace_back("double");
         }
         if(this->is_processed()) {
             // The individual has already been evaluated
-            if(useRawFitness) {
-                varValues.push_back(Gem::Common::to_string(this->raw_fitness(i)));
+            if(use_raw_fitness) {
+                var_values.push_back(Gem::Common::to_string(this->raw_fitness(i)));
             }
             else {
                 // Output potentially transformed fitness
-                varValues.push_back(Gem::Common::to_string(this->transformed_fitness(i)));
+                var_values.push_back(Gem::Common::to_string(this->transformed_fitness(i)));
             }
         }
         else {
             // No evaluation was performed so far
             if(this->has_errors()) {
-                varValues.emplace_back("has_errors");
+                var_values.emplace_back("has_errors");
             }
             else {
                 // "only" dirty / unevaluated
-                varValues.emplace_back("dirty");
+                var_values.emplace_back("dirty");
             }
         }
     }
 
-    if(showValidity) {
-        if(withNameAndType) {
-            varNames.emplace_back("validity");
-            varTypes.emplace_back("bool");
+    if(show_validity) {
+        if(with_name_and_type) {
+            var_names.emplace_back("validity");
+            var_types.emplace_back("bool");
         }
 
         if(this->is_processed()) {
             // The individual has already been evaluated
-            varValues.push_back(Gem::Common::to_string(this->isValid()));
+            var_values.push_back(Gem::Common::to_string(this->isValid()));
         }
         else {
-            varValues.push_back(Gem::Common::to_string(false));
+            var_values.push_back(Gem::Common::to_string(false));
         }
     }
 
     // Transfer the data into the result string
     std::ostringstream result; // NOLINT(cppcoreguidelines-init-variables)
     std::vector<std::string>::const_iterator s_it;
-    if(withNameAndType) {
-        for(s_it = varNames.begin(); s_it != varNames.end(); ++s_it) {
+    if(with_name_and_type) {
+        for(s_it = var_names.begin(); s_it != var_names.end(); ++s_it) {
             result << *s_it;
-            if(s_it + 1 != varNames.end()) {
-                result << (withCommas ? ",\t" : "\t");
+            if(s_it + 1 != var_names.end()) {
+                result << (with_commas ? ",\t" : "\t");
             }
         }
         result << '\n';
 
-        for(s_it = varTypes.begin(); s_it != varTypes.end(); ++s_it) {
+        for(s_it = var_types.begin(); s_it != var_types.end(); ++s_it) {
             result << *s_it;
-            if(s_it + 1 != varTypes.end()) {
-                result << (withCommas ? ",\t" : "\t");
+            if(s_it + 1 != var_types.end()) {
+                result << (with_commas ? ",\t" : "\t");
             }
         }
         result << '\n';
     }
 
-    for(s_it = varValues.begin(); s_it != varValues.end(); ++s_it) {
+    for(s_it = var_values.begin(); s_it != var_values.end(); ++s_it) {
         result << *s_it;
-        if(s_it + 1 != varValues.end()) {
-            result << (withCommas ? ",\t" : "\t");
+        if(s_it + 1 != var_values.end()) {
+            result << (with_commas ? ",\t" : "\t");
         }
     }
     result << '\n';
@@ -777,9 +777,9 @@ GParameterSet::crossOverWith(std::shared_ptr<GParameterSet> const &cp) const {
 /**
      * Triggers updates of adaptors contained in this object.
      */
-void GParameterSet::updateAdaptorsOnStall(const std::uint32_t nStalls) {
+void GParameterSet::updateAdaptorsOnStall(const std::uint32_t n_stalls) {
     for(auto const &item_ptr : *this) {
-        item_ptr->updateAdaptorsOnStall(nStalls);
+        item_ptr->updateAdaptorsOnStall(n_stalls);
     }
 }
 
@@ -792,12 +792,12 @@ void GParameterSet::updateAdaptorsOnStall(const std::uint32_t nStalls) {
      * @param data A vector, to which the properties should be added
      */
 void GParameterSet::queryAdaptor(
-    std::string const &adaptorName,
+    std::string const &adaptor_name,
     std::string const &property,
     std::vector<std::any> &data
 ) const {
     for(const auto &item_ptr : *this) {
-        item_ptr->queryAdaptor(adaptorName, property, data);
+        item_ptr->queryAdaptor(adaptor_name, property, data);
     }
 }
 
@@ -842,10 +842,10 @@ void GParameterSet::cannibalize(GParameterSet &cp) {
      * until actual changes were done to the object AND a valid parameter set was found.
      */
 std::size_t GParameterSet::adapt() {
-    std::size_t nAdaptionAttempts = 0;
-    std::size_t nAdaptions = 0;
+    std::size_t n_adaption_attempts = 0;
+    std::size_t n_adaptions = 0;
     // This is a measure of the "effective" adaption probability
-    std::size_t nInvalidAdaptions = 0;
+    std::size_t n_invalid_adaptions = 0;
     double validity = 0;
 
     // Perform adaptions until a valid solution was find. In the context
@@ -861,7 +861,7 @@ std::size_t GParameterSet::adapt() {
         while(true) {
             // Try again if no adaption has taken place
             // Perform the actual adaption; Terminate, if at least one adaption was performed
-            if((nAdaptions = this->customAdaptions()) >
+            if((n_adaptions = this->customAdaptions()) >
                0) // NOLINT(bugprone-assignment-in-if-condition)
             {
                 break;
@@ -869,24 +869,24 @@ std::size_t GParameterSet::adapt() {
 
             // Terminate, if the maximum number of adaptions has been exceeded
             if(max_unsuccessful_adaptions_ > 0 &&
-               ++nAdaptionAttempts > max_unsuccessful_adaptions_) {
+               ++n_adaption_attempts > max_unsuccessful_adaptions_) {
                 break;
             }
         }
 
         if(this->parameterSetFulfillsConstraints(validity) ||
-           ++nInvalidAdaptions > max_retries_until_valid_) {
+           ++n_invalid_adaptions > max_retries_until_valid_) {
             break;
         }
     }
 
     // Make sure the individual is re-evaluated when fitness(...) is called next time
-    if(nAdaptions > 0) {
+    if(n_adaptions > 0) {
         this->mark_as_due_for_processing();
     }
 
     // Store the number of adaptions for later use and let the audience know
-    return (n_adaptions_ = nAdaptions);
+    return (n_adaptions_ = n_adaptions);
 }
 
 /* ----------------------------------------------------------------------------------
@@ -915,14 +915,14 @@ double GParameterSet::transformed_fitness_(const std::size_t id) const {
      * Returns all raw fitness results in a std::vector
      */
 std::vector<double> GParameterSet::raw_fitness_vec_() const {
-    std::size_t nFitnessCriteria = this->getNStoredResults();
-    std::vector<double> resultVec;
+    std::size_t n_fitness_criteria = this->getNStoredResults();
+    std::vector<double> result_vec;
 
-    for(std::size_t i = 0; i < nFitnessCriteria; i++) {
-        resultVec.push_back(this->raw_fitness(i));
+    for(std::size_t i = 0; i < n_fitness_criteria; i++) {
+        result_vec.push_back(this->raw_fitness(i));
     }
 
-    return resultVec;
+    return result_vec;
 }
 
 /******************************************************************************/
@@ -930,14 +930,14 @@ std::vector<double> GParameterSet::raw_fitness_vec_() const {
      * Returns all transformed fitness results in a std::vector
      */
 std::vector<double> GParameterSet::transformed_fitness_vec_() const {
-    std::size_t nFitnessCriteria = this->getNStoredResults();
-    std::vector<double> resultVec;
+    std::size_t n_fitness_criteria = this->getNStoredResults();
+    std::vector<double> result_vec;
 
-    for(std::size_t i = 0; i < nFitnessCriteria; i++) {
-        resultVec.push_back(this->transformed_fitness(i));
+    for(std::size_t i = 0; i < n_fitness_criteria; i++) {
+        result_vec.push_back(this->transformed_fitness(i));
     }
 
-    return resultVec;
+    return result_vec;
 }
 
 /******************************************************************************/
@@ -1083,8 +1083,8 @@ void GParameterSet::setBarrier(const double barrier) {
      * do this if you are sure that an adaption will eventually happen. Otherwise
      * you would get an endless loop.
      */
-void GParameterSet::setMaxUnsuccessfulAdaptions(const std::size_t maxUnsuccessfulAdaptions) {
-    max_unsuccessful_adaptions_ = maxUnsuccessfulAdaptions;
+void GParameterSet::setMaxUnsuccessfulAdaptions(const std::size_t max_unsuccessful_adaptions) {
+    max_unsuccessful_adaptions_ = max_unsuccessful_adaptions;
 }
 
 /******************************************************************************/
@@ -1101,8 +1101,8 @@ std::size_t GParameterSet::getMaxUnsuccessfulAdaptions() const {
      * Allows to set the maximum number of retries during the adaption of individuals
      * until a valid individual was found. Setting this value to 0 will disable retries.
      */
-void GParameterSet::setMaxRetriesUntilValid(const std::size_t maxRetriesUntilValid) {
-    max_retries_until_valid_ = maxRetriesUntilValid;
+void GParameterSet::setMaxRetriesUntilValid(const std::size_t max_retries_until_valid) {
+    max_retries_until_valid_ = max_retries_until_valid;
 }
 
 /******************************************************************************/
@@ -1127,10 +1127,10 @@ std::size_t GParameterSet::getNAdaptions() const {
 /**
      * Allows to set the current iteration of the parent optimization algorithm.
      *
-     * @param parentAlgIteration The current iteration of the optimization algorithm
+     * @param parent_alg_iteration The current iteration of the optimization algorithm
      */
-void GParameterSet::setAssignedIteration(std::uint32_t const &parentAlgIteration) {
-    assigned_iteration_ = parentAlgIteration;
+void GParameterSet::setAssignedIteration(std::uint32_t const &parent_alg_iteration) {
+    assigned_iteration_ = parent_alg_iteration;
 }
 
 /* ----------------------------------------------------------------------------------
@@ -1157,10 +1157,10 @@ std::uint32_t GParameterSet::getAssignedIteration() const {
 /**
      * Allows to specify the number of optimization cycles without improvement of the primary fitness criterion
      *
-     * @param nStalls The number of optimization cycles without improvement in the parent algorithm
+     * @param n_stalls The number of optimization cycles without improvement in the parent algorithm
      */
-void GParameterSet::setNStalls(std::uint32_t const &nStalls) {
-    n_stalls_ = nStalls;
+void GParameterSet::setNStalls(std::uint32_t const &n_stalls) {
+    n_stalls_ = n_stalls;
 }
 
 /* ----------------------------------------------------------------------------------
@@ -1215,13 +1215,13 @@ std::tuple<bool, double> GParameterSet::getRandomCrash() const {
 /**
      * Allows to enable random crashs of individuals for testing purposes
      */
-void GParameterSet::setRandomCrash(const bool useRandomCrash, const double crashProb) {
+void GParameterSet::setRandomCrash(const bool use_random_crash, const double crash_prob) {
     // Check that the crash probability is in the allowed value range
-    Gem::Common::checkRangeCompliance(crashProb, 0., 1., "GParameterSet::setRandomCrash()");
+    Gem::Common::checkRangeCompliance(crash_prob, 0., 1., "GParameterSet::setRandomCrash()");
 
     // Set the value as demanded
-    useRandomCrash_ = useRandomCrash;
-    randomCrashProb_ = crashProb;
+    useRandomCrash_ = use_random_crash;
+    randomCrashProb_ = crash_prob;
 }
 
 /******************************************************************************/
@@ -1323,7 +1323,7 @@ void GParameterSet::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
 
     // Add local data
     gpb.registerFileParameter<evaluationPolicy>(
-        "evalPolicy" // The name of the variable
+        "eval_policy" // The name of the variable
         ,
         Gem::Geneva::evaluationPolicy::USESIMPLEEVALUATION
         // The default value
@@ -1365,7 +1365,7 @@ void GParameterSet::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
       << "The parameter must have a value > 0.;";
 
     gpb.registerFileParameter<std::size_t>(
-        "maxUnsuccessfulAdaptions" // The name of the variable
+        "max_unsuccessful_adaptions" // The name of the variable
         ,
         DEFMAXUNSUCCESSFULADAPTIONS // The default value
         ,
@@ -1373,7 +1373,7 @@ void GParameterSet::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
     ) << "The maximum number of unsuccessful adaptions in a row for one call to adapt()";
 
     gpb.registerFileParameter<std::size_t>(
-        "maxRetriesUntilValid" // The name of the variable
+        "max_retries_until_valid" // The name of the variable
         ,
         DEFMAXRETRIESUNTILVALID // The default value
         ,
@@ -1396,7 +1396,7 @@ void GParameterSet::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
       << "Note that minimization is the by far most common option.";
 
     gpb.registerFileParameter<bool, double>(
-        "useRandomCrash" // The name of the variable
+        "use_random_crash" // The name of the variable
         ,
         "randomCrashProb",
         GPS_DEF_USE_RANDOMCRASH // The default value
@@ -1465,8 +1465,8 @@ void GParameterSet::registerConstraint(
 /**
      * Allows to set the policy to use in case this individual represents an invalid solution
      */
-void GParameterSet::setEvaluationPolicy(const evaluationPolicy evalPolicy) {
-    eval_policy_ = evalPolicy;
+void GParameterSet::setEvaluationPolicy(const evaluationPolicy eval_policy) {
+    eval_policy_ = eval_policy;
 }
 
 /******************************************************************************/
@@ -1631,9 +1631,9 @@ void GParameterSet::process_(const std::vector<parameterset_processing_result> &
                 if(evaluationPolicy::USESIGMOID == eval_policy_) {
                     // Update the fitness value to use sigmoidal values
                     this->modifyStoredResult(i).setTransformedFitnessWith(
-                        [this](const double rawValue) {
+                        [this](const double raw_value) {
                             return Gem::Common::grational_sigmoid(
-                                rawValue,
+                                raw_value,
                                 this->sigmoid_extremes_,
                                 this->sigmoid_steepness_
                             );
@@ -1653,27 +1653,27 @@ void GParameterSet::process_(const std::vector<parameterset_processing_result> &
             this->setAllFitnessTo(this->getWorstCase());
         }
         else if(evaluationPolicy::USESIGMOID == eval_policy_) {
-            double uniformFitnessValue = 0.;
+            double uniform_fitness_value = 0.;
             if(maxMode::MAXIMIZE == this->getMaxMode()) {
                 // maximize
                 if(std::numeric_limits<double>::max() == validity_level_) {
-                    uniformFitnessValue = this->getWorstCase();
+                    uniform_fitness_value = this->getWorstCase();
                 }
                 else {
-                    uniformFitnessValue = -validity_level_ * sigmoid_extremes_;
+                    uniform_fitness_value = -validity_level_ * sigmoid_extremes_;
                 }
             }
             else {
                 // minimize
                 if(std::numeric_limits<double>::max() == validity_level_) {
-                    uniformFitnessValue = this->getWorstCase();
+                    uniform_fitness_value = this->getWorstCase();
                 }
                 else {
-                    uniformFitnessValue = validity_level_ * sigmoid_extremes_;
+                    uniform_fitness_value = validity_level_ * sigmoid_extremes_;
                 }
             }
 
-            this->setAllFitnessTo(this->getWorstCase(), uniformFitnessValue);
+            this->setAllFitnessTo(this->getWorstCase(), uniform_fitness_value);
         }
     }
 }
@@ -1751,12 +1751,12 @@ bool GParameterSet::randomInit_(activityMode const &am) {
      * derived from the GMutableI class / interface.
      */
 std::size_t GParameterSet::customAdaptions() {
-    std::size_t nAdaptions = 0;
+    std::size_t n_adaptions = 0;
     for(const auto &par_ptr : *this) {
-        nAdaptions += par_ptr->adapt(gr_);
+        n_adaptions += par_ptr->adapt(gr_);
     }
 
-    return nAdaptions;
+    return n_adaptions;
 }
 
 /* ----------------------------------------------------------------------------------
@@ -1803,9 +1803,9 @@ void GParameterSet::setFitness_(std::vector<double> const &f_cnt) {
 
             if(evaluationPolicy::USESIGMOID == eval_policy_) {
                 // Update the fitness value to use sigmoidal values
-                p.setTransformedFitnessWith([this](const double rawValue) {
+                p.setTransformedFitnessWith([this](const double raw_value) {
                     return Gem::Common::grational_sigmoid(
-                        rawValue,
+                        raw_value,
                         this->sigmoid_extremes_,
                         this->sigmoid_steepness_
                     );
@@ -1828,27 +1828,27 @@ void GParameterSet::setFitness_(std::vector<double> const &f_cnt) {
             this->setAllFitnessTo(this->getWorstCase());
         }
         else if(evaluationPolicy::USESIGMOID == eval_policy_) {
-            double uniformFitnessValue = 0.;
+            double uniform_fitness_value = 0.;
             if(maxMode::MAXIMIZE == this->getMaxMode()) {
                 // maximize
                 if(std::numeric_limits<double>::max() == validity_level_) {
-                    uniformFitnessValue = this->getWorstCase();
+                    uniform_fitness_value = this->getWorstCase();
                 }
                 else {
-                    uniformFitnessValue = -validity_level_ * sigmoid_extremes_;
+                    uniform_fitness_value = -validity_level_ * sigmoid_extremes_;
                 }
             }
             else {
                 // minimize
                 if(std::numeric_limits<double>::max() == validity_level_) {
-                    uniformFitnessValue = this->getWorstCase();
+                    uniform_fitness_value = this->getWorstCase();
                 }
                 else {
-                    uniformFitnessValue = validity_level_ * sigmoid_extremes_;
+                    uniform_fitness_value = validity_level_ * sigmoid_extremes_;
                 }
             }
 
-            this->setAllFitnessTo(this->getWorstCase(), uniformFitnessValue);
+            this->setAllFitnessTo(this->getWorstCase(), uniform_fitness_value);
         }
     }
 }
@@ -1937,13 +1937,13 @@ double GParameterSet::weighedSquaredSumCombiner(std::vector<double> const &weigh
      * Checks whether this solution fulfills the set of constraints. Note that this
      * function may be called prior to evaluation in order to check
      */
-bool GParameterSet::parameterSetFulfillsConstraints(double &validityLevel) const {
+bool GParameterSet::parameterSetFulfillsConstraints(double &validity_level) const {
     if(individual_constraint_ptr_) {
-        return individual_constraint_ptr_->isValid(this, validityLevel);
+        return individual_constraint_ptr_->isValid(this, validity_level);
     }
     else {
         // Always valid, if no constraint object has been registered
-        validityLevel = 0.;
+        validity_level = 0.;
         return true;
     }
 
@@ -1988,10 +1988,10 @@ std::any GParameterSet::getVarVal(
 /**
      * Allows to set all fitnesses to the same value (raw and transformed values seperately)
      */
-void GParameterSet::setAllFitnessTo(const double rawValue, const double transformedValue) {
+void GParameterSet::setAllFitnessTo(const double raw_value, const double transformed_value) {
     for(std::size_t i = 0; i < this->getNStoredResults(); i++) {
-        this->modifyStoredResult(i).reset(rawValue);
-        this->modifyStoredResult(i).setTransformedFitnessTo(transformedValue);
+        this->modifyStoredResult(i).reset(raw_value);
+        this->modifyStoredResult(i).setTransformedFitnessTo(transformed_value);
     }
 }
 
@@ -2129,19 +2129,19 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests_() {
     {
         // All tests below use the same, cloned collection
         // Some settings for the collection of tests below
-        const double MINGCONSTRDOUBLE = -4.;
-        const double MAXGCONSTRDOUBLE = 4.;
-        const double MINGDOUBLE = -5.;
-        const double MAXGDOUBLE = 5.;
-        const double MINGDOUBLECOLL = -3.;
-        const double MAXGDOUBLECOLL = 3.;
-        const std::size_t NGDOUBLECOLL = 10;
-        const std::size_t FPLOOPCOUNT = 5;
-        const double FPFIXEDVALINITMIN = -3.;
-        const double FPFIXEDVALINITMAX = 3.;
-        const double FPMULTIPLYBYRANDMIN = -5.;
-        const double FPMULTIPLYBYRANDMAX = 5.;
-        const double FPADD = 2.;
+        const double mingconstrdouble = -4.;
+        const double maxgconstrdouble = 4.;
+        const double mingdouble = -5.;
+        const double maxgdouble = 5.;
+        const double mingdoublecoll = -3.;
+        const double maxgdoublecoll = 3.;
+        const std::size_t ngdoublecoll = 10;
+        const std::size_t fploopcount = 5;
+        const double fpfixedvalinitmin = -3.;
+        const double fpfixedvalinitmax = 3.;
+        const double fpmultiplybyrandmin = -5.;
+        const double fpmultiplybyrandmax = 5.;
+        const double fpadd = 2.;
 
         // Create a GParameterSet object as a clone of this object for further usage
         std::shared_ptr<GParameterSet> p_test_0 = this->clone<GParameterSet>();
@@ -2150,28 +2150,28 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests_() {
         // Make sure it is really empty
         CHECK(p_test_0->empty());
         // Add some floating pount parameters
-        for(std::size_t i = 0; i < FPLOOPCOUNT; i++) {
+        for(std::size_t i = 0; i < fploopcount; i++) {
             p_test_0->push_back(
                 std::make_shared<GConstrainedDoubleObject>(
                     uniform_real_distribution(
                         gr_,
                         std::uniform_real_distribution<double>::param_type(
-                            MINGCONSTRDOUBLE,
-                            MAXGCONSTRDOUBLE
+                            mingconstrdouble,
+                            maxgconstrdouble
                         )
                     ),
-                    MINGCONSTRDOUBLE,
-                    MAXGCONSTRDOUBLE
+                    mingconstrdouble,
+                    maxgconstrdouble
                 )
             );
             p_test_0->push_back(
                 std::make_shared<GDoubleObject>(uniform_real_distribution(
                     gr_,
-                    std::uniform_real_distribution<double>::param_type(MINGDOUBLE, MAXGDOUBLE)
+                    std::uniform_real_distribution<double>::param_type(mingdouble, maxgdouble)
                 ))
             );
             p_test_0->push_back(
-                std::make_shared<GDoubleCollection>(NGDOUBLECOLL, MINGDOUBLECOLL, MAXGDOUBLECOLL)
+                std::make_shared<GDoubleCollection>(ngdoublecoll, mingdoublecoll, maxgdoublecoll)
             );
         }
 
@@ -2206,7 +2206,7 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests_() {
         //-----------------------------------------------------------------
         {
             // Test initialization of all fp parameters with a fixed value
-            double d = FPFIXEDVALINITMIN;
+            double d = fpfixedvalinitmin;
             while(true) {
                 // Create a GParameterSet object as a clone of p_test_0 for further usage
                 std::shared_ptr<GParameterSet> p_test = p_test_0->clone<GParameterSet>();
@@ -2219,14 +2219,14 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests_() {
 
                 // Cross-check
                 std::size_t counter = 0;
-                for(std::size_t i = 0; i < FPLOOPCOUNT; i++) {
+                for(std::size_t i = 0; i < fploopcount; i++) {
                     CHECK(p_test->at<GConstrainedDoubleObject>(counter)->value() == d);
                     counter++;
                     CHECK(p_test->at<GDoubleObject>(counter)->value() == d);
                     counter++;
                     std::shared_ptr<GDoubleCollection> p_gdc;
                     CHECK_NOTHROW(p_gdc = p_test->at<GDoubleCollection>(counter));
-                    for(std::size_t gdc_cnt = 0; gdc_cnt < NGDOUBLECOLL; gdc_cnt++) {
+                    for(std::size_t gdc_cnt = 0; gdc_cnt < ngdoublecoll; gdc_cnt++) {
                         INFO(
                             "\n"
                             << "p_gdc->at(gdc_cnt) = " << p_gdc->at(gdc_cnt) << "\n"
@@ -2254,7 +2254,7 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests_() {
                 CHECK(*p_boolean_orig == *p_boolean_cloned);
                 counter++;
 
-                if((d += 1.) >= FPFIXEDVALINITMAX) // NOLINT(bugprone-assignment-in-if-condition)
+                if((d += 1.) >= fpfixedvalinitmax) // NOLINT(bugprone-assignment-in-if-condition)
                     break;
             }
         }
@@ -2270,7 +2270,7 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests_() {
 
                 // Initialize all fp-values with FPFIXEDVALINITMAX
                 CHECK_NOTHROW(
-                    p_test->fixedValueInit<double>(FPFIXEDVALINITMAX, activityMode::ALLPARAMETERS)
+                    p_test->fixedValueInit<double>(fpfixedvalinitmax, activityMode::ALLPARAMETERS)
                 );
 
                 // Multiply this fixed value by d
@@ -2281,28 +2281,28 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests_() {
 
                 // Cross-check
                 std::size_t counter = 0;
-                for(std::size_t i = 0; i < FPLOOPCOUNT; i++) {
+                for(std::size_t i = 0; i < fploopcount; i++) {
                     // A constrained value does not have to assume the value d*FPFIXEDVALINITMAX,
                     // but needs to stay within its boundaries
                     CHECK(
-                        p_test->at<GConstrainedDoubleObject>(counter)->value() >= MINGCONSTRDOUBLE
+                        p_test->at<GConstrainedDoubleObject>(counter)->value() >= mingconstrdouble
                     );
                     CHECK(
-                        p_test->at<GConstrainedDoubleObject>(counter)->value() <= MAXGCONSTRDOUBLE
+                        p_test->at<GConstrainedDoubleObject>(counter)->value() <= maxgconstrdouble
                     );
                     counter++;
-                    CHECK(p_test->at<GDoubleObject>(counter)->value() == d * FPFIXEDVALINITMAX);
+                    CHECK(p_test->at<GDoubleObject>(counter)->value() == d * fpfixedvalinitmax);
                     counter++;
                     std::shared_ptr<GDoubleCollection> p_gdc;
                     CHECK_NOTHROW(p_gdc = p_test->at<GDoubleCollection>(counter));
-                    for(std::size_t gdc_cnt = 0; gdc_cnt < NGDOUBLECOLL; gdc_cnt++) {
+                    for(std::size_t gdc_cnt = 0; gdc_cnt < ngdoublecoll; gdc_cnt++) {
                         INFO(
                             "\n"
                             << "p_gdc->at(gdc_cnt) = " << p_gdc->at(gdc_cnt) << "\n"
-                            << "expected " << d * FPFIXEDVALINITMAX << "\n"
+                            << "expected " << d * fpfixedvalinitmax << "\n"
                             << "iteration = " << gdc_cnt << "\n"
                         );
-                        CHECK(p_gdc->at(gdc_cnt) == d * FPFIXEDVALINITMAX);
+                        CHECK(p_gdc->at(gdc_cnt) == d * fpfixedvalinitmax);
                     }
                     counter++;
                 }
@@ -2337,8 +2337,8 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests_() {
 
             // Multiply each floating point value with a constrained random value
             CHECK_NOTHROW(p_test->multiplyByRandom<double>(
-                FPMULTIPLYBYRANDMIN,
-                FPMULTIPLYBYRANDMAX,
+                fpmultiplybyrandmin,
+                fpmultiplybyrandmax,
                 activityMode::ALLPARAMETERS
             ));
 
@@ -2347,7 +2347,7 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests_() {
 
             // Cross-check
             std::size_t counter = 0;
-            for(std::size_t i = 0; i < FPLOOPCOUNT; i++) {
+            for(std::size_t i = 0; i < fploopcount; i++) {
                 CHECK(
                     p_test->at<GConstrainedDoubleObject>(counter)->value() !=
                     p_test_0->at<GConstrainedDoubleObject>(counter)->value()
@@ -2362,7 +2362,7 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests_() {
                 std::shared_ptr<GDoubleCollection> p_gdc_0;
                 CHECK_NOTHROW(p_gdc = p_test->at<GDoubleCollection>(counter));
                 CHECK_NOTHROW(p_gdc_0 = p_test_0->at<GDoubleCollection>(counter));
-                for(std::size_t gdc_cnt = 0; gdc_cnt < NGDOUBLECOLL; gdc_cnt++) {
+                for(std::size_t gdc_cnt = 0; gdc_cnt < ngdoublecoll; gdc_cnt++) {
                     INFO(
                         "\n"
                         << "p_gdc->at(gdc_cnt) = " << p_gdc->at(gdc_cnt) << "\n"
@@ -2406,7 +2406,7 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests_() {
 
             // Cross-check
             std::size_t counter = 0;
-            for(std::size_t i = 0; i < FPLOOPCOUNT; i++) {
+            for(std::size_t i = 0; i < fploopcount; i++) {
                 CHECK(
                     p_test->at<GConstrainedDoubleObject>(counter)->value() !=
                     p_test_0->at<GConstrainedDoubleObject>(counter)->value()
@@ -2421,7 +2421,7 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests_() {
                 std::shared_ptr<GDoubleCollection> p_gdc_0;
                 CHECK_NOTHROW(p_gdc = p_test->at<GDoubleCollection>(counter));
                 CHECK_NOTHROW(p_gdc_0 = p_test_0->at<GDoubleCollection>(counter));
-                for(std::size_t gdc_cnt = 0; gdc_cnt < NGDOUBLECOLL; gdc_cnt++) {
+                for(std::size_t gdc_cnt = 0; gdc_cnt < ngdoublecoll; gdc_cnt++) {
                     INFO(
                         "\n"
                         << "p_gdc->at(gdc_cnt) = " << p_gdc->at(gdc_cnt) << "\n"
@@ -2459,38 +2459,38 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests_() {
             std::shared_ptr<GParameterSet> p_test_fixed = p_test_0->clone<GParameterSet>();
 
             // Initialize all fp-values of the "add" individual with a fixed value
-            CHECK_NOTHROW(p_test_fixed->fixedValueInit<double>(FPADD, activityMode::ALLPARAMETERS));
+            CHECK_NOTHROW(p_test_fixed->fixedValueInit<double>(fpadd, activityMode::ALLPARAMETERS));
 
             // Add p_test_fixed to p_test
             CHECK_NOTHROW(p_test->add<double>(p_test_fixed, activityMode::ALLPARAMETERS));
 
             // Check the results
             std::size_t counter = 0;
-            for(std::size_t i = 0; i < FPLOOPCOUNT; i++) {
+            for(std::size_t i = 0; i < fploopcount; i++) {
                 // A constrained value does not have to assume the value value()+FPADD
                 // but needs to stay within its boundaries
-                CHECK(p_test->at<GConstrainedDoubleObject>(counter)->value() >= MINGCONSTRDOUBLE);
-                CHECK(p_test->at<GConstrainedDoubleObject>(counter)->value() <= MAXGCONSTRDOUBLE);
+                CHECK(p_test->at<GConstrainedDoubleObject>(counter)->value() >= mingconstrdouble);
+                CHECK(p_test->at<GConstrainedDoubleObject>(counter)->value() <= maxgconstrdouble);
                 counter++;
                 CHECK(
                     p_test->at<GDoubleObject>(counter)->value() ==
-                    p_test_0->at<GDoubleObject>(counter)->value() + FPADD
+                    p_test_0->at<GDoubleObject>(counter)->value() + fpadd
                 );
                 counter++;
                 std::shared_ptr<GDoubleCollection> p_gdc;
                 std::shared_ptr<GDoubleCollection> p_gdc_0;
                 CHECK_NOTHROW(p_gdc = p_test->at<GDoubleCollection>(counter));
                 CHECK_NOTHROW(p_gdc_0 = p_test_0->at<GDoubleCollection>(counter));
-                for(std::size_t gdc_cnt = 0; gdc_cnt < NGDOUBLECOLL; gdc_cnt++) {
+                for(std::size_t gdc_cnt = 0; gdc_cnt < ngdoublecoll; gdc_cnt++) {
                     INFO(
                         "\n"
                         << "p_gdc->at(gdc_cnt) = " << p_gdc->at(gdc_cnt) << "\n"
                         << "p_gdc_0->at(gdc_cnt) = " << p_gdc_0->at(gdc_cnt) << "\n"
-                        << "FPADD = " << FPADD
-                        << "p_gdc_0->at(gdc_cnt) + FPADD = " << p_gdc_0->at(gdc_cnt) + FPADD << "\n"
+                        << "FPADD = " << fpadd
+                        << "p_gdc_0->at(gdc_cnt) + FPADD = " << p_gdc_0->at(gdc_cnt) + fpadd << "\n"
                         << "iteration = " << gdc_cnt << "\n"
                     );
-                    CHECK(p_gdc->at(gdc_cnt) == p_gdc_0->at(gdc_cnt) + FPADD);
+                    CHECK(p_gdc->at(gdc_cnt) == p_gdc_0->at(gdc_cnt) + fpadd);
                 }
                 counter++;
             }
@@ -2515,7 +2515,7 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests_() {
         //-----------------------------------------------------------------
 
         {
-            constexpr double FPSUBTRACT = 2.;
+            constexpr double fpsubtract = 2.;
 
             // Check subtraction of individuals
             // Create two GParameterSet objects as a clone of p_test_0 for further usage
@@ -2524,7 +2524,7 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests_() {
 
             // Initialize all fp-values of the "add" individual with a fixed valie
             CHECK_NOTHROW(
-                p_test_fixed->fixedValueInit<double>(FPSUBTRACT, activityMode::ALLPARAMETERS)
+                p_test_fixed->fixedValueInit<double>(fpsubtract, activityMode::ALLPARAMETERS)
             );
 
             // Add p_test_fixed to p_test
@@ -2532,31 +2532,31 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests_() {
 
             // Check the results
             std::size_t counter = 0;
-            for(std::size_t i = 0; i < FPLOOPCOUNT; i++) {
+            for(std::size_t i = 0; i < fploopcount; i++) {
                 // A constrained value does not have to assume the value value()-FPSUBTRACT
                 // but needs to stay within its boundaries
-                CHECK(p_test->at<GConstrainedDoubleObject>(counter)->value() >= MINGCONSTRDOUBLE);
-                CHECK(p_test->at<GConstrainedDoubleObject>(counter)->value() <= MAXGCONSTRDOUBLE);
+                CHECK(p_test->at<GConstrainedDoubleObject>(counter)->value() >= mingconstrdouble);
+                CHECK(p_test->at<GConstrainedDoubleObject>(counter)->value() <= maxgconstrdouble);
                 counter++;
                 CHECK(
                     p_test->at<GDoubleObject>(counter)->value() ==
-                    p_test_0->at<GDoubleObject>(counter)->value() - FPSUBTRACT
+                    p_test_0->at<GDoubleObject>(counter)->value() - fpsubtract
                 );
                 counter++;
                 std::shared_ptr<GDoubleCollection> p_gdc;
                 std::shared_ptr<GDoubleCollection> p_gdc_0;
                 CHECK_NOTHROW(p_gdc = p_test->at<GDoubleCollection>(counter));
                 CHECK_NOTHROW(p_gdc_0 = p_test_0->at<GDoubleCollection>(counter));
-                for(std::size_t gdc_cnt = 0; gdc_cnt < NGDOUBLECOLL; gdc_cnt++) {
+                for(std::size_t gdc_cnt = 0; gdc_cnt < ngdoublecoll; gdc_cnt++) {
                     INFO(
                         "\n"
                         << "p_gdc->at(gdc_cnt) = " << p_gdc->at(gdc_cnt) << "\n"
                         << "p_gdc_0->at(gdc_cnt) = " << p_gdc_0->at(gdc_cnt) << "\n"
-                        << "FPSUBTRACT = " << FPSUBTRACT << "p_gdc_0->at(gdc_cnt) - FPSUBTRACT = "
-                        << p_gdc_0->at(gdc_cnt) - FPSUBTRACT << "\n"
+                        << "FPSUBTRACT = " << fpsubtract << "p_gdc_0->at(gdc_cnt) - FPSUBTRACT = "
+                        << p_gdc_0->at(gdc_cnt) - fpsubtract << "\n"
                         << "iteration = " << gdc_cnt << "\n"
                     );
-                    CHECK(p_gdc->at(gdc_cnt) == p_gdc_0->at(gdc_cnt) - FPSUBTRACT);
+                    CHECK(p_gdc->at(gdc_cnt) == p_gdc_0->at(gdc_cnt) - fpsubtract);
                 }
                 counter++;
             }
@@ -2586,24 +2586,24 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests_() {
     {
         // Check counting of active and inactive parameters
         // Some settings for the collection of tests below
-        const double MINGCONSTRDOUBLE = -4.;
-        const double MAXGCONSTRDOUBLE = 4.;
-        const double MINGDOUBLE = -5.;
-        const double MAXGDOUBLE = 5.;
-        const double MINGDOUBLECOLL = -3.;
-        const double MAXGDOUBLECOLL = 3.;
-        const std::size_t NGDOUBLECOLL = 10;
-        const std::size_t NINTCOLL = 10;
-        const std::size_t NINTBOOLOBJ = 10;
-        const std::int32_t MINGINT = -100;
-        const std::int32_t MAXGINT = 100;
-        const std::size_t FPLOOPCOUNT = 5;
-        const double FPFIXEDVALINITMIN = -3.;
-        const double FPFIXEDVALINITMAX = 3.;
-        const double FPMULTIPLYBYRANDMIN = -5.;
-        const double FPMULTIPLYBYRANDMAX = 5.;
-        const double FPADD = 2.;
-        const double FPSUBTRACT = 2.;
+        const double mingconstrdouble = -4.;
+        const double maxgconstrdouble = 4.;
+        const double mingdouble = -5.;
+        const double maxgdouble = 5.;
+        const double mingdoublecoll = -3.;
+        const double maxgdoublecoll = 3.;
+        const std::size_t ngdoublecoll = 10;
+        const std::size_t nintcoll = 10;
+        const std::size_t nintboolobj = 10;
+        const std::int32_t mingint = -100;
+        const std::int32_t maxgint = 100;
+        const std::size_t fploopcount = 5;
+        const double fpfixedvalinitmin = -3.;
+        const double fpfixedvalinitmax = 3.;
+        const double fpmultiplybyrandmin = -5.;
+        const double fpmultiplybyrandmax = 5.;
+        const double fpadd = 2.;
+        const double fpsubtract = 2.;
 
         // Create a GParameterSet object as a clone of this object for further usage
         std::shared_ptr<GParameterSet> p_test_0 = this->clone<GParameterSet>();
@@ -2613,26 +2613,26 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests_() {
         CHECK(p_test_0->empty());
 
         // Add some floating point parameters
-        for(std::size_t i = 0; i < FPLOOPCOUNT; i++) {
+        for(std::size_t i = 0; i < fploopcount; i++) {
             std::shared_ptr<GConstrainedDoubleObject> gcdo_ptr =
                 std::make_shared<GConstrainedDoubleObject>(
                     uniform_real_distribution(
                         gr_,
                         std::uniform_real_distribution<double>::param_type(
-                            MINGCONSTRDOUBLE,
-                            MAXGCONSTRDOUBLE
+                            mingconstrdouble,
+                            maxgconstrdouble
                         )
                     ),
-                    MINGCONSTRDOUBLE,
-                    MAXGCONSTRDOUBLE
+                    mingconstrdouble,
+                    maxgconstrdouble
                 );
             std::shared_ptr<GDoubleObject> gdo_ptr =
                 std::make_shared<GDoubleObject>(uniform_real_distribution(
                     gr_,
-                    std::uniform_real_distribution<double>::param_type(MINGDOUBLE, MAXGDOUBLE)
+                    std::uniform_real_distribution<double>::param_type(mingdouble, maxgdouble)
                 ));
             std::shared_ptr<GDoubleCollection> gdc_ptr =
-                std::make_shared<GDoubleCollection>(NGDOUBLECOLL, MINGDOUBLECOLL, MAXGDOUBLECOLL);
+                std::make_shared<GDoubleCollection>(ngdoublecoll, mingdoublecoll, maxgdoublecoll);
 
             // Mark the last parameter type as inactive
             gdc_ptr->setAdaptionsInactive();
@@ -2644,8 +2644,8 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests_() {
         }
 
         // Attach a few other parameter types
-        for(std::size_t i = 0; i < NINTBOOLOBJ; i++) {
-            p_test_0->push_back(std::make_shared<GConstrainedInt32Object>(7, MINGINT, MAXGINT));
+        for(std::size_t i = 0; i < nintboolobj; i++) {
+            p_test_0->push_back(std::make_shared<GConstrainedInt32Object>(7, mingint, maxgint));
             p_test_0->push_back(std::make_shared<GBooleanObject>(true));
         }
 
@@ -2653,23 +2653,23 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests_() {
         std::shared_ptr<GParameterObjectCollection> poc_ptr =
             std::make_shared<GParameterObjectCollection>();
 
-        for(std::size_t i = 0; i < FPLOOPCOUNT; i++) {
+        for(std::size_t i = 0; i < fploopcount; i++) {
             std::shared_ptr<GConstrainedDoubleObject> gcdo_ptr =
                 std::make_shared<GConstrainedDoubleObject>(
                     uniform_real_distribution(
                         gr_,
                         std::uniform_real_distribution<double>::param_type(
-                            MINGCONSTRDOUBLE,
-                            MAXGCONSTRDOUBLE
+                            mingconstrdouble,
+                            maxgconstrdouble
                         )
                     ),
-                    MINGCONSTRDOUBLE,
-                    MAXGCONSTRDOUBLE
+                    mingconstrdouble,
+                    maxgconstrdouble
                 );
             std::shared_ptr<GDoubleObject> gdo_ptr =
                 std::make_shared<GDoubleObject>(uniform_real_distribution(
                     gr_,
-                    std::uniform_real_distribution<double>::param_type(MINGDOUBLE, MAXGDOUBLE)
+                    std::uniform_real_distribution<double>::param_type(mingdouble, maxgdouble)
                 ));
             std::shared_ptr<GConstrainedInt32ObjectCollection> gcioc_ptr =
                 std::make_shared<GConstrainedInt32ObjectCollection>();
@@ -2677,9 +2677,9 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests_() {
             std::shared_ptr<GParameterObjectCollection> sub_poc_ptr =
                 std::make_shared<GParameterObjectCollection>();
 
-            for(std::size_t ip = 0; ip < NINTCOLL; ip++) {
+            for(std::size_t ip = 0; ip < nintcoll; ip++) {
                 std::shared_ptr<GConstrainedInt32Object> gci32o_ptr =
-                    std::make_shared<GConstrainedInt32Object>(MINGINT, MAXGINT);
+                    std::make_shared<GConstrainedInt32Object>(mingint, maxgint);
                 gci32o_ptr->setAdaptionsInactive();
                 // The parameter should not be modifiable now
 
@@ -2689,7 +2689,7 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests_() {
             std::shared_ptr<GDoubleObject> gdo2_ptr =
                 std::make_shared<GDoubleObject>(uniform_real_distribution(
                     gr_,
-                    std::uniform_real_distribution<double>::param_type(MINGDOUBLE, MAXGDOUBLE)
+                    std::uniform_real_distribution<double>::param_type(mingdouble, maxgdouble)
                 ));
             gdo2_ptr->setAdaptionsInactive();
             sub_poc_ptr->push_back(gdo2_ptr);
@@ -2704,15 +2704,15 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests_() {
         p_test_0->push_back(poc_ptr);
 
         // The amount of parameters of a given category
-        std::size_t NDOUBLEACTIVE = 2 * FPLOOPCOUNT + 2 * FPLOOPCOUNT;
-        std::size_t NDOUBLEINACTIVE = NGDOUBLECOLL * FPLOOPCOUNT + FPLOOPCOUNT;
-        std::size_t NDOUBLEALL = NDOUBLEINACTIVE + NDOUBLEACTIVE;
-        std::size_t NINTACTIVE = NINTBOOLOBJ;
-        std::size_t NINTINACTIVE = NINTCOLL * FPLOOPCOUNT;
-        std::size_t NINTALL = NINTINACTIVE + NINTACTIVE;
-        std::size_t NBOOLACTIVE = NINTBOOLOBJ;
-        std::size_t NBOOLINACTIVE = 0;
-        std::size_t NBOOLALL = NBOOLINACTIVE + NBOOLACTIVE;
+        std::size_t ndoubleactive = 2 * fploopcount + 2 * fploopcount;
+        std::size_t ndoubleinactive = ngdoublecoll * fploopcount + fploopcount;
+        std::size_t ndoubleall = ndoubleinactive + ndoubleactive;
+        std::size_t nintactive = nintboolobj;
+        std::size_t nintinactive = nintcoll * fploopcount;
+        std::size_t nintall = nintinactive + nintactive;
+        std::size_t nboolactive = nintboolobj;
+        std::size_t nboolinactive = 0;
+        std::size_t nboolall = nboolinactive + nboolactive;
 
         //-----------------------------------------------------------------
 
@@ -2722,17 +2722,17 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests_() {
             std::shared_ptr<GParameterSet> p_test = p_test_0->clone<GParameterSet>();
 
             // Count the number of parameters and compare with the expected number
-            CHECK(p_test->countParameters<double>(activityMode::ACTIVEONLY) == NDOUBLEACTIVE);
-            CHECK(p_test->countParameters<double>(activityMode::INACTIVEONLY) == NDOUBLEINACTIVE);
-            CHECK(p_test->countParameters<double>(activityMode::ALLPARAMETERS) == NDOUBLEALL);
-            CHECK(p_test->countParameters<std::int32_t>(activityMode::ACTIVEONLY) == NINTACTIVE);
+            CHECK(p_test->countParameters<double>(activityMode::ACTIVEONLY) == ndoubleactive);
+            CHECK(p_test->countParameters<double>(activityMode::INACTIVEONLY) == ndoubleinactive);
+            CHECK(p_test->countParameters<double>(activityMode::ALLPARAMETERS) == ndoubleall);
+            CHECK(p_test->countParameters<std::int32_t>(activityMode::ACTIVEONLY) == nintactive);
             CHECK(
-                p_test->countParameters<std::int32_t>(activityMode::INACTIVEONLY) == NINTINACTIVE
+                p_test->countParameters<std::int32_t>(activityMode::INACTIVEONLY) == nintinactive
             );
-            CHECK(p_test->countParameters<std::int32_t>(activityMode::ALLPARAMETERS) == NINTALL);
-            CHECK(p_test->countParameters<bool>(activityMode::ACTIVEONLY) == NBOOLACTIVE);
-            CHECK(p_test->countParameters<bool>(activityMode::INACTIVEONLY) == NBOOLINACTIVE);
-            CHECK(p_test->countParameters<bool>(activityMode::ALLPARAMETERS) == NBOOLALL);
+            CHECK(p_test->countParameters<std::int32_t>(activityMode::ALLPARAMETERS) == nintall);
+            CHECK(p_test->countParameters<bool>(activityMode::ACTIVEONLY) == nboolactive);
+            CHECK(p_test->countParameters<bool>(activityMode::INACTIVEONLY) == nboolinactive);
+            CHECK(p_test->countParameters<bool>(activityMode::ALLPARAMETERS) == nboolall);
         }
 
         //-----------------------------------------------------------------
@@ -2776,11 +2776,11 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests_() {
             );
 
             // Check that the "inactive" vectors have the expected characteristics
-            CHECK(orig_d_inactive.size() == NDOUBLEINACTIVE);
+            CHECK(orig_d_inactive.size() == ndoubleinactive);
             CHECK(orig_d_inactive == rand_d_inactive);
-            CHECK(orig_i_inactive.size() == NINTINACTIVE);
+            CHECK(orig_i_inactive.size() == nintinactive);
             CHECK(orig_i_inactive == rand_i_inactive);
-            CHECK(orig_b_inactive.size() == NBOOLINACTIVE);
+            CHECK(orig_b_inactive.size() == nboolinactive);
             CHECK(orig_b_inactive == rand_b_inactive);
         }
 
@@ -2818,19 +2818,19 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests_() {
             CHECK_NOTHROW(p_test_rand->streamline<bool>(rand_b_active, activityMode::ACTIVEONLY));
 
             // Check that the "active" vectors' contents indeed differ
-            CHECK(orig_d_active.size() == NDOUBLEACTIVE);
-            CHECK(rand_d_active.size() == NDOUBLEACTIVE);
+            CHECK(orig_d_active.size() == ndoubleactive);
+            CHECK(rand_d_active.size() == ndoubleactive);
             CHECK(orig_d_active != rand_d_active);
-            CHECK(orig_i_active.size() == NINTACTIVE);
-            CHECK(rand_i_active.size() == NINTACTIVE);
+            CHECK(orig_i_active.size() == nintactive);
+            CHECK(rand_i_active.size() == nintactive);
             INFO(
                 "orig_i_active: " << Gem::Common::vecToString(orig_i_active) << "\n"
                                   << "rand_i_active: " << Gem::Common::vecToString(rand_i_active)
                                   << "\n"
             );
             CHECK(orig_i_active != rand_i_active);
-            CHECK(orig_b_active.size() == NBOOLACTIVE);
-            CHECK(rand_b_active.size() == NBOOLACTIVE);
+            CHECK(orig_b_active.size() == nboolactive);
+            CHECK(rand_b_active.size() == nboolactive);
 
             // We do not compare the (single) boolean value here, as there are just
             // two distinct values it may assume, so the likelihood for identical values

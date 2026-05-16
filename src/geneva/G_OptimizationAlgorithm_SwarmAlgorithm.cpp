@@ -45,17 +45,17 @@ GSwarmAlgorithm::GSwarmAlgorithm()
  * This constructor sets the number of neighborhoods and the number of individuals in them. Note that there
  * is no public default constructor, as it is only needed for de-serialization purposes.
  *
- * @param nNeighborhoods The desired number of neighborhoods (hardwired to >= 1)
+ * @param n_neighborhoods The desired number of neighborhoods (hardwired to >= 1)
  * @oaram nNeighborhoodMembers The default number of individuals in each neighborhood (hardwired to >= 2)
  */
 GSwarmAlgorithm::GSwarmAlgorithm(
-    const std::size_t &nNeighborhoods,
-    const std::size_t &defaultNNeighborhoodMembers
+    const std::size_t &n_neighborhoods,
+    const std::size_t &default_n_neighborhood_members
 )
   : G_OptimizationAlgorithm_Base()
-  , n_neighborhoods_((nNeighborhoods >= 1) ? nNeighborhoods : 1)
+  , n_neighborhoods_((n_neighborhoods >= 1) ? n_neighborhoods : 1)
   , default_n_neighborhood_members_(
-        (defaultNNeighborhoodMembers >= 2) ? defaultNNeighborhoodMembers : 2
+        (default_n_neighborhood_members >= 2) ? default_n_neighborhood_members : 2
     ) {
     G_OptimizationAlgorithm_Base::setDefaultPopulationSize(
         n_neighborhoods_ * default_n_neighborhood_members_
@@ -341,30 +341,30 @@ std::string GSwarmAlgorithm::name_() const {
  * Sets the number of neighborhoods and the default number of members in them. All work is done inside of
  * the adjustPopulation function, inside of the G_OptimizationAlgorithm_Base::optimize() function.
  *
- * @param nNeighborhoods The number of neighborhoods
- * @param defaultNNeighborhoodMembers The default number of individuals in each neighborhood
+ * @param n_neighborhoods The number of neighborhoods
+ * @param default_n_neighborhood_members The default number of individuals in each neighborhood
  */
 void GSwarmAlgorithm::setSwarmSizes(
-    std::size_t nNeighborhoods,
-    std::size_t defaultNNeighborhoodMembers
+    std::size_t n_neighborhoods,
+    std::size_t default_n_neighborhood_members
 ) {
     // Enforce useful settings
-    if(nNeighborhoods == 0) {
+    if(n_neighborhoods == 0) {
         glogger << "In GSwarmAlgorithm::setSwarmSizes(): Warning!" << '\n'
                 << "Requested number of neighborhoods is 0. Setting to 1." << '\n'
                 << GWARNING;
     }
 
-    if(defaultNNeighborhoodMembers <= 1) {
+    if(default_n_neighborhood_members <= 1) {
         glogger << "In GSwarmAlgorithm::setSwarmSizes(): Warning!" << '\n'
                 << "Requested number of members in each neighborhood is too small. Setting to 2."
                 << '\n'
                 << GWARNING;
     }
 
-    n_neighborhoods_ = (nNeighborhoods >= 1) ? nNeighborhoods : 1;
+    n_neighborhoods_ = (n_neighborhoods >= 1) ? n_neighborhoods : 1;
     default_n_neighborhood_members_ =
-        (defaultNNeighborhoodMembers >= 2) ? defaultNNeighborhoodMembers : 2;
+        (default_n_neighborhood_members >= 2) ? default_n_neighborhood_members : 2;
 
     // Update our parent class'es values
     G_OptimizationAlgorithm_Base::setDefaultPopulationSize(
@@ -442,12 +442,12 @@ std::size_t GSwarmAlgorithm::getFirstNIPosVec(
     if(neighborhood == 0)
         return 0;
     else { // Sum up the number of members in each neighborhood
-        std::size_t nPreviousMembers = 0;
+        std::size_t n_previous_members = 0;
         for(std::size_t n = 0; n < neighborhood; n++) {
-            nPreviousMembers += vec[n];
+            n_previous_members += vec[n];
         }
 
-        return nPreviousMembers;
+        return n_previous_members;
     }
 }
 
@@ -566,7 +566,7 @@ void GSwarmAlgorithm::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb)
 
     // Add local data
     gpb.registerFileParameter<std::size_t, std::size_t>(
-        "nNeighborhoods" // The name of the first variable
+        "n_neighborhoods" // The name of the first variable
         ,
         "nNeighborhoodMembers" // The name of the second variable
         ,
@@ -580,7 +580,7 @@ void GSwarmAlgorithm::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb)
       << Gem::Common::nextComment() << "The desired number of members in each neighborhood";
 
     gpb.registerFileParameter<double>(
-        "cPersonal" // The name of the variable
+        "c_personal" // The name of the variable
         ,
         DEFAULTCPERSONAL // The default value
         ,
@@ -588,7 +588,7 @@ void GSwarmAlgorithm::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb)
     ) << "A constant to be multiplied with the personal direction vector";
 
     gpb.registerFileParameter<double>(
-        "cNeighborhood" // The name of the variable
+        "c_neighborhood" // The name of the variable
         ,
         DEFAULTCNEIGHBORHOOD // The default value
         ,
@@ -596,7 +596,7 @@ void GSwarmAlgorithm::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb)
     ) << "A constant to be multiplied with the neighborhood direction vector";
 
     gpb.registerFileParameter<double>(
-        "cGlobal" // The name of the variable
+        "c_global" // The name of the variable
         ,
         DEFAULTCGLOBAL // The default value
         ,
@@ -604,7 +604,7 @@ void GSwarmAlgorithm::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb)
     ) << "A constant to be multiplied with the global direction vector";
 
     gpb.registerFileParameter<double>(
-        "cVelocity" // The name of the variable
+        "c_velocity" // The name of the variable
         ,
         DEFAULTCVELOCITY // The default value
         ,
@@ -612,7 +612,7 @@ void GSwarmAlgorithm::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb)
     ) << "A constant to be multiplied with the old velocity vector";
 
     gpb.registerFileParameter<double>(
-        "velocityRangePercentage" // The name of the variable
+        "velocity_range_percentage" // The name of the variable
         ,
         DEFAULTVELOCITYRANGEPERCENTAGE // The default value
         ,
@@ -630,7 +630,7 @@ void GSwarmAlgorithm::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb)
       << "update rule should be used";
 
     gpb.registerFileParameter<bool>(
-        "randomFillUp" // The name of the variable
+        "random_fill_up" // The name of the variable
         ,
         true // The default value
         ,
@@ -640,7 +640,7 @@ void GSwarmAlgorithm::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb)
       << "randomly (true) or start with equal values (false)";
 
     gpb.registerFileParameter<std::uint32_t>(
-        "repulsionThreshold" // The name of the variable
+        "repulsion_threshold" // The name of the variable
         ,
         DEFREPULSIONTHRESHOLD // The default value
         ,
@@ -720,17 +720,17 @@ void GSwarmAlgorithm::init() {
         std::shared_ptr<GParameterSet> p(ind_ptr->clone<GParameterSet>());
 
         // Extract the parameter vector
-        std::vector<double> velVec;
-        p->streamline(velVec, activityMode::ACTIVEONLY);
+        std::vector<double> vel_vec;
+        p->streamline(vel_vec, activityMode::ACTIVEONLY);
 
 #ifdef DEBUG
         // Check that the number of parameters equals those in the velocity boundaries
-        if(velVec.size() != dbl_lower_parameter_boundaries_cnt_.size() ||
-           velVec.size() != dbl_vel_max_cnt_.size()) {
+        if(vel_vec.size() != dbl_lower_parameter_boundaries_cnt_.size() ||
+           vel_vec.size() != dbl_vel_max_cnt_.size()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GSwarmAlgorithm::init(): Error! (2)" << '\n'
-                << "Found invalid sizes: " << velVec.size() << " / "
+                << "Found invalid sizes: " << vel_vec.size() << " / "
                 << dbl_lower_parameter_boundaries_cnt_.size() << '\n'
                 << " / " << dbl_vel_max_cnt_.size() << '\n'
             );
@@ -738,16 +738,16 @@ void GSwarmAlgorithm::init() {
 #endif /* DEBUG */
 
         // Randomly initialize the velocities
-        for(std::size_t i = 0; i < velVec.size(); i++) {
+        for(std::size_t i = 0; i < vel_vec.size(); i++) {
             double range = dbl_vel_max_cnt_[i];
-            velVec[i] = G_OptimizationAlgorithm_Base::uniform_real_distribution_(
+            vel_vec[i] = G_OptimizationAlgorithm_Base::uniform_real_distribution_(
                 gr_,
                 std::uniform_real_distribution<double>::param_type(-range, range)
             );
         }
 
         // Load the array into the velocity object
-        p->assignValueVector<double>(velVec, activityMode::ACTIVEONLY);
+        p->assignValueVector<double>(vel_vec, activityMode::ACTIVEONLY);
         p->mark_as_due_for_processing(); // Catch cases where a value is calculated for the velocity individual
 
         // Add the initialized velocity to the array.
@@ -805,7 +805,7 @@ void GSwarmAlgorithm::actOnStalls_() {
  * @return The value of the best individual found
  */
 std::tuple<double, double> GSwarmAlgorithm::cycleLogic_() {
-    std::tuple<double, double> bestIndividualFitness;
+    std::tuple<double, double> best_individual_fitness;
 
     // First update the positions and neighborhood ids
     updatePositions();
@@ -815,13 +815,13 @@ std::tuple<double, double> GSwarmAlgorithm::cycleLogic_() {
 
     // Search for the personal, neighborhood and globally best individuals and
     // update the lists of best solutions, if necessary.
-    bestIndividualFitness = findBests();
+    best_individual_fitness = findBests();
 
     // The population might be in a bad state. Check and fix.
     adjustNeighborhoods();
 
     // Return the result to the audience
-    return bestIndividualFitness;
+    return best_individual_fitness;
 }
 
 /******************************************************************************/
@@ -833,7 +833,7 @@ std::tuple<double, double> GSwarmAlgorithm::cycleLogic_() {
  * TODO: Change name to fixAfterJobSubmission ?
  */
 void GSwarmAlgorithm::adjustNeighborhoods() {
-    std::size_t firstNIPos = 0; // Will hold the expected first position of a neighborhood
+    std::size_t first_ni_pos = 0; // Will hold the expected first position of a neighborhood
 
 #ifdef DEBUG
     // Check that last_iteration_individuals_cnt_ has the desired size in iterations other than the first
@@ -859,7 +859,7 @@ void GSwarmAlgorithm::adjustNeighborhoods() {
         // Calculate the desired position of our own first individual in this neighborhood
         // As we start with the first neighborhood and add or remove surplus or missing items,
         // getFirstNIPos() will return a valid position.
-        firstNIPos = getFirstNIPos(n);
+        first_ni_pos = getFirstNIPos(n);
 
         if(n_neighborhood_members_cnt_[n] == default_n_neighborhood_members_) {
             continue;
@@ -867,20 +867,20 @@ void GSwarmAlgorithm::adjustNeighborhoods() {
         else if(n_neighborhood_members_cnt_[n] >
                 default_n_neighborhood_members_) { // Remove surplus items from the end of the neighborhood
             // Find out, how many surplus items there are
-            std::size_t nSurplus =
+            std::size_t n_surplus =
                 n_neighborhood_members_cnt_[n] -
                 default_n_neighborhood_members_; // NOLINT(cppcoreguidelines-init-variables)
 
-            // Remove nSurplus items from the position (n+1)*default_n_neighborhood_members_
+            // Remove n_surplus items from the position (n+1)*default_n_neighborhood_members_
             data_cnt_.erase(
                 data_cnt_.begin() + (n + 1) * default_n_neighborhood_members_,
-                data_cnt_.begin() + ((n + 1) * default_n_neighborhood_members_ + nSurplus)
+                data_cnt_.begin() + ((n + 1) * default_n_neighborhood_members_ + n_surplus)
             );
         }
         else { // n_neighborhood_members_cnt_[n] < default_n_neighborhood_members_
             // TODO: Deal with cases where no items of a given neighborhood have returned
             // The number of missing items
-            std::size_t nMissing =
+            std::size_t n_missing =
                 default_n_neighborhood_members_ -
                 n_neighborhood_members_cnt_[n]; // NOLINT(cppcoreguidelines-init-variables)
 
@@ -888,10 +888,10 @@ void GSwarmAlgorithm::adjustNeighborhoods() {
                 // Copy the best items of this neighborhood over from the last_iteration_individuals_cnt_ vector.
                 // Each neighborhood there should have been sorted according to the individuals
                 // fitness, with the best individuals in the front of each neighborhood.
-                for(std::size_t i = 0; i < nMissing; i++) {
+                for(std::size_t i = 0; i < n_missing; i++) {
                     data_cnt_.insert(
-                        data_cnt_.begin() + firstNIPos,
-                        *(last_iteration_individuals_cnt_.begin() + firstNIPos + i)
+                        data_cnt_.begin() + first_ni_pos,
+                        *(last_iteration_individuals_cnt_.begin() + first_ni_pos + i)
                     );
                 }
             }
@@ -908,21 +908,21 @@ void GSwarmAlgorithm::adjustNeighborhoods() {
 #endif
 
                 // Fill up with random items.
-                for(std::size_t nM = 0; nM < nMissing; nM++) {
+                for(std::size_t n_m = 0; n_m < n_missing; n_m++) {
                     // Insert a clone of the first individual of the collection
                     data_cnt_.insert(
-                        data_cnt_.begin() + firstNIPos,
+                        data_cnt_.begin() + first_ni_pos,
                         (this->front())->clone<GParameterSet>()
                     );
 
                     // Randomly initialize the item and prevent position updates
-                    (*(data_cnt_.begin() + firstNIPos))->randomInit(activityMode::ACTIVEONLY);
-                    (*(data_cnt_.begin() + firstNIPos))
+                    (*(data_cnt_.begin() + first_ni_pos))->randomInit(activityMode::ACTIVEONLY);
+                    (*(data_cnt_.begin() + first_ni_pos))
                         ->getPersonalityTraits<GSwarmAlgorithm_PersonalityTraits>()
                         ->setNoPositionUpdate();
 
                     // Set the neighborhood as required
-                    (*(data_cnt_.begin() + firstNIPos))
+                    (*(data_cnt_.begin() + first_ni_pos))
                         ->getPersonalityTraits<GSwarmAlgorithm_PersonalityTraits>()
                         ->setNeighborhood(n);
                 }
@@ -1109,10 +1109,10 @@ void GSwarmAlgorithm::updateIndividualPositions(
     std::tuple<double, double, double, double> constants
 ) {
     // Extract the constants from the tuple
-    double cPersonal = std::get<0>(constants);
-    double cNeighborhood = std::get<1>(constants);
-    double cGlobal = std::get<2>(constants);
-    double cVelocity = std::get<3>(constants);
+    double c_personal = std::get<0>(constants);
+    double c_neighborhood = std::get<1>(constants);
+    double c_global = std::get<2>(constants);
+    double c_velocity = std::get<3>(constants);
 
 #ifdef DEBUG
     // Do some error checking
@@ -1167,119 +1167,119 @@ void GSwarmAlgorithm::updateIndividualPositions(
 
     // Extract the vectors for the individual, the personal, neighborhood and global bests,
     // as well as the velocity
-    std::vector<double> indVec, personalBestVec, nbhBestVec, glbBestVec, velVec;
-    ind->streamline(indVec, activityMode::ACTIVEONLY);
-    personal_best->streamline(personalBestVec, activityMode::ACTIVEONLY);
-    neighborhood_best->streamline(nbhBestVec, activityMode::ACTIVEONLY);
-    global_best->streamline(glbBestVec, activityMode::ACTIVEONLY);
-    velocity->streamline(velVec, activityMode::ACTIVEONLY);
+    std::vector<double> ind_vec, personal_best_vec, nbh_best_vec, glb_best_vec, vel_vec;
+    ind->streamline(ind_vec, activityMode::ACTIVEONLY);
+    personal_best->streamline(personal_best_vec, activityMode::ACTIVEONLY);
+    neighborhood_best->streamline(nbh_best_vec, activityMode::ACTIVEONLY);
+    global_best->streamline(glb_best_vec, activityMode::ACTIVEONLY);
+    velocity->streamline(vel_vec, activityMode::ACTIVEONLY);
 
     // Subtract the individual vector from the personal, neighborhood and global bests
-    Gem::Common::subtractVec<double>(personalBestVec, indVec);
-    Gem::Common::subtractVec<double>(nbhBestVec, indVec);
-    Gem::Common::subtractVec<double>(glbBestVec, indVec);
+    Gem::Common::subtractVec<double>(personal_best_vec, ind_vec);
+    Gem::Common::subtractVec<double>(nbh_best_vec, ind_vec);
+    Gem::Common::subtractVec<double>(glb_best_vec, ind_vec);
 
     switch(update_rule_) {
     case updateRule::SWARM_UPDATERULE_CLASSIC:
         // Multiply each floating point value with a random fp number in the range [0,1[, times a constant
-        for(std::size_t i = 0; i < personalBestVec.size(); i++) {
-            personalBestVec[i] *=
-                (cPersonal * G_OptimizationAlgorithm_Base::uniform_real_distribution_(
-                                 gr_,
-                                 std::uniform_real_distribution<double>::param_type(0., 1.)
-                             ));
-            nbhBestVec[i] *=
-                (cNeighborhood * G_OptimizationAlgorithm_Base::uniform_real_distribution_(
-                                     gr_,
-                                     std::uniform_real_distribution<double>::param_type(0., 1.)
-                                 ));
-            glbBestVec[i] *=
-                (cGlobal * G_OptimizationAlgorithm_Base::uniform_real_distribution_(
-                               gr_,
-                               std::uniform_real_distribution<double>::param_type(0., 1.)
-                           ));
+        for(std::size_t i = 0; i < personal_best_vec.size(); i++) {
+            personal_best_vec[i] *=
+                (c_personal * G_OptimizationAlgorithm_Base::uniform_real_distribution_(
+                                  gr_,
+                                  std::uniform_real_distribution<double>::param_type(0., 1.)
+                              ));
+            nbh_best_vec[i] *=
+                (c_neighborhood * G_OptimizationAlgorithm_Base::uniform_real_distribution_(
+                                      gr_,
+                                      std::uniform_real_distribution<double>::param_type(0., 1.)
+                                  ));
+            glb_best_vec[i] *=
+                (c_global * G_OptimizationAlgorithm_Base::uniform_real_distribution_(
+                                gr_,
+                                std::uniform_real_distribution<double>::param_type(0., 1.)
+                            ));
         }
         break;
 
     case updateRule::SWARM_UPDATERULE_LINEAR:
         // Multiply each position with the same random floating point number times a constant
         Gem::Common::multVecConst<double>(
-            personalBestVec,
-            cPersonal * G_OptimizationAlgorithm_Base::uniform_real_distribution_(
-                            gr_,
-                            std::uniform_real_distribution<double>::param_type(0., 1.)
-                        )
+            personal_best_vec,
+            c_personal * G_OptimizationAlgorithm_Base::uniform_real_distribution_(
+                             gr_,
+                             std::uniform_real_distribution<double>::param_type(0., 1.)
+                         )
         );
         Gem::Common::multVecConst<double>(
-            nbhBestVec,
-            cNeighborhood * G_OptimizationAlgorithm_Base::uniform_real_distribution_(
-                                gr_,
-                                std::uniform_real_distribution<double>::param_type(0., 1.)
-                            )
+            nbh_best_vec,
+            c_neighborhood * G_OptimizationAlgorithm_Base::uniform_real_distribution_(
+                                 gr_,
+                                 std::uniform_real_distribution<double>::param_type(0., 1.)
+                             )
         );
         Gem::Common::multVecConst<double>(
-            glbBestVec,
-            cGlobal * G_OptimizationAlgorithm_Base::uniform_real_distribution_(
-                          gr_,
-                          std::uniform_real_distribution<double>::param_type(0., 1.)
-                      )
+            glb_best_vec,
+            c_global * G_OptimizationAlgorithm_Base::uniform_real_distribution_(
+                           gr_,
+                           std::uniform_real_distribution<double>::param_type(0., 1.)
+                       )
         );
         break;
     }
 
     // Scale the velocity
-    Gem::Common::multVecConst<double>(velVec, cVelocity);
+    Gem::Common::multVecConst<double>(vel_vec, c_velocity);
 
     // Add the personal and neighborhood parameters to the velocity
-    Gem::Common::addVec<double>(velVec, personalBestVec);
-    Gem::Common::addVec<double>(velVec, nbhBestVec);
+    Gem::Common::addVec<double>(vel_vec, personal_best_vec);
+    Gem::Common::addVec<double>(vel_vec, nbh_best_vec);
 
     // Adding a velocity component towards the global best only
     // makes sense if there is more than one neighborhood
     if(getNNeighborhoods() > 1) {
-        Gem::Common::addVec<double>(velVec, glbBestVec);
+        Gem::Common::addVec<double>(vel_vec, glb_best_vec);
     }
 
     // Prune the velocity vector so that we can
     // be sure it is inside of the allowed range
-    pruneVelocity(velVec);
+    pruneVelocity(vel_vec);
 
     // Add or subtract the velocity parameters to the individual's parameters, depending on
     // the number of stalls and the value of the repulsion_threshold_ variable. This allows
     // the algorithm to escape local optima, if repulsion_threshold_ is > 0.
     if(0 < repulsion_threshold_ && this->getStallCounter() >= repulsion_threshold_) {
         Gem::Common::subtractVec<double>(
-            indVec,
-            velVec
+            ind_vec,
+            vel_vec
         ); // repulsion -- walk away from best known individuals
     }
     else {
         Gem::Common::addVec<double>(
-            indVec,
-            velVec
+            ind_vec,
+            vel_vec
         ); // attraction - walk towards best known individuals
     }
 
     // Update the velocity individual
-    velocity->assignValueVector<double>(velVec, activityMode::ACTIVEONLY);
+    velocity->assignValueVector<double>(vel_vec, activityMode::ACTIVEONLY);
 
     // Update the candidate solution
-    ind->assignValueVector<double>(indVec, activityMode::ACTIVEONLY);
+    ind->assignValueVector<double>(ind_vec, activityMode::ACTIVEONLY);
 }
 
 /******************************************************************************/
 /**
  * Adjusts the velocity vector so that its parameters don't exceed the allowed value range.
  *
- * @param velVec the velocity vector to be adjusted
+ * @param vel_vec the velocity vector to be adjusted
  */
-void GSwarmAlgorithm::pruneVelocity(std::vector<double> &velVec) {
+void GSwarmAlgorithm::pruneVelocity(std::vector<double> &vel_vec) {
 #ifdef DEBUG
-    if(velVec.size() != dbl_vel_max_cnt_.size()) {
+    if(vel_vec.size() != dbl_vel_max_cnt_.size()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GSwarmAlgorithm::pruneVelocity(): Error!" << '\n'
-            << "Found invalid vector sizes: " << velVec.size() << " / " << dbl_vel_max_cnt_.size()
+            << "Found invalid vector sizes: " << vel_vec.size() << " / " << dbl_vel_max_cnt_.size()
             << '\n'
         );
     }
@@ -1287,10 +1287,10 @@ void GSwarmAlgorithm::pruneVelocity(std::vector<double> &velVec) {
 #endif
 
     // Find the parameter that exceeds the allowed range by the largest percentage
-    double currentPercentage = 0.;
-    double maxPercentage = 0.;
-    bool overflowFound = false;
-    for(std::size_t i = 0; i < velVec.size(); i++) {
+    double current_percentage = 0.;
+    double max_percentage = 0.;
+    bool overflow_found = false;
+    for(std::size_t i = 0; i < vel_vec.size(); i++) {
         if(dbl_vel_max_cnt_[i] <= 0.) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
@@ -1299,28 +1299,28 @@ void GSwarmAlgorithm::pruneVelocity(std::vector<double> &velVec) {
             );
         }
 
-        if(std::abs(velVec[i]) > dbl_vel_max_cnt_[i]) {
-            overflowFound = true;
-            currentPercentage = std::abs(velVec[i]) / dbl_vel_max_cnt_[i];
-            if(currentPercentage > maxPercentage) {
-                maxPercentage = currentPercentage;
+        if(std::abs(vel_vec[i]) > dbl_vel_max_cnt_[i]) {
+            overflow_found = true;
+            current_percentage = std::abs(vel_vec[i]) / dbl_vel_max_cnt_[i];
+            if(current_percentage > max_percentage) {
+                max_percentage = current_percentage;
             }
         }
     }
 
-    if(overflowFound) {
-        // Scale all velocity entries by maxPercentage
-        for(std::size_t i = 0; i < velVec.size(); i++) {
+    if(overflow_found) {
+        // Scale all velocity entries by max_percentage
+        for(std::size_t i = 0; i < vel_vec.size(); i++) {
 #ifdef DEBUG
-            if(maxPercentage <= 0.) {
+            if(max_percentage <= 0.) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
                     << "In GSwarmAlgorithm::pruneVelocity(): Error!" << '\n'
-                    << "Invalid maxPercentage: " << maxPercentage << '\n'
+                    << "Invalid max_percentage: " << max_percentage << '\n'
                 );
             }
 #endif
-            velVec[i] /= maxPercentage;
+            vel_vec[i] /= max_percentage;
         }
     }
 }
@@ -1420,10 +1420,10 @@ std::tuple<double, double> GSwarmAlgorithm::findBests() {
     auto m =
         this->at(0)->getMaxMode(); // We assume that the maxMode is the same for all individuals
 
-    std::size_t bestLocalId = 0;
-    std::tuple<double, double> bestLocalFitness =
+    std::size_t best_local_id = 0;
+    std::tuple<double, double> best_local_fitness =
         std::make_tuple(this->at(0)->getWorstCase(), this->at(0)->getWorstCase());
-    std::tuple<double, double> bestIterationFitness =
+    std::tuple<double, double> best_iteration_fitness =
         std::make_tuple(this->at(0)->getWorstCase(), this->at(0)->getWorstCase());
 
 #ifdef DEBUG
@@ -1460,13 +1460,13 @@ std::tuple<double, double> GSwarmAlgorithm::findBests() {
     // Sort individuals in all neighborhoods according to their fitness
     for(std::size_t n = 0; n < n_neighborhoods_; n++) {
         // identify the first and last id of the individuals in the current neighborhood
-        std::size_t firstCounter = getFirstNIPos(n);
-        std::size_t lastCounter = getLastNIPos(n);
+        std::size_t first_counter = getFirstNIPos(n);
+        std::size_t last_counter = getLastNIPos(n);
 
         // Only partially sort the arrays
         std::sort(
-            this->begin() + firstCounter,
-            this->begin() + lastCounter,
+            this->begin() + first_counter,
+            this->begin() + last_counter,
             [](std::shared_ptr<GParameterSet> x_ptr, std::shared_ptr<GParameterSet> y_ptr) -> bool {
                 return minOnly_transformed_fitness(x_ptr) < minOnly_transformed_fitness(y_ptr);
             }
@@ -1476,15 +1476,15 @@ std::tuple<double, double> GSwarmAlgorithm::findBests() {
         // the best individual found so far in this neighborhood
         if(inFirstIteration()) {
             neighborhood_bests_cnt_.at(n) =
-                (*(this->begin() + firstCounter))->clone<GParameterSet>();
+                (*(this->begin() + first_counter))->clone<GParameterSet>();
         }
         else {
             if(isBetter(
-                   (*(this->begin() + firstCounter))->transformed_fitness(0),
+                   (*(this->begin() + first_counter))->transformed_fitness(0),
                    neighborhood_bests_cnt_.at(n)->transformed_fitness(0),
                    m
                )) {
-                (neighborhood_bests_cnt_.at(n))->GObject::load(*(this->begin() + firstCounter));
+                (neighborhood_bests_cnt_.at(n))->GObject::load(*(this->begin() + first_counter));
             }
         }
     }
@@ -1493,26 +1493,26 @@ std::tuple<double, double> GSwarmAlgorithm::findBests() {
     for(std::size_t n = 0; n < n_neighborhoods_; n++) {
         if(isBetter(
                (neighborhood_bests_cnt_.at(n))->transformed_fitness(0),
-               std::get<G_TRANSFORMED_FITNESS>(bestLocalFitness),
+               std::get<G_TRANSFORMED_FITNESS>(best_local_fitness),
                m
            )) {
-            bestLocalId = n;
-            bestLocalFitness = (neighborhood_bests_cnt_.at(n))->getFitnessTuple();
+            best_local_id = n;
+            best_local_fitness = (neighborhood_bests_cnt_.at(n))->getFitnessTuple();
         }
     }
 
     // Compare the best neighborhood individual with the globally best individual and
     // update it, if necessary. Initialize it in the first generation.
     if(inFirstIteration()) {
-        global_best_ptr_ = (neighborhood_bests_cnt_.at(bestLocalId))->clone<GParameterSet>();
+        global_best_ptr_ = (neighborhood_bests_cnt_.at(best_local_id))->clone<GParameterSet>();
     }
     else {
         if(isBetter(
-               std::get<G_TRANSFORMED_FITNESS>(bestLocalFitness),
+               std::get<G_TRANSFORMED_FITNESS>(best_local_fitness),
                global_best_ptr_->transformed_fitness(0),
                m
            )) {
-            global_best_ptr_->GObject::load(neighborhood_bests_cnt_.at(bestLocalId));
+            global_best_ptr_->GObject::load(neighborhood_bests_cnt_.at(best_local_id));
         }
     }
 
@@ -1520,14 +1520,14 @@ std::tuple<double, double> GSwarmAlgorithm::findBests() {
     for(std::size_t i = 0; i < this->size(); i++) {
         if(isBetter(
                std::get<G_TRANSFORMED_FITNESS>(this->at(i)->getFitnessTuple()),
-               std::get<G_TRANSFORMED_FITNESS>(bestIterationFitness),
+               std::get<G_TRANSFORMED_FITNESS>(best_iteration_fitness),
                m
            )) {
-            bestIterationFitness = this->at(i)->getFitnessTuple();
+            best_iteration_fitness = this->at(i)->getFitnessTuple();
         }
     }
 
-    return bestIterationFitness;
+    return best_iteration_fitness;
 }
 
 /******************************************************************************/
@@ -1536,11 +1536,11 @@ std::tuple<double, double> GSwarmAlgorithm::findBests() {
  * the purely virtual function G_OptimizationAlgorithm_Base::adjustPopulation() .
  */
 void GSwarmAlgorithm::adjustPopulation_() {
-    const std::size_t currentSize = this->size();
-    const std::size_t defaultPopSize = getDefaultPopulationSize();
-    const std::size_t nNeighborhoods = getNNeighborhoods();
+    const std::size_t current_size = this->size();
+    const std::size_t default_pop_size = getDefaultPopulationSize();
+    const std::size_t n_neighborhoods = getNNeighborhoods();
 
-    if(currentSize == 0) {
+    if(current_size == 0) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GSwarmAlgorithm::adjustPopulation() :" << '\n'
@@ -1549,7 +1549,7 @@ void GSwarmAlgorithm::adjustPopulation_() {
             << "the call to optimize<>()" << '\n'
         );
     }
-    else if(currentSize == 1) {
+    else if(current_size == 1) {
         // Fill up with random items to the number of neighborhoods
         for(std::size_t i = 1; i < n_neighborhoods_; i++) {
             this->push_back(this->front()->clone<GParameterSet>());
@@ -1561,20 +1561,20 @@ void GSwarmAlgorithm::adjustPopulation_() {
         // has been added.
         fillUpNeighborhood1();
     }
-    else if(currentSize == nNeighborhoods) {
+    else if(current_size == n_neighborhoods) {
         // Fill in remaining items in each neighborhood.
         fillUpNeighborhood1();
     }
-    else if(currentSize == defaultPopSize) {
+    else if(current_size == default_pop_size) {
         // Update the number of individuals in each neighborhood
         for(std::size_t n = 0; n < n_neighborhoods_; n++) {
             n_neighborhood_members_cnt_[n] = default_n_neighborhood_members_;
         }
     }
     else {
-        if(currentSize < n_neighborhoods_) {
+        if(current_size < n_neighborhoods_) {
             // First fill up the neighborhoods, if required
-            for(std::size_t m = 0; m < (n_neighborhoods_ - currentSize); m++) {
+            for(std::size_t m = 0; m < (n_neighborhoods_ - current_size); m++) {
                 this->push_back(this->front()->clone<GParameterSet>());
                 this->back()->randomInit(activityMode::ACTIVEONLY);
             }
@@ -1582,7 +1582,7 @@ void GSwarmAlgorithm::adjustPopulation_() {
             // Now follow the procedure used for the "n_neighborhoods_" case
             fillUpNeighborhood1();
         }
-        else if(currentSize > n_neighborhoods_ && currentSize < defaultPopSize) {
+        else if(current_size > n_neighborhoods_ && current_size < default_pop_size) {
             // New procedure:
             // - Find out how many individuals exist in each neighborhood (Check: Has the neighborhood-id already been assigned here ?)
             // - For each neighborhood: add missing items to the end of vector
@@ -1613,18 +1613,18 @@ void GSwarmAlgorithm::adjustPopulation_() {
             // Must remove worst items for each neighborhood individually. Also: Must make sure that. while some
             // neighborhoods might have too many, others might have too few entries. MUST FIX.
             n_neighborhood_members_cnt_[n_neighborhoods_ - 1] =
-                default_n_neighborhood_members_ + (currentSize - defaultPopSize);
+                default_n_neighborhood_members_ + (current_size - default_pop_size);
         }
     }
 
 #ifdef DEBUG
     // As the above switch statement is quite complicated, cross check that we now
     // indeed have at least the required number of individuals
-    if(this->size() < defaultPopSize) {
+    if(this->size() < default_pop_size) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GSwarmAlgorithm::adjustPopulation() :" << '\n'
-            << "Expected at least a population size of " << defaultPopSize << '\n'
+            << "Expected at least a population size of " << default_pop_size << '\n'
             << "but found a size of " << this->size() << ", which is too small." << '\n'
         );
     }
@@ -1769,19 +1769,19 @@ double GSwarmAlgorithm::getCVelocity() const {
 /**
  * Allows to set the velocity range percentage
  *
- * @param velocityRangePercentage The velocity range percentage
+ * @param velocity_range_percentage The velocity range percentage
  */
-void GSwarmAlgorithm::setVelocityRangePercentage(double velocityRangePercentage) {
+void GSwarmAlgorithm::setVelocityRangePercentage(double velocity_range_percentage) {
     // Do some error checking
-    if(velocityRangePercentage <= 0. || velocityRangePercentage > 1.) {
+    if(velocity_range_percentage <= 0. || velocity_range_percentage > 1.) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GSwarmAlgorithm::setVelocityRangePercentage()" << '\n'
-            << "Invalid velocityRangePercentage: " << velocityRangePercentage << '\n'
+            << "Invalid velocity_range_percentage: " << velocity_range_percentage << '\n'
         );
     }
 
-    velocity_range_percentage_ = velocityRangePercentage;
+    velocity_range_percentage_ = velocity_range_percentage;
 }
 
 /******************************************************************************/
@@ -1849,10 +1849,10 @@ updateRule GSwarmAlgorithm::getUpdateRule() const {
  * Allows to specify the number of stalls as of which the algorithm switches to
  * repulsive mode. Set this value to 0 in order to disable repulsive mode.
  *
- * @param repulsionThreshold The threshold as of which the algorithm switches to repulsive mode
+ * @param repulsion_threshold The threshold as of which the algorithm switches to repulsive mode
  */
-void GSwarmAlgorithm::setRepulsionThreshold(std::uint32_t repulsionThreshold) {
-    repulsion_threshold_ = repulsionThreshold;
+void GSwarmAlgorithm::setRepulsionThreshold(std::uint32_t repulsion_threshold) {
+    repulsion_threshold_ = repulsion_threshold;
 }
 
 /******************************************************************************/
@@ -1878,8 +1878,8 @@ void GSwarmAlgorithm::setNeighborhoodsEqualFillUp() {
 /**
  * All individuals automatically added to a neighborhood will have a random value
  */
-void GSwarmAlgorithm::setNeighborhoodsRandomFillUp(bool randomFillUp) {
-    random_fill_up_ = randomFillUp;
+void GSwarmAlgorithm::setNeighborhoodsRandomFillUp(bool random_fill_up) {
+    random_fill_up_ = random_fill_up;
 }
 
 /******************************************************************************/

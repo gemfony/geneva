@@ -79,16 +79,16 @@ GTestIndividual2::GTestIndividual2()
 /**
  * The standard constructor
  *
- * @param nObjects The number of parameters to be added to this individual
+ * @param n_objects The number of parameters to be added to this individual
  */
-GTestIndividual2::GTestIndividual2(const std::size_t &nObjects, const PERFOBJECTTYPE &otype)
+GTestIndividual2::GTestIndividual2(const std::size_t &n_objects, const PERFOBJECTTYPE &otype)
   : GParameterSet() {
     using namespace Gem::Geneva;
 
     // Fill with the requested amount of data of the requested type
     switch(otype) {
     case PERFOBJECTTYPE::PERFGDOUBLEOBJECT: {
-        for(std::size_t i = 0; i < nObjects; i++) {
+        for(std::size_t i = 0; i < n_objects; i++) {
             std::shared_ptr<GDoubleObject> gdo_ptr(new GDoubleObject(0.));
             std::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(
                 new GDoubleGaussAdaptor(0.025, 0.1, 0., 1., 1.)
@@ -99,7 +99,7 @@ GTestIndividual2::GTestIndividual2(const std::size_t &nObjects, const PERFOBJECT
     } break;
 
     case PERFOBJECTTYPE::PERFGCONSTRDOUBLEOBJECT: {
-        for(std::size_t i = 0; i < nObjects; i++) {
+        for(std::size_t i = 0; i < n_objects; i++) {
             std::shared_ptr<GConstrainedDoubleObject> gcdo_ptr(
                 new GConstrainedDoubleObject(0., -10., 10.)
             );
@@ -120,13 +120,13 @@ GTestIndividual2::GTestIndividual2(const std::size_t &nObjects, const PERFOBJECT
         );
         gcdo_ptr->addAdaptor(gdga_ptr);
         std::shared_ptr<GConstrainedDoubleObjectCollection> gcdc_ptr(
-            new GConstrainedDoubleObjectCollection(nObjects, gcdo_ptr)
+            new GConstrainedDoubleObjectCollection(n_objects, gcdo_ptr)
         );
         this->push_back(gcdc_ptr);
     } break;
 
     case PERFOBJECTTYPE::PERFGDOUBLECOLLECTION: {
-        std::shared_ptr<GDoubleCollection> gdc_ptr(new GDoubleCollection(nObjects, 0., -10., 10.));
+        std::shared_ptr<GDoubleCollection> gdc_ptr(new GDoubleCollection(n_objects, 0., -10., 10.));
         std::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(
             new GDoubleGaussAdaptor(0.025, 0.1, 0., 1., 1.)
         );
@@ -136,7 +136,7 @@ GTestIndividual2::GTestIndividual2(const std::size_t &nObjects, const PERFOBJECT
 
     case PERFOBJECTTYPE::PERFGCONSTRAINEDDOUBLECOLLECTION: {
         std::shared_ptr<GConstrainedDoubleCollection> gcdc_ptr(
-            new GConstrainedDoubleCollection(nObjects, 0., -10., 10.)
+            new GConstrainedDoubleCollection(n_objects, 0., -10., 10.)
         );
         std::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(
             new GDoubleGaussAdaptor(0.025, 0.1, 0., 1., 1.)
@@ -243,12 +243,12 @@ double GTestIndividual2::fitnessCalculation() {
     double result = 0.;
 
     // We just calculate the square of all double values
-    std::vector<double> parVec;
-    this->streamline(parVec);
+    std::vector<double> par_vec;
+    this->streamline(par_vec);
 
     // Calculate the value of the parabola
-    for(std::size_t i = 0; i < parVec.size(); i++) {
-        result += GSQUARED(parVec[i]);
+    for(std::size_t i = 0; i < par_vec.size(); i++) {
+        result += GSQUARED(par_vec[i]);
     }
 
     return result;

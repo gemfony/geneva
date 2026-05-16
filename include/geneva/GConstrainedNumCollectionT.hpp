@@ -89,12 +89,12 @@ public:
      */
     GConstrainedNumCollectionT(
         const std::size_t size,
-        const num_type &lowerBoundary,
-        const num_type &upperBoundary
+        const num_type &lower_boundary,
+        const num_type &upper_boundary
     )
-      : GParameterCollectionT<num_type>(size, lowerBoundary)
-      , lowerBoundary_(lowerBoundary)
-      , upperBoundary_(upperBoundary) {
+      : GParameterCollectionT<num_type>(size, lower_boundary)
+      , lowerBoundary_(lower_boundary)
+      , upperBoundary_(upper_boundary) {
         // Naturally the upper boundary should be >= the lower boundary
         if(lowerBoundary_ > upperBoundary_) {
             glogger << "In GConstrainedNumCollectionT<num_type>::GConstrainedNumCollectionT(size, "
@@ -106,14 +106,14 @@ public:
         }
 
         // We might have constraints regarding the allowed boundaries. Cross-check
-        if(lowerBoundary < GConstrainedValueLimitT<num_type>::lowest() ||
-           upperBoundary > GConstrainedValueLimitT<num_type>::highest()) {
+        if(lower_boundary < GConstrainedValueLimitT<num_type>::lowest() ||
+           upper_boundary > GConstrainedValueLimitT<num_type>::highest()) {
             glogger << "In GConstrainedNumCollectionT<num_type>::GConstrainedNumCollectionT(size, "
                        "lower,upper):"
                     << '\n'
                     << "lower and/or upper limit outside of allowed value range:" << '\n'
-                    << "lowerBoundary = " << lowerBoundary << '\n'
-                    << "upperBoundary = " << upperBoundary << '\n'
+                    << "lowerBoundary = " << lower_boundary << '\n'
+                    << "upperBoundary = " << upper_boundary << '\n'
                     << "GConstrainedValueLimit<num_type>::lowest() = "
                     << GConstrainedValueLimitT<num_type>::lowest() << '\n'
                     << "GConstrainedValueLimit<num_type>::highest() = "
@@ -134,12 +134,12 @@ public:
     GConstrainedNumCollectionT(
         const std::size_t size,
         const num_type &val,
-        const num_type &lowerBoundary,
-        const num_type &upperBoundary
+        const num_type &lower_boundary,
+        const num_type &upper_boundary
     )
       : GParameterCollectionT<num_type>(size, val)
-      , lowerBoundary_(lowerBoundary)
-      , upperBoundary_(upperBoundary) {
+      , lowerBoundary_(lower_boundary)
+      , upperBoundary_(upper_boundary) {
         // Naturally the upper boundary should be > the lower boundary
         if(lowerBoundary_ > upperBoundary_) {
             glogger << "In GConstrainedNumCollectionT<num_type>::GConstrainedNumCollectionT(size, "
@@ -151,14 +151,14 @@ public:
         }
 
         // We might have constraints regarding the allowed boundaries. Cross-check
-        if(lowerBoundary < GConstrainedValueLimitT<num_type>::lowest() ||
-           upperBoundary > GConstrainedValueLimitT<num_type>::highest()) {
+        if(lower_boundary < GConstrainedValueLimitT<num_type>::lowest() ||
+           upper_boundary > GConstrainedValueLimitT<num_type>::highest()) {
             glogger << "In GConstrainedNumCollectionT<num_type>::GConstrainedNumCollectionT(size, "
                        "val, lower,upper):"
                     << '\n'
                     << "lower and/or upper limit outside of allowed value range:" << '\n'
-                    << "lowerBoundary = " << lowerBoundary << '\n'
-                    << "upperBoundary = " << upperBoundary << '\n'
+                    << "lowerBoundary = " << lower_boundary << '\n'
+                    << "upperBoundary = " << upper_boundary << '\n'
                     << "GConstrainedValueLimit<num_type>::lowest() = "
                     << GConstrainedValueLimitT<num_type>::lowest() << '\n'
                     << "GConstrainedValueLimit<num_type>::highest() = "
@@ -167,14 +167,14 @@ public:
         }
 
         // Check that assigned value is in the allowed range
-        if(val < lowerBoundary || val > upperBoundary) {
+        if(val < lower_boundary || val > upper_boundary) {
             glogger << "In GConstrainedNumCollectionT<num_type>::GConstrainedNumCollectionT(size, "
                        "val, lower,upper):"
                     << '\n'
                     << "Assigned value is outside of allowed value range:" << '\n'
                     << "val = " << val << '\n'
-                    << "lowerBoundary = " << lowerBoundary << '\n'
-                    << "upperBoundary = " << upperBoundary << '\n'
+                    << "lowerBoundary = " << lower_boundary << '\n'
+                    << "upperBoundary = " << upper_boundary << '\n'
                     << GTERMINATION;
         }
     }
@@ -236,20 +236,18 @@ public:
      * @param upper The new upper boundary for this object
      */
     virtual void setBoundaries(const num_type &lower, const num_type &upper) {
-        std::vector<num_type> currentValues;
+        std::vector<num_type> current_values;
         for(std::size_t pos = 0; pos < this->size(); pos++) {
-            currentValues.push_back(GParameterCollectionT<num_type>::value(pos));
+            current_values.push_back(GParameterCollectionT<num_type>::value(pos));
 
             // Check that the value is inside the allowed range
-            if(currentValues[pos] < lower || currentValues[pos] > upper) {
+            if(current_values[pos] < lower || current_values[pos] > upper) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
-                    << "In GConstrainedNumT<num_type>::setBoundaries(const T&, const T&) :"
-                    << '\n'
+                    << "In GConstrainedNumT<num_type>::setBoundaries(const T&, const T&) :" << '\n'
                     << "with typeid(num_type).name() = " << typeid(num_type).name() << '\n'
-                    << "Attempt to set new boundaries [" << lower << ":" << upper << "]"
-                    << '\n'
-                    << "with existing value  " << currentValues[pos] << " at position " << pos
+                    << "Attempt to set new boundaries [" << lower << ":" << upper << "]" << '\n'
+                    << "with existing value  " << current_values[pos] << " at position " << pos
                     << " outside of this range." << '\n'
                 );
             }
@@ -274,7 +272,7 @@ public:
         // region of the transformation internally, and the mapping will likely depend on
         // the boundaries.
         for(std::size_t pos = 0; pos < this->size(); pos++) {
-            GParameterCollectionT<num_type>::setValue(pos, currentValues.at(pos));
+            GParameterCollectionT<num_type>::setValue(pos, current_values.at(pos));
         }
     }
 
@@ -335,7 +333,7 @@ public:
      * @param ptr The boost::property_tree object the data should be saved to
      * @param id The id assigned to this object
      */
-    void toPropertyTree(pt::ptree &ptr, const std::string &baseName) const override {
+    void toPropertyTree(pt::ptree &ptr, const std::string &base_name) const override {
 #ifdef DEBUG
         // Check that the object isn't empty
         if(this->empty()) {
@@ -347,22 +345,22 @@ public:
         }
 #endif /* DEBUG */
 
-        ptr.put(baseName + ".name", this->getParameterName());
-        ptr.put(baseName + ".type", this->name());
-        ptr.put(baseName + ".baseType", Gem::Common::GTypeToStringT<num_type>::value());
-        ptr.put(baseName + ".isLeaf", this->isLeaf());
-        ptr.put(baseName + ".nVals", this->size());
+        ptr.put(base_name + ".name", this->getParameterName());
+        ptr.put(base_name + ".type", this->name());
+        ptr.put(base_name + ".baseType", Gem::Common::GTypeToStringT<num_type>::value());
+        ptr.put(base_name + ".isLeaf", this->isLeaf());
+        ptr.put(base_name + ".n_vals", this->size());
 
         typename GConstrainedNumCollectionT<num_type>::const_iterator cit;
         std::size_t pos = 0;
         for(cit = this->begin(); cit != this->end(); ++cit) {
             pos = cit - this->begin();
-            ptr.put(baseName + "values.value" + Gem::Common::to_string(pos), *cit);
+            ptr.put(base_name + "values.value" + Gem::Common::to_string(pos), *cit);
         }
-        ptr.put(baseName + ".lowerBoundary", this->getLowerBoundary());
-        ptr.put(baseName + ".upperBoundary", this->getUpperBoundary());
-        ptr.put(baseName + ".initRandom", false); // Unused for the creation of a property tree
-        ptr.put(baseName + ".adaptionsActive", this->adaptionsActive());
+        ptr.put(base_name + ".lowerBoundary", this->getLowerBoundary());
+        ptr.put(base_name + ".upperBoundary", this->getUpperBoundary());
+        ptr.put(base_name + ".initRandom", false); // Unused for the creation of a property tree
+        ptr.put(base_name + ".adaptionsActive", this->adaptionsActive());
     }
 
 protected:

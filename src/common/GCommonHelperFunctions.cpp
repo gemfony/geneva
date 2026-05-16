@@ -142,9 +142,9 @@ std::string loadTextDataFromFile(std::filesystem::path const &p) {
         );
     }
 
-    std::ifstream sourceFileStream(p);
+    std::ifstream source_file_stream(p);
 
-    if(not sourceFileStream) {
+    if(not source_file_stream) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In loadTextDataFromFile(): Error!" << '\n'
@@ -153,10 +153,10 @@ std::string loadTextDataFromFile(std::filesystem::path const &p) {
         );
     }
 
-    std::string sourceFile( // NOLINT(cppcoreguidelines-init-variables)
-			std::istreambuf_iterator<char>(sourceFileStream), (std::istreambuf_iterator<char>())
+    std::string source_file( // NOLINT(cppcoreguidelines-init-variables)
+			std::istreambuf_iterator<char>(source_file_stream), (std::istreambuf_iterator<char>())
 		);
-    return sourceFile;
+    return source_file;
 }
 
 /******************************************************************************/
@@ -178,9 +178,9 @@ std::vector<std::string> loadTextLinesFromFile(std::filesystem::path const &p) {
         );
     }
 
-    std::ifstream sourceFileStream(p);
+    std::ifstream source_file_stream(p);
 
-    if(not sourceFileStream) {
+    if(not source_file_stream) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In loadTextLinesFromFile(): Error!" << '\n'
@@ -192,7 +192,7 @@ std::vector<std::string> loadTextLinesFromFile(std::filesystem::path const &p) {
     std::string line; // NOLINT(cppcoreguidelines-init-variables)
     std::vector<std::string> str_result_vec;
 
-    while(std::getline(sourceFileStream, line)) {
+    while(std::getline(source_file_stream, line)) {
         // Omit empty lines, store everything else in the vector
         if(not line.empty())
             str_result_vec.push_back(line);
@@ -207,33 +207,33 @@ std::vector<std::string> loadTextLinesFromFile(std::filesystem::path const &p) {
  *
  * @param command The command to be executed (possibly including errors)
  * @param arguments The list of arguments to be added to the command
- * @param commandOutputFileName The name of a file to which information should be piped
- * @param fullCommand Allows the caller to find out about the full command
+ * @param command_output_file_name The name of a file to which information should be piped
+ * @param full_command Allows the caller to find out about the full command
  * @return The error code
  */
 int runExternalCommand(
     std::filesystem::path const &program,
     std::vector<std::string> const &arguments,
-    std::filesystem::path const &commandOutputFileName,
-    std::string &fullCommand
+    std::filesystem::path const &command_output_file_name,
+    std::string &full_command
 ) {
     // Convert slashes to backslashes on Windows
     std::filesystem::path p_program = program;
-    std::string localCommand = (p_program.make_preferred()).string();
+    std::string local_command = (p_program.make_preferred()).string();
 
     // Add command line arguments
     for(auto const &argument : arguments) {
-        localCommand += (std::string(" ") + argument);
+        local_command += (std::string(" ") + argument);
     }
 
     // If requested by the user, we want to send the command to an external file
-    if(not commandOutputFileName.empty()) {
-        std::filesystem::path p_commandOutputFileName = commandOutputFileName;
-        std::string localcommandOutputFileName =
-            (p_commandOutputFileName.make_preferred()).string();
+    if(not command_output_file_name.empty()) {
+        std::filesystem::path p_command_output_file_name = command_output_file_name;
+        std::string localcommand_output_file_name =
+            (p_command_output_file_name.make_preferred()).string();
 
-        localCommand = std::string("(") + localCommand + std::string(") > ") +
-                       localcommandOutputFileName + std::string(" 2>&1");
+        local_command = std::string("(") + local_command + std::string(") > ") +
+                        localcommand_output_file_name + std::string(" 2>&1");
     }
 
     // MOstly for external debugging
@@ -242,17 +242,17 @@ int runExternalCommand(
 #endif /* GEM_COMMON_PRINT_COMMANDLINE */
 
     // Assign the full command (mostly needed for external error-evaluation)
-    fullCommand = localCommand;
+    full_command = local_command;
 
     // Run the actual command.
-    int errorCode = system(localCommand.c_str());
+    int error_code = system(local_command.c_str());
 
 #ifdef GEM_COMMON_PRINT_COMMANDLINE
     std::cout << "... done." << '\n';
 #endif /* GEM_COMMON_PRINT_COMMANDLINE */
 
     // The error code will be returned as the function valiue
-    return errorCode;
+    return error_code;
 }
 
 /******************************************************************************/
@@ -497,12 +497,12 @@ milliseconds_to_time_point(std::chrono::milliseconds::rep const &val) {
  * Raise an exception if a given define wasn't set. "F" stands for "function",
  * "D" for "define".
  */
-void condnotset(std::string const &F, std::string const &D) {
+void condnotset(std::string const &f, std::string const &d) {
     std::ostringstream error; // NOLINT(cppcoreguidelines-init-variables)
     error << '\n'
           << "================================================" << '\n'
-          << "In function " << F << " Error!" << '\n'
-          << "Function was called even though " << D << " hasn't been set." << '\n'
+          << "In function " << f << " Error!" << '\n'
+          << "Function was called even though " << d << " hasn't been set." << '\n'
           << "================================================" << '\n';
     throw(geneva_exception(error.str()));
 }

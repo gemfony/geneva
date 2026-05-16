@@ -88,9 +88,9 @@ public:
      * then written to a stream.
      *
      * @param oarchive_stream The output stream the object should be written to
-     * @param serMod The desired serialization mode
+     * @param ser_mod The desired serialization mode
      */
-    void toStream(std::ostream &oarchive_stream, Gem::Common::serializationMode serMod) const {
+    void toStream(std::ostream &oarchive_stream, Gem::Common::serializationMode ser_mod) const {
         const g_class_type *local = nullptr;
 
         // Note: (De-)serialization must happen through a pointer to the same type.
@@ -107,7 +107,7 @@ public:
         local = static_cast<const g_class_type *>(this);
 #endif /* DEBUG */
 
-        switch(serMod) {
+        switch(ser_mod) {
         case Gem::Common::serializationMode::TEXT: {
             boost::archive::text_oarchive oa(oarchive_stream);
             oa << boost::serialization::make_nvp("classhierarchyFromT", local);
@@ -142,13 +142,13 @@ public:
      * Loads the object from a stream.
      *
      * @param istr The stream from which the object should be loaded
-     * @param serMod The desired serialization mode
+     * @param ser_mod The desired serialization mode
      *
      */
-    void fromStream(std::istream &istr, Gem::Common::serializationMode serMod) {
+    void fromStream(std::istream &istr, Gem::Common::serializationMode ser_mod) {
         g_class_type *raw = nullptr;
 
-        switch(serMod) {
+        switch(ser_mod) {
         case Gem::Common::serializationMode::TEXT: {
             boost::archive::text_iarchive ia(istr);
             ia >> boost::serialization::make_nvp("classhierarchyFromT", raw);
@@ -187,12 +187,12 @@ public:
      * class. Note that you will have to take care yourself that serialization and de-serialization
      * happens in the same mode.
      *
-     * @param serMod The desired serialization mode
+     * @param ser_mod The desired serialization mode
      * @return A text-representation of this class (or its derivative)
      */
-    std::string toString(Gem::Common::serializationMode serMod) const {
+    std::string toString(Gem::Common::serializationMode ser_mod) const {
         std::ostringstream oarchive_stream; // NOLINT(cppcoreguidelines-init-variables)
-        toStream(oarchive_stream, serMod);
+        toStream(oarchive_stream, ser_mod);
         return oarchive_stream.str();
     }
 
@@ -211,9 +211,9 @@ public:
      *
      * @param descr A text representation of a g_class_type-derivative
      */
-    void fromString(const std::string &descr, Gem::Common::serializationMode serMod) {
+    void fromString(const std::string &descr, Gem::Common::serializationMode ser_mod) {
         std::istringstream istr(descr);
-        fromStream(istr, serMod);
+        fromStream(istr, ser_mod);
     }
 
     /* ----------------------------------------------------------------------------------
@@ -227,9 +227,9 @@ public:
      * Writes a serial representation of this object to a file. Can be used for check-pointing.
      *
      * @param p The name of the file the object should be saved to.
-     * @param serMod The desired serialization mode
+     * @param ser_mod The desired serialization mode
      */
-    void toFile(const std::filesystem::path &p, Gem::Common::serializationMode serMod) const {
+    void toFile(const std::filesystem::path &p, Gem::Common::serializationMode ser_mod) const {
         std::ofstream ofstr( // NOLINT(cppcoreguidelines-init-variables)
             p
             , std::ofstream::trunc
@@ -243,7 +243,7 @@ public:
             );
         }
 
-        toStream(ofstr, serMod);
+        toStream(ofstr, ser_mod);
 
 #ifdef DEBUG
         if(not ofstr.good()) {
@@ -267,9 +267,9 @@ public:
      * Loads a serial representation of this object from file. Can be used for check-pointing.
      *
      * @param p The name of the file the object should be loaded from
-     * @param serMod The desired serialization mode
+     * @param ser_mod The desired serialization mode
      */
-    void fromFile(const std::filesystem::path &p, Gem::Common::serializationMode serMod) {
+    void fromFile(const std::filesystem::path &p, Gem::Common::serializationMode ser_mod) {
         // Check that the file exists
         if(not std::filesystem::exists(p)) {
             throw geneva_exception(
@@ -290,7 +290,7 @@ public:
             );
         }
 
-        fromStream(ifstr, serMod);
+        fromStream(ifstr, ser_mod);
     }
 
     /* ----------------------------------------------------------------------------------
@@ -330,10 +330,10 @@ public:
     /**
      * Writes a configuration file to disk
      *
-     * @param configFile The name of the configuration file to be written
+     * @param config_file The name of the configuration file to be written
      * @param header A header to be prepended to the configuration file
      */
-    void writeConfigFile(std::filesystem::path const &configFile, const std::string &header) {
+    void writeConfigFile(std::filesystem::path const &config_file, const std::string &header) {
         // This class will handle the interaction with configuration files
         Gem::Common::GParserBuilder gpb;
 
@@ -342,16 +342,16 @@ public:
         addConfigurationOptions(gpb);
 
         // Write out the configuration file
-        gpb.writeConfigFile(configFile, header, true);
+        gpb.writeConfigFile(config_file, header, true);
     }
 
     /******************************************************************************/
     /**
      * Reads a configuration file from disk
      *
-     * @param configFile The name of the configuration file to be parsed
+     * @param config_file The name of the configuration file to be parsed
      */
-    void readConfigFile(std::filesystem::path const &configFile) {
+    void readConfigFile(std::filesystem::path const &config_file) {
         // This class will handle the interaction with configuration files
         Gem::Common::GParserBuilder gpb;
 
@@ -360,7 +360,7 @@ public:
         addConfigurationOptions(gpb);
 
         // Read in the configuration file
-        gpb.parseConfigFile(configFile);
+        gpb.parseConfigFile(config_file);
     }
 
     /***************************************************************************/

@@ -72,7 +72,7 @@ public:
     template <typename oaf_type>
     void registerOAF() {
         // This will register the factory in the global factory store
-        G_OptimizationAlgorithm_InitializerT<oaf_type> GOAFStoreRegistrant;
+        G_OptimizationAlgorithm_InitializerT<oaf_type> goaf_store_registrant;
     }
 
     /***************************************************************************/
@@ -82,7 +82,7 @@ public:
     template <typename c_type>
     void registerConsumer() {
         // This will register the consumer with the global store
-        GIndividualStandardConsumerInitializerT<c_type> GConsumerStoreRegistrant;
+        GIndividualStandardConsumerInitializerT<c_type> g_consumer_store_registrant;
     }
 
     /**

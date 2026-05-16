@@ -213,20 +213,20 @@ private:
 #endif /* DEBUG */
 
 #ifdef DEBUG
-        std::uint32_t nRetries = 0;
+        std::uint32_t n_retries = 0;
 #endif /* DEBUG */
 
         // Try until a valid container has been received. new01Container has
         // a timeout of DEFAULTFACTORYGETWAIT internally.
         while(not(p_ = grf_->getNewRandomContainer())) {
 #ifdef DEBUG
-            nRetries++;
+            n_retries++;
 #endif /* DEBUG */
         }
 
 #ifdef DEBUG
-        if(nRetries > 1) {
-            std::cout << "Info: Had to try " << nRetries
+        if(n_retries > 1) {
+            std::cout << "Info: Had to try " << n_retries
                       << " times to retrieve a valid random number container." << '\n';
         }
 #endif /* DEBUG */

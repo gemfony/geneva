@@ -40,10 +40,10 @@ namespace Gem::Geneva {
  * Initialization with a number of identical GParameterBase objects
  */
 GParameterObjectCollection::GParameterObjectCollection(
-    const std::size_t &nCp,
+    const std::size_t &n_cp,
     std::shared_ptr<GParameterBase> tmpl_ptr
 )
-  : GParameterTCollectionT<GParameterBase>(nCp, tmpl_ptr) { /* nothing */
+  : GParameterTCollectionT<GParameterBase>(n_cp, tmpl_ptr) { /* nothing */
 }
 
 /******************************************************************************/
@@ -247,12 +247,12 @@ void GParameterObjectCollection::fillWithObjects_() {
 void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
     // Some settings
-    const double LOWERINITBOUNDARY = -10;
-    const double UPPERINITBOUNDARY = 10;
-    const double FIXEDVALUEINIT = 1.;
-    const double MULTVALUE = 3.;
-    const double RANDLOWERBOUNDARY = 2.;
-    const double RANDUPPERBOUNDARY = 10.;
+    const double lowerinitboundary = -10;
+    const double upperinitboundary = 10;
+    const double fixedvalueinit = 1.;
+    const double multvalue = 3.;
+    const double randlowerboundary = 2.;
+    const double randupperboundary = 10.;
 
     // A random generator
     Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
@@ -289,7 +289,7 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests_() {
         CHECK(*p_test1 == *p_test2);
 
         // Test initialization of p_test2 with a fixed value
-        CHECK_NOTHROW(p_test2->fixedValueInit<double>(FIXEDVALUEINIT, activityMode::ALLPARAMETERS));
+        CHECK_NOTHROW(p_test2->fixedValueInit<double>(fixedvalueinit, activityMode::ALLPARAMETERS));
 
         // The first two parameters should be unchanged
         CHECK(*(p_test1->at(0)) == *(p_test2->at(0)));
@@ -304,7 +304,7 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests_() {
         CHECK(gdo_ptr1->value() != gdo_ptr2->value());
 
         // Check that the desired value has been assigned
-        CHECK(gdo_ptr2->value() == FIXEDVALUEINIT);
+        CHECK(gdo_ptr2->value() == fixedvalueinit);
     }
 
     //------------------------------------------------------------------------------
@@ -325,7 +325,7 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests_() {
         CHECK(*p_test1 == *p_test2);
 
         // Initialize p_test2 with a fixed value
-        CHECK_NOTHROW(p_test2->fixedValueInit<double>(FIXEDVALUEINIT, activityMode::ALLPARAMETERS));
+        CHECK_NOTHROW(p_test2->fixedValueInit<double>(fixedvalueinit, activityMode::ALLPARAMETERS));
 
         // The first two parameters should be unchanged
         CHECK(*(p_test1->at(0)) == *(p_test2->at(0)));
@@ -340,10 +340,10 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests_() {
         CHECK(gdo_ptr1->value() != gdo_ptr2->value());
 
         // Check that the desired value has been assigned
-        CHECK(gdo_ptr2->value() == FIXEDVALUEINIT);
+        CHECK(gdo_ptr2->value() == fixedvalueinit);
 
         // Multiply with a fixed value
-        CHECK_NOTHROW(p_test2->multiplyBy<double>(MULTVALUE, activityMode::ALLPARAMETERS));
+        CHECK_NOTHROW(p_test2->multiplyBy<double>(multvalue, activityMode::ALLPARAMETERS));
 
         // The first two parameters should again be unchanged
         CHECK(*(p_test1->at(0)) == *(p_test2->at(0)));
@@ -352,9 +352,9 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests_() {
         // The fp value should have changed
         INFO(
             "gdo_ptr2->value() = " << gdo_ptr2->value()
-                                   << ", FIXEDVALUEINIT*MULTVALUE = " << FIXEDVALUEINIT * MULTVALUE
+                                   << ", FIXEDVALUEINIT*MULTVALUE = " << fixedvalueinit * multvalue
         );
-        CHECK(gdo_ptr2->value() == FIXEDVALUEINIT * MULTVALUE);
+        CHECK(gdo_ptr2->value() == fixedvalueinit * multvalue);
     }
 
     //------------------------------------------------------------------------------
@@ -369,7 +369,7 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests_() {
         CHECK_NOTHROW(p_test1->fillWithObjects_());
 
         // Initialize p_test1 with a fixed value
-        CHECK_NOTHROW(p_test1->fixedValueInit<double>(FIXEDVALUEINIT, activityMode::ALLPARAMETERS));
+        CHECK_NOTHROW(p_test1->fixedValueInit<double>(fixedvalueinit, activityMode::ALLPARAMETERS));
 
         // Load the data intp p_test2
         CHECK_NOTHROW(p_test2->load(p_test1));
@@ -379,8 +379,8 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests_() {
 
         // Multiply p_test2 with a random number in a given range
         CHECK_NOTHROW(p_test2->multiplyByRandom<double>(
-            RANDLOWERBOUNDARY,
-            RANDUPPERBOUNDARY,
+            randlowerboundary,
+            randupperboundary,
             activityMode::ALLPARAMETERS,
             gr
         ));
@@ -410,7 +410,7 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests_() {
         CHECK_NOTHROW(p_test1->fillWithObjects_());
 
         // Initialize p_test1 with a fixed value
-        CHECK_NOTHROW(p_test1->fixedValueInit<double>(FIXEDVALUEINIT, activityMode::ALLPARAMETERS));
+        CHECK_NOTHROW(p_test1->fixedValueInit<double>(fixedvalueinit, activityMode::ALLPARAMETERS));
 
         // Load the data intp p_test2
         CHECK_NOTHROW(p_test2->load(p_test1));
@@ -446,7 +446,7 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests_() {
         CHECK_NOTHROW(p_test1->fillWithObjects_());
 
         // Initialize p_test1 with a fixed value
-        CHECK_NOTHROW(p_test1->fixedValueInit<double>(FIXEDVALUEINIT, activityMode::ALLPARAMETERS));
+        CHECK_NOTHROW(p_test1->fixedValueInit<double>(fixedvalueinit, activityMode::ALLPARAMETERS));
 
         // Load the data intp p_test2
         CHECK_NOTHROW(p_test2->load(p_test1));
@@ -468,7 +468,7 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests_() {
 
         // The fp value should have changed, the value should be (FIXEDVALUEINIT+FIXEDVALUEINIT)
         CHECK(gdo_ptr2->value() != gdo_ptr1->value());
-        CHECK(gdo_ptr2->value() == FIXEDVALUEINIT + FIXEDVALUEINIT);
+        CHECK(gdo_ptr2->value() == fixedvalueinit + fixedvalueinit);
     }
 
     //------------------------------------------------------------------------------
@@ -483,7 +483,7 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests_() {
         CHECK_NOTHROW(p_test1->fillWithObjects_());
 
         // Initialize p_test1 with a fixed value
-        CHECK_NOTHROW(p_test1->fixedValueInit<double>(FIXEDVALUEINIT, activityMode::ALLPARAMETERS));
+        CHECK_NOTHROW(p_test1->fixedValueInit<double>(fixedvalueinit, activityMode::ALLPARAMETERS));
 
         // Load the data intp p_test2
         CHECK_NOTHROW(p_test2->load(p_test1));

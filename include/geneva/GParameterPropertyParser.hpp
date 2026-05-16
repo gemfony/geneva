@@ -128,15 +128,15 @@ public:
         NAMEANDIDTYPE var_c = b.var;
         b.var = this->var;
         this->var = var_c;
-        par_type lowerBoundary_c = b.lowerBoundary;
+        par_type lower_boundary_c = b.lowerBoundary;
         b.lowerBoundary = this->lowerBoundary;
-        this->lowerBoundary = lowerBoundary_c;
-        par_type upperBoundary_c = b.upperBoundary;
+        this->lowerBoundary = lower_boundary_c;
+        par_type upper_boundary_c = b.upperBoundary;
         b.upperBoundary = this->upperBoundary;
-        this->upperBoundary = upperBoundary_c;
-        std::size_t nSteps_c = b.nSteps;
+        this->upperBoundary = upper_boundary_c;
+        std::size_t n_steps_c = b.nSteps;
         b.nSteps = this->nSteps;
-        this->nSteps = nSteps_c;
+        this->nSteps = n_steps_c;
     }
 
     /***************************************************************************/

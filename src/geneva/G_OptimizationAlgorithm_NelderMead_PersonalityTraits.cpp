@@ -105,8 +105,8 @@ void GNelderMead_PersonalityTraits::load_(const GObject *cp) {
 /**
  * Sets the position of the individual in the population
  */
-void GNelderMead_PersonalityTraits::setPopulationPosition(const std::size_t &popPos) {
-    popPos_ = popPos;
+void GNelderMead_PersonalityTraits::setPopulationPosition(const std::size_t &pop_pos) {
+    popPos_ = pop_pos;
 }
 
 /******************************************************************************/

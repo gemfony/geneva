@@ -52,8 +52,8 @@ GDoubleObject::GDoubleObject(const double &val)
  * @param lowerBoundary The lower boundary for the random number used in the initialization
  * @param upperBoundary The upper boundary for the random number used in the initialization
  */
-GDoubleObject::GDoubleObject(const double &lowerBoundary, const double &upperBoundary)
-  : GNumFPT<double>(lowerBoundary, upperBoundary) { /* nothing */
+GDoubleObject::GDoubleObject(const double &lower_boundary, const double &upper_boundary)
+  : GNumFPT<double>(lower_boundary, upper_boundary) { /* nothing */
 }
 
 /******************************************************************************/
@@ -66,10 +66,10 @@ GDoubleObject::GDoubleObject(const double &lowerBoundary, const double &upperBou
  */
 GDoubleObject::GDoubleObject(
     const double &val,
-    const double &lowerBoundary,
-    const double &upperBoundary
+    const double &lower_boundary,
+    const double &upper_boundary
 )
-  : GNumFPT<double>(val, lowerBoundary, upperBoundary) { /* nothing */
+  : GNumFPT<double>(val, lower_boundary, upper_boundary) { /* nothing */
 }
 
 /******************************************************************************/
@@ -138,23 +138,23 @@ std::string GDoubleObject::name_() const {
  * Attach our local value to the vector. This is used to collect all parameters of this type
  * in the sequence in which they were registered.
  *
- * @param parVec The vector to which the local value should be attached
+ * @param par_vec The vector to which the local value should be attached
  */
 void GDoubleObject::doubleStreamline(
-    std::vector<double> &parVec,
+    std::vector<double> &par_vec,
     const activityMode & /*am*/
 ) const {
-    parVec.push_back(this->value());
+    par_vec.push_back(this->value());
 }
 
 /******************************************************************************/
 /**
  * Attach our local value to the map.
  *
- * @param parVec The map to which the local value should be attached
+ * @param par_vec The map to which the local value should be attached
  */
 void GDoubleObject::doubleStreamline(
-    std::map<std::string, std::vector<double>> &parVec,
+    std::map<std::string, std::vector<double>> &par_vec,
     const activityMode & /*am*/
 ) const {
 #ifdef DEBUG
@@ -162,7 +162,7 @@ void GDoubleObject::doubleStreamline(
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GDoubleObject::doubleStreamline(std::map<std::string, std::vector<double>>& "
-               "parVec) const: Error!"
+               "par_vec) const: Error!"
             << '\n'
             << "No name was assigned to the object" << '\n'
         );
@@ -171,7 +171,7 @@ void GDoubleObject::doubleStreamline(
 
     std::vector<double> parameters;
     parameters.push_back(this->value());
-    parVec[this->getParameterName()] = parameters;
+    par_vec[this->getParameterName()] = parameters;
 }
 
 /******************************************************************************/
@@ -179,16 +179,16 @@ void GDoubleObject::doubleStreamline(
  * Attach boundaries of type double to the vectors. Since this is an unbounded type,
  * we use the initialization boundaries as a replacement.
  *
- * @param lBndVec A vector of lower double parameter boundaries
- * @param uBndVec A vector of upper double parameter boundaries
+ * @param l_bnd_vec A vector of lower double parameter boundaries
+ * @param u_bnd_vec A vector of upper double parameter boundaries
  */
 void GDoubleObject::doubleBoundaries(
-    std::vector<double> &lBndVec,
-    std::vector<double> &uBndVec,
+    std::vector<double> &l_bnd_vec,
+    std::vector<double> &u_bnd_vec,
     const activityMode & /*am*/
 ) const {
-    lBndVec.push_back(this->getLowerInitBoundary());
-    uBndVec.push_back(this->getUpperInitBoundary());
+    l_bnd_vec.push_back(this->getLowerInitBoundary());
+    u_bnd_vec.push_back(this->getUpperInitBoundary());
 }
 
 /******************************************************************************/
@@ -209,25 +209,25 @@ std::size_t GDoubleObject::countDoubleParameters(
  * Assigns part of a value vector to the parameter
  */
 void GDoubleObject::assignDoubleValueVector(
-    const std::vector<double> &parVec,
+    const std::vector<double> &par_vec,
     std::size_t &pos,
     const activityMode & /*am*/
 ) {
 #ifdef DEBUG
     // Do we have a valid position ?
-    if(pos >= parVec.size()) {
+    if(pos >= par_vec.size()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GDoubleObject::assignDoubleValueVector(const std::vector<double>&, "
                "std::size_t&):"
             << '\n'
-            << "Tried to access position beyond end of vector: " << parVec.size() << "/" << pos
+            << "Tried to access position beyond end of vector: " << par_vec.size() << "/" << pos
             << '\n'
         );
     }
 #endif
 
-    this->setValue(parVec[pos]);
+    this->setValue(par_vec[pos]);
     pos++;
 }
 
@@ -236,10 +236,10 @@ void GDoubleObject::assignDoubleValueVector(
  * Assigns part of a value map to the parameter
  */
 void GDoubleObject::assignDoubleValueVectors(
-    const std::map<std::string, std::vector<double>> &parMap,
+    const std::map<std::string, std::vector<double>> &par_map,
     const activityMode & /*am*/
 ) {
-    this->setValue((Gem::Common::getMapItem(parMap, this->getParameterName())).at(0));
+    this->setValue((Gem::Common::getMapItem(par_map, this->getParameterName())).at(0));
 }
 
 /******************************************************************************/
@@ -364,15 +364,15 @@ bool GDoubleObject::modify_GUnitTests_() {
 void GDoubleObject::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
     // A few settings
-    const std::size_t nTests = 10000;
+    const std::size_t n_tests = 10000;
 
     // Make sure we have an appropriate adaptor loaded when performing these tests
-    bool adaptorStored = false;
-    std::shared_ptr<GAdaptorT<double>> storedAdaptor;
+    bool adaptor_stored = false;
+    std::shared_ptr<GAdaptorT<double>> stored_adaptor;
 
     if(this->hasAdaptor()) {
-        storedAdaptor = this->getAdaptor();
-        adaptorStored = true;
+        stored_adaptor = this->getAdaptor();
+        adaptor_stored = true;
     }
 
     std::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(
@@ -429,14 +429,14 @@ void GDoubleObject::specificTestsNoFailureExpected_GUnitTests_() {
 
         if(p_test->hasAdaptor()) {
             CHECK_NOTHROW(*p_test = 1.);
-            double origVal = *p_test;
+            double orig_val = *p_test;
             CHECK(*p_test == 1.);
-            CHECK(origVal == 1.);
+            CHECK(orig_val == 1.);
 
-            for(std::size_t i = 0; i < nTests; i++) {
+            for(std::size_t i = 0; i < n_tests; i++) {
                 CHECK_NOTHROW(p_test->adapt(gr));
-                CHECK(origVal != *p_test); // Should be different
-                CHECK_NOTHROW(origVal = *p_test);
+                CHECK(orig_val != *p_test); // Should be different
+                CHECK_NOTHROW(orig_val = *p_test);
             }
         }
     }
@@ -504,8 +504,8 @@ void GDoubleObject::specificTestsNoFailureExpected_GUnitTests_() {
     this->resetAdaptor();
 
     // Load the old adaptor, if needed
-    if(adaptorStored) {
-        this->addAdaptor(storedAdaptor);
+    if(adaptor_stored) {
+        this->addAdaptor(stored_adaptor);
     }
 
     // --------------------------------------------------------------------------
@@ -537,12 +537,12 @@ void GDoubleObject::specificTestsNoFailureExpected_GUnitTests_() {
 void GDoubleObject::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
     // Make sure we have an appropriate adaptor loaded when performing these tests
-    bool adaptorStored = false;
-    std::shared_ptr<GAdaptorT<double>> storedAdaptor;
+    bool adaptor_stored = false;
+    std::shared_ptr<GAdaptorT<double>> stored_adaptor;
 
     if(this->hasAdaptor()) {
-        storedAdaptor = this->getAdaptor();
-        adaptorStored = true;
+        stored_adaptor = this->getAdaptor();
+        adaptor_stored = true;
     }
 
     std::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(
@@ -578,8 +578,8 @@ void GDoubleObject::specificTestsFailuresExpected_GUnitTests_() {
     this->resetAdaptor();
 
     // Load the old adaptor, if needed
-    if(adaptorStored) {
-        this->addAdaptor(storedAdaptor);
+    if(adaptor_stored) {
+        this->addAdaptor(stored_adaptor);
     }
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw

@@ -47,8 +47,8 @@ GSimulatedAnnealingFactory::GSimulatedAnnealingFactory()
 /**
  * Initialization with the name of the config file
  */
-GSimulatedAnnealingFactory::GSimulatedAnnealingFactory(std::filesystem::path const &configFile)
-  : G_OptimizationAlgorithm_FactoryT<G_OptimizationAlgorithm_Base>(configFile) { /* nothing */
+GSimulatedAnnealingFactory::GSimulatedAnnealingFactory(std::filesystem::path const &config_file)
+  : G_OptimizationAlgorithm_FactoryT<G_OptimizationAlgorithm_Base>(config_file) { /* nothing */
 }
 
 /******************************************************************************/
@@ -57,12 +57,12 @@ GSimulatedAnnealingFactory::GSimulatedAnnealingFactory(std::filesystem::path con
  * to add a content creator. It initializes a target item as needed.
  */
 GSimulatedAnnealingFactory::GSimulatedAnnealingFactory(
-    std::filesystem::path const &configFile,
-    std::shared_ptr<Gem::Common::GFactoryT<GParameterSet>> contentCreatorPtr
+    std::filesystem::path const &config_file,
+    std::shared_ptr<Gem::Common::GFactoryT<GParameterSet>> content_creator_ptr
 )
   : G_OptimizationAlgorithm_FactoryT<G_OptimizationAlgorithm_Base>(
-        configFile,
-        contentCreatorPtr
+        config_file,
+        content_creator_ptr
     ) { /* nothing */
 }
 

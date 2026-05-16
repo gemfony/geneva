@@ -83,7 +83,7 @@ public:
     ~GSimulatedAnnealing() override = default;
 
     /** @brief Sets the number of threads this population uses for adaption */
-    void setNThreads(std::uint16_t nThreads);
+    void setNThreads(std::uint16_t n_threads);
     /** @brief Retrieves the number of threads this population uses for adaption */
     std::uint16_t getNThreads() const;
 
@@ -181,7 +181,7 @@ private:
     void sortSAMode();
 
     /** @brief Calculates the simulated annealing probability for a child to replace a parent */
-    double saProb(const double &qParent, const double &qChild);
+    double saProb(const double &q_parent, const double &q_child);
 
     /** @brief Updates the temperature. This function is used for simulated annealing. */
     void updateTemperature();

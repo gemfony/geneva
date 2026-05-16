@@ -283,12 +283,12 @@ std::string GBooleanCollection::name_() const {
  * Attach our local values to the vector. This is used to collect all parameters of this type
  * in the sequence in which they were registered.
  *
- * @param parVec The vector to which the local values should be attached
+ * @param par_vec The vector to which the local values should be attached
  */
-void GBooleanCollection::booleanStreamline(std::vector<bool> &parVec, const activityMode &) const {
+void GBooleanCollection::booleanStreamline(std::vector<bool> &par_vec, const activityMode &) const {
     GBooleanCollection::const_iterator cit;
     for(cit = this->begin(); cit != this->end(); ++cit) {
-        parVec.push_back(*cit);
+        par_vec.push_back(*cit);
     }
 }
 
@@ -297,10 +297,10 @@ void GBooleanCollection::booleanStreamline(std::vector<bool> &parVec, const acti
  * Attach our local values to the map. Names are built from the object name and the
  * position in the array.
  *
- * @param parVec The map to which the local values should be attached
+ * @param par_vec The map to which the local values should be attached
  */
 void GBooleanCollection::booleanStreamline(
-    std::map<std::string, std::vector<bool>> &parVec,
+    std::map<std::string, std::vector<bool>> &par_vec,
     const activityMode &am
 ) const {
 #ifdef DEBUG
@@ -308,7 +308,7 @@ void GBooleanCollection::booleanStreamline(
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GBooleanCollection::booleanStreamline(std::map<std::string, std::vector<bool>>& "
-               "parVec) const: Error!"
+               "par_vec) const: Error!"
             << '\n'
             << "No name was assigned to the object" << '\n'
         );
@@ -317,25 +317,25 @@ void GBooleanCollection::booleanStreamline(
 
     std::vector<bool> parameters;
     this->booleanStreamline(parameters, am);
-    parVec[this->getParameterName()] = parameters;
+    par_vec[this->getParameterName()] = parameters;
 }
 
 /******************************************************************************/
 /**
  * Attach boundaries of type bool to the vectors
  *
- * @param lBndVec A vector of lower bool parameter boundaries
- * @param uBndVec A vector of upper bool parameter boundaries
+ * @param l_bnd_vec A vector of lower bool parameter boundaries
+ * @param u_bnd_vec A vector of upper bool parameter boundaries
  */
 void GBooleanCollection::booleanBoundaries(
-    std::vector<bool> &lBndVec,
-    std::vector<bool> &uBndVec,
+    std::vector<bool> &l_bnd_vec,
+    std::vector<bool> &u_bnd_vec,
     const activityMode & /*am*/
 ) const {
     GBooleanCollection::const_iterator cit;
     for(cit = this->begin(); cit != this->end(); ++cit) {
-        lBndVec.push_back(false);
-        uBndVec.push_back(true);
+        l_bnd_vec.push_back(false);
+        u_bnd_vec.push_back(true);
     }
 }
 
@@ -357,26 +357,26 @@ std::size_t GBooleanCollection::countBoolParameters(
  * Assigns part of a value vector to the parameter
  */
 void GBooleanCollection::assignBooleanValueVector(
-    const std::vector<bool> &parVec,
+    const std::vector<bool> &par_vec,
     std::size_t &pos,
     const activityMode & /*am*/
 ) {
     for(GBooleanCollection::iterator it = this->begin(); it != this->end(); ++it) {
 #ifdef DEBUG
         // Do we have a valid position ?
-        if(pos >= parVec.size()) {
+        if(pos >= par_vec.size()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GBooleanCollection::assignBooleanValueVector(const std::vector<bool>&, "
                    "std::size_t&):"
                 << '\n'
-                << "Tried to access position beyond end of vector: " << parVec.size() << "/" << pos
+                << "Tried to access position beyond end of vector: " << par_vec.size() << "/" << pos
                 << '\n'
             );
         }
 #endif
 
-        (*it) = parVec[pos];
+        (*it) = par_vec[pos];
         pos++;
     }
 }
@@ -386,13 +386,13 @@ void GBooleanCollection::assignBooleanValueVector(
  * Assigns part of a value map to the parameter
  */
 void GBooleanCollection::assignBooleanValueVectors(
-    const std::map<std::string, std::vector<bool>> &parMap,
+    const std::map<std::string, std::vector<bool>> &par_map,
     const activityMode & /*am*/
 ) {
     GBooleanCollection::iterator it;
     std::size_t cnt = 0;
     for(it = this->begin(); it != this->end(); ++it) {
-        *it = (Gem::Common::getMapItem<std::vector<bool>>(parMap, this->getParameterName()))
+        *it = (Gem::Common::getMapItem<std::vector<bool>>(par_map, this->getParameterName()))
                   .at(cnt++);
     }
 }
@@ -429,17 +429,17 @@ bool GBooleanCollection::modify_GUnitTests_() {
 void GBooleanCollection::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
     // A few settings
-    const std::size_t nItems = 10000;
-    const bool FIXEDVALUEINIT = true;
-    const double LOWERBND = 0.8, UPPERBND = 1.2;
+    const std::size_t n_items = 10000;
+    const bool fixedvalueinit = true;
+    const double lowerbnd = 0.8, upperbnd = 1.2;
 
     // Make sure we have an appropriate adaptor loaded when performing these tests
-    bool adaptorStored = false;
-    std::shared_ptr<GAdaptorT<bool>> storedAdaptor;
+    bool adaptor_stored = false;
+    std::shared_ptr<GAdaptorT<bool>> stored_adaptor;
 
     if(this->hasAdaptor()) {
-        storedAdaptor = this->getAdaptor();
-        adaptorStored = true;
+        stored_adaptor = this->getAdaptor();
+        adaptor_stored = true;
     }
 
     std::shared_ptr<GBooleanAdaptor> gba_ptr(new GBooleanAdaptor(1.0));
@@ -475,82 +475,82 @@ void GBooleanCollection::specificTestsNoFailureExpected_GUnitTests_() {
     // --------------------------------------------------------------------------
 
     { // Check construction with a number of random bits
-        GBooleanCollection gbc(nItems);
+        GBooleanCollection gbc(n_items);
 
         INFO(
             "\n"
             << "gbc.size() = " << gbc.size() << "\n"
-            << "nItems = " << nItems
+            << "nItems = " << n_items
         );
-        CHECK(gbc.size() == nItems);
+        CHECK(gbc.size() == n_items);
 
         // Count the number of true and false values
-        std::size_t nTrue = 0;
-        std::size_t nFalse = 0;
-        for(std::size_t i = 0; i < nItems; i++) {
-            gbc.at(i) ? nTrue++ : nFalse++;
+        std::size_t n_true = 0;
+        std::size_t n_false = 0;
+        for(std::size_t i = 0; i < n_items; i++) {
+            gbc.at(i) ? n_true++ : n_false++;
         }
 
         // We allow a slight deviation, as the initialization is a random process
-        REQUIRE(nFalse != 0); // There should be a few false values
-        double ratio = double(nTrue) / double(nFalse);
+        REQUIRE(n_false != 0); // There should be a few false values
+        double ratio = double(n_true) / double(n_false);
         INFO(
             "\n"
             << "ratio = " << ratio << "\n"
-            << "nTrue = " << nTrue << "\n"
-            << "nFalse = " << nFalse << "\n"
+            << "n_true = " << n_true << "\n"
+            << "n_false = " << n_false << "\n"
         );
-        CHECK((ratio > LOWERBND && ratio < UPPERBND));
+        CHECK((ratio > lowerbnd && ratio < upperbnd));
     }
 
     // --------------------------------------------------------------------------
 
     { // Check construction with a number of identical bits
-        GBooleanCollection gbc(nItems, true);
+        GBooleanCollection gbc(n_items, true);
 
-        INFO("\n" << "gbc.size() = " << gbc.size() << "nItems = " << nItems);
-        CHECK(gbc.size() == nItems);
+        INFO("\n" << "gbc.size() = " << gbc.size() << "nItems = " << n_items);
+        CHECK(gbc.size() == n_items);
 
         // Count the number of true and false values
-        std::size_t nTrue = 0;
-        std::size_t nFalse = 0;
-        for(std::size_t i = 0; i < nItems; i++) {
-            gbc.at(i) ? nTrue++ : nFalse++;
+        std::size_t n_true = 0;
+        std::size_t n_false = 0;
+        for(std::size_t i = 0; i < n_items; i++) {
+            gbc.at(i) ? n_true++ : n_false++;
         }
 
         INFO(
             "\n"
-            << "nTrue = " << nTrue << "\n"
-            << "nItems = " << nItems << "\n"
+            << "n_true = " << n_true << "\n"
+            << "nItems = " << n_items << "\n"
         );
-        CHECK(nTrue == nItems);
+        CHECK(n_true == n_items);
     }
 
     // --------------------------------------------------------------------------
 
     { // Check construction with a given probability for the value true
-        GBooleanCollection gbc(nItems, 0.5);
+        GBooleanCollection gbc(n_items, 0.5);
 
-        INFO("\n" << "gbc.size() = " << gbc.size() << "nItems = " << nItems);
-        CHECK(gbc.size() == nItems);
+        INFO("\n" << "gbc.size() = " << gbc.size() << "nItems = " << n_items);
+        CHECK(gbc.size() == n_items);
 
         // Count the number of true and false values
-        std::size_t nTrue = 0;
-        std::size_t nFalse = 0;
-        for(std::size_t i = 0; i < nItems; i++) {
-            gbc.at(i) ? nTrue++ : nFalse++;
+        std::size_t n_true = 0;
+        std::size_t n_false = 0;
+        for(std::size_t i = 0; i < n_items; i++) {
+            gbc.at(i) ? n_true++ : n_false++;
         }
 
         // We allow a slight deviation, as the initialization is a random process
-        REQUIRE(nFalse != 0); // There should be a few false values
-        double ratio = double(nTrue) / double(nFalse);
+        REQUIRE(n_false != 0); // There should be a few false values
+        double ratio = double(n_true) / double(n_false);
         INFO(
             "\n"
             << "ratio = " << ratio << "\n"
-            << "nTrue = " << nTrue << "\n"
-            << "nFalse = " << nFalse << "\n"
+            << "n_true = " << n_true << "\n"
+            << "n_false = " << n_false << "\n"
         );
-        CHECK((ratio > LOWERBND && ratio < UPPERBND));
+        CHECK((ratio > lowerbnd && ratio < upperbnd));
     }
 
     // --------------------------------------------------------------------------
@@ -562,33 +562,33 @@ void GBooleanCollection::specificTestsNoFailureExpected_GUnitTests_() {
         CHECK_NOTHROW(p_test->clear());
 
         // Add items of fixed value
-        for(std::size_t i = 0; i < nItems; i++) {
+        for(std::size_t i = 0; i < n_items; i++) {
             p_test->push_back(true);
         }
 
         // Check the size
-        CHECK(p_test->size() == nItems);
+        CHECK(p_test->size() == n_items);
 
         // Randomly initialize, using the internal function
         CHECK_NOTHROW(p_test->randomInit_(activityMode::ALLPARAMETERS, gr));
 
         // Count the number of true and false values
-        std::size_t nTrue = 0;
-        std::size_t nFalse = 0;
-        for(std::size_t i = 0; i < nItems; i++) {
-            p_test->at(i) ? nTrue++ : nFalse++;
+        std::size_t n_true = 0;
+        std::size_t n_false = 0;
+        for(std::size_t i = 0; i < n_items; i++) {
+            p_test->at(i) ? n_true++ : n_false++;
         }
 
         // We allow a slight deviation, as the initialization is a random process
-        REQUIRE(nFalse != 0); // There should be a few false values
-        double ratio = double(nTrue) / double(nFalse);
+        REQUIRE(n_false != 0); // There should be a few false values
+        double ratio = double(n_true) / double(n_false);
         INFO(
             "\n"
             << "ratio = " << ratio << "\n"
-            << "nTrue = " << nTrue << "\n"
-            << "nFalse = " << nFalse << "\n"
+            << "n_true = " << n_true << "\n"
+            << "n_false = " << n_false << "\n"
         );
-        CHECK((ratio > LOWERBND && ratio < UPPERBND));
+        CHECK((ratio > lowerbnd && ratio < upperbnd));
     }
 
     // --------------------------------------------------------------------------
@@ -600,7 +600,7 @@ void GBooleanCollection::specificTestsNoFailureExpected_GUnitTests_() {
         CHECK_NOTHROW(p_test->clear());
 
         // Add items of fixed value
-        for(std::size_t i = 0; i < nItems; i++) {
+        for(std::size_t i = 0; i < n_items; i++) {
             p_test->push_back(true);
         }
 
@@ -608,19 +608,19 @@ void GBooleanCollection::specificTestsNoFailureExpected_GUnitTests_() {
         CHECK_NOTHROW(p_test->randomInit_(0., activityMode::ALLPARAMETERS, gr));
 
         // Count the number of true and false values
-        std::size_t nTrue = 0;
-        std::size_t nFalse = 0;
-        for(std::size_t i = 0; i < nItems; i++) {
-            p_test->at(i) ? nTrue++ : nFalse++;
+        std::size_t n_true = 0;
+        std::size_t n_false = 0;
+        for(std::size_t i = 0; i < n_items; i++) {
+            p_test->at(i) ? n_true++ : n_false++;
         }
 
         // Cross-check
         INFO(
             "\n"
-            << "nTrue = " << nTrue << "\n"
-            << "nFalse = " << nFalse << "\n"
+            << "n_true = " << n_true << "\n"
+            << "n_false = " << n_false << "\n"
         );
-        CHECK(nTrue == 0);
+        CHECK(n_true == 0);
     }
 
     // --------------------------------------------------------------------------
@@ -632,7 +632,7 @@ void GBooleanCollection::specificTestsNoFailureExpected_GUnitTests_() {
         CHECK_NOTHROW(p_test->clear());
 
         // Add items of fixed value
-        for(std::size_t i = 0; i < nItems; i++) {
+        for(std::size_t i = 0; i < n_items; i++) {
             p_test->push_back(false);
         }
 
@@ -640,19 +640,19 @@ void GBooleanCollection::specificTestsNoFailureExpected_GUnitTests_() {
         CHECK_NOTHROW(p_test->randomInit_(1., activityMode::ALLPARAMETERS, gr));
 
         // Count the number of true and false values
-        std::size_t nTrue = 0;
-        std::size_t nFalse = 0;
-        for(std::size_t i = 0; i < nItems; i++) {
-            p_test->at(i) ? nTrue++ : nFalse++;
+        std::size_t n_true = 0;
+        std::size_t n_false = 0;
+        for(std::size_t i = 0; i < n_items; i++) {
+            p_test->at(i) ? n_true++ : n_false++;
         }
 
         // Cross-check
         INFO(
             "\n"
-            << "nTrue = " << nTrue << "\n"
-            << "nFalse = " << nFalse << "\n"
+            << "n_true = " << n_true << "\n"
+            << "n_false = " << n_false << "\n"
         );
-        CHECK(nTrue == nItems);
+        CHECK(n_true == n_items);
     }
 
     // --------------------------------------------------------------------------
@@ -666,7 +666,7 @@ void GBooleanCollection::specificTestsNoFailureExpected_GUnitTests_() {
             CHECK_NOTHROW(p_test->clear());
 
             // Add items of fixed value
-            for(std::size_t i = 0; i < nItems; i++) {
+            for(std::size_t i = 0; i < n_items; i++) {
                 p_test->push_back(false);
             }
 
@@ -674,25 +674,25 @@ void GBooleanCollection::specificTestsNoFailureExpected_GUnitTests_() {
             CHECK_NOTHROW(p_test->randomInit_(d, activityMode::ALLPARAMETERS, gr));
 
             // Count the number of true and false values
-            std::size_t nTrue = 0;
-            std::size_t nFalse = 0;
-            for(std::size_t i = 0; i < nItems; i++) {
-                p_test->at(i) ? nTrue++ : nFalse++;
+            std::size_t n_true = 0;
+            std::size_t n_false = 0;
+            for(std::size_t i = 0; i < n_items; i++) {
+                p_test->at(i) ? n_true++ : n_false++;
             }
 
             // We allow a slight deviation, as the initialization is a random process
-            double expectedTrueMin = 0.8 * d * nItems;
-            double expectedTrueMax = 1.2 * d * nItems;
+            double expected_true_min = 0.8 * d * n_items;
+            double expected_true_max = 1.2 * d * n_items;
 
             INFO(
                 "\n"
                 << "d = " << d << "\n"
-                << "Allowed window = " << expectedTrueMin << " - " << expectedTrueMax << "\n"
-                << "nItems = " << nItems << "\n"
-                << "nTrue = " << nTrue << "\n"
-                << "nFalse = " << nFalse << "\n"
+                << "Allowed window = " << expected_true_min << " - " << expected_true_max << "\n"
+                << "nItems = " << n_items << "\n"
+                << "n_true = " << n_true << "\n"
+                << "n_false = " << n_false << "\n"
             );
-            CHECK((double(nTrue) > expectedTrueMin && double(nTrue) < expectedTrueMax));
+            CHECK((double(n_true) > expected_true_min && double(n_true) < expected_true_max));
         }
     }
 
@@ -707,7 +707,7 @@ void GBooleanCollection::specificTestsNoFailureExpected_GUnitTests_() {
         CHECK_NOTHROW(p_test2->clear());
 
         // Add items of fixed value
-        for(std::size_t i = 0; i < nItems; i++) {
+        for(std::size_t i = 0; i < n_items; i++) {
             p_test1->push_back(false);
         }
 
@@ -742,7 +742,7 @@ void GBooleanCollection::specificTestsNoFailureExpected_GUnitTests_() {
         CHECK_NOTHROW(p_test2->clear());
 
         // Add items of fixed value
-        for(std::size_t i = 0; i < nItems; i++) {
+        for(std::size_t i = 0; i < n_items; i++) {
             p_test1->push_back(false);
         }
 
@@ -774,8 +774,8 @@ void GBooleanCollection::specificTestsNoFailureExpected_GUnitTests_() {
         std::shared_ptr<GBooleanCollection> p_test3 = this->GObject::clone<GBooleanCollection>();
 
         // Add a few items to p_test1
-        for(std::size_t i = 0; i < nItems; i++) {
-            p_test1->push_back(FIXEDVALUEINIT);
+        for(std::size_t i = 0; i < n_items; i++) {
+            p_test1->push_back(fixedvalueinit);
         }
 
         // Load into p_test2 and p_test3 and test equality
@@ -816,8 +816,8 @@ void GBooleanCollection::specificTestsNoFailureExpected_GUnitTests_() {
     this->resetAdaptor();
 
     // Load the old adaptor, if needed
-    if(adaptorStored) {
-        this->addAdaptor(storedAdaptor);
+    if(adaptor_stored) {
+        this->addAdaptor(stored_adaptor);
     }
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
@@ -835,15 +835,15 @@ void GBooleanCollection::specificTestsNoFailureExpected_GUnitTests_() {
 void GBooleanCollection::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
     // A few settings
-    std::size_t nItems = 10000;
+    std::size_t n_items = 10000;
 
     // Make sure we have an appropriate adaptor loaded when performing these tests
-    bool adaptorStored = false;
-    std::shared_ptr<GAdaptorT<bool>> storedAdaptor;
+    bool adaptor_stored = false;
+    std::shared_ptr<GAdaptorT<bool>> stored_adaptor;
 
     if(this->hasAdaptor()) {
-        storedAdaptor = this->getAdaptor();
-        adaptorStored = true;
+        stored_adaptor = this->getAdaptor();
+        adaptor_stored = true;
     }
 
     std::shared_ptr<GBooleanAdaptor> gba_ptr(new GBooleanAdaptor(1.0));
@@ -868,7 +868,7 @@ void GBooleanCollection::specificTestsFailuresExpected_GUnitTests_() {
         CHECK_NOTHROW(p_test->clear());
 
         // Add items of fixed value
-        for(std::size_t i = 0; i < nItems; i++) {
+        for(std::size_t i = 0; i < n_items; i++) {
             p_test->push_back(true);
         }
 
@@ -888,7 +888,7 @@ void GBooleanCollection::specificTestsFailuresExpected_GUnitTests_() {
         CHECK_NOTHROW(p_test->clear());
 
         // Add items of fixed value
-        for(std::size_t i = 0; i < nItems; i++) {
+        for(std::size_t i = 0; i < n_items; i++) {
             p_test->push_back(true);
         }
 
@@ -905,8 +905,8 @@ void GBooleanCollection::specificTestsFailuresExpected_GUnitTests_() {
     this->resetAdaptor();
 
     // Load the old adaptor, if needed
-    if(adaptorStored) {
-        this->addAdaptor(storedAdaptor);
+    if(adaptor_stored) {
+        this->addAdaptor(stored_adaptor);
     }
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw

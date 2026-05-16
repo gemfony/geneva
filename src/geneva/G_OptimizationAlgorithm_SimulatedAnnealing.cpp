@@ -165,23 +165,23 @@ void GSimulatedAnnealing::addConfigurationOptions_(Gem::Common::GParserBuilder &
 
 /******************************************************************************/
 /**
- * Sets the number of threads this population uses for adaption. If nThreads is set
+ * Sets the number of threads this population uses for adaption. If n_threads is set
  * to 0, an attempt will be made to set the number of threads to the number of hardware
  * threading units (e.g. number of cores or hyperthreading units).
   *
-  * @param nThreads The number of threads this class uses
+  * @param n_threads The number of threads this class uses
   */
-void GSimulatedAnnealing::setNThreads(std::uint16_t nThreads) {
-    if(nThreads == 0) {
-        glogger << "In GSimulatedAnnealing::setNThreads(nThreads):" << '\n'
-                << "nThreads == 0 was requested. n_threads_ was reset to the default "
+void GSimulatedAnnealing::setNThreads(std::uint16_t n_threads) {
+    if(n_threads == 0) {
+        glogger << "In GSimulatedAnnealing::setNThreads(n_threads):" << '\n'
+                << "n_threads == 0 was requested. n_threads_ was reset to the default "
                 << DEFAULTNSTDTHREADS << '\n'
                 << GWARNING;
 
         n_threads_ = DEFAULTNSTDTHREADS;
     }
     else {
-        n_threads_ = nThreads;
+        n_threads_ = n_threads;
     }
 }
 
@@ -318,12 +318,12 @@ void GSimulatedAnnealing::populationSanityChecks_() const {
     }
 
     // We need at least as many children as parents
-    std::size_t popSize = this->getPopulationSize();
-    if(popSize <= this->n_parents_) {
+    std::size_t pop_size = this->getPopulationSize();
+    if(pop_size <= this->n_parents_) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GSimulatedAnnealing::populationSanityChecks() :" << '\n'
-            << "Requested size of population is too small :" << popSize << " " << this->n_parents_
+            << "Requested size of population is too small :" << pop_size << " " << this->n_parents_
             << '\n'
         );
     }
@@ -530,8 +530,8 @@ void GSimulatedAnnealing::fixAfterJobSubmission() {
 
     // Add missing individuals, as clones of the last item
     if(this->size() < this->getDefaultPopulationSize()) {
-        std::size_t fixSize = this->getDefaultPopulationSize() - this->size();
-        for(std::size_t i = 0; i < fixSize; i++) {
+        std::size_t fix_size = this->getDefaultPopulationSize() - this->size();
+        for(std::size_t i = 0; i < fix_size; i++) {
             // This function will create a clone of its argument
             this->push_back_clone(this->back());
         }
@@ -645,7 +645,7 @@ std::shared_ptr<GPersonalityTraits> GSimulatedAnnealing::getPersonalityTraits_()
  * Performs a simulated annealing style sorting and selection
  */
 void GSimulatedAnnealing::sortSAMode() {
-    // Position the nParents best children of the population right behind the parents
+    // Position the n_parents best children of the population right behind the parents
     std::partial_sort(
         this->begin() + this->n_parents_,
         this->begin() + 2 * this->n_parents_,
@@ -657,11 +657,11 @@ void GSimulatedAnnealing::sortSAMode() {
 
     // Check for each parent whether it should be replaced by the corresponding child
     for(std::size_t np = 0; np < this->n_parents_; np++) {
-        double pPass = saProb(
+        double p_pass = saProb(
             minOnly_transformed_fitness(this->at(np)),
             minOnly_transformed_fitness(this->at(this->n_parents_ + np))
         );
-        if(pPass >= 1.) {
+        if(p_pass >= 1.) {
             this->at(np)->GObject::load(this->at(this->n_parents_ + np));
         }
         else {
@@ -669,7 +669,7 @@ void GSimulatedAnnealing::sortSAMode() {
                 this->gr_,
                 std::uniform_real_distribution<double>::param_type(0., 1.)
             );
-            if(challenge < pPass) {
+            if(challenge < p_pass) {
                 this->at(np)->GObject::load(this->at(this->n_parents_ + np));
             }
         }
@@ -694,12 +694,13 @@ void GSimulatedAnnealing::sortSAMode() {
   * Note that this function only sees minimization problems, as maximization problems
   * are transformed to minimization problems inside of GParameterSet.
   *
-  * @param fMinOnlyParent The "min only" fitness of the parent
-  * @param fMinOnlyChild The "min only" fitness of the child
+  * @param f_min_only_parent The "min only" fitness of the parent
+  * @param f_min_only_child The "min only" fitness of the child
   * @return A double value in the range [0,1[, representing the likelihood for the child to replace the parent
   */
-double GSimulatedAnnealing::saProb(const double &fMinOnlyParent, const double &fMinOnlyChild) {
-    return exp(-(fMinOnlyChild - fMinOnlyParent) / t_);
+double
+GSimulatedAnnealing::saProb(const double &f_min_only_parent, const double &f_min_only_child) {
+    return exp(-(f_min_only_child - f_min_only_parent) / t_);
 }
 
 /******************************************************************************/

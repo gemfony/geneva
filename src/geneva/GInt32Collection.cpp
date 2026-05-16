@@ -120,15 +120,15 @@ std::string GInt32Collection::name_() const {
  * Attach our local values to the vector. This is used to collect all parameters of this type
  * in the sequence in which they were registered.
  *
- * @param parVec The vector to which the local values should be attached
+ * @param par_vec The vector to which the local values should be attached
  */
 void GInt32Collection::int32Streamline(
-    std::vector<std::int32_t> &parVec,
+    std::vector<std::int32_t> &par_vec,
     const activityMode & /*am*/
 ) const {
     GInt32Collection::const_iterator cit;
     for(cit = this->begin(); cit != this->end(); ++cit) {
-        parVec.push_back(*cit);
+        par_vec.push_back(*cit);
     }
 }
 
@@ -137,10 +137,10 @@ void GInt32Collection::int32Streamline(
  * Attach our local values to the map. Names are built from the object name and the
  * position in the array.
  *
- * @param parVec The map to which the local values should be attached
+ * @param par_vec The map to which the local values should be attached
  */
 void GInt32Collection::int32Streamline(
-    std::map<std::string, std::vector<std::int32_t>> &parVec,
+    std::map<std::string, std::vector<std::int32_t>> &par_vec,
     const activityMode &am
 ) const {
 #ifdef DEBUG
@@ -148,7 +148,7 @@ void GInt32Collection::int32Streamline(
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GInt32Collection::int32Streamline(std::map<std::string, "
-               "std::vector<std::int32_t>>& parVec) const: Error!"
+               "std::vector<std::int32_t>>& par_vec) const: Error!"
             << '\n'
             << "No name was assigned to the object" << '\n'
         );
@@ -157,7 +157,7 @@ void GInt32Collection::int32Streamline(
 
     std::vector<std::int32_t> parameters;
     this->int32Streamline(parameters, am);
-    parVec[this->getParameterName()] = parameters;
+    par_vec[this->getParameterName()] = parameters;
 }
 
 /******************************************************************************/
@@ -165,20 +165,20 @@ void GInt32Collection::int32Streamline(
  * Attach boundaries of type std::int32_t to the vectors. Since this is an unbounded type,
  * we use the initialization boundaries as a replacement.
  *
- * @param lBndVec A vector of lower std::int32_t parameter boundaries
- * @param uBndVec A vector of upper std::int32_t parameter boundaries
+ * @param l_bnd_vec A vector of lower std::int32_t parameter boundaries
+ * @param u_bnd_vec A vector of upper std::int32_t parameter boundaries
  */
 void GInt32Collection::int32Boundaries(
-    std::vector<std::int32_t> &lBndVec,
-    std::vector<std::int32_t> &uBndVec,
+    std::vector<std::int32_t> &l_bnd_vec,
+    std::vector<std::int32_t> &u_bnd_vec,
     const activityMode & /*am*/
 ) const {
     // Add as man lower and upper boundaries to the vector as
     // there are variables
     GInt32Collection::const_iterator cit;
     for(cit = this->begin(); cit != this->end(); ++cit) {
-        lBndVec.push_back(this->getLowerInitBoundary());
-        uBndVec.push_back(this->getUpperInitBoundary());
+        l_bnd_vec.push_back(this->getLowerInitBoundary());
+        u_bnd_vec.push_back(this->getUpperInitBoundary());
     }
 }
 
@@ -200,26 +200,26 @@ std::size_t GInt32Collection::countInt32Parameters(
  * Assigns part of a value vector to the parameter
  */
 void GInt32Collection::assignInt32ValueVector(
-    const std::vector<std::int32_t> &parVec,
+    const std::vector<std::int32_t> &par_vec,
     std::size_t &pos,
     const activityMode & /*am*/
 ) {
     for(GInt32Collection::iterator it = this->begin(); it != this->end(); ++it) {
 #ifdef DEBUG
         // Do we have a valid position ?
-        if(pos >= parVec.size()) {
+        if(pos >= par_vec.size()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GInt32Collection::assignInt32ValueVector(const std::vector<std::int32_t>&, "
                    "std::size_t&):"
                 << '\n'
-                << "Tried to access position beyond end of vector: " << parVec.size() << "/" << pos
+                << "Tried to access position beyond end of vector: " << par_vec.size() << "/" << pos
                 << '\n'
             );
         }
 #endif
 
-        (*it) = parVec[pos];
+        (*it) = par_vec[pos];
         pos++;
     }
 }
@@ -229,13 +229,13 @@ void GInt32Collection::assignInt32ValueVector(
  * Assigns part of a value map to the parameter
  */
 void GInt32Collection::assignInt32ValueVectors(
-    const std::map<std::string, std::vector<std::int32_t>> &parMap,
+    const std::map<std::string, std::vector<std::int32_t>> &par_map,
     const activityMode & /*am*/
 ) {
     GInt32Collection::iterator it;
     std::size_t cnt = 0;
     for(it = this->begin(); it != this->end(); ++it) {
-        *it = (Gem::Common::getMapItem(parMap, this->getParameterName())).at(cnt++);
+        *it = (Gem::Common::getMapItem(par_map, this->getParameterName())).at(cnt++);
     }
 }
 
@@ -408,12 +408,12 @@ bool GInt32Collection::modify_GUnitTests_() {
 void GInt32Collection::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
     // Make sure we have an appropriate adaptor loaded when performing these tests
-    bool adaptorStored = false;
-    std::shared_ptr<GAdaptorT<std::int32_t>> storedAdaptor;
+    bool adaptor_stored = false;
+    std::shared_ptr<GAdaptorT<std::int32_t>> stored_adaptor;
 
     if(this->hasAdaptor()) {
-        storedAdaptor = this->getAdaptor();
-        adaptorStored = true;
+        stored_adaptor = this->getAdaptor();
+        adaptor_stored = true;
     }
 
     std::shared_ptr<GInt32GaussAdaptor> giga_ptr(new GInt32GaussAdaptor(0.025, 0.1, 0., 1., 1.0));
@@ -432,8 +432,8 @@ void GInt32Collection::specificTestsNoFailureExpected_GUnitTests_() {
     this->resetAdaptor();
 
     // Load the old adaptor, if needed
-    if(adaptorStored) {
-        this->addAdaptor(storedAdaptor);
+    if(adaptor_stored) {
+        this->addAdaptor(stored_adaptor);
     }
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
@@ -451,12 +451,12 @@ void GInt32Collection::specificTestsNoFailureExpected_GUnitTests_() {
 void GInt32Collection::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
     // Make sure we have an appropriate adaptor loaded when performing these tests
-    bool adaptorStored = false;
-    std::shared_ptr<GAdaptorT<std::int32_t>> storedAdaptor;
+    bool adaptor_stored = false;
+    std::shared_ptr<GAdaptorT<std::int32_t>> stored_adaptor;
 
     if(this->hasAdaptor()) {
-        storedAdaptor = this->getAdaptor();
-        adaptorStored = true;
+        stored_adaptor = this->getAdaptor();
+        adaptor_stored = true;
     }
 
     std::shared_ptr<GInt32GaussAdaptor> giga_ptr(new GInt32GaussAdaptor(0.025, 0.1, 0., 1., 1.0));
@@ -475,8 +475,8 @@ void GInt32Collection::specificTestsFailuresExpected_GUnitTests_() {
     this->resetAdaptor();
 
     // Load the old adaptor, if needed
-    if(adaptorStored) {
-        this->addAdaptor(storedAdaptor);
+    if(adaptor_stored) {
+        this->addAdaptor(stored_adaptor);
     }
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw

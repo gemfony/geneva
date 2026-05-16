@@ -468,7 +468,7 @@ public:
       , stack_ptr_(stack_.begin())
       , printCode_(false) {
         boost::spirit::qi::char_type char_;
-        boost::spirit::qi::string_type string_;
+        boost::spirit::qi::string_type string;
 
         using boost::spirit::qi::fail;
         using boost::spirit::qi::on_error;
@@ -493,28 +493,28 @@ public:
 
         term_rule_ = factor_rule_ >> *((char_('*') > factor_rule_) | (char_('/') > factor_rule_));
 
-        unary_function_rule_ = (string_("acos") > '(' > expression_rule_ > ')') |
-                               (string_("asin") > '(' > expression_rule_ > ')') |
-                               (string_("atan") > '(' > expression_rule_ > ')') |
-                               (string_("ceil") > '(' > expression_rule_ > ')') |
-                               (string_("cosh") > '(' > expression_rule_ > ')') |
-                               (string_("cos") > '(' > expression_rule_ > ')') |
-                               (string_("exp") > '(' > expression_rule_ > ')') |
-                               (string_("fabs") > '(' > expression_rule_ > ')') |
-                               (string_("floor") > '(' > expression_rule_ > ')') |
-                               (string_("log10") > '(' > expression_rule_ > ')') |
-                               (string_("log") > '(' > expression_rule_ > ')') |
-                               (string_("sinh") > '(' > expression_rule_ > ')') |
-                               (string_("sin") > '(' > expression_rule_ > ')') |
-                               (string_("sqrt") > '(' > expression_rule_ > ')') |
-                               (string_("tanh") > '(' > expression_rule_ > ')') |
-                               (string_("tan") > '(' > expression_rule_ > ')');
+        unary_function_rule_ = (string("acos") > '(' > expression_rule_ > ')') |
+                               (string("asin") > '(' > expression_rule_ > ')') |
+                               (string("atan") > '(' > expression_rule_ > ')') |
+                               (string("ceil") > '(' > expression_rule_ > ')') |
+                               (string("cosh") > '(' > expression_rule_ > ')') |
+                               (string("cos") > '(' > expression_rule_ > ')') |
+                               (string("exp") > '(' > expression_rule_ > ')') |
+                               (string("fabs") > '(' > expression_rule_ > ')') |
+                               (string("floor") > '(' > expression_rule_ > ')') |
+                               (string("log10") > '(' > expression_rule_ > ')') |
+                               (string("log") > '(' > expression_rule_ > ')') |
+                               (string("sinh") > '(' > expression_rule_ > ')') |
+                               (string("sin") > '(' > expression_rule_ > ')') |
+                               (string("sqrt") > '(' > expression_rule_ > ')') |
+                               (string("tanh") > '(' > expression_rule_ > ')') |
+                               (string("tan") > '(' > expression_rule_ > ')');
 
         binary_function_rule_ =
-            (string_("min") > '(' > expression_rule_ > ',' > expression_rule_ > ')') |
-            (string_("max") > '(' > expression_rule_ > ',' > expression_rule_ > ')') |
-            (string_("pow") > '(' > expression_rule_ > ',' > expression_rule_ > ')') |
-            (string_("hypot") > '(' > expression_rule_ > ',' > expression_rule_ > ')');
+            (string("min") > '(' > expression_rule_ > ',' > expression_rule_ > ')') |
+            (string("max") > '(' > expression_rule_ > ',' > expression_rule_ > ')') |
+            (string("pow") > '(' > expression_rule_ > ',' > expression_rule_ > ')') |
+            (string("hypot") > '(' > expression_rule_ > ',' > expression_rule_ > ')');
 
         factor_rule_ = real | ('(' > expression_rule_ > ')') | (char_('-') > factor_rule_) |
                        (char_('+') > factor_rule_) | unary_function_rule_ | binary_function_rule_ |
@@ -566,8 +566,8 @@ public:
     /**
 	 * When set to true, the code-vector will be printed prior to the evaluation
 	 */
-    void setPrintCode(bool printCode) {
-        printCode_ = printCode;
+    void setPrintCode(bool print_code) {
+        printCode_ = print_code;
     }
 
     /***************************************************************************/

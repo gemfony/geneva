@@ -205,10 +205,13 @@ protected:
         ,
         Gem::Hap::GRandomBase &gr
     ) override {
-        int_type lowerBoundary = GNumCollectionT<int_type>::getLowerInitBoundary();
-        int_type upperBoundary = GNumCollectionT<int_type>::getUpperInitBoundary();
+        int_type lower_boundary = GNumCollectionT<int_type>::getLowerInitBoundary();
+        int_type upper_boundary = GNumCollectionT<int_type>::getUpperInitBoundary();
 
-        typename std::uniform_int_distribution<int_type> uniform_int(lowerBoundary, upperBoundary);
+        typename std::uniform_int_distribution<int_type> uniform_int(
+            lower_boundary,
+            upper_boundary
+        );
         typename GIntNumCollectionT<int_type>::iterator it;
         for(it = this->begin(); it != this->end(); ++it) {
             (*it) = uniform_int(gr);
@@ -250,11 +253,11 @@ protected:
     void specificTestsNoFailureExpected_GUnitTests_() override {
 #ifdef GEM_TESTING
         // A few general settings
-        const std::size_t nItems = 100;
-        const int_type LOWERINITBOUNDARY =
+        const std::size_t n_items = 100;
+        const int_type lowerinitboundary =
             int_type(0); // non-negative value, as int_type might be negative
-        const int_type UPPERINITBOUNDARY = int_type(10);
-        const int_type FIXEDVALUEINIT = int_type(1);
+        const int_type upperinitboundary = int_type(10);
+        const int_type fixedvalueinit = int_type(1);
 
         // Call the parent class'es function
         GNumCollectionT<int_type>::specificTestsNoFailureExpected_GUnitTests_();
@@ -275,18 +278,18 @@ protected:
             CHECK_NOTHROW(p_test2->clear());
 
             // Add a few items
-            for(std::size_t i = 0; i < nItems; i++) {
+            for(std::size_t i = 0; i < n_items; i++) {
                 p_test1->push_back(
-                    2 * UPPERINITBOUNDARY
+                    2 * upperinitboundary
                 ); // Make sure random initialization cannot randomly leave the value unchanged
             }
 
             // Set initialization boundaries
-            CHECK_NOTHROW(p_test1->setInitBoundaries(LOWERINITBOUNDARY, UPPERINITBOUNDARY));
+            CHECK_NOTHROW(p_test1->setInitBoundaries(lowerinitboundary, upperinitboundary));
 
             // Check that the boundaries have been set as expected
-            CHECK(p_test1->getLowerInitBoundary() == LOWERINITBOUNDARY);
-            CHECK(p_test1->getUpperInitBoundary() == UPPERINITBOUNDARY);
+            CHECK(p_test1->getLowerInitBoundary() == lowerinitboundary);
+            CHECK(p_test1->getUpperInitBoundary() == upperinitboundary);
 
             // Load the data of p_test1 into p_test2
             CHECK_NOTHROW(p_test2->load(p_test1));
@@ -300,10 +303,10 @@ protected:
             CHECK(*p_test1 != *p_test2);
 
             // Check that the values of p_test1 are inside of the allowed boundaries
-            for(std::size_t i = 0; i < nItems; i++) {
+            for(std::size_t i = 0; i < n_items; i++) {
                 CHECK(p_test1->at(i) != p_test2->at(i));
-                CHECK(p_test1->at(i) >= LOWERINITBOUNDARY);
-                CHECK(p_test1->at(i) <= UPPERINITBOUNDARY);
+                CHECK(p_test1->at(i) >= lowerinitboundary);
+                CHECK(p_test1->at(i) <= upperinitboundary);
             }
         }
 
@@ -318,8 +321,8 @@ protected:
                 this->template clone<GIntNumCollectionT<int_type>>();
 
             // Add a few items to p_test1
-            for(std::size_t i = 0; i < nItems; i++) {
-                p_test1->push_back(FIXEDVALUEINIT);
+            for(std::size_t i = 0; i < n_items; i++) {
+                p_test1->push_back(fixedvalueinit);
             }
 
             // Load into p_test2 and p_test3 and test equality

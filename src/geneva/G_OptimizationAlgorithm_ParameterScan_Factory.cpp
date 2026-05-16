@@ -45,8 +45,8 @@ GParameterScanFactory::GParameterScanFactory()
 /**
  * Initialization with the name of the config file
  */
-GParameterScanFactory::GParameterScanFactory(std::filesystem::path const &configFile)
-  : G_OptimizationAlgorithm_FactoryT<G_OptimizationAlgorithm_Base>(configFile) { /* nothing */
+GParameterScanFactory::GParameterScanFactory(std::filesystem::path const &config_file)
+  : G_OptimizationAlgorithm_FactoryT<G_OptimizationAlgorithm_Base>(config_file) { /* nothing */
 }
 
 /******************************************************************************/
@@ -55,12 +55,12 @@ GParameterScanFactory::GParameterScanFactory(std::filesystem::path const &config
  * to add a content creator. It initializes a target item as needed.
  */
 GParameterScanFactory::GParameterScanFactory(
-    std::filesystem::path const &configFile,
-    std::shared_ptr<Gem::Common::GFactoryT<GParameterSet>> contentCreatorPtr
+    std::filesystem::path const &config_file,
+    std::shared_ptr<Gem::Common::GFactoryT<GParameterSet>> content_creator_ptr
 )
   : G_OptimizationAlgorithm_FactoryT<G_OptimizationAlgorithm_Base>(
-        configFile,
-        contentCreatorPtr
+        config_file,
+        content_creator_ptr
     ) { /* nothing */
 }
 
@@ -110,8 +110,8 @@ void GParameterScanFactory::addCLOptions(
 /**
  * Allows to specify the command line parameter manually for variables to be scanned
  */
-void GParameterScanFactory::setCLParameterSpecs(std::string parStr) {
-    parameterSpecCL_ = parStr;
+void GParameterScanFactory::setCLParameterSpecs(std::string par_str) {
+    parameterSpecCL_ = par_str;
 }
 
 /******************************************************************************/

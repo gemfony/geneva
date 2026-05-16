@@ -41,10 +41,10 @@ namespace Gem::Geneva {
 /**
  * Initialization with a adaption probability
  *
- * @param adProb The adaption probability
+ * @param ad_prob The adaption probability
  */
-GInt32FlipAdaptor::GInt32FlipAdaptor(const double &adProb)
-  : GIntFlipAdaptorT<std::int32_t>(adProb) { /* nothing */
+GInt32FlipAdaptor::GInt32FlipAdaptor(const double &ad_prob)
+  : GIntFlipAdaptorT<std::int32_t>(ad_prob) { /* nothing */
 }
 
 /******************************************************************************/

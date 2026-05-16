@@ -51,10 +51,10 @@ namespace Gem::Geneva {
  */
 GConstrainedDoubleCollection::GConstrainedDoubleCollection(
     const std::size_t &size,
-    const double &lowerBoundary,
-    const double &upperBoundary
+    const double &lower_boundary,
+    const double &upper_boundary
 )
-  : GConstrainedFPNumCollectionT<double>(size, lowerBoundary, upperBoundary) { /* nothing */
+  : GConstrainedFPNumCollectionT<double>(size, lower_boundary, upper_boundary) { /* nothing */
 }
 
 /******************************************************************************/
@@ -71,10 +71,10 @@ GConstrainedDoubleCollection::GConstrainedDoubleCollection(
 GConstrainedDoubleCollection::GConstrainedDoubleCollection(
     const std::size_t &size,
     const double &val,
-    const double &lowerBoundary,
-    const double &upperBoundary
+    const double &lower_boundary,
+    const double &upper_boundary
 )
-  : GConstrainedFPNumCollectionT<double>(size, val, lowerBoundary, upperBoundary) { /* nothing */
+  : GConstrainedFPNumCollectionT<double>(size, val, lower_boundary, upper_boundary) { /* nothing */
 }
 
 /******************************************************************************/
@@ -121,15 +121,15 @@ std::string GConstrainedDoubleCollection::name_() const {
  * Attach our local values to the vector. This is used to collect all parameters of this type
  * in the sequence in which they were registered.
  *
- * @param parVec The vector to which the local value should be attached
+ * @param par_vec The vector to which the local value should be attached
  */
 void GConstrainedDoubleCollection::doubleStreamline(
-    std::vector<double> &parVec,
+    std::vector<double> &par_vec,
     const activityMode & /*am*/
 ) const {
     GConstrainedDoubleCollection::const_iterator cit;
     for(cit = this->begin(); cit != this->end(); ++cit) {
-        parVec.push_back(this->transfer(*cit));
+        par_vec.push_back(this->transfer(*cit));
     }
 }
 
@@ -138,10 +138,10 @@ void GConstrainedDoubleCollection::doubleStreamline(
  * Attach our local values to the map. Names are built from the object name and the
  * position in the array.
  *
- * @param parVec The map to which the local value should be attached
+ * @param par_vec The map to which the local value should be attached
  */
 void GConstrainedDoubleCollection::doubleStreamline(
-    std::map<std::string, std::vector<double>> &parVec,
+    std::map<std::string, std::vector<double>> &par_vec,
     const activityMode &am
 ) const {
 #ifdef DEBUG
@@ -149,7 +149,7 @@ void GConstrainedDoubleCollection::doubleStreamline(
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GConstrainedDoubleCollection::doubleStreamline(std::map<std::string, "
-               "std::vector<double>>& parVec) const: Error!"
+               "std::vector<double>>& par_vec) const: Error!"
             << '\n'
             << "No name was assigned to the object" << '\n'
         );
@@ -158,26 +158,26 @@ void GConstrainedDoubleCollection::doubleStreamline(
 
     std::vector<double> parameters;
     this->doubleStreamline(parameters, am);
-    parVec[this->getParameterName()] = parameters;
+    par_vec[this->getParameterName()] = parameters;
 }
 
 /******************************************************************************/
 /**
  * Attach boundaries of type double to the vectors.
  *
- * @param lBndVec A vector of lower double parameter boundaries
- * @param uBndVec A vector of upper double parameter boundaries
+ * @param l_bnd_vec A vector of lower double parameter boundaries
+ * @param u_bnd_vec A vector of upper double parameter boundaries
  */
 void GConstrainedDoubleCollection::doubleBoundaries(
-    std::vector<double> &lBndVec,
-    std::vector<double> &uBndVec,
+    std::vector<double> &l_bnd_vec,
+    std::vector<double> &u_bnd_vec,
     const activityMode & /*am*/
 ) const {
     // Add a lower and upper boundary to the vectors
     // for each variable in the collection
     for(std::size_t pos = 0; pos < this->size(); pos++) {
-        lBndVec.push_back(this->getLowerBoundary());
-        uBndVec.push_back(this->getUpperBoundary());
+        l_bnd_vec.push_back(this->getLowerBoundary());
+        u_bnd_vec.push_back(this->getUpperBoundary());
     }
 }
 
@@ -199,30 +199,30 @@ std::size_t GConstrainedDoubleCollection::countDoubleParameters(
  * Assigns part of a value vector to the parameter. Note that we apply a transformation to the
  * vector, so that it lies inside of the allowed value range.
  *
- * @param parVec The vector from which the data should be taken
+ * @param par_vec The vector from which the data should be taken
  * @param pos The position inside of the vector from which the data is extracted in each turn of the loop
  */
 void GConstrainedDoubleCollection::assignDoubleValueVector(
-    const std::vector<double> &parVec,
+    const std::vector<double> &par_vec,
     std::size_t &pos,
     const activityMode & /*am*/
 ) {
     for(std::size_t i = 0; i < this->size(); i++) {
 #ifdef DEBUG
         // Do we have a valid position ?
-        if(pos >= parVec.size()) {
+        if(pos >= par_vec.size()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GConstrainedDoubleCollection::assignDoubleValueVector(const "
                    "std::vector<double>&, std::size_t&):"
                 << '\n'
-                << "Tried to access position beyond end of vector: " << parVec.size() << "/" << pos
+                << "Tried to access position beyond end of vector: " << par_vec.size() << "/" << pos
                 << '\n'
             );
         }
 #endif
 
-        this->setValue(i, this->transfer(parVec[pos]));
+        this->setValue(i, this->transfer(par_vec[pos]));
         pos++;
     }
 }
@@ -232,13 +232,13 @@ void GConstrainedDoubleCollection::assignDoubleValueVector(
  * Assigns part of a value map to the parameter
  */
 void GConstrainedDoubleCollection::assignDoubleValueVectors(
-    const std::map<std::string, std::vector<double>> &parMap,
+    const std::map<std::string, std::vector<double>> &par_map,
     const activityMode & /*am*/
 ) {
     for(std::size_t i = 0; i < this->size(); i++) {
         this->setValue(
             i,
-            this->transfer((Gem::Common::getMapItem(parMap, this->getParameterName())).at(i))
+            this->transfer((Gem::Common::getMapItem(par_map, this->getParameterName())).at(i))
         );
     }
 }
@@ -430,10 +430,10 @@ void GConstrainedDoubleCollection::specificTestsNoFailureExpected_GUnitTests_() 
     GConstrainedFPNumCollectionT<double>::specificTestsNoFailureExpected_GUnitTests_();
 
     // Some parameters
-    const std::size_t DEFSIZE = 10;
-    const double DEFVAL = 1.;
-    const double DEFMIN = -10.;
-    const double DEFMAX = 10.;
+    const std::size_t defsize = 10;
+    const double defval = 1.;
+    const double defmin = -10.;
+    const double defmax = 10.;
 
     //---------------------------------------------------------------------
 
@@ -441,15 +441,16 @@ void GConstrainedDoubleCollection::specificTestsNoFailureExpected_GUnitTests_() 
         std::shared_ptr<GConstrainedDoubleCollection> p_test;
 
         CHECK_NOTHROW(
-            p_test = std::make_shared<GConstrainedDoubleCollection>(DEFSIZE, DEFMIN, DEFMAX)
+            p_test = std::make_shared<GConstrainedDoubleCollection>(defsize, defmin, defmax)
         );
-        CHECK((p_test->size() == DEFSIZE && DEFSIZE > 1));
-        for(std::size_t i = 1; i < DEFSIZE; i++) { // Check that consecutive values are different
+        CHECK((p_test->size() == defsize && defsize > 1));
+        for(std::size_t i = 1; i < defsize; i++) { // Check that consecutive values are different
             CHECK(p_test->at(i) != p_test->at(i - 1));
         }
-        CHECK(p_test->getLowerBoundary() == DEFMIN);
+        CHECK(p_test->getLowerBoundary() == defmin);
         CHECK(
-            p_test->getUpperBoundary() == std::nextafter(DEFMAX, -std::numeric_limits<double>::infinity())
+            p_test->getUpperBoundary() ==
+            std::nextafter(defmax, -std::numeric_limits<double>::infinity())
         ); // The upper boundary is an open one
     }
 
@@ -459,15 +460,16 @@ void GConstrainedDoubleCollection::specificTestsNoFailureExpected_GUnitTests_() 
         std::shared_ptr<GConstrainedDoubleCollection> p_test;
 
         CHECK_NOTHROW(
-            p_test = std::make_shared<GConstrainedDoubleCollection>(DEFSIZE, DEFVAL, DEFMIN, DEFMAX)
+            p_test = std::make_shared<GConstrainedDoubleCollection>(defsize, defval, defmin, defmax)
         );
-        CHECK(p_test->size() == DEFSIZE);
-        for(std::size_t i = 0; i < DEFSIZE; i++) {
-            CHECK(p_test->at(i) == DEFVAL);
+        CHECK(p_test->size() == defsize);
+        for(std::size_t i = 0; i < defsize; i++) {
+            CHECK(p_test->at(i) == defval);
         }
-        CHECK(p_test->getLowerBoundary() == DEFMIN);
+        CHECK(p_test->getLowerBoundary() == defmin);
         CHECK(
-            p_test->getUpperBoundary() == std::nextafter(DEFMAX, -std::numeric_limits<double>::infinity())
+            p_test->getUpperBoundary() ==
+            std::nextafter(defmax, -std::numeric_limits<double>::infinity())
         ); // The upper boundary is an open one
     }
 

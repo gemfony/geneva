@@ -113,8 +113,12 @@ CheckOptions:
   readability-identifier-naming.FunctionCase: camelBack
   readability-identifier-naming.MethodCase: camelBack
   readability-identifier-naming.VariableCase: camelBack
-  readability-identifier-naming.ParameterCase: camelBack
-  readability-identifier-naming.LocalVariableCase: camelBack
+  # Geneva 5.B: local variables and function parameters are snake_case
+  # (lower_case). This matches the dominant existing usage and the
+  # decision recorded in the 2026-05 naming stock-taking. Members,
+  # functions and methods remain camelBack; classes remain CamelCase.
+  readability-identifier-naming.ParameterCase: lower_case
+  readability-identifier-naming.LocalVariableCase: lower_case
   readability-identifier-naming.MemberCase: camelBack
   readability-identifier-naming.PublicMemberCase: camelBack
   readability-identifier-naming.PrivateMemberCase: camelBack
@@ -128,8 +132,13 @@ CheckOptions:
   # Geneva enum constants are UPPER_CASE: TEXT, XML, BINARY, LOWERISBETTER, etc.
   readability-identifier-naming.EnumConstantCase: UPPER_CASE
   readability-identifier-naming.ScopedEnumConstantCase: UPPER_CASE
-  readability-identifier-naming.TypeAliasCase: CamelCase
-  readability-identifier-naming.TypedefCase: CamelCase
+  # Geneva 5.B / §4 STL carve-out: GContainerT (and its GPodContainerT /
+  # GPtrContainerT typedefs) deliberately mirror the std:: container
+  # surface — value_type, const_iterator, size_type, difference_type,
+  # reverse_iterator, etc. Forcing CamelCase here would break the STL
+  # contract, so type aliases and typedefs accept any case.
+  readability-identifier-naming.TypeAliasCase: aNy_CasE
+  readability-identifier-naming.TypedefCase: aNy_CasE
   readability-identifier-naming.TemplateParameterCase: CamelCase
   readability-identifier-naming.TypeTemplateParameterCase: CamelCase
   readability-identifier-naming.ValueTemplateParameterCase: CamelCase
@@ -144,6 +153,12 @@ CheckOptions:
   readability-identifier-naming.GlobalFunctionCase: camelBack
   readability-identifier-naming.ConstexprFunctionCase: camelBack
   readability-identifier-naming.ConstexprMethodCase: camelBack
+  # Geneva 5.B / §4 STL carve-out: exempt the STL-like container method
+  # surface from the camelBack rule. The explicit list covers the
+  # underscore-free STL names; the trailing '|_' also exempts any method
+  # containing an underscore (push_back/pop_back/emplace_back/shrink_to_fit
+  # and Geneva's trailing-underscore private-virtual pattern, e.g. load_).
+  readability-identifier-naming.MethodIgnoredRegexp: '^(push_back|pop_back|emplace_back|shrink_to_fit|max_size)$|_'
 
   # ------------------------------------------------------------------
   # Modernization knobs.

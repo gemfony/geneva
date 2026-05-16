@@ -109,12 +109,12 @@ public:
     std::vector<std::shared_ptr<individual_type>> getBestGlobalIndividuals() const {
         std::unique_lock<std::mutex> iteration_best_lock(get_best_mutex_);
 
-        std::vector<std::shared_ptr<individual_type>> bestIndividuals;
-        std::vector<std::shared_ptr<GParameterSet>> bestBaseIndividuals =
+        std::vector<std::shared_ptr<individual_type>> best_individuals;
+        std::vector<std::shared_ptr<GParameterSet>> best_base_individuals =
             this->getBestGlobalIndividuals_();
 
         // Cross check that we indeed got a valid set of individuals
-        if(bestBaseIndividuals.empty()) {
+        if(best_base_individuals.empty()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In G_Interface_OptimizerT<optimizer_type>::getBestGlobalIndividuals(): Error!"
@@ -123,7 +123,7 @@ public:
             );
         }
 
-        for(auto const &ind_ptr : bestBaseIndividuals) {
+        for(auto const &ind_ptr : best_base_individuals) {
             auto cast_ptr = std::dynamic_pointer_cast<individual_type>(ind_ptr);
             if(!cast_ptr) {
                 throw geneva_exception(
@@ -132,10 +132,10 @@ public:
                     << "dynamic_pointer_cast to requested individual_type failed." << '\n'
                 );
             }
-            bestIndividuals.push_back(cast_ptr);
+            best_individuals.push_back(cast_ptr);
         }
 
-        return bestIndividuals;
+        return best_individuals;
     }
 
     /***************************************************************************/
@@ -176,12 +176,12 @@ public:
     std::vector<std::shared_ptr<individual_type>> getBestIterationIndividuals() const {
         std::unique_lock<std::mutex> iteration_best_lock(get_best_mutex_);
 
-        std::vector<std::shared_ptr<individual_type>> bestIndividuals;
-        std::vector<std::shared_ptr<GParameterSet>> bestBaseIndividuals =
+        std::vector<std::shared_ptr<individual_type>> best_individuals;
+        std::vector<std::shared_ptr<GParameterSet>> best_base_individuals =
             this->getBestIterationIndividuals_();
 
         // Cross check that we indeed got a valid set of individuals
-        if(bestBaseIndividuals.empty()) {
+        if(best_base_individuals.empty()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In G_Interface_OptimizerT<optimizer_type>::getBestIterationIndividuals(): "
@@ -191,7 +191,7 @@ public:
             );
         }
 
-        for(auto const &ind_ptr : bestBaseIndividuals) {
+        for(auto const &ind_ptr : best_base_individuals) {
             auto cast_ptr = ind_ptr->template clone<individual_type>();
             if(!cast_ptr) {
                 throw geneva_exception(
@@ -200,10 +200,10 @@ public:
                     << "clone<individual_type>() returned null." << '\n'
                 );
             }
-            bestIndividuals.push_back(cast_ptr);
+            best_individuals.push_back(cast_ptr);
         }
 
-        return bestIndividuals;
+        return best_individuals;
     }
 
     /***************************************************************************/

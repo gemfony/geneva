@@ -133,11 +133,11 @@ double GTestIndividual1::fitnessCalculation() {
 
     // Extract the first Gem::Geneva::GDoubleCollection object. In a realistic scenario, you might want
     // to add error checks here upon first invocation.
-    std::shared_ptr<Gem::Geneva::GDoubleCollection> vC = at<Gem::Geneva::GDoubleCollection>(0);
+    std::shared_ptr<Gem::Geneva::GDoubleCollection> v_c = at<Gem::Geneva::GDoubleCollection>(0);
 
     // Calculate the value of the parabola
-    for(std::size_t i = 0; i < vC->size(); i++) {
-        result += vC->at(i) * vC->at(i);
+    for(std::size_t i = 0; i < v_c->size(); i++) {
+        result += v_c->at(i) * v_c->at(i);
     }
 
     return result;
@@ -177,7 +177,7 @@ bool GTestIndividual1::modify_GUnitTests_() {
  *
  * @param nItems The number of items to be added
  */
-void GTestIndividual1::addGDoubleObjects_(const std::size_t &nItems) {
+void GTestIndividual1::addGDoubleObjects_(const std::size_t &n_items) {
 #ifdef GEM_TESTING
     using namespace Gem::Geneva;
 
@@ -185,7 +185,7 @@ void GTestIndividual1::addGDoubleObjects_(const std::size_t &nItems) {
     CHECK_NOTHROW(this->clear());
 
     // Add GDoubleObject items with adaptors to p_test1
-    for(std::size_t i = 0; i < nItems; i++) {
+    for(std::size_t i = 0; i < n_items; i++) {
         // Create a suitable adaptor
         std::shared_ptr<GDoubleGaussAdaptor> gdga_ptr;
 
@@ -225,7 +225,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
     using namespace Gem::Geneva;
 
     // A few settings
-    const std::size_t nItems = 100;
+    const std::size_t n_items = 100;
 
     // Call the parent classes' functions
     Gem::Geneva::GParameterSet::specificTestsNoFailureExpected_GUnitTests_();
@@ -238,9 +238,9 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
         std::shared_ptr<Gem::Tests::GTestIndividual1> p_test_old =
             this->clone<Gem::Tests::GTestIndividual1>();
 
-        std::size_t nTests = 1000;
+        std::size_t n_tests = 1000;
 
-        for(std::size_t i = 0; i < nTests; i++) {
+        for(std::size_t i = 0; i < n_tests; i++) {
             CHECK_NOTHROW(p_test->adapt());
             CHECK(*p_test != *p_test_old);
             CHECK_NOTHROW(p_test_old->GObject::load(p_test));
@@ -249,7 +249,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
 
     //------------------------------------------------------------------------------
 
-    { // Tests customAdaptions, dirtyFlag and the effects of the fitness function. Also test setting of server-mode flag
+    { // Tests customAdaptions, dirty_flag and the effects of the fitness function. Also test setting of server-mode flag
         std::shared_ptr<Gem::Tests::GTestIndividual1> p_test =
             this->clone<Gem::Tests::GTestIndividual1>();
 
@@ -259,13 +259,13 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
             CHECK(p_test->is_processed());
         }
 
-        std::size_t nTests = 1000;
+        std::size_t n_tests = 1000;
 
-        double currentFitness = 0.;
-        double oldFitness = currentFitness;
-        bool dirtyFlag = false;
+        double current_fitness = 0.;
+        double old_fitness = current_fitness;
+        bool dirty_flag = false;
 
-        for(std::size_t i = 0; i < nTests; i++) {
+        for(std::size_t i = 0; i < n_tests; i++) {
             // Change the parameters without instantly triggering fitness calculation
             CHECK_NOTHROW(p_test->customAdaptions());
             // The dirty flag should not have been set yet (done in adapt() )
@@ -281,20 +281,20 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
             CHECK_NOTHROW(p_test->process());
             CHECK(p_test->is_processed());
             CHECK(p_test->getProcessingStatus() == Gem::Courtier::processingStatus::PROCESSED);
-            CHECK_NOTHROW(currentFitness = p_test->transformed_fitness(0));
+            CHECK_NOTHROW(current_fitness = p_test->transformed_fitness(0));
 
             // Check that the evaluation has changed
             if(i > 0) {
                 INFO(
                     "\n"
-                    << "currentFitness = " << currentFitness << "\n"
-                    << "oldFitness = " << oldFitness << "\n"
+                    << "current_fitness = " << current_fitness << "\n"
+                    << "old_fitness = " << old_fitness << "\n"
                     << "iteration = " << i << "\n"
                 );
                 CHECK(// Check that the fitness has changed
-						currentFitness != oldFitness);
+						current_fitness != old_fitness);
             }
-            oldFitness = currentFitness;
+            old_fitness = current_fitness;
         }
     }
 
@@ -317,10 +317,10 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
         CHECK_NOTHROW(*p_test2 == *p_test1);
 
         // Modify p_test2
-        std::size_t nAdaptions = 0;
-        CHECK_NOTHROW(nAdaptions = p_test2->adapt());
+        std::size_t n_adaptions = 0;
+        CHECK_NOTHROW(n_adaptions = p_test2->adapt());
         // Make sure adaptions were indeed performed
-        CHECK(nAdaptions > 0);
+        CHECK(n_adaptions > 0);
         // Check that it is dirty
         CHECK(p_test2->is_due_for_processing());
         // Check that p_test1 is not dirty
@@ -332,7 +332,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
     //------------------------------------------------------------------------------
 
     { // Check the effects of the process function in EA mode, using the "evaluate" call
-        double currentFitness = 0.;
+        double current_fitness = 0.;
         std::shared_ptr<Gem::Tests::GTestIndividual1> p_test =
             this->clone<Gem::Tests::GTestIndividual1>();
 
@@ -527,13 +527,13 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
             this->clone<Gem::Tests::GTestIndividual1>();
 
         // Add a few data items
-        CHECK_NOTHROW(p_test->addGDoubleObjects_(nItems));
+        CHECK_NOTHROW(p_test->addGDoubleObjects_(n_items));
 
         // Initialize with a fixed value
         CHECK_NOTHROW(p_test->fixedValueInit<double>(42., activityMode::ALLPARAMETERS));
 
         // Check the current size
-        CHECK(p_test->size() == nItems);
+        CHECK(p_test->size() == n_items);
 
         // Create a copy of the first parameter item
         std::shared_ptr<GDoubleObject> search_ptr;
@@ -549,18 +549,18 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
         CHECK(p_test->size() == 1);
 
         // Use resize_clone to resize to the original size
-        CHECK_NOTHROW(p_test->resize_clone(nItems, search_ptr));
+        CHECK_NOTHROW(p_test->resize_clone(n_items, search_ptr));
 
         // Count the number of items identical to search_ptr (should be nItems)
-        CHECK(p_test->count(search_ptr) == nItems);
+        CHECK(p_test->count(search_ptr) == n_items);
 
         // Resize again to 1, using resize_noclone
         CHECK_NOTHROW(p_test->resize_noclone(1, search_ptr));
         CHECK(p_test->size() == 1);
 
         // Resize back to the original size
-        CHECK_NOTHROW(p_test->resize_noclone(nItems, search_ptr));
-        CHECK(p_test->size() == nItems);
+        CHECK_NOTHROW(p_test->resize_noclone(n_items, search_ptr));
+        CHECK(p_test->size() == n_items);
 
         // Check that the pointer of the last item is identical to the one used in search_ptr
         CHECK((p_test->back()).get() == search_ptr.get());
@@ -573,10 +573,10 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
             this->clone<Gem::Tests::GTestIndividual1>();
 
         // Add a few data items
-        CHECK_NOTHROW(p_test->addGDoubleObjects_(nItems));
+        CHECK_NOTHROW(p_test->addGDoubleObjects_(n_items));
 
         // Check the current size
-        CHECK(p_test->size() == nItems);
+        CHECK(p_test->size() == n_items);
 
         // Create a copy of the first parameter item
         std::shared_ptr<GDoubleObject> insert_ptr;
@@ -588,7 +588,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
 
         // Insert one item and check the resulting size and value of the first item
         CHECK_NOTHROW(p_test->insert_clone(p_test->begin(), insert_ptr));
-        CHECK(p_test->size() == nItems + 1);
+        CHECK(p_test->size() == n_items + 1);
         CHECK(p_test->at<GDoubleObject>(0)->value() == 1.);
 
         // Find the first item which is identical to insert_ptr -- should be at the beginning
@@ -597,9 +597,9 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
         CHECK(find_cit == p_test->begin());
 
         // Insert another (nItems) - 1 items and count the number of items identical to insert_ptr
-        CHECK_NOTHROW(p_test->insert_clone(p_test->begin(), nItems - 1, insert_ptr));
-        CHECK(p_test->size() == 2 * nItems);
-        CHECK((std::size_t)p_test->count(insert_ptr) >= nItems);
+        CHECK_NOTHROW(p_test->insert_clone(p_test->begin(), n_items - 1, insert_ptr));
+        CHECK(p_test->size() == 2 * n_items);
+        CHECK((std::size_t)p_test->count(insert_ptr) >= n_items);
 
         // Check that there is no item with the same physical address as insert_ptr
         for(std::size_t i = 0; i < p_test->size(); i++) {
@@ -608,19 +608,19 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
 
         // Insert one more item at the end, using insert_noclone
         CHECK_NOTHROW(p_test->insert_noclone(p_test->end(), insert_ptr));
-        CHECK(p_test->size() == 2 * nItems + 1);
+        CHECK(p_test->size() == 2 * n_items + 1);
 
         // There should now be exactly one item with the same address as insert_ptr (i.e. the same object)
-        std::size_t nIdentical = 0;
+        std::size_t n_identical = 0;
         for(std::size_t i = 0; i < p_test->size(); i++) {
             if((p_test->at(i)).get() == insert_ptr.get())
-                nIdentical++;
+                n_identical++;
         }
-        CHECK(nIdentical == 1);
+        CHECK(n_identical == 1);
 
         // Remove the item again and check the size
         CHECK_NOTHROW(p_test->pop_back());
-        CHECK(p_test->size() == 2 * nItems);
+        CHECK(p_test->size() == 2 * n_items);
 
         // Check that there is no item left with the same address
         for(std::size_t i = 0; i < p_test->size(); i++) {
@@ -628,16 +628,16 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
         }
 
         // Insert another nItems items at the beginning, using insert_noclone; cross-check the size
-        CHECK_NOTHROW(p_test->insert_noclone(p_test->begin(), nItems, insert_ptr));
-        CHECK(p_test->size() == 3 * nItems);
+        CHECK_NOTHROW(p_test->insert_noclone(p_test->begin(), n_items, insert_ptr));
+        CHECK(p_test->size() == 3 * n_items);
 
         // There should again be exactly one item with the same address as insert_ptr (i.e. the same object)
-        nIdentical = 0;
+        n_identical = 0;
         for(std::size_t i = 0; i < p_test->size(); i++) {
             if((p_test->at(i)).get() == insert_ptr.get())
-                nIdentical++;
+                n_identical++;
         }
-        CHECK(nIdentical == 1);
+        CHECK(n_identical == 1);
 
         // The identical item should be at the very beginning of the collection
         CHECK((p_test->at<GDoubleObject>(0)).get() == insert_ptr.get());
@@ -659,10 +659,10 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
             this->clone<Gem::Tests::GTestIndividual1>();
 
         // Add a few data items
-        CHECK_NOTHROW(p_test->addGDoubleObjects_(nItems));
+        CHECK_NOTHROW(p_test->addGDoubleObjects_(n_items));
 
         // Check the current size
-        CHECK(p_test->size() == nItems);
+        CHECK(p_test->size() == n_items);
 
         // Create a copy of the first parameter item
         std::shared_ptr<GDoubleObject> pushback_ptr;
@@ -674,12 +674,12 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
 
         // Push back the cloned item to the collection; cross-check the size and the pointers
         CHECK_NOTHROW(p_test->push_back_clone(pushback_ptr));
-        CHECK(p_test->size() == nItems + 1);
+        CHECK(p_test->size() == n_items + 1);
         CHECK((p_test->back()).get() != pushback_ptr.get());
 
         // Push back the un-cloned item to the collection; cross-check the size and the pointers
         CHECK_NOTHROW(p_test->push_back_noclone(pushback_ptr));
-        CHECK(p_test->size() == nItems + 2);
+        CHECK(p_test->size() == n_items + 2);
         CHECK((p_test->back()).get() == pushback_ptr.get());
     }
 
@@ -690,18 +690,18 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
             this->clone<Gem::Tests::GTestIndividual1>();
 
         // Add a few data items
-        CHECK_NOTHROW(p_test->addGDoubleObjects_(nItems));
+        CHECK_NOTHROW(p_test->addGDoubleObjects_(n_items));
 
         // Check the current size
-        CHECK(p_test->size() == nItems);
+        CHECK(p_test->size() == n_items);
 
-        std::vector<std::shared_ptr<GParameterBase>> dataCopy;
-        CHECK_NOTHROW(p_test->getDataCopy(dataCopy));
+        std::vector<std::shared_ptr<GParameterBase>> data_copy;
+        CHECK_NOTHROW(p_test->getDataCopy(data_copy));
 
         // Check the size and content
-        CHECK((dataCopy.size() == p_test->size() && not p_test->empty()));
+        CHECK((data_copy.size() == p_test->size() && not p_test->empty()));
         for(std::size_t i = 0; i < p_test->size(); i++) {
-            CHECK((p_test->at(i)).get() != dataCopy.at(i).get());
+            CHECK((p_test->at(i)).get() != data_copy.at(i).get());
         }
     }
 
@@ -819,7 +819,7 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests_() {
     using namespace Gem::Geneva;
 
     // A few settings
-    const std::size_t nItems = 100;
+    const std::size_t n_items = 100;
 
     // Call the parent classes' functions
     Gem::Geneva::GParameterSet::specificTestsFailuresExpected_GUnitTests_();
@@ -843,7 +843,7 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests_() {
             this->clone<Gem::Tests::GTestIndividual1>();
 
         // Add a few data items
-        CHECK_NOTHROW(p_test->addGDoubleObjects_(nItems));
+        CHECK_NOTHROW(p_test->addGDoubleObjects_(n_items));
 
         // Try to count the number of occurrences of an empty smart pointer. Should throw
         CHECK_THROWS_AS((p_test->count(std::shared_ptr<GDoubleObject>())), geneva_exception);
@@ -856,7 +856,7 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests_() {
             this->clone<Gem::Tests::GTestIndividual1>();
 
         // Add a few data items
-        CHECK_NOTHROW(p_test->addGDoubleObjects_(nItems));
+        CHECK_NOTHROW(p_test->addGDoubleObjects_(n_items));
 
         // Try to find an empty smart pointer. Should throw
         CHECK_THROWS_AS((p_test->find(std::shared_ptr<GDoubleObject>())), geneva_exception);
@@ -869,7 +869,7 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests_() {
             this->clone<Gem::Tests::GTestIndividual1>();
 
         // Add a few data items
-        CHECK_NOTHROW(p_test->addGDoubleObjects_(nItems));
+        CHECK_NOTHROW(p_test->addGDoubleObjects_(n_items));
 
         // Try to insert an empty smart pointers. Should throw
         CHECK_THROWS_AS(
@@ -885,7 +885,7 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests_() {
             this->clone<Gem::Tests::GTestIndividual1>();
 
         // Add a few data items
-        CHECK_NOTHROW(p_test->addGDoubleObjects_(nItems));
+        CHECK_NOTHROW(p_test->addGDoubleObjects_(n_items));
 
         // Try to insert a number of empty smart pointers. Should throw
         CHECK_THROWS_AS(
@@ -901,7 +901,7 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests_() {
             this->clone<Gem::Tests::GTestIndividual1>();
 
         // Add a few data items
-        CHECK_NOTHROW(p_test->addGDoubleObjects_(nItems));
+        CHECK_NOTHROW(p_test->addGDoubleObjects_(n_items));
 
         // Try to insert a number of empty smart pointers. Should throw
         CHECK_THROWS_AS(
@@ -917,7 +917,7 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests_() {
             this->clone<Gem::Tests::GTestIndividual1>();
 
         // Add a few data items
-        CHECK_NOTHROW(p_test->addGDoubleObjects_(nItems));
+        CHECK_NOTHROW(p_test->addGDoubleObjects_(n_items));
 
         // Try to insert a number of empty smart pointers. Should throw
         CHECK_THROWS_AS(
@@ -933,7 +933,7 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests_() {
             this->clone<Gem::Tests::GTestIndividual1>();
 
         // Add a few data items
-        CHECK_NOTHROW(p_test->addGDoubleObjects_(nItems));
+        CHECK_NOTHROW(p_test->addGDoubleObjects_(n_items));
 
         // Try to attach an empty smart pointer Should throw
         CHECK_THROWS_AS(
@@ -949,7 +949,7 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests_() {
             this->clone<Gem::Tests::GTestIndividual1>();
 
         // Add a few data items
-        CHECK_NOTHROW(p_test->addGDoubleObjects_(nItems));
+        CHECK_NOTHROW(p_test->addGDoubleObjects_(n_items));
 
         // Try to attach an empty smart pointer Should throw
         CHECK_THROWS_AS(

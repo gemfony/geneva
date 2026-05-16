@@ -101,19 +101,19 @@ public:
 	  * This constructor lets a user set all sigma parameters in one go.
 	  *
 	  * @param sigma The initial value for the sigma_ parameter
-	  * @param sigmaSigma The initial value for the sigmaSigma_ parameter
-	  * @param minSigma The minimal value allowed for sigma_
-	  * @param maxSigma The maximal value allowed for sigma_
+	  * @param sigma_sigma The initial value for the sigmaSigma_ parameter
+	  * @param min_sigma The minimal value allowed for sigma_
+	  * @param max_sigma The maximal value allowed for sigma_
 	  */
     GNumGaussAdaptorT(
         const fp_type &sigma,
-        const fp_type &sigmaSigma,
-        const fp_type &minSigma,
-        const fp_type &maxSigma
+        const fp_type &sigma_sigma,
+        const fp_type &min_sigma,
+        const fp_type &max_sigma
     ) {
         // These functions do error checks on their values
-        setSigmaAdaptionRate(sigmaSigma);
-        setSigmaRange(minSigma, maxSigma);
+        setSigmaAdaptionRate(sigma_sigma);
+        setSigmaRange(min_sigma, max_sigma);
         setSigma(
             sigma
         ); // Must be set last so an error check for compliance with the boundaries can be made
@@ -126,16 +126,16 @@ public:
 	  * This constructor lets a user set all parameters in one go.
 	  *
 	  * @param sigma The initial value for the sigma_ parameter
-	  * @param sigmaSigma The initial value for the sigmaSigma_ parameter
-	  * @param minSigma The minimal value allowed for sigma_
-	  * @param maxSigma The maximal value allowed for sigma_
+	  * @param sigma_sigma The initial value for the sigmaSigma_ parameter
+	  * @param min_sigma The minimal value allowed for sigma_
+	  * @param max_sigma The maximal value allowed for sigma_
 	  * @param probability The likelihood for a adaption actually taking place
 	  */
     GNumGaussAdaptorT(
         const fp_type &sigma,
-        const fp_type &sigmaSigma,
-        const fp_type &minSigma,
-        const fp_type &maxSigma,
+        const fp_type &sigma_sigma,
+        const fp_type &min_sigma,
+        const fp_type &max_sigma,
         const double &probability
     )
       : GAdaptorT<num_type>(probability) { /* nothing */
@@ -242,32 +242,30 @@ public:
 	  * to a very small value (DEFAULTMINSIGMA), as otherwise adaptions would stop entirely,
 	  * which does not make sense.  Using 0. as lower boundary is however allowed for practical
 	  * reasons. Note that this function will also adapt sigma itself, if it falls outside of the
-	  * allowed range. It is not recommended (but not enforced) to set a maxSigma > 1, as sigma
+	  * allowed range. It is not recommended (but not enforced) to set a max_sigma > 1, as sigma
 	  * is interpreted as a percentage of the allowed or desired value range of the target variable.
 	  *
-	  * @param minSigma The minimum allowed value of sigma_
-	  * @param maxSigma The maximum allowed value of sigma_
+	  * @param min_sigma The minimum allowed value of sigma_
+	  * @param max_sigma The maximum allowed value of sigma_
 	  */
-    void setSigmaRange(const fp_type &minSigma, const fp_type &maxSigma) {
+    void setSigmaRange(const fp_type &min_sigma, const fp_type &max_sigma) {
         using namespace Gem::Common;
 
-        if(minSigma < fp_type(0.) || minSigma > maxSigma || maxSigma > fp_type(1.)) {
+        if(min_sigma < fp_type(0.) || min_sigma > max_sigma || max_sigma > fp_type(1.)) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GNumGaussAdaptorT::setSigmaRange(const fp_type&, const fp_type&):"
-                << '\n'
-                << "Invalid values for minSigma and maxSigma given: " << minSigma << " / "
-                << maxSigma << '\n'
-                << "Expected a range [0:1]. Note: Sigma is a percentage of the allowed or"
-                << '\n'
+                << "In GNumGaussAdaptorT::setSigmaRange(const fp_type&, const fp_type&):" << '\n'
+                << "Invalid values for min_sigma and max_sigma given: " << min_sigma << " / "
+                << max_sigma << '\n'
+                << "Expected a range [0:1]. Note: Sigma is a percentage of the allowed or" << '\n'
                 << "preferred value range."
             );
         }
 
-        minSigma_ = minSigma;
+        minSigma_ = min_sigma;
         if(minSigma_ < DEFAULTMINSIGMA)
-            minSigma_ = DEFAULTMINSIGMA; // Silently adapt minSigma
-        maxSigma_ = maxSigma;
+            minSigma_ = DEFAULTMINSIGMA; // Silently adapt min_sigma
+        maxSigma_ = max_sigma;
 
         // Rectify sigma_ and reset_sigma_, if necessary
         Gem::Common::enforceRangeConstraint<fp_type>(
@@ -313,10 +311,10 @@ public:
 	  * GAdaptorT<T>::setAdaptionThreshold() function. It determines, after how many calls the
 	  * internal parameters of the adaption should be adapted. If set to 0, no adaption takes place.
 	  *
-	  * @param sigmaSigma The new value of the sigmaSigma_ parameter
+	  * @param sigma_sigma The new value of the sigmaSigma_ parameter
 	  */
-    void setSigmaAdaptionRate(const fp_type &sigmaSigma) {
-        sigmaSigma_ = sigmaSigma;
+    void setSigmaAdaptionRate(const fp_type &sigma_sigma) {
+        sigmaSigma_ = sigma_sigma;
     }
 
     /* ----------------------------------------------------------------------------------
@@ -346,18 +344,18 @@ public:
 	  * at once.
 	  *
 	  * @param sigma The initial value for the sigma_ parameter
-	  * @param sigmaSigma The initial value for the sigmaSigma_ parameter
-	  * @param minSigma The minimal value allowed for sigma_
-	  * @param minSigma The maximum value allowed for sigma_
+	  * @param sigma_sigma The initial value for the sigmaSigma_ parameter
+	  * @param min_sigma The minimal value allowed for sigma_
+	  * @param min_sigma The maximum value allowed for sigma_
 	  */
     void setAll(
         const fp_type &sigma,
-        const fp_type &sigmaSigma,
-        const fp_type &minSigma,
-        const fp_type &maxSigma
+        const fp_type &sigma_sigma,
+        const fp_type &min_sigma,
+        const fp_type &max_sigma
     ) {
-        setSigmaAdaptionRate(sigmaSigma);
-        setSigmaRange(minSigma, maxSigma);
+        setSigmaAdaptionRate(sigma_sigma);
+        setSigmaRange(min_sigma, max_sigma);
         setSigma(sigma);
     }
 
@@ -374,15 +372,15 @@ public:
 	  */
     std::string printDiagnostics() const override {
         std::ostringstream diag; // NOLINT(cppcoreguidelines-init-variables)
-        std::tuple<fp_type, fp_type> sigmaRange = getSigmaRange();
+        std::tuple<fp_type, fp_type> sigma_range = getSigmaRange();
 
         diag << "Diagnostic message by GNumAdaptorT<num_type,fp_type>" << '\n'
              << "with typeid(num_type).name() = " << typeid(num_type).name() << '\n'
              << "and typeid(fp_type).name() = " << typeid(fp_type).name() << " :" << '\n'
              << "getSigma() = " << getSigma() << '\n'
              << "getResetSigma() = " << getResetSigma() << '\n'
-             << "getSigmaRange() = " << std::get<0>(sigmaRange) << " --> "
-             << std::get<1>(sigmaRange) << '\n'
+             << "getSigmaRange() = " << std::get<0>(sigma_range) << " --> "
+             << std::get<1>(sigma_range) << '\n'
              << "getSigmaAdaptionRate() = " << getSigmaAdaptionRate() << '\n';
 
         return diag.str();
@@ -393,13 +391,13 @@ public:
 	  * Triggers updates when the optimization process has stalled. This function
 	  * resets the sigma value to its original value and calls the parent class'es function
 	  *
-	  * @param nStalls The number of consecutive stalls up to this point
+	  * @param n_stalls The number of consecutive stalls up to this point
 	  * @param range A typical value range for type T
 	  * @return A boolean indicating whether updates were performed
 	  */
-    bool updateOnStall(const std::size_t &nStalls, const num_type &range) override {
+    bool updateOnStall(const std::size_t &n_stalls, const num_type &range) override {
         // Call our parent class'es function
-        GAdaptorT<num_type>::updateOnStall(nStalls, range);
+        GAdaptorT<num_type>::updateOnStall(n_stalls, range);
 
         // Reset the adaption probability
         if(sigma_ == sigma_reset_) {
@@ -697,49 +695,49 @@ protected:
             // true: Adaptions should happen always, independent of the adaption probability
             CHECK_NOTHROW(p_test->setAdaptionMode(adaptionMode::ALWAYS));
 
-            const fp_type minSigma = fp_type(0.0001);
-            const fp_type maxSigma = fp_type(1.);
-            const fp_type sigmaStart = fp_type(1.);
-            const fp_type sigmaSigma = fp_type(0.001);
+            const fp_type min_sigma = fp_type(0.0001);
+            const fp_type max_sigma = fp_type(1.);
+            const fp_type sigma_start = fp_type(1.);
+            const fp_type sigma_sigma = fp_type(0.001);
 
-            CHECK_NOTHROW(p_test->setSigmaRange(minSigma, maxSigma));
-            CHECK_NOTHROW(p_test->setSigma(sigmaStart));
-            CHECK_NOTHROW(p_test->setSigmaAdaptionRate(sigmaSigma));
+            CHECK_NOTHROW(p_test->setSigmaRange(min_sigma, max_sigma));
+            CHECK_NOTHROW(p_test->setSigma(sigma_start));
+            CHECK_NOTHROW(p_test->setSigmaAdaptionRate(sigma_sigma));
 
-            fp_type oldSigma = p_test->getSigma();
-            fp_type newSigma = 0.;
-            CHECK(oldSigma == sigmaStart);
+            fp_type old_sigma = p_test->getSigma();
+            fp_type new_sigma = 0.;
+            CHECK(old_sigma == sigma_start);
 
-            std::size_t nTests = 10000;
-            std::size_t maxCounter = 0;
-            std::size_t maxMaxCounter = 500;
-            for(std::size_t i = 0; i < nTests; i++) {
+            std::size_t n_tests = 10000;
+            std::size_t max_counter = 0;
+            std::size_t max_max_counter = 500;
+            for(std::size_t i = 0; i < n_tests; i++) {
                 CHECK_NOTHROW(p_test->adaptAdaption(num_type(1), gr));
-                newSigma = p_test->getSigma();
-                CHECK((newSigma >= minSigma && newSigma <= maxSigma));
+                new_sigma = p_test->getSigma();
+                CHECK((new_sigma >= min_sigma && new_sigma <= max_sigma));
 
-                if(newSigma != minSigma && newSigma != maxSigma) {
+                if(new_sigma != min_sigma && new_sigma != max_sigma) {
                     INFO(
                         "\n"
-                        << "oldSigma = " << oldSigma << "\n"
-                        << "newSigma = " << newSigma << "\n"
+                        << "old_sigma = " << old_sigma << "\n"
+                        << "new_sigma = " << new_sigma << "\n"
                         << "iteration = " << i << "\n"
                     );
-                    CHECK(newSigma != oldSigma);
-                    oldSigma = newSigma;
+                    CHECK(new_sigma != old_sigma);
+                    old_sigma = new_sigma;
                 }
                 else {
                     // We want to know how often we have exceeded the boundaries
-                    maxCounter++;
+                    max_counter++;
                 }
             }
 
             INFO(
                 "\n"
-                << "maxCounter = " << maxCounter << "\n"
-                << "maxMaxCounter = " << maxMaxCounter << "\n"
+                << "max_counter = " << max_counter << "\n"
+                << "max_max_counter = " << max_max_counter << "\n"
             );
-            CHECK(maxCounter < maxMaxCounter);
+            CHECK(max_counter < max_max_counter);
         }
 
         //------------------------------------------------------------------------------

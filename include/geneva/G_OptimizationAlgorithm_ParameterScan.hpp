@@ -91,22 +91,21 @@ std::vector<T> fillWithData(
 }
 
 template <>
-std::vector<bool> fillWithData<bool>(std::size_t nSteps, bool lower, bool upper);
+std::vector<bool> fillWithData<bool>(std::size_t n_steps, bool lower, bool upper);
 
 template <>
 std::vector<std::int32_t> fillWithData<std::int32_t>(
-    std::size_t nSteps // will only be used for random entries
+    std::size_t n_steps // will only be used for random entries
     ,
     std::int32_t lower,
     std::int32_t upper // inclusive
 );
 
 template <>
-std::vector<float> fillWithData<float>(std::size_t nSteps, float lower, float upper);
+std::vector<float> fillWithData<float>(std::size_t n_steps, float lower, float upper);
 
 template <>
-std::vector<double>
-fillWithData<double>(std::size_t nSteps, double lower, double upper);
+std::vector<double> fillWithData<double>(std::size_t n_steps, double lower, double upper);
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -158,7 +157,7 @@ public:
      */
     baseScanParT(
         parPropSpec<T> pps,
-        bool randomScan,
+        bool random_scan,
         const std::string &t // typeDescription_
     )
       : Gem::Common::GPodContainerT<T>()
@@ -167,7 +166,7 @@ public:
       , nSteps_(pps.nSteps)
       , lower_(pps.lowerBoundary)
       , upper_(pps.upperBoundary)
-      , randomScan_(randomScan)
+      , randomScan_(random_scan)
       , typeDescription_(t) {
         if(not randomScan_) {
             // Fill the object with data
@@ -541,7 +540,7 @@ struct parSet {
 
 /******************************************************************************/
 /** @brief A simple output operator for parSet object, mostly meant for debugging */
-std::ostream &operator<<(std::ostream &os, const parSet &pS);
+std::ostream &operator<<(std::ostream &os, const parSet &p_s);
 
 /******************************************************************************/
 /** @brief The default number of "best" individuals to be kept during the algorithm run */
@@ -699,33 +698,33 @@ private:
      */
     template <typename data_type>
     void addDataPoint(
-        const std::tuple<data_type, std::size_t, std::string, std::size_t> &dataPoint,
-        std::vector<data_type> &dataVec
+        const std::tuple<data_type, std::size_t, std::string, std::size_t> &data_point,
+        std::vector<data_type> &data_vec
     ) {
 #ifdef DEBUG
-        if(0 != std::get<1>(dataPoint)) {
+        if(0 != std::get<1>(data_point)) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GParameterScan::addDataPoint(mode 0): Error!" << '\n'
-                << "Function was called for invalid mode " << std::get<1>(dataPoint) << '\n'
+                << "Function was called for invalid mode " << std::get<1>(data_point) << '\n'
             );
         }
 #endif
 
-        data_type lData = std::get<0>(dataPoint);
-        std::size_t lPos = std::get<3>(dataPoint);
+        data_type l_data = std::get<0>(data_point);
+        std::size_t l_pos = std::get<3>(data_point);
 
         // Check that we haven't exceeded the size of the boolean data vector
-        if(lPos >= dataVec.size()) {
+        if(l_pos >= data_vec.size()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GParameterScan::addDataPoint(): Error!" << '\n'
-                << "Got position beyond end of data vector: " << lPos << " / " << dataVec.size()
+                << "Got position beyond end of data vector: " << l_pos << " / " << data_vec.size()
                 << '\n'
             );
         }
 
-        dataVec.at(lPos) = lData;
+        data_vec.at(l_pos) = l_data;
     }
 
     /***************************************************************************/
@@ -734,14 +733,14 @@ private:
      */
     template <typename data_type>
     void addDataPoint(
-        const std::tuple<data_type, std::size_t, std::string, std::size_t> &dataPoint,
-        std::map<std::string, std::vector<data_type>> &dataMap
+        const std::tuple<data_type, std::size_t, std::string, std::size_t> &data_point,
+        std::map<std::string, std::vector<data_type>> &data_map
     ) {
-        data_type lData = std::get<0>(dataPoint);
-        std::string lName = std::get<2>(dataPoint);
-        std::size_t lPos = std::get<3>(dataPoint);
+        data_type l_data = std::get<0>(data_point);
+        std::string l_name = std::get<2>(data_point);
+        std::size_t l_pos = std::get<3>(data_point);
 
-        (Gem::Common::getMapItem(dataMap, lName)).at(lPos) = lData;
+        (Gem::Common::getMapItem(data_map, l_name)).at(l_pos) = l_data;
     }
 
     /***************************************************************************/

@@ -41,10 +41,10 @@ namespace Gem::Geneva {
  * Initialization with a number of identical GBooleanObject objects
  */
 GBooleanObjectCollection::GBooleanObjectCollection(
-    const std::size_t &nVals,
+    const std::size_t &n_vals,
     std::shared_ptr<GBooleanObject> tmpl_ptr
 )
-  : GParameterTCollectionT<GBooleanObject>(nVals, tmpl_ptr) { /* nothing */
+  : GParameterTCollectionT<GBooleanObject>(n_vals, tmpl_ptr) { /* nothing */
 }
 
 // Tested in this file
@@ -54,10 +54,10 @@ GBooleanObjectCollection::GBooleanObjectCollection(
  * Initialization with a number of GBoolean objects with a given probability for the value "true"
  */
 GBooleanObjectCollection::GBooleanObjectCollection(
-    const std::size_t &nVals,
+    const std::size_t &n_vals,
     const double &probability
 ) {
-    for(std::size_t i = 0; i < nVals; i++) {
+    for(std::size_t i = 0; i < n_vals; i++) {
         this->push_back(std::make_shared<GBooleanObject>(probability));
     }
 }
@@ -155,7 +155,7 @@ bool GBooleanObjectCollection::modify_GUnitTests_() {
 /**
  * Fills the collection with GBooleanObject objects
  */
-void GBooleanObjectCollection::fillWithObjects_(const std::size_t &nAddedObjects) {
+void GBooleanObjectCollection::fillWithObjects_(const std::size_t &n_added_objects) {
 #ifdef GEM_TESTING
     // A random generator
     Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
@@ -164,7 +164,7 @@ void GBooleanObjectCollection::fillWithObjects_(const std::size_t &nAddedObjects
     CHECK_NOTHROW(this->clear());
 
     // Add GBooleanObject items with adaptors to p_test1
-    for(std::size_t i = 0; i < nAddedObjects; i++) {
+    for(std::size_t i = 0; i < n_added_objects; i++) {
         // Create a suitable adaptor
         std::shared_ptr<GBooleanAdaptor> gba_ptr;
 
@@ -203,15 +203,15 @@ void GBooleanObjectCollection::fillWithObjects_(const std::size_t &nAddedObjects
 void GBooleanObjectCollection::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
     // Some settings
-    const std::size_t nAddedObjects = 10;
-    const std::size_t nTests = 10000;
-    const double LOWERINITBOUNDARY = -10;
-    const double UPPERINITBOUNDARY = 10;
-    const double FIXEDVALUEINIT = 1.;
-    const double MULTVALUE = 3.;
-    const double RANDLOWERBOUNDARY = 0.;
-    const double RANDUPPERBOUNDARY = 10.;
-    const double LOWERBND = 0.8, UPPERBND = 1.2;
+    const std::size_t n_added_objects = 10;
+    const std::size_t n_tests = 10000;
+    const double lowerinitboundary = -10;
+    const double upperinitboundary = 10;
+    const double fixedvalueinit = 1.;
+    const double multvalue = 3.;
+    const double randlowerboundary = 0.;
+    const double randupperboundary = 10.;
+    const double lowerbnd = 0.8, upperbnd = 1.2;
 
     // Get a random number generator
     Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
@@ -222,7 +222,7 @@ void GBooleanObjectCollection::specificTestsNoFailureExpected_GUnitTests_() {
         std::shared_ptr<GBooleanObjectCollection> p_test = this->clone<GBooleanObjectCollection>();
 
         // Fill p_test with objects
-        p_test->fillWithObjects_(nAddedObjects);
+        p_test->fillWithObjects_(n_added_objects);
 
         // Call the parent's tests
         p_test
@@ -258,12 +258,12 @@ void GBooleanObjectCollection::specificTestsNoFailureExpected_GUnitTests_() {
         std::shared_ptr<GBooleanObject> gbo_ptr(
             new GBooleanObject(Gem::Common::GDefaultValueT<bool>::value())
         );
-        GBooleanObjectCollection gboc(nTests, gbo_ptr);
+        GBooleanObjectCollection gboc(n_tests, gbo_ptr);
 
-        INFO("\n" << "gboc.size() = " << gboc.size() << "nTests = " << nTests);
-        CHECK(gboc.size() == nTests);
+        INFO("\n" << "gboc.size() = " << gboc.size() << "n_tests = " << n_tests);
+        CHECK(gboc.size() == n_tests);
 
-        for(std::size_t i = 0; i < nTests; i++) {
+        for(std::size_t i = 0; i < n_tests; i++) {
             INFO(
                 "\n"
                 << "gboc.at(" << i << ")->value() = " << gboc.at(i)->value()
@@ -277,23 +277,23 @@ void GBooleanObjectCollection::specificTestsNoFailureExpected_GUnitTests_() {
     // --------------------------------------------------------------------------
 
     { // Check construction with a number of GBooleanObject with a given probability for "true"
-        GBooleanObjectCollection gboc(nTests, 0.5);
+        GBooleanObjectCollection gboc(n_tests, 0.5);
 
-        std::size_t nTrue = 0, nFalse = 0;
-        for(std::size_t i = 0; i < nTests; i++) {
-            gboc.at(i)->value() ? nTrue++ : nFalse++;
+        std::size_t n_true = 0, n_false = 0;
+        for(std::size_t i = 0; i < n_tests; i++) {
+            gboc.at(i)->value() ? n_true++ : n_false++;
         }
 
         // We allow a slight deviation, as the initialization is a random process
-        REQUIRE(nFalse != 0); // There should be a few false values
-        double ratio = double(nTrue) / double(nFalse);
+        REQUIRE(n_false != 0); // There should be a few false values
+        double ratio = double(n_true) / double(n_false);
         INFO(
             "\n"
             << "ratio = " << ratio << "\n"
-            << "nTrue = " << nTrue << "\n"
-            << "nFalse = " << nFalse << "\n"
+            << "n_true = " << n_true << "\n"
+            << "n_false = " << n_false << "\n"
         );
-        CHECK((ratio > LOWERBND && ratio < UPPERBND));
+        CHECK((ratio > lowerbnd && ratio < upperbnd));
     }
 
     // --------------------------------------------------------------------------
@@ -303,10 +303,10 @@ void GBooleanObjectCollection::specificTestsNoFailureExpected_GUnitTests_() {
         std::shared_ptr<GBooleanObjectCollection> p_test2 = this->clone<GBooleanObjectCollection>();
 
         // Fill p_test1 with objects
-        CHECK_NOTHROW(p_test1->fillWithObjects_(nAddedObjects));
+        CHECK_NOTHROW(p_test1->fillWithObjects_(n_added_objects));
 
         // Make sure it has the expected size
-        CHECK(p_test1->size() == nAddedObjects);
+        CHECK(p_test1->size() == n_added_objects);
 
         // Load the data into p_test2
         CHECK_NOTHROW(p_test2->load(p_test1));
@@ -315,17 +315,17 @@ void GBooleanObjectCollection::specificTestsNoFailureExpected_GUnitTests_() {
         CHECK(*p_test1 == *p_test2);
 
         // Try to add a fixed fp value to p_test1 and check whether it has changed
-        CHECK_NOTHROW(p_test1->fixedValueInit<double>(FIXEDVALUEINIT, activityMode::ALLPARAMETERS));
+        CHECK_NOTHROW(p_test1->fixedValueInit<double>(fixedvalueinit, activityMode::ALLPARAMETERS));
         CHECK(*p_test1 == *p_test2);
 
         // Try to multiply p_test1 with a fixed fp value and check whether it has changed
-        CHECK_NOTHROW(p_test1->multiplyBy<double>(MULTVALUE, activityMode::ALLPARAMETERS));
+        CHECK_NOTHROW(p_test1->multiplyBy<double>(multvalue, activityMode::ALLPARAMETERS));
         CHECK(*p_test1 == *p_test2);
 
         // Try to multiply p_test1 with a random fp value in a given range and check whether it has changed
         CHECK_NOTHROW(p_test1->multiplyByRandom<double>(
-            RANDLOWERBOUNDARY,
-            RANDUPPERBOUNDARY,
+            randlowerboundary,
+            randupperboundary,
             activityMode::ALLPARAMETERS,
             gr
         ));

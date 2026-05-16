@@ -49,10 +49,10 @@ GBooleanAdaptor::GBooleanAdaptor()
 /**
  * Initialization with a adaption probability
  *
- * @param adProb The adaption probability
+ * @param ad_prob The adaption probability
  */
-GBooleanAdaptor::GBooleanAdaptor(const double &adProb)
-  : GAdaptorT<bool>(adProb) { /* nothing */
+GBooleanAdaptor::GBooleanAdaptor(const double &ad_prob)
+  : GAdaptorT<bool>(ad_prob) { /* nothing */
 }
 
 // Tested in this class
@@ -207,28 +207,28 @@ void GBooleanAdaptor::specificTestsNoFailureExpected_GUnitTests_() {
     // --------------------------------------------------------------------------
 
     { // Check construction with a given adaption probability
-        const double TRIALADPROB = 0.1;
-        GBooleanAdaptor gba(TRIALADPROB);
+        const double trialadprob = 0.1;
+        GBooleanAdaptor gba(trialadprob);
         INFO(
             "\n"
             << "gba.getAdaptionProbability() = " << gba.getAdaptionProbability()
-            << "TRIALADPROB = " << TRIALADPROB
+            << "TRIALADPROB = " << trialadprob
         );
-        CHECK(gba.getAdaptionProbability() == TRIALADPROB);
+        CHECK(gba.getAdaptionProbability() == trialadprob);
     }
 
     // --------------------------------------------------------------------------
 
     { // Check copy construction
-        const double TRIALADPROB = 0.1;
-        GBooleanAdaptor gba1(TRIALADPROB);
+        const double trialadprob = 0.1;
+        GBooleanAdaptor gba1(trialadprob);
         GBooleanAdaptor gba2(gba1);
         INFO(
             "\n"
             << "gba2.getAdaptionProbability() = " << gba2.getAdaptionProbability()
-            << "TRIALADPROB = " << TRIALADPROB
+            << "TRIALADPROB = " << trialadprob
         );
-        CHECK(gba2.getAdaptionProbability() == TRIALADPROB);
+        CHECK(gba2.getAdaptionProbability() == trialadprob);
     }
 
     // --------------------------------------------------------------------------

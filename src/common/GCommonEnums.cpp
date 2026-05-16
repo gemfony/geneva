@@ -175,8 +175,8 @@ std::istream &operator>>(std::istream &i, Gem::Common::serializationMode &x) {
 /**
  * Converts a serializationMode to a string representation for debugging purposes
  */
-std::string serModeToString(Gem::Common::serializationMode serMod) {
-    switch(serMod) {
+std::string serModeToString(Gem::Common::serializationMode ser_mod) {
+    switch(ser_mod) {
     case Gem::Common::serializationMode::TEXT:
         return "TEXT";
     case Gem::Common::serializationMode::XML:

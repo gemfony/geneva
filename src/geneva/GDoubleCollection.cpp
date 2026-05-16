@@ -120,15 +120,15 @@ std::string GDoubleCollection::name_() const {
  * Attach our local values to the vector. This is used to collect all parameters of this type
  * in the sequence in which they were registered.
  *
- * @param parVec The vector to which the local value should be attached
+ * @param par_vec The vector to which the local value should be attached
  */
 void GDoubleCollection::doubleStreamline(
-    std::vector<double> &parVec,
+    std::vector<double> &par_vec,
     const activityMode & /*am*/
 ) const {
     GDoubleCollection::const_iterator cit;
     for(cit = this->begin(); cit != this->end(); ++cit) {
-        parVec.push_back(*cit);
+        par_vec.push_back(*cit);
     }
 }
 
@@ -137,10 +137,10 @@ void GDoubleCollection::doubleStreamline(
  * Attach our local values to the map. Names are built from the object name and the
  * position in the array.
  *
- * @param parVec The map to which the local value should be attached
+ * @param par_vec The map to which the local value should be attached
  */
 void GDoubleCollection::doubleStreamline(
-    std::map<std::string, std::vector<double>> &parVec,
+    std::map<std::string, std::vector<double>> &par_vec,
     const activityMode &am
 ) const {
 #ifdef DEBUG
@@ -148,7 +148,7 @@ void GDoubleCollection::doubleStreamline(
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GDoubleCollection::doubleStreamline(std::map<std::string, std::vector<double>>& "
-               "parVec) const: Error!"
+               "par_vec) const: Error!"
             << '\n'
             << "No name was assigned to the object" << '\n'
         );
@@ -157,27 +157,27 @@ void GDoubleCollection::doubleStreamline(
 
     std::vector<double> parameters;
     this->streamline(parameters, am);
-    parVec[this->getParameterName()] = parameters;
+    par_vec[this->getParameterName()] = parameters;
 }
 
 /******************************************************************************/
 /**
  * Attach boundaries of type double to the vectors
  *
- * @param lBndVec A vector of lower double parameter boundaries
- * @param uBndVec A vector of upper double parameter boundaries
+ * @param l_bnd_vec A vector of lower double parameter boundaries
+ * @param u_bnd_vec A vector of upper double parameter boundaries
  */
 void GDoubleCollection::doubleBoundaries(
-    std::vector<double> &lBndVec,
-    std::vector<double> &uBndVec,
+    std::vector<double> &l_bnd_vec,
+    std::vector<double> &u_bnd_vec,
     const activityMode & /*am*/
 ) const {
     // Add as man lower and upper boundaries to the vector as
     // there are variables
     GDoubleCollection::const_iterator cit;
     for(cit = this->begin(); cit != this->end(); ++cit) {
-        lBndVec.push_back(this->getLowerInitBoundary());
-        uBndVec.push_back(this->getUpperInitBoundary());
+        l_bnd_vec.push_back(this->getLowerInitBoundary());
+        u_bnd_vec.push_back(this->getUpperInitBoundary());
     }
 }
 
@@ -198,30 +198,30 @@ std::size_t GDoubleCollection::countDoubleParameters(
 /**
  * Assigns part of a value vector to the parameter
  *
- * @param parVec The vector from which the data should be taken
+ * @param par_vec The vector from which the data should be taken
  * @param pos The position inside of the vector from which the data is extracted in each turn of the loop
  */
 void GDoubleCollection::assignDoubleValueVector(
-    const std::vector<double> &parVec,
+    const std::vector<double> &par_vec,
     std::size_t &pos,
     const activityMode & /*am*/
 ) {
     for(GDoubleCollection::iterator it = this->begin(); it != this->end(); ++it) {
 #ifdef DEBUG
         // Do we have a valid position ?
-        if(pos >= parVec.size()) {
+        if(pos >= par_vec.size()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GDoubleCollection::assignDoubleValueVector(const std::vector<double>&, "
                    "std::size_t&):"
                 << '\n'
-                << "Tried to access position beyond end of vector: " << parVec.size() << "/" << pos
+                << "Tried to access position beyond end of vector: " << par_vec.size() << "/" << pos
                 << '\n'
             );
         }
 #endif
 
-        (*it) = parVec[pos];
+        (*it) = par_vec[pos];
         pos++;
     }
 }
@@ -231,13 +231,13 @@ void GDoubleCollection::assignDoubleValueVector(
  * Assigns part of a value map to the parameter
  */
 void GDoubleCollection::assignDoubleValueVectors(
-    const std::map<std::string, std::vector<double>> &parMap,
+    const std::map<std::string, std::vector<double>> &par_map,
     const activityMode & /*am*/
 ) {
     GDoubleCollection::iterator it;
     std::size_t cnt = 0;
     for(it = this->begin(); it != this->end(); ++it) {
-        *it = (Gem::Common::getMapItem(parMap, this->getParameterName())).at(cnt++);
+        *it = (Gem::Common::getMapItem(par_map, this->getParameterName())).at(cnt++);
     }
 }
 
@@ -404,7 +404,7 @@ bool GDoubleCollection::modify_GUnitTests_() {
 /**
  * Fills the collection with some random data
  */
-void GDoubleCollection::fillWithData_(const std::size_t &nItems) {
+void GDoubleCollection::fillWithData_(const std::size_t &n_items) {
 #ifdef GEM_TESTING
     // Get a random number generator
     Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
@@ -421,7 +421,7 @@ void GDoubleCollection::fillWithData_(const std::size_t &nItems) {
     CHECK_NOTHROW(this->push_back(0.));
 
     std::uniform_real_distribution<double> uniform_real_distribution(-10., 10.);
-    for(std::size_t i = 1; i < nItems - 1; i++) {
+    for(std::size_t i = 1; i < n_items - 1; i++) {
         CHECK_NOTHROW(this->push_back(uniform_real_distribution(gr)));
     }
 
@@ -429,7 +429,7 @@ void GDoubleCollection::fillWithData_(const std::size_t &nItems) {
     CHECK_NOTHROW(this->push_back(1.));
 
     // Cross-check the size
-    CHECK(this->size() == nItems);
+    CHECK(this->size() == n_items);
     CHECK(not this->empty());
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
@@ -444,17 +444,17 @@ void GDoubleCollection::fillWithData_(const std::size_t &nItems) {
 void GDoubleCollection::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
     // A few settings
-    const std::size_t nItems = 10000;
-    const std::size_t nTests = 10;
-    const double FIXEDVALUEINIT = 1.;
+    const std::size_t n_items = 10000;
+    const std::size_t n_tests = 10;
+    const double fixedvalueinit = 1.;
 
     // Make sure we have an appropriate adaptor loaded when performing these tests
-    bool adaptorStored = false;
-    std::shared_ptr<GAdaptorT<double>> storedAdaptor;
+    bool adaptor_stored = false;
+    std::shared_ptr<GAdaptorT<double>> stored_adaptor;
 
     if(this->hasAdaptor()) {
-        storedAdaptor = this->getAdaptor();
-        adaptorStored = true;
+        stored_adaptor = this->getAdaptor();
+        adaptor_stored = true;
     }
 
     std::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.025, 0.1, 0., 1., 1.0));
@@ -481,11 +481,11 @@ void GDoubleCollection::specificTestsNoFailureExpected_GUnitTests_() {
             p_test1->clear();
 
             // Add a few items
-            for(std::size_t i = 0; i < nItems; i++) {
-                p_test1->push_back(FIXEDVALUEINIT);
+            for(std::size_t i = 0; i < n_items; i++) {
+                p_test1->push_back(fixedvalueinit);
             }
 
-            for(std::size_t t = 0; t < nTests; t++) {
+            for(std::size_t t = 0; t < n_tests; t++) {
                 // Load p_test1 into p_test2
                 CHECK_NOTHROW(p_test2->load(p_test1));
 
@@ -499,7 +499,7 @@ void GDoubleCollection::specificTestsNoFailureExpected_GUnitTests_() {
                 CHECK(*p_test1 != *p_test2);
 
                 // Check that each element differs
-                for(std::size_t i = 0; i < nItems; i++) {
+                for(std::size_t i = 0; i < n_items; i++) {
                     CHECK(p_test1->at(i) != p_test2->at(i));
                 }
             }
@@ -518,8 +518,8 @@ void GDoubleCollection::specificTestsNoFailureExpected_GUnitTests_() {
             p_test1->clear();
 
             // Add a few items
-            for(std::size_t i = 0; i < nItems; i++) {
-                p_test1->push_back(FIXEDVALUEINIT);
+            for(std::size_t i = 0; i < n_items; i++) {
+                p_test1->push_back(fixedvalueinit);
             }
 
             // Load p_test1 into p_test2 and p_test3
@@ -571,16 +571,16 @@ void GDoubleCollection::specificTestsNoFailureExpected_GUnitTests_() {
         CHECK(p_test1->max_size() > 0);
 
         // Reserve some space
-        CHECK_NOTHROW(p_test1->reserve(nItems));
+        CHECK_NOTHROW(p_test1->reserve(n_items));
 
         // Check that the capacity is > 0
         CHECK(p_test1->capacity() > 0);
 
         // Add some data
-        CHECK_NOTHROW(p_test1->fillWithData_(nItems));
+        CHECK_NOTHROW(p_test1->fillWithData_(n_items));
 
         // Check the size again
-        CHECK(p_test1->size() == nItems);
+        CHECK(p_test1->size() == n_items);
         CHECK(not p_test1->empty());
     }
 
@@ -590,7 +590,7 @@ void GDoubleCollection::specificTestsNoFailureExpected_GUnitTests_() {
         std::shared_ptr<GDoubleCollection> p_test1 = this->clone<GDoubleCollection>();
 
         // Add some data
-        CHECK_NOTHROW(p_test1->fillWithData_(nItems));
+        CHECK_NOTHROW(p_test1->fillWithData_(n_items));
 
         // Count the number of values == 0. . Should be >= 1
         CHECK(p_test1->count(0.) >= 1);
@@ -610,7 +610,7 @@ void GDoubleCollection::specificTestsNoFailureExpected_GUnitTests_() {
         std::shared_ptr<GDoubleCollection> p_test1 = this->clone<GDoubleCollection>();
 
         // Add some data
-        CHECK_NOTHROW(p_test1->fillWithData_(nItems));
+        CHECK_NOTHROW(p_test1->fillWithData_(n_items));
 
         // Retrieve items
         CHECK((*p_test1)[0] == 0.);
@@ -629,7 +629,7 @@ void GDoubleCollection::specificTestsNoFailureExpected_GUnitTests_() {
         std::shared_ptr<GDoubleCollection> p_test1 = this->clone<GDoubleCollection>();
 
         // Add some data
-        CHECK_NOTHROW(p_test1->fillWithData_(nItems));
+        CHECK_NOTHROW(p_test1->fillWithData_(n_items));
 
         // Check the front and back of the vector -- we know the values
         CHECK(p_test1->front() == 0.);
@@ -642,14 +642,14 @@ void GDoubleCollection::specificTestsNoFailureExpected_GUnitTests_() {
         std::shared_ptr<GDoubleCollection> p_test1 = this->clone<GDoubleCollection>();
 
         // Add some data
-        CHECK_NOTHROW(p_test1->fillWithData_(nItems));
+        CHECK_NOTHROW(p_test1->fillWithData_(n_items));
 
         // Iterate over the sequence
         GDoubleCollection::iterator it;
-        std::size_t itemCount = 0;
+        std::size_t item_count = 0;
         for(it = p_test1->begin(); it != p_test1->end(); ++it)
-            itemCount++;
-        CHECK(itemCount == nItems);
+            item_count++;
+        CHECK(item_count == n_items);
     }
 
     //------------------------------------------------------------------------------
@@ -658,54 +658,54 @@ void GDoubleCollection::specificTestsNoFailureExpected_GUnitTests_() {
         std::shared_ptr<GDoubleCollection> p_test1 = this->clone<GDoubleCollection>();
 
         // Add some data
-        CHECK_NOTHROW(p_test1->fillWithData_(nItems));
+        CHECK_NOTHROW(p_test1->fillWithData_(n_items));
 
         // Insert 1 item at position 1 and cross-check
         CHECK_NOTHROW(p_test1->insert(p_test1->begin() + 1, 1.));
         CHECK(p_test1->at(1) == 1.);
-        CHECK(p_test1->size() == nItems + 1);
+        CHECK(p_test1->size() == n_items + 1);
 
         // Insert another (nItems - 1 ) items at position 0
-        CHECK_NOTHROW(p_test1->insert(p_test1->begin(), nItems - 1, 1.));
-        CHECK(p_test1->size() == 2 * nItems);
+        CHECK_NOTHROW(p_test1->insert(p_test1->begin(), n_items - 1, 1.));
+        CHECK(p_test1->size() == 2 * n_items);
         CHECK(p_test1->at(0) == 1.);
 
         // Erase 1 item at the beginning and cross-check
         CHECK_NOTHROW(p_test1->erase(p_test1->begin()));
-        CHECK(p_test1->size() == 2 * nItems - 1);
+        CHECK(p_test1->size() == 2 * n_items - 1);
 
         // Erase another nItems - 1 items from the beginning
-        CHECK_NOTHROW(p_test1->erase(p_test1->begin(), p_test1->begin() + nItems - 1));
-        CHECK(p_test1->size() == nItems);
+        CHECK_NOTHROW(p_test1->erase(p_test1->begin(), p_test1->begin() + n_items - 1));
+        CHECK(p_test1->size() == n_items);
 
         // Remove another item at the end
         CHECK_NOTHROW(p_test1->pop_back());
-        CHECK(p_test1->size() == nItems - 1);
+        CHECK(p_test1->size() == n_items - 1);
 
         // Remove all remaining items
         CHECK_NOTHROW(p_test1->resize(0, 0.));
         CHECK(p_test1->size() == 0);
 
         // Add a number of identical items, using the resize() function and cross-check
-        CHECK_NOTHROW(p_test1->resize(nItems, 1.));
-        CHECK(p_test1->size() == nItems);
-        CHECK(p_test1->count(1.) == nItems);
+        CHECK_NOTHROW(p_test1->resize(n_items, 1.));
+        CHECK(p_test1->size() == n_items);
+        CHECK(p_test1->count(1.) == n_items);
 
-        std::vector<double> dataCopy;
-        CHECK_NOTHROW(p_test1->getDataCopy(dataCopy));
-        CHECK(dataCopy.size() == nItems);
-        CHECK((std::size_t)std::count(dataCopy.begin(), dataCopy.end(), 1.) == nItems);
+        std::vector<double> data_copy;
+        CHECK_NOTHROW(p_test1->getDataCopy(data_copy));
+        CHECK(data_copy.size() == n_items);
+        CHECK((std::size_t)std::count(data_copy.begin(), data_copy.end(), 1.) == n_items);
 
         // Assign 1 to all positions and add further items
-        for(std::size_t i = 0; i < dataCopy.size(); i++)
-            dataCopy[i] = 0.;
-        for(std::size_t i = 0; i < nItems; i++)
-            dataCopy.push_back(0.);
+        for(std::size_t i = 0; i < data_copy.size(); i++)
+            data_copy[i] = 0.;
+        for(std::size_t i = 0; i < n_items; i++)
+            data_copy.push_back(0.);
 
         // Assign the vector to p_test1 and cross-check
-        CHECK_NOTHROW(p_test1->Gem::Common::GPodContainerT<double>::operator=(dataCopy));
-        CHECK(p_test1->size() == 2 * nItems);
-        CHECK(p_test1->count(0.) == 2 * nItems);
+        CHECK_NOTHROW(p_test1->Gem::Common::GPodContainerT<double>::operator=(data_copy));
+        CHECK(p_test1->size() == 2 * n_items);
+        CHECK(p_test1->count(0.) == 2 * n_items);
     }
 
     //------------------------------------------------------------------------------
@@ -714,8 +714,8 @@ void GDoubleCollection::specificTestsNoFailureExpected_GUnitTests_() {
     this->resetAdaptor();
 
     // Load the old adaptor, if needed
-    if(adaptorStored) {
-        this->addAdaptor(storedAdaptor);
+    if(adaptor_stored) {
+        this->addAdaptor(stored_adaptor);
     }
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
@@ -733,12 +733,12 @@ void GDoubleCollection::specificTestsNoFailureExpected_GUnitTests_() {
 void GDoubleCollection::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
     // Make sure we have an appropriate adaptor loaded when performing these tests
-    bool adaptorStored = false;
-    std::shared_ptr<GAdaptorT<double>> storedAdaptor;
+    bool adaptor_stored = false;
+    std::shared_ptr<GAdaptorT<double>> stored_adaptor;
 
     if(this->hasAdaptor()) {
-        storedAdaptor = this->getAdaptor();
-        adaptorStored = true;
+        stored_adaptor = this->getAdaptor();
+        adaptor_stored = true;
     }
 
     std::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.025, 0.1, 0., 1., 1.0));
@@ -757,8 +757,8 @@ void GDoubleCollection::specificTestsFailuresExpected_GUnitTests_() {
     this->resetAdaptor();
 
     // Restore the adaptor to its pristine condition
-    if(adaptorStored) {
-        this->addAdaptor(storedAdaptor);
+    if(adaptor_stored) {
+        this->addAdaptor(stored_adaptor);
     }
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw

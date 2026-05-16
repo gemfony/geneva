@@ -237,13 +237,13 @@ public:
 
     /** @brief Transformation of the individual's parameter objects into a list of comma-separated values */
     std::string toCSV(
-        bool = false // withNameAndType
+        bool = false // with_name_and_type
         ,
-        bool = true // withCommas
+        bool = true // with_commas
         ,
-        bool = true // useRawFitness
+        bool = true // use_raw_fitness
         ,
-        bool = true // showValidity
+        bool = true // show_validity
     ) const;
 
     /** @brief Prevent shadowing of std::vector<GParameterBase>::at() */
@@ -262,7 +262,7 @@ public:
 
     /** @brief Retrieves information from adaptors with a given property */
     void queryAdaptor(
-        std::string const &adaptorName,
+        std::string const &adaptor_name,
         std::string const &property,
         std::vector<std::any> &data
     ) const;
@@ -306,7 +306,7 @@ public:
     std::size_t getMaxUnsuccessfulAdaptions() const;
 
     /** @brief Set maximum number of retries until a valid individual was found  */
-    void setMaxRetriesUntilValid(std::size_t maxRetriesUntilValid);
+    void setMaxRetriesUntilValid(std::size_t max_retries_until_valid);
     /** Retrieves the maximum number of retries until a valid individual was found. */
     std::size_t getMaxRetriesUntilValid() const;
 
@@ -431,7 +431,7 @@ public:
         registerConstraint(std::shared_ptr<GPreEvaluationValidityCheckT<GParameterSet>>);
 
     /** @brief Allows to set the policy to use in case this individual represents an invalid solution */
-    void setEvaluationPolicy(evaluationPolicy evalPolicy);
+    void setEvaluationPolicy(evaluationPolicy eval_policy);
     /** @brief Allows to retrieve the current policy in case this individual represents an invalid solution */
     evaluationPolicy getEvaluationPolicy() const;
 
@@ -473,15 +473,15 @@ public:
      */
     template <typename par_type>
     std::vector<std::string> getVariableNames() const {
-        std::vector<std::string> varNames;
-        std::map<std::string, std::vector<par_type>> pMap;
-        this->streamline<par_type>(pMap);
+        std::vector<std::string> var_names;
+        std::map<std::string, std::vector<par_type>> p_map;
+        this->streamline<par_type>(p_map);
 
-        for(const auto &name : pMap) {
-            varNames.push_back(name.first);
+        for(const auto &name : p_map) {
+            var_names.push_back(name.first);
         }
 
-        return varNames;
+        return var_names;
     }
 
     /***************************************************************************/
@@ -504,9 +504,9 @@ public:
         case 1: // var[3]
         case 2: // var    --> treated as var[0]
         {
-            std::map<std::string, std::vector<par_type>> varMap;
-            this->streamline<par_type>(varMap);
-            result = (Gem::Common::getMapItem<std::vector<par_type>>(varMap, std::get<1>(target)))
+            std::map<std::string, std::vector<par_type>> var_map;
+            this->streamline<par_type>(var_map);
+            result = (Gem::Common::getMapItem<std::vector<par_type>>(var_map, std::get<1>(target)))
                          .at(std::get<2>(target));
         } break;
 
@@ -558,20 +558,20 @@ public:
      * values of its parameters to the vector, if they comply with the
      * type of the parameters to be stored in the vector.
      *
-     * @param parVec The vector to which the parameters will be added
+     * @param par_vec The vector to which the parameters will be added
      * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be extracted
      */
     template <typename par_type>
     void streamline(
-        std::vector<par_type> &parVec,
+        std::vector<par_type> &par_vec,
         activityMode const &am = activityMode::DEFAULTACTIVITYMODE
     ) const {
         // Make sure the vector is clean
-        parVec.clear();
+        par_vec.clear();
 
         // Loop over all GParameterBase objects.
         for(const auto &parm_ptr : *this) {
-            parm_ptr->streamline<par_type>(parVec, am);
+            parm_ptr->streamline<par_type>(par_vec, am);
         }
     }
 
@@ -586,20 +586,20 @@ public:
      * and the values of its parameters to the map, if they comply with the
      * type of the parameters to be stored in the vector.
      *
-     * @param parVec The map to which the parameters will be added
+     * @param par_vec The map to which the parameters will be added
      * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be extracted
      */
     template <typename par_type>
     void streamline(
-        std::map<std::string, std::vector<par_type>> &parVec,
+        std::map<std::string, std::vector<par_type>> &par_vec,
         activityMode const &am = activityMode::DEFAULTACTIVITYMODE
     ) const {
         // Make sure the vector is clean
-        parVec.clear();
+        par_vec.clear();
 
         // Loop over all GParameterBase objects.
         for(const auto &parm_ptr : *this) {
-            parm_ptr->streamline<par_type>(parVec, am);
+            parm_ptr->streamline<par_type>(par_vec, am);
         }
     }
 
@@ -612,32 +612,32 @@ public:
     /**
      * Assigns values from a std::vector to the parameters in the collection
      *
-     * @param parVec A vector of values, to be assigned to be added to GParameterBase derivatives
+     * @param par_vec A vector of values, to be assigned to be added to GParameterBase derivatives
      * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be assigned
      */
     template <typename par_type>
     void assignValueVector(
-        std::vector<par_type> const &parVec,
+        std::vector<par_type> const &par_vec,
         activityMode const &am = activityMode::DEFAULTACTIVITYMODE
     ) {
 #ifdef DEBUG
-        if(countParameters<par_type>() != parVec.size()) {
+        if(countParameters<par_type>() != par_vec.size()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GParameterSet::assignValueVector(const std::vector<pat_type>&):" << '\n'
-                << "Sizes don't match: " << countParameters<par_type>() << " / " << parVec.size()
+                << "Sizes don't match: " << countParameters<par_type>() << " / " << par_vec.size()
                 << '\n'
             );
         }
 #endif /* DEBUG */
 
-        // Start assignment at the beginning of parVec
+        // Start assignment at the beginning of par_vec
         std::size_t pos = 0;
 
         // Loop over all GParameterBase objects. Each object will extract the relevant
         // parameters and increment the position counter as required.
         for(const auto &parm_ptr : *this) {
-            parm_ptr->assignValueVector<par_type>(parVec, pos, am);
+            parm_ptr->assignValueVector<par_type>(par_vec, pos, am);
         }
 
         // As we have modified our internal data sets, make sure the item is reprocessed
@@ -648,17 +648,17 @@ public:
     /**
      * Assigns values from a std::map<std::string, std::vector<par_type>> to the parameters in the collection
      *
-     * @param parMap A map of values, to be assigned to be added to GParameterBase derivatives
+     * @param par_map A map of values, to be assigned to be added to GParameterBase derivatives
      * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be assigned
      */
     template <typename par_type>
     void assignValueVectors(
-        std::map<std::string, std::vector<par_type>> const &parMap,
+        std::map<std::string, std::vector<par_type>> const &par_map,
         activityMode const &am = activityMode::DEFAULTACTIVITYMODE
     ) {
         // Loop over all GParameterBase objects. Each object will extract the relevant parameters
         for(const auto &parm_ptr : *this) {
-            parm_ptr->assignValueVectors<par_type>(parMap, am);
+            parm_ptr->assignValueVectors<par_type>(par_map, am);
         }
 
         // As we have modified our internal data sets, make sure the item is reprocessed
@@ -672,23 +672,23 @@ public:
      * they comply with the type of the parameters to be stored in the
      * vector.
      *
-     * @param lBndVec The vector to which the lower boundaries will be added
-     * @param uBndVec The vector to which the upper boundaries will be added
+     * @param l_bnd_vec The vector to which the lower boundaries will be added
+     * @param u_bnd_vec The vector to which the upper boundaries will be added
      * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be extracted
      */
     template <typename par_type>
     void boundaries(
-        std::vector<par_type> &lBndVec,
-        std::vector<par_type> &uBndVec,
+        std::vector<par_type> &l_bnd_vec,
+        std::vector<par_type> &u_bnd_vec,
         activityMode const &am = activityMode::DEFAULTACTIVITYMODE
     ) const {
         // Make sure the vectors are clean
-        lBndVec.clear();
-        uBndVec.clear();
+        l_bnd_vec.clear();
+        u_bnd_vec.clear();
 
         // Loop over all GParameterBase objects.
         for(const auto &parm_ptr : *this) {
-            parm_ptr->boundaries<par_type>(lBndVec, uBndVec, am);
+            parm_ptr->boundaries<par_type>(l_bnd_vec, u_bnd_vec, am);
         }
     }
 

@@ -44,10 +44,10 @@ namespace Gem::Geneva {
  * @param upperBoundary The upper boundary of the value range
  */
 GConstrainedDoubleObject::GConstrainedDoubleObject(
-    const double &lowerBoundary,
-    const double &upperBoundary
+    const double &lower_boundary,
+    const double &upper_boundary
 )
-  : GConstrainedFPT<double>(lowerBoundary, upperBoundary) { /* nothing */
+  : GConstrainedFPT<double>(lower_boundary, upper_boundary) { /* nothing */
 }
 
 /******************************************************************************/
@@ -60,10 +60,10 @@ GConstrainedDoubleObject::GConstrainedDoubleObject(
  */
 GConstrainedDoubleObject::GConstrainedDoubleObject(
     const double &val,
-    const double &lowerBoundary,
-    const double &upperBoundary
+    const double &lower_boundary,
+    const double &upper_boundary
 )
-  : GConstrainedFPT<double>(val, lowerBoundary, upperBoundary) { /* nothing */
+  : GConstrainedFPT<double>(val, lower_boundary, upper_boundary) { /* nothing */
 }
 
 /******************************************************************************/
@@ -142,46 +142,46 @@ std::string GConstrainedDoubleObject::name_() const {
  * Attach our local value to the vector. This is used to collect all parameters of this type
  * in the sequence in which they were registered.
  *
- * @param parVec The vector to which the local value should be attached
+ * @param par_vec The vector to which the local value should be attached
  */
 void GConstrainedDoubleObject::doubleStreamline(
-    std::vector<double> &parVec,
+    std::vector<double> &par_vec,
     const activityMode & /*am*/
 ) const {
     // Note: application of the transfer function happens in GConstrainedNumT inside value()
-    parVec.push_back(this->value());
+    par_vec.push_back(this->value());
 }
 
 /******************************************************************************/
 /**
  * Attach our local value to the map.
  *
- * @param parVec The map to which the local value should be attached
+ * @param par_vec The map to which the local value should be attached
  */
 void GConstrainedDoubleObject::doubleStreamline(
-    std::map<std::string, std::vector<double>> &parVec,
+    std::map<std::string, std::vector<double>> &par_vec,
     const activityMode & /*am*/
 ) const {
     std::vector<double> parameters;
     // Note: application of the transfer function happens in GConstrainedNumT inside value()
     parameters.push_back(this->value());
-    parVec[this->getParameterName()] = parameters;
+    par_vec[this->getParameterName()] = parameters;
 }
 
 /******************************************************************************/
 /**
  * Attach boundaries of type double to the vectors.
  *
- * @param lBndVec A vector of lower double parameter boundaries
- * @param uBndVec A vector of upper double parameter boundaries
+ * @param l_bnd_vec A vector of lower double parameter boundaries
+ * @param u_bnd_vec A vector of upper double parameter boundaries
  */
 void GConstrainedDoubleObject::doubleBoundaries(
-    std::vector<double> &lBndVec,
-    std::vector<double> &uBndVec,
+    std::vector<double> &l_bnd_vec,
+    std::vector<double> &u_bnd_vec,
     const activityMode & /*am*/
 ) const {
-    lBndVec.push_back(this->getLowerBoundary());
-    uBndVec.push_back(this->getUpperBoundary());
+    l_bnd_vec.push_back(this->getLowerBoundary());
+    u_bnd_vec.push_back(this->getUpperBoundary());
 }
 
 /******************************************************************************/
@@ -203,25 +203,25 @@ std::size_t GConstrainedDoubleObject::countDoubleParameters(
  * the parameter value, so that it lies inside of the allowed value range.
  */
 void GConstrainedDoubleObject::assignDoubleValueVector(
-    const std::vector<double> &parVec,
+    const std::vector<double> &par_vec,
     std::size_t &pos,
     const activityMode & /*am*/
 ) {
 #ifdef DEBUG
     // Do we have a valid position ?
-    if(pos >= parVec.size()) {
+    if(pos >= par_vec.size()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GConstrainedDoubleObject::assignDoubleValueVector(const std::vector<double>&, "
                "std::size_t&):"
             << '\n'
-            << "Tried to access position beyond end of vector: " << parVec.size() << "/" << pos
+            << "Tried to access position beyond end of vector: " << par_vec.size() << "/" << pos
             << '\n'
         );
     }
 #endif
 
-    this->setValue(this->transfer(parVec[pos]));
+    this->setValue(this->transfer(par_vec[pos]));
     pos++;
 }
 
@@ -230,10 +230,12 @@ void GConstrainedDoubleObject::assignDoubleValueVector(
  * Assigns part of a value map to the parameter
  */
 void GConstrainedDoubleObject::assignDoubleValueVectors(
-    const std::map<std::string, std::vector<double>> &parMap,
+    const std::map<std::string, std::vector<double>> &par_map,
     const activityMode & /*am*/
 ) {
-    this->setValue(this->transfer(Gem::Common::getMapItem(parMap, this->getParameterName()).at(0)));
+    this->setValue(
+        this->transfer(Gem::Common::getMapItem(par_map, this->getParameterName()).at(0))
+    );
 }
 
 /******************************************************************************/
@@ -364,20 +366,20 @@ bool GConstrainedDoubleObject::modify_GUnitTests_() {
 void GConstrainedDoubleObject::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
     // Some general settings
-    const double testVal = 42.;
-    const double testVal2 = 17.;
-    double testVal3 = 0.;
-    const double lowerBoundary = 0.;
-    const double upperBoundary = 100.;
-    const std::size_t NTESTS = 100;
+    const double test_val = 42.;
+    const double test_val2 = 17.;
+    double test_val3 = 0.;
+    const double lower_boundary = 0.;
+    const double upper_boundary = 100.;
+    const std::size_t ntests = 100;
 
     // Make sure we have an appropriate adaptor loaded when performing these tests
-    bool adaptorStored = false;
-    std::shared_ptr<GAdaptorT<double>> storedAdaptor;
+    bool adaptor_stored = false;
+    std::shared_ptr<GAdaptorT<double>> stored_adaptor;
 
     if(this->hasAdaptor()) {
-        storedAdaptor = this->getAdaptor();
-        adaptorStored = true;
+        stored_adaptor = this->getAdaptor();
+        adaptor_stored = true;
     }
 
     std::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.025, 0.1, 0., 1., 1.0));
@@ -400,53 +402,53 @@ void GConstrainedDoubleObject::specificTestsNoFailureExpected_GUnitTests_() {
         CHECK_NOTHROW(p_test->resetBoundaries());
 
         // Assign a value with operator=
-        CHECK_NOTHROW(*p_test = testVal2);
+        CHECK_NOTHROW(*p_test = test_val2);
 
         // Check the value
-        CHECK(p_test->value() == testVal2);
+        CHECK(p_test->value() == test_val2);
 
         // Assign boundaries and values
-        CHECK_NOTHROW(p_test->setValue(testVal2, lowerBoundary, upperBoundary));
+        CHECK_NOTHROW(p_test->setValue(test_val2, lower_boundary, upper_boundary));
 
         // Check the value again
-        CHECK(p_test->value() == testVal2);
+        CHECK(p_test->value() == test_val2);
 
         // Assign a value with operator=
-        CHECK_NOTHROW(*p_test = testVal);
+        CHECK_NOTHROW(*p_test = test_val);
 
         // Check the value again, should have changed
-        CHECK(p_test->value() == testVal);
+        CHECK(p_test->value() == test_val);
     }
 
     // --------------------------------------------------------------------------
 
     { // Check construction with two boundaries plus initialization with a random value and extraction of that value
         std::shared_ptr<GConstrainedDoubleObject> p_test(new GConstrainedDoubleObject(0.3, 0.6));
-        CHECK_NOTHROW(testVal3 = p_test->value());
+        CHECK_NOTHROW(test_val3 = p_test->value());
     }
 
     // --------------------------------------------------------------------------
 
     { // Check construction with two boundaries and a value and extraction of that value
-        const double TESTVAL = 0.4;
+        const double testval = 0.4;
         std::shared_ptr<GConstrainedDoubleObject> p_test(
             new GConstrainedDoubleObject(0.4, 0.3, 0.6)
         );
-        CHECK_NOTHROW(testVal3 = p_test->value());
-        CHECK(testVal3 == TESTVAL);
+        CHECK_NOTHROW(test_val3 = p_test->value());
+        CHECK(test_val3 == testval);
     }
 
     // --------------------------------------------------------------------------
 
     { // Check that repeated retrieval of the value always yields the same value
-        const double TESTVAL = 0.4;
+        const double testval = 0.4;
         std::shared_ptr<GConstrainedDoubleObject> p_test(
             new GConstrainedDoubleObject(0.4, 0.3, 0.6)
         );
-        for(std::size_t i = 0; i < NTESTS; i++) {
-            CHECK_NOTHROW(testVal3 = p_test->value());
-            INFO("The value has changed: " << testVal3 << " / " << TESTVAL);
-            CHECK(testVal3 == TESTVAL);
+        for(std::size_t i = 0; i < ntests; i++) {
+            CHECK_NOTHROW(test_val3 = p_test->value());
+            INFO("The value has changed: " << test_val3 << " / " << testval);
+            CHECK(test_val3 == testval);
         }
     }
 
@@ -456,8 +458,8 @@ void GConstrainedDoubleObject::specificTestsNoFailureExpected_GUnitTests_() {
     this->resetAdaptor();
 
     // Load the old adaptor, if needed
-    if(adaptorStored) {
-        this->addAdaptor(storedAdaptor);
+    if(adaptor_stored) {
+        this->addAdaptor(stored_adaptor);
     }
 
     // --------------------------------------------------------------------------
@@ -477,12 +479,12 @@ void GConstrainedDoubleObject::specificTestsNoFailureExpected_GUnitTests_() {
 void GConstrainedDoubleObject::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
     // Make sure we have an appropriate adaptor loaded when performing these tests
-    bool adaptorStored = false;
-    std::shared_ptr<GAdaptorT<double>> storedAdaptor;
+    bool adaptor_stored = false;
+    std::shared_ptr<GAdaptorT<double>> stored_adaptor;
 
     if(this->hasAdaptor()) {
-        storedAdaptor = this->getAdaptor();
-        adaptorStored = true;
+        stored_adaptor = this->getAdaptor();
+        adaptor_stored = true;
     }
 
     std::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.025, 0.1, 0., 1., 1.0));
@@ -499,8 +501,8 @@ void GConstrainedDoubleObject::specificTestsFailuresExpected_GUnitTests_() {
     this->resetAdaptor();
 
     // Load the old adaptor, if needed
-    if(adaptorStored) {
-        this->addAdaptor(storedAdaptor);
+    if(adaptor_stored) {
+        this->addAdaptor(stored_adaptor);
     }
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw

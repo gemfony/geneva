@@ -44,18 +44,18 @@ GLineFitIndividual::GLineFitIndividual()
 /**
  * The standard constructor, sets up the internal data structures
  *
- * @param nObjects The number of parameters to be added to this individual
+ * @param n_objects The number of parameters to be added to this individual
  */
-GLineFitIndividual::GLineFitIndividual(const std::vector<std::tuple<double, double>> &dataPoints)
+GLineFitIndividual::GLineFitIndividual(const std::vector<std::tuple<double, double>> &data_points)
   : GParameterSet()
-  , dataPoints_(dataPoints) {
+  , dataPoints_(data_points) {
     using namespace Gem::Geneva;
 
     for(std::size_t i = 0; i < 2; i++) {
         std::shared_ptr<GDoubleObject> gdo_ptr(new GDoubleObject());
         std::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(
             new GDoubleGaussAdaptor(0.025, 0.1, 0.0001, 0.4, 1.)
-        ); // sigma, sigmaSigma, minSigma, maxSigma, adProb
+        ); // sigma, sigma_sigma, min_sigma, max_sigma, ad_prob
         gdo_ptr->addAdaptor(gdga_ptr);
         this->push_back(gdo_ptr);
     }
@@ -116,9 +116,9 @@ void GLineFitIndividual::compare_(
  * Retrieves the tuple (a,b) of the line represented by this object
  */
 std::tuple<double, double> GLineFitIndividual::getLine() const {
-    std::vector<double> parVec;
-    this->streamline(parVec);
-    return std::tuple<double, double>(parVec.at(0), parVec.at(1));
+    std::vector<double> par_vec;
+    this->streamline(par_vec);
+    return std::tuple<double, double>(par_vec.at(0), par_vec.at(1));
 }
 
 /******************************************************************************/
@@ -163,11 +163,11 @@ double GLineFitIndividual::fitnessCalculation() {
     double result = 0.;
 
     // We just calculate the square of all double values
-    std::vector<double> parVec;
-    this->streamline(parVec);
+    std::vector<double> par_vec;
+    this->streamline(par_vec);
 
-    double a = parVec.at(0);
-    double b = parVec.at(1);
+    double a = par_vec.at(0);
+    double b = par_vec.at(1);
 
     // Sum up the square deviation of line and data points
     double deviation = 0.;
@@ -253,14 +253,14 @@ void GLineFitIndividual::specificTestsFailuresExpected_GUnitTests_() {
 /**
  * Initialization through a config file
  *
- * @param configFile The name of the configuration file
+ * @param config_file The name of the configuration file
  */
 GLineFitIndividualFactory::GLineFitIndividualFactory(
-    const std::vector<std::tuple<double, double>> &dataPoints,
-    std::filesystem::path const &configFile
+    const std::vector<std::tuple<double, double>> &data_points,
+    std::filesystem::path const &config_file
 )
-  : Gem::Common::GFactoryT<GParameterSet>(configFile)
-  , dataPoints_(dataPoints) { /* nothing */
+  : Gem::Common::GFactoryT<GParameterSet>(config_file)
+  , dataPoints_(data_points) { /* nothing */
 }
 
 /******************************************************************************/

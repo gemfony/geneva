@@ -106,12 +106,15 @@ public:
 	  * @param lowerBoundary The lower boundary of the value range
 	  * @param upperBoundary The upper boundary of the value range
 	  */
-    GConstrainedFPT(const fp_type &lowerBoundary, const fp_type &upperBoundary)
-      : GConstrainedNumT<fp_type>(lowerBoundary, std::nextafter(upperBoundary, -std::numeric_limits<fp_type>::infinity())) {
+    GConstrainedFPT(const fp_type &lower_boundary, const fp_type &upper_boundary)
+      : GConstrainedNumT<fp_type>(
+            lower_boundary,
+            std::nextafter(upper_boundary, -std::numeric_limits<fp_type>::infinity())
+        ) {
         Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL> gr;
         typename std::uniform_real_distribution<fp_type> uniform_real_distribution(
-            lowerBoundary,
-            upperBoundary
+            lower_boundary,
+            upper_boundary
         );
         GParameterT<fp_type>::setValue(uniform_real_distribution(gr));
     }
@@ -129,10 +132,19 @@ public:
 	  * @param lowerBoundary The lower boundary of the value range
 	  * @param upperBoundary The upper boundary of the value range
 	  */
-    GConstrainedFPT(const fp_type &val, const fp_type &lowerBoundary, const fp_type &upperBoundary)
-      : GConstrainedNumT<fp_type>(lowerBoundary, std::nextafter(upperBoundary, -std::numeric_limits<fp_type>::infinity())) {
-        if(val == upperBoundary) {
-            GConstrainedNumT<fp_type>::setValue(std::nextafter(upperBoundary, -std::numeric_limits<fp_type>::infinity()));
+    GConstrainedFPT(
+        const fp_type &val,
+        const fp_type &lower_boundary,
+        const fp_type &upper_boundary
+    )
+      : GConstrainedNumT<fp_type>(
+            lower_boundary,
+            std::nextafter(upper_boundary, -std::numeric_limits<fp_type>::infinity())
+        ) {
+        if(val == upper_boundary) {
+            GConstrainedNumT<fp_type>::setValue(
+                std::nextafter(upper_boundary, -std::numeric_limits<fp_type>::infinity())
+            );
         }
         else {
             GConstrainedNumT<fp_type>::setValue(val);
@@ -162,12 +174,12 @@ public:
 	  * @return The new external value of this object
 	  */
     GConstrainedNumT<fp_type> &operator=(const fp_type &val) override {
-        fp_type tmpVal = val;
+        fp_type tmp_val = val;
         if(val == std::nextafter(this->getUpperBoundary(), std::numeric_limits<fp_type>::infinity())) {
-            tmpVal = std::nextafter(val, -std::numeric_limits<fp_type>::infinity());
+            tmp_val = std::nextafter(val, -std::numeric_limits<fp_type>::infinity());
         }
 
-        GConstrainedNumT<fp_type>::operator=(tmpVal);
+        GConstrainedNumT<fp_type>::operator=(tmp_val);
 
         return *this;
     }
@@ -188,12 +200,12 @@ public:
 	  * @param val The new fp_type value stored in this class
 	  */
     void setValue(const fp_type &val) override {
-        fp_type tmpVal = val;
+        fp_type tmp_val = val;
         if(val == std::nextafter(this->getUpperBoundary(), std::numeric_limits<fp_type>::infinity())) {
-            tmpVal = std::nextafter(val, -std::numeric_limits<fp_type>::infinity());
+            tmp_val = std::nextafter(val, -std::numeric_limits<fp_type>::infinity());
         }
 
-        GConstrainedNumT<fp_type>::setValue(tmpVal);
+        GConstrainedNumT<fp_type>::setValue(tmp_val);
     }
 
     /* ----------------------------------------------------------------------------------
@@ -215,18 +227,18 @@ public:
 	  */
     void setValue(
         const fp_type &val,
-        const fp_type &lowerBoundary,
-        const fp_type &upperBoundary
+        const fp_type &lower_boundary,
+        const fp_type &upper_boundary
     ) override {
-        fp_type tmpVal = val;
-        if(val == upperBoundary) {
-            tmpVal = std::nextafter(val, -std::numeric_limits<fp_type>::infinity());
+        fp_type tmp_val = val;
+        if(val == upper_boundary) {
+            tmp_val = std::nextafter(val, -std::numeric_limits<fp_type>::infinity());
         }
 
         GConstrainedNumT<fp_type>::setValue(
-            tmpVal,
-            lowerBoundary,
-            std::nextafter(upperBoundary, -std::numeric_limits<fp_type>::infinity())
+            tmp_val,
+            lower_boundary,
+            std::nextafter(upper_boundary, -std::numeric_limits<fp_type>::infinity())
         );
     }
 
@@ -245,11 +257,11 @@ public:
 	  * @param lower The new lower boundary for this object
 	  * @param upper The new upper boundary for this object
 	  */
-    void setBoundaries(const fp_type &lowerBoundary, const fp_type &upperBoundary) override {
+    void setBoundaries(const fp_type &lower_boundary, const fp_type &upper_boundary) override {
         // Set the actual boundaries
         GConstrainedNumT<fp_type>::setBoundaries(
-            lowerBoundary,
-            std::nextafter(upperBoundary, -std::numeric_limits<fp_type>::infinity())
+            lower_boundary,
+            std::nextafter(upper_boundary, -std::numeric_limits<fp_type>::infinity())
         );
     }
 
@@ -309,13 +321,13 @@ public:
         }
 #endif /* DEBUG */
 
-        long double localVal = Gem::Common::narrow_cast<long double>(val);
-        long double lowerBoundary =
+        long double local_val = Gem::Common::narrow_cast<long double>(val);
+        long double lower_boundary =
             Gem::Common::narrow_cast<long double>(GConstrainedNumT<fp_type>::getLowerBoundary());
-        long double upperBoundary =
+        long double upper_boundary =
             Gem::Common::narrow_cast<long double>(GConstrainedNumT<fp_type>::getUpperBoundary());
 
-        if(localVal >= lowerBoundary && localVal < upperBoundary) {
+        if(local_val >= lower_boundary && local_val < upper_boundary) {
             return val; // no cast needed
         }
         else {
@@ -326,8 +338,8 @@ public:
 
 #ifdef DEBUG
             long double fp_region = std::floor(
-                (localVal - (long double)(lowerBoundary)) /
-                ((long double)(upperBoundary) - (long double)(lowerBoundary))
+                (local_val - (long double)(lower_boundary)) /
+                ((long double)(upper_boundary) - (long double)(lower_boundary))
             );
 
             if(std::abs(fp_region) <
@@ -346,8 +358,8 @@ public:
             }
 #else  /* DEBUG */
             region = static_cast<std::int64_t>(std::floor(
-                (localVal - (long double)(lowerBoundary)) /
-                ((long double)(upperBoundary) - (long double)(lowerBoundary))
+                (local_val - (long double)(lower_boundary)) /
+                ((long double)(upper_boundary) - (long double)(lower_boundary))
             ));
 #endif /* DEBUG */
 
@@ -356,11 +368,12 @@ public:
             long double mapping = (long double)(0.);
             if(region % 2 ==
                0) { // can it be divided by 2 ? Region 0,2,... or a negative even range
-                mapping = localVal - (long double)(region) * (upperBoundary - lowerBoundary);
+                mapping = local_val - (long double)(region) * (upper_boundary - lower_boundary);
             }
             else { // Range 1,3,... or a negative odd range
-                mapping = -localVal + ((long double)(region - 1) * (upperBoundary - lowerBoundary) +
-                                       2 * upperBoundary);
+                mapping =
+                    -local_val + ((long double)(region - 1) * (upper_boundary - lower_boundary) +
+                                  2 * upper_boundary);
             }
 
             // fabs(mapping) will always be <= fabs(val), so this cast should never fail (if val was a valid fp value)
@@ -480,13 +493,13 @@ protected:
     void specificTestsNoFailureExpected_GUnitTests_() override {
 #ifdef GEM_TESTING
         // Some general settings
-        const std::size_t nTests = 10000;
-        const fp_type testVal = fp_type(42);
-        const fp_type testVal2 = fp_type(17);
-        const fp_type lowerBoundary = fp_type(0);
-        const fp_type upperBoundary = fp_type(100);
-        const fp_type lowerRandomBoundary = fp_type(-100000);
-        const fp_type upperRandomBoundary = fp_type(100000);
+        const std::size_t n_tests = 10000;
+        const fp_type test_val = fp_type(42);
+        const fp_type test_val2 = fp_type(17);
+        const fp_type lower_boundary = fp_type(0);
+        const fp_type upper_boundary = fp_type(100);
+        const fp_type lower_random_boundary = fp_type(-100000);
+        const fp_type upper_random_boundary = fp_type(100000);
 
         // Call the parent classes' functions
         GConstrainedNumT<fp_type>::specificTestsNoFailureExpected_GUnitTests_();
@@ -504,22 +517,22 @@ protected:
             CHECK_NOTHROW(p_test->resetBoundaries());
 
             // Assign a value with operator=
-            CHECK_NOTHROW(*p_test = testVal2);
+            CHECK_NOTHROW(*p_test = test_val2);
 
             // Check the value
-            CHECK(p_test->value() == testVal2);
+            CHECK(p_test->value() == test_val2);
 
             // Assign boundaries and values
-            CHECK_NOTHROW(p_test->setValue(testVal2, lowerBoundary, upperBoundary));
+            CHECK_NOTHROW(p_test->setValue(test_val2, lower_boundary, upper_boundary));
 
             // Check the value again
-            CHECK(p_test->value() == testVal2);
+            CHECK(p_test->value() == test_val2);
 
             // Assign a value with operator=
-            CHECK_NOTHROW(*p_test = testVal);
+            CHECK_NOTHROW(*p_test = test_val);
 
             // Check the value again, should have changed
-            CHECK(p_test->value() == testVal);
+            CHECK(p_test->value() == test_val);
         }
 
         //------------------------------------------------------------------------------
@@ -532,26 +545,29 @@ protected:
             CHECK_NOTHROW(p_test->resetBoundaries());
 
             // Assign a value
-            CHECK_NOTHROW(p_test->setValue(testVal2));
+            CHECK_NOTHROW(p_test->setValue(test_val2));
 
             // Check the value
-            CHECK(p_test->value() == testVal2);
+            CHECK(p_test->value() == test_val2);
 
             // Assign new boundaries
-            CHECK_NOTHROW(p_test->setBoundaries(lowerBoundary, upperBoundary));
+            CHECK_NOTHROW(p_test->setBoundaries(lower_boundary, upper_boundary));
 
             // Cross-check that boundaries are o.k.
-            CHECK(p_test->getLowerBoundary() == lowerBoundary);
-            CHECK(p_test->getUpperBoundary() == std::nextafter(upperBoundary, -std::numeric_limits<fp_type>::infinity()));
+            CHECK(p_test->getLowerBoundary() == lower_boundary);
+            CHECK(
+                p_test->getUpperBoundary() ==
+                std::nextafter(upper_boundary, -std::numeric_limits<fp_type>::infinity())
+            );
 
             // Check the value again
-            CHECK(p_test->value() == testVal2);
+            CHECK(p_test->value() == test_val2);
 
             // Assign a new value
-            CHECK_NOTHROW(p_test->setValue(testVal));
+            CHECK_NOTHROW(p_test->setValue(test_val));
 
             // Check the value again, should have changed
-            CHECK(p_test->value() == testVal);
+            CHECK(p_test->value() == test_val);
         }
 
         //------------------------------------------------------------------------------
@@ -564,29 +580,34 @@ protected:
             CHECK_NOTHROW(p_test->resetBoundaries());
 
             // Assign boundaries and values
-            CHECK_NOTHROW(p_test->setValue(testVal, lowerBoundary, upperBoundary));
+            CHECK_NOTHROW(p_test->setValue(test_val, lower_boundary, upper_boundary));
 
             // Cross-check that value and boundaries are o.k.
             INFO(
                 "\n"
                 << std::setprecision(16) << "Invalid lower boundary found:\n"
                 << "getLowerBoundary() = " << p_test->getLowerBoundary() << "expected "
-                << lowerBoundary << "\n"
+                << lower_boundary << "\n"
             );
-            CHECK(p_test->getLowerBoundary() == lowerBoundary);
+            CHECK(p_test->getLowerBoundary() == lower_boundary);
 
             INFO(
                 "\n"
                 << std::setprecision(16) << "Invalid upper boundary found:\n"
                 << "getUpperBoundary() = " << p_test->getUpperBoundary() << "\n"
-                << "expected " << std::nextafter(upperBoundary, -std::numeric_limits<fp_type>::infinity()) << "\n"
+                << "expected "
+                << std::nextafter(upper_boundary, -std::numeric_limits<fp_type>::infinity()) << "\n"
                 << "Difference is "
-                << p_test->getUpperBoundary() - std::nextafter(upperBoundary, -std::numeric_limits<fp_type>::infinity())
+                << p_test->getUpperBoundary() -
+                       std::nextafter(upper_boundary, -std::numeric_limits<fp_type>::infinity())
                 << "\n"
             );
-            CHECK(p_test->getUpperBoundary() == std::nextafter(upperBoundary, -std::numeric_limits<fp_type>::infinity()));
+            CHECK(
+                p_test->getUpperBoundary() ==
+                std::nextafter(upper_boundary, -std::numeric_limits<fp_type>::infinity())
+            );
 
-            CHECK(p_test->value() == testVal);
+            CHECK(p_test->value() == test_val);
         }
 
         //------------------------------------------------------------------------------
@@ -597,30 +618,30 @@ protected:
 
             fp_type result = 0.;
             for(fp_type offset = fp_type(-100); offset < fp_type(100); offset += fp_type(10)) {
-                fp_type tmpLowerBoundary = lowerBoundary + offset;
-                fp_type tmpUpperBoundary = upperBoundary + offset;
+                fp_type tmp_lower_boundary = lower_boundary + offset;
+                fp_type tmp_upper_boundary = upper_boundary + offset;
 
                 // Assign valid boundaries and value
                 CHECK_NOTHROW(
-                    p_test->setValue(tmpLowerBoundary, tmpLowerBoundary, tmpUpperBoundary)
+                    p_test->setValue(tmp_lower_boundary, tmp_lower_boundary, tmp_upper_boundary)
                 );
 
                 typename std::uniform_real_distribution<fp_type> uniform_real_distribution(
-                    lowerRandomBoundary,
-                    upperRandomBoundary
+                    lower_random_boundary,
+                    upper_random_boundary
                 );
-                for(std::size_t i = 0; i < nTests; i++) {
-                    fp_type randomValue = uniform_real_distribution(gr);
+                for(std::size_t i = 0; i < n_tests; i++) {
+                    fp_type random_value = uniform_real_distribution(gr);
 
-                    CHECK_NOTHROW(result = p_test->transfer(randomValue));
+                    CHECK_NOTHROW(result = p_test->transfer(random_value));
                     INFO(
                         "\n"
-                        << std::setprecision(6) << "randomValue = " << randomValue << "\n"
+                        << std::setprecision(6) << "random_value = " << random_value << "\n"
                         << "after transfer = " << result << "\n"
-                        << "lowerBoundary = " << tmpLowerBoundary << "\n"
-                        << "upperBoundary = " << tmpUpperBoundary << "\n"
+                        << "lowerBoundary = " << tmp_lower_boundary << "\n"
+                        << "upperBoundary = " << tmp_upper_boundary << "\n"
                     );
-                    CHECK((result >= tmpLowerBoundary && result < tmpUpperBoundary));
+                    CHECK((result >= tmp_lower_boundary && result < tmp_upper_boundary));
                 }
             }
         }
@@ -632,18 +653,18 @@ protected:
                 this->template clone<GConstrainedFPT<fp_type>>();
 
             // Assign a valid value and boundaries
-            CHECK_NOTHROW(p_test->setValue(testVal, lowerBoundary, upperBoundary));
+            CHECK_NOTHROW(p_test->setValue(test_val, lower_boundary, upper_boundary));
 
             typename std::uniform_real_distribution<fp_type> uniform_real_distribution(
-                lowerRandomBoundary,
-                upperRandomBoundary
+                lower_random_boundary,
+                upper_random_boundary
             );
-            for(std::size_t i = 0; i < nTests; i++) {
-                fp_type randomValue = uniform_real_distribution(gr);
+            for(std::size_t i = 0; i < n_tests; i++) {
+                fp_type random_value = uniform_real_distribution(gr);
 
                 // Randomly initialize with a "fixed" value
                 CHECK_NOTHROW(p_test->GParameterBase::template fixedValueInit<fp_type>(
-                    randomValue,
+                    random_value,
                     activityMode::ALLPARAMETERS
                 ));
 
@@ -652,10 +673,10 @@ protected:
                 INFO(
                     "\n"
                     << std::setprecision(10) << "p_test->value() = " << p_test->value() << "\n"
-                    << "lowerBoundary = " << lowerBoundary << "\n"
-                    << "upperBoundary = " << upperBoundary << "\n"
+                    << "lowerBoundary = " << lower_boundary << "\n"
+                    << "upperBoundary = " << upper_boundary << "\n"
                 );
-                CHECK((p_test->value() >= lowerBoundary && p_test->value() < upperBoundary));
+                CHECK((p_test->value() >= lower_boundary && p_test->value() < upper_boundary));
             }
         }
 
@@ -711,13 +732,13 @@ protected:
                 this->template clone<GConstrainedFPT<fp_type>>();
 
             // Assign boundaries and values
-            CHECK_NOTHROW(p_test->setValue(fp_type(1), lowerBoundary, upperBoundary));
+            CHECK_NOTHROW(p_test->setValue(fp_type(1), lower_boundary, upper_boundary));
 
             typename std::uniform_real_distribution<fp_type> uniform_real_distribution(
-                lowerRandomBoundary,
-                upperRandomBoundary
+                lower_random_boundary,
+                upper_random_boundary
             );
-            for(std::size_t i = 0; i < nTests; i++) {
+            for(std::size_t i = 0; i < n_tests; i++) {
                 // Multiply with a random value in a very wide
                 CHECK_NOTHROW(p_test->GParameterBase::template multiplyBy<fp_type>(
                     uniform_real_distribution(gr),
@@ -728,10 +749,10 @@ protected:
                 INFO(
                     "\n"
                     << std::setprecision(10) << "p_test->value() = " << p_test->value() << "\n"
-                    << "lowerBoundary = " << lowerBoundary << "\n"
-                    << "upperBoundary = " << upperBoundary << "\n"
+                    << "lowerBoundary = " << lower_boundary << "\n"
+                    << "upperBoundary = " << upper_boundary << "\n"
                 );
-                CHECK((p_test->value() >= lowerBoundary && p_test->value() < upperBoundary));
+                CHECK((p_test->value() >= lower_boundary && p_test->value() < upper_boundary));
 
                 // Reset the value
                 CHECK_NOTHROW(p_test->setValue(fp_type(1)));
@@ -745,13 +766,13 @@ protected:
                 this->template clone<GConstrainedFPT<fp_type>>();
 
             // Assign boundaries and values
-            CHECK_NOTHROW(p_test->setValue(fp_type(1), lowerBoundary, upperBoundary));
+            CHECK_NOTHROW(p_test->setValue(fp_type(1), lower_boundary, upper_boundary));
 
-            for(std::size_t i = 0; i < nTests; i++) {
+            for(std::size_t i = 0; i < n_tests; i++) {
                 // Multiply with a random value in a very wide
                 CHECK_NOTHROW(p_test->GParameterBase::template multiplyByRandom<fp_type>(
-                    lowerRandomBoundary,
-                    upperRandomBoundary,
+                    lower_random_boundary,
+                    upper_random_boundary,
                     activityMode::ALLPARAMETERS,
                     gr
                 ));
@@ -760,10 +781,10 @@ protected:
                 INFO(
                     "\n"
                     << std::setprecision(10) << "p_test->value() = " << p_test->value() << "\n"
-                    << "lowerBoundary = " << lowerBoundary << "\n"
-                    << "upperBoundary = " << upperBoundary << "\n"
+                    << "lowerBoundary = " << lower_boundary << "\n"
+                    << "upperBoundary = " << upper_boundary << "\n"
                 );
-                CHECK((p_test->value() >= lowerBoundary && p_test->value() < upperBoundary));
+                CHECK((p_test->value() >= lower_boundary && p_test->value() < upper_boundary));
 
                 // Reset the value
                 CHECK_NOTHROW(p_test->setValue(fp_type(1)));
@@ -779,9 +800,9 @@ protected:
                 this->template clone<GConstrainedFPT<fp_type>>();
 
             // Assign boundaries and values
-            CHECK_NOTHROW(p_test->setValue(lowerBoundary, lowerBoundary, upperBoundary));
+            CHECK_NOTHROW(p_test->setValue(lower_boundary, lower_boundary, upper_boundary));
 
-            for(std::size_t i = 0; i < nTests; i++) {
+            for(std::size_t i = 0; i < n_tests; i++) {
                 // Multiply with a random value in a very wide
                 CHECK_NOTHROW(p_test->GParameterBase::template multiplyByRandom<fp_type>(
                     activityMode::ALLPARAMETERS,
@@ -792,13 +813,13 @@ protected:
                 INFO(
                     "\n"
                     << std::setprecision(10) << "p_test->value() = " << p_test->value() << "\n"
-                    << "lowerBoundary = " << lowerBoundary << "\n"
-                    << "upperBoundary = " << upperBoundary << "\n"
+                    << "lowerBoundary = " << lower_boundary << "\n"
+                    << "upperBoundary = " << upper_boundary << "\n"
                 );
-                CHECK((p_test->value() >= lowerBoundary && p_test->value() < upperBoundary));
+                CHECK((p_test->value() >= lower_boundary && p_test->value() < upper_boundary));
 
                 // Reset the value
-                CHECK_NOTHROW(p_test->setValue(lowerBoundary));
+                CHECK_NOTHROW(p_test->setValue(lower_boundary));
             }
         }
 
@@ -827,14 +848,14 @@ protected:
                 activityMode::ALLPARAMETERS
             ));
 
-            fp_type currentVal = fp_type(-10000.);
+            fp_type current_val = fp_type(-10000.);
             for(std::int32_t i = -9999; i < 9999; i++) {
                 CHECK_NOTHROW(p_test1->GParameterBase::template add<fp_type>(
                     p_test2,
                     activityMode::ALLPARAMETERS
                 ));
-                currentVal += fp_type(1.);
-                CHECK(p_test1->value() == currentVal);
+                current_val += fp_type(1.);
+                CHECK(p_test1->value() == current_val);
             }
         }
 
@@ -863,14 +884,14 @@ protected:
                 activityMode::ALLPARAMETERS
             ));
 
-            fp_type currentVal = fp_type(upper - fp_type(1));
+            fp_type current_val = fp_type(upper - fp_type(1));
             for(std::int32_t i = 9999; i >= -9998; i--) {
                 CHECK_NOTHROW(p_test1->GParameterBase::template subtract<fp_type>(
                     p_test2,
                     activityMode::ALLPARAMETERS
                 ));
-                currentVal -= fp_type(1.);
-                CHECK(p_test1->value() == currentVal);
+                current_val -= fp_type(1.);
+                CHECK(p_test1->value() == current_val);
             }
         }
 
@@ -889,15 +910,15 @@ protected:
             CHECK_NOTHROW(p_test2->setValue(fp_type(0.), lower, upper));
 
             // Repeatedly add and subtract a randomly initialized p_test2 from p_test1
-            for(std::size_t i = 0; i < nTests; i++) {
+            for(std::size_t i = 0; i < n_tests; i++) {
                 // Randomly initialize p_test2
                 CHECK_NOTHROW(p_test2->randomInit_(activityMode::ALLPARAMETERS, gr));
 
-                fp_type firstValue = p_test2->value();
+                fp_type first_value = p_test2->value();
 
                 // Inside of the allowed value range ?
-                CHECK(firstValue >= lower);
-                CHECK(firstValue < upper);
+                CHECK(first_value >= lower);
+                CHECK(first_value < upper);
 
                 // Add to p_test1
                 CHECK_NOTHROW(p_test1->GParameterBase::template add<fp_type>(
@@ -912,14 +933,14 @@ protected:
                 // Randomly initialize p_test2 again
                 CHECK_NOTHROW(p_test2->randomInit_(activityMode::ALLPARAMETERS, gr));
 
-                fp_type secondValue = p_test2->value();
+                fp_type second_value = p_test2->value();
 
                 // Inside of the allowed value range ?
-                CHECK(secondValue >= lower);
-                CHECK(secondValue < upper);
+                CHECK(second_value >= lower);
+                CHECK(second_value < upper);
 
                 // Has the value changed at all ?
-                CHECK(firstValue != secondValue);
+                CHECK(first_value != second_value);
 
                 // Subtract from p_test1
                 CHECK_NOTHROW(p_test1->GParameterBase::template subtract<fp_type>(
@@ -950,9 +971,9 @@ protected:
     void specificTestsFailuresExpected_GUnitTests_() override {
 #ifdef GEM_TESTING
         // Some general settings
-        const fp_type testVal = fp_type(42);
-        const fp_type lowerBoundary = fp_type(0);
-        const fp_type upperBoundary = fp_type(100);
+        const fp_type test_val = fp_type(42);
+        const fp_type lower_boundary = fp_type(0);
+        const fp_type upper_boundary = fp_type(100);
 
         // Call the parent classes' functions
         GConstrainedNumT<fp_type>::specificTestsFailuresExpected_GUnitTests_();
@@ -968,7 +989,7 @@ protected:
 
             // Set value, upper and lower boundaries; should throw, as value >= upperBoundary
             CHECK_THROWS_AS(
-                (p_test->setValue(1.1 * upperBoundary, lowerBoundary, upperBoundary)),
+                (p_test->setValue(1.1 * upper_boundary, lower_boundary, upper_boundary)),
                 geneva_exception
             );
         }
@@ -983,10 +1004,10 @@ protected:
             CHECK_NOTHROW(p_test->resetBoundaries());
 
             // Set value, upper and lower boundaries
-            CHECK_NOTHROW(p_test->setValue(testVal, lowerBoundary, upperBoundary));
+            CHECK_NOTHROW(p_test->setValue(test_val, lower_boundary, upper_boundary));
 
             // Try to set a value equal to the upper boundary, should throw
-            CHECK_THROWS_AS((p_test->setValue(1.1 * upperBoundary)), geneva_exception);
+            CHECK_THROWS_AS((p_test->setValue(1.1 * upper_boundary)), geneva_exception);
         }
 
         //------------------------------------------------------------------------------
@@ -1000,7 +1021,7 @@ protected:
 
             // Try to set an upper boundary == lower boundary
             CHECK_THROWS_AS(
-                (p_test->setBoundaries(lowerBoundary, lowerBoundary)),
+                (p_test->setBoundaries(lower_boundary, lower_boundary)),
                 geneva_exception
             );
         }
@@ -1016,7 +1037,7 @@ protected:
 
             // Try to set an upper boundary == lower boundary
             CHECK_THROWS_AS(
-                (p_test->setValue(lowerBoundary, lowerBoundary, lowerBoundary)),
+                (p_test->setValue(lower_boundary, lower_boundary, lower_boundary)),
                 geneva_exception
             );
         }
@@ -1040,8 +1061,8 @@ protected:
             // Try to set a boundary to a bad value
             CHECK_THROWS_AS(
                 (p_test->setValue(
-                    lowerBoundary,
-                    lowerBoundary,
+                    lower_boundary,
+                    lower_boundary,
                     std::numeric_limits<fp_type>::max()
                 )),
                 geneva_exception
@@ -1066,7 +1087,7 @@ protected:
 
             // Try to set a boundary to a bad value
             CHECK_THROWS_AS(
-                (p_test->setValue(0., std::numeric_limits<fp_type>::lowest(), upperBoundary)),
+                (p_test->setValue(0., std::numeric_limits<fp_type>::lowest(), upper_boundary)),
                 geneva_exception
             );
         }
@@ -1089,7 +1110,7 @@ protected:
 
             // Try to set a boundary to a bad value
             CHECK_THROWS_AS(
-                (p_test->setBoundaries(lowerBoundary, std::numeric_limits<fp_type>::max())),
+                (p_test->setBoundaries(lower_boundary, std::numeric_limits<fp_type>::max())),
                 geneva_exception
             );
         }
@@ -1112,7 +1133,7 @@ protected:
 
             // Try to set a boundary to a bad value
             CHECK_THROWS_AS(
-                (p_test->setBoundaries(std::numeric_limits<fp_type>::lowest(), upperBoundary)),
+                (p_test->setBoundaries(std::numeric_limits<fp_type>::lowest(), upper_boundary)),
                 geneva_exception
             );
         }

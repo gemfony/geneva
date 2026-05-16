@@ -151,7 +151,7 @@ double GDelayIndividual::fitnessCalculation() {
 
     if(sleepRandomly_) {
         // Calculate the sleep time
-        double sleepTime = uniform_real_distribution(
+        double sleep_time = uniform_real_distribution(
             gr_,
             std::uniform_real_distribution<double>::param_type(
                 std::get<0>(randSleepBoundaries_),
@@ -159,10 +159,10 @@ double GDelayIndividual::fitnessCalculation() {
             )
         );
 
-        std::chrono::duration<double> random_sleepTime(sleepTime);
+        std::chrono::duration<double> random_sleep_time(sleep_time);
 
         // Sleep for a random amount of time in a given time window
-        std::this_thread::sleep_for(random_sleepTime);
+        std::this_thread::sleep_for(random_sleep_time);
     }
     else {
         // Sleep for a fixed amount of time
@@ -200,8 +200,8 @@ std::chrono::duration<double> GDelayIndividual::getFixedSleepTime() const {
 /**
  * Sets the sleep-time to a user-defined value
  */
-void GDelayIndividual::setFixedSleepTime(const std::chrono::duration<double> &sleepTime) {
-    fixedSleepTime_ = sleepTime.count();
+void GDelayIndividual::setFixedSleepTime(const std::chrono::duration<double> &sleep_time) {
+    fixedSleepTime_ = sleep_time.count();
 }
 
 /******************************************************************************/
@@ -210,12 +210,12 @@ void GDelayIndividual::setFixedSleepTime(const std::chrono::duration<double> &sl
  * and set the likelihood for such a crash. The likelihood may assume values
  * between (and including) 0 (no crash) and 1 (always crash).
  */
-void GDelayIndividual::setMayCrash(bool mayCrash, double throwLikelihood) {
-    mayCrash_ = mayCrash;
+void GDelayIndividual::setMayCrash(bool may_crash, double throw_likelihood) {
+    mayCrash_ = may_crash;
 
-    // Enforce a throwLikelihood in the allowed value range
+    // Enforce a throw_likelihood in the allowed value range
     throwLikelihood_ = Gem::Common::enforceRangeConstraint(
-        throwLikelihood,
+        throw_likelihood,
         0.,
         1.,
         "GDelayIndividual::setMayCrash()"
@@ -245,23 +245,23 @@ double GDelayIndividual::getCrashLikelihood() const {
  * values indicate seconds (and fractions thereof).
  */
 void GDelayIndividual::setRandomSleep(
-    bool sleepRandomly,
-    std::tuple<double, double> randSleepBoundaries
+    bool sleep_randomly,
+    std::tuple<double, double> rand_sleep_boundaries
 ) {
-    sleepRandomly_ = sleepRandomly;
+    sleepRandomly_ = sleep_randomly;
 
     // Enforce that the sanity of the lower and upper boundaries
-    if(std::get<0>(randSleepBoundaries) < 0. ||
-       std::get<0>(randSleepBoundaries) >= std::get<1>(randSleepBoundaries)) {
+    if(std::get<0>(rand_sleep_boundaries) < 0. ||
+       std::get<0>(rand_sleep_boundaries) >= std::get<1>(rand_sleep_boundaries)) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GDelayIndividual::setRandomSleep(): Error!" << '\n'
-            << "Got invalid boundaries for the sleep time: " << std::get<0>(randSleepBoundaries)
-            << " / " << std::get<1>(randSleepBoundaries) << '\n'
+            << "Got invalid boundaries for the sleep time: " << std::get<0>(rand_sleep_boundaries)
+            << " / " << std::get<1>(rand_sleep_boundaries) << '\n'
         );
     }
 
-    randSleepBoundaries_ = randSleepBoundaries;
+    randSleepBoundaries_ = rand_sleep_boundaries;
 }
 
 /******************************************************************************/
@@ -286,8 +286,8 @@ std::tuple<double, double> GDelayIndividual::getSleepWindow() const {
 /**
  * The standard constructor for this class
  */
-GDelayIndividualFactory::GDelayIndividualFactory(std::filesystem::path const &cF)
-  : Gem::Common::GFactoryT<Gem::Geneva::GParameterSet>(cF) { /* nothing */
+GDelayIndividualFactory::GDelayIndividualFactory(std::filesystem::path const &c_f)
+  : Gem::Common::GFactoryT<Gem::Geneva::GParameterSet>(c_f) { /* nothing */
 }
 
 /******************************************************************************/
@@ -392,7 +392,7 @@ void GDelayIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder 
     ) << "A list of delays through which main() should cycle. Format: seconds:milliseconds";
 
     gpb.registerFileParameter(
-        "sleepRandomly",
+        "sleep_randomly",
         sleepRandomly_,
         sleepRandomly_ // The default value
     ) << "Indicates whether the individual should sleep for a random amount of time"
@@ -416,7 +416,7 @@ void GDelayIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder 
       << "fitness function (seconds, double value)";
 
     gpb.registerFileParameter(
-        "resultFile",
+        "result_file",
         resultFile_,
         resultFile_ // The default value
     ) << "The name of a file to which results should be stored";
@@ -442,15 +442,15 @@ void GDelayIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder 
     gpb.registerFileParameter<bool, double>(
         "mayThrow" // The name of the variable
         ,
-        "throwLikelihood",
+        "throw_likelihood",
         mayCrash_ // The default value
         ,
         throwLikelihood_,
-        [this](bool mayCrash, double throwLikelihood) {
-            mayCrash_ = mayCrash;
-            // Enforce a throwLikelihood in the allowed value range
+        [this](bool may_crash, double throw_likelihood) {
+            mayCrash_ = may_crash;
+            // Enforce a throw_likelihood in the allowed value range
             throwLikelihood_ = Gem::Common::enforceRangeConstraint(
-                throwLikelihood,
+                throw_likelihood,
                 0.,
                 1.,
                 "GDelayIndividual::describeLocalOptions_()"
@@ -482,12 +482,12 @@ void GDelayIndividualFactory::postProcess_(std::shared_ptr<Gem::Geneva::GParamet
 
     if(Gem::Common::GFACTORYWRITEID == id) {
         // Calculate the current sleep time
-        std::chrono::duration<double> sleepTime = this->tupleToTime(sleepTimes_.at(0));
+        std::chrono::duration<double> sleep_time = this->tupleToTime(sleepTimes_.at(0));
 
-        std::cout << "Producing individual in write mode with sleep time = " << sleepTime.count()
+        std::cout << "Producing individual in write mode with sleep time = " << sleep_time.count()
                   << " s" << '\n';
 
-        p->setFixedSleepTime(sleepTime);
+        p->setFixedSleepTime(sleep_time);
 
         p->setMayCrash(mayCrash_, throwLikelihood_);
         p->setRandomSleep(
@@ -521,13 +521,13 @@ void GDelayIndividualFactory::postProcess_(std::shared_ptr<Gem::Geneva::GParamet
     }
     else if((id - Gem::Common::GFACTTORYFIRSTID) < sleepTimes_.size()) {
         // Calculate the current sleep time
-        std::chrono::duration<double> sleepTime =
+        std::chrono::duration<double> sleep_time =
             this->tupleToTime(sleepTimes_.at(id - Gem::Common::GFACTTORYFIRSTID));
 
         std::cout << "Producing individual " << (id - Gem::Common::GFACTTORYFIRSTID)
-                  << " with sleep time = " << sleepTime.count() << " s" << '\n';
+                  << " with sleep time = " << sleep_time.count() << " s" << '\n';
 
-        p->setFixedSleepTime(sleepTime);
+        p->setFixedSleepTime(sleep_time);
 
         p->setMayCrash(mayCrash_, throwLikelihood_);
         p->setRandomSleep(
@@ -569,13 +569,13 @@ void GDelayIndividualFactory::postProcess_(std::shared_ptr<Gem::Geneva::GParamet
 /**
  * Converts a tuple to a time format
  *
- * @param timeTuple A tuple of seconds and milliseconds in unsigned int format, to be converted to a time_duration object
+ * @param time_tuple A tuple of seconds and milliseconds in unsigned int format, to be converted to a time_duration object
  */
 std::chrono::duration<double>
-GDelayIndividualFactory::tupleToTime(const std::tuple<unsigned int, unsigned int> &timeTuple) {
+GDelayIndividualFactory::tupleToTime(const std::tuple<unsigned int, unsigned int> &time_tuple) {
     std::chrono::duration<double> t =
-        std::chrono::seconds(Gem::Common::narrow_cast<long>(std::get<0>(timeTuple))) +
-        std::chrono::milliseconds(Gem::Common::narrow_cast<long>(std::get<1>(timeTuple)));
+        std::chrono::seconds(Gem::Common::narrow_cast<long>(std::get<0>(time_tuple))) +
+        std::chrono::milliseconds(Gem::Common::narrow_cast<long>(std::get<1>(time_tuple)));
 
     return t;
 }

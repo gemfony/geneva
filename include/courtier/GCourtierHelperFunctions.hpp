@@ -65,8 +65,7 @@ std::size_t extractDataSize(const char *, const std::size_t &);
 void disconnect(boost::asio::ip::tcp::socket &);
 
 /** @brief Create a boolean mask */
-std::vector<bool>
-getBooleanMask(std::size_t vecSize, std::size_t start, std::size_t end);
+std::vector<bool> getBooleanMask(std::size_t vec_size, std::size_t start, std::size_t end);
 
 /** @brief Translate the processingStatus into a clear-text string */
 std::string psToStr(const processingStatus &);

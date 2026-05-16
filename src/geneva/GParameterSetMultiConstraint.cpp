@@ -95,8 +95,8 @@ void GParameterSetConstraint::load_(const GObject *cp) {
 /**
  * A constructor that accepts a formula in string form as its argument
  */
-GParameterSetFormulaConstraint::GParameterSetFormulaConstraint(std::string rawFormula)
-  : rawFormula_(rawFormula) { /* nothing */
+GParameterSetFormulaConstraint::GParameterSetFormulaConstraint(std::string raw_formula)
+  : rawFormula_(raw_formula) { /* nothing */
 }
 
 /******************************************************************************/
@@ -150,14 +150,14 @@ void GParameterSetFormulaConstraint::addConfigurationOptions_(Gem::Common::GPars
  * TODO: Make this work for all parameter types
  */
 double GParameterSetFormulaConstraint::check_(const GParameterSet *p) const {
-    std::map<std::string, std::vector<double>> parameterValues;
+    std::map<std::string, std::vector<double>> parameter_values;
 
-    p->streamline(parameterValues); // Extract the parameter values including names
+    p->streamline(parameter_values); // Extract the parameter values including names
     Gem::Common::GFormulaParserT<double> f(rawFormula_); // Create the parser
 
     try {
         return f(
-            parameterValues
+            parameter_values
         ); // Parse the formula. This may throw a Gem::Common::math_logic_error
     }
     catch(

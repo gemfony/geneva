@@ -2059,12 +2059,12 @@ public:
             }
         );
 
-        double minX = std::get<0>(*minmax_x.first);
-        double maxX = std::get<0>(*minmax_x.second);
-        double minY = std::get<1>(*minmax_y.first);
-        double maxY = std::get<1>(*minmax_y.second);
+        double min_x = std::get<0>(*minmax_x.first);
+        double max_x = std::get<0>(*minmax_x.second);
+        double min_y = std::get<1>(*minmax_y.first);
+        double max_y = std::get<1>(*minmax_y.second);
 
-        return std::make_tuple(minX, maxX, minY, maxY);
+        return std::make_tuple(min_x, max_x, min_y, max_y);
     };
 
 protected:
@@ -2146,22 +2146,22 @@ private:
  */
 template <>
 inline std::shared_ptr<GDataCollector1T<double>> GDataCollector2T<double, double>::projectX(
-    std::size_t nBinsX,
-    std::tuple<double, double> rangeX
+    std::size_t n_bins_x,
+    std::tuple<double, double> range_x
 ) const {
-    std::tuple<double, double> myRangeX;
+    std::tuple<double, double> my_range_x;
     std::tuple<double, double> default_range;
-    if(rangeX == default_range) {
+    if(range_x == default_range) {
         // Find out about the minimum and maximum values in the data_ array
         std::tuple<double, double, double, double> extremes = getMinMax(this->data_);
-        myRangeX = std::tuple<double, double>(std::get<0>(extremes), std::get<1>(extremes));
+        my_range_x = std::tuple<double, double>(std::get<0>(extremes), std::get<1>(extremes));
     }
     else {
-        myRangeX = rangeX;
+        my_range_x = range_x;
     }
 
     // Construct the result object
-    std::shared_ptr<GHistogram1D> result(new GHistogram1D(nBinsX, myRangeX));
+    std::shared_ptr<GHistogram1D> result(new GHistogram1D(n_bins_x, my_range_x));
     result->setXAxisLabel(this->xAxisLabel());
     result->setYAxisLabel("Number of entries");
     result->setPlotLabel(this->plotLabel() + " / x-projection");
@@ -2187,22 +2187,22 @@ inline std::shared_ptr<GDataCollector1T<double>> GDataCollector2T<double, double
  */
 template <>
 inline std::shared_ptr<GDataCollector1T<double>> GDataCollector2T<double, double>::projectY(
-    std::size_t nBinsY,
-    std::tuple<double, double> rangeY
+    std::size_t n_bins_y,
+    std::tuple<double, double> range_y
 ) const {
-    std::tuple<double, double> myRangeY;
+    std::tuple<double, double> my_range_y;
     std::tuple<double, double> default_range;
-    if(rangeY == default_range) {
+    if(range_y == default_range) {
         // Find out about the minimum and maximum values in the data_ array
         std::tuple<double, double, double, double> extremes = getMinMax(data_);
-        myRangeY = std::tuple<double, double>(std::get<2>(extremes), std::get<3>(extremes));
+        my_range_y = std::tuple<double, double>(std::get<2>(extremes), std::get<3>(extremes));
     }
     else {
-        myRangeY = rangeY;
+        my_range_y = range_y;
     }
 
     // Construct the result object
-    std::shared_ptr<GHistogram1D> result(new GHistogram1D(nBinsY, myRangeY));
+    std::shared_ptr<GHistogram1D> result(new GHistogram1D(n_bins_y, my_range_y));
     result->setXAxisLabel(this->yAxisLabel());
     result->setYAxisLabel("Number of entries");
     result->setPlotLabel(this->plotLabel() + " / y-projection");
@@ -3028,23 +3028,23 @@ private:
  */
 template <>
 inline std::shared_ptr<GDataCollector1T<double>> GDataCollector3T<double, double, double>::projectX(
-    std::size_t nBinsX,
-    std::tuple<double, double> rangeX
+    std::size_t n_bins_x,
+    std::tuple<double, double> range_x
 ) const {
-    std::tuple<double, double> myRangeX;
+    std::tuple<double, double> my_range_x;
     std::tuple<double, double> default_range;
-    if(rangeX == default_range) {
+    if(range_x == default_range) {
         // Find out about the minimum and maximum values in the data_ array
         std::tuple<double, double, double, double, double, double> extremes =
             getMinMax(this->data_);
-        myRangeX = std::tuple<double, double>(std::get<0>(extremes), std::get<1>(extremes));
+        my_range_x = std::tuple<double, double>(std::get<0>(extremes), std::get<1>(extremes));
     }
     else {
-        myRangeX = rangeX;
+        my_range_x = range_x;
     }
 
     // Construct the result object
-    std::shared_ptr<GHistogram1D> result(new GHistogram1D(nBinsX, myRangeX));
+    std::shared_ptr<GHistogram1D> result(new GHistogram1D(n_bins_x, my_range_x));
     result->setXAxisLabel(this->xAxisLabel());
     result->setYAxisLabel("Number of entries");
     result->setPlotLabel(this->plotLabel() + " / x-projection");
@@ -3070,22 +3070,22 @@ inline std::shared_ptr<GDataCollector1T<double>> GDataCollector3T<double, double
  */
 template <>
 inline std::shared_ptr<GDataCollector1T<double>> GDataCollector3T<double, double, double>::projectY(
-    std::size_t nBinsY,
-    std::tuple<double, double> rangeY
+    std::size_t n_bins_y,
+    std::tuple<double, double> range_y
 ) const {
-    std::tuple<double, double> myRangeY;
+    std::tuple<double, double> my_range_y;
     std::tuple<double, double> default_range;
-    if(rangeY == default_range) {
+    if(range_y == default_range) {
         // Find out about the minimum and maximum values in the data_ array
         std::tuple<double, double, double, double, double, double> extremes = getMinMax(data_);
-        myRangeY = std::tuple<double, double>(std::get<2>(extremes), std::get<3>(extremes));
+        my_range_y = std::tuple<double, double>(std::get<2>(extremes), std::get<3>(extremes));
     }
     else {
-        myRangeY = rangeY;
+        my_range_y = range_y;
     }
 
     // Construct the result object
-    std::shared_ptr<GHistogram1D> result(new GHistogram1D(nBinsY, myRangeY));
+    std::shared_ptr<GHistogram1D> result(new GHistogram1D(n_bins_y, my_range_y));
     result->setXAxisLabel(this->yAxisLabel());
     result->setYAxisLabel("Number of entries");
     result->setPlotLabel(this->plotLabel() + " / y-projection");
@@ -3111,22 +3111,22 @@ inline std::shared_ptr<GDataCollector1T<double>> GDataCollector3T<double, double
  */
 template <>
 inline std::shared_ptr<GDataCollector1T<double>> GDataCollector3T<double, double, double>::projectZ(
-    std::size_t nBinsZ,
-    std::tuple<double, double> rangeZ
+    std::size_t n_bins_z,
+    std::tuple<double, double> range_z
 ) const {
-    std::tuple<double, double> myRangeZ;
+    std::tuple<double, double> my_range_z;
     std::tuple<double, double> default_range;
-    if(rangeZ == default_range) {
+    if(range_z == default_range) {
         // Find out about the minimum and maximum values in the data_ array
         std::tuple<double, double, double, double, double, double> extremes = getMinMax(data_);
-        myRangeZ = std::tuple<double, double>(std::get<4>(extremes), std::get<5>(extremes));
+        my_range_z = std::tuple<double, double>(std::get<4>(extremes), std::get<5>(extremes));
     }
     else {
-        myRangeZ = rangeZ;
+        my_range_z = range_z;
     }
 
     // Construct the result object
-    std::shared_ptr<GHistogram1D> result(new GHistogram1D(nBinsZ, myRangeZ));
+    std::shared_ptr<GHistogram1D> result(new GHistogram1D(n_bins_z, my_range_z));
     result->setXAxisLabel(this->zAxisLabel());
     result->setYAxisLabel("Number of entries");
     result->setPlotLabel(this->plotLabel() + " / z-projection");
@@ -3534,23 +3534,23 @@ private:
 template <>
 inline std::shared_ptr<GDataCollector1T<double>>
 GDataCollector4T<double, double, double, double>::projectX(
-    std::size_t nBinsX,
-    std::tuple<double, double> rangeX
+    std::size_t n_bins_x,
+    std::tuple<double, double> range_x
 ) const {
-    std::tuple<double, double> myRangeX;
+    std::tuple<double, double> my_range_x;
     std::tuple<double, double> default_range;
-    if(rangeX == default_range) {
+    if(range_x == default_range) {
         // Find out about the minimum and maximum values in the data_ array
         std::tuple<double, double, double, double, double, double, double, double> extremes =
             getMinMax(this->data_);
-        myRangeX = std::tuple<double, double>(std::get<0>(extremes), std::get<1>(extremes));
+        my_range_x = std::tuple<double, double>(std::get<0>(extremes), std::get<1>(extremes));
     }
     else {
-        myRangeX = rangeX;
+        my_range_x = range_x;
     }
 
     // Construct the result object
-    std::shared_ptr<GHistogram1D> result(new GHistogram1D(nBinsX, myRangeX));
+    std::shared_ptr<GHistogram1D> result(new GHistogram1D(n_bins_x, my_range_x));
     result->setXAxisLabel(this->xAxisLabel());
     result->setYAxisLabel("Number of entries");
     result->setPlotLabel(this->plotLabel() + " / x-projection");
@@ -3577,23 +3577,23 @@ GDataCollector4T<double, double, double, double>::projectX(
 template <>
 inline std::shared_ptr<GDataCollector1T<double>>
 GDataCollector4T<double, double, double, double>::projectY(
-    std::size_t nBinsY,
-    std::tuple<double, double> rangeY
+    std::size_t n_bins_y,
+    std::tuple<double, double> range_y
 ) const {
-    std::tuple<double, double> myRangeY;
+    std::tuple<double, double> my_range_y;
     std::tuple<double, double> default_range;
-    if(rangeY == default_range) {
+    if(range_y == default_range) {
         // Find out about the minimum and maximum values in the data_ array
         std::tuple<double, double, double, double, double, double, double, double> extremes =
             getMinMax(this->data_);
-        myRangeY = std::tuple<double, double>(std::get<2>(extremes), std::get<3>(extremes));
+        my_range_y = std::tuple<double, double>(std::get<2>(extremes), std::get<3>(extremes));
     }
     else {
-        myRangeY = rangeY;
+        my_range_y = range_y;
     }
 
     // Construct the result object
-    std::shared_ptr<GHistogram1D> result(new GHistogram1D(nBinsY, myRangeY));
+    std::shared_ptr<GHistogram1D> result(new GHistogram1D(n_bins_y, my_range_y));
     result->setXAxisLabel(this->yAxisLabel());
     result->setYAxisLabel("Number of entries");
     result->setPlotLabel(this->plotLabel() + " / y-projection");
@@ -3620,23 +3620,23 @@ GDataCollector4T<double, double, double, double>::projectY(
 template <>
 inline std::shared_ptr<GDataCollector1T<double>>
 GDataCollector4T<double, double, double, double>::projectZ(
-    std::size_t nBinsZ,
-    std::tuple<double, double> rangeZ
+    std::size_t n_bins_z,
+    std::tuple<double, double> range_z
 ) const {
-    std::tuple<double, double> myRangeZ;
+    std::tuple<double, double> my_range_z;
     std::tuple<double, double> default_range;
-    if(rangeZ == default_range) {
+    if(range_z == default_range) {
         // Find out about the minimum and maximum values in the data_ array
         std::tuple<double, double, double, double, double, double, double, double> extremes =
             getMinMax(this->data_);
-        myRangeZ = std::tuple<double, double>(std::get<4>(extremes), std::get<5>(extremes));
+        my_range_z = std::tuple<double, double>(std::get<4>(extremes), std::get<5>(extremes));
     }
     else {
-        myRangeZ = rangeZ;
+        my_range_z = range_z;
     }
 
     // Construct the result object
-    std::shared_ptr<GHistogram1D> result(new GHistogram1D(nBinsZ, myRangeZ));
+    std::shared_ptr<GHistogram1D> result(new GHistogram1D(n_bins_z, my_range_z));
     result->setXAxisLabel(this->zAxisLabel());
     result->setYAxisLabel("Number of entries");
     result->setPlotLabel(this->plotLabel() + " / z-projection");
@@ -3663,23 +3663,23 @@ GDataCollector4T<double, double, double, double>::projectZ(
 template <>
 inline std::shared_ptr<GDataCollector1T<double>>
 GDataCollector4T<double, double, double, double>::projectW(
-    std::size_t nBinsW,
-    std::tuple<double, double> rangeW
+    std::size_t n_bins_w,
+    std::tuple<double, double> range_w
 ) const {
-    std::tuple<double, double> myRangeW;
+    std::tuple<double, double> my_range_w;
     std::tuple<double, double> default_range;
-    if(rangeW == default_range) {
+    if(range_w == default_range) {
         // Find out about the minimum and maximum values in the data_ array
         std::tuple<double, double, double, double, double, double, double, double> extremes =
             getMinMax(this->data_);
-        myRangeW = std::tuple<double, double>(std::get<6>(extremes), std::get<7>(extremes));
+        my_range_w = std::tuple<double, double>(std::get<6>(extremes), std::get<7>(extremes));
     }
     else {
-        myRangeW = rangeW;
+        my_range_w = range_w;
     }
 
     // Construct the result object
-    std::shared_ptr<GHistogram1D> result(new GHistogram1D(nBinsW, myRangeW));
+    std::shared_ptr<GHistogram1D> result(new GHistogram1D(n_bins_w, my_range_w));
     result->setXAxisLabel("w");
     result->setYAxisLabel("Number of entries");
     result->setPlotLabel(this->plotLabel() + " / w-projection");

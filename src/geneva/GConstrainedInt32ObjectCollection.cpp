@@ -40,10 +40,10 @@ namespace Gem::Geneva {
  * Initialization with a number of identical GConstrainedDoubleObject objects
  */
 GConstrainedInt32ObjectCollection::GConstrainedInt32ObjectCollection(
-    const std::size_t &nCp,
+    const std::size_t &n_cp,
     std::shared_ptr<GConstrainedInt32Object> tmpl_ptr
 )
-  : GParameterTCollectionT<GConstrainedInt32Object>(nCp, tmpl_ptr) { /* nothing */
+  : GParameterTCollectionT<GConstrainedInt32Object>(n_cp, tmpl_ptr) { /* nothing */
 }
 
 /******************************************************************************/
@@ -141,7 +141,7 @@ bool GConstrainedInt32ObjectCollection::modify_GUnitTests_() {
 /**
  * Fills the collection with GConstrainedInt32Object objects
  */
-void GConstrainedInt32ObjectCollection::fillWithObjects_(const std::size_t &nAddedObjects) {
+void GConstrainedInt32ObjectCollection::fillWithObjects_(const std::size_t &n_added_objects) {
 #ifdef GEM_TESTING
     // A random generator
     Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
@@ -150,7 +150,7 @@ void GConstrainedInt32ObjectCollection::fillWithObjects_(const std::size_t &nAdd
     CHECK_NOTHROW(this->clear());
 
     // Add GConstrainedInt32Object items with adaptors to p_test1
-    for(std::size_t i = 0; i < nAddedObjects; i++) {
+    for(std::size_t i = 0; i < n_added_objects; i++) {
         // Create a suitable adaptor
         std::shared_ptr<GInt32GaussAdaptor> giga_ptr;
 
@@ -193,14 +193,14 @@ void GConstrainedInt32ObjectCollection::fillWithObjects_(const std::size_t &nAdd
 void GConstrainedInt32ObjectCollection::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
     // Some settings
-    const std::size_t nAddedObjects = 10;
-    const std::size_t nTests = 100;
-    const double LOWERINITBOUNDARY = -10;
-    const double UPPERINITBOUNDARY = 10;
-    const double FIXEDVALUEINIT = 1.;
-    const double MULTVALUE = 3.;
-    const double RANDLOWERBOUNDARY = 0.;
-    const double RANDUPPERBOUNDARY = 10.;
+    const std::size_t n_added_objects = 10;
+    const std::size_t n_tests = 100;
+    const double lowerinitboundary = -10;
+    const double upperinitboundary = 10;
+    const double fixedvalueinit = 1.;
+    const double multvalue = 3.;
+    const double randlowerboundary = 0.;
+    const double randupperboundary = 10.;
 
     // A random generator
     Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
@@ -212,7 +212,7 @@ void GConstrainedInt32ObjectCollection::specificTestsNoFailureExpected_GUnitTest
             this->clone<GConstrainedInt32ObjectCollection>();
 
         // Fill p_test with objects
-        p_test->fillWithObjects_(nAddedObjects);
+        p_test->fillWithObjects_(n_added_objects);
 
         // Execute the parent class'es tests
         p_test->GParameterTCollectionT<
@@ -228,10 +228,10 @@ void GConstrainedInt32ObjectCollection::specificTestsNoFailureExpected_GUnitTest
             this->clone<GConstrainedInt32ObjectCollection>();
 
         // Fill p_test1 with objects
-        CHECK_NOTHROW(p_test1->fillWithObjects_(nAddedObjects));
+        CHECK_NOTHROW(p_test1->fillWithObjects_(n_added_objects));
 
         // Make sure it has the expected size
-        CHECK(p_test1->size() == nAddedObjects);
+        CHECK(p_test1->size() == n_added_objects);
 
         // Load the data into p_test2
         CHECK_NOTHROW(p_test2->load(p_test1));
@@ -240,17 +240,17 @@ void GConstrainedInt32ObjectCollection::specificTestsNoFailureExpected_GUnitTest
         CHECK(*p_test1 == *p_test2);
 
         // Try to add a fixed fp value to p_test1 and check whether it has changed
-        CHECK_NOTHROW(p_test1->fixedValueInit<double>(FIXEDVALUEINIT, activityMode::ALLPARAMETERS));
+        CHECK_NOTHROW(p_test1->fixedValueInit<double>(fixedvalueinit, activityMode::ALLPARAMETERS));
         CHECK(*p_test1 == *p_test2);
 
         // Try to multiply p_test1 with a fixed fp value and check whether it has changed
-        CHECK_NOTHROW(p_test1->multiplyBy<double>(MULTVALUE, activityMode::ALLPARAMETERS));
+        CHECK_NOTHROW(p_test1->multiplyBy<double>(multvalue, activityMode::ALLPARAMETERS));
         CHECK(*p_test1 == *p_test2);
 
         // Try to multiply p_test1 with a random fp value in a given range and check whether it has changed
         CHECK_NOTHROW(p_test1->multiplyByRandom<double>(
-            RANDLOWERBOUNDARY,
-            RANDUPPERBOUNDARY,
+            randlowerboundary,
+            randupperboundary,
             activityMode::ALLPARAMETERS,
             gr
         ));

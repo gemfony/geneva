@@ -72,10 +72,10 @@ namespace Gem::Common {
  */
 template <typename T>
 std::string
-sharedPtrToString(std::shared_ptr<T> gt_ptr, const Gem::Common::serializationMode &serMod) {
+sharedPtrToString(std::shared_ptr<T> gt_ptr, const Gem::Common::serializationMode &ser_mod) {
     std::ostringstream oarchive_stream; // NOLINT(cppcoreguidelines-init-variables)
 
-    switch(serMod) {
+    switch(ser_mod) {
     case Gem::Common::serializationMode::TEXT: {
         boost::archive::text_oarchive oa(oarchive_stream);
         oa << boost::serialization::make_nvp("classHierarchyFromT_ptr", gt_ptr);
@@ -110,12 +110,12 @@ sharedPtrToString(std::shared_ptr<T> gt_ptr, const Gem::Common::serializationMod
  */
 template <typename T>
 std::shared_ptr<T>
-sharedPtrFromString(const std::string &gt_string, const Gem::Common::serializationMode &serMod) {
+sharedPtrFromString(const std::string &gt_string, const Gem::Common::serializationMode &ser_mod) {
     std::istringstream istr(gt_string);
     std::shared_ptr<T> gt_ptr;
 
     try {
-        switch(serMod) {
+        switch(ser_mod) {
         case Gem::Common::serializationMode::TEXT: {
             boost::archive::text_iarchive ia(istr);
             ia >> boost::serialization::make_nvp("classHierarchyFromT_ptr", gt_ptr);

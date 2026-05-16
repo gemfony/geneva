@@ -73,8 +73,8 @@ public:
     /**
 	  * Initialization with the name of a config file
 	  */
-    explicit G_OptimizationAlgorithm_FactoryT(std::filesystem::path const &configFile)
-      : Gem::Common::GFactoryT<oa_type>(configFile) { /* nothing */
+    explicit G_OptimizationAlgorithm_FactoryT(std::filesystem::path const &config_file)
+      : Gem::Common::GFactoryT<oa_type>(config_file) { /* nothing */
     }
 
     /***************************************************************************/
@@ -82,11 +82,11 @@ public:
 	  * A constructor which adds a content creation function
 	  */
     G_OptimizationAlgorithm_FactoryT(
-        std::filesystem::path const &configFile,
-        std::shared_ptr<Gem::Common::GFactoryT<GParameterSet>> contentCreatorPtr
+        std::filesystem::path const &config_file,
+        std::shared_ptr<Gem::Common::GFactoryT<GParameterSet>> content_creator_ptr
     )
-      : Gem::Common::GFactoryT<oa_type>(configFile)
-      , contentCreatorPtr_(contentCreatorPtr) { /* nothing */
+      : Gem::Common::GFactoryT<oa_type>(config_file)
+      , contentCreatorPtr_(content_creator_ptr) { /* nothing */
     }
 
     /***************************************************************************/
@@ -191,9 +191,9 @@ public:
     /**
 	  * Allows to register a pluggable optimization monitor
 	  */
-    void registerPluggableOM(std::shared_ptr<GBasePluggableOM> pluggableOM) {
-        if(pluggableOM) {
-            pluggableOM_ = pluggableOM;
+    void registerPluggableOM(std::shared_ptr<GBasePluggableOM> pluggable_om) {
+        if(pluggable_om) {
+            pluggableOM_ = pluggable_om;
         }
         else {
             throw geneva_exception(
@@ -229,8 +229,8 @@ public:
     /**
 	  * Allows to manually set the maximum number of iterations as is usually specified on the command line
 	  */
-    void setMaxIterationCL(std::uint32_t maxIterationCL) {
-        maxIterationCL_ = Gem::Common::narrow_cast<std::int32_t>(maxIterationCL);
+    void setMaxIterationCL(std::uint32_t max_iteration_cl) {
+        maxIterationCL_ = Gem::Common::narrow_cast<std::int32_t>(max_iteration_cl);
     }
 
     /***************************************************************************/
@@ -268,8 +268,8 @@ public:
     /**
 	  * Allows to manually set the maximum number of stall iterations as is usually specified on the command line
 	  */
-    void setMaxStallIterationCL(std::uint32_t maxStallIterationCL) {
-        maxStallIterationCL_ = Gem::Common::narrow_cast<std::int32_t>(maxStallIterationCL);
+    void setMaxStallIterationCL(std::uint32_t max_stall_iteration_cl) {
+        maxStallIterationCL_ = Gem::Common::narrow_cast<std::int32_t>(max_stall_iteration_cl);
     }
 
     /***************************************************************************/
@@ -308,8 +308,8 @@ public:
     /**
 	  * Allows to manually set the maximum number of seconds for a run as is usually specified on the command line
 	  */
-    void setMaxSecondsCL(std::uint32_t maxSecondsCL) {
-        maxSecondsCL_ = Gem::Common::narrow_cast<std::int32_t>(maxSecondsCL);
+    void setMaxSecondsCL(std::uint32_t max_seconds_cl) {
+        maxSecondsCL_ = Gem::Common::narrow_cast<std::int32_t>(max_seconds_cl);
     }
 
     /***************************************************************************/
@@ -329,9 +329,9 @@ public:
 	  */
     std::chrono::duration<double> getMaxTimeCL() const {
         if(maxSecondsCL_ >= 0) {
-            std::chrono::duration<double> maxDuration =
+            std::chrono::duration<double> max_duration =
                 std::chrono::seconds(Gem::Common::narrow_cast<long>(maxSecondsCL_));
-            return maxDuration;
+            return max_duration;
         }
         else {
             throw geneva_exception(

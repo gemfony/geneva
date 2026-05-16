@@ -134,23 +134,24 @@ public:
     /**
 	  * Sets the initialization boundaries
 	  *
-	  * @param lowerInitBoundary The lower boundary for random initialization
-	  * @param upperInitBoundary The upper boundary for random initialization
+	  * @param lower_init_boundary The lower boundary for random initialization
+	  * @param upper_init_boundary The upper boundary for random initialization
 	  */
-    void setInitBoundaries(const num_type &lowerInitBoundary, const num_type &upperInitBoundary) {
+    void
+    setInitBoundaries(const num_type &lower_init_boundary, const num_type &upper_init_boundary) {
         // Do some error checking
-        if(lowerInitBoundary >= upperInitBoundary) {
+        if(lower_init_boundary >= upper_init_boundary) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GNumT<T>::setInitBoundaries():" << '\n'
                 << "Invalid boundaries provided: " << '\n'
-                << "lowerInitBoundary = " << lowerInitBoundary << '\n'
-                << "upperInitBoundary = " << upperInitBoundary << '\n'
+                << "lower_init_boundary = " << lower_init_boundary << '\n'
+                << "upper_init_boundary = " << upper_init_boundary << '\n'
             );
         }
 
-        lowerInitBoundary_ = lowerInitBoundary;
-        upperInitBoundary_ = upperInitBoundary;
+        lowerInitBoundary_ = lower_init_boundary;
+        upperInitBoundary_ = upper_init_boundary;
     }
 
     /* ----------------------------------------------------------------------------------
@@ -202,19 +203,19 @@ public:
 	  * Converts the local data to a boost::property_tree node
 	  *
 	  * @param ptr The boost::property_tree object the data should be saved to
-	  * @param baseName The name assigned to the object
+	  * @param base_name The name assigned to the object
 	  */
-    void toPropertyTree(pt::ptree &ptr, const std::string &baseName) const override {
-        ptr.put(baseName + ".name", this->getParameterName());
-        ptr.put(baseName + ".type", this->name());
-        ptr.put(baseName + ".baseType", Gem::Common::GTypeToStringT<num_type>::value());
-        ptr.put(baseName + ".isLeaf", this->isLeaf());
-        ptr.put(baseName + ".nVals", 1);
-        ptr.put(baseName + ".values.value0", this->value());
-        ptr.put(baseName + ".lowerBoundary", this->getLowerInitBoundary());
-        ptr.put(baseName + ".upperBoundary", this->getUpperInitBoundary());
-        ptr.put(baseName + ".initRandom", false); // Unused for the creation of a property tree
-        ptr.put(baseName + ".adaptionsActive", this->adaptionsActive());
+    void toPropertyTree(pt::ptree &ptr, const std::string &base_name) const override {
+        ptr.put(base_name + ".name", this->getParameterName());
+        ptr.put(base_name + ".type", this->name());
+        ptr.put(base_name + ".baseType", Gem::Common::GTypeToStringT<num_type>::value());
+        ptr.put(base_name + ".isLeaf", this->isLeaf());
+        ptr.put(base_name + ".n_vals", 1);
+        ptr.put(base_name + ".values.value0", this->value());
+        ptr.put(base_name + ".lowerBoundary", this->getLowerInitBoundary());
+        ptr.put(base_name + ".upperBoundary", this->getUpperInitBoundary());
+        ptr.put(base_name + ".initRandom", false); // Unused for the creation of a property tree
+        ptr.put(base_name + ".adaptionsActive", this->adaptionsActive());
     }
 
 protected:
@@ -326,9 +327,9 @@ protected:
         GParameterT<num_type>::specificTestsNoFailureExpected_GUnitTests_();
 
         // A few settings
-        const num_type LOWERTESTINITVAL =
+        const num_type lowertestinitval =
             num_type(1); // Do not choose a negative value as T might be an unsigned type
-        const num_type UPPERTESTINITVAL = num_type(3);
+        const num_type uppertestinitval = num_type(3);
 
         //------------------------------------------------------------------------------
 
@@ -336,11 +337,11 @@ protected:
             std::shared_ptr<GNumT<num_type>> p_test = this->template clone<GNumT<num_type>>();
 
             // Set the boundaries
-            CHECK_NOTHROW(p_test->setInitBoundaries(LOWERTESTINITVAL, UPPERTESTINITVAL));
+            CHECK_NOTHROW(p_test->setInitBoundaries(lowertestinitval, uppertestinitval));
 
             // Check that these values have indeed been assigned
-            CHECK(p_test->getLowerInitBoundary() == LOWERTESTINITVAL);
-            CHECK(p_test->getUpperInitBoundary() == UPPERTESTINITVAL);
+            CHECK(p_test->getLowerInitBoundary() == lowertestinitval);
+            CHECK(p_test->getUpperInitBoundary() == uppertestinitval);
         }
 
         //------------------------------------------------------------------------------
@@ -363,9 +364,9 @@ protected:
         GParameterT<num_type>::specificTestsFailuresExpected_GUnitTests_();
 
         // A few settings
-        const num_type LOWERTESTINITVAL =
+        const num_type lowertestinitval =
             num_type(1); // Do not choose a negative value as T might be an unsigned type
-        const num_type UPPERTESTINITVAL = num_type(3);
+        const num_type uppertestinitval = num_type(3);
 
         //------------------------------------------------------------------------------
 
@@ -373,7 +374,7 @@ protected:
             std::shared_ptr<GNumT<num_type>> p_test = this->template clone<GNumT<num_type>>();
 
             CHECK_THROWS_AS(
-                (p_test->setInitBoundaries(UPPERTESTINITVAL, LOWERTESTINITVAL)),
+                (p_test->setInitBoundaries(uppertestinitval, lowertestinitval)),
                 geneva_exception
             );
         }

@@ -81,20 +81,20 @@ std::vector<std::int32_t> fillWithData<std::int32_t>(
  * Returns a set of float data items
  */
 template <>
-std::vector<float> fillWithData<float>(std::size_t nSteps, float lower, float upper) {
+std::vector<float> fillWithData<float>(std::size_t n_steps, float lower, float upper) {
     std::vector<float> result;
 
     // We require at least 2 steps, unless we are are in random mode
-    if(nSteps < 2) {
+    if(n_steps < 2) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In std::vector<float> fillWithData<float>(): Error!" << '\n'
-            << "Number of requested steps is too low: " << nSteps << '\n'
+            << "Number of requested steps is too low: " << n_steps << '\n'
         );
     }
 
-    for(std::size_t i = 0; i < nSteps; i++) {
-        result.push_back(lower + (upper - lower) * float(i) / float(nSteps - 1));
+    for(std::size_t i = 0; i < n_steps; i++) {
+        result.push_back(lower + (upper - lower) * float(i) / float(n_steps - 1));
     }
 
     return result;
@@ -105,20 +105,20 @@ std::vector<float> fillWithData<float>(std::size_t nSteps, float lower, float up
  * Returns a set of double data items
  */
 template <>
-std::vector<double> fillWithData<double>(std::size_t nSteps, double lower, double upper) {
+std::vector<double> fillWithData<double>(std::size_t n_steps, double lower, double upper) {
     std::vector<double> result;
 
     // We require at least 2 steps, unless we are are in random mode
-    if(nSteps < 2) {
+    if(n_steps < 2) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In std::vector<float> fillWithData<double>(): Error!" << '\n'
-            << "Number of requested steps is too low: " << nSteps << '\n'
+            << "Number of requested steps is too low: " << n_steps << '\n'
         );
     }
 
-    for(std::size_t i = 0; i < nSteps; i++) {
-        result.push_back(lower + (upper - lower) * double(i) / double(nSteps - 1));
+    for(std::size_t i = 0; i < n_steps; i++) {
+        result.push_back(lower + (upper - lower) * double(i) / double(n_steps - 1));
     }
 
     return result;
@@ -138,8 +138,8 @@ bScanPar::bScanPar()
 /**
  * Construction from local variables
  */
-bScanPar::bScanPar(parPropSpec<bool> pps, bool randomScan)
-  : baseScanParT<bool>(pps, randomScan, "b") { /* nothing */
+bScanPar::bScanPar(parPropSpec<bool> pps, bool random_scan)
+  : baseScanParT<bool>(pps, random_scan, "b") { /* nothing */
 }
 
 /******************************************************************************/
@@ -164,8 +164,8 @@ int32ScanPar::int32ScanPar()
 /**
  * The standard destructor
  */
-int32ScanPar::int32ScanPar(parPropSpec<std::int32_t> pps, bool randomScan)
-  : baseScanParT<std::int32_t>(pps, randomScan, "i") { /* nothing */
+int32ScanPar::int32ScanPar(parPropSpec<std::int32_t> pps, bool random_scan)
+  : baseScanParT<std::int32_t>(pps, random_scan, "i") { /* nothing */
 }
 
 /******************************************************************************/
@@ -190,8 +190,8 @@ dScanPar::dScanPar()
 /**
  * The standard destructor
  */
-dScanPar::dScanPar(parPropSpec<double> pps, bool randomScan)
-  : baseScanParT<double>(pps, randomScan, "d") { /* nothing */
+dScanPar::dScanPar(parPropSpec<double> pps, bool random_scan)
+  : baseScanParT<double>(pps, random_scan, "d") { /* nothing */
 }
 
 /******************************************************************************/
@@ -216,8 +216,8 @@ fScanPar::fScanPar()
 /**
  * The standard destructor
  */
-fScanPar::fScanPar(parPropSpec<float> pps, bool randomScan)
-  : baseScanParT<float>(pps, randomScan, "f") { /* nothing */
+fScanPar::fScanPar(parPropSpec<float> pps, bool random_scan)
+  : baseScanParT<float>(pps, random_scan, "f") { /* nothing */
 }
 
 /******************************************************************************/
@@ -234,17 +234,17 @@ std::shared_ptr<fScanPar> fScanPar::clone() const {
 /**
  * A simple output operator for parSet object, mostly meant for debugging
  */
-std::ostream &operator<<(std::ostream &os, const parSet &pS) {
+std::ostream &operator<<(std::ostream &os, const parSet &p_s) {
     os << "###########################################################" << '\n'
        << "# New parSet object:" << '\n';
 
     // Boolean data
-    if(not pS.bParVec.empty()) {
+    if(not p_s.bParVec.empty()) {
         os << "# Boolean data" << '\n';
         std::vector<singleBPar>::const_iterator cit;
-        for(cit = pS.bParVec.begin(); cit != pS.bParVec.end(); ++cit) {
+        for(cit = p_s.bParVec.begin(); cit != p_s.bParVec.end(); ++cit) {
             os << (std::get<1>(*cit) ? "true" : "false") << ":" << std::get<0>(*cit);
-            if(cit + 1 != pS.bParVec.end()) {
+            if(cit + 1 != p_s.bParVec.end()) {
                 os << ", ";
             }
         }
@@ -252,12 +252,12 @@ std::ostream &operator<<(std::ostream &os, const parSet &pS) {
     }
 
     // std::int32_t data
-    if(not pS.iParVec.empty()) {
+    if(not p_s.iParVec.empty()) {
         os << "# std::int32_t data" << '\n';
         std::vector<singleInt32Par>::const_iterator cit;
-        for(cit = pS.iParVec.begin(); cit != pS.iParVec.end(); ++cit) {
+        for(cit = p_s.iParVec.begin(); cit != p_s.iParVec.end(); ++cit) {
             os << std::get<1>(*cit) << ":" << std::get<0>(*cit);
-            if(cit + 1 != pS.iParVec.end()) {
+            if(cit + 1 != p_s.iParVec.end()) {
                 os << ", ";
             }
         }
@@ -265,12 +265,12 @@ std::ostream &operator<<(std::ostream &os, const parSet &pS) {
     }
 
     // float data
-    if(not pS.fParVec.empty()) {
+    if(not p_s.fParVec.empty()) {
         os << "# float data" << '\n';
         std::vector<singleFPar>::const_iterator cit;
-        for(cit = pS.fParVec.begin(); cit != pS.fParVec.end(); ++cit) {
+        for(cit = p_s.fParVec.begin(); cit != p_s.fParVec.end(); ++cit) {
             os << std::get<1>(*cit) << ":" << std::get<0>(*cit);
-            if(cit + 1 != pS.fParVec.end()) {
+            if(cit + 1 != p_s.fParVec.end()) {
                 os << ", ";
             }
         }
@@ -278,12 +278,12 @@ std::ostream &operator<<(std::ostream &os, const parSet &pS) {
     }
 
     // double data
-    if(not pS.dParVec.empty()) {
+    if(not p_s.dParVec.empty()) {
         os << "# double data" << '\n';
         std::vector<singleDPar>::const_iterator cit;
-        for(cit = pS.dParVec.begin(); cit != pS.dParVec.end(); ++cit) {
+        for(cit = p_s.dParVec.begin(); cit != p_s.dParVec.end(); ++cit) {
             os << std::get<1>(*cit) << ":" << std::get<0>(*cit);
-            if(cit + 1 != pS.dParVec.end()) {
+            if(cit + 1 != p_s.dParVec.end()) {
                 os << ", ";
             }
         }
@@ -421,8 +421,8 @@ std::string GParameterScan::name_() const {
  * Allows to set the number of "best" individuals to be monitored
  * over the course of the algorithm run
  */
-void GParameterScan::setNMonitorInds(std::size_t nMonitorInds) {
-    nMonitorInds_ = nMonitorInds;
+void GParameterScan::setNMonitorInds(std::size_t n_monitor_inds) {
+    nMonitorInds_ = n_monitor_inds;
 }
 
 /******************************************************************************/
@@ -487,7 +487,7 @@ GObject *GParameterScan::clone_() const {
  * @return The value of the best individual found
  */
 std::tuple<double, double> GParameterScan::cycleLogic_() {
-    std::tuple<double, double> bestFitness =
+    std::tuple<double, double> best_fitness =
         std::make_tuple(this->at(0)->getWorstCase(), this->at(0)->getWorstCase());
 
     // Apply all necessary modifications to individuals
@@ -505,7 +505,7 @@ std::tuple<double, double> GParameterScan::cycleLogic_() {
 
     // Retrieve information about the best fitness found and disallow re-evaluation
     GParameterScan::iterator it;
-    std::tuple<double, double> newEval = std::make_tuple(0., 0.);
+    std::tuple<double, double> new_eval = std::make_tuple(0., 0.);
     auto m =
         this->at(0)->getMaxMode(); // We assume that the maxMode is the same for all individuals
     for(it = this->begin(); it != this->end(); ++it) {
@@ -520,18 +520,18 @@ std::tuple<double, double> GParameterScan::cycleLogic_() {
         }
 #endif
 
-        newEval = (*it)->getFitnessTuple();
+        new_eval = (*it)->getFitnessTuple();
         if(isBetter(
-               std::get<G_TRANSFORMED_FITNESS>(newEval),
-               std::get<G_TRANSFORMED_FITNESS>(bestFitness),
+               std::get<G_TRANSFORMED_FITNESS>(new_eval),
+               std::get<G_TRANSFORMED_FITNESS>(best_fitness),
                m
            )) {
-            bestFitness = newEval;
+            best_fitness = new_eval;
         }
     }
 
     // Let the audience know
-    return bestFitness;
+    return best_fitness;
 }
 
 /******************************************************************************/
@@ -541,62 +541,62 @@ std::tuple<double, double> GParameterScan::cycleLogic_() {
  * is no sufficient number of data sets to be evaluated left.
  */
 void GParameterScan::updateSelectedParameters() {
-    std::size_t indPos = 0;
+    std::size_t ind_pos = 0;
 
     while(true) {
         //------------------------------------------------------------------------
         // Retrieve a work item
         std::size_t mode = 0;
-        std::shared_ptr<parSet> pS = getParameterSet(mode);
+        std::shared_ptr<parSet> p_s = getParameterSet(mode);
 
         switch(mode) {
         //---------------------------------------------------------------------
         case 0: // Parameters are referenced by index
         {
-            std::vector<bool> bData;
-            std::vector<std::int32_t> iData;
-            std::vector<float> fData;
-            std::vector<double> dData;
+            std::vector<bool> b_data;
+            std::vector<std::int32_t> i_data;
+            std::vector<float> f_data;
+            std::vector<double> d_data;
 
             // Fill the parameter set data into the current individual
 
             // Retrieve the parameter vectors
-            this->at(indPos)->streamline<bool>(bData);
-            this->at(indPos)->streamline<std::int32_t>(iData);
-            this->at(indPos)->streamline<float>(fData);
-            this->at(indPos)->streamline<double>(dData);
+            this->at(ind_pos)->streamline<bool>(b_data);
+            this->at(ind_pos)->streamline<std::int32_t>(i_data);
+            this->at(ind_pos)->streamline<float>(f_data);
+            this->at(ind_pos)->streamline<double>(d_data);
 
             // Add the data items from the parSet object to the vectors
 
             // 1) For boolean data
             std::vector<singleBPar>::iterator b_it;
-            for(b_it = pS->bParVec.begin(); b_it != pS->bParVec.end(); ++b_it) {
-                this->addDataPoint<bool>(*b_it, bData);
+            for(b_it = p_s->bParVec.begin(); b_it != p_s->bParVec.end(); ++b_it) {
+                this->addDataPoint<bool>(*b_it, b_data);
             }
 
             // 2) For std::int32_t data
             std::vector<singleInt32Par>::iterator i_it;
-            for(i_it = pS->iParVec.begin(); i_it != pS->iParVec.end(); ++i_it) {
-                this->addDataPoint<std::int32_t>(*i_it, iData);
+            for(i_it = p_s->iParVec.begin(); i_it != p_s->iParVec.end(); ++i_it) {
+                this->addDataPoint<std::int32_t>(*i_it, i_data);
             }
 
             // 3) For float values
             std::vector<singleFPar>::iterator f_it;
-            for(f_it = pS->fParVec.begin(); f_it != pS->fParVec.end(); ++f_it) {
-                this->addDataPoint<float>(*f_it, fData);
+            for(f_it = p_s->fParVec.begin(); f_it != p_s->fParVec.end(); ++f_it) {
+                this->addDataPoint<float>(*f_it, f_data);
             }
 
             // 4) For double values
             std::vector<singleDPar>::iterator d_it;
-            for(d_it = pS->dParVec.begin(); d_it != pS->dParVec.end(); ++d_it) {
-                this->addDataPoint<double>(*d_it, dData);
+            for(d_it = p_s->dParVec.begin(); d_it != p_s->dParVec.end(); ++d_it) {
+                this->addDataPoint<double>(*d_it, d_data);
             }
 
             // Copy the data back into the individual
-            this->at(indPos)->assignValueVector<bool>(bData);
-            this->at(indPos)->assignValueVector<std::int32_t>(iData);
-            this->at(indPos)->assignValueVector<float>(fData);
-            this->at(indPos)->assignValueVector<double>(dData);
+            this->at(ind_pos)->assignValueVector<bool>(b_data);
+            this->at(ind_pos)->assignValueVector<std::int32_t>(i_data);
+            this->at(ind_pos)->assignValueVector<float>(f_data);
+            this->at(ind_pos)->assignValueVector<double>(d_data);
         } break;
 
         //---------------------------------------------------------------------
@@ -604,48 +604,48 @@ void GParameterScan::updateSelectedParameters() {
         case 1: // Parameters are referenced as var[n]
         case 2: // Parameters are references as var --> equivalent to var[0]
         {
-            std::map<std::string, std::vector<bool>> bData;
-            std::map<std::string, std::vector<std::int32_t>> iData;
-            std::map<std::string, std::vector<float>> fData;
-            std::map<std::string, std::vector<double>> dData;
+            std::map<std::string, std::vector<bool>> b_data;
+            std::map<std::string, std::vector<std::int32_t>> i_data;
+            std::map<std::string, std::vector<float>> f_data;
+            std::map<std::string, std::vector<double>> d_data;
 
             // Retrieve the parameter maos
-            this->at(indPos)->streamline<bool>(bData);
-            this->at(indPos)->streamline<std::int32_t>(iData);
-            this->at(indPos)->streamline<float>(fData);
-            this->at(indPos)->streamline<double>(dData);
+            this->at(ind_pos)->streamline<bool>(b_data);
+            this->at(ind_pos)->streamline<std::int32_t>(i_data);
+            this->at(ind_pos)->streamline<float>(f_data);
+            this->at(ind_pos)->streamline<double>(d_data);
 
             // Add the data items from the parSet object to the maos
 
             // 1) For boolean data
             std::vector<singleBPar>::iterator b_it;
-            for(b_it = pS->bParVec.begin(); b_it != pS->bParVec.end(); ++b_it) {
-                this->addDataPoint<bool>(*b_it, bData);
+            for(b_it = p_s->bParVec.begin(); b_it != p_s->bParVec.end(); ++b_it) {
+                this->addDataPoint<bool>(*b_it, b_data);
             }
 
             // 2) For std::int32_t data
             std::vector<singleInt32Par>::iterator i_it;
-            for(i_it = pS->iParVec.begin(); i_it != pS->iParVec.end(); ++i_it) {
-                this->addDataPoint<std::int32_t>(*i_it, iData);
+            for(i_it = p_s->iParVec.begin(); i_it != p_s->iParVec.end(); ++i_it) {
+                this->addDataPoint<std::int32_t>(*i_it, i_data);
             }
 
             // 3) For float values
             std::vector<singleFPar>::iterator f_it;
-            for(f_it = pS->fParVec.begin(); f_it != pS->fParVec.end(); ++f_it) {
-                this->addDataPoint<float>(*f_it, fData);
+            for(f_it = p_s->fParVec.begin(); f_it != p_s->fParVec.end(); ++f_it) {
+                this->addDataPoint<float>(*f_it, f_data);
             }
 
             // 4) For double values
             std::vector<singleDPar>::iterator d_it;
-            for(d_it = pS->dParVec.begin(); d_it != pS->dParVec.end(); ++d_it) {
-                this->addDataPoint<double>(*d_it, dData);
+            for(d_it = p_s->dParVec.begin(); d_it != p_s->dParVec.end(); ++d_it) {
+                this->addDataPoint<double>(*d_it, d_data);
             }
 
             // Copy the data back into the individual
-            this->at(indPos)->assignValueVectors<bool>(bData);
-            this->at(indPos)->assignValueVectors<std::int32_t>(iData);
-            this->at(indPos)->assignValueVectors<float>(fData);
-            this->at(indPos)->assignValueVectors<double>(dData);
+            this->at(ind_pos)->assignValueVectors<bool>(b_data);
+            this->at(ind_pos)->assignValueVectors<std::int32_t>(i_data);
+            this->at(ind_pos)->assignValueVectors<float>(f_data);
+            this->at(ind_pos)->assignValueVectors<double>(d_data);
         }
 
         break;
@@ -663,7 +663,7 @@ void GParameterScan::updateSelectedParameters() {
         //------------------------------------------------------------------------
         // Mark the individual as "dirty", so it gets re-evaluated the
         // next time the fitness() function is called
-        this->at(indPos)->mark_as_due_for_processing();
+        this->at(ind_pos)->mark_as_due_for_processing();
 
         // We were successful
         cycleLogicHalt_ = false;
@@ -678,7 +678,7 @@ void GParameterScan::updateSelectedParameters() {
             this->resetParameterObjects();
 
             // Resize the population, so we only have modified individuals
-            this->resize(indPos + 1);
+            this->resize(ind_pos + 1);
 
             // Terminate the loop
             break;
@@ -686,7 +686,7 @@ void GParameterScan::updateSelectedParameters() {
 
         //------------------------------------------------------------------------
         // We do not want to exceed the boundaries of the population
-        if(++indPos >= this->getDefaultPopulationSize())
+        if(++ind_pos >= this->getDefaultPopulationSize())
             break;
     }
 }
@@ -696,14 +696,14 @@ void GParameterScan::updateSelectedParameters() {
  * Randomly initialize the individuals a given number of times
  */
 void GParameterScan::randomShuffle() {
-    std::size_t indPos = 0;
+    std::size_t ind_pos = 0;
 
     while(true) {
         // Update the individual and mark it as "dirty"
-        this->at(indPos)->randomInit(activityMode::ACTIVEONLY);
+        this->at(ind_pos)->randomInit(activityMode::ACTIVEONLY);
         // Mark the individual as "dirty", so it gets re-evaluated the
         // next time the fitness() function is called
-        this->at(indPos)->mark_as_due_for_processing();
+        this->at(ind_pos)->mark_as_due_for_processing();
 
         // We were successful
         cycleLogicHalt_ = false;
@@ -711,7 +711,7 @@ void GParameterScan::randomShuffle() {
         //------------------------------------------------------------------------
         // We do not want to exceed the boundaries of the population -- stop
         // if we have reached the end of the population
-        if(++indPos >= this->getDefaultPopulationSize())
+        if(++ind_pos >= this->getDefaultPopulationSize())
             break;
 
         //------------------------------------------------------------------------
@@ -725,7 +725,7 @@ void GParameterScan::randomShuffle() {
             this->resetParameterObjects();
 
             // Resize the population, so we only have modified individuals
-            this->resize(indPos + 1);
+            this->resize(ind_pos + 1);
 
             // Terminate the loop
             break;
@@ -757,7 +757,7 @@ std::shared_ptr<parSet> GParameterScan::getParameterSet(std::size_t &mode) {
     // Create a new parSet object
     std::shared_ptr<parSet> result(new parSet());
 
-    bool modeSet = false;
+    bool mode_set = false;
 
     // Extract the relevant data and store it in a parSet object
     // 1) For boolean objects
@@ -765,7 +765,7 @@ std::shared_ptr<parSet> GParameterScan::getParameterSet(std::size_t &mode) {
     for(b_it = b_cnt_.begin(); b_it != b_cnt_.end(); ++b_it) {
         NAMEANDIDTYPE var = (*b_it)->getVarAddress();
 
-        if(modeSet) {
+        if(mode_set) {
             if(std::get<0>(var) != mode) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
@@ -776,7 +776,7 @@ std::shared_ptr<parSet> GParameterScan::getParameterSet(std::size_t &mode) {
         }
         else {
             mode = std::get<0>(var);
-            modeSet = true;
+            mode_set = true;
         }
 
         singleBPar item(
@@ -792,7 +792,7 @@ std::shared_ptr<parSet> GParameterScan::getParameterSet(std::size_t &mode) {
     for(i_it = int32_cnt_.begin(); i_it != int32_cnt_.end(); ++i_it) {
         NAMEANDIDTYPE var = (*i_it)->getVarAddress();
 
-        if(modeSet) {
+        if(mode_set) {
             if(std::get<0>(var) != mode) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
@@ -803,7 +803,7 @@ std::shared_ptr<parSet> GParameterScan::getParameterSet(std::size_t &mode) {
         }
         else {
             mode = std::get<0>(var);
-            modeSet = true;
+            mode_set = true;
         }
 
         singleInt32Par item(
@@ -819,7 +819,7 @@ std::shared_ptr<parSet> GParameterScan::getParameterSet(std::size_t &mode) {
     for(f_it = f_cnt_.begin(); f_it != f_cnt_.end(); ++f_it) {
         NAMEANDIDTYPE var = (*f_it)->getVarAddress();
 
-        if(modeSet) {
+        if(mode_set) {
             if(std::get<0>(var) != mode) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
@@ -830,7 +830,7 @@ std::shared_ptr<parSet> GParameterScan::getParameterSet(std::size_t &mode) {
         }
         else {
             mode = std::get<0>(var);
-            modeSet = true;
+            mode_set = true;
         }
 
         singleFPar item(
@@ -846,7 +846,7 @@ std::shared_ptr<parSet> GParameterScan::getParameterSet(std::size_t &mode) {
     for(d_it = d_cnt_.begin(); d_it != d_cnt_.end(); ++d_it) {
         NAMEANDIDTYPE var = (*d_it)->getVarAddress();
 
-        if(modeSet) {
+        if(mode_set) {
             if(std::get<0>(var) != mode) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
@@ -857,7 +857,7 @@ std::shared_ptr<parSet> GParameterScan::getParameterSet(std::size_t &mode) {
         }
         else {
             mode = std::get<0>(var);
-            modeSet = true;
+            mode_set = true;
         }
 
         singleDPar item(
@@ -968,12 +968,12 @@ void GParameterScan::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) 
     gpb.registerFileParameter<std::string>(
         "parameterOptions",
         std::string("d(0, -10., 10., 100), d(1, -10., 10., 100)"),
-        [this](std::string parSpecs) { this->setParameterSpecs(parSpecs); }
+        [this](std::string par_specs) { this->setParameterSpecs(par_specs); }
     ) << "Specification of the parameters to be used in the parameter scan"
       << '\n';
 
     gpb.registerFileParameter<bool>(
-        "scanRandomly" // The name of the variable
+        "scan_randomly" // The name of the variable
         ,
         true // The default value
         ,
@@ -982,9 +982,9 @@ void GParameterScan::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) 
       << '\n'
       << "(1) or on a grid (0)";
 
-    // Override the default value of maxStallIteration, as the parent
+    // Override the default value of max_stall_iteration, as the parent
     // default does not make sense for us (we do not need stall iterations)
-    gpb.resetFileParameterDefaults("maxStallIteration", DEFAULTMAXPARSCANSTALLIT);
+    gpb.resetFileParameterDefaults("max_stall_iteration", DEFAULTMAXPARSCANSTALLIT);
 }
 
 /******************************************************************************/
@@ -1044,16 +1044,16 @@ void GParameterScan::runFitnessCalculation_() {
 /******************************************************************************/
 /**
  * Analyzes the parameters to be scanned. Note that this function will clear any
- * existing parameter definitions, as parStr represents a new set of parameters
+ * existing parameter definitions, as par_str represents a new set of parameters
  * to be scanned.
  */
-void GParameterScan::setParameterSpecs(std::string parStr) {
+void GParameterScan::setParameterSpecs(std::string par_str) {
     // Check that the parameter string isn't empty
-    if(parStr.empty()) {
+    if(par_str.empty()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GParameterScan::addParameterSpecs(): Error!" << '\n'
-            << "Parameter string " << parStr << " is empty" << '\n'
+            << "Parameter string " << par_str << " is empty" << '\n'
         );
     }
 
@@ -1065,7 +1065,7 @@ void GParameterScan::setParameterSpecs(std::string parStr) {
     b_cnt_.clear();
 
     // Parse the parameter string
-    GParameterPropertyParser ppp(parStr);
+    GParameterPropertyParser ppp(par_str);
 
     //---------------------------------------------------------------------------
     // Assign the parameter definitions to our internal parameter vectors.
@@ -1135,8 +1135,8 @@ void GParameterScan::setParameterSpecs(std::string parStr) {
 /**
  * Specified the number of simple scans an puts the class in "simple scan" mode
  */
-void GParameterScan::setNSimpleScans(std::size_t simpleScanItems) {
-    simpleScanItems_ = simpleScanItems;
+void GParameterScan::setNSimpleScans(std::size_t simple_scan_items) {
+    simpleScanItems_ = simple_scan_items;
 }
 
 /******************************************************************************/
@@ -1160,8 +1160,8 @@ std::size_t GParameterScan::getNScansPerformed() const {
  * Allows to specify whether the parameter space should be scanned randomly
  * or on a grid
  */
-void GParameterScan::setScanRandomly(bool scanRandomly) {
-    scanRandomly_ = scanRandomly;
+void GParameterScan::setScanRandomly(bool scan_randomly) {
+    scanRandomly_ = scan_randomly;
 }
 
 /******************************************************************************/
@@ -1226,12 +1226,12 @@ void GParameterScan::actOnStalls_() {
  */
 void GParameterScan::adjustPopulation_() {
     // Check how many individuals we already have
-    std::size_t nStart = this->size();
+    std::size_t n_start = this->size();
 
     // Do some error checking ...
 
     // An empty population is an error
-    if(nStart == 0) {
+    if(n_start == 0) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GParameterScan::adjustPopulation(): Error!" << '\n'
@@ -1242,9 +1242,9 @@ void GParameterScan::adjustPopulation_() {
 
     // We want exactly one individual in the beginning. All other registered
     // individuals will be discarded.
-    if(nStart > 1) {
+    if(n_start > 1) {
         this->resize(1);
-        nStart = 1;
+        n_start = 1;
     }
 
     // Check that we have a valid default population size

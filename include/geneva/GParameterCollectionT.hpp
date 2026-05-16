@@ -155,7 +155,7 @@ public:
      * @param ptr The boost::property_tree object the data should be saved to
      * @param id The id assigned to this object
      */
-    void toPropertyTree(pt::ptree &ptr, const std::string &baseName) const override {
+    void toPropertyTree(pt::ptree &ptr, const std::string &base_name) const override {
 #ifdef DEBUG
         // Check that the object isn't empty
         if(this->empty()) {
@@ -167,20 +167,20 @@ public:
         }
 #endif /* DEBUG */
 
-        ptr.put(baseName + ".name", this->getParameterName());
-        ptr.put(baseName + ".type", this->name());
-        ptr.put(baseName + ".baseType", Gem::Common::GTypeToStringT<num_type>::value());
-        ptr.put(baseName + ".isLeaf", this->isLeaf());
-        ptr.put(baseName + ".nVals", this->size());
+        ptr.put(base_name + ".name", this->getParameterName());
+        ptr.put(base_name + ".type", this->name());
+        ptr.put(base_name + ".baseType", Gem::Common::GTypeToStringT<num_type>::value());
+        ptr.put(base_name + ".isLeaf", this->isLeaf());
+        ptr.put(base_name + ".n_vals", this->size());
 
         typename GParameterCollectionT<num_type>::const_iterator cit;
         std::size_t pos = 0;
         for(cit = this->begin(); cit != this->end(); ++cit) {
             pos = std::distance(this->begin(), cit);
-            ptr.put(baseName + "values.value" + Gem::Common::to_string(pos), *cit);
+            ptr.put(base_name + "values.value" + Gem::Common::to_string(pos), *cit);
         }
-        ptr.put(baseName + ".initRandom", false); // Unused for the creation of a property tree
-        ptr.put(baseName + ".adaptionsActive", this->adaptionsActive());
+        ptr.put(base_name + ".initRandom", false); // Unused for the creation of a property tree
+        ptr.put(base_name + ".adaptionsActive", this->adaptionsActive());
     }
 
     /***************************************************************************/

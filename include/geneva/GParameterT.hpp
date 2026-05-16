@@ -162,17 +162,17 @@ public:
 	  * Converts the local data to a boost::property_tree node
 	  *
 	  * @param ptr The boost::property_tree object the data should be saved to
-	  * @param baseName The name assigned to the object
+	  * @param base_name The name assigned to the object
 	  */
-    void toPropertyTree(pt::ptree &ptr, const std::string &baseName) const override {
-        ptr.put(baseName + ".name", this->getParameterName());
-        ptr.put(baseName + ".type", this->name());
-        ptr.put(baseName + ".baseType", Gem::Common::GTypeToStringT<T>::value());
-        ptr.put(baseName + ".isLeaf", this->isLeaf());
-        ptr.put(baseName + ".nVals", 1);
-        ptr.put(baseName + ".values.value0", this->value());
-        ptr.put(baseName + ".initRandom", false); // Unused for the creation of a property tree
-        ptr.put(baseName + ".adaptionsActive", this->adaptionsActive());
+    void toPropertyTree(pt::ptree &ptr, const std::string &base_name) const override {
+        ptr.put(base_name + ".name", this->getParameterName());
+        ptr.put(base_name + ".type", this->name());
+        ptr.put(base_name + ".baseType", Gem::Common::GTypeToStringT<T>::value());
+        ptr.put(base_name + ".isLeaf", this->isLeaf());
+        ptr.put(base_name + ".n_vals", 1);
+        ptr.put(base_name + ".values.value0", this->value());
+        ptr.put(base_name + ".initRandom", false); // Unused for the creation of a property tree
+        ptr.put(base_name + ".adaptionsActive", this->adaptionsActive());
     }
 
     /***************************************************************************/

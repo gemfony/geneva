@@ -45,19 +45,19 @@ GGradientDescent::GGradientDescent()
 /**
  * Initialization with the number of starting points and other parameters
  *
- * @param nStartingPoints The number of simultaneous starting points for the gradient descent
- * @param finiteStep The desired size of the incremental adaption process
- * @param stepSize The size of the multiplicative factor of the adaption process
+ * @param n_starting_points The number of simultaneous starting points for the gradient descent
+ * @param finite_step The desired size of the incremental adaption process
+ * @param step_size The size of the multiplicative factor of the adaption process
  */
 GGradientDescent::GGradientDescent(
-    const std::size_t &nStartingPoints,
-    const double &finiteStep,
-    const double &stepSize
+    const std::size_t &n_starting_points,
+    const double &finite_step,
+    const double &step_size
 )
   : G_OptimizationAlgorithm_Base()
-  , nStartingPoints_(nStartingPoints)
-  , finiteStep_(finiteStep)
-  , stepSize_(stepSize) { /* nothing */
+  , nStartingPoints_(n_starting_points)
+  , finiteStep_(finite_step)
+  , stepSize_(step_size) { /* nothing */
 }
 
 /******************************************************************************/
@@ -74,11 +74,11 @@ std::size_t GGradientDescent::getNStartingPoints() const {
 /**
  * Allows to set the number of starting points for the gradient descent
  *
- * @param nStartingPoints The desired number of starting points for the gradient descent
+ * @param n_starting_points The desired number of starting points for the gradient descent
  */
-void GGradientDescent::setNStartingPoints(std::size_t nStartingPoints) {
+void GGradientDescent::setNStartingPoints(std::size_t n_starting_points) {
     // Do some error checking
-    if(nStartingPoints == 0) {
+    if(n_starting_points == 0) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GGradientDescent::setNStartingPoints(const std::size_t&):" << '\n'
@@ -86,28 +86,28 @@ void GGradientDescent::setNStartingPoints(std::size_t nStartingPoints) {
         );
     }
 
-    nStartingPoints_ = nStartingPoints;
+    nStartingPoints_ = n_starting_points;
 }
 
 /******************************************************************************/
 /**
  * Set the size of the finite step of the adaption process
  *
- * @param finiteStep The desired size of the adaption
+ * @param finite_step The desired size of the adaption
  */
-void GGradientDescent::setFiniteStep(double finiteStep) {
-    // Check that the new finiteStep has an appropriate value
-    if(finiteStep <= 0. ||
-       finiteStep > 1000.) { // Specified in per mill of the allowed or preferred value range
+void GGradientDescent::setFiniteStep(double finite_step) {
+    // Check that the new finite_step has an appropriate value
+    if(finite_step <= 0. ||
+       finite_step > 1000.) { // Specified in per mill of the allowed or preferred value range
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GGradientDescent::setFiniteStep(double): Error!" << '\n'
-            << "Invalid value of finiteStep: " << finiteStep << '\n'
+            << "Invalid value of finite_step: " << finite_step << '\n'
             << "Must be in the range ]0.:1000.]" << '\n'
         );
     }
 
-    finiteStep_ = finiteStep;
+    finiteStep_ = finite_step;
 
     // Keep stepRatio_/adjustedFiniteStep_ consistent if called after init()
     updateDerivedQuantities();
@@ -127,21 +127,21 @@ double GGradientDescent::getFiniteStep() const {
 /**
  * Sets a multiplier for the adaption process
  *
- * @param stepSize A multiplicative factor for the adaption process
+ * @param step_size A multiplicative factor for the adaption process
  */
-void GGradientDescent::setStepSize(double stepSize) {
-    // Check that the new stepSize has an appropriate value
-    if(stepSize <= 0. ||
-       stepSize > 1000.) { // Specified in per mill of the allowed or preferred value range
+void GGradientDescent::setStepSize(double step_size) {
+    // Check that the new step_size has an appropriate value
+    if(step_size <= 0. ||
+       step_size > 1000.) { // Specified in per mill of the allowed or preferred value range
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GGradientDescent::setStepSize(double): Error!" << '\n'
-            << "Invalid value of stepSize: " << stepSize << '\n'
+            << "Invalid value of step_size: " << step_size << '\n'
             << "Must be in the range ]0.:1000.]" << '\n'
         );
     }
 
-    stepSize_ = stepSize;
+    stepSize_ = step_size;
 
     // Keep stepRatio_/adjustedFiniteStep_ consistent if called after init()
     updateDerivedQuantities();
@@ -305,28 +305,28 @@ std::tuple<double, double> GGradientDescent::cycleLogic_() {
     // Trigger value calculation for all individuals (including parents)
     runFitnessCalculation_();
 
-    std::tuple<double, double> bestFitness =
+    std::tuple<double, double> best_fitness =
         std::make_tuple(this->at(0)->getWorstCase(), this->at(0)->getWorstCase());
-    std::tuple<double, double> fitnessCandidate =
+    std::tuple<double, double> fitness_candidate =
         std::make_tuple(this->at(0)->getWorstCase(), this->at(0)->getWorstCase());
 
     // Retrieve information about the best fitness found and disallow re-evaluation
     GGradientDescent::iterator it;
     auto m = this->at(0)->getMaxMode(); // We assume that all individuals have the same max mode
     for(it = this->begin(); it != this->begin() + this->getNStartingPoints(); ++it) {
-        std::get<G_RAW_FITNESS>(fitnessCandidate) = (*it)->raw_fitness(0);
-        std::get<G_TRANSFORMED_FITNESS>(fitnessCandidate) = (*it)->transformed_fitness(0);
+        std::get<G_RAW_FITNESS>(fitness_candidate) = (*it)->raw_fitness(0);
+        std::get<G_TRANSFORMED_FITNESS>(fitness_candidate) = (*it)->transformed_fitness(0);
 
         if(isBetter(
-               std::get<G_TRANSFORMED_FITNESS>(fitnessCandidate),
-               std::get<G_TRANSFORMED_FITNESS>(bestFitness),
+               std::get<G_TRANSFORMED_FITNESS>(fitness_candidate),
+               std::get<G_TRANSFORMED_FITNESS>(best_fitness),
                m
            )) {
-            bestFitness = fitnessCandidate;
+            best_fitness = fitness_candidate;
         }
     }
 
-    return bestFitness;
+    return best_fitness;
 }
 
 /******************************************************************************/
@@ -337,36 +337,36 @@ void GGradientDescent::updateChildParameters() {
     // Loop over all starting points
     for(std::size_t i = 0; i < nStartingPoints_; i++) {
         // Extract the fp vector
-        std::vector<double> parmVec;
+        std::vector<double> parm_vec;
         this->at(i)->streamline<double>(
-            parmVec,
+            parm_vec,
             activityMode::ACTIVEONLY
         ); // Only extract active parameters
 
         // Loop over all directions
         for(std::size_t j = 0; j < nFPParmsFirst_; j++) {
             // Calculate the position of the child
-            std::size_t childPos = nStartingPoints_ + i * nFPParmsFirst_ + j;
+            std::size_t child_pos = nStartingPoints_ + i * nFPParmsFirst_ + j;
 
             // Load the current "parent" into the "child"
-            this->at(childPos)->GObject::load(this->at(i));
+            this->at(child_pos)->GObject::load(this->at(i));
 
             // Update the child's position in the population
-            this->at(childPos)
+            this->at(child_pos)
                 ->getPersonalityTraits<GGradientDescent_PersonalityTraits>()
-                ->setPopulationPosition(childPos);
+                ->setPopulationPosition(child_pos);
 
             // Make a note of the current parameter's value
-            double origParmVal = parmVec[j];
+            double orig_parm_val = parm_vec[j];
 
             // Add the finite step to the feature vector's current parameter
-            parmVec[j] += adjustedFiniteStep_[j];
+            parm_vec[j] += adjustedFiniteStep_[j];
 
             // Attach the feature vector to the child individual
-            this->at(childPos)->assignValueVector<double>(parmVec, activityMode::ACTIVEONLY);
+            this->at(child_pos)->assignValueVector<double>(parm_vec, activityMode::ACTIVEONLY);
 
             // Restore the original value in the feature vector
-            parmVec[j] = origParmVal;
+            parm_vec[j] = orig_parm_val;
         }
     }
 }
@@ -379,8 +379,8 @@ void GGradientDescent::updateChildParameters() {
 void GGradientDescent::updateParentIndividuals() {
     for(std::size_t i = 0; i < nStartingPoints_; i++) {
         // Extract the fp vector
-        std::vector<double> parmVec;
-        this->at(i)->streamline<double>(parmVec, activityMode::ACTIVEONLY);
+        std::vector<double> parm_vec;
+        this->at(i)->streamline<double>(parm_vec, activityMode::ACTIVEONLY);
 
 #ifdef DEBUG
         // Make sure the parents are clean
@@ -395,21 +395,21 @@ void GGradientDescent::updateParentIndividuals() {
 #endif /* DEBUG */
 
         // Retrieve the fitness of the individual again
-        double parentFitness = minOnly_transformed_fitness(this->at(i));
+        double parent_fitness = minOnly_transformed_fitness(this->at(i));
 
         // Calculate the adaption of each parameter
         // double gradient = 0.;
         for(std::size_t j = 0; j < nFPParmsFirst_; j++) {
             // Calculate the position of the child
-            std::size_t childPos = nStartingPoints_ + i * nFPParmsFirst_ + j;
+            std::size_t child_pos = nStartingPoints_ + i * nFPParmsFirst_ + j;
 
             // Calculate the step to be performed in a given direction and
             // adjust the parameter vector of each parent
             try {
-                parmVec[j] -= Gem::Common::narrow_cast<double>(
+                parm_vec[j] -= Gem::Common::narrow_cast<double>(
                     stepRatio_ * (Gem::Common::narrow_cast<long double>(
-                                     minOnly_transformed_fitness(this->at(childPos)) -
-                                     Gem::Common::narrow_cast<long double>(parentFitness)
+                                     minOnly_transformed_fitness(this->at(child_pos)) -
+                                     Gem::Common::narrow_cast<long double>(parent_fitness)
                                  ))
                 );
             }
@@ -423,7 +423,7 @@ void GGradientDescent::updateParentIndividuals() {
         }
 
         // Load the parameter vector back into the parent
-        this->at(i)->assignValueVector<double>(parmVec, activityMode::ACTIVEONLY);
+        this->at(i)->assignValueVector<double>(parm_vec, activityMode::ACTIVEONLY);
     }
 }
 
@@ -439,7 +439,7 @@ void GGradientDescent::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb
 
     // Add local data
     gpb.registerFileParameter<std::size_t>(
-        "nStartingPoints" // The name of the variable
+        "n_starting_points" // The name of the variable
         ,
         DEFAULTGDSTARTINGPOINTS // The default value
         ,
@@ -447,7 +447,7 @@ void GGradientDescent::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb
     ) << "The number of simultaneous gradient descents";
 
     gpb.registerFileParameter<double>(
-        "finiteStep" // The name of the variable
+        "finite_step" // The name of the variable
         ,
         DEFAULTFINITESTEP // The default value
         ,
@@ -458,7 +458,7 @@ void GGradientDescent::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb
       << "range of a parameter";
 
     gpb.registerFileParameter<double>(
-        "stepSize" // The name of the variable
+        "step_size" // The name of the variable
         ,
         DEFAULTSTEPSIZE // The default value
         ,
@@ -596,13 +596,13 @@ void GGradientDescent::updateDerivedQuantities() {
     // Calculate a specific finiteStep_ value for each parameter in long double precision
     try {
         adjustedFiniteStep_.clear();
-        long double finiteStepRatio = ((long double)finiteStep_) / ((long double)1000.);
+        long double finite_step_ratio = ((long double)finiteStep_) / ((long double)1000.);
         for(std::size_t pos = 0; pos < dblLowerParameterBoundaries_.size(); pos++) {
-            long double parameterRange = // NOLINT(cppcoreguidelines-init-variables)
+            long double parameter_range = // NOLINT(cppcoreguidelines-init-variables)
                 (long double)dblUpperParameterBoundaries_[pos] -
                 (long double)dblLowerParameterBoundaries_[pos];
             adjustedFiniteStep_.push_back(
-                Gem::Common::narrow_cast<double>(finiteStepRatio * parameterRange)
+                Gem::Common::narrow_cast<double>(finite_step_ratio * parameter_range)
             );
         }
     }
@@ -649,12 +649,12 @@ void GGradientDescent::actOnStalls_() {
  */
 void GGradientDescent::adjustPopulation_() {
     // Check how many individuals we already have
-    std::size_t nStart = this->size();
+    std::size_t n_start = this->size();
 
     // Do some error checking ...
 
     // We need at least one individual
-    if(nStart == 0) {
+    if(n_start == 0) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GGradientDescent::adjustPopulation():" << '\n'
@@ -695,8 +695,8 @@ void GGradientDescent::adjustPopulation_() {
     G_OptimizationAlgorithm_Base::setDefaultPopulationSize(nStartingPoints_ * (nFPParmsFirst_ + 1));
 
     // First create a suitable number of start individuals and initialize them as required
-    if(nStart < nStartingPoints_) {
-        for(std::size_t i = 0; i < (nStartingPoints_ - nStart); i++) {
+    if(n_start < nStartingPoints_) {
+        for(std::size_t i = 0; i < (nStartingPoints_ - n_start); i++) {
             // Create a copy of the first individual
             this->push_back(this->at(0)->clone<GParameterSet>());
             // Make sure our start values differ

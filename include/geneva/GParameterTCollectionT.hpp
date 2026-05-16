@@ -102,8 +102,8 @@ public:
      * @param nCp The amount of copies of the GParameterBase derivative to be stored in this object
      * @param tmpl_ptr The object that serves as the template of all others
      */
-    GParameterTCollectionT(const std::size_t &nCp, std::shared_ptr<T> tmpl_ptr) {
-        for(std::size_t i = 0; i < nCp; i++) {
+    GParameterTCollectionT(const std::size_t &n_cp, std::shared_ptr<T> tmpl_ptr) {
+        for(std::size_t i = 0; i < n_cp; i++) {
             this->push_back(tmpl_ptr->template clone<T>());
         }
     }
@@ -129,7 +129,7 @@ public:
      * @param ptr The boost::property_tree object the data should be saved to
      * @param id The id assigned to this object
      */
-    void toPropertyTree(pt::ptree &ptr, const std::string &baseName) const override {
+    void toPropertyTree(pt::ptree &ptr, const std::string &base_name) const override {
         // Check that the object isn't empty
         if(this->empty()) {
             throw geneva_exception(
@@ -139,10 +139,10 @@ public:
             );
         }
 
-        ptr.put(baseName + ".name", this->getParameterName());
-        ptr.put(baseName + ".type", this->name());
-        ptr.put(baseName + ".isLeaf", this->isLeaf());
-        ptr.put(baseName + ".nVals", this->size());
+        ptr.put(base_name + ".name", this->getParameterName());
+        ptr.put(base_name + ".type", this->name());
+        ptr.put(base_name + ".isLeaf", this->isLeaf());
+        ptr.put(base_name + ".n_vals", this->size());
 
         // Loop over all parameter objects and ask them to add their
         // data to our ptree object
@@ -151,7 +151,7 @@ public:
         typename GParameterTCollectionT<T>::const_iterator cit;
         for(cit = this->begin(); cit != this->end(); ++cit) {
             pos = cit - this->begin();
-            base = baseName + ".values.value" + Gem::Common::to_string(pos);
+            base = base_name + ".values.value" + Gem::Common::to_string(pos);
             (*cit)->toPropertyTree(ptr, base);
         }
     }
@@ -238,12 +238,12 @@ protected:
      * Attach parameters of type float to the vector. This function distributes this task to
      * objects contained in the container.
      *
-     * @param parVec The vector to which the float parameters will be attached
+     * @param par_vec The vector to which the float parameters will be attached
      */
-    void floatStreamline(std::vector<float> &parVec, const activityMode &am) const override {
+    void floatStreamline(std::vector<float> &par_vec, const activityMode &am) const override {
         typename GParameterTCollectionT<T>::const_iterator cit;
         for(cit = this->begin(); cit != this->end(); ++cit) {
-            (*cit)->template streamline<float>(parVec, am);
+            (*cit)->template streamline<float>(par_vec, am);
         }
     }
 
@@ -257,12 +257,12 @@ protected:
      * Attach parameters of type double to the vector. This function distributes this task to
      * objects contained in the container.
      *
-     * @param parVec The vector to which the double parameters will be attached
+     * @param par_vec The vector to which the double parameters will be attached
      */
-    void doubleStreamline(std::vector<double> &parVec, const activityMode &am) const override {
+    void doubleStreamline(std::vector<double> &par_vec, const activityMode &am) const override {
         typename GParameterTCollectionT<T>::const_iterator cit;
         for(cit = this->begin(); cit != this->end(); ++cit) {
-            (*cit)->template streamline<double>(parVec, am);
+            (*cit)->template streamline<double>(par_vec, am);
         }
     }
 
@@ -276,12 +276,13 @@ protected:
      * Attach parameters of type std::int32_t to the vector. This function distributes this task
      * to objects contained in the container.
      *
-     * @param parVec The vector to which the std::int32_t parameters will be attached
+     * @param par_vec The vector to which the std::int32_t parameters will be attached
      */
-    void int32Streamline(std::vector<std::int32_t> &parVec, const activityMode &am) const override {
+    void
+    int32Streamline(std::vector<std::int32_t> &par_vec, const activityMode &am) const override {
         typename GParameterTCollectionT<T>::const_iterator cit;
         for(cit = this->begin(); cit != this->end(); ++cit) {
-            (*cit)->template streamline<std::int32_t>(parVec, am);
+            (*cit)->template streamline<std::int32_t>(par_vec, am);
         }
     }
 
@@ -295,12 +296,12 @@ protected:
      * Attach parameters of type bool to the vector.  This function distributes this task
      * to objects contained in the container.
      *
-     * @param parVec The vector to which the boolean parameters will be attached
+     * @param par_vec The vector to which the boolean parameters will be attached
      */
-    void booleanStreamline(std::vector<bool> &parVec, const activityMode &am) const override {
+    void booleanStreamline(std::vector<bool> &par_vec, const activityMode &am) const override {
         typename GParameterTCollectionT<T>::const_iterator cit;
         for(cit = this->begin(); cit != this->end(); ++cit) {
-            (*cit)->template streamline<bool>(parVec, am);
+            (*cit)->template streamline<bool>(par_vec, am);
         }
     }
 
@@ -314,15 +315,15 @@ protected:
      * Attach parameters of type float to the map. This function distributes this task to
      * objects contained in the container.
      *
-     * @param parVec The map to which the float parameters will be attached
+     * @param par_vec The map to which the float parameters will be attached
      */
     void floatStreamline(
-        std::map<std::string, std::vector<float>> &parVec,
+        std::map<std::string, std::vector<float>> &par_vec,
         const activityMode &am
     ) const override {
         typename GParameterTCollectionT<T>::const_iterator cit;
         for(cit = this->begin(); cit != this->end(); ++cit) {
-            (*cit)->template streamline<float>(parVec, am);
+            (*cit)->template streamline<float>(par_vec, am);
         }
     }
 
@@ -336,15 +337,15 @@ protected:
      * Attach parameters of type double to the map. This function distributes this task to
      * objects contained in the container.
      *
-     * @param parVec The map to which the double parameters will be attached
+     * @param par_vec The map to which the double parameters will be attached
      */
     void doubleStreamline(
-        std::map<std::string, std::vector<double>> &parVec,
+        std::map<std::string, std::vector<double>> &par_vec,
         const activityMode &am
     ) const override {
         typename GParameterTCollectionT<T>::const_iterator cit;
         for(cit = this->begin(); cit != this->end(); ++cit) {
-            (*cit)->template streamline<double>(parVec, am);
+            (*cit)->template streamline<double>(par_vec, am);
         }
     }
 
@@ -358,15 +359,15 @@ protected:
      * Attach parameters of type std::int32_t to the map. This function distributes this task
      * to objects contained in the container.
      *
-     * @param parVec The map to which the std::int32_t parameters will be attached
+     * @param par_vec The map to which the std::int32_t parameters will be attached
      */
     void int32Streamline(
-        std::map<std::string, std::vector<std::int32_t>> &parVec,
+        std::map<std::string, std::vector<std::int32_t>> &par_vec,
         const activityMode &am
     ) const override {
         typename GParameterTCollectionT<T>::const_iterator cit;
         for(cit = this->begin(); cit != this->end(); ++cit) {
-            (*cit)->template streamline<std::int32_t>(parVec, am);
+            (*cit)->template streamline<std::int32_t>(par_vec, am);
         }
     }
 
@@ -380,15 +381,15 @@ protected:
      * Attach parameters of type bool to the map.  This function distributes this task
      * to objects contained in the container.
      *
-     * @param parVec The map to which the boolean parameters will be attached
+     * @param par_vec The map to which the boolean parameters will be attached
      */
     void booleanStreamline(
-        std::map<std::string, std::vector<bool>> &parVec,
+        std::map<std::string, std::vector<bool>> &par_vec,
         const activityMode &am
     ) const override {
         typename GParameterTCollectionT<T>::const_iterator cit;
         for(cit = this->begin(); cit != this->end(); ++cit) {
-            (*cit)->template streamline<bool>(parVec, am);
+            (*cit)->template streamline<bool>(par_vec, am);
         }
     }
 
@@ -401,17 +402,17 @@ protected:
     /**
      * Attach boundaries of type float to the vectors
      *
-     * @param lBndVec A vector of lower float parameter boundaries
-     * @param uBndVec A vector of upper float parameter boundaries
+     * @param l_bnd_vec A vector of lower float parameter boundaries
+     * @param u_bnd_vec A vector of upper float parameter boundaries
      */
     void floatBoundaries(
-        std::vector<float> &lBndVec,
-        std::vector<float> &uBndVec,
+        std::vector<float> &l_bnd_vec,
+        std::vector<float> &u_bnd_vec,
         const activityMode &am
     ) const override {
         typename GParameterTCollectionT<T>::const_iterator cit;
         for(cit = this->begin(); cit != this->end(); ++cit) {
-            (*cit)->template boundaries<float>(lBndVec, uBndVec, am);
+            (*cit)->template boundaries<float>(l_bnd_vec, u_bnd_vec, am);
         }
     }
 
@@ -419,17 +420,17 @@ protected:
     /**
      * Attach boundaries of type double to the vectors
      *
-     * @param lBndVec A vector of lower double parameter boundaries
-     * @param uBndVec A vector of upper double parameter boundaries
+     * @param l_bnd_vec A vector of lower double parameter boundaries
+     * @param u_bnd_vec A vector of upper double parameter boundaries
      */
     void doubleBoundaries(
-        std::vector<double> &lBndVec,
-        std::vector<double> &uBndVec,
+        std::vector<double> &l_bnd_vec,
+        std::vector<double> &u_bnd_vec,
         const activityMode &am
     ) const override {
         typename GParameterTCollectionT<T>::const_iterator cit;
         for(cit = this->begin(); cit != this->end(); ++cit) {
-            (*cit)->template boundaries<double>(lBndVec, uBndVec, am);
+            (*cit)->template boundaries<double>(l_bnd_vec, u_bnd_vec, am);
         }
     }
 
@@ -437,17 +438,17 @@ protected:
     /**
      * Attach boundaries of type std::int32_t to the vectors
      *
-     * @param lBndVec A vector of lower std::int32_t parameter boundaries
-     * @param uBndVec A vector of upper std::int32_t parameter boundaries
+     * @param l_bnd_vec A vector of lower std::int32_t parameter boundaries
+     * @param u_bnd_vec A vector of upper std::int32_t parameter boundaries
      */
     void int32Boundaries(
-        std::vector<std::int32_t> &lBndVec,
-        std::vector<std::int32_t> &uBndVec,
+        std::vector<std::int32_t> &l_bnd_vec,
+        std::vector<std::int32_t> &u_bnd_vec,
         const activityMode &am
     ) const override {
         typename GParameterTCollectionT<T>::const_iterator cit;
         for(cit = this->begin(); cit != this->end(); ++cit) {
-            (*cit)->template boundaries<std::int32_t>(lBndVec, uBndVec, am);
+            (*cit)->template boundaries<std::int32_t>(l_bnd_vec, u_bnd_vec, am);
         }
     }
 
@@ -458,17 +459,17 @@ protected:
      * parameters. Note, though, that there is a function that lets you count these parameters
      * directly.
      *
-     * @param lBndVec A vector of lower bool parameter boundaries
-     * @param uBndVec A vector of upper bool parameter boundaries
+     * @param l_bnd_vec A vector of lower bool parameter boundaries
+     * @param u_bnd_vec A vector of upper bool parameter boundaries
      */
     void booleanBoundaries(
-        std::vector<bool> &lBndVec,
-        std::vector<bool> &uBndVec,
+        std::vector<bool> &l_bnd_vec,
+        std::vector<bool> &u_bnd_vec,
         const activityMode &am
     ) const override {
         typename GParameterTCollectionT<T>::const_iterator cit;
         for(cit = this->begin(); cit != this->end(); ++cit) {
-            (*cit)->template boundaries<bool>(lBndVec, uBndVec, am);
+            (*cit)->template boundaries<bool>(l_bnd_vec, u_bnd_vec, am);
         }
     }
 
@@ -553,13 +554,13 @@ protected:
      * Assigns part of a value vector to the parameter
      */
     void assignFloatValueVector(
-        const std::vector<float> &parVec,
+        const std::vector<float> &par_vec,
         std::size_t &pos,
         const activityMode &am
     ) override {
         typename GParameterTCollectionT<T>::iterator it;
         for(it = this->begin(); it != this->end(); ++it) {
-            (*it)->template assignValueVector<float>(parVec, pos, am);
+            (*it)->template assignValueVector<float>(par_vec, pos, am);
         }
     }
 
@@ -573,13 +574,13 @@ protected:
      * Assigns part of a value vector to the parameter
      */
     void assignDoubleValueVector(
-        const std::vector<double> &parVec,
+        const std::vector<double> &par_vec,
         std::size_t &pos,
         const activityMode &am
     ) override {
         typename GParameterTCollectionT<T>::iterator it;
         for(it = this->begin(); it != this->end(); ++it) {
-            (*it)->template assignValueVector<double>(parVec, pos, am);
+            (*it)->template assignValueVector<double>(par_vec, pos, am);
         }
     }
 
@@ -593,13 +594,13 @@ protected:
      * Assigns part of a value vector to the parameter
      */
     void assignInt32ValueVector(
-        const std::vector<std::int32_t> &parVec,
+        const std::vector<std::int32_t> &par_vec,
         std::size_t &pos,
         const activityMode &am
     ) override {
         typename GParameterTCollectionT<T>::iterator it;
         for(it = this->begin(); it != this->end(); ++it) {
-            (*it)->template assignValueVector<std::int32_t>(parVec, pos, am);
+            (*it)->template assignValueVector<std::int32_t>(par_vec, pos, am);
         }
     }
 
@@ -613,13 +614,13 @@ protected:
      * Assigns part of a value vector to the parameter
      */
     void assignBooleanValueVector(
-        const std::vector<bool> &parVec,
+        const std::vector<bool> &par_vec,
         std::size_t &pos,
         const activityMode &am
     ) override {
         typename GParameterTCollectionT<T>::iterator it;
         for(it = this->begin(); it != this->end(); ++it) {
-            (*it)->template assignValueVector<bool>(parVec, pos, am);
+            (*it)->template assignValueVector<bool>(par_vec, pos, am);
         }
     }
 
@@ -633,12 +634,12 @@ protected:
      * Assigns part of a value vector to the parameter
      */
     void assignFloatValueVectors(
-        const std::map<std::string, std::vector<float>> &parMap,
+        const std::map<std::string, std::vector<float>> &par_map,
         const activityMode &am
     ) override {
         typename GParameterTCollectionT<T>::iterator it;
         for(it = this->begin(); it != this->end(); ++it) {
-            (*it)->template assignValueVectors<float>(parMap, am);
+            (*it)->template assignValueVectors<float>(par_map, am);
         }
     }
 
@@ -652,12 +653,12 @@ protected:
      * Assigns part of a value vector to the parameter
      */
     void assignDoubleValueVectors(
-        const std::map<std::string, std::vector<double>> &parMap,
+        const std::map<std::string, std::vector<double>> &par_map,
         const activityMode &am
     ) override {
         typename GParameterTCollectionT<T>::iterator it;
         for(it = this->begin(); it != this->end(); ++it) {
-            (*it)->template assignValueVectors<double>(parMap, am);
+            (*it)->template assignValueVectors<double>(par_map, am);
         }
     }
 
@@ -671,12 +672,12 @@ protected:
      * Assigns part of a value vector to the parameter
      */
     void assignInt32ValueVectors(
-        const std::map<std::string, std::vector<std::int32_t>> &parMap,
+        const std::map<std::string, std::vector<std::int32_t>> &par_map,
         const activityMode &am
     ) override {
         typename GParameterTCollectionT<T>::iterator it;
         for(it = this->begin(); it != this->end(); ++it) {
-            (*it)->template assignValueVectors<std::int32_t>(parMap, am);
+            (*it)->template assignValueVectors<std::int32_t>(par_map, am);
         }
     }
 
@@ -690,12 +691,12 @@ protected:
      * Assigns part of a value vector to the parameter
      */
     void assignBooleanValueVectors(
-        const std::map<std::string, std::vector<bool>> &parMap,
+        const std::map<std::string, std::vector<bool>> &par_map,
         const activityMode &am
     ) override {
         typename GParameterTCollectionT<T>::iterator it;
         for(it = this->begin(); it != this->end(); ++it) {
-            (*it)->template assignValueVectors<bool>(parMap, am);
+            (*it)->template assignValueVectors<bool>(par_map, am);
         }
     }
 
@@ -1114,29 +1115,29 @@ private:
      * @return The number of adaptions that were carried out
      */
     std::size_t adapt_(Gem::Hap::GRandomBase &gr) override {
-        std::size_t nAdapted = 0;
+        std::size_t n_adapted = 0;
 
         for(auto const &par_ptr : *this) {
-            nAdapted += par_ptr->adapt(gr);
+            n_adapted += par_ptr->adapt(gr);
         }
 
-        return nAdapted;
+        return n_adapted;
     }
 
     /***************************************************************************/
     /**
      * Triggers updates when the optimization process has stalled
      */
-    bool updateAdaptorsOnStall_(std::size_t nStalls) override {
-        bool updatePerformed = false;
+    bool updateAdaptorsOnStall_(std::size_t n_stalls) override {
+        bool update_performed = false;
 
         for(auto const &par_ptr : *this) {
-            if(par_ptr->updateAdaptorsOnStall(nStalls)) {
-                updatePerformed = true;
+            if(par_ptr->updateAdaptorsOnStall(n_stalls)) {
+                update_performed = true;
             }
         }
 
-        return updatePerformed;
+        return update_performed;
     }
 
     /******************************************************************************/
@@ -1148,12 +1149,12 @@ private:
      * @param data A vector, to which the properties should be added
      */
     void queryAdaptor_(
-        const std::string &adaptorName,
+        const std::string &adaptor_name,
         const std::string &property,
         std::vector<std::any> &data
     ) const override {
         for(auto const &par_ptr : *this) {
-            par_ptr->queryAdaptor(adaptorName, property, data);
+            par_ptr->queryAdaptor(adaptor_name, property, data);
         }
     }
 

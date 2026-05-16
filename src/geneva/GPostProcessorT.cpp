@@ -41,19 +41,19 @@ namespace Gem::Geneva {
  * Initialization with the execution mode and configuration file
  */
 GEvolutionaryAlgorithmPostOptimizer::GEvolutionaryAlgorithmPostOptimizer(
-    execMode executionMode,
-    const std::string &oa_configFile,
-    const std::string &executor_configFile
+    execMode execution_mode,
+    const std::string &oa_config_file,
+    const std::string &executor_config_file
 )
   : GPostProcessorBaseT<GParameterSet>()
-  , oa_configFile_(oa_configFile)
-  , executor_configFile_(executor_configFile)
+  , oa_configFile_(oa_config_file)
+  , executor_configFile_(executor_config_file)
   , executionMode_(
-        (executionMode == execMode::SERIAL || executionMode == execMode::MULTITHREADED)
-            ? executionMode
+        (execution_mode == execMode::SERIAL || execution_mode == execMode::MULTITHREADED)
+            ? execution_mode
             : execMode::SERIAL
     ) {
-    switch(executionMode) {
+    switch(execution_mode) {
     case execMode::SERIAL:
     case execMode::MULTITHREADED:
         /* nothing */
@@ -64,7 +64,7 @@ GEvolutionaryAlgorithmPostOptimizer::GEvolutionaryAlgorithmPostOptimizer(
                    "GEvolutionaryAlgorithmPostOptimizer::GEvolutionaryAlgorithmPostOptimizer("
                    "execMode): Error!"
                 << '\n'
-                << "Got invalid execution mode " << executionMode << '\n'
+                << "Got invalid execution mode " << execution_mode << '\n'
                 << "The mode was reset to execMode::SERIAL" << '\n'
                 << GWARNING;
     } break;
@@ -118,18 +118,18 @@ void GEvolutionaryAlgorithmPostOptimizer::compare_(
 /**
  * Allows to set the execution mode for this post-processor (serial vs. multi-threaded)
  */
-void GEvolutionaryAlgorithmPostOptimizer::setExecMode(execMode executionMode) {
-    switch(executionMode) {
+void GEvolutionaryAlgorithmPostOptimizer::setExecMode(execMode execution_mode) {
+    switch(execution_mode) {
     case execMode::SERIAL:
     case execMode::MULTITHREADED: {
-        executionMode_ = executionMode;
+        executionMode_ = execution_mode;
     } break;
 
     case execMode::BROKER: {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GEvolutionaryAlgorithmPostOptimizer::setExecMode(): Error!" << '\n'
-            << "Got invalid execution mode " << executionMode << '\n'
+            << "Got invalid execution mode " << execution_mode << '\n'
         );
     } break;
     }
@@ -147,8 +147,8 @@ execMode GEvolutionaryAlgorithmPostOptimizer::getExecMode() const {
 /**
  * Allows to specify the name of a configuration file
  */
-void GEvolutionaryAlgorithmPostOptimizer::setOAConfigFile(const std::string &oa_configFile) {
-    oa_configFile_ = oa_configFile;
+void GEvolutionaryAlgorithmPostOptimizer::setOAConfigFile(const std::string &oa_config_file) {
+    oa_configFile_ = oa_config_file;
 }
 
 /******************************************************************************/
@@ -164,9 +164,9 @@ std::string GEvolutionaryAlgorithmPostOptimizer::getOAConfigFile() const {
  * Allows to specify the name of a configuration file for the executor
  */
 void GEvolutionaryAlgorithmPostOptimizer::setExecutorConfigFile(
-    const std::string &executorConfigFile
+    const std::string &executor_config_file
 ) {
-    executor_configFile_ = executorConfigFile;
+    executor_configFile_ = executor_config_file;
 }
 
 /******************************************************************************/
@@ -236,8 +236,8 @@ bool GEvolutionaryAlgorithmPostOptimizer::raw_processing_(GParameterSet &p) {
     p_unopt_ptr->vetoPostProcessing(true);
 
     // Retrieve an evolutionary algorithm
-    GEvolutionaryAlgorithmFactory eaFactory(oa_configFile_);
-    auto ea_ptr = eaFactory.get<GEvolutionaryAlgorithm>();
+    GEvolutionaryAlgorithmFactory ea_factory(oa_configFile_);
+    auto ea_ptr = ea_factory.get<GEvolutionaryAlgorithm>();
 
     // Add an executor to the algorithm
     ea_ptr->registerExecutor(executionMode_, executor_configFile_);

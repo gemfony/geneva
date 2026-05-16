@@ -76,11 +76,11 @@ std::size_t GParameterBase::adapt(Gem::Hap::GRandomBase &gr) {
  * Allows to update the way adaptors work depending on the number of iterations
  * without impprovements.
  *
- * @param nStalls The number of iterations without improvements
+ * @param n_stalls The number of iterations without improvements
  * @return A boolean indicating whether adaptors were changed
  */
-bool GParameterBase::updateAdaptorsOnStall(std::size_t nStalls) {
-    return updateAdaptorsOnStall_(nStalls);
+bool GParameterBase::updateAdaptorsOnStall(std::size_t n_stalls) {
+    return updateAdaptorsOnStall_(n_stalls);
 }
 
 /******************************************************************************/
@@ -88,11 +88,11 @@ bool GParameterBase::updateAdaptorsOnStall(std::size_t nStalls) {
  * Retrieves information from an adaptor on a given property
  */
 void GParameterBase::queryAdaptor(
-    const std::string &adaptorName,
+    const std::string &adaptor_name,
     const std::string &property,
     std::vector<std::any> &data
 ) const {
-    queryAdaptor_(adaptorName, property, data);
+    queryAdaptor_(adaptor_name, property, data);
 }
 
 /******************************************************************************/
@@ -337,7 +337,7 @@ bool GParameterBase::isParameterCollection() const {
  * default. Parameter types based on doubles need to overload this function and do
  * the actual work.
  */
-void GParameterBase::floatStreamline(std::vector<float> &parVec, const activityMode &) const {
+void GParameterBase::floatStreamline(std::vector<float> &par_vec, const activityMode &) const {
     /* do nothing by default */
 }
 
@@ -352,7 +352,7 @@ void GParameterBase::floatStreamline(std::vector<float> &parVec, const activityM
  * default. Parameter types based on doubles need to overload this function and do
  * the actual work.
  */
-void GParameterBase::doubleStreamline(std::vector<double> &parVec, const activityMode &) const {
+void GParameterBase::doubleStreamline(std::vector<double> &par_vec, const activityMode &) const {
     /* do nothing by default */
 }
 
@@ -368,7 +368,7 @@ void GParameterBase::doubleStreamline(std::vector<double> &parVec, const activit
  * the actual work.
  */
 void GParameterBase::int32Streamline(
-    std::vector<std::int32_t> &parVec,
+    std::vector<std::int32_t> &par_vec,
     const activityMode &
 ) const {
     /* do nothing by default */
@@ -385,7 +385,7 @@ void GParameterBase::int32Streamline(
  * default. Parameter types based on bool need to overload this function and do
  * the actual work.
  */
-void GParameterBase::booleanStreamline(std::vector<bool> &parVec, const activityMode &) const {
+void GParameterBase::booleanStreamline(std::vector<bool> &par_vec, const activityMode &) const {
     /* do nothing by default */
 }
 
@@ -401,7 +401,7 @@ void GParameterBase::booleanStreamline(std::vector<bool> &parVec, const activity
  * the actual work.
  */
 void GParameterBase::floatStreamline(
-    std::map<std::string, std::vector<float>> &parVec,
+    std::map<std::string, std::vector<float>> &par_vec,
     const activityMode &
 ) const {
     /* do nothing by default */
@@ -419,7 +419,7 @@ void GParameterBase::floatStreamline(
  * the actual work.
  */
 void GParameterBase::doubleStreamline(
-    std::map<std::string, std::vector<double>> &parVec,
+    std::map<std::string, std::vector<double>> &par_vec,
     const activityMode &
 ) const {
     /* do nothing by default */
@@ -437,7 +437,7 @@ void GParameterBase::doubleStreamline(
  * the actual work.
  */
 void GParameterBase::int32Streamline(
-    std::map<std::string, std::vector<std::int32_t>> &parVec,
+    std::map<std::string, std::vector<std::int32_t>> &par_vec,
     const activityMode &
 ) const {
     /* do nothing by default */
@@ -455,7 +455,7 @@ void GParameterBase::int32Streamline(
  * the actual work.
  */
 void GParameterBase::booleanStreamline(
-    std::map<std::string, std::vector<bool>> &parVec,
+    std::map<std::string, std::vector<bool>> &par_vec,
     const activityMode &
 ) const {
     /* do nothing by default */
@@ -470,12 +470,12 @@ void GParameterBase::booleanStreamline(
 /**
  * Attach boundaries of type float to the vectors
  *
- * @param lBndVec A vector of lower float parameter boundaries
- * @param uBndVec A vector of upper float parameter boundaries
+ * @param l_bnd_vec A vector of lower float parameter boundaries
+ * @param u_bnd_vec A vector of upper float parameter boundaries
  */
 void GParameterBase::floatBoundaries(
-    std::vector<float> &lBndVec,
-    std::vector<float> &uBndVec,
+    std::vector<float> &l_bnd_vec,
+    std::vector<float> &u_bnd_vec,
     const activityMode &
 ) const {
     /* do nothing by default */
@@ -485,12 +485,12 @@ void GParameterBase::floatBoundaries(
 /**
  * Attach boundaries of type double to the vectors
  *
- * @param lBndVec A vector of lower double parameter boundaries
- * @param uBndVec A vector of upper double parameter boundaries
+ * @param l_bnd_vec A vector of lower double parameter boundaries
+ * @param u_bnd_vec A vector of upper double parameter boundaries
  */
 void GParameterBase::doubleBoundaries(
-    std::vector<double> &lBndVec,
-    std::vector<double> &uBndVec,
+    std::vector<double> &l_bnd_vec,
+    std::vector<double> &u_bnd_vec,
     const activityMode &
 ) const {
     /* do nothing by default */
@@ -500,12 +500,12 @@ void GParameterBase::doubleBoundaries(
 /**
  * Attach boundaries of type std::int32_t to the vectors
  *
- * @param lBndVec A vector of lower std::int32_t parameter boundaries
- * @param uBndVec A vector of upper std::int32_t parameter boundaries
+ * @param l_bnd_vec A vector of lower std::int32_t parameter boundaries
+ * @param u_bnd_vec A vector of upper std::int32_t parameter boundaries
  */
 void GParameterBase::int32Boundaries(
-    std::vector<std::int32_t> &lBndVec,
-    std::vector<std::int32_t> &uBndVec,
+    std::vector<std::int32_t> &l_bnd_vec,
+    std::vector<std::int32_t> &u_bnd_vec,
     const activityMode &
 ) const {
     /* do nothing by default */
@@ -515,12 +515,12 @@ void GParameterBase::int32Boundaries(
 /**
  * Attach boundaries of type bool to the vectors
  *
- * @param lBndVec A vector of lower bool parameter boundaries
- * @param uBndVec A vector of upper bool parameter boundaries
+ * @param l_bnd_vec A vector of lower bool parameter boundaries
+ * @param u_bnd_vec A vector of upper bool parameter boundaries
  */
 void GParameterBase::booleanBoundaries(
-    std::vector<bool> &lBndVec,
-    std::vector<bool> &uBndVec,
+    std::vector<bool> &l_bnd_vec,
+    std::vector<bool> &u_bnd_vec,
     const activityMode &
 ) const {
     /* do nothing by default */
@@ -606,7 +606,7 @@ std::size_t GParameterBase::countBoolParameters(
  * Assigns part of a value vector to the parameter
  */
 void GParameterBase::assignFloatValueVector(
-    const std::vector<float> &parVec,
+    const std::vector<float> &par_vec,
     std::size_t &pos,
     const activityMode &
 ) {
@@ -623,7 +623,7 @@ void GParameterBase::assignFloatValueVector(
  * Assigns part of a value vector to the parameter
  */
 void GParameterBase::assignDoubleValueVector(
-    const std::vector<double> &parVec,
+    const std::vector<double> &par_vec,
     std::size_t &pos,
     const activityMode &
 ) {
@@ -640,7 +640,7 @@ void GParameterBase::assignDoubleValueVector(
  * Assigns part of a value vector to the parameter
  */
 void GParameterBase::assignInt32ValueVector(
-    const std::vector<std::int32_t> &parVec,
+    const std::vector<std::int32_t> &par_vec,
     std::size_t &pos,
     const activityMode &
 ) {
@@ -657,7 +657,7 @@ void GParameterBase::assignInt32ValueVector(
  * Assigns part of a value vector to the parameter
  */
 void GParameterBase::assignBooleanValueVector(
-    const std::vector<bool> &parVec,
+    const std::vector<bool> &par_vec,
     std::size_t &pos,
     const activityMode &
 ) {
@@ -674,7 +674,7 @@ void GParameterBase::assignBooleanValueVector(
  * Assigns part of a value vector to the parameter
  */
 void GParameterBase::assignFloatValueVectors(
-    const std::map<std::string, std::vector<float>> &parMap,
+    const std::map<std::string, std::vector<float>> &par_map,
     const activityMode &
 ) {
     /* Do nothing by default */
@@ -690,7 +690,7 @@ void GParameterBase::assignFloatValueVectors(
  * Assigns part of a value vector to the parameter
  */
 void GParameterBase::assignDoubleValueVectors(
-    const std::map<std::string, std::vector<double>> &parMap,
+    const std::map<std::string, std::vector<double>> &par_map,
     const activityMode &
 ) {
     /* Do nothing by default */
@@ -706,7 +706,7 @@ void GParameterBase::assignDoubleValueVectors(
  * Assigns part of a value vector to the parameter
  */
 void GParameterBase::assignInt32ValueVectors(
-    const std::map<std::string, std::vector<std::int32_t>> &parMap,
+    const std::map<std::string, std::vector<std::int32_t>> &par_map,
     const activityMode &
 ) {
     /* Do nothing by default */
@@ -722,7 +722,7 @@ void GParameterBase::assignInt32ValueVectors(
  * Assigns part of a value vector to the parameter
  */
 void GParameterBase::assignBooleanValueVectors(
-    const std::map<std::string, std::vector<bool>> &parMap,
+    const std::map<std::string, std::vector<bool>> &par_map,
     const activityMode &
 ) {
     /* Do nothing by default */
@@ -1088,17 +1088,17 @@ void GParameterBase::specificTestsNoFailureExpected_GUnitTests_() {
         // multiple times, as random initialization particularly of
         // boolean parameters may turn out to be the same as before
         if(p_test1->isIndividualParameter()) {
-            bool valueChanged = false;
+            bool value_changed = false;
             p_test2->load(p_test1);
             for(int i = 0; i < 100; i++) {
                 if(p_test1->randomInit(activityMode::ALLPARAMETERS, gr)) {
                     if(*p_test1 != *p_test2) {
-                        valueChanged = true;
+                        value_changed = true;
                         break;
                     }
                 }
             }
-            CHECK(valueChanged);
+            CHECK(value_changed);
         }
     }
 

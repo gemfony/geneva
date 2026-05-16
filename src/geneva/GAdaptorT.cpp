@@ -36,20 +36,20 @@ namespace Gem::Geneva {
  * Common interface for all adaptors to the adaption functionality. Specialization
  * for the T==bool case . Note that
  *
- * @param valVec A vector of values that need to be adapted
+ * @param val_vec A vector of values that need to be adapted
  * @param range A typical value range for type T
  * @return The number of adaptions that were carried out
  */
 template <>
 std::size_t GAdaptorT<bool, double>::adapt(
-    std::vector<bool> &valVec,
+    std::vector<bool> &val_vec,
     const bool &range,
     Gem::Hap::GRandomBase &gr
 ) {
     using namespace Gem::Common;
     using namespace Gem::Hap;
 
-    std::size_t nAdapted = 0;
+    std::size_t n_adapted = 0;
 
     // Update the adaption probability, if requested by the user
     if(adaptAdProb_ > double(0.)) {
@@ -69,7 +69,7 @@ std::size_t GAdaptorT<bool, double>::adapt(
 
     if(adaptionMode::WITHPROBABILITY ==
        adaptionMode_) { // The most likely case is indeterminate (means: "depends")
-        for(auto &&val : valVec) {
+        for(auto &&val : val_vec) {
             // A likelihood of adProb_ for adaption
             if(weighted_bool_(gr, std::bernoulli_distribution::param_type(std::abs(adProb_)))) {
                 dummy_val = val;
@@ -80,23 +80,23 @@ std::size_t GAdaptorT<bool, double>::adapt(
                     gr
                 ); // does not know about the bool-proxy of std::vector<bool>
                 val = dummy_val;
-                nAdapted += 1;
+                n_adapted += 1;
             }
         }
     }
     else if(adaptionMode::ALWAYS == adaptionMode_) { // always adapt
-        for(auto &&val : valVec) {
+        for(auto &&val : val_vec) {
             dummy_val = val;
             adaptAdaption(range, gr);
             customAdaptions(dummy_val, range, gr);
             val = dummy_val;
-            nAdapted += 1;
+            n_adapted += 1;
         }
     }
 
     // No need to test for "adaptionMode_ == adaptionMode::NEVER" as no action is needed in this case
 
-    return nAdapted;
+    return n_adapted;
 }
 
 /******************************************************************************/

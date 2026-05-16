@@ -261,7 +261,7 @@ public:
     /** @brief Allows to check whether an initialization range has been set */
     bool initRangeSet() const;
     /** @brief Allows to set the initialization range */
-    void setInitRange(const std::vector<std::tuple<double, double>> &initRange);
+    void setInitRange(const std::vector<std::tuple<double, double>> &init_range);
     /** @brief Allows to retrieve the initialization range */
     std::vector<std::tuple<double, double>> getInitRange() const;
 
@@ -313,10 +313,9 @@ std::istream &operator>>(std::istream &i, Gem::Geneva::trainingDataType &tdt);
 std::ostream &
 operator<<(std::ostream &o, const Gem::Geneva::trainingDataType &tdt);
 /** @brief Reads a Gem::Geneva::transferFunction item from a stream. */
-std::istream &operator>>(std::istream &i, Gem::Geneva::transferFunction &tF);
+std::istream &operator>>(std::istream &i, Gem::Geneva::transferFunction &t_f);
 /** @brief Puts a Gem::Geneva::transferFunction item into a stream. */
-std::ostream &
-operator<<(std::ostream &o, const Gem::Geneva::transferFunction &tF);
+std::ostream &operator<<(std::ostream &o, const Gem::Geneva::transferFunction &t_f);
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -387,16 +386,16 @@ public:
         const double & /* max */
         ,
         const double & /* sigma */,
-        const double & /* sigmaSigma */
+        const double & /* sigma_sigma */
         ,
-        const double & /* minSigma */,
-        const double & /* maxSigma */
+        const double & /* min_sigma */,
+        const double & /* max_sigma */
         ,
-        const double & /* adProb */,
-        const double & /* adaptAdProb */
+        const double & /* ad_prob */,
+        const double & /* adapt_ad_prob */
         ,
-        const double & /* minAdProb */,
-        const double & /* maxAdProb */
+        const double & /* min_ad_prob */,
+        const double & /* max_ad_prob */
     );
     /** @brief A standard copy constructor */
     GNeuralNetworkIndividual(const GNeuralNetworkIndividual &cp);
@@ -410,20 +409,20 @@ public:
         const double & /* max */
         ,
         const double & /* sigma */,
-        const double & /* sigmaSigma */
+        const double & /* sigma_sigma */
         ,
-        const double & /* minSigma */,
-        const double & /* maxSigma */
+        const double & /* min_sigma */,
+        const double & /* max_sigma */
         ,
-        const double & /* adProb */,
-        const double & /* adaptAdProb */
+        const double & /* ad_prob */,
+        const double & /* adapt_ad_prob */
         ,
-        const double & /* minAdProb */,
-        const double & /* maxAdProb */
+        const double & /* min_ad_prob */,
+        const double & /* max_ad_prob */
     );
 
     /** @brief Sets the type of the transfer function */
-    void setTransferFunction(transferFunction tF);
+    void setTransferFunction(transferFunction t_f);
     /** @brief Retrieves the type of the transfer function */
     transferFunction getTransferFunction() const;
 
@@ -436,13 +435,13 @@ public:
 	  * value of 0.01. The training data is initialized in the range [-edgelength:edgelength[.
 	  *
 	  * @param architecture The desired architecture of the network
-	  * @param nDataSets The number of training sets to create
+	  * @param n_data_sets The number of training sets to create
 	  * @param edgelength The desired edge length of the cube
 	  * @return A copy of the networkData struct that has been created, wrapped in a shared_ptr
 	  */
     static std::shared_ptr<networkData> createHyperCubeNetworkData(
         const std::vector<std::size_t> &architecture,
-        const std::size_t &nDataSets,
+        const std::size_t &n_data_sets,
         const double &edgelength
     ) {
         using namespace Gem::Hap;
@@ -472,65 +471,64 @@ public:
         std::uniform_real_distribution<double> uniform_real_distribution;
 
         // Retrieve the number of input- and output nodes for easier reference
-        std::size_t nInputNodes = architecture.front();
-        std::size_t nOutputNodes = architecture.back();
+        std::size_t n_input_nodes = architecture.front();
+        std::size_t n_output_nodes = architecture.back();
 
         // The dimension of the hyper-cube is identical to the number of input nodes
-        std::size_t nDim = nInputNodes;
+        std::size_t n_dim = n_input_nodes;
 
         // Create the actual networkData object and attach the architecture
         // Checks the architecture on the way
-        std::shared_ptr<networkData> nD(new networkData(nDataSets));
+        std::shared_ptr<networkData> n_d(new networkData(n_data_sets));
         std::vector<std::size_t>::const_iterator it;
-        std::size_t layerCounter = 0;
-        for(it = architecture.begin(); it != architecture.end(); ++it, ++layerCounter) {
+        std::size_t layer_counter = 0;
+        for(it = architecture.begin(); it != architecture.end(); ++it, ++layer_counter) {
             if(*it == 0) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
-                    << "In GNeuralNetworkIndividual::createHyperCubeNetworkData(): Error!"
-                    << '\n'
-                    << "Layer " << layerCounter << "has invalid size " << *it << '\n'
+                    << "In GNeuralNetworkIndividual::createHyperCubeNetworkData(): Error!" << '\n'
+                    << "Layer " << layer_counter << "has invalid size " << *it << '\n'
                 );
             }
 
-            nD->push_back(*it);
+            n_d->push_back(*it);
         }
 
         // Create the required data.
         bool outside = false;
-        for(std::size_t datCounter = 0; datCounter < nDataSets; datCounter++) {
+        for(std::size_t dat_counter = 0; dat_counter < n_data_sets; dat_counter++) {
             outside = false;
-            std::shared_ptr<trainingSet> tS(new trainingSet(nInputNodes, nOutputNodes));
+            std::shared_ptr<trainingSet> t_s(new trainingSet(n_input_nodes, n_output_nodes));
 
-            for(std::size_t i = 0; i < nDim; i++) {
-                double oneDimRnd = uniform_real_distribution(
+            for(std::size_t i = 0; i < n_dim; i++) {
+                double one_dim_rnd = uniform_real_distribution(
                     gr_l,
                     std::uniform_real_distribution<double>::param_type(-edgelength, edgelength)
                 );
 
                 // Need to find at least one dimension outside of the perimeter
                 // in order to set the outside flag to true.
-                if(oneDimRnd < -edgelength / 2. || oneDimRnd > edgelength / 2.)
+                if(one_dim_rnd < -edgelength / 2. || one_dim_rnd > edgelength / 2.)
                     outside = true;
 
-                tS->Input[i] = oneDimRnd;
+                t_s->Input[i] = one_dim_rnd;
             }
 
             if(outside)
-                tS->Output[0] = 0.99;
+                t_s->Output[0] = 0.99;
             else
-                tS->Output[0] = 0.01;
+                t_s->Output[0] = 0.01;
 
-            nD->addTrainingSet(tS, datCounter);
+            n_d->addTrainingSet(t_s, dat_counter);
         }
 
         // Make the initialization range known to nD_
-        std::vector<std::tuple<double, double>> initRange;
-        initRange.push_back(std::tuple<double, double>(-edgelength, edgelength)); // x
-        initRange.push_back(std::tuple<double, double>(-edgelength, edgelength)); // y
-        nD->setInitRange(initRange);
+        std::vector<std::tuple<double, double>> init_range;
+        init_range.push_back(std::tuple<double, double>(-edgelength, edgelength)); // x
+        init_range.push_back(std::tuple<double, double>(-edgelength, edgelength)); // y
+        n_d->setInitRange(init_range);
 
-        return nD;
+        return n_d;
     }
 
     /***************************************************************************/
@@ -542,13 +540,13 @@ public:
 	  * sphere get an output value of 0.01. The training data is initialized with a radius of 2*radius.
 	  *
 	  * @param architecture The desired architecture of the network
-	  * @param nDataSets The number of training sets to create
+	  * @param n_data_sets The number of training sets to create
 	  * @param radius The desired radius of the sphere
 	  * @return A copy of the networkData struct that has been created, wrapped in a shared_ptr
 	  */
     static std::shared_ptr<networkData> createHyperSphereNetworkData(
         const std::vector<std::size_t> &architecture,
-        const std::size_t &nDataSets,
+        const std::size_t &n_data_sets,
         const double &radius
     ) {
         using namespace Gem::Hap;
@@ -580,51 +578,50 @@ public:
         std::uniform_real_distribution<double> uniform_real_distribution;
 
         // Retrieve the number of input- and output nodes for easier reference
-        std::size_t nInputNodes = architecture.front();
-        std::size_t nOutputNodes = architecture.back();
+        std::size_t n_input_nodes = architecture.front();
+        std::size_t n_output_nodes = architecture.back();
 
         // The dimension of the hypersphere is identical to the number of input nodes
-        std::size_t nDim = nInputNodes;
+        std::size_t n_dim = n_input_nodes;
 
         // Create the actual networkData object and attach the architecture
         // Checks the architecture on the way
-        std::shared_ptr<networkData> nD(new networkData(nDataSets));
+        std::shared_ptr<networkData> n_d(new networkData(n_data_sets));
         std::vector<std::size_t>::const_iterator it;
-        std::size_t layerCounter = 0;
-        for(it = architecture.begin(); it != architecture.end(); ++it, ++layerCounter) {
+        std::size_t layer_counter = 0;
+        for(it = architecture.begin(); it != architecture.end(); ++it, ++layer_counter) {
             if(*it == 0) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
-                    << "In GNeuralNetworkIndividual::createHyperSphereNetworkData(): Error!"
-                    << '\n'
-                    << "Layer " << layerCounter << "has invalid size " << *it << '\n'
+                    << "In GNeuralNetworkIndividual::createHyperSphereNetworkData(): Error!" << '\n'
+                    << "Layer " << layer_counter << "has invalid size " << *it << '\n'
                 );
             }
 
-            nD->push_back(*it);
+            n_d->push_back(*it);
         }
 
         double local_radius = 1.;
 
-        for(std::size_t datCounter = 0; datCounter < nDataSets; datCounter++) {
-            std::shared_ptr<trainingSet> tS(new trainingSet(nInputNodes, nOutputNodes));
+        for(std::size_t dat_counter = 0; dat_counter < n_data_sets; dat_counter++) {
+            std::shared_ptr<trainingSet> t_s(new trainingSet(n_input_nodes, n_output_nodes));
 
             local_radius = uniform_real_distribution(
                 gr_l,
                 std::uniform_real_distribution<double>::param_type(0., 3 * radius)
             );
             if(local_radius > radius)
-                tS->Output[0] = 0.99;
+                t_s->Output[0] = 0.99;
             else
-                tS->Output[0] = 0.01;
+                t_s->Output[0] = 0.01;
 
             //////////////////////////////////////////////////////////////////
             // Calculate random Cartesian coordinates for hyper sphere
 
             // Special cases
-            switch(nDim) {
+            switch(n_dim) {
             case 1:
-                tS->Input[0] = local_radius;
+                t_s->Input[0] = local_radius;
                 break;
 
             case 2: {
@@ -635,25 +632,25 @@ public:
                         2 * std::numbers::pi
                     )
                 );
-                tS->Input[0] = local_radius * sin(phi); // x
-                tS->Input[1] = local_radius * cos(phi); // y
+                t_s->Input[0] = local_radius * sin(phi); // x
+                t_s->Input[1] = local_radius * cos(phi); // y
 
                 // Make the initialization range known to nD_ . We only do this for 2D-data
-                std::vector<std::tuple<double, double>> initRange;
-                initRange.push_back(std::tuple<double, double>(-local_radius, local_radius)); // x
-                initRange.push_back(std::tuple<double, double>(-local_radius, local_radius)); // y
-                nD->setInitRange(initRange);
+                std::vector<std::tuple<double, double>> init_range;
+                init_range.push_back(std::tuple<double, double>(-local_radius, local_radius)); // x
+                init_range.push_back(std::tuple<double, double>(-local_radius, local_radius)); // y
+                n_d->setInitRange(init_range);
             } break;
 
             default: // dimensions 3 ... inf
             {
                 //////////////////////////////////////////////////////////////////
                 // Create the required random numbers in spherical coordinates.
-                // nDim will be at least 3 here.
-                // nDim will be at least 3 here.
-                std::size_t nAngles = nDim - 1;
-                std::vector<double> angle_collection(nAngles);
-                for(std::size_t i = 0; i < (nAngles - 1); i++) { // Angles in range [0,Pi[
+                // n_dim will be at least 3 here.
+                // n_dim will be at least 3 here.
+                std::size_t n_angles = n_dim - 1;
+                std::vector<double> angle_collection(n_angles);
+                for(std::size_t i = 0; i < (n_angles - 1); i++) { // Angles in range [0,Pi[
                     angle_collection[i] = uniform_real_distribution(
                         gr_l,
                         std::uniform_real_distribution<double>::param_type(
@@ -662,7 +659,7 @@ public:
                         )
                     );
                 }
-                angle_collection[nAngles - 1] = uniform_real_distribution(
+                angle_collection[n_angles - 1] = uniform_real_distribution(
                     gr_l,
                     std::uniform_real_distribution<double>::param_type(
                         0.,
@@ -672,37 +669,37 @@ public:
 
                 //////////////////////////////////////////////////////////////////
                 // Now we can fill the source-vector itself
-                std::vector<double> cartCoord(nDim);
+                std::vector<double> cart_coord(n_dim);
 
-                for(std::size_t i = 0; i < nDim; i++)
-                    cartCoord[i] = local_radius; // They all have that
+                for(std::size_t i = 0; i < n_dim; i++)
+                    cart_coord[i] = local_radius; // They all have that
 
-                cartCoord[0] *= cos(angle_collection[0]); // x_1 / cartCoord[0]
+                cart_coord[0] *= cos(angle_collection[0]); // x_1 / cart_coord[0]
 
-                for(std::size_t i = 1; i < nDim - 1;
-                    i++) { // x_2 ... x_(n-1) / cartCoord[1] .... cartCoord[n-2]
+                for(std::size_t i = 1; i < n_dim - 1;
+                    i++) { // x_2 ... x_(n-1) / cart_coord[1] .... cart_coord[n-2]
                     for(std::size_t j = 0; j < i; j++) {
-                        cartCoord[i] *= sin(angle_collection[j]);
+                        cart_coord[i] *= sin(angle_collection[j]);
                     }
-                    cartCoord[i] *= cos(angle_collection[i]);
+                    cart_coord[i] *= cos(angle_collection[i]);
                 }
 
-                for(std::size_t j = 0; j < nAngles; j++) { // x_n / cartCoord[n-1]
-                    cartCoord[nDim - 1] *= sin(angle_collection[j]);
+                for(std::size_t j = 0; j < n_angles; j++) { // x_n / cart_coord[n-1]
+                    cart_coord[n_dim - 1] *= sin(angle_collection[j]);
                 }
 
                 // Transfer the results
-                for(std::size_t i = 0; i < nDim; i++) {
-                    tS->Input[i] = cartCoord[i];
+                for(std::size_t i = 0; i < n_dim; i++) {
+                    t_s->Input[i] = cart_coord[i];
                 }
 
             } break;
             }
 
-            nD->addTrainingSet(tS, datCounter);
+            n_d->addTrainingSet(t_s, dat_counter);
         }
 
-        return nD;
+        return n_d;
     }
 
     /***************************************************************************/
@@ -714,12 +711,12 @@ public:
 	  * the creation of training data might take a long time for large dimensions values
 	  *
 	  * @param architecture The desired architecture of the network
-	  * @param nDataSets The number of training sets to create
+	  * @param n_data_sets The number of training sets to create
 	  * @return A copy of the networkData struct that has been created, wrapped in a shared_ptr
 	  */
     static std::shared_ptr<networkData> createAxisCentricNetworkData(
         const std::vector<std::size_t> &architecture,
-        const std::size_t &nDataSets
+        const std::size_t &n_data_sets
     ) {
         using namespace Gem::Hap;
 
@@ -750,79 +747,78 @@ public:
         std::uniform_real_distribution<double> uniform_real_distribution;
 
         // Retrieve the number of input- and output nodes for easier reference
-        std::size_t nInputNodes = architecture.front();
-        std::size_t nOutputNodes = architecture.back();
+        std::size_t n_input_nodes = architecture.front();
+        std::size_t n_output_nodes = architecture.back();
 
         // The dimension of the data set is equal to the number of input nodes
-        std::size_t nDim = nInputNodes;
+        std::size_t n_dim = n_input_nodes;
 
         // Create the actual networkData object and attach the architecture
         // Checks the architecture on the way
-        std::shared_ptr<networkData> nD(new networkData(nDataSets));
+        std::shared_ptr<networkData> n_d(new networkData(n_data_sets));
         std::vector<std::size_t>::const_iterator it;
-        std::size_t layerCounter = 0;
-        for(it = architecture.begin(); it != architecture.end(); ++it, ++layerCounter) {
+        std::size_t layer_counter = 0;
+        for(it = architecture.begin(); it != architecture.end(); ++it, ++layer_counter) {
             if(*it == 0) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
-                    << "In GNeuralNetworkIndividual::createAxisCentricNetworkData(): Error!"
-                    << '\n'
-                    << "Layer " << layerCounter << "has invalid size " << *it << '\n'
+                    << "In GNeuralNetworkIndividual::createAxisCentricNetworkData(): Error!" << '\n'
+                    << "Layer " << layer_counter << "has invalid size " << *it << '\n'
                 );
             }
 
-            nD->push_back(*it);
+            n_d->push_back(*it);
         }
 
-        for(std::size_t dataCounter = 0; dataCounter < nDataSets; dataCounter++) {
-            std::shared_ptr<trainingSet> tS(new trainingSet(nInputNodes, nOutputNodes));
+        for(std::size_t data_counter = 0; data_counter < n_data_sets; data_counter++) {
+            std::shared_ptr<trainingSet> t_s(new trainingSet(n_input_nodes, n_output_nodes));
 
             // Create even distribution across all dimensions
-            if(dataCounter % 2 == 0) {
-                for(std::size_t dimCounter = 0; dimCounter < nDim; dimCounter++) {
-                    tS->Input[dimCounter] = uniform_real_distribution(gr_l);
+            if(data_counter % 2 == 0) {
+                for(std::size_t dim_counter = 0; dim_counter < n_dim; dim_counter++) {
+                    t_s->Input[dim_counter] = uniform_real_distribution(gr_l);
                 }
-                tS->Output[0] = 0.01;
+                t_s->Output[0] = 0.01;
             }
             // Create entries in a half-cylindrical "cloud" around one axis. The density of
             // this cloud is decreasing with increasing distance from the axis.
             else {
                 // Create a test value
-                double probeValue = 0.;
-                for(std::size_t dimCounter = 0; dimCounter < nDim; dimCounter++) {
-                    probeValue += exp(-5. * uniform_real_distribution(gr_l));
+                double probe_value = 0.;
+                for(std::size_t dim_counter = 0; dim_counter < n_dim; dim_counter++) {
+                    probe_value += exp(-5. * uniform_real_distribution(gr_l));
                 }
 
-                double functionValue = 0.;
-                std::vector<double> inputVector(nDim);
+                double function_value = 0.;
+                std::vector<double> input_vector(n_dim);
                 do {
-                    functionValue = 0.;
+                    function_value = 0.;
 
                     // Create the input vector
-                    for(std::size_t dimCounter = 0; dimCounter < nDim; dimCounter++) {
-                        inputVector[dimCounter] = uniform_real_distribution(gr_l);
-                        functionValue += exp(-5 * inputVector[dimCounter]);
+                    for(std::size_t dim_counter = 0; dim_counter < n_dim; dim_counter++) {
+                        input_vector[dim_counter] = uniform_real_distribution(gr_l);
+                        function_value += exp(-5 * input_vector[dim_counter]);
                     }
-                    functionValue = pow(functionValue, 4.);
+                    function_value = pow(function_value, 4.);
                 }
-                while(functionValue < probeValue);
+                while(function_value < probe_value);
 
-                for(std::size_t i = 0; i < nDim; i++) {
-                    tS->Input[i] = inputVector[i];
+                for(std::size_t i = 0; i < n_dim; i++) {
+                    t_s->Input[i] = input_vector[i];
                 }
-                tS->Output[0] = 0.99;
+                t_s->Output[0] = 0.99;
             }
 
-            nD->addTrainingSet(tS, dataCounter);
+            n_d->addTrainingSet(t_s, data_counter);
         }
 
         // Make the initialization range known to nD_
-        std::vector<std::tuple<double, double>> initRange;
-        initRange.push_back(std::tuple<double, double>(0, 1)); // x
-        initRange.push_back(std::tuple<double, double>(0, 1)); // y
-        nD->setInitRange(initRange);
+        std::vector<std::tuple<double, double>> init_range;
+        init_range.push_back(std::tuple<double, double>(0, 1)); // x
+        init_range.push_back(std::tuple<double, double>(0, 1)); // y
+        n_d->setInitRange(init_range);
 
-        return nD;
+        return n_d;
     }
 
     /***************************************************************************/
@@ -831,12 +827,12 @@ public:
 	  * other evenly below it. This example only accepts two input nodes.
 	  *
 	  * @param architecture The desired architecture of the network
-	  * @param nDataSets The number of training sets to create
+	  * @param n_data_sets The number of training sets to create
 	  * @return A copy of the networkData struct that has been created, wrapped in a shared_ptr
 	  */
     static std::shared_ptr<networkData> createSinNetworkData(
         const std::vector<std::size_t> &architecture,
-        const std::size_t &nDataSets
+        const std::size_t &n_data_sets
     ) {
         using namespace Gem::Hap;
 
@@ -875,57 +871,57 @@ public:
         std::uniform_real_distribution<double> uniform_real_distribution;
 
         // Retrieve the number of input- and output nodes for easier reference
-        std::size_t nInputNodes = architecture.front();
-        std::size_t nOutputNodes = architecture.back();
+        std::size_t n_input_nodes = architecture.front();
+        std::size_t n_output_nodes = architecture.back();
 
         // Create the actual networkData object and attach the architecture
         // Checks the architecture on the way
-        std::shared_ptr<networkData> nD(new networkData(nDataSets));
+        std::shared_ptr<networkData> n_d(new networkData(n_data_sets));
         std::vector<std::size_t>::const_iterator it;
-        std::size_t layerCounter = 0;
-        for(it = architecture.begin(); it != architecture.end(); ++it, ++layerCounter) {
+        std::size_t layer_counter = 0;
+        for(it = architecture.begin(); it != architecture.end(); ++it, ++layer_counter) {
             if(*it == 0) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
                     << "In GNeuralNetworkIndividual::createSinNetworkData(): Error!" << '\n'
-                    << "Layer " << layerCounter << "has invalid size " << *it << '\n'
+                    << "Layer " << layer_counter << "has invalid size " << *it << '\n'
                 );
             }
 
-            nD->push_back(*it);
+            n_d->push_back(*it);
         }
 
-        for(std::size_t dataCounter = 0; dataCounter < nDataSets; dataCounter++) {
-            std::shared_ptr<trainingSet> tS(new trainingSet(nInputNodes, nOutputNodes));
+        for(std::size_t data_counter = 0; data_counter < n_data_sets; data_counter++) {
+            std::shared_ptr<trainingSet> t_s(new trainingSet(n_input_nodes, n_output_nodes));
 
             // create the two test values
-            tS->Input[0] = uniform_real_distribution(
+            t_s->Input[0] = uniform_real_distribution(
                 gr_l,
                 std::uniform_real_distribution<double>::param_type(-6., 6.)
             ); // x
-            tS->Input[1] = uniform_real_distribution(
+            t_s->Input[1] = uniform_real_distribution(
                 gr_l,
                 std::uniform_real_distribution<double>::param_type(-6., 6.)
             ); // y
 
             // Check whether we are below or above the sin function and assign the output value accordingly
-            if((tS->Input)[1] > 4. * sin((tS->Input)[0])) {
-                tS->Output[0] = 0.99;
+            if((t_s->Input)[1] > 4. * sin((t_s->Input)[0])) {
+                t_s->Output[0] = 0.99;
             }
             else {
-                tS->Output[0] = 0.01;
+                t_s->Output[0] = 0.01;
             }
 
-            nD->addTrainingSet(tS, dataCounter);
+            n_d->addTrainingSet(t_s, data_counter);
         }
 
         // Make the initialization range known to nD_
-        std::vector<std::tuple<double, double>> initRange;
-        initRange.push_back(std::tuple<double, double>(-6, 6)); // x
-        initRange.push_back(std::tuple<double, double>(-6, 6)); // y
-        nD->setInitRange(initRange);
+        std::vector<std::tuple<double, double>> init_range;
+        init_range.push_back(std::tuple<double, double>(-6, 6)); // x
+        init_range.push_back(std::tuple<double, double>(-6, 6)); // y
+        n_d->setInitRange(init_range);
 
-        return nD;
+        return n_d;
     }
 
     /***************************************************************************/
@@ -933,60 +929,60 @@ public:
 	  * Creates a data set of the desired type or throws, if that type is not available
 	  *
 	  * @param type The type of network data to be created
-	  * @param outputFile The name of the output training data file
+	  * @param output_file The name of the output training data file
 	  * @param architecture_string The desired architecture of the network in std::string format
-	  * @param nDataSets The number of data sets to be produced
+	  * @param n_data_sets The number of data sets to be produced
 	  */
     static void createNetworkData(
         const Gem::Geneva::trainingDataType &t,
-        const std::string &outputFile,
+        const std::string &output_file,
         const std::string &architecture_string,
-        const std::size_t &nDataSets
+        const std::size_t &n_data_sets
     ) {
         // Split the architecture_string as needed. I
         std::vector<std::size_t> architecture =
             Gem::Common::splitStringT<std::size_t>(architecture_string, "-");
-        std::shared_ptr<networkData> nD_ptr;
+        std::shared_ptr<networkData> n_d_ptr;
 
         switch(t) {
         case Gem::Geneva::trainingDataType::HYPERCUBE:
-            nD_ptr = GNeuralNetworkIndividual::createHyperCubeNetworkData(
+            n_d_ptr = GNeuralNetworkIndividual::createHyperCubeNetworkData(
                 architecture,
-                nDataSets,
+                n_data_sets,
                 0.5 // edge-length
             );
 
             // Emit a visualization file, suitable for viewing with ROOT (see http://root.cern.ch)
-            nD_ptr->toROOT(outputFile + ".C", -0.5, 0.5);
+            n_d_ptr->toROOT(output_file + ".C", -0.5, 0.5);
 
             break;
 
         case Gem::Geneva::trainingDataType::HYPERSPHERE:
-            nD_ptr = GNeuralNetworkIndividual::createHyperSphereNetworkData(
+            n_d_ptr = GNeuralNetworkIndividual::createHyperSphereNetworkData(
                 architecture,
-                nDataSets,
+                n_data_sets,
                 0.5 // radius
             );
 
             // Emit a visualization file, suitable for viewing with ROOT (see http://root.cern.ch)
-            nD_ptr->toROOT(outputFile + ".C", -1., 1.);
+            n_d_ptr->toROOT(output_file + ".C", -1., 1.);
 
             break;
 
         case Gem::Geneva::trainingDataType::AXISCENTRIC:
-            nD_ptr =
-                GNeuralNetworkIndividual::createAxisCentricNetworkData(architecture, nDataSets);
+            n_d_ptr =
+                GNeuralNetworkIndividual::createAxisCentricNetworkData(architecture, n_data_sets);
 
             // Emit a visualization file, suitable for viewing with ROOT (see http://root.cern.ch)
-            nD_ptr->toROOT(outputFile + ".C", 0., 1.);
+            n_d_ptr->toROOT(output_file + ".C", 0., 1.);
 
             break;
 
         case Gem::Geneva::trainingDataType::SINUS:
-            nD_ptr = GNeuralNetworkIndividual::createSinNetworkData(architecture, nDataSets);
+            n_d_ptr = GNeuralNetworkIndividual::createSinNetworkData(architecture, n_data_sets);
 
             // Emit a visualization file, suitable for viewing with ROOT (see http://root.cern.ch)
-            nD_ptr->toROOT(outputFile + ".C", -6., 6.);
+            n_d_ptr->toROOT(output_file + ".C", -6., 6.);
 
             break;
 
@@ -999,14 +995,14 @@ public:
         }
 
         // Write distribution to file
-        nD_ptr->saveToDisk(outputFile);
+        n_d_ptr->saveToDisk(output_file);
     }
 
     /***************************************************************************/
     /** @brief Creates a program used  for the visualization of optimization results */
-    void writeVisualizationFile(const std::string &visFile);
+    void writeVisualizationFile(const std::string &vis_file);
     /** @brief Creates a C++ output file for the trained network */
-    void writeTrainedNetwork(const std::string &headerFile);
+    void writeTrainedNetwork(const std::string &header_file);
 
 protected:
     /***************************************************************************/
@@ -1062,7 +1058,7 @@ public:
     virtual ~GNeuralNetworkIndividualFactory();
 
     /** @brief Sets the type of the transfer function */
-    void setTransferFunction(transferFunction tF);
+    void setTransferFunction(transferFunction t_f);
     /** @brief Retrieves the type of the transfer function */
     transferFunction getTransferFunction() const;
 

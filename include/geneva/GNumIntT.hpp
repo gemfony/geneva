@@ -213,10 +213,13 @@ protected:
         ,
         Gem::Hap::GRandomBase &gr
     ) override {
-        int_type lowerBoundary = GNumT<int_type>::getLowerInitBoundary();
-        int_type upperBoundary = GNumT<int_type>::getUpperInitBoundary();
+        int_type lower_boundary = GNumT<int_type>::getLowerInitBoundary();
+        int_type upper_boundary = GNumT<int_type>::getUpperInitBoundary();
 
-        typename std::uniform_int_distribution<int_type> uniform_int(lowerBoundary, upperBoundary);
+        typename std::uniform_int_distribution<int_type> uniform_int(
+            lower_boundary,
+            upper_boundary
+        );
 
         // uniform_int produces random numbers that include the upper boundary.
         GParameterT<int_type>::setValue(uniform_int(gr));
@@ -251,10 +254,10 @@ protected:
     void specificTestsNoFailureExpected_GUnitTests_() override {
 #ifdef GEM_TESTING
         // A few settings
-        const std::size_t nTests = 10000;
-        const int_type LOWERINITBOUNDARY = int_type(0); // >= 0, as int_type might be unsigned
-        const int_type UPPERINITBOUNDARY = int_type(10);
-        const int_type FIXEDVALUEINIT = int_type(1);
+        const std::size_t n_tests = 10000;
+        const int_type lowerinitboundary = int_type(0); // >= 0, as int_type might be unsigned
+        const int_type upperinitboundary = int_type(10);
+        const int_type fixedvalueinit = int_type(1);
 
         // Call the parent classes' functions
         GNumT<int_type>::specificTestsNoFailureExpected_GUnitTests_();
@@ -272,17 +275,17 @@ protected:
 
             // Assign a boolean value true
             CHECK_NOTHROW(
-                    *p_test1 = 2 * UPPERINITBOUNDARY
+                    *p_test1 = 2 * upperinitboundary
             ); // Make sure random initialization cannot randomly result in an unchanged value
             // Cross-check
-            CHECK(p_test1->value() == 2 * UPPERINITBOUNDARY);
+            CHECK(p_test1->value() == 2 * upperinitboundary);
 
             // Set initialization boundaries
-            CHECK_NOTHROW(p_test1->setInitBoundaries(LOWERINITBOUNDARY, UPPERINITBOUNDARY));
+            CHECK_NOTHROW(p_test1->setInitBoundaries(lowerinitboundary, upperinitboundary));
 
             // Check that the boundaries have been set as expected
-            CHECK(p_test1->getLowerInitBoundary() == LOWERINITBOUNDARY);
-            CHECK(p_test1->getUpperInitBoundary() == UPPERINITBOUNDARY);
+            CHECK(p_test1->getLowerInitBoundary() == lowerinitboundary);
+            CHECK(p_test1->getUpperInitBoundary() == upperinitboundary);
 
             // Load the data of p_test1 into p_test2
             CHECK_NOTHROW(p_test2->load(p_test1));
@@ -290,10 +293,10 @@ protected:
             CHECK(*p_test1 == *p_test2);
 
             // Check that the values of p_test1 are inside of the allowed boundaries
-            for(std::size_t i = 0; i < nTests; i++) {
+            for(std::size_t i = 0; i < n_tests; i++) {
                 CHECK_NOTHROW(p_test1->randomInit_(activityMode::ALLPARAMETERS, gr));
-                CHECK(p_test1->value() >= LOWERINITBOUNDARY);
-                CHECK(p_test1->value() <= UPPERINITBOUNDARY);
+                CHECK(p_test1->value() >= lowerinitboundary);
+                CHECK(p_test1->value() <= upperinitboundary);
                 CHECK(p_test1->value() != p_test2->value());
             }
         }
@@ -310,10 +313,10 @@ protected:
 
             // Assign a boolean value true
             CHECK_NOTHROW(
-                    *p_test1 = FIXEDVALUEINIT
+                    *p_test1 = fixedvalueinit
             ); // Make sure random initialization cannot randomly result in an unchanged value
             // Cross-check
-            CHECK(p_test1->value() == FIXEDVALUEINIT);
+            CHECK(p_test1->value() == fixedvalueinit);
 
             // Load into p_test2 and p_test3 and test equality
             CHECK_NOTHROW(p_test2->load(p_test1));

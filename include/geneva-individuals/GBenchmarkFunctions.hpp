@@ -330,7 +330,7 @@ G_CALLABLE inline double ellipsoid(const double *x, int n) {
  *
  * Separable, multimodal. Global minimum dimension-dependent, not analytically known.
  * Domain: [0, π] — this differs from all other functions.
- * NOTE: Set minVar=0, maxVar≈3.14159 in the factory configuration!
+ * NOTE: Set min_var=0, max_var≈3.14159 in the factory configuration!
  * The high exponent m=20 creates extremely narrow ridges. Tests fine-grained local search.
  */
 G_CALLABLE inline double michalewicz(const double *x, int n) {
@@ -364,19 +364,19 @@ G_CALLABLE inline double zakharov(const double *x, int n) {
 // ── Central dispatch ─────────────────────────────────────────────────────────
 
 /**
- * @brief Evaluates the benchmark function identified by @p funcId on parameter vector @p x.
+ * @brief Evaluates the benchmark function identified by @p func_id on parameter vector @p x.
  *
  * This is the single entry point used by both the CPU path in
  * GFunctionIndividual::fitnessCalculation() and the CUDA batch kernel.
- * funcId values match the solverFunction enum integers 0–14.
+ * func_id values match the solverFunction enum integers 0–14.
  *
- * @param funcId  Integer function identifier (0=PARABOLA … 14=ZAKHAROV)
+ * @param func_id  Integer function identifier (0=PARABOLA … 14=ZAKHAROV)
  * @param x       Pointer to n parameter values
  * @param n       Number of parameters (dimension)
  * @return        Fitness value (lower = better for all minimisation functions)
  */
-G_CALLABLE inline double eval(int funcId, const double *x, int n) {
-    switch(funcId) {
+G_CALLABLE inline double eval(int func_id, const double *x, int n) {
+    switch(func_id) {
     case FUNC_PARABOLA:
         return parabola(x, n);
     case FUNC_NOISYPARABOLA:
