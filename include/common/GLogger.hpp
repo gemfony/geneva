@@ -424,7 +424,9 @@ public:
         // Make sure only one entity outputs data
         std::scoped_lock lk(logger_mutex_);
 
-        std::cout << message;
+        // Flush: std::cout is buffered and may otherwise lose output on an
+        // abnormal exit.
+        std::cout << message << std::flush;
     }
 
     /***************************************************************************/

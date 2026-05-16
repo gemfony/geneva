@@ -122,8 +122,8 @@ void Go2::registerDefaultAlgorithm(std::string const &mn) {
     if(not GOAFactoryStore->get(mn, p)) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In Go2::registerDefaultAlgorithm(std::string): Error!" << std::endl
-            << "Got invalid algorithm mnemonic " << mn << std::endl
+            << "In Go2::registerDefaultAlgorithm(std::string): Error!" << '\n'
+            << "Got invalid algorithm mnemonic " << mn << '\n'
         );
     }
 
@@ -142,8 +142,8 @@ void Go2::registerDefaultAlgorithm(std::shared_ptr<GOABase> default_algorithm) {
     if(not default_algorithm) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In Go2::registerDefaultAlgorithm(): Error!" << std::endl
-            << "Got empty algorithm." << std::endl
+            << "In Go2::registerDefaultAlgorithm(): Error!" << '\n'
+            << "Got empty algorithm." << '\n'
         );
     }
 
@@ -171,9 +171,7 @@ void Go2::registerPluggableOM(std::shared_ptr<GBasePluggableOM> pluggableOM) {
     else {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In Go2::registerPluggableOM(): Tried to register empty pluggable optimization "
-               "monitor"
-            << std::endl
+            << "In Go2::registerPluggableOM(): Tried to register empty pluggable optimization monitor\n"
         );
     }
 }
@@ -225,8 +223,8 @@ int Go2::clientRun_() {
     if(GO2_DEF_NOCONSUMER == consumer_name_ || not GConsumerStore->exists(consumer_name_)) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In Go2::clientRun(): Error!" << std::endl
-            << "Received invalid consumer name: " << consumer_name_ << std::endl
+            << "In Go2::clientRun(): Error!\n"
+            << "Received invalid consumer name: " << consumer_name_ << "\n"
         );
     }
 
@@ -239,9 +237,9 @@ int Go2::clientRun_() {
     else {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In Go2::clientRun(): Error!" << std::endl
-            << "Trying to execute clientRun() on consumer " << consumer_name_ << std::endl
-            << "which does not require a client" << std::endl
+            << "In Go2::clientRun(): Error!" << '\n'
+            << "Trying to execute clientRun() on consumer " << consumer_name_ << '\n'
+            << "which does not require a client" << '\n'
         );
     }
 
@@ -249,8 +247,8 @@ int Go2::clientRun_() {
     if(not p) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In Go2::clientRun(): Error!" << std::endl
-            << "Received empty client from consumer " << consumer_name_ << std::endl
+            << "In Go2::clientRun(): Error!" << '\n'
+            << "Received empty client from consumer " << consumer_name_ << '\n'
         );
     }
 
@@ -310,14 +308,14 @@ void Go2::addAlgorithm(std::shared_ptr<GOABase> alg) {
     if(not alg) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In Go2::addAlgorithm(): Error!" << std::endl
-            << "Tried to register an empty pointer" << std::endl
+            << "In Go2::addAlgorithm(): Error!" << '\n'
+            << "Tried to register an empty pointer" << '\n'
         );
     }
 
-    // If any individuals have been registered with alg, we assume
+    // If any individuals have already been registered with alg, we assume
     // that the user wants us to add them to the optimization and copy them over.
-    // Note that these are not cloned.
+    // Note that these are not cloned, as we will clear its vector anyway.
     if(not alg->empty()) { // Have individuals been registered ?
         for(const auto &ind_ptr : *alg)
             this->push_back(ind_ptr);
@@ -376,8 +374,8 @@ void Go2::addAlgorithm(std::string const &mn) {
     if(not GOAFactoryStore->get(mn, p)) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In Go2::addAlgorithm(std::string): Error!" << std::endl
-            << "Got invalid algorithm mnemonic " << mn << std::endl
+            << "In Go2::addAlgorithm(std::string): Error!" << '\n'
+            << "Got invalid algorithm mnemonic " << mn << '\n'
         );
     }
 
@@ -397,14 +395,15 @@ Go2 &Go2::operator&(std::string const &mn) {
 
 /***************************************************************************/
 /**
- * Allows to register a content creator
+ * Allows to register a content creator. A content creator creates individuals
+ * to be added to the population.
  */
 void Go2::registerContentCreator(std::shared_ptr<Gem::Common::GFactoryT<GParameterSet>> cc_ptr) {
     if(not cc_ptr) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In Go2::registerContentCreator(): Error!" << std::endl
-            << "Tried to register an empty pointer" << std::endl
+            << "In Go2::registerContentCreator(): Error!" << '\n'
+            << "Tried to register an empty pointer" << '\n'
         );
     }
 
@@ -421,9 +420,9 @@ void Go2::registerContentCreator(std::shared_ptr<Gem::Common::GFactoryT<GParamet
  * on the type of algorithm being used. The default algorithm may also be altered
  * by the user.
  *
- * @param offset An offset at which the first algorithm should start
+ * @param offset An offset at which the first algorithm should start. Empty and present only to satisfy the interface.
  */
-Go2 const *Go2::optimize_(std::uint32_t) {
+Go2 const *Go2::optimize_(std::uint32_t /* offset */) {
     // Check that algorithms have indeed been registered. If not, try to add a default algorithm
     if(algorithms_cnt_.empty()) {
         if(not default_algorithm_) {
@@ -431,10 +430,10 @@ Go2 const *Go2::optimize_(std::uint32_t) {
             // Simply add the Geneva-side default algorithm
             this->registerDefaultAlgorithm(default_algorithm_str_);
 
-            glogger << "In Go2::optimize(): INFORMATION:" << std::endl
-                    << "No user-defined optimization algorithm available." << std::endl
+            glogger << "In Go2::optimize(): INFORMATION:" << '\n'
+                    << "No user-defined optimization algorithm available." << '\n'
                     << "Using default algorithm \"" << default_algorithm_str_ << "\" instead."
-                    << std::endl
+                    << '\n'
                     << GLOGGING;
         }
 
@@ -446,10 +445,10 @@ Go2 const *Go2::optimize_(std::uint32_t) {
        not algorithms_cnt_[0]->cp_personality_fits(std::filesystem::path(cp_file_))) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In Go2::optimize(): Error!" << std::endl
-            << "Checkpoint file " << cp_file_ << " does not" << std::endl
+            << "In Go2::optimize(): Error!" << '\n'
+            << "Checkpoint file " << cp_file_ << " does not" << '\n'
             << "fit requirements of first algorithm "
-            << algorithms_cnt_[0]->getAlgorithmPersonalityType() << std::endl
+            << algorithms_cnt_[0]->getAlgorithmPersonalityType() << '\n'
         );
     }
 
@@ -472,14 +471,14 @@ Go2 const *Go2::optimize_(std::uint32_t) {
                         this->push_back(p_ind);
                     }
                     else {                  // No valid item received, the factory has run empty
-                        if(this->empty()) { // Still empty ?
+                        if(this->empty()) { // Still empty?
                             throw geneva_exception(
                                 g_error_streamer(DO_LOG, time_and_place)
-                                << "In Go2::optimize(): Error!" << std::endl
+                                << "In Go2::optimize(): Error!" << '\n'
                                 << "The content creator did not deliver any individuals"
-                                << std::endl
-                                << "and none have been registered so far." << std::endl
-                                << "No way to continue." << std::endl
+                                << '\n'
+                                << "and none have been registered so far." << '\n'
+                                << "No way to continue." << '\n'
                             );
                         }
                         break;
@@ -489,10 +488,10 @@ Go2 const *Go2::optimize_(std::uint32_t) {
             else {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
-                    << "In Go2::optimize(): Error!" << std::endl
+                    << "In Go2::optimize(): Error!" << '\n'
                     << "Neither a content creator nor individuals have been registered."
-                    << std::endl
-                    << "No way to continue." << std::endl
+                    << '\n'
+                    << "No way to continue." << '\n'
                 );
             }
         }
@@ -566,17 +565,17 @@ std::shared_ptr<Gem::Geneva::GParameterSet> Go2::getBestGlobalIndividual_() cons
     if(this->empty()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In Go2::getBestGlobalIndividual_(): Error!" << std::endl
-            << "No individuals found" << std::endl
+            << "In Go2::getBestGlobalIndividual_(): Error!" << '\n'
+            << "No individuals found" << '\n'
         );
     }
 
     if(not sorted_) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In Go2::getBestGlobalIndividual_(): Error!" << std::endl
-            << "Tried to retrieve best individual" << std::endl
-            << "from an unsorted population." << std::endl
+            << "In Go2::getBestGlobalIndividual_(): Error!" << '\n'
+            << "Tried to retrieve best individual" << '\n'
+            << "from an unsorted population." << '\n'
         );
     }
 
@@ -584,8 +583,8 @@ std::shared_ptr<Gem::Geneva::GParameterSet> Go2::getBestGlobalIndividual_() cons
     if(not this->front()->is_processed() && not this->front()->is_ignored()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In Go2::getBestGlobalIndividual_(): Error!" << std::endl
-            << "Best individual is unprocessed or has errors" << std::endl
+            << "In Go2::getBestGlobalIndividual_(): Error!" << '\n'
+            << "Best individual is unprocessed or has errors" << '\n'
         );
     }
 
@@ -605,8 +604,8 @@ std::vector<std::shared_ptr<Gem::Geneva::GParameterSet>> Go2::getBestGlobalIndiv
     if(this->empty()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In Go2::getBestGlobalIndividuals_(): Error!" << std::endl
-            << "No individuals found" << std::endl
+            << "In Go2::getBestGlobalIndividuals_(): Error!" << '\n'
+            << "No individuals found" << '\n'
         );
     }
 
@@ -616,9 +615,9 @@ std::vector<std::shared_ptr<Gem::Geneva::GParameterSet>> Go2::getBestGlobalIndiv
         if(ind_ptr->is_due_for_processing() || ind_ptr->has_errors()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In Go2::getBestGlobalIndividuals_(): Error!" << std::endl
+                << "In Go2::getBestGlobalIndividuals_(): Error!" << '\n'
                 << "Found individual in position " << pos
-                << " which is unprocessed or which has errors" << std::endl
+                << " which is unprocessed or which has errors" << '\n'
             );
         }
 
@@ -641,8 +640,8 @@ std::vector<std::shared_ptr<Gem::Geneva::GParameterSet>> Go2::getBestGlobalIndiv
 std::shared_ptr<Gem::Geneva::GParameterSet> Go2::getBestIterationIndividual_() const {
     throw geneva_exception(
         g_error_streamer(DO_LOG, time_and_place)
-        << "In Go2::getBestIterationIndividual_(): Error!" << std::endl
-        << "This function should not be called" << std::endl
+        << "In Go2::getBestIterationIndividual_(): Error!" << '\n'
+        << "This function should not be called" << '\n'
     );
 }
 
@@ -656,8 +655,8 @@ std::shared_ptr<Gem::Geneva::GParameterSet> Go2::getBestIterationIndividual_() c
 std::vector<std::shared_ptr<Gem::Geneva::GParameterSet>> Go2::getBestIterationIndividuals_() const {
     throw geneva_exception(
         g_error_streamer(DO_LOG, time_and_place)
-        << "In Go2::getBestIterationIndividuals_(): Error!" << std::endl
-        << "This function should not be called" << std::endl
+        << "In Go2::getBestIterationIndividuals_(): Error!" << '\n'
+        << "This function should not be called" << '\n'
     );
 }
 
@@ -701,7 +700,7 @@ void Go2::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
             this->setCopyBestIndividualsOnly(copyBestIndividualsOnly);
         }
     ) << "Indicates whether only the best individuals should be copied when"
-      << std::endl
+      << '\n'
       << "switching from one optimization algorithm to the next";
 }
 
@@ -716,7 +715,7 @@ void Go2::setClientMode(bool clientMode) {
     if(consumer_name_ == "GMPIConsumerT" || consumer_name_ == "mpi") {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In Go2::setClientMode(): Error!" << std::endl
+            << "In Go2::setClientMode(): Error!" << '\n'
             << "If running MPI then the mode can not be changed between client and server mode "
                "after the process has been launched"
         );
@@ -831,7 +830,7 @@ void Go2::parseCommandLine(
 
         std::ostringstream oa_help; // NOLINT(cppcoreguidelines-init-variables)
         oa_help << "A comma-separated list of optimization algorithms, e.g. \"arg1,arg2\". "
-                << GOAFactoryStore->size() << " algorithms have been registered: " << std::endl
+                << GOAFactoryStore->size() << " algorithms have been registered: " << '\n'
                 << algorithm_description;
 
         // Extract a list of consumer mnemonics and clear-text descriptions
@@ -845,7 +844,7 @@ void Go2::parseCommandLine(
         std::ostringstream consumer_help; // NOLINT(cppcoreguidelines-init-variables)
         consumer_help << "The name of a consumer for brokered execution (an error will be flagged "
                          "if called with any other execution mode than (2) ). "
-                      << GConsumerStore->size() << " consumers have been registered: " << std::endl
+                      << GConsumerStore->size() << " consumers have been registered: " << '\n'
                       << consumer_description;
 
         auto usageString = std::string("Usage: ") + argv[0] + " [options]";
@@ -910,7 +909,7 @@ void Go2::parseCommandLine(
         if(vm.count("help") ||
            vm.count("showAll")) { // Allow syntax "program --help --showAll" and "program --showAll"
             if(vm.count("showAll")) { // Show all options
-                std::cout << general << std::endl;
+                std::cout << general << '\n';
             }
             else { // Just show a selection
                 boost::program_options::options_description selected(usageString);
@@ -920,7 +919,7 @@ void Go2::parseCommandLine(
                 else {
                     selected.add(basic).add(userOptions).add(visible);
                 }
-                std::cout << selected << std::endl;
+                std::cout << selected << '\n';
             }
             exit(
                 0
@@ -937,9 +936,9 @@ void Go2::parseCommandLine(
         if(vm.count("consumer") != 1) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In Go2::parseCommandLine(): Error!" << std::endl
-                << "You need to specify exactly one consumer for brokered execution," << std::endl
-                << "on the command line. Found " << vm.count("consumer") << "." << std::endl
+                << "In Go2::parseCommandLine(): Error!" << '\n'
+                << "You need to specify exactly one consumer for brokered execution," << '\n'
+                << "on the command line. Found " << vm.count("consumer") << "." << '\n'
             );
         }
 
@@ -947,22 +946,22 @@ void Go2::parseCommandLine(
         if(vm.count("consumer") && not GConsumerStore->exists(consumer_name_)) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In Go2::parseCommandLine(): Error!" << std::endl
-                << "You have requested a consumer with name " << consumer_name_ << std::endl
-                << "which could not be found in the consumer store." << std::endl
+                << "In Go2::parseCommandLine(): Error!" << '\n'
+                << "You have requested a consumer with name " << consumer_name_ << '\n'
+                << "which could not be found in the consumer store." << '\n'
             );
         }
 
         if(client_mode_ && not GConsumerStore->get(consumer_name_)->needsClient()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In Go2::parseCommandLine(): Error!" << std::endl
+                << "In Go2::parseCommandLine(): Error!" << '\n'
                 << "Requested client mode even though consumer " << consumer_name_
-                << " does not require a client" << std::endl
+                << " does not require a client" << '\n'
             );
         }
 
-        std::cout << "Using consumer " << consumer_name_ << std::endl;
+        std::cout << "Using consumer " << consumer_name_ << '\n';
 
         // allow the consumer to perform necessary initialization before startup
         GConsumerStore->get(consumer_name_)->init();
@@ -999,9 +998,9 @@ void Go2::parseCommandLine(
                     ->enrol_consumer(GConsumerStore->get(consumer_name_));
             }
             else {
-                glogger << "In Go2::parseCommandLine(): Note!" << std::endl
-                        << "Could not register requested consumer," << std::endl
-                        << "as a consumer was already registered with the broker" << std::endl
+                glogger << "In Go2::parseCommandLine(): Note!" << '\n'
+                        << "Could not register requested consumer," << '\n'
+                        << "as a consumer was already registered with the broker" << '\n'
                         << GLOGGING;
             }
         }
@@ -1016,9 +1015,9 @@ void Go2::parseCommandLine(
                 if(not GOAFactoryStore->get(alg_str, p)) {
                     throw geneva_exception(
                         g_error_streamer(DO_LOG, time_and_place)
-                        << "In Go2::parseCommandLine(int, char**): Error!" << std::endl
-                        << "Got invalid algorithm mnemonic \"" << alg_str << "\"." << std::endl
-                        << "No algorithm found for this string." << std::endl
+                        << "In Go2::parseCommandLine(int, char**): Error!" << '\n'
+                        << "Got invalid algorithm mnemonic \"" << alg_str << "\"." << '\n'
+                        << "No algorithm found for this string." << '\n'
                     );
                 }
 
@@ -1036,8 +1035,8 @@ void Go2::parseCommandLine(
     catch(const po::error &e) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "Error parsing the command line:" << std::endl
-            << e.what() << std::endl
+            << "Error parsing the command line:" << '\n'
+            << e.what() << '\n'
         );
     }
 }
@@ -1059,8 +1058,8 @@ void Go2::parseConfigFile(std::filesystem::path const &configFilename) {
 
     // Do the actual parsing
     if(not gpb.parseConfigFile(configFilename)) {
-        glogger << "In Go2::parseConfigFile: Error!" << std::endl
-                << "Could not parse configuration file " << configFilename.string() << std::endl
+        glogger << "In Go2::parseConfigFile: Error!" << '\n'
+                << "Could not parse configuration file " << configFilename.string() << '\n'
                 << GTERMINATION;
     }
 }
