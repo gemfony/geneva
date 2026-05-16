@@ -167,9 +167,9 @@ public:
         if(neighborhood >= n_neighborhoods_) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GSwarmAlgorithm::getBestNeighborhoodIndividual<>() : Error" << std::endl
+                << "In GSwarmAlgorithm::getBestNeighborhoodIndividual<>() : Error" << '\n'
                 << "Requested neighborhood which does not exist: " << neighborhood << " / "
-                << n_neighborhoods_ << std::endl
+                << n_neighborhoods_ << '\n'
             );
         }
 #endif /* DEBUG */

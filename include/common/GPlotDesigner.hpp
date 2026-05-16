@@ -446,11 +446,11 @@ public:
         data << indent << "TMarker * tm_" << pos << " = new TMarker("
              << Gem::Common::narrow_cast<double>(std::get<0>(coordinates_)) << ", "
              << Gem::Common::narrow_cast<double>(std::get<1>(coordinates_)) << ", " << marker_ << ");"
-             << std::endl
-             << indent << "tm_" << pos << "->SetMarkerColor(" << color_ << ");" << std::endl
-             << indent << "tm_" << pos << "->SetMarkerSize(" << size_ << ");" << std::endl
-             << indent << "tm_" << pos << "->Draw();" << std::endl
-             << std::endl;
+             << '\n'
+             << indent << "tm_" << pos << "->SetMarkerColor(" << color_ << ");" << '\n'
+             << indent << "tm_" << pos << "->SetMarkerSize(" << size_ << ");" << '\n'
+             << indent << "tm_" << pos << "->Draw();" << '\n'
+             << '\n';
 
         return data.str();
     }
@@ -1501,10 +1501,10 @@ public:
         catch(std::overflow_error &e) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GDataCollector1T<x_type>::operator&(const T&): Error!" << std::endl
-                << "Encountered invalid cast with Gem::Common::narrow_cast," << std::endl
-                << "with the message " << std::endl
-                << e.what() << std::endl
+                << "In GDataCollector1T<x_type>::operator&(const T&): Error!" << '\n'
+                << "Encountered invalid cast with Gem::Common::narrow_cast," << '\n'
+                << "with the message " << '\n'
+                << e.what() << '\n'
             );
         }
 
@@ -1544,10 +1544,10 @@ public:
             catch(std::overflow_error &e) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
-                    << "In GDataCollector1T::operator&(const std::vector<T>&): Error!" << std::endl
-                    << "Encountered invalid cast with Gem::Common::narrow_cast," << std::endl
-                    << "with the message " << std::endl
-                    << e.what() << std::endl
+                    << "In GDataCollector1T::operator&(const std::vector<T>&): Error!" << '\n'
+                    << "Encountered invalid cast with Gem::Common::narrow_cast," << '\n'
+                    << "with the message " << '\n'
+                    << e.what() << '\n'
                 );
             }
 
@@ -1891,8 +1891,8 @@ public:
     projectX(std::size_t, std::tuple<x_type, x_type>) const {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GDataCollector2T<>::projectX(range, nBins): Error!" << std::endl
-            << "Function was called for class with un-implemented types" << std::endl
+            << "In GDataCollector2T<>::projectX(range, nBins): Error!" << '\n'
+            << "Function was called for class with un-implemented types" << '\n'
         );
 
         // Make the compiler happy
@@ -1909,8 +1909,8 @@ public:
     projectY(std::size_t, std::tuple<y_type, y_type>) const {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GDataCollector2T<>::projectY(range, nBins): Error!" << std::endl
-            << "Function was called for class with un-implemented types" << std::endl
+            << "In GDataCollector2T<>::projectY(range, nBins): Error!" << '\n'
+            << "Function was called for class with un-implemented types" << '\n'
         );
 
         // Make the compiler happy
@@ -1950,10 +1950,10 @@ public:
         catch(std::overflow_error &e) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GDataCollector2T::operator&(const std::tuple<S,T>&): Error!" << std::endl
-                << "Encountered invalid cast with Gem::Common::narrow_cast," << std::endl
-                << "with the message " << std::endl
-                << e.what() << std::endl
+                << "In GDataCollector2T::operator&(const std::tuple<S,T>&): Error!" << '\n'
+                << "Encountered invalid cast with Gem::Common::narrow_cast," << '\n'
+                << "with the message " << '\n'
+                << e.what() << '\n'
             );
         }
 
@@ -1997,10 +1997,10 @@ public:
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
                     << "In GDataCollector2T::operator&(const std::vector<std::tuple<S,T>>&): Error!"
-                    << std::endl
-                    << "Encountered invalid cast with Gem::Common::narrow_cast," << std::endl
-                    << "with the message " << std::endl
-                    << e.what() << std::endl
+                    << '\n'
+                    << "Encountered invalid cast with Gem::Common::narrow_cast," << '\n'
+                    << "with the message " << '\n'
+                    << e.what() << '\n'
                 );
             }
 
@@ -2277,10 +2277,10 @@ public:
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GDataCollector2ET::operator&(const std::tuple<S,S,T,T>&): Error!"
-                << std::endl
-                << "Encountered invalid cast with Gem::Common::narrow_cast," << std::endl
-                << "with the message " << std::endl
-                << e.what() << std::endl
+                << '\n'
+                << "Encountered invalid cast with Gem::Common::narrow_cast," << '\n'
+                << "with the message " << '\n'
+                << e.what() << '\n'
             );
         }
 
@@ -2332,10 +2332,10 @@ public:
                     g_error_streamer(DO_LOG, time_and_place)
                     << "In GDataCollector2ET::operator&(const std::vector<std::tuple<S,S,T,T>>&): "
                        "Error!"
-                    << std::endl
-                    << "Encountered invalid cast with Gem::Common::narrow_cast," << std::endl
-                    << "with the message " << std::endl
-                    << e.what() << std::endl
+                    << '\n'
+                    << "Encountered invalid cast with Gem::Common::narrow_cast," << '\n'
+                    << "with the message " << '\n'
+                    << e.what() << '\n'
                 );
             }
 
@@ -2790,8 +2790,8 @@ public:
     projectX(std::size_t, std::tuple<x_type, x_type>) const {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GDataCollector3T<>::projectX(range, nBins): Error!" << std::endl
-            << "Function was called for class with un-implemented types" << std::endl
+            << "In GDataCollector3T<>::projectX(range, nBins): Error!" << '\n'
+            << "Function was called for class with un-implemented types" << '\n'
         );
 
         // Make the compiler happy
@@ -2808,8 +2808,8 @@ public:
     projectY(std::size_t, std::tuple<y_type, y_type>) const {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GDataCollector3T<>::projectY(range, nBins): Error!" << std::endl
-            << "Function was called for class with un-implemented types" << std::endl
+            << "In GDataCollector3T<>::projectY(range, nBins): Error!" << '\n'
+            << "Function was called for class with un-implemented types" << '\n'
         );
 
         // Make the compiler happy
@@ -2826,8 +2826,8 @@ public:
     projectZ(std::size_t, std::tuple<z_type, z_type>) const {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GDataCollector3T<>::projectZ(range, nBins): Error!" << std::endl
-            << "Function was called for class with un-implemented types" << std::endl
+            << "In GDataCollector3T<>::projectZ(range, nBins): Error!" << '\n'
+            << "Function was called for class with un-implemented types" << '\n'
         );
 
         // Make the compiler happy
@@ -2869,10 +2869,10 @@ public:
         catch(std::overflow_error &e) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GDataCollector3T::operator&(const std::tuple<S,T,U>&): Error!" << std::endl
-                << "Encountered invalid cast with Gem::Common::narrow_cast," << std::endl
-                << "with the message " << std::endl
-                << e.what() << std::endl
+                << "In GDataCollector3T::operator&(const std::tuple<S,T,U>&): Error!" << '\n'
+                << "Encountered invalid cast with Gem::Common::narrow_cast," << '\n'
+                << "with the message " << '\n'
+                << e.what() << '\n'
             );
         }
 
@@ -2922,10 +2922,10 @@ public:
                     g_error_streamer(DO_LOG, time_and_place)
                     << "In GDataCollector3T::operator&(const std::vector<std::tuple<S,T,U>>&): "
                        "Error!"
-                    << std::endl
-                    << "Encountered invalid cast with Gem::Common::narrow_cast," << std::endl
-                    << "with the message " << std::endl
-                    << e.what() << std::endl
+                    << '\n'
+                    << "Encountered invalid cast with Gem::Common::narrow_cast," << '\n'
+                    << "with the message " << '\n'
+                    << e.what() << '\n'
                 );
             }
 
@@ -3263,8 +3263,8 @@ public:
     projectX(std::size_t, std::tuple<x_type, x_type>) const {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GDataCollector4T<>::projectX(range, nBins): Error!" << std::endl
-            << "Function was called for class with un-implemented types" << std::endl
+            << "In GDataCollector4T<>::projectX(range, nBins): Error!" << '\n'
+            << "Function was called for class with un-implemented types" << '\n'
         );
 
         // Make the compiler happy
@@ -3281,8 +3281,8 @@ public:
     projectY(std::size_t, std::tuple<y_type, y_type>) const {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GDataCollector4T<>::projectY(range, nBins): Error!" << std::endl
-            << "Function was called for class with un-implemented types" << std::endl
+            << "In GDataCollector4T<>::projectY(range, nBins): Error!" << '\n'
+            << "Function was called for class with un-implemented types" << '\n'
         );
 
         // Make the compiler happy
@@ -3299,8 +3299,8 @@ public:
     projectZ(std::size_t, std::tuple<z_type, z_type>) const {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GDataCollector4T<>::projectZ(range, nBins): Error!" << std::endl
-            << "Function was called for class with un-implemented types" << std::endl
+            << "In GDataCollector4T<>::projectZ(range, nBins): Error!" << '\n'
+            << "Function was called for class with un-implemented types" << '\n'
         );
 
         // Make the compiler happy
@@ -3317,8 +3317,8 @@ public:
     projectW(std::size_t, std::tuple<w_type, w_type>) const {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GDataCollector4T<>::projectZ(range, nBins): Error!" << std::endl
-            << "Function was called for class with un-implemented types" << std::endl
+            << "In GDataCollector4T<>::projectZ(range, nBins): Error!" << '\n'
+            << "Function was called for class with un-implemented types" << '\n'
         );
 
         // Make the compiler happy
@@ -3368,10 +3368,10 @@ public:
         catch(std::overflow_error &e) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GDataCollector4T::operator&(const std::tuple<S,T,U,W>&): Error!" << std::endl
-                << "Encountered invalid cast with Gem::Common::narrow_cast," << std::endl
-                << "with the message " << std::endl
-                << e.what() << std::endl
+                << "In GDataCollector4T::operator&(const std::tuple<S,T,U,W>&): Error!" << '\n'
+                << "Encountered invalid cast with Gem::Common::narrow_cast," << '\n'
+                << "with the message " << '\n'
+                << e.what() << '\n'
             );
         }
 
@@ -3427,10 +3427,10 @@ public:
                     g_error_streamer(DO_LOG, time_and_place)
                     << "In GDataCollector4T::operator&(const std::vector<std::tuple<S,T,U,W>>&): "
                        "Error!"
-                    << std::endl
-                    << "Encountered invalid cast with Gem::Common::narrow_cast," << std::endl
-                    << "with the message " << std::endl
-                    << e.what() << std::endl
+                    << '\n'
+                    << "Encountered invalid cast with Gem::Common::narrow_cast," << '\n'
+                    << "with the message " << '\n'
+                    << e.what() << '\n'
                 );
             }
 

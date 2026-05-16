@@ -63,9 +63,9 @@ GEvolutionaryAlgorithmPostOptimizer::GEvolutionaryAlgorithmPostOptimizer(
         glogger << "In "
                    "GEvolutionaryAlgorithmPostOptimizer::GEvolutionaryAlgorithmPostOptimizer("
                    "execMode): Error!"
-                << std::endl
-                << "Got invalid execution mode " << executionMode << std::endl
-                << "The mode was reset to execMode::SERIAL" << std::endl
+                << '\n'
+                << "Got invalid execution mode " << executionMode << '\n'
+                << "The mode was reset to execMode::SERIAL" << '\n'
                 << GWARNING;
     } break;
     }
@@ -128,8 +128,8 @@ void GEvolutionaryAlgorithmPostOptimizer::setExecMode(execMode executionMode) {
     case execMode::BROKER: {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GEvolutionaryAlgorithmPostOptimizer::setExecMode(): Error!" << std::endl
-            << "Got invalid execution mode " << executionMode << std::endl
+            << "In GEvolutionaryAlgorithmPostOptimizer::setExecMode(): Error!" << '\n'
+            << "Got invalid execution mode " << executionMode << '\n'
         );
     } break;
     }
@@ -216,16 +216,16 @@ bool GEvolutionaryAlgorithmPostOptimizer::raw_processing_(GParameterSet &p) {
     if(not p.is_processed()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GEvolutionaryAlgorithmPostOptimizer::raw_processing_: Error!" << std::endl
-            << "Provided base_type has dirty flag set." << std::endl
+            << "In GEvolutionaryAlgorithmPostOptimizer::raw_processing_: Error!" << '\n'
+            << "Provided base_type has dirty flag set." << '\n'
         );
     }
 
     if(executionMode_ == execMode::BROKER) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GEvolutionaryAlgorithmPostOptimizer::raw_processing_: Error!" << std::endl
-            << "Got invalid execution mode " << executionMode_ << std::endl
+            << "In GEvolutionaryAlgorithmPostOptimizer::raw_processing_: Error!" << '\n'
+            << "Got invalid execution mode " << executionMode_ << '\n'
         );
     }
 

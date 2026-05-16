@@ -149,8 +149,8 @@ void GDoubleCollection::doubleStreamline(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GDoubleCollection::doubleStreamline(std::map<std::string, std::vector<double>>& "
                "parVec) const: Error!"
-            << std::endl
-            << "No name was assigned to the object" << std::endl
+            << '\n'
+            << "No name was assigned to the object" << '\n'
         );
     }
 #endif /* DEBUG */
@@ -214,9 +214,9 @@ void GDoubleCollection::assignDoubleValueVector(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GDoubleCollection::assignDoubleValueVector(const std::vector<double>&, "
                    "std::size_t&):"
-                << std::endl
+                << '\n'
                 << "Tried to access position beyond end of vector: " << parVec.size() << "/" << pos
-                << std::endl
+                << '\n'
             );
         }
 #endif
@@ -322,8 +322,8 @@ void GDoubleCollection::doubleAdd(
     if(this->size() != p->size()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GDoubleCollection::doubleAdd():" << std::endl
-            << "Sizes of vectors don't match: " << this->size() << "/" << p->size() << std::endl
+            << "In GDoubleCollection::doubleAdd():" << '\n'
+            << "Sizes of vectors don't match: " << this->size() << "/" << p->size() << '\n'
         );
     }
 
@@ -348,8 +348,8 @@ void GDoubleCollection::doubleSubtract(
     if(this->size() != p->size()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GDoubleCollection::doubleSubtract():" << std::endl
-            << "Sizes of vectors don't match: " << this->size() << "/" << p->size() << std::endl
+            << "In GDoubleCollection::doubleSubtract():" << '\n'
+            << "Sizes of vectors don't match: " << this->size() << "/" << p->size() << '\n'
         );
     }
 

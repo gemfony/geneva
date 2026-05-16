@@ -75,9 +75,9 @@ int main(int argc, char **argv) {
 
     // Check that algorithms were indeed registered and fix, if this was not the case.
     if(go.getNAlgorithms() == 0) {
-        glogger << "In GResetToOptimizationStart:" << std::endl
-                << "No algorithms were registered." << std::endl
-                << "We will add an Evolutionary Algorithm" << std::endl
+        glogger << "In GResetToOptimizationStart:" << '\n'
+                << "No algorithms were registered." << '\n'
+                << "We will add an Evolutionary Algorithm" << '\n'
                 << GLOGGING;
 
         go & "ea";
@@ -86,7 +86,7 @@ int main(int argc, char **argv) {
     // Retrieve the registered algorithms
     auto algorithms_cnt = go.getRegisteredAlgorithms();
 
-    std::cout << "Got algorithms_cnt of size " << algorithms_cnt.size() << std::endl;
+    std::cout << "Got algorithms_cnt of size " << algorithms_cnt.size() << '\n';
 
     for(auto const &alg_ptr : algorithms_cnt) {
         for(std::size_t resetCounter = 0; resetCounter < NRESETS; resetCounter++) {
@@ -95,11 +95,11 @@ int main(int argc, char **argv) {
 
             if(resetCounter < NRESETS) {
                 alg_ptr->resetToOptimizationStart();
-                std::cout << "Algorithm was reset" << std::endl;
+                std::cout << "Algorithm was reset" << '\n';
             }
         }
     }
 
-    std::cout << "Done ..." << std::endl;
+    std::cout << "Done ..." << '\n';
     return (0);
 }

@@ -442,10 +442,10 @@ public:
         if(cp.dimensions() != this->dimensions()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GCanvas::diff(): Error!" << std::endl
+                << "In GCanvas::diff(): Error!" << '\n'
                 << "Dimensions differ: (" << std::get<0>(cp.dimensions()) << ", "
                 << std::get<1>(cp.dimensions()) << ") / (" << std::get<0>(this->dimensions())
-                << ", " << std::get<1>(this->dimensions()) << ")" << std::endl
+                << ", " << std::get<1>(this->dimensions()) << ")" << '\n'
             );
         }
 
@@ -534,7 +534,7 @@ public:
                 if(s != "P3") {
                     throw geneva_exception(
                         g_error_streamer(DO_LOG, time_and_place)
-                        << "Error: Header should be \"P3\", but got " << s << std::endl
+                        << "Error: Header should be \"P3\", but got " << s << '\n'
                     );
                 }
 
@@ -558,14 +558,14 @@ public:
                 if(v.size() != 2) { // We should have received exactly two numbers
                     throw geneva_exception(
                         g_error_streamer(DO_LOG, time_and_place)
-                        << "Error: Got invalid number of dimensions: " << v.size() << std::endl
+                        << "Error: Got invalid number of dimensions: " << v.size() << '\n'
                     );
                 }
 
                 if(v[0] == 0 || v[1] == 0) {
                     throw geneva_exception(
                         g_error_streamer(DO_LOG, time_and_place)
-                        << "Error: Got invalid dimensions: " << v[0] << " / " << v[1] << std::endl
+                        << "Error: Got invalid dimensions: " << v[0] << " / " << v[1] << '\n'
                     );
                 }
 
@@ -595,8 +595,8 @@ public:
                 if(v.size() != 1) { // We should have received exactly one number
                     throw geneva_exception(
                         g_error_streamer(DO_LOG, time_and_place)
-                        << "Error: Did not find specification of the number of colors" << std::endl
-                        << "or an invalid number of specifications: " << v.size() << std::endl
+                        << "Error: Did not find specification of the number of colors" << '\n'
+                        << "or an invalid number of specifications: " << v.size() << '\n'
                     );
                 }
 
@@ -605,7 +605,7 @@ public:
                 if(v[0] != MAXCOLOR) {
                     throw geneva_exception(
                         g_error_streamer(DO_LOG, time_and_place)
-                        << "Error: Got invalid color depth " << v[0] << std::endl
+                        << "Error: Got invalid color depth " << v[0] << '\n'
                     );
                 }
 
@@ -620,10 +620,10 @@ public:
         if(not(header_found && dimensions_found && color_depth_found)) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "Error: PPM string ended before all header fields were found." << std::endl
-                << "  P3 header:   " << (header_found ? "found" : "MISSING") << std::endl
-                << "  Dimensions:  " << (dimensions_found ? "found" : "MISSING") << std::endl
-                << "  Color depth: " << (color_depth_found ? "found" : "MISSING") << std::endl
+                << "Error: PPM string ended before all header fields were found." << '\n'
+                << "  P3 header:   " << (header_found ? "found" : "MISSING") << '\n'
+                << "  Dimensions:  " << (dimensions_found ? "found" : "MISSING") << '\n'
+                << "  Color depth: " << (color_depth_found ? "found" : "MISSING") << '\n'
             );
         }
 
@@ -664,9 +664,9 @@ public:
         if(v.size() != 3 * xDim_ * yDim_) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "Error: got invalid number of entries in line." << std::endl
-                << "Expected " << 3 * xDim_ * yDim_ << ", but got " << v.size() << std::endl
-                << "Note: xDim_ = " << xDim_ << ", yDim_ = " << yDim_ << std::endl
+                << "Error: got invalid number of entries in line." << '\n'
+                << "Expected " << 3 * xDim_ * yDim_ << ", but got " << v.size() << '\n'
+                << "Note: xDim_ = " << xDim_ << ", yDim_ = " << yDim_ << '\n'
             );
         }
 
@@ -701,8 +701,8 @@ public:
         if(imageData.empty()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "GCanvas::loadFromFile(): Error!" << std::endl
-                << "File data was empty" << std::endl
+                << "GCanvas::loadFromFile(): Error!" << '\n'
+                << "File data was empty" << '\n'
             );
         }
 #endif
@@ -720,8 +720,8 @@ public:
         if(not result) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GCanvas<>::toFile(): Error!" << std::endl
-                << "Could not open output file " << p.string() << std::endl
+                << "In GCanvas<>::toFile(): Error!" << '\n'
+                << "Could not open output file " << p.string() << '\n'
             );
         }
 
@@ -786,9 +786,9 @@ public:
         if(t.angle1 < 0.f || t.angle2 <= t.angle1 || t.angle3 <= t.angle2 || t.angle3 >= 1.f) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GCanvas<>::addTriangle(): Error!" << std::endl
-                << "Angles are not in consecutive oder: " << std::endl
-                << t << std::endl
+                << "In GCanvas<>::addTriangle(): Error!" << '\n'
+                << "Angles are not in consecutive oder: " << '\n'
+                << t << '\n'
             );
         }
 #endif /* DEBUG */

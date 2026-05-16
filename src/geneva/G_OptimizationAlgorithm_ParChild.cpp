@@ -174,9 +174,9 @@ std::size_t G_OptimizationAlgorithm_ParChild::getNProcessableItems_() const {
     if(std::get<1>(range) <= std::get<0>(range)) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In G_OptimizationAlgorithm_ParChild<>::getNProcessableItems(): Error!" << std::endl
+            << "In G_OptimizationAlgorithm_ParChild<>::getNProcessableItems(): Error!" << '\n'
             << "Upper boundary of range <= lower boundary: " << std::get<1>(range) << "/"
-            << std::get<0>(range) << std::endl
+            << std::get<0>(range) << '\n'
         );
     }
 #endif /* DEBUG */
@@ -261,7 +261,7 @@ void G_OptimizationAlgorithm_ParChild::addConfigurationOptions_(Gem::Common::GPa
         ,
         [this](double al) { this->setAmalgamationLikelihood(al); }
     ) << "The likelihood for parent individuals to be \"fused\" together"
-      << std::endl
+      << '\n'
       << "rather than \"just\" being created through duplication schemes";
 
     gpb.registerFileParameter<std::size_t, std::size_t>(
@@ -283,9 +283,9 @@ void G_OptimizationAlgorithm_ParChild::addConfigurationOptions_(Gem::Common::GPa
         ,
         [this](duplicationScheme d) { this->setRecombinationMethod(d); }
     ) << "The recombination method. Options"
-      << std::endl
-      << "0: default" << std::endl
-      << "1: random selection from available parents" << std::endl
+      << '\n'
+      << "0: default" << '\n'
+      << "1: random selection from available parents" << '\n'
       << "2: selection according to the parent's value";
 
     gpb.registerFileParameter<std::size_t, std::size_t>(
@@ -301,7 +301,7 @@ void G_OptimizationAlgorithm_ParChild::addConfigurationOptions_(Gem::Common::GPa
         "populationGrowth"
     ) << "Specifies the number of individuals added per iteration"
       << Gem::Common::nextComment()
-      << "Specifies the maximum amount of individuals in the population" << std::endl
+      << "Specifies the maximum amount of individuals in the population" << '\n'
       << "if growth is enabled";
 }
 
@@ -314,9 +314,9 @@ void G_OptimizationAlgorithm_ParChild::setAmalgamationLikelihood(double amalgama
     if(amalgamationLikelihood < 0. || amalgamationLikelihood > 1.) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In setCrossOverLikelihood(" << amalgamationLikelihood << "): Error!" << std::endl
+            << "In setCrossOverLikelihood(" << amalgamationLikelihood << "): Error!" << '\n'
             << "Received invalid likelihood for amalgamation. Must be in the range [0:1]."
-            << std::endl
+            << '\n'
         );
     }
 
@@ -482,9 +482,9 @@ void G_OptimizationAlgorithm_ParChild::recombine() {
     if((this->size() - n_parents_) < default_n_children_) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In G_OptimizationAlgorithm_ParChild::recombine():" << std::endl
-            << "Too few children. Got " << this->size() - n_parents_ << "," << std::endl
-            << "but was expecting at least " << default_n_children_ << std::endl
+            << "In G_OptimizationAlgorithm_ParChild::recombine():" << '\n'
+            << "Too few children. Got " << this->size() - n_parents_ << "," << '\n'
+            << "but was expecting at least " << default_n_children_ << '\n'
         );
     }
 #endif
@@ -586,8 +586,8 @@ std::tuple<double, double> G_OptimizationAlgorithm_ParChild::cycleLogic_() {
     if(not this->at(0)->is_processed()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In G_OptimizationAlgorithm_ParChild::cycleLogic(): Error!" << std::endl
-            << "Expected clean individual in best position" << std::endl
+            << "In G_OptimizationAlgorithm_ParChild::cycleLogic(): Error!" << '\n'
+            << "Expected clean individual in best position" << '\n'
         );
     }
 
@@ -643,10 +643,10 @@ void G_OptimizationAlgorithm_ParChild::adjustPopulation_() {
     if(G_OptimizationAlgorithm_Base::getDefaultPopulationSize() == 0) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In G_OptimizationAlgorithm_ParChild::adjustPopulation() :" << std::endl
-            << "The population size is 0." << std::endl
+            << "In G_OptimizationAlgorithm_ParChild::adjustPopulation() :" << '\n'
+            << "The population size is 0." << '\n'
             << "Did you call G_OptimizationAlgorithm_Base::setParentsAndPopulationSize() ?"
-            << std::endl
+            << '\n'
         );
     }
 
@@ -655,9 +655,9 @@ void G_OptimizationAlgorithm_ParChild::adjustPopulation_() {
     if(this_sz == 0) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In G_OptimizationAlgorithm_ParChild::adjustPopulation() :" << std::endl
-            << "size of population is 0. Did you add any individuals?" << std::endl
-            << "We need at least one local individual" << std::endl
+            << "In G_OptimizationAlgorithm_ParChild::adjustPopulation() :" << '\n'
+            << "size of population is 0. Did you add any individuals?" << '\n'
+            << "We need at least one local individual" << '\n'
         );
     }
 
@@ -669,8 +669,8 @@ void G_OptimizationAlgorithm_ParChild::adjustPopulation_() {
         if(not(*it)) { // shared_ptr can be implicitly converted to bool
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In G_OptimizationAlgorithm_ParChild::adjustPopulation() :" << std::endl
-                << "Found empty smart pointer." << std::endl
+                << "In G_OptimizationAlgorithm_ParChild::adjustPopulation() :" << '\n'
+                << "Found empty smart pointer." << '\n'
             );
         }
     }
@@ -782,8 +782,8 @@ void G_OptimizationAlgorithm_ParChild::valueRecombine(
     if(not done) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In G_OptimizationAlgorithm_ParChild::valueRecombine():" << std::endl
-            << "Could not recombine." << std::endl
+            << "In G_OptimizationAlgorithm_ParChild::valueRecombine():" << '\n'
+            << "Could not recombine." << '\n'
         );
     }
 }

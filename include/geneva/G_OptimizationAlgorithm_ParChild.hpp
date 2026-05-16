@@ -148,9 +148,9 @@ public:
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In G_OptimizationAlgorithm_ParChild::getParentIndividual<>() : Error"
-                << std::endl
+                << '\n'
                 << "Requested parent id which does not exist: " << parentId << " / "
-                << this->getNParents() << std::endl
+                << this->getNParents() << '\n'
             );
 
             // Make the compiler happy

@@ -210,9 +210,9 @@ void GConstrainedInt32Object::assignInt32ValueVector(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GConstrainedInt32Object::assignInt32ValueVector(const "
                "std::vector<std::int32_t>&, std::size_t&):"
-            << std::endl
+            << '\n'
             << "Tried to access position beyond end of vector: " << parVec.size() << "/" << pos
-            << std::endl
+            << '\n'
         );
     }
 #endif

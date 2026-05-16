@@ -146,5 +146,5 @@ int main(int argc, char **argv) {
     // Here you can do something with the best individual ("p") found.
     // We simply print its content here, by means of an operator<< implemented
     // in the GFunctionIndividual code.
-    std::cout << "Best result found:" << std::endl << p << std::endl;
+    std::cout << "Best result found:" << '\n' << p << '\n';
 }

@@ -60,9 +60,9 @@ GRandomFactory::GRandomFactory() {
 	*/
 
     if(multiple_call_trap_) {
-        glogger << "Error in GRandomFactory::GRandomFactory():" << std::endl
-                << "Class has been instantiated before." << std::endl
-                << "and may be instantiated only once" << std::endl
+        glogger << "Error in GRandomFactory::GRandomFactory():" << '\n'
+                << "Class has been instantiated before." << '\n'
+                << "and may be instantiated only once" << '\n'
                 << GTERMINATION;
     }
     else {
@@ -188,10 +188,10 @@ void GRandomFactory::setNProducerThreads(const std::uint16_t &nProducerThreads) 
         // Make a suggestion for the number of threads, if requested
         std::uint16_t nProducerThreads_local = DEFAULT01PRODUCERTHREADS;
         if(0 == nProducerThreads) {
-            glogger << "In GRandomFactory::setNProducerThreads(nProducerThreads) / 1:" << std::endl
+            glogger << "In GRandomFactory::setNProducerThreads(nProducerThreads) / 1:" << '\n'
                     << "nProducerThreads == 0 was requested. nProducerThreads_local was set to the "
                        "default "
-                    << DEFAULT01PRODUCERTHREADS << std::endl
+                    << DEFAULT01PRODUCERTHREADS << '\n'
                     << GWARNING;
         }
         else {
@@ -207,11 +207,11 @@ void GRandomFactory::setNProducerThreads(const std::uint16_t &nProducerThreads) 
         else if(nProducerThreads_local < n_producer_threads_.load()) { // We need to remove threads
             glogger
                 << "In GRandomFactory::setNProducerThreads(" << nProducerThreads << "): Warning!"
-                << std::endl
+                << '\n'
                 << "Attempt to decrease the number of producer threads from "
-                << n_producer_threads_.load() << " to " << nProducerThreads << std::endl
+                << n_producer_threads_.load() << " to " << nProducerThreads << '\n'
                 << "while threads were alredy running. The number of threads will remain unchanged."
-                << std::endl
+                << '\n'
                 << GWARNING;
 
             return;
@@ -223,10 +223,10 @@ void GRandomFactory::setNProducerThreads(const std::uint16_t &nProducerThreads) 
         // Make a suggestion for the number of threads, if requested
         std::uint16_t nProducerThreads_local = DEFAULT01PRODUCERTHREADS;
         if(nProducerThreads == 0) {
-            glogger << "In GRandomFactory::setNProducerThreads(nProducerThreads) / 2:" << std::endl
+            glogger << "In GRandomFactory::setNProducerThreads(nProducerThreads) / 2:" << '\n'
                     << "nProducerThreads == 0 was requested. nProducerThreads_local was set to the "
                        "default "
-                    << DEFAULT01PRODUCERTHREADS << std::endl
+                    << DEFAULT01PRODUCERTHREADS << '\n'
                     << GWARNING;
         }
         else {
@@ -243,12 +243,12 @@ void GRandomFactory::setNProducerThreads(const std::uint16_t &nProducerThreads) 
             else if(nProducerThreads_local <
                     n_producer_threads_.load()) { // We need to remove threads
                 glogger << "In GRandomFactory::setNProducerThreads(" << nProducerThreads
-                        << "): Warning!" << std::endl
+                        << "): Warning!" << '\n'
                         << "Attempt to decrease the number of producer threads from "
-                        << n_producer_threads_.load() << " to " << nProducerThreads << std::endl
+                        << n_producer_threads_.load() << " to " << nProducerThreads << '\n'
                         << "while threads were alredy running. The number of threads will remain "
                            "unchanged."
-                        << std::endl
+                        << '\n'
                         << GWARNING;
 
                 return;
@@ -318,8 +318,8 @@ void GRandomFactory::producer(std::uint32_t seed) {
                 if(not p) {
                     throw geneva_exception(
                         g_error_streamer(DO_LOG, time_and_place)
-                        << "In RandomFactory::producer(): Error!" << std::endl
-                        << "Got empty recycling pointer" << std::endl
+                        << "In RandomFactory::producer(): Error!" << '\n'
+                        << "Got empty recycling pointer" << '\n'
                     );
                 }
 
@@ -340,8 +340,8 @@ void GRandomFactory::producer(std::uint32_t seed) {
                     if(not p) {
                         throw geneva_exception(
                             g_error_streamer(DO_LOG, time_and_place)
-                            << "In RandomFactory::producer(): Error!" << std::endl
-                            << "Got empty pointer after unsuccesfull submission" << std::endl
+                            << "In RandomFactory::producer(): Error!" << '\n'
+                            << "Got empty pointer after unsuccesfull submission" << '\n'
                         );
                     }
 #endif
@@ -357,33 +357,33 @@ void GRandomFactory::producer(std::uint32_t seed) {
     catch(std::bad_alloc &e) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GRandomFactory::producer(): Error!" << std::endl
-            << "Caught std::bad_alloc exception with message" << std::endl
-            << e.what() << std::endl
+            << "In GRandomFactory::producer(): Error!" << '\n'
+            << "Caught std::bad_alloc exception with message" << '\n'
+            << e.what() << '\n'
         );
     }
     catch(std::invalid_argument &e) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GRandomFactory::producer(): Error!" << std::endl
-            << "Caught std::invalid_argument exception with message" << std::endl
-            << e.what() << std::endl
+            << "In GRandomFactory::producer(): Error!" << '\n'
+            << "Caught std::invalid_argument exception with message" << '\n'
+            << e.what() << '\n'
         );
     }
     catch(std::system_error &e) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GRandomFactory::producer(): Error!" << std::endl
-            << "Caught std::system_error exception with message" << std::endl
-            << e.what() << std::endl
-            << "which might indicate that a mutex could not be locked." << std::endl
+            << "In GRandomFactory::producer(): Error!" << '\n'
+            << "Caught std::system_error exception with message" << '\n'
+            << e.what() << '\n'
+            << "which might indicate that a mutex could not be locked." << '\n'
         );
     }
     catch(...) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GRandomFactory::producer(): Error!" << std::endl
-            << "Caught unkown exception." << std::endl
+            << "In GRandomFactory::producer(): Error!" << '\n'
+            << "Caught unkown exception." << '\n'
         );
     }
 }

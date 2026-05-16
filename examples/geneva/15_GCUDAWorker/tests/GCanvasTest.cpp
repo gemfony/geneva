@@ -47,7 +47,7 @@ int main(int argc, char **argv) {
 
     // Check that there is no difference between both
     if(gc2.diff(gc) != 0.) {
-        std::cout << "Error: Found difference between objects: " << gc2.diff(gc) << std::endl;
+        std::cout << "Error: Found difference between objects: " << gc2.diff(gc) << '\n';
         return 1;
     }
 
@@ -68,13 +68,13 @@ int main(int argc, char **argv) {
 
     // Check that there is a difference between gc2 and gc
     if(gc2.diff(gc) <= 0.) {
-        std::cout << "Error: Incorrect difference between objects: " << gc2.diff(gc) << std::endl;
+        std::cout << "Error: Incorrect difference between objects: " << gc2.diff(gc) << '\n';
         return 1;
     }
 
     // Finally save the picture to disk
     gc.toFile(std::filesystem::path("./pictures/result.ppm"));
 
-    std::cout << "GCanvasTest passed." << std::endl;
+    std::cout << "GCanvasTest passed." << '\n';
     return 0;
 }

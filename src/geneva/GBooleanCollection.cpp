@@ -95,8 +95,8 @@ void GBooleanCollection::flip(const std::size_t &pos) {
     if(this->size() <= pos) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GBooleanCollection::flip(const std::size_t& " << pos << "): Error!" << std::endl
-            << "Tried to exist position beyond end of vector of size " << this->size() << std::endl
+            << "In GBooleanCollection::flip(const std::size_t& " << pos << "): Error!" << '\n'
+            << "Tried to exist position beyond end of vector of size " << this->size() << '\n'
         );
     }
 #endif
@@ -181,8 +181,8 @@ bool GBooleanCollection::randomInit_(
        )) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GBooleanCollection::randomInit_(probability): Error!" << std::endl
-            << "Probability " << probability << " not in allowed value range [0,1]" << std::endl
+            << "In GBooleanCollection::randomInit_(probability): Error!" << '\n'
+            << "Probability " << probability << " not in allowed value range [0,1]" << '\n'
         );
     }
 
@@ -309,8 +309,8 @@ void GBooleanCollection::booleanStreamline(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GBooleanCollection::booleanStreamline(std::map<std::string, std::vector<bool>>& "
                "parVec) const: Error!"
-            << std::endl
-            << "No name was assigned to the object" << std::endl
+            << '\n'
+            << "No name was assigned to the object" << '\n'
         );
     }
 #endif /* DEBUG */
@@ -369,9 +369,9 @@ void GBooleanCollection::assignBooleanValueVector(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GBooleanCollection::assignBooleanValueVector(const std::vector<bool>&, "
                    "std::size_t&):"
-                << std::endl
+                << '\n'
                 << "Tried to access position beyond end of vector: " << parVec.size() << "/" << pos
-                << std::endl
+                << '\n'
             );
         }
 #endif

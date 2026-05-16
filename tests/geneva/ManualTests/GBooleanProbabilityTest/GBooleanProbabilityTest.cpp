@@ -78,23 +78,23 @@ int main(int argc, char **argv) {
 
     std::ofstream ofs("bitflipResult.C"); // Output file
 
-    ofs << "{" << std::endl
-        << "  TCanvas *cc = new TCanvas(\"cc\",\"cc\",0,0,800,800);" << std::endl
-        << "  cc->Divide(2,2);" << std::endl
-        << std::endl
+    ofs << "{" << '\n'
+        << "  TCanvas *cc = new TCanvas(\"cc\",\"cc\",0,0,800,800);" << '\n'
+        << "  cc->Divide(2,2);" << '\n'
+        << '\n'
         << "  TH1F *singleFlipValueNPA = new "
            "TH1F(\"singleFlipValueNPA\",\"singleFlipValueNPA\",2,-0.5,1.5);"
-        << std::endl
+        << '\n'
         << "  TH1F *collectionFlipValueNPA = new "
            "TH1F(\"collectionFlipValueNPA\",\"collectionFlipValueNPA\",2,-0.5,1.5);"
-        << std::endl
+        << '\n'
         << "  TH1F *singleFlipValuePA = new "
            "TH1F(\"singleFlipValuePA\",\"singleFlipValuePA\",2,-0.5,1.5);"
-        << std::endl
+        << '\n'
         << "  TH1F *collectionFlipValuePA = new "
            "TH1F(\"collectionFlipValuePA\",\"collectionFlipValuePA\",2,-0.5,1.5);"
-        << std::endl
-        << std::endl;
+        << '\n'
+        << '\n';
 
     /////////////////////////////////////////////////////////////////////////////////////////
     // Tests without adaption of flip probability
@@ -108,11 +108,11 @@ int main(int argc, char **argv) {
         A_tmp = A;
         A.adapt(gr); // adapt
         if(A.value() == A_tmp.value()) {
-            ofs << "  singleFlipValueNPA->Fill(0.);" << std::endl; // 0 means "not flipped"
+            ofs << "  singleFlipValueNPA->Fill(0.);" << '\n'; // 0 means "not flipped"
             A_noprobadapt_notflipped += 1.;
         }
         else {
-            ofs << "  singleFlipValueNPA->Fill(1.);" << std::endl; // 1 means "flipped"
+            ofs << "  singleFlipValueNPA->Fill(1.);" << '\n'; // 1 means "flipped"
             A_noprobadapt_flipped += 1.;
         }
 
@@ -121,20 +121,20 @@ int main(int argc, char **argv) {
         B.adapt(gr);
         for(std::size_t j = 0; j < NBIT; j++) {
             if(B[j] == B_tmp[j]) {
-                ofs << "  collectionFlipValueNPA->Fill(0.);" << std::endl; // 0 means "not flipped"
+                ofs << "  collectionFlipValueNPA->Fill(0.);" << '\n'; // 0 means "not flipped"
                 B_noprobadapt_notflipped += 1.;
             }
             else {
-                ofs << "  collectionFlipValueNPA->Fill(1.);" << std::endl; // 1 means "flipped"
+                ofs << "  collectionFlipValueNPA->Fill(1.);" << '\n'; // 1 means "flipped"
                 B_noprobadapt_flipped += 1.;
             }
         }
     }
 
     std::cout << "A flip ratio (no probability adaption): "
-              << A_noprobadapt_flipped / double(MAXFLIP) << std::endl
+              << A_noprobadapt_flipped / double(MAXFLIP) << '\n'
               << "B flip ratio (no probability adaption): "
-              << B_noprobadapt_flipped / double(MAXFLIP * NBIT) << std::endl;
+              << B_noprobadapt_flipped / double(MAXFLIP * NBIT) << '\n';
 
     /////////////////////////////////////////////////////////////////////////////////////////
     // Tests with adaption of flip probability
@@ -154,11 +154,11 @@ int main(int argc, char **argv) {
         A_tmp = A;
         A.adapt(gr); // adapt
         if(A.value() == A_tmp.value()) {
-            ofs << "  singleFlipValuePA->Fill(0.);" << std::endl; // 0 means "not flipped"
+            ofs << "  singleFlipValuePA->Fill(0.);" << '\n'; // 0 means "not flipped"
             A_probadapt_notflipped += 1.;
         }
         else {
-            ofs << "  singleFlipValuePA->Fill(1.);" << std::endl; // 1 means "flipped"
+            ofs << "  singleFlipValuePA->Fill(1.);" << '\n'; // 1 means "flipped"
             A_probadapt_flipped += 1.;
         }
 
@@ -167,32 +167,32 @@ int main(int argc, char **argv) {
         B.adapt(gr);
         for(std::size_t j = 0; j < NBIT; j++) {
             if(B[j] == B_tmp[j]) {
-                ofs << "  collectionFlipValuePA->Fill(0.);" << std::endl; // 0 means "not flipped"
+                ofs << "  collectionFlipValuePA->Fill(0.);" << '\n'; // 0 means "not flipped"
                 B_probadapt_notflipped += 1.;
             }
             else {
-                ofs << "  collectionFlipValuePA->Fill(1.);" << std::endl; // 1 means "flipped"
+                ofs << "  collectionFlipValuePA->Fill(1.);" << '\n'; // 1 means "flipped"
                 B_probadapt_flipped += 1.;
             }
         }
     }
 
     std::cout << "A flip ratio (probability adaption): " << A_probadapt_flipped / double(MAXFLIP)
-              << std::endl
+              << '\n'
               << "B flip ratio (probability adaption): "
-              << B_probadapt_flipped / double(MAXFLIP * NBIT) << std::endl;
+              << B_probadapt_flipped / double(MAXFLIP * NBIT) << '\n';
 
-    ofs << std::endl
-        << "  cc->cd(1);" << std::endl
-        << "  singleFlipValueNPA->Draw();" << std::endl
-        << "  cc->cd(2);" << std::endl
-        << "  collectionFlipValueNPA->Draw();" << std::endl
-        << "  cc->cd(3);" << std::endl
-        << "  singleFlipValuePA->Draw();" << std::endl
-        << "  cc->cd(4);" << std::endl
-        << "  collectionFlipValuePA->Draw();" << std::endl
-        << "  cc->cd();" << std::endl
-        << "}" << std::endl;
+    ofs << '\n'
+        << "  cc->cd(1);" << '\n'
+        << "  singleFlipValueNPA->Draw();" << '\n'
+        << "  cc->cd(2);" << '\n'
+        << "  collectionFlipValueNPA->Draw();" << '\n'
+        << "  cc->cd(3);" << '\n'
+        << "  singleFlipValuePA->Draw();" << '\n'
+        << "  cc->cd(4);" << '\n'
+        << "  collectionFlipValuePA->Draw();" << '\n'
+        << "  cc->cd();" << '\n'
+        << "}" << '\n';
 
     ofs.close();
 

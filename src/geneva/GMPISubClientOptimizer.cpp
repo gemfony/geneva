@@ -41,13 +41,13 @@ GMPISubClientOptimizer::GMPISubClientOptimizer(
     if(Go2::getConsumerName() != "mpi") { // only allow using MPI
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "GMPISubClientOptimizer constructor Error!" << std::endl
+            << "GMPISubClientOptimizer constructor Error!" << '\n'
             << "GMPISubClientOptimizer may only be used with the GMPIConsumerT, but the consumer "
                "is `"
-            << Go2::getConsumerName() << "`" << std::endl
+            << Go2::getConsumerName() << "`" << '\n'
             << "Set the consumer to GMPIConsumerT by using the command line argument `--consumer "
                "mpi`"
-            << std::endl
+            << '\n'
         );
     }
 
@@ -80,12 +80,12 @@ GMPISubClientOptimizer::GMPISubClientOptimizer(
     if(!isServer) { // the server is in no sub-client group
         glogger << "baseRank=" << baseCommRank_
                 << " with mode=" << (isSubClient() ? "`sub-client`" : "`client`")
-                << " is in subgroup " << subCommColor << std::endl
+                << " is in subgroup " << subCommColor << '\n'
                 << GLOGGING;
     }
     else {
         glogger << "baseRank=" << baseCommRank_ << " is the server and in no sub-group"
-                << std::endl
+                << '\n'
                 << GLOGGING;
     }
 

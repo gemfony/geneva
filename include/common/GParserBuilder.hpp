@@ -685,8 +685,8 @@ public:
         if(not callBack) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GSingleParsableParameter::registerCallBackFunction(): Error" << std::endl
-                << "Tried to register an empty call-back function" << std::endl
+                << "In GSingleParsableParameter::registerCallBackFunction(): Error" << '\n'
+                << "Tried to register an empty call-back function" << '\n'
             );
         }
 
@@ -719,8 +719,8 @@ private:
             if(this->numberOfComments() != 1) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
-                    << "In GFileSingleParsableParameterT<>::save_to(): Error!" << std::endl
-                    << "Expected 0 or 1 comment but got " << this->numberOfComments() << std::endl
+                    << "In GFileSingleParsableParameterT<>::save_to(): Error!" << '\n'
+                    << "Expected 0 or 1 comment but got " << this->numberOfComments() << '\n'
                 );
             }
 
@@ -748,8 +748,8 @@ private:
         if(not call_back_func_) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GSingleParsableParameter::executeCallBackFunction_(): Error" << std::endl
-                << "Tried to execute call-back function without a stored function" << std::endl
+                << "In GSingleParsableParameter::executeCallBackFunction_(): Error" << '\n'
+                << "Tried to execute call-back function without a stored function" << '\n'
             );
         }
 
@@ -853,8 +853,8 @@ private:
             if(this->numberOfComments() != 1) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
-                    << "In GFileReferenceParsableParameterT<>::save_to(): Error!" << std::endl
-                    << "Expected 0 or 1 comment but got " << this->numberOfComments() << std::endl
+                    << "In GFileReferenceParsableParameterT<>::save_to(): Error!" << '\n'
+                    << "Expected 0 or 1 comment but got " << this->numberOfComments() << '\n'
                 );
             }
 
@@ -1064,8 +1064,8 @@ public:
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GFileCombinedParsableParameterT::registerCallBackFunction(): Error"
-                << std::endl
-                << "Tried to register an empty call-back function" << std::endl
+                << '\n'
+                << "Tried to register an empty call-back function" << '\n'
             );
         }
 
@@ -1106,8 +1106,8 @@ private:
             if(this->numberOfComments() != 2) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
-                    << "In GFileCombinedParsableParameterT<>::save_to(): Error!" << std::endl
-                    << "Expected 0 or 2 comments but got " << this->numberOfComments() << std::endl
+                    << "In GFileCombinedParsableParameterT<>::save_to(): Error!" << '\n'
+                    << "Expected 0 or 2 comments but got " << this->numberOfComments() << '\n'
                 );
             }
 
@@ -1173,8 +1173,8 @@ private:
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GFileCombinedParsableParameterT::executeCallBackFunction_(): Error"
-                << std::endl
-                << "Tried to execute call-back function without a stored function" << std::endl
+                << '\n'
+                << "Tried to execute call-back function without a stored function" << '\n'
             );
         }
 
@@ -1339,8 +1339,8 @@ public:
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GFileVectorParsableParameterT::registerCallBackFunction(): Error"
-                << std::endl
-                << "Tried to register an empty call-back function" << std::endl
+                << '\n'
+                << "Tried to register an empty call-back function" << '\n'
             );
         }
 
@@ -1382,8 +1382,8 @@ private:
             if(this->numberOfComments() != 1) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
-                    << "In GFileVectorParsableParameterT<>::save_to(): Error!" << std::endl
-                    << "Expected 0 or 1 comment but got " << this->numberOfComments() << std::endl
+                    << "In GFileVectorParsableParameterT<>::save_to(): Error!" << '\n'
+                    << "Expected 0 or 1 comment but got " << this->numberOfComments() << '\n'
                 );
             }
 
@@ -1400,8 +1400,8 @@ private:
         if(GVectorParT<parameter_type>::def_val_cnt_.empty()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GVectorParsableParameter::save_to(): Error!" << std::endl
-                << "You need to provide at least one default value" << std::endl
+                << "In GVectorParsableParameter::save_to(): Error!" << '\n'
+                << "You need to provide at least one default value" << '\n'
             );
         }
 
@@ -1424,8 +1424,8 @@ private:
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GFileVectorParsableParameterT::executeCallBackFunction_(): Error"
-                << std::endl
-                << "Tried to execute call-back function without a stored function" << std::endl
+                << '\n'
+                << "Tried to execute call-back function without a stored function" << '\n'
             );
         }
 
@@ -1542,8 +1542,8 @@ private:
             if(this->numberOfComments() != 1) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
-                    << "In GFileVectorReferenceParsableParameterT<>::save_to(): Error!" << std::endl
-                    << "Expected 0 or 1 comment but got " << this->numberOfComments() << std::endl
+                    << "In GFileVectorReferenceParsableParameterT<>::save_to(): Error!" << '\n'
+                    << "Expected 0 or 1 comment but got " << this->numberOfComments() << '\n'
                 );
             }
 
@@ -1560,8 +1560,8 @@ private:
         if(GVectorParT<parameter_type>::def_val_cnt_.empty()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GFileVectorReferenceParsableParameterT::save_to(): Error!" << std::endl
-                << "You need to provide at least one default value" << std::endl
+                << "In GFileVectorReferenceParsableParameterT::save_to(): Error!" << '\n'
+                << "You need to provide at least one default value" << '\n'
             );
         }
 
@@ -1730,8 +1730,8 @@ public:
         if(not callBack) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GFileArrayParsableParameterT::registerCallBackFunction(): Error" << std::endl
-                << "Tried to register an empty call-back function" << std::endl
+                << "In GFileArrayParsableParameterT::registerCallBackFunction(): Error" << '\n'
+                << "Tried to register an empty call-back function" << '\n'
             );
         }
 
@@ -1770,8 +1770,8 @@ private:
             if(this->numberOfComments() != 1) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
-                    << "In GFileArrayParsableParameterT<>::save_to(): Error!" << std::endl
-                    << "Expected 0 or 1 comment but got " << this->numberOfComments() << std::endl
+                    << "In GFileArrayParsableParameterT<>::save_to(): Error!" << '\n'
+                    << "Expected 0 or 1 comment but got " << this->numberOfComments() << '\n'
                 );
             }
 
@@ -1788,8 +1788,8 @@ private:
         if(GArrayParT<parameter_type, N>::def_val_arr_.empty()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GFileArrayParsableParameterT::save_to(): Error!" << std::endl
-                << "You need to provide at least one default value" << std::endl
+                << "In GFileArrayParsableParameterT::save_to(): Error!" << '\n'
+                << "You need to provide at least one default value" << '\n'
             );
         }
 
@@ -1814,8 +1814,8 @@ private:
         if(not call_back_func_) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GFileArrayParsableParameterT::executeCallBackFunction_(): Error" << std::endl
-                << "Tried to execute call-back function without a stored function" << std::endl
+                << "In GFileArrayParsableParameterT::executeCallBackFunction_(): Error" << '\n'
+                << "Tried to execute call-back function without a stored function" << '\n'
             );
         }
 
@@ -1926,8 +1926,8 @@ private:
             if(this->numberOfComments() != 1) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
-                    << "In GFileArrayReferenceParsableParameterT<>::save_to(): Error!" << std::endl
-                    << "Expected 0 or 1 comment but got " << this->numberOfComments() << std::endl
+                    << "In GFileArrayReferenceParsableParameterT<>::save_to(): Error!" << '\n'
+                    << "Expected 0 or 1 comment but got " << this->numberOfComments() << '\n'
                 );
             }
 
@@ -1945,8 +1945,8 @@ private:
         if(GArrayParT<parameter_type, N>::def_val_arr_.empty()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GFileArrayReferenceParsableParameterT::save_to(): Error!" << std::endl
-                << "You need to provide at least one default value" << std::endl
+                << "In GFileArrayReferenceParsableParameterT::save_to(): Error!" << '\n'
+                << "You need to provide at least one default value" << '\n'
             );
         }
 
@@ -2239,8 +2239,8 @@ public:
         if(it != file_parameter_proxies_.end()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GParserBuilder::registerFileParameter(singleParm_ptr): Error!" << std::endl
-                << "Parameter " << optionName << " has already been registered" << std::endl
+                << "In GParserBuilder::registerFileParameter(singleParm_ptr): Error!" << '\n'
+                << "Parameter " << optionName << " has already been registered" << '\n'
             );
         }
 #endif /* DEBUG */
@@ -2294,8 +2294,8 @@ public:
         if(it != file_parameter_proxies_.end()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GParserBuilder::registerFileParameter(refParm_ptr): Error!" << std::endl
-                << "Parameter " << optionName << " has already been registered" << std::endl
+                << "In GParserBuilder::registerFileParameter(refParm_ptr): Error!" << '\n'
+                << "Parameter " << optionName << " has already been registered" << '\n'
             );
         }
 #endif /* DEBUG */
@@ -2336,8 +2336,8 @@ public:
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GParameterObject::resetFileParameterDefaults(GSingleParmT): Error!"
-                << std::endl
-                << "Parameter object couldn't be found" << std::endl
+                << '\n'
+                << "Parameter object couldn't be found" << '\n'
             );
         }
 
@@ -2376,8 +2376,8 @@ public:
         if(it != file_parameter_proxies_.end()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GParserBuilder::registerFileParameter(combParm_ptr): Error!" << std::endl
-                << "Parameter " << optionName1 << " has already been registered" << std::endl
+                << "In GParserBuilder::registerFileParameter(combParm_ptr): Error!" << '\n'
+                << "Parameter " << optionName1 << " has already been registered" << '\n'
             );
         }
 #endif /* DEBUG */
@@ -2426,8 +2426,8 @@ public:
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GParameterObject::resetFileParameterDefaults(GCombinedParT): Error!"
-                << std::endl
-                << "Parameter object couldn't be found" << std::endl
+                << '\n'
+                << "Parameter object couldn't be found" << '\n'
             );
         }
 
@@ -2461,8 +2461,8 @@ public:
         if(it != file_parameter_proxies_.end()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GParserBuilder::registerFileParameter(vecParm_ptr): Error!" << std::endl
-                << "Parameter " << optionName << " has already been registered" << std::endl
+                << "In GParserBuilder::registerFileParameter(vecParm_ptr): Error!" << '\n'
+                << "Parameter " << optionName << " has already been registered" << '\n'
             );
         }
 #endif /* DEBUG */
@@ -2511,8 +2511,8 @@ public:
         if(it != file_parameter_proxies_.end()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GParserBuilder::registerFileParameter(vecRefParm_ptr): Error!" << std::endl
-                << "Parameter " << optionName << " has already been registered" << std::endl
+                << "In GParserBuilder::registerFileParameter(vecRefParm_ptr): Error!" << '\n'
+                << "Parameter " << optionName << " has already been registered" << '\n'
             );
         }
 #endif /* DEBUG */
@@ -2559,8 +2559,8 @@ public:
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GParameterObject::resetFileParameterDefaults(GVectorParT): Error!"
-                << std::endl
-                << "Parameter object couldn't be found" << std::endl
+                << '\n'
+                << "Parameter object couldn't be found" << '\n'
             );
         }
 
@@ -2595,8 +2595,8 @@ public:
         if(it != file_parameter_proxies_.end()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GParserBuilder::registerFileParameter(arrayParm_ptr): Error!" << std::endl
-                << "Parameter " << optionName << " has already been registered" << std::endl
+                << "In GParserBuilder::registerFileParameter(arrayParm_ptr): Error!" << '\n'
+                << "Parameter " << optionName << " has already been registered" << '\n'
             );
         }
 #endif /* DEBUG */
@@ -2647,8 +2647,8 @@ public:
         if(it != file_parameter_proxies_.end()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GParserBuilder::registerFileParameter(arrayRefParm_ptr): Error!" << std::endl
-                << "Parameter " << optionName << " has already been registered" << std::endl
+                << "In GParserBuilder::registerFileParameter(arrayRefParm_ptr): Error!" << '\n'
+                << "Parameter " << optionName << " has already been registered" << '\n'
             );
         }
 #endif /* DEBUG */
@@ -2695,8 +2695,8 @@ public:
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GParameterObject::resetFileParameterDefaults(GArrayParT): Error!"
-                << std::endl
-                << "Parameter object couldn't be found" << std::endl
+                << '\n'
+                << "Parameter object couldn't be found" << '\n'
             );
         }
 
@@ -2736,8 +2736,8 @@ public:
         if(it != cl_parameter_proxies_.end()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GParserBuilder::registerCLParameter(refParm_ptr): Error!" << std::endl
-                << "Parameter " << optionName << " has already been registered" << std::endl
+                << "In GParserBuilder::registerCLParameter(refParm_ptr): Error!" << '\n'
+                << "Parameter " << optionName << " has already been registered" << '\n'
             );
         }
 #endif /* DEBUG */
@@ -2801,8 +2801,8 @@ void configureFromFile(conf_object_type &target_object, std::filesystem::path co
     if(std::filesystem::is_directory(conf_file)) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In configureFromFile(" << conf_file.string() << "): Error!" << std::endl
-            << "Target is a directory rather than a file." << std::endl
+            << "In configureFromFile(" << conf_file.string() << "): Error!" << '\n'
+            << "Target is a directory rather than a file." << '\n'
         );
     }
 
@@ -2811,8 +2811,8 @@ void configureFromFile(conf_object_type &target_object, std::filesystem::path co
     if(not std::filesystem::exists(conf_file.parent_path())) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In configureFromFile(" << conf_file << "): Error!" << std::endl
-            << "Target has invalid parent path" << std::endl
+            << "In configureFromFile(" << conf_file << "): Error!" << '\n'
+            << "Target has invalid parent path" << '\n'
         );
     }
 

@@ -266,7 +266,7 @@ void ptrDifferenceCheck(const T *p1, const T *p2) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In Gem::Common::ptrDifferenceCheck<T>(): "
-            << "p1 and p2 point to the same object!" << std::endl
+            << "p1 and p2 point to the same object!" << '\n'
         );
     }
 #endif
@@ -284,7 +284,7 @@ void ptrDifferenceCheck(std::shared_ptr<T> p1, std::shared_ptr<T> p2) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In Gem::Common::ptrDifferenceCheck<T>(): "
-            << "Smart pointers p1 and p2 point to the same object!" << std::endl
+            << "Smart pointers p1 and p2 point to the same object!" << '\n'
         );
     }
 #endif
@@ -310,7 +310,7 @@ const target_type *g_ptr_conversion(const base_type *convert_ptr) {
     throw geneva_exception(
         g_error_streamer(DO_LOG, time_and_place)
         << "In g_ptr_conversion(): invalid conversion from " << typeid(base_type).name() << " to "
-        << typeid(target_type).name() << std::endl
+        << typeid(target_type).name() << '\n'
     );
     return nullptr;
 #else
@@ -333,7 +333,7 @@ std::shared_ptr<target_type> g_ptr_conversion(std::shared_ptr<base_type> convert
     throw geneva_exception(
         g_error_streamer(DO_LOG, time_and_place)
         << "In g_ptr_conversion(): invalid conversion from " << typeid(base_type).name() << " to "
-        << typeid(target_type).name() << std::endl
+        << typeid(target_type).name() << '\n'
     );
 #else
     return std::static_pointer_cast<target_type>(convert_ptr);
@@ -512,25 +512,25 @@ void copyArrays(T const *const from, T *&to, const std::size_t &nFrom, std::size
     if(nullptr == from && 0 != nFrom) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In copyArrays(): from is null but nFrom=" << nFrom << std::endl
+            << "In copyArrays(): from is null but nFrom=" << nFrom << '\n'
         );
     }
     if(nullptr != from && 0 == nFrom) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In copyArrays(): from is non-null but nFrom=0" << std::endl
+            << "In copyArrays(): from is non-null but nFrom=0" << '\n'
         );
     }
     if(nullptr == to && 0 != nTo) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In copyArrays(): to is null but nTo=" << nTo << std::endl
+            << "In copyArrays(): to is null but nTo=" << nTo << '\n'
         );
     }
     if(nullptr != to && 0 == nTo) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In copyArrays(): to is non-null but nTo=0" << std::endl
+            << "In copyArrays(): to is non-null but nTo=0" << '\n'
         );
     }
 
@@ -570,25 +570,25 @@ void copySmartPointerArrays(
     if(nullptr == from && 0 != size_from) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In copySmartPointerArrays(): from is null but size_from=" << size_from << std::endl
+            << "In copySmartPointerArrays(): from is null but size_from=" << size_from << '\n'
         );
     }
     if(nullptr != from && 0 == size_from) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In copySmartPointerArrays(): from is non-null but size_from=0" << std::endl
+            << "In copySmartPointerArrays(): from is non-null but size_from=0" << '\n'
         );
     }
     if(nullptr == to && 0 != size_to) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In copySmartPointerArrays(): to is null but size_to=" << size_to << std::endl
+            << "In copySmartPointerArrays(): to is null but size_to=" << size_to << '\n'
         );
     }
     if(nullptr != to && 0 == size_to) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In copySmartPointerArrays(): to is non-null but size_to=0" << std::endl
+            << "In copySmartPointerArrays(): to is non-null but size_to=0" << '\n'
         );
     }
 
@@ -617,7 +617,7 @@ std::shared_ptr<target_type> convertSmartPointer(std::shared_ptr<source_type> p_
     if(not p_raw) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In convertSmartPointer(): pointer is empty." << std::endl
+            << "In convertSmartPointer(): pointer is empty." << '\n'
         );
     }
     auto p = std::dynamic_pointer_cast<target_type>(p_raw);
@@ -626,7 +626,7 @@ std::shared_ptr<target_type> convertSmartPointer(std::shared_ptr<source_type> p_
     throw geneva_exception(
         g_error_streamer(DO_LOG, time_and_place)
         << "In convertSmartPointer(): invalid conversion to " << typeid(target_type).name()
-        << std::endl
+        << '\n'
     );
 #else
     return std::static_pointer_cast<target_type>(p_raw);
@@ -658,7 +658,7 @@ splitStringT(const std::string &raw, const char *sep1, const char *sep2) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In splitStringT(): sep1 and sep2 are identical: \"" << sep1 << "\" / \"" << sep2
-            << "\"" << std::endl
+            << "\"" << '\n'
         );
     }
 
@@ -669,7 +669,7 @@ splitStringT(const std::string &raw, const char *sep1, const char *sep2) {
         if(2 != sub.size()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In splitStringT(): expected 2 sub-fragments, got " << sub.size() << std::endl
+                << "In splitStringT(): expected 2 sub-fragments, got " << sub.size() << '\n'
             );
         }
 #endif
@@ -690,7 +690,7 @@ template <typename item_type>
 item_type &getMapItem(std::map<std::string, item_type> &m, const std::string &key) {
     if(m.empty()) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place) << "In getMapItem(): map is empty" << std::endl
+            g_error_streamer(DO_LOG, time_and_place) << "In getMapItem(): map is empty" << '\n'
         );
     }
     auto it = m.find(key);
@@ -698,7 +698,7 @@ item_type &getMapItem(std::map<std::string, item_type> &m, const std::string &ke
         return it->second;
     throw geneva_exception(
         g_error_streamer(DO_LOG, time_and_place)
-        << "In getMapItem(): key \"" << key << "\" not found" << std::endl
+        << "In getMapItem(): key \"" << key << "\" not found" << '\n'
     );
 }
 
@@ -710,7 +710,7 @@ template <typename item_type>
 const item_type &getMapItem(const std::map<std::string, item_type> &m, const std::string &key) {
     if(m.empty()) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place) << "In getMapItem(): map is empty" << std::endl
+            g_error_streamer(DO_LOG, time_and_place) << "In getMapItem(): map is empty" << '\n'
         );
     }
     auto cit = m.find(key);
@@ -718,7 +718,7 @@ const item_type &getMapItem(const std::map<std::string, item_type> &m, const std
         return cit->second;
     throw geneva_exception(
         g_error_streamer(DO_LOG, time_and_place)
-        << "In getMapItem(): key \"" << key << "\" not found" << std::endl
+        << "In getMapItem(): key \"" << key << "\" not found" << '\n'
     );
 }
 

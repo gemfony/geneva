@@ -268,29 +268,29 @@ struct simpleScanSpec {
 template <typename par_type>
 std::ostream &operator<<(std::ostream &o, const parPropSpec<par_type> &s) {
     if(0 == std::get<0>(s.var)) {
-        o << "index       = " << std::get<2>(s.var) << std::endl;
+        o << "index       = " << std::get<2>(s.var) << '\n';
     }
     else if(1 == std::get<0>(s.var)) {
         o << "Address     = " << std::get<1>(s.var) << "[" << std::get<2>(s.var) << "]"
-          << std::endl;
+          << '\n';
     }
     else if(2 == std::get<0>(s.var)) {
-        o << "Name        = " << std::get<1>(s.var) << std::endl;
+        o << "Name        = " << std::get<1>(s.var) << '\n';
     }
     else {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In std::ostream& operator<<(std::ostream& o, const parPropSpec<par_type>& s): "
                "Error!"
-            << std::endl
-            << "Got invalid mode " << std::get<0>(s.var) << std::endl
+            << '\n'
+            << "Got invalid mode " << std::get<0>(s.var) << '\n'
         );
     }
 
-    o << "mode          = " << std::get<0>(s.var) << std::endl
-      << "lowerBoundary = " << s.lowerBoundary << std::endl
-      << "upperBoundary = " << s.upperBoundary << std::endl
-      << "nSteps        = " << s.nSteps << std::endl;
+    o << "mode          = " << std::get<0>(s.var) << '\n'
+      << "lowerBoundary = " << s.lowerBoundary << '\n'
+      << "upperBoundary = " << s.upperBoundary << '\n'
+      << "nSteps        = " << s.nSteps << '\n';
 
     return o;
 }
@@ -397,8 +397,8 @@ public:
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In generic GParameterPropertyParser::getIterators<par_type>() function: Error!"
-            << std::endl
-            << "Function was called for an unsupported type" << std::endl
+            << '\n'
+            << "Function was called for an unsupported type" << '\n'
         );
 
         // Make the compiler happy
@@ -476,8 +476,8 @@ GParameterPropertyParser::getIterators<double>() const {
     if(not parsed_) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GParameterPropertyParser::getIterators<double>(): Error!" << std::endl
-            << "Tried to retrieve iterators when parsing hasn't happened yet" << std::endl
+            << "In GParameterPropertyParser::getIterators<double>(): Error!" << '\n'
+            << "Tried to retrieve iterators when parsing hasn't happened yet" << '\n'
         );
     }
 
@@ -512,8 +512,8 @@ GParameterPropertyParser::getIterators<float>() const {
     if(not parsed_) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GParameterPropertyParser::getIterators<float>(): Error!" << std::endl
-            << "Tried to retrieve iterators when parsing hasn't happened yet" << std::endl
+            << "In GParameterPropertyParser::getIterators<float>(): Error!" << '\n'
+            << "Tried to retrieve iterators when parsing hasn't happened yet" << '\n'
         );
     }
 
@@ -548,8 +548,8 @@ GParameterPropertyParser::getIterators<std::int32_t>() const {
     if(not parsed_) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GParameterPropertyParser::getIterators<std::int32_t>(): Error!" << std::endl
-            << "Tried to retrieve iterators when parsing hasn't happened yet" << std::endl
+            << "In GParameterPropertyParser::getIterators<std::int32_t>(): Error!" << '\n'
+            << "Tried to retrieve iterators when parsing hasn't happened yet" << '\n'
         );
     }
 
@@ -584,8 +584,8 @@ GParameterPropertyParser::getIterators<bool>() const {
     if(not parsed_) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GParameterPropertyParser::getIterators<bool>(): Error!" << std::endl
-            << "Tried to retrieve iterators when parsing hasn't happened yet" << std::endl
+            << "In GParameterPropertyParser::getIterators<bool>(): Error!" << '\n'
+            << "Tried to retrieve iterators when parsing hasn't happened yet" << '\n'
         );
     }
 

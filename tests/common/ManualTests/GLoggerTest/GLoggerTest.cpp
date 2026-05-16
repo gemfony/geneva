@@ -73,38 +73,38 @@ int main(int argc, char **argv) {
     glogger.addLogTarget(gfl_ptr);
 
     // Emission of a leading std::endl
-    glogger << std::endl << "This comment starts in the next line!" << std::endl << GLOGGING;
+    glogger << '\n' << "This comment starts in the next line!" << '\n' << GLOGGING;
 
     // Normal output to all logging targets
-    glogger << "Some information " << 1 << " " << 2 << std::endl << GLOGGING;
+    glogger << "Some information " << 1 << " " << 2 << '\n' << GLOGGING;
 
     // Warning emitted to all targets
-    glogger << "Some information " << 3 << " " << 4 << std::endl << GWARNING;
+    glogger << "Some information " << 3 << " " << 4 << '\n' << GWARNING;
 
     // Raising an exception. Note that the data will also be written to
     // a file named GENEVA-EXCEPTION.log
     try {
-        glogger << "Some information " << 5 << " " << 6 << std::endl << GEXCEPTION;
+        glogger << "Some information " << 5 << " " << 6 << '\n' << GEXCEPTION;
     }
     catch(geneva_exception &e) {
-        std::cout << "Caught exception with message" << std::endl << e << std::endl;
+        std::cout << "Caught exception with message" << '\n' << e << '\n';
     }
 
     // Output to a specific file
     glogger(std::filesystem::path("anotherFile"))
-        << "Some other information " << 7 << " " << 8 << std::endl
+        << "Some other information " << 7 << " " << 8 << '\n'
         << GFILE;
 
     // Output to registered logging targets with a given extension
     glogger(std::string("extension"))
-        << "And yet another information " << 9 << " " << 10 << std::endl
+        << "And yet another information " << 9 << " " << 10 << '\n'
         << GLOGGING;
 
     // Output to stdout
-    glogger << "std::out-information" << std::endl << GSTDOUT;
+    glogger << "std::out-information" << '\n' << GSTDOUT;
 
     // Output to stderr
-    glogger << "std::err information" << std::endl << GSTDERR;
+    glogger << "std::err information" << '\n' << GSTDERR;
 
     // Crash the applicaton if requested
     if(do_crash) {

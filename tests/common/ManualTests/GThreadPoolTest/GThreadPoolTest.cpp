@@ -111,9 +111,9 @@ public:
         if(true == simulateCrash) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In testTask::process(): Error!" << std::endl
-                << "SHF-Exception (Some Horrible Failure)" << std::endl
-                << "occurred, as requested ..." << std::endl
+                << "In testTask::process(): Error!" << '\n'
+                << "SHF-Exception (Some Horrible Failure)" << '\n'
+                << "occurred, as requested ..." << '\n'
             );
         }
     }
@@ -239,7 +239,7 @@ int main(int argc, char **argv) {
             );
             gtp.setNThreads(nt);
 
-            glogger << "Resized thread pool to size " << nt << std::endl << GLOGGING;
+            glogger << "Resized thread pool to size " << nt << '\n' << GLOGGING;
         }
 
         // Wait for all tasks to complete and check for errors
@@ -249,9 +249,9 @@ int main(int argc, char **argv) {
     // Check that each task has been called exactly nIterations times
     for(std::size_t i = 0; i < nJobs; i++) {
         if(nIterations != (tasks.at(i))->getOperatorCalledValue()) {
-            glogger << "In task " << i << ":" << std::endl
+            glogger << "In task " << i << ":" << '\n'
                     << "Got wrong number of calls: " << (tasks.at(i))->getOperatorCalledValue()
-                    << "." << std::endl
+                    << "." << '\n'
                     << GLOGGING;
         }
     }

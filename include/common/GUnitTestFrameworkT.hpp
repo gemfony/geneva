@@ -70,8 +70,8 @@ std::shared_ptr<T> TFactory_GUnitTests() {
     catch(...) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In std::shared_ptr<T> TFactory_GUnitTests(): Error!" << std::endl
-            << "Caught unknown exception" << std::endl
+            << "In std::shared_ptr<T> TFactory_GUnitTests(): Error!" << '\n'
+            << "Caught unknown exception" << '\n'
         );
     }
 

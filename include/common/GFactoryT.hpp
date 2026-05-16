@@ -250,9 +250,9 @@ public:
         }
         else {
             std::cout << "Warning: An attempt was made to write out configuration file "
-                      << config_path_.string() << std::endl
+                      << config_path_.string() << '\n'
                       << "even though no configuration options were registered. Doing nothing."
-                      << std::endl;
+                      << '\n';
         }
     }
 
@@ -275,9 +275,9 @@ public:
     virtual std::shared_ptr<GFactoryT<prod_type>> clone() const {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GFactoryT<prod_type>::clone(): Error!" << std::endl
-            << "Function was called when it shouldn't be." << std::endl
-            << "This function is a trap." << std::endl
+            << "In GFactoryT<prod_type>::clone(): Error!" << '\n'
+            << "Function was called when it shouldn't be." << '\n'
+            << "This function is a trap." << '\n'
         );
     }
 
@@ -340,8 +340,8 @@ protected:
         if(not gpb.parseConfigFile(config_path_)) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GFactoryT<prod_type>::operator(): Error!" << std::endl
-                << "Could not parse configuration file " << config_path_.string() << std::endl
+                << "In GFactoryT<prod_type>::operator(): Error!" << '\n'
+                << "Could not parse configuration file " << config_path_.string() << '\n'
             );
         }
 

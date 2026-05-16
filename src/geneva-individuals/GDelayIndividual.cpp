@@ -255,9 +255,9 @@ void GDelayIndividual::setRandomSleep(
        std::get<0>(randSleepBoundaries) >= std::get<1>(randSleepBoundaries)) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GDelayIndividual::setRandomSleep(): Error!" << std::endl
+            << "In GDelayIndividual::setRandomSleep(): Error!" << '\n'
             << "Got invalid boundaries for the sleep time: " << std::get<0>(randSleepBoundaries)
-            << " / " << std::get<1>(randSleepBoundaries) << std::endl
+            << " / " << std::get<1>(randSleepBoundaries) << '\n'
         );
     }
 
@@ -396,7 +396,7 @@ void GDelayIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder 
         sleepRandomly_,
         sleepRandomly_ // The default value
     ) << "Indicates whether the individual should sleep for a random amount of time"
-      << std::endl
+      << '\n'
       << "rather than a fixed amount of time";
 
     gpb.registerFileParameter(
@@ -404,7 +404,7 @@ void GDelayIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder 
         lowerRandSleepBoundary_,
         lowerRandSleepBoundary_ // The default value
     ) << "The lower boundary for random sleep times in the"
-      << std::endl
+      << '\n'
       << "fitness function (seconds, double value)";
 
     gpb.registerFileParameter(
@@ -412,7 +412,7 @@ void GDelayIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder 
         upperRandSleepBoundary_,
         upperRandSleepBoundary_ // The default value
     ) << "The upper boundary for random sleep times in the"
-      << std::endl
+      << '\n'
       << "fitness function (seconds, double value)";
 
     gpb.registerFileParameter(
@@ -485,7 +485,7 @@ void GDelayIndividualFactory::postProcess_(std::shared_ptr<Gem::Geneva::GParamet
         std::chrono::duration<double> sleepTime = this->tupleToTime(sleepTimes_.at(0));
 
         std::cout << "Producing individual in write mode with sleep time = " << sleepTime.count()
-                  << " s" << std::endl;
+                  << " s" << '\n';
 
         p->setFixedSleepTime(sleepTime);
 
@@ -525,7 +525,7 @@ void GDelayIndividualFactory::postProcess_(std::shared_ptr<Gem::Geneva::GParamet
             this->tupleToTime(sleepTimes_.at(id - Gem::Common::GFACTTORYFIRSTID));
 
         std::cout << "Producing individual " << (id - Gem::Common::GFACTTORYFIRSTID)
-                  << " with sleep time = " << sleepTime.count() << " s" << std::endl;
+                  << " with sleep time = " << sleepTime.count() << " s" << '\n';
 
         p->setFixedSleepTime(sleepTime);
 

@@ -220,9 +220,9 @@ public:
         if(result_cnt.size() != stored_results_cnt_.size()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GProcessingContainerT::markAsProcessedWith(): Vector dimensions" << std::endl
+                << "In GProcessingContainerT::markAsProcessedWith(): Vector dimensions" << '\n'
                 << "do not fit: " << result_cnt.size() << " / " << stored_results_cnt_.size()
-                << std::endl
+                << '\n'
             );
         }
 #endif
@@ -263,8 +263,8 @@ public:
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GProcessingContainerT::process(): Function called while processing_status_ "
                    "was set to "
-                << processing_status_ << std::endl
-                << "Expected " << processingStatus::DO_PROCESS << std::endl
+                << processing_status_ << '\n'
+                << "Expected " << processingStatus::DO_PROCESS << '\n'
             );
         }
 
@@ -307,17 +307,17 @@ public:
             // Let the audience know we had an error
             processing_status_ = processingStatus::EXCEPTION_CAUGHT;
             error_description_stream
-                << "In GProcessingContainerT<processable_type>::process():" << std::endl
-                << "Processing has thrown an exception with message" << std::endl
-                << e.what() << std::endl
-                << "We will rethrow this exception" << std::endl;
+                << "In GProcessingContainerT<processable_type>::process():" << '\n'
+                << "Processing has thrown an exception with message" << '\n'
+                << e.what() << '\n'
+                << "We will rethrow this exception" << '\n';
         }
         catch(...) {
             // Let the audience know we had an error
             processing_status_ = processingStatus::EXCEPTION_CAUGHT;
             error_description_stream
-                << "In GProcessingContainerT<processable_type>::process():" << std::endl
-                << "Processing has thrown an unknown exception." << std::endl;
+                << "In GProcessingContainerT<processable_type>::process():" << '\n'
+                << "Processing has thrown an unknown exception." << '\n';
         }
 
         if(this->has_errors()) { // Either an exception was caught or the user has flagged an error
@@ -357,8 +357,8 @@ public:
         if(not this->is_processed()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GProcessingContainerT::getStoredResult(): Tried to" << std::endl
-                << "retrieve stored result while the PROCESSED flag was not set" << std::endl
+                << "In GProcessingContainerT::getStoredResult(): Tried to" << '\n'
+                << "retrieve stored result while the PROCESSED flag was not set" << '\n'
             );
         }
 
@@ -481,9 +481,9 @@ public:
         if(target_ps == processingStatus::PROCESSED) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GProcessingContainerT<>::set_processing_status():" << std::endl
-                << "An attempt was made to set the processing state to PROCESSED" << std::endl
-                << "which is not allowed through this function." << std::endl
+                << "In GProcessingContainerT<>::set_processing_status():" << '\n'
+                << "An attempt was made to set the processing state to PROCESSED" << '\n'
+                << "which is not allowed through this function." << '\n'
             );
         }
 
@@ -503,10 +503,10 @@ public:
             else {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
-                    << "In GProcessingContainerT<>::set_processing_status():" << std::endl
-                    << "Got invalid target processing status " << psToStr(target_ps) << std::endl
-                    << "Expected a new state of DO_PROCESS for the" << std::endl
-                    << "current state of " << psToStr(processing_status_) << std::endl
+                    << "In GProcessingContainerT<>::set_processing_status():" << '\n'
+                    << "Got invalid target processing status " << psToStr(target_ps) << '\n'
+                    << "Expected a new state of DO_PROCESS for the" << '\n'
+                    << "current state of " << psToStr(processing_status_) << '\n'
                 );
             }
             break;
@@ -525,10 +525,10 @@ public:
             else {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
-                    << "In GProcessingContainerT<>::set_processing_status():" << std::endl
-                    << "Got invalid target processing status " << psToStr(target_ps) << std::endl
-                    << "Expected a new state of DO_IGNORE for the" << std::endl
-                    << "current state of " << psToStr(processing_status_) << std::endl
+                    << "In GProcessingContainerT<>::set_processing_status():" << '\n'
+                    << "Got invalid target processing status " << psToStr(target_ps) << '\n'
+                    << "Expected a new state of DO_IGNORE for the" << '\n'
+                    << "current state of " << psToStr(processing_status_) << '\n'
                 );
             }
             break;
@@ -548,10 +548,10 @@ public:
             else {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
-                    << "In GProcessingContainerT<>::set_processing_status():" << std::endl
-                    << "Got invalid target processing status " << psToStr(target_ps) << std::endl
-                    << "Expected a new state of DO_IGNORE or DO_PROCESS for the" << std::endl
-                    << "current state of " << psToStr(processing_status_) << std::endl
+                    << "In GProcessingContainerT<>::set_processing_status():" << '\n'
+                    << "Got invalid target processing status " << psToStr(target_ps) << '\n'
+                    << "Expected a new state of DO_IGNORE or DO_PROCESS for the" << '\n'
+                    << "current state of " << psToStr(processing_status_) << '\n'
                 );
             }
             break;
@@ -572,10 +572,10 @@ public:
             else {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
-                    << "In GProcessingContainerT<>::set_processing_status():" << std::endl
-                    << "Got invalid target processing status " << psToStr(target_ps) << std::endl
-                    << "Expected a new state of DO_IGNORE or DO_PROCESS for the" << std::endl
-                    << "current state of " << psToStr(processing_status_) << std::endl
+                    << "In GProcessingContainerT<>::set_processing_status():" << '\n'
+                    << "Got invalid target processing status " << psToStr(target_ps) << '\n'
+                    << "Expected a new state of DO_IGNORE or DO_PROCESS for the" << '\n'
+                    << "current state of " << psToStr(processing_status_) << '\n'
                 );
             }
             break;
@@ -926,7 +926,7 @@ protected:
         if(error_info.empty()) {
             throw geneva_exception( // Note: this is a specific exception to flag errors during processing
 					g_error_streamer(DO_LOG, time_and_place)
-					<< "In GProcessingContainerT::force_set_error(): Error info is empty" << std::endl
+					<< "In GProcessingContainerT::force_set_error(): Error info is empty" << '\n'
 				);
         }
 

@@ -137,5 +137,5 @@ int main(int argc, char **argv) {
     double throughput = double(nCycles * packageSize) / duration.count();
     double megabytes = 8. * throughput / (1024 * 1024);
     std::cout << "Achieved a throughput of " << throughput
-              << " double random numbers/s (equivalent to " << megabytes << " MB/s)" << std::endl;
+              << " double random numbers/s (equivalent to " << megabytes << " MB/s)" << '\n';
 }

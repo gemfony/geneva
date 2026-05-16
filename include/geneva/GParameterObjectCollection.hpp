@@ -100,9 +100,9 @@ public:
         if(this->empty() || pos >= this->size()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GParameterObjectCollection::at<>(): Error!" << std::endl
+                << "In GParameterObjectCollection::at<>(): Error!" << '\n'
                 << "Tried to access position " << pos << " while size is " << this->size()
-                << std::endl
+                << '\n'
             );
 
             // Make the compiler happy

@@ -229,24 +229,24 @@ void printDeviceInfo() {
     checkCuda(cudaGetDeviceCount(&deviceCount), "deviceCount");
 
     if(deviceCount == 0) {
-        std::cout << "No CUDA-capable devices found." << std::endl;
+        std::cout << "No CUDA-capable devices found." << '\n';
         return;
     }
 
-    std::cout << "Number of CUDA-capable devices: " << deviceCount << "\n" << std::endl;
+    std::cout << "Number of CUDA-capable devices: " << deviceCount << "\n" << '\n';
 
     // Informationen zu jedem Gerät abrufen und ausgeben
     for(int device = 0; device < deviceCount; ++device) {
         cudaDeviceProp deviceProp;
         checkCuda(cudaGetDeviceProperties(&deviceProp, device), "device properties");
 
-        std::cout << "Device " << device << ": " << deviceProp.name << std::endl;
+        std::cout << "Device " << device << ": " << deviceProp.name << '\n';
         std::cout << "  Compute Capability: " << deviceProp.major << "." << deviceProp.minor
-                  << std::endl;
+                  << '\n';
         std::cout << "  Global Memory: "
                   << static_cast<float>(deviceProp.totalGlobalMem) / (1 << 20) << " MB"
-                  << std::endl;
-        std::cout << "  Multiprocessors: " << deviceProp.multiProcessorCount << std::endl;
+                  << '\n';
+        std::cout << "  Multiprocessors: " << deviceProp.multiProcessorCount << '\n';
 
         // Number of CUDA-cores (this is an estimate)
         int cudaCores = 0;
@@ -278,27 +278,27 @@ void printDeviceInfo() {
             cudaCores = deviceProp.multiProcessorCount * 128; // Default estimate
         }
 
-        std::cout << "  CUDA-Cores (estimate): " << cudaCores << std::endl;
+        std::cout << "  CUDA-Cores (estimate): " << cudaCores << '\n';
 #if CUDART_VERSION < 12000
-        std::cout << "  Device Frequency: " << deviceProp.clockRate * 1e-3f << " MHz" << std::endl;
+        std::cout << "  Device Frequency: " << deviceProp.clockRate * 1e-3f << " MHz" << '\n';
         std::cout << "  Memory Frequency: " << deviceProp.memoryClockRate * 1e-3f << " MHz"
-                  << std::endl;
+                  << '\n';
 #endif
-        std::cout << "  Memory Bandwidth: " << deviceProp.memoryBusWidth << " Bit" << std::endl;
-        std::cout << "  L2-Cache: " << deviceProp.l2CacheSize << " Bytes" << std::endl;
+        std::cout << "  Memory Bandwidth: " << deviceProp.memoryBusWidth << " Bit" << '\n';
+        std::cout << "  L2-Cache: " << deviceProp.l2CacheSize << " Bytes" << '\n';
         std::cout << "  Maximum number of threads per block: " << deviceProp.maxThreadsPerBlock
-                  << std::endl;
+                  << '\n';
         std::cout << "  Maximum Thread-Dimension: (" << deviceProp.maxThreadsDim[0] << ", "
                   << deviceProp.maxThreadsDim[1] << ", " << deviceProp.maxThreadsDim[2] << ")"
-                  << std::endl;
+                  << '\n';
         std::cout << "  Maximum Grid-Size: (" << deviceProp.maxGridSize[0] << ", "
                   << deviceProp.maxGridSize[1] << ", " << deviceProp.maxGridSize[2] << ")" << "\n"
-                  << std::endl;
+                  << '\n';
         if(deviceProp.concurrentKernels) {
-            std::cout << "  The GPU supports concurrent Kernel-execution." << std::endl;
+            std::cout << "  The GPU supports concurrent Kernel-execution." << '\n';
         }
         else {
-            std::cout << "  The GPU does not support concurrent Kernel-execution." << std::endl;
+            std::cout << "  The GPU does not support concurrent Kernel-execution." << '\n';
         }
     }
 }

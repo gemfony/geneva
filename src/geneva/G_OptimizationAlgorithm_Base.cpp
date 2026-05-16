@@ -291,11 +291,11 @@ void G_OptimizationAlgorithm_Base::loadCheckpoint(std::filesystem::path const &c
     if(opt_desc != this->getAlgorithmPersonalityType()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In G_OptimizationAlgorithm_Base<>::loadCheckpoint(): Error!" << std::endl
-            << "Checkpoint file " << cpFile << std::endl
+            << "In G_OptimizationAlgorithm_Base<>::loadCheckpoint(): Error!" << '\n'
+            << "Checkpoint file " << cpFile << '\n'
             << "seems to belong to another algorithm. Expected "
-            << this->getAlgorithmPersonalityType() << std::endl
-            << "but got " << opt_desc << std::endl
+            << this->getAlgorithmPersonalityType() << '\n'
+            << "but got " << opt_desc << '\n'
         );
     }
 
@@ -353,8 +353,8 @@ void G_OptimizationAlgorithm_Base::setCheckpointBaseName(
             g_error_streamer(DO_LOG, time_and_place)
             << "In G_OptimizationAlgorithm_Base::setCheckpointBaseName(const std::string&, const "
                "std::string&):"
-            << std::endl
-            << "Error: Invalid cpBaseName: " << cpBaseName << std::endl
+            << '\n'
+            << "Error: Invalid cpBaseName: " << cpBaseName << '\n'
         );
     }
 
@@ -363,8 +363,8 @@ void G_OptimizationAlgorithm_Base::setCheckpointBaseName(
             g_error_streamer(DO_LOG, time_and_place)
             << "In G_OptimizationAlgorithm_Base::setCheckpointBaseName(const std::string&, const "
                "std::string&):"
-            << std::endl
-            << "Error: Invalid cpDirectory: " << cpDirectory << std::endl
+            << '\n'
+            << "Error: Invalid cpDirectory: " << cpDirectory << '\n'
         );
     }
 
@@ -375,24 +375,24 @@ void G_OptimizationAlgorithm_Base::setCheckpointBaseName(
 
     // Check that the provided directory exists
     if(not std::filesystem::exists(cp_directory_path_)) {
-        glogger << "In G_OptimizationAlgorithm_Base::setCheckpointBaseName(): Warning!" << std::endl
+        glogger << "In G_OptimizationAlgorithm_Base::setCheckpointBaseName(): Warning!" << '\n'
                 << "Directory " << cp_directory_path_.string()
-                << " does not exist and will be created automatically." << std::endl
+                << " does not exist and will be created automatically." << '\n'
                 << GWARNING;
 
         if(not std::filesystem::create_directory(cp_directory_path_)) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In G_OptimizationAlgorithm_Base::setCheckpointBaseName(): Error!" << std::endl
-                << "Could not create directory " << cp_directory_path_.string() << std::endl
+                << "In G_OptimizationAlgorithm_Base::setCheckpointBaseName(): Error!" << '\n'
+                << "Could not create directory " << cp_directory_path_.string() << '\n'
             );
         }
     }
     else if(not std::filesystem::is_directory(cp_directory_path_)) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In G_OptimizationAlgorithm_Base::setCheckpointBaseName(): Error!" << std::endl
-            << cp_directory_path_.string() << " exists but is no directory." << std::endl
+            << "In G_OptimizationAlgorithm_Base::setCheckpointBaseName(): Error!" << '\n'
+            << cp_directory_path_.string() << " exists but is no directory." << '\n'
         );
     }
 }
@@ -609,20 +609,20 @@ void G_OptimizationAlgorithm_Base::registerExecutor(
     std::filesystem::path const &executorConfigFile
 ) {
     if(not executor_ptr) {
-        glogger << "In G_OptimizationAlgorithm_Base::registerExecutor(): Warning!" << std::endl
+        glogger << "In G_OptimizationAlgorithm_Base::registerExecutor(): Warning!" << '\n'
                 << "Tried to register empty executor-pointer. We will leave the existing"
-                << std::endl
-                << "executor in place" << std::endl
+                << '\n'
+                << "executor in place" << '\n'
                 << GWARNING;
 
         return;
     }
 
     if(not halted_) {
-        glogger << "In G_OptimizationAlgorithm_Base::registerExecutor(): Warning!" << std::endl
+        glogger << "In G_OptimizationAlgorithm_Base::registerExecutor(): Warning!" << '\n'
                 << "Tried to register an executor while the optimization is already running"
-                << std::endl
-                << "The new executor will be ignored." << std::endl
+                << '\n'
+                << "The new executor will be ignored." << '\n'
                 << GWARNING;
 
         return;
@@ -638,8 +638,8 @@ void G_OptimizationAlgorithm_Base::registerExecutor(
     if(not gpb.parseConfigFile(executorConfigFile)) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In G_OptimizationAlgorithm_Base::registerExecutor(): Error!" << std::endl
-            << "Could not parse configuration file " << executorConfigFile.string() << std::endl
+            << "In G_OptimizationAlgorithm_Base::registerExecutor(): Error!" << '\n'
+            << "Could not parse configuration file " << executorConfigFile.string() << '\n'
         );
     }
 
@@ -781,7 +781,7 @@ void G_OptimizationAlgorithm_Base::informationUpdate(infoMode const &im) {
     switch(im) {
     case Gem::Geneva::infoMode::INFOINIT:
         std::cout << "Starting an optimization run with algorithm \"" << this->getAlgorithmName()
-                  << "\"" << std::endl;
+                  << "\"" << '\n';
         break;
 
     case Gem::Geneva::infoMode::INFOPROCESSING: {
@@ -789,12 +789,12 @@ void G_OptimizationAlgorithm_Base::informationUpdate(infoMode const &im) {
         std::cout << std::setprecision(5) << this->getIteration() << ": "
                   << Gem::Common::g_to_string(this->getBestCurrentPrimaryFitness())
                   << " // best past: "
-                  << Gem::Common::g_to_string(this->getBestKnownPrimaryFitness()) << std::endl;
+                  << Gem::Common::g_to_string(this->getBestKnownPrimaryFitness()) << '\n';
     } break;
 
     case Gem::Geneva::infoMode::INFOEND:
         std::cout << "End of optimization reached in algorithm \"" << this->getAlgorithmName()
-                  << "\"" << std::endl;
+                  << "\"" << '\n';
         break;
     };
 
@@ -831,7 +831,7 @@ void G_OptimizationAlgorithm_Base::registerPluggableOM(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GoptimizationMonitorT<>::registerPluggableOM(): Tried to register empty "
                "pluggable optimization monitor"
-            << std::endl
+            << '\n'
         );
     }
 }
@@ -884,9 +884,9 @@ void G_OptimizationAlgorithm_Base::setMaxIteration(std::uint32_t maxIteration) {
     if(maxIteration > 0 && maxIteration <= minIteration_) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In G_OptimizationAlgorithm_Base<>::setMaxIteration(): Error!" << std::endl
+            << "In G_OptimizationAlgorithm_Base<>::setMaxIteration(): Error!" << '\n'
             << "Maximum number of iterations " << maxIteration << " is <= the minimum number "
-            << minIteration_ << std::endl
+            << minIteration_ << '\n'
         );
     }
 
@@ -917,9 +917,9 @@ void G_OptimizationAlgorithm_Base::setMinIteration(std::uint32_t minIteration) {
     if(maxIteration_ > 0 && maxIteration_ <= minIteration) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In G_OptimizationAlgorithm_Base<>::setMinIteration(): Error!" << std::endl
+            << "In G_OptimizationAlgorithm_Base<>::setMinIteration(): Error!" << '\n'
             << "Maximum number of iterations " << maxIteration_ << " is <= the minimum number "
-            << minIteration << std::endl
+            << minIteration << '\n'
         );
     }
 
@@ -966,9 +966,9 @@ void G_OptimizationAlgorithm_Base::setMaxTime(std::chrono::duration<double> maxD
     if(not Gem::Common::isClose<double>(maxDuration.count(), 0.) && maxDuration < minDuration_) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In G_OptimizationAlgorithm_Base<>::setMaxTime(): Error!" << std::endl
+            << "In G_OptimizationAlgorithm_Base<>::setMaxTime(): Error!" << '\n'
             << "Desired maxDuration (" << maxDuration.count() << " is smaller than minDuration_("
-            << minDuration_.count() << ")" << std::endl
+            << minDuration_.count() << ")" << '\n'
         );
     }
 
@@ -996,9 +996,9 @@ void G_OptimizationAlgorithm_Base::setMinTime(std::chrono::duration<double> minD
     if(not Gem::Common::isClose<double>(maxDuration_.count(), 0.) && maxDuration_ < minDuration) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In G_OptimizationAlgorithm_Base<>::setMinTime(): Error!" << std::endl
+            << "In G_OptimizationAlgorithm_Base<>::setMinTime(): Error!" << '\n'
             << "Desired maxDuration (" << maxDuration_.count() << " is smaller than minDuration_("
-            << minDuration.count() << ")" << std::endl
+            << minDuration.count() << ")" << '\n'
         );
     }
 
@@ -1259,7 +1259,7 @@ void G_OptimizationAlgorithm_Base::addConfigurationOptions_(Gem::Common::GParser
         ,
         [this](std::uint32_t maxStallIt) { this->setMaxStallIteration(maxStallIt); }
     ) << "The maximum allowed number of iterations without improvement"
-      << std::endl
+      << '\n'
       << "0 means: no constraint.";
 
     gpb.registerFileParameter<std::string, bool>(
@@ -1272,9 +1272,9 @@ void G_OptimizationAlgorithm_Base::addConfigurationOptions_(Gem::Common::GParser
         [this](std::string tf, bool tfa) { this->setTerminationFile(tf, tfa); },
         "touchedTermination"
     ) << "The name of a file which, when modified after the start of an"
-      << std::endl
-      << "optimization run, instructs Geneva to terminate optimitation." << std::endl
-      << "This can be used to \"touch a file\" after the start of an optimization" << std::endl
+      << '\n'
+      << "optimization run, instructs Geneva to terminate optimitation." << '\n'
+      << "This can be used to \"touch a file\" after the start of an optimization" << '\n'
       << "run, which will lead to the termination of the run after the current iteration."
       << Gem::Common::nextComment()
       << "Activates (1) or de-activates (0) the \"touched termination\"";
@@ -1288,8 +1288,8 @@ void G_OptimizationAlgorithm_Base::addConfigurationOptions_(Gem::Common::GParser
             this->setStallCounterThreshold(stallCounterThreshold);
         }
     ) << "The number of iterations without improvement after which"
-      << std::endl
-      << "individuals are asked to update their internal data structures" << std::endl
+      << '\n'
+      << "individuals are asked to update their internal data structures" << '\n'
       << "through the actOnStalls() function. A value of 0 disables this check";
 
     gpb.registerFileParameter<std::uint32_t>(
@@ -1315,8 +1315,8 @@ void G_OptimizationAlgorithm_Base::addConfigurationOptions_(Gem::Common::GParser
         ,
         [this](std::int32_t cpI) { this->setCheckpointInterval(cpI); }
     ) << "The number of iterations after which a checkpoint should be written."
-      << std::endl
-      << "-1 means: Write a checkpoint file whenever an improvement was encountered" << std::endl
+      << '\n'
+      << "-1 means: Write a checkpoint file whenever an improvement was encountered" << '\n'
       << " 0 means: Never emit checkpoint files.";
 
     gpb.registerFileParameter<std::string, std::string>(
@@ -1349,7 +1349,7 @@ void G_OptimizationAlgorithm_Base::addConfigurationOptions_(Gem::Common::GParser
         ,
         [this](Gem::Common::serializationMode sM) { this->setCheckpointSerializationMode(sM); }
     ) << "Determines whether check-pointing should be done in"
-      << std::endl
+      << '\n'
       << "text- (0), XML- (1), or binary-mode (2)";
 
     gpb.registerFileParameter<double, bool>(
@@ -1362,8 +1362,8 @@ void G_OptimizationAlgorithm_Base::addConfigurationOptions_(Gem::Common::GParser
         [this](double qt, bool ta) { this->setQualityThreshold(qt, ta); },
         "qualityTermination"
     ) << "A threshold beyond which optimization is expected to stop"
-      << std::endl
-      << "Note that in order to activate this threshold, you also need to" << std::endl
+      << '\n'
+      << "Note that in order to activate this threshold, you also need to" << '\n'
       << "set \"hasQualityThreshold\" to 1." << Gem::Common::nextComment()
       << "Activates (1) or de-activates (0) the quality threshold";
 
@@ -1374,7 +1374,7 @@ void G_OptimizationAlgorithm_Base::addConfigurationOptions_(Gem::Common::GParser
         ,
         [this](std::string mt_str) { this->setMaxTime(Gem::Common::duration_from_string(mt_str)); }
     ) << "The maximum allowed time-frame for the optimization"
-      << std::endl
+      << '\n'
       << "in the format hours:minutes:seconds";
 
     gpb.registerFileParameter<std::string>(
@@ -1384,7 +1384,7 @@ void G_OptimizationAlgorithm_Base::addConfigurationOptions_(Gem::Common::GParser
         ,
         [this](std::string mt_str) { this->setMinTime(Gem::Common::duration_from_string(mt_str)); }
     ) << "The minimum required time-frame for the optimization"
-      << std::endl
+      << '\n'
       << "in the format hours:minutes:seconds";
 
     gpb.registerFileParameter<bool>(
@@ -1408,10 +1408,10 @@ void G_OptimizationAlgorithm_Base::addConfigurationOptions_(Gem::Common::GParser
         },
         "defaultExecutor"
     ) << "The default executor type to be used for this algorithm."
-      << std::endl
-      << "0: serial" << std::endl
-      << "1: multi-threaded" << std::endl
-      << "2: brokered" << std::endl
+      << '\n'
+      << "0: serial" << '\n'
+      << "1: multi-threaded" << '\n'
+      << "2: brokered" << '\n'
       << Gem::Common::nextComment()
       << "The configuration file for the default executor. Note that it needs to fit the executor "
          "type.";
@@ -1433,9 +1433,9 @@ void G_OptimizationAlgorithm_Base::updateGlobalBestsPQ_(
     if(this->empty()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In G_OptimizationAlgorithm_Base::updateGlobalBestsPQ() :" << std::endl
+            << "In G_OptimizationAlgorithm_Base::updateGlobalBestsPQ() :" << '\n'
             << "Tried to retrieve the best individuals even though the population is empty."
-            << std::endl
+            << '\n'
         );
     }
 #endif /* DEBUG */
@@ -1463,9 +1463,9 @@ void G_OptimizationAlgorithm_Base::updateIterationBestsPQ_(
     if(this->empty()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In G_OptimizationAlgorithm_Base::updateIterationBestsPQ() :" << std::endl
+            << "In G_OptimizationAlgorithm_Base::updateIterationBestsPQ() :" << '\n'
             << "Tried to retrieve the best individuals even though the population is empty."
-            << std::endl
+            << '\n'
         );
     }
 #endif /* DEBUG */
@@ -1645,9 +1645,9 @@ G_OptimizationAlgorithm_Base::extractOptAlgFromPath(const std::filesystem::path 
     if(tokens.size() < 2) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In G_OptimizationAlgorithm_Base<>::extractOptAlgFromPath(): Error!" << std::endl
-            << "Found file name " << filename << " that does not comply to rules." << std::endl
-            << "Expected \"/some/path/word1-PERSONALITY_EA-some-other-information \"" << std::endl
+            << "In G_OptimizationAlgorithm_Base<>::extractOptAlgFromPath(): Error!" << '\n'
+            << "Found file name " << filename << " that does not comply to rules." << '\n'
+            << "Expected \"/some/path/word1-PERSONALITY_EA-some-other-information \"" << '\n'
         );
     }
 
@@ -1666,8 +1666,8 @@ std::shared_ptr<GParameterSet> G_OptimizationAlgorithm_Base::getBestGlobalIndivi
     if(!p) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In G_OptimizationAlgorithm_Base<T>::getBestGlobalIndividual_(): Error!" << std::endl
-            << "Best individual seems to be empty" << std::endl
+            << "In G_OptimizationAlgorithm_Base<T>::getBestGlobalIndividual_(): Error!" << '\n'
+            << "Best individual seems to be empty" << '\n'
         );
     }
 #endif
@@ -1703,8 +1703,8 @@ std::shared_ptr<GParameterSet> G_OptimizationAlgorithm_Base::getBestIterationInd
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In G_OptimizationAlgorithm_Base<T>::getBestIterationIndividual_(): Error!"
-            << std::endl
-            << "Best individual seems to be empty" << std::endl
+            << '\n'
+            << "Best individual seems to be empty" << '\n'
         );
     }
 #endif
@@ -1762,9 +1762,9 @@ void G_OptimizationAlgorithm_Base::setNRecordBestIndividuals(std::size_t nRecord
     if(0 == nRecordBestIndividuals) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In G_OptimizationAlgorithm_Base<>::setNRecordBestIndividuals(): Error!" << std::endl
+            << "In G_OptimizationAlgorithm_Base<>::setNRecordBestIndividuals(): Error!" << '\n'
             << "Invalid number of individuals to be recorded: " << nRecordBestIndividuals
-            << std::endl
+            << '\n'
         );
     }
 
@@ -1805,17 +1805,17 @@ void G_OptimizationAlgorithm_Base::init() {
         if(not executor_ptr) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In G_OptimizationAlgorithm_Base<>::init(): Error!" << std::endl
-                << "Did not receive a valid executor" << std::endl
+                << "In G_OptimizationAlgorithm_Base<>::init(): Error!" << '\n'
+                << "Did not receive a valid executor" << '\n'
             );
         }
 #endif
 
         glogger << "In G_OptimizationAlgorithm_Base<>::init(): No explicit executor was "
                    "registered. Using default"
-                << std::endl
+                << '\n'
                 << "\"" << executor_ptr->name() << "\" with config \""
-                << this->default_executor_config_ << "\" instead" << std::endl
+                << this->default_executor_config_ << "\" instead" << '\n'
                 << GLOGGING;
 
         this->registerExecutor(executor_ptr, this->default_executor_config_);
@@ -1892,7 +1892,7 @@ bool G_OptimizationAlgorithm_Base::timedHalt(
     if((currentTime - startTime_) >= maxDuration_) {
         if(emitTerminationReason_) {
             glogger << "Terminating optimization run because maximum time frame has been exceeded."
-                    << std::endl
+                    << '\n'
                     << GLOGGING;
         }
 
@@ -1933,12 +1933,12 @@ bool G_OptimizationAlgorithm_Base::qualityHalt() const {
            m
        )) {
         if(emitTerminationReason_) {
-            glogger << "Terminating optimization run because" << std::endl
+            glogger << "Terminating optimization run because" << '\n'
                     << "quality threshold " << qualityThreshold_ << " has been exceeded."
-                    << std::endl
+                    << '\n'
                     << "Best untransformed quality found was "
-                    << std::get<G_RAW_FITNESS>(bestKnownPrimaryFitness_) << std::endl
-                    << "with termination in iteration " << iteration_ << std::endl
+                    << std::get<G_RAW_FITNESS>(bestKnownPrimaryFitness_) << '\n'
+                    << "with termination in iteration " << iteration_ << '\n'
                     << GLOGGING;
         }
 
@@ -1958,10 +1958,10 @@ bool G_OptimizationAlgorithm_Base::qualityHalt() const {
 bool G_OptimizationAlgorithm_Base::stallHalt() const {
     if(stallCounter_ >= maxStallIteration_) {
         if(emitTerminationReason_) {
-            glogger << "Terminating optimization run because" << std::endl
+            glogger << "Terminating optimization run because" << '\n'
                     << "maximum number of stalls " << maxStallIteration_ << " has been exceeded."
-                    << std::endl
-                    << "This is considered to be a criterion for convergence." << std::endl
+                    << '\n'
+                    << "This is considered to be a criterion for convergence." << '\n'
                     << GLOGGING;
         }
 
@@ -1981,9 +1981,9 @@ bool G_OptimizationAlgorithm_Base::stallHalt() const {
 bool G_OptimizationAlgorithm_Base::iterationHalt() const {
     if(iteration_ >= maxIteration_) {
         if(emitTerminationReason_) {
-            glogger << "Terminating optimization run because" << std::endl
+            glogger << "Terminating optimization run because" << '\n'
                     << "iteration threshold " << maxIteration_ << " has been exceeded."
-                    << std::endl
+                    << '\n'
                     << GLOGGING;
         }
 
@@ -2019,10 +2019,10 @@ bool G_OptimizationAlgorithm_Base::sigHupHalt() const {
 #if defined(_MSC_VER) && (_MSC_VER >= 1020)
         std::cout
             << "Terminating optimization run because a CTRL_CLOSE_EVENT signal has been received"
-            << std::endl;
+            << '\n';
 #else
         std::cout << "Terminating optimization run because a SIGHUP signal has been received"
-                  << std::endl;
+                  << '\n';
 #endif
         return true;
     }
@@ -2053,8 +2053,8 @@ bool G_OptimizationAlgorithm_Base::touchHalt() const {
     // Check if the file was modified after the start of the optimization run
     if(modTime > file_startTime_) {
         if(emitTerminationReason_) {
-            glogger << "Terminating optimization run because" << std::endl
-                    << p << " was modified after the start of the optimization" << std::endl
+            glogger << "Terminating optimization run because" << '\n'
+                    << p << " was modified after the start of the optimization" << '\n'
                     << GLOGGING;
         }
 
@@ -2075,7 +2075,7 @@ bool G_OptimizationAlgorithm_Base::customHalt() const {
     if(customHalt_()) {
         if(emitTerminationReason_) {
             glogger << "Terminating optimization run because custom halt criterion has triggered."
-                    << std::endl
+                    << '\n'
                     << GLOGGING;
         }
 
@@ -2230,19 +2230,19 @@ G_OptimizationAlgorithm_Base::createExecutor(const execMode &e) {
 
     switch(e) {
     case execMode::SERIAL:
-        glogger << "Creating GSerialExecutorT" << std::endl << GLOGGING;
+        glogger << "Creating GSerialExecutorT" << '\n' << GLOGGING;
         executor_ptr = std::make_shared<Gem::Courtier::GSerialExecutorT<GParameterSet>>();
         break;
 
     case execMode::MULTITHREADED:
-        glogger << "Creating GMTExecutorT" << std::endl << GLOGGING;
+        glogger << "Creating GMTExecutorT" << '\n' << GLOGGING;
         executor_ptr = std::make_shared<Gem::Courtier::GMTExecutorT<GParameterSet>>(
             Gem::Courtier::DEFAULTNSTDTHREADS
         );
         break;
 
     case execMode::BROKER:
-        glogger << "Creating GBrokerExecutorT" << std::endl << GLOGGING;
+        glogger << "Creating GBrokerExecutorT" << '\n' << GLOGGING;
         executor_ptr = std::make_shared<Gem::Courtier::GBrokerExecutorT<GParameterSet>>();
         break;
     }

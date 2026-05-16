@@ -190,7 +190,7 @@ public:
 #ifdef DEBUG
         if(nErasedRaw > 0) {
             glogger << "In GBrokerT<>::enrol_buffer_port(buffer-port-ptr): Removed " << nErasedRaw
-                    << " raw buffers" << std::endl
+                    << " raw buffers" << '\n'
                     << GLOGGING;
         }
 #endif
@@ -206,15 +206,15 @@ public:
         if(nErasedProc != nErasedRaw) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GBrokerT<>::enrol_buffer_port(buffer-port-ptr):" << std::endl
+                << "In GBrokerT<>::enrol_buffer_port(buffer-port-ptr):" << '\n'
                 << "nErasedProc (" << nErasedProc << ") != nErasedRaw (" << nErasedRaw << ")"
-                << std::endl
+                << '\n'
             );
         }
 
         if(nErasedProc > 0) {
             glogger << "In GBrokerT<>::enrol_buffer_port(buffer-port-ptr): Removed " << nErasedProc
-                    << " processed buffers" << std::endl
+                    << " processed buffers" << '\n'
                     << GLOGGING;
         }
 #endif
@@ -224,9 +224,9 @@ public:
         if(BUFFERPORT_ID_TYPE(nErasedRaw) > n_registered_buffer_ports_) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GBrokerT<>::enrol_buffer_port(buffer-port-ptr):" << std::endl
+                << "In GBrokerT<>::enrol_buffer_port(buffer-port-ptr):" << '\n'
                 << "nErasedRaw (" << nErasedRaw << ") > n_registered_buffer_ports_ ("
-                << n_registered_buffer_ports_ << ")" << std::endl
+                << n_registered_buffer_ports_ << ")" << '\n'
             );
         }
 #endif
@@ -246,16 +246,16 @@ public:
         if(++n_registered_buffer_ports_ > MAXREGISTEREDBUFFERPORTS) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GBrokerT<>::enrol_buffer_port(buffer-port-ptr):" << std::endl
+                << "In GBrokerT<>::enrol_buffer_port(buffer-port-ptr):" << '\n'
                 << "Maximum number " << MAXREGISTEREDBUFFERPORTS
-                << " of registered buffer ports exceeded" << std::endl
+                << " of registered buffer ports exceeded" << '\n'
             );
         }
 
         // Fix the current get-pointer. We simply attach it to the start of the list
         currentGetPosition_ = RawBuffers_.begin();
 
-        glogger << "Buffer port with id " << gbp_tag << " successfully enrolled" << std::endl
+        glogger << "Buffer port with id " << gbp_tag << " successfully enrolled" << '\n'
                 << GLOGGING;
 
         // Let the audience know
@@ -281,8 +281,8 @@ public:
         if(consumersPresent_) {
             glogger << "In GBrokerT<>::enrol_buffer_port(consumer_ptr): One or more consumers have "
                        "already been enrolled."
-                    << std::endl
-                    << "We will ignore the new enrolment request." << std::endl
+                    << '\n'
+                    << "We will ignore the new enrolment request." << '\n'
                     << GWARNING;
 
             return;
@@ -294,10 +294,10 @@ public:
                consumerTypesPresent_.end(),
                gc_ptr->getConsumerName()
            ) != consumerTypesPresent_.end()) {
-            glogger << "In GBrokerT<>::enrol_buffer_port(consumer):" << std::endl
+            glogger << "In GBrokerT<>::enrol_buffer_port(consumer):" << '\n'
                     << "Consumer with name " << gc_ptr->getConsumerName() << " aleady exists."
-                    << std::endl
-                    << "We will ignore the new enrolment request." << std::endl
+                    << '\n'
+                    << "We will ignore the new enrolment request." << '\n'
                     << GWARNING;
 
             return;
@@ -342,8 +342,8 @@ public:
         if(consumersPresent_) {
             glogger << "In GBrokerT<>::enrol_buffer_port(consumer_ptr_vec): One or more consumers "
                        "have already been enrolled."
-                    << std::endl
-                    << "We will ignore the new enrolment request." << std::endl
+                    << '\n'
+                    << "We will ignore the new enrolment request." << '\n'
                     << GWARNING;
 
             return;
@@ -358,9 +358,9 @@ public:
                ) != consumerTypesPresent_.end()) {
                 glogger
                     << "In GBrokerT<>::enrol_buffer_port(consumer_ptr_vec): A consumer with name "
-                    << consumer_ptr->getConsumerName() << std::endl
+                    << consumer_ptr->getConsumerName() << '\n'
                     << "has already been enrolled. We will ignore the new enrolment request."
-                    << std::endl
+                    << '\n'
                     << GWARNING;
 
                 continue;
@@ -460,9 +460,9 @@ public:
             processedBuffer_ptr->push_processed(p);
         }
         else {
-            glogger << "In GBokerT<>::put(1): Warning!" << std::endl
-                    << "Did not find buffer with id " << portId << "." << std::endl
-                    << "Item will be discarded" << std::endl
+            glogger << "In GBokerT<>::put(1): Warning!" << '\n'
+                    << "Did not find buffer with id " << portId << "." << '\n'
+                    << "Item will be discarded" << '\n'
                     << GWARNING;
 
             throw Gem::Courtier::buffer_not_present();
@@ -492,9 +492,9 @@ public:
             return processedBuffer_ptr->push_processed(p, timeout);
         }
         else {
-            glogger << "In GBokerT<>::put(1): Warning!" << std::endl
-                    << "Did not find buffer with id " << portId << "." << std::endl
-                    << "Item will be discarded" << std::endl
+            glogger << "In GBokerT<>::put(1): Warning!" << '\n'
+                    << "Did not find buffer with id " << portId << "." << '\n'
+                    << "Item will be discarded" << '\n'
                     << GWARNING;
 
             throw Gem::Courtier::buffer_not_present();
@@ -591,8 +591,8 @@ private:
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GBrokerT<processable_type>::checkConsumersCapableOfFullReturn(): Error!"
-                << std::endl
-                << "No consumers registered" << std::endl
+                << '\n'
+                << "No consumers registered" << '\n'
             );
         }
 

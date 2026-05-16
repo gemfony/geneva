@@ -165,8 +165,8 @@ void GInt32Object::int32Streamline(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GInt32Object::int32Streamline(std::map<std::string, std::vector<std::int32_t>>& "
                "parVec) const: Error!"
-            << std::endl
-            << "No name was assigned to the object" << std::endl
+            << '\n'
+            << "No name was assigned to the object" << '\n'
         );
     }
 #endif /* DEBUG */
@@ -222,9 +222,9 @@ void GInt32Object::assignInt32ValueVector(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GBooleanObject::assignInt32ValueVector(const std::vector<std::int32_t>&, "
                "std::size_t&):"
-            << std::endl
+            << '\n'
             << "Tried to access position beyond end of vector: " << parVec.size() << "/" << pos
-            << std::endl
+            << '\n'
         );
     }
 #endif

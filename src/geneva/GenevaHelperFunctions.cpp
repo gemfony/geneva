@@ -80,8 +80,8 @@ double minOnly_transformed_fitness(
     if(not item_ptr) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In minOnly_transformed_fitness():" << std::endl
-            << "Got empty work item" << std::endl
+            << "In minOnly_transformed_fitness():" << '\n'
+            << "Got empty work item" << '\n'
         );
     }
 #endif
@@ -121,8 +121,8 @@ bool isBetter(
         // Throw an exception
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In isBetterThan(x_ptr, y_ptr):" << std::endl
-            << "Got different maxMode-settings: " << x_mode << " / " << y_mode << std::endl
+            << "In isBetterThan(x_ptr, y_ptr):" << '\n'
+            << "Got different maxMode-settings: " << x_mode << " / " << y_mode << '\n'
         );
     }
 #endif

@@ -156,17 +156,17 @@ public:
 #ifdef DEBUG
         // Check whether values have been provided
         if(startValues.empty()) {
-            glogger << "In GStarterIndividual::addContent(): Error!" << std::endl
-                    << "No parameters given" << std::endl
+            glogger << "In GStarterIndividual::addContent(): Error!" << '\n'
+                    << "No parameters given" << '\n'
                     << GTERMINATION;
         }
 
         // Check whether all sizes match
         if(startValues.size() != lowerBoundaries.size() ||
            startValues.size() != upperBoundaries.size()) {
-            glogger << "In GStarterIndividual::addContent(): Error!" << std::endl
+            glogger << "In GStarterIndividual::addContent(): Error!" << '\n'
                     << "Invalid sizes" << startValues.size() << " / " << lowerBoundaries.size()
-                    << " / " << upperBoundaries.size() << std::endl
+                    << " / " << upperBoundaries.size() << '\n'
                     << GTERMINATION;
         }
 

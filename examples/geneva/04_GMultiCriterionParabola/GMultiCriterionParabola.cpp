@@ -77,5 +77,5 @@ int main(int argc, char **argv) {
         go.optimize()->getBestGlobalIndividual<GMultiCriterionParabolaIndividual>();
 
     // Do something with the best result
-    std::cout << bestIndividual_ptr << std::endl;
+    std::cout << bestIndividual_ptr << '\n';
 }

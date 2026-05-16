@@ -99,8 +99,8 @@ public:
         if(not local) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GCommonInterfaceT<g_class_type>::toStream(): Error!" << std::endl
-                << "Conversion failed" << std::endl
+                << "In GCommonInterfaceT<g_class_type>::toStream(): Error!" << '\n'
+                << "Conversion failed" << '\n'
             );
         }
 #else
@@ -238,8 +238,8 @@ public:
         if(not ofstr) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GCommonInterfaceT::toFile():" << std::endl
-                << "Problems connecting to file " << p.string() << std::endl
+                << "In GCommonInterfaceT::toFile():" << '\n'
+                << "Problems connecting to file " << p.string() << '\n'
             );
         }
 
@@ -249,8 +249,8 @@ public:
         if(not ofstr.good()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GCommonInterfaceT::toFile():" << std::endl
-                << "Stream error after writing to " << p.string() << std::endl
+                << "In GCommonInterfaceT::toFile():" << '\n'
+                << "Stream error after writing to " << p.string() << '\n'
             );
         }
 #endif
@@ -274,9 +274,9 @@ public:
         if(not std::filesystem::exists(p)) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GCommonInterfaceT::fromFile(): Error!" << std::endl
-                << "Requested input file " << p.string() << std::endl
-                << "does not exist." << std::endl
+                << "In GCommonInterfaceT::fromFile(): Error!" << '\n'
+                << "Requested input file " << p.string() << '\n'
+                << "does not exist." << '\n'
             );
         }
 
@@ -285,8 +285,8 @@ public:
         if(not ifstr) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GCommonInterfaceT::fromFile():" << std::endl
-                << "Problem connecting to file " << p.string() << std::endl
+                << "In GCommonInterfaceT::fromFile():" << '\n'
+                << "Problem connecting to file " << p.string() << '\n'
             );
         }
 

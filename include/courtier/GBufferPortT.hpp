@@ -138,10 +138,10 @@ public:
             // a warning in DEBUG mode, as this might hint at some general problem
             if(not success) {
                 glogger << "In GBufferPortT<processable_type>::push_raw(item_ptr, timeout):"
-                        << std::endl
+                        << '\n'
                         << "Submission was not successful. The work item might be discarded."
-                        << std::endl
-                        << "Timeout was " << timeout.count() << " seconds" << std::endl
+                        << '\n'
+                        << "Timeout was " << timeout.count() << " seconds" << '\n'
                         << GWARNING;
             }
 #endif
@@ -252,10 +252,10 @@ public:
             // a warning in DEBUG mode, as this might hint at some general problem
             if(not success) {
                 glogger << "In GBufferPortT<processable_type>::push_processed(item_ptr, timeout):"
-                        << std::endl
+                        << '\n'
                         << "Submission was not successful. The work item might be discarded."
-                        << std::endl
-                        << "Timeout was " << timeout.count() << " seconds" << std::endl
+                        << '\n'
+                        << "Timeout was " << timeout.count() << " seconds" << '\n'
                         << GWARNING;
             }
 #endif

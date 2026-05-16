@@ -350,15 +350,15 @@ void GSwarmAlgorithm::setSwarmSizes(
 ) {
     // Enforce useful settings
     if(nNeighborhoods == 0) {
-        glogger << "In GSwarmAlgorithm::setSwarmSizes(): Warning!" << std::endl
-                << "Requested number of neighborhoods is 0. Setting to 1." << std::endl
+        glogger << "In GSwarmAlgorithm::setSwarmSizes(): Warning!" << '\n'
+                << "Requested number of neighborhoods is 0. Setting to 1." << '\n'
                 << GWARNING;
     }
 
     if(defaultNNeighborhoodMembers <= 1) {
-        glogger << "In GSwarmAlgorithm::setSwarmSizes(): Warning!" << std::endl
+        glogger << "In GSwarmAlgorithm::setSwarmSizes(): Warning!" << '\n'
                 << "Requested number of members in each neighborhood is too small. Setting to 2."
-                << std::endl
+                << '\n'
                 << GWARNING;
     }
 
@@ -427,12 +427,12 @@ std::size_t GSwarmAlgorithm::getFirstNIPosVec(
     if(neighborhood >= n_neighborhoods_) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GSwarmAlgorithm::getFirstNIPosVec():" << std::endl
+            << "In GSwarmAlgorithm::getFirstNIPosVec():" << '\n'
             << "Received id " << neighborhood << " of a neighborhood which does not exist."
-            << std::endl
-            << "The number of neighborhoods is " << n_neighborhoods_ << "," << std::endl
+            << '\n'
+            << "The number of neighborhoods is " << n_neighborhoods_ << "," << '\n'
             << "hence the maximum allowed value of the id is " << n_neighborhoods_ - 1 << "."
-            << std::endl
+            << '\n'
         );
     }
 
@@ -466,12 +466,12 @@ std::size_t GSwarmAlgorithm::getLastNIPos(const std::size_t &neighborhood) const
     if(neighborhood >= n_neighborhoods_) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GSwarmAlgorithm::getLastNIPos():" << std::endl
+            << "In GSwarmAlgorithm::getLastNIPos():" << '\n'
             << "Received id " << neighborhood << " of a neighborhood which does not exist."
-            << std::endl
-            << "The number of neighborhoods is " << n_neighborhoods_ << " ." << std::endl
+            << '\n'
+            << "The number of neighborhoods is " << n_neighborhoods_ << " ." << '\n'
             << "hence the maximum allowed value of the id is " << n_neighborhoods_ - 1 << "."
-            << std::endl
+            << '\n'
         );
     }
 #endif
@@ -490,18 +490,18 @@ void GSwarmAlgorithm::updatePersonalBest(std::shared_ptr<GParameterSet> ind_ptr)
     if(not ind_ptr) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GSwarmAlgorithm::updatePersonalBest():" << std::endl
-            << "Got empty ind_ptr" << std::endl
+            << "In GSwarmAlgorithm::updatePersonalBest():" << '\n'
+            << "Got empty ind_ptr" << '\n'
         );
     }
 
     if(ind_ptr->is_due_for_processing() || ind_ptr->has_errors()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GSwarmAlgorithm::updatePersonalBest():" << std::endl
-            << "ind_ptr is unprocessed or has errors: " << std::endl
+            << "In GSwarmAlgorithm::updatePersonalBest():" << '\n'
+            << "ind_ptr is unprocessed or has errors: " << '\n'
             << "is_due_for_processing() == " << ind_ptr->is_due_for_processing()
-            << ", has_errors() == " << ind_ptr->has_errors() << std::endl
+            << ", has_errors() == " << ind_ptr->has_errors() << '\n'
         );
     }
 #endif /* DEBUG */
@@ -523,16 +523,16 @@ void GSwarmAlgorithm::updatePersonalBestIfBetter(std::shared_ptr<GParameterSet> 
     if(not ind_ptr) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GSwarmAlgorithm::updatePersonalBestIfBetter():" << std::endl
-            << "Got empty ind_ptr" << std::endl
+            << "In GSwarmAlgorithm::updatePersonalBestIfBetter():" << '\n'
+            << "Got empty ind_ptr" << '\n'
         );
     }
 
     if(ind_ptr->is_due_for_processing() || ind_ptr->has_errors()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GSwarmAlgorithm::updatePersonalBestIfBetter(): Error!" << std::endl
-            << "dirty flag of individual is set." << std::endl
+            << "In GSwarmAlgorithm::updatePersonalBestIfBetter(): Error!" << '\n'
+            << "dirty flag of individual is set." << '\n'
         );
     }
 #endif /* DEBUG */
@@ -626,7 +626,7 @@ void GSwarmAlgorithm::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb)
         ,
         [this](updateRule ur) { this->setUpdateRule(ur); }
     ) << "Specifies whether a linear (0) or classical (1)"
-      << std::endl
+      << '\n'
       << "update rule should be used";
 
     gpb.registerFileParameter<bool>(
@@ -636,7 +636,7 @@ void GSwarmAlgorithm::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb)
         ,
         [this](bool nhrf) { this->setNeighborhoodsRandomFillUp(nhrf); }
     ) << "Specifies whether neighborhoods should be filled up"
-      << std::endl
+      << '\n'
       << "randomly (true) or start with equal values (false)";
 
     gpb.registerFileParameter<std::uint32_t>(
@@ -646,7 +646,7 @@ void GSwarmAlgorithm::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb)
         ,
         [this](std::uint32_t rt) { this->setRepulsionThreshold(rt); }
     ) << "The number of stalls as of which the algorithm switches to repulsive mode"
-      << std::endl
+      << '\n'
       << "Set this to 0 in order to disable this feature";
 }
 
@@ -681,9 +681,9 @@ void GSwarmAlgorithm::init() {
     if(dbl_lower_parameter_boundaries_cnt_.size() != dbl_upper_parameter_boundaries_cnt_.size()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GSwarmAlgorithm::init(): Error!" << std::endl
+            << "In GSwarmAlgorithm::init(): Error!" << '\n'
             << "Found invalid sizes: " << dbl_lower_parameter_boundaries_cnt_.size() << " / "
-            << dbl_upper_parameter_boundaries_cnt_.size() << std::endl
+            << dbl_upper_parameter_boundaries_cnt_.size() << '\n'
         );
     }
 #endif /* DEBUG */
@@ -707,8 +707,8 @@ void GSwarmAlgorithm::init() {
         if(not ind_ptr) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GSwarmAlgorithm::init(): Error!" << std::endl
-                << "Found empty std::shared_ptr in position " << pos << std::endl
+                << "In GSwarmAlgorithm::init(): Error!" << '\n'
+                << "Found empty std::shared_ptr in position " << pos << '\n'
             );
         }
 #endif /* DEBUG */
@@ -729,10 +729,10 @@ void GSwarmAlgorithm::init() {
            velVec.size() != dbl_vel_max_cnt_.size()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GSwarmAlgorithm::init(): Error! (2)" << std::endl
+                << "In GSwarmAlgorithm::init(): Error! (2)" << '\n'
                 << "Found invalid sizes: " << velVec.size() << " / "
-                << dbl_lower_parameter_boundaries_cnt_.size() << std::endl
-                << " / " << dbl_vel_max_cnt_.size() << std::endl
+                << dbl_lower_parameter_boundaries_cnt_.size() << '\n'
+                << " / " << dbl_vel_max_cnt_.size() << '\n'
             );
         }
 #endif /* DEBUG */
@@ -841,11 +841,11 @@ void GSwarmAlgorithm::adjustNeighborhoods() {
                                     default_n_neighborhood_members_ * n_neighborhoods_) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GSwarmAlgorithm::adjustNeighborhoods(): Error!" << std::endl
-            << "last_iteration_individuals_cnt_ has incorrect size! Expected" << std::endl
+            << "In GSwarmAlgorithm::adjustNeighborhoods(): Error!" << '\n'
+            << "last_iteration_individuals_cnt_ has incorrect size! Expected" << '\n'
             << "default_n_neighborhood_members_*n_neighborhoods_ = "
-            << default_n_neighborhood_members_ * n_neighborhoods_ << std::endl
-            << "but found " << last_iteration_individuals_cnt_.size() << std::endl
+            << default_n_neighborhood_members_ * n_neighborhoods_ << '\n'
+            << "but found " << last_iteration_individuals_cnt_.size() << '\n'
         );
     }
 #endif /* DEBUG */
@@ -901,8 +901,8 @@ void GSwarmAlgorithm::adjustNeighborhoods() {
                 if(this->empty()) {
                     throw geneva_exception(
                         g_error_streamer(DO_LOG, time_and_place)
-                        << "In GSwarmAlgorithm::adjustNeighborhoods(): Error!" << std::endl
-                        << "No items found in the population. Cannot fix." << std::endl
+                        << "In GSwarmAlgorithm::adjustNeighborhoods(): Error!" << '\n'
+                        << "No items found in the population. Cannot fix." << '\n'
                     );
                 }
 #endif
@@ -938,9 +938,9 @@ void GSwarmAlgorithm::adjustNeighborhoods() {
     if(this->size() != n_neighborhoods_ * default_n_neighborhood_members_) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GSwarmAlgorithm::adjustNeighborhoods(): Error!" << std::endl
+            << "In GSwarmAlgorithm::adjustNeighborhoods(): Error!" << '\n'
             << "The population has an incorrect size of " << this->size() << ", expected "
-            << n_neighborhoods_ * default_n_neighborhood_members_ << std::endl
+            << n_neighborhoods_ * default_n_neighborhood_members_ << '\n'
         );
     }
 #endif
@@ -982,19 +982,19 @@ void GSwarmAlgorithm::updatePositions() {
         if(n_neighborhood_members_cnt_[n] != default_n_neighborhood_members_) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GSwarmAlgorithm::updatePositions(): Error!" << std::endl
+                << "In GSwarmAlgorithm::updatePositions(): Error!" << '\n'
                 << "n_neighborhood_members_cnt_[" << n << "] has invalid size "
-                << n_neighborhood_members_cnt_[n] << std::endl
-                << "but expected size " << default_n_neighborhood_members_ << std::endl
+                << n_neighborhood_members_cnt_[n] << '\n'
+                << "but expected size " << default_n_neighborhood_members_ << '\n'
             );
         }
 
         if(this->size() != n_neighborhoods_ * default_n_neighborhood_members_) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GSwarmAlgorithm::updatePositions(): Error!" << std::endl
+                << "In GSwarmAlgorithm::updatePositions(): Error!" << '\n'
                 << "The population has an incorrect size of " << this->size() << ", expected "
-                << n_neighborhoods_ * default_n_neighborhood_members_ << std::endl
+                << n_neighborhoods_ * default_n_neighborhood_members_ << '\n'
             );
         }
     }
@@ -1013,10 +1013,10 @@ void GSwarmAlgorithm::updatePositions() {
     if(this->size() != n_neighborhoods_ * default_n_neighborhood_members_) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GSwarmAlgorithm::updatePositions(): Error!" << std::endl
-            << "Invalid number of individuals found." << std::endl
+            << "In GSwarmAlgorithm::updatePositions(): Error!" << '\n'
+            << "Invalid number of individuals found." << '\n'
             << "Expected " << n_neighborhoods_ * default_n_neighborhood_members_ << " but got "
-            << this->size() << std::endl
+            << this->size() << '\n'
         );
     }
 #endif /* DEBUG */
@@ -1028,16 +1028,16 @@ void GSwarmAlgorithm::updatePositions() {
             if(not neighborhood_bests_cnt_[n]) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
-                    << "In GSwarmAlgorithm::updatePositions():" << std::endl
-                    << "neighborhood_bests_cnt_[" << n << "] is empty." << std::endl
+                    << "In GSwarmAlgorithm::updatePositions():" << '\n'
+                    << "neighborhood_bests_cnt_[" << n << "] is empty." << '\n'
                 );
             }
 
             if(n == 0 && not global_best_ptr_) { // Only check for the first n
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
-                    << "In GSwarmAlgorithm::updatePositions():" << std::endl
-                    << "global_best_ptr_ is empty." << std::endl
+                    << "In GSwarmAlgorithm::updatePositions():" << '\n'
+                    << "global_best_ptr_ is empty." << '\n'
                 );
             }
         }
@@ -1046,9 +1046,9 @@ void GSwarmAlgorithm::updatePositions() {
         if(n_neighborhood_members_cnt_[n] != default_n_neighborhood_members_) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GSwarmAlgorithm::updatePositions(): Error!" << std::endl
+                << "In GSwarmAlgorithm::updatePositions(): Error!" << '\n'
                 << "Invalid number of members in neighborhood " << n << ": "
-                << n_neighborhood_members_cnt_[n] << std::endl
+                << n_neighborhood_members_cnt_[n] << '\n'
             );
         }
 #endif /* DEBUG */
@@ -1119,8 +1119,8 @@ void GSwarmAlgorithm::updateIndividualPositions(
     if(not ind) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GSwarmAlgorithm::updateIndividualPositions():" << std::endl
-            << "Found empty individual \"ind\"" << std::endl
+            << "In GSwarmAlgorithm::updateIndividualPositions():" << '\n'
+            << "Found empty individual \"ind\"" << '\n'
         );
     }
 #endif /* DEBUG */
@@ -1134,32 +1134,32 @@ void GSwarmAlgorithm::updateIndividualPositions(
     if(not personal_best) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GSwarmAlgorithm::updateIndividualPositions():" << std::endl
-            << "Found empty individual \"personal_best\"" << std::endl
+            << "In GSwarmAlgorithm::updateIndividualPositions():" << '\n'
+            << "Found empty individual \"personal_best\"" << '\n'
         );
     }
 
     if(not neighborhood_best) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GSwarmAlgorithm::updateIndividualPositions():" << std::endl
-            << "Found empty individual \"neighborhood_best\"" << std::endl
+            << "In GSwarmAlgorithm::updateIndividualPositions():" << '\n'
+            << "Found empty individual \"neighborhood_best\"" << '\n'
         );
     }
 
     if(not global_best) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GSwarmAlgorithm::updateIndividualPositions():" << std::endl
-            << "Found empty individual \"global_best\"" << std::endl
+            << "In GSwarmAlgorithm::updateIndividualPositions():" << '\n'
+            << "Found empty individual \"global_best\"" << '\n'
         );
     }
 
     if(not velocity) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GSwarmAlgorithm::updateIndividualPositions():" << std::endl
-            << "Found empty individual \"velocity\"" << std::endl
+            << "In GSwarmAlgorithm::updateIndividualPositions():" << '\n'
+            << "Found empty individual \"velocity\"" << '\n'
         );
     }
 
@@ -1278,9 +1278,9 @@ void GSwarmAlgorithm::pruneVelocity(std::vector<double> &velVec) {
     if(velVec.size() != dbl_vel_max_cnt_.size()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GSwarmAlgorithm::pruneVelocity(): Error!" << std::endl
+            << "In GSwarmAlgorithm::pruneVelocity(): Error!" << '\n'
             << "Found invalid vector sizes: " << velVec.size() << " / " << dbl_vel_max_cnt_.size()
-            << std::endl
+            << '\n'
         );
     }
 
@@ -1294,8 +1294,8 @@ void GSwarmAlgorithm::pruneVelocity(std::vector<double> &velVec) {
         if(dbl_vel_max_cnt_[i] <= 0.) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GSwarmAlgorithm::pruneVelocity(): Error!" << std::endl
-                << "Found invalid max value: " << dbl_vel_max_cnt_[i] << std::endl
+                << "In GSwarmAlgorithm::pruneVelocity(): Error!" << '\n'
+                << "Found invalid max value: " << dbl_vel_max_cnt_[i] << '\n'
             );
         }
 
@@ -1315,8 +1315,8 @@ void GSwarmAlgorithm::pruneVelocity(std::vector<double> &velVec) {
             if(maxPercentage <= 0.) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
-                    << "In GSwarmAlgorithm::pruneVelocity(): Error!" << std::endl
-                    << "Invalid maxPercentage: " << maxPercentage << std::endl
+                    << "In GSwarmAlgorithm::pruneVelocity(): Error!" << '\n'
+                    << "Invalid maxPercentage: " << maxPercentage << '\n'
                 );
             }
 #endif
@@ -1362,9 +1362,9 @@ void GSwarmAlgorithm::runFitnessCalculation_() {
             });
 
 #ifdef DEBUG
-        glogger << "In GSwarmAlgorithm::runFitnessCalculation(): " << std::endl
+        glogger << "In GSwarmAlgorithm::runFitnessCalculation(): " << '\n'
                 << "Removed " << n_erased << " unprocessed work items in iteration "
-                << this->getIteration() << std::endl
+                << this->getIteration() << '\n'
                 << GLOGGING;
 #endif
     }
@@ -1377,9 +1377,9 @@ void GSwarmAlgorithm::runFitnessCalculation_() {
             });
 
 #ifdef DEBUG
-        glogger << "In GSwarmAlgorithm::runFitnessCalculation(): " << std::endl
+        glogger << "In GSwarmAlgorithm::runFitnessCalculation(): " << '\n'
                 << "Removed " << n_erased << " erroneous work items in iteration "
-                << this->getIteration() << std::endl
+                << this->getIteration() << '\n'
                 << GLOGGING;
 #endif
     }
@@ -1432,12 +1432,12 @@ std::tuple<double, double> GSwarmAlgorithm::findBests() {
         if(ind_ptr->is_due_for_processing() || ind_ptr->has_errors()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GSwarmAlgorithm::findBests(): Error!" << std::endl
+                << "In GSwarmAlgorithm::findBests(): Error!" << '\n'
                 << "Found individual in position " << pos << " in iteration "
-                << this->getIteration() << std::endl
-                << "which is unprocessed or has errors" << std::endl
+                << this->getIteration() << '\n'
+                << "which is unprocessed or has errors" << '\n'
                 << "is_due_for_processing() == " << ind_ptr->is_due_for_processing()
-                << ", has_errors() == " << ind_ptr->has_errors() << std::endl
+                << ", has_errors() == " << ind_ptr->has_errors() << '\n'
             );
         }
 
@@ -1543,10 +1543,10 @@ void GSwarmAlgorithm::adjustPopulation_() {
     if(currentSize == 0) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GSwarmAlgorithm::adjustPopulation() :" << std::endl
-            << "No individuals found in the population." << std::endl
-            << "You need to add at least one individual before" << std::endl
-            << "the call to optimize<>()" << std::endl
+            << "In GSwarmAlgorithm::adjustPopulation() :" << '\n'
+            << "No individuals found in the population." << '\n'
+            << "You need to add at least one individual before" << '\n'
+            << "the call to optimize<>()" << '\n'
         );
     }
     else if(currentSize == 1) {
@@ -1623,9 +1623,9 @@ void GSwarmAlgorithm::adjustPopulation_() {
     if(this->size() < defaultPopSize) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GSwarmAlgorithm::adjustPopulation() :" << std::endl
-            << "Expected at least a population size of " << defaultPopSize << std::endl
-            << "but found a size of " << this->size() << ", which is too small." << std::endl
+            << "In GSwarmAlgorithm::adjustPopulation() :" << '\n'
+            << "Expected at least a population size of " << defaultPopSize << '\n'
+            << "but found a size of " << this->size() << ", which is too small." << '\n'
         );
     }
 #endif /* DEBUG */
@@ -1647,8 +1647,8 @@ void GSwarmAlgorithm::fillUpNeighborhood1() {
     if(this->size() != n_neighborhoods_) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GSwarmAlgorithm::fillUpNeighborhood1():" << std::endl
-            << "Invalid size: " << this->size() << " Expected " << n_neighborhoods_ << std::endl
+            << "In GSwarmAlgorithm::fillUpNeighborhood1():" << '\n'
+            << "Invalid size: " << this->size() << " Expected " << n_neighborhoods_ << '\n'
         );
     }
 
@@ -1670,8 +1670,8 @@ void GSwarmAlgorithm::fillUpNeighborhood1() {
                 if(not(*(this->begin() + n + 1))) {
                     throw geneva_exception(
                         g_error_streamer(DO_LOG, time_and_place)
-                        << "In GSwarmAlgorithm::fillUpNeighborhood1():" << std::endl
-                        << "Found empty position " << n << std::endl
+                        << "In GSwarmAlgorithm::fillUpNeighborhood1():" << '\n'
+                        << "Found empty position " << n << '\n'
                     );
                 }
 #endif /* DEBUG */
@@ -1776,8 +1776,8 @@ void GSwarmAlgorithm::setVelocityRangePercentage(double velocityRangePercentage)
     if(velocityRangePercentage <= 0. || velocityRangePercentage > 1.) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GSwarmAlgorithm::setVelocityRangePercentage()" << std::endl
-            << "Invalid velocityRangePercentage: " << velocityRangePercentage << std::endl
+            << "In GSwarmAlgorithm::setVelocityRangePercentage()" << '\n'
+            << "Invalid velocityRangePercentage: " << velocityRangePercentage << '\n'
         );
     }
 

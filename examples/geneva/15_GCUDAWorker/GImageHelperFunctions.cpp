@@ -55,7 +55,7 @@ bool loadPngToRGB(
     // Open the file using C stdio
     FILE *fp = fopen(filename.c_str(), "rb");
     if(!fp) {
-        std::cerr << "Error opening the PNG file: " << filename << std::endl;
+        std::cerr << "Error opening the PNG file: " << filename << '\n';
         return false;
     }
 
@@ -315,12 +315,12 @@ bool loadImageToRGB(
             // Do the actual loading
             if(not Common::loadPngToRGB(l_fileName, l_imageData_vec, l_width, l_height)) {
                 std::cout << "Loading PNG image " << l_fileName << " from disc into RGB failed"
-                          << std::endl;
+                          << '\n';
                 return false;
             }
             else {
                 std::cout << "Successfully loaded PNG image " << l_fileName << " from disc into RGB"
-                          << std::endl;
+                          << '\n';
             }
         }
     }
@@ -328,7 +328,7 @@ bool loadImageToRGB(
         // Complain if the function was called with a different filename from the first time
         if(l_fileName != fileName) {
             std::cout << "Common::loadImageToRGB: Error. fileName (" << fileName
-                      << ") and l_fileName (" << l_fileName << ") differ" << std::endl;
+                      << ") and l_fileName (" << l_fileName << ") differ" << '\n';
             return false;
         }
     }
@@ -373,8 +373,8 @@ bool loadImageToFloat(
     if(channel_size != width * height * 3) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In loadImageToFloat: Error!" << std::endl
-            << "Invalid dimensions " << width << " / " << height << std::endl
+            << "In loadImageToFloat: Error!" << '\n'
+            << "Invalid dimensions " << width << " / " << height << '\n'
         );
     }
 
@@ -442,10 +442,10 @@ bool saveFloatImageToFile(
     if(imageData_f_vec.size() != width * height * 3) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In saveFloatImageToFile: Error!" << std::endl
+            << "In saveFloatImageToFile: Error!" << '\n'
             << "Invalid dimensions: " << "width = " << width << " / " << "height = " << height
             << " / width * height * 3 = " << width * height * 3
-            << " / imageData_f_vec.size() = " << imageData_f_vec.size() << std::endl
+            << " / imageData_f_vec.size() = " << imageData_f_vec.size() << '\n'
         );
     }
 

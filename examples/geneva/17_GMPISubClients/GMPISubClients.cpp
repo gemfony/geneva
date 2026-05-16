@@ -82,7 +82,7 @@ int main(int argc, char **argv) {
 
     std::cout << "Optimization finished in "
               << std::chrono::duration_cast<std::chrono::milliseconds>(timeElapsed).count()
-              << " milliseconds" << std::endl;
+              << " milliseconds" << '\n';
 
     // Do something with the best result
 }

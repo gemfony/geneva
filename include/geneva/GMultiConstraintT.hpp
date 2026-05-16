@@ -347,8 +347,8 @@ public:
         if(not vc_ptr) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GValidityCheckContainerT<>::addCheck(): Error!" << std::endl
-                << "Got empty check pointer" << std::endl
+                << "In GValidityCheckContainerT<>::addCheck(): Error!" << '\n'
+                << "Got empty check pointer" << '\n'
             );
         }
 
@@ -580,8 +580,8 @@ protected:
         default: {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GCheckCombinerT<ind_type>::check_(): Error!" << std::endl
-                << "Got invalid combinerPolicy_ value: " << combinerPolicy_ << std::endl
+                << "In GCheckCombinerT<ind_type>::check_(): Error!" << '\n'
+                << "Got invalid combinerPolicy_ value: " << combinerPolicy_ << '\n'
             );
         }
         }

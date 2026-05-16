@@ -125,7 +125,7 @@ GStarterIndividual::GStarterIndividual(
         glogger << e.what() << GTERMINATION;
     }
     catch(...) {
-        glogger << "Unknown exception caught" << std::endl << GTERMINATION;
+        glogger << "Unknown exception caught" << '\n' << GTERMINATION;
     }
 }
 
@@ -199,8 +199,8 @@ void GStarterIndividual::addConfigurationOptions(Gem::Common::GParserBuilder &gp
         ,
         [this](targetFunction tF) { this->setTargetFunction(tF); }
     ) << "Specifies which target function should be used:"
-      << std::endl
-      << "0: Parabola" << std::endl
+      << '\n'
+      << "0: Parabola" << '\n'
       << "1: Berlich";
 }
 
@@ -263,14 +263,14 @@ std::string GStarterIndividual::print() {
 
     result << "GStarterIndividual with target function "
            << (targetFunction_ == targetFunction::PARABOLA ? " PARABOLA" : " NOISY PARABOLA")
-           << std::endl
+           << '\n'
            << "and raw fitness " << this->raw_fitness(0)
-           << " has the following parameter values:" << std::endl;
+           << " has the following parameter values:" << '\n';
 
     for(std::size_t i = 0; i < parVec.size(); i++) {
-        result << i << ": " << parVec.at(i) << std::endl;
+        result << i << ": " << parVec.at(i) << '\n';
     }
-    result << "The average sigma of this individual is " << this->getAverageSigma() << std::endl;
+    result << "The average sigma of this individual is " << this->getAverageSigma() << '\n';
 
     return result.str();
 }
@@ -573,10 +573,10 @@ void GStarterIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilde
     defStartValues.push_back(1.);
     defStartValues.push_back(1.);
     gpb.registerFileParameter<double>("startValues", startValues_, defStartValues)
-        << "The start values for all parameters" << std::endl
-        << "Note that the number of entries also determines" << std::endl
-        << "The number of parameter used in the optimization" << std::endl
-        << "The number of entries in the vector may be changed" << std::endl
+        << "The start values for all parameters" << '\n'
+        << "Note that the number of entries also determines" << '\n'
+        << "The number of parameter used in the optimization" << '\n'
+        << "The number of entries in the vector may be changed" << '\n'
         << "in the configuration file.";
 
     std::vector<double> defLowerBoundaries;
@@ -584,8 +584,8 @@ void GStarterIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilde
     defLowerBoundaries.push_back(0.);
     defLowerBoundaries.push_back(0.);
     gpb.registerFileParameter<double>("lowerBoundaries", lowerBoundaries_, defLowerBoundaries)
-        << "The lower boundaries for all parameters" << std::endl
-        << "Note that as many entries are needed as" << std::endl
+        << "The lower boundaries for all parameters" << '\n'
+        << "Note that as many entries are needed as" << '\n'
         << "There are entries in the startValues vector";
 
     std::vector<double> defUpperBoundaries;
@@ -593,8 +593,8 @@ void GStarterIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilde
     defUpperBoundaries.push_back(2.);
     defUpperBoundaries.push_back(2.);
     gpb.registerFileParameter<double>("upperBoundaries", upperBoundaries_, defUpperBoundaries)
-        << "The upper boundaries for all parameters" << std::endl
-        << "Note that as many entries are needed as" << std::endl
+        << "The upper boundaries for all parameters" << '\n'
+        << "Note that as many entries are needed as" << '\n'
         << "There are entries in the startValues vector";
 }
 

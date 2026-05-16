@@ -114,8 +114,8 @@ void GFMinIndividual::addConfigurationOptions(Gem::Common::GParserBuilder &gpb) 
         ,
         [this](targetFunction tF) { this->setTargetFunction(tF); }
     ) << "Specifies which target function should be used:"
-      << std::endl
-      << "0: Parabola" << std::endl
+      << '\n'
+      << "0: Parabola" << '\n'
       << "1: Berlich";
 }
 
@@ -261,7 +261,7 @@ std::ostream &operator<<(std::ostream &s, const Gem::Geneva::GFMinIndividual &f)
 
     std::vector<double>::iterator it;
     for(it = parVec.begin(); it != parVec.end(); ++it) {
-        std::cout << (it - parVec.begin()) << ": " << *it << std::endl;
+        std::cout << (it - parVec.begin()) << ": " << *it << '\n';
     }
 
     return s;

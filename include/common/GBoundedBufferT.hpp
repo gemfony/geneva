@@ -133,10 +133,10 @@ public:
             std::system_error &e
         ) // NOLINT(bugprone-empty-catch) — logs and terminates via GTERMINATION
         {
-            glogger << "In GBoundedBufferT::~GBoundedBufferT(): Error!" << std::endl
-                    << "Caught std::system_error exception with message" << std::endl
+            glogger << "In GBoundedBufferT::~GBoundedBufferT(): Error!" << '\n'
+                    << "Caught std::system_error exception with message" << '\n'
                     << e.what() << "which might indicate that a mutex could not be locked."
-                    << std::endl
+                    << '\n'
                     << GTERMINATION;
         }
         // We do not know whether any of the destructors of the items in the buffer throw anything
@@ -144,7 +144,7 @@ public:
         {
             glogger << "Caught unknown exception in GBoundedBufferT::~GBoundedBufferT(). "
                        "Terminating ..."
-                    << std::endl
+                    << '\n'
                     << GTERMINATION;
         }
     }

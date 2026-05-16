@@ -42,9 +42,9 @@ namespace Gem::Common {
 GThreadPool::GThreadPool(unsigned int nThreads)
   : nThreads_(nThreads > 0 ? nThreads : DEFAULTNHARDWARETHREADS) {
     if(0 == nThreads) {
-        glogger << "In GThreadPool::GThreadPool(unsigned int const &nThreads):" << std::endl
+        glogger << "In GThreadPool::GThreadPool(unsigned int const &nThreads):" << '\n'
                 << "User requested nThreads == 0. nThreads was reset to the default "
-                << DEFAULTNHARDWARETHREADS << std::endl
+                << DEFAULTNHARDWARETHREADS << '\n'
                 << GWARNING;
     }
 }

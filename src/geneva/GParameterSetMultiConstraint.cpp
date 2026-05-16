@@ -163,10 +163,10 @@ double GParameterSetFormulaConstraint::check_(const GParameterSet *p) const {
     catch(
         Gem::Common::math_logic_error &m
     ) { // NOLINT(bugprone-empty-catch) — logs warning and returns MAX_DOUBLE sentinel
-        glogger << "In GParameterSetFormulaConstraint::check_(): WARNING" << std::endl
-                << "Caught Gem::Common::math_logic_error with message" << std::endl
-                << m.what() << std::endl
-                << "We will return MAX_DOUBLE" << std::endl
+        glogger << "In GParameterSetFormulaConstraint::check_(): WARNING" << '\n'
+                << "Caught Gem::Common::math_logic_error with message" << '\n'
+                << m.what() << '\n'
+                << "We will return MAX_DOUBLE" << '\n'
                 << GWARNING;
 
         return std::numeric_limits<double>::max();

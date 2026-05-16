@@ -234,8 +234,8 @@ public:
             // This should not happen
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GImageIndividual::getBackGroundColor(): Error!" << std::endl
-                << "Invalid type requested" << std::endl
+                << "In GImageIndividual::getBackGroundColor(): Error!" << '\n'
+                << "Invalid type requested" << '\n'
             );
         }
     }

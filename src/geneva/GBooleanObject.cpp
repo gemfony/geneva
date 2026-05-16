@@ -171,8 +171,8 @@ bool GBooleanObject::randomInit_(
        )) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GBooleanObject::randomInit_(probability): Error!" << std::endl
-            << "Probability " << probability << " not in allowed value range [0,1]" << std::endl
+            << "In GBooleanObject::randomInit_(probability): Error!" << '\n'
+            << "Probability " << probability << " not in allowed value range [0,1]" << '\n'
         );
     }
 
@@ -264,8 +264,8 @@ void GBooleanObject::booleanStreamline(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GBooleanObject::booleanStreamline(std::map<std::string, std::vector<bool>>& "
                "parVec) const: Error!"
-            << std::endl
-            << "No name was assigned to the object" << std::endl
+            << '\n'
+            << "No name was assigned to the object" << '\n'
         );
     }
 #endif /* DEBUG */
@@ -321,9 +321,9 @@ void GBooleanObject::assignBooleanValueVector(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GBooleanObject::assignBooleanValueVector(const std::vector<bool>&, "
                "std::size_t&):"
-            << std::endl
+            << '\n'
             << "Tried to access position beyond end of vector: " << parVec.size() << "/" << pos
-            << std::endl
+            << '\n'
         );
     }
 #endif

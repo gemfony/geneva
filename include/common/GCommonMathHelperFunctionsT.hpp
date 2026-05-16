@@ -78,17 +78,17 @@ fp_type enforceRangeConstraint(
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << (caller == "empty" ? "" : ("[" + caller + "] "))
-            << "In enforceRangeConstraint<fp_type>(): Error!" << std::endl
-            << "Lower boundary > upper boundary: " << lower << " / " << upper << std::endl
+            << "In enforceRangeConstraint<fp_type>(): Error!" << '\n'
+            << "Lower boundary > upper boundary: " << lower << " / " << upper << '\n'
         );
     }
 
     if(val < lower) {
         if(verbose) {
             glogger << (caller == "empty" ? "" : ("[" + caller + "] "))
-                    << "In Gem::Common::enforceRangeConstraint(): " << std::endl
-                    << "value " << val << " < lower boundary " << lower << std::endl
-                    << "Will be adapted to " << lower << std::endl
+                    << "In Gem::Common::enforceRangeConstraint(): " << '\n'
+                    << "value " << val << " < lower boundary " << lower << '\n'
+                    << "Will be adapted to " << lower << '\n'
                     << GWARNING;
         }
         val = lower;
@@ -96,9 +96,9 @@ fp_type enforceRangeConstraint(
     else if(val > upper) {
         if(verbose) {
             glogger << (caller == "empty" ? "" : ("[" + caller + "] "))
-                    << "In Gem::Common::enforceRangeConstraint(): " << std::endl
-                    << "value " << val << " > upper boundary " << upper << std::endl
-                    << "Will be adapted to " << upper << std::endl
+                    << "In Gem::Common::enforceRangeConstraint(): " << '\n'
+                    << "value " << val << " > upper boundary " << upper << '\n'
+                    << "Will be adapted to " << upper << '\n'
                     << GWARNING;
         }
         val = upper;
@@ -126,8 +126,8 @@ bool checkRangeCompliance(
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << (caller == "empty" ? "" : ("[" + caller + "] "))
-            << "In checkRangeCompliance<fp_type>(...): Error!" << std::endl
-            << "Lower boundary > upper boundary: " << lower << " / " << upper << std::endl
+            << "In checkRangeCompliance<fp_type>(...): Error!" << '\n'
+            << "Lower boundary > upper boundary: " << lower << " / " << upper << '\n'
         );
     }
 
@@ -153,8 +153,8 @@ bool checkRangeCompliance(
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << (caller == "empty" ? "" : ("[" + caller + "] "))
-            << "In checkRangeCompliance<int_type>(...): Error!" << std::endl
-            << "Lower boundary > upper boundary: " << lower << " / " << upper << std::endl
+            << "In checkRangeCompliance<int_type>(...): Error!" << '\n'
+            << "Lower boundary > upper boundary: " << lower << " / " << upper << '\n'
         );
     }
 
@@ -273,21 +273,21 @@ fp_type checkValueRange(
 
     if(not inValueRange) {
         if(warnOnly) {
-            glogger << "In checkValueRange<fp_type>(): Error!" << std::endl
+            glogger << "In checkValueRange<fp_type>(): Error!" << '\n'
                     << "Value " << val << (varName.empty() ? "" : (" of variable " + varName))
-                    << " outside of recommended range " << std::endl
+                    << " outside of recommended range " << '\n'
                     << min << (lowerOpen ? " (open) - " : " (closed) - ") << max
-                    << (upperOpen ? " (open)" : " (closed)") << std::endl
+                    << (upperOpen ? " (open)" : " (closed)") << '\n'
                     << GWARNING;
         }
         else {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In checkValueRange<fp_type>(): Error!" << std::endl
+                << "In checkValueRange<fp_type>(): Error!" << '\n'
                 << "Value " << val << (varName.empty() ? "" : (" of variable " + varName))
-                << " outside of allowed range " << std::endl
+                << " outside of allowed range " << '\n'
                 << min << (lowerOpen ? " (open) - " : " (closed) - ") << max
-                << (upperOpen ? " (open)" : " (closed)") << std::endl
+                << (upperOpen ? " (open)" : " (closed)") << '\n'
             );
         }
     }
@@ -338,20 +338,20 @@ int_type checkValueRange(
 
     if(not inValueRange) {
         if(warnOnly) {
-            glogger << "Warning:" << std::endl
-                    << "In checkValueRange<int_type>(): Error!" << std::endl
-                    << "Value " << val << " outside of recommended range " << std::endl
+            glogger << "Warning:" << '\n'
+                    << "In checkValueRange<int_type>(): Error!" << '\n'
+                    << "Value " << val << " outside of recommended range " << '\n'
                     << min << (lowerOpen ? " (open) - " : " (closed) - ") << max
-                    << (upperOpen ? " (open)" : " (closed)") << std::endl
+                    << (upperOpen ? " (open)" : " (closed)") << '\n'
                     << GWARNING;
         }
         else {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In checkValueRange<int_type>(): Error!" << std::endl
-                << "Value " << val << " outside of allowed range " << std::endl
+                << "In checkValueRange<int_type>(): Error!" << '\n'
+                << "Value " << val << " outside of allowed range " << '\n'
                 << min << (lowerOpen ? " (open) - " : " (closed) - ") << max
-                << (upperOpen ? " (open)" : " (closed)") << std::endl
+                << (upperOpen ? " (open)" : " (closed)") << '\n'
             );
         }
     }
@@ -372,8 +372,8 @@ auto getMinMax(const std::vector<x_type_undet> &extDat) {
     if(extDat.size() < std::size_t(2)) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GBasePlotter::getMinMax(1D): Error!" << std::endl
-            << "Got vector of invalid size " << extDat.size() << std::endl
+            << "In GBasePlotter::getMinMax(1D): Error!" << '\n'
+            << "Got vector of invalid size " << extDat.size() << '\n'
         );
     }
 
@@ -396,8 +396,8 @@ auto getMinMax(const std::vector<std::tuple<x_type_undet, y_type_undet>> &extDat
     if(extDat.size() < (std::size_t)2) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GBasePlotter::getMinMax(2D): Error!" << std::endl
-            << "Got vector of invalid size " << extDat.size() << std::endl
+            << "In GBasePlotter::getMinMax(2D): Error!" << '\n'
+            << "Got vector of invalid size " << extDat.size() << '\n'
         );
     }
 
@@ -438,8 +438,8 @@ auto getMinMax(const std::vector<std::tuple<x_type_undet, y_type_undet, z_type_u
     if(extDat.size() < (std::size_t)2) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GBasePlotter::getMinMax(3D): Error!" << std::endl
-            << "Got vector of invalid size " << extDat.size() << std::endl
+            << "In GBasePlotter::getMinMax(3D): Error!" << '\n'
+            << "Got vector of invalid size " << extDat.size() << '\n'
         );
     }
 
@@ -494,8 +494,8 @@ auto getMinMax(
     if(extDat.size() < (std::size_t)2) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GBasePlotter::getMinMax(4D): Error!" << std::endl
-            << "Got vector of invalid size " << extDat.size() << std::endl
+            << "In GBasePlotter::getMinMax(4D): Error!" << '\n'
+            << "Got vector of invalid size " << extDat.size() << '\n'
         );
     }
 
@@ -549,8 +549,8 @@ T GMean(
     if(parVec.empty()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In T GMean(const std::vector<T>&): Error!" << std::endl
-            << "parVec has size 0" << std::endl
+            << "In T GMean(const std::vector<T>&): Error!" << '\n'
+            << "parVec has size 0" << '\n'
         );
     }
 #endif /* DEBUG */
@@ -620,8 +620,8 @@ void subtractVec(std::vector<T> &a, const std::vector<T> &b) {
     if(a.size() != b.size()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In subtractVec(std::vector<T>, const std::vector<T>&): Error!" << std::endl
-            << "Found invalid sizes: " << a.size() << " / " << b.size() << std::endl
+            << "In subtractVec(std::vector<T>, const std::vector<T>&): Error!" << '\n'
+            << "Found invalid sizes: " << a.size() << " / " << b.size() << '\n'
         );
     }
 #endif /* DEBUG */
@@ -646,8 +646,8 @@ void addVec(std::vector<T> &a, const std::vector<T> &b) {
     if(a.size() != b.size()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In addVec(std::vector<T>, const std::vector<T>&): Error!" << std::endl
-            << "Found invalid sizes: " << a.size() << " / " << b.size() << std::endl
+            << "In addVec(std::vector<T>, const std::vector<T>&): Error!" << '\n'
+            << "Found invalid sizes: " << a.size() << " / " << b.size() << '\n'
         );
     }
 #endif /* DEBUG */
@@ -820,8 +820,8 @@ auto getRatioError(
     // p may not be 0
     if(0. == std::get<2>(p)) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place) << "In getRatioError(): Error!" << std::endl
-                                                     << "Attempted division by 0." << std::endl
+            g_error_streamer(DO_LOG, time_and_place) << "In getRatioError(): Error!" << '\n'
+                                                     << "Attempted division by 0." << '\n'
         );
     }
 
@@ -831,8 +831,8 @@ auto getRatioError(
     if(sleep_time != std::get<0>(p)) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In getRatioError(): Error!" << std::endl
-            << "Sleep times differ: " << sleep_time << " / " << std::get<0>(p) << std::endl
+            << "In getRatioError(): Error!" << '\n'
+            << "Sleep times differ: " << sleep_time << " / " << std::get<0>(p) << '\n'
         );
     }
 
@@ -868,8 +868,8 @@ std::vector<std::tuple<fp_type, fp_type, fp_type, fp_type>> getRatioErrors(
     if(sn.size() != pn.size()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In getRatioErrors(): Error!" << std::endl
-            << "Vectors have invalid sizes: " << sn.size() << " / " << pn.size() << std::endl
+            << "In getRatioErrors(): Error!" << '\n'
+            << "Vectors have invalid sizes: " << sn.size() << " / " << pn.size() << '\n'
         );
     }
 
@@ -917,7 +917,7 @@ fp_type grational_sigmoid(fp_type var, fp_type barrier, fp_type steepness) {
     if(steepness <= fp_type(0)) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "grational_sigmoid(): steepness must be > 0, got " << steepness << std::endl
+            << "grational_sigmoid(): steepness must be > 0, got " << steepness << '\n'
         );
     }
 #endif

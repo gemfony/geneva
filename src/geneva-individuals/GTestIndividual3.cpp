@@ -220,9 +220,9 @@ std::shared_ptr<float> GTestIndividual3::getPlainData() const {
     if(this->size() != GTI_DEF_NITEMS) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GTestIndividual3::getPlainData(): Error!" << std::endl
+            << "In GTestIndividual3::getPlainData(): Error!" << '\n'
             << "Invalid number of entries in this class " << this->size() << " / " << GTI_DEF_NITEMS
-            << std::endl
+            << '\n'
         );
     }
 #endif /* DEBUG */

@@ -185,9 +185,9 @@ void GEvolutionaryAlgorithm::updateGlobalBestsPQ_(
     if(this->empty()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In G_OA_EvolutionaryAlgorithm::updateGlobalBestsPQ() :" << std::endl
+            << "In G_OA_EvolutionaryAlgorithm::updateGlobalBestsPQ() :" << '\n'
             << "Tried to retrieve the best individuals even though the population is empty."
-            << std::endl
+            << '\n'
         );
     }
 #endif /* DEBUG */
@@ -241,9 +241,9 @@ void GEvolutionaryAlgorithm::updateIterationBestsPQ_(
     if(this->empty()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "G_OA_EvolutionaryAlgorithm::updateIterationBestsPQ() :" << std::endl
+            << "G_OA_EvolutionaryAlgorithm::updateIterationBestsPQ() :" << '\n'
             << "Tried to retrieve the best individuals even though the population is empty."
-            << std::endl
+            << '\n'
         );
     }
 #endif /* DEBUG */
@@ -297,7 +297,7 @@ void GEvolutionaryAlgorithm::addConfigurationOptions_(Gem::Common::GParserBuilde
         ,
         [this](std::uint16_t nt) { this->setNThreads(nt); }
     ) << "The number of threads used to simultaneously adapt individuals"
-      << std::endl
+      << '\n'
       << "0 means \"automatic\"";
 
     gpb.registerFileParameter<sortingMode>(
@@ -307,13 +307,13 @@ void GEvolutionaryAlgorithm::addConfigurationOptions_(Gem::Common::GParserBuilde
         ,
         [this](sortingMode sm) { this->setSortingScheme(sm); }
     ) << "The sorting scheme. Options"
-      << std::endl
-      << "0: MUPLUSNU mode with a single evaluation criterion" << std::endl
-      << "1: MUCOMMANU mode with a single evaluation criterion" << std::endl
-      << "2: MUCOMMANU mode with single evaluation criterion," << std::endl
-      << "   the best parent of the last iteration is retained" << std::endl
-      << "   unless a better individual has been found" << std::endl
-      << "3: MUPLUSNU mode for multiple evaluation criteria, pareto selection" << std::endl
+      << '\n'
+      << "0: MUPLUSNU mode with a single evaluation criterion" << '\n'
+      << "1: MUCOMMANU mode with a single evaluation criterion" << '\n'
+      << "2: MUCOMMANU mode with single evaluation criterion," << '\n'
+      << "   the best parent of the last iteration is retained" << '\n'
+      << "   unless a better individual has been found" << '\n'
+      << "3: MUPLUSNU mode for multiple evaluation criteria, pareto selection" << '\n'
       << "4: MUCOMMANU mode for multiple evaluation criteria, pareto selection";
 }
 
@@ -335,9 +335,9 @@ std::string GEvolutionaryAlgorithm::name_() const {
   */
 void GEvolutionaryAlgorithm::setNThreads(std::uint16_t nThreads) {
     if(nThreads == 0) {
-        glogger << "In GEvolutionaryAlgorithm::setNThreads(nThreads):" << std::endl
+        glogger << "In GEvolutionaryAlgorithm::setNThreads(nThreads):" << '\n'
                 << "nThreads == 0 was requested. nThreads was reset to the default "
-                << DEFAULTNSTDTHREADS << std::endl
+                << DEFAULTNSTDTHREADS << '\n'
                 << GWARNING;
 
         n_threads_ = DEFAULTNSTDTHREADS;
@@ -398,7 +398,7 @@ void GEvolutionaryAlgorithm::populationSanityChecks_() const {
     if(this->n_parents_ == 0) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In G_OA_EvolutionaryAlgorithm::populationSanityChecks(): Error!" << std::endl
+            << "In G_OA_EvolutionaryAlgorithm::populationSanityChecks(): Error!" << '\n'
             << "Number of parents is set to 0"
         );
     }
@@ -416,26 +416,26 @@ void GEvolutionaryAlgorithm::populationSanityChecks_() const {
     )
     {
         std::ostringstream error; // NOLINT(cppcoreguidelines-init-variables)
-        error << "In G_OA_EvolutionaryAlgorithm::populationSanityChecks() :" << std::endl
+        error << "In G_OA_EvolutionaryAlgorithm::populationSanityChecks() :" << '\n'
               << "Requested size of population is too small :" << popSize << " "
-              << this->n_parents_ << std::endl
+              << this->n_parents_ << '\n'
               << "Sorting scheme is ";
 
         switch(sorting_mode_) {
         case sortingMode::MUPLUSNU_SINGLEEVAL:
-            error << "MUPLUSNU_SINGLEEVAL" << std::endl;
+            error << "MUPLUSNU_SINGLEEVAL" << '\n';
             break;
         case sortingMode::MUCOMMANU_SINGLEEVAL:
-            error << "MUCOMMANU_SINGLEEVAL" << std::endl;
+            error << "MUCOMMANU_SINGLEEVAL" << '\n';
             break;
         case sortingMode::MUNU1PRETAIN_SINGLEEVAL:
-            error << "MUNU1PRETAIN" << std::endl;
+            error << "MUNU1PRETAIN" << '\n';
             break;
         case sortingMode::MUPLUSNU_PARETO:
-            error << "MUPLUSNU_PARETO" << std::endl;
+            error << "MUPLUSNU_PARETO" << '\n';
             break;
         case sortingMode::MUCOMMANU_PARETO:
-            error << "MUCOMMANU_PARETO" << std::endl;
+            error << "MUCOMMANU_PARETO" << '\n';
             break;
         };
 
@@ -477,16 +477,16 @@ void GEvolutionaryAlgorithm::adaptChildren_() {
         catch(std::exception &e) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GEvolutionaryAlgorithm::adaptChildren_() :" << std::endl
-                << "Got error during thread execution with message:" << std::endl
-                << e.what() << std::endl
+                << "In GEvolutionaryAlgorithm::adaptChildren_() :" << '\n'
+                << "Got error during thread execution with message:" << '\n'
+                << e.what() << '\n'
             );
         }
         catch(...) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GEvolutionaryAlgorithm::adaptChildren_() :" << std::endl
-                << "Got unknown exception during thread execution" << std::endl
+                << "In GEvolutionaryAlgorithm::adaptChildren_() :" << '\n'
+                << "Got unknown exception during thread execution" << '\n'
             );
         }
     }
@@ -511,10 +511,10 @@ void GEvolutionaryAlgorithm::runFitnessCalculation_() {
         if(not this->at(i)->is_due_for_processing()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GEvolutionaryAlgorithm::runFitnessCalculation(): Error!" << std::endl
+                << "In GEvolutionaryAlgorithm::runFitnessCalculation(): Error!" << '\n'
                 << "Tried to evaluate children in range " << std::get<0>(range) << " - "
-                << std::get<1>(range) << std::endl
-                << "but found \"clean\" individual in position " << i << std::endl
+                << std::get<1>(range) << '\n'
+                << "but found \"clean\" individual in position " << i << '\n'
             );
         }
     }
@@ -522,9 +522,9 @@ void GEvolutionaryAlgorithm::runFitnessCalculation_() {
     if(this->size() != this->getDefaultPopulationSize()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GEvolutionaryAlgorithm::runFitnessCalculation(): Error!" << std::endl
+            << "In GEvolutionaryAlgorithm::runFitnessCalculation(): Error!" << '\n'
             << "Size of data vector (" << this->size() << ") should be "
-            << this->getDefaultPopulationSize() << std::endl
+            << this->getDefaultPopulationSize() << '\n'
         );
     }
 #endif
@@ -552,9 +552,9 @@ void GEvolutionaryAlgorithm::runFitnessCalculation_() {
             });
 
 #ifdef DEBUG
-        glogger << "In GEvolutionaryAlgorithm::runFitnessCalculation(): " << std::endl
+        glogger << "In GEvolutionaryAlgorithm::runFitnessCalculation(): " << '\n'
                 << "Removed " << n_erased << " unprocessed work items in iteration "
-                << this->getIteration() << std::endl
+                << this->getIteration() << '\n'
                 << GLOGGING;
 #endif
     }
@@ -567,9 +567,9 @@ void GEvolutionaryAlgorithm::runFitnessCalculation_() {
         );
 
 #ifdef DEBUG
-        glogger << "In GEvolutionaryAlgorithm::runFitnessCalculation(): " << std::endl
+        glogger << "In GEvolutionaryAlgorithm::runFitnessCalculation(): " << '\n'
                 << "Removed " << n_erased << " erroneous work items in iteration "
-                << this->getIteration() << std::endl
+                << this->getIteration() << '\n'
                 << GLOGGING;
 #endif
     }
@@ -626,19 +626,19 @@ void GEvolutionaryAlgorithm::fixAfterJobSubmission() {
     if(this->empty()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GEvolutionaryAlgorithm::fixAfterJobSubmission(): Error!" << std::endl
-            << "Population holds no data" << std::endl
+            << "In GEvolutionaryAlgorithm::fixAfterJobSubmission(): Error!" << '\n'
+            << "Population holds no data" << '\n'
         );
     }
     else {
         // Emit a warning if no children have returned
         if(this->size() <= this->getNParents()) {
-            glogger << "In GEvolutionaryAlgorithm::fixAfterJobSubmission(): Warning!" << std::endl
-                    << "No child individuals have returned" << std::endl
+            glogger << "In GEvolutionaryAlgorithm::fixAfterJobSubmission(): Warning!" << '\n'
+                    << "No child individuals have returned" << '\n'
                     << "We have a size of " << this->size() << " with " << this->getNParents()
-                    << " parents" << std::endl
+                    << " parents" << '\n'
                     << "We need to fill up the population with clones from parent individuals"
-                    << std::endl
+                    << '\n'
                     << GWARNING;
         }
     }
@@ -647,9 +647,9 @@ void GEvolutionaryAlgorithm::fixAfterJobSubmission() {
     if(this->back()->is_due_for_processing()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GEvolutionaryAlgorithm::fixAfterJobSubmission(): Error!" << std::endl
-            << "The last individual in the population is is unprocessed" << std::endl
-            << "so we cannot use it for cloning" << std::endl
+            << "In GEvolutionaryAlgorithm::fixAfterJobSubmission(): Error!" << '\n'
+            << "The last individual in the population is is unprocessed" << '\n'
+            << "so we cannot use it for cloning" << '\n'
         );
     }
 
@@ -694,9 +694,9 @@ void GEvolutionaryAlgorithm::selectBest_() {
     if((this->size() - this->n_parents_) < this->default_n_children_) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In G_OA_EvolutionaryAlgorithm::select():" << std::endl
-            << "Too few children. Got " << (this->size() - this->getNParents()) << "," << std::endl
-            << "but was expecting at least " << this->getDefaultNChildren() << std::endl
+            << "In G_OA_EvolutionaryAlgorithm::select():" << '\n'
+            << "Too few children. Got " << (this->size() - this->getNParents()) << "," << '\n'
+            << "but was expecting at least " << this->getDefaultNChildren() << '\n'
         );
     }
 #endif /* DEBUG */
@@ -754,9 +754,9 @@ void GEvolutionaryAlgorithm::selectBest_() {
     if(this->size() < this->getDefaultPopulationSize()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In G_OA_EvolutionaryAlgorithm::selectBest(): Error!" << std::endl
+            << "In G_OA_EvolutionaryAlgorithm::selectBest(): Error!" << '\n'
             << "Size of population is smaller than expected: " << this->size() << " / "
-            << this->getDefaultPopulationSize() << std::endl
+            << this->getDefaultPopulationSize() << '\n'
         );
     }
 #endif /* DEBUG */
@@ -834,10 +834,10 @@ void GEvolutionaryAlgorithm::sortMuPlusNuMode() {
         if(ind_ptr->is_due_for_processing()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GEvolutionaryAlgorithm::sortMuplusnuMode(): Error!" << std::endl
+                << "In GEvolutionaryAlgorithm::sortMuplusnuMode(): Error!" << '\n'
                 << "In iteration " << G_OptimizationAlgorithm_Base::getIteration()
-                << ": Found individual in position " << pos << std::endl
-                << " that is unprocessed." << std::endl
+                << ": Found individual in position " << pos << '\n'
+                << " that is unprocessed." << '\n'
             );
         }
         pos++;
@@ -871,11 +871,11 @@ void GEvolutionaryAlgorithm::sortMuCommaNuMode() {
             if((*it)->is_due_for_processing()) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
-                    << "In GEvolutionaryAlgorithm::sortMucommanuMode(): Error!" << std::endl
+                    << "In GEvolutionaryAlgorithm::sortMucommanuMode(): Error!" << '\n'
                     << "In iteration " << G_OptimizationAlgorithm_Base::getIteration()
                     << ": Found individual in position " << std::distance(this->begin(), it)
-                    << std::endl
-                    << " whose dirty flag is set." << std::endl
+                    << '\n'
+                    << " whose dirty flag is set." << '\n'
                 );
             }
         }
@@ -887,11 +887,11 @@ void GEvolutionaryAlgorithm::sortMuCommaNuMode() {
             if((*it)->is_due_for_processing()) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
-                    << "In GEvolutionaryAlgorithm::sortMucommanuMode(): Error!" << std::endl
+                    << "In GEvolutionaryAlgorithm::sortMucommanuMode(): Error!" << '\n'
                     << "In iteration " << G_OptimizationAlgorithm_Base::getIteration()
                     << ": Found individual in position " << std::distance(this->begin(), it)
-                    << std::endl
-                    << " which is unprocessed." << std::endl
+                    << '\n'
+                    << " which is unprocessed." << '\n'
                 );
             }
         }
@@ -934,11 +934,11 @@ void GEvolutionaryAlgorithm::sortMunu1pretainMode() {
         if((*it)->is_due_for_processing()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GEvolutionaryAlgorithm::sortMunu1pretainMode(): Error!" << std::endl
+                << "In GEvolutionaryAlgorithm::sortMunu1pretainMode(): Error!" << '\n'
                 << "In iteration " << G_OptimizationAlgorithm_Base::getIteration()
                 << ": Found individual in position " << std::distance(this->begin(), it)
-                << std::endl
-                << " whose dirty flag is set." << std::endl
+                << '\n'
+                << " whose dirty flag is set." << '\n'
             );
         }
     }
@@ -1233,9 +1233,9 @@ bool GEvolutionaryAlgorithm::aDominatesB(
     if(nCriteriaX != nCriteriaY) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In G_OA_EvolutionaryAlgorithm::aDominatesB(): Error!" << std::endl
+            << "In G_OA_EvolutionaryAlgorithm::aDominatesB(): Error!" << '\n'
             << "Number of fitness criteria differ: " << nCriteriaX << " / " << nCriteriaY
-            << std::endl
+            << '\n'
         );
     }
 #endif
@@ -1397,11 +1397,11 @@ void GEvolutionaryAlgorithm::specificTestsFailuresExpected_GUnitTests_() {
 /******************************************************************************/
 
 std::ostream &operator<<(std::ostream &os, const GEvolutionaryAlgorithm &pop) {
-    os << std::endl << std::endl;
+    os << '\n' << '\n';
     for(auto it = pop.begin(); it != pop.begin() + pop.getNParents(); ++it) {
-        os << (*it)->raw_fitness() << " " << (*it)->transformed_fitness() << std::endl;
+        os << (*it)->raw_fitness() << " " << (*it)->transformed_fitness() << '\n';
     }
-    os << "***************************************" << std::endl;
+    os << "***************************************" << '\n';
 
     return os;
 }

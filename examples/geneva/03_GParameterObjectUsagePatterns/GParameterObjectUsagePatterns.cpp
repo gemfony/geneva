@@ -132,7 +132,7 @@ int main(int argc, char **argv) {
     // Parameter Types
 
     { // Usage patterns for the GDoubleObject class
-        std::cout << "GDoubleObject:" << std::endl;
+        std::cout << "GDoubleObject:" << '\n';
 
         //-----------------------------------------------------
         // Construction
@@ -149,12 +149,12 @@ int main(int argc, char **argv) {
         o1 = 1.; // Assigning and setting a value
         o2.setValue(2.);
         o4 = o1;                              // Assignment to another object
-        std::cout << o4.value() << std::endl; // Value retrieval
+        std::cout << o4.value() << '\n'; // Value retrieval
 
         //-----------------------------------------------------
         // Boundaries
-        std::cout << o4.getLowerInitBoundary() << std::endl; // Retrieval of lower init boundary
-        std::cout << o4.getUpperInitBoundary() << std::endl; // Retrieval of upper init boundary
+        std::cout << o4.getLowerInitBoundary() << '\n'; // Retrieval of lower init boundary
+        std::cout << o4.getUpperInitBoundary() << '\n'; // Retrieval of upper init boundary
 
         //-----------------------------------------------------
         // Assignment of an adaptor
@@ -171,7 +171,7 @@ int main(int argc, char **argv) {
     }
 
     { // Usage patterns for the GConstrainedDoubleObject class
-        std::cout << "GConstrainedDoubleObject:" << std::endl;
+        std::cout << "GConstrainedDoubleObject:" << '\n';
 
         //-----------------------------------------------------
         // Construction
@@ -189,12 +189,12 @@ int main(int argc, char **argv) {
         o1 = 1.; // Assigning a value
         o2.setValue(1.5);
         o5 = o1;                                                   // Assignment of another object
-        std::cout << o4.value() << " " << o5.value() << std::endl; // Value retrieval
+        std::cout << o4.value() << " " << o5.value() << '\n'; // Value retrieval
 
         //-----------------------------------------------------
         // Boundaries
-        std::cout << o4.getLowerBoundary() << std::endl; // Retrieval of lower value boundary
-        std::cout << o4.getUpperBoundary() << std::endl; // Retrieval of upper value boundary
+        std::cout << o4.getLowerBoundary() << '\n'; // Retrieval of lower value boundary
+        std::cout << o4.getUpperBoundary() << '\n'; // Retrieval of upper value boundary
 
         //-----------------------------------------------------
         // Assignment of an adaptor (same as for GDoubleObject)
@@ -211,7 +211,7 @@ int main(int argc, char **argv) {
     }
 
     { // Usage patterns for the GDoubleObjectCollection class
-        std::cout << "GDoubleObjectCollection:" << std::endl;
+        std::cout << "GDoubleObjectCollection:" << '\n';
 
         //-----------------------------------------------------
         // Construction
@@ -245,8 +245,8 @@ int main(int argc, char **argv) {
         //-----------------------------------------------------
         // Access to parameter objects in the collection
         for(std::size_t i = 0; i < 10; i++) {
-            std::cout << p_c3->at(i)->value() << std::endl;
-            std::cout << c1[i]->value() << std::endl;
+            std::cout << p_c3->at(i)->value() << '\n';
+            std::cout << c1[i]->value() << '\n';
         }
 
         // Note: The iterator points to a smart pointer, so in order to
@@ -254,12 +254,12 @@ int main(int argc, char **argv) {
         // dereference the iterator, then the smart pointer
         GDoubleObjectCollection::iterator it;
         for(it = c1.begin(); it != c1.end(); ++it) {
-            std::cout << (*it)->value() << std::endl;
+            std::cout << (*it)->value() << '\n';
         }
     }
 
     { // Usage patterns for the GConstrainedDoubleObjectCollection class
-        std::cout << "GConstrainedDoubleObjectCollection:" << std::endl;
+        std::cout << "GConstrainedDoubleObjectCollection:" << '\n';
 
         //-----------------------------------------------------
         // Construction
@@ -294,8 +294,8 @@ int main(int argc, char **argv) {
         //-----------------------------------------------------
         // Access to parameter objects in the collection
         for(std::size_t i = 0; i < 10; i++) {
-            std::cout << p_c3->at(i)->value() << std::endl;
-            std::cout << c1[i]->value() << std::endl;
+            std::cout << p_c3->at(i)->value() << '\n';
+            std::cout << c1[i]->value() << '\n';
         }
 
         // Note: The iterator points to a smart pointer, so in order to
@@ -303,12 +303,12 @@ int main(int argc, char **argv) {
         // dereference the iterator, then the smart pointer
         GConstrainedDoubleObjectCollection::iterator it;
         for(it = c1.begin(); it != c1.end(); ++it) {
-            std::cout << (*it)->value() << std::endl;
+            std::cout << (*it)->value() << '\n';
         }
     }
 
     { // Usage patterns for the GDoubleCollection class
-        std::cout << "GDoubleCollection:" << std::endl;
+        std::cout << "GDoubleCollection:" << '\n';
 
         //-----------------------------------------------------
         // Construction
@@ -347,18 +347,18 @@ int main(int argc, char **argv) {
         //-----------------------------------------------------
         // Access to parameter objects in the collection
         for(std::size_t i = 0; i < c1.size(); i++) {
-            std::cout << c1[i] << std::endl;
-            std::cout << c1.at(i) << std::endl;
+            std::cout << c1[i] << '\n';
+            std::cout << c1.at(i) << '\n';
         }
         GDoubleCollection::iterator it;
         for(it = c1.begin(); it != c1.end(); ++it) {
-            std::cout << *it << std::endl;
+            std::cout << *it << '\n';
         }
         //-----------------------------------------------------
     }
 
     { // Usage patterns for the GConstrainedDoubleCollection class
-        std::cout << "GConstrainedDoubleCollection:" << std::endl;
+        std::cout << "GConstrainedDoubleCollection:" << '\n';
 
         //-----------------------------------------------------
         // Construction
@@ -393,13 +393,13 @@ int main(int argc, char **argv) {
         // operators or iterators
         for(std::size_t i = 0; i < c1.size(); i++) {
             c1.setValue(i, double(i));
-            std::cout << c1.value(i) << std::endl;
+            std::cout << c1.value(i) << '\n';
         }
         //-----------------------------------------------------
     }
 
     { // Usage patterns for the GInt32Object class
-        std::cout << "GInt32Object:" << std::endl;
+        std::cout << "GInt32Object:" << '\n';
 
         //-----------------------------------------------------
         // Construction
@@ -416,12 +416,12 @@ int main(int argc, char **argv) {
         o1 = 1; // Assigning and setting a value
         o2.setValue(2);
         o4 = o1;                              // Assignment of another object
-        std::cout << o4.value() << std::endl; // Value retrieval
+        std::cout << o4.value() << '\n'; // Value retrieval
 
         //-----------------------------------------------------
         // Boundaries
-        std::cout << o4.getLowerInitBoundary() << std::endl; // Retrieval of lower init boundary
-        std::cout << o4.getUpperInitBoundary() << std::endl; // Retrieval of upper init boundary
+        std::cout << o4.getLowerInitBoundary() << '\n'; // Retrieval of lower init boundary
+        std::cout << o4.getUpperInitBoundary() << '\n'; // Retrieval of upper init boundary
 
         //-----------------------------------------------------
         // Assignment of an adaptor
@@ -431,7 +431,7 @@ int main(int argc, char **argv) {
     }
 
     { // Usage patterns for the GConstrainedInt32Object class
-        std::cout << "GConstrainedInt32Object:" << std::endl;
+        std::cout << "GConstrainedInt32Object:" << '\n';
 
         //-----------------------------------------------------
         // Construction
@@ -453,12 +453,12 @@ int main(int argc, char **argv) {
         o1 = 1; // Assigning and setting a value
         o2.setValue(2);
         o4 = o1;                              // Assignment of another object
-        std::cout << o4.value() << std::endl; // Value retrieval
+        std::cout << o4.value() << '\n'; // Value retrieval
 
         //-----------------------------------------------------
         // Boundaries
-        std::cout << o4.getLowerBoundary() << std::endl; // Retrieval of lower init boundary
-        std::cout << o4.getUpperBoundary() << std::endl; // Retrieval of upper init boundary
+        std::cout << o4.getLowerBoundary() << '\n'; // Retrieval of lower init boundary
+        std::cout << o4.getUpperBoundary() << '\n'; // Retrieval of upper init boundary
 
         //-----------------------------------------------------
         // Assignment of an adaptor
@@ -468,7 +468,7 @@ int main(int argc, char **argv) {
     }
 
     { // Usage patterns for the GInt32ObjectCollection class
-        std::cout << "GInt32ObjectCollection:" << std::endl;
+        std::cout << "GInt32ObjectCollection:" << '\n';
 
         //-----------------------------------------------------
         // Construction
@@ -502,8 +502,8 @@ int main(int argc, char **argv) {
         //-----------------------------------------------------
         // Access to parameter objects in the collection
         for(std::size_t i = 0; i < 10; i++) {
-            std::cout << p_c3->at(i)->value() << std::endl;
-            std::cout << c1[i]->value() << std::endl;
+            std::cout << p_c3->at(i)->value() << '\n';
+            std::cout << c1[i]->value() << '\n';
         }
 
         // Note: The iterator points to a smart pointer, so in order to
@@ -511,12 +511,12 @@ int main(int argc, char **argv) {
         // dereference the iterator, then the smart pointer
         GInt32ObjectCollection::iterator it;
         for(it = c1.begin(); it != c1.end(); ++it) {
-            std::cout << (*it)->value() << std::endl;
+            std::cout << (*it)->value() << '\n';
         }
     }
 
     { // Usage patterns for the GConstrainedInt32ObjectCollection class
-        std::cout << "GConstrainedInt32ObjectCollection:" << std::endl;
+        std::cout << "GConstrainedInt32ObjectCollection:" << '\n';
 
         //-----------------------------------------------------
         // Construction
@@ -552,8 +552,8 @@ int main(int argc, char **argv) {
         //-----------------------------------------------------
         // Access to parameter objects in the collection
         for(std::size_t i = 0; i < 10; i++) {
-            std::cout << p_c3->at(i)->value() << std::endl;
-            std::cout << c1[i]->value() << std::endl;
+            std::cout << p_c3->at(i)->value() << '\n';
+            std::cout << c1[i]->value() << '\n';
         }
 
         // Note: The iterator points to a smart pointer, so in order to
@@ -561,12 +561,12 @@ int main(int argc, char **argv) {
         // dereference the iterator, then the smart pointer
         GConstrainedInt32ObjectCollection::iterator it;
         for(it = c1.begin(); it != c1.end(); ++it) {
-            std::cout << (*it)->value() << std::endl;
+            std::cout << (*it)->value() << '\n';
         }
     }
 
     { // Usage patterns for the GInt32Collection class
-        std::cout << "GInt32Collection:" << std::endl;
+        std::cout << "GInt32Collection:" << '\n';
 
         //-----------------------------------------------------
         // Construction
@@ -598,18 +598,18 @@ int main(int argc, char **argv) {
         //-----------------------------------------------------
         // Access to parameter objects in the collection
         for(std::size_t i = 0; i < c1.size(); i++) {
-            std::cout << c1[i] << std::endl;
-            std::cout << c1.at(i) << std::endl;
+            std::cout << c1[i] << '\n';
+            std::cout << c1.at(i) << '\n';
         }
         GInt32Collection::iterator it;
         for(it = c1.begin(); it != c1.end(); ++it) {
-            std::cout << *it << std::endl;
+            std::cout << *it << '\n';
         }
         //-----------------------------------------------------
     }
 
     { // Usage patterns for the GBooleanObject class
-        std::cout << "GBooleanObject:" << std::endl;
+        std::cout << "GBooleanObject:" << '\n';
 
         //-----------------------------------------------------
         // Construction
@@ -625,7 +625,7 @@ int main(int argc, char **argv) {
         o2.setValue(false);
         o3 = o1; // Assignment of another object
         // Value retrieval and value emission
-        std::cout << (o3.value() ? true : false) << std::endl;
+        std::cout << (o3.value() ? true : false) << '\n';
 
         //-----------------------------------------------------
         // Assignment of an adaptor
@@ -635,7 +635,7 @@ int main(int argc, char **argv) {
     }
 
     { // Usage patterns for the GBooleanObjectCollection class
-        std::cout << "GBooleanObjectCollection:" << std::endl;
+        std::cout << "GBooleanObjectCollection:" << '\n';
 
         //-----------------------------------------------------
         // Construction
@@ -669,8 +669,8 @@ int main(int argc, char **argv) {
         //-----------------------------------------------------
         // Access to parameter objects in the collection
         for(std::size_t i = 0; i < 10; i++) {
-            std::cout << p_c3->at(i)->value() << std::endl;
-            std::cout << c1[i]->value() << std::endl;
+            std::cout << p_c3->at(i)->value() << '\n';
+            std::cout << c1[i]->value() << '\n';
         }
 
         // Note: The iterator points to a smart pointer, so in order to
@@ -678,12 +678,12 @@ int main(int argc, char **argv) {
         // dereference the iterator, then the smart pointer
         GBooleanObjectCollection::iterator it;
         for(it = c1.begin(); it != c1.end(); ++it) {
-            std::cout << (*it)->value() << std::endl;
+            std::cout << (*it)->value() << '\n';
         }
     }
 
     { // Usage patterns for the GBooleanCollection class
-        std::cout << "GBooleanCollection:" << std::endl;
+        std::cout << "GBooleanCollection:" << '\n';
 
         //-----------------------------------------------------
         // Construction
@@ -716,18 +716,18 @@ int main(int argc, char **argv) {
         //-----------------------------------------------------
         // Access to parameter objects in the collection
         for(std::size_t i = 0; i < c1.size(); i++) {
-            std::cout << (c1[i] ? "true" : "false") << std::endl;
-            std::cout << (c1.at(i) ? "true" : "false") << std::endl;
+            std::cout << (c1[i] ? "true" : "false") << '\n';
+            std::cout << (c1.at(i) ? "true" : "false") << '\n';
         }
         GBooleanCollection::iterator it;
         for(it = c1.begin(); it != c1.end(); ++it) {
-            std::cout << (*it ? "true" : "false") << std::endl;
+            std::cout << (*it ? "true" : "false") << '\n';
         }
         //-----------------------------------------------------
     }
 
     { // Usage patterns for the GParameterObjectCollection class
-        std::cout << "GParameterObjectCollection:" << std::endl;
+        std::cout << "GParameterObjectCollection:" << '\n';
 
         //-----------------------------------------------------
         // Construction
@@ -783,7 +783,7 @@ int main(int argc, char **argv) {
         // Filtered range view -- will return all GDoubleObject items
         // stored on this level (does not recurse into nested collections).
         for(auto p_conv : c1.filteredView<GDoubleObject>()) {
-            std::cout << p_conv->value() << std::endl;
+            std::cout << p_conv->value() << '\n';
         }
         //-----------------------------------------------------
     }
@@ -792,7 +792,7 @@ int main(int argc, char **argv) {
     // Adaptors
 
     { // GDoubleGaussAdaptor
-        std::cout << "GDoubleGaussAdaptor:" << std::endl;
+        std::cout << "GDoubleGaussAdaptor:" << '\n';
 
         //-----------------------------------------------------
         // Construction
@@ -831,7 +831,7 @@ int main(int argc, char **argv) {
         // Setting and retrieval of specific configuration parameters
         a1.setSigmaRange(minSigma, maxSigma);
         std::tuple<double, double> t = a1.getSigmaRange();
-        std::cout << std::get<0>(t) << " " << std::get<1>(t) << std::endl;
+        std::cout << std::get<0>(t) << " " << std::get<1>(t) << '\n';
 
         a1.setSigma(sigma);
         double sigma2 = a1.getSigma();
@@ -859,7 +859,7 @@ int main(int argc, char **argv) {
     }
 
     { // GDoubleBiGaussAdaptor
-        std::cout << "GDoubleBiGaussAdaptor:" << std::endl;
+        std::cout << "GDoubleBiGaussAdaptor:" << '\n';
 
         //-----------------------------------------------------
         // Construction
@@ -991,7 +991,7 @@ int main(int argc, char **argv) {
         // Setting and retrieval of specific configuration parameters
         a1.setSigmaRange(minSigma, maxSigma);
         std::tuple<double, double> t = a1.getSigmaRange();
-        std::cout << std::get<0>(t) << " " << std::get<1>(t) << std::endl;
+        std::cout << std::get<0>(t) << " " << std::get<1>(t) << '\n';
 
         a1.setSigma(sigma);
         double sigma2 = a1.getSigma();

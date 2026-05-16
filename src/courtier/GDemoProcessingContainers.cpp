@@ -62,7 +62,7 @@ void GSimpleContainer::process_(const std::vector<bool> &) { /* nothing */
 * Prints out this functions stored number
 */
 void GSimpleContainer::print() const {
-    std::cout << "storedNumber_ = " << stored_number_ << std::endl;
+    std::cout << "storedNumber_ = " << stored_number_ << '\n';
 }
 
 /********************************************************************************************/
@@ -95,7 +95,7 @@ void GRandomNumberContainer::process_(const std::vector<bool> &) {
  */
 void GRandomNumberContainer::print() const {
     for(std::size_t i = 0; i < randomNumbers_.size(); i++) {
-        std::cout << i << ": " << randomNumbers_[i] << std::endl;
+        std::cout << i << ": " << randomNumbers_[i] << '\n';
     }
 }
 

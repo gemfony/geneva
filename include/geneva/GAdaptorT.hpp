@@ -129,10 +129,10 @@ public:
                maxAdProb_,
                "GAdaptorT<>::GAdaptorT(" + Gem::Common::to_string(adProb) + ")"
            )) {
-            glogger << "In GAdaptorT<T, fp_type>::GadaptorT(const fp_type& adProb):" << std::endl
+            glogger << "In GAdaptorT<T, fp_type>::GadaptorT(const fp_type& adProb):" << '\n'
                     << "adProb value " << adProb_ << " is outside of allowed value range ["
-                    << minAdProb_ << ", " << maxAdProb_ << "]" << std::endl
-                    << "The value will be adapted to fit this range." << std::endl
+                    << minAdProb_ << ", " << maxAdProb_ << "]" << '\n'
+                    << "The value will be adapted to fit this range." << '\n'
                     << GWARNING;
 
             Gem::Common::enforceRangeConstraint<fp_type>(
@@ -192,8 +192,8 @@ public:
         if(adProb < fp_type(0.) || adProb > fp_type(1.)) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GAdaptorT<T, fp_type>::setAdaptionProbability(const fp_type&):" << std::endl
-                << "Bad probability value given: " << adProb << std::endl
+                << "In GAdaptorT<T, fp_type>::setAdaptionProbability(const fp_type&):" << '\n'
+                << "Bad probability value given: " << adProb << '\n'
             );
         }
 
@@ -207,10 +207,10 @@ public:
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GAdaptorT<T, fp_type>::setAdaptionProbability(const fp_type& adProb):"
-                << std::endl
+                << '\n'
                 << "adProb value " << adProb << " is outside of allowed value range ["
-                << minAdProb_ << ", " << maxAdProb_ << "]" << std::endl
-                << "Set new boundaries first before setting a new \"adProb\" value" << std::endl
+                << minAdProb_ << ", " << maxAdProb_ << "]" << '\n'
+                << "Set new boundaries first before setting a new \"adProb\" value" << '\n'
             );
         }
 
@@ -259,11 +259,11 @@ public:
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GAdaptorT<T, fp_type>::setResetAdaptionProbability(const fp_type&):"
-                << std::endl
+                << '\n'
                 << "adProb_reset value " << adProb_reset << " is outside of allowed value range ["
-                << minAdProb_ << ", " << maxAdProb_ << "]" << std::endl
+                << minAdProb_ << ", " << maxAdProb_ << "]" << '\n'
                 << "Set new boundaries first before setting a new \"adProb_reset\" value"
-                << std::endl
+                << '\n'
             );
         }
 
@@ -298,8 +298,8 @@ public:
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GAdaptorT<T, fp_type>::setAdaptAdaptionProbability(const fp_type&) :"
-                << std::endl
-                << "Probability " << probability << " not in allowed range [0.,1.]" << std::endl
+                << '\n'
+                << "Probability " << probability << " not in allowed range [0.,1.]" << '\n'
             );
         }
 
@@ -341,8 +341,8 @@ public:
         if(adaptAdProb < fp_type(0.)) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GAdaptorT<>::setAdaptAdProb(): Error!" << std::endl
-                << "adaptAdProb < 0: " << adaptAdProb << std::endl
+                << "In GAdaptorT<>::setAdaptAdProb(): Error!" << '\n'
+                << "adaptAdProb < 0: " << adaptAdProb << '\n'
             );
         }
 
@@ -448,25 +448,25 @@ public:
         if(minAdProb < 0.) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GAdaptorT<T, fp_type>::setAdProbRange(): Error!" << std::endl
-                << "minAdProb < 0: " << minAdProb << std::endl
+                << "In GAdaptorT<T, fp_type>::setAdProbRange(): Error!" << '\n'
+                << "minAdProb < 0: " << minAdProb << '\n'
             );
         }
 
         if(maxAdProb > 1.) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GAdaptorT<T, fp_type>::setAdProbRange(): Error!" << std::endl
-                << "maxAdProb > 1: " << maxAdProb << std::endl
+                << "In GAdaptorT<T, fp_type>::setAdProbRange(): Error!" << '\n'
+                << "maxAdProb > 1: " << maxAdProb << '\n'
             );
         }
 
         if(minAdProb > maxAdProb) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GAdaptorT<T, fp_type>::setAdProbRange(): Error!" << std::endl
+                << "In GAdaptorT<T, fp_type>::setAdProbRange(): Error!" << '\n'
                 << "Invalid minAdProb and/or maxAdProb: " << minAdProb << " / " << maxAdProb
-                << std::endl
+                << '\n'
             );
         }
 #endif /* DEBUG */
@@ -655,8 +655,8 @@ public:
         if(0 == nStalls) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GAdaptorT<>::updateOnStall(" << nStalls << "): Error!" << std::endl
-                << "Function called for zero nStalls" << std::endl
+                << "In GAdaptorT<>::updateOnStall(" << nStalls << "): Error!" << '\n'
+                << "Function called for zero nStalls" << '\n'
             );
         }
 #endif
@@ -712,10 +712,10 @@ public:
                 if(not this->customQueryProperty(property, data)) {
                     throw geneva_exception(
                         g_error_streamer(DO_LOG, time_and_place)
-                        << "In GAdaptorT<T, fp_type>::queryPropertyFrom(): Error!" << std::endl
+                        << "In GAdaptorT<T, fp_type>::queryPropertyFrom(): Error!" << '\n'
                         << "Function was called for unimplemented property " << property
-                        << std::endl
-                        << "on adaptor " << adaptorName << std::endl
+                        << '\n'
+                        << "on adaptor " << adaptorName << '\n'
                     );
                 }
             }

@@ -610,8 +610,8 @@ public:
 
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GFormulaParserT<>::evaluate(): Error!" << std::endl
-                << "Parsing of formula " << formula << " failed at " << rest << std::endl
+                << "In GFormulaParserT<>::evaluate(): Error!" << '\n'
+                << "Parsing of formula " << formula << " failed at " << rest << '\n'
             );
         }
 
@@ -754,8 +754,8 @@ private:
             if(vals.empty()) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
-                    << "In GFormulaParserT::replacePlaceHolders(): Error!" << std::endl
-                    << "Vector is empty!" << std::endl
+                    << "In GFormulaParserT::replacePlaceHolders(): Error!" << '\n'
+                    << "Vector is empty!" << '\n'
                 );
             }
             if(vals.size() == 1) {
@@ -821,8 +821,8 @@ private:
             case byte_code::op_trap: {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
-                    << "In GFormulaParserT<fp_type>::execute(): Error!" << std::endl
-                    << "byte_code::op_trap encountered" << std::endl
+                    << "In GFormulaParserT<fp_type>::execute(): Error!" << '\n'
+                    << "byte_code::op_trap encountered" << '\n'
                 );
             } break;
 
@@ -968,10 +968,10 @@ private:
                 if(stack_ptr_ == stack_.end()) {
                     throw geneva_exception(
                         g_error_streamer(DO_LOG, time_and_place)
-                        << "In GFormulaParserT<fp_type>::execute(): Error!" << std::endl
+                        << "In GFormulaParserT<fp_type>::execute(): Error!" << '\n'
                         << "Evaluation stack overflow (depth limit "
                         << stack_.size() << " exceeded). The formula is too "
-                           "deeply nested or the byte-code is corrupted." << std::endl
+                           "deeply nested or the byte-code is corrupted." << '\n'
                     );
                 }
                 *stack_ptr_++ = std::get<fp_type>(*code_ptr++);
@@ -980,9 +980,9 @@ private:
             default: {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
-                    << "In GFormulaParserT<fp_type>::execute(): Error!" << std::endl
+                    << "In GFormulaParserT<fp_type>::execute(): Error!" << '\n'
                     << "Invalid instruction "
-                    << static_cast<std::size_t>(std::get<byte_code>(*code_ptr--)) << std::endl
+                    << static_cast<std::size_t>(std::get<byte_code>(*code_ptr--)) << '\n'
                 );
                 // Note that the static cast is required here as strongly-typed enums cannot be
                 // cast implicitly to integers types.
@@ -997,7 +997,7 @@ private:
 	 */
     void printStack() const {
         if(stack_.empty()) {
-            std::cout << "Stack is empty!" << std::endl;
+            std::cout << "Stack is empty!" << '\n';
             return;
         }
 
@@ -1007,7 +1007,7 @@ private:
             std::cout << *it << " " << std::flush;
             ++it;
         }
-        std::cout << std::endl;
+        std::cout << '\n';
     }
 
     /***************************************************************************/
@@ -1016,7 +1016,7 @@ private:
 	 */
     void printCode() const {
         if(code_.empty()) {
-            std::cout << "Code is empty!" << std::endl;
+            std::cout << "Code is empty!" << '\n';
             return;
         }
 
@@ -1024,7 +1024,7 @@ private:
         for(auto it : code_) {
             std::cout << static_cast<std::size_t>(std::get<byte_code>(it)) << " " << std::flush;
         }
-        std::cout << std::endl;
+        std::cout << '\n';
     }
 
     /***************************************************************************/

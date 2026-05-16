@@ -93,22 +93,22 @@ public:
 #define raiseException(E)                                                                          \
     {                                                                                              \
         std::ostringstream error;                                                                  \
-        error << std::endl                                                                         \
-              << "================================================" << std::endl                   \
-              << "ERROR" << std::endl                                                              \
-              << "in file " << __FILE__ << std::endl                                               \
-              << "near line " << __LINE__ << " with description:" << std::endl                     \
-              << std::endl                                                                         \
-              << E /* NOLINT(bugprone-macro-parentheses) */ << std::endl                           \
-              << std::endl                                                                         \
-              << "If you suspect that this error is due to Geneva," << std::endl                   \
-              << "then please consider filing a bug via" << std::endl                              \
-              << "http://www.gemfony.eu (link \"Bug Reports\") or" << std::endl                    \
-              << "through http://www.launchpad.net/geneva" << std::endl                            \
-              << std::endl                                                                         \
-              << "We appreciate your help!" << std::endl                                           \
-              << "The Geneva team" << std::endl                                                    \
-              << "================================================" << std::endl;                  \
+        error << '\n'                                                                         \
+              << "================================================" << '\n'                   \
+              << "ERROR" << '\n'                                                              \
+              << "in file " << __FILE__ << '\n'                                               \
+              << "near line " << __LINE__ << " with description:" << '\n'                     \
+              << '\n'                                                                         \
+              << E /* NOLINT(bugprone-macro-parentheses) */ << '\n'                           \
+              << '\n'                                                                         \
+              << "If you suspect that this error is due to Geneva," << '\n'                   \
+              << "then please consider filing a bug via" << '\n'                              \
+              << "http://www.gemfony.eu (link \"Bug Reports\") or" << '\n'                    \
+              << "through http://www.launchpad.net/geneva" << '\n'                            \
+              << '\n'                                                                         \
+              << "We appreciate your help!" << '\n'                                           \
+              << "The Geneva team" << '\n'                                                    \
+              << "================================================" << '\n';                  \
         throw(geneva_exception(error.str()));                                                      \
     }
 

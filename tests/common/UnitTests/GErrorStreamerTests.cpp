@@ -66,7 +66,7 @@ TEST_CASE("g_error_streamer: stream manipulators are honoured",
     g_error_streamer s;
     // std::endl is `std::ostream& (*)(std::ostream&)` — exercises the
     // dedicated overload that forwards to the internal ostringstream.
-    s << "line1" << std::endl << "line2" << std::endl;
+    s << "line1" << '\n' << "line2" << '\n';
 
     const std::string out = s.content();
     CHECK(out.find("line1\n") != std::string::npos);

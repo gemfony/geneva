@@ -82,8 +82,8 @@ void GConjugateGradientDescent::setNStartingPoints(std::size_t nStartingPoints) 
     if(nStartingPoints == 0) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GConjugateGradientDescent::setNStartingPoints(const std::size_t&):" << std::endl
-            << "Got invalid number of starting points." << std::endl
+            << "In GConjugateGradientDescent::setNStartingPoints(const std::size_t&):" << '\n'
+            << "Got invalid number of starting points." << '\n'
         );
     }
 
@@ -99,9 +99,9 @@ void GConjugateGradientDescent::setFiniteStep(double finiteStep) {
        finiteStep > 1000.) { // Specified in per mill of the allowed or preferred value range
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GConjugateGradientDescent::setFiniteStep(double): Error!" << std::endl
-            << "Invalid value of finiteStep: " << finiteStep << std::endl
-            << "Must be in the range ]0.:1000.]" << std::endl
+            << "In GConjugateGradientDescent::setFiniteStep(double): Error!" << '\n'
+            << "Invalid value of finiteStep: " << finiteStep << '\n'
+            << "Must be in the range ]0.:1000.]" << '\n'
         );
     }
 
@@ -128,9 +128,9 @@ void GConjugateGradientDescent::setStepSize(double stepSize) {
        stepSize > 1000.) { // Specified in per mill of the allowed or preferred value range
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GConjugateGradientDescent::setStepSize(double): Error!" << std::endl
-            << "Invalid value of stepSize: " << stepSize << std::endl
-            << "Must be in the range ]0.:1000.]" << std::endl
+            << "In GConjugateGradientDescent::setStepSize(double): Error!" << '\n'
+            << "Invalid value of stepSize: " << stepSize << '\n'
+            << "Must be in the range ]0.:1000.]" << '\n'
         );
     }
 
@@ -373,9 +373,9 @@ void GConjugateGradientDescent::updateParentIndividuals() {
         if(this->at(i)->is_due_for_processing() || (this->at(i)->has_errors())) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GConjugateGradientDescent::updateParentIndividuals():" << std::endl
+                << "In GConjugateGradientDescent::updateParentIndividuals():" << '\n'
                 << "Found individual in position " << i
-                << " which is unprocessed or has errors" << std::endl
+                << " which is unprocessed or has errors" << '\n'
             );
         }
 #endif /* DEBUG */
@@ -444,8 +444,8 @@ void GConjugateGradientDescent::updateParentIndividuals() {
         catch(std::overflow_error &e) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GConjugateGradientDescent::updateParentIndividuals(): Error!" << std::endl
-                << "Bad conversion with message " << e.what() << std::endl
+                << "In GConjugateGradientDescent::updateParentIndividuals(): Error!" << '\n'
+                << "Bad conversion with message " << e.what() << '\n'
             );
         }
 
@@ -478,8 +478,8 @@ void GConjugateGradientDescent::addConfigurationOptions_(Gem::Common::GParserBui
         DEFAULTCGDFINITESTEP,
         [this](double fs) { this->setFiniteStep(fs); }
     ) << "The size of the adjustment in the difference quotient,"
-      << std::endl
-      << "specified in per mill of the allowed or expected value" << std::endl
+      << '\n'
+      << "specified in per mill of the allowed or expected value" << '\n'
       << "range of a parameter";
 
     gpb.registerFileParameter<double>(
@@ -487,8 +487,8 @@ void GConjugateGradientDescent::addConfigurationOptions_(Gem::Common::GParserBui
         DEFAULTCGDSTEPSIZE,
         [this](double ss) { this->setStepSize(ss); }
     ) << "The size of each step along the conjugate search"
-      << std::endl
-      << "direction, specified in per mill of the allowed or" << std::endl
+      << '\n'
+      << "direction, specified in per mill of the allowed or" << '\n'
       << "expected value range of a parameter";
 }
 
@@ -505,9 +505,9 @@ void GConjugateGradientDescent::runFitnessCalculation_() {
         if(this->afterFirstIteration() && !item_ptr->is_due_for_processing()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GConjugateGradientDescent::runFitnessCalculation():" << std::endl
+                << "In GConjugateGradientDescent::runFitnessCalculation():" << '\n'
                 << "Found individual on position " << pos
-                << " which is not due for processing" << std::endl
+                << " which is not due for processing" << '\n'
             );
         }
         pos++;
@@ -526,9 +526,9 @@ void GConjugateGradientDescent::runFitnessCalculation_() {
     if(not status.is_complete || status.has_errors) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GConjugateGradientDescent::runFitnessCalculation(): Error!" << std::endl
+            << "In GConjugateGradientDescent::runFitnessCalculation(): Error!" << '\n'
             << "No complete set of items received or errors found in some individuals"
-            << std::endl
+            << '\n'
         );
     }
 }
@@ -552,27 +552,27 @@ void GConjugateGradientDescent::init() {
     if(dblLowerParameterBoundaries_.size() != dblUpperParameterBoundaries_.size()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GConjugateGradientDescent::init(): Error!" << std::endl
+            << "In GConjugateGradientDescent::init(): Error!" << '\n'
             << "Found invalid sizes: " << dblLowerParameterBoundaries_.size() << " / "
-            << dblUpperParameterBoundaries_.size() << std::endl
+            << dblUpperParameterBoundaries_.size() << '\n'
         );
     }
 
     if(stepSize_ <= 0. || stepSize_ > 1000.) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GConjugateGradientDescent::init(): Error!" << std::endl
-            << "Invalid value of stepSize_: " << stepSize_ << std::endl
-            << "Must be in the range ]0.:1000.]" << std::endl
+            << "In GConjugateGradientDescent::init(): Error!" << '\n'
+            << "Invalid value of stepSize_: " << stepSize_ << '\n'
+            << "Must be in the range ]0.:1000.]" << '\n'
         );
     }
 
     if(finiteStep_ <= 0. || finiteStep_ > 1000.) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GConjugateGradientDescent::init(): Error!" << std::endl
-            << "Invalid value of finiteStep_: " << finiteStep_ << std::endl
-            << "Must be in the range ]0.:1000.]" << std::endl
+            << "In GConjugateGradientDescent::init(): Error!" << '\n'
+            << "Invalid value of finiteStep_: " << finiteStep_ << '\n'
+            << "Must be in the range ]0.:1000.]" << '\n'
         );
     }
 #endif /* DEBUG */
@@ -605,8 +605,8 @@ void GConjugateGradientDescent::updateDerivedQuantities() {
     catch(std::overflow_error &e) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GConjugateGradientDescent::updateDerivedQuantities(): Error!" << std::endl
-            << "Bad conversion with message " << e.what() << std::endl
+            << "In GConjugateGradientDescent::updateDerivedQuantities(): Error!" << '\n'
+            << "Bad conversion with message " << e.what() << '\n'
         );
     }
 }
@@ -660,9 +660,9 @@ void GConjugateGradientDescent::adjustPopulation_() {
     if(nStart == 0) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GConjugateGradientDescent::adjustPopulation():" << std::endl
+            << "In GConjugateGradientDescent::adjustPopulation():" << '\n'
             << "You didn't add any individuals to the collection. We need at least one."
-            << std::endl
+            << '\n'
         );
     }
 
@@ -671,8 +671,8 @@ void GConjugateGradientDescent::adjustPopulation_() {
     if(nFPParmsFirst_ == 0) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GConjugateGradientDescent::adjustPopulation():" << std::endl
-            << "No floating point parameters in individual." << std::endl
+            << "In GConjugateGradientDescent::adjustPopulation():" << '\n'
+            << "No floating point parameters in individual." << '\n'
         );
     }
 
@@ -681,11 +681,11 @@ void GConjugateGradientDescent::adjustPopulation_() {
         if(this->at(i)->countParameters<double>(activityMode::ACTIVEONLY) != nFPParmsFirst_) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GConjugateGradientDescent::adjustPopulation():" << std::endl
-                << "Found individual in position " << i << " with different" << std::endl
+                << "In GConjugateGradientDescent::adjustPopulation():" << '\n'
+                << "Found individual in position " << i << " with different" << '\n'
                 << "number of floating point parameters than the first one: "
                 << this->at(i)->countParameters<double>(activityMode::ACTIVEONLY) << "/"
-                << nFPParmsFirst_ << std::endl
+                << nFPParmsFirst_ << '\n'
             );
         }
     }
@@ -717,9 +717,9 @@ void GConjugateGradientDescent::adjustPopulation_() {
     if(this->size() != nStartingPoints_ * (nFPParmsFirst_ + 1)) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GConjugateGradientDescent::adjustPopulation():" << std::endl
-            << "Population size is " << this->size() << std::endl
-            << "but expected " << nStartingPoints_ * (nFPParmsFirst_ + 1) << std::endl
+            << "In GConjugateGradientDescent::adjustPopulation():" << '\n'
+            << "Population size is " << this->size() << '\n'
+            << "but expected " << nStartingPoints_ * (nFPParmsFirst_ + 1) << '\n'
         );
     }
 #endif /* DEBUG */

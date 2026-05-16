@@ -193,8 +193,8 @@ void GImageCUDAWorker::processInit_(std::shared_ptr<Geneva::GParameterSet> p) {
     if(not p) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GImageCUDAWorker::processInit_ : Error!" << std::endl
-            << "p is empty" << std::endl
+            << "In GImageCUDAWorker::processInit_ : Error!" << '\n'
+            << "p is empty" << '\n'
         );
     }
 
@@ -202,8 +202,8 @@ void GImageCUDAWorker::processInit_(std::shared_ptr<Geneva::GParameterSet> p) {
     if(not p_conv) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GImageCUDAWorker::processInit_(): Error!" << std::endl
-            << "Conversion failed" << std::endl
+            << "In GImageCUDAWorker::processInit_(): Error!" << '\n'
+            << "Conversion failed" << '\n'
         );
     }
 #else
@@ -238,8 +238,8 @@ void GImageCUDAWorker::process_(std::shared_ptr<Geneva::GParameterSet> p) {
     if(not p) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GImageCUDAWorker::process_ : Error!" << std::endl
-            << "p is empty" << std::endl
+            << "In GImageCUDAWorker::process_ : Error!" << '\n'
+            << "p is empty" << '\n'
         );
     }
 
@@ -247,8 +247,8 @@ void GImageCUDAWorker::process_(std::shared_ptr<Geneva::GParameterSet> p) {
     if(not p_conv) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GImageCUDAWorker::process_(): Error!" << std::endl
-            << "Conversion failed" << std::endl
+            << "In GImageCUDAWorker::process_(): Error!" << '\n'
+            << "Conversion failed" << '\n'
         );
     }
 #else

@@ -113,10 +113,10 @@ GParameterPropertyParser::GParameterPropertyParser(const std::string &rw)
     ) { // NOLINT(bugprone-empty-catch) — logs and terminates via GTERMINATION
         glogger << "In GParameterPropertyParser::GParameterPropertyParser(const std::string& raw): "
                    "Error!"
-                << std::endl
-                << "Caught Geneva exception with message " << std::endl
-                << e.what() << std::endl
-                << "Terminating the application" << std::endl
+                << '\n'
+                << "Caught Geneva exception with message " << '\n'
+                << e.what() << '\n'
+                << "Terminating the application" << '\n'
                 << GTERMINATION;
     }
 }
@@ -194,8 +194,8 @@ void GParameterPropertyParser::parse() {
         std::string rest(from, to);
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GParameterPropertyParser::parse(): Error[1]!" << std::endl
-            << "Parsing of variable descriptions failed. Unparsed fragement: " << rest << std::endl
+            << "In GParameterPropertyParser::parse(): Error[1]!" << '\n'
+            << "Parsing of variable descriptions failed. Unparsed fragement: " << rest << '\n'
         );
     }
 
@@ -250,8 +250,8 @@ void GParameterPropertyParser::parse() {
         else {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GParameterPropertyParser::parse(): Error!" << std::endl
-                << "Invalid type specifier: " << std::get<0>(*it) << std::endl
+                << "In GParameterPropertyParser::parse(): Error!" << '\n'
+                << "Invalid type specifier: " << std::get<0>(*it) << '\n'
             );
         }
 
@@ -259,9 +259,9 @@ void GParameterPropertyParser::parse() {
             std::string rest(from, to);
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GParameterPropertyParser::parse(): Error[2]!" << std::endl
+                << "In GParameterPropertyParser::parse(): Error[2]!" << '\n'
                 << "Parsing of variable descriptions failed. Unparsed fragment: " << rest
-                << std::endl
+                << '\n'
             );
         }
 
@@ -269,48 +269,48 @@ void GParameterPropertyParser::parse() {
         if(sSpecVec.size() > 1) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GParameterPropertyParser::parse(): Error!" << std::endl
-                << "Found " << sSpecVec.size() << "simple scan entries where a" << std::endl
-                << "maximum of 1 is allowed" << std::endl
+                << "In GParameterPropertyParser::parse(): Error!" << '\n'
+                << "Found " << sSpecVec.size() << "simple scan entries where a" << '\n'
+                << "maximum of 1 is allowed" << '\n'
             );
         }
         else if(sSpecVec.size() ==
                 1) { // If we did find a "simple scan" entry, we will discard the other entries.
             if(not dSpecVec.empty()) {
-                glogger << "In GParameterPropertyParser::parse(): Warning!" << std::endl
-                        << "You have specified both a simple-scan component and " << std::endl
-                        << "scan-components for double variables. These entries" << std::endl
-                        << "will be discarded" << std::endl
+                glogger << "In GParameterPropertyParser::parse(): Warning!" << '\n'
+                        << "You have specified both a simple-scan component and " << '\n'
+                        << "scan-components for double variables. These entries" << '\n'
+                        << "will be discarded" << '\n'
                         << GWARNING;
 
                 dSpecVec.clear();
             }
 
             if(not fSpecVec.empty()) {
-                glogger << "In GParameterPropertyParser::parse(): Warning!" << std::endl
-                        << "You have specified both a simple-scan component and " << std::endl
-                        << "scan-components for float variables. These entries" << std::endl
-                        << "will be discarded" << std::endl
+                glogger << "In GParameterPropertyParser::parse(): Warning!" << '\n'
+                        << "You have specified both a simple-scan component and " << '\n'
+                        << "scan-components for float variables. These entries" << '\n'
+                        << "will be discarded" << '\n'
                         << GWARNING;
 
                 fSpecVec.clear();
             }
 
             if(not iSpecVec.empty()) {
-                glogger << "In GParameterPropertyParser::parse(): Warning!" << std::endl
-                        << "You have specified both a simple-scan component and " << std::endl
-                        << "scan-components for integer variables. These entries" << std::endl
-                        << "will be discarded" << std::endl
+                glogger << "In GParameterPropertyParser::parse(): Warning!" << '\n'
+                        << "You have specified both a simple-scan component and " << '\n'
+                        << "scan-components for integer variables. These entries" << '\n'
+                        << "will be discarded" << '\n'
                         << GWARNING;
 
                 iSpecVec.clear();
             }
 
             if(not bSpecVec.empty()) {
-                glogger << "In GParameterPropertyParser::parse(): Warning!" << std::endl
-                        << "You have specified both a simple-scan component and " << std::endl
-                        << "scan-components for boolean variables. These entries" << std::endl
-                        << "will be discarded" << std::endl
+                glogger << "In GParameterPropertyParser::parse(): Warning!" << '\n'
+                        << "You have specified both a simple-scan component and " << '\n'
+                        << "scan-components for boolean variables. These entries" << '\n'
+                        << "will be discarded" << '\n'
                         << GWARNING;
 
                 bSpecVec.clear();
@@ -335,9 +335,9 @@ std::size_t GParameterPropertyParser::getNSimpleScanItems() const {
         if(sSpecVec.size() > 1) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GParameterPropertyParser::getNSimpleScanItems() const: Error!" << std::endl
-                << "Found " << sSpecVec.size() << "simple scan entries where a" << std::endl
-                << "maximum of 1 is allowed" << std::endl
+                << "In GParameterPropertyParser::getNSimpleScanItems() const: Error!" << '\n'
+                << "Found " << sSpecVec.size() << "simple scan entries where a" << '\n'
+                << "maximum of 1 is allowed" << '\n'
             );
         }
 #endif

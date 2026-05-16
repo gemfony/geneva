@@ -250,7 +250,7 @@ int main(int argc, char **argv) {
     // optionally synchronize processes. Makes only sense if some of the procs are doing very long init work
     // This is not the case here. Synchronization just shown for demonstration purposes.
     if(consumer_ptr->synchronize() && consumer_ptr->isMasterNode()) {
-        std::cout << "All MPI processes synchronized successfully." << std::endl;
+        std::cout << "All MPI processes synchronized successfully." << '\n';
     }
 
     /****************************************************************************/
@@ -309,7 +309,7 @@ int main(int argc, char **argv) {
     // Here you can do something with the best individual ("p") found.
     // We simply print its content here, by means of an operator<< implemented
     // in the GFunctionIndividual code.
-    std::cout << "Best result found:" << std::endl << p << std::endl;
+    std::cout << "Best result found:" << '\n' << p << '\n';
 
     return 0;
 }

@@ -117,7 +117,7 @@ int main(int argc, char **argv) {
     // Loop the specified number of times
     for(std::size_t i = 0; i < nTests; i++) {
         if(i % 100 == 0) {
-            std::cout << "In iteration " << i << std::endl;
+            std::cout << "In iteration " << i << '\n';
         }
 
         // Retrieve a new work item from the factory
@@ -147,13 +147,13 @@ int main(int argc, char **argv) {
 
         // Check that payloads 1+2 point to different objects
         if(gcc1.get_payload().get() == gcc2.get_payload().get()) {
-            std::cout << "Error: payload 1+2 seem to point to the same object" << std::endl;
+            std::cout << "Error: payload 1+2 seem to point to the same object" << '\n';
             return 1; // Indicate an error to the calling process
         }
 
         // Check that the payloads of gcc1 and gcc2 are identical
         if(*(gcc1.get_payload()) != *(gcc2.get_payload())) {
-            std::cout << "Error: Content of payload 1+2 differs" << std::endl;
+            std::cout << "Error: Content of payload 1+2 differs" << '\n';
             return 1; // Indicate an error to the calling process
         }
 
@@ -161,7 +161,7 @@ int main(int argc, char **argv) {
         gcc1.process();
         gcc2.process();
         if(gcc1.get_payload().get() == gcc2.get_payload().get()) {
-            std::cout << "Error: payload 1+2 seem to point to the same object" << std::endl;
+            std::cout << "Error: payload 1+2 seem to point to the same object" << '\n';
             return 1; // Indicate an error to the calling process
         }
 
@@ -180,28 +180,28 @@ int main(int argc, char **argv) {
 
         // Check that payloads 2+3 point to different objects
         if(gcc2.get_payload().get() == gcc3.get_payload().get()) {
-            std::cout << "Error: payload 2+3 seem to point to the same object" << std::endl;
+            std::cout << "Error: payload 2+3 seem to point to the same object" << '\n';
             return 1; // Indicate an error to the calling process
         }
 
         // Check that the payloads of gcc2 and gcc3 are identical
         if(*(gcc2.get_payload()) != *(gcc3.get_payload())) {
-            std::cout << "Error: Content of payload 2+3 differs" << std::endl;
+            std::cout << "Error: Content of payload 2+3 differs" << '\n';
             return 1; // Indicate an error to the calling process
         }
 
         // Check that the payloads of gcc1 and gcc3 are identical
         if(*(gcc1.get_payload()) != *(gcc3.get_payload())) {
-            std::cout << "Error: Content of payload 1+3 differs" << std::endl;
+            std::cout << "Error: Content of payload 1+3 differs" << '\n';
             return 1; // Indicate an error to the calling process
         }
 
         if(printLastWorkItem && i == (nTests - 1)) {
-            std::cout << "==========================================================" << std::endl
-                      << Gem::Courtier::container_to_string(gcc1, PRINTOUTSERMOD) << std::endl
-                      << "==========================================================" << std::endl
-                      << Gem::Courtier::container_to_string(gcc3, PRINTOUTSERMOD) << std::endl
-                      << "==========================================================" << std::endl;
+            std::cout << "==========================================================" << '\n'
+                      << Gem::Courtier::container_to_string(gcc1, PRINTOUTSERMOD) << '\n'
+                      << "==========================================================" << '\n'
+                      << Gem::Courtier::container_to_string(gcc3, PRINTOUTSERMOD) << '\n'
+                      << "==========================================================" << '\n';
         }
     }
 

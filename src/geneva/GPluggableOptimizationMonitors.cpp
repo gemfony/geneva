@@ -59,7 +59,7 @@ void GStandardMonitor::informationFunction_(
     switch(im) {
     case Gem::Geneva::infoMode::INFOINIT: {
         glogger << "Starting an optimization run with algorithm \"" << goa->getAlgorithmName()
-                << "\"" << std::endl
+                << "\"" << '\n'
                 << GLOGGING;
     } break;
 
@@ -67,13 +67,13 @@ void GStandardMonitor::informationFunction_(
         glogger << std::setprecision(5) << goa->getIteration() << ": "
                 << Gem::Common::g_to_string(goa->getBestCurrentPrimaryFitness())
                 << " // best past: " << Gem::Common::g_to_string(goa->getBestKnownPrimaryFitness())
-                << std::endl
+                << '\n'
                 << GLOGGING;
     } break;
 
     case Gem::Geneva::infoMode::INFOEND: {
         glogger << "End of optimization reached in algorithm \"" << goa->getAlgorithmName() << "\""
-                << std::endl
+                << '\n'
                 << GLOGGING;
     } break;
     }
@@ -350,9 +350,9 @@ void GFitnessMonitor::informationFunction_(
         if(global_bests.size() != iter_bests.size()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GFitnessMonitor::informationFunction_(): Error!" << std::endl
+                << "In GFitnessMonitor::informationFunction_(): Error!" << '\n'
                 << "global_bests.size() = " << global_bests.size()
-                << " != iter_bests.size() = " << iter_bests.size() << std::endl
+                << " != iter_bests.size() = " << iter_bests.size() << '\n'
             );
         }
 
@@ -362,11 +362,11 @@ void GFitnessMonitor::informationFunction_(
         if(not infoInitRun_) {
             // Reset the number of monitored individuals to a suitable value, if necessary.
             if(nMonitorInds_ > global_bests.size()) {
-                glogger << "In GFitnessMonitor::informationFunction_(): Warning!" << std::endl
+                glogger << "In GFitnessMonitor::informationFunction_(): Warning!" << '\n'
                         << "Requested number of individuals to be monitored in iteration "
-                        << iteration << " is larger" << std::endl
+                        << iteration << " is larger" << '\n'
                         << "than the number of best individuals " << nMonitorInds_ << " / "
-                        << global_bests.size() << std::endl
+                        << global_bests.size() << '\n'
                         << GWARNING;
 
                 nMonitorInds_ = global_bests.size();
@@ -408,18 +408,18 @@ void GFitnessMonitor::informationFunction_(
             // individuals will then be lost -- the program will warn about this.
             if(nMonitorInds_ > global_bests.size()) {
                 glogger
-                    << "In GFitnessMonitor::informationFunction_(): Warning!" << std::endl
+                    << "In GFitnessMonitor::informationFunction_(): Warning!" << '\n'
                     << "Requested number of individuals to be monitored in iteration " << iteration
-                    << " is larger" << std::endl
+                    << " is larger" << '\n'
                     << "than the number of best individuals " << nMonitorInds_ << " / "
-                    << global_bests.size() << std::endl
+                    << global_bests.size() << '\n'
                     << "This seems to be a result of a varying number of best individuals."
-                    << std::endl
+                    << '\n'
                     << "We will now reduce the number of monitored individuals to 1 for the"
-                    << std::endl
+                    << '\n'
                     << "rest of the optimization run. Recorded information for other individuals"
-                    << std::endl
-                    << "will be deleted" << std::endl
+                    << '\n'
+                    << "will be deleted" << '\n'
                     << GWARNING;
 
                 nMonitorInds_ = 1;
@@ -638,8 +638,8 @@ void GCollectiveMonitor::registerPluggableOM(
     else {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GCollectiveMonitor::registerPluggableOM(): Error!" << std::endl
-            << "Got empty pointer to pluggable optimization monitor." << std::endl
+            << "In GCollectiveMonitor::registerPluggableOM(): Error!" << '\n'
+            << "Got empty pointer to pluggable optimization monitor." << '\n'
         );
     }
 }
@@ -1029,10 +1029,10 @@ void GAllSolutionFileLogger::informationFunction_(
                 fileName_ + ".bak_" +
                 Gem::Common::getMSSince1970(); // NOLINT(cppcoreguidelines-init-variables)
 
-            glogger << "In GAllSolutionFileLogger::informationFunction_(): Warning!" << std::endl
-                    << "Attempt to output information to file " << fileName_ << std::endl
-                    << "which already exists. We will rename the old file to" << std::endl
-                    << newFileName << std::endl
+            glogger << "In GAllSolutionFileLogger::informationFunction_(): Warning!" << '\n'
+                    << "Attempt to output information to file " << fileName_ << '\n'
+                    << "which already exists. We will rename the old file to" << '\n'
+                    << newFileName << '\n'
                     << GWARNING;
 
             std::filesystem::rename(fileName_, newFileName);
@@ -1101,11 +1101,11 @@ void GAllSolutionFileLogger::printPopulation(
     std::ofstream data(fileName_, std::ofstream::app); // NOLINT(cppcoreguidelines-init-variables)
 
     if(showIterationBoundaries_) {
-        data << "#" << std::endl
+        data << "#" << '\n'
              << "# -----------------------------------------------------------------------------"
-             << std::endl
-             << "# " << iterationDescription << ":" << std::endl
-             << "#" << std::endl;
+             << '\n'
+             << "# " << iterationDescription << ":" << '\n'
+             << "#" << '\n';
     }
 
     // Loop over all individuals of the algorithm.
@@ -1316,10 +1316,10 @@ void GIterationResultsFileLogger::informationFunction_(
                 Gem::Common::getMSSince1970(); // NOLINT(cppcoreguidelines-init-variables)
 
             glogger << "In GIterationResultsFileLogger::informationFunction_(): Warning!"
-                    << std::endl
-                    << "Attempt to output information to file " << fileName_ << std::endl
-                    << "which already exists. We will rename the old file to" << std::endl
-                    << newFileName << std::endl
+                    << '\n'
+                    << "Attempt to output information to file " << fileName_ << '\n'
+                    << "which already exists. We will rename the old file to" << '\n'
+                    << newFileName << '\n'
                     << GWARNING;
 
             std::filesystem::rename(fileName_, newFileName);
@@ -1348,7 +1348,7 @@ void GIterationResultsFileLogger::informationFunction_(
                              : " ");
             }
         }
-        data << std::endl;
+        data << '\n';
 
         // Close the external file
         data.close();
@@ -1615,10 +1615,10 @@ void GNAdpationsLogger::informationFunction_(
                 fileName_ + ".bak_" +
                 Gem::Common::getMSSince1970(); // NOLINT(cppcoreguidelines-init-variables)
 
-            glogger << "In GNAdpationsLogger::informationFunction_(): Error!" << std::endl
-                    << "Attempt to output information to file " << fileName_ << std::endl
-                    << "which already exists. We will rename the old file to" << std::endl
-                    << newFileName << std::endl
+            glogger << "In GNAdpationsLogger::informationFunction_(): Error!" << '\n'
+                    << "Attempt to output information to file " << fileName_ << '\n'
+                    << "which already exists. We will rename the old file to" << '\n'
+                    << newFileName << '\n'
                     << GWARNING;
 
             std::filesystem::rename(fileName_, newFileName);
@@ -2036,8 +2036,8 @@ void GProcessingTimesLogger::setNBinsX(std::size_t nBinsX) {
     else {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GProcessingTimesLogger::setNBinsX(): Error!" << std::endl
-            << "nBinsX is set to 0" << std::endl
+            << "In GProcessingTimesLogger::setNBinsX(): Error!" << '\n'
+            << "nBinsX is set to 0" << '\n'
         );
     }
 }
@@ -2062,8 +2062,8 @@ void GProcessingTimesLogger::setNBinsY(std::size_t nBinsY) {
     else {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GProcessingTimesLogger::setNBinsY(): Error!" << std::endl
-            << "nBinsY is set to 0" << std::endl
+            << "In GProcessingTimesLogger::setNBinsY(): Error!" << '\n'
+            << "nBinsY is set to 0" << '\n'
         );
     }
 }
@@ -2097,10 +2097,10 @@ void GProcessingTimesLogger::informationFunction_(
                 fileName_pth_ + ".bak_" +
                 Gem::Common::getMSSince1970(); // NOLINT(cppcoreguidelines-init-variables)
 
-            glogger << "In GProcessingTimesLogger::informationFunction_(): Warning!" << std::endl
-                    << "Attempt to output information to file " << fileName_pth_ << std::endl
-                    << "which already exists. We will rename the old file to" << std::endl
-                    << newFileName << std::endl
+            glogger << "In GProcessingTimesLogger::informationFunction_(): Warning!" << '\n'
+                    << "Attempt to output information to file " << fileName_pth_ << '\n'
+                    << "which already exists. We will rename the old file to" << '\n'
+                    << newFileName << '\n'
                     << GWARNING;
 
             std::filesystem::rename(fileName_pth_, newFileName);
@@ -2146,10 +2146,10 @@ void GProcessingTimesLogger::informationFunction_(
                 fileName_pth2_ + ".bak_" +
                 Gem::Common::getMSSince1970(); // NOLINT(cppcoreguidelines-init-variables)
 
-            glogger << "In GProcessingTimesLogger::informationFunction_(): Warning!" << std::endl
-                    << "Attempt to output information to file " << fileName_pth2_ << std::endl
-                    << "which already exists. We will rename the old file to" << std::endl
-                    << newFileName << std::endl
+            glogger << "In GProcessingTimesLogger::informationFunction_(): Warning!" << '\n'
+                    << "Attempt to output information to file " << fileName_pth2_ << '\n'
+                    << "which already exists. We will rename the old file to" << '\n'
+                    << newFileName << '\n'
                     << GWARNING;
 
             std::filesystem::rename(fileName_pth2_, newFileName);
@@ -2202,10 +2202,10 @@ void GProcessingTimesLogger::informationFunction_(
                 fileName_txt_ + ".bak_" +
                 Gem::Common::getMSSince1970(); // NOLINT(cppcoreguidelines-init-variables)
 
-            glogger << "In GProcessingTimesLogger::informationFunction_(): Warning!" << std::endl
-                    << "Attempt to output information to file " << fileName_pth2_ << std::endl
-                    << "which already exists. We will rename the old file to" << std::endl
-                    << newFileName << std::endl
+            glogger << "In GProcessingTimesLogger::informationFunction_(): Warning!" << '\n'
+                    << "Attempt to output information to file " << fileName_pth2_ << '\n'
+                    << "which already exists. We will rename the old file to" << '\n'
+                    << newFileName << '\n'
                     << GWARNING;
 
             std::filesystem::rename(fileName_txt_, newFileName);
@@ -2264,7 +2264,7 @@ void GProcessingTimesLogger::informationFunction_(
 
             data_txt << Gem::Common::narrow_cast<std::uint32_t>(iteration) << ", " << std::showpoint
                      << preProcessingTime << ", " << mainProcessingTime << ", "
-                     << postProcessingTime << std::endl;
+                     << postProcessingTime << '\n';
         }
 
         // Close the external text-file

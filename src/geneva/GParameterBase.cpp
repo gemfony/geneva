@@ -239,8 +239,8 @@ bool GParameterBase::amMatch(const activityMode &am) const {
 
     throw geneva_exception(
         g_error_streamer(DO_LOG, time_and_place)
-        << "In GParameterBase::amMatch(const activityMode& am): Error!" << std::endl
-        << "This line should never be reached" << std::endl
+        << "In GParameterBase::amMatch(const activityMode& am): Error!" << '\n'
+        << "This line should never be reached" << '\n'
     );
 
     // Make the compiler happy
@@ -788,8 +788,8 @@ void GParameterBase::booleanMultiplyByRandom(
     // Complain: This function should not be called for boolean values
     throw geneva_exception(
         g_error_streamer(DO_LOG, time_and_place)
-        << "In GParameterBase::booleanMultiplyByRandom(min,max): Error!" << std::endl
-        << "This function should not be called for boolean parameters" << std::endl
+        << "In GParameterBase::booleanMultiplyByRandom(min,max): Error!" << '\n'
+        << "This function should not be called for boolean parameters" << '\n'
     );
 }
 
@@ -829,8 +829,8 @@ void GParameterBase::booleanMultiplyByRandom(
     // Complain: This function should not be called for boolean values
     throw geneva_exception(
         g_error_streamer(DO_LOG, time_and_place)
-        << "In GParameterBase::booleanMultiplyByRandom(): Error!" << std::endl
-        << "This function should not be called for boolean parameters" << std::endl
+        << "In GParameterBase::booleanMultiplyByRandom(): Error!" << '\n'
+        << "This function should not be called for boolean parameters" << '\n'
     );
 }
 
@@ -870,8 +870,8 @@ void GParameterBase::booleanMultiplyBy(
     // Complain: This function should not be called for boolean values
     throw geneva_exception(
         g_error_streamer(DO_LOG, time_and_place)
-        << "In GParameterBase::booleanMultiplyBy(): Error!" << std::endl
-        << "This function should not be called for boolean parameters" << std::endl
+        << "In GParameterBase::booleanMultiplyBy(): Error!" << '\n'
+        << "This function should not be called for boolean parameters" << '\n'
     );
 }
 
@@ -942,8 +942,8 @@ void GParameterBase::booleanAdd(
     // Complain: This function should not be called for boolean values
     throw geneva_exception(
         g_error_streamer(DO_LOG, time_and_place)
-        << "In GParameterBase::booleanAdd(): Error!" << std::endl
-        << "This function should not be called for boolean parameters" << std::endl
+        << "In GParameterBase::booleanAdd(): Error!" << '\n'
+        << "This function should not be called for boolean parameters" << '\n'
     );
 }
 
@@ -982,8 +982,8 @@ void GParameterBase::booleanSubtract(
     // Complain: This function should not be called for boolean values
     throw geneva_exception(
         g_error_streamer(DO_LOG, time_and_place)
-        << "In GParameterBase::booleanSubtract(): Error!" << std::endl
-        << "This function should not be called for boolean parameters" << std::endl
+        << "In GParameterBase::booleanSubtract(): Error!" << '\n'
+        << "This function should not be called for boolean parameters" << '\n'
     );
 }
 

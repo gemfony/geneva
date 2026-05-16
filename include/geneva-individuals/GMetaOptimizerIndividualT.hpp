@@ -273,8 +273,8 @@ public:
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GMetaOptimizerIndividualT<ind_type>::setNRunsPerOptimization(): Error!"
-                << std::endl
-                << "Requested number of sub-optimizations is 0" << std::endl
+                << '\n'
+                << "Requested number of sub-optimizations is 0" << '\n'
             );
         }
 #endif
@@ -706,46 +706,46 @@ public:
 
         result << "================================================================================"
                   "============"
-               << std::endl;
+               << '\n';
 
         if(withFitness) {
             result << "Fitness = " << transformedPrimaryFitness
-                   << (unprocessed ? " // unprocessed or error" : "") << std::endl;
+                   << (unprocessed ? " // unprocessed or error" : "") << '\n';
         }
 
-        result << "Optimization target: " << getClearTextMOT(moTarget_) << std::endl
-               << std::endl
+        result << "Optimization target: " << getClearTextMOT(moTarget_) << '\n'
+               << '\n'
                << "population::population size = " << npar_ptr->value() + nch_ptr->value()
-               << std::endl
-               << "population::nParents = " << npar_ptr->value() << std::endl
-               << "population::nChildren = " << nch_ptr->value() << std::endl
-               << "population::amalgamationLikelihood = " << amalgamation_ptr->value() << std::endl
-               << "individual::adProbRange = " << adProbRange_ptr->value() << std::endl
+               << '\n'
+               << "population::nParents = " << npar_ptr->value() << '\n'
+               << "population::nChildren = " << nch_ptr->value() << '\n'
+               << "population::amalgamationLikelihood = " << amalgamation_ptr->value() << '\n'
+               << "individual::adProbRange = " << adProbRange_ptr->value() << '\n'
                << "individual::adProbStartPercentage_ptr = " << adProbStartPercentage_ptr->value()
-               << std::endl
+               << '\n'
                << "individual::adProb = "
                << minAdProb_ptr->value() +
                       adProbRange_ptr->value() * adProbStartPercentage_ptr->value()
-               << std::endl
-               << "individual::minAdProb = " << minAdProb_ptr->value() << std::endl
+               << '\n'
+               << "individual::minAdProb = " << minAdProb_ptr->value() << '\n'
                << "individual::maxAdProb = " << minAdProb_ptr->value() + adProbRange_ptr->value()
-               << std::endl
-               << "individual::adaptAdProb = " << adaptAdprob_ptr->value() << std::endl
-               << "individual::sigmarange_ptr = " << sigmarange_ptr->value() << std::endl
+               << '\n'
+               << "individual::adaptAdProb = " << adaptAdprob_ptr->value() << '\n'
+               << "individual::sigmarange_ptr = " << sigmarange_ptr->value() << '\n'
                << "individual::sigmaRangePercentage_ptr = " << sigmaRangePercentage_ptr->value()
-               << std::endl
+               << '\n'
                << "individual::sigma1 = "
                << minsigma_ptr->value() +
                       sigmarange_ptr->value() * sigmaRangePercentage_ptr->value()
-               << std::endl
-               << "individual::minSigma1 = " << minsigma_ptr->value() << std::endl
+               << '\n'
+               << "individual::minSigma1 = " << minsigma_ptr->value() << '\n'
                << "individual::maxSigma1 = " << minsigma_ptr->value() + sigmarange_ptr->value()
-               << std::endl
-               << "individual::sigmaSigma1 = " << sigmasigma_ptr->value() << std::endl
+               << '\n'
+               << "individual::sigmaSigma1 = " << sigmasigma_ptr->value() << '\n'
                << "================================================================================"
                   "============"
-               << std::endl
-               << std::endl;
+               << '\n'
+               << '\n';
 
         return result.str();
     }
@@ -760,8 +760,8 @@ public:
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GMetaOptimizerIndividualT<T>::registerIndividualFactory(): Error!"
-                << std::endl
-                << "Individual is empty" << std::endl
+                << '\n'
+                << "Individual is empty" << '\n'
             );
         }
 
@@ -813,8 +813,8 @@ protected:
             ,
             [this](metaOptimizationTarget mot) { this->setMetaOptimizationTarget(mot); }
         ) << "The target for the meta-optimization: best fitness (0),"
-          << std::endl
-          << "minimum number of solver calls (1), multi-criterion with best fitness" << std::endl
+          << '\n'
+          << "minimum number of solver calls (1), multi-criterion with best fitness" << '\n'
           << "and smallest number of solver calls as target (2);";
 
         gpb.registerFileParameter<std::string>(
@@ -938,8 +938,8 @@ protected:
         if(not ind_factory_) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GMetaOptimizerIndividualT<T>::fitnessCalculation(): Error!" << std::endl
-                << "No factory class for individuals has been registered" << std::endl
+                << "In GMetaOptimizerIndividualT<T>::fitnessCalculation(): Error!" << '\n'
+                << "No factory class for individuals has been registered" << '\n'
             );
         }
 #endif
@@ -985,7 +985,7 @@ protected:
 
         for(std::size_t opt = 0; opt < nRunsPerOptimization_; opt++) {
             std::cout << "Starting measurement " << opt + 1 << " / " << nRunsPerOptimization_
-                      << std::endl;
+                      << '\n';
             ea_ptr = ea.get<GEvolutionaryAlgorithm>();
 
             // Register an executor
@@ -1072,18 +1072,18 @@ protected:
         }
 
         // Emit some information
-        std::cout << std::endl
+        std::cout << '\n'
                   << std::get<0>(sd) << " +/- " << std::get<1>(sd) << " solver calls with "
-                  << std::endl
+                  << '\n'
                   << std::get<0>(itmean) << " +/- " << std::get<1>(itmean) << " average iterations "
-                  << std::endl
+                  << '\n'
                   << "and a best evaluation of " << std::get<0>(bestMean) << " +/- "
-                  << std::get<1>(bestMean) << std::endl
-                  << "out of " << nRunsPerOptimization_ << " consecutive runs" << std::endl
-                  << "fitnessCalculation() will return the value " << evaluation << std::endl
+                  << std::get<1>(bestMean) << '\n'
+                  << "out of " << nRunsPerOptimization_ << " consecutive runs" << '\n'
+                  << "fitnessCalculation() will return the value " << evaluation << '\n'
                   << this->print(false)
-                  << std::endl // print without fitness -- not defined at this stage
-                  << std::endl;
+                  << '\n' // print without fitness -- not defined at this stage
+                  << '\n';
 
         // Let the audience know
         return evaluation;
@@ -1279,8 +1279,8 @@ public:
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GMetaOptimizerIndividualFactoryT<T>::registerIndividualFactory(): Error!"
-                << std::endl
-                << "Individual is empty" << std::endl
+                << '\n'
+                << "Individual is empty" << '\n'
             );
         }
 
@@ -2123,7 +2123,7 @@ private:
         default: {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GOptOptMonitorT<ind_type>>: Received invalid infoMode " << im << std::endl
+                << "In GOptOptMonitorT<ind_type>>: Received invalid infoMode " << im << '\n'
             );
         } break;
         };

@@ -137,20 +137,20 @@ sharedPtrFromString(const std::string &gt_string, const Gem::Common::serializati
         }
     }
     catch(boost::archive::archive_exception &e) {
-        glogger << "In sharedPtrFromString(): Error!" << std::endl
-                << "Caught boost::archive::archive_exception" << std::endl
-                << "with message" << std::endl
-                << e.what() << std::endl
-                << "We will return an empty pointer." << std::endl
+        glogger << "In sharedPtrFromString(): Error!" << '\n'
+                << "Caught boost::archive::archive_exception" << '\n'
+                << "with message" << '\n'
+                << e.what() << '\n'
+                << "We will return an empty pointer." << '\n'
                 << GWARNING;
 
         return std::shared_ptr<T>();
     }
     catch(std::exception &e) {
-        glogger << "In sharedPtrFromString(): Error!" << std::endl
-                << "Caught std::exception with message" << std::endl
-                << e.what() << std::endl
-                << "We will return an empty pointer." << std::endl
+        glogger << "In sharedPtrFromString(): Error!" << '\n'
+                << "Caught std::exception with message" << '\n'
+                << e.what() << '\n'
+                << "We will return an empty pointer." << '\n'
                 << GWARNING;
 
         return std::shared_ptr<T>();
@@ -158,8 +158,8 @@ sharedPtrFromString(const std::string &gt_string, const Gem::Common::serializati
     catch(...) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In sharedPtrFromString(): Error!" << std::endl
-            << "Caught unknown exception" << std::endl
+            << "In sharedPtrFromString(): Error!" << '\n'
+            << "Caught unknown exception" << '\n'
         );
     }
 

@@ -46,12 +46,12 @@ std::ostream &operator<<(std::ostream &s, const Gem::Geneva::GMultiCriterionPara
     f.streamline(parVec);
 
     for(std::size_t i = 0; i < f.getNStoredResults(); i++) {
-        std::cout << "Raw fitness " << i << ": " << f.raw_fitness(i) << std::endl;
+        std::cout << "Raw fitness " << i << ": " << f.raw_fitness(i) << '\n';
     }
 
     std::vector<double>::iterator it;
     for(it = parVec.begin(); it != parVec.end(); ++it) {
-        std::cout << std::distance(parVec.begin(), it) << ": " << *it << std::endl;
+        std::cout << std::distance(parVec.begin(), it) << ": " << *it << '\n';
     }
 
     return s;
@@ -93,9 +93,9 @@ void GMultiCriterionParabolaIndividual::setMinima(const std::vector<double> &min
     if(minima.size() != this->getNStoredResults()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GMultiCriterionParabolaIndividual::setMinima(...): Error!" << std::endl
-            << "Invalid size of minima vector. Expected " << this->getNStoredResults() << std::endl
-            << "but got " << minima.size() << std::endl
+            << "In GMultiCriterionParabolaIndividual::setMinima(...): Error!" << '\n'
+            << "Invalid size of minima vector. Expected " << this->getNStoredResults() << '\n'
+            << "but got " << minima.size() << '\n'
         );
     }
 #endif /* DEBUG */
@@ -122,10 +122,10 @@ void GMultiCriterionParabolaIndividual::load_(const GObject *cp) {
        (p_load->minima_).size() != this->getNStoredResults()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GMultiCriterionParabolaIndividual::setMinima(...): Error!" << std::endl
+            << "In GMultiCriterionParabolaIndividual::setMinima(...): Error!" << '\n'
             << "Invalid size of minima vector. Expected " << minima_.size() << "/"
-            << this->getNStoredResults() << std::endl
-            << "but got " << (p_load->minima_).size() << std::endl
+            << this->getNStoredResults() << '\n'
+            << "but got " << (p_load->minima_).size() << '\n'
         );
     }
 #endif /* DEBUG */

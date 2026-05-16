@@ -96,7 +96,7 @@ int main(int argc, char **argv) {
         go.optimize()->getBestGlobalIndividual<GMetaOptimizerIndividualT<GFunctionIndividual>>();
 
     // Do something with the best result. Here we simply print the result to std-out.
-    std::cout << "Best Result was:" << std::endl << *bestIndividual_ptr << std::endl;
+    std::cout << "Best Result was:" << '\n' << *bestIndividual_ptr << '\n';
 
     //---------------------------------------------------------------------------
 }

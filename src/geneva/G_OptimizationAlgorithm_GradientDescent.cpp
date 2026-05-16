@@ -81,8 +81,8 @@ void GGradientDescent::setNStartingPoints(std::size_t nStartingPoints) {
     if(nStartingPoints == 0) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GGradientDescent::setNStartingPoints(const std::size_t&):" << std::endl
-            << "Got invalid number of starting points." << std::endl
+            << "In GGradientDescent::setNStartingPoints(const std::size_t&):" << '\n'
+            << "Got invalid number of starting points." << '\n'
         );
     }
 
@@ -101,9 +101,9 @@ void GGradientDescent::setFiniteStep(double finiteStep) {
        finiteStep > 1000.) { // Specified in per mill of the allowed or preferred value range
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GGradientDescent::setFiniteStep(double): Error!" << std::endl
-            << "Invalid value of finiteStep: " << finiteStep << std::endl
-            << "Must be in the range ]0.:1000.]" << std::endl
+            << "In GGradientDescent::setFiniteStep(double): Error!" << '\n'
+            << "Invalid value of finiteStep: " << finiteStep << '\n'
+            << "Must be in the range ]0.:1000.]" << '\n'
         );
     }
 
@@ -135,9 +135,9 @@ void GGradientDescent::setStepSize(double stepSize) {
        stepSize > 1000.) { // Specified in per mill of the allowed or preferred value range
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GGradientDescent::setStepSize(double): Error!" << std::endl
-            << "Invalid value of stepSize: " << stepSize << std::endl
-            << "Must be in the range ]0.:1000.]" << std::endl
+            << "In GGradientDescent::setStepSize(double): Error!" << '\n'
+            << "Invalid value of stepSize: " << stepSize << '\n'
+            << "Must be in the range ]0.:1000.]" << '\n'
         );
     }
 
@@ -387,9 +387,9 @@ void GGradientDescent::updateParentIndividuals() {
         if(this->at(i)->is_due_for_processing() || (this->at(i)->has_errors())) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GGradientDescent::updateParentIndividuals():" << std::endl
+                << "In GGradientDescent::updateParentIndividuals():" << '\n'
                 << "Found individual in position " << i << " which is unprocessed or has errors"
-                << std::endl
+                << '\n'
             );
         }
 #endif /* DEBUG */
@@ -416,8 +416,8 @@ void GGradientDescent::updateParentIndividuals() {
             catch(std::overflow_error &e) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
-                    << "In GGradientDescent::updateParentIndividuals(): Error!" << std::endl
-                    << "Bad conversion with message " << e.what() << std::endl
+                    << "In GGradientDescent::updateParentIndividuals(): Error!" << '\n'
+                    << "Bad conversion with message " << e.what() << '\n'
                 );
             }
         }
@@ -453,8 +453,8 @@ void GGradientDescent::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb
         ,
         [this](double fs) { this->setFiniteStep(fs); }
     ) << "The size of the adjustment in the difference quotient,"
-      << std::endl
-      << "specified in per mill of the allowed or expected value" << std::endl
+      << '\n'
+      << "specified in per mill of the allowed or expected value" << '\n'
       << "range of a parameter";
 
     gpb.registerFileParameter<double>(
@@ -464,9 +464,9 @@ void GGradientDescent::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb
         ,
         [this](double ss) { this->setStepSize(ss); }
     ) << "The size of each step into the"
-      << std::endl
-      << "direction of steepest descent," << std::endl
-      << "specified in per mill of the allowed or expected value" << std::endl
+      << '\n'
+      << "direction of steepest descent," << '\n'
+      << "specified in per mill of the allowed or expected value" << '\n'
       << "range of a parameter";
 }
 
@@ -486,9 +486,9 @@ void GGradientDescent::runFitnessCalculation_() {
         if(this->afterFirstIteration() && !item_ptr->is_due_for_processing()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GGradientDescent::runFitnessCalculation():" << std::endl
+                << "In GGradientDescent::runFitnessCalculation():" << '\n'
                 << "Found individual om position " << pos << " which is not due for processing"
-                << std::endl
+                << '\n'
             );
         }
 
@@ -515,8 +515,8 @@ void GGradientDescent::runFitnessCalculation_() {
     if(not status.is_complete || status.has_errors) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GGradientDescent::runFitnessCalculation(): Error!" << std::endl
-            << "No complete set of items received or errors found in some individuals" << std::endl
+            << "In GGradientDescent::runFitnessCalculation(): Error!" << '\n'
+            << "No complete set of items received or errors found in some individuals" << '\n'
         );
     }
 
@@ -543,9 +543,9 @@ void GGradientDescent::init() {
     if(dblLowerParameterBoundaries_.size() != dblUpperParameterBoundaries_.size()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GGradientDescent::init(): Error!" << std::endl
+            << "In GGradientDescent::init(): Error!" << '\n'
             << "Found invalid sizes: " << dblLowerParameterBoundaries_.size() << " / "
-            << dblUpperParameterBoundaries_.size() << std::endl
+            << dblUpperParameterBoundaries_.size() << '\n'
         );
     }
 
@@ -554,9 +554,9 @@ void GGradientDescent::init() {
        stepSize_ > 1000.) { // Specified in per mill of the allowed or preferred value range
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GGradientDescent::init(): Error!" << std::endl
-            << "Invalid values of stepSize_: " << stepSize_ << std::endl
-            << "Must be in the range ]0.:1000.]" << std::endl
+            << "In GGradientDescent::init(): Error!" << '\n'
+            << "Invalid values of stepSize_: " << stepSize_ << '\n'
+            << "Must be in the range ]0.:1000.]" << '\n'
         );
     }
 
@@ -565,9 +565,9 @@ void GGradientDescent::init() {
        finiteStep_ > 1000.) { // Specified in per mill of the allowed or preferred value range
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GGradientDescent::init(): Error!" << std::endl
-            << "Invalid values of finiteStep_: " << finiteStep_ << std::endl
-            << "Must be in the range ]0.:1000.]" << std::endl
+            << "In GGradientDescent::init(): Error!" << '\n'
+            << "Invalid values of finiteStep_: " << finiteStep_ << '\n'
+            << "Must be in the range ]0.:1000.]" << '\n'
         );
     }
 #endif /* DEBUG */
@@ -609,8 +609,8 @@ void GGradientDescent::updateDerivedQuantities() {
     catch(std::overflow_error &e) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GGradientDescent::updateDerivedQuantities(): Error!" << std::endl
-            << "Bad conversion with message " << e.what() << std::endl
+            << "In GGradientDescent::updateDerivedQuantities(): Error!" << '\n'
+            << "Bad conversion with message " << e.what() << '\n'
         );
     }
 }
@@ -657,9 +657,9 @@ void GGradientDescent::adjustPopulation_() {
     if(nStart == 0) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GGradientDescent::adjustPopulation():" << std::endl
+            << "In GGradientDescent::adjustPopulation():" << '\n'
             << "You didn't add any individuals to the collection. We need at least one."
-            << std::endl
+            << '\n'
         );
     }
 
@@ -670,8 +670,8 @@ void GGradientDescent::adjustPopulation_() {
     if(nFPParmsFirst_ == 0) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GGradientDescent::adjustPopulation():" << std::endl
-            << "No floating point parameters in individual." << std::endl
+            << "In GGradientDescent::adjustPopulation():" << '\n'
+            << "No floating point parameters in individual." << '\n'
         );
     }
 
@@ -681,11 +681,11 @@ void GGradientDescent::adjustPopulation_() {
         if(this->at(i)->countParameters<double>(activityMode::ACTIVEONLY) != nFPParmsFirst_) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GGradientDescent::adjustPopulation():" << std::endl
-                << "Found individual in position " << i << " with different" << std::endl
+                << "In GGradientDescent::adjustPopulation():" << '\n'
+                << "Found individual in position " << i << " with different" << '\n'
                 << "number of floating point parameters than the first one: "
                 << this->at(i)->countParameters<double>(activityMode::ACTIVEONLY) << "/"
-                << nFPParmsFirst_ << std::endl
+                << nFPParmsFirst_ << '\n'
             );
         }
     }
@@ -722,9 +722,9 @@ void GGradientDescent::adjustPopulation_() {
     if(this->size() != nStartingPoints_ * (nFPParmsFirst_ + 1)) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In GGradientDescent::adjustPopulation():" << std::endl
-            << "Population size is " << this->size() << std::endl
-            << "but expected " << nStartingPoints_ * (nFPParmsFirst_ + 1) << std::endl
+            << "In GGradientDescent::adjustPopulation():" << '\n'
+            << "Population size is " << this->size() << '\n'
+            << "but expected " << nStartingPoints_ * (nFPParmsFirst_ + 1) << '\n'
         );
     }
 #endif /* DEBUG */

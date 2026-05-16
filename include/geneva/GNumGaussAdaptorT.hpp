@@ -177,11 +177,11 @@ public:
            )) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GNumGaussAdaptorT::setSigma(const fp_type&):" << std::endl
-                << "sigma is not in the allowed range: " << std::endl
-                << minSigma_ << " <= " << sigma << " < " << maxSigma_ << std::endl
-                << "If you want to use these values you need to" << std::endl
-                << "adapt the allowed range first." << std::endl
+                << "In GNumGaussAdaptorT::setSigma(const fp_type&):" << '\n'
+                << "sigma is not in the allowed range: " << '\n'
+                << minSigma_ << " <= " << sigma << " < " << maxSigma_ << '\n'
+                << "If you want to use these values you need to" << '\n'
+                << "adapt the allowed range first." << '\n'
             );
         }
 
@@ -215,11 +215,11 @@ public:
            )) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GNumGaussAdaptorT::setResetSigma(const fp_type&):" << std::endl
-                << "sigma_reset is not in the allowed range: " << std::endl
-                << minSigma_ << " <= " << sigma_reset << " < " << maxSigma_ << std::endl
-                << "If you want to use these values you need to" << std::endl
-                << "adapt the allowed range first." << std::endl
+                << "In GNumGaussAdaptorT::setResetSigma(const fp_type&):" << '\n'
+                << "sigma_reset is not in the allowed range: " << '\n'
+                << minSigma_ << " <= " << sigma_reset << " < " << maxSigma_ << '\n'
+                << "If you want to use these values you need to" << '\n'
+                << "adapt the allowed range first." << '\n'
             );
         }
 
@@ -255,11 +255,11 @@ public:
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GNumGaussAdaptorT::setSigmaRange(const fp_type&, const fp_type&):"
-                << std::endl
+                << '\n'
                 << "Invalid values for minSigma and maxSigma given: " << minSigma << " / "
-                << maxSigma << std::endl
+                << maxSigma << '\n'
                 << "Expected a range [0:1]. Note: Sigma is a percentage of the allowed or"
-                << std::endl
+                << '\n'
                 << "preferred value range."
             );
         }
@@ -376,14 +376,14 @@ public:
         std::ostringstream diag; // NOLINT(cppcoreguidelines-init-variables)
         std::tuple<fp_type, fp_type> sigmaRange = getSigmaRange();
 
-        diag << "Diagnostic message by GNumAdaptorT<num_type,fp_type>" << std::endl
-             << "with typeid(num_type).name() = " << typeid(num_type).name() << std::endl
-             << "and typeid(fp_type).name() = " << typeid(fp_type).name() << " :" << std::endl
-             << "getSigma() = " << getSigma() << std::endl
-             << "getResetSigma() = " << getResetSigma() << std::endl
+        diag << "Diagnostic message by GNumAdaptorT<num_type,fp_type>" << '\n'
+             << "with typeid(num_type).name() = " << typeid(num_type).name() << '\n'
+             << "and typeid(fp_type).name() = " << typeid(fp_type).name() << " :" << '\n'
+             << "getSigma() = " << getSigma() << '\n'
+             << "getResetSigma() = " << getResetSigma() << '\n'
              << "getSigmaRange() = " << std::get<0>(sigmaRange) << " --> "
-             << std::get<1>(sigmaRange) << std::endl
-             << "getSigmaAdaptionRate() = " << getSigmaAdaptionRate() << std::endl;
+             << std::get<1>(sigmaRange) << '\n'
+             << "getSigmaAdaptionRate() = " << getSigmaAdaptionRate() << '\n';
 
         return diag.str();
     }

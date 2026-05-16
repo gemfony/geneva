@@ -179,8 +179,8 @@ public:
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GOptiomizationAlgorithmFactoryT<T>::registerContentCreator(): Error!"
-                << std::endl
-                << "Tried to register an empty pointer" << std::endl
+                << '\n'
+                << "Tried to register an empty pointer" << '\n'
             );
         }
 
@@ -200,7 +200,7 @@ public:
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In G_OptimizationAlgorithm_FactoryT<>::registerPluggableOM(): Tried to "
                    "register empty pluggable optimization monitor"
-                << std::endl
+                << '\n'
             );
         }
     }
@@ -255,8 +255,8 @@ public:
         else {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In G_OptimizationAlgorithm_Base<>::getMaxIterationCL(): Error!" << std::endl
-                << "maxIterationCL_ wasn't set" << std::endl
+                << "In G_OptimizationAlgorithm_Base<>::getMaxIterationCL(): Error!" << '\n'
+                << "maxIterationCL_ wasn't set" << '\n'
             );
 
             // Make the compiler happy
@@ -295,8 +295,8 @@ public:
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In G_OptimizationAlgorithm_Base<>::getMaxStallIterationCL(): Error!"
-                << std::endl
-                << "maxStallIterationCL_ wasn't set" << std::endl
+                << '\n'
+                << "maxStallIterationCL_ wasn't set" << '\n'
             );
 
             // Make the compiler happy
@@ -336,8 +336,8 @@ public:
         else {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In G_OptimizationAlgorithm_Base<>::getMaxTimeCL(): Error!" << std::endl
-                << "maxSecondsCL_ wasn't set" << std::endl
+                << "In G_OptimizationAlgorithm_Base<>::getMaxTimeCL(): Error!" << '\n'
+                << "maxSecondsCL_ wasn't set" << '\n'
             );
 
             // Make the compiler happy

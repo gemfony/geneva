@@ -169,19 +169,19 @@ public:
         using namespace Gem::Common;
         if(do_log_) {
             glogger(std::filesystem::path(exception_file))
-                << "========================================================" << std::endl
-                << "Error!" << std::endl
-                << std::endl
-                << where_and_when_ << std::endl
-                << ostream_.str() << std::endl
-                << std::endl
-                << "If you suspect that there is an underlying problem with the" << std::endl
-                << "Ge library collection, then please consider filing a bug." << std::endl
-                << std::endl
-                << "We appreciate your help!" << std::endl
-                << "The Geneva team" << std::endl
-                << std::endl
-                << "========================================================" << std::endl
+                << "========================================================" << '\n'
+                << "Error!" << '\n'
+                << '\n'
+                << where_and_when_ << '\n'
+                << ostream_.str() << '\n'
+                << '\n'
+                << "If you suspect that there is an underlying problem with the" << '\n'
+                << "Ge library collection, then please consider filing a bug." << '\n'
+                << '\n'
+                << "We appreciate your help!" << '\n'
+                << "The Geneva team" << '\n'
+                << '\n'
+                << "========================================================" << '\n'
                 << GFILE;
         }
         return ostream_.str();

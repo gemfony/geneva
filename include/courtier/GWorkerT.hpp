@@ -123,8 +123,8 @@ public:
         if(worker_id_ < 0) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GWorkerT<processable_type>::getWorkerId(): Error!" << std::endl
-                << "It appears as if the worker id was not set!" << std::endl
+                << "In GWorkerT<processable_type>::getWorkerId(): Error!" << '\n'
+                << "It appears as if the worker id was not set!" << '\n'
             );
         }
         else {
@@ -160,8 +160,8 @@ public:
         if(-1 == worker_id_) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GWorkerT<processable_type>::run(): Error!" << std::endl
-                << "It appears as if the worker id was not set!" << std::endl
+                << "In GWorkerT<processable_type>::run(): Error!" << '\n'
+                << "It appears as if the worker id was not set!" << '\n'
             );
         }
 
@@ -207,19 +207,19 @@ public:
             has_error = true;
             error_streamer << "In GWorkerT<processable_type>::run(): Caught "
                               "geneva_exception with message"
-                           << std::endl
-                           << e.what() << std::endl;
+                           << '\n'
+                           << e.what() << '\n';
         }
         catch(std::exception &e) {
             has_error = true;
-            error_streamer << "In GWorkerT<processable_type>::run():" << std::endl
-                           << "Caught std::exception with message" << std::endl
-                           << e.what() << std::endl;
+            error_streamer << "In GWorkerT<processable_type>::run():" << '\n'
+                           << "Caught std::exception with message" << '\n'
+                           << e.what() << '\n';
         }
         catch(...) {
             has_error = true;
-            error_streamer << "In GWorkerT<processable_type>::run():" << std::endl
-                           << "Caught unknown exception." << std::endl;
+            error_streamer << "In GWorkerT<processable_type>::run():" << '\n'
+                           << "Caught unknown exception." << '\n';
         }
 
         //---------------------------------------------------------------------
@@ -316,14 +316,14 @@ private:
             const g_processing_exception &e
         ) // NOLINT(bugprone-empty-catch) — expected; error stored in work item
         {
-            glogger << "In GWorkerT<processable_type>::process():" << std::endl
+            glogger << "In GWorkerT<processable_type>::process():" << '\n'
                     << "The work item has flagged a processing exception with the message"
-                    << std::endl
-                    << e << std::endl
+                    << '\n'
+                    << e << '\n'
                     << "The item will be returned. It is up to the recipient of the work "
                        "item"
-                    << std::endl
-                    << "to decide on its fate" << std::endl
+                    << '\n'
+                    << "to decide on its fate" << '\n'
                     << GWARNING;
         }
     }
@@ -446,27 +446,27 @@ public:
         if(not retriever_) {
             glogger << "In GLocalConsumerWorkerT<processable_type>::GBrokerFerryT(): "
                        "Error!"
-                    << std::endl
-                    << "Empty retriever function found!" << std::endl
-                    << "We cannot continue" << std::endl
+                    << '\n'
+                    << "Empty retriever function found!" << '\n'
+                    << "We cannot continue" << '\n'
                     << GTERMINATION;
         }
 
         if(not submitter_) {
             glogger << "In GLocalConsumerWorkerT<processable_type>::GBrokerFerryT(): "
                        "Error!"
-                    << std::endl
-                    << "Empty submitter function found!" << std::endl
-                    << "We cannot continue" << std::endl
+                    << '\n'
+                    << "Empty submitter function found!" << '\n'
+                    << "We cannot continue" << '\n'
                     << GTERMINATION;
         }
 
         if(not stop_requested_) {
             glogger << "In GLocalConsumerWorkerT<processable_type>::GBrokerFerryT(): "
                        "Error!"
-                    << std::endl
-                    << "Empty termination function found!" << std::endl
-                    << "We cannot continue" << std::endl
+                    << '\n'
+                    << "Empty termination function found!" << '\n'
+                    << "We cannot continue" << '\n'
                     << GTERMINATION;
         }
     }
@@ -556,8 +556,8 @@ public:
                 << "In "
                    "GLocalConsumerWorkerT<processable_type>::"
                    "registerBrokerFerry(): Error!"
-                << std::endl
-                << "Empty broker ferry object found!" << std::endl
+                << '\n'
+                << "Empty broker ferry object found!" << '\n'
             );
         }
 
