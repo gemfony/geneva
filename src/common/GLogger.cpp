@@ -51,7 +51,9 @@ namespace Gem::Common {
  * @param msg The log message
  */
 void GConsoleLogger::log(std::string const &msg) const {
-    std::clog << msg;
+    // std::clog is fully buffered; flush so console diagnostics are not lost
+    // if the process exits abnormally (signal / abort / _exit).
+    std::clog << msg << std::flush;
 }
 
 /******************************************************************************/
