@@ -62,6 +62,7 @@ Checks: >-
   -modernize-use-nodiscard,
   performance-*,
   portability-*,
+  -portability-avoid-pragma-once,
   readability-*,
   -readability-magic-numbers,
   -readability-named-parameter,

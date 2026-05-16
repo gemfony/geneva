@@ -126,9 +126,9 @@ public:
     bool onlyBestIndividualsAreCopied() const;
 
     /** @brief Allows to add an optimization algorithm to the chain */
-    void addAlgorithm(std::shared_ptr<GOABase>);
+    void addAlgorithm(const std::shared_ptr<GOABase> &);
     /** @brief Makes it easier to add algorithms */
-    Go2 &operator&(std::shared_ptr<GOABase>);
+    Go2 &operator&(const std::shared_ptr<GOABase> &);
     /** @brief Allows to add an optimization algorithm through its mnemonic */
     void addAlgorithm(std::string const &);
     /** @brief Makes it easier to add algorithms */
@@ -139,7 +139,7 @@ public:
 
     /** @brief Allows to register a content creator */
     void
-        registerContentCreator(std::shared_ptr<Gem::Common::GFactoryT<GParameterSet>>);
+        registerContentCreator(const std::shared_ptr<Gem::Common::GFactoryT<GParameterSet>> &);
 
     /***************************************************************************/
     // The following is a trivial list of getters and setters
@@ -166,12 +166,12 @@ public:
 
     /***************************************************************************/
     /** @brief Allows to register a default algorithm. */
-    void registerDefaultAlgorithm(std::shared_ptr<GOABase>);
+    void registerDefaultAlgorithm(const std::shared_ptr<GOABase> &);
     /** @brief Allows to register a default algorithm. */
-    void registerDefaultAlgorithm(std::string const &default_algorithm);
+    void registerDefaultAlgorithm(std::string const &);
 
     /** @brief Allows to register a pluggable optimization monitor */
-    void registerPluggableOM(std::shared_ptr<GBasePluggableOM>);
+    void registerPluggableOM(const std::shared_ptr<GBasePluggableOM> &);
     /** @brief Allows to reset the local pluggable optimization monitor */
     void resetPluggableOM();
     /** @brief Allows to check whether pluggable optimization monitors were registered */
