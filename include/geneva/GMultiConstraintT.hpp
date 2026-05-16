@@ -101,7 +101,7 @@ public:
      * be used to indicate the extent of the invalidity. Two policies are implemented
      * when check_() returns a value < 0: If allowNevative is set to true, such
      * evaluations are considered to be valid, and the function returns 0. If
-     * allowNegative is set to false, am invalidity is calculated, and the return-
+     * allow_negative is set to false, am invalidity is calculated, and the return-
      * value will be > 1.
      */
     double check(const ind_type *cp) const {
@@ -136,23 +136,23 @@ public:
      * Checks whether the constraint is valid
      *
      * @param cp A pointer to the individual to be checked
-     * @param validityLevel Will be filled with the validity level of this individual
+     * @param validity_level Will be filled with the validity level of this individual
      * @return A boolean indicating whether a constraint is valid
      */
-    bool isValid(const ind_type *cp, double &validityLevel) const {
+    bool isValid(const ind_type *cp, double &validity_level) const {
         // Set the external validity level
-        validityLevel = this->check(cp);
+        validity_level = this->check(cp);
 
-        if(std::numeric_limits<double>::max() == validityLevel ||
-           std::numeric_limits<double>::lowest() == validityLevel) {
+        if(std::numeric_limits<double>::max() == validity_level ||
+           std::numeric_limits<double>::lowest() == validity_level) {
             return false;
         }
 
         if(allowNegative_) {
-            return (validityLevel <= 1.);
+            return (validity_level <= 1.);
         }
         else {
-            return (validityLevel >= 0. && validityLevel <= 1.);
+            return (validity_level >= 0. && validity_level <= 1.);
         }
     }
 
@@ -161,11 +161,11 @@ public:
      * Checks whether a constraint it invalid
      *
      * @param cp A pointer to the individual to be checked
-     * @param validityLevel Will be filled with the validity level of this individual
+     * @param validity_level Will be filled with the validity level of this individual
      * @return A boolean indicating whether a constraint is invalid
      */
-    bool isInvalid(const ind_type *cp, double &validityLevel) const {
-        return not this->isValid(cp, validityLevel);
+    bool isInvalid(const ind_type *cp, double &validity_level) const {
+        return not this->isValid(cp, validity_level);
     }
 
     /***************************************************************************/
@@ -180,8 +180,8 @@ public:
     /**
      * Allows to specify whether negative values are considered to be valid
      */
-    void setAllowNegative(bool allowNegative) {
-        allowNegative_ = allowNegative;
+    void setAllowNegative(bool allow_negative) {
+        allowNegative_ = allow_negative;
     }
 
 protected:
@@ -307,9 +307,9 @@ public:
      * Initialization from a vector of validity checks
      */
     explicit GValidityCheckContainerT(
-        const std::vector<std::shared_ptr<GPreEvaluationValidityCheckT<ind_type>>> &validityChecks
+        const std::vector<std::shared_ptr<GPreEvaluationValidityCheckT<ind_type>>> &validity_checks
     ) {
-        Gem::Common::copyCloneableSmartPointerContainer(validityChecks, validityChecks_);
+        Gem::Common::copyCloneableSmartPointerContainer(validity_checks, validityChecks_);
     }
 
     /***************************************************************************/
@@ -468,9 +468,9 @@ public:
      * Initialization from a vector of validity checks
      */
     explicit GCheckCombinerT(
-        const std::vector<std::shared_ptr<GPreEvaluationValidityCheckT<ind_type>>> &validityChecks
+        const std::vector<std::shared_ptr<GPreEvaluationValidityCheckT<ind_type>>> &validity_checks
     )
-      : GValidityCheckContainerT<ind_type>(validityChecks) { /* nothing */
+      : GValidityCheckContainerT<ind_type>(validity_checks) { /* nothing */
     }
 
     /***************************************************************************/
@@ -500,8 +500,8 @@ public:
     /**
      * Allows to set the combiner policy
      */
-    void setCombinerPolicy(validityCheckCombinerPolicy combinerPolicy) {
-        combinerPolicy_ = combinerPolicy;
+    void setCombinerPolicy(validityCheckCombinerPolicy combiner_policy) {
+        combinerPolicy_ = combiner_policy;
     }
 
     /***************************************************************************/
@@ -521,20 +521,20 @@ protected:
      */
     double check_(const ind_type *cp) const override {
         // First identify invalid checks
-        std::vector<double> invalidChecks;
-        double validityLevel = 0.;
+        std::vector<double> invalid_checks;
+        double validity_level = 0.;
         typename std::vector<
             std::shared_ptr<GPreEvaluationValidityCheckT<ind_type>>>::const_iterator cit;
         for(cit = GValidityCheckContainerT<ind_type>::validityChecks_.begin();
             cit != GValidityCheckContainerT<ind_type>::validityChecks_.end();
             ++cit) {
-            if(not(*cit)->isValid(cp, validityLevel)) {
-                invalidChecks.push_back(validityLevel);
+            if(not(*cit)->isValid(cp, validity_level)) {
+                invalid_checks.push_back(validity_level);
             }
         }
 
         // We can leave now, if no invalid checks were found
-        if(invalidChecks.empty()) { // All checks were valid
+        if(invalid_checks.empty()) { // All checks were valid
             return 0.;
         }
 
@@ -545,7 +545,7 @@ protected:
         case Gem::Geneva::validityCheckCombinerPolicy::MULTIPLYINVALID: {
             double result = 1.;
             std::vector<double>::const_iterator d_cit;
-            for(d_cit = invalidChecks.begin(); d_cit != invalidChecks.end(); ++d_cit) {
+            for(d_cit = invalid_checks.begin(); d_cit != invalid_checks.end(); ++d_cit) {
                 // If we encounter an invalidity at the numeric boundaries, we simply
                 // return MAX_DOUBLE
                 if(std::numeric_limits<double>::max() == *d_cit ||
@@ -563,7 +563,7 @@ protected:
         case Gem::Geneva::validityCheckCombinerPolicy::ADDINVALID: {
             double result = 0.;
             std::vector<double>::const_iterator d_cit;
-            for(d_cit = invalidChecks.begin(); d_cit != invalidChecks.end(); ++d_cit) {
+            for(d_cit = invalid_checks.begin(); d_cit != invalid_checks.end(); ++d_cit) {
                 // If we encounter an invalidity at the numeric boundaries, we simply
                 // return MAX_DOUBLE
                 if(std::numeric_limits<double>::max() == *d_cit ||

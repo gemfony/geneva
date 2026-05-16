@@ -94,19 +94,19 @@ public:
      */
     GConstrainedFPNumCollectionT(
         const std::size_t &size,
-        const fp_type &lowerBoundary,
-        const fp_type &upperBoundary
+        const fp_type &lower_boundary,
+        const fp_type &upper_boundary
     )
       : GConstrainedNumCollectionT<fp_type>(
             size,
-            lowerBoundary,
-            std::nextafter(upperBoundary, -std::numeric_limits<fp_type>::infinity())
+            lower_boundary,
+            std::nextafter(upper_boundary, -std::numeric_limits<fp_type>::infinity())
         ) // Note that we define the upper boundary as "open"
     {
         Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL> gr;
         typename std::uniform_real_distribution<fp_type> uniform_real_distribution(
-            lowerBoundary,
-            upperBoundary
+            lower_boundary,
+            upper_boundary
         );
 
         // Assign random values to each position
@@ -132,14 +132,15 @@ public:
     GConstrainedFPNumCollectionT(
         const std::size_t &size,
         const fp_type &val,
-        const fp_type &lowerBoundary,
-        const fp_type &upperBoundary
+        const fp_type &lower_boundary,
+        const fp_type &upper_boundary
     )
       : GConstrainedNumCollectionT<fp_type>(
             size,
-            (val == upperBoundary ? std::nextafter(val, -std::numeric_limits<fp_type>::infinity()) : val),
-            lowerBoundary,
-            std::nextafter(upperBoundary, -std::numeric_limits<fp_type>::infinity())
+            (val == upper_boundary ? std::nextafter(val, -std::numeric_limits<fp_type>::infinity())
+                                   : val),
+            lower_boundary,
+            std::nextafter(upper_boundary, -std::numeric_limits<fp_type>::infinity())
         ) // Note that we define the upper boundary as "open"
     {     /* nothing */
     }
@@ -164,10 +165,10 @@ public:
      * @return The transformed value
      */
     fp_type transfer(const fp_type &val) const override {
-        fp_type lowerBoundary = GConstrainedNumCollectionT<fp_type>::getLowerBoundary();
-        fp_type upperBoundary = GConstrainedNumCollectionT<fp_type>::getUpperBoundary();
+        fp_type lower_boundary = GConstrainedNumCollectionT<fp_type>::getLowerBoundary();
+        fp_type upper_boundary = GConstrainedNumCollectionT<fp_type>::getUpperBoundary();
 
-        if(val >= lowerBoundary && val < upperBoundary) {
+        if(val >= lower_boundary && val < upper_boundary) {
             return val;
         }
         else {
@@ -178,13 +179,13 @@ public:
 
 #ifdef DEBUG
             region = Gem::Common::narrow_cast<std::int32_t>(std::floor(
-                (fp_type(val) - fp_type(lowerBoundary)) /
-                (fp_type(upperBoundary) - fp_type(lowerBoundary))
+                (fp_type(val) - fp_type(lower_boundary)) /
+                (fp_type(upper_boundary) - fp_type(lower_boundary))
             ));
 #else
             region = static_cast<std::int32_t>(std::floor(
-                (fp_type(val) - fp_type(lowerBoundary)) /
-                (fp_type(upperBoundary) - fp_type(lowerBoundary))
+                (fp_type(val) - fp_type(lower_boundary)) /
+                (fp_type(upper_boundary) - fp_type(lower_boundary))
             ));
 #endif
 
@@ -193,11 +194,11 @@ public:
             fp_type mapping = fp_type(0.);
             if(region % 2 ==
                0) { // can it be divided by 2 ? Region 0,2,... or a negative even range
-                mapping = val - fp_type(region) * (upperBoundary - lowerBoundary);
+                mapping = val - fp_type(region) * (upper_boundary - lower_boundary);
             }
             else { // Range 1,3,... or a negative odd range
-                mapping = -val + (fp_type(region - 1) * (upperBoundary - lowerBoundary) +
-                                  2 * upperBoundary);
+                mapping = -val + (fp_type(region - 1) * (upper_boundary - lower_boundary) +
+                                  2 * upper_boundary);
             }
 
             return mapping;

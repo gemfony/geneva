@@ -52,8 +52,8 @@ namespace Gem::Common {
 /**
  * The standard constructor
  */
-math_logic_error::math_logic_error(std::string const &errorText)
-  : geneva_exception(errorText) { /* nothing */
+math_logic_error::math_logic_error(std::string const &error_text)
+  : geneva_exception(error_text) { /* nothing */
 }
 
 /******************************************************************************/

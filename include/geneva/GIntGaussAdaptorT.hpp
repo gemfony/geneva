@@ -50,7 +50,7 @@ namespace Gem::Geneva {
  * in the Geneva context. Most functionality is currently implemented in the
  * GNumGaussAdaptorT parent-class. Note that, for the purpose of adapting integer
  * values, it is generally not useful to choose very small sigma values for the
- * gaussian. A value of 1 might be a good choice. Similarly, the minSigma
+ * gaussian. A value of 1 might be a good choice. Similarly, the min_sigma
  * parameter should be set accordingly, so sigma cannot get too small when
  * being adapted.
  */
@@ -99,15 +99,15 @@ public:
 	  * value for sigma, as there is a "natural" gap of 1 between integers, and the DEFAULTSIGMA
 	  * might not be suitable for us.
 	  *
-	  * @param adProb The adaption probability
+	  * @param ad_prob The adaption probability
 	  */
-    explicit GIntGaussAdaptorT(const double &adProb)
+    explicit GIntGaussAdaptorT(const double &ad_prob)
       : GNumGaussAdaptorT<int_type, double>(
             DEFAULTINT32SIGMA,
             DEFAULTSIGMASIGMA,
             DEFAULTMINSIGMA,
             DEFAULTMAXSIGMA,
-            adProb
+            ad_prob
         ) { /* nothing */
     }
 
@@ -116,17 +116,22 @@ public:
 	  * This constructor lets a user set all sigma parameters in one go.
 	  *
 	  * @param sigma The initial value for the sigma_ parameter
-	  * @param sigmaSigma The initial value for the sigmaSigma_ parameter
-	  * @param minSigma The minimal value allowed for sigma_
-	  * @param maxSigma The maximal value allowed for sigma_
+	  * @param sigma_sigma The initial value for the sigmaSigma_ parameter
+	  * @param min_sigma The minimal value allowed for sigma_
+	  * @param max_sigma The maximal value allowed for sigma_
 	  */
     GIntGaussAdaptorT(
         const double &sigma,
-        const double &sigmaSigma,
-        const double &minSigma,
-        const double &maxSigma
+        const double &sigma_sigma,
+        const double &min_sigma,
+        const double &max_sigma
     )
-      : GNumGaussAdaptorT<int_type, double>(sigma, sigmaSigma, minSigma, maxSigma) { /* nothing */
+      : GNumGaussAdaptorT<int_type, double>(
+            sigma,
+            sigma_sigma,
+            min_sigma,
+            max_sigma
+        ) { /* nothing */
     }
 
     /***************************************************************************/
@@ -135,24 +140,24 @@ public:
 	  * probability in one go.
 	  *
 	  * @param sigma The initial value for the sigma_ parameter
-	  * @param sigmaSigma The initial value for the sigmaSigma_ parameter
-	  * @param minSigma The minimal value allowed for sigma_
-	  * @param maxSigma The maximal value allowed for sigma_
-	  * @param adProb The adaption probability
+	  * @param sigma_sigma The initial value for the sigmaSigma_ parameter
+	  * @param min_sigma The minimal value allowed for sigma_
+	  * @param max_sigma The maximal value allowed for sigma_
+	  * @param ad_prob The adaption probability
 	  */
     GIntGaussAdaptorT(
         const double &sigma,
-        const double &sigmaSigma,
-        const double &minSigma,
-        const double &maxSigma,
-        const double &adProb
+        const double &sigma_sigma,
+        const double &min_sigma,
+        const double &max_sigma,
+        const double &ad_prob
     )
       : GNumGaussAdaptorT<int_type, double>(
             sigma,
-            sigmaSigma,
-            minSigma,
-            maxSigma,
-            adProb
+            sigma_sigma,
+            min_sigma,
+            max_sigma,
+            ad_prob
         ) { /* nothing */
     }
 
@@ -241,11 +246,11 @@ protected:
         );
 
         if(addition == 0) { // Enforce a minimal change of 1.
-            bool flipDirection = GAdaptorT<int_type, double>::weighted_bool_(
+            bool flip_direction = GAdaptorT<int_type, double>::weighted_bool_(
                 gr,
                 std::bernoulli_distribution::param_type(0.5)
             );
-            addition = flipDirection ? 1 : -1;
+            addition = flip_direction ? 1 : -1;
         }
 
         // adapt the value in situ. Note that this changes

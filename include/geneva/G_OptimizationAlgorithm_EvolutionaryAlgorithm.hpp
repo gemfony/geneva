@@ -100,11 +100,11 @@ public:
 
     /** @brief Extracts all individuals on the pareto front */
     void extractCurrentParetoIndividuals(
-        std::vector<std::shared_ptr<Gem::Geneva::GParameterSet>> &paretoInds
+        std::vector<std::shared_ptr<Gem::Geneva::GParameterSet>> &pareto_inds
     );
 
     /** @brief Sets the number of threads this population uses for adaption */
-    void setNThreads(std::uint16_t nThreads);
+    void setNThreads(std::uint16_t n_threads);
     /** @brief Retrieves the number of threads this population uses for adaption */
     std::uint16_t getNThreads() const;
 
@@ -172,11 +172,9 @@ private:
     std::string getAlgorithmName_() const override;
 
     /** @brief Adds the individuals of this iteration to a priority queue */
-    void
-    updateGlobalBestsPQ_(GParameterSetFixedSizePriorityQueue &bestIndividuals) override;
+    void updateGlobalBestsPQ_(GParameterSetFixedSizePriorityQueue &best_individuals) override;
     /** @brief Adds the individuals of this iteration to a priority queue */
-    void
-    updateIterationBestsPQ_(GParameterSetFixedSizePriorityQueue &bestIndividuals) override;
+    void updateIterationBestsPQ_(GParameterSetFixedSizePriorityQueue &best_individuals) override;
 
     /** @brief Retrieve a GPersonalityTraits object belonging to this algorithm */
     std::shared_ptr<GPersonalityTraits> getPersonalityTraits_() const override;
@@ -211,7 +209,7 @@ private:
     ) const;
 
     /** @brief Fills the collection with individuals */
-    void fillWithObjects(const std::size_t &nIndividuals);
+    void fillWithObjects(const std::size_t &n_individuals);
 
     /***************************************************************************/
     // Local data

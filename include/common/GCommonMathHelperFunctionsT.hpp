@@ -167,12 +167,9 @@ bool checkRangeCompliance(
  * on whether maximal or minimal values are considered to be better
  */
 template <std::floating_point fp_type>
-fp_type getWorstCase(
-    bool maxMode
-) {
+fp_type getWorstCase(bool max_mode) {
     return (
-        maxMode ? std::numeric_limits<fp_type>::lowest()
-                : std::numeric_limits<fp_type>::max()
+        max_mode ? std::numeric_limits<fp_type>::lowest() : std::numeric_limits<fp_type>::max()
     );
 }
 
@@ -182,12 +179,9 @@ fp_type getWorstCase(
  * on whether maximal or minimal values are considered to be better
  */
 template <std::floating_point fp_type>
-fp_type getBestCase(
-    bool maxMode
-) {
+fp_type getBestCase(bool max_mode) {
     return (
-        maxMode ? std::numeric_limits<fp_type>::max()
-                : std::numeric_limits<fp_type>::lowest()
+        max_mode ? std::numeric_limits<fp_type>::max() : std::numeric_limits<fp_type>::lowest()
     );
 }
 
@@ -197,11 +191,9 @@ fp_type getBestCase(
  * on whether maximal or minimal values are considered to be better
  */
 template <std::floating_point fp_type>
-fp_type getWorstCase(
-    Gem::Common::sortOrder sortOrder
-) {
+fp_type getWorstCase(Gem::Common::sortOrder sort_order) {
     return (
-        sortOrder == Gem::Common::sortOrder::HIGHERISBETTER
+        sort_order == Gem::Common::sortOrder::HIGHERISBETTER
             ? std::numeric_limits<fp_type>::lowest()
             : std::numeric_limits<fp_type>::max()
     );
@@ -213,11 +205,9 @@ fp_type getWorstCase(
  * on whether maximal or minimal values are considered to be better
  */
 template <std::floating_point fp_type>
-fp_type getBestCase(
-    Gem::Common::sortOrder sortOrder
-) {
+fp_type getBestCase(Gem::Common::sortOrder sort_order) {
     return (
-        sortOrder == Gem::Common::sortOrder::HIGHERISBETTER
+        sort_order == Gem::Common::sortOrder::HIGHERISBETTER
             ? std::numeric_limits<fp_type>::max()
             : std::numeric_limits<fp_type>::lowest()
     );
@@ -230,9 +220,9 @@ fp_type getBestCase(
  * @param val The value to be checked for containment
  * @param min The lower boundary (included)
  * @param max The upper boundary (possibly included)
- * @param lowerOpen Determines whether the lower boundary must be smaller or may be equal to val (default: closed)
- * @param upperOpen Determines whether the upper boundary must be larger or may be equal to val (default: closed)
- * @param warnOnly Will warn only if the condition isn't met
+ * @param lower_open Determines whether the lower boundary must be smaller or may be equal to val (default: closed)
+ * @param upper_open Determines whether the upper boundary must be larger or may be equal to val (default: closed)
+ * @param warn_only Will warn only if the condition isn't met
  * @return The value being checked
  */
 const bool GFPLOWERCLOSED = false;
@@ -246,48 +236,48 @@ fp_type checkValueRange(
     fp_type val,
     fp_type min,
     fp_type max,
-    bool lowerOpen = false,
-    bool upperOpen = false,
-    bool warnOnly = false,
-    std::string varName = std::string()
+    bool lower_open = false,
+    bool upper_open = false,
+    bool warn_only = false,
+    std::string var_name = std::string()
 ) {
-    bool inValueRange = true;
+    bool in_value_range = true;
 
-    if(lowerOpen) {
+    if(lower_open) {
         if(val < std::nextafter(min, std::numeric_limits<fp_type>::infinity()))
-            inValueRange = false;
+            in_value_range = false;
     }
     else {
         if(val < min)
-            inValueRange = false;
+            in_value_range = false;
     }
 
-    if(upperOpen) {
+    if(upper_open) {
         if(val > std::nextafter(max, -std::numeric_limits<fp_type>::infinity()))
-            inValueRange = false;
+            in_value_range = false;
     }
     else {
         if(val > max)
-            inValueRange = false;
+            in_value_range = false;
     }
 
-    if(not inValueRange) {
-        if(warnOnly) {
+    if(not in_value_range) {
+        if(warn_only) {
             glogger << "In checkValueRange<fp_type>(): Error!" << '\n'
-                    << "Value " << val << (varName.empty() ? "" : (" of variable " + varName))
+                    << "Value " << val << (var_name.empty() ? "" : (" of variable " + var_name))
                     << " outside of recommended range " << '\n'
-                    << min << (lowerOpen ? " (open) - " : " (closed) - ") << max
-                    << (upperOpen ? " (open)" : " (closed)") << '\n'
+                    << min << (lower_open ? " (open) - " : " (closed) - ") << max
+                    << (upper_open ? " (open)" : " (closed)") << '\n'
                     << GWARNING;
         }
         else {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In checkValueRange<fp_type>(): Error!" << '\n'
-                << "Value " << val << (varName.empty() ? "" : (" of variable " + varName))
+                << "Value " << val << (var_name.empty() ? "" : (" of variable " + var_name))
                 << " outside of allowed range " << '\n'
-                << min << (lowerOpen ? " (open) - " : " (closed) - ") << max
-                << (upperOpen ? " (open)" : " (closed)") << '\n'
+                << min << (lower_open ? " (open) - " : " (closed) - ") << max
+                << (upper_open ? " (open)" : " (closed)") << '\n'
             );
         }
     }
@@ -302,9 +292,9 @@ fp_type checkValueRange(
  * @param val The value to be checked for containment
  * @param min The lower boundary (included)
  * @param max The upper boundary (possibly included)
- * @param lowerOpen Determines whether the lower boundary must be smaller or may be equal to val (default: closed)
- * @param upperOpen Determines whether the upper boundary must be larger or may be equal to val (default: closed)
- * @param warnOnly Will warn only if the condition isn't met
+ * @param lower_open Determines whether the lower boundary must be smaller or may be equal to val (default: closed)
+ * @param upper_open Determines whether the upper boundary must be larger or may be equal to val (default: closed)
+ * @param warn_only Will warn only if the condition isn't met
  * @return The value being checked
  */
 template <std::integral int_type>
@@ -312,37 +302,37 @@ int_type checkValueRange(
     int_type val,
     int_type min,
     int_type max,
-    bool lowerOpen = false,
-    bool upperOpen = false,
-    bool warnOnly = false
+    bool lower_open = false,
+    bool upper_open = false,
+    bool warn_only = false
 ) {
-    bool inValueRange = true;
+    bool in_value_range = true;
 
-    if(lowerOpen) {
+    if(lower_open) {
         if(val <= min)
-            inValueRange = false;
+            in_value_range = false;
     }
     else {
         if(val < min)
-            inValueRange = false;
+            in_value_range = false;
     }
 
-    if(upperOpen) {
+    if(upper_open) {
         if(val >= max)
-            inValueRange = false;
+            in_value_range = false;
     }
     else {
         if(val > max)
-            inValueRange = false;
+            in_value_range = false;
     }
 
-    if(not inValueRange) {
-        if(warnOnly) {
+    if(not in_value_range) {
+        if(warn_only) {
             glogger << "Warning:" << '\n'
                     << "In checkValueRange<int_type>(): Error!" << '\n'
                     << "Value " << val << " outside of recommended range " << '\n'
-                    << min << (lowerOpen ? " (open) - " : " (closed) - ") << max
-                    << (upperOpen ? " (open)" : " (closed)") << '\n'
+                    << min << (lower_open ? " (open) - " : " (closed) - ") << max
+                    << (upper_open ? " (open)" : " (closed)") << '\n'
                     << GWARNING;
         }
         else {
@@ -350,8 +340,8 @@ int_type checkValueRange(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In checkValueRange<int_type>(): Error!" << '\n'
                 << "Value " << val << " outside of allowed range " << '\n'
-                << min << (lowerOpen ? " (open) - " : " (closed) - ") << max
-                << (upperOpen ? " (open)" : " (closed)") << '\n'
+                << min << (lower_open ? " (open) - " : " (closed) - ") << max
+                << (upper_open ? " (open)" : " (closed)") << '\n'
             );
         }
     }
@@ -364,20 +354,20 @@ int_type checkValueRange(
  * Finds the minimum and maximum component in a vector of undefined types. This
  * function requires that x_type_undet can be compared using the usual operators.
  *
- * @param extDat The vector holding the data, for which extreme values should be calculated
+ * @param ext_dat The vector holding the data, for which extreme values should be calculated
  * @return A std::tuple holding the extreme values
  */
 template <typename x_type_undet>
-auto getMinMax(const std::vector<x_type_undet> &extDat) {
-    if(extDat.size() < std::size_t(2)) {
+auto getMinMax(const std::vector<x_type_undet> &ext_dat) {
+    if(ext_dat.size() < std::size_t(2)) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GBasePlotter::getMinMax(1D): Error!" << '\n'
-            << "Got vector of invalid size " << extDat.size() << '\n'
+            << "Got vector of invalid size " << ext_dat.size() << '\n'
         );
     }
 
-    auto [min_it, max_it] = std::minmax_element(extDat.begin(), extDat.end());
+    auto [min_it, max_it] = std::minmax_element(ext_dat.begin(), ext_dat.end());
     return std::tuple<x_type_undet, x_type_undet>{*min_it, *max_it};
 }
 
@@ -387,39 +377,39 @@ auto getMinMax(const std::vector<x_type_undet> &extDat) {
  * This function requires that x_type_undet and y_type_undet can be compared using the
  * usual operators
  *
- * @param extDat The vector holding the data, for which extreme values should be calculated
+ * @param ext_dat The vector holding the data, for which extreme values should be calculated
  * @return A std::tuple holding the extreme values
  */
 template <typename x_type_undet, typename y_type_undet>
-auto getMinMax(const std::vector<std::tuple<x_type_undet, y_type_undet>> &extDat) {
+auto getMinMax(const std::vector<std::tuple<x_type_undet, y_type_undet>> &ext_dat) {
     // Do some error checking
-    if(extDat.size() < (std::size_t)2) {
+    if(ext_dat.size() < (std::size_t)2) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GBasePlotter::getMinMax(2D): Error!" << '\n'
-            << "Got vector of invalid size " << extDat.size() << '\n'
+            << "Got vector of invalid size " << ext_dat.size() << '\n'
         );
     }
 
-    x_type_undet minX = std::get<0>(extDat.at(0)), maxX = minX;
-    y_type_undet minY = std::get<1>(extDat.at(0)), maxY = minY;
+    x_type_undet min_x = std::get<0>(ext_dat.at(0)), max_x = min_x;
+    y_type_undet min_y = std::get<1>(ext_dat.at(0)), max_y = min_y;
 
-    for(std::size_t i = 1; i < extDat.size(); i++) {
-        if(std::get<0>(extDat.at(i)) < minX)
-            minX = std::get<0>(extDat.at(i));
-        if(std::get<0>(extDat.at(i)) > maxX)
-            maxX = std::get<0>(extDat.at(i));
-        if(std::get<1>(extDat.at(i)) < minY)
-            minY = std::get<1>(extDat.at(i));
-        if(std::get<1>(extDat.at(i)) > maxY)
-            maxY = std::get<1>(extDat.at(i));
+    for(std::size_t i = 1; i < ext_dat.size(); i++) {
+        if(std::get<0>(ext_dat.at(i)) < min_x)
+            min_x = std::get<0>(ext_dat.at(i));
+        if(std::get<0>(ext_dat.at(i)) > max_x)
+            max_x = std::get<0>(ext_dat.at(i));
+        if(std::get<1>(ext_dat.at(i)) < min_y)
+            min_y = std::get<1>(ext_dat.at(i));
+        if(std::get<1>(ext_dat.at(i)) > max_y)
+            max_y = std::get<1>(ext_dat.at(i));
     }
 
     return std::tuple<x_type_undet, x_type_undet, y_type_undet, y_type_undet>{
-        minX,
-        maxX,
-        minY,
-        maxY
+        min_x,
+        max_x,
+        min_y,
+        max_y
     };
 }
 
@@ -429,47 +419,47 @@ auto getMinMax(const std::vector<std::tuple<x_type_undet, y_type_undet>> &extDat
  * This function requires that x_type_undet, y_type_undet and z_type_undet can be compared
  * using the usual operators
  *
- * @param extDat The vector holding the data, for which extreme values should be calculated
+ * @param ext_dat The vector holding the data, for which extreme values should be calculated
  * @return A std::tuple holding the extreme values
  */
 template <typename x_type_undet, typename y_type_undet, typename z_type_undet>
-auto getMinMax(const std::vector<std::tuple<x_type_undet, y_type_undet, z_type_undet>> &extDat) {
+auto getMinMax(const std::vector<std::tuple<x_type_undet, y_type_undet, z_type_undet>> &ext_dat) {
     // Do some error checking
-    if(extDat.size() < (std::size_t)2) {
+    if(ext_dat.size() < (std::size_t)2) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GBasePlotter::getMinMax(3D): Error!" << '\n'
-            << "Got vector of invalid size " << extDat.size() << '\n'
+            << "Got vector of invalid size " << ext_dat.size() << '\n'
         );
     }
 
-    x_type_undet minX = std::get<0>(extDat.at(0)), maxX = minX;
-    y_type_undet minY = std::get<1>(extDat.at(0)), maxY = minY;
-    z_type_undet minZ = std::get<2>(extDat.at(0)), maxZ = minZ;
+    x_type_undet min_x = std::get<0>(ext_dat.at(0)), max_x = min_x;
+    y_type_undet min_y = std::get<1>(ext_dat.at(0)), max_y = min_y;
+    z_type_undet min_z = std::get<2>(ext_dat.at(0)), max_z = min_z;
 
-    for(std::size_t i = 1; i < extDat.size(); i++) {
-        if(std::get<0>(extDat.at(i)) < minX)
-            minX = std::get<0>(extDat.at(i));
-        if(std::get<0>(extDat.at(i)) > maxX)
-            maxX = std::get<0>(extDat.at(i));
-        if(std::get<1>(extDat.at(i)) < minY)
-            minY = std::get<1>(extDat.at(i));
-        if(std::get<1>(extDat.at(i)) > maxY)
-            maxY = std::get<1>(extDat.at(i));
-        if(std::get<2>(extDat.at(i)) < minZ)
-            minZ = std::get<2>(extDat.at(i));
-        if(std::get<2>(extDat.at(i)) > maxZ)
-            maxZ = std::get<2>(extDat.at(i));
+    for(std::size_t i = 1; i < ext_dat.size(); i++) {
+        if(std::get<0>(ext_dat.at(i)) < min_x)
+            min_x = std::get<0>(ext_dat.at(i));
+        if(std::get<0>(ext_dat.at(i)) > max_x)
+            max_x = std::get<0>(ext_dat.at(i));
+        if(std::get<1>(ext_dat.at(i)) < min_y)
+            min_y = std::get<1>(ext_dat.at(i));
+        if(std::get<1>(ext_dat.at(i)) > max_y)
+            max_y = std::get<1>(ext_dat.at(i));
+        if(std::get<2>(ext_dat.at(i)) < min_z)
+            min_z = std::get<2>(ext_dat.at(i));
+        if(std::get<2>(ext_dat.at(i)) > max_z)
+            max_z = std::get<2>(ext_dat.at(i));
     }
 
     return std::
         tuple<x_type_undet, x_type_undet, y_type_undet, y_type_undet, z_type_undet, z_type_undet>{
-            minX,
-            maxX,
-            minY,
-            maxY,
-            minZ,
-            maxZ
+            min_x,
+            max_x,
+            min_y,
+            max_y,
+            min_z,
+            max_z
         };
 }
 
@@ -479,7 +469,7 @@ auto getMinMax(const std::vector<std::tuple<x_type_undet, y_type_undet, z_type_u
  * This function requires that x_type_undet, y_type_undet, z_type_undet and w_type_undet
  * can be compared using the usual operators
  *
- * @param extDat The vector holding the data, for which extreme values should be calculated
+ * @param ext_dat The vector holding the data, for which extreme values should be calculated
  * @return A std::tuple holding the extreme values
  */
 template <
@@ -488,39 +478,39 @@ template <
     typename z_type_undet,
     typename w_type_undet>
 auto getMinMax(
-    const std::vector<std::tuple<x_type_undet, y_type_undet, z_type_undet, w_type_undet>> &extDat
+    const std::vector<std::tuple<x_type_undet, y_type_undet, z_type_undet, w_type_undet>> &ext_dat
 ) {
     // Do some error checking
-    if(extDat.size() < (std::size_t)2) {
+    if(ext_dat.size() < (std::size_t)2) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GBasePlotter::getMinMax(4D): Error!" << '\n'
-            << "Got vector of invalid size " << extDat.size() << '\n'
+            << "Got vector of invalid size " << ext_dat.size() << '\n'
         );
     }
 
-    x_type_undet minX = std::get<0>(extDat.at(0)), maxX = minX;
-    y_type_undet minY = std::get<1>(extDat.at(0)), maxY = minY;
-    z_type_undet minZ = std::get<2>(extDat.at(0)), maxZ = minZ;
-    w_type_undet minW = std::get<3>(extDat.at(0)), maxW = minW;
+    x_type_undet min_x = std::get<0>(ext_dat.at(0)), max_x = min_x;
+    y_type_undet min_y = std::get<1>(ext_dat.at(0)), max_y = min_y;
+    z_type_undet min_z = std::get<2>(ext_dat.at(0)), max_z = min_z;
+    w_type_undet min_w = std::get<3>(ext_dat.at(0)), max_w = min_w;
 
-    for(std::size_t i = 1; i < extDat.size(); i++) {
-        if(std::get<0>(extDat.at(i)) < minX)
-            minX = std::get<0>(extDat.at(i));
-        if(std::get<0>(extDat.at(i)) > maxX)
-            maxX = std::get<0>(extDat.at(i));
-        if(std::get<1>(extDat.at(i)) < minY)
-            minY = std::get<1>(extDat.at(i));
-        if(std::get<1>(extDat.at(i)) > maxY)
-            maxY = std::get<1>(extDat.at(i));
-        if(std::get<2>(extDat.at(i)) < minZ)
-            minZ = std::get<2>(extDat.at(i));
-        if(std::get<2>(extDat.at(i)) > maxZ)
-            maxZ = std::get<2>(extDat.at(i));
-        if(std::get<3>(extDat.at(i)) < minW)
-            minW = std::get<3>(extDat.at(i));
-        if(std::get<3>(extDat.at(i)) > maxW)
-            maxW = std::get<3>(extDat.at(i));
+    for(std::size_t i = 1; i < ext_dat.size(); i++) {
+        if(std::get<0>(ext_dat.at(i)) < min_x)
+            min_x = std::get<0>(ext_dat.at(i));
+        if(std::get<0>(ext_dat.at(i)) > max_x)
+            max_x = std::get<0>(ext_dat.at(i));
+        if(std::get<1>(ext_dat.at(i)) < min_y)
+            min_y = std::get<1>(ext_dat.at(i));
+        if(std::get<1>(ext_dat.at(i)) > max_y)
+            max_y = std::get<1>(ext_dat.at(i));
+        if(std::get<2>(ext_dat.at(i)) < min_z)
+            min_z = std::get<2>(ext_dat.at(i));
+        if(std::get<2>(ext_dat.at(i)) > max_z)
+            max_z = std::get<2>(ext_dat.at(i));
+        if(std::get<3>(ext_dat.at(i)) < min_w)
+            min_w = std::get<3>(ext_dat.at(i));
+        if(std::get<3>(ext_dat.at(i)) > max_w)
+            max_w = std::get<3>(ext_dat.at(i));
     }
 
     return std::tuple<
@@ -531,60 +521,56 @@ auto getMinMax(
         z_type_undet,
         z_type_undet,
         w_type_undet,
-        w_type_undet>{minX, maxX, minY, maxY, minZ, maxZ, minW, maxW};
+        w_type_undet>{min_x, max_x, min_y, max_y, min_z, max_z, min_w, max_w};
 }
 
 /******************************************************************************/
 /**
  * Calculates the mean value from a std::vector of floating point values
  *
- * @param parVec The vector of values for which the mean should be calculated
- * @return The mean value of parVec
+ * @param par_vec The vector of values for which the mean should be calculated
+ * @return The mean value of par_vec
  */
 template <typename T>
-T GMean(
-    const std::vector<T> &parVec
-) {
+T GMean(const std::vector<T> &par_vec) {
 #ifdef DEBUG
-    if(parVec.empty()) {
+    if(par_vec.empty()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In T GMean(const std::vector<T>&): Error!" << '\n'
-            << "parVec has size 0" << '\n'
+            << "par_vec has size 0" << '\n'
         );
     }
 #endif /* DEBUG */
 
     T mean = T(0);
-    for(const auto &v : parVec)
+    for(const auto &v : par_vec)
         mean += v;
-    return mean / static_cast<T>(parVec.size());
+    return mean / static_cast<T>(par_vec.size());
 }
 
 /******************************************************************************/
 /**
  * Calculates the mean and standard deviation for a std::vector of floating point values
  *
- * @param parVec The vector of values for which the standard deviation should be calculated
- * @return A std::tuple holding the mean value and the standard deviation of the values stored in parVec
+ * @param par_vec The vector of values for which the standard deviation should be calculated
+ * @return A std::tuple holding the mean value and the standard deviation of the values stored in par_vec
  */
 template <typename T>
-auto GStandardDeviation(
-    const std::vector<T> &parVec
-) {
-    // GMean will throw in DEBUG mode if parVec is empty
-    T mean = GMean(parVec), sigma = T(0);
+auto GStandardDeviation(const std::vector<T> &par_vec) {
+    // GMean will throw in DEBUG mode if par_vec is empty
+    T mean = GMean(par_vec), sigma = T(0);
 
     // It is easy if the size is 1
-    if(parVec.size() == 1) {
-        return std::tuple<T, T>{parVec.at(0), T(0)};
+    if(par_vec.size() == 1) {
+        return std::tuple<T, T>{par_vec.at(0), T(0)};
     }
 
-    for(const auto &v : parVec) {
+    for(const auto &v : par_vec) {
         const auto d = v - mean;
         sigma += d * d;
     }
-    sigma /= T(parVec.size() - 1);
+    sigma /= T(par_vec.size() - 1);
     sigma = std::sqrt(sigma);
 
     return std::tuple<T, T>{mean, sigma};
@@ -688,11 +674,10 @@ void assignVecConst(std::vector<T> &a, const T &c) {
  * Sums up the x- and y-components individually of a vector of 2d-tuples
  */
 template <typename fp_type>
-std::tuple<fp_type, fp_type> sumTupleVec(
-    const std::vector<std::tuple<fp_type, fp_type>> &dataPoints
-) {
+std::tuple<fp_type, fp_type>
+sumTupleVec(const std::vector<std::tuple<fp_type, fp_type>> &data_points) {
     std::tuple<fp_type, fp_type> result{fp_type(0.), fp_type(0.)};
-    for(const auto &p : dataPoints) {
+    for(const auto &p : data_points) {
         std::get<0>(result) += std::get<0>(p);
         std::get<1>(result) += std::get<1>(p);
     }
@@ -704,11 +689,10 @@ std::tuple<fp_type, fp_type> sumTupleVec(
  * Sums up the squares of x- and y-components individually of a vector of 2d-tuples
  */
 template <typename fp_type>
-std::tuple<fp_type, fp_type> squareSumTupleVec(
-    const std::vector<std::tuple<fp_type, fp_type>> &dataPoints
-) {
+std::tuple<fp_type, fp_type>
+squareSumTupleVec(const std::vector<std::tuple<fp_type, fp_type>> &data_points) {
     std::tuple<fp_type, fp_type> result{fp_type(0.), fp_type(0.)};
-    for(const auto &p : dataPoints) {
+    for(const auto &p : data_points) {
         const auto x = std::get<0>(p);
         const auto y = std::get<1>(p);
         std::get<0>(result) += x * x;
@@ -722,11 +706,9 @@ std::tuple<fp_type, fp_type> squareSumTupleVec(
  * Sums up the product of x- and y-components of a vector of 2d-tuples
  */
 template <std::floating_point fp_type>
-fp_type productSumTupleVec(
-    const std::vector<std::tuple<fp_type, fp_type>> &dataPoints
-) {
+fp_type productSumTupleVec(const std::vector<std::tuple<fp_type, fp_type>> &data_points) {
     fp_type result = fp_type(0.);
-    for(const auto &p : dataPoints) {
+    for(const auto &p : data_points) {
         result += std::get<0>(p) * std::get<1>(p);
     }
     return result;
@@ -737,19 +719,19 @@ fp_type productSumTupleVec(
  * Calculates the "square deviation" of a set of floating point tuples from
  * a line defined through a + b*x .
  *
- * @param dataPoints A vector of bi-tuples with x-y data points
+ * @param data_points A vector of bi-tuples with x-y data points
  * @param a The offset of a line
  * @param b The slope of a line
  * @return The square deviation of the data points from the line
  */
 template <std::floating_point fp_type>
 fp_type squareDeviation(
-    const std::vector<std::tuple<fp_type, fp_type>> &dataPoints,
+    const std::vector<std::tuple<fp_type, fp_type>> &data_points,
     const fp_type &a,
     const fp_type &b
 ) {
     fp_type result = fp_type(0);
-    for(const auto &p : dataPoints) {
+    for(const auto &p : data_points) {
         const auto d = std::get<1>(p) - a - b * std::get<0>(p);
         result += d * d;
     }
@@ -762,14 +744,12 @@ fp_type squareDeviation(
  * value is a std::tuple of four fp_type values: a, error_a, b, error_b, with the
  * line being defined by L(x)=a+b*x .
  *
- * @param dataPoints A vector of data points to which the lines parameters should fit
+ * @param data_points A vector of data points to which the lines parameters should fit
  * @return Regression parameters for a line defined by the input data points
  */
 template <typename fp_type>
-auto getRegressionParameters(
-    const std::vector<std::tuple<fp_type, fp_type>> &dataPoints
-) {
-    if(dataPoints.empty()) {
+auto getRegressionParameters(const std::vector<std::tuple<fp_type, fp_type>> &data_points) {
+    if(data_points.empty()) {
         return std::tuple<fp_type, fp_type, fp_type, fp_type>{
             fp_type(0.),
             fp_type(0.),
@@ -779,22 +759,22 @@ auto getRegressionParameters(
     }
 
     fp_type a = fp_type(0), b = fp_type(0);
-    fp_type n = fp_type(dataPoints.size());
+    fp_type n = fp_type(data_points.size());
 
-    std::tuple<fp_type, fp_type> sum_xy = sumTupleVec(dataPoints);
+    std::tuple<fp_type, fp_type> sum_xy = sumTupleVec(data_points);
     fp_type sum_x = std::get<0>(sum_xy);
     fp_type sum_y = std::get<1>(sum_xy);
 
-    std::tuple<fp_type, fp_type> sq_sum_xy = squareSumTupleVec(dataPoints);
+    std::tuple<fp_type, fp_type> sq_sum_xy = squareSumTupleVec(data_points);
     fp_type sq_sum_x = std::get<0>(sq_sum_xy);
 
-    fp_type prod_sum_xy = productSumTupleVec(dataPoints);
+    fp_type prod_sum_xy = productSumTupleVec(data_points);
 
     const fp_type denom = n * sq_sum_x - sum_x * sum_x;
     a = (sum_y * sq_sum_x - sum_x * prod_sum_xy) / denom;
     b = (n * prod_sum_xy - sum_x * sum_y) / denom;
 
-    fp_type dev = squareDeviation(dataPoints, a, b);
+    fp_type dev = squareDeviation(data_points, a, b);
 
     fp_type sigma_a = std::sqrt(dev / (n - fp_type(2.))) * std::sqrt(sq_sum_x / denom);
     fp_type sigma_b = std::sqrt(dev / (n - fp_type(2.))) * std::sqrt(n / denom);

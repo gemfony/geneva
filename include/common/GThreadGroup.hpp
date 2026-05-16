@@ -122,16 +122,16 @@ public:
 
     /***************************************************************************/
     /**
-	  * Creates nThreads new threads with the same function
+	  * Creates n_threads new threads with the same function
 	  * and adds them to the group
 	  *
 	  * @param f The function to be run by the thread
-	  * @param nThreads The number of threads to add to the group
+	  * @param n_threads The number of threads to add to the group
 	  * @return A pointer to the newly created thread
 	  */
     template <typename F>
-    void create_threads(F f, const std::size_t &nThreads) {
-        for(std::size_t i = 0; i < nThreads; i++) {
+    void create_threads(F f, const std::size_t &n_threads) {
+        for(std::size_t i = 0; i < n_threads; i++) {
             create_thread(f);
         }
     }

@@ -275,7 +275,7 @@ void compare(
     Gem::Common::expectation e,
     double
 ) {
-    bool expectationMet = false;
+    bool expectation_met = false;
     std::string expectation_str; // NOLINT(cppcoreguidelines-init-variables)
 
     switch(e) {
@@ -285,7 +285,7 @@ void compare(
         if((x == Gem::Common::tribool::True  && y == Gem::Common::tribool::True) ||
            (x == Gem::Common::tribool::False && y == Gem::Common::tribool::False) ||
            (x == Gem::Common::tribool::Indeterminate && y == Gem::Common::tribool::Indeterminate)) {
-            expectationMet = true;
+            expectation_met = true;
         }
         break;
 
@@ -294,12 +294,12 @@ void compare(
         if(not(x == Gem::Common::tribool::True  && y == Gem::Common::tribool::True) &&
            not(x == Gem::Common::tribool::False && y == Gem::Common::tribool::False) &&
            not(x == Gem::Common::tribool::Indeterminate && y == Gem::Common::tribool::Indeterminate)) {
-            expectationMet = true;
+            expectation_met = true;
         }
         break;
     };
 
-    if(not expectationMet) {
+    if(not expectation_met) {
         std::ostringstream error; // NOLINT(cppcoreguidelines-init-variables)
         error << "Expectation of " << expectation_str << " was violated for parameters "
               << '\n'

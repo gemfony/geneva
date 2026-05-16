@@ -93,7 +93,7 @@ public:
 
     /** @brief Retrieves information from an adaptor on a given property */
     void queryAdaptor(
-        const std::string &adaptorName,
+        const std::string &adaptor_name,
         const std::string &property,
         std::vector<std::any> &data
     ) const;
@@ -157,13 +157,13 @@ public:
      * function is a trap, needed to catch streamlining attempts with unsupported types.
      * Use the supplied specializations instead.
      *
-     * @oaram lBndVec The vector with lower boundaries of parameters
-     * @oaram uBndVec The vector with upper boundaries of parameters
+     * @oaram l_bnd_vec The vector with lower boundaries of parameters
+     * @oaram u_bnd_vec The vector with upper boundaries of parameters
      */
     template <typename par_type>
     void boundaries(
-        std::vector<par_type> &lBndVec,
-        std::vector<par_type> &uBndVec,
+        std::vector<par_type> &l_bnd_vec,
+        std::vector<par_type> &u_bnd_vec,
         activityMode /*am*/
     ) const {
         throw geneva_exception(
@@ -179,11 +179,11 @@ public:
      * trap, needed to catch streamlining attempts with unsupported types. Use the supplied
      * specializations instead.
      *
-     * @oaram parVec The vector to which the items should be added
+     * @oaram par_vec The vector to which the items should be added
      */
     template <typename par_type>
     void streamline(
-        std::vector<par_type> &parVec,
+        std::vector<par_type> &par_vec,
         activityMode /*am*/
     ) const {
         throw geneva_exception(
@@ -199,11 +199,11 @@ public:
      * trap, needed to catch streamlining attempts with unsupported types. Use the supplied
      * specializations instead.
      *
-     * @oaram parVec The vector to which the items should be added
+     * @oaram par_vec The vector to which the items should be added
      */
     template <typename par_type>
     void streamline(
-        std::map<std::string, std::vector<par_type>> &parVec,
+        std::map<std::string, std::vector<par_type>> &par_vec,
         activityMode /*am*/
     ) const {
         throw geneva_exception(
@@ -220,12 +220,12 @@ public:
      * This function is a trap, needed to catch attempts to use this function with unsupported
      * types. Use the supplied specializations instead.
      *
-     * @param parVec The vector with the parameters to be assigned to the object
+     * @param par_vec The vector with the parameters to be assigned to the object
      * @param pos The position from which parameters will be taken (will be updated by the call)
      */
     template <typename par_type>
     void assignValueVector(
-        const std::vector<par_type> &parVec,
+        const std::vector<par_type> &par_vec,
         std::size_t & /*pos*/
         ,
         activityMode /*am*/
@@ -245,7 +245,7 @@ public:
      */
     template <typename par_type>
     void assignValueVectors(
-        const std::map<std::string, std::vector<par_type>> &parMap,
+        const std::map<std::string, std::vector<par_type>> &par_map,
         activityMode /*am*/
     ) {
         throw geneva_exception(
@@ -656,7 +656,7 @@ private:
 
     /** @brief Retrieves information from an adaptor on a given property */
     virtual void queryAdaptor_(
-        const std::string &adaptorName,
+        const std::string &adaptor_name,
         const std::string &property,
         std::vector<std::any> &data
     ) const = 0;
@@ -681,12 +681,12 @@ private:
 /**
  * Allows to add all parameters of type float to the vector.
  *
- * @oaram parVec The vector to which the items should be added
+ * @oaram par_vec The vector to which the items should be added
  */
 template <>
-inline void GParameterBase::streamline<float>(std::vector<float> &parVec, activityMode am) const {
+inline void GParameterBase::streamline<float>(std::vector<float> &par_vec, activityMode am) const {
     if(this->modifiableAmMatchOrHandover(am)) {
-        this->floatStreamline(parVec, am);
+        this->floatStreamline(par_vec, am);
     }
 }
 
@@ -694,12 +694,13 @@ inline void GParameterBase::streamline<float>(std::vector<float> &parVec, activi
 /**
  * Allows to add all parameters of type double to the vector.
  *
- * @oaram parVec The vector to which the items should be added
+ * @oaram par_vec The vector to which the items should be added
  */
 template <>
-inline void GParameterBase::streamline<double>(std::vector<double> &parVec, activityMode am) const {
+inline void
+GParameterBase::streamline<double>(std::vector<double> &par_vec, activityMode am) const {
     if(this->modifiableAmMatchOrHandover(am)) {
-        this->doubleStreamline(parVec, am);
+        this->doubleStreamline(par_vec, am);
     }
 }
 
@@ -707,13 +708,15 @@ inline void GParameterBase::streamline<double>(std::vector<double> &parVec, acti
 /**
  * Allows to add all parameters of type std::int32_t to the vector.
  *
- * @oaram parVec The vector to which the items should be added
+ * @oaram par_vec The vector to which the items should be added
  */
 template <>
-inline void
-GParameterBase::streamline<std::int32_t>(std::vector<std::int32_t> &parVec, activityMode am) const {
+inline void GParameterBase::streamline<std::int32_t>(
+    std::vector<std::int32_t> &par_vec,
+    activityMode am
+) const {
     if(this->modifiableAmMatchOrHandover(am)) {
-        this->int32Streamline(parVec, am);
+        this->int32Streamline(par_vec, am);
     }
 }
 
@@ -721,12 +724,12 @@ GParameterBase::streamline<std::int32_t>(std::vector<std::int32_t> &parVec, acti
 /**
  * Allows to add all parameters of type bool to the vector.
  *
- * @oaram parVec The vector to which the items should be added
+ * @oaram par_vec The vector to which the items should be added
  */
 template <>
-inline void GParameterBase::streamline<bool>(std::vector<bool> &parVec, activityMode am) const {
+inline void GParameterBase::streamline<bool>(std::vector<bool> &par_vec, activityMode am) const {
     if(this->modifiableAmMatchOrHandover(am)) {
-        this->booleanStreamline(parVec, am);
+        this->booleanStreamline(par_vec, am);
     }
 }
 
@@ -734,15 +737,15 @@ inline void GParameterBase::streamline<bool>(std::vector<bool> &parVec, activity
 /**
  * Allows to add all parameters of type float to the map.
  *
- * @oaram parVec The map to which the items should be added
+ * @oaram par_vec The map to which the items should be added
  */
 template <>
 inline void GParameterBase::streamline<float>(
-    std::map<std::string, std::vector<float>> &parVec,
+    std::map<std::string, std::vector<float>> &par_vec,
     activityMode am
 ) const {
     if(this->modifiableAmMatchOrHandover(am)) {
-        this->floatStreamline(parVec, am);
+        this->floatStreamline(par_vec, am);
     }
 }
 
@@ -750,15 +753,15 @@ inline void GParameterBase::streamline<float>(
 /**
  * Allows to add all parameters of type double to the map.
  *
- * @oaram parVec The vector to which the items should be added
+ * @oaram par_vec The vector to which the items should be added
  */
 template <>
 inline void GParameterBase::streamline<double>(
-    std::map<std::string, std::vector<double>> &parVec,
+    std::map<std::string, std::vector<double>> &par_vec,
     activityMode am
 ) const {
     if(this->modifiableAmMatchOrHandover(am)) {
-        this->doubleStreamline(parVec, am);
+        this->doubleStreamline(par_vec, am);
     }
 }
 
@@ -766,15 +769,15 @@ inline void GParameterBase::streamline<double>(
 /**
  * Allows to add all parameters of type std::int32_t to the map.
  *
- * @oaram parVec The vector to which the items should be added
+ * @oaram par_vec The vector to which the items should be added
  */
 template <>
 inline void GParameterBase::streamline<std::int32_t>(
-    std::map<std::string, std::vector<std::int32_t>> &parVec,
+    std::map<std::string, std::vector<std::int32_t>> &par_vec,
     activityMode am
 ) const {
     if(this->modifiableAmMatchOrHandover(am)) {
-        this->int32Streamline(parVec, am);
+        this->int32Streamline(par_vec, am);
     }
 }
 
@@ -782,15 +785,15 @@ inline void GParameterBase::streamline<std::int32_t>(
 /**
  * Allows to add all parameters of type bool to the map.
  *
- * @oaram parVec The vector to which the items should be added
+ * @oaram par_vec The vector to which the items should be added
  */
 template <>
 inline void GParameterBase::streamline<bool>(
-    std::map<std::string, std::vector<bool>> &parVec,
+    std::map<std::string, std::vector<bool>> &par_vec,
     activityMode am
 ) const {
     if(this->modifiableAmMatchOrHandover(am)) {
-        this->booleanStreamline(parVec, am);
+        this->booleanStreamline(par_vec, am);
     }
 }
 
@@ -798,17 +801,17 @@ inline void GParameterBase::streamline<bool>(
 /**
  * Allows to retrieve the values of lower and upper boundaries of type float
  *
- * @param lBndVec A vector of lower double parameter boundaries
- * @param uBndVec A vector of upper double parameter boundaries
+ * @param l_bnd_vec A vector of lower double parameter boundaries
+ * @param u_bnd_vec A vector of upper double parameter boundaries
  */
 template <>
 inline void GParameterBase::boundaries<float>(
-    std::vector<float> &lBndVec,
-    std::vector<float> &uBndVec,
+    std::vector<float> &l_bnd_vec,
+    std::vector<float> &u_bnd_vec,
     activityMode am
 ) const {
     if(this->modifiableAmMatchOrHandover(am)) {
-        this->floatBoundaries(lBndVec, uBndVec, am);
+        this->floatBoundaries(l_bnd_vec, u_bnd_vec, am);
     }
 }
 
@@ -816,17 +819,17 @@ inline void GParameterBase::boundaries<float>(
 /**
  * Allows to retrieve the values of lower and upper boundaries of type double
  *
- * @param lBndVec A vector of lower double parameter boundaries
- * @param uBndVec A vector of upper double parameter boundaries
+ * @param l_bnd_vec A vector of lower double parameter boundaries
+ * @param u_bnd_vec A vector of upper double parameter boundaries
  */
 template <>
 inline void GParameterBase::boundaries<double>(
-    std::vector<double> &lBndVec,
-    std::vector<double> &uBndVec,
+    std::vector<double> &l_bnd_vec,
+    std::vector<double> &u_bnd_vec,
     activityMode am
 ) const {
     if(this->modifiableAmMatchOrHandover(am)) {
-        this->doubleBoundaries(lBndVec, uBndVec, am);
+        this->doubleBoundaries(l_bnd_vec, u_bnd_vec, am);
     }
 }
 
@@ -834,17 +837,17 @@ inline void GParameterBase::boundaries<double>(
 /**
  * Allows to retrieve the values of lower and upper boundaries of type std::int32_t
  *
- * @param lBndVec A vector of lower std::int32_t parameter boundaries
- * @param uBndVec A vector of upper std::int32_t parameter boundaries
+ * @param l_bnd_vec A vector of lower std::int32_t parameter boundaries
+ * @param u_bnd_vec A vector of upper std::int32_t parameter boundaries
  */
 template <>
 inline void GParameterBase::boundaries<std::int32_t>(
-    std::vector<std::int32_t> &lBndVec,
-    std::vector<std::int32_t> &uBndVec,
+    std::vector<std::int32_t> &l_bnd_vec,
+    std::vector<std::int32_t> &u_bnd_vec,
     activityMode am
 ) const {
     if(this->modifiableAmMatchOrHandover(am)) {
-        this->int32Boundaries(lBndVec, uBndVec, am);
+        this->int32Boundaries(l_bnd_vec, u_bnd_vec, am);
     }
 }
 
@@ -852,17 +855,17 @@ inline void GParameterBase::boundaries<std::int32_t>(
 /**
  * Allows to retrieve the values of lower and upper boundaries of type bool
  *
- * @param lBndVec A vector of lower bool parameter boundaries
- * @param uBndVec A vector of upper bool parameter boundaries
+ * @param l_bnd_vec A vector of lower bool parameter boundaries
+ * @param u_bnd_vec A vector of upper bool parameter boundaries
  */
 template <>
 inline void GParameterBase::boundaries<bool>(
-    std::vector<bool> &lBndVec,
-    std::vector<bool> &uBndVec,
+    std::vector<bool> &l_bnd_vec,
+    std::vector<bool> &u_bnd_vec,
     activityMode am
 ) const {
     if(this->modifiableAmMatchOrHandover(am)) {
-        this->booleanBoundaries(lBndVec, uBndVec, am);
+        this->booleanBoundaries(l_bnd_vec, u_bnd_vec, am);
     }
 }
 
@@ -938,17 +941,17 @@ inline std::size_t GParameterBase::countParameters<bool>(activityMode am) const 
 /**
  * Allows to assign the parameters inside of a vector the corresponding parameter objects.
  *
- * @param parVec The vector with the parameters to be assigned to the object
+ * @param par_vec The vector with the parameters to be assigned to the object
  * @param pos The position from which parameters will be taken (will be updated by the call)
  */
 template <>
 inline void GParameterBase::assignValueVector<float>(
-    const std::vector<float> &parVec,
+    const std::vector<float> &par_vec,
     std::size_t &pos,
     activityMode am
 ) {
     if(this->modifiableAmMatchOrHandover(am)) {
-        this->assignFloatValueVector(parVec, pos, am);
+        this->assignFloatValueVector(par_vec, pos, am);
     }
 }
 
@@ -956,17 +959,17 @@ inline void GParameterBase::assignValueVector<float>(
 /**
  * Allows to assign the parameters inside of a vector the corresponding parameter objects.
  *
- * @param parVec The vector with the parameters to be assigned to the object
+ * @param par_vec The vector with the parameters to be assigned to the object
  * @param pos The position from which parameters will be taken (will be updated by the call)
  */
 template <>
 inline void GParameterBase::assignValueVector<double>(
-    const std::vector<double> &parVec,
+    const std::vector<double> &par_vec,
     std::size_t &pos,
     activityMode am
 ) {
     if(this->modifiableAmMatchOrHandover(am)) {
-        this->assignDoubleValueVector(parVec, pos, am);
+        this->assignDoubleValueVector(par_vec, pos, am);
     }
 }
 
@@ -974,47 +977,47 @@ inline void GParameterBase::assignValueVector<double>(
 /**
  * Allows to assign the parameters inside of a vector the corresponding parameter objects.
  *
- * @param parVec The vector with the parameters to be assigned to the object
+ * @param par_vec The vector with the parameters to be assigned to the object
  * @param pos The position from which parameters will be taken (will be updated by the call)
  */
 template <>
 inline void GParameterBase::assignValueVector<std::int32_t>(
-    const std::vector<std::int32_t> &parVec,
+    const std::vector<std::int32_t> &par_vec,
     std::size_t &pos,
     activityMode am
 ) {
-    this->assignInt32ValueVector(parVec, pos, am);
+    this->assignInt32ValueVector(par_vec, pos, am);
 }
 
 /******************************************************************************/
 /**
  * Allows to assign the parameters inside of a vector the corresponding parameter objects.
  *
- * @param parVec The vector with the parameters to be assigned to the object
+ * @param par_vec The vector with the parameters to be assigned to the object
  * @param pos The position from which parameters will be taken (will be updated by the call)
  */
 template <>
 inline void GParameterBase::assignValueVector<bool>(
-    const std::vector<bool> &parVec,
+    const std::vector<bool> &par_vec,
     std::size_t &pos,
     activityMode am
 ) {
-    this->assignBooleanValueVector(parVec, pos, am);
+    this->assignBooleanValueVector(par_vec, pos, am);
 }
 
 /******************************************************************************/
 /**
  * Allows to assign the parameters inside of a map to the corresponding parameter objects.
  *
- * @param parMap The vector with the parameters to be assigned to the object
+ * @param par_map The vector with the parameters to be assigned to the object
  */
 template <>
 inline void GParameterBase::assignValueVectors<float>(
-    const std::map<std::string, std::vector<float>> &parMap,
+    const std::map<std::string, std::vector<float>> &par_map,
     activityMode am
 ) {
     if(this->modifiableAmMatchOrHandover(am)) {
-        this->assignFloatValueVectors(parMap, am);
+        this->assignFloatValueVectors(par_map, am);
     }
 }
 
@@ -1022,15 +1025,15 @@ inline void GParameterBase::assignValueVectors<float>(
 /**
  * Allows to assign the parameters inside of a map to the corresponding parameter objects.
  *
- * @param parMap The vector with the parameters to be assigned to the object
+ * @param par_map The vector with the parameters to be assigned to the object
  */
 template <>
 inline void GParameterBase::assignValueVectors<double>(
-    const std::map<std::string, std::vector<double>> &parMap,
+    const std::map<std::string, std::vector<double>> &par_map,
     activityMode am
 ) {
     if(this->modifiableAmMatchOrHandover(am)) {
-        this->assignDoubleValueVectors(parMap, am);
+        this->assignDoubleValueVectors(par_map, am);
     }
 }
 
@@ -1038,15 +1041,15 @@ inline void GParameterBase::assignValueVectors<double>(
 /**
  * Allows to assign the parameters inside of a map to the corresponding parameter objects.
  *
- * @param parMap The vector with the parameters to be assigned to the object
+ * @param par_map The vector with the parameters to be assigned to the object
  */
 template <>
 inline void GParameterBase::assignValueVectors<std::int32_t>(
-    const std::map<std::string, std::vector<std::int32_t>> &parMap,
+    const std::map<std::string, std::vector<std::int32_t>> &par_map,
     activityMode am
 ) {
     if(this->modifiableAmMatchOrHandover(am)) {
-        this->assignInt32ValueVectors(parMap, am);
+        this->assignInt32ValueVectors(par_map, am);
     }
 }
 
@@ -1054,15 +1057,15 @@ inline void GParameterBase::assignValueVectors<std::int32_t>(
 /**
  * Allows to assign the parameters inside of a map to the corresponding parameter objects.
  *
- * @param parMap The vector with the parameters to be assigned to the object
+ * @param par_map The vector with the parameters to be assigned to the object
  */
 template <>
 inline void GParameterBase::assignValueVectors<bool>(
-    const std::map<std::string, std::vector<bool>> &parMap,
+    const std::map<std::string, std::vector<bool>> &par_map,
     activityMode am
 ) {
     if(this->modifiableAmMatchOrHandover(am)) {
-        this->assignBooleanValueVectors(parMap, am);
+        this->assignBooleanValueVectors(par_map, am);
     }
 }
 

@@ -35,14 +35,14 @@ namespace Gem::Geneva {
 /**
  * Set a number of parameters of the random number factory
  *
- * @param nProducerThreads The number of threads simultaneously producing random numbers
+ * @param n_producer_threads The number of threads simultaneously producing random numbers
  */
-void setRNFParameters(std::uint16_t nProducerThreads) {
+void setRNFParameters(std::uint16_t n_producer_threads) {
     //--------------------------------------------
     // Random numbers are our most valuable good.
     // Set the number of threads. GRANDOMFACTORY is
     // a singleton that will be initialized by this call.
-    GRANDOMFACTORY->setNProducerThreads(nProducerThreads);
+    GRANDOMFACTORY->setNProducerThreads(n_producer_threads);
 }
 
 std::once_flag f_go2; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
@@ -57,18 +57,18 @@ std::once_flag f_go2; // NOLINT(cppcoreguidelines-avoid-non-const-global-variabl
  *
  * @param argc The number of command line arguments
  * @param argv An array with the arguments
- * @param configFilename The name of a configuration file
+ * @param config_filename The name of a configuration file
  * @param od A vector of additional command line options (cmp. boost::program_options)
  */
 Go2::Go2(
     int argc,
     char **argv,
-    std::string const &configFilename,
-    boost::program_options::options_description const &userDescriptions
+    std::string const &config_filename,
+    boost::program_options::options_description const &user_descriptions
 )
   : G_Interface_OptimizerT<Go2>()
   , Gem::Common::GPtrContainerT<GParameterSet>()
-  , config_filename_(configFilename) {
+  , config_filename_(config_filename) {
     //--------------------------------------------
     // Initialize Geneva as well as the known optimization algorithms
 
@@ -92,11 +92,11 @@ Go2::Go2(
 
     //--------------------------------------------
     // Parse configuration file options
-    this->parseConfigFile(configFilename);
+    this->parseConfigFile(config_filename);
 
     //--------------------------------------------
     // Load configuration options from the command line
-    parseCommandLine(argc, argv, userDescriptions);
+    parseCommandLine(argc, argv, user_descriptions);
 
     //--------------------------------------------
     // Random numbers are our most valuable good.
@@ -164,9 +164,9 @@ void Go2::registerDefaultAlgorithm(std::shared_ptr<GOABase> default_algorithm) {
 /**
  * Allows to register a pluggable optimization monitor
  */
-void Go2::registerPluggableOM(std::shared_ptr<GBasePluggableOM> pluggableOM) {
-    if(pluggableOM) {
-        pluggable_monitors_cnt_.push_back(pluggableOM);
+void Go2::registerPluggableOM(std::shared_ptr<GBasePluggableOM> pluggable_om) {
+    if(pluggable_om) {
+        pluggable_monitors_cnt_.push_back(pluggable_om);
     }
     else {
         throw geneva_exception(
@@ -197,8 +197,8 @@ bool Go2::hasOptimizationMonitors() const {
  * Allows to set the maximum running time for a client. A duration of 0 results
  * in no time limit being set.
  */
-void Go2::setMaxClientTime(std::chrono::duration<double> maxDuration) {
-    max_client_duration_ = maxDuration;
+void Go2::setMaxClientTime(std::chrono::duration<double> max_duration) {
+    max_client_duration_ = max_duration;
 }
 
 /******************************************************************************/
@@ -275,8 +275,8 @@ bool Go2::clientMode() const {
 /**
  * Specifies whether only the best individuals of a population should be copied
  */
-void Go2::setCopyBestIndividualsOnly(bool copyBestIndividualsOnly) {
-    copyBestIndividualsOnly_ = copyBestIndividualsOnly;
+void Go2::setCopyBestIndividualsOnly(bool copy_best_individuals_only) {
+    copyBestIndividualsOnly_ = copy_best_individuals_only;
 }
 
 /******************************************************************************/
@@ -610,7 +610,7 @@ std::vector<std::shared_ptr<Gem::Geneva::GParameterSet>> Go2::getBestGlobalIndiv
     }
 
     std::size_t pos = 0;
-    std::vector<std::shared_ptr<Gem::Geneva::GParameterSet>> bestIndividuals;
+    std::vector<std::shared_ptr<Gem::Geneva::GParameterSet>> best_individuals;
     for(const auto &ind_ptr : *this) {
         if(ind_ptr->is_due_for_processing() || ind_ptr->has_errors()) {
             throw geneva_exception(
@@ -622,12 +622,12 @@ std::vector<std::shared_ptr<Gem::Geneva::GParameterSet>> Go2::getBestGlobalIndiv
         }
 
         // This will result in an implicit downcast
-        bestIndividuals.push_back(ind_ptr->clone<Gem::Geneva::GParameterSet>());
+        best_individuals.push_back(ind_ptr->clone<Gem::Geneva::GParameterSet>());
 
         pos++;
     }
 
-    return bestIndividuals;
+    return best_individuals;
 }
 
 /******************************************************************************/
@@ -688,16 +688,16 @@ void Go2::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
 
     // Add local data only -- no options from parent classes
     gpb.registerFileParameter<std::uint16_t>(
-        "nProducerThreads",
+        "n_producer_threads",
         GO2_DEF_NPRODUCERTHREADS,
         [this](std::uint16_t npt) { this->setNProducerThreads(npt); }
     ) << "The number of threads simultaneously producing random numbers";
 
     gpb.registerFileParameter<bool>(
-        "copyBestIndividualsOnly",
+        "copy_best_individuals_only",
         GO2_DEF_COPYBESTINDIVIDUALSONLY,
-        [this](bool copyBestIndividualsOnly) {
-            this->setCopyBestIndividualsOnly(copyBestIndividualsOnly);
+        [this](bool copy_best_individuals_only) {
+            this->setCopyBestIndividualsOnly(copy_best_individuals_only);
         }
     ) << "Indicates whether only the best individuals should be copied when"
       << '\n'
@@ -710,7 +710,7 @@ void Go2::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
  *
  * @param serverMode Allows to mark this object as belonging to a client as opposed to a server
  */
-void Go2::setClientMode(bool clientMode) {
+void Go2::setClientMode(bool client_mode) {
 #ifdef GENEVA_BUILD_WITH_MPI_CONSUMER
     if(consumer_name_ == "GMPIConsumerT" || consumer_name_ == "mpi") {
         throw geneva_exception(
@@ -721,7 +721,7 @@ void Go2::setClientMode(bool clientMode) {
         );
     }
 #endif // GENEVA_BUILD_WITH_MPI_CONSUMER
-    client_mode_ = clientMode;
+    client_mode_ = client_mode;
 }
 
 /******************************************************************************/
@@ -738,10 +738,10 @@ bool Go2::getClientMode() const {
 /**
  * Allows to set the number of threads that will simultaneously produce random numbers.
  *
- * @param nProducerThreads The number of threads that will simultaneously produce random numbers
+ * @param n_producer_threads The number of threads that will simultaneously produce random numbers
  */
-void Go2::setNProducerThreads(std::uint16_t nProducerThreads) {
-    n_producer_threads_ = nProducerThreads;
+void Go2::setNProducerThreads(std::uint16_t n_producer_threads) {
+    n_producer_threads_ = n_producer_threads;
 }
 
 /******************************************************************************/
@@ -809,15 +809,15 @@ std::uint32_t Go2::getIterationOffset() const {
 void Go2::parseCommandLine(
     int argc,
     char **argv,
-    boost::program_options::options_description const &userOptions
+    boost::program_options::options_description const &user_options
 ) {
     namespace po = boost::program_options;
 
     try {
-        std::string maxClientDuration = EMPTYDURATION; // 00:00:00
+        std::string max_client_duration = EMPTYDURATION; // 00:00:00
 
         std::string optimization_algorithms; // NOLINT(cppcoreguidelines-init-variables)
-        std::string checkpointFile = "empty";
+        std::string checkpoint_file = "empty";
 
         // Extract a list of algorithm mnemonics and clear-text descriptions
         std::string algorithm_description; // NOLINT(cppcoreguidelines-init-variables)
@@ -847,9 +847,9 @@ void Go2::parseCommandLine(
                       << GConsumerStore->size() << " consumers have been registered: " << '\n'
                       << consumer_description;
 
-        auto usageString = std::string("Usage: ") + argv[0] + " [options]";
+        auto usage_string = std::string("Usage: ") + argv[0] + " [options]";
 
-        boost::program_options::options_description general(usageString);
+        boost::program_options::options_description general(usage_string);
         boost::program_options::options_description basic("Basic options");
 
         // First add local options
@@ -857,10 +857,10 @@ void Go2::parseCommandLine(
 				("help,h", "Emit help message")
 				("showAll", "Show all available options")
 				("optimizationAlgorithms,a", po::value<std::string>(&optimization_algorithms), oa_help.str().c_str())
-				("cp_file,f", po::value<std::string>(&checkpointFile)->default_value("empty"),
+				("cp_file,f", po::value<std::string>(&checkpoint_file)->default_value("empty"),
 				 "A file (including its path) holding a checkpoint for a given optimization algorithm")
 				("client", "Indicates that this program should run as a client or in server mode. Note that this setting will trigger an error unless called in conjunction with a consumer capable of dealing with clients. This option is ignored when working with the mpi consumer, because the mpi consumer will configure itself to be a client or server depending on its rank.")
-				("maxClientDuration", po::value<std::string>(&maxClientDuration)->default_value(EMPTYDURATION),
+				("max_client_duration", po::value<std::string>(&max_client_duration)->default_value(EMPTYDURATION),
 				 R"(The maximum runtime for a client in the form "hh:mm:ss". Note that a client may run longer as this time-frame if its work load still runs. The default value "00:00:00" means: "no time limit")")
 				("consumer,c", po::value<std::string>(&consumer_name_)->default_value("stc"), consumer_help.str().c_str());
 
@@ -891,11 +891,11 @@ void Go2::parseCommandLine(
         }
 
         // Add the other options to "general"
-        if(userOptions.options().empty()) {
+        if(user_options.options().empty()) {
             general.add(basic).add(visible).add(hidden);
         }
         else {
-            general.add(basic).add(userOptions).add(visible).add(hidden);
+            general.add(basic).add(user_options).add(visible).add(hidden);
         }
 
         // Do the actual parsing of the command line
@@ -912,12 +912,12 @@ void Go2::parseCommandLine(
                 std::cout << general << '\n';
             }
             else { // Just show a selection
-                boost::program_options::options_description selected(usageString);
-                if(userOptions.options().empty()) {
+                boost::program_options::options_description selected(usage_string);
+                if(user_options.options().empty()) {
                     selected.add(basic).add(visible);
                 }
                 else {
-                    selected.add(basic).add(userOptions).add(visible);
+                    selected.add(basic).add(user_options).add(visible);
                 }
                 std::cout << selected << '\n';
             }
@@ -1027,10 +1027,10 @@ void Go2::parseCommandLine(
         }
 
         // Set the name of a checkpoint file (if any)
-        cp_file_ = checkpointFile;
+        cp_file_ = checkpoint_file;
 
         // Set the maximum running time for the client (if any)
-        max_client_duration_ = Gem::Common::duration_from_string(maxClientDuration);
+        max_client_duration_ = Gem::Common::duration_from_string(max_client_duration);
     }
     catch(const po::error &e) {
         throw geneva_exception(
@@ -1045,9 +1045,9 @@ void Go2::parseCommandLine(
 /**
  * Parses a configuration file for configuration options
  *
- * @param configFilename The name of a configuration file to be parsed
+ * @param config_filename The name of a configuration file to be parsed
  */
-void Go2::parseConfigFile(std::filesystem::path const &configFilename) {
+void Go2::parseConfigFile(std::filesystem::path const &config_filename) {
     // Create a parser builder object. It will be destroyed at
     // the end of this scope and thus cannot cause trouble
     // due to registered call-backs and references
@@ -1057,9 +1057,9 @@ void Go2::parseConfigFile(std::filesystem::path const &configFilename) {
     this->addConfigurationOptions(gpb);
 
     // Do the actual parsing
-    if(not gpb.parseConfigFile(configFilename)) {
+    if(not gpb.parseConfigFile(config_filename)) {
         glogger << "In Go2::parseConfigFile: Error!" << '\n'
-                << "Could not parse configuration file " << configFilename.string() << '\n'
+                << "Could not parse configuration file " << config_filename.string() << '\n'
                 << GTERMINATION;
     }
 }

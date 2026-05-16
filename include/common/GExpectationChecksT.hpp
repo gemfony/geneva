@@ -338,7 +338,7 @@ void compare(
     Gem::Common::expectation e,
     double = 0.
 ) {
-    bool expectationMet = false;
+    bool expectation_met = false;
     std::string expectation_str; // NOLINT(cppcoreguidelines-init-variables)
 
     switch(e) {
@@ -346,19 +346,19 @@ void compare(
     case Gem::Common::expectation::EQUALITY:
         expectation_str = "FP_SIMILARITY / EQUALITY";
         if(x == y) {
-            expectationMet = true;
+            expectation_met = true;
         }
         break;
 
     case Gem::Common::expectation::INEQUALITY:
         expectation_str = "INEQUALITY";
         if(x != y) {
-            expectationMet = true;
+            expectation_met = true;
         }
         break;
     };
 
-    if(not expectationMet) {
+    if(not expectation_met) {
         std::ostringstream error; // NOLINT(cppcoreguidelines-init-variables)
         error << "Expectation of " << expectation_str << " was violated for parameters "
               << '\n'
@@ -396,7 +396,7 @@ void compare(
     Gem::Common::expectation e,
     double = 0.
 ) {
-    bool expectationMet = false;
+    bool expectation_met = false;
     std::string expectation_str; // NOLINT(cppcoreguidelines-init-variables)
 
     switch(e) {
@@ -404,19 +404,19 @@ void compare(
     case Gem::Common::expectation::EQUALITY:
         expectation_str = "FP_SIMILARITY / EQUALITY";
         if(x == y) {
-            expectationMet = true;
+            expectation_met = true;
         }
         break;
 
     case Gem::Common::expectation::INEQUALITY:
         expectation_str = "INEQUALITY";
         if(x != y) {
-            expectationMet = true;
+            expectation_met = true;
         }
         break;
     };
 
-    if(not expectationMet) {
+    if(not expectation_met) {
         std::ostringstream error; // NOLINT(cppcoreguidelines-init-variables)
         error << "Expectation of " << expectation_str << " was violated for parameters "
               << '\n'
@@ -454,7 +454,7 @@ void compare(
     Gem::Common::expectation e,
     double = 0.
 ) {
-    bool expectationMet = false;
+    bool expectation_met = false;
     std::string expectation_str; // NOLINT(cppcoreguidelines-init-variables)
 
     switch(e) {
@@ -462,19 +462,19 @@ void compare(
     case Gem::Common::expectation::EQUALITY:
         expectation_str = "FP_SIMILARITY / EQUALITY";
         if(x == y) {
-            expectationMet = true;
+            expectation_met = true;
         }
         break;
 
     case Gem::Common::expectation::INEQUALITY:
         expectation_str = "INEQUALITY";
         if(x != y) {
-            expectationMet = true;
+            expectation_met = true;
         }
         break;
     };
 
-    if(not expectationMet) {
+    if(not expectation_met) {
         std::ostringstream error; // NOLINT(cppcoreguidelines-init-variables)
         error << "Expectation of " << expectation_str << " was violated for parameters "
               << '\n'
@@ -509,31 +509,31 @@ void compare(
     Gem::Common::expectation e,
     double limit = CE_DEF_SIMILARITY_DIFFERENCE
 ) {
-    bool expectationMet = false;
+    bool expectation_met = false;
     std::string expectation_str; // NOLINT(cppcoreguidelines-init-variables)
 
     switch(e) {
     case Gem::Common::expectation::FP_SIMILARITY:
         expectation_str = "FP_SIMILARITY";
         if(std::abs(x - y) < Gem::Common::narrow_cast<fp_type>(limit)) {
-            expectationMet = true;
+            expectation_met = true;
         }
         break;
     case Gem::Common::expectation::EQUALITY:
         expectation_str = "EQUALITY";
         if(x == y) {
-            expectationMet = true;
+            expectation_met = true;
         }
         break;
     case Gem::Common::expectation::INEQUALITY:
         expectation_str = "INEQUALITY";
         if(x != y) {
-            expectationMet = true;
+            expectation_met = true;
         }
         break;
     };
 
-    if(not expectationMet) {
+    if(not expectation_met) {
         std::ostringstream error; // NOLINT(cppcoreguidelines-init-variables)
 
         error << "Expectation of " << expectation_str << " was violated for parameters "
@@ -572,7 +572,7 @@ void compare(
     Gem::Common::expectation e,
     double = 0.
 ) {
-    bool expectationMet = false;
+    bool expectation_met = false;
     std::string expectation_str; // NOLINT(cppcoreguidelines-init-variables)
 
     switch(e) {
@@ -580,19 +580,19 @@ void compare(
     case Gem::Common::expectation::EQUALITY:
         expectation_str = "FP_SIMILARITY / EQUALITY";
         if(x == y) {
-            expectationMet = true;
+            expectation_met = true;
         }
         break;
 
     case Gem::Common::expectation::INEQUALITY:
         expectation_str = "INEQUALITY";
         if(x != y) {
-            expectationMet = true;
+            expectation_met = true;
         }
         break;
     };
 
-    if(not expectationMet) {
+    if(not expectation_met) {
         std::ostringstream error; // NOLINT(cppcoreguidelines-init-variables)
         error << "Expectation of " << expectation_str << " was violated for parameters " << x_name
               << " and " << y_name << "!" << '\n';
@@ -607,13 +607,13 @@ void compare(
             else { // Some data member differs
                 // Find out about the first entry that differs
                 typename c_type<base_type, std::allocator<base_type>>::const_iterator x_it, y_it;
-                std::size_t failedIndex = 0;
+                std::size_t failed_index = 0;
                 for(x_it = x.begin(), y_it = y.begin(); x_it != x.end();
-                    ++x_it, ++y_it, ++failedIndex) {
+                    ++x_it, ++y_it, ++failed_index) {
                     if(*x_it != *y_it) {
-                        error << "Found inequality at index " << failedIndex << ": " << x_name
-                              << "[" << failedIndex << "] = " << *x_it << "; " << y_name << "["
-                              << failedIndex << "] = " << *y_it;
+                        error << "Found inequality at index " << failed_index << ": " << x_name
+                              << "[" << failed_index << "] = " << *x_it << "; " << y_name << "["
+                              << failed_index << "] = " << *y_it;
                         break; // break the loop
                     }
                 }
@@ -654,7 +654,7 @@ void compare(
     Gem::Common::expectation e,
     double = 0.
 ) {
-    bool expectationMet = false;
+    bool expectation_met = false;
     std::string expectation_str; // NOLINT(cppcoreguidelines-init-variables)
 
     switch(e) {
@@ -662,19 +662,19 @@ void compare(
     case Gem::Common::expectation::EQUALITY:
         expectation_str = "FP_SIMILARITY / EQUALITY";
         if(x == y) {
-            expectationMet = true;
+            expectation_met = true;
         }
         break;
 
     case Gem::Common::expectation::INEQUALITY:
         expectation_str = "INEQUALITY";
         if(x != y) {
-            expectationMet = true;
+            expectation_met = true;
         }
         break;
     };
 
-    if(not expectationMet) {
+    if(not expectation_met) {
         std::ostringstream error; // NOLINT(cppcoreguidelines-init-variables)
         error << "Expectation of " << expectation_str << " was violated for parameters " << x_name
               << " and " << y_name << "!" << '\n';
@@ -691,13 +691,13 @@ void compare(
                 typename s_type<base_type, std::less<base_type>, std::allocator<base_type>>::
                     const_iterator x_it,
                     y_it;
-                std::size_t failedIndex = 0;
+                std::size_t failed_index = 0;
                 for(x_it = x.begin(), y_it = y.begin(); x_it != x.end();
-                    ++x_it, ++y_it, ++failedIndex) {
+                    ++x_it, ++y_it, ++failed_index) {
                     if(*x_it != *y_it) {
-                        error << "Found inequality at index " << failedIndex << ": " << x_name
-                              << "[" << failedIndex << "] = " << *x_it << "; " << y_name << "["
-                              << failedIndex << "] = " << *y_it;
+                        error << "Found inequality at index " << failed_index << ": " << x_name
+                              << "[" << failed_index << "] = " << *x_it << "; " << y_name << "["
+                              << failed_index << "] = " << *y_it;
                         break; // break the loop
                     }
                 }
@@ -733,7 +733,7 @@ void compare(
     Gem::Common::expectation e,
     double limit = CE_DEF_SIMILARITY_DIFFERENCE
 ) {
-    bool expectationMet = false;
+    bool expectation_met = false;
     std::string expectation_str; // NOLINT(cppcoreguidelines-init-variables)
     std::size_t deviation_pos = 0;
     std::ostringstream error; // NOLINT(cppcoreguidelines-init-variables)
@@ -756,12 +756,12 @@ void compare(
         }
 
         // Do a per-position comparison
-        bool foundDeviation = false;
+        bool found_deviation = false;
         typename c_type<fp_type, std::allocator<fp_type>>::const_iterator x_it, y_it;
         if(Gem::Common::expectation::FP_SIMILARITY == e) {
             for(x_it = x.begin(), y_it = y.begin(); x_it != x.end(); ++x_it, ++y_it) {
                 if(std::abs(*x_it - *y_it) >= Gem::Common::narrow_cast<fp_type>(limit)) {
-                    foundDeviation = true;
+                    found_deviation = true;
                     deviation_pos =
                         Gem::Common::narrow_cast<std::size_t>(std::distance(x.begin(), x_it));
                     error << "Found deviation between containers:" << '\n'
@@ -776,7 +776,7 @@ void compare(
         else { // May only be FP_SIMILARITY or EQUALITY in this case
             for(x_it = x.begin(), y_it = y.begin(); x_it != x.end(); ++x_it, ++y_it) {
                 if(*x_it != *y_it) {
-                    foundDeviation = true;
+                    found_deviation = true;
                     deviation_pos =
                         Gem::Common::narrow_cast<std::size_t>(std::distance(x.begin(), x_it));
                     error << "Found deviation between containers:" << '\n'
@@ -787,15 +787,15 @@ void compare(
             }
         }
 
-        if(not foundDeviation) {
-            expectationMet = true;
+        if(not found_deviation) {
+            expectation_met = true;
         }
     } break;
 
     case Gem::Common::expectation::INEQUALITY:
         expectation_str = "INEQUALITY";
         if(x != y) {
-            expectationMet = true;
+            expectation_met = true;
         }
         else {
             error << "The containers " << x_name << " and " << y_name << '\n'
@@ -804,7 +804,7 @@ void compare(
         break;
     };
 
-    if(not expectationMet) {
+    if(not expectation_met) {
         throw g_expectation_violation(error.str());
     }
 }
@@ -831,7 +831,7 @@ void compare(
     Gem::Common::expectation e,
     double limit = CE_DEF_SIMILARITY_DIFFERENCE
 ) {
-    bool expectationMet = false;
+    bool expectation_met = false;
     std::string expectation_str; // NOLINT(cppcoreguidelines-init-variables)
     std::size_t deviation_pos = 0;
     std::ostringstream error; // NOLINT(cppcoreguidelines-init-variables)
@@ -854,13 +854,13 @@ void compare(
         }
 
         // Do a per-position comparison
-        bool foundDeviation = false;
+        bool found_deviation = false;
         typename s_type<fp_type, std::less<fp_type>, std::allocator<fp_type>>::const_iterator x_it,
             y_it;
         if(Gem::Common::expectation::FP_SIMILARITY == e) {
             for(x_it = x.begin(), y_it = y.begin(); x_it != x.end(); ++x_it, ++y_it) {
                 if(std::abs(*x_it - *y_it) >= Gem::Common::narrow_cast<fp_type>(limit)) {
-                    foundDeviation = true;
+                    found_deviation = true;
                     deviation_pos =
                         Gem::Common::narrow_cast<std::size_t>(std::distance(x.begin(), x_it));
                     error << "Found deviation between containers:" << '\n'
@@ -875,7 +875,7 @@ void compare(
         else { // May only be FP_SIMILARITY or EQUALITY in this case
             for(x_it = x.begin(), y_it = y.begin(); x_it != x.end(); ++x_it, ++y_it) {
                 if(*x_it != *y_it) {
-                    foundDeviation = true;
+                    found_deviation = true;
                     deviation_pos =
                         Gem::Common::narrow_cast<std::size_t>(std::distance(x.begin(), x_it));
                     error << "Found deviation between containers:" << '\n'
@@ -886,15 +886,15 @@ void compare(
             }
         }
 
-        if(not foundDeviation) {
-            expectationMet = true;
+        if(not found_deviation) {
+            expectation_met = true;
         }
     } break;
 
     case Gem::Common::expectation::INEQUALITY:
         expectation_str = "INEQUALITY";
         if(x != y) {
-            expectationMet = true;
+            expectation_met = true;
         }
         else {
             error << "The containers " << x_name << " and " << y_name << '\n'
@@ -903,7 +903,7 @@ void compare(
         break;
     };
 
-    if(not expectationMet) {
+    if(not expectation_met) {
         throw g_expectation_violation(error.str());
     }
 }
@@ -931,7 +931,7 @@ void compare(
     Gem::Common::expectation e,
     double limit = Gem::Common::CE_DEF_SIMILARITY_DIFFERENCE
 ) {
-    bool expectationMet = false;
+    bool expectation_met = false;
     std::string expectation_str; // NOLINT(cppcoreguidelines-init-variables)
     std::ostringstream error;    // NOLINT(cppcoreguidelines-init-variables)
 
@@ -955,7 +955,7 @@ void compare(
             }
 
             // If we reach this line, the expectation was met
-            expectationMet = true;
+            expectation_met = true;
         }
     } break;
 
@@ -975,11 +975,11 @@ void compare(
                   << g.what() << '\n';
             break;
         }
-        expectationMet = true;
+        expectation_met = true;
     } break;
     };
 
-    if(not expectationMet) {
+    if(not expectation_met) {
         throw g_expectation_violation(error.str());
     }
 }
@@ -1008,7 +1008,7 @@ void compare(
     Gem::Common::expectation e,
     double limit = Gem::Common::CE_DEF_SIMILARITY_DIFFERENCE
 ) {
-    bool expectationMet = false;
+    bool expectation_met = false;
     std::string expectation_str; // NOLINT(cppcoreguidelines-init-variables)
     std::ostringstream error;    // NOLINT(cppcoreguidelines-init-variables)
 
@@ -1032,7 +1032,7 @@ void compare(
         }
         else if(not x &&
                 not y) { // No content to check. Both smart pointers can be considered equal
-            expectationMet = true;
+            expectation_met = true;
             break;
         }
 
@@ -1051,7 +1051,7 @@ void compare(
             }
 
             // If we reach this line, the expectation was met
-            expectationMet = true;
+            expectation_met = true;
         }
     } break;
 
@@ -1060,7 +1060,7 @@ void compare(
 
         // Check whether the pointers hold content
         if((x && not y) || (not x && y)) {
-            expectationMet = true;
+            expectation_met = true;
             break;
         }
         else if(not x &&
@@ -1083,11 +1083,11 @@ void compare(
                   << g.what() << '\n';
             break;
         }
-        expectationMet = true;
+        expectation_met = true;
     } break;
     };
 
-    if(not expectationMet) {
+    if(not expectation_met) {
         throw g_expectation_violation(error.str());
     }
 }
@@ -1117,7 +1117,7 @@ void compare(
     Gem::Common::expectation e,
     double limit = Gem::Common::CE_DEF_SIMILARITY_DIFFERENCE
 ) {
-    bool expectationMet = false;
+    bool expectation_met = false;
     std::string expectation_str; // NOLINT(cppcoreguidelines-init-variables)
     std::ostringstream error;    // NOLINT(cppcoreguidelines-init-variables)
 
@@ -1136,7 +1136,7 @@ void compare(
         }
 
         // Now loop over all members of the containers
-        bool foundDeviation = false;
+        bool found_deviation = false;
         typename c_type<
             std::shared_ptr<geneva_type>,
             std::allocator<std::shared_ptr<geneva_type>>>::const_iterator x_it,
@@ -1150,7 +1150,7 @@ void compare(
                       << y_name << "[" << index << "]  does not." << '\n'
                       << "Thus the expectation of " << expectation_str << " was violated"
                       << '\n';
-                foundDeviation = true;
+                found_deviation = true;
                 break; // terminate the loop
             }
             else if(not *x_it && *y_it) {
@@ -1159,7 +1159,7 @@ void compare(
                       << '\n'
                       << "Thus the expectation of " << expectation_str << " was violated"
                       << '\n';
-                foundDeviation = true;
+                found_deviation = true;
                 break; // terminate the loop
             }
             else if(not *x_it &&
@@ -1178,13 +1178,13 @@ void compare(
                       << "Thus the expectation of " << expectation_str
                       << " was violated:" << '\n'
                       << g.what() << '\n';
-                foundDeviation = true;
+                found_deviation = true;
                 break; // Terminate the loop
             }
         }
 
-        if(not foundDeviation) {
-            expectationMet = true;
+        if(not found_deviation) {
+            expectation_met = true;
         }
     } break;
 
@@ -1193,12 +1193,12 @@ void compare(
 
         // First check sizes. The expectation of inequality will be met if they differ
         if(x.size() != y.size()) {
-            expectationMet = true;
+            expectation_met = true;
             break; // Terminate the switch statement
         }
 
         // Now loop over all members of the containers
-        bool foundInequality = false;
+        bool found_inequality = false;
         typename c_type<
             std::shared_ptr<geneva_type>,
             std::allocator<std::shared_ptr<geneva_type>>>::const_iterator x_it,
@@ -1207,7 +1207,7 @@ void compare(
             // First check that both pointers have content
             // Check whether the pointers hold content
             if((*x_it && not *y_it) || (not *x_it && *y_it)) {
-                foundInequality = true;
+                found_inequality = true;
                 break; // terminate the loop
             }
             else if(not *x_it &&
@@ -1219,7 +1219,7 @@ void compare(
             // which is assumed to have the compare() function
             try {
                 (*x_it)->compare(**y_it, e, limit);
-                foundInequality = true;
+                found_inequality = true;
                 break; // terminate the loop
             }
             catch(g_expectation_violation &) {
@@ -1228,8 +1228,8 @@ void compare(
             }
         }
 
-        if(foundInequality) {
-            expectationMet = true;
+        if(found_inequality) {
+            expectation_met = true;
         }
         else {
             error << "The two containers " << x_name << " and " << y_name << " are equal."
@@ -1239,7 +1239,7 @@ void compare(
     } break;
     };
 
-    if(not expectationMet) {
+    if(not expectation_met) {
         throw g_expectation_violation(error.str());
     }
 }

@@ -40,10 +40,10 @@ namespace Gem::Geneva {
 /**
  * Initialization with a adaption probability
  *
- * @param adProb The adaption probability
+ * @param ad_prob The adaption probability
  */
-GDoubleBiGaussAdaptor::GDoubleBiGaussAdaptor(const double &adProb)
-  : GFPBiGaussAdaptorT<double>(adProb) { /* nothing */
+GDoubleBiGaussAdaptor::GDoubleBiGaussAdaptor(const double &ad_prob)
+  : GFPBiGaussAdaptorT<double>(ad_prob) { /* nothing */
 }
 
 /******************************************************************************/

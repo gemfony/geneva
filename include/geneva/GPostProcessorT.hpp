@@ -312,9 +312,9 @@ public:
     /**************************************************************************/
     /** @brief Initialization with the execution mode and configuration file */
     GEvolutionaryAlgorithmPostOptimizer(
-        execMode executionMode,
-        const std::string &oa_configFile,
-        const std::string &executor_configFile
+        execMode execution_mode,
+        const std::string &oa_config_file,
+        const std::string &executor_config_file
     );
     /** @brief The copy constructor */
     
@@ -323,17 +323,17 @@ public:
     ~GEvolutionaryAlgorithmPostOptimizer() override = default;
 
     /** @brief Allows to set the execution mode for this post-processor (serial vs. multi-threaded) */
-    void setExecMode(execMode executionMode);
+    void setExecMode(execMode execution_mode);
     /** @brief Allows to retrieve the current execution mode */
     execMode getExecMode() const;
 
     /** @brief Allows to specify the name of a configuration file for the optimization algorithm */
-    void setOAConfigFile(const std::string &oaConfigFile);
+    void setOAConfigFile(const std::string &oa_config_file);
     /** @brief Allows to retrieve the configuration file for the optimization algorithm */
     std::string getOAConfigFile() const;
 
     /** @brief Allows to specify the name of a configuration file for the executor */
-    void setExecutorConfigFile(const std::string &executorConfigFile);
+    void setExecutorConfigFile(const std::string &executor_config_file);
     /** @brief Allows to retrieve the configuration file for the executor */
     std::string getExecutorConfigFile() const;
 

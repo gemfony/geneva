@@ -41,10 +41,10 @@ namespace Gem::Geneva {
  * Initialization with a number of identical GConstrainedDoubleObject objects
  */
 GConstrainedDoubleObjectCollection::GConstrainedDoubleObjectCollection(
-    const std::size_t &nCp,
+    const std::size_t &n_cp,
     std::shared_ptr<GConstrainedDoubleObject> tmpl_ptr
 )
-  : GParameterTCollectionT<GConstrainedDoubleObject>(nCp, tmpl_ptr) { /* nothing */
+  : GParameterTCollectionT<GConstrainedDoubleObject>(n_cp, tmpl_ptr) { /* nothing */
 }
 
 /******************************************************************************/
@@ -142,7 +142,7 @@ bool GConstrainedDoubleObjectCollection::modify_GUnitTests_() {
 /**
  * Fills the collection with GConstrainedDoubleObject objects
  */
-void GConstrainedDoubleObjectCollection::fillWithObjects_(const std::size_t &nAddedObjects) {
+void GConstrainedDoubleObjectCollection::fillWithObjects_(const std::size_t &n_added_objects) {
 #ifdef GEM_TESTING
     // A random generator
     Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
@@ -153,7 +153,7 @@ void GConstrainedDoubleObjectCollection::fillWithObjects_(const std::size_t &nAd
 
     //---------------------------------------------------------------------------
     // Add GConstrainedDoubleObject items with adaptors to p_test1
-    for(std::size_t i = 0; i < nAddedObjects; i++) {
+    for(std::size_t i = 0; i < n_added_objects; i++) {
         // Create a suitable adaptor
         std::shared_ptr<GDoubleGaussAdaptor> gdga_ptr;
 
@@ -197,14 +197,14 @@ void GConstrainedDoubleObjectCollection::fillWithObjects_(const std::size_t &nAd
 void GConstrainedDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
     // Some settings
-    const std::size_t nAddedObjects = 10;
-    const std::size_t nTests = 100;
-    const double LOWERINITBOUNDARY = -10.1;
-    const double UPPERINITBOUNDARY = 10.1;
-    const double FIXEDVALUEINIT = 1.;
-    const double MULTVALUE = 3.;
-    const double RANDLOWERBOUNDARY = 0.;
-    const double RANDUPPERBOUNDARY = 10.;
+    const std::size_t n_added_objects = 10;
+    const std::size_t n_tests = 100;
+    const double lowerinitboundary = -10.1;
+    const double upperinitboundary = 10.1;
+    const double fixedvalueinit = 1.;
+    const double multvalue = 3.;
+    const double randlowerboundary = 0.;
+    const double randupperboundary = 10.;
 
     // Get a random number generator
     Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
@@ -216,7 +216,7 @@ void GConstrainedDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTes
             this->clone<GConstrainedDoubleObjectCollection>();
 
         // Fill p_test with objects
-        p_test->fillWithObjects_(nAddedObjects);
+        p_test->fillWithObjects_(n_added_objects);
 
         // Execute the parent class'es tests
         p_test->GParameterTCollectionT<
@@ -232,7 +232,7 @@ void GConstrainedDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTes
             this->clone<GConstrainedDoubleObjectCollection>();
 
         // Fill p_test1 with objects
-        CHECK_NOTHROW(p_test1->fillWithObjects_(nAddedObjects));
+        CHECK_NOTHROW(p_test1->fillWithObjects_(n_added_objects));
 
         // Load the p_test1 data into p_test2
         CHECK_NOTHROW(p_test2->load(p_test1));
@@ -248,7 +248,7 @@ void GConstrainedDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTes
         CHECK(*p_test1 != *p_test2);
 
         // All items in the collection must have been modified individually
-        for(std::size_t i = 0; i < nAddedObjects; i++) {
+        for(std::size_t i = 0; i < n_added_objects; i++) {
             CHECK(*(p_test1->at(i)) != *(p_test2->at(i)));
         }
     }
@@ -260,17 +260,17 @@ void GConstrainedDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTes
             this->clone<GConstrainedDoubleObjectCollection>();
 
         // Fill p_test1 with objects
-        CHECK_NOTHROW(p_test1->fillWithObjects_(nAddedObjects));
+        CHECK_NOTHROW(p_test1->fillWithObjects_(n_added_objects));
 
         // Cross check the amount of items in the collection
-        CHECK(p_test1->size() == nAddedObjects);
+        CHECK(p_test1->size() == n_added_objects);
 
         // Initialize with a fixed value
-        CHECK_NOTHROW(p_test1->fixedValueInit<double>(FIXEDVALUEINIT, activityMode::ALLPARAMETERS));
+        CHECK_NOTHROW(p_test1->fixedValueInit<double>(fixedvalueinit, activityMode::ALLPARAMETERS));
 
         // Check that all items have the expected value
-        for(std::size_t i = 0; i < nAddedObjects; i++) {
-            CHECK(p_test1->at(i)->value() == FIXEDVALUEINIT);
+        for(std::size_t i = 0; i < n_added_objects; i++) {
+            CHECK(p_test1->at(i)->value() == fixedvalueinit);
         }
     }
 
@@ -281,20 +281,20 @@ void GConstrainedDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTes
             this->clone<GConstrainedDoubleObjectCollection>();
 
         // Fill p_test1 with objects
-        CHECK_NOTHROW(p_test1->fillWithObjects_(nAddedObjects));
+        CHECK_NOTHROW(p_test1->fillWithObjects_(n_added_objects));
 
         // Cross check the amount of items in the collection
-        CHECK(p_test1->size() == nAddedObjects);
+        CHECK(p_test1->size() == n_added_objects);
 
         // Initialize with a fixed value (1), so we have a defined start value for the multiplication
-        CHECK_NOTHROW(p_test1->fixedValueInit<double>(FIXEDVALUEINIT, activityMode::ALLPARAMETERS));
+        CHECK_NOTHROW(p_test1->fixedValueInit<double>(fixedvalueinit, activityMode::ALLPARAMETERS));
 
         // Multiply all items with a defined value
-        CHECK_NOTHROW(p_test1->multiplyBy<double>(MULTVALUE, activityMode::ALLPARAMETERS));
+        CHECK_NOTHROW(p_test1->multiplyBy<double>(multvalue, activityMode::ALLPARAMETERS));
 
         // Check the values of all items
-        for(std::size_t i = 0; i < nAddedObjects; i++) {
-            CHECK(p_test1->at(i)->value() == MULTVALUE);
+        for(std::size_t i = 0; i < n_added_objects; i++) {
+            CHECK(p_test1->at(i)->value() == multvalue);
         }
     }
 
@@ -307,16 +307,16 @@ void GConstrainedDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTes
             this->clone<GConstrainedDoubleObjectCollection>();
 
         // Fill p_test1 with objects
-        CHECK_NOTHROW(p_test1->fillWithObjects_(nAddedObjects));
+        CHECK_NOTHROW(p_test1->fillWithObjects_(n_added_objects));
 
         // Make sure p_test2 is empty
         CHECK_NOTHROW(p_test2->clear());
 
         // Cross check the amount of items in the collection
-        CHECK(p_test1->size() == nAddedObjects);
+        CHECK(p_test1->size() == n_added_objects);
 
         // Initialize with a fixed value (1), so we have a defined start value for the multiplication
-        CHECK_NOTHROW(p_test1->fixedValueInit<double>(FIXEDVALUEINIT, activityMode::ALLPARAMETERS));
+        CHECK_NOTHROW(p_test1->fixedValueInit<double>(fixedvalueinit, activityMode::ALLPARAMETERS));
 
         // Load p_test1 into p_test2
         CHECK_NOTHROW(p_test2->load(p_test1));
@@ -326,8 +326,8 @@ void GConstrainedDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTes
 
         // Multiply p_test1 with a random value
         CHECK_NOTHROW(p_test1->multiplyByRandom<double>(
-            LOWERINITBOUNDARY,
-            UPPERINITBOUNDARY,
+            lowerinitboundary,
+            upperinitboundary,
             activityMode::ALLPARAMETERS,
             gr
         ));
@@ -336,7 +336,7 @@ void GConstrainedDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTes
         CHECK(*p_test1 != *p_test2);
 
         // Check that each item individually differs
-        for(std::size_t i = 0; i < nAddedObjects; i++) {
+        for(std::size_t i = 0; i < n_added_objects; i++) {
             CHECK(p_test1->at(i)->value() != p_test2->at(i)->value());
         }
     }
@@ -350,16 +350,16 @@ void GConstrainedDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTes
             this->clone<GConstrainedDoubleObjectCollection>();
 
         // Fill p_test1 with objects
-        CHECK_NOTHROW(p_test1->fillWithObjects_(nAddedObjects));
+        CHECK_NOTHROW(p_test1->fillWithObjects_(n_added_objects));
 
         // Make sure p_test2 is empty
         CHECK_NOTHROW(p_test2->clear());
 
         // Cross check the amount of items in the collection
-        CHECK(p_test1->size() == nAddedObjects);
+        CHECK(p_test1->size() == n_added_objects);
 
         // Initialize with a fixed value (1), so we have a defined start value for the multiplication
-        CHECK_NOTHROW(p_test1->fixedValueInit<double>(FIXEDVALUEINIT, activityMode::ALLPARAMETERS));
+        CHECK_NOTHROW(p_test1->fixedValueInit<double>(fixedvalueinit, activityMode::ALLPARAMETERS));
 
         // Load p_test1 into p_test2
         CHECK_NOTHROW(p_test2->load(p_test1));
@@ -374,7 +374,7 @@ void GConstrainedDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTes
         CHECK(*p_test1 != *p_test2);
 
         // Check that each item individually differs
-        for(std::size_t i = 0; i < nAddedObjects; i++) {
+        for(std::size_t i = 0; i < n_added_objects; i++) {
             CHECK(p_test1->at(i)->value() != p_test2->at(i)->value());
         }
     }
@@ -388,7 +388,7 @@ void GConstrainedDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTes
             this->clone<GConstrainedDoubleObjectCollection>();
 
         // Fill p_test1 with objects
-        CHECK_NOTHROW(p_test1->fillWithObjects_(nAddedObjects));
+        CHECK_NOTHROW(p_test1->fillWithObjects_(n_added_objects));
 
         // Make sure p_test2 is empty
         CHECK_NOTHROW(p_test2->clear());
@@ -405,7 +405,7 @@ void GConstrainedDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTes
         CHECK_NOTHROW(p_test2->add<double>(p_test1, activityMode::ALLPARAMETERS));
 
         // Check each position of p_test2 individually
-        for(std::size_t i = 0; i < nAddedObjects; i++) {
+        for(std::size_t i = 0; i < n_added_objects; i++) {
             CHECK(p_test2->at(i)->value() == double(2.) + double(1.));
         }
     }
@@ -419,7 +419,7 @@ void GConstrainedDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTes
             this->clone<GConstrainedDoubleObjectCollection>();
 
         // Fill p_test1 with objects
-        CHECK_NOTHROW(p_test1->fillWithObjects_(nAddedObjects));
+        CHECK_NOTHROW(p_test1->fillWithObjects_(n_added_objects));
 
         // Make sure p_test2 is empty
         CHECK_NOTHROW(p_test2->clear());
@@ -436,7 +436,7 @@ void GConstrainedDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTes
         CHECK_NOTHROW(p_test2->subtract<double>(p_test1, activityMode::ALLPARAMETERS));
 
         // Check each position of p_test2 individually
-        for(std::size_t i = 0; i < nAddedObjects; i++) {
+        for(std::size_t i = 0; i < n_added_objects; i++) {
             CHECK(p_test2->at(i)->value() == double(2.) - double(1.));
         }
     }
@@ -458,7 +458,7 @@ void GConstrainedDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTes
 void GConstrainedDoubleObjectCollection::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
     // Some settings
-    const std::size_t nAddedObjects = 10;
+    const std::size_t n_added_objects = 10;
 
     // Call the parent class'es function
     GParameterTCollectionT<GConstrainedDoubleObject>::specificTestsFailuresExpected_GUnitTests_();
@@ -472,7 +472,7 @@ void GConstrainedDoubleObjectCollection::specificTestsFailuresExpected_GUnitTest
             this->clone<GConstrainedDoubleObjectCollection>();
 
         // Fill p_test1 with objects
-        CHECK_NOTHROW(p_test1->fillWithObjects_(nAddedObjects));
+        CHECK_NOTHROW(p_test1->fillWithObjects_(n_added_objects));
 
         // Clear p_test2, so we are sure it is empty
         CHECK_NOTHROW(p_test2->clear());
@@ -499,7 +499,7 @@ void GConstrainedDoubleObjectCollection::specificTestsFailuresExpected_GUnitTest
             this->clone<GConstrainedDoubleObjectCollection>();
 
         // Fill p_test1 with objects
-        CHECK_NOTHROW(p_test1->fillWithObjects_(nAddedObjects));
+        CHECK_NOTHROW(p_test1->fillWithObjects_(n_added_objects));
 
         // Clear p_test2, so we are sure it is empty
         CHECK_NOTHROW(p_test2->clear());

@@ -37,13 +37,13 @@ namespace Gem::Common {
 /**
  * Initialization with a number of threads.
  *
- * @param nThreads The desired number of threads executing work concurrently in the pool
+ * @param n_threads The desired number of threads executing work concurrently in the pool
  */
-GThreadPool::GThreadPool(unsigned int nThreads)
-  : nThreads_(nThreads > 0 ? nThreads : DEFAULTNHARDWARETHREADS) {
-    if(0 == nThreads) {
-        glogger << "In GThreadPool::GThreadPool(unsigned int const &nThreads):" << '\n'
-                << "User requested nThreads == 0. nThreads was reset to the default "
+GThreadPool::GThreadPool(unsigned int n_threads)
+  : nThreads_(n_threads > 0 ? n_threads : DEFAULTNHARDWARETHREADS) {
+    if(0 == n_threads) {
+        glogger << "In GThreadPool::GThreadPool(unsigned int const &n_threads):" << '\n'
+                << "User requested n_threads == 0. n_threads was reset to the default "
                 << DEFAULTNHARDWARETHREADS << '\n'
                 << GWARNING;
     }
@@ -84,14 +84,14 @@ GThreadPool::~GThreadPool() {
  * equals the current number of threads. Note that this function may NOT be called
  * from a task running inside of the pool.
  *
- * @param nThreads The desired number of threads
+ * @param n_threads The desired number of threads
  */
-void GThreadPool::setNThreads(unsigned int nThreads) {
+void GThreadPool::setNThreads(unsigned int n_threads) {
     // Make sure no new jobs may be submitted and no threads may be created concurrently
     std::scoped_lock lk(task_submission_mutex_, thread_creation_mutex_);
 
     // Check if any work needs to be done
-    if(gtg_.size() == nThreads) {
+    if(gtg_.size() == n_threads) {
         // We do nothing if we already have the desired size
         return;
     }
@@ -111,11 +111,11 @@ void GThreadPool::setNThreads(unsigned int nThreads) {
 
     // If threads were already running, either add new threads or recreate the pool
     if(threads_started_) {
-        if(nThreads > nThreads_.load()) {
+        if(n_threads > nThreads_.load()) {
             // We simply add the required number of threads
             gtg_.create_threads(
                 [this]() { this->io_context_.run(); },
-                nThreads - nThreads_.load()
+                n_threads - nThreads_.load()
             );
         }
         else {
@@ -134,12 +134,12 @@ void GThreadPool::setNThreads(unsigned int nThreads) {
             );
 
             // Start the threads
-            gtg_.create_threads([&]() { io_context_.run(); }, nThreads);
+            gtg_.create_threads([&]() { io_context_.run(); }, n_threads);
         }
     }
 
     // Finally set the new number of threads
-    nThreads_ = nThreads;
+    nThreads_ = n_threads;
 }
 
 /******************************************************************************/

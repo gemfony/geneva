@@ -63,9 +63,9 @@ std::size_t commentLevel::getCommentLevel() const {
 /**
  * A constructor for individual items
  */
-GParsableI::GParsableI(std::string const &optionNameVar, std::string const &commentVar)
-  : option_name_(GParsableI::makeVector(optionNameVar))
-  , comment_(GParsableI::makeVector(commentVar))
+GParsableI::GParsableI(std::string const &option_name_var, std::string const &comment_var)
+  : option_name_(GParsableI::makeVector(option_name_var))
+  , comment_(GParsableI::makeVector(comment_var))
   , cl_(0) { /* nothing */
 }
 
@@ -74,11 +74,11 @@ GParsableI::GParsableI(std::string const &optionNameVar, std::string const &comm
  * A constructor for vectors
  */
 GParsableI::GParsableI(
-    std::vector<std::string> const &optionNameVec,
-    std::vector<std::string> const &commentVec
+    std::vector<std::string> const &option_name_vec,
+    std::vector<std::string> const &comment_vec
 )
-  : option_name_(optionNameVec)
-  , comment_(commentVec)
+  : option_name_(option_name_vec)
+  , comment_(comment_vec)
   , cl_(0) { /* nothing */
 }
 
@@ -232,7 +232,7 @@ std::vector<std::string> GParsableI::splitComment(std::string const &comment) co
 
     if(not comment.empty() && comment != "empty") {
         // First split the comment according to newlines
-        std::vector<std::string> nlComments;
+        std::vector<std::string> nl_comments;
         std::istringstream buffer(comment);
         std::string line; // NOLINT(cppcoreguidelines-init-variables)
 
@@ -242,7 +242,7 @@ std::vector<std::string> GParsableI::splitComment(std::string const &comment) co
                 results.push_back(t);
             }
 
-            nlComments.push_back(line);
+            nl_comments.push_back(line);
         }
     }
 
@@ -256,12 +256,12 @@ std::vector<std::string> GParsableI::splitComment(std::string const &comment) co
  * A constructor for individual items
  */
 GFileParsableI::GFileParsableI(
-    std::string const &optionNameVar,
-    std::string const &commentVar,
-    bool isEssentialVar
+    std::string const &option_name_var,
+    std::string const &comment_var,
+    bool is_essential_var
 )
-  : GParsableI(optionNameVar, commentVar)
-  , is_essential_(isEssentialVar) { /* nothing */
+  : GParsableI(option_name_var, comment_var)
+  , is_essential_(is_essential_var) { /* nothing */
 }
 
 /******************************************************************************/
@@ -269,12 +269,12 @@ GFileParsableI::GFileParsableI(
  * A constructor for vectors
  */
 GFileParsableI::GFileParsableI(
-    std::vector<std::string> const &optionNameVec,
-    std::vector<std::string> const &commentVec,
-    bool isEssentialVar
+    std::vector<std::string> const &option_name_vec,
+    std::vector<std::string> const &comment_vec,
+    bool is_essential_var
 )
-  : GParsableI(optionNameVec, commentVec)
-  , is_essential_(isEssentialVar) { /* nothing */
+  : GParsableI(option_name_vec, comment_vec)
+  , is_essential_(is_essential_var) { /* nothing */
 }
 
 /******************************************************************************/
@@ -297,8 +297,8 @@ void GFileParsableI::executeCallBackFunction() {
 /**
  * A constructor for individual items
  */
-GCLParsableI::GCLParsableI(std::string const &optionNameVar, std::string const &commentVar)
-  : GParsableI(optionNameVar, commentVar) { /* nothing */
+GCLParsableI::GCLParsableI(std::string const &option_name_var, std::string const &comment_var)
+  : GParsableI(option_name_var, comment_var) { /* nothing */
 }
 
 /******************************************************************************/
@@ -306,10 +306,10 @@ GCLParsableI::GCLParsableI(std::string const &optionNameVar, std::string const &
  * A constructor for vectors
  */
 GCLParsableI::GCLParsableI(
-    std::vector<std::string> const &optionNameVec,
-    std::vector<std::string> const &commentVec
+    std::vector<std::string> const &option_name_vec,
+    std::vector<std::string> const &comment_vec
 )
-  : GParsableI(optionNameVec, commentVec) { /* nothing */
+  : GParsableI(option_name_vec, comment_vec) { /* nothing */
 }
 
 /******************************************************************************/
@@ -330,10 +330,10 @@ GParserBuilder::GParserBuilder() {
 /**
  * Tries to parse a given configuration file for a set of options.
  *
- * @param configFile The name of the configuration file to be parsed, possibly including an absolute or relative path
+ * @param config_file The name of the configuration file to be parsed, possibly including an absolute or relative path
  * @return A boolean indicating whether parsing was successful
  */
-bool GParserBuilder::parseConfigFile(std::filesystem::path const &configFile) {
+bool GParserBuilder::parseConfigFile(std::filesystem::path const &config_file) {
     // Make sure only one entity is parsed at once. This allows us to
     // concurrently create e.g. optimization algorithms, letting them
     // parse the same config file.
@@ -359,10 +359,10 @@ bool GParserBuilder::parseConfigFile(std::filesystem::path const &configFile) {
                 );
             }
 
-            config_path = config_base_dir_ / configFile;
+            config_path = config_base_dir_ / config_file;
         }
         else {
-            config_path = configFile;
+            config_path = config_file;
         }
 
         // Check that the configuration file exists.
@@ -379,10 +379,10 @@ bool GParserBuilder::parseConfigFile(std::filesystem::path const &configFile) {
             this->writeConfigFile(
                 config_path,
                 header,
-                true // writeAll == true
+                true // write_all == true
             );
         }
-        else { // configFile exists
+        else { // config_file exists
             // Is it a regular file ?
             if(not std::filesystem::is_regular_file(config_path)) {
                 throw geneva_exception(
@@ -441,71 +441,69 @@ bool GParserBuilder::parseConfigFile(std::filesystem::path const &configFile) {
 /**
  * Writes out a configuration file.
  *
- * @param fileName The name of the configuration file to be written
+ * @param file_name The name of the configuration file to be written
  * @param header A descriptive comment to be output at the top of the configuration file
- * @param writeAll A boolean parameter that indicates whether all or only essential parameters should be written
+ * @param write_all A boolean parameter that indicates whether all or only essential parameters should be written
  */
 void GParserBuilder::writeConfigFile(
-    std::filesystem::path const &configFile,
+    std::filesystem::path const &config_file,
     std::string const &header,
-    bool writeAll
+    bool write_all
 ) const {
     namespace pt = boost::property_tree;
     namespace bf = std::filesystem;
 
     // Do some error checking
     {
-        // Is configFile a directory ?
-        if(std::filesystem::is_directory(configFile)) {
+        // Is config_file a directory ?
+        if(std::filesystem::is_directory(config_file)) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GParserBuilder::writeConfigFile(): Error!" << '\n'
-                << configFile.string() << " is a directory." << '\n'
+                << config_file.string() << " is a directory." << '\n'
             );
         }
 
         // We do not allow to overwrite existing files
-        if(std::filesystem::exists(configFile) && std::filesystem::is_regular_file(configFile)) {
+        if(std::filesystem::exists(config_file) && std::filesystem::is_regular_file(config_file)) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GParserBuilder::writeConfigFile(): Error!" << '\n'
-                << "You have specified an existing file (" << configFile.string() << ")."
-                << '\n'
+                << "You have specified an existing file (" << config_file.string() << ")." << '\n'
             );
         }
 
         // Check that the target path exists and is a directory
-        if(not std::filesystem::exists(std::filesystem::path(configFile).remove_filename()) ||
+        if(not std::filesystem::exists(std::filesystem::path(config_file).remove_filename()) ||
            not std::filesystem::is_directory(
-               std::filesystem::path(configFile).remove_filename()
+               std::filesystem::path(config_file).remove_filename()
            )) { // We need to act on a copy
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GParserBuilder::writeConfigFile(): Error!" << '\n'
                 << "The target path "
-                << std::filesystem::path(configFile).remove_filename().string()
+                << std::filesystem::path(config_file).remove_filename().string()
                 << " does not exist or is no directory." << '\n'
             );
         }
 
         // Check that the configuration file has the required extension
-        if(not configFile.has_extension() || configFile.extension() != ".json") {
+        if(not config_file.has_extension() || config_file.extension() != ".json") {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GParserBuilder::writeConfigFile(): Error!" << '\n'
-                << configFile.string() << " does not have the required extension \".json\""
-                << '\n'
+                << config_file.string() << " does not have the required extension \".json\"" << '\n'
             );
         }
     }
 
     // Open the required configuration file
-    std::ofstream ofs(configFile);
+    std::ofstream ofs(config_file);
     if(not ofs) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GParserBuilder::writeConfigFile(): Error writing configuration file "
-            << configFile.string() << '\n'
+            << config_file.string() << '\n'
         );
     }
 
@@ -533,7 +531,7 @@ void GParserBuilder::writeConfigFile(
     for(auto const &v_ptr : file_parameter_proxies_) {
         // Only write out the parameter(s) if they are either essential or it
         // has been requested to write out all parameters regardless
-        if(not writeAll && not v_ptr->isEssential())
+        if(not write_all && not v_ptr->isEssential())
             continue;
 
         // Output the actual data of this parameter object to the property tree
@@ -572,8 +570,8 @@ bool GParserBuilder::parseCommandLine(int argc, char **argv, bool verbose) {
     bool result = GCL_NO_HELP_REQUESTED;
 
     try {
-        std::string usageString = std::string("Usage: ") + argv[0] + " [options]";
-        po::options_description desc(usageString);
+        std::string usage_string = std::string("Usage: ") + argv[0] + " [options]";
+        po::options_description desc(usage_string);
 
         // We always want --help and -h to be available
         desc.add_options()("help,h", "Emit help message");

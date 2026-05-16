@@ -59,15 +59,15 @@ std::string assembleQueryString(const std::string &query, const std::size_t &sz)
  */
 std::size_t extractDataSize(const char *ds, const std::size_t &sz) {
     std::istringstream is(std::string(ds, sz));
-    std::size_t inboundDataSize = 0;
-    if(!(is >> std::hex >> inboundDataSize)) {
+    std::size_t inbound_data_size = 0;
+    if(!(is >> std::hex >> inbound_data_size)) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In extractDataSize: Got invalid header!" << '\n'
         );
     }
 
-    return inboundDataSize;
+    return inbound_data_size;
 }
 
 /******************************************************************************/
@@ -86,12 +86,12 @@ void disconnect(boost::asio::ip::tcp::socket &socket) {
 /**
  * Create a boolean mask
  */
-std::vector<bool> getBooleanMask(std::size_t vecSize, std::size_t start, std::size_t end) {
-    std::vector<bool> workItemPos(vecSize, Gem::Courtier::GBC_PROCESSED);
-    for(auto p_it = workItemPos.begin() + start; p_it != workItemPos.begin() + end; ++p_it) {
+std::vector<bool> getBooleanMask(std::size_t vec_size, std::size_t start, std::size_t end) {
+    std::vector<bool> work_item_pos(vec_size, Gem::Courtier::GBC_PROCESSED);
+    for(auto p_it = work_item_pos.begin() + start; p_it != work_item_pos.begin() + end; ++p_it) {
         *p_it = Gem::Courtier::GBC_UNPROCESSED;
     }
-    return workItemPos;
+    return work_item_pos;
 }
 
 /******************************************************************************/

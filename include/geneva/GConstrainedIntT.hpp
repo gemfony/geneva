@@ -105,10 +105,13 @@ public:
      * @param lowerBoundary The lower boundary of the value range
      * @param upperBoundary The upper boundary of the value range
      */
-    GConstrainedIntT(const int_type &lowerBoundary, const int_type &upperBoundary)
-      : GConstrainedNumT<int_type>(lowerBoundary, upperBoundary) {
+    GConstrainedIntT(const int_type &lower_boundary, const int_type &upper_boundary)
+      : GConstrainedNumT<int_type>(lower_boundary, upper_boundary) {
         Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL> gr;
-        typename std::uniform_int_distribution<int_type> uniform_int(lowerBoundary, upperBoundary);
+        typename std::uniform_int_distribution<int_type> uniform_int(
+            lower_boundary,
+            upper_boundary
+        );
         GParameterT<int_type>::setValue(uniform_int(gr));
     }
 
@@ -122,10 +125,10 @@ public:
      */
     GConstrainedIntT(
         const int_type &val,
-        const int_type &lowerBoundary,
-        const int_type &upperBoundary
+        const int_type &lower_boundary,
+        const int_type &upper_boundary
     )
-      : GConstrainedNumT<int_type>(val, lowerBoundary, upperBoundary) { /* nothing */
+      : GConstrainedNumT<int_type>(val, lower_boundary, upper_boundary) { /* nothing */
     }
 
     /***************************************************************************/
@@ -165,10 +168,10 @@ public:
      */
     int_type transfer(const int_type &val) const override {
         // Find out the size of the confined area
-        int_type lowerBoundary = GConstrainedNumT<int_type>::getLowerBoundary();
-        int_type upperBoundary = GConstrainedNumT<int_type>::getUpperBoundary();
+        int_type lower_boundary = GConstrainedNumT<int_type>::getLowerBoundary();
+        int_type upper_boundary = GConstrainedNumT<int_type>::getUpperBoundary();
 
-        if(val >= lowerBoundary && val <= upperBoundary) {
+        if(val >= lower_boundary && val <= upper_boundary) {
             return val;
         }
         else {
@@ -177,19 +180,20 @@ public:
 
             // Find out the size of the value range. Note that both boundaries
             // are included, so that we need to add 1 to the difference.
-            int_type value_range = upperBoundary - lowerBoundary + int_type(1);
+            int_type value_range = upper_boundary - lower_boundary + int_type(1);
 
-            if(val < lowerBoundary) {
+            if(val < lower_boundary) {
                 // Find out how many full value ranges val is below the lower boundary.
                 // We use integer division here, so 13/4 would be 3.
-                int_type nBelowLowerBoundary = (lowerBoundary - (val + int_type(1))) / value_range;
+                int_type n_below_lower_boundary =
+                    (lower_boundary - (val + int_type(1))) / value_range;
 
-                // We are dealing with descending (nBelowLowerBoundary is even) and
-                // ascending ranges (nBelowLowerBoundary is odd), which need to be treated differently
+                // We are dealing with descending (n_below_lower_boundary is even) and
+                // ascending ranges (n_below_lower_boundary is odd), which need to be treated differently
 
                 // Transfer the value into the allowed region
-                mapping = val + (value_range * (nBelowLowerBoundary + int_type(1)));
-                if(nBelowLowerBoundary % 2 == 0) { // nBelowLowerBoundary is even
+                mapping = val + (value_range * (n_below_lower_boundary + int_type(1)));
+                if(n_below_lower_boundary % 2 == 0) { // n_below_lower_boundary is even
                     // Revert the value to a descending sequence
                     mapping = revert(mapping);
                 }
@@ -197,14 +201,15 @@ public:
             else { // val > getUpperBoundary()
                 // Find out how many full value ranges val is above the upper boundary.
                 // We use integer division here, so 13/4 would be 3.
-                int_type nAboveUpperBoundary = (val - upperBoundary - int_type(1)) / value_range;
+                int_type n_above_upper_boundary =
+                    (val - upper_boundary - int_type(1)) / value_range;
 
-                // We are dealing with descending (nAboveUpperBoundary is even) and
-                // ascending ranges (nAboveUpperBoundary is odd), which need to be treated differently
+                // We are dealing with descending (n_above_upper_boundary is even) and
+                // ascending ranges (n_above_upper_boundary is odd), which need to be treated differently
 
                 // Transfer into the allowed region
-                mapping = val - (value_range * (nAboveUpperBoundary + int_type(1)));
-                if(nAboveUpperBoundary % 2 == 0) { // nAboveUpperBoundary is even
+                mapping = val - (value_range * (n_above_upper_boundary + int_type(1)));
+                if(n_above_upper_boundary % 2 == 0) { // n_above_upper_boundary is even
                     // Revert, as we are dealing with a descending value range
                     mapping = revert(mapping);
                 }
@@ -315,12 +320,12 @@ protected:
     void specificTestsNoFailureExpected_GUnitTests_() override {
 #ifdef GEM_TESTING
         // Some general settings
-        const int_type minLower =
+        const int_type min_lower =
             -50; // NOTE: This will fail if int_type is unsigned; GConstrainedIntT has been designed for signed types only
-        const int_type maxLower = 50;
-        const int_type minUpper = 25; // Allow some overlap
-        const int_type maxUpper = 125;
-        const int_type nTests = 10000;
+        const int_type max_lower = 50;
+        const int_type min_upper = 25; // Allow some overlap
+        const int_type max_upper = 125;
+        const int_type n_tests = 10000;
 
         // Call the parent classes' functions
         GConstrainedNumT<int_type>::specificTestsNoFailureExpected_GUnitTests_();
@@ -339,7 +344,7 @@ protected:
             CHECK_NOTHROW(p_test->resetBoundaries());
 
             // Try to assign values
-            for(int_type i = -nTests; i < nTests; i++) {
+            for(int_type i = -n_tests; i < n_tests; i++) {
                 CHECK_NOTHROW(*p_test = i);
                 CHECK(p_test->value() == i);
             }
@@ -351,32 +356,35 @@ protected:
             std::shared_ptr<GConstrainedIntT<int_type>> p_test =
                 this->template clone<GConstrainedIntT<int_type>>();
 
-            for(int_type i = -nTests; i < nTests; i++) {
+            for(int_type i = -n_tests; i < n_tests; i++) {
                 // Make sure we start with the maximum range
                 CHECK_NOTHROW(p_test->resetBoundaries());
 
-                int_type lowerBoundary = uniform_int(
+                int_type lower_boundary = uniform_int(
                     gr,
-                    typename std::uniform_int_distribution<int_type>::param_type(minLower, maxLower)
+                    typename std::uniform_int_distribution<int_type>::param_type(
+                        min_lower,
+                        max_lower
+                    )
                 );
-                int_type upperBoundary;
-                while((upperBoundary = uniform_int(
+                int_type upper_boundary;
+                while((upper_boundary = uniform_int(
                            gr,
                            typename std::uniform_int_distribution<int_type>::param_type(
-                               minUpper,
-                               maxUpper
+                               min_upper,
+                               max_upper
                            )
-                       )) <= lowerBoundary) {
+                       )) <= lower_boundary) {
                 }
 
-                CHECK_NOTHROW(p_test->setValue(lowerBoundary, lowerBoundary, upperBoundary));
+                CHECK_NOTHROW(p_test->setValue(lower_boundary, lower_boundary, upper_boundary));
 
                 // Check that there are no values outside of the allowed range
                 int_type probe = uniform_int(
                     gr,
                     typename std::uniform_int_distribution<int_type>::param_type(
-                        lowerBoundary,
-                        upperBoundary
+                        lower_boundary,
+                        upper_boundary
                     )
                 );
                 CHECK_NOTHROW(*p_test = probe);
@@ -390,25 +398,28 @@ protected:
             std::shared_ptr<GConstrainedIntT<int_type>> p_test =
                 this->template clone<GConstrainedIntT<int_type>>();
 
-            for(int_type i = 0; i < nTests; i++) {
+            for(int_type i = 0; i < n_tests; i++) {
                 // Make sure we start with the maximum range
                 CHECK_NOTHROW(p_test->resetBoundaries());
 
-                int_type lowerBoundary = uniform_int(
+                int_type lower_boundary = uniform_int(
                     gr,
-                    typename std::uniform_int_distribution<int_type>::param_type(minLower, maxLower)
+                    typename std::uniform_int_distribution<int_type>::param_type(
+                        min_lower,
+                        max_lower
+                    )
                 );
-                int_type upperBoundary;
-                while((upperBoundary = uniform_int(
+                int_type upper_boundary;
+                while((upper_boundary = uniform_int(
                            gr,
                            typename std::uniform_int_distribution<int_type>::param_type(
-                               minUpper,
-                               maxUpper
+                               min_upper,
+                               max_upper
                            )
-                       )) <= lowerBoundary) {
+                       )) <= lower_boundary) {
                 }
 
-                CHECK_NOTHROW(p_test->setValue(lowerBoundary, lowerBoundary, upperBoundary));
+                CHECK_NOTHROW(p_test->setValue(lower_boundary, lower_boundary, upper_boundary));
 
                 // Check that there are no values outside of the allowed range
                 for(std::size_t j = 0; j < 100; j++) {
@@ -418,7 +429,7 @@ protected:
                     );
                     int_type mapping = int_type(0);
                     CHECK_NOTHROW(mapping = p_test->transfer(probe));
-                    CHECK((mapping >= lowerBoundary && mapping <= upperBoundary));
+                    CHECK((mapping >= lower_boundary && mapping <= upper_boundary));
                 }
             }
         }
@@ -442,25 +453,28 @@ protected:
             std::shared_ptr<GConstrainedIntT<int_type>> p_test =
                 this->template clone<GConstrainedIntT<int_type>>();
 
-            for(int_type i = -nTests; i < nTests; i++) {
+            for(int_type i = -n_tests; i < n_tests; i++) {
                 // Make sure we start with the maximum range
                 CHECK_NOTHROW(p_test->resetBoundaries());
 
-                int_type lowerBoundary = uniform_int(
+                int_type lower_boundary = uniform_int(
                     gr,
-                    typename std::uniform_int_distribution<int_type>::param_type(minLower, maxLower)
+                    typename std::uniform_int_distribution<int_type>::param_type(
+                        min_lower,
+                        max_lower
+                    )
                 );
-                int_type upperBoundary;
-                while((upperBoundary = uniform_int(
+                int_type upper_boundary;
+                while((upper_boundary = uniform_int(
                            gr,
                            typename std::uniform_int_distribution<int_type>::param_type(
-                               minUpper,
-                               maxUpper
+                               min_upper,
+                               max_upper
                            )
-                       )) <= lowerBoundary) {
+                       )) <= lower_boundary) {
                 }
 
-                CHECK_NOTHROW(p_test->setValue(lowerBoundary, lowerBoundary, upperBoundary));
+                CHECK_NOTHROW(p_test->setValue(lower_boundary, lower_boundary, upper_boundary));
 
                 // Randomly initialize, using our internal value
                 CHECK_NOTHROW(p_test->randomInit_(activityMode::ALLPARAMETERS, gr));

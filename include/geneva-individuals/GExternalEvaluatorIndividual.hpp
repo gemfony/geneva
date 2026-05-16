@@ -91,7 +91,7 @@ const double GEEI_DEF_MAXVAR = 10.;
 const bool GEEI_DEF_USECONSTRAINEDDOUBLECOLLECTION = false;
 const std::string GEEI_DEF_PROGNAME = "./evaluator/evaluator.py";
 const std::string GEEI_DEF_CUSTOMOPTIONS = "empty";
-const std::string GEEI_DEF_PARFILEBASENAME = "parameterFile";
+const std::string GEEI_DEF_PARFILEBASENAME = "parameter_file";
 const std::size_t GEEI_DEF_NRESULTS = 1;
 const std::string GEEI_DEF_STARTMODE = "random";
 const std::string GEEI_DEF_DATATYPE = "setup_data";
@@ -114,8 +114,8 @@ class GExternalEvaluatorIndividualFactory;
  * arguments with obvious meanings
  *
  * --init
- * --setup --initValues=[min/max/random] --output="setupFile.xml"
- * --evaluate --input="paramsFile.xml"   --output="resultFile.xml"
+ * --setup --init_values=[min/max/random] --output="setupFile.xml"
+ * --evaluate --input="paramsFile.xml"   --output="result_file.xml"
  * --archive  --input="archiveFile.xml"
  * --finalize
  *
@@ -223,7 +223,7 @@ private:
     std::string program_name_; ///< The name of the external program to be executed
     std::string
         custom_options_; ///< Any custom options that need to be provided to the external program
-    std::string parameter_file_base_name_; ///< The base name to be assigned to the parameterFile
+    std::string parameter_file_base_name_; ///< The base name to be assigned to the parameter_file
     std::size_t n_results_; ///< The number of results to be expected from the evaluation function
     std::string runID_;      ///< Identifies this run with a unique id
     bool remove_exec_temporaries_; ///< Indicates whether temporary files should be removed
@@ -280,27 +280,27 @@ public:
     /** @brief Allows to retrieve the adaptionThreshold_ variable */
     std::uint32_t getAdaptionThreshold() const;
     /** @brief Set the value of the adaptionThreshold_ variable */
-    void setAdaptionThreshold(std::uint32_t adaptionThreshold);
+    void setAdaptionThreshold(std::uint32_t adaption_threshold);
 
     /** @brief Allows to retrieve the adProb_ variable */
     double getAdProb() const;
     /** @brief Set the value of the adProb_ variable */
-    void setAdProb(double adProb);
+    void setAdProb(double ad_prob);
 
     /** @brief Allows to retrieve the rate of evolutionary adaption of adProb_ */
     double getAdaptAdProb() const;
     /** @brief Allows to specify an adaption factor for adProb_ (or 0, if you do not want this feature) */
-    void setAdaptAdProb(double adaptAdProb);
+    void setAdaptAdProb(double adapt_ad_prob);
 
     /** @brief Allows to retrieve the allowed range for adProb_ variation */
     std::tuple<double, double> getAdProbRange() const;
     /** @brief Allows to set the allowed range for adaption probability variation */
-    void setAdProbRange(double minAdProb, double maxAdProb);
+    void setAdProbRange(double min_ad_prob, double max_ad_prob);
 
     /** @brief Allows to retrieve the useBiGaussian_ variable */
     bool getUseBiGaussian() const;
     /** @brief Set the value of the useBiGaussian_ variable */
-    void setUseBiGaussian(bool useBiGaussian);
+    void setUseBiGaussian(bool use_bi_gaussian);
 
     /** @brief Allows to retrieve the delta_ variable */
     double getDelta() const;
@@ -346,17 +346,17 @@ public:
     /** @brief Allows to retrieve the sigmaDelta_ variable */
     double getSigmaDelta() const;
     /** @brief Set the value of the sigmaDelta_ variable */
-    void setSigmaDelta(double sigmaDelta);
+    void setSigmaDelta(double sigma_delta);
 
     /** @brief Allows to retrieve the sigmaSigma1_ variable */
     double getSigmaSigma1() const;
     /** @brief Set the value of the sigmaSigma1_ variable */
-    void setSigmaSigma1(double sigmaSigma1);
+    void setSigmaSigma1(double sigma_sigma1);
 
     /** @brief Allows to retrieve the sigmaSigma2_ variable */
     double getSigmaSigma2() const;
     /** @brief Set the value of the sigmaSigma2_ variable */
-    void setSigmaSigma2(double sigmaSigma2);
+    void setSigmaSigma2(double sigma_sigma2);
 
     /** @brief Allows to set the name and path of the external program */
     void setProgramName(std::string);
@@ -415,22 +415,22 @@ private:
     void setUpPropertyTree();
 
     /** @brief Set the value of the minDelta_ variable */
-    void setMinDelta(double minDelta);
+    void setMinDelta(double min_delta);
 
     /** @brief Set the value of the maxDelta_ variable */
-    void setMaxDelta(double maxDelta);
+    void setMaxDelta(double max_delta);
 
     /** @brief Set the value of the minSigma1_ variable */
-    void setMinSigma1(double minSigma1);
+    void setMinSigma1(double min_sigma1);
 
     /** @brief Set the value of the maxSigma1_ variable */
-    void setMaxSigma1(double maxSigma1);
+    void setMaxSigma1(double max_sigma1);
 
     /** @brief Set the value of the minSigma2_ variable */
-    void setMinSigma2(double minSigma2);
+    void setMinSigma2(double min_sigma2);
 
     /** @brief Set the value of the maxSigma2_ variable */
-    void setMaxSigma2(double maxSigma2);
+    void setMaxSigma2(double max_sigma2);
 
     /** @brief The default constructor; Only needed for (de-)serialization purposes, hence empty. */
     GExternalEvaluatorIndividualFactory();

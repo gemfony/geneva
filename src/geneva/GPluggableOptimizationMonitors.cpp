@@ -230,10 +230,10 @@ GFitnessMonitor::GFitnessMonitor(const GFitnessMonitor &cp)
 /**
  * Allows to specify a different name for the result file
  *
- * @param resultFile The desired name of the result file
+ * @param result_file The desired name of the result file
  */
-void GFitnessMonitor::setResultFileName(const std::string &resultFile) {
-    resultFile_ = resultFile;
+void GFitnessMonitor::setResultFileName(const std::string &result_file) {
+    resultFile_ = result_file;
 }
 
 /******************************************************************************/
@@ -250,12 +250,12 @@ std::string GFitnessMonitor::getResultFileName() const {
 /**
  * Allows to set the dimensions of the canvas
  *
- * @param xDim The desired dimension of the canvas in x-direction
- * @param yDim The desired dimension of the canvas in y-direction
+ * @param x_dim The desired dimension of the canvas in x-direction
+ * @param y_dim The desired dimension of the canvas in y-direction
  */
-void GFitnessMonitor::setDims(const std::uint32_t &xDim, const std::uint32_t &yDim) {
-    xDim_ = xDim;
-    yDim_ = yDim;
+void GFitnessMonitor::setDims(const std::uint32_t &x_dim, const std::uint32_t &y_dim) {
+    xDim_ = x_dim;
+    yDim_ = y_dim;
 }
 
 /******************************************************************************/
@@ -297,17 +297,17 @@ std::uint32_t GFitnessMonitor::getYDim() const {
  * If nMonitorInds_ is set to a larger number than there are individuals in the population,
  * the value will be reset to that amount of individuals in informationFunction.
  *
- * @oaram nMonitorInds The number of individuals in the population that should be monitored
+ * @oaram n_monitor_inds The number of individuals in the population that should be monitored
  */
-void GFitnessMonitor::setNMonitorIndividuals(const std::size_t &nMonitorInds) {
+void GFitnessMonitor::setNMonitorIndividuals(const std::size_t &n_monitor_inds) {
     // A request of 0 means "use the built-in default"; any positive value is
     // honoured as-is. (Clamping to the actual population size happens later,
     // in informationFunction().)
-    if(nMonitorInds == 0) {
+    if(n_monitor_inds == 0) {
         nMonitorInds_ = std::size_t(DEFNMONITORINDS);
     }
     else {
-        nMonitorInds_ = nMonitorInds;
+        nMonitorInds_ = n_monitor_inds;
     }
 }
 
@@ -436,7 +436,7 @@ void GFitnessMonitor::informationFunction_(
         std::vector<std::shared_ptr<GParameterSet>>::iterator global_ind_it;
         std::vector<std::shared_ptr<GParameterSet>>::iterator iter_ind_it;
 
-        std::size_t mInd = 0;
+        std::size_t m_ind = 0;
         for(global_it = globalFitnessGraphVec_.begin(),
         iter_it = iterationFitnessGraphVec_.begin(),
         global_ind_it = global_bests.begin(),
@@ -795,8 +795,8 @@ void GCollectiveMonitor::specificTestsFailuresExpected_GUnitTests_() {
 /**
  * Initialization with a file name. Note that some variables may be initialized in the class body.
  */
-GAllSolutionFileLogger::GAllSolutionFileLogger(const std::string &fileName)
-  : fileName_(fileName) { /* nothing */
+GAllSolutionFileLogger::GAllSolutionFileLogger(const std::string &file_name)
+  : fileName_(file_name) { /* nothing */
 }
 
 /******************************************************************************/
@@ -805,10 +805,10 @@ GAllSolutionFileLogger::GAllSolutionFileLogger(const std::string &fileName)
  * Note that some variables may be initialized in the class body.
  */
 GAllSolutionFileLogger::GAllSolutionFileLogger(
-    const std::string &fileName,
+    const std::string &file_name,
     const std::vector<double> &boundaries
 )
-  : fileName_(fileName)
+  : fileName_(file_name)
   , boundaries_(boundaries)
   , boundariesActive_(true) { /* nothing */
 }
@@ -865,8 +865,8 @@ void GAllSolutionFileLogger::compare_(
 /**
  * Sets the file name
  */
-void GAllSolutionFileLogger::setFileName(const std::string &fileName) {
-    fileName_ = fileName;
+void GAllSolutionFileLogger::setFileName(const std::string &file_name) {
+    fileName_ = file_name;
 }
 
 /******************************************************************************/
@@ -915,8 +915,8 @@ void GAllSolutionFileLogger::setBoundariesInactive() {
  * Allows to specify whether explanations should be printed for parameter-
  * and fitness values.
  */
-void GAllSolutionFileLogger::setPrintWithNameAndType(bool withNameAndType) {
-    withNameAndType_ = withNameAndType;
+void GAllSolutionFileLogger::setPrintWithNameAndType(bool with_name_and_type) {
+    withNameAndType_ = with_name_and_type;
 }
 
 /******************************************************************************/
@@ -932,8 +932,8 @@ bool GAllSolutionFileLogger::getPrintWithNameAndType() const {
 /**
  * Allows to specify whether commas should be printed in-between values
  */
-void GAllSolutionFileLogger::setPrintWithCommas(bool withCommas) {
-    withCommas_ = withCommas;
+void GAllSolutionFileLogger::setPrintWithCommas(bool with_commas) {
+    withCommas_ = with_commas;
 }
 
 /******************************************************************************/
@@ -948,8 +948,8 @@ bool GAllSolutionFileLogger::getPrintWithCommas() const {
 /**
  * Allows to specify whether the true (instead of the transformed) fitness should be shown
  */
-void GAllSolutionFileLogger::setUseTrueFitness(bool useRawFitness) {
-    useRawFitness_ = useRawFitness;
+void GAllSolutionFileLogger::setUseTrueFitness(bool use_raw_fitness) {
+    useRawFitness_ = use_raw_fitness;
 }
 
 /******************************************************************************/
@@ -964,8 +964,8 @@ bool GAllSolutionFileLogger::getUseTrueFitness() const {
 /**
  * Allows to specify whether the validity of a solution should be shown
  */
-void GAllSolutionFileLogger::setShowValidity(bool showValidity) {
-    showValidity_ = showValidity;
+void GAllSolutionFileLogger::setShowValidity(bool show_validity) {
+    showValidity_ = show_validity;
 }
 
 /******************************************************************************/
@@ -981,8 +981,8 @@ bool GAllSolutionFileLogger::getShowValidity() const {
  * Allows to specifiy whether the initial population (prior to any
  * optimization work) should be printed.
  */
-void GAllSolutionFileLogger::setPrintInitial(bool printInitial) {
-    printInitial_ = printInitial;
+void GAllSolutionFileLogger::setPrintInitial(bool print_initial) {
+    printInitial_ = print_initial;
 }
 
 /******************************************************************************/
@@ -999,8 +999,8 @@ bool GAllSolutionFileLogger::getPrintInitial() const {
 * Allows to specifiy whether a comment line should be inserted
 * between iterations
 */
-void GAllSolutionFileLogger::setShowIterationBoundaries(bool showIterationBoundaries) {
-    showIterationBoundaries_ = showIterationBoundaries;
+void GAllSolutionFileLogger::setShowIterationBoundaries(bool show_iteration_boundaries) {
+    showIterationBoundaries_ = show_iteration_boundaries;
 }
 
 /******************************************************************************/
@@ -1025,17 +1025,17 @@ void GAllSolutionFileLogger::informationFunction_(
     case Gem::Geneva::infoMode::INFOINIT: {
         // If the file pointed to by fileName_ already exists, make a back-up
         if(std::filesystem::exists(fileName_)) {
-            std::string newFileName =
+            std::string new_file_name =
                 fileName_ + ".bak_" +
                 Gem::Common::getMSSince1970(); // NOLINT(cppcoreguidelines-init-variables)
 
             glogger << "In GAllSolutionFileLogger::informationFunction_(): Warning!" << '\n'
                     << "Attempt to output information to file " << fileName_ << '\n'
                     << "which already exists. We will rename the old file to" << '\n'
-                    << newFileName << '\n'
+                    << new_file_name << '\n'
                     << GWARNING;
 
-            std::filesystem::rename(fileName_, newFileName);
+            std::filesystem::rename(fileName_, new_file_name);
         }
 
         if(printInitial_) {
@@ -1094,7 +1094,7 @@ GObject *GAllSolutionFileLogger::clone_() const {
  * Does the actual printing
  */
 void GAllSolutionFileLogger::printPopulation(
-    const std::string &iterationDescription,
+    const std::string &iteration_description,
     G_OptimizationAlgorithm_Base const *const goa
 ) {
     // Open the external file
@@ -1104,7 +1104,7 @@ void GAllSolutionFileLogger::printPopulation(
         data << "#" << '\n'
              << "# -----------------------------------------------------------------------------"
              << '\n'
-             << "# " << iterationDescription << ":" << '\n'
+             << "# " << iteration_description << ":" << '\n'
              << "#" << '\n';
     }
 
@@ -1122,7 +1122,7 @@ void GAllSolutionFileLogger::printPopulation(
             }
             else {
                 data << ind->toCSV(
-                    false /* withNameAndType */,
+                    false /* with_name_and_type */,
                     withCommas_,
                     useRawFitness_,
                     showValidity_
@@ -1204,8 +1204,8 @@ void GAllSolutionFileLogger::specificTestsFailuresExpected_GUnitTests_() {
  * Initialization with a file name. Note that some variables may be initialized
  * in the class body.
  */
-GIterationResultsFileLogger::GIterationResultsFileLogger(const std::string &fileName)
-  : fileName_(fileName) { /* nothing */
+GIterationResultsFileLogger::GIterationResultsFileLogger(const std::string &file_name)
+  : fileName_(file_name) { /* nothing */
 }
 
 /******************************************************************************/
@@ -1254,8 +1254,8 @@ void GIterationResultsFileLogger::compare_(
 /**
  * Sets the file name
  */
-void GIterationResultsFileLogger::setFileName(const std::string &fileName) {
-    fileName_ = fileName;
+void GIterationResultsFileLogger::setFileName(const std::string &file_name) {
+    fileName_ = file_name;
 }
 
 /******************************************************************************/
@@ -1270,8 +1270,8 @@ std::string GIterationResultsFileLogger::getFileName() const {
 /**
  * Allows to specify whether commas should be printed in-between values
  */
-void GIterationResultsFileLogger::setPrintWithCommas(bool withCommas) {
-    withCommas_ = withCommas;
+void GIterationResultsFileLogger::setPrintWithCommas(bool with_commas) {
+    withCommas_ = with_commas;
 }
 
 /******************************************************************************/
@@ -1286,8 +1286,8 @@ bool GIterationResultsFileLogger::getPrintWithCommas() const {
 /**
  * Allows to specify whether the true (instead of the transformed) fitness should be shown
  */
-void GIterationResultsFileLogger::setUseTrueFitness(bool useRawFitness) {
-    useRawFitness_ = useRawFitness;
+void GIterationResultsFileLogger::setUseTrueFitness(bool use_raw_fitness) {
+    useRawFitness_ = use_raw_fitness;
 }
 
 /******************************************************************************/
@@ -1311,18 +1311,17 @@ void GIterationResultsFileLogger::informationFunction_(
     case Gem::Geneva::infoMode::INFOINIT: {
         // If the file pointed to by fileName_ already exists, make a back-up
         if(std::filesystem::exists(fileName_)) {
-            std::string newFileName =
+            std::string new_file_name =
                 fileName_ + ".bak_" +
                 Gem::Common::getMSSince1970(); // NOLINT(cppcoreguidelines-init-variables)
 
-            glogger << "In GIterationResultsFileLogger::informationFunction_(): Warning!"
-                    << '\n'
+            glogger << "In GIterationResultsFileLogger::informationFunction_(): Warning!" << '\n'
                     << "Attempt to output information to file " << fileName_ << '\n'
                     << "which already exists. We will rename the old file to" << '\n'
-                    << newFileName << '\n'
+                    << new_file_name << '\n'
                     << GWARNING;
 
-            std::filesystem::rename(fileName_, newFileName);
+            std::filesystem::rename(fileName_, new_file_name);
         }
     } break;
 
@@ -1335,15 +1334,15 @@ void GIterationResultsFileLogger::informationFunction_(
         std::vector<double> fitness_cnt;
 
         // Loop over all individuals of the algorithm.
-        std::size_t nIndividuals = goa->size();
-        for(std::size_t pos = 0; pos < nIndividuals; pos++) {
+        std::size_t n_individuals = goa->size();
+        for(std::size_t pos = 0; pos < n_individuals; pos++) {
             std::shared_ptr<GParameterSet> ind = goa->template individual_cast<GParameterSet>(pos);
             fitness_cnt = goa->at(pos)->raw_fitness_vec();
 
-            std::size_t nFitnessCriteria = goa->at(0)->getNStoredResults();
-            for(std::size_t i = 0; i < nFitnessCriteria; i++) {
+            std::size_t n_fitness_criteria = goa->at(0)->getNStoredResults();
+            for(std::size_t i = 0; i < n_fitness_criteria; i++) {
                 data << fitness_cnt.at(i)
-                     << ((withCommas_ && (nFitnessCriteria * nIndividuals > (i + 1) * (pos + 1)))
+                     << ((withCommas_ && (n_fitness_criteria * n_individuals > (i + 1) * (pos + 1)))
                              ? ", "
                              : " ");
             }
@@ -1456,8 +1455,8 @@ void GIterationResultsFileLogger::specificTestsFailuresExpected_GUnitTests_() {
  * Initialization with a file name. Note that some variables may be
  * initialized in the class body.
  */
-GNAdpationsLogger::GNAdpationsLogger(const std::string &fileName)
-  : fileName_(fileName)
+GNAdpationsLogger::GNAdpationsLogger(const std::string &file_name)
+  : fileName_(file_name)
   , canvasDimensions_(std::tuple<std::uint32_t, std::uint32_t>(1200, 1600))
   , gpd_("Number of adaptions per iteration", 1, 2) { /* nothing */
 }
@@ -1526,8 +1525,8 @@ void GNAdpationsLogger::compare_(
 /**
  * Sets the file name
  */
-void GNAdpationsLogger::setFileName(const std::string &fileName) {
-    fileName_ = fileName;
+void GNAdpationsLogger::setFileName(const std::string &file_name) {
+    fileName_ = file_name;
 }
 
 /******************************************************************************/
@@ -1542,8 +1541,8 @@ std::string GNAdpationsLogger::getFileName() const {
 /**
  * Allows to specify whether only the best individuals should be monitored.
  */
-void GNAdpationsLogger::setMonitorBestOnly(bool monitorBestOnly) {
-    monitorBestOnly_ = monitorBestOnly;
+void GNAdpationsLogger::setMonitorBestOnly(bool monitor_best_only) {
+    monitorBestOnly_ = monitor_best_only;
 }
 
 /******************************************************************************/
@@ -1559,9 +1558,9 @@ bool GNAdpationsLogger::getMonitorBestOnly() const {
  * Allows to set the canvas dimensions
  */
 void GNAdpationsLogger::setCanvasDimensions(
-    std::tuple<std::uint32_t, std::uint32_t> canvasDimensions
+    std::tuple<std::uint32_t, std::uint32_t> canvas_dimensions
 ) {
-    canvasDimensions_ = canvasDimensions;
+    canvasDimensions_ = canvas_dimensions;
 }
 
 /******************************************************************************/
@@ -1584,8 +1583,8 @@ std::tuple<std::uint32_t, std::uint32_t> GNAdpationsLogger::getCanvasDimensions(
 /**
  * Allows to add a "Print" command to the end of the script so that picture files are created
  */
-void GNAdpationsLogger::setAddPrintCommand(bool addPrintCommand) {
-    addPrintCommand_ = addPrintCommand;
+void GNAdpationsLogger::setAddPrintCommand(bool add_print_command) {
+    addPrintCommand_ = add_print_command;
 }
 
 /******************************************************************************/
@@ -1611,17 +1610,17 @@ void GNAdpationsLogger::informationFunction_(
     case Gem::Geneva::infoMode::INFOINIT: {
         // If the file pointed to by fileName_ already exists, make a back-up
         if(std::filesystem::exists(fileName_)) {
-            std::string newFileName =
+            std::string new_file_name =
                 fileName_ + ".bak_" +
                 Gem::Common::getMSSince1970(); // NOLINT(cppcoreguidelines-init-variables)
 
             glogger << "In GNAdpationsLogger::informationFunction_(): Error!" << '\n'
                     << "Attempt to output information to file " << fileName_ << '\n'
                     << "which already exists. We will rename the old file to" << '\n'
-                    << newFileName << '\n'
+                    << new_file_name << '\n'
                     << GWARNING;
 
-            std::filesystem::rename(fileName_, newFileName);
+            std::filesystem::rename(fileName_, new_file_name);
         }
 
         // Make sure the progress plotter has the desired size
@@ -1683,21 +1682,21 @@ void GNAdpationsLogger::informationFunction_(
         }
         else { // All individuals are monitored
             // Within nAdaptionsStore_, find the largest number of adaptions performed
-            std::size_t maxNAdaptions = 0;
+            std::size_t max_n_adaptions = 0;
             for(it = nAdaptionsStore_.begin(); it != nAdaptionsStore_.end(); ++it) {
-                if(std::get<1>(*it) > maxNAdaptions) {
-                    maxNAdaptions = Gem::Common::narrow_cast<std::size_t>(std::get<1>(*it));
+                if(std::get<1>(*it) > max_n_adaptions) {
+                    max_n_adaptions = Gem::Common::narrow_cast<std::size_t>(std::get<1>(*it));
                 }
             }
 
             // Create the histogram object
             nAdaptionsHist2D_oa_ = std::make_shared<GHistogram2D>(
                 nIterationsRecorded_,
-                maxNAdaptions + 1,
+                max_n_adaptions + 1,
                 0.,
                 double(maxIteration_),
                 0.,
-                double(maxNAdaptions)
+                double(max_n_adaptions)
             );
 
             nAdaptionsHist2D_oa_->setXAxisLabel("Iteration");
@@ -1841,21 +1840,21 @@ GProcessingTimesLogger::GProcessingTimesLogger() = default;
  * Initialization with a file name. Note that some variables may be initialized in the class body.
  */
 GProcessingTimesLogger::GProcessingTimesLogger(
-    const std::string &fileName_pth,
-    const std::string &fileName_pth2,
-    const std::string &fileName_txt,
-    std::size_t nBinsX,
-    std::size_t nBinsY
+    const std::string &file_name_pth,
+    const std::string &file_name_pth2,
+    const std::string &file_name_txt,
+    std::size_t n_bins_x,
+    std::size_t n_bins_y
 )
-  : fileName_pth_(fileName_pth)
+  : fileName_pth_(file_name_pth)
   , canvasDimensions_pth_(std::tuple<std::uint32_t, std::uint32_t>(1600, 1200))
   , gpd_pth_("Timings for the processing steps of individuals", 2, 2)
-  , fileName_pth2_(fileName_pth2)
+  , fileName_pth2_(file_name_pth2)
   , canvasDimensions_pth2_(std::tuple<std::uint32_t, std::uint32_t>(1600, 1200))
   , gpd_pth2_("Timings for the processing steps of individuals vs. iteration", 2, 2)
-  , fileName_txt_(fileName_txt)
-  , nBinsX_(nBinsX)
-  , nBinsY_(nBinsY) { /* nothing */
+  , fileName_txt_(file_name_txt)
+  , nBinsX_(n_bins_x)
+  , nBinsY_(n_bins_y) { /* nothing */
 }
 
 /******************************************************************************/
@@ -1927,8 +1926,8 @@ void GProcessingTimesLogger::compare_(
 /**
  * Sets the file name for the processing times histogram
  */
-void GProcessingTimesLogger::setFileName_pth(const std::string &fileName) {
-    fileName_pth_ = fileName;
+void GProcessingTimesLogger::setFileName_pth(const std::string &file_name) {
+    fileName_pth_ = file_name;
 }
 
 /******************************************************************************/
@@ -1943,8 +1942,8 @@ std::string GProcessingTimesLogger::getFileName_pth() const {
 /**
  * Sets the file name for the processing times histograms (2D)
  */
-void GProcessingTimesLogger::setFileName_pth2(const std::string &fileName) {
-    fileName_pth2_ = fileName;
+void GProcessingTimesLogger::setFileName_pth2(const std::string &file_name) {
+    fileName_pth2_ = file_name;
 }
 
 /******************************************************************************/
@@ -1959,8 +1958,8 @@ std::string GProcessingTimesLogger::getFileName_pth2() const {
 /**
  * Sets the file name for the text output
  */
-void GProcessingTimesLogger::setFileName_txt(const std::string &fileName) {
-    fileName_txt_ = fileName;
+void GProcessingTimesLogger::setFileName_txt(const std::string &file_name) {
+    fileName_txt_ = file_name;
 }
 
 /******************************************************************************/
@@ -1976,9 +1975,9 @@ std::string GProcessingTimesLogger::getFileName_txt() const {
  * Allows to set the canvas dimensions for the processing times histograms
  */
 void GProcessingTimesLogger::setCanvasDimensions_pth(
-    std::tuple<std::uint32_t, std::uint32_t> canvasDimensions
+    std::tuple<std::uint32_t, std::uint32_t> canvas_dimensions
 ) {
-    canvasDimensions_pth_ = canvasDimensions;
+    canvasDimensions_pth_ = canvas_dimensions;
 }
 
 /******************************************************************************/
@@ -2003,9 +2002,9 @@ std::tuple<std::uint32_t, std::uint32_t> GProcessingTimesLogger::getCanvasDimens
  * Allows to set the canvas dimensions for the processing times histograms (2D)
  */
 void GProcessingTimesLogger::setCanvasDimensions_pth2(
-    std::tuple<std::uint32_t, std::uint32_t> canvasDimensions
+    std::tuple<std::uint32_t, std::uint32_t> canvas_dimensions
 ) {
-    canvasDimensions_pth2_ = canvasDimensions;
+    canvasDimensions_pth2_ = canvas_dimensions;
 }
 
 /******************************************************************************/
@@ -2029,15 +2028,15 @@ std::tuple<std::uint32_t, std::uint32_t> GProcessingTimesLogger::getCanvasDimens
 /**
  * Sets the number of bins for the processing times histograms in y-direction
  */
-void GProcessingTimesLogger::setNBinsX(std::size_t nBinsX) {
-    if(nBinsX > 0) {
-        nBinsX_ = nBinsX;
+void GProcessingTimesLogger::setNBinsX(std::size_t n_bins_x) {
+    if(n_bins_x > 0) {
+        nBinsX_ = n_bins_x;
     }
     else {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GProcessingTimesLogger::setNBinsX(): Error!" << '\n'
-            << "nBinsX is set to 0" << '\n'
+            << "n_bins_x is set to 0" << '\n'
         );
     }
 }
@@ -2055,15 +2054,15 @@ std::size_t GProcessingTimesLogger::getNBinsX() const {
 /**
  * Sets the number of bins for the processing times histograms in y-direction
  */
-void GProcessingTimesLogger::setNBinsY(std::size_t nBinsY) {
-    if(nBinsY > 0) {
-        nBinsY_ = nBinsY;
+void GProcessingTimesLogger::setNBinsY(std::size_t n_bins_y) {
+    if(n_bins_y > 0) {
+        nBinsY_ = n_bins_y;
     }
     else {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GProcessingTimesLogger::setNBinsY(): Error!" << '\n'
-            << "nBinsY is set to 0" << '\n'
+            << "n_bins_y is set to 0" << '\n'
         );
     }
 }
@@ -2093,17 +2092,17 @@ void GProcessingTimesLogger::informationFunction_(
 
         // If the file pointed to by fileName_pth_ already exists, make a back-up
         if(std::filesystem::exists(fileName_pth_)) {
-            std::string newFileName =
+            std::string new_file_name =
                 fileName_pth_ + ".bak_" +
                 Gem::Common::getMSSince1970(); // NOLINT(cppcoreguidelines-init-variables)
 
             glogger << "In GProcessingTimesLogger::informationFunction_(): Warning!" << '\n'
                     << "Attempt to output information to file " << fileName_pth_ << '\n'
                     << "which already exists. We will rename the old file to" << '\n'
-                    << newFileName << '\n'
+                    << new_file_name << '\n'
                     << GWARNING;
 
-            std::filesystem::rename(fileName_pth_, newFileName);
+            std::filesystem::rename(fileName_pth_, new_file_name);
         }
 
         // Make sure the processing times plotter has the desired size
@@ -2142,17 +2141,17 @@ void GProcessingTimesLogger::informationFunction_(
 
         // If the file pointed to by fileName_pth2_ already exists, make a back-up
         if(std::filesystem::exists(fileName_pth2_)) {
-            std::string newFileName =
+            std::string new_file_name =
                 fileName_pth2_ + ".bak_" +
                 Gem::Common::getMSSince1970(); // NOLINT(cppcoreguidelines-init-variables)
 
             glogger << "In GProcessingTimesLogger::informationFunction_(): Warning!" << '\n'
                     << "Attempt to output information to file " << fileName_pth2_ << '\n'
                     << "which already exists. We will rename the old file to" << '\n'
-                    << newFileName << '\n'
+                    << new_file_name << '\n'
                     << GWARNING;
 
-            std::filesystem::rename(fileName_pth2_, newFileName);
+            std::filesystem::rename(fileName_pth2_, new_file_name);
         }
 
         // Make sure the processing times has the desired size
@@ -2198,17 +2197,17 @@ void GProcessingTimesLogger::informationFunction_(
 
         // If the file pointed to by fileName_txt_ already exists, make a back-up
         if(std::filesystem::exists(fileName_txt_)) {
-            std::string newFileName =
+            std::string new_file_name =
                 fileName_txt_ + ".bak_" +
                 Gem::Common::getMSSince1970(); // NOLINT(cppcoreguidelines-init-variables)
 
             glogger << "In GProcessingTimesLogger::informationFunction_(): Warning!" << '\n'
                     << "Attempt to output information to file " << fileName_pth2_ << '\n'
                     << "which already exists. We will rename the old file to" << '\n'
-                    << newFileName << '\n'
+                    << new_file_name << '\n'
                     << GWARNING;
 
-            std::filesystem::rename(fileName_txt_, newFileName);
+            std::filesystem::rename(fileName_txt_, new_file_name);
         }
 
         //---------------------------------------------------------------
@@ -2231,40 +2230,41 @@ void GProcessingTimesLogger::informationFunction_(
             std::shared_ptr<GParameterSet> ind = goa->template individual_cast<GParameterSet>(pos);
 
             // Retrieve the processing timings
-            std::tuple<double, double, double> processingTimes = ind->getProcessingTimes();
+            std::tuple<double, double, double> processing_times = ind->getProcessingTimes();
 
-            double preProcessingTime = std::get<0>(processingTimes);
-            double mainProcessingTime = std::get<1>(processingTimes);
-            double postProcessingTime = std::get<2>(processingTimes);
-            double allProcessingTime = preProcessingTime + mainProcessingTime + postProcessingTime;
+            double pre_processing_time = std::get<0>(processing_times);
+            double main_processing_time = std::get<1>(processing_times);
+            double post_processing_time = std::get<2>(processing_times);
+            double all_processing_time =
+                pre_processing_time + main_processing_time + post_processing_time;
 
             // Fill the timings into the histograms
-            pre_processing_times_hist_->add(preProcessingTime);   // PREPROCESSING
-            processing_times_hist_->add(mainProcessingTime);      // PROCESSING
-            post_processing_times_hist_->add(postProcessingTime); // POSTPROCESSING
-            all_processing_times_hist_->add(allProcessingTime);   // OVERALL PROCESSING TIME
+            pre_processing_times_hist_->add(pre_processing_time);   // PREPROCESSING
+            processing_times_hist_->add(main_processing_time);      // PROCESSING
+            post_processing_times_hist_->add(post_processing_time); // POSTPROCESSING
+            all_processing_times_hist_->add(all_processing_time);   // OVERALL PROCESSING TIME
 
             // Fill the timings into the 2D histograms ...
             pre_processing_times_hist2D_->add(
                 Gem::Common::narrow_cast<double>(iteration),
-                Gem::Common::narrow_cast<double>(preProcessingTime)
+                Gem::Common::narrow_cast<double>(pre_processing_time)
             ); // PREPROCESSING
             processing_times_hist2D_->add(
                 Gem::Common::narrow_cast<double>(iteration),
-                Gem::Common::narrow_cast<double>(mainProcessingTime)
+                Gem::Common::narrow_cast<double>(main_processing_time)
             ); // PROCESSING
             post_processing_times_hist2D_->add(
                 Gem::Common::narrow_cast<double>(iteration),
-                Gem::Common::narrow_cast<double>(postProcessingTime)
+                Gem::Common::narrow_cast<double>(post_processing_time)
             ); // POSTPROCESSING
             all_processing_times_hist2D_->add(
                 Gem::Common::narrow_cast<double>(iteration),
-                Gem::Common::narrow_cast<double>(allProcessingTime)
+                Gem::Common::narrow_cast<double>(all_processing_time)
             ); // OVERALL PROCESSING TIME
 
             data_txt << Gem::Common::narrow_cast<std::uint32_t>(iteration) << ", " << std::showpoint
-                     << preProcessingTime << ", " << mainProcessingTime << ", "
-                     << postProcessingTime << '\n';
+                     << pre_processing_time << ", " << main_processing_time << ", "
+                     << post_processing_time << '\n';
         }
 
         // Close the external text-file

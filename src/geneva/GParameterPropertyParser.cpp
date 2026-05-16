@@ -185,10 +185,10 @@ void GParameterPropertyParser::parse() {
     std::string::const_iterator from = raw_.begin();
     std::string::const_iterator to = raw_.end();
 
-    std::vector<std::tuple<char, std::string>> variableDescriptions;
+    std::vector<std::tuple<char, std::string>> variable_descriptions;
 
     // Dissect the raw string into sub-strings responsible for individual parameters
-    success = phrase_parse(from, to, (varString % ','), space, variableDescriptions);
+    success = phrase_parse(from, to, (varString % ','), space, variable_descriptions);
 
     if(not success || from != to) {
         std::string rest(from, to);
@@ -201,11 +201,11 @@ void GParameterPropertyParser::parse() {
 
     // Process each individual string
     std::vector<std::tuple<char, std::string>>::iterator it;
-    for(it = variableDescriptions.begin(); it != variableDescriptions.end(); ++it) {
-        std::string varDescr = std::get<1>(*it);
+    for(it = variable_descriptions.begin(); it != variable_descriptions.end(); ++it) {
+        std::string var_descr = std::get<1>(*it);
 
-        from = varDescr.begin();
-        to = varDescr.end();
+        from = var_descr.begin();
+        to = var_descr.end();
 
         if('d' == std::get<0>(*it)) {
             success = phrase_parse(

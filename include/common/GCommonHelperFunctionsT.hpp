@@ -508,26 +508,26 @@ void copyCloneableObjectsContainer(
  * destination as needed. Both size parameters are kept consistent.
  */
 template <typename T>
-void copyArrays(T const *const from, T *&to, const std::size_t &nFrom, std::size_t &nTo) {
-    if(nullptr == from && 0 != nFrom) {
+void copyArrays(T const *const from, T *&to, const std::size_t &n_from, std::size_t &n_to) {
+    if(nullptr == from && 0 != n_from) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In copyArrays(): from is null but nFrom=" << nFrom << '\n'
+            << "In copyArrays(): from is null but n_from=" << n_from << '\n'
         );
     }
-    if(nullptr != from && 0 == nFrom) {
+    if(nullptr != from && 0 == n_from) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In copyArrays(): from is non-null but nFrom=0" << '\n'
+            << "In copyArrays(): from is non-null but n_from=0" << '\n'
         );
     }
-    if(nullptr == to && 0 != nTo) {
+    if(nullptr == to && 0 != n_to) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In copyArrays(): to is null but nTo=" << nTo << '\n'
+            << "In copyArrays(): to is null but nTo=" << n_to << '\n'
         );
     }
-    if(nullptr != to && 0 == nTo) {
+    if(nullptr != to && 0 == n_to) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In copyArrays(): to is non-null but nTo=0" << '\n'
@@ -535,22 +535,22 @@ void copyArrays(T const *const from, T *&to, const std::size_t &nFrom, std::size
     }
 
     if(nullptr == from) {
-        nTo = 0;
+        n_to = 0;
         if(to) {
             g_array_delete(to);
         }
         return;
     }
 
-    if(nFrom != nTo) {
+    if(n_from != n_to) {
         if(to) {
             g_array_delete(to);
         }
-        to = new T[nFrom];
-        nTo = nFrom;
+        to = new T[n_from];
+        n_to = n_from;
     }
 
-    for(std::size_t i = 0; i < nFrom; i++) {
+    for(std::size_t i = 0; i < n_from; i++) {
         to[i] = from[i];
     }
 }

@@ -190,10 +190,10 @@ bool GBaseParChildPersonalityTraits::setIsChild() {
 /**
  * Sets the position of the individual in the population
  *
- * @param popPos The new position of this individual in the population
+ * @param pop_pos The new position of this individual in the population
  */
-void GBaseParChildPersonalityTraits::setPopulationPosition(const std::size_t &popPos) {
-    popPos_ = popPos;
+void GBaseParChildPersonalityTraits::setPopulationPosition(const std::size_t &pop_pos) {
+    popPos_ = pop_pos;
 }
 
 /* ----------------------------------------------------------------------------------
@@ -220,10 +220,10 @@ std::size_t GBaseParChildPersonalityTraits::getPopulationPosition(void) const {
 /**
  * Stores the parent's id with this object.
  *
- * @param parentId The id of the individual's parent
+ * @param parent_id The id of the individual's parent
  */
-void GBaseParChildPersonalityTraits::setParentId(const std::size_t &parentId) {
-    parentId_ = (std::int16_t)parentId;
+void GBaseParChildPersonalityTraits::setParentId(const std::size_t &parent_id) {
+    parentId_ = (std::int16_t)parent_id;
 }
 
 /* ----------------------------------------------------------------------------------

@@ -167,12 +167,12 @@ public:
     ~GFitnessMonitor() override = default;
 
     /** @brief Allows to specify a different name for the result file */
-    void setResultFileName(const std::string &resultFile);
+    void setResultFileName(const std::string &result_file);
     /** @brief Allows to retrieve the current value of the result file name */
     std::string getResultFileName() const;
 
     /** @brief Allows to set the dimensions of the canvas */
-    void setDims(const std::uint32_t &xDim, const std::uint32_t &yDim);
+    void setDims(const std::uint32_t &x_dim, const std::uint32_t &y_dim);
     /** @brief Retrieve the dimensions as a tuple */
     std::tuple<std::uint32_t, std::uint32_t> getDims() const;
     /** @brief Retrieves the dimension of the canvas in x-direction */
@@ -181,7 +181,7 @@ public:
     std::uint32_t getYDim() const;
 
     /** @brief Sets the number of individuals in the population that should be monitored */
-    void setNMonitorIndividuals(const std::size_t &nMonitorInds);
+    void setNMonitorIndividuals(const std::size_t &n_monitor_inds);
     /** @brief Retrieves the number of individuals that are being monitored */
     std::size_t getNMonitorIndividuals() const;
 
@@ -379,11 +379,11 @@ public:
 	  * should be monitored and whether only valid items should be recorded.
 	  * Some member variables may be initialized in the class body.
 	  */
-    GProgressPlotterT(bool monitorBestOnly, bool monitorValidOnly)
+    GProgressPlotterT(bool monitor_best_only, bool monitor_valid_only)
       : gpd_("Progress information", 1, 1)
       , canvasDimensions_(std::tuple<std::uint32_t, std::uint32_t>(1024, 768))
-      , monitorBestOnly_(monitorBestOnly)
-      , monitorValidOnly_(monitorValidOnly) { /* nothing */
+      , monitorBestOnly_(monitor_best_only)
+      , monitorValidOnly_(monitor_valid_only) { /* nothing */
     }
 
     /***************************************************************************/
@@ -417,14 +417,14 @@ public:
 	  * boolean and integer variables specified in the argument will simply
 	  * be ignored.
 	  */
-    void setProfileSpec(std::string const &parStr) {
+    void setProfileSpec(std::string const &par_str) {
         // Check that the parameter string isn't empty
-        if(parStr.empty()) {
+        if(par_str.empty()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GPluggableOptimizationMonitors<>::setProfileSpec(std::string): Error!"
                 << '\n'
-                << "Parameter string " << parStr << " is empty" << '\n'
+                << "Parameter string " << par_str << " is empty" << '\n'
             );
         }
 
@@ -433,7 +433,7 @@ public:
         fp_profVarVec_.clear();
 
         // Parse the parameter string
-        GParameterPropertyParser ppp(parStr);
+        GParameterPropertyParser ppp(par_str);
 
         //---------------------------------------------------------------------------
         // Retrieve the parameters
@@ -457,8 +457,8 @@ public:
     /**
 	  * Allows to specify whether only the best individuals should be monitored.
 	  */
-    void setMonitorBestOnly(bool monitorBestOnly = true) {
-        monitorBestOnly_ = monitorBestOnly;
+    void setMonitorBestOnly(bool monitor_best_only = true) {
+        monitorBestOnly_ = monitor_best_only;
     }
 
     /***************************************************************************/
@@ -473,8 +473,8 @@ public:
     /**
 	  * Allows to specify whether only valid individuals should be monitored.
 	  */
-    void setMonitorValidOnly(bool monitorValidOnly = true) {
-        monitorValidOnly_ = monitorValidOnly;
+    void setMonitorValidOnly(bool monitor_valid_only = true) {
+        monitorValidOnly_ = monitor_valid_only;
     }
 
     /***************************************************************************/
@@ -489,8 +489,8 @@ public:
     /**
 	  * Allows to spefify whether scan boundaries should be observed
 	  */
-    void setObserveBoundaries(bool observeBoundaries) {
-        observeBoundaries_ = observeBoundaries;
+    void setObserveBoundaries(bool observe_boundaries) {
+        observeBoundaries_ = observe_boundaries;
     }
 
     /***************************************************************************/
@@ -521,8 +521,8 @@ public:
     /**
 	  * Allows to set the canvas dimensions
 	  */
-    void setCanvasDimensions(std::tuple<std::uint32_t, std::uint32_t> canvasDimensions) {
-        canvasDimensions_ = canvasDimensions;
+    void setCanvasDimensions(std::tuple<std::uint32_t, std::uint32_t> canvas_dimensions) {
+        canvasDimensions_ = canvas_dimensions;
     }
 
     /***************************************************************************/
@@ -545,8 +545,8 @@ public:
     /**
 	  * Allows to add a "Print" command to the end of the script so that picture files are created
 	  */
-    void setAddPrintCommand(bool addPrintCommand) {
-        addPrintCommand_ = addPrintCommand;
+    void setAddPrintCommand(bool add_print_command) {
+        addPrintCommand_ = add_print_command;
     }
 
     /******************************************************************************/
@@ -561,8 +561,8 @@ public:
     /**
 	  * Allows to set the filename
 	  */
-    void setFileName(const std::string &fileName) {
-        fileName_ = fileName;
+    void setFileName(const std::string &file_name) {
+        fileName_ = file_name;
     }
 
     /***************************************************************************/
@@ -577,8 +577,8 @@ public:
     /**
 	  * Allows to set the canvas label
 	  */
-    void setCanvasLabel(const std::string &canvasLabel) {
-        gpd_.setCanvasLabel(canvasLabel);
+    void setCanvasLabel(const std::string &canvas_label) {
+        gpd_.setCanvasLabel(canvas_label);
     }
 
     /***************************************************************************/
@@ -846,17 +846,17 @@ private:
         } break;
 
         case Gem::Geneva::infoMode::INFOPROCESSING: {
-            bool isDirty = true;
-            double primaryFitness = 0.;
+            bool is_dirty = true;
+            double primary_fitness = 0.;
 
             if(monitorBestOnly_) { // Monitor the best individuals only
                 std::shared_ptr<GParameterSet> p =
                     goa->G_Interface_OptimizerT::template getBestGlobalIndividual<GParameterSet>();
                 if(GBasePluggableOM::useRawEvaluation_) {
-                    primaryFitness = p->raw_fitness(0);
+                    primary_fitness = p->raw_fitness(0);
                 }
                 else {
-                    primaryFitness = p->transformed_fitness(0);
+                    primary_fitness = p->transformed_fitness(0);
                 }
 
                 if(not monitorValidOnly_ || p->isValid()) {
@@ -867,11 +867,11 @@ private:
                         if(observeBoundaries_) {
                             if(val0 >= fp_profVarVec_[0].lowerBoundary &&
                                val0 <= fp_profVarVec_[0].upperBoundary) {
-                                progressPlotter2D_oa_->add(double(val0), primaryFitness);
+                                progressPlotter2D_oa_->add(double(val0), primary_fitness);
                             }
                         }
                         else {
-                            progressPlotter2D_oa_->add(double(val0), primaryFitness);
+                            progressPlotter2D_oa_->add(double(val0), primary_fitness);
                         }
                     } break;
 
@@ -888,7 +888,7 @@ private:
                                     std::tuple<double, double, double>(
                                         double(val0),
                                         double(val1),
-                                        primaryFitness
+                                        primary_fitness
                                     )
                                 );
                             }
@@ -898,7 +898,7 @@ private:
                                 std::tuple<double, double, double>(
                                     double(val0),
                                     double(val1),
-                                    primaryFitness
+                                    primary_fitness
                                 )
                             );
                         }
@@ -921,7 +921,7 @@ private:
                                         double(val0),
                                         double(val1),
                                         double(val2),
-                                        primaryFitness
+                                        primary_fitness
                                     )
                                 );
                             }
@@ -932,7 +932,7 @@ private:
                                     double(val0),
                                     double(val1),
                                     double(val2),
-                                    primaryFitness
+                                    primary_fitness
                                 )
                             );
                         }
@@ -946,10 +946,10 @@ private:
             else { // Monitor all individuals
                 for(const auto &ind_ptr : *goa) {
                     if(GBasePluggableOM::useRawEvaluation_) {
-                        primaryFitness = ind_ptr->raw_fitness(0);
+                        primary_fitness = ind_ptr->raw_fitness(0);
                     }
                     else {
-                        primaryFitness = ind_ptr->transformed_fitness(0);
+                        primary_fitness = ind_ptr->transformed_fitness(0);
                     }
 
                     if(not monitorValidOnly_ || ind_ptr->isValid()) {
@@ -962,11 +962,11 @@ private:
                             if(observeBoundaries_) {
                                 if(val0 >= fp_profVarVec_[0].lowerBoundary &&
                                    val0 <= fp_profVarVec_[0].upperBoundary) {
-                                    progressPlotter2D_oa_->add(double(val0), primaryFitness);
+                                    progressPlotter2D_oa_->add(double(val0), primary_fitness);
                                 }
                             }
                             else {
-                                progressPlotter2D_oa_->add(double(val0), primaryFitness);
+                                progressPlotter2D_oa_->add(double(val0), primary_fitness);
                             }
                         } break;
 
@@ -987,7 +987,7 @@ private:
                                         std::tuple<double, double, double>(
                                             double(val0),
                                             double(val1),
-                                            primaryFitness
+                                            primary_fitness
                                         )
                                     );
                                 }
@@ -997,7 +997,7 @@ private:
                                     std::tuple<double, double, double>(
                                         double(val0),
                                         double(val1),
-                                        primaryFitness
+                                        primary_fitness
                                     )
                                 );
                             }
@@ -1026,7 +1026,7 @@ private:
                                             double(val0),
                                             double(val1),
                                             double(val2),
-                                            primaryFitness
+                                            primary_fitness
                                         )
                                     );
                                 }
@@ -1037,7 +1037,7 @@ private:
                                         double(val0),
                                         double(val1),
                                         double(val2),
-                                        primaryFitness
+                                        primary_fitness
                                     )
                                 );
                             }
@@ -1107,8 +1107,8 @@ private:
  * This class allows to log all candidate solutions found to a file, including the parameetr
  * values. NOTE that the file may become very large! Results are output in the following format:
  * param1 param2 ... param_m eval1 eval2 ... eval_n . By default, no commas and
- * explanations are printed. If withNameAndType is set to true, the values are
- * prepended by a line with variable names and types. If withCommas is set to true,
+ * explanations are printed. If with_name_and_type is set to true, the values are
+ * prepended by a line with variable names and types. If with_commas is set to true,
  * commas will be printed in-between values. It is possible to filter the results by
  * asking the class to only log solutions better than a given set of values. What
  * is considered better depends on whether evaluation criteria are maximized or minimized
@@ -1143,17 +1143,17 @@ public:
     /** @brief The default constructor */
     GAllSolutionFileLogger() = default;
     /** @brief Initialization with a file name */
-    explicit GAllSolutionFileLogger(const std::string &fileName);
+    explicit GAllSolutionFileLogger(const std::string &file_name);
     /** @brief Initialization with a file name and boundaries */
-    
-    GAllSolutionFileLogger(const std::string &fileName, const std::vector<double> &boundaries);
+
+    GAllSolutionFileLogger(const std::string &file_name, const std::vector<double> &boundaries);
     /** @brief The copy constructor */
     GAllSolutionFileLogger(const GAllSolutionFileLogger &cp) = default;
     /** @brief The destructor */
     ~GAllSolutionFileLogger() override = default;
 
     /** @brief Sets the file name */
-    void setFileName(const std::string &fileName);
+    void setFileName(const std::string &file_name);
     /** @brief Retrieves the current file name */
     std::string getFileName() const;
 
@@ -1167,32 +1167,32 @@ public:
     void setBoundariesInactive();
 
     /** @brief  Allows to specify whether explanations should be printed for parameter- and fitness values. */
-    void setPrintWithNameAndType(bool withNameAndType = true);
+    void setPrintWithNameAndType(bool with_name_and_type = true);
     /** @brief Allows to check whether explanations should be printed for parameter-and fitness values */
     bool getPrintWithNameAndType() const;
 
     /** @brief Allows to specify whether commas should be printed in-between values */
-    void setPrintWithCommas(bool withCommas = true);
+    void setPrintWithCommas(bool with_commas = true);
     /** @brief Allows to check whether commas should be printed in-between values */
     bool getPrintWithCommas() const;
 
     /** @brief Allows to specify whether the true (instead of the transformed) fitness should be shown */
-    void setUseTrueFitness(bool useRawFitness = true);
+    void setUseTrueFitness(bool use_raw_fitness = true);
     /** @brief Allows to retrieve whether the true (instead of the transformed) fitness should be shown */
     bool getUseTrueFitness() const;
 
     /** @brief Allows to specify whether the validity of a solution should be shown */
-    void setShowValidity(bool showValidity = true);
+    void setShowValidity(bool show_validity = true);
     /** @brief Allows to check whether the validity of a solution will be shown */
     bool getShowValidity() const;
 
     /** @brief Allows to specifiy whether the initial population should be printed. */
-    void setPrintInitial(bool printInitial = true);
+    void setPrintInitial(bool print_initial = true);
     /** @brief Allows to check whether the initial population should be printed. */
     bool getPrintInitial() const;
 
     /** @brief Allows to specifiy whether a comment line should be inserted between iterations */
-    void setShowIterationBoundaries(bool showIterationBoundaries = true);
+    void setShowIterationBoundaries(bool show_iteration_boundaries = true);
     /** @brief Allows to check whether a comment line should be inserted between iterations */
     bool getShowIterationBoundaries() const;
 
@@ -1236,7 +1236,7 @@ private:
 
     /** @brief Does the actual printing */
     void printPopulation(
-        const std::string &iterationDescription,
+        const std::string &iteration_description,
         G_OptimizationAlgorithm_Base const *const goa
     );
 
@@ -1287,24 +1287,24 @@ public:
     /** @brief The default constructor */
     GIterationResultsFileLogger() = default;
     /** @brief Initialization with a file name */
-    explicit GIterationResultsFileLogger(const std::string &fileName);
+    explicit GIterationResultsFileLogger(const std::string &file_name);
     /** @brief The copy constructor */
     GIterationResultsFileLogger(const GIterationResultsFileLogger &cp) = default;
     /** @brief The destructor */
     ~GIterationResultsFileLogger() override = default;
 
     /** @brief Sets the file name */
-    void setFileName(const std::string &fileName);
+    void setFileName(const std::string &file_name);
     /** @brief Retrieves the current file name */
     std::string getFileName() const;
 
     /** @brief Allows to specify whether commas should be printed in-between values */
-    void setPrintWithCommas(bool withCommas);
+    void setPrintWithCommas(bool with_commas);
     /** @brief Allows to check whether commas should be printed in-between values */
     bool getPrintWithCommas() const;
 
     /** @brief Allows to specify whether the true (instead of the transformed) fitness should be shown */
-    void setUseTrueFitness(bool useRawFitness);
+    void setUseTrueFitness(bool use_raw_fitness);
     /** @brief Allows to retrieve whether the true (instead of the transformed) fitness should be shown */
     bool getUseTrueFitness() const;
 
@@ -1390,32 +1390,31 @@ public:
     /** @brief The default constructor */
     GNAdpationsLogger() = default;
     /** @brief Initialization with a file name */
-    explicit GNAdpationsLogger(const std::string &fileName);
+    explicit GNAdpationsLogger(const std::string &file_name);
     /** @brief The copy constructor */
     GNAdpationsLogger(const GNAdpationsLogger &cp);
     /** @brief The destructor */
     ~GNAdpationsLogger() override = default;
 
     /** @brief Sets the file name */
-    void setFileName(const std::string &fileName);
+    void setFileName(const std::string &file_name);
     /** @brief Retrieves the current file name */
     std::string getFileName() const;
 
     /** @brief Allows to specify whether only the best individuals should be monitored */
-    void setMonitorBestOnly(bool monitorBestOnly = true);
+    void setMonitorBestOnly(bool monitor_best_only = true);
     /** @brief Allows to check whether only the best individuals should be monitored */
     bool getMonitorBestOnly() const;
 
     /** @brief Allows to set the canvas dimensions */
-    void
-    setCanvasDimensions(std::tuple<std::uint32_t, std::uint32_t> canvasDimensions);
+    void setCanvasDimensions(std::tuple<std::uint32_t, std::uint32_t> canvas_dimensions);
     /** @brief Allows to set the canvas dimensions using separate x and y values */
     void setCanvasDimensions(std::uint32_t x, std::uint32_t y);
     /** @brief Gives access to the canvas dimensions */
     std::tuple<std::uint32_t, std::uint32_t> getCanvasDimensions() const;
 
     /** @brief Allows to add a "Print" command to the end of the script so that picture files are created */
-    void setAddPrintCommand(bool addPrintCommand);
+    void setAddPrintCommand(bool add_print_command);
     /** @brief Allows to retrieve the current value of the addPrintCommand_ variable */
     bool getAddPrintCommand() const;
 
@@ -1533,9 +1532,9 @@ public:
     /**
 	  * Initialization with a file name
 	  */
-    GAdaptorPropertyLoggerT(std::string fileName, std::string adaptorName, std::string property)
-      : fileName_(std::move(fileName))
-      , adaptorName_(std::move(adaptorName))
+    GAdaptorPropertyLoggerT(std::string file_name, std::string adaptor_name, std::string property)
+      : fileName_(std::move(file_name))
+      , adaptorName_(std::move(adaptor_name))
       , property_(std::move(property))
       , canvasDimensions_(std::tuple<std::uint32_t, std::uint32_t>(1200, 1600))
       , gpd_("Adaptor properties", 1, 2) { /* nothing */
@@ -1574,8 +1573,8 @@ public:
     /**
 	  * Sets the file name
 	  */
-    void setFileName(const std::string &fileName) {
-        fileName_ = fileName;
+    void setFileName(const std::string &file_name) {
+        fileName_ = file_name;
     }
 
     /***************************************************************************/
@@ -1590,8 +1589,8 @@ public:
     /**
 	  * Sets the name of the adaptor
 	  */
-    void setAdaptorName(std::string adaptorName) {
-        adaptorName_ = adaptorName;
+    void setAdaptorName(std::string adaptor_name) {
+        adaptorName_ = adaptor_name;
     }
 
     /***************************************************************************/
@@ -1622,8 +1621,8 @@ public:
     /**
 	  * Allows to specify whether only the best individuals should be monitored.
 	  */
-    void setMonitorBestOnly(bool monitorBestOnly = true) {
-        monitorBestOnly_ = monitorBestOnly;
+    void setMonitorBestOnly(bool monitor_best_only = true) {
+        monitorBestOnly_ = monitor_best_only;
     }
 
     /***************************************************************************/
@@ -1638,8 +1637,8 @@ public:
     /**
 	  * Allows to set the canvas dimensions
 	  */
-    void setCanvasDimensions(std::tuple<std::uint32_t, std::uint32_t> canvasDimensions) {
-        canvasDimensions_ = canvasDimensions;
+    void setCanvasDimensions(std::tuple<std::uint32_t, std::uint32_t> canvas_dimensions) {
+        canvasDimensions_ = canvas_dimensions;
     }
 
     /***************************************************************************/
@@ -1662,8 +1661,8 @@ public:
     /**
 	  * Allows to add a "Print" command to the end of the script so that picture files are created
 	  */
-    void setAddPrintCommand(bool addPrintCommand) {
-        addPrintCommand_ = addPrintCommand;
+    void setAddPrintCommand(bool add_print_command) {
+        addPrintCommand_ = add_print_command;
     }
 
     /******************************************************************************/
@@ -1856,17 +1855,17 @@ private:
         case Gem::Geneva::infoMode::INFOINIT: {
             // If the file pointed to by fileName_ already exists, make a back-up
             if(std::filesystem::exists(fileName_)) {
-                std::string newFileName =
+                std::string new_file_name =
                     fileName_ + ".bak_" +
                     Gem::Common::getMSSince1970(); // NOLINT(cppcoreguidelines-init-variables)
 
                 glogger << "In GAdaptorPropertyLoggerT::informationFunction_(): Error!" << '\n'
                         << "Attempt to output information to file " << fileName_ << '\n'
                         << "which already exists. We will rename the old file to" << '\n'
-                        << newFileName << '\n'
+                        << new_file_name << '\n'
                         << GWARNING;
 
-                std::filesystem::rename(fileName_, newFileName);
+                std::filesystem::rename(fileName_, new_file_name);
             }
 
             // Make sure the progress plotter has the desired size
@@ -1941,10 +1940,10 @@ private:
             std::vector<std::tuple<double, double>>::iterator it;
 
             // Within adaptorPropertyStore_, find the largest number of adaptions performed
-            double maxProperty = 0.;
+            double max_property = 0.;
             for(it = adaptorPropertyStore_.begin(); it != adaptorPropertyStore_.end(); ++it) {
-                if(std::get<1>(*it) > maxProperty) {
-                    maxProperty = std::get<1>(*it);
+                if(std::get<1>(*it) > max_property) {
+                    max_property = std::get<1>(*it);
                 }
             }
 
@@ -1955,7 +1954,7 @@ private:
                 0.,
                 double(maxIteration_),
                 0.,
-                maxProperty
+                max_property
             );
 
             adaptorPropertyHist2D_oa_->setXAxisLabel("Iteration");
@@ -2074,11 +2073,11 @@ public:
     GProcessingTimesLogger();
     /** @brief Initialization with a file name */
     GProcessingTimesLogger(
-        const std::string &fileName_pth,
-        const std::string &fileName_pth2,
-        const std::string &fileName_txt,
-        std::size_t nBinsX,
-        std::size_t nBinsY
+        const std::string &file_name_pth,
+        const std::string &file_name_pth2,
+        const std::string &file_name_txt,
+        std::size_t n_bins_x,
+        std::size_t n_bins_y
     );
     /** @brief The copy constructor */
     GProcessingTimesLogger(const GProcessingTimesLogger &cp) = default;
@@ -2086,30 +2085,28 @@ public:
     ~GProcessingTimesLogger() override = default;
 
     /** @brief Sets the file name for the processing times histogram */
-    void setFileName_pth(const std::string &fileName);
+    void setFileName_pth(const std::string &file_name);
     /** @brief Retrieves the current file name for the processing times histogram */
     std::string getFileName_pth() const;
     /** @brief Sets the file name for the processing times histograms (2D) */
-    void setFileName_pth2(const std::string &fileName);
+    void setFileName_pth2(const std::string &file_name);
     /** @brief Retrieves the current file name for the processing times histograms (2D) */
     std::string getFileName_pth2() const;
 
     /** @brief Sets the file name for the text output */
-    void setFileName_txt(const std::string &fileName);
+    void setFileName_txt(const std::string &file_name);
     /** @brief Retrieves the current file name for the text output */
     std::string getFileName_txt() const;
 
     /** @brief Allows to set the canvas dimensions for the processing times histograms */
-    void
-    setCanvasDimensions_pth(std::tuple<std::uint32_t, std::uint32_t> canvasDimensions);
+    void setCanvasDimensions_pth(std::tuple<std::uint32_t, std::uint32_t> canvas_dimensions);
     /** @brief Allows to set the canvas dimensions using separate x and y values for the processing times histograms */
     void setCanvasDimensions_pth(std::uint32_t x, std::uint32_t y);
 
     /** @brief Gives access to the canvas dimensions of the processing times histograms */
     std::tuple<std::uint32_t, std::uint32_t> getCanvasDimensions_pth() const;
     /** @brief Allows to set the canvas dimensions for the processing times histograms (2D) */
-    void
-    setCanvasDimensions_pth2(std::tuple<std::uint32_t, std::uint32_t> canvasDimensions);
+    void setCanvasDimensions_pth2(std::tuple<std::uint32_t, std::uint32_t> canvas_dimensions);
 
     /** @brief Allows to set the canvas dimensions using separate x and y values for the processing times histograms (2D) */
     void setCanvasDimensions_pth2(std::uint32_t x, std::uint32_t y);
@@ -2117,12 +2114,12 @@ public:
     std::tuple<std::uint32_t, std::uint32_t> getCanvasDimensions_pth2() const;
 
     /** @brief Sets the number of bins for the processing times histograms in y-direction */
-    void setNBinsX(std::size_t nBinsX);
+    void setNBinsX(std::size_t n_bins_x);
     /** @brief Retrieves the current number of bins for the processing times histograms in x-direction */
     std::size_t getNBinsX() const;
 
     /** @brief Sets the number of bins for the processing times histograms in y-direction */
-    void setNBinsY(std::size_t nBinsY);
+    void setNBinsY(std::size_t n_bins_y);
     /** @brief Retrieves the current number of bins for the processing times histograms in y-direction */
     std::size_t getNBinsY() const;
 

@@ -103,7 +103,7 @@ public:
     ~G_OptimizationAlgorithm_ParChild() override = default;
 
     /** @brief  Specifies the default size of the population plus the number of parents */
-    void setPopulationSizes(std::size_t popSize, std::size_t nParents);
+    void setPopulationSizes(std::size_t pop_size, std::size_t n_parents);
 
     /** @brief Retrieve the number of parents as set by the user */
     std::size_t getNParents() const;
@@ -113,20 +113,20 @@ public:
     std::size_t getDefaultNChildren() const;
 
     /** @brief Lets the user set the desired recombination method */
-    void setRecombinationMethod(duplicationScheme recombinationMethod);
+    void setRecombinationMethod(duplicationScheme recombination_method);
 
     /** @brief Retrieves the value of the recombinationMethod_ variable */
     duplicationScheme getRecombinationMethod() const;
 
     /** @brief Adds the option to increase the population by a given amount per iteration */
-    void setPopulationGrowth(std::size_t growthRate, std::size_t maxPopulationSize);
+    void setPopulationGrowth(std::size_t growth_rate, std::size_t max_population_size);
     /** @brief Allows to retrieve the growth rate of the population */
     std::size_t getGrowthRate() const;
     /** @brief Allows to retrieve the maximum population size when growth is enabled */
     std::size_t getMaxPopulationSize() const;
 
     /** @brief Allows to set the likelihood for amalgamation of two units to be performed instead of "just" duplication. */
-    void setAmalgamationLikelihood(double amalgamationLikelihood);
+    void setAmalgamationLikelihood(double amalgamation_likelihood);
     /** @brief Allows to retrieve the likelihood for amalgamation of two units to be performed instead of "just" duplication. */
     double getAmalgamationLikelihood() const;
 
@@ -141,15 +141,14 @@ public:
      */
     template <typename parent_type>
         requires std::derived_from<parent_type, GParameterSet>
-    std::shared_ptr<parent_type> getParentIndividual(std::size_t parentId) {
+    std::shared_ptr<parent_type> getParentIndividual(std::size_t parent_id) {
 #ifdef DEBUG
         // Check that the parent id is in a valid range
-        if(parentId >= this->getNParents()) {
+        if(parent_id >= this->getNParents()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In G_OptimizationAlgorithm_ParChild::getParentIndividual<>() : Error"
-                << '\n'
-                << "Requested parent id which does not exist: " << parentId << " / "
+                << "In G_OptimizationAlgorithm_ParChild::getParentIndividual<>() : Error" << '\n'
+                << "Requested parent id which does not exist: " << parent_id << " / "
                 << this->getNParents() << '\n'
             );
 
@@ -160,7 +159,7 @@ public:
 
         // Does error checks on the conversion internally
         return Gem::Common::convertSmartPointer<GParameterSet, parent_type>(
-            *(this->begin() + parentId)
+            *(this->begin() + parent_id)
         );
     }
 

@@ -93,10 +93,10 @@ public:
     /**
      * Initialization with a adaption probability
      *
-     * @param adProb The adaption probability
+     * @param ad_prob The adaption probability
      */
-    explicit GFPGaussAdaptorT(const double &adProb)
-      : GNumGaussAdaptorT<fp_type, fp_type>(adProb) { /* nothing */
+    explicit GFPGaussAdaptorT(const double &ad_prob)
+      : GNumGaussAdaptorT<fp_type, fp_type>(ad_prob) { /* nothing */
     }
 
     /***************************************************************************/
@@ -105,17 +105,22 @@ public:
      * the width of the gaussian.
      *
      * @param sigma The initial value for the sigma_ parameter
-     * @param sigmaSigma The initial value for the sigmaSigma_ parameter
-     * @param minSigma The minimal value allowed for sigma_
-     * @param maxSigma The maximal value allowed for sigma_
+     * @param sigma_sigma The initial value for the sigmaSigma_ parameter
+     * @param min_sigma The minimal value allowed for sigma_
+     * @param max_sigma The maximal value allowed for sigma_
      */
     GFPGaussAdaptorT(
         const fp_type &sigma,
-        const fp_type &sigmaSigma,
-        const fp_type &minSigma,
-        const fp_type &maxSigma
+        const fp_type &sigma_sigma,
+        const fp_type &min_sigma,
+        const fp_type &max_sigma
     )
-      : GNumGaussAdaptorT<fp_type, fp_type>(sigma, sigmaSigma, minSigma, maxSigma) { /* nothing */
+      : GNumGaussAdaptorT<fp_type, fp_type>(
+            sigma,
+            sigma_sigma,
+            min_sigma,
+            max_sigma
+        ) { /* nothing */
     }
 
     /***************************************************************************/
@@ -124,24 +129,24 @@ public:
      * probability in one go.
      *
      * @param sigma The initial value for the sigma_ parameter
-     * @param sigmaSigma The initial value for the sigmaSigma_ parameter
-     * @param minSigma The minimal value allowed for sigma_
-     * @param maxSigma The maximal value allowed for sigma_
-     * @param adProb The adaption probability
+     * @param sigma_sigma The initial value for the sigmaSigma_ parameter
+     * @param min_sigma The minimal value allowed for sigma_
+     * @param max_sigma The maximal value allowed for sigma_
+     * @param ad_prob The adaption probability
      */
     GFPGaussAdaptorT(
         const fp_type &sigma,
-        const fp_type &sigmaSigma,
-        const fp_type &minSigma,
-        const fp_type &maxSigma,
-        const double &adProb
+        const fp_type &sigma_sigma,
+        const fp_type &min_sigma,
+        const fp_type &max_sigma,
+        const double &ad_prob
     )
       : GNumGaussAdaptorT<fp_type, fp_type>(
             sigma,
-            sigmaSigma,
-            minSigma,
-            maxSigma,
-            adProb
+            sigma_sigma,
+            min_sigma,
+            max_sigma,
+            ad_prob
         ) { /* nothing */
     }
 

@@ -216,12 +216,12 @@ protected:
         ,
         Gem::Hap::GRandomBase &gr
     ) override {
-        fp_type lowerBoundary = GNumT<fp_type>::getLowerInitBoundary();
-        fp_type upperBoundary = GNumT<fp_type>::getUpperInitBoundary();
+        fp_type lower_boundary = GNumT<fp_type>::getLowerInitBoundary();
+        fp_type upper_boundary = GNumT<fp_type>::getUpperInitBoundary();
 
         typename std::uniform_real_distribution<fp_type> uniform_real_distribution(
-            lowerBoundary,
-            upperBoundary
+            lower_boundary,
+            upper_boundary
         );
         GParameterT<fp_type>::setValue(uniform_real_distribution(gr));
 
@@ -258,13 +258,13 @@ protected:
     void specificTestsNoFailureExpected_GUnitTests_() override {
 #ifdef GEM_TESTING
         // A few settings
-        const std::size_t nTests = 100;
-        const fp_type LOWERINITBOUNDARY = -10.1;
-        const fp_type UPPERINITBOUNDARY = 10.1;
-        const fp_type FIXEDVALUEINIT = 1.;
-        const fp_type MULTVALUE = 3.;
-        const fp_type RANDLOWERBOUNDARY = 0.;
-        const fp_type RANDUPPERBOUNDARY = 10.;
+        const std::size_t n_tests = 100;
+        const fp_type lowerinitboundary = -10.1;
+        const fp_type upperinitboundary = 10.1;
+        const fp_type fixedvalueinit = 1.;
+        const fp_type multvalue = 3.;
+        const fp_type randlowerboundary = 0.;
+        const fp_type randupperboundary = 10.;
 
         // Call the parent classes' functions
         GNumT<fp_type>::specificTestsNoFailureExpected_GUnitTests_();
@@ -283,7 +283,7 @@ protected:
 
             // Initialize with a fixed value
             CHECK_NOTHROW(p_test1->GParameterBase::template fixedValueInit<fp_type>(
-                Gem::Common::narrow_cast<fp_type>(2. * UPPERINITBOUNDARY),
+                Gem::Common::narrow_cast<fp_type>(2. * upperinitboundary),
                 activityMode::ALLPARAMETERS
             )); // Make sure the parameters indeed change
 
@@ -291,22 +291,22 @@ protected:
             INFO(
                 "\n"
                 << std::setprecision(10) << "p_test1->value() = " << p_test1->value() << "\n"
-                << "2.*UPPERINITBOUNDARY = " << 2. * UPPERINITBOUNDARY << "\n"
+                << "2.*UPPERINITBOUNDARY = " << 2. * upperinitboundary << "\n"
                 << "fabs(p_test1->value() - 2.*UPPERINITBOUNDARY) = "
-                << fabs(p_test1->value() - 2. * UPPERINITBOUNDARY) << "\n"
+                << fabs(p_test1->value() - 2. * upperinitboundary) << "\n"
                 << "pow(10., -8) = " << pow(10., -8) << "\n"
             );
-            CHECK(fabs(p_test1->value() - fp_type(2. * UPPERINITBOUNDARY)) < pow(10., -6));
+            CHECK(fabs(p_test1->value() - fp_type(2. * upperinitboundary)) < pow(10., -6));
 
             // Set initialization boundaries
-            CHECK_NOTHROW(p_test1->setInitBoundaries(LOWERINITBOUNDARY, UPPERINITBOUNDARY));
+            CHECK_NOTHROW(p_test1->setInitBoundaries(lowerinitboundary, upperinitboundary));
 
             // Cross-check the boundaries
-            CHECK(p_test1->getLowerInitBoundary() == LOWERINITBOUNDARY);
-            CHECK(p_test1->getUpperInitBoundary() == UPPERINITBOUNDARY);
+            CHECK(p_test1->getLowerInitBoundary() == lowerinitboundary);
+            CHECK(p_test1->getUpperInitBoundary() == upperinitboundary);
 
             // Check that each value is different and that the values of p_test1 are inside of the allowed boundaries
-            for(std::size_t i = 0; i < nTests; i++) {
+            for(std::size_t i = 0; i < n_tests; i++) {
                 // Load p_test1 into p_test2
                 CHECK_NOTHROW(p_test2->load(p_test1));
                 // Cross-check that both objects are equal
@@ -319,8 +319,8 @@ protected:
                 CHECK(*p_test2 != *p_test1);
 
                 CHECK(p_test2->value() != p_test1->value());
-                CHECK(p_test2->value() >= LOWERINITBOUNDARY);
-                CHECK(p_test2->value() <= UPPERINITBOUNDARY);
+                CHECK(p_test2->value() >= lowerinitboundary);
+                CHECK(p_test2->value() <= upperinitboundary);
             }
         }
 
@@ -332,15 +332,15 @@ protected:
 
             // Initialize with a fixed value
             CHECK_NOTHROW(p_test1->GParameterBase::template fixedValueInit<fp_type>(
-                FIXEDVALUEINIT,
+                fixedvalueinit,
                 activityMode::ALLPARAMETERS
             ));
 
             // Check that this value has been set
-            CHECK(p_test1->value() == FIXEDVALUEINIT);
+            CHECK(p_test1->value() == fixedvalueinit);
 
             // Set initialization boundaries
-            CHECK_NOTHROW(p_test1->setInitBoundaries(LOWERINITBOUNDARY, UPPERINITBOUNDARY));
+            CHECK_NOTHROW(p_test1->setInitBoundaries(lowerinitboundary, upperinitboundary));
 
             // Randomly initialize one of the two objects. Note: we are using the protected function rather than the "global" function
             CHECK_NOTHROW(p_test1->randomInit_(activityMode::ALLPARAMETERS, gr));
@@ -351,12 +351,12 @@ protected:
 
             // Multiply p_test1 with a fixed value
             CHECK_NOTHROW(p_test1->GParameterBase::template multiplyBy<fp_type>(
-                MULTVALUE,
+                multvalue,
                 activityMode::ALLPARAMETERS
             ));
 
             // Check that the multiplication has succeeded
-            CHECK(p_test1->value() == MULTVALUE * p_test2->value());
+            CHECK(p_test1->value() == multvalue * p_test2->value());
         }
 
         //------------------------------------------------------------------------------
@@ -375,15 +375,15 @@ protected:
 
             // Multiply with random values in a given range
             CHECK_NOTHROW(p_test1->GParameterBase::template multiplyByRandom<fp_type>(
-                RANDLOWERBOUNDARY,
-                RANDUPPERBOUNDARY,
+                randlowerboundary,
+                randupperboundary,
                 activityMode::ALLPARAMETERS,
                 gr
             ));
 
             // Check that all values are in the allowed range
-            CHECK(p_test1->value() >= RANDLOWERBOUNDARY);
-            CHECK(p_test1->value() <= RANDUPPERBOUNDARY);
+            CHECK(p_test1->value() >= randlowerboundary);
+            CHECK(p_test1->value() <= randupperboundary);
         }
 
         //------------------------------------------------------------------------------
@@ -426,7 +426,7 @@ protected:
             CHECK(p_test1->value() == 0.);
 
             // Set initialization boundaries
-            CHECK_NOTHROW(p_test1->setInitBoundaries(LOWERINITBOUNDARY, UPPERINITBOUNDARY));
+            CHECK_NOTHROW(p_test1->setInitBoundaries(lowerinitboundary, upperinitboundary));
 
             // Load the data of p_test_1 into p_test2
             CHECK_NOTHROW(p_test2->load(p_test1));
@@ -465,7 +465,7 @@ protected:
             CHECK(p_test1->value() == 0.);
 
             // Set initialization boundaries
-            CHECK_NOTHROW(p_test1->setInitBoundaries(LOWERINITBOUNDARY, UPPERINITBOUNDARY));
+            CHECK_NOTHROW(p_test1->setInitBoundaries(lowerinitboundary, upperinitboundary));
 
             // Load the data of p_test_1 into p_test2
             CHECK_NOTHROW(p_test2->load(p_test1));

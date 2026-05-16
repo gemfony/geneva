@@ -106,7 +106,7 @@ public:
     void informationFunction(infoMode, G_OptimizationAlgorithm_Base const *const);
 
     /** @brief Allows to set the useRawEvaluation_ variable */
-    void setUseRawEvaluation(bool useRaw);
+    void setUseRawEvaluation(bool use_raw);
 
     /** @brief Allows to retrieve the value of the useRawEvaluation_ variable */
     bool getUseRawEvaluation() const;
@@ -174,7 +174,7 @@ private:
     void load(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        std::string cpDir{};
+        std::string cp_dir{};
 
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject) &
             make_nvp(
@@ -193,13 +193,11 @@ private:
             BOOST_SERIALIZATION_NVP(stallCounter_) &
             BOOST_SERIALIZATION_NVP(stallCounterThreshold_) &
             BOOST_SERIALIZATION_NVP(cp_interval_) & BOOST_SERIALIZATION_NVP(cp_base_name_) &
-            BOOST_SERIALIZATION_NVP(cpDir) & BOOST_SERIALIZATION_NVP(cp_last_) &
-            BOOST_SERIALIZATION_NVP(cp_remove_) &
-            BOOST_SERIALIZATION_NVP(cp_serialization_mode_) &
+            BOOST_SERIALIZATION_NVP(cp_dir) & BOOST_SERIALIZATION_NVP(cp_last_) &
+            BOOST_SERIALIZATION_NVP(cp_remove_) & BOOST_SERIALIZATION_NVP(cp_serialization_mode_) &
             BOOST_SERIALIZATION_NVP(qualityThreshold_) &
-            BOOST_SERIALIZATION_NVP(hasQualityThreshold_) &
-            BOOST_SERIALIZATION_NVP(maxDuration_) & BOOST_SERIALIZATION_NVP(minDuration_) &
-            BOOST_SERIALIZATION_NVP(terminationFile_) &
+            BOOST_SERIALIZATION_NVP(hasQualityThreshold_) & BOOST_SERIALIZATION_NVP(maxDuration_) &
+            BOOST_SERIALIZATION_NVP(minDuration_) & BOOST_SERIALIZATION_NVP(terminationFile_) &
             BOOST_SERIALIZATION_NVP(terminateOnFileModification_) &
             BOOST_SERIALIZATION_NVP(emitTerminationReason_) & BOOST_SERIALIZATION_NVP(halted_) &
             BOOST_SERIALIZATION_NVP(worstKnownValids_cnt_) &
@@ -208,7 +206,7 @@ private:
             BOOST_SERIALIZATION_NVP(default_executor_config_);
 
         // Transfer the string to the path
-        cp_directory_path_ = std::filesystem::path(cpDir);
+        cp_directory_path_ = std::filesystem::path(cp_dir);
     }
 
     template <typename Archive>
@@ -216,7 +214,7 @@ private:
         using boost::serialization::make_nvp;
 
         // Transfer the path to the string
-        std::string cpDir =
+        std::string cp_dir =
             cp_directory_path_.string(); // NOLINT(cppcoreguidelines-init-variables)
 
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject) &
@@ -236,13 +234,11 @@ private:
             BOOST_SERIALIZATION_NVP(stallCounter_) &
             BOOST_SERIALIZATION_NVP(stallCounterThreshold_) &
             BOOST_SERIALIZATION_NVP(cp_interval_) & BOOST_SERIALIZATION_NVP(cp_base_name_) &
-            BOOST_SERIALIZATION_NVP(cpDir) & BOOST_SERIALIZATION_NVP(cp_last_) &
-            BOOST_SERIALIZATION_NVP(cp_remove_) &
-            BOOST_SERIALIZATION_NVP(cp_serialization_mode_) &
+            BOOST_SERIALIZATION_NVP(cp_dir) & BOOST_SERIALIZATION_NVP(cp_last_) &
+            BOOST_SERIALIZATION_NVP(cp_remove_) & BOOST_SERIALIZATION_NVP(cp_serialization_mode_) &
             BOOST_SERIALIZATION_NVP(qualityThreshold_) &
-            BOOST_SERIALIZATION_NVP(hasQualityThreshold_) &
-            BOOST_SERIALIZATION_NVP(maxDuration_) & BOOST_SERIALIZATION_NVP(minDuration_) &
-            BOOST_SERIALIZATION_NVP(terminationFile_) &
+            BOOST_SERIALIZATION_NVP(hasQualityThreshold_) & BOOST_SERIALIZATION_NVP(maxDuration_) &
+            BOOST_SERIALIZATION_NVP(minDuration_) & BOOST_SERIALIZATION_NVP(terminationFile_) &
             BOOST_SERIALIZATION_NVP(terminateOnFileModification_) &
             BOOST_SERIALIZATION_NVP(emitTerminationReason_) & BOOST_SERIALIZATION_NVP(halted_) &
             BOOST_SERIALIZATION_NVP(worstKnownValids_cnt_) &
@@ -271,18 +267,18 @@ public:
     void checkpoint(bool is_better) const;
 
     /** @brief Loads the state of the class from disc */
-    void loadCheckpoint(std::filesystem::path const &cpFile);
+    void loadCheckpoint(std::filesystem::path const &cp_file);
 
     /** @brief Checks whether the optimization process has been halted */
     bool halted() const;
 
     /** @brief Allows to set the number of generations after which a checkpoint should be written */
-    void setCheckpointInterval(std::int32_t cpInterval);
+    void setCheckpointInterval(std::int32_t cp_interval);
     /** @brief Allows to retrieve the number of generations after which a checkpoint should be written */
     std::int32_t getCheckpointInterval() const;
 
     /** @brief Allows to set the base name of the checkpoint file and the directory where it should be stored. */
-    void setCheckpointBaseName(std::string cpDirectory, std::string cpBaseName);
+    void setCheckpointBaseName(std::string cp_directory, std::string cp_base_name);
     /** @brief Allows to retrieve the base name of the checkpoint file. */
     std::string getCheckpointBaseName() const;
     /** @brief Allows to retrieve the directory where checkpoint files should be stored */
@@ -290,7 +286,7 @@ public:
     /** @brief Allows to retrieve the directory where checkpoint files should be stored */
     std::filesystem::path getCheckpointDirectoryPath() const;
     /** @brief Determines whether checkpointing should be done in Text-, XML- or Binary-mode */
-    void setCheckpointSerializationMode(Gem::Common::serializationMode cpSerMode);
+    void setCheckpointSerializationMode(Gem::Common::serializationMode cp_ser_mode);
     /** @brief Retrieves the current checkpointing serialization mode */
     Gem::Common::serializationMode getCheckpointSerializationMode() const;
     /** @brief Allows to set the cp_overwrite_ flag */
@@ -304,10 +300,10 @@ public:
     /** @brief Adds a new executor to the class, replacing the default executor */
     void registerExecutor(
         std::shared_ptr<Gem::Courtier::GBaseExecutorT<GParameterSet>> executor_ptr,
-        std::filesystem::path const &executorConfigFile
+        std::filesystem::path const &executor_config_file
     );
     /** @brief Adds a new executor to the class, using the chosen execution mode */
-    void registerExecutor(execMode e, std::filesystem::path const &executorConfigFile);
+    void registerExecutor(execMode e, std::filesystem::path const &executor_config_file);
 
     /******************************************************************************/
     /**
@@ -334,7 +330,7 @@ public:
     bool progress() const;
 
     /** @brief Allows to register a pluggable optimization monitor. */
-    void registerPluggableOM(std::shared_ptr<GBasePluggableOM> pluggableOM);
+    void registerPluggableOM(std::shared_ptr<GBasePluggableOM> pluggable_om);
     /** @brief Allows to reset the local pluggable optimization monitors */
     void resetPluggableOM();
     /** @brief Allows to check whether pluggable optimization monitors were registered */
@@ -346,40 +342,39 @@ public:
     std::size_t getPopulationSize() const;
 
     /** @brief Set the number of iterations after which the optimization should be stopped */
-    void setMaxIteration(std::uint32_t maxIteration);
+    void setMaxIteration(std::uint32_t max_iteration);
     /** @brief Retrieve the number of iterations after which optimization should be stopped */
     std::uint32_t getMaxIteration() const;
 
     /** @brief Sets the minimum number of iterations */
-    void setMinIteration(std::uint32_t minIteration);
+    void setMinIteration(std::uint32_t min_iteration);
     /** @brief Retrieves the currently set minimum number of iterations */
     std::uint32_t getMinIteration() const;
 
     /** @brief Sets the maximum number of iterations allowed without improvement of the best individual */
-    void setMaxStallIteration(std::uint32_t maxStallIteration);
+    void setMaxStallIteration(std::uint32_t max_stall_iteration);
     /** @brief Retrieves the maximum number of generations allowed in an optimization run without improvement of the best individual. */
     std::uint32_t getMaxStallIteration() const;
 
     /** @brief Sets the maximum allowed processing time */
-    void setMaxTime(std::chrono::duration<double> maxDuration);
+    void setMaxTime(std::chrono::duration<double> max_duration);
     /** @brief Retrieves the value of the maxDuration_ parameter. */
     std::chrono::duration<double> getMaxTime() const;
 
     /** @brief Sets the minimum required processing time */
-    void setMinTime(std::chrono::duration<double> minDuration);
+    void setMinTime(std::chrono::duration<double> min_duration);
     /** @brief Retrieves the value of the minDuration_ parameter */
     std::chrono::duration<double> getMinTime() const;
 
     /** @brief Sets a quality threshold beyond which optimization is expected to stop */
-    void setQualityThreshold(double qualityThreshold, bool hasQualityThreshold);
+    void setQualityThreshold(double quality_threshold, bool has_quality_threshold);
     /** @brief Retrieves the current value of the quality threshold and also indicates whether the threshold is active */
-    double getQualityThreshold(bool &hasQualityThreshold) const;
+    double getQualityThreshold(bool &has_quality_threshold) const;
 
     /** @brief Sets the name of a "termination file" */
-    void
-    setTerminationFile(std::string terminationFile, bool terminateOnFileModification);
+    void setTerminationFile(std::string termination_file, bool terminate_on_file_modification);
     /** @brief Retrieves the current name of the termination file and also indicates whether the "touched halt" is active */
-    std::string getTerminationFile(bool &terminateOnFileModification) const;
+    std::string getTerminationFile(bool &terminate_on_file_modification) const;
 
     /** @brief Removes the quality threshold */
     void resetQualityThreshold();
@@ -398,7 +393,7 @@ public:
     std::uint32_t getStallCounter() const;
 
     /** @brief Allows to set the number of iterations without improvement, after which individuals are asked to update their internal data structures */
-    void setStallCounterThreshold(std::uint32_t stallCounterThreshold);
+    void setStallCounterThreshold(std::uint32_t stall_counter_threshold);
     /** @brief Allows to retrieve the number of iterations without improvement, after which individuals are asked to update their internal data structures */
     std::uint32_t getStallCounterThreshold() const;
 
@@ -408,7 +403,7 @@ public:
     std::tuple<double, double> getBestCurrentPrimaryFitness() const;
 
     /** @brief Specifies whether information about termination reasons should be emitted */
-    void setEmitTerminationReason(bool emitTerminatioReason = true);
+    void setEmitTerminationReason(bool emit_terminatio_reason = true);
     /** @brief Retrieves information on whether information about termination reasons should be emitted */
     bool getEmitTerminationReason() const;
 
@@ -444,7 +439,7 @@ public:
     std::size_t getNProcessableItems() const;
 
     /** @brief If individuals have been stored in this population, they are added to the priority queue. */
-    void addCleanStoredBests(GParameterSetFixedSizePriorityQueue &bestIndividuals);
+    void addCleanStoredBests(GParameterSetFixedSizePriorityQueue &best_individuals);
 
     /** @brief Helper function that determines whether we are currently inside of the first iteration */
     bool inFirstIteration() const;
@@ -504,15 +499,15 @@ protected:
 
     /** @brief Delegation of work to be performed to the private executor object */
     Gem::Courtier::executor_status_t workOn(
-        std::vector<std::shared_ptr<GParameterSet>> &workItems,
-        bool resubmitUnprocessed = false,
+        std::vector<std::shared_ptr<GParameterSet>> &work_items,
+        bool resubmit_unprocessed = false,
         const std::string &caller = std::string()
     );
     /** @brief Retrieves a vector of old work items after job submission */
     std::vector<std::shared_ptr<GParameterSet>> getOldWorkItems();
 
     /** @brief Saves the state of the class to disc */
-    void saveCheckpoint(std::filesystem::path const &outputFile) const;
+    void saveCheckpoint(std::filesystem::path const &output_file) const;
 
     /** @brief Extracts the short name of the optimization algorithm */
     std::string extractOptAlgFromPath(const std::filesystem::path &p) const;
@@ -523,18 +518,16 @@ protected:
     void resetIndividualPersonalities();
 
     /** @brief Sets the default size of the population */
-    void setDefaultPopulationSize(std::size_t defPopSize);
+    void setDefaultPopulationSize(std::size_t def_pop_size);
 
     // NB: protected, as a derived function may fall back to this function, cmp EA in non-pareto mode
     /** @brief Adds the individuals of this iteration to a priority queue. */
-    virtual void
-    updateGlobalBestsPQ_(GParameterSetFixedSizePriorityQueue &bestIndividuals);
+    virtual void updateGlobalBestsPQ_(GParameterSetFixedSizePriorityQueue &best_individuals);
     /** @brief Adds the individuals of this iteration to a priority queue. */
-    virtual void
-    updateIterationBestsPQ_(GParameterSetFixedSizePriorityQueue &bestIndividuals);
+    virtual void updateIterationBestsPQ_(GParameterSetFixedSizePriorityQueue &best_individuals);
 
     /** @brief Set the number of "best" individuals to be recorded in each iteration */
-    void setNRecordBestIndividuals(std::size_t nRecordBestIndividuals);
+    void setNRecordBestIndividuals(std::size_t n_record_best_individuals);
     /** @brief Retrieve the number of best individuals to be recorded in each iteration */
     std::size_t getNRecordBestIndividuals() const;
 
@@ -593,12 +586,12 @@ private:
     /***************************************************************************/
 
     /** @brief Update the stall counter. */
-    void updateStallCounter(const std::tuple<double, double> &bestEval);
+    void updateStallCounter(const std::tuple<double, double> &best_eval);
 
     /** @brief This function returns true once a given time has passed */
-    bool timedHalt(const std::chrono::system_clock::time_point &currentTime) const;
+    bool timedHalt(const std::chrono::system_clock::time_point &current_time) const;
     /** @brief This function checks whether a minimum amount of time has passed */
-    bool minTimePassed(const std::chrono::system_clock::time_point &currentTime) const;
+    bool minTimePassed(const std::chrono::system_clock::time_point &current_time) const;
 
     /** @brief This function returns true once the quality has passed a given threshold */
     bool qualityHalt() const;
@@ -630,7 +623,7 @@ private:
     /** @brief Check whether a halt criterion based on the number of stalls has been set */
     bool stallHaltSet() const;
 
-    /** @brief Check whether the maxDuration-halt criterion has been set */
+    /** @brief Check whether the max_duration-halt criterion has been set */
     bool maxDurationHaltSet() const;
 
     /** @brief Check whether the quality-threshold halt-criterion has been set */
@@ -691,7 +684,7 @@ private:
         DEFAULTCPSERMODE; ///< Determines whether check-pointing should be done in text-, XML, or binary mode
     double qualityThreshold_ =
         DEFAULTQUALITYTHRESHOLD; ///< A threshold beyond which optimization is expected to stop
-    bool hasQualityThreshold_ = false; ///< Specifies whether a qualityThreshold has been set
+    bool hasQualityThreshold_ = false; ///< Specifies whether a quality_threshold has been set
     std::chrono::duration<double> maxDuration_ = Gem::Common::duration_from_string(
         DEFAULTDURATION
     ); ///< Maximum time-frame for the optimization

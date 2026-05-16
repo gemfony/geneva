@@ -107,10 +107,10 @@ public:
 	  * @param lowerBoundary The lower boundary of the value range
 	  * @param upperBoundary The upper boundary of the value range
 	  */
-    GConstrainedNumT(const T &lowerBoundary, const T &upperBoundary)
-      : GParameterT<T>(lowerBoundary)
-      , lowerBoundary_(lowerBoundary)
-      , upperBoundary_(upperBoundary) {
+    GConstrainedNumT(const T &lower_boundary, const T &upper_boundary)
+      : GParameterT<T>(lower_boundary)
+      , lowerBoundary_(lower_boundary)
+      , upperBoundary_(upper_boundary) {
         // Naturally the upper boundary should be > the lower boundary.
         if(lowerBoundary_ >= upperBoundary_) {
             throw geneva_exception(
@@ -122,14 +122,14 @@ public:
         }
 
         // We might have constraints regarding the allowed boundaries. Cross-check
-        if(lowerBoundary < GConstrainedValueLimitT<T>::lowest() ||
-           upperBoundary > GConstrainedValueLimitT<T>::highest()) {
+        if(lower_boundary < GConstrainedValueLimitT<T>::lowest() ||
+           upper_boundary > GConstrainedValueLimitT<T>::highest()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GConstrainedNumT<T>::GConstrainedNumT(lower,upper):" << '\n'
                 << "lower and/or upper limit outside of allowed value range:" << '\n'
-                << "lowerBoundary = " << lowerBoundary << '\n'
-                << "upperBoundary = " << upperBoundary << '\n'
+                << "lowerBoundary = " << lower_boundary << '\n'
+                << "upperBoundary = " << upper_boundary << '\n'
                 << "GConstrainedValueLimit<T>::lowest()  = " << GConstrainedValueLimitT<T>::lowest()
                 << '\n'
                 << "GConstrainedValueLimit<T>::highest() = "
@@ -146,10 +146,10 @@ public:
 	  * @param lowerBoundary The lower boundary of the value range
 	  * @param upperBoundary The upper boundary of the value range
 	  */
-    GConstrainedNumT(const T &val, const T &lowerBoundary, const T &upperBoundary)
+    GConstrainedNumT(const T &val, const T &lower_boundary, const T &upper_boundary)
       : GParameterT<T>(val)
-      , lowerBoundary_(lowerBoundary)
-      , upperBoundary_(upperBoundary) {
+      , lowerBoundary_(lower_boundary)
+      , upperBoundary_(upper_boundary) {
         // Do some error checking
         if(lowerBoundary_ >= upperBoundary_) {
             throw geneva_exception(
@@ -161,14 +161,14 @@ public:
         }
 
         // We might have constraints regarding the allowed boundaries. Cross-check
-        if(lowerBoundary < GConstrainedValueLimitT<T>::lowest() ||
-           upperBoundary > GConstrainedValueLimitT<T>::highest()) {
+        if(lower_boundary < GConstrainedValueLimitT<T>::lowest() ||
+           upper_boundary > GConstrainedValueLimitT<T>::highest()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GConstrainedNumT<T>::GConstrainedNumT(val, lower,upper):" << '\n'
                 << "lower and/or upper limit outside of allowed value range:" << '\n'
-                << "lowerBoundary = " << lowerBoundary << '\n'
-                << "upperBoundary = " << upperBoundary << '\n'
+                << "lowerBoundary = " << lower_boundary << '\n'
+                << "upperBoundary = " << upper_boundary << '\n'
                 << "GConstrainedValueLimitT<T>::lowest()  = "
                 << GConstrainedValueLimitT<T>::lowest() << '\n'
                 << "GConstrainedValueLimitT<T>::highest() = "
@@ -260,29 +260,29 @@ public:
 	  * @param lowerBoundary The new lower boundary for this object
 	  * @param upperBoundary The new upper boundary for this object
 	  */
-    virtual void setBoundaries(const T &lowerBoundary, const T &upperBoundary) {
-        const T currentValue = this->value(); // Store the externally visible value
+    virtual void setBoundaries(const T &lower_boundary, const T &upper_boundary) {
+        const T current_value = this->value(); // Store the externally visible value
 
         // Check that the boundaries make sense
-        if(lowerBoundary > upperBoundary) {
+        if(lower_boundary > upper_boundary) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GConstrainedNumT<T>::setBoundaries(const T&, const T&)" << '\n'
                 << "with typeid(T).name() = " << typeid(T).name() << " :" << '\n'
-                << "Lower and/or upper boundary has invalid value : " << lowerBoundary << " "
-                << upperBoundary << '\n'
+                << "Lower and/or upper boundary has invalid value : " << lower_boundary << " "
+                << upper_boundary << '\n'
             );
         }
 
         // We might have constraints regarding the allowed boundaries. Cross-check
-        if(lowerBoundary < GConstrainedValueLimitT<T>::lowest() ||
-           upperBoundary > GConstrainedValueLimitT<T>::highest()) {
+        if(lower_boundary < GConstrainedValueLimitT<T>::lowest() ||
+           upper_boundary > GConstrainedValueLimitT<T>::highest()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GConstrainedNumT<T>::setBoundaries(const T&, const T&):" << '\n'
                 << "lower and/or upper limit outside of allowed value range:" << '\n'
-                << "lowerBoundary = " << lowerBoundary << '\n'
-                << "upperBoundary = " << upperBoundary << '\n'
+                << "lowerBoundary = " << lower_boundary << '\n'
+                << "upperBoundary = " << upper_boundary << '\n'
                 << "GConstrainedValueLimitT<T>::lowest() = " << GConstrainedValueLimitT<T>::lowest()
                 << '\n'
                 << " GConstrainedValueLimit<T>::highest() = "
@@ -291,22 +291,22 @@ public:
         }
 
         // Check that the value is inside the allowed range
-        if(currentValue < lowerBoundary || currentValue > upperBoundary) {
+        if(current_value < lower_boundary || current_value > upper_boundary) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GConstrainedNumT<T>::setBoundaries(const T&, const T&) :" << '\n'
                 << "with typeid(T).name() = " << typeid(T).name() << '\n'
-                << "Attempt to set new boundaries [" << lowerBoundary << ":" << upperBoundary << "]"
-                << '\n'
-                << "with existing value  " << currentValue << " outside of this range." << '\n'
+                << "Attempt to set new boundaries [" << lower_boundary << ":" << upper_boundary
+                << "]" << '\n'
+                << "with existing value  " << current_value << " outside of this range." << '\n'
             );
         }
 
-        lowerBoundary_ = lowerBoundary;
-        upperBoundary_ = upperBoundary;
+        lowerBoundary_ = lower_boundary;
+        upperBoundary_ = upper_boundary;
 
         // Re-set the internal representation of the value
-        GParameterT<T>::setValue(currentValue);
+        GParameterT<T>::setValue(current_value);
     }
 
     /***************************************************************************/
@@ -342,11 +342,11 @@ public:
 	  * @param lowerBoundary The lower boundary of the value range
 	  * @param upperBoundary The upper boundary of the value range
 	  */
-    virtual void setValue(const T &val, const T &lowerBoundary, const T &upperBoundary) {
+    virtual void setValue(const T &val, const T &lower_boundary, const T &upper_boundary) {
         // Do some error checking
 
         // Do the boundaries make sense ?
-        if(lowerBoundary > upperBoundary) {
+        if(lower_boundary > upper_boundary) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GConstrainedNumT<T>::setValue(val,lower,upper):" << '\n'
@@ -356,14 +356,14 @@ public:
         }
 
         // We might have constraints regarding the allowed boundaries. Cross-check
-        if(lowerBoundary < GConstrainedValueLimitT<T>::lowest() ||
-           upperBoundary > GConstrainedValueLimitT<T>::highest()) {
+        if(lower_boundary < GConstrainedValueLimitT<T>::lowest() ||
+           upper_boundary > GConstrainedValueLimitT<T>::highest()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GConstrainedNumT<T>::setValue(val,lower,upper):" << '\n'
                 << "lower and/or upper limit outside of allowed value range:" << '\n'
-                << "lowerBoundary = " << lowerBoundary << '\n'
-                << "upperBoundary = " << upperBoundary << '\n'
+                << "lowerBoundary = " << lower_boundary << '\n'
+                << "upperBoundary = " << upper_boundary << '\n'
                 << "GConstrainedValueLimitT<T>::lowest() = " << GConstrainedValueLimitT<T>::lowest()
                 << '\n'
                 << " GConstrainedValueLimit<T>::highest() = "
@@ -372,20 +372,19 @@ public:
         }
 
         // Check that the value is inside of the allowed value range
-        if(val < lowerBoundary || val > upperBoundary) {
+        if(val < lower_boundary || val > upper_boundary) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GConstrainedNumT<T>::setValue(val,lower,upper):" << '\n'
-                << "Assigned value = " << val
-                << " is outside of its allowed boundaries: " << '\n'
-                << "lowerBoundary  = " << lowerBoundary << '\n'
-                << "upperBoundary  = " << upperBoundary << '\n'
+                << "Assigned value = " << val << " is outside of its allowed boundaries: " << '\n'
+                << "lowerBoundary  = " << lower_boundary << '\n'
+                << "upperBoundary  = " << upper_boundary << '\n'
             );
         }
 
         // O.k., assign the boundaries
-        lowerBoundary_ = lowerBoundary;
-        upperBoundary_ = upperBoundary;
+        lowerBoundary_ = lower_boundary;
+        upperBoundary_ = upper_boundary;
 
         // Set the internal representation of the value -- we might be in a different
         // region of the transformation internally, and the mapping will likely depend on
@@ -434,19 +433,19 @@ public:
 	  * Converts the local data to a boost::property_tree node
 	  *
 	  * @param ptr The boost::property_tree object the data should be saved to
-	  * @param baseName The name assigned to the object
+	  * @param base_name The name assigned to the object
 	  */
-    void toPropertyTree(pt::ptree &ptr, const std::string &baseName) const override {
-        ptr.put(baseName + ".name", this->getParameterName());
-        ptr.put(baseName + ".type", this->name());
-        ptr.put(baseName + ".baseType", Gem::Common::GTypeToStringT<T>::value());
-        ptr.put(baseName + ".isLeaf", this->isLeaf());
-        ptr.put(baseName + ".nVals", 1);
-        ptr.put(baseName + ".values.value0", this->value());
-        ptr.put(baseName + ".lowerBoundary", this->getLowerBoundary());
-        ptr.put(baseName + ".upperBoundary", this->getUpperBoundary());
-        ptr.put(baseName + ".initRandom", false); // Unused for the creation of a property tree
-        ptr.put(baseName + ".adaptionsActive", this->adaptionsActive());
+    void toPropertyTree(pt::ptree &ptr, const std::string &base_name) const override {
+        ptr.put(base_name + ".name", this->getParameterName());
+        ptr.put(base_name + ".type", this->name());
+        ptr.put(base_name + ".baseType", Gem::Common::GTypeToStringT<T>::value());
+        ptr.put(base_name + ".isLeaf", this->isLeaf());
+        ptr.put(base_name + ".n_vals", 1);
+        ptr.put(base_name + ".values.value0", this->value());
+        ptr.put(base_name + ".lowerBoundary", this->getLowerBoundary());
+        ptr.put(base_name + ".upperBoundary", this->getUpperBoundary());
+        ptr.put(base_name + ".initRandom", false); // Unused for the creation of a property tree
+        ptr.put(base_name + ".adaptionsActive", this->adaptionsActive());
     }
 
 protected:
@@ -548,9 +547,9 @@ protected:
     void specificTestsNoFailureExpected_GUnitTests_() override {
 #ifdef GEM_TESTING
         // Some general settings
-        const T testVal = T(42);
-        const T lowerBoundary = T(0);
-        const T upperBoundary = T(100);
+        const T test_val = T(42);
+        const T lower_boundary = T(0);
+        const T upper_boundary = T(100);
 
         // Call the parent classes' functions
         GParameterT<T>::specificTestsNoFailureExpected_GUnitTests_();
@@ -588,17 +587,17 @@ protected:
             CHECK_NOTHROW(p_test->resetBoundaries());
 
             // Assign a valid value
-            CHECK_NOTHROW(p_test->setValue(testVal));
+            CHECK_NOTHROW(p_test->setValue(test_val));
 
             if(typeid(T) == typeid(bool)) {
                 CHECK_NOTHROW(p_test->setValue(true, false, true));
             }
             else {
-                CHECK_NOTHROW(p_test->setValue(testVal, T(30), T(50)));
+                CHECK_NOTHROW(p_test->setValue(test_val, T(30), T(50)));
             }
 
             // Check with the local value() function that the value has been set
-            CHECK(p_test->value() == testVal);
+            CHECK(p_test->value() == test_val);
 
             // Check that getInternalValue() behaves as expected
             CHECK(p_test->value() == p_test->getInternalValue());
@@ -614,30 +613,30 @@ protected:
             CHECK_NOTHROW(p_test->resetBoundaries());
 
             // Set the desired value
-            CHECK_NOTHROW(p_test->setValue(testVal));
+            CHECK_NOTHROW(p_test->setValue(test_val));
 
             // Check that the value has indeed been set
-            CHECK(p_test->value() == testVal);
+            CHECK(p_test->value() == test_val);
 
             // Set the boundaries
-            CHECK_NOTHROW(p_test->setBoundaries(lowerBoundary, upperBoundary));
+            CHECK_NOTHROW(p_test->setBoundaries(lower_boundary, upper_boundary));
 
             // Check the values of these boundaries
-            CHECK(p_test->getLowerBoundary() == lowerBoundary);
+            CHECK(p_test->getLowerBoundary() == lower_boundary);
 
             // GConstrainedDoubleObject assigns the float prior to the specified boundary
             if(typeid(T) == typeid(double)) {
                 CHECK(
                     double(p_test->getUpperBoundary()) ==
-                    std::nextafter(double(upperBoundary), -std::numeric_limits<double>::infinity())
+                    std::nextafter(double(upper_boundary), -std::numeric_limits<double>::infinity())
                 );
             }
             else {
-                CHECK(p_test->getUpperBoundary() == upperBoundary);
+                CHECK(p_test->getUpperBoundary() == upper_boundary);
             }
 
             // Check that the value is still the same
-            CHECK(p_test->value() == testVal);
+            CHECK(p_test->value() == test_val);
         }
 
         //------------------------------------------------------------------------------
@@ -650,49 +649,49 @@ protected:
             CHECK_NOTHROW(p_test->resetBoundaries());
 
             // Set the desired value
-            CHECK_NOTHROW(p_test->setValue(testVal, lowerBoundary, upperBoundary));
+            CHECK_NOTHROW(p_test->setValue(test_val, lower_boundary, upper_boundary));
 
             // Check the values of these boundaries
             INFO(
                 "\n"
                 << "p_test->getLowerBoundary() = " << p_test->getLowerBoundary() << "\n"
-                << "lowerBoundary = " << lowerBoundary << "\n"
+                << "lowerBoundary = " << lower_boundary << "\n"
             );
-            CHECK(p_test->getLowerBoundary() == lowerBoundary);
+            CHECK(p_test->getLowerBoundary() == lower_boundary);
 
             if(typeid(T) == typeid(double)) {
                 INFO(
                     "\n"
                     << "p_test->getUpperBoundary() = " << p_test->getUpperBoundary() << "\n"
-                    << "upperBoundary = " << upperBoundary << "\n"
+                    << "upperBoundary = " << upper_boundary << "\n"
                 );
                 CHECK(
                     double(p_test->getUpperBoundary()) ==
-                    std::nextafter(double(upperBoundary), -std::numeric_limits<double>::infinity())
+                    std::nextafter(double(upper_boundary), -std::numeric_limits<double>::infinity())
                 );
             }
             else if(typeid(T) == typeid(float)) {
                 INFO(
                     "\n"
                     << "p_test->getUpperBoundary() = " << p_test->getUpperBoundary() << "\n"
-                    << "upperBoundary = " << upperBoundary << "\n"
+                    << "upperBoundary = " << upper_boundary << "\n"
                 );
                 CHECK(
                     float(p_test->getUpperBoundary()) ==
-                    std::nextafter(float(upperBoundary), -std::numeric_limits<float>::infinity())
+                    std::nextafter(float(upper_boundary), -std::numeric_limits<float>::infinity())
                 );
             }
             else {
                 INFO(
                     "\n"
                     << "p_test->getUpperBoundary() = " << p_test->getUpperBoundary() << "\n"
-                    << "upperBoundary = " << upperBoundary << "\n"
+                    << "upperBoundary = " << upper_boundary << "\n"
                 );
-                CHECK(p_test->getUpperBoundary() == upperBoundary);
+                CHECK(p_test->getUpperBoundary() == upper_boundary);
             }
 
             // Check that the value is still the same
-            CHECK(p_test->value() == testVal);
+            CHECK(p_test->value() == test_val);
         }
 
         //------------------------------------------------------------------------------
@@ -705,13 +704,13 @@ protected:
             CHECK_NOTHROW(p_test->resetBoundaries());
 
             // Set the desired value
-            CHECK_NOTHROW(p_test->setValue(testVal, lowerBoundary, upperBoundary));
+            CHECK_NOTHROW(p_test->setValue(test_val, lower_boundary, upper_boundary));
 
             // Assign a value
-            CHECK_NOTHROW(*p_test = (testVal - T(1)));
+            CHECK_NOTHROW(*p_test = (test_val - T(1)));
 
             // Check that is was set correctly
-            CHECK(p_test->value() == (testVal - T(1)));
+            CHECK(p_test->value() == (test_val - T(1)));
         }
 
         //------------------------------------------------------------------------------

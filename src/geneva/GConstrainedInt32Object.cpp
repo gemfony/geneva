@@ -41,10 +41,10 @@ namespace Gem::Geneva {
  * @param upperBoundary The upper boundary of the value range
  */
 GConstrainedInt32Object::GConstrainedInt32Object(
-    const std::int32_t &lowerBoundary,
-    const std::int32_t &upperBoundary
+    const std::int32_t &lower_boundary,
+    const std::int32_t &upper_boundary
 )
-  : GConstrainedIntT<std::int32_t>(lowerBoundary, upperBoundary) { /* nothing */
+  : GConstrainedIntT<std::int32_t>(lower_boundary, upper_boundary) { /* nothing */
 }
 
 /******************************************************************************/
@@ -57,10 +57,10 @@ GConstrainedInt32Object::GConstrainedInt32Object(
  */
 GConstrainedInt32Object::GConstrainedInt32Object(
     const std::int32_t &val,
-    const std::int32_t &lowerBoundary,
-    const std::int32_t &upperBoundary
+    const std::int32_t &lower_boundary,
+    const std::int32_t &upper_boundary
 )
-  : GConstrainedIntT<std::int32_t>(val, lowerBoundary, upperBoundary) { /* nothing */
+  : GConstrainedIntT<std::int32_t>(val, lower_boundary, upper_boundary) { /* nothing */
 }
 
 /******************************************************************************/
@@ -139,13 +139,13 @@ std::string GConstrainedInt32Object::name_() const {
  * Attach our local value to the vector. This is used to collect all parameters of this type
  * in the sequence in which they were registered.
  *
- * @param parVec The vector to which the local value should be attached
+ * @param par_vec The vector to which the local value should be attached
  */
 void GConstrainedInt32Object::int32Streamline(
-    std::vector<std::int32_t> &parVec,
+    std::vector<std::int32_t> &par_vec,
     const activityMode & /*am*/
 ) const {
-    parVec.push_back(this->value());
+    par_vec.push_back(this->value());
 }
 
 /******************************************************************************/
@@ -153,31 +153,31 @@ void GConstrainedInt32Object::int32Streamline(
  * Attach our local value to the vector. This is used to collect all parameters of this type
  * in the sequence in which they were registered.
  *
- * @param parVec The vector to which the local value should be attached
+ * @param par_vec The vector to which the local value should be attached
  */
 void GConstrainedInt32Object::int32Streamline(
-    std::map<std::string, std::vector<std::int32_t>> &parVec,
+    std::map<std::string, std::vector<std::int32_t>> &par_vec,
     const activityMode & /*am*/
 ) const {
     std::vector<std::int32_t> parameters;
     parameters.push_back(this->value());
-    parVec[this->getParameterName()] = parameters;
+    par_vec[this->getParameterName()] = parameters;
 }
 
 /******************************************************************************/
 /**
  * Attach boundaries of type std::int32_t to the vectors.
  *
- * @param lBndVec A vector of lower std::int32_t parameter boundaries
- * @param uBndVec A vector of upper std::int32_t parameter boundaries
+ * @param l_bnd_vec A vector of lower std::int32_t parameter boundaries
+ * @param u_bnd_vec A vector of upper std::int32_t parameter boundaries
  */
 void GConstrainedInt32Object::int32Boundaries(
-    std::vector<std::int32_t> &lBndVec,
-    std::vector<std::int32_t> &uBndVec,
+    std::vector<std::int32_t> &l_bnd_vec,
+    std::vector<std::int32_t> &u_bnd_vec,
     const activityMode & /*am*/
 ) const {
-    lBndVec.push_back(this->getLowerBoundary());
-    uBndVec.push_back(this->getUpperBoundary());
+    l_bnd_vec.push_back(this->getLowerBoundary());
+    u_bnd_vec.push_back(this->getUpperBoundary());
 }
 
 /******************************************************************************/
@@ -199,25 +199,25 @@ std::size_t GConstrainedInt32Object::countInt32Parameters(
  * to the assigned value, so that it lies inside of the allowed value range.
  */
 void GConstrainedInt32Object::assignInt32ValueVector(
-    const std::vector<std::int32_t> &parVec,
+    const std::vector<std::int32_t> &par_vec,
     std::size_t &pos,
     const activityMode & /*am*/
 ) {
 #ifdef DEBUG
     // Do we have a valid position ?
-    if(pos >= parVec.size()) {
+    if(pos >= par_vec.size()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GConstrainedInt32Object::assignInt32ValueVector(const "
                "std::vector<std::int32_t>&, std::size_t&):"
             << '\n'
-            << "Tried to access position beyond end of vector: " << parVec.size() << "/" << pos
+            << "Tried to access position beyond end of vector: " << par_vec.size() << "/" << pos
             << '\n'
         );
     }
 #endif
 
-    this->setValue(this->transfer(parVec[pos]));
+    this->setValue(this->transfer(par_vec[pos]));
     pos++;
 }
 
@@ -226,10 +226,12 @@ void GConstrainedInt32Object::assignInt32ValueVector(
  * Assigns part of a value map to the parameter
  */
 void GConstrainedInt32Object::assignInt32ValueVectors(
-    const std::map<std::string, std::vector<std::int32_t>> &parMap,
+    const std::map<std::string, std::vector<std::int32_t>> &par_map,
     const activityMode & /*am*/
 ) {
-    this->setValue(this->transfer(Gem::Common::getMapItem(parMap, this->getParameterName()).at(0)));
+    this->setValue(
+        this->transfer(Gem::Common::getMapItem(par_map, this->getParameterName()).at(0))
+    );
 }
 
 /******************************************************************************/
@@ -373,12 +375,12 @@ bool GConstrainedInt32Object::modify_GUnitTests_() {
 void GConstrainedInt32Object::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
     // Make sure we have an appropriate adaptor loaded when performing these tests
-    bool adaptorStored = false;
-    std::shared_ptr<GAdaptorT<std::int32_t>> storedAdaptor;
+    bool adaptor_stored = false;
+    std::shared_ptr<GAdaptorT<std::int32_t>> stored_adaptor;
 
     if(this->hasAdaptor()) {
-        storedAdaptor = this->getAdaptor();
-        adaptorStored = true;
+        stored_adaptor = this->getAdaptor();
+        adaptor_stored = true;
     }
 
     std::shared_ptr<GInt32GaussAdaptor> giga_ptr(new GInt32GaussAdaptor(0.025, 0.1, 0., 1., 1.0));
@@ -395,8 +397,8 @@ void GConstrainedInt32Object::specificTestsNoFailureExpected_GUnitTests_() {
     this->resetAdaptor();
 
     // Load the old adaptor, if needed
-    if(adaptorStored) {
-        this->addAdaptor(storedAdaptor);
+    if(adaptor_stored) {
+        this->addAdaptor(stored_adaptor);
     }
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
@@ -414,12 +416,12 @@ void GConstrainedInt32Object::specificTestsNoFailureExpected_GUnitTests_() {
 void GConstrainedInt32Object::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
     // Make sure we have an appropriate adaptor loaded when performing these tests
-    bool adaptorStored = false;
-    std::shared_ptr<GAdaptorT<std::int32_t>> storedAdaptor;
+    bool adaptor_stored = false;
+    std::shared_ptr<GAdaptorT<std::int32_t>> stored_adaptor;
 
     if(this->hasAdaptor()) {
-        storedAdaptor = this->getAdaptor();
-        adaptorStored = true;
+        stored_adaptor = this->getAdaptor();
+        adaptor_stored = true;
     }
 
     std::shared_ptr<GInt32GaussAdaptor> giga_ptr(new GInt32GaussAdaptor(0.025, 0.1, 0., 1., 1.0));
@@ -436,8 +438,8 @@ void GConstrainedInt32Object::specificTestsFailuresExpected_GUnitTests_() {
     this->resetAdaptor();
 
     // Load the old adaptor, if needed
-    if(adaptorStored) {
-        this->addAdaptor(storedAdaptor);
+    if(adaptor_stored) {
+        this->addAdaptor(stored_adaptor);
     }
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw

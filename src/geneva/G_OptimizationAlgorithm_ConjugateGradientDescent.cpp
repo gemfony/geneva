@@ -51,19 +51,19 @@ GConjugateGradientDescent::GConjugateGradientDescent()
 /**
  * Initialization with the number of starting points and step parameters
  *
- * @param nStartingPoints The number of simultaneous starting points
- * @param finiteStep The size of the difference-quotient step
- * @param stepSize The multiplicative factor for the step along the search direction
+ * @param n_starting_points The number of simultaneous starting points
+ * @param finite_step The size of the difference-quotient step
+ * @param step_size The multiplicative factor for the step along the search direction
  */
 GConjugateGradientDescent::GConjugateGradientDescent(
-    const std::size_t &nStartingPoints,
-    const double &finiteStep,
-    const double &stepSize
+    const std::size_t &n_starting_points,
+    const double &finite_step,
+    const double &step_size
 )
   : G_OptimizationAlgorithm_Base()
-  , nStartingPoints_(nStartingPoints)
-  , finiteStep_(finiteStep)
-  , stepSize_(stepSize) { /* nothing */
+  , nStartingPoints_(n_starting_points)
+  , finiteStep_(finite_step)
+  , stepSize_(step_size) { /* nothing */
 }
 
 /******************************************************************************/
@@ -78,8 +78,8 @@ std::size_t GConjugateGradientDescent::getNStartingPoints() const {
 /**
  * Allows to set the number of starting points for the conjugate gradient descent
  */
-void GConjugateGradientDescent::setNStartingPoints(std::size_t nStartingPoints) {
-    if(nStartingPoints == 0) {
+void GConjugateGradientDescent::setNStartingPoints(std::size_t n_starting_points) {
+    if(n_starting_points == 0) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GConjugateGradientDescent::setNStartingPoints(const std::size_t&):" << '\n'
@@ -87,25 +87,25 @@ void GConjugateGradientDescent::setNStartingPoints(std::size_t nStartingPoints) 
         );
     }
 
-    nStartingPoints_ = nStartingPoints;
+    nStartingPoints_ = n_starting_points;
 }
 
 /******************************************************************************/
 /**
  * Set the size of the finite step of the difference quotient
  */
-void GConjugateGradientDescent::setFiniteStep(double finiteStep) {
-    if(finiteStep <= 0. ||
-       finiteStep > 1000.) { // Specified in per mill of the allowed or preferred value range
+void GConjugateGradientDescent::setFiniteStep(double finite_step) {
+    if(finite_step <= 0. ||
+       finite_step > 1000.) { // Specified in per mill of the allowed or preferred value range
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GConjugateGradientDescent::setFiniteStep(double): Error!" << '\n'
-            << "Invalid value of finiteStep: " << finiteStep << '\n'
+            << "Invalid value of finite_step: " << finite_step << '\n'
             << "Must be in the range ]0.:1000.]" << '\n'
         );
     }
 
-    finiteStep_ = finiteStep;
+    finiteStep_ = finite_step;
 
     // Keep adjustedFiniteStep_ consistent if called after init()
     updateDerivedQuantities();
@@ -123,18 +123,18 @@ double GConjugateGradientDescent::getFiniteStep() const {
 /**
  * Sets a multiplier for the step along the search direction
  */
-void GConjugateGradientDescent::setStepSize(double stepSize) {
-    if(stepSize <= 0. ||
-       stepSize > 1000.) { // Specified in per mill of the allowed or preferred value range
+void GConjugateGradientDescent::setStepSize(double step_size) {
+    if(step_size <= 0. ||
+       step_size > 1000.) { // Specified in per mill of the allowed or preferred value range
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GConjugateGradientDescent::setStepSize(double): Error!" << '\n'
-            << "Invalid value of stepSize: " << stepSize << '\n'
+            << "Invalid value of step_size: " << step_size << '\n'
             << "Must be in the range ]0.:1000.]" << '\n'
         );
     }
 
-    stepSize_ = stepSize;
+    stepSize_ = step_size;
 }
 
 /******************************************************************************/
@@ -278,27 +278,27 @@ std::tuple<double, double> GConjugateGradientDescent::cycleLogic_() {
     // Trigger value calculation for all individuals (parents + children)
     runFitnessCalculation_();
 
-    std::tuple<double, double> bestFitness =
+    std::tuple<double, double> best_fitness =
         std::make_tuple(this->at(0)->getWorstCase(), this->at(0)->getWorstCase());
-    std::tuple<double, double> fitnessCandidate =
+    std::tuple<double, double> fitness_candidate =
         std::make_tuple(this->at(0)->getWorstCase(), this->at(0)->getWorstCase());
 
     GConjugateGradientDescent::iterator it;
     auto m = this->at(0)->getMaxMode(); // All individuals share the same max mode
     for(it = this->begin(); it != this->begin() + this->getNStartingPoints(); ++it) {
-        std::get<G_RAW_FITNESS>(fitnessCandidate) = (*it)->raw_fitness(0);
-        std::get<G_TRANSFORMED_FITNESS>(fitnessCandidate) = (*it)->transformed_fitness(0);
+        std::get<G_RAW_FITNESS>(fitness_candidate) = (*it)->raw_fitness(0);
+        std::get<G_TRANSFORMED_FITNESS>(fitness_candidate) = (*it)->transformed_fitness(0);
 
         if(isBetter(
-               std::get<G_TRANSFORMED_FITNESS>(fitnessCandidate),
-               std::get<G_TRANSFORMED_FITNESS>(bestFitness),
+               std::get<G_TRANSFORMED_FITNESS>(fitness_candidate),
+               std::get<G_TRANSFORMED_FITNESS>(best_fitness),
                m
            )) {
-            bestFitness = fitnessCandidate;
+            best_fitness = fitness_candidate;
         }
     }
 
-    return bestFitness;
+    return best_fitness;
 }
 
 /******************************************************************************/
@@ -314,28 +314,28 @@ std::tuple<double, double> GConjugateGradientDescent::cycleLogic_() {
  */
 void GConjugateGradientDescent::updateChildParameters() {
     for(std::size_t i = 0; i < nStartingPoints_; i++) {
-        std::vector<double> parmVec;
-        this->at(i)->streamline<double>(parmVec, activityMode::ACTIVEONLY);
+        std::vector<double> parm_vec;
+        this->at(i)->streamline<double>(parm_vec, activityMode::ACTIVEONLY);
 
         for(std::size_t j = 0; j < nFPParmsFirst_; j++) {
-            std::size_t childPos = nStartingPoints_ + i * nFPParmsFirst_ + j;
+            std::size_t child_pos = nStartingPoints_ + i * nFPParmsFirst_ + j;
 
             // Load the current "parent" into the "child"
-            this->at(childPos)->GObject::load(this->at(i));
+            this->at(child_pos)->GObject::load(this->at(i));
 
             // Update the child's position in the population
-            this->at(childPos)
+            this->at(child_pos)
                 ->getPersonalityTraits<GConjugateGradientDescent_PersonalityTraits>()
-                ->setPopulationPosition(childPos);
+                ->setPopulationPosition(child_pos);
 
-            double origParmVal = parmVec[j];
+            double orig_parm_val = parm_vec[j];
 
             // Add the finite step to the feature vector's current parameter
-            parmVec[j] += adjustedFiniteStep_[j];
-            this->at(childPos)->assignValueVector<double>(parmVec, activityMode::ACTIVEONLY);
+            parm_vec[j] += adjustedFiniteStep_[j];
+            this->at(child_pos)->assignValueVector<double>(parm_vec, activityMode::ACTIVEONLY);
 
             // Restore the original value for the next direction
-            parmVec[j] = origParmVal;
+            parm_vec[j] = orig_parm_val;
         }
     }
 }
@@ -356,18 +356,17 @@ void GConjugateGradientDescent::updateChildParameters() {
  *   beta = max(0, g . (g - g_prev) / (g_prev . g_prev))
  *   d    = -g + beta * d_prev          (with d = -g on the first step or on a restart)
  *
- * and the parameter vector is moved by stepRatio * d, with
- * stepRatio = stepSize_ / finiteStep_ (identical to GGradientDescent). A
+ * and the parameter vector is moved by step_ratio * d, with
+ * step_ratio = stepSize_ / finiteStep_ (identical to GGradientDescent). A
  * non-positive / numerically unstable denominator triggers an automatic
  * restart (beta = 0), which keeps the method globally convergent.
  */
 void GConjugateGradientDescent::updateParentIndividuals() {
-    const long double stepRatio =
-        ((long double)stepSize_) / ((long double)finiteStep_);
+    const long double step_ratio = ((long double)stepSize_) / ((long double)finiteStep_);
 
     for(std::size_t i = 0; i < nStartingPoints_; i++) {
-        std::vector<double> parmVec;
-        this->at(i)->streamline<double>(parmVec, activityMode::ACTIVEONLY);
+        std::vector<double> parm_vec;
+        this->at(i)->streamline<double>(parm_vec, activityMode::ACTIVEONLY);
 
 #ifdef DEBUG
         if(this->at(i)->is_due_for_processing() || (this->at(i)->has_errors())) {
@@ -380,14 +379,13 @@ void GConjugateGradientDescent::updateParentIndividuals() {
         }
 #endif /* DEBUG */
 
-        const double parentFitness = minOnly_transformed_fitness(this->at(i));
+        const double parent_fitness = minOnly_transformed_fitness(this->at(i));
 
         // 1) Assemble the forward-difference gradient proxy g_j
         std::vector<double> gradient(nFPParmsFirst_, 0.);
         for(std::size_t j = 0; j < nFPParmsFirst_; j++) {
-            std::size_t childPos = nStartingPoints_ + i * nFPParmsFirst_ + j;
-            gradient[j] =
-                minOnly_transformed_fitness(this->at(childPos)) - parentFitness;
+            std::size_t child_pos = nStartingPoints_ + i * nFPParmsFirst_ + j;
+            gradient[j] = minOnly_transformed_fitness(this->at(child_pos)) - parent_fitness;
         }
 
         // 2) Compute the Polak-Ribière+ beta and the conjugate direction
@@ -410,16 +408,15 @@ void GConjugateGradientDescent::updateParentIndividuals() {
             // descent step) unless the denominator is (a) above the absolute
             // representable floor and (b) large enough relative to the
             // numerator that the quotient stays below a finite conjugate-weight
-            // cap. Condition (b), denominator * betaMax > |numerator|,
-            // guarantees |betaPR| < betaMax by construction.
-            constexpr long double betaMax = 1.0e4L;
-            const long double absNum = (numerator >= 0.L) ? numerator : -numerator;
+            // cap. Condition (b), denominator * beta_max > |numerator|,
+            // guarantees |beta_pr| < beta_max by construction.
+            constexpr long double beta_max = 1.0e4L;
+            const long double abs_num = (numerator >= 0.L) ? numerator : -numerator;
             if(denominator > std::numeric_limits<long double>::min() &&
-               denominator * betaMax > absNum) {
-                long double betaPR = numerator / denominator;
-                beta = (betaPR > 0.L)
-                           ? Gem::Common::narrow_cast<double>(betaPR)
-                           : 0.; // PR+ clamp == automatic restart
+               denominator * beta_max > abs_num) {
+                long double beta_pr = numerator / denominator;
+                beta = (beta_pr > 0.L) ? Gem::Common::narrow_cast<double>(beta_pr)
+                                       : 0.; // PR+ clamp == automatic restart
             }
             else {
                 // Degenerate / near-zero previous gradient, or a denominator
@@ -433,12 +430,11 @@ void GConjugateGradientDescent::updateParentIndividuals() {
                            (cgHistoryValid_[i] ? beta * prevDirection_[i][j] : 0.);
         }
 
-        // 3) Take the step x <- x + stepRatio * d
+        // 3) Take the step x <- x + step_ratio * d
         try {
             for(std::size_t j = 0; j < nFPParmsFirst_; j++) {
-                parmVec[j] += Gem::Common::narrow_cast<double>(
-                    stepRatio * (long double)direction[j]
-                );
+                parm_vec[j] +=
+                    Gem::Common::narrow_cast<double>(step_ratio * (long double)direction[j]);
             }
         }
         catch(std::overflow_error &e) {
@@ -455,7 +451,7 @@ void GConjugateGradientDescent::updateParentIndividuals() {
         cgHistoryValid_[i] = true;
 
         // Write the stepped parameter vector back into the parent
-        this->at(i)->assignValueVector<double>(parmVec, activityMode::ACTIVEONLY);
+        this->at(i)->assignValueVector<double>(parm_vec, activityMode::ACTIVEONLY);
     }
 }
 
@@ -468,13 +464,13 @@ void GConjugateGradientDescent::addConfigurationOptions_(Gem::Common::GParserBui
     G_OptimizationAlgorithm_Base::addConfigurationOptions_(gpb);
 
     gpb.registerFileParameter<std::size_t>(
-        "nStartingPoints",
+        "n_starting_points",
         DEFAULTCGDSTARTINGPOINTS,
         [this](std::size_t nsp) { this->setNStartingPoints(nsp); }
     ) << "The number of simultaneous conjugate gradient descents";
 
     gpb.registerFileParameter<double>(
-        "finiteStep",
+        "finite_step",
         DEFAULTCGDFINITESTEP,
         [this](double fs) { this->setFiniteStep(fs); }
     ) << "The size of the adjustment in the difference quotient,"
@@ -483,7 +479,7 @@ void GConjugateGradientDescent::addConfigurationOptions_(Gem::Common::GParserBui
       << "range of a parameter";
 
     gpb.registerFileParameter<double>(
-        "stepSize",
+        "step_size",
         DEFAULTCGDSTEPSIZE,
         [this](double ss) { this->setStepSize(ss); }
     ) << "The size of each step along the conjugate search"
@@ -592,13 +588,12 @@ void GConjugateGradientDescent::init() {
 void GConjugateGradientDescent::updateDerivedQuantities() {
     try {
         adjustedFiniteStep_.clear();
-        long double finiteStepRatio = ((long double)finiteStep_) / ((long double)1000.);
+        long double finite_step_ratio = ((long double)finiteStep_) / ((long double)1000.);
         for(std::size_t pos = 0; pos < dblLowerParameterBoundaries_.size(); pos++) {
-            long double parameterRange =
-                (long double)dblUpperParameterBoundaries_[pos] -
-                (long double)dblLowerParameterBoundaries_[pos];
+            long double parameter_range = (long double)dblUpperParameterBoundaries_[pos] -
+                                          (long double)dblLowerParameterBoundaries_[pos];
             adjustedFiniteStep_.push_back(
-                Gem::Common::narrow_cast<double>(finiteStepRatio * parameterRange)
+                Gem::Common::narrow_cast<double>(finite_step_ratio * parameter_range)
             );
         }
     }
@@ -655,9 +650,9 @@ void GConjugateGradientDescent::actOnStalls_() {
  * nStartingPoints_ * (nFPParmsFirst_ + 1) individuals.
  */
 void GConjugateGradientDescent::adjustPopulation_() {
-    std::size_t nStart = this->size();
+    std::size_t n_start = this->size();
 
-    if(nStart == 0) {
+    if(n_start == 0) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GConjugateGradientDescent::adjustPopulation():" << '\n'
@@ -696,8 +691,8 @@ void GConjugateGradientDescent::adjustPopulation_() {
     );
 
     // Create the requested number of (randomized) starting points
-    if(nStart < nStartingPoints_) {
-        for(std::size_t i = 0; i < (nStartingPoints_ - nStart); i++) {
+    if(n_start < nStartingPoints_) {
+        for(std::size_t i = 0; i < (nStartingPoints_ - n_start); i++) {
             this->push_back(this->at(0)->clone<GParameterSet>());
             this->back()->randomInit(activityMode::ACTIVEONLY);
         }

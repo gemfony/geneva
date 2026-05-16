@@ -57,15 +57,15 @@ GInt32GaussAdaptor::GInt32GaussAdaptor()
  * value for sigma, as there is a "natural" gap of 1 between integers, and the DEFAULTSIGMA
  * might not be suitable for us.
  *
- * @param adProb The adaption probability
+ * @param ad_prob The adaption probability
  */
-GInt32GaussAdaptor::GInt32GaussAdaptor(const double &adProb)
+GInt32GaussAdaptor::GInt32GaussAdaptor(const double &ad_prob)
   : GIntGaussAdaptorT<std::int32_t>(
         DEFAULTINT32SIGMA,
         DEFAULTSIGMASIGMA,
         DEFAULTMINSIGMA,
         DEFAULTMAXSIGMA,
-        adProb
+        ad_prob
     ) { /* nothing */
 }
 
@@ -74,17 +74,17 @@ GInt32GaussAdaptor::GInt32GaussAdaptor(const double &adProb)
  * This constructor lets a user set all sigma parameters in one go.
  *
  * @param sigma The initial value for the sigma_ parameter
- * @param sigmaSigma The initial value for the sigmaSigma_ parameter
- * @param minSigma The minimal value allowed for sigma_
- * @param maxSigma The maximal value allowed for sigma_
+ * @param sigma_sigma The initial value for the sigmaSigma_ parameter
+ * @param min_sigma The minimal value allowed for sigma_
+ * @param max_sigma The maximal value allowed for sigma_
  */
 GInt32GaussAdaptor::GInt32GaussAdaptor(
     const double &sigma,
-    const double &sigmaSigma,
-    const double &minSigma,
-    const double &maxSigma
+    const double &sigma_sigma,
+    const double &min_sigma,
+    const double &max_sigma
 )
-  : GIntGaussAdaptorT<std::int32_t>(sigma, sigmaSigma, minSigma, maxSigma) { /* nothing */
+  : GIntGaussAdaptorT<std::int32_t>(sigma, sigma_sigma, min_sigma, max_sigma) { /* nothing */
 }
 
 /********************************************************************************************/
@@ -93,19 +93,25 @@ GInt32GaussAdaptor::GInt32GaussAdaptor(
  * probability in one go.
  *
  * @param sigma The initial value for the sigma_ parameter
- * @param sigmaSigma The initial value for the sigmaSigma_ parameter
- * @param minSigma The minimal value allowed for sigma_
- * @param maxSigma The maximal value allowed for sigma_
- * @param adProb The adaption probability
+ * @param sigma_sigma The initial value for the sigmaSigma_ parameter
+ * @param min_sigma The minimal value allowed for sigma_
+ * @param max_sigma The maximal value allowed for sigma_
+ * @param ad_prob The adaption probability
  */
 GInt32GaussAdaptor::GInt32GaussAdaptor(
     const double &sigma,
-    const double &sigmaSigma,
-    const double &minSigma,
-    const double &maxSigma,
-    const double &adProb
+    const double &sigma_sigma,
+    const double &min_sigma,
+    const double &max_sigma,
+    const double &ad_prob
 )
-  : GIntGaussAdaptorT<std::int32_t>(sigma, sigmaSigma, minSigma, maxSigma, adProb) { /* nothing */
+  : GIntGaussAdaptorT<std::int32_t>(
+        sigma,
+        sigma_sigma,
+        min_sigma,
+        max_sigma,
+        ad_prob
+    ) { /* nothing */
 }
 
 /******************************************************************************/

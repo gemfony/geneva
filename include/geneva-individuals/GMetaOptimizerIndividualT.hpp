@@ -106,18 +106,18 @@ const double GMETAOPT_DEF_AMALGLKLHOOD_UB =
 
 // Concerning the individual
 const double GMETAOPT_DEF_INITMINADPROB =
-    0.; ///< The initial lower boundary for the variation of adProb
-const double GMETAOPT_DEF_MINADPROB_LB = 0.; ///< The lower boundary for minAdProb
+    0.; ///< The initial lower boundary for the variation of ad_prob
+const double GMETAOPT_DEF_MINADPROB_LB = 0.; ///< The lower boundary for min_ad_prob
 const double GMETAOPT_DEF_MINADPROB_UB =
-    0.1; ///< The upper boundary for minAdProb -- 0.1, effectively
+    0.1; ///< The upper boundary for min_ad_prob -- 0.1, effectively
 
 const double GMETAOPT_DEF_INITADPROBRANGE =
-    0.9; ///< The initial upper boundary for the variation of adProb
-const double GMETAOPT_DEF_ADPROBRANGE_LB = 0.1; ///< The lower boundary for adProbRange
-const double GMETAOPT_DEF_ADPROBRANGE_UB = 0.9; ///< The upper boundary for adProbRange
+    0.9; ///< The initial upper boundary for the variation of ad_prob
+const double GMETAOPT_DEF_ADPROBRANGE_LB = 0.1; ///< The lower boundary for ad_prob_range
+const double GMETAOPT_DEF_ADPROBRANGE_UB = 0.9; ///< The upper boundary for ad_prob_range
 
 const double GMETAOPT_DEF_INITADPROBSTARTPERCENTAGE =
-    1.; ///< Defines the place inside of the allowed value range where adProb starts. Boundaries are 0./1.
+    1.; ///< Defines the place inside of the allowed value range where ad_prob starts. Boundaries are 0./1.
 
 const double GMETAOPT_DEF_INITADAPTADPROB =
     0.1; ///< The initial value of the strength of adProb_ adaption
@@ -135,9 +135,9 @@ const double GMETAOPT_DEF_MINSIGMA_UB =
 const double GMETAOPT_DEF_INITSIGMARANGE =
     0.2; ///< The initial maximum range for sigma --> note that the initial start value for sigma will always be set to the upper boundary of its variation limits
 const double GMETAOPT_DEF_SIGMARANGE_LB =
-    0.1; ///< The lower boundary for the variation of the maximum range of sigma --> maxSigma is 0.2
+    0.1; ///< The lower boundary for the variation of the maximum range of sigma --> max_sigma is 0.2
 const double GMETAOPT_DEF_SIGMARANGE_UB =
-    0.9; ///< The upper boundary for the variation of the maximum range of sigma --> maxSigma is 1.
+    0.9; ///< The upper boundary for the variation of the maximum range of sigma --> max_sigma is 1.
 
 const double GMETAOPT_DEF_INITSIGMARANGEPERCENTAGE =
     1.; ///< The initial percentage of the sigma range as a start value
@@ -250,8 +250,8 @@ public:
      * Allows to specify the path and name of a configuration file passed to
      * the (sub-)evolutionary algorithm
      */
-    void setSubEAConfig(std::string subEA_config) {
-        subEA_config_ = subEA_config;
+    void setSubEAConfig(std::string sub_ea_config) {
+        subEA_config_ = sub_ea_config;
     }
 
     /***************************************************************************/
@@ -267,9 +267,9 @@ public:
     /**
      * Allows to specify how many optimizations should be performed for each (sub-)optimization
      */
-    void setNRunsPerOptimization(std::size_t nRunsPerOptimization) {
+    void setNRunsPerOptimization(std::size_t n_runs_per_optimization) {
 #ifdef DEBUG
-        if(0 == nRunsPerOptimization) {
+        if(0 == n_runs_per_optimization) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GMetaOptimizerIndividualT<ind_type>::setNRunsPerOptimization(): Error!"
@@ -279,7 +279,7 @@ public:
         }
 #endif
 
-        nRunsPerOptimization_ = nRunsPerOptimization;
+        nRunsPerOptimization_ = n_runs_per_optimization;
     }
 
     /***************************************************************************/
@@ -294,8 +294,8 @@ public:
     /**
      * Allows to set the fitness target for each optimization
      */
-    void setFitnessTarget(double fitnessTarget) {
-        fitnessTarget_ = fitnessTarget;
+    void setFitnessTarget(double fitness_target) {
+        fitnessTarget_ = fitness_target;
     }
 
     /***************************************************************************/
@@ -310,8 +310,8 @@ public:
     /**
      * Allows to set the iteration threshold
      */
-    void setIterationThreshold(std::uint32_t iterationThreshold) {
-        iterationThreshold_ = iterationThreshold;
+    void setIterationThreshold(std::uint32_t iteration_threshold) {
+        iterationThreshold_ = iteration_threshold;
     }
 
     /***************************************************************************/
@@ -326,8 +326,8 @@ public:
     /**
      * Allows to set the desired target of the meta-optimization
      */
-    void setMetaOptimizationTarget(metaOptimizationTarget moTarget) {
-        moTarget_ = moTarget;
+    void setMetaOptimizationTarget(metaOptimizationTarget mo_target) {
+        moTarget_ = mo_target;
 
         // multi-criterion optimization. We need to set the number of fitness criteria
         if(metaOptimizationTarget::MC_MINSOLVER_BESTFITNESS == moTarget_) {
@@ -368,15 +368,15 @@ public:
      * Retrieves the adaption probability. Needed for the optimization monitor.
      */
     double getAdProb() const {
-        std::shared_ptr<GConstrainedDoubleObject> minAdProb_ptr =
+        std::shared_ptr<GConstrainedDoubleObject> min_ad_prob_ptr =
             this->at<GConstrainedDoubleObject>(MOT_MINADPROB);
-        std::shared_ptr<GConstrainedDoubleObject> adProbRange_ptr =
+        std::shared_ptr<GConstrainedDoubleObject> ad_prob_range_ptr =
             this->at<GConstrainedDoubleObject>(MOT_ADPROBRANGE);
-        std::shared_ptr<GConstrainedDoubleObject> adProbStartPercentage_ptr =
+        std::shared_ptr<GConstrainedDoubleObject> ad_prob_start_percentage_ptr =
             this->at<GConstrainedDoubleObject>(MOT_ADPROBSTARTPERCENTAGE);
 
-        return minAdProb_ptr->value() +
-               adProbStartPercentage_ptr->value() * adProbRange_ptr->value();
+        return min_ad_prob_ptr->value() +
+               ad_prob_start_percentage_ptr->value() * ad_prob_range_ptr->value();
     }
 
     /***************************************************************************/
@@ -416,35 +416,35 @@ public:
      */
     static void addContent(
         std::shared_ptr<GMetaOptimizerIndividualT<ind_type>> p,
-        const std::size_t &initNParents,
-        const std::size_t &nParents_LB,
-        const std::size_t &nParents_UB,
-        const std::size_t &initNChildren,
-        const std::size_t &nChildren_LB,
-        const std::size_t &nChildren_UB,
-        const double &initAmalgamationLklh,
-        const double &amalgamationLklh_LB,
-        const double &amalgamationLklh_UB,
-        const double &initMinAdProb,
-        const double &minAdProb_LB,
-        const double &minAdProb_UB,
-        const double &initAdProbRange,
-        const double &adProbRange_LB,
-        const double &adProbRange_UB,
-        const double &initAdProbStartPercentage,
-        const double &initAdaptAdProb,
-        const double &adaptAdProb_LB,
-        const double &adaptAdProb_UB,
-        const double &initMinSigma,
-        const double &minSigma_LB,
-        const double &minSigma_UB,
-        const double &initSigmaRange,
-        const double &sigmaRange_LB,
-        const double &sigmaRange_UB,
-        const double &initSigmaRangePercentage,
-        const double &initSigmaSigma,
-        const double &sigmaSigma_LB,
-        const double &sigmaSigma_UB
+        const std::size_t &init_n_parents,
+        const std::size_t &n_parents_lb,
+        const std::size_t &n_parents_ub,
+        const std::size_t &init_n_children,
+        const std::size_t &n_children_lb,
+        const std::size_t &n_children_ub,
+        const double &init_amalgamation_lklh,
+        const double &amalgamation_lklh_lb,
+        const double &amalgamation_lklh_ub,
+        const double &init_min_ad_prob,
+        const double &min_ad_prob_lb,
+        const double &min_ad_prob_ub,
+        const double &init_ad_prob_range,
+        const double &ad_prob_range_lb,
+        const double &ad_prob_range_ub,
+        const double &init_ad_prob_start_percentage,
+        const double &init_adapt_ad_prob,
+        const double &adapt_ad_prob_lb,
+        const double &adapt_ad_prob_ub,
+        const double &init_min_sigma,
+        const double &min_sigma_lb,
+        const double &min_sigma_ub,
+        const double &init_sigma_range,
+        const double &sigma_range_lb,
+        const double &sigma_range_ub,
+        const double &init_sigma_range_percentage,
+        const double &init_sigma_sigma,
+        const double &sigma_sigma_lb,
+        const double &sigma_sigma_ub
     ) {
         // We will add parameter types in the same order as the arguments
 
@@ -453,19 +453,19 @@ public:
         p->resize_empty(MOT_NVAR); // Will add empty smart pointers to the collection
 
         //------------------------------------------------------------
-        // nParents
+        // n_parents
 
         // Small number of possible values -- use a flip-adaptor
         std::shared_ptr<GInt32FlipAdaptor> gifa_ptr(new GInt32FlipAdaptor());
         gifa_ptr->setAdaptionProbability(1.);
 
         std::shared_ptr<GConstrainedInt32Object> npar_ptr(new GConstrainedInt32Object(
-            Gem::Common::narrow_cast<std::int32_t>(initNParents),
-            Gem::Common::narrow_cast<std::int32_t>(nParents_LB),
-            Gem::Common::narrow_cast<std::int32_t>(nParents_UB)
+            Gem::Common::narrow_cast<std::int32_t>(init_n_parents),
+            Gem::Common::narrow_cast<std::int32_t>(n_parents_lb),
+            Gem::Common::narrow_cast<std::int32_t>(n_parents_ub)
         ));
         npar_ptr->addAdaptor(gifa_ptr);
-        npar_ptr->setParameterName("nParents");
+        npar_ptr->setParameterName("n_parents");
 
         // Add to the individual
         p->at(MOT_NPARENTS) = npar_ptr;
@@ -473,28 +473,28 @@ public:
         assert(p->at(MOT_NPARENTS));
 
         //------------------------------------------------------------
-        // nChildren
+        // n_children
 
         // Create a default standard gauss adaptor
         std::shared_ptr<GInt32GaussAdaptor> giga_ptr(new GInt32GaussAdaptor(
             0.025 // sigma
             ,
-            0.2 // sigmaSigma
+            0.2 // sigma_sigma
             ,
-            0.001 // minSigma
+            0.001 // min_sigma
             ,
-            0.5 // maxSigma
+            0.5 // max_sigma
             ,
-            1. // adProb
+            1. // ad_prob
         ));
 
         std::shared_ptr<GConstrainedInt32Object> nch_ptr(new GConstrainedInt32Object(
-            Gem::Common::narrow_cast<std::int32_t>(initNChildren),
-            Gem::Common::narrow_cast<std::int32_t>(nChildren_LB),
-            Gem::Common::narrow_cast<std::int32_t>(nChildren_UB)
+            Gem::Common::narrow_cast<std::int32_t>(init_n_children),
+            Gem::Common::narrow_cast<std::int32_t>(n_children_lb),
+            Gem::Common::narrow_cast<std::int32_t>(n_children_ub)
         ));
         nch_ptr->addAdaptor(giga_ptr);
-        nch_ptr->setParameterName("nChildren");
+        nch_ptr->setParameterName("n_children");
 
         // Add to the individual
         p->at(MOT_NCHILDREN) = nch_ptr;
@@ -506,68 +506,70 @@ public:
         std::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(
             0.025 // sigma
             ,
-            0.2 // sigmaSigma
+            0.2 // sigma_sigma
             ,
-            0.001 // minSigma
+            0.001 // min_sigma
             ,
-            0.5 // maxSigma
+            0.5 // max_sigma
             ,
-            1. // adProb
+            1. // ad_prob
         ));
-        std::shared_ptr<GConstrainedDoubleObject> amalgamationLklh_ptr(new GConstrainedDoubleObject(
-            initAmalgamationLklh // initial value
-            ,
-            amalgamationLklh_LB // lower boundary
-            ,
-            amalgamationLklh_UB // upper boundary
-        ));
-        // Add the gauss adaptor to the parameter
-        amalgamationLklh_ptr->addAdaptor(gdga_ptr);
-        amalgamationLklh_ptr->setParameterName("amalgamationLikelihood");
-
-        // Add to the individual
-        p->at(MOT_AMALGAMATION) = amalgamationLklh_ptr;
-
-        //------------------------------------------------------------
-        // minAdProb
-
-        std::shared_ptr<GConstrainedDoubleObject> minAdProb_ptr(new GConstrainedDoubleObject(
-            initMinAdProb // initial value
-            ,
-            minAdProb_LB // lower boundary
-            ,
-            minAdProb_UB // upper boundary
-        ));
-        // Add the gauss adaptor to the parameter
-        minAdProb_ptr->addAdaptor(gdga_ptr);
-        minAdProb_ptr->setParameterName("minAdProb");
-
-        // Add to the individual
-        p->at(MOT_MINADPROB) = minAdProb_ptr;
-
-        //------------------------------------------------------------
-        // adProbRange
-
-        std::shared_ptr<GConstrainedDoubleObject> adProbRange_ptr(new GConstrainedDoubleObject(
-            initAdProbRange // initial value
-            ,
-            adProbRange_LB // lower boundary
-            ,
-            adProbRange_UB // upper boundary
-        ));
-        // Add the gauss adaptor to the parameter
-        adProbRange_ptr->addAdaptor(gdga_ptr);
-        adProbRange_ptr->setParameterName("adProbRange");
-
-        // Add to the individual
-        p->at(MOT_ADPROBRANGE) = adProbRange_ptr;
-
-        //------------------------------------------------------------
-        // adProbStartPercentage
-
-        std::shared_ptr<GConstrainedDoubleObject> adProbStartPercentage_ptr(
+        std::shared_ptr<GConstrainedDoubleObject> amalgamation_lklh_ptr(
             new GConstrainedDoubleObject(
-                initAdProbStartPercentage // initial value
+                init_amalgamation_lklh // initial value
+                ,
+                amalgamation_lklh_lb // lower boundary
+                ,
+                amalgamation_lklh_ub // upper boundary
+            )
+        );
+        // Add the gauss adaptor to the parameter
+        amalgamation_lklh_ptr->addAdaptor(gdga_ptr);
+        amalgamation_lklh_ptr->setParameterName("amalgamation_likelihood");
+
+        // Add to the individual
+        p->at(MOT_AMALGAMATION) = amalgamation_lklh_ptr;
+
+        //------------------------------------------------------------
+        // min_ad_prob
+
+        std::shared_ptr<GConstrainedDoubleObject> min_ad_prob_ptr(new GConstrainedDoubleObject(
+            init_min_ad_prob // initial value
+            ,
+            min_ad_prob_lb // lower boundary
+            ,
+            min_ad_prob_ub // upper boundary
+        ));
+        // Add the gauss adaptor to the parameter
+        min_ad_prob_ptr->addAdaptor(gdga_ptr);
+        min_ad_prob_ptr->setParameterName("min_ad_prob");
+
+        // Add to the individual
+        p->at(MOT_MINADPROB) = min_ad_prob_ptr;
+
+        //------------------------------------------------------------
+        // ad_prob_range
+
+        std::shared_ptr<GConstrainedDoubleObject> ad_prob_range_ptr(new GConstrainedDoubleObject(
+            init_ad_prob_range // initial value
+            ,
+            ad_prob_range_lb // lower boundary
+            ,
+            ad_prob_range_ub // upper boundary
+        ));
+        // Add the gauss adaptor to the parameter
+        ad_prob_range_ptr->addAdaptor(gdga_ptr);
+        ad_prob_range_ptr->setParameterName("ad_prob_range");
+
+        // Add to the individual
+        p->at(MOT_ADPROBRANGE) = ad_prob_range_ptr;
+
+        //------------------------------------------------------------
+        // ad_prob_start_percentage
+
+        std::shared_ptr<GConstrainedDoubleObject> ad_prob_start_percentage_ptr(
+            new GConstrainedDoubleObject(
+                init_ad_prob_start_percentage // initial value
                 ,
                 0. // lower boundary
                 ,
@@ -575,66 +577,66 @@ public:
             )
         );
         // Add the gauss adaptor to the parameter
-        adProbStartPercentage_ptr->addAdaptor(gdga_ptr);
-        adProbStartPercentage_ptr->setParameterName("adProbStartPercentage");
+        ad_prob_start_percentage_ptr->addAdaptor(gdga_ptr);
+        ad_prob_start_percentage_ptr->setParameterName("ad_prob_start_percentage");
 
         // Add to the individual
-        p->at(MOT_ADPROBSTARTPERCENTAGE) = adProbStartPercentage_ptr;
+        p->at(MOT_ADPROBSTARTPERCENTAGE) = ad_prob_start_percentage_ptr;
 
         //------------------------------------------------------------
-        // adaptAdProb
+        // adapt_ad_prob
 
-        std::shared_ptr<GConstrainedDoubleObject> adaptAdProb_ptr(new GConstrainedDoubleObject(
-            initAdaptAdProb // initial value
+        std::shared_ptr<GConstrainedDoubleObject> adapt_ad_prob_ptr(new GConstrainedDoubleObject(
+            init_adapt_ad_prob // initial value
             ,
-            adaptAdProb_LB // lower boundary
+            adapt_ad_prob_lb // lower boundary
             ,
-            adaptAdProb_UB // upper boundary
+            adapt_ad_prob_ub // upper boundary
         ));
-        adaptAdProb_ptr->addAdaptor(gdga_ptr);
-        adaptAdProb_ptr->setParameterName("adaptAdProb");
+        adapt_ad_prob_ptr->addAdaptor(gdga_ptr);
+        adapt_ad_prob_ptr->setParameterName("adapt_ad_prob");
 
         // Add to the individual
-        p->at(MOT_ADAPTADPROB) = adaptAdProb_ptr;
+        p->at(MOT_ADAPTADPROB) = adapt_ad_prob_ptr;
 
         //------------------------------------------------------------
-        // minSigma
+        // min_sigma
 
         std::shared_ptr<GConstrainedDoubleObject> minsigma_ptr(new GConstrainedDoubleObject(
-            initMinSigma // initial value
+            init_min_sigma // initial value
             ,
-            minSigma_LB // lower boundary
+            min_sigma_lb // lower boundary
             ,
-            minSigma_UB // upper boundary
+            min_sigma_ub // upper boundary
         ));
         minsigma_ptr->addAdaptor(gdga_ptr);
-        minsigma_ptr->setParameterName("minSigma");
+        minsigma_ptr->setParameterName("min_sigma");
 
         // Add to the individual
         p->at(MOT_MINSIGMA) = minsigma_ptr;
 
         //------------------------------------------------------------
-        // sigmaRange
+        // sigma_range
 
         std::shared_ptr<GConstrainedDoubleObject> sigmarange_ptr(new GConstrainedDoubleObject(
-            initSigmaRange // initial value
+            init_sigma_range // initial value
             ,
-            sigmaRange_LB // lower boundary
+            sigma_range_lb // lower boundary
             ,
-            sigmaRange_UB // upper boundary
+            sigma_range_ub // upper boundary
         ));
         sigmarange_ptr->addAdaptor(gdga_ptr);
-        sigmarange_ptr->setParameterName("sigmaRange");
+        sigmarange_ptr->setParameterName("sigma_range");
 
         // Add to the individual
         p->at(MOT_SIGMARANGE) = sigmarange_ptr;
 
         //------------------------------------------------------------
-        // sigmaRangePercentage
+        // sigma_range_percentage
 
-        std::shared_ptr<GConstrainedDoubleObject> sigmaRangePercentage_ptr(
+        std::shared_ptr<GConstrainedDoubleObject> sigma_range_percentage_ptr(
             new GConstrainedDoubleObject(
-                initSigmaRangePercentage // initial value
+                init_sigma_range_percentage // initial value
                 ,
                 0. // lower boundary
                 ,
@@ -642,25 +644,25 @@ public:
             )
         );
         // Add the gauss adaptor to the parameter
-        sigmaRangePercentage_ptr->addAdaptor(gdga_ptr);
-        sigmaRangePercentage_ptr->setParameterName("sigmaRangePercentage");
+        sigma_range_percentage_ptr->addAdaptor(gdga_ptr);
+        sigma_range_percentage_ptr->setParameterName("sigma_range_percentage");
 
         // Add to the individual
-        p->at(MOT_SIGMARANGEPERCENTAGE) = sigmaRangePercentage_ptr;
+        p->at(MOT_SIGMARANGEPERCENTAGE) = sigma_range_percentage_ptr;
 
         //------------------------------------------------------------
-        // sigmaSigma
+        // sigma_sigma
 
         // The sigma adaption strength may change between 0.01 and 1
         std::shared_ptr<GConstrainedDoubleObject> sigmasigma_ptr(new GConstrainedDoubleObject(
-            initSigmaSigma // initial value
+            init_sigma_sigma // initial value
             ,
-            sigmaSigma_LB // lower boundary
+            sigma_sigma_lb // lower boundary
             ,
-            sigmaSigma_UB // upper boundary
+            sigma_sigma_ub // upper boundary
         ));
         sigmasigma_ptr->addAdaptor(gdga_ptr);
-        sigmasigma_ptr->setParameterName("sigmaSigma");
+        sigmasigma_ptr->setParameterName("sigma_sigma");
 
         // Add to the individual
         p->at(MOT_SIGMASIGMA) = sigmasigma_ptr;
@@ -672,7 +674,7 @@ public:
     /**
      * Emit information about this individual
      */
-    std::string print(bool withFitness = true) const {
+    std::string print(bool with_fitness = true) const {
         std::ostringstream result; // NOLINT(cppcoreguidelines-init-variables)
         // Retrieve the parameters
         std::shared_ptr<GConstrainedInt32Object> npar_ptr =
@@ -681,19 +683,19 @@ public:
             this->at<GConstrainedInt32Object>(MOT_NCHILDREN);
         std::shared_ptr<GConstrainedDoubleObject> amalgamation_ptr =
             this->at<GConstrainedDoubleObject>(MOT_AMALGAMATION);
-        std::shared_ptr<GConstrainedDoubleObject> minAdProb_ptr =
+        std::shared_ptr<GConstrainedDoubleObject> min_ad_prob_ptr =
             this->at<GConstrainedDoubleObject>(MOT_MINADPROB);
-        std::shared_ptr<GConstrainedDoubleObject> adProbRange_ptr =
+        std::shared_ptr<GConstrainedDoubleObject> ad_prob_range_ptr =
             this->at<GConstrainedDoubleObject>(MOT_ADPROBRANGE);
-        std::shared_ptr<GConstrainedDoubleObject> adProbStartPercentage_ptr =
+        std::shared_ptr<GConstrainedDoubleObject> ad_prob_start_percentage_ptr =
             this->at<GConstrainedDoubleObject>(MOT_ADPROBSTARTPERCENTAGE);
-        std::shared_ptr<GConstrainedDoubleObject> adaptAdprob_ptr =
+        std::shared_ptr<GConstrainedDoubleObject> adapt_adprob_ptr =
             this->at<GConstrainedDoubleObject>(MOT_ADAPTADPROB);
         std::shared_ptr<GConstrainedDoubleObject> minsigma_ptr =
             this->at<GConstrainedDoubleObject>(MOT_MINSIGMA);
         std::shared_ptr<GConstrainedDoubleObject> sigmarange_ptr =
             this->at<GConstrainedDoubleObject>(MOT_SIGMARANGE);
-        std::shared_ptr<GConstrainedDoubleObject> sigmaRangePercentage_ptr =
+        std::shared_ptr<GConstrainedDoubleObject> sigma_range_percentage_ptr =
             this->at<GConstrainedDoubleObject>(MOT_SIGMARANGEPERCENTAGE);
         std::shared_ptr<GConstrainedDoubleObject> sigmasigma_ptr =
             this->at<GConstrainedDoubleObject>(MOT_SIGMASIGMA);
@@ -701,47 +703,46 @@ public:
         // Stream the results
 
         bool unprocessed = (not this->is_processed() || this->has_errors());
-        double transformedPrimaryFitness =
+        double transformed_primary_fitness =
             unprocessed ? this->getWorstCase() : this->transformed_fitness(0);
 
         result << "================================================================================"
                   "============"
                << '\n';
 
-        if(withFitness) {
-            result << "Fitness = " << transformedPrimaryFitness
+        if(with_fitness) {
+            result << "Fitness = " << transformed_primary_fitness
                    << (unprocessed ? " // unprocessed or error" : "") << '\n';
         }
 
         result << "Optimization target: " << getClearTextMOT(moTarget_) << '\n'
                << '\n'
-               << "population::population size = " << npar_ptr->value() + nch_ptr->value()
+               << "population::population size = " << npar_ptr->value() + nch_ptr->value() << '\n'
+               << "population::n_parents = " << npar_ptr->value() << '\n'
+               << "population::n_children = " << nch_ptr->value() << '\n'
+               << "population::amalgamation_likelihood = " << amalgamation_ptr->value() << '\n'
+               << "individual::ad_prob_range = " << ad_prob_range_ptr->value() << '\n'
+               << "individual::ad_prob_start_percentage_ptr = "
+               << ad_prob_start_percentage_ptr->value() << '\n'
+               << "individual::ad_prob = "
+               << min_ad_prob_ptr->value() +
+                      ad_prob_range_ptr->value() * ad_prob_start_percentage_ptr->value()
                << '\n'
-               << "population::nParents = " << npar_ptr->value() << '\n'
-               << "population::nChildren = " << nch_ptr->value() << '\n'
-               << "population::amalgamationLikelihood = " << amalgamation_ptr->value() << '\n'
-               << "individual::adProbRange = " << adProbRange_ptr->value() << '\n'
-               << "individual::adProbStartPercentage_ptr = " << adProbStartPercentage_ptr->value()
-               << '\n'
-               << "individual::adProb = "
-               << minAdProb_ptr->value() +
-                      adProbRange_ptr->value() * adProbStartPercentage_ptr->value()
-               << '\n'
-               << "individual::minAdProb = " << minAdProb_ptr->value() << '\n'
-               << "individual::maxAdProb = " << minAdProb_ptr->value() + adProbRange_ptr->value()
-               << '\n'
-               << "individual::adaptAdProb = " << adaptAdprob_ptr->value() << '\n'
+               << "individual::min_ad_prob = " << min_ad_prob_ptr->value() << '\n'
+               << "individual::max_ad_prob = "
+               << min_ad_prob_ptr->value() + ad_prob_range_ptr->value() << '\n'
+               << "individual::adapt_ad_prob = " << adapt_adprob_ptr->value() << '\n'
                << "individual::sigmarange_ptr = " << sigmarange_ptr->value() << '\n'
-               << "individual::sigmaRangePercentage_ptr = " << sigmaRangePercentage_ptr->value()
+               << "individual::sigma_range_percentage_ptr = " << sigma_range_percentage_ptr->value()
                << '\n'
                << "individual::sigma1 = "
                << minsigma_ptr->value() +
-                      sigmarange_ptr->value() * sigmaRangePercentage_ptr->value()
+                      sigmarange_ptr->value() * sigma_range_percentage_ptr->value()
                << '\n'
-               << "individual::minSigma1 = " << minsigma_ptr->value() << '\n'
-               << "individual::maxSigma1 = " << minsigma_ptr->value() + sigmarange_ptr->value()
+               << "individual::min_sigma1 = " << minsigma_ptr->value() << '\n'
+               << "individual::max_sigma1 = " << minsigma_ptr->value() + sigmarange_ptr->value()
                << '\n'
-               << "individual::sigmaSigma1 = " << sigmasigma_ptr->value() << '\n'
+               << "individual::sigma_sigma1 = " << sigmasigma_ptr->value() << '\n'
                << "================================================================================"
                   "============"
                << '\n'
@@ -783,7 +784,7 @@ protected:
 
         // Add local data
         gpb.registerFileParameter<std::size_t>(
-            "nRunsPerOptimization" // The name of the variable
+            "n_runs_per_optimization" // The name of the variable
             ,
             GMETAOPT_DEF_NRUNSPEROPT // The default value
             ,
@@ -791,7 +792,7 @@ protected:
         ) << "Specifies the number of optimizations performed";
 
         gpb.registerFileParameter<double>(
-            "fitnessTarget" // The name of the variable
+            "fitness_target" // The name of the variable
             ,
             GMETAOPT_DEF_FITNESSTARGET // The default value
             ,
@@ -799,7 +800,7 @@ protected:
         ) << "The fitness below which optimization should stop";
 
         gpb.registerFileParameter<std::uint32_t>(
-            "iterationThreshold" // The name of the variable
+            "iteration_threshold" // The name of the variable
             ,
             GMETAOPT_DEF_ITERATIONTHRESHOLD // The default value
             ,
@@ -916,19 +917,19 @@ protected:
             this->at<GConstrainedInt32Object>(MOT_NCHILDREN);
         std::shared_ptr<GConstrainedDoubleObject> amalgamation_ptr =
             this->at<GConstrainedDoubleObject>(MOT_AMALGAMATION);
-        std::shared_ptr<GConstrainedDoubleObject> minAdProb_ptr =
+        std::shared_ptr<GConstrainedDoubleObject> min_ad_prob_ptr =
             this->at<GConstrainedDoubleObject>(MOT_MINADPROB);
-        std::shared_ptr<GConstrainedDoubleObject> adProbRange_ptr =
+        std::shared_ptr<GConstrainedDoubleObject> ad_prob_range_ptr =
             this->at<GConstrainedDoubleObject>(MOT_ADPROBRANGE);
-        std::shared_ptr<GConstrainedDoubleObject> adProbStartPercentage_ptr =
+        std::shared_ptr<GConstrainedDoubleObject> ad_prob_start_percentage_ptr =
             this->at<GConstrainedDoubleObject>(MOT_ADPROBSTARTPERCENTAGE);
-        std::shared_ptr<GConstrainedDoubleObject> adaptAdprob_ptr =
+        std::shared_ptr<GConstrainedDoubleObject> adapt_adprob_ptr =
             this->at<GConstrainedDoubleObject>(MOT_ADAPTADPROB);
         std::shared_ptr<GConstrainedDoubleObject> minsigma_ptr =
             this->at<GConstrainedDoubleObject>(MOT_MINSIGMA);
         std::shared_ptr<GConstrainedDoubleObject> sigmarange_ptr =
             this->at<GConstrainedDoubleObject>(MOT_SIGMARANGE);
-        std::shared_ptr<GConstrainedDoubleObject> sigmaRangePercentage_ptr =
+        std::shared_ptr<GConstrainedDoubleObject> sigma_range_percentage_ptr =
             this->at<GConstrainedDoubleObject>(MOT_SIGMARANGEPERCENTAGE);
         std::shared_ptr<GConstrainedDoubleObject> sigmasigma_ptr =
             this->at<GConstrainedDoubleObject>(MOT_SIGMASIGMA);
@@ -945,27 +946,27 @@ protected:
 #endif
 
         // Set the parameters
-        double minSigma = minsigma_ptr->value();
-        double sigmaRange = sigmarange_ptr->value();
-        double maxSigma = minSigma + sigmaRange;
-        double sigmaRangePercentage = sigmaRangePercentage_ptr->value();
-        double startSigma = minSigma + sigmaRangePercentage * sigmaRange;
+        double min_sigma = minsigma_ptr->value();
+        double sigma_range = sigmarange_ptr->value();
+        double max_sigma = min_sigma + sigma_range;
+        double sigma_range_percentage = sigma_range_percentage_ptr->value();
+        double start_sigma = min_sigma + sigma_range_percentage * sigma_range;
 
-        ind_factory_->setSigma1Range(std::tuple<double, double>(minSigma, maxSigma));
-        ind_factory_->setSigma1(startSigma);
+        ind_factory_->setSigma1Range(std::tuple<double, double>(min_sigma, max_sigma));
+        ind_factory_->setSigma1(start_sigma);
         ind_factory_->setSigmaSigma1(sigmasigma_ptr->value());
 
-        double minAdProb = minAdProb_ptr->value();
-        double adProbRange = adProbRange_ptr->value();
-        double maxAdProb = minAdProb + adProbRange;
-        double adProbStartPercentage = adProbStartPercentage_ptr->value();
-        double startAdProb = minAdProb + adProbStartPercentage * adProbRange;
+        double min_ad_prob = min_ad_prob_ptr->value();
+        double ad_prob_range = ad_prob_range_ptr->value();
+        double max_ad_prob = min_ad_prob + ad_prob_range;
+        double ad_prob_start_percentage = ad_prob_start_percentage_ptr->value();
+        double start_ad_prob = min_ad_prob + ad_prob_start_percentage * ad_prob_range;
 
-        double adaptAdProb = adaptAdprob_ptr->value();
+        double adapt_ad_prob = adapt_adprob_ptr->value();
 
-        ind_factory_->setAdProbRange(minAdProb, maxAdProb);
-        ind_factory_->setAdProb(startAdProb);
-        ind_factory_->setAdaptAdProb(adaptAdProb);
+        ind_factory_->setAdProbRange(min_ad_prob, max_ad_prob);
+        ind_factory_->setAdProb(start_ad_prob);
+        ind_factory_->setAdaptAdProb(adapt_ad_prob);
 
         // Set up a population factory for serial execution
         GEvolutionaryAlgorithmFactory ea(subEA_config_);
@@ -973,15 +974,15 @@ protected:
         // Run the required number of optimizations
         std::shared_ptr<GEvolutionaryAlgorithm> ea_ptr;
 
-        std::uint32_t nChildren = Gem::Common::narrow_cast<std::uint32_t>(nch_ptr->value());
-        std::uint32_t nParents = Gem::Common::narrow_cast<std::uint32_t>(npar_ptr->value());
-        std::uint32_t popSize = nParents + nChildren;
-        std::uint32_t iterationsConsumed = 0;
-        double amalgamationLikelihood = amalgamation_ptr->value();
+        std::uint32_t n_children = Gem::Common::narrow_cast<std::uint32_t>(nch_ptr->value());
+        std::uint32_t n_parents = Gem::Common::narrow_cast<std::uint32_t>(npar_ptr->value());
+        std::uint32_t pop_size = n_parents + n_children;
+        std::uint32_t iterations_consumed = 0;
+        double amalgamation_likelihood = amalgamation_ptr->value();
 
-        std::vector<double> solverCallsPerOptimization;
-        std::vector<double> iterationsPerOptimization;
-        std::vector<double> bestEvaluations;
+        std::vector<double> solver_calls_per_optimization;
+        std::vector<double> iterations_per_optimization;
+        std::vector<double> best_evaluations;
 
         for(std::size_t opt = 0; opt < nRunsPerOptimization_; opt++) {
             std::cout << "Starting measurement " << opt + 1 << " / " << nRunsPerOptimization_
@@ -995,10 +996,10 @@ protected:
             );
 
             // Set the population parameters
-            ea_ptr->setPopulationSizes(popSize, nParents);
+            ea_ptr->setPopulationSizes(pop_size, n_parents);
 
             // Add the required number of individuals
-            for(std::size_t ind = 0; ind < popSize; ind++) {
+            for(std::size_t ind = 0; ind < pop_size; ind++) {
                 // Retrieve an individual
                 std::shared_ptr<GParameterSet> gi_ptr = ind_factory_->get();
 
@@ -1006,7 +1007,7 @@ protected:
             }
 
             // Set the likelihood for work items to be produced through cross-over rather than mutation alone
-            ea_ptr->setAmalgamationLikelihood(amalgamationLikelihood);
+            ea_ptr->setAmalgamationLikelihood(amalgamation_likelihood);
 
             if(metaOptimizationTarget::MINSOLVERCALLS == moTarget_) {
                 // Set the stop criteria (either maxIterations_ iterations or falling below the quality threshold
@@ -1037,48 +1038,48 @@ protected:
             ea_ptr->optimize();
 
             // Retrieve the best individual
-            std::shared_ptr<GParameterSet> bestIndividual =
+            std::shared_ptr<GParameterSet> best_individual =
                 ea_ptr->getBestGlobalIndividual<GParameterSet>();
 
             // Retrieve the number of iterations
-            iterationsConsumed = ea_ptr->getIteration();
+            iterations_consumed = ea_ptr->getIteration();
 
             // Do book-keeping
-            solverCallsPerOptimization.push_back(
-                double((iterationsConsumed + 1) * nChildren + nParents)
+            solver_calls_per_optimization.push_back(
+                double((iterations_consumed + 1) * n_children + n_parents)
             );
-            iterationsPerOptimization.push_back(double(iterationsConsumed + 1));
-            bestEvaluations.push_back(
-                bestIndividual->transformed_fitness(0)
+            iterations_per_optimization.push_back(double(iterations_consumed + 1));
+            best_evaluations.push_back(
+                best_individual->transformed_fitness(0)
             ); // We use the transformed fitness to avoid MAX_DOUBLE
         }
 
         // Calculate the average number of iterations and solver calls
-        std::tuple<double, double> sd = Gem::Common::GStandardDeviation(solverCallsPerOptimization);
+        std::tuple<double, double> sd =
+            Gem::Common::GStandardDeviation(solver_calls_per_optimization);
         std::tuple<double, double> itmean =
-            Gem::Common::GStandardDeviation(iterationsPerOptimization);
-        std::tuple<double, double> bestMean = Gem::Common::GStandardDeviation(bestEvaluations);
+            Gem::Common::GStandardDeviation(iterations_per_optimization);
+        std::tuple<double, double> best_mean = Gem::Common::GStandardDeviation(best_evaluations);
 
         double evaluation = 0.;
         if(metaOptimizationTarget::MINSOLVERCALLS == moTarget_) {
             evaluation = std::get<0>(sd);
         }
         else if(metaOptimizationTarget::BESTFITNESS == moTarget_) {
-            evaluation = std::get<0>(bestMean);
+            evaluation = std::get<0>(best_mean);
         }
         else if(metaOptimizationTarget::MC_MINSOLVER_BESTFITNESS == moTarget_) {
-            evaluation = std::get<0>(bestMean);
+            evaluation = std::get<0>(best_mean);
             this->setResult(1, std::get<0>(sd)); // The secondary result
         }
 
         // Emit some information
         std::cout << '\n'
-                  << std::get<0>(sd) << " +/- " << std::get<1>(sd) << " solver calls with "
-                  << '\n'
+                  << std::get<0>(sd) << " +/- " << std::get<1>(sd) << " solver calls with " << '\n'
                   << std::get<0>(itmean) << " +/- " << std::get<1>(itmean) << " average iterations "
                   << '\n'
-                  << "and a best evaluation of " << std::get<0>(bestMean) << " +/- "
-                  << std::get<1>(bestMean) << '\n'
+                  << "and a best evaluation of " << std::get<0>(best_mean) << " +/- "
+                  << std::get<1>(best_mean) << '\n'
                   << "out of " << nRunsPerOptimization_ << " consecutive runs" << '\n'
                   << "fitnessCalculation() will return the value " << evaluation << '\n'
                   << this->print(false)
@@ -1257,10 +1258,10 @@ public:
      * A constructor with the ability to switch the parallelization mode. It initializes a
      * target item as needed.
      *
-     * @param configFile The name of the configuration file
+     * @param config_file The name of the configuration file
      */
-    GMetaOptimizerIndividualFactoryT(std::filesystem::path const &configFile)
-      : Gem::Common::GFactoryT<GParameterSet>(configFile) { /* nothing */
+    GMetaOptimizerIndividualFactoryT(std::filesystem::path const &config_file)
+      : Gem::Common::GFactoryT<GParameterSet>(config_file) { /* nothing */
     }
 
     /***************************************************************************/
@@ -1302,7 +1303,7 @@ protected:
         comment = "";
         comment += "The initial number of parents in a population;";
         gpb.registerFileParameter<std::size_t>(
-            "initNParents",
+            "init_n_parents",
             initNParents_,
             GMETAOPT_DEF_INITNPARENTS,
             Gem::Common::VAR_IS_ESSENTIAL,
@@ -1312,7 +1313,7 @@ protected:
         comment = "";
         comment += "The lower boundary for variations of the number of parents;";
         gpb.registerFileParameter<std::size_t>(
-            "nParents_LB",
+            "n_parents_lb",
             nParents_LB_,
             GMETAOPT_DEF_NPARENTS_LB,
             Gem::Common::VAR_IS_ESSENTIAL,
@@ -1322,7 +1323,7 @@ protected:
         comment = "";
         comment += "The upper boundary for variations of the number of parents;";
         gpb.registerFileParameter<std::size_t>(
-            "nParents_UB",
+            "n_parents_ub",
             nParents_UB_,
             GMETAOPT_DEF_NPARENTS_UB,
             Gem::Common::VAR_IS_ESSENTIAL,
@@ -1332,7 +1333,7 @@ protected:
         comment = "";
         comment += "The initial number of children in a population;";
         gpb.registerFileParameter<std::size_t>(
-            "initNChildren",
+            "init_n_children",
             initNChildren_,
             GMETAOPT_DEF_INITNCHILDREN,
             Gem::Common::VAR_IS_ESSENTIAL,
@@ -1342,7 +1343,7 @@ protected:
         comment = "";
         comment += "The lower boundary for the variation of the number of children;";
         gpb.registerFileParameter<std::size_t>(
-            "nChildren_LB",
+            "n_children_lb",
             nChildren_LB_,
             GMETAOPT_DEF_NCHILDREN_LB,
             Gem::Common::VAR_IS_ESSENTIAL,
@@ -1352,7 +1353,7 @@ protected:
         comment = "";
         comment += "The upper boundary for the variation of the number of children;";
         gpb.registerFileParameter<std::size_t>(
-            "nChildren_UB",
+            "n_children_ub",
             nChildren_UB_,
             GMETAOPT_DEF_NCHILDREN_UB,
             Gem::Common::VAR_IS_ESSENTIAL,
@@ -1363,7 +1364,7 @@ protected:
         comment += "The initial likelihood for an individual being created from cross-over rather "
                    "than just duplication;";
         gpb.registerFileParameter<double>(
-            "initAmalgamationLklh",
+            "init_amalgamation_lklh",
             initAmalgamationLklh_,
             GMETAOPT_DEF_INITAMALGLKLHOOD,
             Gem::Common::VAR_IS_ESSENTIAL,
@@ -1373,7 +1374,7 @@ protected:
         comment = "";
         comment += "The lower boundary for the variation of the amalgamation likelihood ;";
         gpb.registerFileParameter<double>(
-            "amalgamationLklh_LB",
+            "amalgamation_lklh_lb",
             amalgamationLklh_LB_,
             GMETAOPT_DEF_AMALGLKLHOOD_LB,
             Gem::Common::VAR_IS_ESSENTIAL,
@@ -1383,7 +1384,7 @@ protected:
         comment = "";
         comment += "The upper boundary for the variation of the amalgamation likelihood ;";
         gpb.registerFileParameter<double>(
-            "amalgamationLklh_UB",
+            "amalgamation_lklh_ub",
             amalgamationLklh_UB_,
             GMETAOPT_DEF_AMALGLKLHOOD_UB,
             Gem::Common::VAR_IS_ESSENTIAL,
@@ -1391,9 +1392,9 @@ protected:
         );
 
         comment = "";
-        comment += "The initial lower boundary for the variation of adProb;";
+        comment += "The initial lower boundary for the variation of ad_prob;";
         gpb.registerFileParameter<double>(
-            "initMinAdProb",
+            "init_min_ad_prob",
             initMinAdProb_,
             GMETAOPT_DEF_INITMINADPROB,
             Gem::Common::VAR_IS_ESSENTIAL,
@@ -1401,9 +1402,9 @@ protected:
         );
 
         comment = "";
-        comment += "The lower boundary for minAdProb;";
+        comment += "The lower boundary for min_ad_prob;";
         gpb.registerFileParameter<double>(
-            "minAdProb_LB",
+            "min_ad_prob_lb",
             minAdProb_LB_,
             GMETAOPT_DEF_MINADPROB_LB,
             Gem::Common::VAR_IS_ESSENTIAL,
@@ -1411,9 +1412,9 @@ protected:
         );
 
         comment = "";
-        comment += "The upper boundary for minAdProb;";
+        comment += "The upper boundary for min_ad_prob;";
         gpb.registerFileParameter<double>(
-            "minAdProb_UB",
+            "min_ad_prob_ub",
             minAdProb_UB_,
             GMETAOPT_DEF_MINADPROB_UB,
             Gem::Common::VAR_IS_ESSENTIAL,
@@ -1421,9 +1422,9 @@ protected:
         );
 
         comment = "";
-        comment += "The initial range for the variation of adProb;";
+        comment += "The initial range for the variation of ad_prob;";
         gpb.registerFileParameter<double>(
-            "initAdProbRange",
+            "init_ad_prob_range",
             initAdProbRange_,
             GMETAOPT_DEF_INITADPROBRANGE,
             Gem::Common::VAR_IS_ESSENTIAL,
@@ -1431,9 +1432,9 @@ protected:
         );
 
         comment = "";
-        comment += "The lower boundary for adProbRange;";
+        comment += "The lower boundary for ad_prob_range;";
         gpb.registerFileParameter<double>(
-            "adProbRange_LB",
+            "ad_prob_range_lb",
             adProbRange_LB_,
             GMETAOPT_DEF_ADPROBRANGE_LB,
             Gem::Common::VAR_IS_ESSENTIAL,
@@ -1441,9 +1442,9 @@ protected:
         );
 
         comment = "";
-        comment += "The upper boundary for adProbRange;";
+        comment += "The upper boundary for ad_prob_range;";
         gpb.registerFileParameter<double>(
-            "adProbRange_UB",
+            "ad_prob_range_ub",
             adProbRange_UB_,
             GMETAOPT_DEF_ADPROBRANGE_UB,
             Gem::Common::VAR_IS_ESSENTIAL,
@@ -1451,9 +1452,9 @@ protected:
         );
 
         comment = "";
-        comment += "The start value for adProb relative to the allowed value range;";
+        comment += "The start value for ad_prob relative to the allowed value range;";
         gpb.registerFileParameter<double>(
-            "initAdProbStartPercentage",
+            "init_ad_prob_start_percentage",
             initAdProbStartPercentage_,
             GMETAOPT_DEF_INITADPROBSTARTPERCENTAGE,
             Gem::Common::VAR_IS_ESSENTIAL,
@@ -1463,7 +1464,7 @@ protected:
         comment = "";
         comment += "The initial value of the strength of adProb_ adaption;";
         gpb.registerFileParameter<double>(
-            "initAdaptAdProb",
+            "init_adapt_ad_prob",
             initAdaptAdProb_,
             GMETAOPT_DEF_INITADAPTADPROB,
             Gem::Common::VAR_IS_ESSENTIAL,
@@ -1473,7 +1474,7 @@ protected:
         comment = "";
         comment += "The lower boundary for the variation of the strength of adProb_ adaption;";
         gpb.registerFileParameter<double>(
-            "adaptAdProb_LB",
+            "adapt_ad_prob_lb",
             adaptAdProb_LB_,
             GMETAOPT_DEF_ADAPTADPROB_LB,
             Gem::Common::VAR_IS_ESSENTIAL,
@@ -1483,7 +1484,7 @@ protected:
         comment = "";
         comment += "The upper boundary for the variation of the strength of adProb_ adaption;";
         gpb.registerFileParameter<double>(
-            "adaptAdProb_UB",
+            "adapt_ad_prob_ub",
             adaptAdProb_UB_,
             GMETAOPT_DEF_ADAPTADPROB_UB,
             Gem::Common::VAR_IS_ESSENTIAL,
@@ -1493,7 +1494,7 @@ protected:
         comment = "";
         comment += "The initial minimum sigma for gauss-adaption in ES;";
         gpb.registerFileParameter<double>(
-            "initMinSigma",
+            "init_min_sigma",
             initMinSigma_,
             GMETAOPT_DEF_INITMINSIGMA,
             Gem::Common::VAR_IS_ESSENTIAL,
@@ -1503,7 +1504,7 @@ protected:
         comment = "";
         comment += "The lower boundary for the variation of the lower boundary of sigma;";
         gpb.registerFileParameter<double>(
-            "minSigma_LB",
+            "min_sigma_lb",
             minSigma_LB_,
             GMETAOPT_DEF_MINSIGMA_LB,
             Gem::Common::VAR_IS_ESSENTIAL,
@@ -1513,7 +1514,7 @@ protected:
         comment = "";
         comment += "The upper boundary for the variation of the lower boundary of sigma;";
         gpb.registerFileParameter<double>(
-            "minSigma_UB",
+            "min_sigma_ub",
             minSigma_UB_,
             GMETAOPT_DEF_MINSIGMA_UB,
             Gem::Common::VAR_IS_ESSENTIAL,
@@ -1523,7 +1524,7 @@ protected:
         comment = "";
         comment += "The initial maximum range for sigma;";
         gpb.registerFileParameter<double>(
-            "initSigmaRange",
+            "init_sigma_range",
             initSigmaRange_,
             GMETAOPT_DEF_INITSIGMARANGE,
             Gem::Common::VAR_IS_ESSENTIAL,
@@ -1533,7 +1534,7 @@ protected:
         comment = "";
         comment += "The lower boundary for the variation of the maximum range of sigma;";
         gpb.registerFileParameter<double>(
-            "sigmaRange_LB",
+            "sigma_range_lb",
             sigmaRange_LB_,
             GMETAOPT_DEF_SIGMARANGE_LB,
             Gem::Common::VAR_IS_ESSENTIAL,
@@ -1543,7 +1544,7 @@ protected:
         comment = "";
         comment += "The upper boundary for the variation of the maximum range of sigma;";
         gpb.registerFileParameter<double>(
-            "sigmaRange_UB",
+            "sigma_range_ub",
             sigmaRange_UB_,
             GMETAOPT_DEF_SIGMARANGE_UB,
             Gem::Common::VAR_IS_ESSENTIAL,
@@ -1553,7 +1554,7 @@ protected:
         comment = "";
         comment += "The initial percentage of the sigma range as a start value;";
         gpb.registerFileParameter<double>(
-            "initSigmaRangePercentage",
+            "init_sigma_range_percentage",
             initSigmaRangePercentage_,
             GMETAOPT_DEF_INITSIGMARANGEPERCENTAGE,
             Gem::Common::VAR_IS_ESSENTIAL,
@@ -1563,7 +1564,7 @@ protected:
         comment = "";
         comment += "The initial strength of self-adaption of gauss-mutation in ES;";
         gpb.registerFileParameter<double>(
-            "initSigmaSigma",
+            "init_sigma_sigma",
             initSigmaSigma_,
             GMETAOPT_DEF_INITSIGMASIGMA,
             Gem::Common::VAR_IS_ESSENTIAL,
@@ -1573,7 +1574,7 @@ protected:
         comment = "";
         comment += "The lower boundary for the variation of the strength of sigma adaption;";
         gpb.registerFileParameter<double>(
-            "sigmaSigma_LB",
+            "sigma_sigma_lb",
             sigmaSigma_LB_,
             GMETAOPT_DEF_SIGMASIGMA_LB,
             Gem::Common::VAR_IS_ESSENTIAL,
@@ -1583,7 +1584,7 @@ protected:
         comment = "";
         comment += "The upper boundary for the variation of the strength of sigma adaption;";
         gpb.registerFileParameter<double>(
-            "sigmaSigma_UB",
+            "sigma_sigma_ub",
             sigmaSigma_UB_,
             GMETAOPT_DEF_SIGMASIGMA_UB,
             Gem::Common::VAR_IS_ESSENTIAL,
@@ -1698,17 +1699,17 @@ private:
         GMETAOPT_DEF_AMALGLKLHOOD_UB; ///< The upper boundary for the variation of the amalgamation likelihood
 
     double initMinAdProb_ =
-        GMETAOPT_DEF_INITMINADPROB; ///< The initial lower boundary for the variation of adProb
-    double minAdProb_LB_ = GMETAOPT_DEF_MINADPROB_LB; ///< The lower boundary for minAdProb
-    double minAdProb_UB_ = GMETAOPT_DEF_MINADPROB_UB; ///< The upper boundary for minAdProb
+        GMETAOPT_DEF_INITMINADPROB; ///< The initial lower boundary for the variation of ad_prob
+    double minAdProb_LB_ = GMETAOPT_DEF_MINADPROB_LB; ///< The lower boundary for min_ad_prob
+    double minAdProb_UB_ = GMETAOPT_DEF_MINADPROB_UB; ///< The upper boundary for min_ad_prob
 
     double initAdProbRange_ =
-        GMETAOPT_DEF_INITADPROBRANGE; ///< The initial range for the variation of adProb
-    double adProbRange_LB_ = GMETAOPT_DEF_ADPROBRANGE_LB; ///< The lower boundary for adProbRange
-    double adProbRange_UB_ = GMETAOPT_DEF_ADPROBRANGE_UB; ///< The upper boundary for adProbRange
+        GMETAOPT_DEF_INITADPROBRANGE; ///< The initial range for the variation of ad_prob
+    double adProbRange_LB_ = GMETAOPT_DEF_ADPROBRANGE_LB; ///< The lower boundary for ad_prob_range
+    double adProbRange_UB_ = GMETAOPT_DEF_ADPROBRANGE_UB; ///< The upper boundary for ad_prob_range
 
     double initAdProbStartPercentage_ =
-        GMETAOPT_DEF_INITADPROBSTARTPERCENTAGE; ///< The start value for adProb relative to the allowed value range
+        GMETAOPT_DEF_INITADPROBSTARTPERCENTAGE; ///< The start value for ad_prob relative to the allowed value range
 
     double initAdaptAdProb_ =
         GMETAOPT_DEF_INITADAPTADPROB; ///< The initial value of the strength of adProb_ adaption
@@ -1724,7 +1725,7 @@ private:
         GMETAOPT_DEF_MINSIGMA_UB; ///< The upper boundary for the variation of the lower boundary of sigma
 
     double initSigmaRange_ =
-        GMETAOPT_DEF_INITSIGMARANGE; ///< The initial range of sigma (beyond minSigma
+        GMETAOPT_DEF_INITSIGMARANGE; ///< The initial range of sigma (beyond min_sigma
     double sigmaRange_LB_ =
         GMETAOPT_DEF_SIGMARANGE_LB; ///< The lower boundary for the variation of the maximum range of sigma
     double sigmaRange_UB_ =
@@ -1795,8 +1796,8 @@ public:
     /**
      * The default constructor
      */
-    GOptOptMonitorT(const std::string fileName)
-      : fileName_(fileName)
+    GOptOptMonitorT(const std::string file_name)
+      : fileName_(file_name)
       , gpd_("Progress information", 2, 4)
       , progressPlotter_(new Gem::Common::GGraph2D())
       , nParentPlotter_(new Gem::Common::GGraph2D())
@@ -1843,8 +1844,8 @@ public:
     /**
      * Sets the file name
      */
-    void setFileName(std::string fileName) {
-        fileName_ = fileName;
+    void setFileName(std::string file_name) {
+        fileName_ = file_name;
     }
 
     /***************************************************************************/
@@ -2103,14 +2104,14 @@ private:
             (*adProbPlotter_) &
                 std::tuple<double, double>((double)ea->getIteration(), p->getAdProb());
 
-            double minSigma = p->getMinSigma();
-            double sigmaRange = p->getSigmaRange();
-            double maxSigma = minSigma + sigmaRange;
+            double min_sigma = p->getMinSigma();
+            double sigma_range = p->getSigmaRange();
+            double max_sigma = min_sigma + sigma_range;
 
-            (*minSigmaPlotter_) & std::tuple<double, double>((double)ea->getIteration(), minSigma);
-            (*maxSigmaPlotter_) & std::tuple<double, double>((double)ea->getIteration(), maxSigma);
+            (*minSigmaPlotter_) & std::tuple<double, double>((double)ea->getIteration(), min_sigma);
+            (*maxSigmaPlotter_) & std::tuple<double, double>((double)ea->getIteration(), max_sigma);
             (*sigmaRangePlotter_) &
-                std::tuple<double, double>((double)ea->getIteration(), sigmaRange);
+                std::tuple<double, double>((double)ea->getIteration(), sigma_range);
             (*sigmaSigmaPlotter_) &
                 std::tuple<double, double>((double)ea->getIteration(), p->getSigmaSigma());
         } break;

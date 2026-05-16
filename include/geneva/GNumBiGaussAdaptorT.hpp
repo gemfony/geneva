@@ -48,7 +48,7 @@ namespace Gem::Geneva {
  * integer representations. The type used needs to be specified as a template parameter. In comparison
  * to GNumGaussAdaptorT, an additional parameter "delta" is added, which represents the distance between
  * both gaussians. Just like sigma, delta can be subject to mutations. It is also possible to use
- * two different sigma/sigmaSigma values and adaption rates for both gaussians. Note that this adaptor
+ * two different sigma/sigma_sigma values and adaption rates for both gaussians. Note that this adaptor
  * is experimental. Your mileage may vary.
  */
 template <typename num_type, typename fp_type>
@@ -112,10 +112,10 @@ public:
     /**
      * Determines whether the two sigmas of the double-gaussian should be identical
      *
-     * @param useSymmetricSigmas A boolean which determines whether the two sigmas of the double-gaussian should be identical
+     * @param use_symmetric_sigmas A boolean which determines whether the two sigmas of the double-gaussian should be identical
      */
-    void setUseSymmetricSigmas(const bool &useSymmetricSigmas) {
-        useSymmetricSigmas_ = useSymmetricSigmas;
+    void setUseSymmetricSigmas(const bool &use_symmetric_sigmas) {
+        useSymmetricSigmas_ = use_symmetric_sigmas;
     }
 
     /***************************************************************************/
@@ -170,28 +170,27 @@ public:
      * to a very small value (DEFAULTMINSIGMA), as otherwise adaptions would stop entirely,
      * which does not make sense.  Using 0. as lower boundary is however allowed for practical
      * reasons. Note that this function will also adapt sigma1 itself, if it falls outside of the
-     * allowed range. It is not recommended (but not enforced) to set a maxSigma1 > 1, as sigma
+     * allowed range. It is not recommended (but not enforced) to set a max_sigma1 > 1, as sigma
      * is interpreted as a percentage of the allowed or desired value range of the target variable.
      *
-     * @param minSigma1 The minimum allowed value of sigma1_
-     * @param maxSigma1 The maximum allowed value of sigma1_
+     * @param min_sigma1 The minimum allowed value of sigma1_
+     * @param max_sigma1 The maximum allowed value of sigma1_
      */
-    void setSigma1Range(const fp_type &minSigma1, const fp_type &maxSigma1) {
+    void setSigma1Range(const fp_type &min_sigma1, const fp_type &max_sigma1) {
         using namespace Gem::Common;
 
-        if(minSigma1 < fp_type(0.) || minSigma1 > maxSigma1 ||
-           maxSigma1 < Gem::Common::narrow_cast<fp_type>(DEFAULTMINSIGMA)) {
+        if(min_sigma1 < fp_type(0.) || min_sigma1 > max_sigma1 ||
+           max_sigma1 < Gem::Common::narrow_cast<fp_type>(DEFAULTMINSIGMA)) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GNumBiGaussAdaptorT::setSigma1Range(const fp_type&, const fp_type&):"
-                << '\n'
-                << "Invalid values for minSigma1 and maxSigma1 given: " << minSigma1 << " / "
-                << maxSigma1 << '\n'
+                << "In GNumBiGaussAdaptorT::setSigma1Range(const fp_type&, const fp_type&):" << '\n'
+                << "Invalid values for min_sigma1 and max_sigma1 given: " << min_sigma1 << " / "
+                << max_sigma1 << '\n'
             );
         }
 
-        minSigma1_ = minSigma1;
-        maxSigma1_ = maxSigma1;
+        minSigma1_ = min_sigma1;
+        maxSigma1_ = max_sigma1;
 
         // Silently adapt minSigma1_, if it is smaller than DEFAULTMINSIGMA. E.g., a value of 0 does not make sense
         if(minSigma1_ < fp_type(DEFAULTMINSIGMA)) {
@@ -227,10 +226,10 @@ public:
      *
      * TODO: Cross-check suitable values
      *
-     * @param sigmaSigma1 The new value of the sigmaSigma1_ parameter
+     * @param sigma_sigma1 The new value of the sigmaSigma1_ parameter
      */
-    void setSigma1AdaptionRate(const fp_type &sigmaSigma1) {
-        sigmaSigma1_ = sigmaSigma1;
+    void setSigma1AdaptionRate(const fp_type &sigma_sigma1) {
+        sigmaSigma1_ = sigma_sigma1;
     }
 
     /***************************************************************************/
@@ -249,18 +248,18 @@ public:
      * at once
      *
      * @param sigma1 The initial value for the sigma1_ parameter
-     * @param sigmaSigma1 The initial value for the sigmaSigma1_ parameter
-     * @param minSigma1 The minimal value allowed for sigma1_
-     * @param minSigma1 The maximum value allowed for sigma1_
+     * @param sigma_sigma1 The initial value for the sigmaSigma1_ parameter
+     * @param min_sigma1 The minimal value allowed for sigma1_
+     * @param min_sigma1 The maximum value allowed for sigma1_
      */
     void setAllSigma1(
         const fp_type &sigma1,
-        const fp_type &sigmaSigma1,
-        const fp_type &minSigma1,
-        const fp_type &maxSigma1
+        const fp_type &sigma_sigma1,
+        const fp_type &min_sigma1,
+        const fp_type &max_sigma1
     ) {
-        setSigma1AdaptionRate(sigmaSigma1);
-        setSigma1Range(minSigma1, maxSigma1);
+        setSigma1AdaptionRate(sigma_sigma1);
+        setSigma1Range(min_sigma1, max_sigma1);
         setSigma1(sigma1);
     }
 
@@ -306,28 +305,27 @@ public:
      * to a very small value (DEFAULTMINSIGMA), as otherwise adaptions would stop entirely,
      * which does not make sense.  Using 0. as lower boundary is however allowed for practical
      * reasons. Note that this function will also adapt sigma2 itself, if it falls outside of the
-     * allowed range. It is not recommended (but not enforced) to set a maxSigma2 > 1, as sigma
+     * allowed range. It is not recommended (but not enforced) to set a max_sigma2 > 1, as sigma
      * is interpreted as a percentage of the allowed or desired value range of the target variable.
      *
-     * @param minSigma2 The minimum allowed value of sigma2_
-     * @param maxSigma2 The maximum allowed value of sigma2_
+     * @param min_sigma2 The minimum allowed value of sigma2_
+     * @param max_sigma2 The maximum allowed value of sigma2_
      */
-    void setSigma2Range(const fp_type &minSigma2, const fp_type &maxSigma2) {
+    void setSigma2Range(const fp_type &min_sigma2, const fp_type &max_sigma2) {
         using namespace Gem::Common;
 
-        if(minSigma2 < fp_type(0.) || minSigma2 > maxSigma2 ||
-           maxSigma2 < Gem::Common::narrow_cast<fp_type>(DEFAULTMINSIGMA)) {
+        if(min_sigma2 < fp_type(0.) || min_sigma2 > max_sigma2 ||
+           max_sigma2 < Gem::Common::narrow_cast<fp_type>(DEFAULTMINSIGMA)) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GNumBiGaussAdaptorT::setSigma2Range(const fp_type&, const fp_type&):"
-                << '\n'
-                << "Invalid values for minSigma2 and maxSigma2 given: " << minSigma2 << " / "
-                << maxSigma2 << '\n'
+                << "In GNumBiGaussAdaptorT::setSigma2Range(const fp_type&, const fp_type&):" << '\n'
+                << "Invalid values for min_sigma2 and max_sigma2 given: " << min_sigma2 << " / "
+                << max_sigma2 << '\n'
             );
         }
 
-        minSigma2_ = minSigma2;
-        maxSigma2_ = maxSigma2;
+        minSigma2_ = min_sigma2;
+        maxSigma2_ = max_sigma2;
 
         // Silently adapt minSigma1_, if it is smaller than DEFAULTMINSIGMA. E.g., a value of 0 does not make sense
         if(minSigma2_ < fp_type(DEFAULTMINSIGMA)) {
@@ -361,10 +359,10 @@ public:
      * GAdaptorT<T>::setAdaptionThreshold() function. It determines, after how many calls the
      * internal parameters of the adaption should be adapted. If set to 0, no adaption takes place.
      *
-     * @param sigmaSigma2 The new value of the sigmaSigma2_ parameter
+     * @param sigma_sigma2 The new value of the sigmaSigma2_ parameter
      */
-    void setSigma2AdaptionRate(const fp_type &sigmaSigma2) {
-        sigmaSigma2_ = sigmaSigma2;
+    void setSigma2AdaptionRate(const fp_type &sigma_sigma2) {
+        sigmaSigma2_ = sigma_sigma2;
     }
 
     /***************************************************************************/
@@ -383,18 +381,18 @@ public:
      * at once
      *
      * @param sigma2 The initial value for the sigma2_ parameter
-     * @param sigmaSigma2 The initial value for the sigmaSigma2_ parameter
-     * @param minSigma2 The minimal value allowed for sigma2_
-     * @param minSigma2 The maximum value allowed for sigma2_
+     * @param sigma_sigma2 The initial value for the sigmaSigma2_ parameter
+     * @param min_sigma2 The minimal value allowed for sigma2_
+     * @param min_sigma2 The maximum value allowed for sigma2_
      */
     void setAllSigma2(
         const fp_type &sigma2,
-        const fp_type &sigmaSigma2,
-        const fp_type &minSigma2,
-        const fp_type &maxSigma2
+        const fp_type &sigma_sigma2,
+        const fp_type &min_sigma2,
+        const fp_type &max_sigma2
     ) {
-        setSigma2AdaptionRate(sigmaSigma2);
-        setSigma2Range(minSigma2, maxSigma2);
+        setSigma2AdaptionRate(sigma_sigma2);
+        setSigma2Range(min_sigma2, max_sigma2);
         setSigma2(sigma2);
     }
 
@@ -439,23 +437,22 @@ public:
      * recommended, but not enforced.delta is interpreted as a percentage of the allowed or
      * desired value range of the target variable.
      *
-     * @param minDelta The minimum allowed value of delta_
-     * @param maxDelta The maximum allowed value of delta_
+     * @param min_delta The minimum allowed value of delta_
+     * @param max_delta The maximum allowed value of delta_
      */
-    void setDeltaRange(const fp_type &minDelta, const fp_type &maxDelta) {
-        if(minDelta < fp_type(0.) || minDelta > maxDelta ||
-           maxDelta < Gem::Common::narrow_cast<fp_type>(DEFAULTMINDELTA)) {
+    void setDeltaRange(const fp_type &min_delta, const fp_type &max_delta) {
+        if(min_delta < fp_type(0.) || min_delta > max_delta ||
+           max_delta < Gem::Common::narrow_cast<fp_type>(DEFAULTMINDELTA)) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GNumBiGaussAdaptorT::setDeltaRange(const fp_type&, const fp_type&):"
-                << '\n'
-                << "Invalid values for minDelta and maxDelta given: " << minDelta << " / "
-                << maxDelta << '\n'
+                << "In GNumBiGaussAdaptorT::setDeltaRange(const fp_type&, const fp_type&):" << '\n'
+                << "Invalid values for min_delta and max_delta given: " << min_delta << " / "
+                << max_delta << '\n'
             );
         }
 
-        minDelta_ = minDelta;
-        maxDelta_ = maxDelta;
+        minDelta_ = min_delta;
+        maxDelta_ = max_delta;
 
         // Note: In contrast to setSigmaXRange(...) we allow a delta < DEFAULTMINDELTA
         // (as long as it is >= 0), as a delta of 0 makes sense
@@ -487,10 +484,10 @@ public:
      * GAdaptorT<T>::setAdaptionThreshold() function. It determines, after how many calls the
      * internal parameters of the adaption should be adapted. If set to 0, no adaption takes place.
      *
-     * @param sigmaDelta The new value of the sigmaDelta_ parameter
+     * @param sigma_delta The new value of the sigmaDelta_ parameter
      */
-    void setDeltaAdaptionRate(const fp_type &sigmaDelta) {
-        sigmaDelta_ = sigmaDelta;
+    void setDeltaAdaptionRate(const fp_type &sigma_delta) {
+        sigmaDelta_ = sigma_delta;
     }
 
     /***************************************************************************/
@@ -509,18 +506,18 @@ public:
      * at once
      *
      * @param delta The initial value for the delta_ parameter
-     * @param sigmaDelta The initial value for the sigmaDelta_ parameter
-     * @param minDelta The minimal value allowed for delta_
-     * @param minDelta The maximum value allowed for delta_
+     * @param sigma_delta The initial value for the sigmaDelta_ parameter
+     * @param min_delta The minimal value allowed for delta_
+     * @param min_delta The maximum value allowed for delta_
      */
     void setAllDelta(
         const fp_type &delta,
-        const fp_type &sigmaDelta,
-        const fp_type &minDelta,
-        const fp_type &maxDelta
+        const fp_type &sigma_delta,
+        const fp_type &min_delta,
+        const fp_type &max_delta
     ) {
-        setDeltaAdaptionRate(sigmaDelta);
-        setDeltaRange(minDelta, maxDelta);
+        setDeltaAdaptionRate(sigma_delta);
+        setDeltaRange(min_delta, max_delta);
         setDelta(delta);
     }
 

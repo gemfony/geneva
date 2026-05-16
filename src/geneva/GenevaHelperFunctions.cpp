@@ -35,25 +35,25 @@ namespace Gem::Geneva {
 /**
  * Sets the DO_PROCESS flag in a given range, the IGNORE flag in the rest of the vector
  *
- * @param workItems The items for which the processing flag should be set
+ * @param work_items The items for which the processing flag should be set
  * @param range A tuple with the half-open range inside of the vector, where the flags should be set
  */
 void setProcessingFlag(
-    std::vector<std::shared_ptr<GParameterSet>> &workItems,
+    std::vector<std::shared_ptr<GParameterSet>> &work_items,
     const std::tuple<std::size_t, std::size_t> &range
 ) {
     const std::size_t start = std::get<0>(range);
     const std::size_t end = std::get<1>(range);
 
-    for(auto p_it = workItems.begin(); p_it != workItems.begin() + start; ++p_it) {
+    for(auto p_it = work_items.begin(); p_it != work_items.begin() + start; ++p_it) {
         if(Gem::Courtier::processingStatus::PROCESSED != (*p_it)->getProcessingStatus()) {
             (*p_it)->set_processing_status(Gem::Courtier::processingStatus::DO_IGNORE);
         }
     }
-    for(auto p_it = workItems.begin() + start; p_it != workItems.begin() + end; ++p_it) {
+    for(auto p_it = work_items.begin() + start; p_it != work_items.begin() + end; ++p_it) {
         (*p_it)->set_processing_status(Gem::Courtier::processingStatus::DO_PROCESS);
     }
-    for(auto p_it = workItems.begin() + end; p_it != workItems.end(); ++p_it) {
+    for(auto p_it = work_items.begin() + end; p_it != work_items.end(); ++p_it) {
         if(Gem::Courtier::processingStatus::PROCESSED != (*p_it)->getProcessingStatus()) {
             (*p_it)->set_processing_status(Gem::Courtier::processingStatus::DO_IGNORE);
         }

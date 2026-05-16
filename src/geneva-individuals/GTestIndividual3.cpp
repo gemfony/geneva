@@ -198,12 +198,12 @@ double GTestIndividual3::fitnessCalculation() {
     double result = 0.;
 
     // We just calculate the square of all double values
-    std::vector<double> parVec;
-    this->streamline(parVec);
+    std::vector<double> par_vec;
+    this->streamline(par_vec);
 
     // Calculate the value of the parabola
-    for(std::size_t i = 0; i < parVec.size(); i++) {
-        result += GSQUARED(parVec[i]);
+    for(std::size_t i = 0; i < par_vec.size(); i++) {
+        result += GSQUARED(par_vec[i]);
     }
 
     return result;
@@ -311,7 +311,7 @@ void GTestIndividual3::specificTestsNoFailureExpected_GUnitTests_() {
     // Call the parent classes' functions
     Gem::Geneva::GParameterSet::specificTestsNoFailureExpected_GUnitTests_();
 
-    const std::size_t NTESTS = 100;
+    const std::size_t ntests = 100;
 
     //------------------------------------------------------------------------------
 
@@ -321,7 +321,7 @@ void GTestIndividual3::specificTestsNoFailureExpected_GUnitTests_() {
 
         CHECK_NOTHROW(p = std::make_shared<GTestIndividual3>());
         CHECK_NOTHROW(result_old = p->getPlainData());
-        for(std::size_t i = 0; i < NTESTS; i++) {
+        for(std::size_t i = 0; i < ntests; i++) {
             CHECK_NOTHROW(result_new = p->getPlainData());
             for(std::size_t m = 0; m < GTI_DEF_NITEMS * 10; i++) {
                 CHECK(

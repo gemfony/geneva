@@ -83,7 +83,7 @@ public:
     ) override;
 
     /** @brief Allows to specify the command line parameter manually for variables to be scanned */
-    void setCLParameterSpecs(std::string parStr);
+    void setCLParameterSpecs(std::string par_str);
     /** @brief Allows to retrieve the command line parameter settings for variables to be scanned */
     std::string getCLParameterSpecs() const;
     /** @brief Allows to reset the command line parameter specs */

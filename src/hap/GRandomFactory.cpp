@@ -178,7 +178,7 @@ void GRandomFactory::returnUsedPackage(std::unique_ptr<random_container> &&p) {
  *
  * @param n01Threads The number of threads simultaneously producing random numbers
  */
-void GRandomFactory::setNProducerThreads(const std::uint16_t &nProducerThreads) {
+void GRandomFactory::setNProducerThreads(const std::uint16_t &n_producer_threads) {
     // Threads might already be running, so we need to regulate access
     if(threads_started_) {
         // If we enter this code-path, there is no way threads
@@ -186,30 +186,32 @@ void GRandomFactory::setNProducerThreads(const std::uint16_t &nProducerThreads) 
         // to check again using DCLP .
         std::unique_lock<std::mutex> lk(thread_creation_mutex_);
         // Make a suggestion for the number of threads, if requested
-        std::uint16_t nProducerThreads_local = DEFAULT01PRODUCERTHREADS;
-        if(0 == nProducerThreads) {
-            glogger << "In GRandomFactory::setNProducerThreads(nProducerThreads) / 1:" << '\n'
-                    << "nProducerThreads == 0 was requested. nProducerThreads_local was set to the "
+        std::uint16_t n_producer_threads_local = DEFAULT01PRODUCERTHREADS;
+        if(0 == n_producer_threads) {
+            glogger << "In GRandomFactory::setNProducerThreads(n_producer_threads) / 1:" << '\n'
+                    << "n_producer_threads == 0 was requested. n_producer_threads_local was set to the "
                        "default "
                     << DEFAULT01PRODUCERTHREADS << '\n'
                     << GWARNING;
         }
         else {
-            nProducerThreads_local = nProducerThreads;
+            n_producer_threads_local = n_producer_threads;
         }
 
-        if(nProducerThreads_local > n_producer_threads_.load()) { // start new 01 threads
-            for(std::uint16_t i = n_producer_threads_.load(); i < nProducerThreads_local;
+        if(n_producer_threads_local > n_producer_threads_.load()) { // start new 01 threads
+            for(std::uint16_t i = n_producer_threads_.load(); i < n_producer_threads_local;
                 i++) { // NOLINT(cppcoreguidelines-init-variables)
                 producer_threads_.create_thread([this]() { this->producer(this->getSeed()); });
             }
         }
-        else if(nProducerThreads_local < n_producer_threads_.load()) { // We need to remove threads
+        else if(
+            n_producer_threads_local < n_producer_threads_.load()
+        ) { // We need to remove threads
             glogger
-                << "In GRandomFactory::setNProducerThreads(" << nProducerThreads << "): Warning!"
+                << "In GRandomFactory::setNProducerThreads(" << n_producer_threads << "): Warning!"
                 << '\n'
                 << "Attempt to decrease the number of producer threads from "
-                << n_producer_threads_.load() << " to " << nProducerThreads << '\n'
+                << n_producer_threads_.load() << " to " << n_producer_threads << '\n'
                 << "while threads were alredy running. The number of threads will remain unchanged."
                 << '\n'
                 << GWARNING;
@@ -221,31 +223,32 @@ void GRandomFactory::setNProducerThreads(const std::uint16_t &nProducerThreads) 
         // Here it appears that no threads were running. We do need to check again, though (DLCP)
         std::unique_lock<std::mutex> tc_lk(thread_creation_mutex_);
         // Make a suggestion for the number of threads, if requested
-        std::uint16_t nProducerThreads_local = DEFAULT01PRODUCERTHREADS;
-        if(nProducerThreads == 0) {
-            glogger << "In GRandomFactory::setNProducerThreads(nProducerThreads) / 2:" << '\n'
-                    << "nProducerThreads == 0 was requested. nProducerThreads_local was set to the "
+        std::uint16_t n_producer_threads_local = DEFAULT01PRODUCERTHREADS;
+        if(n_producer_threads == 0) {
+            glogger << "In GRandomFactory::setNProducerThreads(n_producer_threads) / 2:" << '\n'
+                    << "n_producer_threads == 0 was requested. n_producer_threads_local was set to the "
                        "default "
                     << DEFAULT01PRODUCERTHREADS << '\n'
                     << GWARNING;
         }
         else {
-            nProducerThreads_local = nProducerThreads;
+            n_producer_threads_local = n_producer_threads;
         }
 
         if(threads_started_) { // Someone has started the threads in the meantime. Adjust the number of threads
-            if(nProducerThreads_local > n_producer_threads_.load()) { // start new 01 threads
-                for(std::uint16_t i = n_producer_threads_.load(); i < nProducerThreads_local;
+            if(n_producer_threads_local > n_producer_threads_.load()) { // start new 01 threads
+                for(std::uint16_t i = n_producer_threads_.load(); i < n_producer_threads_local;
                     i++) { // NOLINT(cppcoreguidelines-init-variables)
                     producer_threads_.create_thread([this]() { this->producer(this->getSeed()); });
                 }
             }
-            else if(nProducerThreads_local <
-                    n_producer_threads_.load()) { // We need to remove threads
-                glogger << "In GRandomFactory::setNProducerThreads(" << nProducerThreads
+            else if(
+                n_producer_threads_local < n_producer_threads_.load()
+            ) { // We need to remove threads
+                glogger << "In GRandomFactory::setNProducerThreads(" << n_producer_threads
                         << "): Warning!" << '\n'
                         << "Attempt to decrease the number of producer threads from "
-                        << n_producer_threads_.load() << " to " << nProducerThreads << '\n'
+                        << n_producer_threads_.load() << " to " << n_producer_threads << '\n'
                         << "while threads were alredy running. The number of threads will remain "
                            "unchanged."
                         << '\n'
@@ -256,7 +259,7 @@ void GRandomFactory::setNProducerThreads(const std::uint16_t &nProducerThreads) 
         }
 
         // Whether they were already running or not -- we may now adjust the number of producer threads
-        n_producer_threads_ = nProducerThreads_local;
+        n_producer_threads_ = n_producer_threads_local;
     }
 }
 

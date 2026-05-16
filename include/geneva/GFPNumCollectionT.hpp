@@ -208,12 +208,12 @@ protected:
         ,
         Gem::Hap::GRandomBase &gr
     ) override {
-        fp_type lowerBoundary = GNumCollectionT<fp_type>::getLowerInitBoundary();
-        fp_type upperBoundary = GNumCollectionT<fp_type>::getUpperInitBoundary();
+        fp_type lower_boundary = GNumCollectionT<fp_type>::getLowerInitBoundary();
+        fp_type upper_boundary = GNumCollectionT<fp_type>::getUpperInitBoundary();
 
         typename std::uniform_real_distribution<fp_type> uniform_real_distribution(
-            lowerBoundary,
-            upperBoundary
+            lower_boundary,
+            upper_boundary
         );
         typename GFPNumCollectionT<fp_type>::iterator it;
         for(it = this->begin(); it != this->end(); ++it) {
@@ -264,13 +264,13 @@ protected:
         Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
 
         // A few settings
-        const std::size_t nItems = 100;
-        const fp_type LOWERINITBOUNDARY = -10.1;
-        const fp_type UPPERINITBOUNDARY = 10.1;
-        const fp_type FIXEDVALUEINIT = 1.;
-        const fp_type MULTVALUE = 3.;
-        const fp_type RANDLOWERBOUNDARY = 0.;
-        const fp_type RANDUPPERBOUNDARY = 10.;
+        const std::size_t n_items = 100;
+        const fp_type lowerinitboundary = -10.1;
+        const fp_type upperinitboundary = 10.1;
+        const fp_type fixedvalueinit = 1.;
+        const fp_type multvalue = 3.;
+        const fp_type randlowerboundary = 0.;
+        const fp_type randupperboundary = 10.;
 
         //------------------------------------------------------------------------------
 
@@ -285,30 +285,30 @@ protected:
             CHECK_NOTHROW(p_test2->clear());
 
             // Add a few items
-            for(std::size_t i = 0; i < nItems; i++) {
+            for(std::size_t i = 0; i < n_items; i++) {
                 p_test1->push_back(fp_type(0));
                 p_test2->push_back(fp_type(0));
             }
 
             // Initialize with a fixed value
             CHECK_NOTHROW(p_test1->GParameterBase::template fixedValueInit<fp_type>(
-                FIXEDVALUEINIT,
+                fixedvalueinit,
                 activityMode::ALLPARAMETERS
             ));
             CHECK_NOTHROW(p_test2->GParameterBase::template fixedValueInit<fp_type>(
-                FIXEDVALUEINIT,
+                fixedvalueinit,
                 activityMode::ALLPARAMETERS
             ));
 
             // Check that values have indeed been set
-            for(std::size_t i = 0; i < nItems; i++) {
-                CHECK(p_test1->at(i) == FIXEDVALUEINIT);
-                CHECK(p_test2->at(i) == FIXEDVALUEINIT);
+            for(std::size_t i = 0; i < n_items; i++) {
+                CHECK(p_test1->at(i) == fixedvalueinit);
+                CHECK(p_test2->at(i) == fixedvalueinit);
             }
 
             // Set initialization boundaries
-            CHECK_NOTHROW(p_test1->setInitBoundaries(LOWERINITBOUNDARY, UPPERINITBOUNDARY));
-            CHECK_NOTHROW(p_test2->setInitBoundaries(LOWERINITBOUNDARY, UPPERINITBOUNDARY));
+            CHECK_NOTHROW(p_test1->setInitBoundaries(lowerinitboundary, upperinitboundary));
+            CHECK_NOTHROW(p_test2->setInitBoundaries(lowerinitboundary, upperinitboundary));
 
             // Randomly initialize one of the two objects. Note: we are using the protected function rather than the "global" function
             CHECK_NOTHROW(p_test1->randomInit_(activityMode::ALLPARAMETERS, gr));
@@ -317,10 +317,10 @@ protected:
             CHECK(*p_test1 != *p_test2);
 
             // Check that each value is different and that the values of p_test1 are inside of the allowed boundaries
-            for(std::size_t i = 0; i < nItems; i++) {
+            for(std::size_t i = 0; i < n_items; i++) {
                 CHECK(p_test1->at(i) != p_test2->at(i));
-                CHECK(p_test1->at(i) >= LOWERINITBOUNDARY);
-                CHECK(p_test1->at(i) <= UPPERINITBOUNDARY);
+                CHECK(p_test1->at(i) >= lowerinitboundary);
+                CHECK(p_test1->at(i) <= upperinitboundary);
             }
         }
 
@@ -336,18 +336,18 @@ protected:
             CHECK_NOTHROW(p_test1->clear());
 
             // Add a few items
-            for(std::size_t i = 0; i < nItems; i++) {
+            for(std::size_t i = 0; i < n_items; i++) {
                 p_test1->push_back(fp_type(0));
             }
 
             // Initialize with a fixed value
             CHECK_NOTHROW(p_test1->GParameterBase::template fixedValueInit<fp_type>(
-                FIXEDVALUEINIT,
+                fixedvalueinit,
                 activityMode::ALLPARAMETERS
             ));
 
             // Set initialization boundaries
-            CHECK_NOTHROW(p_test1->setInitBoundaries(LOWERINITBOUNDARY, UPPERINITBOUNDARY));
+            CHECK_NOTHROW(p_test1->setInitBoundaries(lowerinitboundary, upperinitboundary));
 
             // Randomly initialize one of the two objects. Note: we are using the protected function rather than the "global" function
             CHECK_NOTHROW(p_test1->randomInit_(activityMode::ALLPARAMETERS, gr));
@@ -358,13 +358,13 @@ protected:
 
             // Multiply p_test1 with a fixed value
             CHECK_NOTHROW(p_test1->GParameterBase::template multiplyBy<fp_type>(
-                MULTVALUE,
+                multvalue,
                 activityMode::ALLPARAMETERS
             ));
 
             // Check that the multiplication has succeeded
-            for(std::size_t i = 0; i < nItems; i++) {
-                CHECK(p_test1->at(i) == MULTVALUE * p_test2->at(i));
+            for(std::size_t i = 0; i < n_items; i++) {
+                CHECK(p_test1->at(i) == multvalue * p_test2->at(i));
             }
         }
 
@@ -380,7 +380,7 @@ protected:
             CHECK_NOTHROW(p_test1->clear());
 
             // Add a few items
-            for(std::size_t i = 0; i < nItems; i++) {
+            for(std::size_t i = 0; i < n_items; i++) {
                 p_test1->push_back(fp_type(0));
             }
 
@@ -392,16 +392,16 @@ protected:
 
             // Multiply with random values in a given range
             CHECK_NOTHROW(p_test1->GParameterBase::template multiplyByRandom<fp_type>(
-                RANDLOWERBOUNDARY,
-                RANDUPPERBOUNDARY,
+                randlowerboundary,
+                randupperboundary,
                 activityMode::ALLPARAMETERS,
                 gr
             ));
 
             // Check that all values are in this range
-            for(std::size_t i = 0; i < nItems; i++) {
-                CHECK(p_test1->at(i) >= RANDLOWERBOUNDARY);
-                CHECK(p_test1->at(i) <= RANDUPPERBOUNDARY);
+            for(std::size_t i = 0; i < n_items; i++) {
+                CHECK(p_test1->at(i) >= randlowerboundary);
+                CHECK(p_test1->at(i) <= randupperboundary);
             }
         }
 
@@ -417,7 +417,7 @@ protected:
             CHECK_NOTHROW(p_test1->clear());
 
             // Add a few items
-            for(std::size_t i = 0; i < nItems; i++) {
+            for(std::size_t i = 0; i < n_items; i++) {
                 p_test1->push_back(fp_type(0));
             }
 
@@ -434,7 +434,7 @@ protected:
             ));
 
             // Check that all values are in this range
-            for(std::size_t i = 0; i < nItems; i++) {
+            for(std::size_t i = 0; i < n_items; i++) {
                 CHECK(p_test1->at(i) >= 0.);
                 CHECK(p_test1->at(i) <= 1.);
             }
@@ -456,12 +456,12 @@ protected:
             CHECK_NOTHROW(p_test3->clear());
 
             // Add a few items
-            for(std::size_t i = 0; i < nItems; i++) {
+            for(std::size_t i = 0; i < n_items; i++) {
                 p_test1->push_back(fp_type(0));
             }
 
             // Set initialization boundaries
-            CHECK_NOTHROW(p_test1->setInitBoundaries(LOWERINITBOUNDARY, UPPERINITBOUNDARY));
+            CHECK_NOTHROW(p_test1->setInitBoundaries(lowerinitboundary, upperinitboundary));
 
             // Load the data of p_test_1 into p_test2
             CHECK_NOTHROW(p_test2->load(p_test1));
@@ -482,7 +482,7 @@ protected:
             );
 
             // Cross check that for each i p_test3[i] == p_test1[i] + p_test2[i]
-            for(std::size_t i = 0; i < nItems; i++) {
+            for(std::size_t i = 0; i < n_items; i++) {
                 CHECK(p_test3->at(i) == p_test1->at(i) + p_test2->at(i));
             }
         }
@@ -503,12 +503,12 @@ protected:
             CHECK_NOTHROW(p_test3->clear());
 
             // Add a few items
-            for(std::size_t i = 0; i < nItems; i++) {
+            for(std::size_t i = 0; i < n_items; i++) {
                 p_test1->push_back(fp_type(0));
             }
 
             // Set initialization boundaries
-            CHECK_NOTHROW(p_test1->setInitBoundaries(LOWERINITBOUNDARY, UPPERINITBOUNDARY));
+            CHECK_NOTHROW(p_test1->setInitBoundaries(lowerinitboundary, upperinitboundary));
 
             // Load the data of p_test_1 into p_test2
             CHECK_NOTHROW(p_test2->load(p_test1));
@@ -530,7 +530,7 @@ protected:
             ));
 
             // Cross check that for each i p_test3[i] == p_test1[i] - p_test2[i]
-            for(std::size_t i = 0; i < nItems; i++) {
+            for(std::size_t i = 0; i < n_items; i++) {
                 CHECK(p_test3->at(i) == p_test2->at(i) - p_test1->at(i));
             }
         }
@@ -552,7 +552,7 @@ protected:
     void specificTestsFailuresExpected_GUnitTests_() override {
 #ifdef GEM_TESTING
         // A few settings
-        const std::size_t nItems = 100;
+        const std::size_t n_items = 100;
 
         // Call the parent classes' functions
         GNumCollectionT<fp_type>::specificTestsFailuresExpected_GUnitTests_();
@@ -569,7 +569,7 @@ protected:
                 this->template clone<GFPNumCollectionT<fp_type>>();
 
             // Add a few items to p_test1, but not to p_test2
-            for(std::size_t i = 0; i < nItems; i++) {
+            for(std::size_t i = 0; i < n_items; i++) {
                 p_test1->push_back(fp_type(0));
             }
 
@@ -589,7 +589,7 @@ protected:
                 this->template clone<GFPNumCollectionT<fp_type>>();
 
             // Add a few items to p_test1, but not to p_test2
-            for(std::size_t i = 0; i < nItems; i++) {
+            for(std::size_t i = 0; i < n_items; i++) {
                 p_test1->push_back(fp_type(0));
             }
 

@@ -178,7 +178,7 @@ public:
     bool hasOptimizationMonitors() const;
 
     /** @brief Allows to set the maximum running time for a client */
-    void setMaxClientTime(std::chrono::duration<double> maxDuration);
+    void setMaxClientTime(std::chrono::duration<double> max_duration);
     /** @brief Allows to retrieve the maximum running time for a client */
     std::chrono::duration<double> getMaxClientTime() const;
 

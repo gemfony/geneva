@@ -106,15 +106,15 @@ void G_OptimizationAlgorithm_ParChild::resetToOptimizationStart_() {
  * see GParChildT::adjustPopulation() . Also, all error checking is done in
  * that function.
  *
- * @param popSize The desired size of the population
- * @param nParents The desired number of parents
+ * @param pop_size The desired size of the population
+ * @param n_parents The desired number of parents
  */
 void G_OptimizationAlgorithm_ParChild::setPopulationSizes(
-    std::size_t popSize,
-    std::size_t nParents
+    std::size_t pop_size,
+    std::size_t n_parents
 ) {
-    G_OptimizationAlgorithm_Base::setDefaultPopulationSize(popSize);
-    n_parents_ = nParents;
+    G_OptimizationAlgorithm_Base::setDefaultPopulationSize(pop_size);
+    n_parents_ = n_parents;
 }
 
 /******************************************************************************/
@@ -189,12 +189,12 @@ std::size_t G_OptimizationAlgorithm_ParChild::getNProcessableItems_() const {
  * Lets the user set the desired recombination method. No sanity checks for the
  * values are necessary, as we use an enum.
  *
- * @param recombinationMethod The desired recombination method
+ * @param recombination_method The desired recombination method
  */
 void G_OptimizationAlgorithm_ParChild::setRecombinationMethod(
-    duplicationScheme recombinationMethod
+    duplicationScheme recombination_method
 ) {
-    recombination_method_ = recombinationMethod;
+    recombination_method_ = recombination_method;
 }
 
 /******************************************************************************/
@@ -211,15 +211,15 @@ duplicationScheme G_OptimizationAlgorithm_ParChild::getRecombinationMethod() con
 /**
  * Adds the option to increase the population by a given amount per iteration
  *
- * @param growthRate The amount of individuals to be added in each iteration
- * @param maxPopulationSize The maximum allowed size of the population
+ * @param growth_rate The amount of individuals to be added in each iteration
+ * @param max_population_size The maximum allowed size of the population
  */
 void G_OptimizationAlgorithm_ParChild::setPopulationGrowth(
-    std::size_t growthRate,
-    std::size_t maxPopulationSize
+    std::size_t growth_rate,
+    std::size_t max_population_size
 ) {
-    growth_rate_ = growthRate;
-    max_population_size_ = maxPopulationSize;
+    growth_rate_ = growth_rate;
+    max_population_size_ = max_population_size;
 }
 
 /******************************************************************************/
@@ -255,7 +255,7 @@ void G_OptimizationAlgorithm_ParChild::addConfigurationOptions_(Gem::Common::GPa
     // Add local data
 
     gpb.registerFileParameter<double>(
-        "amalgamationLikelihood" // The name of the variable
+        "amalgamation_likelihood" // The name of the variable
         ,
         DEFAULTAMALGAMATIONLIKELIHOOD // The default value
         ,
@@ -267,7 +267,7 @@ void G_OptimizationAlgorithm_ParChild::addConfigurationOptions_(Gem::Common::GPa
     gpb.registerFileParameter<std::size_t, std::size_t>(
         "size" // The name of the first variable
         ,
-        "nParents" // The name of the second variable
+        "n_parents" // The name of the second variable
         ,
         DEFAULTEAPOPULATIONSIZE,
         DEFAULTEANPARENTS,
@@ -277,7 +277,7 @@ void G_OptimizationAlgorithm_ParChild::addConfigurationOptions_(Gem::Common::GPa
       << Gem::Common::nextComment() << "The number of parents in the population";
 
     gpb.registerFileParameter<duplicationScheme>(
-        "recombinationMethod" // The name of the variable
+        "recombination_method" // The name of the variable
         ,
         duplicationScheme::DEFAULTDUPLICATIONSCHEME // The default value
         ,
@@ -289,9 +289,9 @@ void G_OptimizationAlgorithm_ParChild::addConfigurationOptions_(Gem::Common::GPa
       << "2: selection according to the parent's value";
 
     gpb.registerFileParameter<std::size_t, std::size_t>(
-        "growthRate" // The name of the variable
+        "growth_rate" // The name of the variable
         ,
-        "maxPopulationSize" // The name of the variable
+        "max_population_size" // The name of the variable
         ,
         0 // The default value of the first variable
         ,
@@ -310,17 +310,16 @@ void G_OptimizationAlgorithm_ParChild::addConfigurationOptions_(Gem::Common::GPa
  * Allows to set the likelihood for amalgamation of two units to be
  * performed instead of "just" duplication.
  */
-void G_OptimizationAlgorithm_ParChild::setAmalgamationLikelihood(double amalgamationLikelihood) {
-    if(amalgamationLikelihood < 0. || amalgamationLikelihood > 1.) {
+void G_OptimizationAlgorithm_ParChild::setAmalgamationLikelihood(double amalgamation_likelihood) {
+    if(amalgamation_likelihood < 0. || amalgamation_likelihood > 1.) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
-            << "In setCrossOverLikelihood(" << amalgamationLikelihood << "): Error!" << '\n'
-            << "Received invalid likelihood for amalgamation. Must be in the range [0:1]."
-            << '\n'
+            << "In setCrossOverLikelihood(" << amalgamation_likelihood << "): Error!" << '\n'
+            << "Received invalid likelihood for amalgamation. Must be in the range [0:1]." << '\n'
         );
     }
 
-    amalgamationLikelihood_ = amalgamationLikelihood;
+    amalgamationLikelihood_ = amalgamation_likelihood;
 }
 
 /******************************************************************************/
@@ -340,16 +339,16 @@ double G_OptimizationAlgorithm_ParChild::getAmalgamationLikelihood() const {
 void G_OptimizationAlgorithm_ParChild::doRecombine() {
     std::size_t i = 0;
     std::vector<double> threshold(n_parents_);
-    double thresholdSum = 0.;
+    double threshold_sum = 0.;
     // Calculate a weight vector
     // TODO: Check whether it is sufficient to do this only once
     if(duplicationScheme::VALUEDUPLICATIONSCHEME == recombination_method_ && n_parents_ > 1) {
         for(i = 0; i < n_parents_; i++) {
-            thresholdSum += 1. / (static_cast<double>(i) + 2.);
+            threshold_sum += 1. / (static_cast<double>(i) + 2.);
         }
         for(i = 0; i < n_parents_ - 1; i++) {
             // Normalizing the sum to 1
-            threshold[i] = (1. / (static_cast<double>(i) + 2.)) / thresholdSum;
+            threshold[i] = (1. / (static_cast<double>(i) + 2.)) / threshold_sum;
 
             // Make sure the subsequent range is in the right position
             if(i > 0)
@@ -359,7 +358,7 @@ void G_OptimizationAlgorithm_ParChild::doRecombine() {
     }
 
     std::vector<std::shared_ptr<GParameterSet>>::iterator it;
-    std::bernoulli_distribution amalgamationWanted(
+    std::bernoulli_distribution amalgamation_wanted(
         amalgamationLikelihood_
     ); // true with a likelihood of amalgamation_likelihood_
     for(it = G_OptimizationAlgorithm_Base::data_cnt_.begin() + n_parents_;
@@ -368,8 +367,8 @@ void G_OptimizationAlgorithm_ParChild::doRecombine() {
         // Retrieve a random number so we can decide whether to perform cross-over or duplication
         // If we do perform cross-over, we always cross the best individual with another random parent
         if(n_parents_ > 1 &&
-           amalgamationWanted(this->gr_)) { // Create individuals using a cross-over scheme
-            std::shared_ptr<GParameterSet> bestParent = this->front();
+           amalgamation_wanted(this->gr_)) { // Create individuals using a cross-over scheme
+            std::shared_ptr<GParameterSet> best_parent = this->front();
             std::shared_ptr<GParameterSet> combiner =
                 (n_parents_ > 2)
                     ? (*(this->begin() + this->uniform_int_distribution_(
@@ -381,7 +380,7 @@ void G_OptimizationAlgorithm_ParChild::doRecombine() {
                                          )))
                     : (*(this->begin() + 1));
 
-            (*it)->GObject::load(bestParent->crossOverWith(combiner));
+            (*it)->GObject::load(best_parent->crossOverWith(combiner));
         }
         else { // Just perform duplication
             switch(recombination_method_) {
@@ -763,11 +762,11 @@ void G_OptimizationAlgorithm_ParChild::valueRecombine(
     const std::vector<double> &threshold
 ) {
     bool done = false;
-    double randTest // get the test value // NOLINT(cppcoreguidelines-init-variables)
+    double rand_test // get the test value // NOLINT(cppcoreguidelines-init-variables)
         = G_OptimizationAlgorithm_Base::uniform_real_distribution_(this->gr_);
 
     for(std::size_t par = 0; par < n_parents_; par++) {
-        if(randTest < threshold[par]) {
+        if(rand_test < threshold[par]) {
             // Load the parent's data
             p->GObject::load(*(G_OptimizationAlgorithm_Base::data_cnt_.begin() + par));
             // Let the individual know the parent's id

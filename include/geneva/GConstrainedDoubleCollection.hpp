@@ -190,12 +190,16 @@ private:
 template <>
 inline std::shared_ptr<Gem::Geneva::GConstrainedDoubleCollection>
 TFactory_GUnitTests<Gem::Geneva::GConstrainedDoubleCollection>() {
-    const std::size_t NPARAMETERS = 100;
-    double LOWERBOUNDARY = -10.;
-    double UPPERBOUNDARY = 10.;
+    const std::size_t nparameters = 100;
+    double lowerboundary = -10.;
+    double upperboundary = 10.;
     std::shared_ptr<Gem::Geneva::GConstrainedDoubleCollection> p;
     CHECK_NOTHROW(
-        p = std::make_shared<Gem::Geneva::GConstrainedDoubleCollection>(NPARAMETERS, LOWERBOUNDARY, UPPERBOUNDARY)
+        p = std::make_shared<Gem::Geneva::GConstrainedDoubleCollection>(
+            nparameters,
+            lowerboundary,
+            upperboundary
+        )
     );
     return p;
 }

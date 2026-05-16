@@ -362,15 +362,15 @@ void GSwarmAlgorithm_PersonalityTraits::specificTestsNoFailureExpected_GUnitTest
         CHECK(p_test->noPositionUpdate() == true);
 
         // Check retrieval and reset
-        bool noPositionUpdate = false; // This value should be changed by the following call
-        CHECK_NOTHROW(noPositionUpdate = p_test->checkNoPositionUpdateAndReset());
-        CHECK(noPositionUpdate == true);
+        bool no_position_update = false; // This value should be changed by the following call
+        CHECK_NOTHROW(no_position_update = p_test->checkNoPositionUpdateAndReset());
+        CHECK(no_position_update == true);
         CHECK(p_test->noPositionUpdate() == false);
 
         // Try again -- the value "false" should not change
-        noPositionUpdate = true; // This value should be changed by the following call
-        CHECK_NOTHROW(noPositionUpdate = p_test->checkNoPositionUpdateAndReset());
-        CHECK(noPositionUpdate == false);
+        no_position_update = true; // This value should be changed by the following call
+        CHECK_NOTHROW(no_position_update = p_test->checkNoPositionUpdateAndReset());
+        CHECK(no_position_update == false);
         CHECK(p_test->noPositionUpdate() == false);
     }
 

@@ -84,8 +84,8 @@ public:
      *
      * @param prob The probability for a flip
      */
-    explicit GIntFlipAdaptorT(const double &adProb)
-      : GNumFlipAdaptorT<int_type>(adProb) { /* nothing */
+    explicit GIntFlipAdaptorT(const double &ad_prob)
+      : GNumFlipAdaptorT<int_type>(ad_prob) { /* nothing */
     }
 
     /***************************************************************************/

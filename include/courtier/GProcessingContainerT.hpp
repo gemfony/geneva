@@ -282,24 +282,24 @@ public:
 
         try {
             // Perform the actual processing
-            const auto startTime = std::chrono::high_resolution_clock::now();
+            const auto start_time = std::chrono::high_resolution_clock::now();
             this->preProcess_();
-            const auto afterPreProcessing = std::chrono::high_resolution_clock::now();
+            const auto after_pre_processing = std::chrono::high_resolution_clock::now();
 
             // Do the actual processing
             this->process_(res_vec);
 
-            const auto afterProcessing = std::chrono::high_resolution_clock::now();
+            const auto after_processing = std::chrono::high_resolution_clock::now();
             this->postProcess_();
-            const auto afterPostProcessing = std::chrono::high_resolution_clock::now();
+            const auto after_post_processing = std::chrono::high_resolution_clock::now();
 
             // Make a note of the time needed for each step
             pre_processing_time_ =
-                std::chrono::duration<double>(afterPreProcessing - startTime).count();
+                std::chrono::duration<double>(after_pre_processing - start_time).count();
             processing_time_ =
-                std::chrono::duration<double>(afterProcessing - afterPreProcessing).count();
+                std::chrono::duration<double>(after_processing - after_pre_processing).count();
             post_processing_time_ =
-                std::chrono::duration<double>(afterPostProcessing - afterProcessing).count();
+                std::chrono::duration<double>(after_post_processing - after_processing).count();
 
             processing_status_ = processingStatus::PROCESSED;
         }

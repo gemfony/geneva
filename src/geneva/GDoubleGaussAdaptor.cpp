@@ -40,10 +40,10 @@ namespace Gem::Geneva {
 /**
  * Initialization with a adaption probability
  *
- * @param adProb The adaption probability
+ * @param ad_prob The adaption probability
  */
-GDoubleGaussAdaptor::GDoubleGaussAdaptor(const double &adProb)
-  : GFPGaussAdaptorT<double>(adProb) { /* nothing */
+GDoubleGaussAdaptor::GDoubleGaussAdaptor(const double &ad_prob)
+  : GFPGaussAdaptorT<double>(ad_prob) { /* nothing */
 }
 
 /********************************************************************************************/
@@ -51,17 +51,17 @@ GDoubleGaussAdaptor::GDoubleGaussAdaptor(const double &adProb)
  * This constructor lets a user set all sigma parameters in one go.
  *
  * @param sigma The initial value for the sigma_ parameter
- * @param sigmaSigma The initial value for the sigmaSigma_ parameter
- * @param minSigma The minimal value allowed for sigma_
- * @param maxSigma The maximal value allowed for sigma_
+ * @param sigma_sigma The initial value for the sigmaSigma_ parameter
+ * @param min_sigma The minimal value allowed for sigma_
+ * @param max_sigma The maximal value allowed for sigma_
  */
 GDoubleGaussAdaptor::GDoubleGaussAdaptor(
     const double &sigma,
-    const double &sigmaSigma,
-    const double &minSigma,
-    const double &maxSigma
+    const double &sigma_sigma,
+    const double &min_sigma,
+    const double &max_sigma
 )
-  : GFPGaussAdaptorT<double>(sigma, sigmaSigma, minSigma, maxSigma) { /* nothing */
+  : GFPGaussAdaptorT<double>(sigma, sigma_sigma, min_sigma, max_sigma) { /* nothing */
 }
 
 /********************************************************************************************/
@@ -70,19 +70,19 @@ GDoubleGaussAdaptor::GDoubleGaussAdaptor(
  * probability in one go.
  *
  * @param sigma The initial value for the sigma_ parameter
- * @param sigmaSigma The initial value for the sigmaSigma_ parameter
- * @param minSigma The minimal value allowed for sigma_
- * @param maxSigma The maximal value allowed for sigma_
- * @param adProb The adaption probability
+ * @param sigma_sigma The initial value for the sigmaSigma_ parameter
+ * @param min_sigma The minimal value allowed for sigma_
+ * @param max_sigma The maximal value allowed for sigma_
+ * @param ad_prob The adaption probability
  */
 GDoubleGaussAdaptor::GDoubleGaussAdaptor(
     const double &sigma,
-    const double &sigmaSigma,
-    const double &minSigma,
-    const double &maxSigma,
-    const double &adProb
+    const double &sigma_sigma,
+    const double &min_sigma,
+    const double &max_sigma,
+    const double &ad_prob
 )
-  : GFPGaussAdaptorT<double>(sigma, sigmaSigma, minSigma, maxSigma, adProb) { /* nothing */
+  : GFPGaussAdaptorT<double>(sigma, sigma_sigma, min_sigma, max_sigma, ad_prob) { /* nothing */
 }
 
 /******************************************************************************/

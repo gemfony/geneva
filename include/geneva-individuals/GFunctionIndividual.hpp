@@ -223,7 +223,7 @@ enum class solverFunction : Gem::Common::ENUMBASETYPE {
 	 * (≈-1.8013 for n=2, ≈-4.6877 for n=5, ≈-9.660 for n=10).
 	 * Recommended domain: [0, π].
 	 * NOTE: Unlike all other functions, the natural domain is [0, π].
-	 * Set minVar=0 and maxVar≈3.14159 explicitly in the factory configuration.
+	 * Set min_var=0 and max_var≈3.14159 explicitly in the factory configuration.
 	 * The exponent m=10 creates extremely narrow ridges. The global minimum lies
 	 * inside a steep, razor-thin valley; approaching it requires precise alignment
 	 * of the search direction. Tests fine-grained local search and the ability to
@@ -332,10 +332,10 @@ class GFunctionIndividualFactory;
  *
  * All functions accept arbitrary parameter dimensionality n ≥ 1 (some require n ≥ 2).
  * The factory (GFunctionIndividualFactory) populates the individual with n GConstrainedDoubleObject
- * parameters within [minVar, maxVar]; these bounds should match the recommended domain of the
+ * parameters within [min_var, max_var]; these bounds should match the recommended domain of the
  * selected function (see solverFunction enum documentation).
  *
- * @note For MICHALEWICZ the natural domain is [0, π]. Set minVar=0 and maxVar≈3.14159
+ * @note For MICHALEWICZ the natural domain is [0, π]. Set min_var=0 and max_var≈3.14159
  *       explicitly; the factory default of [-10, 10] is not suitable for that function.
  */
 class GFunctionIndividual
@@ -769,12 +769,12 @@ public:
     /** @brief Allows to retrieve the adaptionThreshold_ variable */
     std::uint32_t getAdaptionThreshold() const;
     /** @brief Set the value of the adaptionThreshold_ variable */
-    void setAdaptionThreshold(std::uint32_t adaptionThreshold);
+    void setAdaptionThreshold(std::uint32_t adaption_threshold);
 
     /** @brief Allows to retrieve the adProb_ variable */
     double getAdProb() const;
     /** @brief Set the value of the adProb_ variable */
-    void setAdProb(double adProb);
+    void setAdProb(double ad_prob);
 
     /** @brief Allows to retrieve the iM_ variable */
     initMode getIM() const;
@@ -794,7 +794,7 @@ public:
     /** @brief Allows to retrieve the useBiGaussian_ variable */
     bool getUseBiGaussian() const;
     /** @brief Set the value of the useBiGaussian_ variable */
-    void setUseBiGaussian(bool useBiGaussian);
+    void setUseBiGaussian(bool use_bi_gaussian);
 
     /** @brief Allows to retrieve the minVar_ variable */
     double getMinVar() const;
@@ -849,27 +849,27 @@ public:
     /** @brief Allows to retrieve the sigmaDelta_ variable */
     double getSigmaDelta() const;
     /** @brief Set the value of the sigmaDelta_ variable */
-    void setSigmaDelta(double sigmaDelta);
+    void setSigmaDelta(double sigma_delta);
 
     /** @brief Allows to retrieve the sigmaSigma1_ variable */
     double getSigmaSigma1() const;
     /** @brief Set the value of the sigmaSigma1_ variable */
-    void setSigmaSigma1(double sigmaSigma1);
+    void setSigmaSigma1(double sigma_sigma1);
 
     /** @brief Allows to retrieve the sigmaSigma2_ variable */
     double getSigmaSigma2() const;
     /** @brief Set the value of the sigmaSigma2_ variable */
-    void setSigmaSigma2(double sigmaSigma2);
+    void setSigmaSigma2(double sigma_sigma2);
 
     /** @brief Allows to retrieve the rate of evolutionary adaption of adProb_ */
     double getAdaptAdProb() const;
     /** @brief Allows to specify an adaption factor for adProb_ (or 0, if you do not want this feature) */
-    void setAdaptAdProb(double adaptAdProb);
+    void setAdaptAdProb(double adapt_ad_prob);
 
     /** @brief Allows to retrieve the allowed range for adProb_ variation */
     std::tuple<double, double> getAdProbRange() const;
     /** @brief Allows to set the allowed range for adaption probability variation */
-    void setAdProbRange(double minAdProb, double maxAdProb);
+    void setAdProbRange(double min_ad_prob, double max_ad_prob);
 
     // End of public getters and setters
     //--------------------------------------------------------------------------
@@ -891,28 +891,28 @@ private:
     getObject_(Gem::Common::GParserBuilder &, const std::size_t &) override;
 
     /** @brief Set the value of the minVar_ variable */
-    void setMinVar(double minVar);
+    void setMinVar(double min_var);
 
     /** @brief Set the value of the maxVar_ variable */
-    void setMaxVar(double maxVar);
+    void setMaxVar(double max_var);
 
     /** @brief Set the value of the minDelta_ variable */
-    void setMinDelta(double minDelta);
+    void setMinDelta(double min_delta);
 
     /** @brief Set the value of the maxDelta_ variable */
-    void setMaxDelta(double maxDelta);
+    void setMaxDelta(double max_delta);
 
     /** @brief Set the value of the minSigma1_ variable */
-    void setMinSigma1(double minSigma1);
+    void setMinSigma1(double min_sigma1);
 
     /** @brief Set the value of the maxSigma1_ variable */
-    void setMaxSigma1(double maxSigma1);
+    void setMaxSigma1(double max_sigma1);
 
     /** @brief Set the value of the minSigma2_ variable */
-    void setMinSigma2(double minSigma2);
+    void setMinSigma2(double min_sigma2);
 
     /** @brief Set the value of the maxSigma2_ variable */
-    void setMaxSigma2(double maxSigma2);
+    void setMaxSigma2(double max_sigma2);
 
     /** @brief The default constructor; Only needed for (de-)serialization purposes. */
     GFunctionIndividualFactory();

@@ -564,12 +564,12 @@ public:
 	  * Initializes the parameter and sets values in the parent class
 	  */
     GSingleParmT(
-        const std::string &optionNameVar,
-        const std::string &commentVar,
-        const bool &isEssentialVar,
+        const std::string &option_name_var,
+        const std::string &comment_var,
+        const bool &is_essential_var,
         const parameter_type &def_val
     )
-      : GFileParsableI(optionNameVar, commentVar, isEssentialVar)
+      : GFileParsableI(option_name_var, comment_var, is_essential_var)
       , def_val_(def_val)
       , par_(def_val) { /* nothing */
     }
@@ -632,15 +632,15 @@ public:
 	  * Initializes the parameter and sets values in the parent class
 	  */
     GFileSingleParsableParameterT(
-        const std::string &optionNameVar,
-        const std::string &commentVar,
-        const bool &isEssentialVar,
+        const std::string &option_name_var,
+        const std::string &comment_var,
+        const bool &is_essential_var,
         const parameter_type &def_val
     )
       : GSingleParmT<parameter_type>(
-            optionNameVar,
-            commentVar,
-            isEssentialVar,
+            option_name_var,
+            comment_var,
+            is_essential_var,
             def_val
         ) { /* nothing */
     }
@@ -650,9 +650,9 @@ public:
 	  * Initializes the parameter and sets values in the parent class, except
 	  * for comments.
 	  */
-    GFileSingleParsableParameterT(const std::string &optionNameVar, const parameter_type &def_val)
+    GFileSingleParsableParameterT(const std::string &option_name_var, const parameter_type &def_val)
       : GSingleParmT<parameter_type>(
-            optionNameVar,
+            option_name_var,
             std::string(),
             Gem::Common::VAR_IS_ESSENTIAL,
             def_val
@@ -679,10 +679,10 @@ public:
     /**
 	  * Allows to register a call-back function with this object
 	  *
-	  * @param callBack The function to be executed
+	  * @param call_back The function to be executed
 	  */
-    void registerCallBackFunction(std::function<void(parameter_type)> callBack) {
-        if(not callBack) {
+    void registerCallBackFunction(std::function<void(parameter_type)> call_back) {
+        if(not call_back) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GSingleParsableParameter::registerCallBackFunction(): Error" << '\n'
@@ -690,7 +690,7 @@ public:
             );
         }
 
-        call_back_func_ = callBack;
+        call_back_func_ = call_back;
     }
 
 private:
@@ -781,14 +781,14 @@ public:
 	  * Initializes the parameter and sets values in the parent class
 	  */
     GFileReferenceParsableParameterT(
-        parameter_type &storedReference,
-        std::string const &optionNameVar,
-        std::string const &commentVar,
-        bool isEssentialVar,
+        parameter_type &stored_reference,
+        std::string const &option_name_var,
+        std::string const &comment_var,
+        bool is_essential_var,
         parameter_type const &def_val
     )
-      : GSingleParmT<parameter_type>(optionNameVar, commentVar, isEssentialVar, def_val)
-      , stored_reference_(storedReference) { /* nothing */
+      : GSingleParmT<parameter_type>(option_name_var, comment_var, is_essential_var, def_val)
+      , stored_reference_(stored_reference) { /* nothing */
     }
 
     /***************************************************************************/
@@ -797,17 +797,17 @@ public:
 	  * for comments.
 	  */
     GFileReferenceParsableParameterT(
-        parameter_type &storedReference,
-        std::string const &optionNameVar,
+        parameter_type &stored_reference,
+        std::string const &option_name_var,
         parameter_type const &def_val
     )
       : GSingleParmT<parameter_type>(
-            optionNameVar,
+            option_name_var,
             std::string(),
             Gem::Common::VAR_IS_ESSENTIAL,
             def_val
         )
-      , stored_reference_(storedReference) { /* nothing */
+      , stored_reference_(stored_reference) { /* nothing */
     }
 
     /***************************************************************************/
@@ -907,19 +907,19 @@ public:
 	  * Initializes the parameter and sets values in the parent class
 	  */
     GCombinedParT(
-        std::string const &optionNameVar0,
-        std::string const &commentVar0,
+        std::string const &option_name_var0,
+        std::string const &comment_var0,
         par_type0 const &def_val0,
-        std::string const &optionNameVar1,
-        std::string const &commentVar1,
+        std::string const &option_name_var1,
+        std::string const &comment_var1,
         par_type1 const &def_val1,
-        bool const &isEssentialVar,
+        bool const &is_essential_var,
         std::string combined_label
     )
       : GFileParsableI(
-            GFileParsableI::makeVector(optionNameVar0, optionNameVar1),
-            GFileParsableI::makeVector(commentVar0, commentVar1),
-            isEssentialVar
+            GFileParsableI::makeVector(option_name_var0, option_name_var1),
+            GFileParsableI::makeVector(comment_var0, comment_var1),
+            is_essential_var
         )
       , par0_(def_val0)
       , def_val0_(def_val0)
@@ -991,23 +991,23 @@ public:
 	  * Initializes the parameters
 	  */
     GFileCombinedParsableParameterT(
-        std::string const &optionNameVar0,
-        std::string const &commentVar0,
-        par_type0 const &defVal0,
-        std::string const &optionNameVar1,
-        std::string const &commentVar1,
-        par_type1 const &defVal1,
-        bool isEssentialVar,
+        std::string const &option_name_var0,
+        std::string const &comment_var0,
+        par_type0 const &def_val0,
+        std::string const &option_name_var1,
+        std::string const &comment_var1,
+        par_type1 const &def_val1,
+        bool is_essential_var,
         std::string const &combined_label
     )
       : GCombinedParT<par_type0, par_type1>(
-            optionNameVar0,
-            commentVar0,
-            defVal0,
-            optionNameVar1,
-            commentVar1,
-            defVal1,
-            isEssentialVar,
+            option_name_var0,
+            comment_var0,
+            def_val0,
+            option_name_var1,
+            comment_var1,
+            def_val1,
+            is_essential_var,
             combined_label
         ) { /* nothing */
     }
@@ -1017,19 +1017,19 @@ public:
 	  * Initializes the parameters
 	  */
     GFileCombinedParsableParameterT(
-        std::string const &optionNameVar0,
-        par_type0 const &defVal0,
-        std::string const &optionNameVar1,
-        par_type1 const &defVal1,
+        std::string const &option_name_var0,
+        par_type0 const &def_val0,
+        std::string const &option_name_var1,
+        par_type1 const &def_val1,
         std::string const &combined_label
     )
       : GCombinedParT<par_type0, par_type1>(
-            optionNameVar0,
+            option_name_var0,
             std::string(),
-            defVal0,
-            optionNameVar1,
+            def_val0,
+            option_name_var1,
             std::string(),
-            defVal1,
+            def_val1,
             Gem::Common::VAR_IS_ESSENTIAL,
             combined_label
         ) { /* nothing */
@@ -1057,10 +1057,10 @@ public:
     /**
 	  * Allows to register a call-back function with this object
 	  *
-	  * @param callBack The function to be executed
+	  * @param call_back The function to be executed
 	  */
-    void registerCallBackFunction(std::function<void(par_type0, par_type1)> callBack) {
-        if(not callBack) {
+    void registerCallBackFunction(std::function<void(par_type0, par_type1)> call_back) {
+        if(not call_back) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GFileCombinedParsableParameterT::registerCallBackFunction(): Error"
@@ -1069,7 +1069,7 @@ public:
             );
         }
 
-        call_back_func_ = callBack;
+        call_back_func_ = call_back;
     }
 
 private:
@@ -1209,12 +1209,12 @@ public:
 	  * Initializes the parameter and sets values in the parent class
 	  */
     GVectorParT(
-        std::string const &optionNameVar,
-        std::string const &commentVar,
+        std::string const &option_name_var,
+        std::string const &comment_var,
         std::vector<parameter_type> const &def_val,
-        bool isEssentialVar
+        bool is_essential_var
     )
-      : GFileParsableI(optionNameVar, commentVar, isEssentialVar)
+      : GFileParsableI(option_name_var, comment_var, is_essential_var)
       , def_val_cnt_(def_val)
       // Seed par_cnt_ with the defaults so writeConfigFile() can emit a "value"
       // for every "default" entry before any parsing has populated par_cnt_.
@@ -1284,16 +1284,16 @@ public:
 	  * Initializes the parameters
 	  */
     GFileVectorParsableParameterT(
-        std::string const &optionNameVar,
-        std::string const &commentVar,
+        std::string const &option_name_var,
+        std::string const &comment_var,
         std::vector<parameter_type> const &def_val,
-        bool isEssentialVar
+        bool is_essential_var
     )
       : GVectorParT<parameter_type>(
-            optionNameVar,
-            commentVar,
+            option_name_var,
+            comment_var,
             def_val,
-            isEssentialVar
+            is_essential_var
         ) { /* nothing */
     }
 
@@ -1302,11 +1302,11 @@ public:
 	  * Initializes the parameters, except for comments
 	  */
     GFileVectorParsableParameterT(
-        std::string const &optionNameVar,
+        std::string const &option_name_var,
         std::vector<parameter_type> const &def_val
     )
       : GVectorParT<parameter_type>(
-            optionNameVar,
+            option_name_var,
             std::string(),
             def_val,
             Gem::Common::VAR_IS_ESSENTIAL
@@ -1332,10 +1332,10 @@ public:
     /**
 	  * Allows to register a call-back function with this object
 	  *
-	  * @param callBack The function to be executed
+	  * @param call_back The function to be executed
 	  */
-    void registerCallBackFunction(std::function<void(std::vector<parameter_type>)> callBack) {
-        if(not callBack) {
+    void registerCallBackFunction(std::function<void(std::vector<parameter_type>)> call_back) {
+        if(not call_back) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GFileVectorParsableParameterT::registerCallBackFunction(): Error"
@@ -1344,7 +1344,7 @@ public:
             );
         }
 
-        call_back_func_ = callBack;
+        call_back_func_ = call_back;
     }
 
 private:
@@ -1460,12 +1460,12 @@ public:
 	  */
     GFileVectorReferenceParsableParameterT(
         std::vector<parameter_type> &stored_reference,
-        std::string const &optionNameVar,
-        std::string const &commentVar,
+        std::string const &option_name_var,
+        std::string const &comment_var,
         std::vector<parameter_type> const &def_val,
-        bool isEssentialVar
+        bool is_essential_var
     )
-      : GVectorParT<parameter_type>(optionNameVar, commentVar, def_val, isEssentialVar)
+      : GVectorParT<parameter_type>(option_name_var, comment_var, def_val, is_essential_var)
       , stored_reference_(stored_reference) { /* nothing */
     }
 
@@ -1475,11 +1475,11 @@ public:
 	  */
     GFileVectorReferenceParsableParameterT(
         std::vector<parameter_type> &stored_reference,
-        std::string const &optionNameVar,
+        std::string const &option_name_var,
         std::vector<parameter_type> const &def_val
     )
       : GVectorParT<parameter_type>(
-            optionNameVar,
+            option_name_var,
             std::string(),
             def_val,
             Gem::Common::VAR_IS_ESSENTIAL
@@ -1607,12 +1607,12 @@ public:
 	  * Initializes the parameter and sets values in the parent class
 	  */
     GArrayParT(
-        std::string const &optionNameVar,
-        std::string const &commentVar,
+        std::string const &option_name_var,
+        std::string const &comment_var,
         std::array<parameter_type, N> const &def_val,
-        bool isEssentialVar
+        bool is_essential_var
     )
-      : GFileParsableI(optionNameVar, commentVar, isEssentialVar)
+      : GFileParsableI(option_name_var, comment_var, is_essential_var)
       , def_val_arr_(def_val)
       , par_arr_(def_val) { /* nothing */
     }
@@ -1675,16 +1675,16 @@ public:
 	  * Initializes the parameters
 	  */
     GFileArrayParsableParameterT(
-        std::string const &optionNameVar,
-        std::string const &commentVar,
+        std::string const &option_name_var,
+        std::string const &comment_var,
         std::array<parameter_type, N> const &def_val,
-        bool isEssentialVar
+        bool is_essential_var
     )
       : GArrayParT<parameter_type, N>(
-            optionNameVar,
-            commentVar,
+            option_name_var,
+            comment_var,
             def_val,
-            isEssentialVar
+            is_essential_var
         ) { /* nothing */
     }
 
@@ -1693,11 +1693,11 @@ public:
 	  * Initializes the parameters, except for comments
 	  */
     GFileArrayParsableParameterT(
-        std::string const &optionNameVar,
+        std::string const &option_name_var,
         std::array<parameter_type, N> const &def_val
     )
       : GArrayParT<parameter_type, N>(
-            optionNameVar,
+            option_name_var,
             std::string(),
             def_val,
             Gem::Common::VAR_IS_ESSENTIAL
@@ -1724,10 +1724,10 @@ public:
     /**
 	  * Allows to register a call-back function with this object
 	  *
-	  * @param callBack The function to be executed
+	  * @param call_back The function to be executed
 	  */
-    void registerCallBackFunction(std::function<void(std::array<parameter_type, N>)> callBack) {
-        if(not callBack) {
+    void registerCallBackFunction(std::function<void(std::array<parameter_type, N>)> call_back) {
+        if(not call_back) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GFileArrayParsableParameterT::registerCallBackFunction(): Error" << '\n'
@@ -1735,7 +1735,7 @@ public:
             );
         }
 
-        call_back_func_ = callBack;
+        call_back_func_ = call_back;
     }
 
 private:
@@ -1848,12 +1848,12 @@ public:
 	  */
     GFileArrayReferenceParsableParameterT(
         std::array<parameter_type, N> &stored_reference,
-        std::string const &optionNameVar,
-        std::string const &commentVar,
+        std::string const &option_name_var,
+        std::string const &comment_var,
         std::array<parameter_type, N> const &def_val,
-        bool isEssentialVar
+        bool is_essential_var
     )
-      : GArrayParT<parameter_type, N>(optionNameVar, commentVar, def_val, isEssentialVar)
+      : GArrayParT<parameter_type, N>(option_name_var, comment_var, def_val, is_essential_var)
       , stored_reference_(stored_reference) { /* nothing */
     }
 
@@ -1863,11 +1863,11 @@ public:
 	  */
     GFileArrayReferenceParsableParameterT(
         std::array<parameter_type, N> &stored_reference,
-        std::string const &optionNameVar,
+        std::string const &option_name_var,
         std::array<parameter_type, N> const &def_val
     )
       : GArrayParT<parameter_type, N>(
-            optionNameVar,
+            option_name_var,
             std::string(),
             def_val,
             Gem::Common::VAR_IS_ESSENTIAL
@@ -2029,46 +2029,49 @@ public:
     /**
 	  * A constructor that initializes the internal reference
 	  *
-	  * @param storedReference A reference to a variable in which parsed values should be stored
-	  * @param defVal The default value of this variable
+	  * @param stored_reference A reference to a variable in which parsed values should be stored
+	  * @param def_val The default value of this variable
 	  */
     GCLReferenceParsableParameterT(
-        parameter_type &storedReference,
-        std::string const &optionNameVar,
-        std::string const &commentVar,
-        parameter_type defVal,
-        bool implicitAllowed,
-        parameter_type implVal
+        parameter_type &stored_reference,
+        std::string const &option_name_var,
+        std::string const &comment_var,
+        parameter_type def_val,
+        bool implicit_allowed,
+        parameter_type impl_val
     )
-      : GCLParsableI(GCLParsableI::makeVector(optionNameVar), GCLParsableI::makeVector(commentVar))
-      , stored_reference_(storedReference)
-      , def_val_(defVal)
-      , implicit_allowed_(implicitAllowed)
-      , impl_val_(implVal) { /* nothing */
+      : GCLParsableI(
+            GCLParsableI::makeVector(option_name_var),
+            GCLParsableI::makeVector(comment_var)
+        )
+      , stored_reference_(stored_reference)
+      , def_val_(def_val)
+      , implicit_allowed_(implicit_allowed)
+      , impl_val_(impl_val) { /* nothing */
     }
 
     /***************************************************************************/
     /**
 	  * A constructor that initializes the internal variiables, except for comments
 	  *
-	  * @param storedReference A reference to a variable in which parsed values should be stored
-	  * @param defVal The default value of this variable
+	  * @param stored_reference A reference to a variable in which parsed values should be stored
+	  * @param def_val The default value of this variable
 	  */
     GCLReferenceParsableParameterT(
-        parameter_type &storedReference,
-        std::string const &optionNameVar,
-        parameter_type defVal,
-        bool implicitAllowed,
-        parameter_type implVal
+        parameter_type &stored_reference,
+        std::string const &option_name_var,
+        parameter_type def_val,
+        bool implicit_allowed,
+        parameter_type impl_val
     )
       : GCLParsableI(
-            GCLParsableI::makeVector(optionNameVar),
+            GCLParsableI::makeVector(option_name_var),
             GCLParsableI::makeVector(std::string())
         )
-      , stored_reference_(storedReference)
-      , def_val_(defVal)
-      , implicit_allowed_(implicitAllowed)
-      , impl_val_(implVal) { /* nothing */
+      , stored_reference_(stored_reference)
+      , def_val_(def_val)
+      , implicit_allowed_(implicit_allowed)
+      , impl_val_(impl_val) { /* nothing */
     }
 
     /***************************************************************************/
@@ -2175,12 +2178,12 @@ public:
 	  */
     template <typename fileParsableDerivative>
     std::shared_ptr<fileParsableDerivative>
-    file_at(std::string const &optionName) { // NOLINT(misc-unused-parameters)
+    file_at(std::string const &option_name) { // NOLINT(misc-unused-parameters)
         auto it = std::find_if(
             file_parameter_proxies_.begin(),
             file_parameter_proxies_.end(),
             [&](std::shared_ptr<GFileParsableI> const &candidate_ptr) {
-                return (candidate_ptr->GParsableI::optionName(0) == optionName);
+                return (candidate_ptr->GParsableI::optionName(0) == option_name);
             }
         );
         if(it != file_parameter_proxies_.end()) {
@@ -2198,12 +2201,12 @@ public:
 	  */
     template <typename clParsableDerivative>
     std::shared_ptr<clParsableDerivative>
-    cl_at(std::string const &optionName) { // NOLINT(misc-unused-parameters)
+    cl_at(std::string const &option_name) { // NOLINT(misc-unused-parameters)
         auto it = std::find_if(
             cl_parameter_proxies_.begin(),
             cl_parameter_proxies_.end(),
             [&](std::shared_ptr<GCLParsableI> const &candidate_ptr) {
-                return (candidate_ptr->GParsableI::optionName(0) == optionName);
+                return (candidate_ptr->GParsableI::optionName(0) == option_name);
             }
         );
         if(it != cl_parameter_proxies_.end()) {
@@ -2222,10 +2225,10 @@ public:
 	  */
     template <typename parameter_type>
     GParsableI &registerFileParameter(
-        std::string const &optionName,
+        std::string const &option_name,
         parameter_type def_val,
-        std::function<void(parameter_type)> callBack,
-        bool isEssential = Gem::Common::VAR_IS_ESSENTIAL,
+        std::function<void(parameter_type)> call_back,
+        bool is_essential = Gem::Common::VAR_IS_ESSENTIAL,
         std::string const &comment = std::string()
     ) {
 #ifdef DEBUG
@@ -2233,36 +2236,40 @@ public:
             file_parameter_proxies_.begin(),
             file_parameter_proxies_.end(),
             [&](std::shared_ptr<GFileParsableI> const &candidate_ptr) {
-                return (candidate_ptr->GParsableI::optionName(0) == optionName);
+                return (candidate_ptr->GParsableI::optionName(0) == option_name);
             }
         );
         if(it != file_parameter_proxies_.end()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GParserBuilder::registerFileParameter(singleParm_ptr): Error!" << '\n'
-                << "Parameter " << optionName << " has already been registered" << '\n'
+                << "In GParserBuilder::registerFileParameter(single_parm_ptr): Error!" << '\n'
+                << "Parameter " << option_name << " has already been registered" << '\n'
             );
         }
 #endif /* DEBUG */
 
-        std::shared_ptr<GFileSingleParsableParameterT<parameter_type>> singleParm_ptr;
+        std::shared_ptr<GFileSingleParsableParameterT<parameter_type>> single_parm_ptr;
 
         if(comment.empty()) {
-            singleParm_ptr = std::make_shared<GFileSingleParsableParameterT<parameter_type>>(
-                optionName, def_val
+            single_parm_ptr = std::make_shared<GFileSingleParsableParameterT<parameter_type>>(
+                option_name,
+                def_val
             );
         }
         else {
-            singleParm_ptr = std::make_shared<GFileSingleParsableParameterT<parameter_type>>(
-                optionName, comment, isEssential, def_val
+            single_parm_ptr = std::make_shared<GFileSingleParsableParameterT<parameter_type>>(
+                option_name,
+                comment,
+                is_essential,
+                def_val
             );
         }
 
-        singleParm_ptr->registerCallBackFunction(callBack);
+        single_parm_ptr->registerCallBackFunction(call_back);
 
         // Add to the proxy store
-        file_parameter_proxies_.push_back(singleParm_ptr);
-        return *singleParm_ptr;
+        file_parameter_proxies_.push_back(single_parm_ptr);
+        return *single_parm_ptr;
     }
 
     /***************************************************************************/
@@ -2277,10 +2284,10 @@ public:
 	  */
     template <typename parameter_type>
     GParsableI &registerFileParameter(
-        std::string const &optionName,
+        std::string const &option_name,
         parameter_type &parameter,
         parameter_type def_val,
-        bool isEssential = Gem::Common::VAR_IS_ESSENTIAL,
+        bool is_essential = Gem::Common::VAR_IS_ESSENTIAL,
         std::string const &comment = std::string()
     ) {
 #ifdef DEBUG
@@ -2288,34 +2295,40 @@ public:
             file_parameter_proxies_.begin(),
             file_parameter_proxies_.end(),
             [&](std::shared_ptr<GFileParsableI> const &candidate_ptr) {
-                return (candidate_ptr->GParsableI::optionName(0) == optionName);
+                return (candidate_ptr->GParsableI::optionName(0) == option_name);
             }
         );
         if(it != file_parameter_proxies_.end()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GParserBuilder::registerFileParameter(refParm_ptr): Error!" << '\n'
-                << "Parameter " << optionName << " has already been registered" << '\n'
+                << "In GParserBuilder::registerFileParameter(ref_parm_ptr): Error!" << '\n'
+                << "Parameter " << option_name << " has already been registered" << '\n'
             );
         }
 #endif /* DEBUG */
 
-        std::shared_ptr<GFileReferenceParsableParameterT<parameter_type>> refParm_ptr;
+        std::shared_ptr<GFileReferenceParsableParameterT<parameter_type>> ref_parm_ptr;
 
         if(comment.empty()) {
-            refParm_ptr = std::make_shared<GFileReferenceParsableParameterT<parameter_type>>(
-                parameter, optionName, def_val
+            ref_parm_ptr = std::make_shared<GFileReferenceParsableParameterT<parameter_type>>(
+                parameter,
+                option_name,
+                def_val
             );
         }
         else {
-            refParm_ptr = std::make_shared<GFileReferenceParsableParameterT<parameter_type>>(
-                parameter, optionName, comment, isEssential, def_val
+            ref_parm_ptr = std::make_shared<GFileReferenceParsableParameterT<parameter_type>>(
+                parameter,
+                option_name,
+                comment,
+                is_essential,
+                def_val
             );
         }
 
         // Add to the proxy store
-        file_parameter_proxies_.push_back(refParm_ptr);
-        return *refParm_ptr;
+        file_parameter_proxies_.push_back(ref_parm_ptr);
+        return *ref_parm_ptr;
     }
 
     /***************************************************************************/
@@ -2326,13 +2339,13 @@ public:
 	  * overwritten as well.
 	  */
     template <typename parameter_type>
-    void resetFileParameterDefaults(std::string const &optionName, parameter_type def_val) {
+    void resetFileParameterDefaults(std::string const &option_name, parameter_type def_val) {
         // Retrieve the parameter object with this name
-        std::shared_ptr<GSingleParmT<parameter_type>> parmObject =
-            file_at<GSingleParmT<parameter_type>>(optionName);
+        std::shared_ptr<GSingleParmT<parameter_type>> parm_object =
+            file_at<GSingleParmT<parameter_type>>(option_name);
 
         // Check that we have indeed received an item
-        if(not parmObject) {
+        if(not parm_object) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GParameterObject::resetFileParameterDefaults(GSingleParmT): Error!"
@@ -2342,7 +2355,7 @@ public:
         }
 
         // Reset the default value
-        parmObject->resetDefault(def_val);
+        parm_object->resetDefault(def_val);
     }
 
     /////////////////////////////////////////////////////////////////////////////
@@ -2354,13 +2367,13 @@ public:
 	  */
     template <typename par_type1, typename par_type2>
     GParsableI &registerFileParameter(
-        std::string const &optionName1,
-        std::string const &optionName2,
+        std::string const &option_name1,
+        std::string const &option_name2,
         par_type1 def_val1,
         par_type2 def_val2,
-        std::function<void(par_type1, par_type2)> callBack,
+        std::function<void(par_type1, par_type2)> call_back,
         std::string const &combined_label,
-        bool isEssential = Gem::Common::VAR_IS_ESSENTIAL,
+        bool is_essential = Gem::Common::VAR_IS_ESSENTIAL,
         std::string const &comment1 = std::string(),
         std::string const &comment2 = std::string()
     ) {
@@ -2370,37 +2383,47 @@ public:
             file_parameter_proxies_.begin(),
             file_parameter_proxies_.end(),
             [&](std::shared_ptr<GFileParsableI> const &candidate_ptr) {
-                return (candidate_ptr->GParsableI::optionName(0) == optionName1);
+                return (candidate_ptr->GParsableI::optionName(0) == option_name1);
             }
         );
         if(it != file_parameter_proxies_.end()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GParserBuilder::registerFileParameter(combParm_ptr): Error!" << '\n'
-                << "Parameter " << optionName1 << " has already been registered" << '\n'
+                << "In GParserBuilder::registerFileParameter(comb_parm_ptr): Error!" << '\n'
+                << "Parameter " << option_name1 << " has already been registered" << '\n'
             );
         }
 #endif /* DEBUG */
 
-        std::shared_ptr<GFileCombinedParsableParameterT<par_type1, par_type2>> combParm_ptr;
+        std::shared_ptr<GFileCombinedParsableParameterT<par_type1, par_type2>> comb_parm_ptr;
 
         if(comment1.empty() && comment2.empty()) {
-            combParm_ptr = std::make_shared<GFileCombinedParsableParameterT<par_type1, par_type2>>(
-                optionName1, def_val1, optionName2, def_val2, combined_label
+            comb_parm_ptr = std::make_shared<GFileCombinedParsableParameterT<par_type1, par_type2>>(
+                option_name1,
+                def_val1,
+                option_name2,
+                def_val2,
+                combined_label
             );
         }
         else {
-            combParm_ptr = std::make_shared<GFileCombinedParsableParameterT<par_type1, par_type2>>(
-                optionName1, comment1, def_val1, optionName2, comment2, def_val2,
-                isEssential, combined_label
+            comb_parm_ptr = std::make_shared<GFileCombinedParsableParameterT<par_type1, par_type2>>(
+                option_name1,
+                comment1,
+                def_val1,
+                option_name2,
+                comment2,
+                def_val2,
+                is_essential,
+                combined_label
             );
         }
 
-        combParm_ptr->registerCallBackFunction(callBack);
+        comb_parm_ptr->registerCallBackFunction(call_back);
 
         // Add to the proxy store
-        file_parameter_proxies_.push_back(combParm_ptr);
-        return *combParm_ptr;
+        file_parameter_proxies_.push_back(comb_parm_ptr);
+        return *comb_parm_ptr;
     }
 
     /***************************************************************************/
@@ -2413,16 +2436,16 @@ public:
 	  */
     template <typename par_type1, typename par_type2>
     void resetFileParameterDefaults(
-        std::string const &optionName1,
+        std::string const &option_name1,
         par_type1 def_val1,
         par_type2 def_val2
     ) {
         // Retrieve the parameter object with this name
-        std::shared_ptr<GCombinedParT<par_type1, par_type2>> parmObject =
-            file_at<GCombinedParT<par_type1, par_type2>>(optionName1);
+        std::shared_ptr<GCombinedParT<par_type1, par_type2>> parm_object =
+            file_at<GCombinedParT<par_type1, par_type2>>(option_name1);
 
         // Check that we have indeed received an item
-        if(not parmObject) {
+        if(not parm_object) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GParameterObject::resetFileParameterDefaults(GCombinedParT): Error!"
@@ -2432,7 +2455,7 @@ public:
         }
 
         // Reset the default value
-        parmObject->resetDefault(def_val1, def_val2);
+        parm_object->resetDefault(def_val1, def_val2);
     }
 
     /////////////////////////////////////////////////////////////////////////////
@@ -2443,10 +2466,10 @@ public:
 	  */
     template <typename parameter_type>
     GParsableI &registerFileParameter(
-        std::string const &optionName,
+        std::string const &option_name,
         std::vector<parameter_type> const &def_val,
-        std::function<void(std::vector<parameter_type>)> callBack,
-        bool isEssential = Gem::Common::VAR_IS_ESSENTIAL,
+        std::function<void(std::vector<parameter_type>)> call_back,
+        bool is_essential = Gem::Common::VAR_IS_ESSENTIAL,
         std::string const &comment = std::string()
     ) {
 #ifdef DEBUG
@@ -2455,36 +2478,40 @@ public:
             file_parameter_proxies_.begin(),
             file_parameter_proxies_.end(),
             [&](std::shared_ptr<GFileParsableI> const &candidate_ptr) {
-                return (candidate_ptr->GParsableI::optionName(0) == optionName);
+                return (candidate_ptr->GParsableI::optionName(0) == option_name);
             }
         );
         if(it != file_parameter_proxies_.end()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GParserBuilder::registerFileParameter(vecParm_ptr): Error!" << '\n'
-                << "Parameter " << optionName << " has already been registered" << '\n'
+                << "In GParserBuilder::registerFileParameter(vec_parm_ptr): Error!" << '\n'
+                << "Parameter " << option_name << " has already been registered" << '\n'
             );
         }
 #endif /* DEBUG */
 
-        std::shared_ptr<GFileVectorParsableParameterT<parameter_type>> vecParm_ptr;
+        std::shared_ptr<GFileVectorParsableParameterT<parameter_type>> vec_parm_ptr;
 
         if(comment.empty()) {
-            vecParm_ptr = std::make_shared<GFileVectorParsableParameterT<parameter_type>>(
-                optionName, def_val
+            vec_parm_ptr = std::make_shared<GFileVectorParsableParameterT<parameter_type>>(
+                option_name,
+                def_val
             );
         }
         else {
-            vecParm_ptr = std::make_shared<GFileVectorParsableParameterT<parameter_type>>(
-                optionName, comment, def_val, isEssential
+            vec_parm_ptr = std::make_shared<GFileVectorParsableParameterT<parameter_type>>(
+                option_name,
+                comment,
+                def_val,
+                is_essential
             );
         }
 
-        vecParm_ptr->registerCallBackFunction(callBack);
+        vec_parm_ptr->registerCallBackFunction(call_back);
 
         // Add to the proxy store
-        file_parameter_proxies_.push_back(vecParm_ptr);
-        return *vecParm_ptr;
+        file_parameter_proxies_.push_back(vec_parm_ptr);
+        return *vec_parm_ptr;
     }
 
     /***************************************************************************/
@@ -2493,10 +2520,10 @@ public:
 	  */
     template <typename parameter_type>
     GParsableI &registerFileParameter(
-        std::string const &optionName,
+        std::string const &option_name,
         std::vector<parameter_type> &stored_reference,
         std::vector<parameter_type> const &def_val,
-        bool isEssential = Gem::Common::VAR_IS_ESSENTIAL,
+        bool is_essential = Gem::Common::VAR_IS_ESSENTIAL,
         std::string const &comment = std::string()
     ) {
 #ifdef DEBUG
@@ -2505,36 +2532,42 @@ public:
             file_parameter_proxies_.begin(),
             file_parameter_proxies_.end(),
             [&](std::shared_ptr<GFileParsableI> const &candidate_ptr) {
-                return (candidate_ptr->GParsableI::optionName(0) == optionName);
+                return (candidate_ptr->GParsableI::optionName(0) == option_name);
             }
         );
         if(it != file_parameter_proxies_.end()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GParserBuilder::registerFileParameter(vecRefParm_ptr): Error!" << '\n'
-                << "Parameter " << optionName << " has already been registered" << '\n'
+                << "In GParserBuilder::registerFileParameter(vec_ref_parm_ptr): Error!" << '\n'
+                << "Parameter " << option_name << " has already been registered" << '\n'
             );
         }
 #endif /* DEBUG */
 
-        std::shared_ptr<GFileVectorReferenceParsableParameterT<parameter_type>> vecRefParm_ptr;
+        std::shared_ptr<GFileVectorReferenceParsableParameterT<parameter_type>> vec_ref_parm_ptr;
 
         if(comment.empty()) {
-            vecRefParm_ptr =
+            vec_ref_parm_ptr =
                 std::make_shared<GFileVectorReferenceParsableParameterT<parameter_type>>(
-                    stored_reference, optionName, def_val
+                    stored_reference,
+                    option_name,
+                    def_val
                 );
         }
         else {
-            vecRefParm_ptr =
+            vec_ref_parm_ptr =
                 std::make_shared<GFileVectorReferenceParsableParameterT<parameter_type>>(
-                    stored_reference, optionName, comment, def_val, isEssential
+                    stored_reference,
+                    option_name,
+                    comment,
+                    def_val,
+                    is_essential
                 );
         }
 
         // Add to the proxy store
-        file_parameter_proxies_.push_back(vecRefParm_ptr);
-        return *vecRefParm_ptr;
+        file_parameter_proxies_.push_back(vec_ref_parm_ptr);
+        return *vec_ref_parm_ptr;
     }
 
     /***************************************************************************/
@@ -2547,15 +2580,15 @@ public:
 	  */
     template <typename parameter_type>
     void resetFileParameterDefaults(
-        std::string const &optionName,
+        std::string const &option_name,
         std::vector<parameter_type> const &def_val
     ) {
         // Retrieve the parameter object with this name
-        std::shared_ptr<GVectorParT<parameter_type>> parmObject =
-            file_at<GVectorParT<parameter_type>>(optionName);
+        std::shared_ptr<GVectorParT<parameter_type>> parm_object =
+            file_at<GVectorParT<parameter_type>>(option_name);
 
         // Check that we have indeed received an item
-        if(not parmObject) {
+        if(not parm_object) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GParameterObject::resetFileParameterDefaults(GVectorParT): Error!"
@@ -2565,7 +2598,7 @@ public:
         }
 
         // Reset the default value
-        parmObject->resetDefault(def_val);
+        parm_object->resetDefault(def_val);
     }
 
     /////////////////////////////////////////////////////////////////////////////
@@ -2577,10 +2610,10 @@ public:
 	  */
     template <typename parameter_type, std::size_t N>
     GParsableI &registerFileParameter(
-        std::string const &optionName,
+        std::string const &option_name,
         std::array<parameter_type, N> const &def_val,
-        std::function<void(std::array<parameter_type, N>)> callBack,
-        bool isEssential = Gem::Common::VAR_IS_ESSENTIAL,
+        std::function<void(std::array<parameter_type, N>)> call_back,
+        bool is_essential = Gem::Common::VAR_IS_ESSENTIAL,
         std::string const &comment = std::string()
     ) {
 #ifdef DEBUG
@@ -2589,37 +2622,41 @@ public:
             file_parameter_proxies_.begin(),
             file_parameter_proxies_.end(),
             [&](std::shared_ptr<GFileParsableI> const &candidate_ptr) {
-                return (candidate_ptr->GParsableI::optionName(0) == optionName);
+                return (candidate_ptr->GParsableI::optionName(0) == option_name);
             }
         );
         if(it != file_parameter_proxies_.end()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GParserBuilder::registerFileParameter(arrayParm_ptr): Error!" << '\n'
-                << "Parameter " << optionName << " has already been registered" << '\n'
+                << "In GParserBuilder::registerFileParameter(array_parm_ptr): Error!" << '\n'
+                << "Parameter " << option_name << " has already been registered" << '\n'
             );
         }
 #endif /* DEBUG */
 
-        std::shared_ptr<GFileArrayParsableParameterT<parameter_type, N>> arrayParm_ptr;
+        std::shared_ptr<GFileArrayParsableParameterT<parameter_type, N>> array_parm_ptr;
 
         if(comment.empty()) {
-            arrayParm_ptr = std::make_shared<GFileArrayParsableParameterT<parameter_type, N>>(
-                optionName, def_val
+            array_parm_ptr = std::make_shared<GFileArrayParsableParameterT<parameter_type, N>>(
+                option_name,
+                def_val
             );
         }
         else {
-            arrayParm_ptr = std::make_shared<GFileArrayParsableParameterT<parameter_type, N>>(
-                optionName, comment, def_val, isEssential
+            array_parm_ptr = std::make_shared<GFileArrayParsableParameterT<parameter_type, N>>(
+                option_name,
+                comment,
+                def_val,
+                is_essential
             );
         }
 
         // Register the call back function
-        arrayParm_ptr->registerCallBackFunction(callBack);
+        array_parm_ptr->registerCallBackFunction(call_back);
 
         // Add to the proxy store
-        file_parameter_proxies_.push_back(arrayParm_ptr);
-        return *arrayParm_ptr;
+        file_parameter_proxies_.push_back(array_parm_ptr);
+        return *array_parm_ptr;
     }
 
     /***************************************************************************/
@@ -2629,10 +2666,10 @@ public:
 	  */
     template <typename parameter_type, std::size_t N>
     GParsableI &registerFileParameter(
-        std::string const &optionName,
+        std::string const &option_name,
         std::array<parameter_type, N> &stored_reference,
         std::array<parameter_type, N> const &def_val,
-        bool isEssential = Gem::Common::VAR_IS_ESSENTIAL,
+        bool is_essential = Gem::Common::VAR_IS_ESSENTIAL,
         std::string const &comment = std::string()
     ) {
 #ifdef DEBUG
@@ -2641,35 +2678,42 @@ public:
             file_parameter_proxies_.begin(),
             file_parameter_proxies_.end(),
             [&](std::shared_ptr<GFileParsableI> const &candidate_ptr) {
-                return (candidate_ptr->GParsableI::optionName(0) == optionName);
+                return (candidate_ptr->GParsableI::optionName(0) == option_name);
             }
         );
         if(it != file_parameter_proxies_.end()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GParserBuilder::registerFileParameter(arrayRefParm_ptr): Error!" << '\n'
-                << "Parameter " << optionName << " has already been registered" << '\n'
+                << "In GParserBuilder::registerFileParameter(array_ref_parm_ptr): Error!" << '\n'
+                << "Parameter " << option_name << " has already been registered" << '\n'
             );
         }
 #endif /* DEBUG */
 
-        std::shared_ptr<GFileArrayReferenceParsableParameterT<parameter_type, N>> arrayRefParm_ptr;
+        std::shared_ptr<GFileArrayReferenceParsableParameterT<parameter_type, N>>
+            array_ref_parm_ptr;
         if(comment.empty()) {
-            arrayRefParm_ptr =
+            array_ref_parm_ptr =
                 std::make_shared<GFileArrayReferenceParsableParameterT<parameter_type, N>>(
-                    stored_reference, optionName, def_val
+                    stored_reference,
+                    option_name,
+                    def_val
                 );
         }
         else {
-            arrayRefParm_ptr =
+            array_ref_parm_ptr =
                 std::make_shared<GFileArrayReferenceParsableParameterT<parameter_type, N>>(
-                    stored_reference, optionName, comment, def_val, isEssential
+                    stored_reference,
+                    option_name,
+                    comment,
+                    def_val,
+                    is_essential
                 );
         }
 
         // Add to the proxy store
-        file_parameter_proxies_.push_back(arrayRefParm_ptr);
-        return *arrayRefParm_ptr;
+        file_parameter_proxies_.push_back(array_ref_parm_ptr);
+        return *array_ref_parm_ptr;
     }
 
     /***************************************************************************/
@@ -2683,15 +2727,15 @@ public:
 
     template <typename parameter_type, std::size_t N>
     void resetFileParameterDefaults(
-        std::string const &optionName,
+        std::string const &option_name,
         std::array<parameter_type, N> const &def_val
     ) {
         // Retrieve the parameter object with this name
-        std::shared_ptr<GArrayParT<parameter_type, N>> parmObject =
-            file_at<GArrayParT<parameter_type, N>>(optionName);
+        std::shared_ptr<GArrayParT<parameter_type, N>> parm_object =
+            file_at<GArrayParT<parameter_type, N>>(option_name);
 
         // Check that we have indeed received an item
-        if(not parmObject) {
+        if(not parm_object) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GParameterObject::resetFileParameterDefaults(GArrayParT): Error!"
@@ -2701,7 +2745,7 @@ public:
         }
 
         // Reset the default value
-        parmObject->resetDefault(def_val);
+        parm_object->resetDefault(def_val);
     }
 
     /////////////////////////////////////////////////////////////////////////////
@@ -2716,11 +2760,11 @@ public:
 	  */
     template <typename parameter_type>
     GParsableI &registerCLParameter(
-        std::string const &optionName,
+        std::string const &option_name,
         parameter_type &parameter,
         parameter_type const &def_val,
         std::string const &comment = std::string(),
-        bool implicitAllowed = GCL_IMPLICIT_NOT_ALLOWED,
+        bool implicit_allowed = GCL_IMPLICIT_NOT_ALLOWED,
         parameter_type impl_val = GDefaultValueT<parameter_type>::value()
     ) {
 #ifdef DEBUG
@@ -2729,35 +2773,44 @@ public:
             cl_parameter_proxies_.begin(),
             cl_parameter_proxies_.end(),
             [&](std::shared_ptr<GCLParsableI> const &candidate_ptr) {
-                return (candidate_ptr->GParsableI::optionName(0) == optionName);
+                return (candidate_ptr->GParsableI::optionName(0) == option_name);
             }
         );
 
         if(it != cl_parameter_proxies_.end()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In GParserBuilder::registerCLParameter(refParm_ptr): Error!" << '\n'
-                << "Parameter " << optionName << " has already been registered" << '\n'
+                << "In GParserBuilder::registerCLParameter(ref_parm_ptr): Error!" << '\n'
+                << "Parameter " << option_name << " has already been registered" << '\n'
             );
         }
 #endif /* DEBUG */
 
-        std::shared_ptr<GCLReferenceParsableParameterT<parameter_type>> refParm_ptr;
+        std::shared_ptr<GCLReferenceParsableParameterT<parameter_type>> ref_parm_ptr;
 
         if(comment.empty()) {
-            refParm_ptr = std::make_shared<GCLReferenceParsableParameterT<parameter_type>>(
-                parameter, optionName, def_val, implicitAllowed, impl_val
+            ref_parm_ptr = std::make_shared<GCLReferenceParsableParameterT<parameter_type>>(
+                parameter,
+                option_name,
+                def_val,
+                implicit_allowed,
+                impl_val
             );
         }
         else {
-            refParm_ptr = std::make_shared<GCLReferenceParsableParameterT<parameter_type>>(
-                parameter, optionName, comment, def_val, implicitAllowed, impl_val
+            ref_parm_ptr = std::make_shared<GCLReferenceParsableParameterT<parameter_type>>(
+                parameter,
+                option_name,
+                comment,
+                def_val,
+                implicit_allowed,
+                impl_val
             );
         }
 
         // Add to the proxy store
-        cl_parameter_proxies_.push_back(refParm_ptr);
-        return *refParm_ptr;
+        cl_parameter_proxies_.push_back(ref_parm_ptr);
+        return *ref_parm_ptr;
     }
 
 private:
