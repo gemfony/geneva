@@ -46,7 +46,7 @@
 #include "GOptimizationBenchmarkConfig.hpp"
 
 // The individual that should be optimized
-#include "geneva-individuals/GFunctionIndividual.hpp"
+#include "geneva/individuals/GFunctionIndividual.hpp"
 
 using namespace Gem::Geneva;
 using namespace Gem::Common;
@@ -82,7 +82,7 @@ int main(int argc, char **argv) {
     std::tuple<double, double> varBoundaries;
 
     // Create a factory for GFunctionIndividual objects
-    GFunctionIndividualFactory gfi("./config/GFunctionIndividual.json");
+    gind::GFunctionIndividualFactory gfi("./config/GFunctionIndividual.json");
 
     for(it = dimVec.begin(); it != dimVec.end(); ++it) {
         // Individual test results go here
@@ -103,7 +103,7 @@ int main(int argc, char **argv) {
             Go2 go_loop(argc, argv, "./config/Go2.json");
 
             // Retrieve an individual from the factory
-            std::shared_ptr<GFunctionIndividual> g = gfi.get_as<GFunctionIndividual>();
+            std::shared_ptr<gind::GFunctionIndividual> g = gfi.get_as<gind::GFunctionIndividual>();
 
 #ifdef DEBUG
             if(g->getParameterSize() != *it) {
@@ -130,15 +130,15 @@ int main(int argc, char **argv) {
             startTime = std::chrono::system_clock::now();
 
             // Perform the actual optimization and extract the best individual
-            std::shared_ptr<GFunctionIndividual> p =
-                go_loop.optimize()->getBestGlobalIndividual<GFunctionIndividual>();
+            std::shared_ptr<gind::GFunctionIndividual> p =
+                go_loop.optimize()->getBestGlobalIndividual<gind::GFunctionIndividual>();
 
             endTime = std::chrono::system_clock::now();
 
             // Extract the function name in the first test row
             if(it == dimVec.begin() && test == 0) {
-                functionName = GFunctionIndividual::getStringRepresentation(p->getDemoFunction());
-                functionCode = GFunctionIndividual::get2DROOTFunction(p->getDemoFunction());
+                functionName = gind::GFunctionIndividual::getStringRepresentation(p->getDemoFunction());
+                functionCode = gind::GFunctionIndividual::get2DROOTFunction(p->getDemoFunction());
                 varBoundaries = gfi.getVarBoundaries();
             }
 

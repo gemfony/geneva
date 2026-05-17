@@ -225,7 +225,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
     using namespace Gem::Geneva;
 
     // A few settings
-    const std::size_t n_items = 100;
+    constexpr std::size_t n_items = 100;
 
     // Call the parent classes' functions
     gpar::GParameterSet::specificTestsNoFailureExpected_GUnitTests_();
@@ -824,7 +824,7 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests_() {
     using namespace Gem::Geneva;
 
     // A few settings
-    const std::size_t n_items = 100;
+    constexpr std::size_t n_items = 100;
 
     // Call the parent classes' functions
     gpar::GParameterSet::specificTestsFailuresExpected_GUnitTests_();

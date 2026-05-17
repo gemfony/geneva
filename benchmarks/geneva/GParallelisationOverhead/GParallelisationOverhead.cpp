@@ -47,7 +47,7 @@
 #include "geneva/Go2.hpp"
 
 // The individual that should be optimized
-#include "geneva-individuals/GDelayIndividual.hpp"
+#include "geneva/individuals/GDelayIndividual.hpp"
 
 using namespace Gem::Geneva;
 using namespace Gem::Common;
@@ -63,7 +63,7 @@ using namespace Gem::Common;
  * @param ab The parameters a and b of the line best describing all measurements, so that f(x)=a+b*x
  */
 void startReferenceMeasurement(
-    GDelayIndividualFactory &gdif,
+    gind::GDelayIndividualFactory &gdif,
     std::tuple<double, double, double, double> &ab
 ) {
     std::cout << "Starting reference measurement" << std::endl;
@@ -84,8 +84,8 @@ void startReferenceMeasurement(
     std::uint32_t interMeasurementDelay = 1;
     std::uint32_t nMeasurementsPerIteration = 5;
     std::size_t iter = 0;
-    std::shared_ptr<GDelayIndividual> gdi_ptr;
-    while((gdi_ptr = gdif.get_as<GDelayIndividual>())) {
+    std::shared_ptr<gind::GDelayIndividual> gdi_ptr;
+    while((gdi_ptr = gdif.get_as<gind::GDelayIndividual>())) {
         if(0 ==
            iter) { // The first individual must already have been produced in order to access parsed data
             // Determine the amount of seconds the process should sleep in between two measurements
@@ -142,7 +142,7 @@ void startReferenceMeasurement(
  */
 void startParallelMeasurement(
     Go2 &go,
-    GDelayIndividualFactory &gdif,
+    gind::GDelayIndividualFactory &gdif,
     std::vector<std::tuple<double, double, double, double>> &parallelExecutionTimes
 ) {
     std::cout << "Starting parallel measurement" << std::endl;
@@ -156,8 +156,8 @@ void startParallelMeasurement(
     std::uint32_t interMeasurementDelay = 1;
     std::uint32_t nMeasurementsPerIteration = 5;
     std::size_t iter = 0;
-    std::shared_ptr<GDelayIndividual> gdi_ptr;
-    while((gdi_ptr = gdif.get_as<GDelayIndividual>())) {
+    std::shared_ptr<gind::GDelayIndividual> gdi_ptr;
+    while((gdi_ptr = gdif.get_as<gind::GDelayIndividual>())) {
         if(0 ==
            iter) { // The first individual must already have been produced in order to access parsed data
             // Determine the amount of seconds the process should sleep in between two measurements
@@ -259,9 +259,9 @@ int main(int argc, char **argv) {
 
     //---------------------------------------------------------------------
     // Create a factory for GDelayIndividualFactory objects for reference measurements
-    GDelayIndividualFactory gdif_ref("./config/GDelayIndividual-reference.json");
+    gind::GDelayIndividualFactory gdif_ref("./config/GDelayIndividual-reference.json");
     // ... and for parallel measurements
-    GDelayIndividualFactory gdif_par("./config/GDelayIndividual.json");
+    gind::GDelayIndividualFactory gdif_par("./config/GDelayIndividual.json");
 
     // Add default optimization algorithms to the parallel Go2 object
     go_parallel.registerDefaultAlgorithm("ea");

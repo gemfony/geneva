@@ -44,7 +44,7 @@
 #include <geneva/Go2.hpp>
 
 // The individual that should be optimized
-#include "geneva-individuals/GDelayIndividual.hpp"
+#include "geneva/individuals/GDelayIndividual.hpp"
 
 using namespace Gem::Geneva;
 namespace po = boost::program_options;
@@ -80,8 +80,8 @@ int main(int argc, char **argv) {
     //---------------------------------------------------------------------------
     // Create a factory for GFunctionIndividual objects and perform
     // any necessary initial work.
-    std::shared_ptr<GDelayIndividualFactory> gfi_ptr(
-        new GDelayIndividualFactory("./config/GDelayIndividual.json")
+    std::shared_ptr<gind::GDelayIndividualFactory> gfi_ptr(
+        new gind::GDelayIndividualFactory("./config/GDelayIndividual.json")
     );
 
     //---------------------------------------------------------------------------
@@ -115,6 +115,6 @@ int main(int argc, char **argv) {
     go.registerDefaultAlgorithm("ea");
 
     // Perform the actual optimization
-    std::shared_ptr<GDelayIndividual> p =
-        go.optimize()->getBestGlobalIndividual<GDelayIndividual>();
+    std::shared_ptr<gind::GDelayIndividual> p =
+        go.optimize()->getBestGlobalIndividual<gind::GDelayIndividual>();
 }

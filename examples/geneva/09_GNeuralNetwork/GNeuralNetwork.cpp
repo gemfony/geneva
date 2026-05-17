@@ -43,7 +43,7 @@
 #include <geneva/Go2.hpp>
 
 // The individual that should be optimized
-#include <geneva-individuals/GNeuralNetworkIndividual.hpp>
+#include <geneva/individuals/GNeuralNetworkIndividual.hpp>
 
 using namespace Gem::Geneva;
 using namespace Gem::Courtier;
@@ -58,7 +58,7 @@ namespace po = boost::program_options;
 int main(int argc, char **argv) {
     //---------------------------------------------------------------------------
     // Assemble additional command line options to be passed to Go2
-    trainingDataType tdt = Gem::Geneva::trainingDataType::TDTNONE;
+    gind::trainingDataType tdt = gind::trainingDataType::TDTNONE;
     std::string trainingDataFile = "./DataSets/hyper_sphere.dat";
     std::string architecture =
         "2-4-4-1"; // two input nodes, one output node, two hidden layers with 4 nodes each
@@ -70,7 +70,7 @@ int main(int argc, char **argv) {
     boost::program_options::options_description user_options;
     user_options.add_options() (
 		"traininDataType"
-		, po::value<trainingDataType>(&tdt)->default_value(Gem::Geneva::trainingDataType::TDTNONE)
+		, po::value<gind::trainingDataType>(&tdt)->default_value(gind::trainingDataType::TDTNONE)
 		, "Specify training data to be produced: HYPERCUBE=1, HYPERSPHERE=2, AXISCENTRIC=3, SINUS=4"
 	)(
 		"trainingDataFile"
@@ -100,8 +100,8 @@ int main(int argc, char **argv) {
 
     //---------------------------------------------------------------------------
     // Produce data sets if we have been asked to do so, then leave
-    if(tdt != Gem::Geneva::trainingDataType::TDTNONE) {
-        GNeuralNetworkIndividual::createNetworkData(tdt, trainingDataFile, architecture, nDataSets);
+    if(tdt != gind::trainingDataType::TDTNONE) {
+        gind::GNeuralNetworkIndividual::createNetworkData(tdt, trainingDataFile, architecture, nDataSets);
         return 0;
     }
     // Store the trainingDataFile in the global options, so they can be accessed by the individuals
@@ -118,16 +118,16 @@ int main(int argc, char **argv) {
 
     // Create a factory for GNeuralNetworkIndividual objects and perform
     // any necessary initial work.
-    std::shared_ptr<GNeuralNetworkIndividualFactory> gnn_ptr(
-        new GNeuralNetworkIndividualFactory("./config/GNeuralNetworkIndividual.json")
+    std::shared_ptr<gind::GNeuralNetworkIndividualFactory> gnn_ptr(
+        new gind::GNeuralNetworkIndividualFactory("./config/GNeuralNetworkIndividual.json")
     );
 
     // Add a content creator so Go2 can generate its own individuals, if necessary
     go.registerContentCreator(gnn_ptr);
 
     // Perform the actual optimization and retrieve the best individual
-    std::shared_ptr<GNeuralNetworkIndividual> p =
-        go.optimize()->getBestGlobalIndividual<GNeuralNetworkIndividual>();
+    std::shared_ptr<gind::GNeuralNetworkIndividual> p =
+        go.optimize()->getBestGlobalIndividual<gind::GNeuralNetworkIndividual>();
 
     //---------------------------------------------------------------------------
     // Output the result- and the visualization-program (if available)

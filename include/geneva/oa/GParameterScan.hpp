@@ -542,7 +542,7 @@ std::ostream &operator<<(std::ostream &os, const parSet &p_s);
 
 /******************************************************************************/
 /** @brief The default number of "best" individuals to be kept during the algorithm run */
-const std::size_t DEFAULTNMONITORINDS = 10;
+constexpr std::size_t DEFAULTNMONITORINDS = 10;
 
 /******************************************************************************/
 /**

@@ -50,8 +50,8 @@
 
 namespace Gem::Geneva::Parameters {
 
-const double DEFAULTLOWERINITBOUNDARYCOLLECTION = 0.;
-const double DEFAULTUPPERINITBOUNDARYCOLLECTION = 1.;
+constexpr double DEFAULTLOWERINITBOUNDARYCOLLECTION = 0.;
+constexpr double DEFAULTUPPERINITBOUNDARYCOLLECTION = 1.;
 
 /******************************************************************************/
 /**

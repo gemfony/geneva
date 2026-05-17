@@ -34,10 +34,10 @@
 #include <catch2/catch_template_test_macros.hpp>
 
 // All classes that will be tested in this file
-#include "geneva-individuals/GDelayIndividual.hpp"
-#include "geneva-individuals/GExternalEvaluatorIndividual.hpp"
-#include "geneva-individuals/GFunctionIndividual.hpp"
-#include "geneva-individuals/GTestIndividual3.hpp"
+#include "geneva/individuals/GDelayIndividual.hpp"
+#include "geneva/individuals/GExternalEvaluatorIndividual.hpp"
+#include "geneva/individuals/GFunctionIndividual.hpp"
+#include "geneva/GTestIndividual3.hpp"
 #include "geneva/par/GBooleanAdaptor.hpp"
 #include "geneva/par/GBooleanCollection.hpp"
 #include "geneva/par/GBooleanObject.hpp"
@@ -138,9 +138,9 @@ TEMPLATE_TEST_CASE(
     "[geneva][standard]",
     Gem::Tests::GTestIndividual1,
     // Gem::Tests::GTestIndividual3, // TODO: Add test for GTestIndividual3
-    GFunctionIndividual,
-    GDelayIndividual,
-    GExternalEvaluatorIndividual
+    gind::GFunctionIndividual,
+    gind::GDelayIndividual,
+    gind::GExternalEvaluatorIndividual
 ) {
     Gem::Tests::StandardTests_no_failure_expected<TestType>();
 }
@@ -214,9 +214,9 @@ TEMPLATE_TEST_CASE(
     "[geneva][standard][failures-expected]",
     Gem::Tests::GTestIndividual1,
     // Gem::Tests::GTestIndividual3, // TODO: Add test for GTestIndividual3
-    GFunctionIndividual,
-    GDelayIndividual,
-    GExternalEvaluatorIndividual
+    gind::GFunctionIndividual,
+    gind::GDelayIndividual,
+    gind::GExternalEvaluatorIndividual
 ) {
     Gem::Tests::StandardTests_failures_expected<TestType>();
 }

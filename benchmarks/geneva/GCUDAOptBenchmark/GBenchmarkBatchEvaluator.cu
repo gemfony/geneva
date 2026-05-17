@@ -24,7 +24,7 @@
  ********************************************************************************/
 
 #include "GBenchmarkBatchEvaluator.cuh"
-#include "geneva-individuals/GBenchmarkFunctions.hpp"
+#include "geneva/individuals/GBenchmarkFunctions.hpp"
 
 namespace Gem::Geneva {
 

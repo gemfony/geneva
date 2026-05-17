@@ -35,8 +35,8 @@ namespace Gem::Common {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 // Identifies test counter and success counter
-const std::size_t TESTCOUNTER = 0;
-const std::size_t SUCCESSCOUNTER = 1;
+constexpr std::size_t TESTCOUNTER = 0;
+constexpr std::size_t SUCCESSCOUNTER = 1;
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////

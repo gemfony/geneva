@@ -27,10 +27,10 @@
  *
  ********************************************************************************/
 
-#include "geneva-individuals/GDelayIndividual.hpp"
+#include "geneva/individuals/GDelayIndividual.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GDelayIndividual) // NOLINT
-namespace Gem::Geneva {
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Individuals::GDelayIndividual) // NOLINT
+namespace Gem::Geneva::Individuals {
 
 /******************************************************************************/
 /**
@@ -582,4 +582,4 @@ GDelayIndividualFactory::tupleToTime(const std::tuple<unsigned int, unsigned int
 
 /******************************************************************************/
 
-} /* namespace Gem::Geneva */
+} /* namespace Gem::Geneva::Individuals */

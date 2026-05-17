@@ -87,12 +87,12 @@ class GParserBuilder;
 
 /******************************************************************************/
 // Indicates whether help was requested using the -h or --help switch on the command line
-const bool GCL_HELP_REQUESTED = true;
-const bool GCL_NO_HELP_REQUESTED = false;
+constexpr bool GCL_HELP_REQUESTED = true;
+constexpr bool GCL_NO_HELP_REQUESTED = false;
 
 // Indicates whether implicit values are allowed (such as in --server vs. --server=true)
-const bool GCL_IMPLICIT_ALLOWED = true;
-const bool GCL_IMPLICIT_NOT_ALLOWED = false;
+constexpr bool GCL_IMPLICIT_ALLOWED = true;
+constexpr bool GCL_IMPLICIT_NOT_ALLOWED = false;
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////

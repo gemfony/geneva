@@ -57,7 +57,7 @@
 #include "geneva/par/GParameterSetMultiConstraint.hpp"
 #include "hap/GRandomT.hpp"
 
-namespace Gem::Geneva {
+namespace Gem::Geneva::Individuals {
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -248,11 +248,11 @@ enum class solverFunction : Gem::Common::ENUMBASETYPE {
 const solverFunction MAXDEMOFUNCTION = solverFunction::ZAKHAROV;
 
 // Make sure solverFunction can be streamed
-/** @brief Puts a Gem::Geneva::solverFunction into a stream. Needed also for boost::lexical_cast<> */
-std::ostream &operator<<(std::ostream &, const Gem::Geneva::solverFunction &);
+/** @brief Puts a Gem::Geneva::Individuals::solverFunction into a stream. Needed also for boost::lexical_cast<> */
+std::ostream &operator<<(std::ostream &, const Gem::Geneva::Individuals::solverFunction &);
 
-/** @brief Reads a Gem::Geneva::solverFunction from a stream. Needed also for boost::lexical_cast<> */
-std::istream &operator>>(std::istream &, Gem::Geneva::solverFunction &);
+/** @brief Reads a Gem::Geneva::Individuals::solverFunction from a stream. Needed also for boost::lexical_cast<> */
+std::istream &operator>>(std::istream &, Gem::Geneva::Individuals::solverFunction &);
 
 /**
  * This enum describes different parameter types that may be used to fill the object with data
@@ -266,11 +266,11 @@ enum class parameterType : Gem::Common::ENUMBASETYPE {
 };
 
 // Make sure parameterType can be streamed
-/** @brief Puts a Gem::Geneva::parameterType into a stream. Needed also for boost::lexical_cast<> */
-std::ostream &operator<<(std::ostream &, const Gem::Geneva::parameterType &);
+/** @brief Puts a Gem::Geneva::Individuals::parameterType into a stream. Needed also for boost::lexical_cast<> */
+std::ostream &operator<<(std::ostream &, const Gem::Geneva::Individuals::parameterType &);
 
-/** @brief Reads a Gem::Geneva::parameterType from a stream. Needed also for boost::lexical_cast<> */
-std::istream &operator>>(std::istream &, Gem::Geneva::parameterType &);
+/** @brief Reads a Gem::Geneva::Individuals::parameterType from a stream. Needed also for boost::lexical_cast<> */
+std::istream &operator>>(std::istream &, Gem::Geneva::Individuals::parameterType &);
 
 /**
  * This enum describes several ways of initializing the data collections
@@ -282,40 +282,40 @@ enum class initMode : Gem::Common::ENUMBASETYPE {
 };
 
 // Make sure initMode can be streamed
-/** @brief Puts a Gem::Geneva::initMode into a stream. Needed also for boost::lexical_cast<> */
-std::ostream &operator<<(std::ostream &, const Gem::Geneva::initMode &);
+/** @brief Puts a Gem::Geneva::Individuals::initMode into a stream. Needed also for boost::lexical_cast<> */
+std::ostream &operator<<(std::ostream &, const Gem::Geneva::Individuals::initMode &);
 
-/** @brief Reads a Gem::Geneva::initMode from a stream. Needed also for boost::lexical_cast<> */
-std::istream &operator>>(std::istream &, Gem::Geneva::initMode &);
+/** @brief Reads a Gem::Geneva::Individuals::initMode from a stream. Needed also for boost::lexical_cast<> */
+std::istream &operator>>(std::istream &, Gem::Geneva::Individuals::initMode &);
 
 /******************************************************************************/
 // A number of default settings for the factory
-const double GFI_DEF_ADPROB = 1.0;
-const double GFI_DEF_ADAPTADPROB = 0.1;
-const double GFI_DEF_MINADPROB = 0.05;
-const double GFI_DEF_MAXADPROB = 1.;
-const std::uint32_t GFI_DEF_ADAPTIONTHRESHOLD = 1;
-const bool GFI_DEF_USEBIGAUSSIAN = false;
-const double GFI_DEF_SIGMA1 = 0.025;
-const double GFI_DEF_SIGMASIGMA1 = 0.2;
-const double GFI_DEF_MINSIGMA1 = 0.001;
-const double GFI_DEF_MAXSIGMA1 = 1;
-const double GFI_DEF_SIGMA2 = 0.025;
-const double GFI_DEF_SIGMASIGMA2 = 0.2;
-const double GFI_DEF_MINSIGMA2 = 0.001;
-const double GFI_DEF_MAXSIGMA2 = 1;
-const double GFI_DEF_DELTA = 0.05;
-const double GFI_DEF_SIGMADELTA = 0.2;
-const double GFI_DEF_MINDELTA = 0.001;
-const double GFI_DEF_MAXDELTA = 1.;
-const std::size_t GFI_DEF_PARDIM = 2;
-const double GFI_DEF_MINVAR = -10.;
-const double GFI_DEF_MAXVAR = 10.;
-const bool GFI_DEF_USECONSTRAINEDDOUBLECOLLECTION = false;
+constexpr double GFI_DEF_ADPROB = 1.0;
+constexpr double GFI_DEF_ADAPTADPROB = 0.1;
+constexpr double GFI_DEF_MINADPROB = 0.05;
+constexpr double GFI_DEF_MAXADPROB = 1.;
+constexpr std::uint32_t GFI_DEF_ADAPTIONTHRESHOLD = 1;
+constexpr bool GFI_DEF_USEBIGAUSSIAN = false;
+constexpr double GFI_DEF_SIGMA1 = 0.025;
+constexpr double GFI_DEF_SIGMASIGMA1 = 0.2;
+constexpr double GFI_DEF_MINSIGMA1 = 0.001;
+constexpr double GFI_DEF_MAXSIGMA1 = 1;
+constexpr double GFI_DEF_SIGMA2 = 0.025;
+constexpr double GFI_DEF_SIGMASIGMA2 = 0.2;
+constexpr double GFI_DEF_MINSIGMA2 = 0.001;
+constexpr double GFI_DEF_MAXSIGMA2 = 1;
+constexpr double GFI_DEF_DELTA = 0.05;
+constexpr double GFI_DEF_SIGMADELTA = 0.2;
+constexpr double GFI_DEF_MINDELTA = 0.001;
+constexpr double GFI_DEF_MAXDELTA = 1.;
+constexpr std::size_t GFI_DEF_PARDIM = 2;
+constexpr double GFI_DEF_MINVAR = -10.;
+constexpr double GFI_DEF_MAXVAR = 10.;
+constexpr bool GFI_DEF_USECONSTRAINEDDOUBLECOLLECTION = false;
 const parameterType GFI_DEF_PARAMETERTYPE = parameterType::USEGCONSTRAINEDDOUBLEOBJECT;
 const initMode GFI_DEF_INITMODE = initMode::INITPERIMETER;
 const solverFunction GO_DEF_EVALFUNCTION = solverFunction::PARABOLA;
-const double GFI_DEF_CROSSOVERPROB = 0.5;
+constexpr double GFI_DEF_CROSSOVERPROB = 0.5;
 
 /******************************************************************************/
 // Forward declaration
@@ -719,10 +719,10 @@ private:
  * Provide an easy way to print the individual's content
  */
 std::ostream &
-operator<<(std::ostream &, const Gem::Geneva::GFunctionIndividual &);
+operator<<(std::ostream &, const Gem::Geneva::Individuals::GFunctionIndividual &);
 
 std::ostream &
-operator<<(std::ostream &, std::shared_ptr<Gem::Geneva::GFunctionIndividual>);
+operator<<(std::ostream &, std::shared_ptr<Gem::Geneva::Individuals::GFunctionIndividual>);
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -1130,10 +1130,10 @@ private:
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
-} /* namespace Gem::Geneva */
+} /* namespace Gem::Geneva::Individuals */
 
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GFunctionIndividual)        // NOLINT
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GFunctionIndividualFactory) // NOLINT
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GDoubleSumConstraint)       // NOLINT
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GDoubleSumGapConstraint)    // NOLINT
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GSphereConstraint)          // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::Individuals::GFunctionIndividual)        // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::Individuals::GFunctionIndividualFactory) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::Individuals::GDoubleSumConstraint)       // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::Individuals::GDoubleSumGapConstraint)    // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::Individuals::GSphereConstraint)          // NOLINT

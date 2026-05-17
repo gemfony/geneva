@@ -264,7 +264,7 @@ protected:
         Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
 
         // A few settings
-        const std::size_t n_items = 100;
+        constexpr std::size_t n_items = 100;
         const fp_type lowerinitboundary = -10.1;
         const fp_type upperinitboundary = 10.1;
         const fp_type fixedvalueinit = 1.;
@@ -552,7 +552,7 @@ protected:
     void specificTestsFailuresExpected_GUnitTests_() override {
 #ifdef GEM_TESTING
         // A few settings
-        const std::size_t n_items = 100;
+        constexpr std::size_t n_items = 100;
 
         // Call the parent classes' functions
         GNumCollectionT<fp_type>::specificTestsFailuresExpected_GUnitTests_();

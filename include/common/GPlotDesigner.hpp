@@ -206,20 +206,20 @@ std::istream &operator>>(std::istream &, tddropt &);
 
 //Some default values
 
-const std::uint32_t DEFCXDIM = 1024;
-const std::uint32_t DEFCYDIM = 768;
+constexpr std::uint32_t DEFCXDIM = 1024;
+constexpr std::uint32_t DEFCYDIM = 768;
 
-const std::uint32_t DEFCXDIV = 1;
-const std::uint32_t DEFCYDIV = 1;
+constexpr std::uint32_t DEFCXDIV = 1;
+constexpr std::uint32_t DEFCYDIV = 1;
 
-const std::size_t DEFNINDENTIONSPACES = 3;
+constexpr std::size_t DEFNINDENTIONSPACES = 3;
 
-const std::size_t DEFNSAMPLES = 100;
+constexpr std::size_t DEFNSAMPLES = 100;
 
 const graphPlotMode DEFPLOTMODE = graphPlotMode::CURVE;
 
-const double DEFMINMARKERSIZE = 0.001;
-const double DEFMAXMARKERSIZE = 1.;
+constexpr double DEFMINMARKERSIZE = 0.001;
+constexpr double DEFMAXMARKERSIZE = 1.;
 
 // Easier access to the header-, body- and footer-data
 using plotData = std::tuple<std::string, std::string, std::string>;
@@ -1835,7 +1835,7 @@ private:
 
     std::size_t n_bins_x_ = 0; ///< The number of bins in the histogram
 
-    double min_x_ = 0.; ///< The lower boundary of the histogram // TODO: Really "double" ?
+    double min_x_ = 0.; ///< The lower boundary of the histogram
     double max_x_ = 0.; ///< The upper boundary of the histogram
 };
 

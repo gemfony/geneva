@@ -247,12 +247,12 @@ void GParameterObjectCollection::fillWithObjects_() {
 void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
     // Some settings
-    const double lowerinitboundary = -10;
-    const double upperinitboundary = 10;
-    const double fixedvalueinit = 1.;
-    const double multvalue = 3.;
-    const double randlowerboundary = 2.;
-    const double randupperboundary = 10.;
+    constexpr double lowerinitboundary = -10;
+    constexpr double upperinitboundary = 10;
+    constexpr double fixedvalueinit = 1.;
+    constexpr double multvalue = 3.;
+    constexpr double randlowerboundary = 2.;
+    constexpr double randupperboundary = 10.;
 
     // A random generator
     Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;

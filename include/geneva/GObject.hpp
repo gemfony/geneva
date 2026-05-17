@@ -84,21 +84,21 @@
 // aliases for ease of use
 namespace pt = boost::property_tree;
 
-// Short aliases for the optimization-algorithm and interface namespaces.
-// Forward-declared here so the aliases are visible library-wide; the real
-// definitions live in the respective headers. `oa` is global (some headers
-// use it at global scope, e.g. GFactoryStore.hpp). `iface` is scoped inside
-// Gem::Geneva because a global `iface` would clash with the POSIX
-// `struct iface` from <net/if.h> (pulled in transitively via Boost.Asio).
+// Short namespace names. Forward-declared here so they are visible
+// library-wide; the real definitions live in the respective headers.
+// `oa`, `gpar` and `gind` are global aliases (some headers use `oa::`
+// at global scope, e.g. GFactoryStore.hpp). The interface namespace is
+// used by its full nested name `Gem::Geneva::Interface` (written as
+// `Interface::` from within Gem::Geneva); it has no short alias.
 namespace Gem::Geneva::OptimizationAlgorithms {}
 namespace Gem::Geneva::Interface {}
 namespace Gem::Geneva::Parameters {}
+namespace Gem::Geneva::Individuals {}
 namespace oa = Gem::Geneva::OptimizationAlgorithms;
 namespace gpar = Gem::Geneva::Parameters;
+namespace gind = Gem::Geneva::Individuals;
 
 namespace Gem::Geneva {
-
-namespace iface = Interface;
 
 /******************************************************************************/
 /**
@@ -121,7 +121,14 @@ class GObject : public Gem::Common::GCommonInterfaceT<GObject> {
 
 public:
     /***************************************************************************/
-    // Defaulted constructors, destructor and assignment operators -- rule of five
+    // Defaulted constructors, destructor and assignment operators -- rule of five.
+    // Design note: polymorphic Geneva types are deep-copied via the virtual
+    // clone_()/load_() mechanism, never via these value special members. Most
+    // descendants declare only `~X() override = default;`, which suppresses
+    // implicit move generation -- deliberate and accepted (concrete polymorphic
+    // types travel via shared_ptr + clone_, never value-moved on a hot path).
+    // The resulting cppcoreguidelines special-member / virtual-dtor warnings
+    // are a conscious design choice, not a defect to "fix" with mass move ops.
 
     GObject() = default;
     GObject(GObject const &cp) = default;

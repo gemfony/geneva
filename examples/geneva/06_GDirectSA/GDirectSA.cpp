@@ -58,7 +58,7 @@
 #include "geneva/GenevaInitializer.hpp"
 
 // The individual that should be optimized
-#include "geneva-individuals/GFunctionIndividual.hpp"
+#include "geneva/individuals/GFunctionIndividual.hpp"
 
 using namespace Gem::Geneva;
 using namespace Gem::Courtier;
@@ -301,12 +301,12 @@ int main(int argc, char **argv) {
 
     // Create a factory for GFunctionIndividual objects and perform
     // any necessary initial work.
-    GFunctionIndividualFactory gfi("./config/GFunctionIndividual.json");
+    gind::GFunctionIndividualFactory gfi("./config/GFunctionIndividual.json");
 
     // Create the first set of parent individuals. Initialization of parameters is done randomly.
-    std::vector<std::shared_ptr<GFunctionIndividual>> parentIndividuals;
+    std::vector<std::shared_ptr<gind::GFunctionIndividual>> parentIndividuals;
     for(std::size_t p = 0; p < nParents; p++) {
-        parentIndividuals.push_back(gfi.get_as<GFunctionIndividual>());
+        parentIndividuals.push_back(gfi.get_as<gind::GFunctionIndividual>());
     }
 
     /****************************************************************************/
@@ -383,7 +383,7 @@ int main(int argc, char **argv) {
     pop_ptr->optimize();
 
     // Retrieve the best individual found
-    auto p = pop_ptr->getBestGlobalIndividual<GFunctionIndividual>();
+    auto p = pop_ptr->getBestGlobalIndividual<gind::GFunctionIndividual>();
 
     // Here you can do something with the best individual ("p") found.
     // We simply print its content here, by means of an operator<< implemented

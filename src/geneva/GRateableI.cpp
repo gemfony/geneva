@@ -27,7 +27,7 @@
  *
  ********************************************************************************/
 
-#include "geneva/iface/GRateableI.hpp"
+#include "geneva/Interface/GRateableI.hpp"
 
 namespace Gem::Geneva::Interface {
 

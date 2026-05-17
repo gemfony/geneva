@@ -51,7 +51,7 @@
 #include <vector>
 
 // Geneva header files go here
-#include "geneva-individuals/GFunctionIndividual.hpp"
+#include "geneva/individuals/GFunctionIndividual.hpp"
 
 namespace Gem::Geneva {
 
@@ -62,7 +62,7 @@ namespace Gem::Geneva {
  * Instead of performing the evaluation on the CPU, the individual uses
  * a CUDA-capable GPU for the evaluation.
  */
-class GCUDAFitnessIndividual : public GFunctionIndividual {
+class GCUDAFitnessIndividual : public gind::GFunctionIndividual {
 public:
 private:
 };

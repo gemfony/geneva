@@ -52,7 +52,7 @@
 #include "geneva/oa/GGradientDescentFactory.hpp"
 #include "geneva/oa/GSimulatedAnnealingFactory.hpp"
 #include "geneva/oa/GSwarmAlgorithmFactory.hpp"
-#include "geneva-individuals/GFunctionIndividual.hpp"
+#include "geneva/individuals/GFunctionIndividual.hpp"
 
 // Local headers
 #include "GBenchmarkRunResult.hpp"
@@ -189,7 +189,7 @@ private:
     GBenchmarkRunResult runOne(
         const AlgorithmEntry &entry,
         std::uint32_t runIdx,
-        const std::shared_ptr<GFunctionIndividualFactory> &indFactory
+        const std::shared_ptr<gind::GFunctionIndividualFactory> &indFactory
     );
 
     std::shared_ptr<oa::GBase>

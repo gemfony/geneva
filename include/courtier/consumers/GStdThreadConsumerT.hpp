@@ -56,7 +56,7 @@
 namespace Gem::Courtier::Consumers {
 
 /** @brief The default number of threads per worker if the number of hardware threads cannot be determined */
-const std::uint16_t DEFAULTTHREADSPERWORKER = 4;
+constexpr std::uint16_t DEFAULTTHREADSPERWORKER = 4;
 
 /******************************************************************************/
 /**

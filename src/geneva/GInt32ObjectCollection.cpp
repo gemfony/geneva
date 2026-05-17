@@ -193,14 +193,14 @@ void GInt32ObjectCollection::specificTestsNoFailureExpected_GUnitTests_() {
     Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
 
     // Some settings
-    const std::size_t n_added_objects = 10;
-    const std::size_t n_tests = 100;
-    const double lowerinitboundary = -10;
-    const double upperinitboundary = 10;
-    const double fixedvalueinit = 1.;
-    const double multvalue = 3.;
-    const double randlowerboundary = 0.;
-    const double randupperboundary = 10.;
+    constexpr std::size_t n_added_objects = 10;
+    constexpr std::size_t n_tests = 100;
+    constexpr double lowerinitboundary = -10;
+    constexpr double upperinitboundary = 10;
+    constexpr double fixedvalueinit = 1.;
+    constexpr double multvalue = 3.;
+    constexpr double randlowerboundary = 0.;
+    constexpr double randupperboundary = 10.;
 
     // --------------------------------------------------------------------------
 

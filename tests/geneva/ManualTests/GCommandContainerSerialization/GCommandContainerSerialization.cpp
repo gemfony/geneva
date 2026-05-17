@@ -54,7 +54,7 @@
 
 // Geneva header files go here
 #include "courtier/GCommandContainerT.hpp"
-#include "geneva-individuals/GFunctionIndividual.hpp"
+#include "geneva/individuals/GFunctionIndividual.hpp"
 #include "hap/GRandomT.hpp"
 
 using namespace Gem::Geneva;
@@ -112,7 +112,7 @@ int main(int argc, char **argv) {
     //-----------------------------------------------------------------------------
     // Create a factory for GFunctionIndividual objects and perform
     // any necessary initial work.
-    GFunctionIndividualFactory gfi("./config/GFunctionIndividual.json");
+    gind::GFunctionIndividualFactory gfi("./config/GFunctionIndividual.json");
 
     // Loop the specified number of times
     for(std::size_t i = 0; i < nTests; i++) {
@@ -121,7 +121,7 @@ int main(int argc, char **argv) {
         }
 
         // Retrieve a new work item from the factory
-        auto fi_ptr = gfi.get_as<GFunctionIndividual>();
+        auto fi_ptr = gfi.get_as<gind::GFunctionIndividual>();
 
         // Randomly initialize the object
         fi_ptr->randomInit(activityMode::ALLPARAMETERS);

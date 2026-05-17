@@ -93,18 +93,18 @@ const consumerType DEFAULT_BROKER_MODE = consumerType::MULTITHREADED;
 /**
  * Global variables for failed transfers and connection attempts.
  */
-const std::uint32_t GASIOCONSUMERMAXSTALLS = 0; // infinite number of stalls
-const std::uint32_t GASIOCONSUMERMAXCONNECTIONATTEMPTS = 10;
-const unsigned short GCONSUMERDEFAULTPORT = 10000;
+constexpr std::uint32_t GASIOCONSUMERMAXSTALLS = 0; // infinite number of stalls
+constexpr std::uint32_t GASIOCONSUMERMAXCONNECTIONATTEMPTS = 10;
+constexpr unsigned short GCONSUMERDEFAULTPORT = 10000;
 const std::string GCONSUMERDEFAULTSERVER = "localhost"; // NOLINT
-const std::uint16_t GCONSUMERLISTENERTHREADS = 4;
+constexpr std::uint16_t GCONSUMERLISTENERTHREADS = 4;
 const Gem::Common::serializationMode GCONSUMERSERIALIZATIONMODE =
     Gem::Common::serializationMode::BINARY;
-const std::int32_t GASIOMAXOPENPINGS =
+constexpr std::int32_t GASIOMAXOPENPINGS =
     100; // The maximum number of pings without matching pong from the server
 const std::chrono::milliseconds GASIOPINGINTERVAL = std::chrono::milliseconds(1000); // NOLINT
-const std::size_t GBEASTCONSUMERPINGINTERVAL = 15;
-const std::size_t GBEASTMSTIMEOUT = 50;
+constexpr std::size_t GBEASTCONSUMERPINGINTERVAL = 15;
+constexpr std::size_t GBEASTMSTIMEOUT = 50;
 
 /******************************************************************************
  * Constants specifically for the GMPIConsumerT:
@@ -112,7 +112,7 @@ const std::size_t GBEASTMSTIMEOUT = 50;
 /**
  * The timer to use for retrieving new work items from the broker and putting processed work items into the broker
  */
-const std::size_t GMPICONSUMERBROKERACCESSBROKERTIMEOUT = 50;
+constexpr std::size_t GMPICONSUMERBROKERACCESSBROKERTIMEOUT = 50;
 /**
  * The size of the allocated buffer for receiving and sending messages between GMPIConsumerMasterNodeT and
  * GMPIConsumerWorkerNodeT. If messages exceed this size they can not be fully delivered and runtime errors will occur.
@@ -128,7 +128,7 @@ constexpr std::uint32_t GMPICONSUMERWORKERNODERETRYINTERVALUPPERBOUNDARYMSEC = 2
 
 /******************************************************************************/
 /** @brief The default number of threads for parallelization with threads */
-const std::uint16_t DEFAULTNSTDTHREADS = 2;
+constexpr std::uint16_t DEFAULTNSTDTHREADS = 2;
 // TODO: Unify with Geneva-namespace constant of same name
 
 /******************************************************************************/
@@ -167,21 +167,21 @@ enum class processingStatus : Gem::Common::ENUMBASETYPE {
  * of return times. This is calcultated as a multiple of the expected number of
  * return items from the first iteration.
  */
-const std::size_t NEXPECTEDITEMSMULTIPLE = 2;
+constexpr std::size_t NEXPECTEDITEMSMULTIPLE = 2;
 
 /******************************************************************************/
 /**
  * Indicates processed or unprocessed work items
  */
-const bool GBC_UNPROCESSED = true;
-const bool GBC_PROCESSED = false;
+constexpr bool GBC_UNPROCESSED = true;
+constexpr bool GBC_PROCESSED = false;
 
 /******************************************************************************/
 /**
  * Indicates whether a client wants to continue or terminate
  */
-const bool CLIENT_CONTINUE = true;
-const bool CLIENT_TERMINATE = false;
+constexpr bool CLIENT_CONTINUE = true;
+constexpr bool CLIENT_TERMINATE = false;
 
 /******************************************************************************/
 /**
@@ -192,7 +192,7 @@ const bool CLIENT_TERMINATE = false;
  * 16 digits describing the number of bytes to expect. This should however suffice for
  * every practical purpose.
  */
-const std::size_t COMMANDLENGTH = 36;
+constexpr std::size_t COMMANDLENGTH = 36;
 
 /******************************************************************************/
 /**
@@ -202,16 +202,16 @@ const std::size_t COMMANDLENGTH = 36;
  * Used in conjunction with optimization algorithms that
  * communicate via the "courtier" broker infrastructure.
  */
-const double DEFAULTMINBROKERWAITFACTOR = 1.;
-const double DEFAULTMAXBROKERWAITFACTOR = 10.;
+constexpr double DEFAULTMINBROKERWAITFACTOR = 1.;
+constexpr double DEFAULTMAXBROKERWAITFACTOR = 10.;
 const double DEFAULTBROKERWAITFACTOR = DEFAULTMAXBROKERWAITFACTOR;
-const double DEFAULTBROKERWAITFACTORINCREMENT = 0.1;
-const double DEFAULTMINPERCENTAGEOFTIMEOUT = 0.7;
+constexpr double DEFAULTBROKERWAITFACTORINCREMENT = 0.1;
+constexpr double DEFAULTMINPERCENTAGEOFTIMEOUT = 0.7;
 
-const double DEFAULTBROKERWAITFACTOR2 = 1.1; // For GBrokerExecutorT
-const double DEFAULTINITIALBROKERWAITFACTOR2 = 1.;
+constexpr double DEFAULTBROKERWAITFACTOR2 = 1.1; // For GBrokerExecutorT
+constexpr double DEFAULTINITIALBROKERWAITFACTOR2 = 1.;
 
-const std::uint16_t DEFAULTEXECUTORPARTIALRETURNPERCENTAGE =
+constexpr std::uint16_t DEFAULTEXECUTORPARTIALRETURNPERCENTAGE =
     0; ///< The minimum percentage of returned items in an iteration after which execution will continue
 
 /******************************************************************************/
@@ -246,7 +246,7 @@ enum class submissionReturnMode : Gem::Common::ENUMBASETYPE {
 };
 
 const submissionReturnMode DEFAULTSRM = submissionReturnMode::EXPECTFULLRETURN;
-const std::size_t DEFAULTMAXRESUBMISSIONS = 5;
+constexpr std::size_t DEFAULTMAXRESUBMISSIONS = 5;
 
 /******************************************************************************/
 /**

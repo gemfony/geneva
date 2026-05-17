@@ -42,7 +42,7 @@
 #include "geneva/Go2.hpp"
 
 // The individual that should be optimized
-#include "geneva-individuals/GFunctionIndividual.hpp"
+#include "geneva/individuals/GFunctionIndividual.hpp"
 
 using namespace Gem::Geneva;
 namespace po = boost::program_options;
@@ -136,15 +136,15 @@ int main(int argc, char **argv) {
     //---------------------------------------------------------------------------
     // Create a factory for GFunctionIndividual objects and perform
     // any necessary initial work.
-    std::shared_ptr<GFunctionIndividualFactory> gfi_ptr(
-        new GFunctionIndividualFactory("./config/GFunctionIndividual.json")
+    std::shared_ptr<gind::GFunctionIndividualFactory> gfi_ptr(
+        new gind::GFunctionIndividualFactory("./config/GFunctionIndividual.json")
     );
 
     if(initPerimeter) {
-        gfi_ptr->setIM(initMode::INITPERIMETER);
+        gfi_ptr->setIM(gind::initMode::INITPERIMETER);
     }
     else {
-        gfi_ptr->setIM(initMode::INITRANDOM);
+        gfi_ptr->setIM(gind::initMode::INITRANDOM);
     }
 
     //---------------------------------------------------------------------------
@@ -256,8 +256,8 @@ int main(int argc, char **argv) {
     go.registerDefaultAlgorithm("ea");
 
     // Perform the actual optimization
-    std::shared_ptr<GFunctionIndividual> p =
-        go.optimize()->getBestGlobalIndividual<GFunctionIndividual>();
+    std::shared_ptr<gind::GFunctionIndividual> p =
+        go.optimize()->getBestGlobalIndividual<gind::GFunctionIndividual>();
 
     // Here you can do something with the best individual ("p") found.
     // We simply print its content here, by means of an operator<< implemented

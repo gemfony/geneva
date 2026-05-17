@@ -91,6 +91,14 @@ SET ( OPTIMIZATIONSOURCES
     GPluggableOptimizationMonitors.cpp
     GPostProcessorT.cpp
 	GTestIndividual1.cpp
+	GTestIndividual2.cpp
+	GTestIndividual3.cpp
+	GDelayIndividual.cpp
+	GExternalEvaluatorIndividual.cpp
+	GFunctionIndividual.cpp
+	GLineFitIndividual.cpp
+	GMetaOptimizerIndividualT.cpp
+	GNeuralNetworkIndividual.cpp
 )
 
 # Add MPI specific files

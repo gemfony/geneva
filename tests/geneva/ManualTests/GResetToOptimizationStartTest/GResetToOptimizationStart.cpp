@@ -40,7 +40,7 @@
 #include "geneva/Go2.hpp"
 
 // The individual that should be optimized
-#include "geneva-individuals/GFunctionIndividual.hpp"
+#include "geneva/individuals/GFunctionIndividual.hpp"
 
 using namespace Gem::Geneva;
 
@@ -69,8 +69,8 @@ int main(int argc, char **argv) {
     //---------------------------------------------------------------------------
     // Create a factory for GFunctionIndividual objects and perform
     // any necessary initial work.
-    std::shared_ptr<GFunctionIndividualFactory> gfif_ptr(
-        new GFunctionIndividualFactory("./config/GFunctionIndividual.json")
+    std::shared_ptr<gind::GFunctionIndividualFactory> gfif_ptr(
+        new gind::GFunctionIndividualFactory("./config/GFunctionIndividual.json")
     );
 
     // Check that algorithms were indeed registered and fix, if this was not the case.
