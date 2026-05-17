@@ -67,7 +67,7 @@ class GNumFlipAdaptorT // NOLINT(cppcoreguidelines-special-member-functions)
     ///////////////////////////////////////////////////////////////////////
 
     // Make sure this class can only be instantiated with num_type as an arithmetic type
-    static_assert(std::is_arithmetic<num_type>::value, "num_type should be an arithmetic type");
+    static_assert(std::is_arithmetic_v<num_type>, "num_type should be an arithmetic type");
 
 public:
     /***************************************************************************/

@@ -154,19 +154,22 @@ TEST_CASE("GCommonInterfaceT::load(reference): copies remote state",
 
 TEST_CASE("GCommonInterfaceT::compare: EQUALITY on equal objects does not throw",
           "[common][interface][compare]") {
-    TestObj a(5), b(5);
+    TestObj a(5);
+    TestObj b(5);
     CHECK_NOTHROW(a.compare(b, expectation::EQUALITY, 0.));
 }
 
 TEST_CASE("GCommonInterfaceT::compare: INEQUALITY on different objects does not throw",
           "[common][interface][compare]") {
-    TestObj a(5), b(6);
+    TestObj a(5);
+    TestObj b(6);
     CHECK_NOTHROW(a.compare(b, expectation::INEQUALITY, 0.));
 }
 
 TEST_CASE("GCommonInterfaceT::compare: EQUALITY on different objects throws",
           "[common][interface][compare]") {
-    TestObj a(5), b(6);
+    TestObj a(5);
+    TestObj b(6);
     CHECK_THROWS_AS(a.compare(b, expectation::EQUALITY, 0.), g_expectation_violation);
 }
 

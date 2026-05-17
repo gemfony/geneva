@@ -69,14 +69,14 @@ void GSimpleContainer::print() const {
 /**
  * The standard constructor -- Initialization with an amount of random numbers
  *
- * @param nrnr The desired amount of random numbers to be added to the randomNumbers_ vector
+ * @param nrnr The desired amount of random numbers to be added to the random_numbers_ vector
  */
 GRandomNumberContainer::GRandomNumberContainer(const std::size_t &nrnr)
   : Gem::Courtier::GProcessingContainerT<GRandomNumberContainer, bool>(1) {
     Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
     std::uniform_real_distribution<double> uniform_real_distribution;
     for(std::size_t i = 0; i < nrnr; i++) {
-        randomNumbers_.push_back(uniform_real_distribution(gr));
+        random_numbers_.push_back(uniform_real_distribution(gr));
     }
 }
 
@@ -86,7 +86,7 @@ GRandomNumberContainer::GRandomNumberContainer(const std::size_t &nrnr)
  * random numbers.
  */
 void GRandomNumberContainer::process_(const std::vector<bool> &) {
-    std::sort(randomNumbers_.begin(), randomNumbers_.end());
+    std::sort(random_numbers_.begin(), random_numbers_.end());
 }
 
 /********************************************************************************************/
@@ -94,8 +94,8 @@ void GRandomNumberContainer::process_(const std::vector<bool> &) {
  * Prints out this functions random number container
  */
 void GRandomNumberContainer::print() const {
-    for(std::size_t i = 0; i < randomNumbers_.size(); i++) {
-        std::cout << i << ": " << randomNumbers_[i] << '\n';
+    for(std::size_t i = 0; i < random_numbers_.size(); i++) {
+        std::cout << i << ": " << random_numbers_[i] << '\n';
     }
 }
 

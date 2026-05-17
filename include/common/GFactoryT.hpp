@@ -211,9 +211,8 @@ public:
         if(p) {
             return Gem::Common::convertSmartPointer<prod_type, target_type>(p);
         }
-        else {
-            return std::shared_ptr<target_type>(); // Just return an empty pointer
-        }
+                    return std::shared_ptr<target_type>(); // Just return an empty pointer
+       
     }
 
     /***************************************************************************/

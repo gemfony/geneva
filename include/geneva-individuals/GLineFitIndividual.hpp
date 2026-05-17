@@ -77,7 +77,7 @@ class GLineFitIndividual // NOLINT(cppcoreguidelines-special-member-functions)
         using boost::serialization::make_nvp;
 
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GParameterSet) &
-            BOOST_SERIALIZATION_NVP(dataPoints_);
+            BOOST_SERIALIZATION_NVP(data_points_);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -131,7 +131,7 @@ private:
     GLineFitIndividual();
 
     std::vector<std::tuple<double, double>>
-        dataPoints_; ///< Holds the data points used for the fit procedure
+        data_points_; ///< Holds the data points used for the fit procedure
 };
 
 /******************************************************************************/
@@ -167,7 +167,7 @@ private:
     std::shared_ptr<gpar::GParameterSet>
     getObject_(Gem::Common::GParserBuilder &, const std::size_t &) override;
 
-    std::vector<std::tuple<double, double>> dataPoints_; ///< Holds data points for the fit
+    std::vector<std::tuple<double, double>> data_points_; ///< Holds data points for the fit
 };
 
 /******************************************************************************/

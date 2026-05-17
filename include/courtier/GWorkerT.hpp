@@ -57,10 +57,10 @@ class GWorkerT // NOLINT(cppcoreguidelines-special-member-functions)
 {
     // Make sure processable_type adheres to the GProcessingContainerT interface
     static_assert(
-        std::is_base_of<
+        std::is_base_of_v<
             Gem::Courtier::
                 GProcessingContainerT<processable_type, typename processable_type::result_type>,
-            processable_type>::value,
+            processable_type>,
         "GWorkerT: processable_type does not adhere to the "
         "GProcessingContainerT interface"
     );
@@ -127,9 +127,8 @@ public:
                 << "It appears as if the worker id was not set!" << '\n'
             );
         }
-        else {
-            return Gem::Common::narrow_cast<std::size_t>(worker_id_);
-        }
+                    return Gem::Common::narrow_cast<std::size_t>(worker_id_);
+       
     }
 
     /************************************************************************/
@@ -367,7 +366,7 @@ private:
          * Setting of the total number of workers
          */
     void setNWorkers(std::size_t nWorkers) {
-        nWorkers_ = nWorkers;
+        n_workers_ = nWorkers;
     }
 
     /************************************************************************/
@@ -375,7 +374,7 @@ private:
          * Retrieve the total number of workers
          */
     std::size_t getNWorkers() const {
-        return nWorkers_;
+        return n_workers_;
     }
 
 protected:
@@ -410,7 +409,7 @@ private:
 
     std::int32_t worker_id_ = -1; ///< The id of the thread running this class'es operator()
 
-    std::size_t nWorkers_{0}; ///< The amount of workers of this type
+    std::size_t n_workers_{0}; ///< The amount of workers of this type
 
     /************************************************************************/
 };

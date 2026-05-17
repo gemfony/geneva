@@ -121,7 +121,7 @@ public:
         }
 
         // Set a control-frame callback
-        f_when_control_frame_arrived = [this](frame_type frame_t, string_view s) {
+        f_when_control_frame_arrived_ = [this](frame_type frame_t, string_view s) {
             // Let the audience know what type of control frame we have received
             // if the user has requested it.
             if(this->verbose_control_frames_) {
@@ -141,7 +141,7 @@ public:
         };
 
         // Set the callback to be executed on every incoming control frame.
-        ws_.control_callback(f_when_control_frame_arrived);
+        ws_.control_callback(f_when_control_frame_arrived_);
     }
 
     //-------------------------------------------------------------------------
@@ -522,7 +522,7 @@ private:
 
     /** @brief Callback for control frames */
     std::function<void(boost::beast::websocket::frame_type, boost::beast::string_view)>
-        f_when_control_frame_arrived;
+        f_when_control_frame_arrived_;
 
     //-------------------------------------------------------------------------
     // Data
@@ -631,7 +631,7 @@ public:
         // async_start_ping() is executed from there.
 
         // Set a control-frame callback
-        f_when_control_frame_arrived = [this](frame_type frame_t, string_view s) {
+        f_when_control_frame_arrived_ = [this](frame_type frame_t, string_view s) {
             if(
 				 // We might have received a pong as an answer to our own ping,
 				 // or someone might be sending us pings. In either case the conection is alive.
@@ -664,7 +664,7 @@ public:
         };
 
         // Set the callback to be executed on every incoming control frame.
-        ws_.control_callback(f_when_control_frame_arrived);
+        ws_.control_callback(f_when_control_frame_arrived_);
 
         // ---------------------------------------------------
         // Set the auto_fragment option, so control frames are delivered timely
@@ -854,8 +854,7 @@ private:
             async_start_ping();
             return;
         }
-        else {
-            ping_state_ = beast_ping_state::CONNECTION_IS_STALE;
+                    ping_state_ = beast_ping_state::CONNECTION_IS_STALE;
 
             if(not this->check_server_stopped_()) {
                 // Either this is a stale connection or the SENDING_PING flag is still set
@@ -865,7 +864,7 @@ private:
                         << GLOGGING;
             }
             return;
-        }
+       
     }
 
     //-------------------------------------------------------------------------
@@ -955,7 +954,7 @@ private:
     //-------------------------------------------------------------------------
     /** @brief Callback for control frames */
     std::function<void(boost::beast::websocket::frame_type, boost::beast::string_view)>
-        f_when_control_frame_arrived;
+        f_when_control_frame_arrived_;
 
     //-------------------------------------------------------------------------
     /**
@@ -1197,7 +1196,7 @@ private:
             );
 
         hidden.add_options()
-			 ("beast_serializationMode", po::value<Gem::Common::serializationMode>(&serializationMode_)->default_value(GCONSUMERSERIALIZATIONMODE),
+			 ("beast_serializationMode", po::value<Gem::Common::serializationMode>(&serialization_mode_)->default_value(GCONSUMERSERIALIZATIONMODE),
 				 "\t[beast] Specifies whether serialization shall be done in TEXTMODE (0), XMLMODE (1) or BINARYMODE (2)")
 			 ("beast_nListenerThreads", po::value<std::size_t>(&n_listener_threads_)->default_value(n_listener_threads_),
 				 "\t[beast] The number of threads used to listen for incoming connections")
@@ -1255,15 +1254,14 @@ private:
                     << "No connections will be accepted. The server is not running" << '\n'
                 );
             }
-            else {
-                throw geneva_exception(
+                            throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
                     << "GWebsocketConsumerT<>::async_startProcessing_() / acceptor_.open did not "
                        "succeed."
                     << '\n'
                     << "No connections will be accepted. The server is not running" << '\n'
                 );
-            }
+           
         }
 
         // Bind to the server address
@@ -1362,7 +1360,7 @@ private:
                             << " active sessions" << '\n'
                             << GLOGGING;
                 },
-                serializationMode_,
+                serialization_mode_,
                 ping_interval_,
                 verbose_control_frames_
             )
@@ -1423,7 +1421,7 @@ private:
             new GWebsocketClientT<processable_type>(
                 server_,
                 port_,
-                serializationMode_,
+                serialization_mode_,
                 verbose_control_frames_
             )
         );
@@ -1472,7 +1470,7 @@ private:
     boost::asio::io_context io_context_{Gem::Common::narrow_cast<int>(n_listener_threads_)};
     boost::asio::ip::tcp::acceptor acceptor_{io_context_};
     boost::asio::ip::tcp::socket socket_{io_context_};
-    Gem::Common::serializationMode serializationMode_ =
+    Gem::Common::serializationMode serialization_mode_ =
         Gem::Common::serializationMode::BINARY; ///< Specifies the serialization mode
     std::vector<std::thread> io_context_thread_cnt_;
     std::atomic<std::size_t> n_active_sessions_{0};

@@ -39,7 +39,8 @@
 using namespace Gem::Geneva;
 
 int main(int argc, char **argv) {
-    GCanvas<8> gc, gc2;
+    GCanvas<8> gc;
+    GCanvas<8> gc2;
 
     // Check loading of the data from file
     gc.loadFromFile(std::filesystem::path("./pictures/ml.ppm"));

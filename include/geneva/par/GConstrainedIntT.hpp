@@ -78,7 +78,7 @@ class GConstrainedIntT // NOLINT(cppcoreguidelines-special-member-functions)
     ///////////////////////////////////////////////////////////////////////
 
     // Make sure this class can only be instantiated if int_type is a *signed* integer type
-    static_assert(std::is_signed<int_type>::value, "int_type should be a signed integer type");
+    static_assert(std::is_signed_v<int_type>, "int_type should be a signed integer type");
 
 public:
     /***************************************************************************/
@@ -174,8 +174,7 @@ public:
         if(val >= lower_boundary && val <= upper_boundary) {
             return val;
         }
-        else {
-            // The result
+                    // The result
             int_type mapping = int_type(0);
 
             // Find out the size of the value range. Note that both boundaries
@@ -216,7 +215,7 @@ public:
             }
 
             return mapping;
-        }
+       
     }
 
 protected:

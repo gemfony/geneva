@@ -629,8 +629,7 @@ void GEvolutionaryAlgorithm::fixAfterJobSubmission() {
             << "Population holds no data" << '\n'
         );
     }
-    else {
-        // Emit a warning if no children have returned
+            // Emit a warning if no children have returned
         if(this->size() <= this->getNParents()) {
             glogger << "In GEvolutionaryAlgorithm::fixAfterJobSubmission(): Warning!" << '\n'
                     << "No child individuals have returned" << '\n'
@@ -640,7 +639,7 @@ void GEvolutionaryAlgorithm::fixAfterJobSubmission() {
                     << '\n'
                     << GWARNING;
         }
-    }
+   
 
     // Check that the last individual is not unprocessed. This is a severe error.
     if(this->back()->is_due_for_processing()) {
@@ -986,7 +985,8 @@ void GEvolutionaryAlgorithm::sortMunu1pretainMode() {
   * http://en.wikipedia.org/wiki/Pareto_efficiency for a discussion of this topic.
   */
 void GEvolutionaryAlgorithm::sortMuPlusNuParetoMode() {
-    typename GEvolutionaryAlgorithm::iterator it, it_cmp;
+    typename GEvolutionaryAlgorithm::iterator it;
+    typename GEvolutionaryAlgorithm::iterator it_cmp;
 
     // We fall back to the single-eval MUPLUSNU mode if there is just one evaluation criterion
     it = this->begin();
@@ -1099,7 +1099,8 @@ void GEvolutionaryAlgorithm::sortMuPlusNuParetoMode() {
   * http://en.wikipedia.org/wiki/Pareto_efficiency for a discussion of this topic.
   */
 void GEvolutionaryAlgorithm::sortMuCommaNuParetoMode() {
-    typename GEvolutionaryAlgorithm::iterator it, it_cmp;
+    typename GEvolutionaryAlgorithm::iterator it;
+    typename GEvolutionaryAlgorithm::iterator it_cmp;
 
     // We fall back to the single-eval MUCOMMANU mode if there is just one evaluation criterion
     it = this->begin();

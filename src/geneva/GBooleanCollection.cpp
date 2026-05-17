@@ -223,9 +223,8 @@ bool GBooleanCollection::randomInit(
     if(not GParameterBase::randomInitializationBlocked() && this->modifiableAmMatchOrHandover(am)) {
         return randomInit_(probability, am, gr);
     }
-    else {
-        return false;
-    }
+            return false;
+   
 }
 
 /***************************************************************************/
@@ -430,7 +429,8 @@ void GBooleanCollection::specificTestsNoFailureExpected_GUnitTests_() {
     // A few settings
     const std::size_t n_items = 10000;
     const bool fixedvalueinit = true;
-    const double lowerbnd = 0.8, upperbnd = 1.2;
+    const double lowerbnd = 0.8;
+    const double upperbnd = 1.2;
 
     // Make sure we have an appropriate adaptor loaded when performing these tests
     bool adaptor_stored = false;

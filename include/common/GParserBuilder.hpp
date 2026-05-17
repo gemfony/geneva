@@ -283,10 +283,9 @@ public:
         if(parm_set_) {
             return parm_dummy_;
         }
-        else {
-            parm_set_ = true;
+                    parm_set_ = true;
             return parm_;
-        }
+       
     }
 
     /***************************************************************************/

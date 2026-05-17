@@ -88,7 +88,7 @@ class GParChild // NOLINT(cppcoreguidelines-special-member-functions)
             BOOST_SERIALIZATION_NVP(recombination_method_) &
             BOOST_SERIALIZATION_NVP(default_n_children_) & BOOST_SERIALIZATION_NVP(growth_rate_) &
             BOOST_SERIALIZATION_NVP(max_population_size_) &
-            BOOST_SERIALIZATION_NVP(amalgamationLikelihood_);
+            BOOST_SERIALIZATION_NVP(amalgamation_likelihood_);
     }
     /////////////////////////////////////////////////////////////////////////////
 
@@ -238,7 +238,7 @@ protected:
     std::size_t growth_rate_ = 0; ///< Specifies the amount of individuals added per iteration
     std::size_t max_population_size_ =
         0; ///< Specifies the maximum amount of individuals in the population if growth is enabled
-    double amalgamationLikelihood_ =
+    double amalgamation_likelihood_ =
         DEFAULTAMALGAMATIONLIKELIHOOD; ///< Likelihood for children to be created by cross-over rather than "just" duplication (note that they may nevertheless be mutated)
 
 private:

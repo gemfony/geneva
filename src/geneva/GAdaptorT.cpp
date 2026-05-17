@@ -52,15 +52,15 @@ std::size_t GAdaptorT<bool, double>::adapt(
     std::size_t n_adapted = 0;
 
     // Update the adaption probability, if requested by the user
-    if(adaptAdProb_ > (0.)) {
-        adProb_ *= std::exp(normal_distribution_(
+    if(adapt_ad_prob_ > (0.)) {
+        ad_prob_ *= std::exp(normal_distribution_(
             gr,
-            typename std::normal_distribution<double>::param_type(0., adaptAdProb_)
+            typename std::normal_distribution<double>::param_type(0., adapt_ad_prob_)
         ));
         Gem::Common::enforceRangeConstraint<double>(
-            adProb_,
-            minAdProb_,
-            maxAdProb_,
+            ad_prob_,
+            min_ad_prob_,
+            max_ad_prob_,
             "GAdaptorT<bool,double>::adapt()"
         );
     }
@@ -68,10 +68,10 @@ std::size_t GAdaptorT<bool, double>::adapt(
     bool dummy_val;
 
     if(adaptionMode::WITHPROBABILITY ==
-       adaptionMode_) { // The most likely case is indeterminate (means: "depends")
+       adaption_mode_) { // The most likely case is indeterminate (means: "depends")
         for(auto &&val : val_vec) {
             // A likelihood of adProb_ for adaption
-            if(weighted_bool_(gr, std::bernoulli_distribution::param_type(std::abs(adProb_)))) {
+            if(weighted_bool_(gr, std::bernoulli_distribution::param_type(std::abs(ad_prob_)))) {
                 dummy_val = val;
                 adaptAdaption(range, gr);
                 customAdaptions(
@@ -84,7 +84,7 @@ std::size_t GAdaptorT<bool, double>::adapt(
             }
         }
     }
-    else if(adaptionMode::ALWAYS == adaptionMode_) { // always adapt
+    else if(adaptionMode::ALWAYS == adaption_mode_) { // always adapt
         for(auto &&val : val_vec) {
             dummy_val = val;
             adaptAdaption(range, gr);
@@ -94,7 +94,7 @@ std::size_t GAdaptorT<bool, double>::adapt(
         }
     }
 
-    // No need to test for "adaptionMode_ == adaptionMode::NEVER" as no action is needed in this case
+    // No need to test for "adaption_mode_ == adaptionMode::NEVER" as no action is needed in this case
 
     return n_adapted;
 }

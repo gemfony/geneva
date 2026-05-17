@@ -32,6 +32,7 @@
  ********************************************************************************/
 
 #include <cub/cub.cuh>
+#include <numbers>
 #include "GImageIndividualEvaluator.hpp"
 
 namespace Gem::Geneva
@@ -123,7 +124,6 @@ namespace Gem::Geneva
                                 g_error_streamer(DO_LOG, time_and_place)
                                 << "In GImageCUDAWorker::init(): Error!" << std::endl
                                 << "Invalid image sizes: " << width_ << " / " << height_ << " / " << (targetImageData_vec_.size() * sizeof(float)) << std::endl
-                            );
                 );
             }
 #endif
@@ -304,12 +304,12 @@ namespace Gem::Geneva
         // The triangle scale is measured in fractions of the _smaller_ value of width and height
         const auto scale = static_cast<float>(width<height?width:height);
 
-        outX1 = center_x + tri.radius * cosf(tri.angle1 * 2.f * static_cast<float>(M_PI)) * scale;
-        outY1 = center_y + tri.radius * sinf(tri.angle1 * 2.f * static_cast<float>(M_PI)) * scale;
-        outX2 = center_x + tri.radius * cosf(tri.angle2 * 2.f * static_cast<float>(M_PI)) * scale;
-        outY2 = center_y + tri.radius * sinf(tri.angle2 * 2.f * static_cast<float>(M_PI)) * scale;
-        outX3 = center_x + tri.radius * cosf(tri.angle3 * 2.f * static_cast<float>(M_PI)) * scale;
-        outY3 = center_y + tri.radius * sinf(tri.angle3 * 2.f * static_cast<float>(M_PI)) * scale;
+        outX1 = center_x + tri.radius * cosf(tri.angle1 * 2.f * std::numbers::pi_v<float>) * scale;
+        outY1 = center_y + tri.radius * sinf(tri.angle1 * 2.f * std::numbers::pi_v<float>) * scale;
+        outX2 = center_x + tri.radius * cosf(tri.angle2 * 2.f * std::numbers::pi_v<float>) * scale;
+        outY2 = center_y + tri.radius * sinf(tri.angle2 * 2.f * std::numbers::pi_v<float>) * scale;
+        outX3 = center_x + tri.radius * cosf(tri.angle3 * 2.f * std::numbers::pi_v<float>) * scale;
+        outY3 = center_y + tri.radius * sinf(tri.angle3 * 2.f * std::numbers::pi_v<float>) * scale;
     }
 
     /**
@@ -458,9 +458,9 @@ namespace Gem::Geneva
         const auto y_f = static_cast<float>(y) + 0.5f;
 
         // Transfer the background color
-        float rOut = d_bgcolors[0],
-              gOut = d_bgcolors[1],
-              bOut = d_bgcolors[2];
+        float rOut = d_bgcolors[0];
+        float gOut = d_bgcolors[1];
+        float bOut = d_bgcolors[2];
 
         // Loop over all triangles
         for (int idx = 0; idx < nTriangles; idx++)

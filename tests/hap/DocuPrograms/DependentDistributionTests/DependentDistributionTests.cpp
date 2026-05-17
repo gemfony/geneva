@@ -60,7 +60,14 @@ const std::size_t NBINS = 100;
 std::uniform_real_distribution<double> uniform_real_distribution;
 
 int main(int argc, char **argv) {
-    double x1, x2, x3, x4, sum1, sum2, sum3, sum4;
+    double x1;
+    double x2;
+    double x3;
+    double x4;
+    double sum1;
+    double sum2;
+    double sum3;
+    double sum4;
 
     std::shared_ptr<GRandomT<RANDFLAVOURS::RANDOMPROXY>> gr_ptr(
         new GRandomT<RANDFLAVOURS::RANDOMPROXY>()

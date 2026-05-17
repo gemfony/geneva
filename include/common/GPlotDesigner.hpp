@@ -272,7 +272,7 @@ class GDecorator<dimensions::Dim2, coordinate_type>
     ///////////////////////////////////////////////////////////////////////
 
     static_assert(
-        std::is_arithmetic<coordinate_type>::value,
+        std::is_arithmetic_v<coordinate_type>,
         "coordinate_type should either be a floating-point or an integer type"
     );
 
@@ -476,9 +476,8 @@ public:
         if(marker_x < x_min || marker_x > x_max || marker_y < y_min || marker_y > y_max) {
             return this->decoratorData(indent, pos);
         }
-        else {
-            return {};
-        }
+                    return {};
+       
     }
 
 protected:
@@ -603,7 +602,7 @@ class GDecorator<dimensions::Dim3, coordinate_type>
     ///////////////////////////////////////////////////////////////////////
 
     static_assert(
-        std::is_arithmetic<coordinate_type>::value,
+        std::is_arithmetic_v<coordinate_type>,
         "coordinate_type should either be a floating-point or an integer type"
     );
 
@@ -753,7 +752,7 @@ class GDecoratorContainer<dimensions::Dim2, coordinate_type>
     ///////////////////////////////////////////////////////////////////////
 
     static_assert(
-        std::is_arithmetic<coordinate_type>::value,
+        std::is_arithmetic_v<coordinate_type>,
         "coordinate_type should either be a floating-point or an integer type"
     );
 
@@ -1021,7 +1020,7 @@ class GDecoratorContainer<dimensions::Dim3, coordinate_type>
     ///////////////////////////////////////////////////////////////////////
 
     static_assert(
-        std::is_arithmetic<coordinate_type>::value,
+        std::is_arithmetic_v<coordinate_type>,
         "coordinate_type should either be a floating-point or an integer type"
     );
 
@@ -1280,10 +1279,10 @@ class GBasePlotter : public GCommonInterfaceT<GBasePlotter> {
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar &BOOST_SERIALIZATION_NVP(drawingArguments_) & BOOST_SERIALIZATION_NVP(x_axis_label_) &
+        ar &BOOST_SERIALIZATION_NVP(drawing_arguments_) & BOOST_SERIALIZATION_NVP(x_axis_label_) &
             BOOST_SERIALIZATION_NVP(y_axis_label_) & BOOST_SERIALIZATION_NVP(z_axis_label_) &
-            BOOST_SERIALIZATION_NVP(plot_label_) & BOOST_SERIALIZATION_NVP(dsMarker_) &
-            BOOST_SERIALIZATION_NVP(secondaryPlotter_) & BOOST_SERIALIZATION_NVP(id_);
+            BOOST_SERIALIZATION_NVP(plot_label_) & BOOST_SERIALIZATION_NVP(ds_marker_) &
+            BOOST_SERIALIZATION_NVP(secondary_plotter_) & BOOST_SERIALIZATION_NVP(id_);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -1401,14 +1400,14 @@ protected:
 
     /***************************************************************************/
 
-    std::string drawingArguments_ = std::string(""); ///< Holds the drawing arguments for this plot
+    std::string drawing_arguments_ = std::string(""); ///< Holds the drawing arguments for this plot
 
     std::string x_axis_label_ = std::string("x"); ///< A label for the x-axis
     std::string y_axis_label_ = std::string("y"); ///< A label for the y-axis
     std::string z_axis_label_ = std::string("z"); ///< A label for the z-axis (if available)
 
     std::string plot_label_ = std::string(""); ///< A label to be assigned to the entire plot
-    std::string dsMarker_ = std::string(
+    std::string ds_marker_ = std::string(
         ""
     ); ///< A marker to make the origin of data structures clear in the output file
 
@@ -1423,7 +1422,7 @@ private:
 
     /***************************************************************************/
     /** @brief A list of plotters that should emit their data into the same canvas */
-    std::vector<std::shared_ptr<GBasePlotter>> secondaryPlotter_;
+    std::vector<std::shared_ptr<GBasePlotter>> secondary_plotter_;
 
     std::size_t id_ = 0; ///< The id of this object
 };
@@ -1662,8 +1661,8 @@ class GHistogram1D : public GDataCollector1T<double> {
         ar &make_nvp(
             "GDataCollector1T_double",
             boost::serialization::base_object<GDataCollector1T<double>>(*this)
-        ) & BOOST_SERIALIZATION_NVP(nBinsX_) &
-            BOOST_SERIALIZATION_NVP(minX_) & BOOST_SERIALIZATION_NVP(maxX_);
+        ) & BOOST_SERIALIZATION_NVP(n_bins_x_) &
+            BOOST_SERIALIZATION_NVP(min_x_) & BOOST_SERIALIZATION_NVP(max_x_);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -1739,10 +1738,10 @@ private:
     GHistogram1D() =
         default; ///< The default constructor -- intentionally private as it is only needed for (de-)serialization
 
-    std::size_t nBinsX_ = 10; ///< The number of bins in the histogram
+    std::size_t n_bins_x_ = 10; ///< The number of bins in the histogram
 
-    double minX_ = 0;     ///< The lower boundary of the histogram
-    double maxX_ = minX_; ///< The upper boundary of the histogram
+    double min_x_ = 0;     ///< The lower boundary of the histogram
+    double max_x_ = min_x_; ///< The upper boundary of the histogram
 };
 
 /******************************************************************************/
@@ -1760,8 +1759,8 @@ class GHistogram1I : public GDataCollector1T<std::int32_t> {
         ar &make_nvp(
             "GDataCollector1T_int32_t",
             boost::serialization::base_object<GDataCollector1T<std::int32_t>>(*this)
-        ) & BOOST_SERIALIZATION_NVP(nBinsX_) &
-            BOOST_SERIALIZATION_NVP(minX_) & BOOST_SERIALIZATION_NVP(maxX_);
+        ) & BOOST_SERIALIZATION_NVP(n_bins_x_) &
+            BOOST_SERIALIZATION_NVP(min_x_) & BOOST_SERIALIZATION_NVP(max_x_);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -1834,10 +1833,10 @@ private:
     GHistogram1I() =
         default; ///< The default constructor -- intentionally private as it is only needed for (de-)serialization
 
-    std::size_t nBinsX_ = 0; ///< The number of bins in the histogram
+    std::size_t n_bins_x_ = 0; ///< The number of bins in the histogram
 
-    double minX_ = 0.; ///< The lower boundary of the histogram // TODO: Really "double" ?
-    double maxX_ = 0.; ///< The upper boundary of the histogram
+    double min_x_ = 0.; ///< The lower boundary of the histogram // TODO: Really "double" ?
+    double max_x_ = 0.; ///< The upper boundary of the histogram
 };
 
 /******************************************************************************/
@@ -2468,10 +2467,10 @@ class GHistogram2D : public GDataCollector2T<double, double> {
         ar &make_nvp(
             "GDataCollector2T_double_double",
             boost::serialization::base_object<GDataCollector2T<double, double>>(*this)
-        ) & BOOST_SERIALIZATION_NVP(nBinsX_) &
-            BOOST_SERIALIZATION_NVP(nBinsY_) & BOOST_SERIALIZATION_NVP(minX_) &
-            BOOST_SERIALIZATION_NVP(maxX_) & BOOST_SERIALIZATION_NVP(minY_) &
-            BOOST_SERIALIZATION_NVP(maxY_) & BOOST_SERIALIZATION_NVP(dropt_);
+        ) & BOOST_SERIALIZATION_NVP(n_bins_x_) &
+            BOOST_SERIALIZATION_NVP(n_bins_y_) & BOOST_SERIALIZATION_NVP(min_x_) &
+            BOOST_SERIALIZATION_NVP(max_x_) & BOOST_SERIALIZATION_NVP(min_y_) &
+            BOOST_SERIALIZATION_NVP(max_y_) & BOOST_SERIALIZATION_NVP(dropt_);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -2568,13 +2567,13 @@ private:
     GHistogram2D() =
         default; ///< The default constructor -- intentionally private, as it is only needed for (de-)serialization
 
-    std::size_t nBinsX_ = 0; ///< The number of bins in the x-direction of the histogram
-    std::size_t nBinsY_ = 0; ///< The number of bins in the y-direction of the histogram
+    std::size_t n_bins_x_ = 0; ///< The number of bins in the x-direction of the histogram
+    std::size_t n_bins_y_ = 0; ///< The number of bins in the y-direction of the histogram
 
-    double minX_ = 0.; ///< The lower boundary of the histogram in x-direction
-    double maxX_ = 0.; ///< The upper boundary of the histogram in x-direction
-    double minY_ = 0.; ///< The lower boundary of the histogram in y-direction
-    double maxY_ = 0.; ///< The upper boundary of the histogram in y-direction
+    double min_x_ = 0.; ///< The lower boundary of the histogram in x-direction
+    double max_x_ = 0.; ///< The upper boundary of the histogram in x-direction
+    double min_y_ = 0.; ///< The lower boundary of the histogram in y-direction
+    double max_y_ = 0.; ///< The upper boundary of the histogram in y-direction
 
     tddropt dropt_ = tddropt::BOX; ///< The drawing options for 2-d histograms
 };
@@ -2596,8 +2595,8 @@ class GGraph2D : public GDataCollector2T<double, double> {
         ar &make_nvp(
             "GDataCollector2T_double_double",
             boost::serialization::base_object<GDataCollector2T<double, double>>(*this)
-        ) & BOOST_SERIALIZATION_NVP(pM_) &
-            BOOST_SERIALIZATION_NVP(drawArrows_);
+        ) & BOOST_SERIALIZATION_NVP(p_m_) &
+            BOOST_SERIALIZATION_NVP(draw_arrows_);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -2617,7 +2616,7 @@ public:
 
     /** @brief Adds arrows to the plots between consecutive points */
     void setDrawArrows(bool = true);
-    /** @brief Retrieves the value of the drawArrows_ variable */
+    /** @brief Retrieves the value of the draw_arrows_ variable */
     bool getDrawArrows() const;
 
     /** @brief Determines whether a scatter plot or a curve is created */
@@ -2662,9 +2661,9 @@ private:
     /** @brief Creates a deep clone of this object */
     GBasePlotter *clone_() const override;
 
-    graphPlotMode pM_ =
+    graphPlotMode p_m_ =
         DEFPLOTMODE;          ///< Whether to create scatter plots or a curve, connected by lines
-    bool drawArrows_ = false; ///< When set to true, arrows will be drawn between consecutive points
+    bool draw_arrows_ = false; ///< When set to true, arrows will be drawn between consecutive points
 };
 
 /******************************************************************************/
@@ -2683,7 +2682,7 @@ class GGraph2ED : public GDataCollector2ET<double, double> {
         ar &make_nvp(
             "GDataCollector2ET_double_double",
             boost::serialization::base_object<GDataCollector2ET<double, double>>(*this)
-        ) & BOOST_SERIALIZATION_NVP(pM_);
+        ) & BOOST_SERIALIZATION_NVP(p_m_);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -2743,7 +2742,7 @@ private:
     /** @brief Creates a deep clone of this object */
     GBasePlotter *clone_() const override;
 
-    graphPlotMode pM_ =
+    graphPlotMode p_m_ =
         DEFPLOTMODE; ///< Whether to create scatter plots or a curve, connected by lines
 };
 
@@ -3158,7 +3157,7 @@ class GGraph3D : public GDataCollector3T<double, double, double> {
         ar &make_nvp(
             "GDataCollector3T_3double",
             boost::serialization::base_object<GDataCollector3T<double, double, double>>(*this)
-        ) & BOOST_SERIALIZATION_NVP(drawLines_);
+        ) & BOOST_SERIALIZATION_NVP(draw_lines_);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -3178,7 +3177,7 @@ public:
 
     /** @brief Adds lines to the plots between consecutive points */
     void setDrawLines(bool = true);
-    /** @brief Retrieves the value of the drawLines_ variable */
+    /** @brief Retrieves the value of the draw_lines_ variable */
     bool getDrawLines() const;
 
     /** @brief Retrieves a unique name for this plotter */
@@ -3218,7 +3217,7 @@ private:
     /** @brief Creates a deep clone of this object */
     GBasePlotter *clone_() const override;
 
-    bool drawLines_ = false; ///< When set to true, lines will be drawn between consecutive points
+    bool draw_lines_ = false; ///< When set to true, lines will be drawn between consecutive points
 };
 
 /******************************************************************************/
@@ -3713,9 +3712,9 @@ class GGraph4D : public GDataCollector4T<double, double, double, double> {
             boost::serialization::base_object<GDataCollector4T<double, double, double, double>>(
                 *this
             )
-        ) & BOOST_SERIALIZATION_NVP(minMarkerSize_) &
-            BOOST_SERIALIZATION_NVP(maxMarkerSize_) & BOOST_SERIALIZATION_NVP(smallWLargeMarker_) &
-            BOOST_SERIALIZATION_NVP(nBest_);
+        ) & BOOST_SERIALIZATION_NVP(min_marker_size_) &
+            BOOST_SERIALIZATION_NVP(max_marker_size_) & BOOST_SERIALIZATION_NVP(small_w_large_marker_) &
+            BOOST_SERIALIZATION_NVP(n_best_);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -3790,12 +3789,12 @@ private:
     /** @brief Creates a deep clone of this object */
     GBasePlotter *clone_() const override;
 
-    double minMarkerSize_ = DEFMINMARKERSIZE; ///< The minimum allowed size of the marker
-    double maxMarkerSize_ = DEFMAXMARKERSIZE; ///< The maximum allowed size of the marker
+    double min_marker_size_ = DEFMINMARKERSIZE; ///< The minimum allowed size of the marker
+    double max_marker_size_ = DEFMAXMARKERSIZE; ///< The maximum allowed size of the marker
 
-    bool smallWLargeMarker_ = true; ///< Indicates whether a small w value yields a large marker
+    bool small_w_large_marker_ = true; ///< Indicates whether a small w value yields a large marker
 
-    std::size_t nBest_ = 0; ///< Determines the number of items the class should show
+    std::size_t n_best_ = 0; ///< Determines the number of items the class should show
 };
 
 /******************************************************************************/
@@ -3814,8 +3813,8 @@ class GFunctionPlotter1D : public GBasePlotter {
         using boost::serialization::make_nvp;
 
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBasePlotter) &
-            BOOST_SERIALIZATION_NVP(functionDescription_) & BOOST_SERIALIZATION_NVP(xExtremes_) &
-            BOOST_SERIALIZATION_NVP(nSamplesX_);
+            BOOST_SERIALIZATION_NVP(function_description_) & BOOST_SERIALIZATION_NVP(x_extremes_) &
+            BOOST_SERIALIZATION_NVP(n_samples_x_);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -3884,10 +3883,10 @@ private:
     GFunctionPlotter1D() =
         default; ///< The default constructor. Intentionally private, as it is only needed for (de-)serialization
 
-    std::string functionDescription_;
+    std::string function_description_;
 
-    std::tuple<double, double> xExtremes_; ///< Minimum and maximum values for the x-axis
-    std::size_t nSamplesX_ = DEFNSAMPLES;  ///< The number of sampling points of the function
+    std::tuple<double, double> x_extremes_; ///< Minimum and maximum values for the x-axis
+    std::size_t n_samples_x_ = DEFNSAMPLES;  ///< The number of sampling points of the function
 };
 
 /******************************************************************************/
@@ -3903,9 +3902,9 @@ class GFunctionPlotter2D : public GBasePlotter {
         using boost::serialization::make_nvp;
 
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBasePlotter) &
-            BOOST_SERIALIZATION_NVP(functionDescription_) & BOOST_SERIALIZATION_NVP(xExtremes_) &
-            BOOST_SERIALIZATION_NVP(yExtremes_) & BOOST_SERIALIZATION_NVP(nSamplesX_) &
-            BOOST_SERIALIZATION_NVP(nSamplesY_);
+            BOOST_SERIALIZATION_NVP(function_description_) & BOOST_SERIALIZATION_NVP(x_extremes_) &
+            BOOST_SERIALIZATION_NVP(y_extremes_) & BOOST_SERIALIZATION_NVP(n_samples_x_) &
+            BOOST_SERIALIZATION_NVP(n_samples_y_);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -3980,13 +3979,13 @@ private:
     GFunctionPlotter2D() =
         default; ///< The default constructor -- intentionally private, as it is only needed for (de-)serialization
 
-    std::string functionDescription_;
+    std::string function_description_;
 
-    std::tuple<double, double> xExtremes_; ///< Minimum and maximum values for the x-axis
-    std::tuple<double, double> yExtremes_; ///< Minimum and maximum values for the y-axis
+    std::tuple<double, double> x_extremes_; ///< Minimum and maximum values for the x-axis
+    std::tuple<double, double> y_extremes_; ///< Minimum and maximum values for the y-axis
 
-    std::size_t nSamplesX_ = DEFNSAMPLES; ///< The number of sampling points of the function
-    std::size_t nSamplesY_ = DEFNSAMPLES; ///< The number of sampling points of the function
+    std::size_t n_samples_x_ = DEFNSAMPLES; ///< The number of sampling points of the function
+    std::size_t n_samples_y_ = DEFNSAMPLES; ///< The number of sampling points of the function
 };
 
 /******************************************************************************/
@@ -4053,7 +4052,7 @@ public:
 
     /** @brief Allows to add a "Print" command to the end of the script so that picture files are created */
     void setAddPrintCommand(bool);
-    /** @brief Allows to retrieve the current value of the addPrintCommand_ variable */
+    /** @brief Allows to retrieve the current value of the add_print_command_ variable */
     bool getAddPrintCommand() const;
 
     /** @brief Resets the plotters */

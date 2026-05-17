@@ -84,7 +84,7 @@ constexpr std::size_t NM_CONTRACT = 2;
  *   [ v_0 ... v_n | reflect | expand | contract ]
  *
  * i.e. n+1 vertices plus 3 speculative trial slots, giving a block size of
- * nFPParms + 4. nSimplices_ such blocks are run simultaneously (analogous to
+ * nFPParms + 4. n_simplices_ such blocks are run simultaneously (analogous to
  * the multiple starting points of the gradient descents).
  *
  * Because Geneva evaluates a fixed population per iteration through the
@@ -109,10 +109,10 @@ class GNelderMead // NOLINT(cppcoreguidelines-special-member-functions)
         ar &make_nvp(
             "GBase",
             boost::serialization::base_object<GBase>(*this)
-        ) & BOOST_SERIALIZATION_NVP(nSimplices_) & BOOST_SERIALIZATION_NVP(nFPParmsFirst_) &
+        ) & BOOST_SERIALIZATION_NVP(n_simplices_) & BOOST_SERIALIZATION_NVP(n_fp_parms_first_) &
             BOOST_SERIALIZATION_NVP(alpha_) & BOOST_SERIALIZATION_NVP(gamma_) &
             BOOST_SERIALIZATION_NVP(rho_) & BOOST_SERIALIZATION_NVP(sigma_) &
-            BOOST_SERIALIZATION_NVP(initialEdge_);
+            BOOST_SERIALIZATION_NVP(initial_edge_);
     }
 
     ///////////////////////////////////////////////////////////////////////
@@ -246,22 +246,22 @@ private:
     /***************************************************************************/
     // Data
 
-    std::size_t nSimplices_ =
+    std::size_t n_simplices_ =
         DEFAULTNMSIMPLICES;         ///< The number of simultaneous simplices
-    std::size_t nFPParmsFirst_ = 0; ///< The amount of active floating point values per individual
+    std::size_t n_fp_parms_first_ = 0; ///< The amount of active floating point values per individual
 
     double alpha_ = DEFAULTNMALPHA;             ///< Reflection coefficient
     double gamma_ = DEFAULTNMGAMMA;             ///< Expansion coefficient
     double rho_ = DEFAULTNMRHO;                 ///< Contraction coefficient
     double sigma_ = DEFAULTNMSIGMA;             ///< Shrink coefficient
-    double initialEdge_ = DEFAULTNMINITIALEDGE; ///< Initial simplex edge (fraction of range)
+    double initial_edge_ = DEFAULTNMINITIALEDGE; ///< Initial simplex edge (fraction of range)
 
     std::vector<double>
-        dblLowerParameterBoundaries_; ///< Lower boundaries of double parameters; extracted in init() (transient)
+        dbl_lower_parameter_boundaries_; ///< Lower boundaries of double parameters; extracted in init() (transient)
     std::vector<double>
-        dblUpperParameterBoundaries_; ///< Upper boundaries of double parameters; extracted in init() (transient)
+        dbl_upper_parameter_boundaries_; ///< Upper boundaries of double parameters; extracted in init() (transient)
 
-    bool trialsPending_ =
+    bool trials_pending_ =
         false; ///< True once real trial points have been proposed (transient; gates the first decision)
 };
 

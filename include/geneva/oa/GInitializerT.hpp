@@ -60,8 +60,7 @@ template <typename oaf_type>
 class GInitializerT {
     // Make sure oaf_type has the expected type
     static_assert(
-        std::is_base_of<GOAFactoryT<GBase>, oaf_type>::
-            value,
+        std::is_base_of_v<GOAFactoryT<GBase>, oaf_type>,
         "GOAFactoryT<GBase> is not a base of oaf_type"
     );
 

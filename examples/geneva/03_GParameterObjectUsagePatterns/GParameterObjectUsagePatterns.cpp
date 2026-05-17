@@ -160,7 +160,8 @@ int main(int argc, char **argv) {
         // Assignment of an adaptor
         double sigma = 0.1;                   // "step width" of gauss mutation
         double sigmaSigma = 0.8;              // adaption of sigma
-        double minSigma = 0., maxSigma = 0.5; // allowed value range of sigma
+        double minSigma = 0.;
+        double maxSigma = 0.5; // allowed value range of sigma
         double adProb =
             0.05; // 5% probability for the adaption of this object when adaptor is called
         std::shared_ptr<gpar::GDoubleGaussAdaptor> gdga_ptr(
@@ -200,7 +201,8 @@ int main(int argc, char **argv) {
         // Assignment of an adaptor (same as for GDoubleObject)
         double sigma = 0.1;                   // "step width" of gauss mutation
         double sigmaSigma = 0.8;              // adaption of sigma
-        double minSigma = 0., maxSigma = 0.5; // allowed value range of sigma
+        double minSigma = 0.;
+        double maxSigma = 0.5; // allowed value range of sigma
         double adProb =
             0.05; // 5% probability for the adaption of this object when adaptor is called
         std::shared_ptr<gpar::GDoubleGaussAdaptor> gdga_ptr(
@@ -329,7 +331,8 @@ int main(int argc, char **argv) {
         // Adding an adaptor
         double sigma = 0.1;                   // "step width" of gauss mutation
         double sigmaSigma = 0.8;              // adaption of sigma
-        double minSigma = 0., maxSigma = 0.5; // allowed value range of sigma
+        double minSigma = 0.;
+        double maxSigma = 0.5; // allowed value range of sigma
         // 5% probability for the adaption of this object when adaptor is called
         double adProb = 0.05;
         std::shared_ptr<gpar::GDoubleGaussAdaptor> gdga_ptr(
@@ -373,7 +376,8 @@ int main(int argc, char **argv) {
         // Adding an adaptor
         double sigma = 0.1;                   // "step width" of gauss mutation
         double sigmaSigma = 0.8;              // adaption of sigma
-        double minSigma = 0., maxSigma = 0.5; // allowed value range of sigma
+        double minSigma = 0.;
+        double maxSigma = 0.5; // allowed value range of sigma
         // 5% probability for the adaption of this object when adaptor is called
         double adProb = 0.05;
         std::shared_ptr<gpar::GDoubleGaussAdaptor> gdga_ptr(
@@ -802,7 +806,10 @@ int main(int argc, char **argv) {
         double adProb = 0.05;         // A 5% probability that adaption actually takes place
         gpar::GDoubleGaussAdaptor a3(0.05); // Construction with adaption probability
 
-        double sigma = 0.2, sigmaSigma = 0.1, minSigma = 0., maxSigma = 1.;
+        double sigma = 0.2;
+        double sigmaSigma = 0.1;
+        double minSigma = 0.;
+        double maxSigma = 1.;
         gpar::GDoubleGaussAdaptor a4(
             sigma,
             sigmaSigma,
@@ -887,7 +894,8 @@ int main(int argc, char **argv) {
         // Set/get sigma1 and sigma2
         a1.setSigma1(0.1);
         a1.setSigma2(0.2);
-        double sigma1 = a1.getSigma1(), sigma2 = a1.getSigma2();
+        double sigma1 = a1.getSigma1();
+        double sigma2 = a1.getSigma2();
 
         // Set/get the allowed value range of sigma1 and sigma2
         a1.setSigma1Range(0.001, 2.);
@@ -962,7 +970,10 @@ int main(int argc, char **argv) {
         double adProb = 0.05;        // A 5% probability that adaption actually takes place
         gpar::GInt32GaussAdaptor a3(0.05); // Construction with adaption probability
 
-        double sigma = 0.2, sigmaSigma = 0.1, minSigma = 0., maxSigma = 1.;
+        double sigma = 0.2;
+        double sigmaSigma = 0.1;
+        double minSigma = 0.;
+        double maxSigma = 1.;
         gpar::GInt32GaussAdaptor a4(
             sigma,
             sigmaSigma,

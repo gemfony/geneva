@@ -58,7 +58,7 @@ class GSwarmAlgorithm_PersonalityTraits // NOLINT(cppcoreguidelines-special-memb
         using boost::serialization::make_nvp;
 
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPersonalityTraits) &
-            BOOST_SERIALIZATION_NVP(neighborhood_) & BOOST_SERIALIZATION_NVP(noPositionUpdate_) &
+            BOOST_SERIALIZATION_NVP(neighborhood_) & BOOST_SERIALIZATION_NVP(no_position_update_) &
             BOOST_SERIALIZATION_NVP(personal_best_) &
             BOOST_SERIALIZATION_NVP(personal_best_quality_);
     }
@@ -80,11 +80,11 @@ public:
     /** @brief Retrieves the id of the neighborhood the individual is in at present */
     std::size_t getNeighborhood() const;
 
-    /** @brief Sets the noPositionUpdate_ flag */
+    /** @brief Sets the no_position_update_ flag */
     void setNoPositionUpdate();
-    /** @brief Retrieves the current value of the noPositionUpdate_ flag */
+    /** @brief Retrieves the current value of the no_position_update_ flag */
     bool noPositionUpdate() const;
-    /** @brief Retrieves and resets the current value of the noPositionUpdate_ flag */
+    /** @brief Retrieves and resets the current value of the no_position_update_ flag */
     bool checkNoPositionUpdateAndReset();
 
     /** @brief Allows to add a new personal best to the individual */
@@ -141,7 +141,7 @@ private:
     std::size_t neighborhood_ = 0;
 
     /** @brief Determines whether the individual has been randomly initialized */
-    bool noPositionUpdate_ = false;
+    bool no_position_update_ = false;
 
     /** @brief Holds the personally best GParameterSet */
     std::shared_ptr<gpar::GParameterSet> personal_best_;

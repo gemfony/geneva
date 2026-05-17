@@ -148,8 +148,12 @@ int main(int argc, char **argv) {
     Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
 
     bool verbose;
-    double sigma, sigmaSigma, minSigma, maxSigma;
-    std::uint32_t maxIter, adaptionThreshold;
+    double sigma;
+    double sigmaSigma;
+    double minSigma;
+    double maxSigma;
+    std::uint32_t maxIter;
+    std::uint32_t adaptionThreshold;
     std::string resultFile;
 
     if(!parseCommandLine(

@@ -112,7 +112,8 @@ TEST_CASE("GSerializableFunctionObjectT::clone: returns a fresh derived instance
 
 TEST_CASE("GSerializableFunctionObjectT::compare: equal objects + EQUALITY passes",
           "[common][serializable-fobj]") {
-    Doubler a, b;
+    Doubler a;
+    Doubler b;
     CHECK_NOTHROW(a.compare(b, expectation::EQUALITY, 0.));
 }
 
@@ -120,7 +121,8 @@ TEST_CASE("GSerializableFunctionObjectT::compare: equal objects + INEQUALITY vio
           "[common][serializable-fobj]") {
     // The base "has no local data" branch documents that INEQUALITY can
     // never be met between two empty function objects of the same type.
-    Doubler a, b;
+    Doubler a;
+    Doubler b;
     CHECK_THROWS_AS(a.compare(b, expectation::INEQUALITY, 0.), g_expectation_violation);
 }
 

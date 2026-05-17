@@ -80,9 +80,9 @@ class GGradientDescent // NOLINT(cppcoreguidelines-special-member-functions)
         ar &make_nvp(
             "GBase",
             boost::serialization::base_object<GBase>(*this)
-        ) & BOOST_SERIALIZATION_NVP(nStartingPoints_) &
-            BOOST_SERIALIZATION_NVP(nFPParmsFirst_) & BOOST_SERIALIZATION_NVP(finiteStep_) &
-            BOOST_SERIALIZATION_NVP(stepSize_);
+        ) & BOOST_SERIALIZATION_NVP(n_starting_points_) &
+            BOOST_SERIALIZATION_NVP(n_fp_parms_first_) & BOOST_SERIALIZATION_NVP(finite_step_) &
+            BOOST_SERIALIZATION_NVP(step_size_);
     }
 
     ///////////////////////////////////////////////////////////////////////
@@ -194,27 +194,27 @@ private:
     /***************************************************************************/
     // Data
 
-    std::size_t nStartingPoints_ =
+    std::size_t n_starting_points_ =
         DEFAULTGDSTARTINGPOINTS;    ///< The number of starting positions in the parameter space
-    std::size_t nFPParmsFirst_ = 0; ///< The amount of floating point values in the first individual
+    std::size_t n_fp_parms_first_ = 0; ///< The amount of floating point values in the first individual
 
-    double finiteStep_ =
+    double finite_step_ =
         DEFAULTFINITESTEP; ///< The size of the incremental adaption of the feature vector
-    double stepSize_ = DEFAULTSTEPSIZE; ///< A multiplicative factor for the adaption
-    long double stepRatio_ =
+    double step_size_ = DEFAULTSTEPSIZE; ///< A multiplicative factor for the adaption
+    long double step_ratio_ =
         (DEFAULTSTEPSIZE /
-         DEFAULTFINITESTEP); ///< The ratio of stepSize_ and finiteStep_. NOTE: long double; Will be recalculated in init()
+         DEFAULTFINITESTEP); ///< The ratio of step_size_ and finite_step_. NOTE: long double; Will be recalculated in init()
 
     std::vector<double>
-        dblLowerParameterBoundaries_; ///< Holds lower boundaries of double parameters; Will be extracted in init()
+        dbl_lower_parameter_boundaries_; ///< Holds lower boundaries of double parameters; Will be extracted in init()
     std::vector<double>
-        dblUpperParameterBoundaries_; ///< Holds upper boundaries of double parameters; Will be extracted in init()
+        dbl_upper_parameter_boundaries_; ///< Holds upper boundaries of double parameters; Will be extracted in init()
     std::vector<double>
-        adjustedFiniteStep_; ///< A step-size normalized to each parameter range; Will be recalculated in init()
+        adjusted_finite_step_; ///< A step-size normalized to each parameter range; Will be recalculated in init()
 
     /** @brief Lets individuals know about their position in the population */
     void markIndividualPositions();
-    /** @brief Recomputes stepRatio_ and adjustedFiniteStep_ from the raw inputs */
+    /** @brief Recomputes step_ratio_ and adjusted_finite_step_ from the raw inputs */
     void updateDerivedQuantities();
 };
 

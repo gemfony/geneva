@@ -429,7 +429,8 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
         CHECK_NOTHROW(p_test2->adapt());
 
         // Make sure both individuals are clean and evaluated
-        double fitness1_old = 0., fitness2_old = 0;
+        double fitness1_old = 0.;
+        double fitness2_old = 0;
         CHECK_NOTHROW(p_test1->mark_as_due_for_processing());
         CHECK_NOTHROW(p_test2->mark_as_due_for_processing());
         CHECK(p_test1->is_due_for_processing());
@@ -455,7 +456,8 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
         CHECK(p_test2->is_due_for_processing());
 
         // Make sure both individuals are clean and evaluated
-        double fitness1_new = 0., fitness2_new = 0;
+        double fitness1_new = 0.;
+        double fitness2_new = 0;
         CHECK_NOTHROW(p_test1->process());
         CHECK_NOTHROW(p_test2->process());
         CHECK(p_test1->is_processed());
@@ -482,7 +484,8 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
         CHECK(*p_test1 == *p_test2);
 
         // Make sure both individuals are clean and evaluated
-        double fitness1_old = 0., fitness2_old = 0;
+        double fitness1_old = 0.;
+        double fitness2_old = 0;
         CHECK_NOTHROW(p_test1->mark_as_due_for_processing());
         CHECK_NOTHROW(p_test2->mark_as_due_for_processing());
         CHECK(p_test1->is_due_for_processing());

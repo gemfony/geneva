@@ -86,7 +86,7 @@ public:
         std::shared_ptr<Gem::Common::GFactoryT<gpar::GParameterSet>> content_creator_ptr
     )
       : Gem::Common::GFactoryT<oa_type>(config_file)
-      , contentCreatorPtr_(content_creator_ptr) { /* nothing */
+      , content_creator_ptr_(content_creator_ptr) { /* nothing */
     }
 
     /***************************************************************************/
@@ -95,19 +95,19 @@ public:
 	  */
     GOAFactoryT(const GOAFactoryT<oa_type> &cp)
       : Gem::Common::GFactoryT<oa_type>(cp)
-      , maxIterationCL_(cp.maxIterationCL_)
-      , maxStallIterationCL_(cp.maxStallIterationCL_)
-      , maxSecondsCL_(cp.maxSecondsCL_) {
-        if(cp.contentCreatorPtr_) {
-            if(contentCreatorPtr_) {
-                contentCreatorPtr_->load(cp.contentCreatorPtr_);
+      , max_iteration_cl_(cp.max_iteration_cl_)
+      , max_stall_iteration_cl_(cp.max_stall_iteration_cl_)
+      , max_seconds_cl_(cp.max_seconds_cl_) {
+        if(cp.content_creator_ptr_) {
+            if(content_creator_ptr_) {
+                content_creator_ptr_->load(cp.content_creator_ptr_);
             }
             else {
-                contentCreatorPtr_ = cp.contentCreatorPtr_->clone();
+                content_creator_ptr_ = cp.content_creator_ptr_->clone();
             }
         }
         else {
-            contentCreatorPtr_.reset();
+            content_creator_ptr_.reset();
         }
     }
 
@@ -139,17 +139,17 @@ public:
 
         hidden.add_options()(
 			 (this->getMnemonic() + std::string("MaxIterations")).c_str()
-			 , po::value<std::int32_t>(&maxIterationCL_)->default_value(-1)
+			 , po::value<std::int32_t>(&max_iteration_cl_)->default_value(-1)
 			 , (std::string("\t[FactoryT / ") + this->getMnemonic() +
 				 "] The maximum allowed number of iterations or 0 to disable limit").c_str()
 		 )(
 			 (this->getMnemonic() + std::string("MaxStallIterations")).c_str()
-			 , po::value<std::int32_t>(&maxStallIterationCL_)->default_value(-1)
+			 , po::value<std::int32_t>(&max_stall_iteration_cl_)->default_value(-1)
 			 , (std::string("\t[FactoryT / ") + this->getMnemonic() +
 				 "] The maximum allowed number of stalled iterations or 0 to disable limit").c_str()
 		 )(
 			 (this->getMnemonic() + std::string("MaxSeconds")).c_str()
-			 , po::value<std::int32_t>(&maxSecondsCL_)->default_value(-1)
+			 , po::value<std::int32_t>(&max_seconds_cl_)->default_value(-1)
 			 , (std::string("\t[FactoryT / ") + this->getMnemonic() +
 				 "] The maximum allowed duration in seconds or 0 to disable limit").c_str()
 		 );
@@ -183,7 +183,7 @@ public:
             );
         }
 
-        contentCreatorPtr_ = cc_ptr;
+        content_creator_ptr_ = cc_ptr;
     }
 
     /***************************************************************************/
@@ -192,7 +192,7 @@ public:
 	  */
     void registerPluggableOM(std::shared_ptr<GBasePluggableOM> pluggable_om) {
         if(pluggable_om) {
-            pluggableOM_ = pluggable_om;
+            pluggable_om_ = pluggable_om;
         }
         else {
             throw geneva_exception(
@@ -209,7 +209,7 @@ public:
 	  * Allows to reset the local pluggable optimization monitor
 	  */
     void resetPluggableOM() {
-        pluggableOM_.reset();
+        pluggable_om_.reset();
     }
 
     /***************************************************************************/
@@ -229,7 +229,7 @@ public:
 	  * Allows to manually set the maximum number of iterations as is usually specified on the command line
 	  */
     void setMaxIterationCL(std::uint32_t max_iteration_cl) {
-        maxIterationCL_ = Gem::Common::narrow_cast<std::int32_t>(max_iteration_cl);
+        max_iteration_cl_ = Gem::Common::narrow_cast<std::int32_t>(max_iteration_cl);
     }
 
     /***************************************************************************/
@@ -237,12 +237,11 @@ public:
 	  * Allows to check whether the maximum number of iterations was set on the command line or using the manual function
 	  */
     bool maxIterationsCLSet() const {
-        if(maxIterationCL_ >= 0) {
+        if(max_iteration_cl_ >= 0) {
             return true;
         }
-        else {
-            return false;
-        }
+                    return false;
+       
     }
 
     /***************************************************************************/
@@ -250,19 +249,18 @@ public:
 	  * Allows to retrieve the maximum number of iterations as set on the command line
 	  */
     std::uint32_t getMaxIterationCL() const {
-        if(maxIterationCL_ >= 0) {
-            return Gem::Common::narrow_cast<std::uint32_t>(maxIterationCL_);
+        if(max_iteration_cl_ >= 0) {
+            return Gem::Common::narrow_cast<std::uint32_t>(max_iteration_cl_);
         }
-        else {
-            throw geneva_exception(
+                    throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GBase<>::getMaxIterationCL(): Error!" << '\n'
-                << "maxIterationCL_ wasn't set" << '\n'
+                << "max_iteration_cl_ wasn't set" << '\n'
             );
 
             // Make the compiler happy
             return static_cast<std::uint32_t>(0);
-        }
+       
     }
 
     /***************************************************************************/
@@ -270,7 +268,7 @@ public:
 	  * Allows to manually set the maximum number of stall iterations as is usually specified on the command line
 	  */
     void setMaxStallIterationCL(std::uint32_t max_stall_iteration_cl) {
-        maxStallIterationCL_ = Gem::Common::narrow_cast<std::int32_t>(max_stall_iteration_cl);
+        max_stall_iteration_cl_ = Gem::Common::narrow_cast<std::int32_t>(max_stall_iteration_cl);
     }
 
     /***************************************************************************/
@@ -278,12 +276,11 @@ public:
 	  * Allows to check whether the maximum number of stall iterations was set on the command line or using the manual function
 	  */
     bool maxStallIterationsCLSet() const {
-        if(maxStallIterationCL_ >= 0) {
+        if(max_stall_iteration_cl_ >= 0) {
             return true;
         }
-        else {
-            return false;
-        }
+                    return false;
+       
     }
 
     /***************************************************************************/
@@ -291,20 +288,19 @@ public:
 	  * Allows to retrieve the maximum number of stall iterations as set on the command line
 	  */
     std::uint32_t getMaxStallIterationCL() const {
-        if(maxStallIterationCL_ >= 0) {
-            return Gem::Common::narrow_cast<std::uint32_t>(maxStallIterationCL_);
+        if(max_stall_iteration_cl_ >= 0) {
+            return Gem::Common::narrow_cast<std::uint32_t>(max_stall_iteration_cl_);
         }
-        else {
-            throw geneva_exception(
+                    throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GBase<>::getMaxStallIterationCL(): Error!"
                 << '\n'
-                << "maxStallIterationCL_ wasn't set" << '\n'
+                << "max_stall_iteration_cl_ wasn't set" << '\n'
             );
 
             // Make the compiler happy
             return static_cast<std::uint32_t>(0);
-        }
+       
     }
 
     /***************************************************************************/
@@ -312,7 +308,7 @@ public:
 	  * Allows to manually set the maximum number of seconds for a run as is usually specified on the command line
 	  */
     void setMaxSecondsCL(std::uint32_t max_seconds_cl) {
-        maxSecondsCL_ = Gem::Common::narrow_cast<std::int32_t>(max_seconds_cl);
+        max_seconds_cl_ = Gem::Common::narrow_cast<std::int32_t>(max_seconds_cl);
     }
 
     /***************************************************************************/
@@ -320,12 +316,11 @@ public:
 	  * Allows to check whether the maximum number of seconds was set on the command line or using the manual function
 	  */
     bool maxSecondsCLSet() const {
-        if(maxSecondsCL_ >= 0) {
+        if(max_seconds_cl_ >= 0) {
             return true;
         }
-        else {
-            return false;
-        }
+                    return false;
+       
     }
 
     /***************************************************************************/
@@ -333,21 +328,20 @@ public:
 	  * Allows to retrieve the maximum number of seconds as set on the command line
 	  */
     std::chrono::duration<double> getMaxTimeCL() const {
-        if(maxSecondsCL_ >= 0) {
+        if(max_seconds_cl_ >= 0) {
             std::chrono::duration<double> max_duration =
-                std::chrono::seconds(Gem::Common::narrow_cast<long>(maxSecondsCL_));
+                std::chrono::seconds(Gem::Common::narrow_cast<long>(max_seconds_cl_));
             return max_duration;
         }
-        else {
-            throw geneva_exception(
+                    throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GBase<>::getMaxTimeCL(): Error!" << '\n'
-                << "maxSecondsCL_ wasn't set" << '\n'
+                << "max_seconds_cl_ wasn't set" << '\n'
             );
 
             // Make the compiler happy
             return std::chrono::seconds(0);
-        }
+       
     }
 
 protected:
@@ -363,22 +357,21 @@ protected:
         std::shared_ptr<oa_type> p_alg = Gem::Common::GFactoryT<oa_type>::get_();
 
         // If we have been given a factory function for individuals, fill the object with data
-        if(contentCreatorPtr_) { // Has a content creation object been registered ? If so, add individuals to the population
+        if(content_creator_ptr_) { // Has a content creation object been registered ? If so, add individuals to the population
             for(std::size_t ind = 0; ind < p_alg->getDefaultPopulationSize(); ind++) {
-                std::shared_ptr<gpar::GParameterSet> p_ind = (*contentCreatorPtr_)();
+                std::shared_ptr<gpar::GParameterSet> p_ind = (*content_creator_ptr_)();
                 if(not p_ind) { // No valid item received, the factory has run empty
                     break;
                 }
-                else {
-                    p_alg->push_back(p_ind);
-                }
+                                    p_alg->push_back(p_ind);
+               
             }
         }
 
         // Check if any pluggable optimization monitor was registered. If so,
         // load it into the optimization algorithm
-        if(pluggableOM_) {
-            p_alg->registerPluggableOM(pluggableOM_);
+        if(pluggable_om_) {
+            p_alg->registerPluggableOM(pluggable_om_);
         }
 
         // Return the filled object to the audience
@@ -421,9 +414,9 @@ protected:
     /***************************************************************************/
 
     std::shared_ptr<Gem::Common::GFactoryT<gpar::GParameterSet>>
-        contentCreatorPtr_; ///< Holds an object capable of producing objects of the desired type
+        content_creator_ptr_; ///< Holds an object capable of producing objects of the desired type
     std::shared_ptr<GBasePluggableOM>
-        pluggableOM_; // A user-defined means for information retrieval
+        pluggable_om_; // A user-defined means for information retrieval
 
 private:
     /***************************************************************************/
@@ -433,11 +426,11 @@ private:
 
     /***************************************************************************/
 
-    std::int32_t maxIterationCL_ =
+    std::int32_t max_iteration_cl_ =
         -1; ///< The maximum number of iterations. NOTE: SIGNED TO ALLOW CHECK WHETHER PARAMETER WAS SET
-    std::int32_t maxStallIterationCL_ =
+    std::int32_t max_stall_iteration_cl_ =
         -1; ///< The maximum number of generations without improvement, after which optimization is stopped. NOTE: SIGNED TO ALLOW CHECK WHETHER PARAMETER WAS SET
-    std::int32_t maxSecondsCL_ =
+    std::int32_t max_seconds_cl_ =
         -1; ///< The maximum number of seconds for the optimization to run. NOTE: SIGNED TO ALLOW CHECK WHETHER PARAMETER WAS SET
 };
 

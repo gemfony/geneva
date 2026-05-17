@@ -60,7 +60,8 @@ TEST_CASE(
     "grational_sigmoid<double>: output is bounded by ±barrier",
     "[common][math][grational_sigmoid]"
 ) {
-    const double barrier = 10., steepness = 1.;
+    const double barrier = 10.;
+    const double steepness = 1.;
     double large_pos = Gem::Common::grational_sigmoid(1e6, barrier, steepness);
     REQUIRE(large_pos > 0.);
     REQUIRE(large_pos < barrier);
@@ -76,7 +77,8 @@ TEST_CASE(
     "grational_sigmoid<float>: output is bounded by ±barrier",
     "[common][math][grational_sigmoid]"
 ) {
-    const float barrier = 5.f, steepness = 1.f;
+    const float barrier = 5.f;
+    const float steepness = 1.f;
     float large_pos = Gem::Common::grational_sigmoid(1e5f, barrier, steepness);
     REQUIRE(large_pos > 0.f);
     REQUIRE(large_pos < barrier);
@@ -92,7 +94,8 @@ TEST_CASE(
     "grational_sigmoid<double>: antisymmetry f(-x) == -f(x)",
     "[common][math][grational_sigmoid]"
 ) {
-    const double barrier = 10., steepness = 1.;
+    const double barrier = 10.;
+    const double steepness = 1.;
     for(double v : {0.1, 1.0, 5.0, 100.0}) {
         REQUIRE(
             Gem::Common::grational_sigmoid(-v, barrier, steepness) ==
@@ -105,7 +108,8 @@ TEST_CASE(
     "grational_sigmoid<float>: antisymmetry f(-x) == -f(x)",
     "[common][math][grational_sigmoid]"
 ) {
-    const float barrier = 3.f, steepness = 2.f;
+    const float barrier = 3.f;
+    const float steepness = 2.f;
     for(float v : {0.1f, 1.0f, 5.0f}) {
         REQUIRE(
             Gem::Common::grational_sigmoid(-v, barrier, steepness) ==
@@ -118,7 +122,8 @@ TEST_CASE(
     "grational_sigmoid<double>: steeper curve converges faster",
     "[common][math][grational_sigmoid]"
 ) {
-    const double barrier = 10., v = 5.;
+    const double barrier = 10.;
+    const double v = 5.;
     double slow = Gem::Common::grational_sigmoid(v, barrier, 10.);
     double fast = Gem::Common::grational_sigmoid(v, barrier, 1.);
     REQUIRE(slow > 0.);
@@ -188,7 +193,8 @@ TEST_CASE(
     "enforceRangeConstraint: boundary values are kept",
     "[common][math][enforceRangeConstraint]"
 ) {
-    double lo = 0., hi = 10.;
+    double lo = 0.;
+    double hi = 10.;
     Gem::Common::enforceRangeConstraint(lo, 0., 10.);
     Gem::Common::enforceRangeConstraint(hi, 0., 10.);
     REQUIRE(lo == Approx(0.));
@@ -495,12 +501,14 @@ TEST_CASE(
 
 #ifdef DEBUG
 TEST_CASE("subtractVec: size mismatch throws in DEBUG", "[common][math][subtractVec]") {
-    std::vector<double> a{1., 2.}, b{3., 4., 5.};
+    std::vector<double> a{1., 2.};
+    std::vector<double> b{3., 4., 5.};
     REQUIRE_THROWS_AS(Gem::Common::subtractVec(a, b), geneva_exception);
 }
 
 TEST_CASE("addVec: size mismatch throws in DEBUG", "[common][math][addVec]") {
-    std::vector<double> a{1., 2.}, b{3.};
+    std::vector<double> a{1., 2.};
+    std::vector<double> b{3.};
     REQUIRE_THROWS_AS(Gem::Common::addVec(a, b), geneva_exception);
 }
 #endif

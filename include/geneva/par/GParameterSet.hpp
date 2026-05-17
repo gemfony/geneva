@@ -70,7 +70,6 @@
 #include "geneva/par/GDoubleObject.hpp"
 #include "geneva/par/GInt32Collection.hpp"
 #include "geneva/par/GParameterObjectCollection.hpp"
-#include "hap/GRandomT.hpp"
 
 #endif /* GEM_TESTING */
 
@@ -208,8 +207,8 @@ class GParameterSet // NOLINT(cppcoreguidelines-special-member-functions)
             BOOST_SERIALIZATION_NVP(sigmoid_extremes_) &
             BOOST_SERIALIZATION_NVP(max_unsuccessful_adaptions_) &
             BOOST_SERIALIZATION_NVP(max_retries_until_valid_) &
-            BOOST_SERIALIZATION_NVP(n_adaptions_) & BOOST_SERIALIZATION_NVP(useRandomCrash_) &
-            BOOST_SERIALIZATION_NVP(randomCrashProb_);
+            BOOST_SERIALIZATION_NVP(n_adaptions_) & BOOST_SERIALIZATION_NVP(use_random_crash_) &
+            BOOST_SERIALIZATION_NVP(random_crash_prob_);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -344,7 +343,7 @@ public:
                 std::any_cast<double>(this->getVarVal("d", target))
             );
         }
-        else if(typeid(val_type) == typeid(float)) {
+        if(typeid(val_type) == typeid(float)) {
             return Gem::Common::narrow_cast<val_type>(
                 std::any_cast<float>(this->getVarVal("f", target))
             );
@@ -359,13 +358,12 @@ public:
                 std::any_cast<bool>(this->getVarVal("b", target))
             );
         }
-        else {
-            throw geneva_exception(
+                    throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GParameterSet::getVarVal<>(): Error!" << '\n'
                 << "Received invalid type descriptor " << '\n'
             );
-        }
+       
 
         return result;
     }
@@ -939,9 +937,9 @@ private:
     std::size_t n_adaptions_ =
         0; ///< Stores the actual number of adaptions after a call to "adapt()"
 
-    bool useRandomCrash_ =
+    bool use_random_crash_ =
         false; ///< Indicates whether the individual should crash at random intervals for debugging purposes
-    double randomCrashProb_ = 0.; ///< The probability for a random crash
+    double random_crash_prob_ = 0.; ///< The probability for a random crash
 };
 
 } /* namespace Gem::Geneva::Parameters */

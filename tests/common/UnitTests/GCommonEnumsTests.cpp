@@ -110,7 +110,9 @@ TEST_CASE("expectation: numeric round-trip preserves value", "[common][enums]") 
 // tribool prints names (not numeric form).
 
 TEST_CASE("tribool::operator<<: prints the textual name", "[common][enums]") {
-    std::ostringstream oss_true, oss_false, oss_indet;
+    std::ostringstream oss_true;
+    std::ostringstream oss_false;
+    std::ostringstream oss_indet;
     oss_true  << tribool::True;
     oss_false << tribool::False;
     oss_indet << tribool::Indeterminate;

@@ -166,7 +166,7 @@ public:
 
     /** @brief Sets the base name of the data exchange file */
     void setExchangeBaseName(const std::string &);
-    /** @brief Retrieves the current value of the parameterFileBaseName_ variable */
+    /** @brief Retrieves the current value of the parameter_file_base_name_ variable */
     std::string getExchangeBaseName() const;
 
     /** @brief Sets the number of results to be expected from the external evaluation program */
@@ -226,7 +226,7 @@ private:
         custom_options_; ///< Any custom options that need to be provided to the external program
     std::string parameter_file_base_name_; ///< The base name to be assigned to the parameter_file
     std::size_t n_results_; ///< The number of results to be expected from the evaluation function
-    std::string runID_;      ///< Identifies this run with a unique id
+    std::string run_id_;      ///< Identifies this run with a unique id
     bool remove_exec_temporaries_; ///< Indicates whether temporary files should be removed
 };
 
@@ -246,21 +246,21 @@ class GExternalEvaluatorIndividualFactory // NOLINT(cppcoreguidelines-special-me
         using namespace Gem::Common;
 
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GFactoryT<gpar::GParameterSet>) &
-            BOOST_SERIALIZATION_NVP(adProb_) & BOOST_SERIALIZATION_NVP(adaptAdProb_) &
-            BOOST_SERIALIZATION_NVP(minAdProb_) & BOOST_SERIALIZATION_NVP(maxAdProb_) &
-            BOOST_SERIALIZATION_NVP(adaptionThreshold_) &
-            BOOST_SERIALIZATION_NVP(useBiGaussian_) & BOOST_SERIALIZATION_NVP(sigma1_) &
-            BOOST_SERIALIZATION_NVP(sigmaSigma1_) & BOOST_SERIALIZATION_NVP(minSigma1_) &
-            BOOST_SERIALIZATION_NVP(maxSigma1_) & BOOST_SERIALIZATION_NVP(sigma2_) &
-            BOOST_SERIALIZATION_NVP(sigmaSigma2_) & BOOST_SERIALIZATION_NVP(minSigma2_) &
-            BOOST_SERIALIZATION_NVP(maxSigma2_) & BOOST_SERIALIZATION_NVP(delta_) &
-            BOOST_SERIALIZATION_NVP(sigmaDelta_) & BOOST_SERIALIZATION_NVP(minDelta_) &
-            BOOST_SERIALIZATION_NVP(maxDelta_) & BOOST_SERIALIZATION_NVP(programName_) &
-            BOOST_SERIALIZATION_NVP(customOptions_) &
-            BOOST_SERIALIZATION_NVP(parameterFileBaseName_) &
-            BOOST_SERIALIZATION_NVP(initValues_) &
-            BOOST_SERIALIZATION_NVP(removeExecTemporaries_) &
-            BOOST_SERIALIZATION_NVP(externalEvaluatorQueried_) & BOOST_SERIALIZATION_NVP(ptr_);
+            BOOST_SERIALIZATION_NVP(ad_prob_) & BOOST_SERIALIZATION_NVP(adapt_ad_prob_) &
+            BOOST_SERIALIZATION_NVP(min_ad_prob_) & BOOST_SERIALIZATION_NVP(max_ad_prob_) &
+            BOOST_SERIALIZATION_NVP(adaption_threshold_) &
+            BOOST_SERIALIZATION_NVP(use_bi_gaussian_) & BOOST_SERIALIZATION_NVP(sigma1_) &
+            BOOST_SERIALIZATION_NVP(sigma_sigma1_) & BOOST_SERIALIZATION_NVP(min_sigma1_) &
+            BOOST_SERIALIZATION_NVP(max_sigma1_) & BOOST_SERIALIZATION_NVP(sigma2_) &
+            BOOST_SERIALIZATION_NVP(sigma_sigma2_) & BOOST_SERIALIZATION_NVP(min_sigma2_) &
+            BOOST_SERIALIZATION_NVP(max_sigma2_) & BOOST_SERIALIZATION_NVP(delta_) &
+            BOOST_SERIALIZATION_NVP(sigma_delta_) & BOOST_SERIALIZATION_NVP(min_delta_) &
+            BOOST_SERIALIZATION_NVP(max_delta_) & BOOST_SERIALIZATION_NVP(program_name_) &
+            BOOST_SERIALIZATION_NVP(custom_options_) &
+            BOOST_SERIALIZATION_NVP(parameter_file_base_name_) &
+            BOOST_SERIALIZATION_NVP(init_values_) &
+            BOOST_SERIALIZATION_NVP(remove_exec_temporaries_) &
+            BOOST_SERIALIZATION_NVP(external_evaluator_queried_) & BOOST_SERIALIZATION_NVP(ptr_);
     }
 
     ///////////////////////////////////////////////////////////////////////
@@ -278,9 +278,9 @@ public:
     /**************************************************************************/
     // Getters and setters
 
-    /** @brief Allows to retrieve the adaptionThreshold_ variable */
+    /** @brief Allows to retrieve the adaption_threshold_ variable */
     std::uint32_t getAdaptionThreshold() const;
-    /** @brief Set the value of the adaptionThreshold_ variable */
+    /** @brief Set the value of the adaption_threshold_ variable */
     void setAdaptionThreshold(std::uint32_t adaption_threshold);
 
     /** @brief Allows to retrieve the adProb_ variable */
@@ -298,36 +298,36 @@ public:
     /** @brief Allows to set the allowed range for adaption probability variation */
     void setAdProbRange(double min_ad_prob, double max_ad_prob);
 
-    /** @brief Allows to retrieve the useBiGaussian_ variable */
+    /** @brief Allows to retrieve the use_bi_gaussian_ variable */
     bool getUseBiGaussian() const;
-    /** @brief Set the value of the useBiGaussian_ variable */
+    /** @brief Set the value of the use_bi_gaussian_ variable */
     void setUseBiGaussian(bool use_bi_gaussian);
 
     /** @brief Allows to retrieve the delta_ variable */
     double getDelta() const;
     /** @brief Set the value of the delta_ variable */
     void setDelta(double delta);
-    /** @brief Allows to retrieve the minDelta_ variable */
+    /** @brief Allows to retrieve the min_delta_ variable */
     double getMinDelta() const;
-    /** @brief Allows to retrieve the maxDelta_ variable */
+    /** @brief Allows to retrieve the max_delta_ variable */
     double getMaxDelta() const;
     /** @brief Allows to retrieve the allowed value range of delta */
     std::tuple<double, double> getDeltaRange() const;
     /** @brief Allows to set the allowed value range of delta */
     void setDeltaRange(std::tuple<double, double>);
 
-    /** @brief Allows to retrieve the minSigma1_ variable */
+    /** @brief Allows to retrieve the min_sigma1_ variable */
     double getMinSigma1() const;
-    /** @brief Allows to retrieve the maxSigma1_ variable */
+    /** @brief Allows to retrieve the max_sigma1_ variable */
     double getMaxSigma1() const;
     /** @brief Allows to retrieve the allowed value range of sigma1_ */
     std::tuple<double, double> getSigma1Range() const;
     /** @brief Allows to set the allowed value range of sigma1_ */
     void setSigma1Range(std::tuple<double, double>);
 
-    /** @brief Allows to retrieve the minSigma2_ variable */
+    /** @brief Allows to retrieve the min_sigma2_ variable */
     double getMinSigma2() const;
-    /** @brief Allows to retrieve the maxSigma2_ variable */
+    /** @brief Allows to retrieve the max_sigma2_ variable */
     double getMaxSigma2() const;
     /** @brief Allows to retrieve the allowed value range of sigma2_ */
     std::tuple<double, double> getSigma2Range() const;
@@ -344,19 +344,19 @@ public:
     /** @brief Set the value of the sigma2_ variable */
     void setSigma2(double sigma2);
 
-    /** @brief Allows to retrieve the sigmaDelta_ variable */
+    /** @brief Allows to retrieve the sigma_delta_ variable */
     double getSigmaDelta() const;
-    /** @brief Set the value of the sigmaDelta_ variable */
+    /** @brief Set the value of the sigma_delta_ variable */
     void setSigmaDelta(double sigma_delta);
 
-    /** @brief Allows to retrieve the sigmaSigma1_ variable */
+    /** @brief Allows to retrieve the sigma_sigma1_ variable */
     double getSigmaSigma1() const;
-    /** @brief Set the value of the sigmaSigma1_ variable */
+    /** @brief Set the value of the sigma_sigma1_ variable */
     void setSigmaSigma1(double sigma_sigma1);
 
-    /** @brief Allows to retrieve the sigmaSigma2_ variable */
+    /** @brief Allows to retrieve the sigma_sigma2_ variable */
     double getSigmaSigma2() const;
-    /** @brief Set the value of the sigmaSigma2_ variable */
+    /** @brief Set the value of the sigma_sigma2_ variable */
     void setSigmaSigma2(double sigma_sigma2);
 
     /** @brief Allows to set the name and path of the external program */
@@ -415,55 +415,55 @@ private:
     /** @brief Sets up the boost property object holding information about the individual structure */
     void setUpPropertyTree();
 
-    /** @brief Set the value of the minDelta_ variable */
+    /** @brief Set the value of the min_delta_ variable */
     void setMinDelta(double min_delta);
 
-    /** @brief Set the value of the maxDelta_ variable */
+    /** @brief Set the value of the max_delta_ variable */
     void setMaxDelta(double max_delta);
 
-    /** @brief Set the value of the minSigma1_ variable */
+    /** @brief Set the value of the min_sigma1_ variable */
     void setMinSigma1(double min_sigma1);
 
-    /** @brief Set the value of the maxSigma1_ variable */
+    /** @brief Set the value of the max_sigma1_ variable */
     void setMaxSigma1(double max_sigma1);
 
-    /** @brief Set the value of the minSigma2_ variable */
+    /** @brief Set the value of the min_sigma2_ variable */
     void setMinSigma2(double min_sigma2);
 
-    /** @brief Set the value of the maxSigma2_ variable */
+    /** @brief Set the value of the max_sigma2_ variable */
     void setMaxSigma2(double max_sigma2);
 
     /** @brief The default constructor; Only needed for (de-)serialization purposes, hence empty. */
     GExternalEvaluatorIndividualFactory();
 
-    Gem::Common::GOneTimeRefParameterT<double> adProb_;
-    Gem::Common::GOneTimeRefParameterT<double> adaptAdProb_;
-    Gem::Common::GOneTimeRefParameterT<double> minAdProb_;
-    Gem::Common::GOneTimeRefParameterT<double> maxAdProb_;
-    Gem::Common::GOneTimeRefParameterT<std::uint32_t> adaptionThreshold_;
-    Gem::Common::GOneTimeRefParameterT<bool> useBiGaussian_;
+    Gem::Common::GOneTimeRefParameterT<double> ad_prob_;
+    Gem::Common::GOneTimeRefParameterT<double> adapt_ad_prob_;
+    Gem::Common::GOneTimeRefParameterT<double> min_ad_prob_;
+    Gem::Common::GOneTimeRefParameterT<double> max_ad_prob_;
+    Gem::Common::GOneTimeRefParameterT<std::uint32_t> adaption_threshold_;
+    Gem::Common::GOneTimeRefParameterT<bool> use_bi_gaussian_;
     Gem::Common::GOneTimeRefParameterT<double> sigma1_;
-    Gem::Common::GOneTimeRefParameterT<double> sigmaSigma1_;
-    Gem::Common::GOneTimeRefParameterT<double> minSigma1_;
-    Gem::Common::GOneTimeRefParameterT<double> maxSigma1_;
+    Gem::Common::GOneTimeRefParameterT<double> sigma_sigma1_;
+    Gem::Common::GOneTimeRefParameterT<double> min_sigma1_;
+    Gem::Common::GOneTimeRefParameterT<double> max_sigma1_;
     Gem::Common::GOneTimeRefParameterT<double> sigma2_;
-    Gem::Common::GOneTimeRefParameterT<double> sigmaSigma2_;
-    Gem::Common::GOneTimeRefParameterT<double> minSigma2_;
-    Gem::Common::GOneTimeRefParameterT<double> maxSigma2_;
+    Gem::Common::GOneTimeRefParameterT<double> sigma_sigma2_;
+    Gem::Common::GOneTimeRefParameterT<double> min_sigma2_;
+    Gem::Common::GOneTimeRefParameterT<double> max_sigma2_;
     Gem::Common::GOneTimeRefParameterT<double> delta_;
-    Gem::Common::GOneTimeRefParameterT<double> sigmaDelta_;
-    Gem::Common::GOneTimeRefParameterT<double> minDelta_;
-    Gem::Common::GOneTimeRefParameterT<double> maxDelta_;
+    Gem::Common::GOneTimeRefParameterT<double> sigma_delta_;
+    Gem::Common::GOneTimeRefParameterT<double> min_delta_;
+    Gem::Common::GOneTimeRefParameterT<double> max_delta_;
 
-    Gem::Common::GOneTimeRefParameterT<std::string> programName_;
-    Gem::Common::GOneTimeRefParameterT<std::string> customOptions_;
-    Gem::Common::GOneTimeRefParameterT<std::string> parameterFileBaseName_;
-    Gem::Common::GOneTimeRefParameterT<std::string> initValues_;
+    Gem::Common::GOneTimeRefParameterT<std::string> program_name_;
+    Gem::Common::GOneTimeRefParameterT<std::string> custom_options_;
+    Gem::Common::GOneTimeRefParameterT<std::string> parameter_file_base_name_;
+    Gem::Common::GOneTimeRefParameterT<std::string> init_values_;
 
-    Gem::Common::GOneTimeRefParameterT<bool> removeExecTemporaries_;
+    Gem::Common::GOneTimeRefParameterT<bool> remove_exec_temporaries_;
 
     bool
-        externalEvaluatorQueried_; ///< Specifies whether the external evaluator program has already been queried for setup information
+        external_evaluator_queried_; ///< Specifies whether the external evaluator program has already been queried for setup information
     pt::ptree
         ptr_; ///< Holds setup information for individuals, as provided by the external evaluator program
 };

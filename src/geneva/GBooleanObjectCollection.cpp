@@ -211,7 +211,8 @@ void GBooleanObjectCollection::specificTestsNoFailureExpected_GUnitTests_() {
     const double multvalue = 3.;
     const double randlowerboundary = 0.;
     const double randupperboundary = 10.;
-    const double lowerbnd = 0.8, upperbnd = 1.2;
+    const double lowerbnd = 0.8;
+    const double upperbnd = 1.2;
 
     // Get a random number generator
     Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
@@ -279,7 +280,8 @@ void GBooleanObjectCollection::specificTestsNoFailureExpected_GUnitTests_() {
     { // Check construction with a number of GBooleanObject with a given probability for "true"
         GBooleanObjectCollection gboc(n_tests, 0.5);
 
-        std::size_t n_true = 0, n_false = 0;
+        std::size_t n_true = 0;
+        std::size_t n_false = 0;
         for(std::size_t i = 0; i < n_tests; i++) {
             gboc.at(i)->value() ? n_true++ : n_false++;
         }

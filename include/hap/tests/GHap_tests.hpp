@@ -65,8 +65,8 @@ public:
     /***********************************************************************************/
     // The default constructor
     GHap_tests()
-      : nTests_(100000)
-      , nSeeds_(100000) { /* empty */
+      : n_tests_(100000)
+      , n_seeds_(100000) { /* empty */
     }
 
     /***********************************************************************************/
@@ -81,12 +81,12 @@ public:
         { // Check seeding
             // Check that we are running with more seeds than the amount of
             // pre-fabricated seeds
-            CHECK(nSeeds_ > DEFAULTSEEDVECTORSIZE);
+            CHECK(n_seeds_ > DEFAULTSEEDVECTORSIZE);
 
             // Check that we always get different seeds
             seed_type lastSeed;
             CHECK_NOTHROW(lastSeed = GRANDOMFACTORY->getSeed());
-            for(std::size_t s = 0; s < nSeeds_ - 1; s++) {
+            for(std::size_t s = 0; s < n_seeds_ - 1; s++) {
                 seed_type currentSeed = GRANDOMFACTORY->getSeed();
                 CHECK(lastSeed != currentSeed);
                 lastSeed = currentSeed;
@@ -115,7 +115,7 @@ public:
                 randomHist.at(i) = 0;
             }
 
-            for(std::size_t i = 0; i < nTests_; i++) {
+            for(std::size_t i = 0; i < n_tests_; i++) {
                 std::int32_t randVal;
 
                 // Produce a single random number
@@ -156,7 +156,7 @@ public:
                 randomHist.at(i) = 0;
             }
 
-            for(std::size_t i = 0; i < nTests_; i++) {
+            for(std::size_t i = 0; i < n_tests_; i++) {
                 std::int32_t randVal;
 
                 // Produce a single random number
@@ -187,7 +187,7 @@ public:
             );
 
             volatile std::int32_t randVal;
-            for(std::size_t i = 0; i < nTests_; i++) {
+            for(std::size_t i = 0; i < n_tests_; i++) {
                 CHECK_NOTHROW(randVal = uniform_int_distribution(*gr_ptr));
             }
         }
@@ -204,7 +204,7 @@ public:
             );
 
             volatile std::int32_t randVal;
-            for(std::size_t i = 0; i < nTests_; i++) {
+            for(std::size_t i = 0; i < n_tests_; i++) {
                 CHECK_NOTHROW(randVal = uniform_int_distribution(*gr_ptr));
             }
         }
@@ -223,8 +223,8 @@ public:
 
     /***********************************************************************************/
 private:
-    const std::size_t nTests_;
-    const std::size_t nSeeds_;
+    const std::size_t n_tests_;
+    const std::size_t n_seeds_;
 };
 
 /********************************************************************************************/

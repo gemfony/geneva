@@ -168,7 +168,7 @@ public:
     operator std::string() const { // NOLINT
         using namespace Gem::Common;
         if(do_log_) {
-            glogger(std::filesystem::path(exception_file))
+            glogger(std::filesystem::path(exception_file_))
                 << "========================================================" << '\n'
                 << "Error!" << '\n'
                 << '\n'
@@ -192,7 +192,7 @@ private:
     // Data
     std::ostringstream ostream_;
     bool do_log_ = NO_LOG;
-    const std::string exception_file = "./GENEVA-EXCEPTION.log";
+    const std::string exception_file_ = "./GENEVA-EXCEPTION.log";
     std::string where_and_when_;
 
     /**************************************************************************/

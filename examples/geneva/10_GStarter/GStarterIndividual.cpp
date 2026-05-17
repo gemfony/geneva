@@ -414,7 +414,9 @@ void GStarterIndividual::specificTestsNoFailureExpected_GUnitTests_() {
         double DEFAULTSIGMA = 0.025;
 
         // Check standard construction and whether calculation of the average sigma works
-        std::vector<double> startValues, lowerBoundaries, upperBoundaries;
+        std::vector<double> startValues;
+        std::vector<double> lowerBoundaries;
+        std::vector<double> upperBoundaries;
 
         for(std::size_t n = 0; n < NENTRIES; n++) {
             startValues.push_back(1.);

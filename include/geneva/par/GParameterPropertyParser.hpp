@@ -410,47 +410,47 @@ private:
 
     boost::spirit::qi::
         rule<std::string::const_iterator, std::string(), boost::spirit::ascii::space_type>
-            varSpec;
+            var_spec_;
     boost::spirit::qi::rule<
         std::string::const_iterator,
         std::tuple<char, std::string>(),
         boost::spirit::ascii::space_type>
-        varString;
+        var_string_;
 
     boost::spirit::qi::
         rule<std::string::const_iterator, std::string(), boost::spirit::ascii::space_type>
-            identifier;
+            identifier_;
     boost::spirit::qi::
         rule<std::string::const_iterator, NAMEANDIDTYPE(), boost::spirit::ascii::space_type>
-            varReference;
+            var_reference_;
 
     boost::spirit::qi::
         rule<std::string::const_iterator, simpleScanSpec(), boost::spirit::ascii::space_type>
-            simpleScanParser;
+            simple_scan_parser_;
     boost::spirit::qi::
         rule<std::string::const_iterator, parPropSpec<double>(), boost::spirit::ascii::space_type>
-            doubleStringParser;
+            double_string_parser_;
     boost::spirit::qi::
         rule<std::string::const_iterator, parPropSpec<float>(), boost::spirit::ascii::space_type>
-            floatStringParser;
+            float_string_parser_;
     boost::spirit::qi::rule<
         std::string::const_iterator,
         parPropSpec<std::int32_t>(),
         boost::spirit::ascii::space_type>
-        intStringParser;
+        int_string_parser_;
     boost::spirit::qi::
         rule<std::string::const_iterator, parPropSpec<bool>(), boost::spirit::ascii::space_type>
-            boolStringParser;
+            bool_string_parser_;
 
     std::string raw_; ///< Holds the "raw" parameter description
     bool parsed_;     ///< Indicates whether the raw_ string has already been parsed
 
-    std::vector<simpleScanSpec> sSpecVec;      ///< Holds parameter specifications for simple scans
-    std::vector<parPropSpec<double>> dSpecVec; ///< Holds parameter specifications for double values
-    std::vector<parPropSpec<float>> fSpecVec;  ///< Holds parameter specifications for float values
+    std::vector<simpleScanSpec> s_spec_vec_;      ///< Holds parameter specifications for simple scans
+    std::vector<parPropSpec<double>> d_spec_vec_; ///< Holds parameter specifications for double values
+    std::vector<parPropSpec<float>> f_spec_vec_;  ///< Holds parameter specifications for float values
     std::vector<parPropSpec<std::int32_t>>
-        iSpecVec;                            ///< Holds parameter specifications for integer values
-    std::vector<parPropSpec<bool>> bSpecVec; ///< Holds parameter specifications for boolean values
+        i_spec_vec_;                            ///< Holds parameter specifications for integer values
+    std::vector<parPropSpec<bool>> b_spec_vec_; ///< Holds parameter specifications for boolean values
 };
 
 /******************************************************************************/
@@ -481,8 +481,8 @@ GParameterPropertyParser::getIterators<double>() const {
         );
     }
 
-    auto runner_it = dSpecVec.begin();
-    auto end_it = dSpecVec.end();
+    auto runner_it = d_spec_vec_.begin();
+    auto end_it = d_spec_vec_.end();
 
     return std::tuple<
         std::vector<parPropSpec<double>>::const_iterator,
@@ -517,8 +517,8 @@ GParameterPropertyParser::getIterators<float>() const {
         );
     }
 
-    auto runner_it = fSpecVec.begin();
-    auto end_it = fSpecVec.end();
+    auto runner_it = f_spec_vec_.begin();
+    auto end_it = f_spec_vec_.end();
 
     return std::tuple<
         std::vector<parPropSpec<float>>::const_iterator,
@@ -553,8 +553,8 @@ GParameterPropertyParser::getIterators<std::int32_t>() const {
         );
     }
 
-    auto runner_it = iSpecVec.begin();
-    auto end_it = iSpecVec.end();
+    auto runner_it = i_spec_vec_.begin();
+    auto end_it = i_spec_vec_.end();
 
     return std::tuple<
         std::vector<parPropSpec<std::int32_t>>::const_iterator,
@@ -589,8 +589,8 @@ GParameterPropertyParser::getIterators<bool>() const {
         );
     }
 
-    auto runner_it = bSpecVec.begin();
-    auto end_it = bSpecVec.end();
+    auto runner_it = b_spec_vec_.begin();
+    auto end_it = b_spec_vec_.end();
 
     return std::tuple<
         std::vector<parPropSpec<bool>>::const_iterator,

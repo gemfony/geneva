@@ -57,8 +57,8 @@ class GBaseParChildPersonalityTraits // NOLINT(cppcoreguidelines-special-member-
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPersonalityTraits) &
-            BOOST_SERIALIZATION_NVP(parentCounter_) & BOOST_SERIALIZATION_NVP(popPos_) &
-            BOOST_SERIALIZATION_NVP(parentId_);
+            BOOST_SERIALIZATION_NVP(parent_counter_) & BOOST_SERIALIZATION_NVP(pop_pos_) &
+            BOOST_SERIALIZATION_NVP(parent_id_);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -77,13 +77,13 @@ public:
 
     /** @brief Checks whether this is a parent individual */
     bool isParent() const;
-    /** @brief Retrieves the current value of the parentCounter_ variable */
+    /** @brief Retrieves the current value of the parent_counter_ variable */
     std::uint32_t getParentCounter() const;
 
     /** @brief Sets the position of the individual in the population */
     void setPopulationPosition(const std::size_t &);
     /** @brief Retrieves the position of the individual in the population */
-    std::size_t getPopulationPosition(void) const;
+    std::size_t getPopulationPosition() const;
 
     /** @brief Stores the parent's id with this object */
     void setParentId(const std::size_t &);
@@ -136,11 +136,11 @@ private:
     GObject *clone_() const override;
 
     /** @brief Allows populations to record how often an individual has been reelected as parent (0 if it is a child) */
-    std::uint32_t parentCounter_ = 0;
+    std::uint32_t parent_counter_ = 0;
     /** @brief Stores the current position in the population */
-    std::size_t popPos_ = 0;
+    std::size_t pop_pos_ = 0;
     /** @brief The id of the old parent individual. This is intentionally a signed value. A negative value refers to an unset parent id */
-    std::int16_t parentId_ = -1;
+    std::int16_t parent_id_ = -1;
 };
 
 /******************************************************************************/

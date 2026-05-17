@@ -207,19 +207,19 @@ std::istream &operator>>(std::istream &i, tddropt &x) {
  */
 GBasePlotter::GBasePlotter(const GBasePlotter &cp)
   : Gem::Common::GCommonInterfaceT<GBasePlotter>(cp)
-  , drawingArguments_(cp.drawingArguments_)
+  , drawing_arguments_(cp.drawing_arguments_)
   , x_axis_label_(cp.x_axis_label_)
   , y_axis_label_(cp.y_axis_label_)
   , z_axis_label_(cp.z_axis_label_)
   , plot_label_(cp.plot_label_)
-  , dsMarker_(cp.dsMarker_)
+  , ds_marker_(cp.ds_marker_)
   , id_(cp.id_) {
     // Note: Explicit scope needed for name resolution of clone -- compare
     // https://isocpp.org/wiki/faq/templates#nondependent-name-lookup-members
 
     // Copy secondary plot data over
-    for(auto const &plotter_ptr : cp.secondaryPlotter_) {
-        secondaryPlotter_.push_back(plotter_ptr->GCommonInterfaceT<GBasePlotter>::clone());
+    for(auto const &plotter_ptr : cp.secondary_plotter_) {
+        secondary_plotter_.push_back(plotter_ptr->GCommonInterfaceT<GBasePlotter>::clone());
     }
 }
 
@@ -233,15 +233,15 @@ GBasePlotter &GBasePlotter::operator=(GBasePlotter const &cp) {
     }
     GCommonInterfaceT<GBasePlotter>::operator=(cp);
 
-    drawingArguments_ = cp.drawingArguments_;
+    drawing_arguments_ = cp.drawing_arguments_;
     x_axis_label_ = cp.x_axis_label_;
     y_axis_label_ = cp.y_axis_label_;
     z_axis_label_ = cp.z_axis_label_;
     plot_label_ = cp.plot_label_;
-    dsMarker_ = cp.dsMarker_;
+    ds_marker_ = cp.ds_marker_;
     id_ = cp.id_;
 
-    Gem::Common::copyCloneableSmartPointerContainer(cp.secondaryPlotter_, secondaryPlotter_);
+    Gem::Common::copyCloneableSmartPointerContainer(cp.secondary_plotter_, secondary_plotter_);
 
     return *this;
 }
@@ -253,7 +253,7 @@ GBasePlotter &GBasePlotter::operator=(GBasePlotter const &cp) {
  * @param drawingArguments The drawing arguments for this plot
  */
 void GBasePlotter::setDrawingArguments(std::string drawing_arguments) {
-    drawingArguments_ = drawing_arguments;
+    drawing_arguments_ = drawing_arguments;
 }
 
 /******************************************************************************/
@@ -331,7 +331,7 @@ std::string GBasePlotter::plotLabel() const {
  * @param A marker that has been assigned to the output data structures
  */
 void GBasePlotter::setDataStructureMarker(std::string ds_marker) {
-    dsMarker_ = ds_marker;
+    ds_marker_ = ds_marker;
 }
 
 /******************************************************************************/
@@ -341,7 +341,7 @@ void GBasePlotter::setDataStructureMarker(std::string ds_marker) {
  * @return The marker that has been assigned to the output data structures
  */
 std::string GBasePlotter::dsMarker() const {
-    return dsMarker_;
+    return ds_marker_;
 }
 
 /******************************************************************************/
@@ -369,7 +369,7 @@ void GBasePlotter::registerSecondaryPlotter(std::shared_ptr<GBasePlotter> sp) {
     }
 
     // Add the plotter to our collection
-    secondaryPlotter_.push_back(sp);
+    secondary_plotter_.push_back(sp);
 }
 
 /******************************************************************************/
@@ -444,13 +444,13 @@ void GBasePlotter::compare_(
     compare_base_t<GCommonInterfaceT<GBasePlotter>>(*this, *p_load, token);
 
     // ... and then the local data
-    compare_t(IDENTITY(drawingArguments_, p_load->drawingArguments_), token);
+    compare_t(IDENTITY(drawing_arguments_, p_load->drawing_arguments_), token);
     compare_t(IDENTITY(x_axis_label_, p_load->x_axis_label_), token);
     compare_t(IDENTITY(y_axis_label_, p_load->y_axis_label_), token);
     compare_t(IDENTITY(z_axis_label_, p_load->z_axis_label_), token);
     compare_t(IDENTITY(plot_label_, p_load->plot_label_), token);
-    compare_t(IDENTITY(dsMarker_, p_load->dsMarker_), token);
-    compare_t(IDENTITY(secondaryPlotter_, p_load->secondaryPlotter_), token);
+    compare_t(IDENTITY(ds_marker_, p_load->ds_marker_), token);
+    compare_t(IDENTITY(secondary_plotter_, p_load->secondary_plotter_), token);
     compare_t(IDENTITY(id_, p_load->id_), token);
 
     // React on deviations from the expectation
@@ -468,15 +468,15 @@ void GBasePlotter::load_(const GBasePlotter *cp) {
     // No parent class with loadable data
 
     // Load local data
-    drawingArguments_ = p_load->drawingArguments_;
+    drawing_arguments_ = p_load->drawing_arguments_;
     x_axis_label_ = p_load->x_axis_label_;
     y_axis_label_ = p_load->y_axis_label_;
     z_axis_label_ = p_load->z_axis_label_;
     plot_label_ = p_load->plot_label_;
-    dsMarker_ = p_load->dsMarker_;
+    ds_marker_ = p_load->ds_marker_;
     id_ = p_load->id_;
 
-    copyCloneableSmartPointerContainer(p_load->secondaryPlotter_, secondaryPlotter_);
+    copyCloneableSmartPointerContainer(p_load->secondary_plotter_, secondary_plotter_);
 }
 
 /******************************************************************************/
@@ -493,7 +493,7 @@ std::string GBasePlotter::headerData(const std::string &indent) const {
     // Extract data from the secondary plotters, if any
     std::size_t pos = 0;
     std::vector<std::shared_ptr<GBasePlotter>>::const_iterator cit;
-    for(cit = secondaryPlotter_.begin(); cit != secondaryPlotter_.end(); ++cit) {
+    for(cit = secondary_plotter_.begin(); cit != secondary_plotter_.end(); ++cit) {
         // Give the plotters their own id which will act as a child id in this case
         (*cit)->setId(pos);
 
@@ -521,7 +521,7 @@ std::string GBasePlotter::bodyData(const std::string &indent) const {
 
     // Extract data from the secondary plotters, if any
     std::size_t pos = 0;
-    for(auto const &plotter_ptr : secondaryPlotter_) {
+    for(auto const &plotter_ptr : secondary_plotter_) {
         body_data << indent << "// Body data for secondary plotter " << pos << " of "
                   << this->getPlotterName() << '\n'
                   << plotter_ptr->bodyData_(true, this->id(), indent) << '\n';
@@ -546,7 +546,7 @@ std::string GBasePlotter::footerData(const std::string &indent) const {
     // Extract data from the secondary plotters, if any
     std::size_t pos = 0;
     std::vector<std::shared_ptr<GBasePlotter>>::const_iterator cit;
-    for(cit = secondaryPlotter_.begin(); cit != secondaryPlotter_.end(); ++cit) {
+    for(cit = secondary_plotter_.begin(); cit != secondary_plotter_.end(); ++cit) {
         footer_data << indent << "// Footer data for secondary plotter " << pos << " of "
                     << this->getPlotterName() << '\n'
                     << (*cit)->footerData_(true, this->id(), indent) << '\n';
@@ -564,20 +564,20 @@ std::string GBasePlotter::footerData(const std::string &indent) const {
  * Adds arrows to the plots between consecutive points. Note that setting this
  * value to true will force "SCATTER" mode
  *
- * @param dA The desired value of the drawArrows_ variable
+ * @param dA The desired value of the draw_arrows_ variable
  */
 void GGraph2D::setDrawArrows(bool d_a) {
-    drawArrows_ = d_a;
+    draw_arrows_ = d_a;
 }
 
 /******************************************************************************/
 /**
- * Retrieves the value of the drawArrows_ variable
+ * Retrieves the value of the draw_arrows_ variable
  *
- * @return The value of the drawArrows_ variable
+ * @return The value of the draw_arrows_ variable
  */
 bool GGraph2D::getDrawArrows() const {
-    return drawArrows_;
+    return draw_arrows_;
 }
 
 /******************************************************************************/
@@ -587,7 +587,7 @@ bool GGraph2D::getDrawArrows() const {
  * @param pM The desired plot mode
  */
 void GGraph2D::setPlotMode(graphPlotMode p_m) {
-    pM_ = p_m;
+    p_m_ = p_m;
 }
 
 /******************************************************************************/
@@ -597,7 +597,7 @@ void GGraph2D::setPlotMode(graphPlotMode p_m) {
  * @return The current plot mode
  */
 graphPlotMode GGraph2D::getPlotMode() const {
-    return pM_;
+    return p_m_;
 }
 
 /******************************************************************************/
@@ -635,8 +635,8 @@ void GGraph2D::compare_(
     compare_base_t<GDataCollector2T<double, double>>(*this, *p_load, token);
 
     // ... and then the local data
-    compare_t(IDENTITY(pM_, p_load->pM_), token);
-    compare_t(IDENTITY(drawArrows_, p_load->drawArrows_), token);
+    compare_t(IDENTITY(p_m_, p_load->p_m_), token);
+    compare_t(IDENTITY(draw_arrows_, p_load->draw_arrows_), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -658,12 +658,12 @@ GGraph2D::headerData_(bool is_secondary, std::size_t p_id, const std::string &in
     std::string y_array_name = "y_" + array_base_name;
 
     std::string comment; // NOLINT(cppcoreguidelines-init-variables)
-    if(dsMarker_ != "") {
-        comment = "// " + dsMarker_;
+    if(!ds_marker_.empty()) {
+        comment = "// " + ds_marker_;
     }
 
     header_data << indent << "double " << x_array_name << "[" << to_string(data_.size()) << "];"
-                << (comment != "" ? comment : "") << '\n'
+                << (!comment.empty() ? comment : "") << '\n'
                 << indent << "double " << y_array_name << "[" << to_string(data_.size()) << "];"
                 << '\n'
                 << '\n';
@@ -687,8 +687,8 @@ GGraph2D::bodyData_(bool is_secondary, std::size_t p_id, const std::string &inde
     std::string y_array_name = "y_" + array_base_name;
 
     std::string comment; // NOLINT(cppcoreguidelines-init-variables)
-    if(dsMarker_ != "") {
-        body_data << "// " + dsMarker_ << '\n';
+    if(!ds_marker_.empty()) {
+        body_data << "// " + ds_marker_ << '\n';
     }
 
     // Fill data from the tuples into the arrays
@@ -726,8 +726,8 @@ GGraph2D::footerData_(bool is_secondary, std::size_t p_id, const std::string &in
     std::string graph_name = std::string("graph") + base_name;
 
     std::string comment; // NOLINT(cppcoreguidelines-init-variables)
-    if(dsMarker_ != "") {
-        footer_data << "// " + dsMarker_ << '\n';
+    if(!ds_marker_.empty()) {
+        footer_data << "// " + ds_marker_ << '\n';
     }
 
     // Retrieve the current drawing arguments
@@ -741,7 +741,7 @@ GGraph2D::footerData_(bool is_secondary, std::size_t p_id, const std::string &in
                 << indent << graph_name << "->GetYaxis()->SetTitle(\"" << yAxisLabel() << "\");"
                 << '\n';
 
-    if(plot_label_ != "") {
+    if(!plot_label_.empty()) {
         footer_data << indent << graph_name << "->SetTitle(\"" << plot_label_ << "\");" << '\n';
     }
     else {
@@ -750,13 +750,14 @@ GGraph2D::footerData_(bool is_secondary, std::size_t p_id, const std::string &in
 
     footer_data << indent << graph_name << "->Draw(\"" << d_a << "\");" << '\n' << '\n';
 
-    if(drawArrows_ && data_.size() >= 2) {
+    if(draw_arrows_ && data_.size() >= 2) {
         std::vector<std::tuple<double, double>>::const_iterator it;
         std::size_t pos_counter = 0;
 
         double x1 = std::get<0>(*data_.begin());
         double y1 = std::get<1>(*data_.begin());
-        double x2 = 0., y2 = 0.;
+        double x2 = 0.;
+        double y2 = 0.;
 
         for(it = data_.begin() + 1; it != data_.end(); ++it) {
             x2 = std::get<0>(*it);
@@ -789,11 +790,11 @@ GGraph2D::footerData_(bool is_secondary, std::size_t p_id, const std::string &in
 std::string GGraph2D::drawingArguments(bool is_secondary) const {
     std::string d_a;
 
-    if(this->drawingArguments_ != "") {
-        d_a = this->drawingArguments_;
+    if(!this->drawing_arguments_.empty()) {
+        d_a = this->drawing_arguments_;
     }
     else {
-        if(graphPlotMode::SCATTER == pM_ || true == drawArrows_) {
+        if(graphPlotMode::SCATTER == p_m_ || true == draw_arrows_) {
             d_a = "P";
         }
         else {
@@ -831,8 +832,8 @@ void GGraph2D::load_(const GBasePlotter *cp) {
     GDataCollector2T<double, double>::load_(cp);
 
     // ... and then our local data
-    pM_ = p_load->pM_;
-    drawArrows_ = p_load->drawArrows_;
+    p_m_ = p_load->p_m_;
+    draw_arrows_ = p_load->draw_arrows_;
 }
 
 /******************************************************************************/
@@ -844,7 +845,7 @@ void GGraph2D::load_(const GBasePlotter *cp) {
  * @param pM The desired plot mode
  */
 void GGraph2ED::setPlotMode(graphPlotMode p_m) {
-    pM_ = p_m;
+    p_m_ = p_m;
 }
 
 /******************************************************************************/
@@ -854,7 +855,7 @@ void GGraph2ED::setPlotMode(graphPlotMode p_m) {
  * @return The current plot mode
  */
 graphPlotMode GGraph2ED::getPlotMode() const {
-    return pM_;
+    return p_m_;
 }
 
 /******************************************************************************/
@@ -892,7 +893,7 @@ void GGraph2ED::compare_(
     compare_base_t<GDataCollector2ET<double, double>>(*this, *p_load, token);
 
     // ... and then the local data
-    compare_t(IDENTITY(pM_, p_load->pM_), token);
+    compare_t(IDENTITY(p_m_, p_load->p_m_), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -916,8 +917,8 @@ GGraph2ED::headerData_(bool is_secondary, std::size_t p_id, const std::string &i
     std::string ey_array_name = "ey_" + array_base_name;
 
     std::string comment; // NOLINT(cppcoreguidelines-init-variables)
-    if(dsMarker_ != "") {
-        comment = "// " + dsMarker_;
+    if(!ds_marker_.empty()) {
+        comment = "// " + ds_marker_;
     }
 
     header_data << indent << "double " << x_array_name << "[" << to_string(data_.size()) << "];"
@@ -951,8 +952,8 @@ GGraph2ED::bodyData_(bool is_secondary, std::size_t p_id, const std::string &ind
     std::string ey_array_name = "ey_" + array_base_name;
 
     std::string comment; // NOLINT(cppcoreguidelines-init-variables)
-    if(dsMarker_ != "") {
-        body_data << "// " + dsMarker_ << '\n';
+    if(!ds_marker_.empty()) {
+        body_data << "// " + ds_marker_ << '\n';
     }
 
     // Fill data from the tuples into the arrays
@@ -996,8 +997,8 @@ GGraph2ED::footerData_(bool is_secondary, std::size_t p_id, const std::string &i
     std::string graph_name = std::string("graph_") + base_name;
 
     std::string comment; // NOLINT(cppcoreguidelines-init-variables)
-    if(dsMarker_ != "") {
-        footer_data << "// " + dsMarker_ << '\n';
+    if(!ds_marker_.empty()) {
+        footer_data << "// " + ds_marker_ << '\n';
     }
 
     // Check whether custom drawing arguments have been set or whether one
@@ -1013,7 +1014,7 @@ GGraph2ED::footerData_(bool is_secondary, std::size_t p_id, const std::string &i
                 << indent << graph_name << "->GetYaxis()->SetTitle(\"" << yAxisLabel() << "\");"
                 << '\n';
 
-    if(plot_label_ != "") {
+    if(!plot_label_.empty()) {
         footer_data << indent << graph_name << "->SetTitle(\"" << plot_label_ << "\");" << '\n';
     }
     else {
@@ -1032,11 +1033,11 @@ GGraph2ED::footerData_(bool is_secondary, std::size_t p_id, const std::string &i
 std::string GGraph2ED::drawingArguments(bool is_secondary) const {
     std::string d_a;
 
-    if(this->drawingArguments_ != "") {
-        d_a = this->drawingArguments_;
+    if(!this->drawing_arguments_.empty()) {
+        d_a = this->drawing_arguments_;
     }
     else {
-        if(graphPlotMode::SCATTER == pM_) {
+        if(graphPlotMode::SCATTER == p_m_) {
             d_a = "P";
         }
         else {
@@ -1074,7 +1075,7 @@ void GGraph2ED::load_(const GBasePlotter *cp) {
     GDataCollector2ET<double, double>::load_(cp);
 
     // ... and then our local data
-    pM_ = p_load->pM_;
+    p_m_ = p_load->p_m_;
 }
 
 /******************************************************************************/
@@ -1083,20 +1084,20 @@ void GGraph2ED::load_(const GBasePlotter *cp) {
 /**
  * Adds lines to the plots between consecutive points.
  *
- * @param dL The desired value of the drawLines_ variable
+ * @param dL The desired value of the draw_lines_ variable
  */
 void GGraph3D::setDrawLines(bool d_l) {
-    drawLines_ = d_l;
+    draw_lines_ = d_l;
 }
 
 /******************************************************************************/
 /**
- * Retrieves the value of the drawLines_ variable
+ * Retrieves the value of the draw_lines_ variable
  *
- * @return The value of the drawLines_ variable
+ * @return The value of the draw_lines_ variable
  */
 bool GGraph3D::getDrawLines() const {
-    return drawLines_;
+    return draw_lines_;
 }
 
 /******************************************************************************/
@@ -1134,7 +1135,7 @@ void GGraph3D::compare_(
     compare_base_t<GDataCollector3T<double, double, double>>(*this, *p_load, token);
 
     // ... and then the local data
-    compare_t(IDENTITY(drawLines_, p_load->drawLines_), token);
+    compare_t(IDENTITY(draw_lines_, p_load->draw_lines_), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -1157,12 +1158,12 @@ GGraph3D::headerData_(bool is_secondary, std::size_t p_id, const std::string &in
     std::string z_array_name = "z_" + array_base_name;
 
     std::string comment; // NOLINT(cppcoreguidelines-init-variables)
-    if(dsMarker_ != "") {
-        comment = "// " + dsMarker_;
+    if(!ds_marker_.empty()) {
+        comment = "// " + ds_marker_;
     }
 
     header_data << indent << "double " << x_array_name << "[" << to_string(data_.size()) << "];"
-                << (comment != "" ? comment : "") << '\n'
+                << (!comment.empty() ? comment : "") << '\n'
                 << indent << "double " << y_array_name << "[" << to_string(data_.size()) << "];"
                 << '\n'
                 << indent << "double " << z_array_name << "[" << to_string(data_.size()) << "];"
@@ -1189,8 +1190,8 @@ GGraph3D::bodyData_(bool is_secondary, std::size_t p_id, const std::string &inde
     std::string z_array_name = "z_" + array_base_name;
 
     std::string comment; // NOLINT(cppcoreguidelines-init-variables)
-    if(dsMarker_ != "") {
-        body_data << "// " + dsMarker_ << '\n';
+    if(!ds_marker_.empty()) {
+        body_data << "// " + ds_marker_ << '\n';
     }
 
     // Fill data from the tuples into the arrays
@@ -1230,8 +1231,8 @@ GGraph3D::footerData_(bool is_secondary, std::size_t p_id, const std::string &in
     std::string graph_name = std::string("graph_") + base_name;
 
     std::string comment; // NOLINT(cppcoreguidelines-init-variables)
-    if(dsMarker_ != "") {
-        footer_data << "// " + dsMarker_ << '\n';
+    if(!ds_marker_.empty()) {
+        footer_data << "// " + ds_marker_ << '\n';
     }
 
     // Check whether custom drawing arguments have been set or whether one
@@ -1255,7 +1256,7 @@ GGraph3D::footerData_(bool is_secondary, std::size_t p_id, const std::string &in
                 << indent << graph_name << "->SetMarkerSize(1);" << '\n'
                 << indent << graph_name << "->SetMarkerColor(2);" << '\n';
 
-    if(plot_label_ != "") {
+    if(!plot_label_.empty()) {
         footer_data << indent << graph_name << "->SetTitle(\"" << plot_label_ << "\");" << '\n';
     }
     else {
@@ -1264,11 +1265,13 @@ GGraph3D::footerData_(bool is_secondary, std::size_t p_id, const std::string &in
 
     footer_data << indent << graph_name << "->Draw(\"" << d_a << "\");" << '\n' << '\n';
 
-    if(drawLines_ && data_.size() >= 2) {
+    if(draw_lines_ && data_.size() >= 2) {
         std::vector<std::tuple<double, double, double>>::const_iterator it;
         std::size_t pos_counter = 0;
 
-        double x = 0.0, y = 0.0, z = 0.0;
+        double x = 0.0;
+        double y = 0.0;
+        double z = 0.0;
 
         footer_data << indent << "TPolyLine3D *lines_" << graph_name << " = new TPolyLine3D("
                     << data_.size() << ");" << '\n'
@@ -1300,8 +1303,8 @@ GGraph3D::footerData_(bool is_secondary, std::size_t p_id, const std::string &in
 std::string GGraph3D::drawingArguments(bool is_secondary) const {
     std::string d_a;
 
-    if(this->drawingArguments_ != "") {
-        d_a = this->drawingArguments_;
+    if(!this->drawing_arguments_.empty()) {
+        d_a = this->drawing_arguments_;
     }
     else {
         d_a = "P";
@@ -1334,7 +1337,7 @@ void GGraph3D::load_(const GBasePlotter *cp) {
     GDataCollector3T<double, double, double>::load_(cp);
 
     // ... and then our local data
-    drawLines_ = p_load->drawLines_;
+    draw_lines_ = p_load->draw_lines_;
 }
 
 /******************************************************************************/
@@ -1352,7 +1355,7 @@ void GGraph4D::setMinMarkerSize(const double &min_marker_size) {
         );
     }
 
-    minMarkerSize_ = min_marker_size;
+    min_marker_size_ = min_marker_size;
 }
 
 /******************************************************************************/
@@ -1360,17 +1363,17 @@ void GGraph4D::setMinMarkerSize(const double &min_marker_size) {
  * Allows to set the maximum marker size
  */
 void GGraph4D::setMaxMarkerSize(const double &max_marker_size) {
-    if(max_marker_size < 0. || max_marker_size < minMarkerSize_) {
+    if(max_marker_size < 0. || max_marker_size < min_marker_size_) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GGraph4D::setMinMarkerSize(): Error!" << '\n'
-            << "Received invalid minimum marker size: " << minMarkerSize_ << " " << max_marker_size
+            << "Received invalid minimum marker size: " << min_marker_size_ << " " << max_marker_size
             << "." << '\n'
             << "Always set the lower boundary first." << '\n'
         );
     }
 
-    maxMarkerSize_ = max_marker_size;
+    max_marker_size_ = max_marker_size;
 }
 
 /******************************************************************************/
@@ -1378,7 +1381,7 @@ void GGraph4D::setMaxMarkerSize(const double &max_marker_size) {
  * Allows to retrieve the minimum marker size
  */
 double GGraph4D::getMinMarkerSize() const {
-    return minMarkerSize_;
+    return min_marker_size_;
 }
 
 /******************************************************************************/
@@ -1386,7 +1389,7 @@ double GGraph4D::getMinMarkerSize() const {
  * Allows to retrieve the maximum marker size
  */
 double GGraph4D::getMaxMarkerSize() const {
-    return maxMarkerSize_;
+    return max_marker_size_;
 }
 
 /******************************************************************************/
@@ -1394,7 +1397,7 @@ double GGraph4D::getMaxMarkerSize() const {
  * Allows to specify whether small w yield large markers
  */
 void GGraph4D::setSmallWLargeMarker(const bool &swlm) {
-    smallWLargeMarker_ = swlm;
+    small_w_large_marker_ = swlm;
 }
 
 /******************************************************************************/
@@ -1402,7 +1405,7 @@ void GGraph4D::setSmallWLargeMarker(const bool &swlm) {
  * Allows to check whether small w yield large markers
  */
 bool GGraph4D::getSmallWLargeMarker() const {
-    return smallWLargeMarker_;
+    return small_w_large_marker_;
 }
 
 /******************************************************************************/
@@ -1411,7 +1414,7 @@ bool GGraph4D::getSmallWLargeMarker() const {
  * to 0 will result in all data being displayed.
  */
 void GGraph4D::setNBest(const std::size_t &n_best) {
-    nBest_ = n_best;
+    n_best_ = n_best;
 }
 
 /******************************************************************************/
@@ -1419,7 +1422,7 @@ void GGraph4D::setNBest(const std::size_t &n_best) {
  * Allows to retrieve the number of solutions the class should show
  */
 std::size_t GGraph4D::getNBest() const {
-    return nBest_;
+    return n_best_;
 }
 
 /******************************************************************************/
@@ -1457,10 +1460,10 @@ void GGraph4D::compare_(
     compare_base_t<GDataCollector4T<double, double, double, double>>(*this, *p_load, token);
 
     // ... and then the local data
-    compare_t(IDENTITY(minMarkerSize_, p_load->minMarkerSize_), token);
-    compare_t(IDENTITY(maxMarkerSize_, p_load->maxMarkerSize_), token);
-    compare_t(IDENTITY(smallWLargeMarker_, p_load->smallWLargeMarker_), token);
-    compare_t(IDENTITY(nBest_, p_load->nBest_), token);
+    compare_t(IDENTITY(min_marker_size_, p_load->min_marker_size_), token);
+    compare_t(IDENTITY(max_marker_size_, p_load->max_marker_size_), token);
+    compare_t(IDENTITY(small_w_large_marker_, p_load->small_w_large_marker_), token);
+    compare_t(IDENTITY(n_best_, p_load->n_best_), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -1500,8 +1503,8 @@ GGraph4D::footerData_(bool is_secondary, std::size_t p_id, const std::string &in
 
     std::string base_name = suffix(is_secondary, p_id);
 
-    // Sort the data, so we can select the nBest_ best more easily
-    if(smallWLargeMarker_) {
+    // Sort the data, so we can select the n_best_ best more easily
+    if(small_w_large_marker_) {
         std::sort(
             local_data.begin(),
             local_data.end(),
@@ -1567,16 +1570,16 @@ GGraph4D::footerData_(bool is_secondary, std::size_t p_id, const std::string &in
         // smaller values will yield the largest value
         double marker_size = 0.;
         if(0 == pos) {
-            marker_size = 2 * maxMarkerSize_;
+            marker_size = 2 * max_marker_size_;
         }
         else {
-            if(smallWLargeMarker_) {
-                marker_size = minMarkerSize_ + (maxMarkerSize_ - minMarkerSize_) *
+            if(small_w_large_marker_) {
+                marker_size = min_marker_size_ + (max_marker_size_ - min_marker_size_) *
                                                    pow((1. - (w - w_min) / w_range), 8.);
             }
             else {
-                marker_size = minMarkerSize_ +
-                              (maxMarkerSize_ - minMarkerSize_) * pow(((w - w_min) / w_range), 8);
+                marker_size = min_marker_size_ +
+                              (max_marker_size_ - min_marker_size_) * pow(((w - w_min) / w_range), 8);
             }
         }
 
@@ -1592,7 +1595,7 @@ GGraph4D::footerData_(bool is_secondary, std::size_t p_id, const std::string &in
 
         pos++;
 
-        if(nBest_ && pos >= nBest_) {
+        if(n_best_ && pos >= n_best_) {
             break;
         }
     }
@@ -1634,10 +1637,10 @@ void GGraph4D::load_(const GBasePlotter *cp) {
     GDataCollector4T<double, double, double, double>::load_(cp);
 
     // ... and then our local data
-    minMarkerSize_ = p_load->minMarkerSize_;
-    maxMarkerSize_ = p_load->maxMarkerSize_;
-    smallWLargeMarker_ = p_load->smallWLargeMarker_;
-    nBest_ = p_load->nBest_;
+    min_marker_size_ = p_load->min_marker_size_;
+    max_marker_size_ = p_load->max_marker_size_;
+    small_w_large_marker_ = p_load->small_w_large_marker_;
+    n_best_ = p_load->n_best_;
 }
 
 /******************************************************************************/
@@ -1647,7 +1650,7 @@ void GGraph4D::load_(const GBasePlotter *cp) {
  * Initialization with number of bins and automatic range detection
  */
 GHistogram1D::GHistogram1D(const std::size_t &n_bins_x)
-  : nBinsX_(n_bins_x) { /* nothing */
+  : n_bins_x_(n_bins_x) { /* nothing */
 }
 
 /******************************************************************************/
@@ -1655,9 +1658,9 @@ GHistogram1D::GHistogram1D(const std::size_t &n_bins_x)
  * Initialization with a range in the form of a tuple
  */
 GHistogram1D::GHistogram1D(const std::size_t &n_bins_x, const double &min_x, const double &max_x)
-  : nBinsX_(n_bins_x)
-  , minX_(min_x)
-  , maxX_(max_x) { /* nothing */
+  : n_bins_x_(n_bins_x)
+  , min_x_(min_x)
+  , max_x_(max_x) { /* nothing */
 }
 
 /******************************************************************************/
@@ -1665,9 +1668,9 @@ GHistogram1D::GHistogram1D(const std::size_t &n_bins_x, const double &min_x, con
  * Initialization with a range in the form of a tuple
  */
 GHistogram1D::GHistogram1D(const std::size_t &n_bins_x, const std::tuple<double, double> &range_x)
-  : nBinsX_(n_bins_x)
-  , minX_(std::get<0>(range_x))
-  , maxX_(std::get<1>(range_x)) { /* nothing */
+  : n_bins_x_(n_bins_x)
+  , min_x_(std::get<0>(range_x))
+  , max_x_(std::get<1>(range_x)) { /* nothing */
 }
 
 /******************************************************************************/
@@ -1679,23 +1682,23 @@ GHistogram1D::headerData_(bool is_secondary, std::size_t p_id, const std::string
     std::ostringstream header_data; // NOLINT(cppcoreguidelines-init-variables)
 
     std::string comment; // NOLINT(cppcoreguidelines-init-variables)
-    if(dsMarker_ != "") {
-        comment = "// " + dsMarker_;
+    if(!ds_marker_.empty()) {
+        comment = "// " + ds_marker_;
     }
 
     std::string hist_name = "histD" + suffix(is_secondary, p_id);
 
-    if(minX_ != maxX_) {
+    if(min_x_ != max_x_) {
         header_data << indent << "TH1D *" << hist_name << " = new TH1D(\"" << hist_name << "\", \""
-                    << hist_name << "\"," << nBinsX_ << ", " << minX_ << ", " << maxX_ << ");"
-                    << (comment != "" ? comment : "") << '\n'
+                    << hist_name << "\"," << n_bins_x_ << ", " << min_x_ << ", " << max_x_ << ");"
+                    << (!comment.empty() ? comment : "") << '\n'
                     << '\n';
     }
     else { // automatic range detection
         std::tuple<double, double> minmax = this->getMinMaxElements();
         header_data << indent << "TH1D *" << hist_name << " = new TH1D(\"" << hist_name << "\", \""
-                    << hist_name << "\"," << nBinsX_ << ", " << std::get<0>(minmax) << ", "
-                    << std::get<1>(minmax) << ");" << (comment != "" ? comment : "") << '\n'
+                    << hist_name << "\"," << n_bins_x_ << ", " << std::get<0>(minmax) << ", "
+                    << std::get<1>(minmax) << ");" << (!comment.empty() ? comment : "") << '\n'
                     << '\n';
     }
 
@@ -1711,8 +1714,8 @@ GHistogram1D::bodyData_(bool is_secondary, std::size_t p_id, const std::string &
     std::ostringstream body_data; // NOLINT(cppcoreguidelines-init-variables)
 
     std::string comment; // NOLINT(cppcoreguidelines-init-variables)
-    if(dsMarker_ != "") {
-        comment = "// " + dsMarker_;
+    if(!ds_marker_.empty()) {
+        comment = "// " + ds_marker_;
     }
     else {
         comment = "";
@@ -1742,7 +1745,7 @@ GHistogram1D::footerData_(bool is_secondary, std::size_t p_id, const std::string
 
     std::string hist_name = "histD" + suffix(is_secondary, p_id);
 
-    if(plot_label_ != "") {
+    if(!plot_label_.empty()) {
         footer_data << indent << hist_name << "->SetTitle(\"" << plot_label_ << "\");" << '\n';
     }
     else {
@@ -1750,8 +1753,8 @@ GHistogram1D::footerData_(bool is_secondary, std::size_t p_id, const std::string
     }
 
     std::string comment; // NOLINT(cppcoreguidelines-init-variables)
-    if(dsMarker_ != "") {
-        footer_data << "// " + dsMarker_ << '\n';
+    if(!ds_marker_.empty()) {
+        footer_data << "// " + ds_marker_ << '\n';
     }
 
     // Check whether custom drawing arguments have been set
@@ -1774,12 +1777,12 @@ GHistogram1D::footerData_(bool is_secondary, std::size_t p_id, const std::string
 std::string GHistogram1D::drawingArguments(bool is_secondary) const {
     std::string d_a;
 
-    if(drawingArguments_ != "") {
-        d_a = drawingArguments_;
+    if(!drawing_arguments_.empty()) {
+        d_a = drawing_arguments_;
     }
     else {
         if(is_secondary) {
-            if("" == d_a) {
+            if(d_a.empty()) {
                 d_a = "same";
             }
             else {
@@ -1798,7 +1801,7 @@ std::string GHistogram1D::drawingArguments(bool is_secondary) const {
  * @return The number of bins in x-direction
  */
 std::size_t GHistogram1D::getNBinsX() const {
-    return nBinsX_;
+    return n_bins_x_;
 }
 
 /******************************************************************************/
@@ -1808,7 +1811,7 @@ std::size_t GHistogram1D::getNBinsX() const {
  * @return The lower boundary of the plot
  */
 double GHistogram1D::getMinX() const {
-    return minX_;
+    return min_x_;
 }
 
 /******************************************************************************/
@@ -1818,7 +1821,7 @@ double GHistogram1D::getMinX() const {
  * @return The upper boundary of the plot
  */
 double GHistogram1D::getMaxX() const {
-    return maxX_;
+    return max_x_;
 }
 
 /******************************************************************************/
@@ -1856,9 +1859,9 @@ void GHistogram1D::compare_(
     compare_base_t<GDataCollector1T<double>>(*this, *p_load, token);
 
     // ... and then the local data
-    compare_t(IDENTITY(nBinsX_, p_load->nBinsX_), token);
-    compare_t(IDENTITY(minX_, p_load->minX_), token);
-    compare_t(IDENTITY(maxX_, p_load->maxX_), token);
+    compare_t(IDENTITY(n_bins_x_, p_load->n_bins_x_), token);
+    compare_t(IDENTITY(min_x_, p_load->min_x_), token);
+    compare_t(IDENTITY(max_x_, p_load->max_x_), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -1884,9 +1887,9 @@ void GHistogram1D::load_(const GBasePlotter *cp) {
     GDataCollector1T<double>::load_(cp);
 
     // ... and then our local data
-    nBinsX_ = p_load->nBinsX_;
-    minX_ = p_load->minX_;
-    maxX_ = p_load->maxX_;
+    n_bins_x_ = p_load->n_bins_x_;
+    min_x_ = p_load->min_x_;
+    max_x_ = p_load->max_x_;
 }
 
 /******************************************************************************/
@@ -1896,9 +1899,9 @@ void GHistogram1D::load_(const GBasePlotter *cp) {
  * The standard constructor
  */
 GHistogram1I::GHistogram1I(const std::size_t &n_bins_x, const double &min_x, const double &max_x)
-  : nBinsX_(n_bins_x)
-  , minX_(min_x)
-  , maxX_(max_x) { /* nothing */
+  : n_bins_x_(n_bins_x)
+  , min_x_(min_x)
+  , max_x_(max_x) { /* nothing */
 }
 
 /******************************************************************************/
@@ -1906,9 +1909,9 @@ GHistogram1I::GHistogram1I(const std::size_t &n_bins_x, const double &min_x, con
  * Initialization with a range in the form of a tuple
  */
 GHistogram1I::GHistogram1I(const std::size_t &n_bins_x, const std::tuple<double, double> &range_x)
-  : nBinsX_(n_bins_x)
-  , minX_(std::get<0>(range_x))
-  , maxX_(std::get<1>(range_x)) { /* nothing */
+  : n_bins_x_(n_bins_x)
+  , min_x_(std::get<0>(range_x))
+  , max_x_(std::get<1>(range_x)) { /* nothing */
 }
 
 /******************************************************************************/
@@ -1920,15 +1923,15 @@ GHistogram1I::headerData_(bool is_secondary, std::size_t p_id, const std::string
     std::ostringstream header_data; // NOLINT(cppcoreguidelines-init-variables)
 
     std::string comment; // NOLINT(cppcoreguidelines-init-variables)
-    if(dsMarker_ != "") {
-        comment = "// " + dsMarker_;
+    if(!ds_marker_.empty()) {
+        comment = "// " + ds_marker_;
     }
 
     std::string hist_name = "histI" + suffix(is_secondary, p_id);
 
     header_data << indent << "TH1I *" << hist_name << " = new TH1I(\"" << hist_name << "\", \""
-                << hist_name << "\"," << nBinsX_ << ", " << minX_ << ", " << maxX_ << ");"
-                << (comment != "" ? comment : "") << '\n'
+                << hist_name << "\"," << n_bins_x_ << ", " << min_x_ << ", " << max_x_ << ");"
+                << (!comment.empty() ? comment : "") << '\n'
                 << '\n';
 
     return header_data.str();
@@ -1943,8 +1946,8 @@ GHistogram1I::bodyData_(bool is_secondary, std::size_t p_id, const std::string &
     std::ostringstream body_data; // NOLINT(cppcoreguidelines-init-variables)
 
     std::string comment; // NOLINT(cppcoreguidelines-init-variables)
-    if(dsMarker_ != "") {
-        comment = "// " + dsMarker_;
+    if(!ds_marker_.empty()) {
+        comment = "// " + ds_marker_;
     }
     else {
         comment = "";
@@ -1975,7 +1978,7 @@ GHistogram1I::footerData_(bool is_secondary, std::size_t p_id, const std::string
 
     std::string hist_name = "histI" + suffix(is_secondary, p_id);
 
-    if(plot_label_ != "") {
+    if(!plot_label_.empty()) {
         footer_data << indent << hist_name << "->SetTitle(\"" << plot_label_ << "\");" << '\n';
     }
     else {
@@ -1983,8 +1986,8 @@ GHistogram1I::footerData_(bool is_secondary, std::size_t p_id, const std::string
     }
 
     std::string comment; // NOLINT(cppcoreguidelines-init-variables)
-    if(dsMarker_ != "") {
-        footer_data << "// " + dsMarker_ << '\n';
+    if(!ds_marker_.empty()) {
+        footer_data << "// " + ds_marker_ << '\n';
     }
 
     // Check whether custom drawing arguments have been set
@@ -2007,12 +2010,12 @@ GHistogram1I::footerData_(bool is_secondary, std::size_t p_id, const std::string
 std::string GHistogram1I::drawingArguments(bool is_secondary) const {
     std::string d_a;
 
-    if(drawingArguments_ != "") {
-        d_a = drawingArguments_;
+    if(!drawing_arguments_.empty()) {
+        d_a = drawing_arguments_;
     }
     else {
         if(is_secondary) {
-            if("" == d_a) {
+            if(d_a.empty()) {
                 d_a = "same";
             }
             else {
@@ -2031,7 +2034,7 @@ std::string GHistogram1I::drawingArguments(bool is_secondary) const {
  * @return The number of bins in x-direction
  */
 std::size_t GHistogram1I::getNBinsX() const {
-    return nBinsX_;
+    return n_bins_x_;
 }
 
 /******************************************************************************/
@@ -2041,7 +2044,7 @@ std::size_t GHistogram1I::getNBinsX() const {
  * @return The lower boundary of the plot
  */
 double GHistogram1I::getMinX() const {
-    return minX_;
+    return min_x_;
 }
 
 /******************************************************************************/
@@ -2051,7 +2054,7 @@ double GHistogram1I::getMinX() const {
  * @return The upper boundary of the plot
  */
 double GHistogram1I::getMaxX() const {
-    return maxX_;
+    return max_x_;
 }
 
 /******************************************************************************/
@@ -2089,9 +2092,9 @@ void GHistogram1I::compare_(
     compare_base_t<GDataCollector1T<std::int32_t>>(*this, *p_load, token);
 
     // ... and then the local data
-    compare_t(IDENTITY(nBinsX_, p_load->nBinsX_), token);
-    compare_t(IDENTITY(minX_, p_load->minX_), token);
-    compare_t(IDENTITY(maxX_, p_load->maxX_), token);
+    compare_t(IDENTITY(n_bins_x_, p_load->n_bins_x_), token);
+    compare_t(IDENTITY(min_x_, p_load->min_x_), token);
+    compare_t(IDENTITY(max_x_, p_load->max_x_), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -2117,9 +2120,9 @@ void GHistogram1I::load_(const GBasePlotter *cp) {
     GDataCollector1T<std::int32_t>::load_(cp);
 
     // ... and then our local data
-    nBinsX_ = p_load->nBinsX_;
-    minX_ = p_load->minX_;
-    maxX_ = p_load->maxX_;
+    n_bins_x_ = p_load->n_bins_x_;
+    min_x_ = p_load->min_x_;
+    max_x_ = p_load->max_x_;
 }
 
 /******************************************************************************/
@@ -2136,12 +2139,12 @@ GHistogram2D::GHistogram2D(
     const double &min_y,
     const double &max_y
 )
-  : nBinsX_(n_bins_x)
-  , nBinsY_(n_bins_y)
-  , minX_(min_x)
-  , maxX_(max_x)
-  , minY_(min_y)
-  , maxY_(max_y)
+  : n_bins_x_(n_bins_x)
+  , n_bins_y_(n_bins_y)
+  , min_x_(min_x)
+  , max_x_(max_x)
+  , min_y_(min_y)
+  , max_y_(max_y)
   , dropt_(tddropt::TDEMPTY) { /* nothing */
 }
 
@@ -2155,12 +2158,12 @@ GHistogram2D::GHistogram2D(
     const std::tuple<double, double> &range_x,
     const std::tuple<double, double> &range_y
 )
-  : nBinsX_(n_bins_x)
-  , nBinsY_(n_bins_y)
-  , minX_(std::get<0>(range_x))
-  , maxX_(std::get<1>(range_x))
-  , minY_(std::get<0>(range_y))
-  , maxY_(std::get<1>(range_y))
+  : n_bins_x_(n_bins_x)
+  , n_bins_y_(n_bins_y)
+  , min_x_(std::get<0>(range_x))
+  , max_x_(std::get<1>(range_x))
+  , min_y_(std::get<0>(range_y))
+  , max_y_(std::get<1>(range_y))
   , dropt_(tddropt::TDEMPTY) { /* nothing */
 }
 
@@ -2169,12 +2172,12 @@ GHistogram2D::GHistogram2D(
  * Initialization with automatic range detection
  */
 GHistogram2D::GHistogram2D(const std::size_t &n_bins_x, const std::size_t &n_bins_y)
-  : nBinsX_(n_bins_x)
-  , nBinsY_(n_bins_y)
-  , minX_(0)
-  , maxX_(minX_)
-  , minY_(0)
-  , maxY_(minY_)
+  : n_bins_x_(n_bins_x)
+  , n_bins_y_(n_bins_y)
+  , min_x_(0)
+  , max_x_(min_x_)
+  , min_y_(0)
+  , max_y_(min_y_)
   , dropt_(tddropt::TDEMPTY) { /* nothing */
 }
 
@@ -2187,26 +2190,26 @@ GHistogram2D::headerData_(bool is_secondary, std::size_t p_id, const std::string
     std::ostringstream header_data; // NOLINT(cppcoreguidelines-init-variables)
 
     std::string comment; // NOLINT(cppcoreguidelines-init-variables)
-    if(dsMarker_ != "") {
-        comment = "// " + dsMarker_;
+    if(!ds_marker_.empty()) {
+        comment = "// " + ds_marker_;
     }
 
     std::string hist_name = "hist2D" + suffix(is_secondary, p_id);
 
-    if(minX_ != maxX_ && minY_ != maxY_) {
+    if(min_x_ != max_x_ && min_y_ != max_y_) {
         header_data << indent << "TH2D *" << hist_name << " = new TH2D(\"" << hist_name << "\", \""
-                    << hist_name << "\"," << nBinsX_ << ", " << minX_ << ", " << maxX_ << ","
-                    << nBinsY_ << ", " << minY_ << ", " << maxY_ << ");"
-                    << (comment != "" ? comment : "") << '\n'
+                    << hist_name << "\"," << n_bins_x_ << ", " << min_x_ << ", " << max_x_ << ","
+                    << n_bins_y_ << ", " << min_y_ << ", " << max_y_ << ");"
+                    << (!comment.empty() ? comment : "") << '\n'
                     << '\n';
     }
     else { // // automatic range detection
         std::tuple<double, double, double, double> minmax = this->getMinMaxElements();
 
         header_data << indent << "TH2D *" << hist_name << " = new TH2D(\"" << hist_name << "\", \""
-                    << hist_name << "\"," << nBinsX_ << ", " << std::get<0>(minmax) << ", "
-                    << std::get<1>(minmax) << "," << nBinsY_ << ", " << std::get<2>(minmax) << ", "
-                    << std::get<3>(minmax) << ");" << (comment != "" ? comment : "") << '\n'
+                    << hist_name << "\"," << n_bins_x_ << ", " << std::get<0>(minmax) << ", "
+                    << std::get<1>(minmax) << "," << n_bins_y_ << ", " << std::get<2>(minmax) << ", "
+                    << std::get<3>(minmax) << ");" << (!comment.empty() ? comment : "") << '\n'
                     << '\n';
     }
 
@@ -2222,8 +2225,8 @@ GHistogram2D::bodyData_(bool is_secondary, std::size_t p_id, const std::string &
     std::ostringstream body_data; // NOLINT(cppcoreguidelines-init-variables)
 
     std::string comment; // NOLINT(cppcoreguidelines-init-variables)
-    if(dsMarker_ != "") {
-        comment = "// " + dsMarker_;
+    if(!ds_marker_.empty()) {
+        comment = "// " + ds_marker_;
     }
     else {
         comment = "";
@@ -2254,7 +2257,7 @@ GHistogram2D::footerData_(bool is_secondary, std::size_t p_id, const std::string
 
     std::string hist_name = "hist2D" + suffix(is_secondary, p_id);
 
-    if(plot_label_ != "") {
+    if(!plot_label_.empty()) {
         footer_data << indent << hist_name << "->SetTitle(\"" << plot_label_ << "\");" << '\n';
     }
     else {
@@ -2262,8 +2265,8 @@ GHistogram2D::footerData_(bool is_secondary, std::size_t p_id, const std::string
     }
 
     std::string comment; // NOLINT(cppcoreguidelines-init-variables)
-    if(dsMarker_ != "") {
-        footer_data << "// " + dsMarker_ << '\n';
+    if(!ds_marker_.empty()) {
+        footer_data << "// " + ds_marker_ << '\n';
     }
 
     // Check whether custom drawing arguments have been set
@@ -2286,8 +2289,8 @@ GHistogram2D::footerData_(bool is_secondary, std::size_t p_id, const std::string
 std::string GHistogram2D::drawingArguments(bool is_secondary) const {
     std::string d_a;
 
-    if(drawingArguments_ != "") {
-        d_a = drawingArguments_;
+    if(!drawing_arguments_.empty()) {
+        d_a = drawing_arguments_;
     }
     else {
         switch(dropt_) {
@@ -2395,7 +2398,7 @@ tddropt GHistogram2D::get2DOpt() const {
  * @return The number of bins in x-direction
  */
 std::size_t GHistogram2D::getNBinsX() const {
-    return nBinsX_;
+    return n_bins_x_;
 }
 
 /******************************************************************************/
@@ -2405,7 +2408,7 @@ std::size_t GHistogram2D::getNBinsX() const {
  * @return The number of bins in y-direction
  */
 std::size_t GHistogram2D::getNBinsY() const {
-    return nBinsY_;
+    return n_bins_y_;
 }
 
 /******************************************************************************/
@@ -2415,7 +2418,7 @@ std::size_t GHistogram2D::getNBinsY() const {
  * @return The lower boundary of the plot in x-direction
  */
 double GHistogram2D::getMinX() const {
-    return minX_;
+    return min_x_;
 }
 
 /******************************************************************************/
@@ -2425,7 +2428,7 @@ double GHistogram2D::getMinX() const {
  * @return The upper boundary of the plot in x-direction
  */
 double GHistogram2D::getMaxX() const {
-    return maxX_;
+    return max_x_;
 }
 
 /******************************************************************************/
@@ -2435,7 +2438,7 @@ double GHistogram2D::getMaxX() const {
  * @return The lower boundary of the plot in y-direction
  */
 double GHistogram2D::getMinY() const {
-    return minY_;
+    return min_y_;
 }
 
 /******************************************************************************/
@@ -2445,7 +2448,7 @@ double GHistogram2D::getMinY() const {
  * @return The upper boundary of the plot in y-direction
  */
 double GHistogram2D::getMaxY() const {
-    return maxY_;
+    return max_y_;
 }
 
 /******************************************************************************/
@@ -2483,12 +2486,12 @@ void GHistogram2D::compare_(
     compare_base_t<GDataCollector2T<double, double>>(*this, *p_load, token);
 
     // ... and then the local data
-    compare_t(IDENTITY(nBinsX_, p_load->nBinsX_), token);
-    compare_t(IDENTITY(nBinsY_, p_load->nBinsY_), token);
-    compare_t(IDENTITY(minX_, p_load->minX_), token);
-    compare_t(IDENTITY(maxX_, p_load->maxX_), token);
-    compare_t(IDENTITY(minY_, p_load->minY_), token);
-    compare_t(IDENTITY(maxY_, p_load->maxY_), token);
+    compare_t(IDENTITY(n_bins_x_, p_load->n_bins_x_), token);
+    compare_t(IDENTITY(n_bins_y_, p_load->n_bins_y_), token);
+    compare_t(IDENTITY(min_x_, p_load->min_x_), token);
+    compare_t(IDENTITY(max_x_, p_load->max_x_), token);
+    compare_t(IDENTITY(min_y_, p_load->min_y_), token);
+    compare_t(IDENTITY(max_y_, p_load->max_y_), token);
     compare_t(IDENTITY(dropt_, p_load->dropt_), token);
 
     // React on deviations from the expectation
@@ -2515,12 +2518,12 @@ void GHistogram2D::load_(const GBasePlotter *cp) {
     GDataCollector2T<double, double>::load_(cp);
 
     // ... and then our local data
-    nBinsX_ = p_load->nBinsX_;
-    nBinsY_ = p_load->nBinsY_;
-    minX_ = p_load->minX_;
-    maxX_ = p_load->maxX_;
-    minY_ = p_load->minY_;
-    maxY_ = p_load->maxY_;
+    n_bins_x_ = p_load->n_bins_x_;
+    n_bins_y_ = p_load->n_bins_y_;
+    min_x_ = p_load->min_x_;
+    max_x_ = p_load->max_x_;
+    min_y_ = p_load->min_y_;
+    max_y_ = p_load->max_y_;
     dropt_ = p_load->dropt_;
 }
 
@@ -2537,8 +2540,8 @@ GFunctionPlotter1D::GFunctionPlotter1D(
     const std::string &f_d,
     const std::tuple<double, double> &x_extremes
 )
-  : functionDescription_(f_d)
-  , xExtremes_(x_extremes) { /* nothing */
+  : function_description_(f_d)
+  , x_extremes_(x_extremes) { /* nothing */
 }
 
 /******************************************************************************/
@@ -2548,7 +2551,7 @@ GFunctionPlotter1D::GFunctionPlotter1D(
  * @param n_samples_x The number of sampling points of the function on the x-axis
  */
 void GFunctionPlotter1D::setNSamplesX(std::size_t n_samples_x) {
-    nSamplesX_ = n_samples_x;
+    n_samples_x_ = n_samples_x;
 }
 
 /******************************************************************************/
@@ -2586,9 +2589,9 @@ void GFunctionPlotter1D::compare_(
     compare_base_t<GBasePlotter>(*this, *p_load, token);
 
     // ... and then the local data
-    compare_t(IDENTITY(functionDescription_, p_load->functionDescription_), token);
-    compare_t(IDENTITY(xExtremes_, p_load->xExtremes_), token);
-    compare_t(IDENTITY(nSamplesX_, p_load->nSamplesX_), token);
+    compare_t(IDENTITY(function_description_, p_load->function_description_), token);
+    compare_t(IDENTITY(x_extremes_, p_load->x_extremes_), token);
+    compare_t(IDENTITY(n_samples_x_, p_load->n_samples_x_), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -2606,26 +2609,26 @@ std::string GFunctionPlotter1D::headerData_(
     const std::string &indent
 ) const {
     // Check the extreme values for consistency
-    if(std::get<0>(xExtremes_) >= std::get<1>(xExtremes_)) {
+    if(std::get<0>(x_extremes_) >= std::get<1>(x_extremes_)) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GFunctionPlotter1D::headerData_(): Error!" << '\n'
-            << "lower boundary >= upper boundary: " << std::get<0>(xExtremes_) << " / "
-            << std::get<1>(xExtremes_) << '\n'
+            << "lower boundary >= upper boundary: " << std::get<0>(x_extremes_) << " / "
+            << std::get<1>(x_extremes_) << '\n'
         );
     }
 
     std::ostringstream result; // NOLINT(cppcoreguidelines-init-variables)
 
     std::string comment; // NOLINT(cppcoreguidelines-init-variables)
-    if(dsMarker_ != "") {
-        comment = "// " + dsMarker_;
+    if(!ds_marker_.empty()) {
+        comment = "// " + ds_marker_;
     }
 
     std::string function_name = "func1D" + suffix(is_secondary, p_id);
     result << indent << "TF1 *" << function_name << " = new TF1(\"" << function_name << "\", \""
-           << functionDescription_ << "\"," << std::get<0>(xExtremes_) << ", "
-           << std::get<1>(xExtremes_) << ");" << (comment != "" ? comment : "") << '\n';
+           << function_description_ << "\"," << std::get<0>(x_extremes_) << ", "
+           << std::get<1>(x_extremes_) << ");" << (!comment.empty() ? comment : "") << '\n';
 
     return result.str();
 }
@@ -2655,8 +2658,8 @@ std::string GFunctionPlotter1D::footerData_(
     std::ostringstream footer_data; // NOLINT(cppcoreguidelines-init-variables)
 
     std::string comment; // NOLINT(cppcoreguidelines-init-variables)
-    if(dsMarker_ != "") {
-        comment = "// " + dsMarker_;
+    if(!ds_marker_.empty()) {
+        comment = "// " + ds_marker_;
     }
 
     std::string function_name = "func1D" + suffix(is_secondary, p_id);
@@ -2664,9 +2667,9 @@ std::string GFunctionPlotter1D::footerData_(
                 << '\n'
                 << indent << function_name << "->GetYaxis()->SetTitle(\"" << yAxisLabel() << "\");"
                 << '\n'
-                << indent << function_name << "->SetNpx(" << nSamplesX_ << ");" << '\n';
+                << indent << function_name << "->SetNpx(" << n_samples_x_ << ");" << '\n';
 
-    if(plot_label_ != "") {
+    if(!plot_label_.empty()) {
         footer_data << indent << function_name << "->SetTitle(\"" << plot_label_ << "\");" << '\n';
     }
     else {
@@ -2676,7 +2679,7 @@ std::string GFunctionPlotter1D::footerData_(
     std::string d_a = this->drawingArguments(is_secondary);
 
     footer_data << indent << function_name << "->Draw(" << d_a << ");"
-                << (comment != "" ? comment : "") << '\n'
+                << (!comment.empty() ? comment : "") << '\n'
                 << '\n';
 
     return footer_data.str();
@@ -2689,12 +2692,12 @@ std::string GFunctionPlotter1D::footerData_(
 std::string GFunctionPlotter1D::drawingArguments(bool is_secondary) const {
     std::string d_a;
 
-    if(this->drawingArguments_ != "") {
-        d_a = this->drawingArguments_;
+    if(!this->drawing_arguments_.empty()) {
+        d_a = this->drawing_arguments_;
     }
 
     if(is_secondary) {
-        if("" == d_a) {
+        if(d_a.empty()) {
             d_a = "same";
         }
         else {
@@ -2725,9 +2728,9 @@ void GFunctionPlotter1D::load_(const GBasePlotter *cp) {
     GBasePlotter::load_(cp);
 
     // ... and then our local data
-    functionDescription_ = p_load->functionDescription_;
-    xExtremes_ = p_load->xExtremes_;
-    nSamplesX_ = p_load->nSamplesX_;
+    function_description_ = p_load->function_description_;
+    x_extremes_ = p_load->x_extremes_;
+    n_samples_x_ = p_load->n_samples_x_;
 }
 
 /******************************************************************************/
@@ -2743,9 +2746,9 @@ GFunctionPlotter2D::GFunctionPlotter2D(
     const std::tuple<double, double> &x_extremes,
     const std::tuple<double, double> &y_extremes
 )
-  : functionDescription_(f_d)
-  , xExtremes_(x_extremes)
-  , yExtremes_(y_extremes) { /* nothing */
+  : function_description_(f_d)
+  , x_extremes_(x_extremes)
+  , y_extremes_(y_extremes) { /* nothing */
 }
 
 /******************************************************************************/
@@ -2755,7 +2758,7 @@ GFunctionPlotter2D::GFunctionPlotter2D(
  * @param n_samples_x The number of sampling points of the function on the x-axis
  */
 void GFunctionPlotter2D::setNSamplesX(std::size_t n_samples_x) {
-    nSamplesX_ = n_samples_x;
+    n_samples_x_ = n_samples_x;
 }
 
 /******************************************************************************/
@@ -2765,7 +2768,7 @@ void GFunctionPlotter2D::setNSamplesX(std::size_t n_samples_x) {
  * @param n_samples_y The number of sampling points of the function on the y-axis
  */
 void GFunctionPlotter2D::setNSamplesY(std::size_t n_samples_y) {
-    nSamplesY_ = n_samples_y;
+    n_samples_y_ = n_samples_y;
 }
 
 /******************************************************************************/
@@ -2803,11 +2806,11 @@ void GFunctionPlotter2D::compare_(
     compare_base_t<GBasePlotter>(*this, *p_load, token);
 
     // ... and then the local data
-    compare_t(IDENTITY(functionDescription_, p_load->functionDescription_), token);
-    compare_t(IDENTITY(xExtremes_, p_load->xExtremes_), token);
-    compare_t(IDENTITY(yExtremes_, p_load->yExtremes_), token);
-    compare_t(IDENTITY(nSamplesX_, p_load->nSamplesX_), token);
-    compare_t(IDENTITY(nSamplesY_, p_load->nSamplesY_), token);
+    compare_t(IDENTITY(function_description_, p_load->function_description_), token);
+    compare_t(IDENTITY(x_extremes_, p_load->x_extremes_), token);
+    compare_t(IDENTITY(y_extremes_, p_load->y_extremes_), token);
+    compare_t(IDENTITY(n_samples_x_, p_load->n_samples_x_), token);
+    compare_t(IDENTITY(n_samples_y_, p_load->n_samples_y_), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -2825,36 +2828,36 @@ std::string GFunctionPlotter2D::headerData_(
     const std::string &indent
 ) const {
     // Check the extreme values for consistency
-    if(std::get<0>(xExtremes_) >= std::get<1>(xExtremes_)) {
+    if(std::get<0>(x_extremes_) >= std::get<1>(x_extremes_)) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GFunctionPlotter2D::headerData_(): Error!" << '\n'
-            << "lower boundary(x) >= upper boundary(x): " << std::get<0>(xExtremes_) << " / "
-            << std::get<1>(xExtremes_) << '\n'
+            << "lower boundary(x) >= upper boundary(x): " << std::get<0>(x_extremes_) << " / "
+            << std::get<1>(x_extremes_) << '\n'
         );
     }
 
-    if(std::get<0>(yExtremes_) >= std::get<1>(yExtremes_)) {
+    if(std::get<0>(y_extremes_) >= std::get<1>(y_extremes_)) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GFunctionPlotter2D::headerData_(): Error!" << '\n'
-            << "lower boundary(y) >= upper boundary(y): " << std::get<0>(yExtremes_) << " / "
-            << std::get<1>(yExtremes_) << '\n'
+            << "lower boundary(y) >= upper boundary(y): " << std::get<0>(y_extremes_) << " / "
+            << std::get<1>(y_extremes_) << '\n'
         );
     }
 
     std::ostringstream result; // NOLINT(cppcoreguidelines-init-variables)
 
     std::string comment; // NOLINT(cppcoreguidelines-init-variables)
-    if(dsMarker_ != "") {
-        comment = "// " + dsMarker_;
+    if(!ds_marker_.empty()) {
+        comment = "// " + ds_marker_;
     }
 
     std::string function_name = "func2D" + suffix(is_secondary, p_id);
     result << indent << "TF2 *" << function_name << " = new TF2(\"" << function_name << "\", \""
-           << functionDescription_ << "\"," << std::get<0>(xExtremes_) << ", "
-           << std::get<1>(xExtremes_) << ", " << std::get<0>(yExtremes_) << ", "
-           << std::get<1>(yExtremes_) << ");" << (comment != "" ? comment : "") << '\n';
+           << function_description_ << "\"," << std::get<0>(x_extremes_) << ", "
+           << std::get<1>(x_extremes_) << ", " << std::get<0>(y_extremes_) << ", "
+           << std::get<1>(y_extremes_) << ");" << (!comment.empty() ? comment : "") << '\n';
 
     return result.str();
 }
@@ -2884,8 +2887,8 @@ std::string GFunctionPlotter2D::footerData_(
     std::ostringstream footer_data; // NOLINT(cppcoreguidelines-init-variables)
 
     std::string comment; // NOLINT(cppcoreguidelines-init-variables)
-    if(dsMarker_ != "") {
-        comment = "// " + dsMarker_;
+    if(!ds_marker_.empty()) {
+        comment = "// " + ds_marker_;
     }
 
     std::string function_name = "func2D" + suffix(is_secondary, p_id);
@@ -2895,10 +2898,10 @@ std::string GFunctionPlotter2D::footerData_(
                 << '\n'
                 << indent << function_name << "->GetZaxis()->SetTitle(\"" << zAxisLabel() << "\");"
                 << '\n'
-                << indent << function_name << "->SetNpx(" << nSamplesX_ << ");" << '\n'
-                << indent << function_name << "->SetNpy(" << nSamplesY_ << ");" << '\n';
+                << indent << function_name << "->SetNpx(" << n_samples_x_ << ");" << '\n'
+                << indent << function_name << "->SetNpy(" << n_samples_y_ << ");" << '\n';
 
-    if(plot_label_ != "") {
+    if(!plot_label_.empty()) {
         footer_data << indent << function_name << "->SetTitle(\"" << plot_label_ << "\");" << '\n';
     }
     else {
@@ -2908,7 +2911,7 @@ std::string GFunctionPlotter2D::footerData_(
     std::string d_a = this->drawingArguments(is_secondary);
 
     footer_data << indent << function_name << "->Draw(" << d_a << ");"
-                << (comment != "" ? comment : "") << '\n'
+                << (!comment.empty() ? comment : "") << '\n'
                 << '\n';
 
     return footer_data.str();
@@ -2922,7 +2925,7 @@ std::string GFunctionPlotter2D::drawingArguments(bool is_secondary) const {
     std::string d_a;
 
     if(is_secondary) {
-        if("" == d_a) {
+        if(d_a.empty()) {
             d_a = "same";
         }
         else {
@@ -2953,11 +2956,11 @@ void GFunctionPlotter2D::load_(const GBasePlotter *cp) {
     GBasePlotter::load_(cp);
 
     // ... and then our local data
-    functionDescription_ = p_load->functionDescription_;
-    xExtremes_ = p_load->xExtremes_;
-    yExtremes_ = p_load->yExtremes_;
-    nSamplesX_ = p_load->nSamplesX_;
-    nSamplesY_ = p_load->nSamplesY_;
+    function_description_ = p_load->function_description_;
+    x_extremes_ = p_load->x_extremes_;
+    y_extremes_ = p_load->y_extremes_;
+    n_samples_x_ = p_load->n_samples_x_;
+    n_samples_y_ = p_load->n_samples_y_;
 }
 
 /******************************************************************************/
@@ -3222,7 +3225,7 @@ void GPlotDesigner::setAddPrintCommand(bool add_print_command) {
 
 /******************************************************************************/
 /**
- * Allows to retrieve the current value of the addPrintCommand_ variable
+ * Allows to retrieve the current value of the add_print_command_ variable
  */
 bool GPlotDesigner::getAddPrintCommand() const {
     return add_print_command_;

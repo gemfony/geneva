@@ -120,9 +120,8 @@ bool GBooleanObject::randomInit(
     if(not GParameterBase::randomInitializationBlocked() && this->modifiableAmMatchOrHandover(am)) {
         return randomInit_(probability, am, gr);
     }
-    else {
-        return false;
-    }
+            return false;
+   
 }
 
 /* ----------------------------------------------------------------------------------
@@ -394,7 +393,8 @@ bool GBooleanObject::modify_GUnitTests_() {
 void GBooleanObject::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
     // Some general settings
-    const double lowerbnd = 0.8, upperbnd = 1.2;
+    const double lowerbnd = 0.8;
+    const double upperbnd = 1.2;
     const std::size_t n_tests = 10000;
 
     // Make sure we have an appropriate adaptor loaded when performing these tests
@@ -434,7 +434,8 @@ void GBooleanObject::specificTestsNoFailureExpected_GUnitTests_() {
     // --------------------------------------------------------------------------
 
     { // Test copy construction and construction with value
-        GBooleanObject gbo1(false), gbo2(gbo1);
+        GBooleanObject gbo1(false);
+        GBooleanObject gbo2(gbo1);
 
         INFO("\n" << "gbo1.value() = " << gbo1.value() << "gbo2.value() = " << gbo2.value());
         CHECK((not gbo1.value() && gbo2.value() == gbo1.value()));
@@ -443,7 +444,8 @@ void GBooleanObject::specificTestsNoFailureExpected_GUnitTests_() {
     // --------------------------------------------------------------------------
 
     { // Check construction with a given probability for the value "true"
-        std::size_t n_true = 0, n_false = 0;
+        std::size_t n_true = 0;
+        std::size_t n_false = 0;
         for(std::size_t i = 0; i < n_tests; i++) {
             GBooleanObject gbo(0.5);
             gbo.value() ? n_true++ : n_false++;

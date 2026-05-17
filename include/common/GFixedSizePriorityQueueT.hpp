@@ -74,7 +74,7 @@ class GFixedSizePriorityQueueT : public GCommonInterfaceT<GFixedSizePriorityQueu
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar &BOOST_SERIALIZATION_NVP(maxSize_) & BOOST_SERIALIZATION_NVP(sortOrder_) &
+        ar &BOOST_SERIALIZATION_NVP(max_size_) & BOOST_SERIALIZATION_NVP(sort_order_) &
             BOOST_SERIALIZATION_NVP(data_deq_);
     }
 
@@ -88,7 +88,7 @@ public:
          * @param maxSize The maximum size of the queue
          */
     explicit GFixedSizePriorityQueueT(const std::size_t &maxSize)
-      : maxSize_(maxSize) {
+      : max_size_(maxSize) {
         /* nothing */
     }
 
@@ -101,8 +101,8 @@ public:
          * @param sortOrder Indicates whether the queue should minimize or maximize
          */
     GFixedSizePriorityQueueT(const std::size_t &maxSize, const sortOrder &sortOrder)
-      : maxSize_(maxSize)
-      , sortOrder_(sortOrder) {
+      : max_size_(maxSize)
+      , sort_order_(sortOrder) {
         /* nothing */
     }
 
@@ -111,8 +111,8 @@ public:
          * The copy constructor
          */
     GFixedSizePriorityQueueT(GFixedSizePriorityQueueT const &cp)
-      : maxSize_(cp.maxSize_)
-      , sortOrder_(cp.sortOrder_) {
+      : max_size_(cp.max_size_)
+      , sort_order_(cp.sort_order_) {
         Common::copyCloneableSmartPointerContainer(cp.data_deq_, data_deq_);
     }
 
@@ -122,11 +122,11 @@ public:
          */
     GFixedSizePriorityQueueT(GFixedSizePriorityQueueT &&cp) noexcept {
         // Move content, then reset cp to default values
-        maxSize_ = cp.maxSize_;
-        cp.maxSize_ = GFSPQ_DEF_MAX_SIZE;
+        max_size_ = cp.max_size_;
+        cp.max_size_ = GFSPQ_DEF_MAX_SIZE;
 
-        sortOrder_ = cp.sortOrder_;
-        cp.sortOrder_ = GFSPQ_DEF_SORT_ORDER;
+        sort_order_ = cp.sort_order_;
+        cp.sort_order_ = GFSPQ_DEF_SORT_ORDER;
 
         data_deq_ = std::move(cp.data_deq_);
         cp.data_deq_.clear();
@@ -146,8 +146,8 @@ public:
         if(this == &cp) {
             return *this;
         }
-        maxSize_ = cp.maxSize_;
-        sortOrder_ = cp.sortOrder_;
+        max_size_ = cp.max_size_;
+        sort_order_ = cp.sort_order_;
 
         Common::copyCloneableSmartPointerContainer(cp.data_deq_, data_deq_);
 
@@ -160,11 +160,11 @@ public:
          */
     GFixedSizePriorityQueueT &operator=(GFixedSizePriorityQueueT &&cp) noexcept {
         // Move data over, then set remote object to default values
-        maxSize_ = cp.maxSize_;
-        cp.maxSize_ = GFSPQ_DEF_MAX_SIZE;
+        max_size_ = cp.max_size_;
+        cp.max_size_ = GFSPQ_DEF_MAX_SIZE;
 
-        sortOrder_ = cp.sortOrder_;
-        cp.sortOrder_ = GFSPQ_DEF_SORT_ORDER;
+        sort_order_ = cp.sort_order_;
+        cp.sort_order_ = GFSPQ_DEF_SORT_ORDER;
 
         data_deq_ = std::move(cp.data_deq_);
         cp.data_deq_.clear();
@@ -185,9 +185,8 @@ public:
                 << "Priority queue is empty." << '\n'
             );
         }
-        else {
-            return data_deq_.front();
-        }
+                    return data_deq_.front();
+       
     }
 
     /***************************************************************************/
@@ -203,9 +202,8 @@ public:
                 << "Priority queue is empty." << '\n'
             );
         }
-        else {
-            return data_deq_.back();
-        }
+                    return data_deq_.back();
+       
     }
 
     /***************************************************************************/
@@ -215,15 +213,15 @@ public:
          * considered to be better.
          */
     void setSortOrder(const sortOrder &sortOrder) {
-        sortOrder_ = sortOrder;
+        sort_order_ = sortOrder;
     }
 
     /***************************************************************************/
     /**
-         * Allows to retrieve the current value of sortOrder_
+         * Allows to retrieve the current value of sort_order_
          */
     sortOrder getSortOrder() const {
-        return sortOrder_;
+        return sort_order_;
     }
 
     /***************************************************************************/
@@ -241,7 +239,7 @@ public:
         // - If the queue is unlimited
         // - If the queue isn't full yet
         // - If the item is better than the worst one contained in the queue
-        if(0 == maxSize_ || data_deq_.size() < maxSize_ ||
+        if(0 == max_size_ || data_deq_.size() < max_size_ ||
            isBetter(this->evaluation(item_ptr), this->evaluation(this->worst()))) {
             if(do_clone) {
                 data_deq_.push_back(item_ptr->template clone<T>());
@@ -263,18 +261,17 @@ public:
                     // higher is better
                     return this->evaluation(x_ptr) < this->evaluation(y_ptr);
                 }
-                else {
-                    // HIGHERISBETTER
+                                    // HIGHERISBETTER
                     return this->evaluation(x_ptr) > this->evaluation(y_ptr);
-                }
+               
             }
         );
 
         // Remove surplus work items, if the queue has reached the corresponding size
         // As the worst items are not at the end of the queue, they will be removed, if
         // they are beyond the allowed size. This will only have an effect if maxSize_ is != 0 .
-        if(maxSize_ && data_deq_.size() > maxSize_) {
-            data_deq_.resize(maxSize_);
+        if(max_size_ && data_deq_.size() > max_size_) {
+            data_deq_.resize(max_size_);
         }
     }
 
@@ -287,7 +284,7 @@ public:
         typename std::vector<std::shared_ptr<T>>::const_iterator end,
         bool do_clone,
         bool replace) {
-        double worstKnownEvaluation = Gem::Common::getWorstCase<double>(sortOrder_);
+        double worstKnownEvaluation = Gem::Common::getWorstCase<double>(sort_order_);
         if(replace || data_deq_.empty()) {
             data_deq_.clear();
         }
@@ -312,7 +309,7 @@ public:
             // - If the queue is unlimited
             // - If the queue isn't full yet
             // - If the item is better than the worst one already contained in the queue
-            if(0 == maxSize_ || data_deq_.size() < maxSize_ ||
+            if(0 == max_size_ || data_deq_.size() < max_size_ ||
                isBetter(this->evaluation(item_ptr), worstKnownEvaluation)) {
                 if(do_clone) {
                     data_deq_.push_back(item_ptr->template clone<T>());
@@ -334,16 +331,15 @@ public:
                 if(this->getSortOrder() == sortOrder::LOWERISBETTER) {
                     return this->evaluation(x_ptr) < this->evaluation(y_ptr);
                 }
-                else {
-                    return this->evaluation(x_ptr) > this->evaluation(y_ptr);
-                }
+                                    return this->evaluation(x_ptr) > this->evaluation(y_ptr);
+               
             }
         );
 
         // Remove surplus work items, if the queue has reached the corresponding size
         // This will only have an effect if maxSize_ is != 0
-        if(maxSize_ && data_deq_.size() > maxSize_) {
-            data_deq_.resize(maxSize_);
+        if(max_size_ && data_deq_.size() > max_size_) {
+            data_deq_.resize(max_size_);
         }
     }
 
@@ -376,11 +372,10 @@ public:
                 << "Priority queue is empty." << '\n'
             );
         }
-        else {
-            auto item_ptr = data_deq_.front();
+                    auto item_ptr = data_deq_.front();
             data_deq_.pop_front();
             return item_ptr;
-        }
+       
     }
 
     /***************************************************************************/
@@ -431,7 +426,7 @@ public:
             data_deq_.resize(maxSize);
         }
 
-        maxSize_ = maxSize;
+        max_size_ = maxSize;
     }
 
     /***************************************************************************/
@@ -439,7 +434,7 @@ public:
              * Retrieves the maximum size of the priority queue
              */
     std::size_t getMaxSize() const {
-        return maxSize_;
+        return max_size_;
     }
 
     /***************************************************************************/
@@ -467,8 +462,8 @@ protected:
             );
 
         // Load local data
-        maxSize_ = p_load->maxSize_;
-        sortOrder_ = p_load->sortOrder_;
+        max_size_ = p_load->max_size_;
+        sort_order_ = p_load->sort_order_;
         Common::copyCloneableSmartPointerContainer(p_load->data_deq_, data_deq_);
     }
 
@@ -509,8 +504,8 @@ protected:
         Common::compare_base_t<GCommonInterfaceT<GFixedSizePriorityQueueT>>(*this, *p_load, token);
 
         // ... and then our local data
-        compare_t(IDENTITY(maxSize_, p_load->maxSize_), token);
-        compare_t(IDENTITY(sortOrder_, p_load->sortOrder_), token);
+        compare_t(IDENTITY(max_size_, p_load->max_size_), token);
+        compare_t(IDENTITY(sort_order_, p_load->sort_order_), token);
         compare_t(IDENTITY(data_deq_, p_load->data_deq_), token);
 
         // React on deviations from the expectation
@@ -553,7 +548,7 @@ protected:
          * incumbent-replacement behave differently for the two sort orders.
          */
     bool isBetter(double new_item_val, double old_item_val) const {
-        return (sortOrder_ == sortOrder::LOWERISBETTER) ? (new_item_val < old_item_val)
+        return (sort_order_ == sortOrder::LOWERISBETTER) ? (new_item_val < old_item_val)
                                                           : (new_item_val > old_item_val);
     }
 
@@ -589,8 +584,8 @@ protected:
 
     /***************************************************************************/
 
-    std::size_t maxSize_{GFSPQ_DEF_MAX_SIZE}; ///< The maximum number of work-items
-    sortOrder sortOrder_{sortOrder::LOWERISBETTER};
+    std::size_t max_size_{GFSPQ_DEF_MAX_SIZE}; ///< The maximum number of work-items
+    sortOrder sort_order_{sortOrder::LOWERISBETTER};
     ///< Indicates whether higher evaluations of items indicate a higher priority
 
     std::deque<std::shared_ptr<T>>

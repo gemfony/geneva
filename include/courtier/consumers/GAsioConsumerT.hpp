@@ -811,7 +811,7 @@ public:
 	  * @param serializationMode The serialization mode to be configured for this class
 	  */
     void setSerializationMode(Gem::Common::serializationMode serializationMode) {
-        serializationMode_ = serializationMode;
+        serialization_mode_ = serializationMode;
     }
 
     //-------------------------------------------------------------------------
@@ -821,7 +821,7 @@ public:
 	  * @return The serialization mode configured for this class
 	  */
     Gem::Common::serializationMode getSerializationMode() const {
-        return serializationMode_;
+        return serialization_mode_;
     }
 
     //-------------------------------------------------------------------------
@@ -919,7 +919,7 @@ private:
             );
 
         hidden.add_options()
-			 ("asio_serializationMode", po::value<Gem::Common::serializationMode>(&serializationMode_)->default_value(GCONSUMERSERIALIZATIONMODE),
+			 ("asio_serializationMode", po::value<Gem::Common::serializationMode>(&serialization_mode_)->default_value(GCONSUMERSERIALIZATIONMODE),
 				 "\t[asio] Specifies whether serialization shall be done in TEXTMODE (0), XMLMODE (1) or BINARYMODE (2)")
 			 ("asio_nProcessingThreads", po::value<std::size_t>(&n_threads_)->default_value(GCONSUMERLISTENERTHREADS),
 				 "\t[asio] The number of threads used to process incoming connections")
@@ -975,15 +975,14 @@ private:
                     << "No connections will be accepted. The server is not running" << '\n'
                 );
             }
-            else {
-                throw geneva_exception(
+                            throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
                     << "GAsioConsumerT<>::async_startProcessing_() / acceptor_.open did not "
                        "succeed."
                     << '\n'
                     << "No connections will be accepted. The server is not running" << '\n'
                 );
-            }
+           
         }
 
         // Bind to the server address
@@ -1063,7 +1062,7 @@ private:
                 [this]() -> std::shared_ptr<processable_type> { return this->getPayloadItem(); },
                 [this](std::shared_ptr<processable_type> p) { this->putPayloadItem(p); },
                 [this]() -> bool { return this->stopped(); },
-                serializationMode_
+                serialization_mode_
             )
                 ->async_start_run();
         }
@@ -1123,7 +1122,7 @@ private:
             new GAsioConsumerClientT<processable_type>(
                 server_,
                 port_,
-                serializationMode_,
+                serialization_mode_,
                 n_max_reconnects_
             )
         );
@@ -1172,7 +1171,7 @@ private:
     boost::asio::io_context io_context_{Gem::Common::narrow_cast<int>(n_threads_)};
     boost::asio::ip::tcp::acceptor acceptor_{io_context_};
     boost::asio::ip::tcp::socket socket_{io_context_};
-    Gem::Common::serializationMode serializationMode_ =
+    Gem::Common::serializationMode serialization_mode_ =
         Gem::Common::serializationMode::BINARY; ///< Specifies the serialization mode
     std::vector<std::thread> context_thread_cnt_;
     std::atomic<std::size_t> n_active_sessions_{0};

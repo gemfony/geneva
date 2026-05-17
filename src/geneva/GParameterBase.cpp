@@ -50,25 +50,24 @@ void GParameterBase::load_(const GObject *cp) {
     GObject::load_(cp);
 
     // Load local data
-    adaptionsActive_ = p_load->adaptionsActive_;
-    randomInitializationBlocked_ = p_load->randomInitializationBlocked_;
-    parameterName_ = p_load->parameterName_;
+    adaptions_active_ = p_load->adaptions_active_;
+    random_initialization_blocked_ = p_load->random_initialization_blocked_;
+    parameter_name_ = p_load->parameter_name_;
 }
 
 /******************************************************************************/
 /**
  * Calls the function that does the actual adaption (which is in turn implemented
- * by derived classes. Will omit adaption if the adaptionsActive_ parameter is set.
+ * by derived classes. Will omit adaption if the adaptions_active_ parameter is set.
  *
  * @return The number of adaptions that were performed
  */
 std::size_t GParameterBase::adapt(Gem::Hap::GRandomBase &gr) {
-    if(adaptionsActive_) {
+    if(adaptions_active_) {
         return adapt_(gr); // Will determine whether a modification was made
     }
-    else {
-        return 0;
-    }
+            return 0;
+   
 }
 
 /******************************************************************************/
@@ -100,8 +99,8 @@ void GParameterBase::queryAdaptor(
  * Switches on adaptions for this object
  */
 bool GParameterBase::setAdaptionsActive() {
-    bool previous = adaptionsActive_;
-    adaptionsActive_ = true;
+    bool previous = adaptions_active_;
+    adaptions_active_ = true;
     return previous;
 }
 
@@ -110,8 +109,8 @@ bool GParameterBase::setAdaptionsActive() {
  * Disables adaptions for this object
  */
 bool GParameterBase::setAdaptionsInactive() {
-    bool previous = adaptionsActive_;
-    adaptionsActive_ = false;
+    bool previous = adaptions_active_;
+    adaptions_active_ = false;
     return previous;
 }
 
@@ -127,7 +126,7 @@ bool GParameterBase::setAdaptionsInactive() {
  * @return A boolean indicating whether adaptions are performed for this object
  */
 bool GParameterBase::adaptionsActive() const {
-    return adaptionsActive_;
+    return adaptions_active_;
 }
 
 /* -----------------------------------------------------------------------------
@@ -142,7 +141,7 @@ bool GParameterBase::adaptionsActive() const {
  * @return A boolean indicating whether adaptions are inactive for this object
  */
 bool GParameterBase::adaptionsInactive() const {
-    return not adaptionsActive_;
+    return not adaptions_active_;
 }
 
 /******************************************************************************/
@@ -171,12 +170,12 @@ void GParameterBase::compare_(
     Gem::Common::compare_base_t<GObject>(*this, *p_load, token);
 
     // ... and then the local data
-    compare_t(IDENTITY(adaptionsActive_, p_load->adaptionsActive_), token);
+    compare_t(IDENTITY(adaptions_active_, p_load->adaptions_active_), token);
     compare_t(
-        IDENTITY(randomInitializationBlocked_, p_load->randomInitializationBlocked_),
+        IDENTITY(random_initialization_blocked_, p_load->random_initialization_blocked_),
         token
     );
-    compare_t(IDENTITY(parameterName_, p_load->parameterName_), token);
+    compare_t(IDENTITY(parameter_name_, p_load->parameter_name_), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -195,13 +194,13 @@ std::string GParameterBase::name_() const {
  * Allows to assign a name to this parameter
  */
 void GParameterBase::setParameterName(const std::string &pn) {
-    parameterName_ = pn;
+    parameter_name_ = pn;
 }
 
 /***********************************************************************************/
 /** @brief Allows to retrieve the name of this parameter */
 std::string GParameterBase::getParameterName() const {
-    return parameterName_;
+    return parameter_name_;
 }
 
 /***********************************************************************************/
@@ -218,9 +217,8 @@ bool GParameterBase::amMatch(const activityMode &am) const {
         if(this->adaptionsActive()) {
             return true;
         }
-        else {
-            return false;
-        }
+                    return false;
+       
     } break;
 
     case activityMode::ALLPARAMETERS: {
@@ -231,9 +229,8 @@ bool GParameterBase::amMatch(const activityMode &am) const {
         if(this->adaptionsInactive()) {
             return true;
         }
-        else {
-            return false;
-        }
+                    return false;
+       
     } break;
     }
 
@@ -287,12 +284,11 @@ bool GParameterBase::hasAdaptor() const {
  * version of this function, which only acts if initialization has not been blocked.
  */
 bool GParameterBase::randomInit(const activityMode &am, Gem::Hap::GRandomBase &gr) {
-    if(not randomInitializationBlocked_ && this->modifiableAmMatchOrHandover(am)) {
+    if(not random_initialization_blocked_ && this->modifiableAmMatchOrHandover(am)) {
         return randomInit_(am, gr);
     }
-    else {
-        return false;
-    }
+            return false;
+   
 }
 
 /******************************************************************************/
@@ -992,7 +988,7 @@ void GParameterBase::booleanSubtract(
  * Specifies that no random initialization should occur anymore
  */
 void GParameterBase::blockRandomInitialization() {
-    randomInitializationBlocked_ = true;
+    random_initialization_blocked_ = true;
 }
 
 /* -----------------------------------------------------------------------------
@@ -1005,7 +1001,7 @@ void GParameterBase::blockRandomInitialization() {
  * Specifies that no random initialization should occur anymore
  */
 void GParameterBase::allowRandomInitialization() {
-    randomInitializationBlocked_ = false;
+    random_initialization_blocked_ = false;
 }
 
 /* -----------------------------------------------------------------------------
@@ -1018,7 +1014,7 @@ void GParameterBase::allowRandomInitialization() {
  * Checks whether initialization has been blocked
  */
 bool GParameterBase::randomInitializationBlocked() const {
-    return randomInitializationBlocked_;
+    return random_initialization_blocked_;
 }
 
 /* -----------------------------------------------------------------------------

@@ -80,10 +80,10 @@ template <typename processable_type>
 class GBrokerT {
     // Make sure processable_type adheres to the GProcessingContainerT interface
     static_assert(
-        std::is_base_of<
+        std::is_base_of_v<
             Gem::Courtier::
                 GProcessingContainerT<processable_type, typename processable_type::result_type>,
-            processable_type>::value,
+            processable_type>,
         "GBaseExecutorT: processable_type does not adhere to the GProcessingContainerT<> interface"
     );
 
@@ -139,7 +139,7 @@ public:
         {
             //-----------------------------------------------------------------------
             // Lock the access to our internal data simultaneously for all mutexes
-            std::scoped_lock lk(switchGetPositionMutex_, findProcesedBufferMutex_, consumerEnrolmentMutex_);
+            std::scoped_lock lk(switch_get_position_mutex_, find_procesed_buffer_mutex_, consumer_enrolment_mutex_);
             //-----------------------------------------------------------------------
 
             // Shut down all consumers while holding the enrolment lock to prevent
@@ -149,10 +149,10 @@ public:
             }
 
             // Clear raw and processed buffers and the consumer lists
-            RawBuffers_.clear();
-            ProcessedBuffers_.clear();
+            raw_buffers_.clear();
+            processed_buffers_.clear();
             consumer_collection_cnt_.clear();
-            buffersPresent_.store(false);
+            buffers_present_.store(false);
 
             // Make sure this function does not execute code a second time
             finalized_.store(true);
@@ -176,17 +176,17 @@ public:
     bool enrol_buffer_port(std::shared_ptr<GBufferPortT<processable_type>> gbp_ptr) {
         //-----------------------------------------------------------------------
         // Lock the access to our internal data simultaneously for all mutexes
-        std::scoped_lock lk(switchGetPositionMutex_, findProcesedBufferMutex_);
+        std::scoped_lock lk(switch_get_position_mutex_, find_procesed_buffer_mutex_);
         //-----------------------------------------------------------------------
         // Find orphaned items in the two collections and remove them.
         // Note that, unforunately, g++ < 5.0 does not support auto in lambda statements,
         // otherwise the following statements could be simplified.
         std::size_t nErasedRaw = Gem::Common::erase_if(
-            RawBuffers_,
+            raw_buffers_,
             [](const std::pair<BUFFERPORT_ID_TYPE, GBUFFERPORT_PTR> &p) -> bool {
                 return (not p.second->is_connected_to_producer());
             }
-        ); // RawBuffers_ is a std::map, so items are of type std::pair
+        ); // raw_buffers_ is a std::map, so items are of type std::pair
 
 #ifdef DEBUG
         if(nErasedRaw > 0) {
@@ -197,11 +197,11 @@ public:
 #endif
 
         std::size_t nErasedProc = Gem::Common::erase_if(
-            ProcessedBuffers_,
+            processed_buffers_,
             [](const std::pair<BUFFERPORT_ID_TYPE, GBUFFERPORT_PTR> &p) -> bool {
                 return (not p.second->is_connected_to_producer());
             }
-        ); // ProcessedBuffers_ is a std::map, so items are of type std::pair
+        ); // processed_buffers_ is a std::map, so items are of type std::pair
 
 #ifdef DEBUG
         if(nErasedProc != nErasedRaw) {
@@ -240,8 +240,8 @@ public:
         gbp_ptr->set_port_tag(gbp_tag);
 
         // Attach the new items to the maps
-        RawBuffers_[gbp_tag] = gbp_ptr;
-        ProcessedBuffers_[gbp_tag] = gbp_ptr;
+        raw_buffers_[gbp_tag] = gbp_ptr;
+        processed_buffers_[gbp_tag] = gbp_ptr;
 
         // Increment the number of registered buffer ports and check if we have exceeded the allowed amound
         if(++n_registered_buffer_ports_ > MAXREGISTEREDBUFFERPORTS) {
@@ -254,13 +254,13 @@ public:
         }
 
         // Fix the current get-pointer. We simply attach it to the start of the list
-        currentGetPosition_ = RawBuffers_.begin();
+        current_get_position_ = raw_buffers_.begin();
 
         glogger << "Buffer port with id " << gbp_tag << " successfully enrolled" << '\n'
                 << GLOGGING;
 
         // Let the audience know
-        buffersPresent_.store(true);
+        buffers_present_.store(true);
 
         // Let the audience know whether all consumers are capable of full return
         return capable_of_full_return_;
@@ -274,12 +274,12 @@ public:
 	  */
     void enrol_consumer(std::shared_ptr<cons::GBaseConsumerT<processable_type>> gc_ptr) {
         //-----------------------------------------------------------------------
-        std::unique_lock<std::mutex> consumerEnrolmentLock(consumerEnrolmentMutex_);
+        std::unique_lock<std::mutex> consumerEnrolmentLock(consumer_enrolment_mutex_);
 
         // Check whether consumers have already been enrolled. As this may happen
         // only once, we emit a warning and return.
         // Check is inside the lock to prevent a TOCTOU race between concurrent callers.
-        if(consumersPresent_) {
+        if(consumers_present_) {
             glogger << "In GBrokerT<>::enrol_buffer_port(consumer_ptr): One or more consumers have "
                        "already been enrolled."
                     << '\n'
@@ -291,10 +291,10 @@ public:
 
         // Do nothing if a consumer of this type has already been registered
         if(std::find(
-               consumerTypesPresent_.begin(),
-               consumerTypesPresent_.end(),
+               consumer_types_present_.begin(),
+               consumer_types_present_.end(),
                gc_ptr->getConsumerName()
-           ) != consumerTypesPresent_.end()) {
+           ) != consumer_types_present_.end()) {
             glogger << "In GBrokerT<>::enrol_buffer_port(consumer):" << '\n'
                     << "Consumer with name " << gc_ptr->getConsumerName() << " aleady exists."
                     << '\n'
@@ -306,7 +306,7 @@ public:
 
         // Archive the consumer and its name, then start its thread
         consumer_collection_cnt_.push_back(gc_ptr);
-        consumerTypesPresent_.push_back(gc_ptr->getConsumerName());
+        consumer_types_present_.push_back(gc_ptr->getConsumerName());
 
         // Initiate processing in the consumer. This call will not block.
         gc_ptr->async_startProcessing();
@@ -314,7 +314,7 @@ public:
         //-----------------------------------------------------------------------
         // Make it known to subsequent calls that a consumer is already present
 
-        consumersPresent_.store(true);
+        consumers_present_.store(true);
 
         //-----------------------------------------------------------------------
 
@@ -323,7 +323,7 @@ public:
 
         // Notify outside the lock to avoid immediately re-blocking the woken thread
         consumerEnrolmentLock.unlock();
-        consumersEnrolledCondition_.notify_all();
+        consumers_enrolled_condition_.notify_all();
     }
 
     /***************************************************************************/
@@ -335,12 +335,12 @@ public:
     void
     enrol_consumer_vec(std::vector<std::shared_ptr<cons::GBaseConsumerT<processable_type>>> gc_ptr_cnt) {
         //-----------------------------------------------------------------------
-        std::unique_lock<std::mutex> consumerEnrolmentLock(consumerEnrolmentMutex_);
+        std::unique_lock<std::mutex> consumerEnrolmentLock(consumer_enrolment_mutex_);
 
         // Check whether consumers have already been enrolled. As this may happen
         // only once, we emit a warning and return.
         // Check is inside the lock to prevent a TOCTOU race between concurrent callers.
-        if(consumersPresent_) {
+        if(consumers_present_) {
             glogger << "In GBrokerT<>::enrol_buffer_port(consumer_ptr_vec): One or more consumers "
                        "have already been enrolled."
                     << '\n'
@@ -353,10 +353,10 @@ public:
         for(auto const &consumer_ptr : gc_ptr_cnt) {
             // Do nothing if a consumer of this type has already been registered
             if(std::find(
-                   consumerTypesPresent_.begin(),
-                   consumerTypesPresent_.end(),
+                   consumer_types_present_.begin(),
+                   consumer_types_present_.end(),
                    consumer_ptr->getConsumerName()
-               ) != consumerTypesPresent_.end()) {
+               ) != consumer_types_present_.end()) {
                 glogger
                     << "In GBrokerT<>::enrol_buffer_port(consumer_ptr_vec): A consumer with name "
                     << consumer_ptr->getConsumerName() << '\n'
@@ -369,7 +369,7 @@ public:
 
             // Archive the consumer and its name, then start its thread
             consumer_collection_cnt_.push_back(consumer_ptr);
-            consumerTypesPresent_.push_back(consumer_ptr->getConsumerName());
+            consumer_types_present_.push_back(consumer_ptr->getConsumerName());
 
             // Initiate processing in the consumer. This call will not block.
             consumer_ptr->async_startProcessing();
@@ -378,7 +378,7 @@ public:
         //-----------------------------------------------------------------------
         // Make it known to subsequent calls that a consumer is already present
 
-        consumersPresent_.store(true);
+        consumers_present_.store(true);
 
         //-----------------------------------------------------------------------
 
@@ -387,7 +387,7 @@ public:
 
         // Notify outside the lock to avoid immediately re-blocking the woken thread
         consumerEnrolmentLock.unlock();
-        consumersEnrolledCondition_.notify_all();
+        consumers_enrolled_condition_.notify_all();
     }
 
     /***************************************************************************/
@@ -492,14 +492,13 @@ public:
             // This function is thread-safe.
             return processedBuffer_ptr->push_processed(p, timeout);
         }
-        else {
-            glogger << "In GBokerT<>::put(1): Warning!" << '\n'
+                    glogger << "In GBokerT<>::put(1): Warning!" << '\n'
                     << "Did not find buffer with id " << portId << "." << '\n'
                     << "Item will be discarded" << '\n'
                     << GWARNING;
 
             throw Gem::Courtier::buffer_not_present();
-        }
+       
 
         // Make the compiler happy
         return false;
@@ -512,7 +511,7 @@ public:
 	  * @return A boolean indicating whether any consumers are registered
 	  */
     bool hasConsumers() const {
-        return consumersPresent_;
+        return consumers_present_;
     }
 
     /***************************************************************************/
@@ -524,9 +523,9 @@ public:
 	  * is not prevented.
 	  */
     bool capableOfFullReturn() const {
-        std::unique_lock<std::mutex> consumerEnrolmentLock(consumerEnrolmentMutex_);
-        if(not consumersPresent_) {
-            consumersEnrolledCondition_.wait(consumerEnrolmentLock, [this]() -> bool {
+        std::unique_lock<std::mutex> consumerEnrolmentLock(consumer_enrolment_mutex_);
+        if(not consumers_present_) {
+            consumers_enrolled_condition_.wait(consumerEnrolmentLock, [this]() -> bool {
                 return this->hasConsumers();
             });
         }
@@ -542,23 +541,22 @@ private:
 	  */
     GBUFFERPORT_PTR getNextRawBufferPort() {
         // Protect access to the iterator
-        std::unique_lock<std::mutex> switchGetPositionLock(switchGetPositionMutex_);
+        std::unique_lock<std::mutex> switchGetPositionLock(switch_get_position_mutex_);
 
-        if(not RawBuffers_.empty()) {
+        if(not raw_buffers_.empty()) {
             // Save the current get position
-            auto currentGetPosition = currentGetPosition_;
+            auto currentGetPosition = current_get_position_;
 
             // Switch to the next position, if any
-            if((RawBuffers_.size() > 1) && (++currentGetPosition_ == RawBuffers_.end())) {
-                currentGetPosition_ = RawBuffers_.begin();
+            if((raw_buffers_.size() > 1) && (++current_get_position_ == raw_buffers_.end())) {
+                current_get_position_ = raw_buffers_.begin();
             }
 
             // Return the shared_ptr. This will also keep the buffer port alive
             return currentGetPosition->second;
         }
-        else {
-            return GBUFFERPORT_PTR();
-        }
+                    return GBUFFERPORT_PTR();
+       
     }
 
     /***************************************************************************/
@@ -568,11 +566,11 @@ private:
 	  */
     GBUFFERPORT_PTR getProcessedBufferPort(BUFFERPORT_ID_TYPE id) {
         // Protect access to the map
-        std::unique_lock<std::mutex> findProcessedBufferLock(findProcesedBufferMutex_);
+        std::unique_lock<std::mutex> findProcessedBufferLock(find_procesed_buffer_mutex_);
 
         // Find the buffer port (if any)
         try {
-            return ProcessedBuffers_.at(id);
+            return processed_buffers_.at(id);
         }
         catch(const std::out_of_range &) {
             // Return an empty pointer
@@ -632,7 +630,7 @@ private:
             }
 
             // Check if the id is already being used
-            for(const auto &port : RawBuffers_) {
+            for(const auto &port : raw_buffers_) {
                 if(port.first == next_id) {
                     id_in_use = true;
                     break;
@@ -651,24 +649,24 @@ private:
         false
     }; ///< Indicates whether the finalization code has already been executed
 
-    mutable std::mutex consumerEnrolmentMutex_;  ///< Protects the enrolment of consumers
-    mutable std::mutex switchGetPositionMutex_;  ///< Protects switches to the next get position
-    mutable std::mutex findProcesedBufferMutex_; ///< Protects finding a given processed buffer
+    mutable std::mutex consumer_enrolment_mutex_;  ///< Protects the enrolment of consumers
+    mutable std::mutex switch_get_position_mutex_;  ///< Protects switches to the next get position
+    mutable std::mutex find_procesed_buffer_mutex_; ///< Protects finding a given processed buffer
 
     mutable std::condition_variable
-        consumersEnrolledCondition_; ///< Allows to notify interested parties once consumers have been enrolled
+        consumers_enrolled_condition_; ///< Allows to notify interested parties once consumers have been enrolled
 
-    RawBufferPtrMap RawBuffers_;             ///< Holds a std::map of buffer pointers
-    ProcessedBufferPtrMap ProcessedBuffers_; ///< Holds a std::map of buffer pointers
+    RawBufferPtrMap raw_buffers_;             ///< Holds a std::map of buffer pointers
+    ProcessedBufferPtrMap processed_buffers_; ///< Holds a std::map of buffer pointers
 
-    typename RawBufferPtrMap::iterator currentGetPosition_{
-        RawBuffers_.begin()
-    }; ///< The current get position in the RawBuffers_ collection
-    std::atomic<bool> buffersPresent_{
+    typename RawBufferPtrMap::iterator current_get_position_{
+        raw_buffers_.begin()
+    }; ///< The current get position in the raw_buffers_ collection
+    std::atomic<bool> buffers_present_{
         false
     }; ///< Set to true once the first buffers have been enrolled
 
-    std::atomic<bool> consumersPresent_{
+    std::atomic<bool> consumers_present_{
         false
     }; ///< Set to true once one or more consumers have been enrolled
     std::atomic<bool> capable_of_full_return_{
@@ -678,7 +676,7 @@ private:
     std::vector<std::shared_ptr<cons::GBaseConsumerT<processable_type>>>
         consumer_collection_cnt_; ///< Holds the actual consumers
     std::vector<std::string>
-        consumerTypesPresent_; ///< Holds identifying strings for each consumer
+        consumer_types_present_; ///< Holds identifying strings for each consumer
 
     std::atomic<BUFFERPORT_ID_TYPE> current_bufferport_id_{
         static_cast<BUFFERPORT_ID_TYPE>(0)

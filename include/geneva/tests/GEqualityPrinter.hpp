@@ -66,7 +66,7 @@ public:
     GEqualityPrinter(const std::string &caller, const double &limit, const bool &emitMessages)
       : caller_(caller)
       , limit_(limit)
-      , emitMessages_(emitMessages) { /* nothing */
+      , emit_messages_(emitMessages) { /* nothing */
     }
 
     /*********************************************************************************************/
@@ -239,7 +239,7 @@ private:
     std::string caller_; ///< Holds the name of the calling entity
     double limit_;       ///< A limit used to determine similarity in fp comparisons
     bool
-        emitMessages_; ///< Specifies whether messages should be emitted if expectations were not met
+        emit_messages_; ///< Specifies whether messages should be emitted if expectations were not met
 };
 
 /*************************************************************************************************/

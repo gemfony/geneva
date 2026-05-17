@@ -139,7 +139,7 @@ private:
         finalFitness   = std::get<0>(goa->getBestKnownPrimaryFitness());
 
         // stallHalt() and stallHaltSet() are private; replicate with public API:
-        // maxStallIteration_ != 0 guards whether the criterion is active
+        // max_stall_iteration_ != 0 guards whether the criterion is active
         const bool stallExceeded =
             (goa->getMaxStallIteration() != 0u) &&
             (goa->getStallCounter() > goa->getMaxStallIteration());

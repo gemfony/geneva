@@ -84,7 +84,7 @@ class GBasePluggableOM : public GObject {
         using boost::serialization::make_nvp;
 
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject) &
-            BOOST_SERIALIZATION_NVP(useRawEvaluation_);
+            BOOST_SERIALIZATION_NVP(use_raw_evaluation_);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -105,10 +105,10 @@ public:
     /** @brief Access tp information about the current iteration */
     void informationFunction(infoMode, GBase const *const);
 
-    /** @brief Allows to set the useRawEvaluation_ variable */
+    /** @brief Allows to set the use_raw_evaluation_ variable */
     void setUseRawEvaluation(bool use_raw);
 
-    /** @brief Allows to retrieve the value of the useRawEvaluation_ variable */
+    /** @brief Allows to retrieve the value of the use_raw_evaluation_ variable */
     bool getUseRawEvaluation() const;
 
 protected:
@@ -141,7 +141,7 @@ protected:
     /***************************************************************************/
     // Data
 
-    bool useRawEvaluation_ =
+    bool use_raw_evaluation_ =
         false; ///< Specifies whether the true (unmodified) evaluation should be used
 
 private:
@@ -182,27 +182,27 @@ private:
                 boost::serialization::base_object<Gem::Common::GPtrContainerT<gpar::GParameterSet>>(*this)
             ) &
             BOOST_SERIALIZATION_NVP(iteration_) & BOOST_SERIALIZATION_NVP(offset_) &
-            BOOST_SERIALIZATION_NVP(maxIteration_) & BOOST_SERIALIZATION_NVP(minIteration_) &
-            BOOST_SERIALIZATION_NVP(maxStallIteration_) &
-            BOOST_SERIALIZATION_NVP(reportIteration_) &
-            BOOST_SERIALIZATION_NVP(nRecordbestGlobalIndividuals_) &
-            BOOST_SERIALIZATION_NVP(bestGlobalIndividuals_pq_) &
-            BOOST_SERIALIZATION_NVP(defaultPopulationSize_) &
-            BOOST_SERIALIZATION_NVP(bestKnownPrimaryFitness_) &
-            BOOST_SERIALIZATION_NVP(bestCurrentPrimaryFitness_) &
-            BOOST_SERIALIZATION_NVP(stallCounter_) &
-            BOOST_SERIALIZATION_NVP(stallCounterThreshold_) &
+            BOOST_SERIALIZATION_NVP(max_iteration_) & BOOST_SERIALIZATION_NVP(min_iteration_) &
+            BOOST_SERIALIZATION_NVP(max_stall_iteration_) &
+            BOOST_SERIALIZATION_NVP(report_iteration_) &
+            BOOST_SERIALIZATION_NVP(n_recordbest_global_individuals_) &
+            BOOST_SERIALIZATION_NVP(best_global_individuals_pq_) &
+            BOOST_SERIALIZATION_NVP(default_population_size_) &
+            BOOST_SERIALIZATION_NVP(best_known_primary_fitness_) &
+            BOOST_SERIALIZATION_NVP(best_current_primary_fitness_) &
+            BOOST_SERIALIZATION_NVP(stall_counter_) &
+            BOOST_SERIALIZATION_NVP(stall_counter_threshold_) &
             BOOST_SERIALIZATION_NVP(cp_interval_) & BOOST_SERIALIZATION_NVP(cp_base_name_) &
             BOOST_SERIALIZATION_NVP(cp_dir) & BOOST_SERIALIZATION_NVP(cp_last_) &
             BOOST_SERIALIZATION_NVP(cp_remove_) & BOOST_SERIALIZATION_NVP(cp_serialization_mode_) &
-            BOOST_SERIALIZATION_NVP(qualityThreshold_) &
-            BOOST_SERIALIZATION_NVP(hasQualityThreshold_) & BOOST_SERIALIZATION_NVP(maxDuration_) &
-            BOOST_SERIALIZATION_NVP(minDuration_) & BOOST_SERIALIZATION_NVP(terminationFile_) &
-            BOOST_SERIALIZATION_NVP(terminateOnFileModification_) &
-            BOOST_SERIALIZATION_NVP(emitTerminationReason_) & BOOST_SERIALIZATION_NVP(halted_) &
-            BOOST_SERIALIZATION_NVP(worstKnownValids_cnt_) &
+            BOOST_SERIALIZATION_NVP(quality_threshold_) &
+            BOOST_SERIALIZATION_NVP(has_quality_threshold_) & BOOST_SERIALIZATION_NVP(max_duration_) &
+            BOOST_SERIALIZATION_NVP(min_duration_) & BOOST_SERIALIZATION_NVP(termination_file_) &
+            BOOST_SERIALIZATION_NVP(terminate_on_file_modification_) &
+            BOOST_SERIALIZATION_NVP(emit_termination_reason_) & BOOST_SERIALIZATION_NVP(halted_) &
+            BOOST_SERIALIZATION_NVP(worst_known_valids_cnt_) &
             BOOST_SERIALIZATION_NVP(pluggable_monitors_cnt_) &
-            BOOST_SERIALIZATION_NVP(executor_ptr_) & BOOST_SERIALIZATION_NVP(default_execMode_) &
+            BOOST_SERIALIZATION_NVP(executor_ptr_) & BOOST_SERIALIZATION_NVP(default_exec_mode_) &
             BOOST_SERIALIZATION_NVP(default_executor_config_);
 
         // Transfer the string to the path
@@ -223,27 +223,27 @@ private:
                 boost::serialization::base_object<Gem::Common::GPtrContainerT<gpar::GParameterSet>>(*this)
             ) &
             BOOST_SERIALIZATION_NVP(iteration_) & BOOST_SERIALIZATION_NVP(offset_) &
-            BOOST_SERIALIZATION_NVP(maxIteration_) & BOOST_SERIALIZATION_NVP(minIteration_) &
-            BOOST_SERIALIZATION_NVP(maxStallIteration_) &
-            BOOST_SERIALIZATION_NVP(reportIteration_) &
-            BOOST_SERIALIZATION_NVP(nRecordbestGlobalIndividuals_) &
-            BOOST_SERIALIZATION_NVP(bestGlobalIndividuals_pq_) &
-            BOOST_SERIALIZATION_NVP(defaultPopulationSize_) &
-            BOOST_SERIALIZATION_NVP(bestKnownPrimaryFitness_) &
-            BOOST_SERIALIZATION_NVP(bestCurrentPrimaryFitness_) &
-            BOOST_SERIALIZATION_NVP(stallCounter_) &
-            BOOST_SERIALIZATION_NVP(stallCounterThreshold_) &
+            BOOST_SERIALIZATION_NVP(max_iteration_) & BOOST_SERIALIZATION_NVP(min_iteration_) &
+            BOOST_SERIALIZATION_NVP(max_stall_iteration_) &
+            BOOST_SERIALIZATION_NVP(report_iteration_) &
+            BOOST_SERIALIZATION_NVP(n_recordbest_global_individuals_) &
+            BOOST_SERIALIZATION_NVP(best_global_individuals_pq_) &
+            BOOST_SERIALIZATION_NVP(default_population_size_) &
+            BOOST_SERIALIZATION_NVP(best_known_primary_fitness_) &
+            BOOST_SERIALIZATION_NVP(best_current_primary_fitness_) &
+            BOOST_SERIALIZATION_NVP(stall_counter_) &
+            BOOST_SERIALIZATION_NVP(stall_counter_threshold_) &
             BOOST_SERIALIZATION_NVP(cp_interval_) & BOOST_SERIALIZATION_NVP(cp_base_name_) &
             BOOST_SERIALIZATION_NVP(cp_dir) & BOOST_SERIALIZATION_NVP(cp_last_) &
             BOOST_SERIALIZATION_NVP(cp_remove_) & BOOST_SERIALIZATION_NVP(cp_serialization_mode_) &
-            BOOST_SERIALIZATION_NVP(qualityThreshold_) &
-            BOOST_SERIALIZATION_NVP(hasQualityThreshold_) & BOOST_SERIALIZATION_NVP(maxDuration_) &
-            BOOST_SERIALIZATION_NVP(minDuration_) & BOOST_SERIALIZATION_NVP(terminationFile_) &
-            BOOST_SERIALIZATION_NVP(terminateOnFileModification_) &
-            BOOST_SERIALIZATION_NVP(emitTerminationReason_) & BOOST_SERIALIZATION_NVP(halted_) &
-            BOOST_SERIALIZATION_NVP(worstKnownValids_cnt_) &
+            BOOST_SERIALIZATION_NVP(quality_threshold_) &
+            BOOST_SERIALIZATION_NVP(has_quality_threshold_) & BOOST_SERIALIZATION_NVP(max_duration_) &
+            BOOST_SERIALIZATION_NVP(min_duration_) & BOOST_SERIALIZATION_NVP(termination_file_) &
+            BOOST_SERIALIZATION_NVP(terminate_on_file_modification_) &
+            BOOST_SERIALIZATION_NVP(emit_termination_reason_) & BOOST_SERIALIZATION_NVP(halted_) &
+            BOOST_SERIALIZATION_NVP(worst_known_valids_cnt_) &
             BOOST_SERIALIZATION_NVP(pluggable_monitors_cnt_) &
-            BOOST_SERIALIZATION_NVP(executor_ptr_) & BOOST_SERIALIZATION_NVP(default_execMode_) &
+            BOOST_SERIALIZATION_NVP(executor_ptr_) & BOOST_SERIALIZATION_NVP(default_exec_mode_) &
             BOOST_SERIALIZATION_NVP(default_executor_config_);
     }
 
@@ -358,12 +358,12 @@ public:
 
     /** @brief Sets the maximum allowed processing time */
     void setMaxTime(std::chrono::duration<double> max_duration);
-    /** @brief Retrieves the value of the maxDuration_ parameter. */
+    /** @brief Retrieves the value of the max_duration_ parameter. */
     std::chrono::duration<double> getMaxTime() const;
 
     /** @brief Sets the minimum required processing time */
     void setMinTime(std::chrono::duration<double> min_duration);
-    /** @brief Retrieves the value of the minDuration_ parameter */
+    /** @brief Retrieves the value of the min_duration_ parameter */
     std::chrono::duration<double> getMinTime() const;
 
     /** @brief Sets a quality threshold beyond which optimization is expected to stop */
@@ -631,7 +631,7 @@ private:
     /** @brief Marks the globally best known fitness in all individuals */
     void markBestFitness();
 
-    /** @brief Indicates whether the stallCounterThreshold_ has been exceeded */
+    /** @brief Indicates whether the stall_counter_threshold_ has been exceeded */
     bool stallCounterThresholdExceeded() const;
 
     /** @brief Retrieves an executor for the given execution mode */
@@ -644,33 +644,33 @@ private:
     std::uint32_t iteration_ = 0; ///< The current iteration
     std::uint32_t offset_ =
         DEFAULTOFFSET; ///< An iteration offset which can be used, if the optimization starts from a checkpoint file
-    std::uint32_t minIteration_ = DEFAULTMINIT; ///< The minimum number of iterations
-    std::uint32_t maxIteration_ = DEFAULTMAXIT; ///< The maximum number of iterations
-    std::uint32_t maxStallIteration_ =
+    std::uint32_t min_iteration_ = DEFAULTMINIT; ///< The minimum number of iterations
+    std::uint32_t max_iteration_ = DEFAULTMAXIT; ///< The maximum number of iterations
+    std::uint32_t max_stall_iteration_ =
         DEFAULTMAXSTALLIT; ///< The maximum number of generations without improvement, after which optimization is stopped
-    std::uint32_t reportIteration_ =
+    std::uint32_t report_iteration_ =
         DEFAULTREPORTITER; ///< The number of generations after which a report should be issued
 
-    std::size_t nRecordbestGlobalIndividuals_ =
+    std::size_t n_recordbest_global_individuals_ =
         DEFNRECORDBESTINDIVIDUALS; ///< Indicates the number of best individuals to be recorded/updated in each iteration
-    gpar::GParameterSetFixedSizePriorityQueue bestGlobalIndividuals_pq_{
-        nRecordbestGlobalIndividuals_
+    gpar::GParameterSetFixedSizePriorityQueue best_global_individuals_pq_{
+        n_recordbest_global_individuals_
     }; ///< A priority queue with the best individuals found so far
-    gpar::GParameterSetFixedSizePriorityQueue bestIterationIndividuals_pq_{
-        nRecordbestGlobalIndividuals_
+    gpar::GParameterSetFixedSizePriorityQueue best_iteration_individuals_pq_{
+        n_recordbest_global_individuals_
     }; ///< A priority queue with the best individuals of a given iteration; unlimited size so all individuals of an iteration fit in
 
-    std::size_t defaultPopulationSize_ =
+    std::size_t default_population_size_ =
         DEFAULTPOPULATIONSIZE; ///< The nominal size of the population
-    std::tuple<double, double> bestKnownPrimaryFitness_ =
+    std::tuple<double, double> best_known_primary_fitness_ =
         std::tuple<double, double>(0., 0.); ///< Records the best primary fitness found so far
-    std::tuple<double, double> bestCurrentPrimaryFitness_ = std::tuple<double, double>(
+    std::tuple<double, double> best_current_primary_fitness_ = std::tuple<double, double>(
         0.,
         0.
     ); ///< Records the best fitness found in the current iteration
 
-    std::uint32_t stallCounter_ = 0; ///< Counts the number of iterations without improvement
-    std::uint32_t stallCounterThreshold_ =
+    std::uint32_t stall_counter_ = 0; ///< Counts the number of iterations without improvement
+    std::uint32_t stall_counter_threshold_ =
         DEFAULTSTALLCOUNTERTHRESHOLD; ///< The number of stalls after which individuals are asked to update their internal data structures
 
     std::int32_t cp_interval_ =
@@ -682,33 +682,33 @@ private:
     bool cp_remove_ = true; ///< Whether checkpoint files should be overwritten or kept
     Gem::Common::serializationMode cp_serialization_mode_ =
         DEFAULTCPSERMODE; ///< Determines whether check-pointing should be done in text-, XML, or binary mode
-    double qualityThreshold_ =
+    double quality_threshold_ =
         DEFAULTQUALITYTHRESHOLD; ///< A threshold beyond which optimization is expected to stop
-    bool hasQualityThreshold_ = false; ///< Specifies whether a quality_threshold has been set
-    std::chrono::duration<double> maxDuration_ = Gem::Common::duration_from_string(
+    bool has_quality_threshold_ = false; ///< Specifies whether a quality_threshold has been set
+    std::chrono::duration<double> max_duration_ = Gem::Common::duration_from_string(
         DEFAULTDURATION
     ); ///< Maximum time-frame for the optimization
-    std::chrono::duration<double> minDuration_ = Gem::Common::duration_from_string(
+    std::chrono::duration<double> min_duration_ = Gem::Common::duration_from_string(
         DEFAULTMINDURATION
     ); ///< Minimum time-frame for the optimization
     mutable std::chrono::system_clock::time_point
-        startTime_; ///< Used to store the start time of the optimization. Declared mutable so the halt criteria can be const
+        start_time_; ///< Used to store the start time of the optimization. Declared mutable so the halt criteria can be const
     mutable std::filesystem::file_time_type
-        file_startTime_; ///< Used for the touchHalt-feature, as system_clock file_time may not be comparable
-    std::string terminationFile_ =
+        file_start_time_; ///< Used for the touchHalt-feature, as system_clock file_time may not be comparable
+    std::string termination_file_ =
         DEFAULTTERMINATIONFILE; ///< The name of a file which, when modified after the start of the optimization run, will cause termination of the run
-    bool terminateOnFileModification_ = false;
-    bool emitTerminationReason_ =
+    bool terminate_on_file_modification_ = false;
+    bool emit_termination_reason_ =
         DEFAULTEMITTERMINATIONREASON; ///< Specifies whether information about reasons for termination should be emitted
     std::atomic<bool> halted_{true}; ///< Set to true when halt() has returned "true"
     std::vector<std::tuple<double, double>>
-        worstKnownValids_cnt_; ///< Stores the worst known valid evaluations up to the current iteration (first entry: raw, second: tranformed)
+        worst_known_valids_cnt_; ///< Stores the worst known valid evaluations up to the current iteration (first entry: raw, second: tranformed)
     std::vector<std::shared_ptr<GBasePluggableOM>>
         pluggable_monitors_cnt_; ///< A collection of monitors
 
     std::shared_ptr<Gem::Courtier::GBaseExecutorT<gpar::GParameterSet>>
         executor_ptr_; ///< Holds the current executor for this algorithm
-    execMode default_execMode_ = execMode::
+    execMode default_exec_mode_ = execMode::
         BROKER; ///< The default execution mode. Unless explicitöy requested by the user, we always go through the broker
     std::string default_executor_config_ =
         "./config/GBrokerExecutor.json"; ///< The default configuration file for the broker executor

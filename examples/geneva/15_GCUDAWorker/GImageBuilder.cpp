@@ -200,9 +200,8 @@ std::shared_ptr<GCollectiveMonitor> getPOM(
     if(collectiveMonitor_ptr->hasOptimizationMonitors()) {
         return collectiveMonitor_ptr;
     }
-    else {
-        return {}; // empty pointer indicates that no monitor was requested
-    }
+            return {}; // empty pointer indicates that no monitor was requested
+   
 }
 
 /********************************************************************************/

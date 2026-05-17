@@ -120,7 +120,7 @@ class GRandomNumberContainer
             "GProcessingContainerT_GRandomNumberContainer",
             boost::serialization::base_object<
                 Gem::Courtier::GProcessingContainerT<GRandomNumberContainer, bool>>(*this)
-        ) & BOOST_SERIALIZATION_NVP(randomNumbers_);
+        ) & BOOST_SERIALIZATION_NVP(random_numbers_);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -153,7 +153,7 @@ private:
     /** @brief Allows to specify the tasks to be performed for this object */
     void process_(const std::vector<bool> &res_vec = std::vector<bool>()) final;
 
-    std::vector<double> randomNumbers_; ///< Holds the pay-load of this object
+    std::vector<double> random_numbers_; ///< Holds the pay-load of this object
 };
 
 /**********************************************************************************************/

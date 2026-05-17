@@ -115,7 +115,7 @@ void GRandomFactory::finalize() {
 /**
  * Allows to retrieve the size of random number arrays
  *
- * @return The current value of the arraySize_ variable
+ * @return The current value of the array_size_ variable
  */
 std::size_t GRandomFactory::getCurrentArraySize() const {
     return DEFAULTARRAYSIZE;
@@ -352,9 +352,9 @@ void GRandomFactory::producer(std::uint32_t seed) {
                     std::this_thread::sleep_for(std::chrono::milliseconds(100));
                     continue;
                 }
-                else { // We have submitted the item -- stop the inner loop
+                // We have submitted the item -- stop the inner loop
                     break;
-                }
+               
             }
         }
     }

@@ -317,7 +317,8 @@ void GTestIndividual3::specificTestsNoFailureExpected_GUnitTests_() {
 
     { // Test that repeated extraction of an object's data results in the same output
         std::shared_ptr<GTestIndividual3> p;
-        std::shared_ptr<float> result_old, result_new;
+        std::shared_ptr<float> result_old;
+        std::shared_ptr<float> result_new;
 
         CHECK_NOTHROW(p = std::make_shared<GTestIndividual3>());
         CHECK_NOTHROW(result_old = p->getPlainData());

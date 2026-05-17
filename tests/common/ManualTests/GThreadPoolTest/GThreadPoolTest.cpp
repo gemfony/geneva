@@ -69,8 +69,8 @@ public:
 	 * The default constructor
 	 */
     testTask()
-      : counterValue_(0)
-      , operatorCalled_(0) { /* nothing */
+      : counter_value_(0)
+      , operator_called_(0) { /* nothing */
     }
 
     /********************************************************************/
@@ -78,7 +78,7 @@ public:
 	 * Allows to check how often increment() has been called
 	 */
     std::int32_t getCounterValue() const {
-        return counterValue_;
+        return counter_value_;
     }
 
     /********************************************************************/
@@ -86,7 +86,7 @@ public:
 	 * Retrieves the number of operator calls
 	 */
     std::uint32_t getOperatorCalledValue() const {
-        return operatorCalled_;
+        return operator_called_;
     }
 
     /********************************************************************/
@@ -124,8 +124,8 @@ private:
 	 * Increments the local counter
 	 */
     void increment() {
-        counterValue_++;
-        operatorCalled_++;
+        counter_value_++;
+        operator_called_++;
     }
 
     /********************************************************************/
@@ -133,14 +133,14 @@ private:
 	 * Decrements the local counter
 	 */
     void decrement() {
-        counterValue_--;
-        operatorCalled_++;
+        counter_value_--;
+        operator_called_++;
     }
 
     /********************************************************************/
-    std::int32_t counterValue_; ///< The internal value to be decremented or incremented
+    std::int32_t counter_value_; ///< The internal value to be decremented or incremented
     std::uint32_t
-        operatorCalled_; ///< This counter will be incremented whenever process() is called
+        operator_called_; ///< This counter will be incremented whenever process() is called
 
     Gem::Hap::GRandom gr_; // Instantiates a random number generator
     std::uniform_int_distribution<long> uniform_int_;

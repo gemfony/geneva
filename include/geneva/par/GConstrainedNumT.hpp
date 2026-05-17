@@ -73,12 +73,12 @@ class GConstrainedNumT // NOLINT(cppcoreguidelines-special-member-functions)
 
         // Save data
         ar &make_nvp("GParameterT_T", boost::serialization::base_object<GParameterT<T>>(*this)) &
-            BOOST_SERIALIZATION_NVP(lowerBoundary_) & BOOST_SERIALIZATION_NVP(upperBoundary_);
+            BOOST_SERIALIZATION_NVP(lower_boundary_) & BOOST_SERIALIZATION_NVP(upper_boundary_);
     }
     ///////////////////////////////////////////////////////////////////////
 
     // Make sure this class can only be instantiated with T as an arithmetic type
-    static_assert(std::is_arithmetic<T>::value, "T should be an arithmetic type");
+    static_assert(std::is_arithmetic_v<T>, "T should be an arithmetic type");
 
 public:
     /***************************************************************************/
@@ -109,15 +109,15 @@ public:
 	  */
     GConstrainedNumT(const T &lower_boundary, const T &upper_boundary)
       : GParameterT<T>(lower_boundary)
-      , lowerBoundary_(lower_boundary)
-      , upperBoundary_(upper_boundary) {
+      , lower_boundary_(lower_boundary)
+      , upper_boundary_(upper_boundary) {
         // Naturally the upper boundary should be > the lower boundary.
-        if(lowerBoundary_ >= upperBoundary_) {
+        if(lower_boundary_ >= upper_boundary_) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GConstrainedNumT<T>::GConstrainedNumT(lower,upper):" << '\n'
-                << "lowerBoundary_ = " << lowerBoundary_
-                << " is > upperBoundary_ = " << upperBoundary_ << '\n'
+                << "lower_boundary_ = " << lower_boundary_
+                << " is > upper_boundary_ = " << upper_boundary_ << '\n'
             );
         }
 
@@ -148,15 +148,15 @@ public:
 	  */
     GConstrainedNumT(const T &val, const T &lower_boundary, const T &upper_boundary)
       : GParameterT<T>(val)
-      , lowerBoundary_(lower_boundary)
-      , upperBoundary_(upper_boundary) {
+      , lower_boundary_(lower_boundary)
+      , upper_boundary_(upper_boundary) {
         // Do some error checking
-        if(lowerBoundary_ >= upperBoundary_) {
+        if(lower_boundary_ >= upper_boundary_) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GConstrainedNumT<T>::GConstrainedNumT(val,lower,upper):" << '\n'
-                << "lowerBoundary_ = " << lowerBoundary_ << "is >= than" << '\n'
-                << "upperBoundary_ = " << upperBoundary_ << '\n'
+                << "lower_boundary_ = " << lower_boundary_ << "is >= than" << '\n'
+                << "upper_boundary_ = " << upper_boundary_ << '\n'
             );
         }
 
@@ -177,14 +177,14 @@ public:
         }
 
         // Check that the value is inside of the allowed value range
-        if(val < lowerBoundary_ || val > upperBoundary_) {
+        if(val < lower_boundary_ || val > upper_boundary_) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GConstrainedNumT<T>::GConstrainedNumT(val,lower,upper):" << '\n'
                 << "Assigned value " << val
                 << " is outside of its allowed boundaries: " << '\n'
-                << "lowerBoundary_ = " << lowerBoundary_ << '\n'
-                << "upperBoundary_ = " << upperBoundary_ << '\n'
+                << "lower_boundary_ = " << lower_boundary_ << '\n'
+                << "upper_boundary_ = " << upper_boundary_ << '\n'
             );
         }
     }
@@ -224,7 +224,7 @@ public:
 		* @return The value of the lower boundary
 		*/
     T getLowerBoundary() const {
-        return lowerBoundary_;
+        return lower_boundary_;
     }
 
     /***************************************************************************/
@@ -234,7 +234,7 @@ public:
 		* @return The value of the upper boundary
 		*/
     T getUpperBoundary() const {
-        return upperBoundary_;
+        return upper_boundary_;
     }
 
     /***************************************************************************/
@@ -302,8 +302,8 @@ public:
             );
         }
 
-        lowerBoundary_ = lower_boundary;
-        upperBoundary_ = upper_boundary;
+        lower_boundary_ = lower_boundary;
+        upper_boundary_ = upper_boundary;
 
         // Re-set the internal representation of the value
         GParameterT<T>::setValue(current_value);
@@ -319,14 +319,14 @@ public:
 	  */
     void setValue(const T &val) override {
         // Do some error checking
-        if(val < lowerBoundary_ || val > upperBoundary_) {
+        if(val < lower_boundary_ || val > upper_boundary_) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GConstrainedNumT<T>::setValue(val):" << '\n'
                 << std::setprecision(20) << "Assigned value = " << val
                 << " is outside of its allowed boundaries: " << '\n'
-                << "lowerBoundary_ = " << lowerBoundary_ << '\n'
-                << "upperBoundary_ = " << upperBoundary_ << '\n'
+                << "lower_boundary_ = " << lower_boundary_ << '\n'
+                << "upper_boundary_ = " << upper_boundary_ << '\n'
             );
         }
 
@@ -350,8 +350,8 @@ public:
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GConstrainedNumT<T>::setValue(val,lower,upper):" << '\n'
-                << "lowerBoundary_ = " << lowerBoundary_ << "is larger than" << '\n'
-                << "upperBoundary_ = " << upperBoundary_ << '\n'
+                << "lower_boundary_ = " << lower_boundary_ << "is larger than" << '\n'
+                << "upper_boundary_ = " << upper_boundary_ << '\n'
             );
         }
 
@@ -383,8 +383,8 @@ public:
         }
 
         // O.k., assign the boundaries
-        lowerBoundary_ = lower_boundary;
-        upperBoundary_ = upper_boundary;
+        lower_boundary_ = lower_boundary;
+        upper_boundary_ = upper_boundary;
 
         // Set the internal representation of the value -- we might be in a different
         // region of the transformation internally, and the mapping will likely depend on
@@ -464,8 +464,8 @@ protected:
         GParameterT<T>::load_(cp);
 
         // ... and then our own
-        lowerBoundary_ = p_load->lowerBoundary_;
-        upperBoundary_ = p_load->upperBoundary_;
+        lower_boundary_ = p_load->lower_boundary_;
+        upper_boundary_ = p_load->upper_boundary_;
     }
 
     /***************************************************************************/
@@ -502,8 +502,8 @@ protected:
         Gem::Common::compare_base_t<GParameterT<T>>(*this, *p_load, token);
 
         // ... and then the local data
-        compare_t(IDENTITY(lowerBoundary_, p_load->lowerBoundary_), token);
-        compare_t(IDENTITY(upperBoundary_, p_load->upperBoundary_), token);
+        compare_t(IDENTITY(lower_boundary_, p_load->lower_boundary_), token);
+        compare_t(IDENTITY(upper_boundary_, p_load->upper_boundary_), token);
 
         // React on deviations from the expectation
         token.evaluate();
@@ -515,7 +515,7 @@ protected:
 	  * independent of a parameters value range
 	  */
     T range() const override {
-        return upperBoundary_ - lowerBoundary_;
+        return upper_boundary_ - lower_boundary_;
     }
 
     /***************************************************************************/
@@ -835,9 +835,9 @@ private:
 
     /***************************************************************************/
 
-    T lowerBoundary_ =
+    T lower_boundary_ =
         GConstrainedValueLimitT<T>::lowest(); ///< The lower allowed boundary for our value
-    T upperBoundary_ =
+    T upper_boundary_ =
         GConstrainedValueLimitT<T>::highest(); ///< The upper allowed boundary for our value
 };
 

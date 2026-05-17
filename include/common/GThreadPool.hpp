@@ -111,7 +111,7 @@ public:
             if(not threads_started_) {
                 // double checked locking pattern
                 // Some error checks
-                if(0 == nThreads_.load()) {
+                if(0 == n_threads_.load()) {
                     throw geneva_exception(
                         g_error_streamer(DO_LOG, time_and_place)
                         << "In GThreadPool::async_schedule(F f): Error!" << '\n'
@@ -135,14 +135,14 @@ public:
 
                 // No need to let the threads join, as none were running so far
 
-                gtg_.create_threads([this]() { this->io_context_.run(); }, nThreads_.load());
+                gtg_.create_threads([this]() { this->io_context_.run(); }, n_threads_.load());
 
                 threads_started_ = true;
             }
         }
 
         // Update the task counter. NOTE: This needs to happen here
-        // and not in taskWrapper. tasksInFlight_ helps the wait()-function
+        // and not in taskWrapper. tasks_in_flight_ helps the wait()-function
         // to determine whether any jobs have been submitted to the Boost.ASIO
         // ioservice that haven't been processed yet. taskWrapper will
         // only start execution when it is assigned to a thread. As we
@@ -151,7 +151,7 @@ public:
         // we might submit too many jobs.
         {
             std::unique_lock<std::mutex> cnt_lck(task_counter_mutex_);
-            tasksInFlight_++;
+            tasks_in_flight_++;
         }
 
         using result_type = std::invoke_result_t<F, Args&&...>;
@@ -197,14 +197,14 @@ public:
                     // Update the submission counter -- we need an external means to check whether the pool has run empty
                     std::unique_lock<std::mutex> cnt_lck(task_counter_mutex_);
 #ifdef DEBUG
-                    if(0 == tasksInFlight_.load()) {
+                    if(0 == tasks_in_flight_.load()) {
                         glogger << "In GThreadPool::async_schedule(/void/):" << '\n'
                                 << "Trying to decrement a task counter that is already 0"
                                 << '\n'
                                 << "We cannot continue" << GTERMINATION;
                     }
 #endif /* DEBUG */
-                    tasksInFlight_--;
+                    tasks_in_flight_--;
                     cnt_lck.unlock();
                     condition_.notify_one();
                 }
@@ -238,7 +238,7 @@ public:
             if(not threads_started_) {
                 // double checked locking pattern
                 // Some error checks
-                if(0 == nThreads_.load()) {
+                if(0 == n_threads_.load()) {
                     throw geneva_exception(
                         g_error_streamer(DO_LOG, time_and_place)
                         << "In GThreadPool::async_schedule(F f): Error!" << '\n'
@@ -262,14 +262,14 @@ public:
 
                 // No need to let the threads join, as none were running so far
 
-                gtg_.create_threads([this]() { this->io_context_.run(); }, nThreads_.load());
+                gtg_.create_threads([this]() { this->io_context_.run(); }, n_threads_.load());
 
                 threads_started_ = true;
             }
         }
 
         // Update the task counter. NOTE: This needs to happen here
-        // and not in taskWrapper. tasksInFlight_ helps the wait()-function
+        // and not in taskWrapper. tasks_in_flight_ helps the wait()-function
         // to determine whether any jobs have been submitted to the Boost.ASIO
         // ioservice that haven't been processed yet. taskWrapper will
         // only start execution when it is assigned to a thread. As we
@@ -278,7 +278,7 @@ public:
         // we might submit too many jobs.
         {
             std::unique_lock<std::mutex> cnt_lck(task_counter_mutex_);
-            tasksInFlight_++;
+            tasks_in_flight_++;
         }
 
         using result_type = std::invoke_result_t<F, Args&&...>;
@@ -317,14 +317,14 @@ public:
                     // Update the submission counter -- we need an external means to check whether the pool has run empty
                     std::unique_lock<std::mutex> cnt_lck(task_counter_mutex_);
 #ifdef DEBUG
-                    if(0 == tasksInFlight_.load()) {
+                    if(0 == tasks_in_flight_.load()) {
                         glogger << "In GThreadPool::async_schedule(/non-void/):" << '\n'
                                 << "Trying to decrement a task counter that is already 0"
                                 << '\n'
                                 << "We cannot continue" << GTERMINATION;
                     }
 #endif /* DEBUG */
-                    tasksInFlight_--;
+                    tasks_in_flight_--;
                     condition_.notify_one();
                 }
             }
@@ -342,7 +342,7 @@ private:
 
     GThreadGroup gtg_; ///< Holds the actual threads
 
-    std::atomic<std::uint32_t> tasksInFlight_{
+    std::atomic<std::uint32_t> tasks_in_flight_{
         0
     };                               ///< The number of jobs that have been submitted in this round
     std::mutex task_counter_mutex_; ///< Protects access to the "submitted" job counter
@@ -356,7 +356,7 @@ private:
     ///< Protects the job counter, so we may let the pool run empty
     std::condition_variable_any condition_;
 
-    std::atomic<unsigned int> nThreads_; ///< The number of concurrent threads in the pool
+    std::atomic<unsigned int> n_threads_; ///< The number of concurrent threads in the pool
     std::atomic<bool> threads_started_{
         false
     }; ///< Indicates whether threads have already been started

@@ -67,8 +67,10 @@ int main(int argc, char **argv) {
     Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
 
     // Create test candidates
-    gpar::GBooleanObject A(true), A_tmp;
-    gpar::GBooleanCollection B(NBIT), B_tmp; // B is initialized with 100 random booleans
+    gpar::GBooleanObject A(true);
+    gpar::GBooleanObject A_tmp;
+    gpar::GBooleanCollection B(NBIT);
+    gpar::GBooleanCollection B_tmp; // B is initialized with 100 random booleans
 
     std::shared_ptr<gpar::GBooleanAdaptor> A_adaptor(new gpar::GBooleanAdaptor(0.1));
     std::shared_ptr<gpar::GBooleanAdaptor> B_adaptor(new gpar::GBooleanAdaptor(0.2));
@@ -101,8 +103,10 @@ int main(int argc, char **argv) {
     A_adaptor->setAdaptionThreshold(0);
     B_adaptor->setAdaptionThreshold(0);
 
-    double A_noprobadapt_notflipped = 0., A_noprobadapt_flipped = 0.;
-    double B_noprobadapt_notflipped = 0., B_noprobadapt_flipped = 0.;
+    double A_noprobadapt_notflipped = 0.;
+    double A_noprobadapt_flipped = 0.;
+    double B_noprobadapt_notflipped = 0.;
+    double B_noprobadapt_flipped = 0.;
     for(std::size_t i = 0; i < MAXFLIP; i++) {
         // GBooleanObject
         A_tmp = A;
@@ -147,8 +151,10 @@ int main(int argc, char **argv) {
     A_adaptor->setAdaptionProbability(0.25);
     B_adaptor->setAdaptionProbability(0.5);
 
-    double A_probadapt_notflipped = 0., A_probadapt_flipped = 0.;
-    double B_probadapt_notflipped = 0., B_probadapt_flipped = 0.;
+    double A_probadapt_notflipped = 0.;
+    double A_probadapt_flipped = 0.;
+    double B_probadapt_notflipped = 0.;
+    double B_probadapt_flipped = 0.;
     for(std::size_t i = 0; i < MAXFLIP; i++) {
         // GBooleanObject
         A_tmp = A;
