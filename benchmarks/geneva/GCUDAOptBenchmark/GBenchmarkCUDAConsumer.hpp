@@ -47,7 +47,7 @@
 #include "courtier/consumers/GBaseConsumerT.hpp"
 #include "courtier/GBrokerT.hpp"
 #include "geneva/par/GParameterSet.hpp"
-#include "geneva-individuals/GFunctionIndividual.hpp"
+#include "geneva/individuals/GFunctionIndividual.hpp"
 
 // Local CUDA evaluator
 #include "GBenchmarkBatchEvaluator.cuh"
@@ -225,7 +225,7 @@ private:
 
         // Cast first item to GFunctionIndividual to get demoFunction and dimension.
         // All items in one batch share the same function and dimension.
-        auto front_fi = std::dynamic_pointer_cast<Gem::Geneva::GFunctionIndividual>(batch.front());
+        auto front_fi = std::dynamic_pointer_cast<gind::GFunctionIndividual>(batch.front());
         if (!front_fi) {
             throw std::runtime_error("GCUDABatchConsumer: batch item is not a GFunctionIndividual");
         }
@@ -239,7 +239,7 @@ private:
         // Build flat row-major parameter buffer: h_params[i*dim + j] = param j of individual i
         std::vector<double> h_params(static_cast<std::size_t>(N * dim));
         for (int i = 0; i < N; ++i) {
-            auto fi = std::dynamic_pointer_cast<Gem::Geneva::GFunctionIndividual>(
+            auto fi = std::dynamic_pointer_cast<gind::GFunctionIndividual>(
                 batch[static_cast<std::size_t>(i)]);
             std::vector<double> pv;
             fi->streamline(pv);

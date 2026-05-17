@@ -40,7 +40,7 @@
 #include <geneva/Go2.hpp>
 
 // The individual that should be optimized
-#include "geneva-individuals/GMetaOptimizerIndividualT.hpp"
+#include "geneva/individuals/GMetaOptimizerIndividualT.hpp"
 
 using namespace Gem::Geneva;
 
@@ -61,14 +61,14 @@ int main(int argc, char **argv) {
     //---------------------------------------------------------------------------
     // Create a factory for GFunctionIndividual objects and perform
     // any necessary initial work.
-    std::shared_ptr<GFunctionIndividualFactory> gfi_ptr(
-        new GFunctionIndividualFactory("./config/GFunctionIndividual.json")
+    std::shared_ptr<gind::GFunctionIndividualFactory> gfi_ptr(
+        new gind::GFunctionIndividualFactory("./config/GFunctionIndividual.json")
     );
 
     // Create a factory for GMetaOptimizerIndividual objects and perform
     // any necessary initial work.
-    std::shared_ptr<GMetaOptimizerIndividualFactoryT<GFunctionIndividual>> gmoi_ptr(
-        new GMetaOptimizerIndividualFactoryT<GFunctionIndividual>(
+    std::shared_ptr<gind::GMetaOptimizerIndividualFactoryT<gind::GFunctionIndividual>> gmoi_ptr(
+        new gind::GMetaOptimizerIndividualFactoryT<gind::GFunctionIndividual>(
             "./config/GMetaOptimizerIndividual.json"
         )
     );
@@ -76,8 +76,8 @@ int main(int argc, char **argv) {
     // Add a pluggable optimization monitor (targeted at evolutionary algorithms) and register
     // it with Go2.
     go.registerPluggableOM(
-        std::shared_ptr<GOptOptMonitorT<GFunctionIndividual>>(
-            new GOptOptMonitorT<GFunctionIndividual>("./optProgress.C")
+        std::shared_ptr<gind::GOptOptMonitorT<gind::GFunctionIndividual>>(
+            new gind::GOptOptMonitorT<gind::GFunctionIndividual>("./optProgress.C")
         )
     );
 
@@ -92,8 +92,8 @@ int main(int argc, char **argv) {
     go.registerDefaultAlgorithm("ea");
 
     // Perform the actual optimization
-    std::shared_ptr<GMetaOptimizerIndividualT<GFunctionIndividual>> bestIndividual_ptr =
-        go.optimize()->getBestGlobalIndividual<GMetaOptimizerIndividualT<GFunctionIndividual>>();
+    std::shared_ptr<gind::GMetaOptimizerIndividualT<gind::GFunctionIndividual>> bestIndividual_ptr =
+        go.optimize()->getBestGlobalIndividual<gind::GMetaOptimizerIndividualT<gind::GFunctionIndividual>>();
 
     // Do something with the best result. Here we simply print the result to std-out.
     std::cout << "Best Result was:" << '\n' << *bestIndividual_ptr << '\n';

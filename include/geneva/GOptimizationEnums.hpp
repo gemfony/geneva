@@ -59,22 +59,22 @@ enum class maxMode : Gem::Common::ENUMBASETYPE {
 
 /******************************************************************************/
 /** @brief Probability settings for random crashes */
-const bool GPS_DEF_USE_RANDOMCRASH = false;
-const double GPS_DEF_RANDOMCRASHPROB = 0.001;
+constexpr bool GPS_DEF_USE_RANDOMCRASH = false;
+constexpr double GPS_DEF_RANDOMCRASHPROB = 0.001;
 
 /******************************************************************************/
 /**
  * Default population sizes -- 100 by default (parents + children)
  */
-const std::size_t DEFPARCHILDNPARENTS = 1;
-const std::size_t DEFPARCHILDNCHILDREN = 99;
+constexpr std::size_t DEFPARCHILDNPARENTS = 1;
+constexpr std::size_t DEFPARCHILDNCHILDREN = 99;
 const std::size_t DEFPARCHILDPOPSIZE = DEFPARCHILDNPARENTS + DEFPARCHILDNCHILDREN;
 
 /******************************************************************************/
 /**
  * The default number of individuals to be monitored by GFitnessMonitorT<>
  */
-const std::size_t DEFNMONITORINDS = 1;
+constexpr std::size_t DEFNMONITORINDS = 1;
 
 /******************************************************************************/
 /**
@@ -82,14 +82,14 @@ const std::size_t DEFNMONITORINDS = 1;
  * to repulsion mode. Setting this to 0 will force the swarm algorithm to always
  * use the attraction-mode
  */
-const std::uint32_t DEFREPULSIONTHRESHOLD = 0;
+constexpr std::uint32_t DEFREPULSIONTHRESHOLD = 0;
 
 /******************************************************************************/
 /**
  * The maximum number an adaption of an individual should be performed until a
  * valid parameter set was found
  */
-const std::size_t DEFMAXRETRIESUNTILVALID = 10;
+constexpr std::size_t DEFMAXRETRIESUNTILVALID = 10;
 
 /******************************************************************************/
 /**
@@ -110,49 +110,49 @@ enum class activityMode : Gem::Common::ENUMBASETYPE {
  * The number of calls to the GParameterSet::customAdaption() function
  * without actual modifications
  */
-const std::size_t DEFMAXUNSUCCESSFULADAPTIONS = 1000;
+constexpr std::size_t DEFMAXUNSUCCESSFULADAPTIONS = 1000;
 
 /******************************************************************************/
 /**
  * Helps top better identify whether the object was marked as invalid
  */
-const bool OE_NOT_MARKED_AS_INVALID = false;
-const bool OE_MARKED_AS_INVALID = true;
+constexpr bool OE_NOT_MARKED_AS_INVALID = false;
+constexpr bool OE_MARKED_AS_INVALID = true;
 
 /******************************************************************************/
 /**
  * Helps to better identify raw and transformed fitness
  */
-const std::size_t G_RAW_FITNESS = 0;
-const std::size_t G_TRANSFORMED_FITNESS = 1;
+constexpr std::size_t G_RAW_FITNESS = 0;
+constexpr std::size_t G_TRANSFORMED_FITNESS = 1;
 
 /******************************************************************************/
 /**
  * Whether to use raw or transformed fitness as return values or arguments
  */
-const bool USERAWFITNESS = false;
-const bool USETRANSFORMEDFITNESS = true;
+constexpr bool USERAWFITNESS = false;
+constexpr bool USETRANSFORMEDFITNESS = true;
 
 /******************************************************************************/
 /**
  * Explicit permission or denial to perform re-evaluation
  */
-const bool ALLOWREEVALUATION = true;
-const bool PREVENTREEVALUATION = false;
+constexpr bool ALLOWREEVALUATION = true;
+constexpr bool PREVENTREEVALUATION = false;
 
 /******************************************************************************/
 /**
  * The number of individuals to be recorded in each iteration
  */
-const std::size_t DEFNRECORDBESTINDIVIDUALS = 10;
+constexpr std::size_t DEFNRECORDBESTINDIVIDUALS = 10;
 
 /******************************************************************************/
 /**
  * The worst allowed valid fitness value (positive or negative). This
  * value forms the upper and lower (negative) limit of a sigmoid function.
  */
-const double WORSTALLOWEDVALIDFITNESS = 10000.;
-const double FITNESSSIGMOIDSTEEPNESS = 1000.;
+constexpr double WORSTALLOWEDVALIDFITNESS = 10000.;
+constexpr double FITNESSSIGMOIDSTEEPNESS = 1000.;
 
 /******************************************************************************/
 /** @brief The optimization algorithm to be used if no others were found */
@@ -160,33 +160,33 @@ const std::string DEFAULTOPTALG = "ea";
 
 /******************************************************************************/
 /** @brief The default number of threads for parallelization with threads */
-const std::uint16_t DEFAULTNSTDTHREADS = 2;
+constexpr std::uint16_t DEFAULTNSTDTHREADS = 2;
 
 /******************************************************************************/
 /**
  * The general default population size
  */
-const std::size_t DEFAULTPOPULATIONSIZE = 100;
+constexpr std::size_t DEFAULTPOPULATIONSIZE = 100;
 
 /**
  * The default population size in evolutionary algorithms
  */
-const std::size_t DEFAULTEAPOPULATIONSIZE = 42;
+constexpr std::size_t DEFAULTEAPOPULATIONSIZE = 42;
 
 /**
  * The default number of parents in evolutionary algorithms
  */
-const std::size_t DEFAULTEANPARENTS = 2;
+constexpr std::size_t DEFAULTEANPARENTS = 2;
 
 /**
  * The default likelihood for an amalgamation of two obects to take place
  */
-const double DEFAULTAMALGAMATIONLIKELIHOOD = 0.;
+constexpr double DEFAULTAMALGAMATIONLIKELIHOOD = 0.;
 
 /**
  * The default likelihood for two items of a GParameterSet to be exchanged
  */
-const double DEFAULTPERITEMEXCHANGELIKELIHOOD = 0.5;
+constexpr double DEFAULTPERITEMEXCHANGELIKELIHOOD = 0.5;
 
 /******************************************************************************/
 /**
@@ -204,12 +204,12 @@ const std::string DEFAULTCSVRESULTFILEOM = "./result.csv";
 /**
  * The default dimension of the canvas in x-direction
  */
-const std::uint16_t DEFAULTXDIMOM = 1024;
+constexpr std::uint16_t DEFAULTXDIMOM = 1024;
 
 /**
  * The default dimension of the canvas in y-direction
  */
-const std::uint16_t DEFAULTYDIMOM = 768;
+constexpr std::uint16_t DEFAULTYDIMOM = 768;
 
 /******************************************************************************/
 /**
@@ -240,14 +240,14 @@ constexpr std::int32_t GMAXCONSTRAINEDINT32 = std::numeric_limits<std::int32_t>:
  * The two const variables MAXIMIZE and MINIMIZE determine, whether the library
  * should work in maximization or minimization mode.
  */
-const bool MAXIMIZE = true;
-const bool MINIMIZE = false;
+constexpr bool MAXIMIZE = true;
+constexpr bool MINIMIZE = false;
 
 /******************************************************************************/
 /**
  * Whether reasons for the termination of an optimization run should be emitted
  */
-const bool DEFAULTEMITTERMINATIONREASON = true;
+constexpr bool DEFAULTEMITTERMINATIONREASON = true;
 
 /******************************************************************************/
 /**
@@ -260,14 +260,14 @@ const std::string DEFAULTTERMINATIONFILE = "empty";
  * The number of iterations after which information should be
  * emitted about the inner state of the optimization algorithm.
  */
-const std::uint32_t DEFAULTREPORTITER = 1;
+constexpr std::uint32_t DEFAULTREPORTITER = 1;
 
 /******************************************************************************/
 /**
  * The number of iterations after which a checkpoint should be written.
  * 0 means that no checkpoints are written at all.
  */
-const std::uint32_t DEFAULTCHECKPOINTIT = 0;
+constexpr std::uint32_t DEFAULTCHECKPOINTIT = 0;
 
 /******************************************************************************/
 /**
@@ -275,7 +275,7 @@ const std::uint32_t DEFAULTCHECKPOINTIT = 0;
  * their internal data structures by the optimization algorithm. A value of 0
  * means "disabled".
  */
-const std::uint32_t DEFAULTSTALLCOUNTERTHRESHOLD = 0;
+constexpr std::uint32_t DEFAULTSTALLCOUNTERTHRESHOLD = 0;
 
 /******************************************************************************/
 /**
@@ -302,38 +302,38 @@ const Gem::Common::serializationMode DEFAULTCPSERMODE = Gem::Common::serializati
 /**
  * The default offset for a new optimization run
  */
-const std::uint32_t DEFAULTOFFSET = 0;
+constexpr std::uint32_t DEFAULTOFFSET = 0;
 
 /******************************************************************************/
 /**
  * The default maximum number of iterations
  */
-const std::uint32_t DEFAULTMAXIT = 1000;
+constexpr std::uint32_t DEFAULTMAXIT = 1000;
 
 /******************************************************************************/
 /**
  * The default minimum number of iterations
  */
-const std::uint32_t DEFAULTMINIT = 0;
+constexpr std::uint32_t DEFAULTMINIT = 0;
 
 /******************************************************************************/
 /**
  * The default maximum number of iterations without improvement. 0 means: ignore
  */
-const std::uint32_t DEFAULTMAXSTALLIT = 20;
+constexpr std::uint32_t DEFAULTMAXSTALLIT = 20;
 
 /**
  * The default maximum number of iterations without improvement for paramneter
  * scans. As the algorithm has been instructed to scan an entire range, the
  * value is set to 0 (i.e. it is disabled).
  */
-const std::uint32_t DEFAULTMAXPARSCANSTALLIT = 0;
+constexpr std::uint32_t DEFAULTMAXPARSCANSTALLIT = 0;
 
 /******************************************************************************/
 /**
  * The default maximization mode
  */
-const bool DEFAULTMAXMODE = false; // means: "minimization"
+constexpr bool DEFAULTMAXMODE = false; // means: "minimization"
 
 /******************************************************************************/
 /**
@@ -349,13 +349,13 @@ const std::string EMPTYDURATION = "00:00:00"; // 0 - no duration
  * Used in conjunction with optimization algorithms that
  * communicate via the "courtier" broker infrastructure.
  */
-const std::uint32_t DEFAULTBROKERWAITFACTOR = 0;
+constexpr std::uint32_t DEFAULTBROKERWAITFACTOR = 0;
 
 /******************************************************************************/
 /**
  * The default number of processing units
  */
-const std::uint32_t DEFAULTNPROCESSINGUNITS = 0;
+constexpr std::uint32_t DEFAULTNPROCESSINGUNITS = 0;
 
 /******************************************************************************/
 /**
@@ -382,7 +382,7 @@ const std::string DEFAULTMINDURATION = EMPTYDURATION;
 /**
  * The default quality threshold
  */
-const double DEFAULTQUALITYTHRESHOLD = 0.;
+constexpr double DEFAULTQUALITYTHRESHOLD = 0.;
 
 /******************************************************************************/
 /**
@@ -504,8 +504,8 @@ enum class sortingModeMP : Gem::Common::ENUMBASETYPE {
 /**
  * Settings for simulated annealing
  */
-const double SA_T0 = 1000.;   ///< The default start temperature in simulated annealing
-const double SA_ALPHA = 0.95; ///< The degradation strength in simulated annealing
+constexpr double SA_T0 = 1000.;   ///< The default start temperature in simulated annealing
+constexpr double SA_ALPHA = 0.95; ///< The degradation strength in simulated annealing
 
 /******************************************************************************/
 /**
@@ -513,31 +513,31 @@ const double SA_ALPHA = 0.95; ///< The degradation strength in simulated anneali
  * for logging purposes. If set, the algorithm will keep a copy of the parents from which the
  * children originated and will mark their id in the individual's personality traits.
  */
-const bool DEFAULTMARKOLDPARENTS = false;
+constexpr bool DEFAULTMARKOLDPARENTS = false;
 
 /******************************************************************************/
 
-const double DEFAULTSIGMA = 0.025;    ///< Default start value for sigma_
-const double DEFAULTINT32SIGMA = 0.1; ///< Default sigma start value for GInt32GaussAdaptor
-const double DEFAULTSIGMASIGMA = 0.2; ///< Default width of the gaussian used for sigma adaption
-const double DEFAULTMINSIGMA = 0.001; ///< Default minimum allowed value for sigma_
-const double DEFAULTMAXSIGMA = 1;     ///< Default maximum allowed value for sigma_
-const double DEFAULTDELTA =
+constexpr double DEFAULTSIGMA = 0.025;    ///< Default start value for sigma_
+constexpr double DEFAULTINT32SIGMA = 0.1; ///< Default sigma start value for GInt32GaussAdaptor
+constexpr double DEFAULTSIGMASIGMA = 0.2; ///< Default width of the gaussian used for sigma adaption
+constexpr double DEFAULTMINSIGMA = 0.001; ///< Default minimum allowed value for sigma_
+constexpr double DEFAULTMAXSIGMA = 1;     ///< Default maximum allowed value for sigma_
+constexpr double DEFAULTDELTA =
     0.05; ///< Default value of distance between two gaussians in GNumBiGaussAdaptorT
-const double DEFAULTSIGMADELTA =
+constexpr double DEFAULTSIGMADELTA =
     0.2; ///< Default width of the gaussian used for delta adaption in GNumBiGaussAdaptorT
-const double DEFAULTMINDELTA =
+constexpr double DEFAULTMINDELTA =
     0.; ///< Default minimum value of distance between two gaussians in GNumBiGaussAdaptorT
-const double DEFAULTMAXDELTA =
+constexpr double DEFAULTMAXDELTA =
     0.5; ///< Default maximum value of distance between two gaussians in GNumBiGaussAdaptorT
-const double DEFAULTBITADPROB = 0.05;  ///< 5 percent adaption probability for bits
-const double DEFAULTADPROB = 1.0;      ///< 100 percent adaption probability for all other cases
-const double DEFAUPTADAPTADPROB = 0.1; ///< Whether adProb_ should undergo evolutionary adaption
-const double DEFMINADPROB = 0.001;     ///< The lower boundary for variations of adProb_
-const double DEFMAXADPROB = 1.0;       ///< The upper boundary for variations of adProb_
-const std::uint32_t DEFAULTADAPTIONTHRESHOLD =
+constexpr double DEFAULTBITADPROB = 0.05;  ///< 5 percent adaption probability for bits
+constexpr double DEFAULTADPROB = 1.0;      ///< 100 percent adaption probability for all other cases
+constexpr double DEFAUPTADAPTADPROB = 0.1; ///< Whether adProb_ should undergo evolutionary adaption
+constexpr double DEFMINADPROB = 0.001;     ///< The lower boundary for variations of adProb_
+constexpr double DEFMAXADPROB = 1.0;       ///< The upper boundary for variations of adProb_
+constexpr std::uint32_t DEFAULTADAPTIONTHRESHOLD =
     1; // Adaption parameters should be adapted whenever an adaption takes place
-const double DEFAULTADAPTADAPTIONPROB =
+constexpr double DEFAULTADAPTADAPTIONPROB =
     0.1; // 10 percent probability for the adaption of adaption parameters
 
 /******************************************************************************/
@@ -551,15 +551,15 @@ enum class adaptionMode : Gem::Common::ENUMBASETYPE {
 
 /******************************************************************************/
 
-const double DEFAULTCPERSONAL = 1.49;     ///< Default multiplier for personal distances (swarm)
-const double DEFAULTCNEIGHBORHOOD = 1.49; ///< Default multiplier for neighborhood distances (swarm)
-const double DEFAULTCGLOBAL = 1.;         ///< Default multiplier for global distances (swarm)
-const double DEFAULTCVELOCITY = 0.72;     ///< Default multiplier for velocities (swarm)
-const double DEFAULTVELOCITYRANGEPERCENTAGE =
+constexpr double DEFAULTCPERSONAL = 1.49;     ///< Default multiplier for personal distances (swarm)
+constexpr double DEFAULTCNEIGHBORHOOD = 1.49; ///< Default multiplier for neighborhood distances (swarm)
+constexpr double DEFAULTCGLOBAL = 1.;         ///< Default multiplier for global distances (swarm)
+constexpr double DEFAULTCVELOCITY = 0.72;     ///< Default multiplier for velocities (swarm)
+constexpr double DEFAULTVELOCITYRANGEPERCENTAGE =
     0.15; ///< Default percentage of velocity range used for initialization of velocities
-const std::size_t DEFAULTNNEIGHBORHOODS =
+constexpr std::size_t DEFAULTNNEIGHBORHOODS =
     5; ///< The default size of each neighborhood in swarm algorithms
-const std::size_t DEFAULTNNEIGHBORHOODMEMBERS =
+constexpr std::size_t DEFAULTNNEIGHBORHOODMEMBERS =
     10; ///< The default number of members in each neighborhood
 
 /******************************************************************************/

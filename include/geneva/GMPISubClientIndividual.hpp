@@ -141,7 +141,7 @@ private:
     /**
          * Request which can be used to check the client status
          */
-    inline static MPI_Request clientStatusRequest_{};
+    inline static MPI_Request clientStatusRequest_{MPI_REQUEST_NULL};
 
     inline static ClientMode clientMode_{ClientMode::CLIENT};
 

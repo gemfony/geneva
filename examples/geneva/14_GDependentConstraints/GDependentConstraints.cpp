@@ -40,7 +40,7 @@
 #include "geneva/Go2.hpp"
 
 // The individual that should be optimized
-#include "geneva-individuals/GFunctionIndividual.hpp"
+#include "geneva/individuals/GFunctionIndividual.hpp"
 
 using namespace Gem::Geneva;
 namespace po = boost::program_options;
@@ -85,13 +85,13 @@ int main(int argc, char **argv) {
     //---------------------------------------------------------------------------
     // Create a factory for GFunctionIndividual objects and perform
     // any necessary initial work.
-    std::shared_ptr<GFunctionIndividualFactory> gfi_ptr(
-        new GFunctionIndividualFactory("./config/GFunctionIndividual.json")
+    std::shared_ptr<gind::GFunctionIndividualFactory> gfi_ptr(
+        new gind::GFunctionIndividualFactory("./config/GFunctionIndividual.json")
     );
 
     // We want the GFunctionIndividual objects to always use GConstrainedDoubleObject objects
     // so that parameter types have defined names
-    gfi_ptr->setPT(Gem::Geneva::parameterType::USEGCONSTRAINEDDOUBLEOBJECT);
+    gfi_ptr->setPT(gind::parameterType::USEGCONSTRAINEDDOUBLEOBJECT);
 
     //---------------------------------------------------------------------------
     // Register a progress plotter with the global optimization algorithm factory
@@ -113,18 +113,18 @@ int main(int argc, char **argv) {
     //---------------------------------------------------------------------------
     // Add a number of start values to the go object. We also add some constraint definitions here.
     for(std::size_t i = 0; i < 10; i++) {
-        std::shared_ptr<GFunctionIndividual> p = gfi_ptr->get_as<GFunctionIndividual>();
+        std::shared_ptr<gind::GFunctionIndividual> p = gfi_ptr->get_as<gind::GFunctionIndividual>();
 
         // Create the constraint objects
-        std::shared_ptr<GDoubleSumConstraint> doublesum_constraint_ptr(
-            new GDoubleSumConstraint(1.)
+        std::shared_ptr<gind::GDoubleSumConstraint> doublesum_constraint_ptr(
+            new gind::GDoubleSumConstraint(1.)
         );
-        std::shared_ptr<GSphereConstraint> sphere_constraint_ptr(new GSphereConstraint(3.));
+        std::shared_ptr<gind::GSphereConstraint> sphere_constraint_ptr(new gind::GSphereConstraint(3.));
         std::shared_ptr<gpar::GParameterSetFormulaConstraint> formula_constraint(
             new gpar::GParameterSetFormulaConstraint("fabs(sin({{var0}})/max(fabs({{var1}}), 0.000001))")
         ); // sin(x) < y
-        std::shared_ptr<GDoubleSumGapConstraint> gap_constraint(
-            new GDoubleSumGapConstraint(1., 0.05)
+        std::shared_ptr<gind::GDoubleSumGapConstraint> gap_constraint(
+            new gind::GDoubleSumGapConstraint(1., 0.05)
         ); // The sum of all variables must be 1 +/- 0.05
 
         // Create a check combiner and add the constraint objects to it
@@ -153,8 +153,8 @@ int main(int argc, char **argv) {
     //---------------------------------------------------------------------------
 
     // Perform the actual optimization
-    std::shared_ptr<GFunctionIndividual> p =
-        go.optimize()->getBestGlobalIndividual<GFunctionIndividual>();
+    std::shared_ptr<gind::GFunctionIndividual> p =
+        go.optimize()->getBestGlobalIndividual<gind::GFunctionIndividual>();
 
     // Here you can do something with the best individual ("p") found.
     // We simply print its content here, by means of an operator<< implemented

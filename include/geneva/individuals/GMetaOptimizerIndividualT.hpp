@@ -47,7 +47,7 @@
 #include "common/GFactoryT.hpp"
 #include "common/GParserBuilder.hpp"
 #include "courtier/GExecutorT.hpp"
-#include "geneva-individuals/GFunctionIndividual.hpp"
+#include "geneva/individuals/GFunctionIndividual.hpp"
 #include "geneva/par/GConstrainedDoubleCollection.hpp"
 #include "geneva/par/GConstrainedDoubleObject.hpp"
 #include "geneva/par/GConstrainedInt32Object.hpp"
@@ -60,7 +60,7 @@
 #include "geneva/GPluggableOptimizationMonitors.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithmFactory.hpp"
 
-namespace Gem::Geneva {
+namespace Gem::Geneva::Individuals {
 
 /******************************************************************************/
 // Different types of optimization targets
@@ -74,84 +74,84 @@ enum class metaOptimizationTarget : Gem::Common::ENUMBASETYPE {
 /******************************************************************************/
 // Input and output of metaOptimizationTarget, so we can serialize this data
 
-/** @brief Puts a Gem::Geneva::metaOptimizationTarget into a stream. Needed also for boost::lexical_cast<> */
+/** @brief Puts a Gem::Geneva::Individuals::metaOptimizationTarget into a stream. Needed also for boost::lexical_cast<> */
 std::ostream &
-operator<<(std::ostream &, const Gem::Geneva::metaOptimizationTarget &);
+operator<<(std::ostream &, const Gem::Geneva::Individuals::metaOptimizationTarget &);
 
-/** @brief Reads a Gem::Geneva::metaOptimizationTarget from a stream. Needed also for boost::lexical_cast<> */
-std::istream &operator>>(std::istream &, Gem::Geneva::metaOptimizationTarget &);
+/** @brief Reads a Gem::Geneva::Individuals::metaOptimizationTarget from a stream. Needed also for boost::lexical_cast<> */
+std::istream &operator>>(std::istream &, Gem::Geneva::Individuals::metaOptimizationTarget &);
 
 /******************************************************************************/
 // A number of default settings for the factory and individual
 
 // Pertaining to the population
-const std::size_t GMETAOPT_DEF_INITNPARENTS = 1; ///< The initial number of parents
-const std::size_t GMETAOPT_DEF_NPARENTS_LB =
+constexpr std::size_t GMETAOPT_DEF_INITNPARENTS = 1; ///< The initial number of parents
+constexpr std::size_t GMETAOPT_DEF_NPARENTS_LB =
     1; ///< The lower boundary for variations of the number of parents
-const std::size_t GMETAOPT_DEF_NPARENTS_UB =
+constexpr std::size_t GMETAOPT_DEF_NPARENTS_UB =
     6; ///< The upper boundary for variations of the number of parents
 
-const std::size_t GMETAOPT_DEF_INITNCHILDREN = 100; ///< The initial number of children
-const std::size_t GMETAOPT_DEF_NCHILDREN_LB =
+constexpr std::size_t GMETAOPT_DEF_INITNCHILDREN = 100; ///< The initial number of children
+constexpr std::size_t GMETAOPT_DEF_NCHILDREN_LB =
     5; ///< The lower boundary for the variation of the number of children
-const std::size_t GMETAOPT_DEF_NCHILDREN_UB =
+constexpr std::size_t GMETAOPT_DEF_NCHILDREN_UB =
     250; ///< The upper boundary for the variation of the number of children
 
-const double GMETAOPT_DEF_INITAMALGLKLHOOD =
+constexpr double GMETAOPT_DEF_INITAMALGLKLHOOD =
     0.; ///< The initial likelihood for an individual being created from cross-over rather than "just" duplication
-const double GMETAOPT_DEF_AMALGLKLHOOD_LB =
+constexpr double GMETAOPT_DEF_AMALGLKLHOOD_LB =
     0.; ///< The lower boundary for the variation of the amalgamation likelihood
-const double GMETAOPT_DEF_AMALGLKLHOOD_UB =
+constexpr double GMETAOPT_DEF_AMALGLKLHOOD_UB =
     1.; ///< The upper boundary for the variation of the amalgamation likelihood
 
 // Concerning the individual
-const double GMETAOPT_DEF_INITMINADPROB =
+constexpr double GMETAOPT_DEF_INITMINADPROB =
     0.; ///< The initial lower boundary for the variation of ad_prob
-const double GMETAOPT_DEF_MINADPROB_LB = 0.; ///< The lower boundary for min_ad_prob
-const double GMETAOPT_DEF_MINADPROB_UB =
+constexpr double GMETAOPT_DEF_MINADPROB_LB = 0.; ///< The lower boundary for min_ad_prob
+constexpr double GMETAOPT_DEF_MINADPROB_UB =
     0.1; ///< The upper boundary for min_ad_prob -- 0.1, effectively
 
-const double GMETAOPT_DEF_INITADPROBRANGE =
+constexpr double GMETAOPT_DEF_INITADPROBRANGE =
     0.9; ///< The initial upper boundary for the variation of ad_prob
-const double GMETAOPT_DEF_ADPROBRANGE_LB = 0.1; ///< The lower boundary for ad_prob_range
-const double GMETAOPT_DEF_ADPROBRANGE_UB = 0.9; ///< The upper boundary for ad_prob_range
+constexpr double GMETAOPT_DEF_ADPROBRANGE_LB = 0.1; ///< The lower boundary for ad_prob_range
+constexpr double GMETAOPT_DEF_ADPROBRANGE_UB = 0.9; ///< The upper boundary for ad_prob_range
 
-const double GMETAOPT_DEF_INITADPROBSTARTPERCENTAGE =
+constexpr double GMETAOPT_DEF_INITADPROBSTARTPERCENTAGE =
     1.; ///< Defines the place inside of the allowed value range where ad_prob starts. Boundaries are 0./1.
 
-const double GMETAOPT_DEF_INITADAPTADPROB =
+constexpr double GMETAOPT_DEF_INITADAPTADPROB =
     0.1; ///< The initial value of the strength of adProb_ adaption
-const double GMETAOPT_DEF_ADAPTADPROB_LB =
+constexpr double GMETAOPT_DEF_ADAPTADPROB_LB =
     0.; ///< The lower boundary for the variation of the strength of adProb_ adaption
-const double GMETAOPT_DEF_ADAPTADPROB_UB =
+constexpr double GMETAOPT_DEF_ADAPTADPROB_UB =
     1.; ///< The upper boundary for the variation of the strength of adProb_ adaption
 
-const double GMETAOPT_DEF_INITMINSIGMA = 0.001; ///< The initial lower boundary for sigma
-const double GMETAOPT_DEF_MINSIGMA_LB =
+constexpr double GMETAOPT_DEF_INITMINSIGMA = 0.001; ///< The initial lower boundary for sigma
+constexpr double GMETAOPT_DEF_MINSIGMA_LB =
     0.001; ///< The lower boundary for the variation of the lower boundary of sigma
-const double GMETAOPT_DEF_MINSIGMA_UB =
+constexpr double GMETAOPT_DEF_MINSIGMA_UB =
     0.09999; ///< The upper boundary for the variation of the lower boundary of sigma, means ~0.1
 
-const double GMETAOPT_DEF_INITSIGMARANGE =
+constexpr double GMETAOPT_DEF_INITSIGMARANGE =
     0.2; ///< The initial maximum range for sigma --> note that the initial start value for sigma will always be set to the upper boundary of its variation limits
-const double GMETAOPT_DEF_SIGMARANGE_LB =
+constexpr double GMETAOPT_DEF_SIGMARANGE_LB =
     0.1; ///< The lower boundary for the variation of the maximum range of sigma --> max_sigma is 0.2
-const double GMETAOPT_DEF_SIGMARANGE_UB =
+constexpr double GMETAOPT_DEF_SIGMARANGE_UB =
     0.9; ///< The upper boundary for the variation of the maximum range of sigma --> max_sigma is 1.
 
-const double GMETAOPT_DEF_INITSIGMARANGEPERCENTAGE =
+constexpr double GMETAOPT_DEF_INITSIGMARANGEPERCENTAGE =
     1.; ///< The initial percentage of the sigma range as a start value
 
-const double GMETAOPT_DEF_INITSIGMASIGMA = 0.1; ///< The initial strength of sigma adaption
-const double GMETAOPT_DEF_SIGMASIGMA_LB =
+constexpr double GMETAOPT_DEF_INITSIGMASIGMA = 0.1; ///< The initial strength of sigma adaption
+constexpr double GMETAOPT_DEF_SIGMASIGMA_LB =
     0.; ///< The lower boundary for the variation of the strength of sigma adaption
-const double GMETAOPT_DEF_SIGMASIGMA_UB =
+constexpr double GMETAOPT_DEF_SIGMASIGMA_UB =
     1.; ///< The upper boundary for the variation of the strength of sigma adaption
 
 // General meta-optimization parameters
-const std::size_t GMETAOPT_DEF_NRUNSPEROPT = 10; ///< The number of successive optimization runs
-const double GMETAOPT_DEF_FITNESSTARGET = 0.001; ///< The fitness target
-const std::uint32_t GMETAOPT_DEF_ITERATIONTHRESHOLD =
+constexpr std::size_t GMETAOPT_DEF_NRUNSPEROPT = 10; ///< The number of successive optimization runs
+constexpr double GMETAOPT_DEF_FITNESSTARGET = 0.001; ///< The fitness target
+constexpr std::uint32_t GMETAOPT_DEF_ITERATIONTHRESHOLD =
     10000; ///< The maximum allowed number of iterations
 const metaOptimizationTarget GMETAOPT_DEF_MOTARGET =
     metaOptimizationTarget::BESTFITNESS; ///< The target used for the meta optimization
@@ -161,23 +161,23 @@ const std::string GMETAOPT_DEF_INDCONFIG =
 const std::string GMETAOPT_DEF_SUBEACONFIG =
     "./config/GSubEvolutionaryAlgorithm.json"; ///< The default configuration file for the (sub-)evolutionary algorithms
 
-const bool GMETAOPT_SUBEXEC_SERIAL = false;
-const bool GMETAOPT_SUBEXEC_MULTITHREADED = true;
+constexpr bool GMETAOPT_SUBEXEC_SERIAL = false;
+constexpr bool GMETAOPT_SUBEXEC_MULTITHREADED = true;
 const bool GMETAOPT_DEF_SUBEXECMODE = GMETAOPT_SUBEXEC_MULTITHREADED;
 
 // Make sure we do not mix parameter items
-const std::size_t MOT_NPARENTS = 0;
-const std::size_t MOT_NCHILDREN = 1;
-const std::size_t MOT_AMALGAMATION = 2;
-const std::size_t MOT_MINADPROB = 3;
-const std::size_t MOT_ADPROBRANGE = 4;
-const std::size_t MOT_ADPROBSTARTPERCENTAGE = 5;
-const std::size_t MOT_ADAPTADPROB = 6;
-const std::size_t MOT_MINSIGMA = 7;
-const std::size_t MOT_SIGMARANGE = 8;
-const std::size_t MOT_SIGMARANGEPERCENTAGE = 9;
-const std::size_t MOT_SIGMASIGMA = 10;
-const std::size_t MOT_NVAR = 11;
+constexpr std::size_t MOT_NPARENTS = 0;
+constexpr std::size_t MOT_NCHILDREN = 1;
+constexpr std::size_t MOT_AMALGAMATION = 2;
+constexpr std::size_t MOT_MINADPROB = 3;
+constexpr std::size_t MOT_ADPROBRANGE = 4;
+constexpr std::size_t MOT_ADPROBSTARTPERCENTAGE = 5;
+constexpr std::size_t MOT_ADAPTADPROB = 6;
+constexpr std::size_t MOT_MINSIGMA = 7;
+constexpr std::size_t MOT_SIGMARANGE = 8;
+constexpr std::size_t MOT_SIGMARANGEPERCENTAGE = 9;
+constexpr std::size_t MOT_SIGMASIGMA = 10;
+constexpr std::size_t MOT_NVAR = 11;
 
 /******************************************************************************/
 /**
@@ -186,7 +186,7 @@ const std::size_t MOT_NVAR = 11;
  * The individual is meant for tuning the parameters of Evolutionary Algorithms,
  * but may be used to find better optima as well.
  */
-template <typename ind_type = Gem::Geneva::GFunctionIndividual>
+template <typename ind_type = Gem::Geneva::Individuals::GFunctionIndividual>
 class GMetaOptimizerIndividualT // NOLINT(cppcoreguidelines-special-member-functions)
   : public gpar::GParameterSet {
     ///////////////////////////////////////////////////////////////////////
@@ -1749,8 +1749,8 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-const std::size_t P_XDIM = 1200;
-const std::size_t P_YDIM = 1400;
+constexpr std::size_t P_XDIM = 1200;
+constexpr std::size_t P_YDIM = 1400;
 
 /******************************************************************************/
 /**
@@ -2161,8 +2161,8 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-} /* namespace Gem::Geneva */
+} /* namespace Gem::Geneva::Individuals */
 
 BOOST_CLASS_EXPORT_KEY(
-    Gem::Geneva::GMetaOptimizerIndividualT<Gem::Geneva::GFunctionIndividual>
+    Gem::Geneva::Individuals::GMetaOptimizerIndividualT<Gem::Geneva::Individuals::GFunctionIndividual>
 ) // NOLINT

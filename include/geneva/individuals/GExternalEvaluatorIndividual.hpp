@@ -63,37 +63,37 @@
 #include "geneva/par/GParameterSetMultiConstraint.hpp"
 #include "hap/GRandomT.hpp"
 
-namespace Gem::Geneva {
+namespace Gem::Geneva::Individuals {
 
 /******************************************************************************/
 // A number of default settings for the factory
-const double GEEI_DEF_ADPROB = 1.0;
-const double GEEI_DEF_ADAPTADPROB = 0.1;
-const double GEEI_DEF_MINADPROB = 0.05;
+constexpr double GEEI_DEF_ADPROB = 1.0;
+constexpr double GEEI_DEF_ADAPTADPROB = 0.1;
+constexpr double GEEI_DEF_MINADPROB = 0.05;
 
-const double GEEI_DEF_MAXADPROB = 1.;
-const std::uint32_t GEEI_DEF_ADAPTIONTHRESHOLD = 1;
-const bool GEEI_DEF_USEBIGAUSSIAN = false;
-const double GEEI_DEF_SIGMA1 = 0.025;
-const double GEEI_DEF_SIGMASIGMA1 = 0.2;
-const double GEEI_DEF_MINSIGMA1 = 0.001;
-const double GEEI_DEF_MAXSIGMA1 = 1;
-const double GEEI_DEF_SIGMA2 = 0.025;
-const double GEEI_DEF_SIGMASIGMA2 = 0.2;
-const double GEEI_DEF_MINSIGMA2 = 0.001;
-const double GEEI_DEF_MAXSIGMA2 = 1;
-const double GEEI_DEF_DELTA = 0.2;
-const double GEEI_DEF_SIGMADELTA = 0.2;
-const double GEEI_DEF_MINDELTA = 0.001;
-const double GEEI_DEF_MAXDELTA = 1.;
-const std::size_t GEEI_DEF_PARDIM = 2;
-const double GEEI_DEF_MINVAR = -10.;
-const double GEEI_DEF_MAXVAR = 10.;
-const bool GEEI_DEF_USECONSTRAINEDDOUBLECOLLECTION = false;
+constexpr double GEEI_DEF_MAXADPROB = 1.;
+constexpr std::uint32_t GEEI_DEF_ADAPTIONTHRESHOLD = 1;
+constexpr bool GEEI_DEF_USEBIGAUSSIAN = false;
+constexpr double GEEI_DEF_SIGMA1 = 0.025;
+constexpr double GEEI_DEF_SIGMASIGMA1 = 0.2;
+constexpr double GEEI_DEF_MINSIGMA1 = 0.001;
+constexpr double GEEI_DEF_MAXSIGMA1 = 1;
+constexpr double GEEI_DEF_SIGMA2 = 0.025;
+constexpr double GEEI_DEF_SIGMASIGMA2 = 0.2;
+constexpr double GEEI_DEF_MINSIGMA2 = 0.001;
+constexpr double GEEI_DEF_MAXSIGMA2 = 1;
+constexpr double GEEI_DEF_DELTA = 0.2;
+constexpr double GEEI_DEF_SIGMADELTA = 0.2;
+constexpr double GEEI_DEF_MINDELTA = 0.001;
+constexpr double GEEI_DEF_MAXDELTA = 1.;
+constexpr std::size_t GEEI_DEF_PARDIM = 2;
+constexpr double GEEI_DEF_MINVAR = -10.;
+constexpr double GEEI_DEF_MAXVAR = 10.;
+constexpr bool GEEI_DEF_USECONSTRAINEDDOUBLECOLLECTION = false;
 const std::string GEEI_DEF_PROGNAME = "./evaluator/evaluator.py";
 const std::string GEEI_DEF_CUSTOMOPTIONS = "empty";
 const std::string GEEI_DEF_PARFILEBASENAME = "parameter_file";
-const std::size_t GEEI_DEF_NRESULTS = 1;
+constexpr std::size_t GEEI_DEF_NRESULTS = 1;
 const std::string GEEI_DEF_STARTMODE = "random";
 const std::string GEEI_DEF_DATATYPE = "setup_data";
 const std::string GEEI_DEF_RUNID = "empty";
@@ -468,10 +468,10 @@ private:
         ptr_; ///< Holds setup information for individuals, as provided by the external evaluator program
 };
 
-} /* namespace Gem::Geneva */
+} /* namespace Gem::Geneva::Individuals */
 
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GExternalEvaluatorIndividual)        // NOLINT
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GExternalEvaluatorIndividualFactory) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::Individuals::GExternalEvaluatorIndividual)        // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::Individuals::GExternalEvaluatorIndividualFactory) // NOLINT
 /*************************************************************************************************/
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /*************************************************************************************************/

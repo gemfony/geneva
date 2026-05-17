@@ -36,11 +36,9 @@
 #include <algorithm> // for std::sort
 #include <cmath>
 #include <cstdlib>
-#include <filesystem>
 #include <iostream>
 #include <list>
 #include <sstream>
-#include <tuple>
 #include <vector>
 
 // Boost header files go here
@@ -48,7 +46,6 @@
 // Geneva header files go here
 #include "common/GCommonEnums.hpp"
 #include "common/GExceptions.hpp"
-#include "common/GFactoryT.hpp"
 #include "geneva/par/GConstrainedDoubleCollection.hpp"
 #include "geneva/par/GConstrainedDoubleObject.hpp"
 #include "geneva/par/GConstrainedDoubleObjectCollection.hpp"
@@ -60,15 +57,37 @@
 #include "geneva/oa/GGradientDescent_PersonalityTraits.hpp"
 #include "geneva/oa/GSwarmAlgorithm_PersonalityTraits.hpp"
 
-namespace Gem::Geneva {
+namespace Gem::Tests {
+
+/**
+ * The types of objects to be tested in this class
+ */
+enum class PERFOBJECTTYPE : Gem::Common::ENUMBASETYPE {
+    PERFGDOUBLEOBJECT = 0,
+    PERFGCONSTRDOUBLEOBJECT = 1,
+    PERFGCONSTRAINEDDOUBLEOBJECTCOLLECTION = 2,
+    PERFGDOUBLECOLLECTION = 3,
+    PERFGCONSTRAINEDDOUBLECOLLECTION = 4
+};
+
+const PERFOBJECTTYPE POTMIN = PERFOBJECTTYPE::PERFGDOUBLEOBJECT;
+const PERFOBJECTTYPE POTMAX = PERFOBJECTTYPE::PERFGCONSTRAINEDDOUBLEOBJECTCOLLECTION;
+constexpr std::size_t NPERFOBJECTTYPES = 5;
+
+/******************************************************************************/
+/** @brief Puts a Gem::Common::logType into a stream. Needed also for boost::lexical_cast<> */
+std::ostream &operator<<(std::ostream &, const Gem::Tests::PERFOBJECTTYPE &);
+/** @brief Reads a Gem::Common::logType from a stream. Needed also for boost::lexical_cast<> */
+std::istream &operator>>(std::istream &, Gem::Tests::PERFOBJECTTYPE &);
 
 /******************************************************************************/
 /**
- * This individual takes a vector of 2D double-tuples and calculates the
- * root-square deviation from the line defined by its two parameters
+ * This individual serves as the basis for unit tests of the individual hierarchy. At the time
+ * of writing, it was included in order to be able to set the individual's personality without
+ * weakening data protection.
  */
-class GLineFitIndividual // NOLINT(cppcoreguidelines-special-member-functions)
-  : public gpar::GParameterSet {
+class GTestIndividual2
+  : public gpar::GParameterSet { // NOLINT(cppcoreguidelines-special-member-functions)
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
@@ -76,31 +95,27 @@ class GLineFitIndividual // NOLINT(cppcoreguidelines-special-member-functions)
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GParameterSet) &
-            BOOST_SERIALIZATION_NVP(data_points_);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GParameterSet);
     }
     ///////////////////////////////////////////////////////////////////////
 
 public:
     /** @brief The default constructor */
-    GLineFitIndividual(const std::vector<std::tuple<double, double>> &);
+    GTestIndividual2(const std::size_t &, const PERFOBJECTTYPE &);
     /** @brief The copy constructor */
-    GLineFitIndividual(const GLineFitIndividual &);
+    GTestIndividual2(const GTestIndividual2 &);
 
     /** @brief The standard destructor */
-    ~GLineFitIndividual() override;
-
-    /** @brief Retrieves the tuple (a,b) of the line represented by this object */
-    std::tuple<double, double> getLine() const;
+    ~GTestIndividual2() override;
 
 protected:
-    /** @brief Loads the data of another GLineFitIndividual */
+    /** @brief Loads the data of another GTestIndividual2 */
     void load_(const GObject *) final;
 
     /** @brief Allow access to this classes compare_ function */
-    friend void Gem::Common::compare_base_t<GLineFitIndividual>(
-        GLineFitIndividual const &,
-        GLineFitIndividual const &,
+    friend void Gem::Common::compare_base_t<GTestIndividual2>(
+        GTestIndividual2 const &,
+        GTestIndividual2 const &,
         Gem::Common::GToken &
     );
 
@@ -127,53 +142,12 @@ private:
     /** @brief Creates a deep clone of this object */
     GObject *clone_() const final;
 
-    /** @brief The default constructor -- private, as it is only needed for (de-)serialization purposes */
-    GLineFitIndividual();
-
-    std::vector<std::tuple<double, double>>
-        data_points_; ///< Holds the data points used for the fit procedure
+    /** @brief The default constructor -- protected, as it is only needed for (de-)serialization purposes */
+    GTestIndividual2();
 };
 
 /******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-/**
- * A factory for GLineFitIndividual objects
- */
-class GLineFitIndividualFactory // NOLINT(cppcoreguidelines-special-member-functions)
-  : public Gem::Common::GFactoryT<gpar::GParameterSet> {
-public:
-    /** @brief The standard constructor */
-    GLineFitIndividualFactory(
-        const std::vector<std::tuple<double, double>> &,
-        std::filesystem::path const &
-    );
 
-    /** @brief The destructor */
-    ~GLineFitIndividualFactory() override;
+} /* namespace Gem::Tests */
 
-protected:
-    /** @brief Allows to describe local configuration options in derived classes */
-    void describeLocalOptions_(Gem::Common::GParserBuilder &) override;
-
-    /** @brief Allows to act on the configuration options received from the configuration file */
-    void postProcess_(std::shared_ptr<gpar::GParameterSet> &) override;
-
-private:
-    /** @brief The default constructor. Only needed for (de-)serialization purposes */
-    GLineFitIndividualFactory() = default;
-
-    /** @brief Creates individuals of this type */
-    std::shared_ptr<gpar::GParameterSet>
-    getObject_(Gem::Common::GParserBuilder &, const std::size_t &) override;
-
-    std::vector<std::tuple<double, double>> data_points_; ///< Holds data points for the fit
-};
-
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-
-} /* namespace Gem::Geneva */
-
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GLineFitIndividual) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Tests::GTestIndividual2) // NOLINT

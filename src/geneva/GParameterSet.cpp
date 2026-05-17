@@ -264,8 +264,6 @@ GParameterSet::GParameterSet(GParameterSet const &cp)
      * Searches for compliance with expectations with respect to another object
      * of the same type
      *
-     * TODO: Compare GProcessingContainerT ?
-     *
      * @param cp A constant reference to another GObject object
      * @param e The expected outcome of the comparison
      * @param limit The maximum deviation for floating point values (important for similarity checks)
@@ -2136,19 +2134,19 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests_() {
     {
         // All tests below use the same, cloned collection
         // Some settings for the collection of tests below
-        const double mingconstrdouble = -4.;
-        const double maxgconstrdouble = 4.;
-        const double mingdouble = -5.;
-        const double maxgdouble = 5.;
-        const double mingdoublecoll = -3.;
-        const double maxgdoublecoll = 3.;
-        const std::size_t ngdoublecoll = 10;
-        const std::size_t fploopcount = 5;
-        const double fpfixedvalinitmin = -3.;
-        const double fpfixedvalinitmax = 3.;
-        const double fpmultiplybyrandmin = -5.;
-        const double fpmultiplybyrandmax = 5.;
-        const double fpadd = 2.;
+        constexpr double mingconstrdouble = -4.;
+        constexpr double maxgconstrdouble = 4.;
+        constexpr double mingdouble = -5.;
+        constexpr double maxgdouble = 5.;
+        constexpr double mingdoublecoll = -3.;
+        constexpr double maxgdoublecoll = 3.;
+        constexpr std::size_t ngdoublecoll = 10;
+        constexpr std::size_t fploopcount = 5;
+        constexpr double fpfixedvalinitmin = -3.;
+        constexpr double fpfixedvalinitmax = 3.;
+        constexpr double fpmultiplybyrandmin = -5.;
+        constexpr double fpmultiplybyrandmax = 5.;
+        constexpr double fpadd = 2.;
 
         // Create a GParameterSet object as a clone of this object for further usage
         std::shared_ptr<GParameterSet> p_test_0 = this->clone<GParameterSet>();
@@ -2595,24 +2593,24 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests_() {
     {
         // Check counting of active and inactive parameters
         // Some settings for the collection of tests below
-        const double mingconstrdouble = -4.;
-        const double maxgconstrdouble = 4.;
-        const double mingdouble = -5.;
-        const double maxgdouble = 5.;
-        const double mingdoublecoll = -3.;
-        const double maxgdoublecoll = 3.;
-        const std::size_t ngdoublecoll = 10;
-        const std::size_t nintcoll = 10;
-        const std::size_t nintboolobj = 10;
-        const std::int32_t mingint = -100;
-        const std::int32_t maxgint = 100;
-        const std::size_t fploopcount = 5;
-        const double fpfixedvalinitmin = -3.;
-        const double fpfixedvalinitmax = 3.;
-        const double fpmultiplybyrandmin = -5.;
-        const double fpmultiplybyrandmax = 5.;
-        const double fpadd = 2.;
-        const double fpsubtract = 2.;
+        constexpr double mingconstrdouble = -4.;
+        constexpr double maxgconstrdouble = 4.;
+        constexpr double mingdouble = -5.;
+        constexpr double maxgdouble = 5.;
+        constexpr double mingdoublecoll = -3.;
+        constexpr double maxgdoublecoll = 3.;
+        constexpr std::size_t ngdoublecoll = 10;
+        constexpr std::size_t nintcoll = 10;
+        constexpr std::size_t nintboolobj = 10;
+        constexpr std::int32_t mingint = -100;
+        constexpr std::int32_t maxgint = 100;
+        constexpr std::size_t fploopcount = 5;
+        constexpr double fpfixedvalinitmin = -3.;
+        constexpr double fpfixedvalinitmax = 3.;
+        constexpr double fpmultiplybyrandmin = -5.;
+        constexpr double fpmultiplybyrandmax = 5.;
+        constexpr double fpadd = 2.;
+        constexpr double fpsubtract = 2.;
 
         // Create a GParameterSet object as a clone of this object for further usage
         std::shared_ptr<GParameterSet> p_test_0 = this->clone<GParameterSet>();

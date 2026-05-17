@@ -77,7 +77,7 @@
 #include "geneva/par/GParameterSet.hpp"
 #include "hap/GRandomT.hpp"
 
-namespace Gem::Geneva {
+namespace Gem::Geneva::Individuals {
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -307,22 +307,22 @@ enum class transferFunction : Gem::Common::ENUMBASETYPE {
 };
 
 /******************************************************************************/
-/** @brief  Reads a Gem::Geneva::trainingDataType item from a stream */
-std::istream &operator>>(std::istream &i, Gem::Geneva::trainingDataType &tdt);
-/** @brief Puts a Gem::Geneva::trainingDataType item into a stream */
+/** @brief  Reads a Gem::Geneva::Individuals::trainingDataType item from a stream */
+std::istream &operator>>(std::istream &i, Gem::Geneva::Individuals::trainingDataType &tdt);
+/** @brief Puts a Gem::Geneva::Individuals::trainingDataType item into a stream */
 std::ostream &
-operator<<(std::ostream &o, const Gem::Geneva::trainingDataType &tdt);
-/** @brief Reads a Gem::Geneva::transferFunction item from a stream. */
-std::istream &operator>>(std::istream &i, Gem::Geneva::transferFunction &t_f);
-/** @brief Puts a Gem::Geneva::transferFunction item into a stream. */
-std::ostream &operator<<(std::ostream &o, const Gem::Geneva::transferFunction &t_f);
+operator<<(std::ostream &o, const Gem::Geneva::Individuals::trainingDataType &tdt);
+/** @brief Reads a Gem::Geneva::Individuals::transferFunction item from a stream. */
+std::istream &operator>>(std::istream &i, Gem::Geneva::Individuals::transferFunction &t_f);
+/** @brief Puts a Gem::Geneva::Individuals::transferFunction item into a stream. */
+std::ostream &operator<<(std::ostream &o, const Gem::Geneva::Individuals::transferFunction &t_f);
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 // A global singleton giving access to the training data.
-// See also the definition of TFactory_GSingletonT<Gem::Geneva::networkData>
-using GDatStore = Gem::Common::GSingletonT<Gem::Geneva::networkData>;
+// See also the definition of TFactory_GSingletonT<Gem::Geneva::Individuals::networkData>
+using GDatStore = Gem::Common::GSingletonT<Gem::Geneva::Individuals::networkData>;
 #define GNNTrainingDataStore GDatStore::Instance(0)
 
 /******************************************************************************/
@@ -330,16 +330,16 @@ using GDatStore = Gem::Common::GSingletonT<Gem::Geneva::networkData>;
 /******************************************************************************/
 // A number of default settings for the factory
 const std::string GNN_DEF_DATAFILE = "./Datasets/hyper_cube.dat";
-const double GNN_DEF_ADPROB = 0.05;
-const double GNN_DEF_ADAPTADPROB = 0.1;
-const double GNN_DEF_MINADPROB = 0.05;
-const double GNN_DEF_MAXADPROB = 1.;
-const double GNN_DEF_SIGMA = 0.1;
-const double GNN_DEF_SIGMASIGMA = 0.8;
-const double GNN_DEF_MINSIGMA = 0.01;
-const double GNN_DEF_MAXSIGMA = 0.2;
-const double GNN_DEF_MINVAR = -10.;
-const double GNN_DEF_MAXVAR = 10.;
+constexpr double GNN_DEF_ADPROB = 0.05;
+constexpr double GNN_DEF_ADAPTADPROB = 0.1;
+constexpr double GNN_DEF_MINADPROB = 0.05;
+constexpr double GNN_DEF_MAXADPROB = 1.;
+constexpr double GNN_DEF_SIGMA = 0.1;
+constexpr double GNN_DEF_SIGMASIGMA = 0.8;
+constexpr double GNN_DEF_MINSIGMA = 0.01;
+constexpr double GNN_DEF_MAXSIGMA = 0.2;
+constexpr double GNN_DEF_MINVAR = -10.;
+constexpr double GNN_DEF_MAXVAR = 10.;
 const transferFunction GNN_DEF_TRANSFER = transferFunction::SIGMOID;
 
 /******************************************************************************/
@@ -940,7 +940,7 @@ public:
 	  * @param n_data_sets The number of data sets to be produced
 	  */
     static void createNetworkData(
-        const Gem::Geneva::trainingDataType &t,
+        const Gem::Geneva::Individuals::trainingDataType &t,
         const std::string &output_file,
         const std::string &architecture_string,
         const std::size_t &n_data_sets
@@ -951,7 +951,7 @@ public:
         std::shared_ptr<networkData> n_d_ptr;
 
         switch(t) {
-        case Gem::Geneva::trainingDataType::HYPERCUBE:
+        case Gem::Geneva::Individuals::trainingDataType::HYPERCUBE:
             n_d_ptr = GNeuralNetworkIndividual::createHyperCubeNetworkData(
                 architecture,
                 n_data_sets,
@@ -963,7 +963,7 @@ public:
 
             break;
 
-        case Gem::Geneva::trainingDataType::HYPERSPHERE:
+        case Gem::Geneva::Individuals::trainingDataType::HYPERSPHERE:
             n_d_ptr = GNeuralNetworkIndividual::createHyperSphereNetworkData(
                 architecture,
                 n_data_sets,
@@ -975,7 +975,7 @@ public:
 
             break;
 
-        case Gem::Geneva::trainingDataType::AXISCENTRIC:
+        case Gem::Geneva::Individuals::trainingDataType::AXISCENTRIC:
             n_d_ptr =
                 GNeuralNetworkIndividual::createAxisCentricNetworkData(architecture, n_data_sets);
 
@@ -984,7 +984,7 @@ public:
 
             break;
 
-        case Gem::Geneva::trainingDataType::SINUS:
+        case Gem::Geneva::Individuals::trainingDataType::SINUS:
             n_d_ptr = GNeuralNetworkIndividual::createSinNetworkData(architecture, n_data_sets);
 
             // Emit a visualization file, suitable for viewing with ROOT (see http://root.cern.ch)
@@ -1098,7 +1098,7 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Gem::Geneva */
+} /* namespace Gem::Geneva::Individuals */
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -1112,7 +1112,7 @@ using GNNOptStore = GSingletonT<GGlobalOptionsT<std::string>>;
 
 // A factory function for networkData objects, used by GSingletonT
 template <>
-std::shared_ptr<Gem::Geneva::networkData> TFactory_GSingletonT();
+std::shared_ptr<Gem::Geneva::Individuals::networkData> TFactory_GSingletonT();
 
 } /* namespace Gem::Common */
 
@@ -1124,23 +1124,23 @@ std::shared_ptr<Gem::Geneva::networkData> TFactory_GSingletonT();
 #ifdef GEM_TESTING
 
 /**
- * As the Gem::Geneva::GNeuralNetworkIndividual<Gem::Geneva::SIGMOID> has a private default constructor, we need to provide a
+ * As the Gem::Geneva::Individuals::GNeuralNetworkIndividual<Gem::Geneva::SIGMOID> has a private default constructor, we need to provide a
  * specialization of the factory function that creates GStartProjectIndividual objects
  */
 template <>
-inline std::shared_ptr<Gem::Geneva::GNeuralNetworkIndividual>
-TFactory_GUnitTests<Gem::Geneva::GNeuralNetworkIndividual>() {
-    return std::make_shared<Gem::Geneva::GNeuralNetworkIndividual>(
-        Gem::Geneva::GNN_DEF_MINVAR,
-        Gem::Geneva::GNN_DEF_MAXVAR,
-        Gem::Geneva::GNN_DEF_SIGMA,
-        Gem::Geneva::GNN_DEF_SIGMASIGMA,
-        Gem::Geneva::GNN_DEF_MINSIGMA,
-        Gem::Geneva::GNN_DEF_MAXSIGMA,
-        Gem::Geneva::GNN_DEF_ADPROB,
-        Gem::Geneva::GNN_DEF_ADAPTADPROB,
-        Gem::Geneva::GNN_DEF_MINADPROB,
-        Gem::Geneva::GNN_DEF_MAXADPROB
+inline std::shared_ptr<Gem::Geneva::Individuals::GNeuralNetworkIndividual>
+TFactory_GUnitTests<Gem::Geneva::Individuals::GNeuralNetworkIndividual>() {
+    return std::make_shared<Gem::Geneva::Individuals::GNeuralNetworkIndividual>(
+        Gem::Geneva::Individuals::GNN_DEF_MINVAR,
+        Gem::Geneva::Individuals::GNN_DEF_MAXVAR,
+        Gem::Geneva::Individuals::GNN_DEF_SIGMA,
+        Gem::Geneva::Individuals::GNN_DEF_SIGMASIGMA,
+        Gem::Geneva::Individuals::GNN_DEF_MINSIGMA,
+        Gem::Geneva::Individuals::GNN_DEF_MAXSIGMA,
+        Gem::Geneva::Individuals::GNN_DEF_ADPROB,
+        Gem::Geneva::Individuals::GNN_DEF_ADAPTADPROB,
+        Gem::Geneva::Individuals::GNN_DEF_MINADPROB,
+        Gem::Geneva::Individuals::GNN_DEF_MAXADPROB
     );
 }
 
@@ -1150,7 +1150,7 @@ TFactory_GUnitTests<Gem::Geneva::GNeuralNetworkIndividual>() {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::trainingSet)              // NOLINT
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::networkData)              // NOLINT
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GNeuralNetworkIndividual) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::Individuals::trainingSet)              // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::Individuals::networkData)              // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::Individuals::GNeuralNetworkIndividual) // NOLINT
 /******************************************************************************/

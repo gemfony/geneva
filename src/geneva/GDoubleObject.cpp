@@ -365,7 +365,7 @@ bool GDoubleObject::modify_GUnitTests_() {
 void GDoubleObject::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
     // A few settings
-    const std::size_t n_tests = 10000;
+    constexpr std::size_t n_tests = 10000;
 
     // Make sure we have an appropriate adaptor loaded when performing these tests
     bool adaptor_stored = false;

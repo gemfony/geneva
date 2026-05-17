@@ -52,7 +52,7 @@
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/par/GParameterObjectCollection.hpp"
 #include "geneva/par/GParameterSet.hpp"
-#include "geneva/iface/GOptimizerIT.hpp"
+#include "geneva/Interface/GOptimizerIT.hpp"
 #include "geneva/oa/GBase.hpp"
 #include "geneva/oa/GConjugateGradientDescentFactory.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithmFactory.hpp"
@@ -72,14 +72,14 @@ namespace Gem::Geneva {
 /******************************************************************************/
 // Default values for the variables used by the optimizer
 const std::string GO2_DEF_DEFAULTCONFIGFILE{"config/Go2.json"}; // NOLINT
-const bool GO2_DEF_CLIENTMODE = false;
+constexpr bool GO2_DEF_CLIENTMODE = false;
 const execMode GO2_DEF_DEFAULPARALLELIZATIONMODE = execMode::MULTITHREADED;
-const bool GO2_DEF_COPYBESTONLY = true;
-const std::uint16_t GO2_DEF_NPRODUCERTHREADS = 0;
-const std::uint32_t GO2_DEF_OFFSET = 0;
+constexpr bool GO2_DEF_COPYBESTONLY = true;
+constexpr std::uint16_t GO2_DEF_NPRODUCERTHREADS = 0;
+constexpr std::uint32_t GO2_DEF_OFFSET = 0;
 const std::string GO2_DEF_OPTALGS{""};        // NOLINT
 const std::string GO2_DEF_NOCONSUMER{"none"}; // NOLINT
-const bool GO2_DEF_COPYBESTINDIVIDUALSONLY = true;
+constexpr bool GO2_DEF_COPYBESTINDIVIDUALSONLY = true;
 
 /******************************************************************************/
 /** @brief Set a number of parameters of the random number factory */
@@ -196,6 +196,11 @@ protected:
     /** @brief Adds local configuration options to a GParserBuilder object */
     virtual void addConfigurationOptions_(Gem::Common::GParserBuilder &);
 
+private:
+    /***************************************************************************/
+
+    // GOptimizerIT NVI hooks: keep these overrides private (do not
+    // widen access -- matches oa::GBase and the base's NVI contract).
     /** @brief Retrieves the best individual found */
     std::shared_ptr<gpar::GParameterSet> getBestGlobalIndividual_() const final;
     /** @brief Retrieves a list of the best individuals found */
@@ -206,9 +211,6 @@ protected:
     /** @brief Retrieves a list of the best individuals found */
     std::vector<std::shared_ptr<gpar::GParameterSet>>
     getBestIterationIndividuals_() const final;
-
-private:
-    /***************************************************************************/
 
     /** @brief Returns one-word information about the type of optimization algorithm. */
     std::string getAlgorithmPersonalityType_() const final;

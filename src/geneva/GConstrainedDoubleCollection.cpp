@@ -431,10 +431,10 @@ void GConstrainedDoubleCollection::specificTestsNoFailureExpected_GUnitTests_() 
     GConstrainedFPNumCollectionT<double>::specificTestsNoFailureExpected_GUnitTests_();
 
     // Some parameters
-    const std::size_t defsize = 10;
-    const double defval = 1.;
-    const double defmin = -10.;
-    const double defmax = 10.;
+    constexpr std::size_t defsize = 10;
+    constexpr double defval = 1.;
+    constexpr double defmin = -10.;
+    constexpr double defmax = 10.;
 
     //---------------------------------------------------------------------
 

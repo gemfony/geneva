@@ -57,7 +57,7 @@
 #include "geneva/par/GParameterSet.hpp"
 #include "hap/GRandomDistributionsT.hpp"
 
-namespace Gem::Geneva {
+namespace Gem::Geneva::Individuals {
 
 /******************************************************************************/
 /**
@@ -231,6 +231,6 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-} /* namespace Gem::Geneva */
+} /* namespace Gem::Geneva::Individuals */
 
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GDelayIndividual) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::Individuals::GDelayIndividual) // NOLINT

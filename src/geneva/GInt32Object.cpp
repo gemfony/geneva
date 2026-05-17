@@ -373,10 +373,10 @@ void GInt32Object::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 
     // A few settings
-    const std::size_t n_tests = 10000;
-    const std::int32_t lowerinitboundary = -10;
-    const std::int32_t upperinitboundary = 10;
-    const std::int32_t fixedvalueinit = 1;
+    constexpr std::size_t n_tests = 10000;
+    constexpr std::int32_t lowerinitboundary = -10;
+    constexpr std::int32_t upperinitboundary = 10;
+    constexpr std::int32_t fixedvalueinit = 1;
 
     // Make sure we have an appropriate adaptor loaded when performing these tests
     bool adaptor_stored = false;

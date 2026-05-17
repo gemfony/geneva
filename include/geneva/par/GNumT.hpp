@@ -47,8 +47,8 @@
 
 namespace Gem::Geneva::Parameters {
 
-const double DEFAULTLOWERINITBOUNDARYSINGLE = 0.;
-const double DEFAULTUPPERINITBOUNDARYSINGLE = 1.;
+constexpr double DEFAULTLOWERINITBOUNDARYSINGLE = 0.;
+constexpr double DEFAULTUPPERINITBOUNDARYSINGLE = 1.;
 
 /******************************************************************************/
 /**

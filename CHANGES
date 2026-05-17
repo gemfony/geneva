@@ -15,8 +15,8 @@ Recommended Versions:
 - Static linking support (BUILDSTATIC / GENEVA_STATIC / GENEVA_STATIC=TRUE) has
   been removed. Geneva now builds exclusively as shared libraries. Any build scripts
   that set BUILDSTATIC="1" or pass -DGENEVA_STATIC=TRUE must be updated to remove
-  that setting. The five Geneva shared libraries (gemfony-common, gemfony-hap,
-  gemfony-courtier, gemfony-geneva, gemfony-geneva-individuals) are always built
+  that setting. The four Geneva shared libraries (gemfony-common, gemfony-hap,
+  gemfony-courtier, gemfony-geneva) are always built
   as SHARED; BUILD_SHARED_LIBS is always ON; GEM_DYNAMIC is always defined.
 - gemfony_exception was renamed to geneva_exception (~128 files). Any user code that
   catches or explicitly names this exception type must be updated accordingly.
@@ -35,7 +35,7 @@ Recommended Versions:
   dedicated namespaces, and this is a SOURCE-BREAKING change for code that
   referenced these symbols directly. The optimization algorithms now live in
   Gem::Geneva::OptimizationAlgorithms (global alias `oa`) and the optimizer
-  interfaces in Gem::Geneva::Interface (alias `iface`). The transitional
+  interfaces in Gem::Geneva::Interface (no short alias). The transitional
   using-declarations that briefly kept the old Gem::Geneva:: spelling working,
   and the old G_OptimizationAlgorithm_EvolutionaryAlgorithm.hpp forwarding
   header, have been removed -- there is no compatibility layer. The four genus
@@ -50,8 +50,8 @@ Recommended Versions:
   GConjugateGradientDescent, GNelderMead, GParameterScan) -- only their
   namespace and header location changed. Every header was renamed to its
   primary class and relocated: geneva/<X>.hpp -> geneva/oa/G<X>.hpp and the
-  interface headers -> geneva/iface/G<X>.hpp; #include paths must be updated
-  accordingly. User code must qualify these types with oa:: / iface:: (or the
+  interface headers -> geneva/Interface/G<X>.hpp; #include paths must be updated
+  accordingly. User code must qualify these types with oa:: / Interface:: (or the
   full namespace) and fix its include paths. The common high-level workflow
   (subclass GParameterSet, drive it via Gem::Geneva::Go2 with a JSON config
   and algorithm mnemonics) is otherwise unaffected -- Go2 itself is unchanged
@@ -59,6 +59,13 @@ Recommended Versions:
   Boost.Serialization class-export keys changed: checkpoint/archive files
   written by earlier Geneva versions are not loadable by this version (this
   archive break was a deliberate, accepted decision).
+
+- The geneva-individuals library has been dissolved into the geneva library.
+  The reusable sample individuals now live in the Gem::Geneva::Individuals
+  namespace (global alias `gind`), with headers in geneva/individuals/; the
+  gemfony-geneva-individuals shared library no longer exists. SOURCE/ABI-
+  breaking: qualify these types with gind:: (or the full namespace) and
+  update #include paths accordingly.
 
 ************************* Noteworthy Changes ***********************************
 

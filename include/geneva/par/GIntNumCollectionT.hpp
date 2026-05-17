@@ -253,7 +253,7 @@ protected:
     void specificTestsNoFailureExpected_GUnitTests_() override {
 #ifdef GEM_TESTING
         // A few general settings
-        const std::size_t n_items = 100;
+        constexpr std::size_t n_items = 100;
         const int_type lowerinitboundary =
             int_type(0); // non-negative value, as int_type might be negative
         const int_type upperinitboundary = int_type(10);

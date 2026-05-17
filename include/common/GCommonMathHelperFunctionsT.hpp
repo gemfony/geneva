@@ -225,11 +225,11 @@ fp_type getBestCase(Gem::Common::sortOrder sort_order) {
  * @param warn_only Will warn only if the condition isn't met
  * @return The value being checked
  */
-const bool GFPLOWERCLOSED = false;
-const bool GFPLOWEROPEN = true;
-const bool GFPUPPERCLOSED = false;
-const bool GFPUPPEROPEN = true;
-const bool GFNOWARNING = false;
+constexpr bool GFPLOWERCLOSED = false;
+constexpr bool GFPLOWEROPEN = true;
+constexpr bool GFPUPPERCLOSED = false;
+constexpr bool GFPUPPEROPEN = true;
+constexpr bool GFNOWARNING = false;
 
 template <std::floating_point fp_type>
 fp_type checkValueRange(

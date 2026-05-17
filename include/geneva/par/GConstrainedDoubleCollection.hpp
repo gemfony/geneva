@@ -190,7 +190,7 @@ private:
 template <>
 inline std::shared_ptr<Gem::Geneva::Parameters::GConstrainedDoubleCollection>
 TFactory_GUnitTests<Gem::Geneva::Parameters::GConstrainedDoubleCollection>() {
-    const std::size_t nparameters = 100;
+    constexpr std::size_t nparameters = 100;
     double lowerboundary = -10.;
     double upperboundary = 10.;
     std::shared_ptr<Gem::Geneva::Parameters::GConstrainedDoubleCollection> p;

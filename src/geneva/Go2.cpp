@@ -52,13 +52,13 @@ std::once_flag fGo2; // NOLINT(cppcoreguidelines-avoid-non-const-global-variable
 /******************************************************************************/
 /**
  * A constructor that first parses the command line for relevant parameters and then
- * loads data from a configuration file. Additional configuration parameters may
- * be passed by the user. This is the only allowed constructor.
+ * loads data from a configuration file. The user may pass additional configuration
+ * parameters. This is the only allowed constructor.
  *
  * @param argc The number of command line arguments
  * @param argv An array with the arguments
  * @param config_filename The name of a configuration file
- * @param od A vector of additional command line options (cmp. boost::program_options)
+ * @param user_descriptions A vector of additional command line options (cmp. boost::program_options)
  */
 Go2::Go2(
     int argc,
@@ -706,9 +706,9 @@ void Go2::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
 
 /******************************************************************************/
 /**
- * Allows to mark this object as belonging to a client as opposed to a server
+ * Allows marking this object as belonging to a client as opposed to a server
  *
- * @param serverMode Allows to mark this object as belonging to a client as opposed to a server
+ * @param client_mode Allows marking this object as belonging to a client as opposed to a server
  */
 void Go2::setClientMode(bool client_mode) {
 #ifdef GENEVA_BUILD_WITH_MPI_CONSUMER
@@ -804,7 +804,7 @@ std::uint32_t Go2::getIterationOffset() const {
  *
  * @param argc The number of command line arguments
  * @param argv An array with the arguments
- * @param od A program_options object for user-defined command line options
+ * @param user_options A program_options object for user-defined command line options
  */
 void Go2::parseCommandLine(
     int argc,

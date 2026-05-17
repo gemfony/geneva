@@ -393,9 +393,9 @@ bool GBooleanObject::modify_GUnitTests_() {
 void GBooleanObject::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
     // Some general settings
-    const double lowerbnd = 0.8;
-    const double upperbnd = 1.2;
-    const std::size_t n_tests = 10000;
+    constexpr double lowerbnd = 0.8;
+    constexpr double upperbnd = 1.2;
+    constexpr std::size_t n_tests = 10000;
 
     // Make sure we have an appropriate adaptor loaded when performing these tests
     bool adaptor_stored = false;

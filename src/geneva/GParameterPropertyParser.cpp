@@ -55,7 +55,7 @@ void swap(Gem::Geneva::Parameters::parPropSpec<bool> &a, Gem::Geneva::Parameters
 
 namespace Gem::Geneva::Parameters {
 
-const std::size_t GPP_DEF_NSTEPS = 100; // The default number of steps for a given parameter
+constexpr std::size_t GPP_DEF_NSTEPS = 100; // The default number of steps for a given parameter
 
 /******************************************************************************/
 /**

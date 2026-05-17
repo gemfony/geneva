@@ -232,9 +232,9 @@ void GEvolutionaryAlgorithm::updateGlobalBestsPQ_(
 void GEvolutionaryAlgorithm::updateIterationBestsPQ_(
     gpar::GParameterSetFixedSizePriorityQueue &best_individuals
 ) {
-    const bool clone = true;
-    const bool donotreplace = false;
-    const bool replace = true;
+    constexpr bool clone = true;
+    constexpr bool donotreplace = false;
+    constexpr bool replace = true;
 
 #ifdef DEBUG
     if(this->empty()) {
@@ -1186,8 +1186,7 @@ void GEvolutionaryAlgorithm::sortMuCommaNuParetoMode() {
     // remaining parent positions to be filled up with the non-pareto-front individuals with
     // the best minOnly_fitness(0), i.e. with the best "master" fitness, transformed to take into account
     // minimization and maximization. Note that, unlike MUCOMMANU_SINGLEEVAL
-    // this implies the possibility that former parents are "elected" as new parents again. This
-    // might be changed in subsequent versions of Geneva (TODO).
+    // this implies the possibility that former parents are "elected" as new parents again.
     if(n_individuals_on_pareto_front > this->getNParents()) {
         // randomly shuffle pareto-front individuals to avoid a bias
         std::shuffle(this->begin(), this->begin() + n_individuals_on_pareto_front, this->gr_);

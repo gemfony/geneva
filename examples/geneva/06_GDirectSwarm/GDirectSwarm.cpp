@@ -59,7 +59,7 @@
 #include "geneva/GenevaInitializer.hpp"
 
 // The individual that should be optimized
-#include "geneva-individuals/GFunctionIndividual.hpp"
+#include "geneva/individuals/GFunctionIndividual.hpp"
 
 using namespace Gem::Geneva;
 using namespace Gem::Courtier;
@@ -387,26 +387,26 @@ int main(int argc, char **argv) {
     /****************************************************************************/
     // Create a factory for GFunctionIndividual objects. It performs
     // all necessary initial work related to the individual (i.e. the optimization problem)
-    GFunctionIndividualFactory gfi("./config/GFunctionIndividual.json");
+    gind::GFunctionIndividualFactory gfi("./config/GFunctionIndividual.json");
 
     // Create the first set of parent individuals
-    std::vector<std::shared_ptr<GFunctionIndividual>> parentIndividuals;
+    std::vector<std::shared_ptr<gind::GFunctionIndividual>> parentIndividuals;
 
     // Create initial individuals for the population
     if(allRandomInit) { // Random initialization of all individuals in the population
         for(std::size_t p = 0; p < pop_ptr->getDefaultPopulationSize(); p++) {
-            parentIndividuals.push_back(gfi.get_as<GFunctionIndividual>());
+            parentIndividuals.push_back(gfi.get_as<gind::GFunctionIndividual>());
         }
     }
     else { // Individuals of the same neighborhood start from the same location
         for(std::size_t n = 0; n < nNeighborhoods; n++) {
             // Initialize the first individual of the neighborhood
-            std::shared_ptr<GFunctionIndividual> functionIndividual_ptr =
-                gfi.get_as<GFunctionIndividual>();
+            std::shared_ptr<gind::GFunctionIndividual> functionIndividual_ptr =
+                gfi.get_as<gind::GFunctionIndividual>();
 
             // Now add the required number of clones to the neighborhood
             for(std::size_t p = 1; p < nNeighborhoodMembers; p++) {
-                parentIndividuals.push_back(functionIndividual_ptr->clone<GFunctionIndividual>());
+                parentIndividuals.push_back(functionIndividual_ptr->clone<gind::GFunctionIndividual>());
             }
             parentIndividuals.push_back(functionIndividual_ptr);
         }
@@ -436,8 +436,8 @@ int main(int argc, char **argv) {
 
     /****************************************************************************/
     // Do something with the best individual found
-    std::shared_ptr<GFunctionIndividual> p =
-        pop_ptr->getBestGlobalIndividual<GFunctionIndividual>();
+    std::shared_ptr<gind::GFunctionIndividual> p =
+        pop_ptr->getBestGlobalIndividual<gind::GFunctionIndividual>();
 
     // Here you can do something with the best individual ("p") found.
     // We simply print its content here, by means of an operator<< implemented

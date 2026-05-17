@@ -40,7 +40,7 @@
 #include <boost/property_tree/xml_parser.hpp>
 
 // Geneva header files go here
-#include "geneva-individuals/GFunctionIndividual.hpp"
+#include "geneva/individuals/GFunctionIndividual.hpp"
 #include "geneva/par/GBooleanCollection.hpp"
 #include "geneva/par/GBooleanObject.hpp"
 #include "geneva/par/GBooleanObjectCollection.hpp"
@@ -73,8 +73,8 @@ int main(int argc, char **argv) {
     { // Conversion of parameter object data to boost::property_tree
         // Create a factory for GFunctionIndividual objects and perform
         // any necessary initial work.
-        std::shared_ptr<GFunctionIndividualFactory> gfi_ptr(
-            new GFunctionIndividualFactory("./config/GFunctionIndividual.json")
+        std::shared_ptr<gind::GFunctionIndividualFactory> gfi_ptr(
+            new gind::GFunctionIndividualFactory("./config/GFunctionIndividual.json")
         );
 
         // Note: This object already contains a parameter object, in

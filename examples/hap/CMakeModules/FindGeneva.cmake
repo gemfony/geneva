@@ -139,7 +139,6 @@ ENDIF ()
 # allows to use the GENEVA_LIBRARIES variable for linking with all of
 # them as a block without linking order issues (hopefully)
 SET ( NAMES
-	"geneva-individuals"
 	"geneva"
 	"courtier"
 	"hap"

@@ -27,16 +27,16 @@
  *
  ********************************************************************************/
 
-#include "geneva-individuals/GFunctionIndividual.hpp"
-#include "geneva-individuals/GBenchmarkFunctions.hpp"
+#include "geneva/individuals/GFunctionIndividual.hpp"
+#include "geneva/individuals/GBenchmarkFunctions.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GFunctionIndividual)        // NOLINT
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GFunctionIndividualFactory) // NOLINT
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GDoubleSumConstraint)       // NOLINT
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GDoubleSumGapConstraint)    // NOLINT
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GSphereConstraint)          // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Individuals::GFunctionIndividual)        // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Individuals::GFunctionIndividualFactory) // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Individuals::GDoubleSumConstraint)       // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Individuals::GDoubleSumGapConstraint)    // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Individuals::GSphereConstraint)          // NOLINT
 
-namespace Gem::Geneva {
+namespace Gem::Geneva::Individuals {
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -332,13 +332,13 @@ GObject *GSphereConstraint::clone_() const {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * Puts a Gem::Geneva::solverFunction item into a stream
+ * Puts a Gem::Geneva::Individuals::solverFunction item into a stream
  *
  * @param o The ostream the item should be added to
  * @param ur the item to be added to the stream
  * @return The std::ostream object used to add the item to
  */
-std::ostream &operator<<(std::ostream &o, const Gem::Geneva::solverFunction &ur) {
+std::ostream &operator<<(std::ostream &o, const Gem::Geneva::Individuals::solverFunction &ur) {
     auto tmp = static_cast<Gem::Common::ENUMBASETYPE>(ur);
     o << tmp;
     return o;
@@ -346,20 +346,20 @@ std::ostream &operator<<(std::ostream &o, const Gem::Geneva::solverFunction &ur)
 
 /******************************************************************************/
 /**
- * Reads a Gem::Geneva::solverFunction item from a stream
+ * Reads a Gem::Geneva::Individuals::solverFunction item from a stream
  *
  * @param i The stream the item should be read from
  * @param ur The item read from the stream
  * @return The std::istream object used to read the item from
  */
-std::istream &operator>>(std::istream &i, Gem::Geneva::solverFunction &ur) {
+std::istream &operator>>(std::istream &i, Gem::Geneva::Individuals::solverFunction &ur) {
     Gem::Common::ENUMBASETYPE tmp = 0;
     i >> tmp;
 
 #ifdef DEBUG
-    ur = Gem::Common::narrow_cast<Gem::Geneva::solverFunction>(tmp);
+    ur = Gem::Common::narrow_cast<Gem::Geneva::Individuals::solverFunction>(tmp);
 #else
-    ur = static_cast<Gem::Geneva::solverFunction>(tmp);
+    ur = static_cast<Gem::Geneva::Individuals::solverFunction>(tmp);
 #endif /* DEBUG */
 
     return i;
@@ -367,13 +367,13 @@ std::istream &operator>>(std::istream &i, Gem::Geneva::solverFunction &ur) {
 
 /******************************************************************************/
 /**
- * Puts a Gem::Geneva::parameterType item into a stream
+ * Puts a Gem::Geneva::Individuals::parameterType item into a stream
  *
  * @param o The ostream the item should be added to
  * @param ur the item to be added to the stream
  * @return The std::ostream object used to add the item to
  */
-std::ostream &operator<<(std::ostream &o, const Gem::Geneva::parameterType &ur) {
+std::ostream &operator<<(std::ostream &o, const Gem::Geneva::Individuals::parameterType &ur) {
     auto tmp = static_cast<Gem::Common::ENUMBASETYPE>(ur);
     o << tmp;
     return o;
@@ -381,20 +381,20 @@ std::ostream &operator<<(std::ostream &o, const Gem::Geneva::parameterType &ur) 
 
 /******************************************************************************/
 /**
- * Reads a Gem::Geneva::parameterType item from a stream
+ * Reads a Gem::Geneva::Individuals::parameterType item from a stream
  *
  * @param i The stream the item should be read from
  * @param ur The item read from the stream
  * @return The std::istream object used to read the item from
  */
-std::istream &operator>>(std::istream &i, Gem::Geneva::parameterType &ur) {
+std::istream &operator>>(std::istream &i, Gem::Geneva::Individuals::parameterType &ur) {
     Gem::Common::ENUMBASETYPE tmp = 0;
     i >> tmp;
 
 #ifdef DEBUG
-    ur = Gem::Common::narrow_cast<Gem::Geneva::parameterType>(tmp);
+    ur = Gem::Common::narrow_cast<Gem::Geneva::Individuals::parameterType>(tmp);
 #else
-    ur = static_cast<Gem::Geneva::parameterType>(tmp);
+    ur = static_cast<Gem::Geneva::Individuals::parameterType>(tmp);
 #endif /* DEBUG */
 
     return i;
@@ -402,13 +402,13 @@ std::istream &operator>>(std::istream &i, Gem::Geneva::parameterType &ur) {
 
 /******************************************************************************/
 /**
- * Puts a Gem::Geneva::initMode item into a stream
+ * Puts a Gem::Geneva::Individuals::initMode item into a stream
  *
  * @param o The ostream the item should be added to
  * @param ur the item to be added to the stream
  * @return The std::ostream object used to add the item to
  */
-std::ostream &operator<<(std::ostream &o, const Gem::Geneva::initMode &ur) {
+std::ostream &operator<<(std::ostream &o, const Gem::Geneva::Individuals::initMode &ur) {
     auto tmp = static_cast<Gem::Common::ENUMBASETYPE>(ur);
     o << tmp;
     return o;
@@ -416,20 +416,20 @@ std::ostream &operator<<(std::ostream &o, const Gem::Geneva::initMode &ur) {
 
 /******************************************************************************/
 /**
- * Reads a Gem::Geneva::initMode item from a stream
+ * Reads a Gem::Geneva::Individuals::initMode item from a stream
  *
  * @param i The stream the item should be read from
  * @param ur The item read from the stream
  * @return The std::istream object used to read the item from
  */
-std::istream &operator>>(std::istream &i, Gem::Geneva::initMode &ur) {
+std::istream &operator>>(std::istream &i, Gem::Geneva::Individuals::initMode &ur) {
     Gem::Common::ENUMBASETYPE tmp = 0;
     i >> tmp;
 
 #ifdef DEBUG
-    ur = Gem::Common::narrow_cast<Gem::Geneva::initMode>(tmp);
+    ur = Gem::Common::narrow_cast<Gem::Geneva::Individuals::initMode>(tmp);
 #else
-    ur = static_cast<Gem::Geneva::initMode>(tmp);
+    ur = static_cast<Gem::Geneva::Individuals::initMode>(tmp);
 #endif /* DEBUG */
 
     return i;
@@ -707,7 +707,7 @@ double GFunctionIndividual::fitnessCalculation() {
 /**
  * Provide an easy way to print the individual's content
  */
-std::ostream &operator<<(std::ostream &s, const Gem::Geneva::GFunctionIndividual &f) {
+std::ostream &operator<<(std::ostream &s, const Gem::Geneva::Individuals::GFunctionIndividual &f) {
     std::vector<double> par_vec;
     f.streamline(par_vec);
 
@@ -726,7 +726,7 @@ std::ostream &operator<<(std::ostream &s, const Gem::Geneva::GFunctionIndividual
 /**
  * Provide an easy way to print the individual's content through a smart-pointer
  */
-std::ostream &operator<<(std::ostream &s, std::shared_ptr<Gem::Geneva::GFunctionIndividual> f_ptr) {
+std::ostream &operator<<(std::ostream &s, std::shared_ptr<Gem::Geneva::Individuals::GFunctionIndividual> f_ptr) {
     return operator<<(s, *f_ptr);
 }
 
@@ -1790,4 +1790,4 @@ void GFunctionIndividualFactory::postProcess_(std::shared_ptr<gpar::GParameterSe
 
 /******************************************************************************/
 
-} /* namespace Gem::Geneva */
+} /* namespace Gem::Geneva::Individuals */

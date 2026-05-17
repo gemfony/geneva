@@ -53,8 +53,8 @@
 #include "geneva/GObject.hpp"
 #include "geneva/par/GParameterBase.hpp"
 #include "geneva/GPersonalityTraits.hpp"
-#include "geneva/iface/GMutableI.hpp"
-#include "geneva/iface/GRateableI.hpp"
+#include "geneva/Interface/GMutableI.hpp"
+#include "geneva/Interface/GRateableI.hpp"
 #include "geneva/GenevaHelperFunctionsT.hpp"
 #include "hap/GRandomT.hpp"
 

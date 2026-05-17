@@ -27,24 +27,24 @@
  *
  ********************************************************************************/
 
-#include "geneva-individuals/GMetaOptimizerIndividualT.hpp"
+#include "geneva/individuals/GMetaOptimizerIndividualT.hpp"
 
 BOOST_CLASS_EXPORT_IMPLEMENT(
-    Gem::Geneva::GMetaOptimizerIndividualT<Gem::Geneva::GFunctionIndividual>
+    Gem::Geneva::Individuals::GMetaOptimizerIndividualT<Gem::Geneva::Individuals::GFunctionIndividual>
 ) // NOLINT
-namespace Gem::Geneva {
+namespace Gem::Geneva::Individuals {
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * Puts a Gem::Geneva::metaOptimizationTarget item into a stream
+ * Puts a Gem::Geneva::Individuals::metaOptimizationTarget item into a stream
  *
  * @param o The ostream the item should be added to
  * @param mot the item to be added to the stream
  * @return The std::ostream object used to add the item to
  */
-std::ostream &operator<<(std::ostream &o, const Gem::Geneva::metaOptimizationTarget &mot) {
+std::ostream &operator<<(std::ostream &o, const Gem::Geneva::Individuals::metaOptimizationTarget &mot) {
     Gem::Common::ENUMBASETYPE tmp = static_cast<Gem::Common::ENUMBASETYPE>(mot);
     o << tmp;
     return o;
@@ -52,20 +52,20 @@ std::ostream &operator<<(std::ostream &o, const Gem::Geneva::metaOptimizationTar
 
 /******************************************************************************/
 /**
- * Reads a Gem::Geneva::metaOptimizationTarget item from a stream
+ * Reads a Gem::Geneva::Individuals::metaOptimizationTarget item from a stream
  *
  * @param i The stream the item should be read from
  * @param mot The item read from the stream
  * @return The std::istream object used to read the item from
  */
-std::istream &operator>>(std::istream &i, Gem::Geneva::metaOptimizationTarget &mot) {
+std::istream &operator>>(std::istream &i, Gem::Geneva::Individuals::metaOptimizationTarget &mot) {
     Gem::Common::ENUMBASETYPE tmp = 0;
     i >> tmp;
 
 #ifdef DEBUG
-    mot = Gem::Common::narrow_cast<Gem::Geneva::metaOptimizationTarget>(tmp);
+    mot = Gem::Common::narrow_cast<Gem::Geneva::Individuals::metaOptimizationTarget>(tmp);
 #else
-    mot = static_cast<Gem::Geneva::metaOptimizationTarget>(tmp);
+    mot = static_cast<Gem::Geneva::Individuals::metaOptimizationTarget>(tmp);
 #endif /* DEBUG */
 
     return i;
@@ -75,4 +75,4 @@ std::istream &operator>>(std::istream &i, Gem::Geneva::metaOptimizationTarget &m
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-} /* namespace Gem::Geneva */
+} /* namespace Gem::Geneva::Individuals */

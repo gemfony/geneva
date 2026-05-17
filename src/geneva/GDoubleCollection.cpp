@@ -445,9 +445,9 @@ void GDoubleCollection::fillWithData_(const std::size_t &n_items) {
 void GDoubleCollection::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
     // A few settings
-    const std::size_t n_items = 10000;
-    const std::size_t n_tests = 10;
-    const double fixedvalueinit = 1.;
+    constexpr std::size_t n_items = 10000;
+    constexpr std::size_t n_tests = 10;
+    constexpr double fixedvalueinit = 1.;
 
     // Make sure we have an appropriate adaptor loaded when performing these tests
     bool adaptor_stored = false;

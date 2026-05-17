@@ -202,9 +202,11 @@ IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
 
 	# The order of the entries is important, as it translates to the linking
 	# order in TARGET_LINK_LIBRARIES() later...
+	# The geneva-individuals library was dissolved into the geneva library
+	# (the sample individuals now live in Gem::Geneva::Individuals under
+	# geneva/individuals/); there is no separate individuals library.
 	SET (
 			GENEVA_LIBNAMES
-			${GENEVA_INDIVIDUAL_LIBNAME}
 			${GENEVA_LIBNAME}
 			${COURTIER_LIBNAME}
 			${HAP_LIBNAME}

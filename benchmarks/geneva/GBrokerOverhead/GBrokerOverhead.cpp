@@ -49,7 +49,7 @@
 #include "geneva/Go2.hpp"
 
 // The individual that should be optimized
-#include "geneva-individuals/GFunctionIndividual.hpp"
+#include "geneva/individuals/GFunctionIndividual.hpp"
 
 using namespace Gem::Geneva;
 using namespace Gem::Common;
@@ -110,7 +110,7 @@ bool parseCommandLine(
     std::size_t &parDim,
     double &minVar,
     double &maxVar,
-    solverFunction &df
+    gind::solverFunction &df
 ) {
     std::uint16_t evalFunction = 0;
 
@@ -279,11 +279,11 @@ bool parseCommandLine(
     }
 
     // Assign the demo function
-    if(evalFunction > static_cast<std::uint16_t>(MAXDEMOFUNCTION)) {
+    if(evalFunction > static_cast<std::uint16_t>(gind::MAXDEMOFUNCTION)) {
         std::cout << "Error: Invalid evaluation function: " << evalFunction << std::endl;
         return false;
     }
-    df = (solverFunction)evalFunction;
+    df = (gind::solverFunction)evalFunction;
 
     // Parse the command line and leave if the help flag was given. The parser
     // will emit an appropriate help message by itself
@@ -315,7 +315,7 @@ int main(int argc, char **argv) {
     double maxVar;
     sortingMode smode;
     std::uint32_t nProcessingUnits;
-    solverFunction df;
+    gind::solverFunction df;
     std::uint32_t adaptionThreshold;
     double sigma;
     double sigmaSigma;
@@ -358,7 +358,7 @@ int main(int argc, char **argv) {
     //***************************************************************************
     // Create a factory for GFunctionIndividual objects and perform
     // any necessary initial work.
-    GFunctionIndividualFactory gfi("./config/GFunctionIndividual.json");
+    gind::GFunctionIndividualFactory gfi("./config/GFunctionIndividual.json");
 
     // Create the first set of parent individuals. Initialization of parameters is done randomly.
     std::vector<std::shared_ptr<gpar::GParameterSet>> parentIndividuals;

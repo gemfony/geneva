@@ -64,7 +64,7 @@ std::vector<GAlgorithmBenchmarkResult> GAlgorithmBenchmarkRunner::run() {
             << std::endl << GLOGGING;
 
     // Individual factory (shared across all runs)
-    auto indFactory = std::make_shared<GFunctionIndividualFactory>(cfg_.individualConfigFile);
+    auto indFactory = std::make_shared<gind::GFunctionIndividualFactory>(cfg_.individualConfigFile);
     indFactory->setParDim(cfg_.nDimensions);
 
     std::vector<GAlgorithmBenchmarkResult> allResults;
@@ -102,7 +102,7 @@ std::vector<GAlgorithmBenchmarkResult> GAlgorithmBenchmarkRunner::run() {
 GBenchmarkRunResult GAlgorithmBenchmarkRunner::runOne(
     const AlgorithmEntry &entry,
     std::uint32_t runIdx,
-    const std::shared_ptr<GFunctionIndividualFactory> &indFactory
+    const std::shared_ptr<gind::GFunctionIndividualFactory> &indFactory
 ) {
     // Create algorithm from factory + config file
     auto alg = makeAlgorithm(entry);
@@ -114,10 +114,10 @@ GBenchmarkRunResult GAlgorithmBenchmarkRunner::runOne(
     // Create individual and set demo function.
     // benchmarkFunction overrides whatever GFunctionIndividual.json specifies;
     // an unrecognised name is a fatal config error, not a silent fallback.
-    auto ind = indFactory->get_as<GFunctionIndividual>();
+    auto ind = indFactory->get_as<gind::GFunctionIndividual>();
     {
         std::istringstream iss(cfg_.functionName);
-        solverFunction sf{};
+        gind::solverFunction sf{};
         iss >> sf;
         if (iss.fail()) {
             throw std::invalid_argument(

@@ -27,11 +27,11 @@
  *
  ********************************************************************************/
 
-#include "geneva-individuals/GExternalEvaluatorIndividual.hpp"
+#include "geneva/individuals/GExternalEvaluatorIndividual.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GExternalEvaluatorIndividual)        // NOLINT
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GExternalEvaluatorIndividualFactory) // NOLINT
-namespace Gem::Geneva {
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Individuals::GExternalEvaluatorIndividual)        // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Individuals::GExternalEvaluatorIndividualFactory) // NOLINT
+namespace Gem::Geneva::Individuals {
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -1797,4 +1797,4 @@ void GExternalEvaluatorIndividualFactory::postProcess_(std::shared_ptr<gpar::GPa
 
 /******************************************************************************/
 
-} /* namespace Gem::Geneva */
+} /* namespace Gem::Geneva::Individuals */

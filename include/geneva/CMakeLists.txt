@@ -14,6 +14,8 @@ SET ( OPTIMIZATIONINCLUDES
     GPluggableOptimizationMonitors.hpp
     GPostProcessorT.hpp
 	GTestIndividual1.hpp
+	GTestIndividual2.hpp
+	GTestIndividual3.hpp
 )
 
 # Parameter / adaptor object hierarchy (namespace Gem::Geneva::Parameters),
@@ -104,12 +106,26 @@ SET ( OA_INCLUDES
     oa/GSwarmAlgorithm_PersonalityTraits.hpp
 )
 
-# Interface headers (namespace Gem::Geneva::Interface),
-# installed under geneva/iface to mirror the `iface` alias.
+# Interface headers (namespace Gem::Geneva::Interface), installed under
+# geneva/Interface to mirror the nested `Interface` namespace.
 SET ( IFACE_INCLUDES
-    iface/GMutableI.hpp
-    iface/GRateableI.hpp
-    iface/GOptimizerIT.hpp
+    Interface/GMutableI.hpp
+    Interface/GRateableI.hpp
+    Interface/GOptimizerIT.hpp
+)
+
+# Reusable sample individuals (namespace Gem::Geneva::Individuals),
+# installed under geneva/individuals to mirror the `gind` alias. The
+# former geneva-individuals library was dissolved into the geneva
+# library; these headers live on here.
+SET ( INDIVIDUALS_INCLUDES
+    individuals/GBenchmarkFunctions.hpp
+    individuals/GDelayIndividual.hpp
+    individuals/GExternalEvaluatorIndividual.hpp
+    individuals/GFunctionIndividual.hpp
+    individuals/GLineFitIndividual.hpp
+    individuals/GMetaOptimizerIndividualT.hpp
+    individuals/GNeuralNetworkIndividual.hpp
 )
 
 # Add MPI specific files
@@ -121,7 +137,7 @@ IF(GENEVA_BUILD_WITH_MPI_CONSUMER)
 ENDIF()
 
 # This is a workaround for a CLion-problem -- see CPP270 in the JetBrains issue tracker
-ADD_CUSTOM_TARGET(CLION_ALL_GENEVA_HEADERS SOURCES ${OPTIMIZATIONINCLUDES} ${OA_INCLUDES} ${IFACE_INCLUDES} ${PARAM_INCLUDES})
+ADD_CUSTOM_TARGET(CLION_ALL_GENEVA_HEADERS SOURCES ${OPTIMIZATIONINCLUDES} ${OA_INCLUDES} ${IFACE_INCLUDES} ${PARAM_INCLUDES} ${INDIVIDUALS_INCLUDES})
 
 SET_TARGET_PROPERTIES(
     CLION_ALL_GENEVA_HEADERS
@@ -133,9 +149,11 @@ SET_TARGET_PROPERTIES(
 
 INSTALL ( FILES ${OPTIMIZATIONINCLUDES} DESTINATION ${INSTALL_PREFIX_INCLUDES}/geneva )
 INSTALL ( FILES ${OA_INCLUDES} DESTINATION ${INSTALL_PREFIX_INCLUDES}/geneva/oa )
-INSTALL ( FILES ${IFACE_INCLUDES} DESTINATION ${INSTALL_PREFIX_INCLUDES}/geneva/iface )
+INSTALL ( FILES ${IFACE_INCLUDES} DESTINATION ${INSTALL_PREFIX_INCLUDES}/geneva/Interface )
 INSTALL ( FILES ${PARAM_INCLUDES} DESTINATION ${INSTALL_PREFIX_INCLUDES}/geneva/par )
+INSTALL ( FILES ${INDIVIDUALS_INCLUDES} DESTINATION ${INSTALL_PREFIX_INCLUDES}/geneva/individuals )
 
-IF( GENEVA_BUILD_TESTS )
-	ADD_SUBDIRECTORY ( tests )
-ENDIF()
+# GEqualityPrinter.hpp (the only former include/geneva/tests/ header) is
+# pure test scaffolding and now lives next to its sole consumer in
+# tests/geneva/UnitTests/ (internal only, never installed) — like
+# Geneva_tests.hpp before it.

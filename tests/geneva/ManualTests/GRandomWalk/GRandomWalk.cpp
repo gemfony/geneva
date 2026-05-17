@@ -42,7 +42,7 @@
 
 // Geneva header files go here
 #include "common/GPlotDesigner.hpp"
-#include "geneva-individuals/GTestIndividual2.hpp"
+#include "geneva/GTestIndividual2.hpp"
 
 using namespace Gem::Common;
 using namespace Gem::Geneva;

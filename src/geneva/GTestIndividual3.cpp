@@ -27,7 +27,7 @@
  *
  ********************************************************************************/
 
-#include "geneva-individuals/GTestIndividual3.hpp"
+#include "geneva/GTestIndividual3.hpp"
 
 #ifdef GEM_TESTING
 #include <catch2/catch_test_macros.hpp>
@@ -36,12 +36,12 @@
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Tests::GTestIndividual3) // NOLINT
 namespace Gem::Tests {
 
-const std::size_t GTI_DEF_NITEMS = 300;
-const double GTI_DEF_SIGMA = 0.025;
-const double GTI_DEF_SIGMASIGMA = 0.1;
-const double GTI_DEF_MINSIGMA = 0.001;
-const double GTI_DEF_MAXSIGMA = 1.0;
-const double GTI_DEF_ADPROB = 0.05;
+constexpr std::size_t GTI_DEF_NITEMS = 300;
+constexpr double GTI_DEF_SIGMA = 0.025;
+constexpr double GTI_DEF_SIGMASIGMA = 0.1;
+constexpr double GTI_DEF_MINSIGMA = 0.001;
+constexpr double GTI_DEF_MAXSIGMA = 1.0;
+constexpr double GTI_DEF_ADPROB = 0.05;
 
 /******************************************************************************/
 /**
@@ -311,7 +311,7 @@ void GTestIndividual3::specificTestsNoFailureExpected_GUnitTests_() {
     // Call the parent classes' functions
     gpar::GParameterSet::specificTestsNoFailureExpected_GUnitTests_();
 
-    const std::size_t ntests = 100;
+    constexpr std::size_t ntests = 100;
 
     //------------------------------------------------------------------------------
 

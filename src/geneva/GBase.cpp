@@ -1431,8 +1431,8 @@ void GBase::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
 void GBase::updateGlobalBestsPQ_(
     gpar::GParameterSetFixedSizePriorityQueue &best_individuals
 ) {
-    const bool clone = true;
-    const bool donotreplace = false;
+    constexpr bool clone = true;
+    constexpr bool donotreplace = false;
 
 #ifdef DEBUG
     if(this->empty()) {
@@ -1461,8 +1461,8 @@ void GBase::updateGlobalBestsPQ_(
 void GBase::updateIterationBestsPQ_(
     gpar::GParameterSetFixedSizePriorityQueue &best_individuals
 ) {
-    const bool clone = true;
-    const bool replace = true;
+    constexpr bool clone = true;
+    constexpr bool replace = true;
 
 #ifdef DEBUG
     if(this->empty()) {
@@ -1490,7 +1490,7 @@ void GBase::updateIterationBestsPQ_(
 void GBase::addCleanStoredBests(
     gpar::GParameterSetFixedSizePriorityQueue &best_individuals
 ) {
-    const bool clone = true;
+    constexpr bool clone = true;
 
     // We simply add all *clean* individuals to the queue -- only the best ones will actually be added
     // (and cloned) Unless we have asked for the queue to have an unlimited size, the queue will be

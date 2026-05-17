@@ -53,7 +53,7 @@
 #include "geneva/par/GParameterSet.hpp"
 #include "geneva/par/GParameterSetFixedSizePriorityQueue.hpp"
 #include "geneva/GPersonalityTraits.hpp"
-#include "geneva/iface/GOptimizerIT.hpp"
+#include "geneva/Interface/GOptimizerIT.hpp"
 #include "geneva/GenevaHelperFunctions.hpp"
 
 namespace Gem::Geneva::OptimizationAlgorithms {

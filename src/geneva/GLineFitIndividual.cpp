@@ -27,10 +27,10 @@
  *
  ********************************************************************************/
 
-#include "geneva-individuals/GLineFitIndividual.hpp"
+#include "geneva/individuals/GLineFitIndividual.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GLineFitIndividual) // NOLINT
-namespace Gem::Geneva {
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Individuals::GLineFitIndividual) // NOLINT
+namespace Gem::Geneva::Individuals {
 
 /******************************************************************************/
 /**
@@ -327,4 +327,4 @@ void GLineFitIndividualFactory::postProcess_(std::shared_ptr<gpar::GParameterSet
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-} /* namespace Gem::Geneva */
+} /* namespace Gem::Geneva::Individuals */

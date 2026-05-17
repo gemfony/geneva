@@ -97,8 +97,8 @@ public:
 
         { // Test that uniform_int(min,max) covers the entire range, including the upper boundary in RANDFLAVOURS::RANDOMLOCAL mode
             // A few settings
-            const std::int32_t MINRANDOM = -10;
-            const std::int32_t MAXRANDOM = 10;
+            constexpr std::int32_t MINRANDOM = -10;
+            constexpr std::int32_t MAXRANDOM = 10;
 
             std::shared_ptr<GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL>> gr_ptr(
                 new Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL>()
@@ -138,8 +138,8 @@ public:
 
         { // Test that uniform_int(min,max) covers the entire range, including the upper boundary in RANDOMPROXY mode
             // A few settings
-            const std::int32_t MINRANDOM = -10;
-            const std::int32_t MAXRANDOM = 10;
+            constexpr std::int32_t MINRANDOM = -10;
+            constexpr std::int32_t MAXRANDOM = 10;
 
             std::shared_ptr<GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY>> gr_ptr(
                 new Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY>()

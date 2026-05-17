@@ -56,12 +56,12 @@
  *
  * ## Usage from CPU code
  *
- *   #include "geneva-individuals/GBenchmarkFunctions.hpp"
+ *   #include "geneva/individuals/GBenchmarkFunctions.hpp"
  *   double f = Gem::Geneva::BM::parabola(params.data(), params.size());
  *
  * ## Usage from CUDA kernel code
  *
- *   #include "geneva-individuals/GBenchmarkFunctions.hpp"
+ *   #include "geneva/individuals/GBenchmarkFunctions.hpp"
  *   __global__ void evalKernel(...) {
  *       double f = Gem::Geneva::BM::parabola(d_params + tid*n, n);
  *   }

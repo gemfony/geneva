@@ -427,10 +427,10 @@ bool GBooleanCollection::modify_GUnitTests_() {
 void GBooleanCollection::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
     // A few settings
-    const std::size_t n_items = 10000;
-    const bool fixedvalueinit = true;
-    const double lowerbnd = 0.8;
-    const double upperbnd = 1.2;
+    constexpr std::size_t n_items = 10000;
+    constexpr bool fixedvalueinit = true;
+    constexpr double lowerbnd = 0.8;
+    constexpr double upperbnd = 1.2;
 
     // Make sure we have an appropriate adaptor loaded when performing these tests
     bool adaptor_stored = false;

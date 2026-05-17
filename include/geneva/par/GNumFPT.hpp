@@ -258,7 +258,7 @@ protected:
     void specificTestsNoFailureExpected_GUnitTests_() override {
 #ifdef GEM_TESTING
         // A few settings
-        const std::size_t n_tests = 100;
+        constexpr std::size_t n_tests = 100;
         const fp_type lowerinitboundary = -10.1;
         const fp_type upperinitboundary = 10.1;
         const fp_type fixedvalueinit = 1.;

@@ -47,7 +47,7 @@
 #include <vector>
 
 #include "GBenchmarkBatchEvaluator.cuh"
-#include "geneva-individuals/GBenchmarkFunctions.hpp"
+#include "geneva/individuals/GBenchmarkFunctions.hpp"
 
 namespace BM = Gem::Geneva::BM;
 

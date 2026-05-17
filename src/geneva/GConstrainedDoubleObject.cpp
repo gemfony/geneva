@@ -367,12 +367,12 @@ bool GConstrainedDoubleObject::modify_GUnitTests_() {
 void GConstrainedDoubleObject::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
     // Some general settings
-    const double test_val = 42.;
-    const double test_val2 = 17.;
+    constexpr double test_val = 42.;
+    constexpr double test_val2 = 17.;
     double test_val3 = 0.;
-    const double lower_boundary = 0.;
-    const double upper_boundary = 100.;
-    const std::size_t ntests = 100;
+    constexpr double lower_boundary = 0.;
+    constexpr double upper_boundary = 100.;
+    constexpr std::size_t ntests = 100;
 
     // Make sure we have an appropriate adaptor loaded when performing these tests
     bool adaptor_stored = false;
@@ -431,7 +431,7 @@ void GConstrainedDoubleObject::specificTestsNoFailureExpected_GUnitTests_() {
     // --------------------------------------------------------------------------
 
     { // Check construction with two boundaries and a value and extraction of that value
-        const double testval = 0.4;
+        constexpr double testval = 0.4;
         std::shared_ptr<GConstrainedDoubleObject> p_test(
             new GConstrainedDoubleObject(0.4, 0.3, 0.6)
         );
@@ -442,7 +442,7 @@ void GConstrainedDoubleObject::specificTestsNoFailureExpected_GUnitTests_() {
     // --------------------------------------------------------------------------
 
     { // Check that repeated retrieval of the value always yields the same value
-        const double testval = 0.4;
+        constexpr double testval = 0.4;
         std::shared_ptr<GConstrainedDoubleObject> p_test(
             new GConstrainedDoubleObject(0.4, 0.3, 0.6)
         );

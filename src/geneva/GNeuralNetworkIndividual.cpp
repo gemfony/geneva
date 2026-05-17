@@ -27,12 +27,12 @@
  *
  ********************************************************************************/
 
-#include <geneva-individuals/GNeuralNetworkIndividual.hpp>
+#include <geneva/individuals/GNeuralNetworkIndividual.hpp>
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::trainingSet)              // NOLINT
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::networkData)              // NOLINT
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GNeuralNetworkIndividual) // NOLINT
-namespace Gem::Geneva {
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Individuals::trainingSet)              // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Individuals::networkData)              // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Individuals::GNeuralNetworkIndividual) // NOLINT
+namespace Gem::Geneva::Individuals {
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -512,21 +512,21 @@ std::shared_ptr<networkData> networkData::clone() const {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * Reads a Gem::Geneva::trainingDataType item from a stream. Needed so we
+ * Reads a Gem::Geneva::Individuals::trainingDataType item from a stream. Needed so we
  * can use boost::program_options to read trainingDataType data.
  *
  * @param i The stream the item should be read from
  * @param tdt The item read from the stream
  * @return The std::istream object used to read the item from
  */
-std::istream &operator>>(std::istream &i, Gem::Geneva::trainingDataType &tdt) {
+std::istream &operator>>(std::istream &i, Gem::Geneva::Individuals::trainingDataType &tdt) {
     Gem::Common::ENUMBASETYPE tmp = 0;
     i >> tmp;
 
 #ifdef DEBUG
-    tdt = Gem::Common::narrow_cast<Gem::Geneva::trainingDataType>(tmp);
+    tdt = Gem::Common::narrow_cast<Gem::Geneva::Individuals::trainingDataType>(tmp);
 #else
-    tdt = static_cast<Gem::Geneva::trainingDataType>(tmp);
+    tdt = static_cast<Gem::Geneva::Individuals::trainingDataType>(tmp);
 #endif /* DEBUG */
 
     return i;
@@ -534,14 +534,14 @@ std::istream &operator>>(std::istream &i, Gem::Geneva::trainingDataType &tdt) {
 
 /******************************************************************************/
 /**
- * Puts a Gem::Geneva::trainingDataType item into a stream. Needed so we
+ * Puts a Gem::Geneva::Individuals::trainingDataType item into a stream. Needed so we
  * can use boost::program_options to output trainingDataType data.
  *
  * @param o The ostream the item should be added to
  * @param tdt the item to be added to the stream
  * @return The std::ostream object used to add the item to
  */
-std::ostream &operator<<(std::ostream &o, const Gem::Geneva::trainingDataType &tdt) {
+std::ostream &operator<<(std::ostream &o, const Gem::Geneva::Individuals::trainingDataType &tdt) {
     Gem::Common::ENUMBASETYPE tmp = static_cast<Gem::Common::ENUMBASETYPE>(tdt);
     o << tmp;
     return o;
@@ -549,21 +549,21 @@ std::ostream &operator<<(std::ostream &o, const Gem::Geneva::trainingDataType &t
 
 /******************************************************************************/
 /**
- * Reads a Gem::Geneva::transferFunction item from a stream. Needed so we
+ * Reads a Gem::Geneva::Individuals::transferFunction item from a stream. Needed so we
  * can use boost::program_options to read transferFunction data.
  *
  * @param i The stream the item should be read from
  * @param tF The item read from the stream
  * @return The std::istream object used to read the item from
  */
-std::istream &operator>>(std::istream &i, Gem::Geneva::transferFunction &t_f) {
+std::istream &operator>>(std::istream &i, Gem::Geneva::Individuals::transferFunction &t_f) {
     Gem::Common::ENUMBASETYPE tmp = 0;
     i >> tmp;
 
 #ifdef DEBUG
-    t_f = Gem::Common::narrow_cast<Gem::Geneva::transferFunction>(tmp);
+    t_f = Gem::Common::narrow_cast<Gem::Geneva::Individuals::transferFunction>(tmp);
 #else
-    tF = static_cast<Gem::Geneva::transferFunction>(tmp);
+    tF = static_cast<Gem::Geneva::Individuals::transferFunction>(tmp);
 #endif /* DEBUG */
 
     return i;
@@ -571,14 +571,14 @@ std::istream &operator>>(std::istream &i, Gem::Geneva::transferFunction &t_f) {
 
 /******************************************************************************/
 /**
- * Puts a Gem::Geneva::transferFunction item into a stream. Needed so we
+ * Puts a Gem::Geneva::Individuals::transferFunction item into a stream. Needed so we
  * can use boost::program_options to output transferFunction data.
  *
  * @param o The ostream the item should be added to
  * @param tF the item to be added to the stream
  * @return The std::ostream object used to add the item to
  */
-std::ostream &operator<<(std::ostream &o, const Gem::Geneva::transferFunction &t_f) {
+std::ostream &operator<<(std::ostream &o, const Gem::Geneva::Individuals::transferFunction &t_f) {
     Gem::Common::ENUMBASETYPE tmp = static_cast<Gem::Common::ENUMBASETYPE>(t_f);
     o << tmp;
     return o;
@@ -1756,7 +1756,7 @@ void GNeuralNetworkIndividualFactory::postProcess_(std::shared_ptr<gpar::GParame
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-} /* namespace Gem::Geneva */
+} /* namespace Gem::Geneva::Individuals */
 
 namespace Gem::Common {
 
@@ -1770,11 +1770,11 @@ namespace Gem::Common {
  * @return A std::shared_ptr to a newly created T object
  */
 template <>
-std::shared_ptr<Gem::Geneva::networkData> TFactory_GSingletonT() {
+std::shared_ptr<Gem::Geneva::Individuals::networkData> TFactory_GSingletonT() {
     if(GNeuralNetworkOptions->exists("trainingDataFile")) {
-        return std::make_shared<Gem::Geneva::networkData>(GNeuralNetworkOptions->get("trainingDataFile"));
+        return std::make_shared<Gem::Geneva::Individuals::networkData>(GNeuralNetworkOptions->get("trainingDataFile"));
     }
-            return std::make_shared<Gem::Geneva::networkData>(Gem::Geneva::GNN_DEF_DATAFILE);
+            return std::make_shared<Gem::Geneva::Individuals::networkData>(Gem::Geneva::Individuals::GNN_DEF_DATAFILE);
    
 }
 

@@ -974,7 +974,7 @@ protected:
 
             p_test->setAdProbRange(0., 1.);
 
-            const std::size_t n_tests = 100000;
+            constexpr std::size_t n_tests = 100000;
 
             for(fp_type prob = 0.1; prob < 1.; prob += 0.1) {
                 // Account for rounding problems
@@ -1051,7 +1051,7 @@ protected:
             std::shared_ptr<GAdaptorT<T, fp_type>> p_test = this->clone<GAdaptorT<T, fp_type>>();
             p_test->setAdaptionProbability(0.5);
 
-            const std::size_t n_tests = 10000;
+            constexpr std::size_t n_tests = 10000;
 
             // false: There should never be adaptions, independent of the adaption probability
             CHECK_NOTHROW(p_test->setAdaptionMode(adaptionMode::NEVER));

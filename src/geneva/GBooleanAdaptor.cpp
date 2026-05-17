@@ -208,7 +208,7 @@ void GBooleanAdaptor::specificTestsNoFailureExpected_GUnitTests_() {
     // --------------------------------------------------------------------------
 
     { // Check construction with a given adaption probability
-        const double trialadprob = 0.1;
+        constexpr double trialadprob = 0.1;
         GBooleanAdaptor gba(trialadprob);
         INFO(
             "\n"
@@ -221,7 +221,7 @@ void GBooleanAdaptor::specificTestsNoFailureExpected_GUnitTests_() {
     // --------------------------------------------------------------------------
 
     { // Check copy construction
-        const double trialadprob = 0.1;
+        constexpr double trialadprob = 0.1;
         GBooleanAdaptor gba1(trialadprob);
         GBooleanAdaptor gba2(gba1);
         INFO(
