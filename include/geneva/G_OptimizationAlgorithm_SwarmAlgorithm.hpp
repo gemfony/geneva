@@ -49,7 +49,7 @@
 #include "geneva/GTestIndividual1.hpp"
 #endif /* GEM_TESTING */
 
-namespace Gem::Geneva {
+namespace Gem::Geneva::OptimizationAlgorithms {
 
 /******************************************************************************/
 /**
@@ -351,6 +351,11 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Gem::Geneva */
+} /* namespace Gem::Geneva::OptimizationAlgorithms */
 
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GSwarmAlgorithm) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::OptimizationAlgorithms::GSwarmAlgorithm) // NOLINT
+
+// Phase-2 compile shim — removed in NS Phase 3 (reference migration).
+namespace Gem::Geneva {
+using OptimizationAlgorithms::GSwarmAlgorithm;
+} // namespace Gem::Geneva

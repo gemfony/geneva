@@ -29,14 +29,14 @@
 
 #include "geneva/G_OptimizationAlgorithm_ParameterScan.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::bScanPar)     // NOLINT
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::int32ScanPar) // NOLINT
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::dScanPar)     // NOLINT
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::fScanPar)     // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::OptimizationAlgorithms::bScanPar)     // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::OptimizationAlgorithms::int32ScanPar) // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::OptimizationAlgorithms::dScanPar)     // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::OptimizationAlgorithms::fScanPar)     // NOLINT
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GParameterScan) // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::OptimizationAlgorithms::GParameterScan) // NOLINT
 
-namespace Gem::Geneva {
+namespace Gem::Geneva::OptimizationAlgorithms {
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -1316,4 +1316,4 @@ void GParameterScan::specificTestsFailuresExpected_GUnitTests_() {
 
 /******************************************************************************/
 
-} /* namespace Gem::Geneva */
+} /* namespace Gem::Geneva::OptimizationAlgorithms */

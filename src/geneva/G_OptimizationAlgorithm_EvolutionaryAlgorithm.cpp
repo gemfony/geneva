@@ -37,11 +37,11 @@
 
 /******************************************************************************/
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GEvolutionaryAlgorithm) // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::OptimizationAlgorithms::GEvolutionaryAlgorithm) // NOLINT
 
 /******************************************************************************/
 
-namespace Gem::Geneva {
+namespace Gem::Geneva::OptimizationAlgorithms {
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -1417,4 +1417,4 @@ std::ostream &operator<<(std::ostream &os, const GEvolutionaryAlgorithm &pop) {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-} // namespace Gem::Geneva
+} // namespace Gem::Geneva::OptimizationAlgorithms

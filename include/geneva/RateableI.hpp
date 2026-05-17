@@ -40,12 +40,12 @@
 
 // Geneva header files go here
 
-namespace Gem::Geneva {
+namespace Gem::Geneva::Interface {
 /******************************************************************************/
 /**
      * A simple interface class for objects that can be evaluated.
      */
-class G_Interface_Rateable {
+class RateableI {
 public:
     /** @brief Retrieves the stored raw fitness with a given id */
     double raw_fitness(std::size_t = 0) const;
@@ -64,13 +64,13 @@ protected:
     /**************************************************************************/
     // Defaulted constructors / destructors / assignment operators
 
-    G_Interface_Rateable() = default;
-    G_Interface_Rateable(G_Interface_Rateable const &) = default;
-    G_Interface_Rateable(G_Interface_Rateable &&) = default;
-    ~G_Interface_Rateable() = default;
+    RateableI() = default;
+    RateableI(RateableI const &) = default;
+    RateableI(RateableI &&) = default;
+    ~RateableI() = default;
 
-    G_Interface_Rateable &operator=(G_Interface_Rateable const &) = default;
-    G_Interface_Rateable &operator=(G_Interface_Rateable &&) = default;
+    RateableI &operator=(RateableI const &) = default;
+    RateableI &operator=(RateableI &&) = default;
 
 private:
     /** @brief Retrieves the stored raw fitness with a given id */
@@ -85,4 +85,4 @@ private:
 };
 
 /******************************************************************************/
-} /* namespace Gem::Geneva */
+} /* namespace Gem::Geneva::Interface */

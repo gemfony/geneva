@@ -29,7 +29,7 @@
 
 #include "geneva/G_OptimizationAlgorithm_SimulatedAnnealing_Factory.hpp"
 
-namespace Gem::Geneva {
+namespace Gem::Geneva::OptimizationAlgorithms {
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -118,4 +118,4 @@ void GSimulatedAnnealingFactory::postProcess_(
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-} /* namespace Gem::Geneva */
+} /* namespace Gem::Geneva::OptimizationAlgorithms */

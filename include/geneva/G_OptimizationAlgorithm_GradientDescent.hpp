@@ -51,7 +51,7 @@
 
 #endif /* GEM_TESTING */
 
-namespace Gem::Geneva {
+namespace Gem::Geneva::OptimizationAlgorithms {
 
 /**
  * The default number of simultaneous starting points for the gradient descent
@@ -220,6 +220,11 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Gem::Geneva */
+} /* namespace Gem::Geneva::OptimizationAlgorithms */
 
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GGradientDescent) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::OptimizationAlgorithms::GGradientDescent) // NOLINT
+
+// Phase-2 compile shim — removed in NS Phase 3 (reference migration).
+namespace Gem::Geneva {
+using OptimizationAlgorithms::GGradientDescent;
+} // namespace Gem::Geneva

@@ -33,9 +33,9 @@
 #include <cmath>
 #include <limits>
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GNelderMead) // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::OptimizationAlgorithms::GNelderMead) // NOLINT
 
-namespace Gem::Geneva {
+namespace Gem::Geneva::OptimizationAlgorithms {
 
 /******************************************************************************/
 /**
@@ -775,4 +775,4 @@ void GNelderMead::specificTestsFailuresExpected_GUnitTests_() {
 
 /******************************************************************************/
 
-} /* namespace Gem::Geneva */
+} /* namespace Gem::Geneva::OptimizationAlgorithms */

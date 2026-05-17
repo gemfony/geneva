@@ -29,9 +29,9 @@
 
 #include "geneva/G_OptimizationAlgorithm_GradientDescent.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GGradientDescent) // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::OptimizationAlgorithms::GGradientDescent) // NOLINT
 
-namespace Gem::Geneva {
+namespace Gem::Geneva::OptimizationAlgorithms {
 
 /******************************************************************************/
 /**
@@ -796,4 +796,4 @@ void GGradientDescent::specificTestsFailuresExpected_GUnitTests_() {
 
 /******************************************************************************/
 
-} /* namespace Gem::Geneva */
+} /* namespace Gem::Geneva::OptimizationAlgorithms */

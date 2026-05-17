@@ -29,7 +29,7 @@
 
 #include "geneva/G_OptimizationAlgorithm_EvolutionaryAlgorithm_Factory.hpp"
 
-namespace Gem::Geneva {
+namespace Gem::Geneva::OptimizationAlgorithms {
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -120,4 +120,4 @@ void GEvolutionaryAlgorithmFactory::postProcess_(
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-} /* namespace Gem::Geneva */
+} /* namespace Gem::Geneva::OptimizationAlgorithms */

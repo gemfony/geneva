@@ -28,7 +28,7 @@
 ################################################################################
 
 SET ( OPTIMIZATIONSOURCES
-	G_Interface_Rateable.cpp
+	RateableI.cpp
 	GAdaptorT.cpp
 	GBooleanAdaptor.cpp
 	GBooleanCollection.cpp

@@ -28,8 +28,8 @@
  ********************************************************************************/
 #include "geneva/G_OptimizationAlgorithm_NelderMead_PersonalityTraits.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GNelderMead_PersonalityTraits) // NOLINT
-namespace Gem::Geneva {
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::OptimizationAlgorithms::GNelderMead_PersonalityTraits) // NOLINT
+namespace Gem::Geneva::OptimizationAlgorithms {
 
 /******************************************************************************/
 /** A short identifier suitable for storage in a std::map */
@@ -176,4 +176,4 @@ void GNelderMead_PersonalityTraits::specificTestsFailuresExpected_GUnitTests_() 
 
 /******************************************************************************/
 
-} /* namespace Gem::Geneva */
+} /* namespace Gem::Geneva::OptimizationAlgorithms */

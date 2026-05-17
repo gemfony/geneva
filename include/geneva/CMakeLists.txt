@@ -38,9 +38,9 @@ SET ( OPTIMIZATIONINCLUDES
 	GIntFlipAdaptorT.hpp
 	GIntGaussAdaptorT.hpp
 	GIntNumCollectionT.hpp
-    G_Interface_Mutable.hpp
-    G_Interface_OptimizerT.hpp
-    G_Interface_Rateable.hpp
+    MutableI.hpp
+    OptimizerIT.hpp
+    RateableI.hpp
     GMultiConstraintT.hpp
     GMutableParameterI.hpp
 	GNumBiGaussAdaptorT.hpp

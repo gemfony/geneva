@@ -29,7 +29,7 @@
 
 #include "geneva/G_OptimizationAlgorithm_SwarmAlgorithm_Factory.hpp"
 
-namespace Gem::Geneva {
+namespace Gem::Geneva::OptimizationAlgorithms {
 
 /******************************************************************************/
 /**
@@ -112,4 +112,4 @@ void GSwarmAlgorithmFactory::postProcess_(std::shared_ptr<G_OptimizationAlgorith
 
 /******************************************************************************/
 
-} /* namespace Gem::Geneva */
+} /* namespace Gem::Geneva::OptimizationAlgorithms */

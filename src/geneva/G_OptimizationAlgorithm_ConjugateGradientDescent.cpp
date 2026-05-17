@@ -31,9 +31,9 @@
 
 #include <limits>
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GConjugateGradientDescent) // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::OptimizationAlgorithms::GConjugateGradientDescent) // NOLINT
 
-namespace Gem::Geneva {
+namespace Gem::Geneva::OptimizationAlgorithms {
 
 /******************************************************************************/
 /**
@@ -782,4 +782,4 @@ void GConjugateGradientDescent::specificTestsFailuresExpected_GUnitTests_() {
 
 /******************************************************************************/
 
-} /* namespace Gem::Geneva */
+} /* namespace Gem::Geneva::OptimizationAlgorithms */

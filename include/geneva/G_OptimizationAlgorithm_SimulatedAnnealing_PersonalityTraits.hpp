@@ -39,7 +39,7 @@
 // Geneva headers go here
 #include "geneva/G_OptimizationAlgorithm_ParChildT_PersonalityTraits.hpp"
 
-namespace Gem::Geneva {
+namespace Gem::Geneva::OptimizationAlgorithms {
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -123,6 +123,11 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-} /* namespace Gem::Geneva */
+} /* namespace Gem::Geneva::OptimizationAlgorithms */
 
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GSimulatedAnnealing_PersonalityTraits) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::OptimizationAlgorithms::GSimulatedAnnealing_PersonalityTraits) // NOLINT
+
+// Phase-2 compile shim — removed in NS Phase 3 (reference migration).
+namespace Gem::Geneva {
+using OptimizationAlgorithms::GSimulatedAnnealing_PersonalityTraits;
+} // namespace Gem::Geneva

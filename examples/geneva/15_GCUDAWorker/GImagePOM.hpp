@@ -313,7 +313,7 @@ private:
             // -----------------------------------------------------------------------------------------
             // Get the current best individual
             auto bestIndividual_ptr =
-                goa->G_Interface_OptimizerT::getBestIterationIndividual<GImageIndividual>();
+                goa->Interface::OptimizerIT<G_OptimizationAlgorithm_Base>::getBestIterationIndividual<GImageIndividual>();
 
             // Enforce processing. Together with getGPUCandidateImage_= true this will result
             // in a retrieval of the image from the GPU, which is not normally the case.
@@ -348,7 +348,7 @@ private:
             if(not emitBestOnly_ || goa->progress()) {
                 const std::string resultFileName =
                     resultImageDirectory_ +
-                    std::to_string(goa->G_Interface_OptimizerT::getIteration()) + "_" +
+                    std::to_string(goa->Interface::OptimizerIT<G_OptimizationAlgorithm_Base>::getIteration()) + "_" +
                     std::to_string(fitness) + "_bestIndividual.png";
                 evaluator_ptr_->saveCandidateImageToDisc(resultFileName);
             }

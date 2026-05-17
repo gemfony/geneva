@@ -28,8 +28,8 @@
  ********************************************************************************/
 #include "geneva/G_OptimizationAlgorithm_GradientDescent_PersonalityTraits.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GGradientDescent_PersonalityTraits) // NOLINT
-namespace Gem::Geneva {
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::OptimizationAlgorithms::GGradientDescent_PersonalityTraits) // NOLINT
+namespace Gem::Geneva::OptimizationAlgorithms {
 
 /******************************************************************************/
 /** A short identifier suitable for storage in a std::map */
@@ -213,4 +213,4 @@ void GGradientDescent_PersonalityTraits::specificTestsFailuresExpected_GUnitTest
 
 /******************************************************************************/
 
-} /* namespace Gem::Geneva */
+} /* namespace Gem::Geneva::OptimizationAlgorithms */

@@ -29,8 +29,8 @@
 
 #include "geneva/G_OptimizationAlgorithm_ParameterScan_PersonalityTraits.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GParameterScan_PersonalityTraits) // NOLINT
-namespace Gem::Geneva {
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::OptimizationAlgorithms::GParameterScan_PersonalityTraits) // NOLINT
+namespace Gem::Geneva::OptimizationAlgorithms {
 
 /******************************************************************************/
 /** A short identifier suitable for storage in a std::map */
@@ -214,4 +214,4 @@ void GParameterScan_PersonalityTraits::specificTestsFailuresExpected_GUnitTests_
 
 /******************************************************************************/
 
-} /* namespace Gem::Geneva */
+} /* namespace Gem::Geneva::OptimizationAlgorithms */

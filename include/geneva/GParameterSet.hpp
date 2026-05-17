@@ -53,8 +53,8 @@
 #include "geneva/GObject.hpp"
 #include "geneva/GParameterBase.hpp"
 #include "geneva/GPersonalityTraits.hpp"
-#include "geneva/G_Interface_Mutable.hpp"
-#include "geneva/G_Interface_Rateable.hpp"
+#include "geneva/MutableI.hpp"
+#include "geneva/RateableI.hpp"
 #include "geneva/GenevaHelperFunctionsT.hpp"
 #include "hap/GRandomT.hpp"
 
@@ -175,8 +175,8 @@ private:
  */
 class GParameterSet // NOLINT(cppcoreguidelines-special-member-functions)
   : public GObject
-  , public G_Interface_Mutable
-  , public G_Interface_Rateable
+  , public Interface::MutableI
+  , public Interface::RateableI
   , public Gem::Common::GPtrContainerT<GParameterBase>
   , public Gem::Courtier::GProcessingContainerT<GParameterSet, parameterset_processing_result> {
     friend class Gem::Tests::GTestIndividual1; ///< Needed for testing purposes

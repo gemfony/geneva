@@ -52,7 +52,7 @@
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GParameterObjectCollection.hpp"
 #include "geneva/GParameterSet.hpp"
-#include "geneva/G_Interface_OptimizerT.hpp"
+#include "geneva/OptimizerIT.hpp"
 #include "geneva/G_OptimizationAlgorithm_Base.hpp"
 #include "geneva/G_OptimizationAlgorithm_ConjugateGradientDescent_Factory.hpp"
 #include "geneva/G_OptimizationAlgorithm_EvolutionaryAlgorithm_Factory.hpp"
@@ -96,7 +96,7 @@ using GOABase = Gem::Geneva::G_OptimizationAlgorithm_Base;
  * class also hides the details of client/server mode, consumer initialization, etc.
  */
 class Go2 // NOLINT(cppcoreguidelines-special-member-functions)
-  : public G_Interface_OptimizerT<Go2>
+  : public Interface::OptimizerIT<Go2>
   , public Gem::Common::GPtrContainerT<GParameterSet> {
 public:
     /** @brief The default constructor */

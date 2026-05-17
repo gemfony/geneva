@@ -45,7 +45,7 @@
 // Geneva headers go here
 #include "geneva/GParameterSet.hpp"
 
-namespace Gem::Geneva {
+namespace Gem::Geneva::Interface {
 
 /******************************************************************************/
 /**
@@ -53,7 +53,7 @@ namespace Gem::Geneva {
  * algorithms.
  */
 template <typename optimizer_type>
-class G_Interface_OptimizerT {
+class OptimizerIT {
 public:
     /***************************************************************************/
     // Deleted move construction and move assignment operators. For now moving
@@ -61,9 +61,9 @@ public:
     // we prevent it until the need arises.
 
     
-    G_Interface_OptimizerT(G_Interface_OptimizerT<optimizer_type> &&) noexcept = delete;
-    G_Interface_OptimizerT<optimizer_type> &
-    operator=(G_Interface_OptimizerT<optimizer_type> &&) noexcept = delete;
+    OptimizerIT(OptimizerIT<optimizer_type> &&) noexcept = delete;
+    OptimizerIT<optimizer_type> &
+    operator=(OptimizerIT<optimizer_type> &&) noexcept = delete;
 
     /***************************************************************************/
     /**
@@ -234,17 +234,17 @@ protected:
     /***************************************************************************/
     // Defaulted or constructors / destructors / assignment operators
 
-    G_Interface_OptimizerT() = default;
-    G_Interface_OptimizerT(G_Interface_OptimizerT<optimizer_type> const &) = default;
+    OptimizerIT() = default;
+    OptimizerIT(OptimizerIT<optimizer_type> const &) = default;
 
     /**
  	  * The destructor. Making this function protected and non-virtual follows
  	  * this discussion: http://www.gotw.ca/publications/mill18.htm
  	  */
-    ~G_Interface_OptimizerT() = default;
+    ~OptimizerIT() = default;
 
-    G_Interface_OptimizerT<optimizer_type> &
-    operator=(G_Interface_OptimizerT<optimizer_type> const &) = default;
+    OptimizerIT<optimizer_type> &
+    operator=(OptimizerIT<optimizer_type> const &) = default;
 
     /***************************************************************************/
 
@@ -281,6 +281,6 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Gem::Geneva */
+} /* namespace Gem::Geneva::Interface */
 
 /******************************************************************************/

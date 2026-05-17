@@ -46,7 +46,7 @@
 #include "geneva/G_OptimizationAlgorithm_ParChild.hpp"
 #include "geneva/G_OptimizationAlgorithm_SimulatedAnnealing_PersonalityTraits.hpp"
 
-namespace Gem::Geneva {
+namespace Gem::Geneva::OptimizationAlgorithms {
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -202,6 +202,11 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-} /* namespace Gem::Geneva */
+} /* namespace Gem::Geneva::OptimizationAlgorithms */
 
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GSimulatedAnnealing) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::OptimizationAlgorithms::GSimulatedAnnealing) // NOLINT
+
+// Phase-2 compile shim — removed in NS Phase 3 (reference migration).
+namespace Gem::Geneva {
+using OptimizationAlgorithms::GSimulatedAnnealing;
+} // namespace Gem::Geneva
