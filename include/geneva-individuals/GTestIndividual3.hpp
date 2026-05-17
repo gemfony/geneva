@@ -49,17 +49,17 @@
 #include "common/GExceptions.hpp"
 #include "common/GParserBuilder.hpp"
 #include "common/GSingletonT.hpp"
-#include "geneva/GConstrainedDoubleCollection.hpp"
-#include "geneva/GConstrainedDoubleObject.hpp"
-#include "geneva/GConstrainedDoubleObjectCollection.hpp"
-#include "geneva/GConstrainedInt32Object.hpp"
-#include "geneva/GConstrainedInt32ObjectCollection.hpp"
-#include "geneva/GDoubleGaussAdaptor.hpp"
-#include "geneva/GInt32FlipAdaptor.hpp"
-#include "geneva/GInt32GaussAdaptor.hpp"
+#include "geneva/par/GConstrainedDoubleCollection.hpp"
+#include "geneva/par/GConstrainedDoubleObject.hpp"
+#include "geneva/par/GConstrainedDoubleObjectCollection.hpp"
+#include "geneva/par/GConstrainedInt32Object.hpp"
+#include "geneva/par/GConstrainedInt32ObjectCollection.hpp"
+#include "geneva/par/GDoubleGaussAdaptor.hpp"
+#include "geneva/par/GInt32FlipAdaptor.hpp"
+#include "geneva/par/GInt32GaussAdaptor.hpp"
 #include "geneva/GOptimizationEnums.hpp"
-#include "geneva/GParameterObjectCollection.hpp"
-#include "geneva/GParameterSet.hpp"
+#include "geneva/par/GParameterObjectCollection.hpp"
+#include "geneva/par/GParameterSet.hpp"
 
 namespace Gem::Tests {
 
@@ -69,7 +69,7 @@ namespace Gem::Tests {
  * of the individual.
  */
 class GTestIndividual3 // NOLINT(cppcoreguidelines-special-member-functions)
-  : public Gem::Geneva::GParameterSet {
+  : public gpar::GParameterSet {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
@@ -78,7 +78,7 @@ class GTestIndividual3 // NOLINT(cppcoreguidelines-special-member-functions)
         using boost::serialization::make_nvp;
         using namespace Gem::Geneva;
 
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GParameterSet);
     }
     ///////////////////////////////////////////////////////////////////////
 

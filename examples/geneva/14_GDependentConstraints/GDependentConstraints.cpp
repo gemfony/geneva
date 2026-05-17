@@ -120,16 +120,16 @@ int main(int argc, char **argv) {
             new GDoubleSumConstraint(1.)
         );
         std::shared_ptr<GSphereConstraint> sphere_constraint_ptr(new GSphereConstraint(3.));
-        std::shared_ptr<GParameterSetFormulaConstraint> formula_constraint(
-            new GParameterSetFormulaConstraint("fabs(sin({{var0}})/max(fabs({{var1}}), 0.000001))")
+        std::shared_ptr<gpar::GParameterSetFormulaConstraint> formula_constraint(
+            new gpar::GParameterSetFormulaConstraint("fabs(sin({{var0}})/max(fabs({{var1}}), 0.000001))")
         ); // sin(x) < y
         std::shared_ptr<GDoubleSumGapConstraint> gap_constraint(
             new GDoubleSumGapConstraint(1., 0.05)
         ); // The sum of all variables must be 1 +/- 0.05
 
         // Create a check combiner and add the constraint objects to it
-        std::shared_ptr<GCheckCombinerT<GParameterSet>> combiner_ptr(
-            new GCheckCombinerT<GParameterSet>()
+        std::shared_ptr<GCheckCombinerT<gpar::GParameterSet>> combiner_ptr(
+            new GCheckCombinerT<gpar::GParameterSet>()
         );
         combiner_ptr->setCombinerPolicy(Gem::Geneva::validityCheckCombinerPolicy::MULTIPLYINVALID);
 

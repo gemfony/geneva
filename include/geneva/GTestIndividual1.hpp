@@ -46,13 +46,13 @@
 // Geneva header files go here
 #include "common/GCommonEnums.hpp"
 #include "common/GExceptions.hpp"
-#include "geneva/GConstrainedDoubleObject.hpp"
-#include "geneva/GConstrainedDoubleObjectCollection.hpp"
-#include "geneva/GDoubleCollection.hpp"
-#include "geneva/GDoubleGaussAdaptor.hpp"
-#include "geneva/GDoubleObject.hpp"
+#include "geneva/par/GConstrainedDoubleObject.hpp"
+#include "geneva/par/GConstrainedDoubleObjectCollection.hpp"
+#include "geneva/par/GDoubleCollection.hpp"
+#include "geneva/par/GDoubleGaussAdaptor.hpp"
+#include "geneva/par/GDoubleObject.hpp"
 #include "geneva/GOptimizationEnums.hpp"
-#include "geneva/GParameterSet.hpp"
+#include "geneva/par/GParameterSet.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithm_PersonalityTraits.hpp"
 #include "geneva/oa/GGradientDescent_PersonalityTraits.hpp"
 #include "geneva/oa/GParameterScan_PersonalityTraits.hpp"
@@ -68,7 +68,7 @@ namespace Gem::Tests {
  * weakening data protection.
  */
 class GTestIndividual1 // NOLINT(cppcoreguidelines-special-member-functions)
-  : public Gem::Geneva::GParameterSet {
+  : public gpar::GParameterSet {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
@@ -76,7 +76,7 @@ class GTestIndividual1 // NOLINT(cppcoreguidelines-special-member-functions)
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GParameterSet);
     }
     ///////////////////////////////////////////////////////////////////////
 

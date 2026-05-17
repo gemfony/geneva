@@ -83,7 +83,7 @@ public:
 	  */
     GOAFactoryT(
         std::filesystem::path const &config_file,
-        std::shared_ptr<Gem::Common::GFactoryT<GParameterSet>> content_creator_ptr
+        std::shared_ptr<Gem::Common::GFactoryT<gpar::GParameterSet>> content_creator_ptr
     )
       : Gem::Common::GFactoryT<oa_type>(config_file)
       , contentCreatorPtr_(content_creator_ptr) { /* nothing */
@@ -173,7 +173,7 @@ public:
     /**
 	  * Allows to register a content creator
 	  */
-    void registerContentCreator(std::shared_ptr<Gem::Common::GFactoryT<GParameterSet>> cc_ptr) {
+    void registerContentCreator(std::shared_ptr<Gem::Common::GFactoryT<gpar::GParameterSet>> cc_ptr) {
         if(not cc_ptr) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
@@ -365,7 +365,7 @@ protected:
         // If we have been given a factory function for individuals, fill the object with data
         if(contentCreatorPtr_) { // Has a content creation object been registered ? If so, add individuals to the population
             for(std::size_t ind = 0; ind < p_alg->getDefaultPopulationSize(); ind++) {
-                std::shared_ptr<GParameterSet> p_ind = (*contentCreatorPtr_)();
+                std::shared_ptr<gpar::GParameterSet> p_ind = (*contentCreatorPtr_)();
                 if(not p_ind) { // No valid item received, the factory has run empty
                     break;
                 }
@@ -420,7 +420,7 @@ protected:
 
     /***************************************************************************/
 
-    std::shared_ptr<Gem::Common::GFactoryT<GParameterSet>>
+    std::shared_ptr<Gem::Common::GFactoryT<gpar::GParameterSet>>
         contentCreatorPtr_; ///< Holds an object capable of producing objects of the desired type
     std::shared_ptr<GBasePluggableOM>
         pluggableOM_; // A user-defined means for information retrieval

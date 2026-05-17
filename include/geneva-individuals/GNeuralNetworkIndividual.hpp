@@ -71,10 +71,10 @@
 #include "common/GContainerT.hpp"
 #include "common/GSingletonT.hpp"
 #include "common/GUnitTestFrameworkT.hpp"
-#include "geneva/GDoubleGaussAdaptor.hpp"
-#include "geneva/GDoubleObject.hpp"
-#include "geneva/GDoubleObjectCollection.hpp"
-#include "geneva/GParameterSet.hpp"
+#include "geneva/par/GDoubleGaussAdaptor.hpp"
+#include "geneva/par/GDoubleObject.hpp"
+#include "geneva/par/GDoubleObjectCollection.hpp"
+#include "geneva/par/GParameterSet.hpp"
 #include "hap/GRandomT.hpp"
 
 namespace Gem::Geneva {
@@ -350,7 +350,7 @@ const transferFunction GNN_DEF_TRANSFER = transferFunction::SIGMOID;
  * standard back-propagation algorithm to train feed-forward neural networks.
  */
 class GNeuralNetworkIndividual // NOLINT(cppcoreguidelines-special-member-functions)
-  : public GParameterSet {
+  : public gpar::GParameterSet {
     /////////////////////////////////////////////////////////////////////////////
 
     friend class boost::serialization::access;
@@ -359,7 +359,7 @@ class GNeuralNetworkIndividual // NOLINT(cppcoreguidelines-special-member-functi
     void load(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GParameterSet);
 
         // Load the network data from disk
         nD_ = GNNTrainingDataStore; // A glogal singleton
@@ -369,7 +369,7 @@ class GNeuralNetworkIndividual // NOLINT(cppcoreguidelines-special-member-functi
     void save(Archive &ar, const unsigned int) const {
         using boost::serialization::make_nvp;
 
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GParameterSet);
     }
 
     BOOST_SERIALIZATION_SPLIT_MEMBER()
@@ -1055,7 +1055,7 @@ private:
  * A factory for GNeuralNetworkIndividual objects
  */
 class GNeuralNetworkIndividualFactory // NOLINT(cppcoreguidelines-special-member-functions)
-  : public Gem::Common::GFactoryT<GParameterSet> {
+  : public Gem::Common::GFactoryT<gpar::GParameterSet> {
 public:
     /** @brief The standard constructor */
     explicit GNeuralNetworkIndividualFactory(std::filesystem::path const &);
@@ -1072,14 +1072,14 @@ protected:
     /** @brief Allows to describe local configuration options in derived classes */
     void describeLocalOptions_(Gem::Common::GParserBuilder &) override;
     /** @brief Allows to act on the configuration options received from the configuration file */
-    void postProcess_(std::shared_ptr<GParameterSet> &) override;
+    void postProcess_(std::shared_ptr<gpar::GParameterSet> &) override;
 
 private:
     /** @brief The default constructor. Only needed for (de-)serialization purposes */
     GNeuralNetworkIndividualFactory() = default;
 
     /** @brief Creates individuals of this type */
-    std::shared_ptr<GParameterSet>
+    std::shared_ptr<gpar::GParameterSet>
     getObject_(Gem::Common::GParserBuilder &, const std::size_t &) override;
 
     double adProb_ = 0.;

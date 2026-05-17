@@ -26,14 +26,14 @@
  * collection for a list of contributors and copyright information.
  *
  ********************************************************************************/
-#include "geneva/GParameterObjectCollection.hpp"
+#include "geneva/par/GParameterObjectCollection.hpp"
 
 #ifdef GEM_TESTING
 #include <catch2/catch_test_macros.hpp>
 #endif /* GEM_TESTING */
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GParameterObjectCollection) // NOLINT
-namespace Gem::Geneva {
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Parameters::GParameterObjectCollection) // NOLINT
+namespace Gem::Geneva::Parameters {
 
 /******************************************************************************/
 /**
@@ -119,7 +119,7 @@ void GParameterObjectCollection::load_(const GObject *cp) {
  * @param pos The position for which an item should be returned
  * @return The item at position pos
  */
-std::shared_ptr<Gem::Geneva::GParameterBase>
+std::shared_ptr<Gem::Geneva::Parameters::GParameterBase>
 GParameterObjectCollection::at(const std::size_t &pos) {
     return data_cnt_.at(pos);
 }
@@ -566,4 +566,4 @@ void GParameterObjectCollection::specificTestsFailuresExpected_GUnitTests_() {
 
 /******************************************************************************/
 
-} /* namespace Gem::Geneva */
+} /* namespace Gem::Geneva::Parameters */

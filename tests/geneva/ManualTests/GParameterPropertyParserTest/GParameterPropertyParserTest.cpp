@@ -38,7 +38,7 @@
 // Boost header files go here
 
 // Geneva header files go here
-#include "geneva/GParameterPropertyParser.hpp"
+#include "geneva/par/GParameterPropertyParser.hpp"
 
 using namespace Gem::Geneva;
 
@@ -46,15 +46,15 @@ int main(int argc, char **argv) {
     std::string raw =
         "d(MY_DPAR_01,-10.3,12.8,100), d(0,-10.3,12.8,100), i(SOME_IPAR_17, 0,5, 20), b(SOME_BPAR, "
         "false, true, 10), d(MY_DPAR_02[3], -5, 7, 20), f(MY_FPAR_03, -2, 10), b(MY_BPAR2)";
-    GParameterPropertyParser p(raw);
+    gpar::GParameterPropertyParser p(raw);
 
     // Retrieve double parameters
     std::tuple<
-        std::vector<parPropSpec<double>>::const_iterator,
-        std::vector<parPropSpec<double>>::const_iterator>
+        std::vector<gpar::parPropSpec<double>>::const_iterator,
+        std::vector<gpar::parPropSpec<double>>::const_iterator>
         t_d = p.getIterators<double>();
-    std::vector<parPropSpec<double>>::const_iterator d_cit = std::get<0>(t_d);
-    std::vector<parPropSpec<double>>::const_iterator d_end = std::get<1>(t_d);
+    std::vector<gpar::parPropSpec<double>>::const_iterator d_cit = std::get<0>(t_d);
+    std::vector<gpar::parPropSpec<double>>::const_iterator d_end = std::get<1>(t_d);
     for(; d_cit != d_end;
         ++d_cit) { // Note: d_cit is already set to the begin of the double parameter arrays
         std::cout << *d_cit << '\n' << '\n';
@@ -62,11 +62,11 @@ int main(int argc, char **argv) {
 
     // Retrieve float parameters
     std::tuple<
-        std::vector<parPropSpec<float>>::const_iterator,
-        std::vector<parPropSpec<float>>::const_iterator>
+        std::vector<gpar::parPropSpec<float>>::const_iterator,
+        std::vector<gpar::parPropSpec<float>>::const_iterator>
         t_f = p.getIterators<float>();
-    std::vector<parPropSpec<float>>::const_iterator f_cit = std::get<0>(t_f);
-    std::vector<parPropSpec<float>>::const_iterator f_end = std::get<1>(t_f);
+    std::vector<gpar::parPropSpec<float>>::const_iterator f_cit = std::get<0>(t_f);
+    std::vector<gpar::parPropSpec<float>>::const_iterator f_end = std::get<1>(t_f);
     for(; f_cit != f_end;
         ++f_cit) { // Note: f_cit is already set to the begin of the double parameter arrays
         std::cout << *f_cit << '\n' << '\n';
@@ -74,11 +74,11 @@ int main(int argc, char **argv) {
 
     // Retrieve integer parameters
     std::tuple<
-        std::vector<parPropSpec<std::int32_t>>::const_iterator,
-        std::vector<parPropSpec<std::int32_t>>::const_iterator>
+        std::vector<gpar::parPropSpec<std::int32_t>>::const_iterator,
+        std::vector<gpar::parPropSpec<std::int32_t>>::const_iterator>
         t_i = p.getIterators<std::int32_t>();
-    std::vector<parPropSpec<std::int32_t>>::const_iterator i_cit = std::get<0>(t_i);
-    std::vector<parPropSpec<std::int32_t>>::const_iterator i_end = std::get<1>(t_i);
+    std::vector<gpar::parPropSpec<std::int32_t>>::const_iterator i_cit = std::get<0>(t_i);
+    std::vector<gpar::parPropSpec<std::int32_t>>::const_iterator i_end = std::get<1>(t_i);
     for(; i_cit != i_end;
         ++i_cit) { // Note: i_cit is already set to the begin of the double parameter arrays
         std::cout << *i_cit << '\n' << '\n';
@@ -86,11 +86,11 @@ int main(int argc, char **argv) {
 
     // Retrieve boolean parameters
     std::tuple<
-        std::vector<parPropSpec<bool>>::const_iterator,
-        std::vector<parPropSpec<bool>>::const_iterator>
+        std::vector<gpar::parPropSpec<bool>>::const_iterator,
+        std::vector<gpar::parPropSpec<bool>>::const_iterator>
         t_b = p.getIterators<bool>();
-    std::vector<parPropSpec<bool>>::const_iterator b_cit = std::get<0>(t_b);
-    std::vector<parPropSpec<bool>>::const_iterator b_end = std::get<1>(t_b);
+    std::vector<gpar::parPropSpec<bool>>::const_iterator b_cit = std::get<0>(t_b);
+    std::vector<gpar::parPropSpec<bool>>::const_iterator b_end = std::get<1>(t_b);
     for(; b_cit != b_end;
         ++b_cit) { // Note: b_cit is already set to the begin of the double parameter arrays
         std::cout << *b_cit << '\n' << '\n';

@@ -27,14 +27,14 @@
  *
  ********************************************************************************/
 
-#include "geneva/GDoubleCollection.hpp"
+#include "geneva/par/GDoubleCollection.hpp"
 
 #ifdef GEM_TESTING
 #include <catch2/catch_test_macros.hpp>
 #endif /* GEM_TESTING */
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GDoubleCollection) // NOLINT
-namespace Gem::Geneva {
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Parameters::GDoubleCollection) // NOLINT
+namespace Gem::Geneva::Parameters {
 
 /******************************************************************************/
 /**
@@ -775,4 +775,4 @@ void GDoubleCollection::specificTestsFailuresExpected_GUnitTests_() {
 
 /******************************************************************************/
 
-} /* namespace Gem::Geneva */
+} /* namespace Gem::Geneva::Parameters */

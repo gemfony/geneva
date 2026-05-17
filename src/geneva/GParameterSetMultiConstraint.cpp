@@ -27,10 +27,10 @@
  *
  ********************************************************************************/
 
-#include "geneva/GParameterSetMultiConstraint.hpp"
+#include "geneva/par/GParameterSetMultiConstraint.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GParameterSetFormulaConstraint) // NOLINT
-namespace Gem::Geneva {
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Parameters::GParameterSetFormulaConstraint) // NOLINT
+namespace Gem::Geneva::Parameters {
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -201,4 +201,4 @@ GObject *GParameterSetFormulaConstraint::clone_() const {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-} /* namespace Gem::Geneva */
+} /* namespace Gem::Geneva::Parameters */

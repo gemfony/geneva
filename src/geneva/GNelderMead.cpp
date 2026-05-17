@@ -684,7 +684,7 @@ void GNelderMead::adjustPopulation_() {
     // Make sure we have one (randomized) seed individual per simplex first.
     if(n_start < nSimplices_) {
         for(std::size_t i = 0; i < (nSimplices_ - n_start); i++) {
-            this->push_back(this->at(0)->clone<GParameterSet>());
+            this->push_back(this->at(0)->clone<gpar::GParameterSet>());
             this->back()->randomInit(activityMode::ACTIVEONLY);
         }
     }
@@ -695,17 +695,17 @@ void GNelderMead::adjustPopulation_() {
     // The seeds currently sit at positions 0 .. nSimplices_-1. Re-order them so
     // that seed s ends up at vertexPos(s,0) and fill the rest of every block
     // with clones (the real initial simplex is constructed in init()).
-    std::vector<std::shared_ptr<GParameterSet>> seeds;
+    std::vector<std::shared_ptr<gpar::GParameterSet>> seeds;
     seeds.reserve(nSimplices_);
     for(std::size_t s = 0; s < nSimplices_; s++) {
-        seeds.push_back(this->at(s)->clone<GParameterSet>());
+        seeds.push_back(this->at(s)->clone<gpar::GParameterSet>());
     }
 
     this->clear();
     for(std::size_t s = 0; s < nSimplices_; s++) {
         this->push_back(seeds[s]); // vertex 0 of simplex s
         for(std::size_t r = 1; r < block_size; r++) {
-            this->push_back(seeds[s]->clone<GParameterSet>());
+            this->push_back(seeds[s]->clone<gpar::GParameterSet>());
         }
     }
 

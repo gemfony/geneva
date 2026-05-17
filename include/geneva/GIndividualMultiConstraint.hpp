@@ -38,7 +38,7 @@
 
 // Geneva header files go here
 #include "geneva/GMultiConstraintT.hpp"
-#include "geneva/GParameterSet.hpp"
+#include "geneva/par/GParameterSet.hpp"
 
 // Make sure the instantiation with GParameterSet as template argument can be serialized
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GCheckCombinerT<Gem::Geneva::GParameterSet>) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GCheckCombinerT<gpar::GParameterSet>) // NOLINT

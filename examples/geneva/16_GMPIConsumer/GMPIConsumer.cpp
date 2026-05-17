@@ -72,7 +72,7 @@
 
 // Geneva header files go here
 #include "common/GParserBuilder.hpp"
-#include "courtier/GMPIConsumerT.hpp"
+#include "courtier/consumers/GMPIConsumerT.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithm.hpp"
 #include "geneva/GenevaInitializer.hpp"
 
@@ -244,7 +244,7 @@ int main(int argc, char **argv) {
 
     // Instantiate the MPI consumer.
     auto consumer_ptr =
-        std::make_shared<GMPIConsumerT<GParameterSet>>(/* optional configuration */);
+        std::make_shared<cons::GMPIConsumerT<gpar::GParameterSet>>(/* optional configuration */);
     // initialize MPI and figure out position in the cluster
     consumer_ptr->setPositionInCluster();
     // optionally synchronize processes. Makes only sense if some of the procs are doing very long init work
@@ -263,7 +263,7 @@ int main(int argc, char **argv) {
 
     // If this is supposed to be the master node (server), then add it to the broker.
     // This will allow the consumer to pull raw work items from the broker and put processed work items back.
-    GBROKER(Gem::Geneva::GParameterSet)->enrol_consumer(consumer_ptr);
+    GBROKER(gpar::GParameterSet)->enrol_consumer(consumer_ptr);
 
     /****************************************************************************/
     // We can now start creating populations. We refer to them through the base class

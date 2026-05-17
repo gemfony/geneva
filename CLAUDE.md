@@ -84,7 +84,7 @@ Headers are in `include/<library>/`, sources in `src/<library>/`. All code is in
 
 ### Writing an optimization problem
 
-1. Subclass `GParameterSet` (in `include/geneva/GParameterSet.hpp`) and override `fitnessCalculation()`.
+1. Subclass `GParameterSet` (in `include/geneva/par/GParameterSet.hpp`) and override `fitnessCalculation()`.
 2. Add parameter objects (`GDoubleObject`, `GConstrainedDoubleObject`, `GInt32Object`, `GBooleanObject`, etc.) in the constructor.
 3. Use `Go2` (in `include/geneva/Go2.hpp`) as the top-level driver — it reads configuration from a JSON file and handles client/server mode automatically.
 

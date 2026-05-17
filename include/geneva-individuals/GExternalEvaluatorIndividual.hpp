@@ -49,18 +49,18 @@
 #include "common/GCommonHelperFunctions.hpp"
 #include "common/GFactoryT.hpp"
 #include "common/GParserBuilder.hpp"
-#include "geneva/GBooleanAdaptor.hpp"
-#include "geneva/GBooleanCollection.hpp"
-#include "geneva/GConstrainedDoubleCollection.hpp"
-#include "geneva/GConstrainedDoubleObjectCollection.hpp"
-#include "geneva/GConstrainedInt32ObjectCollection.hpp"
-#include "geneva/GDoubleBiGaussAdaptor.hpp"
-#include "geneva/GDoubleCollection.hpp"
-#include "geneva/GDoubleGaussAdaptor.hpp"
-#include "geneva/GDoubleObjectCollection.hpp"
-#include "geneva/GInt32FlipAdaptor.hpp"
-#include "geneva/GParameterSet.hpp"
-#include "geneva/GParameterSetMultiConstraint.hpp"
+#include "geneva/par/GBooleanAdaptor.hpp"
+#include "geneva/par/GBooleanCollection.hpp"
+#include "geneva/par/GConstrainedDoubleCollection.hpp"
+#include "geneva/par/GConstrainedDoubleObjectCollection.hpp"
+#include "geneva/par/GConstrainedInt32ObjectCollection.hpp"
+#include "geneva/par/GDoubleBiGaussAdaptor.hpp"
+#include "geneva/par/GDoubleCollection.hpp"
+#include "geneva/par/GDoubleGaussAdaptor.hpp"
+#include "geneva/par/GDoubleObjectCollection.hpp"
+#include "geneva/par/GInt32FlipAdaptor.hpp"
+#include "geneva/par/GParameterSet.hpp"
+#include "geneva/par/GParameterSetMultiConstraint.hpp"
 #include "hap/GRandomT.hpp"
 
 namespace Gem::Geneva {
@@ -70,6 +70,7 @@ namespace Gem::Geneva {
 const double GEEI_DEF_ADPROB = 1.0;
 const double GEEI_DEF_ADAPTADPROB = 0.1;
 const double GEEI_DEF_MINADPROB = 0.05;
+
 const double GEEI_DEF_MAXADPROB = 1.;
 const std::uint32_t GEEI_DEF_ADAPTIONTHRESHOLD = 1;
 const bool GEEI_DEF_USEBIGAUSSIAN = false;
@@ -123,7 +124,7 @@ class GExternalEvaluatorIndividualFactory;
  * utility. Hence the external program needs to understand the XML format.
  */
 class GExternalEvaluatorIndividual
-  : public GParameterSet { // NOLINT(cppcoreguidelines-special-member-functions)
+  : public gpar::GParameterSet { // NOLINT(cppcoreguidelines-special-member-functions)
     ///////////////////////////////////////////////////////////////////////
 
     friend class boost::serialization::access;
@@ -132,7 +133,7 @@ class GExternalEvaluatorIndividual
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet) &
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GParameterSet) &
             BOOST_SERIALIZATION_NVP(program_name_) & BOOST_SERIALIZATION_NVP(custom_options_) &
             BOOST_SERIALIZATION_NVP(parameter_file_base_name_) &
             BOOST_SERIALIZATION_NVP(n_results_) &
@@ -236,7 +237,7 @@ private:
  * A factory for GExternalEvaluatorIndividual objects
  */
 class GExternalEvaluatorIndividualFactory // NOLINT(cppcoreguidelines-special-member-functions)
-  : public Gem::Common::GFactoryT<GParameterSet> {
+  : public Gem::Common::GFactoryT<gpar::GParameterSet> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
@@ -244,7 +245,7 @@ class GExternalEvaluatorIndividualFactory // NOLINT(cppcoreguidelines-special-me
     void serialize(Archive &ar, const unsigned int) {
         using namespace Gem::Common;
 
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GFactoryT<GParameterSet>) &
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GFactoryT<gpar::GParameterSet>) &
             BOOST_SERIALIZATION_NVP(adProb_) & BOOST_SERIALIZATION_NVP(adaptAdProb_) &
             BOOST_SERIALIZATION_NVP(minAdProb_) & BOOST_SERIALIZATION_NVP(maxAdProb_) &
             BOOST_SERIALIZATION_NVP(adaptionThreshold_) &
@@ -394,21 +395,21 @@ public:
     ) const;
 
     /** @brief Loads the data of another GFunctionIndividualFactory object */
-    void load(std::shared_ptr<Gem::Common::GFactoryT<GParameterSet>>) override;
+    void load(std::shared_ptr<Gem::Common::GFactoryT<gpar::GParameterSet>>) override;
 
     /** @brief Creates a deep clone of this object */
-    std::shared_ptr<Gem::Common::GFactoryT<GParameterSet>> clone() const override;
+    std::shared_ptr<Gem::Common::GFactoryT<gpar::GParameterSet>> clone() const override;
 
 protected:
     /** @brief Allows to describe local configuration options in derived classes */
     void describeLocalOptions_(Gem::Common::GParserBuilder &) override;
 
     /** @brief Allows to act on the configuration options received from the configuration file */
-    void postProcess_(std::shared_ptr<GParameterSet> &) override;
+    void postProcess_(std::shared_ptr<gpar::GParameterSet> &) override;
 
 private:
     /** @brief Creates individuals of this type */
-    std::shared_ptr<GParameterSet>
+    std::shared_ptr<gpar::GParameterSet>
     getObject_(Gem::Common::GParserBuilder &, const std::size_t &) override;
 
     /** @brief Sets up the boost property object holding information about the individual structure */

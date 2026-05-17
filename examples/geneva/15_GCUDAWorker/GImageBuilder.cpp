@@ -42,7 +42,7 @@
 
 // Geneva header files go here
 #include "common/GCommonHelperFunctions.hpp"
-#include "courtier/GStdThreadConsumerT.hpp"
+#include "courtier/consumers/GStdThreadConsumerT.hpp"
 #include "geneva/GPluggableOptimizationMonitors.hpp"
 #include "geneva/Go2.hpp"
 
@@ -351,7 +351,7 @@ int main(int argc, char **argv) {
     auto cudaWorker_ptr = getImageCUDAWorker();
 
     // Set up the consumer -- this call will register it with the broker
-    GStdThreadConsumerT<GParameterSet>::setup("./config/GStdThreadConsumerT.json", cudaWorker_ptr);
+    cons::GStdThreadConsumerT<gpar::GParameterSet>::setup("./config/GStdThreadConsumerT.json", cudaWorker_ptr);
 
     // Create the optimizer
     Go2 go(argc, argv, "./config/Go2.json", user_options);
@@ -389,7 +389,7 @@ int main(int argc, char **argv) {
 
     // Create an image individual factory and create the first individual
     GImageIndividualFactory f("config/GImageIndividual.json");
-    std::shared_ptr<GParameterSet> imageIndividual_ptr = f();
+    std::shared_ptr<gpar::GParameterSet> imageIndividual_ptr = f();
 
     // Attach the individual to the collection
     go.push_back(imageIndividual_ptr);

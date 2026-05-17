@@ -27,13 +27,13 @@
  *
  ********************************************************************************/
 
-#include "geneva/GParameterBase.hpp"
+#include "geneva/par/GParameterBase.hpp"
 
 #ifdef GEM_TESTING
 #include <catch2/catch_test_macros.hpp>
 #endif /* GEM_TESTING */
 
-namespace Gem::Geneva {
+namespace Gem::Geneva::Parameters {
 
 /******************************************************************************/
 /**
@@ -1224,4 +1224,4 @@ void GParameterBase::specificTestsFailuresExpected_GUnitTests_() {
 
 /******************************************************************************/
 
-} /* namespace Gem::Geneva */
+} /* namespace Gem::Geneva::Parameters */

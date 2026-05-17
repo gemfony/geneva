@@ -49,9 +49,9 @@
 
 // Geneva header files go here
 #include "common/GPlotDesigner.hpp"
-#include "geneva/GConstrainedInt32Object.hpp"
-#include "geneva/GInt32FlipAdaptor.hpp"
-#include "geneva/GInt32GaussAdaptor.hpp"
+#include "geneva/par/GConstrainedInt32Object.hpp"
+#include "geneva/par/GInt32FlipAdaptor.hpp"
+#include "geneva/par/GInt32GaussAdaptor.hpp"
 
 using namespace Gem::Geneva;
 using namespace Gem::Common;
@@ -93,12 +93,12 @@ int main(int argc, char **argv) {
     std::shared_ptr<GGraph2D> mapping_ptr(new GGraph2D());
     mapping_ptr->setPlotLabel("Mapping from internal to external value");
 
-    GConstrainedInt32Object gMultFlipMut(1, 1, 50);
-    std::shared_ptr<GInt32FlipAdaptor> gifa_ptr(new GInt32FlipAdaptor());
+    gpar::GConstrainedInt32Object gMultFlipMut(1, 1, 50);
+    std::shared_ptr<gpar::GInt32FlipAdaptor> gifa_ptr(new gpar::GInt32FlipAdaptor());
     gMultFlipMut.addAdaptor(gifa_ptr);
 
-    GConstrainedInt32Object gMultGaussMut(1, 1, 50);
-    std::shared_ptr<GInt32GaussAdaptor> giga_ptr(new GInt32GaussAdaptor(
+    gpar::GConstrainedInt32Object gMultGaussMut(1, 1, 50);
+    std::shared_ptr<gpar::GInt32GaussAdaptor> giga_ptr(new gpar::GInt32GaussAdaptor(
         0.025 // sigma
         ,
         0.1 // sigmaSigma
@@ -111,7 +111,7 @@ int main(int argc, char **argv) {
     ));
     gMultGaussMut.addAdaptor(giga_ptr);
 
-    GConstrainedInt32Object gint13(-1, 3); // lower boundary -1, upper Boundary 3
+    gpar::GConstrainedInt32Object gint13(-1, 3); // lower boundary -1, upper Boundary 3
 
     // Mutate and register results
     for(std::uint32_t i = 0; i < NTESTS; i++) {

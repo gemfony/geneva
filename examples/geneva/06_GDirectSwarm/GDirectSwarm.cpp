@@ -51,10 +51,10 @@
 
 // Geneva header files go here
 #include "common/GParserBuilder.hpp"
-#include "courtier/GAsioConsumerT.hpp"
+#include "courtier/consumers/GAsioConsumerT.hpp"
 #include "courtier/GCourtierEnums.hpp"
-#include "courtier/GSerialConsumerT.hpp"
-#include "courtier/GStdThreadConsumerT.hpp"
+#include "courtier/consumers/GSerialConsumerT.hpp"
+#include "courtier/consumers/GStdThreadConsumerT.hpp"
 #include "geneva/oa/GSwarmAlgorithm.hpp"
 #include "geneva/GenevaInitializer.hpp"
 
@@ -326,8 +326,8 @@ int main(int argc, char **argv) {
     // If this is a client in networked mode, we can just start the listener and
     // return when it has finished
     if(clientMode && cType == consumerType::NETWORKED) {
-        std::shared_ptr<GAsioConsumerClientT<GParameterSet>> p(
-            new GAsioConsumerClientT<GParameterSet>(ip, port, serMode, maxReconnects)
+        std::shared_ptr<cons::GAsioConsumerClientT<gpar::GParameterSet>> p(
+            new cons::GAsioConsumerClientT<gpar::GParameterSet>(ip, port, serMode, maxReconnects)
         );
 
         // Start the actual processing loop
@@ -349,25 +349,25 @@ int main(int argc, char **argv) {
     //---------------------------------------------------------------------------
     case consumerType::SERIAL: // Serial execution
     {
-        std::shared_ptr<GSerialConsumerT<GParameterSet>> sc(new GSerialConsumerT<GParameterSet>());
-        GBROKER(Gem::Geneva::GParameterSet)->enrol_consumer(sc);
+        std::shared_ptr<cons::GSerialConsumerT<gpar::GParameterSet>> sc(new cons::GSerialConsumerT<gpar::GParameterSet>());
+        GBROKER(gpar::GParameterSet)->enrol_consumer(sc);
     } break;
 
         //---------------------------------------------------------------------------
     case consumerType::MULTITHREADED: // Multi-threaded execution
     {
-        std::shared_ptr<GStdThreadConsumerT<GParameterSet>> gbtc(
-            new GStdThreadConsumerT<GParameterSet>(nEvaluationThreads)
+        std::shared_ptr<cons::GStdThreadConsumerT<gpar::GParameterSet>> gbtc(
+            new cons::GStdThreadConsumerT<gpar::GParameterSet>(nEvaluationThreads)
         );
-        GBROKER(Gem::Geneva::GParameterSet)->enrol_consumer(gbtc);
+        GBROKER(gpar::GParameterSet)->enrol_consumer(gbtc);
     } break;
 
         //---------------------------------------------------------------------------
     case consumerType::NETWORKED: // Networked execution (server-side)
     {
         // Create a network consumer and enrol_buffer_port it with the broker
-        std::shared_ptr<GAsioConsumerT<GParameterSet>> gatc_ptr(
-            new GAsioConsumerT<GParameterSet>()
+        std::shared_ptr<cons::GAsioConsumerT<gpar::GParameterSet>> gatc_ptr(
+            new cons::GAsioConsumerT<gpar::GParameterSet>()
         );
 
         // Set the required options
@@ -378,7 +378,7 @@ int main(int argc, char **argv) {
         gatc_ptr->setMaxReconnects(maxReconnects);
 
         // Add the consumer to the broker
-        GBROKER(Gem::Geneva::GParameterSet)->enrol_consumer(gatc_ptr);
+        GBROKER(gpar::GParameterSet)->enrol_consumer(gatc_ptr);
     } break;
 
         //----------------------------------------------------------------------------

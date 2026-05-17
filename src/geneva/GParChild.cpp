@@ -357,7 +357,7 @@ void GParChild::doRecombine() {
         threshold[n_parents_ - 1] = 1.; // Necessary due to rounding errors
     }
 
-    std::vector<std::shared_ptr<GParameterSet>>::iterator it;
+    std::vector<std::shared_ptr<gpar::GParameterSet>>::iterator it;
     std::bernoulli_distribution amalgamation_wanted(
         amalgamationLikelihood_
     ); // true with a likelihood of amalgamation_likelihood_
@@ -368,8 +368,8 @@ void GParChild::doRecombine() {
         // If we do perform cross-over, we always cross the best individual with another random parent
         if(n_parents_ > 1 &&
            amalgamation_wanted(this->gr_)) { // Create individuals using a cross-over scheme
-            std::shared_ptr<GParameterSet> best_parent = this->front();
-            std::shared_ptr<GParameterSet> combiner =
+            std::shared_ptr<gpar::GParameterSet> best_parent = this->front();
+            std::shared_ptr<gpar::GParameterSet> combiner =
                 (n_parents_ > 2)
                     ? (*(this->begin() + this->uniform_int_distribution_(
                                              this->gr_,
@@ -513,7 +513,7 @@ std::tuple<std::size_t, std::size_t> GParChild::getAdaptionRange() const {
  * This helper function marks parents as parents and children as children.
  */
 void GParChild::markParents() {
-    typename std::vector<std::shared_ptr<GParameterSet>>::iterator it;
+    typename std::vector<std::shared_ptr<gpar::GParameterSet>>::iterator it;
     for(it = GBase::data_cnt_.begin();
         it != GBase::data_cnt_.begin() + n_parents_;
         ++it) {
@@ -528,7 +528,7 @@ void GParChild::markParents() {
  * This helper function marks children as children
  */
 void GParChild::markChildren() {
-    typename std::vector<std::shared_ptr<GParameterSet>>::iterator it;
+    typename std::vector<std::shared_ptr<gpar::GParameterSet>>::iterator it;
     for(it = GBase::data_cnt_.begin() + n_parents_;
         it != GBase::data_cnt_.end();
         ++it) {
@@ -545,7 +545,7 @@ void GParChild::markChildren() {
  */
 void GParChild::markIndividualPositions() {
     std::size_t pos = 0;
-    typename std::vector<std::shared_ptr<GParameterSet>>::iterator it;
+    typename std::vector<std::shared_ptr<gpar::GParameterSet>>::iterator it;
     for(it = GBase::data_cnt_.begin();
         it != GBase::data_cnt_.end();
         ++it) {
@@ -661,7 +661,7 @@ void GParChild::adjustPopulation_() {
     }
 
     // Do the smart pointers actually point to any objects ?
-    typename std::vector<std::shared_ptr<GParameterSet>>::iterator it;
+    typename std::vector<std::shared_ptr<gpar::GParameterSet>>::iterator it;
     for(it = GBase::data_cnt_.begin();
         it != GBase::data_cnt_.end();
         ++it) {
@@ -720,7 +720,7 @@ void GParChild::performScheduledPopulationGrowth() {
  *
  * @param pos The position of the individual for which a new value should be chosen
  */
-void GParChild::randomRecombine(std::shared_ptr<GParameterSet> &child) {
+void GParChild::randomRecombine(std::shared_ptr<gpar::GParameterSet> &child) {
     std::size_t parent_pos = 0;
 
     if(n_parents_ == 1) {
@@ -758,7 +758,7 @@ void GParChild::randomRecombine(std::shared_ptr<GParameterSet> &child) {
  * @param threshold A std::vector<double> holding the recombination likelihoods for each parent
  */
 void GParChild::valueRecombine(
-    std::shared_ptr<GParameterSet> &p,
+    std::shared_ptr<gpar::GParameterSet> &p,
     const std::vector<double> &threshold
 ) {
     bool done = false;

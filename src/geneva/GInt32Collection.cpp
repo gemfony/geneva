@@ -26,11 +26,11 @@
  * collection for a list of contributors and copyright information.
  *
  ********************************************************************************/
-#include "geneva/GInt32Collection.hpp"
+#include "geneva/par/GInt32Collection.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GInt32Collection) // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Parameters::GInt32Collection) // NOLINT
 
-namespace Gem::Geneva {
+namespace Gem::Geneva::Parameters {
 
 /******************************************************************************/
 /**
@@ -490,4 +490,4 @@ void GInt32Collection::specificTestsFailuresExpected_GUnitTests_() {
 
 /******************************************************************************/
 
-} /* namespace Gem::Geneva */
+} /* namespace Gem::Geneva::Parameters */

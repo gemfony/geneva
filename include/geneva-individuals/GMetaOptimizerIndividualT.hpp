@@ -48,15 +48,15 @@
 #include "common/GParserBuilder.hpp"
 #include "courtier/GExecutorT.hpp"
 #include "geneva-individuals/GFunctionIndividual.hpp"
-#include "geneva/GConstrainedDoubleCollection.hpp"
-#include "geneva/GConstrainedDoubleObject.hpp"
-#include "geneva/GConstrainedInt32Object.hpp"
-#include "geneva/GDoubleBiGaussAdaptor.hpp"
-#include "geneva/GDoubleCollection.hpp"
-#include "geneva/GDoubleGaussAdaptor.hpp"
-#include "geneva/GInt32FlipAdaptor.hpp"
-#include "geneva/GInt32GaussAdaptor.hpp"
-#include "geneva/GParameterSet.hpp"
+#include "geneva/par/GConstrainedDoubleCollection.hpp"
+#include "geneva/par/GConstrainedDoubleObject.hpp"
+#include "geneva/par/GConstrainedInt32Object.hpp"
+#include "geneva/par/GDoubleBiGaussAdaptor.hpp"
+#include "geneva/par/GDoubleCollection.hpp"
+#include "geneva/par/GDoubleGaussAdaptor.hpp"
+#include "geneva/par/GInt32FlipAdaptor.hpp"
+#include "geneva/par/GInt32GaussAdaptor.hpp"
+#include "geneva/par/GParameterSet.hpp"
 #include "geneva/GPluggableOptimizationMonitors.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithmFactory.hpp"
 
@@ -188,13 +188,13 @@ const std::size_t MOT_NVAR = 11;
  */
 template <typename ind_type = Gem::Geneva::GFunctionIndividual>
 class GMetaOptimizerIndividualT // NOLINT(cppcoreguidelines-special-member-functions)
-  : public GParameterSet {
+  : public gpar::GParameterSet {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
     template <class Archive>
     void serialize(Archive &ar, const unsigned int) {
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet) &
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GParameterSet) &
             BOOST_SERIALIZATION_NVP(nRunsPerOptimization_) &
             BOOST_SERIALIZATION_NVP(fitnessTarget_) & BOOST_SERIALIZATION_NVP(iterationThreshold_) &
             BOOST_SERIALIZATION_NVP(moTarget_) & BOOST_SERIALIZATION_NVP(subEA_config_) &
@@ -209,7 +209,7 @@ public:
      * The default constructor.
      */
     GMetaOptimizerIndividualT()
-      : GParameterSet()
+      : gpar::GParameterSet()
       , nRunsPerOptimization_(GMETAOPT_DEF_NRUNSPEROPT)
       , fitnessTarget_(GMETAOPT_DEF_FITNESSTARGET)
       , iterationThreshold_(GMETAOPT_DEF_ITERATIONTHRESHOLD)
@@ -225,7 +225,7 @@ public:
      * @param cp A copy of another GFunctionIndidivual
      */
     GMetaOptimizerIndividualT(const GMetaOptimizerIndividualT<ind_type> &cp)
-      : GParameterSet(cp)
+      : gpar::GParameterSet(cp)
       , nRunsPerOptimization_(cp.nRunsPerOptimization_)
       , fitnessTarget_(cp.fitnessTarget_)
       , iterationThreshold_(cp.iterationThreshold_)
@@ -233,7 +233,7 @@ public:
       , subEA_config_(cp.subEA_config_)
       , ind_factory_(
             Gem::Common::convertSmartPointer<
-                Gem::Common::GFactoryT<GParameterSet>,
+                Gem::Common::GFactoryT<gpar::GParameterSet>,
                 typename ind_type::FACTORYTYPE>((cp.ind_factory_)->clone())
         ) { /* nothing */
     }
@@ -348,8 +348,8 @@ public:
      * Retrieves the current number of parents. Needed for the optimization monitor.
      */
     std::size_t getNParents() const {
-        std::shared_ptr<GConstrainedInt32Object> npar_ptr =
-            this->at<GConstrainedInt32Object>(MOT_NPARENTS);
+        std::shared_ptr<gpar::GConstrainedInt32Object> npar_ptr =
+            this->at<gpar::GConstrainedInt32Object>(MOT_NPARENTS);
         return Gem::Common::narrow_cast<std::size_t>(npar_ptr->value());
     }
 
@@ -358,8 +358,8 @@ public:
      * Retrieves the current number of children. Needed for the optimization monitor.
      */
     std::size_t getNChildren() const {
-        std::shared_ptr<GConstrainedInt32Object> nch_ptr =
-            this->at<GConstrainedInt32Object>(MOT_NCHILDREN);
+        std::shared_ptr<gpar::GConstrainedInt32Object> nch_ptr =
+            this->at<gpar::GConstrainedInt32Object>(MOT_NCHILDREN);
         return Gem::Common::narrow_cast<std::size_t>(nch_ptr->value());
     }
 
@@ -368,12 +368,12 @@ public:
      * Retrieves the adaption probability. Needed for the optimization monitor.
      */
     double getAdProb() const {
-        std::shared_ptr<GConstrainedDoubleObject> min_ad_prob_ptr =
-            this->at<GConstrainedDoubleObject>(MOT_MINADPROB);
-        std::shared_ptr<GConstrainedDoubleObject> ad_prob_range_ptr =
-            this->at<GConstrainedDoubleObject>(MOT_ADPROBRANGE);
-        std::shared_ptr<GConstrainedDoubleObject> ad_prob_start_percentage_ptr =
-            this->at<GConstrainedDoubleObject>(MOT_ADPROBSTARTPERCENTAGE);
+        std::shared_ptr<gpar::GConstrainedDoubleObject> min_ad_prob_ptr =
+            this->at<gpar::GConstrainedDoubleObject>(MOT_MINADPROB);
+        std::shared_ptr<gpar::GConstrainedDoubleObject> ad_prob_range_ptr =
+            this->at<gpar::GConstrainedDoubleObject>(MOT_ADPROBRANGE);
+        std::shared_ptr<gpar::GConstrainedDoubleObject> ad_prob_start_percentage_ptr =
+            this->at<gpar::GConstrainedDoubleObject>(MOT_ADPROBSTARTPERCENTAGE);
 
         return min_ad_prob_ptr->value() +
                ad_prob_start_percentage_ptr->value() * ad_prob_range_ptr->value();
@@ -384,8 +384,8 @@ public:
      * Retrieves the lower sigma boundary. Needed for the optimization monitor.
      */
     double getMinSigma() const {
-        std::shared_ptr<GConstrainedDoubleObject> minsigma_ptr =
-            this->at<GConstrainedDoubleObject>(MOT_MINSIGMA);
+        std::shared_ptr<gpar::GConstrainedDoubleObject> minsigma_ptr =
+            this->at<gpar::GConstrainedDoubleObject>(MOT_MINSIGMA);
         return minsigma_ptr->value();
     }
 
@@ -394,8 +394,8 @@ public:
      * Retrieves the sigma range. Needed for the optimization monitor.
      */
     double getSigmaRange() const {
-        std::shared_ptr<GConstrainedDoubleObject> sigmarange_ptr =
-            this->at<GConstrainedDoubleObject>(MOT_SIGMARANGE);
+        std::shared_ptr<gpar::GConstrainedDoubleObject> sigmarange_ptr =
+            this->at<gpar::GConstrainedDoubleObject>(MOT_SIGMARANGE);
         return sigmarange_ptr->value();
     }
 
@@ -404,8 +404,8 @@ public:
      * Retrieves the sigma-sigma parameter. Needed for the optimization monitor.
      */
     double getSigmaSigma() const {
-        std::shared_ptr<GConstrainedDoubleObject> sigmasigma_ptr =
-            this->at<GConstrainedDoubleObject>(MOT_SIGMASIGMA);
+        std::shared_ptr<gpar::GConstrainedDoubleObject> sigmasigma_ptr =
+            this->at<gpar::GConstrainedDoubleObject>(MOT_SIGMASIGMA);
         return sigmasigma_ptr->value();
     }
 
@@ -456,10 +456,10 @@ public:
         // n_parents
 
         // Small number of possible values -- use a flip-adaptor
-        std::shared_ptr<GInt32FlipAdaptor> gifa_ptr(new GInt32FlipAdaptor());
+        std::shared_ptr<gpar::GInt32FlipAdaptor> gifa_ptr(new gpar::GInt32FlipAdaptor());
         gifa_ptr->setAdaptionProbability(1.);
 
-        std::shared_ptr<GConstrainedInt32Object> npar_ptr(new GConstrainedInt32Object(
+        std::shared_ptr<gpar::GConstrainedInt32Object> npar_ptr(new gpar::GConstrainedInt32Object(
             Gem::Common::narrow_cast<std::int32_t>(init_n_parents),
             Gem::Common::narrow_cast<std::int32_t>(n_parents_lb),
             Gem::Common::narrow_cast<std::int32_t>(n_parents_ub)
@@ -476,7 +476,7 @@ public:
         // n_children
 
         // Create a default standard gauss adaptor
-        std::shared_ptr<GInt32GaussAdaptor> giga_ptr(new GInt32GaussAdaptor(
+        std::shared_ptr<gpar::GInt32GaussAdaptor> giga_ptr(new gpar::GInt32GaussAdaptor(
             0.025 // sigma
             ,
             0.2 // sigma_sigma
@@ -488,7 +488,7 @@ public:
             1. // ad_prob
         ));
 
-        std::shared_ptr<GConstrainedInt32Object> nch_ptr(new GConstrainedInt32Object(
+        std::shared_ptr<gpar::GConstrainedInt32Object> nch_ptr(new gpar::GConstrainedInt32Object(
             Gem::Common::narrow_cast<std::int32_t>(init_n_children),
             Gem::Common::narrow_cast<std::int32_t>(n_children_lb),
             Gem::Common::narrow_cast<std::int32_t>(n_children_ub)
@@ -503,7 +503,7 @@ public:
         // amalgamationLklh
 
         // Create a default standard gauss adaptor
-        std::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(
+        std::shared_ptr<gpar::GDoubleGaussAdaptor> gdga_ptr(new gpar::GDoubleGaussAdaptor(
             0.025 // sigma
             ,
             0.2 // sigma_sigma
@@ -514,8 +514,8 @@ public:
             ,
             1. // ad_prob
         ));
-        std::shared_ptr<GConstrainedDoubleObject> amalgamation_lklh_ptr(
-            new GConstrainedDoubleObject(
+        std::shared_ptr<gpar::GConstrainedDoubleObject> amalgamation_lklh_ptr(
+            new gpar::GConstrainedDoubleObject(
                 init_amalgamation_lklh // initial value
                 ,
                 amalgamation_lklh_lb // lower boundary
@@ -533,7 +533,7 @@ public:
         //------------------------------------------------------------
         // min_ad_prob
 
-        std::shared_ptr<GConstrainedDoubleObject> min_ad_prob_ptr(new GConstrainedDoubleObject(
+        std::shared_ptr<gpar::GConstrainedDoubleObject> min_ad_prob_ptr(new gpar::GConstrainedDoubleObject(
             init_min_ad_prob // initial value
             ,
             min_ad_prob_lb // lower boundary
@@ -550,7 +550,7 @@ public:
         //------------------------------------------------------------
         // ad_prob_range
 
-        std::shared_ptr<GConstrainedDoubleObject> ad_prob_range_ptr(new GConstrainedDoubleObject(
+        std::shared_ptr<gpar::GConstrainedDoubleObject> ad_prob_range_ptr(new gpar::GConstrainedDoubleObject(
             init_ad_prob_range // initial value
             ,
             ad_prob_range_lb // lower boundary
@@ -567,8 +567,8 @@ public:
         //------------------------------------------------------------
         // ad_prob_start_percentage
 
-        std::shared_ptr<GConstrainedDoubleObject> ad_prob_start_percentage_ptr(
-            new GConstrainedDoubleObject(
+        std::shared_ptr<gpar::GConstrainedDoubleObject> ad_prob_start_percentage_ptr(
+            new gpar::GConstrainedDoubleObject(
                 init_ad_prob_start_percentage // initial value
                 ,
                 0. // lower boundary
@@ -586,7 +586,7 @@ public:
         //------------------------------------------------------------
         // adapt_ad_prob
 
-        std::shared_ptr<GConstrainedDoubleObject> adapt_ad_prob_ptr(new GConstrainedDoubleObject(
+        std::shared_ptr<gpar::GConstrainedDoubleObject> adapt_ad_prob_ptr(new gpar::GConstrainedDoubleObject(
             init_adapt_ad_prob // initial value
             ,
             adapt_ad_prob_lb // lower boundary
@@ -602,7 +602,7 @@ public:
         //------------------------------------------------------------
         // min_sigma
 
-        std::shared_ptr<GConstrainedDoubleObject> minsigma_ptr(new GConstrainedDoubleObject(
+        std::shared_ptr<gpar::GConstrainedDoubleObject> minsigma_ptr(new gpar::GConstrainedDoubleObject(
             init_min_sigma // initial value
             ,
             min_sigma_lb // lower boundary
@@ -618,7 +618,7 @@ public:
         //------------------------------------------------------------
         // sigma_range
 
-        std::shared_ptr<GConstrainedDoubleObject> sigmarange_ptr(new GConstrainedDoubleObject(
+        std::shared_ptr<gpar::GConstrainedDoubleObject> sigmarange_ptr(new gpar::GConstrainedDoubleObject(
             init_sigma_range // initial value
             ,
             sigma_range_lb // lower boundary
@@ -634,8 +634,8 @@ public:
         //------------------------------------------------------------
         // sigma_range_percentage
 
-        std::shared_ptr<GConstrainedDoubleObject> sigma_range_percentage_ptr(
-            new GConstrainedDoubleObject(
+        std::shared_ptr<gpar::GConstrainedDoubleObject> sigma_range_percentage_ptr(
+            new gpar::GConstrainedDoubleObject(
                 init_sigma_range_percentage // initial value
                 ,
                 0. // lower boundary
@@ -654,7 +654,7 @@ public:
         // sigma_sigma
 
         // The sigma adaption strength may change between 0.01 and 1
-        std::shared_ptr<GConstrainedDoubleObject> sigmasigma_ptr(new GConstrainedDoubleObject(
+        std::shared_ptr<gpar::GConstrainedDoubleObject> sigmasigma_ptr(new gpar::GConstrainedDoubleObject(
             init_sigma_sigma // initial value
             ,
             sigma_sigma_lb // lower boundary
@@ -677,28 +677,28 @@ public:
     std::string print(bool with_fitness = true) const {
         std::ostringstream result; // NOLINT(cppcoreguidelines-init-variables)
         // Retrieve the parameters
-        std::shared_ptr<GConstrainedInt32Object> npar_ptr =
-            this->at<GConstrainedInt32Object>(MOT_NPARENTS);
-        std::shared_ptr<GConstrainedInt32Object> nch_ptr =
-            this->at<GConstrainedInt32Object>(MOT_NCHILDREN);
-        std::shared_ptr<GConstrainedDoubleObject> amalgamation_ptr =
-            this->at<GConstrainedDoubleObject>(MOT_AMALGAMATION);
-        std::shared_ptr<GConstrainedDoubleObject> min_ad_prob_ptr =
-            this->at<GConstrainedDoubleObject>(MOT_MINADPROB);
-        std::shared_ptr<GConstrainedDoubleObject> ad_prob_range_ptr =
-            this->at<GConstrainedDoubleObject>(MOT_ADPROBRANGE);
-        std::shared_ptr<GConstrainedDoubleObject> ad_prob_start_percentage_ptr =
-            this->at<GConstrainedDoubleObject>(MOT_ADPROBSTARTPERCENTAGE);
-        std::shared_ptr<GConstrainedDoubleObject> adapt_adprob_ptr =
-            this->at<GConstrainedDoubleObject>(MOT_ADAPTADPROB);
-        std::shared_ptr<GConstrainedDoubleObject> minsigma_ptr =
-            this->at<GConstrainedDoubleObject>(MOT_MINSIGMA);
-        std::shared_ptr<GConstrainedDoubleObject> sigmarange_ptr =
-            this->at<GConstrainedDoubleObject>(MOT_SIGMARANGE);
-        std::shared_ptr<GConstrainedDoubleObject> sigma_range_percentage_ptr =
-            this->at<GConstrainedDoubleObject>(MOT_SIGMARANGEPERCENTAGE);
-        std::shared_ptr<GConstrainedDoubleObject> sigmasigma_ptr =
-            this->at<GConstrainedDoubleObject>(MOT_SIGMASIGMA);
+        std::shared_ptr<gpar::GConstrainedInt32Object> npar_ptr =
+            this->at<gpar::GConstrainedInt32Object>(MOT_NPARENTS);
+        std::shared_ptr<gpar::GConstrainedInt32Object> nch_ptr =
+            this->at<gpar::GConstrainedInt32Object>(MOT_NCHILDREN);
+        std::shared_ptr<gpar::GConstrainedDoubleObject> amalgamation_ptr =
+            this->at<gpar::GConstrainedDoubleObject>(MOT_AMALGAMATION);
+        std::shared_ptr<gpar::GConstrainedDoubleObject> min_ad_prob_ptr =
+            this->at<gpar::GConstrainedDoubleObject>(MOT_MINADPROB);
+        std::shared_ptr<gpar::GConstrainedDoubleObject> ad_prob_range_ptr =
+            this->at<gpar::GConstrainedDoubleObject>(MOT_ADPROBRANGE);
+        std::shared_ptr<gpar::GConstrainedDoubleObject> ad_prob_start_percentage_ptr =
+            this->at<gpar::GConstrainedDoubleObject>(MOT_ADPROBSTARTPERCENTAGE);
+        std::shared_ptr<gpar::GConstrainedDoubleObject> adapt_adprob_ptr =
+            this->at<gpar::GConstrainedDoubleObject>(MOT_ADAPTADPROB);
+        std::shared_ptr<gpar::GConstrainedDoubleObject> minsigma_ptr =
+            this->at<gpar::GConstrainedDoubleObject>(MOT_MINSIGMA);
+        std::shared_ptr<gpar::GConstrainedDoubleObject> sigmarange_ptr =
+            this->at<gpar::GConstrainedDoubleObject>(MOT_SIGMARANGE);
+        std::shared_ptr<gpar::GConstrainedDoubleObject> sigma_range_percentage_ptr =
+            this->at<gpar::GConstrainedDoubleObject>(MOT_SIGMARANGEPERCENTAGE);
+        std::shared_ptr<gpar::GConstrainedDoubleObject> sigmasigma_ptr =
+            this->at<gpar::GConstrainedDoubleObject>(MOT_SIGMASIGMA);
 
         // Stream the results
 
@@ -767,7 +767,7 @@ public:
         }
 
         ind_factory_ = Gem::Common::convertSmartPointer<
-            Gem::Common::GFactoryT<GParameterSet>,
+            Gem::Common::GFactoryT<gpar::GParameterSet>,
             typename ind_type::FACTORYTYPE>(factory->clone());
     }
 
@@ -780,7 +780,7 @@ protected:
      */
     void addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) override {
         // Call our parent class'es function
-        GParameterSet::addConfigurationOptions_(gpb);
+        gpar::GParameterSet::addConfigurationOptions_(gpb);
 
         // Add local data
         gpb.registerFileParameter<std::size_t>(
@@ -842,7 +842,7 @@ protected:
             );
 
         // Load our parent class'es data ...
-        GParameterSet::load_(cp);
+        gpar::GParameterSet::load_(cp);
 
         // ... and then our local data
         nRunsPerOptimization_ = p_load->nRunsPerOptimization_;
@@ -886,7 +886,7 @@ protected:
         Gem::Common::GToken token("GMetaOptimizerIndividualT<ind_type>", e);
 
         // Compare our parent data ...
-        Gem::Common::compare_base_t<Gem::Geneva::GParameterSet>(*this, *p_load, token);
+        Gem::Common::compare_base_t<gpar::GParameterSet>(*this, *p_load, token);
 
         // ... and then the local data
         Gem::Common::compare_t(
@@ -911,28 +911,28 @@ protected:
      */
     double fitnessCalculation() override {
         // Retrieve the parameters
-        std::shared_ptr<GConstrainedInt32Object> npar_ptr =
-            this->at<GConstrainedInt32Object>(MOT_NPARENTS);
-        std::shared_ptr<GConstrainedInt32Object> nch_ptr =
-            this->at<GConstrainedInt32Object>(MOT_NCHILDREN);
-        std::shared_ptr<GConstrainedDoubleObject> amalgamation_ptr =
-            this->at<GConstrainedDoubleObject>(MOT_AMALGAMATION);
-        std::shared_ptr<GConstrainedDoubleObject> min_ad_prob_ptr =
-            this->at<GConstrainedDoubleObject>(MOT_MINADPROB);
-        std::shared_ptr<GConstrainedDoubleObject> ad_prob_range_ptr =
-            this->at<GConstrainedDoubleObject>(MOT_ADPROBRANGE);
-        std::shared_ptr<GConstrainedDoubleObject> ad_prob_start_percentage_ptr =
-            this->at<GConstrainedDoubleObject>(MOT_ADPROBSTARTPERCENTAGE);
-        std::shared_ptr<GConstrainedDoubleObject> adapt_adprob_ptr =
-            this->at<GConstrainedDoubleObject>(MOT_ADAPTADPROB);
-        std::shared_ptr<GConstrainedDoubleObject> minsigma_ptr =
-            this->at<GConstrainedDoubleObject>(MOT_MINSIGMA);
-        std::shared_ptr<GConstrainedDoubleObject> sigmarange_ptr =
-            this->at<GConstrainedDoubleObject>(MOT_SIGMARANGE);
-        std::shared_ptr<GConstrainedDoubleObject> sigma_range_percentage_ptr =
-            this->at<GConstrainedDoubleObject>(MOT_SIGMARANGEPERCENTAGE);
-        std::shared_ptr<GConstrainedDoubleObject> sigmasigma_ptr =
-            this->at<GConstrainedDoubleObject>(MOT_SIGMASIGMA);
+        std::shared_ptr<gpar::GConstrainedInt32Object> npar_ptr =
+            this->at<gpar::GConstrainedInt32Object>(MOT_NPARENTS);
+        std::shared_ptr<gpar::GConstrainedInt32Object> nch_ptr =
+            this->at<gpar::GConstrainedInt32Object>(MOT_NCHILDREN);
+        std::shared_ptr<gpar::GConstrainedDoubleObject> amalgamation_ptr =
+            this->at<gpar::GConstrainedDoubleObject>(MOT_AMALGAMATION);
+        std::shared_ptr<gpar::GConstrainedDoubleObject> min_ad_prob_ptr =
+            this->at<gpar::GConstrainedDoubleObject>(MOT_MINADPROB);
+        std::shared_ptr<gpar::GConstrainedDoubleObject> ad_prob_range_ptr =
+            this->at<gpar::GConstrainedDoubleObject>(MOT_ADPROBRANGE);
+        std::shared_ptr<gpar::GConstrainedDoubleObject> ad_prob_start_percentage_ptr =
+            this->at<gpar::GConstrainedDoubleObject>(MOT_ADPROBSTARTPERCENTAGE);
+        std::shared_ptr<gpar::GConstrainedDoubleObject> adapt_adprob_ptr =
+            this->at<gpar::GConstrainedDoubleObject>(MOT_ADAPTADPROB);
+        std::shared_ptr<gpar::GConstrainedDoubleObject> minsigma_ptr =
+            this->at<gpar::GConstrainedDoubleObject>(MOT_MINSIGMA);
+        std::shared_ptr<gpar::GConstrainedDoubleObject> sigmarange_ptr =
+            this->at<gpar::GConstrainedDoubleObject>(MOT_SIGMARANGE);
+        std::shared_ptr<gpar::GConstrainedDoubleObject> sigma_range_percentage_ptr =
+            this->at<gpar::GConstrainedDoubleObject>(MOT_SIGMARANGEPERCENTAGE);
+        std::shared_ptr<gpar::GConstrainedDoubleObject> sigmasigma_ptr =
+            this->at<gpar::GConstrainedDoubleObject>(MOT_SIGMASIGMA);
 
 #ifdef DEBUG
         // Check that we have been given a factory
@@ -1001,7 +1001,7 @@ protected:
             // Add the required number of individuals
             for(std::size_t ind = 0; ind < pop_size; ind++) {
                 // Retrieve an individual
-                std::shared_ptr<GParameterSet> gi_ptr = ind_factory_->get();
+                std::shared_ptr<gpar::GParameterSet> gi_ptr = ind_factory_->get();
 
                 ea_ptr->push_back(gi_ptr);
             }
@@ -1038,8 +1038,8 @@ protected:
             ea_ptr->optimize();
 
             // Retrieve the best individual
-            std::shared_ptr<GParameterSet> best_individual =
-                ea_ptr->getBestGlobalIndividual<GParameterSet>();
+            std::shared_ptr<gpar::GParameterSet> best_individual =
+                ea_ptr->getBestGlobalIndividual<gpar::GParameterSet>();
 
             // Retrieve the number of iterations
             iterations_consumed = ea_ptr->getIteration();
@@ -1127,7 +1127,7 @@ protected:
         bool result = false;
 
         // Call the parent classes' functions
-        if(Gem::Geneva::GParameterSet::modify_GUnitTests_()) {
+        if(gpar::GParameterSet::modify_GUnitTests_()) {
             result = true;
         }
 
@@ -1158,7 +1158,7 @@ protected:
         using namespace Gem::Geneva;
 
         // Call the parent classes' functions
-        Gem::Geneva::GParameterSet::specificTestsNoFailureExpected_GUnitTests_();
+        gpar::GParameterSet::specificTestsNoFailureExpected_GUnitTests_();
 
         //------------------------------------------------------------------------------
 
@@ -1183,7 +1183,7 @@ protected:
         using namespace Gem::Geneva;
 
         // Call the parent classes' functions
-        Gem::Geneva::GParameterSet::specificTestsFailuresExpected_GUnitTests_();
+        gpar::GParameterSet::specificTestsFailuresExpected_GUnitTests_();
 
         //------------------------------------------------------------------------------
 
@@ -1251,7 +1251,7 @@ std::ostream &operator<<(std::ostream &stream, const GMetaOptimizerIndividualT<i
  * A factory for GMetaOptimizerIndividualT<ind_type> objects
  */
 template <typename ind_type>
-class GMetaOptimizerIndividualFactoryT : public Gem::Common::GFactoryT<GParameterSet> {
+class GMetaOptimizerIndividualFactoryT : public Gem::Common::GFactoryT<gpar::GParameterSet> {
 public:
     /***************************************************************************/
     /**
@@ -1261,7 +1261,7 @@ public:
      * @param config_file The name of the configuration file
      */
     GMetaOptimizerIndividualFactoryT(std::filesystem::path const &config_file)
-      : Gem::Common::GFactoryT<GParameterSet>(config_file) { /* nothing */
+      : Gem::Common::GFactoryT<gpar::GParameterSet>(config_file) { /* nothing */
     }
 
     /***************************************************************************/
@@ -1286,7 +1286,7 @@ public:
         }
 
         ind_factory_ = Gem::Common::convertSmartPointer<
-            Gem::Common::GFactoryT<GParameterSet>,
+            Gem::Common::GFactoryT<gpar::GParameterSet>,
             typename ind_type::FACTORYTYPE>(factory->clone());
     }
 
@@ -1592,7 +1592,7 @@ protected:
         );
 
         // Allow our parent class to describe its options
-        Gem::Common::GFactoryT<GParameterSet>::describeLocalOptions_(gpb);
+        Gem::Common::GFactoryT<gpar::GParameterSet>::describeLocalOptions_(gpb);
     }
 
     /***************************************************************************/
@@ -1604,10 +1604,10 @@ protected:
      *
      * @param p A smart-pointer to be acted on during post-processing
      */
-    void postProcess_(std::shared_ptr<GParameterSet> &p_base) override {
+    void postProcess_(std::shared_ptr<gpar::GParameterSet> &p_base) override {
         // Convert the base pointer to our local type
         std::shared_ptr<GMetaOptimizerIndividualT<ind_type>> p =
-            Gem::Common::convertSmartPointer<GParameterSet, GMetaOptimizerIndividualT<ind_type>>(
+            Gem::Common::convertSmartPointer<gpar::GParameterSet, GMetaOptimizerIndividualT<ind_type>>(
                 p_base
             );
 
@@ -1660,7 +1660,7 @@ private:
      *
      * @return Items of the desired type
      */
-    std::shared_ptr<GParameterSet> getObject_(
+    std::shared_ptr<gpar::GParameterSet> getObject_(
         Gem::Common::GParserBuilder &gpb,
         const std::size_t & /*id*/
     ) override {
@@ -1766,7 +1766,7 @@ class GOptOptMonitorT // NOLINT(cppcoreguidelines-special-member-functions)
   : public oa::GBasePluggableOM {
     // Make sure this class can only be instantiated if individual_type is a derivative of GParameterSet
     static_assert(
-        std::is_base_of<GParameterSet, ind_type>::value,
+        std::is_base_of<gpar::GParameterSet, ind_type>::value,
         "GParameterSet is no base class of ind_type"
     );
 

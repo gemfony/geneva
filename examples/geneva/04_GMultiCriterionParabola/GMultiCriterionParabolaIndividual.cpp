@@ -79,7 +79,7 @@ std::ostream &operator<<(
 GMultiCriterionParabolaIndividual::GMultiCriterionParabolaIndividual(
     const std::size_t &nFitnessCriteria
 )
-  : GParameterSet(nFitnessCriteria)
+  : gpar::GParameterSet(nFitnessCriteria)
   , minima_(nFitnessCriteria) {
     /* nothing */
 }
@@ -115,7 +115,7 @@ void GMultiCriterionParabolaIndividual::load_(const GObject *cp) {
         Gem::Common::g_convert_and_compare<GObject, GMultiCriterionParabolaIndividual>(cp, this);
 
     // Load our parent's data ...
-    GParameterSet::load_(cp);
+    gpar::GParameterSet::load_(cp);
 
 #ifdef DEBUG
     if((p_load->minima_).size() != minima_.size() ||
@@ -178,7 +178,7 @@ double GMultiCriterionParabolaIndividual::fitnessCalculation() {
 GMultiCriterionParabolaIndividualFactory::GMultiCriterionParabolaIndividualFactory(
     std::filesystem::path const &cF
 )
-  : Gem::Common::GFactoryT<GParameterSet>(cF)
+  : Gem::Common::GFactoryT<gpar::GParameterSet>(cF)
   , par_min_(-10.)
   , par_max_(10.)
   , minima_string_("-1., 0., 1.")
@@ -244,7 +244,7 @@ void GMultiCriterionParabolaIndividualFactory::describeLocalOptions_(
      * @param id The id of the individual to be created
      * @return An individual of the desired type
      */
-std::shared_ptr<GParameterSet> GMultiCriterionParabolaIndividualFactory::getObject_(
+std::shared_ptr<gpar::GParameterSet> GMultiCriterionParabolaIndividualFactory::getObject_(
     Gem::Common::GParserBuilder &gpb,
     const std::size_t &id
 ) {
@@ -262,10 +262,10 @@ std::shared_ptr<GParameterSet> GMultiCriterionParabolaIndividualFactory::getObje
 /******************************************************************************/
 
 void GMultiCriterionParabolaIndividualFactory::postProcess_(
-    std::shared_ptr<GParameterSet> &p_base
+    std::shared_ptr<gpar::GParameterSet> &p_base
 ) {
     std::shared_ptr<GMultiCriterionParabolaIndividual> p =
-        Gem::Common::convertSmartPointer<GParameterSet, GMultiCriterionParabolaIndividual>(p_base);
+        Gem::Common::convertSmartPointer<gpar::GParameterSet, GMultiCriterionParabolaIndividual>(p_base);
 
     if(firstParsed_) {
         minima_ = Gem::Common::stringToDoubleVec(minima_string_);
@@ -278,8 +278,8 @@ void GMultiCriterionParabolaIndividualFactory::postProcess_(
 
     for(std::size_t npar = 0; npar < nPar_; npar++) {
         // GConstrainedDoubleObject cannot assume value below or above par_min_/max_
-        std::shared_ptr<GConstrainedDoubleObject> gcdo_ptr(
-            new GConstrainedDoubleObject(par_min_.value(), par_max_.value())
+        std::shared_ptr<gpar::GConstrainedDoubleObject> gcdo_ptr(
+            new gpar::GConstrainedDoubleObject(par_min_.value(), par_max_.value())
         );
         // Add the parameters to this individual
         p->push_back(gcdo_ptr);

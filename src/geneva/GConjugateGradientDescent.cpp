@@ -692,7 +692,7 @@ void GConjugateGradientDescent::adjustPopulation_() {
     // Create the requested number of (randomized) starting points
     if(n_start < nStartingPoints_) {
         for(std::size_t i = 0; i < (nStartingPoints_ - n_start); i++) {
-            this->push_back(this->at(0)->clone<GParameterSet>());
+            this->push_back(this->at(0)->clone<gpar::GParameterSet>());
             this->back()->randomInit(activityMode::ACTIVEONLY);
         }
     }
@@ -703,7 +703,7 @@ void GConjugateGradientDescent::adjustPopulation_() {
     // Add the difference-quotient children for every starting point
     for(std::size_t i = 0; i < nStartingPoints_; i++) {
         for(std::size_t j = 0; j < nFPParmsFirst_; j++) {
-            this->push_back(this->at(i)->clone<GParameterSet>());
+            this->push_back(this->at(i)->clone<gpar::GParameterSet>());
         }
     }
 

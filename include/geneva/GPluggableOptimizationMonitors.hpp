@@ -48,8 +48,8 @@
 #include "common/GLogger.hpp"
 #include "common/GPlotDesigner.hpp"
 #include "courtier/GExecutorT.hpp"
-#include "geneva/GParameterPropertyParser.hpp"
-#include "geneva/GParameterSet.hpp"
+#include "geneva/par/GParameterPropertyParser.hpp"
+#include "geneva/par/GParameterSet.hpp"
 #include "geneva/oa/GBase.hpp"
 
 namespace Gem::Geneva {
@@ -433,18 +433,18 @@ public:
         fp_profVarVec_.clear();
 
         // Parse the parameter string
-        GParameterPropertyParser ppp(par_str);
+        gpar::GParameterPropertyParser ppp(par_str);
 
         //---------------------------------------------------------------------------
         // Retrieve the parameters
 
         std::tuple<
-            typename std::vector<parPropSpec<fp_type>>::const_iterator,
-            typename std::vector<parPropSpec<fp_type>>::const_iterator>
+            typename std::vector<gpar::parPropSpec<fp_type>>::const_iterator,
+            typename std::vector<gpar::parPropSpec<fp_type>>::const_iterator>
             t_d = ppp.getIterators<fp_type>();
 
-        typename std::vector<parPropSpec<fp_type>>::const_iterator fp_cit = std::get<0>(t_d);
-        typename std::vector<parPropSpec<fp_type>>::const_iterator d_end = std::get<1>(t_d);
+        typename std::vector<gpar::parPropSpec<fp_type>>::const_iterator fp_cit = std::get<0>(t_d);
+        typename std::vector<gpar::parPropSpec<fp_type>>::const_iterator d_end = std::get<1>(t_d);
         for(; fp_cit != d_end;
             ++fp_cit) { // Note: fp_cit is already set to the begin of the double parameter arrays
             fp_profVarVec_.push_back(*fp_cit);
@@ -593,7 +593,7 @@ public:
     /**
 	  * Determines a suitable label for a given parPropSpec value
 	  */
-    std::string getLabel(const parPropSpec<fp_type> &s) const {
+    std::string getLabel(const gpar::parPropSpec<fp_type> &s) const {
         std::string result; // NOLINT(cppcoreguidelines-init-variables)
 
         std::size_t var_mode = std::get<0>(s.var);
@@ -850,8 +850,8 @@ private:
             double primary_fitness = 0.;
 
             if(monitorBestOnly_) { // Monitor the best individuals only
-                std::shared_ptr<GParameterSet> p =
-                    goa->Interface::GOptimizerIT<oa::GBase>::template getBestGlobalIndividual<GParameterSet>();
+                std::shared_ptr<gpar::GParameterSet> p =
+                    goa->Interface::GOptimizerIT<oa::GBase>::template getBestGlobalIndividual<gpar::GParameterSet>();
                 if(oa::GBasePluggableOM::useRawEvaluation_) {
                     primary_fitness = p->raw_fitness(0);
                 }
@@ -1074,7 +1074,7 @@ private:
 
     /************************************************************************/
 
-    std::vector<parPropSpec<fp_type>>
+    std::vector<gpar::parPropSpec<fp_type>>
         fp_profVarVec_; ///< Holds information about variables to be profiled
 
     Gem::Common::GPlotDesigner gpd_{"Progress information", 1, 1}; ///< A wrapper for the plots
@@ -1882,8 +1882,8 @@ private:
             std::uint32_t iteration = goa->getIteration();
 
             // Record the current fitness
-            std::shared_ptr<GParameterSet> p =
-                goa->Interface::GOptimizerIT<oa::GBase>::template getBestGlobalIndividual<GParameterSet>();
+            std::shared_ptr<gpar::GParameterSet> p =
+                goa->Interface::GOptimizerIT<oa::GBase>::template getBestGlobalIndividual<gpar::GParameterSet>();
             (*fitnessGraph2D_oa_) &
                 std::tuple<double, double>(static_cast<double>(iteration), p->raw_fitness(0));
 
@@ -1896,8 +1896,8 @@ private:
 
             // Do the actual logging
             if(monitorBestOnly_) {
-                std::shared_ptr<GParameterSet> best =
-                    goa->Interface::GOptimizerIT<oa::GBase>::template getBestGlobalIndividual<GParameterSet>();
+                std::shared_ptr<gpar::GParameterSet> best =
+                    goa->Interface::GOptimizerIT<oa::GBase>::template getBestGlobalIndividual<gpar::GParameterSet>();
 
                 // Retrieve the adaptor data (e.g. the sigma of a GDoubleGaussAdaptor
                 best->queryAdaptor(adaptorName_, property_, data);
@@ -1915,8 +1915,8 @@ private:
             else { // Monitor all individuals
                 // Loop over all individuals of the algorithm.
                 for(std::size_t pos = 0; pos < goa->size(); pos++) {
-                    std::shared_ptr<GParameterSet> ind =
-                        goa->template individual_cast<GParameterSet>(pos);
+                    std::shared_ptr<gpar::GParameterSet> ind =
+                        goa->template individual_cast<gpar::GParameterSet>(pos);
 
                     // Retrieve the adaptor data (e.g. the sigma of a GDoubleGaussAdaptor
                     ind->queryAdaptor(adaptorName_, property_, data);

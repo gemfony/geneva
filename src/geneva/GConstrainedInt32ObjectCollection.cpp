@@ -26,14 +26,14 @@
  * collection for a list of contributors and copyright information.
  *
  ********************************************************************************/
-#include "geneva/GConstrainedInt32ObjectCollection.hpp"
+#include "geneva/par/GConstrainedInt32ObjectCollection.hpp"
 
 #ifdef GEM_TESTING
 #include <catch2/catch_test_macros.hpp>
 #endif /* GEM_TESTING */
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GConstrainedInt32ObjectCollection) // NOLINT
-namespace Gem::Geneva {
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Parameters::GConstrainedInt32ObjectCollection) // NOLINT
+namespace Gem::Geneva::Parameters {
 
 /******************************************************************************/
 /**
@@ -299,4 +299,4 @@ void GConstrainedInt32ObjectCollection::specificTestsFailuresExpected_GUnitTests
 
 /******************************************************************************/
 
-} /* namespace Gem::Geneva */
+} /* namespace Gem::Geneva::Parameters */

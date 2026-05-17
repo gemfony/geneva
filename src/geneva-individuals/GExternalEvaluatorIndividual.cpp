@@ -53,7 +53,7 @@ GExternalEvaluatorIndividual::GExternalEvaluatorIndividual()
  * A standard copy constructor.
  */
 GExternalEvaluatorIndividual::GExternalEvaluatorIndividual(const GExternalEvaluatorIndividual &cp)
-  : GParameterSet(cp) // copies all local collections
+  : gpar::GParameterSet(cp) // copies all local collections
   , program_name_(cp.program_name_)
   , custom_options_(cp.custom_options_)
   , parameter_file_base_name_(cp.parameter_file_base_name_)
@@ -90,7 +90,7 @@ void GExternalEvaluatorIndividual::compare_(
     Gem::Common::GToken token("GExternalEvaluatorIndividual", e);
 
     // Compare our parent data ...
-    Gem::Common::compare_base_t<GParameterSet>(*this, *p_load, token);
+    Gem::Common::compare_base_t<gpar::GParameterSet>(*this, *p_load, token);
 
     // ... and then the local data
     Gem::Common::compare_t(IDENTITY(program_name_, p_load->program_name_), token);
@@ -207,7 +207,7 @@ void GExternalEvaluatorIndividual::load_(const GObject *cp) {
         Gem::Common::g_convert_and_compare<GObject, GExternalEvaluatorIndividual>(cp, this);
 
     // First load the data of our parent class ...
-    GParameterSet::load_(cp);
+    gpar::GParameterSet::load_(cp);
 
     // ... and then our own
     program_name_ = p_load->program_name_;
@@ -484,7 +484,7 @@ bool GExternalEvaluatorIndividual::getRemoveExecTemporaries() const {
 GExternalEvaluatorIndividualFactory::GExternalEvaluatorIndividualFactory(
     std::filesystem::path const &config_file
 )
-  : Gem::Common::GFactoryT<GParameterSet>(config_file)
+  : Gem::Common::GFactoryT<gpar::GParameterSet>(config_file)
   , adProb_(GEEI_DEF_ADPROB)
   , adaptAdProb_(GEEI_DEF_ADAPTADPROB)
   , minAdProb_(GEEI_DEF_MINADPROB)
@@ -518,7 +518,7 @@ GExternalEvaluatorIndividualFactory::GExternalEvaluatorIndividualFactory(
 GExternalEvaluatorIndividualFactory::GExternalEvaluatorIndividualFactory(
     const GExternalEvaluatorIndividualFactory &cp
 )
-  : Gem::Common::GFactoryT<GParameterSet>(cp)
+  : Gem::Common::GFactoryT<gpar::GParameterSet>(cp)
   , adProb_(cp.adProb_)
   , adaptAdProb_(cp.adaptAdProb_)
   , minAdProb_(cp.minAdProb_)
@@ -551,7 +551,7 @@ GExternalEvaluatorIndividualFactory::GExternalEvaluatorIndividualFactory(
  * The default constructor. Only needed for (de-)serialization purposes, hence empty.
  */
 GExternalEvaluatorIndividualFactory::GExternalEvaluatorIndividualFactory()
-  : Gem::Common::GFactoryT<GParameterSet>("empty")
+  : Gem::Common::GFactoryT<gpar::GParameterSet>("empty")
   , adProb_(GEEI_DEF_ADPROB)
   , adaptAdProb_(GEEI_DEF_ADAPTADPROB)
   , minAdProb_(GEEI_DEF_MINADPROB)
@@ -638,14 +638,14 @@ GExternalEvaluatorIndividualFactory::~GExternalEvaluatorIndividualFactory() {
  * Loads the data of another GFunctionIndividualFactory object
  */
 void GExternalEvaluatorIndividualFactory::load(
-    std::shared_ptr<Gem::Common::GFactoryT<GParameterSet>> cp_raw_ptr
+    std::shared_ptr<Gem::Common::GFactoryT<gpar::GParameterSet>> cp_raw_ptr
 ) {
     // Load our parent class'es data
-    Gem::Common::GFactoryT<GParameterSet>::load(cp_raw_ptr);
+    Gem::Common::GFactoryT<gpar::GParameterSet>::load(cp_raw_ptr);
 
     // Convert the base pointer
     std::shared_ptr<GExternalEvaluatorIndividualFactory> cp_ptr = Gem::Common::convertSmartPointer<
-        Gem::Common::GFactoryT<GParameterSet>,
+        Gem::Common::GFactoryT<gpar::GParameterSet>,
         GExternalEvaluatorIndividualFactory>(cp_raw_ptr);
 
     // And then our own
@@ -680,7 +680,7 @@ void GExternalEvaluatorIndividualFactory::load(
 /**
  * Creates a deep clone of this object
  */
-std::shared_ptr<Gem::Common::GFactoryT<GParameterSet>>
+std::shared_ptr<Gem::Common::GFactoryT<gpar::GParameterSet>>
 GExternalEvaluatorIndividualFactory::clone() const {
     return std::make_shared<GExternalEvaluatorIndividualFactory>(*this);
 }
@@ -1315,7 +1315,7 @@ void GExternalEvaluatorIndividualFactory::archive(
  *
  * @return Items of the desired type
  */
-std::shared_ptr<GParameterSet> GExternalEvaluatorIndividualFactory::getObject_(
+std::shared_ptr<gpar::GParameterSet> GExternalEvaluatorIndividualFactory::getObject_(
     Gem::Common::GParserBuilder &gpb,
     const std::size_t & /*id*/
 ) {
@@ -1337,7 +1337,7 @@ void GExternalEvaluatorIndividualFactory::describeLocalOptions_(Gem::Common::GPa
     using namespace Gem::Courtier;
 
     // Allow our parent class to describe its options
-    Gem::Common::GFactoryT<GParameterSet>::describeLocalOptions_(gpb);
+    Gem::Common::GFactoryT<gpar::GParameterSet>::describeLocalOptions_(gpb);
 
     // Then add our local options
     gpb.registerFileParameter<double>("ad_prob", adProb_.reference(), GEEI_DEF_ADPROB)
@@ -1560,12 +1560,12 @@ void GExternalEvaluatorIndividualFactory::setUpPropertyTree() {
  *
  * @param p A smart-pointer to be acted on during post-processing
  */
-void GExternalEvaluatorIndividualFactory::postProcess_(std::shared_ptr<GParameterSet> &p_raw) {
+void GExternalEvaluatorIndividualFactory::postProcess_(std::shared_ptr<gpar::GParameterSet> &p_raw) {
     using boost::property_tree::ptree;
 
     // Convert the base pointer to the target type
     std::shared_ptr<GExternalEvaluatorIndividual> p =
-        Gem::Common::convertSmartPointer<GParameterSet, GExternalEvaluatorIndividual>(p_raw);
+        Gem::Common::convertSmartPointer<gpar::GParameterSet, GExternalEvaluatorIndividual>(p_raw);
 
     // Set up a random number generator
     Gem::Hap::GRandom gr;
@@ -1584,9 +1584,9 @@ void GExternalEvaluatorIndividualFactory::postProcess_(std::shared_ptr<GParamete
     }
 
     // Set up an adaptor for the collection, so they know how to be adapted
-    std::shared_ptr<GAdaptorT<double>> gat_ptr;
+    std::shared_ptr<gpar::GAdaptorT<double>> gat_ptr;
     if(useBiGaussian_) {
-        std::shared_ptr<GDoubleBiGaussAdaptor> gdbga_ptr(new GDoubleBiGaussAdaptor());
+        std::shared_ptr<gpar::GDoubleBiGaussAdaptor> gdbga_ptr(new gpar::GDoubleBiGaussAdaptor());
         gdbga_ptr->setAllSigma1(sigma1_, sigmaSigma1_, minSigma1_, maxSigma1_);
         gdbga_ptr->setAllSigma2(sigma2_, sigmaSigma2_, minSigma2_, maxSigma2_);
         gdbga_ptr->setAllDelta(delta_, sigmaDelta_, minDelta_, maxDelta_);
@@ -1595,8 +1595,8 @@ void GExternalEvaluatorIndividualFactory::postProcess_(std::shared_ptr<GParamete
         gat_ptr = gdbga_ptr;
     }
     else {
-        std::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(
-            new GDoubleGaussAdaptor(sigma1_, sigmaSigma1_, minSigma1_, maxSigma1_)
+        std::shared_ptr<gpar::GDoubleGaussAdaptor> gdga_ptr(
+            new gpar::GDoubleGaussAdaptor(sigma1_, sigmaSigma1_, minSigma1_, maxSigma1_)
         );
         gdga_ptr->setAdaptionThreshold(adaptionThreshold_);
         gdga_ptr->setAdaptionProbability(adProb_);
@@ -1659,14 +1659,14 @@ void GExternalEvaluatorIndividualFactory::postProcess_(std::shared_ptr<GParamete
                         double init_value = (cit->second).get<double>("values.value0");
 
                         // Create an initial (empty) pointer to a GConstrainedDoubleObject
-                        std::shared_ptr<GConstrainedDoubleObject> gcdo_ptr;
+                        std::shared_ptr<gpar::GConstrainedDoubleObject> gcdo_ptr;
 
                         // Act on the information, depending on whether random initialization has been requested
                         if(
                             min_var == max_var
                         ) { // We take this as a sign that the parameter should not be modified
                             // Create the parameter object
-                            gcdo_ptr = std::make_shared<GConstrainedDoubleObject>(
+                            gcdo_ptr = std::make_shared<gpar::GConstrainedDoubleObject>(
                                 init_value,
                                 init_value,
                                 std::max(1.0001 * init_value, init_value + 0.0001)
@@ -1677,7 +1677,7 @@ void GExternalEvaluatorIndividualFactory::postProcess_(std::shared_ptr<GParamete
                         else if(0 == (cit->second).count("initRandom") ||
                                 false == (cit->second).get<bool>("initRandom")) {
                             // Create the parameter object
-                            gcdo_ptr = std::make_shared<GConstrainedDoubleObject>(
+                            gcdo_ptr = std::make_shared<gpar::GConstrainedDoubleObject>(
                                 init_value,
                                 min_var,
                                 max_var
@@ -1685,7 +1685,7 @@ void GExternalEvaluatorIndividualFactory::postProcess_(std::shared_ptr<GParamete
                         }
                         else { // Random initialization has been requested
                             // Create the parameter object
-                            gcdo_ptr = std::make_shared<GConstrainedDoubleObject>(min_var, max_var);
+                            gcdo_ptr = std::make_shared<gpar::GConstrainedDoubleObject>(min_var, max_var);
                         }
                         gcdo_ptr->setParameterName(p_name);
 
@@ -1729,8 +1729,8 @@ void GExternalEvaluatorIndividualFactory::postProcess_(std::shared_ptr<GParamete
             ptr_.get_child_optional("batch.individuals.individual0.bounds");
         if(bounds_node_opt) {
             // Create a check combiner -- it will hold the boundary conditions we find here
-            std::shared_ptr<GCheckCombinerT<GParameterSet>> combiner_ptr(
-                new GCheckCombinerT<GParameterSet>()
+            std::shared_ptr<GCheckCombinerT<gpar::GParameterSet>> combiner_ptr(
+                new GCheckCombinerT<gpar::GParameterSet>()
             );
 
             // Loop over all children of the bounds tree
@@ -1743,8 +1743,8 @@ void GExternalEvaluatorIndividualFactory::postProcess_(std::shared_ptr<GParamete
                     bool allow_negative = (cit->second).get<bool>("allow_negative");
 
                     // The actual "function-constraint"
-                    std::shared_ptr<GParameterSetFormulaConstraint> formula_constraint(
-                        new GParameterSetFormulaConstraint(expression)
+                    std::shared_ptr<gpar::GParameterSetFormulaConstraint> formula_constraint(
+                        new gpar::GParameterSetFormulaConstraint(expression)
                     );
 
                     formula_constraint->setAllowNegative(allow_negative);

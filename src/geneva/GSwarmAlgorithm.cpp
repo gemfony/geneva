@@ -73,8 +73,8 @@ GSwarmAlgorithm::GSwarmAlgorithm(const GSwarmAlgorithm &cp)
   , default_n_neighborhood_members_(cp.default_n_neighborhood_members_)
   , n_neighborhood_members_cnt_(cp.n_neighborhood_members_cnt_)
   , global_best_ptr_(
-        (cp.afterFirstIteration()) ? (cp.global_best_ptr_)->clone<GParameterSet>()
-                                   : std::shared_ptr<GParameterSet>()
+        (cp.afterFirstIteration()) ? (cp.global_best_ptr_)->clone<gpar::GParameterSet>()
+                                   : std::shared_ptr<gpar::GParameterSet>()
     )
   , neighborhood_bests_cnt_(n_neighborhoods_) // We copy the smart pointers over later
   , c_personal_(cp.c_personal_)
@@ -100,7 +100,7 @@ GSwarmAlgorithm::GSwarmAlgorithm(const GSwarmAlgorithm &cp)
     // Clone cp's best individuals in each neighborhood
     if(cp.afterFirstIteration()) {
         for(std::size_t i = 0; i < n_neighborhoods_; i++) {
-            neighborhood_bests_cnt_[i] = cp.neighborhood_bests_cnt_[i]->clone<GParameterSet>();
+            neighborhood_bests_cnt_[i] = cp.neighborhood_bests_cnt_[i]->clone<gpar::GParameterSet>();
         }
     }
 
@@ -170,7 +170,7 @@ void GSwarmAlgorithm::load_(const GObject *cp) {
             // already been copied.
             if(afterFirstIteration()) {
                 neighborhood_bests_cnt_[i] =
-                    p_load->neighborhood_bests_cnt_[i]->clone<GParameterSet>();
+                    p_load->neighborhood_bests_cnt_[i]->clone<gpar::GParameterSet>();
             }
             // we do not need to reset the neighborhood_bests_cnt_, as that array has just been created
         }
@@ -188,7 +188,7 @@ void GSwarmAlgorithm::load_(const GObject *cp) {
                 }
                 else {
                     neighborhood_bests_cnt_[i] =
-                        p_load->neighborhood_bests_cnt_[i]->clone<GParameterSet>();
+                        p_load->neighborhood_bests_cnt_[i]->clone<gpar::GParameterSet>();
                 }
             }
         }
@@ -205,7 +205,7 @@ void GSwarmAlgorithm::load_(const GObject *cp) {
             global_best_ptr_->GObject::load(p_load->global_best_ptr_);
         }
         else {
-            global_best_ptr_ = p_load->global_best_ptr_->clone<GParameterSet>();
+            global_best_ptr_ = p_load->global_best_ptr_->clone<gpar::GParameterSet>();
         }
     }
     else if(p_load->inFirstIteration()) { // cp does not have a global best
@@ -309,11 +309,11 @@ void GSwarmAlgorithm::resetToOptimizationStart_() {
 
     global_best_ptr_.reset(); // The globally best individual
 
-    neighborhood_bests_cnt_ = std::vector<std::shared_ptr<GParameterSet>>(
+    neighborhood_bests_cnt_ = std::vector<std::shared_ptr<gpar::GParameterSet>>(
         n_neighborhoods_
     ); // The collection of best individuals from each neighborhood
     velocities_cnt_ = std::vector<std::shared_ptr<
-        GParameterSet>>(); // Holds velocities, as calculated in the previous iteration
+        gpar::GParameterSet>>(); // Holds velocities, as calculated in the previous iteration
 
     dbl_lower_parameter_boundaries_cnt_.clear(); // Holds lower boundaries of double parameters
     dbl_upper_parameter_boundaries_cnt_.clear(); // Holds upper boundaries of double parameters
@@ -485,7 +485,7 @@ std::size_t GSwarmAlgorithm::getLastNIPos(const std::size_t &neighborhood) const
  *
  * @param p A pointer to the GParameterSet object to be updated
  */
-void GSwarmAlgorithm::updatePersonalBest(std::shared_ptr<GParameterSet> ind_ptr) {
+void GSwarmAlgorithm::updatePersonalBest(std::shared_ptr<gpar::GParameterSet> ind_ptr) {
 #ifdef DEBUG
     if(not ind_ptr) {
         throw geneva_exception(
@@ -518,7 +518,7 @@ void GSwarmAlgorithm::updatePersonalBest(std::shared_ptr<GParameterSet> ind_ptr)
  *
  * @param p A pointer to the GParameterSet object to be updated
  */
-void GSwarmAlgorithm::updatePersonalBestIfBetter(std::shared_ptr<GParameterSet> ind_ptr) {
+void GSwarmAlgorithm::updatePersonalBestIfBetter(std::shared_ptr<gpar::GParameterSet> ind_ptr) {
 #ifdef DEBUG
     if(not ind_ptr) {
         throw geneva_exception(
@@ -717,7 +717,7 @@ void GSwarmAlgorithm::init() {
         // to have assigned anything else than a GParameterSet derivative to
         // the swarm, then the following line will throw in DEBUG mode or return
         // undefined results in RELEASE mode
-        std::shared_ptr<GParameterSet> p(ind_ptr->clone<GParameterSet>());
+        std::shared_ptr<gpar::GParameterSet> p(ind_ptr->clone<gpar::GParameterSet>());
 
         // Extract the parameter vector
         std::vector<double> vel_vec;
@@ -912,7 +912,7 @@ void GSwarmAlgorithm::adjustNeighborhoods() {
                     // Insert a clone of the first individual of the collection
                     data_cnt_.insert(
                         data_cnt_.begin() + first_ni_pos,
-                        (this->front())->clone<GParameterSet>()
+                        (this->front())->clone<gpar::GParameterSet>()
                     );
 
                     // Randomly initialize the item and prevent position updates
@@ -1005,7 +1005,7 @@ void GSwarmAlgorithm::updatePositions() {
     if(afterFirstIteration()) {
         // Clone the individuals and copy them over
         for(const auto &ind_ptr : *this) {
-            last_iteration_individuals_cnt_.push_back(ind_ptr->clone<GParameterSet>());
+            last_iteration_individuals_cnt_.push_back(ind_ptr->clone<gpar::GParameterSet>());
         }
     }
 
@@ -1103,10 +1103,10 @@ void GSwarmAlgorithm::updatePositions() {
 void GSwarmAlgorithm::updateIndividualPositions(
     const std::size_t & /*neighborhood*/
     ,
-    std::shared_ptr<GParameterSet> ind,
-    std::shared_ptr<GParameterSet> neighborhood_best,
-    std::shared_ptr<GParameterSet> global_best,
-    std::shared_ptr<GParameterSet> velocity,
+    std::shared_ptr<gpar::GParameterSet> ind,
+    std::shared_ptr<gpar::GParameterSet> neighborhood_best,
+    std::shared_ptr<gpar::GParameterSet> global_best,
+    std::shared_ptr<gpar::GParameterSet> velocity,
     std::tuple<double, double, double, double> constants
 ) {
     // Extract the constants from the tuple
@@ -1127,7 +1127,7 @@ void GSwarmAlgorithm::updateIndividualPositions(
 #endif /* DEBUG */
 
     // Extract the personal best
-    std::shared_ptr<GParameterSet> personal_best =
+    std::shared_ptr<gpar::GParameterSet> personal_best =
         ind->getPersonalityTraits<GSwarmAlgorithm_PersonalityTraits>()->getPersonalBest();
 
     // Further error checks
@@ -1361,7 +1361,7 @@ void GSwarmAlgorithm::runFitnessCalculation_() {
     // Take care of unprocessed items, if these exist
     if(not status.is_complete) {
         std::size_t n_erased =
-            std::erase_if(this->data_cnt_, [this](std::shared_ptr<GParameterSet> p) -> bool {
+            std::erase_if(this->data_cnt_, [this](std::shared_ptr<gpar::GParameterSet> p) -> bool {
                 return (p->getProcessingStatus() == Gem::Courtier::processingStatus::DO_PROCESS);
             });
 
@@ -1376,7 +1376,7 @@ void GSwarmAlgorithm::runFitnessCalculation_() {
     // Remove items for which an error has occurred during processing
     if(status.has_errors) {
         std::size_t n_erased =
-            std::erase_if(this->data_cnt_, [this](std::shared_ptr<GParameterSet> p) -> bool {
+            std::erase_if(this->data_cnt_, [this](std::shared_ptr<gpar::GParameterSet> p) -> bool {
                 return p->has_errors();
             });
 
@@ -1393,7 +1393,7 @@ void GSwarmAlgorithm::runFitnessCalculation_() {
     sort(
         data_cnt_.begin(),
         data_cnt_.end(),
-        [](std::shared_ptr<GParameterSet> x, std::shared_ptr<GParameterSet> y) -> bool {
+        [](std::shared_ptr<gpar::GParameterSet> x, std::shared_ptr<gpar::GParameterSet> y) -> bool {
             return x->getPersonalityTraits<GSwarmAlgorithm_PersonalityTraits>()->getNeighborhood() <
                    y->getPersonalityTraits<GSwarmAlgorithm_PersonalityTraits>()->getNeighborhood();
         }
@@ -1471,7 +1471,7 @@ std::tuple<double, double> GSwarmAlgorithm::findBests() {
         std::sort(
             this->begin() + first_counter,
             this->begin() + last_counter,
-            [](std::shared_ptr<GParameterSet> x_ptr, std::shared_ptr<GParameterSet> y_ptr) -> bool {
+            [](std::shared_ptr<gpar::GParameterSet> x_ptr, std::shared_ptr<gpar::GParameterSet> y_ptr) -> bool {
                 return minOnly_transformed_fitness(x_ptr) < minOnly_transformed_fitness(y_ptr);
             }
         );
@@ -1480,7 +1480,7 @@ std::tuple<double, double> GSwarmAlgorithm::findBests() {
         // the best individual found so far in this neighborhood
         if(inFirstIteration()) {
             neighborhood_bests_cnt_.at(n) =
-                (*(this->begin() + first_counter))->clone<GParameterSet>();
+                (*(this->begin() + first_counter))->clone<gpar::GParameterSet>();
         }
         else {
             if(isBetter(
@@ -1508,7 +1508,7 @@ std::tuple<double, double> GSwarmAlgorithm::findBests() {
     // Compare the best neighborhood individual with the globally best individual and
     // update it, if necessary. Initialize it in the first generation.
     if(inFirstIteration()) {
-        global_best_ptr_ = (neighborhood_bests_cnt_.at(best_local_id))->clone<GParameterSet>();
+        global_best_ptr_ = (neighborhood_bests_cnt_.at(best_local_id))->clone<gpar::GParameterSet>();
     }
     else {
         if(isBetter(
@@ -1556,7 +1556,7 @@ void GSwarmAlgorithm::adjustPopulation_() {
     else if(current_size == 1) {
         // Fill up with random items to the number of neighborhoods
         for(std::size_t i = 1; i < n_neighborhoods_; i++) {
-            this->push_back(this->front()->clone<GParameterSet>());
+            this->push_back(this->front()->clone<gpar::GParameterSet>());
             this->back()->randomInit(activityMode::ACTIVEONLY);
         }
 
@@ -1579,7 +1579,7 @@ void GSwarmAlgorithm::adjustPopulation_() {
         if(current_size < n_neighborhoods_) {
             // First fill up the neighborhoods, if required
             for(std::size_t m = 0; m < (n_neighborhoods_ - current_size); m++) {
-                this->push_back(this->front()->clone<GParameterSet>());
+                this->push_back(this->front()->clone<gpar::GParameterSet>());
                 this->back()->randomInit(activityMode::ACTIVEONLY);
             }
 
@@ -1668,7 +1668,7 @@ void GSwarmAlgorithm::fillUpNeighborhood1() {
         for(std::size_t m = 1; m < default_n_neighborhood_members_;
             m++) { // m stands for "missing"
             // Add a clone of the first individual in the neighborhood to the next position
-            this->insert(this->begin() + n, (*(this->begin() + n))->clone<GParameterSet>());
+            this->insert(this->begin() + n, (*(this->begin() + n))->clone<gpar::GParameterSet>());
             // Make sure it has a unique value, if requested
             if(random_fill_up_) {
 #ifdef DEBUG

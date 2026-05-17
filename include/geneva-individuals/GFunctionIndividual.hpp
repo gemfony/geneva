@@ -45,16 +45,16 @@
 
 // Geneva header files go here
 #include "common/GParserBuilder.hpp"
-#include "geneva/GConstrainedDoubleCollection.hpp"
-#include "geneva/GConstrainedDoubleObject.hpp"
-#include "geneva/GConstrainedDoubleObjectCollection.hpp"
-#include "geneva/GDoubleBiGaussAdaptor.hpp"
-#include "geneva/GDoubleCollection.hpp"
-#include "geneva/GDoubleGaussAdaptor.hpp"
-#include "geneva/GDoubleObjectCollection.hpp"
-#include "geneva/GParameterSet.hpp"
-#include "geneva/GParameterSetFactory.hpp"
-#include "geneva/GParameterSetMultiConstraint.hpp"
+#include "geneva/par/GConstrainedDoubleCollection.hpp"
+#include "geneva/par/GConstrainedDoubleObject.hpp"
+#include "geneva/par/GConstrainedDoubleObjectCollection.hpp"
+#include "geneva/par/GDoubleBiGaussAdaptor.hpp"
+#include "geneva/par/GDoubleCollection.hpp"
+#include "geneva/par/GDoubleGaussAdaptor.hpp"
+#include "geneva/par/GDoubleObjectCollection.hpp"
+#include "geneva/par/GParameterSet.hpp"
+#include "geneva/par/GParameterSetFactory.hpp"
+#include "geneva/par/GParameterSetMultiConstraint.hpp"
 #include "hap/GRandomT.hpp"
 
 namespace Gem::Geneva {
@@ -339,14 +339,14 @@ class GFunctionIndividualFactory;
  *       explicitly; the factory default of [-10, 10] is not suitable for that function.
  */
 class GFunctionIndividual
-  : public GParameterSet // NOLINT(cppcoreguidelines-special-member-functions)
+  : public gpar::GParameterSet // NOLINT(cppcoreguidelines-special-member-functions)
 {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
     template <class Archive>
     void serialize(Archive &ar, const unsigned int) {
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet) &
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GParameterSet) &
             BOOST_SERIALIZATION_NVP(demoFunction_);
     }
 
@@ -731,13 +731,13 @@ operator<<(std::ostream &, std::shared_ptr<Gem::Geneva::GFunctionIndividual>);
  * A factory for GFunctionIndividual objects
  */
 class GFunctionIndividualFactory // NOLINT(cppcoreguidelines-special-member-functions)
-  : public GParameterSetFactory {
+  : public gpar::GParameterSetFactory {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
     template <class Archive>
     void serialize(Archive &ar, const unsigned int) {
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSetFactory) &
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GParameterSetFactory) &
             BOOST_SERIALIZATION_NVP(adProb_) & BOOST_SERIALIZATION_NVP(adaptAdProb_) &
             BOOST_SERIALIZATION_NVP(minAdProb_) & BOOST_SERIALIZATION_NVP(maxAdProb_) &
             BOOST_SERIALIZATION_NVP(adaptionThreshold_) & BOOST_SERIALIZATION_NVP(useBiGaussian_) &
@@ -875,19 +875,19 @@ public:
     //--------------------------------------------------------------------------
 
     /** @brief Loads the data of another GFunctionIndividualFactory object */
-    void load(std::shared_ptr<Gem::Common::GFactoryT<GParameterSet>>) override;
+    void load(std::shared_ptr<Gem::Common::GFactoryT<gpar::GParameterSet>>) override;
     /** @brief Creates a deep clone of this object */
-    std::shared_ptr<Gem::Common::GFactoryT<GParameterSet>> clone() const override;
+    std::shared_ptr<Gem::Common::GFactoryT<gpar::GParameterSet>> clone() const override;
 
 protected:
     /** @brief Allows to describe local configuration options in derived classes */
     void describeLocalOptions_(Gem::Common::GParserBuilder &) override;
     /** @brief Allows to act on the configuration options received from the configuration file */
-    void postProcess_(std::shared_ptr<GParameterSet> &) override;
+    void postProcess_(std::shared_ptr<gpar::GParameterSet> &) override;
 
 private:
     /** @brief Creates individuals of this type */
-    std::shared_ptr<GParameterSet>
+    std::shared_ptr<gpar::GParameterSet>
     getObject_(Gem::Common::GParserBuilder &, const std::size_t &) override;
 
     /** @brief Set the value of the minVar_ variable */
@@ -951,14 +951,14 @@ private:
  * than a given constant.
  */
 class GDoubleSumConstraint
-  : public GParameterSetConstraint { // NOLINT(cppcoreguidelines-special-member-functions)
+  : public gpar::GParameterSetConstraint { // NOLINT(cppcoreguidelines-special-member-functions)
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSetConstraint) &
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GParameterSetConstraint) &
             BOOST_SERIALIZATION_NVP(C_);
     }
     ///////////////////////////////////////////////////////////////////////
@@ -974,7 +974,7 @@ public:
     ~GDoubleSumConstraint() override = default;
 
 protected:
-    double check_(const GParameterSet *) const override;
+    double check_(const gpar::GParameterSet *) const override;
 
     /** @brief Adds local configuration options to a GParserBuilder object */
     void addConfigurationOptions_(Gem::Common::GParserBuilder &) override;
@@ -1012,14 +1012,14 @@ private:
  * sign!) for double variables
  */
 class GDoubleSumGapConstraint
-  : public GParameterSetConstraint { // NOLINT(cppcoreguidelines-special-member-functions)
+  : public gpar::GParameterSetConstraint { // NOLINT(cppcoreguidelines-special-member-functions)
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSetConstraint) &
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GParameterSetConstraint) &
             BOOST_SERIALIZATION_NVP(C_) & BOOST_SERIALIZATION_NVP(gap_);
     }
     ///////////////////////////////////////////////////////////////////////
@@ -1035,7 +1035,7 @@ public:
     ~GDoubleSumGapConstraint() override = default;
 
 protected:
-    double check_(const GParameterSet *) const override;
+    double check_(const gpar::GParameterSet *) const override;
 
     /** @brief Adds local configuration options to a GParserBuilder object */
     void addConfigurationOptions_(Gem::Common::GParserBuilder &) override;
@@ -1074,14 +1074,14 @@ private:
  * a given constraint. Here, valid solutions lie in a sphere around 0
  */
 class GSphereConstraint
-  : public GParameterSetConstraint { // NOLINT(cppcoreguidelines-special-member-functions)
+  : public gpar::GParameterSetConstraint { // NOLINT(cppcoreguidelines-special-member-functions)
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSetConstraint);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GParameterSetConstraint);
     }
     ///////////////////////////////////////////////////////////////////////
 public:
@@ -1096,7 +1096,7 @@ public:
     ~GSphereConstraint() override = default;
 
 protected:
-    double check_(const GParameterSet *) const override;
+    double check_(const gpar::GParameterSet *) const override;
 
     /** @brief Adds local configuration options to a GParserBuilder object */
     void addConfigurationOptions_(Gem::Common::GParserBuilder &) override;

@@ -26,14 +26,14 @@
  * collection for a list of contributors and copyright information.
  *
  ********************************************************************************/
-#include "geneva/GBooleanAdaptor.hpp"
+#include "geneva/par/GBooleanAdaptor.hpp"
 
 #ifdef GEM_TESTING
 #include <catch2/catch_test_macros.hpp>
 #endif /* GEM_TESTING */
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GBooleanAdaptor) // NOLINT
-namespace Gem::Geneva {
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Parameters::GBooleanAdaptor) // NOLINT
+namespace Gem::Geneva::Parameters {
 
 /******************************************************************************/
 /**
@@ -277,4 +277,4 @@ void GBooleanAdaptor::specificTestsFailuresExpected_GUnitTests_() {
 
 /******************************************************************************/
 
-} /* namespace Gem::Geneva */
+} /* namespace Gem::Geneva::Parameters */

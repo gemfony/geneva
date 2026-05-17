@@ -41,9 +41,9 @@
 // Boost header files go here
 
 // Geneva header files go here
-#include "geneva/GBooleanAdaptor.hpp"
-#include "geneva/GBooleanCollection.hpp"
-#include "geneva/GBooleanObject.hpp"
+#include "geneva/par/GBooleanAdaptor.hpp"
+#include "geneva/par/GBooleanCollection.hpp"
+#include "geneva/par/GBooleanObject.hpp"
 
 using namespace Gem::Geneva;
 using namespace boost;
@@ -67,11 +67,11 @@ int main(int argc, char **argv) {
     Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
 
     // Create test candidates
-    GBooleanObject A(true), A_tmp;
-    GBooleanCollection B(NBIT), B_tmp; // B is initialized with 100 random booleans
+    gpar::GBooleanObject A(true), A_tmp;
+    gpar::GBooleanCollection B(NBIT), B_tmp; // B is initialized with 100 random booleans
 
-    std::shared_ptr<GBooleanAdaptor> A_adaptor(new GBooleanAdaptor(0.1));
-    std::shared_ptr<GBooleanAdaptor> B_adaptor(new GBooleanAdaptor(0.2));
+    std::shared_ptr<gpar::GBooleanAdaptor> A_adaptor(new gpar::GBooleanAdaptor(0.1));
+    std::shared_ptr<gpar::GBooleanAdaptor> B_adaptor(new gpar::GBooleanAdaptor(0.2));
 
     A.addAdaptor(A_adaptor);
     B.addAdaptor(B_adaptor);

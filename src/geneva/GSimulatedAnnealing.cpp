@@ -423,7 +423,7 @@ void GSimulatedAnnealing::runFitnessCalculation_() {
     // Take care of unprocessed items, if these exist. We simply remove them and continue.
     if(not status.is_complete) {
         std::size_t n_erased =
-            std::erase_if(this->data_cnt_, [this](std::shared_ptr<GParameterSet> p) -> bool {
+            std::erase_if(this->data_cnt_, [this](std::shared_ptr<gpar::GParameterSet> p) -> bool {
                 return (p->getProcessingStatus() == Gem::Courtier::processingStatus::DO_PROCESS);
             });
 
@@ -439,7 +439,7 @@ void GSimulatedAnnealing::runFitnessCalculation_() {
     // We simply remove them and continue.
     if(status.has_errors) {
         std::size_t n_erased =
-            std::erase_if(this->data_cnt_, [this](std::shared_ptr<GParameterSet> p) -> bool {
+            std::erase_if(this->data_cnt_, [this](std::shared_ptr<gpar::GParameterSet> p) -> bool {
                 return p->has_errors();
             });
 
@@ -468,7 +468,7 @@ void GSimulatedAnnealing::fixAfterJobSubmission() {
     auto old_work_items = this->getOldWorkItems();
 
     // Remove parents from older iterations from old work items -- we do not want them.
-    std::erase_if(old_work_items, [iteration](std::shared_ptr<GParameterSet> x) -> bool {
+    std::erase_if(old_work_items, [iteration](std::shared_ptr<gpar::GParameterSet> x) -> bool {
         return x->getPersonalityTraits<GSimulatedAnnealing_PersonalityTraits>()->isParent() &&
                x->getAssignedIteration() != iteration;
     });
@@ -477,14 +477,14 @@ void GSimulatedAnnealing::fixAfterJobSubmission() {
     std::for_each(
         old_work_items.begin(),
         old_work_items.end(),
-        [iteration](std::shared_ptr<GParameterSet> p) { p->setAssignedIteration(iteration); }
+        [iteration](std::shared_ptr<gpar::GParameterSet> p) { p->setAssignedIteration(iteration); }
     );
 
     // Make sure that parents are at the beginning of the array.
     sort(
         this->begin(),
         this->end(),
-        [](std::shared_ptr<GParameterSet> x, std::shared_ptr<GParameterSet> y) -> bool {
+        [](std::shared_ptr<gpar::GParameterSet> x, std::shared_ptr<gpar::GParameterSet> y) -> bool {
             return (
                 x->getPersonalityTraits<GSimulatedAnnealing_PersonalityTraits>()->isParent() >
                 y->getPersonalityTraits<GSimulatedAnnealing_PersonalityTraits>()->isParent()
@@ -649,7 +649,7 @@ void GSimulatedAnnealing::sortSAMode() {
         this->begin() + this->n_parents_,
         this->begin() + 2 * this->n_parents_,
         this->end(),
-        [](std::shared_ptr<GParameterSet> x_ptr, std::shared_ptr<GParameterSet> y_ptr) -> bool {
+        [](std::shared_ptr<gpar::GParameterSet> x_ptr, std::shared_ptr<gpar::GParameterSet> y_ptr) -> bool {
             return minOnly_transformed_fitness(x_ptr) < minOnly_transformed_fitness(y_ptr);
         }
     );
@@ -678,7 +678,7 @@ void GSimulatedAnnealing::sortSAMode() {
     std::sort(
         this->begin(),
         this->begin() + this->n_parents_,
-        [](std::shared_ptr<GParameterSet> x_ptr, std::shared_ptr<GParameterSet> y_ptr) -> bool {
+        [](std::shared_ptr<gpar::GParameterSet> x_ptr, std::shared_ptr<gpar::GParameterSet> y_ptr) -> bool {
             return minOnly_transformed_fitness(x_ptr) < minOnly_transformed_fitness(y_ptr);
         }
     );

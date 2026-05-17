@@ -45,8 +45,8 @@
 #include <common/GCommonHelperFunctions.hpp>
 #include <common/GFactoryT.hpp>
 #include <common/GParserBuilder.hpp>
-#include <geneva/GConstrainedDoubleObject.hpp>
-#include <geneva/GParameterSet.hpp>
+#include <geneva/par/GConstrainedDoubleObject.hpp>
+#include <geneva/par/GParameterSet.hpp>
 
 namespace Gem::Geneva {
 
@@ -58,7 +58,7 @@ constexpr std::size_t NPAR_MC = 3;
  * This individual implements several, possibly conflicting evaluation
  * criteria, each implemented as a parabola with its own minimum
  */
-class GMultiCriterionParabolaIndividual : public GParameterSet {
+class GMultiCriterionParabolaIndividual : public gpar::GParameterSet {
     friend class GMultiCriterionParabolaIndividualFactory;
 
     /***************************************************************************/
@@ -69,7 +69,7 @@ class GMultiCriterionParabolaIndividual : public GParameterSet {
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GParameterSet);
     }
 
     /** @brief Make the class accessible to Boost.Serialization */
@@ -111,7 +111,7 @@ private:
 /**
  * A factory for GMultiCriterionParabolaIndividual objects
  */
-class GMultiCriterionParabolaIndividualFactory : public Gem::Common::GFactoryT<GParameterSet> {
+class GMultiCriterionParabolaIndividualFactory : public Gem::Common::GFactoryT<gpar::GParameterSet> {
 public:
     /** @brief The standard constructor for this class */
     GMultiCriterionParabolaIndividualFactory(std::filesystem::path const &);
@@ -120,12 +120,12 @@ public:
 
 protected:
     /** @brief Creates individuals of this type */
-    virtual std::shared_ptr<GParameterSet>
+    virtual std::shared_ptr<gpar::GParameterSet>
     getObject_(Gem::Common::GParserBuilder &, const std::size_t &);
     /** @brief Allows to describe local configuration options in derived classes */
     virtual void describeLocalOptions_(Gem::Common::GParserBuilder &);
     /** @brief Allows to act on the configuration options received from the configuration file */
-    virtual void postProcess_(std::shared_ptr<GParameterSet> &);
+    virtual void postProcess_(std::shared_ptr<gpar::GParameterSet> &);
 
 private:
     /** @brief The default constructor. Only needed for (de-)serialization purposes */

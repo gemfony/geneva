@@ -43,7 +43,7 @@
 #include "common/GExceptions.hpp"
 #include "common/GPlotDesigner.hpp"
 #include "geneva/GOptimizationEnums.hpp"
-#include "geneva/GParameterSet.hpp"
+#include "geneva/par/GParameterSet.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithm_PersonalityTraits.hpp"
 #include "geneva/oa/GParChild.hpp"
 
@@ -100,7 +100,7 @@ public:
 
     /** @brief Extracts all individuals on the pareto front */
     void extractCurrentParetoIndividuals(
-        std::vector<std::shared_ptr<Gem::Geneva::GParameterSet>> &pareto_inds
+        std::vector<std::shared_ptr<gpar::GParameterSet>> &pareto_inds
     );
 
     /** @brief Sets the number of threads this population uses for adaption */
@@ -172,9 +172,9 @@ private:
     std::string getAlgorithmName_() const override;
 
     /** @brief Adds the individuals of this iteration to a priority queue */
-    void updateGlobalBestsPQ_(GParameterSetFixedSizePriorityQueue &best_individuals) override;
+    void updateGlobalBestsPQ_(gpar::GParameterSetFixedSizePriorityQueue &best_individuals) override;
     /** @brief Adds the individuals of this iteration to a priority queue */
-    void updateIterationBestsPQ_(GParameterSetFixedSizePriorityQueue &best_individuals) override;
+    void updateIterationBestsPQ_(gpar::GParameterSetFixedSizePriorityQueue &best_individuals) override;
 
     /** @brief Retrieve a GPersonalityTraits object belonging to this algorithm */
     std::shared_ptr<GPersonalityTraits> getPersonalityTraits_() const override;
@@ -204,8 +204,8 @@ private:
     void sortMuCommaNuParetoMode();
     /** @brief Determines whether the first individual dominates the second */
     bool aDominatesB(
-        const std::shared_ptr<GParameterSet> &a,
-        const std::shared_ptr<GParameterSet> &b
+        const std::shared_ptr<gpar::GParameterSet> &a,
+        const std::shared_ptr<gpar::GParameterSet> &b
     ) const;
 
     /** @brief Fills the collection with individuals */

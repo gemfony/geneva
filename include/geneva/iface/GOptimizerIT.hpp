@@ -43,7 +43,7 @@
 // Boost header files go here
 
 // Geneva headers go here
-#include "geneva/GParameterSet.hpp"
+#include "geneva/par/GParameterSet.hpp"
 
 namespace Gem::Geneva::Interface {
 
@@ -82,7 +82,7 @@ public:
 	  * @return A copy of the best individual found in the optimization run
 	  */
     template <typename individual_type>
-        requires std::derived_from<individual_type, GParameterSet>
+        requires std::derived_from<individual_type, gpar::GParameterSet>
     std::shared_ptr<individual_type> getBestGlobalIndividual() const {
         std::unique_lock<std::mutex> iteration_best_lock(get_best_mutex_);
         auto result = std::dynamic_pointer_cast<individual_type>(this->getBestGlobalIndividual_());
@@ -105,12 +105,12 @@ public:
 	  * @return A list of copies of the best individuals found in the optimization run
 	  */
     template <typename individual_type>
-        requires std::derived_from<individual_type, GParameterSet>
+        requires std::derived_from<individual_type, gpar::GParameterSet>
     std::vector<std::shared_ptr<individual_type>> getBestGlobalIndividuals() const {
         std::unique_lock<std::mutex> iteration_best_lock(get_best_mutex_);
 
         std::vector<std::shared_ptr<individual_type>> best_individuals;
-        std::vector<std::shared_ptr<GParameterSet>> best_base_individuals =
+        std::vector<std::shared_ptr<gpar::GParameterSet>> best_base_individuals =
             this->getBestGlobalIndividuals_();
 
         // Cross check that we indeed got a valid set of individuals
@@ -149,7 +149,7 @@ public:
 	  * @return A copy of the best individual found in the iteration
 	  */
     template <typename individual_type>
-        requires std::derived_from<individual_type, GParameterSet>
+        requires std::derived_from<individual_type, gpar::GParameterSet>
     std::shared_ptr<individual_type> getBestIterationIndividual() const {
         std::unique_lock<std::mutex> iteration_best_lock(get_best_mutex_);
         auto result = std::dynamic_pointer_cast<individual_type>(getBestIterationIndividual_());
@@ -172,12 +172,12 @@ public:
 	  * @return A list of copies of the best individuals found in the iteration
 	  */
     template <typename individual_type>
-        requires std::derived_from<individual_type, GParameterSet>
+        requires std::derived_from<individual_type, gpar::GParameterSet>
     std::vector<std::shared_ptr<individual_type>> getBestIterationIndividuals() const {
         std::unique_lock<std::mutex> iteration_best_lock(get_best_mutex_);
 
         std::vector<std::shared_ptr<individual_type>> best_individuals;
-        std::vector<std::shared_ptr<GParameterSet>> best_base_individuals =
+        std::vector<std::shared_ptr<gpar::GParameterSet>> best_base_individuals =
             this->getBestIterationIndividuals_();
 
         // Cross check that we indeed got a valid set of individuals
@@ -256,14 +256,14 @@ private:
     virtual void runFitnessCalculation_() = 0;
 
     /** @brief Retrieves the best individual found globally */
-    virtual std::shared_ptr<GParameterSet> getBestGlobalIndividual_() const = 0;
+    virtual std::shared_ptr<gpar::GParameterSet> getBestGlobalIndividual_() const = 0;
     /** @brief Retrieves a list of the best individuals found globally*/
-    virtual std::vector<std::shared_ptr<GParameterSet>>
+    virtual std::vector<std::shared_ptr<gpar::GParameterSet>>
     getBestGlobalIndividuals_() const = 0;
     /** @brief Retrieves the best individual found in the current iteration*/
-    virtual std::shared_ptr<GParameterSet> getBestIterationIndividual_() const = 0;
+    virtual std::shared_ptr<gpar::GParameterSet> getBestIterationIndividual_() const = 0;
     /** @brief Retrieves a list of the best individuals found in the current iteration */
-    virtual std::vector<std::shared_ptr<GParameterSet>>
+    virtual std::vector<std::shared_ptr<gpar::GParameterSet>>
     getBestIterationIndividuals_() const = 0;
 
     /** @brief Returns one-word information about the type of optimization algorithm. */

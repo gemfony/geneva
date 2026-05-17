@@ -46,8 +46,8 @@
 #include "common/GSerializeTupleT.hpp"
 #include "geneva/GObject.hpp"
 #include "geneva/GOptimizationEnums.hpp"
-#include "geneva/GParameterPropertyParser.hpp"
-#include "geneva/GParameterSet.hpp"
+#include "geneva/par/GParameterPropertyParser.hpp"
+#include "geneva/par/GParameterSet.hpp"
 #include "geneva/oa/GBase.hpp"
 #include "geneva/oa/GParameterScan_PersonalityTraits.hpp"
 #include "hap/GRandomT.hpp"
@@ -116,7 +116,7 @@ std::vector<double> fillWithData<double>(std::size_t n_steps, double lower, doub
 class scanParInterface {
 public:
     virtual ~scanParInterface() = default;
-    virtual NAMEANDIDTYPE getVarAddress() const = 0;
+    virtual gpar::NAMEANDIDTYPE getVarAddress() const = 0;
     virtual bool goToNextItem() = 0;
     virtual bool isAtTerminalPosition() const = 0;
     virtual bool isAtFirstPosition() const = 0;
@@ -156,7 +156,7 @@ public:
      * The standard constructor
      */
     baseScanParT(
-        parPropSpec<T> pps,
+        gpar::parPropSpec<T> pps,
         bool random_scan,
         const std::string &t // typeDescription_
     )
@@ -199,7 +199,7 @@ public:
     /**
      * Retrieve the address of this object
      */
-    NAMEANDIDTYPE getVarAddress() const override {
+    gpar::NAMEANDIDTYPE getVarAddress() const override {
         return var_;
     }
 
@@ -274,7 +274,7 @@ protected:
     /***************************************************************************/
     // Data
 
-    NAMEANDIDTYPE var_;           ///< Name and/or position of the variable
+    gpar::NAMEANDIDTYPE var_;           ///< Name and/or position of the variable
     std::size_t step_;            ///< The current position in the data vector
     std::size_t nSteps_;          ///< The number of steps to be taken in a scan
     T lower_;                     ///< The lower boundary of an item
@@ -287,7 +287,7 @@ protected:
     /***************************************************************************/
     /** @brief The default constructor -- only needed for de-serialization, hence protected */
     baseScanParT()
-      : var_(NAMEANDIDTYPE(0, "empty", 0))
+      : var_(gpar::NAMEANDIDTYPE(0, "empty", 0))
       , step_(0)
       , nSteps_(2)
       , lower_(T(0))
@@ -393,7 +393,7 @@ class bScanPar // NOLINT(cppcoreguidelines-special-member-functions)
 
 public:
     /** @brief Construction from local variables */
-    bScanPar(parPropSpec<bool>, bool);
+    bScanPar(gpar::parPropSpec<bool>, bool);
     /** @brief Copy constructor */
     bScanPar(const bScanPar &) = default;
     /** @brief The destructor */
@@ -429,7 +429,7 @@ class int32ScanPar // NOLINT(cppcoreguidelines-special-member-functions)
 
 public:
     /** @brief The standard destructor */
-    int32ScanPar(parPropSpec<std::int32_t>, bool);
+    int32ScanPar(gpar::parPropSpec<std::int32_t>, bool);
     /** @brief Copy constructor */
     int32ScanPar(const int32ScanPar &) = default;
     /** @brief The destructor */
@@ -465,7 +465,7 @@ class dScanPar // NOLINT(cppcoreguidelines-special-member-functions)
 
 public:
     /** @brief The standard destructor */
-    dScanPar(parPropSpec<double>, bool);
+    dScanPar(gpar::parPropSpec<double>, bool);
     /** @brief The copy constructor */
     dScanPar(const dScanPar &) = default;
     /** @brief The destructor */
@@ -501,7 +501,7 @@ class fScanPar // NOLINT(cppcoreguidelines-special-member-functions)
 
 public:
     /** @brief The standard destructor */
-    fScanPar(parPropSpec<float>, bool);
+    fScanPar(gpar::parPropSpec<float>, bool);
     /** @brief The copy constructor */
     fScanPar(const fScanPar &) = default;
     /** @brief The destructor */

@@ -45,7 +45,7 @@
 namespace Gem::Geneva {
 
 // Forward declaration
-class GParameterSet;
+namespace Parameters { class GParameterSet; }
 
 /******************************************************************************/
 /**
@@ -69,7 +69,7 @@ class GPreEvaluationValidityCheckT // NOLINT(cppcoreguidelines-special-member-fu
 
     // We only accept validity checks for types derived directly or indirectly from GParameterSet
     static_assert(
-        std::is_base_of<Gem::Geneva::GParameterSet, ind_type>::value,
+        std::is_base_of<gpar::GParameterSet, ind_type>::value,
         "GParameterSet is no base of ind_type"
     );
 

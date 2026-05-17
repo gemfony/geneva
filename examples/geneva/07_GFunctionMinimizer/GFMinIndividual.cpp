@@ -85,7 +85,7 @@ GFMinIndividual::GFMinIndividual() { /* nothing */
  * @param cp A copy of another GFunctionIndidivual
  */
 GFMinIndividual::GFMinIndividual(const GFMinIndividual &cp)
-  : GParameterSet(cp)
+  : gpar::GParameterSet(cp)
   , targetFunction_(cp.targetFunction_) { /* nothing */
 }
 
@@ -104,7 +104,7 @@ GFMinIndividual::~GFMinIndividual() { /* nothing */
  */
 void GFMinIndividual::addConfigurationOptions(Gem::Common::GParserBuilder &gpb) {
     // Call our parent class'es function
-    GParameterSet::addConfigurationOptions(gpb);
+    gpar::GParameterSet::addConfigurationOptions(gpb);
 
     // Add local data
     gpb.registerFileParameter<targetFunction>(
@@ -150,10 +150,10 @@ targetFunction GFMinIndividual::getTargetFunction() const {
  */
 double GFMinIndividual::getAverageSigma() const {
     // Extract the parameter object
-    std::shared_ptr<GConstrainedDoubleCollection> ind = this->at<GConstrainedDoubleCollection>(0);
+    std::shared_ptr<gpar::GConstrainedDoubleCollection> ind = this->at<gpar::GConstrainedDoubleCollection>(0);
 
     // Extract the adaptor
-    std::shared_ptr<GDoubleGaussAdaptor> adaptor = ind->getAdaptor<GDoubleGaussAdaptor>();
+    std::shared_ptr<gpar::GDoubleGaussAdaptor> adaptor = ind->getAdaptor<gpar::GDoubleGaussAdaptor>();
 
     // Extract and return the sigma value. Only a single parameter object
     // has been registered, so we do not need to calculate any averages.
@@ -172,7 +172,7 @@ void GFMinIndividual::load_(const GObject *cp) {
         Gem::Common::g_convert_and_compare<GObject, GFMinIndividual>(cp, this);
 
     // Load our parent class'es data ...
-    GParameterSet::load_(cp);
+    gpar::GParameterSet::load_(cp);
 
     // ... and then our local data
     targetFunction_ = p_load->targetFunction_;
@@ -285,7 +285,7 @@ std::ostream &operator<<(std::ostream &s, std::shared_ptr<Gem::Geneva::GFMinIndi
  * @param configFile The name of the configuration file
  */
 GFMinIndividualFactory::GFMinIndividualFactory(std::filesystem::path const &configFile)
-  : Gem::Common::GFactoryT<GParameterSet>(configFile)
+  : Gem::Common::GFactoryT<gpar::GParameterSet>(configFile)
   , adProb_(GFI_DEF_ADPROB)
   , sigma_(GFI_DEF_SIGMA)
   , sigmaSigma_(GFI_DEF_SIGMASIGMA)
@@ -309,7 +309,7 @@ GFMinIndividualFactory::~GFMinIndividualFactory() { /* nothing */
  *
  * @return Items of the desired type
  */
-std::shared_ptr<GParameterSet>
+std::shared_ptr<gpar::GParameterSet>
 GFMinIndividualFactory::getObject_(Gem::Common::GParserBuilder &gpb, const std::size_t &id) {
     // Will hold the result
     std::shared_ptr<GFMinIndividual> target(new GFMinIndividual());
@@ -411,7 +411,7 @@ void GFMinIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder &
     );
 
     // Allow our parent class to describe its options
-    Gem::Common::GFactoryT<GParameterSet>::describeLocalOptions_(gpb);
+    Gem::Common::GFactoryT<gpar::GParameterSet>::describeLocalOptions_(gpb);
 }
 
 /******************************************************************************/
@@ -422,14 +422,14 @@ void GFMinIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder &
  *
  * @param p A smart-pointer to be acted on during post-processing
  */
-void GFMinIndividualFactory::postProcess_(std::shared_ptr<GParameterSet> &p) {
+void GFMinIndividualFactory::postProcess_(std::shared_ptr<gpar::GParameterSet> &p) {
     // Set up a collection with parDim_ values
-    std::shared_ptr<GConstrainedDoubleCollection> gcdc_ptr(
-        new GConstrainedDoubleCollection(parDim_, minVar_, maxVar_)
+    std::shared_ptr<gpar::GConstrainedDoubleCollection> gcdc_ptr(
+        new gpar::GConstrainedDoubleCollection(parDim_, minVar_, maxVar_)
     );
 
-    std::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(
-        new GDoubleGaussAdaptor(sigma_, sigmaSigma_, minSigma_, maxSigma_)
+    std::shared_ptr<gpar::GDoubleGaussAdaptor> gdga_ptr(
+        new gpar::GDoubleGaussAdaptor(sigma_, sigmaSigma_, minSigma_, maxSigma_)
     );
     gdga_ptr->setAdaptionProbability(adProb_);
     gcdc_ptr->addAdaptor(gdga_ptr);

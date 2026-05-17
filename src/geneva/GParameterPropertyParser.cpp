@@ -27,33 +27,33 @@
  *
  ********************************************************************************/
 
-#include "geneva/GParameterPropertyParser.hpp"
+#include "geneva/par/GParameterPropertyParser.hpp"
 
 // Needed for rules to work. Follows http://boost.2283326.n4.nabble.com/hold-multi-pass-backtracking-swap-compliant-ast-td4664679.html
 namespace boost::spirit {
 
-void swap(Gem::Geneva::parPropSpec<double> &a, Gem::Geneva::parPropSpec<double> &b) noexcept {
+void swap(Gem::Geneva::Parameters::parPropSpec<double> &a, Gem::Geneva::Parameters::parPropSpec<double> &b) noexcept {
     a.swap(b);
 }
 
-void swap(Gem::Geneva::parPropSpec<float> &a, Gem::Geneva::parPropSpec<float> &b) noexcept {
+void swap(Gem::Geneva::Parameters::parPropSpec<float> &a, Gem::Geneva::Parameters::parPropSpec<float> &b) noexcept {
     a.swap(b);
 }
 
 void swap(
-    Gem::Geneva::parPropSpec<std::int32_t> &a,
-    Gem::Geneva::parPropSpec<std::int32_t> &b
+    Gem::Geneva::Parameters::parPropSpec<std::int32_t> &a,
+    Gem::Geneva::Parameters::parPropSpec<std::int32_t> &b
 ) noexcept {
     a.swap(b);
 }
 
-void swap(Gem::Geneva::parPropSpec<bool> &a, Gem::Geneva::parPropSpec<bool> &b) noexcept {
+void swap(Gem::Geneva::Parameters::parPropSpec<bool> &a, Gem::Geneva::Parameters::parPropSpec<bool> &b) noexcept {
     a.swap(b);
 }
 
 } /* namespace boost::spirit */
 
-namespace Gem::Geneva {
+namespace Gem::Geneva::Parameters {
 
 const std::size_t GPP_DEF_NSTEPS = 100; // The default number of steps for a given parameter
 
@@ -349,4 +349,4 @@ std::size_t GParameterPropertyParser::getNSimpleScanItems() const {
 
 /******************************************************************************/
 
-} /* namespace Gem::Geneva */
+} /* namespace Gem::Geneva::Parameters */

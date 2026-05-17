@@ -51,7 +51,7 @@
 // Geneva header files go here
 #include "common/GParserBuilder.hpp"
 #include "common/GPlotDesigner.hpp"
-#include "geneva/GDoubleGaussAdaptor.hpp"
+#include "geneva/par/GDoubleGaussAdaptor.hpp"
 
 using namespace Gem::Geneva;
 using namespace Gem::Common;
@@ -167,8 +167,8 @@ int main(int argc, char **argv) {
     }
 
     // The adaptor object to be tested
-    std::shared_ptr<GDoubleGaussAdaptor> gdga(
-        new GDoubleGaussAdaptor(sigma, sigmaSigma, minSigma, maxSigma)
+    std::shared_ptr<gpar::GDoubleGaussAdaptor> gdga(
+        new gpar::GDoubleGaussAdaptor(sigma, sigmaSigma, minSigma, maxSigma)
     );
     gdga->setAdaptionThreshold(adaptionThreshold);
 

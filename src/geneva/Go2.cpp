@@ -228,7 +228,7 @@ int Go2::clientRun_() {
     }
 
     // Retrieve the client worker from the consumer
-    std::shared_ptr<Gem::Courtier::GBaseClientT<Gem::Geneva::GParameterSet>> p;
+    std::shared_ptr<Gem::Courtier::GBaseClientT<gpar::GParameterSet>> p;
 
     if(GConsumerStore->get(consumer_name_)->needsClient()) {
         p = GConsumerStore->get(consumer_name_)->getClient();
@@ -398,7 +398,7 @@ Go2 &Go2::operator&(std::string const &mn) {
  * Allows to register a content creator. A content creator creates individuals
  * to be added to the population.
  */
-void Go2::registerContentCreator(const std::shared_ptr<Gem::Common::GFactoryT<GParameterSet>> &cc_ptr) {
+void Go2::registerContentCreator(const std::shared_ptr<Gem::Common::GFactoryT<gpar::GParameterSet>> &cc_ptr) {
     if(not cc_ptr) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
@@ -466,7 +466,7 @@ Go2 const *Go2::optimize_([[maybe_unused]] std::uint32_t offset) {
             if(content_creator_ptr_) {
                 for(std::size_t ind = 0; ind < algorithms_cnt_.at(0)->getDefaultPopulationSize();
                     ind++) {
-                    std::shared_ptr<GParameterSet> p_ind = (*content_creator_ptr_)();
+                    std::shared_ptr<gpar::GParameterSet> p_ind = (*content_creator_ptr_)();
                     if(p_ind) {
                         this->push_back(p_ind);
                     }
@@ -524,7 +524,7 @@ Go2 const *Go2::optimize_([[maybe_unused]] std::uint32_t offset) {
 
         // Unload the individuals from the last algorithm and store them again in this object
         if(copyBestIndividualsOnly_) {
-            for(const auto &best_ind_ptr : alg_ptr->getBestGlobalIndividuals<GParameterSet>()) {
+            for(const auto &best_ind_ptr : alg_ptr->getBestGlobalIndividuals<gpar::GParameterSet>()) {
                 this->push_back(best_ind_ptr);
             }
         }
@@ -543,7 +543,7 @@ Go2 const *Go2::optimize_([[maybe_unused]] std::uint32_t offset) {
     std::ranges::sort(
         this->begin(),
         this->end(),
-        [](const std::shared_ptr<GParameterSet> &x_ptr, const std::shared_ptr<GParameterSet> &y_ptr) -> bool {
+        [](const std::shared_ptr<gpar::GParameterSet> &x_ptr, const std::shared_ptr<gpar::GParameterSet> &y_ptr) -> bool {
             return minOnly_transformed_fitness(x_ptr) < minOnly_transformed_fitness(y_ptr);
         }
     );
@@ -560,7 +560,7 @@ Go2 const *Go2::optimize_([[maybe_unused]] std::uint32_t offset) {
  *
  * @return The best individual found
  */
-std::shared_ptr<Gem::Geneva::GParameterSet> Go2::getBestGlobalIndividual_() const {
+std::shared_ptr<gpar::GParameterSet> Go2::getBestGlobalIndividual_() const {
     // Do some error checking
     if(this->empty()) {
         throw geneva_exception(
@@ -589,7 +589,7 @@ std::shared_ptr<Gem::Geneva::GParameterSet> Go2::getBestGlobalIndividual_() cons
     }
 
     // Simply return the best individual. This will result in an implicit downcast
-    return this->front()->clone<Gem::Geneva::GParameterSet>();
+    return this->front()->clone<gpar::GParameterSet>();
 }
 
 /******************************************************************************/
@@ -599,7 +599,7 @@ std::shared_ptr<Gem::Geneva::GParameterSet> Go2::getBestGlobalIndividual_() cons
  *
  * @return The best individual found
  */
-std::vector<std::shared_ptr<Gem::Geneva::GParameterSet>> Go2::getBestGlobalIndividuals_() const {
+std::vector<std::shared_ptr<gpar::GParameterSet>> Go2::getBestGlobalIndividuals_() const {
     // Do some error checking
     if(this->empty()) {
         throw geneva_exception(
@@ -610,7 +610,7 @@ std::vector<std::shared_ptr<Gem::Geneva::GParameterSet>> Go2::getBestGlobalIndiv
     }
 
     std::size_t pos = 0;
-    std::vector<std::shared_ptr<Gem::Geneva::GParameterSet>> best_individuals;
+    std::vector<std::shared_ptr<gpar::GParameterSet>> best_individuals;
     for(const auto &ind_ptr : *this) {
         if(ind_ptr->is_due_for_processing() || ind_ptr->has_errors()) {
             throw geneva_exception(
@@ -622,7 +622,7 @@ std::vector<std::shared_ptr<Gem::Geneva::GParameterSet>> Go2::getBestGlobalIndiv
         }
 
         // This will result in an implicit downcast
-        best_individuals.push_back(ind_ptr->clone<Gem::Geneva::GParameterSet>());
+        best_individuals.push_back(ind_ptr->clone<gpar::GParameterSet>());
 
         pos++;
     }
@@ -637,7 +637,7 @@ std::vector<std::shared_ptr<Gem::Geneva::GParameterSet>> Go2::getBestGlobalIndiv
  *
  * @return The best individual found
  */
-std::shared_ptr<Gem::Geneva::GParameterSet> Go2::getBestIterationIndividual_() const {
+std::shared_ptr<gpar::GParameterSet> Go2::getBestIterationIndividual_() const {
     throw geneva_exception(
         g_error_streamer(DO_LOG, time_and_place)
         << "In Go2::getBestIterationIndividual_(): Error!" << '\n'
@@ -652,7 +652,7 @@ std::shared_ptr<Gem::Geneva::GParameterSet> Go2::getBestIterationIndividual_() c
  *
  * @return The best individual found
  */
-std::vector<std::shared_ptr<Gem::Geneva::GParameterSet>> Go2::getBestIterationIndividuals_() const {
+std::vector<std::shared_ptr<gpar::GParameterSet>> Go2::getBestIterationIndividuals_() const {
     throw geneva_exception(
         g_error_streamer(DO_LOG, time_and_place)
         << "In Go2::getBestIterationIndividuals_(): Error!" << '\n'
@@ -993,8 +993,8 @@ void Go2::parseCommandLine(
 
         // Register the consumer with the broker, unless other consumers have already been registered or we are running in client mode
         if(not client_mode_) {
-            if(not GBROKER(Gem::Geneva::GParameterSet)->hasConsumers()) {
-                GBROKER(Gem::Geneva::GParameterSet)
+            if(not GBROKER(gpar::GParameterSet)->hasConsumers()) {
+                GBROKER(gpar::GParameterSet)
                     ->enrol_consumer(GConsumerStore->get(consumer_name_));
             }
             else {

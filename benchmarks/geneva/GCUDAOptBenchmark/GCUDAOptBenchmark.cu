@@ -49,7 +49,7 @@
 
 // GBrokerT.hpp does not pull in GGlobalOptionsT — safe under C++17.
 #include "courtier/GBrokerT.hpp"
-#include "geneva/GParameterSet.hpp"
+#include "geneva/par/GParameterSet.hpp"
 #include "GBenchmarkCUDAConsumer.hpp"
 
 /******************************************************************************/
@@ -65,5 +65,5 @@ void createAndEnrollCUDAConsumer(std::size_t batchSize, std::uint32_t flushTimeo
     auto consumer = std::make_shared<Gem::Geneva::GCUDABatchConsumer>();
     consumer->setBatchSize(batchSize);
     consumer->setFlushTimeout(std::chrono::milliseconds{flushTimeoutMs});
-    GBROKER(Gem::Geneva::GParameterSet)->enrol_consumer(consumer);
+    GBROKER(gpar::GParameterSet)->enrol_consumer(consumer);
 }

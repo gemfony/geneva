@@ -51,7 +51,7 @@
 // Geneva header files go here
 #include "common/GCommonEnums.hpp"
 #include "common/GPlotDesigner.hpp"
-#include "geneva/GDoubleBiGaussAdaptor.hpp"
+#include "geneva/par/GDoubleBiGaussAdaptor.hpp"
 
 using namespace Gem::Geneva;
 using namespace Gem::Common;
@@ -251,7 +251,7 @@ int main(int argc, char **argv) {
     }
 
     // The adaptor object to be tested
-    std::shared_ptr<GDoubleBiGaussAdaptor> gdbga_ptr(new GDoubleBiGaussAdaptor());
+    std::shared_ptr<gpar::GDoubleBiGaussAdaptor> gdbga_ptr(new gpar::GDoubleBiGaussAdaptor());
 
     gdbga_ptr->setUseSymmetricSigmas(false);
     gdbga_ptr->setSigma1(sigma1);

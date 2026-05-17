@@ -43,11 +43,11 @@ namespace Gem::Tests {
  */
 GTestIndividual1::GTestIndividual1() {
     // Fill with some data
-    std::shared_ptr<Gem::Geneva::GDoubleCollection> gdc_ptr(
-        new Gem::Geneva::GDoubleCollection(100, -10., 10.)
+    std::shared_ptr<gpar::GDoubleCollection> gdc_ptr(
+        new gpar::GDoubleCollection(100, -10., 10.)
     );
-    std::shared_ptr<Gem::Geneva::GDoubleGaussAdaptor> gdga1(
-        new Gem::Geneva::GDoubleGaussAdaptor(0.025, 0.1, 0., 1.)
+    std::shared_ptr<gpar::GDoubleGaussAdaptor> gdga1(
+        new gpar::GDoubleGaussAdaptor(0.025, 0.1, 0., 1.)
     );
 
     // Prevent changes to adProb_
@@ -82,7 +82,7 @@ void GTestIndividual1::compare_(
     GToken token("GTestIndividual1", e);
 
     // Compare our parent data ...
-    Gem::Common::compare_base_t<GParameterSet>(*this, *p_load, token);
+    Gem::Common::compare_base_t<gpar::GParameterSet>(*this, *p_load, token);
 
     // ... no local data
 
@@ -105,7 +105,7 @@ void GTestIndividual1::load_(const GObject *cp) {
         Gem::Common::g_convert_and_compare<GObject, GTestIndividual1>(cp, this);
 
     // Load our parent's data
-    GParameterSet::load_(cp);
+    gpar::GParameterSet::load_(cp);
 
     // No local data
 }
@@ -130,9 +130,9 @@ Gem::Geneva::GObject *GTestIndividual1::clone_() const {
 double GTestIndividual1::fitnessCalculation() {
     double result = 0.;
 
-    // Extract the first Gem::Geneva::GDoubleCollection object. In a realistic scenario, you might want
+    // Extract the first Gem::Geneva::Parameters::GDoubleCollection object. In a realistic scenario, you might want
     // to add error checks here upon first invocation.
-    std::shared_ptr<Gem::Geneva::GDoubleCollection> v_c = at<Gem::Geneva::GDoubleCollection>(0);
+    std::shared_ptr<gpar::GDoubleCollection> v_c = at<gpar::GDoubleCollection>(0);
 
     // Calculate the value of the parabola
     for(std::size_t i = 0; i < v_c->size(); i++) {
@@ -157,7 +157,7 @@ bool GTestIndividual1::modify_GUnitTests_() {
     bool result = false;
 
     // Call the parent classes' functions
-    if(Gem::Geneva::GParameterSet::modify_GUnitTests_()) {
+    if(gpar::GParameterSet::modify_GUnitTests_()) {
         result = true;
     }
 
@@ -187,10 +187,10 @@ void GTestIndividual1::addGDoubleObjects_(const std::size_t &n_items) {
     // Add GDoubleObject items with adaptors to p_test1
     for(std::size_t i = 0; i < n_items; i++) {
         // Create a suitable adaptor
-        std::shared_ptr<GDoubleGaussAdaptor> gdga_ptr;
+        std::shared_ptr<gpar::GDoubleGaussAdaptor> gdga_ptr;
 
         CHECK_NOTHROW(
-            gdga_ptr = std::make_shared<GDoubleGaussAdaptor>(0.025, 0.1, 0., 1., 1.0)
+            gdga_ptr = std::make_shared<gpar::GDoubleGaussAdaptor>(0.025, 0.1, 0., 1., 1.0)
         );
         CHECK_NOTHROW(
             gdga_ptr->setAdaptionThreshold(0)
@@ -198,10 +198,10 @@ void GTestIndividual1::addGDoubleObjects_(const std::size_t &n_items) {
         CHECK_NOTHROW(gdga_ptr->setAdaptionMode(adaptionMode::ALWAYS)); // Always adapt
 
         // Create a suitable GDoubleObject object
-        std::shared_ptr<GDoubleObject> gdo_ptr;
+        std::shared_ptr<gpar::GDoubleObject> gdo_ptr;
 
         CHECK_NOTHROW(
-            gdo_ptr = std::make_shared<GDoubleObject>(-100., 100.)
+            gdo_ptr = std::make_shared<gpar::GDoubleObject>(-100., 100.)
         ); // Initialization in the range -100, 100
 
         // Add the adaptor
@@ -228,7 +228,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
     const std::size_t n_items = 100;
 
     // Call the parent classes' functions
-    Gem::Geneva::GParameterSet::specificTestsNoFailureExpected_GUnitTests_();
+    gpar::GParameterSet::specificTestsNoFailureExpected_GUnitTests_();
 
     //------------------------------------------------------------------------------
 
@@ -495,8 +495,8 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
         CHECK_NOTHROW(fitness2_old = p_test2->transformed_fitness(0));
 
         // Extract and clone the first individual's GDoubleCollection object for later comparisons
-        std::shared_ptr<Gem::Geneva::GDoubleCollection> gdc_ptr_old =
-            p_test1->at(static_cast<std::size_t>(0))->clone<Gem::Geneva::GDoubleCollection>();
+        std::shared_ptr<gpar::GDoubleCollection> gdc_ptr_old =
+            p_test1->at(static_cast<std::size_t>(0))->clone<gpar::GDoubleCollection>();
 
         // Adapt and evaluate the first individual
         CHECK_NOTHROW(p_test1->customAdaptions());
@@ -513,8 +513,8 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
         CHECK(*p_test1 != *p_test2);
 
         // Extract and clone the first individual's GDoubleCollection object for comparison
-        std::shared_ptr<Gem::Geneva::GDoubleCollection> gdc_ptr_new =
-            p_test1->at(0)->clone<Gem::Geneva::GDoubleCollection>();
+        std::shared_ptr<gpar::GDoubleCollection> gdc_ptr_new =
+            p_test1->at(0)->clone<gpar::GDoubleCollection>();
 
         // Check that both GDoubleCollection objects differ
         CHECK(*gdc_ptr_old != *gdc_ptr_new);
@@ -536,9 +536,9 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
         CHECK(p_test->size() == n_items);
 
         // Create a copy of the first parameter item
-        std::shared_ptr<GDoubleObject> search_ptr;
+        std::shared_ptr<gpar::GDoubleObject> search_ptr;
         Gem::Tests::GTestIndividual1::const_iterator find_cit;
-        CHECK_NOTHROW(search_ptr = p_test->at(0)->clone<GDoubleObject>());
+        CHECK_NOTHROW(search_ptr = p_test->at(0)->clone<gpar::GDoubleObject>());
 
         // Find the first item that complies to a GDoubleObject, initialized with the number 42
         CHECK_NOTHROW(find_cit = p_test->find(search_ptr));
@@ -579,8 +579,8 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
         CHECK(p_test->size() == n_items);
 
         // Create a copy of the first parameter item
-        std::shared_ptr<GDoubleObject> insert_ptr;
-        CHECK_NOTHROW(insert_ptr = p_test->at(0)->clone<GDoubleObject>());
+        std::shared_ptr<gpar::GDoubleObject> insert_ptr;
+        CHECK_NOTHROW(insert_ptr = p_test->at(0)->clone<gpar::GDoubleObject>());
 
         // Assign a fixed value to insert_ptr
         CHECK_NOTHROW(*insert_ptr = 1.);
@@ -589,7 +589,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
         // Insert one item and check the resulting size and value of the first item
         CHECK_NOTHROW(p_test->insert_clone(p_test->begin(), insert_ptr));
         CHECK(p_test->size() == n_items + 1);
-        CHECK(p_test->at<GDoubleObject>(0)->value() == 1.);
+        CHECK(p_test->at<gpar::GDoubleObject>(0)->value() == 1.);
 
         // Find the first item which is identical to insert_ptr -- should be at the beginning
         Gem::Tests::GTestIndividual1::const_iterator find_cit;
@@ -642,7 +642,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
         CHECK(n_identical == 1);
 
         // The identical item should be at the very beginning of the collection
-        CHECK((p_test->at<GDoubleObject>(0)).get() == insert_ptr.get());
+        CHECK((p_test->at<gpar::GDoubleObject>(0)).get() == insert_ptr.get());
 
         // count == 0 must be a no-op for both insert_clone and insert_noclone
         // (regression: insert_noclone previously computed `count - 1` on an
@@ -667,8 +667,8 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
         CHECK(p_test->size() == n_items);
 
         // Create a copy of the first parameter item
-        std::shared_ptr<GDoubleObject> pushback_ptr;
-        CHECK_NOTHROW(pushback_ptr = p_test->at(0)->clone<GDoubleObject>());
+        std::shared_ptr<gpar::GDoubleObject> pushback_ptr;
+        CHECK_NOTHROW(pushback_ptr = p_test->at(0)->clone<gpar::GDoubleObject>());
 
         // Assign a fixed value to pushback_ptr
         CHECK_NOTHROW(*pushback_ptr = 1.);
@@ -697,7 +697,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
         // Check the current size
         CHECK(p_test->size() == n_items);
 
-        std::vector<std::shared_ptr<GParameterBase>> data_copy;
+        std::vector<std::shared_ptr<gpar::GParameterBase>> data_copy;
         CHECK_NOTHROW(p_test->getDataCopy(data_copy));
 
         // Check the size and content
@@ -824,7 +824,7 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests_() {
     const std::size_t n_items = 100;
 
     // Call the parent classes' functions
-    Gem::Geneva::GParameterSet::specificTestsFailuresExpected_GUnitTests_();
+    gpar::GParameterSet::specificTestsFailuresExpected_GUnitTests_();
 
     //------------------------------------------------------------------------------
 
@@ -848,7 +848,7 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests_() {
         CHECK_NOTHROW(p_test->addGDoubleObjects_(n_items));
 
         // Try to count the number of occurrences of an empty smart pointer. Should throw
-        CHECK_THROWS_AS((p_test->count(std::shared_ptr<GDoubleObject>())), geneva_exception);
+        CHECK_THROWS_AS((p_test->count(std::shared_ptr<gpar::GDoubleObject>())), geneva_exception);
     }
 
     //------------------------------------------------------------------------------
@@ -861,7 +861,7 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests_() {
         CHECK_NOTHROW(p_test->addGDoubleObjects_(n_items));
 
         // Try to find an empty smart pointer. Should throw
-        CHECK_THROWS_AS((p_test->find(std::shared_ptr<GDoubleObject>())), geneva_exception);
+        CHECK_THROWS_AS((p_test->find(std::shared_ptr<gpar::GDoubleObject>())), geneva_exception);
     }
 
     //------------------------------------------------------------------------------
@@ -875,7 +875,7 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests_() {
 
         // Try to insert an empty smart pointers. Should throw
         CHECK_THROWS_AS(
-            p_test->insert_noclone(p_test->begin(), std::shared_ptr<GDoubleObject>()),
+            p_test->insert_noclone(p_test->begin(), std::shared_ptr<gpar::GDoubleObject>()),
             geneva_exception
         );
     }
@@ -891,7 +891,7 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests_() {
 
         // Try to insert a number of empty smart pointers. Should throw
         CHECK_THROWS_AS(
-            p_test->insert_noclone(p_test->begin(), 10, std::shared_ptr<GDoubleObject>()),
+            p_test->insert_noclone(p_test->begin(), 10, std::shared_ptr<gpar::GDoubleObject>()),
             geneva_exception
         );
     }
@@ -907,7 +907,7 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests_() {
 
         // Try to insert a number of empty smart pointers. Should throw
         CHECK_THROWS_AS(
-            p_test->insert_clone(p_test->begin(), std::shared_ptr<GDoubleObject>()),
+            p_test->insert_clone(p_test->begin(), std::shared_ptr<gpar::GDoubleObject>()),
             geneva_exception
         );
     }
@@ -923,7 +923,7 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests_() {
 
         // Try to insert a number of empty smart pointers. Should throw
         CHECK_THROWS_AS(
-            p_test->insert_clone(p_test->begin(), 10, std::shared_ptr<GDoubleObject>()),
+            p_test->insert_clone(p_test->begin(), 10, std::shared_ptr<gpar::GDoubleObject>()),
             geneva_exception
         );
     }
@@ -939,7 +939,7 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests_() {
 
         // Try to attach an empty smart pointer Should throw
         CHECK_THROWS_AS(
-            p_test->push_back_clone(std::shared_ptr<GDoubleObject>()),
+            p_test->push_back_clone(std::shared_ptr<gpar::GDoubleObject>()),
             geneva_exception
         );
     }
@@ -955,7 +955,7 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests_() {
 
         // Try to attach an empty smart pointer Should throw
         CHECK_THROWS_AS(
-            p_test->push_back_noclone(std::shared_ptr<GDoubleObject>()),
+            p_test->push_back_noclone(std::shared_ptr<gpar::GDoubleObject>()),
             geneva_exception
         );
     }
@@ -986,7 +986,7 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests_() {
 
         // Try to resize an empty collection
         CHECK_THROWS_AS(
-            p_test->resize_noclone(10, std::shared_ptr<GDoubleObject>()),
+            p_test->resize_noclone(10, std::shared_ptr<gpar::GDoubleObject>()),
             geneva_exception
         );
     }
@@ -1003,7 +1003,7 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests_() {
 
         // Try to resize an empty collection
         CHECK_THROWS_AS(
-            p_test->resize_clone(10, std::shared_ptr<GDoubleObject>()),
+            p_test->resize_clone(10, std::shared_ptr<gpar::GDoubleObject>()),
             geneva_exception
         );
     }

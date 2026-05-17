@@ -31,9 +31,9 @@
 
 /******************************************************************************/
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Courtier::GBrokerExecutorT<Gem::Geneva::GParameterSet>) // NOLINT
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Courtier::GSerialExecutorT<Gem::Geneva::GParameterSet>) // NOLINT
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Courtier::GMTExecutorT<Gem::Geneva::GParameterSet>)     // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Courtier::GBrokerExecutorT<gpar::GParameterSet>) // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Courtier::GSerialExecutorT<gpar::GParameterSet>) // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Courtier::GMTExecutorT<gpar::GParameterSet>)     // NOLINT
 
 /******************************************************************************/
 
@@ -188,7 +188,7 @@ void GBasePluggableOM::specificTestsFailuresExpected_GUnitTests_() {
  */
 GBase::GBase(const GBase &cp)
   : GObject(cp)
-  , Gem::Common::GPtrContainerT<GParameterSet>(cp)
+  , Gem::Common::GPtrContainerT<gpar::GParameterSet>(cp)
   , iteration_(cp.iteration_)
   , offset_(DEFAULTOFFSET)
   , minIteration_(cp.minIteration_)
@@ -606,7 +606,7 @@ void GBase::resetToOptimizationStart_() {
  * @param executor_config_file The name of a file used to configure the executor
  */
 void GBase::registerExecutor(
-    std::shared_ptr<Gem::Courtier::GBaseExecutorT<GParameterSet>> executor_ptr,
+    std::shared_ptr<Gem::Courtier::GBaseExecutorT<gpar::GParameterSet>> executor_ptr,
     std::filesystem::path const &executor_config_file
 ) {
     if(not executor_ptr) {
@@ -1429,7 +1429,7 @@ void GBase::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
 	 * and may either have a limited or unlimited size, depending on user-settings
 	 */
 void GBase::updateGlobalBestsPQ_(
-    GParameterSetFixedSizePriorityQueue &best_individuals
+    gpar::GParameterSetFixedSizePriorityQueue &best_individuals
 ) {
     const bool clone = true;
     const bool donotreplace = false;
@@ -1459,7 +1459,7 @@ void GBase::updateGlobalBestsPQ_(
 	 * settings
 	 */
 void GBase::updateIterationBestsPQ_(
-    GParameterSetFixedSizePriorityQueue &best_individuals
+    gpar::GParameterSetFixedSizePriorityQueue &best_individuals
 ) {
     const bool clone = true;
     const bool replace = true;
@@ -1488,7 +1488,7 @@ void GBase::updateIterationBestsPQ_(
 	 * "dirty flag" set.
 	 */
 void GBase::addCleanStoredBests(
-    GParameterSetFixedSizePriorityQueue &best_individuals
+    gpar::GParameterSetFixedSizePriorityQueue &best_individuals
 ) {
     const bool clone = true;
 
@@ -1549,7 +1549,7 @@ void GBase::load_(const GObject *cp) {
 
     // Load the parent class'es data
     GObject::load_(cp);
-    Gem::Common::GPtrContainerT<GParameterSet>::operator=(*p_load);
+    Gem::Common::GPtrContainerT<gpar::GParameterSet>::operator=(*p_load);
 
     // and then our local data
     iteration_ = p_load->iteration_;
@@ -1603,7 +1603,7 @@ void GBase::load_(const GObject *cp) {
 	 * @return A struct which indicates whether all items have returned ("is_complete") and whether there were errors ("has_errors")
 	 */
 Gem::Courtier::executor_status_t GBase::workOn(
-    std::vector<std::shared_ptr<GParameterSet>> &work_items,
+    std::vector<std::shared_ptr<gpar::GParameterSet>> &work_items,
     bool resubmit_unprocessed,
     const std::string &caller
 ) {
@@ -1619,7 +1619,7 @@ Gem::Courtier::executor_status_t GBase::workOn(
 /**
  * Retrieves a vector of old work items after job submission
  */
-std::vector<std::shared_ptr<GParameterSet>> GBase::getOldWorkItems() {
+std::vector<std::shared_ptr<gpar::GParameterSet>> GBase::getOldWorkItems() {
     return executor_ptr_->getOldWorkItems();
 }
 
@@ -1665,8 +1665,8 @@ GBase::extractOptAlgFromPath(const std::filesystem::path &p) const {
  * Retrieves the best individual found up to now (which is usually the best individual
  * in the priority queue).
  */
-std::shared_ptr<GParameterSet> GBase::getBestGlobalIndividual_() const {
-    std::shared_ptr<GParameterSet> p = bestGlobalIndividuals_pq_.best();
+std::shared_ptr<gpar::GParameterSet> GBase::getBestGlobalIndividual_() const {
+    std::shared_ptr<gpar::GParameterSet> p = bestGlobalIndividuals_pq_.best();
 #ifdef DEBUG
     if(!p) {
         throw geneva_exception(
@@ -1677,7 +1677,7 @@ std::shared_ptr<GParameterSet> GBase::getBestGlobalIndividual_() const {
     }
 #endif
     // Always clone: callers must not alias the internal priority-queue entry.
-    return p->clone<GParameterSet>();
+    return p->clone<gpar::GParameterSet>();
 }
 
 /******************************************************************************/
@@ -1685,12 +1685,12 @@ std::shared_ptr<GParameterSet> GBase::getBestGlobalIndividual_() const {
  * Retrieves a list of the best individuals found (equal to the content of
  * the priority queue)
  */
-std::vector<std::shared_ptr<GParameterSet>>
+std::vector<std::shared_ptr<gpar::GParameterSet>>
 GBase::getBestGlobalIndividuals_() const {
-    std::vector<std::shared_ptr<GParameterSet>> best_individuals_vec;
+    std::vector<std::shared_ptr<gpar::GParameterSet>> best_individuals_vec;
 
     for(const auto &ind_ptr : bestGlobalIndividuals_pq_.toVector()) {
-        best_individuals_vec.push_back(ind_ptr->clone<GParameterSet>());
+        best_individuals_vec.push_back(ind_ptr->clone<gpar::GParameterSet>());
     }
 
     return best_individuals_vec;
@@ -1701,8 +1701,8 @@ GBase::getBestGlobalIndividuals_() const {
  * Retrieves the best individual found in the iteration (which is the best individual
  * in the priority queue).
  */
-std::shared_ptr<GParameterSet> GBase::getBestIterationIndividual_() const {
-    std::shared_ptr<GParameterSet> p = bestIterationIndividuals_pq_.best();
+std::shared_ptr<gpar::GParameterSet> GBase::getBestIterationIndividual_() const {
+    std::shared_ptr<gpar::GParameterSet> p = bestIterationIndividuals_pq_.best();
 #ifdef DEBUG
     if(!p) {
         throw geneva_exception(
@@ -1714,7 +1714,7 @@ std::shared_ptr<GParameterSet> GBase::getBestIterationIndividual_() const {
     }
 #endif
     // Always clone: callers must not alias the internal priority-queue entry.
-    return p->clone<GParameterSet>();
+    return p->clone<gpar::GParameterSet>();
 }
 
 /******************************************************************************/
@@ -1722,7 +1722,7 @@ std::shared_ptr<GParameterSet> GBase::getBestIterationIndividual_() const {
  * Retrieves a list of the best individuals found in the iteration (equal to the content of
  * the priority queue)
  */
-std::vector<std::shared_ptr<GParameterSet>>
+std::vector<std::shared_ptr<gpar::GParameterSet>>
 GBase::getBestIterationIndividuals_() const {
     return bestIterationIndividuals_pq_.toVector();
 }
@@ -2239,26 +2239,26 @@ bool GBase::stallCounterThresholdExceeded() const {
 /**
  * Retrieves an executor for the given execution mode
  */
-std::shared_ptr<Gem::Courtier::GBaseExecutorT<GParameterSet>>
+std::shared_ptr<Gem::Courtier::GBaseExecutorT<gpar::GParameterSet>>
 GBase::createExecutor(const execMode &e) {
-    std::shared_ptr<Gem::Courtier::GBaseExecutorT<GParameterSet>> executor_ptr;
+    std::shared_ptr<Gem::Courtier::GBaseExecutorT<gpar::GParameterSet>> executor_ptr;
 
     switch(e) {
     case execMode::SERIAL:
         glogger << "Creating GSerialExecutorT" << '\n' << GLOGGING;
-        executor_ptr = std::make_shared<Gem::Courtier::GSerialExecutorT<GParameterSet>>();
+        executor_ptr = std::make_shared<Gem::Courtier::GSerialExecutorT<gpar::GParameterSet>>();
         break;
 
     case execMode::MULTITHREADED:
         glogger << "Creating GMTExecutorT" << '\n' << GLOGGING;
-        executor_ptr = std::make_shared<Gem::Courtier::GMTExecutorT<GParameterSet>>(
+        executor_ptr = std::make_shared<Gem::Courtier::GMTExecutorT<gpar::GParameterSet>>(
             Gem::Courtier::DEFAULTNSTDTHREADS
         );
         break;
 
     case execMode::BROKER:
         glogger << "Creating GBrokerExecutorT" << '\n' << GLOGGING;
-        executor_ptr = std::make_shared<Gem::Courtier::GBrokerExecutorT<GParameterSet>>();
+        executor_ptr = std::make_shared<Gem::Courtier::GBrokerExecutorT<gpar::GParameterSet>>();
         break;
     }
 
@@ -2279,7 +2279,7 @@ bool GBase::modify_GUnitTests_() {
     if(GObject::modify_GUnitTests_()) {
         result = true;
     }
-    if(Gem::Common::GPtrContainerT<GParameterSet>::modify_GUnitTests_()) {
+    if(Gem::Common::GPtrContainerT<gpar::GParameterSet>::modify_GUnitTests_()) {
         result = true;
     }
 
@@ -2310,7 +2310,7 @@ void GBase::specificTestsNoFailureExpected_GUnitTests_() {
 
     // Call the parent classes' functions
     GObject::specificTestsNoFailureExpected_GUnitTests_();
-    Gem::Common::GPtrContainerT<GParameterSet>::specificTestsNoFailureExpected_GUnitTests_();
+    Gem::Common::GPtrContainerT<gpar::GParameterSet>::specificTestsNoFailureExpected_GUnitTests_();
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
     Gem::Common::condnotset(
@@ -2329,7 +2329,7 @@ void GBase::specificTestsFailuresExpected_GUnitTests_() {
 
     // Call the parent classes' functions
     GObject::specificTestsFailuresExpected_GUnitTests_();
-    Gem::Common::GPtrContainerT<GParameterSet>::specificTestsFailuresExpected_GUnitTests_();
+    Gem::Common::GPtrContainerT<gpar::GParameterSet>::specificTestsFailuresExpected_GUnitTests_();
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
     Gem::Common::condnotset(

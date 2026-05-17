@@ -27,9 +27,9 @@
  *
  ********************************************************************************/
 
-#include "geneva/GAdaptorT.hpp"
+#include "geneva/par/GAdaptorT.hpp"
 
-namespace Gem::Geneva {
+namespace Gem::Geneva::Parameters {
 
 /******************************************************************************/
 /**
@@ -101,4 +101,4 @@ std::size_t GAdaptorT<bool, double>::adapt(
 
 /******************************************************************************/
 
-} /* namespace Gem::Geneva */
+} /* namespace Gem::Geneva::Parameters */

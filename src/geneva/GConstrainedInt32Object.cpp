@@ -27,10 +27,10 @@
  *
  ********************************************************************************/
 
-#include "geneva/GConstrainedInt32Object.hpp"
+#include "geneva/par/GConstrainedInt32Object.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GConstrainedInt32Object) // NOLINT
-namespace Gem::Geneva {
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Parameters::GConstrainedInt32Object) // NOLINT
+namespace Gem::Geneva::Parameters {
 
 /******************************************************************************/
 /**
@@ -453,4 +453,4 @@ void GConstrainedInt32Object::specificTestsFailuresExpected_GUnitTests_() {
 
 /******************************************************************************/
 
-} /* namespace Gem::Geneva */
+} /* namespace Gem::Geneva::Parameters */

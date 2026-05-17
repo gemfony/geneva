@@ -50,9 +50,9 @@ GLineFitIndividual::GLineFitIndividual(const std::vector<std::tuple<double, doub
     using namespace Gem::Geneva;
 
     for(std::size_t i = 0; i < 2; i++) {
-        std::shared_ptr<GDoubleObject> gdo_ptr(new GDoubleObject());
-        std::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(
-            new GDoubleGaussAdaptor(0.025, 0.1, 0.0001, 0.4, 1.)
+        std::shared_ptr<gpar::GDoubleObject> gdo_ptr(new gpar::GDoubleObject());
+        std::shared_ptr<gpar::GDoubleGaussAdaptor> gdga_ptr(
+            new gpar::GDoubleGaussAdaptor(0.025, 0.1, 0.0001, 0.4, 1.)
         ); // sigma, sigma_sigma, min_sigma, max_sigma, ad_prob
         gdo_ptr->addAdaptor(gdga_ptr);
         this->push_back(gdo_ptr);
@@ -66,7 +66,7 @@ GLineFitIndividual::GLineFitIndividual(const std::vector<std::tuple<double, doub
  * @param cp A constant reference to another GLineFitIndividual object
  */
 GLineFitIndividual::GLineFitIndividual(const GLineFitIndividual &cp)
-  : Gem::Geneva::GParameterSet(cp)
+  : gpar::GParameterSet(cp)
   , dataPoints_(cp.dataPoints_) { /* nothing */
 }
 
@@ -100,7 +100,7 @@ void GLineFitIndividual::compare_(
     GToken token("GLineFitIndividual", e);
 
     // Compare our parent data ...
-    Gem::Common::compare_base_t<GParameterSet>(*this, *p_load, token);
+    Gem::Common::compare_base_t<gpar::GParameterSet>(*this, *p_load, token);
 
     // ... and then the local data
     compare_t(IDENTITY(dataPoints_, p_load->dataPoints_), token);
@@ -134,7 +134,7 @@ void GLineFitIndividual::load_(const GObject *cp) {
         Gem::Common::g_convert_and_compare<GObject, GLineFitIndividual>(cp, this);
 
     // Load our parent's data
-    GParameterSet::load_(cp);
+    gpar::GParameterSet::load_(cp);
 
     // and then our local data
     dataPoints_ = p_load->dataPoints_;
@@ -190,7 +190,7 @@ bool GLineFitIndividual::modify_GUnitTests_() {
     bool result = false;
 
     // Call the parent classes' functions
-    if(Gem::Geneva::GParameterSet::modify_GUnitTests_()) {
+    if(gpar::GParameterSet::modify_GUnitTests_()) {
         result = true;
     }
 
@@ -213,7 +213,7 @@ void GLineFitIndividual::specificTestsNoFailureExpected_GUnitTests_() {
     using namespace Gem::Geneva;
 
     // Call the parent classes' functions
-    Gem::Geneva::GParameterSet::specificTestsNoFailureExpected_GUnitTests_();
+    gpar::GParameterSet::specificTestsNoFailureExpected_GUnitTests_();
 
     //------------------------------------------------------------------------------
     //------------------------------------------------------------------------------
@@ -234,7 +234,7 @@ void GLineFitIndividual::specificTestsFailuresExpected_GUnitTests_() {
     using namespace Gem::Geneva;
 
     // Call the parent classes' functions
-    Gem::Geneva::GParameterSet::specificTestsFailuresExpected_GUnitTests_();
+    gpar::GParameterSet::specificTestsFailuresExpected_GUnitTests_();
 
     //------------------------------------------------------------------------------
     //------------------------------------------------------------------------------
@@ -258,7 +258,7 @@ GLineFitIndividualFactory::GLineFitIndividualFactory(
     const std::vector<std::tuple<double, double>> &data_points,
     std::filesystem::path const &config_file
 )
-  : Gem::Common::GFactoryT<GParameterSet>(config_file)
+  : Gem::Common::GFactoryT<gpar::GParameterSet>(config_file)
   , dataPoints_(data_points) { /* nothing */
 }
 
@@ -275,7 +275,7 @@ GLineFitIndividualFactory::~GLineFitIndividualFactory() { /* nothing */
  *
  * @return Items of the desired type
  */
-std::shared_ptr<GParameterSet> GLineFitIndividualFactory::getObject_(
+std::shared_ptr<gpar::GParameterSet> GLineFitIndividualFactory::getObject_(
     Gem::Common::GParserBuilder &gpb,
     const std::size_t & /*id*/
 ) {
@@ -303,7 +303,7 @@ void GLineFitIndividualFactory::describeLocalOptions_(
     // No local options
 
     // Allow our parent class to describe its options
-    Gem::Common::GFactoryT<GParameterSet>::describeLocalOptions_(gpb);
+    Gem::Common::GFactoryT<gpar::GParameterSet>::describeLocalOptions_(gpb);
 }
 
 /******************************************************************************/
@@ -315,10 +315,10 @@ void GLineFitIndividualFactory::describeLocalOptions_(
  *
  * @param p A smart-pointer to be acted on during post-processing
  */
-void GLineFitIndividualFactory::postProcess_(std::shared_ptr<GParameterSet> &p_base) {
+void GLineFitIndividualFactory::postProcess_(std::shared_ptr<gpar::GParameterSet> &p_base) {
     // Convert the base pointer to our local type
     std::shared_ptr<GLineFitIndividual> p =
-        Gem::Common::convertSmartPointer<GParameterSet, GLineFitIndividual>(p_base);
+        Gem::Common::convertSmartPointer<gpar::GParameterSet, GLineFitIndividual>(p_base);
 
     // Nothing to be done here
 }

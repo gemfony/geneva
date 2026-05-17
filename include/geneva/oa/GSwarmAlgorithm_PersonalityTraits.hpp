@@ -37,7 +37,7 @@
 // Boost headers go here
 
 // Geneva headers go here
-#include "geneva/GParameterSet.hpp"
+#include "geneva/par/GParameterSet.hpp"
 #include "geneva/GPersonalityTraits.hpp"
 #include "geneva/GenevaHelperFunctionsT.hpp"
 
@@ -88,9 +88,9 @@ public:
     bool checkNoPositionUpdateAndReset();
 
     /** @brief Allows to add a new personal best to the individual */
-    void registerPersonalBest(std::shared_ptr<GParameterSet>);
+    void registerPersonalBest(std::shared_ptr<gpar::GParameterSet>);
     /** @brief Allows to retrieve the personal best individual */
-    std::shared_ptr<GParameterSet> getPersonalBest() const;
+    std::shared_ptr<gpar::GParameterSet> getPersonalBest() const;
     /** @brief Resets the personal best individual */
     void resetPersonalBest();
     /** @brief Retrieve quality of personally best individual */
@@ -144,7 +144,7 @@ private:
     bool noPositionUpdate_ = false;
 
     /** @brief Holds the personally best GParameterSet */
-    std::shared_ptr<GParameterSet> personal_best_;
+    std::shared_ptr<gpar::GParameterSet> personal_best_;
     /** @brief The quality of the personally best individual */
     std::tuple<double, double> personal_best_quality_{0., 0.};
 };
