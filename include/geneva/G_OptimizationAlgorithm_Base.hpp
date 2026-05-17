@@ -53,7 +53,7 @@
 #include "geneva/GParameterSet.hpp"
 #include "geneva/GParameterSetFixedSizePriorityQueue.hpp"
 #include "geneva/GPersonalityTraits.hpp"
-#include "geneva/G_Interface_OptimizerT.hpp"
+#include "geneva/OptimizerIT.hpp"
 #include "geneva/GenevaHelperFunctions.hpp"
 
 namespace Gem::Geneva {
@@ -165,7 +165,7 @@ private:
 class G_OptimizationAlgorithm_Base // NOLINT(cppcoreguidelines-special-member-functions)
   : public GObject
   , public Gem::Common::GPtrContainerT<GParameterSet>
-  , public G_Interface_OptimizerT<G_OptimizationAlgorithm_Base> {
+  , public Interface::OptimizerIT<G_OptimizationAlgorithm_Base> {
 private:
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;

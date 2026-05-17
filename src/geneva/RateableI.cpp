@@ -27,15 +27,15 @@
  *
  ********************************************************************************/
 
-#include "geneva/G_Interface_Rateable.hpp"
+#include "geneva/RateableI.hpp"
 
-namespace Gem::Geneva {
+namespace Gem::Geneva::Interface {
 
 /******************************************************************************/
 /**
  * Retrieves the stored raw fitness with a given id
  */
-double G_Interface_Rateable::raw_fitness(std::size_t pos) const {
+double RateableI::raw_fitness(std::size_t pos) const {
     return raw_fitness_(pos);
 }
 
@@ -43,7 +43,7 @@ double G_Interface_Rateable::raw_fitness(std::size_t pos) const {
 /**
  * Retrieves the stored transformed fitness with a given id
  */
-double G_Interface_Rateable::transformed_fitness(std::size_t pos) const {
+double RateableI::transformed_fitness(std::size_t pos) const {
     return transformed_fitness_(pos);
 }
 
@@ -51,7 +51,7 @@ double G_Interface_Rateable::transformed_fitness(std::size_t pos) const {
 /**
  * Returns all raw fitness results in a std::vector
  */
-std::vector<double> G_Interface_Rateable::raw_fitness_vec() const {
+std::vector<double> RateableI::raw_fitness_vec() const {
     return raw_fitness_vec_();
 }
 
@@ -59,10 +59,10 @@ std::vector<double> G_Interface_Rateable::raw_fitness_vec() const {
 /**
  * Returns all transformed fitness results in a std::vector
  */
-std::vector<double> G_Interface_Rateable::transformed_fitness_vec() const {
+std::vector<double> RateableI::transformed_fitness_vec() const {
     return transformed_fitness_vec_();
 }
 
 /******************************************************************************/
 
-} /* namespace Gem::Geneva */
+} /* namespace Gem::Geneva::Interface */

@@ -45,7 +45,7 @@
 #include "geneva/G_OptimizationAlgorithm_FactoryT.hpp"
 #include "geneva/G_OptimizationAlgorithm_InitializerT.hpp"
 
-namespace Gem::Geneva {
+namespace Gem::Geneva::OptimizationAlgorithms {
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -91,4 +91,4 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-} /* namespace Gem::Geneva */
+} /* namespace Gem::Geneva::OptimizationAlgorithms */

@@ -52,7 +52,7 @@
 #include "geneva/G_OptimizationAlgorithm_ParameterScan_PersonalityTraits.hpp"
 #include "hap/GRandomT.hpp"
 
-namespace Gem::Geneva {
+namespace Gem::Geneva::OptimizationAlgorithms {
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -788,10 +788,19 @@ private:
     /***************************************************************************/
 };
 
-} /* namespace Gem::Geneva */
+} /* namespace Gem::Geneva::OptimizationAlgorithms */
 
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::bScanPar)       // NOLINT
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::int32ScanPar)   // NOLINT
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::dScanPar)       // NOLINT
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::fScanPar)       // NOLINT
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GParameterScan) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::OptimizationAlgorithms::bScanPar)       // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::OptimizationAlgorithms::int32ScanPar)   // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::OptimizationAlgorithms::dScanPar)       // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::OptimizationAlgorithms::fScanPar)       // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::OptimizationAlgorithms::GParameterScan) // NOLINT
+
+// Phase-2 compile shim — removed in NS Phase 3 (reference migration).
+namespace Gem::Geneva {
+using OptimizationAlgorithms::bScanPar;
+using OptimizationAlgorithms::dScanPar;
+using OptimizationAlgorithms::fScanPar;
+using OptimizationAlgorithms::GParameterScan;
+using OptimizationAlgorithms::int32ScanPar;
+} // namespace Gem::Geneva

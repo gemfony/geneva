@@ -29,7 +29,7 @@
 
 #include "geneva/G_OptimizationAlgorithm_ParameterScan_Factory.hpp"
 
-namespace Gem::Geneva {
+namespace Gem::Geneva::OptimizationAlgorithms {
 
 /******************************************************************************/
 /**
@@ -169,4 +169,4 @@ void GParameterScanFactory::postProcess_(std::shared_ptr<G_OptimizationAlgorithm
 
 /******************************************************************************/
 
-} /* namespace Gem::Geneva */
+} /* namespace Gem::Geneva::OptimizationAlgorithms */

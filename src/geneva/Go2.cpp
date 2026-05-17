@@ -70,13 +70,13 @@ Go2::Go2(
     //--------------------------------------------
     // Initialize Geneva as well as the known optimization algorithms
 
-    gi_.registerOAF<GEvolutionaryAlgorithmFactory>();
-    gi_.registerOAF<GSwarmAlgorithmFactory>();
-    gi_.registerOAF<GGradientDescentFactory>();
-    gi_.registerOAF<GConjugateGradientDescentFactory>();
-    gi_.registerOAF<GNelderMeadFactory>();
-    gi_.registerOAF<GSimulatedAnnealingFactory>();
-    gi_.registerOAF<GParameterScanFactory>();
+    gi_.registerOAF<OptimizationAlgorithms::GEvolutionaryAlgorithmFactory>();
+    gi_.registerOAF<OptimizationAlgorithms::GSwarmAlgorithmFactory>();
+    gi_.registerOAF<OptimizationAlgorithms::GGradientDescentFactory>();
+    gi_.registerOAF<OptimizationAlgorithms::GConjugateGradientDescentFactory>();
+    gi_.registerOAF<OptimizationAlgorithms::GNelderMeadFactory>();
+    gi_.registerOAF<OptimizationAlgorithms::GSimulatedAnnealingFactory>();
+    gi_.registerOAF<OptimizationAlgorithms::GParameterScanFactory>();
 
     gi_.registerConsumer<GIndividualWebsocketConsumer>();
     gi_.registerConsumer<GIndividualAsioConsumer>();

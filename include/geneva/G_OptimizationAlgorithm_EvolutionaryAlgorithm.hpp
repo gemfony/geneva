@@ -53,7 +53,7 @@
 
 #endif /* GEM_TESTING */
 
-namespace Gem::Geneva {
+namespace Gem::Geneva::OptimizationAlgorithms {
 /**
      * The default sorting mode
      */
@@ -232,6 +232,11 @@ std::ostream &operator<<(std::ostream &os, const GEvolutionaryAlgorithm &pop);
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
-} /* namespace Gem::Geneva */
+} /* namespace Gem::Geneva::OptimizationAlgorithms */
 
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GEvolutionaryAlgorithm) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::OptimizationAlgorithms::GEvolutionaryAlgorithm) // NOLINT
+
+// Phase-2 compile shim — removed in NS Phase 3 (reference migration).
+namespace Gem::Geneva {
+using OptimizationAlgorithms::GEvolutionaryAlgorithm;
+} // namespace Gem::Geneva

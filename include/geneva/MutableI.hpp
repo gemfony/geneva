@@ -40,13 +40,13 @@
 
 // Geneva header files go here
 
-namespace Gem::Geneva {
+namespace Gem::Geneva::Interface {
 
 /******************************************************************************/
 /**
  * This is a interface class for mutable objects, in particular individuals
  */
-class G_Interface_Mutable {
+class MutableI {
 public:
     /** @brief Allows derivatives to be adapted */
     virtual std::size_t adapt() = 0;
@@ -55,22 +55,22 @@ protected:
     /**************************************************************************/
     // Defaulted constructors / destructors / assignment operators / rule of five
 
-    G_Interface_Mutable() = default;
-    G_Interface_Mutable(G_Interface_Mutable const &) = default;
-    G_Interface_Mutable(G_Interface_Mutable &&) = default;
+    MutableI() = default;
+    MutableI(MutableI const &) = default;
+    MutableI(MutableI &&) = default;
 
     /**
       * The destructor. Making this function protected and non-virtual follows
       * this discussion: http://www.gotw.ca/publications/mill18.htm
       */
-    ~G_Interface_Mutable() = default;
+    ~MutableI() = default;
 
-    G_Interface_Mutable &operator=(G_Interface_Mutable const &) = default;
-    G_Interface_Mutable &operator=(G_Interface_Mutable &&) = default;
+    MutableI &operator=(MutableI const &) = default;
+    MutableI &operator=(MutableI &&) = default;
 
     /**************************************************************************/
 };
 
-} /* namespace Gem::Geneva */
+} /* namespace Gem::Geneva::Interface */
 
 /******************************************************************************/

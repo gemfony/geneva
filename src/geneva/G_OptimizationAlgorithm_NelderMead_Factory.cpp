@@ -29,7 +29,7 @@
 
 #include "geneva/G_OptimizationAlgorithm_NelderMead_Factory.hpp"
 
-namespace Gem::Geneva {
+namespace Gem::Geneva::OptimizationAlgorithms {
 
 /******************************************************************************/
 /**
@@ -111,4 +111,4 @@ void GNelderMeadFactory::postProcess_(std::shared_ptr<G_OptimizationAlgorithm_Ba
 
 /******************************************************************************/
 
-} /* namespace Gem::Geneva */
+} /* namespace Gem::Geneva::OptimizationAlgorithms */

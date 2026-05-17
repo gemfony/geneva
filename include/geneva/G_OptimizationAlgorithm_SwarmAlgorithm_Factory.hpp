@@ -45,7 +45,7 @@
 #include "geneva/G_OptimizationAlgorithm_InitializerT.hpp"
 #include "geneva/G_OptimizationAlgorithm_SwarmAlgorithm.hpp"
 
-namespace Gem::Geneva {
+namespace Gem::Geneva::OptimizationAlgorithms {
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -90,4 +90,9 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-} /* namespace Gem::Geneva */
+} /* namespace Gem::Geneva::OptimizationAlgorithms */
+
+// Phase-2 compile shim — removed in NS Phase 3 (reference migration).
+namespace Gem::Geneva {
+using OptimizationAlgorithms::GSwarmAlgorithmFactory;
+} // namespace Gem::Geneva

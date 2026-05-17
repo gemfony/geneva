@@ -29,7 +29,7 @@
 
 #include "geneva/G_OptimizationAlgorithm_GradientDescent_Factory.hpp"
 
-namespace Gem::Geneva {
+namespace Gem::Geneva::OptimizationAlgorithms {
 
 /******************************************************************************/
 /**
@@ -112,4 +112,4 @@ void GGradientDescentFactory::postProcess_(std::shared_ptr<G_OptimizationAlgorit
 
 /******************************************************************************/
 
-} /* namespace Gem::Geneva */
+} /* namespace Gem::Geneva::OptimizationAlgorithms */

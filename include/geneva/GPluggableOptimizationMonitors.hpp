@@ -851,7 +851,7 @@ private:
 
             if(monitorBestOnly_) { // Monitor the best individuals only
                 std::shared_ptr<GParameterSet> p =
-                    goa->G_Interface_OptimizerT::template getBestGlobalIndividual<GParameterSet>();
+                    goa->Interface::OptimizerIT<G_OptimizationAlgorithm_Base>::template getBestGlobalIndividual<GParameterSet>();
                 if(GBasePluggableOM::useRawEvaluation_) {
                     primary_fitness = p->raw_fitness(0);
                 }
@@ -1883,7 +1883,7 @@ private:
 
             // Record the current fitness
             std::shared_ptr<GParameterSet> p =
-                goa->G_Interface_OptimizerT::template getBestGlobalIndividual<GParameterSet>();
+                goa->Interface::OptimizerIT<G_OptimizationAlgorithm_Base>::template getBestGlobalIndividual<GParameterSet>();
             (*fitnessGraph2D_oa_) &
                 std::tuple<double, double>(static_cast<double>(iteration), p->raw_fitness(0));
 
@@ -1897,7 +1897,7 @@ private:
             // Do the actual logging
             if(monitorBestOnly_) {
                 std::shared_ptr<GParameterSet> best =
-                    goa->G_Interface_OptimizerT::template getBestGlobalIndividual<GParameterSet>();
+                    goa->Interface::OptimizerIT<G_OptimizationAlgorithm_Base>::template getBestGlobalIndividual<GParameterSet>();
 
                 // Retrieve the adaptor data (e.g. the sigma of a GDoubleGaussAdaptor
                 best->queryAdaptor(adaptorName_, property_, data);
