@@ -89,7 +89,7 @@ public:
         if(!result) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In G_Interface_OptimizerT<>::getBestGlobalIndividual(): Error!" << '\n'
+                << "In GOptimizerIT<>::getBestGlobalIndividual(): Error!" << '\n'
                 << "dynamic_pointer_cast to requested individual_type failed." << '\n'
             );
         }
@@ -117,7 +117,7 @@ public:
         if(best_base_individuals.empty()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In G_Interface_OptimizerT<optimizer_type>::getBestGlobalIndividuals(): Error!"
+                << "In GOptimizerIT<optimizer_type>::getBestGlobalIndividuals(): Error!"
                 << '\n'
                 << "Received empty collection of best individuals." << '\n'
             );
@@ -128,7 +128,7 @@ public:
             if(!cast_ptr) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
-                    << "In G_Interface_OptimizerT<>::getBestGlobalIndividuals(): Error!" << '\n'
+                    << "In GOptimizerIT<>::getBestGlobalIndividuals(): Error!" << '\n'
                     << "dynamic_pointer_cast to requested individual_type failed." << '\n'
                 );
             }
@@ -156,7 +156,7 @@ public:
         if(!result) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In G_Interface_OptimizerT<>::getBestIterationIndividual(): Error!" << '\n'
+                << "In GOptimizerIT<>::getBestIterationIndividual(): Error!" << '\n'
                 << "dynamic_pointer_cast to requested individual_type failed." << '\n'
             );
         }
@@ -184,7 +184,7 @@ public:
         if(best_base_individuals.empty()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
-                << "In G_Interface_OptimizerT<optimizer_type>::getBestIterationIndividuals(): "
+                << "In GOptimizerIT<optimizer_type>::getBestIterationIndividuals(): "
                    "Error!"
                 << '\n'
                 << "Received empty collection of best individuals." << '\n'
@@ -196,7 +196,7 @@ public:
             if(!cast_ptr) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
-                    << "In G_Interface_OptimizerT<>::getBestIterationIndividuals(): Error!" << '\n'
+                    << "In GOptimizerIT<>::getBestIterationIndividuals(): Error!" << '\n'
                     << "clone<individual_type>() returned null." << '\n'
                 );
             }

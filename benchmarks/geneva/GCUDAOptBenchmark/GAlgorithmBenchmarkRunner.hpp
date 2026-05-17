@@ -47,11 +47,11 @@
 #include "courtier/GBrokerT.hpp"
 #include "geneva/GenevaInitializer.hpp"
 #include "geneva/GParameterSet.hpp"
-#include "geneva/G_OptimizationAlgorithm_Base.hpp"
-#include "geneva/G_OptimizationAlgorithm_EvolutionaryAlgorithm_Factory.hpp"
-#include "geneva/G_OptimizationAlgorithm_GradientDescent_Factory.hpp"
-#include "geneva/G_OptimizationAlgorithm_SimulatedAnnealing_Factory.hpp"
-#include "geneva/G_OptimizationAlgorithm_SwarmAlgorithm_Factory.hpp"
+#include "geneva/GBase.hpp"
+#include "geneva/EvolutionaryAlgorithm_Factory.hpp"
+#include "geneva/GradientDescent_Factory.hpp"
+#include "geneva/SimulatedAnnealing_Factory.hpp"
+#include "geneva/SwarmAlgorithm_Factory.hpp"
 #include "geneva-individuals/GFunctionIndividual.hpp"
 
 // Local headers
@@ -91,14 +91,14 @@ struct BenchmarkConfig {
  * Registered per optimization run via algorithm->registerPluggableOM().
  * At INFOEND, extracts the algorithm's final state into public members.
  */
-class GBenchmarkTerminationMonitor final : public GBasePluggableOM {
+class GBenchmarkTerminationMonitor final : public oa::GBasePluggableOM {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBasePluggableOM);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(oa::GBasePluggableOM);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -117,7 +117,7 @@ protected:
     void load_(const GObject *cp) override {
         const auto *p = dynamic_cast<const GBenchmarkTerminationMonitor *>(cp);
         if (!p) throw std::bad_cast{};
-        GBasePluggableOM::load_(cp);
+        oa::GBasePluggableOM::load_(cp);
         finalFitness      = p->finalFitness;
         finalIteration    = p->finalIteration;
         terminationReason = p->terminationReason;
@@ -131,7 +131,7 @@ private:
 
     void informationFunction_(
         infoMode mode,
-        G_OptimizationAlgorithm_Base const *const goa
+        oa::GBase const *const goa
     ) override {
         if (mode != infoMode::INFOEND) return;
 
@@ -192,7 +192,7 @@ private:
         const std::shared_ptr<GFunctionIndividualFactory> &indFactory
     );
 
-    std::shared_ptr<G_OptimizationAlgorithm_Base>
+    std::shared_ptr<oa::GBase>
     makeAlgorithm(const AlgorithmEntry &entry) const;
 
     static GAlgorithmBenchmarkResult aggregate(

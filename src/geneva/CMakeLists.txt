@@ -55,30 +55,30 @@ SET ( OPTIMIZATIONSOURCES
 	GInt32Object.cpp
 	GInt32ObjectCollection.cpp
 	Go2.cpp
-    G_OptimizationAlgorithm_Base.cpp
-    G_OptimizationAlgorithm_ConjugateGradientDescent.cpp
-    G_OptimizationAlgorithm_ConjugateGradientDescent_Factory.cpp
-    G_OptimizationAlgorithm_ConjugateGradientDescent_PersonalityTraits.cpp
-    G_OptimizationAlgorithm_EvolutionaryAlgorithm.cpp
-    G_OptimizationAlgorithm_EvolutionaryAlgorithm_Factory.cpp
-    G_OptimizationAlgorithm_EvolutionaryAlgorithm_PersonalityTraits.cpp
-    G_OptimizationAlgorithm_GradientDescent.cpp
-    G_OptimizationAlgorithm_GradientDescent_Factory.cpp
-    G_OptimizationAlgorithm_GradientDescent_PersonalityTraits.cpp
-    G_OptimizationAlgorithm_NelderMead.cpp
-    G_OptimizationAlgorithm_NelderMead_Factory.cpp
-    G_OptimizationAlgorithm_NelderMead_PersonalityTraits.cpp
-    G_OptimizationAlgorithm_ParChild.cpp
-    G_OptimizationAlgorithm_ParChildT_PersonalityTraits.cpp
-    G_OptimizationAlgorithm_ParameterScan.cpp
-    G_OptimizationAlgorithm_ParameterScan_Factory.cpp
-    G_OptimizationAlgorithm_ParameterScan_PersonalityTraits.cpp
-    G_OptimizationAlgorithm_SimulatedAnnealing.cpp
-    G_OptimizationAlgorithm_SimulatedAnnealing_Factory.cpp
-    G_OptimizationAlgorithm_SimulatedAnnealing_PersonalityTraits.cpp
-    G_OptimizationAlgorithm_SwarmAlgorithm.cpp
-    G_OptimizationAlgorithm_SwarmAlgorithm_Factory.cpp
-    G_OptimizationAlgorithm_SwarmAlgorithm_PersonalityTraits.cpp
+    GBase.cpp
+    ConjugateGradientDescent.cpp
+    ConjugateGradientDescent_Factory.cpp
+    ConjugateGradientDescent_PersonalityTraits.cpp
+    EvolutionaryAlgorithm.cpp
+    EvolutionaryAlgorithm_Factory.cpp
+    EvolutionaryAlgorithm_PersonalityTraits.cpp
+    GradientDescent.cpp
+    GradientDescent_Factory.cpp
+    GradientDescent_PersonalityTraits.cpp
+    NelderMead.cpp
+    NelderMead_Factory.cpp
+    NelderMead_PersonalityTraits.cpp
+    GParChild.cpp
+    ParChildT_PersonalityTraits.cpp
+    ParameterScan.cpp
+    ParameterScan_Factory.cpp
+    ParameterScan_PersonalityTraits.cpp
+    SimulatedAnnealing.cpp
+    SimulatedAnnealing_Factory.cpp
+    SimulatedAnnealing_PersonalityTraits.cpp
+    SwarmAlgorithm.cpp
+    SwarmAlgorithm_Factory.cpp
+    SwarmAlgorithm_PersonalityTraits.cpp
 	GObject.cpp
 	GOptimizationEnums.cpp
 	GParameterBase.cpp

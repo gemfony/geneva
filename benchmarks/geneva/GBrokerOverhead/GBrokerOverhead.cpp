@@ -387,7 +387,7 @@ int main(int argc, char **argv) {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // We can now start creating populations. Executors are registered for different execution modes
 
-    std::shared_ptr<GEvolutionaryAlgorithm> pop_ptr(new GEvolutionaryAlgorithm());
+    std::shared_ptr<oa::GEvolutionaryAlgorithm> pop_ptr(new oa::GEvolutionaryAlgorithm());
 
     switch(parallelizationMode) {
     case execMode::SERIAL: // Serial execution

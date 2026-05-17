@@ -44,7 +44,7 @@
 #include "common/GSerializableFunctionObjectT.hpp"
 #include "courtier/GExecutorT.hpp"
 #include "geneva/GParameterSet.hpp"
-#include "geneva/G_OptimizationAlgorithm_EvolutionaryAlgorithm_Factory.hpp"
+#include "geneva/EvolutionaryAlgorithm_Factory.hpp"
 
 namespace Gem::Geneva {
 

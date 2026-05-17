@@ -42,8 +42,8 @@
 #include "geneva/GConsumerStore.hpp"
 #include "geneva/GIndividualStandardConsumerInitializerT.hpp"
 #include "geneva/GParameterSet.hpp"
-#include "geneva/G_OptimizationAlgorithm_FactoryStore.hpp"
-#include "geneva/G_OptimizationAlgorithm_InitializerT.hpp"
+#include "geneva/FactoryStore.hpp"
+#include "geneva/GInitializerT.hpp"
 #include "hap/GRandomFactory.hpp"
 
 namespace Gem::Geneva {
@@ -72,7 +72,7 @@ public:
     template <typename oaf_type>
     void registerOAF() {
         // This will register the factory in the global factory store
-        G_OptimizationAlgorithm_InitializerT<oaf_type> goaf_store_registrant;
+        oa::GInitializerT<oaf_type> goaf_store_registrant;
     }
 
     /***************************************************************************/

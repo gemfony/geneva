@@ -116,7 +116,7 @@ Go2::Go2(
  */
 void Go2::registerDefaultAlgorithm(std::string const &mn) {
     // Retrieve the algorithm from the global store
-    std::shared_ptr<G_OptimizationAlgorithm_FactoryT<GOABase>> p;
+    std::shared_ptr<oa::GOAFactoryT<GOABase>> p;
     if(not GOAFactoryStore->get(mn, p)) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
@@ -163,7 +163,7 @@ void Go2::registerDefaultAlgorithm(const std::shared_ptr<GOABase> &default_algor
 /**
  * Allows to register a pluggable optimization monitor
  */
-void Go2::registerPluggableOM(const std::shared_ptr<GBasePluggableOM> &pluggable_om) {
+void Go2::registerPluggableOM(const std::shared_ptr<oa::GBasePluggableOM> &pluggable_om) {
     if(pluggable_om) {
         pluggable_monitors_cnt_.push_back(pluggable_om);
     }
@@ -370,7 +370,7 @@ Go2 &Go2::operator&(const std::shared_ptr<GOABase> &alg) {
  */
 void Go2::addAlgorithm(std::string const &mn) {
     // Retrieve the algorithm from the global store
-    std::shared_ptr<G_OptimizationAlgorithm_FactoryT<GOABase>> p;
+    std::shared_ptr<oa::GOAFactoryT<GOABase>> p;
     if(not GOAFactoryStore->get(mn, p)) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
@@ -662,7 +662,7 @@ std::vector<std::shared_ptr<Gem::Geneva::GParameterSet>> Go2::getBestIterationIn
 
 /******************************************************************************/
 /**
- * Satisfies a requirement of G_Interface_Optimizer
+ * Satisfies a requirement of GOptimizerIT
  */
 void Go2::runFitnessCalculation_() { /* nothing */
 }
@@ -1011,7 +1011,7 @@ void Go2::parseCommandLine(
 
             for(const auto &alg_str : algs) {
                 // Retrieve the algorithm factory from the global store
-                std::shared_ptr<G_OptimizationAlgorithm_FactoryT<GOABase>> p;
+                std::shared_ptr<oa::GOAFactoryT<GOABase>> p;
                 if(not GOAFactoryStore->get(alg_str, p)) {
                     throw geneva_exception(
                         g_error_streamer(DO_LOG, time_and_place)

@@ -350,7 +350,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
 
         // Tell the individual about its personality and duty
         CHECK_NOTHROW(p_test->setPersonality(
-            std::make_shared<GEvolutionaryAlgorithm_PersonalityTraits>()
+            std::make_shared<oa::GEvolutionaryAlgorithm_PersonalityTraits>()
         ));
 
         // Calling the process() function with the "evaluate" call should clear the dirty flag
@@ -377,7 +377,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
 
         // Tell the individual about its personality
         CHECK_NOTHROW(p_test->setPersonality(
-            std::make_shared<GEvolutionaryAlgorithm_PersonalityTraits>()
+            std::make_shared<oa::GEvolutionaryAlgorithm_PersonalityTraits>()
         ));
 
         // Calling the process() function with the "evaluate" call should clear the dirty flag
@@ -404,7 +404,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
 
         // Tell the individual about its personality and duty
         CHECK_NOTHROW(p_test->setPersonality(
-            std::make_shared<GSwarmAlgorithm_PersonalityTraits>()
+            std::make_shared<oa::GSwarmAlgorithm_PersonalityTraits>()
         ));
 
         // Calling the process() function with the "evaluate" call should clear the dirty flag
@@ -725,7 +725,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
 
         // Set the personality type to EA
         CHECK_NOTHROW(p_test->setPersonality(
-            std::make_shared<GEvolutionaryAlgorithm_PersonalityTraits>()
+            std::make_shared<oa::GEvolutionaryAlgorithm_PersonalityTraits>()
         ));
         INFO(
             "\n"
@@ -735,9 +735,9 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
         CHECK(p_test->getPersonality() == "GEvolutionaryAlgorithm_PersonalityTraits");
 
         // Try to retrieve a GEvolutionaryAlgorithm_PersonalityTraits object and check that the smart pointer actually points somewhere
-        std::shared_ptr<GEvolutionaryAlgorithm_PersonalityTraits> p_pt_ea;
+        std::shared_ptr<oa::GEvolutionaryAlgorithm_PersonalityTraits> p_pt_ea;
         CHECK_NOTHROW(
-            p_pt_ea = p_test->getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>()
+            p_pt_ea = p_test->getPersonalityTraits<oa::GEvolutionaryAlgorithm_PersonalityTraits>()
         );
         CHECK(p_pt_ea);
         p_pt_ea.reset();
@@ -749,7 +749,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
 
         // Set the personality type to GD
         CHECK_NOTHROW(p_test->setPersonality(
-            std::make_shared<GGradientDescent_PersonalityTraits>()
+            std::make_shared<oa::GGradientDescent_PersonalityTraits>()
         ));
         INFO(
             "\n"
@@ -759,8 +759,8 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
         CHECK(p_test->getPersonality() == "GGradientDescent_PersonalityTraits");
 
         // Try to retrieve a GGradientDescent_PersonalityTraits object and check that the smart pointer actually points somewhere
-        std::shared_ptr<GGradientDescent_PersonalityTraits> p_pt_gd;
-        CHECK_NOTHROW(p_pt_gd = p_test->getPersonalityTraits<GGradientDescent_PersonalityTraits>());
+        std::shared_ptr<oa::GGradientDescent_PersonalityTraits> p_pt_gd;
+        CHECK_NOTHROW(p_pt_gd = p_test->getPersonalityTraits<oa::GGradientDescent_PersonalityTraits>());
         CHECK(p_pt_gd);
         p_pt_gd.reset();
 
@@ -771,7 +771,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
 
         // Set the personality type to SWARM
         CHECK_NOTHROW(p_test->setPersonality(
-            std::make_shared<GSwarmAlgorithm_PersonalityTraits>()
+            std::make_shared<oa::GSwarmAlgorithm_PersonalityTraits>()
         ));
         INFO(
             "\n"
@@ -781,9 +781,9 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
         CHECK(p_test->getPersonality() == "GSwarmAlgorithm_PersonalityTraits");
 
         // Try to retrieve a GSwarmAlgorithm_PersonalityTraits object and check that the smart pointer actually points somewhere
-        std::shared_ptr<GSwarmAlgorithm_PersonalityTraits> p_pt_swarm;
+        std::shared_ptr<oa::GSwarmAlgorithm_PersonalityTraits> p_pt_swarm;
         CHECK_NOTHROW(
-            p_pt_swarm = p_test->getPersonalityTraits<GSwarmAlgorithm_PersonalityTraits>()
+            p_pt_swarm = p_test->getPersonalityTraits<oa::GSwarmAlgorithm_PersonalityTraits>()
         );
         CHECK(p_pt_swarm);
         p_pt_swarm.reset();
@@ -1019,9 +1019,9 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests_() {
         CHECK_NOTHROW(p_test->resetPersonality());
 
         // Trying to retrieve an EA personality object should throw
-        std::shared_ptr<GEvolutionaryAlgorithm_PersonalityTraits> p_pt_ea;
+        std::shared_ptr<oa::GEvolutionaryAlgorithm_PersonalityTraits> p_pt_ea;
         CHECK_THROWS_AS(
-            (p_pt_ea = p_test->getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>()),
+            (p_pt_ea = p_test->getPersonalityTraits<oa::GEvolutionaryAlgorithm_PersonalityTraits>()),
             geneva_exception
         );
     }
@@ -1036,12 +1036,12 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests_() {
 
         // Make sure the personality type is set to SWARM
         CHECK_NOTHROW(p_test->setPersonality(
-            std::make_shared<GSwarmAlgorithm_PersonalityTraits>()
+            std::make_shared<oa::GSwarmAlgorithm_PersonalityTraits>()
         ));
 
         // Trying to retrieve an EA personality object should throw
         CHECK_THROWS_AS(
-            (p_test->getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>()),
+            (p_test->getPersonalityTraits<oa::GEvolutionaryAlgorithm_PersonalityTraits>()),
             geneva_exception
         );
     }

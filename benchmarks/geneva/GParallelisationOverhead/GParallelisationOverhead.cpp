@@ -43,7 +43,7 @@
 // Geneva header files go here
 #include "common/GCommonMathHelperFunctionsT.hpp"
 #include "common/GThreadPool.hpp"
-#include "geneva/G_OptimizationAlgorithm_EvolutionaryAlgorithm_Factory.hpp"
+#include "geneva/EvolutionaryAlgorithm_Factory.hpp"
 #include "geneva/Go2.hpp"
 
 // The individual that should be optimized
@@ -71,10 +71,10 @@ void startReferenceMeasurement(
     std::vector<std::tuple<double, double>> referenceExecutionTimes;
 
     // Create a factory for serial EA algorithms
-    GEvolutionaryAlgorithmFactory ea_serial_factory("./config/GEvolutionaryAlgorithm.json");
+    oa::GEvolutionaryAlgorithmFactory ea_serial_factory("./config/GEvolutionaryAlgorithm.json");
 
     // Create an evolutionary algorithm
-    auto ea_alg_master = ea_serial_factory.get<GEvolutionaryAlgorithm>();
+    auto ea_alg_master = ea_serial_factory.get<oa::GEvolutionaryAlgorithm>();
 
     // Register an appropriate executor
     ea_alg_master->registerExecutor(execMode::SERIAL, "./config/GSerialExecutor.json");
@@ -98,7 +98,7 @@ void startReferenceMeasurement(
             std::cout << "Serial measurement " << i << " in iteration " << iter << std::endl;
 
             // Create a clone of the evolutionary algorithm
-            auto ea_alg = ea_alg_master->clone<GEvolutionaryAlgorithm>();
+            auto ea_alg = ea_alg_master->clone<oa::GEvolutionaryAlgorithm>();
 
             // Make the individual known to the optimizer
             ea_alg->push_back(gdi_ptr);

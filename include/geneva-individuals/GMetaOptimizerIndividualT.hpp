@@ -58,7 +58,7 @@
 #include "geneva/GInt32GaussAdaptor.hpp"
 #include "geneva/GParameterSet.hpp"
 #include "geneva/GPluggableOptimizationMonitors.hpp"
-#include "geneva/G_OptimizationAlgorithm_EvolutionaryAlgorithm_Factory.hpp"
+#include "geneva/EvolutionaryAlgorithm_Factory.hpp"
 
 namespace Gem::Geneva {
 
@@ -969,10 +969,10 @@ protected:
         ind_factory_->setAdaptAdProb(adapt_ad_prob);
 
         // Set up a population factory for serial execution
-        GEvolutionaryAlgorithmFactory ea(subEA_config_);
+        oa::GEvolutionaryAlgorithmFactory ea(subEA_config_);
 
         // Run the required number of optimizations
-        std::shared_ptr<GEvolutionaryAlgorithm> ea_ptr;
+        std::shared_ptr<oa::GEvolutionaryAlgorithm> ea_ptr;
 
         std::uint32_t n_children = Gem::Common::narrow_cast<std::uint32_t>(nch_ptr->value());
         std::uint32_t n_parents = Gem::Common::narrow_cast<std::uint32_t>(npar_ptr->value());
@@ -987,7 +987,7 @@ protected:
         for(std::size_t opt = 0; opt < nRunsPerOptimization_; opt++) {
             std::cout << "Starting measurement " << opt + 1 << " / " << nRunsPerOptimization_
                       << '\n';
-            ea_ptr = ea.get<GEvolutionaryAlgorithm>();
+            ea_ptr = ea.get<oa::GEvolutionaryAlgorithm>();
 
             // Register an executor
             ea_ptr->registerExecutor(
@@ -1763,7 +1763,7 @@ const std::size_t P_YDIM = 1400;
  */
 template <typename ind_type>
 class GOptOptMonitorT // NOLINT(cppcoreguidelines-special-member-functions)
-  : public GBasePluggableOM {
+  : public oa::GBasePluggableOM {
     // Make sure this class can only be instantiated if individual_type is a derivative of GParameterSet
     static_assert(
         std::is_base_of<GParameterSet, ind_type>::value,
@@ -1779,7 +1779,7 @@ class GOptOptMonitorT // NOLINT(cppcoreguidelines-special-member-functions)
 
         ar &make_nvp(
             "GBasePluggableOM",
-            boost::serialization::base_object<GBasePluggableOM>(*this)
+            boost::serialization::base_object<oa::GBasePluggableOM>(*this)
         ) & BOOST_SERIALIZATION_NVP(fileName_) &
             BOOST_SERIALIZATION_NVP(gpd_) & BOOST_SERIALIZATION_NVP(progressPlotter_) &
             BOOST_SERIALIZATION_NVP(nParentPlotter_) &
@@ -1816,7 +1816,7 @@ public:
      * @param cp A copy of another GOptOptMonitorT object
      */
     GOptOptMonitorT(const GOptOptMonitorT<ind_type> &cp)
-      : GBasePluggableOM(cp)
+      : oa::GBasePluggableOM(cp)
       , fileName_(cp.fileName_)
       , gpd_(
             "Progress information",
@@ -1870,7 +1870,7 @@ protected:
 
         // Trigger loading of our parent class'es data
         // Load the parent classes' data ...
-        GBasePluggableOM::load_(cp);
+        oa::GBasePluggableOM::load_(cp);
 
         // Load local data
         fileName_ = p_load->fileName_;
@@ -1916,7 +1916,7 @@ protected:
         GToken token("GOptOptMonitorT", e);
 
         // Compare our parent data ...
-        Gem::Common::compare_base_t<GBasePluggableOM>(*this, *p_load, token);
+        Gem::Common::compare_base_t<oa::GBasePluggableOM>(*this, *p_load, token);
 
         // ... and then our local data
         compare_t(IDENTITY(fileName_, p_load->fileName_), token);
@@ -1946,7 +1946,7 @@ protected:
         bool result = false;
 
         // Call the parent classes' functions
-        if(GBasePluggableOM::modify_GUnitTests_()) {
+        if(oa::GBasePluggableOM::modify_GUnitTests_()) {
             result = true;
         }
 
@@ -1968,7 +1968,7 @@ protected:
 #ifdef GEM_TESTING
 
         // Call the parent classes' functions
-        GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests_();
+        oa::GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests_();
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
         Gem::Common::condnotset(
             "GOptOptMonitorT<ind_type>::specificTestsNoFailureExpected_GUnitTests",
@@ -1985,7 +1985,7 @@ protected:
 #ifdef GEM_TESTING
 
         // Call the parent classes' functions
-        GBasePluggableOM::specificTestsFailuresExpected_GUnitTests_();
+        oa::GBasePluggableOM::specificTestsFailuresExpected_GUnitTests_();
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
         Gem::Common::condnotset(
@@ -2020,7 +2020,7 @@ private:
      * Allows to emit information in different stages of the information cycle
      * (initialization, during each cycle and during finalization)
      */
-    void informationFunction_(infoMode im, G_OptimizationAlgorithm_Base const *const goa) override {
+    void informationFunction_(infoMode im, oa::GBase const *const goa) override {
         using namespace Gem::Common;
 
         switch(im) {
@@ -2084,8 +2084,8 @@ private:
 
         case Gem::Geneva::infoMode::INFOPROCESSING: {
             // Convert the base pointer to the target type
-            GEvolutionaryAlgorithm const *const ea =
-                static_cast<GEvolutionaryAlgorithm const *const>(
+            oa::GEvolutionaryAlgorithm const *const ea =
+                static_cast<oa::GEvolutionaryAlgorithm const *const>(
                     goa
                 ); // NOLINT(cppcoreguidelines-init-variables)
 

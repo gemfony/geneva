@@ -50,33 +50,33 @@ SET ( OPTIMIZATIONINCLUDES
 	GNumFPT.hpp
 	GNumIntT.hpp
 	GNumT.hpp
-    G_OptimizationAlgorithm_Base.hpp
-    G_OptimizationAlgorithm_ConjugateGradientDescent.hpp
-    G_OptimizationAlgorithm_ConjugateGradientDescent_Factory.hpp
-    G_OptimizationAlgorithm_ConjugateGradientDescent_PersonalityTraits.hpp
-    G_OptimizationAlgorithm_EvolutionaryAlgorithm.hpp
-    G_OptimizationAlgorithm_EvolutionaryAlgorithm_Factory.hpp
-    G_OptimizationAlgorithm_EvolutionaryAlgorithm_PersonalityTraits.hpp
-    G_OptimizationAlgorithm_GradientDescent.hpp
-    G_OptimizationAlgorithm_GradientDescent_Factory.hpp
-    G_OptimizationAlgorithm_GradientDescent_PersonalityTraits.hpp
-    G_OptimizationAlgorithm_NelderMead.hpp
-    G_OptimizationAlgorithm_NelderMead_Factory.hpp
-    G_OptimizationAlgorithm_NelderMead_PersonalityTraits.hpp
-    G_OptimizationAlgorithm_ParChild.hpp
-    G_OptimizationAlgorithm_ParameterScan.hpp
-    G_OptimizationAlgorithm_ParameterScan_Factory.hpp
-    G_OptimizationAlgorithm_ParameterScan_PersonalityTraits.hpp
-    G_OptimizationAlgorithm_SimulatedAnnealing.hpp
-    G_OptimizationAlgorithm_SimulatedAnnealing_Factory.hpp
-    G_OptimizationAlgorithm_SimulatedAnnealing_PersonalityTraits.hpp
-    G_OptimizationAlgorithm_SwarmAlgorithm.hpp
-    G_OptimizationAlgorithm_SwarmAlgorithm_Factory.hpp
-    G_OptimizationAlgorithm_SwarmAlgorithm_PersonalityTraits.hpp
-    G_OptimizationAlgorithm_FactoryT.hpp
-    G_OptimizationAlgorithm_FactoryStore.hpp
-    G_OptimizationAlgorithm_InitializerT.hpp
-    G_OptimizationAlgorithm_ParChildT_PersonalityTraits.hpp
+        GBase.hpp
+    ConjugateGradientDescent.hpp
+    ConjugateGradientDescent_Factory.hpp
+    ConjugateGradientDescent_PersonalityTraits.hpp
+    EvolutionaryAlgorithm.hpp
+    EvolutionaryAlgorithm_Factory.hpp
+    EvolutionaryAlgorithm_PersonalityTraits.hpp
+    GradientDescent.hpp
+    GradientDescent_Factory.hpp
+    GradientDescent_PersonalityTraits.hpp
+    NelderMead.hpp
+    NelderMead_Factory.hpp
+    NelderMead_PersonalityTraits.hpp
+    GParChild.hpp
+    ParameterScan.hpp
+    ParameterScan_Factory.hpp
+    ParameterScan_PersonalityTraits.hpp
+    SimulatedAnnealing.hpp
+    SimulatedAnnealing_Factory.hpp
+    SimulatedAnnealing_PersonalityTraits.hpp
+    SwarmAlgorithm.hpp
+    SwarmAlgorithm_Factory.hpp
+    SwarmAlgorithm_PersonalityTraits.hpp
+    GOAFactoryT.hpp
+    FactoryStore.hpp
+    GInitializerT.hpp
+    ParChildT_PersonalityTraits.hpp
 	Go2.hpp
     GObject.hpp
     GOptimizationEnums.hpp

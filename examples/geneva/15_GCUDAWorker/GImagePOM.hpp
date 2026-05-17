@@ -55,7 +55,7 @@ namespace Gem::Geneva {
 /**
      * This class saves the best image of each iteration to disk
      */
-class GImagePOM final : public GBasePluggableOM {
+class GImagePOM final : public oa::GBasePluggableOM {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
@@ -65,7 +65,7 @@ class GImagePOM final : public GBasePluggableOM {
 
         ar &make_nvp(
             "GBasePluggableOM",
-            boost::serialization::base_object<GBasePluggableOM>(*this)
+            boost::serialization::base_object<oa::GBasePluggableOM>(*this)
         ) & BOOST_SERIALIZATION_NVP(resultImageDirectory_) &
             BOOST_SERIALIZATION_NVP(targetFileName_) & BOOST_SERIALIZATION_NVP(emitBestOnly_) &
             BOOST_SERIALIZATION_NVP(useGPU_) & BOOST_SERIALIZATION_NVP(blockSize_) &
@@ -151,7 +151,7 @@ protected:
         const GImagePOM *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
         // Load the parent classes' data ...
-        GBasePluggableOM::load_(cp);
+        oa::GBasePluggableOM::load_(cp);
 
         // ... and then our local data
         this->resultImageDirectory_ = p_load->resultImageDirectory_;
@@ -183,7 +183,7 @@ protected:
         GToken token("GImagePOM", e);
 
         // Compare our parent data ...
-        Gem::Common::compare_base_t<Gem::Geneva::GBasePluggableOM>(*this, *p_load, token);
+        Gem::Common::compare_base_t<oa::GBasePluggableOM>(*this, *p_load, token);
 
         // ... and then our local data
         compare_t(IDENTITY(resultImageDirectory_, p_load->resultImageDirectory_), token);
@@ -209,7 +209,7 @@ protected:
         bool result = false;
 
         // Call the parent classes' functions
-        if(GBasePluggableOM::modify_GUnitTests()) {
+        if(oa::GBasePluggableOM::modify_GUnitTests()) {
             result = true;
         }
 
@@ -231,7 +231,7 @@ protected:
 #ifdef GEM_TESTING
 
         // Call the parent classes' functions
-        GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests();
+        oa::GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests();
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
         condnotset("GImagePOM::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif                  /* GEM_TESTING */
@@ -245,7 +245,7 @@ protected:
 #ifdef GEM_TESTING
 
         // Call the parent classes' functions
-        GBasePluggableOM::specificTestsFailuresExpected_GUnitTests();
+        oa::GBasePluggableOM::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
         condnotset("GImagePOM::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
@@ -283,7 +283,7 @@ private:
          * Allows to emit information in different stages of the information cycle
          * (initialization, during each cycle and during finalization)
          */
-    void informationFunction_(infoMode im, G_OptimizationAlgorithm_Base const *const goa) override {
+    void informationFunction_(infoMode im, oa::GBase const *const goa) override {
         switch(im) {
         case Gem::Geneva::infoMode::INFOINIT: {
             // Check that the target directory for result files exists. If not, try to create it.
@@ -313,7 +313,7 @@ private:
             // -----------------------------------------------------------------------------------------
             // Get the current best individual
             auto bestIndividual_ptr =
-                goa->Interface::OptimizerIT<G_OptimizationAlgorithm_Base>::getBestIterationIndividual<GImageIndividual>();
+                goa->Interface::OptimizerIT<oa::GBase>::getBestIterationIndividual<GImageIndividual>();
 
             // Enforce processing. Together with getGPUCandidateImage_= true this will result
             // in a retrieval of the image from the GPU, which is not normally the case.
@@ -348,7 +348,7 @@ private:
             if(not emitBestOnly_ || goa->progress()) {
                 const std::string resultFileName =
                     resultImageDirectory_ +
-                    std::to_string(goa->Interface::OptimizerIT<G_OptimizationAlgorithm_Base>::getIteration()) + "_" +
+                    std::to_string(goa->Interface::OptimizerIT<oa::GBase>::getIteration()) + "_" +
                     std::to_string(fitness) + "_bestIndividual.png";
                 evaluator_ptr_->saveCandidateImageToDisc(resultFileName);
             }

@@ -54,7 +54,7 @@
 #include "courtier/GAsioConsumerT.hpp"
 #include "courtier/GSerialConsumerT.hpp"
 #include "courtier/GStdThreadConsumerT.hpp"
-#include "geneva/G_OptimizationAlgorithm_EvolutionaryAlgorithm.hpp"
+#include "geneva/EvolutionaryAlgorithm.hpp"
 #include "geneva/GenevaInitializer.hpp"
 
 // The individual that should be optimized
@@ -324,7 +324,7 @@ int main(int argc, char **argv) {
     /****************************************************************************/
 
     // Create an empty population
-    std::shared_ptr<GEvolutionaryAlgorithm> pop_ptr(new GEvolutionaryAlgorithm());
+    std::shared_ptr<oa::GEvolutionaryAlgorithm> pop_ptr(new oa::GEvolutionaryAlgorithm());
 
     // General settings
     pop_ptr->setPopulationSizes(populationSize, nParents);

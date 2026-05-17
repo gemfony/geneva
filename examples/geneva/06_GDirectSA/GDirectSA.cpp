@@ -54,7 +54,7 @@
 #include "courtier/GAsioConsumerT.hpp"
 #include "courtier/GSerialConsumerT.hpp"
 #include "courtier/GStdThreadConsumerT.hpp"
-#include "geneva/G_OptimizationAlgorithm_SimulatedAnnealing.hpp"
+#include "geneva/SimulatedAnnealing.hpp"
 #include "geneva/GenevaInitializer.hpp"
 
 // The individual that should be optimized
@@ -312,7 +312,7 @@ int main(int argc, char **argv) {
     /****************************************************************************/
 
     // Create an empty population
-    std::shared_ptr<GSimulatedAnnealing> pop_ptr(new GSimulatedAnnealing());
+    std::shared_ptr<oa::GSimulatedAnnealing> pop_ptr(new oa::GSimulatedAnnealing());
 
     // General settings
     pop_ptr->setPopulationSizes(populationSize, nParents);
