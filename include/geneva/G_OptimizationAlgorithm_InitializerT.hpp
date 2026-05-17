@@ -47,7 +47,7 @@
 #include "geneva/G_OptimizationAlgorithm_FactoryStore.hpp"
 #include "geneva/G_OptimizationAlgorithm_FactoryT.hpp"
 
-namespace Gem::Geneva {
+namespace Gem::Geneva::OptimizationAlgorithms {
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -86,4 +86,9 @@ public:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-} /* namespace Gem::Geneva */
+} /* namespace Gem::Geneva::OptimizationAlgorithms */
+
+// Phase-2b compile shim — removed in NS Phase 3 (reference migration).
+namespace Gem::Geneva {
+using OptimizationAlgorithms::G_OptimizationAlgorithm_InitializerT;
+} // namespace Gem::Geneva

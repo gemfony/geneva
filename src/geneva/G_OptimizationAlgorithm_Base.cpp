@@ -37,7 +37,7 @@ BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Courtier::GMTExecutorT<Gem::Geneva::GParameter
 
 /******************************************************************************/
 
-namespace Gem::Geneva {
+namespace Gem::Geneva::OptimizationAlgorithms {
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -2343,4 +2343,4 @@ void G_OptimizationAlgorithm_Base::specificTestsFailuresExpected_GUnitTests_() {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-} /* namespace Gem::Geneva */
+} /* namespace Gem::Geneva::OptimizationAlgorithms */

@@ -177,7 +177,7 @@ void Go2::registerPluggableOM(const std::shared_ptr<GBasePluggableOM> &pluggable
 
 /******************************************************************************/
 /**
- * Allows to reset the local pluggable optimization monitor
+ * Allows resetting the local pluggable optimization monitor
  */
 void Go2::resetPluggableOM() {
     pluggable_monitors_cnt_.clear();

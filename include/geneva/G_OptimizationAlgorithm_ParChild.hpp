@@ -48,7 +48,7 @@
 #include "geneva/G_OptimizationAlgorithm_Base.hpp"
 #include "geneva/G_OptimizationAlgorithm_ParChildT_PersonalityTraits.hpp"
 
-namespace Gem::Geneva {
+namespace Gem::Geneva::OptimizationAlgorithms {
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -294,11 +294,16 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Gem::Geneva */
+} /* namespace Gem::Geneva::OptimizationAlgorithms */
+
+// Phase-2b compile shim — removed in NS Phase 3 (reference migration).
+namespace Gem::Geneva {
+using OptimizationAlgorithms::G_OptimizationAlgorithm_ParChild;
+} // namespace Gem::Geneva
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::G_OptimizationAlgorithm_ParChild) // NOLINT
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::OptimizationAlgorithms::G_OptimizationAlgorithm_ParChild) // NOLINT
 /******************************************************************************/
