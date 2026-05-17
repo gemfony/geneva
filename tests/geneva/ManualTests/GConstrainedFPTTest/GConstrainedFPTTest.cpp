@@ -76,7 +76,7 @@ int main(int argc, char **argv) {
     GConstrainedDoubleObject gbd13(-1., 3.); // lower boundary -1, upper Boundary 3
 
     for(std::uint32_t i = 0; i < NTESTS; i++) {
-        internalValue = -30. + 50. * double(i) / double(NTESTS);
+        internalValue = -30. + 50. * static_cast<double>(i) / static_cast<double>(NTESTS);
 
         externalValue = gbd13.transfer(internalValue);
         *mapping_ptr &std::tuple<double, double>(internalValue, externalValue);

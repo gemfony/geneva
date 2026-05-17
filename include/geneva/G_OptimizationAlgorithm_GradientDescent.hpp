@@ -205,12 +205,12 @@ private:
         (DEFAULTSTEPSIZE /
          DEFAULTFINITESTEP); ///< The ratio of stepSize_ and finiteStep_. NOTE: long double; Will be recalculated in init()
 
-    std::vector<double> dblLowerParameterBoundaries_ = std::vector<
-        double>(); ///< Holds lower boundaries of double parameters; Will be extracted in init()
-    std::vector<double> dblUpperParameterBoundaries_ = std::vector<
-        double>(); ///< Holds upper boundaries of double parameters; Will be extracted in init()
-    std::vector<double> adjustedFiniteStep_ = std::vector<
-        double>(); ///< A step-size normalized to each parameter range; Will be recalculated in init()
+    std::vector<double>
+        dblLowerParameterBoundaries_; ///< Holds lower boundaries of double parameters; Will be extracted in init()
+    std::vector<double>
+        dblUpperParameterBoundaries_; ///< Holds upper boundaries of double parameters; Will be extracted in init()
+    std::vector<double>
+        adjustedFiniteStep_; ///< A step-size normalized to each parameter range; Will be recalculated in init()
 
     /** @brief Lets individuals know about their position in the population */
     void markIndividualPositions();

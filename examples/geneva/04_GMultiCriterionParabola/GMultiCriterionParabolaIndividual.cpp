@@ -182,7 +182,6 @@ GMultiCriterionParabolaIndividualFactory::GMultiCriterionParabolaIndividualFacto
   , par_min_(-10.)
   , par_max_(10.)
   , minima_string_("-1., 0., 1.")
-  , minima_()
   , nPar_(NPAR_MC) // The actual number will be determined by the external configuration file
   , firstParsed_(true) {
     /* nothing */

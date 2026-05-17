@@ -128,10 +128,12 @@ bool isBetter(
 #endif
 
     // We assume that both items have the same maxMode and simply compare the "minOnly-Fitness"
-    if(minOnly_transformed_fitness(x_ptr) < minOnly_transformed_fitness(y_ptr))
+    if(minOnly_transformed_fitness(x_ptr) < minOnly_transformed_fitness(y_ptr)) {
         return true;
-    else
+    }
+    else {
         return false;
+    }
 }
 
 /******************************************************************************/

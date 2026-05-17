@@ -113,7 +113,7 @@ public:
 	  * Allows to check whether post-processing is allowed for a given base_type
 	  */
     bool postProcessingAllowedFor(const base_type &ind) const {
-        if(allowed_mnemonics_.count("all") != 0) {
+        if(allowed_mnemonics_.contains("all")) {
             return true;
         }
 

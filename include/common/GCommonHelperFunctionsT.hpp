@@ -225,8 +225,12 @@ std::optional<target_type> environmentVariableAs(std::string const &var) {
 
     auto ltrim = result_str.find_first_not_of(" \t\r\n");
     auto rtrim = result_str.find_last_not_of(" \t\r\n");
-    if(ltrim != std::string::npos) result_str = result_str.substr(ltrim, rtrim - ltrim + 1);
-    else result_str.clear();
+    if(ltrim != std::string::npos) {
+        result_str = result_str.substr(ltrim, rtrim - ltrim + 1);
+    }
+    else {
+        result_str.clear();
+    }
     return {Gem::Common::from_string<target_type>(result_str)};
 }
 
@@ -621,8 +625,9 @@ std::shared_ptr<target_type> convertSmartPointer(std::shared_ptr<source_type> p_
         );
     }
     auto p = std::dynamic_pointer_cast<target_type>(p_raw);
-    if(p)
+    if(p) {
         return p;
+    }
     throw geneva_exception(
         g_error_streamer(DO_LOG, time_and_place)
         << "In convertSmartPointer(): invalid conversion to " << typeid(target_type).name()
@@ -694,8 +699,9 @@ item_type &getMapItem(std::map<std::string, item_type> &m, const std::string &ke
         );
     }
     auto it = m.find(key);
-    if(it != m.end())
+    if(it != m.end()) {
         return it->second;
+    }
     throw geneva_exception(
         g_error_streamer(DO_LOG, time_and_place)
         << "In getMapItem(): key \"" << key << "\" not found" << '\n'
@@ -714,8 +720,9 @@ const item_type &getMapItem(const std::map<std::string, item_type> &m, const std
         );
     }
     auto cit = m.find(key);
-    if(cit != m.end())
+    if(cit != m.end()) {
         return cit->second;
+    }
     throw geneva_exception(
         g_error_streamer(DO_LOG, time_and_place)
         << "In getMapItem(): key \"" << key << "\" not found" << '\n'

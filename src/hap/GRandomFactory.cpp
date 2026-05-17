@@ -98,8 +98,9 @@ void GRandomFactory::init() { /* nothing */
  */
 void GRandomFactory::finalize() {
     // Only allow one finalization action to be carried out
-    if(finalized_)
+    if(finalized_) {
         return;
+    }
 
     // Flag all threads to stop
     threads_stop_requested_.store(true);

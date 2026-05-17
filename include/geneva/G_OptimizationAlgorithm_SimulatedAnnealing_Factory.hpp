@@ -69,7 +69,7 @@ public:
     /** @brief The copy constructor */
     GSimulatedAnnealingFactory(const GSimulatedAnnealingFactory &) = default;
     /** @brief The destructor */
-    virtual ~GSimulatedAnnealingFactory() = default;
+    ~GSimulatedAnnealingFactory() override = default;
 
     /** @brief Gives access to the mnemonics / nickname describing an algorithm */
     std::string getMnemonic() const override;

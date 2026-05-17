@@ -79,7 +79,7 @@ public:
     GSerializableFunctionObjectT(GSerializableFunctionObjectT<processable_type> const &cp) =
         default;
     GSerializableFunctionObjectT(GSerializableFunctionObjectT<processable_type> &&cp) = default;
-    virtual ~GSerializableFunctionObjectT() = default;
+    ~GSerializableFunctionObjectT() override = default;
 
     GSerializableFunctionObjectT<processable_type> &
     operator=(GSerializableFunctionObjectT<processable_type> const &) = default;

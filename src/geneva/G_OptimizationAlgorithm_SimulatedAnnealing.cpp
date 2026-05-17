@@ -45,8 +45,7 @@ namespace Gem::Geneva {
  * The default constructor. All initialization work of member variable
  * is done in the class body.
  */
-GSimulatedAnnealing::GSimulatedAnnealing()
-  : G_OptimizationAlgorithm_ParChild() {
+GSimulatedAnnealing::GSimulatedAnnealing() {
     // Make sure we start with a valid population size if the user does not supply these values
     this->setPopulationSizes(100, 1);
 }
@@ -728,8 +727,9 @@ bool GSimulatedAnnealing::modify_GUnitTests_() {
     bool result = false;
 
     // Call the parent class'es function
-    if(G_OptimizationAlgorithm_ParChild::modify_GUnitTests_())
+    if(G_OptimizationAlgorithm_ParChild::modify_GUnitTests_()) {
         result = true;
+    }
 
     return result;
 

@@ -263,8 +263,9 @@ public:
         }
 
         minSigma_ = min_sigma;
-        if(minSigma_ < DEFAULTMINSIGMA)
+        if(minSigma_ < DEFAULTMINSIGMA) {
             minSigma_ = DEFAULTMINSIGMA; // Silently adapt min_sigma
+        }
         maxSigma_ = max_sigma;
 
         // Rectify sigma_ and reset_sigma_, if necessary
@@ -571,8 +572,9 @@ protected:
         bool result = false;
 
         // Call the parent classes' functions
-        if(GAdaptorT<num_type>::modify_GUnitTests_())
+        if(GAdaptorT<num_type>::modify_GUnitTests_()) {
             result = true;
+        }
 
         // A relatively harmless change
         sigmaSigma_ *= fp_type(1.1);

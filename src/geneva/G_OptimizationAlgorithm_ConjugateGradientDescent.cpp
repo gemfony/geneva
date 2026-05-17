@@ -60,8 +60,7 @@ GConjugateGradientDescent::GConjugateGradientDescent(
     const double &finite_step,
     const double &step_size
 )
-  : G_OptimizationAlgorithm_Base()
-  , nStartingPoints_(n_starting_points)
+  : nStartingPoints_(n_starting_points)
   , finiteStep_(finite_step)
   , stepSize_(step_size) { /* nothing */
 }
@@ -362,7 +361,7 @@ void GConjugateGradientDescent::updateChildParameters() {
  * restart (beta = 0), which keeps the method globally convergent.
  */
 void GConjugateGradientDescent::updateParentIndividuals() {
-    const long double step_ratio = ((long double)stepSize_) / ((long double)finiteStep_);
+    const long double step_ratio = (static_cast<long double>(stepSize_)) / (static_cast<long double>(finiteStep_));
 
     for(std::size_t i = 0; i < nStartingPoints_; i++) {
         std::vector<double> parm_vec;
@@ -395,10 +394,10 @@ void GConjugateGradientDescent::updateParentIndividuals() {
             long double numerator = 0.L;   // g . (g - g_prev)
             long double denominator = 0.L; // g_prev . g_prev
             for(std::size_t j = 0; j < nFPParmsFirst_; j++) {
-                numerator += (long double)gradient[j] *
-                             ((long double)gradient[j] - (long double)prevGradient_[i][j]);
+                numerator += static_cast<long double>(gradient[j]) *
+                             (static_cast<long double>(gradient[j]) - static_cast<long double>(prevGradient_[i][j]));
                 denominator +=
-                    (long double)prevGradient_[i][j] * (long double)prevGradient_[i][j];
+                    static_cast<long double>(prevGradient_[i][j]) * static_cast<long double>(prevGradient_[i][j]);
             }
             // Numerical-stability guard for the division. denominator is
             // g_{k-1}.g_{k-1}, which becomes vanishingly small near
@@ -434,7 +433,7 @@ void GConjugateGradientDescent::updateParentIndividuals() {
         try {
             for(std::size_t j = 0; j < nFPParmsFirst_; j++) {
                 parm_vec[j] +=
-                    Gem::Common::narrow_cast<double>(step_ratio * (long double)direction[j]);
+                    Gem::Common::narrow_cast<double>(step_ratio * static_cast<long double>(direction[j]));
             }
         }
         catch(std::overflow_error &e) {
@@ -510,7 +509,7 @@ void GConjugateGradientDescent::runFitnessCalculation_() {
     }
 #endif /* DEBUG */
 
-    setProcessingFlag(this->data_cnt_, std::make_tuple(std::size_t(0), this->data_cnt_.size()));
+    setProcessingFlag(this->data_cnt_, std::make_tuple(static_cast<std::size_t>(0), this->data_cnt_.size()));
     auto status = this->workOn(
         this->data_cnt_,
         true // resubmit unprocessed items
@@ -588,10 +587,10 @@ void GConjugateGradientDescent::init() {
 void GConjugateGradientDescent::updateDerivedQuantities() {
     try {
         adjustedFiniteStep_.clear();
-        long double finite_step_ratio = ((long double)finiteStep_) / ((long double)1000.);
+        long double finite_step_ratio = (static_cast<long double>(finiteStep_)) / (static_cast<long double>(1000.));
         for(std::size_t pos = 0; pos < dblLowerParameterBoundaries_.size(); pos++) {
-            long double parameter_range = (long double)dblUpperParameterBoundaries_[pos] -
-                                          (long double)dblLowerParameterBoundaries_[pos];
+            long double parameter_range = static_cast<long double>(dblUpperParameterBoundaries_[pos]) -
+                                          static_cast<long double>(dblLowerParameterBoundaries_[pos]);
             adjustedFiniteStep_.push_back(
                 Gem::Common::narrow_cast<double>(finite_step_ratio * parameter_range)
             );
@@ -740,8 +739,9 @@ bool GConjugateGradientDescent::modify_GUnitTests_() {
 #ifdef GEM_TESTING
     bool result = false;
 
-    if(G_OptimizationAlgorithm_Base::modify_GUnitTests_())
+    if(G_OptimizationAlgorithm_Base::modify_GUnitTests_()) {
         result = true;
+    }
 
     return result;
 #else  /* GEM_TESTING */

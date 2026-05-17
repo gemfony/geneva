@@ -69,7 +69,7 @@ public:
     /** @brief The copy constructor */
     GSwarmAlgorithmFactory(const GSwarmAlgorithmFactory &) = default;
     /** @brief The destructor */
-    virtual ~GSwarmAlgorithmFactory() = default;
+    ~GSwarmAlgorithmFactory() override = default;
 
     /** @brief Gives access to the mnemonics / nickname describing an algorithm */
     std::string getMnemonic() const override;

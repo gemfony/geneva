@@ -53,7 +53,6 @@ GSwarmAlgorithm_PersonalityTraits::GSwarmAlgorithm_PersonalityTraits(
   : GPersonalityTraits(cp)
   , neighborhood_(cp.neighborhood_)
   , noPositionUpdate_(cp.noPositionUpdate_)
-  , personal_best_() // empty at this point
   , personal_best_quality_(cp.personal_best_quality_) {
     // Copy the personal_best_ vector over
     Gem::Common::copyCloneableSmartPointer(cp.personal_best_, personal_best_);
@@ -150,8 +149,9 @@ bool GSwarmAlgorithm_PersonalityTraits::noPositionUpdate() const {
  */
 bool GSwarmAlgorithm_PersonalityTraits::checkNoPositionUpdateAndReset() {
     bool current = noPositionUpdate_;
-    if(noPositionUpdate_)
+    if(noPositionUpdate_) {
         noPositionUpdate_ = false;
+    }
     return current;
 }
 
@@ -327,8 +327,9 @@ bool GSwarmAlgorithm_PersonalityTraits::modify_GUnitTests_() {
     bool result = false;
 
     // Call the parent class'es function
-    if(GPersonalityTraits::modify_GUnitTests_())
+    if(GPersonalityTraits::modify_GUnitTests_()) {
         result = true;
+    }
 
     this->setNeighborhood(this->getNeighborhood() + 1);
     result = true;

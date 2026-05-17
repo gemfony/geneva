@@ -521,15 +521,17 @@ TEST_CASE(
 TEST_CASE("multVecConst: multiply by 0 gives zero vector", "[common][math][multVecConst]") {
     std::vector<double> a{1., 2., 3.};
     Gem::Common::multVecConst(a, 0.);
-    for(auto v : a)
+    for(auto v : a) {
         REQUIRE(v == Approx(0.));
+    }
 }
 
 TEST_CASE("assignVecConst: each element is set to the constant", "[common][math][assignVecConst]") {
     std::vector<double> a{1., 2., 3., 4.};
     Gem::Common::assignVecConst(a, 7.);
-    for(auto v : a)
+    for(auto v : a) {
         REQUIRE(v == Approx(7.));
+    }
 }
 
 TEST_CASE("assignVecConst: empty vector is a no-op", "[common][math][assignVecConst]") {

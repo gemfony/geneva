@@ -106,24 +106,33 @@ std::ostream &operator<<(std::ostream &out, t_circle const &tc) {
  * Simplify comparison of two t_circle structs
  */
 bool operator==(t_circle const &a, t_circle const &b) {
-    if(a.middle.x != b.middle.x)
+    if(a.middle.x != b.middle.x) {
         return false;
-    if(a.middle.y != b.middle.y)
+    }
+    if(a.middle.y != b.middle.y) {
         return false;
-    if(a.radius != b.radius)
+    }
+    if(a.radius != b.radius) {
         return false;
-    if(a.angle1 != b.angle1)
+    }
+    if(a.angle1 != b.angle1) {
         return false;
-    if(a.angle2 != b.angle2)
+    }
+    if(a.angle2 != b.angle2) {
         return false;
-    if(a.angle3 != b.angle3)
+    }
+    if(a.angle3 != b.angle3) {
         return false;
-    if(a.r != b.r)
+    }
+    if(a.r != b.r) {
         return false;
-    if(a.g != b.g)
+    }
+    if(a.g != b.g) {
         return false;
-    if(a.b != b.b)
+    }
+    if(a.b != b.b) {
         return false;
+    }
     return a.a == b.a;
 }
 

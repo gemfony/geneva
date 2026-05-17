@@ -1885,7 +1885,7 @@ private:
             std::shared_ptr<GParameterSet> p =
                 goa->G_Interface_OptimizerT::template getBestGlobalIndividual<GParameterSet>();
             (*fitnessGraph2D_oa_) &
-                std::tuple<double, double>(double(iteration), p->raw_fitness(0));
+                std::tuple<double, double>(static_cast<double>(iteration), p->raw_fitness(0));
 
             // Update the largest known iteration and the number of recorded iterations
             maxIteration_ = iteration;
@@ -1905,11 +1905,10 @@ private:
                 // Attach the data to adaptorPropertyStore_
                 std::vector<std::any>::iterator prop_it;
                 for(prop_it = data.begin(); prop_it != data.end(); ++prop_it) {
-                    adaptorPropertyStore_.push_back(
-                        std::tuple<double, double>(
-                            double(iteration),
-                            double(std::any_cast<num_type>(*prop_it))
-                        )
+                    adaptorPropertyStore_.emplace_back(
+                        static_cast<double>(iteration),
+                        double(std::any_cast<num_type>(*prop_it))
+
                     );
                 }
             }
@@ -1925,11 +1924,10 @@ private:
                     // Attach the data to adaptorPropertyStore_
                     std::vector<std::any>::iterator prop_it;
                     for(prop_it = data.begin(); prop_it != data.end(); ++prop_it) {
-                        adaptorPropertyStore_.push_back(
-                            std::tuple<double, double>(
-                                double(iteration),
-                                double(std::any_cast<num_type>(*prop_it))
-                            )
+                        adaptorPropertyStore_.emplace_back(
+                            static_cast<double>(iteration),
+                            double(std::any_cast<num_type>(*prop_it))
+
                         );
                     }
                 }

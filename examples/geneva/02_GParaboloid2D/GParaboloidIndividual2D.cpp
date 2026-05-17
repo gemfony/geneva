@@ -42,8 +42,7 @@ namespace Gem::Geneva {
  * each of which has a constrained value range [-10:10].
  */
 GParaboloidIndividual2D::GParaboloidIndividual2D()
-  : GParameterSet()
-  , M_PAR_MIN(-10.)
+  : M_PAR_MIN(-10.)
   , M_PAR_MAX(10.) {
     for(std::size_t npar = 0; npar < 2; npar++) {
         // GConstrainedDoubleObject is constrained to [M_PAR_MIN:M_PAR_MAX[

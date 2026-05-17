@@ -345,8 +345,9 @@ bool GConstrainedDoubleObject::modify_GUnitTests_() {
     bool result = false;
 
     // Call the parent class'es function
-    if(GConstrainedFPT<double>::modify_GUnitTests_())
+    if(GConstrainedFPT<double>::modify_GUnitTests_()) {
         result = true;
+    }
 
     this->randomInit(activityMode::ALLPARAMETERS, gr);
     result = true;

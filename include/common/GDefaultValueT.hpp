@@ -71,7 +71,7 @@ struct GDefaultValueT<bool> {
 template <>
 struct GDefaultValueT<std::string> {
     static std::string value() {
-        return std::string();
+        return {};
     }
 };
 /******************************************************************************/

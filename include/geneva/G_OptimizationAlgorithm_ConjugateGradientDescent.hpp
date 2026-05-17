@@ -226,22 +226,20 @@ private:
     double stepSize_ =
         DEFAULTCGDSTEPSIZE; ///< Multiplicative factor for the step along the search direction
 
-    std::vector<double> dblLowerParameterBoundaries_ = std::vector<
-        double>(); ///< Lower boundaries of double parameters; extracted in init() (transient)
-    std::vector<double> dblUpperParameterBoundaries_ = std::vector<
-        double>(); ///< Upper boundaries of double parameters; extracted in init() (transient)
-    std::vector<double> adjustedFiniteStep_ = std::vector<
-        double>(); ///< Per-parameter difference-quotient step; recomputed in init() (transient)
+    std::vector<double>
+        dblLowerParameterBoundaries_; ///< Lower boundaries of double parameters; extracted in init() (transient)
+    std::vector<double>
+        dblUpperParameterBoundaries_; ///< Upper boundaries of double parameters; extracted in init() (transient)
+    std::vector<double>
+        adjustedFiniteStep_; ///< Per-parameter difference-quotient step; recomputed in init() (transient)
 
     // Per-starting-point conjugate-gradient memory. All transient: recomputed
     // during optimization and therefore neither serialized nor restored in
     // load_() (mirrors the treatment of adjustedFiniteStep_ in GGradientDescent).
-    std::vector<std::vector<double>> prevGradient_ =
-        std::vector<std::vector<double>>(); ///< g_{k-1} for every starting point
-    std::vector<std::vector<double>> prevDirection_ =
-        std::vector<std::vector<double>>(); ///< d_{k-1} for every starting point
-    std::vector<bool> cgHistoryValid_ =
-        std::vector<bool>(); ///< Whether a previous gradient/direction exists per starting point
+    std::vector<std::vector<double>> prevGradient_;  ///< g_{k-1} for every starting point
+    std::vector<std::vector<double>> prevDirection_; ///< d_{k-1} for every starting point
+    std::vector<bool>
+        cgHistoryValid_; ///< Whether a previous gradient/direction exists per starting point
 };
 
 /******************************************************************************/

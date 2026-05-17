@@ -128,8 +128,9 @@ bool GBasePluggableOM::modify_GUnitTests_() {
     bool result = false;
 
     // Call the parent class'es function
-    if(GObject::modify_GUnitTests_())
+    if(GObject::modify_GUnitTests_()) {
         result = true;
+    }
 
     this->setUseRawEvaluation(!this->getUseRawEvaluation());
     result = true;
@@ -695,8 +696,9 @@ G_OptimizationAlgorithm_Base const *G_OptimizationAlgorithm_Base::optimize_(std:
     // Emit the info header, unless we do not want any info (parameter 0).
     // Note that this call needs to come after the initialization, so we have the
     // complete set of individuals available.
-    if(reportIteration_)
+    if(reportIteration_) {
         informationUpdate(infoMode::INFOINIT);
+    }
 
     // We want to know if no better values were found for a longer period of time
     double worst_case = this->at(0)->getWorstCase();
@@ -760,8 +762,9 @@ G_OptimizationAlgorithm_Base const *G_OptimizationAlgorithm_Base::optimize_(std:
     finalize();
 
     // Finalize the info output
-    if(reportIteration_)
+    if(reportIteration_) {
         informationUpdate(infoMode::INFOEND);
+    }
 
     // Remove information particular to the optimization algorithms from the individuals
     resetIndividualPersonalities();
@@ -2029,8 +2032,9 @@ bool G_OptimizationAlgorithm_Base::sigHupHalt() const {
 #endif
         return true;
     }
-    else
+    else {
         return false;
+    }
 }
 
 /******************************************************************************/
@@ -2116,12 +2120,14 @@ bool G_OptimizationAlgorithm_Base::halt() const {
     // all other (automatic) criteria
 
     // Have we received a SIGHUP signal ?
-    if(sigHupHalt())
+    if(sigHupHalt()) {
         return true;
+    }
 
     // Are we supposed to stop when a file was modified after the start of the optimization run ?
-    if(terminateOnFileModification_ && touchHalt())
+    if(terminateOnFileModification_ && touchHalt()) {
         return true;
+    }
 
     //------------------------------------------------------------------------
     // With the exception of the above criteria, no other halt criterion will
@@ -2131,12 +2137,14 @@ bool G_OptimizationAlgorithm_Base::halt() const {
     // has stalled for a given number of times).
 
     // Has the minimum number of iterations, as defined by the user, been passed?
-    if(not minIterationPassed())
+    if(not minIterationPassed()) {
         return false;
+    }
 
     // Has the minimum required optimization time been passed?
-    if(not minTimePassed(current_time))
+    if(not minTimePassed(current_time)) {
         return false;
+    }
 
     //------------------------------------------------------------------------
     // The following halt criteria are evaluated by Geneva at run-time,
@@ -2144,22 +2152,26 @@ bool G_OptimizationAlgorithm_Base::halt() const {
 
     // Have we exceeded the maximum number of iterations and
     // do we indeed intend to stop in this case ?
-    if(maxIterationHaltset() && iterationHalt())
+    if(maxIterationHaltset() && iterationHalt()) {
         return true;
+    }
 
     // Has the optimization stalled too often ?
-    if(stallHaltSet() && stallHalt())
+    if(stallHaltSet() && stallHalt()) {
         return true;
+    }
 
     // Do we have a scheduled halt time ? The comparatively expensive
     // timedHalt() calculation is only called if maxDuration_
     // is at least one microsecond.
-    if(maxDurationHaltSet() && timedHalt(current_time))
+    if(maxDurationHaltSet() && timedHalt(current_time)) {
         return true;
+    }
 
     // Are we supposed to stop when the quality has exceeded a threshold ?
-    if(qualityThresholdHaltSet() && qualityHalt())
+    if(qualityThresholdHaltSet() && qualityHalt()) {
         return true;
+    }
 
     // Has the user specified an additional stop criterion ?
     return customHalt();
@@ -2264,15 +2276,18 @@ bool G_OptimizationAlgorithm_Base::modify_GUnitTests_() {
     bool result = false;
 
     // Call the parent class'es function
-    if(GObject::modify_GUnitTests_())
+    if(GObject::modify_GUnitTests_()) {
         result = true;
-    if(Gem::Common::GPtrContainerT<GParameterSet>::modify_GUnitTests_())
+    }
+    if(Gem::Common::GPtrContainerT<GParameterSet>::modify_GUnitTests_()) {
         result = true;
+    }
 
     // Try to change the objects contained in the collection
     for(auto const &o_ptr : *this) {
-        if(o_ptr->modify_GUnitTests())
+        if(o_ptr->modify_GUnitTests()) {
             result = true;
+        }
     }
 
     this->setMaxIteration(this->getMaxIteration() + 1);

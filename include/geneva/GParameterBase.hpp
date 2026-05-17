@@ -148,7 +148,7 @@ public:
         );
 
         // Make the compiler happy
-        return (std::size_t)0;
+        return static_cast<std::size_t>(0);
     }
 
     /***************************************************************************/

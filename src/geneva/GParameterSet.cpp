@@ -1308,7 +1308,7 @@ std::string GParameterSet::getMnemonic() const {
     }
 
     // Make the compiler happy
-    return std::string();
+    return {};
 }
 
 /******************************************************************************/
@@ -1434,10 +1434,12 @@ double GParameterSet::getValidityLevel() const {
      * @return A boolean indicating, whether all constraints were fulfilled
      */
 bool GParameterSet::constraintsFulfilled() const {
-    if(validity_level_ <= 1.)
+    if(validity_level_ <= 1.) {
         return true;
-    else
+    }
+    else {
         return false;
+    }
 }
 
 /******************************************************************************/
@@ -1588,8 +1590,9 @@ void GParameterSet::process_(const std::vector<parameterset_processing_result> &
                 // Extract all additional *raw* results. Then we are on par with fitnessCalculation()
                 std::size_t pos = 0;
                 for(const auto &res : res_vec) {
-                    if(pos == 0)
+                    if(pos == 0) {
                         continue; // Skip the main raw result
+                    }
 
                     this->setResult(pos, res_vec.at(pos).rawFitness());
 
@@ -2015,14 +2018,17 @@ bool GParameterSet::modify_GUnitTests_() {
     bool result = false;
 
     // Call the parent class'es function
-    if(GObject::modify_GUnitTests_())
+    if(GObject::modify_GUnitTests_()) {
         result = true;
-    if(Gem::Common::GPtrContainerT<GParameterBase>::modify_GUnitTests_())
+    }
+    if(Gem::Common::GPtrContainerT<GParameterBase>::modify_GUnitTests_()) {
         result = true;
+    }
 
     for(const auto &o_ptr : *this) {
-        if(o_ptr->modify_GUnitTests())
+        if(o_ptr->modify_GUnitTests()) {
             result = true;
+        }
     }
 
     if(this->randomInit(activityMode::ALLPARAMETERS)) {
@@ -2102,8 +2108,9 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests_() {
             );
             CHECK(p_test->getBestKnownPrimaryFitness() == std::make_tuple(d, d));
 
-            if((d += 0.1) >= 1.) // NOLINT(bugprone-assignment-in-if-condition)
+            if((d += 0.1) >= 1.) { // NOLINT(bugprone-assignment-in-if-condition)
                 break;
+            }
         }
     }
 
@@ -2254,8 +2261,9 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests_() {
                 CHECK(*p_boolean_orig == *p_boolean_cloned);
                 counter++;
 
-                if((d += 1.) >= fpfixedvalinitmax) // NOLINT(bugprone-assignment-in-if-condition)
+                if((d += 1.) >= fpfixedvalinitmax) { // NOLINT(bugprone-assignment-in-if-condition)
                     break;
+                }
             }
         }
 
@@ -2323,8 +2331,9 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests_() {
                 CHECK(*p_boolean_orig == *p_boolean_cloned);
                 counter++;
 
-                if((d += 1.) >= 3.) // NOLINT(bugprone-assignment-in-if-condition)
+                if((d += 1.) >= 3.) { // NOLINT(bugprone-assignment-in-if-condition)
                     break;
+                }
             }
         }
 

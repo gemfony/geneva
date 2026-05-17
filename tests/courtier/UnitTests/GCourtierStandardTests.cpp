@@ -79,8 +79,9 @@ TEST_CASE("GSerialExecutorT: multiple items are all processed", "[courtier][seri
 
     REQUIRE(status.is_complete);
     REQUIRE_FALSE(status.has_errors);
-    for(auto const &item : items)
+    for(auto const &item : items) {
         REQUIRE(item->is_processed());
+    }
 }
 
 TEST_CASE("GSerialExecutorT: empty work list completes without error", "[courtier][serial]") {
@@ -108,8 +109,9 @@ TEST_CASE("GSerialExecutorT: GRandomNumberContainer items are processed", "[cour
 
     REQUIRE(status.is_complete);
     REQUIRE_FALSE(status.has_errors);
-    for(auto const &item : items)
+    for(auto const &item : items) {
         REQUIRE(item->is_processed());
+    }
 }
 
 TEST_CASE(

@@ -223,7 +223,7 @@ std::size_t GBaseParChildPersonalityTraits::getPopulationPosition(void) const {
  * @param parent_id The id of the individual's parent
  */
 void GBaseParChildPersonalityTraits::setParentId(const std::size_t &parent_id) {
-    parentId_ = (std::int16_t)parent_id;
+    parentId_ = static_cast<std::int16_t>(parent_id);
 }
 
 /* ----------------------------------------------------------------------------------
@@ -239,8 +239,9 @@ void GBaseParChildPersonalityTraits::setParentId(const std::size_t &parent_id) {
  * @return The parent's id
  */
 std::size_t GBaseParChildPersonalityTraits::getParentId() const {
-    if(parentId_ >= 0)
+    if(parentId_ >= 0) {
         return parentId_;
+    }
     else {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
@@ -250,7 +251,7 @@ std::size_t GBaseParChildPersonalityTraits::getParentId() const {
     }
 
     // Make the compiler happy
-    return std::size_t(0);
+    return static_cast<std::size_t>(0);
 }
 
 /* ----------------------------------------------------------------------------------
@@ -266,10 +267,12 @@ std::size_t GBaseParChildPersonalityTraits::getParentId() const {
  * @return A boolean which indicates whether the parent id has been set
  */
 bool GBaseParChildPersonalityTraits::parentIdSet() const {
-    if(parentId_ >= 0)
+    if(parentId_ >= 0) {
         return true;
-    else
+    }
+    else {
         return false;
+    }
 }
 
 /* ----------------------------------------------------------------------------------
@@ -302,8 +305,9 @@ bool GBaseParChildPersonalityTraits::modify_GUnitTests_() {
     bool result = false;
 
     // Call the parent class'es function
-    if(GPersonalityTraits::modify_GUnitTests_())
+    if(GPersonalityTraits::modify_GUnitTests_()) {
         result = true;
+    }
 
     // A relatively harmless modification is a change of the parentCounter variable
     parentCounter_++;

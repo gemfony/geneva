@@ -236,8 +236,9 @@ protected:
         bool result = false;
 
         // Call the parent classes' functions^
-        if(GNumT<int_type>::modify_GUnitTests_())
+        if(GNumT<int_type>::modify_GUnitTests_()) {
             result = true;
+        }
 
         return result;
 

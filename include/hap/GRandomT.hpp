@@ -97,9 +97,7 @@ public:
 	 * Default constructor. Note that getNewRandomContainer() may throw.
 	 */
     GRandomT() noexcept(false)
-      : Gem::Hap::GRandomBase()
-      , p_(/* empty */)
-      , grf_(GRANDOMFACTORY) // Make sure we have a local pointer to the factory
+      : grf_(GRANDOMFACTORY) // Make sure we have a local pointer to the factory
     {
         // Make sure we have a first random number package available
         this->getNewRandomContainer();
@@ -260,8 +258,7 @@ public:
 	 * The standard constructor
 	 */
     GRandomT() noexcept(false)
-      : Gem::Hap::GRandomBase()
-      , rng_(GRANDOMFACTORY->getSeed()) { /* nothing */
+      : rng_(GRANDOMFACTORY->getSeed()) { /* nothing */
     }
 
     /***************************************************************************/

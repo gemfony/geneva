@@ -118,7 +118,7 @@ public:
     /**
 	  * The standard destructor
 	  * */
-    virtual ~parPropSpec() = default;
+    ~parPropSpec() override = default;
 
     /***************************************************************************/
     /**

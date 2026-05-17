@@ -165,7 +165,7 @@ public:
     /**
 	  * The destructor
 	  */
-    ~GIntGaussAdaptorT() = default;
+    ~GIntGaussAdaptorT() override = default;
 
 protected:
     /***************************************************************************/
@@ -274,8 +274,9 @@ protected:
         bool result = false;
 
         // Call the parent class'es function
-        if(GNumGaussAdaptorT<int_type, double>::modify_GUnitTests_())
+        if(GNumGaussAdaptorT<int_type, double>::modify_GUnitTests_()) {
             result = true;
+        }
 
         return result;
 

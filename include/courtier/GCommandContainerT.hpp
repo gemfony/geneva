@@ -261,7 +261,7 @@ std::string container_to_string(
     }
 
     // Make the compiler happy
-    return std::string();
+    return {};
 }
 
 /******************************************************************************/

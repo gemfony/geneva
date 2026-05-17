@@ -227,8 +227,9 @@ public:
 	  * @return A boolean indicating whether adaptors are present
 	  */
     bool hasAdaptor() const override {
-        if(adaptor_)
+        if(adaptor_) {
             return true;
+        }
         return false;
     }
 
@@ -381,8 +382,9 @@ protected:
         bool result = false;
 
         // Call the parent classes' functions
-        if(GParameterBase::modify_GUnitTests_())
+        if(GParameterBase::modify_GUnitTests_()) {
             result = true;
+        }
 
         return result;
 
@@ -430,8 +432,9 @@ protected:
             CHECK(p_test->hasAdaptor() == true);
 
             std::vector<T> test_vec;
-            for(std::size_t i = 0; i < 10; i++)
+            for(std::size_t i = 0; i < 10; i++) {
                 test_vec.push_back(T(0));
+            }
             // We have a local adaptor, so trying to call the applyAdaptor(collection) function should not throw
             CHECK_NOTHROW(p_test->applyAdaptor(test_vec, T(1), gr));
         }

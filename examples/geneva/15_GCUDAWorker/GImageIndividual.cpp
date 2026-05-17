@@ -275,10 +275,12 @@ void GImageIndividual::init(
         );
 
         // Disable changes to the alpha channel if requested
-        if(not mutateAlphaChannel)
+        if(not mutateAlphaChannel) {
             color_a_ptr->setAdaptionsInactive();
-        else
+        }
+        else {
             color_a_ptr->setAdaptionsActive();
+        }
 
         // ... equip them with an adaptor
         color_r_ptr->addAdaptor(gdga_ptr_tmpl);

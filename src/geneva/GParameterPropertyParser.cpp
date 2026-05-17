@@ -177,8 +177,9 @@ void GParameterPropertyParser::parse() {
     using boost::spirit::qi::_1;
 
     // Do nothing if the string has already been parsed
-    if(parsed_)
+    if(parsed_) {
         return;
+    }
 
     bool success = false;
 
@@ -328,7 +329,7 @@ void GParameterPropertyParser::parse() {
  */
 std::size_t GParameterPropertyParser::getNSimpleScanItems() const {
     if(sSpecVec.empty()) {
-        return std::size_t(0);
+        return static_cast<std::size_t>(0);
     }
     else { // Return the data of the first item
 #ifdef DEBUG

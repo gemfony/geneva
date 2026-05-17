@@ -157,8 +157,9 @@ std::string GParameterSetFixedSizePriorityQueue::getCleanStatus() const {
 bool GParameterSetFixedSizePriorityQueue::isValid(
     const std::shared_ptr<GParameterSet> &item_ptr
 ) const {
-    if(not item_ptr)
+    if(not item_ptr) {
         return false; // Empty
+    }
     if(not item_ptr->is_processed()) {
         return false;
     } // The item has not been worked on
@@ -274,8 +275,9 @@ bool GParameterSetFixedSizePriorityQueue::modify_GUnitTests_() {
     bool result = false;
 
     // Call the parent classes' functions
-    if(Gem::Common::GFixedSizePriorityQueueT<GParameterSet>::modify_GUnitTests_())
+    if(Gem::Common::GFixedSizePriorityQueueT<GParameterSet>::modify_GUnitTests_()) {
         result = true;
+    }
 
     return result;
 

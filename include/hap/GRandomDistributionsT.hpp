@@ -98,8 +98,9 @@ public:
 		   * The assignment operator
 		   */
         param_type &operator=(param_type const &params) {
-            if(this == &params)
+            if(this == &params) {
                 return *this;
+            }
             mean_ = params.mean_;
             sigma1_ = params.sigma1_;
             sigma2_ = params.sigma2_;
@@ -137,12 +138,15 @@ public:
 		   * Compare for equality with another param_type object
 		   */
         bool operator==(const param_type &p) const {
-            if(mean_ != p.mean_)
+            if(mean_ != p.mean_) {
                 return false;
-            if(sigma1_ != p.sigma1())
+            }
+            if(sigma1_ != p.sigma1()) {
                 return false;
-            if(sigma2_ != p.sigma2())
+            }
+            if(sigma2_ != p.sigma2()) {
                 return false;
+            }
             return distance_ == p.distance();
         }
 
@@ -299,7 +303,7 @@ private:
     std::normal_distribution<fp_type>
         normal_distribution_{}; ///< Needed to form each gaussian "hill" of the distribution
     std::bernoulli_distribution
-        uniform_bool_{}; ///< Needed to decide whether a gaussian is created for the left or right peak
+        uniform_bool_; ///< Needed to decide whether a gaussian is created for the left or right peak
 
     param_type params_{
         fp_type(DEF_BINORM_MEAN),

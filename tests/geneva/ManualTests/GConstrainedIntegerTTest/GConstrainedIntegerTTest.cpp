@@ -117,21 +117,21 @@ int main(int argc, char **argv) {
     for(std::uint32_t i = 0; i < NTESTS; i++) {
         *multipleFlipMutation_ptr &gMultFlipMut.value();
         *multipleFlipProgress_ptr &std::tuple<double, double>(
-            (double)i,
-            (double)gMultFlipMut.value()
+            static_cast<double>(i),
+            static_cast<double>(gMultFlipMut.value())
         );
         gMultFlipMut.adapt(gr);
 
         *multipleGaussMutation_ptr &gMultGaussMut.value();
         *multipleGaussProgress_ptr &std::tuple<double, double>(
-            (double)i,
-            (double)gMultGaussMut.value()
+            static_cast<double>(i),
+            static_cast<double>(gMultGaussMut.value())
         );
         gMultGaussMut.adapt(gr);
 
-        internalValue = -30. + 50. * double(i) / double(NTESTS);
+        internalValue = -30. + 50. * static_cast<double>(i) / static_cast<double>(NTESTS);
 
-        externalValue = double(gint13.transfer(std::int32_t(internalValue)));
+        externalValue = static_cast<double>(gint13.transfer(static_cast<std::int32_t>(internalValue)));
         *mapping_ptr &std::tuple<double, double>(internalValue, externalValue);
     }
 

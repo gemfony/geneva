@@ -315,21 +315,21 @@ int main(int argc, char **argv) {
         gdbga_ptr->adapt(mutVal, 1., gr);
 
         (*gmutpar_iter_ptr) &
-            std::tuple<double, double>((double)i, mutVal); // The new value of sigma
+            std::tuple<double, double>(static_cast<double>(i), mutVal); // The new value of sigma
         (*gmutpardiff_iter_ptr) & std::tuple<double, double>(
-                                      (double)i,
+                                      static_cast<double>(i),
                                       mutVal - mutValOld
                                   ); // Difference between last known value and current value
         (*gsigma1_iter_ptr) & std::tuple<double, double>(
-                                  (double)i,
+                                  static_cast<double>(i),
                                   gdbga_ptr->getSigma1()
                               ); // Value of sigma1 after sigma-adaption
         (*gsigma2_iter_ptr) & std::tuple<double, double>(
-                                  (double)i,
+                                  static_cast<double>(i),
                                   gdbga_ptr->getSigma2()
                               ); // Value of sigma2 after sigma-adaption
         (*gdelta_iter_ptr) & std::tuple<double, double>(
-                                 (double)i,
+                                 static_cast<double>(i),
                                  gdbga_ptr->getDelta()
                              ); // Value of delta after adaption
     }

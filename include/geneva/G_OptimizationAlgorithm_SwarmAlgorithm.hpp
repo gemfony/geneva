@@ -277,8 +277,8 @@ protected:
         std::vector<std::shared_ptr<GParameterSet>>(
             n_neighborhoods_
         ); ///< The collection of best individuals from each neighborhood
-    std::vector<std::shared_ptr<GParameterSet>> velocities_cnt_ = std::vector<std::shared_ptr<
-        GParameterSet>>(); ///< Holds velocities, as calculated in the previous iteration
+    std::vector<std::shared_ptr<GParameterSet>>
+        velocities_cnt_; ///< Holds velocities, as calculated in the previous iteration
 
     double c_personal_ =
         DEFAULTCPERSONAL; ///< A factor for multiplication of personal best distances
@@ -294,12 +294,12 @@ protected:
     std::uint32_t repulsion_threshold_ =
         DEFREPULSIONTHRESHOLD; ///< The number of stalls until the swarm algorithm switches to repulsion instead of attraction
 
-    std::vector<double> dbl_lower_parameter_boundaries_cnt_ =
-        std::vector<double>(); ///< Holds lower boundaries of double parameters
-    std::vector<double> dbl_upper_parameter_boundaries_cnt_ =
-        std::vector<double>(); ///< Holds upper boundaries of double parameters
-    std::vector<double> dbl_vel_max_cnt_ =
-        std::vector<double>(); ///< Holds the maximum allowed values of double-type velocities
+    std::vector<double>
+        dbl_lower_parameter_boundaries_cnt_; ///< Holds lower boundaries of double parameters
+    std::vector<double>
+        dbl_upper_parameter_boundaries_cnt_; ///< Holds upper boundaries of double parameters
+    std::vector<double>
+        dbl_vel_max_cnt_; ///< Holds the maximum allowed values of double-type velocities
 
     double velocity_range_percentage_ =
         DEFAULTVELOCITYRANGEPERCENTAGE; ///< Indicates the percentage of a value range used for the initialization of the velocity

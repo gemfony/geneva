@@ -45,8 +45,7 @@ GEvolutionaryAlgorithmPostOptimizer::GEvolutionaryAlgorithmPostOptimizer(
     const std::string &oa_config_file,
     const std::string &executor_config_file
 )
-  : GPostProcessorBaseT<GParameterSet>()
-  , oa_configFile_(oa_config_file)
+  : oa_configFile_(oa_config_file)
   , executor_configFile_(executor_config_file)
   , executionMode_(
         (execution_mode == execMode::SERIAL || execution_mode == execMode::MULTITHREADED)
@@ -279,8 +278,9 @@ bool GEvolutionaryAlgorithmPostOptimizer::modify_GUnitTests_() {
     bool result = false;
 
     // Call the parent class'es function
-    if(GPostProcessorBaseT<GParameterSet>::modify_GUnitTests_())
+    if(GPostProcessorBaseT<GParameterSet>::modify_GUnitTests_()) {
         result = true;
+    }
 
     return result;
 

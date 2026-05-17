@@ -178,8 +178,9 @@ bool GDoubleGaussAdaptor::modify_GUnitTests_() {
     bool result = false;
 
     // Call the parent class'es function
-    if(GFPGaussAdaptorT<double>::modify_GUnitTests_())
+    if(GFPGaussAdaptorT<double>::modify_GUnitTests_()) {
         result = true;
+    }
 
     return result;
 

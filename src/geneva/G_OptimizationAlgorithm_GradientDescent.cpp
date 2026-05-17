@@ -54,8 +54,7 @@ GGradientDescent::GGradientDescent(
     const double &finite_step,
     const double &step_size
 )
-  : G_OptimizationAlgorithm_Base()
-  , nStartingPoints_(n_starting_points)
+  : nStartingPoints_(n_starting_points)
   , finiteStep_(finite_step)
   , stepSize_(step_size) { /* nothing */
 }
@@ -499,7 +498,7 @@ void GGradientDescent::runFitnessCalculation_() {
     //--------------------------------------------------------------------------------
     // Submit all work items and wait for their return
 
-    setProcessingFlag(this->data_cnt_, std::make_tuple(std::size_t(0), this->data_cnt_.size()));
+    setProcessingFlag(this->data_cnt_, std::make_tuple(static_cast<std::size_t>(0), this->data_cnt_.size()));
     auto status = this->workOn(
         this->data_cnt_,
         true // resubmit unprocessed items
@@ -591,16 +590,16 @@ void GGradientDescent::init() {
  */
 void GGradientDescent::updateDerivedQuantities() {
     // Set the step ratio. We do the calculation in long double precision to preserve accuracy
-    stepRatio_ = ((long double)stepSize_) / ((long double)finiteStep_);
+    stepRatio_ = (static_cast<long double>(stepSize_)) / (static_cast<long double>(finiteStep_));
 
     // Calculate a specific finiteStep_ value for each parameter in long double precision
     try {
         adjustedFiniteStep_.clear();
-        long double finite_step_ratio = ((long double)finiteStep_) / ((long double)1000.);
+        long double finite_step_ratio = (static_cast<long double>(finiteStep_)) / (static_cast<long double>(1000.));
         for(std::size_t pos = 0; pos < dblLowerParameterBoundaries_.size(); pos++) {
             long double parameter_range = // NOLINT(cppcoreguidelines-init-variables)
-                (long double)dblUpperParameterBoundaries_[pos] -
-                (long double)dblLowerParameterBoundaries_[pos];
+                static_cast<long double>(dblUpperParameterBoundaries_[pos]) -
+                static_cast<long double>(dblLowerParameterBoundaries_[pos]);
             adjustedFiniteStep_.push_back(
                 Gem::Common::narrow_cast<double>(finite_step_ratio * parameter_range)
             );
@@ -752,8 +751,9 @@ bool GGradientDescent::modify_GUnitTests_() {
     bool result = false;
 
     // Call the parent class'es function
-    if(G_OptimizationAlgorithm_Base::modify_GUnitTests_())
+    if(G_OptimizationAlgorithm_Base::modify_GUnitTests_()) {
         result = true;
+    }
 
     return result;
 #else  /* GEM_TESTING */

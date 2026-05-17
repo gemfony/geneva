@@ -194,8 +194,9 @@ std::vector<std::string> loadTextLinesFromFile(std::filesystem::path const &p) {
 
     while(std::getline(source_file_stream, line)) {
         // Omit empty lines, store everything else in the vector
-        if(not line.empty())
+        if(not line.empty()) {
             str_result_vec.push_back(line);
+        }
     }
 
     return str_result_vec;
@@ -286,24 +287,30 @@ std::vector<std::string> splitString(std::string const &str, const char *sep) {
         // Trim leading/trailing whitespace
         auto b = frag.find_first_not_of(" \t\r\n");
         auto e = frag.find_last_not_of(" \t\r\n");
-        if(b != std::string::npos)
+        if(b != std::string::npos) {
             frag = frag.substr(b, e - b + 1);
-        else
+        }
+        else {
             frag.clear();
-        if(not frag.empty())
+        }
+        if(not frag.empty()) {
             result.push_back(std::move(frag));
+        }
         start = pos + 1;
     }
     // Remainder after the last separator
     std::string frag = str.substr(start);
     auto b = frag.find_first_not_of(" \t\r\n");
     auto e = frag.find_last_not_of(" \t\r\n");
-    if(b != std::string::npos)
+    if(b != std::string::npos) {
         frag = frag.substr(b, e - b + 1);
-    else
+    }
+    else {
         frag.clear();
-    if(not frag.empty())
+    }
+    if(not frag.empty()) {
         result.push_back(std::move(frag));
+    }
 
     return result;
 }

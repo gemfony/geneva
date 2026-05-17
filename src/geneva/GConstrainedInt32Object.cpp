@@ -349,8 +349,9 @@ bool GConstrainedInt32Object::modify_GUnitTests_() {
     bool result = false;
 
     // Call the parent class'es function
-    if(GConstrainedIntT<std::int32_t>::modify_GUnitTests_())
+    if(GConstrainedIntT<std::int32_t>::modify_GUnitTests_()) {
         result = true;
+    }
 
     if(this->value() == this->getLowerBoundary()) {
         this->setValue(this->getLowerBoundary() + 1);

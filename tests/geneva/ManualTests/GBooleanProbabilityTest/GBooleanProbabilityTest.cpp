@@ -132,9 +132,9 @@ int main(int argc, char **argv) {
     }
 
     std::cout << "A flip ratio (no probability adaption): "
-              << A_noprobadapt_flipped / double(MAXFLIP) << '\n'
+              << A_noprobadapt_flipped / static_cast<double>(MAXFLIP) << '\n'
               << "B flip ratio (no probability adaption): "
-              << B_noprobadapt_flipped / double(MAXFLIP * NBIT) << '\n';
+              << B_noprobadapt_flipped / static_cast<double>(MAXFLIP * NBIT) << '\n';
 
     /////////////////////////////////////////////////////////////////////////////////////////
     // Tests with adaption of flip probability
@@ -177,10 +177,10 @@ int main(int argc, char **argv) {
         }
     }
 
-    std::cout << "A flip ratio (probability adaption): " << A_probadapt_flipped / double(MAXFLIP)
+    std::cout << "A flip ratio (probability adaption): " << A_probadapt_flipped / static_cast<double>(MAXFLIP)
               << '\n'
               << "B flip ratio (probability adaption): "
-              << B_probadapt_flipped / double(MAXFLIP * NBIT) << '\n';
+              << B_probadapt_flipped / static_cast<double>(MAXFLIP * NBIT) << '\n';
 
     ofs << '\n'
         << "  cc->cd(1);" << '\n'

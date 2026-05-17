@@ -283,7 +283,7 @@ public:
     GDecorator() = default;
     GDecorator(GDecorator<dimensions::Dim2, coordinate_type> const &cp) = default;
     GDecorator(GDecorator<dimensions::Dim2, coordinate_type> &&cp) noexcept = default;
-    virtual ~GDecorator() = default;
+    ~GDecorator() override = default;
 
     GDecorator<dimensions::Dim2, coordinate_type> &
     operator=(GDecorator<dimensions::Dim2, coordinate_type> const &) = default;
@@ -477,7 +477,7 @@ public:
             return this->decoratorData(indent, pos);
         }
         else {
-            return std::string();
+            return {};
         }
     }
 
@@ -614,7 +614,7 @@ public:
     GDecorator() = default;
     GDecorator(GDecorator<dimensions::Dim3, coordinate_type> const &cp) = default;
     GDecorator(GDecorator<dimensions::Dim3, coordinate_type> &&cp) noexcept = default;
-    virtual ~GDecorator() = default;
+    ~GDecorator() override = default;
 
     GDecorator<dimensions::Dim3, coordinate_type> &
     operator=(GDecorator<dimensions::Dim3, coordinate_type> const &) = default;
@@ -771,7 +771,7 @@ public:
     GDecoratorContainer<dimensions::Dim2, coordinate_type> &
     operator=(GDecoratorContainer<dimensions::Dim2, coordinate_type> &&) noexcept = default;
 
-    virtual ~GDecoratorContainer() = default;
+    ~GDecoratorContainer() override = default;
 
     /***************************************************************************/
     /**
@@ -1298,7 +1298,7 @@ public:
 
     GBasePlotter() = default;
     GBasePlotter(GBasePlotter &&) = default;
-    virtual ~GBasePlotter() = default;
+    ~GBasePlotter() override = default;
 
     GBasePlotter &operator=(GBasePlotter &&) = default;
 
@@ -1423,8 +1423,7 @@ private:
 
     /***************************************************************************/
     /** @brief A list of plotters that should emit their data into the same canvas */
-    std::vector<std::shared_ptr<GBasePlotter>> secondaryPlotter_ =
-        std::vector<std::shared_ptr<GBasePlotter>>();
+    std::vector<std::shared_ptr<GBasePlotter>> secondaryPlotter_;
 
     std::size_t id_ = 0; ///< The id of this object
 };
@@ -4025,7 +4024,7 @@ public:
     // Defaulted default constructor in private section
 
     GPlotDesigner(GPlotDesigner &&) = default;
-    virtual ~GPlotDesigner() = default;
+    ~GPlotDesigner() override = default;
 
     GPlotDesigner &operator=(GPlotDesigner &&) = default;
 
@@ -4107,8 +4106,8 @@ private:
     /** @brief Creates a deep clone of this object */
     GPlotDesigner *clone_() const override;
 
-    std::vector<std::shared_ptr<GBasePlotter>> plotters_cnt_ = std::vector<
-        std::shared_ptr<GBasePlotter>>(); ///< A list of plots to be added to the diagram
+    std::vector<std::shared_ptr<GBasePlotter>>
+        plotters_cnt_; ///< A list of plots to be added to the diagram
 
     std::size_t c_x_div_ = 1, c_y_div_ = 1; ///< The number of divisions in x- and y-direction
     std::uint32_t c_x_dim_ = DEFCXDIM,
@@ -4120,7 +4119,7 @@ private:
     bool add_print_command_ =
         false; ///< Indicates whether a print command for the creation of a png file should be added
 
-    std::size_t n_indention_spaces_ = std::size_t(DEFNINDENTIONSPACES);
+    std::size_t n_indention_spaces_ = (DEFNINDENTIONSPACES);
 };
 
 /******************************************************************************/

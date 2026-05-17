@@ -103,7 +103,7 @@ int main(int argc, char **argv) {
     gpb.registerCLParameter<int>(
         "creationSwitcher,c",
         creationSwitcher,
-        int(0),
+        (0),
         "Allows to switch between configuration file creation (0) and file parsing (1)"
     );
 
@@ -318,8 +318,9 @@ int main(int argc, char **argv) {
     {
         // writeConfigFile will fail if the config file already exists. Check for the existance of the file
         // and erase it, if necessary
-        if(std::filesystem::exists(file_path))
+        if(std::filesystem::exists(file_path)) {
             std::filesystem::remove(file_path);
+        }
 
         std::string header =
             "This is a not so complicated header;with a second line;and a third line as well";

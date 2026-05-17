@@ -386,8 +386,9 @@ bool GDoubleCollection::modify_GUnitTests_() {
     bool result = false;
 
     // Call the parent class'es function
-    if(GFPNumCollectionT<double>::modify_GUnitTests_())
+    if(GFPNumCollectionT<double>::modify_GUnitTests_()) {
         result = true;
+    }
 
     this->fillWithData_(10);
     result = true;
@@ -647,8 +648,9 @@ void GDoubleCollection::specificTestsNoFailureExpected_GUnitTests_() {
         // Iterate over the sequence
         GDoubleCollection::iterator it;
         std::size_t item_count = 0;
-        for(it = p_test1->begin(); it != p_test1->end(); ++it)
+        for(it = p_test1->begin(); it != p_test1->end(); ++it) {
             item_count++;
+        }
         CHECK(item_count == n_items);
     }
 
@@ -694,13 +696,15 @@ void GDoubleCollection::specificTestsNoFailureExpected_GUnitTests_() {
         std::vector<double> data_copy;
         CHECK_NOTHROW(p_test1->getDataCopy(data_copy));
         CHECK(data_copy.size() == n_items);
-        CHECK((std::size_t)std::count(data_copy.begin(), data_copy.end(), 1.) == n_items);
+        CHECK(static_cast<std::size_t>(std::count(data_copy.begin(), data_copy.end(), 1.)) == n_items);
 
         // Assign 1 to all positions and add further items
-        for(std::size_t i = 0; i < data_copy.size(); i++)
+        for(std::size_t i = 0; i < data_copy.size(); i++) {
             data_copy[i] = 0.;
-        for(std::size_t i = 0; i < n_items; i++)
+        }
+        for(std::size_t i = 0; i < n_items; i++) {
             data_copy.push_back(0.);
+        }
 
         // Assign the vector to p_test1 and cross-check
         CHECK_NOTHROW(p_test1->Gem::Common::GPodContainerT<double>::operator=(data_copy));

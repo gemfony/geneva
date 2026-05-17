@@ -213,7 +213,6 @@ GBasePlotter::GBasePlotter(const GBasePlotter &cp)
   , z_axis_label_(cp.z_axis_label_)
   , plot_label_(cp.plot_label_)
   , dsMarker_(cp.dsMarker_)
-  , secondaryPlotter_()
   , id_(cp.id_) {
     // Note: Explicit scope needed for name resolution of clone -- compare
     // https://isocpp.org/wiki/faq/templates#nondependent-name-lookup-members
@@ -229,8 +228,9 @@ GBasePlotter::GBasePlotter(const GBasePlotter &cp)
  * Assignment operator
  */
 GBasePlotter &GBasePlotter::operator=(GBasePlotter const &cp) {
-    if(this == &cp)
+    if(this == &cp) {
         return *this;
+    }
     GCommonInterfaceT<GBasePlotter>::operator=(cp);
 
     drawingArguments_ = cp.drawingArguments_;
@@ -787,7 +787,7 @@ GGraph2D::footerData_(bool is_secondary, std::size_t p_id, const std::string &in
  * Retrieve the current drawing arguments
  */
 std::string GGraph2D::drawingArguments(bool is_secondary) const {
-    std::string d_a = "";
+    std::string d_a;
 
     if(this->drawingArguments_ != "") {
         d_a = this->drawingArguments_;
@@ -1030,7 +1030,7 @@ GGraph2ED::footerData_(bool is_secondary, std::size_t p_id, const std::string &i
  * Retrieve the current drawing arguments
  */
 std::string GGraph2ED::drawingArguments(bool is_secondary) const {
-    std::string d_a = "";
+    std::string d_a;
 
     if(this->drawingArguments_ != "") {
         d_a = this->drawingArguments_;
@@ -1298,7 +1298,7 @@ GGraph3D::footerData_(bool is_secondary, std::size_t p_id, const std::string &in
  * Retrieve the current drawing arguments
  */
 std::string GGraph3D::drawingArguments(bool is_secondary) const {
-    std::string d_a = "";
+    std::string d_a;
 
     if(this->drawingArguments_ != "") {
         d_a = this->drawingArguments_;
@@ -1607,7 +1607,7 @@ GGraph4D::footerData_(bool is_secondary, std::size_t p_id, const std::string &in
  * Retrieve the current drawing arguments
  */
 std::string GGraph4D::drawingArguments(bool) const {
-    std::string d_a = "";
+    std::string d_a;
 
     // nothing
 
@@ -1772,7 +1772,7 @@ GHistogram1D::footerData_(bool is_secondary, std::size_t p_id, const std::string
  * Retrieve the current drawing arguments
  */
 std::string GHistogram1D::drawingArguments(bool is_secondary) const {
-    std::string d_a = "";
+    std::string d_a;
 
     if(drawingArguments_ != "") {
         d_a = drawingArguments_;
@@ -1896,8 +1896,7 @@ void GHistogram1D::load_(const GBasePlotter *cp) {
  * The standard constructor
  */
 GHistogram1I::GHistogram1I(const std::size_t &n_bins_x, const double &min_x, const double &max_x)
-  : GDataCollector1T<std::int32_t>()
-  , nBinsX_(n_bins_x)
+  : nBinsX_(n_bins_x)
   , minX_(min_x)
   , maxX_(max_x) { /* nothing */
 }
@@ -1907,8 +1906,7 @@ GHistogram1I::GHistogram1I(const std::size_t &n_bins_x, const double &min_x, con
  * Initialization with a range in the form of a tuple
  */
 GHistogram1I::GHistogram1I(const std::size_t &n_bins_x, const std::tuple<double, double> &range_x)
-  : GDataCollector1T<std::int32_t>()
-  , nBinsX_(n_bins_x)
+  : nBinsX_(n_bins_x)
   , minX_(std::get<0>(range_x))
   , maxX_(std::get<1>(range_x)) { /* nothing */
 }
@@ -2007,7 +2005,7 @@ GHistogram1I::footerData_(bool is_secondary, std::size_t p_id, const std::string
  * Retrieve the current drawing arguments
  */
 std::string GHistogram1I::drawingArguments(bool is_secondary) const {
-    std::string d_a = "";
+    std::string d_a;
 
     if(drawingArguments_ != "") {
         d_a = drawingArguments_;
@@ -2286,7 +2284,7 @@ GHistogram2D::footerData_(bool is_secondary, std::size_t p_id, const std::string
  * Retrieve the current drawing arguments
  */
 std::string GHistogram2D::drawingArguments(bool is_secondary) const {
-    std::string d_a = "";
+    std::string d_a;
 
     if(drawingArguments_ != "") {
         d_a = drawingArguments_;
@@ -2640,7 +2638,7 @@ std::string GFunctionPlotter1D::headerData_(
  */
 std::string GFunctionPlotter1D::bodyData_(bool, std::size_t, std::string const &) const {
     // No data needs to be added for a function plotter
-    return std::string();
+    return {};
 }
 
 /******************************************************************************/
@@ -2689,7 +2687,7 @@ std::string GFunctionPlotter1D::footerData_(
  * Retrieve the current drawing arguments
  */
 std::string GFunctionPlotter1D::drawingArguments(bool is_secondary) const {
-    std::string d_a = "";
+    std::string d_a;
 
     if(this->drawingArguments_ != "") {
         d_a = this->drawingArguments_;
@@ -2869,7 +2867,7 @@ std::string GFunctionPlotter2D::headerData_(
  */
 std::string GFunctionPlotter2D::bodyData_(bool, std::size_t, std::string const &) const {
     // No data needs to be added for a function plotter
-    return std::string();
+    return {};
 }
 
 /******************************************************************************/
@@ -2921,7 +2919,7 @@ std::string GFunctionPlotter2D::footerData_(
  * Retrieve the current drawing arguments
  */
 std::string GFunctionPlotter2D::drawingArguments(bool is_secondary) const {
-    std::string d_a = "";
+    std::string d_a;
 
     if(is_secondary) {
         if("" == d_a) {
@@ -3004,8 +3002,9 @@ GPlotDesigner::GPlotDesigner(const GPlotDesigner &cp)
  * The assignment operator
  */
 GPlotDesigner &GPlotDesigner::operator=(GPlotDesigner const &cp) {
-    if(this == &cp)
+    if(this == &cp) {
         return *this;
+    }
     c_x_div_ = cp.c_x_div_;
     c_y_div_ = cp.c_y_div_;
     c_x_dim_ = cp.c_x_dim_;
@@ -3097,10 +3096,12 @@ std::string GPlotDesigner::plot(const std::filesystem::path &plot_name) const {
         std::string plot_name_local = plot_name.string(); // Make sure there are no white spaces
         auto ltrim = plot_name_local.find_first_not_of(" \t\r\n");
         auto rtrim = plot_name_local.find_last_not_of(" \t\r\n");
-        if(ltrim != std::string::npos)
+        if(ltrim != std::string::npos) {
             plot_name_local = plot_name_local.substr(ltrim, rtrim - ltrim + 1);
-        else
+        }
+        else {
             plot_name_local.clear();
+        }
         result << '\n'
                << indent() << "// Print out the data of this file to a png file" << '\n'
                << indent() << "cc->Print(\"" << plot_name_local << ".png\");" << '\n';

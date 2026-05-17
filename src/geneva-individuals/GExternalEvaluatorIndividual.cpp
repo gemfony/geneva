@@ -40,8 +40,7 @@ namespace Gem::Geneva {
  * The default constructor.
  */
 GExternalEvaluatorIndividual::GExternalEvaluatorIndividual()
-  : GParameterSet()
-  , program_name_(GEEI_DEF_PROGNAME)
+  : program_name_(GEEI_DEF_PROGNAME)
   , custom_options_(GEEI_DEF_CUSTOMOPTIONS)
   , parameter_file_base_name_(GEEI_DEF_PARFILEBASENAME)
   , n_results_(GEEI_DEF_NRESULTS)
@@ -245,7 +244,7 @@ double GExternalEvaluatorIndividual::fitnessCalculation() {
     // Output the header data
     ptr_out.put(batch + ".dataType", std::string("run_parameters"));
     ptr_out.put(batch + ".run_id", this->getRunId());
-    ptr_out.put(batch + ".n_individuals", std::size_t(1));
+    ptr_out.put(batch + ".n_individuals", static_cast<std::size_t>(1));
 
     std::string basename = batch + ".individuals.individual0";
     this->toPropertyTree(ptr_out, basename);
@@ -286,7 +285,7 @@ double GExternalEvaluatorIndividual::fitnessCalculation() {
     if(custom_options_ != "empty" && not custom_options_.empty()) {
         arguments.push_back(custom_options_);
     }
-    arguments.push_back(std::string("--evaluate"));
+    arguments.emplace_back("--evaluate");
     arguments.push_back(std::string("--input=\"") + parameterfile_name + "\"");
     arguments.push_back(std::string("--output=\"") + result_file_name + "\"");
 
@@ -612,7 +611,7 @@ GExternalEvaluatorIndividualFactory::~GExternalEvaluatorIndividualFactory() {
     if(customOptions_.value() != "empty" && not customOptions_.value().empty()) {
         arguments.push_back(customOptions_.value());
     }
-    arguments.push_back(std::string("--finalize"));
+    arguments.emplace_back("--finalize");
 
     // Ask the external evaluation program to perform any final work
     std::string command;
@@ -1238,8 +1237,9 @@ void GExternalEvaluatorIndividualFactory::archive(
     const std::vector<std::shared_ptr<GExternalEvaluatorIndividual>> &arch
 ) const {
     // Check that there are individuals contained in the archive
-    if(arch.empty())
+    if(arch.empty()) {
         return; // Do nothing
+    }
 
     // Transform the objects into a batch of boost property tree
     boost::property_tree::ptree ptr_out; // NOLINT(cppcoreguidelines-init-variables)
@@ -1282,7 +1282,7 @@ void GExternalEvaluatorIndividualFactory::archive(
     if(customOptions_.value() != "empty" && not customOptions_.value().empty()) {
         arguments.push_back(customOptions_.value());
     }
-    arguments.push_back(std::string("--archive"));
+    arguments.emplace_back("--archive");
     arguments.push_back(std::string("--input=\"" + parameterfile_name + "\""));
 
     // Ask the external evaluation program to perform any final work
@@ -1454,10 +1454,12 @@ void GExternalEvaluatorIndividualFactory::describeLocalOptions_(Gem::Common::GPa
  * called more than once.
  */
 void GExternalEvaluatorIndividualFactory::setUpPropertyTree() {
-    if(externalEvaluatorQueried_)
+    if(externalEvaluatorQueried_) {
         return;
-    else
+    }
+    else {
         externalEvaluatorQueried_ = true;
+    }
 
     // Check that the file name isn't empty
     if(programName_.value().empty()) {
@@ -1487,7 +1489,7 @@ void GExternalEvaluatorIndividualFactory::setUpPropertyTree() {
         if(customOptions_.value() != "empty" && not customOptions_.value().empty()) {
             arguments.push_back(customOptions_.value());
         }
-        arguments.push_back(std::string("--init"));
+        arguments.emplace_back("--init");
 
         // Ask the external evaluation program to perform any initial work
         std::string command;

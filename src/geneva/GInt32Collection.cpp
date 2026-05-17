@@ -387,8 +387,9 @@ bool GInt32Collection::modify_GUnitTests_() {
     bool result = false;
 
     // Call the parent class'es function
-    if(GIntNumCollectionT<std::int32_t>::modify_GUnitTests_())
+    if(GIntNumCollectionT<std::int32_t>::modify_GUnitTests_()) {
         result = true;
+    }
 
     this->push_back(5);
     result = true;

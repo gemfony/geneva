@@ -275,8 +275,9 @@ protected:
         bool result = false;
 
         // Call the parent classes' functions
-        if(GParameterBaseWithAdaptorsT<T>::modify_GUnitTests_())
+        if(GParameterBaseWithAdaptorsT<T>::modify_GUnitTests_()) {
             result = true;
+        }
 
         return result;
 

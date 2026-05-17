@@ -113,7 +113,7 @@ public:
     GObject(GObject const &cp) = default;
     GObject(GObject &&cp) = default;
 
-    virtual ~GObject() = default;
+    ~GObject() override = default;
 
     GObject &operator=(GObject const &) = default;
     GObject &operator=(GObject &&) = default;

@@ -153,7 +153,7 @@ public:
       : Gem::Common::GCommonInterfaceT<GBaseExecutorT<processable_type>>(std::move(cp))
       , maxResubmissions_(cp.maxResubmissions_) {
         // Reset the other object
-        cp.iteration_counter_ = ITERATION_COUNTER_TYPE(0);
+        cp.iteration_counter_ = static_cast<ITERATION_COUNTER_TYPE>(0);
         cp.expectedNumber_ = 0;
         cp.object_first_submission_time_ = std::chrono::high_resolution_clock::time_point{};
         cp.iteration_first_submission_time_ = std::chrono::high_resolution_clock::time_point{};
@@ -181,7 +181,7 @@ public:
     // Some defaulted or deleted constructors, destructor and assignment operators
 
     GBaseExecutorT() = default;
-    virtual ~GBaseExecutorT() = default;
+    ~GBaseExecutorT() override = default;
 
     GBaseExecutorT<processable_type> &operator=(GBaseExecutorT<processable_type> const &) = delete;
     GBaseExecutorT<processable_type> &operator=(GBaseExecutorT<processable_type> &&) = delete;
@@ -295,10 +295,12 @@ public:
             auto current_status = waitForReturn(workItems, old_work_items_cnt_);
 
             // There may not be errors during resubmission, so we need to save the "error state"
-            if(current_status.is_complete)
+            if(current_status.is_complete) {
                 status.is_complete = true;
-            if(current_status.has_errors)
+            }
+            if(current_status.has_errors) {
                 status.has_errors = true;
+            }
 
             // Perform necessary cleanup work for an iteration
             this->cycleFinalize(workItems);
@@ -875,14 +877,16 @@ protected:
 
         // First check that there are no remaining items with the DO_PROCESS status
         auto nUnprocessed = this->countItemsWithStatus(workItems, processingStatus::DO_PROCESS);
-        if(nUnprocessed > 0)
+        if(nUnprocessed > 0) {
             is_complete = false;
+        }
 
         // Now check for error states
         auto nErrorState = this->countItemsWithStatus(workItems, processingStatus::ERROR_FLAGGED);
         nErrorState += this->countItemsWithStatus(workItems, processingStatus::EXCEPTION_CAUGHT);
-        if(nErrorState > 0)
+        if(nErrorState > 0) {
             has_errors = true;
+        }
 
         return executor_status_t{is_complete, has_errors};
     }
@@ -1012,7 +1016,7 @@ private:
     // Data
 
     /* @brief Counts the number of submissions initiated for this object; may also be set by the user */
-    ITERATION_COUNTER_TYPE iteration_counter_ = ITERATION_COUNTER_TYPE(0);
+    ITERATION_COUNTER_TYPE iteration_counter_ = static_cast<ITERATION_COUNTER_TYPE>(0);
 
     std::size_t expectedNumber_ =
         0; ///< The number of work items to be submitted (and expected back)
@@ -2221,15 +2225,17 @@ private:
         do {
             // Get the next individual. If we didn't receive a valid
             // item, go to the timeout check
-            if(not(w_ptr = this->getNextItem()))
+            if(not(w_ptr = this->getNextItem())) {
                 continue; // NOLINT(bugprone-assignment-in-if-condition)
+            }
 
             // Try to add the work item to the list and check for completeness
             status = this->addWorkItemAndCheckCompleteness(w_ptr, workItems, oldWorkItems);
 
             // No need to continue if all currently submitted work items have returned
-            if(status.is_complete)
+            if(status.is_complete) {
                 break;
+            }
 
             // For succesfully processed items, update the internal timeout variables,
             // so we know how much longer this cycle should run
@@ -2275,8 +2281,9 @@ private:
             );
 
             // Break the loop if all items (or at least the minimum percentage) were received
-            if(status.is_complete || this->minPartialReturnRateReached())
+            if(status.is_complete || this->minPartialReturnRateReached()) {
                 break;
+            }
         }
         while(true);
 
@@ -2359,8 +2366,9 @@ private:
 
             return true;
         }
-        else
+        else {
             return false;
+        }
     }
 
     /***************************************************************************/
@@ -2369,12 +2377,14 @@ private:
 	  */
     bool halt() {
         // Timeout checks and update of timeout variables
-        if(this->timeout())
+        if(this->timeout()) {
             return true;
+        }
 
         // For some algorithms, a partial return rate suffices
-        if(this->minPartialReturnRateReached())
+        if(this->minPartialReturnRateReached()) {
             return true;
+        }
 
         // We want to continue
         return false;
@@ -2386,13 +2396,15 @@ private:
 	  */
     bool minPartialReturnRateReached() {
         // Leave if this check is disabled
-        if(0 == this->getMinPartialReturnPercentage())
+        if(0 == this->getMinPartialReturnPercentage()) {
             return false;
+        }
 
         // Avoid problems related to floating point accuracy
         std::size_t expectedNumber = this->getExpectedNumber();
-        if(nReturnedCurrent_ == expectedNumber)
+        if(nReturnedCurrent_ == expectedNumber) {
             return true;
+        }
 
         // Check if we have reached the minimum percentage
         double realPercentage = Gem::Common::narrow_cast<double>(nReturnedCurrent_) /
@@ -2603,12 +2615,15 @@ private:
                       workItems.at(worker_position)->getProcessingStatus()) {
                 // Note that also items with errors may be added here. It is up to
                 // the caller to decide what to do with such work items.
-                if(workItems.at(worker_position) != w_ptr)
+                if(workItems.at(worker_position) != w_ptr) {
                     workItems.at(worker_position) = w_ptr;
-                if(++nReturnedCurrent_ == this->getExpectedNumber())
+                }
+                if(++nReturnedCurrent_ == this->getExpectedNumber()) {
                     complete = true;
-                if(w_ptr->has_errors())
+                }
+                if(w_ptr->has_errors()) {
                     has_errors = true;
+                }
             } // no else
         }
         else { // Not a work item from the current submission cycle.

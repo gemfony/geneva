@@ -549,10 +549,10 @@ public:
         // No need to test for "adaptionMode_ == adaptionMode::NEVER" as no action is needed in this case
 
         if(adapted) {
-            return std::size_t(1);
+            return static_cast<std::size_t>(1);
         }
         else {
-            return std::size_t(0);
+            return static_cast<std::size_t>(0);
         }
     }
 
@@ -676,7 +676,7 @@ public:
 	  * @return A diagnostic message
 	  */
     virtual std::string printDiagnostics() const {
-        return std::string();
+        return {};
     }
 
     /***************************************************************************/

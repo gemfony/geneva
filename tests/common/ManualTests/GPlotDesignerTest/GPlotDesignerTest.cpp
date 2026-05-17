@@ -68,7 +68,7 @@ int main(int argc, char **argv) {
     gsin_ptr->registerSecondaryPlotter(gcos_ptr_2);
 
     for(std::size_t i = 0; i < 1000; i++) {
-        double x = 2 * std::numbers::pi * double(i) / 1000. -
+        double x = 2 * std::numbers::pi * static_cast<double>(i) / 1000. -
                    std::numbers::pi;
 
         (*gsin_ptr) & std::tuple<double, double>(x, sin(x));

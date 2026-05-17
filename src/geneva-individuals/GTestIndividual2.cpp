@@ -71,8 +71,7 @@ std::istream &operator>>(std::istream &i, Gem::Tests::PERFOBJECTTYPE &lt) {
 /**
  * The default constructor -- private, as it is only needed for (de-)serialization purposes
  */
-GTestIndividual2::GTestIndividual2()
-  : GParameterSet() { /* nothing */
+GTestIndividual2::GTestIndividual2() { /* nothing */
 }
 
 /******************************************************************************/
@@ -81,8 +80,7 @@ GTestIndividual2::GTestIndividual2()
  *
  * @param n_objects The number of parameters to be added to this individual
  */
-GTestIndividual2::GTestIndividual2(const std::size_t &n_objects, const PERFOBJECTTYPE &otype)
-  : GParameterSet() {
+GTestIndividual2::GTestIndividual2(const std::size_t &n_objects, const PERFOBJECTTYPE &otype) {
     using namespace Gem::Geneva;
 
     // Fill with the requested amount of data of the requested type
@@ -266,8 +264,9 @@ bool GTestIndividual2::modify_GUnitTests_() {
     bool result = false;
 
     // Call the parent classes' functions
-    if(Gem::Geneva::GParameterSet::modify_GUnitTests_())
+    if(Gem::Geneva::GParameterSet::modify_GUnitTests_()) {
         result = true;
+    }
 
     // Change the parameter settings
     result = true;

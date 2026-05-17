@@ -640,93 +640,122 @@ public:
     void operator()(const operation &x) const {
         boost::apply_visitor(*this, x.operand_);
 
-        if(x.operator_ == '+')
+        if(x.operator_ == '+') {
             code_.push_back(codeEntry(byte_code::op_add));
-        else if(x.operator_ == '-')
+        }
+        else if(x.operator_ == '-') {
             code_.push_back(codeEntry(byte_code::op_sub));
-        else if(x.operator_ == '*')
+        }
+        else if(x.operator_ == '*') {
             code_.push_back(codeEntry(byte_code::op_mul));
-        else if(x.operator_ == '/')
+        }
+        else if(x.operator_ == '/') {
             code_.push_back(
                 codeEntry(byte_code::op_div)
             ); // division by 0 throws Gem::Common::division_by_0 exception
-        else
+        }
+        else {
             assert(false && "unreachable: unknown operator/function in AST visitor");
+        }
     }
 
     void operator()(const unary_function_ &f) const {
         boost::apply_visitor(*this, f.operand_);
 
-        if(f.fname_ == "acos")
+        if(f.fname_ == "acos") {
             code_.push_back(
                 codeEntry(byte_code::op_acos)
             ); // Value out of valid range [-1,1] throws Gem::Common::acos_invalid_range
-        else if(f.fname_ == "asin")
+        }
+        else if(f.fname_ == "asin") {
             code_.push_back(
                 codeEntry(byte_code::op_asin)
             ); // Value out of valid range [-1,1] throws Gem::Common::asin_invalid_range
-        else if(f.fname_ == "atan")
+        }
+        else if(f.fname_ == "atan") {
             code_.push_back(codeEntry(byte_code::op_atan));
-        else if(f.fname_ == "ceil")
+        }
+        else if(f.fname_ == "ceil") {
             code_.push_back(codeEntry(byte_code::op_ceil));
-        else if(f.fname_ == "cos")
+        }
+        else if(f.fname_ == "cos") {
             code_.push_back(codeEntry(byte_code::op_cos));
-        else if(f.fname_ == "cosh")
+        }
+        else if(f.fname_ == "cosh") {
             code_.push_back(codeEntry(byte_code::op_cosh));
-        else if(f.fname_ == "exp")
+        }
+        else if(f.fname_ == "exp") {
             code_.push_back(codeEntry(byte_code::op_exp));
-        else if(f.fname_ == "fabs")
+        }
+        else if(f.fname_ == "fabs") {
             code_.push_back(codeEntry(byte_code::op_fabs));
-        else if(f.fname_ == "floor")
+        }
+        else if(f.fname_ == "floor") {
             code_.push_back(codeEntry(byte_code::op_floor));
-        else if(f.fname_ == "log")
+        }
+        else if(f.fname_ == "log") {
             code_.push_back(
                 codeEntry(byte_code::op_log)
             ); // Value <= 0 throws Gem::Common::log_negative_value
-        else if(f.fname_ == "log10")
+        }
+        else if(f.fname_ == "log10") {
             code_.push_back(
                 codeEntry(byte_code::op_log10)
             ); // Value <= 0 throws Gem::Common::log10_negative_value
-        else if(f.fname_ == "sin")
+        }
+        else if(f.fname_ == "sin") {
             code_.push_back(codeEntry(byte_code::op_sin));
-        else if(f.fname_ == "sinh")
+        }
+        else if(f.fname_ == "sinh") {
             code_.push_back(codeEntry(byte_code::op_sinh));
-        else if(f.fname_ == "sqrt")
+        }
+        else if(f.fname_ == "sqrt") {
             code_.push_back(
                 codeEntry(byte_code::op_sqrt)
             ); // Value < 0 throws Gem::Common::sqrt_negative_value
-        else if(f.fname_ == "tan")
+        }
+        else if(f.fname_ == "tan") {
             code_.push_back(codeEntry(byte_code::op_tan));
-        else if(f.fname_ == "tanh")
+        }
+        else if(f.fname_ == "tanh") {
             code_.push_back(codeEntry(byte_code::op_tanh));
-        else
+        }
+        else {
             assert(false && "unreachable: unknown operator/function in AST visitor");
+        }
     }
 
     void operator()(const binary_function_ &f) const {
         boost::apply_visitor(*this, f.operand1_);
         boost::apply_visitor(*this, f.operand2_);
 
-        if(f.fname_ == "min")
+        if(f.fname_ == "min") {
             code_.push_back(codeEntry(byte_code::op_min));
-        else if(f.fname_ == "max")
+        }
+        else if(f.fname_ == "max") {
             code_.push_back(codeEntry(byte_code::op_max));
-        else if(f.fname_ == "pow")
+        }
+        else if(f.fname_ == "pow") {
             code_.push_back(codeEntry(byte_code::op_pow));
-        else if(f.fname_ == "hypot")
+        }
+        else if(f.fname_ == "hypot") {
             code_.push_back(codeEntry(byte_code::op_hypot));
-        else
+        }
+        else {
             assert(false && "unreachable: unknown operator/function in AST visitor");
+        }
     }
 
     void operator()(const signed_ &x) const {
         boost::apply_visitor(*this, x.operand_);
-        if(x.sign == '-')
+        if(x.sign == '-') {
             code_.push_back(codeEntry(byte_code::op_neg));
+        }
         else if(x.sign == '+') { /* nothing */
         }
-        else
+        else {
             assert(false && "unreachable: unknown operator/function in AST visitor");
+        }
     }
 
     void operator()(const ast_expression &x) const {
@@ -811,8 +840,9 @@ private:
         stack_ptr_ = stack_.begin();
 
         // When requested by the user, print a copy of the code-vector
-        if(printCode_)
+        if(printCode_) {
             printCode();
+        }
 
         while(code_ptr != code_.end()) {
             switch(

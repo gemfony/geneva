@@ -286,7 +286,7 @@ void GBooleanObjectCollection::specificTestsNoFailureExpected_GUnitTests_() {
 
         // We allow a slight deviation, as the initialization is a random process
         REQUIRE(n_false != 0); // There should be a few false values
-        double ratio = double(n_true) / double(n_false);
+        double ratio = static_cast<double>(n_true) / static_cast<double>(n_false);
         INFO(
             "\n"
             << "ratio = " << ratio << "\n"

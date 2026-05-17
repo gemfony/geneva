@@ -82,8 +82,7 @@ std::istream &operator>>(std::istream &i, Gem::Geneva::targetFunction &tF) {
  * The default constructor -- intentionally private. Note that some data members
  * may be initialized in the class body.
  */
-GStarterIndividual::GStarterIndividual()
-  : GParameterSet() { /* nothing */
+GStarterIndividual::GStarterIndividual() { /* nothing */
 }
 
 /******************************************************************************/
@@ -103,8 +102,7 @@ GStarterIndividual::GStarterIndividual(
     const double &maxSigma,
     const double &adProb
 )
-  : GParameterSet()
-  , targetFunction_(targetFunction::PARABOLA) {
+  : targetFunction_(targetFunction::PARABOLA) {
     try {
         // The following is a static function used both here
         // and in the factory, so setup code cannot diverge
@@ -378,8 +376,9 @@ bool GStarterIndividual::modify_GUnitTests_() {
     bool result = false;
 
     // Call the parent classes' functions
-    if(Gem::Geneva::GParameterSet::modify_GUnitTests_())
+    if(Gem::Geneva::GParameterSet::modify_GUnitTests_()) {
         result = true;
+    }
 
     // Change the parameter settings
     if(!this->empty()) {

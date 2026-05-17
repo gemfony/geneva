@@ -172,8 +172,9 @@ bool GBooleanAdaptor::modify_GUnitTests_() {
     bool result = false;
 
     // Call the parent class'es function
-    if(GAdaptorT<bool>::modify_GUnitTests_())
+    if(GAdaptorT<bool>::modify_GUnitTests_()) {
         result = true;
+    }
 
     return result;
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw

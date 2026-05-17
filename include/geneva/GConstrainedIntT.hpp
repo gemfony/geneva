@@ -254,7 +254,7 @@ protected:
      * @param e The expected outcome of the comparison
      * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
-    virtual void compare_(
+    void compare_(
         const GObject &cp,
         const Gem::Common::expectation &e,
         const double & /*limit*/
@@ -280,7 +280,7 @@ protected:
     /**
      * Randomly initializes the parameter (within its limits)
      */
-    virtual bool randomInit_(const activityMode &, Gem::Hap::GRandomBase &gr) override {
+    bool randomInit_(const activityMode &, Gem::Hap::GRandomBase &gr) override {
         typename std::uniform_int_distribution<int_type> uniform_int(
             GConstrainedNumT<int_type>::getLowerBoundary(),
             GConstrainedNumT<int_type>::getUpperBoundary()

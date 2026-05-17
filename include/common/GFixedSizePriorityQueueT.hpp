@@ -136,15 +136,16 @@ public:
     // Defaulted functions
 
     GFixedSizePriorityQueueT() = default;
-    virtual ~GFixedSizePriorityQueueT() = default;
+    ~GFixedSizePriorityQueueT() override = default;
 
     /***************************************************************************/
     /**
          * Assignment operator
          */
     GFixedSizePriorityQueueT &operator=(GFixedSizePriorityQueueT const &cp) {
-        if(this == &cp)
+        if(this == &cp) {
             return *this;
+        }
         maxSize_ = cp.maxSize_;
         sortOrder_ = cp.sortOrder_;
 
@@ -303,8 +304,9 @@ public:
             auto item_ptr = *it;
 
             // Only act on "filled" item_ptr
-            if(not(item_ptr))
+            if(not(item_ptr)) {
                 continue;
+            }
 
             // Add the work item to the queue
             // - If the queue is unlimited

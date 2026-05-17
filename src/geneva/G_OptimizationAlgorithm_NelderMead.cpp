@@ -50,8 +50,7 @@ GNelderMead::GNelderMead()
  * Initialization with the number of simplices
  */
 GNelderMead::GNelderMead(const std::size_t &n_simplices)
-  : G_OptimizationAlgorithm_Base()
-  , nSimplices_(n_simplices) { /* nothing */
+  : nSimplices_(n_simplices) { /* nothing */
 }
 
 /******************************************************************************/
@@ -349,15 +348,17 @@ void GNelderMead::proposeTrials() {
         // Worst vertex = largest minimization fitness
         std::size_t w = 0;
         for(std::size_t v = 1; v < n_vert; v++) {
-            if(vfit[v] > vfit[w])
+            if(vfit[v] > vfit[w]) {
                 w = v;
+            }
         }
 
         // Centroid of all vertices except the worst
         std::vector<double> centroid(nFPParmsFirst_, 0.);
         for(std::size_t v = 0; v < n_vert; v++) {
-            if(v == w)
+            if(v == w) {
                 continue;
+            }
             for(std::size_t k = 0; k < nFPParmsFirst_; k++) {
                 centroid[k] += vparm[v][k];
             }
@@ -411,17 +412,21 @@ void GNelderMead::applyNelderMeadDecision() {
         // Best, worst and second-worst vertices (minimization fitness)
         std::size_t b = 0, w = 0;
         for(std::size_t v = 1; v < n_vert; v++) {
-            if(vfit[v] < vfit[b])
+            if(vfit[v] < vfit[b]) {
                 b = v;
-            if(vfit[v] > vfit[w])
+            }
+            if(vfit[v] > vfit[w]) {
                 w = v;
+            }
         }
         std::size_t sw = (w == 0) ? 1 : 0;
         for(std::size_t v = 0; v < n_vert; v++) {
-            if(v == w)
+            if(v == w) {
                 continue;
-            if(vfit[v] > vfit[sw])
+            }
+            if(vfit[v] > vfit[sw]) {
                 sw = v;
+            }
         }
 
         const double f_best = vfit[b];
@@ -467,8 +472,9 @@ void GNelderMead::applyNelderMeadDecision() {
                 std::vector<double> xb;
                 this->at(vertexPos(s, b))->streamline<double>(xb, activityMode::ACTIVEONLY);
                 for(std::size_t v = 0; v < n_vert; v++) {
-                    if(v == b)
+                    if(v == b) {
                         continue;
+                    }
                     std::vector<double> xv;
                     this->at(vertexPos(s, v))
                         ->streamline<double>(xv, activityMode::ACTIVEONLY);
@@ -536,7 +542,7 @@ void GNelderMead::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
 void GNelderMead::runFitnessCalculation_() {
     using namespace Gem::Courtier;
 
-    setProcessingFlag(this->data_cnt_, std::make_tuple(std::size_t(0), this->data_cnt_.size()));
+    setProcessingFlag(this->data_cnt_, std::make_tuple(static_cast<std::size_t>(0), this->data_cnt_.size()));
     auto status = this->workOn(
         this->data_cnt_,
         true // resubmit unprocessed items
@@ -732,8 +738,9 @@ bool GNelderMead::modify_GUnitTests_() {
 #ifdef GEM_TESTING
     bool result = false;
 
-    if(G_OptimizationAlgorithm_Base::modify_GUnitTests_())
+    if(G_OptimizationAlgorithm_Base::modify_GUnitTests_()) {
         result = true;
+    }
 
     return result;
 #else  /* GEM_TESTING */

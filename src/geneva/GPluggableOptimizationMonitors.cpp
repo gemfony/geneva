@@ -304,7 +304,7 @@ void GFitnessMonitor::setNMonitorIndividuals(const std::size_t &n_monitor_inds) 
     // honoured as-is. (Clamping to the actual population size happens later,
     // in informationFunction().)
     if(n_monitor_inds == 0) {
-        nMonitorInds_ = std::size_t(DEFNMONITORINDS);
+        nMonitorInds_ = (DEFNMONITORINDS);
     }
     else {
         nMonitorInds_ = n_monitor_inds;
@@ -1639,7 +1639,7 @@ void GNAdpationsLogger::informationFunction_(
         // Record the current fitness
         std::shared_ptr<GParameterSet> p =
             goa->G_Interface_OptimizerT::template getBestGlobalIndividual<GParameterSet>();
-        (*fitnessGraph2D_oa_) & std::tuple<double, double>(double(iteration), p->raw_fitness(0));
+        (*fitnessGraph2D_oa_) & std::tuple<double, double>(static_cast<double>(iteration), p->raw_fitness(0));
 
         // Update the largest known iteration and the number of recorded iterations
         maxIteration_ = iteration;
@@ -1649,14 +1649,14 @@ void GNAdpationsLogger::informationFunction_(
         if(monitorBestOnly_) {
             std::shared_ptr<GParameterSet> best =
                 goa->G_Interface_OptimizerT::template getBestGlobalIndividual<GParameterSet>();
-            nAdaptionsStore_.emplace_back(double(iteration), double(best->getNAdaptions()));
+            nAdaptionsStore_.emplace_back(static_cast<double>(iteration), static_cast<double>(best->getNAdaptions()));
         }
         else { // Monitor all individuals
             // Loop over all individuals of the algorithm.
             for(std::size_t pos = 0; pos < goa->size(); pos++) {
                 std::shared_ptr<GParameterSet> ind =
                     goa->template individual_cast<GParameterSet>(pos);
-                nAdaptionsStore_.emplace_back(double(iteration), double(ind->getNAdaptions()));
+                nAdaptionsStore_.emplace_back(static_cast<double>(iteration), static_cast<double>(ind->getNAdaptions()));
             }
         }
     } break;
@@ -1694,9 +1694,9 @@ void GNAdpationsLogger::informationFunction_(
                 nIterationsRecorded_,
                 max_n_adaptions + 1,
                 0.,
-                double(maxIteration_),
+                static_cast<double>(maxIteration_),
                 0.,
-                double(max_n_adaptions)
+                static_cast<double>(max_n_adaptions)
             );
 
             nAdaptionsHist2D_oa_->setXAxisLabel("Iteration");
