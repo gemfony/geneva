@@ -45,7 +45,7 @@ namespace Gem::Geneva {
  * @brief Reason why an optimization run terminated.
  *
  * Maps directly to the three halt criteria available in
- * G_OptimizationAlgorithm_Base: maximum iterations, stall counter
+ * GBase: maximum iterations, stall counter
  * threshold, and quality threshold. Unknown is used when the reason
  * cannot be determined (e.g., if the algorithm object is no longer
  * accessible after the run).

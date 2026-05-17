@@ -55,7 +55,7 @@
 #include "courtier/GCourtierEnums.hpp"
 #include "courtier/GSerialConsumerT.hpp"
 #include "courtier/GStdThreadConsumerT.hpp"
-#include "geneva/G_OptimizationAlgorithm_SwarmAlgorithm.hpp"
+#include "geneva/SwarmAlgorithm.hpp"
 #include "geneva/GenevaInitializer.hpp"
 
 // The individual that should be optimized
@@ -340,8 +340,8 @@ int main(int argc, char **argv) {
     // We can now start creating populations. We refer to them through the base class
 
     // This smart pointer will hold the different population types
-    std::shared_ptr<GSwarmAlgorithm> pop_ptr(
-        new GSwarmAlgorithm(nNeighborhoods, nNeighborhoodMembers)
+    std::shared_ptr<oa::GSwarmAlgorithm> pop_ptr(
+        new oa::GSwarmAlgorithm(nNeighborhoods, nNeighborhoodMembers)
     );
 
     // Create the actual populations

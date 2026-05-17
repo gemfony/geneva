@@ -73,7 +73,7 @@
 // Geneva header files go here
 #include "common/GParserBuilder.hpp"
 #include "courtier/GMPIConsumerT.hpp"
-#include "geneva/G_OptimizationAlgorithm_EvolutionaryAlgorithm.hpp"
+#include "geneva/EvolutionaryAlgorithm.hpp"
 #include "geneva/GenevaInitializer.hpp"
 
 // The individual that should be optimized
@@ -281,7 +281,7 @@ int main(int argc, char **argv) {
     /****************************************************************************/
 
     // Create an empty population
-    auto pop_ptr = std::make_shared<GEvolutionaryAlgorithm>();
+    auto pop_ptr = std::make_shared<oa::GEvolutionaryAlgorithm>();
 
     // General settings
     pop_ptr->setPopulationSizes(populationSize, nParents);

@@ -33,3 +33,6 @@ CMakeUserPresets.json
 *.gcno
 *.profraw
 *.profdata
+
+# Local planning / prompt notes under prompts/ are scratch, not tracked.
+prompts/*.md

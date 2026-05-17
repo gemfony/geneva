@@ -50,7 +50,7 @@
 #include "courtier/GExecutorT.hpp"
 #include "geneva/GParameterPropertyParser.hpp"
 #include "geneva/GParameterSet.hpp"
-#include "geneva/G_OptimizationAlgorithm_Base.hpp"
+#include "geneva/GBase.hpp"
 
 namespace Gem::Geneva {
 
@@ -63,7 +63,7 @@ namespace Gem::Geneva {
  * you instantiate a new optimization algorithm.
  */
 class GStandardMonitor // NOLINT(cppcoreguidelines-special-member-functions)
-  : public GBasePluggableOM {
+  : public oa::GBasePluggableOM {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
@@ -73,7 +73,7 @@ class GStandardMonitor // NOLINT(cppcoreguidelines-special-member-functions)
 
         ar &make_nvp(
             "GBasePluggableOM",
-            boost::serialization::base_object<GBasePluggableOM>(*this)
+            boost::serialization::base_object<oa::GBasePluggableOM>(*this)
         );
     }
 
@@ -123,7 +123,7 @@ private:
 
     /** @brief Aggregates the work of all registered pluggable monitors */
     void
-    informationFunction_(infoMode, G_OptimizationAlgorithm_Base const *const goa) override;
+    informationFunction_(infoMode, oa::GBase const *const goa) override;
 };
 
 /******************************************************************************/
@@ -136,7 +136,7 @@ private:
  * and for the best individual(s) of each iteration.
  */
 class GFitnessMonitor // NOLINT(cppcoreguidelines-special-member-functions)
-  : public GBasePluggableOM {
+  : public oa::GBasePluggableOM {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
@@ -146,7 +146,7 @@ class GFitnessMonitor // NOLINT(cppcoreguidelines-special-member-functions)
 
         ar &make_nvp(
             "GBasePluggableOM",
-            boost::serialization::base_object<GBasePluggableOM>(*this)
+            boost::serialization::base_object<oa::GBasePluggableOM>(*this)
         ) & BOOST_SERIALIZATION_NVP(xDim_) &
             BOOST_SERIALIZATION_NVP(yDim_) & BOOST_SERIALIZATION_NVP(nMonitorInds_) &
             BOOST_SERIALIZATION_NVP(resultFile_) & BOOST_SERIALIZATION_NVP(infoInitRun_) &
@@ -220,7 +220,7 @@ private:
 
     /** @brief Aggregates the work of all registered pluggable monitors */
     void
-    informationFunction_(infoMode, G_OptimizationAlgorithm_Base const *const goa) override;
+    informationFunction_(infoMode, oa::GBase const *const goa) override;
 
     /************************************************************************/
 
@@ -247,7 +247,7 @@ private:
  * in sequence.
  */
 class GCollectiveMonitor // NOLINT(cppcoreguidelines-special-member-functions)
-  : public GBasePluggableOM {
+  : public oa::GBasePluggableOM {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
@@ -257,7 +257,7 @@ class GCollectiveMonitor // NOLINT(cppcoreguidelines-special-member-functions)
 
         ar &make_nvp(
             "GBasePluggableOM",
-            boost::serialization::base_object<GBasePluggableOM>(*this)
+            boost::serialization::base_object<oa::GBasePluggableOM>(*this)
         );
 
         // Some preparation needed if this is a load operation.
@@ -280,7 +280,7 @@ public:
     ~GCollectiveMonitor() override = default;
 
     /** @brief Allows to register a new pluggable monitor */
-    void registerPluggableOM(std::shared_ptr<Gem::Geneva::GBasePluggableOM> om_ptr);
+    void registerPluggableOM(std::shared_ptr<oa::GBasePluggableOM> om_ptr);
     /** @brief Checks if adaptors have been registered in the collective monitor */
     bool hasOptimizationMonitors() const;
     /** @brief Allows to clear all registered monitors */
@@ -321,9 +321,9 @@ private:
 
     /** @brief Aggregates the work of all registered pluggable monitors */
     void
-    informationFunction_(infoMode, G_OptimizationAlgorithm_Base const *const goa) override;
+    informationFunction_(infoMode, oa::GBase const *const goa) override;
 
-    std::vector<std::shared_ptr<Gem::Geneva::GBasePluggableOM>>
+    std::vector<std::shared_ptr<oa::GBasePluggableOM>>
         pluggable_monitors_; ///< The collection of monitors
 };
 
@@ -337,7 +337,7 @@ private:
  */
 template <typename fp_type>
 class GProgressPlotterT // NOLINT(cppcoreguidelines-special-member-functions)
-  : public GBasePluggableOM {
+  : public oa::GBasePluggableOM {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
@@ -347,7 +347,7 @@ class GProgressPlotterT // NOLINT(cppcoreguidelines-special-member-functions)
 
         ar &make_nvp(
             "GBasePluggableOM",
-            boost::serialization::base_object<GBasePluggableOM>(*this)
+            boost::serialization::base_object<oa::GBasePluggableOM>(*this)
         ) & BOOST_SERIALIZATION_NVP(fp_profVarVec_) &
             BOOST_SERIALIZATION_NVP(gpd_) & BOOST_SERIALIZATION_NVP(progressPlotter2D_oa_) &
             BOOST_SERIALIZATION_NVP(progressPlotter3D_oa_) &
@@ -391,7 +391,7 @@ public:
 	  * The copy constructor
 	  */
     GProgressPlotterT(const GProgressPlotterT<fp_type> &cp)
-      : GBasePluggableOM(cp)
+      : oa::GBasePluggableOM(cp)
       , gpd_(cp.gpd_)
       , fileName_(cp.fileName_)
       , canvasDimensions_(cp.canvasDimensions_)
@@ -644,7 +644,7 @@ protected:
         const GProgressPlotterT<fp_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
         // Load the parent classes' data ...
-        GBasePluggableOM::load_(cp);
+        oa::GBasePluggableOM::load_(cp);
 
         // ... and then our local data
         Gem::Common::copyCloneableObjectsContainer(p_load->fp_profVarVec_, fp_profVarVec_);
@@ -690,7 +690,7 @@ protected:
         GToken token("GProgressPlotterT<fp_type>", e);
 
         // Compare our parent data ...
-        Gem::Common::compare_base_t<GBasePluggableOM>(*this, *p_load, token);
+        Gem::Common::compare_base_t<oa::GBasePluggableOM>(*this, *p_load, token);
 
         // ... and then our local data
         compare_t(IDENTITY(fp_profVarVec_, p_load->fp_profVarVec_), token);
@@ -721,7 +721,7 @@ protected:
         bool result = false;
 
         // Call the parent classes' functions
-        if(GBasePluggableOM::modify_GUnitTests_()) {
+        if(oa::GBasePluggableOM::modify_GUnitTests_()) {
             result = true;
         }
 
@@ -743,7 +743,7 @@ protected:
 #ifdef GEM_TESTING
 
         // Call the parent classes' functions
-        GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests_();
+        oa::GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests_();
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
         Gem::Common::condnotset(
             "GProgressPlotterT<fp_type>::specificTestsNoFailureExpected_GUnitTests",
@@ -760,7 +760,7 @@ protected:
 #ifdef GEM_TESTING
 
         // Call the parent classes' functions
-        GBasePluggableOM::specificTestsFailuresExpected_GUnitTests_();
+        oa::GBasePluggableOM::specificTestsFailuresExpected_GUnitTests_();
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
         Gem::Common::condnotset(
@@ -793,7 +793,7 @@ private:
      * Allows to emit information in different stages of the information cycle
      * (initialization, during each cycle and during finalization)
      */
-    void informationFunction_(infoMode im, G_OptimizationAlgorithm_Base const *const goa) override {
+    void informationFunction_(infoMode im, oa::GBase const *const goa) override {
         switch(im) {
         case Gem::Geneva::infoMode::INFOINIT: {
             switch(this->nProfileVars()) {
@@ -851,8 +851,8 @@ private:
 
             if(monitorBestOnly_) { // Monitor the best individuals only
                 std::shared_ptr<GParameterSet> p =
-                    goa->Interface::OptimizerIT<G_OptimizationAlgorithm_Base>::template getBestGlobalIndividual<GParameterSet>();
-                if(GBasePluggableOM::useRawEvaluation_) {
+                    goa->Interface::OptimizerIT<oa::GBase>::template getBestGlobalIndividual<GParameterSet>();
+                if(oa::GBasePluggableOM::useRawEvaluation_) {
                     primary_fitness = p->raw_fitness(0);
                 }
                 else {
@@ -945,7 +945,7 @@ private:
             }
             else { // Monitor all individuals
                 for(const auto &ind_ptr : *goa) {
-                    if(GBasePluggableOM::useRawEvaluation_) {
+                    if(oa::GBasePluggableOM::useRawEvaluation_) {
                         primary_fitness = ind_ptr->raw_fitness(0);
                     }
                     else {
@@ -1117,7 +1117,7 @@ private:
  * GParameterSet class itself.
  */
 class GAllSolutionFileLogger // NOLINT(cppcoreguidelines-special-member-functions)
-  : public GBasePluggableOM {
+  : public oa::GBasePluggableOM {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
@@ -1127,7 +1127,7 @@ class GAllSolutionFileLogger // NOLINT(cppcoreguidelines-special-member-function
 
         ar &make_nvp(
             "GBasePluggableOM",
-            boost::serialization::base_object<GBasePluggableOM>(*this)
+            boost::serialization::base_object<oa::GBasePluggableOM>(*this)
         ) & BOOST_SERIALIZATION_NVP(fileName_) &
             BOOST_SERIALIZATION_NVP(boundaries_) & BOOST_SERIALIZATION_NVP(boundariesActive_) &
             BOOST_SERIALIZATION_NVP(withNameAndType_) & BOOST_SERIALIZATION_NVP(withCommas_) &
@@ -1232,12 +1232,12 @@ private:
 
     /** @brief Allows to emit information in different stages of the information cycle */
     void
-    informationFunction_(infoMode, G_OptimizationAlgorithm_Base const *const goa) override;
+    informationFunction_(infoMode, oa::GBase const *const goa) override;
 
     /** @brief Does the actual printing */
     void printPopulation(
         const std::string &iteration_description,
-        G_OptimizationAlgorithm_Base const *const goa
+        oa::GBase const *const goa
     );
 
     /***************************************************************************/
@@ -1265,7 +1265,7 @@ private:
  * eval0_0, eval0_1, ... ,eval0_n, ..., evalm_0, evalm_1, ... ,evalm_n
  */
 class GIterationResultsFileLogger // NOLINT(cppcoreguidelines-special-member-functions)
-  : public GBasePluggableOM {
+  : public oa::GBasePluggableOM {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
@@ -1275,7 +1275,7 @@ class GIterationResultsFileLogger // NOLINT(cppcoreguidelines-special-member-fun
 
         ar &make_nvp(
             "GBasePluggableOM",
-            boost::serialization::base_object<GBasePluggableOM>(*this)
+            boost::serialization::base_object<oa::GBasePluggableOM>(*this)
         ) & BOOST_SERIALIZATION_NVP(fileName_) &
             BOOST_SERIALIZATION_NVP(withCommas_) & BOOST_SERIALIZATION_NVP(useRawFitness_);
     }
@@ -1343,7 +1343,7 @@ private:
 
     /** @brief Allows to emit information in different stages of the information cycle */
     void
-    informationFunction_(infoMode, G_OptimizationAlgorithm_Base const *const goa) override;
+    informationFunction_(infoMode, oa::GBase const *const goa) override;
 
     std::string fileName_ =
         "IterationResultsLog.txt"; ///< The name of the file to which solutions should be stored
@@ -1361,7 +1361,7 @@ private:
  * number of adaptions made is a good measure for the adaption probability.
  */
 class GNAdpationsLogger // NOLINT(cppcoreguidelines-special-member-functions)
-  : public GBasePluggableOM {
+  : public oa::GBasePluggableOM {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
@@ -1371,7 +1371,7 @@ class GNAdpationsLogger // NOLINT(cppcoreguidelines-special-member-functions)
 
         ar &make_nvp(
             "GBasePluggableOM",
-            boost::serialization::base_object<GBasePluggableOM>(*this)
+            boost::serialization::base_object<oa::GBasePluggableOM>(*this)
         ) & BOOST_SERIALIZATION_NVP(fileName_) &
             BOOST_SERIALIZATION_NVP(canvasDimensions_) & BOOST_SERIALIZATION_NVP(gpd_) &
             BOOST_SERIALIZATION_NVP(nAdaptionsHist2D_oa_) &
@@ -1452,7 +1452,7 @@ private:
 
     /** @brief Allows to emit information in different stages of the information cycle */
     void
-    informationFunction_(infoMode, G_OptimizationAlgorithm_Base const *const goa) override;
+    informationFunction_(infoMode, oa::GBase const *const goa) override;
 
     std::string fileName_ =
         "NAdaptions.C"; ///< The name of the file to which solutions should be stored
@@ -1495,7 +1495,7 @@ private:
  */
 template <typename num_type>
 class GAdaptorPropertyLoggerT // NOLINT(cppcoreguidelines-special-member-functions)
-  : public GBasePluggableOM {
+  : public oa::GBasePluggableOM {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
@@ -1505,7 +1505,7 @@ class GAdaptorPropertyLoggerT // NOLINT(cppcoreguidelines-special-member-functio
 
         ar &make_nvp(
             "GBasePluggableOM",
-            boost::serialization::base_object<GBasePluggableOM>(*this)
+            boost::serialization::base_object<oa::GBasePluggableOM>(*this)
         ) & BOOST_SERIALIZATION_NVP(fileName_) &
             BOOST_SERIALIZATION_NVP(adaptorName_) & BOOST_SERIALIZATION_NVP(property_) &
             BOOST_SERIALIZATION_NVP(canvasDimensions_) & BOOST_SERIALIZATION_NVP(gpd_) &
@@ -1689,7 +1689,7 @@ protected:
             );
 
         // Load the parent classes' data ...
-        GBasePluggableOM::load_(cp);
+        oa::GBasePluggableOM::load_(cp);
 
         // ... and then our local data
         fileName_ = p_load->fileName_;
@@ -1742,7 +1742,7 @@ protected:
         GToken token("GAdaptorPropertyLoggerT", e);
 
         // Compare our parent data ...
-        Gem::Common::compare_base_t<GBasePluggableOM>(*this, *p_load, token);
+        Gem::Common::compare_base_t<oa::GBasePluggableOM>(*this, *p_load, token);
 
         // ... and then our local data
         compare_t(IDENTITY(fileName_, p_load->fileName_), token);
@@ -1774,7 +1774,7 @@ protected:
         bool result = false;
 
         // Call the parent classes' functions
-        if(GBasePluggableOM::modify_GUnitTests_()) {
+        if(oa::GBasePluggableOM::modify_GUnitTests_()) {
             result = true;
         }
 
@@ -1799,7 +1799,7 @@ protected:
 #ifdef GEM_TESTING
 
         // Call the parent classes' functions
-        GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests_();
+        oa::GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests_();
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
         Gem::Common::condnotset(
             "GAdaptorPropertyLoggerT<num_type>::specificTestsNoFailureExpected_GUnitTests",
@@ -1816,7 +1816,7 @@ protected:
 #ifdef GEM_TESTING
 
         // Call the parent classes' functions
-        GBasePluggableOM::specificTestsFailuresExpected_GUnitTests_();
+        oa::GBasePluggableOM::specificTestsFailuresExpected_GUnitTests_();
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
         Gem::Common::condnotset(
@@ -1848,7 +1848,7 @@ private:
      * Allows to emit information in different stages of the information cycle
      * (initialization, during each cycle and during finalization)
      */
-    void informationFunction_(infoMode im, G_OptimizationAlgorithm_Base const *const goa) override {
+    void informationFunction_(infoMode im, oa::GBase const *const goa) override {
         using namespace Gem::Common;
 
         switch(im) {
@@ -1883,7 +1883,7 @@ private:
 
             // Record the current fitness
             std::shared_ptr<GParameterSet> p =
-                goa->Interface::OptimizerIT<G_OptimizationAlgorithm_Base>::template getBestGlobalIndividual<GParameterSet>();
+                goa->Interface::OptimizerIT<oa::GBase>::template getBestGlobalIndividual<GParameterSet>();
             (*fitnessGraph2D_oa_) &
                 std::tuple<double, double>(static_cast<double>(iteration), p->raw_fitness(0));
 
@@ -1897,7 +1897,7 @@ private:
             // Do the actual logging
             if(monitorBestOnly_) {
                 std::shared_ptr<GParameterSet> best =
-                    goa->Interface::OptimizerIT<G_OptimizationAlgorithm_Base>::template getBestGlobalIndividual<GParameterSet>();
+                    goa->Interface::OptimizerIT<oa::GBase>::template getBestGlobalIndividual<GParameterSet>();
 
                 // Retrieve the adaptor data (e.g. the sigma of a GDoubleGaussAdaptor
                 best->queryAdaptor(adaptorName_, property_, data);
@@ -2035,7 +2035,7 @@ private:
  * each iteration in a 2D histogram
  */
 class GProcessingTimesLogger // NOLINT(cppcoreguidelines-special-member-functions)
-  : public GBasePluggableOM {
+  : public oa::GBasePluggableOM {
     ///////////////////////////////////////////////////////////////////////
 
     friend class boost::serialization::access;
@@ -2046,7 +2046,7 @@ class GProcessingTimesLogger // NOLINT(cppcoreguidelines-special-member-function
 
         ar &make_nvp(
             "GBasePluggableOM",
-            boost::serialization::base_object<GBasePluggableOM>(*this)
+            boost::serialization::base_object<oa::GBasePluggableOM>(*this)
         ) & BOOST_SERIALIZATION_NVP(fileName_pth_) &
             BOOST_SERIALIZATION_NVP(canvasDimensions_pth_) & BOOST_SERIALIZATION_NVP(gpd_pth_) &
             BOOST_SERIALIZATION_NVP(fileName_pth2_) &
@@ -2157,7 +2157,7 @@ private:
 
     /** @brief Allows to emit information in different stages of the information cycle */
     void
-    informationFunction_(infoMode, G_OptimizationAlgorithm_Base const *const goa) override;
+    informationFunction_(infoMode, oa::GBase const *const goa) override;
 
     /************************************************************************/
 

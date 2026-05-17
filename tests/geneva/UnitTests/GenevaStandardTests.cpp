@@ -59,11 +59,11 @@
 #include "geneva/GInt32ObjectCollection.hpp"
 #include "geneva/GParameterObjectCollection.hpp"
 #include "geneva/GTestIndividual1.hpp"
-#include "geneva/G_OptimizationAlgorithm_EvolutionaryAlgorithm_PersonalityTraits.hpp"
-#include "geneva/G_OptimizationAlgorithm_GradientDescent_PersonalityTraits.hpp"
-#include "geneva/G_OptimizationAlgorithm_ParameterScan_PersonalityTraits.hpp"
-#include "geneva/G_OptimizationAlgorithm_SimulatedAnnealing_PersonalityTraits.hpp"
-#include "geneva/G_OptimizationAlgorithm_SwarmAlgorithm_PersonalityTraits.hpp"
+#include "geneva/EvolutionaryAlgorithm_PersonalityTraits.hpp"
+#include "geneva/GradientDescent_PersonalityTraits.hpp"
+#include "geneva/ParameterScan_PersonalityTraits.hpp"
+#include "geneva/SimulatedAnnealing_PersonalityTraits.hpp"
+#include "geneva/SwarmAlgorithm_PersonalityTraits.hpp"
 
 #include "Geneva_tests.hpp"
 
@@ -124,11 +124,11 @@ TEMPLATE_TEST_CASE(
 TEMPLATE_TEST_CASE(
     "StandardTests_no_failure_expected — trait types",
     "[geneva][standard]",
-    GEvolutionaryAlgorithm_PersonalityTraits,
-    GGradientDescent_PersonalityTraits,
-    GSwarmAlgorithm_PersonalityTraits,
-    GSimulatedAnnealing_PersonalityTraits,
-    GParameterScan_PersonalityTraits
+    oa::GEvolutionaryAlgorithm_PersonalityTraits,
+    oa::GGradientDescent_PersonalityTraits,
+    oa::GSwarmAlgorithm_PersonalityTraits,
+    oa::GSimulatedAnnealing_PersonalityTraits,
+    oa::GParameterScan_PersonalityTraits
 ) {
     Gem::Tests::StandardTests_no_failure_expected<TestType>();
 }
@@ -200,11 +200,11 @@ TEMPLATE_TEST_CASE(
 TEMPLATE_TEST_CASE(
     "StandardTests_failures_expected — trait types",
     "[geneva][standard][failures-expected]",
-    GEvolutionaryAlgorithm_PersonalityTraits,
-    GGradientDescent_PersonalityTraits,
-    GSwarmAlgorithm_PersonalityTraits,
-    GSimulatedAnnealing_PersonalityTraits,
-    GParameterScan_PersonalityTraits
+    oa::GEvolutionaryAlgorithm_PersonalityTraits,
+    oa::GGradientDescent_PersonalityTraits,
+    oa::GSwarmAlgorithm_PersonalityTraits,
+    oa::GSimulatedAnnealing_PersonalityTraits,
+    oa::GParameterScan_PersonalityTraits
 ) {
     Gem::Tests::StandardTests_failures_expected<TestType>();
 }

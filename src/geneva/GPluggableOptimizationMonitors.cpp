@@ -54,7 +54,7 @@ namespace Gem::Geneva {
  */
 void GStandardMonitor::informationFunction_(
     infoMode im,
-    G_OptimizationAlgorithm_Base const *const goa
+    oa::GBase const *const goa
 ) {
     switch(im) {
     case Gem::Geneva::infoMode::INFOINIT: {
@@ -109,7 +109,7 @@ void GStandardMonitor::compare_(
     GToken token("GStandardMonitor", e);
 
     // Compare our parent data ...
-    Gem::Common::compare_base_t<GBasePluggableOM>(*this, *p_load, token);
+    Gem::Common::compare_base_t<oa::GBasePluggableOM>(*this, *p_load, token);
 
     // ... no local data
 
@@ -128,7 +128,7 @@ void GStandardMonitor::load_(const GObject *cp) {
     const GStandardMonitor *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
     // Load the parent classes' data ...
-    GBasePluggableOM::load_(cp);
+    oa::GBasePluggableOM::load_(cp);
 
     // ... no local data
 }
@@ -153,7 +153,7 @@ bool GStandardMonitor::modify_GUnitTests_() {
     bool result = false;
 
     // Call the parent classes' functions
-    if(GBasePluggableOM::modify_GUnitTests_()) {
+    if(oa::GBasePluggableOM::modify_GUnitTests_()) {
         result = true;
     }
 
@@ -175,7 +175,7 @@ void GStandardMonitor::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 
     // Call the parent classes' functions
-    GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests_();
+    oa::GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests_();
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
     Gem::Common::condnotset(
         "GStandardMonitor::specificTestsNoFailureExpected_GUnitTests",
@@ -192,7 +192,7 @@ void GStandardMonitor::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 
     // Call the parent classes' functions
-    GBasePluggableOM::specificTestsFailuresExpected_GUnitTests_();
+    oa::GBasePluggableOM::specificTestsFailuresExpected_GUnitTests_();
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
     Gem::Common::condnotset(
@@ -210,7 +210,7 @@ void GStandardMonitor::specificTestsFailuresExpected_GUnitTests_() {
  * The copy constructor
  */
 GFitnessMonitor::GFitnessMonitor(const GFitnessMonitor &cp)
-  : GBasePluggableOM(cp)
+  : oa::GBasePluggableOM(cp)
   , xDim_(cp.xDim_)
   , yDim_(cp.yDim_)
   , nMonitorInds_(cp.nMonitorInds_)
@@ -327,7 +327,7 @@ std::size_t GFitnessMonitor::getNMonitorIndividuals() const {
  */
 void GFitnessMonitor::informationFunction_(
     infoMode im,
-    G_OptimizationAlgorithm_Base const *const goa
+    oa::GBase const *const goa
 ) {
     switch(im) {
     case Gem::Geneva::infoMode::INFOINIT: {
@@ -339,9 +339,9 @@ void GFitnessMonitor::informationFunction_(
     case Gem::Geneva::infoMode::INFOPROCESSING: {
         // Retrieve the list of globally- and iteration bests individuals
         auto global_bests =
-            goa->Interface::OptimizerIT<G_OptimizationAlgorithm_Base>::template getBestGlobalIndividuals<GParameterSet>();
+            goa->Interface::OptimizerIT<oa::GBase>::template getBestGlobalIndividuals<GParameterSet>();
         auto iter_bests =
-            goa->Interface::OptimizerIT<G_OptimizationAlgorithm_Base>::template getBestIterationIndividuals<GParameterSet>();
+            goa->Interface::OptimizerIT<oa::GBase>::template getBestIterationIndividuals<GParameterSet>();
 
         // Retrieve the current iteration in the population
         std::uint32_t iteration = goa->getIteration();
@@ -487,7 +487,7 @@ void GFitnessMonitor::compare_(
     GToken token("GFitnessMonitor", e);
 
     // Compare our parent data ...
-    Gem::Common::compare_base_t<GBasePluggableOM>(*this, *p_load, token);
+    Gem::Common::compare_base_t<oa::GBasePluggableOM>(*this, *p_load, token);
 
     // ... and then our local data
     compare_t(IDENTITY(xDim_, p_load->xDim_), token);
@@ -513,7 +513,7 @@ void GFitnessMonitor::load_(const GObject *cp) {
     const GFitnessMonitor *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
     // Load the parent classes' data ...
-    GBasePluggableOM::load_(cp);
+    oa::GBasePluggableOM::load_(cp);
 
     // ... and then our local data
     xDim_ = p_load->xDim_;
@@ -551,7 +551,7 @@ bool GFitnessMonitor::modify_GUnitTests_() {
     bool result = false;
 
     // Call the parent classes' functions
-    if(GBasePluggableOM::modify_GUnitTests_()) {
+    if(oa::GBasePluggableOM::modify_GUnitTests_()) {
         result = true;
     }
 
@@ -573,7 +573,7 @@ void GFitnessMonitor::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 
     // Call the parent classes' functions
-    GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests_();
+    oa::GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests_();
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
     Gem::Common::condnotset(
         "GFitnessMonitor::specificTestsNoFailureExpected_GUnitTests",
@@ -590,7 +590,7 @@ void GFitnessMonitor::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 
     // Call the parent classes' functions
-    GBasePluggableOM::specificTestsFailuresExpected_GUnitTests_();
+    oa::GBasePluggableOM::specificTestsFailuresExpected_GUnitTests_();
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
     Gem::Common::condnotset(
@@ -608,7 +608,7 @@ void GFitnessMonitor::specificTestsFailuresExpected_GUnitTests_() {
  * The copy constructor
  */
 GCollectiveMonitor::GCollectiveMonitor(const GCollectiveMonitor &cp)
-  : GBasePluggableOM(cp) {
+  : oa::GBasePluggableOM(cp) {
     Gem::Common::copyCloneableSmartPointerContainer(cp.pluggable_monitors_, pluggable_monitors_);
 }
 
@@ -618,7 +618,7 @@ GCollectiveMonitor::GCollectiveMonitor(const GCollectiveMonitor &cp)
  */
 void GCollectiveMonitor::informationFunction_(
     infoMode im,
-    G_OptimizationAlgorithm_Base const *const goa
+    oa::GBase const *const goa
 ) {
     for(auto const &pm_ptr : pluggable_monitors_) {
         pm_ptr->informationFunction(im, goa);
@@ -630,7 +630,7 @@ void GCollectiveMonitor::informationFunction_(
  * Allows to register a new pluggable monitor
  */
 void GCollectiveMonitor::registerPluggableOM(
-    std::shared_ptr<Gem::Geneva::GBasePluggableOM> om_ptr
+    std::shared_ptr<oa::GBasePluggableOM> om_ptr
 ) {
     if(om_ptr) {
         pluggable_monitors_.push_back(om_ptr);
@@ -690,7 +690,7 @@ void GCollectiveMonitor::compare_(
     GToken token("GCollectiveMonitor", e);
 
     // Compare our parent data ...
-    Gem::Common::compare_base_t<GBasePluggableOM>(*this, *p_load, token);
+    Gem::Common::compare_base_t<oa::GBasePluggableOM>(*this, *p_load, token);
 
     // ... and then our local data
     compare_t(IDENTITY(pluggable_monitors_, p_load->pluggable_monitors_), token);
@@ -710,7 +710,7 @@ void GCollectiveMonitor::load_(const GObject *cp) {
     const GCollectiveMonitor *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
     // Load the parent classes' data ...
-    GBasePluggableOM::load_(cp);
+    oa::GBasePluggableOM::load_(cp);
 
     // ... and then our local data
     Gem::Common::copyCloneableSmartPointerContainer(
@@ -739,7 +739,7 @@ bool GCollectiveMonitor::modify_GUnitTests_() {
     bool result = false;
 
     // Call the parent classes' functions
-    if(GBasePluggableOM::modify_GUnitTests_()) {
+    if(oa::GBasePluggableOM::modify_GUnitTests_()) {
         result = true;
     }
 
@@ -761,7 +761,7 @@ void GCollectiveMonitor::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 
     // Call the parent classes' functions
-    GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests_();
+    oa::GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests_();
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
     Gem::Common::condnotset(
         "GCollectiveMonitor::specificTestsNoFailureExpected_GUnitTests",
@@ -778,7 +778,7 @@ void GCollectiveMonitor::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 
     // Call the parent classes' functions
-    GBasePluggableOM::specificTestsFailuresExpected_GUnitTests_();
+    oa::GBasePluggableOM::specificTestsFailuresExpected_GUnitTests_();
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
     Gem::Common::condnotset(
@@ -844,7 +844,7 @@ void GAllSolutionFileLogger::compare_(
     GToken token("GAllSolutionFileLogger", e);
 
     // Compare our parent data ...
-    Gem::Common::compare_base_t<GBasePluggableOM>(*this, *p_load, token);
+    Gem::Common::compare_base_t<oa::GBasePluggableOM>(*this, *p_load, token);
 
     // ... and then our local data
     compare_t(IDENTITY(fileName_, p_load->fileName_), token);
@@ -1019,7 +1019,7 @@ bool GAllSolutionFileLogger::getShowIterationBoundaries() const {
  */
 void GAllSolutionFileLogger::informationFunction_(
     infoMode im,
-    G_OptimizationAlgorithm_Base const *const goa
+    oa::GBase const *const goa
 ) {
     switch(im) {
     case Gem::Geneva::infoMode::INFOINIT: {
@@ -1067,7 +1067,7 @@ void GAllSolutionFileLogger::load_(const GObject *cp) {
     const GAllSolutionFileLogger *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
     // Load the parent classes' data ...
-    GBasePluggableOM::load_(cp);
+    oa::GBasePluggableOM::load_(cp);
 
     // ... and then our local data
     fileName_ = p_load->fileName_;
@@ -1095,7 +1095,7 @@ GObject *GAllSolutionFileLogger::clone_() const {
  */
 void GAllSolutionFileLogger::printPopulation(
     const std::string &iteration_description,
-    G_OptimizationAlgorithm_Base const *const goa
+    oa::GBase const *const goa
 ) {
     // Open the external file
     std::ofstream data(fileName_, std::ofstream::app); // NOLINT(cppcoreguidelines-init-variables)
@@ -1147,7 +1147,7 @@ bool GAllSolutionFileLogger::modify_GUnitTests_() {
     bool result = false;
 
     // Call the parent classes' functions
-    if(GBasePluggableOM::modify_GUnitTests_()) {
+    if(oa::GBasePluggableOM::modify_GUnitTests_()) {
         result = true;
     }
 
@@ -1169,7 +1169,7 @@ void GAllSolutionFileLogger::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 
     // Call the parent classes' functions
-    GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests_();
+    oa::GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests_();
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
     Gem::Common::condnotset(
         "GAllSolutionFileLogger::specificTestsNoFailureExpected_GUnitTests",
@@ -1186,7 +1186,7 @@ void GAllSolutionFileLogger::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 
     // Call the parent classes' functions
-    GBasePluggableOM::specificTestsFailuresExpected_GUnitTests_();
+    oa::GBasePluggableOM::specificTestsFailuresExpected_GUnitTests_();
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
     Gem::Common::condnotset(
@@ -1239,7 +1239,7 @@ void GIterationResultsFileLogger::compare_(
     GToken token("GIterationResultsFileLogger", e);
 
     // Compare our parent data ...
-    Gem::Common::compare_base_t<GBasePluggableOM>(*this, *p_load, token);
+    Gem::Common::compare_base_t<oa::GBasePluggableOM>(*this, *p_load, token);
 
     // ... and then our local data
     compare_t(IDENTITY(fileName_, p_load->fileName_), token);
@@ -1305,7 +1305,7 @@ bool GIterationResultsFileLogger::getUseTrueFitness() const {
  */
 void GIterationResultsFileLogger::informationFunction_(
     infoMode im,
-    G_OptimizationAlgorithm_Base const *const goa
+    oa::GBase const *const goa
 ) {
     switch(im) {
     case Gem::Geneva::infoMode::INFOINIT: {
@@ -1371,7 +1371,7 @@ void GIterationResultsFileLogger::load_(const GObject *cp) {
     const GIterationResultsFileLogger *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
     // Load the parent classes' data ...
-    GBasePluggableOM::load_(cp);
+    oa::GBasePluggableOM::load_(cp);
 
     // ... and then our local data
     fileName_ = p_load->fileName_;
@@ -1399,7 +1399,7 @@ bool GIterationResultsFileLogger::modify_GUnitTests_() {
     bool result = false;
 
     // Call the parent classes' functions
-    if(GBasePluggableOM::modify_GUnitTests_()) {
+    if(oa::GBasePluggableOM::modify_GUnitTests_()) {
         result = true;
     }
 
@@ -1421,7 +1421,7 @@ void GIterationResultsFileLogger::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 
     // Call the parent classes' functions
-    GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests_();
+    oa::GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests_();
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
     Gem::Common::condnotset(
         "GIterationResultsFileLogger::specificTestsNoFailureExpected_GUnitTests",
@@ -1438,7 +1438,7 @@ void GIterationResultsFileLogger::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 
     // Call the parent classes' functions
-    GBasePluggableOM::specificTestsFailuresExpected_GUnitTests_();
+    oa::GBasePluggableOM::specificTestsFailuresExpected_GUnitTests_();
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
     Gem::Common::condnotset(
@@ -1502,7 +1502,7 @@ void GNAdpationsLogger::compare_(
     GToken token("GNAdpationsLogger", e);
 
     // Compare our parent data ...
-    Gem::Common::compare_base_t<GBasePluggableOM>(*this, *p_load, token);
+    Gem::Common::compare_base_t<oa::GBasePluggableOM>(*this, *p_load, token);
 
     // ... and then our local data
     compare_t(IDENTITY(fileName_, p_load->fileName_), token);
@@ -1602,7 +1602,7 @@ bool GNAdpationsLogger::getAddPrintCommand() const {
  */
 void GNAdpationsLogger::informationFunction_(
     infoMode im,
-    G_OptimizationAlgorithm_Base const *const goa
+    oa::GBase const *const goa
 ) {
     using namespace Gem::Common;
 
@@ -1638,7 +1638,7 @@ void GNAdpationsLogger::informationFunction_(
 
         // Record the current fitness
         std::shared_ptr<GParameterSet> p =
-            goa->Interface::OptimizerIT<G_OptimizationAlgorithm_Base>::template getBestGlobalIndividual<GParameterSet>();
+            goa->Interface::OptimizerIT<oa::GBase>::template getBestGlobalIndividual<GParameterSet>();
         (*fitnessGraph2D_oa_) & std::tuple<double, double>(static_cast<double>(iteration), p->raw_fitness(0));
 
         // Update the largest known iteration and the number of recorded iterations
@@ -1648,7 +1648,7 @@ void GNAdpationsLogger::informationFunction_(
         // Do the actual logging
         if(monitorBestOnly_) {
             std::shared_ptr<GParameterSet> best =
-                goa->Interface::OptimizerIT<G_OptimizationAlgorithm_Base>::template getBestGlobalIndividual<GParameterSet>();
+                goa->Interface::OptimizerIT<oa::GBase>::template getBestGlobalIndividual<GParameterSet>();
             nAdaptionsStore_.emplace_back(static_cast<double>(iteration), static_cast<double>(best->getNAdaptions()));
         }
         else { // Monitor all individuals
@@ -1741,7 +1741,7 @@ void GNAdpationsLogger::load_(const GObject *cp) {
         Gem::Common::g_convert_and_compare<GObject, GNAdpationsLogger>(cp, this);
 
     // Load the parent classes' data ...
-    GBasePluggableOM::load_(cp);
+    oa::GBasePluggableOM::load_(cp);
 
     // ... and then our local data
     fileName_ = p_load->fileName_;
@@ -1777,7 +1777,7 @@ bool GNAdpationsLogger::modify_GUnitTests_() {
     bool result = false;
 
     // Call the parent classes' functions
-    if(GBasePluggableOM::modify_GUnitTests_()) {
+    if(oa::GBasePluggableOM::modify_GUnitTests_()) {
         result = true;
     }
 
@@ -1799,7 +1799,7 @@ void GNAdpationsLogger::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 
     // Call the parent classes' functions
-    GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests_();
+    oa::GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests_();
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
     Gem::Common::condnotset(
         "GNAdpationsLogger::specificTestsNoFailureExpected_GUnitTests",
@@ -1816,7 +1816,7 @@ void GNAdpationsLogger::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 
     // Call the parent classes' functions
-    GBasePluggableOM::specificTestsFailuresExpected_GUnitTests_();
+    oa::GBasePluggableOM::specificTestsFailuresExpected_GUnitTests_();
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
     Gem::Common::condnotset(
@@ -1888,7 +1888,7 @@ void GProcessingTimesLogger::compare_(
     GToken token("GProcessingTimesLogger", e);
 
     // Compare our parent data ...
-    Gem::Common::compare_base_t<GBasePluggableOM>(*this, *p_load, token);
+    Gem::Common::compare_base_t<oa::GBasePluggableOM>(*this, *p_load, token);
 
     // ... and then our local data
     compare_t(IDENTITY(fileName_pth_, p_load->fileName_pth_), token);
@@ -2083,7 +2083,7 @@ std::size_t GProcessingTimesLogger::getNBinsY() const {
  */
 void GProcessingTimesLogger::informationFunction_(
     infoMode im,
-    G_OptimizationAlgorithm_Base const *const goa
+    oa::GBase const *const goa
 ) {
     switch(im) {
     case Gem::Geneva::infoMode::INFOINIT: {
@@ -2304,7 +2304,7 @@ void GProcessingTimesLogger::load_(const GObject *cp) {
     const GProcessingTimesLogger *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
     // Load the parent classes' data ...
-    GBasePluggableOM::load_(cp);
+    oa::GBasePluggableOM::load_(cp);
 
     // ... and then our local data
     fileName_pth_ = p_load->fileName_pth_;
@@ -2374,7 +2374,7 @@ bool GProcessingTimesLogger::modify_GUnitTests_() {
     bool result = false;
 
     // Call the parent classes' functions
-    if(GBasePluggableOM::modify_GUnitTests_()) {
+    if(oa::GBasePluggableOM::modify_GUnitTests_()) {
         result = true;
     }
 
@@ -2396,7 +2396,7 @@ void GProcessingTimesLogger::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 
     // Call the parent classes' functions
-    GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests_();
+    oa::GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests_();
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
     Gem::Common::condnotset(
         "GProcessingTimesLogger::specificTestsNoFailureExpected_GUnitTests",
@@ -2413,7 +2413,7 @@ void GProcessingTimesLogger::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 
     // Call the parent classes' functions
-    GBasePluggableOM::specificTestsFailuresExpected_GUnitTests_();
+    oa::GBasePluggableOM::specificTestsFailuresExpected_GUnitTests_();
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
     Gem::Common::condnotset(

@@ -235,8 +235,8 @@ bool GEvolutionaryAlgorithmPostOptimizer::raw_processing_(GParameterSet &p) {
     p_unopt_ptr->vetoPostProcessing(true);
 
     // Retrieve an evolutionary algorithm
-    GEvolutionaryAlgorithmFactory ea_factory(oa_configFile_);
-    auto ea_ptr = ea_factory.get<GEvolutionaryAlgorithm>();
+    oa::GEvolutionaryAlgorithmFactory ea_factory(oa_configFile_);
+    auto ea_ptr = ea_factory.get<oa::GEvolutionaryAlgorithm>();
 
     // Add an executor to the algorithm
     ea_ptr->registerExecutor(executionMode_, executor_configFile_);

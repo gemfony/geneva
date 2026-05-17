@@ -53,15 +53,15 @@
 #include "geneva/GParameterObjectCollection.hpp"
 #include "geneva/GParameterSet.hpp"
 #include "geneva/OptimizerIT.hpp"
-#include "geneva/G_OptimizationAlgorithm_Base.hpp"
-#include "geneva/G_OptimizationAlgorithm_ConjugateGradientDescent_Factory.hpp"
-#include "geneva/G_OptimizationAlgorithm_EvolutionaryAlgorithm_Factory.hpp"
-#include "geneva/G_OptimizationAlgorithm_FactoryStore.hpp"
-#include "geneva/G_OptimizationAlgorithm_GradientDescent_Factory.hpp"
-#include "geneva/G_OptimizationAlgorithm_NelderMead_Factory.hpp"
-#include "geneva/G_OptimizationAlgorithm_ParameterScan_Factory.hpp"
-#include "geneva/G_OptimizationAlgorithm_SimulatedAnnealing_Factory.hpp"
-#include "geneva/G_OptimizationAlgorithm_SwarmAlgorithm_Factory.hpp"
+#include "geneva/GBase.hpp"
+#include "geneva/ConjugateGradientDescent_Factory.hpp"
+#include "geneva/EvolutionaryAlgorithm_Factory.hpp"
+#include "geneva/FactoryStore.hpp"
+#include "geneva/GradientDescent_Factory.hpp"
+#include "geneva/NelderMead_Factory.hpp"
+#include "geneva/ParameterScan_Factory.hpp"
+#include "geneva/SimulatedAnnealing_Factory.hpp"
+#include "geneva/SwarmAlgorithm_Factory.hpp"
 #include "geneva/GenevaHelperFunctionsT.hpp"
 #include "geneva/GenevaInitializer.hpp"
 #include "hap/GRandomFactory.hpp"
@@ -87,7 +87,7 @@ void setRNFParameters(std::uint16_t);
 
 /******************************************************************************/
 /** Syntactic sugar -- make the code easier to read */
-using GOABase = Gem::Geneva::G_OptimizationAlgorithm_Base;
+using GOABase = oa::GBase;
 
 /******************************************************************************/
 /**
@@ -171,7 +171,7 @@ public:
     void registerDefaultAlgorithm(std::string const &);
 
     /** @brief Allows to register a pluggable optimization monitor */
-    void registerPluggableOM(const std::shared_ptr<GBasePluggableOM> &);
+    void registerPluggableOM(const std::shared_ptr<oa::GBasePluggableOM> &);
     /** @brief Allows to reset the local pluggable optimization monitor */
     void resetPluggableOM();
     /** @brief Allows to check whether pluggable optimization monitors were registered */
@@ -215,7 +215,7 @@ private:
     /** @brief Returns the name of this optimization algorithm */
     std::string getAlgorithmName_() const final;
 
-    /** @brief Satisfies a requirement of G_Interface_Optimizer */
+    /** @brief Satisfies a requirement of GOptimizerIT */
     void runFitnessCalculation_() final;
 
     /** @brief Retrieval of the current iteration */
@@ -275,7 +275,7 @@ private:
     // Holds an object capable of producing objects of the desired type
     std::shared_ptr<Gem::Common::GFactoryT<GParameterSet>> content_creator_ptr_;
     // A user-defined means for information retrieval
-    std::vector<std::shared_ptr<GBasePluggableOM>> pluggable_monitors_cnt_;
+    std::vector<std::shared_ptr<oa::GBasePluggableOM>> pluggable_monitors_cnt_;
 };
 
 /******************************************************************************/
