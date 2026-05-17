@@ -45,7 +45,6 @@
 
 // Standard headers go here
 #include <atomic>
-#include <iostream>
 #include <memory>
 #include <mutex>
 
@@ -63,8 +62,7 @@ namespace Gem::Common {
  *
  * @return A std::shared_ptr to a newly created T object
  */
-template <typename T>
-typename std::shared_ptr<T> TFactory_GSingletonT() {
+template <typename T> std::shared_ptr<T> TFactory_GSingletonT() {
     return std::make_shared<T>();
 }
 
@@ -80,7 +78,7 @@ class GSingletonT {
 public:
     /***************************************************************************/
     // Deleted constructors, destructor and assignment operators. This class is
-    // not meant to be instantible.
+    // not meant to be instantiable.
     GSingletonT() = delete;
     GSingletonT(GSingletonT<T> const &) = delete;
     GSingletonT(GSingletonT<T> &&) = delete;
