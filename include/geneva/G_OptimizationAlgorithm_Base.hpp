@@ -56,7 +56,7 @@
 #include "geneva/OptimizerIT.hpp"
 #include "geneva/GenevaHelperFunctions.hpp"
 
-namespace Gem::Geneva {
+namespace Gem::Geneva::OptimizationAlgorithms {
 
 /******************************************************************************/
 /*
@@ -718,14 +718,20 @@ private:
 /////////////////////////////////////////////////////////////////////////////////
 /*******************************************************************************/
 
-} /* namespace Gem::Geneva */
+} /* namespace Gem::Geneva::OptimizationAlgorithms */
+
+// Phase-2b compile shim — removed in NS Phase 3 (reference migration).
+namespace Gem::Geneva {
+using OptimizationAlgorithms::G_OptimizationAlgorithm_Base;
+using OptimizationAlgorithms::GBasePluggableOM;
+} // namespace Gem::Geneva
 
 /******************************************************************************/
 // Some serialization-related exports and declarations. Note that namespace
 // specifiers are included in the macros, no need for an explicit namespace boost::serialization
 
-BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::GBasePluggableOM)                  // NOLINT
-BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::G_OptimizationAlgorithm_Base)      // NOLINT
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::OptimizationAlgorithms::GBasePluggableOM)             // NOLINT
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::OptimizationAlgorithms::G_OptimizationAlgorithm_Base) // NOLINT
 BOOST_CLASS_EXPORT_KEY(Gem::Courtier::GBrokerExecutorT<Gem::Geneva::GParameterSet>) // NOLINT
 BOOST_CLASS_EXPORT_KEY(Gem::Courtier::GSerialExecutorT<Gem::Geneva::GParameterSet>) // NOLINT
 BOOST_CLASS_EXPORT_KEY(Gem::Courtier::GMTExecutorT<Gem::Geneva::GParameterSet>)     // NOLINT

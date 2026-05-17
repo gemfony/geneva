@@ -49,7 +49,7 @@
 #include <catch2/catch_test_macros.hpp>
 #endif /* GEM_TESTING */
 
-namespace Gem::Geneva {
+namespace Gem::Geneva::OptimizationAlgorithms {
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -445,4 +445,9 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-} /* namespace Gem::Geneva */
+} /* namespace Gem::Geneva::OptimizationAlgorithms */
+
+// Phase-2b compile shim — removed in NS Phase 3 (reference migration).
+namespace Gem::Geneva {
+using OptimizationAlgorithms::G_OptimizationAlgorithm_FactoryT;
+} // namespace Gem::Geneva

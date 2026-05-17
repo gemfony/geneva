@@ -29,7 +29,7 @@
 
 #include "geneva/G_OptimizationAlgorithm_ParChild.hpp"
 
-namespace Gem::Geneva {
+namespace Gem::Geneva::OptimizationAlgorithms {
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -849,4 +849,4 @@ void G_OptimizationAlgorithm_ParChild::specificTestsFailuresExpected_GUnitTests_
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-} /* namespace Gem::Geneva */
+} /* namespace Gem::Geneva::OptimizationAlgorithms */
