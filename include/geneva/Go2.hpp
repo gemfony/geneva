@@ -52,16 +52,16 @@
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GParameterObjectCollection.hpp"
 #include "geneva/GParameterSet.hpp"
-#include "geneva/OptimizerIT.hpp"
-#include "geneva/GBase.hpp"
-#include "geneva/ConjugateGradientDescent_Factory.hpp"
-#include "geneva/EvolutionaryAlgorithm_Factory.hpp"
-#include "geneva/FactoryStore.hpp"
-#include "geneva/GradientDescent_Factory.hpp"
-#include "geneva/NelderMead_Factory.hpp"
-#include "geneva/ParameterScan_Factory.hpp"
-#include "geneva/SimulatedAnnealing_Factory.hpp"
-#include "geneva/SwarmAlgorithm_Factory.hpp"
+#include "geneva/iface/GOptimizerIT.hpp"
+#include "geneva/oa/GBase.hpp"
+#include "geneva/oa/GConjugateGradientDescentFactory.hpp"
+#include "geneva/oa/GEvolutionaryAlgorithmFactory.hpp"
+#include "geneva/oa/GFactoryStore.hpp"
+#include "geneva/oa/GGradientDescentFactory.hpp"
+#include "geneva/oa/GNelderMeadFactory.hpp"
+#include "geneva/oa/GParameterScanFactory.hpp"
+#include "geneva/oa/GSimulatedAnnealingFactory.hpp"
+#include "geneva/oa/GSwarmAlgorithmFactory.hpp"
 #include "geneva/GenevaHelperFunctionsT.hpp"
 #include "geneva/GenevaInitializer.hpp"
 #include "hap/GRandomFactory.hpp"
@@ -96,7 +96,7 @@ using GOABase = oa::GBase;
  * class also hides the details of client/server mode, consumer initialization, etc.
  */
 class Go2 // NOLINT(cppcoreguidelines-special-member-functions)
-  : public Interface::OptimizerIT<Go2>
+  : public Interface::GOptimizerIT<Go2>
   , public Gem::Common::GPtrContainerT<GParameterSet> {
 public:
     /** @brief The default constructor */

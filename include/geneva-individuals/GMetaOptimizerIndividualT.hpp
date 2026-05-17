@@ -58,7 +58,7 @@
 #include "geneva/GInt32GaussAdaptor.hpp"
 #include "geneva/GParameterSet.hpp"
 #include "geneva/GPluggableOptimizationMonitors.hpp"
-#include "geneva/EvolutionaryAlgorithm_Factory.hpp"
+#include "geneva/oa/GEvolutionaryAlgorithmFactory.hpp"
 
 namespace Gem::Geneva {
 

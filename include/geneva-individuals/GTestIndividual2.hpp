@@ -54,8 +54,8 @@
 #include "geneva/GDoubleObject.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GParameterSet.hpp"
-#include "geneva/GradientDescent_PersonalityTraits.hpp"
-#include "geneva/SwarmAlgorithm_PersonalityTraits.hpp"
+#include "geneva/oa/GGradientDescent_PersonalityTraits.hpp"
+#include "geneva/oa/GSwarmAlgorithm_PersonalityTraits.hpp"
 
 namespace Gem::Tests {
 

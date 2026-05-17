@@ -28,7 +28,7 @@
 ################################################################################
 
 SET ( OPTIMIZATIONSOURCES
-	RateableI.cpp
+	GRateableI.cpp
 	GAdaptorT.cpp
 	GBooleanAdaptor.cpp
 	GBooleanCollection.cpp
@@ -56,29 +56,29 @@ SET ( OPTIMIZATIONSOURCES
 	GInt32ObjectCollection.cpp
 	Go2.cpp
     GBase.cpp
-    ConjugateGradientDescent.cpp
-    ConjugateGradientDescent_Factory.cpp
-    ConjugateGradientDescent_PersonalityTraits.cpp
-    EvolutionaryAlgorithm.cpp
-    EvolutionaryAlgorithm_Factory.cpp
-    EvolutionaryAlgorithm_PersonalityTraits.cpp
-    GradientDescent.cpp
-    GradientDescent_Factory.cpp
-    GradientDescent_PersonalityTraits.cpp
-    NelderMead.cpp
-    NelderMead_Factory.cpp
-    NelderMead_PersonalityTraits.cpp
+    GConjugateGradientDescent.cpp
+    GConjugateGradientDescentFactory.cpp
+    GConjugateGradientDescent_PersonalityTraits.cpp
+    GEvolutionaryAlgorithm.cpp
+    GEvolutionaryAlgorithmFactory.cpp
+    GEvolutionaryAlgorithm_PersonalityTraits.cpp
+    GGradientDescent.cpp
+    GGradientDescentFactory.cpp
+    GGradientDescent_PersonalityTraits.cpp
+    GNelderMead.cpp
+    GNelderMeadFactory.cpp
+    GNelderMead_PersonalityTraits.cpp
     GParChild.cpp
-    ParChildT_PersonalityTraits.cpp
-    ParameterScan.cpp
-    ParameterScan_Factory.cpp
-    ParameterScan_PersonalityTraits.cpp
-    SimulatedAnnealing.cpp
-    SimulatedAnnealing_Factory.cpp
-    SimulatedAnnealing_PersonalityTraits.cpp
-    SwarmAlgorithm.cpp
-    SwarmAlgorithm_Factory.cpp
-    SwarmAlgorithm_PersonalityTraits.cpp
+    GBaseParChildPersonalityTraits.cpp
+    GParameterScan.cpp
+    GParameterScanFactory.cpp
+    GParameterScan_PersonalityTraits.cpp
+    GSimulatedAnnealing.cpp
+    GSimulatedAnnealingFactory.cpp
+    GSimulatedAnnealing_PersonalityTraits.cpp
+    GSwarmAlgorithm.cpp
+    GSwarmAlgorithmFactory.cpp
+    GSwarmAlgorithm_PersonalityTraits.cpp
 	GObject.cpp
 	GOptimizationEnums.cpp
 	GParameterBase.cpp

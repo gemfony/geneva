@@ -27,7 +27,7 @@
  *
  ********************************************************************************/
 
-#include "geneva/GParChild.hpp"
+#include "geneva/oa/GParChild.hpp"
 
 namespace Gem::Geneva::OptimizationAlgorithms {
 

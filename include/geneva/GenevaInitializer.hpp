@@ -42,8 +42,8 @@
 #include "geneva/GConsumerStore.hpp"
 #include "geneva/GIndividualStandardConsumerInitializerT.hpp"
 #include "geneva/GParameterSet.hpp"
-#include "geneva/FactoryStore.hpp"
-#include "geneva/GInitializerT.hpp"
+#include "geneva/oa/GFactoryStore.hpp"
+#include "geneva/oa/GInitializerT.hpp"
 #include "hap/GRandomFactory.hpp"
 
 namespace Gem::Geneva {

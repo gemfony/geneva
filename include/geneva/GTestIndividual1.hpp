@@ -53,11 +53,11 @@
 #include "geneva/GDoubleObject.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GParameterSet.hpp"
-#include "geneva/EvolutionaryAlgorithm_PersonalityTraits.hpp"
-#include "geneva/GradientDescent_PersonalityTraits.hpp"
-#include "geneva/ParameterScan_PersonalityTraits.hpp"
-#include "geneva/SimulatedAnnealing_PersonalityTraits.hpp"
-#include "geneva/SwarmAlgorithm_PersonalityTraits.hpp"
+#include "geneva/oa/GEvolutionaryAlgorithm_PersonalityTraits.hpp"
+#include "geneva/oa/GGradientDescent_PersonalityTraits.hpp"
+#include "geneva/oa/GParameterScan_PersonalityTraits.hpp"
+#include "geneva/oa/GSimulatedAnnealing_PersonalityTraits.hpp"
+#include "geneva/oa/GSwarmAlgorithm_PersonalityTraits.hpp"
 
 namespace Gem::Tests {
 

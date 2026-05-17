@@ -73,7 +73,7 @@
 // Geneva header files go here
 #include "common/GParserBuilder.hpp"
 #include "courtier/GMPIConsumerT.hpp"
-#include "geneva/EvolutionaryAlgorithm.hpp"
+#include "geneva/oa/GEvolutionaryAlgorithm.hpp"
 #include "geneva/GenevaInitializer.hpp"
 
 // The individual that should be optimized
