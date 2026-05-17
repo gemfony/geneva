@@ -92,7 +92,9 @@ namespace pt = boost::property_tree;
 // `struct iface` from <net/if.h> (pulled in transitively via Boost.Asio).
 namespace Gem::Geneva::OptimizationAlgorithms {}
 namespace Gem::Geneva::Interface {}
+namespace Gem::Geneva::Parameters {}
 namespace oa = Gem::Geneva::OptimizationAlgorithms;
+namespace gpar = Gem::Geneva::Parameters;
 
 namespace Gem::Geneva {
 

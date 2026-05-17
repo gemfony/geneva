@@ -643,7 +643,7 @@ GNeuralNetworkIndividual::GNeuralNetworkIndividual(
  * @param cp A copy of another GNeuralNetworkIndividual object
  */
 GNeuralNetworkIndividual::GNeuralNetworkIndividual(const GNeuralNetworkIndividual &cp)
-  : GParameterSet(cp)
+  : gpar::GParameterSet(cp)
   , tF_(cp.tF_)
   , nD_(GNNTrainingDataStore) // We want a single source for the training data
 {                             /* nothing */
@@ -679,7 +679,7 @@ void GNeuralNetworkIndividual::compare_(
     GToken token("GNeuralNetworkIndividual", e);
 
     // Compare our parent data ...
-    Gem::Common::compare_base_t<GParameterSet>(*this, *p_load, token);
+    Gem::Common::compare_base_t<gpar::GParameterSet>(*this, *p_load, token);
 
     // ... and then the local data
     compare_t(IDENTITY(tF_, p_load->tF_), token);
@@ -754,20 +754,20 @@ void GNeuralNetworkIndividual::init(
             n_nodes = *layer_iterator;
 
             // Set up a GDoubleObjectCollection
-            std::shared_ptr<GDoubleObjectCollection> gdoc(new GDoubleObjectCollection());
+            std::shared_ptr<gpar::GDoubleObjectCollection> gdoc(new gpar::GDoubleObjectCollection());
 
             // Add GDoubleObject objects
             for(std::size_t i = 0;
                 i < (layer_number == 0 ? 2 * n_nodes : n_nodes * (n_nodes_previous + 1));
                 i++) {
                 // Set up a GDoubleObject object, initializing it with random data
-                std::shared_ptr<GDoubleObject> gd_ptr(
-                    new GDoubleObject(uniform_real_distribution(gr_))
+                std::shared_ptr<gpar::GDoubleObject> gd_ptr(
+                    new gpar::GDoubleObject(uniform_real_distribution(gr_))
                 );
 
                 // Set up an adaptor
-                std::shared_ptr<GDoubleGaussAdaptor> gdga(
-                    new GDoubleGaussAdaptor(sigma, sigma_sigma, min_sigma, max_sigma)
+                std::shared_ptr<gpar::GDoubleGaussAdaptor> gdga(
+                    new gpar::GDoubleGaussAdaptor(sigma, sigma_sigma, min_sigma, max_sigma)
                 );
                 gdga->setAdaptionProbability(ad_prob);
                 gdga->setAdaptAdProb(adapt_ad_prob);
@@ -1295,7 +1295,7 @@ void GNeuralNetworkIndividual::writeTrainedNetwork(const std::string &header_fil
            << "      const double weights[n_weights] = {" << '\n';
 
     for(std::size_t i = 0; i < nD_->size(); i++) {
-        std::shared_ptr<GDoubleObjectCollection> current_layer = at<GDoubleObjectCollection>(i);
+        std::shared_ptr<gpar::GDoubleObjectCollection> current_layer = at<gpar::GDoubleObjectCollection>(i);
 
         for(std::size_t j = 0; j < current_layer->size(); j++) {
             header << "        " << current_layer->at(j)->value();
@@ -1386,7 +1386,7 @@ void GNeuralNetworkIndividual::load_(const GObject *cp) {
         Gem::Common::g_convert_and_compare<GObject, GNeuralNetworkIndividual>(cp, this);
 
     // Load the parent class'es data
-    GParameterSet::load_(cp);
+    gpar::GParameterSet::load_(cp);
 
     // Load our local data.
     tF_ = p_load->tF_;
@@ -1447,7 +1447,7 @@ double GNeuralNetworkIndividual::fitnessCalculation() {
         std::vector<double> prev_results;
         std::size_t n_layer_nodes = (*nD_)[0]; // NOLINT(cppcoreguidelines-init-variables)
         double node_result = 0;
-        const GDoubleObjectCollection &input_layer = *(at<GDoubleObjectCollection>(0));
+        const gpar::GDoubleObjectCollection &input_layer = *(at<gpar::GDoubleObjectCollection>(0));
         for(std::size_t node_counter = 0; node_counter < n_layer_nodes; node_counter++) {
             node_result = t_s.Input[node_counter] * input_layer[2 * node_counter]->value() -
                           input_layer[2 * node_counter + 1]->value();
@@ -1462,8 +1462,8 @@ double GNeuralNetworkIndividual::fitnessCalculation() {
             n_layer_nodes = (*nD_)[layer_counter];
             std::size_t n_prev_layer_nodes =
                 (*nD_)[layer_counter - 1]; // NOLINT(cppcoreguidelines-init-variables)
-            const GDoubleObjectCollection &current_layer =
-                *(at<GDoubleObjectCollection>(layer_counter));
+            const gpar::GDoubleObjectCollection &current_layer =
+                *(at<gpar::GDoubleObjectCollection>(layer_counter));
 
             for(std::size_t node_counter = 0; node_counter < n_layer_nodes; node_counter++) {
                 // Loop over all nodes of the previous layer
@@ -1538,7 +1538,7 @@ double GNeuralNetworkIndividual::transfer(const double &value) const {
 GNeuralNetworkIndividualFactory::GNeuralNetworkIndividualFactory(
     std::filesystem::path const &config_file
 )
-  : Gem::Common::GFactoryT<GParameterSet>(config_file)
+  : Gem::Common::GFactoryT<gpar::GParameterSet>(config_file)
   , adProb_(GNN_DEF_ADPROB)
   , adaptAdProb_(GNN_DEF_ADAPTADPROB)
   , minAdProb_(GNN_DEF_MINADPROB)
@@ -1581,7 +1581,7 @@ transferFunction GNeuralNetworkIndividualFactory::getTransferFunction() const {
  *
  * @return Items of the desired type
  */
-std::shared_ptr<GParameterSet> GNeuralNetworkIndividualFactory::getObject_(
+std::shared_ptr<gpar::GParameterSet> GNeuralNetworkIndividualFactory::getObject_(
     Gem::Common::GParserBuilder &gpb,
     const std::size_t & /*id*/
 ) {
@@ -1716,7 +1716,7 @@ void GNeuralNetworkIndividualFactory::describeLocalOptions_(Gem::Common::GParser
     );
 
     // Allow our parent class to describe its options
-    Gem::Common::GFactoryT<GParameterSet>::describeLocalOptions_(gpb);
+    Gem::Common::GFactoryT<gpar::GParameterSet>::describeLocalOptions_(gpb);
 }
 
 /******************************************************************************/
@@ -1727,10 +1727,10 @@ void GNeuralNetworkIndividualFactory::describeLocalOptions_(Gem::Common::GParser
  *
  * @param p A smart-pointer to be acted on during post-processing
  */
-void GNeuralNetworkIndividualFactory::postProcess_(std::shared_ptr<GParameterSet> &p_raw) {
+void GNeuralNetworkIndividualFactory::postProcess_(std::shared_ptr<gpar::GParameterSet> &p_raw) {
     // Convert the base pointer to the target type
     std::shared_ptr<GNeuralNetworkIndividual> p =
-        Gem::Common::convertSmartPointer<GParameterSet, GNeuralNetworkIndividual>(p_raw);
+        Gem::Common::convertSmartPointer<gpar::GParameterSet, GNeuralNetworkIndividual>(p_raw);
 
     // Call the initialization function with our parsed data
     p->init(

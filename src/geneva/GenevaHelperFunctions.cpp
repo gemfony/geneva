@@ -39,7 +39,7 @@ namespace Gem::Geneva {
  * @param range A tuple with the half-open range inside of the vector, where the flags should be set
  */
 void setProcessingFlag(
-    std::vector<std::shared_ptr<GParameterSet>> &work_items,
+    std::vector<std::shared_ptr<gpar::GParameterSet>> &work_items,
     const std::tuple<std::size_t, std::size_t> &range
 ) {
     const std::size_t start = std::get<0>(range);
@@ -70,7 +70,7 @@ void setProcessingFlag(
  * @param id The id of the fitness criterion (individuals may have more than one)
  */
 double minOnly_transformed_fitness(
-    const std::shared_ptr<GParameterSet> &item_ptr,
+    const std::shared_ptr<gpar::GParameterSet> &item_ptr,
     const std::size_t id // NOLINT(misc-unused-parameters)
 ) {
     const double f = item_ptr->transformed_fitness(id); // NOLINT(cppcoreguidelines-init-variables)
@@ -110,8 +110,8 @@ double minOnly_transformed_fitness(
  * is done with the first (main) fitness criterion.
  */
 bool isBetter(
-    const std::shared_ptr<GParameterSet> &x_ptr,
-    const std::shared_ptr<GParameterSet> &y_ptr
+    const std::shared_ptr<gpar::GParameterSet> &x_ptr,
+    const std::shared_ptr<gpar::GParameterSet> &y_ptr
 ) {
 #ifdef DEBUG
     const auto x_mode = x_ptr->getMaxMode();
@@ -142,8 +142,8 @@ bool isBetter(
  * is done with the first (main) fitness criterion.
  */
 bool isWorse(
-    const std::shared_ptr<GParameterSet> &x_ptr,
-    const std::shared_ptr<GParameterSet> &y_ptr
+    const std::shared_ptr<gpar::GParameterSet> &x_ptr,
+    const std::shared_ptr<gpar::GParameterSet> &y_ptr
 ) {
     return not isBetter(x_ptr, y_ptr);
 }

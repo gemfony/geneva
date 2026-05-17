@@ -39,7 +39,7 @@ namespace Gem::Geneva {
  */
 GenevaInitializer::GenevaInitializer() {
     GRANDOMFACTORY->init();
-    GBROKER(Gem::Geneva::GParameterSet)->init();
+    GBROKER(gpar::GParameterSet)->init();
 }
 
 /******************************************************************************/
@@ -47,7 +47,7 @@ GenevaInitializer::GenevaInitializer() {
  * The destructor
  */
 GenevaInitializer::~GenevaInitializer() {
-    GBROKER(Gem::Geneva::GParameterSet)->finalize();
+    GBROKER(gpar::GParameterSet)->finalize();
     GRANDOMFACTORY->finalize();
 }
 

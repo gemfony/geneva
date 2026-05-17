@@ -58,7 +58,7 @@ GConjugateGradientDescentFactory::GConjugateGradientDescentFactory(
  */
 GConjugateGradientDescentFactory::GConjugateGradientDescentFactory(
     const std::string &config_file,
-    std::shared_ptr<Gem::Common::GFactoryT<GParameterSet>> content_creator_ptr
+    std::shared_ptr<Gem::Common::GFactoryT<gpar::GParameterSet>> content_creator_ptr
 )
   : GOAFactoryT<GBase>(
         config_file,

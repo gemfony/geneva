@@ -38,7 +38,7 @@
 
 // Geneva headers go here
 #include "common/GGlobalOptionsT.hpp"
-#include "geneva/GParameterSet.hpp"
+#include "geneva/par/GParameterSet.hpp"
 #include "geneva/oa/GBase.hpp"
 #include "geneva/oa/GOAFactoryT.hpp"
 

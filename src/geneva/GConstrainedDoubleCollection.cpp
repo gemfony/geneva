@@ -27,7 +27,7 @@
  *
  ********************************************************************************/
 
-#include "geneva/GConstrainedDoubleCollection.hpp"
+#include "geneva/par/GConstrainedDoubleCollection.hpp"
 
 #include <cmath>
 #include <limits>
@@ -36,8 +36,8 @@
 #include <catch2/catch_test_macros.hpp>
 #endif /* GEM_TESTING */
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GConstrainedDoubleCollection) // NOLINT
-namespace Gem::Geneva {
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Parameters::GConstrainedDoubleCollection) // NOLINT
+namespace Gem::Geneva::Parameters {
 
 /******************************************************************************/
 /**
@@ -500,4 +500,4 @@ void GConstrainedDoubleCollection::specificTestsFailuresExpected_GUnitTests_() {
 
 /******************************************************************************/
 
-} /* namespace Gem::Geneva */
+} /* namespace Gem::Geneva::Parameters */

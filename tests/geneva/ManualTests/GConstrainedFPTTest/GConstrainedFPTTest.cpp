@@ -55,8 +55,8 @@
 
 // Geneva header files go here
 #include "common/GPlotDesigner.hpp"
-#include "geneva/GConstrainedDoubleObject.hpp"
-#include "geneva/GDoubleGaussAdaptor.hpp"
+#include "geneva/par/GConstrainedDoubleObject.hpp"
+#include "geneva/par/GDoubleGaussAdaptor.hpp"
 #include "hap/GRandomT.hpp"
 
 using namespace Gem::Geneva;
@@ -73,7 +73,7 @@ int main(int argc, char **argv) {
     std::shared_ptr<GGraph2D> mapping_ptr(new GGraph2D());
     mapping_ptr->setPlotLabel("Mapping from internal to external value");
 
-    GConstrainedDoubleObject gbd13(-1., 3.); // lower boundary -1, upper Boundary 3
+    gpar::GConstrainedDoubleObject gbd13(-1., 3.); // lower boundary -1, upper Boundary 3
 
     for(std::uint32_t i = 0; i < NTESTS; i++) {
         internalValue = -30. + 50. * static_cast<double>(i) / static_cast<double>(NTESTS);
@@ -95,7 +95,7 @@ int main(int argc, char **argv) {
     // whose mean is shifted from left to right of a [-1,1] range
 
     Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
-    GConstrainedDoubleObject gbd_distortion(-1., 1.);
+    gpar::GConstrainedDoubleObject gbd_distortion(-1., 1.);
 
     std::ofstream distortion("distortion.C");
 

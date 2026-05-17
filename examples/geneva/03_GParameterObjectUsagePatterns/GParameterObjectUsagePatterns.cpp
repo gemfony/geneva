@@ -41,23 +41,23 @@
 
 // Geneva header files go here
 #include "geneva-individuals/GFunctionIndividual.hpp"
-#include "geneva/GBooleanCollection.hpp"
-#include "geneva/GBooleanObject.hpp"
-#include "geneva/GBooleanObjectCollection.hpp"
-#include "geneva/GConstrainedDoubleCollection.hpp"
-#include "geneva/GConstrainedDoubleObjectCollection.hpp"
-#include "geneva/GConstrainedInt32Object.hpp"
-#include "geneva/GConstrainedInt32ObjectCollection.hpp"
-#include "geneva/GDoubleBiGaussAdaptor.hpp"
-#include "geneva/GDoubleCollection.hpp"
-#include "geneva/GDoubleGaussAdaptor.hpp"
-#include "geneva/GDoubleObject.hpp"
-#include "geneva/GDoubleObjectCollection.hpp"
-#include "geneva/GInt32Collection.hpp"
-#include "geneva/GInt32FlipAdaptor.hpp"
-#include "geneva/GInt32GaussAdaptor.hpp"
-#include "geneva/GInt32Object.hpp"
-#include "geneva/GInt32ObjectCollection.hpp"
+#include "geneva/par/GBooleanCollection.hpp"
+#include "geneva/par/GBooleanObject.hpp"
+#include "geneva/par/GBooleanObjectCollection.hpp"
+#include "geneva/par/GConstrainedDoubleCollection.hpp"
+#include "geneva/par/GConstrainedDoubleObjectCollection.hpp"
+#include "geneva/par/GConstrainedInt32Object.hpp"
+#include "geneva/par/GConstrainedInt32ObjectCollection.hpp"
+#include "geneva/par/GDoubleBiGaussAdaptor.hpp"
+#include "geneva/par/GDoubleCollection.hpp"
+#include "geneva/par/GDoubleGaussAdaptor.hpp"
+#include "geneva/par/GDoubleObject.hpp"
+#include "geneva/par/GDoubleObjectCollection.hpp"
+#include "geneva/par/GInt32Collection.hpp"
+#include "geneva/par/GInt32FlipAdaptor.hpp"
+#include "geneva/par/GInt32GaussAdaptor.hpp"
+#include "geneva/par/GInt32Object.hpp"
+#include "geneva/par/GInt32ObjectCollection.hpp"
 #include "geneva/Go2.hpp" // Includes all of the parameter object types
 
 using namespace Gem::Geneva;
@@ -79,33 +79,33 @@ int main(int argc, char **argv) {
 
         // Note: This object already contains a parameter object, in
         // addition to those added below.
-        std::shared_ptr<GParameterSet> gfi_test = gfi_ptr->get();
+        std::shared_ptr<gpar::GParameterSet> gfi_test = gfi_ptr->get();
 
         gfi_test->push_back(
-            std::shared_ptr<GConstrainedDoubleObject>(new GConstrainedDoubleObject(-7, 17))
+            std::shared_ptr<gpar::GConstrainedDoubleObject>(new gpar::GConstrainedDoubleObject(-7, 17))
         );
         gfi_test->push_back(
-            std::shared_ptr<GConstrainedDoubleObject>(new GConstrainedDoubleObject(-5, 5))
+            std::shared_ptr<gpar::GConstrainedDoubleObject>(new gpar::GConstrainedDoubleObject(-5, 5))
         );
 
         // Add some more data
-        gfi_test->push_back(std::shared_ptr<GBooleanObject>(new GBooleanObject()));
-        gfi_test->push_back(std::shared_ptr<GDoubleObject>(new GDoubleObject()));
+        gfi_test->push_back(std::shared_ptr<gpar::GBooleanObject>(new gpar::GBooleanObject()));
+        gfi_test->push_back(std::shared_ptr<gpar::GDoubleObject>(new gpar::GDoubleObject()));
         gfi_test->push_back(
-            std::shared_ptr<GConstrainedDoubleObject>(new GConstrainedDoubleObject())
+            std::shared_ptr<gpar::GConstrainedDoubleObject>(new gpar::GConstrainedDoubleObject())
         );
-        gfi_test->push_back(std::shared_ptr<GInt32Object>(new GInt32Object()));
+        gfi_test->push_back(std::shared_ptr<gpar::GInt32Object>(new gpar::GInt32Object()));
         gfi_test->push_back(
-            std::shared_ptr<GConstrainedInt32Object>(new GConstrainedInt32Object())
+            std::shared_ptr<gpar::GConstrainedInt32Object>(new gpar::GConstrainedInt32Object())
         );
 
-        std::shared_ptr<GParameterObjectCollection> gpoc_ptr(new GParameterObjectCollection());
-        gpoc_ptr->push_back(std::shared_ptr<GDoubleObject>(new GDoubleObject()));
-        gpoc_ptr->push_back(std::shared_ptr<GDoubleObject>(new GDoubleObject()));
-        gpoc_ptr->push_back(std::shared_ptr<GDoubleObject>(new GDoubleObject()));
+        std::shared_ptr<gpar::GParameterObjectCollection> gpoc_ptr(new gpar::GParameterObjectCollection());
+        gpoc_ptr->push_back(std::shared_ptr<gpar::GDoubleObject>(new gpar::GDoubleObject()));
+        gpoc_ptr->push_back(std::shared_ptr<gpar::GDoubleObject>(new gpar::GDoubleObject()));
+        gpoc_ptr->push_back(std::shared_ptr<gpar::GDoubleObject>(new gpar::GDoubleObject()));
         gpoc_ptr->push_back(
-            std::shared_ptr<GConstrainedDoubleCollection>(
-                new GConstrainedDoubleCollection(5, -10., 10.)
+            std::shared_ptr<gpar::GConstrainedDoubleCollection>(
+                new gpar::GConstrainedDoubleCollection(5, -10., 10.)
             )
         );
 
@@ -136,12 +136,12 @@ int main(int argc, char **argv) {
 
         //-----------------------------------------------------
         // Construction
-        GDoubleObject o1;         // Default construction
-        GDoubleObject o2(o1);     // Copy construction
-        GDoubleObject o3(2.);     // Initialization by value
-        GDoubleObject o4(0., 2.); // Random initialization in a given range
-        std::shared_ptr<GDoubleObject> p(
-            new GDoubleObject(0., 2.)
+        gpar::GDoubleObject o1;         // Default construction
+        gpar::GDoubleObject o2(o1);     // Copy construction
+        gpar::GDoubleObject o3(2.);     // Initialization by value
+        gpar::GDoubleObject o4(0., 2.); // Random initialization in a given range
+        std::shared_ptr<gpar::GDoubleObject> p(
+            new gpar::GDoubleObject(0., 2.)
         ); // Construction and access frequently happens through smart pointers
 
         //-----------------------------------------------------
@@ -163,8 +163,8 @@ int main(int argc, char **argv) {
         double minSigma = 0., maxSigma = 0.5; // allowed value range of sigma
         double adProb =
             0.05; // 5% probability for the adaption of this object when adaptor is called
-        std::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(
-            new GDoubleGaussAdaptor(sigma, sigmaSigma, minSigma, maxSigma)
+        std::shared_ptr<gpar::GDoubleGaussAdaptor> gdga_ptr(
+            new gpar::GDoubleGaussAdaptor(sigma, sigmaSigma, minSigma, maxSigma)
         );
         gdga_ptr->setAdaptionProbability(adProb);
         p->addAdaptor(gdga_ptr);
@@ -175,13 +175,13 @@ int main(int argc, char **argv) {
 
         //-----------------------------------------------------
         // Construction
-        GConstrainedDoubleObject o1;             // Default construction
-        GConstrainedDoubleObject o2(o1);         // Copy construction
-        GConstrainedDoubleObject o3(2.);         // Initialization by value
-        GConstrainedDoubleObject o4(0., 2.);     // Initialization of value boundaries
-        GConstrainedDoubleObject o5(1., 0., 2.); // Initialization with value and value boundaries
-        std::shared_ptr<GConstrainedDoubleObject> p(
-            new GConstrainedDoubleObject(0., 2.)
+        gpar::GConstrainedDoubleObject o1;             // Default construction
+        gpar::GConstrainedDoubleObject o2(o1);         // Copy construction
+        gpar::GConstrainedDoubleObject o3(2.);         // Initialization by value
+        gpar::GConstrainedDoubleObject o4(0., 2.);     // Initialization of value boundaries
+        gpar::GConstrainedDoubleObject o5(1., 0., 2.); // Initialization with value and value boundaries
+        std::shared_ptr<gpar::GConstrainedDoubleObject> p(
+            new gpar::GConstrainedDoubleObject(0., 2.)
         ); // Construction and access frequently happens through smart pointers
 
         //-----------------------------------------------------
@@ -203,8 +203,8 @@ int main(int argc, char **argv) {
         double minSigma = 0., maxSigma = 0.5; // allowed value range of sigma
         double adProb =
             0.05; // 5% probability for the adaption of this object when adaptor is called
-        std::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(
-            new GDoubleGaussAdaptor(sigma, sigmaSigma, minSigma, maxSigma)
+        std::shared_ptr<gpar::GDoubleGaussAdaptor> gdga_ptr(
+            new gpar::GDoubleGaussAdaptor(sigma, sigmaSigma, minSigma, maxSigma)
         );
         gdga_ptr->setAdaptionProbability(adProb);
         p->addAdaptor(gdga_ptr);
@@ -215,10 +215,10 @@ int main(int argc, char **argv) {
 
         //-----------------------------------------------------
         // Construction
-        GDoubleObjectCollection c1;     // Default constructor
-        GDoubleObjectCollection c2(c1); // Copy construction
-        std::shared_ptr<GDoubleObjectCollection> p_c3(
-            new GDoubleObjectCollection(c1)
+        gpar::GDoubleObjectCollection c1;     // Default constructor
+        gpar::GDoubleObjectCollection c2(c1); // Copy construction
+        std::shared_ptr<gpar::GDoubleObjectCollection> p_c3(
+            new gpar::GDoubleObjectCollection(c1)
         ); // Copy construction inside of smart pointer
         // Note: Copy construction will create deep copies
         // of all objects stored in c1
@@ -227,7 +227,7 @@ int main(int argc, char **argv) {
         // Filling with objects
         for(std::size_t i = 0; i < 10; i++) {
             // Create a smart pointer wrapping a GDoubleObject
-            std::shared_ptr<GDoubleObject> p(new GDoubleObject());
+            std::shared_ptr<gpar::GDoubleObject> p(new gpar::GDoubleObject());
             // Configure GDoubleObject as required. E.g., add adaptors
             // ...
             // Add to the collection
@@ -252,7 +252,7 @@ int main(int argc, char **argv) {
         // Note: The iterator points to a smart pointer, so in order to
         // call a function on the parameter objects we first need to
         // dereference the iterator, then the smart pointer
-        GDoubleObjectCollection::iterator it;
+        gpar::GDoubleObjectCollection::iterator it;
         for(it = c1.begin(); it != c1.end(); ++it) {
             std::cout << (*it)->value() << '\n';
         }
@@ -263,10 +263,10 @@ int main(int argc, char **argv) {
 
         //-----------------------------------------------------
         // Construction
-        GConstrainedDoubleObjectCollection c1;     // Default constructor
-        GConstrainedDoubleObjectCollection c2(c1); // Copy construction
-        std::shared_ptr<GConstrainedDoubleObjectCollection> p_c3(
-            new GConstrainedDoubleObjectCollection(c1)
+        gpar::GConstrainedDoubleObjectCollection c1;     // Default constructor
+        gpar::GConstrainedDoubleObjectCollection c2(c1); // Copy construction
+        std::shared_ptr<gpar::GConstrainedDoubleObjectCollection> p_c3(
+            new gpar::GConstrainedDoubleObjectCollection(c1)
         ); // Copy construction inside of smart pointer
         // Note: Copy construction will create deep copies
         // of all objects stored in c1
@@ -275,7 +275,7 @@ int main(int argc, char **argv) {
         // Filling with objects
         for(std::size_t i = 0; i < 10; i++) {
             // Create a smart pointer wrapping a GDoubleObject
-            std::shared_ptr<GConstrainedDoubleObject> p(new GConstrainedDoubleObject(-10., 10.));
+            std::shared_ptr<gpar::GConstrainedDoubleObject> p(new gpar::GConstrainedDoubleObject(-10., 10.));
             // Configure GConstrainedDoubleObject as required. E.g., add adaptors
             // ...
             // Add to the collection
@@ -301,7 +301,7 @@ int main(int argc, char **argv) {
         // Note: The iterator points to a smart pointer, so in order to
         // call a function on the parameter objects we first need to
         // dereference the iterator, then the smart pointer
-        GConstrainedDoubleObjectCollection::iterator it;
+        gpar::GConstrainedDoubleObjectCollection::iterator it;
         for(it = c1.begin(); it != c1.end(); ++it) {
             std::cout << (*it)->value() << '\n';
         }
@@ -312,12 +312,12 @@ int main(int argc, char **argv) {
 
         //-----------------------------------------------------
         // Construction
-        GDoubleCollection c1;     // Default construction
-        GDoubleCollection c2(c1); // Copy construction
+        gpar::GDoubleCollection c1;     // Default construction
+        gpar::GDoubleCollection c2(c1); // Copy construction
         // Copy construction inside of smart pointer
-        std::shared_ptr<GDoubleCollection> p_c3(new GDoubleCollection(c1));
+        std::shared_ptr<gpar::GDoubleCollection> p_c3(new gpar::GDoubleCollection(c1));
         // 100 double values, randomly initialized in the range [-3.,3[
-        GDoubleCollection c4(100, -3., 3.);
+        gpar::GDoubleCollection c4(100, -3., 3.);
 
         //-----------------------------------------------------
         // Filling with objects
@@ -332,8 +332,8 @@ int main(int argc, char **argv) {
         double minSigma = 0., maxSigma = 0.5; // allowed value range of sigma
         // 5% probability for the adaption of this object when adaptor is called
         double adProb = 0.05;
-        std::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(
-            new GDoubleGaussAdaptor(sigma, sigmaSigma, minSigma, maxSigma)
+        std::shared_ptr<gpar::GDoubleGaussAdaptor> gdga_ptr(
+            new gpar::GDoubleGaussAdaptor(sigma, sigmaSigma, minSigma, maxSigma)
         );
         gdga_ptr->setAdaptionProbability(adProb);
         c1.addAdaptor(gdga_ptr);
@@ -350,7 +350,7 @@ int main(int argc, char **argv) {
             std::cout << c1[i] << '\n';
             std::cout << c1.at(i) << '\n';
         }
-        GDoubleCollection::iterator it;
+        gpar::GDoubleCollection::iterator it;
         for(it = c1.begin(); it != c1.end(); ++it) {
             std::cout << *it << '\n';
         }
@@ -363,8 +363,8 @@ int main(int argc, char **argv) {
         //-----------------------------------------------------
         // Construction
         // Initialization with 100 variables and constraint [-10, 10[
-        GConstrainedDoubleCollection c1(100, -10, 200.);
-        GConstrainedDoubleCollection c2(c1); // Copy construction
+        gpar::GConstrainedDoubleCollection c1(100, -10, 200.);
+        gpar::GConstrainedDoubleCollection c2(c1); // Copy construction
 
         // Note -- we do not currently fill in additional data items. This
         // class is not yet at its final stage.
@@ -376,8 +376,8 @@ int main(int argc, char **argv) {
         double minSigma = 0., maxSigma = 0.5; // allowed value range of sigma
         // 5% probability for the adaption of this object when adaptor is called
         double adProb = 0.05;
-        std::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(
-            new GDoubleGaussAdaptor(sigma, sigmaSigma, minSigma, maxSigma)
+        std::shared_ptr<gpar::GDoubleGaussAdaptor> gdga_ptr(
+            new gpar::GDoubleGaussAdaptor(sigma, sigmaSigma, minSigma, maxSigma)
         );
         gdga_ptr->setAdaptionProbability(adProb);
         c1.addAdaptor(gdga_ptr);
@@ -403,12 +403,12 @@ int main(int argc, char **argv) {
 
         //-----------------------------------------------------
         // Construction
-        GInt32Object o1;       // Default construction
-        GInt32Object o2(o1);   // Copy construction
-        GInt32Object o3(2);    // Initialization by value
-        GInt32Object o4(0, 2); // Random initialization in a given range
-        std::shared_ptr<GInt32Object> p_o5(
-            new GInt32Object(0, 2)
+        gpar::GInt32Object o1;       // Default construction
+        gpar::GInt32Object o2(o1);   // Copy construction
+        gpar::GInt32Object o3(2);    // Initialization by value
+        gpar::GInt32Object o4(0, 2); // Random initialization in a given range
+        std::shared_ptr<gpar::GInt32Object> p_o5(
+            new gpar::GInt32Object(0, 2)
         ); // Construction and access frequently happens through smart pointers
 
         //-----------------------------------------------------
@@ -425,7 +425,7 @@ int main(int argc, char **argv) {
 
         //-----------------------------------------------------
         // Assignment of an adaptor
-        std::shared_ptr<GInt32FlipAdaptor> ifa_ptr(new GInt32FlipAdaptor());
+        std::shared_ptr<gpar::GInt32FlipAdaptor> ifa_ptr(new gpar::GInt32FlipAdaptor());
         ifa_ptr->setAdaptionProbability(0.05); // 5% probability
         p_o5->addAdaptor(ifa_ptr);
     }
@@ -435,17 +435,17 @@ int main(int argc, char **argv) {
 
         //-----------------------------------------------------
         // Construction
-        GConstrainedInt32Object o1;        // Default construction
-        GConstrainedInt32Object o2(o1);    // Copy construction
-        GConstrainedInt32Object o3(2);     // Initialization by value
-        GConstrainedInt32Object o4(0, 10); // Initialization of allowed initialization range
-        GConstrainedInt32Object o5(
+        gpar::GConstrainedInt32Object o1;        // Default construction
+        gpar::GConstrainedInt32Object o2(o1);    // Copy construction
+        gpar::GConstrainedInt32Object o3(2);     // Initialization by value
+        gpar::GConstrainedInt32Object o4(0, 10); // Initialization of allowed initialization range
+        gpar::GConstrainedInt32Object o5(
             1,
             0,
             10
         ); // Initialization with value and allowed initialization range
-        std::shared_ptr<GConstrainedInt32Object> p_o6(
-            new GConstrainedInt32Object(0, 2)
+        std::shared_ptr<gpar::GConstrainedInt32Object> p_o6(
+            new gpar::GConstrainedInt32Object(0, 2)
         ); // Construction and access frequently happens through smart pointers
 
         //-----------------------------------------------------
@@ -462,7 +462,7 @@ int main(int argc, char **argv) {
 
         //-----------------------------------------------------
         // Assignment of an adaptor
-        std::shared_ptr<GInt32FlipAdaptor> ifa_ptr(new GInt32FlipAdaptor());
+        std::shared_ptr<gpar::GInt32FlipAdaptor> ifa_ptr(new gpar::GInt32FlipAdaptor());
         ifa_ptr->setAdaptionProbability(0.05); // 5% probability
         p_o6->addAdaptor(ifa_ptr);
     }
@@ -472,10 +472,10 @@ int main(int argc, char **argv) {
 
         //-----------------------------------------------------
         // Construction
-        GInt32ObjectCollection c1;     // Default constructor
-        GInt32ObjectCollection c2(c1); // Copy construction
+        gpar::GInt32ObjectCollection c1;     // Default constructor
+        gpar::GInt32ObjectCollection c2(c1); // Copy construction
         // Copy construction inside of smart pointer
-        std::shared_ptr<GInt32ObjectCollection> p_c3(new GInt32ObjectCollection(c1));
+        std::shared_ptr<gpar::GInt32ObjectCollection> p_c3(new gpar::GInt32ObjectCollection(c1));
         // Note: Copy construction will create deep copies
         // of all objects stored in c1
 
@@ -483,7 +483,7 @@ int main(int argc, char **argv) {
         // Filling with objects
         for(std::size_t i = 0; i < 10; i++) {
             // Create a smart pointer wrapping a GInt32Object
-            std::shared_ptr<GInt32Object> p(new GInt32Object());
+            std::shared_ptr<gpar::GInt32Object> p(new gpar::GInt32Object());
             // Configure GInt32Object as required. E.g., add adaptors
             // ...
             // Add to the collection
@@ -509,7 +509,7 @@ int main(int argc, char **argv) {
         // Note: The iterator points to a smart pointer, so in order to
         // call a function on the parameter objects we first need to
         // dereference the iterator, then the smart pointer
-        GInt32ObjectCollection::iterator it;
+        gpar::GInt32ObjectCollection::iterator it;
         for(it = c1.begin(); it != c1.end(); ++it) {
             std::cout << (*it)->value() << '\n';
         }
@@ -520,11 +520,11 @@ int main(int argc, char **argv) {
 
         //-----------------------------------------------------
         // Construction
-        GConstrainedInt32ObjectCollection c1;     // Default constructor
-        GConstrainedInt32ObjectCollection c2(c1); // Copy construction
+        gpar::GConstrainedInt32ObjectCollection c1;     // Default constructor
+        gpar::GConstrainedInt32ObjectCollection c2(c1); // Copy construction
         // Copy construction inside of smart pointer
-        std::shared_ptr<GConstrainedInt32ObjectCollection> p_c3(
-            new GConstrainedInt32ObjectCollection(c1)
+        std::shared_ptr<gpar::GConstrainedInt32ObjectCollection> p_c3(
+            new gpar::GConstrainedInt32ObjectCollection(c1)
         );
         // Note: Copy construction will create deep copies
         // of all objects stored in c1
@@ -533,7 +533,7 @@ int main(int argc, char **argv) {
         // Filling with objects
         for(std::size_t i = 0; i < 10; i++) {
             // Create a smart pointer wrapping a GConstrainedInt32Object
-            std::shared_ptr<GConstrainedInt32Object> p(new GConstrainedInt32Object(-10, 10));
+            std::shared_ptr<gpar::GConstrainedInt32Object> p(new gpar::GConstrainedInt32Object(-10, 10));
             // Configure GConstrainedInt32Object as required. E.g., add adaptors
             // ...
             // Add to the collection
@@ -559,7 +559,7 @@ int main(int argc, char **argv) {
         // Note: The iterator points to a smart pointer, so in order to
         // call a function on the parameter objects we first need to
         // dereference the iterator, then the smart pointer
-        GConstrainedInt32ObjectCollection::iterator it;
+        gpar::GConstrainedInt32ObjectCollection::iterator it;
         for(it = c1.begin(); it != c1.end(); ++it) {
             std::cout << (*it)->value() << '\n';
         }
@@ -570,12 +570,12 @@ int main(int argc, char **argv) {
 
         //-----------------------------------------------------
         // Construction
-        GInt32Collection c1;     // Default construction
-        GInt32Collection c2(c1); // Copy construction
+        gpar::GInt32Collection c1;     // Default construction
+        gpar::GInt32Collection c2(c1); // Copy construction
         // Copy construction inside of smart pointer
-        std::shared_ptr<GInt32Collection> p_c3(new GInt32Collection(c1));
+        std::shared_ptr<gpar::GInt32Collection> p_c3(new gpar::GInt32Collection(c1));
         // 100 std::int32_t values, with an initialization range of [-3,3]
-        GInt32Collection c4(100, -3, 3);
+        gpar::GInt32Collection c4(100, -3, 3);
 
         //-----------------------------------------------------
         // Filling with data
@@ -585,7 +585,7 @@ int main(int argc, char **argv) {
 
         //-----------------------------------------------------
         // Adding an adaptor
-        std::shared_ptr<GInt32FlipAdaptor> ifa_ptr(new GInt32FlipAdaptor());
+        std::shared_ptr<gpar::GInt32FlipAdaptor> ifa_ptr(new gpar::GInt32FlipAdaptor());
         ifa_ptr->setAdaptionProbability(0.05); // 5% probability
         c1.addAdaptor(ifa_ptr);
 
@@ -601,7 +601,7 @@ int main(int argc, char **argv) {
             std::cout << c1[i] << '\n';
             std::cout << c1.at(i) << '\n';
         }
-        GInt32Collection::iterator it;
+        gpar::GInt32Collection::iterator it;
         for(it = c1.begin(); it != c1.end(); ++it) {
             std::cout << *it << '\n';
         }
@@ -613,11 +613,11 @@ int main(int argc, char **argv) {
 
         //-----------------------------------------------------
         // Construction
-        GBooleanObject o1;       // Default construction
-        GBooleanObject o2(o1);   // Copy construction
-        GBooleanObject o3(true); // Initialization by value
+        gpar::GBooleanObject o1;       // Default construction
+        gpar::GBooleanObject o2(o1);   // Copy construction
+        gpar::GBooleanObject o3(true); // Initialization by value
         // Construction and access frequently happens through smart pointers
-        std::shared_ptr<GBooleanObject> p(new GBooleanObject(true));
+        std::shared_ptr<gpar::GBooleanObject> p(new gpar::GBooleanObject(true));
 
         //-----------------------------------------------------
         // Assignment, value setting and retrieval
@@ -629,7 +629,7 @@ int main(int argc, char **argv) {
 
         //-----------------------------------------------------
         // Assignment of an adaptor
-        std::shared_ptr<GBooleanAdaptor> bad_ptr(new GBooleanAdaptor());
+        std::shared_ptr<gpar::GBooleanAdaptor> bad_ptr(new gpar::GBooleanAdaptor());
         bad_ptr->setAdaptionProbability(0.05); // 5% adaption probability
         p->addAdaptor(bad_ptr);
     }
@@ -639,10 +639,10 @@ int main(int argc, char **argv) {
 
         //-----------------------------------------------------
         // Construction
-        GBooleanObjectCollection c1;     // Default constructor
-        GBooleanObjectCollection c2(c1); // Copy construction
-        std::shared_ptr<GBooleanObjectCollection> p_c3(
-            new GBooleanObjectCollection(c1)
+        gpar::GBooleanObjectCollection c1;     // Default constructor
+        gpar::GBooleanObjectCollection c2(c1); // Copy construction
+        std::shared_ptr<gpar::GBooleanObjectCollection> p_c3(
+            new gpar::GBooleanObjectCollection(c1)
         ); // Copy construction inside of smart pointer
         // Note: Copy construction will create deep copies
         // of all objects stored in c1
@@ -651,7 +651,7 @@ int main(int argc, char **argv) {
         // Filling with objects
         for(std::size_t i = 0; i < 10; i++) {
             // Create a smart pointer wrapping a GBooleanObject
-            std::shared_ptr<GBooleanObject> p(new GBooleanObject());
+            std::shared_ptr<gpar::GBooleanObject> p(new gpar::GBooleanObject());
             // Configure GBooleanObject as required. E.g., add adaptors
             // ...
             // Add to the collection
@@ -676,7 +676,7 @@ int main(int argc, char **argv) {
         // Note: The iterator points to a smart pointer, so in order to
         // call a function on the parameter objects we first need to
         // dereference the iterator, then the smart pointer
-        GBooleanObjectCollection::iterator it;
+        gpar::GBooleanObjectCollection::iterator it;
         for(it = c1.begin(); it != c1.end(); ++it) {
             std::cout << (*it)->value() << '\n';
         }
@@ -687,13 +687,13 @@ int main(int argc, char **argv) {
 
         //-----------------------------------------------------
         // Construction
-        GBooleanCollection c1;      // Default construction
-        GBooleanCollection c2(c1);  // Copy construction
-        GBooleanCollection c3(100); // Initialization with 100 random booleans
+        gpar::GBooleanCollection c1;      // Default construction
+        gpar::GBooleanCollection c2(c1);  // Copy construction
+        gpar::GBooleanCollection c3(100); // Initialization with 100 random booleans
         // Initialization with 100 random booleans, of which 25% have a true value
-        GBooleanCollection c4(100, 0.25);
+        gpar::GBooleanCollection c4(100, 0.25);
         // Copy construction inside of smart pointer
-        std::shared_ptr<GBooleanCollection> p_c5(new GBooleanCollection(c1));
+        std::shared_ptr<gpar::GBooleanCollection> p_c5(new gpar::GBooleanCollection(c1));
 
         //-----------------------------------------------------
         // Filling with data
@@ -703,7 +703,7 @@ int main(int argc, char **argv) {
 
         //-----------------------------------------------------
         // Adding an adaptor
-        std::shared_ptr<GBooleanAdaptor> bad_ptr(new GBooleanAdaptor());
+        std::shared_ptr<gpar::GBooleanAdaptor> bad_ptr(new gpar::GBooleanAdaptor());
         bad_ptr->setAdaptionProbability(0.05); // 5% adaption probability
         p_c5->addAdaptor(bad_ptr);
 
@@ -719,7 +719,7 @@ int main(int argc, char **argv) {
             std::cout << (c1[i] ? "true" : "false") << '\n';
             std::cout << (c1.at(i) ? "true" : "false") << '\n';
         }
-        GBooleanCollection::iterator it;
+        gpar::GBooleanCollection::iterator it;
         for(it = c1.begin(); it != c1.end(); ++it) {
             std::cout << (*it ? "true" : "false") << '\n';
         }
@@ -731,10 +731,10 @@ int main(int argc, char **argv) {
 
         //-----------------------------------------------------
         // Construction
-        GParameterObjectCollection c1;     // Default constructor
-        GParameterObjectCollection c2(c1); // Copy construction
-        std::shared_ptr<GParameterObjectCollection> p_c3(
-            new GParameterObjectCollection(c1)
+        gpar::GParameterObjectCollection c1;     // Default constructor
+        gpar::GParameterObjectCollection c2(c1); // Copy construction
+        std::shared_ptr<gpar::GParameterObjectCollection> p_c3(
+            new gpar::GParameterObjectCollection(c1)
         ); // Copy construction inside of smart pointer
         // Note: Copy construction will create deep copies
         // of all objects stored in c1
@@ -745,14 +745,14 @@ int main(int argc, char **argv) {
         // GParameterBase
 
         // Create a smart pointer wrapping a GDoubleObject
-        std::shared_ptr<GDoubleObject> p_d(new GDoubleObject());
+        std::shared_ptr<gpar::GDoubleObject> p_d(new gpar::GDoubleObject());
         // Configure GDoubleObject as required. E.g., add adaptors
         // ...
         // Add to the collection
         c1.push_back(p_d);
 
         // Create a smart pointer wrapping a GInt32Object
-        std::shared_ptr<GInt32Object> p_i(new GInt32Object());
+        std::shared_ptr<gpar::GInt32Object> p_i(new gpar::GInt32Object());
         // Configure GInt32Object as required. E.g., add adaptors
         // ...
         // Add to the collection
@@ -762,7 +762,7 @@ int main(int argc, char **argv) {
         // As it is derived from GParameterBase, we can store it
         // in GParameterObjectCollection objects and create
         // tree-like structures in this way
-        std::shared_ptr<GParameterObjectCollection> p_child(new GParameterObjectCollection());
+        std::shared_ptr<gpar::GParameterObjectCollection> p_child(new gpar::GParameterObjectCollection());
         c1.push_back(p_child);
 
         // Note: No adaptor is added to the collection itself, only
@@ -778,11 +778,11 @@ int main(int argc, char **argv) {
         // Access to parameter objects in the collection
 
         // Direct conversion, if we know the target type
-        std::shared_ptr<GDoubleObject> p_d2 = c1.at<GDoubleObject>(0);
+        std::shared_ptr<gpar::GDoubleObject> p_d2 = c1.at<gpar::GDoubleObject>(0);
 
         // Filtered range view -- will return all GDoubleObject items
         // stored on this level (does not recurse into nested collections).
-        for(auto p_conv : c1.filteredView<GDoubleObject>()) {
+        for(auto p_conv : c1.filteredView<gpar::GDoubleObject>()) {
             std::cout << p_conv->value() << '\n';
         }
         //-----------------------------------------------------
@@ -796,21 +796,21 @@ int main(int argc, char **argv) {
 
         //-----------------------------------------------------
         // Construction
-        GDoubleGaussAdaptor a1;     // Default construction
-        GDoubleGaussAdaptor a2(a1); // Copy construction
+        gpar::GDoubleGaussAdaptor a1;     // Default construction
+        gpar::GDoubleGaussAdaptor a2(a1); // Copy construction
 
         double adProb = 0.05;         // A 5% probability that adaption actually takes place
-        GDoubleGaussAdaptor a3(0.05); // Construction with adaption probability
+        gpar::GDoubleGaussAdaptor a3(0.05); // Construction with adaption probability
 
         double sigma = 0.2, sigmaSigma = 0.1, minSigma = 0., maxSigma = 1.;
-        GDoubleGaussAdaptor a4(
+        gpar::GDoubleGaussAdaptor a4(
             sigma,
             sigmaSigma,
             minSigma,
             maxSigma
         ); //Construction with specific mutation parameters
 
-        GDoubleGaussAdaptor a5(
+        gpar::GDoubleGaussAdaptor a5(
             sigma,
             sigmaSigma,
             minSigma,
@@ -818,8 +818,8 @@ int main(int argc, char **argv) {
             adProb
         ); //Construction with specific mutation parameters
 
-        std::shared_ptr<GDoubleGaussAdaptor> p_a6(
-            new GDoubleGaussAdaptor()
+        std::shared_ptr<gpar::GDoubleGaussAdaptor> p_a6(
+            new gpar::GDoubleGaussAdaptor()
         ); // Construction inside of a smart pointer
 
         //-----------------------------------------------------
@@ -863,14 +863,14 @@ int main(int argc, char **argv) {
 
         //-----------------------------------------------------
         // Construction
-        GDoubleBiGaussAdaptor a1;     // Default construction
-        GDoubleBiGaussAdaptor a2(a1); // Copy construction
+        gpar::GDoubleBiGaussAdaptor a1;     // Default construction
+        gpar::GDoubleBiGaussAdaptor a2(a1); // Copy construction
 
         double adProb = 0.05;           // A 5% probability that adaption actually takes place
-        GDoubleBiGaussAdaptor a3(0.05); // Construction with adaption probability
+        gpar::GDoubleBiGaussAdaptor a3(0.05); // Construction with adaption probability
 
         // Construction inside of a smart pointer
-        std::shared_ptr<GDoubleBiGaussAdaptor> p_a4(new GDoubleBiGaussAdaptor());
+        std::shared_ptr<gpar::GDoubleBiGaussAdaptor> p_a4(new gpar::GDoubleBiGaussAdaptor());
 
         //-----------------------------------------------------
         // Assignment
@@ -956,21 +956,21 @@ int main(int argc, char **argv) {
     { // GInt32GaussAdaptor
         //-----------------------------------------------------
         // Construction
-        GInt32GaussAdaptor a1;     // Default construction
-        GInt32GaussAdaptor a2(a1); // Copy construction
+        gpar::GInt32GaussAdaptor a1;     // Default construction
+        gpar::GInt32GaussAdaptor a2(a1); // Copy construction
 
         double adProb = 0.05;        // A 5% probability that adaption actually takes place
-        GInt32GaussAdaptor a3(0.05); // Construction with adaption probability
+        gpar::GInt32GaussAdaptor a3(0.05); // Construction with adaption probability
 
         double sigma = 0.2, sigmaSigma = 0.1, minSigma = 0., maxSigma = 1.;
-        GInt32GaussAdaptor a4(
+        gpar::GInt32GaussAdaptor a4(
             sigma,
             sigmaSigma,
             minSigma,
             maxSigma
         ); //Construction with specific mutation parameters
 
-        GInt32GaussAdaptor a5(
+        gpar::GInt32GaussAdaptor a5(
             sigma,
             sigmaSigma,
             minSigma,
@@ -978,8 +978,8 @@ int main(int argc, char **argv) {
             adProb
         ); //Construction with specific mutation parameters
 
-        std::shared_ptr<GInt32GaussAdaptor> p_a6(
-            new GInt32GaussAdaptor()
+        std::shared_ptr<gpar::GInt32GaussAdaptor> p_a6(
+            new gpar::GInt32GaussAdaptor()
         ); // Construction inside of a smart pointer
 
         //-----------------------------------------------------
@@ -1023,14 +1023,14 @@ int main(int argc, char **argv) {
     { // GInt32FlipAdaptor
         //-----------------------------------------------------
         // Construction
-        GInt32FlipAdaptor a1;     // Default construction
-        GInt32FlipAdaptor a2(a1); // Copy construction
+        gpar::GInt32FlipAdaptor a1;     // Default construction
+        gpar::GInt32FlipAdaptor a2(a1); // Copy construction
 
         double adProb = 0.05;       // A 5% probability that adaption actually takes place
-        GInt32FlipAdaptor a3(0.05); // Construction with adaption probability
+        gpar::GInt32FlipAdaptor a3(0.05); // Construction with adaption probability
 
-        std::shared_ptr<GInt32FlipAdaptor> p_a4(
-            new GInt32FlipAdaptor()
+        std::shared_ptr<gpar::GInt32FlipAdaptor> p_a4(
+            new gpar::GInt32FlipAdaptor()
         ); // Construction inside of a smart pointer
 
         //-----------------------------------------------------
@@ -1060,14 +1060,14 @@ int main(int argc, char **argv) {
     { // GBooleanAdaptor
         //-----------------------------------------------------
         // Construction
-        GBooleanAdaptor a1;     // Default construction
-        GBooleanAdaptor a2(a1); // Copy construction
+        gpar::GBooleanAdaptor a1;     // Default construction
+        gpar::GBooleanAdaptor a2(a1); // Copy construction
 
         double adProb = 0.05;     // A 5% probability that adaption actually takes place
-        GBooleanAdaptor a3(0.05); // Construction with adaption probability
+        gpar::GBooleanAdaptor a3(0.05); // Construction with adaption probability
 
-        std::shared_ptr<GBooleanAdaptor> p_a4(
-            new GBooleanAdaptor()
+        std::shared_ptr<gpar::GBooleanAdaptor> p_a4(
+            new gpar::GBooleanAdaptor()
         ); // Construction inside of a smart pointer
 
         //-----------------------------------------------------

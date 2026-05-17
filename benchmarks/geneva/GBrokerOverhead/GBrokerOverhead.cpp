@@ -361,18 +361,18 @@ int main(int argc, char **argv) {
     GFunctionIndividualFactory gfi("./config/GFunctionIndividual.json");
 
     // Create the first set of parent individuals. Initialization of parameters is done randomly.
-    std::vector<std::shared_ptr<GParameterSet>> parentIndividuals;
+    std::vector<std::shared_ptr<gpar::GParameterSet>> parentIndividuals;
     for(std::size_t p = 0; p < nParents; p++) {
-        std::shared_ptr<GParameterSet> functionIndividual_ptr = gfi();
+        std::shared_ptr<gpar::GParameterSet> functionIndividual_ptr = gfi();
 
         // Set up a GDoubleCollection with dimension values, each initialized
         // with a random number in the range [min,max[
-        std::shared_ptr<GDoubleCollection> gdc_ptr(new GDoubleCollection(parDim, minVar, maxVar));
+        std::shared_ptr<gpar::GDoubleCollection> gdc_ptr(new gpar::GDoubleCollection(parDim, minVar, maxVar));
 
         // Set up and register an adaptor for the collection, so it
         // knows how to be adapted.
-        std::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(
-            new GDoubleGaussAdaptor(sigma, sigmaSigma, minSigma, maxSigma)
+        std::shared_ptr<gpar::GDoubleGaussAdaptor> gdga_ptr(
+            new gpar::GDoubleGaussAdaptor(sigma, sigmaSigma, minSigma, maxSigma)
         );
         gdga_ptr->setAdaptionThreshold(adaptionThreshold);
         gdga_ptr->setAdaptionProbability(adProb);
@@ -400,7 +400,7 @@ int main(int argc, char **argv) {
         pop_ptr->registerExecutor(execMode::MULTITHREADED, "./config/GMTExecutor.json");
 
         // Set the number of threads used in the executor
-        pop_ptr->getExecutor<Gem::Courtier::GMTExecutorT<GParameterSet>>()->setNThreads(
+        pop_ptr->getExecutor<Gem::Courtier::GMTExecutorT<gpar::GParameterSet>>()->setNThreads(
             nEvaluationThreads
         );
 
@@ -410,10 +410,10 @@ int main(int argc, char **argv) {
         BROKER: // Execution with multi-threaded consumer. Note that we use BROKER here, even though no networked execution takes place
     {
         // Create a consumer and make it known to the global broker
-        std::shared_ptr<Gem::Courtier::GStdThreadConsumerT<GParameterSet>> stc(
-            new Gem::Courtier::GStdThreadConsumerT<GParameterSet>(nEvaluationThreads)
+        std::shared_ptr<cons::GStdThreadConsumerT<gpar::GParameterSet>> stc(
+            new cons::GStdThreadConsumerT<gpar::GParameterSet>(nEvaluationThreads)
         );
-        GBROKER(Gem::Geneva::GParameterSet)->enrol_consumer(stc);
+        GBROKER(gpar::GParameterSet)->enrol_consumer(stc);
 
         std::cout << "Using the GStdThreadConsumerT consumer." << std::endl;
         pop_ptr->registerExecutor(execMode::BROKER, "./config/GBrokerExecutor.json");

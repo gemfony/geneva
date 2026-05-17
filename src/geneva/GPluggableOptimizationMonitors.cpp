@@ -339,9 +339,9 @@ void GFitnessMonitor::informationFunction_(
     case Gem::Geneva::infoMode::INFOPROCESSING: {
         // Retrieve the list of globally- and iteration bests individuals
         auto global_bests =
-            goa->Interface::GOptimizerIT<oa::GBase>::template getBestGlobalIndividuals<GParameterSet>();
+            goa->Interface::GOptimizerIT<oa::GBase>::template getBestGlobalIndividuals<gpar::GParameterSet>();
         auto iter_bests =
-            goa->Interface::GOptimizerIT<oa::GBase>::template getBestIterationIndividuals<GParameterSet>();
+            goa->Interface::GOptimizerIT<oa::GBase>::template getBestIterationIndividuals<gpar::GParameterSet>();
 
         // Retrieve the current iteration in the population
         std::uint32_t iteration = goa->getIteration();
@@ -433,8 +433,8 @@ void GFitnessMonitor::informationFunction_(
 
         std::vector<std::shared_ptr<Gem::Common::GGraph2D>>::iterator global_it;
         std::vector<std::shared_ptr<Gem::Common::GGraph2D>>::iterator iter_it;
-        std::vector<std::shared_ptr<GParameterSet>>::iterator global_ind_it;
-        std::vector<std::shared_ptr<GParameterSet>>::iterator iter_ind_it;
+        std::vector<std::shared_ptr<gpar::GParameterSet>>::iterator global_ind_it;
+        std::vector<std::shared_ptr<gpar::GParameterSet>>::iterator iter_ind_it;
 
         std::size_t m_ind = 0;
         for(global_it = globalFitnessGraphVec_.begin(),
@@ -1110,7 +1110,7 @@ void GAllSolutionFileLogger::printPopulation(
 
     // Loop over all individuals of the algorithm.
     for(std::size_t pos = 0; pos < goa->size(); pos++) {
-        std::shared_ptr<GParameterSet> ind = goa->template individual_cast<GParameterSet>(pos);
+        std::shared_ptr<gpar::GParameterSet> ind = goa->template individual_cast<gpar::GParameterSet>(pos);
 
         // Note that isGoodEnough may throw if loop acts on a "dirty" individual
         if(not boundariesActive_ || ind->isGoodEnough(boundaries_)) {
@@ -1336,7 +1336,7 @@ void GIterationResultsFileLogger::informationFunction_(
         // Loop over all individuals of the algorithm.
         std::size_t n_individuals = goa->size();
         for(std::size_t pos = 0; pos < n_individuals; pos++) {
-            std::shared_ptr<GParameterSet> ind = goa->template individual_cast<GParameterSet>(pos);
+            std::shared_ptr<gpar::GParameterSet> ind = goa->template individual_cast<gpar::GParameterSet>(pos);
             fitness_cnt = goa->at(pos)->raw_fitness_vec();
 
             std::size_t n_fitness_criteria = goa->at(0)->getNStoredResults();
@@ -1637,8 +1637,8 @@ void GNAdpationsLogger::informationFunction_(
         std::uint32_t iteration = goa->getIteration();
 
         // Record the current fitness
-        std::shared_ptr<GParameterSet> p =
-            goa->Interface::GOptimizerIT<oa::GBase>::template getBestGlobalIndividual<GParameterSet>();
+        std::shared_ptr<gpar::GParameterSet> p =
+            goa->Interface::GOptimizerIT<oa::GBase>::template getBestGlobalIndividual<gpar::GParameterSet>();
         (*fitnessGraph2D_oa_) & std::tuple<double, double>(static_cast<double>(iteration), p->raw_fitness(0));
 
         // Update the largest known iteration and the number of recorded iterations
@@ -1647,15 +1647,15 @@ void GNAdpationsLogger::informationFunction_(
 
         // Do the actual logging
         if(monitorBestOnly_) {
-            std::shared_ptr<GParameterSet> best =
-                goa->Interface::GOptimizerIT<oa::GBase>::template getBestGlobalIndividual<GParameterSet>();
+            std::shared_ptr<gpar::GParameterSet> best =
+                goa->Interface::GOptimizerIT<oa::GBase>::template getBestGlobalIndividual<gpar::GParameterSet>();
             nAdaptionsStore_.emplace_back(static_cast<double>(iteration), static_cast<double>(best->getNAdaptions()));
         }
         else { // Monitor all individuals
             // Loop over all individuals of the algorithm.
             for(std::size_t pos = 0; pos < goa->size(); pos++) {
-                std::shared_ptr<GParameterSet> ind =
-                    goa->template individual_cast<GParameterSet>(pos);
+                std::shared_ptr<gpar::GParameterSet> ind =
+                    goa->template individual_cast<gpar::GParameterSet>(pos);
                 nAdaptionsStore_.emplace_back(static_cast<double>(iteration), static_cast<double>(ind->getNAdaptions()));
             }
         }
@@ -2227,7 +2227,7 @@ void GProcessingTimesLogger::informationFunction_(
         // Loop over all individuals of the algorithm.
         for(std::size_t pos = 0; pos < goa->size(); pos++) {
             // Get access to each individual in sequence
-            std::shared_ptr<GParameterSet> ind = goa->template individual_cast<GParameterSet>(pos);
+            std::shared_ptr<gpar::GParameterSet> ind = goa->template individual_cast<gpar::GParameterSet>(pos);
 
             // Retrieve the processing timings
             std::tuple<double, double, double> processing_times = ind->getProcessingTimes();

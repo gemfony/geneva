@@ -42,7 +42,7 @@
 #include "common/GGlobalOptionsT.hpp"
 #include "common/GLogger.hpp"
 #include "courtier/GExecutorT.hpp"
-#include "geneva/GParameterSet.hpp"
+#include "geneva/par/GParameterSet.hpp"
 #include "geneva/oa/GBase.hpp"
 #include "geneva/oa/GFactoryStore.hpp"
 #include "geneva/oa/GOAFactoryT.hpp"

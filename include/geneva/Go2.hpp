@@ -50,8 +50,8 @@
 #include "geneva/GIndividualStandardConsumers.hpp"
 #include "geneva/GObject.hpp"
 #include "geneva/GOptimizationEnums.hpp"
-#include "geneva/GParameterObjectCollection.hpp"
-#include "geneva/GParameterSet.hpp"
+#include "geneva/par/GParameterObjectCollection.hpp"
+#include "geneva/par/GParameterSet.hpp"
 #include "geneva/iface/GOptimizerIT.hpp"
 #include "geneva/oa/GBase.hpp"
 #include "geneva/oa/GConjugateGradientDescentFactory.hpp"
@@ -97,7 +97,7 @@ using GOABase = oa::GBase;
  */
 class Go2 // NOLINT(cppcoreguidelines-special-member-functions)
   : public Interface::GOptimizerIT<Go2>
-  , public Gem::Common::GPtrContainerT<GParameterSet> {
+  , public Gem::Common::GPtrContainerT<gpar::GParameterSet> {
 public:
     /** @brief The default constructor */
     Go2() = delete;
@@ -139,7 +139,7 @@ public:
 
     /** @brief Allows to register a content creator */
     void
-        registerContentCreator(const std::shared_ptr<Gem::Common::GFactoryT<GParameterSet>> &);
+        registerContentCreator(const std::shared_ptr<Gem::Common::GFactoryT<gpar::GParameterSet>> &);
 
     /***************************************************************************/
     // The following is a trivial list of getters and setters
@@ -197,14 +197,14 @@ protected:
     virtual void addConfigurationOptions_(Gem::Common::GParserBuilder &);
 
     /** @brief Retrieves the best individual found */
-    std::shared_ptr<GParameterSet> getBestGlobalIndividual_() const final;
+    std::shared_ptr<gpar::GParameterSet> getBestGlobalIndividual_() const final;
     /** @brief Retrieves a list of the best individuals found */
-    std::vector<std::shared_ptr<GParameterSet>>
+    std::vector<std::shared_ptr<gpar::GParameterSet>>
     getBestGlobalIndividuals_() const final;
     /** @brief Retrieves the best individual found */
-    std::shared_ptr<GParameterSet> getBestIterationIndividual_() const final;
+    std::shared_ptr<gpar::GParameterSet> getBestIterationIndividual_() const final;
     /** @brief Retrieves a list of the best individuals found */
-    std::vector<std::shared_ptr<GParameterSet>>
+    std::vector<std::shared_ptr<gpar::GParameterSet>>
     getBestIterationIndividuals_() const final;
 
 private:
@@ -273,7 +273,7 @@ private:
     // A string representation of the default algorithm
     const std::string default_algorithm_str_ = DEFAULTOPTALG; ///< This is the last fall-back
     // Holds an object capable of producing objects of the desired type
-    std::shared_ptr<Gem::Common::GFactoryT<GParameterSet>> content_creator_ptr_;
+    std::shared_ptr<Gem::Common::GFactoryT<gpar::GParameterSet>> content_creator_ptr_;
     // A user-defined means for information retrieval
     std::vector<std::shared_ptr<oa::GBasePluggableOM>> pluggable_monitors_cnt_;
 };

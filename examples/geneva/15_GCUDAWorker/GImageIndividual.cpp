@@ -196,16 +196,16 @@ void GImageIndividual::init(
     // Create suitable adaptors
 
     // Gaussian distributed random numbers
-    std::shared_ptr<GDoubleGaussAdaptor> gdga_ptr_tmpl(
-        new GDoubleGaussAdaptor(sigma, sigmaSigma, minSigma, maxSigma)
+    std::shared_ptr<gpar::GDoubleGaussAdaptor> gdga_ptr_tmpl(
+        new gpar::GDoubleGaussAdaptor(sigma, sigmaSigma, minSigma, maxSigma)
     );
     gdga_ptr_tmpl->setAdaptionProbability(adProb);
     gdga_ptr_tmpl->setAdaptAdProb(adaptAdProb);
     gdga_ptr_tmpl->setAdProbRange(minAdProb, maxAdProb);
 
     // Gaussian distributed random numbers for location parameters
-    std::shared_ptr<GDoubleGaussAdaptor> loc_gdga_ptr_tmpl(
-        new GDoubleGaussAdaptor(loc_sigma, loc_sigmaSigma, loc_minSigma, loc_maxSigma)
+    std::shared_ptr<gpar::GDoubleGaussAdaptor> loc_gdga_ptr_tmpl(
+        new gpar::GDoubleGaussAdaptor(loc_sigma, loc_sigmaSigma, loc_minSigma, loc_maxSigma)
     );
     loc_gdga_ptr_tmpl->setAdaptionProbability(loc_adProb);
     loc_gdga_ptr_tmpl->setAdaptAdProb(loc_adaptAdProb);
@@ -218,11 +218,11 @@ void GImageIndividual::init(
     for(std::size_t t_cnt = 0; t_cnt < nTriangles_; t_cnt++) {
         //--------------------------------------------------------------------------------------------
         // Add objects for the middle-x and -y
-        std::shared_ptr<GConstrainedDoubleObject> middle_x_ptr(
-            new GConstrainedDoubleObject(0., 1.)
+        std::shared_ptr<gpar::GConstrainedDoubleObject> middle_x_ptr(
+            new gpar::GConstrainedDoubleObject(0., 1.)
         );
-        std::shared_ptr<GConstrainedDoubleObject> middle_y_ptr(
-            new GConstrainedDoubleObject(0., 1.)
+        std::shared_ptr<gpar::GConstrainedDoubleObject> middle_y_ptr(
+            new gpar::GConstrainedDoubleObject(0., 1.)
         );
         // ... and equip them with an adaptor. This will clone the adaptor ...
         middle_x_ptr->addAdaptor(loc_gdga_ptr_tmpl);
@@ -233,15 +233,15 @@ void GImageIndividual::init(
 
         //--------------------------------------------------------------------------------------------
         // Add an object for the radius ...
-        std::shared_ptr<GConstrainedDoubleObject> radius_ptr;
+        std::shared_ptr<gpar::GConstrainedDoubleObject> radius_ptr;
 
         if(startSize < 0.) {
             // Random initialization of radius
-            radius_ptr = std::make_shared<GConstrainedDoubleObject>(minSize, maxSize);
+            radius_ptr = std::make_shared<gpar::GConstrainedDoubleObject>(minSize, maxSize);
         }
         else {
             // Radius will be set to startSize
-            radius_ptr = std::make_shared<GConstrainedDoubleObject>(startSize, minSize, maxSize);
+            radius_ptr = std::make_shared<gpar::GConstrainedDoubleObject>(startSize, minSize, maxSize);
         }
 
         // ... equip it with an adaptor ...
@@ -251,9 +251,9 @@ void GImageIndividual::init(
 
         //--------------------------------------------------------------------------------------------
         // Create GConstrainedDoubleObjects holding three angles ...
-        std::shared_ptr<GConstrainedDoubleObject> angle1_ptr(new GConstrainedDoubleObject(0., 1.));
-        std::shared_ptr<GConstrainedDoubleObject> angle2_ptr(new GConstrainedDoubleObject(0., 1.));
-        std::shared_ptr<GConstrainedDoubleObject> angle3_ptr(new GConstrainedDoubleObject(0., 1.));
+        std::shared_ptr<gpar::GConstrainedDoubleObject> angle1_ptr(new gpar::GConstrainedDoubleObject(0., 1.));
+        std::shared_ptr<gpar::GConstrainedDoubleObject> angle2_ptr(new gpar::GConstrainedDoubleObject(0., 1.));
+        std::shared_ptr<gpar::GConstrainedDoubleObject> angle3_ptr(new gpar::GConstrainedDoubleObject(0., 1.));
 
         // ... equip them with an adaptor
         angle1_ptr->addAdaptor(gdga_ptr_tmpl);
@@ -267,11 +267,11 @@ void GImageIndividual::init(
 
         //--------------------------------------------------------------------------------------------
         // Create GConstrainedDoubleObjects for the three colors and the alpha channel
-        std::shared_ptr<GConstrainedDoubleObject> color_r_ptr(new GConstrainedDoubleObject(0., 1.));
-        std::shared_ptr<GConstrainedDoubleObject> color_g_ptr(new GConstrainedDoubleObject(0., 1.));
-        std::shared_ptr<GConstrainedDoubleObject> color_b_ptr(new GConstrainedDoubleObject(0., 1.));
-        std::shared_ptr<GConstrainedDoubleObject> color_a_ptr(
-            new GConstrainedDoubleObject(minOpaqueness, maxOpaqueness)
+        std::shared_ptr<gpar::GConstrainedDoubleObject> color_r_ptr(new gpar::GConstrainedDoubleObject(0., 1.));
+        std::shared_ptr<gpar::GConstrainedDoubleObject> color_g_ptr(new gpar::GConstrainedDoubleObject(0., 1.));
+        std::shared_ptr<gpar::GConstrainedDoubleObject> color_b_ptr(new gpar::GConstrainedDoubleObject(0., 1.));
+        std::shared_ptr<gpar::GConstrainedDoubleObject> color_a_ptr(
+            new gpar::GConstrainedDoubleObject(minOpaqueness, maxOpaqueness)
         );
 
         // Disable changes to the alpha channel if requested
@@ -297,29 +297,29 @@ void GImageIndividual::init(
 
     //---------------------------------------------------------------------------
     // Add three parameters for the background color, ...
-    std::shared_ptr<GConstrainedDoubleObject> bg_color_r_ptr;
-    std::shared_ptr<GConstrainedDoubleObject> bg_color_g_ptr;
-    std::shared_ptr<GConstrainedDoubleObject> bg_color_b_ptr;
+    std::shared_ptr<gpar::GConstrainedDoubleObject> bg_color_r_ptr;
+    std::shared_ptr<gpar::GConstrainedDoubleObject> bg_color_g_ptr;
+    std::shared_ptr<gpar::GConstrainedDoubleObject> bg_color_b_ptr;
 
     if(bgRed < 0) {
-        bg_color_r_ptr = std::make_shared<GConstrainedDoubleObject>(0., 1.);
+        bg_color_r_ptr = std::make_shared<gpar::GConstrainedDoubleObject>(0., 1.);
     }
     else {
-        bg_color_r_ptr = std::make_shared<GConstrainedDoubleObject>(bgRed, 0., 1.);
+        bg_color_r_ptr = std::make_shared<gpar::GConstrainedDoubleObject>(bgRed, 0., 1.);
     }
 
     if(bgGreen < 0) {
-        bg_color_g_ptr = std::make_shared<GConstrainedDoubleObject>(0., 1.);
+        bg_color_g_ptr = std::make_shared<gpar::GConstrainedDoubleObject>(0., 1.);
     }
     else {
-        bg_color_g_ptr = std::make_shared<GConstrainedDoubleObject>(bgGreen, 0., 1.);
+        bg_color_g_ptr = std::make_shared<gpar::GConstrainedDoubleObject>(bgGreen, 0., 1.);
     }
 
     if(bgBlue < 0) {
-        bg_color_b_ptr = std::make_shared<GConstrainedDoubleObject>(0., 1.);
+        bg_color_b_ptr = std::make_shared<gpar::GConstrainedDoubleObject>(0., 1.);
     }
     else {
-        bg_color_b_ptr = std::make_shared<GConstrainedDoubleObject>(bgBlue, 0., 1.);
+        bg_color_b_ptr = std::make_shared<gpar::GConstrainedDoubleObject>(bgBlue, 0., 1.);
     }
 
     // ... equip them with an adaptor,
@@ -376,7 +376,7 @@ void GImageIndividual::compare_(
     GToken token("GImageIndividual", e);
 
     // Compare our parent data ...
-    Gem::Common::compare_base_t<Gem::Geneva::GParameterSet>(*this, *p_load, token);
+    Gem::Common::compare_base_t<gpar::GParameterSet>(*this, *p_load, token);
 
     // ... and then the local data
     Gem::Common::compare_t(IDENTITY(width_, p_load->width_), token);
@@ -445,27 +445,27 @@ std::vector<CircleTriangle> GImageIndividual::getTriangleData() const {
         offset = i * 10;
 
         circle_cnt[i].cx =
-            static_cast<float>(this->at<GConstrainedDoubleObject>(offset + 0)->value());
+            static_cast<float>(this->at<gpar::GConstrainedDoubleObject>(offset + 0)->value());
         circle_cnt[i].cy =
-            static_cast<float>(this->at<GConstrainedDoubleObject>(offset + 1)->value());
+            static_cast<float>(this->at<gpar::GConstrainedDoubleObject>(offset + 1)->value());
         circle_cnt[i].radius =
-            static_cast<float>(this->at<GConstrainedDoubleObject>(offset + 2)->value());
+            static_cast<float>(this->at<gpar::GConstrainedDoubleObject>(offset + 2)->value());
 
         circle_cnt[i].angle1 =
-            static_cast<float>(this->at<GConstrainedDoubleObject>(offset + 3)->value());
+            static_cast<float>(this->at<gpar::GConstrainedDoubleObject>(offset + 3)->value());
         circle_cnt[i].angle2 =
-            static_cast<float>(this->at<GConstrainedDoubleObject>(offset + 4)->value());
+            static_cast<float>(this->at<gpar::GConstrainedDoubleObject>(offset + 4)->value());
         circle_cnt[i].angle3 =
-            static_cast<float>(this->at<GConstrainedDoubleObject>(offset + 5)->value());
+            static_cast<float>(this->at<gpar::GConstrainedDoubleObject>(offset + 5)->value());
 
         circle_cnt[i].r =
-            static_cast<float>(this->at<GConstrainedDoubleObject>(offset + 6)->value());
+            static_cast<float>(this->at<gpar::GConstrainedDoubleObject>(offset + 6)->value());
         circle_cnt[i].g =
-            static_cast<float>(this->at<GConstrainedDoubleObject>(offset + 7)->value());
+            static_cast<float>(this->at<gpar::GConstrainedDoubleObject>(offset + 7)->value());
         circle_cnt[i].b =
-            static_cast<float>(this->at<GConstrainedDoubleObject>(offset + 8)->value());
+            static_cast<float>(this->at<gpar::GConstrainedDoubleObject>(offset + 8)->value());
         circle_cnt[i].a =
-            static_cast<float>(this->at<GConstrainedDoubleObject>(offset + 9)->value());
+            static_cast<float>(this->at<gpar::GConstrainedDoubleObject>(offset + 9)->value());
     }
 
     if(alphaSort_) {
@@ -491,7 +491,7 @@ void GImageIndividual::load_(const GObject *cp) {
         Gem::Common::g_convert_and_compare<GObject, GImageIndividual>(cp, this);
 
     // Load our parent's data
-    GParameterSet::load_(cp);
+    gpar::GParameterSet::load_(cp);
 
     // Load local data
     nTriangles_ = p_load->nTriangles_;
@@ -539,7 +539,7 @@ bool GImageIndividual::modify_GUnitTests_() {
 #ifdef GEM_TESTING
 
     // Call the parent classes' functions
-    Gem::Geneva::GParameterSet::modify_GUnitTests();
+    gpar::GParameterSet::modify_GUnitTests();
 
     // Change the parameter settings
     this->adapt();
@@ -560,7 +560,7 @@ void GImageIndividual::specificTestsNoFailureExpected_GUnitTests_() {
     using namespace Gem::Geneva;
 
     // Call the parent classes' functions
-    Gem::Geneva::GParameterSet::specificTestsNoFailureExpected_GUnitTests();
+    gpar::GParameterSet::specificTestsNoFailureExpected_GUnitTests();
 
     const std::size_t NTESTS = 100;
 
@@ -593,7 +593,7 @@ void GImageIndividual::specificTestsFailuresExpected_GUnitTests_() {
     using namespace Gem::Geneva;
 
     // Call the parent classes' functions
-    Gem::Geneva::GParameterSet::specificTestsFailuresExpected_GUnitTests();
+    gpar::GParameterSet::specificTestsFailuresExpected_GUnitTests();
 
     //------------------------------------------------------------------------------
     //------------------------------------------------------------------------------

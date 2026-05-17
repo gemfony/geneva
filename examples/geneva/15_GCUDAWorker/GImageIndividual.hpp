@@ -61,9 +61,9 @@
 #include "common/GGlobalOptionsT.hpp"
 #include "common/GParserBuilder.hpp"
 #include "common/GSingletonT.hpp"
-#include "geneva/GConstrainedDoubleObject.hpp"
-#include "geneva/GDoubleGaussAdaptor.hpp"
-#include "geneva/GParameterSet.hpp"
+#include "geneva/par/GConstrainedDoubleObject.hpp"
+#include "geneva/par/GDoubleGaussAdaptor.hpp"
+#include "geneva/par/GParameterSet.hpp"
 
 namespace Gem::Geneva {
 constexpr std::size_t GII_DEF_NTRIANGLES = static_cast<std::size_t>(300);
@@ -125,7 +125,7 @@ std::ostream &operator<<(std::ostream &, const CircleTriangle &);
      * that most closely resembles a given picture. It was developed
      * for evaluation using CUDA on a GPU.
      */
-class GImageIndividual final : public Gem::Geneva::GParameterSet {
+class GImageIndividual final : public gpar::GParameterSet {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
@@ -133,7 +133,7 @@ class GImageIndividual final : public Gem::Geneva::GParameterSet {
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet) &
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GParameterSet) &
             BOOST_SERIALIZATION_NVP(nTriangles_) & BOOST_SERIALIZATION_NVP(alphaSort_);
     }
 
@@ -213,21 +213,21 @@ public:
             // We want colors to be specified as floats
             return {
                 static_cast<float>(
-                    std::clamp(this->at<GConstrainedDoubleObject>(offset + 0)->value(), 0., 1.)
+                    std::clamp(this->at<gpar::GConstrainedDoubleObject>(offset + 0)->value(), 0., 1.)
                 ), // r
                 static_cast<float>(
-                    std::clamp(this->at<GConstrainedDoubleObject>(offset + 1)->value(), 0., 1.)
+                    std::clamp(this->at<gpar::GConstrainedDoubleObject>(offset + 1)->value(), 0., 1.)
                 ), // g
                 static_cast<float>(
-                    std::clamp(this->at<GConstrainedDoubleObject>(offset + 2)->value(), 0., 1.)
+                    std::clamp(this->at<gpar::GConstrainedDoubleObject>(offset + 2)->value(), 0., 1.)
                 ) // b
             };
         }
         else if constexpr(std::is_same_v<fp_type, double>) {
             return {
-                std::clamp(this->at<GConstrainedDoubleObject>(offset + 0)->value(), 0., 1.), // r
-                std::clamp(this->at<GConstrainedDoubleObject>(offset + 1)->value(), 0., 1.), // g
-                std::clamp(this->at<GConstrainedDoubleObject>(offset + 2)->value(), 0., 1.)  // b
+                std::clamp(this->at<gpar::GConstrainedDoubleObject>(offset + 0)->value(), 0., 1.), // r
+                std::clamp(this->at<gpar::GConstrainedDoubleObject>(offset + 1)->value(), 0., 1.), // g
+                std::clamp(this->at<gpar::GConstrainedDoubleObject>(offset + 2)->value(), 0., 1.)  // b
             };
         }
         else {

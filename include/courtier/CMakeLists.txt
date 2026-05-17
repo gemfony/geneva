@@ -28,9 +28,7 @@
 ################################################################################
 
 SET ( COMMUNICATIONINCLUDES
-    GAsioConsumerT.hpp
     GBaseClientT.hpp
-    GBaseConsumerT.hpp
     GBrokerT.hpp
     GBufferPortT.hpp
     GCommandContainerT.hpp
@@ -38,29 +36,38 @@ SET ( COMMUNICATIONINCLUDES
     GCourtierHelperFunctions.hpp
     GExecutorT.hpp
     GProcessingContainerT.hpp
-    GSerialConsumerT.hpp
-    GStdThreadConsumerT.hpp
-    GWebsocketConsumerT.hpp
     GWorkerT.hpp
+)
+
+# Consumer classes (namespace Gem::Courtier::Consumers),
+# installed under courtier/consumers to mirror the `cons` alias.
+SET ( CONSUMER_INCLUDES
+    consumers/GBaseConsumerT.hpp
+    consumers/GSerialConsumerT.hpp
+    consumers/GStdThreadConsumerT.hpp
+    consumers/GAsioConsumerT.hpp
+    consumers/GWebsocketConsumerT.hpp
 )
 
 # MPI-consumer is optional, only build it when requested
 IF (GENEVA_BUILD_WITH_MPI_CONSUMER)
     SET( COMMUNICATIONINCLUDES
             ${COMMUNICATIONINCLUDES}
-            GMPIConsumerT.hpp
             GMPIHelperFunctions.hpp)
+    SET( CONSUMER_INCLUDES
+            ${CONSUMER_INCLUDES}
+            consumers/GMPIConsumerT.hpp)
 ENDIF ()
 
 set_source_files_properties(
-    ${COMMUNICATIONINCLUDES}
+    ${COMMUNICATIONINCLUDES} ${CONSUMER_INCLUDES}
     PROPERTIES
     LANGUAGE CXX
     CXX_STANDARD 20
 )
 
 # This is a workaround for a CLion-problem -- see CPP270 in the JetBrains issue tracker
-ADD_CUSTOM_TARGET(CLION_ALL_COURTIER_HEADERS SOURCES ${COMMUNICATIONINCLUDES})
+ADD_CUSTOM_TARGET(CLION_ALL_COURTIER_HEADERS SOURCES ${COMMUNICATIONINCLUDES} ${CONSUMER_INCLUDES})
 
 SET_TARGET_PROPERTIES(
     CLION_ALL_COURTIER_HEADERS
@@ -71,3 +78,4 @@ SET_TARGET_PROPERTIES(
 )
 
 INSTALL ( FILES ${COMMUNICATIONINCLUDES} DESTINATION ${INSTALL_PREFIX_INCLUDES}/courtier )
+INSTALL ( FILES ${CONSUMER_INCLUDES} DESTINATION ${INSTALL_PREFIX_INCLUDES}/courtier/consumers )

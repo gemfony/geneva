@@ -50,8 +50,8 @@
 #include "common/GSerializationHelperFunctionsT.hpp"
 #include "courtier/GExecutorT.hpp"
 #include "geneva/GObject.hpp"
-#include "geneva/GParameterSet.hpp"
-#include "geneva/GParameterSetFixedSizePriorityQueue.hpp"
+#include "geneva/par/GParameterSet.hpp"
+#include "geneva/par/GParameterSetFixedSizePriorityQueue.hpp"
 #include "geneva/GPersonalityTraits.hpp"
 #include "geneva/iface/GOptimizerIT.hpp"
 #include "geneva/GenevaHelperFunctions.hpp"
@@ -164,7 +164,7 @@ private:
  */
 class GBase // NOLINT(cppcoreguidelines-special-member-functions)
   : public GObject
-  , public Gem::Common::GPtrContainerT<GParameterSet>
+  , public Gem::Common::GPtrContainerT<gpar::GParameterSet>
   , public Interface::GOptimizerIT<GBase> {
 private:
     ///////////////////////////////////////////////////////////////////////
@@ -179,7 +179,7 @@ private:
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject) &
             make_nvp(
                 "GStdPtrVectorInterfaceT_T",
-                boost::serialization::base_object<Gem::Common::GPtrContainerT<GParameterSet>>(*this)
+                boost::serialization::base_object<Gem::Common::GPtrContainerT<gpar::GParameterSet>>(*this)
             ) &
             BOOST_SERIALIZATION_NVP(iteration_) & BOOST_SERIALIZATION_NVP(offset_) &
             BOOST_SERIALIZATION_NVP(maxIteration_) & BOOST_SERIALIZATION_NVP(minIteration_) &
@@ -220,7 +220,7 @@ private:
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject) &
             make_nvp(
                 "GStdPtrVectorInterfaceT_T",
-                boost::serialization::base_object<Gem::Common::GPtrContainerT<GParameterSet>>(*this)
+                boost::serialization::base_object<Gem::Common::GPtrContainerT<gpar::GParameterSet>>(*this)
             ) &
             BOOST_SERIALIZATION_NVP(iteration_) & BOOST_SERIALIZATION_NVP(offset_) &
             BOOST_SERIALIZATION_NVP(maxIteration_) & BOOST_SERIALIZATION_NVP(minIteration_) &
@@ -299,7 +299,7 @@ public:
 
     /** @brief Adds a new executor to the class, replacing the default executor */
     void registerExecutor(
-        std::shared_ptr<Gem::Courtier::GBaseExecutorT<GParameterSet>> executor_ptr,
+        std::shared_ptr<Gem::Courtier::GBaseExecutorT<gpar::GParameterSet>> executor_ptr,
         std::filesystem::path const &executor_config_file
     );
     /** @brief Adds a new executor to the class, using the chosen execution mode */
@@ -316,7 +316,7 @@ public:
       * this is not the case.
       */
     template <typename target_type>
-        requires std::derived_from<target_type, Gem::Courtier::GBaseExecutorT<GParameterSet>>
+        requires std::derived_from<target_type, Gem::Courtier::GBaseExecutorT<gpar::GParameterSet>>
     std::shared_ptr<target_type> getExecutor() {
         return std::dynamic_pointer_cast<target_type>(executor_ptr_);
     }
@@ -430,7 +430,7 @@ public:
 #endif /* DEBUG */
 
         // Does error checks on the conversion internally
-        return Gem::Common::convertSmartPointer<GParameterSet, target_type>(this->at(pos));
+        return Gem::Common::convertSmartPointer<gpar::GParameterSet, target_type>(this->at(pos));
     }
 
     /***************************************************************************/
@@ -439,7 +439,7 @@ public:
     std::size_t getNProcessableItems() const;
 
     /** @brief If individuals have been stored in this population, they are added to the priority queue. */
-    void addCleanStoredBests(GParameterSetFixedSizePriorityQueue &best_individuals);
+    void addCleanStoredBests(gpar::GParameterSetFixedSizePriorityQueue &best_individuals);
 
     /** @brief Helper function that determines whether we are currently inside of the first iteration */
     bool inFirstIteration() const;
@@ -499,12 +499,12 @@ protected:
 
     /** @brief Delegation of work to be performed to the private executor object */
     Gem::Courtier::executor_status_t workOn(
-        std::vector<std::shared_ptr<GParameterSet>> &work_items,
+        std::vector<std::shared_ptr<gpar::GParameterSet>> &work_items,
         bool resubmit_unprocessed = false,
         const std::string &caller = std::string()
     );
     /** @brief Retrieves a vector of old work items after job submission */
-    std::vector<std::shared_ptr<GParameterSet>> getOldWorkItems();
+    std::vector<std::shared_ptr<gpar::GParameterSet>> getOldWorkItems();
 
     /** @brief Saves the state of the class to disc */
     void saveCheckpoint(std::filesystem::path const &output_file) const;
@@ -522,9 +522,9 @@ protected:
 
     // NB: protected, as a derived function may fall back to this function, cmp EA in non-pareto mode
     /** @brief Adds the individuals of this iteration to a priority queue. */
-    virtual void updateGlobalBestsPQ_(GParameterSetFixedSizePriorityQueue &best_individuals);
+    virtual void updateGlobalBestsPQ_(gpar::GParameterSetFixedSizePriorityQueue &best_individuals);
     /** @brief Adds the individuals of this iteration to a priority queue. */
-    virtual void updateIterationBestsPQ_(GParameterSetFixedSizePriorityQueue &best_individuals);
+    virtual void updateIterationBestsPQ_(gpar::GParameterSetFixedSizePriorityQueue &best_individuals);
 
     /** @brief Set the number of "best" individuals to be recorded in each iteration */
     void setNRecordBestIndividuals(std::size_t n_record_best_individuals);
@@ -560,15 +560,15 @@ private:
     std::uint32_t getIteration_() const override;
 
     /** @brief Retrieves the best individual found up to now */
-    std::shared_ptr<GParameterSet> getBestGlobalIndividual_() const final;
+    std::shared_ptr<gpar::GParameterSet> getBestGlobalIndividual_() const final;
     /** @brief Retrieves a list of the best individuals found */
-    std::vector<std::shared_ptr<GParameterSet>>
+    std::vector<std::shared_ptr<gpar::GParameterSet>>
     getBestGlobalIndividuals_() const final;
 
     /** @brief Retrieves the best individual found in the iteration */
-    std::shared_ptr<GParameterSet> getBestIterationIndividual_() const final;
+    std::shared_ptr<gpar::GParameterSet> getBestIterationIndividual_() const final;
     /** @brief Retrieves a list of the best individuals found in the */
-    std::vector<std::shared_ptr<GParameterSet>>
+    std::vector<std::shared_ptr<gpar::GParameterSet>>
     getBestIterationIndividuals_() const final;
 
     /** @brief Retrieve the number of processable items in the current iteration. */
@@ -635,7 +635,7 @@ private:
     bool stallCounterThresholdExceeded() const;
 
     /** @brief Retrieves an executor for the given execution mode */
-    std::shared_ptr<Gem::Courtier::GBaseExecutorT<GParameterSet>>
+    std::shared_ptr<Gem::Courtier::GBaseExecutorT<gpar::GParameterSet>>
     createExecutor(const execMode &e);
 
     /***************************************************************************/
@@ -653,10 +653,10 @@ private:
 
     std::size_t nRecordbestGlobalIndividuals_ =
         DEFNRECORDBESTINDIVIDUALS; ///< Indicates the number of best individuals to be recorded/updated in each iteration
-    GParameterSetFixedSizePriorityQueue bestGlobalIndividuals_pq_{
+    gpar::GParameterSetFixedSizePriorityQueue bestGlobalIndividuals_pq_{
         nRecordbestGlobalIndividuals_
     }; ///< A priority queue with the best individuals found so far
-    GParameterSetFixedSizePriorityQueue bestIterationIndividuals_pq_{
+    gpar::GParameterSetFixedSizePriorityQueue bestIterationIndividuals_pq_{
         nRecordbestGlobalIndividuals_
     }; ///< A priority queue with the best individuals of a given iteration; unlimited size so all individuals of an iteration fit in
 
@@ -706,7 +706,7 @@ private:
     std::vector<std::shared_ptr<GBasePluggableOM>>
         pluggable_monitors_cnt_; ///< A collection of monitors
 
-    std::shared_ptr<Gem::Courtier::GBaseExecutorT<GParameterSet>>
+    std::shared_ptr<Gem::Courtier::GBaseExecutorT<gpar::GParameterSet>>
         executor_ptr_; ///< Holds the current executor for this algorithm
     execMode default_execMode_ = execMode::
         BROKER; ///< The default execution mode. Unless explicitöy requested by the user, we always go through the broker
@@ -726,7 +726,7 @@ private:
 
 BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::OptimizationAlgorithms::GBasePluggableOM)             // NOLINT
 BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::OptimizationAlgorithms::GBase) // NOLINT
-BOOST_CLASS_EXPORT_KEY(Gem::Courtier::GBrokerExecutorT<Gem::Geneva::GParameterSet>) // NOLINT
-BOOST_CLASS_EXPORT_KEY(Gem::Courtier::GSerialExecutorT<Gem::Geneva::GParameterSet>) // NOLINT
-BOOST_CLASS_EXPORT_KEY(Gem::Courtier::GMTExecutorT<Gem::Geneva::GParameterSet>)     // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Courtier::GBrokerExecutorT<gpar::GParameterSet>) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Courtier::GSerialExecutorT<gpar::GParameterSet>) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Courtier::GMTExecutorT<gpar::GParameterSet>)     // NOLINT
 /******************************************************************************/

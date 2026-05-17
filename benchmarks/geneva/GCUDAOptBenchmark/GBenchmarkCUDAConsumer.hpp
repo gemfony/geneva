@@ -44,9 +44,9 @@
 // Geneva headers
 #include "common/GGlobalDefines.hpp"
 #include "common/GLogger.hpp"
-#include "courtier/GBaseConsumerT.hpp"
+#include "courtier/consumers/GBaseConsumerT.hpp"
 #include "courtier/GBrokerT.hpp"
-#include "geneva/GParameterSet.hpp"
+#include "geneva/par/GParameterSet.hpp"
 #include "geneva-individuals/GFunctionIndividual.hpp"
 
 // Local CUDA evaluator
@@ -77,10 +77,10 @@ namespace Gem::Geneva {
  * GFunctionIndividual itself is not modified and remains CPU-runnable.
  */
 class GCUDABatchConsumer
-    : public Gem::Courtier::GBaseConsumerT<Gem::Geneva::GParameterSet>
+    : public cons::GBaseConsumerT<gpar::GParameterSet>
 {
-    using individual_t = Gem::Geneva::GParameterSet;
-    using base_t       = Gem::Courtier::GBaseConsumerT<individual_t>;
+    using individual_t = gpar::GParameterSet;
+    using base_t       = cons::GBaseConsumerT<individual_t>;
 
 public:
     //--------------------------------------------------------------------------
@@ -122,7 +122,7 @@ public:
      */
     static std::shared_ptr<GCUDABatchConsumer> setup() {
         auto consumer_ptr = std::make_shared<GCUDABatchConsumer>();
-        GBROKER(Gem::Geneva::GParameterSet)->enrol_consumer(consumer_ptr);
+        GBROKER(gpar::GParameterSet)->enrol_consumer(consumer_ptr);
         return consumer_ptr;
     }
 
@@ -255,8 +255,8 @@ private:
         // without triggering fitnessCalculation() — pattern from example 15.
         for (int i = 0; i < N; ++i) {
             batch[static_cast<std::size_t>(i)]->process(
-                std::vector<parameterset_processing_result>(
-                    1, parameterset_processing_result(h_results[static_cast<std::size_t>(i)])));
+                std::vector<gpar::parameterset_processing_result>(
+                    1, gpar::parameterset_processing_result(h_results[static_cast<std::size_t>(i)])));
         }
     }
 
@@ -277,7 +277,7 @@ private:
     std::chrono::milliseconds flushTimeout_{50};
 
     std::shared_ptr<Gem::Courtier::GBrokerT<individual_t>> broker_ptr_
-        = GBROKER(Gem::Geneva::GParameterSet);
+        = GBROKER(gpar::GParameterSet);
 };
 
 /******************************************************************************/

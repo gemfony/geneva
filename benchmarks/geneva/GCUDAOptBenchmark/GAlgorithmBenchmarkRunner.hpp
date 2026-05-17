@@ -43,10 +43,10 @@
 // Geneva headers
 #include "common/GCommonEnums.hpp"
 #include "common/GLogger.hpp"
-#include "courtier/GBaseConsumerT.hpp"
+#include "courtier/consumers/GBaseConsumerT.hpp"
 #include "courtier/GBrokerT.hpp"
 #include "geneva/GenevaInitializer.hpp"
-#include "geneva/GParameterSet.hpp"
+#include "geneva/par/GParameterSet.hpp"
 #include "geneva/oa/GBase.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithmFactory.hpp"
 #include "geneva/oa/GGradientDescentFactory.hpp"

@@ -39,7 +39,7 @@ namespace Gem::Courtier {
      * The constructor
      */
 GImageCUDAWorker::GImageCUDAWorker(const std::string &configFile)
-  : GWorkerWithRegisterBrokerFerryT<Geneva::GParameterSet>() {
+  : GWorkerWithRegisterBrokerFerryT<gpar::GParameterSet>() {
     // Load configuration options specific to this class
     this->parseConfigFile(configFile);
 }
@@ -52,7 +52,7 @@ GImageCUDAWorker::GImageCUDAWorker(const std::string &configFile)
      * @param cp A copy of another GImageCUDAWorker
      */
 GImageCUDAWorker::GImageCUDAWorker(const GImageCUDAWorker &cp)
-  : GWorkerWithRegisterBrokerFerryT<Geneva::GParameterSet>(cp) {
+  : GWorkerWithRegisterBrokerFerryT<gpar::GParameterSet>(cp) {
     // We want to create a separate evaluator
     evaluator_ptr_.reset();
 
@@ -119,7 +119,7 @@ std::tuple<int, int> GImageCUDAWorker::getGridSize() const {
      */
 void GImageCUDAWorker::addConfigurationOptions_(Common::GParserBuilder &gpb) {
     // Call our parent class'es function
-    GWorkerWithRegisterBrokerFerryT<Geneva::GParameterSet>::addConfigurationOptions_(gpb);
+    GWorkerWithRegisterBrokerFerryT<gpar::GParameterSet>::addConfigurationOptions_(gpb);
 
     std::string comment;
     std::string comment1;
@@ -187,7 +187,7 @@ void GImageCUDAWorker::addConfigurationOptions_(Common::GParserBuilder &gpb) {
      *
      * @param p A GIndividual object camouflaged as a GParameterSet
      */
-void GImageCUDAWorker::processInit_(std::shared_ptr<Geneva::GParameterSet> p) {
+void GImageCUDAWorker::processInit_(std::shared_ptr<gpar::GParameterSet> p) {
 #ifdef DEBUG
     // Check that p actually points somewhere
     if(not p) {
@@ -232,7 +232,7 @@ void GImageCUDAWorker::processInit_(std::shared_ptr<Geneva::GParameterSet> p) {
      *
      * @param p A GIndividual object camouflaged as a GParameterSet
      */
-void GImageCUDAWorker::process_(std::shared_ptr<Geneva::GParameterSet> p) {
+void GImageCUDAWorker::process_(std::shared_ptr<gpar::GParameterSet> p) {
 #ifdef DEBUG
     // Check that p actually points somewhere
     if(not p) {
@@ -275,7 +275,7 @@ void GImageCUDAWorker::processFinalize_() {
      * Creation of deep clones of this object. Note that a new broker ferry
      * needs to be registered with this object.
      */
-std::shared_ptr<GWorkerT<Geneva::GParameterSet>> GImageCUDAWorker::clone_() const {
+std::shared_ptr<GWorkerT<gpar::GParameterSet>> GImageCUDAWorker::clone_() const {
     return std::make_shared<GImageCUDAWorker>(*this);
 }
 

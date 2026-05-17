@@ -58,7 +58,7 @@
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
 #include "common/GSingletonT.hpp"
-#include "courtier/GBaseConsumerT.hpp"
+#include "courtier/consumers/GBaseConsumerT.hpp"
 #include "courtier/GBufferPortT.hpp"
 #include "courtier/GCourtierEnums.hpp"
 #include "courtier/GProcessingContainerT.hpp"
@@ -272,7 +272,7 @@ public:
 	  *
 	  * @param gc_ptr A pointer to a GBaseConsumerT<processable_type> object
 	  */
-    void enrol_consumer(std::shared_ptr<GBaseConsumerT<processable_type>> gc_ptr) {
+    void enrol_consumer(std::shared_ptr<cons::GBaseConsumerT<processable_type>> gc_ptr) {
         //-----------------------------------------------------------------------
         std::unique_lock<std::mutex> consumerEnrolmentLock(consumerEnrolmentMutex_);
 
@@ -333,7 +333,7 @@ public:
 	  * @param gc_ptr_cnt A vector of pointers to GBaseConsumerT<processable_type> objects
 	  */
     void
-    enrol_consumer_vec(std::vector<std::shared_ptr<GBaseConsumerT<processable_type>>> gc_ptr_cnt) {
+    enrol_consumer_vec(std::vector<std::shared_ptr<cons::GBaseConsumerT<processable_type>>> gc_ptr_cnt) {
         //-----------------------------------------------------------------------
         std::unique_lock<std::mutex> consumerEnrolmentLock(consumerEnrolmentMutex_);
 
@@ -675,7 +675,7 @@ private:
         false
     }; ///< Set to true if all registered consumers are capable of full return, otherwise false
 
-    std::vector<std::shared_ptr<GBaseConsumerT<processable_type>>>
+    std::vector<std::shared_ptr<cons::GBaseConsumerT<processable_type>>>
         consumer_collection_cnt_; ///< Holds the actual consumers
     std::vector<std::string>
         consumerTypesPresent_; ///< Holds identifying strings for each consumer

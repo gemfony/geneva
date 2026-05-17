@@ -111,3 +111,15 @@
 #endif
 
 //-----------------------------------------------------------
+
+// Library-wide short namespace aliases. Defined here because virtually
+// every Geneva translation unit includes this header (directly or
+// transitively), so `oa::` and `gpar::` resolve everywhere. The target
+// namespaces are forward-declared so no real dependency is introduced.
+// (`iface` is intentionally NOT global: a global `iface` clashes with
+// the POSIX `struct iface` from <net/if.h>; it stays Gem::Geneva-scoped
+// in geneva/GObject.hpp.)
+namespace Gem::Geneva::OptimizationAlgorithms {}
+namespace Gem::Geneva::Parameters {}
+namespace oa = Gem::Geneva::OptimizationAlgorithms;
+namespace gpar = Gem::Geneva::Parameters;

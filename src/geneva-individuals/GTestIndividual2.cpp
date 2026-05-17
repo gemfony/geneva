@@ -87,9 +87,9 @@ GTestIndividual2::GTestIndividual2(const std::size_t &n_objects, const PERFOBJEC
     switch(otype) {
     case PERFOBJECTTYPE::PERFGDOUBLEOBJECT: {
         for(std::size_t i = 0; i < n_objects; i++) {
-            std::shared_ptr<GDoubleObject> gdo_ptr(new GDoubleObject(0.));
-            std::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(
-                new GDoubleGaussAdaptor(0.025, 0.1, 0., 1., 1.)
+            std::shared_ptr<gpar::GDoubleObject> gdo_ptr(new gpar::GDoubleObject(0.));
+            std::shared_ptr<gpar::GDoubleGaussAdaptor> gdga_ptr(
+                new gpar::GDoubleGaussAdaptor(0.025, 0.1, 0., 1., 1.)
             );
             gdo_ptr->addAdaptor(gdga_ptr);
             this->push_back(gdo_ptr);
@@ -98,11 +98,11 @@ GTestIndividual2::GTestIndividual2(const std::size_t &n_objects, const PERFOBJEC
 
     case PERFOBJECTTYPE::PERFGCONSTRDOUBLEOBJECT: {
         for(std::size_t i = 0; i < n_objects; i++) {
-            std::shared_ptr<GConstrainedDoubleObject> gcdo_ptr(
-                new GConstrainedDoubleObject(0., -10., 10.)
+            std::shared_ptr<gpar::GConstrainedDoubleObject> gcdo_ptr(
+                new gpar::GConstrainedDoubleObject(0., -10., 10.)
             );
-            std::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(
-                new GDoubleGaussAdaptor(0.025, 0.1, 0., 1., 1.)
+            std::shared_ptr<gpar::GDoubleGaussAdaptor> gdga_ptr(
+                new gpar::GDoubleGaussAdaptor(0.025, 0.1, 0., 1., 1.)
             );
             gcdo_ptr->addAdaptor(gdga_ptr);
             this->push_back(gcdo_ptr);
@@ -110,34 +110,34 @@ GTestIndividual2::GTestIndividual2(const std::size_t &n_objects, const PERFOBJEC
     } break;
 
     case PERFOBJECTTYPE::PERFGCONSTRAINEDDOUBLEOBJECTCOLLECTION: {
-        std::shared_ptr<GConstrainedDoubleObject> gcdo_ptr(
-            new GConstrainedDoubleObject(0., -10., 10.)
+        std::shared_ptr<gpar::GConstrainedDoubleObject> gcdo_ptr(
+            new gpar::GConstrainedDoubleObject(0., -10., 10.)
         );
-        std::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(
-            new GDoubleGaussAdaptor(0.025, 0.1, 0., 1., 1.)
+        std::shared_ptr<gpar::GDoubleGaussAdaptor> gdga_ptr(
+            new gpar::GDoubleGaussAdaptor(0.025, 0.1, 0., 1., 1.)
         );
         gcdo_ptr->addAdaptor(gdga_ptr);
-        std::shared_ptr<GConstrainedDoubleObjectCollection> gcdc_ptr(
-            new GConstrainedDoubleObjectCollection(n_objects, gcdo_ptr)
+        std::shared_ptr<gpar::GConstrainedDoubleObjectCollection> gcdc_ptr(
+            new gpar::GConstrainedDoubleObjectCollection(n_objects, gcdo_ptr)
         );
         this->push_back(gcdc_ptr);
     } break;
 
     case PERFOBJECTTYPE::PERFGDOUBLECOLLECTION: {
-        std::shared_ptr<GDoubleCollection> gdc_ptr(new GDoubleCollection(n_objects, 0., -10., 10.));
-        std::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(
-            new GDoubleGaussAdaptor(0.025, 0.1, 0., 1., 1.)
+        std::shared_ptr<gpar::GDoubleCollection> gdc_ptr(new gpar::GDoubleCollection(n_objects, 0., -10., 10.));
+        std::shared_ptr<gpar::GDoubleGaussAdaptor> gdga_ptr(
+            new gpar::GDoubleGaussAdaptor(0.025, 0.1, 0., 1., 1.)
         );
         gdc_ptr->addAdaptor(gdga_ptr);
         this->push_back(gdc_ptr);
     } break;
 
     case PERFOBJECTTYPE::PERFGCONSTRAINEDDOUBLECOLLECTION: {
-        std::shared_ptr<GConstrainedDoubleCollection> gcdc_ptr(
-            new GConstrainedDoubleCollection(n_objects, 0., -10., 10.)
+        std::shared_ptr<gpar::GConstrainedDoubleCollection> gcdc_ptr(
+            new gpar::GConstrainedDoubleCollection(n_objects, 0., -10., 10.)
         );
-        std::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(
-            new GDoubleGaussAdaptor(0.025, 0.1, 0., 1., 1.)
+        std::shared_ptr<gpar::GDoubleGaussAdaptor> gdga_ptr(
+            new gpar::GDoubleGaussAdaptor(0.025, 0.1, 0., 1., 1.)
         );
         gcdc_ptr->addAdaptor(gdga_ptr);
         this->push_back(gcdc_ptr);
@@ -158,7 +158,7 @@ GTestIndividual2::GTestIndividual2(const std::size_t &n_objects, const PERFOBJEC
  * @param cp A constant reference to another GTestIndividual2 object
  */
 GTestIndividual2::GTestIndividual2(const GTestIndividual2 &cp)
-  : Gem::Geneva::GParameterSet(cp) { /* nothing */
+  : gpar::GParameterSet(cp) { /* nothing */
 }
 
 /******************************************************************************/
@@ -192,7 +192,7 @@ void GTestIndividual2::compare_(
     Gem::Common::GToken token("GTestIndividual2", e);
 
     // Compare our parent data ...
-    Gem::Common::compare_base_t<GParameterSet>(*this, *p_load, token);
+    Gem::Common::compare_base_t<gpar::GParameterSet>(*this, *p_load, token);
 
     // ...no local data
 
@@ -215,7 +215,7 @@ void GTestIndividual2::load_(const GObject *cp) {
         Gem::Common::g_convert_and_compare<GObject, GTestIndividual2>(cp, this);
 
     // Load our parent's data
-    GParameterSet::load_(cp);
+    gpar::GParameterSet::load_(cp);
 
     // no local data
 }
@@ -264,7 +264,7 @@ bool GTestIndividual2::modify_GUnitTests_() {
     bool result = false;
 
     // Call the parent classes' functions
-    if(Gem::Geneva::GParameterSet::modify_GUnitTests_()) {
+    if(gpar::GParameterSet::modify_GUnitTests_()) {
         result = true;
     }
 
@@ -288,7 +288,7 @@ void GTestIndividual2::specificTestsNoFailureExpected_GUnitTests_() {
     using namespace Gem::Geneva;
 
     // Call the parent classes' functions
-    Gem::Geneva::GParameterSet::specificTestsNoFailureExpected_GUnitTests_();
+    gpar::GParameterSet::specificTestsNoFailureExpected_GUnitTests_();
 
     //------------------------------------------------------------------------------
     //------------------------------------------------------------------------------
@@ -310,7 +310,7 @@ void GTestIndividual2::specificTestsFailuresExpected_GUnitTests_() {
     using namespace Gem::Geneva;
 
     // Call the parent classes' functions
-    Gem::Geneva::GParameterSet::specificTestsFailuresExpected_GUnitTests_();
+    gpar::GParameterSet::specificTestsFailuresExpected_GUnitTests_();
 
     //------------------------------------------------------------------------------
     //------------------------------------------------------------------------------

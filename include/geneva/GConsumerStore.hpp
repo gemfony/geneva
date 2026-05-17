@@ -38,10 +38,10 @@
 
 // Geneva headers go here
 #include "common/GGlobalOptionsT.hpp"
-#include "courtier/GBaseConsumerT.hpp"
-#include "geneva/GParameterSet.hpp"
+#include "courtier/consumers/GBaseConsumerT.hpp"
+#include "geneva/par/GParameterSet.hpp"
 
 // A global store for consumer objects
 using GConStore = Gem::Common::GSingletonT<Gem::Common::GGlobalOptionsT<
-    std::shared_ptr<Gem::Courtier::GBaseConsumerT<Gem::Geneva::GParameterSet>>>>;
+    std::shared_ptr<cons::GBaseConsumerT<gpar::GParameterSet>>>>;
 #define GConsumerStore GConStore::Instance(0)

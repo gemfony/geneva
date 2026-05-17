@@ -71,7 +71,7 @@ void GDoubleSumConstraint::compare_(
     Gem::Common::GToken token("GDoubleSumConstraint", e);
 
     // Compare our parent data ...
-    Gem::Common::compare_base_t<GParameterSetConstraint>(*this, *p_load, token);
+    Gem::Common::compare_base_t<gpar::GParameterSetConstraint>(*this, *p_load, token);
 
     // ... and then the local data
     Gem::Common::compare_t(IDENTITY(C_, p_load->C_), token);
@@ -86,14 +86,14 @@ void GDoubleSumConstraint::compare_(
  */
 void GDoubleSumConstraint::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
     // Call our parent class'es function
-    GParameterSetConstraint::addConfigurationOptions_(gpb);
+    gpar::GParameterSetConstraint::addConfigurationOptions_(gpb);
 }
 
 /******************************************************************************/
 /**
  * Checks whether a given individual is valid
  */
-double GDoubleSumConstraint::check_(const GParameterSet *p) const {
+double GDoubleSumConstraint::check_(const gpar::GParameterSet *p) const {
     std::vector<double> par_vec;
     p->streamline(par_vec);
 
@@ -121,7 +121,7 @@ void GDoubleSumConstraint::load_(const GObject *cp) {
         Gem::Common::g_convert_and_compare<GObject, GDoubleSumConstraint>(cp, this);
 
     // Load our parent class'es data ...
-    GParameterSetConstraint::load_(cp);
+    gpar::GParameterSetConstraint::load_(cp);
 
     // ... and then our local data
     C_ = p_load->C_;
@@ -169,7 +169,7 @@ void GDoubleSumGapConstraint::compare_(
     Gem::Common::GToken token("GDoubleSumGapConstraint", e);
 
     // Compare our parent data ...
-    Gem::Common::compare_base_t<GParameterSetConstraint>(*this, *p_load, token);
+    Gem::Common::compare_base_t<gpar::GParameterSetConstraint>(*this, *p_load, token);
 
     // ... and then the local data
     Gem::Common::compare_t(IDENTITY(C_, p_load->C_), token);
@@ -184,14 +184,14 @@ void GDoubleSumGapConstraint::compare_(
  */
 void GDoubleSumGapConstraint::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
     // Call our parent class'es function
-    GParameterSetConstraint::addConfigurationOptions_(gpb);
+    gpar::GParameterSetConstraint::addConfigurationOptions_(gpb);
 }
 
 /******************************************************************************/
 /**
  * Checks whether a given individual is valid
  */
-double GDoubleSumGapConstraint::check_(const GParameterSet *p) const {
+double GDoubleSumGapConstraint::check_(const gpar::GParameterSet *p) const {
     std::vector<double> par_vec;
     p->streamline(par_vec);
 
@@ -220,7 +220,7 @@ void GDoubleSumGapConstraint::load_(const GObject *cp) {
         Gem::Common::g_convert_and_compare<GObject, GDoubleSumGapConstraint>(cp, this);
 
     // Load our parent class'es data ...
-    GParameterSetConstraint::load_(cp);
+    gpar::GParameterSetConstraint::load_(cp);
 
     // ... and then our local data
     C_ = p_load->C_;
@@ -266,7 +266,7 @@ void GSphereConstraint::compare_(
     Gem::Common::GToken token("GSphereConstraint", e);
 
     // Compare our parent data ...
-    Gem::Common::compare_base_t<GParameterSetConstraint>(*this, *p_load, token);
+    Gem::Common::compare_base_t<gpar::GParameterSetConstraint>(*this, *p_load, token);
 
     // ... and then the local data
     Gem::Common::compare_t(IDENTITY(diameter_, p_load->diameter_), token);
@@ -281,14 +281,14 @@ void GSphereConstraint::compare_(
  */
 void GSphereConstraint::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
     // Call our parent class'es function
-    GParameterSetConstraint::addConfigurationOptions_(gpb);
+    gpar::GParameterSetConstraint::addConfigurationOptions_(gpb);
 }
 
 /******************************************************************************/
 /**
  * Checks whether a given individual is valid
  */
-double GSphereConstraint::check_(const GParameterSet *p) const {
+double GSphereConstraint::check_(const gpar::GParameterSet *p) const {
     std::vector<double> par_vec;
     p->streamline(par_vec);
 
@@ -317,7 +317,7 @@ void GSphereConstraint::load_(const GObject *cp) {
         Gem::Common::g_convert_and_compare<GObject, GSphereConstraint>(cp, this);
 
     // Load our parent class'es data ...
-    GParameterSetConstraint::load_(cp);
+    gpar::GParameterSetConstraint::load_(cp);
 
     // ... and then our local data
     diameter_ = p_load->diameter_;
@@ -479,7 +479,7 @@ void GFunctionIndividual::compare_(
     Gem::Common::GToken token("GFunctionIndividual", e);
 
     // Compare our parent data ...
-    Gem::Common::compare_base_t<GParameterSet>(*this, *p_load, token);
+    Gem::Common::compare_base_t<gpar::GParameterSet>(*this, *p_load, token);
 
     // ... and then the local data
     Gem::Common::compare_t(IDENTITY(demoFunction_, p_load->demoFunction_), token);
@@ -496,7 +496,7 @@ void GFunctionIndividual::compare_(
  */
 void GFunctionIndividual::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
     // Call our parent class'es function
-    GParameterSet::addConfigurationOptions_(gpb);
+    gpar::GParameterSet::addConfigurationOptions_(gpb);
 
     // Local data
     gpb.registerFileParameter<solverFunction>(
@@ -584,7 +584,7 @@ void GFunctionIndividual::load_(const GObject *cp) {
         Gem::Common::g_convert_and_compare<GObject, GFunctionIndividual>(cp, this);
 
     // Load our parent class'es data ...
-    GParameterSet::load_(cp);
+    gpar::GParameterSet::load_(cp);
 
     // ... and then our local data
     demoFunction_ = p_load->demoFunction_;
@@ -612,7 +612,7 @@ bool GFunctionIndividual::modify_GUnitTests_() {
     bool result = false;
 
     // Call the parent classes' functions
-    if(Gem::Geneva::GParameterSet::modify_GUnitTests_()) {
+    if(gpar::GParameterSet::modify_GUnitTests_()) {
         result = true;
     }
 
@@ -636,7 +636,7 @@ void GFunctionIndividual::specificTestsNoFailureExpected_GUnitTests_() {
     using namespace Gem::Geneva;
 
     // Call the parent classes' functions
-    Gem::Geneva::GParameterSet::specificTestsNoFailureExpected_GUnitTests_();
+    gpar::GParameterSet::specificTestsNoFailureExpected_GUnitTests_();
 
     //------------------------------------------------------------------------------
     //------------------------------------------------------------------------------
@@ -658,7 +658,7 @@ void GFunctionIndividual::specificTestsFailuresExpected_GUnitTests_() {
     using namespace Gem::Geneva;
 
     // Call the parent classes' functions
-    Gem::Geneva::GParameterSet::specificTestsFailuresExpected_GUnitTests_();
+    gpar::GParameterSet::specificTestsFailuresExpected_GUnitTests_();
 
     //------------------------------------------------------------------------------
     //------------------------------------------------------------------------------
@@ -743,7 +743,7 @@ std::ostream &operator<<(std::ostream &s, std::shared_ptr<Gem::Geneva::GFunction
  * @param config_file The name of the configuration file
  */
 GFunctionIndividualFactory::GFunctionIndividualFactory(std::filesystem::path const &config_file)
-  : GParameterSetFactory(config_file) { /* nothing */
+  : gpar::GParameterSetFactory(config_file) { /* nothing */
 }
 
 /******************************************************************************/
@@ -751,7 +751,7 @@ GFunctionIndividualFactory::GFunctionIndividualFactory(std::filesystem::path con
  * The default constructor. Only needed for (de-)serialization purposes, hence empty.
  */
 GFunctionIndividualFactory::GFunctionIndividualFactory()
-  : GParameterSetFactory("empty") { /* nothing */
+  : gpar::GParameterSetFactory("empty") { /* nothing */
 }
 
 /******************************************************************************/
@@ -759,14 +759,14 @@ GFunctionIndividualFactory::GFunctionIndividualFactory()
  * Loads the data of another GFunctionIndividualFactory object
  */
 void GFunctionIndividualFactory::load(
-    std::shared_ptr<Gem::Common::GFactoryT<GParameterSet>> cp_raw_ptr
+    std::shared_ptr<Gem::Common::GFactoryT<gpar::GParameterSet>> cp_raw_ptr
 ) {
     // Load our parent class'es data
-    GParameterSetFactory::load(cp_raw_ptr);
+    gpar::GParameterSetFactory::load(cp_raw_ptr);
 
     // Convert the base pointer
     std::shared_ptr<GFunctionIndividualFactory> cp_ptr = Gem::Common::convertSmartPointer<
-        Gem::Common::GFactoryT<GParameterSet>,
+        Gem::Common::GFactoryT<gpar::GParameterSet>,
         GFunctionIndividualFactory>(cp_raw_ptr);
 
     // And then our own
@@ -799,7 +799,7 @@ void GFunctionIndividualFactory::load(
 /**
  * Creates a deep clone of this object
  */
-std::shared_ptr<Gem::Common::GFactoryT<GParameterSet>> GFunctionIndividualFactory::clone() const {
+std::shared_ptr<Gem::Common::GFactoryT<gpar::GParameterSet>> GFunctionIndividualFactory::clone() const {
     return std::make_shared<GFunctionIndividualFactory>(*this);
 }
 
@@ -1342,7 +1342,7 @@ void GFunctionIndividualFactory::setAdProbRange(double min_ad_prob, double max_a
  *
  * @return Items of the desired type
  */
-std::shared_ptr<GParameterSet> GFunctionIndividualFactory::getObject_(
+std::shared_ptr<gpar::GParameterSet> GFunctionIndividualFactory::getObject_(
     Gem::Common::GParserBuilder &gpb,
     const std::size_t & /*id*/
 ) {
@@ -1603,7 +1603,7 @@ void GFunctionIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuild
     );
 
     // Allow our parent class to describe its options
-    GParameterSetFactory::describeLocalOptions_(gpb);
+    gpar::GParameterSetFactory::describeLocalOptions_(gpb);
 }
 
 /******************************************************************************/
@@ -1614,14 +1614,14 @@ void GFunctionIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuild
  *
  * @param p A smart-pointer to be acted on during post-processing
  */
-void GFunctionIndividualFactory::postProcess_(std::shared_ptr<GParameterSet> &p) {
+void GFunctionIndividualFactory::postProcess_(std::shared_ptr<gpar::GParameterSet> &p) {
     // Set up a random number generator
     Gem::Hap::GRandom gr;
 
     // Set up an adaptor for the collections, so they know how to be adapted
-    std::shared_ptr<GAdaptorT<double>> gat_ptr;
+    std::shared_ptr<gpar::GAdaptorT<double>> gat_ptr;
     if(useBiGaussian_.value()) {
-        std::shared_ptr<GDoubleBiGaussAdaptor> gdbga_ptr(new GDoubleBiGaussAdaptor());
+        std::shared_ptr<gpar::GDoubleBiGaussAdaptor> gdbga_ptr(new gpar::GDoubleBiGaussAdaptor());
         gdbga_ptr->setAllSigma1(
             sigma1_.value(),
             sigmaSigma1_.value(),
@@ -1645,7 +1645,7 @@ void GFunctionIndividualFactory::postProcess_(std::shared_ptr<GParameterSet> &p)
         gat_ptr = gdbga_ptr;
     }
     else {
-        std::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(
+        std::shared_ptr<gpar::GDoubleGaussAdaptor> gdga_ptr(new gpar::GDoubleGaussAdaptor(
             sigma1_.value(),
             sigmaSigma1_.value(),
             minSigma1_.value(),
@@ -1669,13 +1669,13 @@ void GFunctionIndividualFactory::postProcess_(std::shared_ptr<GParameterSet> &p)
     case parameterType::USEGDOUBLECOLLECTION: {
         // Set up a collection, each initialized with a random number in the range [min,max[
         // Random initialization happens in the constructor.
-        std::shared_ptr<GDoubleCollection> gdc_ptr;
+        std::shared_ptr<gpar::GDoubleCollection> gdc_ptr;
 
         if(initMode::INITRANDOM == iM_.value()) {
-            gdc_ptr = std::make_shared<GDoubleCollection>(n_data, minVar_.value(), maxVar_.value());
+            gdc_ptr = std::make_shared<gpar::GDoubleCollection>(n_data, minVar_.value(), maxVar_.value());
         }
         else { // initMode::INITPERIMETER
-            gdc_ptr = std::make_shared<GDoubleCollection>(
+            gdc_ptr = std::make_shared<gpar::GDoubleCollection>(
                 n_data,
                 minVar_.value(),
                 minVar_.value(),
@@ -1691,17 +1691,17 @@ void GFunctionIndividualFactory::postProcess_(std::shared_ptr<GParameterSet> &p)
 
     case parameterType::USEGCONSTRAINEDOUBLECOLLECTION: {
         // Set up a collection
-        std::shared_ptr<GConstrainedDoubleCollection> gcdc_ptr;
+        std::shared_ptr<gpar::GConstrainedDoubleCollection> gcdc_ptr;
 
         if(initMode::INITRANDOM == iM_) {
-            gcdc_ptr = std::make_shared<GConstrainedDoubleCollection>(
+            gcdc_ptr = std::make_shared<gpar::GConstrainedDoubleCollection>(
                 n_data,
                 minVar_.value(),
                 maxVar_.value()
             );
         }
         else { // initMode::INITPERIMETER
-            gcdc_ptr = std::make_shared<GConstrainedDoubleCollection>(
+            gcdc_ptr = std::make_shared<gpar::GConstrainedDoubleCollection>(
                 n_data,
                 minVar_.value(),
                 minVar_.value(),
@@ -1717,13 +1717,13 @@ void GFunctionIndividualFactory::postProcess_(std::shared_ptr<GParameterSet> &p)
 
     case parameterType::USEGDOUBLEOBJECTCOLLECTION: {
         // Set up a collection of GDoubleObject objects
-        std::shared_ptr<GDoubleObjectCollection> gdoc_ptr(new GDoubleObjectCollection());
+        std::shared_ptr<gpar::GDoubleObjectCollection> gdoc_ptr(new gpar::GDoubleObjectCollection());
 
         // Fill the collection with GDoubleObject objects, each equipped with a copy of our adaptor
         // Note that addAdaptor() itself will take care of cloning the adaptor
         for(std::size_t i = 0; i < n_data; i++) {
-            std::shared_ptr<GDoubleObject> gdo_ptr(
-                new GDoubleObject(minVar_.value(), maxVar_.value())
+            std::shared_ptr<gpar::GDoubleObject> gdo_ptr(
+                new gpar::GDoubleObject(minVar_.value(), maxVar_.value())
             );
             if(initMode::INITPERIMETER == iM_.value()) {
                 *gdo_ptr = minVar_.value();
@@ -1740,15 +1740,15 @@ void GFunctionIndividualFactory::postProcess_(std::shared_ptr<GParameterSet> &p)
 
     case parameterType::USEGCONSTRAINEDDOUBLEOBJECTCOLLECTION: {
         // Set up a collection of GConstrainedDoubleObject objects
-        std::shared_ptr<GConstrainedDoubleObjectCollection> gcdoc_ptr(
-            new GConstrainedDoubleObjectCollection()
+        std::shared_ptr<gpar::GConstrainedDoubleObjectCollection> gcdoc_ptr(
+            new gpar::GConstrainedDoubleObjectCollection()
         );
 
         // Fill the collection with GConstrainedDoubleObject objects, each equipped with a copy of our adaptor
         // Note that addAdaptor() itself will take care of cloning the adaptor
         for(std::size_t i = 0; i < n_data; i++) {
-            std::shared_ptr<GConstrainedDoubleObject> gcdo_ptr(
-                new GConstrainedDoubleObject(minVar_.value(), maxVar_.value())
+            std::shared_ptr<gpar::GConstrainedDoubleObject> gcdo_ptr(
+                new gpar::GConstrainedDoubleObject(minVar_.value(), maxVar_.value())
             );
             if(initMode::INITPERIMETER == iM_.value()) {
                 *gcdo_ptr = minVar_.value();
@@ -1767,8 +1767,8 @@ void GFunctionIndividualFactory::postProcess_(std::shared_ptr<GParameterSet> &p)
         // Fill the individual with GConstrainedDoubleObject objects, each equipped with a copy of our adaptor
         // Note that addAdaptor() itself will take care of cloning the adaptor
         for(std::size_t i = 0; i < n_data; i++) {
-            std::shared_ptr<GConstrainedDoubleObject> gcdo_ptr(
-                new GConstrainedDoubleObject(minVar_.value(), maxVar_.value())
+            std::shared_ptr<gpar::GConstrainedDoubleObject> gcdo_ptr(
+                new gpar::GConstrainedDoubleObject(minVar_.value(), maxVar_.value())
             );
             if(initMode::INITPERIMETER == iM_.value()) {
                 *gcdo_ptr = minVar_.value();

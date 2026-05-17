@@ -46,9 +46,9 @@
 
 // Geneva headers go here
 #include "common/GParserBuilder.hpp"
-#include "courtier/GStdThreadConsumerT.hpp"
+#include "courtier/consumers/GStdThreadConsumerT.hpp"
 #include "courtier/GWorkerT.hpp"
-#include "geneva/GParameterSet.hpp"
+#include "geneva/par/GParameterSet.hpp"
 
 // Local headers for the image individual and canvas
 #include "GImageIndividual.hpp"
@@ -74,7 +74,7 @@ constexpr int GII_DEF_IMAGE_HEIGHT{768};
 /**
      * A GWorkerT-derivative for the GStdThreadConsumerT, targeted at CUDA work.
      */
-class GImageCUDAWorker final : public GWorkerWithRegisterBrokerFerryT<Geneva::GParameterSet> {
+class GImageCUDAWorker final : public GWorkerWithRegisterBrokerFerryT<gpar::GParameterSet> {
 public:
     /** @brief Initialization with the name of a configuration file. */
     explicit GImageCUDAWorker(const std::string &);
@@ -106,9 +106,9 @@ public:
 
 protected:
     /** @brief Initialization code for processing */
-    void processInit_(std::shared_ptr<Geneva::GParameterSet>) override;
+    void processInit_(std::shared_ptr<gpar::GParameterSet>) override;
     /** @brief The actual per-item work is done here */
-    void process_(std::shared_ptr<Geneva::GParameterSet>) override;
+    void process_(std::shared_ptr<gpar::GParameterSet>) override;
     /** @brief Finalization code after processing */
     void processFinalize_() override;
     /** @brief Adds local configuration options to a GParserBuilder object */
@@ -116,7 +116,7 @@ protected:
 
 private:
     /** @brief Creates a deep clone of this object, camouflaged as a GWorker */
-    std::shared_ptr<GWorkerT<Geneva::GParameterSet>> clone_() const override;
+    std::shared_ptr<GWorkerT<gpar::GParameterSet>> clone_() const override;
 
     // Our evaluator
     std::shared_ptr<Geneva::GImageIndividualEvaluator> evaluator_ptr_;

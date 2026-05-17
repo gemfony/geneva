@@ -38,26 +38,26 @@
 #include "geneva-individuals/GExternalEvaluatorIndividual.hpp"
 #include "geneva-individuals/GFunctionIndividual.hpp"
 #include "geneva-individuals/GTestIndividual3.hpp"
-#include "geneva/GBooleanAdaptor.hpp"
-#include "geneva/GBooleanCollection.hpp"
-#include "geneva/GBooleanObject.hpp"
-#include "geneva/GBooleanObjectCollection.hpp"
-#include "geneva/GConstrainedDoubleCollection.hpp"
-#include "geneva/GConstrainedDoubleObject.hpp"
-#include "geneva/GConstrainedDoubleObjectCollection.hpp"
-#include "geneva/GConstrainedInt32Object.hpp"
-#include "geneva/GConstrainedInt32ObjectCollection.hpp"
-#include "geneva/GDoubleBiGaussAdaptor.hpp"
-#include "geneva/GDoubleCollection.hpp"
-#include "geneva/GDoubleGaussAdaptor.hpp"
-#include "geneva/GDoubleObject.hpp"
-#include "geneva/GDoubleObjectCollection.hpp"
-#include "geneva/GInt32Collection.hpp"
-#include "geneva/GInt32FlipAdaptor.hpp"
-#include "geneva/GInt32GaussAdaptor.hpp"
-#include "geneva/GInt32Object.hpp"
-#include "geneva/GInt32ObjectCollection.hpp"
-#include "geneva/GParameterObjectCollection.hpp"
+#include "geneva/par/GBooleanAdaptor.hpp"
+#include "geneva/par/GBooleanCollection.hpp"
+#include "geneva/par/GBooleanObject.hpp"
+#include "geneva/par/GBooleanObjectCollection.hpp"
+#include "geneva/par/GConstrainedDoubleCollection.hpp"
+#include "geneva/par/GConstrainedDoubleObject.hpp"
+#include "geneva/par/GConstrainedDoubleObjectCollection.hpp"
+#include "geneva/par/GConstrainedInt32Object.hpp"
+#include "geneva/par/GConstrainedInt32ObjectCollection.hpp"
+#include "geneva/par/GDoubleBiGaussAdaptor.hpp"
+#include "geneva/par/GDoubleCollection.hpp"
+#include "geneva/par/GDoubleGaussAdaptor.hpp"
+#include "geneva/par/GDoubleObject.hpp"
+#include "geneva/par/GDoubleObjectCollection.hpp"
+#include "geneva/par/GInt32Collection.hpp"
+#include "geneva/par/GInt32FlipAdaptor.hpp"
+#include "geneva/par/GInt32GaussAdaptor.hpp"
+#include "geneva/par/GInt32Object.hpp"
+#include "geneva/par/GInt32ObjectCollection.hpp"
+#include "geneva/par/GParameterObjectCollection.hpp"
 #include "geneva/GTestIndividual1.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithm_PersonalityTraits.hpp"
 #include "geneva/oa/GGradientDescent_PersonalityTraits.hpp"
@@ -76,11 +76,11 @@ using namespace Gem::Geneva;
 TEMPLATE_TEST_CASE(
     "StandardTests_no_failure_expected — adaptor types",
     "[geneva][standard]",
-    GInt32FlipAdaptor,
-    GBooleanAdaptor,
-    GInt32GaussAdaptor,
-    GDoubleBiGaussAdaptor,
-    GDoubleGaussAdaptor
+    gpar::GInt32FlipAdaptor,
+    gpar::GBooleanAdaptor,
+    gpar::GInt32GaussAdaptor,
+    gpar::GDoubleBiGaussAdaptor,
+    gpar::GDoubleGaussAdaptor
 ) {
     Gem::Tests::StandardTests_no_failure_expected<TestType>();
 }
@@ -88,11 +88,11 @@ TEMPLATE_TEST_CASE(
 TEMPLATE_TEST_CASE(
     "StandardTests_no_failure_expected — data types",
     "[geneva][standard]",
-    GBooleanObject,
-    GInt32Object,
-    GDoubleObject,
-    GConstrainedInt32Object,
-    GConstrainedDoubleObject
+    gpar::GBooleanObject,
+    gpar::GInt32Object,
+    gpar::GDoubleObject,
+    gpar::GConstrainedInt32Object,
+    gpar::GConstrainedDoubleObject
 ) {
     Gem::Tests::StandardTests_no_failure_expected<TestType>();
 }
@@ -100,12 +100,12 @@ TEMPLATE_TEST_CASE(
 TEMPLATE_TEST_CASE(
     "StandardTests_no_failure_expected — object collection types",
     "[geneva][standard]",
-    GParameterObjectCollection,
-    GBooleanObjectCollection,
-    GInt32ObjectCollection,
-    GConstrainedInt32ObjectCollection,
-    GDoubleObjectCollection,
-    GConstrainedDoubleObjectCollection
+    gpar::GParameterObjectCollection,
+    gpar::GBooleanObjectCollection,
+    gpar::GInt32ObjectCollection,
+    gpar::GConstrainedInt32ObjectCollection,
+    gpar::GDoubleObjectCollection,
+    gpar::GConstrainedDoubleObjectCollection
 ) {
     Gem::Tests::StandardTests_no_failure_expected<TestType>();
 }
@@ -113,10 +113,10 @@ TEMPLATE_TEST_CASE(
 TEMPLATE_TEST_CASE(
     "StandardTests_no_failure_expected — pod collection types",
     "[geneva][standard]",
-    GInt32Collection,
-    GDoubleCollection,
-    GBooleanCollection,
-    GConstrainedDoubleCollection
+    gpar::GInt32Collection,
+    gpar::GDoubleCollection,
+    gpar::GBooleanCollection,
+    gpar::GConstrainedDoubleCollection
 ) {
     Gem::Tests::StandardTests_no_failure_expected<TestType>();
 }
@@ -152,11 +152,11 @@ TEMPLATE_TEST_CASE(
 TEMPLATE_TEST_CASE(
     "StandardTests_failures_expected — adaptor types",
     "[geneva][standard][failures-expected]",
-    GInt32FlipAdaptor,
-    GBooleanAdaptor,
-    GInt32GaussAdaptor,
-    GDoubleBiGaussAdaptor,
-    GDoubleGaussAdaptor
+    gpar::GInt32FlipAdaptor,
+    gpar::GBooleanAdaptor,
+    gpar::GInt32GaussAdaptor,
+    gpar::GDoubleBiGaussAdaptor,
+    gpar::GDoubleGaussAdaptor
 ) {
     Gem::Tests::StandardTests_failures_expected<TestType>();
 }
@@ -164,11 +164,11 @@ TEMPLATE_TEST_CASE(
 TEMPLATE_TEST_CASE(
     "StandardTests_failures_expected — data types",
     "[geneva][standard][failures-expected]",
-    GBooleanObject,
-    GInt32Object,
-    GDoubleObject,
-    GConstrainedInt32Object,
-    GConstrainedDoubleObject
+    gpar::GBooleanObject,
+    gpar::GInt32Object,
+    gpar::GDoubleObject,
+    gpar::GConstrainedInt32Object,
+    gpar::GConstrainedDoubleObject
 ) {
     Gem::Tests::StandardTests_failures_expected<TestType>();
 }
@@ -176,12 +176,12 @@ TEMPLATE_TEST_CASE(
 TEMPLATE_TEST_CASE(
     "StandardTests_failures_expected — object collection types",
     "[geneva][standard][failures-expected]",
-    GParameterObjectCollection,
-    GBooleanObjectCollection,
-    GInt32ObjectCollection,
-    GConstrainedInt32ObjectCollection,
-    GDoubleObjectCollection,
-    GConstrainedDoubleObjectCollection
+    gpar::GParameterObjectCollection,
+    gpar::GBooleanObjectCollection,
+    gpar::GInt32ObjectCollection,
+    gpar::GConstrainedInt32ObjectCollection,
+    gpar::GDoubleObjectCollection,
+    gpar::GConstrainedDoubleObjectCollection
 ) {
     Gem::Tests::StandardTests_failures_expected<TestType>();
 }
@@ -189,10 +189,10 @@ TEMPLATE_TEST_CASE(
 TEMPLATE_TEST_CASE(
     "StandardTests_failures_expected — pod collection types",
     "[geneva][standard][failures-expected]",
-    GInt32Collection,
-    GDoubleCollection,
-    GBooleanCollection,
-    GConstrainedDoubleCollection
+    gpar::GInt32Collection,
+    gpar::GDoubleCollection,
+    gpar::GBooleanCollection,
+    gpar::GConstrainedDoubleCollection
 ) {
     Gem::Tests::StandardTests_failures_expected<TestType>();
 }

@@ -50,11 +50,11 @@
 #include "common/GCommonMathHelperFunctionsT.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GFactoryT.hpp"
-#include "geneva/GDoubleCollection.hpp"
-#include "geneva/GDoubleGaussAdaptor.hpp"
-#include "geneva/GDoubleObject.hpp"
-#include "geneva/GDoubleObjectCollection.hpp"
-#include "geneva/GParameterSet.hpp"
+#include "geneva/par/GDoubleCollection.hpp"
+#include "geneva/par/GDoubleGaussAdaptor.hpp"
+#include "geneva/par/GDoubleObject.hpp"
+#include "geneva/par/GDoubleObjectCollection.hpp"
+#include "geneva/par/GParameterSet.hpp"
 #include "hap/GRandomDistributionsT.hpp"
 
 namespace Gem::Geneva {
@@ -79,14 +79,14 @@ public:
  * clients and server.
  */
 class GDelayIndividual
-  : public GParameterSet // NOLINT(cppcoreguidelines-special-member-functions)
+  : public gpar::GParameterSet // NOLINT(cppcoreguidelines-special-member-functions)
 {
     /////////////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
     template <class Archive>
     void serialize(Archive &ar, const unsigned int) {
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet) &
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GParameterSet) &
             BOOST_SERIALIZATION_NVP(fixedSleepTime_) & BOOST_SERIALIZATION_NVP(mayCrash_) &
             BOOST_SERIALIZATION_NVP(throwLikelihood_) & BOOST_SERIALIZATION_NVP(sleepRandomly_) &
             BOOST_SERIALIZATION_NVP(randSleepBoundaries_);
@@ -173,7 +173,7 @@ private:
  * A factory for GFMinIndividual objects
  */
 class GDelayIndividualFactory // NOLINT(cppcoreguidelines-special-member-functions)
-  : public Gem::Common::GFactoryT<GParameterSet> {
+  : public Gem::Common::GFactoryT<gpar::GParameterSet> {
 public:
     /** @brief The standard constructor */
     GDelayIndividualFactory(std::filesystem::path const &);
@@ -197,14 +197,14 @@ protected:
     /** @brief Allows to describe local configuration options in derived classes */
     void describeLocalOptions_(Gem::Common::GParserBuilder &) final;
     /** @brief Allows to act on the configuration options received from the configuration file */
-    void postProcess_(std::shared_ptr<GParameterSet> &) final;
+    void postProcess_(std::shared_ptr<gpar::GParameterSet> &) final;
 
 private:
     /** @brief The default constructor. Only needed for (de-)serialization purposes */
     GDelayIndividualFactory() = default;
 
     /** @brief Creates individuals of this type */
-    std::shared_ptr<GParameterSet>
+    std::shared_ptr<gpar::GParameterSet>
     getObject_(Gem::Common::GParserBuilder &, const std::size_t &) final;
 
     /** @brief Converts a tuple to a time format */

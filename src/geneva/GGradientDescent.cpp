@@ -697,7 +697,7 @@ void GGradientDescent::adjustPopulation_() {
     if(n_start < nStartingPoints_) {
         for(std::size_t i = 0; i < (nStartingPoints_ - n_start); i++) {
             // Create a copy of the first individual
-            this->push_back(this->at(0)->clone<GParameterSet>());
+            this->push_back(this->at(0)->clone<gpar::GParameterSet>());
             // Make sure our start values differ
             this->back()->randomInit(activityMode::ACTIVEONLY);
         }
@@ -711,7 +711,7 @@ void GGradientDescent::adjustPopulation_() {
     // used for the calculation of the difference quotient for each parameter
     for(std::size_t i = 0; i < nStartingPoints_; i++) {
         for(std::size_t j = 0; j < nFPParmsFirst_; j++) {
-            this->push_back(this->at(i)->clone<GParameterSet>());
+            this->push_back(this->at(i)->clone<gpar::GParameterSet>());
         }
     }
 

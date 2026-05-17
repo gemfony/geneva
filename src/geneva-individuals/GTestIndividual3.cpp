@@ -54,7 +54,7 @@ GTestIndividual3::GTestIndividual3() {
     // Create suitable adaptors
 
     // Gaussian distributed random numbers
-    std::shared_ptr<GDoubleGaussAdaptor> gdga_ptr_tmpl(new GDoubleGaussAdaptor(
+    std::shared_ptr<gpar::GDoubleGaussAdaptor> gdga_ptr_tmpl(new gpar::GDoubleGaussAdaptor(
         GTI_DEF_SIGMA,
         GTI_DEF_SIGMASIGMA,
         GTI_DEF_MINSIGMA,
@@ -67,36 +67,36 @@ GTestIndividual3::GTestIndividual3() {
 
     // Create one GParameterObjectCollection for each data item
     for(std::size_t i_cnt = 0; i_cnt < GTI_DEF_NITEMS; i_cnt++) {
-        std::shared_ptr<GParameterObjectCollection> gpoc_ptr(new GParameterObjectCollection());
+        std::shared_ptr<gpar::GParameterObjectCollection> gpoc_ptr(new gpar::GParameterObjectCollection());
 
         //--------------------------------------------------------------------------------------------
-        std::shared_ptr<GConstrainedDoubleCollection> a_ptr(
-            new GConstrainedDoubleCollection(2, 0., 1.)
+        std::shared_ptr<gpar::GConstrainedDoubleCollection> a_ptr(
+            new gpar::GConstrainedDoubleCollection(2, 0., 1.)
         );
         a_ptr->addAdaptor(gdga_ptr_tmpl);
         gpoc_ptr->push_back(a_ptr);
 
         //--------------------------------------------------------------------------------------------
-        std::shared_ptr<GConstrainedDoubleObject> b_ptr(new GConstrainedDoubleObject(0., 0.3));
+        std::shared_ptr<gpar::GConstrainedDoubleObject> b_ptr(new gpar::GConstrainedDoubleObject(0., 0.3));
         b_ptr->addAdaptor(gdga_ptr_tmpl);
         gpoc_ptr->push_back(b_ptr);
 
         //--------------------------------------------------------------------------------------------
-        std::shared_ptr<GConstrainedDoubleCollection> c_ptr(
-            new GConstrainedDoubleCollection(3, 0., 1.)
+        std::shared_ptr<gpar::GConstrainedDoubleCollection> c_ptr(
+            new gpar::GConstrainedDoubleCollection(3, 0., 1.)
         );
         c_ptr->addAdaptor(gdga_ptr_tmpl);
         gpoc_ptr->push_back(c_ptr);
 
         //--------------------------------------------------------------------------------------------
-        std::shared_ptr<GConstrainedDoubleCollection> d_ptr(
-            new GConstrainedDoubleCollection(3, 0., 1.)
+        std::shared_ptr<gpar::GConstrainedDoubleCollection> d_ptr(
+            new gpar::GConstrainedDoubleCollection(3, 0., 1.)
         );
         d_ptr->addAdaptor(gdga_ptr_tmpl);
         gpoc_ptr->push_back(d_ptr);
 
         //--------------------------------------------------------------------------------------------
-        std::shared_ptr<GConstrainedDoubleObject> e_ptr(new GConstrainedDoubleObject(0.3, 0.6));
+        std::shared_ptr<gpar::GConstrainedDoubleObject> e_ptr(new gpar::GConstrainedDoubleObject(0.3, 0.6));
         e_ptr->addAdaptor(gdga_ptr_tmpl);
         gpoc_ptr->push_back(e_ptr);
 
@@ -114,7 +114,7 @@ GTestIndividual3::GTestIndividual3() {
  * @param cp A constant reference to another GTestIndividual3 object
  */
 GTestIndividual3::GTestIndividual3(const GTestIndividual3 &cp)
-  : Gem::Geneva::GParameterSet(cp) { /* nothing */
+  : gpar::GParameterSet(cp) { /* nothing */
 }
 
 /******************************************************************************/
@@ -148,7 +148,7 @@ void GTestIndividual3::compare_(
     Gem::Common::GToken token("GTestIndividual3", e);
 
     // Compare our parent data ...
-    Gem::Common::compare_base_t<GParameterSet>(*this, *p_load, token);
+    Gem::Common::compare_base_t<gpar::GParameterSet>(*this, *p_load, token);
 
     // ...no local data
 
@@ -171,7 +171,7 @@ void GTestIndividual3::load_(const GObject *cp) {
         Gem::Common::g_convert_and_compare<GObject, GTestIndividual3>(cp, this);
 
     // Load our parent's data
-    GParameterSet::load_(cp);
+    gpar::GParameterSet::load_(cp);
 
     // no local data
 }
@@ -229,41 +229,41 @@ std::shared_ptr<float> GTestIndividual3::getPlainData() const {
     // Note that we need to provide a deleter as we are dealing with an array. See e.g. http://stackoverflow.com/questions/13061979/shared-ptr-to-an-array-should-it-be-used
     std::shared_ptr<float> result(new float[10 * GTI_DEF_NITEMS], [](float *p) { delete[] p; });
     for(std::size_t i = 0; i < GTI_DEF_NITEMS; i++) {
-        std::shared_ptr<GParameterObjectCollection> gpoc_ptr =
-            this->at<GParameterObjectCollection>(i);
+        std::shared_ptr<gpar::GParameterObjectCollection> gpoc_ptr =
+            this->at<gpar::GParameterObjectCollection>(i);
 
         //---------------------------------------------------------
         // Extract the data of the middle of the circle
-        std::shared_ptr<GConstrainedDoubleCollection> a_ptr =
-            gpoc_ptr->at<GConstrainedDoubleCollection>(0);
+        std::shared_ptr<gpar::GConstrainedDoubleCollection> a_ptr =
+            gpoc_ptr->at<gpar::GConstrainedDoubleCollection>(0);
         (result.get())[i * 10 + 0] = Gem::Common::narrow_cast<float>(
             a_ptr->at(0)
         ); // std::shared_ptr doesn't support subscripting, contrary to boost:shared_array
         (result.get())[i * 10 + 1] = Gem::Common::narrow_cast<float>(a_ptr->at(1));
 
         //---------------------------------------------------------
-        std::shared_ptr<GConstrainedDoubleObject> b_ptr = gpoc_ptr->at<GConstrainedDoubleObject>(1);
+        std::shared_ptr<gpar::GConstrainedDoubleObject> b_ptr = gpoc_ptr->at<gpar::GConstrainedDoubleObject>(1);
         (result.get())[i * 10 + 2] = Gem::Common::narrow_cast<float>(b_ptr->value());
 
         //---------------------------------------------------------
         // Extract the three angles
-        std::shared_ptr<GConstrainedDoubleCollection> c_ptr =
-            gpoc_ptr->at<GConstrainedDoubleCollection>(2);
+        std::shared_ptr<gpar::GConstrainedDoubleCollection> c_ptr =
+            gpoc_ptr->at<gpar::GConstrainedDoubleCollection>(2);
         (result.get())[i * 10 + 3] = Gem::Common::narrow_cast<float>(c_ptr->at(0));
         (result.get())[i * 10 + 4] = Gem::Common::narrow_cast<float>(c_ptr->at(1));
         (result.get())[i * 10 + 5] = Gem::Common::narrow_cast<float>(c_ptr->at(2));
 
         //---------------------------------------------------------
         // Extract the three colors
-        std::shared_ptr<GConstrainedDoubleCollection> d_ptr =
-            gpoc_ptr->at<GConstrainedDoubleCollection>(3);
+        std::shared_ptr<gpar::GConstrainedDoubleCollection> d_ptr =
+            gpoc_ptr->at<gpar::GConstrainedDoubleCollection>(3);
         (result.get())[i * 10 + 6] = Gem::Common::narrow_cast<float>(d_ptr->at(0));
         (result.get())[i * 10 + 7] = Gem::Common::narrow_cast<float>(d_ptr->at(1));
         (result.get())[i * 10 + 8] = Gem::Common::narrow_cast<float>(d_ptr->at(2));
 
         //---------------------------------------------------------
         // Extract the alpha channel
-        std::shared_ptr<GConstrainedDoubleObject> e_ptr = gpoc_ptr->at<GConstrainedDoubleObject>(4);
+        std::shared_ptr<gpar::GConstrainedDoubleObject> e_ptr = gpoc_ptr->at<gpar::GConstrainedDoubleObject>(4);
         (result.get())[i * 10 + 9] = Gem::Common::narrow_cast<float>(e_ptr->value());
 
         //---------------------------------------------------------
@@ -285,7 +285,7 @@ bool GTestIndividual3::modify_GUnitTests_() {
     bool result = false;
 
     // Call the parent classes' functions
-    if(Gem::Geneva::GParameterSet::modify_GUnitTests_()) {
+    if(gpar::GParameterSet::modify_GUnitTests_()) {
         result = true;
     }
 
@@ -309,7 +309,7 @@ void GTestIndividual3::specificTestsNoFailureExpected_GUnitTests_() {
     using namespace Gem::Geneva;
 
     // Call the parent classes' functions
-    Gem::Geneva::GParameterSet::specificTestsNoFailureExpected_GUnitTests_();
+    gpar::GParameterSet::specificTestsNoFailureExpected_GUnitTests_();
 
     const std::size_t ntests = 100;
 
@@ -351,7 +351,7 @@ void GTestIndividual3::specificTestsFailuresExpected_GUnitTests_() {
     using namespace Gem::Geneva;
 
     // Call the parent classes' functions
-    Gem::Geneva::GParameterSet::specificTestsFailuresExpected_GUnitTests_();
+    gpar::GParameterSet::specificTestsFailuresExpected_GUnitTests_();
 
     //------------------------------------------------------------------------------
     //------------------------------------------------------------------------------

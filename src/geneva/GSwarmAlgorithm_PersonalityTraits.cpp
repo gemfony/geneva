@@ -168,7 +168,7 @@ bool GSwarmAlgorithm_PersonalityTraits::checkNoPositionUpdateAndReset() {
  *
  * @param p A pointer to the personally best parameter set
  */
-void GSwarmAlgorithm_PersonalityTraits::registerPersonalBest(std::shared_ptr<GParameterSet> p) {
+void GSwarmAlgorithm_PersonalityTraits::registerPersonalBest(std::shared_ptr<gpar::GParameterSet> p) {
     // Some error checking
 #ifdef DEBUG
     // Does it point anywhere ?
@@ -210,7 +210,7 @@ void GSwarmAlgorithm_PersonalityTraits::registerPersonalBest(std::shared_ptr<GPa
  *
  * @return The personally best individual
  */
-std::shared_ptr<GParameterSet> GSwarmAlgorithm_PersonalityTraits::getPersonalBest() const {
+std::shared_ptr<gpar::GParameterSet> GSwarmAlgorithm_PersonalityTraits::getPersonalBest() const {
 #ifdef DEBUG
     if(not personal_best_) {
         throw geneva_exception(
@@ -235,7 +235,7 @@ std::shared_ptr<GParameterSet> GSwarmAlgorithm_PersonalityTraits::getPersonalBes
  * parameter set.
  */
 void GSwarmAlgorithm_PersonalityTraits::resetPersonalBest() {
-    personal_best_ = std::shared_ptr<GParameterSet>(); // empty
+    personal_best_ = std::shared_ptr<gpar::GParameterSet>(); // empty
     personal_best_quality_ = std::make_tuple(0., 0.);
 }
 

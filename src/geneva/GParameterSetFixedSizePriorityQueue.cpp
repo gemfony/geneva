@@ -27,11 +27,11 @@
  *
  ********************************************************************************/
 
-#include "geneva/GParameterSetFixedSizePriorityQueue.hpp"
+#include "geneva/par/GParameterSetFixedSizePriorityQueue.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GParameterSetFixedSizePriorityQueue) // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Parameters::GParameterSetFixedSizePriorityQueue) // NOLINT
 
-namespace Gem::Geneva {
+namespace Gem::Geneva::Parameters {
 
 /******************************************************************************/
 /**
@@ -332,4 +332,4 @@ void GParameterSetFixedSizePriorityQueue::specificTestsFailuresExpected_GUnitTes
 
 /******************************************************************************/
 
-} /* namespace Gem::Geneva */
+} /* namespace Gem::Geneva::Parameters */

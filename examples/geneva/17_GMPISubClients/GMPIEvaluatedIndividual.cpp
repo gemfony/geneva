@@ -43,13 +43,13 @@ MPI_Comm GMPIEvaluatedIndividual::communicator{MPI_COMM_NULL};
  * each of which has a constrained value range [-10:10].
  */
 GMPIEvaluatedIndividual::GMPIEvaluatedIndividual()
-  : GParameterSet()
+  : gpar::GParameterSet()
   , M_PAR_MIN(-10.)
   , M_PAR_MAX(10.) {
     for(std::size_t npar = 0; npar < 2; npar++) {
         // GConstrainedDoubleObject is constrained to [M_PAR_MIN:M_PAR_MAX[
-        std::shared_ptr<GConstrainedDoubleObject> gcdo_ptr(
-            new GConstrainedDoubleObject(M_PAR_MIN, M_PAR_MAX)
+        std::shared_ptr<gpar::GConstrainedDoubleObject> gcdo_ptr(
+            new gpar::GConstrainedDoubleObject(M_PAR_MIN, M_PAR_MAX)
         );
         // Add the parameters to this individual
         this->push_back(gcdo_ptr);
@@ -63,7 +63,7 @@ GMPIEvaluatedIndividual::GMPIEvaluatedIndividual()
  * @param cp A copy of another GMPIEvaluatedIndividual
  */
 GMPIEvaluatedIndividual::GMPIEvaluatedIndividual(const GMPIEvaluatedIndividual &cp)
-  : GParameterSet(cp)
+  : gpar::GParameterSet(cp)
   , M_PAR_MIN(-10.)
   , M_PAR_MAX(10) { /* nothing */
 }
@@ -97,7 +97,7 @@ void GMPIEvaluatedIndividual::load_(const GObject *cp) {
         Gem::Common::g_convert_and_compare<GObject, GMPIEvaluatedIndividual>(cp, this);
 
     // Load our parent's data
-    GParameterSet::load_(cp);
+    gpar::GParameterSet::load_(cp);
 
     // No local data
     // sampleVariable = p_load->sampleVariable;

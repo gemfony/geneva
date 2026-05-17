@@ -26,14 +26,14 @@
  * collection for a list of contributors and copyright information.
  *
  ********************************************************************************/
-#include "geneva/GDoubleObject.hpp"
+#include "geneva/par/GDoubleObject.hpp"
 
 #ifdef GEM_TESTING
 #include <catch2/catch_test_macros.hpp>
 #endif /* GEM_TESTING */
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GDoubleObject) // NOLINT
-namespace Gem::Geneva {
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Parameters::GDoubleObject) // NOLINT
+namespace Gem::Geneva::Parameters {
 
 /******************************************************************************/
 /**
@@ -593,4 +593,4 @@ void GDoubleObject::specificTestsFailuresExpected_GUnitTests_() {
 
 /******************************************************************************/
 
-} /* namespace Gem::Geneva */
+} /* namespace Gem::Geneva::Parameters */

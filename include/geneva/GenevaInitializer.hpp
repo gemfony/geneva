@@ -41,7 +41,7 @@
 #include "courtier/GBrokerT.hpp"
 #include "geneva/GConsumerStore.hpp"
 #include "geneva/GIndividualStandardConsumerInitializerT.hpp"
-#include "geneva/GParameterSet.hpp"
+#include "geneva/par/GParameterSet.hpp"
 #include "geneva/oa/GFactoryStore.hpp"
 #include "geneva/oa/GInitializerT.hpp"
 #include "hap/GRandomFactory.hpp"
@@ -90,7 +90,7 @@ public:
       * GMPIConsumerT.
       */
     void registerConsumer(
-        const std::shared_ptr<Gem::Courtier::GBaseConsumerT<Gem::Geneva::GParameterSet>> &consumer
+        const std::shared_ptr<cons::GBaseConsumerT<gpar::GParameterSet>> &consumer
     ) {
         std::string mnemonic = consumer->getMnemonic(); // NOLINT(cppcoreguidelines-init-variables)
         GConsumerStore->setOnce(mnemonic, consumer);

@@ -49,14 +49,14 @@
 #include "common/GCommonEnums.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GFactoryT.hpp"
-#include "geneva/GConstrainedDoubleCollection.hpp"
-#include "geneva/GConstrainedDoubleObject.hpp"
-#include "geneva/GConstrainedDoubleObjectCollection.hpp"
-#include "geneva/GDoubleCollection.hpp"
-#include "geneva/GDoubleGaussAdaptor.hpp"
-#include "geneva/GDoubleObject.hpp"
+#include "geneva/par/GConstrainedDoubleCollection.hpp"
+#include "geneva/par/GConstrainedDoubleObject.hpp"
+#include "geneva/par/GConstrainedDoubleObjectCollection.hpp"
+#include "geneva/par/GDoubleCollection.hpp"
+#include "geneva/par/GDoubleGaussAdaptor.hpp"
+#include "geneva/par/GDoubleObject.hpp"
 #include "geneva/GOptimizationEnums.hpp"
-#include "geneva/GParameterSet.hpp"
+#include "geneva/par/GParameterSet.hpp"
 #include "geneva/oa/GGradientDescent_PersonalityTraits.hpp"
 #include "geneva/oa/GSwarmAlgorithm_PersonalityTraits.hpp"
 
@@ -68,7 +68,7 @@ namespace Gem::Geneva {
  * root-square deviation from the line defined by its two parameters
  */
 class GLineFitIndividual // NOLINT(cppcoreguidelines-special-member-functions)
-  : public Gem::Geneva::GParameterSet {
+  : public gpar::GParameterSet {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
@@ -76,7 +76,7 @@ class GLineFitIndividual // NOLINT(cppcoreguidelines-special-member-functions)
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet) &
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GParameterSet) &
             BOOST_SERIALIZATION_NVP(dataPoints_);
     }
     ///////////////////////////////////////////////////////////////////////
@@ -141,7 +141,7 @@ private:
  * A factory for GLineFitIndividual objects
  */
 class GLineFitIndividualFactory // NOLINT(cppcoreguidelines-special-member-functions)
-  : public Gem::Common::GFactoryT<GParameterSet> {
+  : public Gem::Common::GFactoryT<gpar::GParameterSet> {
 public:
     /** @brief The standard constructor */
     GLineFitIndividualFactory(
@@ -157,14 +157,14 @@ protected:
     void describeLocalOptions_(Gem::Common::GParserBuilder &) override;
 
     /** @brief Allows to act on the configuration options received from the configuration file */
-    void postProcess_(std::shared_ptr<GParameterSet> &) override;
+    void postProcess_(std::shared_ptr<gpar::GParameterSet> &) override;
 
 private:
     /** @brief The default constructor. Only needed for (de-)serialization purposes */
     GLineFitIndividualFactory() = default;
 
     /** @brief Creates individuals of this type */
-    std::shared_ptr<GParameterSet>
+    std::shared_ptr<gpar::GParameterSet>
     getObject_(Gem::Common::GParserBuilder &, const std::size_t &) override;
 
     std::vector<std::tuple<double, double>> dataPoints_; ///< Holds data points for the fit

@@ -49,12 +49,12 @@
 #include "common/GCommonMathHelperFunctionsT.hpp"
 #include "common/GFactoryT.hpp"
 #include "common/GParserBuilder.hpp"
-#include "geneva/GConstrainedDoubleCollection.hpp"
-#include "geneva/GConstrainedDoubleObject.hpp"
-#include "geneva/GDoubleBiGaussAdaptor.hpp"
-#include "geneva/GDoubleCollection.hpp"
-#include "geneva/GDoubleGaussAdaptor.hpp"
-#include "geneva/GParameterSet.hpp"
+#include "geneva/par/GConstrainedDoubleCollection.hpp"
+#include "geneva/par/GConstrainedDoubleObject.hpp"
+#include "geneva/par/GDoubleBiGaussAdaptor.hpp"
+#include "geneva/par/GDoubleCollection.hpp"
+#include "geneva/par/GDoubleGaussAdaptor.hpp"
+#include "geneva/par/GParameterSet.hpp"
 
 namespace Gem {
 namespace Geneva {
@@ -89,13 +89,13 @@ const targetFunction GO_DEF_TARGETFUNCTION = targetFunction::PARABOLA;
  * This individual searches for a minimum of a number of predefined functions, each capable
  * of processing their input in multiple dimensions.
  */
-class GStarterIndividual : public GParameterSet {
+class GStarterIndividual : public gpar::GParameterSet {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
     template <class Archive>
     void serialize(Archive &ar, const unsigned int) {
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet) &
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GParameterSet) &
             BOOST_SERIALIZATION_NVP(targetFunction_);
     }
 
@@ -185,23 +185,23 @@ public:
 
         // Add the required number of GConstrainedDoubleObject objects to the individual
         for(std::size_t i = 0; i < startValues.size(); i++) {
-            std::shared_ptr<GConstrainedDoubleObject> gcdo_ptr;
+            std::shared_ptr<gpar::GConstrainedDoubleObject> gcdo_ptr;
             if(Gem::Common::GFACTTORYFIRSTID ==
                prod_id) { // First individual, initialization with standard values
-                gcdo_ptr = std::shared_ptr<GConstrainedDoubleObject>(new GConstrainedDoubleObject(
+                gcdo_ptr = std::shared_ptr<gpar::GConstrainedDoubleObject>(new gpar::GConstrainedDoubleObject(
                     startValues.at(i),
                     lowerBoundaries.at(i),
                     upperBoundaries.at(i)
                 ));
             }
             else { // Random initialization for all other individuals
-                gcdo_ptr = std::shared_ptr<GConstrainedDoubleObject>(
-                    new GConstrainedDoubleObject(lowerBoundaries.at(i), upperBoundaries.at(i))
+                gcdo_ptr = std::shared_ptr<gpar::GConstrainedDoubleObject>(
+                    new gpar::GConstrainedDoubleObject(lowerBoundaries.at(i), upperBoundaries.at(i))
                 );
             }
 
-            std::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(
-                new GDoubleGaussAdaptor(sigma, sigmaSigma, minSigma, maxSigma)
+            std::shared_ptr<gpar::GDoubleGaussAdaptor> gdga_ptr(
+                new gpar::GDoubleGaussAdaptor(sigma, sigmaSigma, minSigma, maxSigma)
             );
 
             gdga_ptr->setAdaptionProbability(adProb);
@@ -270,7 +270,7 @@ std::ostream &operator<<(std::ostream &, std::shared_ptr<GStarterIndividual>);
 /**
  * A factory for GStarterIndividual objects
  */
-class GStarterIndividualFactory : public Gem::Common::GFactoryT<GParameterSet> {
+class GStarterIndividualFactory : public Gem::Common::GFactoryT<gpar::GParameterSet> {
 public:
     /** @brief The standard constructor */
     explicit GStarterIndividualFactory(std::filesystem::path const &);
@@ -281,13 +281,13 @@ protected:
     /** @brief Allows to describe local configuration options in derived classes */
     void describeLocalOptions_(Gem::Common::GParserBuilder &) override;
     /** @brief Allows to act on the configuration options received from the configuration file */
-    void postProcess_(std::shared_ptr<GParameterSet> &) override;
+    void postProcess_(std::shared_ptr<gpar::GParameterSet> &) override;
 
 private:
     /** @brief The default constructor. Only needed for (de-)serialization purposes */
     GStarterIndividualFactory() = default;
     /** @brief Creates individuals of this type */
-    std::shared_ptr<GParameterSet>
+    std::shared_ptr<gpar::GParameterSet>
     getObject_(Gem::Common::GParserBuilder &, const std::size_t &) override;
 
     double adProb_ = GSI_DEF_ADPROB;         ///< Probability for a parameter to be mutated

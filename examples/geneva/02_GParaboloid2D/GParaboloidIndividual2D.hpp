@@ -42,8 +42,8 @@
 // Boost header files go here
 
 // Geneva header files go here
-#include <geneva/GConstrainedDoubleObject.hpp>
-#include <geneva/GParameterSet.hpp>
+#include <geneva/par/GConstrainedDoubleObject.hpp>
+#include <geneva/par/GParameterSet.hpp>
 
 namespace Gem {
 namespace Geneva {
@@ -53,7 +53,7 @@ namespace Geneva {
  * This individual searches for the minimum of a 2-dimensional parabola.
  * It is part of an introductory example, used in the Geneva manual.
  */
-class GParaboloidIndividual2D : public GParameterSet {
+class GParaboloidIndividual2D : public gpar::GParameterSet {
     /** @brief Make the class accessible to Boost.Serialization */
     friend class boost::serialization::access;
 
@@ -66,7 +66,7 @@ class GParaboloidIndividual2D : public GParameterSet {
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
         // Serialize the base class
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GParameterSet);
         // Add other variables here like this:
         // ar & BOOST_SERIALIZATION_NVP(sampleVariable);
     }

@@ -47,8 +47,8 @@ GMPISubClientParaboloidIndividualMultiD::GMPISubClientParaboloidIndividualMultiD
   , M_PAR_MAX(10.) {
     for(std::size_t npar = 0; npar < nParameters_; npar++) {
         // GConstrainedDoubleObject is constrained to [M_PAR_MIN:M_PAR_MAX[
-        std::shared_ptr<GConstrainedDoubleObject> gcdo_ptr(
-            new GConstrainedDoubleObject(M_PAR_MIN, M_PAR_MAX)
+        std::shared_ptr<gpar::GConstrainedDoubleObject> gcdo_ptr(
+            new gpar::GConstrainedDoubleObject(M_PAR_MIN, M_PAR_MAX)
         );
         // Add the parameters to this individual
         this->push_back(gcdo_ptr);

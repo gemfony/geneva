@@ -49,11 +49,11 @@
 #include "common/GFactoryT.hpp"
 #include "common/GParserBuilder.hpp"
 #include "common/GSerializationHelperFunctionsT.hpp"
-#include "geneva/GConstrainedDoubleCollection.hpp"
-#include "geneva/GDoubleBiGaussAdaptor.hpp"
-#include "geneva/GDoubleCollection.hpp"
-#include "geneva/GDoubleGaussAdaptor.hpp"
-#include "geneva/GParameterSet.hpp"
+#include "geneva/par/GConstrainedDoubleCollection.hpp"
+#include "geneva/par/GDoubleBiGaussAdaptor.hpp"
+#include "geneva/par/GDoubleCollection.hpp"
+#include "geneva/par/GDoubleGaussAdaptor.hpp"
+#include "geneva/par/GParameterSet.hpp"
 
 namespace Gem {
 namespace Geneva {
@@ -91,13 +91,13 @@ const targetFunction GO_DEF_TARGETFUNCTION = targetFunction::GFM_PARABOLA;
  * This individual searches for a minimum of a number of predefined functions, each capable
  * of processing their input in multiple dimensions.
  */
-class GFMinIndividual : public GParameterSet {
+class GFMinIndividual : public gpar::GParameterSet {
     /////////////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
     template <class Archive>
     void serialize(Archive &ar, const unsigned int) {
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet) &
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GParameterSet) &
             BOOST_SERIALIZATION_NVP(targetFunction_);
     }
 
@@ -163,7 +163,7 @@ std::ostream &operator<<(std::ostream &, std::shared_ptr<Gem::Geneva::GFMinIndiv
 /**
  * A factory for GFMinIndividual objects
  */
-class GFMinIndividualFactory : public Gem::Common::GFactoryT<GParameterSet> {
+class GFMinIndividualFactory : public Gem::Common::GFactoryT<gpar::GParameterSet> {
 public:
     /** @brief The standard constructor */
     explicit GFMinIndividualFactory(std::filesystem::path const &);
@@ -172,12 +172,12 @@ public:
 
 protected:
     /** @brief Creates individuals of this type */
-    virtual std::shared_ptr<GParameterSet>
+    virtual std::shared_ptr<gpar::GParameterSet>
     getObject_(Gem::Common::GParserBuilder &, const std::size_t &);
     /** @brief Allows to describe local configuration options in derived classes */
     virtual void describeLocalOptions_(Gem::Common::GParserBuilder &);
     /** @brief Allows to act on the configuration options received from the configuration file */
-    virtual void postProcess_(std::shared_ptr<GParameterSet> &);
+    virtual void postProcess_(std::shared_ptr<gpar::GParameterSet> &);
 
 private:
     /** @brief The default constructor. Only needed for (de-)serialization purposes */

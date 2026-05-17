@@ -27,7 +27,7 @@
  *
  ********************************************************************************/
 
-#include "geneva/GParameterSet.hpp"
+#include "geneva/par/GParameterSet.hpp"
 
 #include <any>
 #include <memory>
@@ -36,9 +36,9 @@
 #include <catch2/catch_test_macros.hpp>
 #endif /* GEM_TESTING */
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GParameterSet)                  // NOLINT
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::parameterset_processing_result) // NOLINT
-namespace Gem::Geneva {
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Parameters::GParameterSet)                  // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Parameters::parameterset_processing_result) // NOLINT
+namespace Gem::Geneva::Parameters {
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
@@ -2886,4 +2886,4 @@ void GParameterSet::specificTestsFailuresExpected_GUnitTests_() {
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
-} /* namespace Gem::Geneva */
+} /* namespace Gem::Geneva::Parameters */

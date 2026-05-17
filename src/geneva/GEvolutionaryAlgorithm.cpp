@@ -152,7 +152,7 @@ sortingMode GEvolutionaryAlgorithm::getSortingScheme() const {
   * Extracts all individuals on the pareto front
   */
 void GEvolutionaryAlgorithm::extractCurrentParetoIndividuals(
-    std::vector<std::shared_ptr<Gem::Geneva::GParameterSet>> &pareto_inds
+    std::vector<std::shared_ptr<gpar::GParameterSet>> &pareto_inds
 ) {
     // Make sure the vector is empty
     pareto_inds.clear();
@@ -174,7 +174,7 @@ void GEvolutionaryAlgorithm::extractCurrentParetoIndividuals(
   * want the individuals on the current pareto front to be added.
   */
 void GEvolutionaryAlgorithm::updateGlobalBestsPQ_(
-    GParameterSetFixedSizePriorityQueue &best_individuals
+    gpar::GParameterSetFixedSizePriorityQueue &best_individuals
 ) {
     constexpr bool replace = true;
     constexpr bool donotreplace = false;
@@ -209,7 +209,7 @@ void GEvolutionaryAlgorithm::updateGlobalBestsPQ_(
     case sortingMode::MUPLUSNU_PARETO:
     case sortingMode::MUCOMMANU_PARETO: {
         // Retrieve all individuals on the pareto front
-        std::vector<std::shared_ptr<Gem::Geneva::GParameterSet>> pareto_inds;
+        std::vector<std::shared_ptr<gpar::GParameterSet>> pareto_inds;
         this->extractCurrentParetoIndividuals(pareto_inds);
 
         // We simply add all parent individuals to the queue. As we only want
@@ -230,7 +230,7 @@ void GEvolutionaryAlgorithm::updateGlobalBestsPQ_(
  * the best individuals of the current iteration.
  */
 void GEvolutionaryAlgorithm::updateIterationBestsPQ_(
-    GParameterSetFixedSizePriorityQueue &best_individuals
+    gpar::GParameterSetFixedSizePriorityQueue &best_individuals
 ) {
     const bool clone = true;
     const bool donotreplace = false;
@@ -265,7 +265,7 @@ void GEvolutionaryAlgorithm::updateIterationBestsPQ_(
     case sortingMode::MUPLUSNU_PARETO:
     case sortingMode::MUCOMMANU_PARETO: {
         // Retrieve all individuals on the pareto front
-        std::vector<std::shared_ptr<Gem::Geneva::GParameterSet>> pareto_inds;
+        std::vector<std::shared_ptr<gpar::GParameterSet>> pareto_inds;
         this->extractCurrentParetoIndividuals(pareto_inds);
 
         // We simply add all parent individuals to the queue. As we only want
@@ -546,7 +546,7 @@ void GEvolutionaryAlgorithm::runFitnessCalculation_() {
     // Take care of unprocessed items, if these exist
     if(not status.is_complete) {
         std::size_t n_erased =
-            std::erase_if(this->data_cnt_, [this](std::shared_ptr<GParameterSet> p) -> bool {
+            std::erase_if(this->data_cnt_, [this](std::shared_ptr<gpar::GParameterSet> p) -> bool {
                 return (p->getProcessingStatus() == Gem::Courtier::processingStatus::DO_PROCESS);
             });
 
@@ -562,7 +562,7 @@ void GEvolutionaryAlgorithm::runFitnessCalculation_() {
     if(status.has_errors) {
         std::size_t n_erased = std::erase_if(
             this->data_cnt_,
-            [this](const std::shared_ptr<GParameterSet> &p) -> bool { return p->has_errors(); }
+            [this](const std::shared_ptr<gpar::GParameterSet> &p) -> bool { return p->has_errors(); }
         );
 
 #ifdef DEBUG
@@ -590,7 +590,7 @@ void GEvolutionaryAlgorithm::fixAfterJobSubmission() {
     auto old_work_items = this->getOldWorkItems();
 
     // Remove parents from older iterations from old work items -- we do not want them.
-    std::erase_if(old_work_items, [iteration](const std::shared_ptr<GParameterSet> &x) -> bool {
+    std::erase_if(old_work_items, [iteration](const std::shared_ptr<gpar::GParameterSet> &x) -> bool {
         return x->getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>()->isParent() &&
                x->getAssignedIteration() != iteration;
     });
@@ -599,15 +599,15 @@ void GEvolutionaryAlgorithm::fixAfterJobSubmission() {
     std::for_each(
         old_work_items.begin(),
         old_work_items.end(),
-        [iteration](std::shared_ptr<GParameterSet> p) { p->setAssignedIteration(iteration); }
+        [iteration](std::shared_ptr<gpar::GParameterSet> p) { p->setAssignedIteration(iteration); }
     );
 
     // Make sure that parents are at the beginning of the array.
     sort(
         this->begin(),
         this->end(),
-        [](const std::shared_ptr<GParameterSet> &x,
-           const std::shared_ptr<GParameterSet> &y) -> bool {
+        [](const std::shared_ptr<gpar::GParameterSet> &x,
+           const std::shared_ptr<gpar::GParameterSet> &y) -> bool {
             return (
                 x->getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>()->isParent() >
                 y->getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>()->isParent()
@@ -848,8 +848,8 @@ void GEvolutionaryAlgorithm::sortMuPlusNuMode() {
         GBase::data_cnt_.begin(),
         GBase::data_cnt_.begin() + n_parents_,
         GBase::data_cnt_.end(),
-        [](const std::shared_ptr<GParameterSet> &x_ptr,
-           const std::shared_ptr<GParameterSet> &y_ptr) -> bool {
+        [](const std::shared_ptr<gpar::GParameterSet> &x_ptr,
+           const std::shared_ptr<gpar::GParameterSet> &y_ptr) -> bool {
             return minOnly_transformed_fitness(x_ptr) < minOnly_transformed_fitness(y_ptr);
         }
     );
@@ -902,8 +902,8 @@ void GEvolutionaryAlgorithm::sortMuCommaNuMode() {
         GBase::data_cnt_.begin() + n_parents_,
         GBase::data_cnt_.begin() + 2 * n_parents_,
         GBase::data_cnt_.end(),
-        [](const std::shared_ptr<GParameterSet> &x_ptr,
-           const std::shared_ptr<GParameterSet> &y_ptr) -> bool {
+        [](const std::shared_ptr<gpar::GParameterSet> &x_ptr,
+           const std::shared_ptr<gpar::GParameterSet> &y_ptr) -> bool {
             return minOnly_transformed_fitness(x_ptr) < minOnly_transformed_fitness(y_ptr);
         }
     );
@@ -948,8 +948,8 @@ void GEvolutionaryAlgorithm::sortMunu1pretainMode() {
         GBase::data_cnt_.begin() + n_parents_,
         GBase::data_cnt_.begin() + 2 * n_parents_,
         GBase::data_cnt_.end(),
-        [](const std::shared_ptr<GParameterSet> &x_ptr,
-           const std::shared_ptr<GParameterSet> &y_ptr) -> bool {
+        [](const std::shared_ptr<gpar::GParameterSet> &x_ptr,
+           const std::shared_ptr<gpar::GParameterSet> &y_ptr) -> bool {
             return minOnly_transformed_fitness(x_ptr) < minOnly_transformed_fitness(y_ptr);
         }
     );
@@ -1036,7 +1036,7 @@ void GEvolutionaryAlgorithm::sortMuPlusNuParetoMode() {
     sort(
         this->begin(),
         this->end(),
-        [](const std::shared_ptr<GParameterSet> &x, const std::shared_ptr<GParameterSet> &y) {
+        [](const std::shared_ptr<gpar::GParameterSet> &x, const std::shared_ptr<gpar::GParameterSet> &y) {
             return x->getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>()
                        ->isOnParetoFront() >
                    y->getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>()
@@ -1072,8 +1072,8 @@ void GEvolutionaryAlgorithm::sortMuPlusNuParetoMode() {
             this->begin() + n_individuals_on_pareto_front,
             this->begin() + this->n_parents_,
             this->end(),
-            [](const std::shared_ptr<GParameterSet> &x_ptr,
-               const std::shared_ptr<GParameterSet> &y_ptr) -> bool {
+            [](const std::shared_ptr<gpar::GParameterSet> &x_ptr,
+               const std::shared_ptr<gpar::GParameterSet> &y_ptr) -> bool {
                 return minOnly_transformed_fitness(x_ptr) < minOnly_transformed_fitness(y_ptr);
             }
         );
@@ -1085,8 +1085,8 @@ void GEvolutionaryAlgorithm::sortMuPlusNuParetoMode() {
     std::sort(
         this->begin(),
         this->begin() + this->n_parents_,
-        [](const std::shared_ptr<GParameterSet> &x_ptr,
-           const std::shared_ptr<GParameterSet> &y_ptr) -> bool {
+        [](const std::shared_ptr<gpar::GParameterSet> &x_ptr,
+           const std::shared_ptr<gpar::GParameterSet> &y_ptr) -> bool {
             return minOnly_transformed_fitness(x_ptr) < minOnly_transformed_fitness(y_ptr);
         }
     );
@@ -1159,7 +1159,7 @@ void GEvolutionaryAlgorithm::sortMuCommaNuParetoMode() {
     sort(
         this->begin(),
         this->end(),
-        [](const std::shared_ptr<GParameterSet> &x, const std::shared_ptr<GParameterSet> &y) {
+        [](const std::shared_ptr<gpar::GParameterSet> &x, const std::shared_ptr<gpar::GParameterSet> &y) {
             return x->getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>()
                        ->isOnParetoFront() >
                    y->getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>()
@@ -1197,8 +1197,8 @@ void GEvolutionaryAlgorithm::sortMuCommaNuParetoMode() {
             this->begin() + n_individuals_on_pareto_front,
             this->begin() + this->n_parents_,
             this->end(),
-            [](const std::shared_ptr<GParameterSet> &x_ptr,
-               const std::shared_ptr<GParameterSet> &y_ptr) -> bool {
+            [](const std::shared_ptr<gpar::GParameterSet> &x_ptr,
+               const std::shared_ptr<gpar::GParameterSet> &y_ptr) -> bool {
                 return minOnly_transformed_fitness(x_ptr) < minOnly_transformed_fitness(y_ptr);
             }
         );
@@ -1210,8 +1210,8 @@ void GEvolutionaryAlgorithm::sortMuCommaNuParetoMode() {
     std::sort(
         this->begin(),
         this->begin() + this->n_parents_,
-        [](const std::shared_ptr<GParameterSet> &x_ptr,
-           const std::shared_ptr<GParameterSet> &y_ptr) -> bool {
+        [](const std::shared_ptr<gpar::GParameterSet> &x_ptr,
+           const std::shared_ptr<gpar::GParameterSet> &y_ptr) -> bool {
             return minOnly_transformed_fitness(x_ptr) < minOnly_transformed_fitness(y_ptr);
         }
     );
@@ -1226,8 +1226,8 @@ void GEvolutionaryAlgorithm::sortMuCommaNuParetoMode() {
   * @return A boolean indicating whether the first individual dominates the second
   */
 bool GEvolutionaryAlgorithm::aDominatesB(
-    const std::shared_ptr<GParameterSet> &x_ptr,
-    const std::shared_ptr<GParameterSet> &y_ptr
+    const std::shared_ptr<gpar::GParameterSet> &x_ptr,
+    const std::shared_ptr<gpar::GParameterSet> &y_ptr
 ) const {
     std::size_t n_criteria_x =
         x_ptr->getNStoredResults(); // NOLINT(cppcoreguidelines-init-variables)

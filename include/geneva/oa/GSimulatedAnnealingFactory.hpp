@@ -39,7 +39,7 @@
 
 // Geneva headers go here
 #include "courtier/GCourtierEnums.hpp"
-#include "geneva/GParameterSet.hpp"
+#include "geneva/par/GParameterSet.hpp"
 #include "geneva/oa/GBase.hpp"
 #include "geneva/oa/GOAFactoryT.hpp"
 #include "geneva/oa/GInitializerT.hpp"
@@ -64,7 +64,7 @@ public:
     /** @brief Initialization with the name of the config file and a content creator */
     GSimulatedAnnealingFactory(
         std::filesystem::path const &,
-        std::shared_ptr<Gem::Common::GFactoryT<GParameterSet>>
+        std::shared_ptr<Gem::Common::GFactoryT<gpar::GParameterSet>>
     );
     /** @brief The copy constructor */
     GSimulatedAnnealingFactory(const GSimulatedAnnealingFactory &) = default;

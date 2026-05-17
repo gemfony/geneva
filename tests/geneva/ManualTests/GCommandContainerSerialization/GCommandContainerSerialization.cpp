@@ -128,13 +128,13 @@ int main(int argc, char **argv) {
 
         // Add the object to a new command container
         Gem::Courtier::GCommandContainerT<
-            Gem::Geneva::GParameterSet,
+            gpar::GParameterSet,
             Gem::Courtier::networked_consumer_payload_command>
             gcc1(Gem::Courtier::networked_consumer_payload_command::COMPUTE, fi_ptr);
 
         // Prepare a command container for de-serialization
         Gem::Courtier::GCommandContainerT<
-            Gem::Geneva::GParameterSet,
+            gpar::GParameterSet,
             Gem::Courtier::networked_consumer_payload_command>
             gcc2(Gem::Courtier::networked_consumer_payload_command::NONE);
 
@@ -167,7 +167,7 @@ int main(int argc, char **argv) {
 
         // Prepare a command container for de-serialization
         Gem::Courtier::GCommandContainerT<
-            Gem::Geneva::GParameterSet,
+            gpar::GParameterSet,
             Gem::Courtier::networked_consumer_payload_command>
             gcc3(Gem::Courtier::networked_consumer_payload_command::NONE);
 

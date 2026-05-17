@@ -27,15 +27,15 @@
  *
  ********************************************************************************/
 
-#include "geneva/GInt32ObjectCollection.hpp"
+#include "geneva/par/GInt32ObjectCollection.hpp"
 
 #ifdef GEM_TESTING
 #include <catch2/catch_test_macros.hpp>
 #endif /* GEM_TESTING */
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GInt32ObjectCollection) // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Parameters::GInt32ObjectCollection) // NOLINT
 
-namespace Gem::Geneva {
+namespace Gem::Geneva::Parameters {
 
 /******************************************************************************/
 /**
@@ -291,4 +291,4 @@ void GInt32ObjectCollection::specificTestsFailuresExpected_GUnitTests_() {
 
 /******************************************************************************/
 
-} /* namespace Gem::Geneva */
+} /* namespace Gem::Geneva::Parameters */

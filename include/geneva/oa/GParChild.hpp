@@ -44,7 +44,7 @@
 #include "common/GExceptions.hpp"
 #include "courtier/GExecutorT.hpp"
 #include "geneva/GOptimizationEnums.hpp"
-#include "geneva/GParameterSet.hpp"
+#include "geneva/par/GParameterSet.hpp"
 #include "geneva/oa/GBase.hpp"
 #include "geneva/oa/GBaseParChildPersonalityTraits.hpp"
 
@@ -140,7 +140,7 @@ public:
      * @return A converted shared_ptr to the parent
      */
     template <typename parent_type>
-        requires std::derived_from<parent_type, GParameterSet>
+        requires std::derived_from<parent_type, gpar::GParameterSet>
     std::shared_ptr<parent_type> getParentIndividual(std::size_t parent_id) {
 #ifdef DEBUG
         // Check that the parent id is in a valid range
@@ -158,7 +158,7 @@ public:
 #endif /* DEBUG */
 
         // Does error checks on the conversion internally
-        return Gem::Common::convertSmartPointer<GParameterSet, parent_type>(
+        return Gem::Common::convertSmartPointer<gpar::GParameterSet, parent_type>(
             *(this->begin() + parent_id)
         );
     }
@@ -224,10 +224,10 @@ protected:
     void performScheduledPopulationGrowth();
 
     /** @brief This function implements the RANDOMDUPLICATIONSCHEME scheme */
-    void randomRecombine(std::shared_ptr<GParameterSet> &child);
+    void randomRecombine(std::shared_ptr<gpar::GParameterSet> &child);
     /** @brief  This function implements the VALUEDUPLICATIONSCHEME scheme */
     void
-    valueRecombine(std::shared_ptr<GParameterSet> &p, const std::vector<double> &threshold);
+    valueRecombine(std::shared_ptr<gpar::GParameterSet> &p, const std::vector<double> &threshold);
 
     /***************************************************************************/
 
