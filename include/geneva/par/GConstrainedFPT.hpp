@@ -79,7 +79,7 @@ class GConstrainedFPT // NOLINT(cppcoreguidelines-special-member-functions)
     ///////////////////////////////////////////////////////////////////////
 
     // Make sure this class can only be instantiated if fp_type really is a floating point type
-    static_assert(std::is_floating_point<fp_type>::value, "fp_type must be a floating point type");
+    static_assert(std::is_floating_point_v<fp_type>, "fp_type must be a floating point type");
 
 public:
     /***************************************************************************/
@@ -827,7 +827,8 @@ protected:
         //------------------------------------------------------------------------------
 
         { // Test adding of objects with fpAdd. We try to stay inside of the value range
-            const fp_type lower = fp_type(-10000.), upper = fp_type(10000.);
+            const fp_type lower = fp_type(-10000.);
+            const fp_type upper = fp_type(10000.);
 
             std::shared_ptr<GConstrainedFPT<fp_type>> p_test1 =
                 this->template clone<GConstrainedFPT<fp_type>>();
@@ -863,7 +864,8 @@ protected:
         //------------------------------------------------------------------------------
 
         { // Test subtraction of objects with fpSubtract. We try to stay inside of the value range
-            const fp_type lower = fp_type(-10000.), upper = fp_type(10000.);
+            const fp_type lower = fp_type(-10000.);
+            const fp_type upper = fp_type(10000.);
 
             std::shared_ptr<GConstrainedFPT<fp_type>> p_test1 =
                 this->template clone<GConstrainedFPT<fp_type>>();
@@ -899,7 +901,8 @@ protected:
         //------------------------------------------------------------------------------
 
         { // Test random initialization, as well as adding and subtraction of random values, which may leave the value range
-            const fp_type lower = fp_type(-10000.), upper = fp_type(10000.);
+            const fp_type lower = fp_type(-10000.);
+            const fp_type upper = fp_type(10000.);
 
             std::shared_ptr<GConstrainedFPT<fp_type>> p_test1 =
                 this->template clone<GConstrainedFPT<fp_type>>();

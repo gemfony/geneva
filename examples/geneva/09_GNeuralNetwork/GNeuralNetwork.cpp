@@ -104,9 +104,9 @@ int main(int argc, char **argv) {
         GNeuralNetworkIndividual::createNetworkData(tdt, trainingDataFile, architecture, nDataSets);
         return 0;
     }
-    else { // Store the trainingDataFile in the global options, so they can be accessed by the individuals
+    // Store the trainingDataFile in the global options, so they can be accessed by the individuals
         GNeuralNetworkOptions->set("trainingDataFile", trainingDataFile);
-    }
+   
 
     //---------------------------------------------------------------------------
     // Client mode

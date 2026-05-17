@@ -69,7 +69,7 @@ class GNumIntT // NOLINT(cppcoreguidelines-special-member-functions)
     ///////////////////////////////////////////////////////////////////////
 
     // Make sure this class can only be instantiated if int_type is a *signed* integer type
-    static_assert(std::is_signed<int_type>::value, "int_type should be a signed iteger type");
+    static_assert(std::is_signed_v<int_type>, "int_type should be a signed iteger type");
 
 public:
     /** @brief Specifies the type of parameters stored in this object */

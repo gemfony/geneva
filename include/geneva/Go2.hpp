@@ -259,7 +259,7 @@ private:
     bool sorted_ = false; ///< Indicates whether local individuals have been sorted
     std::uint32_t iterations_consumed_ =
         0; ///< The number of successive iterations performed by this object so far
-    bool copyBestIndividualsOnly_ =
+    bool copy_best_individuals_only_ =
         GO2_DEF_COPYBESTINDIVIDUALSONLY; ///< Indicates whether only the best individuals of an optimization run are copied to the next algorithm
     //---------------------------------------------------------------------------
     // Name and path of a checkpoint file, if supplied by the user

@@ -72,13 +72,13 @@ class GNumCollectionT // NOLINT(cppcoreguidelines-special-member-functions)
         ar &make_nvp(
             "GParameterCollectionT",
             boost::serialization::base_object<GParameterCollectionT<num_type>>(*this)
-        ) & BOOST_SERIALIZATION_NVP(lowerInitBoundary_) &
-            BOOST_SERIALIZATION_NVP(upperInitBoundary_);
+        ) & BOOST_SERIALIZATION_NVP(lower_init_boundary_) &
+            BOOST_SERIALIZATION_NVP(upper_init_boundary_);
     }
     ///////////////////////////////////////////////////////////////////////
 
     // Make sure this class can only be instantiated with num_type as an arithmetic type
-    static_assert(std::is_arithmetic<num_type>::value, "num_type should be an arithmetic type");
+    static_assert(std::is_arithmetic_v<num_type>, "num_type should be an arithmetic type");
 
 public:
     /** @brief Specifies the type of parameters stored in this collection */
@@ -102,8 +102,8 @@ public:
      */
     GNumCollectionT(const std::size_t &nval, const num_type &min, const num_type &max)
       : GParameterCollectionT<num_type>(nval, min)
-      , lowerInitBoundary_(min)
-      , upperInitBoundary_(max) { /* nothing */
+      , lower_init_boundary_(min)
+      , upper_init_boundary_(max) { /* nothing */
     }
 
     /***************************************************************************/
@@ -125,8 +125,8 @@ public:
         const num_type &max
     )
       : GParameterCollectionT<num_type>(nval, val)
-      , lowerInitBoundary_(min)
-      , upperInitBoundary_(max) { /* nothing */
+      , lower_init_boundary_(min)
+      , upper_init_boundary_(max) { /* nothing */
     }
 
     /***************************************************************************/
@@ -161,8 +161,8 @@ public:
             );
         }
 
-        lowerInitBoundary_ = lower_init_boundary;
-        upperInitBoundary_ = upper_init_boundary;
+        lower_init_boundary_ = lower_init_boundary;
+        upper_init_boundary_ = upper_init_boundary;
     }
 
     /* ----------------------------------------------------------------------------------
@@ -179,7 +179,7 @@ public:
      * @return The value of the lower initialization boundary
      */
     num_type getLowerInitBoundary() const {
-        return lowerInitBoundary_;
+        return lower_init_boundary_;
     }
 
     /* ----------------------------------------------------------------------------------
@@ -195,7 +195,7 @@ public:
      * @return The value of the upper initialization boundary
      */
     num_type getUpperInitBoundary() const {
-        return upperInitBoundary_;
+        return upper_init_boundary_;
     }
 
     /* ----------------------------------------------------------------------------------
@@ -260,8 +260,8 @@ protected:
         GParameterCollectionT<num_type>::load_(cp);
 
         // ... and then our local data
-        lowerInitBoundary_ = p_load->lowerInitBoundary_;
-        upperInitBoundary_ = p_load->upperInitBoundary_;
+        lower_init_boundary_ = p_load->lower_init_boundary_;
+        upper_init_boundary_ = p_load->upper_init_boundary_;
     }
 
     /***************************************************************************/
@@ -298,8 +298,8 @@ protected:
         Gem::Common::compare_base_t<GParameterCollectionT<num_type>>(*this, *p_load, token);
 
         // ... and then the local data
-        compare_t(IDENTITY(lowerInitBoundary_, p_load->lowerInitBoundary_), token);
-        compare_t(IDENTITY(upperInitBoundary_, p_load->upperInitBoundary_), token);
+        compare_t(IDENTITY(lower_init_boundary_, p_load->lower_init_boundary_), token);
+        compare_t(IDENTITY(upper_init_boundary_, p_load->upper_init_boundary_), token);
 
         // React on deviations from the expectation
         token.evaluate();
@@ -311,7 +311,7 @@ protected:
      * independent of a parameters value range
      */
     num_type range() const override {
-        return upperInitBoundary_ - lowerInitBoundary_;
+        return upper_init_boundary_ - lower_init_boundary_;
     }
 
     /***************************************************************************/
@@ -436,10 +436,10 @@ private:
     GObject *clone_() const override = 0;
 
     /***************************************************************************/
-    num_type lowerInitBoundary_ = num_type(
+    num_type lower_init_boundary_ = num_type(
         DEFAULTLOWERINITBOUNDARYCOLLECTION
     ); ///< The lower boundary for random initialization
-    num_type upperInitBoundary_ = num_type(
+    num_type upper_init_boundary_ = num_type(
         DEFAULTUPPERINITBOUNDARYCOLLECTION
     ); ///< The upper boundary for random initialization
 };

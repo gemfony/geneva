@@ -152,7 +152,7 @@ GBenchmarkRunResult GAlgorithmBenchmarkRunner::runOne(
  *
  * The algorithm is configured entirely from the JSON config file specified
  * in the AlgorithmEntry. Default executor mode is BROKER (see
- * GBase::default_execMode_).
+ * GBase::default_exec_mode_).
  */
 std::shared_ptr<oa::GBase>
 GAlgorithmBenchmarkRunner::makeAlgorithm(const AlgorithmEntry &entry) const {

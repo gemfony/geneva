@@ -65,13 +65,13 @@ class GNumBiGaussAdaptorT // NOLINT(cppcoreguidelines-special-member-functions)
         ar &make_nvp(
             "GAdaptorT_num",
             boost::serialization::base_object<GAdaptorT<num_type>>(*this)
-        ) & BOOST_SERIALIZATION_NVP(useSymmetricSigmas_) &
-            BOOST_SERIALIZATION_NVP(sigma1_) & BOOST_SERIALIZATION_NVP(sigmaSigma1_) &
-            BOOST_SERIALIZATION_NVP(minSigma1_) & BOOST_SERIALIZATION_NVP(maxSigma1_) &
-            BOOST_SERIALIZATION_NVP(sigma2_) & BOOST_SERIALIZATION_NVP(sigmaSigma2_) &
-            BOOST_SERIALIZATION_NVP(minSigma2_) & BOOST_SERIALIZATION_NVP(maxSigma2_) &
-            BOOST_SERIALIZATION_NVP(delta_) & BOOST_SERIALIZATION_NVP(sigmaDelta_) &
-            BOOST_SERIALIZATION_NVP(minDelta_) & BOOST_SERIALIZATION_NVP(maxDelta_);
+        ) & BOOST_SERIALIZATION_NVP(use_symmetric_sigmas_) &
+            BOOST_SERIALIZATION_NVP(sigma1_) & BOOST_SERIALIZATION_NVP(sigma_sigma1_) &
+            BOOST_SERIALIZATION_NVP(min_sigma1_) & BOOST_SERIALIZATION_NVP(max_sigma1_) &
+            BOOST_SERIALIZATION_NVP(sigma2_) & BOOST_SERIALIZATION_NVP(sigma_sigma2_) &
+            BOOST_SERIALIZATION_NVP(min_sigma2_) & BOOST_SERIALIZATION_NVP(max_sigma2_) &
+            BOOST_SERIALIZATION_NVP(delta_) & BOOST_SERIALIZATION_NVP(sigma_delta_) &
+            BOOST_SERIALIZATION_NVP(min_delta_) & BOOST_SERIALIZATION_NVP(max_delta_);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -115,17 +115,17 @@ public:
      * @param use_symmetric_sigmas A boolean which determines whether the two sigmas of the double-gaussian should be identical
      */
     void setUseSymmetricSigmas(const bool &use_symmetric_sigmas) {
-        useSymmetricSigmas_ = use_symmetric_sigmas;
+        use_symmetric_sigmas_ = use_symmetric_sigmas;
     }
 
     /***************************************************************************/
     /**
-     * Retrieves the value of the "useSymmetricSigmas_" variable
+     * Retrieves the value of the "use_symmetric_sigmas_" variable
      *
-     * @return The value of the "useSymmetricSigmas_" variable
+     * @return The value of the "use_symmetric_sigmas_" variable
      */
     bool getUseSymmetricSigmas() const {
-        return useSymmetricSigmas_;
+        return use_symmetric_sigmas_;
     }
 
     /***************************************************************************/
@@ -139,13 +139,13 @@ public:
      */
     void setSigma1(const fp_type &sigma1) {
         // Sigma1 must be in the allowed value range
-        if(sigma1 < minSigma1_ || sigma1 > maxSigma1_ || sigma1 < fp_type(0)) {
+        if(sigma1 < min_sigma1_ || sigma1 > max_sigma1_ || sigma1 < fp_type(0)) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GNumBiGaussAdaptorT<num_type, fp_type>::setSigma1(const fp_type&):"
                 << '\n'
                 << "sigma1 is not in the allowed range: " << '\n'
-                << minSigma1_ << " <= " << sigma1 << " < " << maxSigma1_ << '\n'
+                << min_sigma1_ << " <= " << sigma1 << " < " << max_sigma1_ << '\n'
                 << "If you want to use these values you need to" << '\n'
                 << "adapt the allowed range first." << '\n'
             );
@@ -189,19 +189,19 @@ public:
             );
         }
 
-        minSigma1_ = min_sigma1;
-        maxSigma1_ = max_sigma1;
+        min_sigma1_ = min_sigma1;
+        max_sigma1_ = max_sigma1;
 
-        // Silently adapt minSigma1_, if it is smaller than DEFAULTMINSIGMA. E.g., a value of 0 does not make sense
-        if(minSigma1_ < fp_type(DEFAULTMINSIGMA)) {
-            minSigma1_ = fp_type(DEFAULTMINSIGMA);
+        // Silently adapt min_sigma1_, if it is smaller than DEFAULTMINSIGMA. E.g., a value of 0 does not make sense
+        if(min_sigma1_ < fp_type(DEFAULTMINSIGMA)) {
+            min_sigma1_ = fp_type(DEFAULTMINSIGMA);
         }
 
         // Rectify sigma1_, if necessary
         enforceRangeConstraint(
             sigma1_,
-            minSigma1_,
-            maxSigma1_,
+            min_sigma1_,
+            max_sigma1_,
             "GNumBiGaussAdaptorT<>::setSigma1Range()"
         );
     }
@@ -214,32 +214,32 @@ public:
      * @return The allowed value range for sigma1
      */
     std::tuple<fp_type, fp_type> getSigma1Range() const {
-        return std::make_tuple(minSigma1_, maxSigma1_);
+        return std::make_tuple(min_sigma1_, max_sigma1_);
     }
 
     /***************************************************************************/
     /**
-     * This function sets the values of the sigmaSigma1_ parameter. Values <= 0 mean "do not adapt
+     * This function sets the values of the sigma_sigma1_ parameter. Values <= 0 mean "do not adapt
      * sigma1_". If you do want to prevent adaption of sigma1, you can also use the
      * GAdaptorT<T>::setAdaptionThreshold() function. It determines, after how many calls the
      * internal parameters of the adaption should be adapted. If set to 0, no adaption takes place.
      *
      * TODO: Cross-check suitable values
      *
-     * @param sigma_sigma1 The new value of the sigmaSigma1_ parameter
+     * @param sigma_sigma1 The new value of the sigma_sigma1_ parameter
      */
     void setSigma1AdaptionRate(const fp_type &sigma_sigma1) {
-        sigmaSigma1_ = sigma_sigma1;
+        sigma_sigma1_ = sigma_sigma1;
     }
 
     /***************************************************************************/
     /**
-     * Retrieves the value of sigmaSigma1_ .
+     * Retrieves the value of sigma_sigma1_ .
      *
-     * @return The value of the sigmaSigma1_ parameter
+     * @return The value of the sigma_sigma1_ parameter
      */
     fp_type getSigma1AdaptionRate() const {
-        return sigmaSigma1_;
+        return sigma_sigma1_;
     }
 
     /***************************************************************************/
@@ -248,7 +248,7 @@ public:
      * at once
      *
      * @param sigma1 The initial value for the sigma1_ parameter
-     * @param sigma_sigma1 The initial value for the sigmaSigma1_ parameter
+     * @param sigma_sigma1 The initial value for the sigma_sigma1_ parameter
      * @param min_sigma1 The minimal value allowed for sigma1_
      * @param min_sigma1 The maximum value allowed for sigma1_
      */
@@ -274,13 +274,13 @@ public:
      */
     void setSigma2(const fp_type &sigma2) {
         // Sigma2 must be in the allowed value range
-        if(sigma2 < minSigma2_ || sigma2 > maxSigma2_ || sigma2 < fp_type(0)) {
+        if(sigma2 < min_sigma2_ || sigma2 > max_sigma2_ || sigma2 < fp_type(0)) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GNumBiGaussAdaptorT<num_type, fp_type>::setSigma2(const fp_type&):"
                 << '\n'
                 << "sigma2 is not in the allowed range: " << '\n'
-                << minSigma2_ << " <= " << sigma2 << " < " << maxSigma2_ << '\n'
+                << min_sigma2_ << " <= " << sigma2 << " < " << max_sigma2_ << '\n'
                 << "If you want to use this value for sigma you need to" << '\n'
                 << "adapt the allowed range first." << '\n'
             );
@@ -324,19 +324,19 @@ public:
             );
         }
 
-        minSigma2_ = min_sigma2;
-        maxSigma2_ = max_sigma2;
+        min_sigma2_ = min_sigma2;
+        max_sigma2_ = max_sigma2;
 
-        // Silently adapt minSigma1_, if it is smaller than DEFAULTMINSIGMA. E.g., a value of 0 does not make sense
-        if(minSigma2_ < fp_type(DEFAULTMINSIGMA)) {
-            minSigma2_ = fp_type(DEFAULTMINSIGMA);
+        // Silently adapt min_sigma1_, if it is smaller than DEFAULTMINSIGMA. E.g., a value of 0 does not make sense
+        if(min_sigma2_ < fp_type(DEFAULTMINSIGMA)) {
+            min_sigma2_ = fp_type(DEFAULTMINSIGMA);
         }
 
         // Rectify sigma1_, if necessary
         enforceRangeConstraint(
             sigma2_,
-            minSigma2_,
-            maxSigma2_,
+            min_sigma2_,
+            max_sigma2_,
             "GNumBiGaussAdaptorT<>::setSigma2Range()"
         );
     }
@@ -349,30 +349,30 @@ public:
      * @return The allowed value range for sigma2
      */
     std::tuple<fp_type, fp_type> getSigma2Range() const {
-        return std::make_tuple(minSigma2_, maxSigma2_);
+        return std::make_tuple(min_sigma2_, max_sigma2_);
     }
 
     /***************************************************************************/
     /**
-     * This function sets the values of the sigmaSigma2_ parameter. Values <= 0 mean "do not adapt
+     * This function sets the values of the sigma_sigma2_ parameter. Values <= 0 mean "do not adapt
      * sigma2_". If you do want to prevent adaption of sigma1, you can also use the
      * GAdaptorT<T>::setAdaptionThreshold() function. It determines, after how many calls the
      * internal parameters of the adaption should be adapted. If set to 0, no adaption takes place.
      *
-     * @param sigma_sigma2 The new value of the sigmaSigma2_ parameter
+     * @param sigma_sigma2 The new value of the sigma_sigma2_ parameter
      */
     void setSigma2AdaptionRate(const fp_type &sigma_sigma2) {
-        sigmaSigma2_ = sigma_sigma2;
+        sigma_sigma2_ = sigma_sigma2;
     }
 
     /***************************************************************************/
     /**
-     * Retrieves the value of sigmaSigma2_ .
+     * Retrieves the value of sigma_sigma2_ .
      *
-     * @return The value of the sigmaSigma2_ parameter
+     * @return The value of the sigma_sigma2_ parameter
      */
     fp_type getSigma2AdaptionRate() const {
-        return sigmaSigma2_;
+        return sigma_sigma2_;
     }
 
     /***************************************************************************/
@@ -381,7 +381,7 @@ public:
      * at once
      *
      * @param sigma2 The initial value for the sigma2_ parameter
-     * @param sigma_sigma2 The initial value for the sigmaSigma2_ parameter
+     * @param sigma_sigma2 The initial value for the sigma_sigma2_ parameter
      * @param min_sigma2 The minimal value allowed for sigma2_
      * @param min_sigma2 The maximum value allowed for sigma2_
      */
@@ -405,12 +405,12 @@ public:
      */
     void setDelta(const fp_type &delta) {
         // Delta must be in the allowed value range
-        if(delta < minDelta_ || delta > maxDelta_ || delta < fp_type(0)) {
+        if(delta < min_delta_ || delta > max_delta_ || delta < fp_type(0)) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GNumBiGaussAdaptorT::setDelta(const fp_type&):" << '\n'
                 << "delta is not in the allowed range: " << '\n'
-                << minDelta_ << " <= " << delta << " < " << maxDelta_ << '\n'
+                << min_delta_ << " <= " << delta << " < " << max_delta_ << '\n'
                 << "If you want to use these values you need to" << '\n'
                 << "adapt the allowed range first." << '\n'
             );
@@ -433,7 +433,7 @@ public:
     /**
      * Sets the allowed value range of delta_. A minimum delta of 0 will silently be adapted
      * to DEFAULTMINSIGMA, if that value is > 0. Note that this function will also adapt delta
-     * itself, if it falls outside of the allowed range. A maximum of 0.5 for maxDelta_ is
+     * itself, if it falls outside of the allowed range. A maximum of 0.5 for max_delta_ is
      * recommended, but not enforced.delta is interpreted as a percentage of the allowed or
      * desired value range of the target variable.
      *
@@ -451,18 +451,18 @@ public:
             );
         }
 
-        minDelta_ = min_delta;
-        maxDelta_ = max_delta;
+        min_delta_ = min_delta;
+        max_delta_ = max_delta;
 
         // Note: In contrast to setSigmaXRange(...) we allow a delta < DEFAULTMINDELTA
         // (as long as it is >= 0), as a delta of 0 makes sense
 
         // Rectify delta_, if necessary
-        if(delta_ < minDelta_) {
-            delta_ = minDelta_;
+        if(delta_ < min_delta_) {
+            delta_ = min_delta_;
         }
-        else if(delta_ > maxDelta_) {
-            delta_ = maxDelta_;
+        else if(delta_ > max_delta_) {
+            delta_ = max_delta_;
         }
     }
 
@@ -474,30 +474,30 @@ public:
      * @return The allowed value range for delta
      */
     std::tuple<fp_type, fp_type> getDeltaRange() const {
-        return std::make_tuple(minDelta_, maxDelta_);
+        return std::make_tuple(min_delta_, max_delta_);
     }
 
     /***************************************************************************/
     /**
-     * This function sets the values of the sigmaSigma2_ parameter. Values <= 0 mean "do not adapt
+     * This function sets the values of the sigma_sigma2_ parameter. Values <= 0 mean "do not adapt
      * delta_". If you do want to prevent adaption of delta_, you can also use the
      * GAdaptorT<T>::setAdaptionThreshold() function. It determines, after how many calls the
      * internal parameters of the adaption should be adapted. If set to 0, no adaption takes place.
      *
-     * @param sigma_delta The new value of the sigmaDelta_ parameter
+     * @param sigma_delta The new value of the sigma_delta_ parameter
      */
     void setDeltaAdaptionRate(const fp_type &sigma_delta) {
-        sigmaDelta_ = sigma_delta;
+        sigma_delta_ = sigma_delta;
     }
 
     /***************************************************************************/
     /**
-     * Retrieves the value of sigmaDelta_ .
+     * Retrieves the value of sigma_delta_ .
      *
-     * @return The value of the sigmaDelta_ parameter
+     * @return The value of the sigma_delta_ parameter
      */
     fp_type getDeltaAdaptionRate() const {
-        return sigmaDelta_;
+        return sigma_delta_;
     }
 
     /***************************************************************************/
@@ -506,7 +506,7 @@ public:
      * at once
      *
      * @param delta The initial value for the delta_ parameter
-     * @param sigma_delta The initial value for the sigmaDelta_ parameter
+     * @param sigma_delta The initial value for the sigma_delta_ parameter
      * @param min_delta The minimal value allowed for delta_
      * @param min_delta The maximum value allowed for delta_
      */
@@ -531,15 +531,15 @@ public:
 
         sigma1_ = GAdaptorT<num_type, fp_type>::uniform_real_distribution_(
             gr,
-            typename std::uniform_real_distribution<fp_type>::param_type(minSigma1_, maxSigma1_)
+            typename std::uniform_real_distribution<fp_type>::param_type(min_sigma1_, max_sigma1_)
         );
         sigma2_ = GAdaptorT<num_type, fp_type>::uniform_real_distribution_(
             gr,
-            typename std::uniform_real_distribution<fp_type>::param_type(minSigma2_, maxSigma2_)
+            typename std::uniform_real_distribution<fp_type>::param_type(min_sigma2_, max_sigma2_)
         );
         delta_ = GAdaptorT<num_type, fp_type>::uniform_real_distribution_(
             gr,
-            typename std::uniform_real_distribution<fp_type>::param_type(minDelta_, maxDelta_)
+            typename std::uniform_real_distribution<fp_type>::param_type(min_delta_, max_delta_)
         );
 
         return true;
@@ -548,21 +548,21 @@ public:
 protected:
     /***************************************************************************/
     // For performance reasons, so we do not have to go through access functions
-    bool useSymmetricSigmas_ =
+    bool use_symmetric_sigmas_ =
         true; ///< Determines whether the sigmas of both gaussians should be the same
 
     fp_type sigma1_ = DEFAULTSIGMA; ///< The width of the first gaussian used to adapt values
-    fp_type sigmaSigma1_ = DEFAULTSIGMASIGMA; ///< affects sigma1_ adaption
-    fp_type minSigma1_ = DEFAULTMINSIGMA;     ///< minimum allowed value for sigma1_
-    fp_type maxSigma1_ = DEFAULTMAXSIGMA;     ///< maximum allowed value for sigma1_
+    fp_type sigma_sigma1_ = DEFAULTSIGMASIGMA; ///< affects sigma1_ adaption
+    fp_type min_sigma1_ = DEFAULTMINSIGMA;     ///< minimum allowed value for sigma1_
+    fp_type max_sigma1_ = DEFAULTMAXSIGMA;     ///< maximum allowed value for sigma1_
     fp_type sigma2_ = DEFAULTSIGMA; ///< The width of the second gaussian used to adapt values
-    fp_type sigmaSigma2_ = DEFAULTSIGMASIGMA; ///< affects sigma2_ adaption
-    fp_type minSigma2_ = DEFAULTMINSIGMA;     ///< minimum allowed value for sigma2_
-    fp_type maxSigma2_ = DEFAULTMAXSIGMA;     ///< maximum allowed value for sigma2_
+    fp_type sigma_sigma2_ = DEFAULTSIGMASIGMA; ///< affects sigma2_ adaption
+    fp_type min_sigma2_ = DEFAULTMINSIGMA;     ///< minimum allowed value for sigma2_
+    fp_type max_sigma2_ = DEFAULTMAXSIGMA;     ///< maximum allowed value for sigma2_
     fp_type delta_ = DEFAULTDELTA;            ///< The distance between both gaussians
-    fp_type sigmaDelta_ = DEFAULTSIGMADELTA;  ///< affects the adaption of delta_
-    fp_type minDelta_ = DEFAULTMINDELTA;      ///< minimum allowed value for delta_
-    fp_type maxDelta_ = DEFAULTMAXDELTA;      ///< maximum allowed value for delta_
+    fp_type sigma_delta_ = DEFAULTSIGMADELTA;  ///< affects the adaption of delta_
+    fp_type min_delta_ = DEFAULTMINDELTA;      ///< minimum allowed value for delta_
+    fp_type max_delta_ = DEFAULTMAXDELTA;      ///< maximum allowed value for delta_
 
     Gem::Hap::bi_normal_distribution<fp_type>
         bi_normal_distribution_; ///< Access to random numbers with a bi_normal distribution
@@ -586,19 +586,19 @@ protected:
         GAdaptorT<num_type>::load_(cp);
 
         // ... and then our own data
-        useSymmetricSigmas_ = p_load->useSymmetricSigmas_;
+        use_symmetric_sigmas_ = p_load->use_symmetric_sigmas_;
         sigma1_ = p_load->sigma1_;
-        sigmaSigma1_ = p_load->sigmaSigma1_;
-        minSigma1_ = p_load->minSigma1_;
-        maxSigma1_ = p_load->maxSigma1_;
+        sigma_sigma1_ = p_load->sigma_sigma1_;
+        min_sigma1_ = p_load->min_sigma1_;
+        max_sigma1_ = p_load->max_sigma1_;
         sigma2_ = p_load->sigma2_;
-        sigmaSigma2_ = p_load->sigmaSigma2_;
-        minSigma2_ = p_load->minSigma2_;
-        maxSigma2_ = p_load->maxSigma2_;
+        sigma_sigma2_ = p_load->sigma_sigma2_;
+        min_sigma2_ = p_load->min_sigma2_;
+        max_sigma2_ = p_load->max_sigma2_;
         delta_ = p_load->delta_;
-        sigmaDelta_ = p_load->sigmaDelta_;
-        minDelta_ = p_load->minDelta_;
-        maxDelta_ = p_load->maxDelta_;
+        sigma_delta_ = p_load->sigma_delta_;
+        min_delta_ = p_load->min_delta_;
+        max_delta_ = p_load->max_delta_;
     }
 
     /***************************************************************************/
@@ -638,19 +638,19 @@ protected:
         Gem::Common::compare_base_t<GAdaptorT<num_type>>(*this, *p_load, token);
 
         // ... and then the local data
-        compare_t(IDENTITY(useSymmetricSigmas_, p_load->useSymmetricSigmas_), token);
+        compare_t(IDENTITY(use_symmetric_sigmas_, p_load->use_symmetric_sigmas_), token);
         compare_t(IDENTITY(sigma1_, p_load->sigma1_), token);
-        compare_t(IDENTITY(sigmaSigma1_, p_load->sigmaSigma1_), token);
-        compare_t(IDENTITY(minSigma1_, p_load->minSigma1_), token);
-        compare_t(IDENTITY(maxSigma1_, p_load->maxSigma1_), token);
+        compare_t(IDENTITY(sigma_sigma1_, p_load->sigma_sigma1_), token);
+        compare_t(IDENTITY(min_sigma1_, p_load->min_sigma1_), token);
+        compare_t(IDENTITY(max_sigma1_, p_load->max_sigma1_), token);
         compare_t(IDENTITY(sigma2_, p_load->sigma2_), token);
-        compare_t(IDENTITY(sigmaSigma2_, p_load->sigmaSigma2_), token);
-        compare_t(IDENTITY(minSigma2_, p_load->minSigma2_), token);
-        compare_t(IDENTITY(maxSigma2_, p_load->maxSigma2_), token);
+        compare_t(IDENTITY(sigma_sigma2_, p_load->sigma_sigma2_), token);
+        compare_t(IDENTITY(min_sigma2_, p_load->min_sigma2_), token);
+        compare_t(IDENTITY(max_sigma2_, p_load->max_sigma2_), token);
         compare_t(IDENTITY(delta_, p_load->delta_), token);
-        compare_t(IDENTITY(sigmaDelta_, p_load->sigmaDelta_), token);
-        compare_t(IDENTITY(minDelta_, p_load->minDelta_), token);
-        compare_t(IDENTITY(maxDelta_, p_load->maxDelta_), token);
+        compare_t(IDENTITY(sigma_delta_, p_load->sigma_delta_), token);
+        compare_t(IDENTITY(min_delta_, p_load->min_delta_), token);
+        compare_t(IDENTITY(max_delta_, p_load->max_delta_), token);
 
         // React on deviations from the expectation
         token.evaluate();
@@ -695,39 +695,39 @@ protected:
         sigma1_ *= std::exp(
             GAdaptorT<num_type>::normal_distribution_(
                 gr,
-                typename std::normal_distribution<fp_type>::param_type(0., std::abs(sigmaSigma1_))
+                typename std::normal_distribution<fp_type>::param_type(0., std::abs(sigma_sigma1_))
             )
         );
         sigma2_ *= std::exp(
             GAdaptorT<num_type>::normal_distribution_(
                 gr,
-                typename std::normal_distribution<fp_type>::param_type(0., std::abs(sigmaSigma2_))
+                typename std::normal_distribution<fp_type>::param_type(0., std::abs(sigma_sigma2_))
             )
         );
         delta_ *= std::exp(
             GAdaptorT<num_type>::normal_distribution_(
                 gr,
-                typename std::normal_distribution<fp_type>::param_type(0., std::abs(sigmaDelta_))
+                typename std::normal_distribution<fp_type>::param_type(0., std::abs(sigma_delta_))
             )
         );
 
         // Make sure valued don't get out of range
         enforceRangeConstraint(
             sigma1_,
-            minSigma1_,
-            maxSigma1_,
+            min_sigma1_,
+            max_sigma1_,
             "GNumBiGaussAdaptorT<>::customAdaptAdaption() / 1"
         );
         enforceRangeConstraint(
             sigma2_,
-            minSigma2_,
-            maxSigma2_,
+            min_sigma2_,
+            max_sigma2_,
             "GNumBiGaussAdaptorT<>::customAdaptAdaption() / 2"
         );
         enforceRangeConstraint(
             delta_,
-            minDelta_,
-            maxDelta_,
+            min_delta_,
+            max_delta_,
             "GNumBiGaussAdaptorT<>::customAdaptAdaption() / 3"
         );
     }
@@ -759,7 +759,7 @@ protected:
         }
 
         // A relatively harmless change
-        sigmaSigma1_ *= 1.1;
+        sigma_sigma1_ *= 1.1;
         result = true;
 
         return result;

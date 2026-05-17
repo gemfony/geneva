@@ -296,7 +296,8 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests_() {
         CHECK(*(p_test1->at(1)) == *(p_test2->at(1)));
 
         // Extract the fp parameters
-        std::shared_ptr<GDoubleObject> gdo_ptr1, gdo_ptr2;
+        std::shared_ptr<GDoubleObject> gdo_ptr1;
+        std::shared_ptr<GDoubleObject> gdo_ptr2;
         CHECK_NOTHROW(gdo_ptr1 = p_test1->at<GDoubleObject>(2));
         CHECK_NOTHROW(gdo_ptr2 = p_test2->at<GDoubleObject>(2));
 
@@ -332,7 +333,8 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests_() {
         CHECK(*(p_test1->at(1)) == *(p_test2->at(1)));
 
         // Extract the fp parameters
-        std::shared_ptr<GDoubleObject> gdo_ptr1, gdo_ptr2;
+        std::shared_ptr<GDoubleObject> gdo_ptr1;
+        std::shared_ptr<GDoubleObject> gdo_ptr2;
         CHECK_NOTHROW(gdo_ptr1 = p_test1->at<GDoubleObject>(2));
         CHECK_NOTHROW(gdo_ptr2 = p_test2->at<GDoubleObject>(2));
 
@@ -390,7 +392,8 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests_() {
         CHECK(*(p_test1->at(1)) == *(p_test2->at(1)));
 
         // Extract the fp parameters
-        std::shared_ptr<GDoubleObject> gdo_ptr1, gdo_ptr2;
+        std::shared_ptr<GDoubleObject> gdo_ptr1;
+        std::shared_ptr<GDoubleObject> gdo_ptr2;
         CHECK_NOTHROW(gdo_ptr1 = p_test1->at<GDoubleObject>(2));
         CHECK_NOTHROW(gdo_ptr2 = p_test2->at<GDoubleObject>(2));
 
@@ -426,7 +429,8 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests_() {
         CHECK(*(p_test1->at(1)) == *(p_test2->at(1)));
 
         // Extract the fp parameters
-        std::shared_ptr<GDoubleObject> gdo_ptr1, gdo_ptr2;
+        std::shared_ptr<GDoubleObject> gdo_ptr1;
+        std::shared_ptr<GDoubleObject> gdo_ptr2;
         CHECK_NOTHROW(gdo_ptr1 = p_test1->at<GDoubleObject>(2));
         CHECK_NOTHROW(gdo_ptr2 = p_test2->at<GDoubleObject>(2));
 
@@ -462,7 +466,8 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests_() {
         CHECK(*(p_test1->at(1)) == *(p_test2->at(1)));
 
         // Extract the fp parameters
-        std::shared_ptr<GDoubleObject> gdo_ptr1, gdo_ptr2;
+        std::shared_ptr<GDoubleObject> gdo_ptr1;
+        std::shared_ptr<GDoubleObject> gdo_ptr2;
         CHECK_NOTHROW(gdo_ptr1 = p_test1->at<GDoubleObject>(2));
         CHECK_NOTHROW(gdo_ptr2 = p_test2->at<GDoubleObject>(2));
 
@@ -499,7 +504,8 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests_() {
         CHECK(*(p_test1->at(1)) == *(p_test2->at(1)));
 
         // Extract the fp parameters
-        std::shared_ptr<GDoubleObject> gdo_ptr1, gdo_ptr2;
+        std::shared_ptr<GDoubleObject> gdo_ptr1;
+        std::shared_ptr<GDoubleObject> gdo_ptr2;
         CHECK_NOTHROW(gdo_ptr1 = p_test1->at<GDoubleObject>(2));
         CHECK_NOTHROW(gdo_ptr2 = p_test2->at<GDoubleObject>(2));
 

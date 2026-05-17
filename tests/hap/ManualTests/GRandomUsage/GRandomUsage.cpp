@@ -319,10 +319,22 @@ int main(int argc, char **argv) {
     }
 
     std::size_t i;
-    std::vector<double> gaussian, doublegaussian, even, evenwithboundaries;
-    std::vector<double> expgauss01, expgauss02, expgauss04, expgauss08, expgauss16;
-    std::vector<std::int32_t> discrete, discretebound, bitprob, bitsimple, charrnd;
-    std::vector<double> initCorr, initLFCorr;
+    std::vector<double> gaussian;
+    std::vector<double> doublegaussian;
+    std::vector<double> even;
+    std::vector<double> evenwithboundaries;
+    std::vector<double> expgauss01;
+    std::vector<double> expgauss02;
+    std::vector<double> expgauss04;
+    std::vector<double> expgauss08;
+    std::vector<double> expgauss16;
+    std::vector<std::int32_t> discrete;
+    std::vector<std::int32_t> discretebound;
+    std::vector<std::int32_t> bitprob;
+    std::vector<std::int32_t> bitsimple;
+    std::vector<std::int32_t> charrnd;
+    std::vector<double> initCorr;
+    std::vector<double> initLFCorr;
 
     GRANDOMFACTORY->setNProducerThreads(nProducerThreads);
 

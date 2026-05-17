@@ -101,8 +101,14 @@ int main() {
     double sigma_2_06 = sigmaStart;
     double sigma_2_08 = sigmaStart;
 
-    double fact_1_02, fact_1_04, fact_1_06, fact_1_08;
-    double fact_2_02, fact_2_04, fact_2_06, fact_2_08;
+    double fact_1_02;
+    double fact_1_04;
+    double fact_1_06;
+    double fact_1_08;
+    double fact_2_02;
+    double fact_2_04;
+    double fact_2_06;
+    double fact_2_08;
 
     std::shared_ptr<Gem::Hap::GRandomBase> gr_ptr =
         std::shared_ptr<GRandomT<RANDFLAVOURS::RANDOMPROXY>>(

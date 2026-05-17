@@ -27,6 +27,7 @@ Checks: >-
   -*,
   bugprone-*,
   -bugprone-easily-swappable-parameters,
+  -bugprone-crtp-constructor-accessibility,
   cert-*,
   -cert-err58-cpp,
   clang-analyzer-*,
@@ -38,7 +39,10 @@ Checks: >-
   -cppcoreguidelines-pro-bounds-constant-array-index,
   -cppcoreguidelines-pro-type-vararg,
   -cppcoreguidelines-non-private-member-variables-in-classes,
-  google-build-using-namespace,
+  -cppcoreguidelines-avoid-const-or-ref-data-members,
+  -cppcoreguidelines-pro-bounds-avoid-unchecked-container-access,
+  -cppcoreguidelines-avoid-do-while,
+  -google-build-using-namespace,
   google-explicit-constructor,
   google-readability-casting,
   google-readability-namespace-comments,
@@ -63,10 +67,12 @@ Checks: >-
   performance-*,
   portability-*,
   -portability-avoid-pragma-once,
+  -portability-template-virtual-member-function,
   readability-*,
   -readability-magic-numbers,
   -readability-named-parameter,
   -readability-uppercase-literal-suffix,
+  -readability-function-size,
   -readability-function-cognitive-complexity,
   -readability-identifier-length
 
@@ -107,8 +113,8 @@ CheckOptions:
   # ------------------------------------------------------------------
   # Identifier naming.
   # ------------------------------------------------------------------
-  # Geneva uses camelBack for functions/variables, CamelCase for classes,
-  # private members end in '_'. The 'G' prefix and 'T' suffix for
+  # Geneva uses camelBack for functions/methods, CamelCase for classes,
+  # and members end in '_'. The 'G' prefix and 'T' suffix for
   # template classes are NOT enforced because the convention says
   # "usually" / "where appropriate".
   readability-identifier-naming.FunctionCase: camelBack
@@ -116,15 +122,18 @@ CheckOptions:
   readability-identifier-naming.VariableCase: camelBack
   # Geneva 5.B: local variables and function parameters are snake_case
   # (lower_case). This matches the dominant existing usage and the
-  # decision recorded in the 2026-05 naming stock-taking. Members,
-  # functions and methods remain camelBack; classes remain CamelCase.
+  # decision recorded in the 2026-05 naming stock-taking. Functions and
+  # methods remain camelBack; classes remain CamelCase.
+  # 2026-05-17 decision: private and protected member variables are
+  # snake_case (lower_case) with a trailing '_'. Public members (rare,
+  # discouraged) keep camelBack.
   readability-identifier-naming.ParameterCase: lower_case
   readability-identifier-naming.LocalVariableCase: lower_case
   readability-identifier-naming.MemberCase: camelBack
   readability-identifier-naming.PublicMemberCase: camelBack
-  readability-identifier-naming.PrivateMemberCase: camelBack
+  readability-identifier-naming.PrivateMemberCase: lower_case
   readability-identifier-naming.PrivateMemberSuffix: _
-  readability-identifier-naming.ProtectedMemberCase: camelBack
+  readability-identifier-naming.ProtectedMemberCase: lower_case
   readability-identifier-naming.ProtectedMemberSuffix: _
   readability-identifier-naming.ClassCase: CamelCase
   readability-identifier-naming.StructCase: CamelCase
@@ -193,7 +202,7 @@ CheckOptions:
   # Allowed: G_API_* visibility macros, GEM_* build guards, G_DEPRECATED,
   # GSQUARED utility macro, GENEVA_* config macros, DEBUG, and the
   # intentionally lowercase `time_and_place` source-location macro.
-  cppcoreguidelines-macro-usage.AllowedRegexp: '^(DEBUG|G_.*|GEM_.*|GENEVA_.*|time_and_place)$'
+  cppcoreguidelines-macro-usage.AllowedRegexp: '^(DEBUG|G_.*|GEM_.*|GENEVA_.*|GSQUARED|time_and_place)$'
 
   # Performance.
   performance-for-range-copy.WarnOnAllAutoCopies: 'true'

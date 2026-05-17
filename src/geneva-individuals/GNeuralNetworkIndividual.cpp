@@ -148,7 +148,7 @@ void trainingSet::compare(
  * purposes.
  */
 networkData::networkData()
-  : arraySize_(0)
+  : array_size_(0)
   , data_(nullptr) { /* nothing */
 }
 
@@ -159,8 +159,8 @@ networkData::networkData()
  * @param array_size The desired size of the array
  */
 networkData::networkData(const std::size_t &array_size)
-  : arraySize_(array_size)
-  , data_(new std::shared_ptr<trainingSet>[arraySize_]) { /* nothing */
+  : array_size_(array_size)
+  , data_(new std::shared_ptr<trainingSet>[array_size_]) { /* nothing */
 }
 
 /******************************************************************************/
@@ -170,7 +170,7 @@ networkData::networkData(const std::size_t &array_size)
  * @param network_data_file The name of a file holding the training data
  */
 networkData::networkData(const std::string &network_data_file)
-  : arraySize_(0)
+  : array_size_(0)
   , data_(nullptr) {
     this->loadFromDisk(network_data_file);
 }
@@ -183,10 +183,10 @@ networkData::networkData(const std::string &network_data_file)
  */
 networkData::networkData(const networkData &cp)
   : Gem::Common::GPodContainerT<std::size_t>(cp)
-  , arraySize_(0)
+  , array_size_(0)
   , data_(nullptr) {
     // Make sure the local data is copied
-    Gem::Common::copySmartPointerArrays(cp.data_, data_, cp.arraySize_, arraySize_);
+    Gem::Common::copySmartPointerArrays(cp.data_, data_, cp.array_size_, array_size_);
 }
 
 /******************************************************************************/
@@ -196,7 +196,7 @@ networkData::networkData(const networkData &cp)
 networkData::~networkData() {
     // Make sure the data vector is empty
     if(data_) {
-        for(std::size_t i = 0; i < arraySize_; i++) {
+        for(std::size_t i = 0; i < array_size_; i++) {
             data_[i].reset();
         }
     }
@@ -213,7 +213,7 @@ networkData::~networkData() {
  */
 networkData &networkData::operator=(const networkData &cp) {
     // Make sure the local data is copied
-    Gem::Common::copySmartPointerArrays(cp.data_, data_, cp.arraySize_, arraySize_);
+    Gem::Common::copySmartPointerArrays(cp.data_, data_, cp.array_size_, array_size_);
     Gem::Common::GPodContainerT<std::size_t>::operator=(cp);
     return *this;
 }
@@ -235,7 +235,7 @@ void networkData::compare(
     Gem::Common::GToken token("networkData", e);
 
     // Compare our local data
-    Gem::Common::compare_t(IDENTITY(arraySize_, cp.arraySize_), token);
+    Gem::Common::compare_t(IDENTITY(array_size_, cp.array_size_), token);
     Gem::Common::compare_t(IDENTITY(this->data_cnt_, cp.data_cnt_), token);
 
     // React on deviations from the expectation
@@ -315,11 +315,11 @@ void networkData::loadFromDisk(const std::string &network_data_file) {
  * @param pos The position, in which the data set should be stored.
  */
 void networkData::addTrainingSet(std::shared_ptr<trainingSet> t_s, const std::size_t &pos) {
-    if(pos >= arraySize_) {
+    if(pos >= array_size_) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In networkData::addTrainingSet(): Error!" << '\n'
-            << "pos = " << pos << " exceeds end of array (size = " << arraySize_ << ")" << '\n'
+            << "pos = " << pos << " exceeds end of array (size = " << array_size_ << ")" << '\n'
         );
     }
     data_[pos] = t_s;
@@ -335,12 +335,11 @@ void networkData::addTrainingSet(std::shared_ptr<trainingSet> t_s, const std::si
  */
 std::optional<std::shared_ptr<trainingSet>>
 networkData::getTrainingSet(const std::size_t &pos) const {
-    if(pos >= arraySize_) {
+    if(pos >= array_size_) {
         return std::nullopt;
     }
-    else {
-        return data_[pos];
-    }
+            return data_[pos];
+   
 }
 
 /******************************************************************************/
@@ -384,7 +383,8 @@ void networkData::toROOT(const std::string &output_file, const double &min, cons
         return;
     }
 
-    std::size_t entries1 = 0, entries2 = 0;
+    std::size_t entries1 = 0;
+    std::size_t entries2 = 0;
     std::ofstream of(output_file);
 
     of << "{" << '\n'
@@ -405,12 +405,12 @@ void networkData::toROOT(const std::string &output_file, const double &min, cons
        << "  graphPad->Draw();" << '\n'
        << "  graphPad->Divide(1,1);" << '\n'
        << '\n'
-       << "  double xarr1[" << arraySize_ << "], yarr1[" << arraySize_ << "], xarr2[" << arraySize_
-       << "], yarr2[" << arraySize_ << "];" << '\n'
+       << "  double xarr1[" << array_size_ << "], yarr1[" << array_size_ << "], xarr2[" << array_size_
+       << "], yarr2[" << array_size_ << "];" << '\n'
        << '\n'
        << "  // Filling the data sets" << '\n';
 
-    for(std::size_t i = 0; i < arraySize_; i++) {
+    for(std::size_t i = 0; i < array_size_; i++) {
         if(data_[i]->Output[0] < 0.5) {
             of << "  xarr1[" << entries1 << "] = " << data_[i]->Input[0] << ";" << '\n'
                << "  yarr1[" << entries1 << "] = " << data_[i]->Input[1] << ";" << '\n';
@@ -425,11 +425,11 @@ void networkData::toROOT(const std::string &output_file, const double &min, cons
 
     of << '\n'
        << "  // Setting remaining entries to 0" << '\n'
-       << "  for(std::size_t i=" << entries1 << "; i<" << arraySize_ << "; i++) {" << '\n'
+       << "  for(std::size_t i=" << entries1 << "; i<" << array_size_ << "; i++) {" << '\n'
        << "    xarr1[i] = 0.;" << '\n'
        << "    yarr1[i] = 0.;" << '\n'
        << "  }" << '\n'
-       << "  for(std::size_t i=" << entries2 << "; i<" << arraySize_ << "; i++) {" << '\n'
+       << "  for(std::size_t i=" << entries2 << "; i<" << array_size_ << "; i++) {" << '\n'
        << "    xarr2[i] = 0.;" << '\n'
        << "    yarr2[i] = 0.;" << '\n'
        << "  }" << '\n'
@@ -464,7 +464,7 @@ void networkData::toROOT(const std::string &output_file, const double &min, cons
  * Allows to check whether an initialization range has been set
  */
 bool networkData::initRangeSet() const {
-    return not initRange_.empty();
+    return not init_range_.empty();
 }
 
 /******************************************************************************/
@@ -472,7 +472,7 @@ bool networkData::initRangeSet() const {
  * Allows to set the initialization range
  */
 void networkData::setInitRange(const std::vector<std::tuple<double, double>> &init_range) {
-    initRange_ = init_range;
+    init_range_ = init_range;
 }
 
 /******************************************************************************/
@@ -480,7 +480,7 @@ void networkData::setInitRange(const std::vector<std::tuple<double, double>> &in
  * Allows to retrieve the initialization range
  */
 std::vector<std::tuple<double, double>> networkData::getInitRange() const {
-    return initRange_;
+    return init_range_;
 }
 
 /******************************************************************************/
@@ -591,8 +591,8 @@ std::ostream &operator<<(std::ostream &o, const Gem::Geneva::transferFunction &t
  * The default constructor
  */
 GNeuralNetworkIndividual::GNeuralNetworkIndividual()
-  : tF_(GNN_DEF_TRANSFER)
-  , nD_(GNNTrainingDataStore) { /* nothing */
+  : t_f_(GNN_DEF_TRANSFER)
+  , n_d_(GNNTrainingDataStore) { /* nothing */
 }
 
 /******************************************************************************/
@@ -620,8 +620,8 @@ GNeuralNetworkIndividual::GNeuralNetworkIndividual(
     const double &min_ad_prob,
     const double &max_ad_prob
 )
-  : tF_(GNN_DEF_TRANSFER)
-  , nD_(GNNTrainingDataStore) {
+  : t_f_(GNN_DEF_TRANSFER)
+  , n_d_(GNNTrainingDataStore) {
     this->init(
         min,
         max,
@@ -644,8 +644,8 @@ GNeuralNetworkIndividual::GNeuralNetworkIndividual(
  */
 GNeuralNetworkIndividual::GNeuralNetworkIndividual(const GNeuralNetworkIndividual &cp)
   : gpar::GParameterSet(cp)
-  , tF_(cp.tF_)
-  , nD_(GNNTrainingDataStore) // We want a single source for the training data
+  , t_f_(cp.t_f_)
+  , n_d_(GNNTrainingDataStore) // We want a single source for the training data
 {                             /* nothing */
 }
 
@@ -682,7 +682,7 @@ void GNeuralNetworkIndividual::compare_(
     Gem::Common::compare_base_t<gpar::GParameterSet>(*this, *p_load, token);
 
     // ... and then the local data
-    compare_t(IDENTITY(tF_, p_load->tF_), token);
+    compare_t(IDENTITY(t_f_, p_load->t_f_), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -717,7 +717,7 @@ void GNeuralNetworkIndividual::init(
     this->clear();
 
 #ifdef DEBUG
-    if(not nD_) {
+    if(not n_d_) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GNeuralNetworkIndividual::init([...]): Error!" << '\n'
@@ -729,7 +729,7 @@ void GNeuralNetworkIndividual::init(
     // Set up our local data structures
 
     // Check the architecture we've been given and create the layers
-    std::size_t n_layers = nD_->size(); // NOLINT(cppcoreguidelines-init-variables)
+    std::size_t n_layers = n_d_->size(); // NOLINT(cppcoreguidelines-init-variables)
 
     if(n_layers < 2) { // Two layers are required at the minimum (3 and 4 layers are useful)
         throw geneva_exception(
@@ -749,7 +749,7 @@ void GNeuralNetworkIndividual::init(
     std::uniform_real_distribution<double> uniform_real_distribution(min, max);
 
     // Set up the architecture
-    for(layer_iterator = nD_->begin(); layer_iterator != nD_->end(); ++layer_iterator) {
+    for(layer_iterator = n_d_->begin(); layer_iterator != n_d_->end(); ++layer_iterator) {
         if(*layer_iterator) { // Add the next network layer to this class, if possible
             n_nodes = *layer_iterator;
 
@@ -802,7 +802,7 @@ void GNeuralNetworkIndividual::init(
  * Sets the type of the transfer function
  */
 void GNeuralNetworkIndividual::setTransferFunction(transferFunction t_f) {
-    tF_ = t_f;
+    t_f_ = t_f;
 }
 
 /******************************************************************************/
@@ -810,7 +810,7 @@ void GNeuralNetworkIndividual::setTransferFunction(transferFunction t_f) {
  * Retrieves the type of the transfer function
  */
 transferFunction GNeuralNetworkIndividual::getTransferFunction() const {
-    return tF_;
+    return t_f_;
 }
 
 /******************************************************************************/
@@ -821,7 +821,7 @@ transferFunction GNeuralNetworkIndividual::getTransferFunction() const {
  * @param vis_file The name of the file the visualization program should be saved to
  */
 void GNeuralNetworkIndividual::writeVisualizationFile(const std::string &vis_file) {
-    if(vis_file == "" || vis_file.empty()) {
+    if(vis_file.empty() || vis_file.empty()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GNeuralNetworkIndividual::writeVisualizationFile(const std::string&) : Error"
@@ -840,14 +840,16 @@ void GNeuralNetworkIndividual::writeVisualizationFile(const std::string &vis_fil
     }
 
     // The following only makes sense if the input dimension is 2
-    if(nD_->getNInputNodes() == 2) {
-        double x_low = 0., x_high = 1.;
-        double y_low = 0., y_high = 1.;
+    if(n_d_->getNInputNodes() == 2) {
+        double x_low = 0.;
+        double x_high = 1.;
+        double y_low = 0.;
+        double y_high = 1.;
 
         // Retrieve information about the initialization range
         // We only act if initialization ranges have been registered.
         // If not, than the above default values will be used.
-        std::vector<std::tuple<double, double>> init_range = nD_->getInitRange();
+        std::vector<std::tuple<double, double>> init_range = n_d_->getInitRange();
         if(init_range.size() == 2) {
             x_low = std::get<0>(init_range.at(0));
             x_high = std::get<1>(init_range.at(0));
@@ -893,7 +895,7 @@ void GNeuralNetworkIndividual::writeVisualizationFile(const std::string &vis_fil
             << "using namespace Gem::NeuralNetwork;" << '\n'
             << '\n'
             << "int main(int argc, char**argv){" << '\n'
-            << "  std::string geometry = \"" << nD_->getNetworkGeometryString() << "\";" << '\n'
+            << "  std::string geometry = \"" << n_d_->getNetworkGeometryString() << "\";" << '\n'
             << "  double x_low = " << x_low << ", x_high = " << x_high << ";" << '\n'
             << "  double y_low = " << y_low << ", y_high = " << y_high << ";" << '\n'
             << '\n'
@@ -1187,7 +1189,7 @@ void GNeuralNetworkIndividual::writeVisualizationFile(const std::string &vis_fil
  * @param header_file The name of the header file the network should be saved in
  */
 void GNeuralNetworkIndividual::writeTrainedNetwork(const std::string &header_file) {
-    if(header_file == "" || header_file.empty()) {
+    if(header_file.empty() || header_file.empty()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GNeuralNetworkIndividual::writeTrainedNetwork(const std::string&) : Error"
@@ -1232,7 +1234,7 @@ void GNeuralNetworkIndividual::writeTrainedNetwork(const std::string &header_fil
         << "  {" << '\n'
         << "    double transfer(double value) {" << '\n';
 
-    switch(tF_) {
+    switch(t_f_) {
     case transferFunction::SIGMOID:
         header << "      return 1./(1.+exp(-value));" << '\n';
         break;
@@ -1253,9 +1255,9 @@ void GNeuralNetworkIndividual::writeTrainedNetwork(const std::string &header_fil
            << "      const std::size_t n_layers = " << this->data_cnt_.size() << ";" << '\n'
            << "      const std::size_t architecture[n_layers] = {" << '\n';
 
-    for(std::size_t i = 0; i < nD_->size(); i++) {
-        header << "        " << nD_->at(i);
-        if(i == nD_->size() - 1) {
+    for(std::size_t i = 0; i < n_d_->size(); i++) {
+        header << "        " << n_d_->at(i);
+        if(i == n_d_->size() - 1) {
             header << '\n';
         }
         else {
@@ -1269,14 +1271,14 @@ void GNeuralNetworkIndividual::writeTrainedNetwork(const std::string &header_fil
            << "      const std::size_t weight_offset[n_layers] = {" << '\n'
            << "        " << weight_offset << "," << '\n';
 
-    weight_offset += 2 * (*nD_)[0];
+    weight_offset += 2 * (*n_d_)[0];
     header << "       " << weight_offset << "," << '\n';
 
-    for(std::size_t i = 1; i < nD_->size() - 1; i++) {
-        weight_offset += (*nD_)[i] * ((*nD_)[i - 1] + 1);
+    for(std::size_t i = 1; i < n_d_->size() - 1; i++) {
+        weight_offset += (*n_d_)[i] * ((*n_d_)[i - 1] + 1);
         header << "        " << weight_offset;
 
-        if(i == nD_->size() - 1) {
+        if(i == n_d_->size() - 1) {
             header << '\n';
         }
         else {
@@ -1286,21 +1288,21 @@ void GNeuralNetworkIndividual::writeTrainedNetwork(const std::string &header_fil
 
     header << "      };" << '\n';
 
-    std::size_t n_weights = 2 * (*nD_)[0]; // NOLINT(cppcoreguidelines-init-variables)
-    for(std::size_t i = 1; i < nD_->size(); i++) {
-        n_weights += (*nD_)[i] * ((*nD_)[i - 1] + 1);
+    std::size_t n_weights = 2 * (*n_d_)[0]; // NOLINT(cppcoreguidelines-init-variables)
+    for(std::size_t i = 1; i < n_d_->size(); i++) {
+        n_weights += (*n_d_)[i] * ((*n_d_)[i - 1] + 1);
     }
 
     header << "      const std::size_t n_weights = " << n_weights << ";" << '\n'
            << "      const double weights[n_weights] = {" << '\n';
 
-    for(std::size_t i = 0; i < nD_->size(); i++) {
+    for(std::size_t i = 0; i < n_d_->size(); i++) {
         std::shared_ptr<gpar::GDoubleObjectCollection> current_layer = at<gpar::GDoubleObjectCollection>(i);
 
         for(std::size_t j = 0; j < current_layer->size(); j++) {
             header << "        " << current_layer->at(j)->value();
 
-            if(i == (nD_->size() - 1) && j == (current_layer->size() - 1)) {
+            if(i == (n_d_->size() - 1) && j == (current_layer->size() - 1)) {
                 header << '\n';
             }
             else {
@@ -1389,7 +1391,7 @@ void GNeuralNetworkIndividual::load_(const GObject *cp) {
     gpar::GParameterSet::load_(cp);
 
     // Load our local data.
-    tF_ = p_load->tF_;
+    t_f_ = p_load->t_f_;
 
     // We do not copy the network data, as it is always initialized through
     // the constructors, even in the case of a copy constructor
@@ -1439,13 +1441,13 @@ double GNeuralNetworkIndividual::fitnessCalculation() {
     // Now loop over all data sets
     std::size_t current_pos = 0;
     std::optional<std::shared_ptr<trainingSet>> o;
-    while((o = nD_->getTrainingSet(current_pos++))) {
+    while((o = n_d_->getTrainingSet(current_pos++))) {
         // Retrieve a constant reference to the training data set for faster access
         const trainingSet &t_s = **o;
 
         // The input layer
         std::vector<double> prev_results;
-        std::size_t n_layer_nodes = (*nD_)[0]; // NOLINT(cppcoreguidelines-init-variables)
+        std::size_t n_layer_nodes = (*n_d_)[0]; // NOLINT(cppcoreguidelines-init-variables)
         double node_result = 0;
         const gpar::GDoubleObjectCollection &input_layer = *(at<gpar::GDoubleObjectCollection>(0));
         for(std::size_t node_counter = 0; node_counter < n_layer_nodes; node_counter++) {
@@ -1459,9 +1461,9 @@ double GNeuralNetworkIndividual::fitnessCalculation() {
         std::size_t n_layers = this->data_cnt_.size();
         for(std::size_t layer_counter = 1; layer_counter < n_layers; layer_counter++) {
             std::vector<double> current_results;
-            n_layer_nodes = (*nD_)[layer_counter];
+            n_layer_nodes = (*n_d_)[layer_counter];
             std::size_t n_prev_layer_nodes =
-                (*nD_)[layer_counter - 1]; // NOLINT(cppcoreguidelines-init-variables)
+                (*n_d_)[layer_counter - 1]; // NOLINT(cppcoreguidelines-init-variables)
             const gpar::GDoubleObjectCollection &current_layer =
                 *(at<gpar::GDoubleObjectCollection>(layer_counter));
 
@@ -1504,7 +1506,7 @@ double GNeuralNetworkIndividual::fitnessCalculation() {
  * sigmoid networks
  */
 double GNeuralNetworkIndividual::transfer(const double &value) const {
-    switch(tF_) {
+    switch(t_f_) {
     case transferFunction::SIGMOID: {
         return 1. / (1. + exp(-value));
     } break;
@@ -1517,7 +1519,7 @@ double GNeuralNetworkIndividual::transfer(const double &value) const {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GNeuralNetworkIndividual::transfer(): Error!" << '\n'
-            << "Got invalid tranfer function " << tF_ << '\n'
+            << "Got invalid tranfer function " << t_f_ << '\n'
         );
     } break;
     }
@@ -1539,17 +1541,17 @@ GNeuralNetworkIndividualFactory::GNeuralNetworkIndividualFactory(
     std::filesystem::path const &config_file
 )
   : Gem::Common::GFactoryT<gpar::GParameterSet>(config_file)
-  , adProb_(GNN_DEF_ADPROB)
-  , adaptAdProb_(GNN_DEF_ADAPTADPROB)
-  , minAdProb_(GNN_DEF_MINADPROB)
-  , maxAdProb_(GNN_DEF_MAXADPROB)
+  , ad_prob_(GNN_DEF_ADPROB)
+  , adapt_ad_prob_(GNN_DEF_ADAPTADPROB)
+  , min_ad_prob_(GNN_DEF_MINADPROB)
+  , max_ad_prob_(GNN_DEF_MAXADPROB)
   , sigma_(GNN_DEF_SIGMA)
-  , sigmaSigma_(GNN_DEF_SIGMASIGMA)
-  , minSigma_(GNN_DEF_MINSIGMA)
-  , maxSigma_(GNN_DEF_MAXSIGMA)
-  , minVar_(GNN_DEF_MINVAR)
-  , maxVar_(GNN_DEF_MAXVAR)
-  , tF_(GNN_DEF_TRANSFER) { /* nothing */
+  , sigma_sigma_(GNN_DEF_SIGMASIGMA)
+  , min_sigma_(GNN_DEF_MINSIGMA)
+  , max_sigma_(GNN_DEF_MAXSIGMA)
+  , min_var_(GNN_DEF_MINVAR)
+  , max_var_(GNN_DEF_MAXVAR)
+  , t_f_(GNN_DEF_TRANSFER) { /* nothing */
 }
 
 /******************************************************************************/
@@ -1564,7 +1566,7 @@ GNeuralNetworkIndividualFactory::~GNeuralNetworkIndividualFactory() { /* nothing
  * Sets the type of the transfer function
  */
 void GNeuralNetworkIndividualFactory::setTransferFunction(transferFunction t_f) {
-    tF_ = t_f;
+    t_f_ = t_f;
 }
 
 /******************************************************************************/
@@ -1572,7 +1574,7 @@ void GNeuralNetworkIndividualFactory::setTransferFunction(transferFunction t_f) 
  * Retrieves the type of the transfer function
  */
 transferFunction GNeuralNetworkIndividualFactory::getTransferFunction() const {
-    return tF_;
+    return t_f_;
 }
 
 /******************************************************************************/
@@ -1608,7 +1610,7 @@ void GNeuralNetworkIndividualFactory::describeLocalOptions_(Gem::Common::GParser
     comment += "The probability for random adaptions of values in evolutionary algorithms;";
     gpb.registerFileParameter<double>(
         "ad_prob",
-        adProb_,
+        ad_prob_,
         GNN_DEF_ADPROB,
         Gem::Common::VAR_IS_ESSENTIAL,
         comment
@@ -1619,7 +1621,7 @@ void GNeuralNetworkIndividualFactory::describeLocalOptions_(Gem::Common::GParser
         "Determines the rate of adaption of ad_prob. Set to 0, if you do not need this feature;";
     gpb.registerFileParameter<double>(
         "adapt_ad_prob",
-        adaptAdProb_,
+        adapt_ad_prob_,
         GNN_DEF_ADAPTADPROB,
         Gem::Common::VAR_IS_ESSENTIAL,
         comment
@@ -1629,7 +1631,7 @@ void GNeuralNetworkIndividualFactory::describeLocalOptions_(Gem::Common::GParser
     comment += "The lower allowed boundary for ad_prob-variation;";
     gpb.registerFileParameter<double>(
         "min_ad_prob",
-        minAdProb_,
+        min_ad_prob_,
         GNN_DEF_MINADPROB,
         Gem::Common::VAR_IS_ESSENTIAL,
         comment
@@ -1639,7 +1641,7 @@ void GNeuralNetworkIndividualFactory::describeLocalOptions_(Gem::Common::GParser
     comment += "The upper allowed boundary for ad_prob-variation;";
     gpb.registerFileParameter<double>(
         "max_ad_prob",
-        maxAdProb_,
+        max_ad_prob_,
         GNN_DEF_MAXADPROB,
         Gem::Common::VAR_IS_ESSENTIAL,
         comment
@@ -1659,7 +1661,7 @@ void GNeuralNetworkIndividualFactory::describeLocalOptions_(Gem::Common::GParser
     comment += "Influences the self-adaption of gauss-mutation in ES;";
     gpb.registerFileParameter<double>(
         "sigma_sigma",
-        sigmaSigma_,
+        sigma_sigma_,
         GNN_DEF_SIGMASIGMA,
         Gem::Common::VAR_IS_ESSENTIAL,
         comment
@@ -1669,7 +1671,7 @@ void GNeuralNetworkIndividualFactory::describeLocalOptions_(Gem::Common::GParser
     comment += "The minimum amount value of sigma;";
     gpb.registerFileParameter<double>(
         "min_sigma",
-        minSigma_,
+        min_sigma_,
         GNN_DEF_MINSIGMA,
         Gem::Common::VAR_IS_ESSENTIAL,
         comment
@@ -1679,7 +1681,7 @@ void GNeuralNetworkIndividualFactory::describeLocalOptions_(Gem::Common::GParser
     comment += "The maximum amount value of sigma;";
     gpb.registerFileParameter<double>(
         "max_sigma",
-        maxSigma_,
+        max_sigma_,
         GNN_DEF_MAXSIGMA,
         Gem::Common::VAR_IS_ESSENTIAL,
         comment
@@ -1689,7 +1691,7 @@ void GNeuralNetworkIndividualFactory::describeLocalOptions_(Gem::Common::GParser
     comment += "The lower boundary of the initialization range for parameters;";
     gpb.registerFileParameter<double>(
         "min_var",
-        minVar_,
+        min_var_,
         GNN_DEF_MINVAR,
         Gem::Common::VAR_IS_ESSENTIAL,
         comment
@@ -1699,7 +1701,7 @@ void GNeuralNetworkIndividualFactory::describeLocalOptions_(Gem::Common::GParser
     comment += "The upper boundary of the initialization range for parameters;";
     gpb.registerFileParameter<double>(
         "max_var",
-        maxVar_,
+        max_var_,
         GNN_DEF_MAXVAR,
         Gem::Common::VAR_IS_ESSENTIAL,
         comment
@@ -1709,7 +1711,7 @@ void GNeuralNetworkIndividualFactory::describeLocalOptions_(Gem::Common::GParser
     comment += "The transferFunction: SIGMOID (0) or RBF/Radial Basis (1);";
     gpb.registerFileParameter<transferFunction>(
         "transferFunction",
-        tF_,
+        t_f_,
         GNN_DEF_TRANSFER,
         Gem::Common::VAR_IS_ESSENTIAL,
         comment
@@ -1734,20 +1736,20 @@ void GNeuralNetworkIndividualFactory::postProcess_(std::shared_ptr<gpar::GParame
 
     // Call the initialization function with our parsed data
     p->init(
-        minVar_,
-        maxVar_,
+        min_var_,
+        max_var_,
         sigma_,
-        sigmaSigma_,
-        minSigma_,
-        maxSigma_,
-        adProb_,
-        adaptAdProb_,
-        minAdProb_,
-        maxAdProb_
+        sigma_sigma_,
+        min_sigma_,
+        max_sigma_,
+        ad_prob_,
+        adapt_ad_prob_,
+        min_ad_prob_,
+        max_ad_prob_
     );
 
     // Set the transfer function
-    p->setTransferFunction(tF_);
+    p->setTransferFunction(t_f_);
 }
 
 /******************************************************************************/
@@ -1772,9 +1774,8 @@ std::shared_ptr<Gem::Geneva::networkData> TFactory_GSingletonT() {
     if(GNeuralNetworkOptions->exists("trainingDataFile")) {
         return std::make_shared<Gem::Geneva::networkData>(GNeuralNetworkOptions->get("trainingDataFile"));
     }
-    else {
-        return std::make_shared<Gem::Geneva::networkData>(Gem::Geneva::GNN_DEF_DATAFILE);
-    }
+            return std::make_shared<Gem::Geneva::networkData>(Gem::Geneva::GNN_DEF_DATAFILE);
+   
 }
 
 } /* namespace Gem::Common */

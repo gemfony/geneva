@@ -63,13 +63,13 @@ class GPreEvaluationValidityCheckT // NOLINT(cppcoreguidelines-special-member-fu
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject) & BOOST_SERIALIZATION_NVP(allowNegative_);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject) & BOOST_SERIALIZATION_NVP(allow_negative_);
     }
     ///////////////////////////////////////////////////////////////////////
 
     // We only accept validity checks for types derived directly or indirectly from GParameterSet
     static_assert(
-        std::is_base_of<gpar::GParameterSet, ind_type>::value,
+        std::is_base_of_v<gpar::GParameterSet, ind_type>,
         "GParameterSet is no base of ind_type"
     );
 
@@ -107,19 +107,18 @@ public:
     double check(const ind_type *cp) const {
         double result = check_(cp);
 
-        if(allowNegative_) {
+        if(allow_negative_) {
             if(result <= 1.) { // valid
                 return 0.;
             }
-            else {
-                return result;
-            }
+                            return result;
+           
         }
         else {
             if(result >= 0. && result <= 1.) { // valid
                 return 0.;
             }
-            else {                // invalid
+                           // invalid
                 if(result < 0.) { // we need to calculate a replacement value
                     // Will be the more invalid the further below 0 "result" is
                     return 1. + std::abs(result);
@@ -127,7 +126,7 @@ public:
                 else { // result > 1, we may just return the unmodified value
                     return result;
                 }
-            }
+           
         }
     }
 
@@ -148,12 +147,11 @@ public:
             return false;
         }
 
-        if(allowNegative_) {
+        if(allow_negative_) {
             return (validity_level <= 1.);
         }
-        else {
-            return (validity_level >= 0. && validity_level <= 1.);
-        }
+                    return (validity_level >= 0. && validity_level <= 1.);
+       
     }
 
     /***************************************************************************/
@@ -173,7 +171,7 @@ public:
      * Allows to specify whether negative values are considered to be valid
      */
     bool getAllowNegative() const {
-        return allowNegative_;
+        return allow_negative_;
     }
 
     /***************************************************************************/
@@ -181,7 +179,7 @@ public:
      * Allows to specify whether negative values are considered to be valid
      */
     void setAllowNegative(bool allow_negative) {
-        allowNegative_ = allow_negative;
+        allow_negative_ = allow_negative;
     }
 
 protected:
@@ -221,7 +219,7 @@ protected:
         GObject::load_(cp);
 
         // ... and then our local data
-        allowNegative_ = p_load->allowNegative_;
+        allow_negative_ = p_load->allow_negative_;
     }
 
     /***************************************************************************/
@@ -261,7 +259,7 @@ protected:
         Gem::Common::compare_base_t<GObject>(*this, *p_load, token);
 
         // ... and then the local data
-        compare_t(IDENTITY(allowNegative_, p_load->allowNegative_), token);
+        compare_t(IDENTITY(allow_negative_, p_load->allow_negative_), token);
 
         // React on deviations from the expectation
         token.evaluate();
@@ -274,7 +272,7 @@ private:
 
     /***************************************************************************/
 
-    bool allowNegative_ = false; ///< Set to true if negative values are considered to be valid
+    bool allow_negative_ = false; ///< Set to true if negative values are considered to be valid
 };
 
 /******************************************************************************/
@@ -309,7 +307,7 @@ public:
     explicit GValidityCheckContainerT(
         const std::vector<std::shared_ptr<GPreEvaluationValidityCheckT<ind_type>>> &validity_checks
     ) {
-        Gem::Common::copyCloneableSmartPointerContainer(validity_checks, validityChecks_);
+        Gem::Common::copyCloneableSmartPointerContainer(validity_checks, validity_checks_);
     }
 
     /***************************************************************************/
@@ -318,7 +316,7 @@ public:
      */
     GValidityCheckContainerT(const GValidityCheckContainerT<ind_type> &cp)
       : GPreEvaluationValidityCheckT<ind_type>(cp) {
-        Gem::Common::copyCloneableSmartPointerContainer(cp.validityChecks_, validityChecks_);
+        Gem::Common::copyCloneableSmartPointerContainer(cp.validity_checks_, validity_checks_);
     }
 
     /***************************************************************************/
@@ -353,7 +351,7 @@ public:
             );
         }
 
-        validityChecks_.push_back(
+        validity_checks_.push_back(
             vc_ptr->GObject::template clone<GPreEvaluationValidityCheckT<ind_type>>()
         );
     }
@@ -379,7 +377,7 @@ protected:
         GPreEvaluationValidityCheckT<ind_type>::load_(cp);
 
         // and then our local data
-        Gem::Common::copyCloneableSmartPointerContainer(p_load->validityChecks_, validityChecks_);
+        Gem::Common::copyCloneableSmartPointerContainer(p_load->validity_checks_, validity_checks_);
     }
 
     /***************************************************************************/
@@ -419,7 +417,7 @@ protected:
         compare_base_t<GPreEvaluationValidityCheckT<ind_type>>(*this, *p_load, token);
 
         // ... and then the local data
-        compare_t(IDENTITY(validityChecks_, p_load->validityChecks_), token);
+        compare_t(IDENTITY(validity_checks_, p_load->validity_checks_), token);
 
         // React on deviations from the expectation
         token.evaluate();
@@ -427,7 +425,7 @@ protected:
 
     /***************************************************************************/
     /** @brief Holds all registered validity checks */
-    std::vector<std::shared_ptr<GPreEvaluationValidityCheckT<ind_type>>> validityChecks_;
+    std::vector<std::shared_ptr<GPreEvaluationValidityCheckT<ind_type>>> validity_checks_;
 
 private:
     /***************************************************************************/
@@ -453,7 +451,7 @@ class GCheckCombinerT : public GValidityCheckContainerT<ind_type> {
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPreEvaluationValidityCheckT<ind_type>) &
-            BOOST_SERIALIZATION_NVP(combinerPolicy_);
+            BOOST_SERIALIZATION_NVP(combiner_policy_);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -503,7 +501,7 @@ public:
      * Allows to set the combiner policy
      */
     void setCombinerPolicy(validityCheckCombinerPolicy combiner_policy) {
-        combinerPolicy_ = combiner_policy;
+        combiner_policy_ = combiner_policy;
     }
 
     /***************************************************************************/
@@ -511,7 +509,7 @@ public:
      * Allows to retrieve the combiner policy
      */
     validityCheckCombinerPolicy getCombinerPolicy() const {
-        return combinerPolicy_;
+        return combiner_policy_;
     }
 
 protected:
@@ -527,8 +525,8 @@ protected:
         double validity_level = 0.;
         typename std::vector<
             std::shared_ptr<GPreEvaluationValidityCheckT<ind_type>>>::const_iterator cit;
-        for(cit = GValidityCheckContainerT<ind_type>::validityChecks_.begin();
-            cit != GValidityCheckContainerT<ind_type>::validityChecks_.end();
+        for(cit = GValidityCheckContainerT<ind_type>::validity_checks_.begin();
+            cit != GValidityCheckContainerT<ind_type>::validity_checks_.end();
             ++cit) {
             if(not(*cit)->isValid(cp, validity_level)) {
                 invalid_checks.push_back(validity_level);
@@ -541,7 +539,7 @@ protected:
         }
 
         // Now act on the invalid tests
-        switch(combinerPolicy_) {
+        switch(combiner_policy_) {
         // --------------------------------------------------------------------
         // Multiply all invalidities
         case Gem::Geneva::validityCheckCombinerPolicy::MULTIPLYINVALID: {
@@ -583,7 +581,7 @@ protected:
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GCheckCombinerT<ind_type>::check_(): Error!" << '\n'
-                << "Got invalid combinerPolicy_ value: " << combinerPolicy_ << '\n'
+                << "Got invalid combiner_policy_ value: " << combiner_policy_ << '\n'
             );
         }
         }
@@ -602,7 +600,7 @@ protected:
         GPreEvaluationValidityCheckT<ind_type>::load_(cp);
 
         // and then our local data
-        combinerPolicy_ = p_load->combinerPolicy_;
+        combiner_policy_ = p_load->combiner_policy_;
     }
 
     /***************************************************************************/
@@ -639,7 +637,7 @@ protected:
         compare_base_t<GValidityCheckContainerT<ind_type>>(*this, *p_load, token);
 
         // ... and then the local data
-        compare_t(IDENTITY(combinerPolicy_, p_load->combinerPolicy_), token);
+        compare_t(IDENTITY(combiner_policy_, p_load->combiner_policy_), token);
 
         // React on deviations from the expectation
         token.evaluate();
@@ -657,7 +655,7 @@ private:
     /***************************************************************************/
     // Local data
 
-    validityCheckCombinerPolicy combinerPolicy_ = Gem::Geneva::validityCheckCombinerPolicy::
+    validityCheckCombinerPolicy combiner_policy_ = Gem::Geneva::validityCheckCombinerPolicy::
         MULTIPLYINVALID; ///< Indicates how validity checks should be combined
 };
 

@@ -46,7 +46,7 @@ GLineFitIndividual::GLineFitIndividual() { /* nothing */
  * @param n_objects The number of parameters to be added to this individual
  */
 GLineFitIndividual::GLineFitIndividual(const std::vector<std::tuple<double, double>> &data_points)
-  : dataPoints_(data_points) {
+  : data_points_(data_points) {
     using namespace Gem::Geneva;
 
     for(std::size_t i = 0; i < 2; i++) {
@@ -67,7 +67,7 @@ GLineFitIndividual::GLineFitIndividual(const std::vector<std::tuple<double, doub
  */
 GLineFitIndividual::GLineFitIndividual(const GLineFitIndividual &cp)
   : gpar::GParameterSet(cp)
-  , dataPoints_(cp.dataPoints_) { /* nothing */
+  , data_points_(cp.data_points_) { /* nothing */
 }
 
 /******************************************************************************/
@@ -103,7 +103,7 @@ void GLineFitIndividual::compare_(
     Gem::Common::compare_base_t<gpar::GParameterSet>(*this, *p_load, token);
 
     // ... and then the local data
-    compare_t(IDENTITY(dataPoints_, p_load->dataPoints_), token);
+    compare_t(IDENTITY(data_points_, p_load->data_points_), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -137,7 +137,7 @@ void GLineFitIndividual::load_(const GObject *cp) {
     gpar::GParameterSet::load_(cp);
 
     // and then our local data
-    dataPoints_ = p_load->dataPoints_;
+    data_points_ = p_load->data_points_;
 }
 
 /******************************************************************************/
@@ -170,7 +170,7 @@ double GLineFitIndividual::fitnessCalculation() {
     // Sum up the square deviation of line and data points
     double deviation = 0.;
     std::vector<std::tuple<double, double>>::iterator it;
-    for(it = dataPoints_.begin(); it != dataPoints_.end(); ++it) {
+    for(it = data_points_.begin(); it != data_points_.end(); ++it) {
         deviation = (a + b * std::get<0>(*it)) - std::get<1>(*it);
         result += GSQUARED(deviation);
     }
@@ -259,7 +259,7 @@ GLineFitIndividualFactory::GLineFitIndividualFactory(
     std::filesystem::path const &config_file
 )
   : Gem::Common::GFactoryT<gpar::GParameterSet>(config_file)
-  , dataPoints_(data_points) { /* nothing */
+  , data_points_(data_points) { /* nothing */
 }
 
 /******************************************************************************/
@@ -280,7 +280,7 @@ std::shared_ptr<gpar::GParameterSet> GLineFitIndividualFactory::getObject_(
     const std::size_t & /*id*/
 ) {
     // Will hold the result
-    std::shared_ptr<GLineFitIndividual> target(new GLineFitIndividual(this->dataPoints_));
+    std::shared_ptr<GLineFitIndividual> target(new GLineFitIndividual(this->data_points_));
 
     // Make the object's local configuration options known
     target->addConfigurationOptions(gpb);

@@ -65,9 +65,9 @@ class GParameterBase
         using boost::serialization::make_nvp;
 
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject) &
-            BOOST_SERIALIZATION_NVP(adaptionsActive_) &
-            BOOST_SERIALIZATION_NVP(randomInitializationBlocked_) &
-            BOOST_SERIALIZATION_NVP(parameterName_);
+            BOOST_SERIALIZATION_NVP(adaptions_active_) &
+            BOOST_SERIALIZATION_NVP(random_initialization_blocked_) &
+            BOOST_SERIALIZATION_NVP(parameter_name_);
     }
     ///////////////////////////////////////////////////////////////////////
 public:
@@ -396,14 +396,13 @@ public:
         if(p) {
             return p;
         }
-        else {
-            throw geneva_exception(
+                    throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In std::shared_ptr<load_type> GParameterBase::parameterbase_cast<load_type>() :"
                 << '\n'
                 << "Invalid conversion with load_type = " << typeid(load_type).name() << '\n'
             );
-        }
+       
 #else
         return std::static_pointer_cast<load_type>(load_ptr);
 #endif
@@ -665,11 +664,11 @@ private:
     virtual bool isIndividualParameter_() const;
 
     /***************************************************************************/
-    bool adaptionsActive_ =
+    bool adaptions_active_ =
         true; ///< Specifies whether adaptions of this object should be carried out
-    bool randomInitializationBlocked_ =
+    bool random_initialization_blocked_ =
         false; ///< Specifies that this object should not be initialized again
-    std::string parameterName_ = Gem::Common::generate_uuid_v4(); ///< A name assigned to this parameter object
+    std::string parameter_name_ = Gem::Common::generate_uuid_v4(); ///< A name assigned to this parameter object
 };
 
 /******************************************************************************/
@@ -881,9 +880,8 @@ inline std::size_t GParameterBase::countParameters<float>(activityMode am) const
     if(this->modifiableAmMatchOrHandover(am)) {
         return this->countFloatParameters(am);
     }
-    else {
-        return 0;
-    }
+            return 0;
+   
 }
 
 /******************************************************************************/
@@ -898,9 +896,8 @@ inline std::size_t GParameterBase::countParameters<double>(activityMode am) cons
     if(this->modifiableAmMatchOrHandover(am)) {
         return this->countDoubleParameters(am);
     }
-    else {
-        return 0;
-    }
+            return 0;
+   
 }
 
 /******************************************************************************/
@@ -915,9 +912,8 @@ inline std::size_t GParameterBase::countParameters<std::int32_t>(activityMode am
     if(this->modifiableAmMatchOrHandover(am)) {
         return this->countInt32Parameters(am);
     }
-    else {
-        return 0;
-    }
+            return 0;
+   
 }
 
 /******************************************************************************/
@@ -932,9 +928,8 @@ inline std::size_t GParameterBase::countParameters<bool>(activityMode am) const 
     if(this->modifiableAmMatchOrHandover(am)) {
         return this->countBoolParameters(am);
     }
-    else {
-        return 0;
-    }
+            return 0;
+   
 }
 
 /******************************************************************************/

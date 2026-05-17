@@ -96,9 +96,9 @@ class GConjugateGradientDescent // NOLINT(cppcoreguidelines-special-member-funct
         ar &make_nvp(
             "GBase",
             boost::serialization::base_object<GBase>(*this)
-        ) & BOOST_SERIALIZATION_NVP(nStartingPoints_) &
-            BOOST_SERIALIZATION_NVP(nFPParmsFirst_) & BOOST_SERIALIZATION_NVP(finiteStep_) &
-            BOOST_SERIALIZATION_NVP(stepSize_);
+        ) & BOOST_SERIALIZATION_NVP(n_starting_points_) &
+            BOOST_SERIALIZATION_NVP(n_fp_parms_first_) & BOOST_SERIALIZATION_NVP(finite_step_) &
+            BOOST_SERIALIZATION_NVP(step_size_);
     }
 
     ///////////////////////////////////////////////////////////////////////
@@ -209,7 +209,7 @@ private:
 
     /** @brief Lets individuals know about their position in the population */
     void markIndividualPositions();
-    /** @brief Recomputes adjustedFiniteStep_ from finiteStep_ and the parameter ranges */
+    /** @brief Recomputes adjusted_finite_step_ from finite_step_ and the parameter ranges */
     void updateDerivedQuantities();
     /** @brief (Re-)initialises the per-starting-point conjugate-gradient state */
     void resetCGState();
@@ -217,29 +217,29 @@ private:
     /***************************************************************************/
     // Data
 
-    std::size_t nStartingPoints_ =
+    std::size_t n_starting_points_ =
         DEFAULTCGDSTARTINGPOINTS;   ///< The number of starting positions in the parameter space
-    std::size_t nFPParmsFirst_ = 0; ///< The amount of active floating point values per individual
+    std::size_t n_fp_parms_first_ = 0; ///< The amount of active floating point values per individual
 
-    double finiteStep_ =
+    double finite_step_ =
         DEFAULTCGDFINITESTEP; ///< The size of the difference-quotient step (per mill of the range)
-    double stepSize_ =
+    double step_size_ =
         DEFAULTCGDSTEPSIZE; ///< Multiplicative factor for the step along the search direction
 
     std::vector<double>
-        dblLowerParameterBoundaries_; ///< Lower boundaries of double parameters; extracted in init() (transient)
+        dbl_lower_parameter_boundaries_; ///< Lower boundaries of double parameters; extracted in init() (transient)
     std::vector<double>
-        dblUpperParameterBoundaries_; ///< Upper boundaries of double parameters; extracted in init() (transient)
+        dbl_upper_parameter_boundaries_; ///< Upper boundaries of double parameters; extracted in init() (transient)
     std::vector<double>
-        adjustedFiniteStep_; ///< Per-parameter difference-quotient step; recomputed in init() (transient)
+        adjusted_finite_step_; ///< Per-parameter difference-quotient step; recomputed in init() (transient)
 
     // Per-starting-point conjugate-gradient memory. All transient: recomputed
     // during optimization and therefore neither serialized nor restored in
-    // load_() (mirrors the treatment of adjustedFiniteStep_ in GGradientDescent).
-    std::vector<std::vector<double>> prevGradient_;  ///< g_{k-1} for every starting point
-    std::vector<std::vector<double>> prevDirection_; ///< d_{k-1} for every starting point
+    // load_() (mirrors the treatment of adjusted_finite_step_ in GGradientDescent).
+    std::vector<std::vector<double>> prev_gradient_;  ///< g_{k-1} for every starting point
+    std::vector<std::vector<double>> prev_direction_; ///< d_{k-1} for every starting point
     std::vector<bool>
-        cgHistoryValid_; ///< Whether a previous gradient/direction exists per starting point
+        cg_history_valid_; ///< Whether a previous gradient/direction exists per starting point
 };
 
 /******************************************************************************/

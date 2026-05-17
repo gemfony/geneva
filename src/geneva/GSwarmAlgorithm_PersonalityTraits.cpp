@@ -52,7 +52,7 @@ GSwarmAlgorithm_PersonalityTraits::GSwarmAlgorithm_PersonalityTraits(
 )
   : GPersonalityTraits(cp)
   , neighborhood_(cp.neighborhood_)
-  , noPositionUpdate_(cp.noPositionUpdate_)
+  , no_position_update_(cp.no_position_update_)
   , personal_best_quality_(cp.personal_best_quality_) {
     // Copy the personal_best_ vector over
     Gem::Common::copyCloneableSmartPointer(cp.personal_best_, personal_best_);
@@ -89,7 +89,7 @@ void GSwarmAlgorithm_PersonalityTraits::compare_(
 
     // ... and then the local data
     compare_t(IDENTITY(neighborhood_, p_load->neighborhood_), token);
-    compare_t(IDENTITY(noPositionUpdate_, p_load->noPositionUpdate_), token);
+    compare_t(IDENTITY(no_position_update_, p_load->no_position_update_), token);
     compare_t(IDENTITY(personal_best_, p_load->personal_best_), token);
     compare_t(IDENTITY(personal_best_quality_, p_load->personal_best_quality_), token);
 
@@ -115,10 +115,10 @@ std::string GSwarmAlgorithm_PersonalityTraits::getMnemonic() const {
 
 /******************************************************************************/
 /**
- * Sets the noPositionUpdate_ flag
+ * Sets the no_position_update_ flag
  */
 void GSwarmAlgorithm_PersonalityTraits::setNoPositionUpdate() {
-    noPositionUpdate_ = true;
+    no_position_update_ = true;
 }
 
 /* ----------------------------------------------------------------------------------
@@ -128,12 +128,12 @@ void GSwarmAlgorithm_PersonalityTraits::setNoPositionUpdate() {
 
 /******************************************************************************/
 /**
- * Retrieves the current value of the noPositionUpdate_ flag
+ * Retrieves the current value of the no_position_update_ flag
  *
- * @return The current value of the noPositionUpdate_ flag
+ * @return The current value of the no_position_update_ flag
  */
 bool GSwarmAlgorithm_PersonalityTraits::noPositionUpdate() const {
-    return noPositionUpdate_;
+    return no_position_update_;
 }
 
 /* ----------------------------------------------------------------------------------
@@ -143,14 +143,14 @@ bool GSwarmAlgorithm_PersonalityTraits::noPositionUpdate() const {
 
 /******************************************************************************/
 /**
- * Retrieves and resets the current value of the noPositionUpdate_ flag
+ * Retrieves and resets the current value of the no_position_update_ flag
  *
- * @return The value of the noPositionUpdate_ flag when the function was called
+ * @return The value of the no_position_update_ flag when the function was called
  */
 bool GSwarmAlgorithm_PersonalityTraits::checkNoPositionUpdateAndReset() {
-    bool current = noPositionUpdate_;
-    if(noPositionUpdate_) {
-        noPositionUpdate_ = false;
+    bool current = no_position_update_;
+    if(no_position_update_) {
+        no_position_update_ = false;
     }
     return current;
 }
@@ -285,7 +285,7 @@ void GSwarmAlgorithm_PersonalityTraits::load_(const GObject *cp) {
 
     // and then the local data
     neighborhood_ = p_load->neighborhood_;
-    noPositionUpdate_ = p_load->noPositionUpdate_;
+    no_position_update_ = p_load->no_position_update_;
 
     // Copy the personal_best_ vector over and make sure we do not get a "chain" of individuals
     Gem::Common::copyCloneableSmartPointer(p_load->personal_best_, personal_best_);
@@ -354,7 +354,7 @@ void GSwarmAlgorithm_PersonalityTraits::specificTestsNoFailureExpected_GUnitTest
 
     //---------------------------------------------------------------------------
 
-    { // Test setting and retrieval of the noPositionUpdate_ flag
+    { // Test setting and retrieval of the no_position_update_ flag
         std::shared_ptr<GSwarmAlgorithm_PersonalityTraits> p_test =
             this->clone<GSwarmAlgorithm_PersonalityTraits>();
 

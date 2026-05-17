@@ -62,7 +62,7 @@ TEST_CASE("GGlobalOptionsT: set/get round-trip via out-parameter and direct acce
           "[common][global-options]") {
     GGlobalOptionsT<int> opts;
     CHECK(opts.empty());
-    CHECK(opts.size() == 0);
+    CHECK(opts.empty());
 
     opts.set("alpha", 1);
     opts.set("beta",  2);

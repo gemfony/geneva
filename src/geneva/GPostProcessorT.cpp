@@ -45,9 +45,9 @@ GEvolutionaryAlgorithmPostOptimizer::GEvolutionaryAlgorithmPostOptimizer(
     const std::string &oa_config_file,
     const std::string &executor_config_file
 )
-  : oa_configFile_(oa_config_file)
-  , executor_configFile_(executor_config_file)
-  , executionMode_(
+  : oa_config_file_(oa_config_file)
+  , executor_config_file_(executor_config_file)
+  , execution_mode_(
         (execution_mode == execMode::SERIAL || execution_mode == execMode::MULTITHREADED)
             ? execution_mode
             : execMode::SERIAL
@@ -105,9 +105,9 @@ void GEvolutionaryAlgorithmPostOptimizer::compare_(
     Gem::Common::compare_base_t<GPostProcessorBaseT<gpar::GParameterSet>>(*this, *p_load, token);
 
     // ... and then our local data
-    compare_t(IDENTITY(oa_configFile_, p_load->oa_configFile_), token);
-    compare_t(IDENTITY(executor_configFile_, p_load->executor_configFile_), token);
-    compare_t(IDENTITY(executionMode_, p_load->executionMode_), token);
+    compare_t(IDENTITY(oa_config_file_, p_load->oa_config_file_), token);
+    compare_t(IDENTITY(executor_config_file_, p_load->executor_config_file_), token);
+    compare_t(IDENTITY(execution_mode_, p_load->execution_mode_), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -121,7 +121,7 @@ void GEvolutionaryAlgorithmPostOptimizer::setExecMode(execMode execution_mode) {
     switch(execution_mode) {
     case execMode::SERIAL:
     case execMode::MULTITHREADED: {
-        executionMode_ = execution_mode;
+        execution_mode_ = execution_mode;
     } break;
 
     case execMode::BROKER: {
@@ -139,7 +139,7 @@ void GEvolutionaryAlgorithmPostOptimizer::setExecMode(execMode execution_mode) {
  * Allows to retrieve the current execution mode
  */
 execMode GEvolutionaryAlgorithmPostOptimizer::getExecMode() const {
-    return executionMode_;
+    return execution_mode_;
 }
 
 /******************************************************************************/
@@ -147,7 +147,7 @@ execMode GEvolutionaryAlgorithmPostOptimizer::getExecMode() const {
  * Allows to specify the name of a configuration file
  */
 void GEvolutionaryAlgorithmPostOptimizer::setOAConfigFile(const std::string &oa_config_file) {
-    oa_configFile_ = oa_config_file;
+    oa_config_file_ = oa_config_file;
 }
 
 /******************************************************************************/
@@ -155,7 +155,7 @@ void GEvolutionaryAlgorithmPostOptimizer::setOAConfigFile(const std::string &oa_
  * Allows to retrieve the configuration file
  */
 std::string GEvolutionaryAlgorithmPostOptimizer::getOAConfigFile() const {
-    return oa_configFile_;
+    return oa_config_file_;
 }
 
 /******************************************************************************/
@@ -165,7 +165,7 @@ std::string GEvolutionaryAlgorithmPostOptimizer::getOAConfigFile() const {
 void GEvolutionaryAlgorithmPostOptimizer::setExecutorConfigFile(
     const std::string &executor_config_file
 ) {
-    executor_configFile_ = executor_config_file;
+    executor_config_file_ = executor_config_file;
 }
 
 /******************************************************************************/
@@ -173,7 +173,7 @@ void GEvolutionaryAlgorithmPostOptimizer::setExecutorConfigFile(
  * Allows to retrieve the configuration file for the executor
  */
 std::string GEvolutionaryAlgorithmPostOptimizer::getExecutorConfigFile() const {
-    return executor_configFile_;
+    return executor_config_file_;
 }
 
 /******************************************************************************/
@@ -192,9 +192,9 @@ void GEvolutionaryAlgorithmPostOptimizer::load_(
     GPostProcessorBaseT<gpar::GParameterSet>::load_(cp);
 
     // ... and then our local data
-    oa_configFile_ = p_load->oa_configFile_;
-    executor_configFile_ = p_load->executor_configFile_;
-    executionMode_ = p_load->executionMode_;
+    oa_config_file_ = p_load->oa_config_file_;
+    executor_config_file_ = p_load->executor_config_file_;
+    execution_mode_ = p_load->execution_mode_;
 }
 
 /******************************************************************************/
@@ -220,11 +220,11 @@ bool GEvolutionaryAlgorithmPostOptimizer::raw_processing_(gpar::GParameterSet &p
         );
     }
 
-    if(executionMode_ == execMode::BROKER) {
+    if(execution_mode_ == execMode::BROKER) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GEvolutionaryAlgorithmPostOptimizer::raw_processing_: Error!" << '\n'
-            << "Got invalid execution mode " << executionMode_ << '\n'
+            << "Got invalid execution mode " << execution_mode_ << '\n'
         );
     }
 
@@ -235,11 +235,11 @@ bool GEvolutionaryAlgorithmPostOptimizer::raw_processing_(gpar::GParameterSet &p
     p_unopt_ptr->vetoPostProcessing(true);
 
     // Retrieve an evolutionary algorithm
-    oa::GEvolutionaryAlgorithmFactory ea_factory(oa_configFile_);
+    oa::GEvolutionaryAlgorithmFactory ea_factory(oa_config_file_);
     auto ea_ptr = ea_factory.get<oa::GEvolutionaryAlgorithm>();
 
     // Add an executor to the algorithm
-    ea_ptr->registerExecutor(executionMode_, executor_configFile_);
+    ea_ptr->registerExecutor(execution_mode_, executor_config_file_);
 
     // Add our individual to the algorithm
     ea_ptr->push_back(p_unopt_ptr);

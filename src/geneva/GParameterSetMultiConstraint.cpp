@@ -96,7 +96,7 @@ void GParameterSetConstraint::load_(const GObject *cp) {
  * A constructor that accepts a formula in string form as its argument
  */
 GParameterSetFormulaConstraint::GParameterSetFormulaConstraint(std::string raw_formula)
-  : rawFormula_(raw_formula) { /* nothing */
+  : raw_formula_(raw_formula) { /* nothing */
 }
 
 /******************************************************************************/
@@ -125,7 +125,7 @@ void GParameterSetFormulaConstraint::compare_(
     Gem::Common::compare_base_t<GParameterSetConstraint>(*this, *p_load, token);
 
     // ... and then the local data
-    compare_t(IDENTITY(rawFormula_, p_load->rawFormula_), token);
+    compare_t(IDENTITY(raw_formula_, p_load->raw_formula_), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -153,7 +153,7 @@ double GParameterSetFormulaConstraint::check_(const GParameterSet *p) const {
     std::map<std::string, std::vector<double>> parameter_values;
 
     p->streamline(parameter_values); // Extract the parameter values including names
-    Gem::Common::GFormulaParserT<double> f(rawFormula_); // Create the parser
+    Gem::Common::GFormulaParserT<double> f(raw_formula_); // Create the parser
 
     try {
         return f(
@@ -186,7 +186,7 @@ void GParameterSetFormulaConstraint::load_(const GObject *cp) {
     GPreEvaluationValidityCheckT<GParameterSet>::load_(cp);
 
     // ... and then our local data
-    rawFormula_ = p_load->rawFormula_;
+    raw_formula_ = p_load->raw_formula_;
 }
 
 /******************************************************************************/

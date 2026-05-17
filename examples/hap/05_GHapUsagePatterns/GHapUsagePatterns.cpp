@@ -89,7 +89,8 @@ int main(int argc, char **argv) {
         {
             // Random numbers with an even distribution of
             // double values in the range [min,max[
-            double min = -10., max = 10.;
+            double min = -10.;
+            double max = 10.;
             double d_even_min_max = uniform_real_distribution(
                 gr,
                 std::uniform_real_distribution<double>::param_type(min, max)
@@ -136,7 +137,8 @@ int main(int argc, char **argv) {
         {
             // This function produces integer random numbers in the range of [min, max] .
             // Note that max may also be < 0.
-            std::int32_t min = -10, max = 10;
+            std::int32_t min = -10;
+            std::int32_t max = 10;
             std::int32_t int_rand_min_max = uniform_int_distribution(
                 gr,
                 std::uniform_int_distribution<std::int32_t>::param_type(min, max)

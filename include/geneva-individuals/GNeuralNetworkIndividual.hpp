@@ -180,21 +180,21 @@ class networkData : public Gem::Common::GPodContainerT<std::size_t> {
         ar &make_nvp(
             "GStdSimpleVectorInterfaceT_size_t",
             boost::serialization::base_object<Gem::Common::GPodContainerT<std::size_t>>(*this)
-        ) & BOOST_SERIALIZATION_NVP(initRange_);
+        ) & BOOST_SERIALIZATION_NVP(init_range_);
 
         // Make sure the data vector is empty
         if(data_) {
-            for(std::size_t i = 0; i < arraySize_; i++) {
+            for(std::size_t i = 0; i < array_size_; i++) {
                 data_[i].reset();
             }
         }
         Gem::Common::g_array_delete(data_);
 
-        ar &BOOST_SERIALIZATION_NVP(arraySize_);
+        ar &BOOST_SERIALIZATION_NVP(array_size_);
 
-        data_ = new std::shared_ptr<trainingSet>[arraySize_];
+        data_ = new std::shared_ptr<trainingSet>[array_size_];
 
-        ar &boost::serialization::make_array(data_, arraySize_);
+        ar &boost::serialization::make_array(data_, array_size_);
     }
 
     template <typename Archive>
@@ -204,9 +204,9 @@ class networkData : public Gem::Common::GPodContainerT<std::size_t> {
         ar &make_nvp(
             "GStdSimpleVectorInterfaceT_size_t",
             boost::serialization::base_object<Gem::Common::GPodContainerT<std::size_t>>(*this)
-        ) & BOOST_SERIALIZATION_NVP(initRange_) &
-            BOOST_SERIALIZATION_NVP(arraySize_) &
-            boost::serialization::make_array(data_, arraySize_);
+        ) & BOOST_SERIALIZATION_NVP(init_range_) &
+            BOOST_SERIALIZATION_NVP(array_size_) &
+            boost::serialization::make_array(data_, array_size_);
     }
 
     BOOST_SERIALIZATION_SPLIT_MEMBER()
@@ -278,12 +278,12 @@ private:
 
     /***************************************************************************/
     /** @brief The size of the training set */
-    std::size_t arraySize_;
+    std::size_t array_size_;
     /** @brief Holds the individual data items */
     std::shared_ptr<trainingSet> *data_;
 
     /** @brief Holds the initialization range in each direction */
-    std::vector<std::tuple<double, double>> initRange_;
+    std::vector<std::tuple<double, double>> init_range_;
 
     /** @brief Locks access to the clone function */
     mutable std::mutex m_; ///< Lock get/set operations
@@ -362,7 +362,7 @@ class GNeuralNetworkIndividual // NOLINT(cppcoreguidelines-special-member-functi
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GParameterSet);
 
         // Load the network data from disk
-        nD_ = GNNTrainingDataStore; // A glogal singleton
+        n_d_ = GNNTrainingDataStore; // A glogal singleton
     }
 
     template <typename Archive>
@@ -1044,8 +1044,8 @@ private:
 
     /***************************************************************************/
     // Local variables
-    transferFunction tF_;             ///< The transfer function to be used for the training
-    std::shared_ptr<networkData> nD_; ///< Holds the training data
+    transferFunction t_f_;             ///< The transfer function to be used for the training
+    std::shared_ptr<networkData> n_d_; ///< Holds the training data
 };
 
 /******************************************************************************/
@@ -1082,18 +1082,18 @@ private:
     std::shared_ptr<gpar::GParameterSet>
     getObject_(Gem::Common::GParserBuilder &, const std::size_t &) override;
 
-    double adProb_ = 0.;
-    double adaptAdProb_ = 0.;
-    double minAdProb_ = 0.;
-    double maxAdProb_ = 0.;
+    double ad_prob_ = 0.;
+    double adapt_ad_prob_ = 0.;
+    double min_ad_prob_ = 0.;
+    double max_ad_prob_ = 0.;
     double sigma_ = 0.;
-    double sigmaSigma_ = 0.;
-    double minSigma_ = 0.;
-    double maxSigma_ = 0.;
-    double minVar_ = 0.;
-    double maxVar_ = 0.;
+    double sigma_sigma_ = 0.;
+    double min_sigma_ = 0.;
+    double max_sigma_ = 0.;
+    double min_var_ = 0.;
+    double max_var_ = 0.;
 
-    transferFunction tF_;
+    transferFunction t_f_;
 };
 
 /******************************************************************************/

@@ -40,7 +40,7 @@ namespace Gem::Common {
  * @param n_threads The desired number of threads executing work concurrently in the pool
  */
 GThreadPool::GThreadPool(unsigned int n_threads)
-  : nThreads_(n_threads > 0 ? n_threads : DEFAULTNHARDWARETHREADS) {
+  : n_threads_(n_threads > 0 ? n_threads : DEFAULTNHARDWARETHREADS) {
     if(0 == n_threads) {
         glogger << "In GThreadPool::GThreadPool(unsigned int const &n_threads):" << '\n'
                 << "User requested n_threads == 0. n_threads was reset to the default "
@@ -62,7 +62,7 @@ GThreadPool::~GThreadPool() {
         // Makes sure cnt_lck is released
         // Acquire the lock, then return it as long as the condition hasn't been fulfilled
         std::unique_lock<std::mutex> cnt_lck(task_counter_mutex_);
-        while(tasksInFlight_.load() > 0) {
+        while(tasks_in_flight_.load() > 0) {
             // Deal with spurious wake-ups
             condition_.wait(cnt_lck);
         }
@@ -103,7 +103,7 @@ void GThreadPool::setNThreads(unsigned int n_threads) {
         // Let the pool run empty
         // Acquire the lock, then return it as long as the condition hasn't been fulfilled
         std::unique_lock<std::mutex> cnt_lck(task_counter_mutex_);
-        while(tasksInFlight_.load() > 0) {
+        while(tasks_in_flight_.load() > 0) {
             // Deal with spurious wake-ups
             condition_.wait(cnt_lck);
         }
@@ -111,11 +111,11 @@ void GThreadPool::setNThreads(unsigned int n_threads) {
 
     // If threads were already running, either add new threads or recreate the pool
     if(threads_started_) {
-        if(n_threads > nThreads_.load()) {
+        if(n_threads > n_threads_.load()) {
             // We simply add the required number of threads
             gtg_.create_threads(
                 [this]() { this->io_context_.run(); },
-                n_threads - nThreads_.load()
+                n_threads - n_threads_.load()
             );
         }
         else {
@@ -139,7 +139,7 @@ void GThreadPool::setNThreads(unsigned int n_threads) {
     }
 
     // Finally set the new number of threads
-    nThreads_ = n_threads;
+    n_threads_ = n_threads;
 }
 
 /******************************************************************************/
@@ -163,7 +163,7 @@ void GThreadPool::wait() {
         // Makes sure cnt_lck is released
         // Acquire the lock, then return it as long as the condition hasn't been fulfilled
         std::unique_lock<std::mutex> cnt_lck(task_counter_mutex_);
-        condition_.wait(cnt_lck, [this]() -> bool { return (tasksInFlight_.load() == 0); });
+        condition_.wait(cnt_lck, [this]() -> bool { return (tasks_in_flight_.load() == 0); });
     }
 }
 

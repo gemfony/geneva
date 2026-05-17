@@ -57,7 +57,7 @@ class GEvolutionaryAlgorithm_PersonalityTraits // NOLINT(cppcoreguidelines-speci
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBaseParChildPersonalityTraits) &
-            BOOST_SERIALIZATION_NVP(isOnParetoFront_);
+            BOOST_SERIALIZATION_NVP(is_on_pareto_front_);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -123,7 +123,7 @@ private:
     GObject *clone_() const override;
 
     /** @brief Determines whether the individual lies on the pareto front */
-    bool isOnParetoFront_ = true;
+    bool is_on_pareto_front_ = true;
 };
 
 /******************************************************************************/

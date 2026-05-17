@@ -146,7 +146,9 @@ TEST_CASE("GParserBuilder::file_at<T> returns the matching shared_ptr",
 TEST_CASE("GParserBuilder: numberOfFileOptions counts registrations",
           "[common][parser-builder]") {
     GParserBuilder gpb;
-    int a = 0, b = 0, c = 0;
+    int a = 0;
+    int b = 0;
+    int c = 0;
     gpb.registerFileParameter<int>("a", a, 1);
     gpb.registerFileParameter<int>("b", b, 2);
     gpb.registerFileParameter<int>("c", c, 3);
@@ -535,7 +537,8 @@ TEST_CASE("GParserBuilder::writeConfigFile with writeAll=false omits secondary p
 
     {
         GParserBuilder gpb;
-        int e = 0, s = 0;
+        int e = 0;
+        int s = 0;
         gpb.registerFileParameter<int>("essential_p", e, 42, VAR_IS_ESSENTIAL, "essential");
         gpb.registerFileParameter<int>("secondary_p", s, 99, VAR_IS_SECONDARY, "secondary");
         gpb.writeConfigFile(cfg, "", false); // writeAll=false skips secondary
@@ -543,7 +546,8 @@ TEST_CASE("GParserBuilder::writeConfigFile with writeAll=false omits secondary p
 
     // Re-parse: essential should be 42; secondary key absent → default stays 0
     GParserBuilder gpb2;
-    int e2 = 0, s2 = 0;
+    int e2 = 0;
+    int s2 = 0;
     gpb2.registerFileParameter<int>("essential_p", e2, 0);
     gpb2.registerFileParameter<int>("secondary_p", s2, 0);
     REQUIRE(gpb2.parseConfigFile(cfg));

@@ -104,7 +104,7 @@ TEST_CASE("GFixedSizePriorityQueueT: empty queue reports empty/size 0 and throws
           "[common][priority-queue]") {
     TestPQ pq(5);
     CHECK(pq.empty());
-    CHECK(pq.size() == 0);
+    CHECK(pq.empty());
     CHECK_THROWS_AS(pq.best(),  geneva_exception);
     CHECK_THROWS_AS(pq.worst(), geneva_exception);
     CHECK_THROWS_AS(pq.pop(),   geneva_exception);

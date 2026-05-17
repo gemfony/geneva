@@ -481,7 +481,7 @@ void GConstrainedDoubleObjectCollection::specificTestsFailuresExpected_GUnitTest
         CHECK(*p_test1 != *p_test2);
 
         // Check that the sizes differ
-        CHECK((p_test1->size() != p_test2->size() && p_test2->size() == 0));
+        CHECK((p_test1->size() != p_test2->size() && p_test2->empty()));
 
         // Adding p_test2 to p_test1 should throw
         CHECK_THROWS_AS(
@@ -508,7 +508,7 @@ void GConstrainedDoubleObjectCollection::specificTestsFailuresExpected_GUnitTest
         CHECK(*p_test1 != *p_test2);
 
         // Check that the sizes differ
-        CHECK((p_test1->size() != p_test2->size() && p_test2->size() == 0));
+        CHECK((p_test1->size() != p_test2->size() && p_test2->empty()));
 
         // Subtracting p_test2 from p_test1 should throw
         CHECK_THROWS_AS(

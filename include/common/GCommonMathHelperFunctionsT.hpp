@@ -399,8 +399,10 @@ auto getMinMax(const std::vector<std::tuple<x_type_undet, y_type_undet>> &ext_da
         );
     }
 
-    x_type_undet min_x = std::get<0>(ext_dat.at(0)), max_x = min_x;
-    y_type_undet min_y = std::get<1>(ext_dat.at(0)), max_y = min_y;
+    x_type_undet min_x = std::get<0>(ext_dat.at(0));
+    x_type_undet max_x = min_x;
+    y_type_undet min_y = std::get<1>(ext_dat.at(0));
+    y_type_undet max_y = min_y;
 
     for(std::size_t i = 1; i < ext_dat.size(); i++) {
         if(std::get<0>(ext_dat.at(i)) < min_x) {
@@ -445,9 +447,12 @@ auto getMinMax(const std::vector<std::tuple<x_type_undet, y_type_undet, z_type_u
         );
     }
 
-    x_type_undet min_x = std::get<0>(ext_dat.at(0)), max_x = min_x;
-    y_type_undet min_y = std::get<1>(ext_dat.at(0)), max_y = min_y;
-    z_type_undet min_z = std::get<2>(ext_dat.at(0)), max_z = min_z;
+    x_type_undet min_x = std::get<0>(ext_dat.at(0));
+    x_type_undet max_x = min_x;
+    y_type_undet min_y = std::get<1>(ext_dat.at(0));
+    y_type_undet max_y = min_y;
+    z_type_undet min_z = std::get<2>(ext_dat.at(0));
+    z_type_undet max_z = min_z;
 
     for(std::size_t i = 1; i < ext_dat.size(); i++) {
         if(std::get<0>(ext_dat.at(i)) < min_x) {
@@ -507,10 +512,14 @@ auto getMinMax(
         );
     }
 
-    x_type_undet min_x = std::get<0>(ext_dat.at(0)), max_x = min_x;
-    y_type_undet min_y = std::get<1>(ext_dat.at(0)), max_y = min_y;
-    z_type_undet min_z = std::get<2>(ext_dat.at(0)), max_z = min_z;
-    w_type_undet min_w = std::get<3>(ext_dat.at(0)), max_w = min_w;
+    x_type_undet min_x = std::get<0>(ext_dat.at(0));
+    x_type_undet max_x = min_x;
+    y_type_undet min_y = std::get<1>(ext_dat.at(0));
+    y_type_undet max_y = min_y;
+    z_type_undet min_z = std::get<2>(ext_dat.at(0));
+    z_type_undet max_z = min_z;
+    w_type_undet min_w = std::get<3>(ext_dat.at(0));
+    w_type_undet max_w = min_w;
 
     for(std::size_t i = 1; i < ext_dat.size(); i++) {
         if(std::get<0>(ext_dat.at(i)) < min_x) {
@@ -586,7 +595,8 @@ T GMean(const std::vector<T> &par_vec) {
 template <typename T>
 auto GStandardDeviation(const std::vector<T> &par_vec) {
     // GMean will throw in DEBUG mode if par_vec is empty
-    T mean = GMean(par_vec), sigma = T(0);
+    T mean = GMean(par_vec);
+    T sigma = T(0);
 
     // It is easy if the size is 1
     if(par_vec.size() == 1) {
@@ -789,7 +799,8 @@ auto getRegressionParameters(const std::vector<std::tuple<fp_type, fp_type>> &da
         };
     }
 
-    fp_type a = fp_type(0), b = fp_type(0);
+    fp_type a = fp_type(0);
+    fp_type b = fp_type(0);
     fp_type n = fp_type(data_points.size());
 
     std::tuple<fp_type, fp_type> sum_xy = sumTupleVec(data_points);

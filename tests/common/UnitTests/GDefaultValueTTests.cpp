@@ -53,6 +53,6 @@ TEST_CASE("GDefaultValueT<bool> specialisation returns true", "[common][default-
 }
 
 TEST_CASE("GDefaultValueT<std::string> specialisation returns empty", "[common][default-value]") {
-    CHECK(GDefaultValueT<std::string>::value() == std::string{});
+    CHECK(GDefaultValueT<std::string>::value().empty());
     CHECK(GDefaultValueT<std::string>::value().empty());
 }

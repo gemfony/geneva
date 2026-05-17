@@ -283,11 +283,10 @@ public:
             fp_type sigma_left = params.sigma1();
             return sigma_left * normal_distribution_(g) + mean_left;
         }
-        else {
-            fp_type mean_right = params.mean() + std::abs(params.distance() / 2.);
+                    fp_type mean_right = params.mean() + std::abs(params.distance() / 2.);
             fp_type sigma_right = params.sigma2();
             return sigma_right * normal_distribution_(g) + mean_right;
-        }
+       
     }
 
     /**

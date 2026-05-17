@@ -376,7 +376,8 @@ void GParameterSet::toPropertyTree(pt::ptree &ptr, std::string const &base_name)
     bool dirty_flag = (Gem::Courtier::processingStatus::DO_PROCESS == this->getProcessingStatus());
     bool has_errors = this->has_errors();
 
-    double raw_fitness = 0., transformed_fitness = 0.;
+    double raw_fitness = 0.;
+    double transformed_fitness = 0.;
 
     ptr.put(base_name + ".iteration", this->getAssignedIteration());
     ptr.put(base_name + ".is_dirty", dirty_flag);
@@ -671,10 +672,14 @@ GParameterSet::crossOverWith(std::shared_ptr<GParameterSet> const &cp) const {
     std::shared_ptr<GParameterSet> this_cp = this->GObject::clone<GParameterSet>();
 
     // Extract all data items
-    std::vector<double> this_double_cnt, cp_double_cnt;
-    std::vector<float> this_float_cnt, cp_float_cnt;
-    std::vector<bool> this_bool_cnt, cp_bool_cnt;
-    std::vector<std::int32_t> this_int_cnt, cp_int_cnt;
+    std::vector<double> this_double_cnt;
+    std::vector<double> cp_double_cnt;
+    std::vector<float> this_float_cnt;
+    std::vector<float> cp_float_cnt;
+    std::vector<bool> this_bool_cnt;
+    std::vector<bool> cp_bool_cnt;
+    std::vector<std::int32_t> this_int_cnt;
+    std::vector<std::int32_t> cp_int_cnt;
 
     this_cp->streamline(this_double_cnt);
     this_cp->streamline(this_float_cnt);
@@ -1193,9 +1198,8 @@ std::string GParameterSet::getPersonality() const {
     if(pt_ptr_) {
         return pt_ptr_->name();
     }
-    else {
-        return std::string("PERSONALITY_NONE");
-    }
+            return std::string("PERSONALITY_NONE");
+   
 }
 
 /* ----------------------------------------------------------------------------------
@@ -1208,7 +1212,7 @@ std::string GParameterSet::getPersonality() const {
      * Allows to check whether random crashs of individuals are enabled
      */
 std::tuple<bool, double> GParameterSet::getRandomCrash() const {
-    return std::tuple<bool, double>{useRandomCrash_, randomCrashProb_};
+    return std::tuple<bool, double>{use_random_crash_, random_crash_prob_};
 };
 
 /******************************************************************************/
@@ -1220,8 +1224,8 @@ void GParameterSet::setRandomCrash(const bool use_random_crash, const double cra
     Gem::Common::checkRangeCompliance(crash_prob, 0., 1., "GParameterSet::setRandomCrash()");
 
     // Set the value as demanded
-    useRandomCrash_ = use_random_crash;
-    randomCrashProb_ = crash_prob;
+    use_random_crash_ = use_random_crash;
+    random_crash_prob_ = crash_prob;
 }
 
 /******************************************************************************/
@@ -1299,13 +1303,12 @@ std::string GParameterSet::getMnemonic() const {
     if(pt_ptr_) {
         return pt_ptr_->getMnemonic();
     }
-    else {
-        throw geneva_exception(
+            throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GParameterSet::getMnemonic():" << '\n'
             << "Pointer to personality traits object is empty." << '\n'
         );
-    }
+   
 
     // Make the compiler happy
     return {};
@@ -1437,9 +1440,8 @@ bool GParameterSet::constraintsFulfilled() const {
     if(validity_level_ <= 1.) {
         return true;
     }
-    else {
-        return false;
-    }
+            return false;
+   
 }
 
 /******************************************************************************/
@@ -1499,9 +1501,8 @@ bool GParameterSet::isValid() const {
     if(validity_level_ <= 1.) {
         return true;
     }
-    else {
-        return false;
-    }
+            return false;
+   
 }
 
 /******************************************************************************/
@@ -1550,9 +1551,9 @@ void GParameterSet::process_(const std::vector<parameterset_processing_result> &
 #ifdef DEBUG
     //---------------------------------------------
     // Crash if we have been asked to (only active in DEBUG mode)
-    if(useRandomCrash_) {
+    if(use_random_crash_) {
         std::uniform_real_distribution<double> dist01{0., 1.};
-        if(dist01(this->gr_) <= randomCrashProb_) {
+        if(dist01(this->gr_) <= random_crash_prob_) {
             glogger << "GParameterSet is performing random crash for debugging purposes"
                     << '\n'
                     << '\n'
@@ -1944,11 +1945,10 @@ bool GParameterSet::parameterSetFulfillsConstraints(double &validity_level) cons
     if(individual_constraint_ptr_) {
         return individual_constraint_ptr_->isValid(this, validity_level);
     }
-    else {
-        // Always valid, if no constraint object has been registered
+            // Always valid, if no constraint object has been registered
         validity_level = 0.;
         return true;
-    }
+   
 
     // Make the compiler happy
     return false;

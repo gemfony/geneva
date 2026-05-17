@@ -78,7 +78,7 @@ class GParameterTCollectionT // NOLINT(cppcoreguidelines-special-member-function
 
     // Make sure T is a derivative of GParameterBase
     static_assert(
-        std::is_base_of<GParameterBase, T>::value,
+        std::is_base_of_v<GParameterBase, T>,
         "GParameterBase is not a base class of T"
     );
 

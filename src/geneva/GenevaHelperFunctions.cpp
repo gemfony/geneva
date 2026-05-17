@@ -89,8 +89,7 @@ double minOnly_transformed_fitness(
     if(maxMode::MINIMIZE == m) {
         return f;
     }
-    else {
-        // MAXIMIZE
+            // MAXIMIZE
         // Negation will transform maximization problems into minimization problems
         if(std::numeric_limits<double>::max() == f) {
             return std::numeric_limits<double>::lowest();
@@ -101,7 +100,7 @@ double minOnly_transformed_fitness(
         else {
             return -f;
         }
-    }
+   
 }
 
 /******************************************************************************/
@@ -131,9 +130,8 @@ bool isBetter(
     if(minOnly_transformed_fitness(x_ptr) < minOnly_transformed_fitness(y_ptr)) {
         return true;
     }
-    else {
-        return false;
-    }
+            return false;
+   
 }
 
 /******************************************************************************/
@@ -157,18 +155,16 @@ bool isBetter(const double x, const double y, const maxMode m) {
         if(x > y) {
             return true;
         }
-        else {
-            return false;
-        }
+                    return false;
+       
     }
     else {
         // maxMode::MINIMIZE
         if(x < y) {
             return true;
         }
-        else {
-            return false;
-        }
+                    return false;
+       
     }
 }
 

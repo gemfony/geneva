@@ -275,7 +275,7 @@ bool Go2::clientMode() const {
  * Specifies whether only the best individuals of a population should be copied
  */
 void Go2::setCopyBestIndividualsOnly(bool copy_best_individuals_only) {
-    copyBestIndividualsOnly_ = copy_best_individuals_only;
+    copy_best_individuals_only_ = copy_best_individuals_only;
 }
 
 /******************************************************************************/
@@ -283,7 +283,7 @@ void Go2::setCopyBestIndividualsOnly(bool copy_best_individuals_only) {
  * Checks whether only the best individuals are copied
  */
 bool Go2::onlyBestIndividualsAreCopied() const {
-    return copyBestIndividualsOnly_;
+    return copy_best_individuals_only_;
 }
 
 /******************************************************************************/
@@ -523,7 +523,7 @@ Go2 const *Go2::optimize_([[maybe_unused]] std::uint32_t offset) {
         iterations_consumed_ = alg_ptr->getIteration();
 
         // Unload the individuals from the last algorithm and store them again in this object
-        if(copyBestIndividualsOnly_) {
+        if(copy_best_individuals_only_) {
             for(const auto &best_ind_ptr : alg_ptr->getBestGlobalIndividuals<gpar::GParameterSet>()) {
                 this->push_back(best_ind_ptr);
             }

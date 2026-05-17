@@ -83,37 +83,37 @@ struct copy_move_struct {
     explicit copy_move_struct(std::size_t secret) : secret_(secret) {}
     copy_move_struct(const copy_move_struct &cp)
         : secret_(cp.secret_), copy_move_history_(cp.copy_move_history_) {
-        copy_move_history_.push_back(M_COPIED);
+        copy_move_history_.push_back(m_copied_);
     }
     copy_move_struct(copy_move_struct &&cp) {
         secret_ = cp.secret_; cp.secret_ = 0;
         copy_move_history_ = std::move(cp.copy_move_history_);
-        copy_move_history_.push_back(M_MOVED);
+        copy_move_history_.push_back(m_moved_);
     }
     copy_move_struct &operator=(copy_move_struct &cp) {
         secret_ = cp.secret_;
         copy_move_history_ = cp.copy_move_history_;
-        copy_move_history_.push_back(M_COPIED);
+        copy_move_history_.push_back(m_copied_);
         return *this;
     }
     copy_move_struct &operator=(copy_move_struct &&cp) {
         secret_ = cp.secret_; cp.secret_ = 0;
         copy_move_history_ = std::move(cp.copy_move_history_);
-        copy_move_history_.push_back(M_MOVED);
+        copy_move_history_.push_back(m_moved_);
         return *this;
     }
     bool struct_was_copied() const {
-        return std::find(copy_move_history_.begin(), copy_move_history_.end(), M_COPIED)
+        return std::find(copy_move_history_.begin(), copy_move_history_.end(), m_copied_)
                != copy_move_history_.end();
     }
     bool struct_was_moved() const {
-        return std::find(copy_move_history_.begin(), copy_move_history_.end(), M_MOVED)
+        return std::find(copy_move_history_.begin(), copy_move_history_.end(), m_moved_)
                != copy_move_history_.end();
     }
     bool struct_was_copied_or_moved() const { return !copy_move_history_.empty(); }
     std::size_t getSecret() const { return secret_; }
 private:
-    const std::uint32_t M_COPIED = 0, M_MOVED = 1;
+    const std::uint32_t m_copied_ = 0, m_moved_ = 1;
     std::size_t secret_ = 0;
     std::vector<std::uint32_t> copy_move_history_;
 };

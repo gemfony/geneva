@@ -406,7 +406,7 @@ class GFormulaParserT // NOLINT(cppcoreguidelines-special-member-functions)
         grammar<std::string::const_iterator, ast_expression(), boost::spirit::ascii::space_type> {
     // Make sure, fp_type is a floating point value
     static_assert(
-        std::is_floating_point<fp_type>::value,
+        std::is_floating_point_v<fp_type>,
         "fp_type should ne a floating point type"
     );
 
@@ -466,7 +466,7 @@ public:
       , raw_formula_(formula)
       , stack_(4096)
       , stack_ptr_(stack_.begin())
-      , printCode_(false) {
+      , print_code_(false) {
         boost::spirit::qi::char_type char_;
         boost::spirit::qi::string_type string;
 
@@ -516,7 +516,7 @@ public:
             (string("pow") > '(' > expression_rule_ > ',' > expression_rule_ > ')') |
             (string("hypot") > '(' > expression_rule_ > ',' > expression_rule_ > ')');
 
-        factor_rule_ = real | ('(' > expression_rule_ > ')') | (char_('-') > factor_rule_) |
+        factor_rule_ = real_ | ('(' > expression_rule_ > ')') | (char_('-') > factor_rule_) |
                        (char_('+') > factor_rule_) | unary_function_rule_ | binary_function_rule_ |
                        constants_;
 
@@ -567,7 +567,7 @@ public:
 	 * When set to true, the code-vector will be printed prior to the evaluation
 	 */
     void setPrintCode(bool print_code) {
-        printCode_ = print_code;
+        print_code_ = print_code;
     }
 
     /***************************************************************************/
@@ -840,7 +840,7 @@ private:
         stack_ptr_ = stack_.begin();
 
         // When requested by the user, print a copy of the code-vector
-        if(printCode_) {
+        if(print_code_) {
             printCode();
         }
 
@@ -880,9 +880,8 @@ private:
                 if(0 == stack_ptr_[0]) {
                     throw Gem::Common::division_by_0();
                 }
-                else {
-                    stack_ptr_[-1] /= stack_ptr_[0];
-                }
+                                    stack_ptr_[-1] /= stack_ptr_[0];
+               
             } break;
 
             case byte_code::op_min:
@@ -909,18 +908,16 @@ private:
                 if(stack_ptr_[-1] < -1. || stack_ptr_[-1] > 1.) {
                     throw Gem::Common::acos_invalid_range<fp_type>(stack_ptr_[-1]);
                 }
-                else {
-                    stack_ptr_[-1] = std::acos(stack_ptr_[-1]);
-                }
+                                    stack_ptr_[-1] = std::acos(stack_ptr_[-1]);
+               
             } break;
 
             case byte_code::op_asin: {
                 if(stack_ptr_[-1] < -1. || stack_ptr_[-1] > 1.) {
                     throw Gem::Common::asin_invalid_range<fp_type>(stack_ptr_[-1]);
                 }
-                else {
-                    stack_ptr_[-1] = std::asin(stack_ptr_[-1]);
-                }
+                                    stack_ptr_[-1] = std::asin(stack_ptr_[-1]);
+               
             } break;
 
             case byte_code::op_atan:
@@ -955,18 +952,16 @@ private:
                 if(stack_ptr_[-1] <= 0.) {
                     throw Gem::Common::log_negative_value<fp_type>(stack_ptr_[-1]);
                 }
-                else {
-                    stack_ptr_[-1] = std::log(stack_ptr_[-1]);
-                }
+                                    stack_ptr_[-1] = std::log(stack_ptr_[-1]);
+               
             } break;
 
             case byte_code::op_log10: {
                 if(stack_ptr_[-1] <= 0.) {
                     throw Gem::Common::log10_negative_value<fp_type>(stack_ptr_[-1]);
                 }
-                else {
-                    stack_ptr_[-1] = std::log10(stack_ptr_[-1]);
-                }
+                                    stack_ptr_[-1] = std::log10(stack_ptr_[-1]);
+               
             } break;
 
             case byte_code::op_sin:
@@ -981,9 +976,8 @@ private:
                 if(stack_ptr_[-1] < 0.) {
                     throw Gem::Common::sqrt_negative_value<fp_type>(stack_ptr_[-1]);
                 }
-                else {
-                    stack_ptr_[-1] = std::sqrt(stack_ptr_[-1]);
-                }
+                                    stack_ptr_[-1] = std::sqrt(stack_ptr_[-1]);
+               
             } break;
 
             case byte_code::op_tan:
@@ -1078,7 +1072,7 @@ private:
         rule<std::string::const_iterator, operand(), boost::spirit::ascii::space_type>
             factor_rule_;
 
-    boost::spirit::qi::real_parser<fp_type, boost::spirit::qi::real_policies<fp_type>> real;
+    boost::spirit::qi::real_parser<fp_type, boost::spirit::qi::real_policies<fp_type>> real_;
 
     boost::spirit::qi::
         symbols<std::iterator_traits<std::string::const_iterator>::value_type, fp_type>
@@ -1089,7 +1083,7 @@ private:
 
     mutable typename std::vector<fp_type>::iterator stack_ptr_;
 
-    bool printCode_; ///< When set, the code will be printed prior to the evaluation
+    bool print_code_; ///< When set, the code will be printed prior to the evaluation
 };
 
 /******************************************************************************/

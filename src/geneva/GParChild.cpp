@@ -81,7 +81,7 @@ void GParChild::compare_(
     compare_t(IDENTITY(default_n_children_, p_load->default_n_children_), token);
     compare_t(IDENTITY(max_population_size_, p_load->max_population_size_), token);
     compare_t(IDENTITY(growth_rate_, p_load->growth_rate_), token);
-    compare_t(IDENTITY(amalgamationLikelihood_, p_load->amalgamationLikelihood_), token);
+    compare_t(IDENTITY(amalgamation_likelihood_, p_load->amalgamation_likelihood_), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -142,9 +142,8 @@ std::size_t GParChild::getNChildren() const {
         // but no individuals have been added yet
         return 0;
     }
-    else {
-        return this->size() - n_parents_;
-    }
+            return this->size() - n_parents_;
+   
 }
 
 /******************************************************************************/
@@ -318,7 +317,7 @@ void GParChild::setAmalgamationLikelihood(double amalgamation_likelihood) {
         );
     }
 
-    amalgamationLikelihood_ = amalgamation_likelihood;
+    amalgamation_likelihood_ = amalgamation_likelihood;
 }
 
 /******************************************************************************/
@@ -327,7 +326,7 @@ void GParChild::setAmalgamationLikelihood(double amalgamation_likelihood) {
  * performed instead of "just" duplication.
  */
 double GParChild::getAmalgamationLikelihood() const {
-    return amalgamationLikelihood_;
+    return amalgamation_likelihood_;
 }
 
 /******************************************************************************/
@@ -359,7 +358,7 @@ void GParChild::doRecombine() {
 
     std::vector<std::shared_ptr<gpar::GParameterSet>>::iterator it;
     std::bernoulli_distribution amalgamation_wanted(
-        amalgamationLikelihood_
+        amalgamation_likelihood_
     ); // true with a likelihood of amalgamation_likelihood_
     for(it = GBase::data_cnt_.begin() + n_parents_;
         it != GBase::data_cnt_.end();
@@ -460,7 +459,7 @@ void GParChild::load_(const GObject *cp) {
     default_n_children_ = p_load->default_n_children_;
     max_population_size_ = p_load->max_population_size_;
     growth_rate_ = p_load->growth_rate_;
-    amalgamationLikelihood_ = p_load->amalgamationLikelihood_;
+    amalgamation_likelihood_ = p_load->amalgamation_likelihood_;
 }
 
 /******************************************************************************/

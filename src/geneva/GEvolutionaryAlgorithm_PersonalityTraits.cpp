@@ -66,7 +66,7 @@ void GEvolutionaryAlgorithm_PersonalityTraits::compare_(
     Gem::Common::compare_base_t<GBaseParChildPersonalityTraits>(*this, *p_load, token);
 
     // ... and then the local data
-    compare_t(IDENTITY(isOnParetoFront_, p_load->isOnParetoFront_), token);
+    compare_t(IDENTITY(is_on_pareto_front_, p_load->is_on_pareto_front_), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -116,7 +116,7 @@ void GEvolutionaryAlgorithm_PersonalityTraits::load_(const GObject *cp) {
     GBaseParChildPersonalityTraits::load_(cp);
 
     // Then load our local data
-    isOnParetoFront_ = p_load->isOnParetoFront_;
+    is_on_pareto_front_ = p_load->is_on_pareto_front_;
 }
 
 /******************************************************************************/
@@ -127,7 +127,7 @@ void GEvolutionaryAlgorithm_PersonalityTraits::load_(const GObject *cp) {
  * @return A boolean indicating whether this object lies on the current pareto front
  */
 bool GEvolutionaryAlgorithm_PersonalityTraits::isOnParetoFront() const {
-    return isOnParetoFront_;
+    return is_on_pareto_front_;
 }
 
 /******************************************************************************/
@@ -135,7 +135,7 @@ bool GEvolutionaryAlgorithm_PersonalityTraits::isOnParetoFront() const {
  * Allows to reset the pareto tag to "true"
  */
 void GEvolutionaryAlgorithm_PersonalityTraits::resetParetoTag() {
-    isOnParetoFront_ = true;
+    is_on_pareto_front_ = true;
 }
 
 /******************************************************************************/
@@ -144,7 +144,7 @@ void GEvolutionaryAlgorithm_PersonalityTraits::resetParetoTag() {
  * of the current iteration
  */
 void GEvolutionaryAlgorithm_PersonalityTraits::setIsNotOnParetoFront() {
-    isOnParetoFront_ = false;
+    is_on_pareto_front_ = false;
 }
 
 /******************************************************************************/

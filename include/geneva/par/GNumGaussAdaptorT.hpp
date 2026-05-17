@@ -68,14 +68,14 @@ class GNumGaussAdaptorT // NOLINT(cppcoreguidelines-special-member-functions)
             "GAdaptorT_num",
             boost::serialization::base_object<GAdaptorT<num_type>>(*this)
         ) & BOOST_SERIALIZATION_NVP(sigma_) &
-            BOOST_SERIALIZATION_NVP(sigma_reset_) & BOOST_SERIALIZATION_NVP(sigmaSigma_) &
-            BOOST_SERIALIZATION_NVP(minSigma_) & BOOST_SERIALIZATION_NVP(maxSigma_);
+            BOOST_SERIALIZATION_NVP(sigma_reset_) & BOOST_SERIALIZATION_NVP(sigma_sigma_) &
+            BOOST_SERIALIZATION_NVP(min_sigma_) & BOOST_SERIALIZATION_NVP(max_sigma_);
     }
     ///////////////////////////////////////////////////////////////////////
 
     // Make sure this class can only be instantiated if fp_type really is a floating point type
     static_assert(
-        std::is_floating_point<fp_type>::value,
+        std::is_floating_point_v<fp_type>,
         "fp_type should be a floating point type"
     );
 
@@ -171,15 +171,15 @@ public:
         // Sigma must be in the allowed value range.
         if(not Gem::Common::checkRangeCompliance<fp_type>(
                sigma,
-               minSigma_,
-               maxSigma_,
+               min_sigma_,
+               max_sigma_,
                "GNumGaussAdaptorT<>::setSigma(" + Gem::Common::to_string(sigma) + ")"
            )) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GNumGaussAdaptorT::setSigma(const fp_type&):" << '\n'
                 << "sigma is not in the allowed range: " << '\n'
-                << minSigma_ << " <= " << sigma << " < " << maxSigma_ << '\n'
+                << min_sigma_ << " <= " << sigma << " < " << max_sigma_ << '\n'
                 << "If you want to use these values you need to" << '\n'
                 << "adapt the allowed range first." << '\n'
             );
@@ -209,15 +209,15 @@ public:
         // Sigma must be in the allowed value range.
         if(not Gem::Common::checkRangeCompliance<fp_type>(
                sigma_reset,
-               minSigma_,
-               maxSigma_,
+               min_sigma_,
+               max_sigma_,
                "GNumGaussAdaptorT<>::setResetSigma(" + Gem::Common::to_string(sigma_reset) + ")"
            )) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GNumGaussAdaptorT::setResetSigma(const fp_type&):" << '\n'
                 << "sigma_reset is not in the allowed range: " << '\n'
-                << minSigma_ << " <= " << sigma_reset << " < " << maxSigma_ << '\n'
+                << min_sigma_ << " <= " << sigma_reset << " < " << max_sigma_ << '\n'
                 << "If you want to use these values you need to" << '\n'
                 << "adapt the allowed range first." << '\n'
             );
@@ -262,23 +262,23 @@ public:
             );
         }
 
-        minSigma_ = min_sigma;
-        if(minSigma_ < DEFAULTMINSIGMA) {
-            minSigma_ = DEFAULTMINSIGMA; // Silently adapt min_sigma
+        min_sigma_ = min_sigma;
+        if(min_sigma_ < DEFAULTMINSIGMA) {
+            min_sigma_ = DEFAULTMINSIGMA; // Silently adapt min_sigma
         }
-        maxSigma_ = max_sigma;
+        max_sigma_ = max_sigma;
 
         // Rectify sigma_ and reset_sigma_, if necessary
         Gem::Common::enforceRangeConstraint<fp_type>(
             sigma_,
-            std::max(fp_type(minSigma_), fp_type(DEFAULTMINSIGMA)),
-            maxSigma_,
+            std::max(fp_type(min_sigma_), fp_type(DEFAULTMINSIGMA)),
+            max_sigma_,
             "GNumGaussAdaptorT<>::setSigmaRange() / 1"
         );
         Gem::Common::enforceRangeConstraint<fp_type>(
             sigma_reset_,
-            std::max(fp_type(minSigma_), fp_type(DEFAULTMINSIGMA)),
-            maxSigma_,
+            std::max(fp_type(min_sigma_), fp_type(DEFAULTMINSIGMA)),
+            max_sigma_,
             "GNumGaussAdaptorT<>::setSigmaRange() / 2"
         );
     }
@@ -297,7 +297,7 @@ public:
 	  * @return The allowed value range for sigma
 	  */
     std::tuple<fp_type, fp_type> getSigmaRange() const {
-        return std::make_tuple(minSigma_, maxSigma_);
+        return std::make_tuple(min_sigma_, max_sigma_);
     }
 
     /* ----------------------------------------------------------------------------------
@@ -315,7 +315,7 @@ public:
 	  * @param sigma_sigma The new value of the sigmaSigma_ parameter
 	  */
     void setSigmaAdaptionRate(const fp_type &sigma_sigma) {
-        sigmaSigma_ = sigma_sigma;
+        sigma_sigma_ = sigma_sigma;
     }
 
     /* ----------------------------------------------------------------------------------
@@ -331,7 +331,7 @@ public:
 	  * @return The value of the sigmaSigma_ parameter
 	  */
     fp_type getSigmaAdaptionRate() const {
-        return sigmaSigma_;
+        return sigma_sigma_;
     }
 
     /* ----------------------------------------------------------------------------------
@@ -404,10 +404,9 @@ public:
         if(sigma_ == sigma_reset_) {
             return false;
         }
-        else {
-            sigma_ = sigma_reset_;
+                    sigma_ = sigma_reset_;
             return true;
-        }
+       
     }
 
 protected:
@@ -432,9 +431,9 @@ protected:
         // ... and then our own data
         sigma_ = p_load->sigma_;
         sigma_reset_ = p_load->sigma_reset_;
-        sigmaSigma_ = p_load->sigmaSigma_;
-        minSigma_ = p_load->minSigma_;
-        maxSigma_ = p_load->maxSigma_;
+        sigma_sigma_ = p_load->sigma_sigma_;
+        min_sigma_ = p_load->min_sigma_;
+        max_sigma_ = p_load->max_sigma_;
     }
 
     /***************************************************************************/
@@ -476,9 +475,9 @@ protected:
         // ... and then the local data
         compare_t(IDENTITY(sigma_, p_load->sigma_), token);
         compare_t(IDENTITY(sigma_reset_, p_load->sigma_reset_), token);
-        compare_t(IDENTITY(sigmaSigma_, p_load->sigmaSigma_), token);
-        compare_t(IDENTITY(minSigma_, p_load->minSigma_), token);
-        compare_t(IDENTITY(maxSigma_, p_load->maxSigma_), token);
+        compare_t(IDENTITY(sigma_sigma_, p_load->sigma_sigma_), token);
+        compare_t(IDENTITY(min_sigma_, p_load->min_sigma_), token);
+        compare_t(IDENTITY(max_sigma_, p_load->max_sigma_), token);
 
         // React on deviations from the expectation
         token.evaluate();
@@ -504,15 +503,15 @@ protected:
         sigma_ *= std::exp(
             GAdaptorT<num_type, fp_type>::normal_distribution_(
                 gr,
-                typename std::normal_distribution<fp_type>::param_type(0., std::abs(sigmaSigma_))
+                typename std::normal_distribution<fp_type>::param_type(0., std::abs(sigma_sigma_))
             )
         );
 
         // make sure sigma_ doesn't get out of range
         Gem::Common::enforceRangeConstraint<fp_type>(
             sigma_,
-            minSigma_,
-            maxSigma_,
+            min_sigma_,
+            max_sigma_,
             "GNumGaussAdaptorT<>::customAdaptAdaption()",
             false /* silent */
         );
@@ -537,7 +536,7 @@ protected:
 
         sigma_ = GAdaptorT<num_type, fp_type>::uniform_real_distribution_(
             gr,
-            typename std::uniform_real_distribution<fp_type>::param_type(minSigma_, maxSigma_)
+            typename std::uniform_real_distribution<fp_type>::param_type(min_sigma_, max_sigma_)
         );
 
         return true;
@@ -577,7 +576,7 @@ protected:
         }
 
         // A relatively harmless change
-        sigmaSigma_ *= fp_type(1.1);
+        sigma_sigma_ *= fp_type(1.1);
         result = true;
 
         return result;
@@ -824,9 +823,9 @@ protected:
     fp_type sigma_ = fp_type(DEFAULTSIGMA); ///< The width of the gaussian used to adapt values
     fp_type sigma_reset_ =
         sigma_; ///< The value to which sigma_ will be reset if "updateOnStall()" is called
-    fp_type sigmaSigma_ = fp_type(DEFAULTSIGMASIGMA); ///< affects sigma_ adaption
-    fp_type minSigma_ = fp_type(DEFAULTMINSIGMA);     ///< minimum allowed value for sigma_
-    fp_type maxSigma_ = fp_type(DEFAULTMAXSIGMA);     ///< maximum allowed value for sigma_
+    fp_type sigma_sigma_ = fp_type(DEFAULTSIGMASIGMA); ///< affects sigma_ adaption
+    fp_type min_sigma_ = fp_type(DEFAULTMINSIGMA);     ///< minimum allowed value for sigma_
+    fp_type max_sigma_ = fp_type(DEFAULTMAXSIGMA);     ///< maximum allowed value for sigma_
 
 private:
     /***************************************************************************/

@@ -266,7 +266,7 @@ TEST_CASE("GContainerT: GPodContainerT<int> with std::vector backend", "[GContai
     SECTION("Default construction") {
         ConcretePodVec c;
         CHECK(c.empty());
-        CHECK(c.size() == 0u);
+        CHECK(c.empty());
     }
 
     SECTION("Construction with count and value") {
@@ -477,7 +477,7 @@ TEST_CASE("GContainerT: GPodContainerT<int> with std::vector backend", "[GContai
         CHECK(c.max_size() > 0u);
         c.clear();
         CHECK(c.empty());
-        CHECK(c.size() == 0u);
+        CHECK(c.empty());
     }
 
     SECTION("capacity / reserve / shrinkToFit") {
@@ -834,7 +834,7 @@ TEST_CASE("GContainerT: GPtrContainerT<TestBase> with std::vector backend", "[GC
     SECTION("Default construction") {
         ConcretePtrVec c;
         CHECK(c.empty());
-        CHECK(c.size() == 0u);
+        CHECK(c.empty());
     }
 
     SECTION("Copy construction — deep clone") {
@@ -1269,7 +1269,7 @@ TEST_CASE("GContainerT: GPodContainerT<int> with std::list backend", "[GContaine
     SECTION("Default construction") {
         ConcretePodList c;
         CHECK(c.empty());
-        CHECK(c.size() == 0u);
+        CHECK(c.empty());
     }
 
     SECTION("push_back and pop_back") {
@@ -1543,7 +1543,7 @@ TEST_CASE("GContainerT: GPodContainerT<int> with std::list backend", "[GContaine
 TEST_CASE("GContainerT: edge cases", "[GContainerT][edge]") {
     SECTION("Empty container queries") {
         ConcretePodVec c;
-        CHECK(c.size() == 0u);
+        CHECK(c.empty());
         CHECK(c.empty());
         CHECK(c.cbegin() == c.cend());
         CHECK(c.crbegin() == c.crend());

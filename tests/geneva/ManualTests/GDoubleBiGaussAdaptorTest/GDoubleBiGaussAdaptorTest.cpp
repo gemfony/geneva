@@ -222,10 +222,20 @@ int main(int argc, char **argv) {
     // Get a random number generator
     Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
 
-    double sigma1, sigmaSigma1, minSigma1, maxSigma1;
-    double sigma2, sigmaSigma2, minSigma2, maxSigma2;
-    double delta, sigmaDelta, minDelta, maxDelta;
-    std::uint32_t maxIter, adaptionThreshold;
+    double sigma1;
+    double sigmaSigma1;
+    double minSigma1;
+    double maxSigma1;
+    double sigma2;
+    double sigmaSigma2;
+    double minSigma2;
+    double maxSigma2;
+    double delta;
+    double sigmaDelta;
+    double minDelta;
+    double maxDelta;
+    std::uint32_t maxIter;
+    std::uint32_t adaptionThreshold;
     std::string resultFile;
 
     if(!parseCommandLine(

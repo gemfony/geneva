@@ -62,9 +62,9 @@ void GBaseParChildPersonalityTraits::compare_(
     Gem::Common::compare_base_t<GObject>(*this, *p_load, token);
 
     // ... and then the local data
-    compare_t(IDENTITY(parentCounter_, p_load->parentCounter_), token);
-    compare_t(IDENTITY(popPos_, p_load->popPos_), token);
-    compare_t(IDENTITY(parentId_, p_load->parentId_), token);
+    compare_t(IDENTITY(parent_counter_, p_load->parent_counter_), token);
+    compare_t(IDENTITY(pop_pos_, p_load->pop_pos_), token);
+    compare_t(IDENTITY(parent_id_, p_load->parent_id_), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -117,9 +117,9 @@ void GBaseParChildPersonalityTraits::load_(const GObject *cp) {
     GPersonalityTraits::load_(cp);
 
     // Then load our local data
-    parentCounter_ = p_load->parentCounter_;
-    popPos_ = p_load->popPos_;
-    parentId_ = p_load->parentId_;
+    parent_counter_ = p_load->parent_counter_;
+    pop_pos_ = p_load->pop_pos_;
+    parent_id_ = p_load->parent_id_;
 }
 
 /******************************************************************************/
@@ -129,7 +129,7 @@ void GBaseParChildPersonalityTraits::load_(const GObject *cp) {
  * @return A boolean indicating whether this object is a parent at this time
  */
 bool GBaseParChildPersonalityTraits::isParent() const {
-    return (parentCounter_ > 0) ? true : false;
+    return (parent_counter_ > 0) ? true : false;
 }
 
 /* ----------------------------------------------------------------------------------
@@ -139,12 +139,12 @@ bool GBaseParChildPersonalityTraits::isParent() const {
 
 /******************************************************************************/
 /**
- * Retrieves the current value of the parentCounter_ variable
+ * Retrieves the current value of the parent_counter_ variable
  *
- * @return The current value of the parentCounter_ variable
+ * @return The current value of the parent_counter_ variable
  */
 std::uint32_t GBaseParChildPersonalityTraits::getParentCounter() const {
-    return parentCounter_;
+    return parent_counter_;
 }
 
 /* ----------------------------------------------------------------------------------
@@ -159,8 +159,8 @@ std::uint32_t GBaseParChildPersonalityTraits::getParentCounter() const {
  * @return A boolean indicating whether this individual was previously a parent (true) or a child (false)
  */
 bool GBaseParChildPersonalityTraits::setIsParent() {
-    bool previous = (parentCounter_ > 0) ? true : false;
-    parentCounter_++;
+    bool previous = (parent_counter_ > 0) ? true : false;
+    parent_counter_++;
     return previous;
 }
 
@@ -176,8 +176,8 @@ bool GBaseParChildPersonalityTraits::setIsParent() {
  * @return A boolean indicating whether this individual was previously a parent (true) or a child (false)
  */
 bool GBaseParChildPersonalityTraits::setIsChild() {
-    bool previous = (parentCounter_ > 0) ? true : false;
-    parentCounter_ = 0;
+    bool previous = (parent_counter_ > 0) ? true : false;
+    parent_counter_ = 0;
     return previous;
 }
 
@@ -193,7 +193,7 @@ bool GBaseParChildPersonalityTraits::setIsChild() {
  * @param pop_pos The new position of this individual in the population
  */
 void GBaseParChildPersonalityTraits::setPopulationPosition(const std::size_t &pop_pos) {
-    popPos_ = pop_pos;
+    pop_pos_ = pop_pos;
 }
 
 /* ----------------------------------------------------------------------------------
@@ -207,8 +207,8 @@ void GBaseParChildPersonalityTraits::setPopulationPosition(const std::size_t &po
  *
  * @return The current position of this individual in the population
  */
-std::size_t GBaseParChildPersonalityTraits::getPopulationPosition(void) const {
-    return popPos_;
+std::size_t GBaseParChildPersonalityTraits::getPopulationPosition() const {
+    return pop_pos_;
 }
 
 /* ----------------------------------------------------------------------------------
@@ -223,7 +223,7 @@ std::size_t GBaseParChildPersonalityTraits::getPopulationPosition(void) const {
  * @param parent_id The id of the individual's parent
  */
 void GBaseParChildPersonalityTraits::setParentId(const std::size_t &parent_id) {
-    parentId_ = static_cast<std::int16_t>(parent_id);
+    parent_id_ = static_cast<std::int16_t>(parent_id);
 }
 
 /* ----------------------------------------------------------------------------------
@@ -239,16 +239,15 @@ void GBaseParChildPersonalityTraits::setParentId(const std::size_t &parent_id) {
  * @return The parent's id
  */
 std::size_t GBaseParChildPersonalityTraits::getParentId() const {
-    if(parentId_ >= 0) {
-        return parentId_;
+    if(parent_id_ >= 0) {
+        return parent_id_;
     }
-    else {
-        throw geneva_exception(
+            throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GBaseParChildPersonalityTraits::getParentId():" << '\n'
-            << "parentId_ is unset" << '\n'
+            << "parent_id_ is unset" << '\n'
         );
-    }
+   
 
     // Make the compiler happy
     return static_cast<std::size_t>(0);
@@ -267,12 +266,11 @@ std::size_t GBaseParChildPersonalityTraits::getParentId() const {
  * @return A boolean which indicates whether the parent id has been set
  */
 bool GBaseParChildPersonalityTraits::parentIdSet() const {
-    if(parentId_ >= 0) {
+    if(parent_id_ >= 0) {
         return true;
     }
-    else {
-        return false;
-    }
+            return false;
+   
 }
 
 /* ----------------------------------------------------------------------------------
@@ -285,7 +283,7 @@ bool GBaseParChildPersonalityTraits::parentIdSet() const {
  * Marks the parent id as unset
  */
 void GBaseParChildPersonalityTraits::unsetParentId() {
-    parentId_ = -1;
+    parent_id_ = -1;
 }
 
 /* ----------------------------------------------------------------------------------
@@ -310,7 +308,7 @@ bool GBaseParChildPersonalityTraits::modify_GUnitTests_() {
     }
 
     // A relatively harmless modification is a change of the parentCounter variable
-    parentCounter_++;
+    parent_counter_++;
     result = true;
 
     return result;

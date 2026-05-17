@@ -143,9 +143,9 @@ class baseScanParT // NOLINT(cppcoreguidelines-special-member-functions)
 
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(Gem::Common::GPodContainerT<T>) &
             BOOST_SERIALIZATION_NVP(var_) & BOOST_SERIALIZATION_NVP(step_) &
-            BOOST_SERIALIZATION_NVP(nSteps_) & BOOST_SERIALIZATION_NVP(lower_) &
-            BOOST_SERIALIZATION_NVP(upper_) & BOOST_SERIALIZATION_NVP(randomScan_) &
-            BOOST_SERIALIZATION_NVP(typeDescription_);
+            BOOST_SERIALIZATION_NVP(n_steps_) & BOOST_SERIALIZATION_NVP(lower_) &
+            BOOST_SERIALIZATION_NVP(upper_) & BOOST_SERIALIZATION_NVP(random_scan_) &
+            BOOST_SERIALIZATION_NVP(type_description_);
     }
 
     ///////////////////////////////////////////////////////////////////////
@@ -158,19 +158,19 @@ public:
     baseScanParT(
         gpar::parPropSpec<T> pps,
         bool random_scan,
-        const std::string &t // typeDescription_
+        const std::string &t // type_description_
     )
       : Gem::Common::GPodContainerT<T>()
       , var_(pps.var)
       , step_(0)
-      , nSteps_(pps.nSteps)
+      , n_steps_(pps.nSteps)
       , lower_(pps.lowerBoundary)
       , upper_(pps.upperBoundary)
-      , randomScan_(random_scan)
-      , typeDescription_(t) {
-        if(not randomScan_) {
+      , random_scan_(random_scan)
+      , type_description_(t) {
+        if(not random_scan_) {
             // Fill the object with data
-            this->data_cnt_ = fillWithData<T>(nSteps_, lower_, upper_);
+            this->data_cnt_ = fillWithData<T>(n_steps_, lower_, upper_);
         }
     }
 
@@ -182,11 +182,11 @@ public:
     baseScanParT(const baseScanParT<T> &cp)
       : var_(cp.var_)
       , step_(cp.step_)
-      , nSteps_(cp.nSteps_)
+      , n_steps_(cp.n_steps_)
       , lower_(cp.lower_)
       , upper_(cp.upper_)
-      , randomScan_(cp.randomScan_)
-      , typeDescription_(cp.typeDescription_) { /* nothing */
+      , random_scan_(cp.random_scan_)
+      , type_description_(cp.type_description_) { /* nothing */
     }
 
     /***************************************************************************/
@@ -216,12 +216,11 @@ public:
      * Retrieve the current item
      */
     T getCurrentItem(Gem::Hap::GRandomBase &gr) const {
-        if(randomScan_) {
+        if(random_scan_) {
             return getRandomItem(gr);
         }
-        else {
-            return this->at(step_);
-        }
+                    return this->at(step_);
+       
     }
 
     /***************************************************************************/
@@ -231,7 +230,7 @@ public:
      * @return A boolean indicating whether a warp has taken place
      */
     bool goToNextItem() override {
-        if(++step_ >= nSteps_) {
+        if(++step_ >= n_steps_) {
             step_ = 0;
             return true;
         }
@@ -243,7 +242,7 @@ public:
      * Checks whether step_ points to the last item in the array
      */
     bool isAtTerminalPosition() const override {
-        return step_ >= nSteps_;
+        return step_ >= n_steps_;
     }
 
     /***************************************************************************/
@@ -267,7 +266,7 @@ public:
      * Retrieve the type descriptor
      */
     std::string getTypeDescriptor() const override {
-        return typeDescription_;
+        return type_description_;
     }
 
 protected:
@@ -276,11 +275,11 @@ protected:
 
     gpar::NAMEANDIDTYPE var_;           ///< Name and/or position of the variable
     std::size_t step_;            ///< The current position in the data vector
-    std::size_t nSteps_;          ///< The number of steps to be taken in a scan
+    std::size_t n_steps_;          ///< The number of steps to be taken in a scan
     T lower_;                     ///< The lower boundary of an item
     T upper_;                     ///< The upper boundary of an item
-    bool randomScan_;             ///< Indicates whether we are dealing with a random scan or not
-    std::string typeDescription_; ///< Holds an identifier for the type described by this class
+    bool random_scan_;             ///< Indicates whether we are dealing with a random scan or not
+    std::string type_description_; ///< Holds an identifier for the type described by this class
 
     mutable Gem::Hap::GRandom gr_; ///< Simple access to a random number generator
 
@@ -289,10 +288,10 @@ protected:
     baseScanParT()
       : var_(gpar::NAMEANDIDTYPE(0, "empty", 0))
       , step_(0)
-      , nSteps_(2)
+      , n_steps_(2)
       , lower_(T(0))
       , upper_(T(1))
-      , randomScan_(true) { /* nothing */
+      , random_scan_(true) { /* nothing */
     }
 
     /***************************************************************************/
@@ -580,11 +579,11 @@ class GParameterScan // NOLINT(cppcoreguidelines-special-member-functions)
         ar &make_nvp(
             "GBase",
             boost::serialization::base_object<GBase>(*this)
-        ) & BOOST_SERIALIZATION_NVP(scanRandomly_) &
-            BOOST_SERIALIZATION_NVP(nMonitorInds_) & BOOST_SERIALIZATION_NVP(b_cnt_) &
+        ) & BOOST_SERIALIZATION_NVP(scan_randomly_) &
+            BOOST_SERIALIZATION_NVP(n_monitor_inds_) & BOOST_SERIALIZATION_NVP(b_cnt_) &
             BOOST_SERIALIZATION_NVP(int32_cnt_) & BOOST_SERIALIZATION_NVP(d_cnt_) &
-            BOOST_SERIALIZATION_NVP(f_cnt_) & BOOST_SERIALIZATION_NVP(simpleScanItems_) &
-            BOOST_SERIALIZATION_NVP(scansPerformed_);
+            BOOST_SERIALIZATION_NVP(f_cnt_) & BOOST_SERIALIZATION_NVP(simple_scan_items_) &
+            BOOST_SERIALIZATION_NVP(scans_performed_);
     }
 
     ///////////////////////////////////////////////////////////////////////
@@ -764,11 +763,11 @@ private:
     /** @brief Clears the all_par_vec_ vector */
     void clearAllParVec();
 
-    bool cycleLogicHalt_ =
+    bool cycle_logic_halt_ =
         false; ///< Temporary flag used to specify that the optimization should be halted
-    bool scanRandomly_ =
+    bool scan_randomly_ =
         true; ///< Determines whether the algorithm should scan the parameter space randomly or on a grid
-    std::size_t nMonitorInds_ =
+    std::size_t n_monitor_inds_ =
         DEFAULTNMONITORINDS; ///< The number of best individuals of the entire run to be kept
 
     std::vector<std::shared_ptr<bScanPar>> b_cnt_; ///< Holds boolean parameters to be scanned
@@ -780,9 +779,9 @@ private:
     std::vector<std::shared_ptr<scanParInterface>>
         all_par_cnt_; /// Holds pointers to all parameter objects
 
-    std::size_t simpleScanItems_ =
+    std::size_t simple_scan_items_ =
         0; ///< When set to a value > 0, a random scan of the entire parameter space will be made instead of individual parameters -- set through the configuration file
-    std::size_t scansPerformed_ =
+    std::size_t scans_performed_ =
         0; ///< Holds the number of processed items so far while a simple scan is performed
 
     /***************************************************************************/

@@ -100,8 +100,8 @@ class GProcessingContainerT {
             BOOST_SERIALIZATION_NVP(resubmission_counter_) &
             BOOST_SERIALIZATION_NVP(collection_position_) &
             BOOST_SERIALIZATION_NVP(bufferport_id_) &
-            BOOST_SERIALIZATION_NVP(preProcessingDisabled_) &
-            BOOST_SERIALIZATION_NVP(postProcessingDisabled_) &
+            BOOST_SERIALIZATION_NVP(pre_processing_disabled_) &
+            BOOST_SERIALIZATION_NVP(post_processing_disabled_) &
             BOOST_SERIALIZATION_NVP(pre_processor_ptr_) &
             BOOST_SERIALIZATION_NVP(post_processor_ptr_) &
             BOOST_SERIALIZATION_NVP(pre_processing_time_) &
@@ -144,8 +144,8 @@ public:
       , resubmission_counter_(cp.resubmission_counter_)
       , collection_position_(cp.collection_position_)
       , bufferport_id_(cp.bufferport_id_)
-      , preProcessingDisabled_(cp.preProcessingDisabled_)
-      , postProcessingDisabled_(cp.postProcessingDisabled_)
+      , pre_processing_disabled_(cp.pre_processing_disabled_)
+      , post_processing_disabled_(cp.post_processing_disabled_)
       , pre_processing_time_(cp.pre_processing_time_)
       , processing_time_(cp.processing_time_)
       , post_processing_time_(cp.post_processing_time_)
@@ -174,8 +174,8 @@ public:
         resubmission_counter_ = cp.resubmission_counter_;
         collection_position_ = cp.collection_position_;
         bufferport_id_ = cp.bufferport_id_;
-        preProcessingDisabled_ = cp.preProcessingDisabled_;
-        postProcessingDisabled_ = cp.postProcessingDisabled_;
+        pre_processing_disabled_ = cp.pre_processing_disabled_;
+        post_processing_disabled_ = cp.post_processing_disabled_;
         pre_processing_time_ = cp.pre_processing_time_;
         processing_time_ = cp.processing_time_;
         post_processing_time_ = cp.post_processing_time_;
@@ -702,7 +702,7 @@ public:
 	  * step may occur. This may alter the individual's data.
 	  */
     bool mayBePreProcessed() const noexcept {
-        return not preProcessingDisabled_;
+        return not pre_processing_disabled_;
     }
 
     /***************************************************************************/
@@ -712,7 +712,7 @@ public:
 	  * exists, no pre-processing will occur until the veto is lifted.
 	  */
     void vetoPreProcessing(bool veto) noexcept {
-        preProcessingDisabled_ = veto;
+        pre_processing_disabled_ = veto;
     }
 
     /***************************************************************************/
@@ -736,7 +736,7 @@ public:
 	  * run on the individual. This may alter the individual's data.
 	  */
     bool mayBePostProcessed() const {
-        return not postProcessingDisabled_;
+        return not post_processing_disabled_;
     }
 
     /***************************************************************************/
@@ -746,7 +746,7 @@ public:
 	  * exists, no post-processing will occur until the veto is lifted.
 	  */
     void vetoPostProcessing(bool veto) {
-        postProcessingDisabled_ = veto;
+        post_processing_disabled_ = veto;
     }
 
     /***************************************************************************/
@@ -847,8 +847,8 @@ public:
         resubmission_counter_ = p_load->resubmission_counter_;
         collection_position_ = p_load->collection_position_;
         bufferport_id_ = p_load->bufferport_id_;
-        preProcessingDisabled_ = p_load->preProcessingDisabled_;
-        postProcessingDisabled_ = p_load->postProcessingDisabled_;
+        pre_processing_disabled_ = p_load->pre_processing_disabled_;
+        post_processing_disabled_ = p_load->post_processing_disabled_;
         pre_processing_time_ = p_load->pre_processing_time_;
         processing_time_ = p_load->processing_time_;
         post_processing_time_ = p_load->post_processing_time_;
@@ -1009,8 +1009,8 @@ private:
     COLLECTION_POSITION_TYPE collection_position_ = static_cast<COLLECTION_POSITION_TYPE>(0);
     BUFFERPORT_ID_TYPE bufferport_id_ = BUFFERPORT_ID_TYPE();
 
-    bool preProcessingDisabled_ = false; ///< Indicates whether pre-processing was diabled entirely
-    bool postProcessingDisabled_ =
+    bool pre_processing_disabled_ = false; ///< Indicates whether pre-processing was diabled entirely
+    bool post_processing_disabled_ =
         false; ///< Indicates whether pre-processing was diabled entirely
 
     std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<processable_type>>

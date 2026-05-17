@@ -195,9 +195,9 @@ class GMetaOptimizerIndividualT // NOLINT(cppcoreguidelines-special-member-funct
     template <class Archive>
     void serialize(Archive &ar, const unsigned int) {
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GParameterSet) &
-            BOOST_SERIALIZATION_NVP(nRunsPerOptimization_) &
-            BOOST_SERIALIZATION_NVP(fitnessTarget_) & BOOST_SERIALIZATION_NVP(iterationThreshold_) &
-            BOOST_SERIALIZATION_NVP(moTarget_) & BOOST_SERIALIZATION_NVP(subEA_config_) &
+            BOOST_SERIALIZATION_NVP(n_runs_per_optimization_) &
+            BOOST_SERIALIZATION_NVP(fitness_target_) & BOOST_SERIALIZATION_NVP(iteration_threshold_) &
+            BOOST_SERIALIZATION_NVP(mo_target_) & BOOST_SERIALIZATION_NVP(sub_ea_config_) &
             BOOST_SERIALIZATION_NVP(ind_factory_);
     }
 
@@ -210,11 +210,11 @@ public:
      */
     GMetaOptimizerIndividualT()
       : gpar::GParameterSet()
-      , nRunsPerOptimization_(GMETAOPT_DEF_NRUNSPEROPT)
-      , fitnessTarget_(GMETAOPT_DEF_FITNESSTARGET)
-      , iterationThreshold_(GMETAOPT_DEF_ITERATIONTHRESHOLD)
-      , moTarget_(GMETAOPT_DEF_MOTARGET)
-      , subEA_config_(GMETAOPT_DEF_SUBEACONFIG)
+      , n_runs_per_optimization_(GMETAOPT_DEF_NRUNSPEROPT)
+      , fitness_target_(GMETAOPT_DEF_FITNESSTARGET)
+      , iteration_threshold_(GMETAOPT_DEF_ITERATIONTHRESHOLD)
+      , mo_target_(GMETAOPT_DEF_MOTARGET)
+      , sub_ea_config_(GMETAOPT_DEF_SUBEACONFIG)
       , ind_factory_() { /* nothing */
     }
 
@@ -226,11 +226,11 @@ public:
      */
     GMetaOptimizerIndividualT(const GMetaOptimizerIndividualT<ind_type> &cp)
       : gpar::GParameterSet(cp)
-      , nRunsPerOptimization_(cp.nRunsPerOptimization_)
-      , fitnessTarget_(cp.fitnessTarget_)
-      , iterationThreshold_(cp.iterationThreshold_)
-      , moTarget_(cp.moTarget_)
-      , subEA_config_(cp.subEA_config_)
+      , n_runs_per_optimization_(cp.n_runs_per_optimization_)
+      , fitness_target_(cp.fitness_target_)
+      , iteration_threshold_(cp.iteration_threshold_)
+      , mo_target_(cp.mo_target_)
+      , sub_ea_config_(cp.sub_ea_config_)
       , ind_factory_(
             Gem::Common::convertSmartPointer<
                 Gem::Common::GFactoryT<gpar::GParameterSet>,
@@ -251,7 +251,7 @@ public:
      * the (sub-)evolutionary algorithm
      */
     void setSubEAConfig(std::string sub_ea_config) {
-        subEA_config_ = sub_ea_config;
+        sub_ea_config_ = sub_ea_config;
     }
 
     /***************************************************************************/
@@ -260,7 +260,7 @@ public:
      * the (sub-)evolutionary algorithm
      */
     std::string getSubEAConfig() const {
-        return subEA_config_;
+        return sub_ea_config_;
     }
 
     /***************************************************************************/
@@ -279,7 +279,7 @@ public:
         }
 #endif
 
-        nRunsPerOptimization_ = n_runs_per_optimization;
+        n_runs_per_optimization_ = n_runs_per_optimization;
     }
 
     /***************************************************************************/
@@ -287,7 +287,7 @@ public:
      * Allows to retrieve the number of optimizations to be performed for each (sub-)optimization
      */
     std::size_t getNRunsPerOptimization() const {
-        return nRunsPerOptimization_;
+        return n_runs_per_optimization_;
     }
 
     /***************************************************************************/
@@ -295,7 +295,7 @@ public:
      * Allows to set the fitness target for each optimization
      */
     void setFitnessTarget(double fitness_target) {
-        fitnessTarget_ = fitness_target;
+        fitness_target_ = fitness_target;
     }
 
     /***************************************************************************/
@@ -303,7 +303,7 @@ public:
      * Retrieves the fitness target for each optimization
      */
     double getFitnessTarget() const {
-        return fitnessTarget_;
+        return fitness_target_;
     }
 
     /***************************************************************************/
@@ -311,7 +311,7 @@ public:
      * Allows to set the iteration threshold
      */
     void setIterationThreshold(std::uint32_t iteration_threshold) {
-        iterationThreshold_ = iteration_threshold;
+        iteration_threshold_ = iteration_threshold;
     }
 
     /***************************************************************************/
@@ -319,7 +319,7 @@ public:
      * Allows to retrieve the iteration threshold
      */
     std::uint32_t getIterationThreshold() const {
-        return iterationThreshold_;
+        return iteration_threshold_;
     }
 
     /***************************************************************************/
@@ -327,10 +327,10 @@ public:
      * Allows to set the desired target of the meta-optimization
      */
     void setMetaOptimizationTarget(metaOptimizationTarget mo_target) {
-        moTarget_ = mo_target;
+        mo_target_ = mo_target;
 
         // multi-criterion optimization. We need to set the number of fitness criteria
-        if(metaOptimizationTarget::MC_MINSOLVER_BESTFITNESS == moTarget_) {
+        if(metaOptimizationTarget::MC_MINSOLVER_BESTFITNESS == mo_target_) {
             this->setNStoredResults(2);
         }
     }
@@ -340,7 +340,7 @@ public:
      * Allows to retrieve the current target of the meta-optimization
      */
     metaOptimizationTarget getMetaOptimizationTarget() const {
-        return moTarget_;
+        return mo_target_;
     }
 
     /***************************************************************************/
@@ -715,7 +715,7 @@ public:
                    << (unprocessed ? " // unprocessed or error" : "") << '\n';
         }
 
-        result << "Optimization target: " << getClearTextMOT(moTarget_) << '\n'
+        result << "Optimization target: " << getClearTextMOT(mo_target_) << '\n'
                << '\n'
                << "population::population size = " << npar_ptr->value() + nch_ptr->value() << '\n'
                << "population::n_parents = " << npar_ptr->value() << '\n'
@@ -845,11 +845,11 @@ protected:
         gpar::GParameterSet::load_(cp);
 
         // ... and then our local data
-        nRunsPerOptimization_ = p_load->nRunsPerOptimization_;
-        fitnessTarget_ = p_load->fitnessTarget_;
-        iterationThreshold_ = p_load->iterationThreshold_;
-        moTarget_ = p_load->moTarget_;
-        subEA_config_ = p_load->subEA_config_;
+        n_runs_per_optimization_ = p_load->n_runs_per_optimization_;
+        fitness_target_ = p_load->fitness_target_;
+        iteration_threshold_ = p_load->iteration_threshold_;
+        mo_target_ = p_load->mo_target_;
+        sub_ea_config_ = p_load->sub_ea_config_;
 
         // We simply keep our local individual factory, as all settings are made inside of fitnessCalculation
     }
@@ -890,13 +890,13 @@ protected:
 
         // ... and then the local data
         Gem::Common::compare_t(
-            IDENTITY(nRunsPerOptimization_, p_load->nRunsPerOptimization_),
+            IDENTITY(n_runs_per_optimization_, p_load->n_runs_per_optimization_),
             token
         );
-        Gem::Common::compare_t(IDENTITY(fitnessTarget_, p_load->fitnessTarget_), token);
-        Gem::Common::compare_t(IDENTITY(iterationThreshold_, p_load->iterationThreshold_), token);
-        Gem::Common::compare_t(IDENTITY(moTarget_, p_load->moTarget_), token);
-        Gem::Common::compare_t(IDENTITY(subEA_config_, p_load->subEA_config_), token);
+        Gem::Common::compare_t(IDENTITY(fitness_target_, p_load->fitness_target_), token);
+        Gem::Common::compare_t(IDENTITY(iteration_threshold_, p_load->iteration_threshold_), token);
+        Gem::Common::compare_t(IDENTITY(mo_target_, p_load->mo_target_), token);
+        Gem::Common::compare_t(IDENTITY(sub_ea_config_, p_load->sub_ea_config_), token);
 
         // React on deviations from the expectation
         token.evaluate();
@@ -969,7 +969,7 @@ protected:
         ind_factory_->setAdaptAdProb(adapt_ad_prob);
 
         // Set up a population factory for serial execution
-        oa::GEvolutionaryAlgorithmFactory ea(subEA_config_);
+        oa::GEvolutionaryAlgorithmFactory ea(sub_ea_config_);
 
         // Run the required number of optimizations
         std::shared_ptr<oa::GEvolutionaryAlgorithm> ea_ptr;
@@ -984,8 +984,8 @@ protected:
         std::vector<double> iterations_per_optimization;
         std::vector<double> best_evaluations;
 
-        for(std::size_t opt = 0; opt < nRunsPerOptimization_; opt++) {
-            std::cout << "Starting measurement " << opt + 1 << " / " << nRunsPerOptimization_
+        for(std::size_t opt = 0; opt < n_runs_per_optimization_; opt++) {
+            std::cout << "Starting measurement " << opt + 1 << " / " << n_runs_per_optimization_
                       << '\n';
             ea_ptr = ea.get<oa::GEvolutionaryAlgorithm>();
 
@@ -1009,10 +1009,10 @@ protected:
             // Set the likelihood for work items to be produced through cross-over rather than mutation alone
             ea_ptr->setAmalgamationLikelihood(amalgamation_likelihood);
 
-            if(metaOptimizationTarget::MINSOLVERCALLS == moTarget_) {
+            if(metaOptimizationTarget::MINSOLVERCALLS == mo_target_) {
                 // Set the stop criteria (either maxIterations_ iterations or falling below the quality threshold
-                ea_ptr->setQualityThreshold(fitnessTarget_, true);
-                ea_ptr->setMaxIteration(iterationThreshold_);
+                ea_ptr->setQualityThreshold(fitness_target_, true);
+                ea_ptr->setMaxIteration(iteration_threshold_);
 
                 // Make sure the optimization does not emit the termination reason
                 ea_ptr->setEmitTerminationReason(false);
@@ -1022,7 +1022,7 @@ protected:
             }
             else { // Optimization of best fitness found or multi-criterion optimization: BESTFITNESS / MC_MINSOLVER_BESTFITNESS
                 // Set the stop criterion maxIterations only
-                ea_ptr->setMaxIteration(iterationThreshold_);
+                ea_ptr->setMaxIteration(iteration_threshold_);
 
                 // Make sure the optimization does not emit the termination reason
                 ea_ptr->setEmitTerminationReason(false);
@@ -1062,13 +1062,13 @@ protected:
         std::tuple<double, double> best_mean = Gem::Common::GStandardDeviation(best_evaluations);
 
         double evaluation = 0.;
-        if(metaOptimizationTarget::MINSOLVERCALLS == moTarget_) {
+        if(metaOptimizationTarget::MINSOLVERCALLS == mo_target_) {
             evaluation = std::get<0>(sd);
         }
-        else if(metaOptimizationTarget::BESTFITNESS == moTarget_) {
+        else if(metaOptimizationTarget::BESTFITNESS == mo_target_) {
             evaluation = std::get<0>(best_mean);
         }
-        else if(metaOptimizationTarget::MC_MINSOLVER_BESTFITNESS == moTarget_) {
+        else if(metaOptimizationTarget::MC_MINSOLVER_BESTFITNESS == mo_target_) {
             evaluation = std::get<0>(best_mean);
             this->setResult(1, std::get<0>(sd)); // The secondary result
         }
@@ -1080,7 +1080,7 @@ protected:
                   << '\n'
                   << "and a best evaluation of " << std::get<0>(best_mean) << " +/- "
                   << std::get<1>(best_mean) << '\n'
-                  << "out of " << nRunsPerOptimization_ << " consecutive runs" << '\n'
+                  << "out of " << n_runs_per_optimization_ << " consecutive runs" << '\n'
                   << "fitnessCalculation() will return the value " << evaluation << '\n'
                   << this->print(false)
                   << '\n' // print without fitness -- not defined at this stage
@@ -1218,14 +1218,14 @@ private:
 
     /***************************************************************************/
 
-    std::size_t nRunsPerOptimization_; ///< The number of runs performed for each (sub-)optimization
-    double fitnessTarget_;             ///< The quality target to be reached by
-    std::uint32_t iterationThreshold_; ///< The maximum allowed number of iterations
-    metaOptimizationTarget moTarget_;  ///< The target used for the meta-optimization
+    std::size_t n_runs_per_optimization_; ///< The number of runs performed for each (sub-)optimization
+    double fitness_target_;             ///< The quality target to be reached by
+    std::uint32_t iteration_threshold_; ///< The maximum allowed number of iterations
+    metaOptimizationTarget mo_target_;  ///< The target used for the meta-optimization
     std::string
         individual_config_; ///< Path and name of the configuration file needed for the individual
     std::string
-        subEA_config_; ///< Path and name of the configuration file needed for (sub-)evolutionary algorithms
+        sub_ea_config_; ///< Path and name of the configuration file needed for (sub-)evolutionary algorithms
 
     std::shared_ptr<typename ind_type::FACTORYTYPE>
         ind_factory_; ///< Holds a factory for our individuals
@@ -1304,7 +1304,7 @@ protected:
         comment += "The initial number of parents in a population;";
         gpb.registerFileParameter<std::size_t>(
             "init_n_parents",
-            initNParents_,
+            init_n_parents_,
             GMETAOPT_DEF_INITNPARENTS,
             Gem::Common::VAR_IS_ESSENTIAL,
             comment
@@ -1314,7 +1314,7 @@ protected:
         comment += "The lower boundary for variations of the number of parents;";
         gpb.registerFileParameter<std::size_t>(
             "n_parents_lb",
-            nParents_LB_,
+            n_parents_lb_,
             GMETAOPT_DEF_NPARENTS_LB,
             Gem::Common::VAR_IS_ESSENTIAL,
             comment
@@ -1324,7 +1324,7 @@ protected:
         comment += "The upper boundary for variations of the number of parents;";
         gpb.registerFileParameter<std::size_t>(
             "n_parents_ub",
-            nParents_UB_,
+            n_parents_ub_,
             GMETAOPT_DEF_NPARENTS_UB,
             Gem::Common::VAR_IS_ESSENTIAL,
             comment
@@ -1334,7 +1334,7 @@ protected:
         comment += "The initial number of children in a population;";
         gpb.registerFileParameter<std::size_t>(
             "init_n_children",
-            initNChildren_,
+            init_n_children_,
             GMETAOPT_DEF_INITNCHILDREN,
             Gem::Common::VAR_IS_ESSENTIAL,
             comment
@@ -1344,7 +1344,7 @@ protected:
         comment += "The lower boundary for the variation of the number of children;";
         gpb.registerFileParameter<std::size_t>(
             "n_children_lb",
-            nChildren_LB_,
+            n_children_lb_,
             GMETAOPT_DEF_NCHILDREN_LB,
             Gem::Common::VAR_IS_ESSENTIAL,
             comment
@@ -1354,7 +1354,7 @@ protected:
         comment += "The upper boundary for the variation of the number of children;";
         gpb.registerFileParameter<std::size_t>(
             "n_children_ub",
-            nChildren_UB_,
+            n_children_ub_,
             GMETAOPT_DEF_NCHILDREN_UB,
             Gem::Common::VAR_IS_ESSENTIAL,
             comment
@@ -1365,7 +1365,7 @@ protected:
                    "than just duplication;";
         gpb.registerFileParameter<double>(
             "init_amalgamation_lklh",
-            initAmalgamationLklh_,
+            init_amalgamation_lklh_,
             GMETAOPT_DEF_INITAMALGLKLHOOD,
             Gem::Common::VAR_IS_ESSENTIAL,
             comment
@@ -1375,7 +1375,7 @@ protected:
         comment += "The lower boundary for the variation of the amalgamation likelihood ;";
         gpb.registerFileParameter<double>(
             "amalgamation_lklh_lb",
-            amalgamationLklh_LB_,
+            amalgamation_lklh_lb_,
             GMETAOPT_DEF_AMALGLKLHOOD_LB,
             Gem::Common::VAR_IS_ESSENTIAL,
             comment
@@ -1385,7 +1385,7 @@ protected:
         comment += "The upper boundary for the variation of the amalgamation likelihood ;";
         gpb.registerFileParameter<double>(
             "amalgamation_lklh_ub",
-            amalgamationLklh_UB_,
+            amalgamation_lklh_ub_,
             GMETAOPT_DEF_AMALGLKLHOOD_UB,
             Gem::Common::VAR_IS_ESSENTIAL,
             comment
@@ -1395,7 +1395,7 @@ protected:
         comment += "The initial lower boundary for the variation of ad_prob;";
         gpb.registerFileParameter<double>(
             "init_min_ad_prob",
-            initMinAdProb_,
+            init_min_ad_prob_,
             GMETAOPT_DEF_INITMINADPROB,
             Gem::Common::VAR_IS_ESSENTIAL,
             comment
@@ -1405,7 +1405,7 @@ protected:
         comment += "The lower boundary for min_ad_prob;";
         gpb.registerFileParameter<double>(
             "min_ad_prob_lb",
-            minAdProb_LB_,
+            min_ad_prob_lb_,
             GMETAOPT_DEF_MINADPROB_LB,
             Gem::Common::VAR_IS_ESSENTIAL,
             comment
@@ -1415,7 +1415,7 @@ protected:
         comment += "The upper boundary for min_ad_prob;";
         gpb.registerFileParameter<double>(
             "min_ad_prob_ub",
-            minAdProb_UB_,
+            min_ad_prob_ub_,
             GMETAOPT_DEF_MINADPROB_UB,
             Gem::Common::VAR_IS_ESSENTIAL,
             comment
@@ -1425,7 +1425,7 @@ protected:
         comment += "The initial range for the variation of ad_prob;";
         gpb.registerFileParameter<double>(
             "init_ad_prob_range",
-            initAdProbRange_,
+            init_ad_prob_range_,
             GMETAOPT_DEF_INITADPROBRANGE,
             Gem::Common::VAR_IS_ESSENTIAL,
             comment
@@ -1435,7 +1435,7 @@ protected:
         comment += "The lower boundary for ad_prob_range;";
         gpb.registerFileParameter<double>(
             "ad_prob_range_lb",
-            adProbRange_LB_,
+            ad_prob_range_lb_,
             GMETAOPT_DEF_ADPROBRANGE_LB,
             Gem::Common::VAR_IS_ESSENTIAL,
             comment
@@ -1445,7 +1445,7 @@ protected:
         comment += "The upper boundary for ad_prob_range;";
         gpb.registerFileParameter<double>(
             "ad_prob_range_ub",
-            adProbRange_UB_,
+            ad_prob_range_ub_,
             GMETAOPT_DEF_ADPROBRANGE_UB,
             Gem::Common::VAR_IS_ESSENTIAL,
             comment
@@ -1455,7 +1455,7 @@ protected:
         comment += "The start value for ad_prob relative to the allowed value range;";
         gpb.registerFileParameter<double>(
             "init_ad_prob_start_percentage",
-            initAdProbStartPercentage_,
+            init_ad_prob_start_percentage_,
             GMETAOPT_DEF_INITADPROBSTARTPERCENTAGE,
             Gem::Common::VAR_IS_ESSENTIAL,
             comment
@@ -1465,7 +1465,7 @@ protected:
         comment += "The initial value of the strength of adProb_ adaption;";
         gpb.registerFileParameter<double>(
             "init_adapt_ad_prob",
-            initAdaptAdProb_,
+            init_adapt_ad_prob_,
             GMETAOPT_DEF_INITADAPTADPROB,
             Gem::Common::VAR_IS_ESSENTIAL,
             comment
@@ -1475,7 +1475,7 @@ protected:
         comment += "The lower boundary for the variation of the strength of adProb_ adaption;";
         gpb.registerFileParameter<double>(
             "adapt_ad_prob_lb",
-            adaptAdProb_LB_,
+            adapt_ad_prob_lb_,
             GMETAOPT_DEF_ADAPTADPROB_LB,
             Gem::Common::VAR_IS_ESSENTIAL,
             comment
@@ -1485,7 +1485,7 @@ protected:
         comment += "The upper boundary for the variation of the strength of adProb_ adaption;";
         gpb.registerFileParameter<double>(
             "adapt_ad_prob_ub",
-            adaptAdProb_UB_,
+            adapt_ad_prob_ub_,
             GMETAOPT_DEF_ADAPTADPROB_UB,
             Gem::Common::VAR_IS_ESSENTIAL,
             comment
@@ -1495,7 +1495,7 @@ protected:
         comment += "The initial minimum sigma for gauss-adaption in ES;";
         gpb.registerFileParameter<double>(
             "init_min_sigma",
-            initMinSigma_,
+            init_min_sigma_,
             GMETAOPT_DEF_INITMINSIGMA,
             Gem::Common::VAR_IS_ESSENTIAL,
             comment
@@ -1505,7 +1505,7 @@ protected:
         comment += "The lower boundary for the variation of the lower boundary of sigma;";
         gpb.registerFileParameter<double>(
             "min_sigma_lb",
-            minSigma_LB_,
+            min_sigma_lb_,
             GMETAOPT_DEF_MINSIGMA_LB,
             Gem::Common::VAR_IS_ESSENTIAL,
             comment
@@ -1515,7 +1515,7 @@ protected:
         comment += "The upper boundary for the variation of the lower boundary of sigma;";
         gpb.registerFileParameter<double>(
             "min_sigma_ub",
-            minSigma_UB_,
+            min_sigma_ub_,
             GMETAOPT_DEF_MINSIGMA_UB,
             Gem::Common::VAR_IS_ESSENTIAL,
             comment
@@ -1525,7 +1525,7 @@ protected:
         comment += "The initial maximum range for sigma;";
         gpb.registerFileParameter<double>(
             "init_sigma_range",
-            initSigmaRange_,
+            init_sigma_range_,
             GMETAOPT_DEF_INITSIGMARANGE,
             Gem::Common::VAR_IS_ESSENTIAL,
             comment
@@ -1535,7 +1535,7 @@ protected:
         comment += "The lower boundary for the variation of the maximum range of sigma;";
         gpb.registerFileParameter<double>(
             "sigma_range_lb",
-            sigmaRange_LB_,
+            sigma_range_lb_,
             GMETAOPT_DEF_SIGMARANGE_LB,
             Gem::Common::VAR_IS_ESSENTIAL,
             comment
@@ -1545,7 +1545,7 @@ protected:
         comment += "The upper boundary for the variation of the maximum range of sigma;";
         gpb.registerFileParameter<double>(
             "sigma_range_ub",
-            sigmaRange_UB_,
+            sigma_range_ub_,
             GMETAOPT_DEF_SIGMARANGE_UB,
             Gem::Common::VAR_IS_ESSENTIAL,
             comment
@@ -1555,7 +1555,7 @@ protected:
         comment += "The initial percentage of the sigma range as a start value;";
         gpb.registerFileParameter<double>(
             "init_sigma_range_percentage",
-            initSigmaRangePercentage_,
+            init_sigma_range_percentage_,
             GMETAOPT_DEF_INITSIGMARANGEPERCENTAGE,
             Gem::Common::VAR_IS_ESSENTIAL,
             comment
@@ -1565,7 +1565,7 @@ protected:
         comment += "The initial strength of self-adaption of gauss-mutation in ES;";
         gpb.registerFileParameter<double>(
             "init_sigma_sigma",
-            initSigmaSigma_,
+            init_sigma_sigma_,
             GMETAOPT_DEF_INITSIGMASIGMA,
             Gem::Common::VAR_IS_ESSENTIAL,
             comment
@@ -1575,7 +1575,7 @@ protected:
         comment += "The lower boundary for the variation of the strength of sigma adaption;";
         gpb.registerFileParameter<double>(
             "sigma_sigma_lb",
-            sigmaSigma_LB_,
+            sigma_sigma_lb_,
             GMETAOPT_DEF_SIGMASIGMA_LB,
             Gem::Common::VAR_IS_ESSENTIAL,
             comment
@@ -1585,7 +1585,7 @@ protected:
         comment += "The upper boundary for the variation of the strength of sigma adaption;";
         gpb.registerFileParameter<double>(
             "sigma_sigma_ub",
-            sigmaSigma_UB_,
+            sigma_sigma_ub_,
             GMETAOPT_DEF_SIGMASIGMA_UB,
             Gem::Common::VAR_IS_ESSENTIAL,
             comment
@@ -1614,35 +1614,35 @@ protected:
         // We simply use a static function defined in GMetaOptimizerIndividualT<ind_type>
         GMetaOptimizerIndividualT<ind_type>::addContent(
             p,
-            initNParents_,
-            nParents_LB_,
-            nParents_UB_,
-            initNChildren_,
-            nChildren_LB_,
-            nChildren_UB_,
-            initAmalgamationLklh_,
-            amalgamationLklh_LB_,
-            amalgamationLklh_UB_,
-            initMinAdProb_,
-            minAdProb_LB_,
-            minAdProb_UB_,
-            initAdProbRange_,
-            adProbRange_LB_,
-            adProbRange_UB_,
-            initAdProbStartPercentage_,
-            initAdaptAdProb_,
-            adaptAdProb_LB_,
-            adaptAdProb_UB_,
-            initMinSigma_,
-            minSigma_LB_,
-            minSigma_UB_,
-            initSigmaRange_,
-            sigmaRange_LB_,
-            sigmaRange_UB_,
-            initSigmaRangePercentage_,
-            initSigmaSigma_,
-            sigmaSigma_LB_,
-            sigmaSigma_UB_
+            init_n_parents_,
+            n_parents_lb_,
+            n_parents_ub_,
+            init_n_children_,
+            n_children_lb_,
+            n_children_ub_,
+            init_amalgamation_lklh_,
+            amalgamation_lklh_lb_,
+            amalgamation_lklh_ub_,
+            init_min_ad_prob_,
+            min_ad_prob_lb_,
+            min_ad_prob_ub_,
+            init_ad_prob_range_,
+            ad_prob_range_lb_,
+            ad_prob_range_ub_,
+            init_ad_prob_start_percentage_,
+            init_adapt_ad_prob_,
+            adapt_ad_prob_lb_,
+            adapt_ad_prob_ub_,
+            init_min_sigma_,
+            min_sigma_lb_,
+            min_sigma_ub_,
+            init_sigma_range_,
+            sigma_range_lb_,
+            sigma_range_ub_,
+            init_sigma_range_percentage_,
+            init_sigma_sigma_,
+            sigma_sigma_lb_,
+            sigma_sigma_ub_
         );
 
         // Finally add the individual factory to p
@@ -1679,66 +1679,66 @@ private:
     // Data
 
     // Parameters pertaining to the ea population
-    std::size_t initNParents_ = GMETAOPT_DEF_INITNPARENTS; ///< The initial number of parents
-    std::size_t nParents_LB_ =
+    std::size_t init_n_parents_ = GMETAOPT_DEF_INITNPARENTS; ///< The initial number of parents
+    std::size_t n_parents_lb_ =
         GMETAOPT_DEF_NPARENTS_LB; ///< The lower boundary for variations of the number of parents
-    std::size_t nParents_UB_ =
+    std::size_t n_parents_ub_ =
         GMETAOPT_DEF_NPARENTS_UB; ///< The upper boundary for variations of the number of parents
 
-    std::size_t initNChildren_ = GMETAOPT_DEF_INITNCHILDREN; ///< The initial number of children
-    std::size_t nChildren_LB_ =
+    std::size_t init_n_children_ = GMETAOPT_DEF_INITNCHILDREN; ///< The initial number of children
+    std::size_t n_children_lb_ =
         GMETAOPT_DEF_NCHILDREN_LB; ///< The lower boundary for the variation of the number of children
-    std::size_t nChildren_UB_ =
+    std::size_t n_children_ub_ =
         GMETAOPT_DEF_NCHILDREN_UB; ///< The upper boundary for the variation of the number of children
 
-    double initAmalgamationLklh_ =
+    double init_amalgamation_lklh_ =
         GMETAOPT_DEF_INITAMALGLKLHOOD; ///< The initial likelihood for an individual being created from cross-over rather than "just" duplication
-    double amalgamationLklh_LB_ =
+    double amalgamation_lklh_lb_ =
         GMETAOPT_DEF_AMALGLKLHOOD_LB; ///< The upper boundary for the variation of the amalgamation likelihood
-    double amalgamationLklh_UB_ =
+    double amalgamation_lklh_ub_ =
         GMETAOPT_DEF_AMALGLKLHOOD_UB; ///< The upper boundary for the variation of the amalgamation likelihood
 
-    double initMinAdProb_ =
+    double init_min_ad_prob_ =
         GMETAOPT_DEF_INITMINADPROB; ///< The initial lower boundary for the variation of ad_prob
-    double minAdProb_LB_ = GMETAOPT_DEF_MINADPROB_LB; ///< The lower boundary for min_ad_prob
-    double minAdProb_UB_ = GMETAOPT_DEF_MINADPROB_UB; ///< The upper boundary for min_ad_prob
+    double min_ad_prob_lb_ = GMETAOPT_DEF_MINADPROB_LB; ///< The lower boundary for min_ad_prob
+    double min_ad_prob_ub_ = GMETAOPT_DEF_MINADPROB_UB; ///< The upper boundary for min_ad_prob
 
-    double initAdProbRange_ =
+    double init_ad_prob_range_ =
         GMETAOPT_DEF_INITADPROBRANGE; ///< The initial range for the variation of ad_prob
-    double adProbRange_LB_ = GMETAOPT_DEF_ADPROBRANGE_LB; ///< The lower boundary for ad_prob_range
-    double adProbRange_UB_ = GMETAOPT_DEF_ADPROBRANGE_UB; ///< The upper boundary for ad_prob_range
+    double ad_prob_range_lb_ = GMETAOPT_DEF_ADPROBRANGE_LB; ///< The lower boundary for ad_prob_range
+    double ad_prob_range_ub_ = GMETAOPT_DEF_ADPROBRANGE_UB; ///< The upper boundary for ad_prob_range
 
-    double initAdProbStartPercentage_ =
+    double init_ad_prob_start_percentage_ =
         GMETAOPT_DEF_INITADPROBSTARTPERCENTAGE; ///< The start value for ad_prob relative to the allowed value range
 
-    double initAdaptAdProb_ =
+    double init_adapt_ad_prob_ =
         GMETAOPT_DEF_INITADAPTADPROB; ///< The initial value of the strength of adProb_ adaption
-    double adaptAdProb_LB_ =
+    double adapt_ad_prob_lb_ =
         GMETAOPT_DEF_ADAPTADPROB_LB; ///< The lower boundary for the variation of the strength of adProb_ adaption
-    double adaptAdProb_UB_ =
+    double adapt_ad_prob_ub_ =
         GMETAOPT_DEF_ADAPTADPROB_UB; ///< The upper boundary for the variation of the strength of adProb_ adaption
 
-    double initMinSigma_ = GMETAOPT_DEF_INITMINSIGMA; ///< The initial minimal value of sigma
-    double minSigma_LB_ =
+    double init_min_sigma_ = GMETAOPT_DEF_INITMINSIGMA; ///< The initial minimal value of sigma
+    double min_sigma_lb_ =
         GMETAOPT_DEF_MINSIGMA_LB; ///< The lower boundary for the variation of the lower boundary of sigma
-    double minSigma_UB_ =
+    double min_sigma_ub_ =
         GMETAOPT_DEF_MINSIGMA_UB; ///< The upper boundary for the variation of the lower boundary of sigma
 
-    double initSigmaRange_ =
+    double init_sigma_range_ =
         GMETAOPT_DEF_INITSIGMARANGE; ///< The initial range of sigma (beyond min_sigma
-    double sigmaRange_LB_ =
+    double sigma_range_lb_ =
         GMETAOPT_DEF_SIGMARANGE_LB; ///< The lower boundary for the variation of the maximum range of sigma
-    double sigmaRange_UB_ =
+    double sigma_range_ub_ =
         GMETAOPT_DEF_SIGMARANGE_UB; ///< The upper boundary for the variation of the maximum range of sigma
 
-    double initSigmaRangePercentage_ =
+    double init_sigma_range_percentage_ =
         GMETAOPT_DEF_INITSIGMARANGEPERCENTAGE; ///< The initial percentage of the sigma range as a start value
 
-    double initSigmaSigma_ =
+    double init_sigma_sigma_ =
         GMETAOPT_DEF_INITSIGMASIGMA; ///< The initial strength of sigma adaption
-    double sigmaSigma_LB_ =
+    double sigma_sigma_lb_ =
         GMETAOPT_DEF_SIGMASIGMA_LB; ///< The lower boundary for the variation of the strength of sigma adaption
-    double sigmaSigma_UB_ =
+    double sigma_sigma_ub_ =
         GMETAOPT_DEF_SIGMASIGMA_UB; ///< The upper boundary for the variation of the strength of sigma adaption
 
     std::shared_ptr<typename ind_type::FACTORYTYPE>
@@ -1766,7 +1766,7 @@ class GOptOptMonitorT // NOLINT(cppcoreguidelines-special-member-functions)
   : public oa::GBasePluggableOM {
     // Make sure this class can only be instantiated if individual_type is a derivative of GParameterSet
     static_assert(
-        std::is_base_of<gpar::GParameterSet, ind_type>::value,
+        std::is_base_of_v<gpar::GParameterSet, ind_type>,
         "GParameterSet is no base class of ind_type"
     );
 
@@ -1780,14 +1780,14 @@ class GOptOptMonitorT // NOLINT(cppcoreguidelines-special-member-functions)
         ar &make_nvp(
             "GBasePluggableOM",
             boost::serialization::base_object<oa::GBasePluggableOM>(*this)
-        ) & BOOST_SERIALIZATION_NVP(fileName_) &
-            BOOST_SERIALIZATION_NVP(gpd_) & BOOST_SERIALIZATION_NVP(progressPlotter_) &
-            BOOST_SERIALIZATION_NVP(nParentPlotter_) &
-            BOOST_SERIALIZATION_NVP(nChildrenPlotter_) & BOOST_SERIALIZATION_NVP(adProbPlotter_) &
-            BOOST_SERIALIZATION_NVP(minSigmaPlotter_) &
-            BOOST_SERIALIZATION_NVP(maxSigmaPlotter_) &
-            BOOST_SERIALIZATION_NVP(sigmaRangePlotter_) &
-            BOOST_SERIALIZATION_NVP(sigmaSigmaPlotter_);
+        ) & BOOST_SERIALIZATION_NVP(file_name_) &
+            BOOST_SERIALIZATION_NVP(gpd_) & BOOST_SERIALIZATION_NVP(progress_plotter_) &
+            BOOST_SERIALIZATION_NVP(n_parent_plotter_) &
+            BOOST_SERIALIZATION_NVP(n_children_plotter_) & BOOST_SERIALIZATION_NVP(ad_prob_plotter_) &
+            BOOST_SERIALIZATION_NVP(min_sigma_plotter_) &
+            BOOST_SERIALIZATION_NVP(max_sigma_plotter_) &
+            BOOST_SERIALIZATION_NVP(sigma_range_plotter_) &
+            BOOST_SERIALIZATION_NVP(sigma_sigma_plotter_);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -1797,16 +1797,16 @@ public:
      * The default constructor
      */
     GOptOptMonitorT(const std::string file_name)
-      : fileName_(file_name)
+      : file_name_(file_name)
       , gpd_("Progress information", 2, 4)
-      , progressPlotter_(new Gem::Common::GGraph2D())
-      , nParentPlotter_(new Gem::Common::GGraph2D())
-      , nChildrenPlotter_(new Gem::Common::GGraph2D())
-      , adProbPlotter_(new Gem::Common::GGraph2D())
-      , minSigmaPlotter_(new Gem::Common::GGraph2D())
-      , maxSigmaPlotter_(new Gem::Common::GGraph2D())
-      , sigmaRangePlotter_(new Gem::Common::GGraph2D())
-      , sigmaSigmaPlotter_(new Gem::Common::GGraph2D()) { /* nothing */
+      , progress_plotter_(new Gem::Common::GGraph2D())
+      , n_parent_plotter_(new Gem::Common::GGraph2D())
+      , n_children_plotter_(new Gem::Common::GGraph2D())
+      , ad_prob_plotter_(new Gem::Common::GGraph2D())
+      , min_sigma_plotter_(new Gem::Common::GGraph2D())
+      , max_sigma_plotter_(new Gem::Common::GGraph2D())
+      , sigma_range_plotter_(new Gem::Common::GGraph2D())
+      , sigma_sigma_plotter_(new Gem::Common::GGraph2D()) { /* nothing */
     }
 
     /***************************************************************************/
@@ -1817,20 +1817,20 @@ public:
      */
     GOptOptMonitorT(const GOptOptMonitorT<ind_type> &cp)
       : oa::GBasePluggableOM(cp)
-      , fileName_(cp.fileName_)
+      , file_name_(cp.file_name_)
       , gpd_(
             "Progress information",
             2,
             4
         ) // We do not want to copy progress information of another object
-      , progressPlotter_(new Gem::Common::GGraph2D())
-      , nParentPlotter_(new Gem::Common::GGraph2D())
-      , nChildrenPlotter_(new Gem::Common::GGraph2D())
-      , adProbPlotter_(new Gem::Common::GGraph2D())
-      , minSigmaPlotter_(new Gem::Common::GGraph2D())
-      , maxSigmaPlotter_(new Gem::Common::GGraph2D())
-      , sigmaRangePlotter_(new Gem::Common::GGraph2D())
-      , sigmaSigmaPlotter_(new Gem::Common::GGraph2D()) { /* nothing */
+      , progress_plotter_(new Gem::Common::GGraph2D())
+      , n_parent_plotter_(new Gem::Common::GGraph2D())
+      , n_children_plotter_(new Gem::Common::GGraph2D())
+      , ad_prob_plotter_(new Gem::Common::GGraph2D())
+      , min_sigma_plotter_(new Gem::Common::GGraph2D())
+      , max_sigma_plotter_(new Gem::Common::GGraph2D())
+      , sigma_range_plotter_(new Gem::Common::GGraph2D())
+      , sigma_sigma_plotter_(new Gem::Common::GGraph2D()) { /* nothing */
     }
 
     /***************************************************************************/
@@ -1845,7 +1845,7 @@ public:
      * Sets the file name
      */
     void setFileName(std::string file_name) {
-        fileName_ = file_name;
+        file_name_ = file_name;
     }
 
     /***************************************************************************/
@@ -1853,7 +1853,7 @@ public:
      * Retrieves the current file name
      */
     std::string getFileName() const {
-        return fileName_;
+        return file_name_;
     }
 
 protected:
@@ -1873,16 +1873,16 @@ protected:
         oa::GBasePluggableOM::load_(cp);
 
         // Load local data
-        fileName_ = p_load->fileName_;
+        file_name_ = p_load->file_name_;
         gpd_ = p_load->gpd_;
-        Gem::Common::copyCloneableSmartPointer(p_load->progressPlotter_, progressPlotter_);
-        Gem::Common::copyCloneableSmartPointer(p_load->nParentPlotter_, nParentPlotter_);
-        Gem::Common::copyCloneableSmartPointer(p_load->nChildrenPlotter_, nChildrenPlotter_);
-        Gem::Common::copyCloneableSmartPointer(p_load->adProbPlotter_, adProbPlotter_);
-        Gem::Common::copyCloneableSmartPointer(p_load->minSigmaPlotter_, minSigmaPlotter_);
-        Gem::Common::copyCloneableSmartPointer(p_load->maxSigmaPlotter_, maxSigmaPlotter_);
-        Gem::Common::copyCloneableSmartPointer(p_load->sigmaRangePlotter_, sigmaRangePlotter_);
-        Gem::Common::copyCloneableSmartPointer(p_load->sigmaSigmaPlotter_, sigmaSigmaPlotter_);
+        Gem::Common::copyCloneableSmartPointer(p_load->progress_plotter_, progress_plotter_);
+        Gem::Common::copyCloneableSmartPointer(p_load->n_parent_plotter_, n_parent_plotter_);
+        Gem::Common::copyCloneableSmartPointer(p_load->n_children_plotter_, n_children_plotter_);
+        Gem::Common::copyCloneableSmartPointer(p_load->ad_prob_plotter_, ad_prob_plotter_);
+        Gem::Common::copyCloneableSmartPointer(p_load->min_sigma_plotter_, min_sigma_plotter_);
+        Gem::Common::copyCloneableSmartPointer(p_load->max_sigma_plotter_, max_sigma_plotter_);
+        Gem::Common::copyCloneableSmartPointer(p_load->sigma_range_plotter_, sigma_range_plotter_);
+        Gem::Common::copyCloneableSmartPointer(p_load->sigma_sigma_plotter_, sigma_sigma_plotter_);
     }
 
     /***************************************************************************/
@@ -1919,16 +1919,16 @@ protected:
         Gem::Common::compare_base_t<oa::GBasePluggableOM>(*this, *p_load, token);
 
         // ... and then our local data
-        compare_t(IDENTITY(fileName_, p_load->fileName_), token);
+        compare_t(IDENTITY(file_name_, p_load->file_name_), token);
         compare_t(IDENTITY(gpd_, p_load->gpd_), token);
-        compare_t(IDENTITY(progressPlotter_, p_load->progressPlotter_), token);
-        compare_t(IDENTITY(nParentPlotter_, p_load->nParentPlotter_), token);
-        compare_t(IDENTITY(nChildrenPlotter_, p_load->nChildrenPlotter_), token);
-        compare_t(IDENTITY(adProbPlotter_, p_load->adProbPlotter_), token);
-        compare_t(IDENTITY(minSigmaPlotter_, p_load->minSigmaPlotter_), token);
-        compare_t(IDENTITY(maxSigmaPlotter_, p_load->maxSigmaPlotter_), token);
-        compare_t(IDENTITY(sigmaRangePlotter_, p_load->sigmaRangePlotter_), token);
-        compare_t(IDENTITY(sigmaSigmaPlotter_, p_load->sigmaSigmaPlotter_), token);
+        compare_t(IDENTITY(progress_plotter_, p_load->progress_plotter_), token);
+        compare_t(IDENTITY(n_parent_plotter_, p_load->n_parent_plotter_), token);
+        compare_t(IDENTITY(n_children_plotter_, p_load->n_children_plotter_), token);
+        compare_t(IDENTITY(ad_prob_plotter_, p_load->ad_prob_plotter_), token);
+        compare_t(IDENTITY(min_sigma_plotter_, p_load->min_sigma_plotter_), token);
+        compare_t(IDENTITY(max_sigma_plotter_, p_load->max_sigma_plotter_), token);
+        compare_t(IDENTITY(sigma_range_plotter_, p_load->sigma_range_plotter_), token);
+        compare_t(IDENTITY(sigma_sigma_plotter_, p_load->sigma_sigma_plotter_), token);
 
         // React on deviations from the expectation
         token.evaluate();
@@ -2026,58 +2026,58 @@ private:
         switch(im) {
         case Gem::Geneva::infoMode::INFOINIT: {
             // Initialize the plots we want to record
-            progressPlotter_->setPlotMode(Gem::Common::graphPlotMode::CURVE);
-            progressPlotter_->setPlotLabel("Number of solver calls");
-            progressPlotter_->setXAxisLabel("Iteration");
-            progressPlotter_->setYAxisLabel("Best Result (lower is better)");
+            progress_plotter_->setPlotMode(Gem::Common::graphPlotMode::CURVE);
+            progress_plotter_->setPlotLabel("Number of solver calls");
+            progress_plotter_->setXAxisLabel("Iteration");
+            progress_plotter_->setYAxisLabel("Best Result (lower is better)");
 
-            nParentPlotter_->setPlotMode(Gem::Common::graphPlotMode::CURVE);
-            nParentPlotter_->setPlotLabel("Number of parents as a function of the iteration");
-            nParentPlotter_->setXAxisLabel("Iteration");
-            nParentPlotter_->setYAxisLabel("Number of parents");
+            n_parent_plotter_->setPlotMode(Gem::Common::graphPlotMode::CURVE);
+            n_parent_plotter_->setPlotLabel("Number of parents as a function of the iteration");
+            n_parent_plotter_->setXAxisLabel("Iteration");
+            n_parent_plotter_->setYAxisLabel("Number of parents");
 
-            nChildrenPlotter_->setPlotMode(Gem::Common::graphPlotMode::CURVE);
-            nChildrenPlotter_->setPlotLabel("Number of children as a function of the iteration");
-            nChildrenPlotter_->setXAxisLabel("Iteration");
-            nChildrenPlotter_->setYAxisLabel("Number of children");
+            n_children_plotter_->setPlotMode(Gem::Common::graphPlotMode::CURVE);
+            n_children_plotter_->setPlotLabel("Number of children as a function of the iteration");
+            n_children_plotter_->setXAxisLabel("Iteration");
+            n_children_plotter_->setYAxisLabel("Number of children");
 
-            adProbPlotter_->setPlotMode(Gem::Common::graphPlotMode::CURVE);
-            adProbPlotter_->setPlotLabel("Adaption probability as a function of the iteration");
-            adProbPlotter_->setXAxisLabel("Iteration");
-            adProbPlotter_->setYAxisLabel("Adaption probability");
+            ad_prob_plotter_->setPlotMode(Gem::Common::graphPlotMode::CURVE);
+            ad_prob_plotter_->setPlotLabel("Adaption probability as a function of the iteration");
+            ad_prob_plotter_->setXAxisLabel("Iteration");
+            ad_prob_plotter_->setYAxisLabel("Adaption probability");
 
-            minSigmaPlotter_->setPlotMode(Gem::Common::graphPlotMode::CURVE);
-            minSigmaPlotter_->setPlotLabel("Lower sigma boundary as a function of the iteration");
-            minSigmaPlotter_->setXAxisLabel("Iteration");
-            minSigmaPlotter_->setYAxisLabel("Lower sigma boundary");
+            min_sigma_plotter_->setPlotMode(Gem::Common::graphPlotMode::CURVE);
+            min_sigma_plotter_->setPlotLabel("Lower sigma boundary as a function of the iteration");
+            min_sigma_plotter_->setXAxisLabel("Iteration");
+            min_sigma_plotter_->setYAxisLabel("Lower sigma boundary");
 
-            maxSigmaPlotter_->setPlotMode(Gem::Common::graphPlotMode::CURVE);
-            maxSigmaPlotter_->setPlotLabel("Upper sigma boundary as a function of the iteration");
-            maxSigmaPlotter_->setXAxisLabel("Iteration");
-            maxSigmaPlotter_->setYAxisLabel("Upper sigma boundary");
+            max_sigma_plotter_->setPlotMode(Gem::Common::graphPlotMode::CURVE);
+            max_sigma_plotter_->setPlotLabel("Upper sigma boundary as a function of the iteration");
+            max_sigma_plotter_->setXAxisLabel("Iteration");
+            max_sigma_plotter_->setYAxisLabel("Upper sigma boundary");
 
-            sigmaRangePlotter_->setPlotMode(Gem::Common::graphPlotMode::CURVE);
-            sigmaRangePlotter_->setPlotLabel(
+            sigma_range_plotter_->setPlotMode(Gem::Common::graphPlotMode::CURVE);
+            sigma_range_plotter_->setPlotLabel(
                 "Development of the sigma range as a function of the iteration"
             );
-            sigmaRangePlotter_->setXAxisLabel("Iteration");
-            sigmaRangePlotter_->setYAxisLabel("Sigma range");
+            sigma_range_plotter_->setXAxisLabel("Iteration");
+            sigma_range_plotter_->setYAxisLabel("Sigma range");
 
-            sigmaSigmaPlotter_->setPlotMode(Gem::Common::graphPlotMode::CURVE);
-            sigmaSigmaPlotter_->setPlotLabel(
+            sigma_sigma_plotter_->setPlotMode(Gem::Common::graphPlotMode::CURVE);
+            sigma_sigma_plotter_->setPlotLabel(
                 "Development of the adaption strength as a function of the iteration"
             );
-            sigmaSigmaPlotter_->setXAxisLabel("Iteration");
-            sigmaSigmaPlotter_->setYAxisLabel("Sigma-Sigma");
+            sigma_sigma_plotter_->setXAxisLabel("Iteration");
+            sigma_sigma_plotter_->setYAxisLabel("Sigma-Sigma");
 
-            gpd_.registerPlotter(progressPlotter_);
-            gpd_.registerPlotter(nParentPlotter_);
-            gpd_.registerPlotter(nChildrenPlotter_);
-            gpd_.registerPlotter(adProbPlotter_);
-            gpd_.registerPlotter(minSigmaPlotter_);
-            gpd_.registerPlotter(maxSigmaPlotter_);
-            gpd_.registerPlotter(sigmaRangePlotter_);
-            gpd_.registerPlotter(sigmaSigmaPlotter_);
+            gpd_.registerPlotter(progress_plotter_);
+            gpd_.registerPlotter(n_parent_plotter_);
+            gpd_.registerPlotter(n_children_plotter_);
+            gpd_.registerPlotter(ad_prob_plotter_);
+            gpd_.registerPlotter(min_sigma_plotter_);
+            gpd_.registerPlotter(max_sigma_plotter_);
+            gpd_.registerPlotter(sigma_range_plotter_);
+            gpd_.registerPlotter(sigma_sigma_plotter_);
 
             gpd_.setCanvasDimensions(P_XDIM, P_YDIM);
         } break;
@@ -2095,30 +2095,30 @@ private:
                 ea->clone_at<GMetaOptimizerIndividualT<ind_type>>(0);
 
             // Retrieve the best fitness and average sigma value and add it to our local storage
-            (*progressPlotter_) &
+            (*progress_plotter_) &
                 std::tuple<double, double>(static_cast<double>(ea->getIteration()), p->raw_fitness(0));
-            (*nParentPlotter_) &
+            (*n_parent_plotter_) &
                 std::tuple<double, double>(static_cast<double>(ea->getIteration()), static_cast<double>(p->getNParents()));
-            (*nChildrenPlotter_) &
+            (*n_children_plotter_) &
                 std::tuple<double, double>(static_cast<double>(ea->getIteration()), static_cast<double>(p->getNChildren()));
-            (*adProbPlotter_) &
+            (*ad_prob_plotter_) &
                 std::tuple<double, double>(static_cast<double>(ea->getIteration()), p->getAdProb());
 
             double min_sigma = p->getMinSigma();
             double sigma_range = p->getSigmaRange();
             double max_sigma = min_sigma + sigma_range;
 
-            (*minSigmaPlotter_) & std::tuple<double, double>(static_cast<double>(ea->getIteration()), min_sigma);
-            (*maxSigmaPlotter_) & std::tuple<double, double>(static_cast<double>(ea->getIteration()), max_sigma);
-            (*sigmaRangePlotter_) &
+            (*min_sigma_plotter_) & std::tuple<double, double>(static_cast<double>(ea->getIteration()), min_sigma);
+            (*max_sigma_plotter_) & std::tuple<double, double>(static_cast<double>(ea->getIteration()), max_sigma);
+            (*sigma_range_plotter_) &
                 std::tuple<double, double>(static_cast<double>(ea->getIteration()), sigma_range);
-            (*sigmaSigmaPlotter_) &
+            (*sigma_sigma_plotter_) &
                 std::tuple<double, double>(static_cast<double>(ea->getIteration()), p->getSigmaSigma());
         } break;
 
         case Gem::Geneva::infoMode::INFOEND: {
             // Write out the result
-            gpd_.writeToFile(fileName_);
+            gpd_.writeToFile(file_name_);
         } break;
 
         default: {
@@ -2136,25 +2136,25 @@ private:
       : gpd_("empty", 1, 1) { /* empty */
       }; ///< Default constructor; Intentionally private (only needed for serialization)
 
-    std::string fileName_; ///< The name of the output file
+    std::string file_name_; ///< The name of the output file
 
     Gem::Common::GPlotDesigner gpd_; ///< Ease recording of essential information
 
-    std::shared_ptr<Gem::Common::GGraph2D> progressPlotter_; ///< Records progress information
+    std::shared_ptr<Gem::Common::GGraph2D> progress_plotter_; ///< Records progress information
     std::shared_ptr<Gem::Common::GGraph2D>
-        nParentPlotter_; ///< Records the number of parents in the individual
+        n_parent_plotter_; ///< Records the number of parents in the individual
     std::shared_ptr<Gem::Common::GGraph2D>
-        nChildrenPlotter_; ///< Records the number of children in the individual
+        n_children_plotter_; ///< Records the number of children in the individual
     std::shared_ptr<Gem::Common::GGraph2D>
-        adProbPlotter_; ///< Records the adaption probability for the individual
+        ad_prob_plotter_; ///< Records the adaption probability for the individual
     std::shared_ptr<Gem::Common::GGraph2D>
-        minSigmaPlotter_; ///< Records the development of the lower sigma boundary
+        min_sigma_plotter_; ///< Records the development of the lower sigma boundary
     std::shared_ptr<Gem::Common::GGraph2D>
-        maxSigmaPlotter_; ///< Records the development of the upper sigma boundary
+        max_sigma_plotter_; ///< Records the development of the upper sigma boundary
     std::shared_ptr<Gem::Common::GGraph2D>
-        sigmaRangePlotter_; ///< Records the development of the sigma range
+        sigma_range_plotter_; ///< Records the development of the sigma range
     std::shared_ptr<Gem::Common::GGraph2D>
-        sigmaSigmaPlotter_; ///< Records the development of the adaption strength
+        sigma_sigma_plotter_; ///< Records the development of the adaption strength
 };
 
 /******************************************************************************/

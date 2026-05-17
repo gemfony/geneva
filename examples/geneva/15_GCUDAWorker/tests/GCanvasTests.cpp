@@ -209,7 +209,8 @@ TEST_CASE("t_circle: getAlphaValue returns the alpha field", "[common][canvas][t
 }
 
 TEST_CASE("t_circle: operator== and operator!=", "[common][canvas][t_circle]") {
-    Gem::Geneva::t_circle a, b;
+    Gem::Geneva::t_circle a;
+    Gem::Geneva::t_circle b;
     REQUIRE(a == b);
     REQUIRE_FALSE(a != b);
     b.r = 1.f;

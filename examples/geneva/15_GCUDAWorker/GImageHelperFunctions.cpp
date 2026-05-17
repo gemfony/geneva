@@ -289,7 +289,8 @@ bool loadImageToRGB(
     static std::vector<unsigned char> l_imageData_vec;
     static std::string l_fileName{};
     static bool first{true};
-    static int l_width{0}, l_height{0};
+    static int l_width{0};
+    static int l_height{0};
 
     // Serialize the loading and transfer of images
     std::lock_guard<std::mutex> lock(image_mutex);
@@ -318,10 +319,9 @@ bool loadImageToRGB(
                           << '\n';
                 return false;
             }
-            else {
-                std::cout << "Successfully loaded PNG image " << l_fileName << " from disc into RGB"
+                            std::cout << "Successfully loaded PNG image " << l_fileName << " from disc into RGB"
                           << '\n';
-            }
+           
         }
     }
     else {

@@ -121,7 +121,7 @@ class GParameterSetFormulaConstraint // NOLINT(cppcoreguidelines-special-member-
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSetConstraint) &
-            BOOST_SERIALIZATION_NVP(rawFormula_);
+            BOOST_SERIALIZATION_NVP(raw_formula_);
     }
     ///////////////////////////////////////////////////////////////////////
 public:
@@ -164,7 +164,7 @@ private:
     /** @brief The default constructor -- intentionally private, only needed for (de-)serialization */
     GParameterSetFormulaConstraint() = default;
 
-    std::string rawFormula_; ///< Holds the raw formula, in which values haven't been replaced yet
+    std::string raw_formula_; ///< Holds the raw formula, in which values haven't been replaced yet
 };
 
 /******************************************************************************/

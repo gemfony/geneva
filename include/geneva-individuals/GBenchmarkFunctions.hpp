@@ -95,8 +95,9 @@
 #define GBM_E 2.718281828459045235360
 #else
 #include <cmath>
-inline constexpr double GBM_PI = 3.14159265358979323846;
-inline constexpr double GBM_E = 2.71828182845904523536;
+#include <numbers>
+inline constexpr double GBM_PI = std::numbers::pi;
+inline constexpr double GBM_E = std::numbers::e;
 #endif
 
 // ── Integer IDs (mirror solverFunction enum, avoids including GFunctionIndividual.hpp from .cu) ──
@@ -247,7 +248,8 @@ G_CALLABLE inline double negParabola(const double *x, int n) {
  * Standard benchmark in CEC and BBOB suites.
  */
 G_CALLABLE inline double ackleyCanonical(const double *x, int n) {
-    double sq = 0., cs = 0.;
+    double sq = 0.;
+    double cs = 0.;
     for(int i = 0; i < n; ++i) {
         sq += x[i] * x[i];
         cs += cos(2. * GBM_PI * x[i]);
@@ -264,7 +266,8 @@ G_CALLABLE inline double ackleyCanonical(const double *x, int n) {
  * distinguishes global-structure exploitation from local exploration.
  */
 G_CALLABLE inline double griewank(const double *x, int n) {
-    double sq = 0., prod = 1.;
+    double sq = 0.;
+    double prod = 1.;
     for(int i = 0; i < n; ++i) {
         sq += x[i] * x[i];
         prod *= cos(x[i] / sqrt(static_cast<double>(i + 1)));
@@ -358,7 +361,8 @@ G_CALLABLE inline double michalewicz(const double *x, int n) {
  * weighted interactions without multimodality; tests non-separable step adaptation.
  */
 G_CALLABLE inline double zakharov(const double *x, int n) {
-    double sq = 0., lin = 0.;
+    double sq = 0.;
+    double lin = 0.;
     for(int i = 0; i < n; ++i) {
         sq += x[i] * x[i];
         lin += 0.5 * (i + 1) * x[i];

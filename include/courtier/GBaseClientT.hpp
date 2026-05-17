@@ -94,10 +94,10 @@ template <typename processable_type>
 class GBaseClientT {
     // Make sure processable_type adheres to the GProcessingContainerT interface
     static_assert(
-        std::is_base_of<
+        std::is_base_of_v<
             Gem::Courtier::
                 GProcessingContainerT<processable_type, typename processable_type::result_type>,
-            processable_type>::value,
+            processable_type>,
         "GBaseClientT: processable_type does not adhere to the GProcessingContainerT interface"
     );
 
@@ -111,7 +111,7 @@ public:
 	  * @param additionalDataTemplate The model of the item to be processed
 	  */
     GBaseClientT(std::shared_ptr<processable_type> additionalDataTemplate)
-      : additionalDataTemplate_(additionalDataTemplate) { /* nothing*/
+      : additional_data_template_(additionalDataTemplate) { /* nothing*/
     }
 
     //---------------------------------------------------------------------------
@@ -132,20 +132,20 @@ public:
 	  * Allows to set a maximum number of processing steps. If set to 0 or left unset,
 	  * processing will be done until process() returns false.
 	  *
-	  * @param processMax Desired value for the processMax_ variable
+	  * @param processMax Desired value for the process_max_ variable
 	  */
     void setProcessMax(std::uint32_t processMax) {
-        processMax_ = processMax;
+        process_max_ = processMax;
     }
 
     //---------------------------------------------------------------------------
     /**
-	  * Retrieves the value of the processMax_ variable.
+	  * Retrieves the value of the process_max_ variable.
 	  *
-	  * @return The value of the processMax_ variable
+	  * @return The value of the process_max_ variable
 	  */
     std::uint32_t getProcessMax() const {
-        return processMax_;
+        return process_max_;
     }
 
     //---------------------------------------------------------------------------
@@ -163,17 +163,17 @@ public:
 	  * @param maxDuration The maximum allowed processing time
 	  */
     void setMaxTime(const std::chrono::duration<double> &maxDuration) {
-        maxDuration_ = maxDuration;
+        max_duration_ = maxDuration;
     }
 
     //---------------------------------------------------------------------------
     /**
-	  * Retrieves the value of the maxDuration_ parameter.
+	  * Retrieves the value of the max_duration_ parameter.
 	  *
 	  * @return The maximum allowed processing time
 	  */
     std::chrono::duration<double> getMaxTime() {
-        return maxDuration_;
+        return max_duration_;
     }
 
     //---------------------------------------------------------------------------
@@ -181,7 +181,7 @@ public:
 	  * Checks whether a terminal error was flagged
 	  */
     bool terminalErrorFlagged() const {
-        return terminalError_.load();
+        return terminal_error_.load();
     }
 
     //---------------------------------------------------------------------------
@@ -189,7 +189,7 @@ public:
 	  * Checks whether the close-flag was set
 	  */
     bool closeRequested() const {
-        return closeRequested_.load();
+        return close_requested_.load();
     }
 
     //---------------------------------------------------------------------------
@@ -255,7 +255,7 @@ public:
 	  * Allows to set a flag indicating that the application should terminate
 	  */
     void flagCloseRequested() {
-        closeRequested_.store(true);
+        close_requested_.store(true);
     }
 
 protected:
@@ -273,7 +273,7 @@ protected:
 	  * Allows to flag an error that qualifies as a halt condition
 	  */
     void flagTerminalError() {
-        terminalError_.store(true);
+        terminal_error_.store(true);
     }
 
     //---------------------------------------------------------------------------
@@ -283,8 +283,8 @@ protected:
 	  */
     void loadDataTemplate(std::shared_ptr<processable_type> target) {
         // If we have a model for the item to be parallelized, load its data into the target
-        if(additionalDataTemplate_) {
-            target->loadConstantData(additionalDataTemplate_);
+        if(additional_data_template_) {
+            target->loadConstantData(additional_data_template_);
         }
     }
 
@@ -314,7 +314,7 @@ protected:
         }
 
         // Maximum number of processing steps reached ?
-        if(processMax_ > 0 && (processed_ >= processMax_)) {
+        if(process_max_ > 0 && (processed_ >= process_max_)) {
             glogger << "Client is terminating because the maximum number of processing steps was "
                        "exceeded"
                     << '\n'
@@ -324,8 +324,8 @@ protected:
         }
 
         // Maximum duration reached ?
-        if(maxDuration_.count() > 0. &&
-           ((std::chrono::high_resolution_clock::now() - startTime_) >= maxDuration_)) {
+        if(max_duration_.count() > 0. &&
+           ((std::chrono::high_resolution_clock::now() - start_time_) >= max_duration_)) {
             glogger << "Client is terminating because the maximum time frame was exceeded"
                     << '\n'
                     << GLOGGING;
@@ -430,21 +430,21 @@ private:
     //---------------------------------------------------------------------------
     // Data
 
-    std::chrono::high_resolution_clock::time_point startTime_ = std::chrono::
+    std::chrono::high_resolution_clock::time_point start_time_ = std::chrono::
         high_resolution_clock::now(); ///< Used to store the start time of the optimization
-    std::chrono::duration<double> maxDuration_ =
+    std::chrono::duration<double> max_duration_ =
         std::chrono::microseconds(0); ///< Maximum time frame for the optimization
 
     std::uint32_t processed_ = 0;  ///< The number of processed items so far
-    std::uint32_t processMax_ = 0; ///< The maximum number of items to process
+    std::uint32_t process_max_ = 0; ///< The maximum number of items to process
 
-    std::atomic<bool> terminalError_{false}; ///< Indicates whether a terminal error was received
-    std::atomic<bool> closeRequested_{
+    std::atomic<bool> terminal_error_{false}; ///< Indicates whether a terminal error was received
+    std::atomic<bool> close_requested_{
         false
     }; ///< Indicates whether a the termination was requested by the server
 
     std::shared_ptr<processable_type>
-        additionalDataTemplate_; ///< Optionally holds a template of the object to be processed
+        additional_data_template_; ///< Optionally holds a template of the object to be processed
 
     //---------------------------------------------------------------------------
 };

@@ -33,6 +33,7 @@
 #include <cstdlib>
 #include <map>
 #include <memory>
+#include <numbers>
 #include <string>
 #include <tuple>
 #include <vector>
@@ -104,7 +105,8 @@ TEST_CASE(
     "ptrDifferenceCheck raw: different pointers do not throw",
     "[common][helper][ptrDifferenceCheck]"
 ) {
-    int a = 1, b = 2;
+    int a = 1;
+    int b = 2;
     REQUIRE_NOTHROW(Gem::Common::ptrDifferenceCheck(&a, &b));
 }
 
@@ -358,7 +360,7 @@ TEST_CASE(
     "getMapItem const: returns correct value for existing key",
     "[common][helper][getMapItem]"
 ) {
-    const std::map<std::string, double> m{{"pi", 3.14159}};
+    const std::map<std::string, double> m{{"pi", std::numbers::pi}};
     REQUIRE(Gem::Common::getMapItem(m, "pi") == Approx(3.14159));
 }
 

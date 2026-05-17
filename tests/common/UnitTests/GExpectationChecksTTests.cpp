@@ -189,7 +189,8 @@ TEST_CASE("compare<tribool>: equal values + EQUALITY pass",
 
 TEST_CASE("identity / getIdentity: stores references and names",
           "[common][expectations][identity]") {
-    int a = 1, b = 2;
+    int a = 1;
+    int b = 2;
     auto id = getIdentity(a, b, "a", "b");
     CHECK(&id.x == &a);
     CHECK(&id.y == &b);
@@ -200,7 +201,8 @@ TEST_CASE("identity / getIdentity: stores references and names",
 
 TEST_CASE("identity: stream-out names the items",
           "[common][expectations][identity]") {
-    int a = 1, b = 2;
+    int a = 1;
+    int b = 2;
     auto id = getIdentity(a, b, "a", "b");
     std::ostringstream oss;
     oss << id;
@@ -214,7 +216,8 @@ TEST_CASE("identity: stream-out names the items",
 TEST_CASE("compare_t<int>: matching values increment success counter",
           "[common][expectations][compare_t]") {
     GToken tok("X", expectation::EQUALITY);
-    int a = 7, b = 7;
+    int a = 7;
+    int b = 7;
     compare_t(getIdentity(a, b, "a", "b"), tok);
     CHECK(tok.getTestCounter() == 1);
     CHECK(tok.getSuccessCounter() == 1);
@@ -226,7 +229,8 @@ TEST_CASE("compare_t<int>: mismatched values are recorded as failures, not throw
     // compare_t catches g_expectation_violation and records into the token —
     // the call must NOT propagate.
     GToken tok("X", expectation::EQUALITY);
-    int a = 7, b = 8;
+    int a = 7;
+    int b = 8;
     CHECK_NOTHROW(compare_t(getIdentity(a, b, "a", "b"), tok));
     CHECK(tok.getTestCounter() == 1);
     CHECK(tok.getSuccessCounter() == 0);
@@ -316,26 +320,30 @@ private:
 
 TEST_CASE("compare<geneva_type>: equal Geneva objects + EQUALITY pass",
           "[common][expectations][compare]") {
-    CmpObj a(5), b(5);
+    CmpObj a(5);
+    CmpObj b(5);
     CHECK_NOTHROW(compare(a, b, "a", "b", expectation::EQUALITY, 0.));
 }
 
 TEST_CASE("compare<geneva_type>: unequal Geneva objects + EQUALITY fail",
           "[common][expectations][compare]") {
-    CmpObj a(5), b(6);
+    CmpObj a(5);
+    CmpObj b(6);
     CHECK_THROWS_AS(compare(a, b, "a", "b", expectation::EQUALITY, 0.),
                     g_expectation_violation);
 }
 
 TEST_CASE("compare<geneva_type>: unequal Geneva objects + INEQUALITY pass",
           "[common][expectations][compare]") {
-    CmpObj a(5), b(6);
+    CmpObj a(5);
+    CmpObj b(6);
     CHECK_NOTHROW(compare(a, b, "a", "b", expectation::INEQUALITY, 0.));
 }
 
 TEST_CASE("compare<geneva_type>: equal Geneva objects + INEQUALITY fail",
           "[common][expectations][compare]") {
-    CmpObj a(5), b(5);
+    CmpObj a(5);
+    CmpObj b(5);
     CHECK_THROWS_AS(compare(a, b, "a", "b", expectation::INEQUALITY, 0.),
                     g_expectation_violation);
 }
@@ -345,7 +353,8 @@ TEST_CASE("compare<geneva_type>: equal Geneva objects + INEQUALITY fail",
 
 TEST_CASE("compare<shared_ptr<geneva_type>>: both null + EQUALITY pass",
           "[common][expectations][compare]") {
-    std::shared_ptr<CmpObj> a, b;
+    std::shared_ptr<CmpObj> a;
+    std::shared_ptr<CmpObj> b;
     CHECK_NOTHROW(compare(a, b, "a", "b", expectation::EQUALITY, 0.));
 }
 
@@ -553,7 +562,8 @@ TEST_CASE("compare<set<int>>: equal sets + INEQUALITY throw",
 
 TEST_CASE("compare<shared_ptr<geneva_type>>: both null + INEQUALITY throw",
           "[common][expectations][compare]") {
-    std::shared_ptr<CmpObj> a, b;
+    std::shared_ptr<CmpObj> a;
+    std::shared_ptr<CmpObj> b;
     CHECK_THROWS_AS(compare(a, b, "a", "b", expectation::INEQUALITY, 0.),
                     g_expectation_violation);
 }

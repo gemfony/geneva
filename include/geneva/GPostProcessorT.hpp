@@ -299,9 +299,9 @@ class GEvolutionaryAlgorithmPostOptimizer // NOLINT(cppcoreguidelines-special-me
         ar &make_nvp(
             "GPostProcessorBaseT_GParameterSet",
             boost::serialization::base_object<GPostProcessorBaseT<gpar::GParameterSet>>(*this)
-        ) & BOOST_SERIALIZATION_NVP(oa_configFile_) &
-            BOOST_SERIALIZATION_NVP(executor_configFile_) &
-            BOOST_SERIALIZATION_NVP(executionMode_);
+        ) & BOOST_SERIALIZATION_NVP(oa_config_file_) &
+            BOOST_SERIALIZATION_NVP(executor_config_file_) &
+            BOOST_SERIALIZATION_NVP(execution_mode_);
 
         // TODO: How to initialize the ea factory
     }
@@ -379,9 +379,9 @@ private:
     /**************************************************************************/
     // Data
     std::string
-        oa_configFile_; ///< The name of the configuration file for this evolutionary algorithm
-    std::string executor_configFile_; ///< The name of the configuration file for the executor
-    execMode executionMode_ =
+        oa_config_file_; ///< The name of the configuration file for this evolutionary algorithm
+    std::string executor_config_file_; ///< The name of the configuration file for the executor
+    execMode execution_mode_ =
         execMode::SERIAL; ///< Whether to run the post-optimizer in serial or multi-threaded mode
 };
 

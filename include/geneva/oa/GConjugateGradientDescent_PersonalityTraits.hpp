@@ -58,7 +58,7 @@ class GConjugateGradientDescent_PersonalityTraits // NOLINT(cppcoreguidelines-sp
         using boost::serialization::make_nvp;
 
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPersonalityTraits) &
-            BOOST_SERIALIZATION_NVP(popPos_);
+            BOOST_SERIALIZATION_NVP(pop_pos_);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -123,7 +123,7 @@ private:
     GObject *clone_() const override;
 
     /** @brief Stores the current position in the population */
-    std::size_t popPos_ = 0;
+    std::size_t pop_pos_ = 0;
 };
 
 /******************************************************************************/

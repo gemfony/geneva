@@ -109,10 +109,10 @@ template <typename processable_type>
 class GBaseExecutorT : public Gem::Common::GCommonInterfaceT<GBaseExecutorT<processable_type>> {
     // Make sure processable_type adheres to the GProcessingContainerT interface
     static_assert(
-        std::is_base_of<
+        std::is_base_of_v<
             Gem::Courtier::
                 GProcessingContainerT<processable_type, typename processable_type::result_type>,
-            processable_type>::value,
+            processable_type>,
         "GBaseExecutorT: processable_type does not adhere to the GProcessingContainerT<> interface"
     );
 
@@ -125,7 +125,7 @@ public:
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar &BOOST_SERIALIZATION_NVP(maxResubmissions_);
+        ar &BOOST_SERIALIZATION_NVP(max_resubmissions_);
     }
 
     /////////////////////////////////////////////////////////////////////////////
@@ -139,7 +139,7 @@ public:
 	  */
     GBaseExecutorT(const GBaseExecutorT<processable_type> &cp)
       : Gem::Common::GCommonInterfaceT<GBaseExecutorT<processable_type>>(cp)
-      , maxResubmissions_(cp.maxResubmissions_) { /* nothing */
+      , max_resubmissions_(cp.max_resubmissions_) { /* nothing */
     }
 
     /***************************************************************************/
@@ -151,10 +151,10 @@ public:
      */
     GBaseExecutorT(GBaseExecutorT<processable_type> &&cp) noexcept
       : Gem::Common::GCommonInterfaceT<GBaseExecutorT<processable_type>>(std::move(cp))
-      , maxResubmissions_(cp.maxResubmissions_) {
+      , max_resubmissions_(cp.max_resubmissions_) {
         // Reset the other object
         cp.iteration_counter_ = static_cast<ITERATION_COUNTER_TYPE>(0);
-        cp.expectedNumber_ = 0;
+        cp.expected_number_ = 0;
         cp.object_first_submission_time_ = std::chrono::high_resolution_clock::time_point{};
         cp.iteration_first_submission_time_ = std::chrono::high_resolution_clock::time_point{};
         cp.iteration_end_time_ = std::chrono::high_resolution_clock::time_point{};
@@ -168,12 +168,12 @@ public:
         cp.no_items_submitted_in_cycle_.store(true);
         cp.in_first_iteration_.store(true);
         cp.iteration_first_individual_position_ = 0;
-        cp.maxResubmissions_ = DEFAULTMAXRESUBMISSIONS;
-        cp.nResubmissions_ = 0;
-        cp.n_returnedLast_ = 0;
-        cp.n_notReturnedLast_ = 0;
-        cp.n_oldWorkItems_ = 0;
-        cp.n_erroneousItems_ = 0;
+        cp.max_resubmissions_ = DEFAULTMAXRESUBMISSIONS;
+        cp.n_resubmissions_ = 0;
+        cp.n_returned_last_ = 0;
+        cp.n_not_returned_last_ = 0;
+        cp.n_old_work_items_ = 0;
+        cp.n_erroneous_items_ = 0;
         cp.old_work_items_cnt_.clear();
     }
 
@@ -277,7 +277,7 @@ public:
         //------------------------------------------------------------------------------------------
         // The main business logic of item submission
 
-        nResubmissions_ = 0;
+        n_resubmissions_ = 0;
         executor_status_t status{false /* is_complete */, false /* has_errors */};
         do {
             //-----------------------
@@ -288,7 +288,7 @@ public:
             // Submission and retrieval
 
             // Submit all work items.
-            expectedNumber_ = this->submitAllWorkItems(workItems);
+            expected_number_ = this->submitAllWorkItems(workItems);
 
             // Wait for work items to complete. This function needs to
             // be re-implemented in derived classes.
@@ -311,13 +311,13 @@ public:
             // Leave if we are complete or if we haven't been asked to resubmit unprocessed
             // items (even if we do not have a complete set of work items). Also leave
             // if we have reached the maximum number of resubmissions or
-            // maxResubmissions_ was explicitly set to 0.
+            // max_resubmissions_ was explicitly set to 0.
             if(
                 status.is_complete // nothing left to do
                 || not resubmitUnprocessed ||
-                maxResubmissions_ == 0 // user is happy with unprocessed items
-                || (++nResubmissions_ >=
-                    maxResubmissions_) // we have tried to resubmit items but did not succeed
+                max_resubmissions_ == 0 // user is happy with unprocessed items
+                || (++n_resubmissions_ >=
+                    max_resubmissions_) // we have tried to resubmit items but did not succeed
             ) {
                 // Leave the loop
                 break;
@@ -381,7 +381,7 @@ public:
 	  * @param maxResubmissions The maximum number of allowed resubmissions
 	  */
     void setMaxResubmissions(std::size_t maxResubmissions) {
-        maxResubmissions_ = maxResubmissions;
+        max_resubmissions_ = maxResubmissions;
     }
 
     /***************************************************************************/
@@ -391,7 +391,7 @@ public:
 	  * @return The maximum number of allowed resubmissions
 	  */
     std::size_t getMaxResubmissions() const {
-        return maxResubmissions_;
+        return max_resubmissions_;
     }
 
     /***************************************************************************/
@@ -399,7 +399,7 @@ public:
 	  * Retrieve the number of individuals returned during the last iteration
 	  */
     std::size_t getNReturnedLast() const noexcept {
-        return n_returnedLast_;
+        return n_returned_last_;
     }
 
     /***************************************************************************/
@@ -407,7 +407,7 @@ public:
 	  * Retrieve the number of individuals NOT returned during the last iteration
 	  */
     std::size_t getNNotReturnedLast() const noexcept {
-        return n_notReturnedLast_;
+        return n_not_returned_last_;
     }
 
     /***************************************************************************/
@@ -415,7 +415,7 @@ public:
  	  * Retrieves the current number of old work items in this iteration
  	  */
     std::size_t getNOldWorkItems() const noexcept {
-        return n_oldWorkItems_;
+        return n_old_work_items_;
     }
 
     /***************************************************************************/
@@ -423,7 +423,7 @@ public:
 	  * Retrieves the number of work items with errors in this iteration
 	  */
     std::size_t getNErroneousWorkItems() const noexcept {
-        return n_erroneousItems_;
+        return n_erroneous_items_;
     }
 
     /***************************************************************************/
@@ -510,7 +510,7 @@ protected:
         // No parent class with loadable data
 
         // Copy local data
-        maxResubmissions_ = p_load_ptr->maxResubmissions_;
+        max_resubmissions_ = p_load_ptr->max_resubmissions_;
     }
 
     /***************************************************************************/
@@ -549,7 +549,7 @@ protected:
         );
 
         // ... and then our local data
-        compare_t(IDENTITY(this->maxResubmissions_, p_load->maxResubmissions_), token);
+        compare_t(IDENTITY(this->max_resubmissions_, p_load->max_resubmissions_), token);
 
         // React on deviations from the expectation
         token.evaluate();
@@ -584,10 +584,10 @@ protected:
         old_work_items_cnt_.clear();
 
         // Reset some counters and flags
-        n_returnedLast_ = 0;
-        n_notReturnedLast_ = 0;
-        n_oldWorkItems_ = 0;
-        n_erroneousItems_ = 0;
+        n_returned_last_ = 0;
+        n_not_returned_last_ = 0;
+        n_old_work_items_ = 0;
+        n_erroneous_items_ = 0;
     }
 
     /***************************************************************************/
@@ -638,17 +638,17 @@ protected:
             old_work_items_cnt_.end()
         );
         // Remove unprocessed or erroneous items and count the remaining items
-        n_oldWorkItems_ =
+        n_old_work_items_ =
             this->cleanItemsWithoutFlag(old_work_items_cnt_, processingStatus::PROCESSED);
 
         // Find out about the number of items that have not returned (yet) from the last submission.
         // These are equivalent to the items that still have the DO_PROCESS flag set.
-        n_notReturnedLast_ = this->countItemsWithStatus(workItems, processingStatus::DO_PROCESS);
+        n_not_returned_last_ = this->countItemsWithStatus(workItems, processingStatus::DO_PROCESS);
         // The number of actually returned items is equal to the number of expected items minus the number of not returned items
-        n_returnedLast_ = expectedNumber_ - n_notReturnedLast_;
+        n_returned_last_ = expected_number_ - n_not_returned_last_;
         // Count the number of work items with errors. We need to count two flags
-        n_erroneousItems_ = this->countItemsWithStatus(workItems, processingStatus::ERROR_FLAGGED);
-        n_erroneousItems_ +=
+        n_erroneous_items_ = this->countItemsWithStatus(workItems, processingStatus::ERROR_FLAGGED);
+        n_erroneous_items_ +=
             this->countItemsWithStatus(workItems, processingStatus::EXCEPTION_CAUGHT);
 
         // Make it known that the first iteration has ended (if this is the first iteration)
@@ -732,7 +732,7 @@ protected:
                 // Update some internal variables
                 w_ptr->setIterationCounter(iteration_counter_);
                 w_ptr->setCollectionPosition(pos_cnt);
-                w_ptr->setResubmissionCounter(nResubmissions_);
+                w_ptr->setResubmissionCounter(n_resubmissions_);
 
                 // Do the actual submission
                 this->submit(w_ptr);
@@ -808,7 +808,7 @@ protected:
 	  * Retrieves the expected number of work items in the current iteration
 	  */
     std::size_t getExpectedNumber() const noexcept {
-        return expectedNumber_;
+        return expected_number_;
     }
 
     /***************************************************************************/
@@ -960,7 +960,7 @@ protected:
 	  * Checks if this is the first cycle of an iteration
 	  */
     bool inFirstCycle() const noexcept {
-        return (0 == nResubmissions_);
+        return (0 == n_resubmissions_);
     }
 
     /** @brief Applies modifications to this object. This is needed for testing purposes */
@@ -1018,7 +1018,7 @@ private:
     /* @brief Counts the number of submissions initiated for this object; may also be set by the user */
     ITERATION_COUNTER_TYPE iteration_counter_ = static_cast<ITERATION_COUNTER_TYPE>(0);
 
-    std::size_t expectedNumber_ =
+    std::size_t expected_number_ =
         0; ///< The number of work items to be submitted (and expected back)
 
     /** brief The timepoint of the very first submission (or possibly retrieval from the queue */
@@ -1055,16 +1055,16 @@ private:
         0; ///< The position of the first item to be processed in the workItems vector
 
     /** @brief The maximum number of re-submissions allowed if a full return of submitted items is attempted */
-    std::size_t maxResubmissions_ = DEFAULTMAXRESUBMISSIONS;
-    std::size_t nResubmissions_ = 0; ///< A temporary counter of the current resubmission
+    std::size_t max_resubmissions_ = DEFAULTMAXRESUBMISSIONS;
+    std::size_t n_resubmissions_ = 0; ///< A temporary counter of the current resubmission
 
-    std::size_t n_returnedLast_ =
+    std::size_t n_returned_last_ =
         0; ///< The number of individuals returned in the last iteration cycle
-    std::size_t n_notReturnedLast_ =
+    std::size_t n_not_returned_last_ =
         0; ///< The number of individuals NOT returned in the last iteration cycle
-    std::size_t n_oldWorkItems_ =
+    std::size_t n_old_work_items_ =
         0; ///< The number of old work items returned in a given iteration
-    std::size_t n_erroneousItems_ =
+    std::size_t n_erroneous_items_ =
         0; ///< The number of work items with errors in the current iteration
 
     std::vector<std::shared_ptr<processable_type>>
@@ -1627,7 +1627,7 @@ protected:
                     << "Threadpool pointer is empty" << '\n'
                 );
             }
-            else if(not w_ptr) {
+            if(not w_ptr) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
                     << "In In GMTExecutorT<processable_type>::submit(): Error!" << '\n'
@@ -1776,12 +1776,12 @@ class GBrokerExecutorT
         ar &make_nvp(
             "GBaseExecutorT",
             boost::serialization::base_object<GBaseExecutorT<processable_type>>(*this)
-        ) & BOOST_SERIALIZATION_NVP(waitFactor_) &
-            BOOST_SERIALIZATION_NVP(minPartialReturnPercentage_) &
+        ) & BOOST_SERIALIZATION_NVP(wait_factor_) &
+            BOOST_SERIALIZATION_NVP(min_partial_return_percentage_) &
             BOOST_SERIALIZATION_NVP(capable_of_full_return_) & BOOST_SERIALIZATION_NVP(gpd_) &
             BOOST_SERIALIZATION_NVP(waiting_times_graph_) &
             BOOST_SERIALIZATION_NVP(returned_items_graph_) &
-            BOOST_SERIALIZATION_NVP(waitFactorWarningEmitted_);
+            BOOST_SERIALIZATION_NVP(wait_factor_warning_emitted_);
     }
 
     ///////////////////////////////////////////////////////////////////////
@@ -1819,11 +1819,11 @@ public:
 	  */
     GBrokerExecutorT(const GBrokerExecutorT<processable_type> &cp)
       : GBaseExecutorT<processable_type>(cp)
-      , waitFactor_(cp.waitFactor_)
-      , minPartialReturnPercentage_(cp.minPartialReturnPercentage_)
+      , wait_factor_(cp.wait_factor_)
+      , min_partial_return_percentage_(cp.min_partial_return_percentage_)
       , capable_of_full_return_(cp.capable_of_full_return_)
       , gpd_("Maximum waiting times and returned items", 1, 2) // Intentionally not copied
-      , waitFactorWarningEmitted_(cp.waitFactorWarningEmitted_) {
+      , wait_factor_warning_emitted_(cp.wait_factor_warning_emitted_) {
         gpd_.setCanvasDimensions(std::make_tuple<std::uint32_t, std::uint32_t>(1200, 1600));
 
         waiting_times_graph_ = std::make_shared<Gem::Common::GGraph2D>();
@@ -1859,7 +1859,7 @@ public:
 	  * <= 0 indicates an indefinite waiting time.
 	  */
     void setWaitFactor(double waitFactor) {
-        waitFactor_ = waitFactor;
+        wait_factor_ = waitFactor;
     }
 
     /***************************************************************************/
@@ -1867,7 +1867,7 @@ public:
 	  * Allows to retrieve the wait factor variable
 	  */
     double getWaitFactor() const {
-        return waitFactor_;
+        return wait_factor_;
     }
 
     /***************************************************************************/
@@ -1876,7 +1876,7 @@ public:
 	  * before execution continues. 0 means: Option is disabled.
 	  */
     std::uint16_t getMinPartialReturnPercentage() const noexcept {
-        return minPartialReturnPercentage_;
+        return min_partial_return_percentage_;
     }
 
     /***************************************************************************/
@@ -1891,7 +1891,7 @@ public:
             100,
             "GBrokerExecutorT<>::setMinPartialReturnPercentage()"
         );
-        minPartialReturnPercentage_ = minPartialReturnPercentage;
+        min_partial_return_percentage_ = minPartialReturnPercentage;
     }
 
     /***************************************************************************/
@@ -1926,13 +1926,13 @@ public:
         Gem::Common::compare_base_t<GBaseExecutorT<processable_type>>(*this, *p_load, token);
 
         // ... and then our local data
-        compare_t(IDENTITY(waitFactor_, p_load->waitFactor_), token);
+        compare_t(IDENTITY(wait_factor_, p_load->wait_factor_), token);
         compare_t(
-            IDENTITY(minPartialReturnPercentage_, p_load->minPartialReturnPercentage_),
+            IDENTITY(min_partial_return_percentage_, p_load->min_partial_return_percentage_),
             token
         );
         compare_t(IDENTITY(capable_of_full_return_, p_load->capable_of_full_return_), token);
-        compare_t(IDENTITY(waitFactorWarningEmitted_, p_load->waitFactorWarningEmitted_), token);
+        compare_t(IDENTITY(wait_factor_warning_emitted_, p_load->wait_factor_warning_emitted_), token);
 
         // React on deviations from the expectation
         token.evaluate();
@@ -1959,10 +1959,10 @@ protected:
         GBaseExecutorT<processable_type>::load_(cp);
 
         // Local data
-        waitFactor_ = p_load_ptr->waitFactor_;
-        minPartialReturnPercentage_ = p_load_ptr->minPartialReturnPercentage_;
+        wait_factor_ = p_load_ptr->wait_factor_;
+        min_partial_return_percentage_ = p_load_ptr->min_partial_return_percentage_;
         capable_of_full_return_ = p_load_ptr->capable_of_full_return_;
-        waitFactorWarningEmitted_ = p_load_ptr->waitFactorWarningEmitted_;
+        wait_factor_warning_emitted_ = p_load_ptr->wait_factor_warning_emitted_;
     }
 
     /***************************************************************************/
@@ -2025,18 +2025,18 @@ protected:
         GBaseExecutorT<processable_type>::cycleInit_(workItems);
 
         // Reset the number of currently returned items
-        nReturnedCurrent_ = 0;
+        n_returned_current_ = 0;
 
 #ifdef DEBUG
         // Check that the waitFactor has a suitable size
-        if(not waitFactorWarningEmitted_) {
-            if(waitFactor_ > 0. && waitFactor_ < 1.) {
+        if(not wait_factor_warning_emitted_) {
+            if(wait_factor_ > 0. && wait_factor_ < 1.) {
                 glogger << "In GBrokerExecutorT::cycleInit_(): Warning" << '\n'
                         << "It is suggested not to use a wait time < 1. Current value: "
-                        << waitFactor_ << '\n'
+                        << wait_factor_ << '\n'
                         << GWARNING;
             }
-            waitFactorWarningEmitted_ = true;
+            wait_factor_warning_emitted_ = true;
         }
 #endif
     }
@@ -2149,7 +2149,7 @@ protected:
         std::vector<std::shared_ptr<processable_type>> &oldWorkItems
     ) override {
         // Act depending on the capabilities of the consumer or user-preferences
-        return (capable_of_full_return_ || waitFactor_ == 0.)
+        return (capable_of_full_return_ || wait_factor_ == 0.)
                  ? this->waitForFullReturn(workItems, oldWorkItems)
                  : this->waitForTimeOut(workItems, oldWorkItems);
     }
@@ -2215,7 +2215,7 @@ private:
         std::vector<std::shared_ptr<processable_type>> &oldWorkItems
     ) {
         std::shared_ptr<processable_type> w_ptr;
-        nReturnedCurrent_ = 0;
+        n_returned_current_ = 0;
         executor_status_t status;
 
         // Note: Old work items are cleared in the "workOn" function
@@ -2320,7 +2320,7 @@ private:
 
         // Calculate the average return time so far. This holds true also for the very first item
 #ifdef DEBUG
-        if(0 == nReturnedCurrent_) {
+        if(0 == n_returned_current_) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GBrokerExeuctorT<processable_type>::updateTimeout():" << '\n'
@@ -2329,15 +2329,15 @@ private:
         }
 #endif
         std::chrono::duration<double> avgReturnTime =
-            currentElapsed / Gem::Common::narrow_cast<double>(nReturnedCurrent_);
+            currentElapsed / Gem::Common::narrow_cast<double>(n_returned_current_);
 
         // Retrieve the current maximum processing time
         std::chrono::duration<double> maxProcessingTime(max_processing_time_);
 
         //-----------------------------------------------
         // The actual timeout calculation
-        maxTimeout_ =
-            waitFactor_ * (avgReturnTime * this->getExpectedNumber() + maxProcessingTime);
+        max_timeout_ =
+            wait_factor_ * (avgReturnTime * this->getExpectedNumber() + maxProcessingTime);
 
         //-----------------------------------------------
         // Let the audience know in DEBUG mode
@@ -2357,7 +2357,7 @@ private:
         std::chrono::duration<double> currentElapsed =
             this->now() - this->getApproxCycleStartTime();
 
-        if(currentElapsed >= maxTimeout_) {
+        if(currentElapsed >= max_timeout_) {
 #if defined(DEBUG) && defined(VERBOSETIMEOUTS)
             glogger << "Leaving after timeout of " << maxTimeout_.count() << " was reached"
                     << '\n'
@@ -2366,9 +2366,8 @@ private:
 
             return true;
         }
-        else {
-            return false;
-        }
+                    return false;
+       
     }
 
     /***************************************************************************/
@@ -2402,12 +2401,12 @@ private:
 
         // Avoid problems related to floating point accuracy
         std::size_t expectedNumber = this->getExpectedNumber();
-        if(nReturnedCurrent_ == expectedNumber) {
+        if(n_returned_current_ == expectedNumber) {
             return true;
         }
 
         // Check if we have reached the minimum percentage
-        double realPercentage = Gem::Common::narrow_cast<double>(nReturnedCurrent_) /
+        double realPercentage = Gem::Common::narrow_cast<double>(n_returned_current_) /
                                 Gem::Common::narrow_cast<double>(expectedNumber);
         return (
             realPercentage >= Gem::Common::narrow_cast<double>(this->getMinPartialReturnPercentage())
@@ -2424,8 +2423,8 @@ private:
             this->now() - this->getApproxCycleStartTime();
         // Calculate the remaining time
         std::chrono::duration<double> remainingTime = std::chrono::duration<double>(0.);
-        if(maxTimeout_ > currentElapsed) {
-            remainingTime = maxTimeout_ - currentElapsed;
+        if(max_timeout_ > currentElapsed) {
+            remainingTime = max_timeout_ - currentElapsed;
         }
 
         return remainingTime;
@@ -2463,7 +2462,7 @@ private:
                 if(w_ptr->is_processed()) {
                     break;
                 }
-                else { // unprocessed or has an error
+                // unprocessed or has an error
                     glogger << "In GBrokerExecutorT<>::getNextItem():" << '\n'
                             << "Received \"first\" individual which is either" << '\n'
                             << "unprocessed or has errors. Got processing status of "
@@ -2473,7 +2472,7 @@ private:
                             << '\n'
                             << "we do emit a warning here." << '\n'
                             << GWARNING;
-                }
+               
             }
             while(true);
         }
@@ -2521,7 +2520,7 @@ private:
         if(first_retrieval_) {
 #ifdef DEBUG
             if((not this->inFirstIteration() || not this->inFirstCycle() ||
-                0 < nReturnedCurrent_)) {
+                0 < n_returned_current_)) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
                     << "In GBrokerExecutorT<processable_type>::firstRetrieval():" << '\n'
@@ -2529,7 +2528,7 @@ private:
                     << '\n'
                     << "this->inFirstIteration() : " << this->inFirstIteration() << '\n'
                     << "this->inFirstCycle()     :" << this->inFirstCycle() << '\n'
-                    << "nReturnedCurrent_       :" << nReturnedCurrent_ << " (we expect 0)"
+                    << "nReturnedCurrent_       :" << n_returned_current_ << " (we expect 0)"
                     << '\n'
                 );
             }
@@ -2538,9 +2537,8 @@ private:
             first_retrieval_ = false;
             return true;
         }
-        else {
-            return false;
-        }
+                    return false;
+       
     }
 
     /***************************************************************************/
@@ -2552,14 +2550,14 @@ private:
     bool firstItem() const {
         if(first_item_) {
 #ifdef DEBUG
-            if((not this->inFirstIteration() || 1 != nReturnedCurrent_)) {
+            if((not this->inFirstIteration() || 1 != n_returned_current_)) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
                     << "In GBrokerExecutorT<processable_type>::firstItem():" << '\n'
                     << "Got true==first_item_, while one of the preconditions isn't met:"
                     << '\n'
                     << "this->inFirstIteration() : " << this->inFirstIteration() << '\n'
-                    << "nReturnedCurrent_       :" << nReturnedCurrent_ << " (we expect 1)"
+                    << "nReturnedCurrent_       :" << n_returned_current_ << " (we expect 1)"
                     << '\n'
                 );
             }
@@ -2568,9 +2566,8 @@ private:
             first_item_ = false;
             return true;
         }
-        else {
-            return false;
-        }
+                    return false;
+       
     }
 
     /***************************************************************************/
@@ -2618,7 +2615,7 @@ private:
                 if(workItems.at(worker_position) != w_ptr) {
                     workItems.at(worker_position) = w_ptr;
                 }
-                if(++nReturnedCurrent_ == this->getExpectedNumber()) {
+                if(++n_returned_current_ == this->getExpectedNumber()) {
                     complete = true;
                 }
                 if(w_ptr->has_errors()) {
@@ -2662,7 +2659,7 @@ private:
 
         waiting_times_graph_->add(
             Gem::Common::narrow_cast<double>(current_iteration),
-            maxTimeout_.count()
+            max_timeout_.count()
         );
         returned_items_graph_->add(
             Gem::Common::narrow_cast<double>(current_iteration),
@@ -2697,9 +2694,9 @@ private:
 
     /***************************************************************************/
     // Local data
-    double waitFactor_ = DEFAULTBROKERWAITFACTOR2; ///< A static factor to be applied to timeouts
+    double wait_factor_ = DEFAULTBROKERWAITFACTOR2; ///< A static factor to be applied to timeouts
 
-    std::uint16_t minPartialReturnPercentage_ =
+    std::uint16_t min_partial_return_percentage_ =
         DEFAULTEXECUTORPARTIALRETURNPERCENTAGE; ///< Minimum percentage of returned items after which execution continues
 
     GBufferPortT_ptr
@@ -2719,13 +2716,13 @@ private:
     std::shared_ptr<Gem::Common::GGraph2D>
         returned_items_graph_; ///< The maximum waiting time resulting from the wait factor
 
-    bool waitFactorWarningEmitted_ =
+    bool wait_factor_warning_emitted_ =
         false; ///< Specifies whether a warning about a small waitFactor has already been emitted
 
-    std::size_t nReturnedCurrent_ =
+    std::size_t n_returned_current_ =
         0; ///< Temporary that holds the number of returned work items duing a submission cycle (or a resubmission)
 
-    std::chrono::duration<double> maxTimeout_ = std::chrono::duration<double>(
+    std::chrono::duration<double> max_timeout_ = std::chrono::duration<double>(
         0.
     ); ///< The maximum amount of time allowed for the entire calculation
 

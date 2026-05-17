@@ -45,7 +45,7 @@ namespace Gem::Geneva {
  * Initialization with the constant
  */
 GDoubleSumConstraint::GDoubleSumConstraint(const double &c)
-  : C_(c) { /* nothing */
+  : c_(c) { /* nothing */
 }
 
 /******************************************************************************/
@@ -74,7 +74,7 @@ void GDoubleSumConstraint::compare_(
     Gem::Common::compare_base_t<gpar::GParameterSetConstraint>(*this, *p_load, token);
 
     // ... and then the local data
-    Gem::Common::compare_t(IDENTITY(C_, p_load->C_), token);
+    Gem::Common::compare_t(IDENTITY(c_, p_load->c_), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -103,12 +103,11 @@ double GDoubleSumConstraint::check_(const gpar::GParameterSet *p) const {
         sum += *it;
     }
 
-    if(sum < C_) {
+    if(sum < c_) {
         return 0.;
     }
-    else {
-        return sum / C_;
-    }
+            return sum / c_;
+   
 }
 
 /******************************************************************************/
@@ -124,7 +123,7 @@ void GDoubleSumConstraint::load_(const GObject *cp) {
     gpar::GParameterSetConstraint::load_(cp);
 
     // ... and then our local data
-    C_ = p_load->C_;
+    c_ = p_load->c_;
 }
 
 /******************************************************************************/
@@ -142,7 +141,7 @@ GObject *GDoubleSumConstraint::clone_() const {
  * Initialization with the constant
  */
 GDoubleSumGapConstraint::GDoubleSumGapConstraint(const double &c, const double &gap)
-  : C_(c)
+  : c_(c)
   , gap_(gap) { /* nothing */
 }
 
@@ -172,7 +171,7 @@ void GDoubleSumGapConstraint::compare_(
     Gem::Common::compare_base_t<gpar::GParameterSetConstraint>(*this, *p_load, token);
 
     // ... and then the local data
-    Gem::Common::compare_t(IDENTITY(C_, p_load->C_), token);
+    Gem::Common::compare_t(IDENTITY(c_, p_load->c_), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -202,12 +201,11 @@ double GDoubleSumGapConstraint::check_(const gpar::GParameterSet *p) const {
     }
 
     // Is the sum in the allowed corridor ?
-    if(sum >= (C_ - gap_) && sum <= (C_ + gap_)) {
+    if(sum >= (c_ - gap_) && sum <= (c_ + gap_)) {
         return 0.;
     }
-    else {
-        return 1. + fabs(sum - C_) / C_;
-    }
+            return 1. + fabs(sum - c_) / c_;
+   
 }
 
 /******************************************************************************/
@@ -223,7 +221,7 @@ void GDoubleSumGapConstraint::load_(const GObject *cp) {
     gpar::GParameterSetConstraint::load_(cp);
 
     // ... and then our local data
-    C_ = p_load->C_;
+    c_ = p_load->c_;
     gap_ = p_load->gap_;
 }
 
@@ -302,9 +300,8 @@ double GSphereConstraint::check_(const gpar::GParameterSet *p) const {
     if(sum <= diameter_) {
         return 0.;
     }
-    else {
-        return GSQUARED(sum / diameter_);
-    }
+            return GSQUARED(sum / diameter_);
+   
 }
 
 /******************************************************************************/
@@ -447,7 +444,7 @@ std::istream &operator>>(std::istream &i, Gem::Geneva::initMode &ur) {
  * @param dF The id of the demo function
  */
 GFunctionIndividual::GFunctionIndividual(const solverFunction &d_f)
-  : demoFunction_(d_f) { /* nothing */
+  : demo_function_(d_f) { /* nothing */
 }
 
 /******************************************************************************/
@@ -482,7 +479,7 @@ void GFunctionIndividual::compare_(
     Gem::Common::compare_base_t<gpar::GParameterSet>(*this, *p_load, token);
 
     // ... and then the local data
-    Gem::Common::compare_t(IDENTITY(demoFunction_, p_load->demoFunction_), token);
+    Gem::Common::compare_t(IDENTITY(demo_function_, p_load->demo_function_), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -546,7 +543,7 @@ void GFunctionIndividual::addConfigurationOptions_(Gem::Common::GParserBuilder &
  * @param dF The id if the demo function
  */
 void GFunctionIndividual::setDemoFunction(solverFunction d_f) {
-    demoFunction_ = d_f;
+    demo_function_ = d_f;
 }
 
 /******************************************************************************/
@@ -556,7 +553,7 @@ void GFunctionIndividual::setDemoFunction(solverFunction d_f) {
  * @return The id of the currently selected demo function
  */
 solverFunction GFunctionIndividual::getDemoFunction() const {
-    return demoFunction_;
+    return demo_function_;
 }
 
 /******************************************************************************/
@@ -587,7 +584,7 @@ void GFunctionIndividual::load_(const GObject *cp) {
     gpar::GParameterSet::load_(cp);
 
     // ... and then our local data
-    demoFunction_ = p_load->demoFunction_;
+    demo_function_ = p_load->demo_function_;
 }
 
 /******************************************************************************/
@@ -686,9 +683,9 @@ double GFunctionIndividual::fitnessCalculation() {
     this->streamline(par_vec);
 
 #ifdef DEBUG
-    const int id = static_cast<int>(demoFunction_);
+    const int id = static_cast<int>(demo_function_);
     if(par_vec.size() < 2 &&
-       (demoFunction_ == solverFunction::ROSENBROCK || demoFunction_ == solverFunction::ACKLEY)) {
+       (demo_function_ == solverFunction::ROSENBROCK || demo_function_ == solverFunction::ACKLEY)) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GFunctionIndividual::fitnessCalculation(): function " << id
@@ -698,7 +695,7 @@ double GFunctionIndividual::fitnessCalculation() {
 #endif /* DEBUG */
 
     return BM::eval(
-        static_cast<int>(demoFunction_),
+        static_cast<int>(demo_function_),
         par_vec.data(),
         static_cast<int>(par_vec.size())
     );
@@ -770,29 +767,29 @@ void GFunctionIndividualFactory::load(
         GFunctionIndividualFactory>(cp_raw_ptr);
 
     // And then our own
-    adProb_ = cp_ptr->adProb_;
-    adaptAdProb_ = cp_ptr->adaptAdProb_;
-    minAdProb_ = cp_ptr->minAdProb_;
-    maxAdProb_ = cp_ptr->maxAdProb_;
-    adaptionThreshold_ = cp_ptr->adaptionThreshold_;
-    useBiGaussian_ = cp_ptr->useBiGaussian_;
+    ad_prob_ = cp_ptr->ad_prob_;
+    adapt_ad_prob_ = cp_ptr->adapt_ad_prob_;
+    min_ad_prob_ = cp_ptr->min_ad_prob_;
+    max_ad_prob_ = cp_ptr->max_ad_prob_;
+    adaption_threshold_ = cp_ptr->adaption_threshold_;
+    use_bi_gaussian_ = cp_ptr->use_bi_gaussian_;
     sigma1_ = cp_ptr->sigma1_;
-    sigmaSigma1_ = cp_ptr->sigmaSigma1_;
-    minSigma1_ = cp_ptr->minSigma1_;
-    maxSigma1_ = cp_ptr->maxSigma1_;
+    sigma_sigma1_ = cp_ptr->sigma_sigma1_;
+    min_sigma1_ = cp_ptr->min_sigma1_;
+    max_sigma1_ = cp_ptr->max_sigma1_;
     sigma2_ = cp_ptr->sigma2_;
-    sigmaSigma2_ = cp_ptr->sigmaSigma2_;
-    minSigma2_ = cp_ptr->minSigma2_;
-    maxSigma2_ = cp_ptr->maxSigma2_;
+    sigma_sigma2_ = cp_ptr->sigma_sigma2_;
+    min_sigma2_ = cp_ptr->min_sigma2_;
+    max_sigma2_ = cp_ptr->max_sigma2_;
     delta_ = cp_ptr->delta_;
-    sigmaDelta_ = cp_ptr->sigmaDelta_;
-    minDelta_ = cp_ptr->minDelta_;
-    maxDelta_ = cp_ptr->maxDelta_;
-    parDim_ = cp_ptr->parDim_;
-    minVar_ = cp_ptr->minVar_;
-    maxVar_ = cp_ptr->maxVar_;
-    pT_ = cp_ptr->pT_;
-    iM_ = cp_ptr->iM_;
+    sigma_delta_ = cp_ptr->sigma_delta_;
+    min_delta_ = cp_ptr->min_delta_;
+    max_delta_ = cp_ptr->max_delta_;
+    par_dim_ = cp_ptr->par_dim_;
+    min_var_ = cp_ptr->min_var_;
+    max_var_ = cp_ptr->max_var_;
+    p_t_ = cp_ptr->p_t_;
+    i_m_ = cp_ptr->i_m_;
 }
 
 /******************************************************************************/
@@ -816,7 +813,7 @@ void GFunctionIndividualFactory::setParDim(std::size_t par_dim) {
         );
     }
 
-    parDim_ = par_dim;
+    par_dim_ = par_dim;
 }
 
 /******************************************************************************/
@@ -824,7 +821,7 @@ void GFunctionIndividualFactory::setParDim(std::size_t par_dim) {
  * Extract the minimum and maximum boundaries of the variables
  */
 std::tuple<double, double> GFunctionIndividualFactory::getVarBoundaries() const {
-    return std::tuple<double, double>{minVar_, maxVar_};
+    return std::tuple<double, double>{min_var_, max_var_};
 }
 
 /******************************************************************************/
@@ -849,18 +846,18 @@ void GFunctionIndividualFactory::setVarBoundaries(std::tuple<double, double> bou
 
 /******************************************************************************/
 /**
- * Get the value of the adaptionThreshold_ variable
+ * Get the value of the adaption_threshold_ variable
  */
 std::uint32_t GFunctionIndividualFactory::getAdaptionThreshold() const {
-    return adaptionThreshold_;
+    return adaption_threshold_;
 }
 
 /******************************************************************************/
 /**
- * Set the value of the adaptionThreshold_ variable
+ * Set the value of the adaption_threshold_ variable
  */
 void GFunctionIndividualFactory::setAdaptionThreshold(std::uint32_t adaption_threshold) {
-    adaptionThreshold_ = adaption_threshold;
+    adaption_threshold_ = adaption_threshold;
 }
 
 /******************************************************************************/
@@ -868,7 +865,7 @@ void GFunctionIndividualFactory::setAdaptionThreshold(std::uint32_t adaption_thr
  * Allows to retrieve the adProb_ variable
  */
 double GFunctionIndividualFactory::getAdProb() const {
-    return adProb_;
+    return ad_prob_;
 }
 
 /******************************************************************************/
@@ -876,7 +873,7 @@ double GFunctionIndividualFactory::getAdProb() const {
  * Set the value of the adProb_ variable
  */
 void GFunctionIndividualFactory::setAdProb(double ad_prob) {
-    adProb_ = ad_prob;
+    ad_prob_ = ad_prob;
 }
 
 /******************************************************************************/
@@ -900,7 +897,7 @@ void GFunctionIndividualFactory::setDelta(double delta) {
  * Allows to retrieve the iM_ variable
  */
 initMode GFunctionIndividualFactory::getIM() const {
-    return iM_;
+    return i_m_;
 }
 
 /******************************************************************************/
@@ -908,55 +905,55 @@ initMode GFunctionIndividualFactory::getIM() const {
  * Set the value of the iM_ variable
  */
 void GFunctionIndividualFactory::setIM(initMode m) {
-    iM_ = m;
+    i_m_ = m;
 }
 
 /******************************************************************************/
 /**
- * Allows to retrieve the maxDelta_ variable
+ * Allows to retrieve the max_delta_ variable
  */
 double GFunctionIndividualFactory::getMaxDelta() const {
-    return maxDelta_;
+    return max_delta_;
 }
 
 /******************************************************************************/
 /**
- * Set the value of the maxDelta_ variable
+ * Set the value of the max_delta_ variable
  */
 void GFunctionIndividualFactory::setMaxDelta(double max_delta) {
-    maxDelta_ = max_delta;
+    max_delta_ = max_delta;
 }
 
 /******************************************************************************/
 /**
- * Allows to retrieve the maxSigma1_ variable
+ * Allows to retrieve the max_sigma1_ variable
  */
 double GFunctionIndividualFactory::getMaxSigma1() const {
-    return maxSigma1_;
+    return max_sigma1_;
 }
 
 /******************************************************************************/
 /**
- * Set the value of the maxSigma1_ variable
+ * Set the value of the max_sigma1_ variable
  */
 void GFunctionIndividualFactory::setMaxSigma1(double max_sigma1) {
-    maxSigma1_ = max_sigma1;
+    max_sigma1_ = max_sigma1;
 }
 
 /******************************************************************************/
 /**
- * Allows to retrieve the maxSigma2_ variable
+ * Allows to retrieve the max_sigma2_ variable
  */
 double GFunctionIndividualFactory::getMaxSigma2() const {
-    return maxSigma2_;
+    return max_sigma2_;
 }
 
 /******************************************************************************/
 /**
- * Set the value of the maxSigma2_ variable
+ * Set the value of the max_sigma2_ variable
  */
 void GFunctionIndividualFactory::setMaxSigma2(double max_sigma2) {
-    maxSigma2_ = max_sigma2;
+    max_sigma2_ = max_sigma2;
 }
 
 /******************************************************************************/
@@ -964,7 +961,7 @@ void GFunctionIndividualFactory::setMaxSigma2(double max_sigma2) {
  * Allows to retrieve the maxVar_ variable
  */
 double GFunctionIndividualFactory::getMaxVar() const {
-    return maxVar_;
+    return max_var_;
 }
 
 /******************************************************************************/
@@ -972,23 +969,23 @@ double GFunctionIndividualFactory::getMaxVar() const {
  * Set the value of the maxVar_ variable
  */
 void GFunctionIndividualFactory::setMaxVar(double max_var) {
-    maxVar_ = max_var;
+    max_var_ = max_var;
 }
 
 /******************************************************************************/
 /**
- * Allows to retrieve the minDelta_ variable
+ * Allows to retrieve the min_delta_ variable
  */
 double GFunctionIndividualFactory::getMinDelta() const {
-    return minDelta_;
+    return min_delta_;
 }
 
 /******************************************************************************/
 /**
- * Set the value of the minDelta_ variable
+ * Set the value of the min_delta_ variable
  */
 void GFunctionIndividualFactory::setMinDelta(double min_delta) {
-    minDelta_ = min_delta;
+    min_delta_ = min_delta;
 }
 
 /******************************************************************************/
@@ -996,7 +993,7 @@ void GFunctionIndividualFactory::setMinDelta(double min_delta) {
  * Allows to retrieve the allowed value range of delta
  */
 std::tuple<double, double> GFunctionIndividualFactory::getDeltaRange() const {
-    return std::tuple<double, double>{minDelta_, maxDelta_};
+    return std::tuple<double, double>{min_delta_, max_delta_};
 }
 
 /******************************************************************************/
@@ -1023,24 +1020,24 @@ void GFunctionIndividualFactory::setDeltaRange(std::tuple<double, double> range)
         );
     }
 
-    minDelta_ = min;
-    maxDelta_ = max;
+    min_delta_ = min;
+    max_delta_ = max;
 }
 
 /******************************************************************************/
 /**
- * Allows to retrieve the minSigma1_ variable
+ * Allows to retrieve the min_sigma1_ variable
  */
 double GFunctionIndividualFactory::getMinSigma1() const {
-    return minSigma1_;
+    return min_sigma1_;
 }
 
 /******************************************************************************/
 /**
- * Set the value of the minSigma1_ variable
+ * Set the value of the min_sigma1_ variable
  */
 void GFunctionIndividualFactory::setMinSigma1(double min_sigma1) {
-    minSigma1_ = min_sigma1;
+    min_sigma1_ = min_sigma1;
 }
 
 /******************************************************************************/
@@ -1048,7 +1045,7 @@ void GFunctionIndividualFactory::setMinSigma1(double min_sigma1) {
  * Allows to retrieve the allowed value range of sigma1_
  */
 std::tuple<double, double> GFunctionIndividualFactory::getSigma1Range() const {
-    return std::tuple<double, double>{minSigma1_, maxSigma1_};
+    return std::tuple<double, double>{min_sigma1_, max_sigma1_};
 }
 
 /******************************************************************************/
@@ -1075,24 +1072,24 @@ void GFunctionIndividualFactory::setSigma1Range(std::tuple<double, double> range
         );
     }
 
-    minSigma1_ = min;
-    maxSigma1_ = max;
+    min_sigma1_ = min;
+    max_sigma1_ = max;
 }
 
 /******************************************************************************/
 /**
- * Allows to retrieve the minSigma2_ variable
+ * Allows to retrieve the min_sigma2_ variable
  */
 double GFunctionIndividualFactory::getMinSigma2() const {
-    return minSigma2_;
+    return min_sigma2_;
 }
 
 /******************************************************************************/
 /**
- * Set the value of the minSigma2_ variable
+ * Set the value of the min_sigma2_ variable
  */
 void GFunctionIndividualFactory::setMinSigma2(double min_sigma2) {
-    minSigma2_ = min_sigma2;
+    min_sigma2_ = min_sigma2;
 }
 
 /******************************************************************************/
@@ -1100,7 +1097,7 @@ void GFunctionIndividualFactory::setMinSigma2(double min_sigma2) {
  * Allows to retrieve the allowed value range of sigma2_
  */
 std::tuple<double, double> GFunctionIndividualFactory::getSigma2Range() const {
-    return std::tuple<double, double>{minSigma2_, maxSigma2_};
+    return std::tuple<double, double>{min_sigma2_, max_sigma2_};
 }
 
 /******************************************************************************/
@@ -1127,8 +1124,8 @@ void GFunctionIndividualFactory::setSigma2Range(std::tuple<double, double> range
         );
     }
 
-    minSigma2_ = min;
-    maxSigma2_ = max;
+    min_sigma2_ = min;
+    max_sigma2_ = max;
 }
 
 /******************************************************************************/
@@ -1136,7 +1133,7 @@ void GFunctionIndividualFactory::setSigma2Range(std::tuple<double, double> range
  * Allows to retrieve the minVar_ variable
  */
 double GFunctionIndividualFactory::getMinVar() const {
-    return minVar_;
+    return min_var_;
 }
 
 /******************************************************************************/
@@ -1144,7 +1141,7 @@ double GFunctionIndividualFactory::getMinVar() const {
  * Set the value of the minVar_ variable
  */
 void GFunctionIndividualFactory::setMinVar(double min_var) {
-    minVar_ = min_var;
+    min_var_ = min_var;
 }
 
 /******************************************************************************/
@@ -1152,7 +1149,7 @@ void GFunctionIndividualFactory::setMinVar(double min_var) {
  * Allows to retrieve the parDim_ variable
  */
 std::size_t GFunctionIndividualFactory::getParDim() const {
-    return parDim_;
+    return par_dim_;
 }
 
 /******************************************************************************/
@@ -1160,7 +1157,7 @@ std::size_t GFunctionIndividualFactory::getParDim() const {
  * Allows to retrieve the pT_ variable
  */
 parameterType GFunctionIndividualFactory::getPT() const {
-    return pT_;
+    return p_t_;
 }
 
 /******************************************************************************/
@@ -1168,7 +1165,7 @@ parameterType GFunctionIndividualFactory::getPT() const {
  * Set the value of the pT_ variable
  */
 void GFunctionIndividualFactory::setPT(parameterType pt) {
-    pT_ = pt;
+    p_t_ = pt;
 }
 
 /******************************************************************************/
@@ -1205,66 +1202,66 @@ void GFunctionIndividualFactory::setSigma2(double sigma2) {
 
 /******************************************************************************/
 /**
- * Allows to retrieve the sigmaDelta_ variable
+ * Allows to retrieve the sigma_delta_ variable
  */
 double GFunctionIndividualFactory::getSigmaDelta() const {
-    return sigmaDelta_;
+    return sigma_delta_;
 }
 
 /******************************************************************************/
 /**
- * Set the value of the sigmaDelta_ variable
+ * Set the value of the sigma_delta_ variable
  */
 void GFunctionIndividualFactory::setSigmaDelta(double sigma_delta) {
-    sigmaDelta_ = sigma_delta;
+    sigma_delta_ = sigma_delta;
 }
 
 /******************************************************************************/
 /**
- * Allows to retrieve the sigmaSigma1_ variable
+ * Allows to retrieve the sigma_sigma1_ variable
  */
 double GFunctionIndividualFactory::getSigmaSigma1() const {
-    return sigmaSigma1_;
+    return sigma_sigma1_;
 }
 
 /******************************************************************************/
 /**
- * Set the value of the sigmaSigma1_ variable
+ * Set the value of the sigma_sigma1_ variable
  */
 void GFunctionIndividualFactory::setSigmaSigma1(double sigma_sigma1) {
-    sigmaSigma1_ = sigma_sigma1;
+    sigma_sigma1_ = sigma_sigma1;
 }
 
 /******************************************************************************/
 /**
- * Allows to retrieve the sigmaSigma2_ variable
+ * Allows to retrieve the sigma_sigma2_ variable
  */
 double GFunctionIndividualFactory::getSigmaSigma2() const {
-    return sigmaSigma2_;
+    return sigma_sigma2_;
 }
 
 /******************************************************************************/
 /**
- * Set the value of the sigmaSigma2_ variable
+ * Set the value of the sigma_sigma2_ variable
  */
 void GFunctionIndividualFactory::setSigmaSigma2(double sigma_sigma2) {
-    sigmaSigma2_ = sigma_sigma2;
+    sigma_sigma2_ = sigma_sigma2;
 }
 
 /******************************************************************************/
 /**
- * Allows to retrieve the useBiGaussian_ variable
+ * Allows to retrieve the use_bi_gaussian_ variable
  */
 bool GFunctionIndividualFactory::getUseBiGaussian() const {
-    return useBiGaussian_;
+    return use_bi_gaussian_;
 }
 
 /******************************************************************************/
 /**
- * Set the value of the useBiGaussian_ variable
+ * Set the value of the use_bi_gaussian_ variable
  */
 void GFunctionIndividualFactory::setUseBiGaussian(bool use_bi_gaussian) {
-    useBiGaussian_ = use_bi_gaussian;
+    use_bi_gaussian_ = use_bi_gaussian;
 }
 
 /******************************************************************************/
@@ -1272,7 +1269,7 @@ void GFunctionIndividualFactory::setUseBiGaussian(bool use_bi_gaussian) {
  * Allows to retrieve the rate of evolutionary adaption of adProb_
  */
 double GFunctionIndividualFactory::getAdaptAdProb() const {
-    return adaptAdProb_;
+    return adapt_ad_prob_;
 }
 
 /******************************************************************************/
@@ -1290,7 +1287,7 @@ void GFunctionIndividualFactory::setAdaptAdProb(double adapt_ad_prob) {
     }
 #endif /* DEBUG */
 
-    adaptAdProb_ = adapt_ad_prob;
+    adapt_ad_prob_ = adapt_ad_prob;
 }
 
 /******************************************************************************/
@@ -1298,7 +1295,7 @@ void GFunctionIndividualFactory::setAdaptAdProb(double adapt_ad_prob) {
  * Allows to retrieve the allowed range for adProb_ variation
  */
 std::tuple<double, double> GFunctionIndividualFactory::getAdProbRange() const {
-    return std::tuple<double, double>{minAdProb_.value(), maxAdProb_.value()};
+    return std::tuple<double, double>{min_ad_prob_.value(), max_ad_prob_.value()};
 }
 
 /******************************************************************************/
@@ -1332,8 +1329,8 @@ void GFunctionIndividualFactory::setAdProbRange(double min_ad_prob, double max_a
     }
 #endif /* DEBUG */
 
-    minAdProb_ = min_ad_prob;
-    maxAdProb_ = max_ad_prob;
+    min_ad_prob_ = min_ad_prob;
+    max_ad_prob_ = max_ad_prob;
 }
 
 /******************************************************************************/
@@ -1369,7 +1366,7 @@ void GFunctionIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuild
     comment += "The probability for random adaption of values in evolutionary algorithms;";
     gpb.registerFileParameter<double>(
         "ad_prob",
-        adProb_.reference(),
+        ad_prob_.reference(),
         GFI_DEF_ADPROB,
         Gem::Common::VAR_IS_ESSENTIAL,
         comment
@@ -1380,7 +1377,7 @@ void GFunctionIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuild
         "Determines the rate of adaption of ad_prob. Set to 0, if you do not need this feature;";
     gpb.registerFileParameter<double>(
         "adapt_ad_prob",
-        adaptAdProb_.reference(),
+        adapt_ad_prob_.reference(),
         GFI_DEF_ADAPTADPROB,
         Gem::Common::VAR_IS_ESSENTIAL,
         comment
@@ -1390,7 +1387,7 @@ void GFunctionIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuild
     comment += "The lower allowed boundary for ad_prob-variation;";
     gpb.registerFileParameter<double>(
         "min_ad_prob",
-        minAdProb_.reference(),
+        min_ad_prob_.reference(),
         GFI_DEF_MINADPROB,
         Gem::Common::VAR_IS_ESSENTIAL,
         comment
@@ -1400,7 +1397,7 @@ void GFunctionIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuild
     comment += "The upper allowed boundary for ad_prob-variation;";
     gpb.registerFileParameter<double>(
         "max_ad_prob",
-        maxAdProb_.reference(),
+        max_ad_prob_.reference(),
         GFI_DEF_MAXADPROB,
         Gem::Common::VAR_IS_ESSENTIAL,
         comment
@@ -1411,7 +1408,7 @@ void GFunctionIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuild
     comment += "of mutation parameters takes place (e.g sigma-variation in gauss mutation);";
     gpb.registerFileParameter<std::uint32_t>(
         "adaption_threshold",
-        adaptionThreshold_.reference(),
+        adaption_threshold_.reference(),
         GFI_DEF_ADAPTIONTHRESHOLD,
         Gem::Common::VAR_IS_ESSENTIAL,
         comment
@@ -1421,7 +1418,7 @@ void GFunctionIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuild
     comment += "Whether to use a double gaussion for the adaption of parmeters in ES;";
     gpb.registerFileParameter<bool>(
         "use_bi_gaussian",
-        useBiGaussian_.reference(),
+        use_bi_gaussian_.reference(),
         GFI_DEF_USEBIGAUSSIAN,
         Gem::Common::VAR_IS_ESSENTIAL,
         comment
@@ -1442,7 +1439,7 @@ void GFunctionIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuild
     comment += "Influences the self-adaption of gauss-mutation in ES;";
     gpb.registerFileParameter<double>(
         "sigma_sigma1",
-        sigmaSigma1_.reference(),
+        sigma_sigma1_.reference(),
         GFI_DEF_SIGMASIGMA1,
         Gem::Common::VAR_IS_ESSENTIAL,
         comment
@@ -1452,7 +1449,7 @@ void GFunctionIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuild
     comment += "The minimum value of sigma1;";
     gpb.registerFileParameter<double>(
         "min_sigma1",
-        minSigma1_.reference(),
+        min_sigma1_.reference(),
         GFI_DEF_MINSIGMA1,
         Gem::Common::VAR_IS_ESSENTIAL,
         comment
@@ -1462,7 +1459,7 @@ void GFunctionIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuild
     comment += "The maximum value of sigma1;";
     gpb.registerFileParameter<double>(
         "max_sigma1",
-        maxSigma1_.reference(),
+        max_sigma1_.reference(),
         GFI_DEF_MAXSIGMA1,
         Gem::Common::VAR_IS_ESSENTIAL,
         comment
@@ -1482,7 +1479,7 @@ void GFunctionIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuild
     comment += "Influences the self-adaption of gauss-mutation in ES;";
     gpb.registerFileParameter<double>(
         "sigma_sigma2",
-        sigmaSigma2_.reference(),
+        sigma_sigma2_.reference(),
         GFI_DEF_SIGMASIGMA2,
         Gem::Common::VAR_IS_ESSENTIAL,
         comment
@@ -1492,7 +1489,7 @@ void GFunctionIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuild
     comment += "The minimum value of sigma2;";
     gpb.registerFileParameter<double>(
         "min_sigma2",
-        minSigma2_.reference(),
+        min_sigma2_.reference(),
         GFI_DEF_MINSIGMA2,
         Gem::Common::VAR_IS_ESSENTIAL,
         comment
@@ -1502,7 +1499,7 @@ void GFunctionIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuild
     comment += "The maximum value of sigma2;";
     gpb.registerFileParameter<double>(
         "max_sigma2",
-        maxSigma2_.reference(),
+        max_sigma2_.reference(),
         GFI_DEF_MAXSIGMA2,
         Gem::Common::VAR_IS_ESSENTIAL,
         comment
@@ -1522,7 +1519,7 @@ void GFunctionIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuild
     comment += "The width of the gaussian used for mutations of the delta parameter;";
     gpb.registerFileParameter<double>(
         "sigma_delta",
-        sigmaDelta_.reference(),
+        sigma_delta_.reference(),
         GFI_DEF_SIGMADELTA,
         Gem::Common::VAR_IS_ESSENTIAL,
         comment
@@ -1532,7 +1529,7 @@ void GFunctionIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuild
     comment += "The minimum allowed value of delta;";
     gpb.registerFileParameter<double>(
         "min_delta",
-        minDelta_.reference(),
+        min_delta_.reference(),
         GFI_DEF_MINDELTA,
         Gem::Common::VAR_IS_ESSENTIAL,
         comment
@@ -1542,7 +1539,7 @@ void GFunctionIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuild
     comment += "The maximum allowed value of delta;";
     gpb.registerFileParameter<double>(
         "max_delta",
-        maxDelta_.reference(),
+        max_delta_.reference(),
         GFI_DEF_MAXDELTA,
         Gem::Common::VAR_IS_ESSENTIAL,
         comment
@@ -1552,7 +1549,7 @@ void GFunctionIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuild
     comment += "The number of dimensions used for the demo function;";
     gpb.registerFileParameter<std::size_t>(
         "par_dim",
-        parDim_.reference(),
+        par_dim_.reference(),
         GFI_DEF_PARDIM,
         Gem::Common::VAR_IS_ESSENTIAL,
         comment
@@ -1562,7 +1559,7 @@ void GFunctionIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuild
     comment += "The lower boundary of the initialization range for parameters;";
     gpb.registerFileParameter<double>(
         "min_var",
-        minVar_.reference(),
+        min_var_.reference(),
         GFI_DEF_MINVAR,
         Gem::Common::VAR_IS_ESSENTIAL,
         comment
@@ -1572,7 +1569,7 @@ void GFunctionIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuild
     comment += "The upper boundary of the initialization range for parameters;";
     gpb.registerFileParameter<double>(
         "max_var",
-        maxVar_.reference(),
+        max_var_.reference(),
         GFI_DEF_MAXVAR,
         Gem::Common::VAR_IS_ESSENTIAL,
         comment
@@ -1585,7 +1582,7 @@ void GFunctionIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuild
         "GConstrainedDoubleObjectCollection; (4) GConstrainedDoubleObjects on the root level;";
     gpb.registerFileParameter<parameterType>(
         "parameterType",
-        pT_.reference(),
+        p_t_.reference(),
         GFI_DEF_PARAMETERTYPE,
         Gem::Common::VAR_IS_ESSENTIAL,
         comment
@@ -1596,7 +1593,7 @@ void GFunctionIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuild
                "perimeter of the allowed or recommended value range";
     gpb.registerFileParameter<initMode>(
         "initMode",
-        iM_.reference(),
+        i_m_.reference(),
         GFI_DEF_INITMODE,
         Gem::Common::VAR_IS_ESSENTIAL,
         comment
@@ -1620,66 +1617,66 @@ void GFunctionIndividualFactory::postProcess_(std::shared_ptr<gpar::GParameterSe
 
     // Set up an adaptor for the collections, so they know how to be adapted
     std::shared_ptr<gpar::GAdaptorT<double>> gat_ptr;
-    if(useBiGaussian_.value()) {
+    if(use_bi_gaussian_.value()) {
         std::shared_ptr<gpar::GDoubleBiGaussAdaptor> gdbga_ptr(new gpar::GDoubleBiGaussAdaptor());
         gdbga_ptr->setAllSigma1(
             sigma1_.value(),
-            sigmaSigma1_.value(),
-            minSigma1_.value(),
-            maxSigma1_.value()
+            sigma_sigma1_.value(),
+            min_sigma1_.value(),
+            max_sigma1_.value()
         );
         gdbga_ptr->setAllSigma1(
             sigma2_.value(),
-            sigmaSigma2_.value(),
-            minSigma2_.value(),
-            maxSigma2_.value()
+            sigma_sigma2_.value(),
+            min_sigma2_.value(),
+            max_sigma2_.value()
         );
         gdbga_ptr->setAllSigma1(
             delta_.value(),
-            sigmaDelta_.value(),
-            minDelta_.value(),
-            maxDelta_.value()
+            sigma_delta_.value(),
+            min_delta_.value(),
+            max_delta_.value()
         );
-        gdbga_ptr->setAdaptionThreshold(adaptionThreshold_.value());
-        gdbga_ptr->setAdaptionProbability(adProb_.value());
+        gdbga_ptr->setAdaptionThreshold(adaption_threshold_.value());
+        gdbga_ptr->setAdaptionProbability(ad_prob_.value());
         gat_ptr = gdbga_ptr;
     }
     else {
         std::shared_ptr<gpar::GDoubleGaussAdaptor> gdga_ptr(new gpar::GDoubleGaussAdaptor(
             sigma1_.value(),
-            sigmaSigma1_.value(),
-            minSigma1_.value(),
-            maxSigma1_.value()
+            sigma_sigma1_.value(),
+            min_sigma1_.value(),
+            max_sigma1_.value()
         ));
-        gdga_ptr->setAdaptionThreshold(adaptionThreshold_.value());
-        gdga_ptr->setAdaptionProbability(adProb_.value());
+        gdga_ptr->setAdaptionThreshold(adaption_threshold_.value());
+        gdga_ptr->setAdaptionProbability(ad_prob_.value());
         gat_ptr = gdga_ptr;
     }
 
     // Store parameters pertaining to the adaption probability in the adaptor
-    gat_ptr->setAdaptAdProb(adaptAdProb_.value());
-    gat_ptr->setAdProbRange(minAdProb_.value(), maxAdProb_.value());
+    gat_ptr->setAdaptAdProb(adapt_ad_prob_.value());
+    gat_ptr->setAdProbRange(min_ad_prob_.value(), max_ad_prob_.value());
 
     // Find out about the amount of data items to be added
     // std::size_t n_data = parDimLocal_?parDimLocal_:parDim_;
-    std::size_t n_data = parDim_.value(); // NOLINT(cppcoreguidelines-init-variables)
+    std::size_t n_data = par_dim_.value(); // NOLINT(cppcoreguidelines-init-variables)
 
     // Set up the data collections
-    switch(pT_.value()) {
+    switch(p_t_.value()) {
     case parameterType::USEGDOUBLECOLLECTION: {
         // Set up a collection, each initialized with a random number in the range [min,max[
         // Random initialization happens in the constructor.
         std::shared_ptr<gpar::GDoubleCollection> gdc_ptr;
 
-        if(initMode::INITRANDOM == iM_.value()) {
-            gdc_ptr = std::make_shared<gpar::GDoubleCollection>(n_data, minVar_.value(), maxVar_.value());
+        if(initMode::INITRANDOM == i_m_.value()) {
+            gdc_ptr = std::make_shared<gpar::GDoubleCollection>(n_data, min_var_.value(), max_var_.value());
         }
         else { // initMode::INITPERIMETER
             gdc_ptr = std::make_shared<gpar::GDoubleCollection>(
                 n_data,
-                minVar_.value(),
-                minVar_.value(),
-                maxVar_.value()
+                min_var_.value(),
+                min_var_.value(),
+                max_var_.value()
             );
         }
 
@@ -1693,19 +1690,19 @@ void GFunctionIndividualFactory::postProcess_(std::shared_ptr<gpar::GParameterSe
         // Set up a collection
         std::shared_ptr<gpar::GConstrainedDoubleCollection> gcdc_ptr;
 
-        if(initMode::INITRANDOM == iM_) {
+        if(initMode::INITRANDOM == i_m_) {
             gcdc_ptr = std::make_shared<gpar::GConstrainedDoubleCollection>(
                 n_data,
-                minVar_.value(),
-                maxVar_.value()
+                min_var_.value(),
+                max_var_.value()
             );
         }
         else { // initMode::INITPERIMETER
             gcdc_ptr = std::make_shared<gpar::GConstrainedDoubleCollection>(
                 n_data,
-                minVar_.value(),
-                minVar_.value(),
-                maxVar_.value()
+                min_var_.value(),
+                min_var_.value(),
+                max_var_.value()
             );
         }
 
@@ -1723,10 +1720,10 @@ void GFunctionIndividualFactory::postProcess_(std::shared_ptr<gpar::GParameterSe
         // Note that addAdaptor() itself will take care of cloning the adaptor
         for(std::size_t i = 0; i < n_data; i++) {
             std::shared_ptr<gpar::GDoubleObject> gdo_ptr(
-                new gpar::GDoubleObject(minVar_.value(), maxVar_.value())
+                new gpar::GDoubleObject(min_var_.value(), max_var_.value())
             );
-            if(initMode::INITPERIMETER == iM_.value()) {
-                *gdo_ptr = minVar_.value();
+            if(initMode::INITPERIMETER == i_m_.value()) {
+                *gdo_ptr = min_var_.value();
             }
 
             gdo_ptr->addAdaptor(gat_ptr);
@@ -1748,10 +1745,10 @@ void GFunctionIndividualFactory::postProcess_(std::shared_ptr<gpar::GParameterSe
         // Note that addAdaptor() itself will take care of cloning the adaptor
         for(std::size_t i = 0; i < n_data; i++) {
             std::shared_ptr<gpar::GConstrainedDoubleObject> gcdo_ptr(
-                new gpar::GConstrainedDoubleObject(minVar_.value(), maxVar_.value())
+                new gpar::GConstrainedDoubleObject(min_var_.value(), max_var_.value())
             );
-            if(initMode::INITPERIMETER == iM_.value()) {
-                *gcdo_ptr = minVar_.value();
+            if(initMode::INITPERIMETER == i_m_.value()) {
+                *gcdo_ptr = min_var_.value();
             }
 
             gcdo_ptr->addAdaptor(gat_ptr);
@@ -1768,10 +1765,10 @@ void GFunctionIndividualFactory::postProcess_(std::shared_ptr<gpar::GParameterSe
         // Note that addAdaptor() itself will take care of cloning the adaptor
         for(std::size_t i = 0; i < n_data; i++) {
             std::shared_ptr<gpar::GConstrainedDoubleObject> gcdo_ptr(
-                new gpar::GConstrainedDoubleObject(minVar_.value(), maxVar_.value())
+                new gpar::GConstrainedDoubleObject(min_var_.value(), max_var_.value())
             );
-            if(initMode::INITPERIMETER == iM_.value()) {
-                *gcdo_ptr = minVar_.value();
+            if(initMode::INITPERIMETER == i_m_.value()) {
+                *gcdo_ptr = min_var_.value();
             }
 
             gcdo_ptr->addAdaptor(gat_ptr);
@@ -1785,7 +1782,7 @@ void GFunctionIndividualFactory::postProcess_(std::shared_ptr<gpar::GParameterSe
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GFunctionIndividualFactory::postProcess_(): Error!"
-            << "Found invalid pT_: " << pT_ << '\n'
+            << "Found invalid pT_: " << p_t_ << '\n'
         );
     } break;
     }

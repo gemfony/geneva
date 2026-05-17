@@ -70,10 +70,10 @@ template <class processable_type>
 class GStdThreadConsumerT : public GBaseConsumerT<processable_type> {
     // Make sure processable_type adheres to the GProcessingContainerT interface
     static_assert(
-        std::is_base_of<
+        std::is_base_of_v<
             Gem::Courtier::
                 GProcessingContainerT<processable_type, typename processable_type::result_type>,
-            processable_type>::value,
+            processable_type>,
         "processable_type does not adhere to the GProcessingContainerT interface"
     );
 
@@ -84,7 +84,7 @@ public:
 	  * this quantity upon creation.
 	  */
     explicit GStdThreadConsumerT(std::size_t nThreads = DEFAULTTHREADSPERWORKER)
-      : nThreads_(nThreads > 0 ? nThreads : DEFAULTTHREADSPERWORKER) {
+      : n_threads_(nThreads > 0 ? nThreads : DEFAULTTHREADSPERWORKER) {
         if(0 == nThreads) {
             glogger << "In GStdThreadConsumerT::GStdThreadConsumerT(nThreads):" << '\n'
                     << "nThreads == 0 was requested. n_threads_ was set to the default "
@@ -119,7 +119,7 @@ public:
 	 * @return The maximum number of allowed threads
 	 */
     std::size_t getNThreadsPerWorker() const {
-        return nThreads_;
+        return n_threads_;
     }
 
     /***************************************************************************/
@@ -127,7 +127,7 @@ public:
 	  * Allows to check whether a worker template was registered
 	  */
     bool hasWorkerTemplate() const {
-        if(this->workerTemplate_) {
+        if(this->worker_template_) {
             return true;
         }
         return false;
@@ -140,10 +140,10 @@ public:
     void setCapableOfFullReturn(bool capableOfFullReturn) {
         glogger << "In GStdThreadConsumerT<processable_type>::setCapableOfFullReturn():"
                 << '\n'
-                << "isCapableOfFullReturn_ will be set to "
+                << "is_capable_of_full_return_ will be set to "
                 << (capableOfFullReturn ? "true" : "false") << '\n'
                 << GLOGGING;
-        isCapableOfFullReturn_ = capableOfFullReturn;
+        is_capable_of_full_return_ = capableOfFullReturn;
     }
 
     /***************************************************************************/
@@ -164,7 +164,7 @@ public:
         }
 #endif /* DEBUG */
 
-        workerTemplate_ = workerTemplate;
+        worker_template_ = workerTemplate;
     }
 
     /***************************************************************************/
@@ -242,13 +242,13 @@ private:
 
         hidden.add_options()(
             "nWorkerThreads",
-            po::value<std::size_t>(&nThreads_)->default_value(nThreads_),
+            po::value<std::size_t>(&n_threads_)->default_value(n_threads_),
             "\t[stc] The number of threads used to process the worker"
         );
 
         hidden.add_options()(
             "stcCapableOfFullReturn",
-            po::value<bool>(&isCapableOfFullReturn_)->default_value(isCapableOfFullReturn_),
+            po::value<bool>(&is_capable_of_full_return_)->default_value(is_capable_of_full_return_),
             "\t[stc] A debugging option making the multi-threaded consumer use timeouts in the "
             "executor"
         );
@@ -277,10 +277,10 @@ private:
                     << DEFAULTTHREADSPERWORKER << '\n'
                     << GWARNING;
 
-            nThreads_ = DEFAULTTHREADSPERWORKER;
+            n_threads_ = DEFAULTTHREADSPERWORKER;
         }
         else {
-            nThreads_ = nThreads;
+            n_threads_ = nThreads;
         }
     }
 
@@ -309,7 +309,7 @@ private:
 	 */
     void async_startProcessing_() override {
         // Add a default worker if no worker was registered
-        if(not workerTemplate_) {
+        if(not worker_template_) {
             std::shared_ptr<GWorkerWithRegisterBrokerFerryT<processable_type>> default_worker(
                 new GLocalConsumerWorkerT<processable_type>()
             );
@@ -317,14 +317,14 @@ private:
         }
 
         // Start nWorkerThreads_ threads for each registered worker template
-        glogger << "Starting " << nThreads_
+        glogger << "Starting " << n_threads_
                 << " processing threads in GStdThreadConsumerT<processable_type>" << '\n'
                 << GLOGGING;
-        for(std::size_t worker_id = 0; worker_id < nThreads_; worker_id++) {
+        for(std::size_t worker_id = 0; worker_id < n_threads_; worker_id++) {
             // The actual worker
             std::shared_ptr<GWorkerWithRegisterBrokerFerryT<processable_type>> p_worker =
                 std::dynamic_pointer_cast<GWorkerWithRegisterBrokerFerryT<processable_type>>(
-                    workerTemplate_->clone()
+                    worker_template_->clone()
                 );
 
             // The "broker ferry" holding the connection to the broker
@@ -383,28 +383,28 @@ private:
 	  * Returns an indication whether full return can be expected from this
 	  * consumer. Since evaluation is performed in threads, we assume that this
 	  * is possible and return true. If you believe that this is not the case,
-	  * make sure to set isCapableOfFullReturn_ to false using the setCapableOfFullReturn()
+	  * make sure to set is_capable_of_full_return_ to false using the setCapableOfFullReturn()
 	  * function. Note that, while processing-errors will likely be caught,
 	  * "full return" does not mean "fully processed return", as errors (be it in
 	  * user- or Geneva-code) are always possible.
 	  */
     bool capableOfFullReturn_() const override {
-        return isCapableOfFullReturn_;
+        return is_capable_of_full_return_;
     }
 
     /***************************************************************************/
 
-    bool isCapableOfFullReturn_ =
+    bool is_capable_of_full_return_ =
         true; ///< Indicates whether this consumer is capable of full return
 
-    std::size_t nThreads_ =
+    std::size_t n_threads_ =
         DEFAULTTHREADSPERWORKER;     ///< The maximum number of allowed threads in the pool
     Gem::Common::GThreadGroup gtg_; ///< Holds the processing threads
 
     std::vector<std::shared_ptr<GWorkerWithRegisterBrokerFerryT<processable_type>>>
         workers_; ///< Holds the current worker objects
     std::shared_ptr<GWorkerWithRegisterBrokerFerryT<processable_type>>
-        workerTemplate_; ///< All workers will be created as a clone of this worker
+        worker_template_; ///< All workers will be created as a clone of this worker
 
     std::shared_ptr<GBrokerT<processable_type>> broker_ptr_ = GBROKER(
         processable_type

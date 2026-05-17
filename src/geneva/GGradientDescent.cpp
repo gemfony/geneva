@@ -54,9 +54,9 @@ GGradientDescent::GGradientDescent(
     const double &finite_step,
     const double &step_size
 )
-  : nStartingPoints_(n_starting_points)
-  , finiteStep_(finite_step)
-  , stepSize_(step_size) { /* nothing */
+  : n_starting_points_(n_starting_points)
+  , finite_step_(finite_step)
+  , step_size_(step_size) { /* nothing */
 }
 
 /******************************************************************************/
@@ -66,7 +66,7 @@ GGradientDescent::GGradientDescent(
  * @return The number of simultaneous starting points of the gradient descent
  */
 std::size_t GGradientDescent::getNStartingPoints() const {
-    return nStartingPoints_;
+    return n_starting_points_;
 }
 
 /******************************************************************************/
@@ -85,7 +85,7 @@ void GGradientDescent::setNStartingPoints(std::size_t n_starting_points) {
         );
     }
 
-    nStartingPoints_ = n_starting_points;
+    n_starting_points_ = n_starting_points;
 }
 
 /******************************************************************************/
@@ -106,9 +106,9 @@ void GGradientDescent::setFiniteStep(double finite_step) {
         );
     }
 
-    finiteStep_ = finite_step;
+    finite_step_ = finite_step;
 
-    // Keep stepRatio_/adjustedFiniteStep_ consistent if called after init()
+    // Keep step_ratio_/adjusted_finite_step_ consistent if called after init()
     updateDerivedQuantities();
 }
 
@@ -119,7 +119,7 @@ void GGradientDescent::setFiniteStep(double finite_step) {
  * @return The current finite step size
  */
 double GGradientDescent::getFiniteStep() const {
-    return finiteStep_;
+    return finite_step_;
 }
 
 /******************************************************************************/
@@ -140,9 +140,9 @@ void GGradientDescent::setStepSize(double step_size) {
         );
     }
 
-    stepSize_ = step_size;
+    step_size_ = step_size;
 
-    // Keep stepRatio_/adjustedFiniteStep_ consistent if called after init()
+    // Keep step_ratio_/adjusted_finite_step_ consistent if called after init()
     updateDerivedQuantities();
 }
 
@@ -153,7 +153,7 @@ void GGradientDescent::setStepSize(double step_size) {
  * @return The current value of the step size
  */
 double GGradientDescent::getStepSize() const {
-    return stepSize_;
+    return step_size_;
 }
 
 /******************************************************************************/
@@ -213,11 +213,11 @@ void GGradientDescent::compare_(
     Gem::Common::compare_base_t<GBase>(*this, *p_load, token);
 
     // ... and then the local data
-    compare_t(IDENTITY(nStartingPoints_, p_load->nStartingPoints_), token);
-    compare_t(IDENTITY(nFPParmsFirst_, p_load->nFPParmsFirst_), token);
-    compare_t(IDENTITY(finiteStep_, p_load->finiteStep_), token);
-    compare_t(IDENTITY(stepSize_, p_load->stepSize_), token);
-    // stepRatio_, dblLowerParameterBoundaries_, dblUpperParameterBoundaries_, adjustedFiniteStep_
+    compare_t(IDENTITY(n_starting_points_, p_load->n_starting_points_), token);
+    compare_t(IDENTITY(n_fp_parms_first_, p_load->n_fp_parms_first_), token);
+    compare_t(IDENTITY(finite_step_, p_load->finite_step_), token);
+    compare_t(IDENTITY(step_size_, p_load->step_size_), token);
+    // step_ratio_, dbl_lower_parameter_boundaries_, dbl_upper_parameter_boundaries_, adjusted_finite_step_
     // are transient: recomputed in init() from the serialized fields above and not restored in
     // load_(). Comparing them would cause round-trip equality tests to fail spuriously.
 
@@ -231,11 +231,11 @@ void GGradientDescent::compare_(
  * the optimize()-call was issued
  */
 void GGradientDescent::resetToOptimizationStart_() {
-    dblLowerParameterBoundaries_
+    dbl_lower_parameter_boundaries_
         .clear(); // Holds lower boundaries of double parameters; Will be extracted in init()
-    dblUpperParameterBoundaries_
+    dbl_upper_parameter_boundaries_
         .clear(); // Holds upper boundaries of double parameters; Will be extracted in init()
-    adjustedFiniteStep_
+    adjusted_finite_step_
         .clear(); // A step-size normalized to each parameter range; Will be recalculated in init()
 
     // There is no more work to be done here, so we simply call the
@@ -267,14 +267,14 @@ void GGradientDescent::load_(const GObject *cp) {
     GBase::load_(cp);
 
     // ... and then our own data
-    nStartingPoints_ = p_load->nStartingPoints_;
-    nFPParmsFirst_ = p_load->nFPParmsFirst_;
-    finiteStep_ = p_load->finiteStep_;
-    stepSize_ = p_load->stepSize_;
-    // stepRatio_ = p_load->stepRatio_; // temporary parameter
+    n_starting_points_ = p_load->n_starting_points_;
+    n_fp_parms_first_ = p_load->n_fp_parms_first_;
+    finite_step_ = p_load->finite_step_;
+    step_size_ = p_load->step_size_;
+    // step_ratio_ = p_load->step_ratio_; // temporary parameter
     // dbl_lower_parameter_boundaries_cnt_ = p_load->dbl_lower_parameter_boundaries_cnt_; // temporary parameter
     // dbl_upper_parameter_boundaries_cnt_ = p_load->dbl_upper_parameter_boundaries_cnt_; // temporary parameter
-    // adjustedFiniteStep_ = p_load->adjustedFiniteStep_; // temporary parameter
+    // adjusted_finite_step_ = p_load->adjusted_finite_step_; // temporary parameter
 }
 
 /******************************************************************************/
@@ -334,7 +334,7 @@ std::tuple<double, double> GGradientDescent::cycleLogic_() {
  */
 void GGradientDescent::updateChildParameters() {
     // Loop over all starting points
-    for(std::size_t i = 0; i < nStartingPoints_; i++) {
+    for(std::size_t i = 0; i < n_starting_points_; i++) {
         // Extract the fp vector
         std::vector<double> parm_vec;
         this->at(i)->streamline<double>(
@@ -343,9 +343,9 @@ void GGradientDescent::updateChildParameters() {
         ); // Only extract active parameters
 
         // Loop over all directions
-        for(std::size_t j = 0; j < nFPParmsFirst_; j++) {
+        for(std::size_t j = 0; j < n_fp_parms_first_; j++) {
             // Calculate the position of the child
-            std::size_t child_pos = nStartingPoints_ + i * nFPParmsFirst_ + j;
+            std::size_t child_pos = n_starting_points_ + i * n_fp_parms_first_ + j;
 
             // Load the current "parent" into the "child"
             this->at(child_pos)->GObject::load(this->at(i));
@@ -359,7 +359,7 @@ void GGradientDescent::updateChildParameters() {
             double orig_parm_val = parm_vec[j];
 
             // Add the finite step to the feature vector's current parameter
-            parm_vec[j] += adjustedFiniteStep_[j];
+            parm_vec[j] += adjusted_finite_step_[j];
 
             // Attach the feature vector to the child individual
             this->at(child_pos)->assignValueVector<double>(parm_vec, activityMode::ACTIVEONLY);
@@ -376,7 +376,7 @@ void GGradientDescent::updateChildParameters() {
  * TODO: keep going in the same direction as long as there is an improvement
  */
 void GGradientDescent::updateParentIndividuals() {
-    for(std::size_t i = 0; i < nStartingPoints_; i++) {
+    for(std::size_t i = 0; i < n_starting_points_; i++) {
         // Extract the fp vector
         std::vector<double> parm_vec;
         this->at(i)->streamline<double>(parm_vec, activityMode::ACTIVEONLY);
@@ -398,15 +398,15 @@ void GGradientDescent::updateParentIndividuals() {
 
         // Calculate the adaption of each parameter
         // double gradient = 0.;
-        for(std::size_t j = 0; j < nFPParmsFirst_; j++) {
+        for(std::size_t j = 0; j < n_fp_parms_first_; j++) {
             // Calculate the position of the child
-            std::size_t child_pos = nStartingPoints_ + i * nFPParmsFirst_ + j;
+            std::size_t child_pos = n_starting_points_ + i * n_fp_parms_first_ + j;
 
             // Calculate the step to be performed in a given direction and
             // adjust the parameter vector of each parent
             try {
                 parm_vec[j] -= Gem::Common::narrow_cast<double>(
-                    stepRatio_ * (Gem::Common::narrow_cast<long double>(
+                    step_ratio_ * (Gem::Common::narrow_cast<long double>(
                                      minOnly_transformed_fitness(this->at(child_pos)) -
                                      Gem::Common::narrow_cast<long double>(parent_fitness)
                                  ))
@@ -532,46 +532,46 @@ void GGradientDescent::init() {
 
     // Extract the boundaries of all parameters
     this->at(0)->boundaries(
-        dblLowerParameterBoundaries_,
-        dblUpperParameterBoundaries_,
+        dbl_lower_parameter_boundaries_,
+        dbl_upper_parameter_boundaries_,
         activityMode::ACTIVEONLY
     );
 
 #ifdef DEBUG
     // Size matters!
-    if(dblLowerParameterBoundaries_.size() != dblUpperParameterBoundaries_.size()) {
+    if(dbl_lower_parameter_boundaries_.size() != dbl_upper_parameter_boundaries_.size()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GGradientDescent::init(): Error!" << '\n'
-            << "Found invalid sizes: " << dblLowerParameterBoundaries_.size() << " / "
-            << dblUpperParameterBoundaries_.size() << '\n'
+            << "Found invalid sizes: " << dbl_lower_parameter_boundaries_.size() << " / "
+            << dbl_upper_parameter_boundaries_.size() << '\n'
         );
     }
 
-    // Check that stepSize_ has an appropriate value
-    if(stepSize_ <= 0. ||
-       stepSize_ > 1000.) { // Specified in per mill of the allowed or preferred value range
+    // Check that step_size_ has an appropriate value
+    if(step_size_ <= 0. ||
+       step_size_ > 1000.) { // Specified in per mill of the allowed or preferred value range
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GGradientDescent::init(): Error!" << '\n'
-            << "Invalid values of stepSize_: " << stepSize_ << '\n'
+            << "Invalid values of step_size_: " << step_size_ << '\n'
             << "Must be in the range ]0.:1000.]" << '\n'
         );
     }
 
-    // Check that finiteStep_ has an appropriate value
-    if(finiteStep_ <= 0. ||
-       finiteStep_ > 1000.) { // Specified in per mill of the allowed or preferred value range
+    // Check that finite_step_ has an appropriate value
+    if(finite_step_ <= 0. ||
+       finite_step_ > 1000.) { // Specified in per mill of the allowed or preferred value range
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GGradientDescent::init(): Error!" << '\n'
-            << "Invalid values of finiteStep_: " << finiteStep_ << '\n'
+            << "Invalid values of finite_step_: " << finite_step_ << '\n'
             << "Must be in the range ]0.:1000.]" << '\n'
         );
     }
 #endif /* DEBUG */
 
-    // Compute the quantities derived from stepSize_/finiteStep_ and the
+    // Compute the quantities derived from step_size_/finite_step_ and the
     // parameter boundaries extracted above.
     updateDerivedQuantities();
 
@@ -581,26 +581,26 @@ void GGradientDescent::init() {
 
 /******************************************************************************/
 /**
- * Recomputes the quantities derived from finiteStep_, stepSize_ and the
+ * Recomputes the quantities derived from finite_step_, step_size_ and the
  * extracted parameter boundaries. Called from init() (after the boundaries
  * have been extracted) and from setFiniteStep()/setStepSize() so that a
  * post-init change to those raw inputs does not leave the derived state
- * stale. Before init() the boundary vectors are empty, so adjustedFiniteStep_
+ * stale. Before init() the boundary vectors are empty, so adjusted_finite_step_
  * is simply cleared and init() fills it once the boundaries are known.
  */
 void GGradientDescent::updateDerivedQuantities() {
     // Set the step ratio. We do the calculation in long double precision to preserve accuracy
-    stepRatio_ = (static_cast<long double>(stepSize_)) / (static_cast<long double>(finiteStep_));
+    step_ratio_ = (static_cast<long double>(step_size_)) / (static_cast<long double>(finite_step_));
 
-    // Calculate a specific finiteStep_ value for each parameter in long double precision
+    // Calculate a specific finite_step_ value for each parameter in long double precision
     try {
-        adjustedFiniteStep_.clear();
-        long double finite_step_ratio = (static_cast<long double>(finiteStep_)) / (static_cast<long double>(1000.));
-        for(std::size_t pos = 0; pos < dblLowerParameterBoundaries_.size(); pos++) {
+        adjusted_finite_step_.clear();
+        long double finite_step_ratio = (static_cast<long double>(finite_step_)) / (static_cast<long double>(1000.));
+        for(std::size_t pos = 0; pos < dbl_lower_parameter_boundaries_.size(); pos++) {
             long double parameter_range = // NOLINT(cppcoreguidelines-init-variables)
-                static_cast<long double>(dblUpperParameterBoundaries_[pos]) -
-                static_cast<long double>(dblLowerParameterBoundaries_[pos]);
-            adjustedFiniteStep_.push_back(
+                static_cast<long double>(dbl_upper_parameter_boundaries_[pos]) -
+                static_cast<long double>(dbl_lower_parameter_boundaries_[pos]);
+            adjusted_finite_step_.push_back(
                 Gem::Common::narrow_cast<double>(finite_step_ratio * parameter_range)
             );
         }
@@ -663,10 +663,10 @@ void GGradientDescent::adjustPopulation_() {
     }
 
     // Update the number of active floating point parameters in the individuals
-    nFPParmsFirst_ = this->at(0)->countParameters<double>(activityMode::ACTIVEONLY);
+    n_fp_parms_first_ = this->at(0)->countParameters<double>(activityMode::ACTIVEONLY);
 
     // Check that the first individual has floating point parameters (double for the moment)
-    if(nFPParmsFirst_ == 0) {
+    if(n_fp_parms_first_ == 0) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GGradientDescent::adjustPopulation():" << '\n'
@@ -677,25 +677,25 @@ void GGradientDescent::adjustPopulation_() {
     // Check that all individuals currently available have the same amount of parameters
 #ifdef DEBUG
     for(std::size_t i = 1; i < this->size(); i++) {
-        if(this->at(i)->countParameters<double>(activityMode::ACTIVEONLY) != nFPParmsFirst_) {
+        if(this->at(i)->countParameters<double>(activityMode::ACTIVEONLY) != n_fp_parms_first_) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GGradientDescent::adjustPopulation():" << '\n'
                 << "Found individual in position " << i << " with different" << '\n'
                 << "number of floating point parameters than the first one: "
                 << this->at(i)->countParameters<double>(activityMode::ACTIVEONLY) << "/"
-                << nFPParmsFirst_ << '\n'
+                << n_fp_parms_first_ << '\n'
             );
         }
     }
 #endif
 
     // Set the default size of the population
-    GBase::setDefaultPopulationSize(nStartingPoints_ * (nFPParmsFirst_ + 1));
+    GBase::setDefaultPopulationSize(n_starting_points_ * (n_fp_parms_first_ + 1));
 
     // First create a suitable number of start individuals and initialize them as required
-    if(n_start < nStartingPoints_) {
-        for(std::size_t i = 0; i < (nStartingPoints_ - n_start); i++) {
+    if(n_start < n_starting_points_) {
+        for(std::size_t i = 0; i < (n_starting_points_ - n_start); i++) {
             // Create a copy of the first individual
             this->push_back(this->at(0)->clone<gpar::GParameterSet>());
             // Make sure our start values differ
@@ -704,26 +704,26 @@ void GGradientDescent::adjustPopulation_() {
     }
     else {
         // Start with a defined size. This will remove surplus items.
-        this->resize(nStartingPoints_);
+        this->resize(n_starting_points_);
     }
 
     // Add the required number of clones for each starting point. These will be
     // used for the calculation of the difference quotient for each parameter
-    for(std::size_t i = 0; i < nStartingPoints_; i++) {
-        for(std::size_t j = 0; j < nFPParmsFirst_; j++) {
+    for(std::size_t i = 0; i < n_starting_points_; i++) {
+        for(std::size_t j = 0; j < n_fp_parms_first_; j++) {
             this->push_back(this->at(i)->clone<gpar::GParameterSet>());
         }
     }
 
-    // We now should have nStartingPoints_ sets of individuals,
-    // each of size nFPParmsFirst_.
+    // We now should have n_starting_points_ sets of individuals,
+    // each of size n_fp_parms_first_.
 #ifdef DEBUG
-    if(this->size() != nStartingPoints_ * (nFPParmsFirst_ + 1)) {
+    if(this->size() != n_starting_points_ * (n_fp_parms_first_ + 1)) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GGradientDescent::adjustPopulation():" << '\n'
             << "Population size is " << this->size() << '\n'
-            << "but expected " << nStartingPoints_ * (nFPParmsFirst_ + 1) << '\n'
+            << "but expected " << n_starting_points_ * (n_fp_parms_first_ + 1) << '\n'
         );
     }
 #endif /* DEBUG */

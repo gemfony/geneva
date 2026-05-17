@@ -37,7 +37,7 @@ namespace Gem::Geneva {
  * The default constructor. Intentionally private -- needed only for (de-)serialization.
  */
 GDelayIndividual::GDelayIndividual()
-  : fixedSleepTime_(1.) { /* nothing */
+  : fixed_sleep_time_(1.) { /* nothing */
 }
 
 /******************************************************************************/
@@ -48,11 +48,11 @@ GDelayIndividual::GDelayIndividual()
  */
 GDelayIndividual::GDelayIndividual(const GDelayIndividual &cp)
   : gpar::GParameterSet(cp)
-  , fixedSleepTime_(cp.fixedSleepTime_)
-  , mayCrash_(cp.mayCrash_)
-  , throwLikelihood_(cp.throwLikelihood_)
-  , sleepRandomly_(cp.sleepRandomly_)
-  , randSleepBoundaries_(cp.randSleepBoundaries_) { /* nothing */
+  , fixed_sleep_time_(cp.fixed_sleep_time_)
+  , may_crash_(cp.may_crash_)
+  , throw_likelihood_(cp.throw_likelihood_)
+  , sleep_randomly_(cp.sleep_randomly_)
+  , rand_sleep_boundaries_(cp.rand_sleep_boundaries_) { /* nothing */
 }
 
 /******************************************************************************/
@@ -88,11 +88,11 @@ void GDelayIndividual::compare_(
     Gem::Common::compare_base_t<gpar::GParameterSet>(*this, *p_load, token);
 
     // ... and then the local data
-    Gem::Common::compare_t(IDENTITY(fixedSleepTime_, p_load->fixedSleepTime_), token);
-    Gem::Common::compare_t(IDENTITY(mayCrash_, p_load->mayCrash_), token);
-    Gem::Common::compare_t(IDENTITY(throwLikelihood_, p_load->throwLikelihood_), token);
-    Gem::Common::compare_t(IDENTITY(sleepRandomly_, p_load->sleepRandomly_), token);
-    Gem::Common::compare_t(IDENTITY(randSleepBoundaries_, p_load->randSleepBoundaries_), token);
+    Gem::Common::compare_t(IDENTITY(fixed_sleep_time_, p_load->fixed_sleep_time_), token);
+    Gem::Common::compare_t(IDENTITY(may_crash_, p_load->may_crash_), token);
+    Gem::Common::compare_t(IDENTITY(throw_likelihood_, p_load->throw_likelihood_), token);
+    Gem::Common::compare_t(IDENTITY(sleep_randomly_, p_load->sleep_randomly_), token);
+    Gem::Common::compare_t(IDENTITY(rand_sleep_boundaries_, p_load->rand_sleep_boundaries_), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -113,11 +113,11 @@ void GDelayIndividual::load_(const Gem::Geneva::GObject *cp) {
     gpar::GParameterSet::load_(cp);
 
     // ... and then our own.
-    fixedSleepTime_ = p_load->fixedSleepTime_;
-    mayCrash_ = p_load->mayCrash_;
-    throwLikelihood_ = p_load->throwLikelihood_;
-    sleepRandomly_ = p_load->sleepRandomly_;
-    randSleepBoundaries_ = p_load->randSleepBoundaries_;
+    fixed_sleep_time_ = p_load->fixed_sleep_time_;
+    may_crash_ = p_load->may_crash_;
+    throw_likelihood_ = p_load->throw_likelihood_;
+    sleep_randomly_ = p_load->sleep_randomly_;
+    rand_sleep_boundaries_ = p_load->rand_sleep_boundaries_;
 }
 
 /******************************************************************************/
@@ -149,13 +149,13 @@ std::size_t GDelayIndividual::customAdaptions() {
 double GDelayIndividual::fitnessCalculation() {
     std::uniform_real_distribution<double> uniform_real_distribution;
 
-    if(sleepRandomly_) {
+    if(sleep_randomly_) {
         // Calculate the sleep time
         double sleep_time = uniform_real_distribution(
             gr_,
             std::uniform_real_distribution<double>::param_type(
-                std::get<0>(randSleepBoundaries_),
-                std::get<1>(randSleepBoundaries_)
+                std::get<0>(rand_sleep_boundaries_),
+                std::get<1>(rand_sleep_boundaries_)
             )
         );
 
@@ -166,15 +166,15 @@ double GDelayIndividual::fitnessCalculation() {
     }
     else {
         // Sleep for a fixed amount of time
-        std::this_thread::sleep_for(std::chrono::duration<double>(fixedSleepTime_));
+        std::this_thread::sleep_for(std::chrono::duration<double>(fixed_sleep_time_));
     }
 
     // Throw if we were asked to do so
-    if(mayCrash_) {
+    if(may_crash_) {
         if(uniform_real_distribution(
                gr_,
                std::uniform_real_distribution<double>::param_type(0., 1.)
-           ) < throwLikelihood_) {
+           ) < throw_likelihood_) {
             throw fitnessException();
         }
     }
@@ -188,12 +188,12 @@ double GDelayIndividual::fitnessCalculation() {
 
 /******************************************************************************/
 /**
- * Retrieval of the current value of the fixedSleepTime_ variable
+ * Retrieval of the current value of the fixed_sleep_time_ variable
  *
- * @return The current value of the fixedSleepTime_ variable
+ * @return The current value of the fixed_sleep_time_ variable
  */
 std::chrono::duration<double> GDelayIndividual::getFixedSleepTime() const {
-    return std::chrono::duration<double>(fixedSleepTime_);
+    return std::chrono::duration<double>(fixed_sleep_time_);
 }
 
 /******************************************************************************/
@@ -201,7 +201,7 @@ std::chrono::duration<double> GDelayIndividual::getFixedSleepTime() const {
  * Sets the sleep-time to a user-defined value
  */
 void GDelayIndividual::setFixedSleepTime(const std::chrono::duration<double> &sleep_time) {
-    fixedSleepTime_ = sleep_time.count();
+    fixed_sleep_time_ = sleep_time.count();
 }
 
 /******************************************************************************/
@@ -211,10 +211,10 @@ void GDelayIndividual::setFixedSleepTime(const std::chrono::duration<double> &sl
  * between (and including) 0 (no crash) and 1 (always crash).
  */
 void GDelayIndividual::setMayCrash(bool may_crash, double throw_likelihood) {
-    mayCrash_ = may_crash;
+    may_crash_ = may_crash;
 
     // Enforce a throw_likelihood in the allowed value range
-    throwLikelihood_ = Gem::Common::enforceRangeConstraint(
+    throw_likelihood_ = Gem::Common::enforceRangeConstraint(
         throw_likelihood,
         0.,
         1.,
@@ -227,7 +227,7 @@ void GDelayIndividual::setMayCrash(bool may_crash, double throw_likelihood) {
  * Check whether the fitness function may crash at the end of the sleep time
  */
 bool GDelayIndividual::getMayCrash() const {
-    return mayCrash_;
+    return may_crash_;
 }
 
 /******************************************************************************/
@@ -235,7 +235,7 @@ bool GDelayIndividual::getMayCrash() const {
  * Check the likelihood for a crash at the end of the sleep time
  */
 double GDelayIndividual::getCrashLikelihood() const {
-    return throwLikelihood_;
+    return throw_likelihood_;
 }
 
 /******************************************************************************/
@@ -248,7 +248,7 @@ void GDelayIndividual::setRandomSleep(
     bool sleep_randomly,
     std::tuple<double, double> rand_sleep_boundaries
 ) {
-    sleepRandomly_ = sleep_randomly;
+    sleep_randomly_ = sleep_randomly;
 
     // Enforce that the sanity of the lower and upper boundaries
     if(std::get<0>(rand_sleep_boundaries) < 0. ||
@@ -261,7 +261,7 @@ void GDelayIndividual::setRandomSleep(
         );
     }
 
-    randSleepBoundaries_ = rand_sleep_boundaries;
+    rand_sleep_boundaries_ = rand_sleep_boundaries;
 }
 
 /******************************************************************************/
@@ -269,7 +269,7 @@ void GDelayIndividual::setRandomSleep(
  * Checks whether the fitness function has a random sleep schedule
  */
 bool GDelayIndividual::getMaySleepRandomly() const {
-    return sleepRandomly_;
+    return sleep_randomly_;
 }
 
 /******************************************************************************/
@@ -277,7 +277,7 @@ bool GDelayIndividual::getMaySleepRandomly() const {
  * Retrieves the time window for random sleeps
  */
 std::tuple<double, double> GDelayIndividual::getSleepWindow() const {
-    return randSleepBoundaries_;
+    return rand_sleep_boundaries_;
 };
 
 /******************************************************************************/
@@ -304,7 +304,7 @@ GDelayIndividualFactory::~GDelayIndividualFactory() { /* nothing */
  * @return The Name of the result file
  */
 std::string GDelayIndividualFactory::getResultFileName() const {
-    return resultFile_;
+    return result_file_;
 }
 
 /******************************************************************************/
@@ -314,7 +314,7 @@ std::string GDelayIndividualFactory::getResultFileName() const {
  * @return The file name holding short measurement results
  */
 std::string GDelayIndividualFactory::getShortResultFileName() const {
-    return shortResultFile_;
+    return short_result_file_;
 }
 
 /******************************************************************************/
@@ -324,7 +324,7 @@ std::string GDelayIndividualFactory::getShortResultFileName() const {
  * @return The number of delays provided by the user
  */
 std::size_t GDelayIndividualFactory::getNDelays() const {
-    return sleepTimes_.size();
+    return sleep_times_.size();
 }
 
 /******************************************************************************/
@@ -334,7 +334,7 @@ std::size_t GDelayIndividualFactory::getNDelays() const {
  * @return The number of measurements to be made for each delay
  */
 std::uint32_t GDelayIndividualFactory::getNMeasurements() const {
-    return nMeasurements_;
+    return n_measurements_;
 }
 
 /******************************************************************************/
@@ -342,7 +342,7 @@ std::uint32_t GDelayIndividualFactory::getNMeasurements() const {
  * Retrieves the amount of seconds main() should wait between two measurements
  */
 std::uint32_t GDelayIndividualFactory::getInterMeasurementDelay() const {
-    return interMeasurementDelay_;
+    return inter_measurement_delay_;
 }
 
 /******************************************************************************/
@@ -352,7 +352,7 @@ std::uint32_t GDelayIndividualFactory::getInterMeasurementDelay() const {
  * @return The sleep times, as determined by this object
  */
 std::vector<std::tuple<unsigned int, unsigned int>> GDelayIndividualFactory::getSleepTimes() const {
-    return sleepTimes_;
+    return sleep_times_;
 }
 
 /******************************************************************************/
@@ -381,8 +381,8 @@ std::shared_ptr<gpar::GParameterSet> GDelayIndividualFactory::getObject_(
 void GDelayIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder &gpb) {
     gpb.registerFileParameter(
         "nVariables",
-        nVariables_,
-        nVariables_ // The default value
+        n_variables_,
+        n_variables_ // The default value
     ) << "The number of variables to act on";
 
     gpb.registerFileParameter(
@@ -393,63 +393,63 @@ void GDelayIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder 
 
     gpb.registerFileParameter(
         "sleep_randomly",
-        sleepRandomly_,
-        sleepRandomly_ // The default value
+        sleep_randomly_,
+        sleep_randomly_ // The default value
     ) << "Indicates whether the individual should sleep for a random amount of time"
       << '\n'
       << "rather than a fixed amount of time";
 
     gpb.registerFileParameter(
         "lowerRandSleepBoundary",
-        lowerRandSleepBoundary_,
-        lowerRandSleepBoundary_ // The default value
+        lower_rand_sleep_boundary_,
+        lower_rand_sleep_boundary_ // The default value
     ) << "The lower boundary for random sleep times in the"
       << '\n'
       << "fitness function (seconds, double value)";
 
     gpb.registerFileParameter(
         "upperRandSleepBoundary",
-        upperRandSleepBoundary_,
-        upperRandSleepBoundary_ // The default value
+        upper_rand_sleep_boundary_,
+        upper_rand_sleep_boundary_ // The default value
     ) << "The upper boundary for random sleep times in the"
       << '\n'
       << "fitness function (seconds, double value)";
 
     gpb.registerFileParameter(
         "result_file",
-        resultFile_,
-        resultFile_ // The default value
+        result_file_,
+        result_file_ // The default value
     ) << "The name of a file to which results should be stored";
 
     gpb.registerFileParameter(
         "shortResultFile",
-        shortResultFile_,
-        shortResultFile_ // The default value
+        short_result_file_,
+        short_result_file_ // The default value
     ) << "The name of a file to which short results should be stored";
 
     gpb.registerFileParameter(
         "nMeasurements",
-        nMeasurements_,
-        nMeasurements_ // The default value
+        n_measurements_,
+        n_measurements_ // The default value
     ) << "The number of measurements for each delay";
 
     gpb.registerFileParameter(
         "interMeasurementDelay",
-        interMeasurementDelay_,
-        interMeasurementDelay_ // The default value
+        inter_measurement_delay_,
+        inter_measurement_delay_ // The default value
     ) << "The amount of seconds to wait between two measurements";
 
     gpb.registerFileParameter<bool, double>(
         "mayThrow" // The name of the variable
         ,
         "throw_likelihood",
-        mayCrash_ // The default value
+        may_crash_ // The default value
         ,
-        throwLikelihood_,
+        throw_likelihood_,
         [this](bool may_crash, double throw_likelihood) {
-            mayCrash_ = may_crash;
+            may_crash_ = may_crash;
             // Enforce a throw_likelihood in the allowed value range
-            throwLikelihood_ = Gem::Common::enforceRangeConstraint(
+            throw_likelihood_ = Gem::Common::enforceRangeConstraint(
                 throw_likelihood,
                 0.,
                 1.,
@@ -474,7 +474,7 @@ void GDelayIndividualFactory::postProcess_(std::shared_ptr<gpar::GParameterSet> 
     std::size_t id = this->getId();
 
     // Make sure the textual delays are converted to time measurements
-    sleepTimes_ = Gem::Common::stringToUIntTupleVec(delays_);
+    sleep_times_ = Gem::Common::stringToUIntTupleVec(delays_);
 
     // Convert the base pointer to the target type
     std::shared_ptr<GDelayIndividual> p =
@@ -482,17 +482,17 @@ void GDelayIndividualFactory::postProcess_(std::shared_ptr<gpar::GParameterSet> 
 
     if(Gem::Common::GFACTORYWRITEID == id) {
         // Calculate the current sleep time
-        std::chrono::duration<double> sleep_time = this->tupleToTime(sleepTimes_.at(0));
+        std::chrono::duration<double> sleep_time = this->tupleToTime(sleep_times_.at(0));
 
         std::cout << "Producing individual in write mode with sleep time = " << sleep_time.count()
                   << " s" << '\n';
 
         p->setFixedSleepTime(sleep_time);
 
-        p->setMayCrash(mayCrash_, throwLikelihood_);
+        p->setMayCrash(may_crash_, throw_likelihood_);
         p->setRandomSleep(
-            sleepRandomly_,
-            std::tuple<double, double>(lowerRandSleepBoundary_, upperRandSleepBoundary_)
+            sleep_randomly_,
+            std::tuple<double, double>(lower_rand_sleep_boundary_, upper_rand_sleep_boundary_)
         );
 
         // Set up a GDoubleObjectCollection
@@ -502,7 +502,7 @@ void GDelayIndividualFactory::postProcess_(std::shared_ptr<gpar::GParameterSet> 
 
         // Set up nVariables GConstrainedDoubleObject objects in the desired value range,
         // and register them with the collection. The configuration parameters don't matter for this use case
-        for(std::size_t var = 0; var < nVariables_; var++) {
+        for(std::size_t var = 0; var < n_variables_; var++) {
             std::shared_ptr<gpar::GDoubleObject> gbd_ptr(
                 new gpar::GDoubleObject(0.5)
             );
@@ -519,20 +519,20 @@ void GDelayIndividualFactory::postProcess_(std::shared_ptr<gpar::GParameterSet> 
         // Make the GDoubleObjectCollection known to the individual
         p->push_back(gbdc_ptr);
     }
-    else if((id - Gem::Common::GFACTTORYFIRSTID) < sleepTimes_.size()) {
+    else if((id - Gem::Common::GFACTTORYFIRSTID) < sleep_times_.size()) {
         // Calculate the current sleep time
         std::chrono::duration<double> sleep_time =
-            this->tupleToTime(sleepTimes_.at(id - Gem::Common::GFACTTORYFIRSTID));
+            this->tupleToTime(sleep_times_.at(id - Gem::Common::GFACTTORYFIRSTID));
 
         std::cout << "Producing individual " << (id - Gem::Common::GFACTTORYFIRSTID)
                   << " with sleep time = " << sleep_time.count() << " s" << '\n';
 
         p->setFixedSleepTime(sleep_time);
 
-        p->setMayCrash(mayCrash_, throwLikelihood_);
+        p->setMayCrash(may_crash_, throw_likelihood_);
         p->setRandomSleep(
-            sleepRandomly_,
-            std::tuple<double, double>(lowerRandSleepBoundary_, upperRandSleepBoundary_)
+            sleep_randomly_,
+            std::tuple<double, double>(lower_rand_sleep_boundary_, upper_rand_sleep_boundary_)
         );
 
         // Set up a GDoubleObjectCollection
@@ -542,7 +542,7 @@ void GDelayIndividualFactory::postProcess_(std::shared_ptr<gpar::GParameterSet> 
 
         // Set up nVariables GConstrainedDoubleObject objects in the desired value range,
         // and register them with the collection. The configuration parameters don't matter for this use case
-        for(std::size_t var = 0; var < nVariables_; var++) {
+        for(std::size_t var = 0; var < n_variables_; var++) {
             std::shared_ptr<gpar::GDoubleObject> gbd_ptr(
                 new gpar::GDoubleObject(0.5)
             );

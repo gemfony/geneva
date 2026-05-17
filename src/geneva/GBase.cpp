@@ -67,7 +67,7 @@ void GBasePluggableOM::compare_(
     Gem::Common::compare_base_t<GObject>(*this, *p_load, token);
 
     // ... and then our local data
-    compare_t(IDENTITY(useRawEvaluation_, p_load->useRawEvaluation_), token);
+    compare_t(IDENTITY(use_raw_evaluation_, p_load->use_raw_evaluation_), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -75,18 +75,18 @@ void GBasePluggableOM::compare_(
 
 /******************************************************************************/
 /**
- * Allows to set the useRawEvaluation_ variable
+ * Allows to set the use_raw_evaluation_ variable
  */
 void GBasePluggableOM::setUseRawEvaluation(bool use_raw) {
-    useRawEvaluation_ = use_raw;
+    use_raw_evaluation_ = use_raw;
 }
 
 /******************************************************************************/
 /**
- * Allows to retrieve the value of the useRawEvaluation_ variable
+ * Allows to retrieve the value of the use_raw_evaluation_ variable
  */
 bool GBasePluggableOM::getUseRawEvaluation() const {
-    return useRawEvaluation_;
+    return use_raw_evaluation_;
 }
 
 /******************************************************************************/
@@ -116,7 +116,7 @@ void GBasePluggableOM::load_(const GObject *cp) {
     GObject::load_(cp);
 
     // ... and then our local data
-    useRawEvaluation_ = p_load->useRawEvaluation_;
+    use_raw_evaluation_ = p_load->use_raw_evaluation_;
 }
 
 /******************************************************************************/
@@ -191,33 +191,33 @@ GBase::GBase(const GBase &cp)
   , Gem::Common::GPtrContainerT<gpar::GParameterSet>(cp)
   , iteration_(cp.iteration_)
   , offset_(DEFAULTOFFSET)
-  , minIteration_(cp.minIteration_)
-  , maxIteration_(cp.maxIteration_)
-  , maxStallIteration_(cp.maxStallIteration_)
-  , reportIteration_(cp.reportIteration_)
-  , nRecordbestGlobalIndividuals_(cp.nRecordbestGlobalIndividuals_)
-  , bestGlobalIndividuals_pq_(cp.bestGlobalIndividuals_pq_)
-  , bestIterationIndividuals_pq_(cp.bestIterationIndividuals_pq_)
-  , defaultPopulationSize_(cp.defaultPopulationSize_)
-  , bestKnownPrimaryFitness_(cp.bestKnownPrimaryFitness_)
-  , bestCurrentPrimaryFitness_(cp.bestCurrentPrimaryFitness_)
-  , stallCounter_(cp.stallCounter_)
-  , stallCounterThreshold_(cp.stallCounterThreshold_)
+  , min_iteration_(cp.min_iteration_)
+  , max_iteration_(cp.max_iteration_)
+  , max_stall_iteration_(cp.max_stall_iteration_)
+  , report_iteration_(cp.report_iteration_)
+  , n_recordbest_global_individuals_(cp.n_recordbest_global_individuals_)
+  , best_global_individuals_pq_(cp.best_global_individuals_pq_)
+  , best_iteration_individuals_pq_(cp.best_iteration_individuals_pq_)
+  , default_population_size_(cp.default_population_size_)
+  , best_known_primary_fitness_(cp.best_known_primary_fitness_)
+  , best_current_primary_fitness_(cp.best_current_primary_fitness_)
+  , stall_counter_(cp.stall_counter_)
+  , stall_counter_threshold_(cp.stall_counter_threshold_)
   , cp_interval_(cp.cp_interval_)
   , cp_base_name_(cp.cp_base_name_)
   , cp_directory_path_(cp.cp_directory_path_)
   , cp_last_(cp.cp_last_)
   , cp_remove_(cp.cp_remove_)
   , cp_serialization_mode_(cp.cp_serialization_mode_)
-  , qualityThreshold_(cp.qualityThreshold_)
-  , hasQualityThreshold_(cp.hasQualityThreshold_)
-  , maxDuration_(cp.maxDuration_)
-  , minDuration_(cp.minDuration_)
-  , terminationFile_(cp.terminationFile_)
-  , terminateOnFileModification_(cp.terminateOnFileModification_)
-  , emitTerminationReason_(cp.emitTerminationReason_)
-  , worstKnownValids_cnt_(cp.worstKnownValids_cnt_)
-  , default_execMode_(cp.default_execMode_)
+  , quality_threshold_(cp.quality_threshold_)
+  , has_quality_threshold_(cp.has_quality_threshold_)
+  , max_duration_(cp.max_duration_)
+  , min_duration_(cp.min_duration_)
+  , termination_file_(cp.termination_file_)
+  , terminate_on_file_modification_(cp.terminate_on_file_modification_)
+  , emit_termination_reason_(cp.emit_termination_reason_)
+  , worst_known_valids_cnt_(cp.worst_known_valids_cnt_)
+  , default_exec_mode_(cp.default_exec_mode_)
   , default_executor_config_(cp.default_executor_config_) {
     // Copy atomics over
     halted_.store(cp.halted_.load());
@@ -500,51 +500,51 @@ void GBase::compare_(
     ); // This allows us to compare the parent class without directly referring to it.
     compare_t(IDENTITY(iteration_, p_load->iteration_), token);
     compare_t(IDENTITY(offset_, p_load->offset_), token);
-    compare_t(IDENTITY(maxIteration_, p_load->maxIteration_), token);
-    compare_t(IDENTITY(minIteration_, p_load->minIteration_), token);
-    compare_t(IDENTITY(maxStallIteration_, p_load->maxStallIteration_), token);
-    compare_t(IDENTITY(reportIteration_, p_load->reportIteration_), token);
+    compare_t(IDENTITY(max_iteration_, p_load->max_iteration_), token);
+    compare_t(IDENTITY(min_iteration_, p_load->min_iteration_), token);
+    compare_t(IDENTITY(max_stall_iteration_, p_load->max_stall_iteration_), token);
+    compare_t(IDENTITY(report_iteration_, p_load->report_iteration_), token);
     compare_t(
-        IDENTITY(nRecordbestGlobalIndividuals_, p_load->nRecordbestGlobalIndividuals_),
+        IDENTITY(n_recordbest_global_individuals_, p_load->n_recordbest_global_individuals_),
         token
     );
-    compare_t(IDENTITY(bestGlobalIndividuals_pq_, p_load->bestGlobalIndividuals_pq_), token);
+    compare_t(IDENTITY(best_global_individuals_pq_, p_load->best_global_individuals_pq_), token);
     compare_t(
-        IDENTITY(bestIterationIndividuals_pq_, p_load->bestIterationIndividuals_pq_),
+        IDENTITY(best_iteration_individuals_pq_, p_load->best_iteration_individuals_pq_),
         token
     );
-    compare_t(IDENTITY(defaultPopulationSize_, p_load->defaultPopulationSize_), token);
-    compare_t(IDENTITY(bestKnownPrimaryFitness_, p_load->bestKnownPrimaryFitness_), token);
-    compare_t(IDENTITY(bestCurrentPrimaryFitness_, p_load->bestCurrentPrimaryFitness_), token);
-    compare_t(IDENTITY(stallCounter_, p_load->stallCounter_), token);
-    compare_t(IDENTITY(stallCounterThreshold_, p_load->stallCounterThreshold_), token);
+    compare_t(IDENTITY(default_population_size_, p_load->default_population_size_), token);
+    compare_t(IDENTITY(best_known_primary_fitness_, p_load->best_known_primary_fitness_), token);
+    compare_t(IDENTITY(best_current_primary_fitness_, p_load->best_current_primary_fitness_), token);
+    compare_t(IDENTITY(stall_counter_, p_load->stall_counter_), token);
+    compare_t(IDENTITY(stall_counter_threshold_, p_load->stall_counter_threshold_), token);
     compare_t(IDENTITY(cp_interval_, p_load->cp_interval_), token);
     compare_t(IDENTITY(cp_base_name_, p_load->cp_base_name_), token);
     compare_t(IDENTITY(cp_directory_path_.string(), p_load->cp_directory_path_.string()), token);
     compare_t(IDENTITY(cp_last_, p_load->cp_last_), token);
     compare_t(IDENTITY(cp_remove_, p_load->cp_remove_), token);
     compare_t(IDENTITY(cp_serialization_mode_, p_load->cp_serialization_mode_), token);
-    compare_t(IDENTITY(qualityThreshold_, p_load->qualityThreshold_), token);
-    compare_t(IDENTITY(hasQualityThreshold_, p_load->hasQualityThreshold_), token);
+    compare_t(IDENTITY(quality_threshold_, p_load->quality_threshold_), token);
+    compare_t(IDENTITY(has_quality_threshold_, p_load->has_quality_threshold_), token);
     compare_t(
-        IDENTITY(maxDuration_.count(), p_load->maxDuration_.count()),
+        IDENTITY(max_duration_.count(), p_load->max_duration_.count()),
         token
     ); // Cannot directly compare std::chrono::duration<double>
     compare_t(
-        IDENTITY(minDuration_.count(), p_load->minDuration_.count()),
+        IDENTITY(min_duration_.count(), p_load->min_duration_.count()),
         token
     ); // Cannot directly compare std::chrono::duration<double>
-    compare_t(IDENTITY(terminationFile_, p_load->terminationFile_), token);
+    compare_t(IDENTITY(termination_file_, p_load->termination_file_), token);
     compare_t(
-        IDENTITY(terminateOnFileModification_, p_load->terminateOnFileModification_),
+        IDENTITY(terminate_on_file_modification_, p_load->terminate_on_file_modification_),
         token
     );
-    compare_t(IDENTITY(emitTerminationReason_, p_load->emitTerminationReason_), token);
+    compare_t(IDENTITY(emit_termination_reason_, p_load->emit_termination_reason_), token);
     compare_t(IDENTITY(halted_, p_load->halted_), token);
-    compare_t(IDENTITY(worstKnownValids_cnt_, p_load->worstKnownValids_cnt_), token);
+    compare_t(IDENTITY(worst_known_valids_cnt_, p_load->worst_known_valids_cnt_), token);
     compare_t(IDENTITY(pluggable_monitors_cnt_, p_load->pluggable_monitors_cnt_), token);
     compare_t(IDENTITY(executor_ptr_, p_load->executor_ptr_), token);
-    compare_t(IDENTITY(default_execMode_, p_load->default_execMode_), token);
+    compare_t(IDENTITY(default_exec_mode_, p_load->default_exec_mode_), token);
     compare_t(IDENTITY(default_executor_config_, p_load->default_executor_config_), token);
 
     // React on deviations from the expectation
@@ -576,22 +576,22 @@ void GBase::resetToOptimizationStart_() {
     this->clear(); // Remove all individuals found in this population
 
     iteration_ = 0;                    // The current iteration
-    bestGlobalIndividuals_pq_.clear(); // A priority queue with the best individuals found so far
-    bestIterationIndividuals_pq_
+    best_global_individuals_pq_.clear(); // A priority queue with the best individuals found so far
+    best_iteration_individuals_pq_
         .clear(); // A priority queue with the best individuals of a given iteration
 
-    bestKnownPrimaryFitness_ =
+    best_known_primary_fitness_ =
         std::tuple<double, double>(0., 0.); // Records the best primary fitness found so far
-    bestCurrentPrimaryFitness_ = std::tuple<double, double>(
+    best_current_primary_fitness_ = std::tuple<double, double>(
         0.,
         0.
     ); // Records the best fitness found in the current iteration
 
-    stallCounter_ = 0; // Counts the number of iterations without improvement
+    stall_counter_ = 0; // Counts the number of iterations without improvement
 
     halted_ = true; // Also means: No optimization is currently running
 
-    worstKnownValids_cnt_
+    worst_known_valids_cnt_
         .clear(); // Stores the worst known valid evaluations up to the current iteration (first entry: raw, second: tranformed)
 
     executor_ptr_.reset(); // Removes the local executor
@@ -682,7 +682,7 @@ GBase const *GBase::optimize_(std::uint32_t offset) {
     // Store any *clean* individuals that have been added to this algorithm
     // in the priority queue. This happens so that best individuals from a
     // previous "chained" optimization run aren't lost.
-    addCleanStoredBests(bestGlobalIndividuals_pq_);
+    addCleanStoredBests(best_global_individuals_pq_);
 
     // Resize the population to the desired size and do some error checks.
     // This function will also check that individuals have indeed been registered
@@ -696,16 +696,16 @@ GBase const *GBase::optimize_(std::uint32_t offset) {
     // Emit the info header, unless we do not want any info (parameter 0).
     // Note that this call needs to come after the initialization, so we have the
     // complete set of individuals available.
-    if(reportIteration_) {
+    if(report_iteration_) {
         informationUpdate(infoMode::INFOINIT);
     }
 
     // We want to know if no better values were found for a longer period of time
     double worst_case = this->at(0)->getWorstCase();
-    bestKnownPrimaryFitness_ = std::make_tuple(worst_case, worst_case);
-    bestCurrentPrimaryFitness_ = std::make_tuple(worst_case, worst_case);
+    best_known_primary_fitness_ = std::make_tuple(worst_case, worst_case);
+    best_current_primary_fitness_ = std::make_tuple(worst_case, worst_case);
 
-    stallCounter_ = 0;
+    stall_counter_ = 0;
 
     // Give derived classes the opportunity to perform any other necessary preparatory work.
     init();
@@ -714,22 +714,22 @@ GBase const *GBase::optimize_(std::uint32_t offset) {
     halted_ = false; // general halt criterion
 
     // Initialize the start time with the current time.
-    startTime_ = std::chrono::system_clock::now();
+    start_time_ = std::chrono::system_clock::now();
 
     // Initialize a file start time, as it may not be comparable with system_clock
-    file_startTime_ = Gem::Common::touch_time("geneva_file_startTime", "marker", true);
+    file_start_time_ = Gem::Common::touch_time("geneva_file_startTime", "marker", true);
 
     do {
         // Let all individuals know the current iteration
         markIteration();
 
         // Update fitness values and the stall counter
-        updateStallCounter((bestCurrentPrimaryFitness_ = cycleLogic_()));
+        updateStallCounter((best_current_primary_fitness_ = cycleLogic_()));
 
-        // Add the best individuals to the bestGlobalIndividuals_pq_
-        // and bestIterationIndividuals_pq_ vectors
-        updateGlobalBestsPQ_(bestGlobalIndividuals_pq_);
-        updateIterationBestsPQ_(bestIterationIndividuals_pq_);
+        // Add the best individuals to the best_global_individuals_pq_
+        // and best_iteration_individuals_pq_ vectors
+        updateGlobalBestsPQ_(best_global_individuals_pq_);
+        updateIterationBestsPQ_(best_iteration_individuals_pq_);
 
         // Check whether a better value was found, and do the check-pointing, if necessary and requested.
         checkpoint(progress());
@@ -742,14 +742,14 @@ GBase const *GBase::optimize_(std::uint32_t offset) {
 
         // Give derived classes an opportunity to act on stalls. NOTE that no action
         // may be taken that affects the "dirty" state of individuals
-        if(stallCounterThreshold_ && stallCounterThresholdExceeded()) {
+        if(stall_counter_threshold_ && stallCounterThresholdExceeded()) {
             actOnStalls_();
         }
 
         // We want to provide feedback to the user in regular intervals.
         // Set the reportGeneration_ variable to 0 in order not to emit
         // any information at all.
-        if(reportIteration_ && (iteration_ % reportIteration_ == 0)) {
+        if(report_iteration_ && (iteration_ % report_iteration_ == 0)) {
             informationUpdate(infoMode::INFOPROCESSING);
         }
 
@@ -762,7 +762,7 @@ GBase const *GBase::optimize_(std::uint32_t offset) {
     finalize();
 
     // Finalize the info output
-    if(reportIteration_) {
+    if(report_iteration_) {
         informationUpdate(infoMode::INFOEND);
     }
 
@@ -809,13 +809,13 @@ void GBase::informationUpdate(infoMode const &im) {
 
 /******************************************************************************/
 /**
- * Checks whether a better solution was found. If so, the stallCounter_
+ * Checks whether a better solution was found. If so, the stall_counter_
  * variable will have been set to 0
  *
  * @return A boolean indicating whether a better solution was found
  */
 bool GBase::progress() const {
-    return (0 == stallCounter_);
+    return (0 == stall_counter_);
 }
 
 /******************************************************************************/
@@ -862,7 +862,7 @@ bool GBase::hasPluggableOptimizationMonitors() const {
  * @return The default population size
  */
 std::size_t GBase::getDefaultPopulationSize() const {
-    return defaultPopulationSize_;
+    return default_population_size_;
 }
 
 /******************************************************************************/
@@ -884,16 +884,16 @@ std::size_t GBase::getPopulationSize() const {
  */
 void GBase::setMaxIteration(std::uint32_t max_iteration) {
     // Check that the new maximum is > the current minimum (guard only applies when max != 0)
-    if(max_iteration > 0 && max_iteration <= minIteration_) {
+    if(max_iteration > 0 && max_iteration <= min_iteration_) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GBase<>::setMaxIteration(): Error!" << '\n'
             << "Maximum number of iterations " << max_iteration << " is <= the minimum number "
-            << minIteration_ << '\n'
+            << min_iteration_ << '\n'
         );
     }
 
-    maxIteration_ = max_iteration;
+    max_iteration_ = max_iteration;
 }
 
 /******************************************************************************/
@@ -904,7 +904,7 @@ void GBase::setMaxIteration(std::uint32_t max_iteration) {
  * @return The number of iterations after which the optimization should terminate
  */
 std::uint32_t GBase::getMaxIteration() const {
-    return maxIteration_;
+    return max_iteration_;
 }
 
 /******************************************************************************/
@@ -917,24 +917,24 @@ std::uint32_t GBase::getMaxIteration() const {
 */
 void GBase::setMinIteration(std::uint32_t min_iteration) {
     // Check that the current maximum will remain > the new minimum (guard only applies when max != 0)
-    if(maxIteration_ > 0 && maxIteration_ <= min_iteration) {
+    if(max_iteration_ > 0 && max_iteration_ <= min_iteration) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GBase<>::setMinIteration(): Error!" << '\n'
-            << "Maximum number of iterations " << maxIteration_ << " is <= the minimum number "
+            << "Maximum number of iterations " << max_iteration_ << " is <= the minimum number "
             << min_iteration << '\n'
         );
     }
 
-    minIteration_ = min_iteration;
+    min_iteration_ = min_iteration;
 }
 
 /******************************************************************************/
 /**
- * This function retrieves the value of the minIteration_ variable
+ * This function retrieves the value of the min_iteration_ variable
  */
 std::uint32_t GBase::getMinIteration() const {
-    return minIteration_;
+    return min_iteration_;
 }
 
 /******************************************************************************/
@@ -945,7 +945,7 @@ std::uint32_t GBase::getMinIteration() const {
  * @param The maximum number of allowed generations
  */
 void GBase::setMaxStallIteration(std::uint32_t max_stall_iteration) {
-    maxStallIteration_ = max_stall_iteration;
+    max_stall_iteration_ = max_stall_iteration;
 }
 
 /******************************************************************************/
@@ -956,7 +956,7 @@ void GBase::setMaxStallIteration(std::uint32_t max_stall_iteration) {
  * @return The maximum number of generations
  */
 std::uint32_t GBase::getMaxStallIteration() const {
-    return maxStallIteration_;
+    return max_stall_iteration_;
 }
 
 /******************************************************************************/
@@ -966,26 +966,26 @@ std::uint32_t GBase::getMaxStallIteration() const {
  * @param max_duration The maximum allowed processing time
  */
 void GBase::setMaxTime(std::chrono::duration<double> max_duration) {
-    if(not Gem::Common::isClose<double>(max_duration.count(), 0.) && max_duration < minDuration_) {
+    if(not Gem::Common::isClose<double>(max_duration.count(), 0.) && max_duration < min_duration_) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GBase<>::setMaxTime(): Error!" << '\n'
-            << "Desired max_duration (" << max_duration.count() << " is smaller than minDuration_("
-            << minDuration_.count() << ")" << '\n'
+            << "Desired max_duration (" << max_duration.count() << " is smaller than min_duration_("
+            << min_duration_.count() << ")" << '\n'
         );
     }
 
-    maxDuration_ = max_duration;
+    max_duration_ = max_duration;
 }
 
 /******************************************************************************/
 /**
- * Retrieves the value of the maxDuration_ parameter.
+ * Retrieves the value of the max_duration_ parameter.
  *
  * @return The maximum allowed processing time
  */
 std::chrono::duration<double> GBase::getMaxTime() const {
-    return maxDuration_;
+    return max_duration_;
 }
 
 /******************************************************************************/
@@ -996,26 +996,26 @@ std::chrono::duration<double> GBase::getMaxTime() const {
 * @param min_duration The minimum allowed processing time
 */
 void GBase::setMinTime(std::chrono::duration<double> min_duration) {
-    if(not Gem::Common::isClose<double>(maxDuration_.count(), 0.) && maxDuration_ < min_duration) {
+    if(not Gem::Common::isClose<double>(max_duration_.count(), 0.) && max_duration_ < min_duration) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GBase<>::setMinTime(): Error!" << '\n'
-            << "Desired max_duration (" << maxDuration_.count() << " is smaller than minDuration_("
+            << "Desired max_duration (" << max_duration_.count() << " is smaller than min_duration_("
             << min_duration.count() << ")" << '\n'
         );
     }
 
-    minDuration_ = min_duration;
+    min_duration_ = min_duration;
 }
 
 /******************************************************************************/
 /**
-* Retrieves the value of the minDuration_ parameter.
+* Retrieves the value of the min_duration_ parameter.
 *
 * @return The minimum required processing time
 */
 std::chrono::duration<double> GBase::getMinTime() const {
-    return minDuration_;
+    return min_duration_;
 }
 
 /******************************************************************************/
@@ -1029,8 +1029,8 @@ void GBase::setQualityThreshold(
     double quality_threshold,
     bool has_quality_threshold
 ) {
-    qualityThreshold_ = quality_threshold;
-    hasQualityThreshold_ = has_quality_threshold;
+    quality_threshold_ = quality_threshold;
+    has_quality_threshold_ = has_quality_threshold;
 }
 
 /******************************************************************************/
@@ -1042,8 +1042,8 @@ void GBase::setQualityThreshold(
  * @return The current value of the quality threshold
  */
 double GBase::getQualityThreshold(bool &has_quality_threshold) const {
-    has_quality_threshold = hasQualityThreshold_;
-    return qualityThreshold_;
+    has_quality_threshold = has_quality_threshold_;
+    return quality_threshold_;
 }
 
 /******************************************************************************/
@@ -1059,8 +1059,8 @@ void GBase::setTerminationFile(
     std::string termination_file,
     bool terminate_on_file_modification
 ) {
-    terminationFile_ = std::move(termination_file);
-    terminateOnFileModification_ = terminate_on_file_modification;
+    termination_file_ = std::move(termination_file);
+    terminate_on_file_modification_ = terminate_on_file_modification;
 }
 
 /******************************************************************************/
@@ -1069,12 +1069,12 @@ void GBase::setTerminationFile(
  * the "touched halt" is active
  *
  * @param terminate_on_file_modification A boolean indicating whether "touched termination" is active
- * @return The current value of the terminationFile_ variable
+ * @return The current value of the termination_file_ variable
  */
 std::string
 GBase::getTerminationFile(bool &terminate_on_file_modification) const {
-    terminate_on_file_modification = terminateOnFileModification_;
-    return terminationFile_;
+    terminate_on_file_modification = terminate_on_file_modification_;
+    return termination_file_;
 }
 
 /******************************************************************************/
@@ -1082,7 +1082,7 @@ GBase::getTerminationFile(bool &terminate_on_file_modification) const {
  * Removes the quality threshold
  */
 void GBase::resetQualityThreshold() {
-    hasQualityThreshold_ = false;
+    has_quality_threshold_ = false;
 }
 
 /******************************************************************************/
@@ -1092,7 +1092,7 @@ void GBase::resetQualityThreshold() {
  * @return A boolean indicating whether a quality threshold has been set
  */
 bool GBase::hasQualityThreshold() const {
-    return hasQualityThreshold_;
+    return has_quality_threshold_;
 }
 
 /******************************************************************************/
@@ -1124,7 +1124,7 @@ std::uint32_t GBase::getStartIteration() const {
  * @param iter The number of iterations after which information should be emitted
  */
 void GBase::setReportIteration(std::uint32_t iter) {
-    reportIteration_ = iter;
+    report_iteration_ = iter;
 }
 
 /******************************************************************************/
@@ -1135,7 +1135,7 @@ void GBase::setReportIteration(std::uint32_t iter) {
  * @return The number of iterations after which information is emitted
  */
 std::uint32_t GBase::getReportIteration() const {
-    return reportIteration_;
+    return report_iteration_;
 }
 
 /******************************************************************************/
@@ -1145,7 +1145,7 @@ std::uint32_t GBase::getReportIteration() const {
  * @return The current number of failed optimization attempts
  */
 std::uint32_t GBase::getStallCounter() const {
-    return stallCounter_;
+    return stall_counter_;
 }
 
 /******************************************************************************/
@@ -1154,7 +1154,7 @@ std::uint32_t GBase::getStallCounter() const {
  * individuals are asked to update their internal data structures
  */
 void GBase::setStallCounterThreshold(std::uint32_t stall_counter_threshold) {
-    stallCounterThreshold_ = stall_counter_threshold;
+    stall_counter_threshold_ = stall_counter_threshold;
 }
 
 /******************************************************************************/
@@ -1163,7 +1163,7 @@ void GBase::setStallCounterThreshold(std::uint32_t stall_counter_threshold) {
  * individuals are asked to update their internal data structures
  */
 std::uint32_t GBase::getStallCounterThreshold() const {
-    return stallCounterThreshold_;
+    return stall_counter_threshold_;
 }
 
 /******************************************************************************/
@@ -1173,9 +1173,9 @@ std::uint32_t GBase::getStallCounterThreshold() const {
  * @return The best raw and transformed fitness found so far
  */
 std::tuple<double, double> GBase::getBestKnownPrimaryFitness() const {
-    return (bestGlobalIndividuals_pq_.best())->getFitnessTuple();
+    return (best_global_individuals_pq_.best())->getFitnessTuple();
 
-    // return bestKnownPrimaryFitness_;
+    // return best_known_primary_fitness_;
 }
 
 /******************************************************************************/
@@ -1185,7 +1185,7 @@ std::tuple<double, double> GBase::getBestKnownPrimaryFitness() const {
  * @return The best raw and transformed fitness found in the current iteration
  */
 std::tuple<double, double> GBase::getBestCurrentPrimaryFitness() const {
-    return bestCurrentPrimaryFitness_;
+    return best_current_primary_fitness_;
 }
 
 /******************************************************************************/
@@ -1195,7 +1195,7 @@ std::tuple<double, double> GBase::getBestCurrentPrimaryFitness() const {
  * @param etr A boolean which specifies whether reasons for the termination of the optimization run should be emitted
  */
 void GBase::setEmitTerminationReason(bool emit_termination_reason) {
-    emitTerminationReason_ = emit_termination_reason;
+    emit_termination_reason_ = emit_termination_reason;
 }
 
 /******************************************************************************/
@@ -1205,7 +1205,7 @@ void GBase::setEmitTerminationReason(bool emit_termination_reason) {
  * @return A boolean which specifies whether reasons for the termination of the optimization run will be emitted
  */
 bool GBase::getEmitTerminationReason() const {
-    return emitTerminationReason_;
+    return emit_termination_reason_;
 }
 
 /******************************************************************************/
@@ -1404,11 +1404,11 @@ void GBase::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
         "defaultExecMode" // The name of the variable
         ,
         "defaultExecConfig",
-        this->default_execMode_ // The default value
+        this->default_exec_mode_ // The default value
         ,
         this->default_executor_config_,
         [this](execMode e, std::string config) {
-            this->default_execMode_ = e;
+            this->default_exec_mode_ = e;
             this->default_executor_config_ = config;
         },
         "defaultExecutor"
@@ -1554,39 +1554,39 @@ void GBase::load_(const GObject *cp) {
     // and then our local data
     iteration_ = p_load->iteration_;
     offset_ = p_load->offset_;
-    maxIteration_ = p_load->maxIteration_;
-    minIteration_ = p_load->minIteration_;
-    maxStallIteration_ = p_load->maxStallIteration_;
-    reportIteration_ = p_load->reportIteration_;
-    nRecordbestGlobalIndividuals_ = p_load->nRecordbestGlobalIndividuals_;
-    bestGlobalIndividuals_pq_ = p_load->bestGlobalIndividuals_pq_;
-    bestIterationIndividuals_pq_ = p_load->bestIterationIndividuals_pq_;
-    defaultPopulationSize_ = p_load->defaultPopulationSize_;
-    bestKnownPrimaryFitness_ = p_load->bestKnownPrimaryFitness_;
-    bestCurrentPrimaryFitness_ = p_load->bestCurrentPrimaryFitness_;
-    stallCounter_ = p_load->stallCounter_;
-    stallCounterThreshold_ = p_load->stallCounterThreshold_;
+    max_iteration_ = p_load->max_iteration_;
+    min_iteration_ = p_load->min_iteration_;
+    max_stall_iteration_ = p_load->max_stall_iteration_;
+    report_iteration_ = p_load->report_iteration_;
+    n_recordbest_global_individuals_ = p_load->n_recordbest_global_individuals_;
+    best_global_individuals_pq_ = p_load->best_global_individuals_pq_;
+    best_iteration_individuals_pq_ = p_load->best_iteration_individuals_pq_;
+    default_population_size_ = p_load->default_population_size_;
+    best_known_primary_fitness_ = p_load->best_known_primary_fitness_;
+    best_current_primary_fitness_ = p_load->best_current_primary_fitness_;
+    stall_counter_ = p_load->stall_counter_;
+    stall_counter_threshold_ = p_load->stall_counter_threshold_;
     cp_interval_ = p_load->cp_interval_;
     cp_base_name_ = p_load->cp_base_name_;
     cp_directory_path_ = p_load->cp_directory_path_;
     cp_last_ = p_load->cp_last_;
     cp_remove_ = p_load->cp_remove_;
     cp_serialization_mode_ = p_load->cp_serialization_mode_;
-    qualityThreshold_ = p_load->qualityThreshold_;
-    hasQualityThreshold_ = p_load->hasQualityThreshold_;
-    terminationFile_ = p_load->terminationFile_;
-    terminateOnFileModification_ = p_load->terminateOnFileModification_;
-    maxDuration_ = p_load->maxDuration_;
-    minDuration_ = p_load->minDuration_;
-    emitTerminationReason_ = p_load->emitTerminationReason_;
+    quality_threshold_ = p_load->quality_threshold_;
+    has_quality_threshold_ = p_load->has_quality_threshold_;
+    termination_file_ = p_load->termination_file_;
+    terminate_on_file_modification_ = p_load->terminate_on_file_modification_;
+    max_duration_ = p_load->max_duration_;
+    min_duration_ = p_load->min_duration_;
+    emit_termination_reason_ = p_load->emit_termination_reason_;
     halted_.store(p_load->halted_.load());
-    worstKnownValids_cnt_ = p_load->worstKnownValids_cnt_;
+    worst_known_valids_cnt_ = p_load->worst_known_valids_cnt_;
     Gem::Common::copyCloneableSmartPointerContainer(
         p_load->pluggable_monitors_cnt_,
         pluggable_monitors_cnt_
     );
     Gem::Common::copyCloneableSmartPointer(p_load->executor_ptr_, executor_ptr_);
-    default_execMode_ = p_load->default_execMode_;
+    default_exec_mode_ = p_load->default_exec_mode_;
     default_executor_config_ = p_load->default_executor_config_;
 }
 
@@ -1666,7 +1666,7 @@ GBase::extractOptAlgFromPath(const std::filesystem::path &p) const {
  * in the priority queue).
  */
 std::shared_ptr<gpar::GParameterSet> GBase::getBestGlobalIndividual_() const {
-    std::shared_ptr<gpar::GParameterSet> p = bestGlobalIndividuals_pq_.best();
+    std::shared_ptr<gpar::GParameterSet> p = best_global_individuals_pq_.best();
 #ifdef DEBUG
     if(!p) {
         throw geneva_exception(
@@ -1689,7 +1689,7 @@ std::vector<std::shared_ptr<gpar::GParameterSet>>
 GBase::getBestGlobalIndividuals_() const {
     std::vector<std::shared_ptr<gpar::GParameterSet>> best_individuals_vec;
 
-    for(const auto &ind_ptr : bestGlobalIndividuals_pq_.toVector()) {
+    for(const auto &ind_ptr : best_global_individuals_pq_.toVector()) {
         best_individuals_vec.push_back(ind_ptr->clone<gpar::GParameterSet>());
     }
 
@@ -1702,7 +1702,7 @@ GBase::getBestGlobalIndividuals_() const {
  * in the priority queue).
  */
 std::shared_ptr<gpar::GParameterSet> GBase::getBestIterationIndividual_() const {
-    std::shared_ptr<gpar::GParameterSet> p = bestIterationIndividuals_pq_.best();
+    std::shared_ptr<gpar::GParameterSet> p = best_iteration_individuals_pq_.best();
 #ifdef DEBUG
     if(!p) {
         throw geneva_exception(
@@ -1724,7 +1724,7 @@ std::shared_ptr<gpar::GParameterSet> GBase::getBestIterationIndividual_() const 
  */
 std::vector<std::shared_ptr<gpar::GParameterSet>>
 GBase::getBestIterationIndividuals_() const {
-    return bestIterationIndividuals_pq_.toVector();
+    return best_iteration_individuals_pq_.toVector();
 }
 
 /******************************************************************************/
@@ -1754,7 +1754,7 @@ void GBase::resetIndividualPersonalities() {
  * @param pop_size The desired size of the population
  */
 void GBase::setDefaultPopulationSize(std::size_t def_pop_size) {
-    defaultPopulationSize_ = def_pop_size;
+    default_population_size_ = def_pop_size;
 }
 
 /******************************************************************************/
@@ -1774,8 +1774,8 @@ void GBase::setNRecordBestIndividuals(
         );
     }
 
-    nRecordbestGlobalIndividuals_ = n_record_best_individuals;
-    bestGlobalIndividuals_pq_.setMaxSize(nRecordbestGlobalIndividuals_);
+    n_recordbest_global_individuals_ = n_record_best_individuals;
+    best_global_individuals_pq_.setMaxSize(n_recordbest_global_individuals_);
 }
 
 /******************************************************************************/
@@ -1785,7 +1785,7 @@ void GBase::setNRecordBestIndividuals(
  * @return The number of best individuals to be recorded in each iteration
  */
 std::size_t GBase::getNRecordBestIndividuals() const {
-    return nRecordbestGlobalIndividuals_;
+    return n_recordbest_global_individuals_;
 }
 
 /******************************************************************************/
@@ -1793,7 +1793,7 @@ std::size_t GBase::getNRecordBestIndividuals() const {
  * Allows derived classes to reset the stall counter.
  */
 void GBase::resetStallCounter() {
-    stallCounter_ = 0;
+    stall_counter_ = 0;
 }
 
 /******************************************************************************/
@@ -1805,7 +1805,7 @@ void GBase::resetStallCounter() {
 void GBase::init() {
     // Add an executor, if none has been registered
     if(not executor_ptr_) {
-        auto executor_ptr = this->createExecutor(default_execMode_);
+        auto executor_ptr = this->createExecutor(default_exec_mode_);
 
 #ifdef DEBUG
         if(not executor_ptr) {
@@ -1859,7 +1859,7 @@ void GBase::markIteration() {
  */
 void GBase::markNStalls() {
     for(auto const &ind_ptr : *this) {
-        ind_ptr->setNStalls(stallCounter_);
+        ind_ptr->setNStalls(stall_counter_);
     }
 }
 
@@ -1873,14 +1873,14 @@ void GBase::updateStallCounter(const std::tuple<double, double> &best_eval) {
     auto m = this->at(0)->getMaxMode(); // We assume the same maxMode for all individuals
     if(isBetter(
            std::get<G_TRANSFORMED_FITNESS>(best_eval),
-           std::get<G_TRANSFORMED_FITNESS>(bestKnownPrimaryFitness_),
+           std::get<G_TRANSFORMED_FITNESS>(best_known_primary_fitness_),
            m
        )) {
-        bestKnownPrimaryFitness_ = best_eval;
-        stallCounter_ = 0;
+        best_known_primary_fitness_ = best_eval;
+        stall_counter_ = 0;
     }
     else {
-        stallCounter_++;
+        stall_counter_++;
     }
 }
 
@@ -1895,8 +1895,8 @@ void GBase::updateStallCounter(const std::tuple<double, double> &best_eval) {
 bool GBase::timedHalt(
     const std::chrono::system_clock::time_point &current_time
 ) const {
-    if((current_time - startTime_) >= maxDuration_) {
-        if(emitTerminationReason_) {
+    if((current_time - start_time_) >= max_duration_) {
+        if(emit_termination_reason_) {
             glogger << "Terminating optimization run because maximum time frame has been exceeded."
                     << '\n'
                     << GLOGGING;
@@ -1904,9 +1904,8 @@ bool GBase::timedHalt(
 
         return true;
     }
-    else {
-        return false;
-    }
+            return false;
+   
 }
 
 /******************************************************************************/
@@ -1916,7 +1915,7 @@ bool GBase::timedHalt(
 bool GBase::minTimePassed(
     const std::chrono::system_clock::time_point &current_time
 ) const {
-    return (current_time - startTime_) > minDuration_;
+    return (current_time - start_time_) > min_duration_;
 }
 
 /******************************************************************************/
@@ -1932,27 +1931,26 @@ bool GBase::qualityHalt() const {
     auto m = this->at(0)->getMaxMode(); // We assume the same maxMode for all individuals
     if(isBetter(
            std::get<G_RAW_FITNESS>(
-               bestKnownPrimaryFitness_
+               best_known_primary_fitness_
            ) // note: we use the raw fitness so users do not have to specify "transformed" thresholds
            ,
-           qualityThreshold_,
+           quality_threshold_,
            m
        )) {
-        if(emitTerminationReason_) {
+        if(emit_termination_reason_) {
             glogger << "Terminating optimization run because" << '\n'
-                    << "quality threshold " << qualityThreshold_ << " has been exceeded."
+                    << "quality threshold " << quality_threshold_ << " has been exceeded."
                     << '\n'
                     << "Best untransformed quality found was "
-                    << std::get<G_RAW_FITNESS>(bestKnownPrimaryFitness_) << '\n'
+                    << std::get<G_RAW_FITNESS>(best_known_primary_fitness_) << '\n'
                     << "with termination in iteration " << iteration_ << '\n'
                     << GLOGGING;
         }
 
         return true;
     }
-    else {
-        return false;
-    }
+            return false;
+   
 }
 
 /******************************************************************************/
@@ -1962,10 +1960,10 @@ bool GBase::qualityHalt() const {
  * @return A boolean indicating whether the optimization has stalled too often in a row
  */
 bool GBase::stallHalt() const {
-    if(stallCounter_ >= maxStallIteration_) {
-        if(emitTerminationReason_) {
+    if(stall_counter_ >= max_stall_iteration_) {
+        if(emit_termination_reason_) {
             glogger << "Terminating optimization run because" << '\n'
-                    << "maximum number of stalls " << maxStallIteration_ << " has been exceeded."
+                    << "maximum number of stalls " << max_stall_iteration_ << " has been exceeded."
                     << '\n'
                     << "This is considered to be a criterion for convergence." << '\n'
                     << GLOGGING;
@@ -1973,9 +1971,8 @@ bool GBase::stallHalt() const {
 
         return true;
     }
-    else {
-        return false;
-    }
+            return false;
+   
 }
 
 /******************************************************************************/
@@ -1985,19 +1982,18 @@ bool GBase::stallHalt() const {
  * @return A boolean indicating whether the maximum number of iterations has been exceeded
  */
 bool GBase::iterationHalt() const {
-    if(iteration_ >= maxIteration_) {
-        if(emitTerminationReason_) {
+    if(iteration_ >= max_iteration_) {
+        if(emit_termination_reason_) {
             glogger << "Terminating optimization run because" << '\n'
-                    << "iteration threshold " << maxIteration_ << " has been exceeded."
+                    << "iteration threshold " << max_iteration_ << " has been exceeded."
                     << '\n'
                     << GLOGGING;
         }
 
         return true;
     }
-    else {
-        return false;
-    }
+            return false;
+   
 }
 
 /******************************************************************************/
@@ -2008,9 +2004,9 @@ bool GBase::iterationHalt() const {
 bool GBase::minIterationPassed() const {
     // iteration_ is incremented before halt()/this check is evaluated, so after
     // the N-th cycle iteration_ == N. ">=" makes the minimum pass at exactly
-    // minIteration_ cycles; ">" would run one extra iteration (and is
+    // min_iteration_ cycles; ">" would run one extra iteration (and is
     // inconsistent with iterationHalt(), which uses ">=" for the maximum).
-    return iteration_ >= minIteration_;
+    return iteration_ >= min_iteration_;
 }
 
 /******************************************************************************/
@@ -2032,9 +2028,8 @@ bool GBase::sigHupHalt() const {
 #endif
         return true;
     }
-    else {
-        return false;
-    }
+            return false;
+   
 }
 
 /******************************************************************************/
@@ -2047,7 +2042,7 @@ bool GBase::sigHupHalt() const {
  */
 bool GBase::touchHalt() const {
     // Create a suitable path object
-    std::filesystem::path p(terminationFile_);
+    std::filesystem::path p(termination_file_);
 
     // Return if the file doesn't exist
     if(not std::filesystem::exists(p)) {
@@ -2058,8 +2053,8 @@ bool GBase::touchHalt() const {
     const auto mod_time = std::filesystem::last_write_time(p);
 
     // Check if the file was modified after the start of the optimization run
-    if(mod_time > file_startTime_) {
-        if(emitTerminationReason_) {
+    if(mod_time > file_start_time_) {
+        if(emit_termination_reason_) {
             glogger << "Terminating optimization run because" << '\n'
                     << p << " was modified after the start of the optimization" << '\n'
                     << GLOGGING;
@@ -2067,9 +2062,8 @@ bool GBase::touchHalt() const {
 
         return true;
     }
-    else {
-        return false;
-    }
+            return false;
+   
 }
 
 /******************************************************************************/
@@ -2080,7 +2074,7 @@ bool GBase::touchHalt() const {
  */
 bool GBase::customHalt() const {
     if(customHalt_()) {
-        if(emitTerminationReason_) {
+        if(emit_termination_reason_) {
             glogger << "Terminating optimization run because custom halt criterion has triggered."
                     << '\n'
                     << GLOGGING;
@@ -2088,9 +2082,8 @@ bool GBase::customHalt() const {
 
         return true;
     }
-    else {
-        return false;
-    }
+            return false;
+   
 }
 
 /******************************************************************************/
@@ -2106,7 +2099,7 @@ bool GBase::customHalt_() const {
 /******************************************************************************/
 /**
  * This function checks whether a halt criterion has been reached. The most
- * common criterion is the maximum number of iterations. Set the maxIteration_
+ * common criterion is the maximum number of iterations. Set the max_iteration_
  * counter to 0 if you want to disable this criterion.
  *
  * @return A boolean indicating whether a halt criterion has been reached
@@ -2125,7 +2118,7 @@ bool GBase::halt() const {
     }
 
     // Are we supposed to stop when a file was modified after the start of the optimization run ?
-    if(terminateOnFileModification_ && touchHalt()) {
+    if(terminate_on_file_modification_ && touchHalt()) {
         return true;
     }
 
@@ -2162,7 +2155,7 @@ bool GBase::halt() const {
     }
 
     // Do we have a scheduled halt time ? The comparatively expensive
-    // timedHalt() calculation is only called if maxDuration_
+    // timedHalt() calculation is only called if max_duration_
     // is at least one microsecond.
     if(maxDurationHaltSet() && timedHalt(current_time)) {
         return true;
@@ -2184,7 +2177,7 @@ bool GBase::halt() const {
  * @return A boolean indicating whether the "max-iteration halt" has been set
  */
 bool GBase::maxIterationHaltset() const {
-    return 0 != maxIteration_;
+    return 0 != max_iteration_;
 }
 
 /******************************************************************************/
@@ -2194,7 +2187,7 @@ bool GBase::maxIterationHaltset() const {
  * @return A boolean indicating whether a halt criterion based on the number of stalls has been set
  */
 bool GBase::stallHaltSet() const {
-    return 0 != maxStallIteration_;
+    return 0 != max_stall_iteration_;
 }
 
 /******************************************************************************/
@@ -2204,7 +2197,7 @@ bool GBase::stallHaltSet() const {
  * @return A boolean indication whether the max-duration halt criterion has been set
  */
 bool GBase::maxDurationHaltSet() const {
-    return 0. != maxDuration_.count();
+    return 0. != max_duration_.count();
 }
 
 /******************************************************************************/
@@ -2214,7 +2207,7 @@ bool GBase::maxDurationHaltSet() const {
  * @return A boolean indicating whether the quality-threshold halt-criterion has been set
  */
 bool GBase::qualityThresholdHaltSet() const {
-    return hasQualityThreshold_;
+    return has_quality_threshold_;
 }
 
 /******************************************************************************/
@@ -2229,10 +2222,10 @@ void GBase::markBestFitness() {
 
 /******************************************************************************/
 /**
- * Indicates whether the stallCounterThreshold_ has been exceeded
+ * Indicates whether the stall_counter_threshold_ has been exceeded
  */
 bool GBase::stallCounterThresholdExceeded() const {
-    return (stallCounter_ > stallCounterThreshold_);
+    return (stall_counter_ > stall_counter_threshold_);
 }
 
 /******************************************************************************/

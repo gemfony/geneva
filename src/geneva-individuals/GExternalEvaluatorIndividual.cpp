@@ -44,7 +44,7 @@ GExternalEvaluatorIndividual::GExternalEvaluatorIndividual()
   , custom_options_(GEEI_DEF_CUSTOMOPTIONS)
   , parameter_file_base_name_(GEEI_DEF_PARFILEBASENAME)
   , n_results_(GEEI_DEF_NRESULTS)
-  , runID_(GEEI_DEF_RUNID)
+  , run_id_(GEEI_DEF_RUNID)
   , remove_exec_temporaries_(GEEI_DEF_REMOVETEMPORARIES) { /* nothing */
 }
 
@@ -58,7 +58,7 @@ GExternalEvaluatorIndividual::GExternalEvaluatorIndividual(const GExternalEvalua
   , custom_options_(cp.custom_options_)
   , parameter_file_base_name_(cp.parameter_file_base_name_)
   , n_results_(cp.n_results_)
-  , runID_(cp.runID_)
+  , run_id_(cp.run_id_)
   , remove_exec_temporaries_(cp.remove_exec_temporaries_) { /* nothing */
 }
 
@@ -100,7 +100,7 @@ void GExternalEvaluatorIndividual::compare_(
         token
     );
     Gem::Common::compare_t(IDENTITY(n_results_, p_load->n_results_), token);
-    Gem::Common::compare_t(IDENTITY(runID_, p_load->runID_), token);
+    Gem::Common::compare_t(IDENTITY(run_id_, p_load->run_id_), token);
     Gem::Common::compare_t(
         IDENTITY(remove_exec_temporaries_, p_load->remove_exec_temporaries_),
         token
@@ -163,7 +163,7 @@ void GExternalEvaluatorIndividual::setExchangeBaseName(const std::string &parame
 
 /******************************************************************************/
 /**
- * Retrieves the current value of the parameterFileBaseName_ variable.
+ * Retrieves the current value of the parameter_file_base_name_ variable.
  *
  * @return The current base name of the exchange file
  */
@@ -214,7 +214,7 @@ void GExternalEvaluatorIndividual::load_(const GObject *cp) {
     custom_options_ = p_load->custom_options_;
     parameter_file_base_name_ = p_load->parameter_file_base_name_;
     n_results_ = p_load->n_results_;
-    runID_ = p_load->runID_;
+    run_id_ = p_load->run_id_;
     remove_exec_temporaries_ = p_load->remove_exec_temporaries_;
 }
 
@@ -442,7 +442,7 @@ void GExternalEvaluatorIndividual::setRunId(std::string run_id) {
         );
     }
 
-    runID_ = run_id;
+    run_id_ = run_id;
 }
 
 /******************************************************************************/
@@ -450,7 +450,7 @@ void GExternalEvaluatorIndividual::setRunId(std::string run_id) {
  * Allows to retrieve the run-id assigned to this individual
  */
 std::string GExternalEvaluatorIndividual::getRunId() const {
-    return runID_;
+    return run_id_;
 }
 
 /******************************************************************************/
@@ -485,30 +485,30 @@ GExternalEvaluatorIndividualFactory::GExternalEvaluatorIndividualFactory(
     std::filesystem::path const &config_file
 )
   : Gem::Common::GFactoryT<gpar::GParameterSet>(config_file)
-  , adProb_(GEEI_DEF_ADPROB)
-  , adaptAdProb_(GEEI_DEF_ADAPTADPROB)
-  , minAdProb_(GEEI_DEF_MINADPROB)
-  , maxAdProb_(GEEI_DEF_MAXADPROB)
-  , adaptionThreshold_(GEEI_DEF_ADAPTIONTHRESHOLD)
-  , useBiGaussian_(GEEI_DEF_USEBIGAUSSIAN)
+  , ad_prob_(GEEI_DEF_ADPROB)
+  , adapt_ad_prob_(GEEI_DEF_ADAPTADPROB)
+  , min_ad_prob_(GEEI_DEF_MINADPROB)
+  , max_ad_prob_(GEEI_DEF_MAXADPROB)
+  , adaption_threshold_(GEEI_DEF_ADAPTIONTHRESHOLD)
+  , use_bi_gaussian_(GEEI_DEF_USEBIGAUSSIAN)
   , sigma1_(GEEI_DEF_SIGMA1)
-  , sigmaSigma1_(GEEI_DEF_SIGMASIGMA1)
-  , minSigma1_(GEEI_DEF_MINSIGMA1)
-  , maxSigma1_(GEEI_DEF_MAXSIGMA1)
+  , sigma_sigma1_(GEEI_DEF_SIGMASIGMA1)
+  , min_sigma1_(GEEI_DEF_MINSIGMA1)
+  , max_sigma1_(GEEI_DEF_MAXSIGMA1)
   , sigma2_(GEEI_DEF_SIGMA2)
-  , sigmaSigma2_(GEEI_DEF_SIGMASIGMA2)
-  , minSigma2_(GEEI_DEF_MINSIGMA2)
-  , maxSigma2_(GEEI_DEF_MAXSIGMA2)
+  , sigma_sigma2_(GEEI_DEF_SIGMASIGMA2)
+  , min_sigma2_(GEEI_DEF_MINSIGMA2)
+  , max_sigma2_(GEEI_DEF_MAXSIGMA2)
   , delta_(GEEI_DEF_DELTA)
-  , sigmaDelta_(GEEI_DEF_SIGMADELTA)
-  , minDelta_(GEEI_DEF_MINDELTA)
-  , maxDelta_(GEEI_DEF_MAXDELTA)
-  , programName_(GEEI_DEF_PROGNAME)
-  , customOptions_(GEEI_DEF_CUSTOMOPTIONS)
-  , parameterFileBaseName_(GEEI_DEF_PARFILEBASENAME)
-  , initValues_(GEEI_DEF_STARTMODE)
-  , removeExecTemporaries_(GEEI_DEF_REMOVETEMPORARIES)
-  , externalEvaluatorQueried_(false) { /* nothing */
+  , sigma_delta_(GEEI_DEF_SIGMADELTA)
+  , min_delta_(GEEI_DEF_MINDELTA)
+  , max_delta_(GEEI_DEF_MAXDELTA)
+  , program_name_(GEEI_DEF_PROGNAME)
+  , custom_options_(GEEI_DEF_CUSTOMOPTIONS)
+  , parameter_file_base_name_(GEEI_DEF_PARFILEBASENAME)
+  , init_values_(GEEI_DEF_STARTMODE)
+  , remove_exec_temporaries_(GEEI_DEF_REMOVETEMPORARIES)
+  , external_evaluator_queried_(false) { /* nothing */
 }
 
 /******************************************************************************/
@@ -519,30 +519,30 @@ GExternalEvaluatorIndividualFactory::GExternalEvaluatorIndividualFactory(
     const GExternalEvaluatorIndividualFactory &cp
 )
   : Gem::Common::GFactoryT<gpar::GParameterSet>(cp)
-  , adProb_(cp.adProb_)
-  , adaptAdProb_(cp.adaptAdProb_)
-  , minAdProb_(cp.minAdProb_)
-  , maxAdProb_(cp.maxAdProb_)
-  , adaptionThreshold_(cp.adaptionThreshold_)
-  , useBiGaussian_(cp.useBiGaussian_)
+  , ad_prob_(cp.ad_prob_)
+  , adapt_ad_prob_(cp.adapt_ad_prob_)
+  , min_ad_prob_(cp.min_ad_prob_)
+  , max_ad_prob_(cp.max_ad_prob_)
+  , adaption_threshold_(cp.adaption_threshold_)
+  , use_bi_gaussian_(cp.use_bi_gaussian_)
   , sigma1_(cp.sigma1_)
-  , sigmaSigma1_(cp.sigmaSigma1_)
-  , minSigma1_(cp.minSigma1_)
-  , maxSigma1_(cp.maxSigma1_)
+  , sigma_sigma1_(cp.sigma_sigma1_)
+  , min_sigma1_(cp.min_sigma1_)
+  , max_sigma1_(cp.max_sigma1_)
   , sigma2_(cp.sigma2_)
-  , sigmaSigma2_(cp.sigmaSigma2_)
-  , minSigma2_(cp.minSigma2_)
-  , maxSigma2_(cp.maxSigma2_)
+  , sigma_sigma2_(cp.sigma_sigma2_)
+  , min_sigma2_(cp.min_sigma2_)
+  , max_sigma2_(cp.max_sigma2_)
   , delta_(cp.delta_)
-  , sigmaDelta_(cp.sigmaDelta_)
-  , minDelta_(cp.minDelta_)
-  , maxDelta_(cp.maxDelta_)
-  , programName_(cp.programName_)
-  , customOptions_(cp.customOptions_)
-  , parameterFileBaseName_(cp.parameterFileBaseName_)
-  , initValues_(cp.initValues_)
-  , removeExecTemporaries_(cp.removeExecTemporaries_)
-  , externalEvaluatorQueried_(cp.externalEvaluatorQueried_)
+  , sigma_delta_(cp.sigma_delta_)
+  , min_delta_(cp.min_delta_)
+  , max_delta_(cp.max_delta_)
+  , program_name_(cp.program_name_)
+  , custom_options_(cp.custom_options_)
+  , parameter_file_base_name_(cp.parameter_file_base_name_)
+  , init_values_(cp.init_values_)
+  , remove_exec_temporaries_(cp.remove_exec_temporaries_)
+  , external_evaluator_queried_(cp.external_evaluator_queried_)
   , ptr_(cp.ptr_) { /* nothing */
 }
 
@@ -552,30 +552,30 @@ GExternalEvaluatorIndividualFactory::GExternalEvaluatorIndividualFactory(
  */
 GExternalEvaluatorIndividualFactory::GExternalEvaluatorIndividualFactory()
   : Gem::Common::GFactoryT<gpar::GParameterSet>("empty")
-  , adProb_(GEEI_DEF_ADPROB)
-  , adaptAdProb_(GEEI_DEF_ADAPTADPROB)
-  , minAdProb_(GEEI_DEF_MINADPROB)
-  , maxAdProb_(GEEI_DEF_MAXADPROB)
-  , adaptionThreshold_(GEEI_DEF_ADAPTIONTHRESHOLD)
-  , useBiGaussian_(GEEI_DEF_USEBIGAUSSIAN)
+  , ad_prob_(GEEI_DEF_ADPROB)
+  , adapt_ad_prob_(GEEI_DEF_ADAPTADPROB)
+  , min_ad_prob_(GEEI_DEF_MINADPROB)
+  , max_ad_prob_(GEEI_DEF_MAXADPROB)
+  , adaption_threshold_(GEEI_DEF_ADAPTIONTHRESHOLD)
+  , use_bi_gaussian_(GEEI_DEF_USEBIGAUSSIAN)
   , sigma1_(GEEI_DEF_SIGMA1)
-  , sigmaSigma1_(GEEI_DEF_SIGMASIGMA1)
-  , minSigma1_(GEEI_DEF_MINSIGMA1)
-  , maxSigma1_(GEEI_DEF_MAXSIGMA1)
+  , sigma_sigma1_(GEEI_DEF_SIGMASIGMA1)
+  , min_sigma1_(GEEI_DEF_MINSIGMA1)
+  , max_sigma1_(GEEI_DEF_MAXSIGMA1)
   , sigma2_(GEEI_DEF_SIGMA2)
-  , sigmaSigma2_(GEEI_DEF_SIGMASIGMA2)
-  , minSigma2_(GEEI_DEF_MINSIGMA2)
-  , maxSigma2_(GEEI_DEF_MAXSIGMA2)
+  , sigma_sigma2_(GEEI_DEF_SIGMASIGMA2)
+  , min_sigma2_(GEEI_DEF_MINSIGMA2)
+  , max_sigma2_(GEEI_DEF_MAXSIGMA2)
   , delta_(GEEI_DEF_DELTA)
-  , sigmaDelta_(GEEI_DEF_SIGMADELTA)
-  , minDelta_(GEEI_DEF_MINDELTA)
-  , maxDelta_(GEEI_DEF_MAXDELTA)
-  , programName_(GEEI_DEF_PROGNAME)
-  , customOptions_(GEEI_DEF_CUSTOMOPTIONS)
-  , parameterFileBaseName_(GEEI_DEF_PARFILEBASENAME)
-  , initValues_(GEEI_DEF_STARTMODE)
-  , removeExecTemporaries_(GEEI_DEF_REMOVETEMPORARIES)
-  , externalEvaluatorQueried_(false) { /* nothing */
+  , sigma_delta_(GEEI_DEF_SIGMADELTA)
+  , min_delta_(GEEI_DEF_MINDELTA)
+  , max_delta_(GEEI_DEF_MAXDELTA)
+  , program_name_(GEEI_DEF_PROGNAME)
+  , custom_options_(GEEI_DEF_CUSTOMOPTIONS)
+  , parameter_file_base_name_(GEEI_DEF_PARFILEBASENAME)
+  , init_values_(GEEI_DEF_STARTMODE)
+  , remove_exec_temporaries_(GEEI_DEF_REMOVETEMPORARIES)
+  , external_evaluator_queried_(false) { /* nothing */
 }
 
 /******************************************************************************/
@@ -586,7 +586,7 @@ GExternalEvaluatorIndividualFactory::GExternalEvaluatorIndividualFactory()
  */
 GExternalEvaluatorIndividualFactory::~GExternalEvaluatorIndividualFactory() {
     // Check that the file name isn't empty
-    if(programName_.value().empty()) {
+    if(program_name_.value().empty()) {
         glogger
             << "In GExternalEvaluatorIndividualFactory::~GExternalEvaluatorIndividualFactory(): "
                "Error!"
@@ -596,27 +596,27 @@ GExternalEvaluatorIndividualFactory::~GExternalEvaluatorIndividualFactory() {
     }
 
     // Check that the file exists
-    if(not std::filesystem::exists(programName_.value())) {
+    if(not std::filesystem::exists(program_name_.value())) {
         glogger
             << "In GExternalEvaluatorIndividualFactory::~GExternalEvaluatorIndividualFactory(): "
                "Error!"
             << '\n'
-            << "External program " << programName_.value() << " does not seem to exist"
+            << "External program " << program_name_.value() << " does not seem to exist"
             << '\n'
             << GTERMINATION;
     }
 
     // Collect all command-line arguments
     std::vector<std::string> arguments;
-    if(customOptions_.value() != "empty" && not customOptions_.value().empty()) {
-        arguments.push_back(customOptions_.value());
+    if(custom_options_.value() != "empty" && not custom_options_.value().empty()) {
+        arguments.push_back(custom_options_.value());
     }
     arguments.emplace_back("--finalize");
 
     // Ask the external evaluation program to perform any final work
     std::string command;
     int error_code = Gem::Common::runExternalCommand(
-        std::filesystem::path(programName_.value()),
+        std::filesystem::path(program_name_.value()),
         arguments,
         std::filesystem::path(),
         command
@@ -649,30 +649,30 @@ void GExternalEvaluatorIndividualFactory::load(
         GExternalEvaluatorIndividualFactory>(cp_raw_ptr);
 
     // And then our own
-    adProb_ = cp_ptr->adProb_;
-    adaptAdProb_ = cp_ptr->adaptAdProb_;
-    minAdProb_ = cp_ptr->minAdProb_;
-    maxAdProb_ = cp_ptr->maxAdProb_;
-    adaptionThreshold_ = cp_ptr->adaptionThreshold_;
-    useBiGaussian_ = cp_ptr->useBiGaussian_;
+    ad_prob_ = cp_ptr->ad_prob_;
+    adapt_ad_prob_ = cp_ptr->adapt_ad_prob_;
+    min_ad_prob_ = cp_ptr->min_ad_prob_;
+    max_ad_prob_ = cp_ptr->max_ad_prob_;
+    adaption_threshold_ = cp_ptr->adaption_threshold_;
+    use_bi_gaussian_ = cp_ptr->use_bi_gaussian_;
     sigma1_ = cp_ptr->sigma1_;
-    sigmaSigma1_ = cp_ptr->sigmaSigma1_;
-    minSigma1_ = cp_ptr->minSigma1_;
-    maxSigma1_ = cp_ptr->maxSigma1_;
+    sigma_sigma1_ = cp_ptr->sigma_sigma1_;
+    min_sigma1_ = cp_ptr->min_sigma1_;
+    max_sigma1_ = cp_ptr->max_sigma1_;
     sigma2_ = cp_ptr->sigma2_;
-    sigmaSigma2_ = cp_ptr->sigmaSigma2_;
-    minSigma2_ = cp_ptr->minSigma2_;
-    maxSigma2_ = cp_ptr->maxSigma2_;
+    sigma_sigma2_ = cp_ptr->sigma_sigma2_;
+    min_sigma2_ = cp_ptr->min_sigma2_;
+    max_sigma2_ = cp_ptr->max_sigma2_;
     delta_ = cp_ptr->delta_;
-    sigmaDelta_ = cp_ptr->sigmaDelta_;
-    minDelta_ = cp_ptr->minDelta_;
-    maxDelta_ = cp_ptr->maxDelta_;
-    programName_ = cp_ptr->programName_;
-    customOptions_ = cp_ptr->customOptions_;
-    parameterFileBaseName_ = cp_ptr->parameterFileBaseName_;
-    initValues_ = cp_ptr->initValues_;
-    removeExecTemporaries_ = cp_ptr->removeExecTemporaries_;
-    externalEvaluatorQueried_ = cp_ptr->externalEvaluatorQueried_;
+    sigma_delta_ = cp_ptr->sigma_delta_;
+    min_delta_ = cp_ptr->min_delta_;
+    max_delta_ = cp_ptr->max_delta_;
+    program_name_ = cp_ptr->program_name_;
+    custom_options_ = cp_ptr->custom_options_;
+    parameter_file_base_name_ = cp_ptr->parameter_file_base_name_;
+    init_values_ = cp_ptr->init_values_;
+    remove_exec_temporaries_ = cp_ptr->remove_exec_temporaries_;
+    external_evaluator_queried_ = cp_ptr->external_evaluator_queried_;
     ptr_ = cp_ptr->ptr_;
 }
 
@@ -687,18 +687,18 @@ GExternalEvaluatorIndividualFactory::clone() const {
 
 /******************************************************************************/
 /**
- * Get the value of the adaptionThreshold_ variable
+ * Get the value of the adaption_threshold_ variable
  */
 std::uint32_t GExternalEvaluatorIndividualFactory::getAdaptionThreshold() const {
-    return adaptionThreshold_;
+    return adaption_threshold_;
 }
 
 /******************************************************************************/
 /**
- * Set the value of the adaptionThreshold_ variable
+ * Set the value of the adaption_threshold_ variable
  */
 void GExternalEvaluatorIndividualFactory::setAdaptionThreshold(std::uint32_t adaption_threshold) {
-    adaptionThreshold_ = adaption_threshold;
+    adaption_threshold_ = adaption_threshold;
 }
 
 /******************************************************************************/
@@ -706,7 +706,7 @@ void GExternalEvaluatorIndividualFactory::setAdaptionThreshold(std::uint32_t ada
  * Allows to retrieve the adProb_ variable
  */
 double GExternalEvaluatorIndividualFactory::getAdProb() const {
-    return adProb_;
+    return ad_prob_;
 }
 
 /******************************************************************************/
@@ -714,7 +714,7 @@ double GExternalEvaluatorIndividualFactory::getAdProb() const {
  * Set the value of the adProb_ variable
  */
 void GExternalEvaluatorIndividualFactory::setAdProb(double ad_prob) {
-    adProb_ = ad_prob;
+    ad_prob_ = ad_prob;
 }
 
 /******************************************************************************/
@@ -722,7 +722,7 @@ void GExternalEvaluatorIndividualFactory::setAdProb(double ad_prob) {
  * Allows to retrieve the rate of evolutionary adaption of adProb_
  */
 double GExternalEvaluatorIndividualFactory::getAdaptAdProb() const {
-    return adaptAdProb_;
+    return adapt_ad_prob_;
 }
 
 /******************************************************************************/
@@ -740,7 +740,7 @@ void GExternalEvaluatorIndividualFactory::setAdaptAdProb(double adapt_ad_prob) {
     }
 #endif /* DEBUG */
 
-    adaptAdProb_ = adapt_ad_prob;
+    adapt_ad_prob_ = adapt_ad_prob;
 }
 
 /******************************************************************************/
@@ -748,7 +748,7 @@ void GExternalEvaluatorIndividualFactory::setAdaptAdProb(double adapt_ad_prob) {
  * Allows to retrieve the allowed range for adProb_ variation
  */
 std::tuple<double, double> GExternalEvaluatorIndividualFactory::getAdProbRange() const {
-    return std::tuple<double, double>{minAdProb_.value(), maxAdProb_.value()};
+    return std::tuple<double, double>{min_ad_prob_.value(), max_ad_prob_.value()};
 }
 
 /******************************************************************************/
@@ -782,8 +782,8 @@ void GExternalEvaluatorIndividualFactory::setAdProbRange(double min_ad_prob, dou
     }
 #endif /* DEBUG */
 
-    minAdProb_ = min_ad_prob;
-    maxAdProb_ = max_ad_prob;
+    min_ad_prob_ = min_ad_prob;
+    max_ad_prob_ = max_ad_prob;
 }
 
 /******************************************************************************/
@@ -804,66 +804,66 @@ void GExternalEvaluatorIndividualFactory::setDelta(double delta) {
 
 /******************************************************************************/
 /**
- * Allows to retrieve the maxDelta_ variable
+ * Allows to retrieve the max_delta_ variable
  */
 double GExternalEvaluatorIndividualFactory::getMaxDelta() const {
-    return maxDelta_;
+    return max_delta_;
 }
 
 /******************************************************************************/
 /**
- * Set the value of the maxDelta_ variable
+ * Set the value of the max_delta_ variable
  */
 void GExternalEvaluatorIndividualFactory::setMaxDelta(double max_delta) {
-    maxDelta_ = max_delta;
+    max_delta_ = max_delta;
 }
 
 /******************************************************************************/
 /**
- * Allows to retrieve the maxSigma1_ variable
+ * Allows to retrieve the max_sigma1_ variable
  */
 double GExternalEvaluatorIndividualFactory::getMaxSigma1() const {
-    return maxSigma1_;
+    return max_sigma1_;
 }
 
 /******************************************************************************/
 /**
- * Set the value of the maxSigma1_ variable
+ * Set the value of the max_sigma1_ variable
  */
 void GExternalEvaluatorIndividualFactory::setMaxSigma1(double max_sigma1) {
-    maxSigma1_ = max_sigma1;
+    max_sigma1_ = max_sigma1;
 }
 
 /******************************************************************************/
 /**
- * Allows to retrieve the maxSigma2_ variable
+ * Allows to retrieve the max_sigma2_ variable
  */
 double GExternalEvaluatorIndividualFactory::getMaxSigma2() const {
-    return maxSigma2_;
+    return max_sigma2_;
 }
 
 /******************************************************************************/
 /**
- * Set the value of the maxSigma2_ variable
+ * Set the value of the max_sigma2_ variable
  */
 void GExternalEvaluatorIndividualFactory::setMaxSigma2(double max_sigma2) {
-    maxSigma2_ = max_sigma2;
+    max_sigma2_ = max_sigma2;
 }
 
 /******************************************************************************/
 /**
- * Allows to retrieve the minDelta_ variable
+ * Allows to retrieve the min_delta_ variable
  */
 double GExternalEvaluatorIndividualFactory::getMinDelta() const {
-    return minDelta_;
+    return min_delta_;
 }
 
 /******************************************************************************/
 /**
- * Set the value of the minDelta_ variable
+ * Set the value of the min_delta_ variable
  */
 void GExternalEvaluatorIndividualFactory::setMinDelta(double min_delta) {
-    minDelta_ = min_delta;
+    min_delta_ = min_delta;
 }
 
 /******************************************************************************/
@@ -871,7 +871,7 @@ void GExternalEvaluatorIndividualFactory::setMinDelta(double min_delta) {
  * Allows to retrieve the allowed value range of delta
  */
 std::tuple<double, double> GExternalEvaluatorIndividualFactory::getDeltaRange() const {
-    return std::tuple<double, double>{minDelta_, maxDelta_};
+    return std::tuple<double, double>{min_delta_, max_delta_};
 }
 
 /******************************************************************************/
@@ -898,24 +898,24 @@ void GExternalEvaluatorIndividualFactory::setDeltaRange(std::tuple<double, doubl
         );
     }
 
-    minDelta_ = min;
-    maxDelta_ = max;
+    min_delta_ = min;
+    max_delta_ = max;
 }
 
 /******************************************************************************/
 /**
- * Allows to retrieve the minSigma1_ variable
+ * Allows to retrieve the min_sigma1_ variable
  */
 double GExternalEvaluatorIndividualFactory::getMinSigma1() const {
-    return minSigma1_;
+    return min_sigma1_;
 }
 
 /******************************************************************************/
 /**
- * Set the value of the minSigma1_ variable
+ * Set the value of the min_sigma1_ variable
  */
 void GExternalEvaluatorIndividualFactory::setMinSigma1(double min_sigma1) {
-    minSigma1_ = min_sigma1;
+    min_sigma1_ = min_sigma1;
 }
 
 /******************************************************************************/
@@ -923,7 +923,7 @@ void GExternalEvaluatorIndividualFactory::setMinSigma1(double min_sigma1) {
  * Allows to retrieve the allowed value range of sigma1_
  */
 std::tuple<double, double> GExternalEvaluatorIndividualFactory::getSigma1Range() const {
-    return std::tuple<double, double>{minSigma1_, maxSigma1_};
+    return std::tuple<double, double>{min_sigma1_, max_sigma1_};
 }
 
 /******************************************************************************/
@@ -950,24 +950,24 @@ void GExternalEvaluatorIndividualFactory::setSigma1Range(std::tuple<double, doub
         );
     }
 
-    minSigma1_ = min;
-    maxSigma1_ = max;
+    min_sigma1_ = min;
+    max_sigma1_ = max;
 }
 
 /******************************************************************************/
 /**
- * Allows to retrieve the minSigma2_ variable
+ * Allows to retrieve the min_sigma2_ variable
  */
 double GExternalEvaluatorIndividualFactory::getMinSigma2() const {
-    return minSigma2_;
+    return min_sigma2_;
 }
 
 /******************************************************************************/
 /**
- * Set the value of the minSigma2_ variable
+ * Set the value of the min_sigma2_ variable
  */
 void GExternalEvaluatorIndividualFactory::setMinSigma2(double min_sigma2) {
-    minSigma2_ = min_sigma2;
+    min_sigma2_ = min_sigma2;
 }
 
 /******************************************************************************/
@@ -975,7 +975,7 @@ void GExternalEvaluatorIndividualFactory::setMinSigma2(double min_sigma2) {
  * Allows to retrieve the allowed value range of sigma2_
  */
 std::tuple<double, double> GExternalEvaluatorIndividualFactory::getSigma2Range() const {
-    return std::tuple<double, double>{minSigma2_, maxSigma2_};
+    return std::tuple<double, double>{min_sigma2_, max_sigma2_};
 }
 
 /******************************************************************************/
@@ -1002,8 +1002,8 @@ void GExternalEvaluatorIndividualFactory::setSigma2Range(std::tuple<double, doub
         );
     }
 
-    minSigma2_ = min;
-    maxSigma2_ = max;
+    min_sigma2_ = min;
+    max_sigma2_ = max;
 }
 
 /******************************************************************************/
@@ -1040,66 +1040,66 @@ void GExternalEvaluatorIndividualFactory::setSigma2(double sigma2) {
 
 /******************************************************************************/
 /**
- * Allows to retrieve the sigmaDelta_ variable
+ * Allows to retrieve the sigma_delta_ variable
  */
 double GExternalEvaluatorIndividualFactory::getSigmaDelta() const {
-    return sigmaDelta_;
+    return sigma_delta_;
 }
 
 /******************************************************************************/
 /**
- * Set the value of the sigmaDelta_ variable
+ * Set the value of the sigma_delta_ variable
  */
 void GExternalEvaluatorIndividualFactory::setSigmaDelta(double sigma_delta) {
-    sigmaDelta_ = sigma_delta;
+    sigma_delta_ = sigma_delta;
 }
 
 /******************************************************************************/
 /**
- * Allows to retrieve the sigmaSigma1_ variable
+ * Allows to retrieve the sigma_sigma1_ variable
  */
 double GExternalEvaluatorIndividualFactory::getSigmaSigma1() const {
-    return sigmaSigma1_;
+    return sigma_sigma1_;
 }
 
 /******************************************************************************/
 /**
- * Set the value of the sigmaSigma1_ variable
+ * Set the value of the sigma_sigma1_ variable
  */
 void GExternalEvaluatorIndividualFactory::setSigmaSigma1(double sigma_sigma1) {
-    sigmaSigma1_ = sigma_sigma1;
+    sigma_sigma1_ = sigma_sigma1;
 }
 
 /******************************************************************************/
 /**
- * Allows to retrieve the sigmaSigma2_ variable
+ * Allows to retrieve the sigma_sigma2_ variable
  */
 double GExternalEvaluatorIndividualFactory::getSigmaSigma2() const {
-    return sigmaSigma2_;
+    return sigma_sigma2_;
 }
 
 /******************************************************************************/
 /**
- * Set the value of the sigmaSigma2_ variable
+ * Set the value of the sigma_sigma2_ variable
  */
 void GExternalEvaluatorIndividualFactory::setSigmaSigma2(double sigma_sigma2) {
-    sigmaSigma2_ = sigma_sigma2;
+    sigma_sigma2_ = sigma_sigma2;
 }
 
 /******************************************************************************/
 /**
- * Allows to retrieve the useBiGaussian_ variable
+ * Allows to retrieve the use_bi_gaussian_ variable
  */
 bool GExternalEvaluatorIndividualFactory::getUseBiGaussian() const {
-    return useBiGaussian_;
+    return use_bi_gaussian_;
 }
 
 /******************************************************************************/
 /**
- * Set the value of the useBiGaussian_ variable
+ * Set the value of the use_bi_gaussian_ variable
  */
 void GExternalEvaluatorIndividualFactory::setUseBiGaussian(bool use_bi_gaussian) {
-    useBiGaussian_ = use_bi_gaussian;
+    use_bi_gaussian_ = use_bi_gaussian;
 }
 
 /******************************************************************************/
@@ -1128,7 +1128,7 @@ void GExternalEvaluatorIndividualFactory::setProgramName(std::string program_nam
         );
     }
 
-    programName_.setValue(program_name);
+    program_name_.setValue(program_name);
 }
 
 /******************************************************************************/
@@ -1136,7 +1136,7 @@ void GExternalEvaluatorIndividualFactory::setProgramName(std::string program_nam
  * Allows to retrieve the name of the external program
  */
 std::string GExternalEvaluatorIndividualFactory::getProgramName() const {
-    return programName_;
+    return program_name_;
 }
 
 /******************************************************************************/
@@ -1147,7 +1147,7 @@ std::string GExternalEvaluatorIndividualFactory::getProgramName() const {
  * contrast reset the internal value of that object.
  */
 void GExternalEvaluatorIndividualFactory::setCustomOptions(std::string custom_options) {
-    customOptions_.setValue(custom_options);
+    custom_options_.setValue(custom_options);
 }
 
 /******************************************************************************/
@@ -1155,7 +1155,7 @@ void GExternalEvaluatorIndividualFactory::setCustomOptions(std::string custom_op
  * Retrieves the name of the external evaluation program
  */
 std::string GExternalEvaluatorIndividualFactory::getCustomOptions() const {
-    return customOptions_;
+    return custom_options_;
 }
 
 /******************************************************************************/
@@ -1175,7 +1175,7 @@ void GExternalEvaluatorIndividualFactory::setParameterFileBaseName(
         );
     }
 
-    parameterFileBaseName_ = parameter_file_base_name;
+    parameter_file_base_name_ = parameter_file_base_name;
 }
 
 /******************************************************************************/
@@ -1183,7 +1183,7 @@ void GExternalEvaluatorIndividualFactory::setParameterFileBaseName(
  * Allows to retrieve the base name of the parameter file
  */
 std::string GExternalEvaluatorIndividualFactory::getParameterFileBaseName() const {
-    return parameterFileBaseName_;
+    return parameter_file_base_name_;
 }
 
 /******************************************************************************/
@@ -1202,7 +1202,7 @@ void GExternalEvaluatorIndividualFactory::setInitValues(std::string init_values)
         );
     }
 
-    initValues_.setValue(init_values);
+    init_values_.setValue(init_values);
 }
 
 /******************************************************************************/
@@ -1210,7 +1210,7 @@ void GExternalEvaluatorIndividualFactory::setInitValues(std::string init_values)
  * Allows to retrieve the initialization mode
  */
 std::string GExternalEvaluatorIndividualFactory::getInitValues() const {
-    return initValues_;
+    return init_values_;
 }
 
 /******************************************************************************/
@@ -1218,7 +1218,7 @@ std::string GExternalEvaluatorIndividualFactory::getInitValues() const {
  * Allows to specify whether temporary files should be removed
  */
 void GExternalEvaluatorIndividualFactory::setRemoveExecTemporaries(bool remove_exec_temporaries) {
-    removeExecTemporaries_.setValue(remove_exec_temporaries);
+    remove_exec_temporaries_.setValue(remove_exec_temporaries);
 }
 
 /******************************************************************************/
@@ -1226,7 +1226,7 @@ void GExternalEvaluatorIndividualFactory::setRemoveExecTemporaries(bool remove_e
  * Allows to check whether temporaries should be removed
  */
 bool GExternalEvaluatorIndividualFactory::getRemoveExecTemporaries() const {
-    return removeExecTemporaries_;
+    return remove_exec_temporaries_;
 }
 
 /******************************************************************************/
@@ -1271,7 +1271,7 @@ void GExternalEvaluatorIndividualFactory::archive(
         std::chrono::duration_cast<std::chrono::milliseconds>(p2 - p1);
     std::string extension = "-since1970-" + Gem::Common::to_string(ms_since_1970.count()) +
                             Gem::Common::generate_uuid_v4() + ".xml";
-    std::string parameterfile_name = parameterFileBaseName_.value() + extension;
+    std::string parameterfile_name = parameter_file_base_name_.value() + extension;
 
     // Save the parameters to a file for the external evaluation
     boost::property_tree::xml_writer_settings<std::string> settings('\t', 1);
@@ -1279,8 +1279,8 @@ void GExternalEvaluatorIndividualFactory::archive(
 
     // Collect all command-line arguments
     std::vector<std::string> arguments;
-    if(customOptions_.value() != "empty" && not customOptions_.value().empty()) {
-        arguments.push_back(customOptions_.value());
+    if(custom_options_.value() != "empty" && not custom_options_.value().empty()) {
+        arguments.push_back(custom_options_.value());
     }
     arguments.emplace_back("--archive");
     arguments.push_back(std::string("--input=\"" + parameterfile_name + "\""));
@@ -1288,7 +1288,7 @@ void GExternalEvaluatorIndividualFactory::archive(
     // Ask the external evaluation program to perform any final work
     std::string command;
     int error_code = Gem::Common::runExternalCommand(
-        std::filesystem::path(programName_.value()),
+        std::filesystem::path(program_name_.value()),
         arguments,
         std::filesystem::path(),
         command
@@ -1340,30 +1340,30 @@ void GExternalEvaluatorIndividualFactory::describeLocalOptions_(Gem::Common::GPa
     Gem::Common::GFactoryT<gpar::GParameterSet>::describeLocalOptions_(gpb);
 
     // Then add our local options
-    gpb.registerFileParameter<double>("ad_prob", adProb_.reference(), GEEI_DEF_ADPROB)
+    gpb.registerFileParameter<double>("ad_prob", ad_prob_.reference(), GEEI_DEF_ADPROB)
         << "The probability for random adaption of values in evolutionary algorithms";
 
     gpb.registerFileParameter<double>(
         "adapt_ad_prob",
-        adaptAdProb_.reference(),
+        adapt_ad_prob_.reference(),
         GEEI_DEF_ADAPTADPROB
     ) << "Determines the rate of adaption of ad_prob. Set to 0, if you do not need this feature";
 
-    gpb.registerFileParameter<double>("min_ad_prob", minAdProb_.reference(), GEEI_DEF_MINADPROB)
+    gpb.registerFileParameter<double>("min_ad_prob", min_ad_prob_.reference(), GEEI_DEF_MINADPROB)
         << "The lower allowed boundary for ad_prob-variation";
 
-    gpb.registerFileParameter<double>("max_ad_prob", maxAdProb_.reference(), GEEI_DEF_MAXADPROB)
+    gpb.registerFileParameter<double>("max_ad_prob", max_ad_prob_.reference(), GEEI_DEF_MAXADPROB)
         << "The upper allowed boundary for ad_prob-variation";
 
     gpb.registerFileParameter<std::uint32_t>(
         "adaption_threshold",
-        adaptionThreshold_.reference(),
+        adaption_threshold_.reference(),
         GEEI_DEF_ADAPTIONTHRESHOLD
     ) << "The number of calls to an adaptor after which adaption takes place";
 
     gpb.registerFileParameter<bool>(
         "use_bi_gaussian",
-        useBiGaussian_.reference(),
+        use_bi_gaussian_.reference(),
         GEEI_DEF_USEBIGAUSSIAN
     ) << "Whether to use a double gaussion for the adaption of parmeters in ES";
 
@@ -1373,14 +1373,14 @@ void GExternalEvaluatorIndividualFactory::describeLocalOptions_(Gem::Common::GPa
 
     gpb.registerFileParameter<double>(
         "sigma_sigma1",
-        sigmaSigma1_.reference(),
+        sigma_sigma1_.reference(),
         GEEI_DEF_SIGMASIGMA1
     ) << "Influences the self-adaption of gauss-mutation in ES";
 
-    gpb.registerFileParameter<double>("min_sigma1", minSigma1_.reference(), GEEI_DEF_MINSIGMA1)
+    gpb.registerFileParameter<double>("min_sigma1", min_sigma1_.reference(), GEEI_DEF_MINSIGMA1)
         << "The minimum value of sigma1";
 
-    gpb.registerFileParameter<double>("max_sigma1", maxSigma1_.reference(), GEEI_DEF_MAXSIGMA1)
+    gpb.registerFileParameter<double>("max_sigma1", max_sigma1_.reference(), GEEI_DEF_MAXSIGMA1)
         << "The maximum value of sigma1";
 
     gpb.registerFileParameter<double>("sigma2", sigma2_.reference(), GEEI_DEF_SIGMA2)
@@ -1388,44 +1388,44 @@ void GExternalEvaluatorIndividualFactory::describeLocalOptions_(Gem::Common::GPa
 
     gpb.registerFileParameter<double>(
         "sigma_sigma2",
-        sigmaSigma2_.reference(),
+        sigma_sigma2_.reference(),
         GEEI_DEF_SIGMASIGMA2
     ) << "Influences the self-adaption of gauss-mutation in ES";
 
-    gpb.registerFileParameter<double>("min_sigma2", minSigma2_.reference(), GEEI_DEF_MINSIGMA2)
+    gpb.registerFileParameter<double>("min_sigma2", min_sigma2_.reference(), GEEI_DEF_MINSIGMA2)
         << "The minimum value of sigma2";
 
-    gpb.registerFileParameter<double>("max_sigma2", maxSigma2_.reference(), GEEI_DEF_MAXSIGMA2)
+    gpb.registerFileParameter<double>("max_sigma2", max_sigma2_.reference(), GEEI_DEF_MAXSIGMA2)
         << "The maximum value of sigma2";
 
     gpb.registerFileParameter<double>("delta", delta_.reference(), GEEI_DEF_DELTA)
         << "The start distance between both peaks used for bi-gaussian mutations in ES";
 
-    gpb.registerFileParameter<double>("sigma_delta", sigmaDelta_.reference(), GEEI_DEF_SIGMADELTA)
+    gpb.registerFileParameter<double>("sigma_delta", sigma_delta_.reference(), GEEI_DEF_SIGMADELTA)
         << "The width of the gaussian used for mutations of the delta parameter";
 
-    gpb.registerFileParameter<double>("min_delta", minDelta_.reference(), GEEI_DEF_MINDELTA)
+    gpb.registerFileParameter<double>("min_delta", min_delta_.reference(), GEEI_DEF_MINDELTA)
         << "The minimum allowed value of delta";
 
-    gpb.registerFileParameter<double>("max_delta", maxDelta_.reference(), GEEI_DEF_MAXDELTA)
+    gpb.registerFileParameter<double>("max_delta", max_delta_.reference(), GEEI_DEF_MAXDELTA)
         << "The maximum allowed value of delta";
 
     gpb.registerFileParameter<std::string>(
         "program_name",
-        programName_.reference() // Upon repeated filling this option will do nothing
+        program_name_.reference() // Upon repeated filling this option will do nothing
         ,
         GEEI_DEF_PROGNAME
     ) << "The name of the external evaluation program";
 
     gpb.registerFileParameter<std::string>(
         "custom_options",
-        customOptions_.reference(),
+        custom_options_.reference(),
         GEEI_DEF_CUSTOMOPTIONS
     ) << "Any custom options you wish to pass to the external evaluator";
 
     gpb.registerFileParameter<std::string>(
         "parameter_file",
-        parameterFileBaseName_.reference(),
+        parameter_file_base_name_.reference(),
         GEEI_DEF_PARFILEBASENAME
     ) << "The base name assigned to parameter files"
       << '\n'
@@ -1433,7 +1433,7 @@ void GExternalEvaluatorIndividualFactory::describeLocalOptions_(Gem::Common::GPa
 
     gpb.registerFileParameter<std::string>(
         "init_values",
-        initValues_.reference(),
+        init_values_.reference(),
         GEEI_DEF_STARTMODE
     ) << "Indicates, whether individuals should be initialized randomly (random),"
       << '\n'
@@ -1441,7 +1441,7 @@ void GExternalEvaluatorIndividualFactory::describeLocalOptions_(Gem::Common::GPa
 
     gpb.registerFileParameter<bool>(
         "remove_exec_temporaries",
-        removeExecTemporaries_.reference(),
+        remove_exec_temporaries_.reference(),
         GEEI_DEF_REMOVETEMPORARIES
     ) << "Indicates, whether files created during external execution should be removed";
 }
@@ -1454,15 +1454,14 @@ void GExternalEvaluatorIndividualFactory::describeLocalOptions_(Gem::Common::GPa
  * called more than once.
  */
 void GExternalEvaluatorIndividualFactory::setUpPropertyTree() {
-    if(externalEvaluatorQueried_) {
+    if(external_evaluator_queried_) {
         return;
     }
-    else {
-        externalEvaluatorQueried_ = true;
-    }
+            external_evaluator_queried_ = true;
+   
 
     // Check that the file name isn't empty
-    if(programName_.value().empty()) {
+    if(program_name_.value().empty()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GExternalEvaluatorIndividualFactory::setUpPropertyTree(): Error!" << '\n'
@@ -1471,11 +1470,11 @@ void GExternalEvaluatorIndividualFactory::setUpPropertyTree() {
     }
 
     // Check that the file exists
-    if(not std::filesystem::exists(programName_.value())) {
+    if(not std::filesystem::exists(program_name_.value())) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GExternalEvaluatorIndividualFactory::setUpPropertyTree(): Error!" << '\n'
-            << "External program " << programName_.value() << " does not seem to exist"
+            << "External program " << program_name_.value() << " does not seem to exist"
             << '\n'
         );
     }
@@ -1486,15 +1485,15 @@ void GExternalEvaluatorIndividualFactory::setUpPropertyTree() {
     { // First we give the external program the opportunity to perform an initial work
         // Collect all command-line arguments
         std::vector<std::string> arguments;
-        if(customOptions_.value() != "empty" && not customOptions_.value().empty()) {
-            arguments.push_back(customOptions_.value());
+        if(custom_options_.value() != "empty" && not custom_options_.value().empty()) {
+            arguments.push_back(custom_options_.value());
         }
         arguments.emplace_back("--init");
 
         // Ask the external evaluation program to perform any initial work
         std::string command;
         int error_code = Gem::Common::runExternalCommand(
-            std::filesystem::path(programName_.value()),
+            std::filesystem::path(program_name_.value()),
             arguments,
             std::filesystem::path(),
             command
@@ -1514,8 +1513,8 @@ void GExternalEvaluatorIndividualFactory::setUpPropertyTree() {
     { // Now we ask the external program for setup-iformation
         // Collect all command-line arguments
         std::vector<std::string> arguments;
-        if(customOptions_.value() != "empty" && not customOptions_.value().empty()) {
-            arguments.push_back(customOptions_.value());
+        if(custom_options_.value() != "empty" && not custom_options_.value().empty()) {
+            arguments.push_back(custom_options_.value());
         }
 
         // "/" will be converted to "\" in runExternalCommand, if necessary
@@ -1523,12 +1522,12 @@ void GExternalEvaluatorIndividualFactory::setUpPropertyTree() {
             std::string("./setup-") + Gem::Common::to_string(this) + std::string(".xml");
         arguments.push_back("--setup");
         arguments.push_back("--output=\"" + setup_file_name + "\"");
-        arguments.push_back("--initvalues=\"" + initValues_.value() + "\"");
+        arguments.push_back("--initvalues=\"" + init_values_.value() + "\"");
 
         // Ask the external evaluation program tfor setup information
         std::string command;
         int error_code = Gem::Common::runExternalCommand(
-            std::filesystem::path(programName_.value()),
+            std::filesystem::path(program_name_.value()),
             arguments,
             std::filesystem::path(),
             command
@@ -1585,27 +1584,27 @@ void GExternalEvaluatorIndividualFactory::postProcess_(std::shared_ptr<gpar::GPa
 
     // Set up an adaptor for the collection, so they know how to be adapted
     std::shared_ptr<gpar::GAdaptorT<double>> gat_ptr;
-    if(useBiGaussian_) {
+    if(use_bi_gaussian_) {
         std::shared_ptr<gpar::GDoubleBiGaussAdaptor> gdbga_ptr(new gpar::GDoubleBiGaussAdaptor());
-        gdbga_ptr->setAllSigma1(sigma1_, sigmaSigma1_, minSigma1_, maxSigma1_);
-        gdbga_ptr->setAllSigma2(sigma2_, sigmaSigma2_, minSigma2_, maxSigma2_);
-        gdbga_ptr->setAllDelta(delta_, sigmaDelta_, minDelta_, maxDelta_);
-        gdbga_ptr->setAdaptionThreshold(adaptionThreshold_);
-        gdbga_ptr->setAdaptionProbability(adProb_);
+        gdbga_ptr->setAllSigma1(sigma1_, sigma_sigma1_, min_sigma1_, max_sigma1_);
+        gdbga_ptr->setAllSigma2(sigma2_, sigma_sigma2_, min_sigma2_, max_sigma2_);
+        gdbga_ptr->setAllDelta(delta_, sigma_delta_, min_delta_, max_delta_);
+        gdbga_ptr->setAdaptionThreshold(adaption_threshold_);
+        gdbga_ptr->setAdaptionProbability(ad_prob_);
         gat_ptr = gdbga_ptr;
     }
     else {
         std::shared_ptr<gpar::GDoubleGaussAdaptor> gdga_ptr(
-            new gpar::GDoubleGaussAdaptor(sigma1_, sigmaSigma1_, minSigma1_, maxSigma1_)
+            new gpar::GDoubleGaussAdaptor(sigma1_, sigma_sigma1_, min_sigma1_, max_sigma1_)
         );
-        gdga_ptr->setAdaptionThreshold(adaptionThreshold_);
-        gdga_ptr->setAdaptionProbability(adProb_);
+        gdga_ptr->setAdaptionThreshold(adaption_threshold_);
+        gdga_ptr->setAdaptionProbability(ad_prob_);
         gat_ptr = gdga_ptr;
     }
 
     // Store parameters pertaining to the adaption probability in the adaptor
-    gat_ptr->setAdaptAdProb(adaptAdProb_);
-    gat_ptr->setAdProbRange(minAdProb_, maxAdProb_);
+    gat_ptr->setAdaptAdProb(adapt_ad_prob_);
+    gat_ptr->setAdProbRange(min_ad_prob_, max_ad_prob_);
 
     try {
         // Extract the number of individuals
@@ -1709,10 +1708,9 @@ void GExternalEvaluatorIndividualFactory::postProcess_(std::shared_ptr<gpar::GPa
                     if(++var_counter >= n_var) {
                         break; // Terminate the loop if we have identified all expected parameter objects
                     }
-                    else {
-                        var_string = std::string("var") +
+                                            var_string = std::string("var") +
                                      Gem::Common::to_string(var_counter); // Create a new var string
-                    }
+                   
                 }
             }
         }
@@ -1755,10 +1753,9 @@ void GExternalEvaluatorIndividualFactory::postProcess_(std::shared_ptr<gpar::GPa
                     if(++bounds_counter >= n_bounds) {
                         break; // Terminate the loop if we have identified all expected boundaries
                     }
-                    else {
-                        bound_string =
+                                            bound_string =
                             std::string("bound") + Gem::Common::to_string(bounds_counter);
-                    }
+                   
                 }
             }
 
@@ -1771,11 +1768,11 @@ void GExternalEvaluatorIndividualFactory::postProcess_(std::shared_ptr<gpar::GPa
         } // It isn't an error if no boundaries were specified
 
         // Add the program name and base name for parameter transfers to the object
-        p->setExchangeBaseName(parameterFileBaseName_);
-        p->setProgramName(programName_);
-        p->setCustomOptions(customOptions_);
+        p->setExchangeBaseName(parameter_file_base_name_);
+        p->setProgramName(program_name_);
+        p->setCustomOptions(custom_options_);
         p->setNExpectedResults(n_results_expected);
-        p->setRemoveExecTemporaries(removeExecTemporaries_);
+        p->setRemoveExecTemporaries(remove_exec_temporaries_);
         p->setRunId(run_id);
     }
     catch(const pt::ptree_bad_path &e) {

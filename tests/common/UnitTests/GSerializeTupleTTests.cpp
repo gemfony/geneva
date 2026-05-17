@@ -174,7 +174,9 @@ TEST_CASE("GSerializeTupleT: each archive writes a non-empty payload",
           "[common][serialize-tuple]") {
     auto in = std::make_tuple(1, std::string{"abc"});
 
-    std::stringstream text_ss, xml_ss, bin_ss;
+    std::stringstream text_ss;
+    std::stringstream xml_ss;
+    std::stringstream bin_ss;
     {
         boost::archive::text_oarchive oa(text_ss);
         oa &boost::serialization::make_nvp("t", in);

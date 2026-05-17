@@ -506,8 +506,7 @@ void GSimulatedAnnealing::fixAfterJobSubmission() {
             << "Population holds no data" << '\n'
         );
     }
-    else {
-        // Emit a warning if no children have returned
+            // Emit a warning if no children have returned
         if(this->size() <= this->getNParents()) {
             glogger << "In GSimulatedAnnealing::fixAfterJobSubmission(): Warning!" << '\n'
                     << "No child individuals have returned" << '\n'
@@ -515,7 +514,7 @@ void GSimulatedAnnealing::fixAfterJobSubmission() {
                     << '\n'
                     << GWARNING;
         }
-    }
+   
 
     // Check that the last individual is not unprocessed. This is a severe error.
     if(this->back()->is_due_for_processing()) {

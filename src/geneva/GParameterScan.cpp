@@ -299,11 +299,11 @@ std::ostream &operator<<(std::ostream &os, const parSet &p_s) {
  */
 GParameterScan::GParameterScan(const GParameterScan &cp)
   : GBase(cp)
-  , cycleLogicHalt_(cp.cycleLogicHalt_)
-  , scanRandomly_(cp.scanRandomly_)
-  , nMonitorInds_(cp.nMonitorInds_)
-  , simpleScanItems_(cp.simpleScanItems_)
-  , scansPerformed_(cp.scansPerformed_) {
+  , cycle_logic_halt_(cp.cycle_logic_halt_)
+  , scan_randomly_(cp.scan_randomly_)
+  , n_monitor_inds_(cp.n_monitor_inds_)
+  , simple_scan_items_(cp.simple_scan_items_)
+  , scans_performed_(cp.scans_performed_) {
     // Copying / setting of the optimization algorithm id is done by the parent class. The same
     // applies to the copying of the optimization monitor.
 
@@ -371,11 +371,11 @@ void GParameterScan::compare_(
     Gem::Common::compare_base_t<GBase>(*this, *p_load, token);
 
     // ... and then the local data
-    compare_t(IDENTITY(cycleLogicHalt_, p_load->cycleLogicHalt_), token);
-    compare_t(IDENTITY(scanRandomly_, p_load->scanRandomly_), token);
-    compare_t(IDENTITY(nMonitorInds_, p_load->nMonitorInds_), token);
-    compare_t(IDENTITY(simpleScanItems_, p_load->simpleScanItems_), token);
-    compare_t(IDENTITY(scansPerformed_, p_load->scansPerformed_), token);
+    compare_t(IDENTITY(cycle_logic_halt_, p_load->cycle_logic_halt_), token);
+    compare_t(IDENTITY(scan_randomly_, p_load->scan_randomly_), token);
+    compare_t(IDENTITY(n_monitor_inds_, p_load->n_monitor_inds_), token);
+    compare_t(IDENTITY(simple_scan_items_, p_load->simple_scan_items_), token);
+    compare_t(IDENTITY(scans_performed_, p_load->scans_performed_), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -391,10 +391,10 @@ void GParameterScan::resetToOptimizationStart_() {
     this->resetParameterObjects();
 
     // Reset the custom halt criterion
-    cycleLogicHalt_ = false;
+    cycle_logic_halt_ = false;
 
     // No scans have been peformed so far
-    scansPerformed_ = 0;
+    scans_performed_ = 0;
 
     // Make sure we start with a fresh central vector of parameter objects
     this->clearAllParVec();
@@ -418,7 +418,7 @@ std::string GParameterScan::name_() const {
  * over the course of the algorithm run
  */
 void GParameterScan::setNMonitorInds(std::size_t n_monitor_inds) {
-    nMonitorInds_ = n_monitor_inds;
+    n_monitor_inds_ = n_monitor_inds;
 }
 
 /******************************************************************************/
@@ -427,7 +427,7 @@ void GParameterScan::setNMonitorInds(std::size_t n_monitor_inds) {
  * over the course of the algorithm run
  */
 std::size_t GParameterScan::getNMonitorInds() const {
-    return nMonitorInds_;
+    return n_monitor_inds_;
 }
 
 /******************************************************************************/
@@ -446,11 +446,11 @@ void GParameterScan::load_(const GObject *cp) {
     GBase::load_(cp);
 
     // ... and then our own data
-    cycleLogicHalt_ = p_load->cycleLogicHalt_;
-    scanRandomly_ = p_load->scanRandomly_;
-    nMonitorInds_ = p_load->nMonitorInds_;
-    simpleScanItems_ = p_load->simpleScanItems_;
-    scansPerformed_ = p_load->scansPerformed_;
+    cycle_logic_halt_ = p_load->cycle_logic_halt_;
+    scan_randomly_ = p_load->scan_randomly_;
+    n_monitor_inds_ = p_load->n_monitor_inds_;
+    simple_scan_items_ = p_load->simple_scan_items_;
+    scans_performed_ = p_load->scans_performed_;
 
     // Load the parameter objects
     b_cnt_.clear();
@@ -487,7 +487,7 @@ std::tuple<double, double> GParameterScan::cycleLogic_() {
         std::make_tuple(this->at(0)->getWorstCase(), this->at(0)->getWorstCase());
 
     // Apply all necessary modifications to individuals
-    if(0 == simpleScanItems_) { // We have been asked to deal with specific parameters
+    if(0 == simple_scan_items_) { // We have been asked to deal with specific parameters
         updateSelectedParameters();
     }
     else { // We have been asked to randomly initialize the individuals a given number of times
@@ -662,13 +662,13 @@ void GParameterScan::updateSelectedParameters() {
         this->at(ind_pos)->mark_as_due_for_processing();
 
         // We were successful
-        cycleLogicHalt_ = false;
+        cycle_logic_halt_ = false;
 
         //------------------------------------------------------------------------
         // Make sure we continue with the next parameter set in the next iteration
         if(not this->switchToNextParameterSet()) {
             // Let the audience know that the optimization may be stopped
-            this->cycleLogicHalt_ = true;
+            this->cycle_logic_halt_ = true;
 
             // Reset all parameter objects for the next run (if desired)
             this->resetParameterObjects();
@@ -703,7 +703,7 @@ void GParameterScan::randomShuffle() {
         this->at(ind_pos)->mark_as_due_for_processing();
 
         // We were successful
-        cycleLogicHalt_ = false;
+        cycle_logic_halt_ = false;
 
         //------------------------------------------------------------------------
         // We do not want to exceed the boundaries of the population -- stop
@@ -715,9 +715,9 @@ void GParameterScan::randomShuffle() {
         //------------------------------------------------------------------------
         // Make sure we terminate when the desired overall number of random scans has
         // been performed
-        if(++scansPerformed_ >= simpleScanItems_) {
+        if(++scans_performed_ >= simple_scan_items_) {
             // Let the audience know that the optimization may be stopped
-            this->cycleLogicHalt_ = true;
+            this->cycle_logic_halt_ = true;
 
             // Reset all parameter objects for the next run (if desired)
             this->resetParameterObjects();
@@ -740,7 +740,7 @@ void GParameterScan::resetParameterObjects() {
     for(auto &p : int32_cnt_) p->resetPosition();
     for(auto &p : f_cnt_)     p->resetPosition();
     for(auto &p : d_cnt_)     p->resetPosition();
-    // simpleScanItems_ is NOT reset here: it is set by the user via setNSimpleScans()
+    // simple_scan_items_ is NOT reset here: it is set by the user via setNSimpleScans()
     // and must survive across resetParameterObjects() calls within a single optimize() run.
 }
 
@@ -887,9 +887,8 @@ bool GParameterScan::switchToNextParameterSet() {
             if(it + 1 == all_par_cnt_.end()) {
                 return false; // All possible combinations were found
             }
-            else {
-                ++it; // Try the next parameter object
-            }
+                            ++it; // Try the next parameter object
+           
         }
         else {
             return true; // We have successfully switched to the next parameter set
@@ -937,15 +936,14 @@ void GParameterScan::clearAllParVec() {
  * when no items are left to be scanned
  */
 bool GParameterScan::customHalt_() const {
-    if(this->cycleLogicHalt_) {
+    if(this->cycle_logic_halt_) {
         glogger << "Terminating the loop as no items are left to be" << '\n'
                 << "processed in parameter scan." << '\n'
                 << GLOGGING;
         return true;
     }
-    else {
-        return false;
-    }
+            return false;
+   
 }
 
 /******************************************************************************/
@@ -1071,8 +1069,8 @@ void GParameterScan::setParameterSpecs(std::string par_str) {
     // Assign the parameter definitions to our internal parameter vectors.
     // We distinguish between a simple scan, where only a number of work items
     // will be initialized randomly repeatedly, and scans of individual variables.
-    simpleScanItems_ = ppp.getNSimpleScanItems();
-    if(0 == simpleScanItems_) { // Only act if no "simple scan" was requested
+    simple_scan_items_ = ppp.getNSimpleScanItems();
+    if(0 == simple_scan_items_) { // Only act if no "simple scan" was requested
         // Retrieve double parameters
         std::tuple<
             std::vector<gpar::parPropSpec<double>>::const_iterator,
@@ -1083,7 +1081,7 @@ void GParameterScan::setParameterSpecs(std::string par_str) {
         auto d_end = std::get<1>(t_d);
         for(; d_cit != d_end;
             ++d_cit) { // Note: d_cit is already set to the begin of the double parameter arrays
-            d_cnt_.push_back(std::make_shared<dScanPar>(*d_cit, scanRandomly_));
+            d_cnt_.push_back(std::make_shared<dScanPar>(*d_cit, scan_randomly_));
         }
 
         // Retrieve float parameters
@@ -1096,7 +1094,7 @@ void GParameterScan::setParameterSpecs(std::string par_str) {
         auto f_end = std::get<1>(t_f);
         for(; f_cit != f_end;
             ++f_cit) { // Note: f_cit is already set to the begin of the double parameter arrays
-            f_cnt_.push_back(std::make_shared<fScanPar>(*f_cit, scanRandomly_));
+            f_cnt_.push_back(std::make_shared<fScanPar>(*f_cit, scan_randomly_));
         }
 
         // Retrieve integer parameters
@@ -1110,7 +1108,7 @@ void GParameterScan::setParameterSpecs(std::string par_str) {
         for(; i_cit != i_end;
             ++i_cit) { // Note: i_cit is already set to the begin of the double parameter arrays
             int32_cnt_.push_back(
-                std::make_shared<int32ScanPar>(*i_cit, scanRandomly_)
+                std::make_shared<int32ScanPar>(*i_cit, scan_randomly_)
             );
         }
 
@@ -1124,7 +1122,7 @@ void GParameterScan::setParameterSpecs(std::string par_str) {
         auto b_end = std::get<1>(t_b);
         for(; b_cit != b_end;
             ++b_cit) { // Note: b_cit is already set to the begin of the double parameter arrays
-            b_cnt_.push_back(std::make_shared<bScanPar>(*b_cit, scanRandomly_));
+            b_cnt_.push_back(std::make_shared<bScanPar>(*b_cit, scan_randomly_));
         }
     }
 
@@ -1136,7 +1134,7 @@ void GParameterScan::setParameterSpecs(std::string par_str) {
  * Specified the number of simple scans an puts the class in "simple scan" mode
  */
 void GParameterScan::setNSimpleScans(std::size_t simple_scan_items) {
-    simpleScanItems_ = simple_scan_items;
+    simple_scan_items_ = simple_scan_items;
 }
 
 /******************************************************************************/
@@ -1144,7 +1142,7 @@ void GParameterScan::setNSimpleScans(std::size_t simple_scan_items) {
  * Retrieves the number of simple scans (or 0, if disabled)
  */
 std::size_t GParameterScan::getNSimpleScans() const {
-    return simpleScanItems_;
+    return simple_scan_items_;
 }
 
 /******************************************************************************/
@@ -1152,7 +1150,7 @@ std::size_t GParameterScan::getNSimpleScans() const {
  * Retrieves the number of simple scans performed so far
  */
 std::size_t GParameterScan::getNScansPerformed() const {
-    return scansPerformed_;
+    return scans_performed_;
 }
 
 /******************************************************************************/
@@ -1161,7 +1159,7 @@ std::size_t GParameterScan::getNScansPerformed() const {
  * or on a grid
  */
 void GParameterScan::setScanRandomly(bool scan_randomly) {
-    scanRandomly_ = scan_randomly;
+    scan_randomly_ = scan_randomly;
 }
 
 /******************************************************************************/
@@ -1170,7 +1168,7 @@ void GParameterScan::setScanRandomly(bool scan_randomly) {
  * or on a grid
  */
 bool GParameterScan::getScanRandomly() const {
-    return scanRandomly_;
+    return scan_randomly_;
 }
 
 /******************************************************************************/
@@ -1182,10 +1180,10 @@ void GParameterScan::init() {
     GBase::init();
 
     // Reset the custom halt criterion
-    cycleLogicHalt_ = false;
+    cycle_logic_halt_ = false;
 
     // No scans have been peformed so far
-    scansPerformed_ = 0;
+    scans_performed_ = 0;
 
     // Make sure we start with a fresh central vector of parameter objects
     this->clearAllParVec();

@@ -68,9 +68,9 @@ template <typename processable_type>
 class GBufferPortT {
     // Make sure processable_type adheres to the GProcessingContainerT interface
     static_assert(
-        std::is_base_of<
+        std::is_base_of_v<
             GProcessingContainerT<processable_type, typename processable_type::result_type>,
-            processable_type>::value,
+            processable_type>,
         "GBufferPortT: processable_type does not adhere to the GProcessingContainerT<> interface"
     );
 
@@ -172,7 +172,7 @@ public:
             if(no_retrieval_) {
                 retrieval_start_time_ = std::chrono::high_resolution_clock::now();
                 no_retrieval_ = false;
-                retrievalTimeCondition_.notify_all();
+                retrieval_time_condition_.notify_all();
             }
         }
     }
@@ -203,7 +203,7 @@ public:
             if(no_retrieval_) {
                 retrieval_start_time_ = std::chrono::high_resolution_clock::now();
                 no_retrieval_ = false;
-                retrievalTimeCondition_.notify_all();
+                retrieval_time_condition_.notify_all();
             }
         }
 
@@ -326,7 +326,7 @@ public:
         std::unique_lock<std::mutex> lock(first_retrieval_mutex_);
 
         // Wait until a first work item was retrieved
-        retrievalTimeCondition_.wait(lock, [this]() -> bool { return not this->no_retrieval_; });
+        retrieval_time_condition_.wait(lock, [this]() -> bool { return not this->no_retrieval_; });
 
         // Let the audience know when the first retrieval has occurred
         return retrieval_start_time_;
@@ -368,7 +368,7 @@ private:
     std::chrono::high_resolution_clock::time_point retrieval_start_time_ =
         std::chrono::high_resolution_clock::now();
     ///< Holds the time when the first work item was retrieved from the queue
-    mutable std::condition_variable retrievalTimeCondition_;
+    mutable std::condition_variable retrieval_time_condition_;
     ///< Regulates retrieval of the data in retrieval_start_time_
 
     std::shared_ptr<RAW_BUFFER_TYPE> raw_ptr_{

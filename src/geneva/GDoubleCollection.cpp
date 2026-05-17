@@ -414,7 +414,7 @@ void GDoubleCollection::fillWithData_(const std::size_t &n_items) {
     CHECK_NOTHROW(this->clear());
 
     // Cross check that it really is
-    CHECK(this->size() == 0);
+    CHECK(this->empty());
     // Use another method
     CHECK(this->empty());
 
@@ -545,7 +545,8 @@ void GDoubleCollection::specificTestsNoFailureExpected_GUnitTests_() {
             CHECK_NOTHROW(p_test2->swap(*p_test1));
 
             // Extract the data vectors from p_test1 and p_test3
-            std::vector<double> data1, data3;
+            std::vector<double> data1;
+            std::vector<double> data3;
             CHECK_NOTHROW(p_test1->Gem::Common::GPodContainerT<double>::getDataCopy(data1));
             CHECK_NOTHROW(p_test3->Gem::Common::GPodContainerT<double>::getDataCopy(data3));
 
@@ -565,7 +566,7 @@ void GDoubleCollection::specificTestsNoFailureExpected_GUnitTests_() {
         CHECK_NOTHROW(p_test1->clear());
 
         // Check the site
-        CHECK(p_test1->size() == 0);
+        CHECK(p_test1->empty());
         CHECK(p_test1->empty());
 
         // Check that the maximum size is > 0
@@ -599,7 +600,8 @@ void GDoubleCollection::specificTestsNoFailureExpected_GUnitTests_() {
         CHECK(p_test1->count(1.) >= 1);
 
         // Find the item with value 0. -- the first one is in position 0
-        GDoubleCollection::const_iterator find_it, pos_it;
+        GDoubleCollection::const_iterator find_it;
+        GDoubleCollection::const_iterator pos_it;
         CHECK_NOTHROW(pos_it = p_test1->begin());
         CHECK_NOTHROW(find_it = p_test1->find(0.));
         CHECK(find_it == pos_it);
@@ -686,7 +688,7 @@ void GDoubleCollection::specificTestsNoFailureExpected_GUnitTests_() {
 
         // Remove all remaining items
         CHECK_NOTHROW(p_test1->resize(0, 0.));
-        CHECK(p_test1->size() == 0);
+        CHECK(p_test1->empty());
 
         // Add a number of identical items, using the resize() function and cross-check
         CHECK_NOTHROW(p_test1->resize(n_items, 1.));

@@ -159,8 +159,14 @@ int main(int argc, char **argv) {
     const std::uint16_t nProducerThreads = 4;
 
     std::size_t i;
-    std::vector<double> gaussian, doublegaussian, even, evenwithboundaries;
-    std::vector<std::int32_t> discrete, discretebound, bitprob, bitsimple;
+    std::vector<double> gaussian;
+    std::vector<double> doublegaussian;
+    std::vector<double> even;
+    std::vector<double> evenwithboundaries;
+    std::vector<std::int32_t> discrete;
+    std::vector<std::int32_t> discretebound;
+    std::vector<std::int32_t> bitprob;
+    std::vector<std::int32_t> bitsimple;
 
     GRANDOMFACTORY->setNProducerThreads(nProducerThreads);
 

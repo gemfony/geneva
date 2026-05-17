@@ -441,14 +441,14 @@ std::size_t GSwarmAlgorithm::getFirstNIPosVec(
     if(neighborhood == 0) {
         return 0;
     }
-    else { // Sum up the number of members in each neighborhood
+    // Sum up the number of members in each neighborhood
         std::size_t n_previous_members = 0;
         for(std::size_t n = 0; n < neighborhood; n++) {
             n_previous_members += vec[n];
         }
 
         return n_previous_members;
-    }
+   
 }
 
 /******************************************************************************/
@@ -864,7 +864,7 @@ void GSwarmAlgorithm::adjustNeighborhoods() {
         if(n_neighborhood_members_cnt_[n] == default_n_neighborhood_members_) {
             continue;
         }
-        else if(n_neighborhood_members_cnt_[n] >
+        if(n_neighborhood_members_cnt_[n] >
                 default_n_neighborhood_members_) { // Remove surplus items from the end of the neighborhood
             // Find out, how many surplus items there are
             std::size_t n_surplus =
@@ -1168,7 +1168,11 @@ void GSwarmAlgorithm::updateIndividualPositions(
 
     // Extract the vectors for the individual, the personal, neighborhood and global bests,
     // as well as the velocity
-    std::vector<double> ind_vec, personal_best_vec, nbh_best_vec, glb_best_vec, vel_vec;
+    std::vector<double> ind_vec;
+    std::vector<double> personal_best_vec;
+    std::vector<double> nbh_best_vec;
+    std::vector<double> glb_best_vec;
+    std::vector<double> vel_vec;
     ind->streamline(ind_vec, activityMode::ACTIVEONLY);
     personal_best->streamline(personal_best_vec, activityMode::ACTIVEONLY);
     neighborhood_best->streamline(nbh_best_vec, activityMode::ACTIVEONLY);
@@ -1553,7 +1557,7 @@ void GSwarmAlgorithm::adjustPopulation_() {
             << "the call to optimize<>()" << '\n'
         );
     }
-    else if(current_size == 1) {
+    if(current_size == 1) {
         // Fill up with random items to the number of neighborhoods
         for(std::size_t i = 1; i < n_neighborhoods_; i++) {
             this->push_back(this->front()->clone<gpar::GParameterSet>());

@@ -81,7 +81,7 @@ std::string g_to_string(
     tuple_output_seq<p> /*sq*/
 ) {
     std::ostringstream oss; // NOLINT(cppcoreguidelines-init-variables)
-    oss << s << ", " << std::get<std::tuple_size<tuple_type>::value - p>(t);
+    oss << s << ", " << std::get<std::tuple_size_v<tuple_type> - p>(t);
     return g_to_string(t, oss.str(), tuple_output_seq<p - 1>());
 }
 
@@ -101,7 +101,7 @@ std::string g_to_string(
     tuple_output_seq<1> /*sq*/
 ) {
     std::ostringstream oss; // NOLINT(cppcoreguidelines-init-variables)
-    oss << s << ", " << std::get<std::tuple_size<tuple_type>::value - 1>(t);
+    oss << s << ", " << std::get<std::tuple_size_v<tuple_type> - 1>(t);
     return oss.str();
 }
 

@@ -62,7 +62,7 @@ void GParameterScan_PersonalityTraits::compare_(
     Gem::Common::compare_base_t<GPersonalityTraits>(*this, *p_load, token);
 
     // ... and then the local data
-    compare_t(IDENTITY(popPos_, p_load->popPos_), token);
+    compare_t(IDENTITY(pop_pos_, p_load->pop_pos_), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -109,7 +109,7 @@ void GParameterScan_PersonalityTraits::load_(const GObject *cp) {
     GPersonalityTraits::load_(cp);
 
     // and then the local data
-    popPos_ = p_load->popPos_;
+    pop_pos_ = p_load->pop_pos_;
 }
 
 /******************************************************************************/
@@ -119,7 +119,7 @@ void GParameterScan_PersonalityTraits::load_(const GObject *cp) {
  * @param pop_pos The new position of this individual in the population
  */
 void GParameterScan_PersonalityTraits::setPopulationPosition(const std::size_t &pop_pos) {
-    popPos_ = pop_pos;
+    pop_pos_ = pop_pos;
 }
 
 /* ----------------------------------------------------------------------------------
@@ -133,8 +133,8 @@ void GParameterScan_PersonalityTraits::setPopulationPosition(const std::size_t &
  *
  * @return The current position of this individual in the population
  */
-std::size_t GParameterScan_PersonalityTraits::getPopulationPosition(void) const {
-    return popPos_;
+std::size_t GParameterScan_PersonalityTraits::getPopulationPosition() const {
+    return pop_pos_;
 }
 
 /* ----------------------------------------------------------------------------------

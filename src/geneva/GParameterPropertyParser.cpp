@@ -82,28 +82,28 @@ GParameterPropertyParser::GParameterPropertyParser(const std::string &rw)
     using boost::spirit::qi::hold;
     using boost::spirit::qi::raw;
 
-    varSpec = +char_("0-9a-zA-Z_,.+-[]");
-    varString = char_("dfibs") > '(' > varSpec > ')';
+    var_spec_ = +char_("0-9a-zA-Z_,.+-[]");
+    var_string_ = char_("dfibs") > '(' > var_spec_ > ')';
 
-    identifier = raw[(alpha | '_') >> *(alnum | '_')];
+    identifier_ = raw[(alpha | '_') >> *(alnum | '_')];
 
-    varReference =
+    var_reference_ =
         (hold[attr(0) >> attr("empty") >> uint_] |
-         hold[attr(1) >> identifier >> '[' >> uint_ >> ']'] | (attr(2) >> identifier >> attr(0)));
+         hold[attr(1) >> identifier_ >> '[' >> uint_ >> ']'] | (attr(2) >> identifier_ >> attr(0)));
 
-    simpleScanParser = uint_;
-    doubleStringParser =
-        (hold[varReference >> ',' >> double_ >> ',' >> double_ >> ',' >> uint_] |
-         (varReference >> ',' >> double_ >> ',' >> double_ >> attr(GPP_DEF_NSTEPS)));
-    floatStringParser =
-        (hold[varReference >> ',' >> float_ >> ',' >> float_ >> ',' >> uint_] |
-         (varReference >> ',' >> float_ >> ',' >> float_ >> attr(GPP_DEF_NSTEPS)));
-    intStringParser =
-        (hold[varReference >> ',' >> int_ >> ',' >> int_ >> ',' >> uint_] |
-         (varReference >> ',' >> int_ >> ',' >> int_ >> attr(GPP_DEF_NSTEPS)));
-    boolStringParser =
-        (hold[varReference >> ',' >> bool_ >> ',' >> bool_ >> ',' >> uint_] |
-         (varReference >> attr(false) >> attr(true) >> attr(GPP_DEF_NSTEPS)));
+    simple_scan_parser_ = uint_;
+    double_string_parser_ =
+        (hold[var_reference_ >> ',' >> double_ >> ',' >> double_ >> ',' >> uint_] |
+         (var_reference_ >> ',' >> double_ >> ',' >> double_ >> attr(GPP_DEF_NSTEPS)));
+    float_string_parser_ =
+        (hold[var_reference_ >> ',' >> float_ >> ',' >> float_ >> ',' >> uint_] |
+         (var_reference_ >> ',' >> float_ >> ',' >> float_ >> attr(GPP_DEF_NSTEPS)));
+    int_string_parser_ =
+        (hold[var_reference_ >> ',' >> int_ >> ',' >> int_ >> ',' >> uint_] |
+         (var_reference_ >> ',' >> int_ >> ',' >> int_ >> attr(GPP_DEF_NSTEPS)));
+    bool_string_parser_ =
+        (hold[var_reference_ >> ',' >> bool_ >> ',' >> bool_ >> ',' >> uint_] |
+         (var_reference_ >> attr(false) >> attr(true) >> attr(GPP_DEF_NSTEPS)));
 
     try {
         this->parse();
@@ -144,11 +144,11 @@ bool GParameterPropertyParser::isParsed() const {
 void GParameterPropertyParser::setNewParameterDescription(std::string raw) {
     raw_ = raw;
 
-    sSpecVec.clear();
-    dSpecVec.clear();
-    fSpecVec.clear();
-    iSpecVec.clear();
-    bSpecVec.clear();
+    s_spec_vec_.clear();
+    d_spec_vec_.clear();
+    f_spec_vec_.clear();
+    i_spec_vec_.clear();
+    b_spec_vec_.clear();
 
     parsed_ = false;
 
@@ -189,7 +189,7 @@ void GParameterPropertyParser::parse() {
     std::vector<std::tuple<char, std::string>> variable_descriptions;
 
     // Dissect the raw string into sub-strings responsible for individual parameters
-    success = phrase_parse(from, to, (varString % ','), space, variable_descriptions);
+    success = phrase_parse(from, to, (var_string_ % ','), space, variable_descriptions);
 
     if(not success || from != to) {
         std::string rest(from, to);
@@ -212,7 +212,7 @@ void GParameterPropertyParser::parse() {
             success = phrase_parse(
                 from,
                 to,
-                doubleStringParser[push_back(boost::phoenix::ref(dSpecVec), _1)],
+                double_string_parser_[push_back(boost::phoenix::ref(d_spec_vec_), _1)],
                 space
             );
         }
@@ -220,7 +220,7 @@ void GParameterPropertyParser::parse() {
             success = phrase_parse(
                 from,
                 to,
-                floatStringParser[push_back(boost::phoenix::ref(fSpecVec), _1)],
+                float_string_parser_[push_back(boost::phoenix::ref(f_spec_vec_), _1)],
                 space
             );
         }
@@ -228,7 +228,7 @@ void GParameterPropertyParser::parse() {
             success = phrase_parse(
                 from,
                 to,
-                intStringParser[push_back(boost::phoenix::ref(iSpecVec), _1)],
+                int_string_parser_[push_back(boost::phoenix::ref(i_spec_vec_), _1)],
                 space
             );
         }
@@ -236,7 +236,7 @@ void GParameterPropertyParser::parse() {
             success = phrase_parse(
                 from,
                 to,
-                boolStringParser[push_back(boost::phoenix::ref(bSpecVec), _1)],
+                bool_string_parser_[push_back(boost::phoenix::ref(b_spec_vec_), _1)],
                 space
             );
         }
@@ -244,7 +244,7 @@ void GParameterPropertyParser::parse() {
             success = phrase_parse(
                 from,
                 to,
-                simpleScanParser[push_back(boost::phoenix::ref(sSpecVec), _1)],
+                simple_scan_parser_[push_back(boost::phoenix::ref(s_spec_vec_), _1)],
                 space
             );
         }
@@ -267,54 +267,54 @@ void GParameterPropertyParser::parse() {
         }
 
         // We only accept a single "simple-scan" entry. Complain, if more than one was found
-        if(sSpecVec.size() > 1) {
+        if(s_spec_vec_.size() > 1) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GParameterPropertyParser::parse(): Error!" << '\n'
-                << "Found " << sSpecVec.size() << "simple scan entries where a" << '\n'
+                << "Found " << s_spec_vec_.size() << "simple scan entries where a" << '\n'
                 << "maximum of 1 is allowed" << '\n'
             );
         }
-        else if(sSpecVec.size() ==
+        if(s_spec_vec_.size() ==
                 1) { // If we did find a "simple scan" entry, we will discard the other entries.
-            if(not dSpecVec.empty()) {
+            if(not d_spec_vec_.empty()) {
                 glogger << "In GParameterPropertyParser::parse(): Warning!" << '\n'
                         << "You have specified both a simple-scan component and " << '\n'
                         << "scan-components for double variables. These entries" << '\n'
                         << "will be discarded" << '\n'
                         << GWARNING;
 
-                dSpecVec.clear();
+                d_spec_vec_.clear();
             }
 
-            if(not fSpecVec.empty()) {
+            if(not f_spec_vec_.empty()) {
                 glogger << "In GParameterPropertyParser::parse(): Warning!" << '\n'
                         << "You have specified both a simple-scan component and " << '\n'
                         << "scan-components for float variables. These entries" << '\n'
                         << "will be discarded" << '\n'
                         << GWARNING;
 
-                fSpecVec.clear();
+                f_spec_vec_.clear();
             }
 
-            if(not iSpecVec.empty()) {
+            if(not i_spec_vec_.empty()) {
                 glogger << "In GParameterPropertyParser::parse(): Warning!" << '\n'
                         << "You have specified both a simple-scan component and " << '\n'
                         << "scan-components for integer variables. These entries" << '\n'
                         << "will be discarded" << '\n'
                         << GWARNING;
 
-                iSpecVec.clear();
+                i_spec_vec_.clear();
             }
 
-            if(not bSpecVec.empty()) {
+            if(not b_spec_vec_.empty()) {
                 glogger << "In GParameterPropertyParser::parse(): Warning!" << '\n'
                         << "You have specified both a simple-scan component and " << '\n'
                         << "scan-components for boolean variables. These entries" << '\n'
                         << "will be discarded" << '\n'
                         << GWARNING;
 
-                bSpecVec.clear();
+                b_spec_vec_.clear();
             }
         }
     }
@@ -328,23 +328,23 @@ void GParameterPropertyParser::parse() {
  * Retrieve the number of "simple scan" items
  */
 std::size_t GParameterPropertyParser::getNSimpleScanItems() const {
-    if(sSpecVec.empty()) {
+    if(s_spec_vec_.empty()) {
         return static_cast<std::size_t>(0);
     }
-    else { // Return the data of the first item
+    // Return the data of the first item
 #ifdef DEBUG
-        if(sSpecVec.size() > 1) {
+        if(s_spec_vec_.size() > 1) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GParameterPropertyParser::getNSimpleScanItems() const: Error!" << '\n'
-                << "Found " << sSpecVec.size() << "simple scan entries where a" << '\n'
+                << "Found " << s_spec_vec_.size() << "simple scan entries where a" << '\n'
                 << "maximum of 1 is allowed" << '\n'
             );
         }
 #endif
 
-        return (sSpecVec.front()).nItems;
-    }
+        return (s_spec_vec_.front()).nItems;
+   
 }
 
 /******************************************************************************/

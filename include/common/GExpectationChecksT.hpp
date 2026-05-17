@@ -606,7 +606,8 @@ void compare(
             }
             else { // Some data member differs
                 // Find out about the first entry that differs
-                typename c_type<base_type, std::allocator<base_type>>::const_iterator x_it, y_it;
+                typename c_type<base_type, std::allocator<base_type>>::const_iterator x_it;
+                typename c_type<base_type, std::allocator<base_type>>::const_iterator y_it;
                 std::size_t failed_index = 0;
                 for(x_it = x.begin(), y_it = y.begin(); x_it != x.end();
                     ++x_it, ++y_it, ++failed_index) {
@@ -689,8 +690,9 @@ void compare(
             else { // Some data member differs
                 // Find out about the first entry that differs
                 typename s_type<base_type, std::less<base_type>, std::allocator<base_type>>::
-                    const_iterator x_it,
-                    y_it;
+                    const_iterator x_it;
+                typename s_type<base_type, std::less<base_type>, std::allocator<base_type>>::
+                    const_iterator y_it;
                 std::size_t failed_index = 0;
                 for(x_it = x.begin(), y_it = y.begin(); x_it != x.end();
                     ++x_it, ++y_it, ++failed_index) {
@@ -757,7 +759,8 @@ void compare(
 
         // Do a per-position comparison
         bool found_deviation = false;
-        typename c_type<fp_type, std::allocator<fp_type>>::const_iterator x_it, y_it;
+        typename c_type<fp_type, std::allocator<fp_type>>::const_iterator x_it;
+        typename c_type<fp_type, std::allocator<fp_type>>::const_iterator y_it;
         if(Gem::Common::expectation::FP_SIMILARITY == e) {
             for(x_it = x.begin(), y_it = y.begin(); x_it != x.end(); ++x_it, ++y_it) {
                 if(std::abs(*x_it - *y_it) >= Gem::Common::narrow_cast<fp_type>(limit)) {
@@ -855,8 +858,8 @@ void compare(
 
         // Do a per-position comparison
         bool found_deviation = false;
-        typename s_type<fp_type, std::less<fp_type>, std::allocator<fp_type>>::const_iterator x_it,
-            y_it;
+        typename s_type<fp_type, std::less<fp_type>, std::allocator<fp_type>>::const_iterator x_it;
+        typename s_type<fp_type, std::less<fp_type>, std::allocator<fp_type>>::const_iterator y_it;
         if(Gem::Common::expectation::FP_SIMILARITY == e) {
             for(x_it = x.begin(), y_it = y.begin(); x_it != x.end(); ++x_it, ++y_it) {
                 if(std::abs(*x_it - *y_it) >= Gem::Common::narrow_cast<fp_type>(limit)) {
@@ -1024,7 +1027,7 @@ void compare(
                   << "Thus the expectation of " << expectation_str << " was violated" << '\n';
             break; //
         }
-        else if(not x && y) {
+        if(not x && y) {
             error << "Smart pointer " << x_name << " doesn't hold content while " << y_name
                   << " does." << '\n'
                   << "Thus the expectation of " << expectation_str << " was violated" << '\n';
@@ -1063,7 +1066,7 @@ void compare(
             expectation_met = true;
             break;
         }
-        else if(not x &&
+        if(not x &&
                 not y) { // No content to check. Both smart pointers can be considered equal
             error << "Both smart pointers are empty and are thus considered equal." << '\n'
                   << "Thus the expectation of " << expectation_str << " was violated:" << '\n';
@@ -1139,8 +1142,10 @@ void compare(
         bool found_deviation = false;
         typename c_type<
             std::shared_ptr<geneva_type>,
-            std::allocator<std::shared_ptr<geneva_type>>>::const_iterator x_it,
-            y_it;
+            std::allocator<std::shared_ptr<geneva_type>>>::const_iterator x_it;
+        typename c_type<
+            std::shared_ptr<geneva_type>,
+            std::allocator<std::shared_ptr<geneva_type>>>::const_iterator y_it;
         std::size_t index = 0;
         for(x_it = x.begin(), y_it = y.begin(); x_it != x.end(); ++x_it, ++y_it, ++index) {
             // First check that both pointers have content
@@ -1153,7 +1158,7 @@ void compare(
                 found_deviation = true;
                 break; // terminate the loop
             }
-            else if(not *x_it && *y_it) {
+            if(not *x_it && *y_it) {
                 error << "Smart pointer " << x_name << "[" << index
                       << "] doesn't hold content while " << y_name << "[" << index << "]  does."
                       << '\n'
@@ -1201,8 +1206,10 @@ void compare(
         bool found_inequality = false;
         typename c_type<
             std::shared_ptr<geneva_type>,
-            std::allocator<std::shared_ptr<geneva_type>>>::const_iterator x_it,
-            y_it;
+            std::allocator<std::shared_ptr<geneva_type>>>::const_iterator x_it;
+        typename c_type<
+            std::shared_ptr<geneva_type>,
+            std::allocator<std::shared_ptr<geneva_type>>>::const_iterator y_it;
         for(x_it = x.begin(), y_it = y.begin(); x_it != x.end(); ++x_it, ++y_it) {
             // First check that both pointers have content
             // Check whether the pointers hold content
@@ -1210,7 +1217,7 @@ void compare(
                 found_inequality = true;
                 break; // terminate the loop
             }
-            else if(not *x_it &&
+            if(not *x_it &&
                     not *y_it) { // No content to check. Both smart pointers can be considered equal
                 continue; // Go on with next iteration in the loop - there is nothing to check here
             }

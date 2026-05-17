@@ -347,7 +347,7 @@ class GFunctionIndividual
     template <class Archive>
     void serialize(Archive &ar, const unsigned int) {
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GParameterSet) &
-            BOOST_SERIALIZATION_NVP(demoFunction_);
+            BOOST_SERIALIZATION_NVP(demo_function_);
     }
 
     ///////////////////////////////////////////////////////////////////////
@@ -710,7 +710,7 @@ private:
     //---------------------------------------------------------------------------
     // Data
 
-    solverFunction demoFunction_ =
+    solverFunction demo_function_ =
         solverFunction::PARABOLA; ///< Specifies which demo function should be used
 };
 
@@ -738,18 +738,18 @@ class GFunctionIndividualFactory // NOLINT(cppcoreguidelines-special-member-func
     template <class Archive>
     void serialize(Archive &ar, const unsigned int) {
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GParameterSetFactory) &
-            BOOST_SERIALIZATION_NVP(adProb_) & BOOST_SERIALIZATION_NVP(adaptAdProb_) &
-            BOOST_SERIALIZATION_NVP(minAdProb_) & BOOST_SERIALIZATION_NVP(maxAdProb_) &
-            BOOST_SERIALIZATION_NVP(adaptionThreshold_) & BOOST_SERIALIZATION_NVP(useBiGaussian_) &
-            BOOST_SERIALIZATION_NVP(sigma1_) & BOOST_SERIALIZATION_NVP(sigmaSigma1_) &
-            BOOST_SERIALIZATION_NVP(minSigma1_) & BOOST_SERIALIZATION_NVP(maxSigma1_) &
-            BOOST_SERIALIZATION_NVP(sigma2_) & BOOST_SERIALIZATION_NVP(sigmaSigma2_) &
-            BOOST_SERIALIZATION_NVP(minSigma2_) & BOOST_SERIALIZATION_NVP(maxSigma2_) &
-            BOOST_SERIALIZATION_NVP(delta_) & BOOST_SERIALIZATION_NVP(sigmaDelta_) &
-            BOOST_SERIALIZATION_NVP(minDelta_) & BOOST_SERIALIZATION_NVP(maxDelta_) &
-            BOOST_SERIALIZATION_NVP(parDim_) & BOOST_SERIALIZATION_NVP(minVar_) &
-            BOOST_SERIALIZATION_NVP(maxVar_) & BOOST_SERIALIZATION_NVP(pT_) &
-            BOOST_SERIALIZATION_NVP(iM_);
+            BOOST_SERIALIZATION_NVP(ad_prob_) & BOOST_SERIALIZATION_NVP(adapt_ad_prob_) &
+            BOOST_SERIALIZATION_NVP(min_ad_prob_) & BOOST_SERIALIZATION_NVP(max_ad_prob_) &
+            BOOST_SERIALIZATION_NVP(adaption_threshold_) & BOOST_SERIALIZATION_NVP(use_bi_gaussian_) &
+            BOOST_SERIALIZATION_NVP(sigma1_) & BOOST_SERIALIZATION_NVP(sigma_sigma1_) &
+            BOOST_SERIALIZATION_NVP(min_sigma1_) & BOOST_SERIALIZATION_NVP(max_sigma1_) &
+            BOOST_SERIALIZATION_NVP(sigma2_) & BOOST_SERIALIZATION_NVP(sigma_sigma2_) &
+            BOOST_SERIALIZATION_NVP(min_sigma2_) & BOOST_SERIALIZATION_NVP(max_sigma2_) &
+            BOOST_SERIALIZATION_NVP(delta_) & BOOST_SERIALIZATION_NVP(sigma_delta_) &
+            BOOST_SERIALIZATION_NVP(min_delta_) & BOOST_SERIALIZATION_NVP(max_delta_) &
+            BOOST_SERIALIZATION_NVP(par_dim_) & BOOST_SERIALIZATION_NVP(min_var_) &
+            BOOST_SERIALIZATION_NVP(max_var_) & BOOST_SERIALIZATION_NVP(p_t_) &
+            BOOST_SERIALIZATION_NVP(i_m_);
     }
 
     ///////////////////////////////////////////////////////////////////////
@@ -766,9 +766,9 @@ public:
     //---------------------------------------------------------------------------
     // Getters and setters
 
-    /** @brief Allows to retrieve the adaptionThreshold_ variable */
+    /** @brief Allows to retrieve the adaption_threshold_ variable */
     std::uint32_t getAdaptionThreshold() const;
-    /** @brief Set the value of the adaptionThreshold_ variable */
+    /** @brief Set the value of the adaption_threshold_ variable */
     void setAdaptionThreshold(std::uint32_t adaption_threshold);
 
     /** @brief Allows to retrieve the adProb_ variable */
@@ -791,9 +791,9 @@ public:
     /** @brief Set the value of the pT_ variable */
     void setPT(parameterType pt);
 
-    /** @brief Allows to retrieve the useBiGaussian_ variable */
+    /** @brief Allows to retrieve the use_bi_gaussian_ variable */
     bool getUseBiGaussian() const;
-    /** @brief Set the value of the useBiGaussian_ variable */
+    /** @brief Set the value of the use_bi_gaussian_ variable */
     void setUseBiGaussian(bool use_bi_gaussian);
 
     /** @brief Allows to retrieve the minVar_ variable */
@@ -809,27 +809,27 @@ public:
     double getDelta() const;
     /** @brief Set the value of the delta_ variable */
     void setDelta(double delta);
-    /** @brief Allows to retrieve the minDelta_ variable */
+    /** @brief Allows to retrieve the min_delta_ variable */
     double getMinDelta() const;
-    /** @brief Allows to retrieve the maxDelta_ variable */
+    /** @brief Allows to retrieve the max_delta_ variable */
     double getMaxDelta() const;
     /** @brief Allows to retrieve the allowed value range of delta */
     std::tuple<double, double> getDeltaRange() const;
     /** @brief Allows to set the allowed value range of delta */
     void setDeltaRange(std::tuple<double, double>);
 
-    /** @brief Allows to retrieve the minSigma1_ variable */
+    /** @brief Allows to retrieve the min_sigma1_ variable */
     double getMinSigma1() const;
-    /** @brief Allows to retrieve the maxSigma1_ variable */
+    /** @brief Allows to retrieve the max_sigma1_ variable */
     double getMaxSigma1() const;
     /** @brief Allows to retrieve the allowed value range of sigma1_ */
     std::tuple<double, double> getSigma1Range() const;
     /** @brief Allows to set the allowed value range of sigma1_ */
     void setSigma1Range(std::tuple<double, double>);
 
-    /** @brief Allows to retrieve the minSigma2_ variable */
+    /** @brief Allows to retrieve the min_sigma2_ variable */
     double getMinSigma2() const;
-    /** @brief Allows to retrieve the maxSigma2_ variable */
+    /** @brief Allows to retrieve the max_sigma2_ variable */
     double getMaxSigma2() const;
     /** @brief Allows to retrieve the allowed value range of sigma2_ */
     std::tuple<double, double> getSigma2Range() const;
@@ -846,19 +846,19 @@ public:
     /** @brief Set the value of the sigma2_ variable */
     void setSigma2(double sigma2);
 
-    /** @brief Allows to retrieve the sigmaDelta_ variable */
+    /** @brief Allows to retrieve the sigma_delta_ variable */
     double getSigmaDelta() const;
-    /** @brief Set the value of the sigmaDelta_ variable */
+    /** @brief Set the value of the sigma_delta_ variable */
     void setSigmaDelta(double sigma_delta);
 
-    /** @brief Allows to retrieve the sigmaSigma1_ variable */
+    /** @brief Allows to retrieve the sigma_sigma1_ variable */
     double getSigmaSigma1() const;
-    /** @brief Set the value of the sigmaSigma1_ variable */
+    /** @brief Set the value of the sigma_sigma1_ variable */
     void setSigmaSigma1(double sigma_sigma1);
 
-    /** @brief Allows to retrieve the sigmaSigma2_ variable */
+    /** @brief Allows to retrieve the sigma_sigma2_ variable */
     double getSigmaSigma2() const;
-    /** @brief Set the value of the sigmaSigma2_ variable */
+    /** @brief Set the value of the sigma_sigma2_ variable */
     void setSigmaSigma2(double sigma_sigma2);
 
     /** @brief Allows to retrieve the rate of evolutionary adaption of adProb_ */
@@ -896,50 +896,50 @@ private:
     /** @brief Set the value of the maxVar_ variable */
     void setMaxVar(double max_var);
 
-    /** @brief Set the value of the minDelta_ variable */
+    /** @brief Set the value of the min_delta_ variable */
     void setMinDelta(double min_delta);
 
-    /** @brief Set the value of the maxDelta_ variable */
+    /** @brief Set the value of the max_delta_ variable */
     void setMaxDelta(double max_delta);
 
-    /** @brief Set the value of the minSigma1_ variable */
+    /** @brief Set the value of the min_sigma1_ variable */
     void setMinSigma1(double min_sigma1);
 
-    /** @brief Set the value of the maxSigma1_ variable */
+    /** @brief Set the value of the max_sigma1_ variable */
     void setMaxSigma1(double max_sigma1);
 
-    /** @brief Set the value of the minSigma2_ variable */
+    /** @brief Set the value of the min_sigma2_ variable */
     void setMinSigma2(double min_sigma2);
 
-    /** @brief Set the value of the maxSigma2_ variable */
+    /** @brief Set the value of the max_sigma2_ variable */
     void setMaxSigma2(double max_sigma2);
 
     /** @brief The default constructor; Only needed for (de-)serialization purposes. */
     GFunctionIndividualFactory();
 
-    Gem::Common::GOneTimeRefParameterT<double> adProb_{GFI_DEF_ADPROB};
-    Gem::Common::GOneTimeRefParameterT<double> adaptAdProb_{GFI_DEF_ADAPTADPROB};
-    Gem::Common::GOneTimeRefParameterT<double> minAdProb_{GFI_DEF_MINADPROB};
-    Gem::Common::GOneTimeRefParameterT<double> maxAdProb_{GFI_DEF_MAXADPROB};
-    Gem::Common::GOneTimeRefParameterT<std::uint32_t> adaptionThreshold_{GFI_DEF_ADAPTIONTHRESHOLD};
-    Gem::Common::GOneTimeRefParameterT<bool> useBiGaussian_{GFI_DEF_USEBIGAUSSIAN};
+    Gem::Common::GOneTimeRefParameterT<double> ad_prob_{GFI_DEF_ADPROB};
+    Gem::Common::GOneTimeRefParameterT<double> adapt_ad_prob_{GFI_DEF_ADAPTADPROB};
+    Gem::Common::GOneTimeRefParameterT<double> min_ad_prob_{GFI_DEF_MINADPROB};
+    Gem::Common::GOneTimeRefParameterT<double> max_ad_prob_{GFI_DEF_MAXADPROB};
+    Gem::Common::GOneTimeRefParameterT<std::uint32_t> adaption_threshold_{GFI_DEF_ADAPTIONTHRESHOLD};
+    Gem::Common::GOneTimeRefParameterT<bool> use_bi_gaussian_{GFI_DEF_USEBIGAUSSIAN};
     Gem::Common::GOneTimeRefParameterT<double> sigma1_{GFI_DEF_SIGMA1};
-    Gem::Common::GOneTimeRefParameterT<double> sigmaSigma1_{GFI_DEF_SIGMASIGMA1};
-    Gem::Common::GOneTimeRefParameterT<double> minSigma1_{GFI_DEF_MINSIGMA1};
-    Gem::Common::GOneTimeRefParameterT<double> maxSigma1_{GFI_DEF_MAXSIGMA1};
+    Gem::Common::GOneTimeRefParameterT<double> sigma_sigma1_{GFI_DEF_SIGMASIGMA1};
+    Gem::Common::GOneTimeRefParameterT<double> min_sigma1_{GFI_DEF_MINSIGMA1};
+    Gem::Common::GOneTimeRefParameterT<double> max_sigma1_{GFI_DEF_MAXSIGMA1};
     Gem::Common::GOneTimeRefParameterT<double> sigma2_{GFI_DEF_SIGMA2};
-    Gem::Common::GOneTimeRefParameterT<double> sigmaSigma2_{GFI_DEF_SIGMASIGMA2};
-    Gem::Common::GOneTimeRefParameterT<double> minSigma2_{GFI_DEF_MINSIGMA2};
-    Gem::Common::GOneTimeRefParameterT<double> maxSigma2_{GFI_DEF_MAXSIGMA2};
+    Gem::Common::GOneTimeRefParameterT<double> sigma_sigma2_{GFI_DEF_SIGMASIGMA2};
+    Gem::Common::GOneTimeRefParameterT<double> min_sigma2_{GFI_DEF_MINSIGMA2};
+    Gem::Common::GOneTimeRefParameterT<double> max_sigma2_{GFI_DEF_MAXSIGMA2};
     Gem::Common::GOneTimeRefParameterT<double> delta_{GFI_DEF_DELTA};
-    Gem::Common::GOneTimeRefParameterT<double> sigmaDelta_{GFI_DEF_SIGMADELTA};
-    Gem::Common::GOneTimeRefParameterT<double> minDelta_{GFI_DEF_MINDELTA};
-    Gem::Common::GOneTimeRefParameterT<double> maxDelta_{GFI_DEF_MAXDELTA};
-    Gem::Common::GOneTimeRefParameterT<std::size_t> parDim_{GFI_DEF_PARDIM};
-    Gem::Common::GOneTimeRefParameterT<double> minVar_{GFI_DEF_MINVAR};
-    Gem::Common::GOneTimeRefParameterT<double> maxVar_{GFI_DEF_MAXVAR};
-    Gem::Common::GOneTimeRefParameterT<parameterType> pT_{GFI_DEF_PARAMETERTYPE};
-    Gem::Common::GOneTimeRefParameterT<initMode> iM_{GFI_DEF_INITMODE};
+    Gem::Common::GOneTimeRefParameterT<double> sigma_delta_{GFI_DEF_SIGMADELTA};
+    Gem::Common::GOneTimeRefParameterT<double> min_delta_{GFI_DEF_MINDELTA};
+    Gem::Common::GOneTimeRefParameterT<double> max_delta_{GFI_DEF_MAXDELTA};
+    Gem::Common::GOneTimeRefParameterT<std::size_t> par_dim_{GFI_DEF_PARDIM};
+    Gem::Common::GOneTimeRefParameterT<double> min_var_{GFI_DEF_MINVAR};
+    Gem::Common::GOneTimeRefParameterT<double> max_var_{GFI_DEF_MAXVAR};
+    Gem::Common::GOneTimeRefParameterT<parameterType> p_t_{GFI_DEF_PARAMETERTYPE};
+    Gem::Common::GOneTimeRefParameterT<initMode> i_m_{GFI_DEF_INITMODE};
 };
 
 /******************************************************************************/
@@ -959,7 +959,7 @@ class GDoubleSumConstraint
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GParameterSetConstraint) &
-            BOOST_SERIALIZATION_NVP(C_);
+            BOOST_SERIALIZATION_NVP(c_);
     }
     ///////////////////////////////////////////////////////////////////////
 public:
@@ -1001,7 +1001,7 @@ private:
     /** @brief Creates a deep clone of this object */
     GObject *clone_() const override;
 
-    double C_ = 1.; ///< The constant that should not be exceeded by the sum of parameters
+    double c_ = 1.; ///< The constant that should not be exceeded by the sum of parameters
 };
 
 /******************************************************************************/
@@ -1020,7 +1020,7 @@ class GDoubleSumGapConstraint
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GParameterSetConstraint) &
-            BOOST_SERIALIZATION_NVP(C_) & BOOST_SERIALIZATION_NVP(gap_);
+            BOOST_SERIALIZATION_NVP(c_) & BOOST_SERIALIZATION_NVP(gap_);
     }
     ///////////////////////////////////////////////////////////////////////
 public:
@@ -1062,7 +1062,7 @@ private:
     /** @brief Creates a deep clone of this object */
     GObject *clone_() const override;
 
-    double C_ = 1.;    ///< The constant that should not be exceeded by the sum of parameters
+    double c_ = 1.;    ///< The constant that should not be exceeded by the sum of parameters
     double gap_ = 0.5; ///< A tolerance around C_ that is still considered to be valid
 };
 

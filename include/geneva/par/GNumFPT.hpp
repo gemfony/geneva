@@ -67,7 +67,7 @@ class GNumFPT // NOLINT(cppcoreguidelines-special-member-functions)
 
     // Make sure this class can only be instantiated if fp_type really is a floating point type
     static_assert(
-        std::is_floating_point<fp_type>::value,
+        std::is_floating_point_v<fp_type>,
         "fp_type should be a floating point type"
     );
 
