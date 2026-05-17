@@ -31,8 +31,45 @@ Recommended Versions:
   always evaluates to FALSE and its conditional TARGET_LINK_LIBRARIES blocks have been
   removed from all five library CMakeLists.txt files. IdentifySystemParameters.cmake
   now supports only GCC >= 13 and Clang >= 18 on Linux.
+- The optimization-algorithm and interface code has been reorganised into
+  dedicated namespaces, and this is a SOURCE-BREAKING change for code that
+  referenced these symbols directly. The optimization algorithms now live in
+  Gem::Geneva::OptimizationAlgorithms (global alias `oa`) and the optimizer
+  interfaces in Gem::Geneva::Interface (alias `iface`). The transitional
+  using-declarations that briefly kept the old Gem::Geneva:: spelling working,
+  and the old G_OptimizationAlgorithm_EvolutionaryAlgorithm.hpp forwarding
+  header, have been removed -- there is no compatibility layer. The four genus
+  classes were renamed (G_OptimizationAlgorithm_Base -> GBase,
+  G_OptimizationAlgorithm_FactoryT -> GOAFactoryT,
+  G_OptimizationAlgorithm_InitializerT -> GInitializerT,
+  G_OptimizationAlgorithm_ParChild -> GParChild), the three interface classes
+  were renamed (OptimizerIT -> GOptimizerIT, RateableI -> GRateableI,
+  MutableI -> GMutableI), and FactoryStore -> GFactoryStore. The seven
+  algorithm class names are UNCHANGED (GEvolutionaryAlgorithm,
+  GSwarmAlgorithm, GSimulatedAnnealing, GGradientDescent,
+  GConjugateGradientDescent, GNelderMead, GParameterScan) -- only their
+  namespace and header location changed. Every header was renamed to its
+  primary class and relocated: geneva/<X>.hpp -> geneva/oa/G<X>.hpp and the
+  interface headers -> geneva/iface/G<X>.hpp; #include paths must be updated
+  accordingly. User code must qualify these types with oa:: / iface:: (or the
+  full namespace) and fix its include paths. The common high-level workflow
+  (subclass GParameterSet, drive it via Gem::Geneva::Go2 with a JSON config
+  and algorithm mnemonics) is otherwise unaffected -- Go2 itself is unchanged
+  -- except for the updated include paths. Note also that, as a consequence,
+  Boost.Serialization class-export keys changed: checkpoint/archive files
+  written by earlier Geneva versions are not loadable by this version (this
+  archive break was a deliberate, accepted decision).
 
 ************************* Noteworthy Changes ***********************************
+
+- Preliminary support for two new local optimization algorithms:
+  Nelder-Mead (the downhill-simplex method; class GNelderMead,
+  mnemonic "nm") and Conjugate Gradient Descent (Polak-Ribiere+;
+  class GConjugateGradientDescent, mnemonic "cgd"). Both integrate
+  with the usual Go2 / factory / personality-traits machinery and can
+  be selected like any other algorithm via their mnemonic. These
+  implementations are new and should be considered preliminary; their
+  interfaces and defaults may still change.
 
 - New GContainerT<T, StoragePolicy> class supersedes GPODVectorT and
   GPtrVectorT with a unified, policy-based design. GPodContainerT and

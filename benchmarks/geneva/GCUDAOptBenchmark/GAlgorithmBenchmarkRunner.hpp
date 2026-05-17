@@ -47,11 +47,11 @@
 #include "courtier/GBrokerT.hpp"
 #include "geneva/GenevaInitializer.hpp"
 #include "geneva/GParameterSet.hpp"
-#include "geneva/GBase.hpp"
-#include "geneva/EvolutionaryAlgorithm_Factory.hpp"
-#include "geneva/GradientDescent_Factory.hpp"
-#include "geneva/SimulatedAnnealing_Factory.hpp"
-#include "geneva/SwarmAlgorithm_Factory.hpp"
+#include "geneva/oa/GBase.hpp"
+#include "geneva/oa/GEvolutionaryAlgorithmFactory.hpp"
+#include "geneva/oa/GGradientDescentFactory.hpp"
+#include "geneva/oa/GSimulatedAnnealingFactory.hpp"
+#include "geneva/oa/GSwarmAlgorithmFactory.hpp"
 #include "geneva-individuals/GFunctionIndividual.hpp"
 
 // Local headers

@@ -54,7 +54,7 @@
 #include "courtier/GAsioConsumerT.hpp"
 #include "courtier/GSerialConsumerT.hpp"
 #include "courtier/GStdThreadConsumerT.hpp"
-#include "geneva/SimulatedAnnealing.hpp"
+#include "geneva/oa/GSimulatedAnnealing.hpp"
 #include "geneva/GenevaInitializer.hpp"
 
 // The individual that should be optimized

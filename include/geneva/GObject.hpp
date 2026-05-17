@@ -87,7 +87,7 @@ namespace pt = boost::property_tree;
 // Short aliases for the optimization-algorithm and interface namespaces.
 // Forward-declared here so the aliases are visible library-wide; the real
 // definitions live in the respective headers. `oa` is global (some headers
-// use it at global scope, e.g. FactoryStore.hpp). `iface` is scoped inside
+// use it at global scope, e.g. GFactoryStore.hpp). `iface` is scoped inside
 // Gem::Geneva because a global `iface` would clash with the POSIX
 // `struct iface` from <net/if.h> (pulled in transitively via Boost.Asio).
 namespace Gem::Geneva::OptimizationAlgorithms {}

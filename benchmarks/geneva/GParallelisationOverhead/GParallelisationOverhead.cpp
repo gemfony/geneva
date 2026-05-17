@@ -43,7 +43,7 @@
 // Geneva header files go here
 #include "common/GCommonMathHelperFunctionsT.hpp"
 #include "common/GThreadPool.hpp"
-#include "geneva/EvolutionaryAlgorithm_Factory.hpp"
+#include "geneva/oa/GEvolutionaryAlgorithmFactory.hpp"
 #include "geneva/Go2.hpp"
 
 // The individual that should be optimized

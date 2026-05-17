@@ -38,9 +38,6 @@ SET ( OPTIMIZATIONINCLUDES
 	GIntFlipAdaptorT.hpp
 	GIntGaussAdaptorT.hpp
 	GIntNumCollectionT.hpp
-    MutableI.hpp
-    OptimizerIT.hpp
-    RateableI.hpp
     GMultiConstraintT.hpp
     GMutableParameterI.hpp
 	GNumBiGaussAdaptorT.hpp
@@ -50,33 +47,6 @@ SET ( OPTIMIZATIONINCLUDES
 	GNumFPT.hpp
 	GNumIntT.hpp
 	GNumT.hpp
-        GBase.hpp
-    ConjugateGradientDescent.hpp
-    ConjugateGradientDescent_Factory.hpp
-    ConjugateGradientDescent_PersonalityTraits.hpp
-    EvolutionaryAlgorithm.hpp
-    EvolutionaryAlgorithm_Factory.hpp
-    EvolutionaryAlgorithm_PersonalityTraits.hpp
-    GradientDescent.hpp
-    GradientDescent_Factory.hpp
-    GradientDescent_PersonalityTraits.hpp
-    NelderMead.hpp
-    NelderMead_Factory.hpp
-    NelderMead_PersonalityTraits.hpp
-    GParChild.hpp
-    ParameterScan.hpp
-    ParameterScan_Factory.hpp
-    ParameterScan_PersonalityTraits.hpp
-    SimulatedAnnealing.hpp
-    SimulatedAnnealing_Factory.hpp
-    SimulatedAnnealing_PersonalityTraits.hpp
-    SwarmAlgorithm.hpp
-    SwarmAlgorithm_Factory.hpp
-    SwarmAlgorithm_PersonalityTraits.hpp
-    GOAFactoryT.hpp
-    FactoryStore.hpp
-    GInitializerT.hpp
-    ParChildT_PersonalityTraits.hpp
 	Go2.hpp
     GObject.hpp
     GOptimizationEnums.hpp
@@ -97,6 +67,46 @@ SET ( OPTIMIZATIONINCLUDES
 	GTestIndividual1.hpp
 )
 
+# Optimization-algorithm headers (namespace Gem::Geneva::OptimizationAlgorithms),
+# installed under geneva/oa to mirror the `oa` alias.
+SET ( OA_INCLUDES
+    oa/GBase.hpp
+    oa/GParChild.hpp
+    oa/GInitializerT.hpp
+    oa/GOAFactoryT.hpp
+    oa/GFactoryStore.hpp
+    oa/GBaseParChildPersonalityTraits.hpp
+    oa/GConjugateGradientDescent.hpp
+    oa/GConjugateGradientDescentFactory.hpp
+    oa/GConjugateGradientDescent_PersonalityTraits.hpp
+    oa/GEvolutionaryAlgorithm.hpp
+    oa/GEvolutionaryAlgorithmFactory.hpp
+    oa/GEvolutionaryAlgorithm_PersonalityTraits.hpp
+    oa/GGradientDescent.hpp
+    oa/GGradientDescentFactory.hpp
+    oa/GGradientDescent_PersonalityTraits.hpp
+    oa/GNelderMead.hpp
+    oa/GNelderMeadFactory.hpp
+    oa/GNelderMead_PersonalityTraits.hpp
+    oa/GParameterScan.hpp
+    oa/GParameterScanFactory.hpp
+    oa/GParameterScan_PersonalityTraits.hpp
+    oa/GSimulatedAnnealing.hpp
+    oa/GSimulatedAnnealingFactory.hpp
+    oa/GSimulatedAnnealing_PersonalityTraits.hpp
+    oa/GSwarmAlgorithm.hpp
+    oa/GSwarmAlgorithmFactory.hpp
+    oa/GSwarmAlgorithm_PersonalityTraits.hpp
+)
+
+# Interface headers (namespace Gem::Geneva::Interface),
+# installed under geneva/iface to mirror the `iface` alias.
+SET ( IFACE_INCLUDES
+    iface/GMutableI.hpp
+    iface/GRateableI.hpp
+    iface/GOptimizerIT.hpp
+)
+
 # Add MPI specific files
 IF(GENEVA_BUILD_WITH_MPI_CONSUMER)
 	SET(OPTIMIZATIONINCLUDES
@@ -106,7 +116,7 @@ IF(GENEVA_BUILD_WITH_MPI_CONSUMER)
 ENDIF()
 
 # This is a workaround for a CLion-problem -- see CPP270 in the JetBrains issue tracker
-ADD_CUSTOM_TARGET(CLION_ALL_GENEVA_HEADERS SOURCES ${OPTIMIZATIONINCLUDES})
+ADD_CUSTOM_TARGET(CLION_ALL_GENEVA_HEADERS SOURCES ${OPTIMIZATIONINCLUDES} ${OA_INCLUDES} ${IFACE_INCLUDES})
 
 SET_TARGET_PROPERTIES(
     CLION_ALL_GENEVA_HEADERS
@@ -117,6 +127,8 @@ SET_TARGET_PROPERTIES(
 )
 
 INSTALL ( FILES ${OPTIMIZATIONINCLUDES} DESTINATION ${INSTALL_PREFIX_INCLUDES}/geneva )
+INSTALL ( FILES ${OA_INCLUDES} DESTINATION ${INSTALL_PREFIX_INCLUDES}/geneva/oa )
+INSTALL ( FILES ${IFACE_INCLUDES} DESTINATION ${INSTALL_PREFIX_INCLUDES}/geneva/iface )
 
 IF( GENEVA_BUILD_TESTS )
 	ADD_SUBDIRECTORY ( tests )
