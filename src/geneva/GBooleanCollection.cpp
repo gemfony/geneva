@@ -42,8 +42,7 @@ namespace Gem::Geneva {
  *
  * @param nval The size of the collection
  */
-GBooleanCollection::GBooleanCollection(const std::size_t &nval)
-  : GParameterCollectionT<bool>() {
+GBooleanCollection::GBooleanCollection(const std::size_t &nval) {
     Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL> gr;
     std::bernoulli_distribution bernoulli_distribution; // defaults to 0.5
     for(std::size_t i = 0; i < nval; i++) {
@@ -75,8 +74,7 @@ GBooleanCollection::GBooleanCollection(const std::size_t &nval, const bool &val)
  * @param nval The size of the collection
  * @param probability The probability for true values in the collection
  */
-GBooleanCollection::GBooleanCollection(const std::size_t &nval, const double &probability)
-  : GParameterCollectionT<bool>() {
+GBooleanCollection::GBooleanCollection(const std::size_t &nval, const double &probability) {
     Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL> gr;
     std::bernoulli_distribution weighted_bool(probability);
     for(std::size_t i = 0; i < nval; i++) {
@@ -408,8 +406,9 @@ bool GBooleanCollection::modify_GUnitTests_() {
     bool result = false;
 
     // Call the parent class'es function
-    if(GParameterCollectionT<bool>::modify_GUnitTests_())
+    if(GParameterCollectionT<bool>::modify_GUnitTests_()) {
         result = true;
+    }
 
     this->push_back(true);
     return true;
@@ -493,7 +492,7 @@ void GBooleanCollection::specificTestsNoFailureExpected_GUnitTests_() {
 
         // We allow a slight deviation, as the initialization is a random process
         REQUIRE(n_false != 0); // There should be a few false values
-        double ratio = double(n_true) / double(n_false);
+        double ratio = static_cast<double>(n_true) / static_cast<double>(n_false);
         INFO(
             "\n"
             << "ratio = " << ratio << "\n"
@@ -543,7 +542,7 @@ void GBooleanCollection::specificTestsNoFailureExpected_GUnitTests_() {
 
         // We allow a slight deviation, as the initialization is a random process
         REQUIRE(n_false != 0); // There should be a few false values
-        double ratio = double(n_true) / double(n_false);
+        double ratio = static_cast<double>(n_true) / static_cast<double>(n_false);
         INFO(
             "\n"
             << "ratio = " << ratio << "\n"
@@ -581,7 +580,7 @@ void GBooleanCollection::specificTestsNoFailureExpected_GUnitTests_() {
 
         // We allow a slight deviation, as the initialization is a random process
         REQUIRE(n_false != 0); // There should be a few false values
-        double ratio = double(n_true) / double(n_false);
+        double ratio = static_cast<double>(n_true) / static_cast<double>(n_false);
         INFO(
             "\n"
             << "ratio = " << ratio << "\n"

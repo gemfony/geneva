@@ -41,8 +41,7 @@ namespace Gem::Geneva {
  * vital parameters, such as the population size or the parent individuals by hand
  * or do so through the configuration file.
  */
-G_OptimizationAlgorithm_ParChild::G_OptimizationAlgorithm_ParChild()
-  : Gem::Geneva::G_OptimizationAlgorithm_Base() {
+G_OptimizationAlgorithm_ParChild::G_OptimizationAlgorithm_ParChild() {
     // Make sure we start with a valid population size if the user does not supply these values
     this->setPopulationSizes(
         DEFPARCHILDPOPSIZE // overall population size
@@ -351,8 +350,9 @@ void G_OptimizationAlgorithm_ParChild::doRecombine() {
             threshold[i] = (1. / (static_cast<double>(i) + 2.)) / threshold_sum;
 
             // Make sure the subsequent range is in the right position
-            if(i > 0)
+            if(i > 0) {
                 threshold[i] += threshold[i - 1];
+            }
         }
         threshold[n_parents_ - 1] = 1.; // Necessary due to rounding errors
     }
@@ -799,8 +799,9 @@ bool G_OptimizationAlgorithm_ParChild::modify_GUnitTests_() {
     bool result = false;
 
     // Call the parent class'es function
-    if(G_OptimizationAlgorithm_Base::modify_GUnitTests_())
+    if(G_OptimizationAlgorithm_Base::modify_GUnitTests_()) {
         result = true;
+    }
 
     return result;
 

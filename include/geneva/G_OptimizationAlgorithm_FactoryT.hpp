@@ -95,7 +95,6 @@ public:
 	  */
     G_OptimizationAlgorithm_FactoryT(const G_OptimizationAlgorithm_FactoryT<oa_type> &cp)
       : Gem::Common::GFactoryT<oa_type>(cp)
-      , contentCreatorPtr_()
       , maxIterationCL_(cp.maxIterationCL_)
       , maxStallIterationCL_(cp.maxStallIterationCL_)
       , maxSecondsCL_(cp.maxSecondsCL_) {
@@ -116,7 +115,7 @@ public:
     /**
 	  * The destructor
 	  */
-    virtual ~G_OptimizationAlgorithm_FactoryT() override = default;
+    ~G_OptimizationAlgorithm_FactoryT() override = default;
 
     /***************************************************************************/
     /**
@@ -238,10 +237,12 @@ public:
 	  * Allows to check whether the maximum number of iterations was set on the command line or using the manual function
 	  */
     bool maxIterationsCLSet() const {
-        if(maxIterationCL_ >= 0)
+        if(maxIterationCL_ >= 0) {
             return true;
-        else
+        }
+        else {
             return false;
+        }
     }
 
     /***************************************************************************/
@@ -260,7 +261,7 @@ public:
             );
 
             // Make the compiler happy
-            return std::uint32_t(0);
+            return static_cast<std::uint32_t>(0);
         }
     }
 
@@ -277,10 +278,12 @@ public:
 	  * Allows to check whether the maximum number of stall iterations was set on the command line or using the manual function
 	  */
     bool maxStallIterationsCLSet() const {
-        if(maxStallIterationCL_ >= 0)
+        if(maxStallIterationCL_ >= 0) {
             return true;
-        else
+        }
+        else {
             return false;
+        }
     }
 
     /***************************************************************************/
@@ -300,7 +303,7 @@ public:
             );
 
             // Make the compiler happy
-            return std::uint32_t(0);
+            return static_cast<std::uint32_t>(0);
         }
     }
 
@@ -317,10 +320,12 @@ public:
 	  * Allows to check whether the maximum number of seconds was set on the command line or using the manual function
 	  */
     bool maxSecondsCLSet() const {
-        if(maxSecondsCL_ >= 0)
+        if(maxSecondsCL_ >= 0) {
             return true;
-        else
+        }
+        else {
             return false;
+        }
     }
 
     /***************************************************************************/
@@ -386,7 +391,7 @@ protected:
 	  *
 	  * @param gpb A reference to the parser-builder
 	  */
-    virtual void describeLocalOptions_(Gem::Common::GParserBuilder &gpb) override {
+    void describeLocalOptions_(Gem::Common::GParserBuilder &gpb) override {
         /* nothing */
     }
 

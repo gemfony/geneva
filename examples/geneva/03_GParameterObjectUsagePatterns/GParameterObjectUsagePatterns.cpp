@@ -392,7 +392,7 @@ int main(int argc, char **argv) {
         // Note: We currently recommend not to use the subscript and at()
         // operators or iterators
         for(std::size_t i = 0; i < c1.size(); i++) {
-            c1.setValue(i, double(i));
+            c1.setValue(i, static_cast<double>(i));
             std::cout << c1.value(i) << '\n';
         }
         //-----------------------------------------------------

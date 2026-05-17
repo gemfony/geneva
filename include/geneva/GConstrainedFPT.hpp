@@ -338,8 +338,8 @@ public:
 
 #ifdef DEBUG
             long double fp_region = std::floor(
-                (local_val - (long double)(lower_boundary)) /
-                ((long double)(upper_boundary) - (long double)(lower_boundary))
+                (local_val - (lower_boundary)) /
+                ((upper_boundary) - (lower_boundary))
             );
 
             if(std::abs(fp_region) <
@@ -358,21 +358,21 @@ public:
             }
 #else  /* DEBUG */
             region = static_cast<std::int64_t>(std::floor(
-                (local_val - (long double)(lower_boundary)) /
-                ((long double)(upper_boundary) - (long double)(lower_boundary))
+                (local_val - static_cast<long double>(lower_boundary)) /
+                (static_cast<long double>(upper_boundary) - static_cast<long double>(lower_boundary))
             ));
 #endif /* DEBUG */
 
             // Check whether we are in an odd or an even range and calculate the
             // external value accordingly
-            long double mapping = (long double)(0.);
+            long double mapping = static_cast<long double>(0.);
             if(region % 2 ==
                0) { // can it be divided by 2 ? Region 0,2,... or a negative even range
-                mapping = local_val - (long double)(region) * (upper_boundary - lower_boundary);
+                mapping = local_val - static_cast<long double>(region) * (upper_boundary - lower_boundary);
             }
             else { // Range 1,3,... or a negative odd range
                 mapping =
-                    -local_val + ((long double)(region - 1) * (upper_boundary - lower_boundary) +
+                    -local_val + (static_cast<long double>(region - 1) * (upper_boundary - lower_boundary) +
                                   2 * upper_boundary);
             }
 
@@ -475,8 +475,9 @@ protected:
         bool result = false;
 
         // Call the parent classes' functions
-        if(GConstrainedNumT<fp_type>::modify_GUnitTests_())
+        if(GConstrainedNumT<fp_type>::modify_GUnitTests_()) {
             result = true;
+        }
 
         return result;
 

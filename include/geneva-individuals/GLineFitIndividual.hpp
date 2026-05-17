@@ -88,14 +88,14 @@ public:
     GLineFitIndividual(const GLineFitIndividual &);
 
     /** @brief The standard destructor */
-    virtual ~GLineFitIndividual();
+    ~GLineFitIndividual() override;
 
     /** @brief Retrieves the tuple (a,b) of the line represented by this object */
     std::tuple<double, double> getLine() const;
 
 protected:
     /** @brief Loads the data of another GLineFitIndividual */
-    virtual void load_(const GObject *) final;
+    void load_(const GObject *) final;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GLineFitIndividual>(
@@ -105,7 +105,7 @@ protected:
     );
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
-    virtual void compare_(
+    void compare_(
         const GObject & // the other object
         ,
         const Gem::Common::expectation & // the expectation for this object, e.g. equality
@@ -114,18 +114,18 @@ protected:
     ) const final;
 
     /** @brief The actual fitness calculation takes place here. */
-    virtual double fitnessCalculation() final;
+    double fitnessCalculation() final;
 
     /** @brief Applies modifications to this object. */
-    virtual bool modify_GUnitTests_();
+    bool modify_GUnitTests_() override;
     /** @brief Performs self tests that are expected to succeed. */
-    virtual void specificTestsNoFailureExpected_GUnitTests_();
+    void specificTestsNoFailureExpected_GUnitTests_() override;
     /** @brief Performs self tests that are expected to fail. */
-    virtual void specificTestsFailuresExpected_GUnitTests_();
+    void specificTestsFailuresExpected_GUnitTests_() override;
 
 private:
     /** @brief Creates a deep clone of this object */
-    virtual GObject *clone_() const final;
+    GObject *clone_() const final;
 
     /** @brief The default constructor -- private, as it is only needed for (de-)serialization purposes */
     GLineFitIndividual();
@@ -150,22 +150,22 @@ public:
     );
 
     /** @brief The destructor */
-    virtual ~GLineFitIndividualFactory();
+    ~GLineFitIndividualFactory() override;
 
 protected:
     /** @brief Allows to describe local configuration options in derived classes */
-    virtual void describeLocalOptions_(Gem::Common::GParserBuilder &);
+    void describeLocalOptions_(Gem::Common::GParserBuilder &) override;
 
     /** @brief Allows to act on the configuration options received from the configuration file */
-    virtual void postProcess_(std::shared_ptr<GParameterSet> &);
+    void postProcess_(std::shared_ptr<GParameterSet> &) override;
 
 private:
     /** @brief The default constructor. Only needed for (de-)serialization purposes */
     GLineFitIndividualFactory() = default;
 
     /** @brief Creates individuals of this type */
-    virtual std::shared_ptr<GParameterSet>
-    getObject_(Gem::Common::GParserBuilder &, const std::size_t &);
+    std::shared_ptr<GParameterSet>
+    getObject_(Gem::Common::GParserBuilder &, const std::size_t &) override;
 
     std::vector<std::tuple<double, double>> dataPoints_; ///< Holds data points for the fit
 };

@@ -129,7 +129,7 @@ private:
     std::vector<std::string> error_messages_;
 
     /** @brief The name of the calling class */
-    const std::string caller_{};
+    const std::string caller_;
     /** @brief The expectation to be met */
     const Gem::Common::expectation e_ = Gem::Common::expectation::INEQUALITY;
 };

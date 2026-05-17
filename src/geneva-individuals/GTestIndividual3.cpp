@@ -47,8 +47,7 @@ const double GTI_DEF_ADPROB = 0.05;
 /**
  * The default constructor
  */
-GTestIndividual3::GTestIndividual3()
-  : GParameterSet() {
+GTestIndividual3::GTestIndividual3() {
     using namespace Gem::Geneva;
 
     /////////////////////////////////////////////////////////////////////////////
@@ -286,8 +285,9 @@ bool GTestIndividual3::modify_GUnitTests_() {
     bool result = false;
 
     // Call the parent classes' functions
-    if(Gem::Geneva::GParameterSet::modify_GUnitTests_())
+    if(Gem::Geneva::GParameterSet::modify_GUnitTests_()) {
         result = true;
+    }
 
     // Change the parameter settings
     result = true;

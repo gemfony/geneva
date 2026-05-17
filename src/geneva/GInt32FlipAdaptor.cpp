@@ -140,8 +140,9 @@ bool GInt32FlipAdaptor::modify_GUnitTests_() {
     bool result = false;
 
     // Call the parent class'es function
-    if(GIntFlipAdaptorT<std::int32_t>::modify_GUnitTests_())
+    if(GIntFlipAdaptorT<std::int32_t>::modify_GUnitTests_()) {
         result = true;
+    }
 
     return result;
 

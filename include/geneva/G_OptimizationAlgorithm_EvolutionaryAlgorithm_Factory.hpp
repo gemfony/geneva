@@ -70,7 +70,7 @@ public:
     /** @brief The copy constructor */
     GEvolutionaryAlgorithmFactory(const GEvolutionaryAlgorithmFactory &) = default;
     /** @brief The destructor */
-    virtual ~GEvolutionaryAlgorithmFactory() = default;
+    ~GEvolutionaryAlgorithmFactory() override = default;
 
     /** @brief Gives access to the mnemonics / nickname describing an algorithm */
     std::string getMnemonic() const override;

@@ -94,7 +94,7 @@ std::vector<float> fillWithData<float>(std::size_t n_steps, float lower, float u
     }
 
     for(std::size_t i = 0; i < n_steps; i++) {
-        result.push_back(lower + (upper - lower) * float(i) / float(n_steps - 1));
+        result.push_back(lower + (upper - lower) * static_cast<float>(i) / static_cast<float>(n_steps - 1));
     }
 
     return result;
@@ -118,7 +118,7 @@ std::vector<double> fillWithData<double>(std::size_t n_steps, double lower, doub
     }
 
     for(std::size_t i = 0; i < n_steps; i++) {
-        result.push_back(lower + (upper - lower) * double(i) / double(n_steps - 1));
+        result.push_back(lower + (upper - lower) * static_cast<double>(i) / static_cast<double>(n_steps - 1));
     }
 
     return result;
@@ -130,8 +130,7 @@ std::vector<double> fillWithData<double>(std::size_t n_steps, double lower, doub
 /**
  * The default constructor. Only needed for de-serialization.
  */
-bScanPar::bScanPar()
-  : baseScanParT<bool>() { /* nothing */
+bScanPar::bScanPar() { /* nothing */
 }
 
 /******************************************************************************/
@@ -156,8 +155,7 @@ std::shared_ptr<bScanPar> bScanPar::clone() const {
 /**
  * The default constructor. Only needed for de-serialization.
  */
-int32ScanPar::int32ScanPar()
-  : baseScanParT<std::int32_t>() { /* nothing */
+int32ScanPar::int32ScanPar() { /* nothing */
 }
 
 /******************************************************************************/
@@ -182,8 +180,7 @@ std::shared_ptr<int32ScanPar> int32ScanPar::clone() const {
 /**
  * The default constructor. Only needed for de-serialization.
  */
-dScanPar::dScanPar()
-  : baseScanParT<double>() { /* nothing */
+dScanPar::dScanPar() { /* nothing */
 }
 
 /******************************************************************************/
@@ -208,8 +205,7 @@ std::shared_ptr<dScanPar> dScanPar::clone() const {
 /**
  * The default constructor. Only needed for de-serialization.
  */
-fScanPar::fScanPar()
-  : baseScanParT<float>() { /* nothing */
+fScanPar::fScanPar() { /* nothing */
 }
 
 /******************************************************************************/
@@ -686,8 +682,9 @@ void GParameterScan::updateSelectedParameters() {
 
         //------------------------------------------------------------------------
         // We do not want to exceed the boundaries of the population
-        if(++ind_pos >= this->getDefaultPopulationSize())
+        if(++ind_pos >= this->getDefaultPopulationSize()) {
             break;
+        }
     }
 }
 
@@ -711,8 +708,9 @@ void GParameterScan::randomShuffle() {
         //------------------------------------------------------------------------
         // We do not want to exceed the boundaries of the population -- stop
         // if we have reached the end of the population
-        if(++ind_pos >= this->getDefaultPopulationSize())
+        if(++ind_pos >= this->getDefaultPopulationSize()) {
             break;
+        }
 
         //------------------------------------------------------------------------
         // Make sure we terminate when the desired overall number of random scans has
@@ -886,10 +884,12 @@ bool GParameterScan::switchToNextParameterSet() {
     // Switch to the next parameter set
     while(true) {
         if((*it)->goToNextItem()) { // Will trigger if a warp has occurred
-            if(it + 1 == all_par_cnt_.end())
+            if(it + 1 == all_par_cnt_.end()) {
                 return false; // All possible combinations were found
-            else
+            }
+            else {
                 ++it; // Try the next parameter object
+            }
         }
         else {
             return true; // We have successfully switched to the next parameter set
@@ -1017,7 +1017,7 @@ void GParameterScan::runFitnessCalculation_() {
     //--------------------------------------------------------------------------------
     // Submit all work items and wait for their return
 
-    setProcessingFlag(this->data_cnt_, std::make_tuple(std::size_t(0), this->data_cnt_.size()));
+    setProcessingFlag(this->data_cnt_, std::make_tuple(static_cast<std::size_t>(0), this->data_cnt_.size()));
     auto status = this->workOn(
         data_cnt_,
         true // resubmit unprocessed items
@@ -1271,8 +1271,9 @@ bool GParameterScan::modify_GUnitTests_() {
     bool result = false;
 
     // Call the parent class'es function
-    if(G_OptimizationAlgorithm_Base::modify_GUnitTests_())
+    if(G_OptimizationAlgorithm_Base::modify_GUnitTests_()) {
         result = true;
+    }
 
     return result;
 #else  /* GEM_TESTING */

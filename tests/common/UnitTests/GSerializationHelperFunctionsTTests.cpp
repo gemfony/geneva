@@ -77,7 +77,7 @@ private:
 
     int         i_{0};
     double      d_{0.0};
-    std::string s_{};
+    std::string s_;
 };
 
 // Helpers that drive a free-function save/load round-trip through a specific

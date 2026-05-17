@@ -134,7 +134,7 @@ int main(int argc, char **argv) {
     std::chrono::duration<double> duration = endTime - startTime;
 
     // Let the audience know
-    double throughput = double(nCycles * packageSize) / duration.count();
+    double throughput = static_cast<double>(nCycles * packageSize) / duration.count();
     double megabytes = 8. * throughput / (1024 * 1024);
     std::cout << "Achieved a throughput of " << throughput
               << " double random numbers/s (equivalent to " << megabytes << " MB/s)" << '\n';

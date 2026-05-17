@@ -238,15 +238,15 @@ int main() {
 
         // Record the development of a sigma over time, when no
         // selection pressure exists
-        devel1_02_ptr->add(double(p), sigma_1_02);
-        devel1_04_ptr->add(double(p), sigma_1_04);
-        devel1_06_ptr->add(double(p), sigma_1_06);
-        devel1_08_ptr->add(double(p), sigma_1_08);
+        devel1_02_ptr->add(static_cast<double>(p), sigma_1_02);
+        devel1_04_ptr->add(static_cast<double>(p), sigma_1_04);
+        devel1_06_ptr->add(static_cast<double>(p), sigma_1_06);
+        devel1_08_ptr->add(static_cast<double>(p), sigma_1_08);
 
-        devel2_02_ptr->add(double(p), sigma_2_02);
-        devel2_04_ptr->add(double(p), sigma_2_04);
-        devel2_06_ptr->add(double(p), sigma_2_06);
-        devel2_08_ptr->add(double(p), sigma_2_08);
+        devel2_02_ptr->add(static_cast<double>(p), sigma_2_02);
+        devel2_04_ptr->add(static_cast<double>(p), sigma_2_04);
+        devel2_06_ptr->add(static_cast<double>(p), sigma_2_06);
+        devel2_08_ptr->add(static_cast<double>(p), sigma_2_08);
     }
 
     // Add the plots to the plot-designers

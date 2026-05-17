@@ -523,8 +523,9 @@ private:
 	  * a call to the when_read()-function
 	  */
     void async_start_read() {
-        if(check_server_stopped_())
+        if(check_server_stopped_()) {
             return;
+        }
 
         auto self = this->shared_from_this();
         boost::asio::async_read(
@@ -687,7 +688,7 @@ private:
         }
 
         // Make the compiler happy
-        return std::string();
+        return {};
     }
 
     //-------------------------------------------------------------------------
@@ -1068,8 +1069,9 @@ private:
         }
 
         // Accept another connection
-        if(not this->stopped())
+        if(not this->stopped()) {
             async_start_accept();
+        }
     }
 
     //-------------------------------------------------------------------------

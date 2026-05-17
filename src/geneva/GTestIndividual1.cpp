@@ -41,8 +41,7 @@ namespace Gem::Tests {
 /**
  * The default constructor.
  */
-GTestIndividual1::GTestIndividual1()
-  : GParameterSet() {
+GTestIndividual1::GTestIndividual1() {
     // Fill with some data
     std::shared_ptr<Gem::Geneva::GDoubleCollection> gdc_ptr(
         new Gem::Geneva::GDoubleCollection(100, -10., 10.)
@@ -158,8 +157,9 @@ bool GTestIndividual1::modify_GUnitTests_() {
     bool result = false;
 
     // Call the parent classes' functions
-    if(Gem::Geneva::GParameterSet::modify_GUnitTests_())
+    if(Gem::Geneva::GParameterSet::modify_GUnitTests_()) {
         result = true;
+    }
 
     // Change the parameter settings
     this->adapt();
@@ -496,7 +496,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
 
         // Extract and clone the first individual's GDoubleCollection object for later comparisons
         std::shared_ptr<Gem::Geneva::GDoubleCollection> gdc_ptr_old =
-            p_test1->at(std::size_t(0))->clone<Gem::Geneva::GDoubleCollection>();
+            p_test1->at(static_cast<std::size_t>(0))->clone<Gem::Geneva::GDoubleCollection>();
 
         // Adapt and evaluate the first individual
         CHECK_NOTHROW(p_test1->customAdaptions());
@@ -599,7 +599,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
         // Insert another (nItems) - 1 items and count the number of items identical to insert_ptr
         CHECK_NOTHROW(p_test->insert_clone(p_test->begin(), n_items - 1, insert_ptr));
         CHECK(p_test->size() == 2 * n_items);
-        CHECK((std::size_t)p_test->count(insert_ptr) >= n_items);
+        CHECK(static_cast<std::size_t>(p_test->count(insert_ptr)) >= n_items);
 
         // Check that there is no item with the same physical address as insert_ptr
         for(std::size_t i = 0; i < p_test->size(); i++) {
@@ -613,8 +613,9 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
         // There should now be exactly one item with the same address as insert_ptr (i.e. the same object)
         std::size_t n_identical = 0;
         for(std::size_t i = 0; i < p_test->size(); i++) {
-            if((p_test->at(i)).get() == insert_ptr.get())
+            if((p_test->at(i)).get() == insert_ptr.get()) {
                 n_identical++;
+            }
         }
         CHECK(n_identical == 1);
 
@@ -634,8 +635,9 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
         // There should again be exactly one item with the same address as insert_ptr (i.e. the same object)
         n_identical = 0;
         for(std::size_t i = 0; i < p_test->size(); i++) {
-            if((p_test->at(i)).get() == insert_ptr.get())
+            if((p_test->at(i)).get() == insert_ptr.get()) {
                 n_identical++;
+            }
         }
         CHECK(n_identical == 1);
 

@@ -218,7 +218,7 @@ int main(int argc, char **argv) {
     }
 
     // Submit each task to the pool a number of times
-    double resizeLikelihood = (std::min)(double(nResizeEvents) / double(nIterations), 1.);
+    double resizeLikelihood = (std::min)(static_cast<double>(nResizeEvents) / static_cast<double>(nIterations), 1.);
     std::bernoulli_distribution weighted_bool(resizeLikelihood);
 
     for(std::size_t n = 0; n < nIterations; n++) {

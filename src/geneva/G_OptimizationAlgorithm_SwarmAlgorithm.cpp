@@ -52,8 +52,7 @@ GSwarmAlgorithm::GSwarmAlgorithm(
     const std::size_t &n_neighborhoods,
     const std::size_t &default_n_neighborhood_members
 )
-  : G_OptimizationAlgorithm_Base()
-  , n_neighborhoods_((n_neighborhoods >= 1) ? n_neighborhoods : 1)
+  : n_neighborhoods_((n_neighborhoods >= 1) ? n_neighborhoods : 1)
   , default_n_neighborhood_members_(
         (default_n_neighborhood_members >= 2) ? default_n_neighborhood_members : 2
     ) {
@@ -439,8 +438,9 @@ std::size_t GSwarmAlgorithm::getFirstNIPosVec(
     // TODO: Add check for array sizes
 #endif
 
-    if(neighborhood == 0)
+    if(neighborhood == 0) {
         return 0;
+    }
     else { // Sum up the number of members in each neighborhood
         std::size_t n_previous_members = 0;
         for(std::size_t n = 0; n < neighborhood; n++) {
@@ -956,8 +956,9 @@ void GSwarmAlgorithm::adjustNeighborhoods() {
  */
 bool GSwarmAlgorithm::neighborhoodsHaveNominalValues() const {
     for(std::size_t n = 0; n < n_neighborhoods_; n++) {
-        if(n_neighborhood_members_cnt_[n] != default_n_neighborhood_members_)
+        if(n_neighborhood_members_cnt_[n] != default_n_neighborhood_members_) {
             return false;
+        }
     }
     return true;
 }
@@ -1334,7 +1335,10 @@ void GSwarmAlgorithm::runFitnessCalculation_() {
 
     //--------------------------------------------------------------------------------
     // Submit work items and wait for results.
-    setProcessingFlag(this->data_cnt_, std::make_tuple(std::size_t(0), this->data_cnt_.size()));
+    setProcessingFlag(
+        this->data_cnt_,
+        std::make_tuple(static_cast<std::size_t>(0), this->data_cnt_.size())
+    );
     auto status = this->workOn(
         data_cnt_,
         false // do not resubmit unprocessed items
@@ -1396,7 +1400,7 @@ void GSwarmAlgorithm::runFitnessCalculation_() {
     );
 
     // Now update the number of items in each neighborhood: First reset the number of members of each neighborhood
-    Gem::Common::assignVecConst(n_neighborhood_members_cnt_, (std::size_t)0);
+    Gem::Common::assignVecConst(n_neighborhood_members_cnt_, static_cast<std::size_t>(0));
     // Then update the number of individuals in each neighborhood
     for(const auto &item_ptr : *this) {
         n_neighborhood_members_cnt_[item_ptr
@@ -1652,8 +1656,9 @@ void GSwarmAlgorithm::fillUpNeighborhood1() {
         );
     }
 
-    if(default_n_neighborhood_members_ == 1)
+    if(default_n_neighborhood_members_ == 1) {
         return; // nothing to do
+    }
 
     // Starting with the last item, loop over all neighborhoods
     for(std::size_t i = 0; i < n_neighborhoods_; i++) {
@@ -1914,8 +1919,9 @@ bool GSwarmAlgorithm::modify_GUnitTests_() {
     bool result = false;
 
     // Call the parent class'es function
-    if(G_OptimizationAlgorithm_Base::modify_GUnitTests_())
+    if(G_OptimizationAlgorithm_Base::modify_GUnitTests_()) {
         result = true;
+    }
 
     return result;
 

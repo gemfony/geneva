@@ -531,8 +531,9 @@ void GParserBuilder::writeConfigFile(
     for(auto const &v_ptr : file_parameter_proxies_) {
         // Only write out the parameter(s) if they are either essential or it
         // has been requested to write out all parameters regardless
-        if(not write_all && not v_ptr->isEssential())
+        if(not write_all && not v_ptr->isEssential()) {
             continue;
+        }
 
         // Output the actual data of this parameter object to the property tree
         v_ptr->save_to(ptr);
@@ -587,7 +588,7 @@ bool GParserBuilder::parseCommandLine(int argc, char **argv, bool verbose) {
         po::notify(vm);
 
         // Emit a help message, if necessary and let the caller of this function know
-        if(vm.count("help")) {
+        if(vm.contains("help")) {
             std::cout << desc << '\n';
             result = GCL_HELP_REQUESTED;
         }

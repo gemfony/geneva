@@ -1004,9 +1004,9 @@ private:
     /***************************************************************************/
     // Data
 
-    ITERATION_COUNTER_TYPE iteration_counter_ = ITERATION_COUNTER_TYPE(0);
-    RESUBMISSION_COUNTER_TYPE resubmission_counter_ = RESUBMISSION_COUNTER_TYPE(0);
-    COLLECTION_POSITION_TYPE collection_position_ = COLLECTION_POSITION_TYPE(0);
+    ITERATION_COUNTER_TYPE iteration_counter_ = static_cast<ITERATION_COUNTER_TYPE>(0);
+    RESUBMISSION_COUNTER_TYPE resubmission_counter_ = static_cast<RESUBMISSION_COUNTER_TYPE>(0);
+    COLLECTION_POSITION_TYPE collection_position_ = static_cast<COLLECTION_POSITION_TYPE>(0);
     BUFFERPORT_ID_TYPE bufferport_id_ = BUFFERPORT_ID_TYPE();
 
     bool preProcessingDisabled_ = false; ///< Indicates whether pre-processing was diabled entirely
@@ -1039,8 +1039,8 @@ private:
         processing_result_type()
     ); ///< The results stored by this object
 
-    std::string stored_error_descriptions_ =
-        ""; ///< Stores exceptions that may have occurred during processing
+    std::string
+        stored_error_descriptions_; ///< Stores exceptions that may have occurred during processing
     processingStatus processing_status_ =
         processingStatus::DO_IGNORE; ///< By default no processing is initiated
 

@@ -89,14 +89,14 @@ public:
     GTestIndividual3(const GTestIndividual3 &);
 
     /** @brief The destructor */
-    virtual ~GTestIndividual3();
+    ~GTestIndividual3() override;
 
     /** @brief Get all data members of this class as a plain array */
     std::shared_ptr<float> getPlainData() const;
 
 protected:
     /** @brief Loads the data of another GTestIndividual3 */
-    virtual void load_(const GObject *) final;
+    void load_(const GObject *) final;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GTestIndividual3>(
@@ -106,7 +106,7 @@ protected:
     );
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
-    virtual void compare_(
+    void compare_(
         const GObject & // the other object
         ,
         const Gem::Common::expectation & // the expectation for this object, e.g. equality
@@ -115,18 +115,18 @@ protected:
     ) const final;
 
     /** @brief The actual fitness calculation takes place here. */
-    virtual double fitnessCalculation() final;
+    double fitnessCalculation() final;
 
     /** @brief Applies modifications to this object. */
-    virtual bool modify_GUnitTests_();
+    bool modify_GUnitTests_() override;
     /** @brief Performs self tests that are expected to succeed. */
-    virtual void specificTestsNoFailureExpected_GUnitTests_();
+    void specificTestsNoFailureExpected_GUnitTests_() override;
     /** @brief Performs self tests that are expected to fail. */
-    virtual void specificTestsFailuresExpected_GUnitTests_();
+    void specificTestsFailuresExpected_GUnitTests_() override;
 
 private:
     /** @brief Creates a deep clone of this object */
-    virtual GObject *clone_() const final;
+    GObject *clone_() const final;
 };
 
 /******************************************************************************/

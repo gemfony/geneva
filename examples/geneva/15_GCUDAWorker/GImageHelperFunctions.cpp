@@ -126,7 +126,7 @@ bool loadPngToRGB(
     }
 
     // Allocate array of row-pointers
-    const auto row_pointers = static_cast<png_bytep *>(malloc(sizeof(png_bytep) * height));
+    auto *const row_pointers = static_cast<png_bytep *>(malloc(sizeof(png_bytep) * height));
     if(!row_pointers) {
         free(image_data);
         png_destroy_read_struct(&png_ptr, &info_ptr, nullptr);

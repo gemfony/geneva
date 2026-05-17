@@ -139,8 +139,9 @@ bool GDoubleBiGaussAdaptor::modify_GUnitTests_() {
     bool result = false;
 
     // Call the parent class'es function
-    if(GFPBiGaussAdaptorT<double>::modify_GUnitTests_())
+    if(GFPBiGaussAdaptorT<double>::modify_GUnitTests_()) {
         result = true;
+    }
 
     return result;
 

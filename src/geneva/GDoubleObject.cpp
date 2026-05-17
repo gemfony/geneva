@@ -343,8 +343,9 @@ bool GDoubleObject::modify_GUnitTests_() {
     bool result = false;
 
     // Call the parent class'es function
-    if(GNumFPT<double>::modify_GUnitTests_())
+    if(GNumFPT<double>::modify_GUnitTests_()) {
         result = true;
+    }
 
     this->randomInit(activityMode::ALLPARAMETERS, gr);
     result = true;

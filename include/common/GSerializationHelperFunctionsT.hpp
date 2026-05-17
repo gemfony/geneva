@@ -187,10 +187,12 @@ void save(
     unsigned int /*version*/
 ) {
     Gem::Common::triboolStates tbs = Gem::Common::triboolStates::TBS_FALSE;
-    if(val == Gem::Common::tribool::True)
+    if(val == Gem::Common::tribool::True) {
         tbs = Gem::Common::triboolStates::TBS_TRUE;
-    else if(val == Gem::Common::tribool::Indeterminate)
+    }
+    else if(val == Gem::Common::tribool::Indeterminate) {
         tbs = Gem::Common::triboolStates::TBS_INDETERMINATE;
+    }
 
     ar &make_nvp("tbs", tbs);
 }

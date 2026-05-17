@@ -224,7 +224,7 @@ public:
     networkData(const networkData &);
 
     /** @brief A standard destructor. */
-    virtual ~networkData();
+    ~networkData() override;
 
     /** @brief Copies the data of another networkData object */
     networkData &operator=(const networkData &);
@@ -401,7 +401,7 @@ public:
     GNeuralNetworkIndividual(const GNeuralNetworkIndividual &cp);
 
     /** @brief The standard destructor */
-    virtual ~GNeuralNetworkIndividual();
+    ~GNeuralNetworkIndividual() override;
 
     /** @brief Initialization according to user-specifications */
     void init(
@@ -508,24 +508,27 @@ public:
 
                 // Need to find at least one dimension outside of the perimeter
                 // in order to set the outside flag to true.
-                if(one_dim_rnd < -edgelength / 2. || one_dim_rnd > edgelength / 2.)
+                if(one_dim_rnd < -edgelength / 2. || one_dim_rnd > edgelength / 2.) {
                     outside = true;
+                }
 
                 t_s->Input[i] = one_dim_rnd;
             }
 
-            if(outside)
+            if(outside) {
                 t_s->Output[0] = 0.99;
-            else
+            }
+            else {
                 t_s->Output[0] = 0.01;
+            }
 
             n_d->addTrainingSet(t_s, dat_counter);
         }
 
         // Make the initialization range known to nD_
         std::vector<std::tuple<double, double>> init_range;
-        init_range.push_back(std::tuple<double, double>(-edgelength, edgelength)); // x
-        init_range.push_back(std::tuple<double, double>(-edgelength, edgelength)); // y
+        init_range.emplace_back(-edgelength, edgelength); // x
+        init_range.emplace_back(-edgelength, edgelength); // y
         n_d->setInitRange(init_range);
 
         return n_d;
@@ -610,10 +613,12 @@ public:
                 gr_l,
                 std::uniform_real_distribution<double>::param_type(0., 3 * radius)
             );
-            if(local_radius > radius)
+            if(local_radius > radius) {
                 t_s->Output[0] = 0.99;
-            else
+            }
+            else {
                 t_s->Output[0] = 0.01;
+            }
 
             //////////////////////////////////////////////////////////////////
             // Calculate random Cartesian coordinates for hyper sphere
@@ -637,8 +642,8 @@ public:
 
                 // Make the initialization range known to nD_ . We only do this for 2D-data
                 std::vector<std::tuple<double, double>> init_range;
-                init_range.push_back(std::tuple<double, double>(-local_radius, local_radius)); // x
-                init_range.push_back(std::tuple<double, double>(-local_radius, local_radius)); // y
+                init_range.emplace_back(-local_radius, local_radius); // x
+                init_range.emplace_back(-local_radius, local_radius); // y
                 n_d->setInitRange(init_range);
             } break;
 
@@ -671,8 +676,9 @@ public:
                 // Now we can fill the source-vector itself
                 std::vector<double> cart_coord(n_dim);
 
-                for(std::size_t i = 0; i < n_dim; i++)
+                for(std::size_t i = 0; i < n_dim; i++) {
                     cart_coord[i] = local_radius; // They all have that
+                }
 
                 cart_coord[0] *= cos(angle_collection[0]); // x_1 / cart_coord[0]
 
@@ -814,8 +820,8 @@ public:
 
         // Make the initialization range known to nD_
         std::vector<std::tuple<double, double>> init_range;
-        init_range.push_back(std::tuple<double, double>(0, 1)); // x
-        init_range.push_back(std::tuple<double, double>(0, 1)); // y
+        init_range.emplace_back(0, 1); // x
+        init_range.emplace_back(0, 1); // y
         n_d->setInitRange(init_range);
 
         return n_d;
@@ -917,8 +923,8 @@ public:
 
         // Make the initialization range known to nD_
         std::vector<std::tuple<double, double>> init_range;
-        init_range.push_back(std::tuple<double, double>(-6, 6)); // x
-        init_range.push_back(std::tuple<double, double>(-6, 6)); // y
+        init_range.emplace_back(-6, 6); // x
+        init_range.emplace_back(-6, 6); // y
         n_d->setInitRange(init_range);
 
         return n_d;
@@ -1007,7 +1013,7 @@ public:
 protected:
     /***************************************************************************/
     /** @brief Loads the data of another GNeuralNetworkIndividual */
-    virtual void load_(const GObject *cp) final;
+    void load_(const GObject *cp) final;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GNeuralNetworkIndividual>(
@@ -1017,7 +1023,7 @@ protected:
     );
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
-    virtual void compare_(
+    void compare_(
         const GObject & // the other object
         ,
         const Gem::Common::expectation & // the expectation for this object, e.g. equality
@@ -1026,12 +1032,12 @@ protected:
     ) const final;
 
     /** @brief The actual fitness calculation */
-    virtual double fitnessCalculation() final;
+    double fitnessCalculation() final;
 
 private:
     /***************************************************************************/
     /** @brief Creates a deep clone of this object */
-    virtual GObject *clone_() const final;
+    GObject *clone_() const final;
 
     /** @brief The transfer function */
     double transfer(const double &value) const;
@@ -1055,7 +1061,7 @@ public:
     explicit GNeuralNetworkIndividualFactory(std::filesystem::path const &);
 
     /** @brief The destructor */
-    virtual ~GNeuralNetworkIndividualFactory();
+    ~GNeuralNetworkIndividualFactory() override;
 
     /** @brief Sets the type of the transfer function */
     void setTransferFunction(transferFunction t_f);
@@ -1064,17 +1070,17 @@ public:
 
 protected:
     /** @brief Allows to describe local configuration options in derived classes */
-    virtual void describeLocalOptions_(Gem::Common::GParserBuilder &);
+    void describeLocalOptions_(Gem::Common::GParserBuilder &) override;
     /** @brief Allows to act on the configuration options received from the configuration file */
-    virtual void postProcess_(std::shared_ptr<GParameterSet> &);
+    void postProcess_(std::shared_ptr<GParameterSet> &) override;
 
 private:
     /** @brief The default constructor. Only needed for (de-)serialization purposes */
     GNeuralNetworkIndividualFactory() = default;
 
     /** @brief Creates individuals of this type */
-    virtual std::shared_ptr<GParameterSet>
-    getObject_(Gem::Common::GParserBuilder &, const std::size_t &);
+    std::shared_ptr<GParameterSet>
+    getObject_(Gem::Common::GParserBuilder &, const std::size_t &) override;
 
     double adProb_ = 0.;
     double adaptAdProb_ = 0.;

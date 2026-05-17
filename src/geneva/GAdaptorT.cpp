@@ -52,7 +52,7 @@ std::size_t GAdaptorT<bool, double>::adapt(
     std::size_t n_adapted = 0;
 
     // Update the adaption probability, if requested by the user
-    if(adaptAdProb_ > double(0.)) {
+    if(adaptAdProb_ > (0.)) {
         adProb_ *= std::exp(normal_distribution_(
             gr,
             typename std::normal_distribution<double>::param_type(0., adaptAdProb_)

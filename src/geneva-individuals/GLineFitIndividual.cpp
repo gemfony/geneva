@@ -36,8 +36,7 @@ namespace Gem::Geneva {
 /**
  * The default constructor -- private, as it is only needed for (de-)serialization purposes
  */
-GLineFitIndividual::GLineFitIndividual()
-  : GParameterSet() { /* nothing */
+GLineFitIndividual::GLineFitIndividual() { /* nothing */
 }
 
 /******************************************************************************/
@@ -47,8 +46,7 @@ GLineFitIndividual::GLineFitIndividual()
  * @param n_objects The number of parameters to be added to this individual
  */
 GLineFitIndividual::GLineFitIndividual(const std::vector<std::tuple<double, double>> &data_points)
-  : GParameterSet()
-  , dataPoints_(data_points) {
+  : dataPoints_(data_points) {
     using namespace Gem::Geneva;
 
     for(std::size_t i = 0; i < 2; i++) {
@@ -192,8 +190,9 @@ bool GLineFitIndividual::modify_GUnitTests_() {
     bool result = false;
 
     // Call the parent classes' functions
-    if(Gem::Geneva::GParameterSet::modify_GUnitTests_())
+    if(Gem::Geneva::GParameterSet::modify_GUnitTests_()) {
         result = true;
+    }
 
     // Change the parameter settings
     result = true;

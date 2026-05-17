@@ -120,7 +120,7 @@ std::string psToStr(const processingStatus &ps) {
     }
 
     // Make the compiler happy
-    return std::string();
+    return {};
 }
 
 /******************************************************************************/
@@ -149,7 +149,7 @@ std::string pcToStr(const networked_consumer_payload_command &pc) {
     }
 
     // Make the compiler happy
-    return std::string();
+    return {};
 }
 
 /******************************************************************************/

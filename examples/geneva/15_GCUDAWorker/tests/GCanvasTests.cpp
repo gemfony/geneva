@@ -336,12 +336,13 @@ TEST_CASE(
     c.reset(std::make_tuple(std::size_t{3}, std::size_t{2}), 0.f, 1.f, 0.f);
     REQUIRE(c.getXDim() == 3);
     REQUIRE(c.getYDim() == 2);
-    for(std::size_t x = 0; x < 3; ++x)
+    for(std::size_t x = 0; x < 3; ++x) {
         for(std::size_t y = 0; y < 2; ++y) {
             REQUIRE(c[x][y].r == Approx(0.f));
             REQUIRE(c[x][y].g == Approx(1.f));
             REQUIRE(c[x][y].b == Approx(0.f));
         }
+    }
 }
 
 TEST_CASE(
@@ -605,9 +606,11 @@ TEST_CASE(
         std::make_tuple(0.5f, 0.5f, 0.5f)
     };
     c.addTriangle(full_cover_triangle(1.f, 0.f, 0.f, 0.f));
-    for(std::size_t x = 0; x < 4; ++x)
-        for(std::size_t y = 0; y < 4; ++y)
+    for(std::size_t x = 0; x < 4; ++x) {
+        for(std::size_t y = 0; y < 4; ++y) {
             REQUIRE(c[x][y].r == Approx(0.5f));
+        }
+    }
 }
 
 TEST_CASE(
@@ -621,12 +624,13 @@ TEST_CASE(
         std::make_tuple(1.f, 1.f, 1.f)
     };
     c.addTriangle(full_cover_triangle(1.f, 0.f, 0.f, 1.f));
-    for(std::size_t x = 0; x < 4; ++x)
+    for(std::size_t x = 0; x < 4; ++x) {
         for(std::size_t y = 0; y < 4; ++y) {
             REQUIRE(c[x][y].r == Approx(1.f));
             REQUIRE(c[x][y].g == Approx(0.f));
             REQUIRE(c[x][y].b == Approx(0.f));
         }
+    }
 }
 
 TEST_CASE(
@@ -666,8 +670,9 @@ TEST_CASE(
     t.a = 1.f;
     c.addTriangle(t);
     // Column 0 is to the left of all triangle vertices — must be gray
-    for(std::size_t y = 0; y < 4; ++y)
+    for(std::size_t y = 0; y < 4; ++y) {
         REQUIRE(c[0][y].r == Approx(0.5f));
+    }
 }
 
 TEST_CASE(

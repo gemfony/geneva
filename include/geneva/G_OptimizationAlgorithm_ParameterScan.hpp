@@ -292,8 +292,7 @@ protected:
       , nSteps_(2)
       , lower_(T(0))
       , upper_(T(1))
-      , randomScan_(true)
-      , typeDescription_("") { /* nothing */
+      , randomScan_(true) { /* nothing */
     }
 
     /***************************************************************************/

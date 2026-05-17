@@ -207,8 +207,9 @@ bool GInt32GaussAdaptor::modify_GUnitTests_() {
     bool result = false;
 
     // Call the parent class'es function
-    if(GIntGaussAdaptorT<std::int32_t>::modify_GUnitTests_())
+    if(GIntGaussAdaptorT<std::int32_t>::modify_GUnitTests_()) {
         result = true;
+    }
 
     return result;
 

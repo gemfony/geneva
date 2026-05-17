@@ -350,8 +350,9 @@ bool GInt32Object::modify_GUnitTests_() {
     bool result = false;
 
     // Call the parent class'es function
-    if(GNumIntT<std::int32_t>::modify_GUnitTests_())
+    if(GNumIntT<std::int32_t>::modify_GUnitTests_()) {
         result = true;
+    }
 
     this->setValue(this->value() + 1);
     result = true;

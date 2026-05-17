@@ -152,8 +152,9 @@ bool GConjugateGradientDescent_PersonalityTraits::modify_GUnitTests_() {
     bool result = false;
 
     // Call the parent class'es function
-    if(GPersonalityTraits::modify_GUnitTests_())
+    if(GPersonalityTraits::modify_GUnitTests_()) {
         result = true;
+    }
 
     this->setPopulationPosition(this->getPopulationPosition() + 1);
     result = true;

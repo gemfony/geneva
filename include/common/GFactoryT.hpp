@@ -130,14 +130,14 @@ public:
     GFactoryT(const GFactoryT<prod_type> &cp)
       : config_path_(cp.config_path_)
       , id_(cp.id_)
-      , initialized_(cp.initialized_)
-      , init_mutex_() {}
+      , initialized_(cp.initialized_) {
+    }
 
     GFactoryT(GFactoryT<prod_type> &&cp) noexcept
       : config_path_(std::move(cp.config_path_))
       , id_(cp.id_)
-      , initialized_(cp.initialized_)
-      , init_mutex_() {}
+      , initialized_(cp.initialized_) {
+    }
 
     virtual ~GFactoryT() = default;
 

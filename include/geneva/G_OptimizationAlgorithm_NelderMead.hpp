@@ -256,10 +256,10 @@ private:
     double sigma_ = DEFAULTNMSIGMA;             ///< Shrink coefficient
     double initialEdge_ = DEFAULTNMINITIALEDGE; ///< Initial simplex edge (fraction of range)
 
-    std::vector<double> dblLowerParameterBoundaries_ = std::vector<
-        double>(); ///< Lower boundaries of double parameters; extracted in init() (transient)
-    std::vector<double> dblUpperParameterBoundaries_ = std::vector<
-        double>(); ///< Upper boundaries of double parameters; extracted in init() (transient)
+    std::vector<double>
+        dblLowerParameterBoundaries_; ///< Lower boundaries of double parameters; extracted in init() (transient)
+    std::vector<double>
+        dblUpperParameterBoundaries_; ///< Upper boundaries of double parameters; extracted in init() (transient)
 
     bool trialsPending_ =
         false; ///< True once real trial points have been proposed (transient; gates the first decision)

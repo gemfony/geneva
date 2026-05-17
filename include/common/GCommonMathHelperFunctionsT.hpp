@@ -244,21 +244,25 @@ fp_type checkValueRange(
     bool in_value_range = true;
 
     if(lower_open) {
-        if(val < std::nextafter(min, std::numeric_limits<fp_type>::infinity()))
+        if(val < std::nextafter(min, std::numeric_limits<fp_type>::infinity())) {
             in_value_range = false;
+        }
     }
     else {
-        if(val < min)
+        if(val < min) {
             in_value_range = false;
+        }
     }
 
     if(upper_open) {
-        if(val > std::nextafter(max, -std::numeric_limits<fp_type>::infinity()))
+        if(val > std::nextafter(max, -std::numeric_limits<fp_type>::infinity())) {
             in_value_range = false;
+        }
     }
     else {
-        if(val > max)
+        if(val > max) {
             in_value_range = false;
+        }
     }
 
     if(not in_value_range) {
@@ -309,21 +313,25 @@ int_type checkValueRange(
     bool in_value_range = true;
 
     if(lower_open) {
-        if(val <= min)
+        if(val <= min) {
             in_value_range = false;
+        }
     }
     else {
-        if(val < min)
+        if(val < min) {
             in_value_range = false;
+        }
     }
 
     if(upper_open) {
-        if(val >= max)
+        if(val >= max) {
             in_value_range = false;
+        }
     }
     else {
-        if(val > max)
+        if(val > max) {
             in_value_range = false;
+        }
     }
 
     if(not in_value_range) {
@@ -359,7 +367,7 @@ int_type checkValueRange(
  */
 template <typename x_type_undet>
 auto getMinMax(const std::vector<x_type_undet> &ext_dat) {
-    if(ext_dat.size() < std::size_t(2)) {
+    if(ext_dat.size() < static_cast<std::size_t>(2)) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GBasePlotter::getMinMax(1D): Error!" << '\n'
@@ -383,7 +391,7 @@ auto getMinMax(const std::vector<x_type_undet> &ext_dat) {
 template <typename x_type_undet, typename y_type_undet>
 auto getMinMax(const std::vector<std::tuple<x_type_undet, y_type_undet>> &ext_dat) {
     // Do some error checking
-    if(ext_dat.size() < (std::size_t)2) {
+    if(ext_dat.size() < static_cast<std::size_t>(2)) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GBasePlotter::getMinMax(2D): Error!" << '\n'
@@ -395,14 +403,18 @@ auto getMinMax(const std::vector<std::tuple<x_type_undet, y_type_undet>> &ext_da
     y_type_undet min_y = std::get<1>(ext_dat.at(0)), max_y = min_y;
 
     for(std::size_t i = 1; i < ext_dat.size(); i++) {
-        if(std::get<0>(ext_dat.at(i)) < min_x)
+        if(std::get<0>(ext_dat.at(i)) < min_x) {
             min_x = std::get<0>(ext_dat.at(i));
-        if(std::get<0>(ext_dat.at(i)) > max_x)
+        }
+        if(std::get<0>(ext_dat.at(i)) > max_x) {
             max_x = std::get<0>(ext_dat.at(i));
-        if(std::get<1>(ext_dat.at(i)) < min_y)
+        }
+        if(std::get<1>(ext_dat.at(i)) < min_y) {
             min_y = std::get<1>(ext_dat.at(i));
-        if(std::get<1>(ext_dat.at(i)) > max_y)
+        }
+        if(std::get<1>(ext_dat.at(i)) > max_y) {
             max_y = std::get<1>(ext_dat.at(i));
+        }
     }
 
     return std::tuple<x_type_undet, x_type_undet, y_type_undet, y_type_undet>{
@@ -425,7 +437,7 @@ auto getMinMax(const std::vector<std::tuple<x_type_undet, y_type_undet>> &ext_da
 template <typename x_type_undet, typename y_type_undet, typename z_type_undet>
 auto getMinMax(const std::vector<std::tuple<x_type_undet, y_type_undet, z_type_undet>> &ext_dat) {
     // Do some error checking
-    if(ext_dat.size() < (std::size_t)2) {
+    if(ext_dat.size() < static_cast<std::size_t>(2)) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GBasePlotter::getMinMax(3D): Error!" << '\n'
@@ -438,18 +450,24 @@ auto getMinMax(const std::vector<std::tuple<x_type_undet, y_type_undet, z_type_u
     z_type_undet min_z = std::get<2>(ext_dat.at(0)), max_z = min_z;
 
     for(std::size_t i = 1; i < ext_dat.size(); i++) {
-        if(std::get<0>(ext_dat.at(i)) < min_x)
+        if(std::get<0>(ext_dat.at(i)) < min_x) {
             min_x = std::get<0>(ext_dat.at(i));
-        if(std::get<0>(ext_dat.at(i)) > max_x)
+        }
+        if(std::get<0>(ext_dat.at(i)) > max_x) {
             max_x = std::get<0>(ext_dat.at(i));
-        if(std::get<1>(ext_dat.at(i)) < min_y)
+        }
+        if(std::get<1>(ext_dat.at(i)) < min_y) {
             min_y = std::get<1>(ext_dat.at(i));
-        if(std::get<1>(ext_dat.at(i)) > max_y)
+        }
+        if(std::get<1>(ext_dat.at(i)) > max_y) {
             max_y = std::get<1>(ext_dat.at(i));
-        if(std::get<2>(ext_dat.at(i)) < min_z)
+        }
+        if(std::get<2>(ext_dat.at(i)) < min_z) {
             min_z = std::get<2>(ext_dat.at(i));
-        if(std::get<2>(ext_dat.at(i)) > max_z)
+        }
+        if(std::get<2>(ext_dat.at(i)) > max_z) {
             max_z = std::get<2>(ext_dat.at(i));
+        }
     }
 
     return std::
@@ -481,7 +499,7 @@ auto getMinMax(
     const std::vector<std::tuple<x_type_undet, y_type_undet, z_type_undet, w_type_undet>> &ext_dat
 ) {
     // Do some error checking
-    if(ext_dat.size() < (std::size_t)2) {
+    if(ext_dat.size() < static_cast<std::size_t>(2)) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In GBasePlotter::getMinMax(4D): Error!" << '\n'
@@ -495,22 +513,30 @@ auto getMinMax(
     w_type_undet min_w = std::get<3>(ext_dat.at(0)), max_w = min_w;
 
     for(std::size_t i = 1; i < ext_dat.size(); i++) {
-        if(std::get<0>(ext_dat.at(i)) < min_x)
+        if(std::get<0>(ext_dat.at(i)) < min_x) {
             min_x = std::get<0>(ext_dat.at(i));
-        if(std::get<0>(ext_dat.at(i)) > max_x)
+        }
+        if(std::get<0>(ext_dat.at(i)) > max_x) {
             max_x = std::get<0>(ext_dat.at(i));
-        if(std::get<1>(ext_dat.at(i)) < min_y)
+        }
+        if(std::get<1>(ext_dat.at(i)) < min_y) {
             min_y = std::get<1>(ext_dat.at(i));
-        if(std::get<1>(ext_dat.at(i)) > max_y)
+        }
+        if(std::get<1>(ext_dat.at(i)) > max_y) {
             max_y = std::get<1>(ext_dat.at(i));
-        if(std::get<2>(ext_dat.at(i)) < min_z)
+        }
+        if(std::get<2>(ext_dat.at(i)) < min_z) {
             min_z = std::get<2>(ext_dat.at(i));
-        if(std::get<2>(ext_dat.at(i)) > max_z)
+        }
+        if(std::get<2>(ext_dat.at(i)) > max_z) {
             max_z = std::get<2>(ext_dat.at(i));
-        if(std::get<3>(ext_dat.at(i)) < min_w)
+        }
+        if(std::get<3>(ext_dat.at(i)) < min_w) {
             min_w = std::get<3>(ext_dat.at(i));
-        if(std::get<3>(ext_dat.at(i)) > max_w)
+        }
+        if(std::get<3>(ext_dat.at(i)) > max_w) {
             max_w = std::get<3>(ext_dat.at(i));
+        }
     }
 
     return std::tuple<
@@ -544,8 +570,9 @@ T GMean(const std::vector<T> &par_vec) {
 #endif /* DEBUG */
 
     T mean = T(0);
-    for(const auto &v : par_vec)
+    for(const auto &v : par_vec) {
         mean += v;
+    }
     return mean / static_cast<T>(par_vec.size());
 }
 
@@ -583,12 +610,15 @@ auto GStandardDeviation(const std::vector<T> &par_vec) {
  */
 template <std::size_t B, std::size_t E>
 constexpr std::size_t PowSmallPosInt() {
-    if constexpr(E == 0)
-        return std::size_t(1);
-    else if constexpr(E == 1)
+    if constexpr(E == 0) {
+        return static_cast<std::size_t>(1);
+    }
+    else if constexpr(E == 1) {
         return B;
-    else
+    }
+    else {
         return B * PowSmallPosInt<B, E - 1>();
+    }
 }
 
 /******************************************************************************/
@@ -653,8 +683,9 @@ void addVec(std::vector<T> &a, const std::vector<T> &b) {
  */
 template <typename T>
 void multVecConst(std::vector<T> &a, const T &c) {
-    for(auto &v : a)
+    for(auto &v : a) {
         v *= c;
+    }
 }
 
 /******************************************************************************/

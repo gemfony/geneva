@@ -159,8 +159,7 @@ networkData::networkData()
  * @param array_size The desired size of the array
  */
 networkData::networkData(const std::size_t &array_size)
-  : Gem::Common::GPodContainerT<std::size_t>()
-  , arraySize_(array_size)
+  : arraySize_(array_size)
   , data_(new std::shared_ptr<trainingSet>[arraySize_]) { /* nothing */
 }
 
@@ -171,8 +170,7 @@ networkData::networkData(const std::size_t &array_size)
  * @param network_data_file The name of a file holding the training data
  */
 networkData::networkData(const std::string &network_data_file)
-  : Gem::Common::GPodContainerT<std::size_t>()
-  , arraySize_(0)
+  : arraySize_(0)
   , data_(nullptr) {
     this->loadFromDisk(network_data_file);
 }
@@ -1257,10 +1255,12 @@ void GNeuralNetworkIndividual::writeTrainedNetwork(const std::string &header_fil
 
     for(std::size_t i = 0; i < nD_->size(); i++) {
         header << "        " << nD_->at(i);
-        if(i == nD_->size() - 1)
+        if(i == nD_->size() - 1) {
             header << '\n';
-        else
+        }
+        else {
             header << "," << '\n';
+        }
     }
 
     std::size_t weight_offset = 0;
@@ -1276,10 +1276,12 @@ void GNeuralNetworkIndividual::writeTrainedNetwork(const std::string &header_fil
         weight_offset += (*nD_)[i] * ((*nD_)[i - 1] + 1);
         header << "        " << weight_offset;
 
-        if(i == nD_->size() - 1)
+        if(i == nD_->size() - 1) {
             header << '\n';
-        else
+        }
+        else {
             header << "," << '\n';
+        }
     }
 
     header << "      };" << '\n';
@@ -1298,10 +1300,12 @@ void GNeuralNetworkIndividual::writeTrainedNetwork(const std::string &header_fil
         for(std::size_t j = 0; j < current_layer->size(); j++) {
             header << "        " << current_layer->at(j)->value();
 
-            if(i == (nD_->size() - 1) && j == (current_layer->size() - 1))
+            if(i == (nD_->size() - 1) && j == (current_layer->size() - 1)) {
                 header << '\n';
-            else
+            }
+            else {
                 header << "," << '\n';
+            }
         }
     }
 

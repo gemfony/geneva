@@ -106,11 +106,11 @@ public:
     GTestIndividual2(const GTestIndividual2 &);
 
     /** @brief The standard destructor */
-    virtual ~GTestIndividual2();
+    ~GTestIndividual2() override;
 
 protected:
     /** @brief Loads the data of another GTestIndividual2 */
-    virtual void load_(const GObject *) final;
+    void load_(const GObject *) final;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GTestIndividual2>(
@@ -120,7 +120,7 @@ protected:
     );
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
-    virtual void compare_(
+    void compare_(
         const GObject & // the other object
         ,
         const Gem::Common::expectation & // the expectation for this object, e.g. equality
@@ -129,18 +129,18 @@ protected:
     ) const final;
 
     /** @brief The actual fitness calculation takes place here. */
-    virtual double fitnessCalculation() final;
+    double fitnessCalculation() final;
 
     /** @brief Applies modifications to this object. */
-    virtual bool modify_GUnitTests_();
+    bool modify_GUnitTests_() override;
     /** @brief Performs self tests that are expected to succeed. */
-    virtual void specificTestsNoFailureExpected_GUnitTests_();
+    void specificTestsNoFailureExpected_GUnitTests_() override;
     /** @brief Performs self tests that are expected to fail. */
-    virtual void specificTestsFailuresExpected_GUnitTests_();
+    void specificTestsFailuresExpected_GUnitTests_() override;
 
 private:
     /** @brief Creates a deep clone of this object */
-    virtual GObject *clone_() const final;
+    GObject *clone_() const final;
 
     /** @brief The default constructor -- protected, as it is only needed for (de-)serialization purposes */
     GTestIndividual2();

@@ -151,7 +151,7 @@ public:
     GExternalEvaluatorIndividual(const GExternalEvaluatorIndividual &);
 
     /** @brief The standard destructor */
-    virtual ~GExternalEvaluatorIndividual();
+    ~GExternalEvaluatorIndividual() override;
 
     /** @brief Sets the name of the external evaluation program */
     void setProgramName(const std::string &);
@@ -191,7 +191,7 @@ public:
 protected:
     /***************************************************************************/
     /** @brief Loads the data of another GExternalEvaluatorIndividual */
-    virtual void load_(const GObject *) final;
+    void load_(const GObject *) final;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GExternalEvaluatorIndividual>(
@@ -201,7 +201,7 @@ protected:
     );
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
-    virtual void compare_(
+    void compare_(
         const GObject & // the other object
         ,
         const Gem::Common::expectation & // the expectation for this object, e.g. equality
@@ -210,13 +210,13 @@ protected:
     ) const final;
 
     /** @brief The actual fitness calculation takes place here */
-    virtual double fitnessCalculation() final;
+    double fitnessCalculation() final;
 
 private:
     /***************************************************************************/
 
     /** @brief Creates a deep clone of this object */
-    virtual GObject *clone_() const final;
+    GObject *clone_() const final;
 
     /***************************************************************************/
 
@@ -272,7 +272,7 @@ public:
     GExternalEvaluatorIndividualFactory(const GExternalEvaluatorIndividualFactory &);
 
     /** @brief The destructor */
-    virtual ~GExternalEvaluatorIndividualFactory();
+    ~GExternalEvaluatorIndividualFactory() override;
 
     /**************************************************************************/
     // Getters and setters
@@ -394,22 +394,22 @@ public:
     ) const;
 
     /** @brief Loads the data of another GFunctionIndividualFactory object */
-    virtual void load(std::shared_ptr<Gem::Common::GFactoryT<GParameterSet>>);
+    void load(std::shared_ptr<Gem::Common::GFactoryT<GParameterSet>>) override;
 
     /** @brief Creates a deep clone of this object */
-    virtual std::shared_ptr<Gem::Common::GFactoryT<GParameterSet>> clone() const;
+    std::shared_ptr<Gem::Common::GFactoryT<GParameterSet>> clone() const override;
 
 protected:
     /** @brief Allows to describe local configuration options in derived classes */
-    virtual void describeLocalOptions_(Gem::Common::GParserBuilder &);
+    void describeLocalOptions_(Gem::Common::GParserBuilder &) override;
 
     /** @brief Allows to act on the configuration options received from the configuration file */
-    virtual void postProcess_(std::shared_ptr<GParameterSet> &);
+    void postProcess_(std::shared_ptr<GParameterSet> &) override;
 
 private:
     /** @brief Creates individuals of this type */
-    virtual std::shared_ptr<GParameterSet>
-    getObject_(Gem::Common::GParserBuilder &, const std::size_t &);
+    std::shared_ptr<GParameterSet>
+    getObject_(Gem::Common::GParserBuilder &, const std::size_t &) override;
 
     /** @brief Sets up the boost property object holding information about the individual structure */
     void setUpPropertyTree();

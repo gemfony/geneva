@@ -472,8 +472,9 @@ public:
             }
         } // Release the lock
 
-        if(success)
+        if(success) {
             not_full_.notify_one();
+        }
 
         return success;
     }
@@ -499,8 +500,9 @@ public:
             }
         } // Release the lock
 
-        if(success)
+        if(success) {
             not_full_.notify_one();
+        }
 
         return success;
     }
@@ -681,9 +683,9 @@ protected:
     /***************************************************************************/
 
     container_type container_;            ///< The actual data store
-    mutable std::mutex mutex_{};          ///< Used for synchronization of access to the container
-    std::condition_variable not_empty_{}; ///< Used for synchronization of access to the container
-    std::condition_variable not_full_{};  ///< Used for synchronization of access to the container
+    mutable std::mutex mutex_;            ///< Used for synchronization of access to the container
+    std::condition_variable not_empty_;   ///< Used for synchronization of access to the container
+    std::condition_variable not_full_;    ///< Used for synchronization of access to the container
 };
 
 /******************************************************************************/

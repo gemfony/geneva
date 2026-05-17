@@ -51,8 +51,7 @@ namespace Gem::Geneva {
  * The default constructor. All initialization work of member variable
  * is done in the class body.
  */
-GEvolutionaryAlgorithm::GEvolutionaryAlgorithm()
-  : G_OptimizationAlgorithm_ParChild() {
+GEvolutionaryAlgorithm::GEvolutionaryAlgorithm() {
     // Make sure we start with a valid population size if the user does not supply these values
     this->setPopulationSizes(100, 1);
 }
@@ -783,7 +782,7 @@ std::tuple<std::size_t, std::size_t> GEvolutionaryAlgorithm::getEvaluationRange_
     // optimization monitors do not need to distinguish between algorithms, and
     // MUCOMMANU selection may fall back to MUPLUSNU in the first iteration.
     return std::make_tuple<std::size_t, std::size_t>(
-        this->inFirstIteration() ? std::size_t(0) : this->getNParents(),
+        this->inFirstIteration() ? static_cast<std::size_t>(0) : this->getNParents(),
         this->size()
     );
 }
@@ -1010,8 +1009,9 @@ void GEvolutionaryAlgorithm::sortMuPlusNuParetoMode() {
             // on the front we do not have to do any tests
             if(not(*it_cmp)
                       ->template getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>()
-                      ->isOnParetoFront())
+                      ->isOnParetoFront()) {
                 continue;
+            }
 
             // Check if it dominates it_cmp. If so, mark it accordingly
             if(aDominatesB(*it, *it_cmp)) {
@@ -1049,8 +1049,9 @@ void GEvolutionaryAlgorithm::sortMuPlusNuParetoMode() {
     for(it = this->begin(); it != this->end(); ++it) {
         if((*it)
                ->template getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>()
-               ->isOnParetoFront())
+               ->isOnParetoFront()) {
             n_individuals_on_pareto_front++;
+        }
     }
 
     // If the number of individuals on the pareto front exceeds the number of parents, we
@@ -1128,8 +1129,9 @@ void GEvolutionaryAlgorithm::sortMuCommaNuParetoMode() {
             // on the front we do not have to do any tests
             if(not(*it_cmp)
                       ->template getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>()
-                      ->isOnParetoFront())
+                      ->isOnParetoFront()) {
                 continue;
+            }
 
             // Check if it dominates it_cmp. If so, mark it accordingly
             if(aDominatesB(*it, *it_cmp)) {
@@ -1170,8 +1172,9 @@ void GEvolutionaryAlgorithm::sortMuCommaNuParetoMode() {
     for(it = this->begin(); it != this->end(); ++it) {
         if((*it)
                ->template getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>()
-               ->isOnParetoFront())
+               ->isOnParetoFront()) {
             n_individuals_on_pareto_front++;
+        }
     }
 
     // If the number of individuals on the pareto front exceeds the number of parents, we
@@ -1245,8 +1248,9 @@ bool GEvolutionaryAlgorithm::aDominatesB(
     // x dominates y if none of its fitness criteria is worse than the corresponding criterion of y.
     auto m = x_ptr->getMaxMode();
     for(std::size_t i = 0; i < n_criteria_x; i++) {
-        if(isWorse(x_ptr->transformed_fitness(i), y_ptr->transformed_fitness(i), m))
+        if(isWorse(x_ptr->transformed_fitness(i), y_ptr->transformed_fitness(i), m)) {
             return false;
+        }
     }
 
     return true;
@@ -1264,8 +1268,9 @@ bool GEvolutionaryAlgorithm::modify_GUnitTests_() {
     bool result = false;
 
     // Call the parent class'es function
-    if(G_OptimizationAlgorithm_ParChild::modify_GUnitTests_())
+    if(G_OptimizationAlgorithm_ParChild::modify_GUnitTests_()) {
         result = true;
+    }
 
     if(sortingMode::MUPLUSNU_SINGLEEVAL == this->getSortingScheme()) {
         this->setSortingScheme(sortingMode::MUCOMMANU_SINGLEEVAL);

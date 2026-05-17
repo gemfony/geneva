@@ -131,8 +131,9 @@ constexpr int FUNC_MAX = 14; ///< highest valid ID
  */
 G_CALLABLE inline double parabola(const double *x, int n) {
     double r = 0.;
-    for(int i = 0; i < n; ++i)
+    for(int i = 0; i < n; ++i) {
         r += x[i] * x[i];
+    }
     return r;
 }
 
@@ -145,8 +146,9 @@ G_CALLABLE inline double parabola(const double *x, int n) {
  */
 G_CALLABLE inline double noisyParabola(const double *x, int n) {
     double sq = 0.;
-    for(int i = 0; i < n; ++i)
+    for(int i = 0; i < n; ++i) {
         sq += x[i] * x[i];
+    }
     return (cos(sq) + 2.) * sq;
 }
 
@@ -191,8 +193,9 @@ G_CALLABLE inline double ackley(const double *x, int n) {
  */
 G_CALLABLE inline double rastrigin(const double *x, int n) {
     double r = 10. * n;
-    for(int i = 0; i < n; ++i)
+    for(int i = 0; i < n; ++i) {
         r += x[i] * x[i] - 10. * cos(2. * GBM_PI * x[i]);
+    }
     return r;
 }
 
@@ -205,8 +208,9 @@ G_CALLABLE inline double rastrigin(const double *x, int n) {
  */
 G_CALLABLE inline double schwefel(const double *x, int n) {
     double r = 0.;
-    for(int i = 0; i < n; ++i)
+    for(int i = 0; i < n; ++i) {
         r += -x[i] * sin(sqrt(fabs(x[i])));
+    }
     return r / n;
 }
 
@@ -218,8 +222,9 @@ G_CALLABLE inline double schwefel(const double *x, int n) {
  */
 G_CALLABLE inline double salomon(const double *x, int n) {
     double sq = 0.;
-    for(int i = 0; i < n; ++i)
+    for(int i = 0; i < n; ++i) {
         sq += x[i] * x[i];
+    }
     const double r = sqrt(sq);
     return -cos(2. * GBM_PI * r) + 0.1 * r + 1.;
 }
@@ -262,7 +267,7 @@ G_CALLABLE inline double griewank(const double *x, int n) {
     double sq = 0., prod = 1.;
     for(int i = 0; i < n; ++i) {
         sq += x[i] * x[i];
-        prod *= cos(x[i] / sqrt((double)(i + 1)));
+        prod *= cos(x[i] / sqrt(static_cast<double>(i + 1)));
     }
     return sq / 4000. - prod + 1.;
 }
@@ -336,7 +341,7 @@ G_CALLABLE inline double ellipsoid(const double *x, int n) {
 G_CALLABLE inline double michalewicz(const double *x, int n) {
     double r = 0.;
     for(int i = 0; i < n; ++i) {
-        const double s = sin((double)(i + 1) * x[i] * x[i] / GBM_PI);
+        const double s = sin(static_cast<double>(i + 1) * x[i] * x[i] / GBM_PI);
         // pow(s,20) with s possibly negative: use s*s raised to 10 to stay positive
         const double s2 = s * s;
         const double s20 = s2 * s2 * s2 * s2 * s2 * s2 * s2 * s2 * s2 * s2; // s^20

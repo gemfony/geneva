@@ -148,7 +148,7 @@ public:
     /**
 	  * The destructor
 	  */
-    ~GWebsocketClientT() {
+    ~GWebsocketClientT() override {
         glogger << '\n'
                 << "GWebsocketClientT<> is shutting down. Processed " << this->getNProcessed()
                 << " items in total" << '\n'
@@ -206,8 +206,9 @@ private:
 	  */
     void async_start_write(const std::string &message) {
         // Do nothing if we have been asked to stop
-        if(this->halt())
+        if(this->halt()) {
             return;
+        }
 
         // We need to persist the message for asynchronous operations.
         // It is hence stored in a class variable.
@@ -229,8 +230,9 @@ private:
 	  */
     void async_start_read() {
         // Do nothing if we have been asked to stop
-        if(this->halt())
+        if(this->halt()) {
             return;
+        }
 
         auto self = this->shared_from_this();
         ws_.async_read(
@@ -1061,7 +1063,7 @@ private:
         }
 
         // Make the compiler happy
-        return std::string();
+        return {};
     }
 
     //-------------------------------------------------------------------------
@@ -1112,7 +1114,7 @@ private:
     bool verbose_control_frames_ = false;
 
     std::atomic<beast_ping_state> ping_state_{beast_ping_state::CONNECTION_IS_ALIVE};
-    const boost::beast::websocket::ping_data ping_data_{};
+    const boost::beast::websocket::ping_data ping_data_;
 
     GCommandContainerT<processable_type, networked_consumer_payload_command> command_container_{
         networked_consumer_payload_command::NONE
@@ -1368,8 +1370,9 @@ private:
         }
 
         // Accept another connection
-        if(not this->stopped())
+        if(not this->stopped()) {
             async_start_accept();
+        }
     }
 
     //-------------------------------------------------------------------------

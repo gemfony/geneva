@@ -332,8 +332,9 @@ public:
      * The standard assignment operator
      */
     GValidityCheckContainerT<ind_type> &operator=(const GValidityCheckContainerT<ind_type> &cp) {
-        if(this == &cp)
+        if(this == &cp) {
             return *this;
+        }
         this->load_(&cp);
         return *this;
     }
@@ -490,8 +491,9 @@ public:
      * The standard assignment operator
      */
     GCheckCombinerT<ind_type> &operator=(const GCheckCombinerT<ind_type> &cp) {
-        if(this == &cp)
+        if(this == &cp) {
             return *this;
+        }
         this->load_(&cp);
         return *this;
     }

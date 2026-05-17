@@ -242,7 +242,7 @@ public:
     /**
      * The standard destructor
      */
-    virtual ~GMetaOptimizerIndividualT() { /* nothing */
+    ~GMetaOptimizerIndividualT() override { /* nothing */
     }
 
     /***************************************************************************/
@@ -871,7 +871,7 @@ protected:
      * @param e The expected outcome of the comparison
      * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
-    virtual void compare_(
+    void compare_(
         const GObject &cp,
         const Gem::Common::expectation &e,
         const double & /*limit*/
@@ -1046,9 +1046,9 @@ protected:
 
             // Do book-keeping
             solver_calls_per_optimization.push_back(
-                double((iterations_consumed + 1) * n_children + n_parents)
+                static_cast<double>((iterations_consumed + 1) * n_children + n_parents)
             );
-            iterations_per_optimization.push_back(double(iterations_consumed + 1));
+            iterations_per_optimization.push_back(static_cast<double>(iterations_consumed + 1));
             best_evaluations.push_back(
                 best_individual->transformed_fitness(0)
             ); // We use the transformed fitness to avoid MAX_DOUBLE
@@ -1112,7 +1112,7 @@ protected:
         }
 
         // Make the compiler happy
-        return std::string();
+        return {};
     }
 
     /***************************************************************************/
@@ -1212,7 +1212,7 @@ private:
      *
      * @return A deep clone of this object, camouflaged as a GObject
      */
-    virtual GObject *clone_() const final {
+    GObject *clone_() const final {
         return new GMetaOptimizerIndividualT<ind_type>(*this);
     }
 
@@ -1268,7 +1268,7 @@ public:
     /**
      * The destructor
      */
-    virtual ~GMetaOptimizerIndividualFactoryT() = default;
+    ~GMetaOptimizerIndividualFactoryT() override = default;
 
     /***************************************************************************/
     /**
@@ -1837,7 +1837,7 @@ public:
     /**
      * The destructor
      */
-    virtual ~GOptOptMonitorT() { /* nothing */
+    ~GOptOptMonitorT() override { /* nothing */
     }
 
     /***************************************************************************/
@@ -1902,7 +1902,7 @@ protected:
      * @param e The expected outcome of the comparison
      * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
-    virtual void compare_(
+    void compare_(
         const GObject &cp,
         const Gem::Common::expectation &e,
         const double & /*limit*/
@@ -2096,24 +2096,24 @@ private:
 
             // Retrieve the best fitness and average sigma value and add it to our local storage
             (*progressPlotter_) &
-                std::tuple<double, double>((double)ea->getIteration(), p->raw_fitness(0));
+                std::tuple<double, double>(static_cast<double>(ea->getIteration()), p->raw_fitness(0));
             (*nParentPlotter_) &
-                std::tuple<double, double>((double)ea->getIteration(), (double)p->getNParents());
+                std::tuple<double, double>(static_cast<double>(ea->getIteration()), static_cast<double>(p->getNParents()));
             (*nChildrenPlotter_) &
-                std::tuple<double, double>((double)ea->getIteration(), (double)p->getNChildren());
+                std::tuple<double, double>(static_cast<double>(ea->getIteration()), static_cast<double>(p->getNChildren()));
             (*adProbPlotter_) &
-                std::tuple<double, double>((double)ea->getIteration(), p->getAdProb());
+                std::tuple<double, double>(static_cast<double>(ea->getIteration()), p->getAdProb());
 
             double min_sigma = p->getMinSigma();
             double sigma_range = p->getSigmaRange();
             double max_sigma = min_sigma + sigma_range;
 
-            (*minSigmaPlotter_) & std::tuple<double, double>((double)ea->getIteration(), min_sigma);
-            (*maxSigmaPlotter_) & std::tuple<double, double>((double)ea->getIteration(), max_sigma);
+            (*minSigmaPlotter_) & std::tuple<double, double>(static_cast<double>(ea->getIteration()), min_sigma);
+            (*maxSigmaPlotter_) & std::tuple<double, double>(static_cast<double>(ea->getIteration()), max_sigma);
             (*sigmaRangePlotter_) &
-                std::tuple<double, double>((double)ea->getIteration(), sigma_range);
+                std::tuple<double, double>(static_cast<double>(ea->getIteration()), sigma_range);
             (*sigmaSigmaPlotter_) &
-                std::tuple<double, double>((double)ea->getIteration(), p->getSigmaSigma());
+                std::tuple<double, double>(static_cast<double>(ea->getIteration()), p->getSigmaSigma());
         } break;
 
         case Gem::Geneva::infoMode::INFOEND: {

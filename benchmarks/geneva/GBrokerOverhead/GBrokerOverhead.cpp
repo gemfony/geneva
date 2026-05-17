@@ -279,7 +279,7 @@ bool parseCommandLine(
     }
 
     // Assign the demo function
-    if(evalFunction > (std::uint16_t)MAXDEMOFUNCTION) {
+    if(evalFunction > static_cast<std::uint16_t>(MAXDEMOFUNCTION)) {
         std::cout << "Error: Invalid evaluation function: " << evalFunction << std::endl;
         return false;
     }

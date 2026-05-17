@@ -69,7 +69,7 @@ public:
     /** @brief The copy constructor */
     GParameterScanFactory(const GParameterScanFactory &) = default;
     /** @brief The destructor */
-    virtual ~GParameterScanFactory() = default;
+    ~GParameterScanFactory() override = default;
 
     /** @brief Gives access to the mnemonics / nickname describing an algorithm */
     std::string getMnemonic() const override;

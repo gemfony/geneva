@@ -132,8 +132,9 @@ public:
 	  */
     void finalize() {
         // Only allow one finalization action to be carried out
-        if(finalized_)
+        if(finalized_) {
             return;
+        }
 
         {
             //-----------------------------------------------------------------------
@@ -221,7 +222,7 @@ public:
 
         // Update the number of registered buffer ports
 #ifdef DEBUG
-        if(BUFFERPORT_ID_TYPE(nErasedRaw) > n_registered_buffer_ports_) {
+        if(static_cast<BUFFERPORT_ID_TYPE>(nErasedRaw) > n_registered_buffer_ports_) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GBrokerT<>::enrol_buffer_port(buffer-port-ptr):" << '\n'
@@ -230,7 +231,7 @@ public:
             );
         }
 #endif
-        n_registered_buffer_ports_ -= BUFFERPORT_ID_TYPE(nErasedRaw);
+        n_registered_buffer_ports_ -= static_cast<BUFFERPORT_ID_TYPE>(nErasedRaw);
 
         // Retrieve a new id for the buffer port.
         auto gbp_tag = getNextBufferPortId();
@@ -680,10 +681,10 @@ private:
         consumerTypesPresent_; ///< Holds identifying strings for each consumer
 
     std::atomic<BUFFERPORT_ID_TYPE> current_bufferport_id_{
-        BUFFERPORT_ID_TYPE(0)
+        static_cast<BUFFERPORT_ID_TYPE>(0)
     }; ///< The id assigned to the last registered buffer port
     std::atomic<BUFFERPORT_ID_TYPE> n_registered_buffer_ports_{
-        BUFFERPORT_ID_TYPE(0)
+        static_cast<BUFFERPORT_ID_TYPE>(0)
     }; ///< The current number of registered buffer ports
 };
 

@@ -1037,8 +1037,9 @@ bool GParameterBase::modify_GUnitTests_() {
     bool result = false;
 
     // Call the parent class'es function
-    if(GObject::modify_GUnitTests_())
+    if(GObject::modify_GUnitTests_()) {
         result = true;
+    }
 
     return result;
 

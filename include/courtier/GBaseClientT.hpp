@@ -424,7 +424,7 @@ private:
         }
 
         // Make the compiler happy
-        return std::string();
+        return {};
     }
 
     //---------------------------------------------------------------------------

@@ -154,8 +154,7 @@ GManipulator::GManipulator(std::string const &accomp_info, logType lt)
  * A constructor that stores the logging type only
  */
 GManipulator::GManipulator(logType lt)
-  : accomp_info_()
-  , log_type_(lt) { /* nothing */
+  : log_type_(lt) { /* nothing */
 }
 
 /******************************************************************************/

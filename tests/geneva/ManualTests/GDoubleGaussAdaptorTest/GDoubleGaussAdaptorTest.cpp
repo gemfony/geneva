@@ -208,13 +208,13 @@ int main(int argc, char **argv) {
         gdga->adapt(mutVal, 1., gr);
 
         (*gmutpar_iter_ptr) &
-            std::tuple<double, double>((double)i, mutVal); // The new value of sigma
+            std::tuple<double, double>(static_cast<double>(i), mutVal); // The new value of sigma
         (*gmutpardiff_iter_ptr) & std::tuple<double, double>(
-                                      (double)i,
+                                      static_cast<double>(i),
                                       mutVal - mutValOld
                                   ); // Difference between last known value and current value
         (*gsigma_iter_ptr) & std::tuple<double, double>(
-                                 (double)i,
+                                 static_cast<double>(i),
                                  gdga->getSigma()
                              ); // Value of sigma after sigma-adaption
     }

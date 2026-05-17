@@ -137,7 +137,7 @@ Gem::Geneva::GObject *GDelayIndividual::clone_() const {
  * provide an empty replacement for the default behavior and "fake" an adaption.
  */
 std::size_t GDelayIndividual::customAdaptions() {
-    return std::size_t(1);
+    return static_cast<std::size_t>(1);
 }
 
 /******************************************************************************/

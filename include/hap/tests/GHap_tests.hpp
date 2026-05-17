@@ -111,8 +111,9 @@ public:
             std::vector<std::int32_t> randomHist(21); // 21 positions from -10 to 10
 
             // Initialize with 0
-            for(std::size_t i = 0; i < 21; i++)
+            for(std::size_t i = 0; i < 21; i++) {
                 randomHist.at(i) = 0;
+            }
 
             for(std::size_t i = 0; i < nTests_; i++) {
                 std::int32_t randVal;
@@ -151,8 +152,9 @@ public:
             std::vector<std::int32_t> randomHist(21); // 21 positions from -10 to 10
 
             // Initialize with 0
-            for(std::size_t i = 0; i < 21; i++)
+            for(std::size_t i = 0; i < 21; i++) {
                 randomHist.at(i) = 0;
+            }
 
             for(std::size_t i = 0; i < nTests_; i++) {
                 std::int32_t randVal;

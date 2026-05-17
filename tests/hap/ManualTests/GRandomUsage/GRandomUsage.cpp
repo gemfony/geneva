@@ -233,20 +233,24 @@ void createRandomVector(
         // Note: A probaility of 0.7 results in roughly 70% "true" values
         std::bernoulli_distribution weighted_bool(0.7);
         for(i = 0; i < nEntries; i++) {
-            if(weighted_bool(*gr_ptr))
+            if(weighted_bool(*gr_ptr)) {
                 vec_t.push_back(1);
-            else
+            }
+            else {
                 vec_t.push_back(0);
+            }
         }
     } break;
 
     case distType::BITSIMPLE: {
         std::bernoulli_distribution uniform_bool; // defaults to 0.5
         for(i = 0; i < nEntries; i++) {
-            if(uniform_bool(*gr_ptr))
+            if(uniform_bool(*gr_ptr)) {
                 vec_t.push_back(1);
-            else
+            }
+            else {
                 vec_t.push_back(0);
+            }
         }
     } break;
 

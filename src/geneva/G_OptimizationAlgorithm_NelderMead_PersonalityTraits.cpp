@@ -125,8 +125,9 @@ bool GNelderMead_PersonalityTraits::modify_GUnitTests_() {
 #ifdef GEM_TESTING
     bool result = false;
 
-    if(GPersonalityTraits::modify_GUnitTests_())
+    if(GPersonalityTraits::modify_GUnitTests_()) {
         result = true;
+    }
 
     this->setPopulationPosition(this->getPopulationPosition() + 1);
     result = true;

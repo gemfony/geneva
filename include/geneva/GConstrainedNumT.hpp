@@ -529,8 +529,9 @@ protected:
         bool result = false;
 
         // Call the parent classes' functions
-        if(GParameterT<T>::modify_GUnitTests_())
+        if(GParameterT<T>::modify_GUnitTests_()) {
             result = true;
+        }
 
         return result;
 

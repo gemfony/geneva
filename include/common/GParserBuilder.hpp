@@ -262,8 +262,9 @@ public:
 	  */
     GOneTimeRefParameterT<parameter_type> &
     operator=(GOneTimeRefParameterT<parameter_type> const &cp) {
-        if(this == &cp)
+        if(this == &cp) {
             return *this;
+        }
         parm_ = cp.parm_;
         parm_dummy_ = cp.parm_dummy_;
         parm_set_ = cp.parm_set_;
