@@ -13,9 +13,6 @@ SET ( OPTIMIZATIONINCLUDES
 	GPersonalityTraits.hpp
     GPluggableOptimizationMonitors.hpp
     GPostProcessorT.hpp
-	GTestIndividual1.hpp
-	GTestIndividual2.hpp
-	GTestIndividual3.hpp
 )
 
 # Parameter / adaptor object hierarchy (namespace Gem::Geneva::Parameters),
@@ -126,6 +123,9 @@ SET ( INDIVIDUALS_INCLUDES
     individuals/GLineFitIndividual.hpp
     individuals/GMetaOptimizerIndividualT.hpp
     individuals/GNeuralNetworkIndividual.hpp
+    individuals/GTestIndividual1.hpp
+    individuals/GTestIndividual2.hpp
+    individuals/GTestIndividual3.hpp
 )
 
 # Add MPI specific files

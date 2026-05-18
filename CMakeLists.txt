@@ -236,8 +236,6 @@ IF (GENEVA_BUILD_WITH_COVERAGE)
     SET(_GENEVA_COV_FILTER
         "--filter=${PROJECT_SOURCE_DIR}/include/common/.*"
         "--filter=${PROJECT_SOURCE_DIR}/src/common/.*"
-        # Exclude headers that are not in scope (e.g. test-support headers).
-        "--exclude=${PROJECT_SOURCE_DIR}/include/common/tests/.*"
         # Exclude the deprecated-soon GPlotDesigner from the headline number.
         "--exclude=${PROJECT_SOURCE_DIR}/include/common/GPlotDesigner.hpp"
         "--exclude=${PROJECT_SOURCE_DIR}/src/common/GPlotDesigner.cpp")

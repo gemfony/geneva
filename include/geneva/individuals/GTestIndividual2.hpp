@@ -57,7 +57,7 @@
 #include "geneva/oa/GGradientDescent_PersonalityTraits.hpp"
 #include "geneva/oa/GSwarmAlgorithm_PersonalityTraits.hpp"
 
-namespace Gem::Tests {
+namespace Gem::Geneva::Individuals {
 
 /**
  * The types of objects to be tested in this class
@@ -76,9 +76,9 @@ constexpr std::size_t NPERFOBJECTTYPES = 5;
 
 /******************************************************************************/
 /** @brief Puts a Gem::Common::logType into a stream. Needed also for boost::lexical_cast<> */
-std::ostream &operator<<(std::ostream &, const Gem::Tests::PERFOBJECTTYPE &);
+std::ostream &operator<<(std::ostream &, const Gem::Geneva::Individuals::PERFOBJECTTYPE &);
 /** @brief Reads a Gem::Common::logType from a stream. Needed also for boost::lexical_cast<> */
-std::istream &operator>>(std::istream &, Gem::Tests::PERFOBJECTTYPE &);
+std::istream &operator>>(std::istream &, Gem::Geneva::Individuals::PERFOBJECTTYPE &);
 
 /******************************************************************************/
 /**
@@ -148,6 +148,6 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Gem::Tests */
+} /* namespace Gem::Geneva::Individuals */
 
-BOOST_CLASS_EXPORT_KEY(Gem::Tests::GTestIndividual2) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::Individuals::GTestIndividual2) // NOLINT

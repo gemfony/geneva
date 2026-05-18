@@ -42,7 +42,7 @@
 
 // Geneva header files go here
 #include "common/GPlotDesigner.hpp"
-#include "geneva/GTestIndividual2.hpp"
+#include "geneva/individuals/GTestIndividual2.hpp"
 
 // The number of consecutive measurements
 const std::size_t NMEASUREMENTS = 100;
@@ -59,7 +59,7 @@ const Gem::Common::serializationMode DEFAULTSERMODE = Gem::Common::serialization
 
 using namespace Gem::Common;
 using namespace Gem::Geneva;
-using namespace Gem::Tests;
+using namespace Gem::Geneva::Individuals;
 
 int main(int argc, char **argv) {
     std::string caption =

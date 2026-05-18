@@ -33,7 +33,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include "hap/tests/GHap_tests.hpp"
+#include "GHap_tests.hpp"
 
 TEST_CASE_METHOD(GHap_tests, "GHap no_failure_expected", "[hap][standard]") {
     no_failure_expected();

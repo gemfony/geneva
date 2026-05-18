@@ -38,7 +38,7 @@
 
 #include "GBenchmarkRunResult.hpp"
 
-namespace Gem::Geneva {
+namespace Gem::Geneva::Benchmarks {
 
 /******************************************************************************/
 /**
@@ -91,4 +91,4 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Gem::Geneva */
+} /* namespace Gem::Geneva::Benchmarks */

@@ -66,6 +66,28 @@ Recommended Versions:
   gemfony-geneva-individuals shared library no longer exists. SOURCE/ABI-
   breaking: qualify these types with gind:: (or the full namespace) and
   update #include paths accordingly.
+- Following the same scheme, the unit-test sample individuals
+  GTestIndividual1, GTestIndividual2 and GTestIndividual3 (with the
+  PERFOBJECTTYPE helper) were moved out of the Gem::Tests namespace into
+  Gem::Geneva::Individuals (alias `gind`); their headers moved from
+  geneva/GTestIndividualN.hpp to geneva/individuals/GTestIndividualN.hpp.
+  SOURCE-breaking for code that referenced these types or included those
+  headers directly. As with the optimization-algorithm reorganisation,
+  their Boost.Serialization class-export keys changed accordingly
+  (these are test fixtures; the archive break is a deliberate, accepted
+  decision).
+- The Gem::Tests namespace has been removed entirely. Its remaining
+  occupants were reorganised under Gem::Geneva: the StandardTests_*
+  unit-test driver templates moved to Gem::Geneva::Tests, and the
+  GOptimizationBenchmark configuration parser moved to
+  Gem::Geneva::Benchmarks. Additionally, the benchmark-function library
+  namespace Gem::Geneva::BM (in the installed header
+  geneva/individuals/GBenchmarkFunctions.hpp) and the GCUDAOptBenchmark
+  classes (previously in bare Gem::Geneva) were consolidated into
+  Gem::Geneva::Benchmarks (global alias `gbm`), so Gem::Geneva::BM::*
+  is now Gem::Geneva::Benchmarks::* / gbm::*. SOURCE-breaking for code
+  that referenced Gem::Tests::*, Gem::Geneva::BM::*, or those benchmark
+  classes directly.
 
 ************************* Noteworthy Changes ***********************************
 

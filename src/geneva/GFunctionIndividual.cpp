@@ -672,7 +672,7 @@ void GFunctionIndividual::specificTestsFailuresExpected_GUnitTests_() {
 /**
 	 * @brief Evaluates the individual's parameters against the selected benchmark function.
 	 *
-	 * Delegates to Gem::Geneva::BM::eval() in GBenchmarkFunctions.hpp, which provides
+	 * Delegates to Gem::Geneva::Benchmarks::eval() in GBenchmarkFunctions.hpp, which provides
 	 * the same implementations annotated for both CPU and CUDA device execution.
 	 * The function set covers all 15 solverFunction IDs 0–14.
 	 *
@@ -694,7 +694,7 @@ double GFunctionIndividual::fitnessCalculation() {
     }
 #endif /* DEBUG */
 
-    return BM::eval(
+    return gbm::eval(
         static_cast<int>(demo_function_),
         par_vec.data(),
         static_cast<int>(par_vec.size())

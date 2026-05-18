@@ -37,7 +37,7 @@
 #include "geneva/individuals/GDelayIndividual.hpp"
 #include "geneva/individuals/GExternalEvaluatorIndividual.hpp"
 #include "geneva/individuals/GFunctionIndividual.hpp"
-#include "geneva/GTestIndividual3.hpp"
+#include "geneva/individuals/GTestIndividual3.hpp"
 #include "geneva/par/GBooleanAdaptor.hpp"
 #include "geneva/par/GBooleanCollection.hpp"
 #include "geneva/par/GBooleanObject.hpp"
@@ -58,7 +58,7 @@
 #include "geneva/par/GInt32Object.hpp"
 #include "geneva/par/GInt32ObjectCollection.hpp"
 #include "geneva/par/GParameterObjectCollection.hpp"
-#include "geneva/GTestIndividual1.hpp"
+#include "geneva/individuals/GTestIndividual1.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithm_PersonalityTraits.hpp"
 #include "geneva/oa/GGradientDescent_PersonalityTraits.hpp"
 #include "geneva/oa/GParameterScan_PersonalityTraits.hpp"
@@ -82,7 +82,7 @@ TEMPLATE_TEST_CASE(
     gpar::GDoubleBiGaussAdaptor,
     gpar::GDoubleGaussAdaptor
 ) {
-    Gem::Tests::StandardTests_no_failure_expected<TestType>();
+    Gem::Geneva::Tests::StandardTests_no_failure_expected<TestType>();
 }
 
 TEMPLATE_TEST_CASE(
@@ -94,7 +94,7 @@ TEMPLATE_TEST_CASE(
     gpar::GConstrainedInt32Object,
     gpar::GConstrainedDoubleObject
 ) {
-    Gem::Tests::StandardTests_no_failure_expected<TestType>();
+    Gem::Geneva::Tests::StandardTests_no_failure_expected<TestType>();
 }
 
 TEMPLATE_TEST_CASE(
@@ -107,7 +107,7 @@ TEMPLATE_TEST_CASE(
     gpar::GDoubleObjectCollection,
     gpar::GConstrainedDoubleObjectCollection
 ) {
-    Gem::Tests::StandardTests_no_failure_expected<TestType>();
+    Gem::Geneva::Tests::StandardTests_no_failure_expected<TestType>();
 }
 
 TEMPLATE_TEST_CASE(
@@ -118,7 +118,7 @@ TEMPLATE_TEST_CASE(
     gpar::GBooleanCollection,
     gpar::GConstrainedDoubleCollection
 ) {
-    Gem::Tests::StandardTests_no_failure_expected<TestType>();
+    Gem::Geneva::Tests::StandardTests_no_failure_expected<TestType>();
 }
 
 TEMPLATE_TEST_CASE(
@@ -130,19 +130,19 @@ TEMPLATE_TEST_CASE(
     oa::GSimulatedAnnealing_PersonalityTraits,
     oa::GParameterScan_PersonalityTraits
 ) {
-    Gem::Tests::StandardTests_no_failure_expected<TestType>();
+    Gem::Geneva::Tests::StandardTests_no_failure_expected<TestType>();
 }
 
 TEMPLATE_TEST_CASE(
     "StandardTests_no_failure_expected — individual types",
     "[geneva][standard]",
-    Gem::Tests::GTestIndividual1,
-    // Gem::Tests::GTestIndividual3, // TODO: Add test for GTestIndividual3
+    gind::GTestIndividual1,
+    // gind::GTestIndividual3, // TODO: Add test for GTestIndividual3
     gind::GFunctionIndividual,
     gind::GDelayIndividual,
     gind::GExternalEvaluatorIndividual
 ) {
-    Gem::Tests::StandardTests_no_failure_expected<TestType>();
+    Gem::Geneva::Tests::StandardTests_no_failure_expected<TestType>();
 }
 
 // ============================================================================
@@ -158,7 +158,7 @@ TEMPLATE_TEST_CASE(
     gpar::GDoubleBiGaussAdaptor,
     gpar::GDoubleGaussAdaptor
 ) {
-    Gem::Tests::StandardTests_failures_expected<TestType>();
+    Gem::Geneva::Tests::StandardTests_failures_expected<TestType>();
 }
 
 TEMPLATE_TEST_CASE(
@@ -170,7 +170,7 @@ TEMPLATE_TEST_CASE(
     gpar::GConstrainedInt32Object,
     gpar::GConstrainedDoubleObject
 ) {
-    Gem::Tests::StandardTests_failures_expected<TestType>();
+    Gem::Geneva::Tests::StandardTests_failures_expected<TestType>();
 }
 
 TEMPLATE_TEST_CASE(
@@ -183,7 +183,7 @@ TEMPLATE_TEST_CASE(
     gpar::GDoubleObjectCollection,
     gpar::GConstrainedDoubleObjectCollection
 ) {
-    Gem::Tests::StandardTests_failures_expected<TestType>();
+    Gem::Geneva::Tests::StandardTests_failures_expected<TestType>();
 }
 
 TEMPLATE_TEST_CASE(
@@ -194,7 +194,7 @@ TEMPLATE_TEST_CASE(
     gpar::GBooleanCollection,
     gpar::GConstrainedDoubleCollection
 ) {
-    Gem::Tests::StandardTests_failures_expected<TestType>();
+    Gem::Geneva::Tests::StandardTests_failures_expected<TestType>();
 }
 
 TEMPLATE_TEST_CASE(
@@ -206,17 +206,17 @@ TEMPLATE_TEST_CASE(
     oa::GSimulatedAnnealing_PersonalityTraits,
     oa::GParameterScan_PersonalityTraits
 ) {
-    Gem::Tests::StandardTests_failures_expected<TestType>();
+    Gem::Geneva::Tests::StandardTests_failures_expected<TestType>();
 }
 
 TEMPLATE_TEST_CASE(
     "StandardTests_failures_expected — individual types",
     "[geneva][standard][failures-expected]",
-    Gem::Tests::GTestIndividual1,
-    // Gem::Tests::GTestIndividual3, // TODO: Add test for GTestIndividual3
+    gind::GTestIndividual1,
+    // gind::GTestIndividual3, // TODO: Add test for GTestIndividual3
     gind::GFunctionIndividual,
     gind::GDelayIndividual,
     gind::GExternalEvaluatorIndividual
 ) {
-    Gem::Tests::StandardTests_failures_expected<TestType>();
+    Gem::Geneva::Tests::StandardTests_failures_expected<TestType>();
 }

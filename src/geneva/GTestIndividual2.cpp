@@ -27,20 +27,20 @@
  *
  ********************************************************************************/
 
-#include "geneva/GTestIndividual2.hpp"
+#include "geneva/individuals/GTestIndividual2.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Tests::GTestIndividual2) // NOLINT
-namespace Gem::Tests {
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Individuals::GTestIndividual2) // NOLINT
+namespace Gem::Geneva::Individuals {
 
 /******************************************************************************/
 /**
- * Puts a Gem::Tests::PERFOBJECTTYPE item into a stream
+ * Puts a Gem::Geneva::Individuals::PERFOBJECTTYPE item into a stream
  *
  * @param o The ostream the item should be added to
  * @param lt the item to be added to the stream
  * @return The std::ostream object used to add the item to
  */
-std::ostream &operator<<(std::ostream &o, const Gem::Tests::PERFOBJECTTYPE &lt) {
+std::ostream &operator<<(std::ostream &o, const Gem::Geneva::Individuals::PERFOBJECTTYPE &lt) {
     Gem::Common::ENUMBASETYPE tmp = static_cast<Gem::Common::ENUMBASETYPE>(lt);
     o << tmp;
     return o;
@@ -48,20 +48,20 @@ std::ostream &operator<<(std::ostream &o, const Gem::Tests::PERFOBJECTTYPE &lt) 
 
 /******************************************************************************/
 /**
- * Reads a Gem::Tests::PERFOBJECTTYPE item from a stream
+ * Reads a Gem::Geneva::Individuals::PERFOBJECTTYPE item from a stream
  *
  * @param i The stream the item should be read from
  * @param lt The item read from the stream
  * @return The std::istream object used to read the item from
  */
-std::istream &operator>>(std::istream &i, Gem::Tests::PERFOBJECTTYPE &lt) {
+std::istream &operator>>(std::istream &i, Gem::Geneva::Individuals::PERFOBJECTTYPE &lt) {
     Gem::Common::ENUMBASETYPE tmp = 0;
     i >> tmp;
 
 #ifdef DEBUG
-    lt = Gem::Common::narrow_cast<Gem::Tests::PERFOBJECTTYPE>(tmp);
+    lt = Gem::Common::narrow_cast<Gem::Geneva::Individuals::PERFOBJECTTYPE>(tmp);
 #else
-    lt = static_cast<Gem::Tests::PERFOBJECTTYPE>(tmp);
+    lt = static_cast<Gem::Geneva::Individuals::PERFOBJECTTYPE>(tmp);
 #endif /* DEBUG */
 
     return i;
@@ -325,4 +325,4 @@ void GTestIndividual2::specificTestsFailuresExpected_GUnitTests_() {
 
 /******************************************************************************/
 
-} /* namespace Gem::Tests */
+} /* namespace Gem::Geneva::Individuals */

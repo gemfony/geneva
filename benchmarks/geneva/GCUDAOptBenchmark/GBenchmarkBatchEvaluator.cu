@@ -26,7 +26,7 @@
 #include "GBenchmarkBatchEvaluator.cuh"
 #include "geneva/individuals/GBenchmarkFunctions.hpp"
 
-namespace Gem::Geneva {
+namespace Gem::Geneva::Benchmarks {
 
 /******************************************************************************/
 /**
@@ -52,7 +52,7 @@ evalBenchmarkKernel(const double* __restrict__ params,
 {
     const int tid = blockIdx.x * blockDim.x + threadIdx.x;
     if (tid >= N) return;
-    results[tid] = BM::eval(funcId, params + tid * dim, dim);
+    results[tid] = eval(funcId, params + tid * dim, dim);
 }
 
 /******************************************************************************/
@@ -116,4 +116,4 @@ void batchEvalBenchmarkGPU(const double* h_params, double* h_results,
     ctx.eval(h_params, h_results, N, dim, funcId);
 }
 
-} /* namespace Gem::Geneva */
+} /* namespace Gem::Geneva::Benchmarks */

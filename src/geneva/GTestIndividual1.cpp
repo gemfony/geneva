@@ -27,15 +27,15 @@
  *
  ********************************************************************************/
 
-#include "geneva/GTestIndividual1.hpp"
+#include "geneva/individuals/GTestIndividual1.hpp"
 
 #ifdef GEM_TESTING
 #include <catch2/catch_test_macros.hpp>
 #endif /* GEM_TESTING */
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Tests::GTestIndividual1) // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Individuals::GTestIndividual1) // NOLINT
 
-namespace Gem::Tests {
+namespace Gem::Geneva::Individuals {
 
 /******************************************************************************/
 /**
@@ -233,10 +233,10 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
     //------------------------------------------------------------------------------
 
     { // Tests whether calls to adapt() result in changes of the object
-        std::shared_ptr<Gem::Tests::GTestIndividual1> p_test =
-            this->clone<Gem::Tests::GTestIndividual1>();
-        std::shared_ptr<Gem::Tests::GTestIndividual1> p_test_old =
-            this->clone<Gem::Tests::GTestIndividual1>();
+        std::shared_ptr<Gem::Geneva::Individuals::GTestIndividual1> p_test =
+            this->clone<Gem::Geneva::Individuals::GTestIndividual1>();
+        std::shared_ptr<Gem::Geneva::Individuals::GTestIndividual1> p_test_old =
+            this->clone<Gem::Geneva::Individuals::GTestIndividual1>();
 
         std::size_t n_tests = 1000;
 
@@ -250,8 +250,8 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
     //------------------------------------------------------------------------------
 
     { // Tests customAdaptions, dirty_flag and the effects of the fitness function. Also test setting of server-mode flag
-        std::shared_ptr<Gem::Tests::GTestIndividual1> p_test =
-            this->clone<Gem::Tests::GTestIndividual1>();
+        std::shared_ptr<Gem::Geneva::Individuals::GTestIndividual1> p_test =
+            this->clone<Gem::Geneva::Individuals::GTestIndividual1>();
 
         // Make sure this individual is not dirty
         if(p_test->is_due_for_processing()) {
@@ -301,8 +301,8 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
     //------------------------------------------------------------------------------
 
     { // Tests whether modification of one clone influences another clone
-        std::shared_ptr<Gem::Tests::GTestIndividual1> p_test1 =
-            this->clone<Gem::Tests::GTestIndividual1>();
+        std::shared_ptr<Gem::Geneva::Individuals::GTestIndividual1> p_test1 =
+            this->clone<Gem::Geneva::Individuals::GTestIndividual1>();
 
         // Make sure the individual is clean
         if(p_test1->is_due_for_processing()) {
@@ -311,8 +311,8 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
         }
 
         // Create a clone of p_test1
-        std::shared_ptr<Gem::Tests::GTestIndividual1> p_test2 =
-            p_test1->clone<Gem::Tests::GTestIndividual1>();
+        std::shared_ptr<Gem::Geneva::Individuals::GTestIndividual1> p_test2 =
+            p_test1->clone<Gem::Geneva::Individuals::GTestIndividual1>();
         // Check that the clone is identical to p_test1;
         CHECK_NOTHROW(*p_test2 == *p_test1);
 
@@ -333,8 +333,8 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
 
     { // Check the effects of the process function in EA mode, using the "evaluate" call
         double current_fitness = 0.;
-        std::shared_ptr<Gem::Tests::GTestIndividual1> p_test =
-            this->clone<Gem::Tests::GTestIndividual1>();
+        std::shared_ptr<Gem::Geneva::Individuals::GTestIndividual1> p_test =
+            this->clone<Gem::Geneva::Individuals::GTestIndividual1>();
 
         // Make sure the individual is clean
         CHECK_NOTHROW(p_test->is_processed() || p_test->is_ignored());
@@ -363,8 +363,8 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
     //------------------------------------------------------------------------------
 
     { // Check the process() function
-        std::shared_ptr<Gem::Tests::GTestIndividual1> p_test =
-            this->clone<Gem::Tests::GTestIndividual1>();
+        std::shared_ptr<Gem::Geneva::Individuals::GTestIndividual1> p_test =
+            this->clone<Gem::Geneva::Individuals::GTestIndividual1>();
 
         // Make sure the individual is clean
         CHECK_NOTHROW(p_test->is_ignored() || p_test->is_processed());
@@ -390,8 +390,8 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
     //------------------------------------------------------------------------------
 
     { // Check the effects of the process function in SWARM mode, using the "evaluate" call
-        std::shared_ptr<Gem::Tests::GTestIndividual1> p_test =
-            this->clone<Gem::Tests::GTestIndividual1>();
+        std::shared_ptr<Gem::Geneva::Individuals::GTestIndividual1> p_test =
+            this->clone<Gem::Geneva::Individuals::GTestIndividual1>();
 
         // Make sure the individual is clean
         CHECK_NOTHROW(p_test->is_ignored() || p_test->is_processed());
@@ -417,10 +417,10 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
     //------------------------------------------------------------------------------
 
     { // Test of Gem::Common::GPtrVectorT<T,GObject>::swap(...)
-        std::shared_ptr<Gem::Tests::GTestIndividual1> p_test1 =
-            this->clone<Gem::Tests::GTestIndividual1>();
-        std::shared_ptr<Gem::Tests::GTestIndividual1> p_test2 =
-            this->clone<Gem::Tests::GTestIndividual1>();
+        std::shared_ptr<Gem::Geneva::Individuals::GTestIndividual1> p_test1 =
+            this->clone<Gem::Geneva::Individuals::GTestIndividual1>();
+        std::shared_ptr<Gem::Geneva::Individuals::GTestIndividual1> p_test2 =
+            this->clone<Gem::Geneva::Individuals::GTestIndividual1>();
 
         // Check that both individuals are the same
         CHECK(*p_test1 == *p_test2);
@@ -475,10 +475,10 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
     //------------------------------------------------------------------------------
 
     { // Check of the GParameterSet::customAdaptions() function
-        std::shared_ptr<Gem::Tests::GTestIndividual1> p_test1 =
-            this->clone<Gem::Tests::GTestIndividual1>();
-        std::shared_ptr<Gem::Tests::GTestIndividual1> p_test2 =
-            this->clone<Gem::Tests::GTestIndividual1>();
+        std::shared_ptr<Gem::Geneva::Individuals::GTestIndividual1> p_test1 =
+            this->clone<Gem::Geneva::Individuals::GTestIndividual1>();
+        std::shared_ptr<Gem::Geneva::Individuals::GTestIndividual1> p_test2 =
+            this->clone<Gem::Geneva::Individuals::GTestIndividual1>();
 
         // Check that both individuals are the same
         CHECK(*p_test1 == *p_test2);
@@ -526,8 +526,8 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
     //------------------------------------------------------------------------------
 
     { // Test resize_clone, resize_noclone, finding and counting of items (Test of GPtrVectorT<GParameterBase> functionality)
-        std::shared_ptr<Gem::Tests::GTestIndividual1> p_test =
-            this->clone<Gem::Tests::GTestIndividual1>();
+        std::shared_ptr<Gem::Geneva::Individuals::GTestIndividual1> p_test =
+            this->clone<Gem::Geneva::Individuals::GTestIndividual1>();
 
         // Add a few data items
         CHECK_NOTHROW(p_test->addGDoubleObjects_(n_items));
@@ -540,7 +540,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
 
         // Create a copy of the first parameter item
         std::shared_ptr<gpar::GDoubleObject> search_ptr;
-        Gem::Tests::GTestIndividual1::const_iterator find_cit;
+        Gem::Geneva::Individuals::GTestIndividual1::const_iterator find_cit;
         CHECK_NOTHROW(search_ptr = p_test->at(0)->clone<gpar::GDoubleObject>());
 
         // Find the first item that complies to a GDoubleObject, initialized with the number 42
@@ -572,8 +572,8 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
     //------------------------------------------------------------------------------
 
     { // Test insert_clone, insert_noclone (Test of GPtrVectorT<GParameterBase> functionality)
-        std::shared_ptr<Gem::Tests::GTestIndividual1> p_test =
-            this->clone<Gem::Tests::GTestIndividual1>();
+        std::shared_ptr<Gem::Geneva::Individuals::GTestIndividual1> p_test =
+            this->clone<Gem::Geneva::Individuals::GTestIndividual1>();
 
         // Add a few data items
         CHECK_NOTHROW(p_test->addGDoubleObjects_(n_items));
@@ -595,7 +595,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
         CHECK(p_test->at<gpar::GDoubleObject>(0)->value() == 1.);
 
         // Find the first item which is identical to insert_ptr -- should be at the beginning
-        Gem::Tests::GTestIndividual1::const_iterator find_cit;
+        Gem::Geneva::Individuals::GTestIndividual1::const_iterator find_cit;
         CHECK_NOTHROW(find_cit = p_test->find(insert_ptr));
         CHECK(find_cit == p_test->begin());
 
@@ -660,8 +660,8 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
     //------------------------------------------------------------------------------
 
     { // Test push_back_clone and push_back_noclone (Test of GPtrVectorT<GParameterBase> functionality)
-        std::shared_ptr<Gem::Tests::GTestIndividual1> p_test =
-            this->clone<Gem::Tests::GTestIndividual1>();
+        std::shared_ptr<Gem::Geneva::Individuals::GTestIndividual1> p_test =
+            this->clone<Gem::Geneva::Individuals::GTestIndividual1>();
 
         // Add a few data items
         CHECK_NOTHROW(p_test->addGDoubleObjects_(n_items));
@@ -691,8 +691,8 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
     //------------------------------------------------------------------------------
 
     { // Test retrieval of a data copy (Test of GPtrVectorT<GParameterBase> functionality)
-        std::shared_ptr<Gem::Tests::GTestIndividual1> p_test =
-            this->clone<Gem::Tests::GTestIndividual1>();
+        std::shared_ptr<Gem::Geneva::Individuals::GTestIndividual1> p_test =
+            this->clone<Gem::Geneva::Individuals::GTestIndividual1>();
 
         // Add a few data items
         CHECK_NOTHROW(p_test->addGDoubleObjects_(n_items));
@@ -713,8 +713,8 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
     //------------------------------------------------------------------------------
 
     { // Check setting and retrieval of the current personality status and whether the personalities themselves can be accessed
-        std::shared_ptr<Gem::Tests::GTestIndividual1> p_test =
-            this->clone<Gem::Tests::GTestIndividual1>();
+        std::shared_ptr<Gem::Geneva::Individuals::GTestIndividual1> p_test =
+            this->clone<Gem::Geneva::Individuals::GTestIndividual1>();
         std::shared_ptr<GPersonalityTraits> p_pt;
 
         // Reset the personality type
@@ -809,7 +809,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
     // --------------------------------------------------------------------------
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
     Gem::Common::condnotset(
-        "Gem::Tests::GTestIndividual1::specificTestsNoFailureExpected_GUnitTests",
+        "Gem::Geneva::Individuals::GTestIndividual1::specificTestsNoFailureExpected_GUnitTests",
         "GEM_TESTING"
     );
 #endif                  /* GEM_TESTING */
@@ -833,8 +833,8 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests_() {
 
 #ifdef DEBUG
     { // Tests that evaluating a dirty individual in "server mode" throws
-        std::shared_ptr<Gem::Tests::GTestIndividual1> p_test =
-            this->clone<Gem::Tests::GTestIndividual1>();
+        std::shared_ptr<Gem::Geneva::Individuals::GTestIndividual1> p_test =
+            this->clone<Gem::Geneva::Individuals::GTestIndividual1>();
 
         CHECK_NOTHROW(p_test->mark_as_due_for_processing());
         CHECK_THROWS_AS(p_test->transformed_fitness(0), geneva_exception);
@@ -844,8 +844,8 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests_() {
     //------------------------------------------------------------------------------
 
     { // Test that trying to count an empty smart pointer throws (Test of GPtrVectorT<GParameterBase> functionality)
-        std::shared_ptr<Gem::Tests::GTestIndividual1> p_test =
-            this->clone<Gem::Tests::GTestIndividual1>();
+        std::shared_ptr<Gem::Geneva::Individuals::GTestIndividual1> p_test =
+            this->clone<Gem::Geneva::Individuals::GTestIndividual1>();
 
         // Add a few data items
         CHECK_NOTHROW(p_test->addGDoubleObjects_(n_items));
@@ -857,8 +857,8 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests_() {
     //------------------------------------------------------------------------------
 
     { // Test that trying to find an empty smart pointer throws (Test of GPtrVectorT<GParameterBase> functionality)
-        std::shared_ptr<Gem::Tests::GTestIndividual1> p_test =
-            this->clone<Gem::Tests::GTestIndividual1>();
+        std::shared_ptr<Gem::Geneva::Individuals::GTestIndividual1> p_test =
+            this->clone<Gem::Geneva::Individuals::GTestIndividual1>();
 
         // Add a few data items
         CHECK_NOTHROW(p_test->addGDoubleObjects_(n_items));
@@ -870,8 +870,8 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests_() {
     //------------------------------------------------------------------------------
 
     { // Test that trying to insert an empty smart pointer with insert_noclone(pos, item) throws (Test of GPtrVectorT<GParameterBase> functionality)
-        std::shared_ptr<Gem::Tests::GTestIndividual1> p_test =
-            this->clone<Gem::Tests::GTestIndividual1>();
+        std::shared_ptr<Gem::Geneva::Individuals::GTestIndividual1> p_test =
+            this->clone<Gem::Geneva::Individuals::GTestIndividual1>();
 
         // Add a few data items
         CHECK_NOTHROW(p_test->addGDoubleObjects_(n_items));
@@ -886,8 +886,8 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests_() {
     //------------------------------------------------------------------------------
 
     { // Test that trying to insert an empty smart pointer with insert_noclone(pos, amount, item) throws (Test of GPtrVectorT<GParameterBase> functionality)
-        std::shared_ptr<Gem::Tests::GTestIndividual1> p_test =
-            this->clone<Gem::Tests::GTestIndividual1>();
+        std::shared_ptr<Gem::Geneva::Individuals::GTestIndividual1> p_test =
+            this->clone<Gem::Geneva::Individuals::GTestIndividual1>();
 
         // Add a few data items
         CHECK_NOTHROW(p_test->addGDoubleObjects_(n_items));
@@ -902,8 +902,8 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests_() {
     //------------------------------------------------------------------------------
 
     { // Test that trying to insert an empty smart pointer with insert_clone(pos, item) throws (Test of GPtrVectorT<GParameterBase> functionality)
-        std::shared_ptr<Gem::Tests::GTestIndividual1> p_test =
-            this->clone<Gem::Tests::GTestIndividual1>();
+        std::shared_ptr<Gem::Geneva::Individuals::GTestIndividual1> p_test =
+            this->clone<Gem::Geneva::Individuals::GTestIndividual1>();
 
         // Add a few data items
         CHECK_NOTHROW(p_test->addGDoubleObjects_(n_items));
@@ -918,8 +918,8 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests_() {
     //------------------------------------------------------------------------------
 
     { // Test that trying to insert an empty smart pointer with insert_clone(pos, amount, item) throws (Test of GPtrVectorT<GParameterBase> functionality)
-        std::shared_ptr<Gem::Tests::GTestIndividual1> p_test =
-            this->clone<Gem::Tests::GTestIndividual1>();
+        std::shared_ptr<Gem::Geneva::Individuals::GTestIndividual1> p_test =
+            this->clone<Gem::Geneva::Individuals::GTestIndividual1>();
 
         // Add a few data items
         CHECK_NOTHROW(p_test->addGDoubleObjects_(n_items));
@@ -934,8 +934,8 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests_() {
     //------------------------------------------------------------------------------
 
     { // Test that trying to add an empty smart pointer with push_back_clone(item) throws (Test of GPtrVectorT<GParameterBase> functionality)
-        std::shared_ptr<Gem::Tests::GTestIndividual1> p_test =
-            this->clone<Gem::Tests::GTestIndividual1>();
+        std::shared_ptr<Gem::Geneva::Individuals::GTestIndividual1> p_test =
+            this->clone<Gem::Geneva::Individuals::GTestIndividual1>();
 
         // Add a few data items
         CHECK_NOTHROW(p_test->addGDoubleObjects_(n_items));
@@ -950,8 +950,8 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests_() {
     //------------------------------------------------------------------------------
 
     { // Test that trying to add an empty smart pointer with push_back_noclone(item) throws (Test of GPtrVectorT<GParameterBase> functionality)
-        std::shared_ptr<Gem::Tests::GTestIndividual1> p_test =
-            this->clone<Gem::Tests::GTestIndividual1>();
+        std::shared_ptr<Gem::Geneva::Individuals::GTestIndividual1> p_test =
+            this->clone<Gem::Geneva::Individuals::GTestIndividual1>();
 
         // Add a few data items
         CHECK_NOTHROW(p_test->addGDoubleObjects_(n_items));
@@ -966,8 +966,8 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests_() {
     //------------------------------------------------------------------------------
 
     { // Test that trying to resize an empty collection with resize(amount) throws (Test of GPtrVectorT<GParameterBase> functionality)
-        std::shared_ptr<Gem::Tests::GTestIndividual1> p_test =
-            this->clone<Gem::Tests::GTestIndividual1>();
+        std::shared_ptr<Gem::Geneva::Individuals::GTestIndividual1> p_test =
+            this->clone<Gem::Geneva::Individuals::GTestIndividual1>();
 
         // Make sure p_test is empty
         CHECK_NOTHROW(p_test->clear());
@@ -980,8 +980,8 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests_() {
     //------------------------------------------------------------------------------
 
     { // Test that trying to resize an empty collection with resize_noclone(amount, item) throws if item is an empty smart pointer(Test of GPtrVectorT<GParameterBase> functionality)
-        std::shared_ptr<Gem::Tests::GTestIndividual1> p_test =
-            this->clone<Gem::Tests::GTestIndividual1>();
+        std::shared_ptr<Gem::Geneva::Individuals::GTestIndividual1> p_test =
+            this->clone<Gem::Geneva::Individuals::GTestIndividual1>();
 
         // Make sure p_test is empty
         CHECK_NOTHROW(p_test->clear());
@@ -997,8 +997,8 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests_() {
     //------------------------------------------------------------------------------
 
     { // Test that trying to resize an empty collection with resize_clone(amount, item) throws if item is an empty smart pointer(Test of GPtrVectorT<GParameterBase> functionality)
-        std::shared_ptr<Gem::Tests::GTestIndividual1> p_test =
-            this->clone<Gem::Tests::GTestIndividual1>();
+        std::shared_ptr<Gem::Geneva::Individuals::GTestIndividual1> p_test =
+            this->clone<Gem::Geneva::Individuals::GTestIndividual1>();
 
         // Make sure p_test is empty
         CHECK_NOTHROW(p_test->clear());
@@ -1015,8 +1015,8 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests_() {
 
 #ifdef DEBUG
     { // Test that retrieval of an EA personality traits object from an uninitialized pointer throws in DEBUG mode
-        std::shared_ptr<Gem::Tests::GTestIndividual1> p_test =
-            this->clone<Gem::Tests::GTestIndividual1>();
+        std::shared_ptr<Gem::Geneva::Individuals::GTestIndividual1> p_test =
+            this->clone<Gem::Geneva::Individuals::GTestIndividual1>();
 
         // Make sure the personality type is set to PERSONALITY_NONE
         CHECK_NOTHROW(p_test->resetPersonality());
@@ -1034,8 +1034,8 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests_() {
 
 #ifdef DEBUG
     { // Test that retrieval of an EA personality traits object from an individual with SWARM personality throws
-        std::shared_ptr<Gem::Tests::GTestIndividual1> p_test =
-            this->clone<Gem::Tests::GTestIndividual1>();
+        std::shared_ptr<Gem::Geneva::Individuals::GTestIndividual1> p_test =
+            this->clone<Gem::Geneva::Individuals::GTestIndividual1>();
 
         // Make sure the personality type is set to SWARM
         CHECK_NOTHROW(p_test->setPersonality(
@@ -1054,8 +1054,8 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests_() {
 
 #ifdef DEBUG
     { // Test that retrieval of a personality traits base object from an individual without personality throws
-        std::shared_ptr<Gem::Tests::GTestIndividual1> p_test =
-            this->clone<Gem::Tests::GTestIndividual1>();
+        std::shared_ptr<Gem::Geneva::Individuals::GTestIndividual1> p_test =
+            this->clone<Gem::Geneva::Individuals::GTestIndividual1>();
 
         // Make sure the personality type is set to PERSONALITY_NONE
         CHECK_NOTHROW(p_test->resetPersonality());
@@ -1077,4 +1077,4 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests_() {
 
 /******************************************************************************/
 
-} /* namespace Gem::Tests */
+} /* namespace Gem::Geneva::Individuals */

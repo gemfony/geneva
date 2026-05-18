@@ -41,7 +41,7 @@
 
 #include "common/GCommonMathHelperFunctionsT.hpp"
 
-namespace Gem::Geneva {
+namespace Gem::Geneva::Benchmarks {
 
 /******************************************************************************/
 
@@ -222,4 +222,4 @@ GAlgorithmBenchmarkResult GAlgorithmBenchmarkRunner::aggregate(
 
 /******************************************************************************/
 
-} /* namespace Gem::Geneva */
+} /* namespace Gem::Geneva::Benchmarks */

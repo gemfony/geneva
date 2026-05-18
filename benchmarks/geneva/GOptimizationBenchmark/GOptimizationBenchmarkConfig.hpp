@@ -48,8 +48,7 @@
 
 #include "common/GParserBuilder.hpp"
 
-namespace Gem {
-namespace Tests {
+namespace Gem::Geneva::Benchmarks {
 
 const std::size_t DEFNOPTBENCHTESTS = 10;
 
@@ -161,5 +160,4 @@ private:
 
 /*********************************************************************************/
 
-} /* namespace Tests */
-} /* namespace Gem */
+} /* namespace Gem::Geneva::Benchmarks */

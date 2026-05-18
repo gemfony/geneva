@@ -27,14 +27,14 @@
  *
  ********************************************************************************/
 
-#include "geneva/GTestIndividual3.hpp"
+#include "geneva/individuals/GTestIndividual3.hpp"
 
 #ifdef GEM_TESTING
 #include <catch2/catch_test_macros.hpp>
 #endif /* GEM_TESTING */
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Tests::GTestIndividual3) // NOLINT
-namespace Gem::Tests {
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Individuals::GTestIndividual3) // NOLINT
+namespace Gem::Geneva::Individuals {
 
 constexpr std::size_t GTI_DEF_NITEMS = 300;
 constexpr double GTI_DEF_SIGMA = 0.025;
@@ -367,4 +367,4 @@ void GTestIndividual3::specificTestsFailuresExpected_GUnitTests_() {
 
 /******************************************************************************/
 
-} /* namespace Gem::Tests */
+} /* namespace Gem::Geneva::Individuals */

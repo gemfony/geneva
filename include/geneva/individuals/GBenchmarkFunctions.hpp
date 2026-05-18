@@ -57,18 +57,18 @@
  * ## Usage from CPU code
  *
  *   #include "geneva/individuals/GBenchmarkFunctions.hpp"
- *   double f = Gem::Geneva::BM::parabola(params.data(), params.size());
+ *   double f = Gem::Geneva::Benchmarks::parabola(params.data(), params.size());
  *
  * ## Usage from CUDA kernel code
  *
  *   #include "geneva/individuals/GBenchmarkFunctions.hpp"
  *   __global__ void evalKernel(...) {
- *       double f = Gem::Geneva::BM::parabola(d_params + tid*n, n);
+ *       double f = Gem::Geneva::Benchmarks::parabola(d_params + tid*n, n);
  *   }
  *
  * ## Batch dispatch entry point
  *
- *   double Gem::Geneva::BM::eval(solverFunctionId id, const double* x, int n)
+ *   double Gem::Geneva::Benchmarks::eval(solverFunctionId id, const double* x, int n)
  *
  * dispatches to the correct function based on the integer function id (matching
  * the solverFunction enum values in GFunctionIndividual.hpp).
@@ -102,7 +102,7 @@ inline constexpr double GBM_E = std::numbers::e;
 
 // ── Integer IDs (mirror solverFunction enum, avoids including GFunctionIndividual.hpp from .cu) ──
 
-namespace Gem::Geneva::BM {
+namespace Gem::Geneva::Benchmarks {
 
 constexpr int FUNC_PARABOLA = 0;
 constexpr int FUNC_NOISYPARABOLA = 1;
@@ -421,6 +421,6 @@ G_CALLABLE inline double eval(int func_id, const double *x, int n) {
     }
 }
 
-} /* namespace Gem::Geneva::BM */
+} /* namespace Gem::Geneva::Benchmarks */
 
 /** @} */ // end of GBenchmarkFunctions group

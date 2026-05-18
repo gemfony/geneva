@@ -121,6 +121,8 @@
 namespace Gem::Geneva::OptimizationAlgorithms {}
 namespace Gem::Geneva::Parameters {}
 namespace Gem::Geneva::Individuals {}
+namespace Gem::Geneva::Benchmarks {}
 namespace oa = Gem::Geneva::OptimizationAlgorithms;
 namespace gpar = Gem::Geneva::Parameters;
 namespace gind = Gem::Geneva::Individuals;
+namespace gbm = Gem::Geneva::Benchmarks;

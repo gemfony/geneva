@@ -39,35 +39,36 @@
 #include <iostream>
 #include <list>
 #include <sstream>
+#include <tuple>
 #include <vector>
 
 // Boost header files go here
 
 // Geneva header files go here
-#include "common/GCommonEnums.hpp"
+#include "common/GCommonMathHelperFunctionsT.hpp"
 #include "common/GExceptions.hpp"
+#include "common/GParserBuilder.hpp"
+#include "common/GSingletonT.hpp"
+#include "geneva/par/GConstrainedDoubleCollection.hpp"
 #include "geneva/par/GConstrainedDoubleObject.hpp"
 #include "geneva/par/GConstrainedDoubleObjectCollection.hpp"
-#include "geneva/par/GDoubleCollection.hpp"
+#include "geneva/par/GConstrainedInt32Object.hpp"
+#include "geneva/par/GConstrainedInt32ObjectCollection.hpp"
 #include "geneva/par/GDoubleGaussAdaptor.hpp"
-#include "geneva/par/GDoubleObject.hpp"
+#include "geneva/par/GInt32FlipAdaptor.hpp"
+#include "geneva/par/GInt32GaussAdaptor.hpp"
 #include "geneva/GOptimizationEnums.hpp"
+#include "geneva/par/GParameterObjectCollection.hpp"
 #include "geneva/par/GParameterSet.hpp"
-#include "geneva/oa/GEvolutionaryAlgorithm_PersonalityTraits.hpp"
-#include "geneva/oa/GGradientDescent_PersonalityTraits.hpp"
-#include "geneva/oa/GParameterScan_PersonalityTraits.hpp"
-#include "geneva/oa/GSimulatedAnnealing_PersonalityTraits.hpp"
-#include "geneva/oa/GSwarmAlgorithm_PersonalityTraits.hpp"
 
-namespace Gem::Tests {
+namespace Gem::Geneva::Individuals {
 
 /******************************************************************************/
 /**
- * This individual serves as the basis for unit tests of the individual hierarchy. At the time
- * of writing, it was included in order to be able to set the individual's personality without
- * weakening data protection.
+ * This individual tests different access methods for parameter objects inside
+ * of the individual.
  */
-class GTestIndividual1 // NOLINT(cppcoreguidelines-special-member-functions)
+class GTestIndividual3 // NOLINT(cppcoreguidelines-special-member-functions)
   : public gpar::GParameterSet {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
@@ -75,6 +76,7 @@ class GTestIndividual1 // NOLINT(cppcoreguidelines-special-member-functions)
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
+        using namespace Gem::Geneva;
 
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GParameterSet);
     }
@@ -82,20 +84,24 @@ class GTestIndividual1 // NOLINT(cppcoreguidelines-special-member-functions)
 
 public:
     /** @brief The default constructor */
-    GTestIndividual1();
+    GTestIndividual3();
     /** @brief The copy constructor */
-    GTestIndividual1(const GTestIndividual1 &) = default;
-    /** @brief The standard destructor */
-    ~GTestIndividual1() override = default;
+    GTestIndividual3(const GTestIndividual3 &);
+
+    /** @brief The destructor */
+    ~GTestIndividual3() override;
+
+    /** @brief Get all data members of this class as a plain array */
+    std::shared_ptr<float> getPlainData() const;
 
 protected:
-    /** @brief Loads the data of another GTestIndividual1 */
+    /** @brief Loads the data of another GTestIndividual3 */
     void load_(const GObject *) final;
 
     /** @brief Allow access to this classes compare_ function */
-    friend void Gem::Common::compare_base_t<GTestIndividual1>(
-        GTestIndividual1 const &,
-        GTestIndividual1 const &,
+    friend void Gem::Common::compare_base_t<GTestIndividual3>(
+        GTestIndividual3 const &,
+        GTestIndividual3 const &,
         Gem::Common::GToken &
     );
 
@@ -111,9 +117,6 @@ protected:
     /** @brief The actual fitness calculation takes place here. */
     double fitnessCalculation() final;
 
-    // Note: The following functions are, in the context of GTestIndividual1,
-    // designed to mainly test parent classes
-
     /** @brief Applies modifications to this object. */
     bool modify_GUnitTests_() override;
     /** @brief Performs self tests that are expected to succeed. */
@@ -124,13 +127,10 @@ protected:
 private:
     /** @brief Creates a deep clone of this object */
     GObject *clone_() const final;
-
-    /** @brief Adds a number of GDoubleObject objects to the individual */
-    void addGDoubleObjects_(const std::size_t &);
 };
 
 /******************************************************************************/
 
-} /* namespace Gem::Tests */
+} /* namespace Gem::Geneva::Individuals */
 
-BOOST_CLASS_EXPORT_KEY(Gem::Tests::GTestIndividual1) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::Individuals::GTestIndividual3) // NOLINT

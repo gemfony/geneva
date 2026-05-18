@@ -73,9 +73,9 @@
 
 #endif /* GEM_TESTING */
 
-namespace Gem::Tests {
+namespace Gem::Geneva::Individuals {
 class GTestIndividual1; // forward declaration, needed for testing purposes
-} /* namespace Gem::Tests */
+} /* namespace Gem::Geneva::Individuals */
 
 namespace Gem::Geneva::Parameters {
 
@@ -178,7 +178,7 @@ class GParameterSet // NOLINT(cppcoreguidelines-special-member-functions)
   , public Interface::GRateableI
   , public Gem::Common::GPtrContainerT<GParameterBase>
   , public Gem::Courtier::GProcessingContainerT<GParameterSet, parameterset_processing_result> {
-    friend class Gem::Tests::GTestIndividual1; ///< Needed for testing purposes
+    friend class Gem::Geneva::Individuals::GTestIndividual1; ///< Needed for testing purposes
 
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;

@@ -42,11 +42,11 @@
 
 // Geneva header files go here
 #include "common/GPlotDesigner.hpp"
-#include "geneva/GTestIndividual2.hpp"
+#include "geneva/individuals/GTestIndividual2.hpp"
 
 using namespace Gem::Common;
 using namespace Gem::Geneva;
-using namespace Gem::Tests;
+using namespace Gem::Geneva::Individuals;
 
 const std::size_t NPOINTS = 1000;
 

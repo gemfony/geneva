@@ -30,7 +30,7 @@
 
 #include <cuda_runtime.h>
 
-namespace Gem::Geneva {
+namespace Gem::Geneva::Benchmarks {
 
 /******************************************************************************/
 /**
@@ -56,9 +56,9 @@ inline void cudaCheck(cudaError_t err, const char* where)
  * Usage:
  * @code
  *   GBenchmarkCUDAContext ctx;
- *   ctx.eval(h_params, h_results, N, dim, BM::FUNC_RASTRIGIN);
+ *   ctx.eval(h_params, h_results, N, dim, gbm::FUNC_RASTRIGIN);
  *   // ... many generations later ...
- *   ctx.eval(h_params2, h_results2, N2, dim, BM::FUNC_RASTRIGIN);
+ *   ctx.eval(h_params2, h_results2, N2, dim, gbm::FUNC_RASTRIGIN);
  * @endcode
  */
 class GBenchmarkCUDAContext {
@@ -81,7 +81,7 @@ public:
      * @param h_results  Host array for fitness output [N]
      * @param N          Number of individuals
      * @param dim        Parameter dimension
-     * @param funcId     BM::FUNC_* constant identifying the benchmark function
+     * @param funcId     gbm::FUNC_* constant identifying the benchmark function
      */
     void eval(const double* h_params, double* h_results,
               int N, int dim, int funcId);
@@ -107,7 +107,7 @@ private:
  * @param h_results  Host output array [N]
  * @param N          Number of individuals
  * @param dim        Parameter dimension per individual
- * @param funcId     BM::FUNC_* constant (0=PARABOLA … 14=ZAKHAROV)
+ * @param funcId     gbm::FUNC_* constant (0=PARABOLA … 14=ZAKHAROV)
  */
 void batchEvalBenchmarkGPU(
     const double* h_params,
@@ -116,4 +116,4 @@ void batchEvalBenchmarkGPU(
     int           dim,
     int           funcId);
 
-} /* namespace Gem::Geneva */
+} /* namespace Gem::Geneva::Benchmarks */

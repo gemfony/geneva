@@ -42,7 +42,7 @@
 #include <sstream>
 #include <stdexcept>
 
-namespace Gem::Geneva {
+namespace Gem::Geneva::Benchmarks {
 
 /******************************************************************************/
 
@@ -180,4 +180,4 @@ void GBenchmarkResultWriter::printSummary(
 
 /******************************************************************************/
 
-} /* namespace Gem::Geneva */
+} /* namespace Gem::Geneva::Benchmarks */

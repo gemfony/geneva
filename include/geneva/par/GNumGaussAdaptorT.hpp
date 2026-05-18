@@ -138,7 +138,15 @@ public:
         const fp_type &max_sigma,
         const double &probability
     )
-      : GAdaptorT<num_type>(probability) { /* nothing */
+      : GAdaptorT<num_type>(probability) {
+        // These functions do error checks on their values
+        setSigmaAdaptionRate(sigma_sigma);
+        setSigmaRange(min_sigma, max_sigma);
+        setSigma(
+            sigma
+        ); // Must be set last so an error check for compliance with the boundaries can be made
+
+        sigma_reset_ = sigma_;
     }
 
     /***************************************************************************/

@@ -50,7 +50,7 @@
 
 using namespace Gem::Geneva;
 using namespace Gem::Common;
-using namespace Gem::Tests;
+using namespace Gem::Geneva::Benchmarks;
 
 using xyWE = std::tuple<double, double, double, double>; // xy-values with errors
 

@@ -278,7 +278,7 @@ each try to finalize the broker on destruction.
 ## Adding a new benchmark function
 
 1. Add the function implementation to `GBenchmarkFunctions.hpp` under a new
-   `FUNC_*` integer constant and a corresponding `case` in `BM::eval()`.
+   `FUNC_*` integer constant and a corresponding `case` in `gbm::eval()`.
 2. Ensure the `solverFunction` enum in `GFunctionIndividual.hpp` has a matching
    entry at the same integer position, so that `getDemoFunction()` returns the
    correct `funcId` for the kernel.

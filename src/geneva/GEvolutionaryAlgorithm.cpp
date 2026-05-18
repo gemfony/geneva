@@ -1301,7 +1301,7 @@ void GEvolutionaryAlgorithm::fillWithObjects(const std::size_t &n_individuals) {
 
     // Add some some
     for(std::size_t i = 0; i < n_individuals; i++) {
-        this->push_back(std::make_shared<Gem::Tests::GTestIndividual1>());
+        this->push_back(std::make_shared<Gem::Geneva::Individuals::GTestIndividual1>());
     }
 
     // Make sure we have unique data items

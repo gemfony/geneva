@@ -38,7 +38,7 @@
 #include <string_view>
 #include <vector>
 
-namespace Gem::Geneva {
+namespace Gem::Geneva::Benchmarks {
 
 /******************************************************************************/
 /**
@@ -121,4 +121,4 @@ struct GAlgorithmBenchmarkResult {
 
 /******************************************************************************/
 
-} /* namespace Gem::Geneva */
+} /* namespace Gem::Geneva::Benchmarks */

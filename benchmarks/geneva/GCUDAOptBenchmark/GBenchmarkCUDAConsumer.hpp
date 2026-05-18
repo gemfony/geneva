@@ -52,7 +52,7 @@
 // Local CUDA evaluator
 #include "GBenchmarkBatchEvaluator.cuh"
 
-namespace Gem::Geneva {
+namespace Gem::Geneva::Benchmarks {
 
 /******************************************************************************/
 /**
@@ -229,7 +229,7 @@ private:
         if (!front_fi) {
             throw std::runtime_error("GCUDABatchConsumer: batch item is not a GFunctionIndividual");
         }
-        // solverFunction enum values equal BM::FUNC_* integer constants (both 0–14)
+        // solverFunction enum values equal gbm::FUNC_* integer constants (both 0–14)
         const int funcId = static_cast<int>(front_fi->getDemoFunction());
 
         std::vector<double> probe;
@@ -282,4 +282,4 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Gem::Geneva */
+} /* namespace Gem::Geneva::Benchmarks */

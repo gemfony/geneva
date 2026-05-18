@@ -46,7 +46,7 @@
 #include "geneva/oa/GSwarmAlgorithm_PersonalityTraits.hpp"
 
 #ifdef GEM_TESTING
-#include "geneva/GTestIndividual1.hpp"
+#include "geneva/individuals/GTestIndividual1.hpp"
 #endif /* GEM_TESTING */
 
 namespace Gem::Geneva::OptimizationAlgorithms {

@@ -49,7 +49,7 @@
 #include "GBenchmarkBatchEvaluator.cuh"
 #include "geneva/individuals/GBenchmarkFunctions.hpp"
 
-namespace BM = Gem::Geneva::BM;
+namespace BM = Gem::Geneva::Benchmarks;
 
 /******************************************************************************/
 
@@ -127,7 +127,7 @@ int main() {
         // GPU evaluation.
         std::vector<double> gpu_results(static_cast<std::size_t>(N_INDIVIDUALS));
         try {
-            Gem::Geneva::batchEvalBenchmarkGPU(
+            Gem::Geneva::Benchmarks::batchEvalBenchmarkGPU(
                 h_params.data(),
                 gpu_results.data(),
                 N_INDIVIDUALS,

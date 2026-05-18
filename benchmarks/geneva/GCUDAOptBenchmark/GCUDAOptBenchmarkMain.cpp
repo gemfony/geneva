@@ -58,6 +58,7 @@
 
 namespace po = boost::program_options;
 using namespace Gem::Geneva;
+using namespace Gem::Geneva::Benchmarks;
 
 /******************************************************************************/
 // Forward declaration — implemented in GCUDAOptBenchmark.cu

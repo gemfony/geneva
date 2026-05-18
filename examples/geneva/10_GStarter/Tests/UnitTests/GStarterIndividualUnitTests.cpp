@@ -50,7 +50,7 @@ TEMPLATE_TEST_CASE(
     "[examples][starter][standard]",
     GStarterIndividual
 ) {
-    Gem::Tests::StandardTests_no_failure_expected<TestType>();
+    Gem::Geneva::Tests::StandardTests_no_failure_expected<TestType>();
 }
 
 TEMPLATE_TEST_CASE(
@@ -58,7 +58,7 @@ TEMPLATE_TEST_CASE(
     "[examples][starter][standard]",
     GStarterIndividual
 ) {
-    Gem::Tests::StandardTests_failures_expected<TestType>();
+    Gem::Geneva::Tests::StandardTests_failures_expected<TestType>();
 }
 
 /************************************************************************************************/

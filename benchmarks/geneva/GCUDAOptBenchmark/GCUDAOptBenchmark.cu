@@ -62,7 +62,7 @@
  * down because the broker holds the shared_ptr internally.
  */
 void createAndEnrollCUDAConsumer(std::size_t batchSize, std::uint32_t flushTimeoutMs) {
-    auto consumer = std::make_shared<Gem::Geneva::GCUDABatchConsumer>();
+    auto consumer = std::make_shared<Gem::Geneva::Benchmarks::GCUDABatchConsumer>();
     consumer->setBatchSize(batchSize);
     consumer->setFlushTimeout(std::chrono::milliseconds{flushTimeoutMs});
     GBROKER(gpar::GParameterSet)->enrol_consumer(consumer);
