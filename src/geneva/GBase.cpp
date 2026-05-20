@@ -1608,7 +1608,7 @@ Gem::Courtier::executor_status_t GBase::workOn(
     const std::string &caller
 ) {
     auto iteration_counter = std::make_tuple<Gem::Courtier::ITERATION_COUNTER_TYPE, bool>(
-        Gem::Common::narrow_cast<Gem::Courtier::ITERATION_COUNTER_TYPE>(this->getIteration()),
+        Gem::Common::narrow<Gem::Courtier::ITERATION_COUNTER_TYPE>(this->getIteration()),
         true
     );
 

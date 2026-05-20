@@ -69,7 +69,7 @@ std::istream &operator>>(std::istream &i, Gem::Geneva::targetFunction &tF) {
     i >> tmp;
 
 #ifdef DEBUG
-    tF = Gem::Common::narrow_cast<Gem::Geneva::targetFunction>(tmp);
+    tF = Gem::Common::narrow<Gem::Geneva::targetFunction>(tmp);
 #else
     tF = static_cast<Gem::Geneva::targetFunction>(tmp);
 #endif /* DEBUG */

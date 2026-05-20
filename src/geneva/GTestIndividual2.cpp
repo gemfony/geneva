@@ -59,7 +59,7 @@ std::istream &operator>>(std::istream &i, Gem::Geneva::Individuals::PERFOBJECTTY
     i >> tmp;
 
 #ifdef DEBUG
-    lt = Gem::Common::narrow_cast<Gem::Geneva::Individuals::PERFOBJECTTYPE>(tmp);
+    lt = Gem::Common::narrow<Gem::Geneva::Individuals::PERFOBJECTTYPE>(tmp);
 #else
     lt = static_cast<Gem::Geneva::Individuals::PERFOBJECTTYPE>(tmp);
 #endif /* DEBUG */

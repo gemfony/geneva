@@ -998,7 +998,7 @@ public:
     [[nodiscard]] size_type count(const StoredType &item) const
         requires std::same_as<StoredType, ValueType>
     {
-        return Gem::Common::narrow_cast<size_type>(
+        return Gem::Common::narrow<size_type>(
             std::ranges::count(data_cnt_, item)
         );
     }
@@ -1043,7 +1043,7 @@ public:
                 << "Tried to count with an empty smart pointer." << '\n'
             );
         }
-        return Gem::Common::narrow_cast<size_type>(std::count_if(
+        return Gem::Common::narrow<size_type>(std::count_if(
             data_cnt_.begin(),
             data_cnt_.end(),
             [&item](const StoredType &cont_item) -> bool {

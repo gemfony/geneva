@@ -272,8 +272,8 @@ void GInt32Object::int32MultiplyByRandom(
 ) {
     std::uniform_real_distribution<double> uniform_real_distribution(0., 1.);
     GParameterT<std::int32_t>::setValue(
-        Gem::Common::narrow_cast<std::int32_t>(
-            Gem::Common::narrow_cast<double>(GParameterT<std::int32_t>::value()) *
+        Gem::Common::narrow<std::int32_t>(
+            Gem::Common::narrow<double>(GParameterT<std::int32_t>::value()) *
             uniform_real_distribution(gr)
         )
     );

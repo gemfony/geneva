@@ -444,8 +444,8 @@ public:
         std::ostringstream data; // NOLINT(cppcoreguidelines-init-variables)
 
         data << indent << "TMarker * tm_" << pos << " = new TMarker("
-             << Gem::Common::narrow_cast<double>(std::get<0>(coordinates_)) << ", "
-             << Gem::Common::narrow_cast<double>(std::get<1>(coordinates_)) << ", " << marker_ << ");"
+             << Gem::Common::narrow<double>(std::get<0>(coordinates_)) << ", "
+             << Gem::Common::narrow<double>(std::get<1>(coordinates_)) << ", " << marker_ << ");"
              << '\n'
              << indent << "tm_" << pos << "->SetMarkerColor(" << color_ << ");" << '\n'
              << indent << "tm_" << pos << "->SetMarkerSize(" << size_ << ");" << '\n'
@@ -1494,13 +1494,13 @@ public:
 
         // Make sure the data can be converted to doubles
         try {
-            x = Gem::Common::narrow_cast<x_type>(x_undet);
+            x = Gem::Common::narrow<x_type>(x_undet);
         }
         catch(std::overflow_error &e) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GDataCollector1T<x_type>::operator&(const T&): Error!" << '\n'
-                << "Encountered invalid cast with Gem::Common::narrow_cast," << '\n'
+                << "Encountered invalid cast with Gem::Common::narrow," << '\n'
                 << "with the message " << '\n'
                 << e.what() << '\n'
             );
@@ -1537,13 +1537,13 @@ public:
         for(cit = x_cnt_undet.begin(); cit != x_cnt_undet.end(); ++cit) {
             // Make sure the data can be converted to doubles
             try {
-                x = Gem::Common::narrow_cast<x_type>(*cit);
+                x = Gem::Common::narrow<x_type>(*cit);
             }
             catch(std::overflow_error &e) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
                     << "In GDataCollector1T::operator&(const std::vector<T>&): Error!" << '\n'
-                    << "Encountered invalid cast with Gem::Common::narrow_cast," << '\n'
+                    << "Encountered invalid cast with Gem::Common::narrow," << '\n'
                     << "with the message " << '\n'
                     << e.what() << '\n'
                 );
@@ -1942,14 +1942,14 @@ public:
 
         // Make sure the data can be converted to doubles
         try {
-            x = Gem::Common::narrow_cast<x_type>(std::get<0>(point_undet));
-            y = Gem::Common::narrow_cast<y_type>(std::get<1>(point_undet));
+            x = Gem::Common::narrow<x_type>(std::get<0>(point_undet));
+            y = Gem::Common::narrow<y_type>(std::get<1>(point_undet));
         }
         catch(std::overflow_error &e) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GDataCollector2T::operator&(const std::tuple<S,T>&): Error!" << '\n'
-                << "Encountered invalid cast with Gem::Common::narrow_cast," << '\n'
+                << "Encountered invalid cast with Gem::Common::narrow," << '\n'
                 << "with the message " << '\n'
                 << e.what() << '\n'
             );
@@ -1988,15 +1988,15 @@ public:
         for(cit = point_cnt_undet.begin(); cit != point_cnt_undet.end(); ++cit) {
             // Make sure the data can be converted to doubles
             try {
-                x = Gem::Common::narrow_cast<x_type>(std::get<0>(*cit));
-                y = Gem::Common::narrow_cast<y_type>(std::get<1>(*cit));
+                x = Gem::Common::narrow<x_type>(std::get<0>(*cit));
+                y = Gem::Common::narrow<y_type>(std::get<1>(*cit));
             }
             catch(std::overflow_error &e) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, time_and_place)
                     << "In GDataCollector2T::operator&(const std::vector<std::tuple<S,T>>&): Error!"
                     << '\n'
-                    << "Encountered invalid cast with Gem::Common::narrow_cast," << '\n'
+                    << "Encountered invalid cast with Gem::Common::narrow," << '\n'
                     << "with the message " << '\n'
                     << e.what() << '\n'
                 );
@@ -2266,17 +2266,17 @@ public:
 
         // Make sure the data can be converted to doubles
         try {
-            x = Gem::Common::narrow_cast<x_type>(std::get<0>(point_undet));
-            ex = Gem::Common::narrow_cast<x_type>(std::get<1>(point_undet));
-            y = Gem::Common::narrow_cast<y_type>(std::get<2>(point_undet));
-            ey = Gem::Common::narrow_cast<y_type>(std::get<3>(point_undet));
+            x = Gem::Common::narrow<x_type>(std::get<0>(point_undet));
+            ex = Gem::Common::narrow<x_type>(std::get<1>(point_undet));
+            y = Gem::Common::narrow<y_type>(std::get<2>(point_undet));
+            ey = Gem::Common::narrow<y_type>(std::get<3>(point_undet));
         }
         catch(std::overflow_error &e) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GDataCollector2ET::operator&(const std::tuple<S,S,T,T>&): Error!"
                 << '\n'
-                << "Encountered invalid cast with Gem::Common::narrow_cast," << '\n'
+                << "Encountered invalid cast with Gem::Common::narrow," << '\n'
                 << "with the message " << '\n'
                 << e.what() << '\n'
             );
@@ -2320,10 +2320,10 @@ public:
         for(cit = point_cnt_undet.begin(); cit != point_cnt_undet.end(); ++cit) {
             // Make sure the data can be converted to doubles
             try {
-                x = Gem::Common::narrow_cast<x_type>(std::get<0>(*cit));
-                ex = Gem::Common::narrow_cast<x_type>(std::get<1>(*cit));
-                y = Gem::Common::narrow_cast<y_type>(std::get<2>(*cit));
-                ey = Gem::Common::narrow_cast<y_type>(std::get<3>(*cit));
+                x = Gem::Common::narrow<x_type>(std::get<0>(*cit));
+                ex = Gem::Common::narrow<x_type>(std::get<1>(*cit));
+                y = Gem::Common::narrow<y_type>(std::get<2>(*cit));
+                ey = Gem::Common::narrow<y_type>(std::get<3>(*cit));
             }
             catch(std::overflow_error &e) {
                 throw geneva_exception(
@@ -2331,7 +2331,7 @@ public:
                     << "In GDataCollector2ET::operator&(const std::vector<std::tuple<S,S,T,T>>&): "
                        "Error!"
                     << '\n'
-                    << "Encountered invalid cast with Gem::Common::narrow_cast," << '\n'
+                    << "Encountered invalid cast with Gem::Common::narrow," << '\n'
                     << "with the message " << '\n'
                     << e.what() << '\n'
                 );
@@ -2860,15 +2860,15 @@ public:
 
         // Make sure the data can be converted to doubles
         try {
-            x = Gem::Common::narrow_cast<x_type>(std::get<0>(point_undet));
-            y = Gem::Common::narrow_cast<y_type>(std::get<1>(point_undet));
-            z = Gem::Common::narrow_cast<z_type>(std::get<2>(point_undet));
+            x = Gem::Common::narrow<x_type>(std::get<0>(point_undet));
+            y = Gem::Common::narrow<y_type>(std::get<1>(point_undet));
+            z = Gem::Common::narrow<z_type>(std::get<2>(point_undet));
         }
         catch(std::overflow_error &e) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GDataCollector3T::operator&(const std::tuple<S,T,U>&): Error!" << '\n'
-                << "Encountered invalid cast with Gem::Common::narrow_cast," << '\n'
+                << "Encountered invalid cast with Gem::Common::narrow," << '\n'
                 << "with the message " << '\n'
                 << e.what() << '\n'
             );
@@ -2911,9 +2911,9 @@ public:
         for(cit = point_cnt_undet.begin(); cit != point_cnt_undet.end(); ++cit) {
             // Make sure the data can be converted to doubles
             try {
-                x = Gem::Common::narrow_cast<x_type>(std::get<0>(*cit));
-                y = Gem::Common::narrow_cast<y_type>(std::get<1>(*cit));
-                z = Gem::Common::narrow_cast<z_type>(std::get<2>(*cit));
+                x = Gem::Common::narrow<x_type>(std::get<0>(*cit));
+                y = Gem::Common::narrow<y_type>(std::get<1>(*cit));
+                z = Gem::Common::narrow<z_type>(std::get<2>(*cit));
             }
             catch(std::overflow_error &e) {
                 throw geneva_exception(
@@ -2921,7 +2921,7 @@ public:
                     << "In GDataCollector3T::operator&(const std::vector<std::tuple<S,T,U>>&): "
                        "Error!"
                     << '\n'
-                    << "Encountered invalid cast with Gem::Common::narrow_cast," << '\n'
+                    << "Encountered invalid cast with Gem::Common::narrow," << '\n'
                     << "with the message " << '\n'
                     << e.what() << '\n'
                 );
@@ -3358,16 +3358,16 @@ public:
 
         // Make sure the data can be converted to doubles
         try {
-            x = Gem::Common::narrow_cast<x_type>(std::get<0>(point_undet));
-            y = Gem::Common::narrow_cast<y_type>(std::get<1>(point_undet));
-            z = Gem::Common::narrow_cast<z_type>(std::get<2>(point_undet));
-            w = Gem::Common::narrow_cast<w_type>(std::get<3>(point_undet));
+            x = Gem::Common::narrow<x_type>(std::get<0>(point_undet));
+            y = Gem::Common::narrow<y_type>(std::get<1>(point_undet));
+            z = Gem::Common::narrow<z_type>(std::get<2>(point_undet));
+            w = Gem::Common::narrow<w_type>(std::get<3>(point_undet));
         }
         catch(std::overflow_error &e) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In GDataCollector4T::operator&(const std::tuple<S,T,U,W>&): Error!" << '\n'
-                << "Encountered invalid cast with Gem::Common::narrow_cast," << '\n'
+                << "Encountered invalid cast with Gem::Common::narrow," << '\n'
                 << "with the message " << '\n'
                 << e.what() << '\n'
             );
@@ -3415,10 +3415,10 @@ public:
         for(cit = point_cnt_undet.begin(); cit != point_cnt_undet.end(); ++cit) {
             // Make sure the data can be converted to doubles
             try {
-                x = Gem::Common::narrow_cast<x_type>(std::get<0>(*cit));
-                y = Gem::Common::narrow_cast<y_type>(std::get<1>(*cit));
-                z = Gem::Common::narrow_cast<z_type>(std::get<2>(*cit));
-                w = Gem::Common::narrow_cast<w_type>(std::get<3>(*cit));
+                x = Gem::Common::narrow<x_type>(std::get<0>(*cit));
+                y = Gem::Common::narrow<y_type>(std::get<1>(*cit));
+                z = Gem::Common::narrow<z_type>(std::get<2>(*cit));
+                w = Gem::Common::narrow<w_type>(std::get<3>(*cit));
             }
             catch(std::overflow_error &e) {
                 throw geneva_exception(
@@ -3426,7 +3426,7 @@ public:
                     << "In GDataCollector4T::operator&(const std::vector<std::tuple<S,T,U,W>>&): "
                        "Error!"
                     << '\n'
-                    << "Encountered invalid cast with Gem::Common::narrow_cast," << '\n'
+                    << "Encountered invalid cast with Gem::Common::narrow," << '\n'
                     << "with the message " << '\n'
                     << e.what() << '\n'
                 );

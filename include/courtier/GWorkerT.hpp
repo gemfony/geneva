@@ -109,7 +109,7 @@ public:
          * @param The requested worker id
          */
     void setWorkerId(std::size_t workerId) {
-        worker_id_ = Gem::Common::narrow_cast<std::int32_t>(workerId);
+        worker_id_ = Gem::Common::narrow<std::int32_t>(workerId);
     }
 
     /************************************************************************/
@@ -127,7 +127,7 @@ public:
                 << "It appears as if the worker id was not set!" << '\n'
             );
         }
-                    return Gem::Common::narrow_cast<std::size_t>(worker_id_);
+                    return Gem::Common::narrow<std::size_t>(worker_id_);
        
     }
 

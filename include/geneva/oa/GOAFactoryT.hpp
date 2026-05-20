@@ -240,7 +240,7 @@ public:
 	  * Allows to manually set the maximum number of iterations as is usually specified on the command line
 	  */
     void setMaxIterationCL(std::uint32_t max_iteration_cl) {
-        max_iteration_cl_ = Gem::Common::narrow_cast<std::int32_t>(max_iteration_cl);
+        max_iteration_cl_ = Gem::Common::narrow<std::int32_t>(max_iteration_cl);
     }
 
     /***************************************************************************/
@@ -261,7 +261,7 @@ public:
 	  */
     std::uint32_t getMaxIterationCL() const {
         if(max_iteration_cl_ >= 0) {
-            return Gem::Common::narrow_cast<std::uint32_t>(max_iteration_cl_);
+            return Gem::Common::narrow<std::uint32_t>(max_iteration_cl_);
         }
                     throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
@@ -279,7 +279,7 @@ public:
 	  * Allows to manually set the maximum number of stall iterations as is usually specified on the command line
 	  */
     void setMaxStallIterationCL(std::uint32_t max_stall_iteration_cl) {
-        max_stall_iteration_cl_ = Gem::Common::narrow_cast<std::int32_t>(max_stall_iteration_cl);
+        max_stall_iteration_cl_ = Gem::Common::narrow<std::int32_t>(max_stall_iteration_cl);
     }
 
     /***************************************************************************/
@@ -300,7 +300,7 @@ public:
 	  */
     std::uint32_t getMaxStallIterationCL() const {
         if(max_stall_iteration_cl_ >= 0) {
-            return Gem::Common::narrow_cast<std::uint32_t>(max_stall_iteration_cl_);
+            return Gem::Common::narrow<std::uint32_t>(max_stall_iteration_cl_);
         }
                     throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
@@ -319,7 +319,7 @@ public:
 	  * Allows to manually set the maximum number of seconds for a run as is usually specified on the command line
 	  */
     void setMaxSecondsCL(std::uint32_t max_seconds_cl) {
-        max_seconds_cl_ = Gem::Common::narrow_cast<std::int32_t>(max_seconds_cl);
+        max_seconds_cl_ = Gem::Common::narrow<std::int32_t>(max_seconds_cl);
     }
 
     /***************************************************************************/
@@ -341,7 +341,7 @@ public:
     std::chrono::duration<double> getMaxTimeCL() const {
         if(max_seconds_cl_ >= 0) {
             std::chrono::duration<double> max_duration =
-                std::chrono::seconds(Gem::Common::narrow_cast<long>(max_seconds_cl_));
+                std::chrono::seconds(Gem::Common::narrow<long>(max_seconds_cl_));
             return max_duration;
         }
                     throw geneva_exception(

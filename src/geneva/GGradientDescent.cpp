@@ -405,10 +405,10 @@ void GGradientDescent::updateParentIndividuals() {
             // Calculate the step to be performed in a given direction and
             // adjust the parameter vector of each parent
             try {
-                parm_vec[j] -= Gem::Common::narrow_cast<double>(
-                    step_ratio_ * (Gem::Common::narrow_cast<long double>(
+                parm_vec[j] -= Gem::Common::narrow<double>(
+                    step_ratio_ * (Gem::Common::narrow<long double>(
                                      minOnly_transformed_fitness(this->at(child_pos)) -
-                                     Gem::Common::narrow_cast<long double>(parent_fitness)
+                                     Gem::Common::narrow<long double>(parent_fitness)
                                  ))
                 );
             }
@@ -601,7 +601,7 @@ void GGradientDescent::updateDerivedQuantities() {
                 static_cast<long double>(dbl_upper_parameter_boundaries_[pos]) -
                 static_cast<long double>(dbl_lower_parameter_boundaries_[pos]);
             adjusted_finite_step_.push_back(
-                Gem::Common::narrow_cast<double>(finite_step_ratio * parameter_range)
+                Gem::Common::narrow<double>(finite_step_ratio * parameter_range)
             );
         }
     }

@@ -1168,7 +1168,7 @@ private:
     boost::asio::ip::tcp::endpoint endpoint_{boost::asio::ip::tcp::v4(), port_};
     std::size_t n_threads_ =
         GCONSUMERLISTENERTHREADS; ///< The number of threads used to process incoming connections through io_context::run()
-    boost::asio::io_context io_context_{Gem::Common::narrow_cast<int>(n_threads_)};
+    boost::asio::io_context io_context_{Gem::Common::narrow<int>(n_threads_)};
     boost::asio::ip::tcp::acceptor acceptor_{io_context_};
     boost::asio::ip::tcp::socket socket_{io_context_};
     Gem::Common::serializationMode serialization_mode_ =

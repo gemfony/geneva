@@ -853,7 +853,7 @@ protected:
         const std::vector<std::shared_ptr<processable_type>> &workItems,
         const processingStatus &ps
     ) {
-        return Gem::Common::narrow_cast<std::size_t>(std::count_if(
+        return Gem::Common::narrow<std::size_t>(std::count_if(
             workItems.begin(),
             workItems.end(),
             [ps](std::shared_ptr<processable_type> p) {
@@ -2329,7 +2329,7 @@ private:
         }
 #endif
         std::chrono::duration<double> avgReturnTime =
-            currentElapsed / Gem::Common::narrow_cast<double>(n_returned_current_);
+            currentElapsed / Gem::Common::narrow<double>(n_returned_current_);
 
         // Retrieve the current maximum processing time
         std::chrono::duration<double> maxProcessingTime(max_processing_time_);
@@ -2406,10 +2406,10 @@ private:
         }
 
         // Check if we have reached the minimum percentage
-        double realPercentage = Gem::Common::narrow_cast<double>(n_returned_current_) /
-                                Gem::Common::narrow_cast<double>(expectedNumber);
+        double realPercentage = Gem::Common::narrow<double>(n_returned_current_) /
+                                Gem::Common::narrow<double>(expectedNumber);
         return (
-            realPercentage >= Gem::Common::narrow_cast<double>(this->getMinPartialReturnPercentage())
+            realPercentage >= Gem::Common::narrow<double>(this->getMinPartialReturnPercentage())
         );
     }
 
@@ -2658,12 +2658,12 @@ private:
         auto current_iteration = this->get_iteration_counter();
 
         waiting_times_graph_->add(
-            Gem::Common::narrow_cast<double>(current_iteration),
+            Gem::Common::narrow<double>(current_iteration),
             max_timeout_.count()
         );
         returned_items_graph_->add(
-            Gem::Common::narrow_cast<double>(current_iteration),
-            Gem::Common::narrow_cast<double>(this->getNReturnedLast())
+            Gem::Common::narrow<double>(current_iteration),
+            Gem::Common::narrow<double>(this->getNReturnedLast())
         );
 #endif
     }

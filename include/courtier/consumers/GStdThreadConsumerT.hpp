@@ -375,7 +375,7 @@ private:
         // Mark the answer as exact
         exact = true;
         // Return the result
-        return Gem::Common::narrow_cast<std::size_t>(this->getNThreadsPerWorker());
+        return Gem::Common::narrow<std::size_t>(this->getNThreadsPerWorker());
     }
 
     /***************************************************************************/

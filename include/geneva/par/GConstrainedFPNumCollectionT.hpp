@@ -173,12 +173,12 @@ public:
         }
         else {
             // Find out which region the value is in (compare figure transferFunction.pdf
-            // that should have been delivered with this software). Note that Gem::Common::narrow_cast<>
+            // that should have been delivered with this software). Note that Gem::Common::narrow<>
             // may throw - exceptions must be caught in surrounding functions.
             std::int32_t region = 0;
 
 #ifdef DEBUG
-            region = Gem::Common::narrow_cast<std::int32_t>(std::floor(
+            region = Gem::Common::narrow<std::int32_t>(std::floor(
                 (fp_type(val) - fp_type(lower_boundary)) /
                 (fp_type(upper_boundary) - fp_type(lower_boundary))
             ));

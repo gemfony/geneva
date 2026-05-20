@@ -515,7 +515,7 @@ void compare(
     switch(e) {
     case Gem::Common::expectation::FP_SIMILARITY:
         expectation_str = "FP_SIMILARITY";
-        if(std::abs(x - y) < Gem::Common::narrow_cast<fp_type>(limit)) {
+        if(std::abs(x - y) < Gem::Common::narrow<fp_type>(limit)) {
             expectation_met = true;
         }
         break;
@@ -763,14 +763,14 @@ void compare(
         typename c_type<fp_type, std::allocator<fp_type>>::const_iterator y_it;
         if(Gem::Common::expectation::FP_SIMILARITY == e) {
             for(x_it = x.begin(), y_it = y.begin(); x_it != x.end(); ++x_it, ++y_it) {
-                if(std::abs(*x_it - *y_it) >= Gem::Common::narrow_cast<fp_type>(limit)) {
+                if(std::abs(*x_it - *y_it) >= Gem::Common::narrow<fp_type>(limit)) {
                     found_deviation = true;
                     deviation_pos =
-                        Gem::Common::narrow_cast<std::size_t>(std::distance(x.begin(), x_it));
+                        Gem::Common::narrow<std::size_t>(std::distance(x.begin(), x_it));
                     error << "Found deviation between containers:" << '\n'
                           << x_name << "[" << deviation_pos << "] = " << *x_it << "; " << '\n'
                           << y_name << "[" << deviation_pos << "] = " << *y_it << "; " << '\n'
-                          << "limit = " << Gem::Common::narrow_cast<fp_type>(limit) << "; " << '\n'
+                          << "limit = " << Gem::Common::narrow<fp_type>(limit) << "; " << '\n'
                           << "deviation = " << std::abs(*x_it - *y_it) << '\n';
                     break; // break the loop
                 }
@@ -781,7 +781,7 @@ void compare(
                 if(*x_it != *y_it) {
                     found_deviation = true;
                     deviation_pos =
-                        Gem::Common::narrow_cast<std::size_t>(std::distance(x.begin(), x_it));
+                        Gem::Common::narrow<std::size_t>(std::distance(x.begin(), x_it));
                     error << "Found deviation between containers:" << '\n'
                           << x_name << "[" << deviation_pos << "] = " << *x_it << "; " << '\n'
                           << y_name << "[" << deviation_pos << "] = " << *y_it << "; " << '\n';
@@ -862,14 +862,14 @@ void compare(
         typename s_type<fp_type, std::less<fp_type>, std::allocator<fp_type>>::const_iterator y_it;
         if(Gem::Common::expectation::FP_SIMILARITY == e) {
             for(x_it = x.begin(), y_it = y.begin(); x_it != x.end(); ++x_it, ++y_it) {
-                if(std::abs(*x_it - *y_it) >= Gem::Common::narrow_cast<fp_type>(limit)) {
+                if(std::abs(*x_it - *y_it) >= Gem::Common::narrow<fp_type>(limit)) {
                     found_deviation = true;
                     deviation_pos =
-                        Gem::Common::narrow_cast<std::size_t>(std::distance(x.begin(), x_it));
+                        Gem::Common::narrow<std::size_t>(std::distance(x.begin(), x_it));
                     error << "Found deviation between containers:" << '\n'
                           << x_name << "[" << deviation_pos << "] = " << *x_it << "; " << '\n'
                           << y_name << "[" << deviation_pos << "] = " << *y_it << "; " << '\n'
-                          << "limit = " << Gem::Common::narrow_cast<fp_type>(limit) << "; " << '\n'
+                          << "limit = " << Gem::Common::narrow<fp_type>(limit) << "; " << '\n'
                           << "deviation = " << std::abs(*x_it - *y_it) << '\n';
                     break; // break the loop
                 }
@@ -880,7 +880,7 @@ void compare(
                 if(*x_it != *y_it) {
                     found_deviation = true;
                     deviation_pos =
-                        Gem::Common::narrow_cast<std::size_t>(std::distance(x.begin(), x_it));
+                        Gem::Common::narrow<std::size_t>(std::distance(x.begin(), x_it));
                     error << "Found deviation between containers:" << '\n'
                           << x_name << "[" << deviation_pos << "] = " << *x_it << "; " << '\n'
                           << y_name << "[" << deviation_pos << "] = " << *y_it << "; " << '\n';

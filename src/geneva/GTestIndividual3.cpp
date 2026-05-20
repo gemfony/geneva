@@ -236,35 +236,35 @@ std::shared_ptr<float> GTestIndividual3::getPlainData() const {
         // Extract the data of the middle of the circle
         std::shared_ptr<gpar::GConstrainedDoubleCollection> a_ptr =
             gpoc_ptr->at<gpar::GConstrainedDoubleCollection>(0);
-        (result.get())[i * 10 + 0] = Gem::Common::narrow_cast<float>(
+        (result.get())[i * 10 + 0] = Gem::Common::narrow<float>(
             a_ptr->at(0)
         ); // std::shared_ptr doesn't support subscripting, contrary to boost:shared_array
-        (result.get())[i * 10 + 1] = Gem::Common::narrow_cast<float>(a_ptr->at(1));
+        (result.get())[i * 10 + 1] = Gem::Common::narrow<float>(a_ptr->at(1));
 
         //---------------------------------------------------------
         std::shared_ptr<gpar::GConstrainedDoubleObject> b_ptr = gpoc_ptr->at<gpar::GConstrainedDoubleObject>(1);
-        (result.get())[i * 10 + 2] = Gem::Common::narrow_cast<float>(b_ptr->value());
+        (result.get())[i * 10 + 2] = Gem::Common::narrow<float>(b_ptr->value());
 
         //---------------------------------------------------------
         // Extract the three angles
         std::shared_ptr<gpar::GConstrainedDoubleCollection> c_ptr =
             gpoc_ptr->at<gpar::GConstrainedDoubleCollection>(2);
-        (result.get())[i * 10 + 3] = Gem::Common::narrow_cast<float>(c_ptr->at(0));
-        (result.get())[i * 10 + 4] = Gem::Common::narrow_cast<float>(c_ptr->at(1));
-        (result.get())[i * 10 + 5] = Gem::Common::narrow_cast<float>(c_ptr->at(2));
+        (result.get())[i * 10 + 3] = Gem::Common::narrow<float>(c_ptr->at(0));
+        (result.get())[i * 10 + 4] = Gem::Common::narrow<float>(c_ptr->at(1));
+        (result.get())[i * 10 + 5] = Gem::Common::narrow<float>(c_ptr->at(2));
 
         //---------------------------------------------------------
         // Extract the three colors
         std::shared_ptr<gpar::GConstrainedDoubleCollection> d_ptr =
             gpoc_ptr->at<gpar::GConstrainedDoubleCollection>(3);
-        (result.get())[i * 10 + 6] = Gem::Common::narrow_cast<float>(d_ptr->at(0));
-        (result.get())[i * 10 + 7] = Gem::Common::narrow_cast<float>(d_ptr->at(1));
-        (result.get())[i * 10 + 8] = Gem::Common::narrow_cast<float>(d_ptr->at(2));
+        (result.get())[i * 10 + 6] = Gem::Common::narrow<float>(d_ptr->at(0));
+        (result.get())[i * 10 + 7] = Gem::Common::narrow<float>(d_ptr->at(1));
+        (result.get())[i * 10 + 8] = Gem::Common::narrow<float>(d_ptr->at(2));
 
         //---------------------------------------------------------
         // Extract the alpha channel
         std::shared_ptr<gpar::GConstrainedDoubleObject> e_ptr = gpoc_ptr->at<gpar::GConstrainedDoubleObject>(4);
-        (result.get())[i * 10 + 9] = Gem::Common::narrow_cast<float>(e_ptr->value());
+        (result.get())[i * 10 + 9] = Gem::Common::narrow<float>(e_ptr->value());
 
         //---------------------------------------------------------
     }

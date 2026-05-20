@@ -147,7 +147,7 @@ void GThreadPool::setNThreads(unsigned int n_threads) {
  * Retrieves the current "true" number of threads being used in the pool
  */
 unsigned int GThreadPool::getNThreads() const {
-    return Gem::Common::narrow_cast<unsigned int>(gtg_.size());
+    return Gem::Common::narrow<unsigned int>(gtg_.size());
 }
 
 /******************************************************************************/

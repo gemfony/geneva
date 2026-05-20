@@ -259,7 +259,7 @@ int main(int argc, char **argv) {
     std::array<int, ARRAYSIZE> defValArray;
     i = 0;                       // Already declared above
     for(auto &x : defValArray) { // Set the default values
-        x = Gem::Common::narrow_cast<int>(i++);
+        x = Gem::Common::narrow<int>(i++);
     }
 
     if(useOperator) {

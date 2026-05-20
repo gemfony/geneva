@@ -159,7 +159,7 @@ std::istream &operator>>(std::istream &i, distType &x) {
     i >> tmp;
 
 #ifdef DEBUG
-    x = Gem::Common::narrow_cast<distType>(tmp);
+    x = Gem::Common::narrow<distType>(tmp);
 #else
     x = static_cast<distType>(tmp);
 #endif /* DEBUG */
@@ -482,10 +482,10 @@ int main(int argc, char **argv) {
     {
         for(i = 1; i <= 10; i++) {
             std::subtract_with_carry_engine<std::uint_fast64_t, 48, 5, 12> lf(
-                Gem::Common::narrow_cast<
+                Gem::Common::narrow<
                     std::subtract_with_carry_engine<std::uint_fast64_t, 48, 5, 12>::result_type>(i)
             );
-            initLFCorr.push_back(Gem::Common::narrow_cast<double>(lf()));
+            initLFCorr.push_back(Gem::Common::narrow<double>(lf()));
         }
     }
 

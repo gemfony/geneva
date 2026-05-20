@@ -67,7 +67,7 @@
 namespace Gem::Common {
 
 /******************************************************************************/
-// Helper for narrow_cast: maps an enum to its underlying integer; otherwise
+// Helper for narrow: maps an enum to its underlying integer; otherwise
 // passes the type through unchanged. std::conditional_t cannot be used
 // directly because it eagerly evaluates both branches and
 // std::underlying_type<int> is ill-formed.
@@ -83,11 +83,21 @@ using enum_or_self_t = typename enum_or_self<T>::type;
 /******************************************************************************/
 /**
  * Checked numeric/enum cast. Returns the converted value, or throws
- * std::overflow_error if a narrowing conversion would change it. Replaces
- * boost::numeric_cast. Range validation always happens *before* the
- * value-changing static_cast, so an out-of-range input never reaches a cast
- * whose result would be undefined behaviour (e.g. float->int or float->float
- * out of range).
+ * std::overflow_error if a narrowing conversion would change it. Range
+ * validation always happens *before* the value-changing static_cast, so an
+ * out-of-range input never reaches a cast whose result would be undefined
+ * behaviour (e.g. float->int or float->float out of range).
+ *
+ * @note Naming and semantics follow the C++ Core Guidelines / GSL: this is the
+ * *checked* narrowing cast, i.e. the counterpart of `gsl::narrow<T>(x)` (which
+ * throws when the round-tripped value differs). It is deliberately NOT named
+ * `narrow_cast`: in the GSL `gsl::narrow_cast` is merely an *unchecked*
+ * `static_cast` marker, so that name would advertise the opposite of what this
+ * does. We keep our own implementation rather than depend on the GSL -- it
+ * additionally supports enum source/target types, throws std::overflow_error
+ * (instead of introducing a gsl::narrowing_error type), and avoids pulling the
+ * Microsoft.GSL library in as an extra Geneva dependency. It also supersedes
+ * the previously used boost::numeric_cast.
  *
  * What is checked, by target type:
  *   - integer / enum target: rejected unless the value fits (round-trip for
@@ -103,14 +113,14 @@ using enum_or_self_t = typename enum_or_self<T>::type;
  *     always in range, hence unchecked (may lose precision).
  */
 template <typename To, typename From>
-To narrow_cast(From value) {
+To narrow(From value) {
     static_assert((std::is_arithmetic_v<To> || std::is_enum_v<To>) &&
                   (std::is_arithmetic_v<From> || std::is_enum_v<From>),
-                  "narrow_cast requires arithmetic or enum types");
+                  "narrow requires arithmetic or enum types");
 
     // For enum source/target types fall back to their underlying integer
     // representation so the same range checks apply. Without this, casts
-    // like `narrow_cast<gColor>(some_int)` silently degenerated to plain
+    // like `narrow<gColor>(some_int)` silently degenerated to plain
     // static_cast<gColor>(...) and dropped all bounds checking.
     using ToCheck   = detail::enum_or_self_t<To>;
     using FromCheck = detail::enum_or_self_t<From>;
@@ -124,7 +134,7 @@ To narrow_cast(From value) {
         // so no out-of-range enum value is ever materialised; integral
         // conversions are well-defined, so this is never UB.
         if(static_cast<FromCheck>(static_cast<ToCheck>(check_value)) != check_value) {
-            throw std::overflow_error("narrow_cast: integer overflow or underflow");
+            throw std::overflow_error("narrow: integer overflow or underflow");
         }
         return static_cast<To>(value);
     } else if constexpr (std::is_integral_v<ToCheck> &&
@@ -150,18 +160,18 @@ To narrow_cast(From value) {
             (max_as_from - max_minus_one_as_from) == FromCheck{1};
 
         if(check_value < min_as_from) {
-            throw std::overflow_error("narrow_cast: float-to-integer overflow");
+            throw std::overflow_error("narrow: float-to-integer overflow");
         }
         if constexpr (max_is_exact) {
             // ToCheck::max() round-trips exactly, so equality is legitimate.
             if(check_value > max_as_from) {
-                throw std::overflow_error("narrow_cast: float-to-integer overflow");
+                throw std::overflow_error("narrow: float-to-integer overflow");
             }
         } else {
             // Rounding pushed max_as_from above ToCheck::max(): equality
             // would convert to UB territory, so reject it as well.
             if(check_value >= max_as_from) {
-                throw std::overflow_error("narrow_cast: float-to-integer overflow");
+                throw std::overflow_error("narrow: float-to-integer overflow");
             }
         }
         return static_cast<To>(value); // provably in range now
@@ -181,7 +191,7 @@ To narrow_cast(From value) {
                 constexpr FromCheck to_max =
                     static_cast<FromCheck>(std::numeric_limits<ToCheck>::max());
                 if(check_value > to_max || check_value < -to_max) {
-                    throw std::overflow_error("narrow_cast: floating-point overflow");
+                    throw std::overflow_error("narrow: floating-point overflow");
                 }
             }
         }

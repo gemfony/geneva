@@ -272,8 +272,8 @@ void GInt32Collection::int32MultiplyByRandom(
     for(std::size_t pos = 0; pos < this->size(); pos++) {
         GParameterCollectionT<std::int32_t>::setValue(
             pos,
-            Gem::Common::narrow_cast<std::int32_t>(
-                Gem::Common::narrow_cast<double>(this->value(pos)) * uniform_real_distribution(gr)
+            Gem::Common::narrow<std::int32_t>(
+                Gem::Common::narrow<double>(this->value(pos)) * uniform_real_distribution(gr)
             )
         );
     }

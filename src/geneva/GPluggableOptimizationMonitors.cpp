@@ -444,8 +444,8 @@ void GFitnessMonitor::informationFunction_(
             global_it != global_fitness_graph_vec_.end();
             ++global_it, ++iter_it, ++global_ind_it, ++iter_ind_it) {
             (*global_it)
-                ->add(Gem::Common::narrow_cast<double>(iteration), (*global_ind_it)->raw_fitness(0));
-            (*iter_it)->add(Gem::Common::narrow_cast<double>(iteration), (*iter_ind_it)->raw_fitness(0));
+                ->add(Gem::Common::narrow<double>(iteration), (*global_ind_it)->raw_fitness(0));
+            (*iter_it)->add(Gem::Common::narrow<double>(iteration), (*iter_ind_it)->raw_fitness(0));
         }
 
         //------------------------------------------------------------------------------
@@ -1685,7 +1685,7 @@ void GNAdpationsLogger::informationFunction_(
             std::size_t max_n_adaptions = 0;
             for(it = n_adaptions_store_.begin(); it != n_adaptions_store_.end(); ++it) {
                 if(std::get<1>(*it) > max_n_adaptions) {
-                    max_n_adaptions = Gem::Common::narrow_cast<std::size_t>(std::get<1>(*it));
+                    max_n_adaptions = Gem::Common::narrow<std::size_t>(std::get<1>(*it));
                 }
             }
 
@@ -2222,7 +2222,7 @@ void GProcessingTimesLogger::informationFunction_(
         ); // NOLINT(cppcoreguidelines-init-variables)
 
         // Retrieve the current iteration in the population
-        auto iteration = Gem::Common::narrow_cast<double>(goa->getIteration());
+        auto iteration = Gem::Common::narrow<double>(goa->getIteration());
 
         // Loop over all individuals of the algorithm.
         for(std::size_t pos = 0; pos < goa->size(); pos++) {
@@ -2246,23 +2246,23 @@ void GProcessingTimesLogger::informationFunction_(
 
             // Fill the timings into the 2D histograms ...
             pre_processing_times_hist2_d_->add(
-                Gem::Common::narrow_cast<double>(iteration),
-                Gem::Common::narrow_cast<double>(pre_processing_time)
+                Gem::Common::narrow<double>(iteration),
+                Gem::Common::narrow<double>(pre_processing_time)
             ); // PREPROCESSING
             processing_times_hist2_d_->add(
-                Gem::Common::narrow_cast<double>(iteration),
-                Gem::Common::narrow_cast<double>(main_processing_time)
+                Gem::Common::narrow<double>(iteration),
+                Gem::Common::narrow<double>(main_processing_time)
             ); // PROCESSING
             post_processing_times_hist2_d_->add(
-                Gem::Common::narrow_cast<double>(iteration),
-                Gem::Common::narrow_cast<double>(post_processing_time)
+                Gem::Common::narrow<double>(iteration),
+                Gem::Common::narrow<double>(post_processing_time)
             ); // POSTPROCESSING
             all_processing_times_hist2_d_->add(
-                Gem::Common::narrow_cast<double>(iteration),
-                Gem::Common::narrow_cast<double>(all_processing_time)
+                Gem::Common::narrow<double>(iteration),
+                Gem::Common::narrow<double>(all_processing_time)
             ); // OVERALL PROCESSING TIME
 
-            data_txt << Gem::Common::narrow_cast<std::uint32_t>(iteration) << ", " << std::showpoint
+            data_txt << Gem::Common::narrow<std::uint32_t>(iteration) << ", " << std::showpoint
                      << pre_processing_time << ", " << main_processing_time << ", "
                      << post_processing_time << '\n';
         }

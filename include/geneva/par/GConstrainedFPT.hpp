@@ -321,18 +321,18 @@ public:
         }
 #endif /* DEBUG */
 
-        long double local_val = Gem::Common::narrow_cast<long double>(val);
+        long double local_val = Gem::Common::narrow<long double>(val);
         long double lower_boundary =
-            Gem::Common::narrow_cast<long double>(GConstrainedNumT<fp_type>::getLowerBoundary());
+            Gem::Common::narrow<long double>(GConstrainedNumT<fp_type>::getLowerBoundary());
         long double upper_boundary =
-            Gem::Common::narrow_cast<long double>(GConstrainedNumT<fp_type>::getUpperBoundary());
+            Gem::Common::narrow<long double>(GConstrainedNumT<fp_type>::getUpperBoundary());
 
         if(local_val >= lower_boundary && local_val < upper_boundary) {
             return val; // no cast needed
         }
         else {
             // Find out which region the value is in (compare figure transferFunction.pdf
-            // that should have been delivered with this software). Note that Gem::Common::narrow_cast<>
+            // that should have been delivered with this software). Note that Gem::Common::narrow<>
             // may throw - exceptions must be caught in surrounding functions.
             std::int64_t region = 0;
 
@@ -343,9 +343,9 @@ public:
             );
 
             if(std::abs(fp_region) <
-               Gem::Common::narrow_cast<long double>((std::numeric_limits<std::int64_t>::max)())) {
+               Gem::Common::narrow<long double>((std::numeric_limits<std::int64_t>::max)())) {
                 // We need floor here, as an integer cast rounds towards 0, which would be wrong for negative values of val
-                region = Gem::Common::narrow_cast<std::int64_t>(fp_region);
+                region = Gem::Common::narrow<std::int64_t>(fp_region);
             }
             else {
                 throw geneva_exception(
@@ -357,10 +357,10 @@ public:
                 );
             }
 #else  /* DEBUG */
-            // Checked narrow_cast (mirrors the DEBUG branch above): without it
+            // Checked narrow (mirrors the DEBUG branch above): without it
             // an extreme value / narrow range could overflow std::int64_t,
             // which is undefined behaviour for a raw static_cast in Release.
-            region = Gem::Common::narrow_cast<std::int64_t>(std::floor(
+            region = Gem::Common::narrow<std::int64_t>(std::floor(
                 (local_val - static_cast<long double>(lower_boundary)) /
                 (static_cast<long double>(upper_boundary) - static_cast<long double>(lower_boundary))
             ));
@@ -380,7 +380,7 @@ public:
             }
 
             // fabs(mapping) will always be <= fabs(val), so this cast should never fail (if val was a valid fp value)
-            return Gem::Common::narrow_cast<fp_type>(mapping);
+            return Gem::Common::narrow<fp_type>(mapping);
         }
 
         // Make the compiler happy

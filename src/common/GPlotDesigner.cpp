@@ -81,7 +81,7 @@ std::istream &operator>>(std::istream &i, gColor &x) {
     i >> tmp;
 
 #ifdef DEBUG
-    x = Gem::Common::narrow_cast<gColor>(tmp);
+    x = Gem::Common::narrow<gColor>(tmp);
 #else
     x = static_cast<gColor>(tmp);
 #endif /* DEBUG */
@@ -108,7 +108,7 @@ std::istream &operator>>(std::istream &i, gMarker &x) {
     i >> tmp;
 
 #ifdef DEBUG
-    x = Gem::Common::narrow_cast<gMarker>(tmp);
+    x = Gem::Common::narrow<gMarker>(tmp);
 #else
     x = static_cast<gMarker>(tmp);
 #endif /* DEBUG */
@@ -135,7 +135,7 @@ std::istream &operator>>(std::istream &i, gLineStyle &x) {
     i >> tmp;
 
 #ifdef DEBUG
-    x = Gem::Common::narrow_cast<gLineStyle>(tmp);
+    x = Gem::Common::narrow<gLineStyle>(tmp);
 #else
     x = static_cast<gLineStyle>(tmp);
 #endif /* DEBUG */
@@ -162,7 +162,7 @@ std::istream &operator>>(std::istream &i, graphPlotMode &x) {
     i >> tmp;
 
 #ifdef DEBUG
-    x = Gem::Common::narrow_cast<graphPlotMode>(tmp);
+    x = Gem::Common::narrow<graphPlotMode>(tmp);
 #else
     x = static_cast<graphPlotMode>(tmp);
 #endif /* DEBUG */
@@ -189,7 +189,7 @@ std::istream &operator>>(std::istream &i, tddropt &x) {
     i >> tmp;
 
 #ifdef DEBUG
-    x = Gem::Common::narrow_cast<tddropt>(tmp);
+    x = Gem::Common::narrow<tddropt>(tmp);
 #else
     x = static_cast<tddropt>(tmp);
 #endif /* DEBUG */

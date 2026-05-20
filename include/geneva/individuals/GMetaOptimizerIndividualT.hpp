@@ -350,7 +350,7 @@ public:
     std::size_t getNParents() const {
         std::shared_ptr<gpar::GConstrainedInt32Object> npar_ptr =
             this->at<gpar::GConstrainedInt32Object>(MOT_NPARENTS);
-        return Gem::Common::narrow_cast<std::size_t>(npar_ptr->value());
+        return Gem::Common::narrow<std::size_t>(npar_ptr->value());
     }
 
     /***************************************************************************/
@@ -360,7 +360,7 @@ public:
     std::size_t getNChildren() const {
         std::shared_ptr<gpar::GConstrainedInt32Object> nch_ptr =
             this->at<gpar::GConstrainedInt32Object>(MOT_NCHILDREN);
-        return Gem::Common::narrow_cast<std::size_t>(nch_ptr->value());
+        return Gem::Common::narrow<std::size_t>(nch_ptr->value());
     }
 
     /***************************************************************************/
@@ -460,9 +460,9 @@ public:
         gifa_ptr->setAdaptionProbability(1.);
 
         std::shared_ptr<gpar::GConstrainedInt32Object> npar_ptr(new gpar::GConstrainedInt32Object(
-            Gem::Common::narrow_cast<std::int32_t>(init_n_parents),
-            Gem::Common::narrow_cast<std::int32_t>(n_parents_lb),
-            Gem::Common::narrow_cast<std::int32_t>(n_parents_ub)
+            Gem::Common::narrow<std::int32_t>(init_n_parents),
+            Gem::Common::narrow<std::int32_t>(n_parents_lb),
+            Gem::Common::narrow<std::int32_t>(n_parents_ub)
         ));
         npar_ptr->addAdaptor(gifa_ptr);
         npar_ptr->setParameterName("n_parents");
@@ -489,9 +489,9 @@ public:
         ));
 
         std::shared_ptr<gpar::GConstrainedInt32Object> nch_ptr(new gpar::GConstrainedInt32Object(
-            Gem::Common::narrow_cast<std::int32_t>(init_n_children),
-            Gem::Common::narrow_cast<std::int32_t>(n_children_lb),
-            Gem::Common::narrow_cast<std::int32_t>(n_children_ub)
+            Gem::Common::narrow<std::int32_t>(init_n_children),
+            Gem::Common::narrow<std::int32_t>(n_children_lb),
+            Gem::Common::narrow<std::int32_t>(n_children_ub)
         ));
         nch_ptr->addAdaptor(giga_ptr);
         nch_ptr->setParameterName("n_children");
@@ -974,8 +974,8 @@ protected:
         // Run the required number of optimizations
         std::shared_ptr<oa::GEvolutionaryAlgorithm> ea_ptr;
 
-        std::uint32_t n_children = Gem::Common::narrow_cast<std::uint32_t>(nch_ptr->value());
-        std::uint32_t n_parents = Gem::Common::narrow_cast<std::uint32_t>(npar_ptr->value());
+        std::uint32_t n_children = Gem::Common::narrow<std::uint32_t>(nch_ptr->value());
+        std::uint32_t n_parents = Gem::Common::narrow<std::uint32_t>(npar_ptr->value());
         std::uint32_t pop_size = n_parents + n_children;
         std::uint32_t iterations_consumed = 0;
         double amalgamation_likelihood = amalgamation_ptr->value();

@@ -357,7 +357,7 @@ std::istream &operator>>(std::istream &i, Gem::Geneva::Individuals::solverFuncti
     i >> tmp;
 
 #ifdef DEBUG
-    ur = Gem::Common::narrow_cast<Gem::Geneva::Individuals::solverFunction>(tmp);
+    ur = Gem::Common::narrow<Gem::Geneva::Individuals::solverFunction>(tmp);
 #else
     ur = static_cast<Gem::Geneva::Individuals::solverFunction>(tmp);
 #endif /* DEBUG */
@@ -392,7 +392,7 @@ std::istream &operator>>(std::istream &i, Gem::Geneva::Individuals::parameterTyp
     i >> tmp;
 
 #ifdef DEBUG
-    ur = Gem::Common::narrow_cast<Gem::Geneva::Individuals::parameterType>(tmp);
+    ur = Gem::Common::narrow<Gem::Geneva::Individuals::parameterType>(tmp);
 #else
     ur = static_cast<Gem::Geneva::Individuals::parameterType>(tmp);
 #endif /* DEBUG */
@@ -427,7 +427,7 @@ std::istream &operator>>(std::istream &i, Gem::Geneva::Individuals::initMode &ur
     i >> tmp;
 
 #ifdef DEBUG
-    ur = Gem::Common::narrow_cast<Gem::Geneva::Individuals::initMode>(tmp);
+    ur = Gem::Common::narrow<Gem::Geneva::Individuals::initMode>(tmp);
 #else
     ur = static_cast<Gem::Geneva::Individuals::initMode>(tmp);
 #endif /* DEBUG */

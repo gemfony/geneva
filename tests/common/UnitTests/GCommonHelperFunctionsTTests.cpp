@@ -71,7 +71,7 @@ enum class ScopedColor : unsigned {
 };
 
 // Underlying type std::uint8_t (range 0..255) is used to exercise the
-// enum range checking in narrow_cast (300 / -1 do not fit).
+// enum range checking in narrow (300 / -1 do not fit).
 enum class SmallEnum : std::uint8_t {
     A = 0,
     B = 1,
@@ -472,133 +472,133 @@ TEST_CASE(
     ::unsetenv("GENEVA_TEST_STR");
 }
 
-// --- narrow_cast ---------------------------------------------------------
+// --- narrow ---------------------------------------------------------
 //
-// narrow_cast<To>(From) is a checked numeric/enum cast: it returns the
+// narrow<To>(From) is a checked numeric/enum cast: it returns the
 // converted value, or throws std::overflow_error if a narrowing conversion
 // would change the value. Range checks apply when the *target* is an integer
 // (or an enum whose underlying type is an integer); conversions to a
 // floating-point target are NOT range-checked. Enum source/target types are
 // handled via their underlying integer type.
 
-TEST_CASE("narrow_cast: lossless widening preserves the value", "[common][helper][narrow_cast]") {
-    REQUIRE(Gem::Common::narrow_cast<int>(std::int16_t{1234}) == 1234);
-    REQUIRE(Gem::Common::narrow_cast<std::int64_t>(std::int32_t{-7}) == -7);
-    REQUIRE(Gem::Common::narrow_cast<unsigned>(std::uint8_t{255}) == 255u);
+TEST_CASE("narrow: lossless widening preserves the value", "[common][helper][narrow]") {
+    REQUIRE(Gem::Common::narrow<int>(std::int16_t{1234}) == 1234);
+    REQUIRE(Gem::Common::narrow<std::int64_t>(std::int32_t{-7}) == -7);
+    REQUIRE(Gem::Common::narrow<unsigned>(std::uint8_t{255}) == 255u);
 }
 
-TEST_CASE("narrow_cast: in-range integer narrowing succeeds", "[common][helper][narrow_cast]") {
-    REQUIRE(Gem::Common::narrow_cast<std::int8_t>(100) == std::int8_t{100});
-    REQUIRE(Gem::Common::narrow_cast<std::uint8_t>(255) == std::uint8_t{255});
-    REQUIRE(Gem::Common::narrow_cast<std::int32_t>(std::int64_t{123456}) == 123456);
+TEST_CASE("narrow: in-range integer narrowing succeeds", "[common][helper][narrow]") {
+    REQUIRE(Gem::Common::narrow<std::int8_t>(100) == std::int8_t{100});
+    REQUIRE(Gem::Common::narrow<std::uint8_t>(255) == std::uint8_t{255});
+    REQUIRE(Gem::Common::narrow<std::int32_t>(std::int64_t{123456}) == 123456);
 }
 
 TEST_CASE(
-    "narrow_cast: integer overflow throws std::overflow_error",
-    "[common][helper][narrow_cast]"
+    "narrow: integer overflow throws std::overflow_error",
+    "[common][helper][narrow]"
 ) {
-    REQUIRE_THROWS_AS(Gem::Common::narrow_cast<std::int8_t>(128), std::overflow_error);
-    REQUIRE_THROWS_AS(Gem::Common::narrow_cast<std::int8_t>(-129), std::overflow_error);
-    REQUIRE_THROWS_AS(Gem::Common::narrow_cast<std::uint8_t>(256), std::overflow_error);
+    REQUIRE_THROWS_AS(Gem::Common::narrow<std::int8_t>(128), std::overflow_error);
+    REQUIRE_THROWS_AS(Gem::Common::narrow<std::int8_t>(-129), std::overflow_error);
+    REQUIRE_THROWS_AS(Gem::Common::narrow<std::uint8_t>(256), std::overflow_error);
 }
 
 TEST_CASE(
-    "narrow_cast: signed->unsigned underflow throws for narrower targets",
-    "[common][helper][narrow_cast]"
+    "narrow: signed->unsigned underflow throws for narrower targets",
+    "[common][helper][narrow]"
 ) {
-    REQUIRE_THROWS_AS(Gem::Common::narrow_cast<std::uint8_t>(std::int32_t{-1}), std::overflow_error);
-    REQUIRE_THROWS_AS(Gem::Common::narrow_cast<std::uint16_t>(std::int32_t{-1}), std::overflow_error);
+    REQUIRE_THROWS_AS(Gem::Common::narrow<std::uint8_t>(std::int32_t{-1}), std::overflow_error);
+    REQUIRE_THROWS_AS(Gem::Common::narrow<std::uint16_t>(std::int32_t{-1}), std::overflow_error);
 }
 
-TEST_CASE("narrow_cast: float->integer truncates toward zero", "[common][helper][narrow_cast]") {
-    REQUIRE(Gem::Common::narrow_cast<int>(3.0) == 3);
-    REQUIRE(Gem::Common::narrow_cast<int>(3.9) == 3);
-    REQUIRE(Gem::Common::narrow_cast<int>(-3.9) == -3);
+TEST_CASE("narrow: float->integer truncates toward zero", "[common][helper][narrow]") {
+    REQUIRE(Gem::Common::narrow<int>(3.0) == 3);
+    REQUIRE(Gem::Common::narrow<int>(3.9) == 3);
+    REQUIRE(Gem::Common::narrow<int>(-3.9) == -3);
 }
 
 TEST_CASE(
-    "narrow_cast: float->integer overflow throws std::overflow_error",
-    "[common][helper][narrow_cast]"
+    "narrow: float->integer overflow throws std::overflow_error",
+    "[common][helper][narrow]"
 ) {
     // The source range is validated before the (otherwise UB) float->int cast.
-    REQUIRE_THROWS_AS(Gem::Common::narrow_cast<std::int32_t>(1.0e18), std::overflow_error);
-    REQUIRE_THROWS_AS(Gem::Common::narrow_cast<std::int32_t>(-1.0e18), std::overflow_error);
+    REQUIRE_THROWS_AS(Gem::Common::narrow<std::int32_t>(1.0e18), std::overflow_error);
+    REQUIRE_THROWS_AS(Gem::Common::narrow<std::int32_t>(-1.0e18), std::overflow_error);
 }
 
 TEST_CASE(
-    "narrow_cast: exactly-representable int32 maximum from double is accepted",
-    "[common][helper][narrow_cast]"
+    "narrow: exactly-representable int32 maximum from double is accepted",
+    "[common][helper][narrow]"
 ) {
     // int32_max (2^31-1) IS exactly representable as a double, so equality at
     // the boundary is legitimate (the max_is_exact path).
     constexpr double i32max = static_cast<double>(std::numeric_limits<std::int32_t>::max());
     REQUIRE(
-        Gem::Common::narrow_cast<std::int32_t>(i32max)
+        Gem::Common::narrow<std::int32_t>(i32max)
         == std::numeric_limits<std::int32_t>::max()
     );
 }
 
-TEST_CASE("narrow_cast: int64/double boundary (2^63) is rejected", "[common][helper][narrow_cast]") {
+TEST_CASE("narrow: int64/double boundary (2^63) is rejected", "[common][helper][narrow]") {
     // int64_max == 2^63-1 is NOT exactly representable as a double;
     // static_cast<double>(int64_max) rounds up to 2^63, which is out of range
-    // for int64_t. narrow_cast must reject it rather than convert.
+    // for int64_t. narrow must reject it rather than convert.
     const double i64max_as_double = static_cast<double>(std::numeric_limits<std::int64_t>::max());
     REQUIRE_THROWS_AS(
-        Gem::Common::narrow_cast<std::int64_t>(i64max_as_double),
+        Gem::Common::narrow<std::int64_t>(i64max_as_double),
         std::overflow_error
     );
 
     // A value comfortably below 2^63 round-trips and matches the plain cast.
-    REQUIRE_NOTHROW(Gem::Common::narrow_cast<std::int64_t>(9.0e18));
-    REQUIRE(Gem::Common::narrow_cast<std::int64_t>(9.0e18) == static_cast<std::int64_t>(9.0e18));
+    REQUIRE_NOTHROW(Gem::Common::narrow<std::int64_t>(9.0e18));
+    REQUIRE(Gem::Common::narrow<std::int64_t>(9.0e18) == static_cast<std::int64_t>(9.0e18));
 }
 
-TEST_CASE("narrow_cast: enum source uses its underlying integer", "[common][helper][narrow_cast]") {
-    REQUIRE(Gem::Common::narrow_cast<int>(SmallEnum::C) == 200);
-    REQUIRE(Gem::Common::narrow_cast<unsigned>(SmallEnum::B) == 1u);
+TEST_CASE("narrow: enum source uses its underlying integer", "[common][helper][narrow]") {
+    REQUIRE(Gem::Common::narrow<int>(SmallEnum::C) == 200);
+    REQUIRE(Gem::Common::narrow<unsigned>(SmallEnum::B) == 1u);
 }
 
-TEST_CASE("narrow_cast: integer->enum within range succeeds", "[common][helper][narrow_cast]") {
-    REQUIRE(Gem::Common::narrow_cast<SmallEnum>(1) == SmallEnum::B);
-    REQUIRE(Gem::Common::narrow_cast<SmallEnum>(200) == SmallEnum::C);
+TEST_CASE("narrow: integer->enum within range succeeds", "[common][helper][narrow]") {
+    REQUIRE(Gem::Common::narrow<SmallEnum>(1) == SmallEnum::B);
+    REQUIRE(Gem::Common::narrow<SmallEnum>(200) == SmallEnum::C);
 }
 
 TEST_CASE(
-    "narrow_cast: integer->enum out of range is bounds-checked and throws",
-    "[common][helper][narrow_cast]"
+    "narrow: integer->enum out of range is bounds-checked and throws",
+    "[common][helper][narrow]"
 ) {
     // SmallEnum's underlying type is std::uint8_t (max 255); 300 and -1 cannot
     // be represented. This is exactly the case boost::numeric_cast cannot guard
     // (it does not accept enum target types at all).
-    REQUIRE_THROWS_AS(Gem::Common::narrow_cast<SmallEnum>(300), std::overflow_error);
-    REQUIRE_THROWS_AS(Gem::Common::narrow_cast<SmallEnum>(-1), std::overflow_error);
+    REQUIRE_THROWS_AS(Gem::Common::narrow<SmallEnum>(300), std::overflow_error);
+    REQUIRE_THROWS_AS(Gem::Common::narrow<SmallEnum>(-1), std::overflow_error);
 }
 
 TEST_CASE(
-    "narrow_cast: integer->floating target is not range-checked (precision loss allowed)",
-    "[common][helper][narrow_cast]"
+    "narrow: integer->floating target is not range-checked (precision loss allowed)",
+    "[common][helper][narrow]"
 ) {
     // Integer/enum -> floating is always in range; precision may be lost (e.g.
     // int64_max -> double) but that is inherent and never throws.
-    REQUIRE_NOTHROW(Gem::Common::narrow_cast<double>(std::numeric_limits<std::int64_t>::max()));
-    REQUIRE(Gem::Common::narrow_cast<double>(42) == 42.0);
-    REQUIRE(Gem::Common::narrow_cast<double>(std::int32_t{123456}) == 123456.0);
+    REQUIRE_NOTHROW(Gem::Common::narrow<double>(std::numeric_limits<std::int64_t>::max()));
+    REQUIRE(Gem::Common::narrow<double>(42) == 42.0);
+    REQUIRE(Gem::Common::narrow<double>(std::int32_t{123456}) == 123456.0);
 }
 
 TEST_CASE(
-    "narrow_cast: floating overflow to a narrower type throws",
-    "[common][helper][narrow_cast]"
+    "narrow: floating overflow to a narrower type throws",
+    "[common][helper][narrow]"
 ) {
     // double -> float overflow: the magnitude exceeds FLT_MAX. Validated and
     // rejected before the cast (an out-of-range floating conversion is UB).
-    REQUIRE_THROWS_AS(Gem::Common::narrow_cast<float>(1.0e300), std::overflow_error);
-    REQUIRE_THROWS_AS(Gem::Common::narrow_cast<float>(-1.0e300), std::overflow_error);
+    REQUIRE_THROWS_AS(Gem::Common::narrow<float>(1.0e300), std::overflow_error);
+    REQUIRE_THROWS_AS(Gem::Common::narrow<float>(-1.0e300), std::overflow_error);
 
     // In-range narrowing is allowed even though precision is lost.
-    REQUIRE_NOTHROW(Gem::Common::narrow_cast<float>(3.14159265358979));
-    REQUIRE_NOTHROW(Gem::Common::narrow_cast<float>(1.0e30));
+    REQUIRE_NOTHROW(Gem::Common::narrow<float>(3.14159265358979));
+    REQUIRE_NOTHROW(Gem::Common::narrow<float>(1.0e30));
 
     // inf passes through unchanged (no value is lost).
-    REQUIRE_NOTHROW(Gem::Common::narrow_cast<float>(std::numeric_limits<double>::infinity()));
-    REQUIRE(std::isinf(Gem::Common::narrow_cast<float>(std::numeric_limits<double>::infinity())));
+    REQUIRE_NOTHROW(Gem::Common::narrow<float>(std::numeric_limits<double>::infinity()));
+    REQUIRE(std::isinf(Gem::Common::narrow<float>(std::numeric_limits<double>::infinity())));
 }

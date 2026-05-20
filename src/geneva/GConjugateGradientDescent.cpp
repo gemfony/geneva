@@ -414,7 +414,7 @@ void GConjugateGradientDescent::updateParentIndividuals() {
             if(denominator > std::numeric_limits<long double>::min() &&
                denominator * beta_max > abs_num) {
                 long double beta_pr = numerator / denominator;
-                beta = (beta_pr > 0.L) ? Gem::Common::narrow_cast<double>(beta_pr)
+                beta = (beta_pr > 0.L) ? Gem::Common::narrow<double>(beta_pr)
                                        : 0.; // PR+ clamp == automatic restart
             }
             else {
@@ -433,7 +433,7 @@ void GConjugateGradientDescent::updateParentIndividuals() {
         try {
             for(std::size_t j = 0; j < n_fp_parms_first_; j++) {
                 parm_vec[j] +=
-                    Gem::Common::narrow_cast<double>(step_ratio * static_cast<long double>(direction[j]));
+                    Gem::Common::narrow<double>(step_ratio * static_cast<long double>(direction[j]));
             }
         }
         catch(std::overflow_error &e) {
@@ -592,7 +592,7 @@ void GConjugateGradientDescent::updateDerivedQuantities() {
             long double parameter_range = static_cast<long double>(dbl_upper_parameter_boundaries_[pos]) -
                                           static_cast<long double>(dbl_lower_parameter_boundaries_[pos]);
             adjusted_finite_step_.push_back(
-                Gem::Common::narrow_cast<double>(finite_step_ratio * parameter_range)
+                Gem::Common::narrow<double>(finite_step_ratio * parameter_range)
             );
         }
     }
