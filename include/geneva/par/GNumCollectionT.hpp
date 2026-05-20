@@ -61,6 +61,7 @@ constexpr double DEFAULTUPPERINITBOUNDARYCOLLECTION = 1.;
  * by GParameterCollectionT, this class becomes rather simple.
  */
 template <typename num_type>
+    requires Gem::Common::arithmetic<num_type>
 class GNumCollectionT // NOLINT(cppcoreguidelines-special-member-functions)
   : public GParameterCollectionT<num_type> {
     ///////////////////////////////////////////////////////////////////////
@@ -77,8 +78,6 @@ class GNumCollectionT // NOLINT(cppcoreguidelines-special-member-functions)
     }
     ///////////////////////////////////////////////////////////////////////
 
-    // Make sure this class can only be instantiated with num_type as an arithmetic type
-    static_assert(std::is_arithmetic_v<num_type>, "num_type should be an arithmetic type");
 
 public:
     /** @brief Specifies the type of parameters stored in this collection */

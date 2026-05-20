@@ -53,6 +53,7 @@ namespace Gem::Geneva::Parameters {
  * to GNumT
  */
 template <typename fp_type>
+    requires std::floating_point<fp_type>
 class GNumFPT // NOLINT(cppcoreguidelines-special-member-functions)
   : public GNumT<fp_type> {
     ///////////////////////////////////////////////////////////////////////
@@ -65,11 +66,6 @@ class GNumFPT // NOLINT(cppcoreguidelines-special-member-functions)
     }
     ///////////////////////////////////////////////////////////////////////
 
-    // Make sure this class can only be instantiated if fp_type really is a floating point type
-    static_assert(
-        std::is_floating_point_v<fp_type>,
-        "fp_type should be a floating point type"
-    );
 
 public:
     /** @brief Specifies the type of parameters stored in this object */

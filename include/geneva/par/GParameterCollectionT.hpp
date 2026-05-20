@@ -51,6 +51,7 @@ namespace Gem::Geneva::Parameters {
  * long, bool, ...).
  */
 template <typename num_type>
+    requires Gem::Common::arithmetic<num_type>
 class GParameterCollectionT // NOLINT(cppcoreguidelines-special-member-functions)
   : public GParameterBaseWithAdaptorsT<num_type>
   , public Gem::Common::GPodContainerT<num_type> {
@@ -71,8 +72,6 @@ class GParameterCollectionT // NOLINT(cppcoreguidelines-special-member-functions
     }
     ///////////////////////////////////////////////////////////////////////
 
-    // Make sure this class can only be instantiated with num_type as an arithmetic type
-    static_assert(std::is_arithmetic_v<num_type>, "num_type should be an arithmetic type");
 
 public:
     /***************************************************************************/

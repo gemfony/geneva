@@ -57,9 +57,10 @@ namespace Gem::Geneva::Parameters {
  * GInt32FlipAdaptor class) need to be loaded in order to benefit from the adaption
  * capabilities. We currently only allow signed integers, as a mapping takes place from
  * internal to external value, and both are required to be of the same type at the moment.
- * Signed integers as types are enforced using Boost's concept checks.
+ * Signed integers are enforced via a C++20 requires-clause (std::signed_integral).
  */
 template <typename int_type>
+    requires std::signed_integral<int_type>
 class GConstrainedIntT // NOLINT(cppcoreguidelines-special-member-functions)
   : public GConstrainedNumT<int_type> {
     ///////////////////////////////////////////////////////////////////////
@@ -77,8 +78,6 @@ class GConstrainedIntT // NOLINT(cppcoreguidelines-special-member-functions)
     }
     ///////////////////////////////////////////////////////////////////////
 
-    // Make sure this class can only be instantiated if int_type is a *signed* integer type
-    static_assert(std::is_signed_v<int_type>, "int_type should be a signed integer type");
 
 public:
     /***************************************************************************/

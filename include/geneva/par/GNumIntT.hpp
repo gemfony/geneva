@@ -55,6 +55,7 @@ namespace Gem::Geneva::Parameters {
  * adaptor characteristics for different values. This cannot be done with a GIntCollectionT.
  */
 template <typename int_type>
+    requires std::signed_integral<int_type>
 class GNumIntT // NOLINT(cppcoreguidelines-special-member-functions)
   : public GNumT<int_type> {
     ///////////////////////////////////////////////////////////////////////
@@ -68,8 +69,6 @@ class GNumIntT // NOLINT(cppcoreguidelines-special-member-functions)
     }
     ///////////////////////////////////////////////////////////////////////
 
-    // Make sure this class can only be instantiated if int_type is a *signed* integer type
-    static_assert(std::is_signed_v<int_type>, "int_type should be a signed iteger type");
 
 public:
     /** @brief Specifies the type of parameters stored in this object */

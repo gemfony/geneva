@@ -57,6 +57,7 @@ constexpr double DEFAULTUPPERINITBOUNDARYSINGLE = 1.;
  * by GParameterT, this class becomes rather simple.
  */
 template <typename num_type>
+    requires Gem::Common::arithmetic<num_type>
 class GNumT // NOLINT(cppcoreguidelines-special-member-functions)
   : public GParameterT<num_type> {
     ///////////////////////////////////////////////////////////////////////
@@ -73,7 +74,6 @@ class GNumT // NOLINT(cppcoreguidelines-special-member-functions)
     }
     ///////////////////////////////////////////////////////////////////////
 
-    static_assert(std::is_arithmetic_v<num_type>, "num_type is not arithmetic");
 
 public:
     /** @brief Specifies the type of parameters stored in this collection */

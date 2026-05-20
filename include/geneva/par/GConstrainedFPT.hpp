@@ -61,6 +61,7 @@ namespace Gem::Geneva::Parameters {
  * to benefit from the adaption capabilities.
  */
 template <typename fp_type>
+    requires std::floating_point<fp_type>
 class GConstrainedFPT // NOLINT(cppcoreguidelines-special-member-functions)
   : public GConstrainedNumT<fp_type> {
     ///////////////////////////////////////////////////////////////////////
@@ -78,8 +79,6 @@ class GConstrainedFPT // NOLINT(cppcoreguidelines-special-member-functions)
     }
     ///////////////////////////////////////////////////////////////////////
 
-    // Make sure this class can only be instantiated if fp_type really is a floating point type
-    static_assert(std::is_floating_point_v<fp_type>, "fp_type must be a floating point type");
 
 public:
     /***************************************************************************/

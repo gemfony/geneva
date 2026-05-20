@@ -62,6 +62,7 @@ namespace Gem::Geneva::Parameters {
  * are inclusive or exclusive.
  */
 template <typename T>
+    requires Gem::Common::arithmetic<T>
 class GConstrainedNumT // NOLINT(cppcoreguidelines-special-member-functions)
   : public GParameterT<T> {
     ///////////////////////////////////////////////////////////////////////
@@ -77,8 +78,6 @@ class GConstrainedNumT // NOLINT(cppcoreguidelines-special-member-functions)
     }
     ///////////////////////////////////////////////////////////////////////
 
-    // Make sure this class can only be instantiated with T as an arithmetic type
-    static_assert(std::is_arithmetic_v<T>, "T should be an arithmetic type");
 
 public:
     /***************************************************************************/

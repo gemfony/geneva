@@ -54,6 +54,7 @@ namespace Gem::Geneva::Parameters {
  * type needs to be specified as a template parameter.
  */
 template <typename num_type>
+    requires Gem::Common::arithmetic<num_type>
 class GNumFlipAdaptorT // NOLINT(cppcoreguidelines-special-member-functions)
   : public GAdaptorT<num_type> {
     ///////////////////////////////////////////////////////////////////////
@@ -66,8 +67,6 @@ class GNumFlipAdaptorT // NOLINT(cppcoreguidelines-special-member-functions)
     }
     ///////////////////////////////////////////////////////////////////////
 
-    // Make sure this class can only be instantiated with num_type as an arithmetic type
-    static_assert(std::is_arithmetic_v<num_type>, "num_type should be an arithmetic type");
 
 public:
     /***************************************************************************/
