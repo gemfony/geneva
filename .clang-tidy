@@ -74,6 +74,7 @@ Checks: >-
   -readability-uppercase-literal-suffix,
   -readability-function-size,
   -readability-function-cognitive-complexity,
+  -readability-convert-member-functions-to-static,
   -readability-identifier-length
 
 WarningsAsErrors: ''

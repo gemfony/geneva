@@ -29,6 +29,8 @@
 
 #include "geneva/oa/GGradientDescent.hpp"
 
+#include "common/GLogger.hpp"
+
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::OptimizationAlgorithms::GGradientDescent) // NOLINT
 
 namespace Gem::Geneva::OptimizationAlgorithms {
@@ -672,6 +674,26 @@ void GGradientDescent::adjustPopulation_() {
             << "In GGradientDescent::adjustPopulation():" << '\n'
             << "No floating point parameters in individual." << '\n'
         );
+    }
+
+    // Gradient descent operates on the floating point parameters only. Any
+    // integer / boolean parameters are left unchanged -- this is normal,
+    // user-expected behaviour, so it is merely logged (not warned about).
+    {
+        const std::size_t n_int_parms =
+            this->at(0)->countParameters<std::int32_t>(activityMode::ACTIVEONLY);
+        const std::size_t n_bool_parms =
+            this->at(0)->countParameters<bool>(activityMode::ACTIVEONLY);
+        if(n_int_parms + n_bool_parms > 0) {
+            glogger
+                << "In GGradientDescent::adjustPopulation_(): Note:" << '\n'
+                << "The individual carries " << n_int_parms << " integer and " << n_bool_parms
+                << " boolean parameter(s) alongside " << n_fp_parms_first_
+                << " floating point parameter(s)." << '\n'
+                << "Gradient descent only operates on the floating point parameters;" << '\n'
+                << "the non-differentiable parameters are left unchanged." << '\n'
+                << GLOGGING;
+        }
     }
 
     // Check that all individuals currently available have the same amount of parameters

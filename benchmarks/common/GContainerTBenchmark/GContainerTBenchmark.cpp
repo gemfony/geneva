@@ -277,6 +277,7 @@ BenchResult benchPodDeque(std::size_t n) {
     iterations += n / 10;
 
     volatile double sum = 0.0;
+    // NOLINTNEXTLINE(modernize-loop-convert) -- benchmark deliberately measures operator[] indexed access
     for(std::size_t i = 0; i < c.size(); ++i) {
         sum += c[i];
     }
@@ -314,6 +315,7 @@ BenchResult benchPodDequeBaseline(std::size_t n) {
     iterations += n / 10;
 
     volatile double sum = 0.0;
+    // NOLINTNEXTLINE(modernize-loop-convert) -- benchmark deliberately measures operator[] indexed access
     for(std::size_t i = 0; i < c.size(); ++i) {
         sum += c[i];
     }
@@ -348,6 +350,7 @@ BenchResult benchPtrVector(std::size_t n) {
 
     // sum via access
     volatile double sum = 0.0;
+    // NOLINTNEXTLINE(modernize-loop-convert) -- benchmark deliberately measures operator[] indexed access
     for(std::size_t i = 0; i < c.size(); ++i) {
         sum += c[i]->data;
     }
@@ -391,6 +394,7 @@ BenchResult benchPtrVectorBaseline(std::size_t n) {
     iterations += n;
 
     volatile double sum = 0.0;
+    // NOLINTNEXTLINE(modernize-loop-convert) -- benchmark deliberately measures operator[] indexed access
     for(std::size_t i = 0; i < c.size(); ++i) {
         sum += c[i]->data;
     }

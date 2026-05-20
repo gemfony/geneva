@@ -33,6 +33,8 @@
 #include <cmath>
 #include <limits>
 
+#include "common/GLogger.hpp"
+
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::OptimizationAlgorithms::GNelderMead) // NOLINT
 
 namespace Gem::Geneva::OptimizationAlgorithms {
@@ -675,6 +677,27 @@ void GNelderMead::adjustPopulation_() {
             << "In GNelderMead::adjustPopulation():" << '\n'
             << "No floating point parameters in individual." << '\n'
         );
+    }
+
+    // Nelder-Mead is derivative-free but still operates only on the
+    // floating-point (continuous) parameter space. Any integer / boolean
+    // parameters are left unchanged -- this is normal, user-expected
+    // behaviour, so it is merely logged (not warned about).
+    {
+        const std::size_t n_int_parms =
+            this->at(0)->countParameters<std::int32_t>(activityMode::ACTIVEONLY);
+        const std::size_t n_bool_parms =
+            this->at(0)->countParameters<bool>(activityMode::ACTIVEONLY);
+        if(n_int_parms + n_bool_parms > 0) {
+            glogger
+                << "In GNelderMead::adjustPopulation_(): Note:" << '\n'
+                << "The individual carries " << n_int_parms << " integer and " << n_bool_parms
+                << " boolean parameter(s) alongside " << n_fp_parms_first_
+                << " floating point parameter(s)." << '\n'
+                << "Nelder-Mead only operates on the floating point parameters;" << '\n'
+                << "the other parameters are left unchanged." << '\n'
+                << GLOGGING;
+        }
     }
 
     const std::size_t block_size = n_fp_parms_first_ + 1 + NM_NTRIALS;

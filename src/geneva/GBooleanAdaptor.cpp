@@ -223,6 +223,7 @@ void GBooleanAdaptor::specificTestsNoFailureExpected_GUnitTests_() {
     { // Check copy construction
         constexpr double trialadprob = 0.1;
         GBooleanAdaptor gba1(trialadprob);
+        // NOLINTNEXTLINE(performance-unnecessary-copy-initialization) -- intentional copy: this test checks copy construction
         GBooleanAdaptor gba2(gba1);
         INFO(
             "\n"

@@ -206,7 +206,7 @@ void GDoubleCollection::assignDoubleValueVector(
     std::size_t &pos,
     const activityMode & /*am*/
 ) {
-    for(GDoubleCollection::iterator it = this->begin(); it != this->end(); ++it) {
+    for(double & it : *this) {
 #ifdef DEBUG
         // Do we have a valid position ?
         if(pos >= par_vec.size()) {
@@ -221,7 +221,7 @@ void GDoubleCollection::assignDoubleValueVector(
         }
 #endif
 
-        (*it) = par_vec[pos];
+        it = par_vec[pos];
         pos++;
     }
 }
@@ -701,8 +701,8 @@ void GDoubleCollection::specificTestsNoFailureExpected_GUnitTests_() {
         CHECK(static_cast<std::size_t>(std::count(data_copy.begin(), data_copy.end(), 1.)) == n_items);
 
         // Assign 1 to all positions and add further items
-        for(std::size_t i = 0; i < data_copy.size(); i++) {
-            data_copy[i] = 0.;
+        for(double & i : data_copy) {
+            i = 0.;
         }
         for(std::size_t i = 0; i < n_items; i++) {
             data_copy.push_back(0.);

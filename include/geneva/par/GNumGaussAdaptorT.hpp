@@ -34,6 +34,7 @@
 
 // Standard headers go here
 #include <any>
+#include <cmath>
 #include <tuple>
 
 // Boost headers go here
@@ -323,6 +324,16 @@ public:
 	  * @param sigma_sigma The new value of the sigmaSigma_ parameter
 	  */
     void setSigmaAdaptionRate(const fp_type &sigma_sigma) {
+        // sigma_sigma <= 0 is a valid contract ("do not adapt sigma"); only
+        // non-finite values (NaN / +-inf) are rejected -- they would otherwise
+        // propagate silently through the adaption and corrupt the whole run.
+        if(not std::isfinite(sigma_sigma)) {
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, time_and_place)
+                << "In GNumGaussAdaptorT::setSigmaAdaptionRate(): Error!" << '\n'
+                << "Received a non-finite sigma_sigma value: " << sigma_sigma << '\n'
+            );
+        }
         sigma_sigma_ = sigma_sigma;
     }
 

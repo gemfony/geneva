@@ -417,8 +417,8 @@ int main(int argc, char **argv) {
 
     // Add individuals to the population. Many Geneva classes, such as
     // the optimization classes, feature an interface very similar to std::vector.
-    for(std::size_t p = 0; p < parentIndividuals.size(); p++) {
-        pop_ptr->push_back(parentIndividuals[p]);
+    for(const auto & parentIndividual : parentIndividuals) {
+        pop_ptr->push_back(parentIndividual);
     }
 
     // Specify some general population settings

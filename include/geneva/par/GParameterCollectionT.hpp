@@ -106,18 +106,9 @@ public:
      */
     ~GParameterCollectionT() override = default;
 
-    /***************************************************************************/
-    /**
-     * Swap another object's vector with ours
-     */
-    void swap(GParameterCollectionT<num_type> &cp) noexcept {
-        Gem::Common::GPodContainerT<num_type>::swap(cp.data_cnt_);
-    }
-
-    /* ----------------------------------------------------------------------------------
-     * Tested in GDoubleObject::specificTestsNoFailureExpected_GUnitTests()
-     * ----------------------------------------------------------------------------------
-     */
+    // Note: swap() is inherited from GPodContainerT (Gem::Common::GContainerT);
+    // a same-type member swap here would only duplicate the base behaviour
+    // (it swaps the underlying data) and would hide the base overloads.
 
     /***************************************************************************/
     /**

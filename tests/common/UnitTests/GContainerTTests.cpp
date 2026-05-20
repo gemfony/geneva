@@ -994,8 +994,8 @@ TEST_CASE("GContainerT: GPtrContainerT<TestBase> with std::vector backend", "[GC
         // Same address as `item` appears exactly once, and at the insertion position.
         CHECK(c[1].get() == item.get());
         std::size_t same_addr = 0;
-        for(std::size_t i = 0; i < c.size(); ++i) {
-            if(c[i].get() == item.get()) ++same_addr;
+        for(auto & i : c) {
+            if(i.get() == item.get()) ++same_addr;
         }
         CHECK(same_addr == 1u);
         // All inserted slots compare equal by value; the trailing original is preserved.
@@ -1021,8 +1021,8 @@ TEST_CASE("GContainerT: GPtrContainerT<TestBase> with std::vector backend", "[GC
         CHECK(c[0]->val == 1);
         CHECK(c[1]->val == 2);
         // `item` must NOT have been inserted into the container.
-        for(std::size_t i = 0; i < c.size(); ++i) {
-            CHECK(c[i].get() != item.get());
+        for(auto & i : c) {
+            CHECK(i.get() != item.get());
         }
     }
 
@@ -1377,7 +1377,7 @@ TEST_CASE("GContainerT: GPodContainerT<int> with std::list backend", "[GContaine
         CHECK(*c.rbegin() == 3);
         CHECK(*c.crbegin() == 3);
         int sum = 0;
-        for(auto it = c.begin(); it != c.end(); ++it) sum += *it;
+        for(int & it : c) sum += it;
         CHECK(sum == 6);
     }
 

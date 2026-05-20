@@ -298,7 +298,7 @@ public:
         // - the evaluation of the worst entry in the queue if we only add items (regardless of whether they will be cloned or not)
         for(auto it = begin; it != end; ++it) {
             // Dereference the iterator
-            auto item_ptr = *it;
+            const auto& item_ptr = *it;
 
             // Only act on "filled" item_ptr
             if(not(item_ptr)) {

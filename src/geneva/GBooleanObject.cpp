@@ -435,6 +435,7 @@ void GBooleanObject::specificTestsNoFailureExpected_GUnitTests_() {
 
     { // Test copy construction and construction with value
         GBooleanObject gbo1(false);
+        // NOLINTNEXTLINE(performance-unnecessary-copy-initialization) -- intentional copy: this test checks copy construction
         GBooleanObject gbo2(gbo1);
 
         INFO("\n" << "gbo1.value() = " << gbo1.value() << "gbo2.value() = " << gbo2.value());

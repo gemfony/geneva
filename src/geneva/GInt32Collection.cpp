@@ -204,7 +204,7 @@ void GInt32Collection::assignInt32ValueVector(
     std::size_t &pos,
     const activityMode & /*am*/
 ) {
-    for(GInt32Collection::iterator it = this->begin(); it != this->end(); ++it) {
+    for(int & it : *this) {
 #ifdef DEBUG
         // Do we have a valid position ?
         if(pos >= par_vec.size()) {
@@ -219,7 +219,7 @@ void GInt32Collection::assignInt32ValueVector(
         }
 #endif
 
-        (*it) = par_vec[pos];
+        it = par_vec[pos];
         pos++;
     }
 }

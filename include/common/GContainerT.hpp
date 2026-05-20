@@ -252,30 +252,30 @@ public:
     // ------------------------------------------------------------------
 
     /** @brief The logical element type. */
-    using ValueType = typename StoragePolicy::ValueType;
+    using ValueType = StoragePolicy::ValueType;
     /** @brief The type physically stored in the container. */
-    using StoredType = typename StoragePolicy::StoredType;
+    using StoredType = StoragePolicy::StoredType;
     /** @brief The underlying sequence container type. */
-    using ContainerType = typename StoragePolicy::ContainerType;
+    using ContainerType = StoragePolicy::ContainerType;
 
     /** @brief Standard STL alias: value_type */
-    using value_type = typename ContainerType::value_type;
+    using value_type = ContainerType::value_type;
     /** @brief Standard STL alias: reference */
-    using reference = typename ContainerType::reference;
+    using reference = ContainerType::reference;
     /** @brief Standard STL alias: const_reference */
-    using const_reference = typename ContainerType::const_reference;
+    using const_reference = ContainerType::const_reference;
     /** @brief Standard STL alias: iterator */
-    using iterator = typename ContainerType::iterator;
+    using iterator = ContainerType::iterator;
     /** @brief Standard STL alias: const_iterator */
-    using const_iterator = typename ContainerType::const_iterator;
+    using const_iterator = ContainerType::const_iterator;
     /** @brief Standard STL alias: reverse_iterator */
-    using reverse_iterator = typename ContainerType::reverse_iterator;
+    using reverse_iterator = ContainerType::reverse_iterator;
     /** @brief Standard STL alias: const_reverse_iterator */
-    using const_reverse_iterator = typename ContainerType::const_reverse_iterator;
+    using const_reverse_iterator = ContainerType::const_reverse_iterator;
     /** @brief Standard STL alias: size_type */
-    using size_type = typename ContainerType::size_type;
+    using size_type = ContainerType::size_type;
     /** @brief Standard STL alias: difference_type */
-    using difference_type = typename ContainerType::difference_type;
+    using difference_type = ContainerType::difference_type;
 
     // ------------------------------------------------------------------
     // Constructors, destructor, assignment
@@ -969,7 +969,7 @@ public:
      *
      * @param cont The external container to swap with.
      */
-    void swap(ContainerType &cont) {
+    void swap(ContainerType &cont) noexcept {
         data_cnt_.swap(cont);
     }
 
@@ -978,7 +978,7 @@ public:
      *
      * @param other The other GContainerT object to swap with.
      */
-    void swap(GContainerT &other) {
+    void swap(GContainerT &other) noexcept {
         data_cnt_.swap(other.data_cnt_);
     }
 
@@ -1387,8 +1387,7 @@ public:
         requires(!std::same_as<StoredType, ValueType>)
     {
         for(auto &item_ptr : data_cnt_) {
-            std::shared_ptr<DerivedType> cast = std::dynamic_pointer_cast<DerivedType>(item_ptr);
-            if(cast) {
+            if(std::shared_ptr<DerivedType> cast = std::dynamic_pointer_cast<DerivedType>(item_ptr)) {
                 target.push_back(std::move(cast));
             }
         }

@@ -1315,7 +1315,7 @@ void GSwarmAlgorithm::pruneVelocity(std::vector<double> &vel_vec) {
 
     if(overflow_found) {
         // Scale all velocity entries by max_percentage
-        for(std::size_t i = 0; i < vel_vec.size(); i++) {
+        for(double & i : vel_vec) {
 #ifdef DEBUG
             if(max_percentage <= 0.) {
                 throw geneva_exception(
@@ -1325,7 +1325,7 @@ void GSwarmAlgorithm::pruneVelocity(std::vector<double> &vel_vec) {
                 );
             }
 #endif
-            vel_vec[i] /= max_percentage;
+            i /= max_percentage;
         }
     }
 }
@@ -1525,13 +1525,13 @@ std::tuple<double, double> GSwarmAlgorithm::findBests() {
     }
 
     // Identify the best fitness in the current iteration
-    for(std::size_t i = 0; i < this->size(); i++) {
+    for(auto & i : *this) {
         if(isBetter(
-               std::get<G_TRANSFORMED_FITNESS>(this->at(i)->getFitnessTuple()),
+               std::get<G_TRANSFORMED_FITNESS>(i->getFitnessTuple()),
                std::get<G_TRANSFORMED_FITNESS>(best_iteration_fitness),
                m
            )) {
-            best_iteration_fitness = this->at(i)->getFitnessTuple();
+            best_iteration_fitness = i->getFitnessTuple();
         }
     }
 

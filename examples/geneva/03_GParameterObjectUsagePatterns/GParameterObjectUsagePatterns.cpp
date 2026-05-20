@@ -349,6 +349,7 @@ int main(int argc, char **argv) {
 
         //-----------------------------------------------------
         // Access to parameter objects in the collection
+        // NOLINTNEXTLINE(modernize-loop-convert) -- example deliberately shows operator[] and at() side by side
         for(std::size_t i = 0; i < c1.size(); i++) {
             std::cout << c1[i] << '\n';
             std::cout << c1.at(i) << '\n';
@@ -601,6 +602,7 @@ int main(int argc, char **argv) {
 
         //-----------------------------------------------------
         // Access to parameter objects in the collection
+        // NOLINTNEXTLINE(modernize-loop-convert) -- example deliberately shows operator[] and at() side by side
         for(std::size_t i = 0; i < c1.size(); i++) {
             std::cout << c1[i] << '\n';
             std::cout << c1.at(i) << '\n';
@@ -719,6 +721,7 @@ int main(int argc, char **argv) {
 
         //-----------------------------------------------------
         // Access to parameter objects in the collection
+        // NOLINTNEXTLINE(modernize-loop-convert) -- example deliberately shows operator[] and at() side by side
         for(std::size_t i = 0; i < c1.size(); i++) {
             std::cout << (c1[i] ? "true" : "false") << '\n';
             std::cout << (c1.at(i) ? "true" : "false") << '\n';

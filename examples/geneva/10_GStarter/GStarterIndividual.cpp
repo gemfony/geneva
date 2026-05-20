@@ -232,6 +232,7 @@ double GStarterIndividual::getAverageSigma() const {
     std::vector<double> sigmas;
 
     // Loop over all parameter objects
+    // NOLINTNEXTLINE(modernize-loop-convert) -- the index drives the typed at<T>() down-conversion; a range-for would lose it
     for(std::size_t i = 0; i < this->size(); i++) {
         // Extract the parameter object
         std::shared_ptr<gpar::GConstrainedDoubleObject> gcdo_ptr = this->at<gpar::GConstrainedDoubleObject>(i);

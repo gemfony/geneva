@@ -256,6 +256,7 @@ TEST_CASE("GFactoryT: copy construction preserves config path / counters semanti
           "[common][factory]") {
     auto p = make_config("copy_ctor");
     TestFactory src(p);
+    // NOLINTNEXTLINE(performance-unnecessary-copy-initialization) -- intentional copy: this test checks copy construction
     TestFactory dst(src);
     CHECK(dst.getConfigFilePath() == p);
 }

@@ -358,7 +358,7 @@ void GBooleanCollection::assignBooleanValueVector(
     std::size_t &pos,
     const activityMode & /*am*/
 ) {
-    for(GBooleanCollection::iterator it = this->begin(); it != this->end(); ++it) {
+    for(auto && it : *this) {
 #ifdef DEBUG
         // Do we have a valid position ?
         if(pos >= par_vec.size()) {
@@ -373,7 +373,7 @@ void GBooleanCollection::assignBooleanValueVector(
         }
 #endif
 
-        (*it) = par_vec[pos];
+        it = par_vec[pos];
         pos++;
     }
 }

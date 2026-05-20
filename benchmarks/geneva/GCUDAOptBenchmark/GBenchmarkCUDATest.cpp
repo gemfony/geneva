@@ -106,9 +106,7 @@ int main() {
               << "  Status\n"
               << std::string(56, '-') << "\n";
 
-    for(int fi = 0; fi < N_FUNCTIONS; ++fi) {
-        const FuncInfo &info = FUNCTIONS[fi];
-
+    for(const auto & info : FUNCTIONS) {
         std::uniform_real_distribution<double> dist(info.lo, info.hi);
 
         // Build flat row-major parameter buffer.

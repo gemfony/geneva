@@ -135,8 +135,8 @@ double GTestIndividual1::fitnessCalculation() {
     std::shared_ptr<gpar::GDoubleCollection> v_c = at<gpar::GDoubleCollection>(0);
 
     // Calculate the value of the parabola
-    for(std::size_t i = 0; i < v_c->size(); i++) {
-        result += v_c->at(i) * v_c->at(i);
+    for(double i : *v_c) {
+        result += i * i;
     }
 
     return result;
@@ -605,8 +605,8 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
         CHECK(static_cast<std::size_t>(p_test->count(insert_ptr)) >= n_items);
 
         // Check that there is no item with the same physical address as insert_ptr
-        for(std::size_t i = 0; i < p_test->size(); i++) {
-            CHECK((p_test->at(i)).get() != insert_ptr.get());
+        for(auto & i : *p_test) {
+            CHECK(i.get() != insert_ptr.get());
         }
 
         // Insert one more item at the end, using insert_noclone
@@ -615,8 +615,8 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
 
         // There should now be exactly one item with the same address as insert_ptr (i.e. the same object)
         std::size_t n_identical = 0;
-        for(std::size_t i = 0; i < p_test->size(); i++) {
-            if((p_test->at(i)).get() == insert_ptr.get()) {
+        for(auto & i : *p_test) {
+            if(i.get() == insert_ptr.get()) {
                 n_identical++;
             }
         }
@@ -627,8 +627,8 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
         CHECK(p_test->size() == 2 * n_items);
 
         // Check that there is no item left with the same address
-        for(std::size_t i = 0; i < p_test->size(); i++) {
-            CHECK((p_test->at(i)).get() != insert_ptr.get());
+        for(auto & i : *p_test) {
+            CHECK(i.get() != insert_ptr.get());
         }
 
         // Insert another nItems items at the beginning, using insert_noclone; cross-check the size
@@ -637,8 +637,8 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
 
         // There should again be exactly one item with the same address as insert_ptr (i.e. the same object)
         n_identical = 0;
-        for(std::size_t i = 0; i < p_test->size(); i++) {
-            if((p_test->at(i)).get() == insert_ptr.get()) {
+        for(auto & i : *p_test) {
+            if(i.get() == insert_ptr.get()) {
                 n_identical++;
             }
         }
