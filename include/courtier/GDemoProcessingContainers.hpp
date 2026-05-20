@@ -66,7 +66,7 @@ namespace Gem::Courtier {
  * This class implements the simplest-possible procesiing container object, used for tests of
  * the courtier lib.
  */
-class GSimpleContainer // NOLINT(cppcoreguidelines-special-member-functions)
+class GSimpleContainer
   : public Gem::Courtier::GProcessingContainerT<GSimpleContainer, bool> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
@@ -88,6 +88,12 @@ public:
     explicit GSimpleContainer(const std::size_t &);
     /** @brief The copy constructor */
     GSimpleContainer(const GSimpleContainer &) = default;
+    /** @brief The copy assignment operator */
+    GSimpleContainer &operator=(const GSimpleContainer &) = default;
+    /** @brief The move constructor */
+    GSimpleContainer(GSimpleContainer &&) noexcept = default;
+    /** @brief The move assignment operator */
+    GSimpleContainer &operator=(GSimpleContainer &&) noexcept = default;
     /** @brief The destructor */
     ~GSimpleContainer() override = default;
 
@@ -138,9 +144,8 @@ public:
 
     GRandomNumberContainer &operator=(GRandomNumberContainer const &) = default;
 
-    // TODO: Make class movable --> see base class
-    GRandomNumberContainer(GRandomNumberContainer &&) = delete;
-    GRandomNumberContainer &operator=(GRandomNumberContainer &&) = delete;
+    GRandomNumberContainer(GRandomNumberContainer &&) noexcept = default;
+    GRandomNumberContainer &operator=(GRandomNumberContainer &&) noexcept = default;
 
     /******************************************************************************************/
 

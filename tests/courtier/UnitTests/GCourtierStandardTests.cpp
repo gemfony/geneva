@@ -34,6 +34,8 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include <memory>
+#include <type_traits>
+#include <utility>
 #include <vector>
 
 #include "courtier/GDemoProcessingContainers.hpp"
@@ -128,4 +130,67 @@ TEST_CASE(
     executor->workOn(items);
 
     REQUIRE(item->is_processed());
+}
+
+/********************************************************************************************/
+// Move semantics
+//
+// GProcessingContainerT and its derivatives are work-transport items. Adding
+// (defaulted, noexcept) move operations lets the broker/executor path transfer
+// ownership of the heavy members instead of deep-copying them.
+
+TEST_CASE(
+    "GProcessingContainerT derivatives are nothrow-movable and still copyable",
+    "[courtier][move]"
+) {
+    STATIC_REQUIRE(std::is_nothrow_move_constructible_v<GSimpleContainer>);
+    STATIC_REQUIRE(std::is_nothrow_move_assignable_v<GSimpleContainer>);
+    STATIC_REQUIRE(std::is_nothrow_move_constructible_v<GRandomNumberContainer>);
+    STATIC_REQUIRE(std::is_nothrow_move_assignable_v<GRandomNumberContainer>);
+
+    // The new move operations must not have cost the copy operations.
+    STATIC_REQUIRE(std::is_copy_constructible_v<GSimpleContainer>);
+    STATIC_REQUIRE(std::is_copy_assignable_v<GSimpleContainer>);
+    STATIC_REQUIRE(std::is_copy_constructible_v<GRandomNumberContainer>);
+    STATIC_REQUIRE(std::is_copy_assignable_v<GRandomNumberContainer>);
+}
+
+TEST_CASE(
+    "GRandomNumberContainer: move construction preserves state and stays processable",
+    "[courtier][move]"
+) {
+    GRandomNumberContainer source(10);
+    source.set_processing_status(processingStatus::DO_PROCESS);
+    const std::size_t n_results = source.getNStoredResults();
+
+    GRandomNumberContainer target(std::move(source));
+
+    // Base- and derived-class state transferred to the move target.
+    REQUIRE(target.is_due_for_processing());
+    REQUIRE(target.getNStoredResults() == n_results);
+
+    // The moved-from object remains valid and queryable.
+    REQUIRE_NOTHROW(source.getProcessingStatus());
+
+    // The moved-to object is fully functional: its payload survived and it can
+    // still be processed end-to-end through the executor.
+    auto executor = std::make_shared<GSerialExecutorT<GRandomNumberContainer>>();
+    std::vector<std::shared_ptr<GRandomNumberContainer>> items;
+    items.emplace_back(std::make_shared<GRandomNumberContainer>(std::move(target)));
+    auto status = executor->workOn(items);
+
+    REQUIRE(status.is_complete);
+    REQUIRE_FALSE(status.has_errors);
+    REQUIRE(items[0]->is_processed());
+}
+
+TEST_CASE("GSimpleContainer: move assignment transfers state", "[courtier][move]") {
+    GSimpleContainer source(42);
+    source.set_processing_status(processingStatus::DO_PROCESS);
+
+    GSimpleContainer target(0);
+    target = std::move(source);
+
+    REQUIRE(target.is_due_for_processing());
+    REQUIRE_NOTHROW(source.getProcessingStatus());
 }

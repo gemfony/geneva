@@ -200,11 +200,18 @@ public:
 
     // Default constructor may be found in private section
 
-    // TODO: Make class movable
-    GProcessingContainerT(GProcessingContainerT<processable_type, processing_result_type> &&) =
-        delete;
+    // Move operations: a defaulted member-wise move is correct and noexcept
+    // here. The heavy members (stored_results_cnt_, stored_error_descriptions_,
+    // pre_/post_processor_ptr_) have their ownership transferred rather than
+    // being deep-copied as the copy operations do -- this is the point of being
+    // movable on the work-transport (broker / MPI / websocket) path. The
+    // remaining scalar/enum/time-point members are moved trivially.
+    GProcessingContainerT(
+        GProcessingContainerT<processable_type, processing_result_type> &&
+    ) noexcept = default;
     GProcessingContainerT<processable_type, processing_result_type> &
-    operator=(GProcessingContainerT<processable_type, processing_result_type> &&) = delete;
+    operator=(GProcessingContainerT<processable_type, processing_result_type> &&) noexcept =
+        default;
 
     virtual ~GProcessingContainerT() = default;
 
