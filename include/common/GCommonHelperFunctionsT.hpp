@@ -82,9 +82,25 @@ using enum_or_self_t = typename enum_or_self<T>::type;
 
 /******************************************************************************/
 /**
- * Checked numeric cast: throws std::overflow_error if the conversion would lose the value.
- * Replaces boost::numeric_cast. Float→int truncates (no fractional-part check) but
- * throws if the value is outside the target integer range.
+ * Checked numeric/enum cast. Returns the converted value, or throws
+ * std::overflow_error if a narrowing conversion would change it. Replaces
+ * boost::numeric_cast. Range validation always happens *before* the
+ * value-changing static_cast, so an out-of-range input never reaches a cast
+ * whose result would be undefined behaviour (e.g. float->int or float->float
+ * out of range).
+ *
+ * What is checked, by target type:
+ *   - integer / enum target: rejected unless the value fits (round-trip for
+ *     integer<->integer, an exact boundary check for float->integer). Enum
+ *     source/target types are handled via their underlying integer type.
+ *     Float->integer truncates toward zero (no fractional-part check) but is
+ *     rejected if outside the target integer range.
+ *   - floating target from a *wider* floating type: a finite value whose
+ *     magnitude exceeds the destination range is rejected (it would overflow
+ *     to +/-inf). inf/NaN pass through unchanged; precision loss is inherent
+ *     and is NOT treated as an error.
+ *   - floating target from an integer/enum or a not-wider floating type:
+ *     always in range, hence unchecked (may lose precision).
  */
 template <typename To, typename From>
 To narrow_cast(From value) {
@@ -100,28 +116,31 @@ To narrow_cast(From value) {
     using FromCheck = detail::enum_or_self_t<From>;
 
     const auto check_value = static_cast<FromCheck>(value);
-    const auto result      = static_cast<To>(value);
-    const auto check_result = static_cast<ToCheck>(result);
 
     if constexpr (std::is_integral_v<ToCheck> && std::is_integral_v<FromCheck>) {
-        // Integer-to-integer (and enum-via-underlying): round-trip catches
-        // narrowing in both directions.
-        if(static_cast<FromCheck>(check_result) != check_value) {
+        // Integer-to-integer (and enum-via-underlying): a round-trip on the
+        // underlying integer types catches narrowing in both directions. It is
+        // done purely on the integers (never forming a To-typed result first),
+        // so no out-of-range enum value is ever materialised; integral
+        // conversions are well-defined, so this is never UB.
+        if(static_cast<FromCheck>(static_cast<ToCheck>(check_value)) != check_value) {
             throw std::overflow_error("narrow_cast: integer overflow or underflow");
         }
+        return static_cast<To>(value);
     } else if constexpr (std::is_integral_v<ToCheck> &&
                          std::is_floating_point_v<FromCheck>) {
-        // Float-to-integer: the obvious `value > ToCheck::max()` check is
-        // unsafe at the int64 extreme. int64_t::max() == 2^63 − 1 is NOT
-        // exactly representable in double; static_cast<double>(int64_max)
-        // rounds UP to 2^63, so `value > double(int64_max)` lets a value
-        // equal to 2^63 through and `static_cast<int64_t>(2^63)` is UB.
+        // Float-to-integer: validate the source range BEFORE the float->int
+        // static_cast, which is undefined behaviour for out-of-range inputs.
+        // The obvious `value > ToCheck::max()` check is unsafe at the int64
+        // extreme: int64_t::max() == 2^63 - 1 is NOT exactly representable in
+        // double; static_cast<double>(int64_max) rounds UP to 2^63, so a value
+        // equal to 2^63 would pass and static_cast<int64_t>(2^63) is UB.
         //
         // Detect whether the max-as-float round-tripped exactly by checking
         // whether the float distance between adjacent integer endpoints is
-        // exactly 1: it is when no rounding occurred (e.g. int32 → double)
+        // exactly 1: it is when no rounding occurred (e.g. int32 -> double)
         // and < 1 when adjacent integers collapsed onto the same float
-        // (int64 → double). When inexact, reject `==` at the boundary too.
+        // (int64 -> double). When inexact, reject `==` at the boundary too.
         constexpr ToCheck   to_max                 = std::numeric_limits<ToCheck>::max();
         constexpr ToCheck   to_min                 = std::numeric_limits<ToCheck>::min();
         constexpr FromCheck max_as_from            = static_cast<FromCheck>(to_max);
@@ -145,8 +164,33 @@ To narrow_cast(From value) {
                 throw std::overflow_error("narrow_cast: float-to-integer overflow");
             }
         }
+        return static_cast<To>(value); // provably in range now
+    } else if constexpr (std::is_floating_point_v<ToCheck> &&
+                         std::is_floating_point_v<FromCheck>) {
+        // Floating-to-floating. Only a *narrowing* conversion (destination
+        // range strictly smaller than the source) can overflow. Reject a
+        // finite value whose magnitude exceeds the destination range BEFORE the
+        // cast, since an out-of-range floating conversion is undefined
+        // behaviour. inf/NaN pass through unchanged; precision loss is inherent
+        // and is NOT treated as an error.
+        if constexpr (std::numeric_limits<ToCheck>::max() <
+                      std::numeric_limits<FromCheck>::max()) {
+            if(std::isfinite(check_value)) {
+                // Widening the (smaller) destination max into FromCheck is
+                // exact, so this comparison is well-defined.
+                constexpr FromCheck to_max =
+                    static_cast<FromCheck>(std::numeric_limits<ToCheck>::max());
+                if(check_value > to_max || check_value < -to_max) {
+                    throw std::overflow_error("narrow_cast: floating-point overflow");
+                }
+            }
+        }
+        return static_cast<To>(value);
+    } else {
+        // Integer/enum -> floating: always in range (may lose precision, which
+        // is inherent and not treated as an error).
+        return static_cast<To>(value);
     }
-    return result;
 }
 
 /******************************************************************************/

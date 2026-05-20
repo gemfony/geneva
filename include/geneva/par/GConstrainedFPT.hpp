@@ -357,7 +357,10 @@ public:
                 );
             }
 #else  /* DEBUG */
-            region = static_cast<std::int64_t>(std::floor(
+            // Checked narrow_cast (mirrors the DEBUG branch above): without it
+            // an extreme value / narrow range could overflow std::int64_t,
+            // which is undefined behaviour for a raw static_cast in Release.
+            region = Gem::Common::narrow_cast<std::int64_t>(std::floor(
                 (local_val - static_cast<long double>(lower_boundary)) /
                 (static_cast<long double>(upper_boundary) - static_cast<long double>(lower_boundary))
             ));

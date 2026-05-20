@@ -649,10 +649,24 @@ bool GParameterSet::isGoodEnough(std::vector<double> const &boundaries) {
      * @return A suitable cross-over position in the range [lower, upper[
      */
 std::size_t GParameterSet::getCrossOverPos(const std::size_t lower, const std::size_t upper) {
-    // Make sure the boundaries are suitable.
-    assert(lower > 0);
-    // Should be at least 1, or a cross-over doesn't make sense
-    assert(upper > lower);
+    // Make sure the boundaries are suitable. These were DEBUG-only asserts;
+    // under NDEBUG an invalid range (e.g. upper == lower for a single-element
+    // collection) produced an inverted std::uniform_int_distribution range,
+    // which is undefined behaviour. Enforce unconditionally instead.
+    if(lower == 0) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, time_and_place)
+            << "In GParameterSet::getCrossOverPos(): Error!" << '\n'
+            << "lower boundary is 0, but must be > 0" << '\n'
+        );
+    }
+    if(upper <= lower) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, time_and_place)
+            << "In GParameterSet::getCrossOverPos(): Error!" << '\n'
+            << "Invalid range: upper (" << upper << ") must be > lower (" << lower << ")" << '\n'
+        );
+    }
 
     return uniform_int_(
         gr_,

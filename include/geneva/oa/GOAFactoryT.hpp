@@ -1,3 +1,7 @@
+/**
+* @file GOAFactoryT.hpp
+ */
+
 /********************************************************************************
  *
  * This file is part of the Geneva library collection. The following license
@@ -108,6 +112,13 @@ public:
         }
         else {
             content_creator_ptr_.reset();
+        }
+
+        // The pluggable optimization monitor (a std::shared_ptr<GBasePluggableOM>)
+        // must be deep-copied as well; otherwise a copied factory silently
+        // produces algorithms with no monitor.
+        if(cp.pluggable_om_) {
+            pluggable_om_ = cp.pluggable_om_->GObject::clone<GBasePluggableOM>();
         }
     }
 
