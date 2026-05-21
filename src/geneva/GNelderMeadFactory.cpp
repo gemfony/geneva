@@ -28,6 +28,7 @@
  ********************************************************************************/
 
 #include "geneva/oa/GNelderMeadFactory.hpp"
+#include "geneva/oa/GInitializerT.hpp"
 
 namespace Gem::Geneva::OptimizationAlgorithms {
 
@@ -108,6 +109,19 @@ void GNelderMeadFactory::postProcess_(std::shared_ptr<GBase> &p_base) {
     // Call our parent class'es function
     GOAFactoryT<GBase>::postProcess_(p_base);
 }
+
+/******************************************************************************/
+
+/******************************************************************************/
+/**
+ * Self-registration of this optimization-algorithm factory with the global
+ * factory store at library-load time, so that Go2 needs no explicit
+ * registration call. (Geneva is always built as a shared library, so these
+ * load-time initializers are never stripped.)
+ */
+namespace {
+GInitializerT<GNelderMeadFactory> g_oaf_registrant;
+} // anonymous namespace
 
 /******************************************************************************/
 

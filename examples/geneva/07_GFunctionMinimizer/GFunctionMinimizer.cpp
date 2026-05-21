@@ -38,6 +38,8 @@
 
 // Geneva header files go here
 #include <geneva/Go2.hpp>
+#include <geneva/oa/GEvolutionaryAlgorithm.hpp>
+#include <geneva/oa/GEvolutionaryAlgorithmFactory.hpp>
 
 // The individual that should be optimized
 #include "GFMinIndividual.hpp"

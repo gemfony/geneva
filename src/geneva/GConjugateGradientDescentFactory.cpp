@@ -28,6 +28,7 @@
  ********************************************************************************/
 
 #include "geneva/oa/GConjugateGradientDescentFactory.hpp"
+#include "geneva/oa/GInitializerT.hpp"
 
 namespace Gem::Geneva::OptimizationAlgorithms {
 
@@ -112,6 +113,19 @@ void GConjugateGradientDescentFactory::postProcess_(
     // Call our parent class'es function
     GOAFactoryT<GBase>::postProcess_(p_base);
 }
+
+/******************************************************************************/
+
+/******************************************************************************/
+/**
+ * Self-registration of this optimization-algorithm factory with the global
+ * factory store at library-load time, so that Go2 needs no explicit
+ * registration call. (Geneva is always built as a shared library, so these
+ * load-time initializers are never stripped.)
+ */
+namespace {
+GInitializerT<GConjugateGradientDescentFactory> g_oaf_registrant;
+} // anonymous namespace
 
 /******************************************************************************/
 

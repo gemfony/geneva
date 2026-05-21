@@ -45,6 +45,8 @@
 #include "courtier/consumers/GStdThreadConsumerT.hpp"
 #include "geneva/GPluggableOptimizationMonitors.hpp"
 #include "geneva/Go2.hpp"
+#include "geneva/oa/GEvolutionaryAlgorithm.hpp"
+#include "geneva/oa/GEvolutionaryAlgorithmFactory.hpp"
 
 // The individual that should be optimized
 #include "GImageIndividual.hpp"

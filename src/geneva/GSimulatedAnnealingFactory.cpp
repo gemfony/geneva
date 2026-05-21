@@ -28,6 +28,7 @@
  ********************************************************************************/
 
 #include "geneva/oa/GSimulatedAnnealingFactory.hpp"
+#include "geneva/oa/GInitializerT.hpp"
 
 namespace Gem::Geneva::OptimizationAlgorithms {
 
@@ -116,6 +117,19 @@ void GSimulatedAnnealingFactory::postProcess_(
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+
+/******************************************************************************/
+/**
+ * Self-registration of this optimization-algorithm factory with the global
+ * factory store at library-load time, so that Go2 needs no explicit
+ * registration call. (Geneva is always built as a shared library, so these
+ * load-time initializers are never stripped.)
+ */
+namespace {
+GInitializerT<GSimulatedAnnealingFactory> g_oaf_registrant;
+} // anonymous namespace
+
 /******************************************************************************/
 
 } /* namespace Gem::Geneva::OptimizationAlgorithms */

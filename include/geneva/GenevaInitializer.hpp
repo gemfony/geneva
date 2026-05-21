@@ -66,35 +66,12 @@ public:
     ~GenevaInitializer();
 
     /***************************************************************************/
-    /**
-	  * Allows to register optimization algorithm factories
-	  */
-    template <typename oaf_type>
-    void registerOAF() {
-        // This will register the factory in the global factory store
-        oa::GInitializerT<oaf_type> goaf_store_registrant;
-    }
-
-    /***************************************************************************/
-    /**
-	  * Allows to register consumers
-	  */
-    template <typename c_type>
-    void registerConsumer() {
-        // This will register the consumer with the global store
-        GIndividualStandardConsumerInitializerT<c_type> g_consumer_store_registrant;
-    }
-
-    /**
-      * Allows to register an existing consumer. This is important when working with singleton consumers such as the
-      * GMPIConsumerT.
-      */
-    void registerConsumer(
-        const std::shared_ptr<cons::GBaseConsumerT<gpar::GParameterSet>> &consumer
-    ) {
-        std::string mnemonic = consumer->getMnemonic(); // NOLINT(cppcoreguidelines-init-variables)
-        GConsumerStore->setOnce(mnemonic, consumer);
-    }
+    // Note: optimization-algorithm factories and consumers now register
+    // themselves with their respective global stores at library-load time (see
+    // the self-registration helpers in each factory's .cpp and in
+    // GIndividualStandardConsumers.cpp). GenevaInitializer therefore no longer
+    // exposes registerOAF() / registerConsumer(); it only performs the runtime
+    // init / finalize of the random factory and the broker (see ctor / dtor).
 
     /***************************************************************************/
 };

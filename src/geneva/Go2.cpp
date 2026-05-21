@@ -68,25 +68,12 @@ Go2::Go2(
 )
   : config_filename_(config_filename) {
     //--------------------------------------------
-    // Initialize Geneva as well as the known optimization algorithms
-
-    gi_.registerOAF<OptimizationAlgorithms::GEvolutionaryAlgorithmFactory>();
-    gi_.registerOAF<OptimizationAlgorithms::GSwarmAlgorithmFactory>();
-    gi_.registerOAF<OptimizationAlgorithms::GGradientDescentFactory>();
-    gi_.registerOAF<OptimizationAlgorithms::GConjugateGradientDescentFactory>();
-    gi_.registerOAF<OptimizationAlgorithms::GNelderMeadFactory>();
-    gi_.registerOAF<OptimizationAlgorithms::GSimulatedAnnealingFactory>();
-    gi_.registerOAF<OptimizationAlgorithms::GParameterScanFactory>();
-
-    gi_.registerConsumer<GIndividualWebsocketConsumer>();
-    gi_.registerConsumer<GIndividualAsioConsumer>();
-    gi_.registerConsumer<GIndividualThreadConsumer>();
-    gi_.registerConsumer<GIndividualSerialConsumer>();
-
-#ifdef GENEVA_BUILD_WITH_MPI_CONSUMER
-    // the mpi consumer requires to be a singleton, because it is not allowed to initialize or finalize MPI multiple times
-    gi_.registerConsumer(GMPIConsumerInstance);
-#endif // GENEVA_BUILD_WITH_MPI_CONSUMER
+    // The known optimization algorithms and consumers register themselves with
+    // their respective global stores at library-load time (see the self-
+    // registration helpers in each factory's .cpp and in
+    // GIndividualStandardConsumers.cpp). The GenevaInitializer member gi_ still
+    // performs the required runtime initialization (random factory + broker)
+    // via its constructor / destructor.
 
     //--------------------------------------------
     // Parse configuration file options

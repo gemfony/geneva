@@ -42,3 +42,39 @@ BOOST_CLASS_EXPORT_IMPLEMENT(
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
+
+namespace Gem::Geneva {
+namespace {
+
+/******************************************************************************/
+/**
+ * Self-registration of the standard consumers with the global consumer store at
+ * library-load time, so that Go2 needs no explicit registration calls. The four
+ * networked / threaded / serial consumers are default-constructible and are
+ * registered as freshly built instances.
+ */
+GIndividualStandardConsumerInitializerT<GIndividualWebsocketConsumer> g_websocket_consumer_registrant;
+GIndividualStandardConsumerInitializerT<GIndividualAsioConsumer>      g_asio_consumer_registrant;
+GIndividualStandardConsumerInitializerT<GIndividualThreadConsumer>    g_thread_consumer_registrant;
+GIndividualStandardConsumerInitializerT<GIndividualSerialConsumer>    g_serial_consumer_registrant;
+
+#ifdef GENEVA_BUILD_WITH_MPI_CONSUMER
+/**
+ * The MPI consumer is a singleton (MPI must not be initialized or finalized more
+ * than once), so it registers its existing singleton instance rather than a
+ * freshly constructed one. This mirrors the former Go2 registration exactly:
+ * MPI_Init / MPI_Finalize remain tied to consumer start / teardown, not to
+ * registration, so the behaviour is unchanged.
+ */
+struct GMPIConsumerRegistrant {
+    GMPIConsumerRegistrant() {
+        GConsumerStore->setOnce(GMPIConsumerInstance->getMnemonic(), GMPIConsumerInstance);
+    }
+};
+GMPIConsumerRegistrant g_mpi_consumer_registrant;
+#endif // GENEVA_BUILD_WITH_MPI_CONSUMER
+
+/******************************************************************************/
+
+} // anonymous namespace
+} // namespace Gem::Geneva
