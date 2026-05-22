@@ -55,6 +55,7 @@ SET ( GENEVACOMMONINCLUDES
 	GLogger.hpp
 	GParserBuilder.hpp
 	GPlotDesigner.hpp
+	GProviderT.hpp
 	GSerializableFunctionObjectT.hpp
 	GSerializationHelperFunctionsT.hpp
 	GSerializeTupleT.hpp

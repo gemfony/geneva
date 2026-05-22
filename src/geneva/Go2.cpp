@@ -103,7 +103,7 @@ Go2::Go2(
  */
 void Go2::registerDefaultAlgorithm(std::string const &mn) {
     // Retrieve the algorithm from the global store
-    std::shared_ptr<oa::GOAFactoryT<GOABase>> p;
+    std::shared_ptr<Gem::Common::GProviderT<GOABase>> p;
     if(not GOAFactoryStore->get(mn, p)) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
@@ -112,7 +112,7 @@ void Go2::registerDefaultAlgorithm(std::string const &mn) {
         );
     }
 
-    this->registerDefaultAlgorithm(p->Gem::Common::GFactoryT<GOABase>::get());
+    this->registerDefaultAlgorithm(p->provide());
 }
 
 /******************************************************************************/
@@ -217,8 +217,9 @@ int Go2::clientRun_() {
     // Retrieve the client worker from the consumer
     std::shared_ptr<Gem::Courtier::GBaseClientT<gpar::GParameterSet>> p;
 
-    if(GConsumerStore->get(consumer_name_)->needsClient()) {
-        p = GConsumerStore->get(consumer_name_)->getClient();
+    auto consumer = GConsumerStore->get(consumer_name_)->provide();
+    if(consumer->needsClient()) {
+        p = consumer->getClient();
     }
     else {
         throw geneva_exception(
@@ -357,7 +358,7 @@ Go2 &Go2::operator&(const std::shared_ptr<GOABase> &alg) {
  */
 void Go2::addAlgorithm(std::string const &mn) {
     // Retrieve the algorithm from the global store
-    std::shared_ptr<oa::GOAFactoryT<GOABase>> p;
+    std::shared_ptr<Gem::Common::GProviderT<GOABase>> p;
     if(not GOAFactoryStore->get(mn, p)) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
@@ -367,8 +368,8 @@ void Go2::addAlgorithm(std::string const &mn) {
     }
 
     this->addAlgorithm(
-        p->Gem::Common::GFactoryT<GOABase>::get()
-    ); // The factory might add a monitor to the object
+        p->provide()
+    ); // The provider's factory might add a monitor to the object
 }
 
 /***************************************************************************/
@@ -812,7 +813,7 @@ void Go2::parseCommandLine(
         GOAFactoryStore->getKeyVector(keys); // will clear "keys"
         for(const auto &key : keys) {
             algorithm_description +=
-                (key + ":  " + GOAFactoryStore->get(key)->getAlgorithmName() + "\n");
+                (key + ":  " + GOAFactoryStore->get(key)->getName() + "\n");
         }
 
         std::ostringstream oa_help; // NOLINT(cppcoreguidelines-init-variables)
@@ -825,7 +826,7 @@ void Go2::parseCommandLine(
         GConsumerStore->getKeyVector(keys);
         for(const auto &key : keys) {
             consumer_description +=
-                (key + ":  " + GConsumerStore->get(key)->getConsumerName() + "\n");
+                (key + ":  " + GConsumerStore->get(key)->getName() + "\n");
         }
 
         std::ostringstream consumer_help; // NOLINT(cppcoreguidelines-init-variables)
@@ -939,7 +940,11 @@ void Go2::parseCommandLine(
             );
         }
 
-        if(client_mode_ && not GConsumerStore->get(consumer_name_)->needsClient()) {
+        // Fetch the chosen consumer once from its provider (the prototype model
+        // hands out the single registered instance) and use it throughout.
+        auto consumer = GConsumerStore->get(consumer_name_)->provide();
+
+        if(client_mode_ && not consumer->needsClient()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In Go2::parseCommandLine(): Error!" << '\n'
@@ -951,7 +956,7 @@ void Go2::parseCommandLine(
         std::cout << "Using consumer " << consumer_name_ << '\n';
 
         // allow the consumer to perform necessary initialization before startup
-        GConsumerStore->get(consumer_name_)->init();
+        consumer->init();
 
         // TODO: Consider removing this #ifdefs
         //  However, an issue is that this would require to create public functions like GBaseConsumerT::clientMode()
@@ -966,15 +971,14 @@ void Go2::parseCommandLine(
 #ifdef GENEVA_BUILD_WITH_MPI_CONSUMER
         if(GIndividualMPIConsumer *mpiConsumerPtr =
                dynamic_cast<GIndividualMPIConsumer *>( // NOLINT(cppcoreguidelines-init-variables)
-                   GConsumerStore->get(consumer_name_).get()
+                   consumer.get()
                )) {
             client_mode_ = mpiConsumerPtr->isWorkerNode();
         }
 #endif // GENEVA_BUILD_WITH_MPI_CONSUMER
 
         // Finally give the consumer the chance to act on the command line options
-        // TODO: clone the consumer, then let the clone act on CL options and add the clone to the broker
-        GConsumerStore->get(consumer_name_)->actOnCLOptions(vm);
+        consumer->actOnCLOptions(vm);
 
         // At this point the consumer should be fully configured
 
@@ -982,7 +986,7 @@ void Go2::parseCommandLine(
         if(not client_mode_) {
             if(not GBROKER(gpar::GParameterSet)->hasConsumers()) {
                 GBROKER(gpar::GParameterSet)
-                    ->enrol_consumer(GConsumerStore->get(consumer_name_));
+                    ->enrol_consumer(consumer);
             }
             else {
                 glogger << "In Go2::parseCommandLine(): Note!" << '\n'
@@ -998,7 +1002,7 @@ void Go2::parseCommandLine(
 
             for(const auto &alg_str : algs) {
                 // Retrieve the algorithm factory from the global store
-                std::shared_ptr<oa::GOAFactoryT<GOABase>> p;
+                std::shared_ptr<Gem::Common::GProviderT<GOABase>> p;
                 if(not GOAFactoryStore->get(alg_str, p)) {
                     throw geneva_exception(
                         g_error_streamer(DO_LOG, time_and_place)
@@ -1008,8 +1012,8 @@ void Go2::parseCommandLine(
                     );
                 }
 
-                // Retrieve an algorithm from the factory and add it to the list
-                algorithms_cnt_.push_back(p->Gem::Common::GFactoryT<GOABase>::get());
+                // Retrieve an algorithm from the provider and add it to the list
+                algorithms_cnt_.push_back(p->provide());
             }
         }
 

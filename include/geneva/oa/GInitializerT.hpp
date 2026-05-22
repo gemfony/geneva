@@ -41,6 +41,7 @@
 // Geneva headers go here
 #include "common/GGlobalOptionsT.hpp"
 #include "common/GLogger.hpp"
+#include "common/GProviderT.hpp"
 #include "courtier/GExecutorT.hpp"
 #include "geneva/par/GParameterSet.hpp"
 #include "geneva/oa/GBase.hpp"
@@ -53,11 +54,15 @@ namespace Gem::Geneva::OptimizationAlgorithms {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * This base class takes care of adding optimization algorithm factories to
- * the global algorithm store
+ * A provider that wraps a config-file-driven optimization-algorithm factory.
+ * Each provide() call produces a freshly configured algorithm (the factory
+ * re-reads its JSON config and bumps its instance id), which is what algorithm
+ * chaining (e.g. "ea,gd,swarm") relies on. This is the factory flavour of the
+ * shared Gem::Common::GProviderT abstraction; consumers use a prototype flavour
+ * (GConsumerProviderT) instead.
  */
 template <typename oaf_type>
-class GInitializerT {
+class GOAFactoryProviderT : public Gem::Common::GProviderT<GBase> {
     // Make sure oaf_type has the expected type
     static_assert(
         std::is_base_of_v<GOAFactoryT<GBase>, oaf_type>,
@@ -65,16 +70,38 @@ class GInitializerT {
     );
 
 public:
+    std::shared_ptr<GBase> provide() override {
+        return factory_->Gem::Common::GFactoryT<GBase>::get();
+    }
+    std::string getMnemonic() const override { return factory_->getMnemonic(); }
+    std::string getName() const override { return factory_->getAlgorithmName(); }
+    void addCLOptions(
+        boost::program_options::options_description &visible,
+        boost::program_options::options_description &hidden
+    ) override {
+        factory_->addCLOptions(visible, hidden);
+    }
+
+private:
+    // Stored as the concrete factory base (GBase is not dependent here), so the
+    // qualified GFactoryT<GBase>::get() in provide() is well-formed; virtual
+    // dispatch still reaches oaf_type's overrides.
+    std::shared_ptr<GOAFactoryT<GBase>> factory_{std::make_shared<oaf_type>()};
+};
+
+/******************************************************************************/
+/**
+ * This base class registers an optimization-algorithm factory (wrapped in a
+ * GOAFactoryProviderT) with the global algorithm store.
+ */
+template <typename oaf_type>
+class GInitializerT {
+public:
     /** @brief The initializing constructor */
     GInitializerT() {
-        // Create a smart pointer holding the algorithm
-        std::shared_ptr<GOAFactoryT<GBase>> p(
-            new oaf_type()
-        );
-        std::string mnemonic = p->getMnemonic();
-
-        // Add the factory to the store, if it hasn't been stored there yet
-        GOAFactoryStore->setOnce(mnemonic, p);
+        auto provider = std::make_shared<GOAFactoryProviderT<oaf_type>>();
+        // Add the provider to the store, if it hasn't been stored there yet
+        GOAFactoryStore->setOnce(provider->getMnemonic(), provider);
     }
 
     /** @brief Defaulted destructor */

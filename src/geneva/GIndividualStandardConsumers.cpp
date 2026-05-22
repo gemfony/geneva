@@ -68,7 +68,8 @@ GIndividualStandardConsumerInitializerT<GIndividualSerialConsumer>    g_serial_c
  */
 struct GMPIConsumerRegistrant {
     GMPIConsumerRegistrant() {
-        GConsumerStore->setOnce(GMPIConsumerInstance->getMnemonic(), GMPIConsumerInstance);
+        auto provider = std::make_shared<GConsumerProviderT>(GMPIConsumerInstance);
+        GConsumerStore->setOnce(provider->getMnemonic(), provider);
     }
 };
 GMPIConsumerRegistrant g_mpi_consumer_registrant;

@@ -38,13 +38,15 @@
 
 // Geneva headers go here
 #include "common/GGlobalOptionsT.hpp"
+#include "common/GProviderT.hpp"
 #include "geneva/par/GParameterSet.hpp"
 #include "geneva/oa/GBase.hpp"
 #include "geneva/oa/GOAFactoryT.hpp"
 
-// A global store for optimization algorithm factories
-using goa_factory =
-    oa::GOAFactoryT<oa::GBase>;
+// A global store for optimization-algorithm providers. Each provider wraps a
+// config-file-driven factory (see GOAFactoryProviderT in GInitializerT.hpp) and
+// produces a freshly configured algorithm on every provide() call.
 using GOAStore =
-    Gem::Common::GSingletonT<Gem::Common::GGlobalOptionsT<std::shared_ptr<goa_factory>>>;
+    Gem::Common::GSingletonT<Gem::Common::GGlobalOptionsT<
+        std::shared_ptr<Gem::Common::GProviderT<oa::GBase>>>>;
 #define GOAFactoryStore GOAStore::Instance(0)

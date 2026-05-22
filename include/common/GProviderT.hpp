@@ -33,44 +33,55 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard header files go here
-#include <iostream>
+#include <memory>
+#include <string>
 
 // Boost header files go here
+#include <boost/program_options.hpp>
 
-// Geneva headers go here
-#include "common/GGlobalOptionsT.hpp"
-#include "common/GLogger.hpp"
-#include "courtier/consumers/GBaseConsumerT.hpp"
-#include "geneva/GConsumerStore.hpp"
-#include "geneva/par/GParameterSet.hpp"
-
-namespace Gem::Geneva {
+namespace Gem::Common {
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * This base class takes care of adding GParameterSet-based consumer objects
- * to a global store
+ * A common provisioning interface for the mnemonic-keyed global stores. Both
+ * optimization algorithms and consumers are looked up by mnemonic and then
+ * asked to hand out a usable object via provide(). The two flavours differ only
+ * in how provide() is implemented:
+ *
+ *  - optimization algorithms wrap a config-file-driven factory, so provide()
+ *    produces a freshly configured object on every call (many instances per run);
+ *  - consumers wrap a single prototype instance, so provide() returns that same
+ *    instance (one instance per run, used in place).
+ *
+ * The remaining methods (getMnemonic / getName / addCLOptions) expose metadata
+ * and command-line options without producing an object, which is what the help
+ * output and option parsing need.
  */
-template <typename c_type> // c_type stands for consumer type
-class GIndividualStandardConsumerInitializerT {
+template <typename T>
+class GProviderT { // NOLINT(cppcoreguidelines-special-member-functions)
 public:
-    /** @brief The initializing constructor */
-    GIndividualStandardConsumerInitializerT() {
-        // Wrap a freshly built consumer instance in a provider and register it
-        // with the store, if it hasn't happened yet.
-        auto provider = std::make_shared<GConsumerProviderT>(
-            std::make_shared<c_type>()
-        );
-        GConsumerStore->setOnce(provider->getMnemonic(), provider);
-    }
-    /** @brief An empty destructor */
-    virtual ~GIndividualStandardConsumerInitializerT() = default;
+    /** @brief The default constructor */
+    GProviderT() = default;
+    /** @brief The (defaulted) destructor */
+    virtual ~GProviderT() = default;
+
+    /** @brief Hands out a usable object (produced or prototype, depending on the flavour) */
+    virtual std::shared_ptr<T> provide() = 0;
+    /** @brief The mnemonic this provider is registered under */
+    virtual std::string getMnemonic() const = 0;
+    /** @brief A human-readable name, for help output (produces no object) */
+    virtual std::string getName() const = 0;
+    /** @brief Adds the provided object's command-line options (produces no object) */
+    virtual void addCLOptions(
+        boost::program_options::options_description &visible,
+        boost::program_options::options_description &hidden
+    ) = 0;
 };
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-} /* namespace Gem::Geneva */
+} /* namespace Gem::Common */
