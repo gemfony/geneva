@@ -108,7 +108,7 @@ void GFMinIndividual::addConfigurationOptions(Gem::Common::GParserBuilder &gpb) 
 
     // Add local data
     gpb.registerFileParameter<targetFunction>(
-        "targetFunction" // The name of the variable
+        "target_function" // The name of the variable
         ,
         GO_DEF_TARGETFUNCTION // The default value
         ,
@@ -333,7 +333,7 @@ void GFMinIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder &
     comment = "";
     comment += "The probability for random adaptions of values in evolutionary algorithms;";
     gpb.registerFileParameter<double>(
-        "adProb",
+        "ad_prob",
         adProb_,
         GFI_DEF_ADPROB,
         Gem::Common::VAR_IS_ESSENTIAL,
@@ -353,7 +353,7 @@ void GFMinIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder &
     comment = "";
     comment += "Influences the self-adaption of gauss-mutation in ES;";
     gpb.registerFileParameter<double>(
-        "sigmaSigma",
+        "sigma_sigma",
         sigmaSigma_,
         GFI_DEF_SIGMASIGMA,
         Gem::Common::VAR_IS_ESSENTIAL,
@@ -363,7 +363,7 @@ void GFMinIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder &
     comment = "";
     comment += "The minimum amount value of sigma;";
     gpb.registerFileParameter<double>(
-        "minSigma",
+        "min_sigma",
         minSigma_,
         GFI_DEF_MINSIGMA,
         Gem::Common::VAR_IS_ESSENTIAL,
@@ -373,7 +373,7 @@ void GFMinIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder &
     comment = "";
     comment += "The maximum amount value of sigma;";
     gpb.registerFileParameter<double>(
-        "maxSigma",
+        "max_sigma",
         maxSigma_,
         GFI_DEF_MAXSIGMA,
         Gem::Common::VAR_IS_ESSENTIAL,
@@ -383,7 +383,7 @@ void GFMinIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder &
     comment = "";
     comment += "The number of dimensions used for the demo function;";
     gpb.registerFileParameter<std::size_t>(
-        "parDim",
+        "par_dim",
         parDim_,
         GFI_DEF_PARDIM,
         Gem::Common::VAR_IS_ESSENTIAL,
@@ -393,7 +393,7 @@ void GFMinIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder &
     comment = "";
     comment += "The lower boundary of the initialization range for parameters;";
     gpb.registerFileParameter<double>(
-        "minVar",
+        "min_var",
         minVar_,
         GFI_DEF_MINVAR,
         Gem::Common::VAR_IS_ESSENTIAL,
@@ -403,7 +403,7 @@ void GFMinIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder &
     comment = "";
     comment += "The upper boundary of the initialization range for parameters;";
     gpb.registerFileParameter<double>(
-        "maxVar",
+        "max_var",
         maxVar_,
         GFI_DEF_MAXVAR,
         Gem::Common::VAR_IS_ESSENTIAL,

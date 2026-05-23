@@ -214,7 +214,7 @@ protected:
 
         // Add local data
         gpb.registerFileParameter<std::size_t>(
-            "threadsPerWorker" // The name of the variable
+            "threads_per_worker" // The name of the variable
             ,
             0 // The default value
             ,

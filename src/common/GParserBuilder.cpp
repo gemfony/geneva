@@ -29,6 +29,8 @@
 
 #include "common/GParserBuilder.hpp"
 
+#include <set>
+
 #include <boost/property_tree/json_parser.hpp>
 
 namespace Gem::Common {
@@ -38,6 +40,8 @@ namespace Gem::Common {
  * Initialization of static data members
  */
 std::mutex Gem::Common::GParserBuilder::configfile_parser_mutex_;
+bool Gem::Common::GParserBuilder::unknown_key_is_error_ = false;
+bool Gem::Common::GParserBuilder::check_unknown_keys_ = false;
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -130,6 +134,14 @@ bool GParsableI::hasComments() const {
  */
 std::size_t GParsableI::numberOfComments() const {
     return comment_.size();
+}
+
+/******************************************************************************/
+/**
+ * Retrieves the number of option names registered for this parameter
+ */
+std::size_t GParsableI::numberOfOptionNames() const {
+    return option_name_.size();
 }
 
 /******************************************************************************/
@@ -328,12 +340,71 @@ GParserBuilder::GParserBuilder() {
 
 /******************************************************************************/
 /**
+ * Applies an already-parsed configuration ptree to the registered options,
+ * without touching the file. Runs the optional unknown-key diagnostic. This is
+ * the "apply" half of parseConfigFile, separated so that callers (e.g. GFactoryT)
+ * can read + parse a config file once and re-apply the cached ptree to many
+ * freshly created objects.
+ */
+void GParserBuilder::loadFromPtree(
+    boost::property_tree::ptree const &ptr,
+    std::filesystem::path const &config_path
+) {
+    // Optional diagnostic: detect configuration-file keys that no registered
+    // parameter consumes. OFF by default, because Geneva currently parses the
+    // same config file multiple times with different GParserBuilders (per
+    // factory / object / executor layer), so this per-parse check would flag the
+    // other layers' perfectly valid keys as "unknown" (false positives). Enable
+    // via setCheckUnknownKeys(true) when hunting config/code drift; the proper
+    // fix is the "parse each config once" task (TIER 3).
+    if(check_unknown_keys_) {
+        std::set<std::string> known_keys;
+        for(auto const &proxy_ptr : file_parameter_proxies_) {
+            for(std::size_t i = 0; i < proxy_ptr->numberOfOptionNames(); ++i) {
+                // Only the first path segment is a top-level JSON key
+                std::string const option_name = proxy_ptr->optionName(i);
+                known_keys.insert(option_name.substr(0, option_name.find('.')));
+            }
+        }
+        for(auto const &key_value : ptr) {
+            if(key_value.first == "header" || known_keys.contains(key_value.first)) {
+                continue;
+            }
+            if(unknown_key_is_error_) {
+                throw geneva_exception(
+                    g_error_streamer(DO_LOG, time_and_place)
+                    << "In GParserBuilder::loadFromPtree(): Error!" << '\n'
+                    << "Configuration file " << config_path.string() << '\n'
+                    << "contains the unknown key \"" << key_value.first
+                    << "\" that no registered parameter consumes." << '\n'
+                    << "This usually indicates config/code drift (a renamed or stale key)." << '\n'
+                );
+            }
+            else {
+                glogger << "In GParserBuilder::loadFromPtree(): Warning!" << '\n'
+                        << "Configuration file " << config_path.string() << '\n'
+                        << "contains the unknown key \"" << key_value.first
+                        << "\" that no registered parameter consumes; it will be ignored." << '\n'
+                        << GLOGGING;
+            }
+        }
+    }
+
+    // Load the data into our objects and execute the relevant call-back functions
+    for(auto const &proxy_ptr : file_parameter_proxies_) {
+        proxy_ptr->load_from(ptr);
+        proxy_ptr->executeCallBackFunction();
+    }
+}
+
+/******************************************************************************/
+/**
  * Tries to parse a given configuration file for a set of options.
  *
  * @param config_file The name of the configuration file to be parsed, possibly including an absolute or relative path
  * @return A boolean indicating whether parsing was successful
  */
-bool GParserBuilder::parseConfigFile(std::filesystem::path const &config_file) {
+bool GParserBuilder::parseConfigFile(std::filesystem::path const &config_file, boost::property_tree::ptree *captured) {
     // Make sure only one entity is parsed at once. This allows us to
     // concurrently create e.g. optimization algorithms, letting them
     // parse the same config file.
@@ -407,11 +478,16 @@ bool GParserBuilder::parseConfigFile(std::filesystem::path const &config_file) {
         // Unfortunately boost;::property_tree does unfortunately not accept path-arguments
         Gem::Common::read_json(config_path, ptr);
 
-        // Load the data into our objects and execute the relevant call-back functions
-        for(auto const &proxy_ptr : file_parameter_proxies_) {
-            proxy_ptr->load_from(ptr);
-            proxy_ptr->executeCallBackFunction();
+        // Optionally hand the parsed ptree back to the caller (e.g. GFactoryT) so
+        // it can cache it and avoid re-reading + re-parsing the file on every
+        // produce() call.
+        if(captured != nullptr) {
+            *captured = ptr;
         }
+
+        // Apply the parsed values to the registered options. Factored out so a
+        // cached ptree can be re-applied without touching the file again.
+        this->loadFromPtree(ptr, config_path);
 
         return true; // Success!
     }
@@ -554,6 +630,42 @@ void GParserBuilder::writeConfigFile(
  */
 std::size_t GParserBuilder::numberOfFileOptions() const {
     return file_parameter_proxies_.size();
+}
+
+/******************************************************************************/
+/**
+ * Globally selects whether an unknown configuration-file key is treated as an
+ * error (true) or merely a warning (false, the default). Intended to be called
+ * once at program startup.
+ */
+void GParserBuilder::setCheckUnknownKeys(bool enabled) {
+    check_unknown_keys_ = enabled;
+}
+
+/******************************************************************************/
+/**
+ * Retrieves whether the unknown-configuration-key diagnostic is enabled
+ */
+bool GParserBuilder::checkUnknownKeys() {
+    return check_unknown_keys_;
+}
+
+/******************************************************************************/
+/**
+ * Globally selects whether an unknown configuration-file key is treated as an
+ * error (true) or merely a warning (false, the default). Only takes effect when
+ * the check is enabled via setCheckUnknownKeys(true).
+ */
+void GParserBuilder::setUnknownKeyIsError(bool is_error) {
+    unknown_key_is_error_ = is_error;
+}
+
+/******************************************************************************/
+/**
+ * Retrieves whether unknown configuration-file keys are treated as an error
+ */
+bool GParserBuilder::unknownKeyIsError() {
+    return unknown_key_is_error_;
 }
 
 /******************************************************************************/

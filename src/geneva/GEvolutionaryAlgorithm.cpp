@@ -290,7 +290,7 @@ void GEvolutionaryAlgorithm::addConfigurationOptions_(Gem::Common::GParserBuilde
 
     // Add local data
     gpb.registerFileParameter<std::uint16_t>(
-        "nAdaptionThreads" // The name of the variable
+        "n_adaption_threads" // The name of the variable
         ,
         DEFAULTNSTDTHREADS // The default value
         ,
@@ -300,7 +300,7 @@ void GEvolutionaryAlgorithm::addConfigurationOptions_(Gem::Common::GParserBuilde
       << "0 means \"automatic\"";
 
     gpb.registerFileParameter<sortingMode>(
-        "sortingMethod" // The name of the variable
+        "sorting_method" // The name of the variable
         ,
         DEFAULTEASORTINGMODE // The default value
         ,

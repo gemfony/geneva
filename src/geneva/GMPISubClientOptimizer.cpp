@@ -138,7 +138,7 @@ void GMPISubClientOptimizer::addConfigurationOptions_(Gem::Common::GParserBuilde
     // add additional options specific to this class
 
     gpb.registerFileParameter<std::uint16_t>(
-        "subClientGroupSize",
+        "sub_client_group_size",
         subClientGroupSize_,
         subClientGroupSize_
     ) << "The amount of processes in each sub-group. Each sub group works together on one "

@@ -1397,12 +1397,12 @@ void GParameterSet::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
     gpb.registerFileParameter<bool, double>(
         "use_random_crash" // The name of the variable
         ,
-        "randomCrashProb",
+        "random_crash_prob",
         GPS_DEF_USE_RANDOMCRASH // The default value
         ,
         GPS_DEF_RANDOMCRASHPROB,
         [this](const bool use_rc, const double rc_prob) { this->setRandomCrash(use_rc, rc_prob); },
-        "randomCrashParameters"
+        "random_crash_parameters"
     ) << "Indicates whether random crashes should occur for debugging purposes"
       << '\n'
       << Gem::Common::nextComment() << "The probability of a random crash to occur";

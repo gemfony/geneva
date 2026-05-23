@@ -95,6 +95,20 @@ Recommended Versions:
   shared_ptr instead (e.g. std::swap(ptrA, ptrB)) -- same effect in O(1), and
   each object keeps its own (correct) processing state.
 
+- CONFIG-FILE BREAKING: all configuration-file parameter names are now spelled
+  in snake_case (e.g. "maxIteration" -> "max_iteration", "parDim" -> "par_dim",
+  "adProb" -> "ad_prob", "nNeighborhoodMembers" -> "n_neighborhood_members").
+  Previously the shipped JSON files used camelCase keys while the code registered
+  snake_case keys, so every camelCase config value was silently ignored and the
+  built-in defaults were used instead. The keys are now consistent, so config
+  files are honoured again -- but any existing user config files with the old
+  camelCase keys must be updated (easiest: delete them and let Geneva regenerate
+  fresh snake_case defaults). A note: a long-standing typo in one key was fixed
+  in the same pass ("indivdualUpdateStallCounterThreshold" ->
+  "individual_update_stall_counter_threshold"). To catch such drift in future,
+  GParserBuilder now warns about unknown configuration-file keys (escalatable to
+  an error via GParserBuilder::setUnknownKeyIsError(true)).
+
 ************************* Noteworthy Changes ***********************************
 
 - Preliminary support for two new local optimization algorithms:

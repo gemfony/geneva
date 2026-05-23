@@ -568,14 +568,14 @@ void GSwarmAlgorithm::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb)
     gpb.registerFileParameter<std::size_t, std::size_t>(
         "n_neighborhoods" // The name of the first variable
         ,
-        "nNeighborhoodMembers" // The name of the second variable
+        "n_neighborhood_members" // The name of the second variable
         ,
         DEFAULTNNEIGHBORHOODS // The default value for the first variable
         ,
         DEFAULTNNEIGHBORHOODMEMBERS // The default value for the second variable
         ,
         [this](std::size_t nh, std::size_t nhm) { this->setSwarmSizes(nh, nhm); },
-        "swarmSize"
+        "swarm_size"
     ) << "The desired number of neighborhoods in the population"
       << Gem::Common::nextComment() << "The desired number of members in each neighborhood";
 
@@ -620,7 +620,7 @@ void GSwarmAlgorithm::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb)
     ) << "Sets the velocity-range percentage";
 
     gpb.registerFileParameter<updateRule>(
-        "updateRule" // The name of the variable
+        "update_rule" // The name of the variable
         ,
         DEFAULTUPDATERULE // The default value
         ,

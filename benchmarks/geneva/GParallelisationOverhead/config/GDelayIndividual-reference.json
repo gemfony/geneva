@@ -1,9 +1,9 @@
 {
     "header": {
         "comment": "This configuration file was automatically created by GParserBuilder",
-        "comment": "2015-Nov-01 12:47:32"
+        "comment": "Sat May 23 18:57:58 2026"
     },
-    "nVariables": {
+    "n_variables": {
         "comment": "The number of variables to act on",
         "default": "100",
         "value": "100"
@@ -13,32 +13,61 @@
         "default": "(0,1), (0,10), (0,100), (0,500), (1,0)",
         "value": "(0,1), (0,10), (0,100), (0,500), (1,0)"
     },
-    "resultFile": {
-        "comment": "The name of a file to which results should be stored",
-        "default": "networkResults.C",
-        "value": "networkResults.C"
+    "sleep_randomly": {
+        "comment": "Indicates whether the individual should sleep for a random amount of time",
+        "comment": "rather than a fixed amount of time",
+        "default": "false",
+        "value": "false"
     },
-    "shortResultFile": {
+    "lower_rand_sleep_boundary": {
+        "comment": "The lower boundary for random sleep times in the",
+        "comment": "fitness function (seconds, double value)",
+        "default": "0",
+        "value": "0"
+    },
+    "upper_rand_sleep_boundary": {
+        "comment": "The upper boundary for random sleep times in the",
+        "comment": "fitness function (seconds, double value)",
+        "default": "1",
+        "value": "1"
+    },
+    "result_file": {
+        "comment": "The name of a file to which results should be stored",
+        "default": "fullResults.C",
+        "value": "fullResults.C"
+    },
+    "short_result_file": {
         "comment": "The name of a file to which short results should be stored",
         "default": "shortDelayResults.txt",
         "value": "shortDelayResults.txt"
     },
-    "nMeasurements": {
+    "n_measurements": {
         "comment": "The number of measurements for each delay",
         "default": "10",
         "value": "10"
     },
-    "interMeasurementDelay": {
+    "inter_measurement_delay": {
         "comment": "The amount of seconds to wait between two measurements",
         "default": "1",
         "value": "1"
     },
-    "evalPolicy": {
+    "throw_behaviour": {
+        "may_throw": {
+            "comment": "Indicates whether the fitness function may throw after the sleep time",
+            "default": "false",
+            "value": "false"
+        },
+        "throw_likelihood": {
+            "comment": "Indicates the likelihood that the fitness function throws",
+            "default": "0.001",
+            "value": "0.001"
+        }
+    },
+    "eval_policy": {
         "comment": "Specifies which strategy should be used to calculate the evaluation:",
         "comment": "0 (a.k.a. USESIMPLEEVALUATION): Always call the evaluation function, even for invalid solutions",
         "comment": "1 (a.k.a. USEWORSTCASEFORINVALID) : Assign the worst possible value to our fitness and evaluate only valid solutions",
-        "comment": "2 (a.k.a. USESIGMOID): Assign a multiple of validityLevel_ and sigmoid barrier to invalid solutions, apply a sigmoid function to valid evaluations",
-        "comment": "3 (a.k.a. USEWORSTKNOWNVALIDFORINVALID): Assign \"invalidityLevel*worstKnownValid\" to invalid individuals, using normal evaluation otherwise",
+        "comment": "2 (a.k.a. USESIGMOID): Assign a multiple of validity_level_ and sigmoid barrier to invalid solutions, apply a sigmoid function to valid evaluations",
         "default": "0",
         "value": "0"
     },
@@ -56,12 +85,12 @@
         "default": "10000",
         "value": "10000"
     },
-    "maxUnsuccessfulAdaptions": {
+    "max_unsuccessful_adaptions": {
         "comment": "The maximum number of unsuccessful adaptions in a row for one call to adapt()",
         "default": "1000",
         "value": "1000"
     },
-    "maxRetriesUntilValid": {
+    "max_retries_until_valid": {
         "comment": "The maximum allowed number of retries during the",
         "comment": "adaption of individuals until a valid solution was found",
         "comment": "A parameter set is considered to be \"valid\" if",
@@ -69,15 +98,22 @@
         "default": "10",
         "value": "10"
     },
-    "maximize": {
+    "maxmode": {
         "comment": "Specifies whether the individual should be maximized (1) or minimized (0)",
         "comment": "Note that minimization is the by far most common option.",
-        "default": "false",
-        "value": "false"
+        "default": "0",
+        "value": "0"
     },
-    "perItemCrossOverProbability": {
-        "comment": "The likelihood for two data items to be exchanged",
-        "default": "0.5",
-        "value": "0.5"
+    "random_crash_parameters": {
+        "use_random_crash": {
+            "comment": "Indicates whether random crashes should occur for debugging purposes",
+            "default": "false",
+            "value": "false"
+        },
+        "random_crash_prob": {
+            "comment": "The probability of a random crash to occur",
+            "default": "0.001",
+            "value": "0.001"
+        }
     }
 }

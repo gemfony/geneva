@@ -964,7 +964,7 @@ void GParameterScan::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) 
     ) << "The total size of the population";
 
     gpb.registerFileParameter<std::string>(
-        "parameterOptions",
+        "parameter_options",
         std::string("d(0, -10., 10., 100), d(1, -10., 10., 100)"),
         [this](std::string par_specs) { this->setParameterSpecs(par_specs); }
     ) << "Specification of the parameters to be used in the parameter scan"

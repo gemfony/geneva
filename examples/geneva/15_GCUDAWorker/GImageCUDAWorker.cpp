@@ -128,7 +128,7 @@ void GImageCUDAWorker::addConfigurationOptions_(Common::GParserBuilder &gpb) {
     comment = "";
     comment += "Indicates whether evaluation should run on the GPU (1); or the CPU (0)";
     gpb.registerFileParameter<bool>(
-        "useGPU",
+        "use_gpu",
         useGPU_.reference(),
         GII_DEF_USEGPU,
         Gem::Common::VAR_IS_ESSENTIAL,
@@ -173,7 +173,7 @@ void GImageCUDAWorker::addConfigurationOptions_(Common::GParserBuilder &gpb) {
     comment.clear();
     comment += "The name of the file holding the target image;";
     gpb.registerFileParameter<std::string>(
-        "imageFile",
+        "image_file",
         targetImageFileName_.reference(),
         GII_DEF_IMAGEFILE,
         Common::VAR_IS_ESSENTIAL,

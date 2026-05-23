@@ -1,26 +1,26 @@
 {
-    "benchmarkFunction":  "PARABOLA",
-    "nRuns":              30,
-    "nDimensions":        10,
-    "individualConfig":   "config/GFunctionIndividual.json",
-    "outputDir":          ".",
-    "batchSize":          0,
-    "flushTimeoutMs":     50,
-    "algorithmConfigs": [
+    "benchmark_function":  "PARABOLA",
+    "n_runs":              30,
+    "n_dimensions":        10,
+    "individual_config":   "config/GFunctionIndividual.json",
+    "output_dir":          ".",
+    "batch_size":          0,
+    "flush_timeout_ms":     50,
+    "algorithm_configs": [
         {
             "tag":        "ea_default",
             "mnemonic":   "ea",
-            "configFile": "config/GEvolutionaryAlgorithm.json"
+            "config_file": "config/GEvolutionaryAlgorithm.json"
         },
         {
             "tag":        "sa_default",
             "mnemonic":   "sa",
-            "configFile": "config/GSimulatedAnnealing.json"
+            "config_file": "config/GSimulatedAnnealing.json"
         },
         {
             "tag":        "swarm_default",
             "mnemonic":   "swarm",
-            "configFile": "config/GSwarmAlgorithm.json"
+            "config_file": "config/GSwarmAlgorithm.json"
         }
     ]
 }

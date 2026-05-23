@@ -1,79 +1,80 @@
 {
     "header": {
         "comment": "This configuration file was automatically created by GParserBuilder",
-        "comment": "Tue Jan  7 11:08:20 2025"
+        "comment": "Sat May 23 18:57:10 2026"
     },
-    "minSize": {
+    "min_size": {
         "comment": "The minimum size of the triangle in percent of the canvas",
         "comment": "The allowed value range is [0,maxSize[",
         "default": "0",
-        "value": "0.01"
+        "value": "0"
     },
-    "maxSize": {
+    "max_size": {
         "comment": "The maximum size of the triangle in percent of the canvas",
         "comment": "The allowed value range is ]minSize,1]",
         "default": "0.29999999999999999",
-        "value": "0.2"
+        "value": "0.29999999999999999"
     },
-    "startSize": {
+    "start_size": {
         "comment": "The start size of the triangle in percent of the canvas",
         "comment": "The allowed value range is [minSize,maxSize]",
+        "comment": "A value < 0 means random in the range [minSize,maxSize]",
         "default": "0",
-        "value": "0.2"
+        "value": "0"
     },
-    "minOpaqueness": {
+    "min_opaqueness": {
         "comment": "The minimum allowed opaqueness of triangles",
         "comment": "The allowed value range is [0,maxOpaqueness]",
         "default": "0.29999999999999999",
-        "value": "0.3"
+        "value": "0.29999999999999999"
     },
-    "maxOpaqueness": {
+    "max_opaqueness": {
         "comment": "The maximum allowed opaqueness of triangles",
         "comment": "The allowed value range is [minOpaqueness,1]",
         "default": "0.59999999999999998",
-        "value": "0.6"
+        "value": "0.59999999999999998"
     },
-    "adaptAdProb": {
+    "adapt_ad_prob": {
         "comment": "Determines the rate of adaption of adProb. Set to 0, if you do not need this feature",
         "default": "0.10000000000000001",
         "value": "0.10000000000000001"
     },
-    "loc_adaptAdProb": {
+    "loc_adapt_ad_prob": {
         "comment": "Determines the rate of adaption of location-adProb. Set to 0, if you do not need this feature",
         "default": "0.10000000000000001",
         "value": "0.10000000000000001"
     },
-    "minAdProb": {
+    "min_ad_prob": {
         "comment": "The lower allowed boundary for adProb-variation",
         "default": "0.050000000000000003",
-        "value": "0.05"
+        "value": "0.050000000000000003"
     },
-    "maxAdProb": {
+    "max_ad_prob": {
         "comment": "The upper allowed boundary for adProb-variation",
         "default": "0.20000000000000001",
-        "value": "0.2"
+        "value": "0.20000000000000001"
     },
-    "loc_minAdProb": {
+    "loc_min_ad_prob": {
         "comment": "The lower allowed boundary for loc_adProb-variation",
         "default": "0.10000000000000001",
         "value": "0.10000000000000001"
     },
-    "loc_maxAdProb": {
+    "loc_max_ad_prob": {
         "comment": "The upper allowed boundary for loc_adProb-variation",
         "default": "0.29999999999999999",
-        "value": "0.3"
+        "value": "0.29999999999999999"
     },
-    "adProb": {
+    "ad_prob": {
         "comment": "The probability for random adaptions of values in evolutionary algorithms",
         "comment": "The allowed value range is [0,1]",
         "default": "0.050000000000000003",
-        "value": "0.05"
+        "value": "0.050000000000000003"
     },
-    "loc_adProb": {
+    "loc_ad_prob": {
         "comment": "The probability for random adaptions of location parameters of values in evolutionary algorithms",
         "comment": "The allowed value range is [0,1]",
         "default": "0.10000000000000001",
-        "value": "0.1"
+        "value": "0.10000000000000001"
     },
     "sigma": {
         "comment": "The sigma for gauss-adaption in ES",
@@ -82,19 +83,19 @@
         "default": "0.10000000000000001",
         "value": "0.10000000000000001"
     },
-    "minSigma": {
+    "min_sigma": {
         "comment": "The minimum value of sigma",
         "comment": "minSigma must be positive and smaller than maxSigma",
         "default": "0.050000000000000003",
         "value": "0.050000000000000003"
     },
-    "maxSigma": {
+    "max_sigma": {
         "comment": "The maximum value of sigma",
         "comment": "maxSigma must be positive and larger than minSigma",
         "default": "0.20000000000000001",
         "value": "0.20000000000000001"
     },
-    "sigmaSigma": {
+    "sigma_sigma": {
         "comment": "Influences the self-adaption of gauss-mutation in ES",
         "comment": "sigmaSigma must be positive",
         "comment": "The allowed value range is [0,1]",
@@ -108,74 +109,74 @@
         "default": "0.20000000000000001",
         "value": "0.20000000000000001"
     },
-    "loc_minSigma": {
+    "loc_min_sigma": {
         "comment": "The minimum value of sigma for location parameters",
         "comment": "loc_minSigma must be positive and smaller than loc_maxSigma",
         "default": "0.10000000000000001",
         "value": "0.10000000000000001"
     },
-    "loc_maxSigma": {
+    "loc_max_sigma": {
         "comment": "The maximum value of sigma for location parameters",
         "comment": "loc_maxSigma must be positive and larger than loc_minSigma",
         "default": "0.40000000000000002",
         "value": "0.40000000000000002"
     },
-    "loc_sigmaSigma": {
+    "loc_sigma_sigma": {
         "comment": "Influences the self-adaption of gauss-mutation in ES for location parameters",
         "comment": "loc_sigmaSigma must be positive",
         "comment": "The allowed value range is [0,1]",
         "default": "0.80000000000000004",
         "value": "0.80000000000000004"
     },
-    "bgRed": {
+    "bg_red": {
         "comment": "The initial background color (red channel)",
         "comment": "Negative values mean random initialization",
         "comment": "Otherwise the allowed value range is [0.,1.]",
         "default": "0.90000000000000002",
         "value": "0.90000000000000002"
     },
-    "bgGreen": {
+    "bg_green": {
         "comment": "The initial background color (green channel)",
         "comment": "Negative values mean random initialization",
         "comment": "Otherwise the allowed value range is [0.,1.]",
         "default": "0.90000000000000002",
         "value": "0.90000000000000002"
     },
-    "bgBlue": {
+    "bg_blue": {
         "comment": "The initial background color (blue channel)",
         "comment": "Negative values mean random initialization",
         "comment": "Otherwise the allowed value range is [0.,1.]",
         "default": "0.90000000000000002",
         "value": "0.90000000000000002"
     },
-    "nTriangles": {
+    "n_triangles": {
         "comment": "The number of triangles that will constitute",
         "comment": "each candidate image",
         "comment": "Allowed value range [1,1000]",
-        "default": "500",
+        "default": "300",
         "value": "300"
     },
-    "alphaSort": {
+    "alpha_sort": {
         "comment": "Whether triangles should be sorted according",
         "comment": "to their alpha channel",
         "default": "true",
         "value": "true"
     },
-    "changeBGColor": {
-      "comment": "Whether the background color shall be mutated",
-      "default": "false",
-      "value": "false"
+    "mutate_alpha_channel": {
+        "comment": "Whether the alpha channel shall be mutated",
+        "default": "false",
+        "value": "false"
     },
-    "mutateAlphaChannel": {
-      "comment": "Whether the alpha channel shall be mutated",
-      "default": "false",
-      "value": "false"
+    "change_bg_color": {
+        "comment": "Whether the background color shall be mutated",
+        "default": "false",
+        "value": "false"
     },
-    "evalPolicy": {
+    "eval_policy": {
         "comment": "Specifies which strategy should be used to calculate the evaluation:",
         "comment": "0 (a.k.a. USESIMPLEEVALUATION): Always call the evaluation function, even for invalid solutions",
         "comment": "1 (a.k.a. USEWORSTCASEFORINVALID) : Assign the worst possible value to our fitness and evaluate only valid solutions",
-        "comment": "2 (a.k.a. USESIGMOID): Assign a multiple of m_validity_level and sigmoid barrier to invalid solutions, apply a sigmoid function to valid evaluations",
+        "comment": "2 (a.k.a. USESIGMOID): Assign a multiple of validity_level_ and sigmoid barrier to invalid solutions, apply a sigmoid function to valid evaluations",
         "default": "0",
         "value": "0"
     },
@@ -193,12 +194,12 @@
         "default": "10000",
         "value": "10000"
     },
-    "maxUnsuccessfulAdaptions": {
+    "max_unsuccessful_adaptions": {
         "comment": "The maximum number of unsuccessful adaptions in a row for one call to adapt()",
         "default": "1000",
         "value": "1000"
     },
-    "maxRetriesUntilValid": {
+    "max_retries_until_valid": {
         "comment": "The maximum allowed number of retries during the",
         "comment": "adaption of individuals until a valid solution was found",
         "comment": "A parameter set is considered to be \"valid\" if",
@@ -212,13 +213,13 @@
         "default": "0",
         "value": "0"
     },
-    "randomCrashParameters": {
-        "useRandomCrash": {
+    "random_crash_parameters": {
+        "use_random_crash": {
             "comment": "Indicates whether random crashes should occur for debugging purposes",
             "default": "false",
             "value": "false"
         },
-        "randomCrashProb": {
+        "random_crash_prob": {
             "comment": "The probability of a random crash to occur",
             "default": "0.001",
             "value": "0.001"

@@ -72,7 +72,7 @@ public:
         using namespace Gem::Common;
 
         gpb_.registerFileParameter(
-            "nTests",
+            "n_tests",
             nTests_,
             nTests_,
             VAR_IS_ESSENTIAL,
@@ -104,7 +104,7 @@ public:
         );
 
         gpb_.registerFileParameter(
-            "resultFile",
+            "result_file",
             resultFile_,
             resultFile_,
             VAR_IS_ESSENTIAL,

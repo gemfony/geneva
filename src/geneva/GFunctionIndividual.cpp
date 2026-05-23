@@ -497,7 +497,7 @@ void GFunctionIndividual::addConfigurationOptions_(Gem::Common::GParserBuilder &
 
     // Local data
     gpb.registerFileParameter<solverFunction>(
-        "demoFunction" // The name of the variable
+        "demo_function" // The name of the variable
         ,
         GO_DEF_EVALFUNCTION // The default value
         ,
@@ -1581,7 +1581,7 @@ void GFunctionIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuild
         "GConstrainedDoubleCollection;(2) GDoubleObjectCollection; (3) "
         "GConstrainedDoubleObjectCollection; (4) GConstrainedDoubleObjects on the root level;";
     gpb.registerFileParameter<parameterType>(
-        "parameterType",
+        "parameter_type",
         p_t_.reference(),
         GFI_DEF_PARAMETERTYPE,
         Gem::Common::VAR_IS_ESSENTIAL,
@@ -1592,7 +1592,7 @@ void GFunctionIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuild
     comment += "Indicates how the parameters are initialized;(0) randomly;(1) with a value on the "
                "perimeter of the allowed or recommended value range";
     gpb.registerFileParameter<initMode>(
-        "initMode",
+        "init_mode",
         i_m_.reference(),
         GFI_DEF_INITMODE,
         Gem::Common::VAR_IS_ESSENTIAL,

@@ -252,8 +252,8 @@ private:
     std::uint32_t offset_ =
         GO2_DEF_OFFSET;    ///< The offset to be used when starting a new optimization run
     bool sorted_ = false; ///< Indicates whether local individuals have been sorted
-    std::uint32_t iterations_consumed_ =
-        0; ///< The number of successive iterations performed by this object so far
+    std::uint32_t total_iterations_ =
+        0; ///< Continuous iteration count accumulated across the algorithm chain (for getIteration_ reporting only)
     bool copy_best_individuals_only_ =
         GO2_DEF_COPYBESTINDIVIDUALSONLY; ///< Indicates whether only the best individuals of an optimization run are copied to the next algorithm
     //---------------------------------------------------------------------------

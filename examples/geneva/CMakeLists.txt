@@ -78,7 +78,8 @@ SET(DEPENDENCIES
 		GMetaOptimizer
 		GExternalEvaluator
 		GPluggableOptimizationMonitors
-		GDependentConstraints)
+		GDependentConstraints
+		GAlgorithmChaining)
 
 IF(GENEVA_BUILD_WITH_MPI_CONSUMER)
 	SET(DEPENDENCIES
@@ -124,3 +125,5 @@ IF(GENEVA_BUILD_WITH_MPI_CONSUMER)
 	ADD_SUBDIRECTORY( 16_GMPIConsumer )
 	ADD_SUBDIRECTORY( 17_GMPISubClients )
 ENDIF()
+
+ADD_SUBDIRECTORY( 18_GAlgorithmChaining )

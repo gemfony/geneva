@@ -126,14 +126,14 @@ bool parseCommandLine(
     );
 
     gpb.registerCLParameter<std::uint16_t>(
-        "nProducerThreads",
+        "n_producer_threads",
         nProducerThreads,
         DEFAULTNPRODUCERTHREADS,
         "The amount of random number producer threads"
     );
 
     gpb.registerCLParameter<std::uint16_t>(
-        "nEvaluationThreads",
+        "n_evaluation_threads",
         nEvaluationThreads,
         DEFAULTNEVALUATIONTHREADS,
         "The amount of threads processing individuals simultaneously"
@@ -147,7 +147,7 @@ bool parseCommandLine(
     );
 
     gpb.registerCLParameter<std::size_t>(
-        "nParents",
+        "n_parents",
         nParents,
         DEFAULTNPARENTS,
         "The number of parents in the population"
@@ -168,7 +168,7 @@ bool parseCommandLine(
     );
 
     gpb.registerCLParameter<std::uint32_t>(
-        "reportIteration",
+        "report_iteration",
         reportIteration,
         DEFAULTREPORTITERATION,
         "The number of iterations after which information should be emitted in the super-population"
@@ -197,7 +197,7 @@ bool parseCommandLine(
     );
 
     gpb.registerCLParameter<double>(
-        "adProb",
+        "ad_prob",
         adProb,
         DEFAULTGDAADPROB,
         "Specifies the likelihood for adaptions to be actually carried out"
@@ -218,42 +218,42 @@ bool parseCommandLine(
     );
 
     gpb.registerCLParameter<double>(
-        "sigmaSigma",
+        "sigma_sigma",
         sigmaSigma,
         DEFAULTSIGMASIGMA,
         "The adaption rate of sigma"
     );
 
     gpb.registerCLParameter<double>(
-        "minSigma",
+        "min_sigma",
         minSigma,
         DEFAULTMINSIGMA,
         "The minimum allowed value for sigma"
     );
 
     gpb.registerCLParameter<double>(
-        "maxSigma",
+        "max_sigma",
         maxSigma,
         DEFAULTMAXSIGMA,
         "The maximum allowed value for sigma"
     );
 
     gpb.registerCLParameter<std::size_t>(
-        "parDim",
+        "par_dim",
         parDim,
         DEFAULTPARDIM,
         "The amount of variables in the parabola"
     );
 
     gpb.registerCLParameter<double>(
-        "minVar",
+        "min_var",
         minVar,
         DEFAULTMINVAR,
         "The lower boundary for all variables"
     );
 
     gpb.registerCLParameter<double>(
-        "maxVar",
+        "max_var",
         maxVar,
         DEFAULTMAXVAR,
         "The upper boundary for all variables"

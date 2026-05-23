@@ -157,14 +157,14 @@ bool parseCommandLine(
     );
 
     gpb.registerCLParameter<std::uint16_t>(
-        "nProducerThreads",
+        "n_producer_threads",
         nProducerThreads,
         DEFAULTNPRODUCERTHREADS,
         "The amount of random number producer threads"
     );
 
     gpb.registerCLParameter<std::uint16_t>(
-        "nEvaluationThreads",
+        "n_evaluation_threads",
         nEvaluationThreads,
         DEFAULTNEVALUATIONTHREADS,
         "The amount of threads processing individuals simultaneously in multi-threaded mode"
@@ -178,7 +178,7 @@ bool parseCommandLine(
     );
 
     gpb.registerCLParameter<std::size_t>(
-        "nParents",
+        "n_parents",
         nParents,
         DEFAULTNPARENTS,
         "The number of parents in the population"
@@ -192,7 +192,7 @@ bool parseCommandLine(
     );
 
     gpb.registerCLParameter<std::uint32_t>(
-        "reportIteration",
+        "report_iteration",
         reportIteration,
         DEFAULTREPORTITERATION,
         "The number of iterations after which information should be emitted in the population"

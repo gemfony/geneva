@@ -127,12 +127,12 @@ int main(int argc, char **argv) {
     // Example 1: Registering a call-back function (which in this
     // case sets a globally defined integer variable)
     if(useOperator) {
-        gpb.registerFileParameter<int>("iOption2", SOMEGLOBALINTDEFAULT, setGlobalInt)
+        gpb.registerFileParameter<int>("i_option2", SOMEGLOBALINTDEFAULT, setGlobalInt)
             << "This is a comment for a call-back option" << '\n';
     }
     else {
         gpb.registerFileParameter<int>(
-            "iOption2",
+            "i_option2",
             SOMEGLOBALINTDEFAULT,
             setGlobalInt,
             Gem::Common::VAR_IS_SECONDARY // Could also be VAR_IS_ESSENTIAL
@@ -154,24 +154,24 @@ int main(int argc, char **argv) {
 
     if(useOperator) {
         gpb.registerFileParameter<int, double>(
-            "iOption3",
-            "dOption1",
+            "i_option3",
+            "d_option1",
             I3DEFAULT,
             D3DEFAULT,
             tvfo,
-            "combinedLabel"
+            "combined_label"
         ) << "A comment concerning the first option"
           << nextComment() // commentLevel(1) would be another option
           << "A comment concerning the second option;with a second line";
     }
     else {
         gpb.registerFileParameter<int, double>(
-            "iOption3",
-            "dOption1",
+            "i_option3",
+            "d_option1",
             I3DEFAULT,
             D3DEFAULT,
             tvfo,
-            "combinedLabel",
+            "combined_label",
             Gem::Common::VAR_IS_ESSENTIAL // Could also be VAR_IS_SECONDARY
             ,
             "A comment concerning the first option",
@@ -185,12 +185,12 @@ int main(int argc, char **argv) {
     const int IDEFAULT = 0;
 
     if(useOperator) {
-        gpb.registerFileParameter<int>("iOption", i, IDEFAULT)
+        gpb.registerFileParameter<int>("i_option", i, IDEFAULT)
             << "This is a comment; This is the second line of the comment";
     }
     else {
         gpb.registerFileParameter<int>(
-            "iOption",
+            "i_option",
             i,
             IDEFAULT,
             Gem::Common::VAR_IS_ESSENTIAL // Could also be VAR_IS_SECONDARY
@@ -208,14 +208,14 @@ int main(int argc, char **argv) {
 
     if(useOperator) {
         gpb.registerFileParameter<double>(
-            "vectorOptionsWithCallback",
+            "vector_options_with_callback",
             defaultDoubleVec4,
             setGlobalDoubleVec // The call-back function. See at the beginning of this file
         ) << "Yet another comment";
     }
     else {
         gpb.registerFileParameter<double>(
-            "vectorOptionsWithCallback",
+            "vector_options_with_callback",
             defaultDoubleVec4,
             setGlobalDoubleVec // The call-back function. See at the beginning of this file
             ,
@@ -237,14 +237,14 @@ int main(int argc, char **argv) {
 
     if(useOperator) {
         gpb.registerFileParameter<double>(
-            "vectorOptionsReference",
+            "vector_options_reference",
             targetDoubleVector,
             defaultDoubleVec5
         ) << "And yet another comment";
     }
     else {
         gpb.registerFileParameter<double>(
-            "vectorOptionsReference",
+            "vector_options_reference",
             targetDoubleVector,
             defaultDoubleVec5,
             Gem::Common::VAR_IS_ESSENTIAL // Could also be VAR_IS_SECONDARY
@@ -264,14 +264,14 @@ int main(int argc, char **argv) {
 
     if(useOperator) {
         gpb.registerFileParameter<int, ARRAYSIZE>(
-            "StdArrayWithCallback",
+            "std_array_with_callback",
             defValArray,
             setGlobalStdArray // The call back function
         ) << "A comment regarding arrays with call-back functions";
     }
     else {
         gpb.registerFileParameter<int, ARRAYSIZE>(
-            "StdArrayWithCallback",
+            "std_array_with_callback",
             defValArray,
             setGlobalStdArray // The call back function
             ,
@@ -288,12 +288,12 @@ int main(int argc, char **argv) {
     std::array<int, ARRAYSIZE> targetArray;
 
     if(useOperator) {
-        gpb.registerFileParameter<int, ARRAYSIZE>("StdArrayReference", targetArray, defValArray)
+        gpb.registerFileParameter<int, ARRAYSIZE>("std_array_reference", targetArray, defValArray)
             << "A comment regarding std::array references";
     }
     else {
         gpb.registerFileParameter<int, ARRAYSIZE>(
-            "StdArrayReference",
+            "std_array_reference",
             targetArray,
             defValArray,
             Gem::Common::VAR_IS_ESSENTIAL // Could also be VAR_IS_SECONDARY

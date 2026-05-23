@@ -1268,12 +1268,12 @@ void GBase::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
     gpb.registerFileParameter<std::string, bool>(
         "termination_file" // The name of the variable
         ,
-        "touchedTerminationActive",
+        "touched_termination_active",
         DEFAULTTERMINATIONFILE // The default value
         ,
         false,
         [this](std::string tf, bool tfa) { this->setTerminationFile(tf, tfa); },
-        "touchedTermination"
+        "touched_termination"
     ) << "The name of a file which, when modified after the start of an"
       << '\n'
       << "optimization run, instructs Geneva to terminate optimitation." << '\n'
@@ -1283,7 +1283,7 @@ void GBase::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
       << "Activates (1) or de-activates (0) the \"touched termination\"";
 
     gpb.registerFileParameter<std::uint32_t>(
-        "indivdualUpdateStallCounterThreshold" // The name of the variable
+        "individual_update_stall_counter_threshold" // The name of the variable
         ,
         DEFAULTSTALLCOUNTERTHRESHOLD // The default value
         ,
@@ -1296,7 +1296,7 @@ void GBase::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
       << "through the actOnStalls() function. A value of 0 disables this check";
 
     gpb.registerFileParameter<std::uint32_t>(
-        "reportIteration" // The name of the variable
+        "report_iteration" // The name of the variable
         ,
         DEFAULTREPORTITER // The default value
         ,
@@ -1334,13 +1334,13 @@ void GBase::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
         [this](std::string cp_dir, std::string cp_bn) {
             this->setCheckpointBaseName(cp_dir, cp_bn);
         },
-        "checkpointLocation"
+        "checkpoint_location"
     ) << "The directory where checkpoint files should be stored."
       << Gem::Common::nextComment() // comments for the second option follow
       << "The significant part of the checkpoint file name.";
 
     gpb.registerFileParameter<bool>(
-        "cpOverwrite" // The name of the variable
+        "cp_overwrite" // The name of the variable
         ,
         true // The default value -- we always remove old checkpoints
         ,
@@ -1360,12 +1360,12 @@ void GBase::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
     gpb.registerFileParameter<double, bool>(
         "threshold" // The name of the variable
         ,
-        "thresholdActive",
+        "threshold_active",
         DEFAULTQUALITYTHRESHOLD // The default value
         ,
         false,
         [this](double qt, bool ta) { this->setQualityThreshold(qt, ta); },
-        "qualityTermination"
+        "quality_termination"
     ) << "A threshold beyond which optimization is expected to stop"
       << '\n'
       << "Note that in order to activate this threshold, you also need to" << '\n'
@@ -1401,9 +1401,9 @@ void GBase::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
     ) << "Triggers emission (1) or omission (0) of information about reasons for termination";
 
     gpb.registerFileParameter<execMode, std::string>(
-        "defaultExecMode" // The name of the variable
+        "default_exec_mode" // The name of the variable
         ,
-        "defaultExecConfig",
+        "default_exec_config",
         this->default_exec_mode_ // The default value
         ,
         this->default_executor_config_,
@@ -1411,7 +1411,7 @@ void GBase::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
             this->default_exec_mode_ = e;
             this->default_executor_config_ = config;
         },
-        "defaultExecutor"
+        "default_executor"
     ) << "The default executor type to be used for this algorithm."
       << '\n'
       << "0: serial" << '\n'

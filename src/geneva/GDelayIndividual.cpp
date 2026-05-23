@@ -380,7 +380,7 @@ std::shared_ptr<gpar::GParameterSet> GDelayIndividualFactory::getObject_(
  */
 void GDelayIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder &gpb) {
     gpb.registerFileParameter(
-        "nVariables",
+        "n_variables",
         n_variables_,
         n_variables_ // The default value
     ) << "The number of variables to act on";
@@ -400,7 +400,7 @@ void GDelayIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder 
       << "rather than a fixed amount of time";
 
     gpb.registerFileParameter(
-        "lowerRandSleepBoundary",
+        "lower_rand_sleep_boundary",
         lower_rand_sleep_boundary_,
         lower_rand_sleep_boundary_ // The default value
     ) << "The lower boundary for random sleep times in the"
@@ -408,7 +408,7 @@ void GDelayIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder 
       << "fitness function (seconds, double value)";
 
     gpb.registerFileParameter(
-        "upperRandSleepBoundary",
+        "upper_rand_sleep_boundary",
         upper_rand_sleep_boundary_,
         upper_rand_sleep_boundary_ // The default value
     ) << "The upper boundary for random sleep times in the"
@@ -422,25 +422,25 @@ void GDelayIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder 
     ) << "The name of a file to which results should be stored";
 
     gpb.registerFileParameter(
-        "shortResultFile",
+        "short_result_file",
         short_result_file_,
         short_result_file_ // The default value
     ) << "The name of a file to which short results should be stored";
 
     gpb.registerFileParameter(
-        "nMeasurements",
+        "n_measurements",
         n_measurements_,
         n_measurements_ // The default value
     ) << "The number of measurements for each delay";
 
     gpb.registerFileParameter(
-        "interMeasurementDelay",
+        "inter_measurement_delay",
         inter_measurement_delay_,
         inter_measurement_delay_ // The default value
     ) << "The amount of seconds to wait between two measurements";
 
     gpb.registerFileParameter<bool, double>(
-        "mayThrow" // The name of the variable
+        "may_throw" // The name of the variable
         ,
         "throw_likelihood",
         may_crash_ // The default value
@@ -456,7 +456,7 @@ void GDelayIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder 
                 "GDelayIndividual::describeLocalOptions_()"
             );
         },
-        "throwBehaviour"
+        "throw_behaviour"
     ) << "Indicates whether the fitness function may throw after the sleep time"
       << Gem::Common::nextComment() << "Indicates the likelihood that the fitness function throws";
 }

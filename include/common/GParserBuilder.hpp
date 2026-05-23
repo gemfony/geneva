@@ -432,6 +432,8 @@ public:
     bool hasComments() const;
     /** @brief Retrieves the number of comments available */
     std::size_t numberOfComments() const;
+    /** @brief Retrieves the number of option names registered for this parameter */
+    std::size_t numberOfOptionNames() const;
 
     /***************************************************************************/
     /**
@@ -2157,11 +2159,21 @@ public:
     GParserBuilder &operator=(GParserBuilder const &) = delete;
     GParserBuilder &operator=(GParserBuilder &&) = delete;
 
-    /** @brief Tries to parse a given configuration file for a set of options */
-    bool parseConfigFile(std::filesystem::path const &);
+    /** @brief Reads and parses a configuration file, applying the values to the registered options. Optionally hands the parsed ptree back via the second argument so callers can cache it. */
+    bool parseConfigFile(std::filesystem::path const &, boost::property_tree::ptree * = nullptr);
+    /** @brief Applies an already-parsed configuration ptree to the registered options (no file access); runs the optional unknown-key diagnostic. */
+    void loadFromPtree(boost::property_tree::ptree const &, std::filesystem::path const & = {});
     /** @brief Writes out a configuration file */
     void
     writeConfigFile(std::filesystem::path const &, std::string const & = "", bool = true) const;
+    /** @brief Globally enables/disables the unknown-configuration-key diagnostic (default: disabled -- see the "parse each config once" task). */
+    static void setCheckUnknownKeys(bool);
+    /** @brief Retrieves whether the unknown-configuration-key diagnostic is enabled */
+    static bool checkUnknownKeys();
+    /** @brief Globally selects whether an unknown configuration-file key is an error (true) or a warning (false, the default). Only takes effect when the check is enabled. Call once at startup. */
+    static void setUnknownKeyIsError(bool);
+    /** @brief Retrieves whether unknown configuration-file keys are treated as an error */
+    static bool unknownKeyIsError();
     /** @brief Provides information on the number of file configuration options stored in this class */
     std::size_t numberOfFileOptions() const;
 
@@ -2825,6 +2837,10 @@ private:
 
     static std::mutex
         configfile_parser_mutex_; ///< Synchronization of access to configuration files (may only happen serially)
+    static bool
+        unknown_key_is_error_; ///< If true, an unknown configuration-file key throws instead of warning (default: false)
+    static bool
+        check_unknown_keys_; ///< If true, parseConfigFile checks for unknown keys (default: false; over-reports for multi-layer configs -- see "parse each config once" task)
 };
 
 /******************************************************************************/

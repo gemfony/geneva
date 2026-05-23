@@ -808,7 +808,7 @@ protected:
         ) << "The maximum number of iterations per sub-optimization";
 
         gpb.registerFileParameter<metaOptimizationTarget>(
-            "metaOptimizationTarget" // The name of the variable
+            "meta_optimization_target" // The name of the variable
             ,
             GMETAOPT_DEF_MOTARGET // The default value
             ,
@@ -819,7 +819,7 @@ protected:
           << "and smallest number of solver calls as target (2);";
 
         gpb.registerFileParameter<std::string>(
-            "subEAConfig" // The name of the variable
+            "sub_ea_config" // The name of the variable
             ,
             GMETAOPT_DEF_SUBEACONFIG // The default value
             ,

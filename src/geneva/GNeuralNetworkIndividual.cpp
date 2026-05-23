@@ -1710,7 +1710,7 @@ void GNeuralNetworkIndividualFactory::describeLocalOptions_(Gem::Common::GParser
     comment = "";
     comment += "The transferFunction: SIGMOID (0) or RBF/Radial Basis (1);";
     gpb.registerFileParameter<transferFunction>(
-        "transferFunction",
+        "transfer_function",
         t_f_,
         GNN_DEF_TRANSFER,
         Gem::Common::VAR_IS_ESSENTIAL,

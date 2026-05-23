@@ -296,7 +296,7 @@ void GParChild::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
         0 // The default value of the second variable
         ,
         [this](std::size_t gr, std::size_t ms) { this->setPopulationGrowth(gr, ms); },
-        "populationGrowth"
+        "population_growth"
     ) << "Specifies the number of individuals added per iteration"
       << Gem::Common::nextComment()
       << "Specifies the maximum amount of individuals in the population" << '\n'

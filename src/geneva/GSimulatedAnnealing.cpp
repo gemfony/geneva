@@ -134,7 +134,7 @@ void GSimulatedAnnealing::addConfigurationOptions_(Gem::Common::GParserBuilder &
 
     // Add local data
     gpb.registerFileParameter<std::uint16_t>(
-        "nAdaptionThreads" // The name of the variable
+        "n_adaption_threads" // The name of the variable
         ,
         DEFAULTNSTDTHREADS // The default value
         ,

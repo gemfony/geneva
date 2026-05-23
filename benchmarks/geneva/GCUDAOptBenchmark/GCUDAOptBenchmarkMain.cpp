@@ -71,17 +71,17 @@ void createAndEnrollCUDAConsumer(std::size_t batchSize, std::uint32_t flushTimeo
  * Expected structure:
  * @code
  * {
- *   "benchmarkFunction":  "PARABOLA",
- *   "nRuns":              30,
- *   "nDimensions":        10,
- *   "individualConfig":   "config/GFunctionIndividual.json",
- *   "outputDir":          ".",
- *   "batchSize":          0,
- *   "flushTimeoutMs":     50,
- *   "algorithmConfigs": [
- *     { "tag": "ea_default", "mnemonic": "ea",    "configFile": "config/GEvolutionaryAlgorithm.json" },
- *     { "tag": "sa_default", "mnemonic": "sa",    "configFile": "config/GSimulatedAnnealing.json" },
- *     { "tag": "swarm_default", "mnemonic": "swarm", "configFile": "config/GSwarmAlgorithm.json" }
+ *   "benchmark_function":  "PARABOLA",
+ *   "n_runs":              30,
+ *   "n_dimensions":        10,
+ *   "individual_config":   "config/GFunctionIndividual.json",
+ *   "output_dir":          ".",
+ *   "batch_size":          0,
+ *   "flush_timeout_ms":     50,
+ *   "algorithm_configs": [
+ *     { "tag": "ea_default", "mnemonic": "ea",    "config_file": "config/GEvolutionaryAlgorithm.json" },
+ *     { "tag": "sa_default", "mnemonic": "sa",    "config_file": "config/GSimulatedAnnealing.json" },
+ *     { "tag": "swarm_default", "mnemonic": "swarm", "config_file": "config/GSwarmAlgorithm.json" }
  *   ]
  * }
  * @endcode
@@ -91,20 +91,20 @@ static BenchmarkConfig loadConfig(const std::string &configFile) {
     boost::property_tree::read_json(configFile, pt);
 
     BenchmarkConfig cfg;
-    cfg.functionName       = pt.get<std::string>("benchmarkFunction", "PARABOLA");
-    cfg.nRuns              = pt.get<std::size_t>("nRuns", 30);
-    cfg.nDimensions        = pt.get<std::uint32_t>("nDimensions", 10);
-    cfg.individualConfigFile = pt.get<std::string>("individualConfig",
+    cfg.functionName       = pt.get<std::string>("benchmark_function", "PARABOLA");
+    cfg.nRuns              = pt.get<std::size_t>("n_runs", 30);
+    cfg.nDimensions        = pt.get<std::uint32_t>("n_dimensions", 10);
+    cfg.individualConfigFile = pt.get<std::string>("individual_config",
                                                     "config/GFunctionIndividual.json");
-    cfg.outputDir          = pt.get<std::string>("outputDir", ".");
-    cfg.batchSize          = pt.get<std::size_t>("batchSize", 0);
-    cfg.flushTimeoutMs     = pt.get<std::uint32_t>("flushTimeoutMs", 50);
+    cfg.outputDir          = pt.get<std::string>("output_dir", ".");
+    cfg.batchSize          = pt.get<std::size_t>("batch_size", 0);
+    cfg.flushTimeoutMs     = pt.get<std::uint32_t>("flush_timeout_ms", 50);
 
-    for (const auto &[key, child] : pt.get_child("algorithmConfigs")) {
+    for (const auto &[key, child] : pt.get_child("algorithm_configs")) {
         AlgorithmEntry entry;
         entry.tag        = child.get<std::string>("tag");
         entry.mnemonic   = child.get<std::string>("mnemonic");
-        entry.configFile = child.get<std::string>("configFile");
+        entry.configFile = child.get<std::string>("config_file");
         cfg.algorithms.push_back(entry);
     }
 

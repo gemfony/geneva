@@ -649,19 +649,19 @@ void GImageIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder 
     comment += "The minimum size of the triangle in percent of the canvas;";
     comment += "The allowed value range is [0,maxSize[;";
     gpb.registerFileParameter<double>(
-        "minSize",
+        "min_size",
         minSize_.reference(),
         GII_DEF_MINSIZE,
         Gem::Common::VAR_IS_ESSENTIAL,
         comment
     );
-    checkValueRange(minSize_.value(), 0., 1., GFPLOWERCLOSED, GFPUPPEROPEN, GFNOWARNING, "minSize");
+    checkValueRange(minSize_.value(), 0., 1., GFPLOWERCLOSED, GFPUPPEROPEN, GFNOWARNING, "min_size");
 
     comment = "";
     comment += "The maximum size of the triangle in percent of the canvas;";
     comment += "The allowed value range is ]minSize,1];";
     gpb.registerFileParameter<double>(
-        "maxSize",
+        "max_size",
         maxSize_.reference(),
         GII_DEF_MAXSIZE,
         Gem::Common::VAR_IS_ESSENTIAL,
@@ -674,7 +674,7 @@ void GImageIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder 
         GFPLOWEROPEN,
         GFPUPPEROPEN,
         GFNOWARNING,
-        "maxSize"
+        "max_size"
     );
 
     comment = "";
@@ -682,7 +682,7 @@ void GImageIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder 
     comment += "The allowed value range is [minSize,maxSize];";
     comment += "A value < 0 means random in the range [minSize,maxSize];";
     gpb.registerFileParameter<double>(
-        "startSize",
+        "start_size",
         startSize_.reference(),
         GII_DEF_MINSIZE,
         Gem::Common::VAR_IS_ESSENTIAL,
@@ -698,7 +698,7 @@ void GImageIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder 
             GFPLOWERCLOSED,
             GFPUPPEROPEN,
             GFNOWARNING,
-            "startSize"
+            "start_size"
         );
     }
 
@@ -706,7 +706,7 @@ void GImageIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder 
     comment += "The minimum allowed opaqueness of triangles;";
     comment += "The allowed value range is [0,maxOpaqueness];";
     gpb.registerFileParameter<double>(
-        "minOpaqueness",
+        "min_opaqueness",
         minOpaqueness_.reference(),
         GII_DEF_MINOPAQUENESS,
         Gem::Common::VAR_IS_ESSENTIAL,
@@ -719,14 +719,14 @@ void GImageIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder 
         GFPLOWERCLOSED,
         GFPUPPEROPEN,
         GFNOWARNING,
-        "minOpaqueness"
+        "min_opaqueness"
     );
 
     comment = "";
     comment += "The maximum allowed opaqueness of triangles;";
     comment += "The allowed value range is [minOpaqueness,1];";
     gpb.registerFileParameter<double>(
-        "maxOpaqueness",
+        "max_opaqueness",
         maxOpaqueness_.reference(),
         GII_DEF_MAXOPAQUENESS,
         Gem::Common::VAR_IS_ESSENTIAL,
@@ -739,14 +739,14 @@ void GImageIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder 
         GFPLOWEROPEN,
         GFPUPPEROPEN,
         GFNOWARNING,
-        "maxOpaqueness"
+        "max_opaqueness"
     );
 
     comment = "";
     comment +=
         "Determines the rate of adaption of adProb. Set to 0, if you do not need this feature;";
     gpb.registerFileParameter<double>(
-        "adaptAdProb",
+        "adapt_ad_prob",
         adaptAdProb_.reference(),
         GII_DEF_ADAPTADPROB,
         Gem::Common::VAR_IS_ESSENTIAL,
@@ -757,7 +757,7 @@ void GImageIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder 
     comment += "Determines the rate of adaption of location-adProb. Set to 0, if you do not need "
                "this feature;";
     gpb.registerFileParameter<double>(
-        "loc_adaptAdProb",
+        "loc_adapt_ad_prob",
         loc_adaptAdProb_.reference(),
         GII_DEF_LOC_ADAPTADPROB,
         Gem::Common::VAR_IS_ESSENTIAL,
@@ -767,7 +767,7 @@ void GImageIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder 
     comment = "";
     comment += "The lower allowed boundary for adProb-variation;";
     gpb.registerFileParameter<double>(
-        "minAdProb",
+        "min_ad_prob",
         minAdProb_.reference(),
         GII_DEF_MINADPROB,
         Gem::Common::VAR_IS_ESSENTIAL,
@@ -780,13 +780,13 @@ void GImageIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder 
         GFPLOWERCLOSED,
         GFPUPPERCLOSED,
         GFNOWARNING,
-        "minAdProb"
+        "min_ad_prob"
     );
 
     comment = "";
     comment += "The upper allowed boundary for adProb-variation;";
     gpb.registerFileParameter<double>(
-        "maxAdProb",
+        "max_ad_prob",
         maxAdProb_.reference(),
         GII_DEF_MAXADPROB,
         Gem::Common::VAR_IS_ESSENTIAL,
@@ -799,13 +799,13 @@ void GImageIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder 
         GFPLOWERCLOSED,
         GFPUPPERCLOSED,
         GFNOWARNING,
-        "maxAdProb"
+        "max_ad_prob"
     );
 
     comment = "";
     comment += "The lower allowed boundary for loc_adProb-variation;";
     gpb.registerFileParameter<double>(
-        "loc_minAdProb",
+        "loc_min_ad_prob",
         loc_minAdProb_.reference(),
         GII_DEF_LOC_MINADPROB,
         Gem::Common::VAR_IS_ESSENTIAL,
@@ -818,13 +818,13 @@ void GImageIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder 
         GFPLOWERCLOSED,
         GFPUPPERCLOSED,
         GFNOWARNING,
-        "loc_minAdProb"
+        "loc_min_ad_prob"
     );
 
     comment = "";
     comment += "The upper allowed boundary for loc_adProb-variation;";
     gpb.registerFileParameter<double>(
-        "loc_maxAdProb",
+        "loc_max_ad_prob",
         loc_maxAdProb_.reference(),
         GII_DEF_LOC_MAXADPROB,
         Gem::Common::VAR_IS_ESSENTIAL,
@@ -837,14 +837,14 @@ void GImageIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder 
         GFPLOWERCLOSED,
         GFPUPPERCLOSED,
         GFNOWARNING,
-        "loc_maxAdProb"
+        "loc_max_ad_prob"
     );
 
     comment = "";
     comment += "The probability for random adaptions of values in evolutionary algorithms;";
     comment += "The allowed value range is [0,1];";
     gpb.registerFileParameter<double>(
-        "adProb",
+        "ad_prob",
         adProb_.reference(),
         GII_DEF_ADPROB,
         Gem::Common::VAR_IS_ESSENTIAL,
@@ -857,7 +857,7 @@ void GImageIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder 
         GFPLOWERCLOSED,
         GFPUPPERCLOSED,
         GFNOWARNING,
-        "adProb"
+        "ad_prob"
     );
 
     comment = "";
@@ -865,7 +865,7 @@ void GImageIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder 
                "evolutionary algorithms;";
     comment += "The allowed value range is [0,1];";
     gpb.registerFileParameter<double>(
-        "loc_adProb",
+        "loc_ad_prob",
         loc_adProb_.reference(),
         GII_DEF_LOC_ADPROB,
         Gem::Common::VAR_IS_ESSENTIAL,
@@ -878,7 +878,7 @@ void GImageIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder 
         GFPLOWERCLOSED,
         GFPUPPERCLOSED,
         GFNOWARNING,
-        "loc_adProb"
+        "loc_ad_prob"
     );
 
     comment = "";
@@ -898,7 +898,7 @@ void GImageIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder 
     comment += "The minimum value of sigma;";
     comment += "minSigma must be positive and smaller than maxSigma;";
     gpb.registerFileParameter<double>(
-        "minSigma",
+        "min_sigma",
         minSigma_.reference(),
         GII_DEF_MINSIGMA,
         Gem::Common::VAR_IS_ESSENTIAL,
@@ -911,14 +911,14 @@ void GImageIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder 
         GFPLOWERCLOSED,
         GFPUPPEROPEN,
         GFNOWARNING,
-        "minSigma"
+        "min_sigma"
     );
 
     comment = "";
     comment += "The maximum value of sigma;";
     comment += "maxSigma must be positive and larger than minSigma;";
     gpb.registerFileParameter<double>(
-        "maxSigma",
+        "max_sigma",
         maxSigma_.reference(),
         GII_DEF_MAXSIGMA,
         Gem::Common::VAR_IS_ESSENTIAL,
@@ -931,7 +931,7 @@ void GImageIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder 
         GFPLOWEROPEN,
         GFPUPPEROPEN,
         GFNOWARNING,
-        "maxSigma"
+        "max_sigma"
     );
 
     comment = "";
@@ -939,7 +939,7 @@ void GImageIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder 
     comment += "sigmaSigma must be positive;";
     comment += "The allowed value range is [0,1];";
     gpb.registerFileParameter<double>(
-        "sigmaSigma",
+        "sigma_sigma",
         sigmaSigma_.reference(),
         GII_DEF_SIGMASIGMA,
         Gem::Common::VAR_IS_ESSENTIAL,
@@ -952,7 +952,7 @@ void GImageIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder 
         GFPLOWERCLOSED,
         GFPUPPERCLOSED,
         GFNOWARNING,
-        "sigmaSigma"
+        "sigma_sigma"
     );
 
     comment = "";
@@ -980,7 +980,7 @@ void GImageIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder 
     comment += "The minimum value of sigma for location parameters;";
     comment += "loc_minSigma must be positive and smaller than loc_maxSigma;";
     gpb.registerFileParameter<double>(
-        "loc_minSigma",
+        "loc_min_sigma",
         loc_minSigma_.reference(),
         GII_DEF_LOC_MINSIGMA,
         Gem::Common::VAR_IS_ESSENTIAL,
@@ -993,14 +993,14 @@ void GImageIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder 
         GFPLOWERCLOSED,
         GFPUPPEROPEN,
         GFNOWARNING,
-        "loc_minSigma"
+        "loc_min_sigma"
     );
 
     comment = "";
     comment += "The maximum value of sigma for location parameters;";
     comment += "loc_maxSigma must be positive and larger than loc_minSigma;";
     gpb.registerFileParameter<double>(
-        "loc_maxSigma",
+        "loc_max_sigma",
         loc_maxSigma_.reference(),
         GII_DEF_LOC_MAXSIGMA,
         Gem::Common::VAR_IS_ESSENTIAL,
@@ -1013,7 +1013,7 @@ void GImageIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder 
         GFPLOWEROPEN,
         GFPUPPEROPEN,
         GFNOWARNING,
-        "loc_maxSigma"
+        "loc_max_sigma"
     );
 
     comment = "";
@@ -1021,7 +1021,7 @@ void GImageIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder 
     comment += "loc_sigmaSigma must be positive;";
     comment += "The allowed value range is [0,1];";
     gpb.registerFileParameter<double>(
-        "loc_sigmaSigma",
+        "loc_sigma_sigma",
         loc_sigmaSigma_.reference(),
         GII_DEF_LOC_SIGMASIGMA,
         Gem::Common::VAR_IS_ESSENTIAL,
@@ -1034,7 +1034,7 @@ void GImageIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder 
         GFPLOWERCLOSED,
         GFPUPPERCLOSED,
         GFNOWARNING,
-        "loc_sigmaSigma"
+        "loc_sigma_sigma"
     );
 
     comment = "";
@@ -1042,58 +1042,58 @@ void GImageIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder 
     comment += "Negative values mean random initialization;";
     comment += "Otherwise the allowed value range is [0.,1.];";
     gpb.registerFileParameter<double>(
-        "bgRed",
+        "bg_red",
         bgRed_.reference(),
         GII_DEF_BGRED,
         Gem::Common::VAR_IS_ESSENTIAL,
         comment
     );
-    checkValueRange(bgRed_.value(), 0., 1., GFPLOWERCLOSED, GFPUPPEROPEN, GFNOWARNING, "bgRed");
+    checkValueRange(bgRed_.value(), 0., 1., GFPLOWERCLOSED, GFPUPPEROPEN, GFNOWARNING, "bg_red");
 
     comment = "";
     comment += "The initial background color (green channel);";
     comment += "Negative values mean random initialization;";
     comment += "Otherwise the allowed value range is [0.,1.];";
     gpb.registerFileParameter<double>(
-        "bgGreen",
+        "bg_green",
         bgGreen_.reference(),
         GII_DEF_BGGREEN,
         Gem::Common::VAR_IS_ESSENTIAL,
         comment
     );
-    checkValueRange(bgGreen_.value(), 0., 1., GFPLOWERCLOSED, GFPUPPEROPEN, GFNOWARNING, "bgGreen");
+    checkValueRange(bgGreen_.value(), 0., 1., GFPLOWERCLOSED, GFPUPPEROPEN, GFNOWARNING, "bg_green");
 
     comment = "";
     comment += "The initial background color (blue channel);";
     comment += "Negative values mean random initialization;";
     comment += "Otherwise the allowed value range is [0.,1.];";
     gpb.registerFileParameter<double>(
-        "bgBlue",
+        "bg_blue",
         bgBlue_.reference(),
         GII_DEF_BGBLUE,
         Gem::Common::VAR_IS_ESSENTIAL,
         comment
     );
-    checkValueRange(bgBlue_.value(), 0., 1., GFPLOWERCLOSED, GFPUPPEROPEN, GFNOWARNING, "bgBlue");
+    checkValueRange(bgBlue_.value(), 0., 1., GFPLOWERCLOSED, GFPUPPEROPEN, GFNOWARNING, "bg_blue");
 
     comment = "";
     comment += "The number of triangles that will constitute;";
     comment += "each candidate image;";
     comment += "Allowed value range [1,1000]";
     gpb.registerFileParameter<std::size_t>(
-        "nTriangles",
+        "n_triangles",
         nTriangles_.reference(),
         GII_DEF_NTRIANGLES,
         Gem::Common::VAR_IS_ESSENTIAL,
         comment
     );
-    // checkValueRange<std::size_t>(std::size_t(nTriangles_.value()), std::size_t(1), std::size_t(1000), GINTLOWERCLOSED, GINTUPPERCLOSED, GFNOWARNING, "nTriangles");
+    // checkValueRange<std::size_t>(std::size_t(nTriangles_.value()), std::size_t(1), std::size_t(1000), GINTLOWERCLOSED, GINTUPPERCLOSED, GFNOWARNING, "n_triangles");
 
     comment = "";
     comment += "Whether triangles should be sorted according;";
     comment += "to their alpha channel;";
     gpb.registerFileParameter<bool>(
-        "alphaSort",
+        "alpha_sort",
         alphaSort_.reference(),
         GII_DEF_ALPHASORT,
         Gem::Common::VAR_IS_ESSENTIAL,
@@ -1103,7 +1103,7 @@ void GImageIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder 
     comment = "";
     comment += "Whether the alpha channel shall be mutated;";
     gpb.registerFileParameter<bool>(
-        "mutateAlphaChannel",
+        "mutate_alpha_channel",
         mutateAlphaChannel_.reference(),
         GII_DEF_MUTATE_ALPHA_CHANNEL,
         Gem::Common::VAR_IS_ESSENTIAL,
@@ -1113,7 +1113,7 @@ void GImageIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder 
     comment = "";
     comment += "Whether the background color shall be mutated;";
     gpb.registerFileParameter<bool>(
-        "changeBGColor",
+        "change_bg_color",
         changeBGColor_.reference(),
         GII_DEF_CHBGCOLOR,
         Gem::Common::VAR_IS_ESSENTIAL,

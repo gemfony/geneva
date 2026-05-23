@@ -599,7 +599,7 @@ protected:
     void addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) override {
         // Add local options
         gpb.registerFileParameter<std::size_t>(
-            "maxResubmissions" // The name of the variable
+            "max_resubmissions" // The name of the variable
             ,
             DEFAULTMAXRESUBMISSIONS // The default value
             ,
@@ -1592,7 +1592,7 @@ protected:
 
         // ... then add local dara
         gpb.registerFileParameter<std::uint16_t>(
-            "nProcessingThreads" // The name of the variable in the configuration file
+            "n_processing_threads" // The name of the variable in the configuration file
             ,
             Gem::Courtier::DEFAULTNSTDTHREADS // The default value
             ,
@@ -2083,7 +2083,7 @@ protected:
         // Add local data
 
         gpb.registerFileParameter<double>(
-            "waitFactor" // The name of the variable
+            "wait_factor" // The name of the variable
             ,
             DEFAULTBROKERWAITFACTOR2 // The default value
             ,
@@ -2094,7 +2094,7 @@ protected:
           << "It is suggested to use values >= 1.";
 
         gpb.registerFileParameter<std::uint16_t>(
-            "minPartialReturnPercentage" // The name of the variable
+            "min_partial_return_percentage" // The name of the variable
             ,
             DEFAULTEXECUTORPARTIALRETURNPERCENTAGE // The default value
             ,

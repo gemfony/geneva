@@ -440,13 +440,20 @@ Go2 const *Go2::optimize_([[maybe_unused]] std::uint32_t offset) {
         );
     }
 
+    // The iteration offset applies to the FIRST algorithm only (checkpoint resume or
+    // a user-set offset). Every subsequent algorithm in the chain starts at iteration 0
+    // so it gets its full iteration budget -- otherwise a chained algorithm would inherit
+    // the previous one's end iteration and, with an absolute max-iteration halt criterion,
+    // stop immediately (the algorithm-chaining bug).
+    std::uint32_t first_algorithm_offset = offset_;
+
     // Load the checkpoint file or create individuals from the content creator
     if(cp_file_ != "empty") {
         // Load the external data
         algorithms_cnt_[0]->loadCheckpoint(std::filesystem::path(cp_file_));
 
         // Make sure the first algorithm starts right after the iteration where the checkpoint file ended
-        iterations_consumed_ = algorithms_cnt_[0]->getIteration() + 1;
+        first_algorithm_offset = algorithms_cnt_[0]->getIteration() + 1;
     }
     else {
         // Check that individuals have been registered
@@ -483,13 +490,12 @@ Go2 const *Go2::optimize_([[maybe_unused]] std::uint32_t offset) {
                 );
             }
         }
-
-        // We start with a predefined iteration offset
-        iterations_consumed_ = offset_;
     }
 
     // Loop over all algorithms
+    total_iterations_ = 0;
     sorted_ = false;
+    bool is_first_algorithm = true;
     for(const auto &alg_ptr : algorithms_cnt_) {
         // Add the pluggable optimization monitors to the algorithm
         for(auto const &pm_ptr : pluggable_monitors_cnt_) {
@@ -504,11 +510,20 @@ Go2 const *Go2::optimize_([[maybe_unused]] std::uint32_t offset) {
         // Remove our local copies
         this->clear();
 
-        // Do the actual optimization
-        alg_ptr->optimize(iterations_consumed_);
+        // Do the actual optimization. Only the first algorithm honours the offset
+        // (checkpoint resume / user offset); every subsequent algorithm starts at 0
+        // so it gets its full iteration budget.
+        if(is_first_algorithm) {
+            alg_ptr->optimize(first_algorithm_offset);
+            is_first_algorithm = false;
+        }
+        else {
+            alg_ptr->optimize();
+        }
 
-        // Make sure we start with the correct iteration in the next algorithm
-        iterations_consumed_ = alg_ptr->getIteration();
+        // Accumulate a continuous iteration count for reporting (getIteration_) only,
+        // WITHOUT feeding it back as the next algorithm's start offset.
+        total_iterations_ += alg_ptr->getIteration();
 
         // Unload the individuals from the last algorithm and store them again in this object
         if(copy_best_individuals_only_) {
@@ -758,7 +773,7 @@ void Go2::setOffset(std::uint32_t offset) {
  * Retrieval of the current iteration
  */
 uint32_t Go2::getIteration_() const {
-    return iterations_consumed_;
+    return total_iterations_;
 }
 
 /******************************************************************************/

@@ -45,6 +45,7 @@
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/xml_oarchive.hpp>
+#include <boost/property_tree/ptree.hpp>
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/export.hpp>
 #include <boost/serialization/map.hpp>
@@ -148,6 +149,9 @@ public:
             initialized_ = cp.initialized_;
             // init_mutex_ deliberately not copied: synchronisation primitives
             // do not carry over with the logical value of the object.
+            // Invalidate the parse cache: config_path_ may have changed.
+            config_ptree_.clear();
+            config_ptree_cached_ = false;
         }
         return *this;
     }
@@ -157,6 +161,9 @@ public:
             config_path_ = std::move(cp.config_path_);
             id_          = cp.id_;
             initialized_ = cp.initialized_;
+            // Invalidate the parse cache: config_path_ may have changed.
+            config_ptree_.clear();
+            config_ptree_cached_ = false;
         }
         return *this;
     }
@@ -335,13 +342,25 @@ protected:
         // the parser
         std::shared_ptr<prod_type> p = this->getObject_(gpb, id_);
 
-        // Read the configuration parameters from file
-        if(not gpb.parseConfigFile(config_path_)) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
-                << "In GFactoryT<prod_type>::operator(): Error!" << '\n'
-                << "Could not parse configuration file " << config_path_.string() << '\n'
-            );
+        // Read + parse the configuration file only ONCE: the first call captures the
+        // parsed ptree, every subsequent call re-applies the cached ptree to the
+        // freshly created object (no disk I/O / JSON re-parse). The file does not
+        // change between produce() calls, so this is purely an efficiency win.
+        {
+            std::unique_lock<std::mutex> config_lock(init_mutex_);
+            if(config_ptree_cached_) {
+                gpb.loadFromPtree(config_ptree_, config_path_);
+            }
+            else {
+                if(not gpb.parseConfigFile(config_path_, &config_ptree_)) {
+                    throw geneva_exception(
+                        g_error_streamer(DO_LOG, time_and_place)
+                        << "In GFactoryT<prod_type>::operator(): Error!" << '\n'
+                        << "Could not parse configuration file " << config_path_.string() << '\n'
+                    );
+                }
+                config_ptree_cached_ = true;
+            }
         }
 
         // Allow the factory to act on configuration options received
@@ -389,7 +408,13 @@ private:
     std::size_t id_ =
         GFACTTORYFIRSTID;       ///< The id/number of the individual currently being created
     bool initialized_ = false; ///< Indicates whether the initialization work has already been done
-    mutable std::mutex init_mutex_; ///< Serialises concurrent first calls to globalInit()
+    mutable std::mutex init_mutex_; ///< Serialises concurrent first calls to globalInit() and the config-parse cache
+
+    // Transient parse cache (NOT serialized; reset to empty/false on copy, move and
+    // deserialization via the default member initialisers). The config file is read
+    // and parsed only on the first get_(); later calls re-apply this cached ptree.
+    boost::property_tree::ptree config_ptree_{}; ///< Cached parsed configuration (transient)
+    bool config_ptree_cached_ = false;           ///< Whether config_ptree_ has been populated
 };
 
 /******************************************************************************/

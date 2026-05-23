@@ -91,21 +91,21 @@ bool parseCommandLine(
     gpb.registerCLParameter<double>("sigma", sigma, CMD_DEFAULTSIGMA, "Width of the gaussian");
 
     gpb.registerCLParameter<double>(
-        "sigmaSigma",
+        "sigma_sigma",
         sigmaSigma,
         CMD_DEFAULTSIGMASIGMA,
         "Width of the gaussian used to adapt sigma"
     );
 
     gpb.registerCLParameter<double>(
-        "minSigma",
+        "min_sigma",
         minSigma,
         CMD_DEFAULTMINSIGMA,
         "Minimal allowed value of sigma"
     );
 
     gpb.registerCLParameter<double>(
-        "maxSigma",
+        "max_sigma",
         maxSigma,
         CMD_DEFAULTMAXSIGMA,
         "Maximum allowed value of sigma"

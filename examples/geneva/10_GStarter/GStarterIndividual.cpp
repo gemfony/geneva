@@ -191,7 +191,7 @@ void GStarterIndividual::addConfigurationOptions(Gem::Common::GParserBuilder &gp
     // specify the function to be called for setting the
     // target functions. An alternative would be bind expressions.
     gpb.registerFileParameter<targetFunction>(
-        "targetFunction" // The name of the variable
+        "target_function" // The name of the variable
         ,
         GO_DEF_TARGETFUNCTION // The default value
         ,
@@ -555,26 +555,26 @@ void GStarterIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilde
     Gem::Common::GFactoryT<gpar::GParameterSet>::describeLocalOptions_(gpb);
 
     // Local data
-    gpb.registerFileParameter<double>("adProb", adProb_, GSI_DEF_ADPROB)
+    gpb.registerFileParameter<double>("ad_prob", adProb_, GSI_DEF_ADPROB)
         << "The probability for random adaptions of values in evolutionary algorithms";
 
     gpb.registerFileParameter<double>("sigma", sigma_, GSI_DEF_SIGMA)
         << "The sigma for gauss-adaption in ES";
 
-    gpb.registerFileParameter<double>("sigmaSigma", sigmaSigma_, GSI_DEF_SIGMASIGMA)
+    gpb.registerFileParameter<double>("sigma_sigma", sigmaSigma_, GSI_DEF_SIGMASIGMA)
         << "Influences the self-adaption of gauss-mutation in ES";
 
-    gpb.registerFileParameter<double>("minSigma", minSigma_, GSI_DEF_MINSIGMA)
+    gpb.registerFileParameter<double>("min_sigma", minSigma_, GSI_DEF_MINSIGMA)
         << "The minimum amount value of sigma";
 
-    gpb.registerFileParameter<double>("maxSigma", maxSigma_, GSI_DEF_MAXSIGMA)
+    gpb.registerFileParameter<double>("max_sigma", maxSigma_, GSI_DEF_MAXSIGMA)
         << "The maximum amount value of sigma";
 
     std::vector<double> defStartValues;
     defStartValues.push_back(1.);
     defStartValues.push_back(1.);
     defStartValues.push_back(1.);
-    gpb.registerFileParameter<double>("startValues", startValues_, defStartValues)
+    gpb.registerFileParameter<double>("start_values", startValues_, defStartValues)
         << "The start values for all parameters" << '\n'
         << "Note that the number of entries also determines" << '\n'
         << "The number of parameter used in the optimization" << '\n'
@@ -585,7 +585,7 @@ void GStarterIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilde
     defLowerBoundaries.push_back(0.);
     defLowerBoundaries.push_back(0.);
     defLowerBoundaries.push_back(0.);
-    gpb.registerFileParameter<double>("lowerBoundaries", lowerBoundaries_, defLowerBoundaries)
+    gpb.registerFileParameter<double>("lower_boundaries", lowerBoundaries_, defLowerBoundaries)
         << "The lower boundaries for all parameters" << '\n'
         << "Note that as many entries are needed as" << '\n'
         << "There are entries in the startValues vector";
@@ -594,7 +594,7 @@ void GStarterIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilde
     defUpperBoundaries.push_back(2.);
     defUpperBoundaries.push_back(2.);
     defUpperBoundaries.push_back(2.);
-    gpb.registerFileParameter<double>("upperBoundaries", upperBoundaries_, defUpperBoundaries)
+    gpb.registerFileParameter<double>("upper_boundaries", upperBoundaries_, defUpperBoundaries)
         << "The upper boundaries for all parameters" << '\n'
         << "Note that as many entries are needed as" << '\n'
         << "There are entries in the startValues vector";
