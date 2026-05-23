@@ -37,6 +37,7 @@
 #include <mutex>
 
 // Boost header files go here
+#include <boost/program_options.hpp>
 
 // Geneva headers go here
 #include "common/GCommonEnums.hpp"
@@ -222,6 +223,34 @@ private:
 
     /** @brief Perform the actual optimization cycle */
     Go2 const *optimize_(std::uint32_t) final;
+
+    // --- optimize_ sub-steps (decomposition) ---
+    /** @brief Adds the Geneva default algorithm if none have been registered */
+    void ensureAlgorithmPresent();
+    /** @brief Loads a checkpoint or fills the population from the content creator; returns the first algorithm's iteration offset */
+    std::uint32_t prepareInitialPopulation();
+    /** @brief Runs the registered algorithms in sequence, threading the individuals between them */
+    void runAlgorithmChain(std::uint32_t first_algorithm_offset);
+    /** @brief Sorts the collected individuals by their (min-only transformed) fitness */
+    void sortIndividualsByFitness();
+
+    // --- parseCommandLine sub-steps (decomposition) ---
+    /** @brief Emits the help message and exits the process, if --help / --showAll was requested */
+    void emitHelpIfRequested(
+        boost::program_options::variables_map const &vm,
+        boost::program_options::options_description const &general,
+        boost::program_options::options_description const &basic,
+        boost::program_options::options_description const &visible,
+        boost::program_options::options_description const &user_options,
+        std::string const &usage_string
+    ) const;
+    /** @brief Validates, initialises, configures and enrols the consumer chosen on the command line */
+    void setupChosenConsumer(boost::program_options::variables_map const &vm);
+    /** @brief Turns the comma-separated --optimizationAlgorithms list into algorithm objects */
+    void parseRequestedAlgorithms(
+        boost::program_options::variables_map const &vm,
+        std::string const &optimization_algorithms
+    );
 
     /***************************************************************************/
     // Initialization code for the Geneva library

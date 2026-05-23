@@ -411,7 +411,18 @@ void Go2::registerContentCreator(const std::shared_ptr<Gem::Common::GFactoryT<gp
  * @param offset An offset at which the first algorithm should start. Empty and present only to satisfy the interface.
  */
 Go2 const *Go2::optimize_([[maybe_unused]] std::uint32_t offset) {
-    // Check that algorithms have indeed been registered. If not, try to add a default algorithm
+    this->ensureAlgorithmPresent();
+    std::uint32_t const first_algorithm_offset = this->prepareInitialPopulation();
+    this->runAlgorithmChain(first_algorithm_offset);
+    this->sortIndividualsByFitness();
+    return this;
+}
+
+/******************************************************************************/
+/**
+ * Adds the Geneva default algorithm if the user has registered none.
+ */
+void Go2::ensureAlgorithmPresent() {
     if(algorithms_cnt_.empty()) {
         if(not default_algorithm_) {
             // No algorithms given, no default algorithm specified by the user:
@@ -427,7 +438,18 @@ Go2 const *Go2::optimize_([[maybe_unused]] std::uint32_t offset) {
 
         algorithms_cnt_.push_back(default_algorithm_->clone<GOABase>());
     }
+}
 
+/******************************************************************************/
+/**
+ * Loads a checkpoint into the first algorithm, or fills the population from the
+ * content creator. Returns the iteration offset for the FIRST algorithm only
+ * (checkpoint resume or user-set offset); every subsequent algorithm in the
+ * chain starts at iteration 0 so it gets its full iteration budget -- otherwise
+ * a chained algorithm would inherit the previous one's end iteration and, with
+ * an absolute max-iteration halt criterion, stop immediately.
+ */
+std::uint32_t Go2::prepareInitialPopulation() {
     // Check whether a possible checkpoint file fits the first algorithm in the chain
     if(cp_file_ != "empty" &&
        not algorithms_cnt_[0]->cp_personality_fits(std::filesystem::path(cp_file_))) {
@@ -440,11 +462,6 @@ Go2 const *Go2::optimize_([[maybe_unused]] std::uint32_t offset) {
         );
     }
 
-    // The iteration offset applies to the FIRST algorithm only (checkpoint resume or
-    // a user-set offset). Every subsequent algorithm in the chain starts at iteration 0
-    // so it gets its full iteration budget -- otherwise a chained algorithm would inherit
-    // the previous one's end iteration and, with an absolute max-iteration halt criterion,
-    // stop immediately (the algorithm-chaining bug).
     std::uint32_t first_algorithm_offset = offset_;
 
     // Load the checkpoint file or create individuals from the content creator
@@ -492,9 +509,18 @@ Go2 const *Go2::optimize_([[maybe_unused]] std::uint32_t offset) {
         }
     }
 
-    // Loop over all algorithms
+    return first_algorithm_offset;
+}
+
+/******************************************************************************/
+/**
+ * Runs the registered algorithms in sequence, threading the individuals from one
+ * algorithm to the next. Only the first algorithm honours the offset (checkpoint
+ * resume / user offset); subsequent algorithms start at 0 (full iteration budget).
+ */
+void Go2::runAlgorithmChain(std::uint32_t first_algorithm_offset) {
     total_iterations_ = 0;
-    sorted_ = false;
+    sorted_           = false;
     bool is_first_algorithm = true;
     for(const auto &alg_ptr : algorithms_cnt_) {
         // Add the pluggable optimization monitors to the algorithm
@@ -510,9 +536,7 @@ Go2 const *Go2::optimize_([[maybe_unused]] std::uint32_t offset) {
         // Remove our local copies
         this->clear();
 
-        // Do the actual optimization. Only the first algorithm honours the offset
-        // (checkpoint resume / user offset); every subsequent algorithm starts at 0
-        // so it gets its full iteration budget.
+        // Do the actual optimization (see first_algorithm_offset above)
         if(is_first_algorithm) {
             alg_ptr->optimize(first_algorithm_offset);
             is_first_algorithm = false;
@@ -540,9 +564,14 @@ Go2 const *Go2::optimize_([[maybe_unused]] std::uint32_t offset) {
         alg_ptr->clear();            // Get rid of local individuals in the algorithm
         alg_ptr->resetPluggableOM(); // Get rid of the algorithm's pluggable optimization monitors
     }
+}
 
-    // Sort the individuals according to their primary fitness so we have it easier later on
-    // to extract the best individuals found.
+/******************************************************************************/
+/**
+ * Sorts the collected individuals by their (min-only transformed) fitness so the
+ * best individuals are easy to extract afterwards.
+ */
+void Go2::sortIndividualsByFitness() {
     std::ranges::sort(
         this->begin(),
         this->end(),
@@ -552,8 +581,6 @@ Go2 const *Go2::optimize_([[maybe_unused]] std::uint32_t offset) {
     );
 
     sorted_ = true;
-
-    return this;
 }
 
 /******************************************************************************/
@@ -803,6 +830,24 @@ std::uint32_t Go2::getIterationOffset() const {
 }
 
 /******************************************************************************/
+/******************************************************************************/
+namespace {
+
+/** @brief Builds a "mnemonic:  human-readable-name" listing of all entries in a store. */
+template <typename StorePtr>
+std::string listMnemonics(StorePtr store) {
+    std::vector<std::string> keys;
+    store->getKeyVector(keys);
+    std::string result;
+    for(auto const &key : keys) {
+        result += key + ":  " + store->get(key)->getName() + "\n";
+    }
+    return result;
+}
+
+} // anonymous namespace
+
+/******************************************************************************/
 /**
  *
  * @param argc The number of command line arguments
@@ -822,33 +867,17 @@ void Go2::parseCommandLine(
         std::string optimization_algorithms; // NOLINT(cppcoreguidelines-init-variables)
         std::string checkpoint_file = "empty";
 
-        // Extract a list of algorithm mnemonics and clear-text descriptions
-        std::string algorithm_description; // NOLINT(cppcoreguidelines-init-variables)
-        std::vector<std::string> keys;
-        GOAFactoryStore->getKeyVector(keys); // will clear "keys"
-        for(const auto &key : keys) {
-            algorithm_description +=
-                (key + ":  " + GOAFactoryStore->get(key)->getName() + "\n");
-        }
-
+        // Help texts listing the registered algorithms / consumers
         std::ostringstream oa_help; // NOLINT(cppcoreguidelines-init-variables)
         oa_help << "A comma-separated list of optimization algorithms, e.g. \"arg1,arg2\". "
                 << GOAFactoryStore->size() << " algorithms have been registered: " << '\n'
-                << algorithm_description;
-
-        // Extract a list of consumer mnemonics and clear-text descriptions
-        std::string consumer_description; // NOLINT(cppcoreguidelines-init-variables)
-        GConsumerStore->getKeyVector(keys);
-        for(const auto &key : keys) {
-            consumer_description +=
-                (key + ":  " + GConsumerStore->get(key)->getName() + "\n");
-        }
+                << listMnemonics(GOAFactoryStore);
 
         std::ostringstream consumer_help; // NOLINT(cppcoreguidelines-init-variables)
         consumer_help << "The name of a consumer for brokered execution (an error will be flagged "
                          "if called with any other execution mode than (2) ). "
                       << GConsumerStore->size() << " consumers have been registered: " << '\n'
-                      << consumer_description;
+                      << listMnemonics(GConsumerStore);
 
         auto usage_string = std::string("Usage: ") + argv[0] + " [options]";
 
@@ -908,26 +937,8 @@ void Go2::parseCommandLine(
             vm
         );
 
-        // Emit a help message, if necessary
-        if(vm.contains("help") ||
-           vm.contains("showAll")) { // Allow syntax "program --help --showAll" and "program --showAll"
-            if(vm.contains("showAll")) { // Show all options
-                std::cout << general << '\n';
-            }
-            else { // Just show a selection
-                boost::program_options::options_description selected(usage_string);
-                if(user_options.options().empty()) {
-                    selected.add(basic).add(visible);
-                }
-                else {
-                    selected.add(basic).add(user_options).add(visible);
-                }
-                std::cout << selected << '\n';
-            }
-            exit(
-                0
-            ); // NOLINT(concurrency-mt-unsafe) — --help path; no worker threads have started yet
-        }
+        // Emit a help message and exit the process, if requested
+        this->emitHelpIfRequested(vm, general, basic, visible, user_options, usage_string);
 
         po::notify(vm);
 
@@ -935,102 +946,11 @@ void Go2::parseCommandLine(
             client_mode_ = true;
         }
 
-        // No consumer specified, although brokered execution was requested
-        if(vm.count("consumer") != 1) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
-                << "In Go2::parseCommandLine(): Error!" << '\n'
-                << "You need to specify exactly one consumer for brokered execution," << '\n'
-                << "on the command line. Found " << vm.count("consumer") << "." << '\n'
-            );
-        }
+        // Validate, configure and enrol the consumer chosen on the command line
+        this->setupChosenConsumer(vm);
 
-        // Check that the requested consumer actually exists
-        if(vm.contains("consumer") && not GConsumerStore->exists(consumer_name_)) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
-                << "In Go2::parseCommandLine(): Error!" << '\n'
-                << "You have requested a consumer with name " << consumer_name_ << '\n'
-                << "which could not be found in the consumer store." << '\n'
-            );
-        }
-
-        // Fetch the chosen consumer once from its provider (the prototype model
-        // hands out the single registered instance) and use it throughout.
-        auto consumer = GConsumerStore->get(consumer_name_)->provide();
-
-        if(client_mode_ && not consumer->needsClient()) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
-                << "In Go2::parseCommandLine(): Error!" << '\n'
-                << "Requested client mode even though consumer " << consumer_name_
-                << " does not require a client" << '\n'
-            );
-        }
-
-        std::cout << "Using consumer " << consumer_name_ << '\n';
-
-        // allow the consumer to perform necessary initialization before startup
-        consumer->init();
-
-        // TODO: Consider removing this #ifdefs
-        //  However, an issue is that this would require to create public functions like GBaseConsumerT::clientMode()
-        //  and GBaseConsumerT::setsClientModeItself() that are only implemented by GMPIConsumerT.
-        //  While this sounds good at first this would mean that GMPIConsumerT which is typically a server requires
-        //  knowledge about server AND client side. Both implementations (public functions to override or #ifdefs)
-        //  are not very clean. Maybe another solution can be found. But we stick with the #ifdef for now
-
-        // reset the client mode to the information that the consumer has in case we are dealing with the GMPIConsumerT.
-        // That is because the MPI consumer should not depend on the --client command-line parameter but decide itself
-        // whether it is a server or client depending on the process's MPI rank
-#ifdef GENEVA_BUILD_WITH_MPI_CONSUMER
-        if(GIndividualMPIConsumer *mpiConsumerPtr =
-               dynamic_cast<GIndividualMPIConsumer *>( // NOLINT(cppcoreguidelines-init-variables)
-                   consumer.get()
-               )) {
-            client_mode_ = mpiConsumerPtr->isWorkerNode();
-        }
-#endif // GENEVA_BUILD_WITH_MPI_CONSUMER
-
-        // Finally give the consumer the chance to act on the command line options
-        consumer->actOnCLOptions(vm);
-
-        // At this point the consumer should be fully configured
-
-        // Register the consumer with the broker, unless other consumers have already been registered or we are running in client mode
-        if(not client_mode_) {
-            if(not GBROKER(gpar::GParameterSet)->hasConsumers()) {
-                GBROKER(gpar::GParameterSet)
-                    ->enrol_consumer(consumer);
-            }
-            else {
-                glogger << "In Go2::parseCommandLine(): Note!" << '\n'
-                        << "Could not register requested consumer," << '\n'
-                        << "as a consumer was already registered with the broker" << '\n'
-                        << GLOGGING;
-            }
-        }
-
-        // Parse the list of optimization algorithms
-        if(vm.contains("optimizationAlgorithms")) {
-            std::vector<std::string> algs = Gem::Common::splitString(optimization_algorithms, ",");
-
-            for(const auto &alg_str : algs) {
-                // Retrieve the algorithm factory from the global store
-                std::shared_ptr<Gem::Common::GProviderT<GOABase>> p;
-                if(not GOAFactoryStore->get(alg_str, p)) {
-                    throw geneva_exception(
-                        g_error_streamer(DO_LOG, time_and_place)
-                        << "In Go2::parseCommandLine(int, char**): Error!" << '\n'
-                        << "Got invalid algorithm mnemonic \"" << alg_str << "\"." << '\n'
-                        << "No algorithm found for this string." << '\n'
-                    );
-                }
-
-                // Retrieve an algorithm from the provider and add it to the list
-                algorithms_cnt_.push_back(p->provide());
-            }
-        }
+        // Turn the requested algorithm mnemonics into algorithm objects
+        this->parseRequestedAlgorithms(vm, optimization_algorithms);
 
         // Set the name of a checkpoint file (if any)
         cp_file_ = checkpoint_file;
@@ -1044,6 +964,148 @@ void Go2::parseCommandLine(
             << "Error parsing the command line:" << '\n'
             << e.what() << '\n'
         );
+    }
+}
+
+/******************************************************************************/
+/**
+ * Emits the help message and exits the process, if --help / --showAll was given.
+ */
+void Go2::emitHelpIfRequested(
+    boost::program_options::variables_map const &vm,
+    boost::program_options::options_description const &general,
+    boost::program_options::options_description const &basic,
+    boost::program_options::options_description const &visible,
+    boost::program_options::options_description const &user_options,
+    std::string const &usage_string
+) const {
+    if(not vm.contains("help") && not vm.contains("showAll")) {
+        return;
+    }
+    if(vm.contains("showAll")) { // Show all options
+        std::cout << general << '\n';
+    }
+    else { // Just show a selection
+        boost::program_options::options_description selected(usage_string);
+        if(user_options.options().empty()) {
+            selected.add(basic).add(visible);
+        }
+        else {
+            selected.add(basic).add(user_options).add(visible);
+        }
+        std::cout << selected << '\n';
+    }
+    exit(0); // NOLINT(concurrency-mt-unsafe) — --help path; no worker threads have started yet
+}
+
+/******************************************************************************/
+/**
+ * Validates, initialises, configures and enrols the consumer chosen on the
+ * command line (the consumer_name_ member).
+ */
+void Go2::setupChosenConsumer(boost::program_options::variables_map const &vm) {
+    // No consumer specified, although brokered execution was requested
+    if(vm.count("consumer") != 1) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, time_and_place)
+            << "In Go2::setupChosenConsumer(): Error!" << '\n'
+            << "You need to specify exactly one consumer for brokered execution," << '\n'
+            << "on the command line. Found " << vm.count("consumer") << "." << '\n'
+        );
+    }
+
+    // Check that the requested consumer actually exists
+    if(vm.contains("consumer") && not GConsumerStore->exists(consumer_name_)) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, time_and_place)
+            << "In Go2::setupChosenConsumer(): Error!" << '\n'
+            << "You have requested a consumer with name " << consumer_name_ << '\n'
+            << "which could not be found in the consumer store." << '\n'
+        );
+    }
+
+    // Fetch the chosen consumer once from its provider (the prototype model hands
+    // out the single registered instance) and use it throughout.
+    auto consumer = GConsumerStore->get(consumer_name_)->provide();
+
+    if(client_mode_ && not consumer->needsClient()) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, time_and_place)
+            << "In Go2::setupChosenConsumer(): Error!" << '\n'
+            << "Requested client mode even though consumer " << consumer_name_
+            << " does not require a client" << '\n'
+        );
+    }
+
+    std::cout << "Using consumer " << consumer_name_ << '\n';
+
+    // allow the consumer to perform necessary initialization before startup
+    consumer->init();
+
+    // TODO: Consider removing this #ifdefs
+    //  However, an issue is that this would require to create public functions like GBaseConsumerT::clientMode()
+    //  and GBaseConsumerT::setsClientModeItself() that are only implemented by GMPIConsumerT.
+    //  While this sounds good at first this would mean that GMPIConsumerT which is typically a server requires
+    //  knowledge about server AND client side. Both implementations (public functions to override or #ifdefs)
+    //  are not very clean. Maybe another solution can be found. But we stick with the #ifdef for now
+
+    // reset the client mode to the information that the consumer has in case we are dealing with the GMPIConsumerT.
+    // That is because the MPI consumer should not depend on the --client command-line parameter but decide itself
+    // whether it is a server or client depending on the process's MPI rank
+#ifdef GENEVA_BUILD_WITH_MPI_CONSUMER
+    if(GIndividualMPIConsumer *mpiConsumerPtr =
+           dynamic_cast<GIndividualMPIConsumer *>( // NOLINT(cppcoreguidelines-init-variables)
+               consumer.get()
+           )) {
+        client_mode_ = mpiConsumerPtr->isWorkerNode();
+    }
+#endif // GENEVA_BUILD_WITH_MPI_CONSUMER
+
+    // Finally give the consumer the chance to act on the command line options
+    consumer->actOnCLOptions(vm);
+
+    // At this point the consumer should be fully configured.
+    // Register the consumer with the broker, unless other consumers have already
+    // been registered or we are running in client mode.
+    if(not client_mode_) {
+        if(not GBROKER(gpar::GParameterSet)->hasConsumers()) {
+            GBROKER(gpar::GParameterSet)->enrol_consumer(consumer);
+        }
+        else {
+            glogger << "In Go2::setupChosenConsumer(): Note!" << '\n'
+                    << "Could not register requested consumer," << '\n'
+                    << "as a consumer was already registered with the broker" << '\n'
+                    << GLOGGING;
+        }
+    }
+}
+
+/******************************************************************************/
+/**
+ * Turns the comma-separated --optimizationAlgorithms list into algorithm objects.
+ */
+void Go2::parseRequestedAlgorithms(
+    boost::program_options::variables_map const &vm,
+    std::string const &optimization_algorithms
+) {
+    if(not vm.contains("optimizationAlgorithms")) {
+        return;
+    }
+
+    std::vector<std::string> const algs = Gem::Common::splitString(optimization_algorithms, ",");
+    for(const auto &alg_str : algs) {
+        // Retrieve the algorithm provider from the global store
+        std::shared_ptr<Gem::Common::GProviderT<GOABase>> p;
+        if(not GOAFactoryStore->get(alg_str, p)) {
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, time_and_place)
+                << "In Go2::parseRequestedAlgorithms(): Error!" << '\n'
+                << "Got invalid algorithm mnemonic \"" << alg_str << "\"." << '\n'
+                << "No algorithm found for this string." << '\n'
+            );
+        }
+        // Retrieve an algorithm from the provider and add it to the list
+        algorithms_cnt_.push_back(p->provide());
     }
 }
 
