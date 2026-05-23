@@ -207,7 +207,7 @@ void GConstrainedInt32Object::assignInt32ValueVector(
     // Do we have a valid position ?
     if(pos >= par_vec.size()) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GConstrainedInt32Object::assignInt32ValueVector(const "
                "std::vector<std::int32_t>&, std::size_t&):"
             << '\n'

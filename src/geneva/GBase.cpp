@@ -291,7 +291,7 @@ void GBase::loadCheckpoint(std::filesystem::path const &cp_file) {
     // Make sure it fits our own algorithm
     if(opt_desc != this->getAlgorithmPersonalityType()) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GBase<>::loadCheckpoint(): Error!" << '\n'
             << "Checkpoint file " << cp_file << '\n'
             << "seems to belong to another algorithm. Expected "
@@ -351,7 +351,7 @@ void GBase::setCheckpointBaseName(
     // Do some basic checks
     if(cp_base_name == "empty" || cp_base_name.empty()) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GBase::setCheckpointBaseName(const std::string&, const "
                "std::string&):"
             << '\n'
@@ -361,7 +361,7 @@ void GBase::setCheckpointBaseName(
 
     if(cp_directory == "empty" || cp_directory.empty()) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GBase::setCheckpointBaseName(const std::string&, const "
                "std::string&):"
             << '\n'
@@ -383,7 +383,7 @@ void GBase::setCheckpointBaseName(
 
         if(not std::filesystem::create_directory(cp_directory_path_)) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GBase::setCheckpointBaseName(): Error!" << '\n'
                 << "Could not create directory " << cp_directory_path_.string() << '\n'
             );
@@ -391,7 +391,7 @@ void GBase::setCheckpointBaseName(
     }
     else if(not std::filesystem::is_directory(cp_directory_path_)) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GBase::setCheckpointBaseName(): Error!" << '\n'
             << cp_directory_path_.string() << " exists but is no directory." << '\n'
         );
@@ -638,7 +638,7 @@ void GBase::registerExecutor(
     executor_ptr_->addConfigurationOptions(gpb);
     if(not gpb.parseConfigFile(executor_config_file)) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GBase::registerExecutor(): Error!" << '\n'
             << "Could not parse configuration file " << executor_config_file.string() << '\n'
         );
@@ -831,7 +831,7 @@ void GBase::registerPluggableOM(
     }
     else {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GoptimizationMonitorT<>::registerPluggableOM(): Tried to register empty "
                "pluggable optimization monitor"
             << '\n'
@@ -886,7 +886,7 @@ void GBase::setMaxIteration(std::uint32_t max_iteration) {
     // Check that the new maximum is > the current minimum (guard only applies when max != 0)
     if(max_iteration > 0 && max_iteration <= min_iteration_) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GBase<>::setMaxIteration(): Error!" << '\n'
             << "Maximum number of iterations " << max_iteration << " is <= the minimum number "
             << min_iteration_ << '\n'
@@ -919,7 +919,7 @@ void GBase::setMinIteration(std::uint32_t min_iteration) {
     // Check that the current maximum will remain > the new minimum (guard only applies when max != 0)
     if(max_iteration_ > 0 && max_iteration_ <= min_iteration) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GBase<>::setMinIteration(): Error!" << '\n'
             << "Maximum number of iterations " << max_iteration_ << " is <= the minimum number "
             << min_iteration << '\n'
@@ -968,7 +968,7 @@ std::uint32_t GBase::getMaxStallIteration() const {
 void GBase::setMaxTime(std::chrono::duration<double> max_duration) {
     if(not Gem::Common::isClose<double>(max_duration.count(), 0.) && max_duration < min_duration_) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GBase<>::setMaxTime(): Error!" << '\n'
             << "Desired max_duration (" << max_duration.count() << " is smaller than min_duration_("
             << min_duration_.count() << ")" << '\n'
@@ -998,7 +998,7 @@ std::chrono::duration<double> GBase::getMaxTime() const {
 void GBase::setMinTime(std::chrono::duration<double> min_duration) {
     if(not Gem::Common::isClose<double>(max_duration_.count(), 0.) && max_duration_ < min_duration) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GBase<>::setMinTime(): Error!" << '\n'
             << "Desired max_duration (" << max_duration_.count() << " is smaller than min_duration_("
             << min_duration.count() << ")" << '\n'
@@ -1437,7 +1437,7 @@ void GBase::updateGlobalBestsPQ_(
 #ifdef DEBUG
     if(this->empty()) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GBase::updateGlobalBestsPQ() :" << '\n'
             << "Tried to retrieve the best individuals even though the population is empty."
             << '\n'
@@ -1467,7 +1467,7 @@ void GBase::updateIterationBestsPQ_(
 #ifdef DEBUG
     if(this->empty()) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GBase::updateIterationBestsPQ() :" << '\n'
             << "Tried to retrieve the best individuals even though the population is empty."
             << '\n'
@@ -1649,7 +1649,7 @@ GBase::extractOptAlgFromPath(const std::filesystem::path &p) const {
     // Check that the size is at least 2 (i.e. the PERSONALITY_X-part may exist)
     if(tokens.size() < 2) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GBase<>::extractOptAlgFromPath(): Error!" << '\n'
             << "Found file name " << filename << " that does not comply to rules." << '\n'
             << "Expected \"/some/path/word1-PERSONALITY_EA-some-other-information \"" << '\n'
@@ -1670,7 +1670,7 @@ std::shared_ptr<gpar::GParameterSet> GBase::getBestGlobalIndividual_() const {
 #ifdef DEBUG
     if(!p) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GBase<T>::getBestGlobalIndividual_(): Error!" << '\n'
             << "Best individual seems to be empty" << '\n'
         );
@@ -1706,7 +1706,7 @@ std::shared_ptr<gpar::GParameterSet> GBase::getBestIterationIndividual_() const 
 #ifdef DEBUG
     if(!p) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GBase<T>::getBestIterationIndividual_(): Error!"
             << '\n'
             << "Best individual seems to be empty" << '\n'
@@ -1768,7 +1768,7 @@ void GBase::setNRecordBestIndividuals(
 ) {
     if(0 == n_record_best_individuals) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GBase<>::setNRecordBestIndividuals(): Error!" << '\n'
             << "Invalid number of individuals to be recorded: " << n_record_best_individuals << '\n'
         );
@@ -1810,7 +1810,7 @@ void GBase::init() {
 #ifdef DEBUG
         if(not executor_ptr) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GBase<>::init(): Error!" << '\n'
                 << "Did not receive a valid executor" << '\n'
             );

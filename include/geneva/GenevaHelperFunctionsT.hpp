@@ -57,7 +57,7 @@ namespace Gem::Geneva {
 template <typename T>
 std::shared_ptr<gpar::GAdaptorT<T>> getDefaultAdaptor() {
     throw geneva_exception(
-        g_error_streamer(DO_LOG, time_and_place)
+        g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
         << "In getDefaultAdaptor():" << '\n'
         << "Function called with invalid type." << '\n'
     );

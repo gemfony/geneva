@@ -92,7 +92,7 @@ void GMultiCriterionParabolaIndividual::setMinima(const std::vector<double> &min
 #ifdef DEBUG
     if(minima.size() != this->getNStoredResults()) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GMultiCriterionParabolaIndividual::setMinima(...): Error!" << '\n'
             << "Invalid size of minima vector. Expected " << this->getNStoredResults() << '\n'
             << "but got " << minima.size() << '\n'
@@ -121,7 +121,7 @@ void GMultiCriterionParabolaIndividual::load_(const GObject *cp) {
     if((p_load->minima_).size() != minima_.size() ||
        (p_load->minima_).size() != this->getNStoredResults()) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GMultiCriterionParabolaIndividual::setMinima(...): Error!" << '\n'
             << "Invalid size of minima vector. Expected " << minima_.size() << "/"
             << this->getNStoredResults() << '\n'

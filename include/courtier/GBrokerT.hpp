@@ -206,7 +206,7 @@ public:
 #ifdef DEBUG
         if(nErasedProc != nErasedRaw) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GBrokerT<>::enrol_buffer_port(buffer-port-ptr):" << '\n'
                 << "nErasedProc (" << nErasedProc << ") != nErasedRaw (" << nErasedRaw << ")"
                 << '\n'
@@ -224,7 +224,7 @@ public:
 #ifdef DEBUG
         if(static_cast<BUFFERPORT_ID_TYPE>(nErasedRaw) > n_registered_buffer_ports_) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GBrokerT<>::enrol_buffer_port(buffer-port-ptr):" << '\n'
                 << "nErasedRaw (" << nErasedRaw << ") > n_registered_buffer_ports_ ("
                 << n_registered_buffer_ports_ << ")" << '\n'
@@ -246,7 +246,7 @@ public:
         // Increment the number of registered buffer ports and check if we have exceeded the allowed amound
         if(++n_registered_buffer_ports_ > MAXREGISTEREDBUFFERPORTS) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GBrokerT<>::enrol_buffer_port(buffer-port-ptr):" << '\n'
                 << "Maximum number " << MAXREGISTEREDBUFFERPORTS
                 << " of registered buffer ports exceeded" << '\n'
@@ -588,7 +588,7 @@ private:
     bool checkConsumersCapableOfFullReturn() {
         if(consumer_collection_cnt_.empty()) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GBrokerT<processable_type>::checkConsumersCapableOfFullReturn(): Error!"
                 << '\n'
                 << "No consumers registered" << '\n'

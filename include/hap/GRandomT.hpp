@@ -203,7 +203,7 @@ private:
 #ifdef DEBUG
         if(not grf_) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GRandomT<RANDOMPROXY>::getNewRandomContainer(): Error!" << '\n'
                 << "No connection to GRandomFactory object." << '\n'
             );

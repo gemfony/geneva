@@ -88,7 +88,7 @@ public:
         auto result = std::dynamic_pointer_cast<individual_type>(this->getBestGlobalIndividual_());
         if(!result) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GOptimizerIT<>::getBestGlobalIndividual(): Error!" << '\n'
                 << "dynamic_pointer_cast to requested individual_type failed." << '\n'
             );
@@ -116,7 +116,7 @@ public:
         // Cross check that we indeed got a valid set of individuals
         if(best_base_individuals.empty()) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GOptimizerIT<optimizer_type>::getBestGlobalIndividuals(): Error!"
                 << '\n'
                 << "Received empty collection of best individuals." << '\n'
@@ -127,7 +127,7 @@ public:
             auto cast_ptr = std::dynamic_pointer_cast<individual_type>(ind_ptr);
             if(!cast_ptr) {
                 throw geneva_exception(
-                    g_error_streamer(DO_LOG, time_and_place)
+                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                     << "In GOptimizerIT<>::getBestGlobalIndividuals(): Error!" << '\n'
                     << "dynamic_pointer_cast to requested individual_type failed." << '\n'
                 );
@@ -155,7 +155,7 @@ public:
         auto result = std::dynamic_pointer_cast<individual_type>(getBestIterationIndividual_());
         if(!result) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GOptimizerIT<>::getBestIterationIndividual(): Error!" << '\n'
                 << "dynamic_pointer_cast to requested individual_type failed." << '\n'
             );
@@ -183,7 +183,7 @@ public:
         // Cross check that we indeed got a valid set of individuals
         if(best_base_individuals.empty()) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GOptimizerIT<optimizer_type>::getBestIterationIndividuals(): "
                    "Error!"
                 << '\n'
@@ -195,7 +195,7 @@ public:
             auto cast_ptr = ind_ptr->template clone<individual_type>();
             if(!cast_ptr) {
                 throw geneva_exception(
-                    g_error_streamer(DO_LOG, time_and_place)
+                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                     << "In GOptimizerIT<>::getBestIterationIndividuals(): Error!" << '\n'
                     << "clone<individual_type>() returned null." << '\n'
                 );

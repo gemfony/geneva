@@ -79,7 +79,7 @@ std::vector<T> fillWithData(
     T /* upper */
 ) {
     throw geneva_exception(
-        g_error_streamer(DO_LOG, time_and_place)
+        g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
         << "In generic function template <typename T> std::vector<T> fillWithData(): Error!"
         << '\n'
         << "This function should never be called directly. Use one of the specializations."
@@ -303,7 +303,7 @@ protected:
     ) const {
         // A trap. This function needs to be re-implemented for each supported type
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In baseScanParT::getRandomItem(): Error!" << '\n'
             << "Function called for unsupported type" << '\n'
         );
@@ -702,7 +702,7 @@ private:
 #ifdef DEBUG
         if(0 != std::get<1>(data_point)) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GParameterScan::addDataPoint(mode 0): Error!" << '\n'
                 << "Function was called for invalid mode " << std::get<1>(data_point) << '\n'
             );
@@ -715,7 +715,7 @@ private:
         // Check that we haven't exceeded the size of the boolean data vector
         if(l_pos >= data_vec.size()) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GParameterScan::addDataPoint(): Error!" << '\n'
                 << "Got position beyond end of data vector: " << l_pos << " / " << data_vec.size()
                 << '\n'

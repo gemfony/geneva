@@ -66,7 +66,7 @@ std::size_t GNelderMead::getNSimplices() const {
 void GNelderMead::setNSimplices(std::size_t n_simplices) {
     if(n_simplices == 0) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GNelderMead::setNSimplices(std::size_t):" << '\n'
             << "Got invalid number of simplices (0)." << '\n'
         );
@@ -79,7 +79,7 @@ void GNelderMead::setNSimplices(std::size_t n_simplices) {
 void GNelderMead::setAlpha(double alpha) {
     if(alpha <= 0.) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GNelderMead::setAlpha(double): Error!" << '\n'
             << "alpha must be > 0, got " << alpha << '\n'
         );
@@ -97,7 +97,7 @@ double GNelderMead::getAlpha() const {
 void GNelderMead::setGamma(double gamma) {
     if(gamma <= 1.) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GNelderMead::setGamma(double): Error!" << '\n'
             << "gamma must be > 1, got " << gamma << '\n'
         );
@@ -115,7 +115,7 @@ double GNelderMead::getGamma() const {
 void GNelderMead::setRho(double rho) {
     if(rho <= 0. || rho >= 1.) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GNelderMead::setRho(double): Error!" << '\n'
             << "rho must be in ]0,1[, got " << rho << '\n'
         );
@@ -133,7 +133,7 @@ double GNelderMead::getRho() const {
 void GNelderMead::setSigma(double sigma) {
     if(sigma <= 0. || sigma >= 1.) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GNelderMead::setSigma(double): Error!" << '\n'
             << "sigma must be in ]0,1[, got " << sigma << '\n'
         );
@@ -151,7 +151,7 @@ double GNelderMead::getSigma() const {
 void GNelderMead::setInitialEdge(double initial_edge) {
     if(initial_edge <= 0.) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GNelderMead::setInitialEdge(double): Error!" << '\n'
             << "initial_edge must be > 0, got " << initial_edge << '\n'
         );
@@ -555,7 +555,7 @@ void GNelderMead::runFitnessCalculation_() {
 
     if(not status.is_complete || status.has_errors) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GNelderMead::runFitnessCalculation(): Error!" << '\n'
             << "No complete set of items received or errors found in some individuals"
             << '\n'
@@ -579,7 +579,7 @@ void GNelderMead::init() {
 #ifdef DEBUG
     if(dbl_lower_parameter_boundaries_.size() != dbl_upper_parameter_boundaries_.size()) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GNelderMead::init(): Error!" << '\n'
             << "Found invalid sizes: " << dbl_lower_parameter_boundaries_.size() << " / "
             << dbl_upper_parameter_boundaries_.size() << '\n'
@@ -662,7 +662,7 @@ void GNelderMead::adjustPopulation_() {
 
     if(n_start == 0) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GNelderMead::adjustPopulation():" << '\n'
             << "You didn't add any individuals to the collection. We need at least one."
             << '\n'
@@ -673,7 +673,7 @@ void GNelderMead::adjustPopulation_() {
 
     if(n_fp_parms_first_ == 0) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GNelderMead::adjustPopulation():" << '\n'
             << "No floating point parameters in individual." << '\n'
         );
@@ -736,7 +736,7 @@ void GNelderMead::adjustPopulation_() {
 #ifdef DEBUG
     if(this->size() != total_size) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GNelderMead::adjustPopulation():" << '\n'
             << "Population size is " << this->size() << '\n'
             << "but expected " << total_size << '\n'

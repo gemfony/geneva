@@ -185,7 +185,7 @@ public:
                "GNumGaussAdaptorT<>::setSigma(" + Gem::Common::to_string(sigma) + ")"
            )) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GNumGaussAdaptorT::setSigma(const fp_type&):" << '\n'
                 << "sigma is not in the allowed range: " << '\n'
                 << min_sigma_ << " <= " << sigma << " < " << max_sigma_ << '\n'
@@ -223,7 +223,7 @@ public:
                "GNumGaussAdaptorT<>::setResetSigma(" + Gem::Common::to_string(sigma_reset) + ")"
            )) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GNumGaussAdaptorT::setResetSigma(const fp_type&):" << '\n'
                 << "sigma_reset is not in the allowed range: " << '\n'
                 << min_sigma_ << " <= " << sigma_reset << " < " << max_sigma_ << '\n'
@@ -262,7 +262,7 @@ public:
 
         if(min_sigma < fp_type(0.) || min_sigma > max_sigma || max_sigma > fp_type(1.)) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GNumGaussAdaptorT::setSigmaRange(const fp_type&, const fp_type&):" << '\n'
                 << "Invalid values for min_sigma and max_sigma given: " << min_sigma << " / "
                 << max_sigma << '\n'
@@ -329,7 +329,7 @@ public:
         // propagate silently through the adaption and corrupt the whole run.
         if(not std::isfinite(sigma_sigma)) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GNumGaussAdaptorT::setSigmaAdaptionRate(): Error!" << '\n'
                 << "Received a non-finite sigma_sigma value: " << sigma_sigma << '\n'
             );

@@ -279,7 +279,7 @@ std::ostream &operator<<(std::ostream &o, const parPropSpec<par_type> &s) {
     }
     else {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In std::ostream& operator<<(std::ostream& o, const parPropSpec<par_type>& s): "
                "Error!"
             << '\n'
@@ -395,7 +395,7 @@ public:
             result;
 
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In generic GParameterPropertyParser::getIterators<par_type>() function: Error!"
             << '\n'
             << "Function was called for an unsupported type" << '\n'
@@ -475,7 +475,7 @@ GParameterPropertyParser::getIterators<double>() const {
     // Make sure parsing has happened.
     if(not parsed_) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GParameterPropertyParser::getIterators<double>(): Error!" << '\n'
             << "Tried to retrieve iterators when parsing hasn't happened yet" << '\n'
         );
@@ -511,7 +511,7 @@ GParameterPropertyParser::getIterators<float>() const {
     // Make sure parsing has happened.
     if(not parsed_) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GParameterPropertyParser::getIterators<float>(): Error!" << '\n'
             << "Tried to retrieve iterators when parsing hasn't happened yet" << '\n'
         );
@@ -547,7 +547,7 @@ GParameterPropertyParser::getIterators<std::int32_t>() const {
     // Make sure parsing has happened.
     if(not parsed_) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GParameterPropertyParser::getIterators<std::int32_t>(): Error!" << '\n'
             << "Tried to retrieve iterators when parsing hasn't happened yet" << '\n'
         );
@@ -583,7 +583,7 @@ GParameterPropertyParser::getIterators<bool>() const {
     // Make sure parsing has happened.
     if(not parsed_) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GParameterPropertyParser::getIterators<bool>(): Error!" << '\n'
             << "Tried to retrieve iterators when parsing hasn't happened yet" << '\n'
         );

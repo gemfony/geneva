@@ -191,7 +191,7 @@ int main(int argc, char **argv) {
 
             default:
                 throw geneva_exception(
-                    g_error_streamer(DO_LOG, time_and_place)
+                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                     << "Error in main(): Incorrect object type requested: " << o << std::endl
                 );
                 break;

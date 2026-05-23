@@ -283,7 +283,7 @@ public:
         // must be rejected in all build types, not only DEBUG.
         if(std::isnan(val) || std::isinf(val)) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GConstrainedFPT::transfer(): Error" << '\n'
                 << "val is " << (std::isnan(val) ? "NaN" : "infinite") << '\n'
             );
@@ -304,7 +304,7 @@ public:
 
         case FP_SUBNORMAL: {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GConstrainedFPT::transfer(): Error" << '\n'
                 << "val is subnormal" << '\n'
             );
@@ -312,7 +312,7 @@ public:
 
         default: {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GConstrainedFPT::transfer(): Error" << '\n'
                 << "Unknown value type" << '\n'
             );
@@ -348,7 +348,7 @@ public:
             }
             else {
                 throw geneva_exception(
-                    g_error_streamer(DO_LOG, time_and_place)
+                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                     << "In GConstrainedFPT::transfer(): Error" << '\n'
                     << "fp_region = " << fp_region << " is too large and cannot be" << '\n'
                     << "converted to a std::int64_t, which has a maximum value of "

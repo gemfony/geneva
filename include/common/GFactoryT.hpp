@@ -280,7 +280,7 @@ public:
 	  */
     virtual std::shared_ptr<GFactoryT<prod_type>> clone() const {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GFactoryT<prod_type>::clone(): Error!" << '\n'
             << "Function was called when it shouldn't be." << '\n'
             << "This function is a trap." << '\n'
@@ -354,7 +354,7 @@ protected:
             else {
                 if(not gpb.parseConfigFile(config_path_, &config_ptree_)) {
                     throw geneva_exception(
-                        g_error_streamer(DO_LOG, time_and_place)
+                        g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                         << "In GFactoryT<prod_type>::operator(): Error!" << '\n'
                         << "Could not parse configuration file " << config_path_.string() << '\n'
                     );

@@ -84,7 +84,7 @@ std::string GBaseParChildPersonalityTraits::name_() const {
  */
 std::string GBaseParChildPersonalityTraits::getMnemonic() const {
     throw geneva_exception(
-        g_error_streamer(DO_LOG, time_and_place)
+        g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
         << "In GBaseParChildPersonalityTraits::getMnemonic(): Error!" << '\n'
         << "This function should never have been called" << '\n'
     );
@@ -243,7 +243,7 @@ std::size_t GBaseParChildPersonalityTraits::getParentId() const {
         return parent_id_;
     }
             throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GBaseParChildPersonalityTraits::getParentId():" << '\n'
             << "parent_id_ is unset" << '\n'
         );

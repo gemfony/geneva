@@ -160,7 +160,7 @@ void GDoubleObject::doubleStreamline(
 #ifdef DEBUG
     if((this->getParameterName()).empty()) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GDoubleObject::doubleStreamline(std::map<std::string, std::vector<double>>& "
                "par_vec) const: Error!"
             << '\n'
@@ -217,7 +217,7 @@ void GDoubleObject::assignDoubleValueVector(
     // Do we have a valid position ?
     if(pos >= par_vec.size()) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GDoubleObject::assignDoubleValueVector(const std::vector<double>&, "
                "std::size_t&):"
             << '\n'

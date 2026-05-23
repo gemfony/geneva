@@ -194,7 +194,7 @@ void GParameterPropertyParser::parse() {
     if(not success || from != to) {
         std::string rest(from, to);
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GParameterPropertyParser::parse(): Error[1]!" << '\n'
             << "Parsing of variable descriptions failed. Unparsed fragement: " << rest << '\n'
         );
@@ -250,7 +250,7 @@ void GParameterPropertyParser::parse() {
         }
         else {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GParameterPropertyParser::parse(): Error!" << '\n'
                 << "Invalid type specifier: " << std::get<0>(*it) << '\n'
             );
@@ -259,7 +259,7 @@ void GParameterPropertyParser::parse() {
         if(not success || from != to) {
             std::string rest(from, to);
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GParameterPropertyParser::parse(): Error[2]!" << '\n'
                 << "Parsing of variable descriptions failed. Unparsed fragment: " << rest
                 << '\n'
@@ -269,7 +269,7 @@ void GParameterPropertyParser::parse() {
         // We only accept a single "simple-scan" entry. Complain, if more than one was found
         if(s_spec_vec_.size() > 1) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GParameterPropertyParser::parse(): Error!" << '\n'
                 << "Found " << s_spec_vec_.size() << "simple scan entries where a" << '\n'
                 << "maximum of 1 is allowed" << '\n'
@@ -335,7 +335,7 @@ std::size_t GParameterPropertyParser::getNSimpleScanItems() const {
 #ifdef DEBUG
         if(s_spec_vec_.size() > 1) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GParameterPropertyParser::getNSimpleScanItems() const: Error!" << '\n'
                 << "Found " << s_spec_vec_.size() << "simple scan entries where a" << '\n'
                 << "maximum of 1 is allowed" << '\n'

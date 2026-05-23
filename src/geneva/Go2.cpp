@@ -106,7 +106,7 @@ void Go2::registerDefaultAlgorithm(std::string const &mn) {
     std::shared_ptr<Gem::Common::GProviderT<GOABase>> p;
     if(not oaFactoryStore()->get(mn, p)) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In Go2::registerDefaultAlgorithm(std::string): Error!" << '\n'
             << "Got invalid algorithm mnemonic " << mn << '\n'
         );
@@ -126,7 +126,7 @@ void Go2::registerDefaultAlgorithm(const std::shared_ptr<GOABase> &default_algor
     // Check that the pointer isn't empty
     if(not default_algorithm) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In Go2::registerDefaultAlgorithm(): Error!" << '\n'
             << "Got empty algorithm." << '\n'
         );
@@ -156,7 +156,7 @@ void Go2::registerPluggableOM(const std::shared_ptr<oa::GBasePluggableOM> &plugg
     }
     else {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In Go2::registerPluggableOM(): Tried to register empty pluggable optimization monitor\n"
         );
     }
@@ -208,7 +208,7 @@ int Go2::clientRun_() {
     // Check that we have indeed been given a valid name
     if(GO2_DEF_NOCONSUMER == consumer_name_ || not consumerStore()->exists(consumer_name_)) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In Go2::clientRun(): Error!\n"
             << "Received invalid consumer name: " << consumer_name_ << "\n"
         );
@@ -223,7 +223,7 @@ int Go2::clientRun_() {
     }
     else {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In Go2::clientRun(): Error!" << '\n'
             << "Trying to execute clientRun() on consumer " << consumer_name_ << '\n'
             << "which does not require a client" << '\n'
@@ -233,7 +233,7 @@ int Go2::clientRun_() {
     // Check for errors
     if(not p) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In Go2::clientRun(): Error!" << '\n'
             << "Received empty client from consumer " << consumer_name_ << '\n'
         );
@@ -294,7 +294,7 @@ void Go2::addAlgorithm(const std::shared_ptr<GOABase> &alg) {
     // Check that the pointer is not empty
     if(not alg) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In Go2::addAlgorithm(): Error!" << '\n'
             << "Tried to register an empty pointer" << '\n'
         );
@@ -361,7 +361,7 @@ void Go2::addAlgorithm(std::string const &mn) {
     std::shared_ptr<Gem::Common::GProviderT<GOABase>> p;
     if(not oaFactoryStore()->get(mn, p)) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In Go2::addAlgorithm(std::string): Error!" << '\n'
             << "Got invalid algorithm mnemonic " << mn << '\n'
         );
@@ -389,7 +389,7 @@ Go2 &Go2::operator&(std::string const &mn) {
 void Go2::registerContentCreator(const std::shared_ptr<Gem::Common::GFactoryT<gpar::GParameterSet>> &cc_ptr) {
     if(not cc_ptr) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In Go2::registerContentCreator(): Error!" << '\n'
             << "Tried to register an empty pointer" << '\n'
         );
@@ -454,7 +454,7 @@ std::uint32_t Go2::prepareInitialPopulation() {
     if(cp_file_ != "empty" &&
        not algorithms_cnt_[0]->cp_personality_fits(std::filesystem::path(cp_file_))) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In Go2::optimize(): Error!" << '\n'
             << "Checkpoint file " << cp_file_ << " does not" << '\n'
             << "fit requirements of first algorithm "
@@ -485,7 +485,7 @@ std::uint32_t Go2::prepareInitialPopulation() {
                     else {                  // No valid item received, the factory has run empty
                         if(this->empty()) { // Still empty?
                             throw geneva_exception(
-                                g_error_streamer(DO_LOG, time_and_place)
+                                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                                 << "In Go2::optimize(): Error!" << '\n'
                                 << "The content creator did not deliver any individuals"
                                 << '\n'
@@ -499,7 +499,7 @@ std::uint32_t Go2::prepareInitialPopulation() {
             }
             else {
                 throw geneva_exception(
-                    g_error_streamer(DO_LOG, time_and_place)
+                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                     << "In Go2::optimize(): Error!" << '\n'
                     << "Neither a content creator nor individuals have been registered."
                     << '\n'
@@ -594,7 +594,7 @@ std::shared_ptr<gpar::GParameterSet> Go2::getBestGlobalIndividual_() const {
     // Do some error checking
     if(this->empty()) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In Go2::getBestGlobalIndividual_(): Error!" << '\n'
             << "No individuals found" << '\n'
         );
@@ -602,7 +602,7 @@ std::shared_ptr<gpar::GParameterSet> Go2::getBestGlobalIndividual_() const {
 
     if(not sorted_) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In Go2::getBestGlobalIndividual_(): Error!" << '\n'
             << "Tried to retrieve best individual" << '\n'
             << "from an unsorted population." << '\n'
@@ -612,7 +612,7 @@ std::shared_ptr<gpar::GParameterSet> Go2::getBestGlobalIndividual_() const {
     // Check if the best individual is processed
     if(not this->front()->is_processed() && not this->front()->is_ignored()) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In Go2::getBestGlobalIndividual_(): Error!" << '\n'
             << "Best individual is unprocessed or has errors" << '\n'
         );
@@ -633,7 +633,7 @@ std::vector<std::shared_ptr<gpar::GParameterSet>> Go2::getBestGlobalIndividuals_
     // Do some error checking
     if(this->empty()) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In Go2::getBestGlobalIndividuals_(): Error!" << '\n'
             << "No individuals found" << '\n'
         );
@@ -644,7 +644,7 @@ std::vector<std::shared_ptr<gpar::GParameterSet>> Go2::getBestGlobalIndividuals_
     for(const auto &ind_ptr : *this) {
         if(ind_ptr->is_due_for_processing() || ind_ptr->has_errors()) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In Go2::getBestGlobalIndividuals_(): Error!" << '\n'
                 << "Found individual in position " << pos
                 << " which is unprocessed or which has errors" << '\n'
@@ -669,7 +669,7 @@ std::vector<std::shared_ptr<gpar::GParameterSet>> Go2::getBestGlobalIndividuals_
  */
 std::shared_ptr<gpar::GParameterSet> Go2::getBestIterationIndividual_() const {
     throw geneva_exception(
-        g_error_streamer(DO_LOG, time_and_place)
+        g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
         << "In Go2::getBestIterationIndividual_(): Error!" << '\n'
         << "This function should not be called" << '\n'
     );
@@ -684,7 +684,7 @@ std::shared_ptr<gpar::GParameterSet> Go2::getBestIterationIndividual_() const {
  */
 std::vector<std::shared_ptr<gpar::GParameterSet>> Go2::getBestIterationIndividuals_() const {
     throw geneva_exception(
-        g_error_streamer(DO_LOG, time_and_place)
+        g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
         << "In Go2::getBestIterationIndividuals_(): Error!" << '\n'
         << "This function should not be called" << '\n'
     );
@@ -944,7 +944,7 @@ void Go2::parseCommandLine(
     }
     catch(const po::error &e) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "Error parsing the command line:" << '\n'
             << e.what() << '\n'
         );
@@ -991,7 +991,7 @@ void Go2::setupChosenConsumer(boost::program_options::variables_map const &vm) {
     // No consumer specified, although brokered execution was requested
     if(vm.count("consumer") != 1) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In Go2::setupChosenConsumer(): Error!" << '\n'
             << "You need to specify exactly one consumer for brokered execution," << '\n'
             << "on the command line. Found " << vm.count("consumer") << "." << '\n'
@@ -1001,7 +1001,7 @@ void Go2::setupChosenConsumer(boost::program_options::variables_map const &vm) {
     // Check that the requested consumer actually exists
     if(vm.contains("consumer") && not consumerStore()->exists(consumer_name_)) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In Go2::setupChosenConsumer(): Error!" << '\n'
             << "You have requested a consumer with name " << consumer_name_ << '\n'
             << "which could not be found in the consumer store." << '\n'
@@ -1014,7 +1014,7 @@ void Go2::setupChosenConsumer(boost::program_options::variables_map const &vm) {
 
     if(client_mode_ && not consumer->needsClient()) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In Go2::setupChosenConsumer(): Error!" << '\n'
             << "Requested client mode even though consumer " << consumer_name_
             << " does not require a client" << '\n'
@@ -1069,7 +1069,7 @@ void Go2::parseRequestedAlgorithms(
         std::shared_ptr<Gem::Common::GProviderT<GOABase>> p;
         if(not oaFactoryStore()->get(alg_str, p)) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In Go2::parseRequestedAlgorithms(): Error!" << '\n'
                 << "Got invalid algorithm mnemonic \"" << alg_str << "\"." << '\n'
                 << "No algorithm found for this string." << '\n'

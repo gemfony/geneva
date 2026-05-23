@@ -399,7 +399,7 @@ private:
 
             // Emit an exception
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "GWebsocketClientT<processable_type>::process_request():" << '\n'
                 << "Got unknown or invalid command "
                 << inboundCommand << '\n'
@@ -968,7 +968,7 @@ private:
         if(ec || not acceptor_.is_open()) {
             if(ec) {
                 throw geneva_exception(
-                    g_error_streamer(DO_LOG, time_and_place)
+                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                     << "GAsioConsumerT<>::async_startProcessing_() / acceptor_.open: Got error "
                        "message \""
                     << ec.message() << "\"" << '\n'
@@ -976,7 +976,7 @@ private:
                 );
             }
                             throw geneva_exception(
-                    g_error_streamer(DO_LOG, time_and_place)
+                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                     << "GAsioConsumerT<>::async_startProcessing_() / acceptor_.open did not "
                        "succeed."
                     << '\n'
@@ -989,7 +989,7 @@ private:
         acceptor_.bind(endpoint_, ec);
         if(ec) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "GAsioConsumerT<>::async_startProcessing_() / acceptor_.bind: Got error "
                    "message \""
                 << ec.message() << "\"" << '\n'
@@ -1005,7 +1005,7 @@ private:
         acceptor_.listen(boost::asio::socket_base::max_listen_connections, ec);
         if(ec) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "GAsioConsumerT<>::async_startProcessing_() / acceptor_.listen: Got error "
                    "message \""
                 << ec.message() << "\"" << '\n'
@@ -1096,7 +1096,7 @@ private:
     void putPayloadItem(std::shared_ptr<processable_type> p) {
         if(not p) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "GAsioConsumerT<>::putPayloadItem():" << '\n'
                 << "Function called with empty work item" << '\n'
             );

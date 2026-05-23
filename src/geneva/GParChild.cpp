@@ -171,7 +171,7 @@ std::size_t GParChild::getNProcessableItems_() const {
 #ifdef DEBUG
     if(std::get<1>(range) <= std::get<0>(range)) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GParChild<>::getNProcessableItems(): Error!" << '\n'
             << "Upper boundary of range <= lower boundary: " << std::get<1>(range) << "/"
             << std::get<0>(range) << '\n'
@@ -311,7 +311,7 @@ void GParChild::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
 void GParChild::setAmalgamationLikelihood(double amalgamation_likelihood) {
     if(amalgamation_likelihood < 0. || amalgamation_likelihood > 1.) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In setCrossOverLikelihood(" << amalgamation_likelihood << "): Error!" << '\n'
             << "Received invalid likelihood for amalgamation. Must be in the range [0:1]." << '\n'
         );
@@ -479,7 +479,7 @@ void GParChild::recombine() {
     // you must add mechanisms to "repair" the population.
     if((this->size() - n_parents_) < default_n_children_) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GParChild::recombine():" << '\n'
             << "Too few children. Got " << this->size() - n_parents_ << "," << '\n'
             << "but was expecting at least " << default_n_children_ << '\n'
@@ -583,7 +583,7 @@ std::tuple<double, double> GParChild::cycleLogic_() {
     // The dirty flag of this individual shouldn't be set
     if(not this->at(0)->is_processed()) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GParChild::cycleLogic(): Error!" << '\n'
             << "Expected clean individual in best position" << '\n'
         );
@@ -640,7 +640,7 @@ void GParChild::adjustPopulation_() {
     // Has the population size been set at all ?
     if(GBase::getDefaultPopulationSize() == 0) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GParChild::adjustPopulation() :" << '\n'
             << "The population size is 0." << '\n'
             << "Did you call GBase::setParentsAndPopulationSize() ?"
@@ -652,7 +652,7 @@ void GParChild::adjustPopulation_() {
     std::size_t this_sz = this->size();
     if(this_sz == 0) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GParChild::adjustPopulation() :" << '\n'
             << "size of population is 0. Did you add any individuals?" << '\n'
             << "We need at least one local individual" << '\n'
@@ -666,7 +666,7 @@ void GParChild::adjustPopulation_() {
         ++it) {
         if(not(*it)) { // shared_ptr can be implicitly converted to bool
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GParChild::adjustPopulation() :" << '\n'
                 << "Found empty smart pointer." << '\n'
             );
@@ -779,7 +779,7 @@ void GParChild::valueRecombine(
 
     if(not done) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GParChild::valueRecombine():" << '\n'
             << "Could not recombine." << '\n'
         );

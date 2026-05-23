@@ -235,7 +235,7 @@ bool GParameterBase::amMatch(const activityMode &am) const {
     }
 
     throw geneva_exception(
-        g_error_streamer(DO_LOG, time_and_place)
+        g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
         << "In GParameterBase::amMatch(const activityMode& am): Error!" << '\n'
         << "This line should never be reached" << '\n'
     );
@@ -783,7 +783,7 @@ void GParameterBase::booleanMultiplyByRandom(
 ) {
     // Complain: This function should not be called for boolean values
     throw geneva_exception(
-        g_error_streamer(DO_LOG, time_and_place)
+        g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
         << "In GParameterBase::booleanMultiplyByRandom(min,max): Error!" << '\n'
         << "This function should not be called for boolean parameters" << '\n'
     );
@@ -824,7 +824,7 @@ void GParameterBase::booleanMultiplyByRandom(
 ) {
     // Complain: This function should not be called for boolean values
     throw geneva_exception(
-        g_error_streamer(DO_LOG, time_and_place)
+        g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
         << "In GParameterBase::booleanMultiplyByRandom(): Error!" << '\n'
         << "This function should not be called for boolean parameters" << '\n'
     );
@@ -865,7 +865,7 @@ void GParameterBase::booleanMultiplyBy(
 ) {
     // Complain: This function should not be called for boolean values
     throw geneva_exception(
-        g_error_streamer(DO_LOG, time_and_place)
+        g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
         << "In GParameterBase::booleanMultiplyBy(): Error!" << '\n'
         << "This function should not be called for boolean parameters" << '\n'
     );
@@ -937,7 +937,7 @@ void GParameterBase::booleanAdd(
 ) {
     // Complain: This function should not be called for boolean values
     throw geneva_exception(
-        g_error_streamer(DO_LOG, time_and_place)
+        g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
         << "In GParameterBase::booleanAdd(): Error!" << '\n'
         << "This function should not be called for boolean parameters" << '\n'
     );
@@ -977,7 +977,7 @@ void GParameterBase::booleanSubtract(
 ) {
     // Complain: This function should not be called for boolean values
     throw geneva_exception(
-        g_error_streamer(DO_LOG, time_and_place)
+        g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
         << "In GParameterBase::booleanSubtract(): Error!" << '\n'
         << "This function should not be called for boolean parameters" << '\n'
     );

@@ -113,7 +113,7 @@ public:
         // Naturally the upper boundary should be > the lower boundary.
         if(lower_boundary_ >= upper_boundary_) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GConstrainedNumT<T>::GConstrainedNumT(lower,upper):" << '\n'
                 << "lower_boundary_ = " << lower_boundary_
                 << " is > upper_boundary_ = " << upper_boundary_ << '\n'
@@ -124,7 +124,7 @@ public:
         if(lower_boundary < GConstrainedValueLimitT<T>::lowest() ||
            upper_boundary > GConstrainedValueLimitT<T>::highest()) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GConstrainedNumT<T>::GConstrainedNumT(lower,upper):" << '\n'
                 << "lower and/or upper limit outside of allowed value range:" << '\n'
                 << "lowerBoundary = " << lower_boundary << '\n'
@@ -152,7 +152,7 @@ public:
         // Do some error checking
         if(lower_boundary_ >= upper_boundary_) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GConstrainedNumT<T>::GConstrainedNumT(val,lower,upper):" << '\n'
                 << "lower_boundary_ = " << lower_boundary_ << "is >= than" << '\n'
                 << "upper_boundary_ = " << upper_boundary_ << '\n'
@@ -163,7 +163,7 @@ public:
         if(lower_boundary < GConstrainedValueLimitT<T>::lowest() ||
            upper_boundary > GConstrainedValueLimitT<T>::highest()) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GConstrainedNumT<T>::GConstrainedNumT(val, lower,upper):" << '\n'
                 << "lower and/or upper limit outside of allowed value range:" << '\n'
                 << "lowerBoundary = " << lower_boundary << '\n'
@@ -178,7 +178,7 @@ public:
         // Check that the value is inside of the allowed value range
         if(val < lower_boundary_ || val > upper_boundary_) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GConstrainedNumT<T>::GConstrainedNumT(val,lower,upper):" << '\n'
                 << "Assigned value " << val
                 << " is outside of its allowed boundaries: " << '\n'
@@ -265,7 +265,7 @@ public:
         // Check that the boundaries make sense
         if(lower_boundary > upper_boundary) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GConstrainedNumT<T>::setBoundaries(const T&, const T&)" << '\n'
                 << "with typeid(T).name() = " << typeid(T).name() << " :" << '\n'
                 << "Lower and/or upper boundary has invalid value : " << lower_boundary << " "
@@ -277,7 +277,7 @@ public:
         if(lower_boundary < GConstrainedValueLimitT<T>::lowest() ||
            upper_boundary > GConstrainedValueLimitT<T>::highest()) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GConstrainedNumT<T>::setBoundaries(const T&, const T&):" << '\n'
                 << "lower and/or upper limit outside of allowed value range:" << '\n'
                 << "lowerBoundary = " << lower_boundary << '\n'
@@ -292,7 +292,7 @@ public:
         // Check that the value is inside the allowed range
         if(current_value < lower_boundary || current_value > upper_boundary) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GConstrainedNumT<T>::setBoundaries(const T&, const T&) :" << '\n'
                 << "with typeid(T).name() = " << typeid(T).name() << '\n'
                 << "Attempt to set new boundaries [" << lower_boundary << ":" << upper_boundary
@@ -320,7 +320,7 @@ public:
         // Do some error checking
         if(val < lower_boundary_ || val > upper_boundary_) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GConstrainedNumT<T>::setValue(val):" << '\n'
                 << std::setprecision(20) << "Assigned value = " << val
                 << " is outside of its allowed boundaries: " << '\n'
@@ -347,7 +347,7 @@ public:
         // Do the boundaries make sense ?
         if(lower_boundary > upper_boundary) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GConstrainedNumT<T>::setValue(val,lower,upper):" << '\n'
                 << "lower_boundary_ = " << lower_boundary_ << "is larger than" << '\n'
                 << "upper_boundary_ = " << upper_boundary_ << '\n'
@@ -358,7 +358,7 @@ public:
         if(lower_boundary < GConstrainedValueLimitT<T>::lowest() ||
            upper_boundary > GConstrainedValueLimitT<T>::highest()) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GConstrainedNumT<T>::setValue(val,lower,upper):" << '\n'
                 << "lower and/or upper limit outside of allowed value range:" << '\n'
                 << "lowerBoundary = " << lower_boundary << '\n'
@@ -373,7 +373,7 @@ public:
         // Check that the value is inside of the allowed value range
         if(val < lower_boundary || val > upper_boundary) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GConstrainedNumT<T>::setValue(val,lower,upper):" << '\n'
                 << "Assigned value = " << val << " is outside of its allowed boundaries: " << '\n'
                 << "lowerBoundary  = " << lower_boundary << '\n'

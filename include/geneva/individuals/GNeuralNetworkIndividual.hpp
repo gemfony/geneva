@@ -452,7 +452,7 @@ public:
         // Check the number of supplied layers
         if(architecture.size() < 2) { // We need at least an input- and an output-layer
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GNeuralNetworkIndividual::createHyperCubeNetworkData(): Error!" << '\n'
                 << "Got invalid number of layers: " << architecture.size() << '\n'
             );
@@ -461,7 +461,7 @@ public:
         // Check that the output layer has exactly one node
         if(architecture.back() != 1) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GNeuralNetworkIndividual::createHyperCubeNetworkData(): Error!" << '\n'
                 << "The output layer must have exactly one node for this training data."
                 << '\n'
@@ -488,7 +488,7 @@ public:
         for(it = architecture.begin(); it != architecture.end(); ++it, ++layer_counter) {
             if(*it == 0) {
                 throw geneva_exception(
-                    g_error_streamer(DO_LOG, time_and_place)
+                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                     << "In GNeuralNetworkIndividual::createHyperCubeNetworkData(): Error!" << '\n'
                     << "Layer " << layer_counter << "has invalid size " << *it << '\n'
                 );
@@ -560,7 +560,7 @@ public:
         // Check the number of supplied layers
         if(architecture.size() < 2) { // We need at least an input- and an output-layer
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GNeuralNetworkIndividual::createHyperSphereNetworkData(): Error!"
                 << '\n'
                 << "Got invalid number of layers: " << architecture.size() << '\n'
@@ -570,7 +570,7 @@ public:
         // Check that the output layer has exactly one node
         if(architecture.back() != 1) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GNeuralNetworkIndividual::createHyperSphereNetworkData(): Error!"
                 << '\n'
                 << "The output layer must have exactly one node for this training data."
@@ -598,7 +598,7 @@ public:
         for(it = architecture.begin(); it != architecture.end(); ++it, ++layer_counter) {
             if(*it == 0) {
                 throw geneva_exception(
-                    g_error_streamer(DO_LOG, time_and_place)
+                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                     << "In GNeuralNetworkIndividual::createHyperSphereNetworkData(): Error!" << '\n'
                     << "Layer " << layer_counter << "has invalid size " << *it << '\n'
                 );
@@ -732,7 +732,7 @@ public:
         // Check the number of supplied layers
         if(architecture.size() < 2) { // We need at least an input- and an output-layer
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GNeuralNetworkIndividual::createAxisCentricNetworkData(): Error!"
                 << '\n'
                 << "Got invalid number of layers: " << architecture.size() << '\n'
@@ -742,7 +742,7 @@ public:
         // Check that the output layer has exactly one node
         if(architecture.back() != 1) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GNeuralNetworkIndividual::createAxisCentricNetworkData(): Error!"
                 << '\n'
                 << "The output layer must have exactly one node for this training data."
@@ -770,7 +770,7 @@ public:
         for(it = architecture.begin(); it != architecture.end(); ++it, ++layer_counter) {
             if(*it == 0) {
                 throw geneva_exception(
-                    g_error_streamer(DO_LOG, time_and_place)
+                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                     << "In GNeuralNetworkIndividual::createAxisCentricNetworkData(): Error!" << '\n'
                     << "Layer " << layer_counter << "has invalid size " << *it << '\n'
                 );
@@ -848,7 +848,7 @@ public:
         // Check the number of supplied layers
         if(architecture.size() < 2) { // We need at least an input- and an output-layer
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GNeuralNetworkIndividual::createSinNetworkData(): Error!" << '\n'
                 << "Got invalid number of layers: " << architecture.size() << '\n'
             );
@@ -857,7 +857,7 @@ public:
         // Check that the output layer has exactly one node
         if(architecture.back() != 1) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GNeuralNetworkIndividual::createSinNetworkData(): Error!" << '\n'
                 << "The output layer must have exactly one node for this training data."
                 << '\n'
@@ -868,7 +868,7 @@ public:
         // We require the input dimension to be 2
         if(architecture.front() != 2) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GNeuralNetworkIndividual::createSinNetworkData(): Error!" << '\n'
                 << "The input layer must have exactly two node for this example." << '\n'
                 << "Got " << architecture.front() << " instead." << '\n'
@@ -891,7 +891,7 @@ public:
         for(it = architecture.begin(); it != architecture.end(); ++it, ++layer_counter) {
             if(*it == 0) {
                 throw geneva_exception(
-                    g_error_streamer(DO_LOG, time_and_place)
+                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                     << "In GNeuralNetworkIndividual::createSinNetworkData(): Error!" << '\n'
                     << "Layer " << layer_counter << "has invalid size " << *it << '\n'
                 );

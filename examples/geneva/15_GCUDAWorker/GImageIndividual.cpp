@@ -125,7 +125,7 @@ void GImageIndividual::init(
 ) {
     if(minSize < 0. || maxSize > 1. || minSize >= maxSize) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GImageIndividual::init() : Error!" << '\n'
             << "Invalid values for minSize and maxSize provided: " << minSize << " / " << maxSize
             << '\n'
@@ -136,7 +136,7 @@ void GImageIndividual::init(
     if(startSize >= 0. && startSize < minSize) {
         // Cannot be < 0 as minSize may not be <= 0
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GImageIndividual::init() : Error!" << '\n'
             << "Invalid values for minSize and startSize provided: " << minSize << " / "
             << startSize << '\n'
@@ -145,7 +145,7 @@ void GImageIndividual::init(
 
     if(startSize > maxSize) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GImageIndividual::init() : Error!" << '\n'
             << "Invalid values for maxSize and startSize provided: " << maxSize << " / "
             << startSize << '\n'
@@ -154,7 +154,7 @@ void GImageIndividual::init(
 
     if(adaptAdProb < 0. || adaptAdProb > 1.) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GImageIndividual::init() : Error!" << '\n'
             << "Invalid value for adaptAdProb provided: " << adaptAdProb << '\n'
         );
@@ -162,7 +162,7 @@ void GImageIndividual::init(
 
     if(loc_adaptAdProb < 0. || loc_adaptAdProb > 1.) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GImageIndividual::init() : Error!" << '\n'
             << "Invalid value for loc_adaptAdProb provided: " << loc_adaptAdProb << '\n'
         );
@@ -171,7 +171,7 @@ void GImageIndividual::init(
     if(minAdProb >= maxAdProb || minAdProb < 0. || maxAdProb > 1. || adProb < minAdProb ||
        adProb > maxAdProb) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GImageIndividual::init() : Error!" << '\n'
             << "Invalid values for minAdprob, maxAdProb or adProb provided: " << minAdProb << " / "
             << maxAdProb << " / " << adProb << '\n'
@@ -181,7 +181,7 @@ void GImageIndividual::init(
     if(loc_minAdProb >= loc_maxAdProb || loc_minAdProb < 0. || loc_maxAdProb > 1. ||
        loc_adProb < loc_minAdProb || loc_adProb > loc_maxAdProb) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GImageIndividual::init() : Error!" << '\n'
             << "Invalid values for loc_minAdprob, loc_maxAdProb or loc_adProb provided: "
             << loc_minAdProb << " / " << loc_maxAdProb << " / " << loc_adProb << '\n'
@@ -431,7 +431,7 @@ std::vector<CircleTriangle> GImageIndividual::getTriangleData() const {
     if(this->size() != 10 * nTriangles_ + 3) {
         // including background color
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GImageIndividual::getTriangleData(): Error!" << '\n'
             << "Invalid number of entries in this class " << this->size() << " / "
             << nTriangles_ + 3 << '\n'
@@ -520,7 +520,7 @@ GObject *GImageIndividual::clone_() const {
 	 */
 double GImageIndividual::fitnessCalculation() {
     throw geneva_exception(
-        g_error_streamer(DO_LOG, time_and_place)
+        g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
         << "In GImageIndividual::fitnessCalculation(): Error!" << '\n'
         << "This function is not meant to be called for this individual" << '\n'
     );
@@ -1213,7 +1213,7 @@ void GImageIndividualFactory::setAdaptAdProb(double adaptAdProb) {
 #ifdef DEBUG
     if(adaptAdProb < 0. || adaptAdProb > 1.) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GImageIndividualFactory::setAdaptAdProb(): Error!" << '\n'
             << "Invalid value for adaptAdProb given: " << adaptAdProb << '\n'
             << "Expected range of [0:1]" << '\n'
@@ -1232,7 +1232,7 @@ void GImageIndividualFactory::setLocAdaptAdProb(double loc_adaptAdProb) {
 #ifdef DEBUG
     if(loc_adaptAdProb < 0. || loc_adaptAdProb > 1.) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GImageIndividualFactory::setLocAdaptAdProb(): Error!" << '\n'
             << "Invalid value for loc_adaptAdProb given: " << loc_adaptAdProb << '\n'
             << "Expected range of [0:1]" << '\n'
@@ -1267,7 +1267,7 @@ void GImageIndividualFactory::setAdProbRange(double minAdProb, double maxAdProb)
 #ifdef DEBUG
     if(minAdProb < 0.) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GImageIndividualFactory::setAdProbRange(): Error!" << '\n'
             << "minAdProb < 0: " << minAdProb << '\n'
         );
@@ -1275,7 +1275,7 @@ void GImageIndividualFactory::setAdProbRange(double minAdProb, double maxAdProb)
 
     if(minAdProb > maxAdProb) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GImageIndividualFactory::setAdProbRange(): Error!" << '\n'
             << "Invalid minAdProb and/or maxAdProb: " << minAdProb << " / " << maxAdProb
             << '\n'
@@ -1284,7 +1284,7 @@ void GImageIndividualFactory::setAdProbRange(double minAdProb, double maxAdProb)
 
     if(maxAdProb > 1.) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GImageIndividualFactory::setAdProbRange(): Error!" << '\n'
             << "maxAdProb > 1: " << maxAdProb << '\n'
         );
@@ -1303,7 +1303,7 @@ void GImageIndividualFactory::setLocAdProbRange(double minLocAdProb, double maxL
 #ifdef DEBUG
     if(minLocAdProb < 0.) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GImageIndividualFactory::setLocAdProbRange(): Error!" << '\n'
             << "minLocAdProb < 0: " << minLocAdProb << '\n'
         );
@@ -1311,7 +1311,7 @@ void GImageIndividualFactory::setLocAdProbRange(double minLocAdProb, double maxL
 
     if(minLocAdProb > maxLocAdProb) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GImageIndividualFactory::setLocAdProbRange(): Error!" << '\n'
             << "Invalid minLocAdProb and/or maxLocAdProb: " << minLocAdProb << " / " << maxLocAdProb
             << '\n'
@@ -1320,7 +1320,7 @@ void GImageIndividualFactory::setLocAdProbRange(double minLocAdProb, double maxL
 
     if(maxLocAdProb > 1.) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GImageIndividualFactory::setLocAdProbRange(): Error!" << '\n'
             << "maxLocAdProb > 1: " << maxLocAdProb << '\n'
         );

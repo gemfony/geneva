@@ -609,7 +609,7 @@ public:
             std::string rest(iter, end);
 
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GFormulaParserT<>::evaluate(): Error!" << '\n'
                 << "Parsing of formula " << formula << " failed at " << rest << '\n'
             );
@@ -782,7 +782,7 @@ private:
         for(auto const &[key, vals] : vm) {
             if(vals.empty()) {
                 throw geneva_exception(
-                    g_error_streamer(DO_LOG, time_and_place)
+                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                     << "In GFormulaParserT::replacePlaceHolders(): Error!" << '\n'
                     << "Vector is empty!" << '\n'
                 );
@@ -850,7 +850,7 @@ private:
             ) { // Read out code_ptr, then switch it to the next position
             case byte_code::op_trap: {
                 throw geneva_exception(
-                    g_error_streamer(DO_LOG, time_and_place)
+                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                     << "In GFormulaParserT<fp_type>::execute(): Error!" << '\n'
                     << "byte_code::op_trap encountered" << '\n'
                 );
@@ -991,7 +991,7 @@ private:
             case byte_code::op_fp:
                 if(stack_ptr_ == stack_.end()) {
                     throw geneva_exception(
-                        g_error_streamer(DO_LOG, time_and_place)
+                        g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                         << "In GFormulaParserT<fp_type>::execute(): Error!" << '\n'
                         << "Evaluation stack overflow (depth limit "
                         << stack_.size() << " exceeded). The formula is too "
@@ -1003,7 +1003,7 @@ private:
 
             default: {
                 throw geneva_exception(
-                    g_error_streamer(DO_LOG, time_and_place)
+                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                     << "In GFormulaParserT<fp_type>::execute(): Error!" << '\n'
                     << "Invalid instruction "
                     << static_cast<std::size_t>(std::get<byte_code>(*code_ptr--)) << '\n'

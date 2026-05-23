@@ -93,7 +93,7 @@ GParsableI::GParsableI(
 std::string GParsableI::optionName(std::size_t pos) const {
     if(option_name_.size() <= pos) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GParsableI::optionName(std::size_t): Error!" << '\n'
             << "Tried to access item at position " << pos << '\n'
             << "where the size of the vector is " << option_name_.size() << '\n'
@@ -110,7 +110,7 @@ std::string GParsableI::optionName(std::size_t pos) const {
 std::string GParsableI::comment(std::size_t pos) const {
     if(comment_.size() <= pos) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GParsableI::comment_(std::size_t): Error!" << '\n'
             << "Tried to access item at position " << pos << '\n'
             << "where the size of the vector is " << comment_.size() << '\n'
@@ -185,7 +185,7 @@ GParsableI &GParsableI::operator<<(commentLevel const &cl) {
 #ifdef DEBUG
     if(comment_.empty()) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GParsableI::operator<< (commentLevel const& cl): Error!" << '\n'
             << "No comments in vector" << '\n'
         );
@@ -193,7 +193,7 @@ GParsableI &GParsableI::operator<<(commentLevel const &cl) {
 
     if(comment_.size() <= cl.getCommentLevel()) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GParsableI::operator<< (commentLevel const& cl): Error!" << '\n'
             << "Invalid comment level " << cl.getCommentLevel()
             << " requested, where the maximum is " << comment_.size() - 1 << '\n'
@@ -213,7 +213,7 @@ GParsableI &GParsableI::operator<<(nextComment const & /*nC*/) {
 #ifdef DEBUG
     if(comment_.empty()) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GParsableI::operator<< (nextComment const& nC): Error!" << '\n'
             << "No comments in vector" << '\n'
         );
@@ -221,7 +221,7 @@ GParsableI &GParsableI::operator<<(nextComment const & /*nC*/) {
 
     if(comment_.size() <= (cl_ + 1)) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GParsableI::operator<< (nextComment const& nC): Error!" << '\n'
             << "Invalid comment level " << cl_ + 1 << " requested, where the maximum is "
             << comment_.size() - 1 << '\n'
@@ -372,7 +372,7 @@ void GParserBuilder::loadFromPtree(
             }
             if(unknown_key_is_error_) {
                 throw geneva_exception(
-                    g_error_streamer(DO_LOG, time_and_place)
+                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                     << "In GParserBuilder::loadFromPtree(): Error!" << '\n'
                     << "Configuration file " << config_path.string() << '\n'
                     << "contains the unknown key \"" << key_value.first
@@ -423,7 +423,7 @@ bool GParserBuilder::parseConfigFile(std::filesystem::path const &config_file, b
             // Check that the base directory exists
             if(not std::filesystem::exists(config_base_dir_)) {
                 throw geneva_exception(
-                    g_error_streamer(DO_LOG, time_and_place)
+                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                     << "In GParserBuilder::parseConfigFile(): Error!" << '\n'
                     << "Base-directory " << config_base_dir_.string() << " does not exist"
                     << '\n'
@@ -457,7 +457,7 @@ bool GParserBuilder::parseConfigFile(std::filesystem::path const &config_file, b
             // Is it a regular file ?
             if(not std::filesystem::is_regular_file(config_path)) {
                 throw geneva_exception(
-                    g_error_streamer(DO_LOG, time_and_place)
+                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                     << "In GParserBuilder::parseConfigFile(): Error!" << '\n'
                     << config_path.string() << " exists but is no regular file." << '\n'
                 );
@@ -467,7 +467,7 @@ bool GParserBuilder::parseConfigFile(std::filesystem::path const &config_file, b
             if(not std::filesystem::path(config_path).has_extension() ||
                std::filesystem::path(config_path).extension() != ".json") {
                 throw geneva_exception(
-                    g_error_streamer(DO_LOG, time_and_place)
+                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                     << "In GParserBuilder::parseConfigFile(): Error!" << '\n'
                     << config_path.string() << " does not have the required extension \".json\""
                     << '\n'
@@ -534,7 +534,7 @@ void GParserBuilder::writeConfigFile(
         // Is config_file a directory ?
         if(std::filesystem::is_directory(config_file)) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GParserBuilder::writeConfigFile(): Error!" << '\n'
                 << config_file.string() << " is a directory." << '\n'
             );
@@ -543,7 +543,7 @@ void GParserBuilder::writeConfigFile(
         // We do not allow to overwrite existing files
         if(std::filesystem::exists(config_file) && std::filesystem::is_regular_file(config_file)) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GParserBuilder::writeConfigFile(): Error!" << '\n'
                 << "You have specified an existing file (" << config_file.string() << ")." << '\n'
             );
@@ -555,7 +555,7 @@ void GParserBuilder::writeConfigFile(
                std::filesystem::path(config_file).remove_filename()
            )) { // We need to act on a copy
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GParserBuilder::writeConfigFile(): Error!" << '\n'
                 << "The target path "
                 << std::filesystem::path(config_file).remove_filename().string()
@@ -566,7 +566,7 @@ void GParserBuilder::writeConfigFile(
         // Check that the configuration file has the required extension
         if(not config_file.has_extension() || config_file.extension() != ".json") {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GParserBuilder::writeConfigFile(): Error!" << '\n'
                 << config_file.string() << " does not have the required extension \".json\"" << '\n'
             );
@@ -577,7 +577,7 @@ void GParserBuilder::writeConfigFile(
     std::ofstream ofs(config_file);
     if(not ofs) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GParserBuilder::writeConfigFile(): Error writing configuration file "
             << config_file.string() << '\n'
         );
@@ -586,7 +586,7 @@ void GParserBuilder::writeConfigFile(
     // Do some error checking
     if(file_parameter_proxies_.empty()) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GParserBuilder::writeConfigFile(): No variables found!" << '\n'
         );
     }

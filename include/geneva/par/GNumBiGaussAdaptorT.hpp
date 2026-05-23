@@ -141,7 +141,7 @@ public:
         // Sigma1 must be in the allowed value range
         if(sigma1 < min_sigma1_ || sigma1 > max_sigma1_ || sigma1 < fp_type(0)) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GNumBiGaussAdaptorT<num_type, fp_type>::setSigma1(const fp_type&):"
                 << '\n'
                 << "sigma1 is not in the allowed range: " << '\n'
@@ -182,7 +182,7 @@ public:
         if(min_sigma1 < fp_type(0.) || min_sigma1 > max_sigma1 ||
            max_sigma1 < Gem::Common::narrow<fp_type>(DEFAULTMINSIGMA)) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GNumBiGaussAdaptorT::setSigma1Range(const fp_type&, const fp_type&):" << '\n'
                 << "Invalid values for min_sigma1 and max_sigma1 given: " << min_sigma1 << " / "
                 << max_sigma1 << '\n'
@@ -276,7 +276,7 @@ public:
         // Sigma2 must be in the allowed value range
         if(sigma2 < min_sigma2_ || sigma2 > max_sigma2_ || sigma2 < fp_type(0)) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GNumBiGaussAdaptorT<num_type, fp_type>::setSigma2(const fp_type&):"
                 << '\n'
                 << "sigma2 is not in the allowed range: " << '\n'
@@ -317,7 +317,7 @@ public:
         if(min_sigma2 < fp_type(0.) || min_sigma2 > max_sigma2 ||
            max_sigma2 < Gem::Common::narrow<fp_type>(DEFAULTMINSIGMA)) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GNumBiGaussAdaptorT::setSigma2Range(const fp_type&, const fp_type&):" << '\n'
                 << "Invalid values for min_sigma2 and max_sigma2 given: " << min_sigma2 << " / "
                 << max_sigma2 << '\n'
@@ -407,7 +407,7 @@ public:
         // Delta must be in the allowed value range
         if(delta < min_delta_ || delta > max_delta_ || delta < fp_type(0)) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GNumBiGaussAdaptorT::setDelta(const fp_type&):" << '\n'
                 << "delta is not in the allowed range: " << '\n'
                 << min_delta_ << " <= " << delta << " < " << max_delta_ << '\n'
@@ -444,7 +444,7 @@ public:
         if(min_delta < fp_type(0.) || min_delta > max_delta ||
            max_delta < Gem::Common::narrow<fp_type>(DEFAULTMINDELTA)) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GNumBiGaussAdaptorT::setDeltaRange(const fp_type&, const fp_type&):" << '\n'
                 << "Invalid values for min_delta and max_delta given: " << min_delta << " / "
                 << max_delta << '\n'

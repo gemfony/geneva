@@ -421,7 +421,7 @@ public:
 #ifdef DEBUG
         if(pos >= this->size()) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GBase::individual_cast<>() : Error" << '\n'
                 << "Tried to access position " << pos << " which is >= array size " << this->size()
                 << '\n'

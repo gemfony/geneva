@@ -142,7 +142,7 @@ public:
         // Do some error checking
         if(lower_init_boundary >= upper_init_boundary) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GNumT<T>::setInitBoundaries():" << '\n'
                 << "Invalid boundaries provided: " << '\n'
                 << "lower_init_boundary = " << lower_init_boundary << '\n'

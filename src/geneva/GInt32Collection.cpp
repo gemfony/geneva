@@ -146,7 +146,7 @@ void GInt32Collection::int32Streamline(
 #ifdef DEBUG
     if((this->getParameterName()).empty()) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GInt32Collection::int32Streamline(std::map<std::string, "
                "std::vector<std::int32_t>>& par_vec) const: Error!"
             << '\n'
@@ -209,7 +209,7 @@ void GInt32Collection::assignInt32ValueVector(
         // Do we have a valid position ?
         if(pos >= par_vec.size()) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GInt32Collection::assignInt32ValueVector(const std::vector<std::int32_t>&, "
                    "std::size_t&):"
                 << '\n'
@@ -322,7 +322,7 @@ void GInt32Collection::int32Add(
     // Cross-check that the sizes match
     if(this->size() != p->size()) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GInt32Collection::int32Add():" << '\n'
             << "Sizes of vectors don't match: " << this->size() << "/" << p->size() << '\n'
         );
@@ -348,7 +348,7 @@ void GInt32Collection::int32Subtract(
     // Cross-check that the sizes match
     if(this->size() != p->size()) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GInt32Collection::int32Subtract():" << '\n'
             << "Sizes of vectors don't match: " << this->size() << "/" << p->size() << '\n'
         );

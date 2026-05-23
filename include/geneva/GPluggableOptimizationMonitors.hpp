@@ -421,7 +421,7 @@ public:
         // Check that the parameter string isn't empty
         if(par_str.empty()) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GPluggableOptimizationMonitors<>::setProfileSpec(std::string): Error!"
                 << '\n'
                 << "Parameter string " << par_str << " is empty" << '\n'
@@ -620,7 +620,7 @@ public:
             //--------------------------------------------------------------------
         default: {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GProgressPlotterT<fp_type>::getLabel(): Error" << '\n'
                 << "Invalid mode " << var_mode << " requested" << '\n'
             );
@@ -1986,7 +1986,7 @@ private:
 
         default: {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GAdaptorPropertyLoggerT: Received invalid infoMode " << im << '\n'
             );
         }

@@ -211,7 +211,7 @@ void GConstrainedDoubleObject::assignDoubleValueVector(
     // Do we have a valid position ?
     if(pos >= par_vec.size()) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GConstrainedDoubleObject::assignDoubleValueVector(const std::vector<double>&, "
                "std::size_t&):"
             << '\n'

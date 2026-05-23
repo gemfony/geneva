@@ -92,7 +92,7 @@ void GBooleanCollection::flip(const std::size_t &pos) {
 #ifdef DEBUG
     if(this->size() <= pos) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GBooleanCollection::flip(const std::size_t& " << pos << "): Error!" << '\n'
             << "Tried to exist position beyond end of vector of size " << this->size() << '\n'
         );
@@ -178,7 +178,7 @@ bool GBooleanCollection::randomInit_(
            "GBooleanCollection::randomInit_(probability)"
        )) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GBooleanCollection::randomInit_(probability): Error!" << '\n'
             << "Probability " << probability << " not in allowed value range [0,1]" << '\n'
         );
@@ -303,7 +303,7 @@ void GBooleanCollection::booleanStreamline(
 #ifdef DEBUG
     if((this->getParameterName()).empty()) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GBooleanCollection::booleanStreamline(std::map<std::string, std::vector<bool>>& "
                "par_vec) const: Error!"
             << '\n'
@@ -363,7 +363,7 @@ void GBooleanCollection::assignBooleanValueVector(
         // Do we have a valid position ?
         if(pos >= par_vec.size()) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GBooleanCollection::assignBooleanValueVector(const std::vector<bool>&, "
                    "std::size_t&):"
                 << '\n'

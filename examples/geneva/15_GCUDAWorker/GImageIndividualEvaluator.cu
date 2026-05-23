@@ -72,7 +72,7 @@ namespace Gem::Geneva
         if (not Common::loadImageToFloat(targetImageFileName_, targetImageData_vec_, width_, height_))
         {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GImageIndividualEvaluator::init(): Error!" << std::endl
                 << "Target image " << targetImageFileName_ << " could not be loaded!" << std::endl
             );
@@ -98,7 +98,7 @@ namespace Gem::Geneva
             if (blockSize_x_ == 0 || blockSize_y_ == 0)
             {
                 throw geneva_exception(
-                    g_error_streamer(DO_LOG, time_and_place)
+                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                     << "In GImageCUDAWorker::init(): Error!" << std::endl
                     << "Invalid block dimensions read: " << blockSize_x_ << " / " << blockSize_y_ << std::endl
                 );
@@ -121,7 +121,7 @@ namespace Gem::Geneva
             if (imageSizeBytes != targetImageData_vec_.size() * sizeof(float))
             {
                 throw geneva_exception(
-                                g_error_streamer(DO_LOG, time_and_place)
+                                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                                 << "In GImageCUDAWorker::init(): Error!" << std::endl
                                 << "Invalid image sizes: " << width_ << " / " << height_ << " / " << (targetImageData_vec_.size() * sizeof(float)) << std::endl
                 );
@@ -695,7 +695,7 @@ namespace Gem::Geneva
         if (useGPU_ and not getGPUCandidateImage_)
         {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GImageIndividualEvaluator::getCandidateImage(): Error!" << std::endl
                 << "Asked for candidate image even though image was not meant to " << std::endl
                 << "be transferred from the device back to the host" << std::endl

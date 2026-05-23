@@ -79,7 +79,7 @@ double minOnly_transformed_fitness(
 #ifdef DEBUG
     if(not item_ptr) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In minOnly_transformed_fitness():" << '\n'
             << "Got empty work item" << '\n'
         );
@@ -119,7 +119,7 @@ bool isBetter(
     if(x_mode != y_mode) {
         // Throw an exception
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In isBetterThan(x_ptr, y_ptr):" << '\n'
             << "Got different maxMode-settings: " << x_mode << " / " << y_mode << '\n'
         );

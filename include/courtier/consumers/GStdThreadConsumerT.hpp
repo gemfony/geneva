@@ -156,7 +156,7 @@ public:
 #ifdef DEBUG
         if(not workerTemplate) { // Does the template point somewhere ?
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GStdThreadConsumerT<processable_type>::registerWorkerTemplate(): Error!"
                 << '\n'
                 << "Found empty worker template pointer" << '\n'

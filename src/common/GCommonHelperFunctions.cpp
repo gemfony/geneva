@@ -135,7 +135,7 @@ std::string loadTextDataFromFile(std::filesystem::path const &p) {
     // Check that the file exists
     if(not std::filesystem::exists(p)) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In loadTextDataFromFile(): Error!" << '\n'
             << "Tried to load data from file " << p.string() << '\n'
             << "which does not exist" << '\n'
@@ -146,7 +146,7 @@ std::string loadTextDataFromFile(std::filesystem::path const &p) {
 
     if(not source_file_stream) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In loadTextDataFromFile(): Error!" << '\n'
             << "Stream from file " << p.string() << '\n'
             << "is not valid" << '\n'
@@ -171,7 +171,7 @@ std::vector<std::string> loadTextLinesFromFile(std::filesystem::path const &p) {
     // Check that the file exists
     if(not std::filesystem::exists(p)) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In loadTextLinesFromFile(): Error!" << '\n'
             << "Tried to load data from file " << p.string() << '\n'
             << "which does not exist" << '\n'
@@ -182,7 +182,7 @@ std::vector<std::string> loadTextLinesFromFile(std::filesystem::path const &p) {
 
     if(not source_file_stream) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In loadTextLinesFromFile(): Error!" << '\n'
             << "Stream from file " << p.string() << '\n'
             << "is not valid" << '\n'
@@ -271,7 +271,7 @@ std::vector<std::string> splitString(std::string const &str, const char *sep) {
 #ifdef DEBUG
     if(1 != std::string(sep).size()) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In splitString(): Error!" << '\n'
             << "Supplied separator \"" << sep << "\" has invalid size " << std::string(sep).size()
             << '\n'
@@ -335,7 +335,7 @@ std::vector<unsigned int> stringToUIntVec(std::string const &raw, char sep) {
     if(from != to || not success) {
         std::string rest(from, to);
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In stringToUIntVec(const std::string& raw): Error!" << '\n'
             << "Parsing failed." << '\n'
             << "Stopped at: \": " << rest << "\"" << '\n'
@@ -365,7 +365,7 @@ std::vector<double> stringToDoubleVec(std::string const &raw) {
     if(from != to || not success) {
         std::string rest(from, to);
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In stringToDoubleVec(const std::string& raw): Error!" << '\n'
             << "Parsing failed." << '\n'
             << "Stopped at: \": " << rest << "\"" << '\n'
@@ -403,7 +403,7 @@ std::vector<std::tuple<unsigned int, unsigned int>> stringToUIntTupleVec(std::st
     if(from != to || not success) {
         std::string rest(from, to);
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In stringToUIntTupleVec(const std::string& raw): Error!" << '\n'
             << "Parsing failed." << '\n'
             << "Stopped at: \"" << rest << "\"" << '\n'
@@ -439,7 +439,7 @@ std::chrono::duration<double> duration_from_string(std::string const &duration_s
 
     default:
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In Gem::Common::duration_from_string(\"" << duration_string << "\"): Error!"
             << '\n'
             << "Invalid number of fields present: " << timings.size() << '\n'

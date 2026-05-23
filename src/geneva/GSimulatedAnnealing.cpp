@@ -203,7 +203,7 @@ std::uint16_t GSimulatedAnnealing::getNThreads() const {
 void GSimulatedAnnealing::setTDegradationStrength(double alpha) {
     if(alpha <= 0. || alpha >= 1.) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GSimulatedAnnealing::setTDegradationStrength(const double&):" << '\n'
             << "alpha must be in (0,1) for SA cooling; got: " << alpha << '\n'
         );
@@ -231,7 +231,7 @@ double GSimulatedAnnealing::getTDegradationStrength() const {
 void GSimulatedAnnealing::setT0(double t0) {
     if(t0 <= 0.) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GSimulatedAnnealing::setT0(const double&):" << '\n'
             << "Got negative start temperature: " << t0 << '\n'
         );
@@ -310,7 +310,7 @@ void GSimulatedAnnealing::populationSanityChecks_() const {
     // in the parent class.
     if(this->n_parents_ == 0) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GSimulatedAnnealing::populationSanityChecks(): Error!" << '\n'
             << "Number of parents is set to 0"
         );
@@ -320,7 +320,7 @@ void GSimulatedAnnealing::populationSanityChecks_() const {
     std::size_t pop_size = this->getPopulationSize();
     if(pop_size <= this->n_parents_) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GSimulatedAnnealing::populationSanityChecks() :" << '\n'
             << "Requested size of population is too small :" << pop_size << " " << this->n_parents_
             << '\n'
@@ -361,7 +361,7 @@ void GSimulatedAnnealing::adaptChildren_() {
         }
         catch(std::exception &e) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GSimulatedAnnealing::adaptChildren_() :" << '\n'
                 << "Got error during thread execution with message:" << '\n'
                 << e.what() << '\n'
@@ -369,7 +369,7 @@ void GSimulatedAnnealing::adaptChildren_() {
         }
         catch(...) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GSimulatedAnnealing::adaptChildren_() :" << '\n'
                 << "Got unknown exception during thread execution" << '\n'
             );
@@ -395,7 +395,7 @@ void GSimulatedAnnealing::runFitnessCalculation_() {
     for(std::size_t i = this->getNParents(); i < this->size(); i++) {
         if(not this->at(i)->is_due_for_processing()) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GSimulatedAnnealing::runFitnessCalculation(): Error!" << '\n'
                 << "Tried to evaluate children in range " << std::get<0>(range) << " - "
                 << std::get<1>(range) << '\n'
@@ -501,7 +501,7 @@ void GSimulatedAnnealing::fixAfterJobSubmission() {
     // Check that individuals do exist in the population. We cannot continue, if this is not the case
     if(this->empty()) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GSimulatedAnnealing::fixAfterJobSubmission(): Error!" << '\n'
             << "Population holds no data" << '\n'
         );
@@ -519,7 +519,7 @@ void GSimulatedAnnealing::fixAfterJobSubmission() {
     // Check that the last individual is not unprocessed. This is a severe error.
     if(this->back()->is_due_for_processing()) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GSimulatedAnnealing::fixAfterJobSubmission():" << '\n'
             << "The last individual in the population is is unprocessed" << '\n'
             << "so we cannot use it for cloning" << '\n'
@@ -569,7 +569,7 @@ void GSimulatedAnnealing::selectBest_() {
     // should have been taken care of in fixAfterJobSubmission() .
     if(this->size() < this->getDefaultPopulationSize()) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GSimulatedAnnealing::selectBest(): Error!" << '\n'
             << "Size of population is smaller than expected: " << this->size() << " / "
             << this->getDefaultPopulationSize() << '\n'

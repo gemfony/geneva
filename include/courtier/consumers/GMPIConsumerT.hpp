@@ -679,7 +679,7 @@ private:
 
         if(outgoingMessage_.size() > GMPICONSUMERMAXMESSAGESIZE) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "GMPIConsumerSessionT<processable_type>::serializeOutgoingMsg():" << '\n'
                 << "Size of individual to send after serialization greater than maximum configured "
                    "message size."
@@ -1023,7 +1023,7 @@ private:
     void putPayloadItem(std::shared_ptr<processable_type> p) {
         if(not p) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "GMPIConsumerMasterNodeT<>::putPayloadItem():" << '\n'
                 << "Function called with empty work item" << '\n'
             );
@@ -1162,7 +1162,7 @@ public:
 
             if(providedThreadingLevel != MPI_THREAD_MULTIPLE) {
                 throw geneva_exception(
-                    g_error_streamer(DO_LOG, time_and_place)
+                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                     << "GMPIConsumerT<> constructor" << '\n'
                     << "Geneva requires MPI implementation with level MPI_THREAD_MULTIPLE (a.k.a. "
                     << MPI_THREAD_MULTIPLE
@@ -1267,7 +1267,7 @@ public:
     [[nodiscard]] inline bool isMasterNode() const {
         if(!isClusterPositionDefined) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "GMPIConsumerT<>::isMasterNode():" << '\n'
                 << "The position of the process in the cluster is undefined." << '\n'
                 << "Use GMPIConsumerT<>::setPositionInCluster() to let the node figure out its "
@@ -1435,7 +1435,7 @@ private:
     getClient_() const override {
         if(isMasterNode()) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "GMPIConsumerT<>::getClient_():" << '\n'
                 << "The current node is the master node in the MPI cluster." << '\n'
                 << "Trying to construct a client a.k.a. worker from this node is not permitted."

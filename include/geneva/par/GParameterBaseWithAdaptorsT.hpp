@@ -110,7 +110,7 @@ public:
         // Check that we have indeed been given an adaptor
         if(not gat_ptr) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GParameterBaseWithAdaptorsT<T>::addAdaptor()" << '\n'
                 << "with typeid(T).name() = " << typeid(T).name() << ":" << '\n'
                 << "Error: Empty adaptor provided." << '\n'
@@ -127,7 +127,7 @@ public:
         }
         else { // None there ? This should not happen
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GParameterBaseWithAdaptorsT<T>::addAdaptor()" << '\n'
                 << "Found no local adaptor. This should not happen." << '\n'
             );
@@ -152,7 +152,7 @@ public:
 #ifdef DEBUG
         if(not adaptor_) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GParameterBaseWithAdaptorsT::getAdaptor() :" << '\n'
                 << "with typeid(T).name() = " << typeid(T).name() << '\n'
                 << "Tried to retrieve adaptor while none is present" << '\n'
@@ -185,7 +185,7 @@ public:
 #ifdef DEBUG
         if(not adaptor_) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GParameterBaseWithAdaptorsT::getAdaptor<adaptor_type>()" << '\n'
                 << "with typeid(T).name() = " << typeid(T).name() << " :" << '\n'
                 << "Tried to access empty adaptor pointer." << '\n'
@@ -259,7 +259,7 @@ protected:
         // Check that both we and the "foreign" object have an adaptor
         if(not adaptor_ || not p_load->adaptor_) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GParameterBaseWithAdaptorsT<T>::load_():" << '\n'
                 << "Missing adaptor!" << '\n'
             );
@@ -332,7 +332,7 @@ protected:
 #ifdef DEBUG
         if(not adaptor_) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GParameterBaseWithAdaptorsT<T>::applyAdaptor(value,range):" << '\n'
                 << "with typeid(T).name() = " << typeid(T).name() << '\n'
                 << "Error: No adaptor was found." << '\n'
@@ -358,7 +358,7 @@ protected:
 #ifdef DEBUG
         if(not adaptor_) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GParameterBaseWithAdaptorsT<T>::applyAdaptor(collection, range, gr):"
                 << '\n'
                 << "with typeid(T).name() = " << typeid(T).name() << '\n'
@@ -492,7 +492,7 @@ private:
 #ifdef DEBUG
         if(not adaptor_) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GParameterBaseWithAdaptorsT<T>::updateAdaptorsOnStall_(...):" << '\n'
                 << "with typeid(T).name() = " << typeid(T).name() << '\n'
                 << "Error: No adaptor was found." << '\n'
@@ -519,7 +519,7 @@ private:
 #ifdef DEBUG
         if(not adaptor_) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GParameterBaseWithAdaptorsT<T>::queryAdaptor:(...):" << '\n'
                 << "with typeid(T).name() = " << typeid(T).name() << '\n'
                 << "Error: No adaptor was found." << '\n'
@@ -560,7 +560,7 @@ inline std::size_t GParameterBaseWithAdaptorsT<bool>::applyAdaptor(
 #ifdef DEBUG
     if(not adaptor_) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GParameterBaseWithAdaptorsT<T>::applyAdaptor(std::vector<bool>& collection):"
             << '\n'
             << "Error: No adaptor was found." << '\n'

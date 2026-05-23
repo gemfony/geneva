@@ -113,12 +113,12 @@ TEST_CASE("g_error_streamer: content() is allocation-only and repeatable",
     CHECK(a == b);
 }
 
-TEST_CASE("time_and_place macro: expands to a string containing the call-site location",
+TEST_CASE("Gem::Common::timeAndPlace() macro: expands to a string containing the call-site location",
           "[common][error-streamer]") {
     // The macro splices __FILE__ and __LINE__ into a `Recorded on … in File X
     // at line N :\n` string. Sanity-check the framing without pinning the
     // exact line number (which would shift with every edit above).
-    const std::string tp = time_and_place;
+    const std::string tp = Gem::Common::timeAndPlace();
     CHECK(tp.find("Recorded on ")               != std::string::npos);
     CHECK(tp.find("in File ")                   != std::string::npos);
     CHECK(tp.find("at line ")                   != std::string::npos);

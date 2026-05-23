@@ -180,7 +180,7 @@ public:
         if(data_deq_.empty()) {
             // Throw an exception
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GFixedSizePriorityQueueT<T>::best(): Error!" << '\n'
                 << "Priority queue is empty." << '\n'
             );
@@ -197,7 +197,7 @@ public:
         if(data_deq_.empty()) {
             // Throw an exception
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GFixedSizePriorityQueueT<T>::best(): Error!" << '\n'
                 << "Priority queue is empty." << '\n'
             );
@@ -367,7 +367,7 @@ public:
         if(data_deq_.empty()) {
             // Throw an exception
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GFixedSizePriorityQueueT<T>::pop(): Error!" << '\n'
                 << "Priority queue is empty." << '\n'
             );

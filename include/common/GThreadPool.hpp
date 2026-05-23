@@ -113,14 +113,14 @@ public:
                 // Some error checks
                 if(0 == n_threads_.load()) {
                     throw geneva_exception(
-                        g_error_streamer(DO_LOG, time_and_place)
+                        g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                         << "In GThreadPool::async_schedule(F f): Error!" << '\n'
                         << "The number of threads is set to 0" << '\n'
                     );
                 }
                 if(gtg_.size() > 0) {
                     throw geneva_exception(
-                        g_error_streamer(DO_LOG, time_and_place)
+                        g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                         << "In GThreadPool::async_schedule(F f): Error!" << '\n'
                         << "The thread group already has entries, although" << '\n'
                         << "threads_started_ is set to false" << '\n'
@@ -240,14 +240,14 @@ public:
                 // Some error checks
                 if(0 == n_threads_.load()) {
                     throw geneva_exception(
-                        g_error_streamer(DO_LOG, time_and_place)
+                        g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                         << "In GThreadPool::async_schedule(F f): Error!" << '\n'
                         << "The number of threads is set to 0" << '\n'
                     );
                 }
                 if(gtg_.size() > 0) {
                     throw geneva_exception(
-                        g_error_streamer(DO_LOG, time_and_place)
+                        g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                         << "In GThreadPool::async_schedule(F f): Error!" << '\n'
                         << "The thread group already has entries, although" << '\n'
                         << "threads_started_ is set to false" << '\n'

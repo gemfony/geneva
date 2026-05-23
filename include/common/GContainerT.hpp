@@ -692,7 +692,7 @@ public:
     {
         if(amount > data_cnt_.size()) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GContainerT::resize(): "
                 << "Cannot grow a SharedPtrStorage container without a prototype. "
                 << "Use resize_clone(), resize_noclone(), or resize_empty() instead." << '\n'
@@ -1016,7 +1016,7 @@ public:
     [[nodiscard]] size_type count(const std::shared_ptr<ItemType> &item) const {
         if(not item) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GContainerT::count(): "
                 << "Tried to count with an empty smart pointer." << '\n'
             );
@@ -1046,7 +1046,7 @@ public:
     [[nodiscard]] const_iterator find(const std::shared_ptr<ItemType> &item) const {
         if(not item) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GContainerT::find(): "
                 << "Tried to find an empty smart pointer." << '\n'
             );
@@ -1079,7 +1079,7 @@ public:
     {
         if(not item_ptr) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GContainerT::push_back_clone(): "
                 << "Tried to clone an empty smart pointer." << '\n'
             );
@@ -1102,7 +1102,7 @@ public:
     {
         if(not item_ptr) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GContainerT::push_back_noclone(): "
                 << "Tried to insert an empty smart pointer." << '\n'
             );
@@ -1128,7 +1128,7 @@ public:
     {
         if(not item_ptr) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GContainerT::insert_clone(): "
                 << "Tried to clone an empty smart pointer." << '\n'
             );
@@ -1150,7 +1150,7 @@ public:
     {
         if(not item_ptr) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GContainerT::insert_clone(count): "
                 << "Tried to clone an empty smart pointer." << '\n'
             );
@@ -1187,7 +1187,7 @@ public:
     {
         if(not item_ptr) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GContainerT::insert_noclone(): "
                 << "Tried to insert an empty smart pointer." << '\n'
             );
@@ -1213,7 +1213,7 @@ public:
     {
         if(not item_ptr) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GContainerT::insert_noclone(count): "
                 << "Tried to insert an empty smart pointer." << '\n'
             );
@@ -1263,7 +1263,7 @@ public:
         else if(amount > data_size) {
             if(not item_ptr) {
                 throw geneva_exception(
-                    g_error_streamer(DO_LOG, time_and_place)
+                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                     << "In GContainerT::resize_clone(): "
                     << "Tried to clone an empty smart pointer." << '\n'
                 );
@@ -1294,7 +1294,7 @@ public:
         else if(amount > data_size) {
             if(not item_ptr) {
                 throw geneva_exception(
-                    g_error_streamer(DO_LOG, time_and_place)
+                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                     << "In GContainerT::resize_noclone(): "
                     << "Tried to insert an empty smart pointer." << '\n'
                 );
@@ -1476,7 +1476,7 @@ public:
 #ifdef DEBUG
         if(pos >= min_size) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GContainerT::crossOver(): Error!" << '\n'
                 << "Invalid position " << pos << " / " << this->size() << " / " << cp.size()
                 << '\n'

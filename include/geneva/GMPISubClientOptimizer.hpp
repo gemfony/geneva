@@ -140,7 +140,7 @@ private:
          */
     std::function<int(MPI_Comm)> subClientJob_{[](MPI_Comm comm) -> int {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "GMPISubClientOptimizer::subClientJob_(MPI_Comm comm): Error!" << '\n'
             << "The sub-client job has not been set. Set it using the `GMPISubClientOptimizer "
                "&GMPISubClientOptimizer::registerSubClientJob(std::function<int(MPI_Comm)> "

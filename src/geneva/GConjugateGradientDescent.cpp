@@ -82,7 +82,7 @@ std::size_t GConjugateGradientDescent::getNStartingPoints() const {
 void GConjugateGradientDescent::setNStartingPoints(std::size_t n_starting_points) {
     if(n_starting_points == 0) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GConjugateGradientDescent::setNStartingPoints(const std::size_t&):" << '\n'
             << "Got invalid number of starting points." << '\n'
         );
@@ -99,7 +99,7 @@ void GConjugateGradientDescent::setFiniteStep(double finite_step) {
     if(finite_step <= 0. ||
        finite_step > 1000.) { // Specified in per mill of the allowed or preferred value range
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GConjugateGradientDescent::setFiniteStep(double): Error!" << '\n'
             << "Invalid value of finite_step: " << finite_step << '\n'
             << "Must be in the range ]0.:1000.]" << '\n'
@@ -128,7 +128,7 @@ void GConjugateGradientDescent::setStepSize(double step_size) {
     if(step_size <= 0. ||
        step_size > 1000.) { // Specified in per mill of the allowed or preferred value range
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GConjugateGradientDescent::setStepSize(double): Error!" << '\n'
             << "Invalid value of step_size: " << step_size << '\n'
             << "Must be in the range ]0.:1000.]" << '\n'
@@ -372,7 +372,7 @@ void GConjugateGradientDescent::updateParentIndividuals() {
 #ifdef DEBUG
         if(this->at(i)->is_due_for_processing() || (this->at(i)->has_errors())) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GConjugateGradientDescent::updateParentIndividuals():" << '\n'
                 << "Found individual in position " << i
                 << " which is unprocessed or has errors" << '\n'
@@ -440,7 +440,7 @@ void GConjugateGradientDescent::updateParentIndividuals() {
         }
         catch(std::overflow_error &e) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GConjugateGradientDescent::updateParentIndividuals(): Error!" << '\n'
                 << "Bad conversion with message " << e.what() << '\n'
             );
@@ -501,7 +501,7 @@ void GConjugateGradientDescent::runFitnessCalculation_() {
     for(const auto &item_ptr : *this) {
         if(this->afterFirstIteration() && !item_ptr->is_due_for_processing()) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GConjugateGradientDescent::runFitnessCalculation():" << '\n'
                 << "Found individual on position " << pos
                 << " which is not due for processing" << '\n'
@@ -522,7 +522,7 @@ void GConjugateGradientDescent::runFitnessCalculation_() {
     // A conjugate-gradient method needs a complete set of evaluated solutions.
     if(not status.is_complete || status.has_errors) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GConjugateGradientDescent::runFitnessCalculation(): Error!" << '\n'
             << "No complete set of items received or errors found in some individuals"
             << '\n'
@@ -548,7 +548,7 @@ void GConjugateGradientDescent::init() {
 #ifdef DEBUG
     if(dbl_lower_parameter_boundaries_.size() != dbl_upper_parameter_boundaries_.size()) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GConjugateGradientDescent::init(): Error!" << '\n'
             << "Found invalid sizes: " << dbl_lower_parameter_boundaries_.size() << " / "
             << dbl_upper_parameter_boundaries_.size() << '\n'
@@ -557,7 +557,7 @@ void GConjugateGradientDescent::init() {
 
     if(step_size_ <= 0. || step_size_ > 1000.) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GConjugateGradientDescent::init(): Error!" << '\n'
             << "Invalid value of step_size_: " << step_size_ << '\n'
             << "Must be in the range ]0.:1000.]" << '\n'
@@ -566,7 +566,7 @@ void GConjugateGradientDescent::init() {
 
     if(finite_step_ <= 0. || finite_step_ > 1000.) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GConjugateGradientDescent::init(): Error!" << '\n'
             << "Invalid value of finite_step_: " << finite_step_ << '\n'
             << "Must be in the range ]0.:1000.]" << '\n'
@@ -600,7 +600,7 @@ void GConjugateGradientDescent::updateDerivedQuantities() {
     }
     catch(std::overflow_error &e) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GConjugateGradientDescent::updateDerivedQuantities(): Error!" << '\n'
             << "Bad conversion with message " << e.what() << '\n'
         );
@@ -655,7 +655,7 @@ void GConjugateGradientDescent::adjustPopulation_() {
 
     if(n_start == 0) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GConjugateGradientDescent::adjustPopulation():" << '\n'
             << "You didn't add any individuals to the collection. We need at least one."
             << '\n'
@@ -666,7 +666,7 @@ void GConjugateGradientDescent::adjustPopulation_() {
 
     if(n_fp_parms_first_ == 0) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GConjugateGradientDescent::adjustPopulation():" << '\n'
             << "No floating point parameters in individual." << '\n'
         );
@@ -697,7 +697,7 @@ void GConjugateGradientDescent::adjustPopulation_() {
     for(std::size_t i = 1; i < this->size(); i++) {
         if(this->at(i)->countParameters<double>(activityMode::ACTIVEONLY) != n_fp_parms_first_) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GConjugateGradientDescent::adjustPopulation():" << '\n'
                 << "Found individual in position " << i << " with different" << '\n'
                 << "number of floating point parameters than the first one: "
@@ -733,7 +733,7 @@ void GConjugateGradientDescent::adjustPopulation_() {
 #ifdef DEBUG
     if(this->size() != n_starting_points_ * (n_fp_parms_first_ + 1)) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GConjugateGradientDescent::adjustPopulation():" << '\n'
             << "Population size is " << this->size() << '\n'
             << "but expected " << n_starting_points_ * (n_fp_parms_first_ + 1) << '\n'

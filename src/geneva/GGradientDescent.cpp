@@ -81,7 +81,7 @@ void GGradientDescent::setNStartingPoints(std::size_t n_starting_points) {
     // Do some error checking
     if(n_starting_points == 0) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GGradientDescent::setNStartingPoints(const std::size_t&):" << '\n'
             << "Got invalid number of starting points." << '\n'
         );
@@ -101,7 +101,7 @@ void GGradientDescent::setFiniteStep(double finite_step) {
     if(finite_step <= 0. ||
        finite_step > 1000.) { // Specified in per mill of the allowed or preferred value range
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GGradientDescent::setFiniteStep(double): Error!" << '\n'
             << "Invalid value of finite_step: " << finite_step << '\n'
             << "Must be in the range ]0.:1000.]" << '\n'
@@ -135,7 +135,7 @@ void GGradientDescent::setStepSize(double step_size) {
     if(step_size <= 0. ||
        step_size > 1000.) { // Specified in per mill of the allowed or preferred value range
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GGradientDescent::setStepSize(double): Error!" << '\n'
             << "Invalid value of step_size: " << step_size << '\n'
             << "Must be in the range ]0.:1000.]" << '\n'
@@ -387,7 +387,7 @@ void GGradientDescent::updateParentIndividuals() {
         // Make sure the parents are clean
         if(this->at(i)->is_due_for_processing() || (this->at(i)->has_errors())) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GGradientDescent::updateParentIndividuals():" << '\n'
                 << "Found individual in position " << i << " which is unprocessed or has errors"
                 << '\n'
@@ -416,7 +416,7 @@ void GGradientDescent::updateParentIndividuals() {
             }
             catch(std::overflow_error &e) {
                 throw geneva_exception(
-                    g_error_streamer(DO_LOG, time_and_place)
+                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                     << "In GGradientDescent::updateParentIndividuals(): Error!" << '\n'
                     << "Bad conversion with message " << e.what() << '\n'
                 );
@@ -486,7 +486,7 @@ void GGradientDescent::runFitnessCalculation_() {
         // Make sure the evaluated individuals are marked to be processed
         if(this->afterFirstIteration() && !item_ptr->is_due_for_processing()) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GGradientDescent::runFitnessCalculation():" << '\n'
                 << "Found individual om position " << pos << " which is not due for processing"
                 << '\n'
@@ -515,7 +515,7 @@ void GGradientDescent::runFitnessCalculation_() {
     // cannot be tolerated, as a gradient method needs a complete set of evaluated solutions.
     if(not status.is_complete || status.has_errors) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GGradientDescent::runFitnessCalculation(): Error!" << '\n'
             << "No complete set of items received or errors found in some individuals" << '\n'
         );
@@ -543,7 +543,7 @@ void GGradientDescent::init() {
     // Size matters!
     if(dbl_lower_parameter_boundaries_.size() != dbl_upper_parameter_boundaries_.size()) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GGradientDescent::init(): Error!" << '\n'
             << "Found invalid sizes: " << dbl_lower_parameter_boundaries_.size() << " / "
             << dbl_upper_parameter_boundaries_.size() << '\n'
@@ -554,7 +554,7 @@ void GGradientDescent::init() {
     if(step_size_ <= 0. ||
        step_size_ > 1000.) { // Specified in per mill of the allowed or preferred value range
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GGradientDescent::init(): Error!" << '\n'
             << "Invalid values of step_size_: " << step_size_ << '\n'
             << "Must be in the range ]0.:1000.]" << '\n'
@@ -565,7 +565,7 @@ void GGradientDescent::init() {
     if(finite_step_ <= 0. ||
        finite_step_ > 1000.) { // Specified in per mill of the allowed or preferred value range
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GGradientDescent::init(): Error!" << '\n'
             << "Invalid values of finite_step_: " << finite_step_ << '\n'
             << "Must be in the range ]0.:1000.]" << '\n'
@@ -609,7 +609,7 @@ void GGradientDescent::updateDerivedQuantities() {
     }
     catch(std::overflow_error &e) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GGradientDescent::updateDerivedQuantities(): Error!" << '\n'
             << "Bad conversion with message " << e.what() << '\n'
         );
@@ -657,7 +657,7 @@ void GGradientDescent::adjustPopulation_() {
     // We need at least one individual
     if(n_start == 0) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GGradientDescent::adjustPopulation():" << '\n'
             << "You didn't add any individuals to the collection. We need at least one."
             << '\n'
@@ -670,7 +670,7 @@ void GGradientDescent::adjustPopulation_() {
     // Check that the first individual has floating point parameters (double for the moment)
     if(n_fp_parms_first_ == 0) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GGradientDescent::adjustPopulation():" << '\n'
             << "No floating point parameters in individual." << '\n'
         );
@@ -701,7 +701,7 @@ void GGradientDescent::adjustPopulation_() {
     for(std::size_t i = 1; i < this->size(); i++) {
         if(this->at(i)->countParameters<double>(activityMode::ACTIVEONLY) != n_fp_parms_first_) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GGradientDescent::adjustPopulation():" << '\n'
                 << "Found individual in position " << i << " with different" << '\n'
                 << "number of floating point parameters than the first one: "
@@ -742,7 +742,7 @@ void GGradientDescent::adjustPopulation_() {
 #ifdef DEBUG
     if(this->size() != n_starting_points_ * (n_fp_parms_first_ + 1)) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GGradientDescent::adjustPopulation():" << '\n'
             << "Population size is " << this->size() << '\n'
             << "but expected " << n_starting_points_ * (n_fp_parms_first_ + 1) << '\n'

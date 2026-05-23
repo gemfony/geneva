@@ -157,7 +157,7 @@ sharedPtrFromString(const std::string &gt_string, const Gem::Common::serializati
     }
     catch(...) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In sharedPtrFromString(): Error!" << '\n'
             << "Caught unknown exception" << '\n'
         );

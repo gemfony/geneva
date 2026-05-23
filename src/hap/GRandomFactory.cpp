@@ -321,7 +321,7 @@ void GRandomFactory::producer(std::uint32_t seed) {
 #ifdef DEBUG
                 if(not p) {
                     throw geneva_exception(
-                        g_error_streamer(DO_LOG, time_and_place)
+                        g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                         << "In RandomFactory::producer(): Error!" << '\n'
                         << "Got empty recycling pointer" << '\n'
                     );
@@ -343,7 +343,7 @@ void GRandomFactory::producer(std::uint32_t seed) {
                     // p should never be empty here
                     if(not p) {
                         throw geneva_exception(
-                            g_error_streamer(DO_LOG, time_and_place)
+                            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                             << "In RandomFactory::producer(): Error!" << '\n'
                             << "Got empty pointer after unsuccesfull submission" << '\n'
                         );
@@ -360,7 +360,7 @@ void GRandomFactory::producer(std::uint32_t seed) {
     }
     catch(std::bad_alloc &e) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GRandomFactory::producer(): Error!" << '\n'
             << "Caught std::bad_alloc exception with message" << '\n'
             << e.what() << '\n'
@@ -368,7 +368,7 @@ void GRandomFactory::producer(std::uint32_t seed) {
     }
     catch(std::invalid_argument &e) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GRandomFactory::producer(): Error!" << '\n'
             << "Caught std::invalid_argument exception with message" << '\n'
             << e.what() << '\n'
@@ -376,7 +376,7 @@ void GRandomFactory::producer(std::uint32_t seed) {
     }
     catch(std::system_error &e) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GRandomFactory::producer(): Error!" << '\n'
             << "Caught std::system_error exception with message" << '\n'
             << e.what() << '\n'
@@ -385,7 +385,7 @@ void GRandomFactory::producer(std::uint32_t seed) {
     }
     catch(...) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GRandomFactory::producer(): Error!" << '\n'
             << "Caught unkown exception." << '\n'
         );

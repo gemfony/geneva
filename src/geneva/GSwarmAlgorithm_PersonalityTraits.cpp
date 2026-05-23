@@ -174,7 +174,7 @@ void GSwarmAlgorithm_PersonalityTraits::registerPersonalBest(std::shared_ptr<gpa
     // Does it point anywhere ?
     if(not p) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GSwarmAlgorithm_PersonalityTraits::registerPersonalBest():" << '\n'
             << "Got empty smart pointer." << '\n'
         );
@@ -183,7 +183,7 @@ void GSwarmAlgorithm_PersonalityTraits::registerPersonalBest(std::shared_ptr<gpa
     // Is the dirty flag set ?
     if(not p->is_processed()) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GSwarmAlgorithm_PersonalityTraits::registerPersonalBest():" << '\n'
             << "Got individual which isn't processed." << '\n'
         );
@@ -214,7 +214,7 @@ std::shared_ptr<gpar::GParameterSet> GSwarmAlgorithm_PersonalityTraits::getPerso
 #ifdef DEBUG
     if(not personal_best_) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GSwarmAlgorithm_PersonalityTraits::getPersonalBest(): Error!" << '\n'
             << "Tried to retrieve personal_best_ while pointer is empty" << '\n'
         );

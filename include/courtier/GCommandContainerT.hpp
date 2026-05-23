@@ -181,7 +181,7 @@ public:
         }
         else {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GCommandContainerT<processable_type, command_type>::process():" << '\n'
                 << "Tried to process a work item while payload_ptr_ is empty" << '\n'
             );
@@ -235,7 +235,7 @@ std::string container_to_string(
     }
     catch(const boost::system::system_error &e) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In container_to_string(GCommandContainerT<>):" << '\n'
             << "Caught boost::system::system_error exception with messages:" << '\n'
             << e.what() << '\n'
@@ -244,7 +244,7 @@ std::string container_to_string(
     }
     catch(const std::exception &e) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In container_to_string(GCommandContainerT<>):" << '\n'
             << "Caught std::exception exception with messages:" << '\n'
             << e.what() << '\n'
@@ -253,7 +253,7 @@ std::string container_to_string(
     }
     catch(...) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In container_to_string(GCommandContainerT<>):" << '\n'
             << "Caught unknown exception" << '\n'
             << "with serializationMode == " << Gem::Common::serModeToString(serMode) << '\n'
@@ -299,7 +299,7 @@ void container_from_string(
     }
     catch(const boost::system::system_error &e) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In container_from_string(GCommandContainerT<>):" << '\n'
             << "Caught boost::system::system_error exception with messages:" << '\n'
             << e.what() << '\n'
@@ -308,7 +308,7 @@ void container_from_string(
     }
     catch(const std::exception &e) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In container_from_string(GCommandContainerT<>):" << '\n'
             << "Caught std::exception exception with messages:" << '\n'
             << e.what() << '\n'
@@ -317,7 +317,7 @@ void container_from_string(
     }
     catch(...) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In container_from_string(GCommandContainerT<>):" << '\n'
             << "Caught unknown exception" << '\n'
             << "with serializationMode == " << Gem::Common::serModeToString(serMode) << '\n'

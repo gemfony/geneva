@@ -292,7 +292,7 @@ private:
                        std::filesystem::path(resultImageDirectory_)
                    )) {
                     throw geneva_exception(
-                        g_error_streamer(DO_LOG, time_and_place)
+                        g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                         << "Error: could not create directory " << resultImageDirectory_
                         << '\n'
                     );
@@ -302,7 +302,7 @@ private:
                 // Check that resultImageDirectory_ is indeed a directory and not a file
                 if(!std::filesystem::is_directory(std::filesystem::path(resultImageDirectory_))) {
                     throw geneva_exception(
-                        g_error_streamer(DO_LOG, time_and_place)
+                        g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                         << "Error: " << resultImageDirectory_ << " is not a directory" << '\n'
                     );
                 }

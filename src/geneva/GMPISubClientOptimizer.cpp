@@ -45,7 +45,7 @@ GMPISubClientOptimizer::GMPISubClientOptimizer(
   : Go2{argc, argv, configFilePath, userDescriptions} {
     if(Go2::getConsumerName() != "mpi") { // only allow using MPI
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "GMPISubClientOptimizer constructor Error!" << '\n'
             << "GMPISubClientOptimizer may only be used with the GMPIConsumerT, but the consumer "
                "is `"

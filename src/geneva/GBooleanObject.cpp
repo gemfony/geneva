@@ -169,7 +169,7 @@ bool GBooleanObject::randomInit_(
            "GBooleanObject::randomInit_(probability)"
        )) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GBooleanObject::randomInit_(probability): Error!" << '\n'
             << "Probability " << probability << " not in allowed value range [0,1]" << '\n'
         );
@@ -260,7 +260,7 @@ void GBooleanObject::booleanStreamline(
 #ifdef DEBUG
     if((this->getParameterName()).empty()) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GBooleanObject::booleanStreamline(std::map<std::string, std::vector<bool>>& "
                "par_vec) const: Error!"
             << '\n'
@@ -317,7 +317,7 @@ void GBooleanObject::assignBooleanValueVector(
     // Do we have a valid position ?
     if(pos >= par_vec.size()) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GBooleanObject::assignBooleanValueVector(const std::vector<bool>&, "
                "std::size_t&):"
             << '\n'

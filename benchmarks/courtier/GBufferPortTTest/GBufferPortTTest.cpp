@@ -185,7 +185,7 @@ void producer(
             while(!bufferport.push_raw(p_submit, putTimeout)) {
                 if(++putTimeouts >= maxPutTimeouts) {
                     throw geneva_exception(
-                        g_error_streamer(DO_LOG, time_and_place)
+                        g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                         << "In producer: Exceeded allowed number \"" << maxPutTimeouts
                         << "\" of put timeouts in iteration " << cycleCounter << std::endl
                     );
@@ -212,7 +212,7 @@ void producer(
             while(!bufferport.pop_processed(p_receive, getTimeout)) {
                 if(++getTimeouts >= maxGetTimeouts) {
                     throw geneva_exception(
-                        g_error_streamer(DO_LOG, time_and_place)
+                        g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                         << "In producer: Exceeded allowed number \"" << maxGetTimeouts
                         << "\" of get timeouts in iteration " << cycleCounter << std::endl
                     );
@@ -233,7 +233,7 @@ void producer(
         }
         else {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In producer: Received invalid pointer" << std::endl
             );
         }
@@ -288,7 +288,7 @@ void processor(
             while(!bufferport.pop_raw(p, getTimeout)) {
                 if(++getTimeouts >= maxGetTimeouts) {
                     throw geneva_exception(
-                        g_error_streamer(DO_LOG, time_and_place)
+                        g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                         << "In processor: Exceeded allowed number \"" << maxGetTimeouts
                         << "\" of get timeouts in cycle " << cycleCounter << std::endl
                     );
@@ -309,7 +309,7 @@ void processor(
         }
         else {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In processor: Received invalid pointer" << std::endl
             );
         }
@@ -319,7 +319,7 @@ void processor(
             while(!bufferport.push_processed(p, putTimeout)) {
                 if(++putTimeouts >= maxPutTimeouts) {
                     throw geneva_exception(
-                        g_error_streamer(DO_LOG, time_and_place)
+                        g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                         << "In processor: Exceeded allowed number \"" << maxPutTimeouts
                         << "\" of put timeouts in cycle " << cycleCounter << std::endl
                     );

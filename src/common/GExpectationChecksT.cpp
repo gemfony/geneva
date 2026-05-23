@@ -160,7 +160,7 @@ void GToken::registerErrorMessage(std::string const &m) {
     }
     else {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GToken::registerErrorMessage(): Error" << '\n'
             << "Tried to register empty error message" << '\n'
         );

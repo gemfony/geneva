@@ -62,7 +62,7 @@ GEvolutionaryAlgorithmPostOptimizer::GEvolutionaryAlgorithmPostOptimizer(
         // Consistent with setExecMode(), which also throws for BROKER. The
         // constructor previously only warned and silently fell back to SERIAL.
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GEvolutionaryAlgorithmPostOptimizer::GEvolutionaryAlgorithmPostOptimizer(execMode): Error!" << '\n'
             << "Got invalid execution mode " << execution_mode << '\n'
         );
@@ -126,7 +126,7 @@ void GEvolutionaryAlgorithmPostOptimizer::setExecMode(execMode execution_mode) {
 
     case execMode::BROKER: {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GEvolutionaryAlgorithmPostOptimizer::setExecMode(): Error!" << '\n'
             << "Got invalid execution mode " << execution_mode << '\n'
         );
@@ -214,7 +214,7 @@ bool GEvolutionaryAlgorithmPostOptimizer::raw_processing_(gpar::GParameterSet &p
     // Make sure p is processed
     if(not p.is_processed()) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GEvolutionaryAlgorithmPostOptimizer::raw_processing_: Error!" << '\n'
             << "Provided base_type has dirty flag set." << '\n'
         );
@@ -222,7 +222,7 @@ bool GEvolutionaryAlgorithmPostOptimizer::raw_processing_(gpar::GParameterSet &p
 
     if(execution_mode_ == execMode::BROKER) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GEvolutionaryAlgorithmPostOptimizer::raw_processing_: Error!" << '\n'
             << "Got invalid execution mode " << execution_mode_ << '\n'
         );

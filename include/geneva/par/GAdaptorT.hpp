@@ -191,7 +191,7 @@ public:
         // Check the supplied probability value
         if(ad_prob < fp_type(0.) || ad_prob > fp_type(1.)) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GAdaptorT<T, fp_type>::setAdaptionProbability(const fp_type&):" << '\n'
                 << "Bad probability value given: " << ad_prob << '\n'
             );
@@ -205,7 +205,7 @@ public:
                "GAdaptorT<>::setAdaptionProbability(" + Gem::Common::to_string(ad_prob) + ")"
            )) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GAdaptorT<T, fp_type>::setAdaptionProbability(const fp_type& ad_prob):"
                 << '\n'
                 << "ad_prob value " << ad_prob << " is outside of allowed value range ["
@@ -257,7 +257,7 @@ public:
                    ")"
            )) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GAdaptorT<T, fp_type>::setResetAdaptionProbability(const fp_type&):" << '\n'
                 << "ad_prob_reset value " << ad_prob_reset << " is outside of allowed value range ["
                 << min_ad_prob_ << ", " << max_ad_prob_ << "]" << '\n'
@@ -294,7 +294,7 @@ public:
                    ")"
            )) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GAdaptorT<T, fp_type>::setAdaptAdaptionProbability(const fp_type&) :"
                 << '\n'
                 << "Probability " << probability << " not in allowed range [0.,1.]" << '\n'
@@ -338,7 +338,7 @@ public:
         // upper bound: a Gaussian sigma may legitimately exceed 1.
         if(adapt_ad_prob < fp_type(0.)) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GAdaptorT<>::setAdaptAdProb(): Error!" << '\n'
                 << "adapt_ad_prob < 0: " << adapt_ad_prob << '\n'
             );
@@ -445,7 +445,7 @@ public:
 #ifdef DEBUG
         if(min_ad_prob < 0.) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GAdaptorT<T, fp_type>::setAdProbRange(): Error!" << '\n'
                 << "min_ad_prob < 0: " << min_ad_prob << '\n'
             );
@@ -453,7 +453,7 @@ public:
 
         if(max_ad_prob > 1.) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GAdaptorT<T, fp_type>::setAdProbRange(): Error!" << '\n'
                 << "max_ad_prob > 1: " << max_ad_prob << '\n'
             );
@@ -461,7 +461,7 @@ public:
 
         if(min_ad_prob > max_ad_prob) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GAdaptorT<T, fp_type>::setAdProbRange(): Error!" << '\n'
                 << "Invalid min_ad_prob and/or max_ad_prob: " << min_ad_prob << " / " << max_ad_prob
                 << '\n'
@@ -651,7 +651,7 @@ public:
 #ifdef DEBUG
         if(0 == n_stalls) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GAdaptorT<>::updateOnStall(" << n_stalls << "): Error!" << '\n'
                 << "Function called for zero n_stalls" << '\n'
             );
@@ -707,7 +707,7 @@ public:
             else { // Ask derived classes
                 if(not this->customQueryProperty(property, data)) {
                     throw geneva_exception(
-                        g_error_streamer(DO_LOG, time_and_place)
+                        g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                         << "In GAdaptorT<T, fp_type>::queryPropertyFrom(): Error!" << '\n'
                         << "Function was called for unimplemented property " << property << '\n'
                         << "on adaptor " << adaptor_name << '\n'

@@ -110,7 +110,7 @@ public:
 
         if(true == simulateCrash) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In testTask::process(): Error!" << '\n'
                 << "SHF-Exception (Some Horrible Failure)" << '\n'
                 << "occurred, as requested ..." << '\n'

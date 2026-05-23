@@ -204,7 +204,7 @@ void GParameterSetFixedSizePriorityQueue::GParameterSetFixedSizePriorityQueue::a
     // Some error checking -- it should not happen that no processed items are found
     if(processed_cnt.empty()) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GParameterSetFixedSizePriorityQueue::add(range): Error!" << '\n'
             << "Container is empty when it should not be!" << '\n'
         );
@@ -243,7 +243,7 @@ void GParameterSetFixedSizePriorityQueue::add(
     // Some error checking -- it should not happen that no processed items are found
     if(processed_cnt.empty()) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GParameterSetFixedSizePriorityQueue::add(vec): Error!" << '\n'
             << "Container is empty when it should not be!" << '\n'
         );

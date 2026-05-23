@@ -687,7 +687,7 @@ double GFunctionIndividual::fitnessCalculation() {
     if(par_vec.size() < 2 &&
        (demo_function_ == solverFunction::ROSENBROCK || demo_function_ == solverFunction::ACKLEY)) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GFunctionIndividual::fitnessCalculation(): function " << id
             << " requires at least 2 dimensions, got " << par_vec.size() << '\n'
         );
@@ -807,7 +807,7 @@ std::shared_ptr<Gem::Common::GFactoryT<gpar::GParameterSet>> GFunctionIndividual
 void GFunctionIndividualFactory::setParDim(std::size_t par_dim) {
     if(par_dim == 0) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GFunctionIndividualFactory::setParDim(): Error!" << '\n'
             << "Dimension of the function is set to 0" << '\n'
         );
@@ -834,7 +834,7 @@ void GFunctionIndividualFactory::setVarBoundaries(std::tuple<double, double> bou
 
     if(min >= max) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GFunctionIndividualFactory::setVarBoundaries(): Error!" << '\n'
             << "Received invalid boundaries " << min << " / " << max << '\n'
         );
@@ -1006,7 +1006,7 @@ void GFunctionIndividualFactory::setDeltaRange(std::tuple<double, double> range)
 
     if(min < 0) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GFunctionIndividualFactory::setDeltaRange(): Error" << '\n'
             << "min must be >= 0. Got : " << max << '\n'
         );
@@ -1014,7 +1014,7 @@ void GFunctionIndividualFactory::setDeltaRange(std::tuple<double, double> range)
 
     if(min >= max) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GFunctionIndividualFactory::setDeltaRange(): Error" << '\n'
             << "Invalid range specified: " << min << " / " << max << '\n'
         );
@@ -1058,7 +1058,7 @@ void GFunctionIndividualFactory::setSigma1Range(std::tuple<double, double> range
 
     if(min < 0) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GFunctionIndividualFactory::setSigma1Range(): Error" << '\n'
             << "min must be >= 0. Got : " << max << '\n'
         );
@@ -1066,7 +1066,7 @@ void GFunctionIndividualFactory::setSigma1Range(std::tuple<double, double> range
 
     if(min >= max) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GFunctionIndividualFactory::setSigma1Range(): Error" << '\n'
             << "Invalid range specified: " << min << " / " << max << '\n'
         );
@@ -1110,7 +1110,7 @@ void GFunctionIndividualFactory::setSigma2Range(std::tuple<double, double> range
 
     if(min < 0) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GFunctionIndividualFactory::setSigma2Range(): Error" << '\n'
             << "min must be >= 0. Got : " << max << '\n'
         );
@@ -1118,7 +1118,7 @@ void GFunctionIndividualFactory::setSigma2Range(std::tuple<double, double> range
 
     if(min >= max) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GFunctionIndividualFactory::setSigma2Range(): Error" << '\n'
             << "Invalid range specified: " << min << " / " << max << '\n'
         );
@@ -1280,7 +1280,7 @@ void GFunctionIndividualFactory::setAdaptAdProb(double adapt_ad_prob) {
 #ifdef DEBUG
     if(adapt_ad_prob < 0.) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GFunctionIndividualFactory::setAdaptAdProb(): Error!" << '\n'
             << "Invalid value for adapt_ad_prob given: " << adapt_ad_prob << '\n'
         );
@@ -1306,7 +1306,7 @@ void GFunctionIndividualFactory::setAdProbRange(double min_ad_prob, double max_a
 #ifdef DEBUG
     if(min_ad_prob < 0.) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GFunctionIndividualFactory::setAdProbRange(): Error!" << '\n'
             << "min_ad_prob < 0: " << min_ad_prob << '\n'
         );
@@ -1314,7 +1314,7 @@ void GFunctionIndividualFactory::setAdProbRange(double min_ad_prob, double max_a
 
     if(min_ad_prob > max_ad_prob) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GFunctionIndividualFactory::setAdProbRange(): Error!" << '\n'
             << "Invalid min_ad_prob and/or max_ad_prob: " << min_ad_prob << " / " << max_ad_prob << '\n'
         );
@@ -1322,7 +1322,7 @@ void GFunctionIndividualFactory::setAdProbRange(double min_ad_prob, double max_a
 
     if(max_ad_prob > 1.) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GFunctionIndividualFactory::setAdProbRange(): Error!" << '\n'
             << "max_ad_prob > 1: " << max_ad_prob << '\n'
         );
@@ -1780,7 +1780,7 @@ void GFunctionIndividualFactory::postProcess_(std::shared_ptr<gpar::GParameterSe
 
     default: {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GFunctionIndividualFactory::postProcess_(): Error!"
             << "Found invalid pT_: " << p_t_ << '\n'
         );

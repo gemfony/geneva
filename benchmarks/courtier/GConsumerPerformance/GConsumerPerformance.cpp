@@ -403,7 +403,7 @@ void brokerProducer(
             CurrentBufferPort->pop_processed(p);
             if(!p) {
                 throw geneva_exception(
-                    g_error_streamer(DO_LOG, time_and_place)
+                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                     << "In brokerProducer: " << "got invalid item" << std::endl
                 );
             }

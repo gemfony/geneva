@@ -142,7 +142,7 @@ public:
         activityMode /*am*/
     ) const {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GParameterBase::countParameters()" << '\n'
             << "Function called for unsupported type!" << '\n'
         );
@@ -167,7 +167,7 @@ public:
         activityMode /*am*/
     ) const {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GParameterBase::boundaries(std::vector<>&)" << '\n'
             << "Function called for unsupported type!" << '\n'
         );
@@ -187,7 +187,7 @@ public:
         activityMode /*am*/
     ) const {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GParameterBase::streamline(std::vector<par_type>&)" << '\n'
             << "Function called for unsupported type!" << '\n'
         );
@@ -207,7 +207,7 @@ public:
         activityMode /*am*/
     ) const {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GParameterBase::streamline(std::map<std::string, std::vec<par_type>>)"
             << '\n'
             << "Function called for unsupported type!" << '\n'
@@ -231,7 +231,7 @@ public:
         activityMode /*am*/
     ) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GParameterBase::assignValueVector()" << '\n'
             << "Function called for unsupported type!" << '\n'
         );
@@ -249,7 +249,7 @@ public:
         activityMode /*am*/
     ) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GParameterBase::assignValueVectors()" << '\n'
             << "Function called for unsupported type!" << '\n'
         );
@@ -270,7 +270,7 @@ public:
         Gem::Hap::GRandomBase &
     ) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GParameterBase::multiplyByRandom()" << '\n'
             << "Function called for unsupported type!" << '\n'
         );
@@ -287,7 +287,7 @@ public:
         Gem::Hap::GRandomBase &
     ) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GParameterBase::multiplyByRandom()" << '\n'
             << "Function called for unsupported type!" << '\n'
         );
@@ -304,7 +304,7 @@ public:
         activityMode /*am*/
     ) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GParameterBase::multiplyBy()" << '\n'
             << "Function called for unsupported type!" << '\n'
         );
@@ -321,7 +321,7 @@ public:
         activityMode /*am*/
     ) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GParameterBase::fixedValueInit()" << '\n'
             << "Function called for unsupported type!" << '\n'
         );
@@ -338,7 +338,7 @@ public:
         activityMode /*am*/
     ) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GParameterBase::add()" << '\n'
             << "Function called for unsupported type!" << '\n'
         );
@@ -355,7 +355,7 @@ public:
         activityMode /*am*/
     ) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GParameterBase::subtract()" << '\n'
             << "Function called for unsupported type!" << '\n'
         );
@@ -397,7 +397,7 @@ public:
             return p;
         }
                     throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In std::shared_ptr<load_type> GParameterBase::parameterbase_cast<load_type>() :"
                 << '\n'
                 << "Invalid conversion with load_type = " << typeid(load_type).name() << '\n'

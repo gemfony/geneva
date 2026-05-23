@@ -152,7 +152,7 @@ std::string GExternalEvaluatorIndividual::getCustomOptions() const {
 void GExternalEvaluatorIndividual::setExchangeBaseName(const std::string &parameter_file) {
     if(parameter_file.empty() || parameter_file == "empty") {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GExternalEvaluatorIndividual::setExchangeBaseName(): Error!" << '\n'
             << "Invalid file name \"" << parameter_file << "\"" << '\n'
         );
@@ -178,7 +178,7 @@ std::string GExternalEvaluatorIndividual::getExchangeBaseName() const {
 void GExternalEvaluatorIndividual::setNExpectedResults(const std::size_t &n_results) {
     if(0 == n_results) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GExternalEvaluatorIndividual::setNExpectedResults(): Error!" << '\n'
             << "Got invalid number of expected results: " << n_results << '\n'
         );
@@ -329,7 +329,7 @@ double GExternalEvaluatorIndividual::fitnessCalculation() {
         // Check that the result file exists
         if(not std::filesystem::exists(result_file_name)) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GExternalEvaluatorIndividual::fitnessCalculation(): Error!" << '\n'
                 << "Result file " << result_file_name << " does not seem to exist." << '\n'
             );
@@ -343,7 +343,7 @@ double GExternalEvaluatorIndividual::fitnessCalculation() {
         }
         catch(const boost::property_tree::xml_parser::xml_parser_error &e) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GExternalEvaluatorIndividual::fitnessCalculation(): Error  " << '\n'
                 << "Caught boost::property_tree::xml_parser::xml_parser_error" << '\n'
                 << "for file " << e.filename() << " (line " << e.line() << ")" << '\n'
@@ -351,7 +351,7 @@ double GExternalEvaluatorIndividual::fitnessCalculation() {
         }
         catch(const std::exception &e) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GExternalEvaluatorIndividual::fitnessCalculation(): Error reading "
                 << result_file_name << '\n'
                 << "with message " << e.what() << '\n'
@@ -364,7 +364,7 @@ double GExternalEvaluatorIndividual::fitnessCalculation() {
         ); // NOLINT(cppcoreguidelines-init-variables)
         if(1 != n_external_individuals) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GExternalEvaluatorIndividual::fitnessCalculation(): Error!" << '\n'
                 << "Number of result individuals != 1: " << n_external_individuals << '\n'
             );
@@ -376,7 +376,7 @@ double GExternalEvaluatorIndividual::fitnessCalculation() {
         ); // NOLINT(cppcoreguidelines-init-variables)
         if(external_n_results != n_results_) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GExternalEvaluatorIndividual::fitnessCalculation(): Error!" << '\n'
                 << "Result file provides n_results = " << external_n_results << '\n'
                 << "while we expected " << n_results_ << '\n'
@@ -436,7 +436,7 @@ double GExternalEvaluatorIndividual::fitnessCalculation() {
 void GExternalEvaluatorIndividual::setRunId(std::string run_id) {
     if(run_id.empty() || "empty" == run_id) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GExternalEvaluatorIndividual::setRunId(): Error!" << '\n'
             << "Attempt to set an invalid run id: \"" << run_id << "\"" << '\n'
         );
@@ -733,7 +733,7 @@ void GExternalEvaluatorIndividualFactory::setAdaptAdProb(double adapt_ad_prob) {
 #ifdef DEBUG
     if(adapt_ad_prob < 0.) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GExternalEvaluatorIndividualFactory::setAdaptAdProb(): Error!" << '\n'
             << "Invalid value for adapt_ad_prob given: " << adapt_ad_prob << '\n'
         );
@@ -759,7 +759,7 @@ void GExternalEvaluatorIndividualFactory::setAdProbRange(double min_ad_prob, dou
 #ifdef DEBUG
     if(min_ad_prob < 0.) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GExternalEvaluatorIndividualFactory::setAdProbRange(): Error!" << '\n'
             << "min_ad_prob < 0: " << min_ad_prob << '\n'
         );
@@ -767,7 +767,7 @@ void GExternalEvaluatorIndividualFactory::setAdProbRange(double min_ad_prob, dou
 
     if(min_ad_prob > max_ad_prob) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GExternalEvaluatorIndividualFactory::setAdProbRange(): Error!" << '\n'
             << "Invalid min_ad_prob and/or max_ad_prob: " << min_ad_prob << " / " << max_ad_prob << '\n'
         );
@@ -775,7 +775,7 @@ void GExternalEvaluatorIndividualFactory::setAdProbRange(double min_ad_prob, dou
 
     if(max_ad_prob > 1.) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GExternalEvaluatorIndividualFactory::setAdProbRange(): Error!" << '\n'
             << "max_ad_prob > 1: " << max_ad_prob << '\n'
         );
@@ -884,7 +884,7 @@ void GExternalEvaluatorIndividualFactory::setDeltaRange(std::tuple<double, doubl
 
     if(min < 0) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GExternalEvaluatorIndividualFactory::setDeltaRange(): Error" << '\n'
             << "min must be >= 0. Got : " << min << '\n'
         );
@@ -892,7 +892,7 @@ void GExternalEvaluatorIndividualFactory::setDeltaRange(std::tuple<double, doubl
 
     if(min >= max) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GExternalEvaluatorIndividualFactory::setDeltaRange(): Error" << '\n'
             << "Invalid range specified: " << min << " / " << max << '\n'
         );
@@ -936,7 +936,7 @@ void GExternalEvaluatorIndividualFactory::setSigma1Range(std::tuple<double, doub
 
     if(min < 0) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GExternalEvaluatorIndividualFactory::setSigma1Range(): Error" << '\n'
             << "min must be >= 0. Got : " << min << '\n'
         );
@@ -944,7 +944,7 @@ void GExternalEvaluatorIndividualFactory::setSigma1Range(std::tuple<double, doub
 
     if(min >= max) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GExternalEvaluatorIndividualFactory::setSigma1Range(): Error" << '\n'
             << "Invalid range specified: " << min << " / " << max << '\n'
         );
@@ -988,7 +988,7 @@ void GExternalEvaluatorIndividualFactory::setSigma2Range(std::tuple<double, doub
 
     if(min < 0) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GExternalEvaluatorIndividualFactory::setSigma2Range(): Error" << '\n'
             << "min must be >= 0. Got : " << min << '\n'
         );
@@ -996,7 +996,7 @@ void GExternalEvaluatorIndividualFactory::setSigma2Range(std::tuple<double, doub
 
     if(min >= max) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GExternalEvaluatorIndividualFactory::setSigma2Range(): Error" << '\n'
             << "Invalid range specified: " << min << " / " << max << '\n'
         );
@@ -1113,7 +1113,7 @@ void GExternalEvaluatorIndividualFactory::setProgramName(std::string program_nam
     // Check that the file name isn't empty
     if(program_name.empty()) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GExternalEvaluatorIndividualFactory::setProgramName(): Error!" << '\n'
             << "File name was empty" << '\n'
         );
@@ -1122,7 +1122,7 @@ void GExternalEvaluatorIndividualFactory::setProgramName(std::string program_nam
     // Check that the file exists
     if(not std::filesystem::exists(program_name)) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GExternalEvaluatorIndividualFactory::setProgramName(): Error!" << '\n'
             << "External program " << program_name << " does not seem to exist" << '\n'
         );
@@ -1168,7 +1168,7 @@ void GExternalEvaluatorIndividualFactory::setParameterFileBaseName(
     // Check that the name isn't empty
     if(parameter_file_base_name.empty()) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GExternalEvaluatorIndividualFactory::setParameterFileBaseName(): Error!"
             << '\n'
             << "Name was empty" << '\n'
@@ -1195,7 +1195,7 @@ std::string GExternalEvaluatorIndividualFactory::getParameterFileBaseName() cons
 void GExternalEvaluatorIndividualFactory::setInitValues(std::string init_values) {
     if(init_values != "random" && init_values != "min" && init_values != "max") {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GExternalEvaluatorIndividualFactory::setInitValues(): Error!" << '\n'
             << "Invalid argument: " << init_values << '\n'
             << "Expected \"min\", \"max\", or \"random\"." << '\n'
@@ -1297,7 +1297,7 @@ void GExternalEvaluatorIndividualFactory::archive(
     // Let the audience know
     if(error_code) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GExternalEvaluatorIndividualFactory::archive(): Error" << '\n'
             << "Execution of external command failed." << '\n'
             << "Command: " << command << '\n'
@@ -1463,7 +1463,7 @@ void GExternalEvaluatorIndividualFactory::setUpPropertyTree() {
     // Check that the file name isn't empty
     if(program_name_.value().empty()) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GExternalEvaluatorIndividualFactory::setUpPropertyTree(): Error!" << '\n'
             << "File name was empty" << '\n'
         );
@@ -1472,7 +1472,7 @@ void GExternalEvaluatorIndividualFactory::setUpPropertyTree() {
     // Check that the file exists
     if(not std::filesystem::exists(program_name_.value())) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GExternalEvaluatorIndividualFactory::setUpPropertyTree(): Error!" << '\n'
             << "External program " << program_name_.value() << " does not seem to exist"
             << '\n'
@@ -1501,7 +1501,7 @@ void GExternalEvaluatorIndividualFactory::setUpPropertyTree() {
 
         if(error_code) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GExternalEvaluatorIndividual::setUpPropertyTree(//1//): Error" << '\n'
                 << "Execution of external command failed." << '\n'
                 << "Command: " << command << '\n'
@@ -1535,7 +1535,7 @@ void GExternalEvaluatorIndividualFactory::setUpPropertyTree() {
 
         if(error_code) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GExternalEvaluatorIndividual::setUpPropertyTree(//2//): Error" << '\n'
                 << "Execution of external command failed." << '\n'
                 << "Command: " << command << '\n'
@@ -1576,7 +1576,7 @@ void GExternalEvaluatorIndividualFactory::postProcess_(std::shared_ptr<gpar::GPa
 
     if(ptr_.empty()) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GExternalEvaluatorIndividualFactory::postProcess_(): Error!" << '\n'
             << "Property tree is empty." << '\n'
         );
@@ -1612,7 +1612,7 @@ void GExternalEvaluatorIndividualFactory::postProcess_(std::shared_ptr<gpar::GPa
             ptr_.get<std::size_t>("batch.n_individuals"); // NOLINT(cppcoreguidelines-init-variables)
         if(1 != n_individuals) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GExternalEvaluatorIndividualFactory::postProcess_(): Error!" << '\n'
                 << "Received invalid number of setup-individuals: " << n_individuals << '\n'
             );
@@ -1696,7 +1696,7 @@ void GExternalEvaluatorIndividualFactory::postProcess_(std::shared_ptr<gpar::GPa
                     }
                     else {
                         throw geneva_exception(
-                            g_error_streamer(DO_LOG, time_and_place)
+                            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                             << "In GExternalEvaluatorIndividualFactory::postProcess_(): Error!"
                             << '\n'
                             << (cit->second).get<std::string>("type") << " provided as type name."
@@ -1716,7 +1716,7 @@ void GExternalEvaluatorIndividualFactory::postProcess_(std::shared_ptr<gpar::GPa
         }
         else {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GExternalEvaluatorIndividualFactory::postProcess_(): Error!" << '\n'
                 << "No variables were specified" << '\n'
             );
@@ -1777,7 +1777,7 @@ void GExternalEvaluatorIndividualFactory::postProcess_(std::shared_ptr<gpar::GPa
     }
     catch(const pt::ptree_bad_path &e) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GExternalEvaluatorIndividualFactory::postProcess_(): Error!" << '\n'
             << "Caught ptree_bad_path exception with message " << '\n'
             << e.what() << '\n'
@@ -1788,7 +1788,7 @@ void GExternalEvaluatorIndividualFactory::postProcess_(std::shared_ptr<gpar::GPa
     }
     catch(...) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GExternalEvaluatorIndividualFactory::postProcess_(): Caught unknown exception!"
             << '\n'
         );

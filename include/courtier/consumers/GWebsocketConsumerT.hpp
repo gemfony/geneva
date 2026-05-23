@@ -391,7 +391,7 @@ private:
         // There should be no situation where in this location processing is active
         if(processing_is_active_) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GWebsocketClientT<processable_type>::when_read():" << '\n'
                 << "process_reques() is running in a location where it shouldn't be" << '\n'
             );
@@ -468,7 +468,7 @@ private:
 
         default: {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "GWebsocketClientT<processable_type><>::process_request():" << '\n'
                 << "Received invalid command " << pcToStr(inboundCommand) << '\n'
             );
@@ -510,7 +510,7 @@ private:
 
                 // Not much more we can do
                 throw geneva_exception(
-                    g_error_streamer(DO_LOG, time_and_place)
+                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                     << "GWebsocketClientT<processable_type>::do_close():" << '\n'
                     << "Shutdown of next layer has failed" << '\n'
                 );
@@ -985,7 +985,7 @@ private:
             if(ec) {
                 // Not much else we can do here
                 throw geneva_exception(
-                    g_error_streamer(DO_LOG, time_and_place)
+                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                     << "GWebsocketConsumerSessionT<processable_type>::do_close():" << '\n'
                     << "Shutdown of next layer has failed" << '\n'
                     << "Got error code " << ec.message() << '\n'
@@ -1247,7 +1247,7 @@ private:
         if(ec || not acceptor_.is_open()) {
             if(ec) {
                 throw geneva_exception(
-                    g_error_streamer(DO_LOG, time_and_place)
+                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                     << "GWebsocketConsumerT<>::async_startProcessing_() / acceptor_.open: Got "
                        "error message \""
                     << ec.message() << "\"" << '\n'
@@ -1255,7 +1255,7 @@ private:
                 );
             }
                             throw geneva_exception(
-                    g_error_streamer(DO_LOG, time_and_place)
+                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                     << "GWebsocketConsumerT<>::async_startProcessing_() / acceptor_.open did not "
                        "succeed."
                     << '\n'
@@ -1268,7 +1268,7 @@ private:
         acceptor_.bind(endpoint_, ec);
         if(ec) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "GWebsocketConsumerT<>::async_startProcessing_() / acceptor_.bind: Got error "
                    "message \""
                 << ec.message() << "\"" << '\n'
@@ -1284,7 +1284,7 @@ private:
         acceptor_.listen(boost::asio::socket_base::max_listen_connections, ec);
         if(ec) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "GWebsocketConsumerT<>::async_startProcessing_() / acceptor_.listen: Got error "
                    "message \""
                 << ec.message() << "\"" << '\n'
@@ -1349,7 +1349,7 @@ private:
                         }
                         else {
                             throw geneva_exception(
-                                g_error_streamer(DO_LOG, time_and_place)
+                                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                                 << "In GWebsocketConsumerT<>::when_accepted():" << '\n'
                                 << "Tried to decrement #sessions which is already 0" << '\n'
                             );
@@ -1396,7 +1396,7 @@ private:
     void putPayloadItem(std::shared_ptr<processable_type> p) {
         if(not p) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "GWebsocketConsumerT<>::putPayloadItem():" << '\n'
                 << "Function called with empty work item" << '\n'
             );

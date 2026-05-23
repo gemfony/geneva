@@ -162,7 +162,7 @@ void GInt32Object::int32Streamline(
 #ifdef DEBUG
     if((this->getParameterName()).empty()) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GInt32Object::int32Streamline(std::map<std::string, std::vector<std::int32_t>>& "
                "par_vec) const: Error!"
             << '\n'
@@ -219,7 +219,7 @@ void GInt32Object::assignInt32ValueVector(
     // Do we have a valid position ?
     if(pos >= par_vec.size()) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GBooleanObject::assignInt32ValueVector(const std::vector<std::int32_t>&, "
                "std::size_t&):"
             << '\n'

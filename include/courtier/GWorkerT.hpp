@@ -122,7 +122,7 @@ public:
     [[maybe_unused]] [[nodiscard]] std::size_t getWorkerId() const {
         if(worker_id_ < 0) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GWorkerT<processable_type>::getWorkerId(): Error!" << '\n'
                 << "It appears as if the worker id was not set!" << '\n'
             );
@@ -158,7 +158,7 @@ public:
         // Some error checks
         if(-1 == worker_id_) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GWorkerT<processable_type>::run(): Error!" << '\n'
                 << "It appears as if the worker id was not set!" << '\n'
             );
@@ -225,7 +225,7 @@ public:
         // Make it known if there was a problem
         if(has_error) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place) << error_streamer.str()
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace()) << error_streamer.str()
             );
         }
 
@@ -551,7 +551,7 @@ public:
     registerBrokerFerry(const std::shared_ptr<GBrokerFerryT<processable_type>> &broker_ferry_ptr) {
         if(not broker_ferry_ptr) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In "
                    "GLocalConsumerWorkerT<processable_type>::"
                    "registerBrokerFerry(): Error!"

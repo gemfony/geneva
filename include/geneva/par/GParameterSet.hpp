@@ -356,7 +356,7 @@ public:
             );
         }
                     throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GParameterSet::getVarVal<>(): Error!" << '\n'
                 << "Received invalid type descriptor " << '\n'
             );
@@ -384,7 +384,7 @@ public:
         // Check that pt_ptr_ actually points somewhere
         if(not pt_ptr_) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GParameterSet::getPersonalityTraits<personality_type>() : Empty personality "
                    "pointer found"
                 << '\n'
@@ -508,7 +508,7 @@ public:
             //---------------------------------------------------------------------
         default: {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GParameterSet::getVarVal(): Error!" << '\n'
                 << "Got invalid mode setting: " << std::get<0>(target) << '\n'
             );
@@ -618,7 +618,7 @@ public:
 #ifdef DEBUG
         if(countParameters<par_type>() != par_vec.size()) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GParameterSet::assignValueVector(const std::vector<pat_type>&):" << '\n'
                 << "Sizes don't match: " << countParameters<par_type>() << " / " << par_vec.size()
                 << '\n'

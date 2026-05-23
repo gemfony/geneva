@@ -686,7 +686,7 @@ public:
     void registerCallBackFunction(std::function<void(parameter_type)> call_back) {
         if(not call_back) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GSingleParsableParameter::registerCallBackFunction(): Error" << '\n'
                 << "Tried to register an empty call-back function" << '\n'
             );
@@ -720,7 +720,7 @@ private:
         if(this->hasComments()) {
             if(this->numberOfComments() != 1) {
                 throw geneva_exception(
-                    g_error_streamer(DO_LOG, time_and_place)
+                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                     << "In GFileSingleParsableParameterT<>::save_to(): Error!" << '\n'
                     << "Expected 0 or 1 comment but got " << this->numberOfComments() << '\n'
                 );
@@ -749,7 +749,7 @@ private:
     void executeCallBackFunction_() override {
         if(not call_back_func_) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GSingleParsableParameter::executeCallBackFunction_(): Error" << '\n'
                 << "Tried to execute call-back function without a stored function" << '\n'
             );
@@ -854,7 +854,7 @@ private:
         if(this->hasComments()) {
             if(this->numberOfComments() != 1) {
                 throw geneva_exception(
-                    g_error_streamer(DO_LOG, time_and_place)
+                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                     << "In GFileReferenceParsableParameterT<>::save_to(): Error!" << '\n'
                     << "Expected 0 or 1 comment but got " << this->numberOfComments() << '\n'
                 );
@@ -1064,7 +1064,7 @@ public:
     void registerCallBackFunction(std::function<void(par_type0, par_type1)> call_back) {
         if(not call_back) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GFileCombinedParsableParameterT::registerCallBackFunction(): Error"
                 << '\n'
                 << "Tried to register an empty call-back function" << '\n'
@@ -1107,7 +1107,7 @@ private:
         if(this->hasComments()) {
             if(this->numberOfComments() != 2) {
                 throw geneva_exception(
-                    g_error_streamer(DO_LOG, time_and_place)
+                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                     << "In GFileCombinedParsableParameterT<>::save_to(): Error!" << '\n'
                     << "Expected 0 or 2 comments but got " << this->numberOfComments() << '\n'
                 );
@@ -1173,7 +1173,7 @@ private:
     void executeCallBackFunction_() override {
         if(not call_back_func_) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GFileCombinedParsableParameterT::executeCallBackFunction_(): Error"
                 << '\n'
                 << "Tried to execute call-back function without a stored function" << '\n'
@@ -1339,7 +1339,7 @@ public:
     void registerCallBackFunction(std::function<void(std::vector<parameter_type>)> call_back) {
         if(not call_back) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GFileVectorParsableParameterT::registerCallBackFunction(): Error"
                 << '\n'
                 << "Tried to register an empty call-back function" << '\n'
@@ -1383,7 +1383,7 @@ private:
         if(this->hasComments()) {
             if(this->numberOfComments() != 1) {
                 throw geneva_exception(
-                    g_error_streamer(DO_LOG, time_and_place)
+                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                     << "In GFileVectorParsableParameterT<>::save_to(): Error!" << '\n'
                     << "Expected 0 or 1 comment but got " << this->numberOfComments() << '\n'
                 );
@@ -1401,7 +1401,7 @@ private:
         // Do some error checking
         if(GVectorParT<parameter_type>::def_val_cnt_.empty()) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GVectorParsableParameter::save_to(): Error!" << '\n'
                 << "You need to provide at least one default value" << '\n'
             );
@@ -1424,7 +1424,7 @@ private:
     void executeCallBackFunction_() override {
         if(not call_back_func_) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GFileVectorParsableParameterT::executeCallBackFunction_(): Error"
                 << '\n'
                 << "Tried to execute call-back function without a stored function" << '\n'
@@ -1543,7 +1543,7 @@ private:
         if(this->hasComments()) {
             if(this->numberOfComments() != 1) {
                 throw geneva_exception(
-                    g_error_streamer(DO_LOG, time_and_place)
+                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                     << "In GFileVectorReferenceParsableParameterT<>::save_to(): Error!" << '\n'
                     << "Expected 0 or 1 comment but got " << this->numberOfComments() << '\n'
                 );
@@ -1561,7 +1561,7 @@ private:
         // Do some error checking
         if(GVectorParT<parameter_type>::def_val_cnt_.empty()) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GFileVectorReferenceParsableParameterT::save_to(): Error!" << '\n'
                 << "You need to provide at least one default value" << '\n'
             );
@@ -1731,7 +1731,7 @@ public:
     void registerCallBackFunction(std::function<void(std::array<parameter_type, N>)> call_back) {
         if(not call_back) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GFileArrayParsableParameterT::registerCallBackFunction(): Error" << '\n'
                 << "Tried to register an empty call-back function" << '\n'
             );
@@ -1771,7 +1771,7 @@ private:
         if(this->hasComments()) {
             if(this->numberOfComments() != 1) {
                 throw geneva_exception(
-                    g_error_streamer(DO_LOG, time_and_place)
+                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                     << "In GFileArrayParsableParameterT<>::save_to(): Error!" << '\n'
                     << "Expected 0 or 1 comment but got " << this->numberOfComments() << '\n'
                 );
@@ -1789,7 +1789,7 @@ private:
         // Do some error checking
         if(GArrayParT<parameter_type, N>::def_val_arr_.empty()) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GFileArrayParsableParameterT::save_to(): Error!" << '\n'
                 << "You need to provide at least one default value" << '\n'
             );
@@ -1815,7 +1815,7 @@ private:
     void executeCallBackFunction_() override {
         if(not call_back_func_) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GFileArrayParsableParameterT::executeCallBackFunction_(): Error" << '\n'
                 << "Tried to execute call-back function without a stored function" << '\n'
             );
@@ -1927,7 +1927,7 @@ private:
         if(this->hasComments()) {
             if(this->numberOfComments() != 1) {
                 throw geneva_exception(
-                    g_error_streamer(DO_LOG, time_and_place)
+                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                     << "In GFileArrayReferenceParsableParameterT<>::save_to(): Error!" << '\n'
                     << "Expected 0 or 1 comment but got " << this->numberOfComments() << '\n'
                 );
@@ -1946,7 +1946,7 @@ private:
         // Do some error checking
         if(GArrayParT<parameter_type, N>::def_val_arr_.empty()) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GFileArrayReferenceParsableParameterT::save_to(): Error!" << '\n'
                 << "You need to provide at least one default value" << '\n'
             );
@@ -2253,7 +2253,7 @@ public:
         );
         if(it != file_parameter_proxies_.end()) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GParserBuilder::registerFileParameter(single_parm_ptr): Error!" << '\n'
                 << "Parameter " << option_name << " has already been registered" << '\n'
             );
@@ -2312,7 +2312,7 @@ public:
         );
         if(it != file_parameter_proxies_.end()) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GParserBuilder::registerFileParameter(ref_parm_ptr): Error!" << '\n'
                 << "Parameter " << option_name << " has already been registered" << '\n'
             );
@@ -2359,7 +2359,7 @@ public:
         // Check that we have indeed received an item
         if(not parm_object) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GParameterObject::resetFileParameterDefaults(GSingleParmT): Error!"
                 << '\n'
                 << "Parameter object couldn't be found" << '\n'
@@ -2400,7 +2400,7 @@ public:
         );
         if(it != file_parameter_proxies_.end()) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GParserBuilder::registerFileParameter(comb_parm_ptr): Error!" << '\n'
                 << "Parameter " << option_name1 << " has already been registered" << '\n'
             );
@@ -2459,7 +2459,7 @@ public:
         // Check that we have indeed received an item
         if(not parm_object) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GParameterObject::resetFileParameterDefaults(GCombinedParT): Error!"
                 << '\n'
                 << "Parameter object couldn't be found" << '\n'
@@ -2495,7 +2495,7 @@ public:
         );
         if(it != file_parameter_proxies_.end()) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GParserBuilder::registerFileParameter(vec_parm_ptr): Error!" << '\n'
                 << "Parameter " << option_name << " has already been registered" << '\n'
             );
@@ -2549,7 +2549,7 @@ public:
         );
         if(it != file_parameter_proxies_.end()) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GParserBuilder::registerFileParameter(vec_ref_parm_ptr): Error!" << '\n'
                 << "Parameter " << option_name << " has already been registered" << '\n'
             );
@@ -2602,7 +2602,7 @@ public:
         // Check that we have indeed received an item
         if(not parm_object) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GParameterObject::resetFileParameterDefaults(GVectorParT): Error!"
                 << '\n'
                 << "Parameter object couldn't be found" << '\n'
@@ -2639,7 +2639,7 @@ public:
         );
         if(it != file_parameter_proxies_.end()) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GParserBuilder::registerFileParameter(array_parm_ptr): Error!" << '\n'
                 << "Parameter " << option_name << " has already been registered" << '\n'
             );
@@ -2695,7 +2695,7 @@ public:
         );
         if(it != file_parameter_proxies_.end()) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GParserBuilder::registerFileParameter(array_ref_parm_ptr): Error!" << '\n'
                 << "Parameter " << option_name << " has already been registered" << '\n'
             );
@@ -2749,7 +2749,7 @@ public:
         // Check that we have indeed received an item
         if(not parm_object) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GParameterObject::resetFileParameterDefaults(GArrayParT): Error!"
                 << '\n'
                 << "Parameter object couldn't be found" << '\n'
@@ -2791,7 +2791,7 @@ public:
 
         if(it != cl_parameter_proxies_.end()) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GParserBuilder::registerCLParameter(ref_parm_ptr): Error!" << '\n'
                 << "Parameter " << option_name << " has already been registered" << '\n'
             );
@@ -2869,7 +2869,7 @@ void configureFromFile(conf_object_type &target_object, std::filesystem::path co
     // a file. It is a severe error if this is the case.
     if(std::filesystem::is_directory(conf_file)) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In configureFromFile(" << conf_file.string() << "): Error!" << '\n'
             << "Target is a directory rather than a file." << '\n'
         );
@@ -2879,7 +2879,7 @@ void configureFromFile(conf_object_type &target_object, std::filesystem::path co
     // severe error if this is not the case.
     if(not std::filesystem::exists(conf_file.parent_path())) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In configureFromFile(" << conf_file << "): Error!" << '\n'
             << "Target has invalid parent path" << '\n'
         );

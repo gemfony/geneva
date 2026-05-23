@@ -183,7 +183,7 @@ void GEvolutionaryAlgorithm::updateGlobalBestsPQ_(
 #ifdef DEBUG
     if(this->empty()) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In G_OA_EvolutionaryAlgorithm::updateGlobalBestsPQ() :" << '\n'
             << "Tried to retrieve the best individuals even though the population is empty."
             << '\n'
@@ -239,7 +239,7 @@ void GEvolutionaryAlgorithm::updateIterationBestsPQ_(
 #ifdef DEBUG
     if(this->empty()) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "G_OA_EvolutionaryAlgorithm::updateIterationBestsPQ() :" << '\n'
             << "Tried to retrieve the best individuals even though the population is empty."
             << '\n'
@@ -396,7 +396,7 @@ void GEvolutionaryAlgorithm::populationSanityChecks_() const {
     // in the parent class.
     if(this->n_parents_ == 0) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In G_OA_EvolutionaryAlgorithm::populationSanityChecks(): Error!" << '\n'
             << "Number of parents is set to 0"
         );
@@ -438,7 +438,7 @@ void GEvolutionaryAlgorithm::populationSanityChecks_() const {
             break;
         };
 
-        throw geneva_exception(g_error_streamer(DO_LOG, time_and_place) << error.str());
+        throw geneva_exception(g_error_streamer(DO_LOG, Gem::Common::timeAndPlace()) << error.str());
     }
 }
 
@@ -475,7 +475,7 @@ void GEvolutionaryAlgorithm::adaptChildren_() {
         }
         catch(std::exception &e) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GEvolutionaryAlgorithm::adaptChildren_() :" << '\n'
                 << "Got error during thread execution with message:" << '\n'
                 << e.what() << '\n'
@@ -483,7 +483,7 @@ void GEvolutionaryAlgorithm::adaptChildren_() {
         }
         catch(...) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GEvolutionaryAlgorithm::adaptChildren_() :" << '\n'
                 << "Got unknown exception during thread execution" << '\n'
             );
@@ -509,7 +509,7 @@ void GEvolutionaryAlgorithm::runFitnessCalculation_() {
     for(std::size_t i = this->getNParents(); i < this->size(); i++) {
         if(not this->at(i)->is_due_for_processing()) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GEvolutionaryAlgorithm::runFitnessCalculation(): Error!" << '\n'
                 << "Tried to evaluate children in range " << std::get<0>(range) << " - "
                 << std::get<1>(range) << '\n'
@@ -520,7 +520,7 @@ void GEvolutionaryAlgorithm::runFitnessCalculation_() {
 
     if(this->size() != this->getDefaultPopulationSize()) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GEvolutionaryAlgorithm::runFitnessCalculation(): Error!" << '\n'
             << "Size of data vector (" << this->size() << ") should be "
             << this->getDefaultPopulationSize() << '\n'
@@ -624,7 +624,7 @@ void GEvolutionaryAlgorithm::fixAfterJobSubmission() {
     // Check that individuals do exist in the population. We cannot continue, if this is not the case
     if(this->empty()) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GEvolutionaryAlgorithm::fixAfterJobSubmission(): Error!" << '\n'
             << "Population holds no data" << '\n'
         );
@@ -644,7 +644,7 @@ void GEvolutionaryAlgorithm::fixAfterJobSubmission() {
     // Check that the last individual is not unprocessed. This is a severe error.
     if(this->back()->is_due_for_processing()) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GEvolutionaryAlgorithm::fixAfterJobSubmission(): Error!" << '\n'
             << "The last individual in the population is is unprocessed" << '\n'
             << "so we cannot use it for cloning" << '\n'
@@ -691,7 +691,7 @@ void GEvolutionaryAlgorithm::selectBest_() {
     // function is called
     if((this->size() - this->n_parents_) < this->default_n_children_) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In G_OA_EvolutionaryAlgorithm::select():" << '\n'
             << "Too few children. Got " << (this->size() - this->getNParents()) << "," << '\n'
             << "but was expecting at least " << this->getDefaultNChildren() << '\n'
@@ -751,7 +751,7 @@ void GEvolutionaryAlgorithm::selectBest_() {
     // should have been taken care of in fixAfterJobSubmission() .
     if(this->size() < this->getDefaultPopulationSize()) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In G_OA_EvolutionaryAlgorithm::selectBest(): Error!" << '\n'
             << "Size of population is smaller than expected: " << this->size() << " / "
             << this->getDefaultPopulationSize() << '\n'
@@ -831,7 +831,7 @@ void GEvolutionaryAlgorithm::sortMuPlusNuMode() {
     for(auto const &ind_ptr : *this) {
         if(ind_ptr->is_due_for_processing()) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GEvolutionaryAlgorithm::sortMuplusnuMode(): Error!" << '\n'
                 << "In iteration " << GBase::getIteration()
                 << ": Found individual in position " << pos << '\n'
@@ -868,7 +868,7 @@ void GEvolutionaryAlgorithm::sortMuCommaNuMode() {
         for(it = this->begin(); it != this->end(); ++it) {
             if((*it)->is_due_for_processing()) {
                 throw geneva_exception(
-                    g_error_streamer(DO_LOG, time_and_place)
+                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                     << "In GEvolutionaryAlgorithm::sortMucommanuMode(): Error!" << '\n'
                     << "In iteration " << GBase::getIteration()
                     << ": Found individual in position " << std::distance(this->begin(), it)
@@ -884,7 +884,7 @@ void GEvolutionaryAlgorithm::sortMuCommaNuMode() {
         for(it = this->begin() + n_parents_; it != this->end(); ++it) {
             if((*it)->is_due_for_processing()) {
                 throw geneva_exception(
-                    g_error_streamer(DO_LOG, time_and_place)
+                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                     << "In GEvolutionaryAlgorithm::sortMucommanuMode(): Error!" << '\n'
                     << "In iteration " << GBase::getIteration()
                     << ": Found individual in position " << std::distance(this->begin(), it)
@@ -931,7 +931,7 @@ void GEvolutionaryAlgorithm::sortMunu1pretainMode() {
     for(it = this->begin() + n_parents_; it != this->end(); ++it) {
         if((*it)->is_due_for_processing()) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GEvolutionaryAlgorithm::sortMunu1pretainMode(): Error!" << '\n'
                 << "In iteration " << GBase::getIteration()
                 << ": Found individual in position " << std::distance(this->begin(), it)
@@ -1237,7 +1237,7 @@ bool GEvolutionaryAlgorithm::aDominatesB(
         y_ptr->getNStoredResults(); // NOLINT(cppcoreguidelines-init-variables)
     if(n_criteria_x != n_criteria_y) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In G_OA_EvolutionaryAlgorithm::aDominatesB(): Error!" << '\n'
             << "Number of fitness criteria differ: " << n_criteria_x << " / " << n_criteria_y
             << '\n'

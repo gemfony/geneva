@@ -146,7 +146,7 @@ void GDoubleCollection::doubleStreamline(
 #ifdef DEBUG
     if((this->getParameterName()).empty()) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GDoubleCollection::doubleStreamline(std::map<std::string, std::vector<double>>& "
                "par_vec) const: Error!"
             << '\n'
@@ -211,7 +211,7 @@ void GDoubleCollection::assignDoubleValueVector(
         // Do we have a valid position ?
         if(pos >= par_vec.size()) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GDoubleCollection::assignDoubleValueVector(const std::vector<double>&, "
                    "std::size_t&):"
                 << '\n'
@@ -321,7 +321,7 @@ void GDoubleCollection::doubleAdd(
     // Cross-check that the sizes match
     if(this->size() != p->size()) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GDoubleCollection::doubleAdd():" << '\n'
             << "Sizes of vectors don't match: " << this->size() << "/" << p->size() << '\n'
         );
@@ -347,7 +347,7 @@ void GDoubleCollection::doubleSubtract(
     // Cross-check that the sizes match
     if(this->size() != p->size()) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GDoubleCollection::doubleSubtract():" << '\n'
             << "Sizes of vectors don't match: " << this->size() << "/" << p->size() << '\n'
         );

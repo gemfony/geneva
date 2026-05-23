@@ -226,7 +226,7 @@ public:
         // Check that we have been given a suitable new results vector
         if(result_cnt.size() != stored_results_cnt_.size()) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GProcessingContainerT::markAsProcessedWith(): Vector dimensions" << '\n'
                 << "do not fit: " << result_cnt.size() << " / " << stored_results_cnt_.size()
                 << '\n'
@@ -267,7 +267,7 @@ public:
         // We only accept items that are due for processing
         if(processingStatus::DO_PROCESS != processing_status_) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GProcessingContainerT::process(): Function called while processing_status_ "
                    "was set to "
                 << processing_status_ << '\n'
@@ -343,7 +343,7 @@ public:
             }
 
             throw g_processing_exception( // Note: this is a specific exception to flag errors during processing
-					g_error_streamer(DO_LOG, time_and_place) << stored_error_descriptions_
+					g_error_streamer(DO_LOG, Gem::Common::timeAndPlace()) << stored_error_descriptions_
 				);
         }
 
@@ -363,7 +363,7 @@ public:
     processing_result_type getStoredResult(std::size_t id = 0) const {
         if(not this->is_processed()) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GProcessingContainerT::getStoredResult(): Tried to" << '\n'
                 << "retrieve stored result while the PROCESSED flag was not set" << '\n'
             );
@@ -487,7 +487,7 @@ public:
         // We do not accept setting a target state of PROCESSED via this function
         if(target_ps == processingStatus::PROCESSED) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GProcessingContainerT<>::set_processing_status():" << '\n'
                 << "An attempt was made to set the processing state to PROCESSED" << '\n'
                 << "which is not allowed through this function." << '\n'
@@ -509,7 +509,7 @@ public:
             }
             else {
                 throw geneva_exception(
-                    g_error_streamer(DO_LOG, time_and_place)
+                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                     << "In GProcessingContainerT<>::set_processing_status():" << '\n'
                     << "Got invalid target processing status " << psToStr(target_ps) << '\n'
                     << "Expected a new state of DO_PROCESS for the" << '\n'
@@ -531,7 +531,7 @@ public:
             }
             else {
                 throw geneva_exception(
-                    g_error_streamer(DO_LOG, time_and_place)
+                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                     << "In GProcessingContainerT<>::set_processing_status():" << '\n'
                     << "Got invalid target processing status " << psToStr(target_ps) << '\n'
                     << "Expected a new state of DO_IGNORE for the" << '\n'
@@ -554,7 +554,7 @@ public:
             }
             else {
                 throw geneva_exception(
-                    g_error_streamer(DO_LOG, time_and_place)
+                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                     << "In GProcessingContainerT<>::set_processing_status():" << '\n'
                     << "Got invalid target processing status " << psToStr(target_ps) << '\n'
                     << "Expected a new state of DO_IGNORE or DO_PROCESS for the" << '\n'
@@ -578,7 +578,7 @@ public:
             }
             else {
                 throw geneva_exception(
-                    g_error_streamer(DO_LOG, time_and_place)
+                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                     << "In GProcessingContainerT<>::set_processing_status():" << '\n'
                     << "Got invalid target processing status " << psToStr(target_ps) << '\n'
                     << "Expected a new state of DO_IGNORE or DO_PROCESS for the" << '\n'
@@ -932,7 +932,7 @@ protected:
     void force_set_error(const std::string &error_info) {
         if(error_info.empty()) {
             throw geneva_exception( // Note: this is a specific exception to flag errors during processing
-					g_error_streamer(DO_LOG, time_and_place)
+					g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
 					<< "In GProcessingContainerT::force_set_error(): Error info is empty" << '\n'
 				);
         }

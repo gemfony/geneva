@@ -243,7 +243,7 @@ public:
             // Check that the value is inside the allowed range
             if(current_values[pos] < lower || current_values[pos] > upper) {
                 throw geneva_exception(
-                    g_error_streamer(DO_LOG, time_and_place)
+                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                     << "In GConstrainedNumT<num_type>::setBoundaries(const T&, const T&) :" << '\n'
                     << "with typeid(num_type).name() = " << typeid(num_type).name() << '\n'
                     << "Attempt to set new boundaries [" << lower << ":" << upper << "]" << '\n'
@@ -256,7 +256,7 @@ public:
         // Check that the boundaries make sense
         if(lower > upper) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GConstrainedNumT<num_type>::setBoundaries(const num_type&, const num_type&)"
                 << '\n'
                 << "with typeid(num_type).name() = " << typeid(num_type).name() << " :" << '\n'
@@ -289,7 +289,7 @@ public:
         // Do some error checking
         if(val < lower_boundary_ || val > upper_boundary_) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GConstrainedNumCollectionT<num_type>::setValue(pos, val):" << '\n'
                 << "In position " << pos << ":" << '\n'
                 << "Assigned value " << val
@@ -338,7 +338,7 @@ public:
         // Check that the object isn't empty
         if(this->empty()) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GConstrainedNumCollectionT<num_type>::toPropertyTree(): Error!" << '\n'
                 << "Object is empty!" << '\n'
             );

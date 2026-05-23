@@ -271,7 +271,7 @@ public:
 #ifdef DEBUG
         if(0 == n_runs_per_optimization) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GMetaOptimizerIndividualT<ind_type>::setNRunsPerOptimization(): Error!"
                 << '\n'
                 << "Requested number of sub-optimizations is 0" << '\n'
@@ -759,7 +759,7 @@ public:
     void registerIndividualFactory(std::shared_ptr<typename ind_type::FACTORYTYPE> factory) {
         if(not factory) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GMetaOptimizerIndividualT<T>::registerIndividualFactory(): Error!"
                 << '\n'
                 << "Individual is empty" << '\n'
@@ -938,7 +938,7 @@ protected:
         // Check that we have been given a factory
         if(not ind_factory_) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GMetaOptimizerIndividualT<T>::fitnessCalculation(): Error!" << '\n'
                 << "No factory class for individuals has been registered" << '\n'
             );
@@ -1278,7 +1278,7 @@ public:
     void registerIndividualFactory(std::shared_ptr<typename ind_type::FACTORYTYPE> factory) {
         if(not factory) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GMetaOptimizerIndividualFactoryT<T>::registerIndividualFactory(): Error!"
                 << '\n'
                 << "Individual is empty" << '\n'
@@ -2123,7 +2123,7 @@ private:
 
         default: {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GOptOptMonitorT<ind_type>>: Received invalid infoMode " << im << '\n'
             );
         } break;

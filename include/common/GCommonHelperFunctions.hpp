@@ -154,9 +154,8 @@ std::string currentTimeAsString();
 /**
  * Returns the "Recorded on <time> / in File <file> at line <line>" string
  * describing the call site, using C++20 std::source_location instead of the
- * __FILE__/__LINE__ preprocessor macros. Output format is unchanged. Backs the
- * time_and_place macro (declared in GErrorStreamer.hpp); the defaulted
- * source_location captures the caller at each macro expansion.
+ * __FILE__/__LINE__ preprocessor macros. Output format is unchanged. The defaulted
+ * source_location captures the caller at the call site.
  */
 [[nodiscard]] inline std::string timeAndPlace(
     std::source_location const &loc = std::source_location::current()

@@ -1282,14 +1282,14 @@ void compare_t(identity<T> const &data, GToken &token) {
     }
     catch(const std::exception &e) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "Caught std::exception with message " << '\n'
             << e.what() << '\n'
         );
     }
     catch(...) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place) << "Caught unknown exception" << '\n'
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace()) << "Caught unknown exception" << '\n'
         );
     }
 }
@@ -1317,14 +1317,14 @@ void compare_base_t(base_type const &x, base_type const &y, GToken &token) {
     }
     catch(const std::exception &e) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "Caught std::exception with message" << '\n'
             << e.what() << '\n'
         );
     }
     catch(...) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place) << "Caught unknown exception" << '\n'
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace()) << "Caught unknown exception" << '\n'
         );
     }
 }

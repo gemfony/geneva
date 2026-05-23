@@ -349,7 +349,7 @@ void GFitnessMonitor::informationFunction_(
         // We expect both sizes to be identical
         if(global_bests.size() != iter_bests.size()) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GFitnessMonitor::informationFunction_(): Error!" << '\n'
                 << "global_bests.size() = " << global_bests.size()
                 << " != iter_bests.size() = " << iter_bests.size() << '\n'
@@ -637,7 +637,7 @@ void GCollectiveMonitor::registerPluggableOM(
     }
     else {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GCollectiveMonitor::registerPluggableOM(): Error!" << '\n'
             << "Got empty pointer to pluggable optimization monitor." << '\n'
         );
@@ -2034,7 +2034,7 @@ void GProcessingTimesLogger::setNBinsX(std::size_t n_bins_x) {
     }
     else {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GProcessingTimesLogger::setNBinsX(): Error!" << '\n'
             << "n_bins_x is set to 0" << '\n'
         );
@@ -2060,7 +2060,7 @@ void GProcessingTimesLogger::setNBinsY(std::size_t n_bins_y) {
     }
     else {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GProcessingTimesLogger::setNBinsY(): Error!" << '\n'
             << "n_bins_y is set to 0" << '\n'
         );

@@ -352,7 +352,7 @@ void GBasePlotter::registerSecondaryPlotter(std::shared_ptr<GBasePlotter> sp) {
     // Check that the secondary plot isn't empty
     if(not sp) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GBasePlotter::registerSecondaryPlot(): Error!" << '\n'
             << "Got empty secondary plot" << '\n'
         );
@@ -361,7 +361,7 @@ void GBasePlotter::registerSecondaryPlotter(std::shared_ptr<GBasePlotter> sp) {
     // Check that the secondary plotter is compatible with us
     if(not this->isCompatible(sp)) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GBasePlotter::registerSecondaryPlot(): Error!" << '\n'
             << "Received incompatible secondary plotter" << '\n'
             << sp->getPlotterName() << " in plotter " << this->getPlotterName() << '\n'
@@ -1349,7 +1349,7 @@ void GGraph3D::load_(const GBasePlotter *cp) {
 void GGraph4D::setMinMarkerSize(const double &min_marker_size) {
     if(min_marker_size < 0.) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GGraph4D::setMinMarkerSize(): Error!" << '\n'
             << "Received invalid minimum marker size: " << min_marker_size << '\n'
         );
@@ -1365,7 +1365,7 @@ void GGraph4D::setMinMarkerSize(const double &min_marker_size) {
 void GGraph4D::setMaxMarkerSize(const double &max_marker_size) {
     if(max_marker_size < 0. || max_marker_size < min_marker_size_) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GGraph4D::setMinMarkerSize(): Error!" << '\n'
             << "Received invalid minimum marker size: " << min_marker_size_ << " " << max_marker_size
             << "." << '\n'
@@ -2611,7 +2611,7 @@ std::string GFunctionPlotter1D::headerData_(
     // Check the extreme values for consistency
     if(std::get<0>(x_extremes_) >= std::get<1>(x_extremes_)) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GFunctionPlotter1D::headerData_(): Error!" << '\n'
             << "lower boundary >= upper boundary: " << std::get<0>(x_extremes_) << " / "
             << std::get<1>(x_extremes_) << '\n'
@@ -2830,7 +2830,7 @@ std::string GFunctionPlotter2D::headerData_(
     // Check the extreme values for consistency
     if(std::get<0>(x_extremes_) >= std::get<1>(x_extremes_)) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GFunctionPlotter2D::headerData_(): Error!" << '\n'
             << "lower boundary(x) >= upper boundary(x): " << std::get<0>(x_extremes_) << " / "
             << std::get<1>(x_extremes_) << '\n'
@@ -2839,7 +2839,7 @@ std::string GFunctionPlotter2D::headerData_(
 
     if(std::get<0>(y_extremes_) >= std::get<1>(y_extremes_)) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GFunctionPlotter2D::headerData_(): Error!" << '\n'
             << "lower boundary(y) >= upper boundary(y): " << std::get<0>(y_extremes_) << " / "
             << std::get<1>(y_extremes_) << '\n'
@@ -3156,7 +3156,7 @@ void GPlotDesigner::registerPlotter(std::shared_ptr<GBasePlotter> plotter_ptr) {
     }
     else {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "GPlotDesigner::registerPlotter(): Error!" << '\n'
             << "Got empty plotter" << '\n'
         );

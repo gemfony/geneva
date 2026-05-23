@@ -192,7 +192,7 @@ void GImageCUDAWorker::processInit_(std::shared_ptr<gpar::GParameterSet> p) {
     // Check that p actually points somewhere
     if(not p) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GImageCUDAWorker::processInit_ : Error!" << '\n'
             << "p is empty" << '\n'
         );
@@ -201,7 +201,7 @@ void GImageCUDAWorker::processInit_(std::shared_ptr<gpar::GParameterSet> p) {
     auto p_conv = std::dynamic_pointer_cast<Geneva::GImageIndividual>(p);
     if(not p_conv) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GImageCUDAWorker::processInit_(): Error!" << '\n'
             << "Conversion failed" << '\n'
         );
@@ -237,7 +237,7 @@ void GImageCUDAWorker::process_(std::shared_ptr<gpar::GParameterSet> p) {
     // Check that p actually points somewhere
     if(not p) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GImageCUDAWorker::process_ : Error!" << '\n'
             << "p is empty" << '\n'
         );
@@ -246,7 +246,7 @@ void GImageCUDAWorker::process_(std::shared_ptr<gpar::GParameterSet> p) {
     auto p_conv = std::dynamic_pointer_cast<Geneva::GImageIndividual>(p);
     if(not p_conv) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GImageCUDAWorker::process_(): Error!" << '\n'
             << "Conversion failed" << '\n'
         );

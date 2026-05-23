@@ -251,7 +251,7 @@ public:
         std::unique_lock<std::mutex> workon_lock(concurrent_workon_mutex_, std::defer_lock);
         if(not workon_lock.try_lock()) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GBaseExeuctorT<processable_type>::workOn(): Another call to this function "
                    "still seems"
                 << '\n'
@@ -467,7 +467,7 @@ public:
         // Cross check that the cycle has indeed ended
         if(cycle_running_) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GBaseExecutorT<processable_type>::getCycleEndTime():" << '\n'
                 << "There still seems to be an active cycle while the end" << '\n'
                 << "time of the cycle is retrieved" << '\n'
@@ -487,7 +487,7 @@ public:
         // Cross check that the cycle has indeed ended
         if(iteration_running_) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GBaseExecutorT<processable_type>::getIterationEndTime():" << '\n'
                 << "There still seems to be an active iteration while the end" << '\n'
                 << "time of the iteration is retrieved" << '\n'
@@ -718,7 +718,7 @@ protected:
 #ifdef DEBUG
             if(not w_ptr) {
                 throw geneva_exception(
-                    g_error_streamer(DO_LOG, time_and_place)
+                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                     << "In GBaseExecutorT<processable_type>::submitAllWorkItems():" << '\n'
                     << "Received empty work item in position " << pos_cnt << '\n'
                     << "iteration_counter_ = " << iteration_counter_ << '\n'
@@ -769,7 +769,7 @@ protected:
             }
             else if(processingStatus::DO_IGNORE != ps && processingStatus::PROCESSED != ps) {
                 throw geneva_exception(
-                    g_error_streamer(DO_LOG, time_and_place)
+                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                     << "In GBaseExecutorT<processable_type>::submitAllWorkItems(): Error"
                     << '\n'
                     << "processing status is neither DO_PROCESS nor DO_IGNORE. We got " << ps
@@ -998,7 +998,7 @@ private:
     void set_external_iteration_counter(const ITERATION_COUNTER_TYPE &external_iteration_counter) {
         if(external_iteration_counter < iteration_counter_) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GBaseExeuctorT<processable_type>::set_external_iteration_counter():"
                 << '\n'
                 << "Tried to set external iteration counter to value " << external_iteration_counter
@@ -1131,7 +1131,7 @@ protected:
 
         if(not cp) { // nullptr
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GSerialExecutorT<processable_type>::load_(): Conversion error!" << '\n'
             );
         }
@@ -1216,7 +1216,7 @@ protected:
             // severe error if we nevertheless catch an error here. We throw a corresponding
             // gemfony exception.
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GSerialExecutorT<processable_type>::submit(): Caught a" << '\n'
                 << "std::exception in a place where we didn't expect any exceptions." << '\n'
                 << "Got message" << '\n'
@@ -1228,7 +1228,7 @@ protected:
             // severe error if we nevertheless catch an error here. We throw a corresponding
             // gemfony exception.
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GSerialExecutorT<processable_type>::submit(): Caught an" << '\n'
                 << "unknown exception in a place where we didn't expect any exceptions" << '\n'
             );
@@ -1461,7 +1461,7 @@ protected:
 
         if(not cp) { // nullptr
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GMTExecutorT<processable_type>::load_(): Conversion error!" << '\n'
             );
         }
@@ -1622,14 +1622,14 @@ protected:
         else {
             if(not gtp_ptr_) {
                 throw geneva_exception(
-                    g_error_streamer(DO_LOG, time_and_place)
+                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                     << "In In GMTExecutorT<processable_type>::submit(): Error!" << '\n'
                     << "Threadpool pointer is empty" << '\n'
                 );
             }
             if(not w_ptr) {
                 throw geneva_exception(
-                    g_error_streamer(DO_LOG, time_and_place)
+                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                     << "In In GMTExecutorT<processable_type>::submit(): Error!" << '\n'
                     << "work item pointer is empty" << '\n'
                 );
@@ -1681,7 +1681,7 @@ protected:
             }
             catch(const std::exception &e) {
                 throw geneva_exception(
-                    g_error_streamer(DO_LOG, time_and_place)
+                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                     << "In GMTExecutorT<processable_type>::waitForReturn():" << '\n'
                     << "caught std::exception in a place where we didn't expect any exceptions"
                     << '\n'
@@ -1694,7 +1694,7 @@ protected:
                 // from future.get() . It is a severe error if we nevertheless catch an error here.
                 // We throw a corresponding gemfony exception.
                 throw geneva_exception(
-                    g_error_streamer(DO_LOG, time_and_place)
+                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                     << "In GMTExecutorT<processable_type>::waitForReturn(): Caught an" << '\n'
                     << "unknown exception in a place where we didn't expect any exceptions"
                     << '\n'
@@ -1950,7 +1950,7 @@ protected:
 
         if(not p_load_ptr) { // nullptr
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GBrokerExecutorT<processable_type>::load(): Conversion error!" << '\n'
             );
         }
@@ -2114,7 +2114,7 @@ protected:
     void submit(std::shared_ptr<processable_type> w_ptr) override {
         if(not w_ptr) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GBrokerExecutorT::submit(): Errornot " << '\n'
                 << "Work item is empty" << '\n'
             );
@@ -2122,7 +2122,7 @@ protected:
 
         if(not current_buffer_port_ptr_) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GBrokerExecutorT::submit(): Error!" << '\n'
                 << "Current buffer port is empty when it shouldn't be" << '\n'
             );
@@ -2322,7 +2322,7 @@ private:
 #ifdef DEBUG
         if(0 == n_returned_current_) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GBrokerExeuctorT<processable_type>::updateTimeout():" << '\n'
                 << "nReturnedCurrent_ is 0" << '\n'
             );
@@ -2450,7 +2450,7 @@ private:
                 // It is a severe error if we get an empty pointer here
                 if(not w_ptr) {
                     throw geneva_exception(
-                        g_error_streamer(DO_LOG, time_and_place)
+                        g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                         << "In GBrokerExecutorT<processable_type>::getNextItem(): Received empty "
                            "first individual"
                         << '\n'
@@ -2493,7 +2493,7 @@ private:
 #ifdef DEBUG
             if(w_ptr->getRawRetrievalTime() >= w_ptr->getProcSubmissionTime()) {
                 throw geneva_exception(
-                    g_error_streamer(DO_LOG, time_and_place)
+                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                     << "In GBrokerExeuctorT<processable_type>::getNextItem():" << '\n'
                     << "Retrieval from the raw queue seems to have happened after" << '\n'
                     << "the submission to the processed queue." << '\n'
@@ -2522,7 +2522,7 @@ private:
             if((not this->inFirstIteration() || not this->inFirstCycle() ||
                 0 < n_returned_current_)) {
                 throw geneva_exception(
-                    g_error_streamer(DO_LOG, time_and_place)
+                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                     << "In GBrokerExecutorT<processable_type>::firstRetrieval():" << '\n'
                     << "Got true==first_retrieval_, while one of the preconditions isn't met:"
                     << '\n'
@@ -2552,7 +2552,7 @@ private:
 #ifdef DEBUG
             if((not this->inFirstIteration() || 1 != n_returned_current_)) {
                 throw geneva_exception(
-                    g_error_streamer(DO_LOG, time_and_place)
+                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                     << "In GBrokerExecutorT<processable_type>::firstItem():" << '\n'
                     << "Got true==first_item_, while one of the preconditions isn't met:"
                     << '\n'
@@ -2681,7 +2681,7 @@ private:
         // Check if we have a valid buffer port
         if(not current_buffer_port_ptr_) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GBrokerExecutorT<processable_type>::determineInitialCycleStartTime():"
                 << '\n'
                 << "No valid buffer port found" << '\n'

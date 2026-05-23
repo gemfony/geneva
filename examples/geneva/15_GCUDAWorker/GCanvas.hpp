@@ -441,7 +441,7 @@ public:
     [[nodiscard]] float diff(GCanvas<COLORDEPTH> const &cp) const {
         if(cp.dimensions() != this->dimensions()) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GCanvas::diff(): Error!" << '\n'
                 << "Dimensions differ: (" << std::get<0>(cp.dimensions()) << ", "
                 << std::get<1>(cp.dimensions()) << ") / (" << std::get<0>(this->dimensions())
@@ -533,7 +533,7 @@ public:
             if(not header_found) {
                 if(s != "P3") {
                     throw geneva_exception(
-                        g_error_streamer(DO_LOG, time_and_place)
+                        g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                         << "Error: Header should be \"P3\", but got " << s << '\n'
                     );
                 }
@@ -557,14 +557,14 @@ public:
 
                 if(v.size() != 2) { // We should have received exactly two numbers
                     throw geneva_exception(
-                        g_error_streamer(DO_LOG, time_and_place)
+                        g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                         << "Error: Got invalid number of dimensions: " << v.size() << '\n'
                     );
                 }
 
                 if(v[0] == 0 || v[1] == 0) {
                     throw geneva_exception(
-                        g_error_streamer(DO_LOG, time_and_place)
+                        g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                         << "Error: Got invalid dimensions: " << v[0] << " / " << v[1] << '\n'
                     );
                 }
@@ -594,7 +594,7 @@ public:
 
                 if(v.size() != 1) { // We should have received exactly one number
                     throw geneva_exception(
-                        g_error_streamer(DO_LOG, time_and_place)
+                        g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                         << "Error: Did not find specification of the number of colors" << '\n'
                         << "or an invalid number of specifications: " << v.size() << '\n'
                     );
@@ -604,7 +604,7 @@ public:
                 // do nothing in this block
                 if(v[0] != MAXCOLOR) {
                     throw geneva_exception(
-                        g_error_streamer(DO_LOG, time_and_place)
+                        g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                         << "Error: Got invalid color depth " << v[0] << '\n'
                     );
                 }
@@ -619,7 +619,7 @@ public:
 
         if(not(header_found && dimensions_found && color_depth_found)) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "Error: PPM string ended before all header fields were found." << '\n'
                 << "  P3 header:   " << (header_found ? "found" : "MISSING") << '\n'
                 << "  Dimensions:  " << (dimensions_found ? "found" : "MISSING") << '\n'
@@ -663,7 +663,7 @@ public:
         // we are reading triplets, the size of the vector is known.
         if(v.size() != 3 * xDim_ * yDim_) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "Error: got invalid number of entries in line." << '\n'
                 << "Expected " << 3 * xDim_ * yDim_ << ", but got " << v.size() << '\n'
                 << "Note: xDim_ = " << xDim_ << ", yDim_ = " << yDim_ << '\n'
@@ -700,7 +700,7 @@ public:
 #ifdef DEBUG
         if(imageData.empty()) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "GCanvas::loadFromFile(): Error!" << '\n'
                 << "File data was empty" << '\n'
             );
@@ -719,7 +719,7 @@ public:
 
         if(not result) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GCanvas<>::toFile(): Error!" << '\n'
                 << "Could not open output file " << p.string() << '\n'
             );
@@ -785,7 +785,7 @@ public:
         // Check that angles are in consecutive order
         if(t.angle1 < 0.f || t.angle2 <= t.angle1 || t.angle3 <= t.angle2 || t.angle3 >= 1.f) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GCanvas<>::addTriangle(): Error!" << '\n'
                 << "Angles are not in consecutive oder: " << '\n'
                 << t << '\n'

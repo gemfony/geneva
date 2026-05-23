@@ -76,7 +76,7 @@ fp_type enforceRangeConstraint(
 ) {
     if(lower > upper) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << (caller == "empty" ? "" : ("[" + caller + "] "))
             << "In enforceRangeConstraint<fp_type>(): Error!" << '\n'
             << "Lower boundary > upper boundary: " << lower << " / " << upper << '\n'
@@ -124,7 +124,7 @@ bool checkRangeCompliance(
 ) {
     if(lower > upper) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << (caller == "empty" ? "" : ("[" + caller + "] "))
             << "In checkRangeCompliance<fp_type>(...): Error!" << '\n'
             << "Lower boundary > upper boundary: " << lower << " / " << upper << '\n'
@@ -151,7 +151,7 @@ bool checkRangeCompliance(
 ) {
     if(lower > upper) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << (caller == "empty" ? "" : ("[" + caller + "] "))
             << "In checkRangeCompliance<int_type>(...): Error!" << '\n'
             << "Lower boundary > upper boundary: " << lower << " / " << upper << '\n'
@@ -276,7 +276,7 @@ fp_type checkValueRange(
         }
         else {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In checkValueRange<fp_type>(): Error!" << '\n'
                 << "Value " << val << (var_name.empty() ? "" : (" of variable " + var_name))
                 << " outside of allowed range " << '\n'
@@ -345,7 +345,7 @@ int_type checkValueRange(
         }
         else {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In checkValueRange<int_type>(): Error!" << '\n'
                 << "Value " << val << " outside of allowed range " << '\n'
                 << min << (lower_open ? " (open) - " : " (closed) - ") << max
@@ -369,7 +369,7 @@ template <typename x_type_undet>
 auto getMinMax(const std::vector<x_type_undet> &ext_dat) {
     if(ext_dat.size() < static_cast<std::size_t>(2)) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GBasePlotter::getMinMax(1D): Error!" << '\n'
             << "Got vector of invalid size " << ext_dat.size() << '\n'
         );
@@ -393,7 +393,7 @@ auto getMinMax(const std::vector<std::tuple<x_type_undet, y_type_undet>> &ext_da
     // Do some error checking
     if(ext_dat.size() < static_cast<std::size_t>(2)) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GBasePlotter::getMinMax(2D): Error!" << '\n'
             << "Got vector of invalid size " << ext_dat.size() << '\n'
         );
@@ -441,7 +441,7 @@ auto getMinMax(const std::vector<std::tuple<x_type_undet, y_type_undet, z_type_u
     // Do some error checking
     if(ext_dat.size() < static_cast<std::size_t>(2)) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GBasePlotter::getMinMax(3D): Error!" << '\n'
             << "Got vector of invalid size " << ext_dat.size() << '\n'
         );
@@ -506,7 +506,7 @@ auto getMinMax(
     // Do some error checking
     if(ext_dat.size() < static_cast<std::size_t>(2)) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GBasePlotter::getMinMax(4D): Error!" << '\n'
             << "Got vector of invalid size " << ext_dat.size() << '\n'
         );
@@ -571,7 +571,7 @@ T GMean(const std::vector<T> &par_vec) {
 #ifdef DEBUG
     if(par_vec.empty()) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In T GMean(const std::vector<T>&): Error!" << '\n'
             << "par_vec has size 0" << '\n'
         );
@@ -645,7 +645,7 @@ void subtractVec(std::vector<T> &a, const std::vector<T> &b) {
 #ifdef DEBUG
     if(a.size() != b.size()) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In subtractVec(std::vector<T>, const std::vector<T>&): Error!" << '\n'
             << "Found invalid sizes: " << a.size() << " / " << b.size() << '\n'
         );
@@ -671,7 +671,7 @@ void addVec(std::vector<T> &a, const std::vector<T> &b) {
 #ifdef DEBUG
     if(a.size() != b.size()) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In addVec(std::vector<T>, const std::vector<T>&): Error!" << '\n'
             << "Found invalid sizes: " << a.size() << " / " << b.size() << '\n'
         );
@@ -842,7 +842,7 @@ auto getRatioError(
     // p may not be 0
     if(0. == std::get<2>(p)) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place) << "In getRatioError(): Error!" << '\n'
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace()) << "In getRatioError(): Error!" << '\n'
                                                      << "Attempted division by 0." << '\n'
         );
     }
@@ -852,7 +852,7 @@ auto getRatioError(
     // Check that the sleep-times for s and p are the same
     if(sleep_time != std::get<0>(p)) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In getRatioError(): Error!" << '\n'
             << "Sleep times differ: " << sleep_time << " / " << std::get<0>(p) << '\n'
         );
@@ -889,7 +889,7 @@ std::vector<std::tuple<fp_type, fp_type, fp_type, fp_type>> getRatioErrors(
     // Check that both vectors have the same size, otherwise complain
     if(sn.size() != pn.size()) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In getRatioErrors(): Error!" << '\n'
             << "Vectors have invalid sizes: " << sn.size() << " / " << pn.size() << '\n'
         );
@@ -938,7 +938,7 @@ fp_type grational_sigmoid(fp_type var, fp_type barrier, fp_type steepness) {
 #ifdef DEBUG
     if(steepness <= fp_type(0)) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "grational_sigmoid(): steepness must be > 0, got " << steepness << '\n'
         );
     }

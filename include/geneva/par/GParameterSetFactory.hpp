@@ -98,7 +98,7 @@ public:
         }
         else {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GParameterSetFactory::registerPreProcessor(): Error!" << '\n'
                 << "Got empty pre-processor" << '\n'
             );
@@ -117,7 +117,7 @@ public:
         }
         else {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GParameterSetFactory::registerPostProcessor(): Error!" << '\n'
                 << "Got empty post-processor" << '\n'
             );

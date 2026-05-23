@@ -126,7 +126,7 @@ void parameterset_processing_result::setTransformedFitnessWith(std::function<dou
     }
     else {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In parameterset_processing_result::setTransformedFitnessWith():" << '\n'
             << "Function object f is empty." << '\n'
         );
@@ -197,7 +197,7 @@ void parameterset_processing_result::reset(
     }
     else {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In parameterset_processing_result::reset():" << '\n'
             << "Function object f is empty." << '\n'
         );
@@ -348,7 +348,7 @@ void GParameterSet::toPropertyTree(pt::ptree &ptr, std::string const &base_name)
     // Check if the object is empty. If so, complain
     if(this->empty()) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GParameterSet::toPropertyTree(): Error!" << '\n'
             << "Object is empty." << '\n'
         );
@@ -583,7 +583,7 @@ bool GParameterSet::isGoodEnough(std::vector<double> const &boundaries) {
     // Does the number of fitness criteria match the number of boundaries ?
     if(boundaries.size() != this->getNStoredResults()) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GParameterSet::isGoodEnough(): Error!" << '\n'
             << "Number of boundaries does not match number of fitness criteria" << '\n'
         );
@@ -592,7 +592,7 @@ bool GParameterSet::isGoodEnough(std::vector<double> const &boundaries) {
     // Has the individual been processed
     if(not this->is_processed()) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GParameterSet::isGoodEnough(): Error!" << '\n'
             << "Trying to compare fitness values although the individual isn't processed"
             << '\n'
@@ -639,14 +639,14 @@ std::size_t GParameterSet::getCrossOverPos(const std::size_t lower, const std::s
     // which is undefined behaviour. Enforce unconditionally instead.
     if(lower == 0) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GParameterSet::getCrossOverPos(): Error!" << '\n'
             << "lower boundary is 0, but must be > 0" << '\n'
         );
     }
     if(upper <= lower) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GParameterSet::getCrossOverPos(): Error!" << '\n'
             << "Invalid range: upper (" << upper << ") must be > lower (" << lower << ")" << '\n'
         );
@@ -691,7 +691,7 @@ GParameterSet::crossOverWith(std::shared_ptr<GParameterSet> const &cp) const {
     // Do some error checking
     if(this_double_cnt.size() != cp_double_cnt.size()) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GParameterSet::perItemCrossOver(): Error!" << '\n'
             << "Got invalid sizes (double): " << this_double_cnt.size() << " / "
             << cp_double_cnt.size() << '\n'
@@ -699,7 +699,7 @@ GParameterSet::crossOverWith(std::shared_ptr<GParameterSet> const &cp) const {
     }
     if(this_float_cnt.size() != cp_float_cnt.size()) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GParameterSet::perItemCrossOver(): Error!" << '\n'
             << "Got invalid sizes (float): " << this_float_cnt.size() << " / "
             << cp_float_cnt.size() << '\n'
@@ -707,7 +707,7 @@ GParameterSet::crossOverWith(std::shared_ptr<GParameterSet> const &cp) const {
     }
     if(this_bool_cnt.size() != cp_bool_cnt.size()) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GParameterSet::perItemCrossOver(): Error!" << '\n'
             << "Got invalid sizes (bool): " << this_bool_cnt.size() << " / " << cp_bool_cnt.size()
             << '\n'
@@ -715,7 +715,7 @@ GParameterSet::crossOverWith(std::shared_ptr<GParameterSet> const &cp) const {
     }
     if(this_int_cnt.size() != cp_int_cnt.size()) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GParameterSet::perItemCrossOver(): Error!" << '\n'
             << "Got invalid sizes (std::int32_t): " << this_int_cnt.size() << " / "
             << cp_int_cnt.size() << '\n'
@@ -812,7 +812,7 @@ void GParameterSet::cannibalize(GParameterSet &cp) {
     // Check whether the "foreign" entity is processed
     if(cp.is_due_for_processing() || cp.has_errors()) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GParameterSet::cannibalize(const GParameterSet& cp)" << '\n'
             << "cp isn't processed or has errors" << '\n'
         );
@@ -959,7 +959,7 @@ void GParameterSet::setResult(const std::size_t id, const double value) {
 #ifdef DEBUG
     if(id >= this->getNStoredResults()) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GParameterSet::setResult(...): Error!" << '\n'
             << "Invalid position in vector: " << id << " (expected min 0 and max "
             << this->getNStoredResults() - 1 << ")" << '\n'
@@ -1044,7 +1044,7 @@ double GParameterSet::getSteepness() const {
 void GParameterSet::setSteepness(const double steepness) {
     if(steepness <= 0.) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GParameterSet::setSteepness(double steepness): Error!" << '\n'
             << "Invalid value of steepness parameter: " << steepness << '\n'
         );
@@ -1068,7 +1068,7 @@ double GParameterSet::getBarrier() const {
 void GParameterSet::setBarrier(const double barrier) {
     if(barrier <= 0.) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GParameterSet::setBarrier(double barrier): Error!" << '\n'
             << "Invalid value of barrier parameter: " << barrier << '\n'
         );
@@ -1237,7 +1237,7 @@ std::shared_ptr<GPersonalityTraits> GParameterSet::getPersonalityTraits() {
     // Do some error checking
     if(not pt_ptr_) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GParameterSet::getPersonalityTraits():" << '\n'
             << "Pointer to personality traits object is empty." << '\n'
         );
@@ -1263,7 +1263,7 @@ void GParameterSet::setPersonality(std::shared_ptr<GPersonalityTraits> gpt) {
     // Make sure we haven't been given an empty pointer
     if(not gpt) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GParameterSet::setPersonality(): Error!" << '\n'
             << "Received empty personality traits pointer" << '\n'
         );
@@ -1300,7 +1300,7 @@ std::string GParameterSet::getMnemonic() const {
         return pt_ptr_->getMnemonic();
     }
             throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GParameterSet::getMnemonic():" << '\n'
             << "Pointer to personality traits object is empty." << '\n'
         );
@@ -1450,7 +1450,7 @@ void GParameterSet::registerConstraint(
 ) {
     if(not c_ptr) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GParameterSet::registerConstraint(): Error!" << '\n'
             << "Tried to register empty constraint object" << '\n'
         );
@@ -1487,7 +1487,7 @@ bool GParameterSet::isValid() const {
 #ifdef DEBUG
     if(this->is_due_for_processing() || this->has_errors()) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GParameterSet::isValid():" << '\n'
             << "Function was called for unprocessed or erroneous individual" << '\n'
         );
@@ -1574,7 +1574,7 @@ void GParameterSet::process_(const std::vector<parameterset_processing_result> &
                 // Check that sizes match
                 if(res_vec.size() != this->getNStoredResults()) {
                     throw geneva_exception(
-                        g_error_streamer(DO_LOG, time_and_place)
+                        g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                         << "In GParameterSet::process_ : Error!" << '\n'
                         << "res_vec has invalid size. Got " << res_vec.size() << '\n'
                         << "Expected " << this->getNStoredResults() << '\n'
@@ -1777,7 +1777,7 @@ void GParameterSet::setFitness_(std::vector<double> const &f_cnt) {
 #ifdef DEBUG
     if(f_cnt.size() != this->getNStoredResults()) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GParameterSet::setFitness_(...): Error!" << '\n'
             << "Invalid size of fitness vector: " << '\n'
             << f_cnt.size() << ", expected: " << this->getNStoredResults() << '\n'
@@ -1915,7 +1915,7 @@ double GParameterSet::squaredSumCombiner() const {
 double GParameterSet::weighedSquaredSumCombiner(std::vector<double> const &weights) const {
     if(this->getNStoredResults() != weights.size()) {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GParameterSet::weighedSquaredSumCombine(): Error!" << '\n'
             << "Sizes of transformedCurrentFitnessVec_ and the weights vector don't match: "
             << this->getNStoredResults() << " / " << weights.size() << '\n'
@@ -1974,7 +1974,7 @@ std::any GParameterSet::getVarVal(
     }
     else {
         throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GParameterSet::getVarVal(): Error!" << '\n'
             << "Received invalid type description" << '\n'
         );

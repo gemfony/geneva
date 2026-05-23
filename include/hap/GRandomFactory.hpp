@@ -129,7 +129,7 @@ public:
 #ifdef DEBUG
         if(empty()) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In random_container::next(): Error!" << '\n'
                 << "Invalid current_pos_: " << current_pos_ << " / " << DEFAULTARRAYSIZE
                 << '\n'
@@ -153,7 +153,7 @@ private:
         }
         catch(const std::bad_alloc &e) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In random_container::random_container(T_RNG&): Error!" << '\n'
                 << "std::bad_alloc caught with message" << '\n'
                 << e.what() << '\n'
@@ -161,7 +161,7 @@ private:
         }
         catch(...) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In random_container::random_container(T_RNG&): Error!" << '\n'
                 << "unknown exception caught" << '\n'
             );

@@ -98,7 +98,7 @@ public:
         local = dynamic_cast<const g_class_type *>(this);
         if(not local) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GCommonInterfaceT<g_class_type>::toStream(): Error!" << '\n'
                 << "Conversion failed" << '\n'
             );
@@ -237,7 +237,7 @@ public:
 
         if(not ofstr) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GCommonInterfaceT::toFile():" << '\n'
                 << "Problems connecting to file " << p.string() << '\n'
             );
@@ -248,7 +248,7 @@ public:
 #ifdef DEBUG
         if(not ofstr.good()) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GCommonInterfaceT::toFile():" << '\n'
                 << "Stream error after writing to " << p.string() << '\n'
             );
@@ -273,7 +273,7 @@ public:
         // Check that the file exists
         if(not std::filesystem::exists(p)) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GCommonInterfaceT::fromFile(): Error!" << '\n'
                 << "Requested input file " << p.string() << '\n'
                 << "does not exist." << '\n'
@@ -284,7 +284,7 @@ public:
 
         if(not ifstr) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GCommonInterfaceT::fromFile():" << '\n'
                 << "Problem connecting to file " << p.string() << '\n'
             );

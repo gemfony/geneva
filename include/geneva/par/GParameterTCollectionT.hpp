@@ -133,7 +133,7 @@ public:
         // Check that the object isn't empty
         if(this->empty()) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GParameterTCollectionT<T>::toPropertyTree(): Error!" << '\n'
                 << "Object is empty!" << '\n'
             );
@@ -875,7 +875,7 @@ protected:
         // Check that both collections have the same size
         if(this->size() != p->size()) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GParameterTCollectionT<T>::floatAdd(): Error!" << '\n'
                 << "Collections have a different size: " << this->size() << " / " << p->size()
                 << '\n'
@@ -901,7 +901,7 @@ protected:
         // Check that both collections have the same size
         if(this->size() != p->size()) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GParameterTCollectionT<T>::doubleAdd(): Error!" << '\n'
                 << "Collections have a different size: " << this->size() << " / " << p->size()
                 << '\n'
@@ -927,7 +927,7 @@ protected:
         // Check that both collections have the same size
         if(this->size() != p->size()) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GParameterTCollectionT<T>::int32Add(): Error!" << '\n'
                 << "Collections have a different size: " << this->size() << " / " << p->size()
                 << '\n'
@@ -953,7 +953,7 @@ protected:
         // Check that both collections have the same size
         if(this->size() != p->size()) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GParameterTCollectionT<T>::floatSubtract(): Error!" << '\n'
                 << "Collections have a different size: " << this->size() << " / " << p->size()
                 << '\n'
@@ -979,7 +979,7 @@ protected:
         // Check that both collections have the same size
         if(this->size() != p->size()) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GParameterTCollectionT<T>::doubleSubtract(): Error!" << '\n'
                 << "Collections have a different size: " << this->size() << " / " << p->size()
                 << '\n'
@@ -1005,7 +1005,7 @@ protected:
         // Check that both collections have the same size
         if(this->size() != p->size()) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GParameterTCollectionT<T>::int32Subtract(): Error!" << '\n'
                 << "Collections have a different size: " << this->size() << " / " << p->size()
                 << '\n'

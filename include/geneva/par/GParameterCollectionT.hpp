@@ -146,7 +146,7 @@ public:
         // Check that the object isn't empty
         if(this->empty()) {
             throw geneva_exception(
-                g_error_streamer(DO_LOG, time_and_place)
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GParameterCollectionT<num_type>::toPropertyTree(): Error!" << '\n'
                 << "Object is empty!" << '\n'
             );
