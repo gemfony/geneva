@@ -44,6 +44,7 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard header files go here
+#include <source_location>
 #include <sstream>
 #include <stdexcept>
 #include <string>
@@ -92,12 +93,13 @@ public:
  */
 #define raiseException(E)                                                                          \
     {                                                                                              \
+        std::source_location const _geneva_source_loc = std::source_location::current();           \
         std::ostringstream error;                                                                  \
         error << '\n'                                                                         \
               << "================================================" << '\n'                   \
               << "ERROR" << '\n'                                                              \
-              << "in file " << __FILE__ << '\n'                                               \
-              << "near line " << __LINE__ << " with description:" << '\n'                     \
+              << "in file " << _geneva_source_loc.file_name() << '\n'                         \
+              << "near line " << _geneva_source_loc.line() << " with description:" << '\n'    \
               << '\n'                                                                         \
               << E /* NOLINT(bugprone-macro-parentheses) */ << '\n'                           \
               << '\n'                                                                         \
