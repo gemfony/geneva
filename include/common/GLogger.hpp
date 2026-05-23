@@ -611,15 +611,15 @@ using log_singleton = Gem::Common::GSingletonT<Gem::Common::GLogger<Gem::Common:
 
 namespace Gem::Common {
 /**
- * Returns the "in file <file> near line <line>" string describing the call site
- * via C++20 std::source_location (output format unchanged). Used directly by the
- * GEXCEPTION / GTERMINATION / GWARNING / GSTDERR log manipulators below.
+ * Returns an "in file <file> near line <line> (<function>)" string describing the
+ * call site via C++20 std::source_location -- the function name is now included.
+ * Used directly by the GEXCEPTION / GTERMINATION / GWARNING / GSTDERR manipulators.
  */
 [[nodiscard]] inline std::string locationString(
     std::source_location const &loc = std::source_location::current()
 ) {
     return std::string("in file ") + loc.file_name() + std::string(" near line ") +
-           std::to_string(loc.line());
+           std::to_string(loc.line()) + " (" + loc.function_name() + ")";
 }
 } // namespace Gem::Common
 

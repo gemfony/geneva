@@ -99,7 +99,8 @@ public:
               << "================================================" << '\n'                   \
               << "ERROR" << '\n'                                                              \
               << "in file " << _geneva_source_loc.file_name() << '\n'                         \
-              << "near line " << _geneva_source_loc.line() << " with description:" << '\n'    \
+              << "near line " << _geneva_source_loc.line() << " (function "                     \
+              << _geneva_source_loc.function_name() << ")" << " with description:" << '\n'    \
               << '\n'                                                                         \
               << E /* NOLINT(bugprone-macro-parentheses) */ << '\n'                           \
               << '\n'                                                                         \

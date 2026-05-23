@@ -152,16 +152,17 @@ std::string currentTimeAsString();
 
 /******************************************************************************/
 /**
- * Returns the "Recorded on <time> / in File <file> at line <line>" string
- * describing the call site, using C++20 std::source_location instead of the
- * __FILE__/__LINE__ preprocessor macros. Output format is unchanged. The defaulted
- * source_location captures the caller at the call site.
+ * Returns a "Recorded on <time> / in File <file> at line <line> (<function>)"
+ * string describing the call site via C++20 std::source_location. The function
+ * name is now included -- something the old __FILE__/__LINE__ macros could not
+ * provide. The defaulted source_location captures the caller.
  */
 [[nodiscard]] inline std::string timeAndPlace(
     std::source_location const &loc = std::source_location::current()
 ) {
     return std::string("Recorded on ") + currentTimeAsString() + "\n" + "in File " +
-           loc.file_name() + " at line " + std::to_string(loc.line()) + " :\n";
+           loc.file_name() + " at line " + std::to_string(loc.line()) + " (" +
+           loc.function_name() + ") :\n";
 }
 
 /******************************************************************************/
