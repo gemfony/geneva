@@ -94,13 +94,6 @@ IF(CMAKE_CUDA_COMPILER_LOADED)
 		GCUDAWorker)
 ENDIF()
 
-ADD_CUSTOM_TARGET( "examples-geneva"
-	# Add all the available example's targets (EXECUTABLENAMEs) here
-	DEPENDS
-		${DEPENDENCIES}
-	COMMENT "Building all the examples for the Optimization library."
-)
-
 ADD_SUBDIRECTORY( 01_GSimpleOptimizer )
 ADD_SUBDIRECTORY( 02_GParaboloid2D )
 ADD_SUBDIRECTORY( 03_GParameterObjectUsagePatterns )
@@ -127,3 +120,5 @@ IF(GENEVA_BUILD_WITH_MPI_CONSUMER)
 ENDIF()
 
 ADD_SUBDIRECTORY( 18_GAlgorithmChaining )
+
+GENEVA_AGGREGATE_TARGET( "examples-geneva" )

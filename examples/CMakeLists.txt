@@ -42,15 +42,9 @@ IF (NOT GENEVA_FULL_TREE_BUILD)
 
 ENDIF ()
 
-ADD_CUSTOM_TARGET( "examples"
-	DEPENDS "examples-common"
-		"examples-hap"
-		"examples-courtier"
-		"examples-geneva"
-	COMMENT "Building all the Geneva examples."
-)
-
 ADD_SUBDIRECTORY( common )
 ADD_SUBDIRECTORY( hap )
 ADD_SUBDIRECTORY( courtier )
 ADD_SUBDIRECTORY( geneva )
+
+GENEVA_AGGREGATE_TARGET( "examples" )

@@ -42,13 +42,8 @@ IF (NOT GENEVA_FULL_TREE_BUILD)
 
 ENDIF ()
 
-ADD_CUSTOM_TARGET( "tests-hap"
-	DEPENDS "tests-hap-unit"
-		"tests-hap-manual"
-		"tests-hap-docuprogs"
-	COMMENT "Building all the tests for the Hap library."
-)
-
 ADD_SUBDIRECTORY ( UnitTests )
 ADD_SUBDIRECTORY ( ManualTests )
 ADD_SUBDIRECTORY ( DocuPrograms )
+
+GENEVA_AGGREGATE_TARGET( "tests-hap" )

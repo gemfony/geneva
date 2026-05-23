@@ -29,6 +29,4 @@
 
 ADD_SUBDIRECTORY(GContainerTBenchmark)
 
-ADD_CUSTOM_TARGET("benchmarks-common"
-	DEPENDS GContainerTBenchmark
-	COMMENT "Building benchmarks for the Common library.")
+GENEVA_AGGREGATE_TARGET( "benchmarks-common" )

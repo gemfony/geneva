@@ -42,11 +42,7 @@ IF (NOT GENEVA_FULL_TREE_BUILD)
 
 ENDIF ()
 
-ADD_CUSTOM_TARGET( "examples-courtier"
-	# Add all the available example's targets (EXECUTABLENAMEs) here
-	DEPENDS
-		# No subtargets at the moment
-	COMMENT "Building all the examples for the Courtier library."
-)
-
 #ADD_SUBDIRECTORY( )
+
+# No example sub-directories at the moment; collects nothing until one is added.
+GENEVA_AGGREGATE_TARGET( "examples-courtier" )

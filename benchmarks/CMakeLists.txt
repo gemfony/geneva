@@ -64,11 +64,8 @@ IF (NOT GENEVA_FULL_TREE_BUILD)
 
 ENDIF ()
 
-ADD_CUSTOM_TARGET( "benchmarks"
-	DEPENDS "benchmarks-common" "benchmarks-courtier" "benchmarks-geneva"
-	COMMENT "Building all the Geneva benchmarks."
-)
-
 ADD_SUBDIRECTORY ( common )
 ADD_SUBDIRECTORY ( courtier )
 ADD_SUBDIRECTORY ( geneva )
+
+GENEVA_AGGREGATE_TARGET( "benchmarks" )

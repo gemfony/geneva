@@ -42,10 +42,6 @@ IF (NOT GENEVA_FULL_TREE_BUILD)
 
 ENDIF ()
 
-ADD_CUSTOM_TARGET( "examples-hap"
-	# Add all the available example's targets (EXECUTABLENAMEs) here
-	DEPENDS GHapUsagePatterns
-	COMMENT "Building all the examples for the Hap library."
-)
-
 ADD_SUBDIRECTORY( 05_GHapUsagePatterns )
+
+GENEVA_AGGREGATE_TARGET( "examples-hap" )

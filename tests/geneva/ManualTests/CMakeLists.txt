@@ -27,21 +27,6 @@
 #
 ################################################################################
 
-ADD_CUSTOM_TARGET( "tests-geneva-manual"
-	# Add all the available test targets (EXECUTABLENAMEs) here
-	DEPENDS
-        GBooleanProbabilityTest
-		GConstrainedFPTTest
-		GConstrainedIntegerTTest
-		GDoubleBiGaussAdaptorTest
-		GDoubleGaussAdaptorTest
-		GParameterPropertyParserTest
-		GRandomWalk
-        GResetToOptimizationStartTest
-		GSigmaSigmaAdaptionTest
-	COMMENT "Building the manual tests for the Optimization library."
-)
-
 ADD_SUBDIRECTORY ( GBooleanProbabilityTest )
 ADD_SUBDIRECTORY ( GCommandContainerSerialization )
 ADD_SUBDIRECTORY ( GConstrainedFPTTest )
@@ -52,3 +37,5 @@ ADD_SUBDIRECTORY ( GParameterPropertyParserTest )
 ADD_SUBDIRECTORY ( GRandomWalk )
 ADD_SUBDIRECTORY ( GResetToOptimizationStartTest )
 ADD_SUBDIRECTORY ( GSigmaSigmaAdaptionTest )
+
+GENEVA_AGGREGATE_TARGET( "tests-geneva-manual" )

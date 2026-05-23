@@ -33,18 +33,6 @@ ELSE()
     SET(_CUDA_BENCHMARK_DEPS)
 ENDIF()
 
-ADD_CUSTOM_TARGET( "benchmarks-geneva"
-	# Add all the available test targets (EXECUTABLENAMEs) here
-	DEPENDS
-        GBrokerOverhead
-        GBrokerSanityChecks
-		GOptimizationBenchmark
-		GParallelisationOverhead
-		GSerializationOverhead
-        ${_CUDA_BENCHMARK_DEPS}
-	COMMENT "Building the benchmarks for the optimization library."
-)
-
 ADD_SUBDIRECTORY ( GBrokerOverhead )
 ADD_SUBDIRECTORY ( GBrokerSanityChecks )
 ADD_SUBDIRECTORY ( GOptimizationBenchmark )
@@ -54,3 +42,5 @@ ADD_SUBDIRECTORY ( GSerializationOverhead )
 IF(CMAKE_CUDA_COMPILER_LOADED)
     ADD_SUBDIRECTORY ( GCUDAOptBenchmark )
 ENDIF()
+
+GENEVA_AGGREGATE_TARGET( "benchmarks-geneva" )

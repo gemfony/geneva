@@ -27,11 +27,7 @@
 #
 ################################################################################
 
-ADD_CUSTOM_TARGET( "benchmarks-courtier"
-	# Add all the available test targets (EXECUTABLENAMEs) here
-	DEPENDS GBufferPortTTest # GConsumerPerformance
-	COMMENT "Building the benchmarks for the Courtier library."
-)
-
 ADD_SUBDIRECTORY (GBufferPortTTest )
 # ADD_SUBDIRECTORY (GConsumerPerformance)
+
+GENEVA_AGGREGATE_TARGET( "benchmarks-courtier" )

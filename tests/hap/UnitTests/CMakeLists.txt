@@ -76,8 +76,4 @@ INSTALL ( TARGETS ${EXECUTABLENAME} DESTINATION ${INSTALL_PREFIX_DATA}/tests/hap
 # Take care of other particularities of this test
 #
 
-ADD_CUSTOM_TARGET( "tests-hap-unit"
-	# Add all the available test targets (EXECUTABLENAMEs) here
-	DEPENDS GHapStandardTests
-	COMMENT "Building the unit tests for the Hap library."
-)
+GENEVA_AGGREGATE_TARGET( "tests-hap-unit" )

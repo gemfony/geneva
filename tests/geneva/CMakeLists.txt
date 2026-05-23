@@ -42,11 +42,7 @@ IF (NOT GENEVA_FULL_TREE_BUILD)
 
 ENDIF ()
 
-ADD_CUSTOM_TARGET( "tests-geneva"
-	DEPENDS "tests-geneva-unit"
-		"tests-geneva-manual"
-	COMMENT "Building all the tests for the Optimization library."
-)
-
 ADD_SUBDIRECTORY ( UnitTests )
 ADD_SUBDIRECTORY ( ManualTests )
+
+GENEVA_AGGREGATE_TARGET( "tests-geneva" )

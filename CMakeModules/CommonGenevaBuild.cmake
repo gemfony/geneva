@@ -383,6 +383,37 @@ IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
 	MESSAGE ("========================================\n")
 
 	###############################################################################
+	# Drift-proof aggregate-target helper.
+	#
+	# GENEVA_AGGREGATE_TARGET(<name>) creates a custom target depending on EVERY
+	# buildsystem target defined in the current directory and all of its
+	# subdirectories (recursively). Call it AFTER the ADD_SUBDIRECTORY() calls of
+	# a CMakeLists. This replaces hand-maintained DEPENDS lists -- which have
+	# silently drifted in the past (commented-out entries, missing sub-aggregates,
+	# new tests/benchmarks/examples never added) -- so that anything added under
+	# the directory is picked up automatically.
+
+	FUNCTION(_GENEVA_COLLECT_TARGETS_RECURSIVE _out_var _dir)
+		GET_PROPERTY(_subdirs DIRECTORY "${_dir}" PROPERTY SUBDIRECTORIES)
+		GET_PROPERTY(_targets DIRECTORY "${_dir}" PROPERTY BUILDSYSTEM_TARGETS)
+		SET(_acc ${_targets})
+		FOREACH(_sub ${_subdirs})
+			_GENEVA_COLLECT_TARGETS_RECURSIVE(_child "${_sub}")
+			LIST(APPEND _acc ${_child})
+		ENDFOREACH()
+		SET(${_out_var} "${_acc}" PARENT_SCOPE)
+	ENDFUNCTION()
+
+	FUNCTION(GENEVA_AGGREGATE_TARGET _name)
+		_GENEVA_COLLECT_TARGETS_RECURSIVE(_collected "${CMAKE_CURRENT_SOURCE_DIR}")
+		IF(_collected)
+			LIST(REMOVE_DUPLICATES _collected)
+		ENDIF()
+		ADD_CUSTOM_TARGET("${_name}" DEPENDS ${_collected}
+			COMMENT "Building all auto-collected targets for \"${_name}\".")
+	ENDFUNCTION()
+
+	###############################################################################
 	# End of the include-guard
 
 ENDIF(NOT COMMON_GENEVA_BUILD_INCLUDED)

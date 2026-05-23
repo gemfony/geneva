@@ -66,7 +66,4 @@ ADD_TEST(${EXECUTABLENAME} ${EXECUTABLENAME})
 
 INSTALL ( TARGETS ${EXECUTABLENAME} DESTINATION ${INSTALL_PREFIX_DATA}/tests/courtier/UnitTests )
 
-ADD_CUSTOM_TARGET( "tests-courtier-unit"
-	DEPENDS GCourtierStandardTests
-	COMMENT "Building the unit tests for the \"courtier\" library."
-)
+GENEVA_AGGREGATE_TARGET( "tests-courtier-unit" )

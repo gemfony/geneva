@@ -27,19 +27,10 @@
 #
 ################################################################################
 
-ADD_CUSTOM_TARGET( "tests-common-manual"
-	# Add all the available test targets (EXECUTABLENAMEs) here
-	DEPENDS
-        GFormulaParserTest
-        GHelperFunctionsTest
-        GLoggerTest
-        GPlotDesignerTest
-        GThreadPoolTest
-	COMMENT "Building the manual tests for the Common library."
-)
-
 ADD_SUBDIRECTORY ( GHelperFunctionsTest )
 ADD_SUBDIRECTORY ( GFormulaParserTest )
 ADD_SUBDIRECTORY ( GLoggerTest )
 ADD_SUBDIRECTORY ( GPlotDesignerTest )
 ADD_SUBDIRECTORY ( GThreadPoolTest )
+
+GENEVA_AGGREGATE_TARGET( "tests-common-manual" )

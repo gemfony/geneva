@@ -44,7 +44,4 @@ ENDIF ()
 
 ADD_SUBDIRECTORY ( UnitTests )
 
-ADD_CUSTOM_TARGET( "tests-courtier"
-	DEPENDS "tests-courtier-unit"
-	COMMENT "Building all the tests for the Courtier library."
-)
+GENEVA_AGGREGATE_TARGET( "tests-courtier" )
