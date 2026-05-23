@@ -306,11 +306,19 @@ private:
     std::atomic<bool> seeding_has_started_ = ATOMIC_VAR_INIT(false);
 };
 
-} /* namespace Gem::Hap */
-
 /******************************************************************************/
 /**
- * A single, global random number factory is created as a singleton.
+ * A single, global GRandomFactory exists as a singleton. Access it through
+ * randomFactory() (and resetRandomFactory() to drop it); both forward to the
+ * GSingletonT<GRandomFactory> lifetime manager. These type-safe, namespaced
+ * functions replace the former GRANDOMFACTORY / GRANDOMFACTORY_RESET macros.
  */
-#define GRANDOMFACTORY       Gem::Common::GSingletonT<Gem::Hap::GRandomFactory>::Instance(0)
-#define GRANDOMFACTORY_RESET Gem::Common::GSingletonT<Gem::Hap::GRandomFactory>::Instance(1)
+[[nodiscard]] inline std::shared_ptr<GRandomFactory> randomFactory() {
+    return Gem::Common::GSingletonT<GRandomFactory>::instance();
+}
+
+inline void resetRandomFactory() {
+    Gem::Common::GSingletonT<GRandomFactory>::reset();
+}
+
+} /* namespace Gem::Hap */

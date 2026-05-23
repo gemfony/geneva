@@ -240,7 +240,7 @@ int main(int argc, char **argv) {
 
     /****************************************************************************/
     // Random numbers are our most valuable good. Set the number of threads
-    GRANDOMFACTORY->setNProducerThreads(nProducerThreads);
+    randomFactory()->setNProducerThreads(nProducerThreads);
 
     // Instantiate the MPI consumer.
     auto consumer_ptr =
@@ -263,7 +263,7 @@ int main(int argc, char **argv) {
 
     // If this is supposed to be the master node (server), then add it to the broker.
     // This will allow the consumer to pull raw work items from the broker and put processed work items back.
-    GBROKER(gpar::GParameterSet)->enrol_consumer(consumer_ptr);
+    broker<gpar::GParameterSet>()->enrol_consumer(consumer_ptr);
 
     /****************************************************************************/
     // We can now start creating populations. We refer to them through the base class

@@ -40,9 +40,9 @@ namespace Gem::Geneva {
 void setRNFParameters(std::uint16_t n_producer_threads) {
     //--------------------------------------------
     // Random numbers are our most valuable good.
-    // Set the number of threads. GRANDOMFACTORY is
+    // Set the number of threads. Gem::Hap::randomFactory() is
     // a singleton that will be initialized by this call.
-    GRANDOMFACTORY->setNProducerThreads(n_producer_threads);
+    Gem::Hap::randomFactory()->setNProducerThreads(n_producer_threads);
 }
 
 std::once_flag fGo2; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
@@ -1039,8 +1039,8 @@ void Go2::setupChosenConsumer(boost::program_options::variables_map const &vm) {
     // Register the consumer with the broker, unless other consumers have already
     // been registered or we are running in client mode.
     if(not client_mode_) {
-        if(not GBROKER(gpar::GParameterSet)->hasConsumers()) {
-            GBROKER(gpar::GParameterSet)->enrol_consumer(consumer);
+        if(not Gem::Courtier::broker<gpar::GParameterSet>()->hasConsumers()) {
+            Gem::Courtier::broker<gpar::GParameterSet>()->enrol_consumer(consumer);
         }
         else {
             glogger << "In Go2::setupChosenConsumer(): Note!" << '\n'

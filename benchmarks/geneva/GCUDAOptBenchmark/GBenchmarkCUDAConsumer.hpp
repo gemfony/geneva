@@ -58,7 +58,7 @@ namespace Gem::Geneva::Benchmarks {
 /**
  * @brief Broker-integrated GPU batch consumer for GFunctionIndividual.
  *
- * Registered with GBROKER(GParameterSet) — the same broker type Go2 uses.
+ * Registered with broker<GParameterSet>() — the same broker type Go2 uses.
  * Work items arrive as GParameterSet; they are cast to GFunctionIndividual
  * internally to extract demoFunction and parameters.
  *
@@ -122,7 +122,7 @@ public:
      */
     static std::shared_ptr<GCUDABatchConsumer> setup() {
         auto consumer_ptr = std::make_shared<GCUDABatchConsumer>();
-        GBROKER(gpar::GParameterSet)->enrol_consumer(consumer_ptr);
+        Gem::Courtier::broker<gpar::GParameterSet>()->enrol_consumer(consumer_ptr);
         return consumer_ptr;
     }
 
@@ -277,7 +277,7 @@ private:
     std::chrono::milliseconds flushTimeout_{50};
 
     std::shared_ptr<Gem::Courtier::GBrokerT<individual_t>> broker_ptr_
-        = GBROKER(gpar::GParameterSet);
+        = Gem::Courtier::broker<gpar::GParameterSet>();
 };
 
 /******************************************************************************/

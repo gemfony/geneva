@@ -280,7 +280,7 @@ int main(int argc, char **argv) {
 
     /****************************************************************************/
     // Random numbers are our most valuable good. Set the number of threads
-    GRANDOMFACTORY->setNProducerThreads(nProducerThreads);
+    randomFactory()->setNProducerThreads(nProducerThreads);
 
     /****************************************************************************/
     // If this is a client in networked mode, we can just start the listener and
@@ -353,7 +353,7 @@ int main(int argc, char **argv) {
             std::shared_ptr<cons::GStdThreadConsumerT<gpar::GParameterSet>> gbtc(
                 new cons::GStdThreadConsumerT<gpar::GParameterSet>(nEvaluationThreads)
             );
-            GBROKER(gpar::GParameterSet)->enrol_consumer(gbtc);
+            broker<gpar::GParameterSet>()->enrol_consumer(gbtc);
         }
         else {
             // Create a network consumer and enrol_buffer_port it with the broker
@@ -369,7 +369,7 @@ int main(int argc, char **argv) {
             gatc_ptr->setMaxReconnects(maxReconnects);
 
             // Add the consumer to the broker
-            GBROKER(gpar::GParameterSet)->enrol_consumer(gatc_ptr);
+            broker<gpar::GParameterSet>()->enrol_consumer(gatc_ptr);
         }
 
         pop_ptr->registerExecutor(execMode::BROKER, "./config/GBrokerExecutor.json");

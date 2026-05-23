@@ -1178,7 +1178,7 @@ private:
     std::size_t n_max_reconnects_ = GASIOCONSUMERMAXCONNECTIONATTEMPTS;
 
     std::shared_ptr<typename Gem::Courtier::GBrokerT<processable_type>> broker_ptr_ =
-        GBROKER(processable_type); ///< Simplified access to the broker
+        broker<processable_type>(); ///< Simplified access to the broker
     const std::chrono::duration<double> timeout_ = std::chrono::milliseconds(
         GBEASTMSTIMEOUT
     ); ///< A timeout for put- and get-operations via the broker

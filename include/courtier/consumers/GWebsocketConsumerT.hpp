@@ -1479,7 +1479,7 @@ private:
         false; ///< Whether the control_callback should emit information when a control frame is received
 
     std::shared_ptr<GBrokerT<processable_type>> broker_ptr_ =
-        GBROKER(processable_type); ///< Simplified access to the broker
+        broker<processable_type>(); ///< Simplified access to the broker
     const std::chrono::duration<double> timeout_ = std::chrono::milliseconds(
         GBEASTMSTIMEOUT
     ); ///< A timeout for put- and get-operations via the broker

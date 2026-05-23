@@ -1981,7 +1981,7 @@ protected:
         // Add the buffer port to the broker and check whether all consumers
         // enrolled with the broker are capable of full return
         capable_of_full_return_ =
-            GBROKER(processable_type)->enrol_buffer_port(current_buffer_port_ptr_);
+            broker<processable_type>()->enrol_buffer_port(current_buffer_port_ptr_);
 
 #ifdef DEBUG
         if(capable_of_full_return_) {

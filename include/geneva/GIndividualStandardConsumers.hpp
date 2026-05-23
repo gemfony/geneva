@@ -41,6 +41,7 @@
 // Geneva headers go here
 #include "common/GCommonEnums.hpp"
 #include "common/GLogger.hpp"
+#include "common/GSingletonT.hpp"
 #include "geneva/GIndividualStandardConsumerInitializerT.hpp"
 #include "geneva/par/GParameterSet.hpp"
 
@@ -146,10 +147,15 @@ BOOST_CLASS_EXPORT_KEY(
 /******************************************************************************/
 
 #ifdef GENEVA_BUILD_WITH_MPI_CONSUMER
+namespace Gem::Geneva {
 /**
- * GMPIConsumerT can only be instantiated once, because multiple calls to MPI_Init or MPI_Finalize are not allowed.
- * Therefore if you are not totally sure that you will call the constructor exactly once, then rather use the provided
- * macro to acquire a singleton std::shared_ptr instance.
+ * GMPIConsumerT can only be instantiated once, because multiple calls to MPI_Init
+ * or MPI_Finalize are not allowed. The GIndividualMPIConsumer is therefore always
+ * used as a singleton: mpiConsumerInstance() returns that single shared_ptr
+ * instance. It replaces the former GMPIConsumerInstance macro.
  */
-#define GMPIConsumerInstance Gem::Common::GSingletonT<GIndividualMPIConsumer>::Instance(0)
+[[nodiscard]] inline std::shared_ptr<GIndividualMPIConsumer> mpiConsumerInstance() {
+    return Gem::Common::GSingletonT<GIndividualMPIConsumer>::instance();
+}
+} /* namespace Gem::Geneva */
 #endif

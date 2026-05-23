@@ -85,7 +85,7 @@ namespace Gem::Hap
 
         // Initialize all PRNG states once with a non-deterministic seed drawn from
         // GRandomFactory — the same source used by the CPU-based RNG path.
-        const auto seed = static_cast<unsigned long long>(GRANDOMFACTORY->getSeed());
+        const auto seed = static_cast<unsigned long long>(randomFactory()->getSeed());
         const int blocks = (n + THREADS_PER_BLOCK - 1) / THREADS_PER_BLOCK;
         initStatesKernel<<<blocks, THREADS_PER_BLOCK, 0, reinterpret_cast<cudaStream_t>(stream_)>>>(
             static_cast<curandState *>(d_states_), seed, n);

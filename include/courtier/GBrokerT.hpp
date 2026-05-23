@@ -688,12 +688,20 @@ private:
 
 /******************************************************************************/
 /**
- * We require GBrokerT<T> to be a singleton. This ensures that, for a given T, one
- * and only one Broker object exists that is constructed before main begins. All
- * external communication should refer to GBROKER(T).
+ * GBrokerT<T> is a singleton: for a given T exactly one broker exists. Access it
+ * through broker<T>() (and resetBroker<T>() to drop it); both forward to the
+ * GSingletonT<GBrokerT<T>> lifetime manager. These type-safe, namespaced function
+ * templates replace the former GBROKER / RESETGBROKER macros.
  */
-#define GBROKER(T)      Gem::Common::GSingletonT<Gem::Courtier::GBrokerT<T>>::Instance(0)
-#define RESETGBROKER(T) Gem::Common::GSingletonT<Gem::Courtier::GBrokerT<T>>::Instance(1)
+template <typename processable_type>
+[[nodiscard]] inline std::shared_ptr<GBrokerT<processable_type>> broker() {
+    return Gem::Common::GSingletonT<GBrokerT<processable_type>>::instance();
+}
+
+template <typename processable_type>
+inline void resetBroker() {
+    Gem::Common::GSingletonT<GBrokerT<processable_type>>::reset();
+}
 
 /******************************************************************************/
 

@@ -97,7 +97,7 @@ public:
 	 * Default constructor. Note that getNewRandomContainer() may throw.
 	 */
     GRandomT() noexcept(false)
-      : grf_(GRANDOMFACTORY) // Make sure we have a local pointer to the factory
+      : grf_(randomFactory()) // Make sure we have a local pointer to the factory
     {
         // Make sure we have a first random number package available
         this->getNewRandomContainer();
@@ -130,7 +130,7 @@ public:
 	 */
     GRandomT(GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> &&cp) noexcept(false)
       : p_(std::move(cp.p_))
-      , grf_(GRANDOMFACTORY) // Make sure we have a local pointer to the factory
+      , grf_(randomFactory()) // Make sure we have a local pointer to the factory
     {
         // Make sure cp is in pristine condition -- we need to give it a new random number container
         cp.getNewRandomContainer();
@@ -258,7 +258,7 @@ public:
 	 * The standard constructor
 	 */
     GRandomT() noexcept(false)
-      : rng_(GRANDOMFACTORY->getSeed()) { /* nothing */
+      : rng_(randomFactory()->getSeed()) { /* nothing */
     }
 
     /***************************************************************************/

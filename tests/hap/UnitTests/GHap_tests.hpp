@@ -85,9 +85,9 @@ public:
 
             // Check that we always get different seeds
             seed_type lastSeed;
-            CHECK_NOTHROW(lastSeed = GRANDOMFACTORY->getSeed());
+            CHECK_NOTHROW(lastSeed = randomFactory()->getSeed());
             for(std::size_t s = 0; s < n_seeds_ - 1; s++) {
-                seed_type currentSeed = GRANDOMFACTORY->getSeed();
+                seed_type currentSeed = randomFactory()->getSeed();
                 CHECK(lastSeed != currentSeed);
                 lastSeed = currentSeed;
             }

@@ -65,5 +65,5 @@ void createAndEnrollCUDAConsumer(std::size_t batchSize, std::uint32_t flushTimeo
     auto consumer = std::make_shared<Gem::Geneva::Benchmarks::GCUDABatchConsumer>();
     consumer->setBatchSize(batchSize);
     consumer->setFlushTimeout(std::chrono::milliseconds{flushTimeoutMs});
-    GBROKER(gpar::GParameterSet)->enrol_consumer(consumer);
+    Gem::Courtier::broker<gpar::GParameterSet>()->enrol_consumer(consumer);
 }

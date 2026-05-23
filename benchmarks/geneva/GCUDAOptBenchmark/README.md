@@ -223,7 +223,7 @@ GCUDAOptBenchmarkMain.cpp   (C++20, compiled by GCC)
 
 GCUDAOptBenchmark.cu        (C++17, compiled by NVCC)
   createAndEnrollCUDAConsumer() — creates GCUDABatchConsumer and enrolls it
-           with GBROKER(GParameterSet). Isolated here to avoid pulling
+           with broker<GParameterSet>(). Isolated here to avoid pulling
            GenevaInitializer.hpp (which uses C++20 std::map::contains()) into
            NVCC's C++17 compilation unit.
 
@@ -258,7 +258,7 @@ GBenchmarkRunResult.hpp
 ### Broker / consumer lifecycle
 
 `GenevaInitializer` is constructed once in `main()` and lives for the duration of
-the process. `GCUDABatchConsumer` is enrolled with `GBROKER(GParameterSet)` once,
+the process. `GCUDABatchConsumer` is enrolled with `broker<GParameterSet>()` once,
 before any optimization starts. Algorithm instances are created per-run via Geneva
 factories (`GEvolutionaryAlgorithmFactory`, etc.), which default to broker-mode
 execution and therefore route all evaluations through the already-enrolled consumer.

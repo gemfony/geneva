@@ -1064,7 +1064,7 @@ private:
     std::atomic_bool isToldToStop_;
     // whether the stop request has been sent to all clients
     std::shared_ptr<typename Gem::Courtier::GBrokerT<processable_type>> brokerPtr_ =
-        GBROKER(processable_type); ///< Simplified access to the broker
+        broker<processable_type>(); ///< Simplified access to the broker
     const std::chrono::duration<double> timeout_ = std::chrono::milliseconds(
         GMPICONSUMERBROKERACCESSBROKERTIMEOUT
     ); ///< A timeout for put- and get-operations via the broker

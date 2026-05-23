@@ -354,7 +354,7 @@ int main(int argc, char **argv) {
     }
 
     // Random numbers are our most valuable good. Set the number of threads
-    GRANDOMFACTORY->setNProducerThreads(nProducerThreads);
+    Gem::Hap::randomFactory()->setNProducerThreads(nProducerThreads);
 
     //***************************************************************************
     // Create a factory for GFunctionIndividual objects and perform
@@ -414,7 +414,7 @@ int main(int argc, char **argv) {
         std::shared_ptr<cons::GStdThreadConsumerT<gpar::GParameterSet>> stc(
             new cons::GStdThreadConsumerT<gpar::GParameterSet>(nEvaluationThreads)
         );
-        GBROKER(gpar::GParameterSet)->enrol_consumer(stc);
+        broker<gpar::GParameterSet>()->enrol_consumer(stc);
 
         std::cout << "Using the GStdThreadConsumerT consumer." << std::endl;
         pop_ptr->registerExecutor(execMode::BROKER, "./config/GBrokerExecutor.json");

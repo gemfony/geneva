@@ -336,7 +336,7 @@ int main(int argc, char **argv) {
     std::vector<double> initCorr;
     std::vector<double> initLFCorr;
 
-    GRANDOMFACTORY->setNProducerThreads(nProducerThreads);
+    randomFactory()->setNProducerThreads(nProducerThreads);
 
     // Set the random number generation mode as requested
     switch(rnrProductionMode) {

@@ -112,7 +112,7 @@ int main(int argc, char **argv) {
     //----------------------------------------------------------------
 
     // Configure the random number factory
-    GRANDOMFACTORY->setNProducerThreads(nProducerThreads);
+    Gem::Hap::randomFactory()->setNProducerThreads(nProducerThreads);
 
     // Retrieve a random number proxy
     Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;

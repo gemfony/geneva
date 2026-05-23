@@ -163,7 +163,7 @@ private:
  *
  * The caller is responsible for:
  *   1. Creating a GenevaInitializer (must outlive this runner).
- *   2. Enrolling a consumer with GBROKER(GParameterSet) before calling run().
+ *   2. Enrolling a consumer with broker<GParameterSet>() before calling run().
  *
  * This split avoids coupling the runner to CUDA headers: the CUDA consumer is
  * created in the main CUDA translation unit (GCUDAOptBenchmark.cu) and passed
@@ -180,7 +180,7 @@ public:
     /**
      * @brief Runs the full benchmark and returns aggregated results per tag.
      *
-     * Assumes a consumer has already been enrolled with GBROKER(GParameterSet).
+     * Assumes a consumer has already been enrolled with broker<GParameterSet>().
      * Prints per-run progress to stdout.
      */
     std::vector<GAlgorithmBenchmarkResult> run();

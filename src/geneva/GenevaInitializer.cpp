@@ -38,8 +38,8 @@ namespace Gem::Geneva {
  * The default constructor
  */
 GenevaInitializer::GenevaInitializer() {
-    GRANDOMFACTORY->init();
-    GBROKER(gpar::GParameterSet)->init();
+    Gem::Hap::randomFactory()->init();
+    Gem::Courtier::broker<gpar::GParameterSet>()->init();
 }
 
 /******************************************************************************/
@@ -47,8 +47,8 @@ GenevaInitializer::GenevaInitializer() {
  * The destructor
  */
 GenevaInitializer::~GenevaInitializer() {
-    GBROKER(gpar::GParameterSet)->finalize();
-    GRANDOMFACTORY->finalize();
+    Gem::Courtier::broker<gpar::GParameterSet>()->finalize();
+    Gem::Hap::randomFactory()->finalize();
 }
 
 /******************************************************************************/

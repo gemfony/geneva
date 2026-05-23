@@ -93,53 +93,75 @@ public:
 
     /***************************************************************************/
     /**
-	  * If called for the first time, the function creates a std::shared_ptr
-	  * of T and returns it to the caller. Subsequent calls to this function
-	  * will return the stored copy of the shared_ptr. Other classes can store
-	  * the pointer, so that T doesn't get deleted while it is still needed.
-	  *
-	  * @param mode Determines the mode in which this function is called
+	  * Returns the singleton instance, creating it on first access. It is handed
+	  * out as a std::shared_ptr so other objects may keep it alive past this
+	  * static's own destruction, which fixes inter-singleton destruction order.
+	  */
+    [[nodiscard]] static std::shared_ptr<T> instance() {
+        storage_type &s = storage();
+        // Load once into a local. An implicit `if(not s.p)` on the atomic would
+        // construct-and-destroy a temporary shared_ptr (extra refcount round-trip)
+        // on every check; loading into `sp` once covers both checks and the return.
+        auto sp = s.p.load();
+        if(not sp) {
+            // Prevent concurrent "first" access. Re-check under the lock: another
+            // thread may have completed initialisation between our unlocked load
+            // and our acquisition of the mutex.
+            std::scoped_lock lk(s.creation_mutex);
+            sp = s.p.load();
+            if(not sp) {
+                sp = Gem::Common::TFactory_GSingletonT<T>();
+                s.p.store(sp);
+            }
+        }
+        return sp;
+    }
+
+    /***************************************************************************/
+    /**
+	  * Drops the stored instance so the next instance() call creates a fresh one.
+	  */
+    static void reset() {
+        storage_type &s = storage();
+        // Reset must be ordered against any in-flight instance() initialiser:
+        // without this lock, an initialiser could store the freshly-built
+        // singleton AFTER our reset, silently undoing it.
+        std::scoped_lock lk(s.creation_mutex);
+        s.p.store(nullptr);
+    }
+
+    /***************************************************************************/
+    /**
+	  * @deprecated Use instance() / reset() instead. Retained transitionally for
+	  * the remaining GSingletonT-based macros. mode 0 -> instance(), 1 -> reset().
 	  */
     static std::shared_ptr<T> Instance(const std::size_t &mode) {
-        // The atomic guarantees that the unlocked first check below is a
-        // well-defined load instead of a data race against the writes in the
-        // locked init path and in case 1's reset.
-        static std::atomic<std::shared_ptr<T>> p;
-        static std::mutex creation_mutex;
-
         switch(mode) {
-        case 0: {
-            // Load once into a local. An implicit `if(not p)` on the atomic
-            // would construct-and-destroy a temporary shared_ptr (extra
-            // refcount round-trip) on every check; loading into `sp` once
-            // covers both checks and the return.
-            auto sp = p.load();
-            if(not sp) {
-                // Prevent concurrent "first" access. Re-check under the lock:
-                // another thread may have completed the initialisation between
-                // our unlocked load and our acquisition of the mutex.
-                std::scoped_lock lk(creation_mutex);
-                sp = p.load();
-                if(not sp) {
-                    sp = Gem::Common::TFactory_GSingletonT<T>();
-                    p.store(sp);
-                }
-            }
-            return sp;
-        }
-
-        case 1: {
-            // Reset must be ordered against any in-flight case-0 initialiser:
-            // without this lock, an initialiser could store the freshly-built
-            // singleton AFTER our reset, silently undoing it.
-            std::scoped_lock lk(creation_mutex);
-            p.store(nullptr);
+        case 0:
+            return instance();
+        case 1:
+            reset();
             return std::shared_ptr<T>{};
-        }
-
         default:
             return std::shared_ptr<T>{};
         }
+    }
+
+private:
+    /***************************************************************************/
+    /**
+	  * Storage shared by instance() and reset(). The atomic makes the unlocked
+	  * first check in instance() a well-defined load instead of a data race
+	  * against the locked init / reset writes.
+	  */
+    struct storage_type {
+        std::atomic<std::shared_ptr<T>> p;
+        std::mutex creation_mutex;
+    };
+
+    static storage_type &storage() {
+        static storage_type s;
+        return s;
     }
 
     /***************************************************************************/

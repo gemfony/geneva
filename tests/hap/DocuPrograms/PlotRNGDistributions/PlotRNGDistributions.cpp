@@ -168,7 +168,7 @@ int main(int argc, char **argv) {
     std::vector<std::int32_t> bitprob;
     std::vector<std::int32_t> bitsimple;
 
-    GRANDOMFACTORY->setNProducerThreads(nProducerThreads);
+    randomFactory()->setNProducerThreads(nProducerThreads);
 
     // Create a random number proxy
     gr_ptr = std::shared_ptr<GRandomT<RANDFLAVOURS::RANDOMPROXY>>(

@@ -138,7 +138,7 @@ public:
         consumer_ptr->registerWorkerTemplate(worker_ptr);
         consumer_ptr->parseConfigFile(configFile);
 
-        GBROKER(processable_type)->enrol_consumer(consumer_ptr);
+        broker<processable_type>()->enrol_consumer(consumer_ptr);
     }
 
 protected:
@@ -308,9 +308,8 @@ private:
     std::shared_ptr<GWorkerWithRegisterBrokerFerryT<processable_type>>
         worker_template_; ///< Holds an external worker assigned to this consumer
 
-    std::shared_ptr<GBrokerT<processable_type>> broker_ptr_ = GBROKER(
-        processable_type
-    ); ///< A shortcut to the broker so we do not have to go through the singleton
+    std::shared_ptr<GBrokerT<processable_type>> broker_ptr_ =
+        broker<processable_type>(); ///< A shortcut to the broker so we do not have to go through the singleton
 };
 
 /******************************************************************************/

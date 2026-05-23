@@ -387,7 +387,7 @@ void brokerProducer(
 
     // Create a buffer port and register it with the broker
     GBufferPortT_ptr CurrentBufferPort(new Gem::Courtier::GBufferPortT<WORKLOAD>());
-    GBROKER(WORKLOAD)->enrol(CurrentBufferPort);
+    broker<WORKLOAD>()->enrol(CurrentBufferPort);
 
     // Start the loop
     std::uint32_t cycleCounter = 0;
@@ -469,7 +469,7 @@ int main(int argc, char **argv) {
 
     //--------------------------------------------------------------------------------
     // Initialize the broker
-    GBROKER(WORKLOAD)->init();
+    broker<WORKLOAD>()->init();
 
     //--------------------------------------------------------------------------------
     // If we are in serial networked client mode, start corresponding the client code
@@ -530,7 +530,7 @@ int main(int argc, char **argv) {
 
         // Create a serial consumer and enrol it with the broker
         std::shared_ptr<cons::GSerialConsumerT<WORKLOAD>> gatc(new cons::GSerialConsumerT<WORKLOAD>());
-        GBROKER(WORKLOAD)->enrol(gatc);
+        broker<WORKLOAD>()->enrol(gatc);
     } break;
 
     case GCPModes::MULTITHREADING: {
@@ -539,7 +539,7 @@ int main(int argc, char **argv) {
         // Create a consumer and make it known to the global broker
         std::shared_ptr<cons::GStdThreadConsumerT<WORKLOAD>> gbtc(new cons::GStdThreadConsumerT<WORKLOAD>());
         gbtc->setNThreadsPerWorker(10);
-        GBROKER(WORKLOAD)->enrol(gbtc);
+        broker<WORKLOAD>()->enrol(gbtc);
     } break;
 
     case GCPModes::INTERNALSERIALNETWORKING: {
@@ -549,7 +549,7 @@ int main(int argc, char **argv) {
         std::shared_ptr<GAsioSerialTCPConsumerT<WORKLOAD>> gatc(
             new GAsioSerialTCPConsumerT<WORKLOAD>(port)
         );
-        GBROKER(WORKLOAD)->enrol(gatc);
+        broker<WORKLOAD>()->enrol(gatc);
 
         // Start the workers
         clients.clear();
@@ -570,7 +570,7 @@ int main(int argc, char **argv) {
         std::shared_ptr<GAsioSerialTCPConsumerT<WORKLOAD>> gatc(
             new GAsioSerialTCPConsumerT<WORKLOAD>(port)
         );
-        GBROKER(WORKLOAD)->enrol(gatc);
+        broker<WORKLOAD>()->enrol(gatc);
     } break;
 
     case GCPModes::THREADANDINTERNALSERIALNETWORKING: {
@@ -582,7 +582,7 @@ int main(int argc, char **argv) {
         std::shared_ptr<cons::GStdThreadConsumerT<WORKLOAD>> gbtc(new cons::GStdThreadConsumerT<WORKLOAD>());
 
         std::vector<std::shared_ptr<cons::GBaseConsumerT<WORKLOAD>>> consumers{gatc, gbtc};
-        GBROKER(WORKLOAD)->enrol(consumers);
+        broker<WORKLOAD>()->enrol(consumers);
 
         // Start the workers
         clients.clear();
@@ -605,7 +605,7 @@ int main(int argc, char **argv) {
         std::shared_ptr<cons::GStdThreadConsumerT<WORKLOAD>> gbtc(new cons::GStdThreadConsumerT<WORKLOAD>());
 
         std::vector<std::shared_ptr<cons::GBaseConsumerT<WORKLOAD>>> consumers{gatc, gbtc};
-        GBROKER(WORKLOAD)->enrol(consumers);
+        broker<WORKLOAD>()->enrol(consumers);
     } break;
 
     case GCPModes::INTERNALASYNCNETWORKING: {
@@ -615,7 +615,7 @@ int main(int argc, char **argv) {
         std::shared_ptr<GAsioAsyncTCPConsumerT<WORKLOAD>> gatc(
             new GAsioAsyncTCPConsumerT<WORKLOAD>(port)
         );
-        GBROKER(WORKLOAD)->enrol(gatc);
+        broker<WORKLOAD>()->enrol(gatc);
 
         // Start the workers
         clients.clear();
@@ -636,7 +636,7 @@ int main(int argc, char **argv) {
         std::shared_ptr<GAsioAsyncTCPConsumerT<WORKLOAD>> gatc(
             new GAsioAsyncTCPConsumerT<WORKLOAD>(port)
         );
-        GBROKER(WORKLOAD)->enrol(gatc);
+        broker<WORKLOAD>()->enrol(gatc);
     } break;
 
     case GCPModes::THREADANDINTERNALASYNCNETWORKING: {
@@ -648,7 +648,7 @@ int main(int argc, char **argv) {
         std::shared_ptr<cons::GStdThreadConsumerT<WORKLOAD>> gbtc(new cons::GStdThreadConsumerT<WORKLOAD>());
 
         std::vector<std::shared_ptr<cons::GBaseConsumerT<WORKLOAD>>> consumers{gatc, gbtc};
-        GBROKER(WORKLOAD)->enrol(consumers);
+        broker<WORKLOAD>()->enrol(consumers);
 
         // Start the workers
         clients.clear();
@@ -671,7 +671,7 @@ int main(int argc, char **argv) {
         std::shared_ptr<cons::GStdThreadConsumerT<WORKLOAD>> gbtc(new cons::GStdThreadConsumerT<WORKLOAD>());
 
         std::vector<std::shared_ptr<cons::GBaseConsumerT<WORKLOAD>>> consumers{gatc, gbtc};
-        GBROKER(WORKLOAD)->enrol(consumers);
+        broker<WORKLOAD>()->enrol(consumers);
     } break;
     };
 
@@ -693,5 +693,5 @@ int main(int argc, char **argv) {
     std::cout << "All threads have joined" << std::endl;
 
     // Terminate the broker
-    GBROKER(WORKLOAD)->finalize();
+    broker<WORKLOAD>()->finalize();
 }
