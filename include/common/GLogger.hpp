@@ -612,8 +612,8 @@ using log_singleton = Gem::Common::GSingletonT<Gem::Common::GLogger<Gem::Common:
 namespace Gem::Common {
 /**
  * Returns the "in file <file> near line <line>" string describing the call site
- * via C++20 std::source_location (output format unchanged). Backs the LOCATIONSTRING
- * macro and, in turn, the GEXCEPTION / GTERMINATION / GWARNING / GSTDERR manipulators.
+ * via C++20 std::source_location (output format unchanged). Used directly by the
+ * GEXCEPTION / GTERMINATION / GWARNING / GSTDERR log manipulators below.
  */
 [[nodiscard]] inline std::string locationString(
     std::source_location const &loc = std::source_location::current()
@@ -623,14 +623,12 @@ namespace Gem::Common {
 }
 } // namespace Gem::Common
 
-#define LOCATIONSTRING (::Gem::Common::locationString())
-
-#define GEXCEPTION   Gem::Common::GManipulator(LOCATIONSTRING, Gem::Common::logType::EXCEPTION)
-#define GTERMINATION Gem::Common::GManipulator(LOCATIONSTRING, Gem::Common::logType::TERMINATION)
-#define GWARNING     Gem::Common::GManipulator(LOCATIONSTRING, Gem::Common::logType::WARNING)
+#define GEXCEPTION   Gem::Common::GManipulator(Gem::Common::locationString(), Gem::Common::logType::EXCEPTION)
+#define GTERMINATION Gem::Common::GManipulator(Gem::Common::locationString(), Gem::Common::logType::TERMINATION)
+#define GWARNING     Gem::Common::GManipulator(Gem::Common::locationString(), Gem::Common::logType::WARNING)
 #define GLOGGING     Gem::Common::GManipulator(Gem::Common::logType::LOGGING)
 #define GFILE        Gem::Common::GManipulator(Gem::Common::logType::FILE)
 #define GSTDOUT      Gem::Common::GManipulator(Gem::Common::logType::STDOUT)
-#define GSTDERR      Gem::Common::GManipulator(LOCATIONSTRING, Gem::Common::logType::STDERR)
+#define GSTDERR      Gem::Common::GManipulator(Gem::Common::locationString(), Gem::Common::logType::STDERR)
 
 /******************************************************************************/
