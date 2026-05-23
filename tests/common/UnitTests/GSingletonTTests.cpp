@@ -62,8 +62,6 @@ struct Payload_Concurrent {
 };
 std::atomic<int> Payload_Concurrent::ctor_count{0};
 
-struct Payload_DefaultMode {};
-
 // A type without a default constructor — only reachable via a specialised
 // TFactory_GSingletonT<>. Tests the documented customisation point.
 struct Payload_FactorySpecialised {
@@ -93,55 +91,37 @@ TEST_CASE("GSingletonT: is non-instantiable and exposes STYPE", "[common][single
 }
 
 // ---------------------------------------------------------------------------
-// Instance(0): default-construct on first call, reuse afterwards
+// instance(): default-construct on first call, reuse afterwards
 
-TEST_CASE("GSingletonT::Instance(0) returns a non-null pointer to a default-constructed instance",
+TEST_CASE("GSingletonT::instance() returns a non-null pointer to a default-constructed instance",
           "[common][singleton]") {
-    auto sp = GSingletonT<Payload_Instance>::Instance(0);
+    auto sp = GSingletonT<Payload_Instance>::instance();
     REQUIRE(sp);
     CHECK(sp.use_count() >= 1);
 
-    auto sp2 = GSingletonT<Payload_Instance>::Instance(0);
+    auto sp2 = GSingletonT<Payload_Instance>::instance();
     REQUIRE(sp2);
     CHECK(sp.get() == sp2.get());      // same object across calls
     CHECK(sp == sp2);
 }
 
 // ---------------------------------------------------------------------------
-// Instance(1): reset path
+// reset(): release the stored instance; instance() afterwards builds a fresh one
 
-TEST_CASE("GSingletonT::Instance(1) resets the stored pointer; (0) afterwards builds a fresh one",
+TEST_CASE("GSingletonT::reset() drops the stored pointer; instance() afterwards builds a fresh one",
           "[common][singleton]") {
-    auto first = GSingletonT<Payload_Reset>::Instance(0);
+    auto first = GSingletonT<Payload_Reset>::instance();
     REQUIRE(first);
 
-    auto reset_result = GSingletonT<Payload_Reset>::Instance(1);
-    CHECK_FALSE(reset_result);         // reset returns an empty shared_ptr
+    GSingletonT<Payload_Reset>::reset();
 
     // External users still keep the old object alive — singleton storage is
     // released, but `first` keeps its referent valid.
     CHECK(first);
 
-    auto fresh = GSingletonT<Payload_Reset>::Instance(0);
+    auto fresh = GSingletonT<Payload_Reset>::instance();
     REQUIRE(fresh);
     CHECK(fresh.get() != first.get()); // brand-new object after the reset
-}
-
-// ---------------------------------------------------------------------------
-// Default branch in the switch: any mode other than 0 / 1 yields an empty
-// shared_ptr without touching the stored singleton.
-
-TEST_CASE("GSingletonT::Instance(>=2) returns an empty pointer and does not initialise",
-          "[common][singleton]") {
-    auto sp = GSingletonT<Payload_DefaultMode>::Instance(2);
-    CHECK_FALSE(sp);
-
-    auto sp3 = GSingletonT<Payload_DefaultMode>::Instance(17);
-    CHECK_FALSE(sp3);
-
-    // First real Instance(0) call must still produce a value.
-    auto good = GSingletonT<Payload_DefaultMode>::Instance(0);
-    REQUIRE(good);
 }
 
 // ---------------------------------------------------------------------------
@@ -149,21 +129,21 @@ TEST_CASE("GSingletonT::Instance(>=2) returns an empty pointer and does not init
 
 TEST_CASE("GSingletonT: honours TFactory_GSingletonT<T> specialisation",
           "[common][singleton]") {
-    auto sp = GSingletonT<Payload_FactorySpecialised>::Instance(0);
+    auto sp = GSingletonT<Payload_FactorySpecialised>::instance();
     REQUIRE(sp);
     CHECK(sp->value == 7);   // produced by the user-supplied factory above
 }
 
 // ---------------------------------------------------------------------------
-// Concurrency: a horde of threads racing on the first Instance(0) call must
+// Concurrency: a horde of threads racing on the first instance() call must
 // see exactly one constructor invocation, and all returned pointers must
 // alias the same object.
 
-TEST_CASE("GSingletonT::Instance(0) constructs exactly once under concurrent first access",
+TEST_CASE("GSingletonT::instance() constructs exactly once under concurrent first access",
           "[common][singleton][concurrency]") {
     // Reset any residual state from previous runs of this TU — the singleton
     // storage is per-type and survives between TEST_CASEs.
-    GSingletonT<Payload_Concurrent>::Instance(1);
+    GSingletonT<Payload_Concurrent>::reset();
     Payload_Concurrent::ctor_count.store(0);
 
     // Workers must not invoke Catch CHECK/REQUIRE — Catch's output-redirect
@@ -183,7 +163,7 @@ TEST_CASE("GSingletonT::Instance(0) constructs exactly once under concurrent fir
             while(not go.load(std::memory_order_acquire)) {
                 std::this_thread::yield();
             }
-            results[i] = GSingletonT<Payload_Concurrent>::Instance(0);
+            results[i] = GSingletonT<Payload_Concurrent>::instance();
         });
     }
     go.store(true, std::memory_order_release);

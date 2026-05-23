@@ -63,7 +63,7 @@ public:
         auto provider = std::make_shared<GConsumerProviderT>(
             std::make_shared<c_type>()
         );
-        GConsumerStore->setOnce(provider->getMnemonic(), provider);
+        consumerStore()->setOnce(provider->getMnemonic(), provider);
     }
     /** @brief An empty destructor */
     virtual ~GIndividualStandardConsumerInitializerT() = default;

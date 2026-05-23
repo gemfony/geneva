@@ -105,7 +105,7 @@ int main(int argc, char **argv) {
         return 0;
     }
     // Store the trainingDataFile in the global options, so they can be accessed by the individuals
-        GNeuralNetworkOptions->set("trainingDataFile", trainingDataFile);
+        neuralNetworkOptions()->set("trainingDataFile", trainingDataFile);
    
 
     //---------------------------------------------------------------------------

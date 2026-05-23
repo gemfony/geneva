@@ -104,7 +104,7 @@ Go2::Go2(
 void Go2::registerDefaultAlgorithm(std::string const &mn) {
     // Retrieve the algorithm from the global store
     std::shared_ptr<Gem::Common::GProviderT<GOABase>> p;
-    if(not GOAFactoryStore->get(mn, p)) {
+    if(not oaFactoryStore()->get(mn, p)) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In Go2::registerDefaultAlgorithm(std::string): Error!" << '\n'
@@ -206,7 +206,7 @@ int Go2::clientRun() {
 
 int Go2::clientRun_() {
     // Check that we have indeed been given a valid name
-    if(GO2_DEF_NOCONSUMER == consumer_name_ || not GConsumerStore->exists(consumer_name_)) {
+    if(GO2_DEF_NOCONSUMER == consumer_name_ || not consumerStore()->exists(consumer_name_)) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In Go2::clientRun(): Error!\n"
@@ -217,7 +217,7 @@ int Go2::clientRun_() {
     // Retrieve the client worker from the consumer
     std::shared_ptr<Gem::Courtier::GBaseClientT<gpar::GParameterSet>> p;
 
-    auto consumer = GConsumerStore->get(consumer_name_)->provide();
+    auto consumer = consumerStore()->get(consumer_name_)->provide();
     if(consumer->needsClient()) {
         p = consumer->getClient();
     }
@@ -359,7 +359,7 @@ Go2 &Go2::operator&(const std::shared_ptr<GOABase> &alg) {
 void Go2::addAlgorithm(std::string const &mn) {
     // Retrieve the algorithm from the global store
     std::shared_ptr<Gem::Common::GProviderT<GOABase>> p;
-    if(not GOAFactoryStore->get(mn, p)) {
+    if(not oaFactoryStore()->get(mn, p)) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In Go2::addAlgorithm(std::string): Error!" << '\n'
@@ -854,14 +854,14 @@ void Go2::parseCommandLine(
         // Help texts listing the registered algorithms / consumers
         std::ostringstream oa_help; // NOLINT(cppcoreguidelines-init-variables)
         oa_help << "A comma-separated list of optimization algorithms, e.g. \"arg1,arg2\". "
-                << GOAFactoryStore->size() << " algorithms have been registered: " << '\n'
-                << listMnemonics(GOAFactoryStore);
+                << oaFactoryStore()->size() << " algorithms have been registered: " << '\n'
+                << listMnemonics(oaFactoryStore());
 
         std::ostringstream consumer_help; // NOLINT(cppcoreguidelines-init-variables)
         consumer_help << "The name of a consumer for brokered execution (an error will be flagged "
                          "if called with any other execution mode than (2) ). "
-                      << GConsumerStore->size() << " consumers have been registered: " << '\n'
-                      << listMnemonics(GConsumerStore);
+                      << consumerStore()->size() << " consumers have been registered: " << '\n'
+                      << listMnemonics(consumerStore());
 
         auto usage_string = std::string("Usage: ") + argv[0] + " [options]";
 
@@ -892,16 +892,16 @@ void Go2::parseCommandLine(
         // getContentSnapshot() takes the store's mutex once and returns an
         // atomic snapshot of all stored values, so iteration is both cheap and
         // race-free with respect to concurrent registrations.
-        if(not GConsumerStore->empty()) {
-            for(auto const &consumer : GConsumerStore->getContentSnapshot()) {
+        if(not consumerStore()->empty()) {
+            for(auto const &consumer : consumerStore()->getContentSnapshot()) {
                 consumer->addCLOptions(visible, hidden);
             }
         }
 
         // Retrieve available command-line options from registered optimization
         // algorithm factories, if any (same snapshot pattern).
-        if(not GOAFactoryStore->empty()) {
-            for(auto const &factory : GOAFactoryStore->getContentSnapshot()) {
+        if(not oaFactoryStore()->empty()) {
+            for(auto const &factory : oaFactoryStore()->getContentSnapshot()) {
                 factory->addCLOptions(visible, hidden);
             }
         }
@@ -999,7 +999,7 @@ void Go2::setupChosenConsumer(boost::program_options::variables_map const &vm) {
     }
 
     // Check that the requested consumer actually exists
-    if(vm.contains("consumer") && not GConsumerStore->exists(consumer_name_)) {
+    if(vm.contains("consumer") && not consumerStore()->exists(consumer_name_)) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, time_and_place)
             << "In Go2::setupChosenConsumer(): Error!" << '\n'
@@ -1010,7 +1010,7 @@ void Go2::setupChosenConsumer(boost::program_options::variables_map const &vm) {
 
     // Fetch the chosen consumer once from its provider (the prototype model hands
     // out the single registered instance) and use it throughout.
-    auto consumer = GConsumerStore->get(consumer_name_)->provide();
+    auto consumer = consumerStore()->get(consumer_name_)->provide();
 
     if(client_mode_ && not consumer->needsClient()) {
         throw geneva_exception(
@@ -1067,7 +1067,7 @@ void Go2::parseRequestedAlgorithms(
     for(const auto &alg_str : algs) {
         // Retrieve the algorithm provider from the global store
         std::shared_ptr<Gem::Common::GProviderT<GOABase>> p;
-        if(not GOAFactoryStore->get(alg_str, p)) {
+        if(not oaFactoryStore()->get(alg_str, p)) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, time_and_place)
                 << "In Go2::parseRequestedAlgorithms(): Error!" << '\n'

@@ -130,23 +130,6 @@ public:
         s.p.store(nullptr);
     }
 
-    /***************************************************************************/
-    /**
-	  * @deprecated Use instance() / reset() instead. Retained transitionally for
-	  * the remaining GSingletonT-based macros. mode 0 -> instance(), 1 -> reset().
-	  */
-    static std::shared_ptr<T> Instance(const std::size_t &mode) {
-        switch(mode) {
-        case 0:
-            return instance();
-        case 1:
-            reset();
-            return std::shared_ptr<T>{};
-        default:
-            return std::shared_ptr<T>{};
-        }
-    }
-
 private:
     /***************************************************************************/
     /**

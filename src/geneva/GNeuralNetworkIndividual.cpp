@@ -592,7 +592,7 @@ std::ostream &operator<<(std::ostream &o, const Gem::Geneva::Individuals::transf
  */
 GNeuralNetworkIndividual::GNeuralNetworkIndividual()
   : t_f_(GNN_DEF_TRANSFER)
-  , n_d_(GNNTrainingDataStore) { /* nothing */
+  , n_d_(nnTrainingDataStore()) { /* nothing */
 }
 
 /******************************************************************************/
@@ -621,7 +621,7 @@ GNeuralNetworkIndividual::GNeuralNetworkIndividual(
     const double &max_ad_prob
 )
   : t_f_(GNN_DEF_TRANSFER)
-  , n_d_(GNNTrainingDataStore) {
+  , n_d_(nnTrainingDataStore()) {
     this->init(
         min,
         max,
@@ -645,7 +645,7 @@ GNeuralNetworkIndividual::GNeuralNetworkIndividual(
 GNeuralNetworkIndividual::GNeuralNetworkIndividual(const GNeuralNetworkIndividual &cp)
   : gpar::GParameterSet(cp)
   , t_f_(cp.t_f_)
-  , n_d_(GNNTrainingDataStore) // We want a single source for the training data
+  , n_d_(nnTrainingDataStore()) // We want a single source for the training data
 {                             /* nothing */
 }
 
@@ -1771,8 +1771,8 @@ namespace Gem::Common {
  */
 template <>
 std::shared_ptr<Gem::Geneva::Individuals::networkData> TFactory_GSingletonT() {
-    if(GNeuralNetworkOptions->exists("trainingDataFile")) {
-        return std::make_shared<Gem::Geneva::Individuals::networkData>(GNeuralNetworkOptions->get("trainingDataFile"));
+    if(neuralNetworkOptions()->exists("trainingDataFile")) {
+        return std::make_shared<Gem::Geneva::Individuals::networkData>(neuralNetworkOptions()->get("trainingDataFile"));
     }
             return std::make_shared<Gem::Geneva::Individuals::networkData>(Gem::Geneva::Individuals::GNN_DEF_DATAFILE);
    

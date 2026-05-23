@@ -82,4 +82,8 @@ private:
 // A global store for consumer providers (each wraps a single prototype instance).
 using GConStore = Gem::Common::GSingletonT<Gem::Common::GGlobalOptionsT<
     std::shared_ptr<Gem::Common::GProviderT<cons::GBaseConsumerT<gpar::GParameterSet>>>>>;
-#define GConsumerStore GConStore::Instance(0)
+// Drop-in replacement for the former GConsumerStore macro: type-safe and
+// debugger-friendly. Returns the global consumer-provider store singleton.
+[[nodiscard]] inline std::shared_ptr<GConStore::STYPE> consumerStore() {
+    return GConStore::instance();
+}

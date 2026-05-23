@@ -323,7 +323,10 @@ std::ostream &operator<<(std::ostream &o, const Gem::Geneva::Individuals::transf
 // A global singleton giving access to the training data.
 // See also the definition of TFactory_GSingletonT<Gem::Geneva::Individuals::networkData>
 using GDatStore = Gem::Common::GSingletonT<Gem::Geneva::Individuals::networkData>;
-#define GNNTrainingDataStore GDatStore::Instance(0)
+// Drop-in replacement for the former GNNTrainingDataStore macro.
+[[nodiscard]] inline std::shared_ptr<GDatStore::STYPE> nnTrainingDataStore() {
+    return GDatStore::instance();
+}
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -362,7 +365,7 @@ class GNeuralNetworkIndividual // NOLINT(cppcoreguidelines-special-member-functi
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GParameterSet);
 
         // Load the network data from disk
-        n_d_ = GNNTrainingDataStore; // A glogal singleton
+        n_d_ = nnTrainingDataStore(); // A glogal singleton
     }
 
     template <typename Archive>
@@ -1108,7 +1111,10 @@ namespace Gem::Common {
 
 // A global store for network configuration data
 using GNNOptStore = GSingletonT<GGlobalOptionsT<std::string>>;
-#define GNeuralNetworkOptions GNNOptStore::Instance(0)
+// Drop-in replacement for the former GNeuralNetworkOptions macro.
+[[nodiscard]] inline std::shared_ptr<GNNOptStore::STYPE> neuralNetworkOptions() {
+    return GNNOptStore::instance();
+}
 
 // A factory function for networkData objects, used by GSingletonT
 template <>

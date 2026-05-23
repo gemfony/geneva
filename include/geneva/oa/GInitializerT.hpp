@@ -101,7 +101,7 @@ public:
     GInitializerT() {
         auto provider = std::make_shared<GOAFactoryProviderT<oaf_type>>();
         // Add the provider to the store, if it hasn't been stored there yet
-        GOAFactoryStore->setOnce(provider->getMnemonic(), provider);
+        oaFactoryStore()->setOnce(provider->getMnemonic(), provider);
     }
 
     /** @brief Defaulted destructor */
