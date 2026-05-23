@@ -246,7 +246,7 @@ double GTestIndividual2::fitnessCalculation() {
 
     // Calculate the value of the parabola
     for(std::size_t i = 0; i < par_vec.size(); i++) {
-        result += GSQUARED(par_vec[i]);
+        result += Gem::Common::gsquared(par_vec[i]);
     }
 
     return result;

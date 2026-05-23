@@ -293,14 +293,14 @@ double GSphereConstraint::check_(const gpar::GParameterSet *p) const {
     double sum = 0.;
     std::vector<double>::iterator it;
     for(it = par_vec.begin(); it != par_vec.end(); ++it) {
-        sum += GSQUARED(*it);
+        sum += Gem::Common::gsquared(*it);
     }
     sum = sqrt(sum);
 
     if(sum <= diameter_) {
         return 0.;
     }
-            return GSQUARED(sum / diameter_);
+            return Gem::Common::gsquared(sum / diameter_);
    
 }
 

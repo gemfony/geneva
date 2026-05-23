@@ -95,8 +95,15 @@
 
 //-----------------------------------------------------------
 
-/** Funnily, on g++ std::pow(x,2) seems to be less efficient than direct multiplication */
-#define GSQUARED(X) ((X) * (X))
+/** Returns x squared, evaluating its argument exactly once (the former GSQUARED
+ *  macro evaluated it twice). Direct multiplication is faster than std::pow(x, 2)
+ *  on g++. */
+namespace Gem::Common {
+template <typename T>
+[[nodiscard]] constexpr auto gsquared(T const &x) -> decltype(x * x) {
+    return x * x;
+}
+} // namespace Gem::Common
 
 //-----------------------------------------------------------
 // Allow to mark functions as deprecated on supported compilers

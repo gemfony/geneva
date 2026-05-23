@@ -159,9 +159,9 @@ double GMultiCriterionParabolaIndividual::fitnessCalculation() {
     // Do the actual calculations. Note that the first calculation
     // counts as the main result and that we can register other,
     // secondary evaluation criteria.
-    main_result = GSQUARED(parVec[0] - minima_[0]);
+    main_result = Gem::Common::gsquared(parVec[0] - minima_[0]);
     for(std::size_t i = 1; i < parVec.size(); i++) {
-        setResult(i, GSQUARED(parVec[i] - minima_[i]));
+        setResult(i, Gem::Common::gsquared(parVec[i] - minima_[i]));
     }
 
     return main_result;

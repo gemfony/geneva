@@ -230,7 +230,7 @@ double GFMinIndividual::parabola(const std::vector<double> &parVec) const {
 
     std::vector<double>::const_iterator cit;
     for(cit = parVec.begin(); cit != parVec.end(); ++cit) {
-        result += GSQUARED(*cit);
+        result += Gem::Common::gsquared(*cit);
     }
 
     return result;
@@ -245,7 +245,7 @@ double GFMinIndividual::noisyParabola(const std::vector<double> &parVec) const {
 
     std::vector<double>::const_iterator cit;
     for(cit = parVec.begin(); cit != parVec.end(); ++cit) {
-        xsquared += GSQUARED(*cit);
+        xsquared += Gem::Common::gsquared(*cit);
     }
 
     return (cos(xsquared) + 2.) * xsquared;

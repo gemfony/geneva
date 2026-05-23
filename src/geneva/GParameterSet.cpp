@@ -1897,7 +1897,7 @@ double GParameterSet::squaredSumCombiner() const {
     double result = 0.;
 
     for(std::size_t id = 0; id < this->getNStoredResults(); id++) {
-        result += GSQUARED(this->transformed_fitness(id));
+        result += Gem::Common::gsquared(this->transformed_fitness(id));
     }
 
     return sqrt(result);
@@ -1926,7 +1926,7 @@ double GParameterSet::weighedSquaredSumCombiner(std::vector<double> const &weigh
     auto cit_weights = weights.begin();
 
     for(std::size_t id = 0; id < this->getNStoredResults(); id++, ++cit_weights) {
-        result += GSQUARED((*cit_weights) * this->transformed_fitness(id));
+        result += Gem::Common::gsquared((*cit_weights) * this->transformed_fitness(id));
     }
 
     return sqrt(result);

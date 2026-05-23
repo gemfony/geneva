@@ -172,7 +172,7 @@ double GLineFitIndividual::fitnessCalculation() {
     std::vector<std::tuple<double, double>>::iterator it;
     for(it = data_points_.begin(); it != data_points_.end(); ++it) {
         deviation = (a + b * std::get<0>(*it)) - std::get<1>(*it);
-        result += GSQUARED(deviation);
+        result += Gem::Common::gsquared(deviation);
     }
 
     return sqrt(result);

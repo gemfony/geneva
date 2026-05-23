@@ -1492,7 +1492,7 @@ double GNeuralNetworkIndividual::fitnessCalculation() {
         // Calculate the error made and add it to the result
         std::size_t pref_results_size = prev_results.size();
         for(std::size_t node_counter = 0; node_counter < pref_results_size; node_counter++) {
-            result += GSQUARED(prev_results.at(node_counter) - t_s.Output[node_counter]);
+            result += Gem::Common::gsquared(prev_results.at(node_counter) - t_s.Output[node_counter]);
         }
     }
 
@@ -1512,7 +1512,7 @@ double GNeuralNetworkIndividual::transfer(const double &value) const {
     } break;
 
     case transferFunction::RBF: {
-        return exp(-GSQUARED(value));
+        return exp(-Gem::Common::gsquared(value));
     } break;
 
     default: {
