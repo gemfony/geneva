@@ -509,56 +509,6 @@ void GDoubleCollection::specificTestsNoFailureExpected_GUnitTests_() {
 
     //------------------------------------------------------------------------------
 
-    { // Test of GParameterCollectionT<T>::swap(const GParameterCollectionT<T>&)
-        std::shared_ptr<GDoubleCollection> p_test1 = this->clone<GDoubleCollection>();
-        std::shared_ptr<GDoubleCollection> p_test2 = this->clone<GDoubleCollection>();
-        std::shared_ptr<GDoubleCollection> p_test3 = this->clone<GDoubleCollection>();
-
-        if(p_test1->hasAdaptor()) {
-            // Make sure the collection is clean
-            p_test1->clear();
-
-            // Add a few items
-            for(std::size_t i = 0; i < n_items; i++) {
-                p_test1->push_back(fixedvalueinit);
-            }
-
-            // Load p_test1 into p_test2 and p_test3
-            CHECK_NOTHROW(p_test2->load(p_test1));
-            CHECK_NOTHROW(p_test3->load(p_test1));
-
-            // Make sure the objects match
-            CHECK(*p_test1 == *p_test2);
-            CHECK(*p_test1 == *p_test3);
-            CHECK(*p_test3 == *p_test2);
-
-            // Adapt p_test1
-            CHECK_NOTHROW(p_test1->adapt(gr));
-
-            // Test whether p_test1 and p_test2/3 differ now
-            CHECK(*p_test1 != *p_test2);
-            CHECK(*p_test1 != *p_test3);
-            // Test whether p_test2 is still the same as p_test3
-            CHECK(*p_test3 == *p_test2);
-
-            // Swap the data of p_test2 and p_test1
-            CHECK_NOTHROW(p_test2->swap(*p_test1));
-
-            // Extract the data vectors from p_test1 and p_test3
-            std::vector<double> data1;
-            std::vector<double> data3;
-            CHECK_NOTHROW(p_test1->Gem::Common::GPodContainerT<double>::getDataCopy(data1));
-            CHECK_NOTHROW(p_test3->Gem::Common::GPodContainerT<double>::getDataCopy(data3));
-
-            // Now p_test1->data  and p_test3->data should be the same, while p_test2 differs from both
-            CHECK(data1 == data3);
-            CHECK(*p_test2 != *p_test1);
-            CHECK(*p_test2 != *p_test3);
-        }
-    }
-
-    //------------------------------------------------------------------------------
-
     { // Test the GPODVectorT<double>::reserve(), capacity() and max_size() functions
         std::shared_ptr<GDoubleCollection> p_test1 = this->clone<GDoubleCollection>();
 

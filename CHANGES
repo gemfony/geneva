@@ -88,6 +88,12 @@ Recommended Versions:
   is now Gem::Geneva::Benchmarks::* / gbm::*. SOURCE-breaking for code
   that referenced Gem::Tests::*, Gem::Geneva::BM::*, or those benchmark
   classes directly.
+- MINOR / low impact (SOURCE-breaking): the swap() member functions have been
+  removed from the GContainerT hierarchy (GContainerT::swap and
+  GParameterSet::swap). They were only ever used by unit tests; no production
+  code relied on them. To exchange two parameter objects, swap the owning
+  shared_ptr instead (e.g. std::swap(ptrA, ptrB)) -- same effect in O(1), and
+  each object keeps its own (correct) processing state.
 
 ************************* Noteworthy Changes ***********************************
 

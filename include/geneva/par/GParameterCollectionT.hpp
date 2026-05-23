@@ -106,10 +106,6 @@ public:
      */
     ~GParameterCollectionT() override = default;
 
-    // Note: swap() is inherited from GPodContainerT (Gem::Common::GContainerT);
-    // a same-type member swap here would only duplicate the base behaviour
-    // (it swaps the underlying data) and would hide the base overloads.
-
     /***************************************************************************/
     /**
      * Retrieval of the value at a given position

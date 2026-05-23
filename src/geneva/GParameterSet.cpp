@@ -307,22 +307,6 @@ void GParameterSet::compare_(
 
 /******************************************************************************/
 /**
-     * Swap another object's vector with ours. We need to set the dirty flag of both
-     * individuals in this case.
-     */
-void GParameterSet::swap(GParameterSet &cp) {
-    Gem::Common::GPtrContainerT<GParameterBase>::swap(cp.data_cnt_);
-    this->mark_as_due_for_processing();
-    cp.mark_as_due_for_processing();
-}
-
-/* ----------------------------------------------------------------------------------
-     * Tested in GTestIndividual1::specificTestsNoFailureExpected_GUnitTests()
-     * ----------------------------------------------------------------------------------
-     */
-
-/******************************************************************************/
-/**
      * Allows to randomly initialize parameter members. This function is responsible
      * for setting the dirty flag, so overloaded randomInit_ functions do not need
      * to take care of this. Note though that overloads of randomInit_() need to take

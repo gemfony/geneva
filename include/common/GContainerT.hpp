@@ -961,28 +961,6 @@ public:
     }
 
     // ------------------------------------------------------------------
-    // Modifiers — swap
-    // ------------------------------------------------------------------
-
-    /**
-     * @brief Swaps the contents of this container with a raw ContainerType.
-     *
-     * @param cont The external container to swap with.
-     */
-    void swap(ContainerType &cont) noexcept {
-        data_cnt_.swap(cont);
-    }
-
-    /**
-     * @brief Swaps the contents of two GContainerT objects.
-     *
-     * @param other The other GContainerT object to swap with.
-     */
-    void swap(GContainerT &other) noexcept {
-        data_cnt_.swap(other.data_cnt_);
-    }
-
-    // ------------------------------------------------------------------
     // Search
     // ------------------------------------------------------------------
 

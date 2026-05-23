@@ -222,11 +222,6 @@ public:
     /** @brief The destructor */
     ~GParameterSet() override = default;
 
-    /** Swap another object's vector with ours. */
-    // Un-hide the base-class swap overloads (the swap below would otherwise hide them).
-    using Gem::Common::GPtrContainerT<GParameterBase>::swap;
-    void swap(GParameterSet &cp);
-
     /** @brief Allows to randomly initialize parameter members */
     bool randomInit(activityMode const &);
 

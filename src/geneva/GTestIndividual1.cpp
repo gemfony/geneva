@@ -416,64 +416,6 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
 
     //------------------------------------------------------------------------------
 
-    { // Test of Gem::Common::GPtrVectorT<T,GObject>::swap(...)
-        std::shared_ptr<Gem::Geneva::Individuals::GTestIndividual1> p_test1 =
-            this->clone<Gem::Geneva::Individuals::GTestIndividual1>();
-        std::shared_ptr<Gem::Geneva::Individuals::GTestIndividual1> p_test2 =
-            this->clone<Gem::Geneva::Individuals::GTestIndividual1>();
-
-        // Check that both individuals are the same
-        CHECK(*p_test1 == *p_test2);
-
-        // Adapt p_test2, so that both individuals are different
-        CHECK_NOTHROW(p_test2->adapt());
-
-        // Make sure both individuals are clean and evaluated
-        double fitness1_old = 0.;
-        double fitness2_old = 0;
-        CHECK_NOTHROW(p_test1->mark_as_due_for_processing());
-        CHECK_NOTHROW(p_test2->mark_as_due_for_processing());
-        CHECK(p_test1->is_due_for_processing());
-        CHECK(p_test2->is_due_for_processing());
-        CHECK_NOTHROW(p_test1->process());
-        CHECK_NOTHROW(p_test2->process());
-        CHECK(p_test1->is_processed());
-        CHECK(p_test2->is_processed());
-        CHECK_NOTHROW(fitness1_old = p_test1->transformed_fitness(0));
-        CHECK_NOTHROW(fitness2_old = p_test2->transformed_fitness(0));
-
-        // Make sure the individuals are different
-        CHECK(*p_test1 != *p_test2);
-
-        // Make sure their fitness differs
-        CHECK(p_test1->raw_fitness(0) != p_test2->raw_fitness(0));
-
-        // Swap their data vectors
-        CHECK_NOTHROW(p_test1->swap(*p_test2));
-
-        // They should now both have the dirty flag set
-        CHECK(p_test1->is_due_for_processing());
-        CHECK(p_test2->is_due_for_processing());
-
-        // Make sure both individuals are clean and evaluated
-        double fitness1_new = 0.;
-        double fitness2_new = 0;
-        CHECK_NOTHROW(p_test1->process());
-        CHECK_NOTHROW(p_test2->process());
-        CHECK(p_test1->is_processed());
-        CHECK(p_test2->is_processed());
-        CHECK_NOTHROW(fitness1_new = p_test1->transformed_fitness(0));
-        CHECK_NOTHROW(fitness2_new = p_test2->transformed_fitness(0));
-
-        // The fitness values of both individuals should effectively have been exchanged
-        // Note that rounding errors might prevent fitness1_new to be == fitness2_old
-        // and vice versa
-        CHECK(fabs(fitness1_new - fitness2_old) < pow(10, -8));
-        CHECK(fabs(fitness2_new - fitness1_old) < pow(10, -8));
-    }
-
-    //------------------------------------------------------------------------------
-
     { // Check of the GParameterSet::customAdaptions() function
         std::shared_ptr<Gem::Geneva::Individuals::GTestIndividual1> p_test1 =
             this->clone<Gem::Geneva::Individuals::GTestIndividual1>();

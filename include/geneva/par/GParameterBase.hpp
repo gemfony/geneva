@@ -50,7 +50,7 @@ namespace Gem::Geneva::Parameters {
 
 /******************************************************************************/
 /**
- * The purpose of this class is to provide a common base for all parameter classes, so
+ * The purpose of this class is to provide a common base for all parameter classes so
  * that a GParameterSet can be built from different parameter types. The class also
  * defines the interface that needs to be implemented by parameter classes.
  */
@@ -110,14 +110,14 @@ public:
     /** @brief Triggers random initialization of the parameter(-collection) */
     virtual bool randomInit(const activityMode &, Gem::Hap::GRandomBase &);
 
-    /** @brief Allows to identify whether we are dealing with a collection or an individual parameter */
+    /** @brief Allows identifying whether we are dealing with a collection or an individual parameter */
     bool isIndividualParameter() const;
-    /** @brief Allows to identify whether we are dealing with a collection or an individual parameter */
+    /** @brief Allows identifying whether we are dealing with a collection or an individual parameter */
     bool isParameterCollection() const;
 
-    /** @brief Allows to assign a name to this parameter */
+    /** @brief Allows assigning a name to this parameter */
     void setParameterName(const std::string &);
-    /** @brief Allows to retrieve the name of this parameter */
+    /** @brief Allows retrieving the name of this parameter */
     std::string getParameterName() const;
 
     /** @brief Checks whether this object matches a given activity mode */

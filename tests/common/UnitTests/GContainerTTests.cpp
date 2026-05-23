@@ -507,26 +507,6 @@ TEST_CASE("GContainerT: GPodContainerT<int> with std::vector backend", "[GContai
         CHECK(c[3] == 9);
     }
 
-    SECTION("swap with ContainerType") {
-        ConcretePodVec c;
-        c.assign({1, 2, 3});
-        std::vector<int> other = {10, 20};
-        c.swap(other);
-        CHECK(c.size() == 2u);
-        CHECK(c[0] == 10);
-        CHECK(other.size() == 3u);
-    }
-
-    SECTION("swap with another GContainerT") {
-        ConcretePodVec a;
-        a.assign({1, 2});
-        ConcretePodVec b;
-        b.assign({3, 4, 5});
-        a.swap(b);
-        CHECK(a.size() == 3u);
-        CHECK(b.size() == 2u);
-    }
-
     SECTION("count") {
         ConcretePodVec c;
         c.assign({1, 2, 2, 3});
@@ -731,15 +711,6 @@ TEST_CASE("GContainerT: GPodContainerT<int> with std::deque backend", "[GContain
         c.assign(src.begin(), src.end());
         REQUIRE(c.size() == 3u);
         CHECK(c[1] == 20);
-    }
-
-    SECTION("swap with std::deque<int>") {
-        ConcretePodDeque c;
-        c.assign({1, 2});
-        std::deque<int> other = {10, 20, 30};
-        c.swap(other);
-        CHECK(c.size() == 3u);
-        CHECK(other.size() == 2u);
     }
 
     SECTION("compare_base — equality") {
@@ -1412,25 +1383,6 @@ TEST_CASE("GContainerT: GPodContainerT<int> with std::list backend", "[GContaine
     SECTION("max_size") {
         ConcretePodList c;
         CHECK(c.max_size() > 0u);
-    }
-
-    SECTION("swap with ContainerType") {
-        ConcretePodList c;
-        c.assign({1, 2});
-        std::list<int> other = {10, 20, 30};
-        c.swap(other);
-        CHECK(c.size() == 3u);
-        CHECK(other.size() == 2u);
-    }
-
-    SECTION("swap with another GContainerT") {
-        ConcretePodList a;
-        a.assign({1, 2});
-        ConcretePodList b;
-        b.assign({3, 4, 5});
-        a.swap(b);
-        CHECK(a.size() == 3u);
-        CHECK(b.size() == 2u);
     }
 
     SECTION("count") {
