@@ -54,11 +54,11 @@ inline constexpr bool NO_LOG = false;
 
 /******************************************************************************/
 
-#define time_and_place                                                                             \
-    std::string(                                                                                   \
-        std::string("Recorded on ") + Gem::Common::currentTimeAsString() + "\n" + "in File " +     \
-        __FILE__ + " at line " + std::to_string(__LINE__) + " :\n"                                 \
-    )
+// time_and_place forwards to Gem::Common::timeAndPlace(), defined in
+// GCommonHelperFunctions.hpp (where its currentTimeAsString() dependency lives, so
+// the function parses cleanly regardless of include ordering). The defaulted
+// std::source_location captures the call site at each macro expansion.
+#define time_and_place (::Gem::Common::timeAndPlace())
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////

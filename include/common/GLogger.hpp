@@ -57,6 +57,7 @@
 #include <iostream>
 #include <memory>
 #include <mutex>
+#include <source_location>
 #include <sstream>
 #include <string>
 #include <time.h>
@@ -608,9 +609,21 @@ using log_singleton = Gem::Common::GSingletonT<Gem::Common::GLogger<Gem::Common:
 /******************************************************************************/
 // Some related defines
 
-#define LOCATIONSTRING                                                                             \
-    std::string("in file ") + std::string(__FILE__) + std::string(" near line ") +                 \
-        std::to_string(__LINE__)
+namespace Gem::Common {
+/**
+ * Returns the "in file <file> near line <line>" string describing the call site
+ * via C++20 std::source_location (output format unchanged). Backs the LOCATIONSTRING
+ * macro and, in turn, the GEXCEPTION / GTERMINATION / GWARNING / GSTDERR manipulators.
+ */
+[[nodiscard]] inline std::string locationString(
+    std::source_location const &loc = std::source_location::current()
+) {
+    return std::string("in file ") + loc.file_name() + std::string(" near line ") +
+           std::to_string(loc.line());
+}
+} // namespace Gem::Common
+
+#define LOCATIONSTRING (::Gem::Common::locationString())
 
 #define GEXCEPTION   Gem::Common::GManipulator(LOCATIONSTRING, Gem::Common::logType::EXCEPTION)
 #define GTERMINATION Gem::Common::GManipulator(LOCATIONSTRING, Gem::Common::logType::TERMINATION)

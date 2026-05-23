@@ -43,6 +43,7 @@
 #include <iomanip>
 #include <iostream>
 #include <mutex>
+#include <source_location>
 #include <sstream>
 #include <string>
 #include <string_view>
@@ -148,6 +149,21 @@ std::chrono::duration<double> duration_from_string(std::string const &);
 /** @brief Converts the current time to a string */
 
 std::string currentTimeAsString();
+
+/******************************************************************************/
+/**
+ * Returns the "Recorded on <time> / in File <file> at line <line>" string
+ * describing the call site, using C++20 std::source_location instead of the
+ * __FILE__/__LINE__ preprocessor macros. Output format is unchanged. Backs the
+ * time_and_place macro (declared in GErrorStreamer.hpp); the defaulted
+ * source_location captures the caller at each macro expansion.
+ */
+[[nodiscard]] inline std::string timeAndPlace(
+    std::source_location const &loc = std::source_location::current()
+) {
+    return std::string("Recorded on ") + currentTimeAsString() + "\n" + "in File " +
+           loc.file_name() + " at line " + std::to_string(loc.line()) + " :\n";
+}
 
 /******************************************************************************/
 /** @brief Returns the number of milliseconds since 1.1.1970 */
