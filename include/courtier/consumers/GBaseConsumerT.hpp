@@ -167,6 +167,21 @@ public:
 
     //-------------------------------------------------------------------------
     /**
+	  * Lets the consumer reconcile the client/server role requested on the command
+	  * line (--client) with the role it actually requires. Most consumers pass the
+	  * requested flag through unchanged; consumers that determine their role
+	  * autonomously (e.g. the MPI consumer, which decides from its process rank)
+	  * override determineClientMode_() and ignore the request.
+	  *
+	  * @param requested_client_mode The client mode requested on the command line
+	  * @return The effective client mode this process should run in
+	  */
+    bool determineClientMode(bool requested_client_mode) const {
+        return this->determineClientMode_(requested_client_mode);
+    }
+
+    //-------------------------------------------------------------------------
+    /**
 	  * This function returns a client associated with this consumer. By default
 	  * it returns an empty smart pointer, so that consumers without the need for
 	  * clients do not need to re-implement this function.
@@ -297,6 +312,16 @@ private:
 	  */
     virtual bool needsClient_() const noexcept {
         return false;
+    }
+
+    //-------------------------------------------------------------------------
+    /**
+	  * By default the client mode requested on the command line is honoured
+	  * unchanged. Consumers that determine their client/server role themselves
+	  * (e.g. the MPI consumer) override this.
+	  */
+    virtual bool determineClientMode_(bool requested_client_mode) const {
+        return requested_client_mode;
     }
 
     //-------------------------------------------------------------------------

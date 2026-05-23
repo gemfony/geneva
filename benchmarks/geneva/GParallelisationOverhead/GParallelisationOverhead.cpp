@@ -183,7 +183,7 @@ void startParallelMeasurement(
 
             // Clean up the collection
             go.clear();
-            go.setOffset(go.getIteration());
+            go.setIterationOffset(go.getIteration());
         }
 
         // Calculate the mean value and standard deviation of all measurements

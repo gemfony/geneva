@@ -42,15 +42,36 @@ IF (NOT GENEVA_FULL_TREE_BUILD)
 
 ENDIF ()
 
-ADD_CUSTOM_TARGET( "tests"
-	DEPENDS "tests-common"
-		"tests-hap"
-		"tests-courtier"
-		"tests-geneva"
-	COMMENT "Building all the Geneva tests."
-)
-
 ADD_SUBDIRECTORY ( hap )
 ADD_SUBDIRECTORY ( common )
 ADD_SUBDIRECTORY ( courtier )
 ADD_SUBDIRECTORY ( geneva )
+
+################################################################################
+# Aggregate "tests" target.
+#
+# Rather than an explicit, hand-maintained dependency list (which has silently
+# drifted in the past -- a commented-out "tests-common-unit", a
+# "tests-hap-docuprogs" that was never wired in, manual-test lists missing newly
+# added entries), we recursively collect EVERY buildsystem target defined
+# anywhere under tests/. This guarantees that, with GENEVA_BUILD_TESTS enabled,
+# building "tests" (and therefore "gemfony-build-all", which depends on it)
+# builds all existing -- and any future -- test executables.
+
+FUNCTION(_geneva_collect_targets_recursive _out_var _dir)
+	GET_PROPERTY(_subdirs DIRECTORY "${_dir}" PROPERTY SUBDIRECTORIES)
+	GET_PROPERTY(_targets DIRECTORY "${_dir}" PROPERTY BUILDSYSTEM_TARGETS)
+	SET(_acc ${_targets})
+	FOREACH(_sub ${_subdirs})
+		_geneva_collect_targets_recursive(_child "${_sub}")
+		LIST(APPEND _acc ${_child})
+	ENDFOREACH()
+	SET(${_out_var} "${_acc}" PARENT_SCOPE)
+ENDFUNCTION()
+
+_geneva_collect_targets_recursive(_GENEVA_ALL_TEST_TARGETS "${CMAKE_CURRENT_SOURCE_DIR}")
+
+ADD_CUSTOM_TARGET( "tests"
+	DEPENDS ${_GENEVA_ALL_TEST_TARGETS}
+	COMMENT "Building all the Geneva tests (auto-collected from tests/)."
+)

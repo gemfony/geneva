@@ -47,8 +47,6 @@
 #include "courtier/GBrokerT.hpp"
 #include "courtier/GCourtierHelperFunctions.hpp"
 #include "geneva/GConsumerStore.hpp"
-#include "geneva/GIndividualStandardConsumerInitializerT.hpp"
-#include "geneva/GIndividualStandardConsumers.hpp"
 #include "geneva/GObject.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/par/GParameterObjectCollection.hpp"
@@ -138,11 +136,10 @@ public:
     /***************************************************************************/
     // The following is a trivial list of getters and setters
     void setClientMode(bool);
-    bool getClientMode() const;
 
     std::uint16_t getNProducerThreads() const;
 
-    void setOffset(std::uint32_t);
+    void setIterationOffset(std::uint32_t);
     std::uint32_t getIterationOffset() const;
 
     /** @brief Loads some configuration data from arguments passed on the command line (or another char ** that is presented to it) */

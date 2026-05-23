@@ -741,27 +741,11 @@ void Go2::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
  * @param client_mode Allows marking this object as belonging to a client as opposed to a server
  */
 void Go2::setClientMode(bool client_mode) {
-#ifdef GENEVA_BUILD_WITH_MPI_CONSUMER
-    if(consumer_name_ == "GMPIConsumerT" || consumer_name_ == "mpi") {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, time_and_place)
-            << "In Go2::setClientMode(): Error!" << '\n'
-            << "If running MPI then the mode can not be changed between client and server mode "
-               "after the process has been launched"
-        );
-    }
-#endif // GENEVA_BUILD_WITH_MPI_CONSUMER
+    // Note: a consumer that determines its client/server role autonomously (e.g.
+    // the MPI consumer, from its process rank) will override this request during
+    // command-line parsing -- see setupChosenConsumer() and
+    // GBaseConsumerT::determineClientMode().
     client_mode_ = client_mode;
-}
-
-/******************************************************************************/
-/**
- * Allows to check whether this object is working in server or client mode
- *
- * @return A boolean indicating whether this object is working in server or client mode
- */
-bool Go2::getClientMode() const {
-    return client_mode_;
 }
 
 /******************************************************************************/
@@ -791,7 +775,7 @@ std::uint16_t Go2::getNProducerThreads() const {
  *
  * @param offset The offset with which the iteration counter should start
  */
-void Go2::setOffset(std::uint32_t offset) {
+void Go2::setIterationOffset(std::uint32_t offset) {
     offset_ = offset;
 }
 
@@ -1042,24 +1026,11 @@ void Go2::setupChosenConsumer(boost::program_options::variables_map const &vm) {
     // allow the consumer to perform necessary initialization before startup
     consumer->init();
 
-    // TODO: Consider removing this #ifdefs
-    //  However, an issue is that this would require to create public functions like GBaseConsumerT::clientMode()
-    //  and GBaseConsumerT::setsClientModeItself() that are only implemented by GMPIConsumerT.
-    //  While this sounds good at first this would mean that GMPIConsumerT which is typically a server requires
-    //  knowledge about server AND client side. Both implementations (public functions to override or #ifdefs)
-    //  are not very clean. Maybe another solution can be found. But we stick with the #ifdef for now
-
-    // reset the client mode to the information that the consumer has in case we are dealing with the GMPIConsumerT.
-    // That is because the MPI consumer should not depend on the --client command-line parameter but decide itself
-    // whether it is a server or client depending on the process's MPI rank
-#ifdef GENEVA_BUILD_WITH_MPI_CONSUMER
-    if(GIndividualMPIConsumer *mpiConsumerPtr =
-           dynamic_cast<GIndividualMPIConsumer *>( // NOLINT(cppcoreguidelines-init-variables)
-               consumer.get()
-           )) {
-        client_mode_ = mpiConsumerPtr->isWorkerNode();
-    }
-#endif // GENEVA_BUILD_WITH_MPI_CONSUMER
+    // Let the consumer reconcile the requested client/server role with the one it
+    // actually requires. Most consumers honour --client unchanged; the MPI consumer
+    // overrides this and decides from its process rank (determined in init() above).
+    // Go2 thus stays free of any concrete-consumer knowledge.
+    client_mode_ = consumer->determineClientMode(client_mode_);
 
     // Finally give the consumer the chance to act on the command line options
     consumer->actOnCLOptions(vm);

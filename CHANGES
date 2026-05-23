@@ -109,6 +109,16 @@ Recommended Versions:
   GParserBuilder now warns about unknown configuration-file keys (escalatable to
   an error via GParserBuilder::setUnknownKeyIsError(true)).
 
+- MINOR (SOURCE-breaking): two Go2 public methods changed. The redundant
+  getClientMode() was removed -- use clientMode() instead (it returned exactly
+  the same flag). setOffset() was renamed to setIterationOffset(), for symmetry
+  with its getter getIterationOffset() and to make explicit that it offsets the
+  iteration counter. User code calling either method must be updated. Internally,
+  Go2 no longer special-cases the MPI consumer when deciding client/server mode:
+  every consumer now reconciles the requested --client flag itself via the new
+  virtual GBaseConsumerT::determineClientMode() (the MPI consumer derives its role
+  from its process rank, as before) -- runtime behaviour is unchanged.
+
 ************************* Noteworthy Changes ***********************************
 
 - Preliminary support for two new local optimization algorithms:

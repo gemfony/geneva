@@ -1396,6 +1396,17 @@ private:
     }
 
     /**
+         * Inherited from GBaseConsumerT. The MPI consumer's client/server role is
+         * fixed by its MPI rank (decided during init), not by the --client command
+         * line flag, so the requested mode is ignored.
+         *
+         * @return true if this process is an MPI worker (i.e. a client), false for the master
+         */
+    [[nodiscard]] bool determineClientMode_(bool /* requested_client_mode */) const override {
+        return isWorkerNode();
+    }
+
+    /**
          * Inherited from GBaseConsumerT
          * @param exact
          * @return the amount of worker nodes in the cluster used by the instance of GMPIConsumerT

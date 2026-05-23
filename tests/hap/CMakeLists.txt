@@ -45,6 +45,7 @@ ENDIF ()
 ADD_CUSTOM_TARGET( "tests-hap"
 	DEPENDS "tests-hap-unit"
 		"tests-hap-manual"
+		"tests-hap-docuprogs"
 	COMMENT "Building all the tests for the Hap library."
 )
 

@@ -40,6 +40,7 @@
 
 #include "courtier/GDemoProcessingContainers.hpp"
 #include "courtier/GExecutorT.hpp"
+#include "courtier/consumers/GSerialConsumerT.hpp"
 
 using namespace Gem::Courtier;
 
@@ -193,4 +194,24 @@ TEST_CASE("GSimpleContainer: move assignment transfers state", "[courtier][move]
 
     REQUIRE(target.is_due_for_processing());
     REQUIRE_NOTHROW(source.getProcessingStatus());
+}
+
+/********************************************************************************************/
+// Client/server role determination (GBaseConsumerT::determineClientMode)
+//
+// Go2 no longer special-cases concrete consumers when reconciling the --client
+// command-line flag with the role a consumer actually requires. Instead it calls
+// GBaseConsumerT::determineClientMode(requested), which by default returns the
+// requested flag unchanged. Consumers that decide their role autonomously (the
+// MPI consumer, from its process rank) override determineClientMode_(). This test
+// pins the default contract that every non-self-determining consumer relies on.
+
+TEST_CASE(
+    "GBaseConsumerT::determineClientMode: default honours the requested mode",
+    "[courtier][consumer]"
+) {
+    Consumers::GSerialConsumerT<GSimpleContainer> consumer;
+
+    REQUIRE(consumer.determineClientMode(true) == true);
+    REQUIRE(consumer.determineClientMode(false) == false);
 }

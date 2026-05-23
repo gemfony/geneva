@@ -29,6 +29,11 @@
 
 #include "geneva/GMPISubClientOptimizer.hpp"
 
+// Used directly below (initializeMPI / setMPICommunicator). Previously pulled in
+// transitively via Go2.hpp; that path was removed when Go2 was decoupled from the
+// concrete consumers, so include it explicitly here.
+#include "courtier/consumers/GMPIConsumerT.hpp"
+
 namespace Gem::Geneva {
 GMPISubClientOptimizer::GMPISubClientOptimizer(
     int argc,
