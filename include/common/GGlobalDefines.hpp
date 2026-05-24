@@ -79,15 +79,15 @@
 /**
  * The minimum required Boost version, encoded as an integer.
  * Encoding: major(1 digit) + "0" + minor(2 digits) + "00"
- * Example:  1.90  →  "1" + "0" + "90" + "00"  =  109000
+ * Example:  1.91  →  "1" + "0" + "91" + "00"  =  109100
  *
  * Keep in sync with GENEVA_MIN_BOOST_VERSION in
  * CMakeModules/CommonGenevaBuild.cmake.
  */
-#define MIN_BOOST_VERSION 109000
+#define MIN_BOOST_VERSION 109100
 
 #if BOOST_VERSION < MIN_BOOST_VERSION
-#error "Error: Boost should at least have version 1.90 !"
+#error "Error: Boost should at least have version 1.91 !"
 #endif /* BOOST_VERSION */
 
 /** Make sure we use boost filesystem v3 */

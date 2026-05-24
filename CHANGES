@@ -3,7 +3,7 @@
 
 Recommended Versions:
 - Make sure Catch 2 v3 is installed in your system
-- Boost version 1.90 or higher is required
+- Boost version 1.91 or higher is required
 - CMake version 3.27 or higher is required
 - GCC is recommended to be at least version 13, clang should be at least version 18.
   Earlier versions might work if C++20 is sufficiently supported

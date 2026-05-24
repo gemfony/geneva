@@ -143,7 +143,7 @@ IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
 	SET (Boost_USE_STATIC_LIBS OFF)
 
 	# The minimum Boost version required for building Geneva and Geneva applications
-	SET (GENEVA_MIN_BOOST_VERSION 1.90)
+	SET (GENEVA_MIN_BOOST_VERSION 1.91)
 
 	# These are the libraries required for any Geneva build
 	SET (
