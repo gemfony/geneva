@@ -56,29 +56,11 @@ SET ( OPTIMIZATIONSOURCES
 	GInt32ObjectCollection.cpp
 	Go2.cpp
     GBase.cpp
-    GConjugateGradientDescent.cpp
-    GConjugateGradientDescentFactory.cpp
-    GConjugateGradientDescent_PersonalityTraits.cpp
     GEvolutionaryAlgorithm.cpp
     GEvolutionaryAlgorithmFactory.cpp
     GEvolutionaryAlgorithm_PersonalityTraits.cpp
-    GGradientDescent.cpp
-    GGradientDescentFactory.cpp
-    GGradientDescent_PersonalityTraits.cpp
-    GNelderMead.cpp
-    GNelderMeadFactory.cpp
-    GNelderMead_PersonalityTraits.cpp
     GParChild.cpp
     GBaseParChildPersonalityTraits.cpp
-    GParameterScan.cpp
-    GParameterScanFactory.cpp
-    GParameterScan_PersonalityTraits.cpp
-    GSimulatedAnnealing.cpp
-    GSimulatedAnnealingFactory.cpp
-    GSimulatedAnnealing_PersonalityTraits.cpp
-    GSwarmAlgorithm.cpp
-    GSwarmAlgorithmFactory.cpp
-    GSwarmAlgorithm_PersonalityTraits.cpp
 	GObject.cpp
 	GOptimizationEnums.cpp
 	GParameterBase.cpp
@@ -113,6 +95,87 @@ IF(GENEVA_BUILD_WITH_MPI_CONSUMER)
 	SET(OPTIMIZATIONSOURCES
 			${OPTIMIZATIONSOURCES}
 			GMPISubClientOptimizer.cpp)
+ENDIF()
+
+################################################################################
+#
+# Build-time algorithm selection ("slim core").
+#
+# Each option below gates the three source files of one optimization algorithm.
+# All default to ON, so the stock build is byte-for-byte identical to before:
+# every algorithm is compiled in and self-registers its factory with the
+# global optimization-algorithm store. Setting an option to OFF omits that
+# algorithm's sources; because registration happens from within those very
+# translation units, the algorithm then never registers and its mnemonic
+# simply disappears from the runtime selection (the '-a' option).
+#
+# Evolutionary algorithms (EA) are intentionally NOT optional and remain in the
+# core source list above: GEvolutionaryAlgorithmFactory is referenced directly
+# by the post-processor (GPostProcessorT) and the meta-optimizer individual
+# (GMetaOptimizerIndividualT), both of which are always built. The shared
+# parent-child base (GParChild / GBaseParChildPersonalityTraits, used by EA and
+# SA) likewise stays in core.
+#
+# Consumers are not gated here: the courtier consumers are header-only
+# templates with no .cpp to exclude, and the MPI consumer is already gated by
+# GENEVA_BUILD_WITH_MPI_CONSUMER. Consumer plugin selection is deferred to a
+# later plugin-architecture phase.
+#
+################################################################################
+
+OPTION(GENEVA_ALGO_SA    "Build the Simulated Annealing algorithm"         ON)
+OPTION(GENEVA_ALGO_SWARM "Build the Swarm algorithm"                       ON)
+OPTION(GENEVA_ALGO_GD    "Build the Gradient Descent algorithm"            ON)
+OPTION(GENEVA_ALGO_CGD   "Build the Conjugate Gradient Descent algorithm"  ON)
+OPTION(GENEVA_ALGO_NM    "Build the Nelder-Mead algorithm"                 ON)
+OPTION(GENEVA_ALGO_PS    "Build the Parameter Scan algorithm"              ON)
+
+IF(GENEVA_ALGO_SA)
+	SET(OPTIMIZATIONSOURCES
+			${OPTIMIZATIONSOURCES}
+			GSimulatedAnnealing.cpp
+			GSimulatedAnnealingFactory.cpp
+			GSimulatedAnnealing_PersonalityTraits.cpp)
+ENDIF()
+
+IF(GENEVA_ALGO_SWARM)
+	SET(OPTIMIZATIONSOURCES
+			${OPTIMIZATIONSOURCES}
+			GSwarmAlgorithm.cpp
+			GSwarmAlgorithmFactory.cpp
+			GSwarmAlgorithm_PersonalityTraits.cpp)
+ENDIF()
+
+IF(GENEVA_ALGO_GD)
+	SET(OPTIMIZATIONSOURCES
+			${OPTIMIZATIONSOURCES}
+			GGradientDescent.cpp
+			GGradientDescentFactory.cpp
+			GGradientDescent_PersonalityTraits.cpp)
+ENDIF()
+
+IF(GENEVA_ALGO_CGD)
+	SET(OPTIMIZATIONSOURCES
+			${OPTIMIZATIONSOURCES}
+			GConjugateGradientDescent.cpp
+			GConjugateGradientDescentFactory.cpp
+			GConjugateGradientDescent_PersonalityTraits.cpp)
+ENDIF()
+
+IF(GENEVA_ALGO_NM)
+	SET(OPTIMIZATIONSOURCES
+			${OPTIMIZATIONSOURCES}
+			GNelderMead.cpp
+			GNelderMeadFactory.cpp
+			GNelderMead_PersonalityTraits.cpp)
+ENDIF()
+
+IF(GENEVA_ALGO_PS)
+	SET(OPTIMIZATIONSOURCES
+			${OPTIMIZATIONSOURCES}
+			GParameterScan.cpp
+			GParameterScanFactory.cpp
+			GParameterScan_PersonalityTraits.cpp)
 ENDIF()
 
 ADD_LIBRARY ( ${GENEVA_LIBNAME} SHARED ${OPTIMIZATIONSOURCES} )
