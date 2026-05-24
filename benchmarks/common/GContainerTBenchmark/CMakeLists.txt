@@ -27,19 +27,6 @@
 #
 ################################################################################
 
-IF (NOT GENEVA_FULL_TREE_BUILD)
-
-	PROJECT(GContainerTBenchmark)
-
-	# For building benchmarks independently, the 'CMakeModules' folder is
-	# assumed to be reachable from the current source location.
-	SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/../../../../CMakeModules")
-
-	MESSAGE("\nPerforming an independent build of ${PROJECT_NAME}")
-	INCLUDE(CommonGenevaBuild)
-
-ENDIF ()
-
 SET ( EXECUTABLENAME GContainerTBenchmark )
 
 SET ( ${EXECUTABLENAME}_SRCS

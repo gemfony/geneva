@@ -27,20 +27,6 @@
 #
 ################################################################################
 
-IF (NOT GENEVA_FULL_TREE_BUILD)
-
-	PROJECT(GCUDAWorker LANGUAGES CXX CUDA)
-
-	# For building the examples independently, we still assume that the
-	# 'CMakeModules' folder can be found at the same place as the current
-	# source folder... This avoids having to copy the same content over
-	# and over again in all the examples.
-	SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/../CMakeModules")
-
-	MESSAGE("\nPerforming an independent build of ${PROJECT_NAME}")
-	INCLUDE(CommonGenevaBuild)
-ENDIF ()
-
 # Headers listed here for CLion indexing — this target carries no CUDA dependency
 # and must remain before ENABLE_LANGUAGE(CUDA) so CLion sees it even when CUDA
 # is not configured in the IDE toolchain (mirrors the CLION_ALL_COMMON_HEADERS

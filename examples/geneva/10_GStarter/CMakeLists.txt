@@ -59,9 +59,9 @@ IF (DEFINED GENEVA_ROOT)
 	LIST(APPEND CMAKE_PREFIX_PATH "${GENEVA_ROOT}")
 ENDIF ()
 
-# Locate the bundled FindGeneva.cmake (two levels up, in CMakeModules) so the
+# Locate the bundled FindGeneva.cmake (in the repo-root CMakeModules) so the
 # MODULE-mode fallback below can find it.
-LIST(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/../CMakeModules")
+LIST(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/../../../CMakeModules")
 
 # Prefer the installed CMake config package (Geneva::* imported targets). Fall
 # back to the FindGeneva.cmake module if no config package is present.

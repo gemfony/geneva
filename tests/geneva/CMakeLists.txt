@@ -27,21 +27,6 @@
 #
 ################################################################################
 
-IF (NOT GENEVA_FULL_TREE_BUILD)
-
-	PROJECT(Geneva_Tests_Geneva)
-
-	# For building the examples independently, we still assume that the
-	# 'CMakeModules' folder can be found at the same place as the current
-	# source folder... This avoids having to copy the same content over
-	# and over again in all the examples.
-	SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/../../CMakeModules")
-
-	MESSAGE("\nPerforming an independent build of ${PROJECT_NAME}")
-	INCLUDE(CommonGenevaBuild)
-
-ENDIF ()
-
 ADD_SUBDIRECTORY ( UnitTests )
 ADD_SUBDIRECTORY ( ManualTests )
 

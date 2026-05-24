@@ -134,15 +134,6 @@ if(CMAKE_CUDA_COMPILER_LOADED AND CMAKE_CXX_COMPILER)
 endif()
 
 ################################################################################
-# We create some examples and test programs as part of the build process.
-# This variable allows their build-scripts to detect that they are being
-# called from within the master build-script. This prevents redundant searches
-# and checks, while still allowing examples to be built independently of the
-# main Geneva source tree.
-
-SET(GENEVA_FULL_TREE_BUILD TRUE)
-
-################################################################################
 # Set these variables to make all examples and/or benchmarks run as part of the
 # testing with CTest.
 

@@ -27,17 +27,6 @@
 #
 ################################################################################
 
-IF (NOT GENEVA_FULL_TREE_BUILD)
-
-	PROJECT(GCourtierStandardTests)
-
-	SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/../../../CMakeModules")
-
-	MESSAGE("\nPerforming an independent build of ${PROJECT_NAME}")
-	INCLUDE(CommonGenevaBuild)
-
-ENDIF ()
-
 SET ( EXECUTABLENAME GCourtierStandardTests )
 
 SET ( ${EXECUTABLENAME}_SRCS

@@ -27,21 +27,6 @@
 #
 ################################################################################
 
-IF (NOT GENEVA_FULL_TREE_BUILD)
-
-	PROJECT(GHelperFunctionsTest)
-
-	# For building the tests independently, we still assume that the
-	# current source folder is still part of the Geneva tree structure,
-	# i.e., the 'CMakeModules' folder can be found going up... This avoids
-	# having to copy the same content over and over again in the tests.
-	SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/../../../../CMakeModules")
-
-	MESSAGE("\nPerforming an independent build of ${PROJECT_NAME}")
-	INCLUDE(CommonGenevaBuild)
-
-ENDIF ()
-
 SET ( EXECUTABLENAME GHelperFunctionsTest )
 
 SET ( ${EXECUTABLENAME}_SRCS
