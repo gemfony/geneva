@@ -41,7 +41,7 @@ namespace Gem::Common {
  */
 std::mutex Gem::Common::GParserBuilder::configfile_parser_mutex_;
 bool Gem::Common::GParserBuilder::unknown_key_is_error_ = false;
-bool Gem::Common::GParserBuilder::check_unknown_keys_ = false;
+bool Gem::Common::GParserBuilder::check_unknown_keys_ = true;
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -348,23 +348,21 @@ GParserBuilder::GParserBuilder() {
  */
 void GParserBuilder::loadFromPtree(
     boost::property_tree::ptree const &ptr,
-    std::filesystem::path const &config_path
+    std::filesystem::path const &config_path,
+    bool run_unknown_key_check
 ) {
-    // Optional diagnostic: detect configuration-file keys that no registered
-    // parameter consumes. OFF by default, because Geneva currently parses the
-    // same config file multiple times with different GParserBuilders (per
-    // factory / object / executor layer), so this per-parse check would flag the
-    // other layers' perfectly valid keys as "unknown" (false positives). Enable
-    // via setCheckUnknownKeys(true) when hunting config/code drift; the proper
-    // fix is the "parse each config once" task (TIER 3).
-    if(check_unknown_keys_) {
+    // Diagnostic: detect configuration-file keys that no registered parameter
+    // consumes (config/code drift -- a renamed or stale key). Runs only on a
+    // genuine file parse (run_unknown_key_check == true): GFactoryT re-applies a
+    // cached ptree to every produced object, and the check must not re-run per
+    // object.
+    if(run_unknown_key_check && check_unknown_keys_) {
         std::set<std::string> known_keys;
         for(auto const &proxy_ptr : file_parameter_proxies_) {
-            for(std::size_t i = 0; i < proxy_ptr->numberOfOptionNames(); ++i) {
-                // Only the first path segment is a top-level JSON key
-                std::string const option_name = proxy_ptr->optionName(i);
-                known_keys.insert(option_name.substr(0, option_name.find('.')));
-            }
+            // Each parameter reports the top-level JSON key it occupies; combined
+            // parameters nest their sub-options under a single group label, so the
+            // label -- not the sub-option names -- is the valid top-level key.
+            known_keys.insert(proxy_ptr->topLevelConfigKey());
         }
         for(auto const &key_value : ptr) {
             if(key_value.first == "header" || known_keys.contains(key_value.first)) {

@@ -531,6 +531,16 @@ public:
     /** @brief Executes a stored callbacl function */
     void executeCallBackFunction();
 
+    /** @brief Returns the top-level configuration-file (JSON) key this parameter
+     *  occupies. By default this is the first option name -- single, vector and
+     *  array parameters write their data directly under it. Combined parameters
+     *  override this to return their JSON group label, under which their
+     *  sub-options nest. Used by the unknown-key diagnostic to recognise valid
+     *  top-level keys. */
+    virtual std::string topLevelConfigKey() const {
+        return GParsableI::optionName(0);
+    }
+
 private:
     /***************************************************************************/
     /** @brief Loads data from a property_tree object */
@@ -944,6 +954,14 @@ public:
     GCombinedParT<par_type0, par_type1> &
     operator=(GCombinedParT<par_type0, par_type1> const &) = delete;
     GCombinedParT<par_type0, par_type1> &operator=(GCombinedParT<par_type0, par_type1> &&) = delete;
+
+    /***************************************************************************/
+    /** @brief The combined parameter nests its sub-options under a single JSON
+     *  group label, so that label -- not the individual sub-option names -- is the
+     *  top-level configuration-file key. */
+    std::string topLevelConfigKey() const override {
+        return combined_label_;
+    }
 
 protected:
     /***************************************************************************/
@@ -2162,11 +2180,15 @@ public:
     /** @brief Reads and parses a configuration file, applying the values to the registered options. Optionally hands the parsed ptree back via the second argument so callers can cache it. */
     bool parseConfigFile(std::filesystem::path const &, boost::property_tree::ptree * = nullptr);
     /** @brief Applies an already-parsed configuration ptree to the registered options (no file access); runs the optional unknown-key diagnostic. */
-    void loadFromPtree(boost::property_tree::ptree const &, std::filesystem::path const & = {});
+    void loadFromPtree(
+        boost::property_tree::ptree const &,
+        std::filesystem::path const & = {},
+        bool run_unknown_key_check = true
+    );
     /** @brief Writes out a configuration file */
     void
     writeConfigFile(std::filesystem::path const &, std::string const & = "", bool = true) const;
-    /** @brief Globally enables/disables the unknown-configuration-key diagnostic (default: disabled -- see the "parse each config once" task). */
+    /** @brief Globally enables/disables the unknown-configuration-key diagnostic (default: enabled; warns on config keys no registered parameter consumes). */
     static void setCheckUnknownKeys(bool);
     /** @brief Retrieves whether the unknown-configuration-key diagnostic is enabled */
     static bool checkUnknownKeys();
@@ -2840,7 +2862,7 @@ private:
     static bool
         unknown_key_is_error_; ///< If true, an unknown configuration-file key throws instead of warning (default: false)
     static bool
-        check_unknown_keys_; ///< If true, parseConfigFile checks for unknown keys (default: false; over-reports for multi-layer configs -- see "parse each config once" task)
+        check_unknown_keys_; ///< If true, a genuine config-file parse warns about keys no registered parameter consumes (default: true; group-aware, runs once per parse)
 };
 
 /******************************************************************************/

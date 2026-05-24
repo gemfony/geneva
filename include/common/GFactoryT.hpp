@@ -349,7 +349,10 @@ protected:
         {
             std::unique_lock<std::mutex> config_lock(init_mutex_);
             if(config_ptree_cached_) {
-                gpb.loadFromPtree(config_ptree_, config_path_);
+                // Re-apply the cached ptree to this freshly produced object. The
+                // unknown-key diagnostic already ran on the first (real) parse, so
+                // skip it here -- otherwise it would re-run per produced object.
+                gpb.loadFromPtree(config_ptree_, config_path_, /* run_unknown_key_check = */ false);
             }
             else {
                 if(not gpb.parseConfigFile(config_path_, &config_ptree_)) {
