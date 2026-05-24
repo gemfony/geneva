@@ -275,6 +275,69 @@ ADD_SUBDIRECTORY (scripts)
 ADD_SUBDIRECTORY (include)
 ADD_SUBDIRECTORY (src)
 
+################################################################################
+# Installed CMake config-file package.
+#
+# This is the modern, preferred way for downstream projects to consume an
+# installed Geneva: find_package(Geneva CONFIG REQUIRED) then link the imported
+# targets Geneva::common / Geneva::hap / Geneva::courtier / Geneva::geneva.
+#
+# The exported targets carry their include directories ($<INSTALL_INTERFACE>),
+# their inter-library link dependencies (geneva -> courtier -> hap -> common),
+# the C++20 requirement and the Boost dependency transitively. The config file
+# re-finds Boost so consumers do not have to.
+#
+# The cmake-config directory is placed next to the installed libraries
+# (<libdir>/cmake/Geneva), honouring the INSTALL_PREFIX_LIBS indirection.
+
+INCLUDE(CMakePackageConfigHelpers)
+
+# Where the config package lands: alongside the installed libraries.
+SET(GENEVA_INSTALL_CMAKEDIR "${INSTALL_PREFIX_LIBS}/cmake/Geneva")
+
+# Export the imported targets accumulated via EXPORT GenevaTargets in the
+# per-library install(TARGETS ...) calls, under the Geneva:: namespace.
+INSTALL(
+	EXPORT GenevaTargets
+	NAMESPACE Geneva::
+	DESTINATION ${GENEVA_INSTALL_CMAKEDIR}
+	FILE GenevaTargets.cmake
+)
+
+# Record whether this install was built with testing support. A testing-enabled
+# libgemfony-geneva references Catch2 symbols, so the config package must re-find
+# Catch2 for consumers in that case (see GenevaConfig.cmake.in).
+IF (GENEVA_BUILD_TESTS)
+	SET(GENEVA_INSTALLED_WITH_TESTING TRUE)
+ELSE ()
+	SET(GENEVA_INSTALLED_WITH_TESTING FALSE)
+ENDIF ()
+
+# Generate GenevaConfig.cmake from the template. PATH_VARS / INSTALL_DESTINATION
+# allow the file to be relocatable.
+CONFIGURE_PACKAGE_CONFIG_FILE(
+	${PROJECT_SOURCE_DIR}/CMakeModules/GenevaConfig.cmake.in
+	${CMAKE_CURRENT_BINARY_DIR}/GenevaConfig.cmake
+	INSTALL_DESTINATION ${GENEVA_INSTALL_CMAKEDIR}
+)
+
+# Version compatibility policy: SameMinorVersion. Geneva's minor version encodes
+# release vs. development series (even = production, odd = development) and the
+# ABI of the shared libraries may change between minor releases, so a consumer
+# that requested e.g. 1.12 must not silently be satisfied by 1.14.
+WRITE_BASIC_PACKAGE_VERSION_FILE(
+	${CMAKE_CURRENT_BINARY_DIR}/GenevaConfigVersion.cmake
+	VERSION ${GENEVA_VERSION}
+	COMPATIBILITY SameMinorVersion
+)
+
+INSTALL(
+	FILES
+	${CMAKE_CURRENT_BINARY_DIR}/GenevaConfig.cmake
+	${CMAKE_CURRENT_BINARY_DIR}/GenevaConfigVersion.cmake
+	DESTINATION ${GENEVA_INSTALL_CMAKEDIR}
+)
+
 # Examples and tests are compiled at the end
 IF( GENEVA_BUILD_TESTS )
 	INCLUDE(CTest)

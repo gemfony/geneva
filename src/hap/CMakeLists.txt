@@ -70,11 +70,24 @@ SET_TARGET_PROPERTIES(
 	CXX_STANDARD_REQUIRED ON
 	CXX_EXTENSIONS OFF
 	CUDA_ARCHITECTURES 80 86 89
+	EXPORT_NAME hap
 )
 
 target_compile_options(${HAP_LIBNAME} PRIVATE
 		$<$<COMPILE_LANGUAGE:CUDA>:--extended-lambda>
 )
 
+# Export the include directory and require C++20 transitively.
+TARGET_INCLUDE_DIRECTORIES(
+    ${HAP_LIBNAME}
+    PUBLIC
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>
+)
+TARGET_COMPILE_FEATURES(${HAP_LIBNAME} PUBLIC cxx_std_20)
 
-INSTALL ( TARGETS ${HAP_LIBNAME} DESTINATION ${INSTALL_PREFIX_LIBS} )
+# Inter-library dependency: hap builds on common. PUBLIC so that include dirs,
+# Boost and the C++20 requirement carried by common propagate to dependents.
+TARGET_LINK_LIBRARIES(${HAP_LIBNAME} PUBLIC ${COMMON_LIBNAME})
+
+INSTALL ( TARGETS ${HAP_LIBNAME} EXPORT GenevaTargets DESTINATION ${INSTALL_PREFIX_LIBS} )

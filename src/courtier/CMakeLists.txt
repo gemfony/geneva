@@ -56,10 +56,25 @@ SET_TARGET_PROPERTIES(
         CXX_STANDARD 20
         CXX_STANDARD_REQUIRED ON
         CXX_EXTENSIONS OFF
+        EXPORT_NAME courtier
 )
 
+# Export the include directory and require C++20 transitively.
+TARGET_INCLUDE_DIRECTORIES(
+        ${COURTIER_LIBNAME}
+        PUBLIC
+        $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+        $<INSTALL_INTERFACE:include>
+)
+TARGET_COMPILE_FEATURES(${COURTIER_LIBNAME} PUBLIC cxx_std_20)
+
+# Inter-library dependency: courtier builds on hap (and transitively common).
+TARGET_LINK_LIBRARIES(${COURTIER_LIBNAME} PUBLIC ${HAP_LIBNAME})
+
+# MPI is an implementation detail of the consumer sources; keep it PRIVATE so it
+# does not leak into the exported interface of consumers that do not use MPI.
 IF (GENEVA_BUILD_WITH_MPI_CONSUMER)
     TARGET_LINK_LIBRARIES(${COURTIER_LIBNAME} PRIVATE MPI::MPI_CXX)
 ENDIF ()
 
-INSTALL(TARGETS ${COURTIER_LIBNAME} DESTINATION ${INSTALL_PREFIX_LIBS})
+INSTALL(TARGETS ${COURTIER_LIBNAME} EXPORT GenevaTargets DESTINATION ${INSTALL_PREFIX_LIBS})

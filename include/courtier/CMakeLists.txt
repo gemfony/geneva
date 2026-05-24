@@ -34,6 +34,7 @@ SET ( COMMUNICATIONINCLUDES
     GCommandContainerT.hpp
     GCourtierEnums.hpp
     GCourtierHelperFunctions.hpp
+    GDemoProcessingContainers.hpp
     GExecutorT.hpp
     GProcessingContainerT.hpp
     GWorkerT.hpp

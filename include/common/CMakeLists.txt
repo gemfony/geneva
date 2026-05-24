@@ -43,6 +43,7 @@ SET ( GENEVACOMMONINCLUDES
 	GCommonHelperFunctionsT.hpp
 	GCommonInterfaceT.hpp
 	GCommonMathHelperFunctionsT.hpp
+	GContainerT.hpp
 	GDefaultValueT.hpp
 	GErrorStreamer.hpp
 	GExceptions.hpp

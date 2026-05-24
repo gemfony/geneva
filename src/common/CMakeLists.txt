@@ -57,6 +57,30 @@ SET_TARGET_PROPERTIES(
 	CXX_STANDARD 20
 	CXX_STANDARD_REQUIRED ON
 	CXX_EXTENSIONS OFF
+	EXPORT_NAME common
+)
+
+# Publish the include directory through the target so that both the in-tree
+# build and downstream consumers (via the exported Geneva::common target) pick
+# up the Geneva headers. PUBLIC so the requirement propagates to dependents.
+TARGET_INCLUDE_DIRECTORIES(
+    ${COMMON_LIBNAME}
+    PUBLIC
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>
+)
+
+# Require C++20 transitively and propagate the Boost dependencies that appear
+# in the public headers (program_options/serialization/filesystem/regex/atomic).
+TARGET_COMPILE_FEATURES(${COMMON_LIBNAME} PUBLIC cxx_std_20)
+TARGET_LINK_LIBRARIES(
+    ${COMMON_LIBNAME}
+    PUBLIC
+    Boost::filesystem
+    Boost::program_options
+    Boost::regex
+    Boost::serialization
+    Boost::atomic
 )
 
 # Coverage instrumentation: only applied when explicitly enabled, only to
@@ -79,4 +103,4 @@ IF (GENEVA_BUILD_WITH_COVERAGE)
     ENDIF ()
 ENDIF ()
 
-INSTALL ( TARGETS ${COMMON_LIBNAME} DESTINATION ${INSTALL_PREFIX_LIBS} )
+INSTALL ( TARGETS ${COMMON_LIBNAME} EXPORT GenevaTargets DESTINATION ${INSTALL_PREFIX_LIBS} )

@@ -124,11 +124,32 @@ SET_TARGET_PROPERTIES(
 	CXX_STANDARD 20
 	CXX_STANDARD_REQUIRED ON
 	CXX_EXTENSIONS OFF
+	EXPORT_NAME geneva
 )
 
 
 
+# Export the include directory and require C++20 transitively.
+TARGET_INCLUDE_DIRECTORIES(
+	${GENEVA_LIBNAME}
+	PUBLIC
+	$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+	$<INSTALL_INTERFACE:include>
+)
+TARGET_COMPILE_FEATURES(${GENEVA_LIBNAME} PUBLIC cxx_std_20)
+
+# Inter-library dependency: geneva builds on courtier (and transitively on hap
+# and common). PUBLIC so the full include/Boost/C++20 interface propagates to
+# downstream consumers that link Geneva::geneva.
+TARGET_LINK_LIBRARIES(${GENEVA_LIBNAME} PUBLIC ${COURTIER_LIBNAME})
+
 IF ( GENEVA_BUILD_TESTS )
+	# When built with testing support (-DGEM_TESTING), the library embeds
+	# Catch2-based test scaffolding (GTestIndividual*, GUnitTestFrameworkT) and
+	# therefore references Catch2 symbols. Consumers of such a testing-enabled
+	# install must link Catch2 too, so the requirement is propagated through the
+	# public interface (both in-tree and exported). The installed config package
+	# re-finds Catch2 accordingly (see GenevaConfig.cmake.in / GENEVA_TESTING).
 	TARGET_LINK_LIBRARIES(
 		${GENEVA_LIBNAME}
 		INTERFACE
@@ -140,5 +161,5 @@ IF (GENEVA_BUILD_WITH_MPI_CONSUMER)
 	TARGET_LINK_LIBRARIES(${GENEVA_LIBNAME} PRIVATE MPI::MPI_CXX)
 ENDIF ()
 
-INSTALL ( TARGETS ${GENEVA_LIBNAME} DESTINATION ${INSTALL_PREFIX_LIBS} )
+INSTALL ( TARGETS ${GENEVA_LIBNAME} EXPORT GenevaTargets DESTINATION ${INSTALL_PREFIX_LIBS} )
 
