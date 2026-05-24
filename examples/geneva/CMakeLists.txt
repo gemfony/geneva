@@ -74,7 +74,6 @@ SET(DEPENDENCIES
 		GFunctionMinimizer
 		GPostProcessing
 		GNeuralNetwork
-		GStarter
 		GMetaOptimizer
 		GExternalEvaluator
 		GPluggableOptimizationMonitors
@@ -104,7 +103,9 @@ ADD_SUBDIRECTORY( 06_GDirectSwarm )
 ADD_SUBDIRECTORY( 07_GFunctionMinimizer )
 ADD_SUBDIRECTORY( 08_GPostProcessing )
 ADD_SUBDIRECTORY( 09_GNeuralNetwork )
-ADD_SUBDIRECTORY( 10_GStarter )
+# 10_GStarter is intentionally NOT built in-tree: it ships as the canonical
+# standalone downstream template that consumes an installed Geneva via
+# find_package(Geneva). See examples/geneva/10_GStarter/README.
 ADD_SUBDIRECTORY( 11_GMetaOptimizer )
 ADD_SUBDIRECTORY( 12_GExternalEvaluator )
 ADD_SUBDIRECTORY( 13_GPluggableOptimizationMonitors )

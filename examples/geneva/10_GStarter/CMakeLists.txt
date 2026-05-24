@@ -26,60 +26,134 @@
 # collection for a list of contributors and copyright information.
 #
 ################################################################################
+#
+# Standalone build for the GStarter example.
+#
+# This directory ships with the Geneva sources but is NOT compiled by the
+# in-tree Geneva build. It is the canonical template showing how an external
+# project consumes an *installed* Geneva. To build it you first need to install
+# Geneva (see the project's CLAUDE.md / INSTALL notes), then point this project
+# at that installation:
+#
+#   mkdir build && cd build
+#   cmake -DCMAKE_PREFIX_PATH=<geneva-install-prefix> ..
+#   make
+#
+# Geneva is located via find_package(Geneva). The preferred mechanism is the
+# installed CMake config package (find_package(Geneva CONFIG)). If that is not
+# available (an older install without the config package) the build falls back
+# to the bundled FindGeneva.cmake module. In both cases the install prefix is
+# supplied through CMAKE_PREFIX_PATH or the GENEVA_ROOT variable, e.g.
+#
+#   cmake -DGENEVA_ROOT=<geneva-install-prefix> ..
+#
+################################################################################
 
-IF (NOT GENEVA_FULL_TREE_BUILD)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.27)
 
-	PROJECT(GStarter)
+PROJECT(GStarter CXX)
 
-	# For building the examples independently, we still assume that the
-	# 'CMakeModules' folder can be found at the same place as the current
-	# source folder... This avoids having to copy the same content over
-	# and over again in all the examples.
-	SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/../CMakeModules")
-
-	MESSAGE("\nPerforming an independent build of ${PROJECT_NAME}")
-	INCLUDE(CommonGenevaBuild)
-
+# Allow GENEVA_ROOT to be used interchangeably with CMAKE_PREFIX_PATH so users
+# can point at the installation either way.
+IF (DEFINED GENEVA_ROOT)
+	LIST(APPEND CMAKE_PREFIX_PATH "${GENEVA_ROOT}")
 ENDIF ()
 
-SET ( EXECUTABLENAME GStarter )
+# Locate the bundled FindGeneva.cmake (two levels up, in CMakeModules) so the
+# MODULE-mode fallback below can find it.
+LIST(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/../CMakeModules")
 
-# This is a workaround for a CLion-problem -- see CPP270 in the JetBrains issue tracker
-ADD_CUSTOM_TARGET(CLION_ALL_GSTARTER_HEADERS SOURCES)
+# Prefer the installed CMake config package (Geneva::* imported targets). Fall
+# back to the FindGeneva.cmake module if no config package is present.
+FIND_PACKAGE(Geneva CONFIG QUIET)
+IF (NOT Geneva_FOUND)
+	MESSAGE(STATUS "Geneva config package not found, falling back to FindGeneva.cmake (MODULE mode)")
+	FIND_PACKAGE(Geneva MODULE REQUIRED)
+ENDIF ()
 
-SET ( ${EXECUTABLENAME}_SRCS
+################################################################################
+# The GStarter executable.
+#
+# Linking Geneva::geneva transitively pulls in courtier/hap/common, the Geneva
+# include directories, Boost, the C++20 requirement and (when the install was
+# built with it) the MPI consumer dependencies.
+
+SET(EXECUTABLENAME GStarter)
+
+ADD_EXECUTABLE(${EXECUTABLENAME}
 	GStarter.cpp
 	GStarterIndividual.cpp
 )
 
-ADD_EXECUTABLE(${EXECUTABLENAME}
-	${${EXECUTABLENAME}_SRCS}
+TARGET_LINK_LIBRARIES(${EXECUTABLENAME} PRIVATE Geneva::geneva)
+
+# The imported targets already propagate cxx_std_20; stated here explicitly so
+# the requirement is visible at the consumer level as well.
+TARGET_COMPILE_FEATURES(${EXECUTABLENAME} PRIVATE cxx_std_20)
+
+INSTALL(TARGETS ${EXECUTABLENAME} DESTINATION bin)
+
+################################################################################
+# Copy the configuration files next to the build so the example can be run
+# directly from the build tree (GStarter expects ./config/*.json).
+
+SET(CONFIGFILES
+	config/Go2.json
+	config/GBrokerExecutor.json
+	config/GStarterIndividual.json
+	config/GEvolutionaryAlgorithm.json
+	config/GSimulatedAnnealing.json
+	config/GSwarmAlgorithm.json
+	config/GGradientDescent.json
+	config/GParameterScan.json
 )
 
-SET(LIBRARIES_TO_LINK
-		${GENEVA_LIBRARIES}
-		${Boost_LIBRARIES})
+FILE(COPY ${CONFIGFILES} DESTINATION "${CMAKE_CURRENT_BINARY_DIR}/config")
+INSTALL(FILES ${CONFIGFILES} DESTINATION bin/config)
 
-# Add MPI Libraries in case building with MPI-consumer
-IF(GENEVA_BUILD_WITH_MPI_CONSUMER)
-	SET(LIBRARIES_TO_LINK
-			${LIBRARIES_TO_LINK}
-			${MPI_LIBRARIES})
-ENDIF()
+################################################################################
+# Optional unit test.
+#
+# The unit test uses Catch2 and the internal Geneva test scaffolding header
+# Geneva_tests.hpp, which is part of the Geneva *sources* (not installed). The
+# test target is therefore only built when both Catch2 and that header are
+# available. A minimal Geneva install (without testing) still builds the
+# GStarter executable above.
 
-TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
-    ${LIBRARIES_TO_LINK}
-)
+FIND_PACKAGE(Catch2 3 QUIET)
 
+# Locate the internal test scaffolding header. By default it is taken from the
+# in-tree location relative to this directory; a different Geneva source tree
+# can be supplied via GENEVA_TEST_INCLUDE_DIR.
+SET(GENEVA_TEST_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/../../../tests/geneva/UnitTests"
+	CACHE PATH "Directory holding the internal Geneva_tests.hpp test scaffolding header")
 
-ADD_SUBDIRECTORY (config)
+IF (Catch2_FOUND AND EXISTS "${GENEVA_TEST_INCLUDE_DIR}/Geneva_tests.hpp")
+	MESSAGE(STATUS "Catch2 and Geneva test scaffolding found - building GStarterIndividualUnitTests")
 
-IF (GENEVA_RUN_EXAMPLES_AS_TESTS)
-	ADD_TEST(${EXECUTABLENAME} ${EXECUTABLENAME})
+	SET(TESTNAME GStarterIndividualUnitTests)
+
+	ADD_EXECUTABLE(${TESTNAME}
+		Tests/UnitTests/GStarterIndividualUnitTests.cpp
+		GStarterIndividual.cpp
+	)
+
+	TARGET_LINK_LIBRARIES(${TESTNAME} PRIVATE
+		Geneva::geneva
+		Catch2::Catch2WithMain
+	)
+
+	TARGET_COMPILE_FEATURES(${TESTNAME} PRIVATE cxx_std_20)
+
+	# The Geneva testing code (modify_GUnitTests / specificTests*) is compiled in
+	# only when GEM_TESTING is defined; the in-tree build sets this globally via
+	# CommonGenevaBuild.cmake when GENEVA_BUILD_TESTS is on.
+	TARGET_COMPILE_DEFINITIONS(${TESTNAME} PRIVATE GEM_TESTING)
+
+	TARGET_INCLUDE_DIRECTORIES(${TESTNAME} PRIVATE "${GENEVA_TEST_INCLUDE_DIR}")
+
+	ENABLE_TESTING()
+	ADD_TEST(NAME ${TESTNAME} COMMAND ${TESTNAME})
+ELSE ()
+	MESSAGE(STATUS "Catch2 and/or Geneva test scaffolding not found - skipping GStarterIndividualUnitTests")
 ENDIF ()
-
-IF( GENEVA_BUILD_TESTS )
-	ADD_SUBDIRECTORY (Tests)
-ENDIF()
-
-INSTALL ( TARGETS ${EXECUTABLENAME} DESTINATION ${INSTALL_PREFIX_DATA}/examples/${EXECUTABLENAME} )
