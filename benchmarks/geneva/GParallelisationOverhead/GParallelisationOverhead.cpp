@@ -173,9 +173,12 @@ void startParallelMeasurement(
             // Make the individual known to the optimizer
             go.push_back(gdi_ptr);
 
-            // Do the actual optimization and measure the time
+            // Do the actual optimization and measure the time. Each run starts at
+            // the accumulated iteration (passed as the offset) so the absolute
+            // max-iteration halt criterion does not fire immediately on the second
+            // and later measurements.
             std::chrono::system_clock::time_point startTime = std::chrono::system_clock::now();
-            go.optimize();
+            go.optimize(go.getIteration());
             std::chrono::system_clock::time_point endTime = std::chrono::system_clock::now();
             std::chrono::duration<double> duration = endTime - startTime;
 
@@ -183,7 +186,6 @@ void startParallelMeasurement(
 
             // Clean up the collection
             go.clear();
-            go.setIterationOffset(go.getIteration());
         }
 
         // Calculate the mean value and standard deviation of all measurements

@@ -68,7 +68,6 @@ constexpr bool GO2_DEF_CLIENTMODE = false;
 const execMode GO2_DEF_DEFAULPARALLELIZATIONMODE = execMode::MULTITHREADED;
 constexpr bool GO2_DEF_COPYBESTONLY = true;
 constexpr std::uint16_t GO2_DEF_NPRODUCERTHREADS = 0;
-constexpr std::uint32_t GO2_DEF_OFFSET = 0;
 const std::string GO2_DEF_OPTALGS{""};        // NOLINT
 const std::string GO2_DEF_NOCONSUMER{"none"}; // NOLINT
 constexpr bool GO2_DEF_COPYBESTINDIVIDUALSONLY = true;
@@ -138,9 +137,6 @@ public:
     void setClientMode(bool);
 
     std::uint16_t getNProducerThreads() const;
-
-    void setIterationOffset(std::uint32_t);
-    std::uint32_t getIterationOffset() const;
 
     /** @brief Loads some configuration data from arguments passed on the command line (or another char ** that is presented to it) */
     void parseCommandLine(
@@ -225,7 +221,7 @@ private:
     /** @brief Adds the Geneva default algorithm if none have been registered */
     void ensureAlgorithmPresent();
     /** @brief Loads a checkpoint or fills the population from the content creator; returns the first algorithm's iteration offset */
-    std::uint32_t prepareInitialPopulation();
+    std::uint32_t prepareInitialPopulation(std::uint32_t offset);
     /** @brief Runs the registered algorithms in sequence, threading the individuals between them */
     void runAlgorithmChain(std::uint32_t first_algorithm_offset);
     /** @brief Sorts the collected individuals by their (min-only transformed) fitness */
@@ -275,8 +271,6 @@ private:
 
     //---------------------------------------------------------------------------
     // Internal parameters
-    std::uint32_t offset_ =
-        GO2_DEF_OFFSET;    ///< The offset to be used when starting a new optimization run
     bool sorted_ = false; ///< Indicates whether local individuals have been sorted
     std::uint32_t total_iterations_ =
         0; ///< Continuous iteration count accumulated across the algorithm chain (for getIteration_ reporting only)

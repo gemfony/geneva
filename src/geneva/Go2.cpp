@@ -408,11 +408,13 @@ void Go2::registerContentCreator(const std::shared_ptr<Gem::Common::GFactoryT<gp
  * on the type of algorithm being used. The default algorithm may also be altered
  * by the user.
  *
- * @param offset An offset at which the first algorithm should start. Empty and present only to satisfy the interface.
+ * @param offset An iteration offset at which the first algorithm should start
+ *               (e.g. for checkpoint resume); subsequent algorithms in the chain
+ *               always start at 0. Defaults to 0 through the GOptimizerIT interface.
  */
-Go2 const *Go2::optimize_([[maybe_unused]] std::uint32_t offset) {
+Go2 const *Go2::optimize_(std::uint32_t offset) {
     this->ensureAlgorithmPresent();
-    std::uint32_t const first_algorithm_offset = this->prepareInitialPopulation();
+    std::uint32_t const first_algorithm_offset = this->prepareInitialPopulation(offset);
     this->runAlgorithmChain(first_algorithm_offset);
     this->sortIndividualsByFitness();
     return this;
@@ -444,12 +446,14 @@ void Go2::ensureAlgorithmPresent() {
 /**
  * Loads a checkpoint into the first algorithm, or fills the population from the
  * content creator. Returns the iteration offset for the FIRST algorithm only
- * (checkpoint resume or user-set offset); every subsequent algorithm in the
- * chain starts at iteration 0 so it gets its full iteration budget -- otherwise
- * a chained algorithm would inherit the previous one's end iteration and, with
- * an absolute max-iteration halt criterion, stop immediately.
+ * (a checkpoint resume overrides the passed-in offset); every subsequent
+ * algorithm in the chain starts at iteration 0 so it gets its full iteration
+ * budget -- otherwise a chained algorithm would inherit the previous one's end
+ * iteration and, with an absolute max-iteration halt criterion, stop immediately.
+ *
+ * @param offset The iteration offset requested for the first algorithm
  */
-std::uint32_t Go2::prepareInitialPopulation() {
+std::uint32_t Go2::prepareInitialPopulation(std::uint32_t offset) {
     // Check whether a possible checkpoint file fits the first algorithm in the chain
     if(cp_file_ != "empty" &&
        not algorithms_cnt_[0]->cp_personality_fits(std::filesystem::path(cp_file_))) {
@@ -462,7 +466,7 @@ std::uint32_t Go2::prepareInitialPopulation() {
         );
     }
 
-    std::uint32_t first_algorithm_offset = offset_;
+    std::uint32_t first_algorithm_offset = offset;
 
     // Load the checkpoint file or create individuals from the content creator
     if(cp_file_ != "empty") {
@@ -770,17 +774,6 @@ std::uint16_t Go2::getNProducerThreads() const {
 
 /******************************************************************************/
 /**
- * Allows to specify the offset with which the iteration counter should start. This is
- * important when using more than one optimization algorithm with different Go2 objects.
- *
- * @param offset The offset with which the iteration counter should start
- */
-void Go2::setIterationOffset(std::uint32_t offset) {
-    offset_ = offset;
-}
-
-/******************************************************************************/
-/**
  * Retrieval of the current iteration
  */
 uint32_t Go2::getIteration_() const {
@@ -801,16 +794,6 @@ std::string Go2::getAlgorithmName_() const {
 /** @brief Returns one-word information about the type of optimization algorithm. */
 std::string Go2::getAlgorithmPersonalityType_() const {
     return {"PERSONALITY_NONE"};
-}
-
-/******************************************************************************/
-/**
- * Allows to retrieve the current offset with which the iteration counter will start
- *
- * @return The current offset with which the iteration counter will start
- */
-std::uint32_t Go2::getIterationOffset() const {
-    return offset_;
 }
 
 /******************************************************************************/
