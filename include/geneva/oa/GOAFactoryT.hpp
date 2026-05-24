@@ -118,7 +118,7 @@ public:
         // must be deep-copied as well; otherwise a copied factory silently
         // produces algorithms with no monitor.
         if(cp.pluggable_om_) {
-            pluggable_om_ = cp.pluggable_om_->GObject::clone<GBasePluggableOM>();
+            pluggable_om_ = cp.pluggable_om_->GObject::template clone<GBasePluggableOM>();
         }
     }
 
