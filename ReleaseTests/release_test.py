@@ -54,6 +54,11 @@ def _shared_options() -> argparse.ArgumentParser:
     common.add_argument("--filter", default=S,
                         help="narrow the matrix: key=value[,key=value]; "
                              "keys: os, compiler, buildtype, label")
+    common.add_argument("--build-type", default=S, metavar="TYPE[,TYPE...]",
+                        help="restrict the matrix to these build type(s) before "
+                             "expansion (Debug, Release, RelWithDebInfo, "
+                             "MinSizeRel, Sanitize). e.g. '--build-type Release' "
+                             "or '--build-type Debug' for a faster single-mode run")
     common.add_argument("--verbose", "-v", action="store_true", default=S,
                         help="verbose console logging")
     tier = common.add_mutually_exclusive_group()
@@ -147,9 +152,35 @@ def cmd_doctor(args: argparse.Namespace) -> int:
     return 0 if any_backend_ok else 1
 
 
+def _parse_build_types(value: str | None):
+    """Turn a comma-separated --build-type value into a set of BuildType.
+
+    Returns None when nothing was requested (the full set of configured build
+    types is then used). Matching is case-insensitive on the CMake names.
+    """
+    if not value:
+        return None
+    from releaseharness.model import BuildType
+    valid = {b.value.lower(): b for b in BuildType}
+    out = set()
+    for tok in value.split(","):
+        tok = tok.strip()
+        if not tok:
+            continue
+        bt = valid.get(tok.lower())
+        if bt is None:
+            raise SystemExit(
+                f"unknown --build-type {tok!r}; choose from "
+                + ", ".join(b.value for b in BuildType))
+        out.add(bt)
+    return out or None
+
+
 def _expand(cfg, args) -> list:
     full = _resolve_tier(args)
-    jobs = matrix_mod.expand(cfg, full=full, gpu_available=gpu_available())
+    only = _parse_build_types(getattr(args, "build_type", None))
+    jobs = matrix_mod.expand(cfg, full=full, gpu_available=gpu_available(),
+                             only_build_types=only)
     return matrix_mod.apply_filter(jobs, getattr(args, "filter", None))
 
 

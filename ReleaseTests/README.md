@@ -94,13 +94,30 @@ benchmarks/MPI/CUDA OFF):
 | Ubuntu 24.04| gcc 13.2, clang 18.0         | 3.28.3 | gcc + clang     |
 | Ubuntu 26.04| gcc 15.2, clang 21.1         | 4.2.3  | gcc + clang     |
 
-`--quick` expands to OS x compiler x {Debug, Release}. The mission "base mode"
-is the **Debug** column for both compilers plus `ctest`; narrow to it with
-`--filter buildtype=Debug`. `--full` additionally exercises RelWithDebInfo and
-Sanitize build types, a minimal (all-options-off) build, and a full-feature
-build (benchmarks + MPI, CUDA when a GPU is present), plus the LONG-tier
-functional checks (consumers, all algorithms, networked example, install /
-out-of-tree, etc.).
+`--quick` expands to OS x compiler x {Debug, Release}, i.e. **both Debug and
+Release are built for every supported compiler on every guest OS** (8 base
+cells: 2 OS x 2 compilers x 2 build types). `--full` additionally exercises
+RelWithDebInfo and Sanitize build types, a minimal (all-options-off) build, and
+a full-feature build (benchmarks + MPI, CUDA when a GPU is present), plus the
+LONG-tier functional checks (consumers, all algorithms, networked example,
+install / out-of-tree, etc.).
+
+### Restricting to a single build type (for speed)
+
+To run only one build type across the whole matrix, use `--build-type`:
+
+```bash
+python3 release_test.py run --quick --build-type Release   # 4 cells, Release only
+python3 release_test.py run --quick --build-type Debug     # 4 cells, Debug only
+```
+
+This restricts the matrix *before* expansion, so the excluded build types — and
+the hard-wired `minimal` (Debug) / `full` (Release) `--full` cells whose build
+type is filtered out, and the excluded long-tier types — are never generated
+(unlike `--filter buildtype=…`, which is a post-expansion narrow on the base
+cells). The value is a comma-separated list of CMake build-type names
+(`Debug`, `Release`, `RelWithDebInfo`, `MinSizeRel`, `Sanitize`); matching is
+case-insensitive.
 
 All in-image toolchains satisfy Geneva's requirements (GCC >= 13, Clang >= 18,
 CMake >= 3.27, Boost >= 1.91).
@@ -119,8 +136,14 @@ python3 release_test.py --full plan --dry-run
 # Build the per-OS images (on request only):
 python3 release_test.py provision
 
-# Base-mode build + ctest (SHORT tier). Narrow with --filter:
+# Base-mode build + ctest (SHORT tier), both Debug and Release on every cell:
 python3 release_test.py run --quick
+
+# Faster single-mode runs (only Release, or only Debug):
+python3 release_test.py run --quick --build-type Release
+python3 release_test.py run --quick --build-type Debug
+
+# Narrow further with --filter:
 python3 release_test.py run --quick --filter os=ubuntu-24.04,compiler=clang,buildtype=Debug
 
 # Full release run (SHORT + LONG tiers; hours):
@@ -131,7 +154,8 @@ python3 release_test.py report
 ```
 
 Useful flags: `--backend {podman,docker,multipass,auto}`, `--workdir PATH`,
-`--config PATH`, `--filter key=value[,...]` (keys: `os`, `compiler`,
+`--config PATH`, `--build-type TYPE[,TYPE...]` (restrict to e.g. only `Release`
+or only `Debug`), `--filter key=value[,...]` (keys: `os`, `compiler`,
 `buildtype`, `label`), `--verbose`.
 
 Configuration lives in `config.yaml`; every key has a built-in default, so the

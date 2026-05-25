@@ -23,19 +23,30 @@ def _spec(cfg: Config, compiler: Compiler, build_type: BuildType,
     )
 
 
-def expand(cfg: Config, *, full: bool, gpu_available: bool) -> list[Job]:
+def expand(cfg: Config, *, full: bool, gpu_available: bool,
+           only_build_types: set[BuildType] | None = None) -> list[Job]:
     """Build the full job list for the requested tier.
 
     ``--quick`` (full=False) uses only ``short_build_types`` and the ``base``
     feature set. ``--full`` adds the long build types, the ``minimal`` build
     and the ``full`` (MPI/CUDA/benchmarks) feature set.
+
+    ``only_build_types`` (from ``--build-type``) restricts the matrix to the
+    given build types *before* expansion, so e.g. running only ``Release`` (or
+    only ``Debug``) is faster: the other build types — and the hard-wired
+    ``minimal`` (Debug) / ``full`` (Release) cells whose build type is excluded
+    — are never generated.
     """
+    def allowed(bt: BuildType) -> bool:
+        return only_build_types is None or bt in only_build_types
+
     jobs: list[Job] = []
     base_fs = cfg.feature_sets["base"]
 
-    build_types = list(cfg.short_build_types)
+    build_types = [b for b in cfg.short_build_types if allowed(b)]
     if full:
-        build_types += [b for b in cfg.long_build_types if b not in build_types]
+        build_types += [b for b in cfg.long_build_types
+                        if allowed(b) and b not in build_types]
 
     for guest in cfg.guests:
         for compiler in cfg.compilers:
@@ -47,14 +58,14 @@ def expand(cfg: Config, *, full: bool, gpu_available: bool) -> list[Job]:
             if full:
                 # Minimal build (all options off) — Debug only is enough.
                 mini = cfg.feature_sets.get("minimal")
-                if mini is not None:
+                if mini is not None and allowed(BuildType.DEBUG):
                     jobs.append(Job(
                         guest=guest,
                         spec=_spec(cfg, compiler, BuildType.DEBUG, mini, gpu_available),
                         label="minimal"))
                 # Full-feature build (MPI + benchmarks, CUDA if GPU) — Release.
                 full_fs = cfg.feature_sets.get("full")
-                if full_fs is not None:
+                if full_fs is not None and allowed(BuildType.RELEASE):
                     jobs.append(Job(
                         guest=guest,
                         spec=_spec(cfg, compiler, BuildType.RELEASE, full_fs, gpu_available),
