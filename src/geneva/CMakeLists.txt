@@ -130,6 +130,23 @@ OPTION(GENEVA_ALGO_CGD   "Build the Conjugate Gradient Descent algorithm"  ON)
 OPTION(GENEVA_ALGO_NM    "Build the Nelder-Mead algorithm"                 ON)
 OPTION(GENEVA_ALGO_PS    "Build the Parameter Scan algorithm"              ON)
 
+# Slim-core builds and the test suite are mutually exclusive. The in-library
+# unit-test fixtures (notably GTestIndividual1) and the algorithms' own
+# GEM_TESTING self-tests reference the optimization algorithms by type, so a
+# testing-enabled build needs every algorithm compiled in. Disabling any
+# algorithm while GENEVA_BUILD_TESTS is ON would otherwise fail at link time
+# with a cryptic undefined-reference error; catch it here with a clear message.
+# (Production slim-core builds run with GENEVA_BUILD_TESTS=OFF anyway.)
+IF (GENEVA_BUILD_TESTS AND NOT (GENEVA_ALGO_SA AND GENEVA_ALGO_SWARM
+		AND GENEVA_ALGO_GD AND GENEVA_ALGO_CGD AND GENEVA_ALGO_NM
+		AND GENEVA_ALGO_PS))
+	MESSAGE(FATAL_ERROR
+		"GENEVA_BUILD_TESTS=ON requires all GENEVA_ALGO_* options to be ON: the "
+		"in-library test fixtures reference every optimization algorithm. For a "
+		"slim-core build with an algorithm disabled, configure with "
+		"-DGENEVA_BUILD_TESTS=OFF.")
+ENDIF ()
+
 IF(GENEVA_ALGO_SA)
 	SET(OPTIMIZATIONSOURCES
 			${OPTIMIZATIONSOURCES}
