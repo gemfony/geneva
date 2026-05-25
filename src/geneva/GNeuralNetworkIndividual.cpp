@@ -563,7 +563,7 @@ std::istream &operator>>(std::istream &i, Gem::Geneva::Individuals::transferFunc
 #ifdef DEBUG
     t_f = Gem::Common::narrow<Gem::Geneva::Individuals::transferFunction>(tmp);
 #else
-    tF = static_cast<Gem::Geneva::Individuals::transferFunction>(tmp);
+    t_f = static_cast<Gem::Geneva::Individuals::transferFunction>(tmp);
 #endif /* DEBUG */
 
     return i;
