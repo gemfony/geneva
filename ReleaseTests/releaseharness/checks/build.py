@@ -46,10 +46,21 @@ def configure_and_build(ctx: JobContext) -> list[CheckResult]:
         return [ctx.skipped("build", tier, "LONG tier skipped in --quick")]
 
     # Step 1: configure via prepareBuild.sh using the generated .gcfg.
+    #
+    # --clean is ALWAYS passed (including the SHORT/--quick tier): a release
+    # qualification build must start from a pristine directory so no stale
+    # artifact from a previous run of this cell can mask a problem. prepareBuild
+    # --clean wipes the build dir but keeps *.gcfg files, so the release.gcfg we
+    # just wrote survives. The per-cell dirs are already namespaced by job slug
+    # (os-compiler-buildtype), so different build types / compilers never share
+    # a directory anyway; --clean additionally guarantees a from-scratch compile
+    # on re-runs. The compile time this costs is accepted; --quick stays "quick"
+    # by skipping the LONG-tier checks and long-running benchmarks, not by
+    # reusing build artifacts.
     started = time.monotonic()
     configure_cmd = (
         _write_gcfg(ctx)
-        + f"{GUEST_SRC}/scripts/prepareBuild.sh -y {_GCFG_GUEST_PATH}"
+        + f"{GUEST_SRC}/scripts/prepareBuild.sh -y --clean {_GCFG_GUEST_PATH}"
     )
     res = ctx.exec_in_guest(["bash", "-lc", configure_cmd],
                             workdir=GUEST_BUILD, timeout=900)

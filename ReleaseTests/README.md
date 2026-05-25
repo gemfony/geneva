@@ -102,6 +102,17 @@ a full-feature build (benchmarks + MPI, CUDA when a GPU is present), plus the
 LONG-tier functional checks (consumers, all algorithms, networked example,
 install / out-of-tree, etc.).
 
+**Every build is a clean build.** `prepareBuild.sh --clean` is always invoked
+(in both `--quick` and `--full`), so each matrix cell compiles from a pristine
+directory — no artifact from a previous run can mask a problem. The per-cell
+build directories are already namespaced by job slug
+(`os-compiler-buildtype`), so different build types or compilers never share a
+directory; `--clean` additionally guarantees a from-scratch compile on re-runs.
+The difference between `--quick` and `--full` is therefore **only which checks
+and (long-running) benchmarks run, never the cleanliness of the build** —
+`--quick` skips the LONG-tier functional checks and benchmarks, not the
+compile.
+
 ### Restricting to a single build type (for speed)
 
 To run only one build type across the whole matrix, use `--build-type`:
