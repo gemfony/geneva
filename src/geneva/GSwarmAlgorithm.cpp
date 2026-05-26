@@ -133,21 +133,12 @@ void GSwarmAlgorithm::load_(const GObject *cp) {
     // This will also take care of copying all individuals.
     GBase::load_(cp);
 
-    // ... and then our own data
-    default_n_neighborhood_members_ = p_load->default_n_neighborhood_members_;
-    c_personal_ = p_load->c_personal_;
-    c_neighborhood_ = p_load->c_neighborhood_;
-    c_global_ = p_load->c_global_;
-    c_velocity_ = p_load->c_velocity_;
-    update_rule_ = p_load->update_rule_;
-    random_fill_up_ = p_load->random_fill_up_;
-    repulsion_threshold_ = p_load->repulsion_threshold_;
+    // ... and then our own unconditional data, derived from the single localMembers() declaration
+    Gem::Common::g_load_members(localMembers(), p_load->localMembers());
 
-    dbl_lower_parameter_boundaries_cnt_ = p_load->dbl_lower_parameter_boundaries_cnt_;
-    dbl_upper_parameter_boundaries_cnt_ = p_load->dbl_upper_parameter_boundaries_cnt_;
-    dbl_vel_max_cnt_ = p_load->dbl_vel_max_cnt_;
-
-    velocity_range_percentage_ = p_load->velocity_range_percentage_;
+    // MANUAL tail: the following members are reconstructed conditionally (depending on the
+    // number of neighborhoods, their member counts and the iteration state), so they cannot
+    // be expressed through the unconditional localMembers() tie.
 
     // We start from scratch if the number of neighborhoods or the alleged number of members in them differ
     if(n_neighborhoods_ != p_load->n_neighborhoods_ || not nNeighborhoodMembersEqual(
@@ -249,36 +240,12 @@ void GSwarmAlgorithm::compare_(
     // Compare our parent data ...
     Gem::Common::compare_base_t<GBase>(*this, *p_load, token);
 
-    // ... and then the local data
+    // ... and then the unconditional local data, derived from the single localMembers() declaration
+    g_compare_members(localMembers(), p_load->localMembers(), token);
+
+    // MANUAL tail: the conditionally-reconstructed members (see load_()).
     compare_t(IDENTITY(n_neighborhoods_, p_load->n_neighborhoods_), token);
-    compare_t(
-        IDENTITY(default_n_neighborhood_members_, p_load->default_n_neighborhood_members_),
-        token
-    );
     compare_t(IDENTITY(global_best_ptr_, p_load->global_best_ptr_), token);
-    compare_t(IDENTITY(c_personal_, p_load->c_personal_), token);
-    compare_t(IDENTITY(c_neighborhood_, p_load->c_neighborhood_), token);
-    compare_t(IDENTITY(c_global_, p_load->c_global_), token);
-    compare_t(IDENTITY(c_velocity_, p_load->c_velocity_), token);
-    compare_t(IDENTITY(update_rule_, p_load->update_rule_), token);
-    compare_t(IDENTITY(random_fill_up_, p_load->random_fill_up_), token);
-    compare_t(IDENTITY(repulsion_threshold_, p_load->repulsion_threshold_), token);
-    compare_t(
-        IDENTITY(
-            dbl_lower_parameter_boundaries_cnt_,
-            p_load->dbl_lower_parameter_boundaries_cnt_
-        ),
-        token
-    );
-    compare_t(
-        IDENTITY(
-            dbl_upper_parameter_boundaries_cnt_,
-            p_load->dbl_upper_parameter_boundaries_cnt_
-        ),
-        token
-    );
-    compare_t(IDENTITY(dbl_vel_max_cnt_, p_load->dbl_vel_max_cnt_), token);
-    compare_t(IDENTITY(velocity_range_percentage_, p_load->velocity_range_percentage_), token);
 
     // The next checks only makes sense if the number of neighborhoods are equal
     if(n_neighborhoods_ == p_load->n_neighborhoods_) {

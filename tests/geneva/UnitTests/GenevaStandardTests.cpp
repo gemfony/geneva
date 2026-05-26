@@ -659,3 +659,147 @@ TEST_CASE(
         CHECK(gep.isSimilar(restored, original));
     }
 }
+
+// Safety net for the oa::GSwarmAlgorithm serialize()/load_()/compare_() unification
+// onto a single localMembers() declaration (the unconditional members) plus a manual
+// tail for the conditionally-reconstructed neighborhood/global-best members. This test
+// sets several of the about-to-be-tied members to NON-DEFAULT values and verifies they
+// survive a wire round-trip AND an in-memory load() (clone path), guarding against the
+// default-value masking that hides a dropped member.
+TEST_CASE(
+    "oa::GSwarmAlgorithm round-trips its members in TEXT, XML, BINARY and via load()",
+    "[geneva][serialization]"
+) {
+    using Gem::Common::serializationMode;
+
+    auto makeOriginal = []() {
+        oa::GSwarmAlgorithm a;
+        // Non-default values for several of the localMembers()-tied members.
+        a.setCPersonal(1.75);
+        a.setCNeighborhood(2.25);
+        a.setCGlobal(3.5);
+        a.setCVelocity(0.875);
+        a.setVelocityRangePercentage(0.42);
+        a.setUpdateRule(updateRule::SWARM_UPDATERULE_LINEAR);
+        a.setRepulsionThreshold(17);
+        a.setNeighborhoodsRandomFillUp(false);
+        return a;
+    };
+
+    auto checkGetters = [](const oa::GSwarmAlgorithm &restored) {
+        CHECK(restored.getCPersonal() == 1.75);
+        CHECK(restored.getCNeighborhood() == 2.25);
+        CHECK(restored.getCGlobal() == 3.5);
+        CHECK(restored.getCVelocity() == 0.875);
+        CHECK(restored.getVelocityRangePercentage() == 0.42);
+        CHECK(restored.getUpdateRule() == updateRule::SWARM_UPDATERULE_LINEAR);
+        CHECK(restored.getRepulsionThreshold() == 17);
+        CHECK(restored.neighborhoodsFilledUpRandomly() == false);
+    };
+
+    // --- in-memory load() (clone path) ---
+    {
+        oa::GSwarmAlgorithm original = makeOriginal();
+        oa::GSwarmAlgorithm restored;
+        restored.setCPersonal(0.1);
+        restored.setNeighborhoodsRandomFillUp(true);
+
+        REQUIRE_NOTHROW(restored.GObject::load(original));
+        checkGetters(restored);
+
+        GEqualityPrinter gep(
+            "GSwarmAlgorithm-load-roundtrip",
+            pow(10, -7),
+            Gem::Common::CE_WITH_MESSAGES
+        );
+        CHECK(gep.isSimilar(restored, original));
+    }
+
+    // --- wire round-trip in all three modes ---
+    for (auto mode :
+         {serializationMode::TEXT, serializationMode::XML, serializationMode::BINARY}) {
+        oa::GSwarmAlgorithm original = makeOriginal();
+        oa::GSwarmAlgorithm restored;
+        restored.setCPersonal(0.1);
+        restored.setNeighborhoodsRandomFillUp(true);
+
+        REQUIRE_NOTHROW(
+            restored.GObject::fromString(original.GObject::toString(mode), mode)
+        );
+        checkGetters(restored);
+
+        GEqualityPrinter gep(
+            "GSwarmAlgorithm-roundtrip",
+            pow(10, -7),
+            Gem::Common::CE_WITH_MESSAGES
+        );
+        CHECK(gep.isSimilar(restored, original));
+    }
+}
+
+// Safety net for the oa::GParameterScan serialize()/load_()/compare_() unification
+// onto a single localMembers() declaration (the plain members) plus a manual tail
+// (the scan-parameter vectors, whose element type lacks the Gemfony common interface,
+// and the load-only transient cycle_logic_halt_). This test sets several of the
+// about-to-be-tied plain members to NON-DEFAULT values and verifies they survive a
+// wire round-trip AND an in-memory load() (clone path).
+TEST_CASE(
+    "oa::GParameterScan round-trips its members in TEXT, XML, BINARY and via load()",
+    "[geneva][serialization]"
+) {
+    using Gem::Common::serializationMode;
+
+    auto makeOriginal = []() {
+        oa::GParameterScan a;
+        // Non-default values for the localMembers()-tied plain members.
+        a.setScanRandomly(false);    // default is true
+        a.setNMonitorInds(42);       // default is DEFAULTNMONITORINDS (10)
+        a.setNSimpleScans(7);        // sets simple_scan_items_ (default 0)
+        return a;
+    };
+
+    auto checkGetters = [](const oa::GParameterScan &restored) {
+        CHECK(restored.getScanRandomly() == false);
+        CHECK(restored.getNMonitorInds() == 42);
+        CHECK(restored.getNSimpleScans() == 7);
+    };
+
+    // --- in-memory load() (clone path) ---
+    {
+        oa::GParameterScan original = makeOriginal();
+        oa::GParameterScan restored;
+        restored.setScanRandomly(true);
+        restored.setNMonitorInds(1);
+
+        REQUIRE_NOTHROW(restored.GObject::load(original));
+        checkGetters(restored);
+
+        GEqualityPrinter gep(
+            "GParameterScan-load-roundtrip",
+            pow(10, -7),
+            Gem::Common::CE_WITH_MESSAGES
+        );
+        CHECK(gep.isSimilar(restored, original));
+    }
+
+    // --- wire round-trip in all three modes ---
+    for (auto mode :
+         {serializationMode::TEXT, serializationMode::XML, serializationMode::BINARY}) {
+        oa::GParameterScan original = makeOriginal();
+        oa::GParameterScan restored;
+        restored.setScanRandomly(true);
+        restored.setNMonitorInds(1);
+
+        REQUIRE_NOTHROW(
+            restored.GObject::fromString(original.GObject::toString(mode), mode)
+        );
+        checkGetters(restored);
+
+        GEqualityPrinter gep(
+            "GParameterScan-roundtrip",
+            pow(10, -7),
+            Gem::Common::CE_WITH_MESSAGES
+        );
+        CHECK(gep.isSimilar(restored, original));
+    }
+}

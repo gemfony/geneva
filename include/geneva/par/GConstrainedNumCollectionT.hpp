@@ -64,14 +64,31 @@ class GConstrainedNumCollectionT // NOLINT(cppcoreguidelines-special-member-func
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
+    /** @brief Single declaration of this class'es local data members (all plain scalars,
+     * handled unconditionally in serialize()/load_()/compare_()). The data container
+     * itself is owned and handled by the parent GParameterCollectionT<num_type>. */
+    auto localMembers() {
+        return std::make_tuple(
+            Gem::Common::make_member("lower_boundary_", lower_boundary_),
+            Gem::Common::make_member("upper_boundary_", upper_boundary_)
+        );
+    }
+    auto localMembers() const {
+        return std::make_tuple(
+            Gem::Common::make_member("lower_boundary_", lower_boundary_),
+            Gem::Common::make_member("upper_boundary_", upper_boundary_)
+        );
+    }
+
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
         ar &make_nvp(
             "GParameterCollectionT",
             boost::serialization::base_object<GParameterCollectionT<num_type>>(*this)
-        ) & BOOST_SERIALIZATION_NVP(lower_boundary_) &
-            BOOST_SERIALIZATION_NVP(upper_boundary_);
+        );
+        // Local members derived from the single localMembers() declaration.
+        Gem::Common::serialize_members(ar, this->localMembers());
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -384,9 +401,8 @@ protected:
         // Load our parent class'es data ...
         GParameterCollectionT<num_type>::load_(cp);
 
-        // ... and then our local data
-        lower_boundary_ = p_load->lower_boundary_;
-        upper_boundary_ = p_load->upper_boundary_;
+        // ... and then our local data, derived from the single localMembers() declaration
+        Gem::Common::g_load_members(localMembers(), p_load->localMembers());
     }
 
     /***************************************************************************/
@@ -425,9 +441,8 @@ protected:
         // Compare our parent data ...
         Gem::Common::compare_base_t<GParameterCollectionT<num_type>>(*this, *p_load, token);
 
-        // ... and then the local data
-        compare_t(IDENTITY(lower_boundary_, p_load->lower_boundary_), token);
-        compare_t(IDENTITY(upper_boundary_, p_load->upper_boundary_), token);
+        // ... and then the local data, derived from the single localMembers() declaration
+        g_compare_members(localMembers(), p_load->localMembers(), token);
 
         // React on deviations from the expectation
         token.evaluate();

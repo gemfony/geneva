@@ -65,26 +65,59 @@ class GSwarmAlgorithm // NOLINT(cppcoreguidelines-special-member-functions)
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
+    /** @brief Single declaration of this class'es UNCONDITIONALLY-handled local data members.
+     *
+     * Only members whose load_() is a plain, unconditional assignment live here. The
+     * conditionally-reconstructed members (n_neighborhoods_, n_neighborhood_members_cnt_,
+     * neighborhood_bests_cnt_, global_best_ptr_) are handled in a manual tail in
+     * serialize()/load_()/compare_() because their load_() depends on neighborhood count,
+     * iteration state and per-element clone()/load(). */
+    auto localMembers() {
+        return std::make_tuple(
+            Gem::Common::make_member("default_n_neighborhood_members_", default_n_neighborhood_members_),
+            Gem::Common::make_member("c_personal_", c_personal_),
+            Gem::Common::make_member("c_neighborhood_", c_neighborhood_),
+            Gem::Common::make_member("c_global_", c_global_),
+            Gem::Common::make_member("c_velocity_", c_velocity_),
+            Gem::Common::make_member("update_rule_", update_rule_),
+            Gem::Common::make_member("random_fill_up_", random_fill_up_),
+            Gem::Common::make_member("repulsion_threshold_", repulsion_threshold_),
+            Gem::Common::make_member("dbl_lower_parameter_boundaries_cnt_", dbl_lower_parameter_boundaries_cnt_),
+            Gem::Common::make_member("dbl_upper_parameter_boundaries_cnt_", dbl_upper_parameter_boundaries_cnt_),
+            Gem::Common::make_member("dbl_vel_max_cnt_", dbl_vel_max_cnt_),
+            Gem::Common::make_member("velocity_range_percentage_", velocity_range_percentage_)
+        );
+    }
+    auto localMembers() const {
+        return std::make_tuple(
+            Gem::Common::make_member("default_n_neighborhood_members_", default_n_neighborhood_members_),
+            Gem::Common::make_member("c_personal_", c_personal_),
+            Gem::Common::make_member("c_neighborhood_", c_neighborhood_),
+            Gem::Common::make_member("c_global_", c_global_),
+            Gem::Common::make_member("c_velocity_", c_velocity_),
+            Gem::Common::make_member("update_rule_", update_rule_),
+            Gem::Common::make_member("random_fill_up_", random_fill_up_),
+            Gem::Common::make_member("repulsion_threshold_", repulsion_threshold_),
+            Gem::Common::make_member("dbl_lower_parameter_boundaries_cnt_", dbl_lower_parameter_boundaries_cnt_),
+            Gem::Common::make_member("dbl_upper_parameter_boundaries_cnt_", dbl_upper_parameter_boundaries_cnt_),
+            Gem::Common::make_member("dbl_vel_max_cnt_", dbl_vel_max_cnt_),
+            Gem::Common::make_member("velocity_range_percentage_", velocity_range_percentage_)
+        );
+    }
+
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar &make_nvp(
-            "GBase",
-            boost::serialization::base_object<GBase>(*this)
-        ) & BOOST_SERIALIZATION_NVP(n_neighborhoods_) &
-            BOOST_SERIALIZATION_NVP(default_n_neighborhood_members_) &
+        ar &make_nvp("GBase", boost::serialization::base_object<GBase>(*this));
+        // Unconditional members derived from the single localMembers() declaration ...
+        Gem::Common::serialize_members(ar, this->localMembers());
+        // ... and the manual tail for the conditionally-reconstructed members (kept as
+        // separate NVPs, with the same names as before).
+        ar & BOOST_SERIALIZATION_NVP(n_neighborhoods_) &
             BOOST_SERIALIZATION_NVP(n_neighborhood_members_cnt_) &
             BOOST_SERIALIZATION_NVP(global_best_ptr_) &
-            BOOST_SERIALIZATION_NVP(neighborhood_bests_cnt_) &
-            BOOST_SERIALIZATION_NVP(c_personal_) & BOOST_SERIALIZATION_NVP(c_neighborhood_) &
-            BOOST_SERIALIZATION_NVP(c_global_) & BOOST_SERIALIZATION_NVP(c_velocity_) &
-            BOOST_SERIALIZATION_NVP(update_rule_) & BOOST_SERIALIZATION_NVP(random_fill_up_) &
-            BOOST_SERIALIZATION_NVP(repulsion_threshold_) &
-            BOOST_SERIALIZATION_NVP(dbl_lower_parameter_boundaries_cnt_) &
-            BOOST_SERIALIZATION_NVP(dbl_upper_parameter_boundaries_cnt_) &
-            BOOST_SERIALIZATION_NVP(dbl_vel_max_cnt_) &
-            BOOST_SERIALIZATION_NVP(velocity_range_percentage_);
+            BOOST_SERIALIZATION_NVP(neighborhood_bests_cnt_);
     }
     ///////////////////////////////////////////////////////////////////////
 

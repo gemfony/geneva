@@ -370,12 +370,12 @@ void GParameterScan::compare_(
     // Compare our parent data ...
     Gem::Common::compare_base_t<GBase>(*this, *p_load, token);
 
-    // ... and then the local data
+    // ... and then the unconditional plain local data, derived from the single localMembers() declaration
+    g_compare_members(localMembers(), p_load->localMembers(), token);
+
+    // MANUAL tail: cycle_logic_halt_ is a load-only transient but still compared here
+    // (the parameter-object vectors are intentionally not compared, as before).
     compare_t(IDENTITY(cycle_logic_halt_, p_load->cycle_logic_halt_), token);
-    compare_t(IDENTITY(scan_randomly_, p_load->scan_randomly_), token);
-    compare_t(IDENTITY(n_monitor_inds_, p_load->n_monitor_inds_), token);
-    compare_t(IDENTITY(simple_scan_items_, p_load->simple_scan_items_), token);
-    compare_t(IDENTITY(scans_performed_, p_load->scans_performed_), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -445,14 +445,15 @@ void GParameterScan::load_(const GObject *cp) {
     // This will also take care of copying all individuals.
     GBase::load_(cp);
 
-    // ... and then our own data
-    cycle_logic_halt_ = p_load->cycle_logic_halt_;
-    scan_randomly_ = p_load->scan_randomly_;
-    n_monitor_inds_ = p_load->n_monitor_inds_;
-    simple_scan_items_ = p_load->simple_scan_items_;
-    scans_performed_ = p_load->scans_performed_;
+    // ... and then our own unconditional plain data, derived from the single localMembers() declaration
+    Gem::Common::g_load_members(localMembers(), p_load->localMembers());
 
-    // Load the parameter objects
+    // MANUAL tail (asymmetric / load-only):
+    // cycle_logic_halt_ is a load-only transient (not serialized).
+    cycle_logic_halt_ = p_load->cycle_logic_halt_;
+
+    // Load the parameter objects (their element type lacks the Gemfony common interface,
+    // so they are deep-copied via the scan classes' own clone()).
     b_cnt_.clear();
     for(const auto &p : p_load->b_cnt_)     b_cnt_.push_back(p->clone());
 
