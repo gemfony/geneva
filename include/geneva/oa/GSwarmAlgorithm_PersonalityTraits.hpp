@@ -53,14 +53,46 @@ class GSwarmAlgorithm_PersonalityTraits // NOLINT(cppcoreguidelines-special-memb
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
+    /***************************************************************************/
+    /**
+     * Single declaration of this class'es unconditionally-handled local data
+     * members. This drives serialize(), load_() and compare_() from one place.
+     *
+     * Handled manually (NOT in this tuple): personal_best_, a
+     * std::shared_ptr<gpar::GParameterSet>. It is deep-cloned on load, but the
+     * load (and the copy constructor) additionally call resetPersonality() on
+     * the clone to avoid building a "chain" of individuals. That extra
+     * post-clone step is asymmetric to a plain make_cloneable_member() deep
+     * clone, so personal_best_ stays in the documented manual tail of
+     * serialize()/load_()/compare_().
+     */
+    auto localMembers() {
+        return std::make_tuple(
+            Gem::Common::make_member("neighborhood_", neighborhood_),
+            Gem::Common::make_member("no_position_update_", no_position_update_),
+            Gem::Common::make_member("personal_best_quality_", personal_best_quality_)
+        );
+    }
+    auto localMembers() const {
+        return std::make_tuple(
+            Gem::Common::make_member("neighborhood_", neighborhood_),
+            Gem::Common::make_member("no_position_update_", no_position_update_),
+            Gem::Common::make_member("personal_best_quality_", personal_best_quality_)
+        );
+    }
+
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPersonalityTraits) &
-            BOOST_SERIALIZATION_NVP(neighborhood_) & BOOST_SERIALIZATION_NVP(no_position_update_) &
-            BOOST_SERIALIZATION_NVP(personal_best_) &
-            BOOST_SERIALIZATION_NVP(personal_best_quality_);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPersonalityTraits);
+
+        // The unconditionally-handled local members, derived from the single
+        // localMembers() declaration.
+        Gem::Common::serialize_members(ar, this->localMembers());
+
+        // Manual tail: personal_best_ (deep-cloned + personality-reset on load).
+        ar & BOOST_SERIALIZATION_NVP(personal_best_);
     }
     ///////////////////////////////////////////////////////////////////////
 

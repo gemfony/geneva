@@ -140,6 +140,37 @@ class GFitnessMonitor // NOLINT(cppcoreguidelines-special-member-functions)
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
+    /***************************************************************************/
+    /**
+     * Single declaration of this class'es local data members, driving
+     * serialize(), load_() and compare_() from one place. All members are
+     * handled unconditionally: the two graph vectors are deep-cloned on load
+     * (make_cloneable_container_member); the rest are plain (make_member).
+     * No manual tail is needed.
+     */
+    auto localMembers() {
+        return std::make_tuple(
+            Gem::Common::make_member("x_dim_", x_dim_),
+            Gem::Common::make_member("y_dim_", y_dim_),
+            Gem::Common::make_member("n_monitor_inds_", n_monitor_inds_),
+            Gem::Common::make_member("result_file_", result_file_),
+            Gem::Common::make_member("info_init_run_", info_init_run_),
+            Gem::Common::make_cloneable_container_member("global_fitness_graph_vec_", global_fitness_graph_vec_),
+            Gem::Common::make_cloneable_container_member("iteration_fitness_graph_vec_", iteration_fitness_graph_vec_)
+        );
+    }
+    auto localMembers() const {
+        return std::make_tuple(
+            Gem::Common::make_member("x_dim_", x_dim_),
+            Gem::Common::make_member("y_dim_", y_dim_),
+            Gem::Common::make_member("n_monitor_inds_", n_monitor_inds_),
+            Gem::Common::make_member("result_file_", result_file_),
+            Gem::Common::make_member("info_init_run_", info_init_run_),
+            Gem::Common::make_cloneable_container_member("global_fitness_graph_vec_", global_fitness_graph_vec_),
+            Gem::Common::make_cloneable_container_member("iteration_fitness_graph_vec_", iteration_fitness_graph_vec_)
+        );
+    }
+
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
@@ -147,11 +178,10 @@ class GFitnessMonitor // NOLINT(cppcoreguidelines-special-member-functions)
         ar &make_nvp(
             "GBasePluggableOM",
             boost::serialization::base_object<oa::GBasePluggableOM>(*this)
-        ) & BOOST_SERIALIZATION_NVP(x_dim_) &
-            BOOST_SERIALIZATION_NVP(y_dim_) & BOOST_SERIALIZATION_NVP(n_monitor_inds_) &
-            BOOST_SERIALIZATION_NVP(result_file_) & BOOST_SERIALIZATION_NVP(info_init_run_) &
-            BOOST_SERIALIZATION_NVP(global_fitness_graph_vec_) &
-            BOOST_SERIALIZATION_NVP(iteration_fitness_graph_vec_);
+        );
+
+        // All members are derived from the single localMembers() declaration.
+        Gem::Common::serialize_members(ar, this->localMembers());
     }
 
     ///////////////////////////////////////////////////////////////////////
@@ -251,6 +281,28 @@ class GCollectiveMonitor // NOLINT(cppcoreguidelines-special-member-functions)
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
+    /***************************************************************************/
+    /**
+     * Single declaration of this class'es only local data member,
+     * pluggable_monitors_ (a container of cloneable monitor pointers), driving
+     * load_() and compare_() from one place via make_cloneable_container_member.
+     *
+     * serialize() is intentionally NOT derived from this: it needs a load-time
+     * pluggable_monitors_.clear() workaround (a Boost issue) before reading the
+     * container, which serialize_members() cannot express. So serialize() keeps
+     * its bespoke body below.
+     */
+    auto localMembers() {
+        return std::make_tuple(
+            Gem::Common::make_cloneable_container_member("pluggable_monitors_", pluggable_monitors_)
+        );
+    }
+    auto localMembers() const {
+        return std::make_tuple(
+            Gem::Common::make_cloneable_container_member("pluggable_monitors_", pluggable_monitors_)
+        );
+    }
+
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
@@ -341,6 +393,46 @@ class GProgressPlotterT // NOLINT(cppcoreguidelines-special-member-functions)
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
+    /***************************************************************************/
+    /**
+     * Single declaration of this class'es unconditionally-handled local data
+     * members, driving serialize(), load_() and compare_() from one place.
+     * The three progress_plotter*_d_oa_ smart pointers are deep-cloned on load
+     * (make_cloneable_member); the rest are plain config members (make_member).
+     *
+     * Handled manually (NOT in this tuple): fp_prof_var_vec_, a
+     * std::vector<parPropSpec<fp_type>> of VALUE objects deep-copied via
+     * copyCloneableObjectsContainer() (no tagged tie for value containers), and
+     * gpd_, a GPlotDesigner VALUE member loaded via gpd_.load() rather than a
+     * plain assignment. Both stay in the documented manual tail.
+     */
+    auto localMembers() {
+        return std::make_tuple(
+            Gem::Common::make_cloneable_member("progress_plotter2_d_oa_", progress_plotter2_d_oa_),
+            Gem::Common::make_cloneable_member("progress_plotter3_d_oa_", progress_plotter3_d_oa_),
+            Gem::Common::make_cloneable_member("progress_plotter4_d_oa_", progress_plotter4_d_oa_),
+            Gem::Common::make_member("file_name_", file_name_),
+            Gem::Common::make_member("canvas_dimensions_", canvas_dimensions_),
+            Gem::Common::make_member("monitor_best_only_", monitor_best_only_),
+            Gem::Common::make_member("monitor_valid_only_", monitor_valid_only_),
+            Gem::Common::make_member("observe_boundaries_", observe_boundaries_),
+            Gem::Common::make_member("add_print_command_", add_print_command_)
+        );
+    }
+    auto localMembers() const {
+        return std::make_tuple(
+            Gem::Common::make_cloneable_member("progress_plotter2_d_oa_", progress_plotter2_d_oa_),
+            Gem::Common::make_cloneable_member("progress_plotter3_d_oa_", progress_plotter3_d_oa_),
+            Gem::Common::make_cloneable_member("progress_plotter4_d_oa_", progress_plotter4_d_oa_),
+            Gem::Common::make_member("file_name_", file_name_),
+            Gem::Common::make_member("canvas_dimensions_", canvas_dimensions_),
+            Gem::Common::make_member("monitor_best_only_", monitor_best_only_),
+            Gem::Common::make_member("monitor_valid_only_", monitor_valid_only_),
+            Gem::Common::make_member("observe_boundaries_", observe_boundaries_),
+            Gem::Common::make_member("add_print_command_", add_print_command_)
+        );
+    }
+
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
@@ -348,15 +440,14 @@ class GProgressPlotterT // NOLINT(cppcoreguidelines-special-member-functions)
         ar &make_nvp(
             "GBasePluggableOM",
             boost::serialization::base_object<oa::GBasePluggableOM>(*this)
-        ) & BOOST_SERIALIZATION_NVP(fp_prof_var_vec_) &
-            BOOST_SERIALIZATION_NVP(gpd_) & BOOST_SERIALIZATION_NVP(progress_plotter2_d_oa_) &
-            BOOST_SERIALIZATION_NVP(progress_plotter3_d_oa_) &
-            BOOST_SERIALIZATION_NVP(progress_plotter4_d_oa_) & BOOST_SERIALIZATION_NVP(file_name_) &
-            BOOST_SERIALIZATION_NVP(canvas_dimensions_) &
-            BOOST_SERIALIZATION_NVP(monitor_best_only_) &
-            BOOST_SERIALIZATION_NVP(monitor_valid_only_) &
-            BOOST_SERIALIZATION_NVP(observe_boundaries_) &
-            BOOST_SERIALIZATION_NVP(add_print_command_);
+        );
+
+        // Manual tail (kept first to preserve the wire order): the value-object
+        // container and the GPlotDesigner value member.
+        ar & BOOST_SERIALIZATION_NVP(fp_prof_var_vec_) & BOOST_SERIALIZATION_NVP(gpd_);
+
+        // The unconditionally-handled members, derived from localMembers().
+        Gem::Common::serialize_members(ar, this->localMembers());
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -646,18 +737,12 @@ protected:
         // Load the parent classes' data ...
         oa::GBasePluggableOM::load_(cp);
 
-        // ... and then our local data
+        // ... the manual tail (value container + GPlotDesigner value member) ...
         Gem::Common::copyCloneableObjectsContainer(p_load->fp_prof_var_vec_, fp_prof_var_vec_);
         gpd_.load(p_load->gpd_);
-        copyCloneableSmartPointer(p_load->progress_plotter2_d_oa_, progress_plotter2_d_oa_);
-        copyCloneableSmartPointer(p_load->progress_plotter3_d_oa_, progress_plotter3_d_oa_);
-        copyCloneableSmartPointer(p_load->progress_plotter4_d_oa_, progress_plotter4_d_oa_);
-        file_name_ = p_load->file_name_;
-        canvas_dimensions_ = p_load->canvas_dimensions_;
-        monitor_best_only_ = p_load->monitor_best_only_;
-        monitor_valid_only_ = p_load->monitor_valid_only_;
-        observe_boundaries_ = p_load->observe_boundaries_;
-        add_print_command_ = p_load->add_print_command_;
+
+        // ... and then the unconditionally-handled members, derived from localMembers().
+        Gem::Common::g_load_members(localMembers(), p_load->localMembers());
     }
 
     /***************************************************************************/
@@ -692,18 +777,12 @@ protected:
         // Compare our parent data ...
         Gem::Common::compare_base_t<oa::GBasePluggableOM>(*this, *p_load, token);
 
-        // ... and then our local data
+        // ... the manual tail (value container + GPlotDesigner value member) ...
         compare_t(IDENTITY(fp_prof_var_vec_, p_load->fp_prof_var_vec_), token);
         compare_t(IDENTITY(gpd_, p_load->gpd_), token);
-        compare_t(IDENTITY(progress_plotter2_d_oa_, p_load->progress_plotter2_d_oa_), token);
-        compare_t(IDENTITY(progress_plotter3_d_oa_, p_load->progress_plotter3_d_oa_), token);
-        compare_t(IDENTITY(progress_plotter4_d_oa_, p_load->progress_plotter4_d_oa_), token);
-        compare_t(IDENTITY(file_name_, p_load->file_name_), token);
-        compare_t(IDENTITY(canvas_dimensions_, p_load->canvas_dimensions_), token);
-        compare_t(IDENTITY(monitor_best_only_, p_load->monitor_best_only_), token);
-        compare_t(IDENTITY(monitor_valid_only_, p_load->monitor_valid_only_), token);
-        compare_t(IDENTITY(observe_boundaries_, p_load->observe_boundaries_), token);
-        compare_t(IDENTITY(add_print_command_, p_load->add_print_command_), token);
+
+        // ... and then the unconditionally-handled members, derived from localMembers().
+        Gem::Common::g_compare_members(localMembers(), p_load->localMembers(), token);
 
         // React on deviations from the expectation
         token.evaluate();
@@ -1121,6 +1200,39 @@ class GAllSolutionFileLogger // NOLINT(cppcoreguidelines-special-member-function
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
+    /***************************************************************************/
+    /**
+     * Single declaration of this class'es local data members, driving
+     * serialize(), load_() and compare_() from one place. All members are plain
+     * config values (make_member); no manual tail is needed.
+     */
+    auto localMembers() {
+        return std::make_tuple(
+            Gem::Common::make_member("file_name_", file_name_),
+            Gem::Common::make_member("boundaries_", boundaries_),
+            Gem::Common::make_member("boundaries_active_", boundaries_active_),
+            Gem::Common::make_member("with_name_and_type_", with_name_and_type_),
+            Gem::Common::make_member("with_commas_", with_commas_),
+            Gem::Common::make_member("use_raw_fitness_", use_raw_fitness_),
+            Gem::Common::make_member("show_validity_", show_validity_),
+            Gem::Common::make_member("print_initial_", print_initial_),
+            Gem::Common::make_member("show_iteration_boundaries_", show_iteration_boundaries_)
+        );
+    }
+    auto localMembers() const {
+        return std::make_tuple(
+            Gem::Common::make_member("file_name_", file_name_),
+            Gem::Common::make_member("boundaries_", boundaries_),
+            Gem::Common::make_member("boundaries_active_", boundaries_active_),
+            Gem::Common::make_member("with_name_and_type_", with_name_and_type_),
+            Gem::Common::make_member("with_commas_", with_commas_),
+            Gem::Common::make_member("use_raw_fitness_", use_raw_fitness_),
+            Gem::Common::make_member("show_validity_", show_validity_),
+            Gem::Common::make_member("print_initial_", print_initial_),
+            Gem::Common::make_member("show_iteration_boundaries_", show_iteration_boundaries_)
+        );
+    }
+
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
@@ -1128,12 +1240,10 @@ class GAllSolutionFileLogger // NOLINT(cppcoreguidelines-special-member-function
         ar &make_nvp(
             "GBasePluggableOM",
             boost::serialization::base_object<oa::GBasePluggableOM>(*this)
-        ) & BOOST_SERIALIZATION_NVP(file_name_) &
-            BOOST_SERIALIZATION_NVP(boundaries_) & BOOST_SERIALIZATION_NVP(boundaries_active_) &
-            BOOST_SERIALIZATION_NVP(with_name_and_type_) & BOOST_SERIALIZATION_NVP(with_commas_) &
-            BOOST_SERIALIZATION_NVP(use_raw_fitness_) & BOOST_SERIALIZATION_NVP(show_validity_) &
-            BOOST_SERIALIZATION_NVP(print_initial_) &
-            BOOST_SERIALIZATION_NVP(show_iteration_boundaries_);
+        );
+
+        // All members are derived from the single localMembers() declaration.
+        Gem::Common::serialize_members(ar, this->localMembers());
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -1269,6 +1379,27 @@ class GIterationResultsFileLogger // NOLINT(cppcoreguidelines-special-member-fun
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
+    /***************************************************************************/
+    /**
+     * Single declaration of this class'es local data members, driving
+     * serialize(), load_() and compare_() from one place. All members are plain
+     * config values (make_member); no manual tail is needed.
+     */
+    auto localMembers() {
+        return std::make_tuple(
+            Gem::Common::make_member("file_name_", file_name_),
+            Gem::Common::make_member("with_commas_", with_commas_),
+            Gem::Common::make_member("use_raw_fitness_", use_raw_fitness_)
+        );
+    }
+    auto localMembers() const {
+        return std::make_tuple(
+            Gem::Common::make_member("file_name_", file_name_),
+            Gem::Common::make_member("with_commas_", with_commas_),
+            Gem::Common::make_member("use_raw_fitness_", use_raw_fitness_)
+        );
+    }
+
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
@@ -1276,8 +1407,10 @@ class GIterationResultsFileLogger // NOLINT(cppcoreguidelines-special-member-fun
         ar &make_nvp(
             "GBasePluggableOM",
             boost::serialization::base_object<oa::GBasePluggableOM>(*this)
-        ) & BOOST_SERIALIZATION_NVP(file_name_) &
-            BOOST_SERIALIZATION_NVP(with_commas_) & BOOST_SERIALIZATION_NVP(use_raw_fitness_);
+        );
+
+        // All members are derived from the single localMembers() declaration.
+        Gem::Common::serialize_members(ar, this->localMembers());
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -1365,6 +1498,46 @@ class GNAdpationsLogger // NOLINT(cppcoreguidelines-special-member-functions)
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
+    /***************************************************************************/
+    /**
+     * Single declaration of this class'es local data members, driving
+     * serialize(), load_() and compare_() from one place. All members are
+     * handled unconditionally: the three GGraph/GHistogram smart pointers are
+     * deep-cloned on load (make_cloneable_member); every other member (including
+     * the gpd_ GPlotDesigner value, which load_() assigns plainly) uses
+     * make_member. No manual tail is needed.
+     */
+    auto localMembers() {
+        return std::make_tuple(
+            Gem::Common::make_member("file_name_", file_name_),
+            Gem::Common::make_member("canvas_dimensions_", canvas_dimensions_),
+            Gem::Common::make_member("gpd_", gpd_),
+            Gem::Common::make_cloneable_member("n_adaptions_hist2_d_oa_", n_adaptions_hist2_d_oa_),
+            Gem::Common::make_cloneable_member("n_adaptions_graph2_d_oa_", n_adaptions_graph2_d_oa_),
+            Gem::Common::make_cloneable_member("fitness_graph2_d_oa_", fitness_graph2_d_oa_),
+            Gem::Common::make_member("monitor_best_only_", monitor_best_only_),
+            Gem::Common::make_member("add_print_command_", add_print_command_),
+            Gem::Common::make_member("max_iteration_", max_iteration_),
+            Gem::Common::make_member("n_iterations_recorded_", n_iterations_recorded_),
+            Gem::Common::make_member("n_adaptions_store_", n_adaptions_store_)
+        );
+    }
+    auto localMembers() const {
+        return std::make_tuple(
+            Gem::Common::make_member("file_name_", file_name_),
+            Gem::Common::make_member("canvas_dimensions_", canvas_dimensions_),
+            Gem::Common::make_member("gpd_", gpd_),
+            Gem::Common::make_cloneable_member("n_adaptions_hist2_d_oa_", n_adaptions_hist2_d_oa_),
+            Gem::Common::make_cloneable_member("n_adaptions_graph2_d_oa_", n_adaptions_graph2_d_oa_),
+            Gem::Common::make_cloneable_member("fitness_graph2_d_oa_", fitness_graph2_d_oa_),
+            Gem::Common::make_member("monitor_best_only_", monitor_best_only_),
+            Gem::Common::make_member("add_print_command_", add_print_command_),
+            Gem::Common::make_member("max_iteration_", max_iteration_),
+            Gem::Common::make_member("n_iterations_recorded_", n_iterations_recorded_),
+            Gem::Common::make_member("n_adaptions_store_", n_adaptions_store_)
+        );
+    }
+
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
@@ -1372,15 +1545,10 @@ class GNAdpationsLogger // NOLINT(cppcoreguidelines-special-member-functions)
         ar &make_nvp(
             "GBasePluggableOM",
             boost::serialization::base_object<oa::GBasePluggableOM>(*this)
-        ) & BOOST_SERIALIZATION_NVP(file_name_) &
-            BOOST_SERIALIZATION_NVP(canvas_dimensions_) & BOOST_SERIALIZATION_NVP(gpd_) &
-            BOOST_SERIALIZATION_NVP(n_adaptions_hist2_d_oa_) &
-            BOOST_SERIALIZATION_NVP(n_adaptions_graph2_d_oa_) &
-            BOOST_SERIALIZATION_NVP(fitness_graph2_d_oa_) &
-            BOOST_SERIALIZATION_NVP(monitor_best_only_) &
-            BOOST_SERIALIZATION_NVP(add_print_command_) & BOOST_SERIALIZATION_NVP(max_iteration_) &
-            BOOST_SERIALIZATION_NVP(n_iterations_recorded_) &
-            BOOST_SERIALIZATION_NVP(n_adaptions_store_);
+        );
+
+        // All members are derived from the single localMembers() declaration.
+        Gem::Common::serialize_members(ar, this->localMembers());
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -1499,6 +1667,48 @@ class GAdaptorPropertyLoggerT // NOLINT(cppcoreguidelines-special-member-functio
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
+    /***************************************************************************/
+    /**
+     * Single declaration of this class'es local data members, driving
+     * serialize(), load_() and compare_() from one place. All members are
+     * handled unconditionally: the two GGraph/GHistogram smart pointers are
+     * deep-cloned on load (make_cloneable_member), every other member (including
+     * the gpd_ GPlotDesigner value, which load_() assigns plainly here) uses
+     * make_member. No manual tail is needed.
+     */
+    auto localMembers() {
+        return std::make_tuple(
+            Gem::Common::make_member("file_name_", file_name_),
+            Gem::Common::make_member("adaptor_name_", adaptor_name_),
+            Gem::Common::make_member("property_", property_),
+            Gem::Common::make_member("canvas_dimensions_", canvas_dimensions_),
+            Gem::Common::make_member("gpd_", gpd_),
+            Gem::Common::make_cloneable_member("adaptor_property_hist2_d_oa_", adaptor_property_hist2_d_oa_),
+            Gem::Common::make_cloneable_member("fitness_graph2_d_oa_", fitness_graph2_d_oa_),
+            Gem::Common::make_member("monitor_best_only_", monitor_best_only_),
+            Gem::Common::make_member("add_print_command_", add_print_command_),
+            Gem::Common::make_member("max_iteration_", max_iteration_),
+            Gem::Common::make_member("n_iterations_recorded_", n_iterations_recorded_),
+            Gem::Common::make_member("adaptor_property_store_", adaptor_property_store_)
+        );
+    }
+    auto localMembers() const {
+        return std::make_tuple(
+            Gem::Common::make_member("file_name_", file_name_),
+            Gem::Common::make_member("adaptor_name_", adaptor_name_),
+            Gem::Common::make_member("property_", property_),
+            Gem::Common::make_member("canvas_dimensions_", canvas_dimensions_),
+            Gem::Common::make_member("gpd_", gpd_),
+            Gem::Common::make_cloneable_member("adaptor_property_hist2_d_oa_", adaptor_property_hist2_d_oa_),
+            Gem::Common::make_cloneable_member("fitness_graph2_d_oa_", fitness_graph2_d_oa_),
+            Gem::Common::make_member("monitor_best_only_", monitor_best_only_),
+            Gem::Common::make_member("add_print_command_", add_print_command_),
+            Gem::Common::make_member("max_iteration_", max_iteration_),
+            Gem::Common::make_member("n_iterations_recorded_", n_iterations_recorded_),
+            Gem::Common::make_member("adaptor_property_store_", adaptor_property_store_)
+        );
+    }
+
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
@@ -1506,15 +1716,10 @@ class GAdaptorPropertyLoggerT // NOLINT(cppcoreguidelines-special-member-functio
         ar &make_nvp(
             "GBasePluggableOM",
             boost::serialization::base_object<oa::GBasePluggableOM>(*this)
-        ) & BOOST_SERIALIZATION_NVP(file_name_) &
-            BOOST_SERIALIZATION_NVP(adaptor_name_) & BOOST_SERIALIZATION_NVP(property_) &
-            BOOST_SERIALIZATION_NVP(canvas_dimensions_) & BOOST_SERIALIZATION_NVP(gpd_) &
-            BOOST_SERIALIZATION_NVP(adaptor_property_hist2_d_oa_) &
-            BOOST_SERIALIZATION_NVP(fitness_graph2_d_oa_) &
-            BOOST_SERIALIZATION_NVP(monitor_best_only_) &
-            BOOST_SERIALIZATION_NVP(add_print_command_) & BOOST_SERIALIZATION_NVP(max_iteration_) &
-            BOOST_SERIALIZATION_NVP(n_iterations_recorded_) &
-            BOOST_SERIALIZATION_NVP(adaptor_property_store_);
+        );
+
+        // All members are derived from the single localMembers() declaration.
+        Gem::Common::serialize_members(ar, this->localMembers());
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -1692,22 +1897,8 @@ protected:
         // Load the parent classes' data ...
         oa::GBasePluggableOM::load_(cp);
 
-        // ... and then our local data
-        file_name_ = p_load->file_name_;
-        adaptor_name_ = p_load->adaptor_name_;
-        property_ = p_load->property_;
-        canvas_dimensions_ = p_load->canvas_dimensions_;
-        gpd_ = p_load->gpd_;
-        Gem::Common::copyCloneableSmartPointer(
-            p_load->adaptor_property_hist2_d_oa_,
-            adaptor_property_hist2_d_oa_
-        );
-        Gem::Common::copyCloneableSmartPointer(p_load->fitness_graph2_d_oa_, fitness_graph2_d_oa_);
-        monitor_best_only_ = p_load->monitor_best_only_;
-        add_print_command_ = p_load->add_print_command_;
-        max_iteration_ = p_load->max_iteration_;
-        n_iterations_recorded_ = p_load->n_iterations_recorded_;
-        adaptor_property_store_ = p_load->adaptor_property_store_;
+        // ... and then all local data, derived from the single localMembers() declaration.
+        Gem::Common::g_load_members(localMembers(), p_load->localMembers());
     }
 
     /** @brief Allow access to this classes compare_ function */
@@ -1745,19 +1936,8 @@ protected:
         // Compare our parent data ...
         Gem::Common::compare_base_t<oa::GBasePluggableOM>(*this, *p_load, token);
 
-        // ... and then our local data
-        compare_t(IDENTITY(file_name_, p_load->file_name_), token);
-        compare_t(IDENTITY(adaptor_name_, p_load->adaptor_name_), token);
-        compare_t(IDENTITY(property_, p_load->property_), token);
-        compare_t(IDENTITY(canvas_dimensions_, p_load->canvas_dimensions_), token);
-        compare_t(IDENTITY(gpd_, p_load->gpd_), token);
-        compare_t(IDENTITY(adaptor_property_hist2_d_oa_, p_load->adaptor_property_hist2_d_oa_), token);
-        compare_t(IDENTITY(fitness_graph2_d_oa_, p_load->fitness_graph2_d_oa_), token);
-        compare_t(IDENTITY(monitor_best_only_, p_load->monitor_best_only_), token);
-        compare_t(IDENTITY(add_print_command_, p_load->add_print_command_), token);
-        compare_t(IDENTITY(max_iteration_, p_load->max_iteration_), token);
-        compare_t(IDENTITY(n_iterations_recorded_, p_load->n_iterations_recorded_), token);
-        compare_t(IDENTITY(adaptor_property_store_, p_load->adaptor_property_store_), token);
+        // ... and then all local data, derived from the single localMembers() declaration.
+        Gem::Common::g_compare_members(localMembers(), p_load->localMembers(), token);
 
         // React on deviations from the expectation
         token.evaluate();
@@ -2041,6 +2221,62 @@ class GProcessingTimesLogger // NOLINT(cppcoreguidelines-special-member-function
 
     friend class boost::serialization::access;
 
+    /***************************************************************************/
+    /**
+     * Single declaration of this class'es local data members, driving
+     * serialize(), load_() and compare_() from one place. All members are
+     * handled unconditionally: the eight histogram smart pointers are
+     * deep-cloned on load (make_cloneable_member); every other member (including
+     * the two gpd_pth* GPlotDesigner values, which load_() assigns plainly) uses
+     * make_member. No manual tail is needed.
+     *
+     * NOTE: deriving load_() from this declaration also fixes a latent bug --
+     * the previous hand-written load_() forgot to load n_bins_y_ (it was
+     * serialized and compared but never copied on load).
+     */
+    auto localMembers() {
+        return std::make_tuple(
+            Gem::Common::make_member("file_name_pth_", file_name_pth_),
+            Gem::Common::make_member("canvas_dimensions_pth_", canvas_dimensions_pth_),
+            Gem::Common::make_member("gpd_pth_", gpd_pth_),
+            Gem::Common::make_member("file_name_pth2_", file_name_pth2_),
+            Gem::Common::make_member("canvas_dimensions_pth2_", canvas_dimensions_pth2_),
+            Gem::Common::make_member("gpd_pth2_", gpd_pth2_),
+            Gem::Common::make_member("file_name_txt_", file_name_txt_),
+            Gem::Common::make_cloneable_member("pre_processing_times_hist_", pre_processing_times_hist_),
+            Gem::Common::make_cloneable_member("processing_times_hist_", processing_times_hist_),
+            Gem::Common::make_cloneable_member("post_processing_times_hist_", post_processing_times_hist_),
+            Gem::Common::make_cloneable_member("all_processing_times_hist_", all_processing_times_hist_),
+            Gem::Common::make_cloneable_member("pre_processing_times_hist2_d_", pre_processing_times_hist2_d_),
+            Gem::Common::make_cloneable_member("processing_times_hist2_d_", processing_times_hist2_d_),
+            Gem::Common::make_cloneable_member("post_processing_times_hist2_d_", post_processing_times_hist2_d_),
+            Gem::Common::make_cloneable_member("all_processing_times_hist2_d_", all_processing_times_hist2_d_),
+            Gem::Common::make_member("n_bins_x_", n_bins_x_),
+            Gem::Common::make_member("n_bins_y_", n_bins_y_)
+        );
+    }
+    auto localMembers() const {
+        return std::make_tuple(
+            Gem::Common::make_member("file_name_pth_", file_name_pth_),
+            Gem::Common::make_member("canvas_dimensions_pth_", canvas_dimensions_pth_),
+            Gem::Common::make_member("gpd_pth_", gpd_pth_),
+            Gem::Common::make_member("file_name_pth2_", file_name_pth2_),
+            Gem::Common::make_member("canvas_dimensions_pth2_", canvas_dimensions_pth2_),
+            Gem::Common::make_member("gpd_pth2_", gpd_pth2_),
+            Gem::Common::make_member("file_name_txt_", file_name_txt_),
+            Gem::Common::make_cloneable_member("pre_processing_times_hist_", pre_processing_times_hist_),
+            Gem::Common::make_cloneable_member("processing_times_hist_", processing_times_hist_),
+            Gem::Common::make_cloneable_member("post_processing_times_hist_", post_processing_times_hist_),
+            Gem::Common::make_cloneable_member("all_processing_times_hist_", all_processing_times_hist_),
+            Gem::Common::make_cloneable_member("pre_processing_times_hist2_d_", pre_processing_times_hist2_d_),
+            Gem::Common::make_cloneable_member("processing_times_hist2_d_", processing_times_hist2_d_),
+            Gem::Common::make_cloneable_member("post_processing_times_hist2_d_", post_processing_times_hist2_d_),
+            Gem::Common::make_cloneable_member("all_processing_times_hist2_d_", all_processing_times_hist2_d_),
+            Gem::Common::make_member("n_bins_x_", n_bins_x_),
+            Gem::Common::make_member("n_bins_y_", n_bins_y_)
+        );
+    }
+
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
@@ -2048,20 +2284,10 @@ class GProcessingTimesLogger // NOLINT(cppcoreguidelines-special-member-function
         ar &make_nvp(
             "GBasePluggableOM",
             boost::serialization::base_object<oa::GBasePluggableOM>(*this)
-        ) & BOOST_SERIALIZATION_NVP(file_name_pth_) &
-            BOOST_SERIALIZATION_NVP(canvas_dimensions_pth_) & BOOST_SERIALIZATION_NVP(gpd_pth_) &
-            BOOST_SERIALIZATION_NVP(file_name_pth2_) &
-            BOOST_SERIALIZATION_NVP(canvas_dimensions_pth2_) & BOOST_SERIALIZATION_NVP(gpd_pth2_) &
-            BOOST_SERIALIZATION_NVP(file_name_txt_) &
-            BOOST_SERIALIZATION_NVP(pre_processing_times_hist_) &
-            BOOST_SERIALIZATION_NVP(processing_times_hist_) &
-            BOOST_SERIALIZATION_NVP(post_processing_times_hist_) &
-            BOOST_SERIALIZATION_NVP(all_processing_times_hist_) &
-            BOOST_SERIALIZATION_NVP(pre_processing_times_hist2_d_) &
-            BOOST_SERIALIZATION_NVP(processing_times_hist2_d_) &
-            BOOST_SERIALIZATION_NVP(post_processing_times_hist2_d_) &
-            BOOST_SERIALIZATION_NVP(all_processing_times_hist2_d_) &
-            BOOST_SERIALIZATION_NVP(n_bins_x_) & BOOST_SERIALIZATION_NVP(n_bins_y_);
+        );
+
+        // All members are derived from the single localMembers() declaration.
+        Gem::Common::serialize_members(ar, this->localMembers());
     }
     ///////////////////////////////////////////////////////////////////////
 

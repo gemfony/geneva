@@ -489,14 +489,8 @@ void GFitnessMonitor::compare_(
     // Compare our parent data ...
     Gem::Common::compare_base_t<oa::GBasePluggableOM>(*this, *p_load, token);
 
-    // ... and then our local data
-    compare_t(IDENTITY(x_dim_, p_load->x_dim_), token);
-    compare_t(IDENTITY(y_dim_, p_load->y_dim_), token);
-    compare_t(IDENTITY(n_monitor_inds_, p_load->n_monitor_inds_), token);
-    compare_t(IDENTITY(result_file_, p_load->result_file_), token);
-    compare_t(IDENTITY(info_init_run_, p_load->info_init_run_), token);
-    compare_t(IDENTITY(global_fitness_graph_vec_, p_load->global_fitness_graph_vec_), token);
-    compare_t(IDENTITY(iteration_fitness_graph_vec_, p_load->iteration_fitness_graph_vec_), token);
+    // ... and then all local data, derived from the single localMembers() declaration.
+    Gem::Common::g_compare_members(localMembers(), p_load->localMembers(), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -515,21 +509,8 @@ void GFitnessMonitor::load_(const GObject *cp) {
     // Load the parent classes' data ...
     oa::GBasePluggableOM::load_(cp);
 
-    // ... and then our local data
-    x_dim_ = p_load->x_dim_;
-    y_dim_ = p_load->y_dim_;
-    n_monitor_inds_ = p_load->n_monitor_inds_;
-    result_file_ = p_load->result_file_;
-    info_init_run_ = p_load->info_init_run_;
-
-    Gem::Common::copyCloneableSmartPointerContainer(
-        p_load->global_fitness_graph_vec_,
-        global_fitness_graph_vec_
-    );
-    Gem::Common::copyCloneableSmartPointerContainer(
-        p_load->iteration_fitness_graph_vec_,
-        iteration_fitness_graph_vec_
-    );
+    // ... and then all local data, derived from the single localMembers() declaration.
+    Gem::Common::g_load_members(localMembers(), p_load->localMembers());
 }
 
 /************************************************************************/
@@ -692,8 +673,8 @@ void GCollectiveMonitor::compare_(
     // Compare our parent data ...
     Gem::Common::compare_base_t<oa::GBasePluggableOM>(*this, *p_load, token);
 
-    // ... and then our local data
-    compare_t(IDENTITY(pluggable_monitors_, p_load->pluggable_monitors_), token);
+    // ... and then the local data, derived from the single localMembers() declaration.
+    Gem::Common::g_compare_members(localMembers(), p_load->localMembers(), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -712,11 +693,8 @@ void GCollectiveMonitor::load_(const GObject *cp) {
     // Load the parent classes' data ...
     oa::GBasePluggableOM::load_(cp);
 
-    // ... and then our local data
-    Gem::Common::copyCloneableSmartPointerContainer(
-        p_load->pluggable_monitors_,
-        pluggable_monitors_
-    );
+    // ... and then the local data, derived from the single localMembers() declaration.
+    Gem::Common::g_load_members(localMembers(), p_load->localMembers());
 }
 
 /************************************************************************/
@@ -846,16 +824,8 @@ void GAllSolutionFileLogger::compare_(
     // Compare our parent data ...
     Gem::Common::compare_base_t<oa::GBasePluggableOM>(*this, *p_load, token);
 
-    // ... and then our local data
-    compare_t(IDENTITY(file_name_, p_load->file_name_), token);
-    compare_t(IDENTITY(boundaries_, p_load->boundaries_), token);
-    compare_t(IDENTITY(boundaries_active_, p_load->boundaries_active_), token);
-    compare_t(IDENTITY(with_name_and_type_, p_load->with_name_and_type_), token);
-    compare_t(IDENTITY(with_commas_, p_load->with_commas_), token);
-    compare_t(IDENTITY(use_raw_fitness_, p_load->use_raw_fitness_), token);
-    compare_t(IDENTITY(show_validity_, p_load->show_validity_), token);
-    compare_t(IDENTITY(print_initial_, p_load->print_initial_), token);
-    compare_t(IDENTITY(show_iteration_boundaries_, p_load->show_iteration_boundaries_), token);
+    // ... and then all local data, derived from the single localMembers() declaration.
+    Gem::Common::g_compare_members(localMembers(), p_load->localMembers(), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -1069,16 +1039,8 @@ void GAllSolutionFileLogger::load_(const GObject *cp) {
     // Load the parent classes' data ...
     oa::GBasePluggableOM::load_(cp);
 
-    // ... and then our local data
-    file_name_ = p_load->file_name_;
-    boundaries_ = p_load->boundaries_;
-    boundaries_active_ = p_load->boundaries_active_;
-    with_name_and_type_ = p_load->with_name_and_type_;
-    with_commas_ = p_load->with_commas_;
-    use_raw_fitness_ = p_load->use_raw_fitness_;
-    show_validity_ = p_load->show_validity_;
-    print_initial_ = p_load->print_initial_;
-    show_iteration_boundaries_ = p_load->show_iteration_boundaries_;
+    // ... and then all local data, derived from the single localMembers() declaration.
+    Gem::Common::g_load_members(localMembers(), p_load->localMembers());
 }
 
 /******************************************************************************/
@@ -1241,10 +1203,8 @@ void GIterationResultsFileLogger::compare_(
     // Compare our parent data ...
     Gem::Common::compare_base_t<oa::GBasePluggableOM>(*this, *p_load, token);
 
-    // ... and then our local data
-    compare_t(IDENTITY(file_name_, p_load->file_name_), token);
-    compare_t(IDENTITY(with_commas_, p_load->with_commas_), token);
-    compare_t(IDENTITY(use_raw_fitness_, p_load->use_raw_fitness_), token);
+    // ... and then all local data, derived from the single localMembers() declaration.
+    Gem::Common::g_compare_members(localMembers(), p_load->localMembers(), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -1373,10 +1333,8 @@ void GIterationResultsFileLogger::load_(const GObject *cp) {
     // Load the parent classes' data ...
     oa::GBasePluggableOM::load_(cp);
 
-    // ... and then our local data
-    file_name_ = p_load->file_name_;
-    with_commas_ = p_load->with_commas_;
-    use_raw_fitness_ = p_load->use_raw_fitness_;
+    // ... and then all local data, derived from the single localMembers() declaration.
+    Gem::Common::g_load_members(localMembers(), p_load->localMembers());
 }
 
 /************************************************************************/
@@ -1505,18 +1463,8 @@ void GNAdpationsLogger::compare_(
     // Compare our parent data ...
     Gem::Common::compare_base_t<oa::GBasePluggableOM>(*this, *p_load, token);
 
-    // ... and then our local data
-    compare_t(IDENTITY(file_name_, p_load->file_name_), token);
-    compare_t(IDENTITY(canvas_dimensions_, p_load->canvas_dimensions_), token);
-    compare_t(IDENTITY(gpd_, p_load->gpd_), token);
-    compare_t(IDENTITY(n_adaptions_hist2_d_oa_, p_load->n_adaptions_hist2_d_oa_), token);
-    compare_t(IDENTITY(n_adaptions_graph2_d_oa_, p_load->n_adaptions_graph2_d_oa_), token);
-    compare_t(IDENTITY(fitness_graph2_d_oa_, p_load->fitness_graph2_d_oa_), token);
-    compare_t(IDENTITY(monitor_best_only_, p_load->monitor_best_only_), token);
-    compare_t(IDENTITY(add_print_command_, p_load->add_print_command_), token);
-    compare_t(IDENTITY(max_iteration_, p_load->max_iteration_), token);
-    compare_t(IDENTITY(n_iterations_recorded_, p_load->n_iterations_recorded_), token);
-    compare_t(IDENTITY(n_adaptions_store_, p_load->n_adaptions_store_), token);
+    // ... and then all local data, derived from the single localMembers() declaration.
+    Gem::Common::g_compare_members(localMembers(), p_load->localMembers(), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -1744,18 +1692,8 @@ void GNAdpationsLogger::load_(const GObject *cp) {
     // Load the parent classes' data ...
     oa::GBasePluggableOM::load_(cp);
 
-    // ... and then our local data
-    file_name_ = p_load->file_name_;
-    canvas_dimensions_ = p_load->canvas_dimensions_;
-    gpd_ = p_load->gpd_;
-    Gem::Common::copyCloneableSmartPointer(p_load->n_adaptions_hist2_d_oa_, n_adaptions_hist2_d_oa_);
-    Gem::Common::copyCloneableSmartPointer(p_load->n_adaptions_graph2_d_oa_, n_adaptions_graph2_d_oa_);
-    Gem::Common::copyCloneableSmartPointer(p_load->fitness_graph2_d_oa_, fitness_graph2_d_oa_);
-    monitor_best_only_ = p_load->monitor_best_only_;
-    add_print_command_ = p_load->add_print_command_;
-    max_iteration_ = p_load->max_iteration_;
-    n_iterations_recorded_ = p_load->n_iterations_recorded_;
-    n_adaptions_store_ = p_load->n_adaptions_store_;
+    // ... and then all local data, derived from the single localMembers() declaration.
+    Gem::Common::g_load_members(localMembers(), p_load->localMembers());
 }
 
 /************************************************************************/
@@ -1891,33 +1829,8 @@ void GProcessingTimesLogger::compare_(
     // Compare our parent data ...
     Gem::Common::compare_base_t<oa::GBasePluggableOM>(*this, *p_load, token);
 
-    // ... and then our local data
-    compare_t(IDENTITY(file_name_pth_, p_load->file_name_pth_), token);
-    compare_t(IDENTITY(canvas_dimensions_pth_, p_load->canvas_dimensions_pth_), token);
-    compare_t(IDENTITY(gpd_pth_, p_load->gpd_pth_), token);
-    compare_t(IDENTITY(file_name_pth2_, p_load->file_name_pth2_), token);
-    compare_t(IDENTITY(canvas_dimensions_pth2_, p_load->canvas_dimensions_pth2_), token);
-    compare_t(IDENTITY(gpd_pth2_, p_load->gpd_pth2_), token);
-    compare_t(IDENTITY(file_name_txt_, p_load->file_name_txt_), token);
-    compare_t(IDENTITY(pre_processing_times_hist_, p_load->pre_processing_times_hist_), token);
-    compare_t(IDENTITY(processing_times_hist_, p_load->processing_times_hist_), token);
-    compare_t(IDENTITY(post_processing_times_hist_, p_load->post_processing_times_hist_), token);
-    compare_t(IDENTITY(all_processing_times_hist_, p_load->all_processing_times_hist_), token);
-    compare_t(
-        IDENTITY(pre_processing_times_hist2_d_, p_load->pre_processing_times_hist2_d_),
-        token
-    );
-    compare_t(IDENTITY(processing_times_hist2_d_, p_load->processing_times_hist2_d_), token);
-    compare_t(
-        IDENTITY(post_processing_times_hist2_d_, p_load->post_processing_times_hist2_d_),
-        token
-    );
-    compare_t(
-        IDENTITY(all_processing_times_hist2_d_, p_load->all_processing_times_hist2_d_),
-        token
-    );
-    compare_t(IDENTITY(n_bins_x_, p_load->n_bins_x_), token);
-    compare_t(IDENTITY(n_bins_y_, p_load->n_bins_y_), token);
+    // ... and then all local data, derived from the single localMembers() declaration.
+    Gem::Common::g_compare_members(localMembers(), p_load->localMembers(), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -2307,52 +2220,10 @@ void GProcessingTimesLogger::load_(const GObject *cp) {
     // Load the parent classes' data ...
     oa::GBasePluggableOM::load_(cp);
 
-    // ... and then our local data
-    file_name_pth_ = p_load->file_name_pth_;
-    canvas_dimensions_pth_ = p_load->canvas_dimensions_pth_;
-    gpd_pth_ = p_load->gpd_pth_;
-
-    file_name_pth2_ = p_load->file_name_pth2_;
-    canvas_dimensions_pth2_ = p_load->canvas_dimensions_pth2_;
-    gpd_pth2_ = p_load->gpd_pth2_;
-
-    file_name_txt_ = p_load->file_name_txt_;
-
-    Gem::Common::copyCloneableSmartPointer(
-        p_load->pre_processing_times_hist_,
-        pre_processing_times_hist_
-    );
-    Gem::Common::copyCloneableSmartPointer(
-        p_load->processing_times_hist_,
-        processing_times_hist_
-    );
-    Gem::Common::copyCloneableSmartPointer(
-        p_load->post_processing_times_hist_,
-        post_processing_times_hist_
-    );
-    Gem::Common::copyCloneableSmartPointer(
-        p_load->all_processing_times_hist_,
-        all_processing_times_hist_
-    );
-
-    Gem::Common::copyCloneableSmartPointer(
-        p_load->pre_processing_times_hist2_d_,
-        pre_processing_times_hist2_d_
-    );
-    Gem::Common::copyCloneableSmartPointer(
-        p_load->processing_times_hist2_d_,
-        processing_times_hist2_d_
-    );
-    Gem::Common::copyCloneableSmartPointer(
-        p_load->post_processing_times_hist2_d_,
-        post_processing_times_hist2_d_
-    );
-    Gem::Common::copyCloneableSmartPointer(
-        p_load->all_processing_times_hist2_d_,
-        all_processing_times_hist2_d_
-    );
-
-    n_bins_x_ = p_load->n_bins_x_;
+    // ... and then all local data, derived from the single localMembers() declaration.
+    // (This also fixes a latent bug: the previous hand-written load_() forgot to
+    // load n_bins_y_, which was serialized and compared but never copied on load.)
+    Gem::Common::g_load_members(localMembers(), p_load->localMembers());
 }
 
 /************************************************************************/

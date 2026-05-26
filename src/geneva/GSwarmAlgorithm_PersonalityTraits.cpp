@@ -87,11 +87,12 @@ void GSwarmAlgorithm_PersonalityTraits::compare_(
     // Compare our parent data ...
     Gem::Common::compare_base_t<GPersonalityTraits>(*this, *p_load, token);
 
-    // ... and then the local data
-    compare_t(IDENTITY(neighborhood_, p_load->neighborhood_), token);
-    compare_t(IDENTITY(no_position_update_, p_load->no_position_update_), token);
+    // ... then the unconditionally-handled local data, derived from the single
+    // localMembers() declaration ...
+    Gem::Common::g_compare_members(localMembers(), p_load->localMembers(), token);
+
+    // ... and finally the manual tail: personal_best_ (see localMembers() docs).
     compare_t(IDENTITY(personal_best_, p_load->personal_best_), token);
-    compare_t(IDENTITY(personal_best_quality_, p_load->personal_best_quality_), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -283,17 +284,16 @@ void GSwarmAlgorithm_PersonalityTraits::load_(const GObject *cp) {
     // Load the parent class'es data
     GPersonalityTraits::load_(cp);
 
-    // and then the local data
-    neighborhood_ = p_load->neighborhood_;
-    no_position_update_ = p_load->no_position_update_;
+    // and then the unconditionally-handled local data, derived from the single
+    // localMembers() declaration
+    Gem::Common::g_load_members(localMembers(), p_load->localMembers());
 
-    // Copy the personal_best_ vector over and make sure we do not get a "chain" of individuals
+    // Manual tail: copy the personal_best_ over and make sure we do not get a
+    // "chain" of individuals (asymmetric post-clone step; see localMembers() docs).
     Gem::Common::copyCloneableSmartPointer(p_load->personal_best_, personal_best_);
     if(personal_best_) {
         personal_best_->resetPersonality();
     }
-
-    personal_best_quality_ = p_load->personal_best_quality_;
 }
 
 /******************************************************************************/
