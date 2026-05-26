@@ -185,15 +185,14 @@ private:
      * Single declaration of this class'es local data members. This drives serialize(),
      * load_() and compare_() from one place. Plain members use make_member(); the
      * cloneable smart pointer executor_ptr_ and the cloneable pointer container
-     * pluggable_monitors_cnt_ use make_cloneable_member() / make_cloneable_container_member(),
-     * so g_load_members() deep-clones them.
+     * pluggable_monitors_cnt_ use make_cloneable_member() / make_cloneable_container_member()
+     * (deep-cloned on load); the atomic halted_ uses make_atomic_member() (loaded via
+     * .store(.load()), compared via its loaded value, serialised through the existing
+     * std::atomic<bool> free serialization).
      *
-     * Deliberately NOT in this tuple, and handled manually in serialize()/load_()/
-     * compare_() instead:
+     * Deliberately NOT in this tuple, and handled manually in load_()/compare_() instead:
      *  - the container base GPtrContainerT<GParameterSet> (a base-object, deep-copied
      *    on load via operator=);
-     *  - halted_ (a std::atomic<bool>: serialisable, but not plain-assignable, so
-     *    g_load_members/g_compare_members cannot handle it -- .store()/.load() used);
      *  - best_iteration_individuals_pq_ (intentionally NOT persisted -- transient per
      *    iteration; copied in memory by load_() and compared by compare_()).
      *
@@ -232,6 +231,7 @@ private:
             Gem::Common::make_member("worst_known_valids_cnt_", worst_known_valids_cnt_),
             Gem::Common::make_member("default_exec_mode_", default_exec_mode_),
             Gem::Common::make_member("default_executor_config_", default_executor_config_),
+            Gem::Common::make_atomic_member("halted_", halted_),
             Gem::Common::make_cloneable_container_member("pluggable_monitors_cnt_", pluggable_monitors_cnt_),
             Gem::Common::make_cloneable_member("executor_ptr_", executor_ptr_)
         );
@@ -267,6 +267,7 @@ private:
             Gem::Common::make_member("worst_known_valids_cnt_", worst_known_valids_cnt_),
             Gem::Common::make_member("default_exec_mode_", default_exec_mode_),
             Gem::Common::make_member("default_executor_config_", default_executor_config_),
+            Gem::Common::make_atomic_member("halted_", halted_),
             Gem::Common::make_cloneable_container_member("pluggable_monitors_cnt_", pluggable_monitors_cnt_),
             Gem::Common::make_cloneable_member("executor_ptr_", executor_ptr_)
         );
@@ -284,14 +285,11 @@ private:
                 boost::serialization::base_object<Gem::Common::GPtrContainerT<gpar::GParameterSet>>(*this)
             );
 
-        // All members (plain and cloneable alike) are derived from the single
-        // localMembers() declaration; the cloneable smart pointers (de)serialise as
-        // polymorphic pointers and are deep-cloned by load_().
+        // All members are derived from the single localMembers() declaration: plain
+        // members serialise directly, the cloneable smart pointers (de)serialise as
+        // polymorphic pointers, and halted_ goes through the std::atomic<bool> free
+        // serialization.
         Gem::Common::serialize_members(ar, this->localMembers());
-
-        // halted_ is a std::atomic<bool> (serialisable, but not plain-assignable, so it
-        // cannot go through localMembers()); kept manual here.
-        ar &BOOST_SERIALIZATION_NVP(halted_);
     }
 
     ///////////////////////////////////////////////////////////////////////

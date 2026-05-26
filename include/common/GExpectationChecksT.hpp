@@ -1388,6 +1388,19 @@ struct cloneable_container_member_t {
     T &ref; ///< a container of std::shared_ptr<Cloneable> (const& in a const context)
 };
 
+/**
+ * An atomic member (e.g. std::atomic<bool>). Boost already serialises std::atomic<bool>
+ * via a free serialization, so serialize_members() handles it through the common .ref
+ * path; but an atomic is neither copy-assignable nor directly comparable through the
+ * generic value path, so g_load_members() loads it via .store(.load()) and
+ * g_compare_members() compares its loaded value.
+ */
+template <typename T>
+struct atomic_member_t {
+    std::string name;
+    T &ref; ///< a std::atomic<...> (const& in a const context)
+};
+
 /** @brief Builds one named, deep-cloned single-pointer member for a localMembers() tuple. */
 template <typename T>
 cloneable_member_t<T> make_cloneable_member(std::string name, T &ref) {
@@ -1398,6 +1411,12 @@ cloneable_member_t<T> make_cloneable_member(std::string name, T &ref) {
 template <typename T>
 cloneable_container_member_t<T> make_cloneable_container_member(std::string name, T &ref) {
     return cloneable_container_member_t<T>{std::move(name), ref};
+}
+
+/** @brief Builds one named atomic member for a localMembers() tuple. */
+template <typename T>
+atomic_member_t<T> make_atomic_member(std::string name, T &ref) {
+    return atomic_member_t<T>{std::move(name), ref};
 }
 
 /******************************************************************************/
@@ -1414,10 +1433,26 @@ template <typename Dst, typename Src>
 void g_load_one(cloneable_container_member_t<Dst> &dst, const cloneable_container_member_t<Src> &src) {
     Gem::Common::copyCloneableSmartPointerContainer(src.ref, dst.ref); // deep clone of each element
 }
+template <typename Dst, typename Src>
+void g_load_one(atomic_member_t<Dst> &dst, const atomic_member_t<Src> &src) {
+    dst.ref.store(src.ref.load()); // atomic load/store (atomics are not copy-assignable)
+}
 
 template <typename DstTuple, typename SrcTuple, std::size_t... I>
 void g_load_members_impl(DstTuple &dst, const SrcTuple &src, std::index_sequence<I...>) {
     (g_load_one(std::get<I>(dst), std::get<I>(src)), ...);
+}
+
+/******************************************************************************/
+/** @brief Compares a single member pairwise, dispatched on its kind. */
+template <typename A, typename B>
+void g_compare_one(const A &a, const B &b, GToken &token) {
+    compare_t(getIdentity(a.ref, b.ref, a.name, b.name), token);
+}
+template <typename A, typename B>
+void g_compare_one(const atomic_member_t<A> &a, const atomic_member_t<B> &b, GToken &token) {
+    // Compare the loaded values rather than the atomic objects themselves.
+    compare_t(getIdentity(a.ref.load(), b.ref.load(), a.name, b.name), token);
 }
 
 /** @brief Copies each local member from src to dst, member by member. */
@@ -1434,14 +1469,7 @@ template <typename ATuple, typename BTuple, std::size_t... I>
 void g_compare_members_impl(
     const ATuple &a, const BTuple &b, GToken &token, std::index_sequence<I...>
 ) {
-    (compare_t(
-         getIdentity(
-             std::get<I>(a).ref, std::get<I>(b).ref,
-             std::get<I>(a).name, std::get<I>(b).name
-         ),
-         token
-     ),
-     ...);
+    (g_compare_one(std::get<I>(a), std::get<I>(b), token), ...);
 }
 
 /** @brief Compares each local member pairwise, recording results in the token. */

@@ -500,18 +500,16 @@ void GBase::compare_(
         token
     ); // This allows us to compare the parent class without directly referring to it.
 
-    // ... all the local data (plain members + the cloneable pointers), derived from the
-    // single localMembers() declaration ...
+    // ... all the local data (plain members, cloneable pointers, and the atomic
+    // halted_), derived from the single localMembers() declaration ...
     Gem::Common::g_compare_members(localMembers(), p_load->localMembers(), token);
 
-    // ... and finally the members that are not part of localMembers():
-    //   best_iteration_individuals_pq_ (intentionally not persisted, but still compared),
-    //   halted_ (std::atomic<bool>, compared via its loaded value).
+    // ... and finally best_iteration_individuals_pq_, which is intentionally not
+    // persisted (so it is not part of localMembers()) but is still compared.
     compare_t(
         IDENTITY(best_iteration_individuals_pq_, p_load->best_iteration_individuals_pq_),
         token
     );
-    compare_t(IDENTITY(halted_.load(), p_load->halted_.load()), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -1519,14 +1517,13 @@ void GBase::load_(const GObject *cp) {
 
     // All local data, derived from the single localMembers() declaration: plain members
     // are assigned, the cloneable smart pointers (executor_ptr_, pluggable_monitors_cnt_)
-    // are deep-cloned (the tie dispatches on the member kind).
+    // are deep-cloned, and halted_ (atomic) is loaded via .store(.load()) -- the tie
+    // dispatches on the member kind.
     Gem::Common::g_load_members(localMembers(), p_load->localMembers());
 
-    // Members not part of localMembers(), each with its own copy semantics:
-    //   best_iteration_individuals_pq_ -- not persisted, but copied in memory;
-    //   halted_ -- a std::atomic<bool>, copied via .store()/.load().
+    // best_iteration_individuals_pq_ is intentionally not persisted (transient per
+    // iteration), so it is not part of localMembers(); copied in memory here.
     best_iteration_individuals_pq_ = p_load->best_iteration_individuals_pq_;
-    halted_.store(p_load->halted_.load());
 }
 
 /******************************************************************************/
