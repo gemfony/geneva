@@ -165,6 +165,21 @@ TEMPLATE_TEST_CASE(
 // BINARY round-trip fine; the failure is independent of the formula content). This is a
 // suspected real defect in its XML serialization path. See report.
 
+// The concrete GParameterSetConstraint subclasses defined in GFunctionIndividual.hpp.
+// They have public default + copy ctors and are tie-converted (they declare
+// localMembers()), so clone/copy/load/compare are exercised. They do not override
+// modify_GUnitTests_, so the standard test's (de)serialization round-trip block is
+// skipped here (it is covered separately by the focused round-trip TEST_CASEs below).
+TEMPLATE_TEST_CASE(
+    "StandardTests_no_failure_expected — constraint types",
+    "[geneva][standard]",
+    gind::GDoubleSumConstraint,
+    gind::GSphereConstraint,
+    gind::GDoubleSumGapConstraint
+) {
+    Gem::Geneva::Tests::StandardTests_no_failure_expected<TestType>();
+}
+
 TEMPLATE_TEST_CASE(
     "StandardTests_no_failure_expected — algorithm types",
     "[geneva][standard]",
@@ -275,6 +290,16 @@ TEMPLATE_TEST_CASE(
 // NOTE: gpar::GParameterSetFormulaConstraint is excluded here (see no-failure-expected block).
 
 TEMPLATE_TEST_CASE(
+    "StandardTests_failures_expected — constraint types",
+    "[geneva][standard][failures-expected]",
+    gind::GDoubleSumConstraint,
+    gind::GSphereConstraint,
+    gind::GDoubleSumGapConstraint
+) {
+    Gem::Geneva::Tests::StandardTests_failures_expected<TestType>();
+}
+
+TEMPLATE_TEST_CASE(
     "StandardTests_failures_expected — algorithm types",
     "[geneva][standard][failures-expected]",
     oa::GEvolutionaryAlgorithm,
@@ -334,6 +359,89 @@ TEST_CASE(
 
         GEqualityPrinter gep(
             "GParameterSetFormulaConstraint-roundtrip",
+            pow(10, -7),
+            Gem::Common::CE_WITH_MESSAGES
+        );
+        CHECK(gep.isSimilar(restored, original));
+    }
+}
+
+// ============================================================================
+// Targeted (de)serialization round-trips for the concrete GParameterSetConstraint
+// subclasses in GFunctionIndividual.hpp. These types are run through the templated
+// standard test for clone/copy/load/compare, but that test skips the round-trip block
+// (they do not override modify_GUnitTests_), so the serialize path is validated here.
+// ============================================================================
+TEST_CASE(
+    "GDoubleSumConstraint round-trips in TEXT, XML and BINARY",
+    "[geneva][serialization]"
+) {
+    using Gem::Common::serializationMode;
+
+    for (auto mode :
+         {serializationMode::TEXT, serializationMode::XML, serializationMode::BINARY}) {
+        // Non-default value so the round-trip actually exercises the member
+        // (the default is 1.0; a serialize that dropped it would still pass at 1.0).
+        gind::GDoubleSumConstraint original(3.5);
+        gind::GDoubleSumConstraint restored(2.0);
+
+        REQUIRE_NOTHROW(
+            restored.GObject::fromString(original.GObject::toString(mode), mode)
+        );
+
+        GEqualityPrinter gep(
+            "GDoubleSumConstraint-roundtrip",
+            pow(10, -7),
+            Gem::Common::CE_WITH_MESSAGES
+        );
+        CHECK(gep.isSimilar(restored, original));
+    }
+}
+
+TEST_CASE(
+    "GSphereConstraint round-trips in TEXT, XML and BINARY",
+    "[geneva][serialization]"
+) {
+    using Gem::Common::serializationMode;
+
+    for (auto mode :
+         {serializationMode::TEXT, serializationMode::XML, serializationMode::BINARY}) {
+        // Non-default value (default 1.0): catches the previously-latent bug where
+        // GSphereConstraint::serialize() did not store diameter_ at all.
+        gind::GSphereConstraint original(3.5);
+        gind::GSphereConstraint restored(2.0);
+
+        REQUIRE_NOTHROW(
+            restored.GObject::fromString(original.GObject::toString(mode), mode)
+        );
+
+        GEqualityPrinter gep(
+            "GSphereConstraint-roundtrip",
+            pow(10, -7),
+            Gem::Common::CE_WITH_MESSAGES
+        );
+        CHECK(gep.isSimilar(restored, original));
+    }
+}
+
+TEST_CASE(
+    "GDoubleSumGapConstraint round-trips in TEXT, XML and BINARY",
+    "[geneva][serialization]"
+) {
+    using Gem::Common::serializationMode;
+
+    for (auto mode :
+         {serializationMode::TEXT, serializationMode::XML, serializationMode::BINARY}) {
+        // Non-default values (defaults 1.0 / 0.5) so both members are exercised.
+        gind::GDoubleSumGapConstraint original(3.5, 1.25);
+        gind::GDoubleSumGapConstraint restored(2.0, 0.25);
+
+        REQUIRE_NOTHROW(
+            restored.GObject::fromString(original.GObject::toString(mode), mode)
+        );
+
+        GEqualityPrinter gep(
+            "GDoubleSumGapConstraint-roundtrip",
             pow(10, -7),
             Gem::Common::CE_WITH_MESSAGES
         );

@@ -963,11 +963,19 @@ class GDoubleSumConstraint
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
+    /** @brief Single declaration of this class'es local data members */
+    auto localMembers() {
+        return std::make_tuple(Gem::Common::make_member("c_", c_));
+    }
+    auto localMembers() const {
+        return std::make_tuple(Gem::Common::make_member("c_", c_));
+    }
+
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GParameterSetConstraint) &
-            BOOST_SERIALIZATION_NVP(c_);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GParameterSetConstraint);
+        Gem::Common::serialize_members(ar, localMembers());
     }
     ///////////////////////////////////////////////////////////////////////
 public:
@@ -986,13 +994,6 @@ protected:
 
     /** @brief Adds local configuration options to a GParserBuilder object */
     void addConfigurationOptions_(Gem::Common::GParserBuilder &) override;
-    /** @brief Single declaration of this class'es local data members */
-    auto localMembers() {
-        return std::make_tuple(Gem::Common::make_member("c_", c_));
-    }
-    auto localMembers() const {
-        return std::make_tuple(Gem::Common::make_member("c_", c_));
-    }
 
     /** @brief Loads the data of another GParameterSetMultiConstraint */
     void load_(const GObject *) override;
@@ -1032,11 +1033,23 @@ class GDoubleSumGapConstraint
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
+    /** @brief The single declaration of this class'es local data members. */
+    auto localMembers() {
+        return std::make_tuple(
+            Gem::Common::make_member("c_", c_),
+            Gem::Common::make_member("gap_", gap_));
+    }
+    auto localMembers() const {
+        return std::make_tuple(
+            Gem::Common::make_member("c_", c_),
+            Gem::Common::make_member("gap_", gap_));
+    }
+
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GParameterSetConstraint) &
-            BOOST_SERIALIZATION_NVP(c_) & BOOST_SERIALIZATION_NVP(gap_);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GParameterSetConstraint);
+        Gem::Common::serialize_members(ar, localMembers());
     }
     ///////////////////////////////////////////////////////////////////////
 public:
@@ -1055,18 +1068,6 @@ protected:
 
     /** @brief Adds local configuration options to a GParserBuilder object */
     void addConfigurationOptions_(Gem::Common::GParserBuilder &) override;
-
-    /** @brief The single declaration of this class'es local data members. */
-    auto localMembers() {
-        return std::make_tuple(
-            Gem::Common::make_member("c_", c_),
-            Gem::Common::make_member("gap_", gap_));
-    }
-    auto localMembers() const {
-        return std::make_tuple(
-            Gem::Common::make_member("c_", c_),
-            Gem::Common::make_member("gap_", gap_));
-    }
 
     /** @brief Loads the data of another GParameterSetMultiConstraint */
     void load_(const GObject *) override;
@@ -1107,10 +1108,21 @@ class GSphereConstraint
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
+    /** @brief Single declaration of this class'es local data members */
+    auto localMembers() {
+        return std::make_tuple(Gem::Common::make_member("diameter_", diameter_));
+    }
+    auto localMembers() const {
+        return std::make_tuple(Gem::Common::make_member("diameter_", diameter_));
+    }
+
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GParameterSetConstraint);
+        // diameter_ was previously not serialized at all -- it was silently lost on
+        // (de)serialization. Derive it from the single localMembers() declaration.
+        Gem::Common::serialize_members(ar, this->localMembers());
     }
     ///////////////////////////////////////////////////////////////////////
 public:
@@ -1129,13 +1141,6 @@ protected:
 
     /** @brief Adds local configuration options to a GParserBuilder object */
     void addConfigurationOptions_(Gem::Common::GParserBuilder &) override;
-    /** @brief Single declaration of this class'es local data members */
-    auto localMembers() {
-        return std::make_tuple(Gem::Common::make_member("diameter_", diameter_));
-    }
-    auto localMembers() const {
-        return std::make_tuple(Gem::Common::make_member("diameter_", diameter_));
-    }
 
     /** @brief Loads the data of another GParameterSetMultiConstraint */
     void load_(const GObject *) override;

@@ -248,8 +248,7 @@ public:
     /**
      * The standard destructor
      */
-    ~GMetaOptimizerIndividualT() override { /* nothing */
-    }
+    ~GMetaOptimizerIndividualT() override = default;
 
     /***************************************************************************/
     /**
@@ -837,6 +836,10 @@ protected:
     /**
      * The single declaration of this class'es local data members. load_() and
      * compare_() are derived from it, so the member list lives in one place.
+     * Note: ind_factory_ is deliberately NOT listed here -- load_() keeps the
+     * object's own factory (see the comment there) and compare_() ignores it, so
+     * it is not part of the copy/compare semantics. serialize() handles it
+     * separately; do not derive serialize() from localMembers() for this class.
      */
     auto localMembers() {
         return std::make_tuple(
@@ -1117,17 +1120,14 @@ protected:
         switch(mot) {
         case metaOptimizationTarget::BESTFITNESS:
             return std::string("\"best fitness\"");
-            break;
 
         case metaOptimizationTarget::MINSOLVERCALLS:
             return std::string("\"minimum number of solver calls\"");
-            break;
 
         case metaOptimizationTarget::MC_MINSOLVER_BESTFITNESS:
             return std::string(
                 "\"multi-criterion target with best fitness, minimum number of solver calls\""
             );
-            break;
         }
 
         // Make the compiler happy
@@ -1621,7 +1621,7 @@ protected:
      * we will usually add the parameter objects here. Note that a very similar constructor
      * exists for GMetaOptimizerIndividualT<ind_type>, so it may be used independently of the factory.
      *
-     * @param p A smart-pointer to be acted on during post-processing
+     * @param p_base A smart-pointer to be acted on during post-processing
      */
     void postProcess_(std::shared_ptr<gpar::GParameterSet> &p_base) override {
         // Convert the base pointer to our local type
@@ -2145,7 +2145,7 @@ private:
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GOptOptMonitorT<ind_type>>: Received invalid infoMode " << im << '\n'
             );
-        } break;
+        }
         };
     }
 
