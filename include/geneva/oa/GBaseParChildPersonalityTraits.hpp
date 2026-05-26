@@ -33,6 +33,7 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard headers go here
+#include <tuple>
 
 // Boost headers go here
 
@@ -53,12 +54,28 @@ class GBaseParChildPersonalityTraits // NOLINT(cppcoreguidelines-special-member-
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
+    /** @brief Single declaration of this class'es local data members */
+    auto localMembers() {
+        return std::make_tuple(
+            Gem::Common::make_member("parent_counter_", parent_counter_),
+            Gem::Common::make_member("pop_pos_", pop_pos_),
+            Gem::Common::make_member("parent_id_", parent_id_)
+        );
+    }
+    auto localMembers() const {
+        return std::make_tuple(
+            Gem::Common::make_member("parent_counter_", parent_counter_),
+            Gem::Common::make_member("pop_pos_", pop_pos_),
+            Gem::Common::make_member("parent_id_", parent_id_)
+        );
+    }
+
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPersonalityTraits) &
-            BOOST_SERIALIZATION_NVP(parent_counter_) & BOOST_SERIALIZATION_NVP(pop_pos_) &
-            BOOST_SERIALIZATION_NVP(parent_id_);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPersonalityTraits);
+        // ... and then our own data, derived from the single localMembers() declaration
+        Gem::Common::serialize_members(ar, this->localMembers());
     }
     ///////////////////////////////////////////////////////////////////////
 

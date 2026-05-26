@@ -122,6 +122,26 @@ public:
     std::tuple<double, double> getSleepWindow() const;
 
 protected:
+    /** @brief Single declaration of this class'es local data members */
+    auto localMembers() {
+        return std::make_tuple(
+            Gem::Common::make_member("fixed_sleep_time_", fixed_sleep_time_),
+            Gem::Common::make_member("may_crash_", may_crash_),
+            Gem::Common::make_member("throw_likelihood_", throw_likelihood_),
+            Gem::Common::make_member("sleep_randomly_", sleep_randomly_),
+            Gem::Common::make_member("rand_sleep_boundaries_", rand_sleep_boundaries_)
+        );
+    }
+    auto localMembers() const {
+        return std::make_tuple(
+            Gem::Common::make_member("fixed_sleep_time_", fixed_sleep_time_),
+            Gem::Common::make_member("may_crash_", may_crash_),
+            Gem::Common::make_member("throw_likelihood_", throw_likelihood_),
+            Gem::Common::make_member("sleep_randomly_", sleep_randomly_),
+            Gem::Common::make_member("rand_sleep_boundaries_", rand_sleep_boundaries_)
+        );
+    }
+
     /** @brief Loads the data of another GDelayIndividual, camouflaged as a GObject */
     void load_(const GObject *) final;
 

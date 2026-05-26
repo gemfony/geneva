@@ -483,6 +483,28 @@ public:
 protected:
     /***************************************************************************/
     /**
+     * The single declaration of this class'es local data members. load_() and
+     * compare_() are derived from it, so the member list lives in one place.
+     */
+    auto localMembers() {
+        return std::make_tuple(
+            make_member("coordinates_", coordinates_),
+            make_member("marker_", marker_),
+            make_member("color_", color_),
+            make_member("size_", size_)
+        );
+    }
+    auto localMembers() const {
+        return std::make_tuple(
+            make_member("coordinates_", coordinates_),
+            make_member("marker_", marker_),
+            make_member("color_", color_),
+            make_member("size_", size_)
+        );
+    }
+
+    /***************************************************************************/
+    /**
 	  * Loads the data of another object
 	  */
     void load_(const GDecorator<dimensions::Dim2, coordinate_type> *cp) override {
@@ -492,11 +514,8 @@ protected:
         // Load our parent data ...
         GDecorator<dimensions::Dim2, coordinate_type>::load_(cp);
 
-        // ... and then our local data
-        coordinates_ = p_load->coordinates_;
-        marker_ = p_load->marker_;
-        color_ = p_load->color_;
-        size_ = p_load->size_;
+        // ... and then our local data, derived from the single localMembers() declaration
+        g_load_members(localMembers(), p_load->localMembers());
     }
 
     /***************************************************************************/
@@ -527,11 +546,8 @@ protected:
         // Compare our parent data ...
         compare_base_t<GDecorator<dimensions::Dim2, coordinate_type>>(*this, *p_load, token);
 
-        // ... and then our local data
-        compare_t(IDENTITY(this->coordinates_, p_load->coordinates_), token);
-        compare_t(IDENTITY(this->marker_, p_load->marker_), token);
-        compare_t(IDENTITY(this->color_, p_load->color_), token);
-        compare_t(IDENTITY(this->size_, p_load->size_), token);
+        // ... and then our local data, derived from the single localMembers() declaration
+        g_compare_members(localMembers(), p_load->localMembers(), token);
 
         // React on deviations from the expectation
         token.evaluate();
@@ -1582,6 +1598,13 @@ protected:
     /**
 	  * Loads the data of another object
 	  */
+    auto localMembers() {
+        return std::make_tuple(make_member("data_", data_));
+    }
+    auto localMembers() const {
+        return std::make_tuple(make_member("data_", data_));
+    }
+
     void load_(const GBasePlotter *cp) override {
         // Check that we are dealing with a GDataCollector1T<x_type> reference independent of this object and convert the pointer
         const auto *p_load = g_convert_and_compare(cp, this);
@@ -1589,8 +1612,8 @@ protected:
         // Load our parent class'es data ...
         GBasePlotter::load_(cp);
 
-        // ... and then our own
-        data_ = p_load->data_; // This assumes that x_type is POD
+        // ... and then our own, derived from the single localMembers() declaration
+        g_load_members(localMembers(), p_load->localMembers());
     }
 
     /***************************************************************************/
@@ -1619,8 +1642,8 @@ protected:
         // Compare our parent data ...
         compare_base_t<GBasePlotter>(*this, *p_load, token);
 
-        // ... and then the local data
-        compare_t(IDENTITY(data_, p_load->data_), token);
+        // ... and then the local data, derived from the single localMembers() declaration
+        g_compare_members(localMembers(), p_load->localMembers(), token);
 
         // React on deviations from the expectation
         token.evaluate();
@@ -1713,6 +1736,22 @@ protected:
     /** @brief Retrieve the current drawing arguments */
     std::string drawingArguments(bool) const override;
 
+    /** @brief Single declaration of this class'es local data members */
+    auto localMembers() {
+        return std::make_tuple(
+            make_member("n_bins_x_", n_bins_x_),
+            make_member("min_x_", min_x_),
+            make_member("max_x_", max_x_)
+        );
+    }
+    auto localMembers() const {
+        return std::make_tuple(
+            make_member("n_bins_x_", n_bins_x_),
+            make_member("min_x_", min_x_),
+            make_member("max_x_", max_x_)
+        );
+    }
+
     /** @brief Loads the data of another object */
     void load_(const GBasePlotter *) override;
 
@@ -1797,6 +1836,22 @@ public:
     std::string getPlotterName() const override;
 
 protected:
+    /** @brief Single declaration of this class'es local data members */
+    auto localMembers() {
+        return std::make_tuple(
+            make_member("n_bins_x_", n_bins_x_),
+            make_member("min_x_", min_x_),
+            make_member("max_x_", max_x_)
+        );
+    }
+    auto localMembers() const {
+        return std::make_tuple(
+            make_member("n_bins_x_", n_bins_x_),
+            make_member("min_x_", min_x_),
+            make_member("max_x_", max_x_)
+        );
+    }
+
     /** @brief Loads the data of another object */
     void load_(const GBasePlotter *) override;
 
@@ -2070,6 +2125,13 @@ protected:
     /**
 	  * Loads the data of another object
 	  */
+    auto localMembers() {
+        return std::make_tuple(make_member("data_", data_));
+    }
+    auto localMembers() const {
+        return std::make_tuple(make_member("data_", data_));
+    }
+
     void load_(const GBasePlotter *cp) override {
         // Check that we are dealing with a GDataCollector2T<x_type, y_type> reference independent of this object and convert the pointer
         const auto *p_load = g_convert_and_compare(cp, this);
@@ -2077,8 +2139,8 @@ protected:
         // Load our parent class'es data ...
         GBasePlotter::load_(cp);
 
-        // ... and then our own
-        data_ = p_load->data_; // This assumes that x_type is POD
+        // ... and then our own, derived from the single localMembers() declaration
+        g_load_members(localMembers(), p_load->localMembers());
     }
 
     /***************************************************************************/
@@ -2107,8 +2169,8 @@ protected:
         // Compare our parent data ...
         compare_base_t<GBasePlotter>(*this, *p_load, token);
 
-        // ... and then the local data
-        compare_t(IDENTITY(data_, p_load->data_), token);
+        // ... and then the local data, derived from the single localMembers() declaration
+        g_compare_members(localMembers(), p_load->localMembers(), token);
 
         // React on deviations from the expectation
         token.evaluate();
@@ -2389,6 +2451,13 @@ protected:
     /**
 	  * Loads the data of another object
 	  */
+    auto localMembers() {
+        return std::make_tuple(make_member("data_", data_));
+    }
+    auto localMembers() const {
+        return std::make_tuple(make_member("data_", data_));
+    }
+
     void load_(const GBasePlotter *cp) override {
         // Check that we are dealing with a GDataCollector2ET<x_type, y_type> reference independent of this object and convert the pointer
         const auto *p_load = g_convert_and_compare(cp, this);
@@ -2396,8 +2465,8 @@ protected:
         // Load our parent class'es data ...
         GBasePlotter::load_(cp);
 
-        // ... and then our own
-        data_ = p_load->data_; // This assumes that x_type is POD
+        // ... and then our own, derived from the single localMembers() declaration
+        g_load_members(localMembers(), p_load->localMembers());
     }
 
     /***************************************************************************/
@@ -2426,8 +2495,8 @@ protected:
         // Compare our parent data ...
         compare_base_t<GBasePlotter>(*this, *p_load, token);
 
-        // ... and then the local data
-        compare_t(IDENTITY(data_, p_load->data_), token);
+        // ... and then the local data, derived from the single localMembers() declaration
+        g_compare_members(localMembers(), p_load->localMembers(), token);
 
         // React on deviations from the expectation
         token.evaluate();
@@ -2543,6 +2612,30 @@ protected:
     /** @brief Retrieve the current drawing arguments */
     std::string drawingArguments(bool) const override;
 
+    /** @brief Single declaration of this class'es local data members */
+    auto localMembers() {
+        return std::make_tuple(
+            make_member("n_bins_x_", n_bins_x_),
+            make_member("n_bins_y_", n_bins_y_),
+            make_member("min_x_", min_x_),
+            make_member("max_x_", max_x_),
+            make_member("min_y_", min_y_),
+            make_member("max_y_", max_y_),
+            make_member("dropt_", dropt_)
+        );
+    }
+    auto localMembers() const {
+        return std::make_tuple(
+            make_member("n_bins_x_", n_bins_x_),
+            make_member("n_bins_y_", n_bins_y_),
+            make_member("min_x_", min_x_),
+            make_member("max_x_", max_x_),
+            make_member("min_y_", min_y_),
+            make_member("max_y_", max_y_),
+            make_member("dropt_", dropt_)
+        );
+    }
+
     /** @brief Loads the data of another object */
     void load_(const GBasePlotter *) override;
 
@@ -2640,6 +2733,20 @@ protected:
     /** @brief Retrieve the current drawing arguments */
     std::string drawingArguments(bool) const override;
 
+    /** @brief Single declaration of this class'es local data members */
+    auto localMembers() {
+        return std::make_tuple(
+            make_member("p_m_", p_m_),
+            make_member("draw_arrows_", draw_arrows_)
+        );
+    }
+    auto localMembers() const {
+        return std::make_tuple(
+            make_member("p_m_", p_m_),
+            make_member("draw_arrows_", draw_arrows_)
+        );
+    }
+
     /** @brief Loads the data of another object */
     void load_(const GBasePlotter *) override;
 
@@ -2720,6 +2827,14 @@ protected:
 
     /** @brief Retrieve the current drawing arguments */
     std::string drawingArguments(bool) const override;
+
+    /** @brief Single declaration of this class'es local data members */
+    auto localMembers() {
+        return std::make_tuple(make_member("p_m_", p_m_));
+    }
+    auto localMembers() const {
+        return std::make_tuple(make_member("p_m_", p_m_));
+    }
 
     /** @brief Loads the data of another object */
     void load_(const GBasePlotter *) override;
@@ -2952,6 +3067,13 @@ protected:
     /**
 	  * Loads the data of another object
 	  */
+    auto localMembers() {
+        return std::make_tuple(make_member("data_", data_));
+    }
+    auto localMembers() const {
+        return std::make_tuple(make_member("data_", data_));
+    }
+
     void load_(const GBasePlotter *cp) override {
         // Check that we are dealing with a GDataCollector3T<x_type, y_type, z_type> reference independent of this object and convert the pointer
         const auto *p_load = g_convert_and_compare(cp, this);
@@ -2959,8 +3081,8 @@ protected:
         // Load our parent class'es data ...
         GBasePlotter::load_(cp);
 
-        // ... and then our own
-        data_ = p_load->data_; // This assumes that x_type is POD
+        // ... and then our own, derived from the single localMembers() declaration
+        g_load_members(localMembers(), p_load->localMembers());
     }
 
     /***************************************************************************/
@@ -2989,8 +3111,8 @@ protected:
         // Compare our parent data ...
         compare_base_t<GBasePlotter>(*this, *p_load, token);
 
-        // ... and then the local data
-        compare_t(IDENTITY(data_, p_load->data_), token);
+        // ... and then the local data, derived from the single localMembers() declaration
+        g_compare_members(localMembers(), p_load->localMembers(), token);
 
         // React on deviations from the expectation
         token.evaluate();
@@ -3195,6 +3317,14 @@ protected:
 
     /** @brief Retrieve the current drawing arguments */
     std::string drawingArguments(bool) const override;
+
+    /** @brief Single declaration of this class'es local data members */
+    auto localMembers() {
+        return std::make_tuple(make_member("draw_lines_", draw_lines_));
+    }
+    auto localMembers() const {
+        return std::make_tuple(make_member("draw_lines_", draw_lines_));
+    }
 
     /** @brief Loads the data of another object */
     void load_(const GBasePlotter *) override;
@@ -3457,6 +3587,13 @@ protected:
     /**
 	  * Loads the data of another object
 	  */
+    auto localMembers() {
+        return std::make_tuple(make_member("data_", data_));
+    }
+    auto localMembers() const {
+        return std::make_tuple(make_member("data_", data_));
+    }
+
     void load_(const GBasePlotter *cp) override {
         // Check that we are dealing with a GDataCollector4T<x_type, y_type, z_type, w_type> reference independent of this object and convert the pointer
         const auto *p_load = g_convert_and_compare(cp, this);
@@ -3464,8 +3601,8 @@ protected:
         // Load our parent class'es data ...
         GBasePlotter::load_(cp);
 
-        // ... and then our own
-        data_ = p_load->data_; // This assumes that x_type is POD
+        // ... and then our own, derived from the single localMembers() declaration
+        g_load_members(localMembers(), p_load->localMembers());
     }
 
     /***************************************************************************/
@@ -3494,8 +3631,8 @@ protected:
         // Compare our parent data ...
         compare_base_t<GBasePlotter>(*this, *p_load, token);
 
-        // ... and then the local data
-        compare_t(IDENTITY(data_, p_load->data_), token);
+        // ... and then the local data, derived from the single localMembers() declaration
+        g_compare_members(localMembers(), p_load->localMembers(), token);
 
         // React on deviations from the expectation
         token.evaluate();
@@ -3768,6 +3905,24 @@ protected:
     /** @brief Retrieve the current drawing arguments */
     std::string drawingArguments(bool) const override;
 
+    /** @brief Single declaration of this class'es local data members */
+    auto localMembers() {
+        return std::make_tuple(
+            make_member("min_marker_size_", min_marker_size_),
+            make_member("max_marker_size_", max_marker_size_),
+            make_member("small_w_large_marker_", small_w_large_marker_),
+            make_member("n_best_", n_best_)
+        );
+    }
+    auto localMembers() const {
+        return std::make_tuple(
+            make_member("min_marker_size_", min_marker_size_),
+            make_member("max_marker_size_", max_marker_size_),
+            make_member("small_w_large_marker_", small_w_large_marker_),
+            make_member("n_best_", n_best_)
+        );
+    }
+
     /** @brief Loads the data of another object */
     void load_(const GBasePlotter *) override;
 
@@ -3854,6 +4009,22 @@ protected:
 
     /** @brief Retrieve the current drawing arguments */
     std::string drawingArguments(bool) const override;
+
+    /** @brief Single declaration of this class'es local data members */
+    auto localMembers() {
+        return std::make_tuple(
+            make_member("function_description_", function_description_),
+            make_member("x_extremes_", x_extremes_),
+            make_member("n_samples_x_", n_samples_x_)
+        );
+    }
+    auto localMembers() const {
+        return std::make_tuple(
+            make_member("function_description_", function_description_),
+            make_member("x_extremes_", x_extremes_),
+            make_member("n_samples_x_", n_samples_x_)
+        );
+    }
 
     /** @brief Loads the data of another object */
     void load_(const GBasePlotter *) override;
@@ -3950,6 +4121,26 @@ protected:
 
     /** @brief Retrieve the current drawing arguments */
     std::string drawingArguments(bool) const override;
+
+    /** @brief Single declaration of this class'es local data members */
+    auto localMembers() {
+        return std::make_tuple(
+            make_member("function_description_", function_description_),
+            make_member("x_extremes_", x_extremes_),
+            make_member("y_extremes_", y_extremes_),
+            make_member("n_samples_x_", n_samples_x_),
+            make_member("n_samples_y_", n_samples_y_)
+        );
+    }
+    auto localMembers() const {
+        return std::make_tuple(
+            make_member("function_description_", function_description_),
+            make_member("x_extremes_", x_extremes_),
+            make_member("y_extremes_", y_extremes_),
+            make_member("n_samples_x_", n_samples_x_),
+            make_member("n_samples_y_", n_samples_y_)
+        );
+    }
 
     /** @brief Loads the data of another object */
     void load_(const GBasePlotter *) override;

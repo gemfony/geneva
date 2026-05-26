@@ -37,6 +37,7 @@
 #include <concepts>
 #include <ctime>
 #include <iostream>
+#include <tuple>
 #include <type_traits>
 #include <utility>
 
@@ -113,6 +114,14 @@ public:
 
 protected:
     /************************************************************************/
+    /** @brief Single declaration of this class'es local data members */
+    auto localMembers() {
+        return std::make_tuple(Gem::Common::make_member("use_raw_evaluation_", use_raw_evaluation_));
+    }
+    auto localMembers() const {
+        return std::make_tuple(Gem::Common::make_member("use_raw_evaluation_", use_raw_evaluation_));
+    }
+
     /** @brief Loads the data of another object */
     void load_(const GObject *cp) override;
 
@@ -252,6 +261,12 @@ private:
     ///////////////////////////////////////////////////////////////////////
 
 public:
+    // The private split-serialization member load(Archive&, unsigned) below
+    // name-hides the public load(const&) / load(shared_ptr<>) inherited from
+    // Gem::Common::GCommonInterfaceT<GObject>. Re-expose them so callers (and
+    // the standard unit tests) can load one GBase from another.
+    using GObject::load;
+
     /** @brief The copy constructor */
     GBase(GBase const &cp);
 

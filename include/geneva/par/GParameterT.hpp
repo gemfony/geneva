@@ -33,6 +33,7 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard header files go here
+#include <tuple>
 
 // Boost header files go here
 
@@ -62,7 +63,9 @@ class GParameterT // NOLINT(cppcoreguidelines-special-member-functions)
         ar &make_nvp(
             "GParameterBaseWithAdaptors_T",
             boost::serialization::base_object<GParameterBaseWithAdaptorsT<T>>(*this)
-        ) & BOOST_SERIALIZATION_NVP(val_);
+        );
+        // ... and then our own data, derived from the single localMembers() declaration
+        Gem::Common::serialize_members(ar, this->localMembers());
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -204,6 +207,22 @@ protected:
 
     /***************************************************************************/
     /**
+     * The single declaration of this class'es local data members. load_() and
+     * compare_() are derived from it, so the member list lives in one place.
+     */
+    auto localMembers() {
+        return std::make_tuple(
+            Gem::Common::make_member("val_", val_)
+        );
+    }
+    auto localMembers() const {
+        return std::make_tuple(
+            Gem::Common::make_member("val_", val_)
+        );
+    }
+
+    /***************************************************************************/
+    /**
 	  * Loads the data of another GObject
 	  *
 	  * @param cp A copy of another GParameterT<T> object, camouflaged as a GObject
@@ -216,8 +235,8 @@ protected:
         // Load our parent class'es data ...
         GParameterBaseWithAdaptorsT<T>::load_(cp);
 
-        // ... and then our own data
-        val_ = p_load->val_;
+        // ... and then our own data, derived from the single localMembers() declaration
+        Gem::Common::g_load_members(localMembers(), p_load->localMembers());
     }
 
     /** @brief Allow access to this classes compare_ function */
@@ -252,8 +271,8 @@ protected:
         // Compare our parent data ...
         Gem::Common::compare_base_t<GParameterBaseWithAdaptorsT<T>>(*this, *p_load, token);
 
-        // ... and then the local data
-        compare_t(IDENTITY(val_, p_load->val_), token);
+        // ... and then the local data, derived from the single localMembers() declaration
+        Gem::Common::g_compare_members(localMembers(), p_load->localMembers(), token);
 
         // React on deviations from the expectation
         token.evaluate();

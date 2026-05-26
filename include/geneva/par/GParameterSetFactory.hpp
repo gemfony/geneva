@@ -56,7 +56,10 @@ class GParameterSetFactory // NOLINT(cppcoreguidelines-special-member-functions)
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(Gem::Common::GFactoryT<GParameterSet>) &
+        ar &boost::serialization::make_nvp(
+            "GFactoryT_GParameterSet",
+            boost::serialization::base_object<Gem::Common::GFactoryT<GParameterSet>>(*this)
+        ) &
             BOOST_SERIALIZATION_NVP(pre_processor_) & BOOST_SERIALIZATION_NVP(post_processor_);
     }
     ///////////////////////////////////////////////////////////////////////

@@ -671,6 +671,14 @@ protected:
     //---------------------------------------------------------------------------
     /** @brief Adds local configuration options to a GParserBuilder object */
     void addConfigurationOptions_(Gem::Common::GParserBuilder &) override;
+    /** @brief Single declaration of this class'es local data members */
+    auto localMembers() {
+        return std::make_tuple(Gem::Common::make_member("demo_function_", demo_function_));
+    }
+    auto localMembers() const {
+        return std::make_tuple(Gem::Common::make_member("demo_function_", demo_function_));
+    }
+
     /** @brief Loads the data of another GFunctionIndividual */
     void load_(const GObject *) final;
 
@@ -978,6 +986,14 @@ protected:
 
     /** @brief Adds local configuration options to a GParserBuilder object */
     void addConfigurationOptions_(Gem::Common::GParserBuilder &) override;
+    /** @brief Single declaration of this class'es local data members */
+    auto localMembers() {
+        return std::make_tuple(Gem::Common::make_member("c_", c_));
+    }
+    auto localMembers() const {
+        return std::make_tuple(Gem::Common::make_member("c_", c_));
+    }
+
     /** @brief Loads the data of another GParameterSetMultiConstraint */
     void load_(const GObject *) override;
 
@@ -1039,6 +1055,19 @@ protected:
 
     /** @brief Adds local configuration options to a GParserBuilder object */
     void addConfigurationOptions_(Gem::Common::GParserBuilder &) override;
+
+    /** @brief The single declaration of this class'es local data members. */
+    auto localMembers() {
+        return std::make_tuple(
+            Gem::Common::make_member("c_", c_),
+            Gem::Common::make_member("gap_", gap_));
+    }
+    auto localMembers() const {
+        return std::make_tuple(
+            Gem::Common::make_member("c_", c_),
+            Gem::Common::make_member("gap_", gap_));
+    }
+
     /** @brief Loads the data of another GParameterSetMultiConstraint */
     void load_(const GObject *) override;
 
@@ -1100,6 +1129,14 @@ protected:
 
     /** @brief Adds local configuration options to a GParserBuilder object */
     void addConfigurationOptions_(Gem::Common::GParserBuilder &) override;
+    /** @brief Single declaration of this class'es local data members */
+    auto localMembers() {
+        return std::make_tuple(Gem::Common::make_member("diameter_", diameter_));
+    }
+    auto localMembers() const {
+        return std::make_tuple(Gem::Common::make_member("diameter_", diameter_));
+    }
+
     /** @brief Loads the data of another GParameterSetMultiConstraint */
     void load_(const GObject *) override;
 

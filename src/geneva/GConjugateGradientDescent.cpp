@@ -190,15 +190,12 @@ void GConjugateGradientDescent::compare_(
     // Compare our parent data ...
     Gem::Common::compare_base_t<GBase>(*this, *p_load, token);
 
-    // ... and then the local data
-    compare_t(IDENTITY(n_starting_points_, p_load->n_starting_points_), token);
-    compare_t(IDENTITY(n_fp_parms_first_, p_load->n_fp_parms_first_), token);
-    compare_t(IDENTITY(finite_step_, p_load->finite_step_), token);
-    compare_t(IDENTITY(step_size_, p_load->step_size_), token);
+    // ... and then the local data, derived from the single localMembers() declaration.
     // dbl_lower_parameter_boundaries_, dbl_upper_parameter_boundaries_, adjusted_finite_step_,
     // prev_gradient_, prev_direction_ and cg_history_valid_ are transient: recomputed in
     // init() from the serialized fields above and not restored in load_(). Comparing
     // them would cause round-trip equality tests to fail spuriously.
+    g_compare_members(localMembers(), p_load->localMembers(), token);
 
     token.evaluate();
 }
@@ -238,13 +235,10 @@ void GConjugateGradientDescent::load_(const GObject *cp) {
     // First load the parent class'es data (this also copies all individuals).
     GBase::load_(cp);
 
-    // ... and then our own (serialized) data
-    n_starting_points_ = p_load->n_starting_points_;
-    n_fp_parms_first_ = p_load->n_fp_parms_first_;
-    finite_step_ = p_load->finite_step_;
-    step_size_ = p_load->step_size_;
+    // ... and then our own (serialized) data, derived from the single localMembers() declaration.
     // adjusted_finite_step_, dbl*ParameterBoundaries_, prev_gradient_, prev_direction_,
     // cg_history_valid_ are transient and recomputed in init().
+    Gem::Common::g_load_members(localMembers(), p_load->localMembers());
 }
 
 /******************************************************************************/

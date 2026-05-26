@@ -33,6 +33,7 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard headers go here
+#include <tuple>
 
 // Boost headers go here
 
@@ -85,6 +86,14 @@ public:
 protected:
     /***************************************************************************/
     // Virtual or overridden protected functions
+
+    /** @brief Single declaration of this class'es local data members */
+    auto localMembers() {
+        return std::make_tuple(Gem::Common::make_member("pop_pos_", pop_pos_));
+    }
+    auto localMembers() const {
+        return std::make_tuple(Gem::Common::make_member("pop_pos_", pop_pos_));
+    }
 
     /** @brief Loads the data of another GNelderMead_PersonalityTraits object */
     void load_(const GObject *) override;

@@ -44,11 +44,13 @@
 #include <sstream>
 #include <string>
 #include <tuple>
+#include <utility>
 #include <type_traits>
 #include <typeinfo>
 #include <vector>
 
 // Boost headers go here
+#include <boost/serialization/nvp.hpp>
 
 // Gemfony headers go here
 #include "common/GCommonEnums.hpp"
@@ -1327,6 +1329,91 @@ void compare_base_t(base_type const &x, base_type const &y, GToken &token) {
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace()) << "Caught unknown exception" << '\n'
         );
     }
+}
+
+/******************************************************************************/
+/**
+ * Single-source-of-truth machinery for a GObject subclass's local data members.
+ *
+ * A class declares its local members exactly once through a localMembers() pair
+ * (const + non-const) that returns a tuple of member_t entries (a name plus a
+ * reference to the member). load_() and compare_() then derive their behaviour
+ * from that single declaration via g_load_members() / g_compare_members(),
+ * instead of each function enumerating the members separately. This removes the
+ * "added a member but forgot to update load_()/compare_()" class of bugs.
+ *
+ * serialize() is intentionally NOT derived from this (yet) -- the wire format
+ * is left untouched; see prompts/2026-05-25-serialize-single-source-followup.md.
+ */
+template <typename T>
+struct member_t {
+    std::string name;
+    T &ref; // T& in a non-const context, T const& in a const context
+};
+
+/** @brief Builds one named member reference for a localMembers() tuple. */
+template <typename T>
+member_t<T> make_member(std::string name, T &ref) {
+    return member_t<T>{std::move(name), ref};
+}
+
+template <typename DstTuple, typename SrcTuple, std::size_t... I>
+void g_load_members_impl(DstTuple &dst, const SrcTuple &src, std::index_sequence<I...>) {
+    ((std::get<I>(dst).ref = std::get<I>(src).ref), ...);
+}
+
+/** @brief Copies each local member from src to dst, member by member. */
+template <typename DstTuple, typename SrcTuple>
+void g_load_members(DstTuple dst, SrcTuple src) {
+    static_assert(
+        std::tuple_size_v<DstTuple> == std::tuple_size_v<SrcTuple>,
+        "g_load_members: localMembers() arity mismatch"
+    );
+    g_load_members_impl(dst, src, std::make_index_sequence<std::tuple_size_v<DstTuple>>{});
+}
+
+template <typename ATuple, typename BTuple, std::size_t... I>
+void g_compare_members_impl(
+    const ATuple &a, const BTuple &b, GToken &token, std::index_sequence<I...>
+) {
+    (compare_t(
+         getIdentity(
+             std::get<I>(a).ref, std::get<I>(b).ref,
+             std::get<I>(a).name, std::get<I>(b).name
+         ),
+         token
+     ),
+     ...);
+}
+
+/** @brief Compares each local member pairwise, recording results in the token. */
+template <typename ATuple, typename BTuple>
+void g_compare_members(ATuple a, BTuple b, GToken &token) {
+    static_assert(
+        std::tuple_size_v<ATuple> == std::tuple_size_v<BTuple>,
+        "g_compare_members: localMembers() arity mismatch"
+    );
+    g_compare_members_impl(a, b, token, std::make_index_sequence<std::tuple_size_v<ATuple>>{});
+}
+
+/******************************************************************************/
+/**
+ * Serializes each local member through the Boost archive, using the member's
+ * name (from its member_t) as the NVP tag. This lets a class's serialize()
+ * derive its member list from the same single localMembers() declaration that
+ * load_() and compare_() already use, keeping the member list in one place.
+ *
+ * The temporary tuple passed by value keeps its name strings alive for the full
+ * duration of the call, during which the (ar & ...) operations run -- so the
+ * c_str() pointers handed to make_nvp remain valid.
+ */
+template <typename Archive, typename Tuple, std::size_t... I>
+void serialize_members_impl(Archive& ar, Tuple& members, std::index_sequence<I...>) {
+    ((ar & boost::serialization::make_nvp(std::get<I>(members).name.c_str(), std::get<I>(members).ref)), ...);
+}
+template <typename Archive, typename Tuple>
+void serialize_members(Archive& ar, Tuple members) {
+    serialize_members_impl(ar, members, std::make_index_sequence<std::tuple_size_v<Tuple>>{});
 }
 
 /******************************************************************************/

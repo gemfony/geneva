@@ -33,6 +33,7 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard header files go here
+#include <tuple>
 
 // Boost header files go here
 
@@ -62,7 +63,10 @@ class GParameterSetConstraint // NOLINT(cppcoreguidelines-special-member-functio
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPreEvaluationValidityCheckT<GParameterSet>);
+        ar &boost::serialization::make_nvp(
+            "GPreEvaluationValidityCheckT_GParameterSet",
+            boost::serialization::base_object<GPreEvaluationValidityCheckT<GParameterSet>>(*this)
+        );
     }
     ///////////////////////////////////////////////////////////////////////
 public:
@@ -140,6 +144,14 @@ protected:
     void addConfigurationOptions_(Gem::Common::GParserBuilder &) override;
     /** @brief Loads the data of another GParameterSetConstraint */
     void load_(const GObject *) override;
+
+    /** @brief Single declaration of this class'es local data members */
+    auto localMembers() {
+        return std::make_tuple(Gem::Common::make_member("raw_formula_", raw_formula_));
+    }
+    auto localMembers() const {
+        return std::make_tuple(Gem::Common::make_member("raw_formula_", raw_formula_));
+    }
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GParameterSetFormulaConstraint>(

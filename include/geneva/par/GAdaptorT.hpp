@@ -34,6 +34,7 @@
 
 // Standard headers go here
 #include <any>
+#include <tuple>
 #include <type_traits>
 
 // Boost headers go here
@@ -94,13 +95,9 @@ class GAdaptorT : public GObject {
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject) &
-            BOOST_SERIALIZATION_NVP(adaption_counter_) &
-            BOOST_SERIALIZATION_NVP(adaption_threshold_) & BOOST_SERIALIZATION_NVP(ad_prob_) &
-            BOOST_SERIALIZATION_NVP(adapt_ad_prob_) & BOOST_SERIALIZATION_NVP(min_ad_prob_) &
-            BOOST_SERIALIZATION_NVP(max_ad_prob_) & BOOST_SERIALIZATION_NVP(adaption_mode_) &
-            BOOST_SERIALIZATION_NVP(adapt_adaption_probability_) &
-            BOOST_SERIALIZATION_NVP(ad_prob_reset_);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject);
+        // Then our own data, derived from the single localMembers() declaration
+        Gem::Common::serialize_members(ar, this->localMembers());
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -724,6 +721,38 @@ public:
 protected:
     /***************************************************************************/
     /**
+     * The single declaration of this class'es local data members. load_() and
+     * compare_() are derived from it, so the member list lives in one place.
+     */
+    auto localMembers() {
+        return std::make_tuple(
+            Gem::Common::make_member("adaption_counter_", adaption_counter_),
+            Gem::Common::make_member("adaption_threshold_", adaption_threshold_),
+            Gem::Common::make_member("ad_prob_", ad_prob_),
+            Gem::Common::make_member("adapt_ad_prob_", adapt_ad_prob_),
+            Gem::Common::make_member("min_ad_prob_", min_ad_prob_),
+            Gem::Common::make_member("max_ad_prob_", max_ad_prob_),
+            Gem::Common::make_member("adaption_mode_", adaption_mode_),
+            Gem::Common::make_member("adapt_adaption_probability_", adapt_adaption_probability_),
+            Gem::Common::make_member("ad_prob_reset_", ad_prob_reset_)
+        );
+    }
+    auto localMembers() const {
+        return std::make_tuple(
+            Gem::Common::make_member("adaption_counter_", adaption_counter_),
+            Gem::Common::make_member("adaption_threshold_", adaption_threshold_),
+            Gem::Common::make_member("ad_prob_", ad_prob_),
+            Gem::Common::make_member("adapt_ad_prob_", adapt_ad_prob_),
+            Gem::Common::make_member("min_ad_prob_", min_ad_prob_),
+            Gem::Common::make_member("max_ad_prob_", max_ad_prob_),
+            Gem::Common::make_member("adaption_mode_", adaption_mode_),
+            Gem::Common::make_member("adapt_adaption_probability_", adapt_adaption_probability_),
+            Gem::Common::make_member("ad_prob_reset_", ad_prob_reset_)
+        );
+    }
+
+    /***************************************************************************/
+    /**
 	  * Loads the contents of another GAdaptorT<T, fp_type>. The function
 	  * is similar to a copy constructor (but with a pointer as
 	  * argument). As this function might be called in an environment
@@ -741,16 +770,8 @@ protected:
         // Load the parent class'es data
         GObject::load_(cp);
 
-        // Then our own data
-        adaption_counter_ = p_load->adaption_counter_;
-        adaption_threshold_ = p_load->adaption_threshold_;
-        ad_prob_ = p_load->ad_prob_;
-        adapt_ad_prob_ = p_load->adapt_ad_prob_;
-        min_ad_prob_ = p_load->min_ad_prob_;
-        max_ad_prob_ = p_load->max_ad_prob_;
-        adaption_mode_ = p_load->adaption_mode_;
-        adapt_adaption_probability_ = p_load->adapt_adaption_probability_;
-        ad_prob_reset_ = p_load->ad_prob_reset_;
+        // Then our own data, derived from the single localMembers() declaration
+        Gem::Common::g_load_members(localMembers(), p_load->localMembers());
     }
 
     /***************************************************************************/
@@ -786,16 +807,8 @@ protected:
         // Compare our parent data ...
         Gem::Common::compare_base_t<GObject>(*this, *p_load, token);
 
-        // ... and then the local data
-        compare_t(IDENTITY(adaption_counter_, p_load->adaption_counter_), token);
-        compare_t(IDENTITY(adaption_threshold_, p_load->adaption_threshold_), token);
-        compare_t(IDENTITY(ad_prob_, p_load->ad_prob_), token);
-        compare_t(IDENTITY(adapt_ad_prob_, p_load->adapt_ad_prob_), token);
-        compare_t(IDENTITY(min_ad_prob_, p_load->min_ad_prob_), token);
-        compare_t(IDENTITY(max_ad_prob_, p_load->max_ad_prob_), token);
-        compare_t(IDENTITY(adaption_mode_, p_load->adaption_mode_), token);
-        compare_t(IDENTITY(adapt_adaption_probability_, p_load->adapt_adaption_probability_), token);
-        compare_t(IDENTITY(ad_prob_reset_, p_load->ad_prob_reset_), token);
+        // ... and then the local data, derived from the single localMembers() declaration
+        Gem::Common::g_compare_members(localMembers(), p_load->localMembers(), token);
 
         // React on deviations from the expectation
         token.evaluate();

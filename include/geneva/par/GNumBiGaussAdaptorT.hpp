@@ -33,6 +33,7 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard headers go here
+#include <tuple>
 
 // Boost headers go here
 
@@ -65,13 +66,9 @@ class GNumBiGaussAdaptorT // NOLINT(cppcoreguidelines-special-member-functions)
         ar &make_nvp(
             "GAdaptorT_num",
             boost::serialization::base_object<GAdaptorT<num_type>>(*this)
-        ) & BOOST_SERIALIZATION_NVP(use_symmetric_sigmas_) &
-            BOOST_SERIALIZATION_NVP(sigma1_) & BOOST_SERIALIZATION_NVP(sigma_sigma1_) &
-            BOOST_SERIALIZATION_NVP(min_sigma1_) & BOOST_SERIALIZATION_NVP(max_sigma1_) &
-            BOOST_SERIALIZATION_NVP(sigma2_) & BOOST_SERIALIZATION_NVP(sigma_sigma2_) &
-            BOOST_SERIALIZATION_NVP(min_sigma2_) & BOOST_SERIALIZATION_NVP(max_sigma2_) &
-            BOOST_SERIALIZATION_NVP(delta_) & BOOST_SERIALIZATION_NVP(sigma_delta_) &
-            BOOST_SERIALIZATION_NVP(min_delta_) & BOOST_SERIALIZATION_NVP(max_delta_);
+        );
+        // ... and then our own data, derived from the single localMembers() declaration
+        Gem::Common::serialize_members(ar, this->localMembers());
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -569,6 +566,46 @@ protected:
 
     /***************************************************************************/
     /**
+     * The single declaration of this class'es local data members. load_() and
+     * compare_() are derived from it, so the member list lives in one place.
+     */
+    auto localMembers() {
+        return std::make_tuple(
+            Gem::Common::make_member("use_symmetric_sigmas_", use_symmetric_sigmas_),
+            Gem::Common::make_member("sigma1_", sigma1_),
+            Gem::Common::make_member("sigma_sigma1_", sigma_sigma1_),
+            Gem::Common::make_member("min_sigma1_", min_sigma1_),
+            Gem::Common::make_member("max_sigma1_", max_sigma1_),
+            Gem::Common::make_member("sigma2_", sigma2_),
+            Gem::Common::make_member("sigma_sigma2_", sigma_sigma2_),
+            Gem::Common::make_member("min_sigma2_", min_sigma2_),
+            Gem::Common::make_member("max_sigma2_", max_sigma2_),
+            Gem::Common::make_member("delta_", delta_),
+            Gem::Common::make_member("sigma_delta_", sigma_delta_),
+            Gem::Common::make_member("min_delta_", min_delta_),
+            Gem::Common::make_member("max_delta_", max_delta_)
+        );
+    }
+    auto localMembers() const {
+        return std::make_tuple(
+            Gem::Common::make_member("use_symmetric_sigmas_", use_symmetric_sigmas_),
+            Gem::Common::make_member("sigma1_", sigma1_),
+            Gem::Common::make_member("sigma_sigma1_", sigma_sigma1_),
+            Gem::Common::make_member("min_sigma1_", min_sigma1_),
+            Gem::Common::make_member("max_sigma1_", max_sigma1_),
+            Gem::Common::make_member("sigma2_", sigma2_),
+            Gem::Common::make_member("sigma_sigma2_", sigma_sigma2_),
+            Gem::Common::make_member("min_sigma2_", min_sigma2_),
+            Gem::Common::make_member("max_sigma2_", max_sigma2_),
+            Gem::Common::make_member("delta_", delta_),
+            Gem::Common::make_member("sigma_delta_", sigma_delta_),
+            Gem::Common::make_member("min_delta_", min_delta_),
+            Gem::Common::make_member("max_delta_", max_delta_)
+        );
+    }
+
+    /***************************************************************************/
+    /**
      * This function loads the data of another GNumBiGaussAdaptorT, camouflaged as a GObject.
      * We assume that the values given to us by the other object are correct and do no error checks.
      *
@@ -585,20 +622,8 @@ protected:
         // Load the data of our parent class ...
         GAdaptorT<num_type>::load_(cp);
 
-        // ... and then our own data
-        use_symmetric_sigmas_ = p_load->use_symmetric_sigmas_;
-        sigma1_ = p_load->sigma1_;
-        sigma_sigma1_ = p_load->sigma_sigma1_;
-        min_sigma1_ = p_load->min_sigma1_;
-        max_sigma1_ = p_load->max_sigma1_;
-        sigma2_ = p_load->sigma2_;
-        sigma_sigma2_ = p_load->sigma_sigma2_;
-        min_sigma2_ = p_load->min_sigma2_;
-        max_sigma2_ = p_load->max_sigma2_;
-        delta_ = p_load->delta_;
-        sigma_delta_ = p_load->sigma_delta_;
-        min_delta_ = p_load->min_delta_;
-        max_delta_ = p_load->max_delta_;
+        // ... and then our own data, derived from the single localMembers() declaration
+        Gem::Common::g_load_members(localMembers(), p_load->localMembers());
     }
 
     /***************************************************************************/
@@ -638,19 +663,7 @@ protected:
         Gem::Common::compare_base_t<GAdaptorT<num_type>>(*this, *p_load, token);
 
         // ... and then the local data
-        compare_t(IDENTITY(use_symmetric_sigmas_, p_load->use_symmetric_sigmas_), token);
-        compare_t(IDENTITY(sigma1_, p_load->sigma1_), token);
-        compare_t(IDENTITY(sigma_sigma1_, p_load->sigma_sigma1_), token);
-        compare_t(IDENTITY(min_sigma1_, p_load->min_sigma1_), token);
-        compare_t(IDENTITY(max_sigma1_, p_load->max_sigma1_), token);
-        compare_t(IDENTITY(sigma2_, p_load->sigma2_), token);
-        compare_t(IDENTITY(sigma_sigma2_, p_load->sigma_sigma2_), token);
-        compare_t(IDENTITY(min_sigma2_, p_load->min_sigma2_), token);
-        compare_t(IDENTITY(max_sigma2_, p_load->max_sigma2_), token);
-        compare_t(IDENTITY(delta_, p_load->delta_), token);
-        compare_t(IDENTITY(sigma_delta_, p_load->sigma_delta_), token);
-        compare_t(IDENTITY(min_delta_, p_load->min_delta_), token);
-        compare_t(IDENTITY(max_delta_, p_load->max_delta_), token);
+        Gem::Common::g_compare_members(localMembers(), p_load->localMembers(), token);
 
         // React on deviations from the expectation
         token.evaluate();

@@ -681,8 +681,8 @@ void GNeuralNetworkIndividual::compare_(
     // Compare our parent data ...
     Gem::Common::compare_base_t<gpar::GParameterSet>(*this, *p_load, token);
 
-    // ... and then the local data
-    compare_t(IDENTITY(t_f_, p_load->t_f_), token);
+    // ... and then the local data, derived from the single localMembers() declaration
+    g_compare_members(localMembers(), p_load->localMembers(), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -1390,11 +1390,10 @@ void GNeuralNetworkIndividual::load_(const GObject *cp) {
     // Load the parent class'es data
     gpar::GParameterSet::load_(cp);
 
-    // Load our local data.
-    t_f_ = p_load->t_f_;
-
+    // Load our local data, derived from the single localMembers() declaration.
     // We do not copy the network data, as it is always initialized through
     // the constructors, even in the case of a copy constructor
+    Gem::Common::g_load_members(localMembers(), p_load->localMembers());
 }
 
 /******************************************************************************/

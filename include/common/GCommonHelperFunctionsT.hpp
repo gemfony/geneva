@@ -468,7 +468,12 @@ void copyCloneableSmartPointer(const std::shared_ptr<T> &from, std::shared_ptr<T
     if(not from) {
         to.reset();
     }
-    else if(not to) {
+    else if(not to or typeid(*to) != typeid(*from)) {
+        // Either nothing to load into, or the existing target has a different
+        // dynamic type than the source (e.g. polymorphic container slots whose
+        // element types differ after a structural change). load() assumes a
+        // matching concrete type, so in both cases deep-clone the source instead
+        // of loading into a type-incompatible target.
         to = from->T::template clone<T>();
     }
     else {

@@ -34,6 +34,7 @@
 
 // Standard headers go here
 #include <memory>
+#include <tuple>
 
 // Boost headers go here
 
@@ -118,6 +119,24 @@ protected:
 
     /** @brief Adds local configuration options to a GParserBuilder object */
     void addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) override;
+
+    /** @brief Single declaration of this class'es serialized local data members */
+    auto localMembers() {
+        return std::make_tuple(
+            Gem::Common::make_member("n_starting_points_", n_starting_points_),
+            Gem::Common::make_member("n_fp_parms_first_", n_fp_parms_first_),
+            Gem::Common::make_member("finite_step_", finite_step_),
+            Gem::Common::make_member("step_size_", step_size_)
+        );
+    }
+    auto localMembers() const {
+        return std::make_tuple(
+            Gem::Common::make_member("n_starting_points_", n_starting_points_),
+            Gem::Common::make_member("n_fp_parms_first_", n_fp_parms_first_),
+            Gem::Common::make_member("finite_step_", finite_step_),
+            Gem::Common::make_member("step_size_", step_size_)
+        );
+    }
 
     /** @brief Loads the data of another population */
     void load_(const GObject *) override;

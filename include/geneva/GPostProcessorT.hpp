@@ -35,6 +35,7 @@
 // Standard headers go here
 #include <set>
 #include <string>
+#include <tuple>
 
 // Boost headers go here
 #include <boost/serialization/serialization.hpp> // See last comment at https://svn.boost.org/trac/boost/ticket/12126 . Fixes "sole" inclusion of set.hpp
@@ -339,6 +340,22 @@ public:
 
 protected:
     /**************************************************************************/
+    /** @brief Single declaration of this class'es local data members */
+    auto localMembers() {
+        return std::make_tuple(
+            Gem::Common::make_member("oa_config_file_", oa_config_file_),
+            Gem::Common::make_member("executor_config_file_", executor_config_file_),
+            Gem::Common::make_member("execution_mode_", execution_mode_)
+        );
+    }
+    auto localMembers() const {
+        return std::make_tuple(
+            Gem::Common::make_member("oa_config_file_", oa_config_file_),
+            Gem::Common::make_member("executor_config_file_", executor_config_file_),
+            Gem::Common::make_member("execution_mode_", execution_mode_)
+        );
+    }
+
     /** @brief Loads the data of another GEvolutionaryAlgorithmPostOptimizer object */
     void
     load_(const Gem::Common::GSerializableFunctionObjectT<gpar::GParameterSet> *cp) override;

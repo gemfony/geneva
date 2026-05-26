@@ -33,6 +33,7 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard header files go here
+#include <tuple>
 #include <type_traits>
 
 // Boost header files go here
@@ -205,6 +206,22 @@ protected:
 
     /***************************************************************************/
     /**
+     * The single declaration of this class'es local data members. load_() and
+     * compare_() are derived from it, so the member list lives in one place.
+     */
+    auto localMembers() {
+        return std::make_tuple(
+            Gem::Common::make_member("allow_negative_", allow_negative_)
+        );
+    }
+    auto localMembers() const {
+        return std::make_tuple(
+            Gem::Common::make_member("allow_negative_", allow_negative_)
+        );
+    }
+
+    /***************************************************************************/
+    /**
      * Loads the data of another GPreEvaluationValidityCheckT<ind_type>
      */
     void load_(const GObject *cp) override {
@@ -218,8 +235,8 @@ protected:
         // Load our parent class'es data ...
         GObject::load_(cp);
 
-        // ... and then our local data
-        allow_negative_ = p_load->allow_negative_;
+        // ... and then our local data, derived from the single localMembers() declaration
+        Gem::Common::g_load_members(localMembers(), p_load->localMembers());
     }
 
     /***************************************************************************/
@@ -258,8 +275,8 @@ protected:
         // Compare our parent data ...
         Gem::Common::compare_base_t<GObject>(*this, *p_load, token);
 
-        // ... and then the local data
-        compare_t(IDENTITY(allow_negative_, p_load->allow_negative_), token);
+        // ... and then the local data, derived from the single localMembers() declaration
+        Gem::Common::g_compare_members(localMembers(), p_load->localMembers(), token);
 
         // React on deviations from the expectation
         token.evaluate();
@@ -289,7 +306,10 @@ class GValidityCheckContainerT : public GPreEvaluationValidityCheckT<ind_type> {
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPreEvaluationValidityCheckT<ind_type>);
+        ar &boost::serialization::make_nvp(
+            "GPreEvaluationValidityCheckT_ind_type",
+            boost::serialization::base_object<GPreEvaluationValidityCheckT<ind_type>>(*this)
+        );
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -450,7 +470,10 @@ class GCheckCombinerT : public GValidityCheckContainerT<ind_type> {
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPreEvaluationValidityCheckT<ind_type>) &
+        ar &boost::serialization::make_nvp(
+            "GPreEvaluationValidityCheckT_ind_type",
+            boost::serialization::base_object<GPreEvaluationValidityCheckT<ind_type>>(*this)
+        ) &
             BOOST_SERIALIZATION_NVP(combiner_policy_);
     }
     ///////////////////////////////////////////////////////////////////////
@@ -589,6 +612,22 @@ protected:
 
     /***************************************************************************/
     /**
+     * The single declaration of this class'es local data members. load_() and
+     * compare_() are derived from it, so the member list lives in one place.
+     */
+    auto localMembers() {
+        return std::make_tuple(
+            Gem::Common::make_member("combiner_policy_", combiner_policy_)
+        );
+    }
+    auto localMembers() const {
+        return std::make_tuple(
+            Gem::Common::make_member("combiner_policy_", combiner_policy_)
+        );
+    }
+
+    /***************************************************************************/
+    /**
      * Loads the data of another GPreEvaluationValidityCheckT<ind_type>
      */
     void load_(const GObject *cp) override {
@@ -599,8 +638,8 @@ protected:
         // Load our parent class'es data ...
         GPreEvaluationValidityCheckT<ind_type>::load_(cp);
 
-        // and then our local data
-        combiner_policy_ = p_load->combiner_policy_;
+        // and then our local data, derived from the single localMembers() declaration
+        Gem::Common::g_load_members(localMembers(), p_load->localMembers());
     }
 
     /***************************************************************************/
@@ -636,8 +675,8 @@ protected:
         // Compare our parent data ...
         compare_base_t<GValidityCheckContainerT<ind_type>>(*this, *p_load, token);
 
-        // ... and then the local data
-        compare_t(IDENTITY(combiner_policy_, p_load->combiner_policy_), token);
+        // ... and then the local data, derived from the single localMembers() declaration
+        Gem::Common::g_compare_members(localMembers(), p_load->localMembers(), token);
 
         // React on deviations from the expectation
         token.evaluate();

@@ -34,6 +34,7 @@
 
 // Standard headers go here
 #include <memory>
+#include <tuple>
 #include <vector>
 
 // Boost headers go here
@@ -159,6 +160,30 @@ protected:
 
     /** @brief Adds local configuration options to a GParserBuilder object */
     void addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) override;
+
+    /** @brief Single declaration of this class'es serialized local data members */
+    auto localMembers() {
+        return std::make_tuple(
+            Gem::Common::make_member("n_simplices_", n_simplices_),
+            Gem::Common::make_member("n_fp_parms_first_", n_fp_parms_first_),
+            Gem::Common::make_member("alpha_", alpha_),
+            Gem::Common::make_member("gamma_", gamma_),
+            Gem::Common::make_member("rho_", rho_),
+            Gem::Common::make_member("sigma_", sigma_),
+            Gem::Common::make_member("initial_edge_", initial_edge_)
+        );
+    }
+    auto localMembers() const {
+        return std::make_tuple(
+            Gem::Common::make_member("n_simplices_", n_simplices_),
+            Gem::Common::make_member("n_fp_parms_first_", n_fp_parms_first_),
+            Gem::Common::make_member("alpha_", alpha_),
+            Gem::Common::make_member("gamma_", gamma_),
+            Gem::Common::make_member("rho_", rho_),
+            Gem::Common::make_member("sigma_", sigma_),
+            Gem::Common::make_member("initial_edge_", initial_edge_)
+        );
+    }
 
     /** @brief Loads the data of another population */
     void load_(const GObject *) override;

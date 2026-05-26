@@ -73,8 +73,8 @@ void GDoubleSumConstraint::compare_(
     // Compare our parent data ...
     Gem::Common::compare_base_t<gpar::GParameterSetConstraint>(*this, *p_load, token);
 
-    // ... and then the local data
-    Gem::Common::compare_t(IDENTITY(c_, p_load->c_), token);
+    // ... and then the local data, derived from the single localMembers() declaration
+    Gem::Common::g_compare_members(localMembers(), p_load->localMembers(), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -122,8 +122,8 @@ void GDoubleSumConstraint::load_(const GObject *cp) {
     // Load our parent class'es data ...
     gpar::GParameterSetConstraint::load_(cp);
 
-    // ... and then our local data
-    c_ = p_load->c_;
+    // ... and then our local data, derived from the single localMembers() declaration
+    Gem::Common::g_load_members(localMembers(), p_load->localMembers());
 }
 
 /******************************************************************************/
@@ -170,8 +170,8 @@ void GDoubleSumGapConstraint::compare_(
     // Compare our parent data ...
     Gem::Common::compare_base_t<gpar::GParameterSetConstraint>(*this, *p_load, token);
 
-    // ... and then the local data
-    Gem::Common::compare_t(IDENTITY(c_, p_load->c_), token);
+    // ... and then the local data, derived from the single localMembers() declaration
+    Gem::Common::g_compare_members(localMembers(), p_load->localMembers(), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -220,9 +220,8 @@ void GDoubleSumGapConstraint::load_(const GObject *cp) {
     // Load our parent class'es data ...
     gpar::GParameterSetConstraint::load_(cp);
 
-    // ... and then our local data
-    c_ = p_load->c_;
-    gap_ = p_load->gap_;
+    // ... and then our local data, derived from the single localMembers() declaration
+    Gem::Common::g_load_members(localMembers(), p_load->localMembers());
 }
 
 /******************************************************************************/
@@ -266,8 +265,8 @@ void GSphereConstraint::compare_(
     // Compare our parent data ...
     Gem::Common::compare_base_t<gpar::GParameterSetConstraint>(*this, *p_load, token);
 
-    // ... and then the local data
-    Gem::Common::compare_t(IDENTITY(diameter_, p_load->diameter_), token);
+    // ... and then the local data, derived from the single localMembers() declaration
+    Gem::Common::g_compare_members(localMembers(), p_load->localMembers(), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -316,8 +315,8 @@ void GSphereConstraint::load_(const GObject *cp) {
     // Load our parent class'es data ...
     gpar::GParameterSetConstraint::load_(cp);
 
-    // ... and then our local data
-    diameter_ = p_load->diameter_;
+    // ... and then our local data, derived from the single localMembers() declaration
+    Gem::Common::g_load_members(localMembers(), p_load->localMembers());
 }
 
 /******************************************************************************/
@@ -478,8 +477,8 @@ void GFunctionIndividual::compare_(
     // Compare our parent data ...
     Gem::Common::compare_base_t<gpar::GParameterSet>(*this, *p_load, token);
 
-    // ... and then the local data
-    Gem::Common::compare_t(IDENTITY(demo_function_, p_load->demo_function_), token);
+    // ... and then the local data, derived from the single localMembers() declaration
+    Gem::Common::g_compare_members(localMembers(), p_load->localMembers(), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -583,8 +582,8 @@ void GFunctionIndividual::load_(const GObject *cp) {
     // Load our parent class'es data ...
     gpar::GParameterSet::load_(cp);
 
-    // ... and then our local data
-    demo_function_ = p_load->demo_function_;
+    // ... and then our local data, derived from the single localMembers() declaration
+    Gem::Common::g_load_members(localMembers(), p_load->localMembers());
 }
 
 /******************************************************************************/

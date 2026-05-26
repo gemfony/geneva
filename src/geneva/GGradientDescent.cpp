@@ -214,14 +214,11 @@ void GGradientDescent::compare_(
     // Compare our parent data ...
     Gem::Common::compare_base_t<GBase>(*this, *p_load, token);
 
-    // ... and then the local data
-    compare_t(IDENTITY(n_starting_points_, p_load->n_starting_points_), token);
-    compare_t(IDENTITY(n_fp_parms_first_, p_load->n_fp_parms_first_), token);
-    compare_t(IDENTITY(finite_step_, p_load->finite_step_), token);
-    compare_t(IDENTITY(step_size_, p_load->step_size_), token);
+    // ... and then the local data, derived from the single localMembers() declaration.
     // step_ratio_, dbl_lower_parameter_boundaries_, dbl_upper_parameter_boundaries_, adjusted_finite_step_
     // are transient: recomputed in init() from the serialized fields above and not restored in
     // load_(). Comparing them would cause round-trip equality tests to fail spuriously.
+    g_compare_members(localMembers(), p_load->localMembers(), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -268,15 +265,10 @@ void GGradientDescent::load_(const GObject *cp) {
     // This will also take care of copying all individuals.
     GBase::load_(cp);
 
-    // ... and then our own data
-    n_starting_points_ = p_load->n_starting_points_;
-    n_fp_parms_first_ = p_load->n_fp_parms_first_;
-    finite_step_ = p_load->finite_step_;
-    step_size_ = p_load->step_size_;
-    // step_ratio_ = p_load->step_ratio_; // temporary parameter
-    // dbl_lower_parameter_boundaries_cnt_ = p_load->dbl_lower_parameter_boundaries_cnt_; // temporary parameter
-    // dbl_upper_parameter_boundaries_cnt_ = p_load->dbl_upper_parameter_boundaries_cnt_; // temporary parameter
-    // adjusted_finite_step_ = p_load->adjusted_finite_step_; // temporary parameter
+    // ... and then our own data, derived from the single localMembers() declaration.
+    // step_ratio_, dbl_lower_parameter_boundaries_cnt_, dbl_upper_parameter_boundaries_cnt_
+    // and adjusted_finite_step_ are temporary parameters and intentionally not loaded.
+    Gem::Common::g_load_members(localMembers(), p_load->localMembers());
 }
 
 /******************************************************************************/

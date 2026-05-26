@@ -232,9 +232,15 @@ public:
       , mo_target_(cp.mo_target_)
       , sub_ea_config_(cp.sub_ea_config_)
       , ind_factory_(
-            Gem::Common::convertSmartPointer<
-                Gem::Common::GFactoryT<gpar::GParameterSet>,
-                typename ind_type::FACTORYTYPE>((cp.ind_factory_)->clone())
+            // A default-constructed meta-optimizer has no factory yet; deep-clone
+            // it only when present, otherwise copy the (null) factory as-is. The
+            // previous unconditional (cp.ind_factory_)->clone() dereferenced a null
+            // pointer when copying/cloning a default-constructed object.
+            cp.ind_factory_
+                ? Gem::Common::convertSmartPointer<
+                      Gem::Common::GFactoryT<gpar::GParameterSet>,
+                      typename ind_type::FACTORYTYPE>((cp.ind_factory_)->clone())
+                : std::shared_ptr<typename ind_type::FACTORYTYPE>()
         ) { /* nothing */
     }
 
@@ -829,6 +835,30 @@ protected:
 
     /***************************************************************************/
     /**
+     * The single declaration of this class'es local data members. load_() and
+     * compare_() are derived from it, so the member list lives in one place.
+     */
+    auto localMembers() {
+        return std::make_tuple(
+            Gem::Common::make_member("n_runs_per_optimization_", n_runs_per_optimization_),
+            Gem::Common::make_member("fitness_target_", fitness_target_),
+            Gem::Common::make_member("iteration_threshold_", iteration_threshold_),
+            Gem::Common::make_member("mo_target_", mo_target_),
+            Gem::Common::make_member("sub_ea_config_", sub_ea_config_)
+        );
+    }
+    auto localMembers() const {
+        return std::make_tuple(
+            Gem::Common::make_member("n_runs_per_optimization_", n_runs_per_optimization_),
+            Gem::Common::make_member("fitness_target_", fitness_target_),
+            Gem::Common::make_member("iteration_threshold_", iteration_threshold_),
+            Gem::Common::make_member("mo_target_", mo_target_),
+            Gem::Common::make_member("sub_ea_config_", sub_ea_config_)
+        );
+    }
+
+    /***************************************************************************/
+    /**
      * Loads the data of another GMetaOptimizerIndividualT<ind_type>, camouflaged as a GObject
      *
      * @param cp A copy of another GMetaOptimizerIndividualT<ind_type>, camouflaged as a GObject
@@ -844,12 +874,8 @@ protected:
         // Load our parent class'es data ...
         gpar::GParameterSet::load_(cp);
 
-        // ... and then our local data
-        n_runs_per_optimization_ = p_load->n_runs_per_optimization_;
-        fitness_target_ = p_load->fitness_target_;
-        iteration_threshold_ = p_load->iteration_threshold_;
-        mo_target_ = p_load->mo_target_;
-        sub_ea_config_ = p_load->sub_ea_config_;
+        // ... and then our local data, derived from the single localMembers() declaration
+        Gem::Common::g_load_members(localMembers(), p_load->localMembers());
 
         // We simply keep our local individual factory, as all settings are made inside of fitnessCalculation
     }
@@ -888,15 +914,8 @@ protected:
         // Compare our parent data ...
         Gem::Common::compare_base_t<gpar::GParameterSet>(*this, *p_load, token);
 
-        // ... and then the local data
-        Gem::Common::compare_t(
-            IDENTITY(n_runs_per_optimization_, p_load->n_runs_per_optimization_),
-            token
-        );
-        Gem::Common::compare_t(IDENTITY(fitness_target_, p_load->fitness_target_), token);
-        Gem::Common::compare_t(IDENTITY(iteration_threshold_, p_load->iteration_threshold_), token);
-        Gem::Common::compare_t(IDENTITY(mo_target_, p_load->mo_target_), token);
-        Gem::Common::compare_t(IDENTITY(sub_ea_config_, p_load->sub_ea_config_), token);
+        // ... and then the local data, derived from the single localMembers() declaration
+        Gem::Common::g_compare_members(localMembers(), p_load->localMembers(), token);
 
         // React on deviations from the expectation
         token.evaluate();

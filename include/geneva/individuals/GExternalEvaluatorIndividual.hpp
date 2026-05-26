@@ -38,6 +38,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <tuple>
 #include <vector>
 
 // Boost header files go here
@@ -191,6 +192,29 @@ public:
 
 protected:
     /***************************************************************************/
+    /** @brief Single declaration of this class'es local data members */
+    auto localMembers() {
+        return std::make_tuple(
+            Gem::Common::make_member("program_name_", program_name_),
+            Gem::Common::make_member("custom_options_", custom_options_),
+            Gem::Common::make_member("parameter_file_base_name_", parameter_file_base_name_),
+            Gem::Common::make_member("n_results_", n_results_),
+            Gem::Common::make_member("run_id_", run_id_),
+            Gem::Common::make_member("remove_exec_temporaries_", remove_exec_temporaries_)
+        );
+    }
+    auto localMembers() const {
+        return std::make_tuple(
+            Gem::Common::make_member("program_name_", program_name_),
+            Gem::Common::make_member("custom_options_", custom_options_),
+            Gem::Common::make_member("parameter_file_base_name_", parameter_file_base_name_),
+            Gem::Common::make_member("n_results_", n_results_),
+            Gem::Common::make_member("run_id_", run_id_),
+            Gem::Common::make_member("remove_exec_temporaries_", remove_exec_temporaries_)
+        );
+    }
+
+    /***************************************************************************/
     /** @brief Loads the data of another GExternalEvaluatorIndividual */
     void load_(const GObject *) final;
 
@@ -245,7 +269,10 @@ class GExternalEvaluatorIndividualFactory // NOLINT(cppcoreguidelines-special-me
     void serialize(Archive &ar, const unsigned int) {
         using namespace Gem::Common;
 
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GFactoryT<gpar::GParameterSet>) &
+        ar &boost::serialization::make_nvp(
+            "GFactoryT_gpar_GParameterSet",
+            boost::serialization::base_object<GFactoryT<gpar::GParameterSet>>(*this)
+        ) &
             BOOST_SERIALIZATION_NVP(ad_prob_) & BOOST_SERIALIZATION_NVP(adapt_ad_prob_) &
             BOOST_SERIALIZATION_NVP(min_ad_prob_) & BOOST_SERIALIZATION_NVP(max_ad_prob_) &
             BOOST_SERIALIZATION_NVP(adaption_threshold_) &

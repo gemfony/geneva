@@ -37,6 +37,7 @@
 #include "geneva/individuals/GDelayIndividual.hpp"
 #include "geneva/individuals/GExternalEvaluatorIndividual.hpp"
 #include "geneva/individuals/GFunctionIndividual.hpp"
+#include "geneva/individuals/GMetaOptimizerIndividualT.hpp"
 #include "geneva/individuals/GTestIndividual3.hpp"
 #include "geneva/par/GBooleanAdaptor.hpp"
 #include "geneva/par/GBooleanCollection.hpp"
@@ -64,6 +65,18 @@
 #include "geneva/oa/GParameterScan_PersonalityTraits.hpp"
 #include "geneva/oa/GSimulatedAnnealing_PersonalityTraits.hpp"
 #include "geneva/oa/GSwarmAlgorithm_PersonalityTraits.hpp"
+// Optimization algorithms
+#include "geneva/oa/GEvolutionaryAlgorithm.hpp"
+#include "geneva/oa/GSimulatedAnnealing.hpp"
+#include "geneva/oa/GSwarmAlgorithm.hpp"
+#include "geneva/oa/GGradientDescent.hpp"
+#include "geneva/oa/GConjugateGradientDescent.hpp"
+#include "geneva/oa/GParameterScan.hpp"
+#include "geneva/oa/GNelderMead.hpp"
+// Constraints
+#include "geneva/par/GParameterSetMultiConstraint.hpp"
+// Pluggable optimization monitors
+#include "geneva/GPluggableOptimizationMonitors.hpp"
 
 #include "Geneva_tests.hpp"
 
@@ -137,10 +150,47 @@ TEMPLATE_TEST_CASE(
     "StandardTests_no_failure_expected — individual types",
     "[geneva][standard]",
     gind::GTestIndividual1,
-    // gind::GTestIndividual3, // TODO: Add test for GTestIndividual3
+    gind::GTestIndividual3,
     gind::GFunctionIndividual,
     gind::GDelayIndividual,
-    gind::GExternalEvaluatorIndividual
+    gind::GExternalEvaluatorIndividual,
+    gind::GMetaOptimizerIndividualT<gind::GFunctionIndividual>
+) {
+    Gem::Geneva::Tests::StandardTests_no_failure_expected<TestType>();
+}
+
+// NOTE: gpar::GParameterSetFormulaConstraint is the only concrete constraint type
+// (GParameterSetConstraint is abstract). It is EXCLUDED here because its standard test
+// fails on the XML (de-)serialization round-trip with "Invalid XML tag name" (TEXT and
+// BINARY round-trip fine; the failure is independent of the formula content). This is a
+// suspected real defect in its XML serialization path. See report.
+
+TEMPLATE_TEST_CASE(
+    "StandardTests_no_failure_expected — algorithm types",
+    "[geneva][standard]",
+    oa::GEvolutionaryAlgorithm,
+    oa::GSimulatedAnnealing,
+    oa::GSwarmAlgorithm,
+    oa::GGradientDescent,
+    oa::GConjugateGradientDescent,
+    oa::GParameterScan,
+    oa::GNelderMead
+) {
+    Gem::Geneva::Tests::StandardTests_no_failure_expected<TestType>();
+}
+
+TEMPLATE_TEST_CASE(
+    "StandardTests_no_failure_expected — monitor types",
+    "[geneva][standard]",
+    GStandardMonitor,
+    GFitnessMonitor,
+    GCollectiveMonitor,
+    GProgressPlotter,
+    GAllSolutionFileLogger,
+    GIterationResultsFileLogger,
+    GNAdpationsLogger,
+    GAdaptorPropertyLogger<double>,
+    GProcessingTimesLogger
 ) {
     Gem::Geneva::Tests::StandardTests_no_failure_expected<TestType>();
 }
@@ -213,10 +263,80 @@ TEMPLATE_TEST_CASE(
     "StandardTests_failures_expected — individual types",
     "[geneva][standard][failures-expected]",
     gind::GTestIndividual1,
-    // gind::GTestIndividual3, // TODO: Add test for GTestIndividual3
+    gind::GTestIndividual3,
     gind::GFunctionIndividual,
     gind::GDelayIndividual,
-    gind::GExternalEvaluatorIndividual
+    gind::GExternalEvaluatorIndividual,
+    gind::GMetaOptimizerIndividualT<gind::GFunctionIndividual>
 ) {
     Gem::Geneva::Tests::StandardTests_failures_expected<TestType>();
+}
+
+// NOTE: gpar::GParameterSetFormulaConstraint is excluded here (see no-failure-expected block).
+
+TEMPLATE_TEST_CASE(
+    "StandardTests_failures_expected — algorithm types",
+    "[geneva][standard][failures-expected]",
+    oa::GEvolutionaryAlgorithm,
+    oa::GSimulatedAnnealing,
+    oa::GSwarmAlgorithm,
+    oa::GGradientDescent,
+    oa::GConjugateGradientDescent,
+    oa::GParameterScan,
+    oa::GNelderMead
+) {
+    Gem::Geneva::Tests::StandardTests_failures_expected<TestType>();
+}
+
+TEMPLATE_TEST_CASE(
+    "StandardTests_failures_expected — monitor types",
+    "[geneva][standard][failures-expected]",
+    GStandardMonitor,
+    GFitnessMonitor,
+    GCollectiveMonitor,
+    GProgressPlotter,
+    GAllSolutionFileLogger,
+    GIterationResultsFileLogger,
+    GNAdpationsLogger,
+    GAdaptorPropertyLogger<double>,
+    GProcessingTimesLogger
+) {
+    Gem::Geneva::Tests::StandardTests_failures_expected<TestType>();
+}
+
+// ============================================================================
+// Targeted regression test: (de)serialization of GParameterSetFormulaConstraint
+// ============================================================================
+//
+// GParameterSetConstraint::serialize() used BOOST_SERIALIZATION_BASE_OBJECT_NVP on
+// the templated base GPreEvaluationValidityCheckT<GParameterSet>, producing an XML
+// tag name containing '<' and '>' -> XML (de)serialization threw "Invalid XML tag
+// name" (TEXT and BINARY were unaffected, as they ignore the NVP names). This type
+// is not run through the templated standard test (it has no modify_GUnitTests_, so
+// that test's round-trip block would be skipped), hence this explicit check that all
+// three serialization modes round-trip without throwing.
+TEST_CASE(
+    "GParameterSetFormulaConstraint round-trips in TEXT, XML and BINARY",
+    "[geneva][serialization]"
+) {
+    using Gem::Common::serializationMode;
+
+    for (auto mode :
+         {serializationMode::TEXT, serializationMode::XML, serializationMode::BINARY}) {
+        gpar::GParameterSetFormulaConstraint original("1 + 2");
+        // The default ctor is private (serialization-only); construct the target
+        // through the public ctor with a different formula, then load into it.
+        gpar::GParameterSetFormulaConstraint restored("0");
+
+        REQUIRE_NOTHROW(
+            restored.GObject::fromString(original.GObject::toString(mode), mode)
+        );
+
+        GEqualityPrinter gep(
+            "GParameterSetFormulaConstraint-roundtrip",
+            pow(10, -7),
+            Gem::Common::CE_WITH_MESSAGES
+        );
+        CHECK(gep.isSimilar(restored, original));
+    }
 }

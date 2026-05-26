@@ -49,10 +49,8 @@ void GParameterBase::load_(const GObject *cp) {
     // Load the parent class'es data
     GObject::load_(cp);
 
-    // Load local data
-    adaptions_active_ = p_load->adaptions_active_;
-    random_initialization_blocked_ = p_load->random_initialization_blocked_;
-    parameter_name_ = p_load->parameter_name_;
+    // Load local data, derived from the single localMembers() declaration
+    Gem::Common::g_load_members(localMembers(), p_load->localMembers());
 }
 
 /******************************************************************************/
@@ -169,13 +167,8 @@ void GParameterBase::compare_(
     // Compare our parent data ...
     Gem::Common::compare_base_t<GObject>(*this, *p_load, token);
 
-    // ... and then the local data
-    compare_t(IDENTITY(adaptions_active_, p_load->adaptions_active_), token);
-    compare_t(
-        IDENTITY(random_initialization_blocked_, p_load->random_initialization_blocked_),
-        token
-    );
-    compare_t(IDENTITY(parameter_name_, p_load->parameter_name_), token);
+    // ... and then the local data, derived from the single localMembers() declaration
+    g_compare_members(localMembers(), p_load->localMembers(), token);
 
     // React on deviations from the expectation
     token.evaluate();

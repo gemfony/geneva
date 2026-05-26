@@ -192,6 +192,41 @@ Recommended Versions:
   obsolete Boost version guards dropped; five BOOST_ASSERT(0) sites in
   the formula parser replaced with assert(false).
 
+- Single source of truth for each polymorphic class's local data members: a
+  new localMembers() declaration (a tuple of named member references) from which
+  load_(), compare_() and -- for the symmetric-serialization classes validated
+  by the round-trip tests -- serialize() are derived, instead of maintaining the
+  same member list in several parallel hand-written functions. Helpers added in
+  GExpectationChecksT.hpp (make_member, g_load_members, g_compare_members,
+  serialize_members).
+
+- The Geneva standard unit tests (clone/modify/compare and TEXT/XML/BINARY
+  (de)serialization round-trips) now also cover all seven optimization
+  algorithms, the pluggable optimization monitors, and more individuals,
+  validating the above across those types.
+
+- Fixed a clone/load bug in copyCloneableSmartPointer(): when a polymorphic
+  smart-pointer container slot held a different dynamic type than its source it
+  called load() across incompatible types and threw a g_ptr_conversion error;
+  it now deep-clones on a type mismatch and only load()s matching types.
+
+- Fixed XML (de)serialization for GParameterSetConstraint, the multi-constraint
+  classes, the parameter-scan parameter types and several factory bases: their
+  serialize() used BOOST_SERIALIZATION_BASE_OBJECT_NVP on a templated base
+  class, producing an XML element name containing '<'/'>' and throwing
+  "Invalid XML tag name". TEXT and BINARY archives were unaffected.
+
+- Fixed copy constructors that silently dropped state: GNAdpationsLogger and
+  GAdaptorPropertyLoggerT omitted their oa::GBasePluggableOM base initializer,
+  and GMetaOptimizerIndividualT dereferenced a null individual factory when
+  copying a default-constructed instance.
+
+- Fixed GDoubleSumGapConstraint::compare_, which compared only c_ although
+  load_ copies both c_ and gap_.
+
+- oa::GBase now re-exposes the inherited public load(const&), which had been
+  name-hidden by the private split-serialization load(Archive&, unsigned int).
+
 //------------------------------------------------------------------------------------------------------
 * Version 1.11, "Hendaye" - March 16, 2026
 

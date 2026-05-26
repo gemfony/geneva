@@ -68,9 +68,9 @@ class GNumGaussAdaptorT // NOLINT(cppcoreguidelines-special-member-functions)
         ar &make_nvp(
             "GAdaptorT_num",
             boost::serialization::base_object<GAdaptorT<num_type>>(*this)
-        ) & BOOST_SERIALIZATION_NVP(sigma_) &
-            BOOST_SERIALIZATION_NVP(sigma_reset_) & BOOST_SERIALIZATION_NVP(sigma_sigma_) &
-            BOOST_SERIALIZATION_NVP(min_sigma_) & BOOST_SERIALIZATION_NVP(max_sigma_);
+        );
+        // ... and then our own data, derived from the single localMembers() declaration
+        Gem::Common::serialize_members(ar, this->localMembers());
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -431,6 +431,30 @@ public:
 protected:
     /***************************************************************************/
     /**
+     * The single declaration of this class'es local data members. load_() and
+     * compare_() are derived from it, so the member list lives in one place.
+     */
+    auto localMembers() {
+        return std::make_tuple(
+            Gem::Common::make_member("sigma_", sigma_),
+            Gem::Common::make_member("sigma_reset_", sigma_reset_),
+            Gem::Common::make_member("sigma_sigma_", sigma_sigma_),
+            Gem::Common::make_member("min_sigma_", min_sigma_),
+            Gem::Common::make_member("max_sigma_", max_sigma_)
+        );
+    }
+    auto localMembers() const {
+        return std::make_tuple(
+            Gem::Common::make_member("sigma_", sigma_),
+            Gem::Common::make_member("sigma_reset_", sigma_reset_),
+            Gem::Common::make_member("sigma_sigma_", sigma_sigma_),
+            Gem::Common::make_member("min_sigma_", min_sigma_),
+            Gem::Common::make_member("max_sigma_", max_sigma_)
+        );
+    }
+
+    /***************************************************************************/
+    /**
 	  * This function loads the data of another GNumGaussAdaptorT<num_type, fp_type>, camouflaged as a GObject.
 	  * We assume that the values given to us by the other object are correct and do no error checks.
 	  *
@@ -447,12 +471,8 @@ protected:
         // Load the data of our parent class ...
         GAdaptorT<num_type>::load_(cp);
 
-        // ... and then our own data
-        sigma_ = p_load->sigma_;
-        sigma_reset_ = p_load->sigma_reset_;
-        sigma_sigma_ = p_load->sigma_sigma_;
-        min_sigma_ = p_load->min_sigma_;
-        max_sigma_ = p_load->max_sigma_;
+        // ... and then our own data, derived from the single localMembers() declaration
+        Gem::Common::g_load_members(localMembers(), p_load->localMembers());
     }
 
     /***************************************************************************/
@@ -492,11 +512,7 @@ protected:
         Gem::Common::compare_base_t<GAdaptorT<num_type>>(*this, *p_load, token);
 
         // ... and then the local data
-        compare_t(IDENTITY(sigma_, p_load->sigma_), token);
-        compare_t(IDENTITY(sigma_reset_, p_load->sigma_reset_), token);
-        compare_t(IDENTITY(sigma_sigma_, p_load->sigma_sigma_), token);
-        compare_t(IDENTITY(min_sigma_, p_load->min_sigma_), token);
-        compare_t(IDENTITY(max_sigma_, p_load->max_sigma_), token);
+        Gem::Common::g_compare_members(localMembers(), p_load->localMembers(), token);
 
         // React on deviations from the expectation
         token.evaluate();

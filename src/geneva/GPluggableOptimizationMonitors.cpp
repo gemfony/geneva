@@ -1466,7 +1466,8 @@ GNAdpationsLogger::GNAdpationsLogger(const std::string &file_name)
  * The copy constructor
  */
 GNAdpationsLogger::GNAdpationsLogger(const GNAdpationsLogger &cp)
-  : file_name_(cp.file_name_)
+  : oa::GBasePluggableOM(cp)
+  , file_name_(cp.file_name_)
   , canvas_dimensions_(cp.canvas_dimensions_)
   , gpd_(cp.gpd_)
   , monitor_best_only_(cp.monitor_best_only_)

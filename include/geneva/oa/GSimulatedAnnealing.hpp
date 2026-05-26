@@ -106,6 +106,24 @@ protected:
     /** @brief Adds local configuration options to a GParserBuilder object */
     void addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) override;
 
+    /** @brief Single declaration of this class'es local data members */
+    auto localMembers() {
+        return std::make_tuple(
+            Gem::Common::make_member("t0_", t0_),
+            Gem::Common::make_member("t_", t_),
+            Gem::Common::make_member("alpha_", alpha_),
+            Gem::Common::make_member("n_threads_", n_threads_)
+        );
+    }
+    auto localMembers() const {
+        return std::make_tuple(
+            Gem::Common::make_member("t0_", t0_),
+            Gem::Common::make_member("t_", t_),
+            Gem::Common::make_member("alpha_", alpha_),
+            Gem::Common::make_member("n_threads_", n_threads_)
+        );
+    }
+
     /** @brief Loads the data of another GSimulatedAnnealingT object, camouflaged as a GObject */
     void load_(const GObject *cp) override;
 

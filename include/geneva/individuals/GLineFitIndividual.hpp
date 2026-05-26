@@ -94,6 +94,14 @@ public:
     std::tuple<double, double> getLine() const;
 
 protected:
+    /** @brief Single declaration of this class'es local data members */
+    auto localMembers() {
+        return std::make_tuple(Gem::Common::make_member("data_points_", data_points_));
+    }
+    auto localMembers() const {
+        return std::make_tuple(Gem::Common::make_member("data_points_", data_points_));
+    }
+
     /** @brief Loads the data of another GLineFitIndividual */
     void load_(const GObject *) final;
 

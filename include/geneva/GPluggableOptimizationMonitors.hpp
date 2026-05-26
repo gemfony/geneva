@@ -1545,7 +1545,8 @@ public:
 	  * The copy constructor
 	  */
     GAdaptorPropertyLoggerT(const GAdaptorPropertyLoggerT<num_type> &cp)
-      : file_name_(cp.file_name_)
+      : oa::GBasePluggableOM(cp)
+      , file_name_(cp.file_name_)
       , adaptor_name_(cp.adaptor_name_)
       , property_(cp.property_)
       , canvas_dimensions_(cp.canvas_dimensions_)

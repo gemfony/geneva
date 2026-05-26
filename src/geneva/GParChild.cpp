@@ -75,13 +75,8 @@ void GParChild::compare_(
     // Compare our parent data ...
     Gem::Common::compare_base_t<GBase>(*this, *p_load, token);
 
-    // ... and then the local data
-    compare_t(IDENTITY(n_parents_, p_load->n_parents_), token);
-    compare_t(IDENTITY(recombination_method_, p_load->recombination_method_), token);
-    compare_t(IDENTITY(default_n_children_, p_load->default_n_children_), token);
-    compare_t(IDENTITY(max_population_size_, p_load->max_population_size_), token);
-    compare_t(IDENTITY(growth_rate_, p_load->growth_rate_), token);
-    compare_t(IDENTITY(amalgamation_likelihood_, p_load->amalgamation_likelihood_), token);
+    // ... and then the local data, derived from the single localMembers() declaration
+    g_compare_members(localMembers(), p_load->localMembers(), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -453,13 +448,8 @@ void GParChild::load_(const GObject *cp) {
     // First load the parent class'es data ...
     GBase::load_(cp);
 
-    // ... and then our own data
-    n_parents_ = p_load->n_parents_;
-    recombination_method_ = p_load->recombination_method_;
-    default_n_children_ = p_load->default_n_children_;
-    max_population_size_ = p_load->max_population_size_;
-    growth_rate_ = p_load->growth_rate_;
-    amalgamation_likelihood_ = p_load->amalgamation_likelihood_;
+    // ... and then our own data, derived from the single localMembers() declaration
+    Gem::Common::g_load_members(localMembers(), p_load->localMembers());
 }
 
 /******************************************************************************/

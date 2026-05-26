@@ -65,8 +65,8 @@ void GEvolutionaryAlgorithm_PersonalityTraits::compare_(
     // Compare our parent data ...
     Gem::Common::compare_base_t<GBaseParChildPersonalityTraits>(*this, *p_load, token);
 
-    // ... and then the local data
-    compare_t(IDENTITY(is_on_pareto_front_, p_load->is_on_pareto_front_), token);
+    // ... and then the local data, derived from the single localMembers() declaration
+    g_compare_members(localMembers(), p_load->localMembers(), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -115,8 +115,8 @@ void GEvolutionaryAlgorithm_PersonalityTraits::load_(const GObject *cp) {
     // Load the parent class'es data
     GBaseParChildPersonalityTraits::load_(cp);
 
-    // Then load our local data
-    is_on_pareto_front_ = p_load->is_on_pareto_front_;
+    // Then load our local data, derived from the single localMembers() declaration
+    Gem::Common::g_load_members(localMembers(), p_load->localMembers());
 }
 
 /******************************************************************************/

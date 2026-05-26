@@ -83,9 +83,8 @@ void GEvolutionaryAlgorithm::compare_(
     // Compare our parent data ...
     Gem::Common::compare_base_t<GParChild>(*this, *p_load, token);
 
-    // ... and then the local data
-    compare_t(IDENTITY(sorting_mode_, p_load->sorting_mode_), token);
-    compare_t(IDENTITY(n_threads_, p_load->n_threads_), token);
+    // ... and then the local data, derived from the single localMembers() declaration
+    g_compare_members(localMembers(), p_load->localMembers(), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -371,9 +370,8 @@ void GEvolutionaryAlgorithm::load_(const GObject *cp) {
     // First load the parent class's data ...
     GParChild::load_(cp);
 
-    // ... and then our own data
-    sorting_mode_ = p_load->sorting_mode_;
-    n_threads_ = p_load->n_threads_;
+    // ... and then our own data, derived from the single localMembers() declaration
+    Gem::Common::g_load_members(localMembers(), p_load->localMembers());
 }
 
 /******************************************************************************/

@@ -105,9 +105,7 @@ void GEvolutionaryAlgorithmPostOptimizer::compare_(
     Gem::Common::compare_base_t<GPostProcessorBaseT<gpar::GParameterSet>>(*this, *p_load, token);
 
     // ... and then our local data
-    compare_t(IDENTITY(oa_config_file_, p_load->oa_config_file_), token);
-    compare_t(IDENTITY(executor_config_file_, p_load->executor_config_file_), token);
-    compare_t(IDENTITY(execution_mode_, p_load->execution_mode_), token);
+    g_compare_members(localMembers(), p_load->localMembers(), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -191,10 +189,8 @@ void GEvolutionaryAlgorithmPostOptimizer::load_(
     // Load our parent class'es data ...
     GPostProcessorBaseT<gpar::GParameterSet>::load_(cp);
 
-    // ... and then our local data
-    oa_config_file_ = p_load->oa_config_file_;
-    executor_config_file_ = p_load->executor_config_file_;
-    execution_mode_ = p_load->execution_mode_;
+    // ... and then our local data, derived from the single localMembers() declaration
+    Gem::Common::g_load_members(localMembers(), p_load->localMembers());
 }
 
 /******************************************************************************/

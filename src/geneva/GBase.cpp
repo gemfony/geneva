@@ -66,8 +66,8 @@ void GBasePluggableOM::compare_(
     // Compare our parent data ...
     Gem::Common::compare_base_t<GObject>(*this, *p_load, token);
 
-    // ... and then our local data
-    compare_t(IDENTITY(use_raw_evaluation_, p_load->use_raw_evaluation_), token);
+    // ... and then our local data, derived from the single localMembers() declaration
+    g_compare_members(localMembers(), p_load->localMembers(), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -115,8 +115,8 @@ void GBasePluggableOM::load_(const GObject *cp) {
     // Load the parent classes' data ...
     GObject::load_(cp);
 
-    // ... and then our local data
-    use_raw_evaluation_ = p_load->use_raw_evaluation_;
+    // ... and then our local data, derived from the single localMembers() declaration
+    Gem::Common::g_load_members(localMembers(), p_load->localMembers());
 }
 
 /******************************************************************************/

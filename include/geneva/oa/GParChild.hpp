@@ -170,6 +170,28 @@ protected:
     /** @brief Adds local configuration options to a GParserBuilder object */
     void addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) override;
 
+    /** @brief Single declaration of this class'es local data members */
+    auto localMembers() {
+        return std::make_tuple(
+            Gem::Common::make_member("n_parents_", n_parents_),
+            Gem::Common::make_member("recombination_method_", recombination_method_),
+            Gem::Common::make_member("default_n_children_", default_n_children_),
+            Gem::Common::make_member("max_population_size_", max_population_size_),
+            Gem::Common::make_member("growth_rate_", growth_rate_),
+            Gem::Common::make_member("amalgamation_likelihood_", amalgamation_likelihood_)
+        );
+    }
+    auto localMembers() const {
+        return std::make_tuple(
+            Gem::Common::make_member("n_parents_", n_parents_),
+            Gem::Common::make_member("recombination_method_", recombination_method_),
+            Gem::Common::make_member("default_n_children_", default_n_children_),
+            Gem::Common::make_member("max_population_size_", max_population_size_),
+            Gem::Common::make_member("growth_rate_", growth_rate_),
+            Gem::Common::make_member("amalgamation_likelihood_", amalgamation_likelihood_)
+        );
+    }
+
     /** @brief Loads the data of another GParChildT object, camouflaged as a GObject. */
     void load_(const GObject *cp) override;
 

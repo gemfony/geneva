@@ -93,18 +93,7 @@ void GExternalEvaluatorIndividual::compare_(
     Gem::Common::compare_base_t<gpar::GParameterSet>(*this, *p_load, token);
 
     // ... and then the local data
-    Gem::Common::compare_t(IDENTITY(program_name_, p_load->program_name_), token);
-    Gem::Common::compare_t(IDENTITY(custom_options_, p_load->custom_options_), token);
-    Gem::Common::compare_t(
-        IDENTITY(parameter_file_base_name_, p_load->parameter_file_base_name_),
-        token
-    );
-    Gem::Common::compare_t(IDENTITY(n_results_, p_load->n_results_), token);
-    Gem::Common::compare_t(IDENTITY(run_id_, p_load->run_id_), token);
-    Gem::Common::compare_t(
-        IDENTITY(remove_exec_temporaries_, p_load->remove_exec_temporaries_),
-        token
-    );
+    Gem::Common::g_compare_members(localMembers(), p_load->localMembers(), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -209,13 +198,8 @@ void GExternalEvaluatorIndividual::load_(const GObject *cp) {
     // First load the data of our parent class ...
     gpar::GParameterSet::load_(cp);
 
-    // ... and then our own
-    program_name_ = p_load->program_name_;
-    custom_options_ = p_load->custom_options_;
-    parameter_file_base_name_ = p_load->parameter_file_base_name_;
-    n_results_ = p_load->n_results_;
-    run_id_ = p_load->run_id_;
-    remove_exec_temporaries_ = p_load->remove_exec_temporaries_;
+    // ... and then our own, derived from the single localMembers() declaration
+    Gem::Common::g_load_members(localMembers(), p_load->localMembers());
 }
 
 /******************************************************************************/

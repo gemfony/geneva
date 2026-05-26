@@ -124,8 +124,8 @@ void GParameterSetFormulaConstraint::compare_(
     // Compare our parent data ...
     Gem::Common::compare_base_t<GParameterSetConstraint>(*this, *p_load, token);
 
-    // ... and then the local data
-    compare_t(IDENTITY(raw_formula_, p_load->raw_formula_), token);
+    // ... and then the local data, derived from the single localMembers() declaration
+    g_compare_members(localMembers(), p_load->localMembers(), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -185,8 +185,8 @@ void GParameterSetFormulaConstraint::load_(const GObject *cp) {
     // Load our parent class'es data ...
     GPreEvaluationValidityCheckT<GParameterSet>::load_(cp);
 
-    // ... and then our local data
-    raw_formula_ = p_load->raw_formula_;
+    // ... and then our local data, derived from the single localMembers() declaration
+    Gem::Common::g_load_members(localMembers(), p_load->localMembers());
 }
 
 /******************************************************************************/

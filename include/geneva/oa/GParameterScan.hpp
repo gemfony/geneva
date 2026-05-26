@@ -141,7 +141,10 @@ class baseScanParT // NOLINT(cppcoreguidelines-special-member-functions)
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(Gem::Common::GPodContainerT<T>) &
+        ar &boost::serialization::make_nvp(
+            "GPodContainerT_T",
+            boost::serialization::base_object<Gem::Common::GPodContainerT<T>>(*this)
+        ) &
             BOOST_SERIALIZATION_NVP(var_) & BOOST_SERIALIZATION_NVP(step_) &
             BOOST_SERIALIZATION_NVP(n_steps_) & BOOST_SERIALIZATION_NVP(lower_) &
             BOOST_SERIALIZATION_NVP(upper_) & BOOST_SERIALIZATION_NVP(random_scan_) &
@@ -385,7 +388,9 @@ class bScanPar // NOLINT(cppcoreguidelines-special-member-functions)
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(baseScanParT<bool>);
+        ar &boost::serialization::make_nvp(
+            "baseScanParT_bool", boost::serialization::base_object<baseScanParT<bool>>(*this)
+        );
     }
 
     ///////////////////////////////////////////////////////////////////////
@@ -421,7 +426,9 @@ class int32ScanPar // NOLINT(cppcoreguidelines-special-member-functions)
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(baseScanParT<std::int32_t>);
+        ar &boost::serialization::make_nvp(
+            "baseScanParT_int32", boost::serialization::base_object<baseScanParT<std::int32_t>>(*this)
+        );
     }
 
     ///////////////////////////////////////////////////////////////////////
@@ -457,7 +464,9 @@ class dScanPar // NOLINT(cppcoreguidelines-special-member-functions)
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(baseScanParT<double>);
+        ar &boost::serialization::make_nvp(
+            "baseScanParT_double", boost::serialization::base_object<baseScanParT<double>>(*this)
+        );
     }
 
     ///////////////////////////////////////////////////////////////////////
@@ -493,7 +502,9 @@ class fScanPar // NOLINT(cppcoreguidelines-special-member-functions)
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(baseScanParT<float>);
+        ar &boost::serialization::make_nvp(
+            "baseScanParT_float", boost::serialization::base_object<baseScanParT<float>>(*this)
+        );
     }
 
     ///////////////////////////////////////////////////////////////////////

@@ -40,6 +40,7 @@
 #include <mutex>
 #include <optional>
 #include <sstream>
+#include <tuple>
 #include <vector>
 
 // Boost header files go here
@@ -1014,6 +1015,15 @@ public:
     void writeTrainedNetwork(const std::string &header_file);
 
 protected:
+    /***************************************************************************/
+    /** @brief Single declaration of this class'es local data members */
+    auto localMembers() {
+        return std::make_tuple(Gem::Common::make_member("t_f_", t_f_));
+    }
+    auto localMembers() const {
+        return std::make_tuple(Gem::Common::make_member("t_f_", t_f_));
+    }
+
     /***************************************************************************/
     /** @brief Loads the data of another GNeuralNetworkIndividual */
     void load_(const GObject *cp) final;

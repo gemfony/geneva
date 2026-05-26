@@ -35,6 +35,7 @@
 // Standard headers go here
 #include <cmath>
 #include <limits>
+#include <tuple>
 #include <type_traits>
 
 // Boost headers go here
@@ -73,8 +74,9 @@ class GConstrainedNumT // NOLINT(cppcoreguidelines-special-member-functions)
         using boost::serialization::make_nvp;
 
         // Save data
-        ar &make_nvp("GParameterT_T", boost::serialization::base_object<GParameterT<T>>(*this)) &
-            BOOST_SERIALIZATION_NVP(lower_boundary_) & BOOST_SERIALIZATION_NVP(upper_boundary_);
+        ar &make_nvp("GParameterT_T", boost::serialization::base_object<GParameterT<T>>(*this));
+        // ... and then our own, derived from the single localMembers() declaration
+        Gem::Common::serialize_members(ar, this->localMembers());
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -454,6 +456,24 @@ protected:
 	  *
 	  * @param cp Another GConstrainedNumT<T> object, camouflaged as a GObject
 	  */
+    /***************************************************************************/
+    /**
+     * The single declaration of this class'es local data members. load_() and
+     * compare_() are derived from it, so the member list lives in one place.
+     */
+    auto localMembers() {
+        return std::make_tuple(
+            Gem::Common::make_member("lower_boundary_", lower_boundary_),
+            Gem::Common::make_member("upper_boundary_", upper_boundary_)
+        );
+    }
+    auto localMembers() const {
+        return std::make_tuple(
+            Gem::Common::make_member("lower_boundary_", lower_boundary_),
+            Gem::Common::make_member("upper_boundary_", upper_boundary_)
+        );
+    }
+
     void load_(const GObject *cp) override {
         // Check that we are dealing with a GConstrainedNumT<T> reference independent of this object and convert the pointer
         const GConstrainedNumT<T> *p_load =
@@ -462,9 +482,8 @@ protected:
         // Load our parent class'es data ...
         GParameterT<T>::load_(cp);
 
-        // ... and then our own
-        lower_boundary_ = p_load->lower_boundary_;
-        upper_boundary_ = p_load->upper_boundary_;
+        // ... and then our own, derived from the single localMembers() declaration
+        Gem::Common::g_load_members(localMembers(), p_load->localMembers());
     }
 
     /***************************************************************************/
@@ -500,9 +519,8 @@ protected:
         // Compare our parent data ...
         Gem::Common::compare_base_t<GParameterT<T>>(*this, *p_load, token);
 
-        // ... and then the local data
-        compare_t(IDENTITY(lower_boundary_, p_load->lower_boundary_), token);
-        compare_t(IDENTITY(upper_boundary_, p_load->upper_boundary_), token);
+        // ... and then the local data, derived from the single localMembers() declaration
+        Gem::Common::g_compare_members(localMembers(), p_load->localMembers(), token);
 
         // React on deviations from the expectation
         token.evaluate();

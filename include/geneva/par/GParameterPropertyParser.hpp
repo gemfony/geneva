@@ -154,6 +154,28 @@ public:
 protected:
     /************************************************************************/
     /**
+     * The single declaration of this class'es local data members. load_() and
+     * compare_() are derived from it, so the member list lives in one place.
+     */
+    auto localMembers() {
+        return std::make_tuple(
+            Gem::Common::make_member("var", var),
+            Gem::Common::make_member("lowerBoundary", lowerBoundary),
+            Gem::Common::make_member("upperBoundary", upperBoundary),
+            Gem::Common::make_member("nSteps", nSteps)
+        );
+    }
+    auto localMembers() const {
+        return std::make_tuple(
+            Gem::Common::make_member("var", var),
+            Gem::Common::make_member("lowerBoundary", lowerBoundary),
+            Gem::Common::make_member("upperBoundary", upperBoundary),
+            Gem::Common::make_member("nSteps", nSteps)
+        );
+    }
+
+    /************************************************************************/
+    /**
 	  * Loads the data of another object
 	  *
 	  * cp A pointer to another parPropSpec<T> object
@@ -164,11 +186,8 @@ protected:
 
         // No parent class with loadable data
 
-        // Load local data
-        var = p_load->var;
-        lowerBoundary = p_load->lowerBoundary;
-        upperBoundary = p_load->upperBoundary;
-        nSteps = p_load->nSteps;
+        // Load local data, derived from the single localMembers() declaration
+        Gem::Common::g_load_members(localMembers(), p_load->localMembers());
     }
 
     /***************************************************************************/
@@ -210,11 +229,8 @@ protected:
             token
         );
 
-        // ... and then the local data
-        Gem::Common::compare_t(IDENTITY(var, p_load->var), token);
-        Gem::Common::compare_t(IDENTITY(lowerBoundary, p_load->lowerBoundary), token);
-        Gem::Common::compare_t(IDENTITY(upperBoundary, p_load->upperBoundary), token);
-        Gem::Common::compare_t(IDENTITY(nSteps, p_load->nSteps), token);
+        // ... and then the local data, derived from the single localMembers() declaration
+        Gem::Common::g_compare_members(localMembers(), p_load->localMembers(), token);
 
         // React on deviations from the expectation
         token.evaluate();

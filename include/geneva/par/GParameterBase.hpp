@@ -36,6 +36,7 @@
 #include <any>
 #include <concepts>
 #include <random>
+#include <tuple>
 
 // Boost header files go here
 
@@ -60,14 +61,29 @@ class GParameterBase
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
+    /** @brief Single declaration of this class'es local data members */
+    auto localMembers() {
+        return std::make_tuple(
+            Gem::Common::make_member("adaptions_active_", adaptions_active_),
+            Gem::Common::make_member("random_initialization_blocked_", random_initialization_blocked_),
+            Gem::Common::make_member("parameter_name_", parameter_name_)
+        );
+    }
+    auto localMembers() const {
+        return std::make_tuple(
+            Gem::Common::make_member("adaptions_active_", adaptions_active_),
+            Gem::Common::make_member("random_initialization_blocked_", random_initialization_blocked_),
+            Gem::Common::make_member("parameter_name_", parameter_name_)
+        );
+    }
+
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject) &
-            BOOST_SERIALIZATION_NVP(adaptions_active_) &
-            BOOST_SERIALIZATION_NVP(random_initialization_blocked_) &
-            BOOST_SERIALIZATION_NVP(parameter_name_);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject);
+        // ... and then our own data, derived from the single localMembers() declaration
+        Gem::Common::serialize_members(ar, this->localMembers());
     }
     ///////////////////////////////////////////////////////////////////////
 public:

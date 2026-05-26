@@ -324,10 +324,8 @@ void GTestIndividual3::specificTestsNoFailureExpected_GUnitTests_() {
         CHECK_NOTHROW(result_old = p->getPlainData());
         for(std::size_t i = 0; i < ntests; i++) {
             CHECK_NOTHROW(result_new = p->getPlainData());
-            for(std::size_t m = 0; m < GTI_DEF_NITEMS * 10; i++) {
-                CHECK(
-                    (result_old.get())[i] == (result_new.get())[i]
-                ); // std::shared_ptr doesn't support subscripting
+            for(std::size_t m = 0; m < GTI_DEF_NITEMS * 10; m++) {
+                CHECK((result_old.get())[m] == (result_new.get())[m]);
             }
         }
     }

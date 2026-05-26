@@ -64,8 +64,8 @@ void GConjugateGradientDescent_PersonalityTraits::compare_(
     // Compare our parent data ...
     Gem::Common::compare_base_t<GPersonalityTraits>(*this, *p_load, token);
 
-    // ... and then the local data
-    compare_t(IDENTITY(pop_pos_, p_load->pop_pos_), token);
+    // ... and then the local data, derived from the single localMembers() declaration
+    g_compare_members(localMembers(), p_load->localMembers(), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -115,8 +115,8 @@ void GConjugateGradientDescent_PersonalityTraits::load_(const GObject *cp) {
     // Load the parent class'es data
     GPersonalityTraits::load_(cp);
 
-    // and then the local data
-    pop_pos_ = p_load->pop_pos_;
+    // and then the local data, derived from the single localMembers() declaration
+    Gem::Common::g_load_members(localMembers(), p_load->localMembers());
 }
 
 /******************************************************************************/

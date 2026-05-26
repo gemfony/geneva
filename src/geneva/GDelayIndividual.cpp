@@ -88,11 +88,7 @@ void GDelayIndividual::compare_(
     Gem::Common::compare_base_t<gpar::GParameterSet>(*this, *p_load, token);
 
     // ... and then the local data
-    Gem::Common::compare_t(IDENTITY(fixed_sleep_time_, p_load->fixed_sleep_time_), token);
-    Gem::Common::compare_t(IDENTITY(may_crash_, p_load->may_crash_), token);
-    Gem::Common::compare_t(IDENTITY(throw_likelihood_, p_load->throw_likelihood_), token);
-    Gem::Common::compare_t(IDENTITY(sleep_randomly_, p_load->sleep_randomly_), token);
-    Gem::Common::compare_t(IDENTITY(rand_sleep_boundaries_, p_load->rand_sleep_boundaries_), token);
+    Gem::Common::g_compare_members(localMembers(), p_load->localMembers(), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -112,12 +108,8 @@ void GDelayIndividual::load_(const Gem::Geneva::GObject *cp) {
     // Load our parent class'es data ...
     gpar::GParameterSet::load_(cp);
 
-    // ... and then our own.
-    fixed_sleep_time_ = p_load->fixed_sleep_time_;
-    may_crash_ = p_load->may_crash_;
-    throw_likelihood_ = p_load->throw_likelihood_;
-    sleep_randomly_ = p_load->sleep_randomly_;
-    rand_sleep_boundaries_ = p_load->rand_sleep_boundaries_;
+    // ... and then our own, derived from the single localMembers() declaration
+    Gem::Common::g_load_members(localMembers(), p_load->localMembers());
 }
 
 /******************************************************************************/

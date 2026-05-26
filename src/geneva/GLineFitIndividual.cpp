@@ -102,8 +102,8 @@ void GLineFitIndividual::compare_(
     // Compare our parent data ...
     Gem::Common::compare_base_t<gpar::GParameterSet>(*this, *p_load, token);
 
-    // ... and then the local data
-    compare_t(IDENTITY(data_points_, p_load->data_points_), token);
+    // ... and then the local data, derived from the single localMembers() declaration
+    g_compare_members(localMembers(), p_load->localMembers(), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -136,8 +136,8 @@ void GLineFitIndividual::load_(const GObject *cp) {
     // Load our parent's data
     gpar::GParameterSet::load_(cp);
 
-    // and then our local data
-    data_points_ = p_load->data_points_;
+    // and then our local data, derived from the single localMembers() declaration
+    Gem::Common::g_load_members(localMembers(), p_load->localMembers());
 }
 
 /******************************************************************************/

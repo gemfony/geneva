@@ -216,16 +216,11 @@ void GNelderMead::compare_(
 
     Gem::Common::compare_base_t<GBase>(*this, *p_load, token);
 
-    compare_t(IDENTITY(n_simplices_, p_load->n_simplices_), token);
-    compare_t(IDENTITY(n_fp_parms_first_, p_load->n_fp_parms_first_), token);
-    compare_t(IDENTITY(alpha_, p_load->alpha_), token);
-    compare_t(IDENTITY(gamma_, p_load->gamma_), token);
-    compare_t(IDENTITY(rho_, p_load->rho_), token);
-    compare_t(IDENTITY(sigma_, p_load->sigma_), token);
-    compare_t(IDENTITY(initial_edge_, p_load->initial_edge_), token);
+    // Local data, derived from the single localMembers() declaration.
     // dbl_lower_parameter_boundaries_, dbl_upper_parameter_boundaries_ and trials_pending_
     // are transient: recomputed in init() and not restored in load_(). Comparing
     // them would cause round-trip equality tests to fail spuriously.
+    g_compare_members(localMembers(), p_load->localMembers(), token);
 
     token.evaluate();
 }
@@ -251,15 +246,9 @@ void GNelderMead::load_(const GObject *cp) {
     // First load the parent class'es data (this also copies all individuals).
     GBase::load_(cp);
 
-    // ... and then our own (serialized) data
-    n_simplices_ = p_load->n_simplices_;
-    n_fp_parms_first_ = p_load->n_fp_parms_first_;
-    alpha_ = p_load->alpha_;
-    gamma_ = p_load->gamma_;
-    rho_ = p_load->rho_;
-    sigma_ = p_load->sigma_;
-    initial_edge_ = p_load->initial_edge_;
+    // ... and then our own (serialized) data, derived from the single localMembers() declaration.
     // dbl*ParameterBoundaries_ and trials_pending_ are transient and re-set in init().
+    Gem::Common::g_load_members(localMembers(), p_load->localMembers());
 }
 
 /******************************************************************************/

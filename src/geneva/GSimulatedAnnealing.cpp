@@ -77,11 +77,8 @@ void GSimulatedAnnealing::compare_(
     // Compare our parent data ...
     Gem::Common::compare_base_t<GParChild>(*this, *p_load, token);
 
-    // ... and then the local data
-    compare_t(IDENTITY(t0_, p_load->t0_), token);
-    compare_t(IDENTITY(t_, p_load->t_), token);
-    compare_t(IDENTITY(alpha_, p_load->alpha_), token);
-    compare_t(IDENTITY(n_threads_, p_load->n_threads_), token);
+    // ... and then the local data, derived from the single localMembers() declaration
+    g_compare_members(localMembers(), p_load->localMembers(), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -283,11 +280,8 @@ void GSimulatedAnnealing::load_(const GObject *cp) {
     // First load the parent class'es data ...
     GParChild::load_(cp);
 
-    // ... and then our own data
-    t0_ = p_load->t0_;
-    t_ = p_load->t_;
-    alpha_ = p_load->alpha_;
-    n_threads_ = p_load->n_threads_;
+    // ... and then our own data, derived from the single localMembers() declaration
+    Gem::Common::g_load_members(localMembers(), p_load->localMembers());
 }
 
 /******************************************************************************/

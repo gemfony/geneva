@@ -33,6 +33,7 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard headers go here
+#include <tuple>
 
 // Boost headers go here
 
@@ -51,12 +52,21 @@ class GParameterScan_PersonalityTraits // NOLINT(cppcoreguidelines-special-membe
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
+    /** @brief Single declaration of this class'es local data members */
+    auto localMembers() {
+        return std::make_tuple(Gem::Common::make_member("pop_pos_", pop_pos_));
+    }
+    auto localMembers() const {
+        return std::make_tuple(Gem::Common::make_member("pop_pos_", pop_pos_));
+    }
+
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPersonalityTraits) &
-            BOOST_SERIALIZATION_NVP(pop_pos_);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPersonalityTraits);
+        // ... and then our own data, derived from the single localMembers() declaration
+        Gem::Common::serialize_members(ar, this->localMembers());
     }
     ///////////////////////////////////////////////////////////////////////
 
