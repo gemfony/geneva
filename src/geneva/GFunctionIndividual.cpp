@@ -60,7 +60,7 @@ GDoubleSumConstraint::GDoubleSumConstraint(const double &c)
 void GDoubleSumConstraint::compare_(
     const GObject &cp,
     const Gem::Common::expectation &e,
-    const double & /*limit*/
+    [[maybe_unused]] const double & limit
 ) const {
     using namespace Gem::Common;
 
@@ -254,7 +254,7 @@ GSphereConstraint::GSphereConstraint(const double &diameter)
 void GSphereConstraint::compare_(
     const GObject &cp,
     const Gem::Common::expectation &e,
-    const double & /*limit*/
+    [[maybe_unused]] const double & limit
 ) const {
     // Check that we are dealing with a GSphereConstraint reference independent of this object and convert the pointer
     const GSphereConstraint *p_load =
@@ -440,7 +440,7 @@ std::istream &operator>>(std::istream &i, Gem::Geneva::Individuals::initMode &ur
 /**
  * Initialization with the desired demo function
  *
- * @param dF The id of the demo function
+ * @param d_f The id of the demo function
  */
 GFunctionIndividual::GFunctionIndividual(const solverFunction &d_f)
   : demo_function_(d_f) { /* nothing */
@@ -466,7 +466,7 @@ void GFunctionIndividual::setFitness(std::vector<double> const &result_vec) {
 void GFunctionIndividual::compare_(
     const GObject &cp,
     const Gem::Common::expectation &e,
-    const double & /*limit*/
+    [[maybe_unused]] const double & limit
 ) const {
     // Check that we are dealing with a GFunctionIndividual reference independent of this object and convert the pointer
     const GFunctionIndividual *p_load =
@@ -539,7 +539,7 @@ void GFunctionIndividual::addConfigurationOptions_(Gem::Common::GParserBuilder &
 /**
  * Allows to set the demo function
  *
- * @param dF The id if the demo function
+ * @param d_f The id if the demo function
  */
 void GFunctionIndividual::setDemoFunction(solverFunction d_f) {
     demo_function_ = d_f;
@@ -625,7 +625,7 @@ bool GFunctionIndividual::modify_GUnitTests_() {
 
 /******************************************************************************/
 /**
- * Performs self tests that are expected to succeed. This is needed for testing purposes
+ * Performs self-tests that are expected to succeed. This is needed for testing purposes
  */
 void GFunctionIndividual::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
@@ -1783,7 +1783,7 @@ void GFunctionIndividualFactory::postProcess_(std::shared_ptr<gpar::GParameterSe
             << "In GFunctionIndividualFactory::postProcess_(): Error!"
             << "Found invalid pT_: " << p_t_ << '\n'
         );
-    } break;
+    }
     }
 }
 
