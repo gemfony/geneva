@@ -37,7 +37,9 @@
 #include "geneva/individuals/GDelayIndividual.hpp"
 #include "geneva/individuals/GExternalEvaluatorIndividual.hpp"
 #include "geneva/individuals/GFunctionIndividual.hpp"
+#include "geneva/individuals/GLineFitIndividual.hpp"
 #include "geneva/individuals/GMetaOptimizerIndividualT.hpp"
+#include "geneva/individuals/GTestIndividual2.hpp"
 #include "geneva/individuals/GTestIndividual3.hpp"
 #include "geneva/par/GBooleanAdaptor.hpp"
 #include "geneva/par/GBooleanCollection.hpp"
@@ -81,6 +83,51 @@
 #include "Geneva_tests.hpp"
 
 using namespace Gem::Geneva;
+
+// ============================================================================
+// TFactory_GUnitTests specializations for classes without a public default
+// constructor. The primary template (in common/GUnitTestFrameworkT.hpp) is a
+// free function template at global scope; these specializations must be
+// visible at the point the standard test is instantiated below.
+// ============================================================================
+
+// gind::GTestIndividual2 — public ctor (size, PERFOBJECTTYPE).
+template <>
+inline std::shared_ptr<gind::GTestIndividual2>
+TFactory_GUnitTests<gind::GTestIndividual2>() {
+    std::shared_ptr<gind::GTestIndividual2> p;
+    CHECK_NOTHROW(
+        p = std::make_shared<gind::GTestIndividual2>(
+            std::size_t(100),
+            gind::PERFOBJECTTYPE::PERFGDOUBLEOBJECT
+        )
+    );
+    return p;
+}
+
+// gind::GLineFitIndividual — public ctor takes a vector of {x,y} sample points.
+template <>
+inline std::shared_ptr<gind::GLineFitIndividual>
+TFactory_GUnitTests<gind::GLineFitIndividual>() {
+    std::vector<std::tuple<double, double>> data_points{
+        {0., 0.}, {1., 1.}, {2., 2.}, {3., 3.}};
+    std::shared_ptr<gind::GLineFitIndividual> p;
+    CHECK_NOTHROW(p = std::make_shared<gind::GLineFitIndividual>(data_points));
+    return p;
+}
+
+// gind::GOptOptMonitorT<gind::GFunctionIndividual> — public ctor takes a file name.
+template <>
+inline std::shared_ptr<gind::GOptOptMonitorT<gind::GFunctionIndividual>>
+TFactory_GUnitTests<gind::GOptOptMonitorT<gind::GFunctionIndividual>>() {
+    std::shared_ptr<gind::GOptOptMonitorT<gind::GFunctionIndividual>> p;
+    CHECK_NOTHROW(
+        p = std::make_shared<gind::GOptOptMonitorT<gind::GFunctionIndividual>>(
+            std::string("optOptMonitorResult.C")
+        )
+    );
+    return p;
+}
 
 // ============================================================================
 // Standard tests — no failure expected
@@ -150,7 +197,9 @@ TEMPLATE_TEST_CASE(
     "StandardTests_no_failure_expected — individual types",
     "[geneva][standard]",
     gind::GTestIndividual1,
+    gind::GTestIndividual2,
     gind::GTestIndividual3,
+    gind::GLineFitIndividual,
     gind::GFunctionIndividual,
     gind::GDelayIndividual,
     gind::GExternalEvaluatorIndividual,
@@ -205,7 +254,8 @@ TEMPLATE_TEST_CASE(
     GIterationResultsFileLogger,
     GNAdpationsLogger,
     GAdaptorPropertyLogger<double>,
-    GProcessingTimesLogger
+    GProcessingTimesLogger,
+    gind::GOptOptMonitorT<gind::GFunctionIndividual>
 ) {
     Gem::Geneva::Tests::StandardTests_no_failure_expected<TestType>();
 }
@@ -278,7 +328,9 @@ TEMPLATE_TEST_CASE(
     "StandardTests_failures_expected — individual types",
     "[geneva][standard][failures-expected]",
     gind::GTestIndividual1,
+    gind::GTestIndividual2,
     gind::GTestIndividual3,
+    gind::GLineFitIndividual,
     gind::GFunctionIndividual,
     gind::GDelayIndividual,
     gind::GExternalEvaluatorIndividual,
@@ -324,7 +376,8 @@ TEMPLATE_TEST_CASE(
     GIterationResultsFileLogger,
     GNAdpationsLogger,
     GAdaptorPropertyLogger<double>,
-    GProcessingTimesLogger
+    GProcessingTimesLogger,
+    gind::GOptOptMonitorT<gind::GFunctionIndividual>
 ) {
     Gem::Geneva::Tests::StandardTests_failures_expected<TestType>();
 }
@@ -448,3 +501,39 @@ TEST_CASE(
         CHECK(gep.isSimilar(restored, original));
     }
 }
+
+// Regression: GExternalEvaluatorIndividual::serialize() previously omitted run_id_,
+// so it was silently lost on (de)serialization. A non-default run_id_ must survive a
+// round-trip in all three modes.
+TEST_CASE(
+    "GExternalEvaluatorIndividual round-trips run_id_ in TEXT, XML and BINARY",
+    "[geneva][serialization]"
+) {
+    using Gem::Common::serializationMode;
+
+    for (auto mode :
+         {serializationMode::TEXT, serializationMode::XML, serializationMode::BINARY}) {
+        gind::GExternalEvaluatorIndividual original;
+        original.setRunId("custom-run-id-xyz");
+        gind::GExternalEvaluatorIndividual restored;
+        restored.setRunId("other-run-id");
+
+        REQUIRE_NOTHROW(
+            restored.GObject::fromString(original.GObject::toString(mode), mode)
+        );
+
+        GEqualityPrinter gep(
+            "GExternalEvaluatorIndividual-runid-roundtrip",
+            pow(10, -7),
+            Gem::Common::CE_WITH_MESSAGES
+        );
+        CHECK(gep.isSimilar(restored, original));
+    }
+}
+
+// NOTE: GNeuralNetworkIndividual's t_f_ (de)serialization fix (split save()/load()
+// now route t_f_ through serialize_members(localMembers())) is NOT unit-tested
+// here: a round-trip calls load(), which reloads the training data from disk via a
+// global singleton (./Datasets/*.dat) that is absent in the unit-test environment,
+// so the class cannot be (de)serialised standalone. The fix follows the same proven
+// serialize_members pattern and is compile-checked.

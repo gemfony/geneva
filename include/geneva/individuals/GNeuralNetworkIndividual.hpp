@@ -359,11 +359,26 @@ class GNeuralNetworkIndividual // NOLINT(cppcoreguidelines-special-member-functi
 
     friend class boost::serialization::access;
 
+    /** @brief The single declaration of this class'es serialised local data
+     *  members. n_d_ is intentionally NOT listed: it is recovered from a global
+     *  singleton in load() (asymmetric) rather than stored. */
+    auto localMembers() {
+        return std::make_tuple(Gem::Common::make_member("t_f_", t_f_));
+    }
+    auto localMembers() const {
+        return std::make_tuple(Gem::Common::make_member("t_f_", t_f_));
+    }
+
     template <typename Archive>
     void load(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GParameterSet);
+        // t_f_ was previously never (de)serialised and silently reset to its
+        // default; read it back via the single localMembers() declaration. In a
+        // split save()/load(), the same serialize_members() drives both -- the
+        // non-const localMembers() overload here yields writable refs to read into.
+        Gem::Common::serialize_members(ar, this->localMembers());
 
         // Load the network data from disk
         n_d_ = nnTrainingDataStore(); // A glogal singleton
@@ -374,6 +389,9 @@ class GNeuralNetworkIndividual // NOLINT(cppcoreguidelines-special-member-functi
         using boost::serialization::make_nvp;
 
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GParameterSet);
+        // The const localMembers() overload yields const refs, which the output
+        // archive writes -- the symmetric counterpart to load() above.
+        Gem::Common::serialize_members(ar, this->localMembers());
     }
 
     BOOST_SERIALIZATION_SPLIT_MEMBER()
@@ -1016,13 +1034,6 @@ public:
 
 protected:
     /***************************************************************************/
-    /** @brief Single declaration of this class'es local data members */
-    auto localMembers() {
-        return std::make_tuple(Gem::Common::make_member("t_f_", t_f_));
-    }
-    auto localMembers() const {
-        return std::make_tuple(Gem::Common::make_member("t_f_", t_f_));
-    }
 
     /***************************************************************************/
     /** @brief Loads the data of another GNeuralNetworkIndividual */

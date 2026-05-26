@@ -130,15 +130,36 @@ class GExternalEvaluatorIndividual
 
     friend class boost::serialization::access;
 
+    /** @brief Single declaration of this class'es local data members */
+    auto localMembers() {
+        return std::make_tuple(
+            Gem::Common::make_member("program_name_", program_name_),
+            Gem::Common::make_member("custom_options_", custom_options_),
+            Gem::Common::make_member("parameter_file_base_name_", parameter_file_base_name_),
+            Gem::Common::make_member("n_results_", n_results_),
+            Gem::Common::make_member("run_id_", run_id_),
+            Gem::Common::make_member("remove_exec_temporaries_", remove_exec_temporaries_)
+        );
+    }
+    auto localMembers() const {
+        return std::make_tuple(
+            Gem::Common::make_member("program_name_", program_name_),
+            Gem::Common::make_member("custom_options_", custom_options_),
+            Gem::Common::make_member("parameter_file_base_name_", parameter_file_base_name_),
+            Gem::Common::make_member("n_results_", n_results_),
+            Gem::Common::make_member("run_id_", run_id_),
+            Gem::Common::make_member("remove_exec_temporaries_", remove_exec_temporaries_)
+        );
+    }
+
     template <class Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
-
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GParameterSet) &
-            BOOST_SERIALIZATION_NVP(program_name_) & BOOST_SERIALIZATION_NVP(custom_options_) &
-            BOOST_SERIALIZATION_NVP(parameter_file_base_name_) &
-            BOOST_SERIALIZATION_NVP(n_results_) &
-            BOOST_SERIALIZATION_NVP(remove_exec_temporaries_);
+        // run_id_ was previously omitted here and silently lost on
+        // (de)serialization; derive the member list from the single
+        // localMembers() declaration so it stays in sync.
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GParameterSet);
+        Gem::Common::serialize_members(ar, this->localMembers());
     }
 
     ///////////////////////////////////////////////////////////////////////
@@ -192,27 +213,6 @@ public:
 
 protected:
     /***************************************************************************/
-    /** @brief Single declaration of this class'es local data members */
-    auto localMembers() {
-        return std::make_tuple(
-            Gem::Common::make_member("program_name_", program_name_),
-            Gem::Common::make_member("custom_options_", custom_options_),
-            Gem::Common::make_member("parameter_file_base_name_", parameter_file_base_name_),
-            Gem::Common::make_member("n_results_", n_results_),
-            Gem::Common::make_member("run_id_", run_id_),
-            Gem::Common::make_member("remove_exec_temporaries_", remove_exec_temporaries_)
-        );
-    }
-    auto localMembers() const {
-        return std::make_tuple(
-            Gem::Common::make_member("program_name_", program_name_),
-            Gem::Common::make_member("custom_options_", custom_options_),
-            Gem::Common::make_member("parameter_file_base_name_", parameter_file_base_name_),
-            Gem::Common::make_member("n_results_", n_results_),
-            Gem::Common::make_member("run_id_", run_id_),
-            Gem::Common::make_member("remove_exec_temporaries_", remove_exec_temporaries_)
-        );
-    }
 
     /***************************************************************************/
     /** @brief Loads the data of another GExternalEvaluatorIndividual */

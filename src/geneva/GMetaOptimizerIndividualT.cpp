@@ -32,6 +32,10 @@
 BOOST_CLASS_EXPORT_IMPLEMENT(
     Gem::Geneva::Individuals::GMetaOptimizerIndividualT<Gem::Geneva::Individuals::GFunctionIndividual>
 ) // NOLINT
+
+BOOST_CLASS_EXPORT_IMPLEMENT(
+    Gem::Geneva::Individuals::GOptOptMonitorT<Gem::Geneva::Individuals::GFunctionIndividual>
+) // NOLINT
 namespace Gem::Geneva::Individuals {
 
 /******************************************************************************/
