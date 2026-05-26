@@ -284,22 +284,13 @@ void GParameterSet::compare_(
     // Compare our parent data ...
     Gem::Common::compare_base_t<GObject>(*this, *p_load, token);
 
-    // ... and then the local data
+    // The container base'es data -- compared explicitly, as it is a base-object
+    // rather than a local member (the data is actually contained in a parent class).
     compare_t(IDENTITY(this->data_cnt_, p_load->data_cnt_), token);
-    // data is actually contained in a parent class
-    compare_t(IDENTITY(best_past_primary_fitness_, p_load->best_past_primary_fitness_), token);
-    compare_t(IDENTITY(n_stalls_, p_load->n_stalls_), token);
-    compare_t(IDENTITY(maxmode_, p_load->maxmode_), token);
-    compare_t(IDENTITY(assigned_iteration_, p_load->assigned_iteration_), token);
-    compare_t(IDENTITY(validity_level_, p_load->validity_level_), token);
-    compare_t(IDENTITY(eval_policy_, p_load->eval_policy_), token);
-    compare_t(IDENTITY(pt_ptr_, p_load->pt_ptr_), token);
-    compare_t(IDENTITY(individual_constraint_ptr_, p_load->individual_constraint_ptr_), token);
-    compare_t(IDENTITY(sigmoid_steepness_, p_load->sigmoid_steepness_), token);
-    compare_t(IDENTITY(sigmoid_extremes_, p_load->sigmoid_extremes_), token);
-    compare_t(IDENTITY(max_unsuccessful_adaptions_, p_load->max_unsuccessful_adaptions_), token);
-    compare_t(IDENTITY(max_retries_until_valid_, p_load->max_retries_until_valid_), token);
-    compare_t(IDENTITY(n_adaptions_, p_load->n_adaptions_), token);
+
+    // ... and all the local data (plain + cloneable pointers), derived from the
+    // single localMembers() declaration.
+    Gem::Common::g_compare_members(localMembers(), p_load->localMembers(), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -1696,24 +1687,10 @@ void GParameterSet::load_(const GObject *cp) {
         p_load
     );
 
-    // and then our local data
-    best_past_primary_fitness_ = p_load->best_past_primary_fitness_;
-    n_stalls_ = p_load->n_stalls_;
-    maxmode_ = p_load->maxmode_;
-    assigned_iteration_ = p_load->assigned_iteration_;
-    validity_level_ = p_load->validity_level_;
-    eval_policy_ = p_load->eval_policy_;
-    sigmoid_steepness_ = p_load->sigmoid_steepness_;
-    sigmoid_extremes_ = p_load->sigmoid_extremes_;
-    max_unsuccessful_adaptions_ = p_load->max_unsuccessful_adaptions_;
-    max_retries_until_valid_ = p_load->max_retries_until_valid_;
-    n_adaptions_ = p_load->n_adaptions_;
-
-    Gem::Common::copyCloneableSmartPointer(p_load->pt_ptr_, pt_ptr_);
-    Gem::Common::copyCloneableSmartPointer(
-        p_load->individual_constraint_ptr_,
-        individual_constraint_ptr_
-    );
+    // All local data, derived from the single localMembers() declaration: plain
+    // members are assigned, the cloneable smart pointers are deep-cloned (the tie
+    // dispatches on the member kind).
+    Gem::Common::g_load_members(localMembers(), p_load->localMembers());
 }
 
 /******************************************************************************/

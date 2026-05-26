@@ -183,9 +183,63 @@ class GParameterSet // NOLINT(cppcoreguidelines-special-member-functions)
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
+    /***************************************************************************/
+    /**
+     * Single declaration of this class'es local data members. This drives serialize(),
+     * load_() and compare_() from one place. Plain members use make_member(); the
+     * cloneable smart pointers pt_ptr_ / individual_constraint_ptr_ use
+     * make_cloneable_member(), so g_load_members() deep-clones them while serialize()
+     * and compare_() treat them like any other member.
+     *
+     * Handled manually (NOT in this tuple): the two base classes (the GParameterBase
+     * container and the GProcessingContainerT processing base), which are base-objects
+     * rather than local members.
+     */
+    auto localMembers() {
+        return std::make_tuple(
+            Gem::Common::make_member("best_past_primary_fitness_", best_past_primary_fitness_),
+            Gem::Common::make_member("n_stalls_", n_stalls_),
+            Gem::Common::make_member("maxmode_", maxmode_),
+            Gem::Common::make_member("assigned_iteration_", assigned_iteration_),
+            Gem::Common::make_member("validity_level_", validity_level_),
+            Gem::Common::make_member("eval_policy_", eval_policy_),
+            Gem::Common::make_member("sigmoid_steepness_", sigmoid_steepness_),
+            Gem::Common::make_member("sigmoid_extremes_", sigmoid_extremes_),
+            Gem::Common::make_member("max_unsuccessful_adaptions_", max_unsuccessful_adaptions_),
+            Gem::Common::make_member("max_retries_until_valid_", max_retries_until_valid_),
+            Gem::Common::make_member("n_adaptions_", n_adaptions_),
+            Gem::Common::make_member("use_random_crash_", use_random_crash_),
+            Gem::Common::make_member("random_crash_prob_", random_crash_prob_),
+            Gem::Common::make_cloneable_member("pt_ptr_", pt_ptr_),
+            Gem::Common::make_cloneable_member("individual_constraint_ptr_", individual_constraint_ptr_)
+        );
+    }
+    auto localMembers() const {
+        return std::make_tuple(
+            Gem::Common::make_member("best_past_primary_fitness_", best_past_primary_fitness_),
+            Gem::Common::make_member("n_stalls_", n_stalls_),
+            Gem::Common::make_member("maxmode_", maxmode_),
+            Gem::Common::make_member("assigned_iteration_", assigned_iteration_),
+            Gem::Common::make_member("validity_level_", validity_level_),
+            Gem::Common::make_member("eval_policy_", eval_policy_),
+            Gem::Common::make_member("sigmoid_steepness_", sigmoid_steepness_),
+            Gem::Common::make_member("sigmoid_extremes_", sigmoid_extremes_),
+            Gem::Common::make_member("max_unsuccessful_adaptions_", max_unsuccessful_adaptions_),
+            Gem::Common::make_member("max_retries_until_valid_", max_retries_until_valid_),
+            Gem::Common::make_member("n_adaptions_", n_adaptions_),
+            Gem::Common::make_member("use_random_crash_", use_random_crash_),
+            Gem::Common::make_member("random_crash_prob_", random_crash_prob_),
+            Gem::Common::make_cloneable_member("pt_ptr_", pt_ptr_),
+            Gem::Common::make_cloneable_member("individual_constraint_ptr_", individual_constraint_ptr_)
+        );
+    }
+
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
+
+        // GObject base + the two base classes (the GParameterBase container and the
+        // processing base), which are base-objects rather than local members.
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject) &
             make_nvp(
                 "GStdPtrVectorInterfaceT_GParameterBase",
@@ -196,19 +250,11 @@ class GParameterSet // NOLINT(cppcoreguidelines-special-member-functions)
                 boost::serialization::base_object<Gem::Courtier::GProcessingContainerT<
                     GParameterSet,
                     parameterset_processing_result>>(*this)
-            ) &
-            BOOST_SERIALIZATION_NVP(best_past_primary_fitness_) &
-            BOOST_SERIALIZATION_NVP(n_stalls_) & BOOST_SERIALIZATION_NVP(maxmode_) &
-            BOOST_SERIALIZATION_NVP(assigned_iteration_) &
-            BOOST_SERIALIZATION_NVP(validity_level_) & BOOST_SERIALIZATION_NVP(pt_ptr_) &
-            BOOST_SERIALIZATION_NVP(eval_policy_) &
-            BOOST_SERIALIZATION_NVP(individual_constraint_ptr_) &
-            BOOST_SERIALIZATION_NVP(sigmoid_steepness_) &
-            BOOST_SERIALIZATION_NVP(sigmoid_extremes_) &
-            BOOST_SERIALIZATION_NVP(max_unsuccessful_adaptions_) &
-            BOOST_SERIALIZATION_NVP(max_retries_until_valid_) &
-            BOOST_SERIALIZATION_NVP(n_adaptions_) & BOOST_SERIALIZATION_NVP(use_random_crash_) &
-            BOOST_SERIALIZATION_NVP(random_crash_prob_);
+            );
+
+        // All members (plain and cloneable alike) are derived from the single
+        // localMembers() declaration.
+        Gem::Common::serialize_members(ar, this->localMembers());
     }
     ///////////////////////////////////////////////////////////////////////
 

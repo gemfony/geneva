@@ -182,8 +182,11 @@ private:
 
     /***************************************************************************/
     /**
-     * Single declaration of this class'es symmetric, plain-assignable local data
-     * members. This drives serialize(), load_() and compare_() from one place.
+     * Single declaration of this class'es local data members. This drives serialize(),
+     * load_() and compare_() from one place. Plain members use make_member(); the
+     * cloneable smart pointer executor_ptr_ and the cloneable pointer container
+     * pluggable_monitors_cnt_ use make_cloneable_member() / make_cloneable_container_member(),
+     * so g_load_members() deep-clones them.
      *
      * Deliberately NOT in this tuple, and handled manually in serialize()/load_()/
      * compare_() instead:
@@ -191,8 +194,6 @@ private:
      *    on load via operator=);
      *  - halted_ (a std::atomic<bool>: serialisable, but not plain-assignable, so
      *    g_load_members/g_compare_members cannot handle it -- .store()/.load() used);
-     *  - executor_ptr_ and pluggable_monitors_cnt_ (cloneable smart pointers: deep-cloned
-     *    on load, not shallow-assigned);
      *  - best_iteration_individuals_pq_ (intentionally NOT persisted -- transient per
      *    iteration; copied in memory by load_() and compared by compare_()).
      *
@@ -230,7 +231,9 @@ private:
             Gem::Common::make_member("emit_termination_reason_", emit_termination_reason_),
             Gem::Common::make_member("worst_known_valids_cnt_", worst_known_valids_cnt_),
             Gem::Common::make_member("default_exec_mode_", default_exec_mode_),
-            Gem::Common::make_member("default_executor_config_", default_executor_config_)
+            Gem::Common::make_member("default_executor_config_", default_executor_config_),
+            Gem::Common::make_cloneable_container_member("pluggable_monitors_cnt_", pluggable_monitors_cnt_),
+            Gem::Common::make_cloneable_member("executor_ptr_", executor_ptr_)
         );
     }
     auto localMembers() const {
@@ -263,7 +266,9 @@ private:
             Gem::Common::make_member("emit_termination_reason_", emit_termination_reason_),
             Gem::Common::make_member("worst_known_valids_cnt_", worst_known_valids_cnt_),
             Gem::Common::make_member("default_exec_mode_", default_exec_mode_),
-            Gem::Common::make_member("default_executor_config_", default_executor_config_)
+            Gem::Common::make_member("default_executor_config_", default_executor_config_),
+            Gem::Common::make_cloneable_container_member("pluggable_monitors_cnt_", pluggable_monitors_cnt_),
+            Gem::Common::make_cloneable_member("executor_ptr_", executor_ptr_)
         );
     }
 
@@ -279,16 +284,14 @@ private:
                 boost::serialization::base_object<Gem::Common::GPtrContainerT<gpar::GParameterSet>>(*this)
             );
 
-        // The bulk of the members is derived from the single localMembers() declaration.
+        // All members (plain and cloneable alike) are derived from the single
+        // localMembers() declaration; the cloneable smart pointers (de)serialise as
+        // polymorphic pointers and are deep-cloned by load_().
         Gem::Common::serialize_members(ar, this->localMembers());
 
-        // Members that cannot go through localMembers() but must still be on the wire:
-        // halted_ is a std::atomic<bool> (serialisable, not plain-assignable), and
-        // executor_ptr_ / pluggable_monitors_cnt_ are (de)serialised as polymorphic
-        // smart pointers here, then deep-cloned by load_() for in-memory copies.
-        ar &BOOST_SERIALIZATION_NVP(halted_) &
-            BOOST_SERIALIZATION_NVP(pluggable_monitors_cnt_) &
-            BOOST_SERIALIZATION_NVP(executor_ptr_);
+        // halted_ is a std::atomic<bool> (serialisable, but not plain-assignable, so it
+        // cannot go through localMembers()); kept manual here.
+        ar &BOOST_SERIALIZATION_NVP(halted_);
     }
 
     ///////////////////////////////////////////////////////////////////////

@@ -588,3 +588,74 @@ TEST_CASE(
         CHECK(gep.isSimilar(restored, original));
     }
 }
+
+// Safety net for the gpar::GParameterSet serialize()/load_()/compare_() unification
+// onto a single localMembers() declaration. GParameterSet is the central serialised
+// base for all individuals. This test sets several of its members to non-default
+// values -- in particular use_random_crash_ / random_crash_prob_, which serialize()
+// stored but the old load_()/compare_() silently ignored (a real member-drop bug,
+// fixed by deriving all three from localMembers()) -- and checks they survive both a
+// wire round-trip AND an in-memory load() (clone path). Exercised on the concrete
+// GTestIndividual1 (a GParameterSet subclass).
+TEST_CASE(
+    "gpar::GParameterSet (via GTestIndividual1) round-trips its members incl. the random-crash settings",
+    "[geneva][serialization]"
+) {
+    using Gem::Common::serializationMode;
+
+    // --- in-memory load() (clone path) ---
+    {
+        gind::GTestIndividual1 original;
+        original.setRandomCrash(true, 0.25);
+        original.setMaxMode(maxMode::MAXIMIZE);
+
+        gind::GTestIndividual1 restored;
+        restored.setRandomCrash(false, 0.0);
+
+        // In-memory load goes through load_(); before the fix this dropped the
+        // random-crash members.
+        REQUIRE_NOTHROW(restored.GObject::load(original));
+
+        auto [use_rc, rc_prob] = restored.getRandomCrash();
+        CHECK(use_rc == true);
+        CHECK(rc_prob == 0.25);
+        CHECK(restored.getMaxMode() == maxMode::MAXIMIZE);
+
+        GEqualityPrinter gep(
+            "GParameterSet-load-roundtrip",
+            pow(10, -7),
+            Gem::Common::CE_WITH_MESSAGES
+        );
+        // compare_() must now see the two objects as equal (before the fix it
+        // ignored the crash members and would have reported "equal" even when they
+        // differed -- i.e. it could not tell them apart).
+        CHECK(gep.isSimilar(restored, original));
+    }
+
+    // --- wire round-trip in all three modes ---
+    for (auto mode :
+         {serializationMode::TEXT, serializationMode::XML, serializationMode::BINARY}) {
+        gind::GTestIndividual1 original;
+        original.setRandomCrash(true, 0.5);
+        original.setMaxMode(maxMode::MAXIMIZE);
+
+        gind::GTestIndividual1 restored;
+        restored.setRandomCrash(false, 0.0);
+
+        REQUIRE_NOTHROW(
+            restored.GObject::fromString(original.GObject::toString(mode), mode)
+        );
+
+        auto [use_rc, rc_prob] = restored.getRandomCrash();
+        CHECK(use_rc == true);
+        CHECK(rc_prob == 0.5);
+        CHECK(restored.getMaxMode() == maxMode::MAXIMIZE);
+
+        GEqualityPrinter gep(
+            "GParameterSet-roundtrip",
+            pow(10, -7),
+            Gem::Common::CE_WITH_MESSAGES
+        );
+        CHECK(gep.isSimilar(restored, original));
+    }
+}

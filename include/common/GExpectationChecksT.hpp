@@ -1357,9 +1357,67 @@ member_t<T> make_member(std::string name, T &ref) {
     return member_t<T>{std::move(name), ref};
 }
 
+/******************************************************************************/
+/**
+ * Tagged member variants for members whose in-memory copy is a deep clone rather
+ * than a plain assignment. They carry the same { name, ref } shape as member_t -- so
+ * serialize_members() and g_compare_members() treat them identically (a shared_ptr
+ * and a container of shared_ptr each have their own serialize / compare support) --
+ * but g_load_members() recognises the tag and performs a deep clone instead of a
+ * shallow pointer assignment (which would alias shared state).
+ *
+ *  - cloneable_member_t           : a single std::shared_ptr<Cloneable> member,
+ *                                   deep-copied via copyCloneableSmartPointer().
+ *  - cloneable_container_member_t : a container (e.g. std::vector) of
+ *                                   std::shared_ptr<Cloneable>, deep-copied via
+ *                                   copyCloneableSmartPointerContainer().
+ *
+ * This lets a class list ALL of its data members -- plain and deep-cloned alike -- in
+ * one localMembers() declaration, so serialize()/load_()/compare_() all derive from
+ * the same single source with no hand-written tail.
+ */
+template <typename T>
+struct cloneable_member_t {
+    std::string name;
+    T &ref; ///< a std::shared_ptr<Cloneable> (const& in a const context)
+};
+
+template <typename T>
+struct cloneable_container_member_t {
+    std::string name;
+    T &ref; ///< a container of std::shared_ptr<Cloneable> (const& in a const context)
+};
+
+/** @brief Builds one named, deep-cloned single-pointer member for a localMembers() tuple. */
+template <typename T>
+cloneable_member_t<T> make_cloneable_member(std::string name, T &ref) {
+    return cloneable_member_t<T>{std::move(name), ref};
+}
+
+/** @brief Builds one named, deep-cloned pointer-container member for a localMembers() tuple. */
+template <typename T>
+cloneable_container_member_t<T> make_cloneable_container_member(std::string name, T &ref) {
+    return cloneable_container_member_t<T>{std::move(name), ref};
+}
+
+/******************************************************************************/
+/** @brief Loads a single member, dispatched on its kind. */
+template <typename Dst, typename Src>
+void g_load_one(member_t<Dst> &dst, const member_t<Src> &src) {
+    dst.ref = src.ref; // plain assignment
+}
+template <typename Dst, typename Src>
+void g_load_one(cloneable_member_t<Dst> &dst, const cloneable_member_t<Src> &src) {
+    Gem::Common::copyCloneableSmartPointer(src.ref, dst.ref); // deep clone
+}
+template <typename Dst, typename Src>
+void g_load_one(cloneable_container_member_t<Dst> &dst, const cloneable_container_member_t<Src> &src) {
+    Gem::Common::copyCloneableSmartPointerContainer(src.ref, dst.ref); // deep clone of each element
+}
+
 template <typename DstTuple, typename SrcTuple, std::size_t... I>
 void g_load_members_impl(DstTuple &dst, const SrcTuple &src, std::index_sequence<I...>) {
-    ((std::get<I>(dst).ref = std::get<I>(src).ref), ...);
+    (g_load_one(std::get<I>(dst), std::get<I>(src)), ...);
 }
 
 /** @brief Copies each local member from src to dst, member by member. */

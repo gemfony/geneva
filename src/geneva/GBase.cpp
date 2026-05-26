@@ -500,20 +500,18 @@ void GBase::compare_(
         token
     ); // This allows us to compare the parent class without directly referring to it.
 
-    // ... the bulk of the local data, derived from the single localMembers() declaration ...
+    // ... all the local data (plain members + the cloneable pointers), derived from the
+    // single localMembers() declaration ...
     Gem::Common::g_compare_members(localMembers(), p_load->localMembers(), token);
 
     // ... and finally the members that are not part of localMembers():
     //   best_iteration_individuals_pq_ (intentionally not persisted, but still compared),
-    //   halted_ (std::atomic<bool>, compared via its loaded value), and the cloneable
-    //   smart pointers pluggable_monitors_cnt_ / executor_ptr_.
+    //   halted_ (std::atomic<bool>, compared via its loaded value).
     compare_t(
         IDENTITY(best_iteration_individuals_pq_, p_load->best_iteration_individuals_pq_),
         token
     );
     compare_t(IDENTITY(halted_.load(), p_load->halted_.load()), token);
-    compare_t(IDENTITY(pluggable_monitors_cnt_, p_load->pluggable_monitors_cnt_), token);
-    compare_t(IDENTITY(executor_ptr_, p_load->executor_ptr_), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -1519,21 +1517,16 @@ void GBase::load_(const GObject *cp) {
     GObject::load_(cp);
     Gem::Common::GPtrContainerT<gpar::GParameterSet>::operator=(*p_load);
 
-    // The bulk of the local data, derived from the single localMembers() declaration
-    // (plain member-by-member assignment).
+    // All local data, derived from the single localMembers() declaration: plain members
+    // are assigned, the cloneable smart pointers (executor_ptr_, pluggable_monitors_cnt_)
+    // are deep-cloned (the tie dispatches on the member kind).
     Gem::Common::g_load_members(localMembers(), p_load->localMembers());
 
     // Members not part of localMembers(), each with its own copy semantics:
     //   best_iteration_individuals_pq_ -- not persisted, but copied in memory;
-    //   halted_ -- a std::atomic<bool>, copied via .store()/.load();
-    //   pluggable_monitors_cnt_ / executor_ptr_ -- cloneable smart pointers, deep-cloned.
+    //   halted_ -- a std::atomic<bool>, copied via .store()/.load().
     best_iteration_individuals_pq_ = p_load->best_iteration_individuals_pq_;
     halted_.store(p_load->halted_.load());
-    Gem::Common::copyCloneableSmartPointerContainer(
-        p_load->pluggable_monitors_cnt_,
-        pluggable_monitors_cnt_
-    );
-    Gem::Common::copyCloneableSmartPointer(p_load->executor_ptr_, executor_ptr_);
 }
 
 /******************************************************************************/
