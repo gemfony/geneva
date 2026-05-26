@@ -463,7 +463,7 @@ std::string vecToString(const std::vector<T> &vec) {
  * Deep-copies a shared_ptr to a cloneable/loadable object using clone()/load().
  */
 template <typename T>
-    requires (Gem::Common::has_gemfony_common_interface<T>::value)
+    requires Gem::Common::gemfony_common_interface<T>
 void copyCloneableSmartPointer(const std::shared_ptr<T> &from, std::shared_ptr<T> &to) {
     if(not from) {
         to.reset();
@@ -487,7 +487,7 @@ void copyCloneableSmartPointer(const std::shared_ptr<T> &from, std::shared_ptr<T
  * clone()/load(). Resizes the target container as needed.
  */
 template <typename T, template <typename, typename> class c_type>
-    requires (Gem::Common::has_gemfony_common_interface<T>::value)
+    requires Gem::Common::gemfony_common_interface<T>
 void copyCloneableSmartPointerContainer(
     const c_type<std::shared_ptr<T>, std::allocator<std::shared_ptr<T>>> &from,
     c_type<std::shared_ptr<T>, std::allocator<std::shared_ptr<T>>> &to
@@ -530,7 +530,7 @@ void copyCloneableSmartPointerContainer(
  * target container as needed.
  */
 template <typename T, template <typename, typename> class c_type>
-    requires (Gem::Common::has_gemfony_common_interface<T>::value)
+    requires Gem::Common::gemfony_common_interface<T>
 void copyCloneableObjectsContainer(
     const c_type<T, std::allocator<T>> &from,
     c_type<T, std::allocator<T>> &to
@@ -793,7 +793,7 @@ const item_type &getMapItem(const std::map<std::string, item_type> &m, const std
  * Adds an operator== to every object with a Gemfony-common interface
  */
 template <class gemfony_common_type>
-    requires (Gem::Common::has_gemfony_common_interface<gemfony_common_type>::value)
+    requires Gem::Common::gemfony_common_interface<gemfony_common_type>
 bool operator==(const gemfony_common_type &x, const gemfony_common_type &y) {
     try {
         x.compare(y, Gem::Common::expectation::EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
@@ -809,7 +809,7 @@ bool operator==(const gemfony_common_type &x, const gemfony_common_type &y) {
  * Adds an operator!= to every object with a Gemfony-common interface
  */
 template <class gemfony_common_type>
-    requires (Gem::Common::has_gemfony_common_interface<gemfony_common_type>::value)
+    requires Gem::Common::gemfony_common_interface<gemfony_common_type>
 bool operator!=(const gemfony_common_type &x, const gemfony_common_type &y) {
     try {
         x.compare(y, Gem::Common::expectation::INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);

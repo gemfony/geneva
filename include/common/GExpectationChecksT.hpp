@@ -927,7 +927,7 @@ void compare(
  * @param dummy std::enable_if magic to steer overloaded resolution by the compiler
  */
 template <typename geneva_type>
-    requires (Gem::Common::has_gemfony_common_interface<geneva_type>::value)
+    requires Gem::Common::gemfony_common_interface<geneva_type>
 void compare(
     geneva_type const &x,
     geneva_type const &y,
@@ -1004,7 +1004,7 @@ void compare(
  * @param dummy std::enable_if magic to steer overloaded resolution by the compiler
  */
 template <typename geneva_type>
-    requires (Gem::Common::has_gemfony_common_interface<geneva_type>::value)
+    requires Gem::Common::gemfony_common_interface<geneva_type>
 void compare(
     std::shared_ptr<geneva_type> const &x,
     std::shared_ptr<geneva_type> const &y,
@@ -1113,7 +1113,7 @@ void compare(
  * @param dummy std::enable_if magic to steer overloaded resolution by the compiler
  */
 template <typename geneva_type, template <typename, typename> class c_type>
-    requires (Gem::Common::has_gemfony_common_interface<geneva_type>::value)
+    requires Gem::Common::gemfony_common_interface<geneva_type>
 void compare(
     c_type<std::shared_ptr<geneva_type>, std::allocator<std::shared_ptr<geneva_type>>> const &x,
     c_type<std::shared_ptr<geneva_type>, std::allocator<std::shared_ptr<geneva_type>>> const &y,

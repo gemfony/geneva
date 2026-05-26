@@ -182,7 +182,7 @@ struct PodStorage {
  *                   std::vector<std::shared_ptr<T>>.
  */
 template <typename T, typename Container = std::vector<std::shared_ptr<T>>>
-    requires Gem::Common::has_gemfony_common_interface<T>::value
+    requires Gem::Common::gemfony_common_interface<T>
 struct SharedPtrStorage {
     /** @brief The logical element type exposed by the container interface. */
     using ValueType = T;

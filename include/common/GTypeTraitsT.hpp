@@ -77,6 +77,18 @@ struct has_gemfony_common_interface {
     static constexpr bool value = std::is_base_of_v<gemfony_common_interface_indicator, T>;
 };
 
+/**
+ * The C++20 concept form of has_gemfony_common_interface, for use in requires
+ * clauses. T satisfies it iff it carries the Gemfony common interface, i.e. it
+ * (indirectly) derives from gemfony_common_interface_indicator. Equivalent to
+ * has_gemfony_common_interface<T>::value but more ergonomic and giving clearer
+ * diagnostics at the constraint site. (is_base_of, not std::derived_from, since
+ * the indicator is inherited privately and is therefore not an accessible base.)
+ */
+template <typename T>
+concept gemfony_common_interface =
+    std::is_base_of_v<gemfony_common_interface_indicator, T>;
+
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
