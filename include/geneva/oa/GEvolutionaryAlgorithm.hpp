@@ -71,15 +71,28 @@ class GEvolutionaryAlgorithm // NOLINT(cppcoreguidelines-special-member-function
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
+    /** @brief Single declaration of this class'es local data members */
+    auto localMembers() {
+        return std::make_tuple(
+            Gem::Common::make_member("sorting_mode_", sorting_mode_),
+            Gem::Common::make_member("n_threads_", n_threads_)
+        );
+    }
+    auto localMembers() const {
+        return std::make_tuple(
+            Gem::Common::make_member("sorting_mode_", sorting_mode_),
+            Gem::Common::make_member("n_threads_", n_threads_)
+        );
+    }
+
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar &make_nvp(
-            "GParChild",
-            boost::serialization::base_object<GParChild>(*this)
-        ) & BOOST_SERIALIZATION_NVP(sorting_mode_) &
-            BOOST_SERIALIZATION_NVP(n_threads_);
+        ar &make_nvp("GParChild", boost::serialization::base_object<GParChild>(*this));
+        // Member list derived from the single localMembers() declaration (same NVP
+        // names/order as the previous explicit list).
+        Gem::Common::serialize_members(ar, this->localMembers());
     }
 
     ///////////////////////////////////////////////////////////////////////
@@ -114,20 +127,6 @@ protected:
 
     /** @brief Adds local configuration options to a GParserBuilder object */
     void addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) override;
-
-    /** @brief Single declaration of this class'es local data members */
-    auto localMembers() {
-        return std::make_tuple(
-            Gem::Common::make_member("sorting_mode_", sorting_mode_),
-            Gem::Common::make_member("n_threads_", n_threads_)
-        );
-    }
-    auto localMembers() const {
-        return std::make_tuple(
-            Gem::Common::make_member("sorting_mode_", sorting_mode_),
-            Gem::Common::make_member("n_threads_", n_threads_)
-        );
-    }
 
     /** @brief Loads the data of another GEvolutionaryAlgorithm object, camouflaged as a GObject */
     void load_(const GObject *cp) override;

@@ -77,18 +77,36 @@ class GParChild // NOLINT(cppcoreguidelines-special-member-functions)
     /////////////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
+    /** @brief Single declaration of this class'es local data members */
+    auto localMembers() {
+        return std::make_tuple(
+            Gem::Common::make_member("n_parents_", n_parents_),
+            Gem::Common::make_member("recombination_method_", recombination_method_),
+            Gem::Common::make_member("default_n_children_", default_n_children_),
+            Gem::Common::make_member("growth_rate_", growth_rate_),
+            Gem::Common::make_member("max_population_size_", max_population_size_),
+            Gem::Common::make_member("amalgamation_likelihood_", amalgamation_likelihood_)
+        );
+    }
+    auto localMembers() const {
+        return std::make_tuple(
+            Gem::Common::make_member("n_parents_", n_parents_),
+            Gem::Common::make_member("recombination_method_", recombination_method_),
+            Gem::Common::make_member("default_n_children_", default_n_children_),
+            Gem::Common::make_member("growth_rate_", growth_rate_),
+            Gem::Common::make_member("max_population_size_", max_population_size_),
+            Gem::Common::make_member("amalgamation_likelihood_", amalgamation_likelihood_)
+        );
+    }
+
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar &make_nvp(
-            "GBase",
-            boost::serialization::base_object<GBase>(*this)
-        ) & BOOST_SERIALIZATION_NVP(n_parents_) &
-            BOOST_SERIALIZATION_NVP(recombination_method_) &
-            BOOST_SERIALIZATION_NVP(default_n_children_) & BOOST_SERIALIZATION_NVP(growth_rate_) &
-            BOOST_SERIALIZATION_NVP(max_population_size_) &
-            BOOST_SERIALIZATION_NVP(amalgamation_likelihood_);
+        ar &make_nvp("GBase", boost::serialization::base_object<GBase>(*this));
+        // The member list is derived from the single localMembers() declaration,
+        // emitting the same NVP names in the same order as the previous explicit list.
+        Gem::Common::serialize_members(ar, this->localMembers());
     }
     /////////////////////////////////////////////////////////////////////////////
 
@@ -169,28 +187,6 @@ protected:
 
     /** @brief Adds local configuration options to a GParserBuilder object */
     void addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) override;
-
-    /** @brief Single declaration of this class'es local data members */
-    auto localMembers() {
-        return std::make_tuple(
-            Gem::Common::make_member("n_parents_", n_parents_),
-            Gem::Common::make_member("recombination_method_", recombination_method_),
-            Gem::Common::make_member("default_n_children_", default_n_children_),
-            Gem::Common::make_member("max_population_size_", max_population_size_),
-            Gem::Common::make_member("growth_rate_", growth_rate_),
-            Gem::Common::make_member("amalgamation_likelihood_", amalgamation_likelihood_)
-        );
-    }
-    auto localMembers() const {
-        return std::make_tuple(
-            Gem::Common::make_member("n_parents_", n_parents_),
-            Gem::Common::make_member("recombination_method_", recombination_method_),
-            Gem::Common::make_member("default_n_children_", default_n_children_),
-            Gem::Common::make_member("max_population_size_", max_population_size_),
-            Gem::Common::make_member("growth_rate_", growth_rate_),
-            Gem::Common::make_member("amalgamation_likelihood_", amalgamation_likelihood_)
-        );
-    }
 
     /** @brief Loads the data of another GParChildT object, camouflaged as a GObject. */
     void load_(const GObject *cp) override;

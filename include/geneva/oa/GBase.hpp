@@ -49,6 +49,7 @@
 #include "common/GPlotDesigner.hpp"
 #include "common/GContainerT.hpp"
 #include "common/GSerializationHelperFunctionsT.hpp"
+#include "common/GStdFilesystemPathSerialization.hpp"
 #include "courtier/GExecutorT.hpp"
 #include "geneva/GObject.hpp"
 #include "geneva/par/GParameterSet.hpp"
@@ -179,84 +180,116 @@ private:
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
+    /***************************************************************************/
+    /**
+     * Single declaration of this class'es symmetric, plain-assignable local data
+     * members. This drives serialize(), load_() and compare_() from one place.
+     *
+     * Deliberately NOT in this tuple, and handled manually in serialize()/load_()/
+     * compare_() instead:
+     *  - the container base GPtrContainerT<GParameterSet> (a base-object, deep-copied
+     *    on load via operator=);
+     *  - halted_ (a std::atomic<bool>: serialisable, but not plain-assignable, so
+     *    g_load_members/g_compare_members cannot handle it -- .store()/.load() used);
+     *  - executor_ptr_ and pluggable_monitors_cnt_ (cloneable smart pointers: deep-cloned
+     *    on load, not shallow-assigned);
+     *  - best_iteration_individuals_pq_ (intentionally NOT persisted -- transient per
+     *    iteration; copied in memory by load_() and compared by compare_()).
+     *
+     * cp_directory_path_ (std::filesystem::path) is included: it now serialises via the
+     * free serialization in GStdFilesystemPathSerialization.hpp and is plain-assignable
+     * in memory, so it needs no special handling anymore.
+     */
+    auto localMembers() {
+        return std::make_tuple(
+            Gem::Common::make_member("iteration_", iteration_),
+            Gem::Common::make_member("offset_", offset_),
+            Gem::Common::make_member("max_iteration_", max_iteration_),
+            Gem::Common::make_member("min_iteration_", min_iteration_),
+            Gem::Common::make_member("max_stall_iteration_", max_stall_iteration_),
+            Gem::Common::make_member("report_iteration_", report_iteration_),
+            Gem::Common::make_member("n_recordbest_global_individuals_", n_recordbest_global_individuals_),
+            Gem::Common::make_member("best_global_individuals_pq_", best_global_individuals_pq_),
+            Gem::Common::make_member("default_population_size_", default_population_size_),
+            Gem::Common::make_member("best_known_primary_fitness_", best_known_primary_fitness_),
+            Gem::Common::make_member("best_current_primary_fitness_", best_current_primary_fitness_),
+            Gem::Common::make_member("stall_counter_", stall_counter_),
+            Gem::Common::make_member("stall_counter_threshold_", stall_counter_threshold_),
+            Gem::Common::make_member("cp_interval_", cp_interval_),
+            Gem::Common::make_member("cp_base_name_", cp_base_name_),
+            Gem::Common::make_member("cp_directory_path_", cp_directory_path_),
+            Gem::Common::make_member("cp_last_", cp_last_),
+            Gem::Common::make_member("cp_remove_", cp_remove_),
+            Gem::Common::make_member("cp_serialization_mode_", cp_serialization_mode_),
+            Gem::Common::make_member("quality_threshold_", quality_threshold_),
+            Gem::Common::make_member("has_quality_threshold_", has_quality_threshold_),
+            Gem::Common::make_member("max_duration_", max_duration_),
+            Gem::Common::make_member("min_duration_", min_duration_),
+            Gem::Common::make_member("termination_file_", termination_file_),
+            Gem::Common::make_member("terminate_on_file_modification_", terminate_on_file_modification_),
+            Gem::Common::make_member("emit_termination_reason_", emit_termination_reason_),
+            Gem::Common::make_member("worst_known_valids_cnt_", worst_known_valids_cnt_),
+            Gem::Common::make_member("default_exec_mode_", default_exec_mode_),
+            Gem::Common::make_member("default_executor_config_", default_executor_config_)
+        );
+    }
+    auto localMembers() const {
+        return std::make_tuple(
+            Gem::Common::make_member("iteration_", iteration_),
+            Gem::Common::make_member("offset_", offset_),
+            Gem::Common::make_member("max_iteration_", max_iteration_),
+            Gem::Common::make_member("min_iteration_", min_iteration_),
+            Gem::Common::make_member("max_stall_iteration_", max_stall_iteration_),
+            Gem::Common::make_member("report_iteration_", report_iteration_),
+            Gem::Common::make_member("n_recordbest_global_individuals_", n_recordbest_global_individuals_),
+            Gem::Common::make_member("best_global_individuals_pq_", best_global_individuals_pq_),
+            Gem::Common::make_member("default_population_size_", default_population_size_),
+            Gem::Common::make_member("best_known_primary_fitness_", best_known_primary_fitness_),
+            Gem::Common::make_member("best_current_primary_fitness_", best_current_primary_fitness_),
+            Gem::Common::make_member("stall_counter_", stall_counter_),
+            Gem::Common::make_member("stall_counter_threshold_", stall_counter_threshold_),
+            Gem::Common::make_member("cp_interval_", cp_interval_),
+            Gem::Common::make_member("cp_base_name_", cp_base_name_),
+            Gem::Common::make_member("cp_directory_path_", cp_directory_path_),
+            Gem::Common::make_member("cp_last_", cp_last_),
+            Gem::Common::make_member("cp_remove_", cp_remove_),
+            Gem::Common::make_member("cp_serialization_mode_", cp_serialization_mode_),
+            Gem::Common::make_member("quality_threshold_", quality_threshold_),
+            Gem::Common::make_member("has_quality_threshold_", has_quality_threshold_),
+            Gem::Common::make_member("max_duration_", max_duration_),
+            Gem::Common::make_member("min_duration_", min_duration_),
+            Gem::Common::make_member("termination_file_", termination_file_),
+            Gem::Common::make_member("terminate_on_file_modification_", terminate_on_file_modification_),
+            Gem::Common::make_member("emit_termination_reason_", emit_termination_reason_),
+            Gem::Common::make_member("worst_known_valids_cnt_", worst_known_valids_cnt_),
+            Gem::Common::make_member("default_exec_mode_", default_exec_mode_),
+            Gem::Common::make_member("default_executor_config_", default_executor_config_)
+        );
+    }
+
     template <typename Archive>
-    void load(Archive &ar, const unsigned int) {
+    void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        std::string cp_dir{};
-
+        // GObject base + the container base (GPtrContainerT), which is a base-object
+        // rather than a local member.
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject) &
             make_nvp(
                 "GStdPtrVectorInterfaceT_T",
                 boost::serialization::base_object<Gem::Common::GPtrContainerT<gpar::GParameterSet>>(*this)
-            ) &
-            BOOST_SERIALIZATION_NVP(iteration_) & BOOST_SERIALIZATION_NVP(offset_) &
-            BOOST_SERIALIZATION_NVP(max_iteration_) & BOOST_SERIALIZATION_NVP(min_iteration_) &
-            BOOST_SERIALIZATION_NVP(max_stall_iteration_) &
-            BOOST_SERIALIZATION_NVP(report_iteration_) &
-            BOOST_SERIALIZATION_NVP(n_recordbest_global_individuals_) &
-            BOOST_SERIALIZATION_NVP(best_global_individuals_pq_) &
-            BOOST_SERIALIZATION_NVP(default_population_size_) &
-            BOOST_SERIALIZATION_NVP(best_known_primary_fitness_) &
-            BOOST_SERIALIZATION_NVP(best_current_primary_fitness_) &
-            BOOST_SERIALIZATION_NVP(stall_counter_) &
-            BOOST_SERIALIZATION_NVP(stall_counter_threshold_) &
-            BOOST_SERIALIZATION_NVP(cp_interval_) & BOOST_SERIALIZATION_NVP(cp_base_name_) &
-            BOOST_SERIALIZATION_NVP(cp_dir) & BOOST_SERIALIZATION_NVP(cp_last_) &
-            BOOST_SERIALIZATION_NVP(cp_remove_) & BOOST_SERIALIZATION_NVP(cp_serialization_mode_) &
-            BOOST_SERIALIZATION_NVP(quality_threshold_) &
-            BOOST_SERIALIZATION_NVP(has_quality_threshold_) & BOOST_SERIALIZATION_NVP(max_duration_) &
-            BOOST_SERIALIZATION_NVP(min_duration_) & BOOST_SERIALIZATION_NVP(termination_file_) &
-            BOOST_SERIALIZATION_NVP(terminate_on_file_modification_) &
-            BOOST_SERIALIZATION_NVP(emit_termination_reason_) & BOOST_SERIALIZATION_NVP(halted_) &
-            BOOST_SERIALIZATION_NVP(worst_known_valids_cnt_) &
+            );
+
+        // The bulk of the members is derived from the single localMembers() declaration.
+        Gem::Common::serialize_members(ar, this->localMembers());
+
+        // Members that cannot go through localMembers() but must still be on the wire:
+        // halted_ is a std::atomic<bool> (serialisable, not plain-assignable), and
+        // executor_ptr_ / pluggable_monitors_cnt_ are (de)serialised as polymorphic
+        // smart pointers here, then deep-cloned by load_() for in-memory copies.
+        ar &BOOST_SERIALIZATION_NVP(halted_) &
             BOOST_SERIALIZATION_NVP(pluggable_monitors_cnt_) &
-            BOOST_SERIALIZATION_NVP(executor_ptr_) & BOOST_SERIALIZATION_NVP(default_exec_mode_) &
-            BOOST_SERIALIZATION_NVP(default_executor_config_);
-
-        // Transfer the string to the path
-        cp_directory_path_ = std::filesystem::path(cp_dir);
+            BOOST_SERIALIZATION_NVP(executor_ptr_);
     }
-
-    template <typename Archive>
-    void save(Archive &ar, const unsigned int) const {
-        using boost::serialization::make_nvp;
-
-        // Transfer the path to the string
-        std::string cp_dir =
-            cp_directory_path_.string(); // NOLINT(cppcoreguidelines-init-variables)
-
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject) &
-            make_nvp(
-                "GStdPtrVectorInterfaceT_T",
-                boost::serialization::base_object<Gem::Common::GPtrContainerT<gpar::GParameterSet>>(*this)
-            ) &
-            BOOST_SERIALIZATION_NVP(iteration_) & BOOST_SERIALIZATION_NVP(offset_) &
-            BOOST_SERIALIZATION_NVP(max_iteration_) & BOOST_SERIALIZATION_NVP(min_iteration_) &
-            BOOST_SERIALIZATION_NVP(max_stall_iteration_) &
-            BOOST_SERIALIZATION_NVP(report_iteration_) &
-            BOOST_SERIALIZATION_NVP(n_recordbest_global_individuals_) &
-            BOOST_SERIALIZATION_NVP(best_global_individuals_pq_) &
-            BOOST_SERIALIZATION_NVP(default_population_size_) &
-            BOOST_SERIALIZATION_NVP(best_known_primary_fitness_) &
-            BOOST_SERIALIZATION_NVP(best_current_primary_fitness_) &
-            BOOST_SERIALIZATION_NVP(stall_counter_) &
-            BOOST_SERIALIZATION_NVP(stall_counter_threshold_) &
-            BOOST_SERIALIZATION_NVP(cp_interval_) & BOOST_SERIALIZATION_NVP(cp_base_name_) &
-            BOOST_SERIALIZATION_NVP(cp_dir) & BOOST_SERIALIZATION_NVP(cp_last_) &
-            BOOST_SERIALIZATION_NVP(cp_remove_) & BOOST_SERIALIZATION_NVP(cp_serialization_mode_) &
-            BOOST_SERIALIZATION_NVP(quality_threshold_) &
-            BOOST_SERIALIZATION_NVP(has_quality_threshold_) & BOOST_SERIALIZATION_NVP(max_duration_) &
-            BOOST_SERIALIZATION_NVP(min_duration_) & BOOST_SERIALIZATION_NVP(termination_file_) &
-            BOOST_SERIALIZATION_NVP(terminate_on_file_modification_) &
-            BOOST_SERIALIZATION_NVP(emit_termination_reason_) & BOOST_SERIALIZATION_NVP(halted_) &
-            BOOST_SERIALIZATION_NVP(worst_known_valids_cnt_) &
-            BOOST_SERIALIZATION_NVP(pluggable_monitors_cnt_) &
-            BOOST_SERIALIZATION_NVP(executor_ptr_) & BOOST_SERIALIZATION_NVP(default_exec_mode_) &
-            BOOST_SERIALIZATION_NVP(default_executor_config_);
-    }
-
-    BOOST_SERIALIZATION_SPLIT_MEMBER()
 
     ///////////////////////////////////////////////////////////////////////
 

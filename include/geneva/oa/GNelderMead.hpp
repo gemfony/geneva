@@ -103,17 +103,38 @@ class GNelderMead // NOLINT(cppcoreguidelines-special-member-functions)
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
+    /** @brief Single declaration of this class'es local data members */
+    auto localMembers() {
+        return std::make_tuple(
+            Gem::Common::make_member("n_simplices_", n_simplices_),
+            Gem::Common::make_member("n_fp_parms_first_", n_fp_parms_first_),
+            Gem::Common::make_member("alpha_", alpha_),
+            Gem::Common::make_member("gamma_", gamma_),
+            Gem::Common::make_member("rho_", rho_),
+            Gem::Common::make_member("sigma_", sigma_),
+            Gem::Common::make_member("initial_edge_", initial_edge_)
+        );
+    }
+    auto localMembers() const {
+        return std::make_tuple(
+            Gem::Common::make_member("n_simplices_", n_simplices_),
+            Gem::Common::make_member("n_fp_parms_first_", n_fp_parms_first_),
+            Gem::Common::make_member("alpha_", alpha_),
+            Gem::Common::make_member("gamma_", gamma_),
+            Gem::Common::make_member("rho_", rho_),
+            Gem::Common::make_member("sigma_", sigma_),
+            Gem::Common::make_member("initial_edge_", initial_edge_)
+        );
+    }
+
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar &make_nvp(
-            "GBase",
-            boost::serialization::base_object<GBase>(*this)
-        ) & BOOST_SERIALIZATION_NVP(n_simplices_) & BOOST_SERIALIZATION_NVP(n_fp_parms_first_) &
-            BOOST_SERIALIZATION_NVP(alpha_) & BOOST_SERIALIZATION_NVP(gamma_) &
-            BOOST_SERIALIZATION_NVP(rho_) & BOOST_SERIALIZATION_NVP(sigma_) &
-            BOOST_SERIALIZATION_NVP(initial_edge_);
+        ar &make_nvp("GBase", boost::serialization::base_object<GBase>(*this));
+        // Member list derived from the single localMembers() declaration (same NVP
+        // names/order as the previous explicit list).
+        Gem::Common::serialize_members(ar, this->localMembers());
     }
 
     ///////////////////////////////////////////////////////////////////////
@@ -160,30 +181,6 @@ protected:
 
     /** @brief Adds local configuration options to a GParserBuilder object */
     void addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) override;
-
-    /** @brief Single declaration of this class'es serialized local data members */
-    auto localMembers() {
-        return std::make_tuple(
-            Gem::Common::make_member("n_simplices_", n_simplices_),
-            Gem::Common::make_member("n_fp_parms_first_", n_fp_parms_first_),
-            Gem::Common::make_member("alpha_", alpha_),
-            Gem::Common::make_member("gamma_", gamma_),
-            Gem::Common::make_member("rho_", rho_),
-            Gem::Common::make_member("sigma_", sigma_),
-            Gem::Common::make_member("initial_edge_", initial_edge_)
-        );
-    }
-    auto localMembers() const {
-        return std::make_tuple(
-            Gem::Common::make_member("n_simplices_", n_simplices_),
-            Gem::Common::make_member("n_fp_parms_first_", n_fp_parms_first_),
-            Gem::Common::make_member("alpha_", alpha_),
-            Gem::Common::make_member("gamma_", gamma_),
-            Gem::Common::make_member("rho_", rho_),
-            Gem::Common::make_member("sigma_", sigma_),
-            Gem::Common::make_member("initial_edge_", initial_edge_)
-        );
-    }
 
     /** @brief Loads the data of another population */
     void load_(const GObject *) override;

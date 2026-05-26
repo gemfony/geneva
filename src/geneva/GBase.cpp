@@ -493,59 +493,27 @@ void GBase::compare_(
     // Compare our parent data ...
     Gem::Common::compare_base_t<GObject>(*this, *p_load, token);
 
-    // ... and then the local data
+    // The container base'es data (the population) -- compared explicitly, as it is a
+    // base-object rather than a local member.
     compare_t(
         IDENTITY(this->data_cnt_, p_load->data_cnt_),
         token
     ); // This allows us to compare the parent class without directly referring to it.
-    compare_t(IDENTITY(iteration_, p_load->iteration_), token);
-    compare_t(IDENTITY(offset_, p_load->offset_), token);
-    compare_t(IDENTITY(max_iteration_, p_load->max_iteration_), token);
-    compare_t(IDENTITY(min_iteration_, p_load->min_iteration_), token);
-    compare_t(IDENTITY(max_stall_iteration_, p_load->max_stall_iteration_), token);
-    compare_t(IDENTITY(report_iteration_, p_load->report_iteration_), token);
-    compare_t(
-        IDENTITY(n_recordbest_global_individuals_, p_load->n_recordbest_global_individuals_),
-        token
-    );
-    compare_t(IDENTITY(best_global_individuals_pq_, p_load->best_global_individuals_pq_), token);
+
+    // ... the bulk of the local data, derived from the single localMembers() declaration ...
+    Gem::Common::g_compare_members(localMembers(), p_load->localMembers(), token);
+
+    // ... and finally the members that are not part of localMembers():
+    //   best_iteration_individuals_pq_ (intentionally not persisted, but still compared),
+    //   halted_ (std::atomic<bool>, compared via its loaded value), and the cloneable
+    //   smart pointers pluggable_monitors_cnt_ / executor_ptr_.
     compare_t(
         IDENTITY(best_iteration_individuals_pq_, p_load->best_iteration_individuals_pq_),
         token
     );
-    compare_t(IDENTITY(default_population_size_, p_load->default_population_size_), token);
-    compare_t(IDENTITY(best_known_primary_fitness_, p_load->best_known_primary_fitness_), token);
-    compare_t(IDENTITY(best_current_primary_fitness_, p_load->best_current_primary_fitness_), token);
-    compare_t(IDENTITY(stall_counter_, p_load->stall_counter_), token);
-    compare_t(IDENTITY(stall_counter_threshold_, p_load->stall_counter_threshold_), token);
-    compare_t(IDENTITY(cp_interval_, p_load->cp_interval_), token);
-    compare_t(IDENTITY(cp_base_name_, p_load->cp_base_name_), token);
-    compare_t(IDENTITY(cp_directory_path_.string(), p_load->cp_directory_path_.string()), token);
-    compare_t(IDENTITY(cp_last_, p_load->cp_last_), token);
-    compare_t(IDENTITY(cp_remove_, p_load->cp_remove_), token);
-    compare_t(IDENTITY(cp_serialization_mode_, p_load->cp_serialization_mode_), token);
-    compare_t(IDENTITY(quality_threshold_, p_load->quality_threshold_), token);
-    compare_t(IDENTITY(has_quality_threshold_, p_load->has_quality_threshold_), token);
-    compare_t(
-        IDENTITY(max_duration_.count(), p_load->max_duration_.count()),
-        token
-    ); // Cannot directly compare std::chrono::duration<double>
-    compare_t(
-        IDENTITY(min_duration_.count(), p_load->min_duration_.count()),
-        token
-    ); // Cannot directly compare std::chrono::duration<double>
-    compare_t(IDENTITY(termination_file_, p_load->termination_file_), token);
-    compare_t(
-        IDENTITY(terminate_on_file_modification_, p_load->terminate_on_file_modification_),
-        token
-    );
-    compare_t(IDENTITY(emit_termination_reason_, p_load->emit_termination_reason_), token);
-    compare_t(IDENTITY(halted_, p_load->halted_), token);
-    compare_t(IDENTITY(worst_known_valids_cnt_, p_load->worst_known_valids_cnt_), token);
+    compare_t(IDENTITY(halted_.load(), p_load->halted_.load()), token);
     compare_t(IDENTITY(pluggable_monitors_cnt_, p_load->pluggable_monitors_cnt_), token);
     compare_t(IDENTITY(executor_ptr_, p_load->executor_ptr_), token);
-    compare_t(IDENTITY(default_exec_mode_, p_load->default_exec_mode_), token);
-    compare_t(IDENTITY(default_executor_config_, p_load->default_executor_config_), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -1551,43 +1519,21 @@ void GBase::load_(const GObject *cp) {
     GObject::load_(cp);
     Gem::Common::GPtrContainerT<gpar::GParameterSet>::operator=(*p_load);
 
-    // and then our local data
-    iteration_ = p_load->iteration_;
-    offset_ = p_load->offset_;
-    max_iteration_ = p_load->max_iteration_;
-    min_iteration_ = p_load->min_iteration_;
-    max_stall_iteration_ = p_load->max_stall_iteration_;
-    report_iteration_ = p_load->report_iteration_;
-    n_recordbest_global_individuals_ = p_load->n_recordbest_global_individuals_;
-    best_global_individuals_pq_ = p_load->best_global_individuals_pq_;
+    // The bulk of the local data, derived from the single localMembers() declaration
+    // (plain member-by-member assignment).
+    Gem::Common::g_load_members(localMembers(), p_load->localMembers());
+
+    // Members not part of localMembers(), each with its own copy semantics:
+    //   best_iteration_individuals_pq_ -- not persisted, but copied in memory;
+    //   halted_ -- a std::atomic<bool>, copied via .store()/.load();
+    //   pluggable_monitors_cnt_ / executor_ptr_ -- cloneable smart pointers, deep-cloned.
     best_iteration_individuals_pq_ = p_load->best_iteration_individuals_pq_;
-    default_population_size_ = p_load->default_population_size_;
-    best_known_primary_fitness_ = p_load->best_known_primary_fitness_;
-    best_current_primary_fitness_ = p_load->best_current_primary_fitness_;
-    stall_counter_ = p_load->stall_counter_;
-    stall_counter_threshold_ = p_load->stall_counter_threshold_;
-    cp_interval_ = p_load->cp_interval_;
-    cp_base_name_ = p_load->cp_base_name_;
-    cp_directory_path_ = p_load->cp_directory_path_;
-    cp_last_ = p_load->cp_last_;
-    cp_remove_ = p_load->cp_remove_;
-    cp_serialization_mode_ = p_load->cp_serialization_mode_;
-    quality_threshold_ = p_load->quality_threshold_;
-    has_quality_threshold_ = p_load->has_quality_threshold_;
-    termination_file_ = p_load->termination_file_;
-    terminate_on_file_modification_ = p_load->terminate_on_file_modification_;
-    max_duration_ = p_load->max_duration_;
-    min_duration_ = p_load->min_duration_;
-    emit_termination_reason_ = p_load->emit_termination_reason_;
     halted_.store(p_load->halted_.load());
-    worst_known_valids_cnt_ = p_load->worst_known_valids_cnt_;
     Gem::Common::copyCloneableSmartPointerContainer(
         p_load->pluggable_monitors_cnt_,
         pluggable_monitors_cnt_
     );
     Gem::Common::copyCloneableSmartPointer(p_load->executor_ptr_, executor_ptr_);
-    default_exec_mode_ = p_load->default_exec_mode_;
-    default_executor_config_ = p_load->default_executor_config_;
 }
 
 /******************************************************************************/

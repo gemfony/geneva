@@ -31,9 +31,11 @@
 
 #include <atomic>
 #include <chrono>
+#include <filesystem>
 #include <memory>
 #include <sstream>
 #include <string>
+#include <vector>
 
 #include <boost/archive/binary_iarchive.hpp>
 #include <boost/archive/binary_oarchive.hpp>
@@ -46,6 +48,7 @@
 
 #include "common/GCommonEnums.hpp"
 #include "common/GSerializationHelperFunctionsT.hpp"
+#include "common/GStdFilesystemPathSerialization.hpp"
 
 using namespace Gem::Common;
 
@@ -317,4 +320,65 @@ TEST_CASE("GSerializationHelperFunctionsT: time_point round-trips at millisecond
     }
 
     CHECK(ss_a.str() == ss_b.str());
+}
+
+// ---------------------------------------------------------------------------
+// std::filesystem::path free (non-intrusive) serialization round-trip.
+//
+// Boost has no built-in support for std::filesystem::path. The free serialization
+// in GStdFilesystemPathSerialization.hpp stores a path as its string() and rebuilds
+// it on load, which is what lets path-holding classes (e.g. oa::GBase's
+// cp_directory_path_) drop their hand-written save()/load() split. These tests
+// exercise that free serialization directly, for several representative paths and
+// through all three archive families.
+
+TEST_CASE("GStdFilesystemPathSerialization: path round-trips through each archive",
+          "[common][serialization-helpers]") {
+    namespace fs = std::filesystem;
+
+    auto save_p = [](auto &ar, fs::path const &v, unsigned int ver) {
+        boost::serialization::save(ar, v, ver);
+    };
+    auto load_p = [](auto &ar, fs::path &v, unsigned int ver) {
+        boost::serialization::load(ar, v, ver);
+    };
+
+    const std::vector<fs::path> paths{
+        fs::path{},                              // empty path
+        fs::path{"."},                           // single component
+        fs::path{"results"},                     // relative, no separators
+        fs::path{"some/relative/dir"},           // relative, multiple components
+        fs::path{"/absolute/path/to/checkpoint"},// absolute
+        fs::path{"with space/and-dash/file.cp"}, // spaces, dashes, extension
+    };
+
+    for(auto const &in : paths) {
+        CHECK(round_trip_text  (in, save_p, load_p) == in);
+        CHECK(round_trip_xml   (in, save_p, load_p) == in);
+        CHECK(round_trip_binary(in, save_p, load_p) == in);
+    }
+}
+
+TEST_CASE("GStdFilesystemPathSerialization: loaded path preserves its string()",
+          "[common][serialization-helpers]") {
+    namespace fs = std::filesystem;
+
+    fs::path in{"/some/checkpoint/dir"};
+
+    // Seed the destination with a clearly different value to prove the load
+    // actually overwrites it rather than being a no-op.
+    fs::path out{"unrelated"};
+
+    std::stringstream ss;
+    {
+        boost::archive::text_oarchive oa(ss);
+        boost::serialization::save(oa, in, 0u);
+    }
+    {
+        boost::archive::text_iarchive ia(ss);
+        boost::serialization::load(ia, out, 0u);
+    }
+
+    CHECK(out == in);
+    CHECK(out.string() == in.string());
 }

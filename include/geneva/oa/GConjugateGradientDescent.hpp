@@ -90,16 +90,32 @@ class GConjugateGradientDescent // NOLINT(cppcoreguidelines-special-member-funct
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
+    /** @brief Single declaration of this class'es local data members */
+    auto localMembers() {
+        return std::make_tuple(
+            Gem::Common::make_member("n_starting_points_", n_starting_points_),
+            Gem::Common::make_member("n_fp_parms_first_", n_fp_parms_first_),
+            Gem::Common::make_member("finite_step_", finite_step_),
+            Gem::Common::make_member("step_size_", step_size_)
+        );
+    }
+    auto localMembers() const {
+        return std::make_tuple(
+            Gem::Common::make_member("n_starting_points_", n_starting_points_),
+            Gem::Common::make_member("n_fp_parms_first_", n_fp_parms_first_),
+            Gem::Common::make_member("finite_step_", finite_step_),
+            Gem::Common::make_member("step_size_", step_size_)
+        );
+    }
+
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar &make_nvp(
-            "GBase",
-            boost::serialization::base_object<GBase>(*this)
-        ) & BOOST_SERIALIZATION_NVP(n_starting_points_) &
-            BOOST_SERIALIZATION_NVP(n_fp_parms_first_) & BOOST_SERIALIZATION_NVP(finite_step_) &
-            BOOST_SERIALIZATION_NVP(step_size_);
+        ar &make_nvp("GBase", boost::serialization::base_object<GBase>(*this));
+        // Member list derived from the single localMembers() declaration (same NVP
+        // names/order as the previous explicit list).
+        Gem::Common::serialize_members(ar, this->localMembers());
     }
 
     ///////////////////////////////////////////////////////////////////////
@@ -135,24 +151,6 @@ protected:
 
     /** @brief Adds local configuration options to a GParserBuilder object */
     void addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) override;
-
-    /** @brief Single declaration of this class'es serialized local data members */
-    auto localMembers() {
-        return std::make_tuple(
-            Gem::Common::make_member("n_starting_points_", n_starting_points_),
-            Gem::Common::make_member("n_fp_parms_first_", n_fp_parms_first_),
-            Gem::Common::make_member("finite_step_", finite_step_),
-            Gem::Common::make_member("step_size_", step_size_)
-        );
-    }
-    auto localMembers() const {
-        return std::make_tuple(
-            Gem::Common::make_member("n_starting_points_", n_starting_points_),
-            Gem::Common::make_member("n_fp_parms_first_", n_fp_parms_first_),
-            Gem::Common::make_member("finite_step_", finite_step_),
-            Gem::Common::make_member("step_size_", step_size_)
-        );
-    }
 
     /** @brief Loads the data of another population */
     void load_(const GObject *) override;

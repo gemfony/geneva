@@ -537,3 +537,54 @@ TEST_CASE(
 // global singleton (./Datasets/*.dat) that is absent in the unit-test environment,
 // so the class cannot be (de)serialised standalone. The fix follows the same proven
 // serialize_members pattern and is compile-checked.
+
+// Safety net for the oa::GBase serialize() refactor: oa::GBase is the central
+// serialised class for all optimization algorithms (checkpoints + network
+// transport). Its split save()/load() was collapsed into a single serialize()
+// after std::filesystem::path gained a free serialization. This test sets several
+// oa::GBase members -- in particular cp_directory_path_ (the path that forced the
+// former split) -- to NON-DEFAULT values and verifies they survive a round-trip in
+// all three modes, guarding against silently dropping a member.
+TEST_CASE(
+    "oa::GBase (via GEvolutionaryAlgorithm) round-trips its members incl. the checkpoint path",
+    "[geneva][serialization]"
+) {
+    using Gem::Common::serializationMode;
+
+    for (auto mode :
+         {serializationMode::TEXT, serializationMode::XML, serializationMode::BINARY}) {
+        oa::GEvolutionaryAlgorithm original;
+        // Set several oa::GBase members to non-default values via public setters.
+        // "." is an always-existing directory, so setCheckpointBaseName creates nothing.
+        original.setCheckpointBaseName(".", "custom_checkpoint_base");
+        original.setCheckpointInterval(7);
+        original.setMaxIteration(4242);
+        original.setReportIteration(13);
+        original.setMaxStallIteration(99);
+
+        oa::GEvolutionaryAlgorithm restored;
+        // Deliberately different starting values, so the round-trip has to overwrite them.
+        restored.setMaxIteration(1);
+        restored.setReportIteration(1);
+
+        REQUIRE_NOTHROW(
+            restored.GObject::fromString(original.GObject::toString(mode), mode)
+        );
+
+        // Explicit getter checks: these would catch a dropped member that the
+        // structural compare might otherwise tolerate.
+        CHECK(restored.getCheckpointDirectory() == original.getCheckpointDirectory());
+        CHECK(restored.getCheckpointBaseName() == original.getCheckpointBaseName());
+        CHECK(restored.getCheckpointInterval() == 7);
+        CHECK(restored.getMaxIteration() == 4242);
+        CHECK(restored.getReportIteration() == 13);
+        CHECK(restored.getMaxStallIteration() == 99);
+
+        GEqualityPrinter gep(
+            "oa::GBase-roundtrip",
+            pow(10, -7),
+            Gem::Common::CE_WITH_MESSAGES
+        );
+        CHECK(gep.isSimilar(restored, original));
+    }
+}
