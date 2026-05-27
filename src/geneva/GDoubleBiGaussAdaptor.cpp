@@ -52,7 +52,7 @@ GDoubleBiGaussAdaptor::GDoubleBiGaussAdaptor(const double &ad_prob)
  *
  * @return A copy of this object, camouflaged as a GObject
  */
-GObject *GDoubleBiGaussAdaptor::clone_() const {
+GAdaptorT<double> *GDoubleBiGaussAdaptor::clone_() const {
     return new GDoubleBiGaussAdaptor(*this);
 }
 
@@ -66,7 +66,7 @@ GObject *GDoubleBiGaussAdaptor::clone_() const {
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GDoubleBiGaussAdaptor::compare_(
-    const GObject &cp,
+    const GAdaptorT<double> &cp,
     const Gem::Common::expectation &e,
     const double & /*limit*/
 ) const {
@@ -74,7 +74,7 @@ void GDoubleBiGaussAdaptor::compare_(
 
     // Check that we are dealing with a GDoubleBiGaussAdaptor reference independent of this object and convert the pointer
     const GDoubleBiGaussAdaptor *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GDoubleBiGaussAdaptor>(cp, this);
+        Gem::Common::g_convert_and_compare<GAdaptorT<double>, GDoubleBiGaussAdaptor>(cp, this);
 
     GToken token("GDoubleBiGaussAdaptor", e);
 
@@ -101,10 +101,10 @@ std::string GDoubleBiGaussAdaptor::name_() const {
  *
  * @param cp A copy of another GDoubleBiGaussAdaptor object, camouflaged as a GObject
  */
-void GDoubleBiGaussAdaptor::load_(const GObject *cp) {
+void GDoubleBiGaussAdaptor::load_(const GAdaptorT<double> *cp) {
     // Convert the pointer to our target type and check for self-assignment
     const GDoubleBiGaussAdaptor *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GDoubleBiGaussAdaptor>(cp, this);
+        Gem::Common::g_convert_and_compare<GAdaptorT<double>, GDoubleBiGaussAdaptor>(cp, this);
 
     // Load our parent class'es data ...
     GFPBiGaussAdaptorT<double>::load_(cp);

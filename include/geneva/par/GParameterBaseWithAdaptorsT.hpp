@@ -90,7 +90,7 @@ public:
 	  */
     GParameterBaseWithAdaptorsT(const GParameterBaseWithAdaptorsT<T> &cp)
       : GParameterBase(cp)
-      , adaptor_((cp.adaptor_)->GObject::template clone<GAdaptorT<T>>()) { /* nothing */
+      , adaptor_((cp.adaptor_)->template clone<GAdaptorT<T>>()) { /* nothing */
     }
 
     /***************************************************************************/
@@ -119,10 +119,10 @@ public:
 
         if(adaptor_) { // Is an adaptor already present ?
             if(adaptor_->getAdaptorId() == gat_ptr->getAdaptorId()) {
-                adaptor_->GObject::load(gat_ptr);
+                adaptor_->load(gat_ptr);
             }
             else { // Different type - need to clone and assign to gat_ptr
-                adaptor_ = gat_ptr->GObject::template clone<GAdaptorT<T>>();
+                adaptor_ = gat_ptr->template clone<GAdaptorT<T>>();
             }
         }
         else { // None there ? This should not happen
@@ -267,10 +267,10 @@ protected:
 #endif
         // Same type: We can just load the data
         if(adaptor_->getAdaptorId() == p_load->adaptor_->getAdaptorId()) {
-            adaptor_->GObject::load(p_load->adaptor_);
+            adaptor_->load(p_load->adaptor_);
         }
         else { // Different type - need to convert
-            adaptor_ = p_load->adaptor_->GObject::template clone<GAdaptorT<T>>();
+            adaptor_ = p_load->adaptor_->template clone<GAdaptorT<T>>();
         }
     }
 

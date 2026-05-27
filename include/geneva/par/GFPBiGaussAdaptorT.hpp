@@ -111,15 +111,15 @@ public:
 protected:
     /***************************************************************************/
     /**
-     * This function loads the data of another GFPBiGaussAdaptorT, camouflaged as a GObject.
+     * This function loads the data of another GFPBiGaussAdaptorT, camouflaged as a GAdaptorT.
      * We assume that the values given to us by the other object are correct and do no error checks.
      *
-     * @param A copy of another GFPBiGaussAdaptorT, camouflaged as a GObject
+     * @param A copy of another GFPBiGaussAdaptorT, camouflaged as a GAdaptorT
      */
-    void load_(const GObject *cp) override {
+    void load_(const GAdaptorT<fp_type, fp_type> *cp) override {
         // Check that we are dealing with a GFPBiGaussAdaptorT<fp_type> reference independent of this object and convert the pointer
         const GFPBiGaussAdaptorT<fp_type> *p_load =
-            Gem::Common::g_convert_and_compare<GObject, GFPBiGaussAdaptorT<fp_type>>(cp, this);
+            Gem::Common::g_convert_and_compare<GAdaptorT<fp_type, fp_type>, GFPBiGaussAdaptorT<fp_type>>(cp, this);
 
         // Load the data of our parent class ...
         GNumBiGaussAdaptorT<fp_type, fp_type>::load_(cp);
@@ -139,20 +139,20 @@ protected:
      * Searches for compliance with expectations with respect to another object
      * of the same type
      *
-     * @param cp A constant reference to another GObject object
+     * @param cp A constant reference to another GAdaptorT object
      * @param e The expected outcome of the comparison
      * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
     void compare_(
-        const GObject &cp,
+        const GAdaptorT<fp_type, fp_type> &cp,
         const Gem::Common::expectation &e,
-        const fp_type & /*limit*/
+        const double & /*limit*/
     ) const override {
         using namespace Gem::Common;
 
         // Check that we are dealing with a GFPBiGaussAdaptorT<fp_type> reference independent of this object and convert the pointer
         const GFPBiGaussAdaptorT<fp_type> *p_load =
-            Gem::Common::g_convert_and_compare<GObject, GFPBiGaussAdaptorT<fp_type>>(cp, this);
+            Gem::Common::g_convert_and_compare<GAdaptorT<fp_type, fp_type>, GFPBiGaussAdaptorT<fp_type>>(cp, this);
 
         GToken token("GFPBiGaussAdaptorT<fp_type>", e);
 
@@ -284,7 +284,7 @@ private:
 
     /***************************************************************************/
     /** @brief This function creates a deep copy of this object */
-    GObject *clone_() const override = 0;
+    GAdaptorT<fp_type, fp_type> *clone_() const override = 0;
 };
 
 /******************************************************************************/

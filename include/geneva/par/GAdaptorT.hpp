@@ -41,8 +41,8 @@
 
 // Geneva headers go here
 
+#include "common/GCommonInterfaceT.hpp"
 #include "common/GSerializationHelperFunctionsT.hpp"
-#include "geneva/GObject.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "hap/GRandomT.hpp"
 
@@ -84,19 +84,27 @@ namespace Gem::Geneva::Parameters {
  * this is not the case, the adaptor will only be able to access
  * public functions of T, unless T declares the adaptor as a friend.
  *
- * As a derivative of GObject, this class follows similar rules as
- * the other Geneva classes.
+ * As part of the GObject-decomposition effort, the adaptor hierarchy is its own
+ * category root: it derives directly from
+ * Gem::Common::GCommonInterfaceT<GAdaptorT<T, fp_type>> instead of from GObject, so
+ * a GAdaptorT pointer is an unrelated type to a GObject pointer. The common
+ * infrastructure (clone/load/compare/name/IO/serialize) is supplied by the CRTP
+ * base, instantiated for this (template) root.
  */
 template <typename T, typename fp_type = double>
-class GAdaptorT : public GObject {
+class GAdaptorT // NOLINT(cppcoreguidelines-special-member-functions)
+  : public Gem::Common::GCommonInterfaceT<GAdaptorT<T, fp_type>> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject);
-        // Then our own data, derived from the single localMembers() declaration
+        // This is the CRTP category root. Its CRTP base
+        // (Gem::Common::GCommonInterfaceT<GAdaptorT<T, fp_type>>) carries no state
+        // and is therefore not serialized as a base_object -- mirroring GObject,
+        // whose serialize() is likewise empty. The polymorphic base_object chain
+        // bottoms out here; only our own data is serialized.
         Gem::Common::serialize_members(ar, this->localMembers());
     }
     ///////////////////////////////////////////////////////////////////////
@@ -116,8 +124,7 @@ public:
      * @param ad_prob The likelihood for a an adaption to be actually carried out
      */
     explicit GAdaptorT(const fp_type &ad_prob)
-      : GObject()
-      , ad_prob_(ad_prob) {
+      : ad_prob_(ad_prob) {
         // Do some error checking
         // Check that adProb_ is in the allowed range. Adapt, if necessary
         if(not Gem::Common::checkRangeCompliance<fp_type>(
@@ -760,17 +767,16 @@ protected:
 	  * GAdaptorT<T, fp_type> is camouflaged as a GObject . This implies the
 	  * need for dynamic conversion.
 	  *
-	  * @param gb A pointer to another GAdaptorT<T, fp_type>, camouflaged as a GObject
+	  * @param gb A pointer to another GAdaptorT<T, fp_type>, camouflaged as a GAdaptorT<T, fp_type>
 	  */
-    void load_(const GObject *cp) override {
+    void load_(const GAdaptorT<T, fp_type> *cp) override {
         // Check that we are dealing with a GAdaptorT<T, fp_type> reference independent of this object and convert the pointer
         const GAdaptorT<T, fp_type> *p_load =
-            Gem::Common::g_convert_and_compare<GObject, GAdaptorT<T, fp_type>>(cp, this);
+            Gem::Common::g_convert_and_compare<GAdaptorT<T, fp_type>, GAdaptorT<T, fp_type>>(cp, this);
 
-        // Load the parent class'es data
-        GObject::load_(cp);
+        // This is the category root; there is no GObject parent class to load.
 
-        // Then our own data, derived from the single localMembers() declaration
+        // Our own data, derived from the single localMembers() declaration
         Gem::Common::g_load_members(localMembers(), p_load->localMembers());
     }
 
@@ -787,25 +793,25 @@ protected:
      * Searches for compliance with expectations with respect to another object
      * of the same type
      *
-     * @param cp A constant reference to another GObject object
+     * @param cp A constant reference to another GAdaptorT<T, fp_type> object
      * @param e The expected outcome of the comparison
      * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
     void compare_(
-        const GObject &cp,
+        const GAdaptorT<T, fp_type> &cp,
         const Gem::Common::expectation &e,
-        const fp_type & /*limit*/
+        const double & /*limit*/
     ) const override {
         using namespace Gem::Common;
 
         // Check that we are dealing with a GAdaptorT<T, fp_type> reference independent of this object and convert the pointer
         const GAdaptorT<T, fp_type> *p_load =
-            Gem::Common::g_convert_and_compare<GObject, GAdaptorT<T, fp_type>>(cp, this);
+            Gem::Common::g_convert_and_compare<GAdaptorT<T, fp_type>, GAdaptorT<T, fp_type>>(cp, this);
 
         GToken token("GAdaptorT<T, fp_type>", e);
 
         // Compare our parent data ...
-        Gem::Common::compare_base_t<GObject>(*this, *p_load, token);
+        Gem::Common::compare_base_t<Gem::Common::GCommonInterfaceT<GAdaptorT<T, fp_type>>>(*this, *p_load, token);
 
         // ... and then the local data, derived from the single localMembers() declaration
         Gem::Common::g_compare_members(localMembers(), p_load->localMembers(), token);
@@ -876,7 +882,7 @@ protected:
     virtual void customAdaptions(T &, const T &, Gem::Hap::GRandomBase &) = 0;
 
     /** @brief Creates a deep copy of this object */
-    GObject *clone_() const override = 0;
+    GAdaptorT<T, fp_type> *clone_() const override = 0;
 
     /***************************************************************************/
     /**
@@ -887,12 +893,8 @@ protected:
     bool modify_GUnitTests_() override {
 #ifdef GEM_TESTING
 
+        // This is the category root; there is no modifiable GObject parent class.
         bool result = false;
-
-        // Call the parent classes' functions
-        if(GObject::modify_GUnitTests_()) {
-            result = true;
-        }
 
         // Modify some local parameters
         if(this->getAdaptionProbability() <= 0.5) {
@@ -919,8 +921,7 @@ protected:
     void specificTestsNoFailureExpected_GUnitTests_() override {
 #ifdef GEM_TESTING
 
-        // Call the parent classes' functions
-        GObject::specificTestsNoFailureExpected_GUnitTests_();
+        // This is the category root; there is no GObject parent class to delegate to.
 
         // Retrieve a random number generator
         Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
@@ -928,7 +929,7 @@ protected:
         //------------------------------------------------------------------------------
 
         { // Test of GAdaptorT<T, fp_type>::set/getAdaptionProbability()
-            std::shared_ptr<GAdaptorT<T, fp_type>> p_test = this->clone<GAdaptorT<T, fp_type>>();
+            std::shared_ptr<GAdaptorT<T, fp_type>> p_test = this->template clone<GAdaptorT<T, fp_type>>();
 
             // The adaption probability should have been cloned
             INFO(
@@ -955,7 +956,7 @@ protected:
         //------------------------------------------------------------------------------
 
         { // Check that mutating a value with this class actually work with different likelihoods
-            std::shared_ptr<GAdaptorT<T, fp_type>> p_test = this->clone<GAdaptorT<T, fp_type>>();
+            std::shared_ptr<GAdaptorT<T, fp_type>> p_test = this->template clone<GAdaptorT<T, fp_type>>();
 
             // Make sure the adaption probability is taken into account
             p_test->setAdaptionMode(adaptionMode::WITHPROBABILITY);
@@ -978,7 +979,7 @@ protected:
         //------------------------------------------------------------------------------
 
         { // Test of GAdaptorT<T, fp_type>::setAdaptionProbability() regarding the effects on the likelihood for adaption of the variable
-            std::shared_ptr<GAdaptorT<T, fp_type>> p_test = this->clone<GAdaptorT<T, fp_type>>();
+            std::shared_ptr<GAdaptorT<T, fp_type>> p_test = this->template clone<GAdaptorT<T, fp_type>>();
 
             // Make sure the adaption probability is taken into account
             p_test->setAdaptionMode(adaptionMode::WITHPROBABILITY);
@@ -1027,7 +1028,7 @@ protected:
         //------------------------------------------------------------------------------
 
         { // Check setting and retrieval of the adaption mode
-            std::shared_ptr<GAdaptorT<T, fp_type>> p_test = this->clone<GAdaptorT<T, fp_type>>();
+            std::shared_ptr<GAdaptorT<T, fp_type>> p_test = this->template clone<GAdaptorT<T, fp_type>>();
 
             // Check setting of the different allowed values
             // false
@@ -1061,7 +1062,7 @@ protected:
         //------------------------------------------------------------------------------
 
         { // Check the effect of the adaption mode settings
-            std::shared_ptr<GAdaptorT<T, fp_type>> p_test = this->clone<GAdaptorT<T, fp_type>>();
+            std::shared_ptr<GAdaptorT<T, fp_type>> p_test = this->template clone<GAdaptorT<T, fp_type>>();
             p_test->setAdaptionProbability(0.5);
 
             constexpr std::size_t n_tests = 10000;
@@ -1107,7 +1108,7 @@ protected:
         //------------------------------------------------------------------------------
 
         { // Test of GAdaptorT<T, fp_type>::set/getAdaptAdaptionProbability()
-            std::shared_ptr<GAdaptorT<T, fp_type>> p_test = this->clone<GAdaptorT<T, fp_type>>();
+            std::shared_ptr<GAdaptorT<T, fp_type>> p_test = this->template clone<GAdaptorT<T, fp_type>>();
 
             // The adaption probability should have been cloned
             INFO(
@@ -1134,7 +1135,7 @@ protected:
         //------------------------------------------------------------------------------
 
         { // Test retrieval and setting of the adaption threshold and whether the adaptionCounter behaves nicely
-            std::shared_ptr<GAdaptorT<T, fp_type>> p_test = this->clone<GAdaptorT<T, fp_type>>();
+            std::shared_ptr<GAdaptorT<T, fp_type>> p_test = this->template clone<GAdaptorT<T, fp_type>>();
 
             // Make sure we have the right adaption mode
             p_test->setAdaptionMode(adaptionMode::WITHPROBABILITY);
@@ -1209,7 +1210,7 @@ protected:
         //------------------------------------------------------------------------------
 
         { // Test that customAdaptions() in derived classes changes a test value on every call
-            std::shared_ptr<GAdaptorT<T, fp_type>> p_test = this->clone<GAdaptorT<T, fp_type>>();
+            std::shared_ptr<GAdaptorT<T, fp_type>> p_test = this->template clone<GAdaptorT<T, fp_type>>();
 
             std::size_t n_tests = 10000;
 
@@ -1246,8 +1247,7 @@ protected:
     void specificTestsFailuresExpected_GUnitTests_() override {
 #ifdef GEM_TESTING
 
-        // Call the parent classes' functions
-        GObject::specificTestsFailuresExpected_GUnitTests_();
+        // This is the category root; there is no GObject parent class to delegate to.
 
         // Retrieve a random number generator
         Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
@@ -1255,7 +1255,7 @@ protected:
         //------------------------------------------------------------------------------
 
         { // Test of GAdaptorT<T, fp_type>::setAdaptionProbability(): Setting a value < 0. should throw
-            std::shared_ptr<GAdaptorT<T, fp_type>> p_test = this->clone<GAdaptorT<T, fp_type>>();
+            std::shared_ptr<GAdaptorT<T, fp_type>> p_test = this->template clone<GAdaptorT<T, fp_type>>();
 
             // Setting a probability < 0 should throw
             CHECK_THROWS_AS(p_test->setAdaptionProbability(-1.), geneva_exception);
@@ -1264,7 +1264,7 @@ protected:
         //------------------------------------------------------------------------------
 
         { // Test of GAdaptorT<T, fp_type>::setAdaptionProbability(): Setting a value > 1. should throw
-            std::shared_ptr<GAdaptorT<T, fp_type>> p_test = this->clone<GAdaptorT<T, fp_type>>();
+            std::shared_ptr<GAdaptorT<T, fp_type>> p_test = this->template clone<GAdaptorT<T, fp_type>>();
 
             // Setting a probability > 1 should throw
             CHECK_THROWS_AS(p_test->setAdaptionProbability(2.), geneva_exception);
@@ -1273,7 +1273,7 @@ protected:
         //------------------------------------------------------------------------------
 
         { // Test of GAdaptorT<T, fp_type>::setAdaptAdaptionProbability(): Setting a value < 0. should throw
-            std::shared_ptr<GAdaptorT<T, fp_type>> p_test = this->clone<GAdaptorT<T, fp_type>>();
+            std::shared_ptr<GAdaptorT<T, fp_type>> p_test = this->template clone<GAdaptorT<T, fp_type>>();
 
             // Setting a probability < 0 should throw
             CHECK_THROWS_AS(p_test->setAdaptAdaptionProbability(-1.), geneva_exception);
@@ -1282,7 +1282,7 @@ protected:
         //------------------------------------------------------------------------------
 
         { // Test of GAdaptorT<T, fp_type>::setAdaptAdaptionProbability(): Setting a value > 1. should throw
-            std::shared_ptr<GAdaptorT<T, fp_type>> p_test = this->clone<GAdaptorT<T, fp_type>>();
+            std::shared_ptr<GAdaptorT<T, fp_type>> p_test = this->template clone<GAdaptorT<T, fp_type>>();
 
             // Setting a probability > 1 should throw
             CHECK_THROWS_AS(p_test->setAdaptAdaptionProbability(2.), geneva_exception);

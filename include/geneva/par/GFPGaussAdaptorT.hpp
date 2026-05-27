@@ -161,12 +161,12 @@ protected:
     /**
      * Loads the data of another object of this type
      *
-     * @param cp A copy of another GFPGaussAdaptorT<fp_type> object, camouflaged as a GObject
+     * @param cp A copy of another GFPGaussAdaptorT<fp_type> object, camouflaged as a GAdaptorT
      */
-    void load_(const GObject *cp) override {
+    void load_(const GAdaptorT<fp_type, fp_type> *cp) override {
         // Convert the pointer to our target type and check for self-assignment
         const GFPGaussAdaptorT<fp_type> *p_load =
-            Gem::Common::g_convert_and_compare<GObject, GFPGaussAdaptorT<fp_type>>(cp, this);
+            Gem::Common::g_convert_and_compare<GAdaptorT<fp_type, fp_type>, GFPGaussAdaptorT<fp_type>>(cp, this);
 
         // Load our parent class'es data ...
         GNumGaussAdaptorT<fp_type, fp_type>::load_(cp);
@@ -187,12 +187,12 @@ protected:
      * Searches for compliance with expectations with respect to another object
      * of the same type
      *
-     * @param cp A constant reference to another GObject object
+     * @param cp A constant reference to another GAdaptorT object
      * @param e The expected outcome of the comparison
      * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
     void compare_(
-        const GObject &cp,
+        const GAdaptorT<fp_type, fp_type> &cp,
         const Gem::Common::expectation &e,
         const double & /*limit*/
     ) const override {
@@ -200,7 +200,7 @@ protected:
 
         // Check that we are dealing with a GFPGaussAdaptorT<fp_type> reference independent of this object and convert the pointer
         const GFPGaussAdaptorT<fp_type> *p_load =
-            Gem::Common::g_convert_and_compare<GObject, GFPGaussAdaptorT<fp_type>>(cp, this);
+            Gem::Common::g_convert_and_compare<GAdaptorT<fp_type, fp_type>, GFPGaussAdaptorT<fp_type>>(cp, this);
 
         GToken token("GFPGaussAdaptorT<fp_type>", e);
 
@@ -315,7 +315,7 @@ private:
 
     /***************************************************************************/
     /** @brief Creates a deep clone of this object. */
-    GObject *clone_() const override = 0;
+    GAdaptorT<fp_type, fp_type> *clone_() const override = 0;
 };
 
 /******************************************************************************/

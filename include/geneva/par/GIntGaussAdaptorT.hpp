@@ -170,14 +170,14 @@ public:
 protected:
     /***************************************************************************/
     /**
-	  * Loads the data of another GObject
+	  * Loads the data of another GAdaptorT
 	  *
-	  * @param cp A copy of another GIntGaussAdaptorT<int_type> object, camouflaged as a GObject
+	  * @param cp A copy of another GIntGaussAdaptorT<int_type> object, camouflaged as a GAdaptorT
 	  */
-    void load_(const GObject *cp) override {
+    void load_(const GAdaptorT<int_type, double> *cp) override {
         // Convert the pointer to our target type and check for self-assignment
         const GIntGaussAdaptorT<int_type> *p_load =
-            Gem::Common::g_convert_and_compare<GObject, GIntGaussAdaptorT<int_type>>(cp, this);
+            Gem::Common::g_convert_and_compare<GAdaptorT<int_type, double>, GIntGaussAdaptorT<int_type>>(cp, this);
 
         // Load our parent class'es data ...
         GNumGaussAdaptorT<int_type, double>::load_(cp);
@@ -198,12 +198,12 @@ protected:
      * Searches for compliance with expectations with respect to another object
      * of the same type
      *
-     * @param cp A constant reference to another GObject object
+     * @param cp A constant reference to another GAdaptorT object
      * @param e The expected outcome of the comparison
      * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
     void compare_(
-        const GObject &cp,
+        const GAdaptorT<int_type, double> &cp,
         const Gem::Common::expectation &e,
         const double & /*limit*/
     ) const override {
@@ -211,7 +211,7 @@ protected:
 
         // Check that we are dealing with a GIntGaussAdaptorT<int_type> reference independent of this object and convert the pointer
         const GIntGaussAdaptorT<int_type> *p_load =
-            Gem::Common::g_convert_and_compare<GObject, GIntGaussAdaptorT<int_type>>(cp, this);
+            Gem::Common::g_convert_and_compare<GAdaptorT<int_type, double>, GIntGaussAdaptorT<int_type>>(cp, this);
 
         GToken token("GIntGaussAdaptorT<int_type>", e);
 
@@ -340,7 +340,7 @@ private:
 
     /***************************************************************************/
     /** @brief Creates a deep clone of this object. */
-    GObject *clone_() const override = 0;
+    GAdaptorT<int_type, double> *clone_() const override = 0;
 };
 
 } /* namespace Gem::Geneva::Parameters */

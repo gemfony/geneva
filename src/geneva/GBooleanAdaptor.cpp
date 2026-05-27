@@ -63,7 +63,7 @@ GBooleanAdaptor::GBooleanAdaptor(const double &ad_prob)
  *
  * @return A copy of this object, camouflaged as a GObject
  */
-GObject *GBooleanAdaptor::clone_() const {
+GAdaptorT<bool> *GBooleanAdaptor::clone_() const {
     return new GBooleanAdaptor(*this);
 }
 
@@ -90,7 +90,7 @@ void GBooleanAdaptor::customAdaptions(
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GBooleanAdaptor::compare_(
-    const GObject &cp,
+    const GAdaptorT<bool> &cp,
     const Gem::Common::expectation &e,
     const double & /*limit*/
 ) const {
@@ -98,7 +98,7 @@ void GBooleanAdaptor::compare_(
 
     // Check that we are dealing with a GBooleanAdaptor reference independent of this object and convert the pointer
     const GBooleanAdaptor *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GBooleanAdaptor>(cp, this);
+        Gem::Common::g_convert_and_compare<GAdaptorT<bool>, GBooleanAdaptor>(cp, this);
 
     GToken token("GBooleanAdaptor", e);
 
@@ -134,10 +134,10 @@ bool GBooleanAdaptor::randomInit(Gem::Hap::GRandomBase &) {
  *
  * @param cp A copy of another GBooleanAdaptor object, camouflaged as a GObject
  */
-void GBooleanAdaptor::load_(const GObject *cp) {
+void GBooleanAdaptor::load_(const GAdaptorT<bool> *cp) {
     // Convert the pointer to our target type and check for self-assignment
     const GBooleanAdaptor *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GBooleanAdaptor>(cp, this);
+        Gem::Common::g_convert_and_compare<GAdaptorT<bool>, GBooleanAdaptor>(cp, this);
 
     // Load our parent class'es data ...
     GAdaptorT<bool>::load_(cp);

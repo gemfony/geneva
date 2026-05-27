@@ -39,7 +39,6 @@
 // Geneva headers go here
 #include "geneva/par/GAdaptorT.hpp"
 #include "geneva/par/GConstrainedDoubleObject.hpp"
-#include "geneva/GObject.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "common/GExceptions.hpp"
 
@@ -82,8 +81,8 @@ public:
     bool randomInit(Gem::Hap::GRandomBase &) override;
 
 protected:
-    /** @brief Loads the data of another GObject */
-    void load_(const GObject *) override;
+    /** @brief Loads the data of another GAdaptorT */
+    void load_(const GAdaptorT<bool> *) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GBooleanAdaptor>(
@@ -94,7 +93,7 @@ protected:
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
     void compare_(
-        const GObject & // the other object
+        const GAdaptorT<bool> & // the other object
         ,
         const Gem::Common::expectation & // the expectation for this object, e.g. equality
         ,
@@ -117,7 +116,7 @@ private:
     /** @brief Emits a name for this class / object */
     std::string name_() const override;
     /** @brief Creates a deep clone of this object. */
-    GObject *clone_() const override;
+    GAdaptorT<bool> *clone_() const override;
 };
 
 /******************************************************************************/

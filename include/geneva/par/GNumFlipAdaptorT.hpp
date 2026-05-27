@@ -42,7 +42,6 @@
 #include "geneva/par/GAdaptorT.hpp"
 #include "geneva/par/GConstrainedDoubleObject.hpp"
 #include "geneva/par/GDoubleGaussAdaptor.hpp"
-#include "geneva/GObject.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 
 namespace Gem::Geneva::Parameters {
@@ -115,14 +114,14 @@ protected:
 
     /***************************************************************************/
     /**
-     * This function loads the data of another GNumFlipAdaptorT, camouflaged as a GObject.
+     * This function loads the data of another GNumFlipAdaptorT, camouflaged as a GAdaptorT.
      *
-     * @param A copy of another GNumFlipAdaptorT, camouflaged as a GObject
+     * @param A copy of another GNumFlipAdaptorT, camouflaged as a GAdaptorT
      */
-    void load_(const GObject *cp) override {
+    void load_(const GAdaptorT<num_type> *cp) override {
         // Convert the pointer to our target type and check for self-assignment
         const GNumFlipAdaptorT<num_type> *p_load =
-            Gem::Common::g_convert_and_compare<GObject, GNumFlipAdaptorT<num_type>>(cp, this);
+            Gem::Common::g_convert_and_compare<GAdaptorT<num_type>, GNumFlipAdaptorT<num_type>>(cp, this);
 
         // Load the data of our parent class ...
         GAdaptorT<num_type>::load_(cp);
@@ -143,12 +142,12 @@ protected:
      * Searches for compliance with expectations with respect to another object
      * of the same type
      *
-     * @param cp A constant reference to another GObject object
+     * @param cp A constant reference to another GAdaptorT object
      * @param e The expected outcome of the comparison
      * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
     void compare_(
-        const GObject &cp,
+        const GAdaptorT<num_type> &cp,
         const Gem::Common::expectation &e,
         const double & /*limit*/
     ) const override {
@@ -156,7 +155,7 @@ protected:
 
         // Check that we are dealing with a GNumFlipAdaptorT<num_type> reference independent of this object and convert the pointer
         const GNumFlipAdaptorT<num_type> *p_load =
-            Gem::Common::g_convert_and_compare<GObject, GNumFlipAdaptorT<num_type>>(cp, this);
+            Gem::Common::g_convert_and_compare<GAdaptorT<num_type>, GNumFlipAdaptorT<num_type>>(cp, this);
 
         GToken token("GNumFlipAdaptorT<num_type>", e);
 
@@ -293,7 +292,7 @@ private:
      *
      * @return A deep copy of this object
      */
-    GObject *clone_() const override = 0;
+    GAdaptorT<num_type> *clone_() const override = 0;
 };
 
 /******************************************************************************/

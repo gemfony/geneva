@@ -120,7 +120,7 @@ GInt32GaussAdaptor::GInt32GaussAdaptor(
  *
  * @return A copy of this object, camouflaged as a GObject
  */
-GObject *GInt32GaussAdaptor::clone_() const {
+GAdaptorT<std::int32_t, double> *GInt32GaussAdaptor::clone_() const {
     return new GInt32GaussAdaptor(*this);
 }
 
@@ -134,7 +134,7 @@ GObject *GInt32GaussAdaptor::clone_() const {
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GInt32GaussAdaptor::compare_(
-    const GObject &cp,
+    const GAdaptorT<std::int32_t, double> &cp,
     const Gem::Common::expectation &e,
     const double & /*limit*/
 ) const {
@@ -142,7 +142,7 @@ void GInt32GaussAdaptor::compare_(
 
     // Check that we are dealing with a GInt32GaussAdaptor reference independent of this object and convert the pointer
     const GInt32GaussAdaptor *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GInt32GaussAdaptor>(cp, this);
+        Gem::Common::g_convert_and_compare<GAdaptorT<std::int32_t, double>, GInt32GaussAdaptor>(cp, this);
 
     GToken token("GInt32GaussAdaptor", e);
 
@@ -169,10 +169,10 @@ std::string GInt32GaussAdaptor::name_() const {
  *
  * @param cp A copy of another GInt32GaussAdaptor object, camouflaged as a GObject
  */
-void GInt32GaussAdaptor::load_(const GObject *cp) {
+void GInt32GaussAdaptor::load_(const GAdaptorT<std::int32_t, double> *cp) {
     // Convert the pointer to our target type and check for self-assignment
     const GInt32GaussAdaptor *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GInt32GaussAdaptor>(cp, this);
+        Gem::Common::g_convert_and_compare<GAdaptorT<std::int32_t, double>, GInt32GaussAdaptor>(cp, this);
 
     // Load our parent class'es data ...
     GIntGaussAdaptorT<std::int32_t>::load_(cp);

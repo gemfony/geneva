@@ -53,7 +53,7 @@ GInt32FlipAdaptor::GInt32FlipAdaptor(const double &ad_prob)
  *
  * @return A copy of this object, camouflaged as a GObject
  */
-GObject *GInt32FlipAdaptor::clone_() const {
+GAdaptorT<std::int32_t> *GInt32FlipAdaptor::clone_() const {
     return new GInt32FlipAdaptor(*this);
 }
 
@@ -67,7 +67,7 @@ GObject *GInt32FlipAdaptor::clone_() const {
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GInt32FlipAdaptor::compare_(
-    const GObject &cp,
+    const GAdaptorT<std::int32_t> &cp,
     const Gem::Common::expectation &e,
     const double & /*limit*/
 ) const {
@@ -75,7 +75,7 @@ void GInt32FlipAdaptor::compare_(
 
     // Check that we are dealing with a GInt32FlipAdaptor reference independent of this object and convert the pointer
     const GInt32FlipAdaptor *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GInt32FlipAdaptor>(cp, this);
+        Gem::Common::g_convert_and_compare<GAdaptorT<std::int32_t>, GInt32FlipAdaptor>(cp, this);
 
     GToken token("GInt32FlipAdaptor", e);
 
@@ -102,10 +102,10 @@ std::string GInt32FlipAdaptor::name_() const {
  *
  * @param cp A copy of another GInt32FlipAdaptor object, camouflaged as a GObject
  */
-void GInt32FlipAdaptor::load_(const GObject *cp) {
+void GInt32FlipAdaptor::load_(const GAdaptorT<std::int32_t> *cp) {
     // Convert the pointer to our target type and check for self-assignment
     const GInt32FlipAdaptor *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GInt32FlipAdaptor>(cp, this);
+        Gem::Common::g_convert_and_compare<GAdaptorT<std::int32_t>, GInt32FlipAdaptor>(cp, this);
 
     // Load our parent class'es data ...
     GIntFlipAdaptorT<std::int32_t>::load_(cp);

@@ -455,21 +455,21 @@ protected:
 
     /***************************************************************************/
     /**
-	  * This function loads the data of another GNumGaussAdaptorT<num_type, fp_type>, camouflaged as a GObject.
+	  * This function loads the data of another GNumGaussAdaptorT<num_type, fp_type>, camouflaged as a GAdaptorT.
 	  * We assume that the values given to us by the other object are correct and do no error checks.
 	  *
-	  * @param A copy of another GNumGaussAdaptorT<num_type, fp_type>, camouflaged as a GObject
+	  * @param A copy of another GNumGaussAdaptorT<num_type, fp_type>, camouflaged as a GAdaptorT
 	  */
-    void load_(const GObject *cp) override {
+    void load_(const GAdaptorT<num_type, fp_type> *cp) override {
         // Check that we are dealing with a GNumGaussAdaptorT<num_type, fp_type> reference independent of this object and convert the pointer
         const GNumGaussAdaptorT<num_type, fp_type> *p_load =
-            Gem::Common::g_convert_and_compare<GObject, GNumGaussAdaptorT<num_type, fp_type>>(
+            Gem::Common::g_convert_and_compare<GAdaptorT<num_type, fp_type>, GNumGaussAdaptorT<num_type, fp_type>>(
                 cp,
                 this
             );
 
         // Load the data of our parent class ...
-        GAdaptorT<num_type>::load_(cp);
+        GAdaptorT<num_type, fp_type>::load_(cp);
 
         // ... and then our own data, derived from the single localMembers() declaration
         Gem::Common::g_load_members(localMembers(), p_load->localMembers());
@@ -488,12 +488,12 @@ protected:
      * Searches for compliance with expectations with respect to another object
      * of the same type
      *
-     * @param cp A constant reference to another GObject object
+     * @param cp A constant reference to another GAdaptorT object
      * @param e The expected outcome of the comparison
      * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
     void compare_(
-        const GObject &cp,
+        const GAdaptorT<num_type, fp_type> &cp,
         const Gem::Common::expectation &e,
         const double & /*limit*/
     ) const override {
@@ -501,7 +501,7 @@ protected:
 
         // Check that we are dealing with a GNumGaussAdaptorT<num_type, fp_type> reference independent of this object and convert the pointer
         const GNumGaussAdaptorT<num_type, fp_type> *p_load =
-            Gem::Common::g_convert_and_compare<GObject, GNumGaussAdaptorT<num_type, fp_type>>(
+            Gem::Common::g_convert_and_compare<GAdaptorT<num_type, fp_type>, GNumGaussAdaptorT<num_type, fp_type>>(
                 cp,
                 this
             );
@@ -509,7 +509,7 @@ protected:
         GToken token("GNumGaussAdaptorT<num_type, fp_type>", e);
 
         // Compare our parent data ...
-        Gem::Common::compare_base_t<GAdaptorT<num_type>>(*this, *p_load, token);
+        Gem::Common::compare_base_t<GAdaptorT<num_type, fp_type>>(*this, *p_load, token);
 
         // ... and then the local data
         Gem::Common::g_compare_members(localMembers(), p_load->localMembers(), token);
@@ -883,7 +883,7 @@ private:
 	  *
 	  * @return A deep copy of this object
 	  */
-    GObject *clone_() const override = 0;
+    GAdaptorT<num_type, fp_type> *clone_() const override = 0;
 };
 
 /******************************************************************************/
