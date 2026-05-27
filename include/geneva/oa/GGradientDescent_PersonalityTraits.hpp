@@ -96,7 +96,7 @@ protected:
     // Virtual or overridden protected functions
 
     /** @brief Loads the data of another GGDPersonalityTraits object */
-    void load_(const GObject *) override;
+    void load_(const GPersonalityTraits *) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GGradientDescent_PersonalityTraits>(
@@ -107,7 +107,7 @@ protected:
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
     void compare_(
-        const GObject & // the other object
+        const GPersonalityTraits & // the other object
         ,
         const Gem::Common::expectation & // the expectation for this object, e.g. equality
         ,
@@ -127,7 +127,7 @@ private:
     /** @brief Emits a name for this class / object */
     std::string name_() const override;
     /** @brief Creates a deep clone of this object */
-    GObject *clone_() const override;
+    GPersonalityTraits *clone_() const override;
 
     /** @brief Stores the current position in the population */
     std::size_t pop_pos_ = 0;

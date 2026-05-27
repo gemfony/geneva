@@ -46,7 +46,7 @@ const std::string GParameterScan_PersonalityTraits::nickname = "ps";
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GParameterScan_PersonalityTraits::compare_(
-    const GObject &cp,
+    const GPersonalityTraits &cp,
     const Gem::Common::expectation &e,
     const double & /*limit*/
 ) const {
@@ -54,7 +54,7 @@ void GParameterScan_PersonalityTraits::compare_(
 
     // Check that we are dealing with a GParameterScan_PersonalityTraits reference independent of this object and convert the pointer
     const GParameterScan_PersonalityTraits *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GParameterScan_PersonalityTraits>(cp, this);
+        Gem::Common::g_convert_and_compare<GPersonalityTraits, GParameterScan_PersonalityTraits>(cp, this);
 
     GToken token("GParameterScan_PersonalityTraits", e);
 
@@ -90,7 +90,7 @@ std::string GParameterScan_PersonalityTraits::getMnemonic() const {
  *
  * @return A clone of this object, camouflaged as a GObject
  */
-GObject *GParameterScan_PersonalityTraits::clone_() const {
+GPersonalityTraits *GParameterScan_PersonalityTraits::clone_() const {
     return new GParameterScan_PersonalityTraits(*this);
 }
 
@@ -100,10 +100,10 @@ GObject *GParameterScan_PersonalityTraits::clone_() const {
  *
  * @param cp A copy of another GPSPersonalityTraits object, camouflaged as a GObject
  */
-void GParameterScan_PersonalityTraits::load_(const GObject *cp) {
+void GParameterScan_PersonalityTraits::load_(const GPersonalityTraits *cp) {
     // Check that we are dealing with a GParameterScan_PersonalityTraits reference independent of this object and convert the pointer
     const GParameterScan_PersonalityTraits *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GParameterScan_PersonalityTraits>(cp, this);
+        Gem::Common::g_convert_and_compare<GPersonalityTraits, GParameterScan_PersonalityTraits>(cp, this);
 
     // Load the parent class'es data
     GPersonalityTraits::load_(cp);

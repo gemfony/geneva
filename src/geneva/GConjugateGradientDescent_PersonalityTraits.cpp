@@ -45,7 +45,7 @@ const std::string GConjugateGradientDescent_PersonalityTraits::nickname = "cgd";
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GConjugateGradientDescent_PersonalityTraits::compare_(
-    const GObject &cp,
+    const GPersonalityTraits &cp,
     const Gem::Common::expectation &e,
     const double & /*limit*/
 ) const {
@@ -54,7 +54,7 @@ void GConjugateGradientDescent_PersonalityTraits::compare_(
     // Check that we are dealing with a GConjugateGradientDescent_PersonalityTraits
     // reference independent of this object and convert the pointer
     const GConjugateGradientDescent_PersonalityTraits *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GConjugateGradientDescent_PersonalityTraits>(
+        Gem::Common::g_convert_and_compare<GPersonalityTraits, GConjugateGradientDescent_PersonalityTraits>(
             cp,
             this
         );
@@ -93,7 +93,7 @@ std::string GConjugateGradientDescent_PersonalityTraits::getMnemonic() const {
  *
  * @return A clone of this object, camouflaged as a GObject
  */
-GObject *GConjugateGradientDescent_PersonalityTraits::clone_() const {
+GPersonalityTraits *GConjugateGradientDescent_PersonalityTraits::clone_() const {
     return new GConjugateGradientDescent_PersonalityTraits(*this);
 }
 
@@ -103,11 +103,11 @@ GObject *GConjugateGradientDescent_PersonalityTraits::clone_() const {
  *
  * @param cp A copy of another GConjugateGradientDescent_PersonalityTraits object, camouflaged as a GObject
  */
-void GConjugateGradientDescent_PersonalityTraits::load_(const GObject *cp) {
+void GConjugateGradientDescent_PersonalityTraits::load_(const GPersonalityTraits *cp) {
     // Check that we are dealing with a GConjugateGradientDescent_PersonalityTraits
     // reference independent of this object and convert the pointer
     const GConjugateGradientDescent_PersonalityTraits *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GConjugateGradientDescent_PersonalityTraits>(
+        Gem::Common::g_convert_and_compare<GPersonalityTraits, GConjugateGradientDescent_PersonalityTraits>(
             cp,
             this
         );

@@ -46,7 +46,7 @@ namespace Gem::Geneva::OptimizationAlgorithms {
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GBaseParChildPersonalityTraits::compare_(
-    const GObject &cp,
+    const GPersonalityTraits &cp,
     const Gem::Common::expectation &e,
     const double & /*limit*/
 ) const {
@@ -54,12 +54,12 @@ void GBaseParChildPersonalityTraits::compare_(
 
     // Check that we are dealing with a GBasePS::GBaseParChildPersonalityTraits reference independent of this object and convert the pointer
     const GBaseParChildPersonalityTraits *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GBaseParChildPersonalityTraits>(cp, this);
+        Gem::Common::g_convert_and_compare<GPersonalityTraits, GBaseParChildPersonalityTraits>(cp, this);
 
     GToken token("GBaseParChildPersonalityTraits", e);
 
     // Compare our parent data ...
-    Gem::Common::compare_base_t<GObject>(*this, *p_load, token);
+    Gem::Common::compare_base_t<GPersonalityTraits>(*this, *p_load, token);
 
     // ... and then the local data, derived from the single localMembers() declaration
     g_compare_members(localMembers(), p_load->localMembers(), token);
@@ -96,7 +96,7 @@ std::string GBaseParChildPersonalityTraits::getMnemonic() const {
  *
  * @return A clone of this object, camouflaged as a GObject
  */
-GObject *GBaseParChildPersonalityTraits::clone_() const {
+GPersonalityTraits *GBaseParChildPersonalityTraits::clone_() const {
     return new GBaseParChildPersonalityTraits(*this);
 }
 
@@ -106,10 +106,10 @@ GObject *GBaseParChildPersonalityTraits::clone_() const {
  *
  * @param cp A copy of another GBaseParChildPersonalityTraits object, camouflaged as a GObject
  */
-void GBaseParChildPersonalityTraits::load_(const GObject *cp) {
+void GBaseParChildPersonalityTraits::load_(const GPersonalityTraits *cp) {
     // Check that we are dealing with a GBasePS::GBaseParChildPersonalityTraits reference independent of this object and convert the pointer
     const GBaseParChildPersonalityTraits *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GBaseParChildPersonalityTraits>(cp, this);
+        Gem::Common::g_convert_and_compare<GPersonalityTraits, GBaseParChildPersonalityTraits>(cp, this);
 
     // Load the parent class'es data
     GPersonalityTraits::load_(cp);

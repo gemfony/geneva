@@ -47,7 +47,7 @@ const std::string GEvolutionaryAlgorithm_PersonalityTraits::nickname = "ea"; // 
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GEvolutionaryAlgorithm_PersonalityTraits::compare_(
-    const GObject &cp,
+    const GPersonalityTraits &cp,
     const Gem::Common::expectation &e,
     const double & /*limit*/
 ) const {
@@ -55,7 +55,7 @@ void GEvolutionaryAlgorithm_PersonalityTraits::compare_(
 
     // Check that we are dealing with a GEvolutionaryAlgorithm_PersonalityTraits reference independent of this object and convert the pointer
     const GEvolutionaryAlgorithm_PersonalityTraits *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GEvolutionaryAlgorithm_PersonalityTraits>(
+        Gem::Common::g_convert_and_compare<GPersonalityTraits, GEvolutionaryAlgorithm_PersonalityTraits>(
             cp,
             this
         );
@@ -94,7 +94,7 @@ std::string GEvolutionaryAlgorithm_PersonalityTraits::getMnemonic() const {
  *
  * @return A clone of this object, camouflaged as a GObject
  */
-GObject *GEvolutionaryAlgorithm_PersonalityTraits::clone_() const {
+GPersonalityTraits *GEvolutionaryAlgorithm_PersonalityTraits::clone_() const {
     return new GEvolutionaryAlgorithm_PersonalityTraits(*this);
 }
 
@@ -104,10 +104,10 @@ GObject *GEvolutionaryAlgorithm_PersonalityTraits::clone_() const {
  *
  * @param cp A copy of another GEAPersonalityTraits object, camouflaged as a GObject
  */
-void GEvolutionaryAlgorithm_PersonalityTraits::load_(const GObject *cp) {
+void GEvolutionaryAlgorithm_PersonalityTraits::load_(const GPersonalityTraits *cp) {
     // Check that we are dealing with a GEvolutionaryAlgorithm_PersonalityTraits reference independent of this object and convert the pointer
     const GEvolutionaryAlgorithm_PersonalityTraits *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GEvolutionaryAlgorithm_PersonalityTraits>(
+        Gem::Common::g_convert_and_compare<GPersonalityTraits, GEvolutionaryAlgorithm_PersonalityTraits>(
             cp,
             this
         );

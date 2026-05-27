@@ -78,12 +78,32 @@ namespace Gem::Geneva::Tests {
 
 /*************************************************************************************************/
 /**
+ * Deduces the CRTP category root of a tested type T.
+ *
+ * Historically the standard tests hard-coded `GObject` as the common base of every
+ * tested type. With the GObject decomposition (one CRTP root per logical category)
+ * that no longer holds: e.g. personality-traits types now bottom out at
+ * GPersonalityTraits, not GObject. The category root is the type parameter of the
+ * Gem::Common::GCommonInterfaceT<Root> base, and it is exactly the element_type of
+ * the std::shared_ptr returned by the public (inherited) clone() method. Deducing it
+ * this way works for every category root uniformly (GObject-based types still resolve
+ * to GObject), so the standard-test template stays category-agnostic.
+ */
+template <typename T>
+using category_root_t = typename decltype(std::declval<const T &>().clone())::element_type;
+
+/*************************************************************************************************/
+/**
  * This function performs common tests that need to be passed by every core Geneva class and
  * should be passed by user individuals as well. Most notably, this includes (de-)serialization
  * in different modes.
  */
 template <typename T>
 void StandardTests_no_failure_expected() {
+    // The CRTP category root of the tested type (GObject for most categories,
+    // GPersonalityTraits for personality traits, etc.). Used wherever the test
+    // previously hard-coded `GObject` / `GObject::`.
+    using root_t = category_root_t<T>;
     // Prepare printing of error messages in object comparisons
     GEqualityPrinter gep(
         "StandardTests_no_failure_expected",
@@ -121,8 +141,8 @@ void StandardTests_no_failure_expected() {
         REQUIRE_NOTHROW(T_ptr_cp.reset());
     }
 
-    { // Test cloning to GObject
-        std::shared_ptr<GObject> T_ptr, T_ptr_clone;
+    { // Test cloning to the category root
+        std::shared_ptr<root_t> T_ptr, T_ptr_clone;
 
         // Default construction
         REQUIRE_NOTHROW(T_ptr = TFactory_GUnitTests<T>());
@@ -132,7 +152,7 @@ void StandardTests_no_failure_expected() {
         REQUIRE_NOTHROW(T_ptr->modify_GUnitTests());
 
         // Cloning
-        REQUIRE_NOTHROW(T_ptr_clone = T_ptr->GObject::clone());
+        REQUIRE_NOTHROW(T_ptr_clone = T_ptr->clone());
 
         // Check for equivalence and similarity
         CHECK(gep.isEqual(*T_ptr_clone, *T_ptr));
@@ -159,7 +179,7 @@ void StandardTests_no_failure_expected() {
         REQUIRE_NOTHROW(T_ptr->modify_GUnitTests());
 
         // Cloning
-        REQUIRE_NOTHROW(T_ptr_clone = T_ptr->GObject::template clone<T>());
+        REQUIRE_NOTHROW(T_ptr_clone = T_ptr->template clone<T>());
 
         // Check for equivalence and similarity
         CHECK(gep.isEqual(*T_ptr_clone, *T_ptr));
@@ -189,7 +209,7 @@ void StandardTests_no_failure_expected() {
         REQUIRE_NOTHROW(T_ptr_load = TFactory_GUnitTests<T>());
         REQUIRE(T_ptr_load); // must point somewhere
 
-        REQUIRE_NOTHROW(T_ptr_load->GObject::load(T_ptr));
+        REQUIRE_NOTHROW(T_ptr_load->load(T_ptr));
         // Check for equivalence and similarity
         CHECK(gep.isEqual(*T_ptr_load, *T_ptr));
         CHECK(gep.isSimilar(*T_ptr_load, *T_ptr));
@@ -217,7 +237,7 @@ void StandardTests_no_failure_expected() {
         // Loading
         REQUIRE_NOTHROW(T_ptr_load = TFactory_GUnitTests<T>());
         REQUIRE(T_ptr_load); // must point somewhere
-        REQUIRE_NOTHROW(T_ptr_load->GObject::load(*T_ptr));
+        REQUIRE_NOTHROW(T_ptr_load->load(*T_ptr));
         // Check for equivalence and similarity
         CHECK(gep.isEqual(*T_ptr_load, *T_ptr));
         CHECK(gep.isSimilar(*T_ptr_load, *T_ptr));
@@ -275,8 +295,8 @@ void StandardTests_no_failure_expected() {
             CHECK(gep.isInEqual(*T_ptr1, *T_ptr2));
 
             // Serialize T_ptr1 and load into T_ptr1, check equalities and similarities
-            REQUIRE_NOTHROW(T_ptr2->GObject::fromString(
-                T_ptr1->GObject::toString(Gem::Common::serializationMode::TEXT),
+            REQUIRE_NOTHROW(T_ptr2->fromString(
+                T_ptr1->toString(Gem::Common::serializationMode::TEXT),
                 Gem::Common::serializationMode::TEXT
             ));
             CHECK(gep.isSimilar(*T_ptr1, *T_ptr2));
@@ -299,8 +319,8 @@ void StandardTests_no_failure_expected() {
             CHECK(gep.isInEqual(*T_ptr1, *T_ptr2));
 
             // Serialize T_ptr1 and load into T_ptr1, check equalities and similarities
-            REQUIRE_NOTHROW(T_ptr2->GObject::fromString(
-                T_ptr1->GObject::toString(Gem::Common::serializationMode::XML),
+            REQUIRE_NOTHROW(T_ptr2->fromString(
+                T_ptr1->toString(Gem::Common::serializationMode::XML),
                 Gem::Common::serializationMode::XML
             ));
             CHECK(gep.isSimilar(*T_ptr1, *T_ptr2));
@@ -323,8 +343,8 @@ void StandardTests_no_failure_expected() {
             CHECK(gep.isInEqual(*T_ptr1, *T_ptr2));
 
             // Serialize T_ptr1 and load into T_ptr1, check equalities and similarities
-            REQUIRE_NOTHROW(T_ptr2->GObject::fromString(
-                T_ptr1->GObject::toString(Gem::Common::serializationMode::BINARY),
+            REQUIRE_NOTHROW(T_ptr2->fromString(
+                T_ptr1->toString(Gem::Common::serializationMode::BINARY),
                 Gem::Common::serializationMode::BINARY
             ));
             CHECK(gep.isSimilar(*T_ptr1, *T_ptr2));
@@ -447,7 +467,7 @@ void StandardTests_failures_expected() {
 #ifdef DEBUG
         std::shared_ptr<T> T_ptr1 = TFactory_GUnitTests<T>();
         REQUIRE(T_ptr1); // must point somewhere
-        CHECK_THROWS_AS(T_ptr1->GObject::load(T_ptr1), geneva_exception);
+        CHECK_THROWS_AS(T_ptr1->load(T_ptr1), geneva_exception);
 #endif
     }
 

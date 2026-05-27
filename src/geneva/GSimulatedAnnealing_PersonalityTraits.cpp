@@ -46,7 +46,7 @@ const std::string GSimulatedAnnealing_PersonalityTraits::nickname = "sa";
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GSimulatedAnnealing_PersonalityTraits::compare_(
-    const GObject &cp,
+    const GPersonalityTraits &cp,
     const Gem::Common::expectation &e,
     const double & /*limit*/
 ) const {
@@ -54,7 +54,7 @@ void GSimulatedAnnealing_PersonalityTraits::compare_(
 
     // Check that we are dealing with a GSimulatedAnnealing_PersonalityTraits reference independent of this object and convert the pointer
     const GSimulatedAnnealing_PersonalityTraits *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GSimulatedAnnealing_PersonalityTraits>(
+        Gem::Common::g_convert_and_compare<GPersonalityTraits, GSimulatedAnnealing_PersonalityTraits>(
             cp,
             this
         );
@@ -92,7 +92,7 @@ std::string GSimulatedAnnealing_PersonalityTraits::getMnemonic() const {
  *
  * @return A clone of this object, camouflaged as a GObject
  */
-GObject *GSimulatedAnnealing_PersonalityTraits::clone_() const {
+GPersonalityTraits *GSimulatedAnnealing_PersonalityTraits::clone_() const {
     return new GSimulatedAnnealing_PersonalityTraits(*this);
 }
 
@@ -102,10 +102,10 @@ GObject *GSimulatedAnnealing_PersonalityTraits::clone_() const {
  *
  * @param cp A copy of another GSAPersonalityTraits object, camouflaged as a GObject
  */
-void GSimulatedAnnealing_PersonalityTraits::load_(const GObject *cp) {
+void GSimulatedAnnealing_PersonalityTraits::load_(const GPersonalityTraits *cp) {
     // Check that we are dealing with a GSimulatedAnnealing_PersonalityTraits reference independent of this object and convert the pointer
     const GSimulatedAnnealing_PersonalityTraits *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GSimulatedAnnealing_PersonalityTraits>(
+        Gem::Common::g_convert_and_compare<GPersonalityTraits, GSimulatedAnnealing_PersonalityTraits>(
             cp,
             this
         );

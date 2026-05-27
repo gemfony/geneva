@@ -79,7 +79,7 @@ public:
 	 * @return A boolean indicating whether both parameters are equal
 	 */
     template <typename geneva_type>
-        requires std::derived_from<geneva_type, Gem::Geneva::GObject>
+        requires Gem::Common::gemfony_common_interface<geneva_type>
     bool isEqual(const geneva_type &x, const geneva_type &y) const {
         using namespace Gem::Common;
 
@@ -133,7 +133,7 @@ public:
 	 * @return A boolean indicating whether both parameters are inequal
 	 */
     template <typename geneva_type>
-        requires std::derived_from<geneva_type, Gem::Geneva::GObject>
+        requires Gem::Common::gemfony_common_interface<geneva_type>
     bool isInEqual(const geneva_type &x, const geneva_type &y) const {
         using namespace Gem::Common;
 
@@ -187,7 +187,7 @@ public:
 	 * @return A boolean indicating whether both parameters are similar
 	 */
     template <typename geneva_type>
-        requires std::derived_from<geneva_type, Gem::Geneva::GObject>
+        requires Gem::Common::gemfony_common_interface<geneva_type>
     bool isSimilar(const geneva_type &x, const geneva_type &y) const {
         using namespace Gem::Common;
 

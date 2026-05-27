@@ -41,7 +41,7 @@ namespace Gem::Geneva {
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GPersonalityTraits::compare_(
-    const GObject &cp,
+    const GPersonalityTraits &cp,
     const Gem::Common::expectation &e,
     const double & /*limit*/
 ) const {
@@ -49,12 +49,12 @@ void GPersonalityTraits::compare_(
 
     // Check that we are dealing with a GPersonalityTraits reference independent of this object and convert the pointer
     const GPersonalityTraits *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GPersonalityTraits>(cp, this);
+        Gem::Common::g_convert_and_compare<GPersonalityTraits, GPersonalityTraits>(cp, this);
 
     GToken token("GPersonalityTraits", e);
 
     // Compare our parent data ...
-    Gem::Common::compare_base_t<GObject>(*this, *p_load, token);
+    Gem::Common::compare_base_t<GCommonInterfaceT<GPersonalityTraits>>(*this, *p_load, token);
 
     // ... no local data
 
@@ -74,17 +74,13 @@ std::string GPersonalityTraits::name_() const {
 /**
  * Loads the data of another GPersonalityTraits object
  *
- * @param cp A copy of another GPersonalityTraits object, camouflaged as a GObject
+ * @param cp A copy of another GPersonalityTraits object, camouflaged as a GPersonalityTraits
  */
-void GPersonalityTraits::load_(const GObject *cp) {
+void GPersonalityTraits::load_(const GPersonalityTraits *cp) {
     // Convert the pointer to our target type and check for self-assignment
-    const GPersonalityTraits *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GPersonalityTraits>(cp, this);
+    Gem::Common::g_convert_and_compare<GPersonalityTraits, GPersonalityTraits>(cp, this);
 
-    // Load the parent class'es data
-    GObject::load_(cp);
-
-    // No local data
+    // No parent class with data and no local data
 }
 
 /******************************************************************************/
@@ -95,14 +91,10 @@ void GPersonalityTraits::load_(const GObject *cp) {
  */
 bool GPersonalityTraits::modify_GUnitTests_() {
 #ifdef GEM_TESTING
-    bool result = false;
+    // This is the category root; there is no modifiable parent class and no
+    // local data, so there is nothing we can do here in this function.
 
-    // Call the parent class'es function
-    if(GObject::modify_GUnitTests_()) {
-        result = true;
-    }
-
-    return result;
+    return false;
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
     Gem::Common::condnotset("GPersonalityTraits::modify_GUnitTests", "GEM_TESTING");
@@ -116,10 +108,7 @@ bool GPersonalityTraits::modify_GUnitTests_() {
  */
 void GPersonalityTraits::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
-    // Call the parent class'es function
-    GObject::specificTestsNoFailureExpected_GUnitTests_();
-
-    // No local data -- nothing to test
+    // This is the category root; no parent class and no local data -- nothing to test
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
     Gem::Common::condnotset(
@@ -135,10 +124,7 @@ void GPersonalityTraits::specificTestsNoFailureExpected_GUnitTests_() {
  */
 void GPersonalityTraits::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
-    // Call the parent class'es function
-    GObject::specificTestsFailuresExpected_GUnitTests_();
-
-    // No local data -- nothing to test
+    // This is the category root; no parent class and no local data -- nothing to test
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
     Gem::Common::condnotset(

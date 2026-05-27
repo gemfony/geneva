@@ -41,14 +41,14 @@ const std::string GNelderMead_PersonalityTraits::nickname = "nm";
  * of the same type
  */
 void GNelderMead_PersonalityTraits::compare_(
-    const GObject &cp,
+    const GPersonalityTraits &cp,
     const Gem::Common::expectation &e,
     const double & /*limit*/
 ) const {
     using namespace Gem::Common;
 
     const GNelderMead_PersonalityTraits *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GNelderMead_PersonalityTraits>(cp, this);
+        Gem::Common::g_convert_and_compare<GPersonalityTraits, GNelderMead_PersonalityTraits>(cp, this);
 
     GToken token("GNelderMead_PersonalityTraits", e);
 
@@ -82,7 +82,7 @@ std::string GNelderMead_PersonalityTraits::getMnemonic() const {
 /**
  * Creates a deep clone of this object
  */
-GObject *GNelderMead_PersonalityTraits::clone_() const {
+GPersonalityTraits *GNelderMead_PersonalityTraits::clone_() const {
     return new GNelderMead_PersonalityTraits(*this);
 }
 
@@ -90,9 +90,9 @@ GObject *GNelderMead_PersonalityTraits::clone_() const {
 /**
  * Loads the data of another GNelderMead_PersonalityTraits object
  */
-void GNelderMead_PersonalityTraits::load_(const GObject *cp) {
+void GNelderMead_PersonalityTraits::load_(const GPersonalityTraits *cp) {
     const GNelderMead_PersonalityTraits *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GNelderMead_PersonalityTraits>(cp, this);
+        Gem::Common::g_convert_and_compare<GPersonalityTraits, GNelderMead_PersonalityTraits>(cp, this);
 
     // Load the parent class'es data
     GPersonalityTraits::load_(cp);

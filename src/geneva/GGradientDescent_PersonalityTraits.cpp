@@ -45,7 +45,7 @@ const std::string GGradientDescent_PersonalityTraits::nickname = "gd";
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GGradientDescent_PersonalityTraits::compare_(
-    const GObject &cp,
+    const GPersonalityTraits &cp,
     const Gem::Common::expectation &e,
     const double & /*limit*/
 ) const {
@@ -53,7 +53,7 @@ void GGradientDescent_PersonalityTraits::compare_(
 
     // Check that we are dealing with a GGradientDescent_PersonalityTraits reference independent of this object and convert the pointer
     const GGradientDescent_PersonalityTraits *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GGradientDescent_PersonalityTraits>(cp, this);
+        Gem::Common::g_convert_and_compare<GPersonalityTraits, GGradientDescent_PersonalityTraits>(cp, this);
 
     GToken token("GGradientDescent_PersonalityTraits", e);
 
@@ -89,7 +89,7 @@ std::string GGradientDescent_PersonalityTraits::getMnemonic() const {
  *
  * @return A clone of this object, camouflaged as a GObject
  */
-GObject *GGradientDescent_PersonalityTraits::clone_() const {
+GPersonalityTraits *GGradientDescent_PersonalityTraits::clone_() const {
     return new GGradientDescent_PersonalityTraits(*this);
 }
 
@@ -99,10 +99,10 @@ GObject *GGradientDescent_PersonalityTraits::clone_() const {
  *
  * @param cp A copy of another GGDPersonalityTraits object, camouflaged as a GObject
  */
-void GGradientDescent_PersonalityTraits::load_(const GObject *cp) {
+void GGradientDescent_PersonalityTraits::load_(const GPersonalityTraits *cp) {
     // Check that we are dealing with a GGradientDescent_PersonalityTraits reference independent of this object and convert the pointer
     const GGradientDescent_PersonalityTraits *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GGradientDescent_PersonalityTraits>(cp, this);
+        Gem::Common::g_convert_and_compare<GPersonalityTraits, GGradientDescent_PersonalityTraits>(cp, this);
 
     // Load the parent class'es data
     GPersonalityTraits::load_(cp);
