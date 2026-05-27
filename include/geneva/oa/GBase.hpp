@@ -46,6 +46,7 @@
 // Geneva headers go here
 #include "common/GCommonHelperFunctions.hpp"
 #include "common/GCommonHelperFunctionsT.hpp"
+#include "common/GCommonInterfaceT.hpp"
 #include "common/GPlotDesigner.hpp"
 #include "common/GContainerT.hpp"
 #include "common/GSerializationHelperFunctionsT.hpp"
@@ -75,9 +76,17 @@ class GBase;
 /////////////////////////////////////////////////////////////////////////////////
 /*******************************************************************************/
 /**
- * The base class of all pluggable optimization monitors
+ * The base class -- and the CRTP category root -- of all pluggable optimization
+ * monitors.
+ *
+ * As part of the GObject-decomposition effort, the pluggable-monitor hierarchy
+ * is its own category root: it derives directly from
+ * Gem::Common::GCommonInterfaceT<GBasePluggableOM> instead of from GObject, so a
+ * GBasePluggableOM pointer is an unrelated type to a GObject pointer. The common
+ * infrastructure (clone/load/compare/name/IO/serialize) is supplied by the CRTP
+ * base, instantiated for this root.
  */
-class GBasePluggableOM : public GObject {
+class GBasePluggableOM : public Gem::Common::GCommonInterfaceT<GBasePluggableOM> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
@@ -85,8 +94,12 @@ class GBasePluggableOM : public GObject {
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject) &
-            BOOST_SERIALIZATION_NVP(use_raw_evaluation_);
+        // This is the CRTP category root. Its CRTP base
+        // (Gem::Common::GCommonInterfaceT<GBasePluggableOM>) carries no state and
+        // is therefore not serialized as a base_object -- mirroring GObject, whose
+        // serialize() is likewise empty. The polymorphic base_object chain bottoms
+        // out here; only our own data is serialized.
+        ar &BOOST_SERIALIZATION_NVP(use_raw_evaluation_);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -124,7 +137,7 @@ protected:
     }
 
     /** @brief Loads the data of another object */
-    void load_(const GObject *cp) override;
+    void load_(const GBasePluggableOM *cp) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GBasePluggableOM>(
@@ -135,7 +148,7 @@ protected:
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
     void compare_(
-        const GObject &cp,
+        const GBasePluggableOM &cp,
         const Gem::Common::expectation &e,
         const double &limit
     ) const override;
@@ -156,7 +169,7 @@ protected:
 
 private:
     /** @brief Creates a deep clone of this object */
-    GObject *clone_() const override = 0;
+    GBasePluggableOM *clone_() const override = 0;
 
     /** @brief Overload this function in derived classes, specifying actions for initialization, the optimization cycles and finalization. */
     virtual void

@@ -114,7 +114,7 @@ public:
     bool targetReached {false};
 
 protected:
-    void load_(const GObject *cp) override {
+    void load_(const oa::GBasePluggableOM *cp) override {
         const auto *p = dynamic_cast<const GBenchmarkTerminationMonitor *>(cp);
         if (!p) throw std::bad_cast{};
         oa::GBasePluggableOM::load_(cp);
@@ -125,7 +125,7 @@ protected:
     }
 
 private:
-    GObject *clone_() const override {
+    oa::GBasePluggableOM *clone_() const override {
         return new GBenchmarkTerminationMonitor(*this);
     }
 

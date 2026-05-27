@@ -146,7 +146,7 @@ protected:
          *
          * cp A pointer to another GCollectiveMonitorT<ind_type> object, camouflaged as a GObject
          */
-    void load_(const GObject *cp) override {
+    void load_(const oa::GBasePluggableOM *cp) override {
         // Check that we are dealing with a GImagePOM reference independent of this object and convert the pointer
         const GImagePOM *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
@@ -171,7 +171,7 @@ protected:
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
     void compare_(
-        const GObject &cp,
+        const oa::GBasePluggableOM &cp,
         const Gem::Common::expectation &e,
         const double &limit
     ) const final {
@@ -265,7 +265,7 @@ private:
     /**
          * Creates a deep clone of this object
          */
-    [[nodiscard]] GObject *clone_() const override {
+    [[nodiscard]] oa::GBasePluggableOM *clone_() const override {
         return new GImagePOM(*this);
     }
 

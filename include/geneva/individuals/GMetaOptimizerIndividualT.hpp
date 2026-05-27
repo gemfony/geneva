@@ -1882,10 +1882,10 @@ protected:
        *
        * @param cp A copy of another GOptOptMonitorT object, camouflaged as a GObject
        */
-    void load_(const GObject *cp) override {
+    void load_(const oa::GBasePluggableOM *cp) override {
         // Check that we are dealing with a GOptOptMonitorT<ind_type> reference independent of this object and convert the pointer
         const GOptOptMonitorT<ind_type> *p_load =
-            Gem::Common::g_convert_and_compare<GObject, GOptOptMonitorT<ind_type>>(cp, this);
+            Gem::Common::g_convert_and_compare<oa::GBasePluggableOM, GOptOptMonitorT<ind_type>>(cp, this);
 
         // Trigger loading of our parent class'es data
         // Load the parent classes' data ...
@@ -1922,7 +1922,7 @@ protected:
      * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
     void compare_(
-        const GObject &cp,
+        const oa::GBasePluggableOM &cp,
         const Gem::Common::expectation &e,
         const double & /*limit*/
     ) const override {
@@ -1930,7 +1930,7 @@ protected:
 
         // Check that we are dealing with a GOptOptMonitorT<ind_type> reference independent of this object and convert the pointer
         const GOptOptMonitorT<ind_type> *p_load =
-            Gem::Common::g_convert_and_compare<GObject, GOptOptMonitorT<ind_type>>(cp, this);
+            Gem::Common::g_convert_and_compare<oa::GBasePluggableOM, GOptOptMonitorT<ind_type>>(cp, this);
 
         GToken token("GOptOptMonitorT", e);
 
@@ -2030,7 +2030,7 @@ private:
        *
        * @return A deep clone of this object
        */
-    GObject *clone_() const override {
+    oa::GBasePluggableOM *clone_() const override {
         return new GOptOptMonitorT<ind_type>(*this);
     }
 

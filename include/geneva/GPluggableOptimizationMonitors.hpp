@@ -92,7 +92,7 @@ public:
 protected:
     /***************************************************************************/
     /** @brief Loads the data of another object */
-    void load_(const GObject *cp) override;
+    void load_(const oa::GBasePluggableOM *cp) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GStandardMonitor>(
@@ -103,7 +103,7 @@ protected:
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
     void compare_(
-        const GObject &cp,
+        const oa::GBasePluggableOM &cp,
         const Gem::Common::expectation &e,
         const double &limit
     ) const override;
@@ -119,7 +119,7 @@ private:
     /** @brief Emits a name for this class / object */
     std::string name_() const override;
     /** @brief Creates a deep clone of this object */
-    GObject *clone_() const override;
+    oa::GBasePluggableOM *clone_() const override;
 
     /** @brief Aggregates the work of all registered pluggable monitors */
     void
@@ -218,7 +218,7 @@ public:
 protected:
     /************************************************************************/
     /** @brief Loads the data of another object */
-    void load_(const GObject *cp) override;
+    void load_(const oa::GBasePluggableOM *cp) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GFitnessMonitor>(
@@ -229,7 +229,7 @@ protected:
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
     void compare_(
-        const GObject &cp,
+        const oa::GBasePluggableOM &cp,
         const Gem::Common::expectation &e,
         const double &limit
     ) const override;
@@ -246,7 +246,7 @@ private:
     /** @brief Emits a name for this class / object */
     std::string name_() const override;
     /** @brief Creates a deep clone of this object */
-    GObject *clone_() const override;
+    oa::GBasePluggableOM *clone_() const override;
 
     /** @brief Aggregates the work of all registered pluggable monitors */
     void
@@ -341,7 +341,7 @@ public:
 protected:
     /***************************************************************************/
     /** @brief Loads the data of another object */
-    void load_(const GObject *cp) override;
+    void load_(const oa::GBasePluggableOM *cp) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GCollectiveMonitor>(
@@ -352,7 +352,7 @@ protected:
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
     void compare_(
-        const GObject &cp,
+        const oa::GBasePluggableOM &cp,
         const Gem::Common::expectation &e,
         const double &limit
     ) const override;
@@ -369,7 +369,7 @@ private:
     /** @brief Emits a name for this class / object */
     std::string name_() const override;
     /** @brief Creates a deep clone of this object */
-    GObject *clone_() const override;
+    oa::GBasePluggableOM *clone_() const override;
 
     /** @brief Aggregates the work of all registered pluggable monitors */
     void
@@ -730,7 +730,7 @@ protected:
 	  *
 	  * cp A pointer to another GProgressPlotterTT<fp_type> object, camouflaged as a GObject
 	  */
-    void load_(const GObject *cp) override {
+    void load_(const oa::GBasePluggableOM *cp) override {
         // Check that we are dealing with a GProgressPlotterT<fp_type> reference independent of this object and convert the pointer
         const GProgressPlotterT<fp_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
@@ -763,7 +763,7 @@ protected:
      * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
     void compare_(
-        const GObject &cp,
+        const oa::GBasePluggableOM &cp,
         const Gem::Common::expectation &e,
         const double & /*limit*/
     ) const override {
@@ -863,7 +863,7 @@ private:
     /**
 	  * Creates a deep clone of this object
 	  */
-    GObject *clone_() const override {
+    oa::GBasePluggableOM *clone_() const override {
         return new GProgressPlotterT<fp_type>(*this);
     }
 
@@ -1310,7 +1310,7 @@ protected:
     /************************************************************************/
 
     /** @brief Loads the data of another object */
-    void load_(const GObject *cp) override;
+    void load_(const oa::GBasePluggableOM *cp) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GAllSolutionFileLogger>(
@@ -1321,7 +1321,7 @@ protected:
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
     void compare_(
-        const GObject &cp,
+        const oa::GBasePluggableOM &cp,
         const Gem::Common::expectation &e,
         const double &limit
     ) const override;
@@ -1338,7 +1338,7 @@ private:
     /** @brief Emits a name for this class / object */
     std::string name_() const override;
     /** @brief Creates a deep clone of this object */
-    GObject *clone_() const override;
+    oa::GBasePluggableOM *clone_() const override;
 
     /** @brief Allows to emit information in different stages of the information cycle */
     void
@@ -1444,7 +1444,7 @@ public:
 protected:
     /************************************************************************/
     /** @brief Loads the data of another object */
-    void load_(const GObject *cp) override;
+    void load_(const oa::GBasePluggableOM *cp) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GIterationResultsFileLogger>(
@@ -1455,7 +1455,7 @@ protected:
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
     void compare_(
-        const GObject &cp,
+        const oa::GBasePluggableOM &cp,
         const Gem::Common::expectation &e,
         const double &limit
     ) const override;
@@ -1472,7 +1472,7 @@ private:
     /** @brief Emits a name for this class / object */
     std::string name_() const override;
     /** @brief Creates a deep clone of this object */
-    GObject *clone_() const override;
+    oa::GBasePluggableOM *clone_() const override;
 
     /** @brief Allows to emit information in different stages of the information cycle */
     void
@@ -1590,7 +1590,7 @@ protected:
     /************************************************************************/
 
     /** @brief Loads the data of another object */
-    void load_(const GObject *cp) override;
+    void load_(const oa::GBasePluggableOM *cp) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GNAdpationsLogger>(
@@ -1601,7 +1601,7 @@ protected:
 
     /** @brief Searches for compliance with expectations with respect to another object */
     void compare_(
-        const GObject &cp,
+        const oa::GBasePluggableOM &cp,
         const Gem::Common::expectation &e,
         const double &limit
     ) const override;
@@ -1616,7 +1616,7 @@ protected:
 private:
     /***************************************************************************/
     /** @brief Creates a deep clone of this object */
-    GObject *clone_() const override;
+    oa::GBasePluggableOM *clone_() const override;
 
     /** @brief Allows to emit information in different stages of the information cycle */
     void
@@ -1886,10 +1886,10 @@ protected:
 	  *
 	  * cp A pointer to another GAdaptorPropertyLoggerTT<num_type object, camouflaged as a GObject
 	  */
-    void load_(const GObject *cp) override {
+    void load_(const oa::GBasePluggableOM *cp) override {
         // Check that we are dealing with a GAdaptorPropertyLoggerT<num_type> reference independent of this object and convert the pointer
         const GAdaptorPropertyLoggerT<num_type> *p_load =
-            Gem::Common::g_convert_and_compare<GObject, GAdaptorPropertyLoggerT<num_type>>(
+            Gem::Common::g_convert_and_compare<oa::GBasePluggableOM, GAdaptorPropertyLoggerT<num_type>>(
                 cp,
                 this
             );
@@ -1918,7 +1918,7 @@ protected:
      * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
     void compare_(
-        const GObject &cp,
+        const oa::GBasePluggableOM &cp,
         const Gem::Common::expectation &e,
         const double & /*limit*/
     ) const override {
@@ -1926,7 +1926,7 @@ protected:
 
         // Check that we are dealing with a GAdaptorPropertyLoggerT<num_type> reference independent of this object and convert the pointer
         const GAdaptorPropertyLoggerT<num_type> *p_load =
-            Gem::Common::g_convert_and_compare<GObject, GAdaptorPropertyLoggerT<num_type>>(
+            Gem::Common::g_convert_and_compare<oa::GBasePluggableOM, GAdaptorPropertyLoggerT<num_type>>(
                 cp,
                 this
             );
@@ -2020,7 +2020,7 @@ private:
     /**
 	  * Creates a deep clone of this object
 	  */
-    GObject *clone_() const override {
+    oa::GBasePluggableOM *clone_() const override {
         return new GAdaptorPropertyLoggerT<num_type>(*this);
     }
 
@@ -2352,7 +2352,7 @@ protected:
     /************************************************************************/
 
     /** @brief Loads the data of another object */
-    void load_(const GObject *cp) override;
+    void load_(const oa::GBasePluggableOM *cp) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GProcessingTimesLogger>(
@@ -2363,7 +2363,7 @@ protected:
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
     void compare_(
-        const GObject &cp,
+        const oa::GBasePluggableOM &cp,
         const Gem::Common::expectation &e,
         const double &limit
     ) const override;
@@ -2380,7 +2380,7 @@ private:
     /** @brief Emits a name for this class / object */
     std::string name_() const override;
     /** @brief Creates a deep clone of this object */
-    GObject *clone_() const override;
+    oa::GBasePluggableOM *clone_() const override;
 
     /** @brief Allows to emit information in different stages of the information cycle */
     void

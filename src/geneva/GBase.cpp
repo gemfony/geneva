@@ -51,7 +51,7 @@ namespace Gem::Geneva::OptimizationAlgorithms {
 	 * @param limit The maximum deviation for floating point values (important for similarity checks)
 	 */
 void GBasePluggableOM::compare_(
-    const GObject &cp,
+    const GBasePluggableOM &cp,
     const Gem::Common::expectation &e,
     const double & /*limit*/
 ) const {
@@ -59,12 +59,12 @@ void GBasePluggableOM::compare_(
 
     // Check that we are dealing with a GBasePluggableOM reference independent of this object and convert the pointer
     const GBasePluggableOM *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GBasePluggableOM>(cp, this);
+        Gem::Common::g_convert_and_compare<GBasePluggableOM, GBasePluggableOM>(cp, this);
 
     GToken token("GBasePluggableOM", e);
 
     // Compare our parent data ...
-    Gem::Common::compare_base_t<GObject>(*this, *p_load, token);
+    Gem::Common::compare_base_t<Gem::Common::GCommonInterfaceT<GBasePluggableOM>>(*this, *p_load, token);
 
     // ... and then our local data, derived from the single localMembers() declaration
     g_compare_members(localMembers(), p_load->localMembers(), token);
@@ -105,17 +105,16 @@ void GBasePluggableOM::informationFunction(
 /**
  * Loads the data of another object
  *
- * cp A pointer to another GBasePluggableOMT object, camouflaged as a GObject
+ * cp A pointer to another GBasePluggableOM object, camouflaged as a GBasePluggableOM
  */
-void GBasePluggableOM::load_(const GObject *cp) {
+void GBasePluggableOM::load_(const GBasePluggableOM *cp) {
     // Check that we are dealing with a GBasePluggableOM reference independent of this object and convert the pointer
     const GBasePluggableOM *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GBasePluggableOM>(cp, this);
+        Gem::Common::g_convert_and_compare<GBasePluggableOM, GBasePluggableOM>(cp, this);
 
-    // Load the parent classes' data ...
-    GObject::load_(cp);
+    // This is the category root; there is no GObject parent class to load.
 
-    // ... and then our local data, derived from the single localMembers() declaration
+    // Our own data, derived from the single localMembers() declaration
     Gem::Common::g_load_members(localMembers(), p_load->localMembers());
 }
 
@@ -127,10 +126,7 @@ bool GBasePluggableOM::modify_GUnitTests_() {
 #ifdef GEM_TESTING
     bool result = false;
 
-    // Call the parent class'es function
-    if(GObject::modify_GUnitTests_()) {
-        result = true;
-    }
+    // This is the category root; there is no modifiable parent class.
 
     this->setUseRawEvaluation(!this->getUseRawEvaluation());
     result = true;
@@ -149,8 +145,7 @@ bool GBasePluggableOM::modify_GUnitTests_() {
  */
 void GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
-    // Call the parent class'es function
-    GObject::specificTestsNoFailureExpected_GUnitTests_();
+    // This is the category root; there is no parent class to test.
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
     Gem::Common::condnotset(
@@ -166,8 +161,7 @@ void GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests_() {
  */
 void GBasePluggableOM::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
-    // Call the parent class'es function
-    GObject::specificTestsFailuresExpected_GUnitTests_();
+    // This is the category root; there is no parent class to test.
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
     Gem::Common::condnotset(

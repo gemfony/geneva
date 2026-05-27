@@ -97,7 +97,7 @@ std::string GStandardMonitor::name_() const {
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GStandardMonitor::compare_(
-    const GObject &cp,
+    const oa::GBasePluggableOM &cp,
     const Gem::Common::expectation &e,
     const double & /*limit*/
 ) const {
@@ -123,7 +123,7 @@ void GStandardMonitor::compare_(
  *
  * cp A pointer to another GStandardMonitorT object, camouflaged as a GObject
  */
-void GStandardMonitor::load_(const GObject *cp) {
+void GStandardMonitor::load_(const oa::GBasePluggableOM *cp) {
     // Check that we are dealing with a GStandardMonitor reference independent of this object and convert the pointer
     const GStandardMonitor *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
@@ -137,7 +137,7 @@ void GStandardMonitor::load_(const GObject *cp) {
 /**
  * Creates a deep clone of this object
  */
-GObject *GStandardMonitor::clone_() const {
+oa::GBasePluggableOM *GStandardMonitor::clone_() const {
     return new GStandardMonitor(*this);
 }
 
@@ -475,7 +475,7 @@ std::string GFitnessMonitor::name_() const {
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GFitnessMonitor::compare_(
-    const GObject &cp,
+    const oa::GBasePluggableOM &cp,
     const Gem::Common::expectation &e,
     const double & /*limit*/
 ) const {
@@ -502,7 +502,7 @@ void GFitnessMonitor::compare_(
  *
  * cp A pointer to another GFitnessMonitorT object, camouflaged as a GObject
  */
-void GFitnessMonitor::load_(const GObject *cp) {
+void GFitnessMonitor::load_(const oa::GBasePluggableOM *cp) {
     // Check that we are dealing with a GFitnessMonitor reference independent of this object and convert the pointer
     const GFitnessMonitor *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
@@ -517,7 +517,7 @@ void GFitnessMonitor::load_(const GObject *cp) {
 /**
  * Creates a deep clone of this object
  */
-GObject *GFitnessMonitor::clone_() const {
+oa::GBasePluggableOM *GFitnessMonitor::clone_() const {
     return new GFitnessMonitor(*this);
 }
 /******************************************************************************/
@@ -659,7 +659,7 @@ std::string GCollectiveMonitor::name_() const {
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GCollectiveMonitor::compare_(
-    const GObject &cp,
+    const oa::GBasePluggableOM &cp,
     const Gem::Common::expectation &e,
     const double & /*limit*/
 ) const {
@@ -686,7 +686,7 @@ void GCollectiveMonitor::compare_(
  *
  * cp A pointer to another GCollectiveMonitorT object, camouflaged as a GObject
  */
-void GCollectiveMonitor::load_(const GObject *cp) {
+void GCollectiveMonitor::load_(const oa::GBasePluggableOM *cp) {
     // Check that we are dealing with a GCollectiveMonitor reference independent of this object and convert the pointer
     const GCollectiveMonitor *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
@@ -701,7 +701,7 @@ void GCollectiveMonitor::load_(const GObject *cp) {
 /**
  * Creates a deep clone of this object
  */
-GObject *GCollectiveMonitor::clone_() const {
+oa::GBasePluggableOM *GCollectiveMonitor::clone_() const {
     return new GCollectiveMonitor(*this);
 }
 
@@ -809,7 +809,7 @@ std::string GAllSolutionFileLogger::name_() const {
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GAllSolutionFileLogger::compare_(
-    const GObject &cp,
+    const oa::GBasePluggableOM &cp,
     const Gem::Common::expectation &e,
     const double & /*limit*/
 ) const {
@@ -817,7 +817,7 @@ void GAllSolutionFileLogger::compare_(
 
     // Check that we are dealing with a GAllSolutionFileLogger reference independent of this object and convert the pointer
     const GAllSolutionFileLogger *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GAllSolutionFileLogger>(cp, this);
+        Gem::Common::g_convert_and_compare<oa::GBasePluggableOM, GAllSolutionFileLogger>(cp, this);
 
     GToken token("GAllSolutionFileLogger", e);
 
@@ -1032,7 +1032,7 @@ void GAllSolutionFileLogger::informationFunction_(
  *
  * cp A pointer to another GAllSolutionFileLoggerT object, camouflaged as a GObject
  */
-void GAllSolutionFileLogger::load_(const GObject *cp) {
+void GAllSolutionFileLogger::load_(const oa::GBasePluggableOM *cp) {
     // Check that we are dealing with a GAllSolutionFileLogger reference independent of this object and convert the pointer
     const GAllSolutionFileLogger *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
@@ -1047,7 +1047,7 @@ void GAllSolutionFileLogger::load_(const GObject *cp) {
 /**
  * Creates a deep clone of this object
  */
-GObject *GAllSolutionFileLogger::clone_() const {
+oa::GBasePluggableOM *GAllSolutionFileLogger::clone_() const {
     return new GAllSolutionFileLogger(*this);
 }
 
@@ -1188,7 +1188,7 @@ std::string GIterationResultsFileLogger::name_() const {
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GIterationResultsFileLogger::compare_(
-    const GObject &cp,
+    const oa::GBasePluggableOM &cp,
     const Gem::Common::expectation &e,
     const double & /*limit*/
 ) const {
@@ -1325,7 +1325,7 @@ void GIterationResultsFileLogger::informationFunction_(
  *
  * cp A pointer to another GIterationResultsFileLoggerT object, camouflaged as a GObject
  */
-void GIterationResultsFileLogger::load_(const GObject *cp) {
+void GIterationResultsFileLogger::load_(const oa::GBasePluggableOM *cp) {
     // Check that we are dealing with a GIterationResultsFileLogger
     // reference independent of this object and convert the pointer
     const GIterationResultsFileLogger *p_load = Gem::Common::g_convert_and_compare(cp, this);
@@ -1341,7 +1341,7 @@ void GIterationResultsFileLogger::load_(const GObject *cp) {
 /**
  * Creates a deep clone of this object
  */
-GObject *GIterationResultsFileLogger::clone_() const {
+oa::GBasePluggableOM *GIterationResultsFileLogger::clone_() const {
     return new GIterationResultsFileLogger(*this);
 }
 
@@ -1448,7 +1448,7 @@ GNAdpationsLogger::GNAdpationsLogger(const GNAdpationsLogger &cp)
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GNAdpationsLogger::compare_(
-    const GObject &cp,
+    const oa::GBasePluggableOM &cp,
     const Gem::Common::expectation &e,
     const double & /*limit*/
 ) const {
@@ -1456,7 +1456,7 @@ void GNAdpationsLogger::compare_(
 
     // Check that we are dealing with a GNAdpationsLogger reference independent of this object and convert the pointer
     const GNAdpationsLogger *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GNAdpationsLogger>(cp, this);
+        Gem::Common::g_convert_and_compare<oa::GBasePluggableOM, GNAdpationsLogger>(cp, this);
 
     GToken token("GNAdpationsLogger", e);
 
@@ -1684,10 +1684,10 @@ void GNAdpationsLogger::informationFunction_(
  *
  * cp A pointer to another GNAdpationsLoggerT object, camouflaged as a GObject
  */
-void GNAdpationsLogger::load_(const GObject *cp) {
+void GNAdpationsLogger::load_(const oa::GBasePluggableOM *cp) {
     // Check that we are dealing with a GNAdpationsLogger reference independent of this object and convert the pointer
     const GNAdpationsLogger *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GNAdpationsLogger>(cp, this);
+        Gem::Common::g_convert_and_compare<oa::GBasePluggableOM, GNAdpationsLogger>(cp, this);
 
     // Load the parent classes' data ...
     oa::GBasePluggableOM::load_(cp);
@@ -1700,7 +1700,7 @@ void GNAdpationsLogger::load_(const GObject *cp) {
 /**
  * Creates a deep clone of this object
  */
-GObject *GNAdpationsLogger::clone_() const {
+oa::GBasePluggableOM *GNAdpationsLogger::clone_() const {
     return new GNAdpationsLogger(*this);
 }
 
@@ -1814,7 +1814,7 @@ std::string GProcessingTimesLogger::name_() const {
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GProcessingTimesLogger::compare_(
-    const GObject &cp,
+    const oa::GBasePluggableOM &cp,
     const Gem::Common::expectation &e,
     const double & /*limit*/
 ) const {
@@ -1822,7 +1822,7 @@ void GProcessingTimesLogger::compare_(
 
     // Check that we are dealing with a GProcessingTimesLogger reference independent of this object and convert the pointer
     const GProcessingTimesLogger *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GProcessingTimesLogger>(cp, this);
+        Gem::Common::g_convert_and_compare<oa::GBasePluggableOM, GProcessingTimesLogger>(cp, this);
 
     GToken token("GProcessingTimesLogger", e);
 
@@ -2213,7 +2213,7 @@ void GProcessingTimesLogger::informationFunction_(
  *
  * cp A pointer to another GProcessingTimesLoggerT object, camouflaged as a GObject
  */
-void GProcessingTimesLogger::load_(const GObject *cp) {
+void GProcessingTimesLogger::load_(const oa::GBasePluggableOM *cp) {
     // Check that we are dealing with a GProcessingTimesLogger reference independent of this object and convert the pointer
     const GProcessingTimesLogger *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
@@ -2230,7 +2230,7 @@ void GProcessingTimesLogger::load_(const GObject *cp) {
 /**
  * Creates a deep clone of this object
  */
-GObject *GProcessingTimesLogger::clone_() const {
+oa::GBasePluggableOM *GProcessingTimesLogger::clone_() const {
     return new GProcessingTimesLogger(*this);
 }
 
