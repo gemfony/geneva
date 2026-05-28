@@ -92,9 +92,9 @@ GConstrainedDoubleObject &GConstrainedDoubleObject::operator=(const double &val)
 /**
  * Creates a deep clone of this object.
  *
- * @return A copy of this object, camouflaged as a GObject
+ * @return A copy of this object, camouflaged as a GParameterBase
  */
-GObject *GConstrainedDoubleObject::clone_() const {
+GParameterBase *GConstrainedDoubleObject::clone_() const {
     return new GConstrainedDoubleObject(*this);
 }
 
@@ -103,12 +103,12 @@ GObject *GConstrainedDoubleObject::clone_() const {
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *
- * @param cp A constant reference to another GObject object
+ * @param cp A constant reference to another GParameterBase object
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GConstrainedDoubleObject::compare_(
-    const GObject &cp,
+    const GParameterBase &cp,
     const Gem::Common::expectation &e,
     const double & /*limit*/
 ) const {
@@ -116,7 +116,7 @@ void GConstrainedDoubleObject::compare_(
 
     // Check that we are dealing with a GConstrainedDoubleObject reference independent of this object and convert the pointer
     const GConstrainedDoubleObject *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GConstrainedDoubleObject>(cp, this);
+        Gem::Common::g_convert_and_compare<GParameterBase, GConstrainedDoubleObject>(cp, this);
 
     GToken token("GConstrainedDoubleObject", e);
 
@@ -316,14 +316,14 @@ void GConstrainedDoubleObject::doubleSubtract(
 
 /******************************************************************************/
 /**
- * Loads the data of another GObject
+ * Loads the data of another GParameterBase
  *
- * @param cp A copy of another GConstrainedDoubleObject object, camouflaged as a GObject
+ * @param cp A copy of another GConstrainedDoubleObject object, camouflaged as a GParameterBase
  */
-void GConstrainedDoubleObject::load_(const GObject *cp) {
+void GConstrainedDoubleObject::load_(const GParameterBase *cp) {
     // Convert the pointer to our target type and check for self-assignment
     const GConstrainedDoubleObject *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GConstrainedDoubleObject>(cp, this);
+        Gem::Common::g_convert_and_compare<GParameterBase, GConstrainedDoubleObject>(cp, this);
 
     // Load our parent class'es data ...
     GConstrainedFPT<double>::load_(cp);
@@ -397,7 +397,7 @@ void GConstrainedDoubleObject::specificTestsNoFailureExpected_GUnitTests_() {
 
     { // Check that assignment of a value with operator= works both for set and unset boundaries
         std::shared_ptr<GConstrainedDoubleObject> p_test =
-            this->GObject::clone<GConstrainedDoubleObject>();
+            this->clone<GConstrainedDoubleObject>();
 
         // Reset the boundaries so we are free to do what we want
         CHECK_NOTHROW(p_test->resetBoundaries());

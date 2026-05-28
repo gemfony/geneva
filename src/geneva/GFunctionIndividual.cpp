@@ -53,12 +53,12 @@ GDoubleSumConstraint::GDoubleSumConstraint(const double &c)
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *
- * @param cp A constant reference to another GObject object
+ * @param cp A constant reference to another GPreEvaluationValidityCheckT object
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GDoubleSumConstraint::compare_(
-    const GObject &cp,
+    const GPreEvaluationValidityCheckT<gpar::GParameterSet> &cp,
     const Gem::Common::expectation &e,
     [[maybe_unused]] const double & limit
 ) const {
@@ -66,7 +66,9 @@ void GDoubleSumConstraint::compare_(
 
     // Check that we are dealing with a GDoubleSumConstraint reference independent of this object and convert the pointer
     const GDoubleSumConstraint *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GDoubleSumConstraint>(cp, this);
+        Gem::Common::g_convert_and_compare<
+            GPreEvaluationValidityCheckT<gpar::GParameterSet>,
+            GDoubleSumConstraint>(cp, this);
 
     Gem::Common::GToken token("GDoubleSumConstraint", e);
 
@@ -114,10 +116,12 @@ double GDoubleSumConstraint::check_(const gpar::GParameterSet *p) const {
 /**
  * Loads the data of another GDoubleSumConstraint
  */
-void GDoubleSumConstraint::load_(const GObject *cp) {
+void GDoubleSumConstraint::load_(const GPreEvaluationValidityCheckT<gpar::GParameterSet> *cp) {
     // Check that we are dealing with a GDoubleSumConstraint reference independent of this object and convert the pointer
     const GDoubleSumConstraint *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GDoubleSumConstraint>(cp, this);
+        Gem::Common::g_convert_and_compare<
+            GPreEvaluationValidityCheckT<gpar::GParameterSet>,
+            GDoubleSumConstraint>(cp, this);
 
     // Load our parent class'es data ...
     gpar::GParameterSetConstraint::load_(cp);
@@ -130,7 +134,7 @@ void GDoubleSumConstraint::load_(const GObject *cp) {
 /**
  * Creates a deep clone of this object
  */
-GObject *GDoubleSumConstraint::clone_() const {
+GPreEvaluationValidityCheckT<gpar::GParameterSet> *GDoubleSumConstraint::clone_() const {
     return new GDoubleSumConstraint(*this);
 }
 
@@ -150,12 +154,12 @@ GDoubleSumGapConstraint::GDoubleSumGapConstraint(const double &c, const double &
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *
- * @param cp A constant reference to another GObject object
+ * @param cp A constant reference to another GPreEvaluationValidityCheckT object
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GDoubleSumGapConstraint::compare_(
-    const GObject &cp,
+    const GPreEvaluationValidityCheckT<gpar::GParameterSet> &cp,
     const Gem::Common::expectation &e,
     const double & /*limit*/
 ) const {
@@ -163,7 +167,9 @@ void GDoubleSumGapConstraint::compare_(
 
     // Check that we are dealing with a GDoubleSumGapConstraint reference independent of this object and convert the pointer
     const GDoubleSumGapConstraint *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GDoubleSumGapConstraint>(cp, this);
+        Gem::Common::g_convert_and_compare<
+            GPreEvaluationValidityCheckT<gpar::GParameterSet>,
+            GDoubleSumGapConstraint>(cp, this);
 
     Gem::Common::GToken token("GDoubleSumGapConstraint", e);
 
@@ -212,10 +218,12 @@ double GDoubleSumGapConstraint::check_(const gpar::GParameterSet *p) const {
 /**
  * Loads the data of another GDoubleSumGapConstraint
  */
-void GDoubleSumGapConstraint::load_(const GObject *cp) {
+void GDoubleSumGapConstraint::load_(const GPreEvaluationValidityCheckT<gpar::GParameterSet> *cp) {
     // Check that we are dealing with a GDoubleSumGapConstraint reference independent of this object and convert the pointer
     const GDoubleSumGapConstraint *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GDoubleSumGapConstraint>(cp, this);
+        Gem::Common::g_convert_and_compare<
+            GPreEvaluationValidityCheckT<gpar::GParameterSet>,
+            GDoubleSumGapConstraint>(cp, this);
 
     // Load our parent class'es data ...
     gpar::GParameterSetConstraint::load_(cp);
@@ -228,7 +236,7 @@ void GDoubleSumGapConstraint::load_(const GObject *cp) {
 /**
  * Creates a deep clone of this object
  */
-GObject *GDoubleSumGapConstraint::clone_() const {
+GPreEvaluationValidityCheckT<gpar::GParameterSet> *GDoubleSumGapConstraint::clone_() const {
     return new GDoubleSumGapConstraint(*this);
 }
 
@@ -247,18 +255,20 @@ GSphereConstraint::GSphereConstraint(const double &diameter)
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *
- * @param cp A constant reference to another GObject object
+ * @param cp A constant reference to another GPreEvaluationValidityCheckT object
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GSphereConstraint::compare_(
-    const GObject &cp,
+    const GPreEvaluationValidityCheckT<gpar::GParameterSet> &cp,
     const Gem::Common::expectation &e,
     [[maybe_unused]] const double & limit
 ) const {
     // Check that we are dealing with a GSphereConstraint reference independent of this object and convert the pointer
     const GSphereConstraint *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GSphereConstraint>(cp, this);
+        Gem::Common::g_convert_and_compare<
+            GPreEvaluationValidityCheckT<gpar::GParameterSet>,
+            GSphereConstraint>(cp, this);
 
     Gem::Common::GToken token("GSphereConstraint", e);
 
@@ -307,10 +317,12 @@ double GSphereConstraint::check_(const gpar::GParameterSet *p) const {
 /**
  * Loads the data of another GSphereConstraint
  */
-void GSphereConstraint::load_(const GObject *cp) {
+void GSphereConstraint::load_(const GPreEvaluationValidityCheckT<gpar::GParameterSet> *cp) {
     // Check that we are dealing with a GSphereConstraint reference independent of this object and convert the pointer
     const GSphereConstraint *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GSphereConstraint>(cp, this);
+        Gem::Common::g_convert_and_compare<
+            GPreEvaluationValidityCheckT<gpar::GParameterSet>,
+            GSphereConstraint>(cp, this);
 
     // Load our parent class'es data ...
     gpar::GParameterSetConstraint::load_(cp);
@@ -323,7 +335,7 @@ void GSphereConstraint::load_(const GObject *cp) {
 /**
  * Creates a deep clone of this object
  */
-GObject *GSphereConstraint::clone_() const {
+GPreEvaluationValidityCheckT<gpar::GParameterSet> *GSphereConstraint::clone_() const {
     return new GSphereConstraint(*this);
 }
 
@@ -459,18 +471,18 @@ void GFunctionIndividual::setFitness(std::vector<double> const &result_vec) {
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *
- * @param cp A constant reference to another GObject object
+ * @param cp A constant reference to another GPreEvaluationValidityCheckT object
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GFunctionIndividual::compare_(
-    const GObject &cp,
+    const gpar::GParameterSet &cp,
     const Gem::Common::expectation &e,
     [[maybe_unused]] const double & limit
 ) const {
     // Check that we are dealing with a GFunctionIndividual reference independent of this object and convert the pointer
     const GFunctionIndividual *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GFunctionIndividual>(cp, this);
+        Gem::Common::g_convert_and_compare<gpar::GParameterSet, GFunctionIndividual>(cp, this);
 
     Gem::Common::GToken token("GFunctionIndividual", e);
 
@@ -570,14 +582,14 @@ std::size_t GFunctionIndividual::getParameterSize() const {
 
 /******************************************************************************/
 /**
- * Loads the data of another GFunctionIndividual, camouflaged as a GObject
+ * Loads the data of another GFunctionIndividual, camouflaged as a GParameterSet
  *
- * @param cp A copy of another GFunctionIndividual, camouflaged as a GObject
+ * @param cp A copy of another GFunctionIndividual, camouflaged as a GParameterSet
  */
-void GFunctionIndividual::load_(const GObject *cp) {
+void GFunctionIndividual::load_(const gpar::GParameterSet *cp) {
     // Check that we are dealing with a GFunctionIndividual reference independent of this object and convert the pointer
     const GFunctionIndividual *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GFunctionIndividual>(cp, this);
+        Gem::Common::g_convert_and_compare<gpar::GParameterSet, GFunctionIndividual>(cp, this);
 
     // Load our parent class'es data ...
     gpar::GParameterSet::load_(cp);
@@ -590,9 +602,9 @@ void GFunctionIndividual::load_(const GObject *cp) {
 /**
  * Creates a deep clone of this object
  *
- * @return A deep clone of this object, camouflaged as a GObject
+ * @return A deep clone of this object, camouflaged as a GParameterSet
  */
-GObject *GFunctionIndividual::clone_() const {
+gpar::GParameterSet *GFunctionIndividual::clone_() const {
     return new GFunctionIndividual(*this);
 }
 

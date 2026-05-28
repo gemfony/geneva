@@ -51,9 +51,9 @@ GConstrainedDoubleObjectCollection::GConstrainedDoubleObjectCollection(
 /**
  * Creates a deep clone of this object.
  *
- * @return A copy of this object, camouflaged as a GObject
+ * @return A copy of this object, camouflaged as a GParameterBase
  */
-GObject *GConstrainedDoubleObjectCollection::clone_() const {
+GParameterBase *GConstrainedDoubleObjectCollection::clone_() const {
     return new GConstrainedDoubleObjectCollection(*this);
 }
 
@@ -62,12 +62,12 @@ GObject *GConstrainedDoubleObjectCollection::clone_() const {
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *
- * @param cp A constant reference to another GObject object
+ * @param cp A constant reference to another GParameterBase object
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GConstrainedDoubleObjectCollection::compare_(
-    const GObject &cp,
+    const GParameterBase &cp,
     const Gem::Common::expectation &e,
     const double & /*limit*/
 ) const {
@@ -75,7 +75,7 @@ void GConstrainedDoubleObjectCollection::compare_(
 
     // Check that we are dealing with a GConstrainedDoubleObjectCollection reference independent of this object and convert the pointer
     const GConstrainedDoubleObjectCollection *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GConstrainedDoubleObjectCollection>(cp, this);
+        Gem::Common::g_convert_and_compare<GParameterBase, GConstrainedDoubleObjectCollection>(cp, this);
 
     GToken token("GConstrainedDoubleObjectCollection", e);
 
@@ -102,14 +102,14 @@ std::string GConstrainedDoubleObjectCollection::name_() const {
 
 /******************************************************************************/
 /**
- * Loads the data of another GObject
+ * Loads the data of another GParameterBase
  *
- * @param cp A copy of another GConstrainedDoubleObjectCollection object, camouflaged as a GObject
+ * @param cp A copy of another GConstrainedDoubleObjectCollection object, camouflaged as a GParameterBase
  */
-void GConstrainedDoubleObjectCollection::load_(const GObject *cp) {
+void GConstrainedDoubleObjectCollection::load_(const GParameterBase *cp) {
     // Convert the pointer to our target type and check for self-assignment
     const GConstrainedDoubleObjectCollection *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GConstrainedDoubleObjectCollection>(cp, this);
+        Gem::Common::g_convert_and_compare<GParameterBase, GConstrainedDoubleObjectCollection>(cp, this);
 
     // Load our parent class'es data ...
     GParameterTCollectionT<GConstrainedDoubleObject>::load_(cp);

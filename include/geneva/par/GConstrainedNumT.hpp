@@ -44,7 +44,6 @@
 #include "common/GExceptions.hpp"
 #include "common/GTypeToStringT.hpp"
 #include "geneva/par/GConstrainedValueLimitT.hpp"
-#include "geneva/GObject.hpp"
 #include "geneva/par/GParameterT.hpp"
 
 #ifdef GEM_TESTING
@@ -452,9 +451,9 @@ public:
 protected:
     /***************************************************************************/
     /**
-	  * Loads the data of another GConstrainedNumT<T>, camouflaged as a GObject.
+	  * Loads the data of another GConstrainedNumT<T>, camouflaged as a GParameterBase.
 	  *
-	  * @param cp Another GConstrainedNumT<T> object, camouflaged as a GObject
+	  * @param cp Another GConstrainedNumT<T> object, camouflaged as a GParameterBase
 	  */
     /***************************************************************************/
     /**
@@ -474,10 +473,10 @@ protected:
         );
     }
 
-    void load_(const GObject *cp) override {
+    void load_(const GParameterBase *cp) override {
         // Check that we are dealing with a GConstrainedNumT<T> reference independent of this object and convert the pointer
         const GConstrainedNumT<T> *p_load =
-            Gem::Common::g_convert_and_compare<GObject, GConstrainedNumT<T>>(cp, this);
+            Gem::Common::g_convert_and_compare<GParameterBase, GConstrainedNumT<T>>(cp, this);
 
         // Load our parent class'es data ...
         GParameterT<T>::load_(cp);
@@ -499,12 +498,12 @@ protected:
      * Searches for compliance with expectations with respect to another object
      * of the same type
      *
-     * @param cp A constant reference to another GObject object
+     * @param cp A constant reference to another GParameterBase object
      * @param e The expected outcome of the comparison
      * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
     void compare_(
-        const GObject &cp,
+        const GParameterBase &cp,
         const Gem::Common::expectation &e,
         const double & /*limit*/
     ) const override {
@@ -512,7 +511,7 @@ protected:
 
         // Check that we are dealing with a GConstrainedNumT<T> reference independent of this object and convert the pointer
         const GConstrainedNumT<T> *p_load =
-            Gem::Common::g_convert_and_compare<GObject, GConstrainedNumT<T>>(cp, this);
+            Gem::Common::g_convert_and_compare<GParameterBase, GConstrainedNumT<T>>(cp, this);
 
         GToken token("GConstrainedNumT<T>", e);
 
@@ -848,7 +847,7 @@ private:
     /***************************************************************************/
 
     /** @brief Creates a deep clone of this object. */
-    GObject *clone_() const override = 0;
+    GParameterBase *clone_() const override = 0;
 
     /***************************************************************************/
 

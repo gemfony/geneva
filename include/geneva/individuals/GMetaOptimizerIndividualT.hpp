@@ -862,14 +862,14 @@ protected:
 
     /***************************************************************************/
     /**
-     * Loads the data of another GMetaOptimizerIndividualT<ind_type>, camouflaged as a GObject
+     * Loads the data of another GMetaOptimizerIndividualT<ind_type>
      *
-     * @param cp A copy of another GMetaOptimizerIndividualT<ind_type>, camouflaged as a GObject
+     * @param cp A copy of another GMetaOptimizerIndividualT<ind_type>
      */
-    void load_(const GObject *cp) override {
+    void load_(const gpar::GParameterSet *cp) override {
         // Check that we are dealing with a GMetaOptimizerIndividualT<ind_type> reference independent of this object and convert the pointer
         const GMetaOptimizerIndividualT<ind_type> *p_load =
-            Gem::Common::g_convert_and_compare<GObject, GMetaOptimizerIndividualT<ind_type>>(
+            Gem::Common::g_convert_and_compare<gpar::GParameterSet, GMetaOptimizerIndividualT<ind_type>>(
                 cp,
                 this
             );
@@ -896,18 +896,18 @@ protected:
      * Searches for compliance with expectations with respect to another object
      * of the same type
      *
-     * @param cp A constant reference to another GObject object
+     * @param cp A constant reference to another GParameterSet object
      * @param e The expected outcome of the comparison
      * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
     void compare_(
-        const GObject &cp,
+        const gpar::GParameterSet &cp,
         const Gem::Common::expectation &e,
         const double & /*limit*/
     ) const final {
         // Check that we are dealing with a GMetaOptimizerIndividualT<ind_type> reference independent of this object and convert the pointer
         const GMetaOptimizerIndividualT<ind_type> *p_load =
-            Gem::Common::g_convert_and_compare<GObject, GMetaOptimizerIndividualT<ind_type>>(
+            Gem::Common::g_convert_and_compare<gpar::GParameterSet, GMetaOptimizerIndividualT<ind_type>>(
                 cp,
                 this
             );
@@ -1229,9 +1229,9 @@ private:
     /**
      * Creates a deep clone of this object
      *
-     * @return A deep clone of this object, camouflaged as a GObject
+     * @return A deep clone of this object, camouflaged as a GParameterSet
      */
-    GObject *clone_() const final {
+    gpar::GParameterSet *clone_() const final {
         return new GMetaOptimizerIndividualT<ind_type>(*this);
     }
 
@@ -1880,7 +1880,7 @@ protected:
     /**
        * Loads the data of another object
        *
-       * @param cp A copy of another GOptOptMonitorT object, camouflaged as a GObject
+       * @param cp A copy of another GOptOptMonitorT object, camouflaged as a GBasePluggableOM
        */
     void load_(const oa::GBasePluggableOM *cp) override {
         // Check that we are dealing with a GOptOptMonitorT<ind_type> reference independent of this object and convert the pointer
@@ -1917,7 +1917,7 @@ protected:
      * Searches for compliance with expectations with respect to another object
      * of the same type
      *
-     * @param cp A constant reference to another GObject object
+     * @param cp A constant reference to another GBasePluggableOM object
      * @param e The expected outcome of the comparison
      * @param limit The maximum deviation for floating point values (important for similarity checks)
      */

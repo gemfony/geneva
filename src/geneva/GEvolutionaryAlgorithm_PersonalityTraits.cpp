@@ -42,7 +42,7 @@ const std::string GEvolutionaryAlgorithm_PersonalityTraits::nickname = "ea"; // 
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *
- * @param cp A constant reference to another GObject object
+ * @param cp A constant reference to another GPersonalityTraits object
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
@@ -92,7 +92,7 @@ std::string GEvolutionaryAlgorithm_PersonalityTraits::getMnemonic() const {
 /**
  * Creates a deep clone of this object
  *
- * @return A clone of this object, camouflaged as a GObject
+ * @return A clone of this object, camouflaged as a GPersonalityTraits
  */
 GPersonalityTraits *GEvolutionaryAlgorithm_PersonalityTraits::clone_() const {
     return new GEvolutionaryAlgorithm_PersonalityTraits(*this);
@@ -102,7 +102,7 @@ GPersonalityTraits *GEvolutionaryAlgorithm_PersonalityTraits::clone_() const {
 /**
  * Loads the data of another GEAPersonalityTraits object
  *
- * @param cp A copy of another GEAPersonalityTraits object, camouflaged as a GObject
+ * @param cp A copy of another GEAPersonalityTraits object, camouflaged as a GPersonalityTraits
  */
 void GEvolutionaryAlgorithm_PersonalityTraits::load_(const GPersonalityTraits *cp) {
     // Check that we are dealing with a GEvolutionaryAlgorithm_PersonalityTraits reference independent of this object and convert the pointer

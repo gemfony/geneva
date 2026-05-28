@@ -105,14 +105,14 @@ void GMultiCriterionParabolaIndividual::setMinima(const std::vector<double> &min
 
 /******************************************************************************/
 /**
-     * Loads the data of another GMultiCriterionParabolaIndividual, camouflaged as a GObject.
+     * Loads the data of another GMultiCriterionParabolaIndividual, camouflaged as a GParameterSet.
      *
-     * @param cp A copy of another GMultiCriterionParabolaIndividual, camouflaged as a GObject
+     * @param cp A copy of another GMultiCriterionParabolaIndividual, camouflaged as a GParameterSet
      */
-void GMultiCriterionParabolaIndividual::load_(const GObject *cp) {
+void GMultiCriterionParabolaIndividual::load_(const gpar::GParameterSet *cp) {
     // Check that we are dealing with a GMultiCriterionParabolaIndividual reference independent of this object and convert the pointer
     const GMultiCriterionParabolaIndividual *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GMultiCriterionParabolaIndividual>(cp, this);
+        Gem::Common::g_convert_and_compare<gpar::GParameterSet, GMultiCriterionParabolaIndividual>(cp, this);
 
     // Load our parent's data ...
     gpar::GParameterSet::load_(cp);
@@ -138,9 +138,9 @@ void GMultiCriterionParabolaIndividual::load_(const GObject *cp) {
 /**
      * Creates a deep clone of this object
      *
-     * @return A deep clone of this object, camouflaged as a GObject
+     * @return A deep clone of this object, camouflaged as a GParameterSet
      */
-GObject *GMultiCriterionParabolaIndividual::clone_() const {
+gpar::GParameterSet *GMultiCriterionParabolaIndividual::clone_() const {
     return new GMultiCriterionParabolaIndividual(*this);
 }
 

@@ -111,7 +111,7 @@ trainingSet &trainingSet::operator=(const trainingSet &cp) {
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *
- * @param cp A constant reference to another GObject object
+ * @param cp A constant reference to another GParameterSet object
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
@@ -661,12 +661,12 @@ GNeuralNetworkIndividual::~GNeuralNetworkIndividual() { /* nothing */
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *
- * @param cp A constant reference to another GObject object
+ * @param cp A constant reference to another GParameterSet object
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GNeuralNetworkIndividual::compare_(
-    const GObject &cp,
+    const gpar::GParameterSet &cp,
     const Gem::Common::expectation &e,
     const double & /*limit*/
 ) const {
@@ -674,7 +674,7 @@ void GNeuralNetworkIndividual::compare_(
 
     // Check that we are dealing with a GNeuralNetworkIndividual reference independent of this object and convert the pointer
     const GNeuralNetworkIndividual *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GNeuralNetworkIndividual>(cp, this);
+        Gem::Common::g_convert_and_compare<gpar::GParameterSet, GNeuralNetworkIndividual>(cp, this);
 
     GToken token("GNeuralNetworkIndividual", e);
 
@@ -1378,14 +1378,14 @@ void GNeuralNetworkIndividual::writeTrainedNetwork(const std::string &header_fil
 
 /******************************************************************************/
 /**
- * Loads the data of another GNeuralNetworkIndividual, camouflaged as a GObject
+ * Loads the data of another GNeuralNetworkIndividual, camouflaged as a GParameterSet
  *
- * @param cp A copy of another GNeuralNetworkIndividual, camouflaged as a GObject
+ * @param cp A copy of another GNeuralNetworkIndividual, camouflaged as a GParameterSet
  */
-void GNeuralNetworkIndividual::load_(const GObject *cp) {
+void GNeuralNetworkIndividual::load_(const gpar::GParameterSet *cp) {
     // Check that we are dealing with a GNeuralNetworkIndividual reference independent of this object and convert the pointer
     const GNeuralNetworkIndividual *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GNeuralNetworkIndividual>(cp, this);
+        Gem::Common::g_convert_and_compare<gpar::GParameterSet, GNeuralNetworkIndividual>(cp, this);
 
     // Load the parent class'es data
     gpar::GParameterSet::load_(cp);
@@ -1400,9 +1400,9 @@ void GNeuralNetworkIndividual::load_(const GObject *cp) {
 /**
  * Creates a deep clone of this object
  *
- * @return A deep clone of this object, camouflaged as a GObject
+ * @return A deep clone of this object, camouflaged as a GParameterSet
  */
-GObject *GNeuralNetworkIndividual::clone_() const {
+gpar::GParameterSet *GNeuralNetworkIndividual::clone_() const {
     return new GNeuralNetworkIndividual(*this);
 }
 

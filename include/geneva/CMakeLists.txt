@@ -8,8 +8,8 @@ SET ( OPTIMIZATIONINCLUDES
 	GIndividualStandardConsumers.hpp
     GMultiConstraintT.hpp
 	Go2.hpp
-    GObject.hpp
     GOptimizationEnums.hpp
+    GSigHupHandler.hpp
 	GPersonalityTraits.hpp
     GPluggableOptimizationMonitors.hpp
     GPostProcessorT.hpp

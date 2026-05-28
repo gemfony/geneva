@@ -39,13 +39,19 @@
 #include <tuple>
 
 // Boost header files go here
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/ptree_serialization.hpp>
 
 // Geneva header files go here
+#include "common/GCommonInterfaceT.hpp"
 #include "common/GExceptions.hpp"
+#include "geneva/GOptimizationEnums.hpp"
 #include "geneva/par/GMutableParameterI.hpp"
-#include "geneva/GObject.hpp"
 #include "hap/GRandomBase.hpp"
 #include "hap/GRandomT.hpp"
+
+// aliases for ease of use
+namespace pt = boost::property_tree;
 
 namespace Gem::Geneva::Parameters {
 
@@ -56,7 +62,7 @@ namespace Gem::Geneva::Parameters {
  * defines the interface that needs to be implemented by parameter classes.
  */
 class GParameterBase
-  : public GObject
+  : public Gem::Common::GCommonInterfaceT<GParameterBase>
   , public GMutableParameterI {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
@@ -81,8 +87,11 @@ class GParameterBase
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject);
-        // ... and then our own data, derived from the single localMembers() declaration
+        // This is the CRTP category root. Its CRTP base
+        // (Gem::Common::GCommonInterfaceT<GParameterBase>) carries no state and is
+        // therefore not serialized as a base_object -- mirroring GObject, whose
+        // serialize() is likewise empty. The polymorphic base_object chain bottoms
+        // out here; only our own data is serialized.
         Gem::Common::serialize_members(ar, this->localMembers());
     }
     ///////////////////////////////////////////////////////////////////////
@@ -628,8 +637,8 @@ protected:
     booleanSubtract(std::shared_ptr<GParameterBase>, const activityMode &am);
 
     /***************************************************************************/
-    /** @brief Loads the data of another GObject */
-    void load_(const GObject *) override;
+    /** @brief Loads the data of another GParameterBase */
+    void load_(const GParameterBase *) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GParameterBase>(
@@ -640,7 +649,7 @@ protected:
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
     void compare_(
-        const GObject & // the other object
+        const GParameterBase & // the other object
         ,
         const Gem::Common::expectation & // the expectation for this object, e.g. equality
         ,
@@ -662,7 +671,7 @@ private:
     /** @brief Emits a name for this class / object */
     std::string name_() const override;
     /** @brief Creates a deep clone of this object */
-    GObject *clone_() const override = 0;
+    GParameterBase *clone_() const override = 0;
 
     /** @brief The actual adaption logic */
     virtual std::size_t adapt_(Gem::Hap::GRandomBase &) = 0;

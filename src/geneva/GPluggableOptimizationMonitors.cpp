@@ -92,7 +92,7 @@ std::string GStandardMonitor::name_() const {
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *
- * @param cp A constant reference to another GObject object
+ * @param cp A constant reference to another GBasePluggableOM object
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
@@ -121,7 +121,7 @@ void GStandardMonitor::compare_(
 /**
  * Loads the data of another object
  *
- * cp A pointer to another GStandardMonitorT object, camouflaged as a GObject
+ * cp A pointer to another GStandardMonitorT object, camouflaged as a GBasePluggableOM
  */
 void GStandardMonitor::load_(const oa::GBasePluggableOM *cp) {
     // Check that we are dealing with a GStandardMonitor reference independent of this object and convert the pointer
@@ -470,7 +470,7 @@ std::string GFitnessMonitor::name_() const {
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *
- * @param cp A constant reference to another GObject object
+ * @param cp A constant reference to another GBasePluggableOM object
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
@@ -500,7 +500,7 @@ void GFitnessMonitor::compare_(
 /**
  * Loads the data of another object
  *
- * cp A pointer to another GFitnessMonitorT object, camouflaged as a GObject
+ * cp A pointer to another GFitnessMonitorT object, camouflaged as a GBasePluggableOM
  */
 void GFitnessMonitor::load_(const oa::GBasePluggableOM *cp) {
     // Check that we are dealing with a GFitnessMonitor reference independent of this object and convert the pointer
@@ -654,7 +654,7 @@ std::string GCollectiveMonitor::name_() const {
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *
- * @param cp A constant reference to another GObject object
+ * @param cp A constant reference to another GBasePluggableOM object
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
@@ -684,7 +684,7 @@ void GCollectiveMonitor::compare_(
 /**
  * Loads the data of another object
  *
- * cp A pointer to another GCollectiveMonitorT object, camouflaged as a GObject
+ * cp A pointer to another GCollectiveMonitorT object, camouflaged as a GBasePluggableOM
  */
 void GCollectiveMonitor::load_(const oa::GBasePluggableOM *cp) {
     // Check that we are dealing with a GCollectiveMonitor reference independent of this object and convert the pointer
@@ -804,7 +804,7 @@ std::string GAllSolutionFileLogger::name_() const {
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *
- * @param cp A constant reference to another GObject object
+ * @param cp A constant reference to another GBasePluggableOM object
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
@@ -1030,7 +1030,7 @@ void GAllSolutionFileLogger::informationFunction_(
 /**
  * Loads the data of another object
  *
- * cp A pointer to another GAllSolutionFileLoggerT object, camouflaged as a GObject
+ * cp A pointer to another GAllSolutionFileLoggerT object, camouflaged as a GBasePluggableOM
  */
 void GAllSolutionFileLogger::load_(const oa::GBasePluggableOM *cp) {
     // Check that we are dealing with a GAllSolutionFileLogger reference independent of this object and convert the pointer
@@ -1183,7 +1183,7 @@ std::string GIterationResultsFileLogger::name_() const {
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *
- * @param cp A constant reference to another GObject object
+ * @param cp A constant reference to another GBasePluggableOM object
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
@@ -1323,7 +1323,7 @@ void GIterationResultsFileLogger::informationFunction_(
 /**
  * Loads the data of another object
  *
- * cp A pointer to another GIterationResultsFileLoggerT object, camouflaged as a GObject
+ * cp A pointer to another GIterationResultsFileLoggerT object, camouflaged as a GBasePluggableOM
  */
 void GIterationResultsFileLogger::load_(const oa::GBasePluggableOM *cp) {
     // Check that we are dealing with a GIterationResultsFileLogger
@@ -1443,7 +1443,7 @@ GNAdpationsLogger::GNAdpationsLogger(const GNAdpationsLogger &cp)
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *
- * @param cp A constant reference to another GObject object
+ * @param cp A constant reference to another GBasePluggableOM object
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
@@ -1682,7 +1682,7 @@ void GNAdpationsLogger::informationFunction_(
 /**
  * Loads the data of another object
  *
- * cp A pointer to another GNAdpationsLoggerT object, camouflaged as a GObject
+ * cp A pointer to another GNAdpationsLoggerT object, camouflaged as a GBasePluggableOM
  */
 void GNAdpationsLogger::load_(const oa::GBasePluggableOM *cp) {
     // Check that we are dealing with a GNAdpationsLogger reference independent of this object and convert the pointer
@@ -1809,7 +1809,7 @@ std::string GProcessingTimesLogger::name_() const {
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *
- * @param cp A constant reference to another GObject object
+ * @param cp A constant reference to another GBasePluggableOM object
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
@@ -2211,7 +2211,7 @@ void GProcessingTimesLogger::informationFunction_(
 /**
  * Loads the data of another object
  *
- * cp A pointer to another GProcessingTimesLoggerT object, camouflaged as a GObject
+ * cp A pointer to another GProcessingTimesLoggerT object, camouflaged as a GBasePluggableOM
  */
 void GProcessingTimesLogger::load_(const oa::GBasePluggableOM *cp) {
     // Check that we are dealing with a GProcessingTimesLogger reference independent of this object and convert the pointer

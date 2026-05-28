@@ -139,14 +139,14 @@ public:
 protected:
     /***************************************************************************/
     /**
-     * Loads the data of another GObject
+     * Loads the data of another GParameterBase
      *
-     * @param cp A copy of another GIntNumCollectionT<int_type>  object, camouflaged as a GObject
+     * @param cp A copy of another GIntNumCollectionT<int_type>  object, camouflaged as a GParameterBase
      */
-    void load_(const GObject *cp) override {
+    void load_(const GParameterBase *cp) override {
         // Convert the pointer to our target type and check for self-assignment
         const GIntNumCollectionT<int_type> *p_load =
-            Gem::Common::g_convert_and_compare<GObject, GIntNumCollectionT<int_type>>(cp, this);
+            Gem::Common::g_convert_and_compare<GParameterBase, GIntNumCollectionT<int_type>>(cp, this);
 
         // Load our parent class'es data ...
         GNumCollectionT<int_type>::load_(cp);
@@ -167,12 +167,12 @@ protected:
      * Searches for compliance with expectations with respect to another object
      * of the same type
      *
-     * @param cp A constant reference to another GObject object
+     * @param cp A constant reference to another GParameterBase object
      * @param e The expected outcome of the comparison
      * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
     void compare_(
-        const GObject &cp,
+        const GParameterBase &cp,
         const Gem::Common::expectation &e,
         const double & /*limit*/
     ) const override {
@@ -180,7 +180,7 @@ protected:
 
         // Check that we are dealing with a GIntNumCollectionT<int_type> reference independent of this object and convert the pointer
         const GIntNumCollectionT<int_type> *p_load =
-            Gem::Common::g_convert_and_compare<GObject, GIntNumCollectionT<int_type>>(cp, this);
+            Gem::Common::g_convert_and_compare<GParameterBase, GIntNumCollectionT<int_type>>(cp, this);
 
         GToken token("GIntNumCollectionT<int_type>", e);
 
@@ -402,7 +402,7 @@ private:
 
     /***************************************************************************/
     /** @brief Creates a deep clone of this object. Purely virtual, needs to be defined by derived classes */
-    GObject *clone_() const override = 0;
+    GParameterBase *clone_() const override = 0;
 };
 
 /******************************************************************************/

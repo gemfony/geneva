@@ -61,7 +61,7 @@ GBooleanAdaptor::GBooleanAdaptor(const double &ad_prob)
 /**
  * Creates a deep clone of this object.
  *
- * @return A copy of this object, camouflaged as a GObject
+ * @return A copy of this object, camouflaged as a GAdaptorT
  */
 GAdaptorT<bool> *GBooleanAdaptor::clone_() const {
     return new GBooleanAdaptor(*this);
@@ -85,7 +85,7 @@ void GBooleanAdaptor::customAdaptions(
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *
- * @param cp A constant reference to another GObject object
+ * @param cp A constant reference to another GAdaptorT object
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
@@ -130,9 +130,9 @@ bool GBooleanAdaptor::randomInit(Gem::Hap::GRandomBase &) {
 
 /******************************************************************************/
 /**
- * Loads the data of another GObject
+ * Loads the data of another GAdaptorT
  *
- * @param cp A copy of another GBooleanAdaptor object, camouflaged as a GObject
+ * @param cp A copy of another GBooleanAdaptor object, camouflaged as a GAdaptorT
  */
 void GBooleanAdaptor::load_(const GAdaptorT<bool> *cp) {
     // Convert the pointer to our target type and check for self-assignment

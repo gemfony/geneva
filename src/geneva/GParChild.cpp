@@ -55,12 +55,12 @@ GParChild::GParChild() {
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *
- * @param cp A constant reference to another GObject object
+ * @param cp A constant reference to another GParChild object
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GParChild::compare_(
-    const GObject &cp,
+    const GBase &cp,
     const Gem::Common::expectation &e,
     const double & /*limit*/
 ) const {
@@ -68,7 +68,7 @@ void GParChild::compare_(
 
     // Check that we are dealing with a GParChild  reference independent of this object and convert the pointer
     const GParChild *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GParChild>(cp, this);
+        Gem::Common::g_convert_and_compare<GBase, GParChild>(cp, this);
 
     GToken token("GParChild", e);
 
@@ -374,7 +374,7 @@ void GParChild::doRecombine() {
                                          )))
                     : (*(this->begin() + 1));
 
-            (*it)->GObject::load(best_parent->crossOverWith(combiner));
+            (*it)->load(best_parent->crossOverWith(combiner));
         }
         else { // Just perform duplication
             switch(recombination_method_) {
@@ -386,7 +386,7 @@ void GParChild::doRecombine() {
 
             case duplicationScheme::VALUEDUPLICATIONSCHEME: {
                 if(n_parents_ == 1) {
-                    (*it)->GObject::load(*(GBase::data_cnt_.begin()));
+                    (*it)->load(*(GBase::data_cnt_.begin()));
                     (*it)
                         ->GParameterSet::getPersonalityTraits<GBaseParChildPersonalityTraits>()
                         ->setParentId(0);
@@ -436,14 +436,14 @@ std::string GParChild::name_() const {
 
 /******************************************************************************/
 /**
- * Loads the data of another GParChildT object, camouflaged as a GObject.
+ * Loads the data of another GParChildT object.
  *
- * @param cp A pointer to another GParChildT object, camouflaged as a GObject
+ * @param cp A pointer to another GParChildT object
  */
-void GParChild::load_(const GObject *cp) {
+void GParChild::load_(const GBase *cp) {
     // Check that we are dealing with a GParChild  reference independent of this object and convert the pointer
     const GParChild *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GParChild>(cp, this);
+        Gem::Common::g_convert_and_compare<GBase, GParChild>(cp, this);
 
     // First load the parent class'es data ...
     GBase::load_(cp);
@@ -728,7 +728,7 @@ void GParChild::randomRecombine(std::shared_ptr<gpar::GParameterSet> &child) {
     }
 
     // Load the parent data into the individual
-    child->GObject::load(*(GBase::data_cnt_.begin() + parent_pos));
+    child->load(*(GBase::data_cnt_.begin() + parent_pos));
 
     // Let the individual know the id of the parent
     child->GParameterSet::template getPersonalityTraits<GBaseParChildPersonalityTraits>()
@@ -757,7 +757,7 @@ void GParChild::valueRecombine(
     for(std::size_t par = 0; par < n_parents_; par++) {
         if(rand_test < threshold[par]) {
             // Load the parent's data
-            p->GObject::load(*(GBase::data_cnt_.begin() + par));
+            p->load(*(GBase::data_cnt_.begin() + par));
             // Let the individual know the parent's id
             p->GParameterSet::template getPersonalityTraits<GBaseParChildPersonalityTraits>()
                 ->setParentId(par);

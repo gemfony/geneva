@@ -148,8 +148,8 @@ int main(int argc, char **argv) {
             std::chrono::system_clock::time_point pre_serialization =
                 std::chrono::system_clock::now();
             for(std::size_t i = 1; i <= NMEASUREMENTS; i++) {
-                gti_ptr->GObject::fromString(
-                    gti_ptr->GObject::toString(DEFAULTSERMODE),
+                gti_ptr->fromString(
+                    gti_ptr->toString(DEFAULTSERMODE),
                     DEFAULTSERMODE
                 );
             }

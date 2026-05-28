@@ -113,21 +113,21 @@ void GBooleanCollection::flip(const std::size_t &pos) {
  *
  * @return A deep clone of this object
  */
-GObject *GBooleanCollection::clone_() const {
+GParameterBase *GBooleanCollection::clone_() const {
     return new GBooleanCollection(*this);
 }
 
 /******************************************************************************/
 /**
  * Loads the data of another GBooleanCollection object, camouflaged as
- * a GObject.
+ * a GParameterBase.
  *
- * @param gb A pointer to another GBooleanCollection object, camouflaged as a GObject
+ * @param gb A pointer to another GBooleanCollection object, camouflaged as a GParameterBase
  */
-void GBooleanCollection::load_(const GObject *cp) {
+void GBooleanCollection::load_(const GParameterBase *cp) {
     // Convert the pointer to our target type and check for self-assignment
     const GBooleanCollection *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GBooleanCollection>(cp, this);
+        Gem::Common::g_convert_and_compare<GParameterBase, GBooleanCollection>(cp, this);
 
     GParameterCollectionT<bool>::load_(cp);
 }
@@ -241,12 +241,12 @@ bool GBooleanCollection::range() const {
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *
- * @param cp A constant reference to another GObject object
+ * @param cp A constant reference to another GParameterBase object
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GBooleanCollection::compare_(
-    const GObject &cp,
+    const GParameterBase &cp,
     const Gem::Common::expectation &e,
     const double & /*limit*/
 ) const {
@@ -254,7 +254,7 @@ void GBooleanCollection::compare_(
 
     // Check that we are dealing with a GBooleanCollection reference independent of this object and convert the pointer
     const GBooleanCollection *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GBooleanCollection>(cp, this);
+        Gem::Common::g_convert_and_compare<GParameterBase, GBooleanCollection>(cp, this);
 
     GToken token("GBooleanCollection", e);
 
@@ -768,9 +768,9 @@ void GBooleanCollection::specificTestsNoFailureExpected_GUnitTests_() {
     // --------------------------------------------------------------------------
 
     { // Check that the fp-family of functions doesn't have an effect on this object
-        std::shared_ptr<GBooleanCollection> p_test1 = this->GObject::clone<GBooleanCollection>();
-        std::shared_ptr<GBooleanCollection> p_test2 = this->GObject::clone<GBooleanCollection>();
-        std::shared_ptr<GBooleanCollection> p_test3 = this->GObject::clone<GBooleanCollection>();
+        std::shared_ptr<GBooleanCollection> p_test1 = this->clone<GBooleanCollection>();
+        std::shared_ptr<GBooleanCollection> p_test2 = this->clone<GBooleanCollection>();
+        std::shared_ptr<GBooleanCollection> p_test3 = this->clone<GBooleanCollection>();
 
         // Add a few items to p_test1
         for(std::size_t i = 0; i < n_items; i++) {

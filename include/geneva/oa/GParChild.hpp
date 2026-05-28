@@ -188,8 +188,8 @@ protected:
     /** @brief Adds local configuration options to a GParserBuilder object */
     void addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) override;
 
-    /** @brief Loads the data of another GParChildT object, camouflaged as a GObject. */
-    void load_(const GObject *cp) override;
+    /** @brief Loads the data of another GParChildT object. */
+    void load_(const GBase *cp) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GParChild>(
@@ -200,7 +200,7 @@ protected:
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
     void compare_(
-        const GObject &cp,
+        const GBase &cp,
         const Gem::Common::expectation &e,
         const double &limit
     ) const override;
@@ -266,7 +266,7 @@ private:
     /** @brief Emits a name for this class / object */
     std::string name_() const override;
     /** @brief Creates a deep clone of this object */
-    GObject *clone_() const override = 0;
+    GBase *clone_() const override = 0;
 
     /** @brief This function implements the logic that constitutes evolutionary algorithms */
     std::tuple<double, double> cycleLogic_() override;

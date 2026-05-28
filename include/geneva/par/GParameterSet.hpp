@@ -42,21 +42,27 @@
 
 // Boost header files go here
 #include <boost/serialization/split_member.hpp>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/ptree_serialization.hpp>
 
 // Geneva headers go here
+#include "common/GCommonInterfaceT.hpp"
 #include "common/GCommonMathHelperFunctionsT.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
 #include "common/GContainerT.hpp"
 #include "courtier/GProcessingContainerT.hpp"
 #include "geneva/GMultiConstraintT.hpp"
-#include "geneva/GObject.hpp"
 #include "geneva/par/GParameterBase.hpp"
 #include "geneva/GPersonalityTraits.hpp"
 #include "geneva/Interface/GMutableI.hpp"
 #include "geneva/Interface/GRateableI.hpp"
 #include "geneva/GenevaHelperFunctionsT.hpp"
+#include "geneva/GOptimizationEnums.hpp"
 #include "hap/GRandomT.hpp"
+
+// aliases for ease of use
+namespace pt = boost::property_tree;
 
 #ifdef GEM_TESTING
 
@@ -173,7 +179,7 @@ private:
  * will form the basis of many user-defined individuals.
  */
 class GParameterSet // NOLINT(cppcoreguidelines-special-member-functions)
-  : public GObject
+  : public Gem::Common::GCommonInterfaceT<GParameterSet>
   , public Interface::GMutableI
   , public Interface::GRateableI
   , public Gem::Common::GPtrContainerT<GParameterBase>
@@ -238,10 +244,13 @@ class GParameterSet // NOLINT(cppcoreguidelines-special-member-functions)
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        // GObject base + the two base classes (the GParameterBase container and the
-        // processing base), which are base-objects rather than local members.
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject) &
-            make_nvp(
+        // This is the CRTP category root. Its CRTP base
+        // (Gem::Common::GCommonInterfaceT<GParameterSet>) carries no state and is
+        // therefore not serialized as a base_object -- mirroring GObject, whose
+        // serialize() is likewise empty. The two stateful base classes (the
+        // GParameterBase container and the processing base) ARE serialized as
+        // base-objects rather than local members.
+        ar &make_nvp(
                 "GStdPtrVectorInterfaceT_GParameterBase",
                 boost::serialization::base_object<Gem::Common::GPtrContainerT<GParameterBase>>(*this)
             ) &
@@ -861,8 +870,8 @@ protected:
 
     /** @brief Adds local configuration options to a GParserBuilder object */
     void addConfigurationOptions_(Gem::Common::GParserBuilder &) override;
-    /** @brief Loads the data of another GObject */
-    void load_(const GObject *) override;
+    /** @brief Loads the data of another GParameterSet */
+    void load_(const GParameterSet *) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GParameterSet>(
@@ -873,7 +882,7 @@ protected:
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
     void compare_(
-        GObject const & // the other object
+        GParameterSet const & // the other object
         ,
         Gem::Common::expectation const & // the expectation for this object, e.g. equality
         ,
@@ -917,7 +926,7 @@ private:
     /** @brief Emits a name for this class / object */
     std::string name_() const override;
     /** @brief Creates a deep clone of this object */
-    GObject *clone_() const override = 0;
+    GParameterSet *clone_() const override = 0;
 
     /** @brief Retrieves the stored raw fitness with a given id */
     double raw_fitness_(std::size_t) const final;

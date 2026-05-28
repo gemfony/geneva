@@ -89,14 +89,14 @@ public:
 
 protected:
     /** @brief Loads the data of another GMultiCriterionParabolaIndividual */
-    void load_(const GObject *) final;
+    void load_(const gpar::GParameterSet *) final;
 
     /** @brief The actual fitness calculation takes place here. */
     double fitnessCalculation() final;
 
 private:
     /** @brief Creates a deep clone of this object */
-    GObject *clone_() const final;
+    gpar::GParameterSet *clone_() const final;
 
     /** @brief The default constructor -- intentionally private*/
     GMultiCriterionParabolaIndividual() = default;

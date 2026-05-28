@@ -87,14 +87,14 @@ void GMPIEvaluatedIndividual::setCommunicator(MPI_Comm c) {
 
 /********************************************************************************************/
 /**
- * Loads the data of another GMPIEvaluatedIndividual, camouflaged as a GObject.
+ * Loads the data of another GMPIEvaluatedIndividual, camouflaged as a GParameterSet.
  *
- * @param cp A copy of another GMPIEvaluatedIndividual, camouflaged as a GObject
+ * @param cp A copy of another GMPIEvaluatedIndividual, camouflaged as a GParameterSet
  */
-void GMPIEvaluatedIndividual::load_(const GObject *cp) {
+void GMPIEvaluatedIndividual::load_(const gpar::GParameterSet *cp) {
     // Check that we are dealing with a GMPIEvaluatedIndividual reference independent of this object and convert the pointer
     const GMPIEvaluatedIndividual *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GMPIEvaluatedIndividual>(cp, this);
+        Gem::Common::g_convert_and_compare<gpar::GParameterSet, GMPIEvaluatedIndividual>(cp, this);
 
     // Load our parent's data
     gpar::GParameterSet::load_(cp);
@@ -107,9 +107,9 @@ void GMPIEvaluatedIndividual::load_(const GObject *cp) {
 /**
  * Creates a deep clone of this object
  *
- * @return A deep clone of this object, camouflaged as a GObject
+ * @return A deep clone of this object, camouflaged as a GParameterSet
  */
-GObject *GMPIEvaluatedIndividual::clone_() const {
+gpar::GParameterSet *GMPIEvaluatedIndividual::clone_() const {
     return new GMPIEvaluatedIndividual(*this);
 }
 

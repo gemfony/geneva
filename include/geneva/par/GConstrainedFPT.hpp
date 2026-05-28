@@ -42,7 +42,6 @@
 // Geneva headers go here
 #include "common/GExceptions.hpp"
 #include "geneva/par/GConstrainedNumT.hpp"
-#include "geneva/GObject.hpp"
 #include "geneva/par/GParameterBase.hpp"
 #include "hap/GRandomBase.hpp"
 #include "hap/GRandomT.hpp"
@@ -394,14 +393,14 @@ public:
 protected:
     /***************************************************************************/
     /**
-	  * Loads the data of another GConstrainedFPT<fp_type>, camouflaged as a GObject.
+	  * Loads the data of another GConstrainedFPT<fp_type>, camouflaged as a GParameterBase.
 	  *
-	  * @param cp Another GConstrainedFPT<fp_type> object, camouflaged as a GObject
+	  * @param cp Another GConstrainedFPT<fp_type> object, camouflaged as a GParameterBase
 	  */
-    void load_(const GObject *cp) override {
+    void load_(const GParameterBase *cp) override {
         // Check that we are dealing with a GConstrainedFPT<fp_type>  reference independent of this object and convert the pointer
         const GConstrainedFPT<fp_type> *p_load =
-            Gem::Common::g_convert_and_compare<GObject, GConstrainedFPT<fp_type>>(cp, this);
+            Gem::Common::g_convert_and_compare<GParameterBase, GConstrainedFPT<fp_type>>(cp, this);
 
         // Load our parent class'es data ...
         GConstrainedNumT<fp_type>::load_(cp);
@@ -422,12 +421,12 @@ protected:
      * Searches for compliance with expectations with respect to another object
      * of the same type
      *
-     * @param cp A constant reference to another GObject object
+     * @param cp A constant reference to another GParameterBase object
      * @param e The expected outcome of the comparison
      * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
     void compare_(
-        const GObject &cp,
+        const GParameterBase &cp,
         const Gem::Common::expectation &e,
         const double & /*limit*/
     ) const override {
@@ -435,7 +434,7 @@ protected:
 
         // Check that we are dealing with a GConstrainedFPT<fp_type>  reference independent of this object and convert the pointer
         const GConstrainedFPT<fp_type> *p_load =
-            Gem::Common::g_convert_and_compare<GObject, GConstrainedFPT<fp_type>>(cp, this);
+            Gem::Common::g_convert_and_compare<GParameterBase, GConstrainedFPT<fp_type>>(cp, this);
 
         GToken token("GConstrainedFPT<fp_type>", e);
 
@@ -1165,7 +1164,7 @@ private:
 
     /***************************************************************************/
     /** @brief Create a deep copy of this object */
-    GObject *clone_() const override = 0;
+    GParameterBase *clone_() const override = 0;
 
     /***************************************************************************/
 };

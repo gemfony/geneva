@@ -125,7 +125,7 @@ public:
 protected:
     /***************************************************************************/
     /** @brief Loads the data of another GFMinIndividual */
-    virtual void load_(const GObject *) final;
+    virtual void load_(const gpar::GParameterSet *) final;
 
     /** @brief The actual value calculation takes place here */
     virtual double fitnessCalculation() final;
@@ -135,7 +135,7 @@ protected:
 private:
     /***************************************************************************/
     /** @brief Creates a deep clone of this object */
-    virtual GObject *clone_() const final;
+    virtual gpar::GParameterSet *clone_() const final;
 
     /***************************************************************************/
     targetFunction targetFunction_ =

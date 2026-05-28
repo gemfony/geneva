@@ -144,7 +144,7 @@ protected:
     /**
          * Loads the data of another object
          *
-         * cp A pointer to another GCollectiveMonitorT<ind_type> object, camouflaged as a GObject
+         * cp A pointer to another GCollectiveMonitorT<ind_type> object, camouflaged as a GBasePluggableOM
          */
     void load_(const oa::GBasePluggableOM *cp) override {
         // Check that we are dealing with a GImagePOM reference independent of this object and convert the pointer

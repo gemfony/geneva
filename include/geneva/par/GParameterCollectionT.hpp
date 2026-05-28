@@ -40,7 +40,6 @@
 // Geneva header files go here
 #include "common/GContainerT.hpp"
 #include "common/GTypeToStringT.hpp"
-#include "geneva/GObject.hpp"
 #include "geneva/par/GParameterBaseWithAdaptorsT.hpp"
 
 namespace Gem::Geneva::Parameters {
@@ -180,14 +179,14 @@ public:
 protected:
     /***************************************************************************/
     /**
-     * Loads the data of another GParameterCollectionT<num_type> object, camouflaged as a GObject
+     * Loads the data of another GParameterCollectionT<num_type> object, camouflaged as a GParameterBase
      *
-     * @param cp A copy of another GParameterCollectionT<num_type> object, camouflaged as a GObject
+     * @param cp A copy of another GParameterCollectionT<num_type> object, camouflaged as a GParameterBase
      */
-    void load_(const GObject *cp) override {
+    void load_(const GParameterBase *cp) override {
         // Check that we are dealing with a  GParameterCollectionT<num_type> reference independent of this object and convert the pointer
         const GParameterCollectionT<num_type> *p_load =
-            Gem::Common::g_convert_and_compare<GObject, GParameterCollectionT<num_type>>(cp, this);
+            Gem::Common::g_convert_and_compare<GParameterBase, GParameterCollectionT<num_type>>(cp, this);
 
         // Load our parent class'es data ...
         GParameterBaseWithAdaptorsT<num_type>::load_(cp);
@@ -206,12 +205,12 @@ protected:
      * Searches for compliance with expectations with respect to another object
      * of the same type
      *
-     * @param cp A constant reference to another GObject object
+     * @param cp A constant reference to another GParameterBase object
      * @param e The expected outcome of the comparison
      * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
     void compare_(
-        const GObject &cp,
+        const GParameterBase &cp,
         const Gem::Common::expectation &e,
         const double & /*limit*/
     ) const override {
@@ -219,7 +218,7 @@ protected:
 
         // Check that we are dealing with a  GParameterCollectionT<num_type> reference independent of this object and convert the pointer
         const GParameterCollectionT<num_type> *p_load =
-            Gem::Common::g_convert_and_compare<GObject, GParameterCollectionT<num_type>>(cp, this);
+            Gem::Common::g_convert_and_compare<GParameterBase, GParameterCollectionT<num_type>>(cp, this);
 
         GToken token("GParameterCollectionT<num_type>", e);
 
@@ -310,7 +309,7 @@ private:
     /**
      * Creates a deep clone of this object. Purely virtual, so this class cannot be instantiated.
      */
-    GObject *clone_() const override = 0;
+    GParameterBase *clone_() const override = 0;
 
     /***************************************************************************/
     /**

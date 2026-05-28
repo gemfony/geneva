@@ -129,12 +129,12 @@ GTestIndividual3::~GTestIndividual3() { /* nothing */
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *
- * @param cp A constant reference to another GObject object
+ * @param cp A constant reference to another GParameterSet object
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GTestIndividual3::compare_(
-    const GObject &cp,
+    const gpar::GParameterSet &cp,
     const Gem::Common::expectation &e,
     const double & /*limit*/
 ) const {
@@ -143,7 +143,7 @@ void GTestIndividual3::compare_(
 
     // Check that we are dealing with a GTestIndividual3 reference independent of this object and convert the pointer
     const GTestIndividual3 *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GTestIndividual3>(cp, this);
+        Gem::Common::g_convert_and_compare<gpar::GParameterSet, GTestIndividual3>(cp, this);
 
     Gem::Common::GToken token("GTestIndividual3", e);
 
@@ -158,17 +158,17 @@ void GTestIndividual3::compare_(
 
 /******************************************************************************/
 /**
- * Loads the data of another GTestIndividual3, camouflaged as a GObject.
+ * Loads the data of another GTestIndividual3, camouflaged as a GParameterSet.
  *
- * @param cp A copy of another GTestIndividual3, camouflaged as a GObject
+ * @param cp A copy of another GTestIndividual3, camouflaged as a GParameterSet
  */
-void GTestIndividual3::load_(const GObject *cp) {
+void GTestIndividual3::load_(const gpar::GParameterSet *cp) {
     using namespace Gem::Common;
     using namespace Gem::Geneva;
 
     // Check that we are dealing with a GTestIndividual3 reference independent of this object and convert the pointer
     const GTestIndividual3 *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GTestIndividual3>(cp, this);
+        Gem::Common::g_convert_and_compare<gpar::GParameterSet, GTestIndividual3>(cp, this);
 
     // Load our parent's data
     gpar::GParameterSet::load_(cp);
@@ -180,9 +180,9 @@ void GTestIndividual3::load_(const GObject *cp) {
 /**
  * Creates a deep clone of this object
  *
- * @return A deep clone of this object, camouflaged as a GObject
+ * @return A deep clone of this object, camouflaged as a GParameterSet
  */
-Gem::Geneva::GObject *GTestIndividual3::clone_() const {
+gpar::GParameterSet *GTestIndividual3::clone_() const {
     return new GTestIndividual3(*this);
 }
 

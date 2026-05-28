@@ -120,14 +120,14 @@ std::string GSwarmAlgorithm::getAlgorithmPersonalityType_() const {
 
 /******************************************************************************/
 /**
- * Loads the data of another GSwarmAlgorithm object, camouflaged as a GObject.
+ * Loads the data of another GSwarmAlgorithm object.
  *
- * @param cp A pointer to another GSwarmAlgorithm object, camouflaged as a GObject
+ * @param cp A pointer to another GSwarmAlgorithm object
  */
-void GSwarmAlgorithm::load_(const GObject *cp) {
+void GSwarmAlgorithm::load_(const GBase *cp) {
     // Check that we are dealing with a GSwarmAlgorithm reference independent of this object and convert the pointer
     const GSwarmAlgorithm *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GSwarmAlgorithm>(cp, this);
+        Gem::Common::g_convert_and_compare<GBase, GSwarmAlgorithm>(cp, this);
 
     // First load the parent class'es data.
     // This will also take care of copying all individuals.
@@ -175,7 +175,7 @@ void GSwarmAlgorithm::load_(const GObject *cp) {
                 // We might be in a situation where the std::shared_ptr which usually
                 // holds the neighborhood bests has not yet been initialized
                 if(neighborhood_bests_cnt_[i]) {
-                    neighborhood_bests_cnt_[i]->GObject::load(p_load->neighborhood_bests_cnt_[i]);
+                    neighborhood_bests_cnt_[i]->load(p_load->neighborhood_bests_cnt_[i]);
                 }
                 else {
                     neighborhood_bests_cnt_[i] =
@@ -193,7 +193,7 @@ void GSwarmAlgorithm::load_(const GObject *cp) {
     // Copy the global best over
     if(p_load->afterFirstIteration()) { // cp has a global best, we don't
         if(global_best_ptr_) { // If we already have a global best, just load the other objects global best
-            global_best_ptr_->GObject::load(p_load->global_best_ptr_);
+            global_best_ptr_->load(p_load->global_best_ptr_);
         }
         else {
             global_best_ptr_ = p_load->global_best_ptr_->clone<gpar::GParameterSet>();
@@ -211,7 +211,7 @@ void GSwarmAlgorithm::load_(const GObject *cp) {
  *
  * @return A deep copy of this object
  */
-GObject *GSwarmAlgorithm::clone_() const {
+GBase *GSwarmAlgorithm::clone_() const {
     return new GSwarmAlgorithm(*this);
 }
 
@@ -220,12 +220,12 @@ GObject *GSwarmAlgorithm::clone_() const {
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *
- * @param cp A constant reference to another GObject object
+ * @param cp A constant reference to another GSwarmAlgorithm object
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GSwarmAlgorithm::compare_(
-    const GObject &cp,
+    const GBase &cp,
     const Gem::Common::expectation &e,
     const double & /*limit*/
 ) const {
@@ -233,7 +233,7 @@ void GSwarmAlgorithm::compare_(
 
     // Check that we are dealing with a GBooleanAdaptor reference independent of this object and convert the pointer
     const GSwarmAlgorithm *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GSwarmAlgorithm>(cp, this);
+        Gem::Common::g_convert_and_compare<GBase, GSwarmAlgorithm>(cp, this);
 
     GToken token("GSwarmAlgorithm", e);
 
@@ -1459,7 +1459,7 @@ std::tuple<double, double> GSwarmAlgorithm::findBests() {
                    neighborhood_bests_cnt_.at(n)->transformed_fitness(0),
                    m
                )) {
-                (neighborhood_bests_cnt_.at(n))->GObject::load(*(this->begin() + first_counter));
+                (neighborhood_bests_cnt_.at(n))->load(*(this->begin() + first_counter));
             }
         }
     }
@@ -1487,7 +1487,7 @@ std::tuple<double, double> GSwarmAlgorithm::findBests() {
                global_best_ptr_->transformed_fitness(0),
                m
            )) {
-            global_best_ptr_->GObject::load(neighborhood_bests_cnt_.at(best_local_id));
+            global_best_ptr_->load(neighborhood_bests_cnt_.at(best_local_id));
         }
     }
 

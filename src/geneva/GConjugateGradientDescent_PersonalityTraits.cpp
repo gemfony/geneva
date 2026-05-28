@@ -40,7 +40,7 @@ const std::string GConjugateGradientDescent_PersonalityTraits::nickname = "cgd";
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *
- * @param cp A constant reference to another GObject object
+ * @param cp A constant reference to another GPersonalityTraits object
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
@@ -91,7 +91,7 @@ std::string GConjugateGradientDescent_PersonalityTraits::getMnemonic() const {
 /**
  * Creates a deep clone of this object
  *
- * @return A clone of this object, camouflaged as a GObject
+ * @return A clone of this object, camouflaged as a GPersonalityTraits
  */
 GPersonalityTraits *GConjugateGradientDescent_PersonalityTraits::clone_() const {
     return new GConjugateGradientDescent_PersonalityTraits(*this);
@@ -101,7 +101,7 @@ GPersonalityTraits *GConjugateGradientDescent_PersonalityTraits::clone_() const 
 /**
  * Loads the data of another GConjugateGradientDescent_PersonalityTraits object
  *
- * @param cp A copy of another GConjugateGradientDescent_PersonalityTraits object, camouflaged as a GObject
+ * @param cp A copy of another GConjugateGradientDescent_PersonalityTraits object, camouflaged as a GPersonalityTraits
  */
 void GConjugateGradientDescent_PersonalityTraits::load_(const GPersonalityTraits *cp) {
     // Check that we are dealing with a GConjugateGradientDescent_PersonalityTraits

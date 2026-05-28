@@ -39,12 +39,12 @@ namespace Gem::Geneva::Parameters {
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *
- * @param cp A constant reference to another GObject object
+ * @param cp A constant reference to another GPreEvaluationValidityCheckT object
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GParameterSetConstraint::compare_(
-    const GObject &cp,
+    const GPreEvaluationValidityCheckT<GParameterSet> &cp,
     const Gem::Common::expectation &e,
     const double & /*limit*/
 ) const {
@@ -52,7 +52,9 @@ void GParameterSetConstraint::compare_(
 
     // Check that we are dealing with a GParameterSetConstraint reference independent of this object and convert the pointer
     const GParameterSetConstraint *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GParameterSetConstraint>(cp, this);
+        Gem::Common::g_convert_and_compare<
+            GPreEvaluationValidityCheckT<GParameterSet>,
+            GParameterSetConstraint>(cp, this);
 
     GToken token("GParameterSetConstraint", e);
 
@@ -78,10 +80,12 @@ void GParameterSetConstraint::addConfigurationOptions_(Gem::Common::GParserBuild
 /**
  * Loads the data of another GParameterSetConstraint
  */
-void GParameterSetConstraint::load_(const GObject *cp) {
+void GParameterSetConstraint::load_(const GPreEvaluationValidityCheckT<GParameterSet> *cp) {
     // Check that we are dealing with a GParameterSetConstraint reference independent of this object and convert the pointer
     const GParameterSetConstraint *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GParameterSetConstraint>(cp, this);
+        Gem::Common::g_convert_and_compare<
+            GPreEvaluationValidityCheckT<GParameterSet>,
+            GParameterSetConstraint>(cp, this);
 
     // Load our parent class'es data ...
     GPreEvaluationValidityCheckT<GParameterSet>::load_(cp);
@@ -104,12 +108,12 @@ GParameterSetFormulaConstraint::GParameterSetFormulaConstraint(std::string raw_f
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *
- * @param cp A constant reference to another GObject object
+ * @param cp A constant reference to another GPreEvaluationValidityCheckT object
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GParameterSetFormulaConstraint::compare_(
-    const GObject &cp,
+    const GPreEvaluationValidityCheckT<GParameterSet> &cp,
     const Gem::Common::expectation &e,
     const double & /*limit*/
 ) const {
@@ -117,7 +121,9 @@ void GParameterSetFormulaConstraint::compare_(
 
     // Check that we are dealing with a GParameterSetFormulaConstraint reference independent of this object and convert the pointer
     const GParameterSetFormulaConstraint *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GParameterSetFormulaConstraint>(cp, this);
+        Gem::Common::g_convert_and_compare<
+            GPreEvaluationValidityCheckT<GParameterSet>,
+            GParameterSetFormulaConstraint>(cp, this);
 
     GToken token("GParameterSetFormulaConstraint", e);
 
@@ -177,10 +183,12 @@ double GParameterSetFormulaConstraint::check_(const GParameterSet *p) const {
 /**
  * Loads the data of another GParameterSetFormulaConstraint
  */
-void GParameterSetFormulaConstraint::load_(const GObject *cp) {
+void GParameterSetFormulaConstraint::load_(const GPreEvaluationValidityCheckT<GParameterSet> *cp) {
     // Check that we are dealing with a GParameterSetFormulaConstraint reference independent of this object and convert the pointer
     const GParameterSetFormulaConstraint *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GParameterSetFormulaConstraint>(cp, this);
+        Gem::Common::g_convert_and_compare<
+            GPreEvaluationValidityCheckT<GParameterSet>,
+            GParameterSetFormulaConstraint>(cp, this);
 
     // Load our parent class'es data ...
     GPreEvaluationValidityCheckT<GParameterSet>::load_(cp);
@@ -193,7 +201,7 @@ void GParameterSetFormulaConstraint::load_(const GObject *cp) {
 /**
  * Returns a deep clone of this object
  */
-GObject *GParameterSetFormulaConstraint::clone_() const {
+GPreEvaluationValidityCheckT<GParameterSet> *GParameterSetFormulaConstraint::clone_() const {
     return new GParameterSetFormulaConstraint(*this);
 }
 

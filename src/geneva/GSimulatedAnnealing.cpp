@@ -55,12 +55,12 @@ GSimulatedAnnealing::GSimulatedAnnealing() {
   * Searches for compliance with expectations with respect to another object
   * of the same type
   *
-  * @param cp A constant reference to another GObject object
+  * @param cp A constant reference to another GSimulatedAnnealing object
   * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GSimulatedAnnealing::compare_(
-    const GObject &cp // the other object
+    const GBase &cp // the other object
     ,
     const Gem::Common::expectation &e // the expectation for this object, e.g. equality
     ,
@@ -70,7 +70,7 @@ void GSimulatedAnnealing::compare_(
 
     // Check that we are dealing with a GSimulatedAnnealing reference independent of this object and convert the pointer
     const GSimulatedAnnealing *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GSimulatedAnnealing>(cp, this);
+        Gem::Common::g_convert_and_compare<GBase, GSimulatedAnnealing>(cp, this);
 
     GToken token("GSimulatedAnnealing", e);
 
@@ -267,15 +267,15 @@ std::string GSimulatedAnnealing::name_() const {
 
 /******************************************************************************/
 /**
-  * Loads the data of another GSimulatedAnnealingT object, camouflaged as a GObject.
+  * Loads the data of another GSimulatedAnnealingT object.
   *
-  * @param cp A pointer to another GSimulatedAnnealingT object, camouflaged as a GObject
+  * @param cp A pointer to another GSimulatedAnnealingT object
   */
-void GSimulatedAnnealing::load_(const GObject *cp) {
+void GSimulatedAnnealing::load_(const GBase *cp) {
     // Check that we are dealing with a GSimulatedAnnealing reference independent
     // of this object and convert the pointer
     const GSimulatedAnnealing *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GSimulatedAnnealing>(cp, this);
+        Gem::Common::g_convert_and_compare<GBase, GSimulatedAnnealing>(cp, this);
 
     // First load the parent class'es data ...
     GParChild::load_(cp);
@@ -290,7 +290,7 @@ void GSimulatedAnnealing::load_(const GObject *cp) {
   *
   * @return A deep copy of this object
   */
-GObject *GSimulatedAnnealing::clone_() const {
+GBase *GSimulatedAnnealing::clone_() const {
     return new GSimulatedAnnealing(*this);
 }
 
@@ -654,7 +654,7 @@ void GSimulatedAnnealing::sortSAMode() {
             minOnly_transformed_fitness(this->at(this->n_parents_ + np))
         );
         if(p_pass >= 1.) {
-            this->at(np)->GObject::load(this->at(this->n_parents_ + np));
+            this->at(np)->load(this->at(this->n_parents_ + np));
         }
         else {
             double challenge = this->uniform_real_distribution_(
@@ -662,7 +662,7 @@ void GSimulatedAnnealing::sortSAMode() {
                 std::uniform_real_distribution<double>::param_type(0., 1.)
             );
             if(challenge < p_pass) {
-                this->at(np)->GObject::load(this->at(this->n_parents_ + np));
+                this->at(np)->load(this->at(this->n_parents_ + np));
             }
         }
     }

@@ -85,7 +85,7 @@ public:
 
 protected:
     /** @brief Loads the data of another GMPISubClientParaboloidIndividualMultiD */
-    void load_(const GObject *) final;
+    void load_(const gpar::GParameterSet *) final;
 
     /** @brief The actual fitness calculation takes place here. */
     double fitnessCalculation() final;
@@ -100,7 +100,7 @@ private:
     );
 
     /** @brief Creates a deep clone of this object */
-    [[nodiscard]] GObject *clone_() const final;
+    [[nodiscard]] gpar::GParameterSet *clone_() const final;
 
     const double M_PAR_MIN;
     const double M_PAR_MAX;

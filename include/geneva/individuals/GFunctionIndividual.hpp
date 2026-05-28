@@ -680,7 +680,7 @@ protected:
     }
 
     /** @brief Loads the data of another GFunctionIndividual */
-    void load_(const GObject *) final;
+    void load_(const gpar::GParameterSet *) final;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GFunctionIndividual>(
@@ -691,7 +691,7 @@ protected:
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
     void compare_(
-        const GObject & // the other object
+        const gpar::GParameterSet & // the other object
         ,
         const Gem::Common::expectation & // the expectation for this object, e.g. equality
         ,
@@ -713,7 +713,7 @@ protected:
 private:
     //---------------------------------------------------------------------------
     /** @brief Creates a deep clone of this object */
-    GObject *clone_() const final;
+    gpar::GParameterSet *clone_() const final;
 
     //---------------------------------------------------------------------------
     // Data
@@ -996,7 +996,7 @@ protected:
     void addConfigurationOptions_(Gem::Common::GParserBuilder &) override;
 
     /** @brief Loads the data of another GParameterSetMultiConstraint */
-    void load_(const GObject *) override;
+    void load_(const GPreEvaluationValidityCheckT<gpar::GParameterSet> *) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GDoubleSumConstraint>(
@@ -1007,7 +1007,7 @@ protected:
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
     void compare_(
-        const GObject & // the other object
+        const GPreEvaluationValidityCheckT<gpar::GParameterSet> & // the other object
         ,
         const Gem::Common::expectation & // the expectation for this object, e.g. equality
         ,
@@ -1016,7 +1016,7 @@ protected:
 
 private:
     /** @brief Creates a deep clone of this object */
-    GObject *clone_() const override;
+    GPreEvaluationValidityCheckT<gpar::GParameterSet> *clone_() const override;
 
     double c_ = 1.; ///< The constant that should not be exceeded by the sum of parameters
 };
@@ -1070,7 +1070,7 @@ protected:
     void addConfigurationOptions_(Gem::Common::GParserBuilder &) override;
 
     /** @brief Loads the data of another GParameterSetMultiConstraint */
-    void load_(const GObject *) override;
+    void load_(const GPreEvaluationValidityCheckT<gpar::GParameterSet> *) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GDoubleSumGapConstraint>(
@@ -1081,7 +1081,7 @@ protected:
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
     void compare_(
-        const GObject & // the other object
+        const GPreEvaluationValidityCheckT<gpar::GParameterSet> & // the other object
         ,
         const Gem::Common::expectation & // the expectation for this object, e.g. equality
         ,
@@ -1090,7 +1090,7 @@ protected:
 
 private:
     /** @brief Creates a deep clone of this object */
-    GObject *clone_() const override;
+    GPreEvaluationValidityCheckT<gpar::GParameterSet> *clone_() const override;
 
     double c_ = 1.;    ///< The constant that should not be exceeded by the sum of parameters
     double gap_ = 0.5; ///< A tolerance around C_ that is still considered to be valid
@@ -1143,7 +1143,7 @@ protected:
     void addConfigurationOptions_(Gem::Common::GParserBuilder &) override;
 
     /** @brief Loads the data of another GParameterSetMultiConstraint */
-    void load_(const GObject *) override;
+    void load_(const GPreEvaluationValidityCheckT<gpar::GParameterSet> *) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GSphereConstraint>(
@@ -1154,7 +1154,7 @@ protected:
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
     void compare_(
-        const GObject & // the other object
+        const GPreEvaluationValidityCheckT<gpar::GParameterSet> & // the other object
         ,
         const Gem::Common::expectation & // the expectation for this object, e.g. equality
         ,
@@ -1163,7 +1163,7 @@ protected:
 
 private:
     /** @brief Creates a deep clone of this object */
-    GObject *clone_() const override;
+    GPreEvaluationValidityCheckT<gpar::GParameterSet> *clone_() const override;
 
     /** @brief The diameter of the sphere */
     double diameter_ = 1.;

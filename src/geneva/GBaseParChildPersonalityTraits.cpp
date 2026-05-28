@@ -41,7 +41,7 @@ namespace Gem::Geneva::OptimizationAlgorithms {
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *
- * @param cp A constant reference to another GObject object
+ * @param cp A constant reference to another GPersonalityTraits object
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
@@ -94,7 +94,7 @@ std::string GBaseParChildPersonalityTraits::getMnemonic() const {
 /**
  * Creates a deep clone of this object
  *
- * @return A clone of this object, camouflaged as a GObject
+ * @return A clone of this object, camouflaged as a GPersonalityTraits
  */
 GPersonalityTraits *GBaseParChildPersonalityTraits::clone_() const {
     return new GBaseParChildPersonalityTraits(*this);
@@ -104,7 +104,7 @@ GPersonalityTraits *GBaseParChildPersonalityTraits::clone_() const {
 /**
  * Loads the data of another GBaseParChildPersonalityTraits object
  *
- * @param cp A copy of another GBaseParChildPersonalityTraits object, camouflaged as a GObject
+ * @param cp A copy of another GBaseParChildPersonalityTraits object, camouflaged as a GPersonalityTraits
  */
 void GBaseParChildPersonalityTraits::load_(const GPersonalityTraits *cp) {
     // Check that we are dealing with a GBasePS::GBaseParChildPersonalityTraits reference independent of this object and convert the pointer

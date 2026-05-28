@@ -1084,7 +1084,7 @@ public:
                 << "Tried to clone an empty smart pointer." << '\n'
             );
         }
-        data_cnt_.push_back(item_ptr->ValueType::template clone<ValueType>());
+        data_cnt_.push_back(item_ptr->template clone<ValueType>());
     }
 
     /**
@@ -1133,7 +1133,7 @@ public:
                 << "Tried to clone an empty smart pointer." << '\n'
             );
         }
-        return data_cnt_.insert(pos, item_ptr->ValueType::template clone<ValueType>());
+        return data_cnt_.insert(pos, item_ptr->template clone<ValueType>());
     }
 
     /**
@@ -1164,7 +1164,7 @@ public:
         std::vector<StoredType> clones;
         clones.reserve(count);
         for(std::size_t i = 0; i < count; ++i) {
-            clones.push_back(item_ptr->ValueType::template clone<ValueType>());
+            clones.push_back(item_ptr->template clone<ValueType>());
         }
         data_cnt_.insert(
             pos,
@@ -1229,7 +1229,7 @@ public:
         to_insert.reserve(count);
         to_insert.push_back(std::move(item_ptr));
         for(std::size_t i = 0; i < count - 1; ++i) {
-            to_insert.push_back(to_insert.front()->ValueType::template clone<ValueType>());
+            to_insert.push_back(to_insert.front()->template clone<ValueType>());
         }
         data_cnt_.insert(
             pos,
@@ -1270,7 +1270,7 @@ public:
             }
             data_cnt_.reserve(amount);
             for(std::size_t i = data_size; i < amount; ++i) {
-                data_cnt_.push_back(item_ptr->ValueType::template clone<ValueType>());
+                data_cnt_.push_back(item_ptr->template clone<ValueType>());
             }
         }
     }
@@ -1301,7 +1301,7 @@ public:
             }
             data_cnt_.reserve(amount);
             for(std::size_t i = data_size; i < amount - 1; ++i) {
-                data_cnt_.push_back(item_ptr->ValueType::template clone<ValueType>());
+                data_cnt_.push_back(item_ptr->template clone<ValueType>());
             }
             data_cnt_.push_back(std::move(item_ptr));
         }
@@ -1347,7 +1347,7 @@ public:
     [[nodiscard]] std::shared_ptr<TargetType> clone_at(std::size_t pos) const
         requires(!std::same_as<StoredType, ValueType>)
     {
-        return data_cnt_.at(pos)->ValueType::template clone<TargetType>();
+        return data_cnt_.at(pos)->template clone<TargetType>();
     }
 
     /**
@@ -1447,7 +1447,7 @@ public:
     {
         cp.clear();
         for(const auto &item : data_cnt_) {
-            cp.push_back(item->ValueType::template clone<ValueType>());
+            cp.push_back(item->template clone<ValueType>());
         }
     }
 

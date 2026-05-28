@@ -50,7 +50,7 @@ GDoubleBiGaussAdaptor::GDoubleBiGaussAdaptor(const double &ad_prob)
 /**
  * Creates a deep clone of this object.
  *
- * @return A copy of this object, camouflaged as a GObject
+ * @return A copy of this object, camouflaged as a GAdaptorT
  */
 GAdaptorT<double> *GDoubleBiGaussAdaptor::clone_() const {
     return new GDoubleBiGaussAdaptor(*this);
@@ -61,7 +61,7 @@ GAdaptorT<double> *GDoubleBiGaussAdaptor::clone_() const {
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *
- * @param cp A constant reference to another GObject object
+ * @param cp A constant reference to another GAdaptorT object
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
@@ -97,9 +97,9 @@ std::string GDoubleBiGaussAdaptor::name_() const {
 
 /******************************************************************************/
 /**
- * Loads the data of another GObject
+ * Loads the data of another GAdaptorT
  *
- * @param cp A copy of another GDoubleBiGaussAdaptor object, camouflaged as a GObject
+ * @param cp A copy of another GDoubleBiGaussAdaptor object, camouflaged as a GAdaptorT
  */
 void GDoubleBiGaussAdaptor::load_(const GAdaptorT<double> *cp) {
     // Convert the pointer to our target type and check for self-assignment

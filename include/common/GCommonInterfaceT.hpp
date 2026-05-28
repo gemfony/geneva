@@ -132,7 +132,7 @@ public:
     }
 
     /* ----------------------------------------------------------------------------------
-     * Tested in GObject::specificTestsNoFailureExpected_GUnitTests()
+     * Tested in GCommonInterfaceT::specificTestsNoFailureExpected_GUnitTests()
      * Tested indirectly through standard tests of toString
      * ----------------------------------------------------------------------------------
      */
@@ -176,7 +176,7 @@ public:
     }
 
     /* ----------------------------------------------------------------------------------
-         * Tested in GObject::specificTestsNoFailureExpected_GUnitTests()
+         * Tested in GCommonInterfaceT::specificTestsNoFailureExpected_GUnitTests()
          * Tested indirectly through standard tests of fromString
          * ----------------------------------------------------------------------------------
          */
@@ -197,7 +197,7 @@ public:
     }
 
     /* ----------------------------------------------------------------------------------
-         * Tested in GObject::specificTestsNoFailureExpected_GUnitTests()
+         * Tested in GCommonInterfaceT::specificTestsNoFailureExpected_GUnitTests()
          * Tested as part of standard serialization tests in Geneva standard test suite
          * ----------------------------------------------------------------------------------
          */
@@ -217,7 +217,7 @@ public:
     }
 
     /* ----------------------------------------------------------------------------------
-         * Tested in GObject::specificTestsNoFailureExpected_GUnitTests()
+         * Tested in GCommonInterfaceT::specificTestsNoFailureExpected_GUnitTests()
          * Tested as part of standard serialization tests in Geneva standard test suite
          * ----------------------------------------------------------------------------------
          */
@@ -257,7 +257,7 @@ public:
     }
 
     /* ----------------------------------------------------------------------------------
-         * Tested in GObject::specificTestsNoFailureExpected_GUnitTests()
+         * Tested in GCommonInterfaceT::specificTestsNoFailureExpected_GUnitTests()
          * Part of the regular Geneva standard tests for every tested object
          * ----------------------------------------------------------------------------------
          */
@@ -294,7 +294,7 @@ public:
     }
 
     /* ----------------------------------------------------------------------------------
-         * Tested in GObject::specificTestsNoFailureExpected_GUnitTests()
+         * Tested in GCommonInterfaceT::specificTestsNoFailureExpected_GUnitTests()
          * Part of the regular Geneva standard tests for every tested object
          * ----------------------------------------------------------------------------------
          */
@@ -303,14 +303,14 @@ public:
     /**
      * Returns an XML description of the derivative it is called for
      *
-     * @return An XML description of the GObject-derivative the function is called for
+     * @return An XML description of the GCommonInterfaceT-derivative the function is called for
      */
     std::string report() const {
         return toString(Gem::Common::serializationMode::XML);
     }
 
     /* ----------------------------------------------------------------------------------
-         * Tested in GObject::specificTestsNoFailureExpected_GUnitTests() // Check that
+         * Tested in GCommonInterfaceT::specificTestsNoFailureExpected_GUnitTests() // Check that
          * the function does return a non-empty description. Content is not checked
          * automatically.
          * ----------------------------------------------------------------------------------

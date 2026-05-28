@@ -70,9 +70,9 @@ GInt32Collection::GInt32Collection(
 /**
  * Creates a deep clone of this object.
  *
- * @return A copy of this object, camouflaged as a GObject
+ * @return A copy of this object, camouflaged as a GParameterBase
  */
-GObject *GInt32Collection::clone_() const {
+GParameterBase *GInt32Collection::clone_() const {
     return new GInt32Collection(*this);
 }
 
@@ -81,12 +81,12 @@ GObject *GInt32Collection::clone_() const {
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *
- * @param cp A constant reference to another GObject object
+ * @param cp A constant reference to another GParameterBase object
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GInt32Collection::compare_(
-    const GObject &cp,
+    const GParameterBase &cp,
     const Gem::Common::expectation &e,
     const double & /*limit*/
 ) const {
@@ -94,7 +94,7 @@ void GInt32Collection::compare_(
 
     // Check that we are dealing with a GInt32Collection reference independent of this object and convert the pointer
     const GInt32Collection *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GInt32Collection>(cp, this);
+        Gem::Common::g_convert_and_compare<GParameterBase, GInt32Collection>(cp, this);
 
     GToken token("GInt32Collection", e);
 
@@ -361,14 +361,14 @@ void GInt32Collection::int32Subtract(
 
 /******************************************************************************/
 /**
- * Loads the data of another GObject
+ * Loads the data of another GParameterBase
  *
- * @param cp A copy of another GInt32Collection object, camouflaged as a GObject
+ * @param cp A copy of another GInt32Collection object, camouflaged as a GParameterBase
  */
-void GInt32Collection::load_(const GObject *cp) {
+void GInt32Collection::load_(const GParameterBase *cp) {
     // Convert the pointer to our target type and check for self-assignment
     const GInt32Collection *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GInt32Collection>(cp, this);
+        Gem::Common::g_convert_and_compare<GParameterBase, GInt32Collection>(cp, this);
 
     // Load our parent class'es data ...
     GIntNumCollectionT<std::int32_t>::load_(cp);

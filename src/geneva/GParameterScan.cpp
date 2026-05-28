@@ -350,12 +350,12 @@ std::size_t GParameterScan::getNProcessableItems_() const {
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *
- * @param cp A constant reference to another GObject object
+ * @param cp A constant reference to another GParameterScan object
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GParameterScan::compare_(
-    const GObject &cp,
+    const GBase &cp,
     const Gem::Common::expectation &e,
     const double & /*limit*/
 ) const {
@@ -363,7 +363,7 @@ void GParameterScan::compare_(
 
     // Check that we are dealing with a GParameterScan reference independent of this object and convert the pointer
     const GParameterScan *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GParameterScan>(cp, this);
+        Gem::Common::g_convert_and_compare<GBase, GParameterScan>(cp, this);
 
     GToken token("GParameterScan", e);
 
@@ -434,12 +434,12 @@ std::size_t GParameterScan::getNMonitorInds() const {
 /**
  * Loads the data of another population
  *
- * @param cp A pointer to another GParameterScan object, camouflaged as a GObject
+ * @param cp A pointer to another GParameterScan object
  */
-void GParameterScan::load_(const GObject *cp) {
+void GParameterScan::load_(const GBase *cp) {
     // Check that we are dealing with a GParameterScan reference independent of this object and convert the pointer
     const GParameterScan *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GParameterScan>(cp, this);
+        Gem::Common::g_convert_and_compare<GBase, GParameterScan>(cp, this);
 
     // First load the parent class'es data.
     // This will also take care of copying all individuals.
@@ -471,9 +471,9 @@ void GParameterScan::load_(const GObject *cp) {
 /**
  * Creates a deep clone of this object
  *
- * @return A deep copy of this object, camouflaged as a GObject
+ * @return A deep copy of this object
  */
-GObject *GParameterScan::clone_() const {
+GBase *GParameterScan::clone_() const {
     return new GParameterScan(*this);
 }
 
@@ -1257,7 +1257,7 @@ void GParameterScan::adjustPopulation_() {
 
     // Create the desired number of (identical) individuals in the population.
     for(std::size_t ind = 1; ind < this->getDefaultPopulationSize(); ind++) {
-        this->push_back(this->at(0)->GObject::clone<gpar::GParameterSet>());
+        this->push_back(this->at(0)->clone<gpar::GParameterSet>());
     }
 }
 

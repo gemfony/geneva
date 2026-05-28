@@ -45,7 +45,6 @@
 // Geneva headers go here
 #include "common/GExpectationChecksT.hpp"
 #include "common/GContainerT.hpp"
-#include "geneva/GObject.hpp"
 
 /*************************************************************************************************/
 /**

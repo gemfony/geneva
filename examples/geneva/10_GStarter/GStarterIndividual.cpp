@@ -150,12 +150,12 @@ GStarterIndividual::~GStarterIndividual() { /* nothing */
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *
- * @param cp A constant reference to another GObject object
+ * @param cp A constant reference to another GParameterSet object
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GStarterIndividual::compare_(
-    const GObject &cp,
+    const gpar::GParameterSet &cp,
     const Gem::Common::expectation &e,
     const double &limit
 ) const {
@@ -163,7 +163,7 @@ void GStarterIndividual::compare_(
 
     // Check that we are dealing with a GStarterIndividual reference independent of this object and convert the pointer
     const GStarterIndividual *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GStarterIndividual>(&cp, this);
+        Gem::Common::g_convert_and_compare<gpar::GParameterSet, GStarterIndividual>(&cp, this);
 
     Gem::Common::GToken token("GStarterIndividual", e);
 
@@ -276,14 +276,14 @@ std::string GStarterIndividual::print() {
 
 /******************************************************************************/
 /**
- * Loads the data of another GStarterIndividual, camouflaged as a GObject
+ * Loads the data of another GStarterIndividual, camouflaged as a GParameterSet
  *
- * @param cp A copy of another GStarterIndividual, camouflaged as a GObject
+ * @param cp A copy of another GStarterIndividual, camouflaged as a GParameterSet
  */
-void GStarterIndividual::load_(const GObject *cp) {
+void GStarterIndividual::load_(const gpar::GParameterSet *cp) {
     // Check that we are dealing with a GStarterIndividual reference independent of this object and convert the pointer
     const GStarterIndividual *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GStarterIndividual>(cp, this);
+        Gem::Common::g_convert_and_compare<gpar::GParameterSet, GStarterIndividual>(cp, this);
 
     // Load our parent class'es data ...
     gpar::GParameterSet::load_(cp);
@@ -296,9 +296,9 @@ void GStarterIndividual::load_(const GObject *cp) {
 /**
  * Creates a deep clone of this object
  *
- * @return A deep clone of this object, camouflaged as a GObject
+ * @return A deep clone of this object, camouflaged as a GParameterSet
  */
-GObject *GStarterIndividual::clone_() const {
+gpar::GParameterSet *GStarterIndividual::clone_() const {
     return new GStarterIndividual(*this);
 }
 

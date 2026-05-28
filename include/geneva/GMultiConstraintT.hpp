@@ -39,7 +39,7 @@
 // Boost header files go here
 
 // Geneva header files go here
-#include "geneva/GObject.hpp"
+#include "common/GCommonInterfaceT.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GenevaHelperFunctionsT.hpp"
 
@@ -57,14 +57,20 @@ namespace Parameters { class GParameterSet; }
  */
 template <typename ind_type>
 class GPreEvaluationValidityCheckT // NOLINT(cppcoreguidelines-special-member-functions)
-  : public GObject {
+  : public Gem::Common::GCommonInterfaceT<GPreEvaluationValidityCheckT<ind_type>> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject) & BOOST_SERIALIZATION_NVP(allow_negative_);
+
+        // This is the CRTP category root. Its CRTP base
+        // (Gem::Common::GCommonInterfaceT<GPreEvaluationValidityCheckT<ind_type>>)
+        // carries no state and is therefore not serialized as a base_object --
+        // mirroring GObject, whose serialize() is likewise empty. The polymorphic
+        // base_object chain bottoms out here; only our own data is serialized.
+        Gem::Common::serialize_members(ar, this->localMembers());
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -201,7 +207,7 @@ protected:
      */
     void addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) override {
         // Call our parent class'es function
-        GObject::addConfigurationOptions_(gpb);
+        Gem::Common::GCommonInterfaceT<GPreEvaluationValidityCheckT<ind_type>>::addConfigurationOptions_(gpb);
     }
 
     /***************************************************************************/
@@ -224,18 +230,19 @@ protected:
     /**
      * Loads the data of another GPreEvaluationValidityCheckT<ind_type>
      */
-    void load_(const GObject *cp) override {
+    void load_(const GPreEvaluationValidityCheckT<ind_type> *cp) override {
         // Check that we are dealing with a GPreEvaluationValidityCheckT<ind_type>  reference independent of this object and convert the pointer
         const GPreEvaluationValidityCheckT<ind_type> *p_load =
-            Gem::Common::g_convert_and_compare<GObject, GPreEvaluationValidityCheckT<ind_type>>(
+            Gem::Common::g_convert_and_compare<
+                GPreEvaluationValidityCheckT<ind_type>,
+                GPreEvaluationValidityCheckT<ind_type>>(
                 cp,
                 this
             );
 
-        // Load our parent class'es data ...
-        GObject::load_(cp);
+        // This is the category root; there is no GObject parent class to load.
 
-        // ... and then our local data, derived from the single localMembers() declaration
+        // Our own data, derived from the single localMembers() declaration
         Gem::Common::g_load_members(localMembers(), p_load->localMembers());
     }
 
@@ -252,12 +259,12 @@ protected:
      * Searches for compliance with expectations with respect to another object
      * of the same type
      *
-     * @param cp A constant reference to another GObject object
+     * @param cp A constant reference to another GPreEvaluationValidityCheckT object
      * @param e The expected outcome of the comparison
      * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
     void compare_(
-        const GObject &cp,
+        const GPreEvaluationValidityCheckT<ind_type> &cp,
         const Gem::Common::expectation &e,
         const double & /*limit*/
     ) const override {
@@ -265,7 +272,9 @@ protected:
 
         // Check that we are dealing with a GPreEvaluationValidityCheckT<ind_type>  reference independent of this object and convert the pointer
         const GPreEvaluationValidityCheckT<ind_type> *p_load =
-            Gem::Common::g_convert_and_compare<GObject, GPreEvaluationValidityCheckT<ind_type>>(
+            Gem::Common::g_convert_and_compare<
+                GPreEvaluationValidityCheckT<ind_type>,
+                GPreEvaluationValidityCheckT<ind_type>>(
                 cp,
                 this
             );
@@ -273,7 +282,7 @@ protected:
         GToken token("GPreEvaluationValidityCheckT<ind_type>", e);
 
         // Compare our parent data ...
-        Gem::Common::compare_base_t<GObject>(*this, *p_load, token);
+        Gem::Common::compare_base_t<Gem::Common::GCommonInterfaceT<GPreEvaluationValidityCheckT<ind_type>>>(*this, *p_load, token);
 
         // ... and then the local data, derived from the single localMembers() declaration
         Gem::Common::g_compare_members(localMembers(), p_load->localMembers(), token);
@@ -282,10 +291,62 @@ protected:
         token.evaluate();
     }
 
+    /***************************************************************************/
+    /**
+     * Applies modifications to this object. This is needed for testing purposes
+     */
+    bool modify_GUnitTests_() override {
+#ifdef GEM_TESTING
+        // This is the category root; there is no modifiable GObject parent class.
+        bool result = false;
+
+        if(not this->getAllowNegative()) {
+            this->setAllowNegative(true);
+            result = true;
+        }
+
+        return result;
+
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+        Gem::Common::condnotset("GPreEvaluationValidityCheckT<>::modify_GUnitTests", "GEM_TESTING");
+        return false;
+#endif                  /* GEM_TESTING */
+    }
+
+    /***************************************************************************/
+    /**
+     * Performs self tests that are expected to succeed. This is needed for testing purposes
+     */
+    void specificTestsNoFailureExpected_GUnitTests_() override {
+#ifdef GEM_TESTING
+        // This is the category root; there is no GObject parent class to delegate to.
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+        Gem::Common::condnotset(
+            "GPreEvaluationValidityCheckT<>::specificTestsNoFailureExpected_GUnitTests",
+            "GEM_TESTING"
+        );
+#endif /* GEM_TESTING */
+    }
+
+    /***************************************************************************/
+    /**
+     * Performs self tests that are expected to fail. This is needed for testing purposes
+     */
+    void specificTestsFailuresExpected_GUnitTests_() override {
+#ifdef GEM_TESTING
+        // This is the category root; there is no GObject parent class to delegate to.
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+        Gem::Common::condnotset(
+            "GPreEvaluationValidityCheckT<>::specificTestsFailuresExpected_GUnitTests",
+            "GEM_TESTING"
+        );
+#endif /* GEM_TESTING */
+    }
+
 private:
     /***************************************************************************/
     /** @brief Creates a deep clone of this object */
-    GObject *clone_() const override = 0;
+    GPreEvaluationValidityCheckT<ind_type> *clone_() const override = 0;
 
     /***************************************************************************/
 
@@ -372,7 +433,7 @@ public:
         }
 
         validity_checks_.push_back(
-            vc_ptr->GObject::template clone<GPreEvaluationValidityCheckT<ind_type>>()
+            vc_ptr->template clone<GPreEvaluationValidityCheckT<ind_type>>()
         );
     }
 
@@ -385,10 +446,12 @@ protected:
     /**
      * Loads the data of another GPreEvaluationValidityCheckT<ind_type>
      */
-    void load_(const GObject *cp) override {
+    void load_(const GPreEvaluationValidityCheckT<ind_type> *cp) override {
         // Check that we are dealing with a GValidityCheckContainerT<ind_type>  reference independent of this object and convert the pointer
         const GValidityCheckContainerT<ind_type> *p_load =
-            Gem::Common::g_convert_and_compare<GObject, GValidityCheckContainerT<ind_type>>(
+            Gem::Common::g_convert_and_compare<
+                GPreEvaluationValidityCheckT<ind_type>,
+                GValidityCheckContainerT<ind_type>>(
                 cp,
                 this
             );
@@ -413,12 +476,12 @@ protected:
      * Searches for compliance with expectations with respect to another object
      * of the same type
      *
-     * @param cp A constant reference to another GObject object
+     * @param cp A constant reference to another GPreEvaluationValidityCheckT object
      * @param e The expected outcome of the comparison
      * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
     void compare_(
-        const GObject &cp,
+        const GPreEvaluationValidityCheckT<ind_type> &cp,
         const Gem::Common::expectation &e,
         const double & /*limit*/
     ) const override {
@@ -426,7 +489,9 @@ protected:
 
         // Check that we are dealing with a GValidityCheckContainerT<ind_type>  reference independent of this object and convert the pointer
         const GValidityCheckContainerT<ind_type> *p_load =
-            Gem::Common::g_convert_and_compare<GObject, GValidityCheckContainerT<ind_type>>(
+            Gem::Common::g_convert_and_compare<
+                GPreEvaluationValidityCheckT<ind_type>,
+                GValidityCheckContainerT<ind_type>>(
                 cp,
                 this
             );
@@ -450,7 +515,7 @@ protected:
 private:
     /***************************************************************************/
     /** @brief Creates a deep clone of this object */
-    GObject *clone_() const override = 0;
+    GPreEvaluationValidityCheckT<ind_type> *clone_() const override = 0;
 
     /***************************************************************************/
 };
@@ -630,10 +695,12 @@ protected:
     /**
      * Loads the data of another GPreEvaluationValidityCheckT<ind_type>
      */
-    void load_(const GObject *cp) override {
+    void load_(const GPreEvaluationValidityCheckT<ind_type> *cp) override {
         // Check that we are dealing with a GCheckCombinerT<ind_type>  reference independent of this object and convert the pointer
         const GCheckCombinerT<ind_type> *p_load =
-            Gem::Common::g_convert_and_compare<GObject, GCheckCombinerT<ind_type>>(cp, this);
+            Gem::Common::g_convert_and_compare<
+                GPreEvaluationValidityCheckT<ind_type>,
+                GCheckCombinerT<ind_type>>(cp, this);
 
         // Load our parent class'es data ...
         GPreEvaluationValidityCheckT<ind_type>::load_(cp);
@@ -655,12 +722,12 @@ protected:
      * Searches for compliance with expectations with respect to another object
      * of the same type
      *
-     * @param cp A constant reference to another GObject object
+     * @param cp A constant reference to another GPreEvaluationValidityCheckT object
      * @param e The expected outcome of the comparison
      * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
     void compare_(
-        const GObject &cp,
+        const GPreEvaluationValidityCheckT<ind_type> &cp,
         const Gem::Common::expectation &e,
         const double & /*limit*/
     ) const override {
@@ -668,7 +735,9 @@ protected:
 
         // Check that we are dealing with a GCheckCombinerT<ind_type>  reference independent of this object and convert the pointer
         const GCheckCombinerT<ind_type> *p_load =
-            Gem::Common::g_convert_and_compare<GObject, GCheckCombinerT<ind_type>>(cp, this);
+            Gem::Common::g_convert_and_compare<
+                GPreEvaluationValidityCheckT<ind_type>,
+                GCheckCombinerT<ind_type>>(cp, this);
 
         GToken token("GCheckCombinerT<ind_type", e);
 
@@ -687,7 +756,7 @@ private:
     /**
      * Creates a deep clone of this object
      */
-    GObject *clone_() const override {
+    GPreEvaluationValidityCheckT<ind_type> *clone_() const override {
         return new GCheckCombinerT<ind_type>(*this);
     }
 

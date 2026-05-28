@@ -47,7 +47,6 @@
 #include "common/GExceptions.hpp"
 #include "geneva/par/GConstrainedNumCollectionT.hpp"
 #include "geneva/par/GDoubleGaussAdaptor.hpp"
-#include "geneva/GObject.hpp"
 
 namespace Gem::Geneva::Parameters {
 
@@ -211,16 +210,16 @@ protected:
     /***************************************************************************/
     /**
      * Loads the data of another GConstrainedFPNumCollectionT<fp_type> object,
-     * camouflaged as a GObject. We have no local data, so
+     * camouflaged as a GParameterBase. We have no local data, so
      * all we need to do is to the standard identity check,
      * preventing that an object is assigned to itself.
      *
-     * @param cp A copy of another GConstrainedFPNumCollectionT<fp_type> object, camouflaged as a GObject
+     * @param cp A copy of another GConstrainedFPNumCollectionT<fp_type> object, camouflaged as a GParameterBase
      */
-    void load_(const GObject *cp) override {
+    void load_(const GParameterBase *cp) override {
         // Check that we are dealing with a GConstrainedFPNumCollectionT<fp_type>  reference independent of this object and convert the pointer
         const GConstrainedFPNumCollectionT<fp_type> *p_load =
-            Gem::Common::g_convert_and_compare<GObject, GConstrainedFPNumCollectionT<fp_type>>(
+            Gem::Common::g_convert_and_compare<GParameterBase, GConstrainedFPNumCollectionT<fp_type>>(
                 cp,
                 this
             );
@@ -244,12 +243,12 @@ protected:
      * Searches for compliance with expectations with respect to another object
      * of the same type
      *
-     * @param cp A constant reference to another GObject object
+     * @param cp A constant reference to another GParameterBase object
      * @param e The expected outcome of the comparison
      * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
     void compare_(
-        const GObject &cp,
+        const GParameterBase &cp,
         const Gem::Common::expectation &e,
         const double & /*limit*/
     ) const override {
@@ -257,7 +256,7 @@ protected:
 
         // Check that we are dealing with a GConstrainedFPNumCollectionT<fp_type>  reference independent of this object and convert the pointer
         const GConstrainedFPNumCollectionT<fp_type> *p_load =
-            Gem::Common::g_convert_and_compare<GObject, GConstrainedFPNumCollectionT<fp_type>>(
+            Gem::Common::g_convert_and_compare<GParameterBase, GConstrainedFPNumCollectionT<fp_type>>(
                 cp,
                 this
             );
@@ -361,7 +360,7 @@ private:
     }
     /***************************************************************************/
     /** @brief Creates a deep copy of this object */
-    GObject *clone_() const override = 0;
+    GParameterBase *clone_() const override = 0;
 };
 
 /******************************************************************************/

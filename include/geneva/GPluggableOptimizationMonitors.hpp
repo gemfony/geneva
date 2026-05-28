@@ -728,7 +728,7 @@ protected:
     /**
 	  * Loads the data of another object
 	  *
-	  * cp A pointer to another GProgressPlotterTT<fp_type> object, camouflaged as a GObject
+	  * cp A pointer to another GProgressPlotterTT<fp_type> object, camouflaged as a GBasePluggableOM
 	  */
     void load_(const oa::GBasePluggableOM *cp) override {
         // Check that we are dealing with a GProgressPlotterT<fp_type> reference independent of this object and convert the pointer
@@ -758,7 +758,7 @@ protected:
      * Searches for compliance with expectations with respect to another object
      * of the same type
      *
-     * @param cp A constant reference to another GObject object
+     * @param cp A constant reference to another GBasePluggableOM object
      * @param e The expected outcome of the comparison
      * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
@@ -1884,7 +1884,7 @@ protected:
     /**
 	  * Loads the data of another object
 	  *
-	  * cp A pointer to another GAdaptorPropertyLoggerTT<num_type object, camouflaged as a GObject
+	  * cp A pointer to another GAdaptorPropertyLoggerTT<num_type object, camouflaged as a GBasePluggableOM
 	  */
     void load_(const oa::GBasePluggableOM *cp) override {
         // Check that we are dealing with a GAdaptorPropertyLoggerT<num_type> reference independent of this object and convert the pointer
@@ -1913,7 +1913,7 @@ protected:
      * Searches for compliance with expectations with respect to another object
      * of the same type
      *
-     * @param cp A constant reference to another GObject object
+     * @param cp A constant reference to another GBasePluggableOM object
      * @param e The expected outcome of the comparison
      * @param limit The maximum deviation for floating point values (important for similarity checks)
      */

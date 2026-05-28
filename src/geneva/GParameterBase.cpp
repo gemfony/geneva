@@ -37,17 +37,16 @@ namespace Gem::Geneva::Parameters {
 
 /******************************************************************************/
 /**
- * Loads the data of another GObject
+ * Loads the data of another GParameterBase
  *
- * @param cp A copy of another GParameterBase object, camouflaged as a GObject
+ * @param cp A copy of another GParameterBase object
  */
-void GParameterBase::load_(const GObject *cp) {
+void GParameterBase::load_(const GParameterBase *cp) {
     // Check that we are dealing with a GParameterBase reference independent of this object and convert the pointer
     const GParameterBase *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GParameterBase>(cp, this);
+        Gem::Common::g_convert_and_compare<GParameterBase, GParameterBase>(cp, this);
 
-    // Load the parent class'es data
-    GObject::load_(cp);
+    // This is the category root; there is no GObject parent class to load.
 
     // Load local data, derived from the single localMembers() declaration
     Gem::Common::g_load_members(localMembers(), p_load->localMembers());
@@ -147,12 +146,12 @@ bool GParameterBase::adaptionsInactive() const {
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *
- * @param cp A constant reference to another GObject object
+ * @param cp A constant reference to another GParameterBase object
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GParameterBase::compare_(
-    const GObject &cp,
+    const GParameterBase &cp,
     const Gem::Common::expectation &e,
     const double & /*limit*/
 ) const {
@@ -160,12 +159,12 @@ void GParameterBase::compare_(
 
     // Check that we are dealing with a GParameterBase reference independent of this object and convert the pointer
     const GParameterBase *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GParameterBase>(cp, this);
+        Gem::Common::g_convert_and_compare<GParameterBase, GParameterBase>(cp, this);
 
     GToken token("GParameterBase", e);
 
     // Compare our parent data ...
-    Gem::Common::compare_base_t<GObject>(*this, *p_load, token);
+    Gem::Common::compare_base_t<Gem::Common::GCommonInterfaceT<GParameterBase>>(*this, *p_load, token);
 
     // ... and then the local data, derived from the single localMembers() declaration
     g_compare_members(localMembers(), p_load->localMembers(), token);
@@ -1023,12 +1022,8 @@ bool GParameterBase::randomInitializationBlocked() const {
  */
 bool GParameterBase::modify_GUnitTests_() {
 #ifdef GEM_TESTING
+    // This is the category root; there is no modifiable GObject parent class.
     bool result = false;
-
-    // Call the parent class'es function
-    if(GObject::modify_GUnitTests_()) {
-        result = true;
-    }
 
     return result;
 
@@ -1044,8 +1039,7 @@ bool GParameterBase::modify_GUnitTests_() {
  */
 void GParameterBase::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
-    // Call the parent class'es function
-    GObject::specificTestsNoFailureExpected_GUnitTests_();
+    // This is the category root; there is no GObject parent class to delegate to.
 
     // A random generator
     Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
@@ -1193,8 +1187,7 @@ void GParameterBase::specificTestsNoFailureExpected_GUnitTests_() {
  */
 void GParameterBase::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
-    // Call the parent class'es function
-    GObject::specificTestsFailuresExpected_GUnitTests_();
+    // This is the category root; there is no GObject parent class to delegate to.
 
     //---------------------------------------------------------------------------
 

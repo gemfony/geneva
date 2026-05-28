@@ -27,52 +27,35 @@
  *
  ********************************************************************************/
 
-#pragma once
-
-// Global checks, defines and includes needed for all of Geneva
-#include "common/GGlobalDefines.hpp"
-
-// Standard headers go here
-#include <sstream>
-#include <type_traits>
-#include <vector>
-
-// Boost headers go here
-
-// Our own headers go here
-#include "common/GExceptions.hpp"
-#include "geneva/par/GAdaptorT.hpp"
-#include "geneva/GOptimizationEnums.hpp"
+#include "geneva/GSigHupHandler.hpp"
 
 namespace Gem::Geneva {
 
 /******************************************************************************/
-/**
- * This factory function returns default adaptors for a given base type. This function is a trap.
- * Specializations are responsible for the actual implementation.
- *
- * @return The default adaptor for a given base type
- */
-template <typename T>
-std::shared_ptr<gpar::GAdaptorT<T>> getDefaultAdaptor() {
-    throw geneva_exception(
-        g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-        << "In getDefaultAdaptor():" << '\n'
-        << "Function called with invalid type." << '\n'
-    );
+// Needed to allow catching of a SIGHUP or CTRL_CLOSE_EVENT event.
+// Note that "volatile" is needed in order for the signal handler to work.
+namespace {
+volatile std::sig_atomic_t GenevaSigHupSent = 0;
+} // namespace
 
-    // Make the compiler happy
-    return std::shared_ptr<gpar::GAdaptorT<T>>();
+/******************************************************************************/
+/**
+ * A handler for SIGHUP or CTRL_CLOSE_EVENT signals. This function works both
+ * for Windows and Unix systems.
+ */
+void sigHupHandler(int signum) {
+    if(G_SIGHUP == signum) {
+        GenevaSigHupSent = 1;
+    }
 }
 
-// Specializations for double, std::int32_t and bool
 /******************************************************************************/
-template <>
-std::shared_ptr<gpar::GAdaptorT<double>> getDefaultAdaptor<double>();
-template <>
-std::shared_ptr<gpar::GAdaptorT<std::int32_t>> getDefaultAdaptor<std::int32_t>();
-template <>
-std::shared_ptr<gpar::GAdaptorT<bool>> getDefaultAdaptor<bool>();
+/**
+ * Checks whether a SIGHUP or CTRL_CLOSE_EVENT signal has been sent.
+ */
+bool G_SIGHUP_SENT() {
+    return (1 == GenevaSigHupSent);
+}
 
 /******************************************************************************/
 

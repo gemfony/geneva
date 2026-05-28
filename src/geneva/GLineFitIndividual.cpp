@@ -82,12 +82,12 @@ GLineFitIndividual::~GLineFitIndividual() { /* nothing */
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *
- * @param cp A constant reference to another GObject object
+ * @param cp A constant reference to another GParameterSet object
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GLineFitIndividual::compare_(
-    const GObject &cp,
+    const gpar::GParameterSet &cp,
     const Gem::Common::expectation &e,
     const double & /*limit*/
 ) const {
@@ -95,7 +95,7 @@ void GLineFitIndividual::compare_(
 
     // Check that we are dealing with a GLineFitIndividual reference independent of this object and convert the pointer
     const GLineFitIndividual *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GLineFitIndividual>(cp, this);
+        Gem::Common::g_convert_and_compare<gpar::GParameterSet, GLineFitIndividual>(cp, this);
 
     GToken token("GLineFitIndividual", e);
 
@@ -121,17 +121,17 @@ std::tuple<double, double> GLineFitIndividual::getLine() const {
 
 /******************************************************************************/
 /**
- * Loads the data of another GLineFitIndividual, camouflaged as a GObject.
+ * Loads the data of another GLineFitIndividual, camouflaged as a GParameterSet.
  *
- * @param cp A copy of another GLineFitIndividual, camouflaged as a GObject
+ * @param cp A copy of another GLineFitIndividual, camouflaged as a GParameterSet
  */
-void GLineFitIndividual::load_(const GObject *cp) {
+void GLineFitIndividual::load_(const gpar::GParameterSet *cp) {
     using namespace Gem::Common;
     using namespace Gem::Geneva;
 
     // Check that we are dealing with a GLineFitIndividual reference independent of this object and convert the pointer
     const GLineFitIndividual *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GLineFitIndividual>(cp, this);
+        Gem::Common::g_convert_and_compare<gpar::GParameterSet, GLineFitIndividual>(cp, this);
 
     // Load our parent's data
     gpar::GParameterSet::load_(cp);
@@ -144,9 +144,9 @@ void GLineFitIndividual::load_(const GObject *cp) {
 /**
  * Creates a deep clone of this object
  *
- * @return A deep clone of this object, camouflaged as a GObject
+ * @return A deep clone of this object, camouflaged as a GParameterSet
  */
-Gem::Geneva::GObject *GLineFitIndividual::clone_() const {
+gpar::GParameterSet *GLineFitIndividual::clone_() const {
     return new GLineFitIndividual(*this);
 }
 

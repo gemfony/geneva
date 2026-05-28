@@ -176,14 +176,14 @@ std::string GConjugateGradientDescent::getAlgorithmName_() const {
  * of the same type
  */
 void GConjugateGradientDescent::compare_(
-    const GObject &cp,
+    const GBase &cp,
     const Gem::Common::expectation &e,
     const double & /*limit*/
 ) const {
     using namespace Gem::Common;
 
     const GConjugateGradientDescent *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GConjugateGradientDescent>(cp, this);
+        Gem::Common::g_convert_and_compare<GBase, GConjugateGradientDescent>(cp, this);
 
     GToken token("GConjugateGradientDescent", e);
 
@@ -228,9 +228,9 @@ std::string GConjugateGradientDescent::name_() const {
 /**
  * Loads the data of another population
  */
-void GConjugateGradientDescent::load_(const GObject *cp) {
+void GConjugateGradientDescent::load_(const GBase *cp) {
     const GConjugateGradientDescent *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GConjugateGradientDescent>(cp, this);
+        Gem::Common::g_convert_and_compare<GBase, GConjugateGradientDescent>(cp, this);
 
     // First load the parent class'es data (this also copies all individuals).
     GBase::load_(cp);
@@ -245,7 +245,7 @@ void GConjugateGradientDescent::load_(const GObject *cp) {
 /**
  * Creates a deep clone of this object
  */
-GObject *GConjugateGradientDescent::clone_() const {
+GBase *GConjugateGradientDescent::clone_() const {
     return new GConjugateGradientDescent(*this);
 }
 
@@ -316,7 +316,7 @@ void GConjugateGradientDescent::updateChildParameters() {
             std::size_t child_pos = n_starting_points_ + i * n_fp_parms_first_ + j;
 
             // Load the current "parent" into the "child"
-            this->at(child_pos)->GObject::load(this->at(i));
+            this->at(child_pos)->load(this->at(i));
 
             // Update the child's position in the population
             this->at(child_pos)

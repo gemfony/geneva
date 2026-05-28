@@ -75,7 +75,7 @@ common  <--  hap  <--  courtier  <--  geneva  <--  geneva-individuals
 | `common` | Utilities: logging (`GLogger`), thread pool (`GThreadPool`), Boost.Serialization helpers, formula parser, plot designer, bounded buffers, exception types |
 | `hap` | Random number generation (`GRandomT`, `GRandomFactory`). Optional CUDA GPU-based RNG via `GCUDARng` |
 | `courtier` | Broker/consumer parallelization framework. Consumers: `GSerialConsumerT`, `GStdThreadConsumerT`, `GAsioConsumerT`, `GWebsocketConsumerT`, `GMPIConsumerT`. The broker (`GBrokerT`) dispatches work items to registered consumers |
-| `geneva` | Core optimization: `GObject` base, `GParameterSet` (user subclass this to define a problem), `G_OptimizationAlgorithm_*` (EA, SA, Swarm, GD, ParameterScan), `Go2` (top-level orchestrator) |
+| `geneva` | Core optimization: per-category CRTP roots (each deriving from `Gem::Common::GCommonInterfaceT<Root>`), `GParameterSet` (user subclass this to define a problem), `G_OptimizationAlgorithm_*` (EA, SA, Swarm, GD, ParameterScan), `Go2` (top-level orchestrator) |
 | `geneva-individuals` | Reusable problem definitions (individuals) for examples and tests |
 
 Headers are in `include/<library>/`, sources in `src/<library>/`. All code is in the `Gem::` namespace (e.g., `Gem::Geneva`, `Gem::Courtier`, `Gem::Common`, `Gem::Hap`).
@@ -96,7 +96,7 @@ Parallelization is configured externally (via `Go2` JSON config or command-line)
 
 ### Serialization
 
-`GObject` and all subclasses use Boost.Serialization. Every class that adds data members must implement `serialize()` and `load_()` / `save_()` (or the combined `serialize` template). This is required for network transport of individuals.
+The common interface (`Gem::Common::GCommonInterfaceT<T>`) and all subclasses use Boost.Serialization. Every class that adds data members must implement `serialize()` and `load_()` / `save_()` (or the combined `serialize` template). This is required for network transport of individuals.
 
 ### Adaptors
 

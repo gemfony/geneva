@@ -52,7 +52,6 @@
 #include "common/GSerializationHelperFunctionsT.hpp"
 #include "common/GStdFilesystemPathSerialization.hpp"
 #include "courtier/GExecutorT.hpp"
-#include "geneva/GObject.hpp"
 #include "geneva/par/GParameterSet.hpp"
 #include "geneva/par/GParameterSetFixedSizePriorityQueue.hpp"
 #include "geneva/GPersonalityTraits.hpp"
@@ -186,7 +185,7 @@ private:
  * algorithms, such as a general call to "optimize()".
  */
 class GBase // NOLINT(cppcoreguidelines-special-member-functions)
-  : public GObject
+  : public Gem::Common::GCommonInterfaceT<GBase>
   , public Gem::Common::GPtrContainerT<gpar::GParameterSet>
   , public Interface::GOptimizerIT<GBase> {
 private:
@@ -290,10 +289,12 @@ private:
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        // GObject base + the container base (GPtrContainerT), which is a base-object
-        // rather than a local member.
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject) &
-            make_nvp(
+        // This is the CRTP category root. Its CRTP base
+        // (Gem::Common::GCommonInterfaceT<GBase>) carries no state and is therefore
+        // not serialized as a base_object -- mirroring GObject, whose serialize() is
+        // likewise empty. Only the stateful container base (GPtrContainerT), which is
+        // a base-object rather than a local member, is serialized here.
+        ar &make_nvp(
                 "GStdPtrVectorInterfaceT_T",
                 boost::serialization::base_object<Gem::Common::GPtrContainerT<gpar::GParameterSet>>(*this)
             );
@@ -310,9 +311,9 @@ private:
 public:
     // The private split-serialization member load(Archive&, unsigned) below
     // name-hides the public load(const&) / load(shared_ptr<>) inherited from
-    // Gem::Common::GCommonInterfaceT<GObject>. Re-expose them so callers (and
+    // Gem::Common::GCommonInterfaceT<GBase>. Re-expose them so callers (and
     // the standard unit tests) can load one GBase from another.
-    using GObject::load;
+    using Gem::Common::GCommonInterfaceT<GBase>::load;
 
     /** @brief The copy constructor */
     GBase(GBase const &cp);
@@ -526,7 +527,7 @@ protected:
     /** @brief Adds local configuration options to a GParserBuilder object */
     void addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) override;
     /** @brief Loads the data of another GOptimizationAlgorithm object */
-    void load_(const GObject *cp) override;
+    void load_(const GBase *cp) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GBase>(
@@ -537,7 +538,7 @@ protected:
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
     void compare_(
-        const GObject &cp,
+        const GBase &cp,
         const Gem::Common::expectation &e,
         const double &limit
     ) const override;
@@ -611,7 +612,7 @@ private:
     /** @brief Emits a name for this class / object; this can be a long name with spaces */
     std::string name_() const override = 0;
     /** @brief Creates a deep clone of this object */
-    GObject *clone_() const override = 0;
+    GBase *clone_() const override = 0;
 
     /** @brief Calculates the fitness of all required individuals; to be re-implemented in derived classes */
     void runFitnessCalculation_() override = 0;

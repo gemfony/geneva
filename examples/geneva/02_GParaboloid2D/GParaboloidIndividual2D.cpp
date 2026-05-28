@@ -77,14 +77,14 @@ GParaboloidIndividual2D::~GParaboloidIndividual2D() { /* nothing */
 
 /********************************************************************************************/
 /**
- * Loads the data of another GParaboloidIndividual2D, camouflaged as a GObject.
+ * Loads the data of another GParaboloidIndividual2D, camouflaged as a GParameterSet.
  *
- * @param cp A copy of another GParaboloidIndividual2D, camouflaged as a GObject
+ * @param cp A copy of another GParaboloidIndividual2D, camouflaged as a GParameterSet
  */
-void GParaboloidIndividual2D::load_(const GObject *cp) {
+void GParaboloidIndividual2D::load_(const gpar::GParameterSet *cp) {
     // Check that we are dealing with a GParaboloidIndividual2D reference independent of this object and convert the pointer
     const GParaboloidIndividual2D *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GParaboloidIndividual2D>(cp, this);
+        Gem::Common::g_convert_and_compare<gpar::GParameterSet, GParaboloidIndividual2D>(cp, this);
 
     // Load our parent's data
     gpar::GParameterSet::load_(cp);
@@ -97,9 +97,9 @@ void GParaboloidIndividual2D::load_(const GObject *cp) {
 /**
  * Creates a deep clone of this object
  *
- * @return A deep clone of this object, camouflaged as a GObject
+ * @return A deep clone of this object, camouflaged as a GParameterSet
  */
-GObject *GParaboloidIndividual2D::clone_() const {
+gpar::GParameterSet *GParaboloidIndividual2D::clone_() const {
     return new GParaboloidIndividual2D(*this);
 }
 

@@ -162,14 +162,14 @@ double GFMinIndividual::getAverageSigma() const {
 
 /******************************************************************************/
 /**
- * Loads the data of another GFMinIndividual, camouflaged as a GObject
+ * Loads the data of another GFMinIndividual, camouflaged as a GParameterSet
  *
- * @param cp A copy of another GFMinIndividual, camouflaged as a GObject
+ * @param cp A copy of another GFMinIndividual, camouflaged as a GParameterSet
  */
-void GFMinIndividual::load_(const GObject *cp) {
+void GFMinIndividual::load_(const gpar::GParameterSet *cp) {
     // Check that we are dealing with a GFMinIndividual reference independent of this object and convert the pointer
     const GFMinIndividual *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GFMinIndividual>(cp, this);
+        Gem::Common::g_convert_and_compare<gpar::GParameterSet, GFMinIndividual>(cp, this);
 
     // Load our parent class'es data ...
     gpar::GParameterSet::load_(cp);
@@ -182,9 +182,9 @@ void GFMinIndividual::load_(const GObject *cp) {
 /**
  * Creates a deep clone of this object
  *
- * @return A deep clone of this object, camouflaged as a GObject
+ * @return A deep clone of this object, camouflaged as a GParameterSet
  */
-GObject *GFMinIndividual::clone_() const {
+gpar::GParameterSet *GFMinIndividual::clone_() const {
     return new GFMinIndividual(*this);
 }
 

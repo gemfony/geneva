@@ -67,7 +67,7 @@ GSwarmAlgorithm_PersonalityTraits::GSwarmAlgorithm_PersonalityTraits(
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *
- * @param cp A constant reference to another GObject object
+ * @param cp A constant reference to another GPersonalityTraits object
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
@@ -264,7 +264,7 @@ std::tuple<double, double> GSwarmAlgorithm_PersonalityTraits::getPersonalBestQua
 /**
  * Creates a deep clone of this object
  *
- * @return A clone of this object, camouflaged as a GObject
+ * @return A clone of this object, camouflaged as a GPersonalityTraits
  */
 GPersonalityTraits *GSwarmAlgorithm_PersonalityTraits::clone_() const {
     return new GSwarmAlgorithm_PersonalityTraits(*this);
@@ -274,7 +274,7 @@ GPersonalityTraits *GSwarmAlgorithm_PersonalityTraits::clone_() const {
 /**
  * Loads the data of another GSwarmPersonalityTraits object
  *
- * @param cp A copy of another GSwarmPersonalityTraits object, camouflaged as a GObject
+ * @param cp A copy of another GSwarmPersonalityTraits object, camouflaged as a GPersonalityTraits
  */
 void GSwarmAlgorithm_PersonalityTraits::load_(const GPersonalityTraits *cp) {
     // Check that we are dealing with a GSwarmAlgorithm_PersonalityTraits reference independent of this object and convert the pointer

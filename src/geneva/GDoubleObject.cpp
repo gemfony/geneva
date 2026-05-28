@@ -88,9 +88,9 @@ GDoubleObject &GDoubleObject::operator=(const double &val) {
 /**
  * Creates a deep clone of this object.
  *
- * @return A copy of this object, camouflaged as a GObject
+ * @return A copy of this object, camouflaged as a GParameterBase
  */
-GObject *GDoubleObject::clone_() const {
+GParameterBase *GDoubleObject::clone_() const {
     return new GDoubleObject(*this);
 }
 
@@ -99,12 +99,12 @@ GObject *GDoubleObject::clone_() const {
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *
- * @param cp A constant reference to another GObject object
+ * @param cp A constant reference to another GParameterBase object
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GDoubleObject::compare_(
-    const GObject &cp,
+    const GParameterBase &cp,
     const Gem::Common::expectation &e,
     const double & /*limit*/
 ) const {
@@ -112,7 +112,7 @@ void GDoubleObject::compare_(
 
     // Check that we are dealing with a GDoubleObject reference independent of this object and convert the pointer
     const GDoubleObject *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GDoubleObject>(cp, this);
+        Gem::Common::g_convert_and_compare<GParameterBase, GDoubleObject>(cp, this);
 
     GToken token("GDoubleObject", e);
 
@@ -314,14 +314,14 @@ void GDoubleObject::doubleSubtract(
 
 /******************************************************************************/
 /**
- * Loads the data of another GObject
+ * Loads the data of another GParameterBase
  *
- * @param cp A copy of another GDoubleObject object, camouflaged as a GObject
+ * @param cp A copy of another GDoubleObject object, camouflaged as a GParameterBase
  */
-void GDoubleObject::load_(const GObject *cp) {
+void GDoubleObject::load_(const GParameterBase *cp) {
     // Convert the pointer to our target type and check for self-assignment
     const GDoubleObject *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GDoubleObject>(cp, this);
+        Gem::Common::g_convert_and_compare<GParameterBase, GDoubleObject>(cp, this);
 
     // Load our parent class'es data ...
     GNumFPT<double>::load_(cp);

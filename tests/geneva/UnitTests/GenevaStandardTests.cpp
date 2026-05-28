@@ -407,7 +407,7 @@ TEST_CASE(
         gpar::GParameterSetFormulaConstraint restored("0");
 
         REQUIRE_NOTHROW(
-            restored.GObject::fromString(original.GObject::toString(mode), mode)
+            restored.fromString(original.toString(mode), mode)
         );
 
         GEqualityPrinter gep(
@@ -439,7 +439,7 @@ TEST_CASE(
         gind::GDoubleSumConstraint restored(2.0);
 
         REQUIRE_NOTHROW(
-            restored.GObject::fromString(original.GObject::toString(mode), mode)
+            restored.fromString(original.toString(mode), mode)
         );
 
         GEqualityPrinter gep(
@@ -465,7 +465,7 @@ TEST_CASE(
         gind::GSphereConstraint restored(2.0);
 
         REQUIRE_NOTHROW(
-            restored.GObject::fromString(original.GObject::toString(mode), mode)
+            restored.fromString(original.toString(mode), mode)
         );
 
         GEqualityPrinter gep(
@@ -490,7 +490,7 @@ TEST_CASE(
         gind::GDoubleSumGapConstraint restored(2.0, 0.25);
 
         REQUIRE_NOTHROW(
-            restored.GObject::fromString(original.GObject::toString(mode), mode)
+            restored.fromString(original.toString(mode), mode)
         );
 
         GEqualityPrinter gep(
@@ -519,7 +519,7 @@ TEST_CASE(
         restored.setRunId("other-run-id");
 
         REQUIRE_NOTHROW(
-            restored.GObject::fromString(original.GObject::toString(mode), mode)
+            restored.fromString(original.toString(mode), mode)
         );
 
         GEqualityPrinter gep(
@@ -568,7 +568,7 @@ TEST_CASE(
         restored.setReportIteration(1);
 
         REQUIRE_NOTHROW(
-            restored.GObject::fromString(original.GObject::toString(mode), mode)
+            restored.fromString(original.toString(mode), mode)
         );
 
         // Explicit getter checks: these would catch a dropped member that the
@@ -614,7 +614,7 @@ TEST_CASE(
 
         // In-memory load goes through load_(); before the fix this dropped the
         // random-crash members.
-        REQUIRE_NOTHROW(restored.GObject::load(original));
+        REQUIRE_NOTHROW(restored.load(original));
 
         auto [use_rc, rc_prob] = restored.getRandomCrash();
         CHECK(use_rc == true);
@@ -643,7 +643,7 @@ TEST_CASE(
         restored.setRandomCrash(false, 0.0);
 
         REQUIRE_NOTHROW(
-            restored.GObject::fromString(original.GObject::toString(mode), mode)
+            restored.fromString(original.toString(mode), mode)
         );
 
         auto [use_rc, rc_prob] = restored.getRandomCrash();
@@ -704,7 +704,7 @@ TEST_CASE(
         restored.setCPersonal(0.1);
         restored.setNeighborhoodsRandomFillUp(true);
 
-        REQUIRE_NOTHROW(restored.GObject::load(original));
+        REQUIRE_NOTHROW(restored.load(original));
         checkGetters(restored);
 
         GEqualityPrinter gep(
@@ -724,7 +724,7 @@ TEST_CASE(
         restored.setNeighborhoodsRandomFillUp(true);
 
         REQUIRE_NOTHROW(
-            restored.GObject::fromString(original.GObject::toString(mode), mode)
+            restored.fromString(original.toString(mode), mode)
         );
         checkGetters(restored);
 
@@ -771,7 +771,7 @@ TEST_CASE(
         restored.setScanRandomly(true);
         restored.setNMonitorInds(1);
 
-        REQUIRE_NOTHROW(restored.GObject::load(original));
+        REQUIRE_NOTHROW(restored.load(original));
         checkGetters(restored);
 
         GEqualityPrinter gep(
@@ -791,7 +791,7 @@ TEST_CASE(
         restored.setNMonitorInds(1);
 
         REQUIRE_NOTHROW(
-            restored.GObject::fromString(original.GObject::toString(mode), mode)
+            restored.fromString(original.toString(mode), mode)
         );
         checkGetters(restored);
 

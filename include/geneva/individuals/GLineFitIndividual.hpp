@@ -103,7 +103,7 @@ protected:
     }
 
     /** @brief Loads the data of another GLineFitIndividual */
-    void load_(const GObject *) final;
+    void load_(const gpar::GParameterSet *) final;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GLineFitIndividual>(
@@ -114,7 +114,7 @@ protected:
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
     void compare_(
-        const GObject & // the other object
+        const gpar::GParameterSet & // the other object
         ,
         const Gem::Common::expectation & // the expectation for this object, e.g. equality
         ,
@@ -133,7 +133,7 @@ protected:
 
 private:
     /** @brief Creates a deep clone of this object */
-    GObject *clone_() const final;
+    gpar::GParameterSet *clone_() const final;
 
     /** @brief The default constructor -- private, as it is only needed for (de-)serialization purposes */
     GLineFitIndividual();

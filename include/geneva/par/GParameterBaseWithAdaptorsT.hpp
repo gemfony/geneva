@@ -41,7 +41,6 @@
 #include "common/GExceptions.hpp"
 #include "geneva/par/GAdaptorT.hpp"
 #include "geneva/par/GConstrainedValueLimitT.hpp"
-#include "geneva/GObject.hpp"
 #include "geneva/par/GParameterBase.hpp"
 #include "geneva/GenevaHelperFunctionsT.hpp"
 
@@ -242,14 +241,14 @@ protected:
     /***************************************************************************/
     /**
 	  * Loads the data of another GParameterBaseWithAdaptorsT object, which
-	  * is camouflaged as a GObject.
+	  * is camouflaged as a GParameterBase.
 	  *
-	  * @param cp A copy of another GParameterBaseWithAdaptorsT, camouflaged as a GObject
+	  * @param cp A copy of another GParameterBaseWithAdaptorsT, camouflaged as a GParameterBase
 	  */
-    void load_(const GObject *cp) override {
+    void load_(const GParameterBase *cp) override {
         // Check that we are dealing with a  GParameterBaseWithAdaptorsT<T> reference independent of this object and convert the pointer
         const GParameterBaseWithAdaptorsT<T> *p_load =
-            Gem::Common::g_convert_and_compare<GObject, GParameterBaseWithAdaptorsT<T>>(cp, this);
+            Gem::Common::g_convert_and_compare<GParameterBase, GParameterBaseWithAdaptorsT<T>>(cp, this);
 
         // Load our parent class'es data ...
         GParameterBase::load_(cp);
@@ -287,12 +286,12 @@ protected:
      * Searches for compliance with expectations with respect to another object
      * of the same type
      *
-     * @param cp A constant reference to another GObject object
+     * @param cp A constant reference to another GParameterBase object
      * @param e The expected outcome of the comparison
      * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
     void compare_(
-        const GObject &cp,
+        const GParameterBase &cp,
         const Gem::Common::expectation &e,
         const double & /*limit*/
     ) const override {
@@ -300,7 +299,7 @@ protected:
 
         // Check that we are dealing with a  GParameterBaseWithAdaptorsT<T> reference independent of this object and convert the pointer
         const GParameterBaseWithAdaptorsT<T> *p_load =
-            Gem::Common::g_convert_and_compare<GObject, GParameterBaseWithAdaptorsT<T>>(cp, this);
+            Gem::Common::g_convert_and_compare<GParameterBase, GParameterBaseWithAdaptorsT<T>>(cp, this);
 
         GToken token("GParameterBaseWithAdaptorsT<T>", e);
 
@@ -479,7 +478,7 @@ private:
 
     /***************************************************************************/
     /** @brief Creates a deep clone of this object. Purely virtual, as we do not want this class to be instantiated directly */
-    GObject *clone_() const override = 0;
+    GParameterBase *clone_() const override = 0;
 
     /******************************************************************************/
     /**

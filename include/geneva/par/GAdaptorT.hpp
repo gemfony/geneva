@@ -764,7 +764,7 @@ protected:
 	  * is similar to a copy constructor (but with a pointer as
 	  * argument). As this function might be called in an environment
 	  * where we do not know the exact type of the class, the
-	  * GAdaptorT<T, fp_type> is camouflaged as a GObject . This implies the
+	  * GAdaptorT<T, fp_type> is camouflaged as a GAdaptorT . This implies the
 	  * need for dynamic conversion.
 	  *
 	  * @param gb A pointer to another GAdaptorT<T, fp_type>, camouflaged as a GAdaptorT<T, fp_type>

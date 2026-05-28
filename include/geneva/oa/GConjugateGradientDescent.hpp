@@ -153,7 +153,7 @@ protected:
     void addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) override;
 
     /** @brief Loads the data of another population */
-    void load_(const GObject *) override;
+    void load_(const GBase *) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GConjugateGradientDescent>(
@@ -164,7 +164,7 @@ protected:
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
     void compare_(
-        const GObject & // the other object
+        const GBase & // the other object
         ,
         const Gem::Common::expectation & // the expectation for this object, e.g. equality
         ,
@@ -201,7 +201,7 @@ private:
     /** @brief Emits a name for this class / object */
     std::string name_() const override;
     /** @brief Creates a deep clone of this object */
-    GObject *clone_() const override;
+    GBase *clone_() const override;
 
     /** @brief The actual business logic to be performed during each iteration. Returns the best achieved fitness */
     std::tuple<double, double> cycleLogic_() override;

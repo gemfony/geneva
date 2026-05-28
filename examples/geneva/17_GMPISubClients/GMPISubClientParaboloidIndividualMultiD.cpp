@@ -71,14 +71,14 @@ GMPISubClientParaboloidIndividualMultiD::GMPISubClientParaboloidIndividualMultiD
 
 /********************************************************************************************/
 /**
- * Loads the data of another GMPISubClientParaboloidIndividualMultiD, camouflaged as a GObject.
+ * Loads the data of another GMPISubClientParaboloidIndividualMultiD, camouflaged as a GParameterSet.
  *
- * @param cp A copy of another GMPISubClientParaboloidIndividualMultiD, camouflaged as a GObject
+ * @param cp A copy of another GMPISubClientParaboloidIndividualMultiD, camouflaged as a GParameterSet
  */
-void GMPISubClientParaboloidIndividualMultiD::load_(const GObject *cp) {
+void GMPISubClientParaboloidIndividualMultiD::load_(const gpar::GParameterSet *cp) {
     // Check that we are dealing with a GMPISubClientParaboloidIndividualMultiD reference independent of this object and convert the pointer
     const GMPISubClientParaboloidIndividualMultiD *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GMPISubClientParaboloidIndividualMultiD>(
+        Gem::Common::g_convert_and_compare<gpar::GParameterSet, GMPISubClientParaboloidIndividualMultiD>(
             cp,
             this
         );
@@ -94,9 +94,9 @@ void GMPISubClientParaboloidIndividualMultiD::load_(const GObject *cp) {
 /**
  * Creates a deep clone of this object
  *
- * @return A deep clone of this object, camouflaged as a GObject
+ * @return A deep clone of this object, camouflaged as a GParameterSet
  */
-GObject *GMPISubClientParaboloidIndividualMultiD::clone_() const {
+gpar::GParameterSet *GMPISubClientParaboloidIndividualMultiD::clone_() const {
     return new GMPISubClientParaboloidIndividualMultiD(*this);
 }
 

@@ -358,12 +358,12 @@ void GImageIndividual::setFitness(std::vector<double> const &result_vec) {
 	 * Searches for compliance with expectations with respect to another object
 	 * of the same type
 	 *
-	 * @param cp A constant reference to another GObject object
+	 * @param cp A constant reference to another GParameterSet object
 	 * @param e The expected outcome of the comparison
 	 * @param limit The maximum deviation for floating point values (important for similarity checks)
 	 */
 void GImageIndividual::compare_(
-    const GObject &cp,
+    const gpar::GParameterSet &cp,
     const Gem::Common::expectation &e,
     const double &limit
 ) const {
@@ -371,7 +371,7 @@ void GImageIndividual::compare_(
 
     // Check that we are dealing with a GImageIndividual reference independent of this object and convert the pointer
     const GImageIndividual *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GImageIndividual>(cp, this);
+        Gem::Common::g_convert_and_compare<gpar::GParameterSet, GImageIndividual>(cp, this);
 
     GToken token("GImageIndividual", e);
 
@@ -481,14 +481,14 @@ std::vector<CircleTriangle> GImageIndividual::getTriangleData() const {
 
 /******************************************************************************/
 /**
-	 * Loads the data of another GImageIndividual, camouflaged as a GObject.
+	 * Loads the data of another GImageIndividual, camouflaged as a GParameterSet.
 	 *
-	 * @param cp A copy of another GImageIndividual, camouflaged as a GObject
+	 * @param cp A copy of another GImageIndividual, camouflaged as a GParameterSet
 	 */
-void GImageIndividual::load_(const GObject *cp) {
+void GImageIndividual::load_(const gpar::GParameterSet *cp) {
     // Check that we are indeed dealing with a GImageIndividual reference
     const GImageIndividual *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GImageIndividual>(cp, this);
+        Gem::Common::g_convert_and_compare<gpar::GParameterSet, GImageIndividual>(cp, this);
 
     // Load our parent's data
     gpar::GParameterSet::load_(cp);
@@ -506,9 +506,9 @@ void GImageIndividual::load_(const GObject *cp) {
 /**
 	 * Creates a deep clone of this object
 	 *
-	 * @return A deep clone of this object, camouflaged as a GObject
+	 * @return A deep clone of this object, camouflaged as a GParameterSet
 	 */
-GObject *GImageIndividual::clone_() const {
+gpar::GParameterSet *GImageIndividual::clone_() const {
     return new GImageIndividual(*this);
 }
 

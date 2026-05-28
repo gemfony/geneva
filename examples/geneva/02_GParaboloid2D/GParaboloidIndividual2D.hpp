@@ -81,14 +81,14 @@ public:
 
 protected:
     /** @brief Loads the data of another GParaboloidIndividual2D */
-    virtual void load_(const GObject *) final;
+    virtual void load_(const gpar::GParameterSet *) final;
 
     /** @brief The actual fitness calculation takes place here. */
     virtual double fitnessCalculation() final;
 
 private:
     /** @brief Creates a deep clone of this object */
-    virtual GObject *clone_() const final;
+    virtual gpar::GParameterSet *clone_() const final;
 
     const double M_PAR_MIN;
     const double M_PAR_MAX;

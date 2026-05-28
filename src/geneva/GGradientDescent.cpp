@@ -194,12 +194,12 @@ std::string GGradientDescent::getAlgorithmName_() const {
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *
- * @param cp A constant reference to another GObject object
+ * @param cp A constant reference to another GGradientDescent object
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GGradientDescent::compare_(
-    const GObject &cp,
+    const GBase &cp,
     const Gem::Common::expectation &e,
     const double & /*limit*/
 ) const {
@@ -207,7 +207,7 @@ void GGradientDescent::compare_(
 
     // Check that we are dealing with a GGradientDescent reference independent of this object and convert the pointer
     const GGradientDescent *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GGradientDescent>(cp, this);
+        Gem::Common::g_convert_and_compare<GBase, GGradientDescent>(cp, this);
 
     GToken token("GGradientDescent", e);
 
@@ -254,12 +254,12 @@ std::string GGradientDescent::name_() const {
 /**
  * Loads the data of another population
  *
- * @param cp A pointer to another GGradientDescent object, camouflaged as a GObject
+ * @param cp A pointer to another GGradientDescent object
  */
-void GGradientDescent::load_(const GObject *cp) {
+void GGradientDescent::load_(const GBase *cp) {
     // Check that we are dealing with a GGradientDescent reference independent of this object and convert the pointer
     const GGradientDescent *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GGradientDescent>(cp, this);
+        Gem::Common::g_convert_and_compare<GBase, GGradientDescent>(cp, this);
 
     // First load the parent class'es data.
     // This will also take care of copying all individuals.
@@ -275,7 +275,7 @@ void GGradientDescent::load_(const GObject *cp) {
 /**
  * Creates a deep clone of this object
  */
-GObject *GGradientDescent::clone_() const {
+GBase *GGradientDescent::clone_() const {
     return new GGradientDescent(*this);
 }
 
@@ -342,7 +342,7 @@ void GGradientDescent::updateChildParameters() {
             std::size_t child_pos = n_starting_points_ + i * n_fp_parms_first_ + j;
 
             // Load the current "parent" into the "child"
-            this->at(child_pos)->GObject::load(this->at(i));
+            this->at(child_pos)->load(this->at(i));
 
             // Update the child's position in the population
             this->at(child_pos)

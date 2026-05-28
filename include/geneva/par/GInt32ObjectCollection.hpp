@@ -75,8 +75,8 @@ public:
     ~GInt32ObjectCollection() override = default;
 
 protected:
-    /** @brief Loads the data of another GObject */
-    void load_(const GObject *) override;
+    /** @brief Loads the data of another GParameterBase */
+    void load_(const GParameterBase *) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GInt32ObjectCollection>(
@@ -87,7 +87,7 @@ protected:
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
     void compare_(
-        const GObject & // the other object
+        const GParameterBase & // the other object
         ,
         const Gem::Common::expectation & // the expectation for this object, e.g. equality
         ,
@@ -105,7 +105,7 @@ private:
     /** @brief Emits a name for this class / object */
     std::string name_() const override;
     /** @brief Creates a deep clone of this object. */
-    GObject *clone_() const override;
+    GParameterBase *clone_() const override;
 
     /** @brief Fills the collection with GInt32Object objects */
     void fillWithObjects_(const std::size_t &);

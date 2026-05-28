@@ -61,8 +61,8 @@ SET ( OPTIMIZATIONSOURCES
     GEvolutionaryAlgorithm_PersonalityTraits.cpp
     GParChild.cpp
     GBaseParChildPersonalityTraits.cpp
-	GObject.cpp
 	GOptimizationEnums.cpp
+	GSigHupHandler.cpp
 	GParameterBase.cpp
 	GParameterObjectCollection.cpp
 	GParameterPropertyParser.cpp

@@ -67,12 +67,12 @@ GDelayIndividual::~GDelayIndividual() { /* nothing */
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *
- * @param cp A constant reference to another GObject object
+ * @param cp A constant reference to another GParameterSet object
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GDelayIndividual::compare_(
-    const GObject &cp,
+    const gpar::GParameterSet &cp,
     const Gem::Common::expectation &e,
     const double & /*limit*/
 ) const {
@@ -80,7 +80,7 @@ void GDelayIndividual::compare_(
 
     // Check that we are dealing with a GDelayIndividual reference independent of this object and convert the pointer
     const GDelayIndividual *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GDelayIndividual>(cp, this);
+        Gem::Common::g_convert_and_compare<gpar::GParameterSet, GDelayIndividual>(cp, this);
 
     Gem::Common::GToken token("GDelayIndividual", e);
 
@@ -96,14 +96,14 @@ void GDelayIndividual::compare_(
 
 /******************************************************************************/
 /**
- * Loads the data of another GDelayIndividual, camouflaged as a GObject
+ * Loads the data of another GDelayIndividual, camouflaged as a GParameterSet
  *
- * @param cp A copy of another GDelayIndividual, camouflaged as a GObject
+ * @param cp A copy of another GDelayIndividual, camouflaged as a GParameterSet
  */
-void GDelayIndividual::load_(const Gem::Geneva::GObject *cp) {
+void GDelayIndividual::load_(const gpar::GParameterSet *cp) {
     // Check that we are dealing with a GDelayIndividual reference independent of this object and convert the pointer
     const GDelayIndividual *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GDelayIndividual>(cp, this);
+        Gem::Common::g_convert_and_compare<gpar::GParameterSet, GDelayIndividual>(cp, this);
 
     // Load our parent class'es data ...
     gpar::GParameterSet::load_(cp);
@@ -116,9 +116,9 @@ void GDelayIndividual::load_(const Gem::Geneva::GObject *cp) {
 /**
  * Creates a deep clone of this object
  *
- * @return A deep clone of this object, camouflaged as a GObject
+ * @return A deep clone of this object, camouflaged as a GParameterSet
  */
-Gem::Geneva::GObject *GDelayIndividual::clone_() const {
+gpar::GParameterSet *GDelayIndividual::clone_() const {
     return new GDelayIndividual(*this);
 }
 

@@ -29,6 +29,9 @@
 
 #include "geneva/oa/GBase.hpp"
 
+// Needed for the G_SIGHUP_SENT() signal-state query in sigHupHalt().
+#include "geneva/GSigHupHandler.hpp"
+
 /******************************************************************************/
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Courtier::GBrokerExecutorT<gpar::GParameterSet>) // NOLINT
@@ -46,7 +49,7 @@ namespace Gem::Geneva::OptimizationAlgorithms {
 	 * Searches for compliance with expectations with respect to another object
 	 * of the same type
 	 *
-	 * @param cp A constant reference to another GObject object
+	 * @param cp A constant reference to another GBasePluggableOM object
 	 * @param e The expected outcome of the comparison
 	 * @param limit The maximum deviation for floating point values (important for similarity checks)
 	 */
@@ -181,7 +184,7 @@ void GBasePluggableOM::specificTestsFailuresExpected_GUnitTests_() {
  * @param cp A constant reference to another GBase object
  */
 GBase::GBase(const GBase &cp)
-  : GObject(cp)
+  : Gem::Common::GCommonInterfaceT<GBase>(cp)
   , Gem::Common::GPtrContainerT<gpar::GParameterSet>(cp)
   , iteration_(cp.iteration_)
   , offset_(DEFAULTOFFSET)
@@ -467,12 +470,12 @@ bool GBase::checkpointFilesAreRemoved() const {
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *
- * @param cp A constant reference to another GObject object
+ * @param cp A constant reference to another GBase object
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GBase::compare_(
-    const GObject &cp,
+    const GBase &cp,
     const Gem::Common::expectation &e,
     const double & /*limit*/
 ) const {
@@ -480,12 +483,12 @@ void GBase::compare_(
 
     // Check that we are dealing with a GBase reference independent of this object and convert the pointer
     const GBase *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GBase>(cp, this);
+        Gem::Common::g_convert_and_compare<GBase, GBase>(cp, this);
 
     GToken token("GBase", e);
 
-    // Compare our parent data ...
-    Gem::Common::compare_base_t<GObject>(*this, *p_load, token);
+    // Compare our CRTP base data (the category root has no GObject parent) ...
+    Gem::Common::compare_base_t<Gem::Common::GCommonInterfaceT<GBase>>(*this, *p_load, token);
 
     // The container base'es data (the population) -- compared explicitly, as it is a
     // base-object rather than a local member.
@@ -1193,8 +1196,8 @@ std::size_t GBase::getNProcessableItems_() const {
  * @param gpb The GParserBuilder object to which configuration options should be added
  */
 void GBase::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
-    // Call our parent class'es function
-    GObject::addConfigurationOptions_(gpb);
+    // Call our CRTP base class'es function (the category root has no GObject parent)
+    Gem::Common::GCommonInterfaceT<GBase>::addConfigurationOptions_(gpb);
 
     // Add local data
     gpb.registerFileParameter<std::uint32_t>(
@@ -1498,15 +1501,15 @@ bool GBase::cp_personality_fits(const std::filesystem::path &p) const {
 /**
  * Loads the data of another GOptimizationAlgorithm object
  *
- * @param cp Another GOptimizationAlgorithm object, camouflaged as a GObject
+ * @param cp Another GOptimizationAlgorithm object
  */
-void GBase::load_(const GObject *cp) {
+void GBase::load_(const GBase *cp) {
     // Check that we are dealing with a GBase reference independent of this object and convert the pointer
     const GBase *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GBase>(cp, this);
+        Gem::Common::g_convert_and_compare<GBase, GBase>(cp, this);
 
-    // Load the parent class'es data
-    GObject::load_(cp);
+    // This is the category root; there is no GObject parent class to load.
+    // Load the stateful base classes' data
     Gem::Common::GPtrContainerT<gpar::GParameterSet>::operator=(*p_load);
 
     // All local data, derived from the single localMembers() declaration: plain members
@@ -1942,12 +1945,12 @@ bool GBase::minIterationPassed() const {
 /******************************************************************************/
 /**
  * This function returns true if a SIGHUP / CTRL_CLOSE_EVENT signal was sent (provided the user
- * has registered the GObject::sigHupHandler signal handler
+ * has registered the Gem::Geneva::sigHupHandler signal handler
  *
  * @return A boolean indicating whether the program was interrupted with a SIGHUP or CTRL_CLOSE_EVENT signal
  */
 bool GBase::sigHupHalt() const {
-    if(GObject::G_SIGHUP_SENT()) {
+    if(G_SIGHUP_SENT()) {
 #if defined(_MSC_VER) && (_MSC_VER >= 1020)
         std::cout
             << "Terminating optimization run because a CTRL_CLOSE_EVENT signal has been received"
@@ -2198,10 +2201,8 @@ bool GBase::modify_GUnitTests_() {
 #ifdef GEM_TESTING
     bool result = false;
 
-    // Call the parent class'es function
-    if(GObject::modify_GUnitTests_()) {
-        result = true;
-    }
+    // This is the category root; there is no modifiable GObject parent class.
+    // Call the stateful base class'es function
     if(Gem::Common::GPtrContainerT<gpar::GParameterSet>::modify_GUnitTests_()) {
         result = true;
     }
@@ -2231,8 +2232,8 @@ bool GBase::modify_GUnitTests_() {
 void GBase::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 
-    // Call the parent classes' functions
-    GObject::specificTestsNoFailureExpected_GUnitTests_();
+    // This is the category root; there is no GObject parent class to delegate to.
+    // Call the stateful base class'es function
     Gem::Common::GPtrContainerT<gpar::GParameterSet>::specificTestsNoFailureExpected_GUnitTests_();
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
@@ -2250,8 +2251,8 @@ void GBase::specificTestsNoFailureExpected_GUnitTests_() {
 void GBase::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 
-    // Call the parent classes' functions
-    GObject::specificTestsFailuresExpected_GUnitTests_();
+    // This is the category root; there is no GObject parent class to delegate to.
+    // Call the stateful base class'es function
     Gem::Common::GPtrContainerT<gpar::GParameterSet>::specificTestsFailuresExpected_GUnitTests_();
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw

@@ -84,7 +84,7 @@ protected:
     /** @brief Adds local configuration options to a GParserBuilder object */
     void addConfigurationOptions_(Gem::Common::GParserBuilder &) override;
     /** @brief Loads the data of another GParameterSetConstraint */
-    void load_(const GObject *) override;
+    void load_(const GPreEvaluationValidityCheckT<GParameterSet> *) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GParameterSetConstraint>(
@@ -95,7 +95,7 @@ protected:
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
     void compare_(
-        const GObject & // the other object
+        const GPreEvaluationValidityCheckT<GParameterSet> & // the other object
         ,
         const Gem::Common::expectation & // the expectation for this object, e.g. equality
         ,
@@ -104,7 +104,7 @@ protected:
 
 private:
     /** @brief Creates a deep clone of this object */
-    GObject *clone_() const override = 0;
+    GPreEvaluationValidityCheckT<GParameterSet> *clone_() const override = 0;
 };
 
 /******************************************************************************/
@@ -151,7 +151,7 @@ protected:
     /** @brief Adds local configuration options to a GParserBuilder object */
     void addConfigurationOptions_(Gem::Common::GParserBuilder &) override;
     /** @brief Loads the data of another GParameterSetConstraint */
-    void load_(const GObject *) override;
+    void load_(const GPreEvaluationValidityCheckT<GParameterSet> *) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GParameterSetFormulaConstraint>(
@@ -162,7 +162,7 @@ protected:
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
     void compare_(
-        const GObject & // the other object
+        const GPreEvaluationValidityCheckT<GParameterSet> & // the other object
         ,
         const Gem::Common::expectation & // the expectation for this object, e.g. equality
         ,
@@ -171,7 +171,7 @@ protected:
 
 private:
     /** @brief Creates a deep clone of this object */
-    GObject *clone_() const override;
+    GPreEvaluationValidityCheckT<GParameterSet> *clone_() const override;
 
     /** @brief The default constructor -- intentionally private, only needed for (de-)serialization */
     GParameterSetFormulaConstraint() = default;

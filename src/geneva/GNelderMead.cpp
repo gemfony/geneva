@@ -204,13 +204,13 @@ std::string GNelderMead::getAlgorithmName_() const {
  * of the same type
  */
 void GNelderMead::compare_(
-    const GObject &cp,
+    const GBase &cp,
     const Gem::Common::expectation &e,
     const double & /*limit*/
 ) const {
     using namespace Gem::Common;
 
-    const GNelderMead *p_load = Gem::Common::g_convert_and_compare<GObject, GNelderMead>(cp, this);
+    const GNelderMead *p_load = Gem::Common::g_convert_and_compare<GBase, GNelderMead>(cp, this);
 
     GToken token("GNelderMead", e);
 
@@ -240,8 +240,8 @@ std::string GNelderMead::name_() const {
 }
 
 /******************************************************************************/
-void GNelderMead::load_(const GObject *cp) {
-    const GNelderMead *p_load = Gem::Common::g_convert_and_compare<GObject, GNelderMead>(cp, this);
+void GNelderMead::load_(const GBase *cp) {
+    const GNelderMead *p_load = Gem::Common::g_convert_and_compare<GBase, GNelderMead>(cp, this);
 
     // First load the parent class'es data (this also copies all individuals).
     GBase::load_(cp);
@@ -252,7 +252,7 @@ void GNelderMead::load_(const GObject *cp) {
 }
 
 /******************************************************************************/
-GObject *GNelderMead::clone_() const {
+GBase *GNelderMead::clone_() const {
     return new GNelderMead(*this);
 }
 
@@ -387,7 +387,7 @@ void GNelderMead::proposeTrials() {
  * vertices were not modified between proposal and this call, the worst vertex
  * recomputed here is the same one the trials were built for.
  *
- * Accepting a trial is done via GObject::load(): the vertex thereby also
+ * Accepting a trial is done via load(): the vertex thereby also
  * inherits the trial's already-known fitness, which keeps proposeTrials() in
  * the same iteration consistent (no stale ranking except after a shrink).
  */
@@ -430,7 +430,7 @@ void GNelderMead::applyNelderMeadDecision() {
         const double f_c = minOnly_transformed_fitness(this->at(trialPos(s, NM_CONTRACT)));
 
         auto accept_trial_into_worst = [&](std::size_t trial_slot) {
-            this->at(vertexPos(s, w))->GObject::load(this->at(trialPos(s, trial_slot)));
+            this->at(vertexPos(s, w))->load(this->at(trialPos(s, trial_slot)));
             this->at(vertexPos(s, w))
                 ->getPersonalityTraits<GNelderMead_PersonalityTraits>()
                 ->setPopulationPosition(vertexPos(s, w));

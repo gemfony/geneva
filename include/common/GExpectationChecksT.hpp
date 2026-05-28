@@ -1333,7 +1333,7 @@ void compare_base_t(base_type const &x, base_type const &y, GToken &token) {
 
 /******************************************************************************/
 /**
- * Single-source-of-truth machinery for a GObject subclass's local data members.
+ * Single-source-of-truth machinery for a GCommonInterfaceT subclass's local data members.
  *
  * A class declares its local members exactly once through a localMembers() pair
  * (const + non-const) that returns a tuple of member_t entries (a name plus a

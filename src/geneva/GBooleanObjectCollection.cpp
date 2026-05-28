@@ -68,9 +68,9 @@ GBooleanObjectCollection::GBooleanObjectCollection(
 /**
  * Creates a deep clone of this object.
  *
- * @return A copy of this object, camouflaged as a GObject
+ * @return A copy of this object, camouflaged as a GParameterBase
  */
-GObject *GBooleanObjectCollection::clone_() const {
+GParameterBase *GBooleanObjectCollection::clone_() const {
     return new GBooleanObjectCollection(*this);
 }
 
@@ -79,12 +79,12 @@ GObject *GBooleanObjectCollection::clone_() const {
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *
- * @param cp A constant reference to another GObject object
+ * @param cp A constant reference to another GParameterBase object
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GBooleanObjectCollection::compare_(
-    const GObject &cp,
+    const GParameterBase &cp,
     const Gem::Common::expectation &e,
     const double & /*limit*/
 ) const {
@@ -92,7 +92,7 @@ void GBooleanObjectCollection::compare_(
 
     // Check that we are dealing with a GBooleanObjectCollection reference independent of this object and convert the pointer
     const GBooleanObjectCollection *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GBooleanObjectCollection>(cp, this);
+        Gem::Common::g_convert_and_compare<GParameterBase, GBooleanObjectCollection>(cp, this);
 
     GToken token("GBooleanObjectCollection", e);
 
@@ -115,14 +115,14 @@ std::string GBooleanObjectCollection::name_() const {
 
 /******************************************************************************/
 /**
- * Loads the data of another GObject
+ * Loads the data of another GParameterBase
  *
- * @param cp A copy of another GBooleanObjectCollection object, camouflaged as a GObject
+ * @param cp A copy of another GBooleanObjectCollection object, camouflaged as a GParameterBase
  */
-void GBooleanObjectCollection::load_(const GObject *cp) {
+void GBooleanObjectCollection::load_(const GParameterBase *cp) {
     // Convert the pointer to our target type and check for self-assignment
     const GBooleanObjectCollection *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GBooleanObjectCollection>(cp, this);
+        Gem::Common::g_convert_and_compare<GParameterBase, GBooleanObjectCollection>(cp, this);
 
     // Load our parent class'es data ...
     GParameterTCollectionT<GBooleanObject>::load_(cp);

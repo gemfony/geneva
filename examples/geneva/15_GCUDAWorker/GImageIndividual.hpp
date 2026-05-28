@@ -250,10 +250,10 @@ protected:
     );
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
-    void compare_(const GObject &, const Gem::Common::expectation &, const double &) const override;
+    void compare_(const gpar::GParameterSet &, const Gem::Common::expectation &, const double &) const override;
 
     /** @brief Loads the data of another GImageIndividual */
-    void load_(const GObject *) override;
+    void load_(const gpar::GParameterSet *) override;
 
     /** @brief The actual fitness calculation takes place here. */
     double fitnessCalculation() override;
@@ -261,7 +261,7 @@ protected:
 private:
     /******************************************************************************/
     /** @brief Creates a deep clone of this object */
-    GObject *clone_() const override;
+    gpar::GParameterSet *clone_() const override;
 
     /******************************************************************************/
     // Local parameters

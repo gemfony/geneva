@@ -68,7 +68,6 @@ using namespace Gem::Geneva;
 #include "common/GSerializationHelperFunctionsT.hpp"
 #include "common/GTupleIO.hpp"
 #include "common/GUnitTestFrameworkT.hpp"
-#include "geneva/GObject.hpp"
 
 #include "GEqualityPrinter.hpp"
 

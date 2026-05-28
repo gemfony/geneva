@@ -122,6 +122,30 @@ Recommended Versions:
   virtual GBaseConsumerT::determineClientMode() (the MPI consumer derives its role
   from its process rank, as before) -- runtime behaviour is unchanged.
 
+- SOURCE/ABI-BREAKING: the monolithic GObject base class has been removed.
+  GObject was the single common root of the entire Geneva object model; it has
+  been decomposed into seven independent per-category CRTP roots, each deriving
+  from Gem::Common::GCommonInterfaceT<Root> (which carries the former
+  clone()/clone<>()/compare()/name()/toString/fromString/file-IO/load() public
+  interface): GParameterBase (parameter objects), GParameterSet (individuals),
+  Gem::Geneva::OptimizationAlgorithms::GBase (algorithms), GAdaptorT<>
+  (adaptors), GPersonalityTraits (personality traits), the constraint root
+  GPreEvaluationValidityCheckT<> (validity checks), and GBasePluggableOM
+  (pluggable optimization monitors). Any user code that referenced
+  Gem::Geneva::GObject directly -- as a type, an explicit base class, a
+  GObject* pointer/cast, or via a GObject::-qualified call -- must be updated to
+  the relevant category root (most users never do: the standard workflow
+  subclasses GParameterSet and drives it via Go2, which is unaffected). The
+  former static SIGHUP signal API moved off GObject into free functions in the
+  new header geneva/GSigHupHandler.hpp: GObject::sigHupHandler ->
+  Gem::Geneva::sigHupHandler and GObject::G_SIGHUP_SENT() ->
+  Gem::Geneva::G_SIGHUP_SENT() (same signal, same semantics). As with the other
+  1.12.0 reorganisations, Boost.Serialization base-object chains changed
+  (base_object<GObject> is gone), so this is covered by the already-accepted
+  archive break -- checkpoint/archive files from earlier versions are not
+  loadable. The on-the-wire member layout of every concrete class is otherwise
+  unchanged within 1.12.0.
+
 ************************* Noteworthy Changes ***********************************
 
 - Preliminary support for two new local optimization algorithms:

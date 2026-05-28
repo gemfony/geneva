@@ -80,9 +80,9 @@ GBooleanObject &GBooleanObject::operator=(const bool &val) {
 /**
  * Creates a deep clone of this object.
  *
- * @return A copy of this object, camouflaged as a GObject
+ * @return A copy of this object, camouflaged as a GParameterBase
  */
-GObject *GBooleanObject::clone_() const {
+GParameterBase *GBooleanObject::clone_() const {
     return new GBooleanObject(*this);
 }
 
@@ -199,12 +199,12 @@ bool GBooleanObject::range() const {
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *
- * @param cp A constant reference to another GObject object
+ * @param cp A constant reference to another GParameterBase object
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GBooleanObject::compare_(
-    const GObject &cp,
+    const GParameterBase &cp,
     const Gem::Common::expectation &e,
     const double & /*limit*/
 ) const {
@@ -212,7 +212,7 @@ void GBooleanObject::compare_(
 
     // Check that we are dealing with a GBooleanObject reference independent of this object and convert the pointer
     const GBooleanObject *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GBooleanObject>(cp, this);
+        Gem::Common::g_convert_and_compare<GParameterBase, GBooleanObject>(cp, this);
 
     GToken token("GBooleanObject", e);
 
@@ -346,13 +346,13 @@ void GBooleanObject::assignBooleanValueVectors(
 
 /******************************************************************************/
 /**
- * Loads the data of another GObject
+ * Loads the data of another GParameterBase
  *
- * @param cp A copy of another GBooleanObject object, camouflaged as a GObject
+ * @param cp A copy of another GBooleanObject object, camouflaged as a GParameterBase
  */
-void GBooleanObject::load_(const GObject *cp) {
+void GBooleanObject::load_(const GParameterBase *cp) {
     // Convert the pointer to our target type and check for self-assignment
-    const auto *p_load = Gem::Common::g_convert_and_compare<GObject, GBooleanObject>(cp, this);
+    const auto *p_load = Gem::Common::g_convert_and_compare<GParameterBase, GBooleanObject>(cp, this);
 
     // Load our parent class'es data ...
     GParameterT<bool>::load_(cp);
@@ -646,9 +646,9 @@ void GBooleanObject::specificTestsNoFailureExpected_GUnitTests_() {
     // --------------------------------------------------------------------------
 
     { // Check that the fp-family of functions doesn't have an effect on this object
-        std::shared_ptr<GBooleanObject> p_test1 = this->GObject::clone<GBooleanObject>();
-        std::shared_ptr<GBooleanObject> p_test2 = this->GObject::clone<GBooleanObject>();
-        std::shared_ptr<GBooleanObject> p_test3 = this->GObject::clone<GBooleanObject>();
+        std::shared_ptr<GBooleanObject> p_test1 = this->clone<GBooleanObject>();
+        std::shared_ptr<GBooleanObject> p_test2 = this->clone<GBooleanObject>();
+        std::shared_ptr<GBooleanObject> p_test3 = this->clone<GBooleanObject>();
 
         // Assign a boolean value true
         CHECK_NOTHROW(*p_test1 = true);

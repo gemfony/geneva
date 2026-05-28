@@ -159,14 +159,14 @@ public:
 protected:
     /***************************************************************************/
     /**
-     * Loads the data of another GParameterTCollectionT<T> object, camouflaged as a GObject
+     * Loads the data of another GParameterTCollectionT<T> object, camouflaged as a GParameterBase
      *
-     * @param cp A copy of another GParameterTCollectionT<T> object, camouflaged as a GObject
+     * @param cp A copy of another GParameterTCollectionT<T> object, camouflaged as a GParameterBase
      */
-    void load_(const GObject *cp) override {
+    void load_(const GParameterBase *cp) override {
         // Check that we are dealing with a GParameterTCollectionT<T> reference independent of this object and convert the pointer
         const GParameterTCollectionT<T> *p_load =
-            Gem::Common::g_convert_and_compare<GObject, GParameterTCollectionT<T>>(cp, this);
+            Gem::Common::g_convert_and_compare<GParameterBase, GParameterTCollectionT<T>>(cp, this);
 
         // Load our parent class'es data ...
         GParameterBase::load_(cp);
@@ -186,12 +186,12 @@ protected:
      * Searches for compliance with expectations with respect to another object
      * of the same type
      *
-     * @param cp A constant reference to another GObject object
+     * @param cp A constant reference to another GParameterBase object
      * @param e The expected outcome of the comparison
      * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
     void compare_(
-        const GObject &cp,
+        const GParameterBase &cp,
         const Gem::Common::expectation &e,
         const double & /*limit*/
     ) const override {
@@ -199,7 +199,7 @@ protected:
 
         // Check that we are dealing with a GParameterTCollectionT<T> reference independent of this object and convert the pointer
         const GParameterTCollectionT<T> *p_load =
-            Gem::Common::g_convert_and_compare<GObject, GParameterTCollectionT<T>>(cp, this);
+            Gem::Common::g_convert_and_compare<GParameterBase, GParameterTCollectionT<T>>(cp, this);
 
         GToken token("GParameterTCollectionT<T>", e);
 
@@ -1104,7 +1104,7 @@ private:
      * Creates a deep clone of this object. Declared purely virtual, as this class is not
      * intended to be used directly.
      */
-    GObject *clone_() const override = 0;
+    GParameterBase *clone_() const override = 0;
 
     /***************************************************************************/
     /**

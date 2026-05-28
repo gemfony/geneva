@@ -32,47 +32,33 @@
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
-// Standard headers go here
-#include <sstream>
-#include <type_traits>
-#include <vector>
+// Standard header files go here
+#include <csignal>
 
-// Boost headers go here
-
-// Our own headers go here
-#include "common/GExceptions.hpp"
-#include "geneva/par/GAdaptorT.hpp"
-#include "geneva/GOptimizationEnums.hpp"
+// Geneva header files go here
+// G_SIGHUP (SIGHUP / CTRL_CLOSE_EVENT) is defined here
+#include "common/GCommonEnums.hpp"
 
 namespace Gem::Geneva {
 
 /******************************************************************************/
 /**
- * This factory function returns default adaptors for a given base type. This function is a trap.
- * Specializations are responsible for the actual implementation.
+ * A handler for SIGHUP or CTRL_CLOSE_EVENT signals. This function works both
+ * for Windows and Unix systems. Register it with e.g.
+ * `signal(G_SIGHUP, Gem::Geneva::sigHupHandler)` to allow interruption of an
+ * optimization run without loss of data.
  *
- * @return The default adaptor for a given base type
+ * @param signum The number of the signal that was raised
  */
-template <typename T>
-std::shared_ptr<gpar::GAdaptorT<T>> getDefaultAdaptor() {
-    throw geneva_exception(
-        g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-        << "In getDefaultAdaptor():" << '\n'
-        << "Function called with invalid type." << '\n'
-    );
+void sigHupHandler(int signum);
 
-    // Make the compiler happy
-    return std::shared_ptr<gpar::GAdaptorT<T>>();
-}
-
-// Specializations for double, std::int32_t and bool
 /******************************************************************************/
-template <>
-std::shared_ptr<gpar::GAdaptorT<double>> getDefaultAdaptor<double>();
-template <>
-std::shared_ptr<gpar::GAdaptorT<std::int32_t>> getDefaultAdaptor<std::int32_t>();
-template <>
-std::shared_ptr<gpar::GAdaptorT<bool>> getDefaultAdaptor<bool>();
+/**
+ * Checks whether a SIGHUP or CTRL_CLOSE_EVENT signal has been sent.
+ *
+ * @return A boolean indicating whether a SIGHUP / CTRL_CLOSE_EVENT signal was received
+ */
+bool G_SIGHUP_SENT();
 
 /******************************************************************************/
 

@@ -61,6 +61,7 @@ SET ( GENEVACOMMONINCLUDES
 	GSerializationHelperFunctionsT.hpp
 	GSerializeTupleT.hpp
 	GSingletonT.hpp
+	GStdFilesystemPathSerialization.hpp
 	GThreadGroup.hpp
 	GThreadPool.hpp
 	GTupleIO.hpp

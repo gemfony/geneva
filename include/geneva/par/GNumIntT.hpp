@@ -147,16 +147,16 @@ protected:
     /***************************************************************************/
     /**
 	  * Loads the data of another GNumIntT<int_type> object,
-	  * camouflaged as a GObject. We have no local data, so
+	  * camouflaged as a GParameterBase. We have no local data, so
 	  * all we need to do is to the standard identity check,
 	  * preventing that an object is assigned to itself.
 	  *
-	  * @param cp A copy of another GNumIntT<int_type> object, camouflaged as a GObject
+	  * @param cp A copy of another GNumIntT<int_type> object, camouflaged as a GParameterBase
 	  */
-    void load_(const GObject *cp) override {
+    void load_(const GParameterBase *cp) override {
         // Check that we are dealing with a GNumIntT<int_type> reference independent of this object and convert the pointer
         const GNumIntT<int_type> *p_load =
-            Gem::Common::g_convert_and_compare<GObject, GNumIntT<int_type>>(cp, this);
+            Gem::Common::g_convert_and_compare<GParameterBase, GNumIntT<int_type>>(cp, this);
 
         // Load our parent class'es data ...
         GNumT<int_type>::load_(cp);
@@ -177,12 +177,12 @@ protected:
      * Searches for compliance with expectations with respect to another object
      * of the same type
      *
-     * @param cp A constant reference to another GObject object
+     * @param cp A constant reference to another GParameterBase object
      * @param e The expected outcome of the comparison
      * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
     void compare_(
-        const GObject &cp,
+        const GParameterBase &cp,
         const Gem::Common::expectation &e,
         const double & /*limit*/
     ) const override {
@@ -190,7 +190,7 @@ protected:
 
         // Check that we are dealing with a GNumIntT<int_type> reference independent of this object and convert the pointer
         const GNumIntT<int_type> *p_load =
-            Gem::Common::g_convert_and_compare<GObject, GNumIntT<int_type>>(cp, this);
+            Gem::Common::g_convert_and_compare<GParameterBase, GNumIntT<int_type>>(cp, this);
 
         GToken token("GNumIntT<int_type>", e);
 
@@ -396,7 +396,7 @@ private:
 
     /***************************************************************************/
     /** @brief Creates a deep clone of this object. Needs to be redefined in derived classes */
-    GObject *clone_() const override = 0;
+    GParameterBase *clone_() const override = 0;
 };
 
 /******************************************************************************/

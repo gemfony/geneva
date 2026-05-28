@@ -128,8 +128,8 @@ protected:
     /** @brief Adds local configuration options to a GParserBuilder object */
     void addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) override;
 
-    /** @brief Loads the data of another GEvolutionaryAlgorithm object, camouflaged as a GObject */
-    void load_(const GObject *cp) override;
+    /** @brief Loads the data of another GEvolutionaryAlgorithm object */
+    void load_(const GBase *cp) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GEvolutionaryAlgorithm>(
@@ -140,7 +140,7 @@ protected:
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
     void compare_(
-        const GObject &cp // the other object
+        const GBase &cp // the other object
         ,
         const Gem::Common::expectation &e // the expectation for this object, e.g. equality
         ,
@@ -174,7 +174,7 @@ private:
     /** @brief Emits a name for this class / object */
     std::string name_() const override;
     /** @brief Creates a deep copy of this object */
-    GObject *clone_() const override;
+    GBase *clone_() const override;
 
     /** @brief We submit individuals to the broker connector and wait for processed items */
     void runFitnessCalculation_() override;

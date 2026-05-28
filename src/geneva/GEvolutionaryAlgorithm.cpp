@@ -61,12 +61,12 @@ GEvolutionaryAlgorithm::GEvolutionaryAlgorithm() {
   * Searches for compliance with expectations with respect to another object
   * of the same type
   *
-  * @param cp A constant reference to another GObject object
+  * @param cp A constant reference to another GEvolutionaryAlgorithm object
   * @param e The expected outcome of the comparison
   * @param limit The maximum deviation for floating point values (important for similarity checks)
   */
 void GEvolutionaryAlgorithm::compare_(
-    const GObject &cp // the other object
+    const GBase &cp // the other object
     ,
     const Gem::Common::expectation &e // the expectation for this object, e.g. equality
     ,
@@ -76,7 +76,7 @@ void GEvolutionaryAlgorithm::compare_(
 
     // Check that we are dealing with a GEvolutionaryAlgorithm reference independent of this object and convert the pointer
     const GEvolutionaryAlgorithm *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GEvolutionaryAlgorithm>(cp, this);
+        Gem::Common::g_convert_and_compare<GBase, GEvolutionaryAlgorithm>(cp, this);
 
     GToken token("GEvolutionaryAlgorithm", e);
 
@@ -357,15 +357,15 @@ std::uint16_t GEvolutionaryAlgorithm::getNThreads() const {
 
 /******************************************************************************/
 /**
-  * Loads the data of another GEvolutionaryAlgorithm object, camouflaged as a GObject.
+  * Loads the data of another GEvolutionaryAlgorithm object.
  *
-  * @param cp A pointer to another GEvolutionaryAlgorithm object, camouflaged as a GObject
+  * @param cp A pointer to another GEvolutionaryAlgorithm object
   */
-void GEvolutionaryAlgorithm::load_(const GObject *cp) {
+void GEvolutionaryAlgorithm::load_(const GBase *cp) {
     // Check that we are dealing with a GEvolutionaryAlgorithm reference independent
     // of this object and convert the pointer
     const GEvolutionaryAlgorithm *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GEvolutionaryAlgorithm>(cp, this);
+        Gem::Common::g_convert_and_compare<GBase, GEvolutionaryAlgorithm>(cp, this);
 
     // First load the parent class's data ...
     GParChild::load_(cp);
@@ -380,7 +380,7 @@ void GEvolutionaryAlgorithm::load_(const GObject *cp) {
   *
   * @return A deep copy of this object
   */
-GObject *GEvolutionaryAlgorithm::clone_() const {
+GBase *GEvolutionaryAlgorithm::clone_() const {
     return new GEvolutionaryAlgorithm(*this);
 }
 

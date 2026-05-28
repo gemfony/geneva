@@ -234,7 +234,7 @@ GParameterSet::GParameterSet(const std::size_t n_fitness_criteria)
      * @param cp A copy of another GParameterSet object
      */
 GParameterSet::GParameterSet(GParameterSet const &cp)
-  : GObject(cp)
+  : Gem::Common::GCommonInterfaceT<GParameterSet>(cp)
   , Interface::GMutableI(cp)
   , Interface::GRateableI(cp)
   , Gem::Common::GPtrContainerT<GParameterBase>(cp)
@@ -264,12 +264,12 @@ GParameterSet::GParameterSet(GParameterSet const &cp)
      * Searches for compliance with expectations with respect to another object
      * of the same type
      *
-     * @param cp A constant reference to another GObject object
+     * @param cp A constant reference to another GParameterSet object
      * @param e The expected outcome of the comparison
      * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
 void GParameterSet::compare_(
-    GObject const &cp,
+    GParameterSet const &cp,
     Gem::Common::expectation const &e,
     double const & /*limit*/
 ) const {
@@ -277,12 +277,12 @@ void GParameterSet::compare_(
 
     // Check that we are dealing with a GParameterSet reference independent of this object and convert the pointer
     const GParameterSet *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GParameterSet>(cp, this);
+        Gem::Common::g_convert_and_compare<GParameterSet, GParameterSet>(cp, this);
 
     GToken token("GParameterSet", e);
 
-    // Compare our parent data ...
-    Gem::Common::compare_base_t<GObject>(*this, *p_load, token);
+    // Compare our CRTP base data (the category root has no GObject parent) ...
+    Gem::Common::compare_base_t<Gem::Common::GCommonInterfaceT<GParameterSet>>(*this, *p_load, token);
 
     // The container base'es data -- compared explicitly, as it is a base-object
     // rather than a local member (the data is actually contained in a parent class).
@@ -656,7 +656,7 @@ std::size_t GParameterSet::getCrossOverPos(const std::size_t lower, const std::s
 std::shared_ptr<GParameterSet>
 GParameterSet::crossOverWith(std::shared_ptr<GParameterSet> const &cp) const {
     // Create a copy of this object
-    std::shared_ptr<GParameterSet> this_cp = this->GObject::clone<GParameterSet>();
+    std::shared_ptr<GParameterSet> this_cp = this->clone<GParameterSet>();
 
     // Extract all data items
     std::vector<double> this_double_cnt;
@@ -1308,8 +1308,8 @@ std::string GParameterSet::getMnemonic() const {
      * @param gpb The GParserBuilder object to which configuration options should be added
      */
 void GParameterSet::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
-    // Call our parent class'es function
-    GObject::addConfigurationOptions_(gpb);
+    // Call our CRTP base class'es function (the category root has no GObject parent)
+    Gem::Common::GCommonInterfaceT<GParameterSet>::addConfigurationOptions_(gpb);
 
     // Add local data
     gpb.registerFileParameter<evaluationPolicy>(
@@ -1449,7 +1449,7 @@ void GParameterSet::registerConstraint(
 
     // We store clones, so individual objects do not share the same object
     individual_constraint_ptr_ =
-        c_ptr->GObject::clone<GPreEvaluationValidityCheckT<GParameterSet>>();
+        c_ptr->clone<GPreEvaluationValidityCheckT<GParameterSet>>();
 }
 
 /******************************************************************************/
@@ -1671,17 +1671,17 @@ void GParameterSet::process_(const std::vector<parameterset_processing_result> &
 
 /******************************************************************************/
 /**
-     * Loads the data of another GParameterSet object, camouflaged as a GObject.
-     *         *
-     * @param cp A copy of another GParameterSet object, camouflaged as a GObject
+     * Loads the data of another GParameterSet object.
+     *
+     * @param cp A copy of another GParameterSet object
      */
-void GParameterSet::load_(const GObject *cp) {
+void GParameterSet::load_(const GParameterSet *cp) {
     // Check that we are dealing with a GParameterSet reference independent of this object and convert the pointer
     const GParameterSet *p_load =
-        Gem::Common::g_convert_and_compare<GObject, GParameterSet>(cp, this);
+        Gem::Common::g_convert_and_compare<GParameterSet, GParameterSet>(cp, this);
 
-    // Load the parent class'es data
-    GObject::load_(cp);
+    // This is the category root; there is no GObject parent class to load.
+    // Load the stateful base classes' data
     Gem::Common::GPtrContainerT<GParameterBase>::operator=(*p_load);
     Gem::Courtier::GProcessingContainerT<GParameterSet, parameterset_processing_result>::load_pc(
         p_load
@@ -1990,10 +1990,8 @@ bool GParameterSet::modify_GUnitTests_() {
 
     bool result = false;
 
-    // Call the parent class'es function
-    if(GObject::modify_GUnitTests_()) {
-        result = true;
-    }
+    // This is the category root; there is no modifiable GObject parent class.
+    // Call the stateful base class'es function
     if(Gem::Common::GPtrContainerT<GParameterBase>::modify_GUnitTests_()) {
         result = true;
     }
@@ -2031,8 +2029,8 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests_() {
     // Access to uniformly distributed double random numbers
     std::uniform_real_distribution<double> uniform_real_distribution;
 
-    // Call the parent class'es function
-    GObject::specificTestsNoFailureExpected_GUnitTests_();
+    // This is the category root; there is no GObject parent class to delegate to.
+    // Call the stateful base class'es function
     Gem::Common::GPtrContainerT<GParameterBase>::specificTestsNoFailureExpected_GUnitTests_();
 
     // --------------------------------------------------------------------------
@@ -2841,8 +2839,8 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests_() {
 void GParameterSet::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 
-    // Call the parent classes' functions
-    GObject::specificTestsFailuresExpected_GUnitTests_();
+    // This is the category root; there is no GObject parent class to delegate to.
+    // Call the stateful base class'es function
     Gem::Common::GPtrContainerT<GParameterBase>::specificTestsFailuresExpected_GUnitTests_();
 
     // no tests here yet
