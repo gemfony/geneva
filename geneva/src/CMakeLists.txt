@@ -28,59 +28,59 @@
 ################################################################################
 
 SET ( OPTIMIZATIONSOURCES
-	GRateableI.cpp
-	GAdaptorT.cpp
-	GBooleanAdaptor.cpp
-	GBooleanCollection.cpp
-	GBooleanObject.cpp
-	GBooleanObjectCollection.cpp
-	GConstrainedDoubleCollection.cpp
-	GConstrainedDoubleObject.cpp
-	GConstrainedDoubleObjectCollection.cpp
-	GConstrainedInt32Object.cpp
-	GConstrainedInt32ObjectCollection.cpp
-	GDoubleBiGaussAdaptor.cpp
-	GDoubleCollection.cpp
-	GDoubleGaussAdaptor.cpp
-	GDoubleObject.cpp
-	GDoubleObjectCollection.cpp
+	Interface/GRateableI.cpp
+	par/GAdaptorT.cpp
+	par/GBooleanAdaptor.cpp
+	par/GBooleanCollection.cpp
+	par/GBooleanObject.cpp
+	par/GBooleanObjectCollection.cpp
+	par/GConstrainedDoubleCollection.cpp
+	par/GConstrainedDoubleObject.cpp
+	par/GConstrainedDoubleObjectCollection.cpp
+	par/GConstrainedInt32Object.cpp
+	par/GConstrainedInt32ObjectCollection.cpp
+	par/GDoubleBiGaussAdaptor.cpp
+	par/GDoubleCollection.cpp
+	par/GDoubleGaussAdaptor.cpp
+	par/GDoubleObject.cpp
+	par/GDoubleObjectCollection.cpp
 	GenevaHelperFunctionsT.cpp
 	GenevaHelperFunctions.cpp
 	GenevaInitializer.cpp
 	GIndividualMultiConstraint.cpp
 	GIndividualStandardConsumers.cpp
-	GInt32Collection.cpp
-	GInt32FlipAdaptor.cpp
-	GInt32GaussAdaptor.cpp
-	GInt32Object.cpp
-	GInt32ObjectCollection.cpp
+	par/GInt32Collection.cpp
+	par/GInt32FlipAdaptor.cpp
+	par/GInt32GaussAdaptor.cpp
+	par/GInt32Object.cpp
+	par/GInt32ObjectCollection.cpp
 	Go2.cpp
-    GBase.cpp
-    GEvolutionaryAlgorithm.cpp
-    GEvolutionaryAlgorithmFactory.cpp
-    GEvolutionaryAlgorithm_PersonalityTraits.cpp
-    GParChild.cpp
-    GBaseParChildPersonalityTraits.cpp
+    oa/GBase.cpp
+    oa/GEvolutionaryAlgorithm.cpp
+    oa/GEvolutionaryAlgorithmFactory.cpp
+    oa/GEvolutionaryAlgorithm_PersonalityTraits.cpp
+    oa/GParChild.cpp
+    oa/GBaseParChildPersonalityTraits.cpp
 	GOptimizationEnums.cpp
 	GSigHupHandler.cpp
-	GParameterBase.cpp
-	GParameterObjectCollection.cpp
-	GParameterPropertyParser.cpp
-	GParameterSet.cpp
-	GParameterSetFixedSizePriorityQueue.cpp
-	GParameterSetMultiConstraint.cpp
+	par/GParameterBase.cpp
+	par/GParameterObjectCollection.cpp
+	par/GParameterPropertyParser.cpp
+	par/GParameterSet.cpp
+	par/GParameterSetFixedSizePriorityQueue.cpp
+	par/GParameterSetMultiConstraint.cpp
 	GPersonalityTraits.cpp
     GPluggableOptimizationMonitors.cpp
     GPostProcessorT.cpp
-	GTestIndividual1.cpp
-	GTestIndividual2.cpp
-	GTestIndividual3.cpp
-	GDelayIndividual.cpp
-	GExternalEvaluatorIndividual.cpp
-	GFunctionIndividual.cpp
-	GLineFitIndividual.cpp
-	GMetaOptimizerIndividualT.cpp
-	GNeuralNetworkIndividual.cpp
+	individuals/GTestIndividual1.cpp
+	individuals/GTestIndividual2.cpp
+	individuals/GTestIndividual3.cpp
+	individuals/GDelayIndividual.cpp
+	individuals/GExternalEvaluatorIndividual.cpp
+	individuals/GFunctionIndividual.cpp
+	individuals/GLineFitIndividual.cpp
+	individuals/GMetaOptimizerIndividualT.cpp
+	individuals/GNeuralNetworkIndividual.cpp
 )
 
 # Add MPI specific files
@@ -150,49 +150,49 @@ ENDIF ()
 IF(GENEVA_ALGO_SA)
 	SET(OPTIMIZATIONSOURCES
 			${OPTIMIZATIONSOURCES}
-			GSimulatedAnnealing.cpp
-			GSimulatedAnnealingFactory.cpp
-			GSimulatedAnnealing_PersonalityTraits.cpp)
+			oa/GSimulatedAnnealing.cpp
+			oa/GSimulatedAnnealingFactory.cpp
+			oa/GSimulatedAnnealing_PersonalityTraits.cpp)
 ENDIF()
 
 IF(GENEVA_ALGO_SWARM)
 	SET(OPTIMIZATIONSOURCES
 			${OPTIMIZATIONSOURCES}
-			GSwarmAlgorithm.cpp
-			GSwarmAlgorithmFactory.cpp
-			GSwarmAlgorithm_PersonalityTraits.cpp)
+			oa/GSwarmAlgorithm.cpp
+			oa/GSwarmAlgorithmFactory.cpp
+			oa/GSwarmAlgorithm_PersonalityTraits.cpp)
 ENDIF()
 
 IF(GENEVA_ALGO_GD)
 	SET(OPTIMIZATIONSOURCES
 			${OPTIMIZATIONSOURCES}
-			GGradientDescent.cpp
-			GGradientDescentFactory.cpp
-			GGradientDescent_PersonalityTraits.cpp)
+			oa/GGradientDescent.cpp
+			oa/GGradientDescentFactory.cpp
+			oa/GGradientDescent_PersonalityTraits.cpp)
 ENDIF()
 
 IF(GENEVA_ALGO_CGD)
 	SET(OPTIMIZATIONSOURCES
 			${OPTIMIZATIONSOURCES}
-			GConjugateGradientDescent.cpp
-			GConjugateGradientDescentFactory.cpp
-			GConjugateGradientDescent_PersonalityTraits.cpp)
+			oa/GConjugateGradientDescent.cpp
+			oa/GConjugateGradientDescentFactory.cpp
+			oa/GConjugateGradientDescent_PersonalityTraits.cpp)
 ENDIF()
 
 IF(GENEVA_ALGO_NM)
 	SET(OPTIMIZATIONSOURCES
 			${OPTIMIZATIONSOURCES}
-			GNelderMead.cpp
-			GNelderMeadFactory.cpp
-			GNelderMead_PersonalityTraits.cpp)
+			oa/GNelderMead.cpp
+			oa/GNelderMeadFactory.cpp
+			oa/GNelderMead_PersonalityTraits.cpp)
 ENDIF()
 
 IF(GENEVA_ALGO_PS)
 	SET(OPTIMIZATIONSOURCES
 			${OPTIMIZATIONSOURCES}
-			GParameterScan.cpp
-			GParameterScanFactory.cpp
-			GParameterScan_PersonalityTraits.cpp)
+			oa/GParameterScan.cpp
+			oa/GParameterScanFactory.cpp
+			oa/GParameterScan_PersonalityTraits.cpp)
 ENDIF()
 
 ADD_LIBRARY ( ${GENEVA_LIBNAME} SHARED ${OPTIMIZATIONSOURCES} )
