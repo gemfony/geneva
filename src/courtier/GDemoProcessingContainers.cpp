@@ -32,6 +32,14 @@
  ********************************************************************************/
 
 #include "courtier/GDemoProcessingContainers.hpp"
+#include "courtier/GProcessingContainerT.hpp"
+#include "hap/GHapEnums.hpp"
+#include "hap/GRandomT.hpp"
+#include <algorithm>
+#include <cstddef>
+#include <iostream>
+#include <random>
+#include <vector>
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Courtier::GSimpleContainer)       // NOLINT
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Courtier::GRandomNumberContainer) // NOLINT

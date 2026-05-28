@@ -28,6 +28,9 @@
  ********************************************************************************/
 
 #include "courtier/GCourtierEnums.hpp"
+#include "common/GCommonEnums.hpp"
+#include <istream>
+#include <ostream>
 
 namespace Gem::Courtier {
 
