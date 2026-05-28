@@ -26,11 +26,36 @@
 # collection for a list of contributors and copyright information.
 #
 ################################################################################
+#
+# Orchestrator for the self-contained Common library subtree.
+#
+# Layout (per the 2026-05-28 repo-layout reorganisation):
+#   common/include/common/*.hpp   public headers (install layout 1:1)
+#   common/src/*.cpp              implementation + the gemfony-common target
+#   common/tests/                 unit + manual tests
+#   common/examples/              standalone examples
+#   common/benchmarks/            performance benchmarks
+#
+# Tests / examples / benchmarks are gated on the top-level options so a
+# minimal build still only descends into include and src.
+################################################################################
 
-ADD_SUBDIRECTORY ( hap )
-ADD_SUBDIRECTORY ( courtier )
-ADD_SUBDIRECTORY ( geneva )
+ADD_SUBDIRECTORY ( include/common )
+ADD_SUBDIRECTORY ( src )
 
-# Auto-collect every test under tests/ (see GENEVA_AGGREGATE_TARGET in
-# CommonGenevaBuild.cmake). Must come after the ADD_SUBDIRECTORY calls above.
-GENEVA_AGGREGATE_TARGET( "tests" )
+IF ( GENEVA_BUILD_TESTS )
+	ADD_SUBDIRECTORY ( tests )
+ENDIF ()
+
+IF ( GENEVA_BUILD_EXAMPLES )
+	ADD_SUBDIRECTORY ( examples )
+ENDIF ()
+
+IF ( GENEVA_BUILD_BENCHMARKS )
+	ADD_SUBDIRECTORY ( benchmarks )
+ENDIF ()
+
+# Self-contained aggregate over EVERYTHING in this lib's subtree (lib +
+# tests + examples + benchmarks). The top-level `gemfony-build-all` depends
+# on this so a plain `make gemfony-build-all` still builds all of common.
+GENEVA_AGGREGATE_TARGET( "common-all" )

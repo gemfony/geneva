@@ -27,7 +27,6 @@
 #
 ################################################################################
 
-ADD_SUBDIRECTORY ( common )
 ADD_SUBDIRECTORY ( courtier )
 ADD_SUBDIRECTORY ( geneva )
 

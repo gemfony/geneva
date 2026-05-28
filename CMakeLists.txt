@@ -200,6 +200,7 @@ SET(GENEVA_VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
 
 INCLUDE_DIRECTORIES (
 	${PROJECT_SOURCE_DIR}/include
+	${PROJECT_SOURCE_DIR}/common/include
 )
 
 # Custom targets for building single libraries only
@@ -266,6 +267,20 @@ ENDIF ()
 ADD_SUBDIRECTORY (CMakeModules)
 ADD_SUBDIRECTORY (licenses)
 ADD_SUBDIRECTORY (scripts)
+
+# Enable CTest before any subdirectory's add_test() runs: common/ (and the
+# upcoming per-library subtrees) own their own tests/ subdirectories, so
+# enable_testing() must be in scope before those add_subdirectory calls or
+# their add_test() invocations are silently dropped.
+IF (GENEVA_BUILD_TESTS)
+	INCLUDE(CTest)
+ENDIF ()
+
+# Self-contained per-library subtrees (Common pilots the new layout; hap /
+# courtier / geneva still use the legacy include/<lib> + src/<lib> split and
+# will follow). The common subtree must be added before include/src so that
+# the gemfony-common target exists when hap/courtier/geneva configure.
+ADD_SUBDIRECTORY (common)
 
 # The main code lays here, and the compilation takes place in 'src'
 ADD_SUBDIRECTORY (include)
@@ -334,9 +349,11 @@ INSTALL(
 	DESTINATION ${GENEVA_INSTALL_CMAKEDIR}
 )
 
-# Examples and tests are compiled at the end
+# Examples and tests are compiled at the end. CTest was enabled earlier
+# (above ADD_SUBDIRECTORY (common)) so the per-library subtrees register
+# correctly; this block only adds the legacy tests/ tree for hap/courtier/
+# geneva (which will follow common's migration).
 IF( GENEVA_BUILD_TESTS )
-	INCLUDE(CTest)
 	ADD_SUBDIRECTORY (tests)
 ENDIF()
 
@@ -358,6 +375,7 @@ ADD_CUSTOM_TARGET(
 	benchmarks
 	examples
 	tests
+	common-all      # picks up common's self-contained subtree (lib + tests + examples + benchmarks)
 	COMMENT "Build the entire Gemfony library collection"
 )
 
