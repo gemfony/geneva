@@ -26,10 +26,31 @@
 # collection for a list of contributors and copyright information.
 #
 ################################################################################
+#
+# Orchestrator for the self-contained Hap library subtree.
+#
+# Layout (per the 2026-05-28 repo-layout reorganisation):
+#   hap/include/hap/*.hpp   public headers (install layout 1:1)
+#   hap/src/*.cpp *.cu      implementation + the gemfony-hap target
+#                           (CUDA random-number source under USECUDARNG)
+#   hap/tests/              UnitTests + ManualTests + DocuPrograms
+#   hap/examples/           05_GHapUsagePatterns
+#   (no benchmarks subtree for hap)
+#
+# Tests / examples are gated on the top-level options so a minimal build
+# only descends into include and src. The "hap-all" aggregate is picked up
+# by gemfony-build-all at the top level.
+################################################################################
 
-ADD_SUBDIRECTORY ( courtier )
-ADD_SUBDIRECTORY ( geneva )
+ADD_SUBDIRECTORY ( include/hap )
+ADD_SUBDIRECTORY ( src )
 
-# Auto-collect every test under tests/ (see GENEVA_AGGREGATE_TARGET in
-# CommonGenevaBuild.cmake). Must come after the ADD_SUBDIRECTORY calls above.
-GENEVA_AGGREGATE_TARGET( "tests" )
+IF ( GENEVA_BUILD_TESTS )
+	ADD_SUBDIRECTORY ( tests )
+ENDIF ()
+
+IF ( GENEVA_BUILD_EXAMPLES )
+	ADD_SUBDIRECTORY ( examples )
+ENDIF ()
+
+GENEVA_AGGREGATE_TARGET( "hap-all" )

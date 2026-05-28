@@ -27,6 +27,5 @@
 #
 ################################################################################
 
-ADD_SUBDIRECTORY ( hap )
 ADD_SUBDIRECTORY ( courtier )
 ADD_SUBDIRECTORY ( geneva )

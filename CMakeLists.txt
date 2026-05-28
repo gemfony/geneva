@@ -201,6 +201,7 @@ SET(GENEVA_VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
 INCLUDE_DIRECTORIES (
 	${PROJECT_SOURCE_DIR}/include
 	${PROJECT_SOURCE_DIR}/common/include
+	${PROJECT_SOURCE_DIR}/hap/include
 )
 
 # Custom targets for building single libraries only
@@ -276,11 +277,12 @@ IF (GENEVA_BUILD_TESTS)
 	INCLUDE(CTest)
 ENDIF ()
 
-# Self-contained per-library subtrees (Common pilots the new layout; hap /
-# courtier / geneva still use the legacy include/<lib> + src/<lib> split and
-# will follow). The common subtree must be added before include/src so that
-# the gemfony-common target exists when hap/courtier/geneva configure.
+# Self-contained per-library subtrees (Common piloted the layout; hap is the
+# second migration; courtier / geneva still use the legacy include/<lib> +
+# src/<lib> split and will follow). Order matches the dependency chain so
+# every library's target exists when its dependents configure.
 ADD_SUBDIRECTORY (common)
+ADD_SUBDIRECTORY (hap)
 
 # The main code lays here, and the compilation takes place in 'src'
 ADD_SUBDIRECTORY (include)
@@ -376,6 +378,7 @@ ADD_CUSTOM_TARGET(
 	examples
 	tests
 	common-all      # picks up common's self-contained subtree (lib + tests + examples + benchmarks)
+	hap-all         # picks up hap's self-contained subtree (lib + tests + examples; no benchmarks)
 	COMMENT "Build the entire Gemfony library collection"
 )
 
