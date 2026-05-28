@@ -28,6 +28,12 @@
  ********************************************************************************/
 
 #include "geneva/par/GDoubleBiGaussAdaptor.hpp"
+#include "common/GExpectationChecksT.hpp"
+#include "common/GLogger.hpp"
+#include "geneva/GOptimizationEnums.hpp"
+#include "geneva/par/GAdaptorT.hpp"
+#include "geneva/par/GFPBiGaussAdaptorT.hpp"
+#include <memory>
 
 #ifdef GEM_TESTING
 #include <catch2/catch_test_macros.hpp>

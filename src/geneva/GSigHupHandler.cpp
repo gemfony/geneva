@@ -28,6 +28,8 @@
  ********************************************************************************/
 
 #include "geneva/GSigHupHandler.hpp"
+#include "common/GCommonEnums.hpp"
+#include <csignal>
 
 namespace Gem::Geneva {
 

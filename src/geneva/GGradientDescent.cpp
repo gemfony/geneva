@@ -30,6 +30,24 @@
 #include "geneva/oa/GGradientDescent.hpp"
 
 #include "common/GLogger.hpp"
+#include "common/GCommonInterfaceT.hpp"
+#include "common/GCommonMathHelperFunctionsT.hpp"
+#include "common/GExceptions.hpp"
+#include "common/GExpectationChecksT.hpp"
+#include "common/GParserBuilder.hpp"
+#include "geneva/GOptimizationEnums.hpp"
+#include "geneva/GPersonalityTraits.hpp"
+#include "geneva/GenevaHelperFunctions.hpp"
+#include "geneva/oa/GBase.hpp"
+#include "geneva/oa/GGradientDescent_PersonalityTraits.hpp"
+#include "geneva/par/GParameterSet.hpp"
+#include <cstddef>
+#include <cstdint>
+#include <memory>
+#include <stdexcept>
+#include <string>
+#include <tuple>
+#include <vector>
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::OptimizationAlgorithms::GGradientDescent) // NOLINT
 

@@ -27,6 +27,11 @@
  *
  ********************************************************************************/
 #include "geneva/oa/GConjugateGradientDescent_PersonalityTraits.hpp"
+#include "common/GCommonInterfaceT.hpp"
+#include "common/GExpectationChecksT.hpp"
+#include "geneva/GPersonalityTraits.hpp"
+#include <cstddef>
+#include <string>
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::OptimizationAlgorithms::GConjugateGradientDescent_PersonalityTraits) // NOLINT
 namespace Gem::Geneva::OptimizationAlgorithms {

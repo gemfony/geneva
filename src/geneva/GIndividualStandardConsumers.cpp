@@ -28,6 +28,12 @@
  ********************************************************************************/
 
 #include "geneva/GIndividualStandardConsumers.hpp"
+#include "courtier/GCommandContainerT.hpp"
+#include "courtier/consumers/GAsioConsumerT.hpp"
+#include "geneva/GConsumerStore.hpp"
+#include "geneva/GIndividualStandardConsumerInitializerT.hpp"
+#include "geneva/par/GParameterSet.hpp"
+#include <memory>
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////

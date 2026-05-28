@@ -27,6 +27,28 @@
  *
  ********************************************************************************/
 #include "geneva/oa/GSwarmAlgorithm.hpp"
+#include "common/GCommonInterfaceT.hpp"
+#include "common/GCommonMathHelperFunctionsT.hpp"
+#include "common/GExceptions.hpp"
+#include "common/GExpectationChecksT.hpp"
+#include "common/GLogger.hpp"
+#include "common/GParserBuilder.hpp"
+#include "courtier/GProcessingContainerT.hpp"
+#include "geneva/GOptimizationEnums.hpp"
+#include "geneva/GPersonalityTraits.hpp"
+#include "geneva/GenevaHelperFunctions.hpp"
+#include "geneva/oa/GBase.hpp"
+#include "geneva/oa/GSwarmAlgorithm_PersonalityTraits.hpp"
+#include "geneva/par/GParameterSet.hpp"
+#include <algorithm>
+#include <cstddef>
+#include <cstdint>
+#include <cstdlib>
+#include <memory>
+#include <random>
+#include <string>
+#include <tuple>
+#include <vector>
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::OptimizationAlgorithms::GSwarmAlgorithm) // NOLINT
 

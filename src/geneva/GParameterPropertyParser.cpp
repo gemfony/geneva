@@ -28,6 +28,13 @@
  ********************************************************************************/
 
 #include "geneva/par/GParameterPropertyParser.hpp"
+#include "common/GExceptions.hpp"
+#include "common/GLogger.hpp"
+#include <cstddef>
+#include <cstdint>
+#include <string>
+#include <tuple>
+#include <vector>
 
 // Needed for rules to work. Follows http://boost.2283326.n4.nabble.com/hold-multi-pass-backtracking-swap-compliant-ast-td4664679.html
 namespace boost::spirit {

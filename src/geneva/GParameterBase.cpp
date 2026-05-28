@@ -28,6 +28,21 @@
  ********************************************************************************/
 
 #include "geneva/par/GParameterBase.hpp"
+#include "common/GCommonInterfaceT.hpp"
+#include "common/GExceptions.hpp"
+#include "common/GExpectationChecksT.hpp"
+#include "common/GLogger.hpp"
+#include "geneva/GOptimizationEnums.hpp"
+#include "hap/GHapEnums.hpp"
+#include "hap/GRandomBase.hpp"
+#include "hap/GRandomT.hpp"
+#include <any>
+#include <cstddef>
+#include <cstdint>
+#include <map>
+#include <memory>
+#include <string>
+#include <vector>
 
 #ifdef GEM_TESTING
 #include <catch2/catch_test_macros.hpp>

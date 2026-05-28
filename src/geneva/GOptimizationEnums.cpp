@@ -27,6 +27,9 @@
  *
  ********************************************************************************/
 #include "geneva/GOptimizationEnums.hpp"
+#include "common/GCommonEnums.hpp"
+#include <istream>
+#include <ostream>
 
 namespace Gem::Geneva {
 

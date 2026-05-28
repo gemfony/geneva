@@ -28,6 +28,17 @@
  ********************************************************************************/
 
 #include "geneva/GPostProcessorT.hpp"
+#include "common/GCommonInterfaceT.hpp"
+#include "common/GExceptions.hpp"
+#include "common/GExpectationChecksT.hpp"
+#include "common/GLogger.hpp"
+#include "common/GSerializableFunctionObjectT.hpp"
+#include "geneva/GOptimizationEnums.hpp"
+#include "geneva/oa/GEvolutionaryAlgorithm.hpp"
+#include "geneva/oa/GEvolutionaryAlgorithmFactory.hpp"
+#include "geneva/par/GParameterSet.hpp"
+#include <memory>
+#include <string>
 
 // Export of GEvolutionaryAlgorithmPostOptimizer
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GEvolutionaryAlgorithmPostOptimizer) // NOLINT

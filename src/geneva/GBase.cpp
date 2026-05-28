@@ -31,6 +31,31 @@
 
 // Needed for the G_SIGHUP_SENT() signal-state query in sigHupHalt().
 #include "geneva/GSigHupHandler.hpp"
+#include "common/GCommonHelperFunctions.hpp"
+#include "common/GCommonHelperFunctionsT.hpp"
+#include "common/GCommonInterfaceT.hpp"
+#include "common/GCommonMathHelperFunctionsT.hpp"
+#include "common/GContainerT.hpp"
+#include "common/GExceptions.hpp"
+#include "common/GExpectationChecksT.hpp"
+#include "common/GLogger.hpp"
+#include "common/GParserBuilder.hpp"
+#include "common/GSerializationHelperFunctionsT.hpp"
+#include "courtier/GCourtierEnums.hpp"
+#include "courtier/GExecutorT.hpp"
+#include "courtier/GProcessingContainerT.hpp"
+#include "geneva/GOptimizationEnums.hpp"
+#include "geneva/GenevaHelperFunctions.hpp"
+#include <chrono>
+#include <cstddef>
+#include <cstdint>
+#include <filesystem>
+#include <iomanip>
+#include <iostream>
+#include <memory>
+#include <tuple>
+#include <utility>
+#include <vector>
 
 /******************************************************************************/
 

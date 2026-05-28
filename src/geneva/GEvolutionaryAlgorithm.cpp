@@ -30,6 +30,32 @@
 #include "geneva/oa/GEvolutionaryAlgorithm.hpp"
 
 #include <memory>
+#include "common/GCommonInterfaceT.hpp"
+#include "common/GExceptions.hpp"
+#include "common/GExpectationChecksT.hpp"
+#include "common/GLogger.hpp"
+#include "common/GParserBuilder.hpp"
+#include "common/GThreadPool.hpp"
+#include "courtier/GProcessingContainerT.hpp"
+#include "geneva/GOptimizationEnums.hpp"
+#include "geneva/GPersonalityTraits.hpp"
+#include "geneva/GenevaHelperFunctions.hpp"
+#include "geneva/individuals/GTestIndividual1.hpp"
+#include "geneva/oa/GBase.hpp"
+#include "geneva/oa/GEvolutionaryAlgorithm_PersonalityTraits.hpp"
+#include "geneva/oa/GParChild.hpp"
+#include "geneva/par/GParameterSet.hpp"
+#include "geneva/par/GParameterSetFixedSizePriorityQueue.hpp"
+#include <algorithm>
+#include <cstddef>
+#include <cstdint>
+#include <exception>
+#include <future>
+#include <iterator>
+#include <ostream>
+#include <sstream>
+#include <tuple>
+#include <vector>
 
 #ifdef GEM_TESTING
 #include <catch2/catch_test_macros.hpp>

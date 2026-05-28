@@ -27,6 +27,21 @@
  *
  ********************************************************************************/
 #include "geneva/par/GParameterObjectCollection.hpp"
+#include "common/GExpectationChecksT.hpp"
+#include "common/GLogger.hpp"
+#include "geneva/GOptimizationEnums.hpp"
+#include "geneva/par/GBooleanAdaptor.hpp"
+#include "geneva/par/GBooleanObject.hpp"
+#include "geneva/par/GDoubleGaussAdaptor.hpp"
+#include "geneva/par/GDoubleObject.hpp"
+#include "geneva/par/GInt32GaussAdaptor.hpp"
+#include "geneva/par/GInt32Object.hpp"
+#include "geneva/par/GParameterBase.hpp"
+#include "geneva/par/GParameterTCollectionT.hpp"
+#include "hap/GHapEnums.hpp"
+#include "hap/GRandomT.hpp"
+#include <cstddef>
+#include <memory>
 
 #ifdef GEM_TESTING
 #include <catch2/catch_test_macros.hpp>

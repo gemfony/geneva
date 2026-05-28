@@ -31,6 +31,9 @@
 #include "geneva/par/GBooleanAdaptor.hpp"
 #include "geneva/par/GDoubleGaussAdaptor.hpp"
 #include "geneva/par/GInt32FlipAdaptor.hpp"
+#include "geneva/par/GAdaptorT.hpp"
+#include <cstdint>
+#include <memory>
 
 namespace Gem::Geneva {
 

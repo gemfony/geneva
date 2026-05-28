@@ -28,6 +28,22 @@
  ********************************************************************************/
 
 #include "geneva/individuals/GTestIndividual2.hpp"
+#include "common/GCommonEnums.hpp"
+#include "common/GCommonMathHelperFunctionsT.hpp"
+#include "common/GExpectationChecksT.hpp"
+#include "common/GLogger.hpp"
+#include "geneva/par/GConstrainedDoubleCollection.hpp"
+#include "geneva/par/GConstrainedDoubleObject.hpp"
+#include "geneva/par/GConstrainedDoubleObjectCollection.hpp"
+#include "geneva/par/GDoubleCollection.hpp"
+#include "geneva/par/GDoubleGaussAdaptor.hpp"
+#include "geneva/par/GDoubleObject.hpp"
+#include "geneva/par/GParameterSet.hpp"
+#include <cstddef>
+#include <istream>
+#include <memory>
+#include <ostream>
+#include <vector>
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Individuals::GTestIndividual2) // NOLINT
 namespace Gem::Geneva::Individuals {

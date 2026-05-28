@@ -28,6 +28,17 @@
  ********************************************************************************/
 
 #include "geneva/par/GConstrainedDoubleObjectCollection.hpp"
+#include "common/GExceptions.hpp"
+#include "common/GExpectationChecksT.hpp"
+#include "geneva/GOptimizationEnums.hpp"
+#include "geneva/par/GConstrainedDoubleObject.hpp"
+#include "geneva/par/GDoubleGaussAdaptor.hpp"
+#include "geneva/par/GParameterBase.hpp"
+#include "geneva/par/GParameterTCollectionT.hpp"
+#include "hap/GHapEnums.hpp"
+#include "hap/GRandomT.hpp"
+#include <cstddef>
+#include <memory>
 
 #ifdef GEM_TESTING
 #include <catch2/catch_test_macros.hpp>

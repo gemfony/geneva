@@ -29,6 +29,18 @@
 
 #include "geneva/oa/GParameterScanFactory.hpp"
 #include "geneva/oa/GInitializerT.hpp"
+#include "common/GCommonHelperFunctionsT.hpp"
+#include "common/GFactoryT.hpp"
+#include "common/GParserBuilder.hpp"
+#include "geneva/oa/GBase.hpp"
+#include "geneva/oa/GOAFactoryT.hpp"
+#include "geneva/oa/GParameterScan.hpp"
+#include "geneva/oa/GParameterScan_PersonalityTraits.hpp"
+#include "geneva/par/GParameterSet.hpp"
+#include <boost/program_options.hpp>
+#include <cstddef>
+#include <memory>
+#include <string>
 
 namespace Gem::Geneva::OptimizationAlgorithms {
 

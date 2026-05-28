@@ -28,6 +28,32 @@
  ********************************************************************************/
 
 #include "geneva/individuals/GExternalEvaluatorIndividual.hpp"
+#include "common/GCommonHelperFunctions.hpp"
+#include "common/GCommonHelperFunctionsT.hpp"
+#include "common/GCommonInterfaceT.hpp"
+#include "common/GExceptions.hpp"
+#include "common/GExpectationChecksT.hpp"
+#include "common/GFactoryT.hpp"
+#include "common/GLogger.hpp"
+#include "common/GParserBuilder.hpp"
+#include "geneva/GMultiConstraintT.hpp"
+#include "geneva/par/GAdaptorT.hpp"
+#include "geneva/par/GConstrainedDoubleObject.hpp"
+#include "geneva/par/GDoubleBiGaussAdaptor.hpp"
+#include "geneva/par/GDoubleGaussAdaptor.hpp"
+#include "geneva/par/GParameterSet.hpp"
+#include "geneva/par/GParameterSetMultiConstraint.hpp"
+#include "hap/GRandomT.hpp"
+#include <algorithm>
+#include <chrono>
+#include <cstddef>
+#include <cstdint>
+#include <exception>
+#include <filesystem>
+#include <memory>
+#include <sstream>
+#include <tuple>
+#include <vector>
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Individuals::GExternalEvaluatorIndividual)        // NOLINT
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Individuals::GExternalEvaluatorIndividualFactory) // NOLINT

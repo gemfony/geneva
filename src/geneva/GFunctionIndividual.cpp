@@ -29,6 +29,39 @@
 
 #include "geneva/individuals/GFunctionIndividual.hpp"
 #include "geneva/individuals/GBenchmarkFunctions.hpp"
+#include "common/GCommonEnums.hpp"
+#include "common/GCommonHelperFunctionsT.hpp"
+#include "common/GCommonInterfaceT.hpp"
+#include "common/GCommonMathHelperFunctionsT.hpp"
+#include "common/GExceptions.hpp"
+#include "common/GExpectationChecksT.hpp"
+#include "common/GFactoryT.hpp"
+#include "common/GLogger.hpp"
+#include "common/GParserBuilder.hpp"
+#include "geneva/GMultiConstraintT.hpp"
+#include "geneva/par/GAdaptorT.hpp"
+#include "geneva/par/GConstrainedDoubleCollection.hpp"
+#include "geneva/par/GConstrainedDoubleObject.hpp"
+#include "geneva/par/GConstrainedDoubleObjectCollection.hpp"
+#include "geneva/par/GDoubleBiGaussAdaptor.hpp"
+#include "geneva/par/GDoubleCollection.hpp"
+#include "geneva/par/GDoubleGaussAdaptor.hpp"
+#include "geneva/par/GDoubleObject.hpp"
+#include "geneva/par/GDoubleObjectCollection.hpp"
+#include "geneva/par/GParameterSet.hpp"
+#include "geneva/par/GParameterSetFactory.hpp"
+#include "geneva/par/GParameterSetMultiConstraint.hpp"
+#include "hap/GRandomT.hpp"
+#include <cmath>
+#include <cstddef>
+#include <cstdint>
+#include <filesystem>
+#include <iostream>
+#include <istream>
+#include <memory>
+#include <ostream>
+#include <tuple>
+#include <vector>
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Individuals::GFunctionIndividual)        // NOLINT
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Individuals::GFunctionIndividualFactory) // NOLINT

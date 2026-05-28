@@ -28,6 +28,16 @@
  ********************************************************************************/
 
 #include "geneva/oa/GSwarmAlgorithm_PersonalityTraits.hpp"
+#include "common/GCommonHelperFunctionsT.hpp"
+#include "common/GCommonInterfaceT.hpp"
+#include "common/GExceptions.hpp"
+#include "common/GExpectationChecksT.hpp"
+#include "common/GLogger.hpp"
+#include "geneva/GPersonalityTraits.hpp"
+#include "geneva/par/GParameterSet.hpp"
+#include <cstddef>
+#include <memory>
+#include <tuple>
 
 #ifdef GEM_TESTING
 #include <catch2/catch_test_macros.hpp>

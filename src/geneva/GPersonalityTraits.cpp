@@ -28,6 +28,8 @@
  ********************************************************************************/
 
 #include "geneva/GPersonalityTraits.hpp"
+#include "common/GCommonInterfaceT.hpp"
+#include "common/GExpectationChecksT.hpp"
 
 namespace Gem::Geneva {
 

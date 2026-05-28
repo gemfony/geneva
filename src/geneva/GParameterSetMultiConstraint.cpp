@@ -28,6 +28,16 @@
  ********************************************************************************/
 
 #include "geneva/par/GParameterSetMultiConstraint.hpp"
+#include "common/GCommonInterfaceT.hpp"
+#include "common/GExpectationChecksT.hpp"
+#include "common/GFormulaParserT.hpp"
+#include "common/GLogger.hpp"
+#include "common/GParserBuilder.hpp"
+#include "geneva/GMultiConstraintT.hpp"
+#include "geneva/par/GParameterSet.hpp"
+#include <limits>
+#include <map>
+#include <vector>
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Parameters::GParameterSetFormulaConstraint) // NOLINT
 namespace Gem::Geneva::Parameters {

@@ -28,6 +28,14 @@
  ********************************************************************************/
 
 #include "geneva/oa/GBaseParChildPersonalityTraits.hpp"
+#include "common/GCommonInterfaceT.hpp"
+#include "common/GExceptions.hpp"
+#include "common/GExpectationChecksT.hpp"
+#include "common/GLogger.hpp"
+#include "geneva/GPersonalityTraits.hpp"
+#include <cstddef>
+#include <cstdint>
+#include <memory>
 
 #ifdef GEM_TESTING
 #include <catch2/catch_test_macros.hpp>

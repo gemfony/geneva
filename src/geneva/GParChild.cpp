@@ -28,6 +28,21 @@
  ********************************************************************************/
 
 #include "geneva/oa/GParChild.hpp"
+#include "common/GCommonInterfaceT.hpp"
+#include "common/GExceptions.hpp"
+#include "common/GExpectationChecksT.hpp"
+#include "common/GLogger.hpp"
+#include "common/GParserBuilder.hpp"
+#include "geneva/GOptimizationEnums.hpp"
+#include "geneva/oa/GBase.hpp"
+#include "geneva/oa/GBaseParChildPersonalityTraits.hpp"
+#include "geneva/par/GParameterSet.hpp"
+#include <algorithm>
+#include <cstddef>
+#include <memory>
+#include <random>
+#include <tuple>
+#include <vector>
 
 namespace Gem::Geneva::OptimizationAlgorithms {
 

@@ -28,6 +28,28 @@
  ********************************************************************************/
 
 #include "geneva/GPluggableOptimizationMonitors.hpp"
+#include "common/GCommonHelperFunctions.hpp"
+#include "common/GCommonHelperFunctionsT.hpp"
+#include "common/GCommonInterfaceT.hpp"
+#include "common/GCommonMathHelperFunctionsT.hpp"
+#include "common/GExceptions.hpp"
+#include "common/GExpectationChecksT.hpp"
+#include "common/GLogger.hpp"
+#include "common/GPlotDesigner.hpp"
+#include "geneva/GOptimizationEnums.hpp"
+#include "geneva/Interface/GOptimizerIT.hpp"
+#include "geneva/oa/GBase.hpp"
+#include "geneva/par/GParameterSet.hpp"
+#include <cstddef>
+#include <cstdint>
+#include <filesystem>
+#include <fstream>
+#include <iomanip>
+#include <ios>
+#include <memory>
+#include <string>
+#include <tuple>
+#include <vector>
 
 /******************************************************************************/
 // Exports of classes

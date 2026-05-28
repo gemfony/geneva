@@ -28,6 +28,11 @@
  ********************************************************************************/
 
 #include "geneva/individuals/GMetaOptimizerIndividualT.hpp"
+#include "common/GCommonEnums.hpp"
+#include "common/GCommonMathHelperFunctionsT.hpp"
+#include "geneva/individuals/GFunctionIndividual.hpp"
+#include <istream>
+#include <ostream>
 
 BOOST_CLASS_EXPORT_IMPLEMENT(
     Gem::Geneva::Individuals::GMetaOptimizerIndividualT<Gem::Geneva::Individuals::GFunctionIndividual>

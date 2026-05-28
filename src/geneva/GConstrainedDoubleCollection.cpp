@@ -31,6 +31,22 @@
 
 #include <cmath>
 #include <limits>
+#include "common/GCommonHelperFunctionsT.hpp"
+#include "common/GExceptions.hpp"
+#include "common/GExpectationChecksT.hpp"
+#include "common/GLogger.hpp"
+#include "geneva/GOptimizationEnums.hpp"
+#include "geneva/par/GConstrainedFPNumCollectionT.hpp"
+#include "geneva/par/GParameterBase.hpp"
+#include "geneva/par/GParameterCollectionT.hpp"
+#include "hap/GHapEnums.hpp"
+#include "hap/GRandomBase.hpp"
+#include "hap/GRandomT.hpp"
+#include <cstddef>
+#include <map>
+#include <memory>
+#include <random>
+#include <vector>
 
 #ifdef GEM_TESTING
 #include <catch2/catch_test_macros.hpp>

@@ -28,6 +28,18 @@
  ********************************************************************************/
 
 #include "geneva/individuals/GTestIndividual3.hpp"
+#include "common/GCommonMathHelperFunctionsT.hpp"
+#include "common/GExceptions.hpp"
+#include "common/GExpectationChecksT.hpp"
+#include "common/GLogger.hpp"
+#include "geneva/par/GConstrainedDoubleCollection.hpp"
+#include "geneva/par/GConstrainedDoubleObject.hpp"
+#include "geneva/par/GDoubleGaussAdaptor.hpp"
+#include "geneva/par/GParameterObjectCollection.hpp"
+#include "geneva/par/GParameterSet.hpp"
+#include <cstddef>
+#include <memory>
+#include <vector>
 
 #ifdef GEM_TESTING
 #include <catch2/catch_test_macros.hpp>

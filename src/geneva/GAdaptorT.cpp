@@ -28,6 +28,14 @@
  ********************************************************************************/
 
 #include "geneva/par/GAdaptorT.hpp"
+#include "common/GCommonMathHelperFunctionsT.hpp"
+#include "geneva/GOptimizationEnums.hpp"
+#include "hap/GRandomBase.hpp"
+#include <cmath>
+#include <cstddef>
+#include <cstdlib>
+#include <random>
+#include <vector>
 
 namespace Gem::Geneva::Parameters {
 

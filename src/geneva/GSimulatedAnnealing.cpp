@@ -28,6 +28,31 @@
  ********************************************************************************/
 
 #include "geneva/oa/GSimulatedAnnealing.hpp"
+#include "common/GCommonInterfaceT.hpp"
+#include "common/GExceptions.hpp"
+#include "common/GExpectationChecksT.hpp"
+#include "common/GLogger.hpp"
+#include "common/GParserBuilder.hpp"
+#include "common/GThreadPool.hpp"
+#include "courtier/GProcessingContainerT.hpp"
+#include "geneva/GOptimizationEnums.hpp"
+#include "geneva/GPersonalityTraits.hpp"
+#include "geneva/GenevaHelperFunctions.hpp"
+#include "geneva/oa/GBase.hpp"
+#include "geneva/oa/GParChild.hpp"
+#include "geneva/oa/GSimulatedAnnealing_PersonalityTraits.hpp"
+#include "geneva/par/GParameterSet.hpp"
+#include <algorithm>
+#include <cmath>
+#include <cstddef>
+#include <cstdint>
+#include <exception>
+#include <future>
+#include <limits>
+#include <memory>
+#include <random>
+#include <tuple>
+#include <vector>
 
 /******************************************************************************/
 

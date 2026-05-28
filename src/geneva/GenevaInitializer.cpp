@@ -28,6 +28,9 @@
  ********************************************************************************/
 
 #include "geneva/GenevaInitializer.hpp"
+#include "courtier/GBrokerT.hpp"
+#include "geneva/par/GParameterSet.hpp"
+#include "hap/GRandomFactory.hpp"
 
 namespace Gem::Geneva {
 

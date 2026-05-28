@@ -33,6 +33,17 @@
 // transitively via Go2.hpp; that path was removed when Go2 was decoupled from the
 // concrete consumers, so include it explicitly here.
 #include "courtier/consumers/GMPIConsumerT.hpp"
+#include "common/GExceptions.hpp"
+#include "common/GLogger.hpp"
+#include "common/GParserBuilder.hpp"
+#include "geneva/GMPISubClientIndividual.hpp"
+#include "geneva/Go2.hpp"
+#include "geneva/par/GParameterSet.hpp"
+#include <boost/program_options.hpp>
+#include <cstdint>
+#include <functional>
+#include <string>
+#include <utility>
 
 namespace Gem::Geneva {
 GMPISubClientOptimizer::GMPISubClientOptimizer(

@@ -29,6 +29,16 @@
 
 #include "geneva/oa/GGradientDescentFactory.hpp"
 #include "geneva/oa/GInitializerT.hpp"
+#include "common/GFactoryT.hpp"
+#include "common/GParserBuilder.hpp"
+#include "geneva/oa/GBase.hpp"
+#include "geneva/oa/GGradientDescent.hpp"
+#include "geneva/oa/GGradientDescent_PersonalityTraits.hpp"
+#include "geneva/oa/GOAFactoryT.hpp"
+#include "geneva/par/GParameterSet.hpp"
+#include <cstddef>
+#include <memory>
+#include <string>
 
 namespace Gem::Geneva::OptimizationAlgorithms {
 

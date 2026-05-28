@@ -28,6 +28,21 @@
  ********************************************************************************/
 
 #include "geneva/individuals/GLineFitIndividual.hpp"
+#include "common/GCommonHelperFunctionsT.hpp"
+#include "common/GCommonInterfaceT.hpp"
+#include "common/GCommonMathHelperFunctionsT.hpp"
+#include "common/GExpectationChecksT.hpp"
+#include "common/GFactoryT.hpp"
+#include "common/GParserBuilder.hpp"
+#include "geneva/par/GDoubleGaussAdaptor.hpp"
+#include "geneva/par/GDoubleObject.hpp"
+#include "geneva/par/GParameterSet.hpp"
+#include <cmath>
+#include <cstddef>
+#include <filesystem>
+#include <memory>
+#include <tuple>
+#include <vector>
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Individuals::GLineFitIndividual) // NOLINT
 namespace Gem::Geneva::Individuals {

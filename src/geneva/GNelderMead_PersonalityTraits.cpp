@@ -27,6 +27,11 @@
  *
  ********************************************************************************/
 #include "geneva/oa/GNelderMead_PersonalityTraits.hpp"
+#include "common/GCommonInterfaceT.hpp"
+#include "common/GExpectationChecksT.hpp"
+#include "geneva/GPersonalityTraits.hpp"
+#include <cstddef>
+#include <string>
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::OptimizationAlgorithms::GNelderMead_PersonalityTraits) // NOLINT
 namespace Gem::Geneva::OptimizationAlgorithms {

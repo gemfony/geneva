@@ -28,6 +28,20 @@
  ********************************************************************************/
 
 #include "geneva/par/GParameterSetFixedSizePriorityQueue.hpp"
+#include "common/GCommonMathHelperFunctionsT.hpp"
+#include "common/GExceptions.hpp"
+#include "common/GExpectationChecksT.hpp"
+#include "common/GFixedSizePriorityQueueT.hpp"
+#include "common/GLogger.hpp"
+#include "geneva/GenevaHelperFunctions.hpp"
+#include "geneva/par/GParameterSet.hpp"
+#include <algorithm>
+#include <cstddef>
+#include <iterator>
+#include <memory>
+#include <sstream>
+#include <string>
+#include <vector>
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Parameters::GParameterSetFixedSizePriorityQueue) // NOLINT
 

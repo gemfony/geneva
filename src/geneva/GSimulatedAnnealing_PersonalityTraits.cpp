@@ -28,6 +28,10 @@
  ********************************************************************************/
 
 #include "geneva/oa/GSimulatedAnnealing_PersonalityTraits.hpp"
+#include "common/GExpectationChecksT.hpp"
+#include "geneva/GPersonalityTraits.hpp"
+#include "geneva/oa/GBaseParChildPersonalityTraits.hpp"
+#include <string>
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::OptimizationAlgorithms::GSimulatedAnnealing_PersonalityTraits) // NOLINT
 namespace Gem::Geneva::OptimizationAlgorithms {

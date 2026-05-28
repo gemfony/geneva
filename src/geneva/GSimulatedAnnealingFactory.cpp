@@ -29,6 +29,16 @@
 
 #include "geneva/oa/GSimulatedAnnealingFactory.hpp"
 #include "geneva/oa/GInitializerT.hpp"
+#include "common/GFactoryT.hpp"
+#include "common/GParserBuilder.hpp"
+#include "geneva/oa/GBase.hpp"
+#include "geneva/oa/GOAFactoryT.hpp"
+#include "geneva/oa/GSimulatedAnnealing.hpp"
+#include "geneva/oa/GSimulatedAnnealing_PersonalityTraits.hpp"
+#include "geneva/par/GParameterSet.hpp"
+#include <cstddef>
+#include <memory>
+#include <string>
 
 namespace Gem::Geneva::OptimizationAlgorithms {
 

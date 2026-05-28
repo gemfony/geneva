@@ -28,6 +28,23 @@
  ********************************************************************************/
 
 #include "geneva/individuals/GTestIndividual1.hpp"
+#include "common/GExceptions.hpp"
+#include "common/GExpectationChecksT.hpp"
+#include "common/GLogger.hpp"
+#include "courtier/GProcessingContainerT.hpp"
+#include "geneva/GOptimizationEnums.hpp"
+#include "geneva/GPersonalityTraits.hpp"
+#include "geneva/oa/GEvolutionaryAlgorithm_PersonalityTraits.hpp"
+#include "geneva/oa/GGradientDescent_PersonalityTraits.hpp"
+#include "geneva/oa/GSwarmAlgorithm_PersonalityTraits.hpp"
+#include "geneva/par/GDoubleCollection.hpp"
+#include "geneva/par/GDoubleGaussAdaptor.hpp"
+#include "geneva/par/GDoubleObject.hpp"
+#include "geneva/par/GParameterBase.hpp"
+#include "geneva/par/GParameterSet.hpp"
+#include <cstddef>
+#include <memory>
+#include <vector>
 
 #ifdef GEM_TESTING
 #include <catch2/catch_test_macros.hpp>

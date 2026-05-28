@@ -28,6 +28,8 @@
  ********************************************************************************/
 
 #include "geneva/Interface/GRateableI.hpp"
+#include <cstddef>
+#include <vector>
 
 namespace Gem::Geneva::Interface {
 
