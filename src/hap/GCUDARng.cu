@@ -38,6 +38,12 @@
 #include <cuda_runtime.h>
 #include <curand_kernel.h>
 
+#include <algorithm>
+#include <cstddef>
+#include <cstdint>
+#include <mutex>
+#include <vector>
+
 namespace Gem::Hap
 {
     static constexpr int THREADS_PER_BLOCK = 256;

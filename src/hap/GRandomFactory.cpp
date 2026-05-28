@@ -28,6 +28,22 @@
  ********************************************************************************/
 
 #include "hap/GRandomFactory.hpp"
+#include "common/GCommonHelperFunctions.hpp"
+#include "common/GErrorStreamer.hpp"
+#include "common/GExceptions.hpp"
+#include "common/GLogger.hpp"
+#include "hap/GRandomDefines.hpp"
+#include <atomic>
+#include <chrono>
+#include <cstddef>
+#include <cstdint>
+#include <memory>
+#include <mutex>
+#include <new>
+#include <stdexcept>
+#include <system_error>
+#include <thread>
+#include <utility>
 
 namespace Gem::Hap {
 

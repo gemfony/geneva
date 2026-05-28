@@ -28,6 +28,9 @@
  ********************************************************************************/
 
 #include "hap/GHapEnums.hpp"
+#include "common/GCommonEnums.hpp"
+#include <istream>
+#include <ostream>
 
 namespace Gem::Hap {
 
