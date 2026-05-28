@@ -16,13 +16,13 @@ from ..runner import GUEST_BUILD, JobContext
 #
 # NOTE: 10_GStarter is deliberately NOT built in-tree -- it ships as the
 # canonical out-of-tree find_package(Geneva) example (see
-# examples/geneva/10_GStarter/README and examples/geneva/CMakeLists.txt). The
+# geneva/examples/10_GStarter/README and geneva/examples/CMakeLists.txt). The
 # in-tree "run an example to completion" smoke therefore uses
 # 01_GSimpleOptimizer, the canonical minimal in-tree optimizer (covering 10's
 # out-of-tree role belongs to the outoftree/findgeneva check).
-_SIMPLE_DIR = "examples/geneva/01_GSimpleOptimizer"
+_SIMPLE_DIR = "geneva/examples/01_GSimpleOptimizer"
 _SIMPLE = "./GSimpleOptimizer"
-_GCUDA_DIR = "examples/geneva/15_GCUDAWorker"
+_GCUDA_DIR = "geneva/examples/15_GCUDAWorker"
 _GCUDA = "./GCUDAWorker"
 
 

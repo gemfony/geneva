@@ -187,7 +187,7 @@ INCLUDE(CommonGenevaBuild)
 #
 # IMPORTANT: When bumping the version here, also update the two macros
 #   GENEVA_VERSION  and  MIN_BOOST_VERSION
-# in include/common/GGlobalDefines.hpp accordingly.
+# in common/include/common/GGlobalDefines.hpp accordingly.
 
 SET(VERSION_MAJOR "1")
 SET(VERSION_MINOR "12")
@@ -199,10 +199,10 @@ SET(GENEVA_VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
 # Include directories, libraries
 
 INCLUDE_DIRECTORIES (
-	${PROJECT_SOURCE_DIR}/include
 	${PROJECT_SOURCE_DIR}/common/include
 	${PROJECT_SOURCE_DIR}/hap/include
 	${PROJECT_SOURCE_DIR}/courtier/include
+	${PROJECT_SOURCE_DIR}/geneva/include
 )
 
 # Custom targets for building single libraries only
@@ -233,11 +233,11 @@ IF (GENEVA_BUILD_WITH_COVERAGE)
     ENDIF ()
     # Filter: only the Common library's headers and sources count.
     SET(_GENEVA_COV_FILTER
-        "--filter=${PROJECT_SOURCE_DIR}/include/common/.*"
-        "--filter=${PROJECT_SOURCE_DIR}/src/common/.*"
+        "--filter=${PROJECT_SOURCE_DIR}/common/include/common/.*"
+        "--filter=${PROJECT_SOURCE_DIR}/common/src/.*"
         # Exclude the deprecated-soon GPlotDesigner from the headline number.
-        "--exclude=${PROJECT_SOURCE_DIR}/include/common/GPlotDesigner.hpp"
-        "--exclude=${PROJECT_SOURCE_DIR}/src/common/GPlotDesigner.cpp")
+        "--exclude=${PROJECT_SOURCE_DIR}/common/include/common/GPlotDesigner.hpp"
+        "--exclude=${PROJECT_SOURCE_DIR}/common/src/GPlotDesigner.cpp")
     ADD_CUSTOM_TARGET( "coverage"
         COMMAND ${CMAKE_COMMAND} -E make_directory
                 "${CMAKE_BINARY_DIR}/coverage/common"
@@ -278,17 +278,15 @@ IF (GENEVA_BUILD_TESTS)
 	INCLUDE(CTest)
 ENDIF ()
 
-# Self-contained per-library subtrees (Common piloted the layout; hap is the
-# second migration; courtier / geneva still use the legacy include/<lib> +
-# src/<lib> split and will follow). Order matches the dependency chain so
-# every library's target exists when its dependents configure.
+# Self-contained per-library subtrees. All four libraries now live under
+# their own top-level directory; the legacy split-by-kind include/, src/,
+# tests/, examples/, benchmarks/ trees no longer exist. Order matches the
+# dependency chain (common <- hap <- courtier <- geneva) so every library's
+# targets exist when its dependents configure.
 ADD_SUBDIRECTORY (common)
 ADD_SUBDIRECTORY (hap)
 ADD_SUBDIRECTORY (courtier)
-
-# The main code lays here, and the compilation takes place in 'src'
-ADD_SUBDIRECTORY (include)
-ADD_SUBDIRECTORY (src)
+ADD_SUBDIRECTORY (geneva)
 
 ################################################################################
 # Installed CMake config-file package.
@@ -353,35 +351,21 @@ INSTALL(
 	DESTINATION ${GENEVA_INSTALL_CMAKEDIR}
 )
 
-# Examples and tests are compiled at the end. CTest was enabled earlier
-# (above ADD_SUBDIRECTORY (common)) so the per-library subtrees register
-# correctly; this block only adds the legacy tests/ tree for hap/courtier/
-# geneva (which will follow common's migration).
-IF( GENEVA_BUILD_TESTS )
-	ADD_SUBDIRECTORY (tests)
-ENDIF()
-
-# Examples are also run as tests if enabled with 'GENEVA_RUN_EXAMPLES_AS_TESTS'
-IF( GENEVA_BUILD_EXAMPLES )
-	ADD_SUBDIRECTORY (examples)
-ENDIF()
-
-# Benchmarks are also run as tests if enabled with GENEVA_RUN_BENCHMARKS_AS_TESTS
-IF( GENEVA_BUILD_BENCHMARKS )
-	ADD_SUBDIRECTORY (benchmarks)
-ENDIF()
+# Tests / examples / benchmarks are gated and dispatched inside each library's
+# own CMakeLists.txt (common/, hap/, courtier/, geneva/) now that the legacy
+# top-level tests/ examples/ benchmarks/ trees have been removed. CTest was
+# enabled earlier (above ADD_SUBDIRECTORY (common)) so per-library add_test()
+# calls register.
 
 ################################################################################
 # Custom target for all compilable items in the distribution
 ADD_CUSTOM_TARGET(
 	"gemfony-build-all" DEPENDS
 	core
-	benchmarks
-	examples
-	tests
-	common-all      # picks up common's self-contained subtree (lib + tests + examples + benchmarks)
-	hap-all         # picks up hap's self-contained subtree (lib + tests + examples; no benchmarks)
-	courtier-all    # picks up courtier's self-contained subtree (lib + tests + examples-stub + benchmarks)
+	common-all      # lib + tests + examples + benchmarks for the common library
+	hap-all         # lib + tests + examples (no benchmarks for hap)
+	courtier-all    # lib + tests + examples-stub + benchmarks
+	geneva-all      # lib + tests + examples + benchmarks (the largest subtree)
 	COMMENT "Build the entire Gemfony library collection"
 )
 

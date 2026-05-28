@@ -1,0 +1,17 @@
+hap/doc -- documentation target for the Hap library
+====================================================
+
+Reserved as the per-library documentation directory. Intended uses:
+
+  - Doxygen output for the Hap library (output directory set to this
+    folder by the per-lib Doxyfile once the per-lib Doxygen integration
+    lands -- see the deferred "Doxygen aufräumen" task).
+  - Manuals, design notes and protocol descriptions specific to the
+    Hap library: random-number factory, GRandomT generators, CUDA-based
+    RNG (USECUDARNG), random distribution wrappers, etc.
+
+Today this folder is a placeholder so the layout is uniform across all
+four libraries (every <lib>/ now has benchmarks/, doc/, examples/,
+include/, src/, tests/). Full Doxygen-per-library integration is a
+follow-up step and intentionally not part of the 2026-05-28 layout
+reorganisation.

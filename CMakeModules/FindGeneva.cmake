@@ -203,7 +203,7 @@ IF (GENEVA_INCLUDE_DIR)
 	STRING ( REPLACE "${_VER_PRE} " "" _RAW_VERSION_2 ${_RAW_VERSION} )
 	STRING ( STRIP ${_RAW_VERSION_2} _RAW_VERSION_3 )
 
-	# Encoding (see include/common/GGlobalDefines.hpp):
+	# Encoding (see common/include/common/GGlobalDefines.hpp):
 	#   "0" + major(1 digit) + minor(2 digits) + patch(1 digit)
 	# e.g. 01120 -> 1.12.0 .
 	IF ( ${_RAW_VERSION_3} MATCHES "^0([0-9])([0-9][0-9])([0-9])$")

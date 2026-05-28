@@ -13,7 +13,7 @@ from ..model import CheckResult, Tier
 from ..runner import GUEST_BUILD, JobContext
 
 # Run from the example's own build dir so it finds/creates ./config/Go2.json.
-_EX01_DIR = "examples/geneva/01_GSimpleOptimizer"
+_EX01_DIR = "geneva/examples/01_GSimpleOptimizer"
 _EX01 = "./GSimpleOptimizer"
 _ALGOS = {
     "ea": "Evolutionary Algorithm",
@@ -96,7 +96,7 @@ def checkpoint_identity(ctx: JobContext) -> CheckResult:
     (3) runs the example so checkpoint files accumulate under ./checkpoints/, (4)
     picks the most recent one, (5) re-runs with ``-f <cp_file>`` which makes Go2
     load that checkpoint before the run (see Go2::cp_personality_fits +
-    loadCheckpoint in src/geneva/Go2.cpp). PASS requires both runs to exit 0 and
+    loadCheckpoint in geneva/src/Go2.cpp). PASS requires both runs to exit 0 and
     the restore-side run NOT to print Geneva's "Checkpoint file ... does not fit"
     rejection -- i.e. the serialised state actually round-tripped through
     save/load. This is a high-value smoke for the recent

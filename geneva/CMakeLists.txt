@@ -27,22 +27,30 @@
 #
 ################################################################################
 #
-# Orchestrator for the self-contained Hap library subtree.
+# Orchestrator for the self-contained Geneva library subtree (the largest
+# of the four; absorbed the former geneva-individuals library in 1.12.0).
 #
 # Layout (per the 2026-05-28 repo-layout reorganisation):
-#   hap/include/hap/*.hpp   public headers (install layout 1:1)
-#   hap/src/*.cpp *.cu      implementation + the gemfony-hap target
-#                           (CUDA random-number source under USECUDARNG)
-#   hap/tests/              UnitTests + ManualTests + DocuPrograms
-#   hap/examples/           05_GHapUsagePatterns
-#   hap/benchmarks/         stub for layout symmetry (no benchmark binaries
-#                           yet; aggregator only -- see comment in the file)
+#   geneva/include/geneva/             public headers (install layout 1:1)
+#     *.hpp                              top-level (Go2.hpp, GSigHupHandler.hpp,
+#                                        GMultiConstraintT.hpp,
+#                                        GPluggableOptimizationMonitors.hpp, ...)
+#     par/*.hpp                          parameter objects, adaptors, traits
+#     oa/*.hpp                           optimization algorithms (EA, SA,
+#                                        Swarm, GD, CGD, NelderMead, PS)
+#     individuals/*.hpp                  reusable problem definitions
+#     Interface/*.hpp                    abstract interfaces
+#   geneva/src/*.cpp                   implementation (flat, mirrors the
+#                                        top-level header set); 73 sources
+#   geneva/tests/                      UnitTests + ManualTests
+#   geneva/examples/{01_..18_}/        all numbered examples
+#   geneva/benchmarks/                 6 benchmark binaries
 #
 # Tests / examples / benchmarks gated on the top-level options. The
-# "hap-all" aggregate is picked up by gemfony-build-all at the top level.
+# "geneva-all" aggregate is picked up by gemfony-build-all at top level.
 ################################################################################
 
-ADD_SUBDIRECTORY ( include/hap )
+ADD_SUBDIRECTORY ( include/geneva )
 ADD_SUBDIRECTORY ( src )
 
 IF ( GENEVA_BUILD_TESTS )
@@ -57,4 +65,4 @@ IF ( GENEVA_BUILD_BENCHMARKS )
 	ADD_SUBDIRECTORY ( benchmarks )
 ENDIF ()
 
-GENEVA_AGGREGATE_TARGET( "hap-all" )
+GENEVA_AGGREGATE_TARGET( "geneva-all" )

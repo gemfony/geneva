@@ -27,8 +27,8 @@
 #
 ################################################################################
 
-ADD_SUBDIRECTORY ( geneva )
-
-# Auto-collect every test under tests/ (see GENEVA_AGGREGATE_TARGET in
-# CommonGenevaBuild.cmake). Must come after the ADD_SUBDIRECTORY calls above.
-GENEVA_AGGREGATE_TARGET( "tests" )
+# No benchmark sub-directories yet -- this CMakeLists exists for layout
+# symmetry across the four libraries (every <lib>/ has benchmarks/, doc/,
+# examples/, include/, src/, tests/). The aggregator below collects nothing
+# until a benchmark is added.
+GENEVA_AGGREGATE_TARGET( "benchmarks-hap" )
