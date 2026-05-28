@@ -33,6 +33,11 @@ MESSAGE ("")
 
 PROJECT (Geneva_Library_Collection LANGUAGES CXX)
 
+# Emit compile_commands.json so clang-tidy / IWYU / clangd / IDE code-insight
+# can pick up the exact per-TU flags without an extra cmake invocation. Free
+# at build time (just writes one JSON next to the Makefiles).
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 # Set ON to skip all CUDA compilation regardless of whether nvcc is present.
 # Overrides GENEVA_USE_CUDA_RNG, CUDA_NVCC, and CUDA_ROOT.  Useful when a
 # system CUDA installation is broken or incompatible (e.g. CUDA 13.1 + glibc 2.39).
@@ -345,9 +350,6 @@ IF( GENEVA_BUILD_BENCHMARKS )
 	ADD_SUBDIRECTORY (benchmarks)
 ENDIF()
 
-# Holds an incubator facility for new optimization algorithms
-# ADD_SUBDIRECTORY (incubator)
-
 ################################################################################
 # Custom target for all compilable items in the distribution
 ADD_CUSTOM_TARGET(
@@ -356,7 +358,6 @@ ADD_CUSTOM_TARGET(
 	benchmarks
 	examples
 	tests
-	# incubator
 	COMMENT "Build the entire Gemfony library collection"
 )
 
