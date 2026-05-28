@@ -590,15 +590,6 @@ public:
     //-------------------------------------------------------------------------
     /**
 	  * The only allowed constructor for this class
-	  *
-	  * @param socket All communication goes through this socket
-	  * @param get_payload_item Callback for the retrieval of payload items
-	  * @param put_payload_item Callback for the submission of payload items
-	  * @param check_server_stopped Callback used to check whether a halt was requested by the server
-	  * @param server_sign_on Callback to inform the server that a new session is active or has retired
-	  * @param serialization_mode Informs the session which Boost.Serialization mode should be used
-	  * @param ping_interval The interval between two consecutive pings
-	  * @param verbose_control_frames Whether the session should emit diagnostic messages upon receipt of a control frame
 	  */
     GWebsocketConsumerSessionT(
         boost::asio::io_context &io_context,

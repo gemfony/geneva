@@ -477,10 +477,9 @@ public:
 	  * isn't present. The function will return false if no item could be added to the buffer
 	  * inside if the allowed time limits.
 	  *
-	  * @param id A key that uniquely identifies the origin of p
 	  * @param p Holds the item to be submitted to the processed queue
 	  * @param timeout Time after which the function should time out
-	  * @param A boolean indicating whether the item could be added to the queue in time
+	  * @return A boolean indicating whether the item could be added to the queue in time
 	  */
     bool put(std::shared_ptr<processable_type> p, std::chrono::duration<double> timeout) {
         // Retrieve the correct processed buffer for our id

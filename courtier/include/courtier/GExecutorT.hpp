@@ -235,7 +235,6 @@ public:
 	  * @param workItems A vector with work items to be evaluated beyond the broker
 	  * @param resubmitUnprocessed Indicates whether unprocessed items should be resubmitted
 	  * @param externalIterationCounter An external iteration id assigned to this object (and a boolean indicating whether this value should be used)
-	  * @param caller Optionally holds information on the caller
 	  * @return A struct of booleans indicating whether all items were processed successfully and whether there were errors
 	  */
     executor_status_t workOn(
@@ -837,7 +836,6 @@ protected:
 	  * (i.e. all items have returned and there were no exceptions).
 	  *
 	  * @param workItems A vector with work items to be evaluated beyond the broker
-	  * @param oldWorkItems A vector with work items that have returned after the threshold
 	  * @return A struct of booleans indicating whether all items were processed successfully and whether there were errors
 	  */
     virtual executor_status_t waitForReturn(
@@ -2109,7 +2107,7 @@ protected:
     /**
 	  * Submits a single work item.
 	  *
-	  * @param w The work item to be processed
+	  * @param w_ptr The work item to be processed
 	  */
     void submit(std::shared_ptr<processable_type> w_ptr) override {
         if(not w_ptr) {
@@ -2294,8 +2292,6 @@ private:
     /***************************************************************************/
     /**
 	  * Updates the remaining time for this iteration
-	  *
-	  * @param w_ptr The last returned item
 	  */
     void updateTimeout(
         std::shared_ptr<processable_type> /*w_ptr*/

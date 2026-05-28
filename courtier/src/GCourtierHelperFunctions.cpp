@@ -50,7 +50,7 @@ namespace Gem::Courtier {
  * Assembles a query string from a given command, emitting a string of a given size.
  * This function is used in conjunction with Boost::Asio .
  *
- * @param str The string from which the size should be extracted
+ * @param query The string from which the size should be extracted
  * @param sz Resulting size of the query string
  * @return The query string
  */

@@ -98,7 +98,7 @@ std::istream &operator>>(std::istream &i, Gem::Courtier::networked_consumer_payl
  * Puts a Gem::Courtier::beast_ping_state item into a stream
  *
  * @param o The ostream the item should be added to
- * @param srm the item to be added to the stream
+ * @param ps the item to be added to the stream
  * @return The std::ostream object used to add the item to
  */
 std::ostream &operator<<(std::ostream &o, const Gem::Courtier::beast_ping_state &ps) {
@@ -112,7 +112,7 @@ std::ostream &operator<<(std::ostream &o, const Gem::Courtier::beast_ping_state 
  * Reads a Gem::Courtier::beast_ping_state item from a stream
  *
  * @param i The stream the item should be read from
- * @param srm The item read from the stream
+ * @param ps The item read from the stream
  * @return The std::istream object used to read the item from
  */
 std::istream &operator>>(std::istream &i, Gem::Courtier::beast_ping_state &ps) {

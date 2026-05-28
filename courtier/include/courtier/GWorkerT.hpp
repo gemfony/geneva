@@ -106,7 +106,7 @@ public:
          * an internal, signed representation, so we may detect worker ids that
          * have not been initialized.
          *
-         * @param The requested worker id
+         * @param workerId The requested worker id
          */
     void setWorkerId(std::size_t workerId) {
         worker_id_ = Gem::Common::narrow<std::int32_t>(workerId);

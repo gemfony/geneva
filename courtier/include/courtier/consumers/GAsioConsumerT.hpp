@@ -473,12 +473,6 @@ public:
     //-------------------------------------------------------------------------
     /**
 	  * The main constructor for this class
-	  *
-	  * @param socket The socket used for readung and writing data
-	  * @param get_payload_item A callback used to retrieve a raw payload item from the server
-	  * @param put_payload_item A callback used to submit a processed payload item to the server
-	  * @param check_server_stopped A callback used to check whether the server has been stopped
-	  * @param serialization_mode The serialization mode used for data transfers (binary, xml or plain text)
 	  */
     GAsioConsumerSessionT(
         boost::asio::io_context &io_context,
@@ -828,7 +822,7 @@ public:
     /**
 	  * Configures the number of threads to be used by this class
 	  *
-	  * @param The number of threads to be used by this class
+	  * @param nThreads The number of threads to be used by this class
 	  */
     void setNThreads(std::size_t nThreads) {
         // Adapt the number of processing threads, if automatic detection was requested

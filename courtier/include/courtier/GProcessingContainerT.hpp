@@ -781,7 +781,7 @@ public:
     /**
 	  * Retrieves and clears exceptions and the processing status.
 	  *
-	  * @param The desired new processing status
+	  * @param ps The desired new processing status
 	  */
     std::string get_and_clear_exceptions(processingStatus ps = processingStatus::DO_IGNORE) {
         std::string stored_exceptions =
@@ -893,7 +893,7 @@ protected:
 	  * should happen prior to any operation with this object. Also note that this
 	  * operation may invalidate other results already stored in this object.
 	  *
-	  * @param The number of stored results in this class
+	  * @param n_stored_results The number of stored results in this class
 	  * @param new_val A value to be copied into new positions when the vector is increased
 	  */
     void setNStoredResults(std::size_t n_stored_results, processing_result_type new_val) {
@@ -927,7 +927,7 @@ protected:
 	  * flags that indicate that an error has occurred and that processing was not
 	  * successful. NOTE That the error description may not be empty.
 	  *
-	  * @param An error description
+	  * @param error_info An error description
 	  */
     void force_set_error(const std::string &error_info) {
         if(error_info.empty()) {
@@ -972,7 +972,6 @@ private:
 	  * that, if your work items do not serialize important parts of an object, you need
 	  * to make sure that constant data is loaded after reloading a checkpoint.
 	  *
-	  * @param cD_ptr A pointer to the object whose data should be loaded
 	  */
     virtual void loadConstantData_(std::shared_ptr<processable_type>) { /* nothing */
     }

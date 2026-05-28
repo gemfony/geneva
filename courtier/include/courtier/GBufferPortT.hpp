@@ -101,7 +101,6 @@ public:
       * This function will block until the item was submitted.
       *
       * @param item_ptr A raw object that needs to be processed, wrapped into a std::shared_ptr
-      * @return A boolean which indicates whether the submission was successful
       */
     void push_raw(std::shared_ptr<processable_type> item_ptr) {
         if(item_ptr) {
@@ -215,7 +214,6 @@ public:
       * Puts an item into the "processed" queue. This function will block until the item was submitted.
       *
       * @param item_ptr A raw object that needs to be processed
-      * @return A boolean which indicates whether the submission was successful
       */
     void push_processed(std::shared_ptr<processable_type> item_ptr) {
         if(item_ptr) {
@@ -271,7 +269,6 @@ public:
       * This function will block until the item was submitted.
       *
       * @param item_ptr The item that was retrieved from the queue
-      * @return A boolean which indicates whether the retrieval was successful
       */
     void pop_processed(std::shared_ptr<processable_type> &item_ptr) {
         // The actual retrieval
