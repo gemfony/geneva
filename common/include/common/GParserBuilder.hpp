@@ -2048,9 +2048,6 @@ public:
     /***************************************************************************/
     /**
 	  * A constructor that initializes the internal reference
-	  *
-	  * @param stored_reference A reference to a variable in which parsed values should be stored
-	  * @param def_val The default value of this variable
 	  */
     GCLReferenceParsableParameterT(
         parameter_type &stored_reference,
@@ -2073,9 +2070,6 @@ public:
     /***************************************************************************/
     /**
 	  * A constructor that initializes the internal variiables, except for comments
-	  *
-	  * @param stored_reference A reference to a variable in which parsed values should be stored
-	  * @param def_val The default value of this variable
 	  */
     GCLReferenceParsableParameterT(
         parameter_type &stored_reference,
@@ -2310,10 +2304,10 @@ public:
     /**
 	  * Adds a parameter with a configurable type to the collection.
 	  *
-	  * @param optionName The name of the option
+	  * @param option_name The name of the option
 	  * @param parameter The parameter into which the value will be written
 	  * @param def_val A default value to be used if the corresponding parameter was not found in the configuration file
-	  * @param isEssential A boolean which indicates whether this is an essential or a secondary parameter
+	  * @param is_essential A boolean which indicates whether this is an essential or a secondary parameter
 	  * @param comment A comment to be associated with the parameter in configuration files
 	  */
     template <typename parameter_type>
@@ -2786,11 +2780,6 @@ public:
     /***************************************************************************/
     /**
 	  * Adds a reference to a configurable type to the command line parameters.
-	  *
-	  * @param optionName The name of the option
-	  * @param parameter The parameter into which the value will be written
-	  * @param def_val A default value to be used if the corresponding parameter was not found in the configuration file
-	  * @param comment A comment to be associated with the parameter in configuration files
 	  */
     template <typename parameter_type>
     GParsableI &registerCLParameter(
@@ -2871,8 +2860,6 @@ private:
  * The function assumes that the target object has a suitable addConfigurationOptions
  * function. The function will automatically generate the configuration file using
  * the mechanisms implemented in GParserBuilder, should the file not exist.
- *
- * @param path Name and path to a configuration file
  */
 template <typename conf_object_type>
 void configureFromFile(conf_object_type &target_object, std::filesystem::path const &conf_file) {

@@ -127,7 +127,6 @@ public:
 	  *
 	  * @param f The function to be run by the thread
 	  * @param n_threads The number of threads to add to the group
-	  * @return A pointer to the newly created thread
 	  */
     template <typename F>
     void create_threads(F f, const std::size_t &n_threads) {

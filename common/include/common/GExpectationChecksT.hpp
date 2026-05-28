@@ -326,8 +326,6 @@ identity<base_type> getBaseIdentity(
  * @param x_name The name of the first parameter
  * @param y_name The name of the second parameter
  * @param e The expectation both parameters need to fulfill
- * @param limit The maximum allowed deviation of two floating point values
- * @param dummy std::enable_if magic to steer overloaded resolution by the compiler
  */
 template <typename basic_type>
     requires (!std::is_floating_point_v<basic_type> &&
@@ -386,8 +384,6 @@ void compare(
  * @param x_name The name of the first parameter
  * @param y_name The name of the second parameter
  * @param e The expectation both parameters need to fulfill
- * @param limit The maximum allowed deviation of two floating point values
- * @param dummy std::enable_if magic to steer overloaded resolution by the compiler
  */
 template <typename Clock, typename Duration = typename Clock::duration>
 void compare(
@@ -444,8 +440,6 @@ void compare(
  * @param x_name The name of the first parameter
  * @param y_name The name of the second parameter
  * @param e The expectation both parameters need to fulfill
- * @param limit The maximum allowed deviation of two floating point values
- * @param dummy std::enable_if magic to steer overloaded resolution by the compiler
  */
 template <typename Rep, typename Period = std::ratio<1>>
 void compare(
@@ -500,7 +494,6 @@ void compare(
  * @param y_name The name of the second parameter
  * @param e The expectation both parameters need to fulfill
  * @param limit The maximum allowed deviation of two floating point values
- * @param dummy std::enable_if magic to steer overloaded resolution by the compiler
  */
 template <std::floating_point fp_type>
 void compare(
@@ -561,8 +554,6 @@ void compare(
  * @param x_name The name of the first parameter
  * @param y_name The name of the second parameter
  * @param e The expectation both parameters need to fulfill
- * @param limit The maximum allowed deviation of two floating point values
- * @param dummy std::enable_if magic to steer overloaded resolution by the compiler
  */
 template <typename base_type, template <typename, typename> class c_type>
     requires (!std::is_floating_point_v<base_type>)
@@ -644,8 +635,6 @@ void compare(
  * @param x_name The name of the first parameter
  * @param y_name The name of the second parameter
  * @param e The expectation both parameters need to fulfill
- * @param limit The maximum allowed deviation of two floating point values
- * @param dummy std::enable_if magic to steer overloaded resolution by the compiler
  */
 template <typename base_type, template <typename, typename, typename> class s_type>
     requires (!std::is_floating_point_v<base_type>)
@@ -726,7 +715,6 @@ void compare(
  * @param y_name The name of the second parameter
  * @param e The expectation both parameters need to fulfill
  * @param limit The maximum allowed deviation of two floating point values
- * @param dummy std::enable_if magic to steer overloaded resolution by the compiler
  */
 template <std::floating_point fp_type, template <typename, typename> class c_type>
 void compare(
@@ -825,7 +813,6 @@ void compare(
  * @param y_name The name of the second parameter
  * @param e The expectation both parameters need to fulfill
  * @param limit The maximum allowed deviation of two floating point values
- * @param dummy std::enable_if magic to steer overloaded resolution by the compiler
  */
 template <std::floating_point fp_type, template <typename, typename, typename> class s_type>
 void compare(
@@ -924,7 +911,6 @@ void compare(
  * @param y_name The name of the second parameter
  * @param e The expectation both parameters need to fulfill
  * @param limit The maximum allowed deviation of two floating point values
- * @param dummy std::enable_if magic to steer overloaded resolution by the compiler
  */
 template <typename geneva_type>
     requires Gem::Common::gemfony_common_interface<geneva_type>
@@ -1001,7 +987,6 @@ void compare(
  * @param y_name The name of the second parameter
  * @param e The expectation both parameters need to fulfill
  * @param limit The maximum allowed deviation of two floating point values
- * @param dummy std::enable_if magic to steer overloaded resolution by the compiler
  */
 template <typename geneva_type>
     requires Gem::Common::gemfony_common_interface<geneva_type>
@@ -1110,7 +1095,6 @@ void compare(
  * @param y_name The name of the second parameter
  * @param e The expectation both parameters need to fulfill
  * @param limit The maximum allowed deviation of two floating point values
- * @param dummy std::enable_if magic to steer overloaded resolution by the compiler
  */
 template <typename geneva_type, template <typename, typename> class c_type>
     requires Gem::Common::gemfony_common_interface<geneva_type>
@@ -1299,9 +1283,6 @@ void compare_t(identity<T> const &data, GToken &token) {
 /******************************************************************************/
 /**
  * This function checks whether two base types fulfill a given expectation.
- *
- * @param data The identity struct
- * @param token The token holding information about the number of failed tests
  */
 template <typename base_type>
 void compare_base_t(base_type const &x, base_type const &y, GToken &token) {

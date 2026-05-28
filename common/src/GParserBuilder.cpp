@@ -424,7 +424,6 @@ void GParserBuilder::loadFromPtree(
 /**
  * Tries to parse a given configuration file for a set of options.
  *
- * @param config_file The name of the configuration file to be parsed, possibly including an absolute or relative path
  * @return A boolean indicating whether parsing was successful
  */
 bool GParserBuilder::parseConfigFile(std::filesystem::path const &config_file, boost::property_tree::ptree *captured) {
@@ -540,7 +539,7 @@ bool GParserBuilder::parseConfigFile(std::filesystem::path const &config_file, b
 /**
  * Writes out a configuration file.
  *
- * @param file_name The name of the configuration file to be written
+ * @param config_file The name of the configuration file to be written
  * @param header A descriptive comment to be output at the top of the configuration file
  * @param write_all A boolean parameter that indicates whether all or only essential parameters should be written
  */

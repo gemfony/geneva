@@ -275,7 +275,6 @@ std::ostream &operator<<(std::ostream &s, GToken const &g) {
  * @param x_name The name of the first parameter
  * @param y_name The name of the second parameter
  * @param e The expectation both parameters need to fulfill
- * @param limit The maximum allowed deviation of two floating point values
  */
 void compare(
     Gem::Common::tribool const &x,

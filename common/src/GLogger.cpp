@@ -69,8 +69,6 @@ void GConsoleLogger::log(std::string const &msg) const {
 /******************************************************************************/
 /**
  * Logs a message to the console, adding information about the source
- *
- * @param msg The log message
  */
 void GConsoleLogger::logWithSource(std::string const &msg, std::string const &extension) const {
     this->log(std::string("Message from source \"") + extension + "\":\n" + msg);

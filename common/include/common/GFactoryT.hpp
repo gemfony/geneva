@@ -226,7 +226,6 @@ public:
     /**
 	  * Writes a configuration file to disk
 	  *
-	  * @param configFile The name of the configuration file to be written
 	  * @param header A header to be prepended to the configuration file
 	  */
     void writeConfigFile(std::string const &header) {

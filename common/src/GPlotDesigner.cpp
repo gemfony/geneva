@@ -271,7 +271,7 @@ GBasePlotter &GBasePlotter::operator=(GBasePlotter const &cp) {
 /**
  * Allows to set the drawing arguments for this plot
  *
- * @param drawingArguments The drawing arguments for this plot
+ * @param drawing_arguments The drawing arguments for this plot
  */
 void GBasePlotter::setDrawingArguments(std::string drawing_arguments) {
     drawing_arguments_ = drawing_arguments;
@@ -329,7 +329,7 @@ std::string GBasePlotter::zAxisLabel() const {
 /**
  * Allows to assign a label to the entire plot
  *
- * @param pL A label to be assigned to the entire plot
+ * @param p_l A label to be assigned to the entire plot
  */
 void GBasePlotter::setPlotLabel(std::string p_l) {
     plot_label_ = p_l;
@@ -349,7 +349,7 @@ std::string GBasePlotter::plotLabel() const {
 /**
  * Allows to assign a marker to data structures in the output file
  *
- * @param A marker that has been assigned to the output data structures
+ * @param ds_marker A marker that has been assigned to the output data structures
  */
 void GBasePlotter::setDataStructureMarker(std::string ds_marker) {
     ds_marker_ = ds_marker;
@@ -585,7 +585,7 @@ std::string GBasePlotter::footerData(const std::string &indent) const {
  * Adds arrows to the plots between consecutive points. Note that setting this
  * value to true will force "SCATTER" mode
  *
- * @param dA The desired value of the draw_arrows_ variable
+ * @param d_a The desired value of the draw_arrows_ variable
  */
 void GGraph2D::setDrawArrows(bool d_a) {
     draw_arrows_ = d_a;
@@ -605,7 +605,7 @@ bool GGraph2D::getDrawArrows() const {
 /**
  * Determines whether a scatter plot or a curve is created
  *
- * @param pM The desired plot mode
+ * @param p_m The desired plot mode
  */
 void GGraph2D::setPlotMode(graphPlotMode p_m) {
     p_m_ = p_m;
@@ -861,7 +861,7 @@ void GGraph2D::load_(const GBasePlotter *cp) {
 /**
  * Determines whether a scatter plot or a curve is created
  *
- * @param pM The desired plot mode
+ * @param p_m The desired plot mode
  */
 void GGraph2ED::setPlotMode(graphPlotMode p_m) {
     p_m_ = p_m;
@@ -1103,7 +1103,7 @@ void GGraph2ED::load_(const GBasePlotter *cp) {
 /**
  * Adds lines to the plots between consecutive points.
  *
- * @param dL The desired value of the draw_lines_ variable
+ * @param d_l The desired value of the draw_lines_ variable
  */
 void GGraph3D::setDrawLines(bool d_l) {
     draw_lines_ = d_l;
@@ -2526,8 +2526,6 @@ void GHistogram2D::load_(const GBasePlotter *cp) {
 /**
  * The standard constructor. Some member variables may be initialized in the
  * class body.
- *
- * @param fD A descriptor for the function to be plotted
  */
 GFunctionPlotter1D::GFunctionPlotter1D(
     const std::string &f_d,
@@ -2727,8 +2725,6 @@ void GFunctionPlotter1D::load_(const GBasePlotter *cp) {
 /******************************************************************************/
 /**
  * The standard constructor
- *
- * @param fD A descriptor for the function to be plotted
  */
 GFunctionPlotter2D::GFunctionPlotter2D(
     const std::string &f_d,
@@ -2951,7 +2947,7 @@ void GFunctionPlotter2D::load_(const GBasePlotter *cp) {
  * The standard constructor. Note that some variables are initialized in the
  * class body.
  *
- * @param The label of the canvas
+ * @param canvas_label The label of the canvas
  * @param c_x_div The number of plots in x-direction
  * @param c_y_div The number of plots in y-direction
  */
@@ -3149,7 +3145,7 @@ void GPlotDesigner::registerPlotter(std::shared_ptr<GBasePlotter> plotter_ptr) {
  * Set the dimensions of the output canvas
  *
  * @param c_x_dim The x-dimension of the output canvas
- * @param c_x_dim The y-dimension of the output canvas
+ * @param c_y_dim The y-dimension of the output canvas
  */
 void GPlotDesigner::setCanvasDimensions(
     const std::uint32_t &c_x_dim,
@@ -3162,9 +3158,6 @@ void GPlotDesigner::setCanvasDimensions(
 /******************************************************************************/
 /**
  * Set the dimensions of the output canvas
- *
- * @param c_x_dim The x-dimension of the output canvas
- * @param c_x_dim The y-dimension of the output canvas
  */
 void GPlotDesigner::setCanvasDimensions(const std::tuple<std::uint32_t, std::uint32_t> &c_dim) {
     this->setCanvasDimensions(std::get<0>(c_dim), std::get<1>(c_dim));

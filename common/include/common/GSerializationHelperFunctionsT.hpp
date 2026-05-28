@@ -67,7 +67,7 @@ namespace Gem::Common {
  * T is serializable using the Boost.Serialization framework.
  *
  * @param gt_ptr A shared_ptr to the object to be serialized
- * @param sm The corresponding serialization mode
+ * @param ser_mod The corresponding serialization mode
  * @return A string representation of gt_ptr
  */
 template <typename T>
@@ -105,7 +105,7 @@ sharedPtrToString(std::shared_ptr<T> gt_ptr, const Gem::Common::serializationMod
  * T is de-serializable using the Boost.Serialization framework.
  *
  * @param gt_string A string representation of the object to be restored
- * @param sm The corresponding serialization mode
+ * @param ser_mod The corresponding serialization mode
  * @return A shared_ptr to the restored object
  */
 template <typename T>

@@ -236,7 +236,7 @@ std::vector<std::string> loadTextLinesFromFile(std::filesystem::path const &p) {
 /**
  * Execute an external command, reacting to possible errors.
  *
- * @param command The command to be executed (possibly including errors)
+ * @param program The command to be executed (possibly including errors)
  * @param arguments The list of arguments to be added to the command
  * @param command_output_file_name The name of a file to which information should be piped
  * @param full_command Allows the caller to find out about the full command

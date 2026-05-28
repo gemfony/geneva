@@ -208,8 +208,6 @@ public:
      * Note that the string will likely describe a derivative of g_class_type, as g_class_type cannot usually be instantiated.
      * Note also that you will have to take care yourself that serialization and de-serialization happens
      * in the same mode.
-     *
-     * @param descr A text representation of a g_class_type-derivative
      */
     void fromString(const std::string &descr, Gem::Common::serializationMode ser_mod) {
         std::istringstream istr(descr);
@@ -521,7 +519,6 @@ protected:
      *
      * @param cp A constant reference to another object of the same type, camouflaged as a base object
      * @param e The expected outcome of the comparison
-     * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
     void compare_(
         const GCommonInterfaceT<g_class_type> &cp // the other object

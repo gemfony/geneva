@@ -67,8 +67,6 @@ public:
     /**
 	  * The default constructor. We may optionally instruct the class to
 	  * also log to the global logger during string conversion.
-	  *
-	  * @param do_log Instructs the object to also send data to the logger
 	  */
     explicit g_error_streamer(bool do_log, std::string where_and_when)
       : do_log_(do_log)
@@ -93,7 +91,7 @@ public:
 	  * to this class.
 	  *
 	  * @tparam value_type The parameter type of a value streamed into the class
-	  * @param value The value streamed into this class
+	  * @param val The value streamed into this class
 	  * @return A pointer to this object
 	  */
     template <typename value_type>

@@ -2201,8 +2201,8 @@ private:
  * default-constructed range, the function will attempt to determine suitable parameters
  * for the range settings.
  *
- * @param nBins The number of bins of the histogram
- * @param range The minimum and maximum boundaries of the histogram
+ * @param n_bins_x The number of bins of the histogram
+ * @param range_x The minimum and maximum boundaries of the histogram
  */
 template <>
 inline std::shared_ptr<GDataCollector1T<double>> GDataCollector2T<double, double>::projectX(
@@ -2242,8 +2242,8 @@ inline std::shared_ptr<GDataCollector1T<double>> GDataCollector2T<double, double
  * default-constructed range, the function will attempt to determine suitable parameters
  * for the range settings.
  *
- * @param nBins The number of bins of the histogram
- * @param range The minimum and maximum boundaries of the histogram
+ * @param n_bins_y The number of bins of the histogram
+ * @param range_y The minimum and maximum boundaries of the histogram
  */
 template <>
 inline std::shared_ptr<GDataCollector1T<double>> GDataCollector2T<double, double>::projectY(
@@ -3143,8 +3143,8 @@ private:
  * default-constructed range, the function will attempt to determine suitable parameters
  * for the range settings.
  *
- * @param nBins The number of bins of the histogram
- * @param range The minimum and maximum boundaries of the histogram
+ * @param n_bins_x The number of bins of the histogram
+ * @param range_x The minimum and maximum boundaries of the histogram
  */
 template <>
 inline std::shared_ptr<GDataCollector1T<double>> GDataCollector3T<double, double, double>::projectX(
@@ -3185,8 +3185,8 @@ inline std::shared_ptr<GDataCollector1T<double>> GDataCollector3T<double, double
  * default-constructed range, the function will attempt to determine suitable parameters
  * for the range settings.
  *
- * @param nBins The number of bins of the histogram
- * @param range The minimum and maximum boundaries of the histogram
+ * @param n_bins_y The number of bins of the histogram
+ * @param range_y The minimum and maximum boundaries of the histogram
  */
 template <>
 inline std::shared_ptr<GDataCollector1T<double>> GDataCollector3T<double, double, double>::projectY(
@@ -3226,8 +3226,8 @@ inline std::shared_ptr<GDataCollector1T<double>> GDataCollector3T<double, double
  * default-constructed range, the function will attempt to determine suitable parameters
  * for the range settings.
  *
- * @param nBins The number of bins of the histogram
- * @param range The minimum and maximum boundaries of the histogram
+ * @param n_bins_z The number of bins of the histogram
+ * @param range_z The minimum and maximum boundaries of the histogram
  */
 template <>
 inline std::shared_ptr<GDataCollector1T<double>> GDataCollector3T<double, double, double>::projectZ(
@@ -3663,8 +3663,8 @@ private:
  * default-constructed range, the function will attempt to determine suitable parameters
  * for the range settings.
  *
- * @param nBins The number of bins of the histogram
- * @param range The minimum and maximum boundaries of the histogram
+ * @param n_bins_x The number of bins of the histogram
+ * @param range_x The minimum and maximum boundaries of the histogram
  */
 template <>
 inline std::shared_ptr<GDataCollector1T<double>>
@@ -3706,8 +3706,8 @@ GDataCollector4T<double, double, double, double>::projectX(
  * default-constructed range, the function will attempt to determine suitable parameters
  * for the range settings.
  *
- * @param nBins The number of bins of the histogram
- * @param range The minimum and maximum boundaries of the histogram
+ * @param n_bins_y The number of bins of the histogram
+ * @param range_y The minimum and maximum boundaries of the histogram
  */
 template <>
 inline std::shared_ptr<GDataCollector1T<double>>
@@ -3749,8 +3749,8 @@ GDataCollector4T<double, double, double, double>::projectY(
  * default-constructed range, the function will attempt to determine suitable parameters
  * for the range settings.
  *
- * @param nBins The number of bins of the histogram
- * @param range The minimum and maximum boundaries of the histogram
+ * @param n_bins_z The number of bins of the histogram
+ * @param range_z The minimum and maximum boundaries of the histogram
  */
 template <>
 inline std::shared_ptr<GDataCollector1T<double>>
@@ -3787,13 +3787,13 @@ GDataCollector4T<double, double, double, double>::projectZ(
 
 /******************************************************************************/
 /**
- * Specialization of projectZ for <x_type, y_type, z_type, w_type> = <double, double, double, double>,
+ * Specialization of projectW for <x_type, y_type, z_type, w_type> = <double, double, double, double>,
  * that will return a GHistogram1D object, wrapped into a std::shared_ptr<GHistogram1D>. In case of a
  * default-constructed range, the function will attempt to determine suitable parameters
  * for the range settings.
  *
- * @param nBins The number of bins of the histogram
- * @param range The minimum and maximum boundaries of the histogram
+ * @param n_bins_w The number of bins of the histogram
+ * @param range_w The minimum and maximum boundaries of the histogram
  */
 template <>
 inline std::shared_ptr<GDataCollector1T<double>>

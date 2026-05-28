@@ -61,10 +61,6 @@ namespace Gem::Common {
 /**
  * Enforces a value inside of a given range (both boundaries inclusive) for the
  * first parameter. Note that the value of this parameter may change.
- *
- * @param val The value to be adapted
- * @param lower The lower boundary of the allowed value range
- * @param upper The upper (inclusive) boundary of the allowed value range
  */
 template <std::floating_point fp_type>
 fp_type enforceRangeConstraint(
@@ -110,10 +106,6 @@ fp_type enforceRangeConstraint(
 /******************************************************************************/
 /**
  * Checks that a given floating point value is inside of a given set of boundaries (both inclusive)
- *
- * @param val The value to be check
- * @param lower The lower boundary of the allowed value range
- * @param upper The upper boundary of the allowed value range
  */
 template <std::floating_point fp_type>
 bool checkRangeCompliance(
@@ -137,10 +129,6 @@ bool checkRangeCompliance(
 /******************************************************************************/
 /**
  * Checks that a given floating point value is inside of a given set of boundaries (both inclusive)
- *
- * @param val The value to be check
- * @param lower The lower boundary of the allowed value range
- * @param upper The upper boundary of the allowed value range
  */
 template <std::integral int_type>
 bool checkRangeCompliance(

@@ -66,8 +66,6 @@ namespace boost::serialization {
 /******************************************************************************/
 /**
  * Serialization of a std::tuple with a single element
- *
- * @param tpl The tuple to be serialized
  */
 template <typename archive, typename T0>
 void serialize(archive &ar, std::tuple<T0> &tpl, unsigned int) {
@@ -80,8 +78,6 @@ void serialize(archive &ar, std::tuple<T0> &tpl, unsigned int) {
 /******************************************************************************/
 /**
  * Serialization of a std::tuple with two elements
- *
- * @param tpl The tuple to be serialized
  */
 template <typename archive, typename T0, typename T1>
 void serialize(archive &ar, std::tuple<T0, T1> &tpl, unsigned int) {
@@ -94,8 +90,6 @@ void serialize(archive &ar, std::tuple<T0, T1> &tpl, unsigned int) {
 /******************************************************************************/
 /**
  * Serialization of a std::tuple with three elements
- *
- * @param tpl The tuple to be serialized
  */
 template <typename archive, typename T0, typename T1, typename T2>
 void serialize(archive &ar, std::tuple<T0, T1, T2> &tpl, unsigned int) {
@@ -109,8 +103,6 @@ void serialize(archive &ar, std::tuple<T0, T1, T2> &tpl, unsigned int) {
 /******************************************************************************/
 /**
  * Serialization of a std::tuple with four elements
- *
- * @param tpl The tuple to be serialized
  */
 template <typename archive, typename T0, typename T1, typename T2, typename T3>
 void serialize(archive &ar, std::tuple<T0, T1, T2, T3> &tpl, unsigned int) {
@@ -124,8 +116,6 @@ void serialize(archive &ar, std::tuple<T0, T1, T2, T3> &tpl, unsigned int) {
 /******************************************************************************/
 /**
  * Serialization of a std::tuple with five elements
- *
- * @param tpl The tuple to be serialized
  */
 template <typename archive, typename T0, typename T1, typename T2, typename T3, typename T4>
 void serialize(archive &ar, std::tuple<T0, T1, T2, T3, T4> &tpl, unsigned int) {
@@ -140,8 +130,6 @@ void serialize(archive &ar, std::tuple<T0, T1, T2, T3, T4> &tpl, unsigned int) {
 /******************************************************************************/
 /**
  * Serialization of a std::tuple with six elements
- *
- * @param tpl The tuple to be serialized
  */
 template <
     typename archive,
