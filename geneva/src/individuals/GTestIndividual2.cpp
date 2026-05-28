@@ -93,8 +93,6 @@ GTestIndividual2::GTestIndividual2() { /* nothing */
 /******************************************************************************/
 /**
  * The standard constructor
- *
- * @param n_objects The number of parameters to be added to this individual
  */
 GTestIndividual2::GTestIndividual2(const std::size_t &n_objects, const PERFOBJECTTYPE &otype) {
     using namespace Gem::Geneva;
@@ -191,7 +189,6 @@ GTestIndividual2::~GTestIndividual2() { /* nothing */
  *
  * @param cp A constant reference to another GParameterSet object
  * @param e The expected outcome of the comparison
- * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GTestIndividual2::compare_(
     const gpar::GParameterSet &cp,
@@ -250,7 +247,6 @@ gpar::GParameterSet *GTestIndividual2::clone_() const {
 /**
  * The actual fitness calculation takes place here.
  *
- * @param id The id of the target function (ignored here)
  * @return The value of this object
  */
 double GTestIndividual2::fitnessCalculation() {

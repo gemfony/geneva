@@ -166,7 +166,7 @@ std::shared_ptr<GBase> GParameterScanFactory::getObject_(
  * Allows to act on the configuration options received from the configuration file. Here
  * we can add the options described in describeLocalOptions to the object.
  *
- * @param p A smart-pointer to be acted on during post-processing
+ * @param p_base A smart-pointer to be acted on during post-processing
  */
 void GParameterScanFactory::postProcess_(std::shared_ptr<GBase> &p_base) {
     if(parameter_spec_cl_ != "empty") {

@@ -78,7 +78,6 @@ GParameterBase *GParameterObjectCollection::clone_() const {
  *
  * @param cp A constant reference to another GParameterBase object
  * @param e The expected outcome of the comparison
- * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GParameterObjectCollection::compare_(
     const GParameterBase &cp,

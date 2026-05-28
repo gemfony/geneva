@@ -47,7 +47,6 @@ const std::string GSimulatedAnnealing_PersonalityTraits::nickname = "sa";
  *
  * @param cp A constant reference to another GPersonalityTraits object
  * @param e The expected outcome of the comparison
- * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GSimulatedAnnealing_PersonalityTraits::compare_(
     const GPersonalityTraits &cp,

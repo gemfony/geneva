@@ -224,7 +224,7 @@ public:
      * Converts the local data to a boost::property_tree node
      *
      * @param ptr The boost::property_tree object the data should be saved to
-     * @param id The id assigned to this object
+     * @param base_name The id assigned to this object
      */
     void toPropertyTree(pt::ptree &ptr, const std::string &base_name) const override {
 #ifdef DEBUG
@@ -293,7 +293,6 @@ protected:
      *
      * @param cp A constant reference to another GParameterBase object
      * @param e The expected outcome of the comparison
-     * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
     void compare_(
         const GParameterBase &cp,

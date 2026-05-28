@@ -898,7 +898,6 @@ protected:
      *
      * @param cp A constant reference to another GParameterSet object
      * @param e The expected outcome of the comparison
-     * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
     void compare_(
         const gpar::GParameterSet &cp,
@@ -928,7 +927,6 @@ protected:
     /**
      * The actual value calculation takes place here
      *
-     * @param The id of the target function (ignored here)
      * @return The value of this object, as calculated with the evaluation function
      */
     double fitnessCalculation() override {
@@ -1919,7 +1917,6 @@ protected:
      *
      * @param cp A constant reference to another GBasePluggableOM object
      * @param e The expected outcome of the comparison
-     * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
     void compare_(
         const oa::GBasePluggableOM &cp,

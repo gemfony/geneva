@@ -115,7 +115,7 @@ std::shared_ptr<GBase> GConjugateGradientDescentFactory::getObject_(
 /**
  * Allows to act on the configuration options received from the configuration file.
  *
- * @param p A smart-pointer to be acted on during post-processing
+ * @param p_base A smart-pointer to be acted on during post-processing
  */
 void GConjugateGradientDescentFactory::postProcess_(
     std::shared_ptr<GBase> &p_base

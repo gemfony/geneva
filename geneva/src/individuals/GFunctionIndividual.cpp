@@ -189,7 +189,6 @@ GDoubleSumGapConstraint::GDoubleSumGapConstraint(const double &c, const double &
  *
  * @param cp A constant reference to another GPreEvaluationValidityCheckT object
  * @param e The expected outcome of the comparison
- * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GDoubleSumGapConstraint::compare_(
     const GPreEvaluationValidityCheckT<gpar::GParameterSet> &cp,

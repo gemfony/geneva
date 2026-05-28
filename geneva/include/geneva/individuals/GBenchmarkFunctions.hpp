@@ -50,21 +50,25 @@
  * ## Dependencies
  *
  * Only standard C math functions (sin, cos, exp, sqrt, pow, fabs) are used.
- * These are available in both <cmath> (CPU) and CUDA device code without
+ * These are available in both @c \<cmath\> (CPU) and CUDA device code without
  * additional includes.  Boost headers are intentionally absent so this file
  * can be included from .cu translation units.
  *
  * ## Usage from CPU code
  *
+ * @code
  *   #include "geneva/individuals/GBenchmarkFunctions.hpp"
  *   double f = Gem::Geneva::Benchmarks::parabola(params.data(), params.size());
+ * @endcode
  *
  * ## Usage from CUDA kernel code
  *
+ * @code
  *   #include "geneva/individuals/GBenchmarkFunctions.hpp"
  *   __global__ void evalKernel(...) {
  *       double f = Gem::Geneva::Benchmarks::parabola(d_params + tid*n, n);
  *   }
+ * @endcode
  *
  * ## Batch dispatch entry point
  *

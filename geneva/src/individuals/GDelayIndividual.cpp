@@ -92,7 +92,6 @@ GDelayIndividual::~GDelayIndividual() { /* nothing */
  *
  * @param cp A constant reference to another GParameterSet object
  * @param e The expected outcome of the comparison
- * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GDelayIndividual::compare_(
     const gpar::GParameterSet &cp,
@@ -482,7 +481,7 @@ void GDelayIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder 
  * we can add the options described in describeLocalOptions to the object. In practice,
  * we add the parameter objects here
  *
- * @param p A smart-pointer to be acted on during post-processing
+ * @param p_raw A smart-pointer to be acted on during post-processing
  */
 void GDelayIndividualFactory::postProcess_(std::shared_ptr<gpar::GParameterSet> &p_raw) {
     // Retrieve information about our id

@@ -141,7 +141,6 @@ trainingSet &trainingSet::operator=(const trainingSet &cp) {
  *
  * @param cp A constant reference to another GParameterSet object
  * @param e The expected outcome of the comparison
- * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void trainingSet::compare(
     const trainingSet &cp,
@@ -253,7 +252,6 @@ networkData &networkData::operator=(const networkData &cp) {
  *
  * @param cp A constant reference to another networkData object object
  * @param e The expected outcome of the comparison
- * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void networkData::compare(
     const networkData &cp,
@@ -274,7 +272,7 @@ void networkData::compare(
 /**
  * Saves the data of this struct to disc
  *
- * @param file_name The name of the file that data should be saved to
+ * @param network_data_file The name of the file that data should be saved to
  */
 void networkData::saveToDisk(const std::string &network_data_file) const {
     std::ofstream tr_dat(network_data_file);
@@ -301,7 +299,7 @@ void networkData::saveToDisk(const std::string &network_data_file) const {
 /**
  * Loads training data from the disc
  *
- * @param file_name The name of the file from which data should be loaded
+ * @param network_data_file The name of the file from which data should be loaded
  */
 void networkData::loadFromDisk(const std::string &network_data_file) {
     networkData *raw = nullptr;
@@ -339,7 +337,7 @@ void networkData::loadFromDisk(const std::string &network_data_file) {
  * Adds a new training set to the collection. Note that the training set isn't
  * cloned, simply a copy of the smart pointer is stored in the internal array.
  *
- * @param tS A std::shared_ptr<trainingSet> object, pointing to a training set
+ * @param t_s A std::shared_ptr<trainingSet> object, pointing to a training set
  * @param pos The position, in which the data set should be stored.
  */
 void networkData::addTrainingSet(std::shared_ptr<trainingSet> t_s, const std::size_t &pos) {
@@ -627,14 +625,6 @@ GNeuralNetworkIndividual::GNeuralNetworkIndividual()
 /**
  * A constructor which initializes the individual with a suitable set of network layers. It
  * also loads the training data from file.
- *
- * @param architecture Holds the number of nodes in the input layer, hidden(1/2) layer and output layer
- * @param min The minimum value of random numbers used for initialization of the network layers
- * @param max The maximum value of random numbers used for initialization of the network layers
- * @param sigma The sigma used for gauss adaptors
- * @param sigma_sigma Used for sigma adaption
- * @param min_sigma The minimum allowed value for sigma
- * @param max_sigma The maximum allowed value for sigma
  */
 GNeuralNetworkIndividual::GNeuralNetworkIndividual(
     const double &min,
@@ -691,7 +681,6 @@ GNeuralNetworkIndividual::~GNeuralNetworkIndividual() { /* nothing */
  *
  * @param cp A constant reference to another GParameterSet object
  * @param e The expected outcome of the comparison
- * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GNeuralNetworkIndividual::compare_(
     const gpar::GParameterSet &cp,
@@ -720,14 +709,6 @@ void GNeuralNetworkIndividual::compare_(
 /**
  * A function which initializes the individual with a suitable set of network
  * layers, according to user-specifications.
- *
- * @param min The minimum value of random numbers used for initialization of the network layers
- * @param max The maximum value of random numbers used for initialization of the network layers
- * @param sigma The sigma used for gauss adaptors
- * @param sigma_sigma Used for sigma adaption
- * @param min_sigma The minimum allowed value for sigma
- * @param max_sigma The maximum allowed value for sigma
- * @param ad_prob The adaption probability in Evolutionary Algorithms
  */
 void GNeuralNetworkIndividual::init(
     const double &min,
@@ -1459,7 +1440,6 @@ gpar::GParameterSet *GNeuralNetworkIndividual::clone_() const {
  * A small demonstration of the technique of storing a reference to a vector
  * in another vector is shown in the file refWrapper.cpp in the Geneva test cases.
  *
- * @param id The id of the target function (ignored here)
  * @return The fitness of this object
  */
 double GNeuralNetworkIndividual::fitnessCalculation() {
@@ -1754,7 +1734,7 @@ void GNeuralNetworkIndividualFactory::describeLocalOptions_(Gem::Common::GParser
  * we can add the options described in describeLocalOptions to the object. In practice,
  * we add the parameter objects here
  *
- * @param p A smart-pointer to be acted on during post-processing
+ * @param p_raw A smart-pointer to be acted on during post-processing
  */
 void GNeuralNetworkIndividualFactory::postProcess_(std::shared_ptr<gpar::GParameterSet> &p_raw) {
     // Convert the base pointer to the target type

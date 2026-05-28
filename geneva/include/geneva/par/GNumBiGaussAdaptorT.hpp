@@ -248,7 +248,7 @@ public:
      * @param sigma1 The initial value for the sigma1_ parameter
      * @param sigma_sigma1 The initial value for the sigma_sigma1_ parameter
      * @param min_sigma1 The minimal value allowed for sigma1_
-     * @param min_sigma1 The maximum value allowed for sigma1_
+     * @param max_sigma1 The maximum value allowed for sigma1_
      */
     void setAllSigma1(
         const fp_type &sigma1,
@@ -381,7 +381,7 @@ public:
      * @param sigma2 The initial value for the sigma2_ parameter
      * @param sigma_sigma2 The initial value for the sigma_sigma2_ parameter
      * @param min_sigma2 The minimal value allowed for sigma2_
-     * @param min_sigma2 The maximum value allowed for sigma2_
+     * @param max_sigma2 The maximum value allowed for sigma2_
      */
     void setAllSigma2(
         const fp_type &sigma2,
@@ -506,7 +506,7 @@ public:
      * @param delta The initial value for the delta_ parameter
      * @param sigma_delta The initial value for the sigma_delta_ parameter
      * @param min_delta The minimal value allowed for delta_
-     * @param min_delta The maximum value allowed for delta_
+     * @param max_delta The maximum value allowed for delta_
      */
     void setAllDelta(
         const fp_type &delta,
@@ -610,7 +610,7 @@ protected:
      * This function loads the data of another GNumBiGaussAdaptorT, camouflaged as a GAdaptorT.
      * We assume that the values given to us by the other object are correct and do no error checks.
      *
-     * @param A copy of another GNumBiGaussAdaptorT, camouflaged as a GAdaptorT
+     * @param cp A copy of another GNumBiGaussAdaptorT, camouflaged as a GAdaptorT
      */
     void load_(const GAdaptorT<num_type, fp_type> *cp) override {
         // Check that we are dealing with a GNumBiGaussAdaptorT<num_type, fp_type> reference independent of this object and convert the pointer
@@ -642,7 +642,6 @@ protected:
      *
      * @param cp A constant reference to another GAdaptorT object
      * @param e The expected outcome of the comparison
-     * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
     void compare_(
         const GAdaptorT<num_type, fp_type> &cp,
@@ -698,7 +697,6 @@ protected:
      * This adaptor allows the evolutionary adaption of sigma_. This allows the
      * algorithm to adapt to changing geometries of the quality surface.
      *
-     * @param range A typical range for the parameter with type num_type (unused here)
      */
     void customAdaptAdaption(const num_type &, Gem::Hap::GRandomBase &gr) override {
         using namespace Gem::Common;
@@ -750,9 +748,6 @@ protected:
     /**
      * The actual adaption of the supplied value takes place here. Purely virtual, as the actual
      * adaptions are defined in the derived classes.
-     *
-     * @param value The value that is going to be adapted in situ
-     * @param range A typical range for the parameter with type num_type (unused here)
      */
     void customAdaptions(num_type &, const num_type &, Gem::Hap::GRandomBase &gr) override = 0;
 

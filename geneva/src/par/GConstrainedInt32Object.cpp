@@ -55,8 +55,8 @@ namespace Gem::Geneva::Parameters {
  * Initialization with boundaries only. A random value inside of the allowed ranges will
  * be assigned to the object.
  *
- * @param lowerBoundary The lower boundary of the value range
- * @param upperBoundary The upper boundary of the value range
+ * @param lower_boundary The lower boundary of the value range
+ * @param upper_boundary The upper boundary of the value range
  */
 GConstrainedInt32Object::GConstrainedInt32Object(
     const std::int32_t &lower_boundary,
@@ -70,8 +70,8 @@ GConstrainedInt32Object::GConstrainedInt32Object(
  * Initialization with value and boundaries
  *
  * @param val Initialization value
- * @param lowerBoundary The lower boundary of the value range
- * @param upperBoundary The upper boundary of the value range
+ * @param lower_boundary The lower boundary of the value range
+ * @param upper_boundary The upper boundary of the value range
  */
 GConstrainedInt32Object::GConstrainedInt32Object(
     const std::int32_t &val,
@@ -120,7 +120,6 @@ GParameterBase *GConstrainedInt32Object::clone_() const {
  *
  * @param cp A constant reference to another GParameterBase object
  * @param e The expected outcome of the comparison
- * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GConstrainedInt32Object::compare_(
     const GParameterBase &cp,
@@ -156,8 +155,6 @@ std::string GConstrainedInt32Object::name_() const {
 /**
  * Attach our local value to the vector. This is used to collect all parameters of this type
  * in the sequence in which they were registered.
- *
- * @param par_vec The vector to which the local value should be attached
  */
 void GConstrainedInt32Object::int32Streamline(
     std::vector<std::int32_t> &par_vec,
@@ -170,8 +167,6 @@ void GConstrainedInt32Object::int32Streamline(
 /**
  * Attach our local value to the vector. This is used to collect all parameters of this type
  * in the sequence in which they were registered.
- *
- * @param par_vec The vector to which the local value should be attached
  */
 void GConstrainedInt32Object::int32Streamline(
     std::map<std::string, std::vector<std::int32_t>> &par_vec,
@@ -185,9 +180,6 @@ void GConstrainedInt32Object::int32Streamline(
 /******************************************************************************/
 /**
  * Attach boundaries of type std::int32_t to the vectors.
- *
- * @param l_bnd_vec A vector of lower std::int32_t parameter boundaries
- * @param u_bnd_vec A vector of upper std::int32_t parameter boundaries
  */
 void GConstrainedInt32Object::int32Boundaries(
     std::vector<std::int32_t> &l_bnd_vec,
@@ -202,7 +194,6 @@ void GConstrainedInt32Object::int32Boundaries(
 /**
  * Tell the audience that we own a std::int32_t value
  *
- * @param @param am An enum indicating whether only information about active, inactive or all parameters of this type should be extracted
  * @return The number 1, as we own a single std::int32_t parameter
  */
 std::size_t GConstrainedInt32Object::countInt32Parameters(

@@ -189,7 +189,6 @@ protected:
      *
      * @param cp A constant reference to another GAdaptorT object
      * @param e The expected outcome of the comparison
-     * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
     void compare_(
         const GAdaptorT<fp_type, fp_type> &cp,
@@ -216,9 +215,6 @@ protected:
     /***************************************************************************/
     /**
      * The actual adaption of the supplied value takes place here.
-     *
-     * @param value The value that is going to be adapted in situ
-     * @param range A typical range for the parameter with type num_type
      */
     void customAdaptions(fp_type &value, const fp_type &range, Gem::Hap::GRandomBase &gr) override {
         using namespace Gem::Common;

@@ -104,8 +104,8 @@ public:
     /**
 	  * Initializes the boundaries and sets the value to the lower boundary.
 	  *
-	  * @param lowerBoundary The lower boundary of the value range
-	  * @param upperBoundary The upper boundary of the value range
+	  * @param lower_boundary The lower boundary of the value range
+	  * @param upper_boundary The upper boundary of the value range
 	  */
     GConstrainedNumT(const T &lower_boundary, const T &upper_boundary)
       : GParameterT<T>(lower_boundary)
@@ -143,8 +143,8 @@ public:
 	  * Initialization with value and boundaries.
 	  *
 	  * @param val The desired value of this object
-	  * @param lowerBoundary The lower boundary of the value range
-	  * @param upperBoundary The upper boundary of the value range
+	  * @param lower_boundary The lower boundary of the value range
+	  * @param upper_boundary The upper boundary of the value range
 	  */
     GConstrainedNumT(const T &val, const T &lower_boundary, const T &upper_boundary)
       : GParameterT<T>(val)
@@ -193,8 +193,6 @@ public:
     /**
 	  * A standard copy constructor. Most work is done by the parent
 	  * classes, we only need to copy the allowed value range.
-	  *
-	  * @param cp Another GConstrainedNumT<T> object
 	  */
     GConstrainedNumT(const GConstrainedNumT<T> &) = default;
 
@@ -209,7 +207,7 @@ public:
 	  * A standard assignment operator for T values. Note that this function
 	  * will throw an exception if the new value is not in the allowed value range.
 	  *
-	  * @param The desired new external value
+	  * @param val The desired new external value
 	  * @return The new external value of this object
 	  */
     GConstrainedNumT<T> &operator=(const T &val) override {
@@ -257,8 +255,8 @@ public:
 	  * function, or use the corresponding "setValue()" overload, which
 	  * also allows setting of boundaries.
 	  *
-	  * @param lowerBoundary The new lower boundary for this object
-	  * @param upperBoundary The new upper boundary for this object
+	  * @param lower_boundary The new lower boundary for this object
+	  * @param upper_boundary The new upper boundary for this object
 	  */
     virtual void setBoundaries(const T &lower_boundary, const T &upper_boundary) {
         const T current_value = this->value(); // Store the externally visible value
@@ -339,8 +337,8 @@ public:
 	  * Allows to set the value of this object together with its boundaries.
 	  *
 	  * @param val The desired value of this object
-	  * @param lowerBoundary The lower boundary of the value range
-	  * @param upperBoundary The upper boundary of the value range
+	  * @param lower_boundary The lower boundary of the value range
+	  * @param upper_boundary The upper boundary of the value range
 	  */
     virtual void setValue(const T &val, const T &lower_boundary, const T &upper_boundary) {
         // Do some error checking
@@ -451,12 +449,6 @@ public:
 protected:
     /***************************************************************************/
     /**
-	  * Loads the data of another GConstrainedNumT<T>, camouflaged as a GParameterBase.
-	  *
-	  * @param cp Another GConstrainedNumT<T> object, camouflaged as a GParameterBase
-	  */
-    /***************************************************************************/
-    /**
      * The single declaration of this class'es local data members. load_() and
      * compare_() are derived from it, so the member list lives in one place.
      */
@@ -500,7 +492,6 @@ protected:
      *
      * @param cp A constant reference to another GParameterBase object
      * @param e The expected outcome of the comparison
-     * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
     void compare_(
         const GParameterBase &cp,

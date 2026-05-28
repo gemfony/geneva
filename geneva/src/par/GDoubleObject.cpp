@@ -67,8 +67,8 @@ GDoubleObject::GDoubleObject(const double &val)
 /**
  * Initialization by random number in a given range
  *
- * @param lowerBoundary The lower boundary for the random number used in the initialization
- * @param upperBoundary The upper boundary for the random number used in the initialization
+ * @param lower_boundary The lower boundary for the random number used in the initialization
+ * @param upper_boundary The upper boundary for the random number used in the initialization
  */
 GDoubleObject::GDoubleObject(const double &lower_boundary, const double &upper_boundary)
   : GNumFPT<double>(lower_boundary, upper_boundary) { /* nothing */
@@ -79,8 +79,8 @@ GDoubleObject::GDoubleObject(const double &lower_boundary, const double &upper_b
  * Initialization with a fixed value and the range for random initialization
  *
  * @param val The value to be assigned to the object
- * @param lowerBoundary The lower boundary for random initialization
- * @param upperBoundary The upper boundary for random initialization
+ * @param lower_boundary The lower boundary for random initialization
+ * @param upper_boundary The upper boundary for random initialization
  */
 GDoubleObject::GDoubleObject(
     const double &val,
@@ -119,7 +119,6 @@ GParameterBase *GDoubleObject::clone_() const {
  *
  * @param cp A constant reference to another GParameterBase object
  * @param e The expected outcome of the comparison
- * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GDoubleObject::compare_(
     const GParameterBase &cp,
@@ -155,8 +154,6 @@ std::string GDoubleObject::name_() const {
 /**
  * Attach our local value to the vector. This is used to collect all parameters of this type
  * in the sequence in which they were registered.
- *
- * @param par_vec The vector to which the local value should be attached
  */
 void GDoubleObject::doubleStreamline(
     std::vector<double> &par_vec,
@@ -168,8 +165,6 @@ void GDoubleObject::doubleStreamline(
 /******************************************************************************/
 /**
  * Attach our local value to the map.
- *
- * @param par_vec The map to which the local value should be attached
  */
 void GDoubleObject::doubleStreamline(
     std::map<std::string, std::vector<double>> &par_vec,
@@ -196,9 +191,6 @@ void GDoubleObject::doubleStreamline(
 /**
  * Attach boundaries of type double to the vectors. Since this is an unbounded type,
  * we use the initialization boundaries as a replacement.
- *
- * @param l_bnd_vec A vector of lower double parameter boundaries
- * @param u_bnd_vec A vector of upper double parameter boundaries
  */
 void GDoubleObject::doubleBoundaries(
     std::vector<double> &l_bnd_vec,

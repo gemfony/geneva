@@ -51,7 +51,6 @@ namespace Gem::Geneva::Parameters {
  *
  * @param cp A constant reference to another GPreEvaluationValidityCheckT object
  * @param e The expected outcome of the comparison
- * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GParameterSetConstraint::compare_(
     const GPreEvaluationValidityCheckT<GParameterSet> &cp,
@@ -120,7 +119,6 @@ GParameterSetFormulaConstraint::GParameterSetFormulaConstraint(std::string raw_f
  *
  * @param cp A constant reference to another GPreEvaluationValidityCheckT object
  * @param e The expected outcome of the comparison
- * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GParameterSetFormulaConstraint::compare_(
     const GPreEvaluationValidityCheckT<GParameterSet> &cp,

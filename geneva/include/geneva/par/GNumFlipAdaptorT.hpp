@@ -81,7 +81,7 @@ public:
      * This constructor takes an argument, that specifies the (initial) probability
      * for the adaption of an integer or bit value
      *
-     * @param prob The probability for a flip
+     * @param ad_prob The probability for a flip
      */
     explicit GNumFlipAdaptorT(const double &ad_prob)
       : GAdaptorT<num_type>(ad_prob) { /* nothing */
@@ -116,7 +116,7 @@ protected:
     /**
      * This function loads the data of another GNumFlipAdaptorT, camouflaged as a GAdaptorT.
      *
-     * @param A copy of another GNumFlipAdaptorT, camouflaged as a GAdaptorT
+     * @param cp A copy of another GNumFlipAdaptorT, camouflaged as a GAdaptorT
      */
     void load_(const GAdaptorT<num_type> *cp) override {
         // Convert the pointer to our target type and check for self-assignment
@@ -144,7 +144,6 @@ protected:
      *
      * @param cp A constant reference to another GAdaptorT object
      * @param e The expected outcome of the comparison
-     * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
     void compare_(
         const GAdaptorT<num_type> &cp,
@@ -171,9 +170,6 @@ protected:
     /***************************************************************************/
     /**
      * Flip the value up or down by 1, depending on a random number.
-     *
-     * @param value The bit value to be adapted
-     * @param range A typical range for the parameter with type T (unused here)
      */
     void customAdaptions(
         num_type &value,

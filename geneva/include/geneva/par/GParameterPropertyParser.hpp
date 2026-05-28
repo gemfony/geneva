@@ -206,7 +206,6 @@ protected:
      *
      * @param cp A constant reference to another object of the same type, camouflaged as a base object
      * @param e The expected outcome of the comparison
-     * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
     void compare_(
         const parPropSpec<par_type> &cp // the other object

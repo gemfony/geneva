@@ -100,8 +100,8 @@ public:
     /**
      * Initializes the boundaries and assigns a random value to the object
      *
-     * @param lowerBoundary The lower boundary of the value range
-     * @param upperBoundary The upper boundary of the value range
+     * @param lower_boundary The lower boundary of the value range
+     * @param upper_boundary The upper boundary of the value range
      */
     GConstrainedIntT(const int_type &lower_boundary, const int_type &upper_boundary)
       : GConstrainedNumT<int_type>(lower_boundary, upper_boundary) {
@@ -118,8 +118,8 @@ public:
      * Initialization with value and boundaries.
      *
      * @param val The desired value of this object
-     * @param lowerBoundary The lower boundary of the value range
-     * @param upperBoundary The upper boundary of the value range
+     * @param lower_boundary The lower boundary of the value range
+     * @param upper_boundary The upper boundary of the value range
      */
     GConstrainedIntT(
         const int_type &val,
@@ -133,8 +133,6 @@ public:
     /**
      * A standard copy constructor. Most work is done by the parent
      * classes, we only need to copy the allowed value range.
-     *
-     * @param cp Another GConstrainedNumT<int_type> object
      */
     GConstrainedIntT(const GConstrainedIntT<int_type> &) = default;
 
@@ -149,7 +147,7 @@ public:
      * A standard assignment operator for int_type values. Note that this function
      * will throw an exception if the new value is not in the allowed value range.
      *
-     * @param The desired new external value
+     * @param val The desired new external value
      * @return The new external value of this object
      */
     GConstrainedNumT<int_type> &operator=(const int_type &val) override {
@@ -249,7 +247,6 @@ protected:
      *
      * @param cp A constant reference to another GParameterBase object
      * @param e The expected outcome of the comparison
-     * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
     void compare_(
         const GParameterBase &cp,

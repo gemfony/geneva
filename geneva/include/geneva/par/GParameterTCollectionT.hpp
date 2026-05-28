@@ -99,7 +99,7 @@ public:
     /**
      * Initialization with a number of copies of a given GParameterBase derivative
      *
-     * @param nCp The amount of copies of the GParameterBase derivative to be stored in this object
+     * @param n_cp The amount of copies of the GParameterBase derivative to be stored in this object
      * @param tmpl_ptr The object that serves as the template of all others
      */
     GParameterTCollectionT(const std::size_t &n_cp, std::shared_ptr<T> tmpl_ptr) {
@@ -127,7 +127,7 @@ public:
      * Converts the local data to a boost::property_tree node
      *
      * @param ptr The boost::property_tree object the data should be saved to
-     * @param id The id assigned to this object
+     * @param base_name The id assigned to this object
      */
     void toPropertyTree(pt::ptree &ptr, const std::string &base_name) const override {
         // Check that the object isn't empty
@@ -188,7 +188,6 @@ protected:
      *
      * @param cp A constant reference to another GParameterBase object
      * @param e The expected outcome of the comparison
-     * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
     void compare_(
         const GParameterBase &cp,
@@ -237,8 +236,6 @@ protected:
     /**
      * Attach parameters of type float to the vector. This function distributes this task to
      * objects contained in the container.
-     *
-     * @param par_vec The vector to which the float parameters will be attached
      */
     void floatStreamline(std::vector<float> &par_vec, const activityMode &am) const override {
         typename GParameterTCollectionT<T>::const_iterator cit;
@@ -256,8 +253,6 @@ protected:
     /**
      * Attach parameters of type double to the vector. This function distributes this task to
      * objects contained in the container.
-     *
-     * @param par_vec The vector to which the double parameters will be attached
      */
     void doubleStreamline(std::vector<double> &par_vec, const activityMode &am) const override {
         typename GParameterTCollectionT<T>::const_iterator cit;
@@ -275,8 +270,6 @@ protected:
     /**
      * Attach parameters of type std::int32_t to the vector. This function distributes this task
      * to objects contained in the container.
-     *
-     * @param par_vec The vector to which the std::int32_t parameters will be attached
      */
     void
     int32Streamline(std::vector<std::int32_t> &par_vec, const activityMode &am) const override {
@@ -295,8 +288,6 @@ protected:
     /**
      * Attach parameters of type bool to the vector.  This function distributes this task
      * to objects contained in the container.
-     *
-     * @param par_vec The vector to which the boolean parameters will be attached
      */
     void booleanStreamline(std::vector<bool> &par_vec, const activityMode &am) const override {
         typename GParameterTCollectionT<T>::const_iterator cit;
@@ -314,8 +305,6 @@ protected:
     /**
      * Attach parameters of type float to the map. This function distributes this task to
      * objects contained in the container.
-     *
-     * @param par_vec The map to which the float parameters will be attached
      */
     void floatStreamline(
         std::map<std::string, std::vector<float>> &par_vec,
@@ -336,8 +325,6 @@ protected:
     /**
      * Attach parameters of type double to the map. This function distributes this task to
      * objects contained in the container.
-     *
-     * @param par_vec The map to which the double parameters will be attached
      */
     void doubleStreamline(
         std::map<std::string, std::vector<double>> &par_vec,
@@ -358,8 +345,6 @@ protected:
     /**
      * Attach parameters of type std::int32_t to the map. This function distributes this task
      * to objects contained in the container.
-     *
-     * @param par_vec The map to which the std::int32_t parameters will be attached
      */
     void int32Streamline(
         std::map<std::string, std::vector<std::int32_t>> &par_vec,
@@ -380,8 +365,6 @@ protected:
     /**
      * Attach parameters of type bool to the map.  This function distributes this task
      * to objects contained in the container.
-     *
-     * @param par_vec The map to which the boolean parameters will be attached
      */
     void booleanStreamline(
         std::map<std::string, std::vector<bool>> &par_vec,
@@ -401,9 +384,6 @@ protected:
     /***************************************************************************/
     /**
      * Attach boundaries of type float to the vectors
-     *
-     * @param l_bnd_vec A vector of lower float parameter boundaries
-     * @param u_bnd_vec A vector of upper float parameter boundaries
      */
     void floatBoundaries(
         std::vector<float> &l_bnd_vec,
@@ -419,9 +399,6 @@ protected:
     /***************************************************************************/
     /**
      * Attach boundaries of type double to the vectors
-     *
-     * @param l_bnd_vec A vector of lower double parameter boundaries
-     * @param u_bnd_vec A vector of upper double parameter boundaries
      */
     void doubleBoundaries(
         std::vector<double> &l_bnd_vec,
@@ -437,9 +414,6 @@ protected:
     /***************************************************************************/
     /**
      * Attach boundaries of type std::int32_t to the vectors
-     *
-     * @param l_bnd_vec A vector of lower std::int32_t parameter boundaries
-     * @param u_bnd_vec A vector of upper std::int32_t parameter boundaries
      */
     void int32Boundaries(
         std::vector<std::int32_t> &l_bnd_vec,
@@ -458,9 +432,6 @@ protected:
      * completeness - at the very least it can give an indication of the number of boolean
      * parameters. Note, though, that there is a function that lets you count these parameters
      * directly.
-     *
-     * @param l_bnd_vec A vector of lower bool parameter boundaries
-     * @param u_bnd_vec A vector of upper bool parameter boundaries
      */
     void booleanBoundaries(
         std::vector<bool> &l_bnd_vec,
@@ -1144,7 +1115,7 @@ private:
     /**
      * Retrieves information from adaptors with a given property
      *
-     * @param adaoptorName The name of the adaptor to be queried
+     * @param adaptor_name The name of the adaptor to be queried
      * @param property The property for which information is sought
      * @param data A vector, to which the properties should be added
      */

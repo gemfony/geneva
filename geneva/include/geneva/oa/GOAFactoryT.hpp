@@ -138,7 +138,6 @@ public:
 	  * the output, some options are hidden and will only be shown upon explicit request by
 	  * the user
 	  *
-	  * @param visible Command line options that should always be visible
 	  * @param hidden Command line options that should only be visible upon request
 	  */
     virtual void addCLOptions(

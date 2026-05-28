@@ -956,7 +956,7 @@ public:
     /**
 	  * Creates a data set of the desired type or throws, if that type is not available
 	  *
-	  * @param type The type of network data to be created
+	  * @param t The type of network data to be created
 	  * @param output_file The name of the output training data file
 	  * @param architecture_string The desired architecture of the network in std::string format
 	  * @param n_data_sets The number of data sets to be produced

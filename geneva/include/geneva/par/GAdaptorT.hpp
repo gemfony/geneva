@@ -380,7 +380,7 @@ public:
 	  * Sets the value of adaption_threshold_. If set to 0, no adaption of the optimization
 	  * parameters will take place
 	  *
-	  * @param adaptionCounter The value that should be assigned to the adaption_counter_ variable
+	  * @param adaption_threshold The value that should be assigned to the adaption_counter_ variable
 	  */
     void setAdaptionThreshold(const std::uint32_t &adaption_threshold) {
         adaption_threshold_ = adaption_threshold;
@@ -412,7 +412,7 @@ public:
 	  * probability. The function is declared virtual so adaptors requiring adaptions to
 	  * happen always or never can prevent resetting of the adaption_mode_ variable.
 	  *
-	  * @param adaptionMode The desired mode (always/never/with a given probability)
+	  * @param am The desired mode (always/never/with a given probability)
 	  */
     virtual void setAdaptionMode(adaptionMode am) {
         adaption_mode_ = am;
@@ -582,8 +582,6 @@ public:
 	  * might be more severe, so we have implemented repeated adaption of mutation parameters
 	  * in this function.
 	  *
-	  * @param val_vec A vector of values that need to be adapted
-	  * @param range A typical value range for type T
 	  * @return The number of adaptions that were carried out
 	  */
     std::size_t adapt(std::vector<T> &val_vec, const T &range, Gem::Hap::GRandomBase &gr) {
@@ -645,7 +643,6 @@ public:
 	  * resets the adaption probability to its original value
 	  *
 	  * @param n_stalls The number of consecutive stalls up to this point
-	  * @param range A typical value range for type T
 	  * @return A boolean indicating whether updates were performed
 	  */
     virtual bool updateOnStall(
@@ -691,7 +688,7 @@ public:
 	  * enabled "pluggable optimization monitor, will be inefficient due to the
 	  * constant need to compare strings.
 	  *
-	  * @param adaoptorName The name of the adaptor to be queried
+	  * @param adaptor_name The name of the adaptor to be queried
 	  * @param property The property for which information is sought
 	  * @param data A vector, to which the properties should be added
 	  */
@@ -767,7 +764,7 @@ protected:
 	  * GAdaptorT<T, fp_type> is camouflaged as a GAdaptorT . This implies the
 	  * need for dynamic conversion.
 	  *
-	  * @param gb A pointer to another GAdaptorT<T, fp_type>, camouflaged as a GAdaptorT<T, fp_type>
+	  * @param cp A pointer to another GAdaptorT<T, fp_type>, camouflaged as a GAdaptorT<T, fp_type>
 	  */
     void load_(const GAdaptorT<T, fp_type> *cp) override {
         // Check that we are dealing with a GAdaptorT<T, fp_type> reference independent of this object and convert the pointer
@@ -795,7 +792,6 @@ protected:
      *
      * @param cp A constant reference to another GAdaptorT<T, fp_type> object
      * @param e The expected outcome of the comparison
-     * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
     void compare_(
         const GAdaptorT<T, fp_type> &cp,
@@ -824,8 +820,6 @@ protected:
     /**
 	  * This function helps to adapt the adaption parameters, if certain conditions are met.
 	  * Adaption is triggered by the parameter object.
-	  *
-	  *  @param range A typical range for the parameter with type T
 	  */
     void adaptAdaption(const T &range, Gem::Hap::GRandomBase &gr) {
         using namespace Gem::Common;
@@ -871,7 +865,6 @@ protected:
 	  *  implement special behavior for a new adaption run. E.g., an internal
 	  *  variable could be set to a new value.
 	  *
-	  *  @param range A typical range for the parameter with type T
 	  */
     virtual void customAdaptAdaption(const T &, Gem::Hap::GRandomBase &gr) { /* nothing */
     }

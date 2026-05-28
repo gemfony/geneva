@@ -111,9 +111,6 @@ public:
      * enforce setting of the lower and upper boundaries for random initialization,
      * as these double up as the preferred value range in some optimization algorithms,
      * such as swarm algorithms.
-     *
-     * @param nval The number of variables to be stored in the collection
-     * @param val  The value to be used for their initialization
      */
     GFPNumCollectionT(
         const std::size_t &nval,
@@ -172,7 +169,6 @@ protected:
      *
      * @param cp A constant reference to another GParameterBase object
      * @param e The expected outcome of the comparison
-     * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
     void compare_(
         const GParameterBase &cp,

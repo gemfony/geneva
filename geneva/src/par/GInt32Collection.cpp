@@ -101,7 +101,6 @@ GParameterBase *GInt32Collection::clone_() const {
  *
  * @param cp A constant reference to another GParameterBase object
  * @param e The expected outcome of the comparison
- * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GInt32Collection::compare_(
     const GParameterBase &cp,
@@ -137,8 +136,6 @@ std::string GInt32Collection::name_() const {
 /**
  * Attach our local values to the vector. This is used to collect all parameters of this type
  * in the sequence in which they were registered.
- *
- * @param par_vec The vector to which the local values should be attached
  */
 void GInt32Collection::int32Streamline(
     std::vector<std::int32_t> &par_vec,
@@ -154,8 +151,6 @@ void GInt32Collection::int32Streamline(
 /**
  * Attach our local values to the map. Names are built from the object name and the
  * position in the array.
- *
- * @param par_vec The map to which the local values should be attached
  */
 void GInt32Collection::int32Streamline(
     std::map<std::string, std::vector<std::int32_t>> &par_vec,
@@ -182,9 +177,6 @@ void GInt32Collection::int32Streamline(
 /**
  * Attach boundaries of type std::int32_t to the vectors. Since this is an unbounded type,
  * we use the initialization boundaries as a replacement.
- *
- * @param l_bnd_vec A vector of lower std::int32_t parameter boundaries
- * @param u_bnd_vec A vector of upper std::int32_t parameter boundaries
  */
 void GInt32Collection::int32Boundaries(
     std::vector<std::int32_t> &l_bnd_vec,

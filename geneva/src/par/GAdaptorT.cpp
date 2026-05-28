@@ -44,8 +44,6 @@ namespace Gem::Geneva::Parameters {
  * Common interface for all adaptors to the adaption functionality. Specialization
  * for the T==bool case . Note that
  *
- * @param val_vec A vector of values that need to be adapted
- * @param range A typical value range for type T
  * @return The number of adaptions that were carried out
  */
 template <>

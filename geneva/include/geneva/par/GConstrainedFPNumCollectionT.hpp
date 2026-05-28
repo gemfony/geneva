@@ -87,8 +87,8 @@ public:
      * Then set all positions to random values.
      *
      * @param size The desired size of the collection
-     * @param lowerBoundary The lower boundary for data members
-     * @param upperBoundary The upper boundary for data members
+     * @param lower_boundary The lower boundary for data members
+     * @param upper_boundary The upper boundary for data members
      */
     GConstrainedFPNumCollectionT(
         const std::size_t &size,
@@ -124,8 +124,8 @@ public:
      *
      * @param size The desired size of the collection
      * @param val The value to be assigned to all positions
-     * @param lowerBoundary The lower boundary for data members
-     * @param upperBoundary The upper boundary for data members
+     * @param lower_boundary The lower boundary for data members
+     * @param upper_boundary The upper boundary for data members
      */
     GConstrainedFPNumCollectionT(
         const std::size_t &size,
@@ -245,7 +245,6 @@ protected:
      *
      * @param cp A constant reference to another GParameterBase object
      * @param e The expected outcome of the comparison
-     * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
     void compare_(
         const GParameterBase &cp,

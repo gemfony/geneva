@@ -372,7 +372,6 @@ std::size_t GParameterScan::getNProcessableItems_() const {
  *
  * @param cp A constant reference to another GParameterScan object
  * @param e The expected outcome of the comparison
- * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GParameterScan::compare_(
     const GBase &cp,
@@ -1011,9 +1010,6 @@ void GParameterScan::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) 
  * Triggers fitness calculation of a number of individuals. This function performs the same task as done
  * in GParameterScan, albeit by delegating work to the broker. Items are evaluated up to a maximum position
  * in the vector. Note that we always start the evaluation with the first item in the vector.
- *
- * @param finalPos The position in the vector up to which the fitness calculation should be performed
- * @return The best fitness found amongst all parents
  */
 void GParameterScan::runFitnessCalculation_() {
     using namespace Gem::Courtier;

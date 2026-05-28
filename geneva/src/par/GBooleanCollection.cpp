@@ -139,7 +139,7 @@ GParameterBase *GBooleanCollection::clone_() const {
  * Loads the data of another GBooleanCollection object, camouflaged as
  * a GParameterBase.
  *
- * @param gb A pointer to another GBooleanCollection object, camouflaged as a GParameterBase
+ * @param cp A pointer to another GBooleanCollection object, camouflaged as a GParameterBase
  */
 void GBooleanCollection::load_(const GParameterBase *cp) {
     // Convert the pointer to our target type and check for self-assignment
@@ -177,8 +177,6 @@ bool GBooleanCollection::randomInit_(
 /**
  * Random initialization with a given probability structure. E.g., a probability
  * value of 0.7 results in approimately 70% "true" values.
- *
- * @param probability The probability for true values in the collection
  */
 bool GBooleanCollection::randomInit_(
     const double &probability,
@@ -229,8 +227,6 @@ bool GBooleanCollection::randomInit(const activityMode &am, Gem::Hap::GRandomBas
 /**
  * Random initialization with a given probability structure,
  * if re-initialization has not been blocked.
- *
- * @param probability The probability for true values in the collection
  */
 bool GBooleanCollection::randomInit(
     const double &probability,
@@ -260,7 +256,6 @@ bool GBooleanCollection::range() const {
  *
  * @param cp A constant reference to another GParameterBase object
  * @param e The expected outcome of the comparison
- * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GBooleanCollection::compare_(
     const GParameterBase &cp,
@@ -296,8 +291,6 @@ std::string GBooleanCollection::name_() const {
 /**
  * Attach our local values to the vector. This is used to collect all parameters of this type
  * in the sequence in which they were registered.
- *
- * @param par_vec The vector to which the local values should be attached
  */
 void GBooleanCollection::booleanStreamline(std::vector<bool> &par_vec, const activityMode &) const {
     GBooleanCollection::const_iterator cit;
@@ -310,8 +303,6 @@ void GBooleanCollection::booleanStreamline(std::vector<bool> &par_vec, const act
 /**
  * Attach our local values to the map. Names are built from the object name and the
  * position in the array.
- *
- * @param par_vec The map to which the local values should be attached
  */
 void GBooleanCollection::booleanStreamline(
     std::map<std::string, std::vector<bool>> &par_vec,
@@ -337,9 +328,6 @@ void GBooleanCollection::booleanStreamline(
 /******************************************************************************/
 /**
  * Attach boundaries of type bool to the vectors
- *
- * @param l_bnd_vec A vector of lower bool parameter boundaries
- * @param u_bnd_vec A vector of upper bool parameter boundaries
  */
 void GBooleanCollection::booleanBoundaries(
     std::vector<bool> &l_bnd_vec,

@@ -47,7 +47,6 @@ const std::string GConjugateGradientDescent_PersonalityTraits::nickname = "cgd";
  *
  * @param cp A constant reference to another GPersonalityTraits object
  * @param e The expected outcome of the comparison
- * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GConjugateGradientDescent_PersonalityTraits::compare_(
     const GPersonalityTraits &cp,

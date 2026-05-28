@@ -103,7 +103,6 @@ GParameterBase *GDoubleCollection::clone_() const {
  *
  * @param cp A constant reference to another GParameterBase object
  * @param e The expected outcome of the comparison
- * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GDoubleCollection::compare_(
     const GParameterBase &cp,
@@ -139,8 +138,6 @@ std::string GDoubleCollection::name_() const {
 /**
  * Attach our local values to the vector. This is used to collect all parameters of this type
  * in the sequence in which they were registered.
- *
- * @param par_vec The vector to which the local value should be attached
  */
 void GDoubleCollection::doubleStreamline(
     std::vector<double> &par_vec,
@@ -156,8 +153,6 @@ void GDoubleCollection::doubleStreamline(
 /**
  * Attach our local values to the map. Names are built from the object name and the
  * position in the array.
- *
- * @param par_vec The map to which the local value should be attached
  */
 void GDoubleCollection::doubleStreamline(
     std::map<std::string, std::vector<double>> &par_vec,
@@ -183,9 +178,6 @@ void GDoubleCollection::doubleStreamline(
 /******************************************************************************/
 /**
  * Attach boundaries of type double to the vectors
- *
- * @param l_bnd_vec A vector of lower double parameter boundaries
- * @param u_bnd_vec A vector of upper double parameter boundaries
  */
 void GDoubleCollection::doubleBoundaries(
     std::vector<double> &l_bnd_vec,
@@ -205,7 +197,6 @@ void GDoubleCollection::doubleBoundaries(
 /**
  * Tell the audience that we own a number of double values
  *
- * @param @param am An enum indicating whether only information about active, inactive or all parameters of this type should be extracted
  * @return The number of double parameters
  */
 std::size_t GDoubleCollection::countDoubleParameters(
@@ -217,9 +208,6 @@ std::size_t GDoubleCollection::countDoubleParameters(
 /******************************************************************************/
 /**
  * Assigns part of a value vector to the parameter
- *
- * @param par_vec The vector from which the data should be taken
- * @param pos The position inside of the vector from which the data is extracted in each turn of the loop
  */
 void GDoubleCollection::assignDoubleValueVector(
     const std::vector<double> &par_vec,

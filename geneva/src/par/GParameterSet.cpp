@@ -300,7 +300,6 @@ GParameterSet::GParameterSet(GParameterSet const &cp)
      *
      * @param cp A constant reference to another GParameterSet object
      * @param e The expected outcome of the comparison
-     * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
 void GParameterSet::compare_(
     GParameterSet const &cp,
@@ -438,9 +437,6 @@ void GParameterSet::toPropertyTree(pt::ptree &ptr, std::string const &base_name)
      * Transformation of the individual's parameter objects into a list of
      * comma-separated values and fitness plus possibly the validity
      *
-     * @param  with_name_and_type Indicates whether a list of names and types should be prepended
-     * @param  with_commas Indicates, whether commas should be printed
-     * @param  use_raw_fitness Indicates, whether the true fitness instead of the transformed fitness should be returned
      * @return A string holding the parameter values and possibly the types
      */
 std::string GParameterSet::toCSV(
@@ -813,7 +809,7 @@ void GParameterSet::updateAdaptorsOnStall(const std::uint32_t n_stalls) {
 /**
      * Retrieves information from adaptors with a given property
      *
-     * @param adaoptorName The name of the adaptor to be queried
+     * @param adaptor_name The name of the adaptor to be queried
      * @param property The property for which information is sought
      * @param data A vector, to which the properties should be added
      */

@@ -68,7 +68,7 @@ GSwarmAlgorithm::GSwarmAlgorithm()
  * is no public default constructor, as it is only needed for de-serialization purposes.
  *
  * @param n_neighborhoods The desired number of neighborhoods (hardwired to >= 1)
- * @param nNeighborhoodMembers The default number of individuals in each neighborhood (hardwired to >= 2)
+ * @param default_n_neighborhood_members The default number of individuals in each neighborhood (hardwired to >= 2)
  */
 GSwarmAlgorithm::GSwarmAlgorithm(
     const std::size_t &n_neighborhoods,
@@ -244,7 +244,6 @@ GBase *GSwarmAlgorithm::clone_() const {
  *
  * @param cp A constant reference to another GSwarmAlgorithm object
  * @param e The expected outcome of the comparison
- * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GSwarmAlgorithm::compare_(
     const GBase &cp,
@@ -404,7 +403,6 @@ std::size_t GSwarmAlgorithm::getFirstNIPos(const std::size_t &neighborhood) cons
  * sizes. "NI" stands for NeighborhoodIndividual. "neighborhood" is assumed to be a counter, starting at 0 and assuming
  * a maximum value of (nNeighborhoods_-1).
  *
- * @param neighborhood The id of the neighborhood for which the id of the first individual should be calculated
  * @return The position of the first individual of a neighborhood
  */
 std::size_t GSwarmAlgorithm::getFirstNIPosVec(
@@ -472,7 +470,7 @@ std::size_t GSwarmAlgorithm::getLastNIPos(const std::size_t &neighborhood) const
 /**
  * Updates the personal best of an individual
  *
- * @param p A pointer to the GParameterSet object to be updated
+ * @param ind_ptr A pointer to the GParameterSet object to be updated
  */
 void GSwarmAlgorithm::updatePersonalBest(std::shared_ptr<gpar::GParameterSet> ind_ptr) {
 #ifdef DEBUG
@@ -505,7 +503,7 @@ void GSwarmAlgorithm::updatePersonalBest(std::shared_ptr<gpar::GParameterSet> in
 /**
  * Updates the personal best of an individual, if a better solution was found
  *
- * @param p A pointer to the GParameterSet object to be updated
+ * @param ind_ptr A pointer to the GParameterSet object to be updated
  */
 void GSwarmAlgorithm::updatePersonalBestIfBetter(std::shared_ptr<gpar::GParameterSet> ind_ptr) {
 #ifdef DEBUG
@@ -1082,10 +1080,9 @@ void GSwarmAlgorithm::updatePositions() {
  * Update the individual's positions. Note that we use a std::tuple as an argument,
  * so that we do not have to pass too many parameters.
  *
- * @param neighborhood The neighborhood that has been assigned to the individual
  * @param ind The individual whose position should be updated
- * @param neighborhood_best_tmp The best data set of the individual's neighborhood
- * @param global_best_tmp The globally best individual so far
+ * @param neighborhood_best The best data set of the individual's neighborhood
+ * @param global_best The globally best individual so far
  * @param velocity A velocity vector
  * @param constants A std::tuple holding the various constants needed for the position update
  */

@@ -100,8 +100,8 @@ public:
      * Initialize the lower and upper boundaries for data members of this class
      *
      * @param size The desired size of the vector
-     * @param lowerBoundary The lower boundary of the value range
-     * @param upperBoundary The upper boundary of the value range
+     * @param lower_boundary The lower boundary of the value range
+     * @param upper_boundary The upper boundary of the value range
      */
     GConstrainedNumCollectionT(
         const std::size_t size,
@@ -144,8 +144,8 @@ public:
      *
      * @param size The desired size of the vector
      * @param val The value to be assigned to each position
-     * @param lowerBoundary The lower boundary of the value range
-     * @param upperBoundary The upper boundary of the value range
+     * @param lower_boundary The lower boundary of the value range
+     * @param upper_boundary The upper boundary of the value range
      */
     GConstrainedNumCollectionT(
         const std::size_t size,
@@ -347,7 +347,7 @@ public:
      * Converts the local data to a boost::property_tree node
      *
      * @param ptr The boost::property_tree object the data should be saved to
-     * @param id The id assigned to this object
+     * @param base_name The id assigned to this object
      */
     void toPropertyTree(pt::ptree &ptr, const std::string &base_name) const override {
 #ifdef DEBUG
@@ -419,7 +419,6 @@ protected:
      *
      * @param cp A constant reference to another GParameterBase object
      * @param e The expected outcome of the comparison
-     * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
     void compare_(
         const GParameterBase &cp,

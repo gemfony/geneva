@@ -261,7 +261,6 @@ protected:
      *
      * @param cp A constant reference to another GPreEvaluationValidityCheckT object
      * @param e The expected outcome of the comparison
-     * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
     void compare_(
         const GPreEvaluationValidityCheckT<ind_type> &cp,
@@ -478,7 +477,6 @@ protected:
      *
      * @param cp A constant reference to another GPreEvaluationValidityCheckT object
      * @param e The expected outcome of the comparison
-     * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
     void compare_(
         const GPreEvaluationValidityCheckT<ind_type> &cp,
@@ -724,7 +722,6 @@ protected:
      *
      * @param cp A constant reference to another GPreEvaluationValidityCheckT object
      * @param e The expected outcome of the comparison
-     * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
     void compare_(
         const GPreEvaluationValidityCheckT<ind_type> &cp,

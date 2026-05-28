@@ -159,7 +159,6 @@ public:
      * catch attempts to use this function with unsupported types. Use the supplied
      * specializations instead.
      *
-     * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be extracted
      * @return The number of parameters of a given Type
      */
     template <typename par_type>
@@ -246,7 +245,6 @@ public:
      * types. Use the supplied specializations instead.
      *
      * @param par_vec The vector with the parameters to be assigned to the object
-     * @param pos The position from which parameters will be taken (will be updated by the call)
      */
     template <typename par_type>
     void assignValueVector(
@@ -266,7 +264,7 @@ public:
     /**
      * Assigns values from a std::map<std::string, std::vector<par_type>> to the parameter
      *
-     * @param parMao The map with the parameters to be assigned to the object
+     * @param par_map The map with the parameters to be assigned to the object
      */
     template <typename par_type>
     void assignValueVectors(
@@ -410,7 +408,6 @@ public:
      * template will only be accessible to the compiler if GParameterBase is a base type of load_type.
      *
      * @param load_ptr A std::shared_ptr<load_type> to the item to be converted
-     * @param dummy A dummy argument needed for std::enable_if and type_traits magic
      * @return A std::shared_ptr holding the converted object
      */
     template <typename load_type>
@@ -704,8 +701,6 @@ private:
 /******************************************************************************/
 /**
  * Allows to add all parameters of type float to the vector.
- *
- * @param par_vec The vector to which the items should be added
  */
 template <>
 inline void GParameterBase::streamline<float>(std::vector<float> &par_vec, activityMode am) const {
@@ -717,8 +712,6 @@ inline void GParameterBase::streamline<float>(std::vector<float> &par_vec, activ
 /******************************************************************************/
 /**
  * Allows to add all parameters of type double to the vector.
- *
- * @param par_vec The vector to which the items should be added
  */
 template <>
 inline void
@@ -747,8 +740,6 @@ inline void GParameterBase::streamline<std::int32_t>(
 /******************************************************************************/
 /**
  * Allows to add all parameters of type bool to the vector.
- *
- * @param par_vec The vector to which the items should be added
  */
 template <>
 inline void GParameterBase::streamline<bool>(std::vector<bool> &par_vec, activityMode am) const {
@@ -760,8 +751,6 @@ inline void GParameterBase::streamline<bool>(std::vector<bool> &par_vec, activit
 /******************************************************************************/
 /**
  * Allows to add all parameters of type float to the map.
- *
- * @param par_vec The map to which the items should be added
  */
 template <>
 inline void GParameterBase::streamline<float>(
@@ -776,8 +765,6 @@ inline void GParameterBase::streamline<float>(
 /******************************************************************************/
 /**
  * Allows to add all parameters of type double to the map.
- *
- * @param par_vec The vector to which the items should be added
  */
 template <>
 inline void GParameterBase::streamline<double>(
@@ -808,8 +795,6 @@ inline void GParameterBase::streamline<std::int32_t>(
 /******************************************************************************/
 /**
  * Allows to add all parameters of type bool to the map.
- *
- * @param par_vec The vector to which the items should be added
  */
 template <>
 inline void GParameterBase::streamline<bool>(
@@ -824,9 +809,6 @@ inline void GParameterBase::streamline<bool>(
 /******************************************************************************/
 /**
  * Allows to retrieve the values of lower and upper boundaries of type float
- *
- * @param l_bnd_vec A vector of lower double parameter boundaries
- * @param u_bnd_vec A vector of upper double parameter boundaries
  */
 template <>
 inline void GParameterBase::boundaries<float>(
@@ -842,9 +824,6 @@ inline void GParameterBase::boundaries<float>(
 /******************************************************************************/
 /**
  * Allows to retrieve the values of lower and upper boundaries of type double
- *
- * @param l_bnd_vec A vector of lower double parameter boundaries
- * @param u_bnd_vec A vector of upper double parameter boundaries
  */
 template <>
 inline void GParameterBase::boundaries<double>(
@@ -878,9 +857,6 @@ inline void GParameterBase::boundaries<std::int32_t>(
 /******************************************************************************/
 /**
  * Allows to retrieve the values of lower and upper boundaries of type bool
- *
- * @param l_bnd_vec A vector of lower bool parameter boundaries
- * @param u_bnd_vec A vector of upper bool parameter boundaries
  */
 template <>
 inline void GParameterBase::boundaries<bool>(
@@ -960,9 +936,6 @@ inline std::size_t GParameterBase::countParameters<bool>(activityMode am) const 
 /******************************************************************************/
 /**
  * Allows to assign the parameters inside of a vector the corresponding parameter objects.
- *
- * @param par_vec The vector with the parameters to be assigned to the object
- * @param pos The position from which parameters will be taken (will be updated by the call)
  */
 template <>
 inline void GParameterBase::assignValueVector<float>(
@@ -978,9 +951,6 @@ inline void GParameterBase::assignValueVector<float>(
 /******************************************************************************/
 /**
  * Allows to assign the parameters inside of a vector the corresponding parameter objects.
- *
- * @param par_vec The vector with the parameters to be assigned to the object
- * @param pos The position from which parameters will be taken (will be updated by the call)
  */
 template <>
 inline void GParameterBase::assignValueVector<double>(
@@ -1012,9 +982,6 @@ inline void GParameterBase::assignValueVector<std::int32_t>(
 /******************************************************************************/
 /**
  * Allows to assign the parameters inside of a vector the corresponding parameter objects.
- *
- * @param par_vec The vector with the parameters to be assigned to the object
- * @param pos The position from which parameters will be taken (will be updated by the call)
  */
 template <>
 inline void GParameterBase::assignValueVector<bool>(
@@ -1028,8 +995,6 @@ inline void GParameterBase::assignValueVector<bool>(
 /******************************************************************************/
 /**
  * Allows to assign the parameters inside of a map to the corresponding parameter objects.
- *
- * @param par_map The vector with the parameters to be assigned to the object
  */
 template <>
 inline void GParameterBase::assignValueVectors<float>(
@@ -1044,8 +1009,6 @@ inline void GParameterBase::assignValueVectors<float>(
 /******************************************************************************/
 /**
  * Allows to assign the parameters inside of a map to the corresponding parameter objects.
- *
- * @param par_map The vector with the parameters to be assigned to the object
  */
 template <>
 inline void GParameterBase::assignValueVectors<double>(
@@ -1076,8 +1039,6 @@ inline void GParameterBase::assignValueVectors<std::int32_t>(
 /******************************************************************************/
 /**
  * Allows to assign the parameters inside of a map to the corresponding parameter objects.
- *
- * @param par_map The vector with the parameters to be assigned to the object
  */
 template <>
 inline void GParameterBase::assignValueVectors<bool>(

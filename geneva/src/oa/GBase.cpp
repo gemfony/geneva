@@ -260,7 +260,7 @@ GBase::GBase(const GBase &cp)
  * work necessary for a given optimization algorithm may be performed in the
  * virtual function saveCheckpoint(), which is called by this function.
  *
- * @param better A boolean which indicates whether a better result was found
+ * @param is_better A boolean which indicates whether a better result was found
  */
 void GBase::checkpoint(bool is_better) const {
     bool do_save = false;
@@ -928,7 +928,7 @@ std::uint32_t GBase::getMinIteration() const {
  * Sets the maximum number of generations allowed without improvement of the best
  * individual. Set to 0 in order for this stop criterion to be disabled.
  *
- * @param The maximum number of allowed generations
+ * @param max_stall_iteration The maximum number of allowed generations
  */
 void GBase::setMaxStallIteration(std::uint32_t max_stall_iteration) {
     max_stall_iteration_ = max_stall_iteration;
@@ -1009,7 +1009,7 @@ std::chrono::duration<double> GBase::getMinTime() const {
  *  Sets a quality threshold beyond which optimization is expected to stop
  *
  *  @param quality_threshold A threshold beyond which optimization should stop
- *  @param hasQualityThreshold Allows to (de-)activate the quality threshold
+ *  @param has_quality_threshold Allows to (de-)activate the quality threshold
  */
 void GBase::setQualityThreshold(
     double quality_threshold,
@@ -1024,7 +1024,7 @@ void GBase::setQualityThreshold(
  * Retrieves the current value of the quality threshold and also indicates whether
  * the threshold is active
  *
- * @param hasQualityThreshold A boolean indicating whether a quality threshold has been set
+ * @param has_quality_threshold A boolean indicating whether a quality threshold has been set
  * @return The current value of the quality threshold
  */
 double GBase::getQualityThreshold(bool &has_quality_threshold) const {
@@ -1039,7 +1039,7 @@ double GBase::getQualityThreshold(bool &has_quality_threshold) const {
  *  start of the optimizatoon rn.
  *
  *  @param termination_file The name of a file used to initiate termination
- *  @param hasQualityThreshold Allows to (de-)activate "touched termination"
+ *  @param terminate_on_file_modification Allows to (de-)activate "touched termination"
  */
 void GBase::setTerminationFile(
     std::string termination_file,
@@ -1178,7 +1178,7 @@ std::tuple<double, double> GBase::getBestCurrentPrimaryFitness() const {
 /**
  * Specifies whether information about termination reasons should be emitted
  *
- * @param etr A boolean which specifies whether reasons for the termination of the optimization run should be emitted
+ * @param emit_termination_reason A boolean which specifies whether reasons for the termination of the optimization run should be emitted
  */
 void GBase::setEmitTerminationReason(bool emit_termination_reason) {
     emit_termination_reason_ = emit_termination_reason;
@@ -1709,7 +1709,7 @@ void GBase::resetIndividualPersonalities() {
 /**
  * Sets the default size of the population
  *
- * @param pop_size The desired size of the population
+ * @param def_pop_size The desired size of the population
  */
 void GBase::setDefaultPopulationSize(std::size_t def_pop_size) {
     default_population_size_ = def_pop_size;

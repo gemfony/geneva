@@ -77,7 +77,6 @@ std::string GParameterSetFixedSizePriorityQueue::name_() const {
 	 *
 	 * @param cp A constant reference to another GParameterSetFixedSizePriorityQueue object
 	 * @param e The expected outcome of the comparison
-	 * @param limit The maximum deviation for floating point values (important for similarity checks)
 	 */
 void GParameterSetFixedSizePriorityQueue::compare_(
     const Gem::Common::GFixedSizePriorityQueueT<GParameterSet> &cp // the other object
@@ -198,7 +197,7 @@ double GParameterSetFixedSizePriorityQueue::evaluation(
 /**
 	 * Adds items in a range to the priority queue
 	 */
-void GParameterSetFixedSizePriorityQueue::GParameterSetFixedSizePriorityQueue::add(
+void GParameterSetFixedSizePriorityQueue::add(
     std::vector<std::shared_ptr<GParameterSet>>::const_iterator begin,
     std::vector<std::shared_ptr<GParameterSet>>::const_iterator end,
     bool do_clone,

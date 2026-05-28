@@ -58,7 +58,7 @@ GLineFitIndividual::GLineFitIndividual() { /* nothing */
 /**
  * The standard constructor, sets up the internal data structures
  *
- * @param n_objects The number of parameters to be added to this individual
+ * @param data_points The data points to fit a line through
  */
 GLineFitIndividual::GLineFitIndividual(const std::vector<std::tuple<double, double>> &data_points)
   : data_points_(data_points) {
@@ -99,7 +99,6 @@ GLineFitIndividual::~GLineFitIndividual() { /* nothing */
  *
  * @param cp A constant reference to another GParameterSet object
  * @param e The expected outcome of the comparison
- * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GLineFitIndividual::compare_(
     const gpar::GParameterSet &cp,
@@ -169,7 +168,6 @@ gpar::GParameterSet *GLineFitIndividual::clone_() const {
 /**
  * The actual fitness calculation takes place here.
  *
- * @param id The id of the target function (ignored here)
  * @return The value of this object
  */
 double GLineFitIndividual::fitnessCalculation() {
@@ -266,8 +264,6 @@ void GLineFitIndividual::specificTestsFailuresExpected_GUnitTests_() {
 /******************************************************************************/
 /**
  * Initialization through a config file
- *
- * @param config_file The name of the configuration file
  */
 GLineFitIndividualFactory::GLineFitIndividualFactory(
     const std::vector<std::tuple<double, double>> &data_points,
@@ -328,7 +324,7 @@ void GLineFitIndividualFactory::describeLocalOptions_(
  * we will usually add the parameter objects here. Note that a very similar constructor
  * exists for GLineFitIndividual, so it may be used independently of the factory.
  *
- * @param p A smart-pointer to be acted on during post-processing
+ * @param p_base A smart-pointer to be acted on during post-processing
  */
 void GLineFitIndividualFactory::postProcess_(std::shared_ptr<gpar::GParameterSet> &p_base) {
     // Convert the base pointer to our local type

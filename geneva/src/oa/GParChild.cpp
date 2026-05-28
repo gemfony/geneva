@@ -722,7 +722,7 @@ void GParChild::performScheduledPopulationGrowth() {
  * This function implements the RANDOMDUPLICATIONSCHEME scheme. This functions uses BOOST's
  * numeric_cast function for safe conversion between std::size_t and uint16_t.
  *
- * @param pos The position of the individual for which a new value should be chosen
+ * @param child The individual for which a new value should be chosen
  */
 void GParChild::randomRecombine(std::shared_ptr<gpar::GParameterSet> &child) {
     std::size_t parent_pos = 0;
@@ -758,7 +758,7 @@ void GParChild::randomRecombine(std::shared_ptr<gpar::GParameterSet> &child) {
  * random number evenly distributed between 0 and 1. This way parents with higher
  * fitness are more likely to be chosen for recombination.
  *
- * @param pos The child individual for which a parent should be chosen
+ * @param p The child individual for which a parent should be chosen
  * @param threshold A std::vector<double> holding the recombination likelihoods for each parent
  */
 void GParChild::valueRecombine(

@@ -366,7 +366,7 @@ public:
 	  * @param sigma The initial value for the sigma_ parameter
 	  * @param sigma_sigma The initial value for the sigmaSigma_ parameter
 	  * @param min_sigma The minimal value allowed for sigma_
-	  * @param min_sigma The maximum value allowed for sigma_
+	  * @param max_sigma The maximum value allowed for sigma_
 	  */
     void setAll(
         const fp_type &sigma,
@@ -458,7 +458,7 @@ protected:
 	  * This function loads the data of another GNumGaussAdaptorT<num_type, fp_type>, camouflaged as a GAdaptorT.
 	  * We assume that the values given to us by the other object are correct and do no error checks.
 	  *
-	  * @param A copy of another GNumGaussAdaptorT<num_type, fp_type>, camouflaged as a GAdaptorT
+	  * @param cp A copy of another GNumGaussAdaptorT<num_type, fp_type>, camouflaged as a GAdaptorT
 	  */
     void load_(const GAdaptorT<num_type, fp_type> *cp) override {
         // Check that we are dealing with a GNumGaussAdaptorT<num_type, fp_type> reference independent of this object and convert the pointer
@@ -490,7 +490,6 @@ protected:
      *
      * @param cp A constant reference to another GAdaptorT object
      * @param e The expected outcome of the comparison
-     * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
     void compare_(
         const GAdaptorT<num_type, fp_type> &cp,
@@ -523,7 +522,6 @@ protected:
 	  * This adaptor allows the evolutionary adaption of sigma_. This allows the
 	  * algorithm to adapt to changing geometries of the quality surface.
 	  *
-	  * @param range A typical range for the parameter with type num_type (unused here)
 	  */
     void customAdaptAdaption(
         const num_type & /*val*/
@@ -556,8 +554,6 @@ protected:
     /**
 	  * The actual adaption of the supplied value takes place here. Purely virtual, as the actual
 	  * adaptions are defined in the derived classes.
-	  *
-	  * @param value The value that is going to be adapted in situ
 	  */
     void customAdaptions(num_type &, const num_type &, Gem::Hap::GRandomBase &) override = 0;
 

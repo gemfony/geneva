@@ -108,10 +108,6 @@ public:
      * to each position. We enforce setting of the lower and upper boundaries
      * for random initialization, as these may double up as the preferred value
      * range in some optimization algorithms.
-     *
-     * @param nval The amount of random values
-     * @param min The minimum random value
-     * @param max The maximum random value
      */
     GIntNumCollectionT(
         const std::size_t &nval,
@@ -169,7 +165,6 @@ protected:
      *
      * @param cp A constant reference to another GParameterBase object
      * @param e The expected outcome of the comparison
-     * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
     void compare_(
         const GParameterBase &cp,

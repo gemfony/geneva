@@ -431,7 +431,7 @@ void Go2::registerContentCreator(const std::shared_ptr<Gem::Common::GFactoryT<gp
  * have either been registered with the Go2 object or with the first algorithm
  * which has been added to the object. When no algorithm was added to the Go2
  * object (either on the command line or by passing a mnemonic or smart pointer),
- * a default algorithm will be used. Check the #define DEFAULTOPTALG for information
+ * a default algorithm will be used. Check the @c \#define @c DEFAULTOPTALG for information
  * on the type of algorithm being used. The default algorithm may also be altered
  * by the user.
  *

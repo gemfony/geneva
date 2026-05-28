@@ -101,8 +101,8 @@ public:
     /**
 	  * Initializes the boundaries and assigns a random value.
 	  *
-	  * @param lowerBoundary The lower boundary of the value range
-	  * @param upperBoundary The upper boundary of the value range
+	  * @param lower_boundary The lower boundary of the value range
+	  * @param upper_boundary The upper boundary of the value range
 	  */
     GConstrainedFPT(const fp_type &lower_boundary, const fp_type &upper_boundary)
       : GConstrainedNumT<fp_type>(
@@ -127,8 +127,8 @@ public:
 	  * upper boundary.
 	  *
 	  * @param val The desired value of this object
-	  * @param lowerBoundary The lower boundary of the value range
-	  * @param upperBoundary The upper boundary of the value range
+	  * @param lower_boundary The lower boundary of the value range
+	  * @param upper_boundary The upper boundary of the value range
 	  */
     GConstrainedFPT(
         const fp_type &val,
@@ -168,7 +168,7 @@ public:
     /**
 	  * A standard assignment operator for T values.
 	  *
-	  * @param The desired new external value
+	  * @param val The desired new external value
 	  * @return The new external value of this object
 	  */
     GConstrainedNumT<fp_type> &operator=(const fp_type &val) override {
@@ -220,8 +220,8 @@ public:
 	  * was to start with the upper boundary.
 	  *
 	  * @param val The desired value of this object
-	  * @param lowerBoundary The lower boundary of the value range
-	  * @param upperBoundary The upper boundary of the value range
+	  * @param lower_boundary The lower boundary of the value range
+	  * @param upper_boundary The upper boundary of the value range
 	  */
     void setValue(
         const fp_type &val,
@@ -252,8 +252,8 @@ public:
 	  * class'es function in that it calculates an additional quantity, the closed
 	  * upper boundary (upper is assumed to be an open, i.e. non-inclusive boundary).
 	  *
-	  * @param lower The new lower boundary for this object
-	  * @param upper The new upper boundary for this object
+	  * @param lower_boundary The new lower boundary for this object
+	  * @param upper_boundary The new upper boundary for this object
 	  */
     void setBoundaries(const fp_type &lower_boundary, const fp_type &upper_boundary) override {
         // Set the actual boundaries
@@ -423,7 +423,6 @@ protected:
      *
      * @param cp A constant reference to another GParameterBase object
      * @param e The expected outcome of the comparison
-     * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
     void compare_(
         const GParameterBase &cp,

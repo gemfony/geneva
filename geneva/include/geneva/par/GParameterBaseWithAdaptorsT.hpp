@@ -288,7 +288,6 @@ protected:
      *
      * @param cp A constant reference to another GParameterBase object
      * @param e The expected outcome of the comparison
-     * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
     void compare_(
         const GParameterBase &cp,
@@ -323,8 +322,6 @@ protected:
 	  * This function applies our adaptor to a value. Note that the argument of
 	  * this function will get changed.
 	  *
-	  * @param value The parameter to be adapted
-	  * @param range A typical value range of underlying parameter types
 	  * @return The number of adaptions that were carried out
 	  */
     std::size_t applyAdaptor(T &value, const T &range, Gem::Hap::GRandomBase &gr) {
@@ -348,8 +345,6 @@ protected:
 	  * This function applies our adaptor to a collection of values. Note that the argument
 	  * of this function will get changed.
 	  *
-	  * @param collection A vector of values that shall be adapted
-	  * @param range A typical value range of underlying parameter types
 	  * @return The number of adaptions that were carried out
 	  */
     std::size_t
@@ -506,7 +501,7 @@ private:
     /**
      * Retrieves information from an adaptor on a given property
      *
-     * @param adaoptorName The name of the adaptor to be queried
+     * @param adaptor_name The name of the adaptor to be queried
      * @param property The property for which information is sought
      * @param data A vector, to which the properties should be added
      */
@@ -547,7 +542,6 @@ private:
  * generic template function which is needed due to the peculiarities of a std::vector<bool>
  * (which doesn't return a bool but an object).
  *
- * @param collection A vector of values that shall be adapted
  * @return The number of adaptions that were carried out
  */
 template <>

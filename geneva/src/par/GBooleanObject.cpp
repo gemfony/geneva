@@ -71,7 +71,7 @@ GBooleanObject::GBooleanObject(const bool &val)
  * Initialization with a given probability for "true". E.g., a probability value
  * of 0.7 results in approimately 70% "true" values.
  *
- * @param prob The probability for the value "true"
+ * @param probability The probability for the value "true"
  */
 GBooleanObject::GBooleanObject(const double &probability) {
     Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL> gr;
@@ -219,7 +219,6 @@ bool GBooleanObject::range() const {
  *
  * @param cp A constant reference to another GParameterBase object
  * @param e The expected outcome of the comparison
- * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GBooleanObject::compare_(
     const GParameterBase &cp,
@@ -255,8 +254,6 @@ std::string GBooleanObject::name_() const {
 /**
  * Attach our local value to the vector. This is used to collect all parameters of this type
  * in the sequence in which they were registered.
- *
- * @param par_vec The vector to which the local value should be attached
  */
 void GBooleanObject::booleanStreamline(
     std::vector<bool> &par_vec,
@@ -268,8 +265,6 @@ void GBooleanObject::booleanStreamline(
 /******************************************************************************/
 /**
  * Attach our local value to the map.
- *
- * @param par_vec The map to which the local value should be attached
  */
 void GBooleanObject::booleanStreamline(
     std::map<std::string, std::vector<bool>> &par_vec,
@@ -296,9 +291,6 @@ void GBooleanObject::booleanStreamline(
 /**
  * Attach boundaries of type bool to the vectors. This function has been added for
  * completeness reasons only.
- *
- * @param l_bnd_vec A vector of lower bool parameter boundaries
- * @param u_bnd_vec A vector of upper bool parameter boundaries
  */
 void GBooleanObject::booleanBoundaries(
     std::vector<bool> &l_bnd_vec,
@@ -313,7 +305,6 @@ void GBooleanObject::booleanBoundaries(
 /**
  * Tell the audience that we own a bool value
  *
- * @param @param am An enum indicating whether only information about active, inactive or all parameters of this type should be extracted
  * @return The number of active, incactive or all float parameters
  */
 std::size_t GBooleanObject::countBoolParameters(

@@ -81,7 +81,7 @@ public:
      * This constructor takes an argument, that specifies the (initial) probability
      * for the adaption of an integer or bit value
      *
-     * @param prob The probability for a flip
+     * @param ad_prob The probability for a flip
      */
     explicit GIntFlipAdaptorT(const double &ad_prob)
       : GNumFlipAdaptorT<int_type>(ad_prob) { /* nothing */
@@ -107,7 +107,7 @@ protected:
     /**
      * This function loads the data of another GIntFlipAdaptorT, camouflaged as a GAdaptorT.
      *
-     * @param A copy of another GIntFlipAdaptorT, camouflaged as a GAdaptorT
+     * @param cp A copy of another GIntFlipAdaptorT, camouflaged as a GAdaptorT
      */
     void load_(const GAdaptorT<int_type> *cp) override {
         // Convert the pointer to our target type and check for self-assignment
@@ -135,7 +135,6 @@ protected:
      *
      * @param cp A constant reference to another GAdaptorT object
      * @param e The expected outcome of the comparison
-     * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
     void compare_(
         const GAdaptorT<int_type> &cp,

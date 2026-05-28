@@ -143,7 +143,6 @@ GTestIndividual3::~GTestIndividual3() { /* nothing */
  *
  * @param cp A constant reference to another GParameterSet object
  * @param e The expected outcome of the comparison
- * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GTestIndividual3::compare_(
     const gpar::GParameterSet &cp,
@@ -202,7 +201,6 @@ gpar::GParameterSet *GTestIndividual3::clone_() const {
 /**
  * The actual fitness calculation takes place here.
  *
- * @param id The id of the target function (ignored here)
  * @return The value of this object
  */
 double GTestIndividual3::fitnessCalculation() {

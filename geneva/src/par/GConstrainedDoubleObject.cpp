@@ -58,8 +58,8 @@ namespace Gem::Geneva::Parameters {
 /**
  * Initialization with boundaries only. The value is set randomly.
  *
- * @param lowerBoundary The lower boundary of the value range
- * @param upperBoundary The upper boundary of the value range
+ * @param lower_boundary The lower boundary of the value range
+ * @param upper_boundary The upper boundary of the value range
  */
 GConstrainedDoubleObject::GConstrainedDoubleObject(
     const double &lower_boundary,
@@ -73,8 +73,8 @@ GConstrainedDoubleObject::GConstrainedDoubleObject(
  * Initialization with value and boundaries
  *
  * @param val Initialization value
- * @param lowerBoundary The lower boundary of the value range
- * @param upperBoundary The upper boundary of the value range
+ * @param lower_boundary The lower boundary of the value range
+ * @param upper_boundary The upper boundary of the value range
  */
 GConstrainedDoubleObject::GConstrainedDoubleObject(
     const double &val,
@@ -123,7 +123,6 @@ GParameterBase *GConstrainedDoubleObject::clone_() const {
  *
  * @param cp A constant reference to another GParameterBase object
  * @param e The expected outcome of the comparison
- * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GConstrainedDoubleObject::compare_(
     const GParameterBase &cp,
@@ -159,8 +158,6 @@ std::string GConstrainedDoubleObject::name_() const {
 /**
  * Attach our local value to the vector. This is used to collect all parameters of this type
  * in the sequence in which they were registered.
- *
- * @param par_vec The vector to which the local value should be attached
  */
 void GConstrainedDoubleObject::doubleStreamline(
     std::vector<double> &par_vec,
@@ -173,8 +170,6 @@ void GConstrainedDoubleObject::doubleStreamline(
 /******************************************************************************/
 /**
  * Attach our local value to the map.
- *
- * @param par_vec The map to which the local value should be attached
  */
 void GConstrainedDoubleObject::doubleStreamline(
     std::map<std::string, std::vector<double>> &par_vec,
@@ -189,9 +184,6 @@ void GConstrainedDoubleObject::doubleStreamline(
 /******************************************************************************/
 /**
  * Attach boundaries of type double to the vectors.
- *
- * @param l_bnd_vec A vector of lower double parameter boundaries
- * @param u_bnd_vec A vector of upper double parameter boundaries
  */
 void GConstrainedDoubleObject::doubleBoundaries(
     std::vector<double> &l_bnd_vec,

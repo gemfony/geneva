@@ -154,7 +154,7 @@ public:
      * function will only be accessible to the compiler if individual_type is a derivative of GParameterSet,
      * thanks to the magic of the std::enable_if and type_traits.
      *
-     * @param parent The id of the parent that should be returned
+     * @param parent_id The id of the parent that should be returned
      * @return A converted shared_ptr to the parent
      */
     template <typename parent_type>

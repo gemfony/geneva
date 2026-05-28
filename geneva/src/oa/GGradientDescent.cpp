@@ -214,7 +214,6 @@ std::string GGradientDescent::getAlgorithmName_() const {
  *
  * @param cp A constant reference to another GGradientDescent object
  * @param e The expected outcome of the comparison
- * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GGradientDescent::compare_(
     const GBase &cp,

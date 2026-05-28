@@ -69,8 +69,8 @@ GInt32Object::GInt32Object(const std::int32_t &val)
 /**
  * Initialization by random number in a given range
  *
- * @param lowerBoundary The lower boundary for the random number used in the initialization
- * @param upperBoundary The upper boundary for the random number used in the initialization
+ * @param lower_boundary The lower boundary for the random number used in the initialization
+ * @param upper_boundary The upper boundary for the random number used in the initialization
  */
 GInt32Object::GInt32Object(const std::int32_t &lower_boundary, const std::int32_t &upper_boundary)
   : GNumIntT<std::int32_t>(lower_boundary, upper_boundary) { /* nothing */
@@ -82,8 +82,8 @@ GInt32Object::GInt32Object(const std::int32_t &lower_boundary, const std::int32_
  * that we do not enforce val to be inside of the initialization boundaries
  *
  * @param val The value to be assigned to the object
- * @param lowerBoundary The lower boundary for the random number used in the initialization
- * @param upperBoundary The upper boundary for the random number used in the initialization
+ * @param lower_boundary The lower boundary for the random number used in the initialization
+ * @param upper_boundary The upper boundary for the random number used in the initialization
  */
 GInt32Object::GInt32Object(
     const std::int32_t &val,
@@ -122,7 +122,6 @@ GParameterBase *GInt32Object::clone_() const {
  *
  * @param cp A constant reference to another GParameterBase object
  * @param e The expected outcome of the comparison
- * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GInt32Object::compare_(
     const GParameterBase &cp,
@@ -158,8 +157,6 @@ std::string GInt32Object::name_() const {
 /**
  * Attach our local value to the vector. This is used to collect all parameters of this type
  * in the sequence in which they were registered.
- *
- * @param par_vec The vector to which the local value should be attached
  */
 void GInt32Object::int32Streamline(
     std::vector<std::int32_t> &par_vec,
@@ -171,8 +168,6 @@ void GInt32Object::int32Streamline(
 /******************************************************************************/
 /**
  * Attach our local value to the map.
- *
- * @param par_vec The map to which the local value should be attached
  */
 void GInt32Object::int32Streamline(
     std::map<std::string, std::vector<std::int32_t>> &par_vec,
@@ -199,9 +194,6 @@ void GInt32Object::int32Streamline(
 /**
  * Attach boundaries of type std::int32_t to the vectors. Since this is an unbounded type,
  * we use the initialization boundaries as a replacement.
- *
- * @param l_bnd_vec A vector of lower std::int32_t parameter boundaries
- * @param u_bnd_vec A vector of upper std::int32_t parameter boundaries
  */
 void GInt32Object::int32Boundaries(
     std::vector<std::int32_t> &l_bnd_vec,
@@ -216,7 +208,6 @@ void GInt32Object::int32Boundaries(
 /**
  * Tell the audience that we own a std::int32_t value
  *
- * @param @param am An enum indicating whether only information about active, inactive or all parameters of this type should be extracted
  * @return The number 1, as we own a single std::int32_t parameter
  */
 std::size_t GInt32Object::countInt32Parameters(

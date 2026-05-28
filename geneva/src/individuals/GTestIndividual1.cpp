@@ -82,7 +82,6 @@ GTestIndividual1::GTestIndividual1() {
  *
  * @param cp A constant reference to another GParameterSet object
  * @param e The expected outcome of the comparison
- * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GTestIndividual1::compare_(
     const gpar::GParameterSet &cp,
@@ -141,7 +140,6 @@ gpar::GParameterSet *GTestIndividual1::clone_() const {
 /**
  * The actual fitness calculation takes place here.
  *
- * @param id The id of the target function (ignored here)
  * @return The value of this object
  */
 double GTestIndividual1::fitnessCalculation() {
@@ -192,7 +190,7 @@ bool GTestIndividual1::modify_GUnitTests_() {
 /**
  * Adds a number of GDoubleObject objects to the individual
  *
- * @param nItems The number of items to be added
+ * @param n_items The number of items to be added
  */
 void GTestIndividual1::addGDoubleObjects_(const std::size_t &n_items) {
 #ifdef GEM_TESTING
