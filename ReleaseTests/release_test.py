@@ -64,6 +64,11 @@ def _shared_options() -> argparse.ArgumentParser:
     tier = common.add_mutually_exclusive_group()
     tier.add_argument("--quick", action="store_true", default=S,
                       help="SHORT-tier checks only (default)")
+    tier.add_argument("--medium", action="store_true", default=S,
+                      help="SHORT-tier checks across the full OS x compiler x "
+                           "Debug+Release matrix, plus benchmarks built and "
+                           "smoke-started once (may be aborted). Between --quick "
+                           "and --full.")
     tier.add_argument("--full", action="store_true", default=S,
                       help="SHORT + LONG-tier checks (hours-long)")
     return common
@@ -115,6 +120,11 @@ def _load(args: argparse.Namespace):
 def _resolve_tier(args: argparse.Namespace) -> bool:
     """Return True for --full, False for --quick (the default)."""
     return bool(getattr(args, "full", False))
+
+
+def _resolve_medium(args: argparse.Namespace) -> bool:
+    """Return True for --medium (quick matrix + benchmark smoke-start)."""
+    return bool(getattr(args, "medium", False))
 
 
 def cmd_doctor(args: argparse.Namespace) -> int:
@@ -178,16 +188,18 @@ def _parse_build_types(value: str | None):
 
 def _expand(cfg, args) -> list:
     full = _resolve_tier(args)
+    medium = _resolve_medium(args)
     only = _parse_build_types(getattr(args, "build_type", None))
     jobs = matrix_mod.expand(cfg, full=full, gpu_available=gpu_available(),
-                             only_build_types=only)
+                             only_build_types=only, medium=medium)
     return matrix_mod.apply_filter(jobs, getattr(args, "filter", None))
 
 
 def cmd_plan(cfg, args) -> int:
     jobs = _expand(cfg, args)
     full = _resolve_tier(args)
-    print(f"Matrix ({'full' if full else 'quick'}): {len(jobs)} jobs")
+    tier_name = "full" if full else ("medium" if _resolve_medium(args) else "quick")
+    print(f"Matrix ({tier_name}): {len(jobs)} jobs")
     for note in cfg.notes:
         print(f"  note: {note}")
     print(f"  source_dir: {cfg.source_dir}")

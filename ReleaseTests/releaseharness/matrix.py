@@ -2,8 +2,18 @@
 
 from __future__ import annotations
 
+from dataclasses import replace
+
 from .config import Config, FeatureSet
 from .model import BuildSpec, BuildType, Compiler, Job
+from .runner import GUEST_BUILD
+
+# Install prefix used inside the guest. Each check runs in its own ephemeral
+# (`--rm`) container and only the build mount (/work/build) is shared between
+# them, so `make install` must land under that mount for the downstream
+# out-of-tree find_package(Geneva) check to see it. A container-internal prefix
+# like /opt/geneva would be discarded with the install check's container.
+_GUEST_INSTALL_PREFIX = f"{GUEST_BUILD}/install-prefix"
 
 
 def _spec(cfg: Config, compiler: Compiler, build_type: BuildType,
@@ -20,16 +30,22 @@ def _spec(cfg: Config, compiler: Compiler, build_type: BuildType,
         with_cuda_rng=want_cuda,
         skip_all_cuda=not want_cuda,
         boost_root=cfg.boost_root,
+        install_dir=_GUEST_INSTALL_PREFIX,
     )
 
 
 def expand(cfg: Config, *, full: bool, gpu_available: bool,
-           only_build_types: set[BuildType] | None = None) -> list[Job]:
+           only_build_types: set[BuildType] | None = None,
+           medium: bool = False) -> list[Job]:
     """Build the full job list for the requested tier.
 
     ``--quick`` (full=False) uses only ``short_build_types`` and the ``base``
-    feature set. ``--full`` adds the long build types, the ``minimal`` build
-    and the ``full`` (MPI/CUDA/benchmarks) feature set.
+    feature set. ``--medium`` is the same matrix as ``--quick`` (SHORT build
+    types, base feature set) but additionally builds the benchmarks so they can
+    be smoke-started once (see checks/benchmarks.py); it does NOT add the long
+    build types or the minimal/full feature cells. ``--full`` adds the long
+    build types, the ``minimal`` build and the ``full`` (MPI/CUDA/benchmarks)
+    feature set.
 
     ``only_build_types`` (from ``--build-type``) restricts the matrix to the
     given build types *before* expansion, so e.g. running only ``Release`` (or
@@ -42,6 +58,10 @@ def expand(cfg: Config, *, full: bool, gpu_available: bool,
 
     jobs: list[Job] = []
     base_fs = cfg.feature_sets["base"]
+    if medium:
+        # Medium tier: the quick matrix, but with benchmarks built so the
+        # benchmark smoke-start check has something to launch.
+        base_fs = replace(base_fs, benchmarks=True)
 
     build_types = [b for b in cfg.short_build_types if allowed(b)]
     if full:

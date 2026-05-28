@@ -10,8 +10,8 @@ import datetime as _dt
 from pathlib import Path
 
 from .backends.base import ContainerBackend
-from .checks import (algorithms, build, consumers, ctest, examples, install,
-                     metadata, outoftree)
+from .checks import (algorithms, benchmarks, build, consumers, ctest, examples,
+                     install, metadata, outoftree)
 from .logging_util import ensure_workdir, get_console_logger
 from .model import CheckResult, Job, RunReport, Status
 from .runner import JobContext
@@ -55,6 +55,9 @@ def _run_job(ctx: JobContext, log) -> list[CheckResult]:
     results.append(examples.gstarter(ctx))
     results.append(examples.networked(ctx))
     results.append(examples.cuda(ctx))
+
+    # Benchmarks (medium/full tiers: start each one once; aborting is fine)
+    results.append(benchmarks.smoke_start(ctx))
 
     # Install / out-of-tree / linking
     results.append(install.make_install(ctx))

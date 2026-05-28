@@ -1,7 +1,7 @@
 """Example checks (ReleaseTestplan.md: "Examples").
 
-10_GStarter build+run is implemented; a networked example and the CUDA example
-are wired with GPU/feature gating, the networked split being a stub.
+An in-tree example build+run is implemented; a networked example and the CUDA
+example are wired with GPU/feature gating, the networked split being a stub.
 """
 
 from __future__ import annotations
@@ -13,24 +13,31 @@ from ..runner import GUEST_BUILD, JobContext
 
 # Examples read/write ./config/Go2.json relative to the CWD, so run each from
 # its own build directory where the config/ folder is installed.
-_GSTARTER_DIR = "examples/geneva/10_GStarter"
-_GSTARTER = "./GStarter"
+#
+# NOTE: 10_GStarter is deliberately NOT built in-tree -- it ships as the
+# canonical out-of-tree find_package(Geneva) example (see
+# examples/geneva/10_GStarter/README and examples/geneva/CMakeLists.txt). The
+# in-tree "run an example to completion" smoke therefore uses
+# 01_GSimpleOptimizer, the canonical minimal in-tree optimizer (covering 10's
+# out-of-tree role belongs to the outoftree/findgeneva check).
+_SIMPLE_DIR = "examples/geneva/01_GSimpleOptimizer"
+_SIMPLE = "./GSimpleOptimizer"
 _GCUDA_DIR = "examples/geneva/15_GCUDAWorker"
 _GCUDA = "./GCUDAWorker"
 
 
 def gstarter(ctx: JobContext) -> CheckResult:
-    """10_GStarter builds (via gemfony-build-all) and runs to completion."""
+    """01_GSimpleOptimizer builds (via gemfony-build-all) and runs to completion."""
     tier = Tier.SHORT
     if not ctx.job.spec.build_examples:
-        return ctx.skipped("example/gstarter", tier, "examples not built")
+        return ctx.skipped("example/simple-optimizer", tier, "examples not built")
     if not ctx.should_run(tier):
-        return ctx.skipped("example/gstarter", tier, "skipped")
+        return ctx.skipped("example/simple-optimizer", tier, "skipped")
     started = time.monotonic()
     res = ctx.exec_in_guest(
-        ["bash", "-lc", f"cd {GUEST_BUILD}/{_GSTARTER_DIR} && {_GSTARTER}"],
+        ["bash", "-lc", f"cd {GUEST_BUILD}/{_SIMPLE_DIR} && {_SIMPLE}"],
         workdir=GUEST_BUILD, timeout=900)
-    return ctx.record("example/gstarter", tier, res, started=started)
+    return ctx.record("example/simple-optimizer", tier, res, started=started)
 
 
 def networked(ctx: JobContext) -> CheckResult:

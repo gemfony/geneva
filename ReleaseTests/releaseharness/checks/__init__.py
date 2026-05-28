@@ -4,9 +4,10 @@ Each module exposes functions that take a :class:`~releaseharness.runner.JobCont
 and return one or more :class:`~releaseharness.model.CheckResult` objects.
 """
 
-from . import algorithms, build, consumers, ctest, examples, install, metadata, outoftree
+from . import (algorithms, benchmarks, build, consumers, ctest, examples,
+               install, metadata, outoftree)
 
 __all__ = [
     "build", "ctest", "consumers", "algorithms",
-    "examples", "install", "outoftree", "metadata",
+    "examples", "benchmarks", "install", "outoftree", "metadata",
 ]
