@@ -319,7 +319,7 @@ std::uint32_t GFitnessMonitor::getYDim() const {
  * If n_monitor_inds_ is set to a larger number than there are individuals in the population,
  * the value will be reset to that amount of individuals in informationFunction.
  *
- * @oaram n_monitor_inds The number of individuals in the population that should be monitored
+ * @param n_monitor_inds The number of individuals in the population that should be monitored
  */
 void GFitnessMonitor::setNMonitorIndividuals(const std::size_t &n_monitor_inds) {
     // A request of 0 means "use the built-in default"; any positive value is

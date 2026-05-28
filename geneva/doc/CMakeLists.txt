@@ -27,39 +27,34 @@
 #
 ################################################################################
 #
-# Orchestrator for the self-contained Common library subtree.
-#
-# Layout (per the 2026-05-28 repo-layout reorganisation):
-#   common/include/common/*.hpp   public headers (install layout 1:1)
-#   common/src/*.cpp              implementation + the gemfony-common target
-#   common/tests/                 unit + manual tests
-#   common/examples/              standalone examples
-#   common/benchmarks/            performance benchmarks
-#
-# Tests / examples / benchmarks are gated on the top-level options so a
-# minimal build still only descends into include and src.
-################################################################################
+# Per-library Doxygen target for the Geneva library (the largest; includes
+# the dissolved geneva-individuals sources under individuals/).
 
-ADD_SUBDIRECTORY ( include/common )
-ADD_SUBDIRECTORY ( src )
-
-IF ( GENEVA_BUILD_TESTS )
-	ADD_SUBDIRECTORY ( tests )
+IF (NOT DOXYGEN_FOUND)
+	RETURN ()
 ENDIF ()
 
-IF ( GENEVA_BUILD_EXAMPLES )
-	ADD_SUBDIRECTORY ( examples )
-ENDIF ()
+SET (GENEVA_DOC_LIB_NAME "geneva")
+SET (GENEVA_DOC_LIB_DESC "Core optimisation: Go2 driver, GParameterSet "
+		"workflow, seven optimisation algorithms (EA/SA/Swarm/GD/CGD/NM/PS), "
+		"per-category GCommonInterfaceT<Root> CRTP roots, individuals, "
+		"pluggable monitors")
+# Upstream: common, hap, courtier. Single space-separated string (see the
+# courtier counterpart for the multi-arg-SET caveat).
+SET (GENEVA_DOC_TAGFILES
+		"${CMAKE_BINARY_DIR}/common/doc/common.tag=../../../common/doc/html ${CMAKE_BINARY_DIR}/hap/doc/hap.tag=../../../hap/doc/html ${CMAKE_BINARY_DIR}/courtier/doc/courtier.tag=../../../courtier/doc/html")
 
-IF ( GENEVA_BUILD_BENCHMARKS )
-	ADD_SUBDIRECTORY ( benchmarks )
-ENDIF ()
+CONFIGURE_FILE (
+	${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in
+	${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
+	@ONLY
+)
 
-# Per-library Doxygen target (doc-common). The CMakeLists short-circuits
-# when Doxygen was not found.
-ADD_SUBDIRECTORY ( doc )
+ADD_CUSTOM_TARGET (doc-geneva
+	COMMAND ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
+	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+	COMMENT "Generating Doxygen documentation for the Geneva library"
+	VERBATIM
+)
 
-# Self-contained aggregate over EVERYTHING in this lib's subtree (lib +
-# tests + examples + benchmarks). The top-level `gemfony-build-all` depends
-# on this so a plain `make gemfony-build-all` still builds all of common.
-GENEVA_AGGREGATE_TARGET( "common-all" )
+ADD_DEPENDENCIES (doc-geneva doc-common doc-hap doc-courtier)

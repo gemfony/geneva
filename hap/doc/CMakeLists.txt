@@ -27,39 +27,35 @@
 #
 ################################################################################
 #
-# Orchestrator for the self-contained Common library subtree.
-#
-# Layout (per the 2026-05-28 repo-layout reorganisation):
-#   common/include/common/*.hpp   public headers (install layout 1:1)
-#   common/src/*.cpp              implementation + the gemfony-common target
-#   common/tests/                 unit + manual tests
-#   common/examples/              standalone examples
-#   common/benchmarks/            performance benchmarks
-#
-# Tests / examples / benchmarks are gated on the top-level options so a
-# minimal build still only descends into include and src.
-################################################################################
+# Per-library Doxygen target for the Hap library (random-number generation).
 
-ADD_SUBDIRECTORY ( include/common )
-ADD_SUBDIRECTORY ( src )
-
-IF ( GENEVA_BUILD_TESTS )
-	ADD_SUBDIRECTORY ( tests )
+IF (NOT DOXYGEN_FOUND)
+	RETURN ()
 ENDIF ()
 
-IF ( GENEVA_BUILD_EXAMPLES )
-	ADD_SUBDIRECTORY ( examples )
-ENDIF ()
+SET (GENEVA_DOC_LIB_NAME "hap")
+SET (GENEVA_DOC_LIB_DESC "Random-number generation: GRandomT, GRandomFactory, "
+		"distribution wrappers, optional CUDA-based RNG (GCUDARng under "
+		"USECUDARNG)")
+# Upstream: common -- relative html path from hap/doc/html to common/doc/html.
+# ${CMAKE_BINARY_DIR} is expanded NOW (at configure time); the resulting plain
+# string is then carried into Doxyfile via @GENEVA_DOC_TAGFILES@.
+SET (GENEVA_DOC_TAGFILES
+		"${CMAKE_BINARY_DIR}/common/doc/common.tag=../../../common/doc/html")
 
-IF ( GENEVA_BUILD_BENCHMARKS )
-	ADD_SUBDIRECTORY ( benchmarks )
-ENDIF ()
+CONFIGURE_FILE (
+	${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in
+	${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
+	@ONLY
+)
 
-# Per-library Doxygen target (doc-common). The CMakeLists short-circuits
-# when Doxygen was not found.
-ADD_SUBDIRECTORY ( doc )
+ADD_CUSTOM_TARGET (doc-hap
+	COMMAND ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
+	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+	COMMENT "Generating Doxygen documentation for the Hap library"
+	VERBATIM
+)
 
-# Self-contained aggregate over EVERYTHING in this lib's subtree (lib +
-# tests + examples + benchmarks). The top-level `gemfony-build-all` depends
-# on this so a plain `make gemfony-build-all` still builds all of common.
-GENEVA_AGGREGATE_TARGET( "common-all" )
+# Tag-file ordering: common's doc must exist when hap's runs so the upstream
+# tag file is available for cross-references.
+ADD_DEPENDENCIES (doc-hap doc-common)

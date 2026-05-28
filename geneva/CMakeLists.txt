@@ -65,4 +65,7 @@ IF ( GENEVA_BUILD_BENCHMARKS )
 	ADD_SUBDIRECTORY ( benchmarks )
 ENDIF ()
 
+# Per-library Doxygen target (doc-geneva).
+ADD_SUBDIRECTORY ( doc )
+
 GENEVA_AGGREGATE_TARGET( "geneva-all" )

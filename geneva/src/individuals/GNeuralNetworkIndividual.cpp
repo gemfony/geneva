@@ -633,7 +633,7 @@ GNeuralNetworkIndividual::GNeuralNetworkIndividual()
  * @param max The maximum value of random numbers used for initialization of the network layers
  * @param sigma The sigma used for gauss adaptors
  * @param sigma_sigma Used for sigma adaption
- * @oaram min_sigma The minimum allowed value for sigma
+ * @param min_sigma The minimum allowed value for sigma
  * @param max_sigma The maximum allowed value for sigma
  */
 GNeuralNetworkIndividual::GNeuralNetworkIndividual(
@@ -725,7 +725,7 @@ void GNeuralNetworkIndividual::compare_(
  * @param max The maximum value of random numbers used for initialization of the network layers
  * @param sigma The sigma used for gauss adaptors
  * @param sigma_sigma Used for sigma adaption
- * @oaram min_sigma The minimum allowed value for sigma
+ * @param min_sigma The minimum allowed value for sigma
  * @param max_sigma The maximum allowed value for sigma
  * @param ad_prob The adaption probability in Evolutionary Algorithms
  */

@@ -59,4 +59,7 @@ IF ( GENEVA_BUILD_BENCHMARKS )
 	ADD_SUBDIRECTORY ( benchmarks )
 ENDIF ()
 
+# Per-library Doxygen target (doc-courtier).
+ADD_SUBDIRECTORY ( doc )
+
 GENEVA_AGGREGATE_TARGET( "courtier-all" )

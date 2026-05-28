@@ -68,7 +68,7 @@ GSwarmAlgorithm::GSwarmAlgorithm()
  * is no public default constructor, as it is only needed for de-serialization purposes.
  *
  * @param n_neighborhoods The desired number of neighborhoods (hardwired to >= 1)
- * @oaram nNeighborhoodMembers The default number of individuals in each neighborhood (hardwired to >= 2)
+ * @param nNeighborhoodMembers The default number of individuals in each neighborhood (hardwired to >= 2)
  */
 GSwarmAlgorithm::GSwarmAlgorithm(
     const std::size_t &n_neighborhoods,

@@ -278,6 +278,16 @@ IF (GENEVA_BUILD_TESTS)
 	INCLUDE(CTest)
 ENDIF ()
 
+# Find Doxygen ONCE here so the per-library <lib>/doc/CMakeLists.txt files
+# can short-circuit when it is absent. DOXYGEN_FOUND propagates to all
+# subdirectories.
+FIND_PACKAGE (Doxygen)
+IF (DOXYGEN_FOUND)
+	MESSAGE (STATUS "Doxygen found (${DOXYGEN_VERSION}); per-library 'doc-<lib>' targets and the aggregated 'doc' target are available.")
+ELSE ()
+	MESSAGE (STATUS "Doxygen not found; the per-library doc targets and 'make doc' are disabled.")
+ENDIF ()
+
 # Self-contained per-library subtrees. All four libraries now live under
 # their own top-level directory; the legacy split-by-kind include/, src/,
 # tests/, examples/, benchmarks/ trees no longer exist. Order matches the
@@ -394,23 +404,17 @@ SET ( INFORMATIONFILES
 INSTALL ( FILES ${INFORMATIONFILES} DESTINATION ${INSTALL_PREFIX_DOCS} )
 
 ################################################################################
-# Code for the creation of reference documentation for Geneva
+# Aggregated reference documentation: depends on every per-library doc-<lib>
+# target so `make doc` produces all four lib bundles with cross-references
+# wired via Doxygen TAGFILES (the per-library CMakeLists declares the
+# upstream tag-file dependencies, so ordering is automatic).
 #
-FIND_PACKAGE(Doxygen)
-
-IF( DOXYGEN_FOUND )
-	CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile @ONLY)
-	ADD_CUSTOM_TARGET (
-		doc
-		${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
-		WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-		COMMENT "Creation of reference documentation for Geneva with 'make doc'" VERBATIM
+IF (DOXYGEN_FOUND)
+	ADD_CUSTOM_TARGET (doc
+		DEPENDS doc-common doc-hap doc-courtier doc-geneva
+		COMMENT "Generating aggregated Doxygen documentation for all four Geneva libraries."
 	)
-	SET(MSG "Reference documentation for Geneva may now be created with 'make doc'")
-ELSE()
-	SET(MSG "Doxygen not found. No support for the creation of reference documentation")
-ENDIF()
-MESSAGE("${MSG}\n")
+ENDIF ()
 
 ################################################################################
 # Code for package generation with CPack. This is experimental and the packages

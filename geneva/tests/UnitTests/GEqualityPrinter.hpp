@@ -74,7 +74,7 @@ public:
 	 * The compared entities must have the Geneva interface.
 	 *
 	 * @param x The first parameter to compare
-	 * @oaram y The second parameter to compare
+	 * @param y The second parameter to compare
 	 * @return A boolean indicating whether both parameters are equal
 	 */
     template <typename geneva_type>
@@ -99,7 +99,7 @@ public:
 	 * optionally emitting a message.
 	 *
 	 * @param x The Geneva container type to compare
-	 * @oaram y The std::vector used for the comparison
+	 * @param y The std::vector used for the comparison
 	 * @return A boolean indicating whether both parameters are equal
 	 */
     template <typename geneva_simplecontainer_type>
@@ -128,7 +128,7 @@ public:
 	 * Geneva interface.
 	 *
 	 * @param x The first parameter to compare
-	 * @oaram y The second parameter to compare
+	 * @param y The second parameter to compare
 	 * @return A boolean indicating whether both parameters are inequal
 	 */
     template <typename geneva_type>
@@ -153,7 +153,7 @@ public:
 	 * optionally emitting a message.
 	 *
 	 * @param x The Geneva container type to compare
-	 * @oaram y The std::vector used for the comparison
+	 * @param y The std::vector used for the comparison
 	 * @return A boolean indicating whether both parameters are equal
 	 */
     template <typename geneva_simplecontainer_type>
@@ -181,7 +181,7 @@ public:
 	 * Geneva interface.
 	 *
 	 * @param x The first parameter to compare
-	 * @oaram y The second parameter to compare
+	 * @param y The second parameter to compare
 	 * @param limit A limit used to determine similarity in fp comparisons
 	 * @return A boolean indicating whether both parameters are similar
 	 */
@@ -207,7 +207,7 @@ public:
     * possibly emitting a message.
 	 *
 	 * @param x The first parameter to compare
-	 * @oaram y The second parameter to compare
+	 * @param y The second parameter to compare
 	 * @param limit A limit used to determine similarity in fp comparisons
 	 * @return A boolean indicating whether both parameters are similar
 	 */

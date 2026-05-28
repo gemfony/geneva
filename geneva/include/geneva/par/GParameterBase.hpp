@@ -182,8 +182,8 @@ public:
      * function is a trap, needed to catch streamlining attempts with unsupported types.
      * Use the supplied specializations instead.
      *
-     * @oaram l_bnd_vec The vector with lower boundaries of parameters
-     * @oaram u_bnd_vec The vector with upper boundaries of parameters
+     * @param l_bnd_vec The vector with lower boundaries of parameters
+     * @param u_bnd_vec The vector with upper boundaries of parameters
      */
     template <typename par_type>
     void boundaries(
@@ -204,7 +204,7 @@ public:
      * trap, needed to catch streamlining attempts with unsupported types. Use the supplied
      * specializations instead.
      *
-     * @oaram par_vec The vector to which the items should be added
+     * @param par_vec The vector to which the items should be added
      */
     template <typename par_type>
     void streamline(
@@ -224,7 +224,7 @@ public:
      * trap, needed to catch streamlining attempts with unsupported types. Use the supplied
      * specializations instead.
      *
-     * @oaram par_vec The vector to which the items should be added
+     * @param par_vec The vector to which the items should be added
      */
     template <typename par_type>
     void streamline(
@@ -705,7 +705,7 @@ private:
 /**
  * Allows to add all parameters of type float to the vector.
  *
- * @oaram par_vec The vector to which the items should be added
+ * @param par_vec The vector to which the items should be added
  */
 template <>
 inline void GParameterBase::streamline<float>(std::vector<float> &par_vec, activityMode am) const {
@@ -718,7 +718,7 @@ inline void GParameterBase::streamline<float>(std::vector<float> &par_vec, activ
 /**
  * Allows to add all parameters of type double to the vector.
  *
- * @oaram par_vec The vector to which the items should be added
+ * @param par_vec The vector to which the items should be added
  */
 template <>
 inline void
@@ -732,7 +732,7 @@ GParameterBase::streamline<double>(std::vector<double> &par_vec, activityMode am
 /**
  * Allows to add all parameters of type std::int32_t to the vector.
  *
- * @oaram par_vec The vector to which the items should be added
+ * @param par_vec The vector to which the items should be added
  */
 template <>
 inline void GParameterBase::streamline<std::int32_t>(
@@ -748,7 +748,7 @@ inline void GParameterBase::streamline<std::int32_t>(
 /**
  * Allows to add all parameters of type bool to the vector.
  *
- * @oaram par_vec The vector to which the items should be added
+ * @param par_vec The vector to which the items should be added
  */
 template <>
 inline void GParameterBase::streamline<bool>(std::vector<bool> &par_vec, activityMode am) const {
@@ -761,7 +761,7 @@ inline void GParameterBase::streamline<bool>(std::vector<bool> &par_vec, activit
 /**
  * Allows to add all parameters of type float to the map.
  *
- * @oaram par_vec The map to which the items should be added
+ * @param par_vec The map to which the items should be added
  */
 template <>
 inline void GParameterBase::streamline<float>(
@@ -777,7 +777,7 @@ inline void GParameterBase::streamline<float>(
 /**
  * Allows to add all parameters of type double to the map.
  *
- * @oaram par_vec The vector to which the items should be added
+ * @param par_vec The vector to which the items should be added
  */
 template <>
 inline void GParameterBase::streamline<double>(
@@ -793,7 +793,7 @@ inline void GParameterBase::streamline<double>(
 /**
  * Allows to add all parameters of type std::int32_t to the map.
  *
- * @oaram par_vec The vector to which the items should be added
+ * @param par_vec The vector to which the items should be added
  */
 template <>
 inline void GParameterBase::streamline<std::int32_t>(
@@ -809,7 +809,7 @@ inline void GParameterBase::streamline<std::int32_t>(
 /**
  * Allows to add all parameters of type bool to the map.
  *
- * @oaram par_vec The vector to which the items should be added
+ * @param par_vec The vector to which the items should be added
  */
 template <>
 inline void GParameterBase::streamline<bool>(

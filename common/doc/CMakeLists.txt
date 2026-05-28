@@ -27,39 +27,32 @@
 #
 ################################################################################
 #
-# Orchestrator for the self-contained Common library subtree.
+# Per-library Doxygen target for the Common library.
 #
-# Layout (per the 2026-05-28 repo-layout reorganisation):
-#   common/include/common/*.hpp   public headers (install layout 1:1)
-#   common/src/*.cpp              implementation + the gemfony-common target
-#   common/tests/                 unit + manual tests
-#   common/examples/              standalone examples
-#   common/benchmarks/            performance benchmarks
-#
-# Tests / examples / benchmarks are gated on the top-level options so a
-# minimal build still only descends into include and src.
-################################################################################
+# Configures Doxyfile.in from this directory with per-library values and
+# registers `doc-common` as a top-level target. Output (HTML + XML + tag
+# file) lands in this lib's build dir, NOT in the source tree.
 
-ADD_SUBDIRECTORY ( include/common )
-ADD_SUBDIRECTORY ( src )
-
-IF ( GENEVA_BUILD_TESTS )
-	ADD_SUBDIRECTORY ( tests )
+IF (NOT DOXYGEN_FOUND)
+	RETURN ()
 ENDIF ()
 
-IF ( GENEVA_BUILD_EXAMPLES )
-	ADD_SUBDIRECTORY ( examples )
-ENDIF ()
+SET (GENEVA_DOC_LIB_NAME "common")
+SET (GENEVA_DOC_LIB_DESC "Utilities: logging, thread pool, formula parser, "
+		"plot designer, serialization helpers, bounded buffers, exception "
+		"types")
+# No upstream libraries -- common is the foundation.
+SET (GENEVA_DOC_TAGFILES "")
 
-IF ( GENEVA_BUILD_BENCHMARKS )
-	ADD_SUBDIRECTORY ( benchmarks )
-ENDIF ()
+CONFIGURE_FILE (
+	${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in
+	${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
+	@ONLY
+)
 
-# Per-library Doxygen target (doc-common). The CMakeLists short-circuits
-# when Doxygen was not found.
-ADD_SUBDIRECTORY ( doc )
-
-# Self-contained aggregate over EVERYTHING in this lib's subtree (lib +
-# tests + examples + benchmarks). The top-level `gemfony-build-all` depends
-# on this so a plain `make gemfony-build-all` still builds all of common.
-GENEVA_AGGREGATE_TARGET( "common-all" )
+ADD_CUSTOM_TARGET (doc-common
+	COMMAND ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
+	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+	COMMENT "Generating Doxygen documentation for the Common library"
+	VERBATIM
+)
