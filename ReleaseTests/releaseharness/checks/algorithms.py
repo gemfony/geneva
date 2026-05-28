@@ -25,11 +25,18 @@ _ALGOS = {
 
 
 def run_all_algorithms(ctx: JobContext) -> list[CheckResult]:
-    tier = Tier.LONG  # running all five end-to-end is LONG
+    """Smoke-run each algorithm (EA, SA, Swarm, GD, PS) end-to-end on the
+    01_GSimpleOptimizer example.
+
+    SHORT tier so this runs in --medium (the example's stall criterion converges
+    in seconds, so all five together take a few minutes wall-clock; the 300 s
+    per-algorithm cap is the safety net for stuck runs, not the typical case).
+    """
+    tier = Tier.SHORT
     if not ctx.job.spec.build_examples:
         return [ctx.skipped("algorithm/all", tier, "examples not built")]
     if not ctx.should_run(tier):
-        return [ctx.skipped("algorithm/all", tier, "LONG tier skipped in --quick")]
+        return [ctx.skipped("algorithm/all", tier, "skipped")]
     out: list[CheckResult] = []
     for key in _ALGOS:
         started = time.monotonic()
@@ -37,7 +44,7 @@ def run_all_algorithms(ctx: JobContext) -> list[CheckResult]:
             ["bash", "-lc",
              f"cd {GUEST_BUILD}/{_EX01_DIR} && "
              f"{_EX01} -a {key} -c sc"],
-            workdir=GUEST_BUILD, timeout=1800,
+            workdir=GUEST_BUILD, timeout=300,
         )
         out.append(ctx.record(f"algorithm/{key}", tier, res, started=started))
     return out
