@@ -202,6 +202,7 @@ INCLUDE_DIRECTORIES (
 	${PROJECT_SOURCE_DIR}/include
 	${PROJECT_SOURCE_DIR}/common/include
 	${PROJECT_SOURCE_DIR}/hap/include
+	${PROJECT_SOURCE_DIR}/courtier/include
 )
 
 # Custom targets for building single libraries only
@@ -283,6 +284,7 @@ ENDIF ()
 # every library's target exists when its dependents configure.
 ADD_SUBDIRECTORY (common)
 ADD_SUBDIRECTORY (hap)
+ADD_SUBDIRECTORY (courtier)
 
 # The main code lays here, and the compilation takes place in 'src'
 ADD_SUBDIRECTORY (include)
@@ -379,6 +381,7 @@ ADD_CUSTOM_TARGET(
 	tests
 	common-all      # picks up common's self-contained subtree (lib + tests + examples + benchmarks)
 	hap-all         # picks up hap's self-contained subtree (lib + tests + examples; no benchmarks)
+	courtier-all    # picks up courtier's self-contained subtree (lib + tests + examples-stub + benchmarks)
 	COMMENT "Build the entire Gemfony library collection"
 )
 

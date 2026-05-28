@@ -27,7 +27,6 @@
 #
 ################################################################################
 
-ADD_SUBDIRECTORY ( courtier )
 ADD_SUBDIRECTORY ( geneva )
 
 GENEVA_AGGREGATE_TARGET( "benchmarks" )

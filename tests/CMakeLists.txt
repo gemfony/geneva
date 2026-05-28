@@ -27,7 +27,6 @@
 #
 ################################################################################
 
-ADD_SUBDIRECTORY ( courtier )
 ADD_SUBDIRECTORY ( geneva )
 
 # Auto-collect every test under tests/ (see GENEVA_AGGREGATE_TARGET in
