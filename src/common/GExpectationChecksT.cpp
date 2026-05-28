@@ -28,6 +28,16 @@
  ********************************************************************************/
 
 #include "common/GExpectationChecksT.hpp"
+#include "common/GCommonEnums.hpp"
+#include "common/GCommonHelperFunctions.hpp"
+#include "common/GErrorStreamer.hpp"
+#include "common/GExceptions.hpp"
+#include <cstddef>
+#include <ostream>
+#include <sstream>
+#include <string>
+#include <tuple>
+#include <utility>
 
 namespace Gem::Common {
 

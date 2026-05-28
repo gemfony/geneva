@@ -28,6 +28,27 @@
  ********************************************************************************/
 
 #include "common/GPlotDesigner.hpp"
+#include "common/GCommonEnums.hpp"
+#include "common/GCommonHelperFunctions.hpp"
+#include "common/GCommonHelperFunctionsT.hpp"
+#include "common/GCommonInterfaceT.hpp"
+#include "common/GCommonMathHelperFunctionsT.hpp"
+#include "common/GErrorStreamer.hpp"
+#include "common/GExceptions.hpp"
+#include "common/GExpectationChecksT.hpp"
+#include "common/GLogger.hpp"
+#include <algorithm>
+#include <cmath>
+#include <cstddef>
+#include <filesystem>
+#include <fstream>
+#include <ios>
+#include <istream>
+#include <memory>
+#include <ostream>
+#include <sstream>
+#include <tuple>
+#include <vector>
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GMarker<short>)                        // NOLINT
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GMarker<std::int32_t>)                 // NOLINT

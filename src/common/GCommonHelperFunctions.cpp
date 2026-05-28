@@ -29,11 +29,41 @@
 
 #include "common/GCommonHelperFunctions.hpp"
 
-// Boost headers needed for implementation only
+// Standard library headers used directly in this translation unit
+#include <atomic>
+#include <chrono>
+#include <cstdlib>
+#include <ctime>
+#include <filesystem>
+#include <fstream>
+#include <iomanip>
+#include <iterator>
+#include <mutex>
+#include <sstream>
+#include <string>
+#include <thread>
+#include <tuple>
+#include <utility>
+#include <vector>
+
+// Other Geneva headers whose symbols are used directly
+#include "common/GCommonEnums.hpp"
+#include "common/GErrorStreamer.hpp"
+#include "common/GExceptions.hpp"
+#include "common/GLogger.hpp"
+
+// Boost headers needed for implementation only.
+// NOTE: the Spirit `qi_*` sub-headers and the Fusion `std_tuple`/`tuple`
+// adapters provide the grammar terminals (`qi::uint_`, `qi::double_`,
+// `qi::space`, the `% ','` separator, std::tuple output) used in the
+// `qi::phrase_parse(...)` calls below. misc-include-cleaner cannot
+// resolve those symbols back to these umbrella headers, so it would
+// drop them as "unused"; do NOT remove them.
 #include <boost/fusion/adapted/std_tuple.hpp> // needed by Spirit qi for std::tuple output
 #include <boost/fusion/include/boost_tuple.hpp>
 #include <boost/fusion/include/tuple.hpp>
 #include <boost/property_tree/json_parser.hpp>
+#include <boost/property_tree/ptree_fwd.hpp>
 #include <boost/spirit/include/qi_action.hpp>
 #include <boost/spirit/include/qi_auxiliary.hpp>
 #include <boost/spirit/include/qi_char.hpp>

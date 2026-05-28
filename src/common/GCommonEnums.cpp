@@ -28,6 +28,9 @@
  ********************************************************************************/
 
 #include "common/GCommonEnums.hpp"
+#include <istream>
+#include <ostream>
+#include <string>
 
 namespace Gem::Common {
 

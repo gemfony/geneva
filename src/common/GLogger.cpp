@@ -39,6 +39,16 @@
  */
 
 #include "common/GLogger.hpp"
+#include "common/GCommonEnums.hpp"
+#include "common/GExceptions.hpp"
+#include <filesystem>
+#include <fstream>
+#include <ios>
+#include <iostream>
+#include <ostream>
+#include <sstream>
+#include <string>
+#include <utility>
 
 namespace Gem::Common {
 

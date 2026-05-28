@@ -29,9 +29,34 @@
 
 #include "common/GParserBuilder.hpp"
 
+// Standard library headers used directly in this translation unit
+#include <cstddef>
+#include <exception>
+#include <filesystem>
+#include <fstream>
+#include <ios>
+#include <iostream>
+#include <mutex>
+#include <ostream>
 #include <set>
+#include <sstream>
+#include <string>
+#include <vector>
 
+// Other Geneva headers whose symbols are used directly
+#include "common/GCommonHelperFunctions.hpp"
+#include "common/GCommonHelperFunctionsT.hpp"
+#include "common/GErrorStreamer.hpp"
+#include "common/GExceptions.hpp"
+#include "common/GLogger.hpp"
+
+// Boost headers used directly in this translation unit
+#include <boost/program_options/errors.hpp>
+#include <boost/program_options/options_description.hpp>
+#include <boost/program_options/parsers.hpp>
+#include <boost/program_options/variables_map.hpp>
 #include <boost/property_tree/json_parser.hpp>
+#include <boost/property_tree/ptree_fwd.hpp>
 
 namespace Gem::Common {
 

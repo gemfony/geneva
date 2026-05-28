@@ -48,6 +48,8 @@
  */
 
 #include "common/GThreadGroup.hpp"
+#include <cstddef>
+#include <mutex>
 
 namespace Gem::Common {
 

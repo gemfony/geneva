@@ -43,6 +43,9 @@
  */
 
 #include "common/GFormulaParserT.hpp"
+#include "common/GExceptions.hpp"
+#include <string>
+#include <utility>
 
 namespace Gem::Common {
 
