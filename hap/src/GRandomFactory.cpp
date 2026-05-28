@@ -176,8 +176,7 @@ seed_type GRandomFactory::getSeed() {
  * the continuous allocation and deletion of new buffers. Note that this function
  * may delete its argument if it cannot be added to the buffer.
  *
- * @param r A pointer to a partially used work package
- * @param current_pos The first position in the array that holds unused random numbers
+ * @param p A pointer to a partially used work package
  */
 void GRandomFactory::returnUsedPackage(std::unique_ptr<random_container> &&p) {
     // We try to add the item to the p_ret_bfr_ queue.
@@ -193,7 +192,7 @@ void GRandomFactory::returnUsedPackage(std::unique_ptr<random_container> &&p) {
  * the rationale of the double checked locking pattern. Note that only an
  * increase of the number of threads is allowed when threads are already running.
  *
- * @param n01Threads The number of threads simultaneously producing random numbers
+ * @param n_producer_threads The number of threads simultaneously producing random numbers
  */
 void GRandomFactory::setNProducerThreads(const std::uint16_t &n_producer_threads) {
     // Threads might already be running, so we need to regulate access
