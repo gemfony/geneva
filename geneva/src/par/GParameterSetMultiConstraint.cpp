@@ -55,7 +55,7 @@ namespace Gem::Geneva::Parameters {
 void GParameterSetConstraint::compare_(
     const GPreEvaluationValidityCheckT<GParameterSet> &cp,
     const Gem::Common::expectation &e,
-    const double & /*limit*/
+    [[maybe_unused]] const double & limit
 ) const {
     using namespace Gem::Common;
 
@@ -123,7 +123,7 @@ GParameterSetFormulaConstraint::GParameterSetFormulaConstraint(std::string raw_f
 void GParameterSetFormulaConstraint::compare_(
     const GPreEvaluationValidityCheckT<GParameterSet> &cp,
     const Gem::Common::expectation &e,
-    const double & /*limit*/
+    [[maybe_unused]] const double & limit
 ) const {
     using namespace Gem::Common;
 

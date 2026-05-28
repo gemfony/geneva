@@ -63,7 +63,7 @@ public:
         }
     }
 
-    void compare(TestItem const &other, expectation e, double /*limit*/) const {
+    void compare(TestItem const &other, expectation e, [[maybe_unused]] double limit) const {
         bool eq = (value == other.value);
         if(e == expectation::INEQUALITY ? eq : not eq) {
             throw g_expectation_violation("TestItem compare mismatch");

@@ -1402,7 +1402,7 @@ private:
          *
          * @return true if this process is an MPI worker (i.e. a client), false for the master
          */
-    [[nodiscard]] bool determineClientMode_(bool /* requested_client_mode */) const override {
+    [[nodiscard]] bool determineClientMode_([[maybe_unused]] bool requested_client_mode) const override {
         return isWorkerNode();
     }
 

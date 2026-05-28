@@ -76,7 +76,7 @@ struct SerBase : Gem::Common::gemfony_common_interface_indicator {
 
     bool operator==(const SerBase &o) const { return v == o.v; }
 
-    void compare(const SerBase &cp, Gem::Common::expectation e, double /*limit*/) const {
+    void compare(const SerBase &cp, Gem::Common::expectation e, [[maybe_unused]] double limit) const {
         if((e == Gem::Common::expectation::EQUALITY ||
             e == Gem::Common::expectation::FP_SIMILARITY) && v != cp.v) {
             throw g_expectation_violation("SerBase: values differ");
@@ -125,7 +125,7 @@ struct TestBase : Gem::Common::gemfony_common_interface_indicator {
     void compare(
         const TestBase &cp,
         Gem::Common::expectation e,
-        double /*limit*/
+        [[maybe_unused]] double limit
     ) const {
         if(e == Gem::Common::expectation::EQUALITY || e == Gem::Common::expectation::FP_SIMILARITY) {
             if(val != cp.val) {

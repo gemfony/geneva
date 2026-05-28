@@ -77,7 +77,7 @@ GParameterBase *GConstrainedInt32ObjectCollection::clone_() const {
 void GConstrainedInt32ObjectCollection::compare_(
     const GParameterBase &cp,
     const Gem::Common::expectation &e,
-    const double & /*limit*/
+    [[maybe_unused]] const double & limit
 ) const {
     using namespace Gem::Common;
 

@@ -75,7 +75,7 @@ GAdaptorT<std::int32_t> *GInt32FlipAdaptor::clone_() const {
 void GInt32FlipAdaptor::compare_(
     const GAdaptorT<std::int32_t> &cp,
     const Gem::Common::expectation &e,
-    const double & /*limit*/
+    [[maybe_unused]] const double & limit
 ) const {
     using namespace Gem::Common;
 

@@ -121,7 +121,7 @@ std::string GStandardMonitor::name_() const {
 void GStandardMonitor::compare_(
     const oa::GBasePluggableOM &cp,
     const Gem::Common::expectation &e,
-    const double & /*limit*/
+    [[maybe_unused]] const double & limit
 ) const {
     using namespace Gem::Common;
 
@@ -499,7 +499,7 @@ std::string GFitnessMonitor::name_() const {
 void GFitnessMonitor::compare_(
     const oa::GBasePluggableOM &cp,
     const Gem::Common::expectation &e,
-    const double & /*limit*/
+    [[maybe_unused]] const double & limit
 ) const {
     using namespace Gem::Common;
 
@@ -683,7 +683,7 @@ std::string GCollectiveMonitor::name_() const {
 void GCollectiveMonitor::compare_(
     const oa::GBasePluggableOM &cp,
     const Gem::Common::expectation &e,
-    const double & /*limit*/
+    [[maybe_unused]] const double & limit
 ) const {
     using namespace Gem::Common;
 
@@ -833,7 +833,7 @@ std::string GAllSolutionFileLogger::name_() const {
 void GAllSolutionFileLogger::compare_(
     const oa::GBasePluggableOM &cp,
     const Gem::Common::expectation &e,
-    const double & /*limit*/
+    [[maybe_unused]] const double & limit
 ) const {
     using namespace Gem::Common;
 
@@ -1212,7 +1212,7 @@ std::string GIterationResultsFileLogger::name_() const {
 void GIterationResultsFileLogger::compare_(
     const oa::GBasePluggableOM &cp,
     const Gem::Common::expectation &e,
-    const double & /*limit*/
+    [[maybe_unused]] const double & limit
 ) const {
     using namespace Gem::Common;
 
@@ -1472,7 +1472,7 @@ GNAdpationsLogger::GNAdpationsLogger(const GNAdpationsLogger &cp)
 void GNAdpationsLogger::compare_(
     const oa::GBasePluggableOM &cp,
     const Gem::Common::expectation &e,
-    const double & /*limit*/
+    [[maybe_unused]] const double & limit
 ) const {
     using namespace Gem::Common;
 
@@ -1838,7 +1838,7 @@ std::string GProcessingTimesLogger::name_() const {
 void GProcessingTimesLogger::compare_(
     const oa::GBasePluggableOM &cp,
     const Gem::Common::expectation &e,
-    const double & /*limit*/
+    [[maybe_unused]] const double & limit
 ) const {
     using namespace Gem::Common;
 

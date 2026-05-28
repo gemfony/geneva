@@ -234,7 +234,7 @@ GParsableI &GParsableI::operator<<(commentLevel const &cl) {
 /**
  * Allows to switch to the next comment level
  */
-GParsableI &GParsableI::operator<<(nextComment const & /*nC*/) {
+GParsableI &GParsableI::operator<<([[maybe_unused]] nextComment const & nC) {
 #ifdef DEBUG
     if(comment_.empty()) {
         throw geneva_exception(

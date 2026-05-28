@@ -404,20 +404,20 @@ public:
     GNeuralNetworkIndividual();
     /** @brief A constructor which initializes the individual with a suitable set of network layers */
     GNeuralNetworkIndividual(
-        const double & /* min */,
-        const double & /* max */
+        [[maybe_unused]] const double & min,
+        [[maybe_unused]] const double & max
         ,
-        const double & /* sigma */,
-        const double & /* sigma_sigma */
+        [[maybe_unused]] const double & sigma,
+        [[maybe_unused]] const double & sigma_sigma
         ,
-        const double & /* min_sigma */,
-        const double & /* max_sigma */
+        [[maybe_unused]] const double & min_sigma,
+        [[maybe_unused]] const double & max_sigma
         ,
-        const double & /* ad_prob */,
-        const double & /* adapt_ad_prob */
+        [[maybe_unused]] const double & ad_prob,
+        [[maybe_unused]] const double & adapt_ad_prob
         ,
-        const double & /* min_ad_prob */,
-        const double & /* max_ad_prob */
+        [[maybe_unused]] const double & min_ad_prob,
+        [[maybe_unused]] const double & max_ad_prob
     );
     /** @brief A standard copy constructor */
     GNeuralNetworkIndividual(const GNeuralNetworkIndividual &cp);
@@ -427,20 +427,20 @@ public:
 
     /** @brief Initialization according to user-specifications */
     void init(
-        const double & /* min */,
-        const double & /* max */
+        [[maybe_unused]] const double & min,
+        [[maybe_unused]] const double & max
         ,
-        const double & /* sigma */,
-        const double & /* sigma_sigma */
+        [[maybe_unused]] const double & sigma,
+        [[maybe_unused]] const double & sigma_sigma
         ,
-        const double & /* min_sigma */,
-        const double & /* max_sigma */
+        [[maybe_unused]] const double & min_sigma,
+        [[maybe_unused]] const double & max_sigma
         ,
-        const double & /* ad_prob */,
-        const double & /* adapt_ad_prob */
+        [[maybe_unused]] const double & ad_prob,
+        [[maybe_unused]] const double & adapt_ad_prob
         ,
-        const double & /* min_ad_prob */,
-        const double & /* max_ad_prob */
+        [[maybe_unused]] const double & min_ad_prob,
+        [[maybe_unused]] const double & max_ad_prob
     );
 
     /** @brief Sets the type of the transfer function */

@@ -233,7 +233,7 @@ private:
 	  * @param hidden Command line options that should only be visible upon request
 	  */
     void addCLOptions_(
-        boost::program_options::options_description & /*visible*/
+        [[maybe_unused]] boost::program_options::options_description & visible
         ,
         boost::program_options::options_description &hidden
     ) override {

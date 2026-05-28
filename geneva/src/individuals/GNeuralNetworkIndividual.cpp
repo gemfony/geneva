@@ -145,7 +145,7 @@ trainingSet &trainingSet::operator=(const trainingSet &cp) {
 void trainingSet::compare(
     const trainingSet &cp,
     const Gem::Common::expectation &e,
-    const double & /*limit*/
+    [[maybe_unused]] const double & limit
 ) const {
     using namespace Gem::Common;
 
@@ -256,7 +256,7 @@ networkData &networkData::operator=(const networkData &cp) {
 void networkData::compare(
     const networkData &cp,
     const Gem::Common::expectation &e,
-    const double & /*limit*/
+    [[maybe_unused]] const double & limit
 ) const {
     Gem::Common::GToken token("networkData", e);
 
@@ -685,7 +685,7 @@ GNeuralNetworkIndividual::~GNeuralNetworkIndividual() { /* nothing */
 void GNeuralNetworkIndividual::compare_(
     const gpar::GParameterSet &cp,
     const Gem::Common::expectation &e,
-    const double & /*limit*/
+    [[maybe_unused]] const double & limit
 ) const {
     using namespace Gem::Common;
 
@@ -1592,7 +1592,7 @@ transferFunction GNeuralNetworkIndividualFactory::getTransferFunction() const {
  */
 std::shared_ptr<gpar::GParameterSet> GNeuralNetworkIndividualFactory::getObject_(
     Gem::Common::GParserBuilder &gpb,
-    const std::size_t & /*id*/
+    [[maybe_unused]] const std::size_t & id
 ) {
     // Will hold the result
     std::shared_ptr<GNeuralNetworkIndividual> target(new GNeuralNetworkIndividual());

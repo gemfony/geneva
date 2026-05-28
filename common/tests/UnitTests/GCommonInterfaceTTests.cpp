@@ -66,7 +66,7 @@ protected:
         if(cp) v_ = cp->v_;
     }
 
-    void compare_(TestObj const &cp, expectation const &e, double const & /*limit*/) const override {
+    void compare_(TestObj const &cp, expectation const &e, [[maybe_unused]] double const & limit) const override {
         GToken token("TestObj", e);
         compare_base_t<GCommonInterfaceT<TestObj>>(*this, cp, token);
         compare_t(IDENTITY(v_, cp.v_), token);
@@ -82,7 +82,7 @@ protected:
 private:
     friend class boost::serialization::access;
     template <class Archive>
-    void serialize(Archive &ar, unsigned int /*version*/) {
+    void serialize(Archive &ar, [[maybe_unused]] unsigned int version) {
         ar &BOOST_SERIALIZATION_NVP(v_);
     }
 

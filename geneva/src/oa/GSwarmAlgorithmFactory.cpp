@@ -99,7 +99,7 @@ std::string GSwarmAlgorithmFactory::getAlgorithmName() const {
  */
 std::shared_ptr<GBase> GSwarmAlgorithmFactory::getObject_(
     Gem::Common::GParserBuilder &gpb,
-    const std::size_t & /*id*/
+    [[maybe_unused]] const std::size_t & id
 ) {
     std::shared_ptr<GSwarmAlgorithm> target(new GSwarmAlgorithm());
 

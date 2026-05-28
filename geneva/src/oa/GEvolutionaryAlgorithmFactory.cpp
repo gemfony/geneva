@@ -103,7 +103,7 @@ std::string GEvolutionaryAlgorithmFactory::getAlgorithmName() const {
  */
 std::shared_ptr<GBase> GEvolutionaryAlgorithmFactory::getObject_(
     Gem::Common::GParserBuilder &gpb,
-    const std::size_t & /*id*/
+    [[maybe_unused]] const std::size_t & id
 ) {
     std::shared_ptr<GEvolutionaryAlgorithm> target(new GEvolutionaryAlgorithm());
 

@@ -270,7 +270,7 @@ private:
             ws_.next_layer(),
             results.begin(),
             results.end(),
-            [self](boost::system::error_code ec, auto /* unused */) { self->when_connected(ec); }
+            [self](boost::system::error_code ec, [[maybe_unused]] auto unused) { self->when_connected(ec); }
         );
     }
 
@@ -344,7 +344,7 @@ private:
 	  */
     void when_written(
         boost::system::error_code ec,
-        std::size_t /* nothing */
+        [[maybe_unused]] std::size_t nothing
     ) {
         if(ec) {
             glogger << "In GWebsocketClientT<processable_type>::when_written():" << '\n'
@@ -372,7 +372,7 @@ private:
 	  */
     void when_read(
         boost::system::error_code ec,
-        std::size_t /* nothing */
+        [[maybe_unused]] std::size_t nothing
     ) {
         if(ec) {
             glogger << "In GWebsocketClientT<processable_type>::when_read():" << '\n'
@@ -891,7 +891,7 @@ private:
 	  */
     void when_read(
         boost::system::error_code ec,
-        std::size_t /* nothing */
+        [[maybe_unused]] std::size_t nothing
     ) {
         if(ec) {
             if(ec != boost::beast::websocket::error::closed) {
@@ -916,7 +916,7 @@ private:
 	  */
     void when_written(
         boost::system::error_code ec,
-        std::size_t /* nothing */
+        [[maybe_unused]] std::size_t nothing
     ) {
         if(ec) {
             if(ec != boost::beast::websocket::error::closed) {

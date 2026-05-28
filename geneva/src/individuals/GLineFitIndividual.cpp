@@ -103,7 +103,7 @@ GLineFitIndividual::~GLineFitIndividual() { /* nothing */
 void GLineFitIndividual::compare_(
     const gpar::GParameterSet &cp,
     const Gem::Common::expectation &e,
-    const double & /*limit*/
+    [[maybe_unused]] const double & limit
 ) const {
     using namespace Gem::Common;
 
@@ -288,7 +288,7 @@ GLineFitIndividualFactory::~GLineFitIndividualFactory() { /* nothing */
  */
 std::shared_ptr<gpar::GParameterSet> GLineFitIndividualFactory::getObject_(
     Gem::Common::GParserBuilder &gpb,
-    const std::size_t & /*id*/
+    [[maybe_unused]] const std::size_t & id
 ) {
     // Will hold the result
     std::shared_ptr<GLineFitIndividual> target(new GLineFitIndividual(this->data_points_));

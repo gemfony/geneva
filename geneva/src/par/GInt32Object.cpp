@@ -126,7 +126,7 @@ GParameterBase *GInt32Object::clone_() const {
 void GInt32Object::compare_(
     const GParameterBase &cp,
     const Gem::Common::expectation &e,
-    const double & /*limit*/
+    [[maybe_unused]] const double & limit
 ) const {
     using namespace Gem::Common;
 
@@ -160,7 +160,7 @@ std::string GInt32Object::name_() const {
  */
 void GInt32Object::int32Streamline(
     std::vector<std::int32_t> &par_vec,
-    const activityMode & /*am*/
+    [[maybe_unused]] const activityMode & am
 ) const {
     par_vec.push_back(this->value());
 }
@@ -171,7 +171,7 @@ void GInt32Object::int32Streamline(
  */
 void GInt32Object::int32Streamline(
     std::map<std::string, std::vector<std::int32_t>> &par_vec,
-    const activityMode & /*am*/
+    [[maybe_unused]] const activityMode & am
 ) const {
 #ifdef DEBUG
     if((this->getParameterName()).empty()) {
@@ -198,7 +198,7 @@ void GInt32Object::int32Streamline(
 void GInt32Object::int32Boundaries(
     std::vector<std::int32_t> &l_bnd_vec,
     std::vector<std::int32_t> &u_bnd_vec,
-    const activityMode & /*am*/
+    [[maybe_unused]] const activityMode & am
 ) const {
     l_bnd_vec.push_back(this->getLowerInitBoundary());
     u_bnd_vec.push_back(this->getUpperInitBoundary());
@@ -211,7 +211,7 @@ void GInt32Object::int32Boundaries(
  * @return The number 1, as we own a single std::int32_t parameter
  */
 std::size_t GInt32Object::countInt32Parameters(
-    const activityMode & /*am*/
+    [[maybe_unused]] const activityMode & am
 ) const {
     return 1;
 }
@@ -223,7 +223,7 @@ std::size_t GInt32Object::countInt32Parameters(
 void GInt32Object::assignInt32ValueVector(
     const std::vector<std::int32_t> &par_vec,
     std::size_t &pos,
-    const activityMode & /*am*/
+    [[maybe_unused]] const activityMode & am
 ) {
 #ifdef DEBUG
     // Do we have a valid position ?
@@ -249,7 +249,7 @@ void GInt32Object::assignInt32ValueVector(
  */
 void GInt32Object::assignInt32ValueVectors(
     const std::map<std::string, std::vector<std::int32_t>> &par_map,
-    const activityMode & /*am*/
+    [[maybe_unused]] const activityMode & am
 ) {
     this->setValue((Gem::Common::getMapItem(par_map, this->getParameterName())).at(0));
 }
@@ -261,7 +261,7 @@ void GInt32Object::assignInt32ValueVectors(
 void GInt32Object::int32MultiplyByRandom(
     const std::int32_t &min,
     const std::int32_t &max,
-    const activityMode & /*am*/
+    [[maybe_unused]] const activityMode & am
     ,
     Gem::Hap::GRandomBase &gr // NOLINT(misc-unused-parameters)
 ) {
@@ -276,7 +276,7 @@ void GInt32Object::int32MultiplyByRandom(
  * Multiplication with a random DOUBLE value in the range [0,1[
  */
 void GInt32Object::int32MultiplyByRandom(
-    const activityMode & /*am*/
+    [[maybe_unused]] const activityMode & am
     ,
     Gem::Hap::GRandomBase &gr // NOLINT(misc-unused-parameters)
 ) {
@@ -311,7 +311,7 @@ void GInt32Object::int32FixedValueInit(const std::int32_t &val, const activityMo
  */
 void GInt32Object::int32Add(
     std::shared_ptr<GParameterBase> p_base,
-    const activityMode & /*am*/
+    [[maybe_unused]] const activityMode & am
 ) {
     // We first need to convert p_base into the local type
     std::shared_ptr<GInt32Object> p = GParameterBase::parameterbase_cast<GInt32Object>(p_base);
@@ -324,7 +324,7 @@ void GInt32Object::int32Add(
  */
 void GInt32Object::int32Subtract(
     std::shared_ptr<GParameterBase> p_base,
-    const activityMode & /*am*/
+    [[maybe_unused]] const activityMode & am
 ) {
     // We first need to convert p_base into the local type
     std::shared_ptr<GInt32Object> p = GParameterBase::parameterbase_cast<GInt32Object>(p_base);

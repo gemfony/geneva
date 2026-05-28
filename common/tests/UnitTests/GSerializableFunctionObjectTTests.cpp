@@ -70,7 +70,7 @@ private:
 // operator()'s boolean return.
 class AlwaysFail : public GSerializableFunctionObjectT<Item> {
 protected:
-    bool process_(Item & /*p*/) override { return false; }
+    bool process_([[maybe_unused]] Item & p) override { return false; }
     AlwaysFail *clone_() const override { return new AlwaysFail(*this); }
 };
 

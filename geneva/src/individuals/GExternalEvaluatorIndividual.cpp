@@ -106,7 +106,7 @@ GExternalEvaluatorIndividual::~GExternalEvaluatorIndividual() { /* nothing */
 void GExternalEvaluatorIndividual::compare_(
     const gpar::GParameterSet &cp,
     const Gem::Common::expectation &e,
-    const double & /*limit*/
+    [[maybe_unused]] const double & limit
 ) const {
     // Check that we are dealing with a GExternalEvaluatorIndividual reference independent of this object and convert the pointer
     const GExternalEvaluatorIndividual *p_load =
@@ -1326,7 +1326,7 @@ void GExternalEvaluatorIndividualFactory::archive(
  */
 std::shared_ptr<gpar::GParameterSet> GExternalEvaluatorIndividualFactory::getObject_(
     Gem::Common::GParserBuilder &gpb,
-    const std::size_t & /*id*/
+    [[maybe_unused]] const std::size_t & id
 ) {
     // Will hold the result
     std::shared_ptr<GExternalEvaluatorIndividual> target(new GExternalEvaluatorIndividual());

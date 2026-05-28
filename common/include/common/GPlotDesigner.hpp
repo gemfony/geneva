@@ -264,7 +264,7 @@ class GDecorator<dimensions::Dim2, coordinate_type>
     friend class boost::serialization::access;
 
     template <typename Archive>
-    void serialize(Archive & /*ar*/, const unsigned int) {
+    void serialize([[maybe_unused]] Archive & ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
         /* nothing */
@@ -610,7 +610,7 @@ class GDecorator<dimensions::Dim3, coordinate_type>
     friend class boost::serialization::access;
 
     template <typename Archive>
-    void serialize(Archive & /*ar*/, const unsigned int) {
+    void serialize([[maybe_unused]] Archive & ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
         // nothing
@@ -1632,7 +1632,7 @@ protected:
     void compare_(
         const GBasePlotter &cp,
         const expectation &e,
-        const double & /*limit*/
+        [[maybe_unused]] const double & limit
     ) const override {
         // Check that we are dealing with a GDataCollector1T<x_type> reference independent of this object and convert the pointer
         const auto *p_load = g_convert_and_compare(cp, this);
@@ -2159,7 +2159,7 @@ protected:
     void compare_(
         const GBasePlotter &cp,
         const expectation &e,
-        const double & /*limit*/
+        [[maybe_unused]] const double & limit
     ) const override {
         // Check that we are dealing with a GDataCollector2T<x_type, y_type> reference independent of this object and convert the pointer
         const auto *p_load = g_convert_and_compare(cp, this);
@@ -2485,7 +2485,7 @@ protected:
     void compare_(
         const GBasePlotter &cp,
         const expectation &e,
-        const double & /*limit*/
+        [[maybe_unused]] const double & limit
     ) const override {
         // Check that we are dealing with a GDataCollector2ET<x_type, y_type> reference independent of this object and convert the pointer
         const auto *p_load = g_convert_and_compare(cp, this);
@@ -3101,7 +3101,7 @@ protected:
     void compare_(
         const GBasePlotter &cp,
         const expectation &e,
-        const double & /*limit*/
+        [[maybe_unused]] const double & limit
     ) const override {
         // Check that we are dealing with a GDataCollector2T<x_type, y_type> reference independent of this object and convert the pointer
         const auto *p_load = g_convert_and_compare(cp, this);
@@ -3621,7 +3621,7 @@ protected:
     void compare_(
         const GBasePlotter &cp,
         const expectation &e,
-        const double & /*limit*/
+        [[maybe_unused]] const double & limit
     ) const override {
         // Check that we are dealing with a GDataCollector2T<x_type, y_type> reference independent of this object and convert the pointer
         const auto *p_load = g_convert_and_compare(cp, this);

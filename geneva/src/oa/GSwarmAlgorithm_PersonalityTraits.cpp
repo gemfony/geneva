@@ -83,7 +83,7 @@ GSwarmAlgorithm_PersonalityTraits::GSwarmAlgorithm_PersonalityTraits(
 void GSwarmAlgorithm_PersonalityTraits::compare_(
     const GPersonalityTraits &cp,
     const Gem::Common::expectation &e,
-    const double & /*limit*/
+    [[maybe_unused]] const double & limit
 ) const {
     using namespace Gem::Common;
 

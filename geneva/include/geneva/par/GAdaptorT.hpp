@@ -647,7 +647,7 @@ public:
 	  */
     virtual bool updateOnStall(
         const std::size_t &n_stalls,
-        const T & /*range*/
+        [[maybe_unused]] const T & range
     ) {
 #ifdef DEBUG
         if(0 == n_stalls) {
@@ -796,7 +796,7 @@ protected:
     void compare_(
         const GAdaptorT<T, fp_type> &cp,
         const Gem::Common::expectation &e,
-        const double & /*limit*/
+        [[maybe_unused]] const double & limit
     ) const override {
         using namespace Gem::Common;
 
@@ -852,7 +852,7 @@ protected:
 	  * this function will simply return false.
 	  */
     virtual bool customQueryProperty(
-        const std::string & /*property*/
+        [[maybe_unused]] const std::string & property
         ,
         std::vector<std::any> &data
     ) const {

@@ -169,7 +169,7 @@ protected:
     void compare_(
         const GParameterBase &cp,
         const Gem::Common::expectation &e,
-        const double & /*limit*/
+        [[maybe_unused]] const double & limit
     ) const override {
         using namespace Gem::Common;
 
@@ -195,7 +195,7 @@ protected:
      * that is added later will remain unaffected.
      */
     bool randomInit_(
-        const activityMode & /*am*/
+        [[maybe_unused]] const activityMode & am
         ,
         Gem::Hap::GRandomBase &gr
     ) override {

@@ -105,7 +105,7 @@ GParameterBase *GInt32Collection::clone_() const {
 void GInt32Collection::compare_(
     const GParameterBase &cp,
     const Gem::Common::expectation &e,
-    const double & /*limit*/
+    [[maybe_unused]] const double & limit
 ) const {
     using namespace Gem::Common;
 
@@ -139,7 +139,7 @@ std::string GInt32Collection::name_() const {
  */
 void GInt32Collection::int32Streamline(
     std::vector<std::int32_t> &par_vec,
-    const activityMode & /*am*/
+    [[maybe_unused]] const activityMode & am
 ) const {
     GInt32Collection::const_iterator cit;
     for(cit = this->begin(); cit != this->end(); ++cit) {
@@ -181,7 +181,7 @@ void GInt32Collection::int32Streamline(
 void GInt32Collection::int32Boundaries(
     std::vector<std::int32_t> &l_bnd_vec,
     std::vector<std::int32_t> &u_bnd_vec,
-    const activityMode & /*am*/
+    [[maybe_unused]] const activityMode & am
 ) const {
     // Add as man lower and upper boundaries to the vector as
     // there are variables
@@ -200,7 +200,7 @@ void GInt32Collection::int32Boundaries(
  * @return The number of std::int32_t parameters
  */
 std::size_t GInt32Collection::countInt32Parameters(
-    const activityMode & /*am*/
+    [[maybe_unused]] const activityMode & am
 ) const {
     return this->size();
 }
@@ -212,7 +212,7 @@ std::size_t GInt32Collection::countInt32Parameters(
 void GInt32Collection::assignInt32ValueVector(
     const std::vector<std::int32_t> &par_vec,
     std::size_t &pos,
-    const activityMode & /*am*/
+    [[maybe_unused]] const activityMode & am
 ) {
     for(int & it : *this) {
 #ifdef DEBUG
@@ -240,7 +240,7 @@ void GInt32Collection::assignInt32ValueVector(
  */
 void GInt32Collection::assignInt32ValueVectors(
     const std::map<std::string, std::vector<std::int32_t>> &par_map,
-    const activityMode & /*am*/
+    [[maybe_unused]] const activityMode & am
 ) {
     GInt32Collection::iterator it;
     std::size_t cnt = 0;
@@ -256,7 +256,7 @@ void GInt32Collection::assignInt32ValueVectors(
 void GInt32Collection::int32MultiplyByRandom(
     const std::int32_t &min,
     const std::int32_t &max,
-    const activityMode & /*am*/
+    [[maybe_unused]] const activityMode & am
     ,
     Gem::Hap::GRandomBase &gr // NOLINT(misc-unused-parameters)
 ) {
@@ -274,7 +274,7 @@ void GInt32Collection::int32MultiplyByRandom(
  * Multiplication with a DOUBLE random value in the range [0,1[
  */
 void GInt32Collection::int32MultiplyByRandom(
-    const activityMode & /*am*/
+    [[maybe_unused]] const activityMode & am
     ,
     Gem::Hap::GRandomBase &gr // NOLINT(misc-unused-parameters)
 ) {
@@ -296,7 +296,7 @@ void GInt32Collection::int32MultiplyByRandom(
 void GInt32Collection::int32MultiplyBy(
     const std::int32_t &val // NOLINT(misc-unused-parameters)
     ,
-    const activityMode & /*am*/
+    [[maybe_unused]] const activityMode & am
 ) {
     for(std::size_t pos = 0; pos < this->size(); pos++) {
         GParameterCollectionT<std::int32_t>::setValue(pos, val * this->value(pos));
@@ -310,7 +310,7 @@ void GInt32Collection::int32MultiplyBy(
 void GInt32Collection::int32FixedValueInit(
     const std::int32_t &val // NOLINT(misc-unused-parameters)
     ,
-    const activityMode & /*am*/
+    [[maybe_unused]] const activityMode & am
 ) {
     for(std::size_t pos = 0; pos < this->size(); pos++) {
         GParameterCollectionT<std::int32_t>::setValue(pos, val);
@@ -323,7 +323,7 @@ void GInt32Collection::int32FixedValueInit(
  */
 void GInt32Collection::int32Add(
     std::shared_ptr<GParameterBase> p_base,
-    const activityMode & /*am*/
+    [[maybe_unused]] const activityMode & am
 ) {
     // We first need to convert p_base into the local type
     std::shared_ptr<GInt32Collection> p =
@@ -349,7 +349,7 @@ void GInt32Collection::int32Add(
  */
 void GInt32Collection::int32Subtract(
     std::shared_ptr<GParameterBase> p_base,
-    const activityMode & /*am*/
+    [[maybe_unused]] const activityMode & am
 ) {
     // We first need to convert p_base into the local type
     std::shared_ptr<GInt32Collection> p =

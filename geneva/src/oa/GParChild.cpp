@@ -77,7 +77,7 @@ GParChild::GParChild() {
 void GParChild::compare_(
     const GBase &cp,
     const Gem::Common::expectation &e,
-    const double & /*limit*/
+    [[maybe_unused]] const double & limit
 ) const {
     using namespace Gem::Common;
 

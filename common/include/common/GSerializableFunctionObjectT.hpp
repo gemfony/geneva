@@ -63,7 +63,7 @@ class GSerializableFunctionObjectT
     friend class boost::serialization::access;
 
     template <typename Archive>
-    void serialize(Archive & /*ar*/, const unsigned int) {
+    void serialize([[maybe_unused]] Archive & ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
         /* nothing */
@@ -129,7 +129,7 @@ protected:
     void compare_(
         const GSerializableFunctionObjectT<processable_type> &cp,
         const Gem::Common::expectation &e,
-        const double & /*limit*/
+        [[maybe_unused]] const double & limit
     ) const override {
         using namespace Gem::Common;
 

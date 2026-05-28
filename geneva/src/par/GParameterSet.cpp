@@ -304,7 +304,7 @@ GParameterSet::GParameterSet(GParameterSet const &cp)
 void GParameterSet::compare_(
     GParameterSet const &cp,
     Gem::Common::expectation const &e,
-    double const & /*limit*/
+    [[maybe_unused]] double const & limit
 ) const {
     using namespace Gem::Common;
 

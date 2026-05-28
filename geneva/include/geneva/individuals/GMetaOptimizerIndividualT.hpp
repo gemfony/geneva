@@ -902,7 +902,7 @@ protected:
     void compare_(
         const gpar::GParameterSet &cp,
         const Gem::Common::expectation &e,
-        const double & /*limit*/
+        [[maybe_unused]] const double & limit
     ) const final {
         // Check that we are dealing with a GMetaOptimizerIndividualT<ind_type> reference independent of this object and convert the pointer
         const GMetaOptimizerIndividualT<ind_type> *p_load =
@@ -1679,7 +1679,7 @@ private:
      */
     std::shared_ptr<gpar::GParameterSet> getObject_(
         Gem::Common::GParserBuilder &gpb,
-        const std::size_t & /*id*/
+        [[maybe_unused]] const std::size_t & id
     ) override {
         // Will hold the result
         std::shared_ptr<GMetaOptimizerIndividualT<ind_type>> target(
@@ -1921,7 +1921,7 @@ protected:
     void compare_(
         const oa::GBasePluggableOM &cp,
         const Gem::Common::expectation &e,
-        const double & /*limit*/
+        [[maybe_unused]] const double & limit
     ) const override {
         using namespace Gem::Common;
 

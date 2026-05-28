@@ -107,7 +107,7 @@ GParameterBase *GDoubleCollection::clone_() const {
 void GDoubleCollection::compare_(
     const GParameterBase &cp,
     const Gem::Common::expectation &e,
-    const double & /*limit*/
+    [[maybe_unused]] const double & limit
 ) const {
     using namespace Gem::Common;
 
@@ -141,7 +141,7 @@ std::string GDoubleCollection::name_() const {
  */
 void GDoubleCollection::doubleStreamline(
     std::vector<double> &par_vec,
-    const activityMode & /*am*/
+    [[maybe_unused]] const activityMode & am
 ) const {
     GDoubleCollection::const_iterator cit;
     for(cit = this->begin(); cit != this->end(); ++cit) {
@@ -182,7 +182,7 @@ void GDoubleCollection::doubleStreamline(
 void GDoubleCollection::doubleBoundaries(
     std::vector<double> &l_bnd_vec,
     std::vector<double> &u_bnd_vec,
-    const activityMode & /*am*/
+    [[maybe_unused]] const activityMode & am
 ) const {
     // Add as man lower and upper boundaries to the vector as
     // there are variables
@@ -200,7 +200,7 @@ void GDoubleCollection::doubleBoundaries(
  * @return The number of double parameters
  */
 std::size_t GDoubleCollection::countDoubleParameters(
-    const activityMode & /*am*/
+    [[maybe_unused]] const activityMode & am
 ) const {
     return this->size();
 }
@@ -212,7 +212,7 @@ std::size_t GDoubleCollection::countDoubleParameters(
 void GDoubleCollection::assignDoubleValueVector(
     const std::vector<double> &par_vec,
     std::size_t &pos,
-    const activityMode & /*am*/
+    [[maybe_unused]] const activityMode & am
 ) {
     for(double & it : *this) {
 #ifdef DEBUG
@@ -240,7 +240,7 @@ void GDoubleCollection::assignDoubleValueVector(
  */
 void GDoubleCollection::assignDoubleValueVectors(
     const std::map<std::string, std::vector<double>> &par_map,
-    const activityMode & /*am*/
+    [[maybe_unused]] const activityMode & am
 ) {
     GDoubleCollection::iterator it;
     std::size_t cnt = 0;
@@ -256,7 +256,7 @@ void GDoubleCollection::assignDoubleValueVectors(
 void GDoubleCollection::doubleMultiplyByRandom(
     const double &min,
     const double &max,
-    const activityMode & /*am*/
+    [[maybe_unused]] const activityMode & am
     ,
     Gem::Hap::GRandomBase &gr // NOLINT(misc-unused-parameters)
 ) {
@@ -274,7 +274,7 @@ void GDoubleCollection::doubleMultiplyByRandom(
  * Multiplication with a random value in the range [0,1[
  */
 void GDoubleCollection::doubleMultiplyByRandom(
-    const activityMode & /*am*/
+    [[maybe_unused]] const activityMode & am
     ,
     Gem::Hap::GRandomBase &gr // NOLINT(misc-unused-parameters)
 ) {
@@ -294,7 +294,7 @@ void GDoubleCollection::doubleMultiplyByRandom(
 void GDoubleCollection::doubleMultiplyBy(
     const double &val // NOLINT(misc-unused-parameters)
     ,
-    const activityMode & /*am*/
+    [[maybe_unused]] const activityMode & am
 ) {
     for(std::size_t pos = 0; pos < this->size(); pos++) {
         GParameterCollectionT<double>::setValue(pos, val * this->value(pos));
@@ -320,7 +320,7 @@ void GDoubleCollection::doubleFixedValueInit(
  */
 void GDoubleCollection::doubleAdd(
     std::shared_ptr<GParameterBase> p_base,
-    const activityMode & /*am*/
+    [[maybe_unused]] const activityMode & am
 ) {
     // We first need to convert p_base into the local type
     std::shared_ptr<GDoubleCollection> p =
@@ -346,7 +346,7 @@ void GDoubleCollection::doubleAdd(
  */
 void GDoubleCollection::doubleSubtract(
     std::shared_ptr<GParameterBase> p_base,
-    const activityMode & /*am*/
+    [[maybe_unused]] const activityMode & am
 ) {
     // We first need to convert p_base into the local type
     std::shared_ptr<GDoubleCollection> p =

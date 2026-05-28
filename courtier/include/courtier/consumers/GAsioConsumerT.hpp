@@ -206,7 +206,7 @@ private:
             *socket_ptr_,
             results.begin(),
             results.end(),
-            [self](boost::system::error_code ec, auto /* unused */) { self->when_connected(ec); }
+            [self](boost::system::error_code ec, [[maybe_unused]] auto unused) { self->when_connected(ec); }
         );
     }
 
@@ -276,7 +276,7 @@ private:
 	  */
     void when_written(
         boost::system::error_code ec,
-        std::size_t /* nothing */
+        [[maybe_unused]] std::size_t nothing
     ) {
         if(ec) {
             glogger << "In GAsioConsumerClientT<processable_type>::when_written():" << '\n'
@@ -320,7 +320,7 @@ private:
 	  */
     void when_read(
         boost::system::error_code ec,
-        std::size_t /* nothing */
+        [[maybe_unused]] std::size_t nothing
     ) {
         if(ec == boost::asio::error::eof) { // The expected outcome
             // Disconnect from the remote side by destroying the socket
@@ -544,7 +544,7 @@ private:
 	  */
     void when_read(
         boost::system::error_code ec,
-        std::size_t /* nothing */
+        [[maybe_unused]] std::size_t nothing
     ) {
         if(ec ==
            boost::asio::error::
@@ -601,7 +601,7 @@ private:
 	  */
     void when_written(
         boost::system::error_code ec,
-        std::size_t /* nothing */
+        [[maybe_unused]] std::size_t nothing
     ) {
         if(ec) {
             glogger << "GAsioConsumerSessionT<processable_type>::when_written(): " << '\n'

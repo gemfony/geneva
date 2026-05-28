@@ -101,7 +101,7 @@ std::string GEvolutionaryAlgorithmPostOptimizer::name_() const {
 void GEvolutionaryAlgorithmPostOptimizer::compare_(
     const Gem::Common::GSerializableFunctionObjectT<gpar::GParameterSet> &cp,
     const Gem::Common::expectation &e,
-    const double & /*limit*/
+    [[maybe_unused]] const double & limit
 ) const {
     using namespace Gem::Common;
 

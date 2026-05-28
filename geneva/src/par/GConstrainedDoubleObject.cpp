@@ -127,7 +127,7 @@ GParameterBase *GConstrainedDoubleObject::clone_() const {
 void GConstrainedDoubleObject::compare_(
     const GParameterBase &cp,
     const Gem::Common::expectation &e,
-    const double & /*limit*/
+    [[maybe_unused]] const double & limit
 ) const {
     using namespace Gem::Common;
 
@@ -161,7 +161,7 @@ std::string GConstrainedDoubleObject::name_() const {
  */
 void GConstrainedDoubleObject::doubleStreamline(
     std::vector<double> &par_vec,
-    const activityMode & /*am*/
+    [[maybe_unused]] const activityMode & am
 ) const {
     // Note: application of the transfer function happens in GConstrainedNumT inside value()
     par_vec.push_back(this->value());
@@ -173,7 +173,7 @@ void GConstrainedDoubleObject::doubleStreamline(
  */
 void GConstrainedDoubleObject::doubleStreamline(
     std::map<std::string, std::vector<double>> &par_vec,
-    const activityMode & /*am*/
+    [[maybe_unused]] const activityMode & am
 ) const {
     std::vector<double> parameters;
     // Note: application of the transfer function happens in GConstrainedNumT inside value()
@@ -188,7 +188,7 @@ void GConstrainedDoubleObject::doubleStreamline(
 void GConstrainedDoubleObject::doubleBoundaries(
     std::vector<double> &l_bnd_vec,
     std::vector<double> &u_bnd_vec,
-    const activityMode & /*am*/
+    [[maybe_unused]] const activityMode & am
 ) const {
     l_bnd_vec.push_back(this->getLowerBoundary());
     u_bnd_vec.push_back(this->getUpperBoundary());
@@ -202,7 +202,7 @@ void GConstrainedDoubleObject::doubleBoundaries(
  * @return The number 1, as we own a single double parameter
  */
 std::size_t GConstrainedDoubleObject::countDoubleParameters(
-    const activityMode & /*am*/
+    [[maybe_unused]] const activityMode & am
 ) const {
     return 1;
 }
@@ -215,7 +215,7 @@ std::size_t GConstrainedDoubleObject::countDoubleParameters(
 void GConstrainedDoubleObject::assignDoubleValueVector(
     const std::vector<double> &par_vec,
     std::size_t &pos,
-    const activityMode & /*am*/
+    [[maybe_unused]] const activityMode & am
 ) {
 #ifdef DEBUG
     // Do we have a valid position ?
@@ -241,7 +241,7 @@ void GConstrainedDoubleObject::assignDoubleValueVector(
  */
 void GConstrainedDoubleObject::assignDoubleValueVectors(
     const std::map<std::string, std::vector<double>> &par_map,
-    const activityMode & /*am*/
+    [[maybe_unused]] const activityMode & am
 ) {
     this->setValue(
         this->transfer(Gem::Common::getMapItem(par_map, this->getParameterName()).at(0))
@@ -255,7 +255,7 @@ void GConstrainedDoubleObject::assignDoubleValueVectors(
 void GConstrainedDoubleObject::doubleMultiplyByRandom(
     const double &min,
     const double &max,
-    const activityMode & /*am*/
+    [[maybe_unused]] const activityMode & am
     ,
     Gem::Hap::GRandomBase &gr // NOLINT(misc-unused-parameters)
 ) {
@@ -270,7 +270,7 @@ void GConstrainedDoubleObject::doubleMultiplyByRandom(
  * Multiplication with a random value in the range [0,1[
  */
 void GConstrainedDoubleObject::doubleMultiplyByRandom(
-    const activityMode & /*am*/
+    [[maybe_unused]] const activityMode & am
     ,
     Gem::Hap::GRandomBase &gr // NOLINT(misc-unused-parameters)
 ) {
@@ -302,7 +302,7 @@ void GConstrainedDoubleObject::doubleFixedValueInit(const double &val, const act
  */
 void GConstrainedDoubleObject::doubleAdd(
     std::shared_ptr<GParameterBase> p_base,
-    const activityMode & /*am*/
+    [[maybe_unused]] const activityMode & am
 ) {
     // We first need to convert p_base into the local type
     std::shared_ptr<GConstrainedDoubleObject> p =
@@ -316,7 +316,7 @@ void GConstrainedDoubleObject::doubleAdd(
  */
 void GConstrainedDoubleObject::doubleSubtract(
     std::shared_ptr<GParameterBase> p_base,
-    const activityMode & /*am*/
+    [[maybe_unused]] const activityMode & am
 ) {
     // We first need to convert p_base into the local type
     std::shared_ptr<GConstrainedDoubleObject> p =

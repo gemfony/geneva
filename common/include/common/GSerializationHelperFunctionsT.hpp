@@ -184,7 +184,7 @@ template <typename Archive>
 void save(
     Archive &ar,
     const Gem::Common::tribool &val,
-    unsigned int /*version*/
+    [[maybe_unused]] unsigned int version
 ) {
     Gem::Common::triboolStates tbs = Gem::Common::triboolStates::TBS_FALSE;
     if(val == Gem::Common::tribool::True) {
@@ -205,7 +205,7 @@ template <typename Archive>
 void load(
     Archive &ar,
     Gem::Common::tribool &val,
-    unsigned int /*version*/
+    [[maybe_unused]] unsigned int version
 ) {
     Gem::Common::triboolStates tbs = Gem::Common::triboolStates::TBS_FALSE;
     ar &make_nvp("tbs", tbs);
@@ -233,7 +233,7 @@ template <typename Archive>
 void save(
     Archive &ar,
     const std::chrono::duration<double> &val,
-    unsigned int /*version*/
+    [[maybe_unused]] unsigned int version
 ) {
     typename std::chrono::duration<double>::rep chrono_duration = val.count();
     ar &make_nvp("chrono_duration", chrono_duration);
@@ -247,7 +247,7 @@ template <typename Archive>
 void load(
     Archive &ar,
     std::chrono::duration<double> &val,
-    unsigned int /*version*/
+    [[maybe_unused]] unsigned int version
 ) {
     typename std::chrono::duration<double>::rep chrono_duration;
     ar &make_nvp("chrono_duration", chrono_duration);
@@ -262,7 +262,7 @@ template <typename Archive>
 void save(
     Archive &ar,
     std::chrono::high_resolution_clock::time_point const &val,
-    unsigned int /*version*/
+    [[maybe_unused]] unsigned int version
 ) {
     std::chrono::milliseconds::rep representation = Gem::Common::time_point_to_milliseconds(val);
     ar &make_nvp("timpoint_milliseconds", representation);
@@ -277,7 +277,7 @@ template <typename Archive>
 void load(
     Archive &ar,
     std::chrono::high_resolution_clock::time_point &val,
-    unsigned int /*version*/
+    [[maybe_unused]] unsigned int version
 ) {
     std::chrono::milliseconds::rep representation;
     ar &make_nvp("timpoint_milliseconds", representation);
@@ -292,7 +292,7 @@ template <typename Archive>
 void save(
     Archive &ar,
     const std::atomic<bool> &b,
-    unsigned int /*version*/
+    [[maybe_unused]] unsigned int version
 ) {
     bool value = b.load();
     ar &make_nvp("bool_val", value);
@@ -306,7 +306,7 @@ template <typename Archive>
 void load(
     Archive &ar,
     std::atomic<bool> &b,
-    unsigned int /*version*/
+    [[maybe_unused]] unsigned int version
 ) {
     bool value = false;
     ar &make_nvp("bool_val", value);

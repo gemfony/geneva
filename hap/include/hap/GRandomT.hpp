@@ -120,7 +120,7 @@ public:
 	 * should hold a unique set of random numbers. We use a delegating constructor
 	 * to make this happen.
 	 */
-    GRandomT(GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> const & /*cp*/) noexcept(false)
+    GRandomT([[maybe_unused]] GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> const & cp) noexcept(false)
       : GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY>() { /* nothing */
     }
 
@@ -142,7 +142,7 @@ public:
 	 * unique set of random numbers (compare copy constructor).
 	 */
     GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> &
-    operator=(GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> const & /*cp*/) noexcept(false) {
+    operator=([[maybe_unused]] GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> const & cp) noexcept(false) {
         return *this;
     }
 
@@ -265,7 +265,7 @@ public:
     /**
 	 * Copy construction does nothing, delegates to default constructor
 	 */
-    GRandomT(GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL> const & /*cp*/) noexcept(false)
+    GRandomT([[maybe_unused]] GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL> const & cp) noexcept(false)
       : GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL>() { /* nothing */
     }
 
@@ -273,7 +273,7 @@ public:
     /**
 	 * Move construction does nothing, delegates to default constructor
 	 */
-    GRandomT(GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL> && /*cp*/) noexcept(false)
+    GRandomT([[maybe_unused]] GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL> && cp) noexcept(false)
       : GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL>() { /* nothing */
     }
 
@@ -288,7 +288,7 @@ public:
 	 * Copy-assignment does nothing
 	 */
     GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL> &
-    operator=(GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL> const & /*cp*/) noexcept(
+    operator=([[maybe_unused]] GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL> const & cp) noexcept(
         false
     ) // NOLINT(cert-oop54-cpp) — intentionally trivial: each instance owns independent state
     {
@@ -300,7 +300,7 @@ public:
 	 * Move-assignment does nothing
 	 */
     GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL> &
-    operator=(GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL> && /*cp*/) noexcept(false) {
+    operator=([[maybe_unused]] GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL> && cp) noexcept(false) {
         return *this;
     }
 

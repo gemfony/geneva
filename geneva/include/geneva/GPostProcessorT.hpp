@@ -177,7 +177,7 @@ protected:
     void compare_(
         const Gem::Common::GSerializableFunctionObjectT<base_type> &cp,
         const Gem::Common::expectation &e,
-        const double & /*limit*/
+        [[maybe_unused]] const double & limit
     ) const override {
         using namespace Gem::Common;
 

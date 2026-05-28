@@ -142,7 +142,7 @@ GAdaptorT<std::int32_t, double> *GInt32GaussAdaptor::clone_() const {
 void GInt32GaussAdaptor::compare_(
     const GAdaptorT<std::int32_t, double> &cp,
     const Gem::Common::expectation &e,
-    const double & /*limit*/
+    [[maybe_unused]] const double & limit
 ) const {
     using namespace Gem::Common;
 

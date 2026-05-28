@@ -486,7 +486,7 @@ protected:
     void compare_(
         const GFixedSizePriorityQueueT &cp,
         const expectation &e,
-        const double & /*limit*/
+        [[maybe_unused]] const double & limit
     ) const override {
         using namespace Gem::Common;
 

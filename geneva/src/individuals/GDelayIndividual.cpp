@@ -96,7 +96,7 @@ GDelayIndividual::~GDelayIndividual() { /* nothing */
 void GDelayIndividual::compare_(
     const gpar::GParameterSet &cp,
     const Gem::Common::expectation &e,
-    const double & /*limit*/
+    [[maybe_unused]] const double & limit
 ) const {
     using namespace Gem::Common;
 
@@ -377,7 +377,7 @@ std::vector<std::tuple<unsigned int, unsigned int>> GDelayIndividualFactory::get
  */
 std::shared_ptr<gpar::GParameterSet> GDelayIndividualFactory::getObject_(
     Gem::Common::GParserBuilder &gpb,
-    const std::size_t & /*id*/
+    [[maybe_unused]] const std::size_t & id
 ) {
     // Will hold the result
     std::shared_ptr<GDelayIndividual> target(new GDelayIndividual());

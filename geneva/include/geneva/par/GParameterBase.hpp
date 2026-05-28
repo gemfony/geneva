@@ -163,7 +163,7 @@ public:
      */
     template <typename par_type>
     std::size_t countParameters(
-        activityMode /*am*/
+        [[maybe_unused]] activityMode am
     ) const {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
@@ -188,7 +188,7 @@ public:
     void boundaries(
         std::vector<par_type> &l_bnd_vec,
         std::vector<par_type> &u_bnd_vec,
-        activityMode /*am*/
+        [[maybe_unused]] activityMode am
     ) const {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
@@ -208,7 +208,7 @@ public:
     template <typename par_type>
     void streamline(
         std::vector<par_type> &par_vec,
-        activityMode /*am*/
+        [[maybe_unused]] activityMode am
     ) const {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
@@ -228,7 +228,7 @@ public:
     template <typename par_type>
     void streamline(
         std::map<std::string, std::vector<par_type>> &par_vec,
-        activityMode /*am*/
+        [[maybe_unused]] activityMode am
     ) const {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
@@ -249,9 +249,9 @@ public:
     template <typename par_type>
     void assignValueVector(
         const std::vector<par_type> &par_vec,
-        std::size_t & /*pos*/
+        [[maybe_unused]] std::size_t & pos
         ,
-        activityMode /*am*/
+        [[maybe_unused]] activityMode am
     ) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
@@ -269,7 +269,7 @@ public:
     template <typename par_type>
     void assignValueVectors(
         const std::map<std::string, std::vector<par_type>> &par_map,
-        activityMode /*am*/
+        [[maybe_unused]] activityMode am
     ) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
@@ -284,11 +284,11 @@ public:
      */
     template <typename par_type>
     void multiplyByRandom(
-        const par_type & /*min*/
+        [[maybe_unused]] const par_type & min
         ,
-        const par_type & /*max*/
+        [[maybe_unused]] const par_type & max
         ,
-        activityMode /*am*/
+        [[maybe_unused]] activityMode am
         ,
         Gem::Hap::GRandomBase &
     ) {
@@ -305,7 +305,7 @@ public:
      */
     template <typename par_type>
     void multiplyByRandom(
-        activityMode /*am*/
+        [[maybe_unused]] activityMode am
         ,
         Gem::Hap::GRandomBase &
     ) {
@@ -322,9 +322,9 @@ public:
      */
     template <typename par_type>
     void multiplyBy(
-        par_type /*val*/
+        [[maybe_unused]] par_type val
         ,
-        activityMode /*am*/
+        [[maybe_unused]] activityMode am
     ) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
@@ -339,9 +339,9 @@ public:
      */
     template <typename par_type>
     void fixedValueInit(
-        par_type /*val*/
+        [[maybe_unused]] par_type val
         ,
-        activityMode /*am*/
+        [[maybe_unused]] activityMode am
     ) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
@@ -356,9 +356,9 @@ public:
      */
     template <typename par_type>
     void add(
-        const std::shared_ptr<GParameterBase> & /*p*/
+        [[maybe_unused]] const std::shared_ptr<GParameterBase> & p
         ,
-        activityMode /*am*/
+        [[maybe_unused]] activityMode am
     ) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
@@ -373,9 +373,9 @@ public:
      */
     template <typename par_type>
     void subtract(
-        const std::shared_ptr<GParameterBase> & /*p*/
+        [[maybe_unused]] const std::shared_ptr<GParameterBase> & p
         ,
-        activityMode /*am*/
+        [[maybe_unused]] activityMode am
     ) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())

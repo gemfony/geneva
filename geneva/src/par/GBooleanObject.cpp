@@ -152,7 +152,7 @@ bool GBooleanObject::randomInit(
  * Triggers random initialization of the parameter object
  */
 bool GBooleanObject::randomInit_(
-    const activityMode & /*am*/
+    [[maybe_unused]] const activityMode & am
     ,
     Gem::Hap::GRandomBase &gr
 ) {
@@ -175,7 +175,7 @@ bool GBooleanObject::randomInit_(
  */
 bool GBooleanObject::randomInit_(
     const double &probability,
-    const activityMode & /*am*/
+    [[maybe_unused]] const activityMode & am
     ,
     Gem::Hap::GRandomBase &gr
 ) {
@@ -223,7 +223,7 @@ bool GBooleanObject::range() const {
 void GBooleanObject::compare_(
     const GParameterBase &cp,
     const Gem::Common::expectation &e,
-    const double & /*limit*/
+    [[maybe_unused]] const double & limit
 ) const {
     using namespace Gem::Common;
 
@@ -257,7 +257,7 @@ std::string GBooleanObject::name_() const {
  */
 void GBooleanObject::booleanStreamline(
     std::vector<bool> &par_vec,
-    const activityMode & /*am*/
+    [[maybe_unused]] const activityMode & am
 ) const {
     par_vec.push_back(this->value());
 }
@@ -268,7 +268,7 @@ void GBooleanObject::booleanStreamline(
  */
 void GBooleanObject::booleanStreamline(
     std::map<std::string, std::vector<bool>> &par_vec,
-    const activityMode & /*am*/
+    [[maybe_unused]] const activityMode & am
 ) const {
 #ifdef DEBUG
     if((this->getParameterName()).empty()) {
@@ -295,7 +295,7 @@ void GBooleanObject::booleanStreamline(
 void GBooleanObject::booleanBoundaries(
     std::vector<bool> &l_bnd_vec,
     std::vector<bool> &u_bnd_vec,
-    const activityMode & /*am*/
+    [[maybe_unused]] const activityMode & am
 ) const {
     l_bnd_vec.push_back(false);
     u_bnd_vec.push_back(true);
@@ -308,7 +308,7 @@ void GBooleanObject::booleanBoundaries(
  * @return The number of active, incactive or all float parameters
  */
 std::size_t GBooleanObject::countBoolParameters(
-    const activityMode & /*am*/
+    [[maybe_unused]] const activityMode & am
 ) const {
     return 1;
 }
@@ -320,7 +320,7 @@ std::size_t GBooleanObject::countBoolParameters(
 void GBooleanObject::assignBooleanValueVector(
     const std::vector<bool> &par_vec,
     std::size_t &pos,
-    const activityMode & /*am*/
+    [[maybe_unused]] const activityMode & am
 ) {
 #ifdef DEBUG
     // Do we have a valid position ?
@@ -346,7 +346,7 @@ void GBooleanObject::assignBooleanValueVector(
  */
 void GBooleanObject::assignBooleanValueVectors(
     const std::map<std::string, std::vector<bool>> &par_map,
-    const activityMode & /*am*/
+    [[maybe_unused]] const activityMode & am
 ) {
     this->setValue(
         (Gem::Common::getMapItem<std::vector<bool>>(par_map, this->getParameterName())).at(0)

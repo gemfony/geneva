@@ -74,7 +74,7 @@ class GCommandContainerT {
     friend class boost::serialization::access;
 
     template <class Archive>
-    void serialize(Archive &ar, const unsigned int /*version*/) {
+    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         ar &BOOST_SERIALIZATION_NVP(command_) & BOOST_SERIALIZATION_NVP(payload_ptr_);
     }
     ///////////////////////////////////////////////////////////////

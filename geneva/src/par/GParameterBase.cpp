@@ -167,7 +167,7 @@ bool GParameterBase::adaptionsInactive() const {
 void GParameterBase::compare_(
     const GParameterBase &cp,
     const Gem::Common::expectation &e,
-    const double & /*limit*/
+    [[maybe_unused]] const double & limit
 ) const {
     using namespace Gem::Common;
 
@@ -536,7 +536,7 @@ void GParameterBase::booleanBoundaries(
  * @return The number of float parameters in this object
  */
 std::size_t GParameterBase::countFloatParameters(
-    const activityMode & /*am*/
+    [[maybe_unused]] const activityMode & am
 ) const {
     return 0;
 }
@@ -555,7 +555,7 @@ std::size_t GParameterBase::countFloatParameters(
  * @return The number of double parameters in this object
  */
 std::size_t GParameterBase::countDoubleParameters(
-    const activityMode & /*am*/
+    [[maybe_unused]] const activityMode & am
 ) const {
     return 0;
 }
@@ -574,7 +574,7 @@ std::size_t GParameterBase::countDoubleParameters(
  * @return The number of std::int32_t parameters in this object
  */
 std::size_t GParameterBase::countInt32Parameters(
-    const activityMode & /*am*/
+    [[maybe_unused]] const activityMode & am
 ) const {
     return 0;
 }
@@ -593,7 +593,7 @@ std::size_t GParameterBase::countInt32Parameters(
  * @return The number of bool parameters in this object
  */
 std::size_t GParameterBase::countBoolParameters(
-    const activityMode & /*am*/
+    [[maybe_unused]] const activityMode & am
 ) const {
     return 0;
 }
@@ -779,13 +779,13 @@ void GParameterBase::int32MultiplyByRandom(
  * Multiplication with a random value in a given range
  */
 void GParameterBase::booleanMultiplyByRandom(
-    const bool & /*min*/
+    [[maybe_unused]] const bool & min
     ,
-    const bool & /*max*/
+    [[maybe_unused]] const bool & max
     ,
-    const activityMode & /*am*/
+    [[maybe_unused]] const activityMode & am
     ,
-    Gem::Hap::GRandomBase & /*gr*/
+    [[maybe_unused]] Gem::Hap::GRandomBase & gr
 ) {
     // Complain: This function should not be called for boolean values
     throw geneva_exception(
@@ -824,9 +824,9 @@ void GParameterBase::int32MultiplyByRandom(const activityMode &am, Gem::Hap::GRa
  * Multiplication with a random value in the range [0,1[
  */
 void GParameterBase::booleanMultiplyByRandom(
-    const activityMode & /*am*/
+    [[maybe_unused]] const activityMode & am
     ,
-    Gem::Hap::GRandomBase & /*gr*/
+    [[maybe_unused]] Gem::Hap::GRandomBase & gr
 ) {
     // Complain: This function should not be called for boolean values
     throw geneva_exception(
@@ -865,9 +865,9 @@ void GParameterBase::int32MultiplyBy(const std::int32_t &value, const activityMo
  * Multiplication with a random value in the range [0,1[
  */
 void GParameterBase::booleanMultiplyBy(
-    const bool & /*value*/
+    [[maybe_unused]] const bool & value
     ,
-    const activityMode & /*am*/
+    [[maybe_unused]] const activityMode & am
 ) {
     // Complain: This function should not be called for boolean values
     throw geneva_exception(
@@ -939,7 +939,7 @@ void GParameterBase::int32Add(std::shared_ptr<GParameterBase>, const activityMod
  */
 void GParameterBase::booleanAdd(
     std::shared_ptr<GParameterBase>,
-    const activityMode & /*am*/
+    [[maybe_unused]] const activityMode & am
 ) {
     // Complain: This function should not be called for boolean values
     throw geneva_exception(
@@ -979,7 +979,7 @@ void GParameterBase::int32Subtract(std::shared_ptr<GParameterBase>, const activi
  */
 void GParameterBase::booleanSubtract(
     std::shared_ptr<GParameterBase>,
-    const activityMode & /*am*/
+    [[maybe_unused]] const activityMode & am
 ) {
     // Complain: This function should not be called for boolean values
     throw geneva_exception(

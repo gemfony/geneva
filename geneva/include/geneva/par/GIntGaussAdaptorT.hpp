@@ -204,7 +204,7 @@ protected:
     void compare_(
         const GAdaptorT<int_type, double> &cp,
         const Gem::Common::expectation &e,
-        const double & /*limit*/
+        [[maybe_unused]] const double & limit
     ) const override {
         using namespace Gem::Common;
 

@@ -67,7 +67,7 @@ protected:
         ++init_calls;
     }
 
-    void describeLocalOptions_(GParserBuilder & /*gpb*/) override {
+    void describeLocalOptions_([[maybe_unused]] GParserBuilder & gpb) override {
         ++describe_calls;
     }
 
@@ -79,7 +79,7 @@ protected:
     }
 
     std::shared_ptr<Product>
-    getObject_(GParserBuilder & /*gpb*/, std::size_t const &id) override {
+    getObject_([[maybe_unused]] GParserBuilder & gpb, std::size_t const &id) override {
         ++get_object_calls;
         auto p     = std::make_shared<Product>();
         p->id      = static_cast<int>(id);
@@ -196,7 +196,7 @@ public:
 protected:
     void postProcess_(std::shared_ptr<PolyProduct> &) override {}
     std::shared_ptr<PolyProduct>
-    getObject_(GParserBuilder & /*gpb*/, std::size_t const & /*id*/) override {
+    getObject_([[maybe_unused]] GParserBuilder & gpb, [[maybe_unused]] std::size_t const & id) override {
         return std::make_shared<DerivedProduct>();
     }
 };
@@ -303,7 +303,7 @@ protected:
     void init_() override { ++init_count; }
     void postProcess_(std::shared_ptr<Product> &) override {}
     std::shared_ptr<Product>
-    getObject_(GParserBuilder & /*gpb*/, std::size_t const & /*id*/) override {
+    getObject_([[maybe_unused]] GParserBuilder & gpb, [[maybe_unused]] std::size_t const & id) override {
         return std::make_shared<Product>();
     }
 };

@@ -72,7 +72,7 @@ public:
 private:
     friend class boost::serialization::access;
     template <class Archive>
-    void serialize(Archive &ar, unsigned int /*version*/) {
+    void serialize(Archive &ar, [[maybe_unused]] unsigned int version) {
         ar &boost::serialization::make_nvp("i", i_);
         ar &boost::serialization::make_nvp("d", d_);
         ar &boost::serialization::make_nvp("s", s_);

@@ -101,7 +101,7 @@ std::string GSimulatedAnnealingFactory::getAlgorithmName() const {
  */
 std::shared_ptr<GBase> GSimulatedAnnealingFactory::getObject_(
     Gem::Common::GParserBuilder &gpb,
-    const std::size_t & /*id*/
+    [[maybe_unused]] const std::size_t & id
 ) {
     std::shared_ptr<GSimulatedAnnealing> target(new GSimulatedAnnealing());
 

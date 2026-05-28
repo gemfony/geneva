@@ -156,7 +156,7 @@ void GBooleanCollection::load_(const GParameterBase *cp) {
  * that is added later will remain unaffected.
  */
 bool GBooleanCollection::randomInit_(
-    const activityMode & /*am*/
+    [[maybe_unused]] const activityMode & am
     ,
     Gem::Hap::GRandomBase &gr
 ) {
@@ -260,7 +260,7 @@ bool GBooleanCollection::range() const {
 void GBooleanCollection::compare_(
     const GParameterBase &cp,
     const Gem::Common::expectation &e,
-    const double & /*limit*/
+    [[maybe_unused]] const double & limit
 ) const {
     using namespace Gem::Common;
 
@@ -332,7 +332,7 @@ void GBooleanCollection::booleanStreamline(
 void GBooleanCollection::booleanBoundaries(
     std::vector<bool> &l_bnd_vec,
     std::vector<bool> &u_bnd_vec,
-    const activityMode & /*am*/
+    [[maybe_unused]] const activityMode & am
 ) const {
     GBooleanCollection::const_iterator cit;
     for(cit = this->begin(); cit != this->end(); ++cit) {
@@ -349,7 +349,7 @@ void GBooleanCollection::booleanBoundaries(
  * @return The number of bool parameters
  */
 std::size_t GBooleanCollection::countBoolParameters(
-    const activityMode & /*am*/
+    [[maybe_unused]] const activityMode & am
 ) const {
     return this->size();
 }
@@ -361,7 +361,7 @@ std::size_t GBooleanCollection::countBoolParameters(
 void GBooleanCollection::assignBooleanValueVector(
     const std::vector<bool> &par_vec,
     std::size_t &pos,
-    const activityMode & /*am*/
+    [[maybe_unused]] const activityMode & am
 ) {
     for(auto && it : *this) {
 #ifdef DEBUG
@@ -389,7 +389,7 @@ void GBooleanCollection::assignBooleanValueVector(
  */
 void GBooleanCollection::assignBooleanValueVectors(
     const std::map<std::string, std::vector<bool>> &par_map,
-    const activityMode & /*am*/
+    [[maybe_unused]] const activityMode & am
 ) {
     GBooleanCollection::iterator it;
     std::size_t cnt = 0;

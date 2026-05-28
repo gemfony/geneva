@@ -78,7 +78,7 @@ template <class tuple_type, size_t p>
 std::string g_to_string(
     const tuple_type &t,
     const std::string &s,
-    tuple_output_seq<p> /*sq*/
+    [[maybe_unused]] tuple_output_seq<p> sq
 ) {
     std::ostringstream oss; // NOLINT(cppcoreguidelines-init-variables)
     oss << s << ", " << std::get<std::tuple_size_v<tuple_type> - p>(t);
@@ -98,7 +98,7 @@ template <class tuple_type>
 std::string g_to_string(
     const tuple_type &t,
     const std::string &s,
-    tuple_output_seq<1> /*sq*/
+    [[maybe_unused]] tuple_output_seq<1> sq
 ) {
     std::ostringstream oss; // NOLINT(cppcoreguidelines-init-variables)
     oss << s << ", " << std::get<std::tuple_size_v<tuple_type> - 1>(t);
@@ -114,10 +114,10 @@ std::string g_to_string(
  */
 template <class tuple_type>
 std::string g_to_string(
-    const tuple_type & /*t*/
+    [[maybe_unused]] const tuple_type & t
     ,
     const std::string &s,
-    tuple_output_seq<0> /*sq*/
+    [[maybe_unused]] tuple_output_seq<0> sq
 ) {
     return s;
 }

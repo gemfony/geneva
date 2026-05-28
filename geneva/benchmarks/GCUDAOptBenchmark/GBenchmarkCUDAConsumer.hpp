@@ -140,12 +140,12 @@ private:
     // GBaseConsumerT pure-virtual interface
 
     void addCLOptions_(
-        boost::program_options::options_description & /*visible*/,
-        boost::program_options::options_description & /*hidden*/
+        [[maybe_unused]] boost::program_options::options_description & visible,
+        [[maybe_unused]] boost::program_options::options_description & hidden
     ) override { /* no command-line options */ }
 
     void actOnCLOptions_(
-        const boost::program_options::variables_map & /*vm*/
+        [[maybe_unused]] const boost::program_options::variables_map & vm
     ) override { /* nothing */ }
 
     std::string getConsumerName_() const override { return "GCUDABatchConsumer"; }

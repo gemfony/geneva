@@ -71,11 +71,11 @@ public:
  */
 template <typename T>
 std::vector<T> fillWithData(
-    std::size_t /*nSteps*/
+    [[maybe_unused]] std::size_t nSteps
     ,
-    T /* lower */
+    [[maybe_unused]] T lower
     ,
-    T /* upper */
+    [[maybe_unused]] T upper
 ) {
     throw geneva_exception(
         g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
@@ -301,7 +301,7 @@ protected:
      * Retrieves a random item. To be re-implemented for each supported type
      */
     T getRandomItem(
-        Gem::Hap::GRandomBase & /*gr*/
+        [[maybe_unused]] Gem::Hap::GRandomBase & gr
     ) const {
         // A trap. This function needs to be re-implemented for each supported type
         throw geneva_exception(

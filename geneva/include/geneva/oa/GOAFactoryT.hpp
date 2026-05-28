@@ -141,7 +141,7 @@ public:
 	  * @param hidden Command line options that should only be visible upon request
 	  */
     virtual void addCLOptions(
-        boost::program_options::options_description & /*visible*/
+        [[maybe_unused]] boost::program_options::options_description & visible
         ,
         boost::program_options::options_description &hidden
     ) {

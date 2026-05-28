@@ -55,13 +55,13 @@
 namespace boost::serialization {
 
 template <class Archive>
-void save(Archive &ar, const std::filesystem::path &p, const unsigned int /*version*/) {
+void save(Archive &ar, const std::filesystem::path &p, [[maybe_unused]] const unsigned int version) {
     std::string s = p.string();
     ar & boost::serialization::make_nvp("path", s);
 }
 
 template <class Archive>
-void load(Archive &ar, std::filesystem::path &p, const unsigned int /*version*/) {
+void load(Archive &ar, std::filesystem::path &p, [[maybe_unused]] const unsigned int version) {
     std::string s;
     ar & boost::serialization::make_nvp("path", s);
     p = std::filesystem::path(s);

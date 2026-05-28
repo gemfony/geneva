@@ -242,7 +242,7 @@ public:
         bool resubmitUnprocessed = false,
         const std::tuple<ITERATION_COUNTER_TYPE, bool> &externalIterationCounter =
             std::tuple<ITERATION_COUNTER_TYPE, bool>(0, false),
-        const std::string & /*caller*/ = std::string()
+        [[maybe_unused]] const std::string & caller = std::string()
     ) {
         //------------------------------------------------------------------------------------------
         // Make sure only one instance of this function can be called at the same time. If locking
@@ -2294,7 +2294,7 @@ private:
 	  * Updates the remaining time for this iteration
 	  */
     void updateTimeout(
-        std::shared_ptr<processable_type> /*w_ptr*/
+        [[maybe_unused]] std::shared_ptr<processable_type> w_ptr
     ) {
         //-----------------------------------------------
         // We do not check for error conditions (particularly

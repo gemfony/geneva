@@ -79,9 +79,9 @@ GAdaptorT<bool> *GBooleanAdaptor::clone_() const {
  */
 void GBooleanAdaptor::customAdaptions(
     bool &value,
-    const bool & /*range*/
+    [[maybe_unused]] const bool & range
     ,
-    Gem::Hap::GRandomBase & /*gr*/
+    [[maybe_unused]] Gem::Hap::GRandomBase & gr
 ) {
     value = !value;
 }
@@ -97,7 +97,7 @@ void GBooleanAdaptor::customAdaptions(
 void GBooleanAdaptor::compare_(
     const GAdaptorT<bool> &cp,
     const Gem::Common::expectation &e,
-    const double & /*limit*/
+    [[maybe_unused]] const double & limit
 ) const {
     using namespace Gem::Common;
 

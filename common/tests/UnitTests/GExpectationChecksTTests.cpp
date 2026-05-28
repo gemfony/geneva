@@ -301,7 +301,7 @@ public:
 
 protected:
     void load_(CmpObj const *cp) override { if(cp) v_ = cp->v_; }
-    void compare_(CmpObj const &cp, expectation const &e, double const & /*limit*/) const override {
+    void compare_(CmpObj const &cp, expectation const &e, [[maybe_unused]] double const & limit) const override {
         GToken token("CmpObj", e);
         compare_base_t<GCommonInterfaceT<CmpObj>>(*this, cp, token);
         compare_t(IDENTITY(v_, cp.v_), token);

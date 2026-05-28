@@ -248,7 +248,7 @@ GBase *GSwarmAlgorithm::clone_() const {
 void GSwarmAlgorithm::compare_(
     const GBase &cp,
     const Gem::Common::expectation &e,
-    const double & /*limit*/
+    [[maybe_unused]] const double & limit
 ) const {
     using namespace Gem::Common;
 
@@ -1087,7 +1087,7 @@ void GSwarmAlgorithm::updatePositions() {
  * @param constants A std::tuple holding the various constants needed for the position update
  */
 void GSwarmAlgorithm::updateIndividualPositions(
-    const std::size_t & /*neighborhood*/
+    [[maybe_unused]] const std::size_t & neighborhood
     ,
     std::shared_ptr<gpar::GParameterSet> ind,
     std::shared_ptr<gpar::GParameterSet> neighborhood_best,

@@ -193,7 +193,7 @@ GDoubleSumGapConstraint::GDoubleSumGapConstraint(const double &c, const double &
 void GDoubleSumGapConstraint::compare_(
     const GPreEvaluationValidityCheckT<gpar::GParameterSet> &cp,
     const Gem::Common::expectation &e,
-    const double & /*limit*/
+    [[maybe_unused]] const double & limit
 ) const {
     using namespace Gem::Common;
 
@@ -1384,7 +1384,7 @@ void GFunctionIndividualFactory::setAdProbRange(double min_ad_prob, double max_a
  */
 std::shared_ptr<gpar::GParameterSet> GFunctionIndividualFactory::getObject_(
     Gem::Common::GParserBuilder &gpb,
-    const std::size_t & /*id*/
+    [[maybe_unused]] const std::size_t & id
 ) {
     // Will hold the result
     std::shared_ptr<GFunctionIndividual> target(new GFunctionIndividual());

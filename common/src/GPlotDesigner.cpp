@@ -454,7 +454,7 @@ std::string GBasePlotter::name_() const {
 void GBasePlotter::compare_(
     const GBasePlotter &cp,
     const expectation &e,
-    const double & /*limit*/
+    [[maybe_unused]] const double & limit
 ) const {
     // Check that we are dealing with a GBasePlotter reference independent of this object and convert the pointer
     const auto *p_load = g_convert_and_compare(cp, this);
@@ -645,7 +645,7 @@ std::string GGraph2D::name_() const {
 void GGraph2D::compare_(
     const GBasePlotter &cp,
     const expectation &e,
-    const double & /*limit*/
+    [[maybe_unused]] const double & limit
 ) const {
     // Check that we are dealing with a GGraph2D reference independent of this object and convert the pointer
     const auto *p_load = g_convert_and_compare(cp, this);
@@ -901,7 +901,7 @@ std::string GGraph2ED::name_() const {
 void GGraph2ED::compare_(
     const GBasePlotter &cp,
     const expectation &e,
-    const double & /*limit*/
+    [[maybe_unused]] const double & limit
 ) const {
     // Check that we are dealing with a GBasePlotter reference independent of this object and convert the pointer
     const auto *p_load = g_convert_and_compare(cp, this);
@@ -1143,7 +1143,7 @@ std::string GGraph3D::name_() const {
 void GGraph3D::compare_(
     const GBasePlotter &cp,
     const expectation &e,
-    const double & /*limit*/
+    [[maybe_unused]] const double & limit
 ) const {
     // Check that we are dealing with a GGraph3D reference independent of this object and convert the pointer
     const auto *p_load = g_convert_and_compare(cp, this);
@@ -1468,7 +1468,7 @@ std::string GGraph4D::name_() const {
 void GGraph4D::compare_(
     const GBasePlotter &cp,
     const expectation &e,
-    const double & /*limit*/
+    [[maybe_unused]] const double & limit
 ) const {
     // Check that we are dealing with a GGraph3D reference independent of this object and convert the pointer
     const auto *p_load = g_convert_and_compare(cp, this);
@@ -1861,7 +1861,7 @@ std::string GHistogram1D::name_() const {
 void GHistogram1D::compare_(
     const GBasePlotter &cp,
     const expectation &e,
-    const double & /*limit*/
+    [[maybe_unused]] const double & limit
 ) const {
     // Check that we are dealing with a GBasePlotter reference independent of this object and convert the pointer
     const auto *p_load = g_convert_and_compare(cp, this);
@@ -2090,7 +2090,7 @@ std::string GHistogram1I::name_() const {
 void GHistogram1I::compare_(
     const GBasePlotter &cp,
     const expectation &e,
-    const double & /*limit*/
+    [[maybe_unused]] const double & limit
 ) const {
     // Check that we are dealing with a GBasePlotter reference independent of this object and convert the pointer
     const auto *p_load = g_convert_and_compare(cp, this);
@@ -2480,7 +2480,7 @@ std::string GHistogram2D::name_() const {
 void GHistogram2D::compare_(
     const GBasePlotter &cp,
     const expectation &e,
-    const double & /*limit*/
+    [[maybe_unused]] const double & limit
 ) const {
     // Check that we are dealing with a GBasePlotter reference independent of this object and convert the pointer
     const auto *p_load = g_convert_and_compare(cp, this);
@@ -2569,7 +2569,7 @@ std::string GFunctionPlotter1D::name_() const {
 void GFunctionPlotter1D::compare_(
     const GBasePlotter &cp,
     const expectation &e,
-    const double & /*limit*/
+    [[maybe_unused]] const double & limit
 ) const {
     // Check that we are dealing with a GGraph3D reference independent of this object and convert the pointer
     const auto *p_load = g_convert_and_compare(cp, this);
@@ -2780,7 +2780,7 @@ std::string GFunctionPlotter2D::name_() const {
 void GFunctionPlotter2D::compare_(
     const GBasePlotter &cp,
     const expectation &e,
-    const double & /*limit*/
+    [[maybe_unused]] const double & limit
 ) const {
     // Check that we are dealing with a GGraph3D reference independent of this object and convert the pointer
     const auto *p_load = g_convert_and_compare(cp, this);
@@ -3253,7 +3253,7 @@ std::string GPlotDesigner::name_() const {
 void GPlotDesigner::compare_(
     const GPlotDesigner &cp,
     const expectation &e,
-    const double & /*limit*/
+    [[maybe_unused]] const double & limit
 ) const {
     // Check that we are dealing with a GPlotDesigner reference independent of this object and convert the pointer
     const auto *p_load = g_convert_and_compare(cp, this);
