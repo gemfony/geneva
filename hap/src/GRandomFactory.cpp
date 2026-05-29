@@ -316,9 +316,12 @@ std::unique_ptr<random_container> GRandomFactory::getNewRandomContainer() {
 /******************************************************************************/
 /**
  * The production of [0,1[ random numbers takes place here. As this function
- * is called in a thread, it may only throw using Genevas mechanisms. Exceptions
- * could otherwise go unnoticed. Hence this function has a possibly confusing
- * setup.
+ * is the body of a std::thread, no exception may escape it: an exception
+ * leaving a thread's top-level function calls std::terminate() and brings the
+ * whole process down. We therefore catch everything, log it as a warning, and
+ * let this producer thread exit cleanly. The remaining producer threads keep
+ * supplying numbers; consumers fall back to the timeout path on an empty
+ * buffer.
  *
  * @param seed A seed for our local random number generator
  */
@@ -373,37 +376,28 @@ void GRandomFactory::producer(std::uint32_t seed) {
             }
         }
     }
-    catch(std::bad_alloc &e) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GRandomFactory::producer(): Error!" << '\n'
-            << "Caught std::bad_alloc exception with message" << '\n'
+    // H-4 fix: producer() is the body of a std::thread. The previous code
+    // re-threw a geneva_exception from these handlers, which -- escaping the
+    // thread's top-level function -- would call std::terminate() and crash the
+    // whole process. We now log the condition (so it is not silent) and return,
+    // letting this producer thread exit cleanly. (This also consolidates the
+    // four former near-identical handlers into two, addressing H-3.)
+    catch(const std::exception &e) {
+        glogger
+            << "In GRandomFactory::producer(): Warning!" << '\n'
+            << "Caught an exception with message" << '\n'
             << e.what() << '\n'
-        );
-    }
-    catch(std::invalid_argument &e) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GRandomFactory::producer(): Error!" << '\n'
-            << "Caught std::invalid_argument exception with message" << '\n'
-            << e.what() << '\n'
-        );
-    }
-    catch(std::system_error &e) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GRandomFactory::producer(): Error!" << '\n'
-            << "Caught std::system_error exception with message" << '\n'
-            << e.what() << '\n'
-            << "which might indicate that a mutex could not be locked." << '\n'
-        );
+            << "This producer thread will now terminate cleanly. Random-number" << '\n'
+            << "production continues on the remaining producer threads." << '\n'
+            << GWARNING;
     }
     catch(...) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GRandomFactory::producer(): Error!" << '\n'
-            << "Caught unkown exception." << '\n'
-        );
+        glogger
+            << "In GRandomFactory::producer(): Warning!" << '\n'
+            << "Caught an unknown exception." << '\n'
+            << "This producer thread will now terminate cleanly. Random-number" << '\n'
+            << "production continues on the remaining producer threads." << '\n'
+            << GWARNING;
     }
 }
 
