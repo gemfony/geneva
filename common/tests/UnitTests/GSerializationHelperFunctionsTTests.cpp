@@ -31,7 +31,9 @@
 
 #include <atomic>
 #include <chrono>
+#include <cstdint>
 #include <filesystem>
+#include <limits>
 #include <memory>
 #include <sstream>
 #include <string>
@@ -282,6 +284,75 @@ TEST_CASE("GSerializationHelperFunctionsT: std::atomic<bool> round-trips",
             }
             CHECK(out.load() == val);
         }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// std::atomic<T> serialization round-trip for arbitrary value types T
+// (the generic std::atomic<T> save/load added alongside the std::atomic<bool>
+// overloads). Each value is serialized and deserialized through text, XML and
+// binary archives; the deserialized value must match the original.
+
+TEST_CASE("GSerializationHelperFunctionsT: std::atomic<T> round-trips",
+          "[common][serialization-helpers]") {
+    // std::atomic<T> is non-copyable; round-trip in place and compare via
+    // .load(). 'seed' is stored into the output object first, so a no-op load
+    // would be detected.
+    auto check = [](auto val, auto seed) {
+        using T = decltype(val);
+        std::atomic<T> in;
+        in.store(val);
+
+        // Text
+        {
+            std::stringstream ss;
+            { boost::archive::text_oarchive oa(ss); boost::serialization::save(oa, in, 0u); }
+            std::atomic<T> out; out.store(seed);
+            { boost::archive::text_iarchive ia(ss); boost::serialization::load(ia, out, 0u); }
+            CHECK(out.load() == val);
+        }
+        // XML
+        {
+            std::stringstream ss;
+            { boost::archive::xml_oarchive oa(ss); boost::serialization::save(oa, in, 0u); }
+            std::atomic<T> out; out.store(seed);
+            { boost::archive::xml_iarchive ia(ss); boost::serialization::load(ia, out, 0u); }
+            CHECK(out.load() == val);
+        }
+        // Binary
+        {
+            std::stringstream ss;
+            { boost::archive::binary_oarchive oa(ss); boost::serialization::save(oa, in, 0u); }
+            std::atomic<T> out; out.store(seed);
+            { boost::archive::binary_iarchive ia(ss); boost::serialization::load(ia, out, 0u); }
+            CHECK(out.load() == val);
+        }
+    };
+
+    SECTION("std::size_t (the GFactoryT::id_ case)") {
+        check(std::size_t{0}, std::size_t{999});
+        check(std::size_t{1}, std::size_t{0});
+        check(std::size_t{1234567}, std::size_t{0});
+        check((std::numeric_limits<std::size_t>::max)(), std::size_t{0});
+    }
+    SECTION("int (incl. negative)") {
+        check(0, 7);
+        check(-42, 0);
+        check((std::numeric_limits<int>::max)(), 0);
+        check((std::numeric_limits<int>::min)(), 0);
+    }
+    SECTION("unsigned long") {
+        check(0ul, 5ul);
+        check(4000000000ul, 0ul);
+    }
+    SECTION("std::int64_t") {
+        check(std::int64_t{-9000000000LL}, std::int64_t{0});
+        check((std::numeric_limits<std::int64_t>::max)(), std::int64_t{0});
+    }
+    SECTION("double (exactly representable values)") {
+        check(0.0, 1.0);
+        check(-2.5, 0.0);
+        check(1024.0, 0.0);
     }
 }
 

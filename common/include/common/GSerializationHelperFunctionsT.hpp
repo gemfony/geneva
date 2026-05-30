@@ -314,6 +314,25 @@ void load(
 }
 
 /******************************************************************************/
+/**
+ * Serialization of std::atomic<T> for any serializable value type T
+ * (e.g. std::size_t). The std::atomic<bool> overloads above are more
+ * specialised and keep priority, so their "bool_val" archive tag is preserved.
+ */
+template <typename Archive, typename T>
+void save(Archive &ar, const std::atomic<T> &a, [[maybe_unused]] unsigned int version) {
+    T value = a.load();
+    ar &make_nvp("atomic_value", value);
+}
+
+template <typename Archive, typename T>
+void load(Archive &ar, std::atomic<T> &a, [[maybe_unused]] unsigned int version) {
+    T value{};
+    ar &make_nvp("atomic_value", value);
+    a.store(value);
+}
+
+/******************************************************************************/
 
 } /* namespace boost::serialization */
 
@@ -325,6 +344,7 @@ BOOST_SERIALIZATION_SPLIT_FREE(Gem::Common::tribool)
 BOOST_SERIALIZATION_SPLIT_FREE(std::chrono::duration<double>)
 BOOST_SERIALIZATION_SPLIT_FREE(std::chrono::high_resolution_clock::time_point)
 BOOST_SERIALIZATION_SPLIT_FREE(std::atomic<bool>)
+BOOST_SERIALIZATION_SPLIT_FREE(std::atomic<std::size_t>)
 
 /*
 template<typename Archive, typename clock_type>

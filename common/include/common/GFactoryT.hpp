@@ -33,6 +33,7 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard header files go here
+#include <atomic>
 #include <iostream>
 #include <mutex>
 #include <sstream>
@@ -61,6 +62,7 @@
 #include "common/GErrorStreamer.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GParserBuilder.hpp"
+#include "common/GSerializationHelperFunctionsT.hpp" // std::atomic<T> Boost serialization
 
 namespace Gem::Common {
 
@@ -130,13 +132,13 @@ public:
 
     GFactoryT(const GFactoryT<prod_type> &cp)
       : config_path_(cp.config_path_)
-      , id_(cp.id_)
+      , id_(cp.id_.load())
       , initialized_(cp.initialized_) {
     }
 
     GFactoryT(GFactoryT<prod_type> &&cp) noexcept
       : config_path_(std::move(cp.config_path_))
-      , id_(cp.id_)
+      , id_(cp.id_.load())
       , initialized_(cp.initialized_) {
     }
 
@@ -145,7 +147,7 @@ public:
     GFactoryT<prod_type> &operator=(GFactoryT<prod_type> const &cp) {
         if(this != &cp) {
             config_path_ = cp.config_path_;
-            id_          = cp.id_;
+            id_.store(cp.id_.load());
             initialized_ = cp.initialized_;
             // init_mutex_ deliberately not copied: synchronisation primitives
             // do not carry over with the logical value of the object.
@@ -159,7 +161,7 @@ public:
     GFactoryT<prod_type> &operator=(GFactoryT<prod_type> &&cp) noexcept {
         if(this != &cp) {
             config_path_ = std::move(cp.config_path_);
-            id_          = cp.id_;
+            id_.store(cp.id_.load());
             initialized_ = cp.initialized_;
             // Invalidate the parse cache: config_path_ may have changed.
             config_ptree_.clear();
@@ -267,7 +269,7 @@ public:
 	  */
     virtual void load(std::shared_ptr<GFactoryT<prod_type>> cp) {
         config_path_ = cp->config_path_;
-        id_ = cp->id_;
+        id_.store(cp->id_.load());
         initialized_ = cp->initialized_;
     }
 
@@ -315,7 +317,7 @@ protected:
 	  * Retrieve the current value of the id_ variable
 	  */
     std::size_t getId() const {
-        return id_;
+        return id_.load();
     }
 
     /***************************************************************************/
@@ -339,7 +341,7 @@ protected:
         // Retrieve the actual object. It may, in the process of its
         // creation, add further configuration options and call-backs to
         // the parser
-        std::shared_ptr<prod_type> p = this->getObject_(gpb, id_);
+        std::shared_ptr<prod_type> p = this->getObject_(gpb, id_.load());
 
         // Read + parse the configuration file only ONCE: the first call captures the
         // parsed ptree, every subsequent call re-applies the cached ptree to the
@@ -369,8 +371,8 @@ protected:
         // in the parsing process.
         this->postProcess_(p);
 
-        // Update the id
-        id_++;
+        // Update the id (atomic: get_() may run concurrently on one factory)
+        id_.fetch_add(1, std::memory_order_relaxed);
 
         // Let the audience know
         return p;
@@ -407,8 +409,9 @@ private:
     /***************************************************************************/
 
     std::filesystem::path config_path_; ///< The name and path of the configuration file
-    std::size_t id_ =
-        GFACTTORYFIRSTID;       ///< The id/number of the individual currently being created
+    std::atomic<std::size_t> id_{
+        GFACTTORYFIRSTID};      ///< The id/number of the individual currently being created
+                                ///< (atomic: get_() may run concurrently on one factory)
     bool initialized_ = false; ///< Indicates whether the initialization work has already been done
     mutable std::mutex init_mutex_; ///< Serialises concurrent first calls to globalInit() and the config-parse cache
 
