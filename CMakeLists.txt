@@ -196,11 +196,18 @@ SET(VERSION_PATCH "0")
 SET(GENEVA_VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
 
 ################################################################################
+# Hap2: experimental RNG library built in parallel to Hap (namespace clone in
+# Gem::Hap2, library gemfony-hap2, include prefix <hap2/...>). Gated so the
+# default build can opt out. See prompts/2026-05-29-hap2-architecture.md.
+OPTION ( GENEVA_BUILD_HAP2 "Build the experimental Hap2 RNG library alongside Hap" ON )
+
+################################################################################
 # Include directories, libraries
 
 INCLUDE_DIRECTORIES (
 	${PROJECT_SOURCE_DIR}/common/include
 	${PROJECT_SOURCE_DIR}/hap/include
+	${PROJECT_SOURCE_DIR}/hap2/include
 	${PROJECT_SOURCE_DIR}/courtier/include
 	${PROJECT_SOURCE_DIR}/geneva/include
 )
@@ -208,6 +215,9 @@ INCLUDE_DIRECTORIES (
 # Custom targets for building single libraries only
 ADD_CUSTOM_TARGET( "common"             DEPENDS ${COMMON_LIBNAME}            COMMENT "Building only the Common library." )
 ADD_CUSTOM_TARGET( "hap"                DEPENDS ${HAP_LIBNAME}               COMMENT "Building only the Hap library." )
+IF ( GENEVA_BUILD_HAP2 )
+	ADD_CUSTOM_TARGET( "hap2"           DEPENDS ${HAP2_LIBNAME}              COMMENT "Building only the experimental Hap2 library." )
+ENDIF ()
 ADD_CUSTOM_TARGET( "courtier"           DEPENDS ${COURTIER_LIBNAME}          COMMENT "Building only the Courtier library." )
 ADD_CUSTOM_TARGET( "geneva"             DEPENDS ${GENEVA_LIBNAME}            COMMENT "Building only the Geneva library (now includes the former geneva-individuals sources)." )
 
@@ -295,6 +305,9 @@ ENDIF ()
 # targets exist when its dependents configure.
 ADD_SUBDIRECTORY (common)
 ADD_SUBDIRECTORY (hap)
+IF ( GENEVA_BUILD_HAP2 )
+	ADD_SUBDIRECTORY (hap2)
+ENDIF ()
 ADD_SUBDIRECTORY (courtier)
 ADD_SUBDIRECTORY (geneva)
 
@@ -369,11 +382,16 @@ INSTALL(
 
 ################################################################################
 # Custom target for all compilable items in the distribution
+SET ( HAP2_BUILD_ALL_TARGET "" )
+IF ( GENEVA_BUILD_HAP2 )
+	SET ( HAP2_BUILD_ALL_TARGET hap2-all )   # lib + tests + example + benchmark
+ENDIF ()
 ADD_CUSTOM_TARGET(
 	"gemfony-build-all" DEPENDS
 	core
 	common-all      # lib + tests + examples + benchmarks for the common library
 	hap-all         # lib + tests + examples (no benchmarks for hap)
+	${HAP2_BUILD_ALL_TARGET}  # experimental Hap2 (only when GENEVA_BUILD_HAP2)
 	courtier-all    # lib + tests + examples-stub + benchmarks
 	geneva-all      # lib + tests + examples + benchmarks (the largest subtree)
 	COMMENT "Build the entire Gemfony library collection"
@@ -410,9 +428,13 @@ INSTALL ( FILES ${INFORMATIONFILES} DESTINATION ${INSTALL_PREFIX_DOCS} )
 # upstream tag-file dependencies, so ordering is automatic).
 #
 IF (DOXYGEN_FOUND)
+	SET ( DOC_HAP2_TARGET "" )
+	IF ( GENEVA_BUILD_HAP2 )
+		SET ( DOC_HAP2_TARGET doc-hap2 )
+	ENDIF ()
 	ADD_CUSTOM_TARGET (doc
-		DEPENDS doc-common doc-hap doc-courtier doc-geneva
-		COMMENT "Generating aggregated Doxygen documentation for all four Geneva libraries."
+		DEPENDS doc-common doc-hap ${DOC_HAP2_TARGET} doc-courtier doc-geneva
+		COMMENT "Generating aggregated Doxygen documentation for all Geneva libraries."
 	)
 ENDIF ()
 

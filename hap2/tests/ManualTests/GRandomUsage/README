@@ -1,0 +1,12 @@
+This test creates NENTRIES random numbers each for numbers and items with
+different characteristics. Each set is created in its own thread.
+Note that the random numbers are usually not created in the GRandomT
+object, but by the GRandomFactory class in a different thread.
+GRandomT just acts as a proxy.
+
+The results of the test are output in the ROOT format. See
+http://root.cern.ch for further information.
+
+You can look at the graphical results with the command
+
+root -l randomResult.C
