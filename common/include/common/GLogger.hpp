@@ -594,6 +594,19 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
+/******************************************************************************/
+/**
+ * The logger is written to from arbitrary threads and even during static
+ * destruction (e.g. worker threads still shutting down). Opt it into
+ * never-destroy semantics so its instance outlives every other static and is
+ * reclaimed only by the OS at process exit — this removes the static-destruction
+ * use-after-free hazard structurally.
+ */
+template <>
+struct gsingleton_never_destroy<GLogger<GLogStreamer>> : std::true_type {};
+
+/******************************************************************************/
+
 } /* namespace Gem::Common */
 
 /******************************************************************************/

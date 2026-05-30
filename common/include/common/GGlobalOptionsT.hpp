@@ -42,6 +42,7 @@
 
 // Geneva headers go here
 #include "common/GExceptions.hpp"
+#include "common/GSingletonT.hpp" // for the gsingleton_never_destroy opt-in below
 
 namespace Gem::Common {
 
@@ -271,6 +272,17 @@ private:
     std::map<std::string, T> kvp_{};
     mutable std::mutex mutex_; ///< Lock get/set operations
 };
+
+/******************************************************************************/
+/**
+ * The global option stores hold plain configuration data (a map guarded by a
+ * mutex) with no destructor side effects, yet they are queried from arbitrary
+ * places — including during shutdown. Opt every GGlobalOptionsT<T> singleton
+ * into never-destroy semantics so it outlives other statics and avoids any
+ * destruction-order hazard. Reclaimed by the OS at process exit.
+ */
+template <typename T>
+struct gsingleton_never_destroy<GGlobalOptionsT<T>> : std::true_type {};
 
 /******************************************************************************/
 

@@ -36,6 +36,10 @@
 #include <type_traits>
 #include <vector>
 
+#include <string>
+
+#include "common/GGlobalOptionsT.hpp" // real never-destroy singleton (GGlobalOptionsT<T>)
+#include "common/GLogger.hpp"         // real never-destroy singleton (GLogger<GLogStreamer>)
 #include "common/GSingletonT.hpp"
 
 using namespace Gem::Common;
@@ -69,6 +73,19 @@ struct Payload_FactorySpecialised {
     int value;
 };
 
+// Two payloads differing only in their lifetime policy, used to check the
+// never-destroy (leaky) semantics: Payload_Leaky opts in below, Payload_LeakyOff
+// keeps the default (destroyed-at-exit) behaviour as a baseline for comparison.
+struct Payload_Leaky {};
+struct Payload_LeakyOff {};
+
+// Detection concept for "GSingletonT<T>::reset() is callable". T is a template
+// parameter here, so the constraint check on reset() happens in a dependent
+// context and yields false for never-destroy types (rather than the hard error
+// a non-dependent requires-expression on a concrete type would produce).
+template <typename T>
+concept resettable_singleton = requires { GSingletonT<T>::reset(); };
+
 } // namespace
 
 // Custom factory for the no-default-ctor type. Must be declared in the same
@@ -78,6 +95,11 @@ template <>
 std::shared_ptr<Payload_FactorySpecialised> TFactory_GSingletonT<Payload_FactorySpecialised>() {
     return std::make_shared<Payload_FactorySpecialised>(7);
 }
+
+// Opt Payload_Leaky into never-destroy semantics (Payload_LeakyOff stays at the
+// default false_type). The specialisation must live in the trait's namespace.
+template <>
+struct gsingleton_never_destroy<Payload_Leaky> : std::true_type {};
 } // namespace Gem::Common
 
 // ---------------------------------------------------------------------------
@@ -178,4 +200,62 @@ TEST_CASE("GSingletonT::instance() constructs exactly once under concurrent firs
         REQUIRE(results[i]);
         CHECK(results[i].get() == results[0].get());
     }
+}
+
+// ---------------------------------------------------------------------------
+// Never-destroy (leaky) lifetime policy: opt-in trait, disabled reset(), and
+// the extra leaked owning reference that pins the instance for the whole run.
+
+TEST_CASE("GSingletonT: gsingleton_never_destroy trait wiring is correct",
+          "[common][singleton]") {
+    // Opt-in payload vs. default baseline.
+    static_assert(gsingleton_never_destroy<Payload_Leaky>::value);
+    static_assert(not gsingleton_never_destroy<Payload_LeakyOff>::value);
+
+    // The real singletons we enrolled.
+    static_assert(gsingleton_never_destroy<GLogger<GLogStreamer>>::value);
+    static_assert(gsingleton_never_destroy<GGlobalOptionsT<std::string>>::value);
+    static_assert(gsingleton_never_destroy<GGlobalOptionsT<int>>::value); // partial spec covers any T
+
+    SUCCEED("compile-time trait checks passed");
+}
+
+TEST_CASE("GSingletonT::reset() is disabled for never-destroy singletons",
+          "[common][singleton]") {
+    // reset() carries a requires-clause, so for a never-destroy type it is not a
+    // viable candidate: calling it is ill-formed (a compile error). The
+    // resettable_singleton concept detects this. Resettable types stay callable.
+    static_assert(resettable_singleton<Payload_LeakyOff>);
+    static_assert(not resettable_singleton<Payload_Leaky>);
+
+    // The real never-destroy singletons must likewise reject reset().
+    static_assert(not resettable_singleton<GLogger<GLogStreamer>>);
+    static_assert(not resettable_singleton<GGlobalOptionsT<std::string>>);
+
+    SUCCEED("compile-time reset() availability checks passed");
+}
+
+TEST_CASE("GSingletonT: never-destroy instance is a stable singleton with an extra pinned reference",
+          "[common][singleton]") {
+    // Singleton identity still holds.
+    auto on = GSingletonT<Payload_Leaky>::instance();
+    REQUIRE(on);
+    CHECK(GSingletonT<Payload_Leaky>::instance().get() == on.get());
+
+    // The never-destroy variant carries exactly one extra owning reference (the
+    // deliberately leaked pin) compared to a default singleton built the same
+    // way: both are held by their storage plus our single local, but the leaky
+    // one additionally has the pin -> use_count is higher by exactly one.
+    auto off = GSingletonT<Payload_LeakyOff>::instance();
+    REQUIRE(off);
+    CHECK(on.use_count() == off.use_count() + 1);
+
+    // The pin survives dropping all external references: a later instance()
+    // still returns the very same object, and the extra reference is still there.
+    auto *raw = on.get();
+    on.reset();
+    auto again = GSingletonT<Payload_Leaky>::instance();
+    REQUIRE(again);
+    CHECK(again.get() == raw);                       // never rebuilt -> same object
+    CHECK(again.use_count() == off.use_count() + 1); // pin still present
 }

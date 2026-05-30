@@ -47,6 +47,7 @@
 #include <atomic>
 #include <memory>
 #include <mutex>
+#include <type_traits>
 
 // Boost headers go here
 
@@ -65,6 +66,22 @@ namespace Gem::Common {
 template <typename T> std::shared_ptr<T> TFactory_GSingletonT() {
     return std::make_shared<T>();
 }
+
+/******************************************************************************/
+/**
+ * Opt-in lifetime trait for GSingletonT. Specialise to std::true_type for
+ * singleton types that must NOT be destroyed at program shutdown — typically
+ * those logged-to or otherwise used during static destruction, where the
+ * destruction order against other statics and still-running threads is
+ * unspecified. A never-destroy singleton is pinned by a single leaked owning
+ * reference in instance() and is reclaimed only by the OS at process exit;
+ * GSingletonT::reset() is disabled for such types (it would orphan the pinned
+ * instance and break the singleton invariant). Leave the default
+ * (std::false_type) for singletons whose destructor must run, e.g. those that
+ * join threads or release OS resources (such as GRandomFactory).
+ */
+template <typename T>
+struct gsingleton_never_destroy : std::false_type {};
 
 /******************************************************************************/
 /**
@@ -112,6 +129,20 @@ public:
             if(not sp) {
                 sp = Gem::Common::TFactory_GSingletonT<T>();
                 s.p.store(sp);
+                if constexpr(gsingleton_never_destroy<T>::value) {
+                    // Never-destroy singletons must outlive every other static
+                    // (they are logged-to / used during static destruction).
+                    // Pin the instance with one owning reference that is
+                    // deliberately leaked: the refcount can then never reach
+                    // zero, so T is never destroyed and is reclaimed only by
+                    // the OS at process exit. The raw pointer is parked in a
+                    // function-local static so the allocation stays reachable
+                    // (LSan reports it as still-reachable, not as a leak). This
+                    // branch runs once, under creation_mutex.
+                    static std::shared_ptr<T> *const keep_alive =
+                        new std::shared_ptr<T>(sp);
+                    (void) keep_alive;
+                }
             }
         }
         return sp;
@@ -120,8 +151,17 @@ public:
     /***************************************************************************/
     /**
 	  * Drops the stored instance so the next instance() call creates a fresh one.
+	  * Disabled for never-destroy singletons (see gsingleton_never_destroy): for
+	  * those, resetting would leave the leaked pin pointing at an orphaned
+	  * instance while instance() builds a second one, breaking uniqueness.
+	  * Calling reset() on such a type is therefore a compile error.
 	  */
-    static void reset() {
+    template <typename U = T>
+    static void reset()
+        requires(not gsingleton_never_destroy<U>::value)
+    {
+        static_assert(std::is_same_v<U, T>,
+                      "GSingletonT::reset() does not take an explicit template argument");
         storage_type &s = storage();
         // Reset must be ordered against any in-flight instance() initialiser:
         // without this lock, an initialiser could store the freshly-built
