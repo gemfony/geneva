@@ -128,14 +128,22 @@ SKIPALLCUDA="0"
 #   CUDA_NVCC="/usr/local/cuda-13.1/bin/nvcc"
 #   CUDA_ROOT="/usr/local/cuda-13.1"   # optional; derived from CUDA_NVCC if omitted
 #
-# Ubuntu 24.04 + CUDA 13.1 known issue: check_language(CUDA) fails because
-# glibc 2.39 re-declares rsqrt with noexcept(true) (__THROW) after CUDA's
-# crt/math_functions.h declared it without — cudafe++ treats this as a hard
-# error.  There is no cmake/nvcc flag workaround: --diag-suppress has no
-# matching diagnostic number, and -D__THROW= is overridden by <sys/cdefs.h>
-# which redefines __THROW unconditionally (no #ifndef guard).
-# Real fixes: (a) use the apt CUDA 12.4 at /usr/bin/nvcc instead, or
-# (b) patch crt/math_functions.h to add noexcept to rsqrt/rsqrtf — see below.
+# On this machine (Ubuntu 26.04, glibc 2.43): use CUDA 13.1
+#   CUDA_NVCC="/usr/local/cuda-13.1/bin/nvcc"
+# It configures and compiles the whole tree cleanly, including the Asio-using
+# CUDA examples/benchmark (GCUDAWorker, GCUDAOptBenchmark).
+#
+# Do NOT use the apt CUDA 12.4 at /usr/bin/nvcc: its nvcc cannot compile
+# Boost.Asio's C++20 coroutines (boost/asio/impl/co_spawn.hpp: "the operand to
+# this co_await expression resolves to non-class"), so the CUDA examples and
+# the CUDA benchmark fail to build.
+#
+# Historic note (Ubuntu 24.04 + glibc 2.39 only): there 13.1's
+# check_language(CUDA) failed because glibc 2.39 re-declared rsqrt with
+# noexcept(true) (__THROW) after CUDA's crt/math_functions.h declared it
+# without, and cudafe++ treated this as a hard error; the old workaround was to
+# fall back to 12.4.  That glibc/rsqrt interaction does not occur on glibc 2.43,
+# so on the current system 13.1 is the correct choice.
 CUDA_NVCC=""
 CUDA_ROOT=""
 
