@@ -208,6 +208,7 @@ BUILDMPICONSUMER="0"
 USECUDARNG="0"
 SKIPALLCUDA="0"
 WITHCOVERAGE="0"
+SANITIZER="none"
 CUDA_NVCC=""
 CUDA_ROOT=""
 COMPILER="clang"
@@ -293,6 +294,23 @@ _check_bool USECUDARNG       "${USECUDARNG}"
 _check_bool SKIPALLCUDA      "${SKIPALLCUDA}"
 _check_bool WITHCOVERAGE     "${WITHCOVERAGE}"
 
+# Sanitizer: validate and, when enabled, force CUDA + the MPI consumer OFF
+# (nvcc cannot compile with -fsanitize; MPI internals flood ThreadSanitizer).
+# The actual -fsanitize flags are applied centrally by CMake via the
+# GENEVA_SANITIZER cache variable passed below.
+case "${SANITIZER}" in
+	none|thread|address|undefined) ;;
+	*) echo -e "\nError: SANITIZER must be none|thread|address|undefined. Got '${SANITIZER}'. Leaving...\n"; exit 1 ;;
+esac
+if [ "${SANITIZER}" != "none" ]; then
+	echo -e "\nSanitizer '${SANITIZER}' enabled — forcing CUDA and the MPI consumer OFF for this build."
+	SKIPALLCUDA="1"
+	USECUDARNG="0"
+	BUILDMPICONSUMER="0"
+	CUDA_NVCC=""
+	CUDA_ROOT=""
+fi
+
 # Validate CUDA path: if set, the file must exist and be executable.
 if [ -n "${CUDA_NVCC}" ] && [ ! -x "${CUDA_NVCC}" ]; then
 	echo -e "\nWarning: CUDA_NVCC='${CUDA_NVCC}' is set but is not an executable — ignoring."
@@ -372,6 +390,7 @@ if [ "${GENERATE_PRESET}" = "1" ]; then
 	[ -n "${MPIROOT}" ]          && _preset_add "MPI_HOME"               "PATH"   "${MPIROOT}"
 	_preset_add "GENEVA_SKIP_CUDA"              "BOOL"   "${SKIPALLCUDA}"
 	_preset_add "GENEVA_BUILD_WITH_COVERAGE"    "BOOL"   "${WITHCOVERAGE}"
+	_preset_add "GENEVA_SANITIZER"              "STRING" "${SANITIZER}"
 	[ -n "${CUDA_NVCC}" ] && [ "${SKIPALLCUDA}" = "0" ] && _preset_add "CMAKE_CUDA_COMPILER" "FILEPATH" "${CUDA_NVCC}"
 	[ -n "${CUDA_ROOT}" ] && [ "${SKIPALLCUDA}" = "0" ] && _preset_add "CUDAToolkit_ROOT"   "PATH"     "${CUDA_ROOT}"
 	[ -n "${_C_COMPILER}" ]      && _preset_add "CMAKE_C_COMPILER"        "FILEPATH" "${_C_COMPILER}"
@@ -435,6 +454,7 @@ cmake_args+=(
 	"-DGENEVA_USE_CUDA_RNG=${USECUDARNG}"
 	"-DGENEVA_SKIP_CUDA=${SKIPALLCUDA}"
 	"-DGENEVA_BUILD_WITH_COVERAGE=${WITHCOVERAGE}"
+	"-DGENEVA_SANITIZER=${SANITIZER}"
 )
 [ -n "${MPIROOT}" ]          && cmake_args+=("-DMPI_HOME=${MPIROOT}")
 if [ -n "${CUDA_NVCC}" ] && [ "${SKIPALLCUDA}" = "0" ]; then

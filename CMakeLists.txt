@@ -182,6 +182,45 @@ ENDIF ()
 INCLUDE(CommonGenevaBuild)
 
 ###############################################################################
+# Sanitizer support (ThreadSanitizer / AddressSanitizer / UBSan).
+#
+# OFF by default (GENEVA_SANITIZER=none). When enabled it instruments the whole
+# C++ build (compile + every link kind, including the shared libraries). CUDA
+# and MPI are deliberately EXCLUDED: nvcc cannot compile device code with
+# -fsanitize, and MPI internals flood ThreadSanitizer. The caller (prepareBuild.sh)
+# forces GENEVA_SKIP_CUDA=ON and GENEVA_BUILD_WITH_MPI_CONSUMER=OFF when a
+# sanitizer is selected; we hard-fail here if that contract is violated.
+# See prompts/2026-05-30-sanitizer-rollout-plan.md.
+SET(GENEVA_SANITIZER "none" CACHE STRING
+    "Build with a sanitizer: none | thread | address | undefined (default: none)")
+SET_PROPERTY(CACHE GENEVA_SANITIZER PROPERTY STRINGS none thread address undefined)
+
+IF(NOT GENEVA_SANITIZER STREQUAL "none")
+    IF(NOT GENEVA_SANITIZER MATCHES "^(thread|address|undefined)$")
+        MESSAGE(FATAL_ERROR "GENEVA_SANITIZER must be none|thread|address|undefined, got '${GENEVA_SANITIZER}'")
+    ENDIF()
+    IF(NOT GENEVA_SKIP_CUDA)
+        MESSAGE(FATAL_ERROR
+            "GENEVA_SANITIZER=${GENEVA_SANITIZER} requires GENEVA_SKIP_CUDA=ON "
+            "(CUDA device code cannot be built with -fsanitize).")
+    ENDIF()
+    IF(GENEVA_BUILD_WITH_MPI_CONSUMER)
+        MESSAGE(FATAL_ERROR
+            "GENEVA_SANITIZER=${GENEVA_SANITIZER} requires GENEVA_BUILD_WITH_MPI_CONSUMER=OFF "
+            "(MPI is excluded from sanitizing).")
+    ENDIF()
+    SET(_geneva_san "-fsanitize=${GENEVA_SANITIZER} -g -fno-omit-frame-pointer")
+    STRING(APPEND CMAKE_CXX_FLAGS           " ${_geneva_san}")
+    STRING(APPEND CMAKE_C_FLAGS             " ${_geneva_san}")
+    STRING(APPEND CMAKE_EXE_LINKER_FLAGS    " -fsanitize=${GENEVA_SANITIZER}")
+    STRING(APPEND CMAKE_SHARED_LINKER_FLAGS " -fsanitize=${GENEVA_SANITIZER}")
+    STRING(APPEND CMAKE_MODULE_LINKER_FLAGS " -fsanitize=${GENEVA_SANITIZER}")
+    MESSAGE(STATUS "Sanitizer ENABLED: -fsanitize=${GENEVA_SANITIZER} (CUDA + MPI excluded)")
+ELSE()
+    MESSAGE(STATUS "Sanitizer: none (default)")
+ENDIF()
+
+###############################################################################
 # Set the library/package version. Uneven minor numbers denote development
 # versions while even minor numbers stand for production releases.
 #

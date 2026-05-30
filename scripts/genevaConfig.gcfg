@@ -99,6 +99,17 @@ BUILDMPICONSUMER="1"
 # reports. Costs noticeable runtime; leave OFF for production builds.
 WITHCOVERAGE="0"
 
+# Build with a code sanitizer (developer diagnostics). One of:
+#   none       (default) — no sanitizer, normal/production build
+#   thread     — ThreadSanitizer: detects data races
+#   address    — AddressSanitizer: detects memory errors (OOB, use-after-free)
+#   undefined  — UndefinedBehaviorSanitizer
+# When set to anything other than "none", CUDA and the MPI consumer are forced
+# OFF automatically (nvcc cannot compile with -fsanitize; MPI floods TSan), and
+# the whole C++ build is instrumented (much slower, for diagnostics only).
+# See prompts/2026-05-30-sanitizer-rollout-plan.md.
+SANITIZER="none"
+
 # Set to 1 to skip all CUDA compilation entirely — no CUDA examples, no CUDA
 # benchmark, and no CUDA RNG in Hap — even if nvcc is present on the system.
 # All other CUDA settings (CUDA_NVCC, CUDA_ROOT, USECUDARNG) are ignored when
